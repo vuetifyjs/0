@@ -76,7 +76,9 @@ flowchart TD
   createQueue --> first[first item active]
 ```
 
-## Timeout Behavior
+## Options
+
+### Timeout Behavior
 
 The `timeout` option controls how long a ticket stays in the queue before auto-removal:
 
@@ -117,7 +119,7 @@ queue.register({ value: 'Sticky', timeout: -1 })   // must be dismissed
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-queue/context.ts
 /composables/create-queue/UploadProvider.vue
 /composables/create-queue/UploadConsumer.vue

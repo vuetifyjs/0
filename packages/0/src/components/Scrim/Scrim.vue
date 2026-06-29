@@ -81,7 +81,7 @@
   const attrs = useAttrs()
   const stack = useStack()
 
-  const tickets = computed(() => Array.from(stack.selectedItems.value))
+  const tickets = computed(() => Array.from(stack.selectedItems.value).filter(ticket => ticket.scrim !== false))
 
   function onDismiss (ticket: StackTicket) {
     if (!ticket.blocking) {

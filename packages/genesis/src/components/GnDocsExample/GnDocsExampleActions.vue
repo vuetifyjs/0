@@ -28,26 +28,4 @@
     align-items: center;
     gap: 0.25rem;
   }
-
-  .genesis-docs-example-actions :deep(button) {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 32px;
-    height: 32px;
-    padding: 0 0.5rem;
-    background: transparent;
-    color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
-    border: none;
-    border-radius: 0.25rem;
-    font: inherit;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: background-color 0.15s, color 0.15s;
-  }
-
-  .genesis-docs-example-actions :deep(button:hover) {
-    background: color-mix(in srgb, var(--v0-on-surface, #1a1c1e) 8%, transparent);
-    color: var(--v0-on-surface, #1a1c1e);
-  }
 </style>

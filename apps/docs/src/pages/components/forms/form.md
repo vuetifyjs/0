@@ -27,18 +27,13 @@ A form wrapper that coordinates validation across child input fields and handles
 
 Wrap your inputs in `<Form>`. Native `<button type="submit">` and `<button type="reset">` work as expected.
 
-::: example
+::: gn-example
 /components/form/basic
-
-### Form with Validation
-
-Email and password fields with validation rules, submit/reset buttons, and success feedback on completion.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Form, Input } from '@vuetify/v0'
 </script>
@@ -80,6 +75,28 @@ function onSubmit ({ valid }: { valid: boolean }) {
   // handle submission
 }
 ```
+
+## Examples
+
+::: gn-example
+/components/form/useSignup.ts 1
+/components/form/SignupForm.vue 2
+/components/form/signup-form.vue 3
+
+### Account Sign-Up
+
+A complete account registration form that shows how `Form` coordinates validation across several `Input.Root` fields and reports a single aggregate result. The form gathers name, email, password, and a confirmation, validates each field on blur, and only commits when every child validation passes.
+
+The interesting part is cross-field validation. The confirmation field's rule compares its value against the live `password` model rather than a static value, so changing the password re-evaluates whether the two still match. Because `Form`'s `@submit` event is pass-through — it fires on every native submit regardless of validity — the handler guards on `payload.valid` before doing any work, then simulates a server-side duplicate-account check that surfaces through the email field's `error` / `error-messages` props. The composable owns the field state and the submitted/server-error flags, so the entry component can swap the form for a success panel without the form needing to know about it.
+
+Reach for this pattern whenever a form is more than a single field: extract the state and submit logic into a `use*` composable, keep the markup in a reusable component, and let the entry wire them together. For the underlying validation primitives, see [createForm](/composables/forms/create-form) and [createValidation](/composables/forms/create-validation); for individual field anatomy, see [Input](/components/forms/input).
+
+| File | Role |
+|------|------|
+| `useSignup.ts` | Composable — field state, submit/reset logic, simulated server error |
+| `SignupForm.vue` | Reusable component — renders the `Form` with four validated `Input.Root` fields and a cross-field match rule |
+| `signup-form.vue` | Entry — wires the composable to the form and swaps in a success panel on submit |
+:::
 
 ## Recipes
 

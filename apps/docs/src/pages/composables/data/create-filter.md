@@ -71,6 +71,18 @@ const { items: filtered } = filter.apply(query, products)
 
 Returns the standard trinity `[useSearchFilter, provideSearchFilter, searchFilter]`. The third element gives standalone access without injection — useful for testing and server-side use.
 
+## Architecture
+
+`createFilter` provides pure filtering logic with context support:
+
+```mermaid "Filter Flow"
+flowchart LR
+  query[query ref] --> apply
+  items[items ref] --> apply
+  filter[createFilter]:::primary --> apply
+  apply --> computed[filtered items]
+```
+
 ## Options
 
 | Option | Type | Default | Notes |
@@ -93,29 +105,7 @@ const filter = createFilter({
 })
 ```
 
-## Architecture
-
-`createFilter` provides pure filtering logic with context support:
-
-```mermaid "Filter Flow"
-flowchart LR
-  query[query ref] --> apply
-  items[items ref] --> apply
-  filter[createFilter]:::primary --> apply
-  apply --> computed[filtered items]
-```
-
-## Reactivity
-
-| Property/Method | Reactive | Notes |
-| - | :-: | - |
-| `query` | <AppSuccessIcon /> | ShallowRef, updated on each `apply()` |
-| `items` (from apply) | <AppSuccessIcon /> | Computed, filters reactively |
-
-> [!TIP] Reactive filtering
-> Both the query and items passed to `apply()` can be reactive. The filtered result automatically updates when either changes.
-
-## Filter Modes
+### Filter Modes
 
 When the query is an array, each mode controls how multiple queries are matched against item values:
 
@@ -129,15 +119,36 @@ When the query is an array, each mode controls how multiple queries are matched 
 > [!TIP] some vs union
 > `some` and `union` both pass when any query matches, but `some` checks each value independently while `union` joins all values into a single string. The difference matters when a match spans multiple fields.
 
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `query` | <AppSuccessIcon /> | ShallowRef, updated on each `apply()` |
+| `items` (from apply) | <AppSuccessIcon /> | Computed, filters reactively |
+
+> [!TIP] Reactive filtering
+> Both the query and items passed to `apply()` can be reactive. The filtered result automatically updates when either changes.
+
 ## Examples
 
-::: example
-/composables/create-filter/live-search
+::: gn-example
+/composables/create-filter/useProductFilter.ts 1
+/composables/create-filter/ProductBrowser.vue 2
+/composables/create-filter/product-browser.vue 3
 
-### Live Search with Highlighting
+### Faceted Product Search
 
-Filter a list of cities by typing a name or country. Matching text is highlighted in the results.
+A product catalog filtered by two independent facets at once: a free-text search box and a set of category chips. The composable owns a dozen products plus the live query, match-mode, and selected-category state, then chains two `createFilter` instances so the visible list — and the match count beside it — stay in sync without a single hand-written watcher.
 
+The text facet shows the `mode` option doing real work. Two filters are built over `keys: ['name', 'description']`, one in `union` mode and one in `intersection` mode, and a `toRef` picks whichever matches the active toggle. Splitting the query on whitespace turns multi-word input into an array, so "Any word" (`union`) matches products containing any term while "All words" (`intersection`) requires every term to appear somewhere across the searched fields. The category facet is a third `createFilter` in `union` mode, applied to the *output* of the text filter — `apply` accepts a getter, so feeding one filter's `items` into the next composes the two passes into a single reactive computed.
+
+Reach for this pattern whenever you have a fixed in-memory dataset and want instant, multi-criteria filtering with no backend round-trip. Because every `apply` result is a `computed`, the count is just `results.length` and clearing all facets is a plain state reset. When the dataset outgrows memory, move filtering server-side with [createDataTable](/composables/data/create-data-table); to page or windowing the results, pair it with [createPagination](/composables/data/create-pagination) or [createVirtual](/composables/data/create-virtual).
+
+| File | Role |
+|------|------|
+| `useProductFilter.ts` | Owns the product data, query/mode/category state, and chains the createFilter passes into a single results computed |
+| `ProductBrowser.vue` | Renders the search box, mode toggle, category chips, count, and results list bound to the composable |
+| `product-browser.vue` | Entry point — instantiates the composable and wires its state into the browser component |
 :::
 
 <DocsApi />

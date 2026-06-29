@@ -25,50 +25,24 @@ Headless slider for single-value and range inputs with pointer drag, keyboard na
 
 The Slider supports single-value and range modes. Add one `Slider.Thumb` for a single value, or two for a range.
 
-::: example
+::: gn-example
 /components/slider/basic
-
-### Single and Range Slider
-
-A single-value slider and a range slider with track and thumb components.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Slider } from '@vuetify/v0'
 </script>
 
 <template>
-  <!-- Single thumb -->
   <Slider.Root>
     <Slider.Track>
       <Slider.Range />
     </Slider.Track>
 
     <Slider.Thumb />
-  </Slider.Root>
-
-  <!-- Range (two thumbs) -->
-  <Slider.Root>
-    <Slider.Track>
-      <Slider.Range />
-    </Slider.Track>
-
-    <Slider.Thumb />
-    <Slider.Thumb />
-  </Slider.Root>
-
-  <!-- With form submission -->
-  <Slider.Root>
-    <Slider.Track>
-      <Slider.Range />
-    </Slider.Track>
-
-    <Slider.Thumb />
-
     <Slider.HiddenInput />
   </Slider.Root>
 </template>
@@ -100,7 +74,7 @@ The Root creates a slider instance and provides it via context. Track listens fo
 
 ## Examples
 
-::: example
+::: gn-example
 /components/slider/useEqualizer.ts 1
 /components/slider/Equalizer.vue 2
 /components/slider/equalizer.vue 3
@@ -125,7 +99,7 @@ Multiple vertical sliders composed into a 5-band equalizer with preset managemen
 
 :::
 
-::: example
+::: gn-example
 /components/slider/ColorSlider.vue 1
 /components/slider/ColorPicker.vue 2
 /components/slider/color-picker.vue 3

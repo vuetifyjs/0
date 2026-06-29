@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/zero",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.3",
   "private": true,
   "type": "module",
   "scripts": {
@@ -23,6 +23,7 @@
     "test:bench:json": "vitest bench --run --outputJson apps/docs/public/benchmarks.json",
     "bench": "vitest --reporter=default bench",
     "metrics": "pnpm test:coverage && pnpm test:bench:json && node scripts/generate-metrics.js",
+    "skill": "node scripts/generate-skill.ts",
     "typecheck": "pnpm --filter=\"./packages/*\" typecheck",
     "typecheck:0": "pnpm --filter=\"./packages/0\" typecheck",
     "typecheck:paper": "pnpm --filter=\"./packages/paper\" typecheck",
@@ -36,26 +37,23 @@
     "repo:sherif": "sherif",
     "repo:check": "pnpm repo:knip && pnpm repo:sherif",
     "validate": "pnpm lint && pnpm typecheck && pnpm test:run",
-    "release": "bumpp",
+    "changeset": "changeset",
+    "release": "pnpm build && changeset publish",
     "release:prepare": "pnpm validate && pnpm build",
-    "release:patch": "bumpp patch",
-    "release:minor": "bumpp minor",
-    "release:major": "bumpp major",
-    "postinstall": "tsx apps/docs/build/generate-api-whitelist.ts && node scripts/init-dev.js",
+    "postinstall": "node apps/docs/build/generate-api-whitelist.ts && node scripts/init-dev.js",
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
     "pre-push": "pnpm lint:fix && pnpm typecheck && pnpm test:run && pnpm repo:check"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "catalog:",
+    "@changesets/cli": "catalog:",
     "@js-temporal/polyfill": "catalog:",
     "@tsconfig/node24": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vue/tsconfig": "catalog:",
-    "@vuetify/github-releaser": "catalog:",
-    "bumpp": "catalog:",
-    "conventional-changelog-vuetify": "catalog:",
     "eslint": "catalog:",
     "eslint-config-vuetify": "catalog:",
     "eslint-plugin-vuejs-accessibility": "catalog:",
@@ -64,7 +62,6 @@
     "pkg-pr-new": "catalog:",
     "sherif": "catalog:",
     "simple-git-hooks": "catalog:",
-    "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"

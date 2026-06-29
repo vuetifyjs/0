@@ -26,18 +26,13 @@ Headless rating input with hover preview, keyboard navigation, and half-step sup
 
 Rating supports whole and half-star modes. Items expose their state via data attributes for CSS-only styling.
 
-::: example
+::: gn-example
 /components/rating/basic
-
-### Star Rating
-
-A 5-star rating with hover preview and filled/empty star display.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Rating } from '@vuetify/v0'
 </script>
@@ -45,7 +40,6 @@ A 5-star rating with hover preview and filled/empty star display.
 <template>
   <Rating.Root>
     <Rating.Item />
-
     <Rating.HiddenInput />
   </Rating.Root>
 </template>
@@ -53,20 +47,24 @@ A 5-star rating with hover preview and filled/empty star display.
 
 ## Examples
 
-::: example
-/components/rating/basic
+::: gn-example
+/components/rating/useReview.ts 1
+/components/rating/ReviewForm.vue 2
+/components/rating/review-form.vue 3
 
-### Basic
+### Product review form
 
-Click a star to set the rating. Hover to preview. Keyboard: Arrow keys to adjust, Home for 0, End for max.
-:::
+A "leave a review" widget that pairs a half-star `Rating.Root` with a validated comment field inside a single [Form](/components/forms/form). The rating runs in `renderless` mode, so the slot `attrs` (which carry `role="slider"` plus the `aria-value*` and keyboard bundle) bind to your own wrapper element, and each `Rating.Item` renders a star from its `state` slot prop — layering a clipped filled star over an outline for the `"half"` state. The `half` prop unlocks 0.5-step precision, and a live label translates the hovered or committed value ("Good", "Excellent") so the reader always sees what they are about to submit.
 
-::: example
-/components/rating/half-stars
+Form submission is where the two controls diverge. The comment is an [Input](/components/forms/input) field, so it auto-registers with the `Form` validation registry and the `@submit` payload's `valid` flag already reflects its rules. The rating is not a validation field, so it cannot ride that flag — the component keeps a local `starsError` and only forwards a successful submit when both the Form is valid and a rating was chosen. The `name="review-rating"` prop on `Rating.Root` auto-renders the hidden input, so the star value posts with the form without ever placing a `Rating.HiddenInput` by hand.
 
-### Half Stars
+Reach for this triad when a rating is one part of a larger form rather than a standalone control: the composable owns the submitted-review state and reset, the reusable component owns the v0 surface and styling, and the entry wires them together with a summary panel. The trade-off is the manual rating-required guard — acceptable here because mixing a slider-style control with text validation in one submit is a common real-world shape. Related: [createRating](/composables/forms/create-rating), [Slider](/components/forms/slider).
 
-Enable `half` prop for 0.5-step precision. Hover over the left or right half of a star to preview half values.
+| File | Role |
+|------|------|
+| `useReview.ts` | Owns the review state (`stars`, `comment`, `submitted`) plus submit/reset behavior |
+| `ReviewForm.vue` | Renders the Rating + Input inside a Form and guards the rating-required rule |
+| `review-form.vue` | Wires the composable to the form and shows the submitted-review summary |
 :::
 
 ## Accessibility

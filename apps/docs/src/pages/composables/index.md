@@ -14,7 +14,7 @@ related:
 
 # Composables
 
-Type-safe composables for headless UI. Components wrap these composables—you can use either approach.
+Type-safe composables for headless UI — <DocsCount type="composable" /> of them. Components wrap these composables—you can use either approach.
 
 <DocsPageFeatures :frontmatter />
 
@@ -299,6 +299,7 @@ Application-level features installable via Vue plugins.
 | [useLogger](/composables/plugins/use-logger) | Logging system with multiple adapters |
 | [useNotifications](/composables/plugins/use-notifications) | Notification lifecycle with toast queue and service adapter integration |
 | [usePermissions](/composables/plugins/use-permissions) | Role-based access control |
+| [useReducedMotion](/composables/plugins/use-reduced-motion) | Respect or override the prefers-reduced-motion media query |
 | [useRtl](/composables/plugins/use-rtl) | Reactive RTL text direction with dir attribute management |
 | [useRules](/composables/plugins/use-rules) | Validation rule aliases with locale-aware messages |
 | [useStack](/composables/plugins/use-stack) | Overlay z-index stacking with automatic calculation and scrim integration |

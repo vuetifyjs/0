@@ -48,8 +48,10 @@ These features require the latest browser versions and may not work in all brows
 | [CSS Anchor Positioning](https://caniuse.com/css-anchor-positioning) | 125+ | 147+ | —[^safari-anchor] | 125+ | Properties ignored |
 | [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) | 114+ | 125+ | 17+ | 114+ | Optional chaining |
 | [Scrollend Event](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event) | 112+ | 109+ | 18+ | 112+ | Falls back to scroll |
+| [Temporal](https://caniuse.com/temporal) | 144+ | 139+ | —[^safari-temporal] | 144+ | `@js-temporal/polyfill` |
 
 [^safari-anchor]: Safari support for CSS Anchor Positioning is not yet available; track at [WebKit Bug 286106](https://bugs.webkit.org/show_bug.cgi?id=286106). Firefox 147+ requires the beta channel.
+[^safari-temporal]: Temporal is not yet in stable Safari (available in Safari Technology Preview). `useDate`'s `V0DateAdapter` automatically uses the [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) peer when native Temporal is absent. The API reached TC39 Stage 4 (ES2026) in 2026.
 
 ### Well-Supported Features
 
@@ -161,6 +163,7 @@ Vuetify0 does not include polyfills to keep bundle sizes small. If you need to s
 - **ResizeObserver**: [resize-observer-polyfill](https://www.npmjs.com/package/resize-observer-polyfill) · [caniuse](https://caniuse.com/resizeobserver)
 - **IntersectionObserver**: [intersection-observer](https://www.npmjs.com/package/intersection-observer) · [caniuse](https://caniuse.com/intersectionobserver)
 - **Dialog**: [dialog-polyfill](https://www.npmjs.com/package/dialog-polyfill) · [caniuse](https://caniuse.com/dialog)
+- **Temporal**: [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) · [caniuse](https://caniuse.com/temporal) — optional peer used by `useDate`'s `V0DateAdapter` when native Temporal is unavailable
 
 ## Testing Your Browser
 

@@ -118,6 +118,17 @@ pnpm build            # Build packages
 4. Run `pnpm typecheck` to check types
 5. Run `pnpm test:run` to verify tests pass
 6. Write tests for new functionality
+7. Run `pnpm changeset` if you changed `packages/*` source (see [Changesets](#changesets))
+
+### Changesets
+
+Releases are managed with [Changesets](https://github.com/changesets/changesets). If your PR changes published source under `packages/*`, add a changeset so the change lands in the next release's version bump and changelog:
+
+```bash
+pnpm changeset
+```
+
+Pick the affected package(s), a bump type (`patch`/`minor`/`major`), and a short summary, then commit the generated `.changeset/*.md` alongside your code. `@vuetify/v0` and `@vuetify/paper` version in lockstep — selecting `@vuetify/v0` carries `@vuetify/paper` automatically; the `@paper/*` design systems version separately. Docs-only, chore, refactor, or CI PRs don't need one. A bot comments on every PR to remind you.
 
 ### PR Guidelines
 

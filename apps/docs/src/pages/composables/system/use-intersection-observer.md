@@ -98,12 +98,16 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-intersection-observer/scroll-reveal
 
 ### Scroll Reveal with Visibility Percentage
 
-Cards that fade in and slide up with a staggered delay as they scroll into view, with a progress bar showing each card's visibility percentage.
+Six cards that fade in and slide up with a staggered CSS delay as they scroll into view inside a fixed-height scroll container, each card showing a live visibility percentage progress bar.
+
+The example creates one `useIntersectionObserver` instance per card inside `onMounted`, passing the scoped `root` element as the IntersectionObserver root so intersection is measured relative to the container rather than the browser viewport. A 21-stop threshold array (`Array.from({ length: 21 }, (_, i) => i / 20)`) fires the callback at every 5% increment, which is how `ratios` stays continuously updated for the smooth progress bar animation. Cards are permanently revealed — added to a `Set` — once they cross 30% visibility; the `Set` is stored in a `shallowRef` and replaced with a new `Set` on each update to trigger Vue's shallow-change detection.
+
+Staggered entrance is achieved entirely in CSS with `transitionDelay: ${index * 75}ms` — no JavaScript timers. The composable does the detection work; CSS handles the choreography. Reach for this pattern for entrance animations, ad viewability tracking, or any scroll-triggered effect that needs per-element granularity. For a simpler "has it ever been visible" gate, combine with `{ once: true }` to disconnect the observer after first intersection and avoid ongoing callback overhead — see [useImage](/composables/system/use-image) for an example of that pattern.
 
 :::
 

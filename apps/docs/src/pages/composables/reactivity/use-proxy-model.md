@@ -125,12 +125,14 @@ flowchart LR
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-proxy-model/color-picker
 
 ### Color Picker
 
-A color swatch selector wired to a `v-model`-style ref via `useProxyModel`, keeping selection state and external model in sync bidirectionally.
+A color swatch selector that wires a plain `shallowRef<string>` to a `createSelection` instance via `useProxyModel`, demonstrating the bidirectional sync the composable provides. The six color swatches are bulk-registered with `onboard()` and rendered by iterating `selection.values()` — each ticket carries `isSelected` and `select()` so the template never touches the ref directly. A second set of buttons writes to `selected` from the outside, which `useProxyModel` detects and calls `browse()` on the selection to match. The debug panel displays both the ref value and `selection.selectedValues` simultaneously so you can confirm both sides stay in lock-step regardless of which triggers the change.
+
+Reach for `useProxyModel` when you need to expose a selection context through a `v-model` prop — for example, a wrapper component that consumes a parent's `defineModel()` while internally using `createSelection` for multi-item management. The composable returns a `stop()` function for early cleanup; in a component, Vue's scope disposal handles this automatically via `onScopeDispose`. For multi-select v-model sync, pass `{ multiple: true }` and use a `ref<string[]>` — the single-value path shown here applies to radio-style exclusive choices.
 
 :::
 

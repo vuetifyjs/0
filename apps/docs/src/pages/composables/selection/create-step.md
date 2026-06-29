@@ -114,13 +114,24 @@ Step navigation state is **always reactive**. Use `selectedIndex` to derive disa
 
 ## Examples
 
-::: example
-/composables/create-step/stepper
+::: gn-example
+/composables/create-step/useCheckout.ts 1
+/composables/create-step/CheckoutWizard.vue 2
+/composables/create-step/checkout-wizard.vue 3
 
-### Multi-Step Stepper
+### Multi-Step Checkout Wizard
 
-Numbered steps with a progress bar, clickable navigation, and a disabled step that auto-skips.
+A five-step checkout flow that puts the whole navigation contract in one composable and keeps the markup purely presentational. `useCheckout` registers the steps with `onboard`, calls `first()` to land on Cart, and then derives everything the UI needs from `selectedIndex` and `selectedValue` — `current` for the active panel, `isFirst` and `isLast` for the button guards, and a `progress` percentage for the connecting line. Because each derivation is a `toRef`, the view updates with no extra state to keep in sync.
 
+The Gift wrap step is registered with `disabled: true`, so `next()` and `prev()` step right over it with no manual guard in the template; `step(count)` does the boundary math and skips disabled tickets automatically. The composable also projects the tickets into a `rows` view-model that tags each step as done, active, upcoming, or off, which is the only thing the wizard component reads to style its circles. Clicking a circle calls `select(id)` for non-linear jumps, and `select` is a no-op on a disabled ticket, so the skipped step stays unreachable from every entry point.
+
+This is the composable-only shape: `useCheckout` owns the state and exposes a flat object of refs and methods, `CheckoutWizard` renders the v0 `Button` surface against that object, and the entry wires them together. Switch the instance to `createStep({ circular: true })` and `next()`/`prev()` wrap at the ends instead of clamping — the carousel behavior. The Prev/Next buttons won't wrap on their own, though: `isFirst`/`isLast` are derived from the index alone (`0` and `size - 1`), so their `:disabled` guards stay true at the boundaries regardless of `circular`. To let the buttons wrap too, drop the `isFirst`/`isLast` guards in circular mode — gate them on a non-circular flag instead. For single selection without navigation methods, reach for [createSingle](/composables/selection/create-single); for the provided component version, see [Step](/components/providers/step).
+
+| File | Role |
+|------|------|
+| `useCheckout.ts` | Owns the `createStep` instance, registers steps, and derives index, current, progress, and the row view-model |
+| `CheckoutWizard.vue` | Renders the progress track, step circles, active panel, and navigation buttons from the composable |
+| `checkout-wizard.vue` | Entry point that instantiates the composable and shows the live step and progress readout |
 :::
 
 <DocsApi />

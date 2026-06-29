@@ -13,6 +13,9 @@
   // Utilities
   import { shallowRef, toRef, useSlots } from 'vue'
 
+  // Context
+  import GnPeek from '../GnPeek/GnPeek.vue'
+
   defineOptions({ name: 'GnDocsExampleDescription' })
 
   const {
@@ -33,10 +36,6 @@
   // when absent — gating truncation on it would make long prose never collapse.
   const truncated = toRef(() => !expanded.value && hasContent.value)
   const maxHeight = shallowRef('4.5rem')
-
-  function onToggle () {
-    expanded.value = !expanded.value
-  }
 </script>
 
 <template>
@@ -71,22 +70,26 @@
 
     <div v-if="truncated" aria-hidden="true" class="genesis-docs-example-description__fade" />
 
-    <button
+    <GnPeek
       v-if="hasContent"
-      :aria-expanded="expanded ? 'true' : 'false'"
-      :aria-label="expanded ? 'Collapse description' : 'Expand description'"
-      class="genesis-docs-example-description__toggle"
-      type="button"
-      @click="onToggle"
+      v-slot="{ expanded: open }"
+      v-model:expanded="expanded"
+      collapsed-label="Expand description"
+      expanded-label="Collapse description"
     >
-      {{ expanded ? 'Collapse' : 'Expand' }}
-    </button>
+      {{ open ? 'Collapse' : 'Expand' }}
+    </GnPeek>
   </div>
 </template>
 
 <style scoped>
   .genesis-docs-example-description {
     position: relative;
+    /* The expand pill overflows below the description onto the preview. A
+       consumer glass treatment (backdrop-filter) turns the description into a
+       stacking context that would otherwise trap the pill behind the following
+       preview, so lift it above. */
+    z-index: 2;
     padding: 1rem 1.25rem 0;
     border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     background: var(--v0-surface-tint, var(--v0-surface, #f5f5f8));
@@ -142,26 +145,5 @@
     height: 3rem;
     pointer-events: none;
     background: linear-gradient(transparent, var(--v0-surface-tint, var(--v0-surface, #f5f5f8)));
-  }
-
-  .genesis-docs-example-description__toggle {
-    position: absolute;
-    inset-inline-end: 0.75rem;
-    top: 0.75rem;
-    z-index: 1;
-    padding: 0.25rem 0.5rem;
-    border: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
-    border-radius: 0.25rem;
-    background: transparent;
-    color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
-    font: inherit;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: background-color 0.15s, border-color 0.15s;
-  }
-
-  .genesis-docs-example-description__toggle:hover {
-    background: color-mix(in srgb, var(--v0-on-surface-variant, rgb(0 0 0 / 0.6)) 6%, transparent);
-    border-color: color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
   }
 </style>

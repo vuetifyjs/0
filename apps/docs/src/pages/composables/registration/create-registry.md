@@ -136,7 +136,7 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-registry/context.ts
 /composables/create-registry/TaskProvider.vue
 /composables/create-registry/TaskConsumer.vue

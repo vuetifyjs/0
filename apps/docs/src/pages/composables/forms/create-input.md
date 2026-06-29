@@ -72,6 +72,28 @@ graph TD
     D --> J[descriptionId / errorId]
 ```
 
+### Generic Types
+
+createInput is generic over the value type:
+
+```ts no-filename
+// String (default) — for text inputs
+createInput({ value: ref('') })
+
+// Number | null — for numeric inputs
+createInput<number | null>({
+  value: ref<number | null>(null),
+  dirty: v => v !== null,
+  equals: (a, b) => Object.is(a, b),
+})
+
+// ID | ID[] — for select inputs
+createInput<ID | ID[]>({
+  value: ref<ID[]>([]),
+  dirty: v => Array.isArray(v) ? v.length > 0 : v != null,
+})
+```
+
 ## Reactivity
 
 | Property | Type | Description |
@@ -96,37 +118,26 @@ graph TD
 > [!TIP]
 > `isDirty` and `isPristine` are not inverses. A pre-filled form field is dirty AND pristine. A cleared field is not-dirty AND not-pristine.
 
-## Generic Types
-
-createInput is generic over the value type:
-
-```ts no-filename
-// String (default) — for text inputs
-createInput({ value: ref('') })
-
-// Number | null — for numeric inputs
-createInput<number | null>({
-  value: ref<number | null>(null),
-  dirty: v => v !== null,
-  equals: (a, b) => Object.is(a, b),
-})
-
-// ID | ID[] — for select inputs
-createInput<ID | ID[]>({
-  value: ref<ID[]>([]),
-  dirty: v => Array.isArray(v) ? v.length > 0 : v != null,
-})
-```
-
 ## Examples
 
-::: example
-/composables/create-input/basic
+::: gn-example
+/composables/create-input/useProfile.ts 1
+/composables/create-input/TextField.vue 2
+/composables/create-input/profile-form.vue 3
 
-### Text Field with State Tracking
+### Build Your Own Text Field
 
-A minimal text field built on `createInput`, showing all six reactive field states — `isDirty`, `isPristine`, `isTouched`, `isFocused`, `isValid`, and `state` — updating live as you type, focus, and blur.
+A reusable `TextField` component built on `createInput`, then dropped into a profile form twice. Each instance calls `createInput` in its own setup, so the two fields track validation, dirty, pristine, touched, and focused state completely independently — the composable carries no shared module state. `createInput` deliberately binds no DOM events, so `TextField` wires `onFocus` and `onBlur` itself: focus flips `isFocused`, blur sets `isTouched` and calls `validate()`. That keeps the "when do I validate" policy in the component where it belongs.
 
+The reusable field also wires the accessibility surface `createInput` hands it: `aria-describedby` points at `input.errorId` while there are errors and falls back to `input.descriptionId` for the hint, and `aria-invalid` mirrors `isValid === false`. Both IDs are generated once and stable across re-renders. The compact flag row underneath makes the field-state model concrete — note that `dirty` and `pristine` are independent, so a pre-filled field reads as both at once while a cleared field reads as neither. `TextField` exposes `validate`, `reset`, and `isValid` via `defineExpose`, which lets the entry coordinate the whole form: submit validates every field through its template ref before saving, and reset restores each field's initial value and clears its validation.
+
+Reach for this pattern when you want full control over a field's markup and styling but do not want to re-implement validation, state tracking, and ARIA wiring by hand. If you only need rule evaluation without the field-state layer, use [createValidation](/composables/forms/create-validation) directly; if the value is numeric, [createNumberField](/composables/forms/create-number-field) adds Intl formatting and min/max/step on top; and if you would rather not build the shell at all, the [Input](/components/forms/input) component packages this exact composable into a ready-made compound surface.
+
+| File | Role |
+|------|------|
+| `useProfile.ts` | Owns the demo state (name, email, saved) and the per-field validation rules |
+| `TextField.vue` | Reusable field built on createInput — wires focus/blur, ARIA, and reset |
+| `profile-form.vue` | Entry that renders two fields and coordinates submit/reset via template refs |
 :::
 
 ::: faq

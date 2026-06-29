@@ -38,18 +38,13 @@ The two core props are `size` (total item count) and `items-per-page` (items per
 </template>
 ```
 
-::: example
+::: gn-example
 /components/pagination/basic
-
-### Pagination Controls
-
-First, prev, next, and last buttons with ellipsis support across 200 items.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Pagination } from '@vuetify/v0'
 </script>
@@ -57,17 +52,11 @@ First, prev, next, and last buttons with ellipsis support across 200 items.
 <template>
   <Pagination.Root>
     <Pagination.Status />
-
     <Pagination.First />
-
     <Pagination.Prev />
-
     <Pagination.Ellipsis />
-
     <Pagination.Item />
-
     <Pagination.Next />
-
     <Pagination.Last />
   </Pagination.Root>
 </template>
@@ -80,7 +69,7 @@ First, prev, next, and last buttons with ellipsis support across 200 items.
 
 The Pagination component renders semantic HTML and manages ARIA attributes automatically:
 
-- Wraps controls in a `<nav>` element with `aria-label="pagination"` for landmark navigation
+- Wraps controls in a `<nav>` element whose `aria-label` defaults to `"Pagination"` (localizable via the `Pagination.label` key) for landmark navigation
 - Current page button is marked with `aria-current="page"` so screen readers announce it as the active page
 - Arrow keys navigate between page buttons; Enter and Space select the focused page
 - Page changes are announced to screen readers via `aria-live` region updates

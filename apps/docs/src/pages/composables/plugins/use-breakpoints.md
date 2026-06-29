@@ -128,16 +128,29 @@ Breakpoints are **range-based**, not exact pixel matches. The `name` is the **hi
 
 ## Examples
 
-::: example
-/composables/use-breakpoints/responsive-layout
+::: gn-example
+/composables/use-breakpoints/useDashboard.ts 1
+/composables/use-breakpoints/DashboardGrid.vue 2
+/composables/use-breakpoints/responsive-dashboard.vue 3
 
-### Responsive Layout Detection
+### Responsive Dashboard Layout
 
-Live viewport dimensions, active breakpoint name, and mobile/desktop flags — confirms JS and CSS breakpoints align.
+This example wires `useBreakpoints` into a live analytics dashboard whose card grid reflows as the viewport changes — one column on phones, scaling up to four columns on wide screens. The instrument strip above the grid reads the reactive `name`, `width`, `height`, and `isMobile` values directly, while the row of chips lights up the active per-breakpoint flag (`xs` through `xxl`). Everything updates automatically as you resize or zoom, with no manual listeners.
 
+The teaching point is making layout decisions in JavaScript. `useDashboard.ts` maps the active breakpoint name to a column count, so the component renders a different structure per breakpoint rather than relying solely on CSS `@media` rules. Reach for this when a layout choice can't be expressed in CSS alone — picking a column count, swapping a menu for a dialog, virtualizing only on small screens, or conditionally mounting an expensive widget. Because detection runs through `window.matchMedia`, the JS flags fire at exactly the same boundaries as your CSS breakpoints, even under browser zoom.
+
+The composable reads its instance once and exposes derived refs; the presentational `DashboardGrid.vue` translates the column count into a grid class, keeping breakpoint logic out of the markup. The plugin must be installed for reactive updates (see Installation above), and for server rendering pass `ssr` dimensions so the first paint matches the client. For a lower-level, CSS-only signal without named breakpoints, see [useMediaQuery](/composables/system/use-media-query).
+
+| File | Role |
+|------|------|
+| `useDashboard.ts` | Consumes `useBreakpoints`, owns the widget data, and derives the column count plus the active-flag map |
+| `DashboardGrid.vue` | Presentational grid that reflows its columns from the derived count |
+| `responsive-dashboard.vue` | Entry that renders the breakpoint instrument strip and wires the composable to the grid |
 :::
 
-## SSR Support
+## Recipes
+
+### SSR Support
 
 By default, useBreakpoints returns `xs` / width `0` on the server. Pass `ssr` options to render at a known viewport size:
 

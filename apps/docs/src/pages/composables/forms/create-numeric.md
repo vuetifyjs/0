@@ -71,12 +71,16 @@ createNumeric is a pure function factory — it returns plain functions, not rea
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-numeric/basic
 
 ### Bounded Stepper
 
-Increment/decrement buttons with `canUp`/`canDown` guards and a percentage display, showing how `createNumeric` handles boundary enforcement and value-to-percent conversion.
+A counter (0–100, step 5) wired to `createNumeric` with boundary guards and a live percentage readout. Because `createNumeric` returns plain functions rather than reactive refs, the example keeps its own `shallowRef<number>` for the current value and calls `numeric.up(value)` / `numeric.down(value)` on click — each returns the next snapped value and the template re-renders automatically when `value` changes.
+
+`canDown` and `canUp` return `false` at the boundaries (0 and 100), which the `:disabled` bindings map directly to button state. The `fromValue(value)` call converts the current value to a 0–100 percentage for the display below the counter, demonstrating that `createNumeric` is equally useful for display derivation, not just mutations.
+
+This composable has no opinions about where the value lives — the same `numeric` instance could serve multiple independent counters simultaneously. Reach for [createSlider](/composables/forms/create-slider) when you need registered thumbs, percentage-to-value conversion from pointer events, and reactive `values`; use [createNumberField](/composables/forms/create-number-field) when you need Intl formatting and field validation on top of the same math.
 
 :::
 

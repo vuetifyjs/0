@@ -24,46 +24,26 @@ A switch for on/off state or multi-selection groups with tri-state support.
 
 ## Usage
 
-::: example
+::: gn-example
 /components/switch/basic
-
-### Basic Switch
-
-A standalone boolean switch with label and slide animation.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Switch } from '@vuetify/v0'
 </script>
 
 <template>
-  <!-- Standalone -->
   <Switch.Root>
     <Switch.Track>
       <Switch.Thumb />
     </Switch.Track>
+
+    <Switch.HiddenInput />
   </Switch.Root>
 
-  <!-- Group -->
-  <Switch.Group>
-    <Switch.Root>
-      <Switch.Track>
-        <Switch.Thumb />
-      </Switch.Track>
-    </Switch.Root>
-
-    <Switch.Root>
-      <Switch.Track>
-        <Switch.Thumb />
-      </Switch.Track>
-    </Switch.Root>
-  </Switch.Group>
-
-  <!-- Group with Select All -->
   <Switch.Group>
     <Switch.SelectAll>
       <Switch.Track>
@@ -77,43 +57,30 @@ A standalone boolean switch with label and slide animation.
       </Switch.Track>
     </Switch.Root>
   </Switch.Group>
-
-  <!-- With form submission -->
-  <Switch.Root>
-    <Switch.Track>
-      <Switch.Thumb />
-    </Switch.Track>
-
-    <Switch.HiddenInput />
-  </Switch.Root>
 </template>
 ```
 
 ## Examples
 
-::: example
-/components/switch/group
+::: gn-example
+/components/switch/useSettings.ts 1
+/components/switch/SettingsPanel.vue 2
+/components/switch/settings-panel.vue 3
 
-### Switch Group
+### App Settings Panel
 
-Multi-select switch group managing an array of connectivity options (WiFi, Bluetooth, Location).
+A notification preferences panel that groups four independent switches under a master "Enable all" lever and submits the result through a `Form`. Each `Switch.Root` carries a `name` prop, so v0 auto-renders a hidden native input and the toggled values participate in `FormData` — there is no `Switch.HiddenInput` to place by hand. The panel pairs each switch with a label and a line of helper text, and a summary line below echoes the saved selection.
 
+The interesting piece is the master toggle. `Switch.SelectAll` is not a group item — it never registers a value into the array v-model. Instead it reads the group's aggregate `isAllSelected` / `isMixed` state and calls `toggleAll`, so it renders checked when every setting is on, unchecked when all are off, and indeterminate (`aria-checked="mixed"`, `data-state="indeterminate"`) when only some are on. The tri-state and batch operations come straight from [createGroup](/composables/selection/create-group) — the same multi-selection logic that powers [Group](/components/providers/group). The thumb is animated through `data-[state=...]` variants on the `Switch.Track` rather than a transform from the off position, because `Switch.Thumb` is `visibility: hidden` when off and cannot animate in from there.
+
+Reach for this pattern for any settings surface — notification preferences, feature flags, privacy controls — where a list of independent on/off toggles needs a single shared model, a select-all lever, and form submission. Because `Form`'s `@submit` is pass-through (it fires on every native submit regardless of validity), the handler guards on `payload.valid` before committing the saved state. See [Form](/components/forms/form) for the validation surface and [Checkbox](/components/forms/checkbox) for the equivalent committed-selection control.
+
+| File | Role |
+|------|------|
+| `useSettings.ts` | Composable — setting definitions, the enabled-array model, and the guarded save/reset logic |
+| `SettingsPanel.vue` | Reusable component — renders the `Form`, the `Switch.Group` with a `SelectAll` master and per-row label + helper text, owns the UnoCSS classes |
+| `settings-panel.vue` | Entry — wires the composable to the panel and renders the saved-state summary line |
 :::
-
-::: example
-/components/switch/indeterminate
-
-### Select-All Switch
-
-A "select all" switch with indeterminate state over nested permission toggles.
-
-:::
-
-The `SelectAll` component:
-- Binds to the group's `isAllSelected` and `isMixed` state
-- Calls `toggleAll` on click
-- Does NOT register as a group item
-- Sets `aria-checked="mixed"` and `data-state="indeterminate"` when partially selected
 
 ## Recipes
 

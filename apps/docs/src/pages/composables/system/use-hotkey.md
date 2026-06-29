@@ -63,7 +63,21 @@ The `useHotkey` composable registers hotkey handlers on the window with automati
 </template>
 ```
 
-## Key Aliases
+## Architecture
+
+`useHotkey` builds on `useEventListener` for keyboard event handling:
+
+```mermaid "Hotkey Hierarchy"
+flowchart TD
+  useEventListener --> useHotkey
+  useHotkey --> Combinations["ctrl+k, cmd+s"]
+  useHotkey --> Sequences["g-h, g-i"]
+  useHotkey --> Components["Command Palette, Shortcuts"]
+```
+
+## Options
+
+### Key Aliases
 
 Key strings are normalized before matching, so you can use human-friendly names instead of exact `KeyboardEvent.key` values:
 
@@ -91,18 +105,6 @@ useHotkey('ctrl+plus', zoomIn)   // matches Ctrl ++
 useHotkey('cmd+minus', zoomOut)  // matches Cmd +-
 ```
 
-## Architecture
-
-`useHotkey` builds on `useEventListener` for keyboard event handling:
-
-```mermaid "Hotkey Hierarchy"
-flowchart TD
-  useEventListener --> useHotkey
-  useHotkey --> Combinations["ctrl+k, cmd+s"]
-  useHotkey --> Sequences["g-h, g-i"]
-  useHotkey --> Components["Command Palette, Shortcuts"]
-```
-
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
@@ -113,13 +115,24 @@ flowchart TD
 
 ## Examples
 
-::: example
-/composables/use-hotkey/command-palette
+::: gn-example
+/composables/use-hotkey/useCommandPalette.ts 1
+/composables/use-hotkey/CommandPalette.vue 2
+/composables/use-hotkey/command-palette.vue 3
 
 ### Command Palette
 
-A searchable command palette (Cmd+J) with arrow-key navigation, filtered results, and per-command shortcuts.
+A searchable command palette driven entirely by `useHotkey`, with the keyboard wiring extracted into a composable. Three kinds of binding work together: a global `cmd+j` combination opens the palette from anywhere; GitHub-style sequences — press `g` then `h`, or `g` then `s` — fire actions without opening it at all; and once the palette is open, per-command combinations (`cmd+l`, `cmd+s`, …) run alongside arrow-key navigation through the filtered list. The composable owns every binding and all the state; the component only renders the `Dialog` surface.
 
+The key composition pattern is [useToggleScope](/composables/system/use-toggle-scope). The scoped bindings — navigation and the per-command shortcuts — are registered only while `isOpen` is `true` and are torn down automatically when the palette closes, so global keys never collide with palette keys and there is no manual cleanup. Those scoped shortcuts pass `{ inputs: true }` so they keep firing while focus is in the search field; by default `useHotkey` skips text inputs. The sequences reset after `sequenceTimeout` if you pause between keystrokes.
+
+Reach for `useHotkey` plus `useToggleScope` whenever a surface needs context-sensitive shortcuts that exist only while it is open — command palettes, modals, sidebars, and feature-specific overlays all share this shape. For one-shot global bindings without scope gating, call `useHotkey` directly. For element-level arrow navigation inside a listbox, reach for [useRovingFocus](/composables/system/use-roving-focus) instead; for the lower-level keyboard plumbing `useHotkey` builds on, see [useEventListener](/composables/system/use-event-listener).
+
+| File | Role |
+|------|------|
+| `useCommandPalette.ts` | Composable — owns palette state, the command list, and every `useHotkey` binding (global combination, sequences, scoped per-command shortcuts) |
+| `CommandPalette.vue` | Reusable component — renders the `Dialog`, the search field, and the filtered command list |
+| `command-palette.vue` | Entry — instantiates the composable, shows the last action, and lists the available shortcuts |
 :::
 
 <DocsApi />

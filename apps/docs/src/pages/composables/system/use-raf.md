@@ -62,18 +62,22 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-raf/scroll-throttle
 
 ### Scroll Throttle
 
-A scrollable container that tracks position, percentage, and update count — demonstrating RAF throttling of rapid scroll events.
+A tall scrollable container that tracks three metrics — `scrollTop` in pixels, scroll percentage, and a running update count — to make the RAF deduplication visible. Each `scroll` DOM event calls the `useRaf`-wrapped updater, which cancels any pending frame before scheduling a new one. Scrolling rapidly produces many events per frame, but the counter increments at most once per animation frame rather than once per event.
+
+`useRaf` returns a function wrapping the callback; calling it repeatedly within the same frame costs only one `cancelAnimationFrame` + one `requestAnimationFrame`, so scroll handlers, resize reactions, and pointer-move listeners are all safe to call at native event rate. The `isActive` ref on the returned function reflects whether a frame is currently pending. No cleanup is needed — the composable cancels any outstanding frame on scope disposal. For element-size tracking that pairs naturally with this, see [useResizeObserver](/composables/system/use-resize-observer); for event listener registration with the same scope-safe cleanup, see [useEventListener](/composables/system/use-event-listener).
 
 :::
 
-## Key Features
+## Recipes
 
-### Cancel-Then-Request Pattern
+### Key Features
+
+#### Cancel-Then-Request Pattern
 
 Each call cancels any pending frame before requesting a new one. This deduplicates rapid calls, ensuring only the latest request executes:
 
@@ -88,7 +92,7 @@ update()
 update()
 ```
 
-### Automatic Cleanup
+#### Automatic Cleanup
 
 The composable automatically cancels pending frames when the Vue scope is disposed (component unmount, effect scope stop):
 
@@ -97,7 +101,7 @@ The composable automatically cancels pending frames when the Vue scope is dispos
 const update = useRaf(callback)
 ```
 
-### SSR Safe
+#### SSR Safe
 
 The composable is a no-op in non-browser environments. `isActive` always returns `false` during SSR.
 

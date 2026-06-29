@@ -75,12 +75,14 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-toggle-scope/conditional-effects
 
 ### Conditional Effects
 
-An event listener that only tracks mouse movement while a toggle is active, showing how `useToggleScope` starts and stops the effect scope on demand.
+A mouse-position tracker where the `mousemove` listener exists only while the toggle is active. When the scope starts, `useEventListener(window, 'mousemove', ...)` registers the listener inside the new `effectScope`; when the scope stops, Vue disposes the scope and `useEventListener`'s `onScopeDispose` cleanup fires automatically — no manual `removeEventListener` required. The move counter, X, and Y values freeze as soon as tracking is disabled.
+
+The example demonstrates the core use case: wrapping `useEventListener` (or any composable that registers effects) inside `useToggleScope` so the effect lifecycle follows a reactive boolean rather than the component lifecycle. This is the recommended pattern for feature-flag-controlled behaviors, debug overlays, admin-only polling, and any functionality that should only run under a specific condition. The `isActive` ref returned by `useToggleScope` is a computed view of the internal scope state — useful for rendering status indicators. Note the [feedback on toggle scope](/composables/system/use-toggle-scope): do not use this to guard watchers that must run synchronously on value changes, as the scope creation introduces an async tick.
 
 :::
 

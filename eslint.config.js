@@ -143,6 +143,22 @@ export default vuetify({
   },
 },
 {
+  name: 'vuetify/locale-ti-requires-fallback',
+  files: ['packages/0/src/components/**/*.vue'],
+  rules: {
+    'no-restricted-syntax': ['error',
+      {
+        selector: 'CallExpression[callee.name="withDefaults"]',
+        message: 'Use destructuring with defaults instead of withDefaults.',
+      },
+      {
+        selector: 'CallExpression[callee.property.name="ti"]:not(LogicalExpression[operator="??"] > CallExpression[callee.property.name="ti"])',
+        message: 'locale.ti() must be guarded with a `?? \'<inline English default>\'` so unconfigured apps get an accessible name. See packages/0/src/locale/messages/en for canonical strings.',
+      },
+    ],
+  },
+},
+{
   name: 'vuetify/no-v0-imports',
   files: ['packages/paper/**/*.{ts,js,vue}', 'app/**/*.{ts,js,vue}'],
   rules: {

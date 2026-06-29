@@ -27,13 +27,13 @@ Numeric input with increment/decrement buttons, drag-to-scrub, and locale-aware 
 
 NumberField renders a spinbutton input with optional increment, decrement, and scrub controls. Wire it up with `v-model` for two-way binding.
 
-::: example
+::: gn-example
 /components/number-field/basic
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { NumberField } from '@vuetify/v0'
 </script>
@@ -51,8 +51,6 @@ NumberField renders a spinbutton input with optional increment, decrement, and s
     <NumberField.Increment />
 
     <NumberField.Error />
-
-    <NumberField.HiddenInput />
   </NumberField.Root>
 </template>
 ```
@@ -87,20 +85,24 @@ flowchart TD
 
 ## Examples
 
-::: example
-/components/number-field/currency
+::: gn-example
+/components/number-field/useCart.ts 1
+/components/number-field/CartLineItems.vue 2
+/components/number-field/cart-line-items.vue 3
 
-### Currency Formatting
+### Cart Quantity Editor
 
-Locale-aware currency display using `Intl.NumberFormat`. The `format` prop accepts any `Intl.NumberFormatOptions`, and the `Scrub` label allows drag-to-adjust the value.
-:::
+A shopping-cart editor where every line item is a quantity `NumberField` that drives a live order summary. Each field is bound with `:min="0"`, `:max="item.stock"`, `:step="1"`, and `clamp`, so a shopper can never order more than what's in stock and typing an out-of-range value snaps back to the boundary on blur. The out-of-stock line has a stock of zero, so the component sets `:disabled` on its `NumberField.Root` — the increment, decrement, and control all read the Root's `data-disabled` and dim accordingly.
 
-::: example
-/components/number-field/scrub
+The interesting part is how the totals stay in sync. Quantities live as numbers on the cart items in the composable, and `subtotal`, `tax`, and `total` are `computed` reductions over those quantities — touch any stepper and every dependent figure recomputes. Each `NumberField.Root` carries a `name` (`qty-{id}`), which lands directly on the underlying `NumberField.Control` input, so the quantities post with native form submission — NumberField has no separate hidden-input sub-component. The whole thing is wrapped in a [Form](/components/forms/form), whose `@submit` is pass-through, so the handler guards on `payload.valid` before committing the order — and because `total` can be zero, the submit button disables itself rather than placing an empty order.
 
-### Design Tool Scrub
+Reach for this triad shape whenever numeric inputs feed a derived calculation: keep the line data and the `computed` totals in a `use*` composable, render the compound surface plus its UnoCSS styling in a reusable component, and let a thin entry wire them together and swap in a confirmation panel. For the underlying numeric math and formatting primitive, see [createNumberField](/composables/forms/create-number-field); for the field's keyboard and ARIA contract, see the Accessibility section below.
 
-Figma-style property inputs where the label acts as a scrub control. Drag horizontally on any label to adjust its value. Uses the Pointer Lock API for unbounded movement.
+| File | Role |
+|------|------|
+| `useCart.ts` | Composable — cart line items, `computed` subtotal/tax/total, checkout/reset logic |
+| `CartLineItems.vue` | Reusable component — renders the `Form` with a quantity `NumberField` per line and the totals summary |
+| `cart-line-items.vue` | Entry — wires the composable to the editor and swaps in an order-confirmation panel on submit |
 :::
 
 ## Recipes

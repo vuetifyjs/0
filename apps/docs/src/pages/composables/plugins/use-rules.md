@@ -128,7 +128,7 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-rules/context.ts 1
 /composables/use-rules/FormField.vue 2
 /composables/use-rules/Form.vue 3
@@ -159,11 +159,13 @@ The controls let you trigger validation, prefill valid or invalid data, and rese
 
 :::
 
-## Standard Schema
+## Recipes
+
+### Standard Schema
 
 `useRules` supports [Standard Schema](https://standardschema.dev/) — a universal interface for validation libraries. Pass schema objects directly in `rules` arrays alongside alias strings and inline functions — `resolve()` auto-detects and wraps them.
 
-### Zod
+#### Zod
 
 ```vue
 <script setup lang="ts">
@@ -185,7 +187,7 @@ The controls let you trigger validation, prefill valid or invalid data, and rese
 </script>
 ```
 
-### Valibot
+#### Valibot
 
 ```vue
 <script setup lang="ts">
@@ -201,7 +203,7 @@ The controls let you trigger validation, prefill valid or invalid data, and rese
 </script>
 ```
 
-### ArkType
+#### ArkType
 
 ```vue
 <script setup lang="ts">
@@ -220,7 +222,7 @@ The controls let you trigger validation, prefill valid or invalid data, and rese
 > [!TIP]
 > Schema objects produce async rules. `createValidation` handles this transparently — no special handling needed in components.
 
-### Compatible Libraries
+#### Compatible Libraries
 
 Any library that implements the [Standard Schema v1 spec](https://standardschema.dev/) works out of the box:
 
@@ -230,7 +232,7 @@ Any library that implements the [Standard Schema v1 spec](https://standardschema
 | [Valibot](https://valibot.dev/) | v1.0+ | `import * as v from 'valibot'` |
 | [ArkType](https://arktype.io/) | v2.0+ | `import { type } from 'arktype'` |
 
-### isStandardSchema()
+#### isStandardSchema()
 
 `isStandardSchema(value)` is exported for use in custom rule factories. Returns `true` if the value implements the Standard Schema v1 interface (`~standard.version === 1`):
 

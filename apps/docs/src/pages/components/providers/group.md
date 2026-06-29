@@ -26,16 +26,25 @@ A headless component for managing multi-selection with batch operations and tri-
 
 The Group component is a specialization of Selection that enforces multi-selection behavior and supports batch operations on arrays of IDs. It always uses array-based v-model binding.
 
-::: example
+::: gn-example
 /components/group/basic
-
-### Multi-Selection Group
-
-Button items in a group with shared multi-selection state — toggling any item updates the shared selection.
-
 :::
 
-## Features
+## Anatomy
+
+```vue Anatomy no-filename
+<script setup lang="ts">
+  import { Group } from '@vuetify/v0'
+</script>
+
+<template>
+  <Group.Root>
+    <Group.Item />
+  </Group.Root>
+</template>
+```
+
+## Recipes
 
 ### Batch Operations
 
@@ -72,20 +81,6 @@ The slot props `isAllSelected`, `isNoneSelected`, and `isMixed` reflect the aggr
         @change="toggleAll"
       />
     </template>
-  </Group.Root>
-</template>
-```
-
-## Anatomy
-
-```vue Anatomy playground
-<script setup lang="ts">
-  import { Group } from '@vuetify/v0'
-</script>
-
-<template>
-  <Group.Root>
-    <Group.Item />
   </Group.Root>
 </template>
 ```

@@ -5,7 +5,9 @@
  *
  * @remarks
  * Container component for snackbar notifications. Teleports to body
- * and registers with useStack for z-index coordination with Dialog/Scrim.
+ * and registers with useStack for z-index coordination. Passes
+ * `scrim: false` to its Portal — snackbars are non-modal, so `Scrim`
+ * never paints a backdrop for them even when one is active for a Dialog.
  *
  * Does not set aria-live — each SnackbarRoot handles its own live region
  * semantics via role to avoid nesting conflicts.
@@ -61,7 +63,7 @@
 </script>
 
 <template>
-  <Portal :disabled="teleport === false" :to="teleport || 'body'">
+  <Portal :disabled="teleport === false" :scrim="false" :to="teleport || 'body'">
     <template #default="{ zIndex }">
       <Atom :as :renderless v-bind="mergeProps($attrs, getSlotProps(zIndex).attrs)">
         <slot v-bind="getSlotProps(zIndex)" />

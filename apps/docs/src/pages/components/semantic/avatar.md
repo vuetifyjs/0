@@ -27,18 +27,13 @@ Headless image component with automatic fallback to icon or text content.
 
 The Avatar component provides a robust image loading system with automatic fallback handling. It manages multiple image sources with priority ordering and only displays the highest-priority loaded image or fallback content.
 
-::: example
+::: gn-example
 /components/avatar/basic
-
-### Image and Fallback
-
-Two avatars showing successful image loading and graceful fallback to initials when the image fails.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Avatar } from '@vuetify/v0'
 </script>
@@ -46,17 +41,14 @@ Two avatars showing successful image loading and graceful fallback to initials w
 <template>
   <Avatar.Root>
     <Avatar.Image />
-
     <Avatar.Fallback />
   </Avatar.Root>
 
   <Avatar.Group>
     <Avatar.Root>
       <Avatar.Image />
-
       <Avatar.Fallback />
     </Avatar.Root>
-
     <Avatar.Indicator />
   </Avatar.Group>
 </template>
@@ -129,7 +121,7 @@ When multiple images are present, the `priority` prop determines display order. 
 
 ## Examples
 
-::: example
+::: gn-example
 /components/avatar/members.ts
 /components/avatar/team.vue
 

@@ -43,8 +43,6 @@
                 :key="col.id"
                 class="group relative px-3 py-2 font-medium select-none bg-surface-tint"
                 :class="[
-                  col.pinned === 'left' ? 'border-r border-divider' : '',
-                  col.pinned === 'right' ? 'border-l border-divider' : '',
                   isNumeric(col.id) ? 'text-right' : 'text-left',
                 ]"
                 :style="{
@@ -53,7 +51,11 @@
                   left: col.pinned === 'left' ? inset(col.offset) : undefined,
                   right: col.pinned === 'right' ? inset(col.offset) : undefined,
                   zIndex: col.pinned ? 10 : undefined,
-                  boxShadow: col.pinned === 'left' ? '4px 0 6px -4px rgb(0 0 0 / 0.2)' : col.pinned === 'right' ? '-4px 0 6px -4px rgb(0 0 0 / 0.2)' : undefined,
+                  boxShadow: col.pinned === 'left'
+                    ? '1px 0 0 0 var(--v0-divider), 4px 0 6px -4px rgb(0 0 0 / 0.2)'
+                    : col.pinned === 'right'
+                      ? '-1px 0 0 0 var(--v0-divider), -4px 0 6px -4px rgb(0 0 0 / 0.2)'
+                      : undefined,
                 }"
                 @click="onSort(col.id)"
               >
@@ -98,11 +100,11 @@
             </tr>
           </thead>
 
-          <tbody class="divide-y divide-divider">
+          <tbody>
             <tr
               v-for="item in grid.items.value"
               :key="item.id"
-              class="group hover:bg-surface-tint"
+              class="group border-b border-divider last:border-b-0 hover:bg-surface-tint"
             >
               <td
                 v-for="col in grid.layout.columns.value"
@@ -110,8 +112,6 @@
                 class="px-3 py-1.5 truncate"
                 :class="[
                   col.pinned ? 'bg-surface group-hover:bg-surface-tint' : '',
-                  col.pinned === 'left' ? 'border-r border-divider' : '',
-                  col.pinned === 'right' ? 'border-l border-divider' : '',
                   isNumeric(col.id) ? 'text-right font-mono tabular-nums' : '',
                 ]"
                 :style="{
@@ -120,7 +120,11 @@
                   left: col.pinned === 'left' ? inset(col.offset) : undefined,
                   right: col.pinned === 'right' ? inset(col.offset) : undefined,
                   zIndex: col.pinned ? 10 : undefined,
-                  boxShadow: col.pinned === 'left' ? '4px 0 6px -4px rgb(0 0 0 / 0.2)' : col.pinned === 'right' ? '-4px 0 6px -4px rgb(0 0 0 / 0.2)' : undefined,
+                  boxShadow: col.pinned === 'left'
+                    ? '1px 0 0 0 var(--v0-divider), 4px 0 6px -4px rgb(0 0 0 / 0.2)'
+                    : col.pinned === 'right'
+                      ? '-1px 0 0 0 var(--v0-divider), -4px 0 6px -4px rgb(0 0 0 / 0.2)'
+                      : undefined,
                 }"
               >
                 <template v-if="col.id === 'ticker'">

@@ -391,6 +391,44 @@ describe('createTheme', () => {
       expect(plugin.install).toBeDefined()
     })
 
+    it('should call adapter.dispose on app.unmount', async () => {
+      const disposeFn = vi.fn()
+      const customAdapter = {
+        setup: vi.fn(),
+        dispose: disposeFn,
+        update: vi.fn(),
+        rgb: false,
+      }
+
+      const app = createApp({ template: '<div />' })
+      app.use(createThemePlugin({ adapter: customAdapter as any }))
+
+      const container = document.createElement('div')
+      app.mount(container)
+      await nextTick()
+
+      expect(disposeFn).not.toHaveBeenCalled()
+      app.unmount()
+      expect(disposeFn).toHaveBeenCalledTimes(1)
+    })
+
+    it('should not throw when adapter has no dispose on app.unmount', async () => {
+      const customAdapter = {
+        setup: vi.fn(),
+        update: vi.fn(),
+        rgb: false,
+      }
+
+      const app = createApp({ template: '<div />' })
+      app.use(createThemePlugin({ adapter: customAdapter as any }))
+
+      const container = document.createElement('div')
+      app.mount(container)
+      await nextTick()
+
+      expect(() => app.unmount()).not.toThrow()
+    })
+
     it('should inject CSS variables into DOM', async () => {
       let mockStyleSheets: CSSStyleSheet[] = []
       using spy = vi.spyOn(document, 'adoptedStyleSheets', 'get').mockImplementation(() => mockStyleSheets)
@@ -697,6 +735,35 @@ describe('createTheme', () => {
           stored = storage.get('theme').value
         })
         expect(stored).toBe('light')
+      })
+
+      it('should ignore non-id persisted values', () => {
+        const app = createApp({ render: () => null })
+        app.use(createStoragePlugin())
+        app.runWithContext(() => {
+          const storage = useStorage()
+          storage.set('theme', { selected: 'dark' })
+        })
+
+        app.use(
+          createThemePlugin({
+            persist: true,
+            default: 'light',
+            themes: {
+              light: { dark: false, colors: { primary: '#1976d2' } },
+              dark: { dark: true, colors: { primary: '#90caf9' } },
+            },
+          }),
+        )
+
+        let theme: ThemeContext | undefined
+        app.runWithContext(() => {
+          theme = useTheme()
+        })
+
+        expect(theme!.selectedId.value).toBe('light')
+
+        app.unmount()
       })
     })
   })

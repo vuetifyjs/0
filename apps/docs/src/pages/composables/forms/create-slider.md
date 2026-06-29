@@ -74,7 +74,7 @@ Slider state is **always reactive**. Values and derived properties update automa
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-slider/context.ts 2
 /composables/create-slider/ScrubberProvider.vue 3
 /composables/create-slider/ScrubberConsumer.vue 4
@@ -102,7 +102,7 @@ Every pointer interaction follows the same loop: **pointer â†’ `fromPercent()` â
 Click and drag across the waveform to scrub through the track.
 :::
 
-::: example
+::: gn-example
 /composables/create-slider/useCompare.ts 2
 /composables/create-slider/CompareDisplay.vue 3
 /composables/create-slider/compare.vue 1

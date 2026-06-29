@@ -100,12 +100,24 @@ flowchart TD
 
 ## Examples
 
-::: example
-/composables/create-number-field/basic
+::: gn-example
+/composables/create-number-field/useOrder.ts 1
+/composables/create-number-field/NumberStepper.vue 2
+/composables/create-number-field/order-calculator.vue 3
 
-### Basic
+### Build your own number input
 
-Standalone composable usage without the NumberField component. Demonstrates increment, decrement, formatting, and boundary state.
+This example builds a reusable numeric field entirely from `createNumberField`, without reaching for the NumberField component. `useOrder` creates two field contexts over shared value refs — a unit price formatted as USD currency and an integer quantity — then derives a live order total by calling `priceField.formatValue` on the product of the two raw values. Keeping the numbers in `value` and the formatting in `display`/`formatValue` is what lets the total reuse the price field's currency formatter without re-implementing Intl.
+
+`NumberStepper` is the headless input you would otherwise get from the component. It renders a text box plus a pair of stepper buttons and wires the four interaction surfaces by hand: `decrement`/`increment` on the buttons, `canDecrement`/`canIncrement` to disable them at the min/max boundaries, `display` for the formatted read-only view, and `parse` + `commit` on blur to turn typed text back into a clamped, step-snapped number. A local draft string holds the raw text only while the field is focused, so typing never fights the formatter and the cursor never jumps.
+
+Reach for this pattern when you need numeric input with custom markup the component's structure does not allow — a stepper baked into a larger control, an inline editable total, or a non-standard layout. When you just need a labelled, accessible spin-button with errors, use the [NumberField component](/components/forms/number-field) instead; for the pure step math underneath, see [createNumeric](/composables/forms/create-numeric).
+
+| File | Role |
+|------|------|
+| `useOrder.ts` | Creates the price and quantity field contexts and derives the formatted total |
+| `NumberStepper.vue` | Renders a custom text input plus stepper buttons from a field context |
+| `order-calculator.vue` | Wires the composable to two steppers and shows the live total |
 :::
 
 ::: faq

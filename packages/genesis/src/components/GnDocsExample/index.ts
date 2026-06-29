@@ -8,8 +8,6 @@ export type { GnDocsExampleDescriptionProps } from './GnDocsExampleDescription.v
 export { default as GnDocsExampleDescription } from './GnDocsExampleDescription.vue'
 export type { GnDocsExamplePanelProps } from './GnDocsExamplePanel.vue'
 export { default as GnDocsExamplePanel } from './GnDocsExamplePanel.vue'
-export type { GnDocsExamplePeekProps } from './GnDocsExamplePeek.vue'
-export { default as GnDocsExamplePeek } from './GnDocsExamplePeek.vue'
 export type { GnDocsExamplePreviewProps } from './GnDocsExamplePreview.vue'
 export { default as GnDocsExamplePreview } from './GnDocsExamplePreview.vue'
 export type { GnDocsExampleFile, GnDocsExampleTabsProps } from './GnDocsExampleTabs.vue'

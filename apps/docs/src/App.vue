@@ -142,6 +142,7 @@
   <div
     class="app-shell min-h-screen text-on-background"
     :class="{ 'dot-grid': settings.showDotGrid.value }"
+    :data-code-size="settings.codeSize.value"
     :style="{ '--line-opacity': `${settings.dotGridIntensity.value}%` }"
   >
     <a
@@ -470,6 +471,25 @@
 
   .footnote-backref:hover {
     text-decoration: underline;
+  }
+
+  /* Code size — one variable drives every shiki surface (fences, code
+     groups, API cards, example panes). The app-shell data attribute is
+     bound to the codeSize setting. */
+  .app-shell {
+    --docs-code-size: 0.8125rem;
+  }
+
+  .app-shell[data-code-size='medium'] {
+    --docs-code-size: 0.875rem;
+  }
+
+  .app-shell[data-code-size='large'] {
+    --docs-code-size: 1rem;
+  }
+
+  .shiki code {
+    font-size: var(--docs-code-size);
   }
 
   /* DocsMarkup code block styling */

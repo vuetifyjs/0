@@ -541,6 +541,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/plugins/use-reduced-motion': RouteRecordInfo<
+      '/composables/plugins/use-reduced-motion',
+      '/composables/plugins/use-reduced-motion',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/plugins/use-rtl': RouteRecordInfo<
       '/composables/plugins/use-rtl',
       '/composables/plugins/use-rtl',
@@ -985,6 +992,13 @@ declare module 'vue-router/auto-routes' {
     '/guide/tooling/ai-tools': RouteRecordInfo<
       '/guide/tooling/ai-tools',
       '/guide/tooling/ai-tools',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guide/tooling/testing': RouteRecordInfo<
+      '/guide/tooling/testing',
+      '/guide/tooling/testing',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1566,6 +1580,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/plugins/use-reduced-motion.md': {
+      routes:
+        | '/composables/plugins/use-reduced-motion'
+      views:
+        | never
+    }
     'src/pages/composables/plugins/use-rtl.md': {
       routes:
         | '/composables/plugins/use-rtl'
@@ -1947,6 +1967,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/tooling/ai-tools.md': {
       routes:
         | '/guide/tooling/ai-tools'
+      views:
+        | never
+    }
+    'src/pages/guide/tooling/testing.md': {
+      routes:
+        | '/guide/tooling/testing'
       views:
         | never
     }

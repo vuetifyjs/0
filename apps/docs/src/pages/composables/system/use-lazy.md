@@ -59,16 +59,32 @@ stateDiagram-v2
 
 ## Examples
 
-::: example
-/composables/use-lazy/basic
+::: gn-example
+/composables/use-lazy/tabs.ts
+/composables/use-lazy/HeavyPanel.vue
+/composables/use-lazy/LazyTab.vue
+/composables/use-lazy/demo.vue
 
-### Lazy Content Panel
+### Lazy Tab Panels
 
-A collapsible panel that defers rendering until first open (800ms simulated delay), with a loading state while content initializes.
+A three-tab interface where each panel's heavy content mounts only the first time its tab is opened, and a live mount counter proves each panel mounts exactly once no matter how often you switch back and forth.
+
+Each panel is a `LazyTab` that calls `useLazy(() => active)` and gates its body on `hasContent`. The gate starts `false`, so the expensive `HeavyPanel` subtree is never created for a tab the reader has not visited yet. The moment a tab is first selected, `isBooted` flips to `true` and `hasContent` stays `true` permanently — this example deliberately omits `onAfterLeave`, so once a panel boots it survives every subsequent tab switch. The panel wrapper toggles visibility with `v-show`, keeping the already-mounted DOM around for instant re-display instead of paying the mount cost again. `HeavyPanel` increments a shared counter in its `onMounted` hook, and the readout under the tabs confirms the count never climbs past one per panel.
+
+This is the canonical pattern for tabbed dashboards, wizard steps, and any layout where most panels are never viewed in a given session. Contrast it with [usePresence](/composables/system/use-presence), which orchestrates enter and leave animations rather than deferring the first mount, and with [useToggleScope](/composables/system/use-toggle-scope) for tearing an effect scope down when content hides. To reclaim memory when a panel closes, wire `onAfterLeave` into a `Transition` so `isBooted` resets and the subtree unmounts — at the cost of re-mounting on the next open.
+
+| File | Role |
+|------|------|
+| `tabs.ts` | Tab definitions plus a shared composable that tracks per-panel mount counts |
+| `HeavyPanel.vue` | The expensive content; reports its mount to the shared counter |
+| `LazyTab.vue` | Wraps a panel with `useLazy`, gating its body on `hasContent` |
+| `demo.vue` | Renders the tab bar, the lazy panels, and the live mount readout |
 
 :::
 
-## Delay
+## Recipes
+
+### Delay
 
 Use the `delay` option to defer the first mount by a fixed number of milliseconds. This prevents a flash of content for operations that complete very quickly:
 
@@ -77,7 +93,7 @@ const { hasContent } = useLazy(isOpen, { delay: 200 })
 // Content only mounts if isOpen stays true for 200ms
 ```
 
-## Eager Mode
+### Eager Mode
 
 Use the `eager` option to render content immediately without waiting for activation:
 
@@ -95,7 +111,7 @@ const { hasContent } = useLazy(isOpen, {
 })
 ```
 
-## Transition Integration
+### Transition Integration
 
 The `onAfterLeave` callback resets the lazy state after the leave transition completes (unless eager mode is enabled):
 

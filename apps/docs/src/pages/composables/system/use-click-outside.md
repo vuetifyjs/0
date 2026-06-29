@@ -55,25 +55,6 @@ flowchart TD
   useClickOutside --> Popovers
 ```
 
-## Multiple Targets
-
-Pass an array of refs to ignore clicks inside any of them:
-
-```ts
-import { useClickOutside } from '@vuetify/v0'
-import { useTemplateRef } from 'vue'
-
-const trigger = useTemplateRef('trigger')
-const panel = useTemplateRef('panel')
-
-// Clicks inside EITHER trigger or panel are ignored
-useClickOutside([trigger, panel], () => {
-  console.log('Clicked outside both elements')
-})
-```
-
-The `target` parameter accepts `MaybeArray<ClickOutsideTarget>` — a single ref/getter or an array of refs/getters.
-
 ## Options
 
 | Option | Type | Default | Description |
@@ -101,13 +82,38 @@ useClickOutside(dialog, () => dialog.value?.close(), { bounds: true })
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-click-outside/basic
 
 ### Dropdown with Outside Dismiss
 
-A dropdown menu that opens on button click and automatically closes when clicking anywhere outside the menu.
+A three-item dropdown menu that opens on button click and automatically closes when the user clicks anywhere outside the menu container. The entire `menu` div — trigger button and panel together — is passed as the target ref, so clicking the trigger itself is treated as "inside" and doesn't trigger the dismiss callback.
+
+The example uses `useClickOutside` in its simplest form: one ref target and one callback. No options are needed because the target is a regular `div` (not a native `<dialog>`), so the default DOM-containment check works correctly. The callback flips `isOpen.value = false`, and because `isOpen` is a `shallowRef`, the template re-renders without a full reactive traversal.
+
+Reach for this when dismissing a popover, dropdown, or context menu on outside click. For elements where the event target doesn't reliably reflect DOM containment — such as native `<dialog>` backdrops — pass `{ bounds: true }` to switch to bounding-rect detection instead.
 
 :::
+
+## Recipes
+
+### Multiple Targets
+
+Pass an array of refs to ignore clicks inside any of them:
+
+```ts
+import { useClickOutside } from '@vuetify/v0'
+import { useTemplateRef } from 'vue'
+
+const trigger = useTemplateRef('trigger')
+const panel = useTemplateRef('panel')
+
+// Clicks inside EITHER trigger or panel are ignored
+useClickOutside([trigger, panel], () => {
+  console.log('Clicked outside both elements')
+})
+```
+
+The `target` parameter accepts `MaybeArray<ClickOutsideTarget>` — a single ref/getter or an array of refs/getters.
 
 <DocsApi />

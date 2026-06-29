@@ -161,7 +161,9 @@
       return
     }
 
-    // Let controls within item handle their own navigation
+    // When the event bubbles from a child that is NOT a treeitem (e.g. an
+    // embedded switch or combobox inside a row), let that control handle its
+    // own key events rather than intercepting them at the tree level.
     if (!onItem) return
 
     const id = roving.focusedId.value

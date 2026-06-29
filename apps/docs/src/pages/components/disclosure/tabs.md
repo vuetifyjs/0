@@ -27,18 +27,13 @@ A component for creating accessible tabbed interfaces with proper ARIA support a
 
 The Tabs component provides a compound pattern for building accessible tab interfaces. It uses the `createStep` composable internally for navigation and provides full v-model support with automatic state synchronization.
 
-::: example
+::: gn-example
 /components/tabs/basic
-
-### Tab Navigation
-
-Profile, password, and billing tabs with content switching via v-model binding.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Tabs } from '@vuetify/v0'
 </script>
@@ -46,27 +41,15 @@ Profile, password, and billing tabs with content switching via v-model binding.
 <template>
   <Tabs.Root>
     <Tabs.List>
-      <Tabs.Item>Tab</Tabs.Item>
+      <Tabs.Item />
     </Tabs.List>
 
-    <Tabs.Panel>Content</Tabs.Panel>
+    <Tabs.Panel />
   </Tabs.Root>
 </template>
 ```
 
-## Features
-
-### Keyboard Navigation
-
-The component implements full WAI-ARIA keyboard support. Keyboard behavior depends on the activation mode:
-
-| Key | Automatic | Manual |
-| - | - | - |
-| Arrow Left/Right (horizontal) | Moves focus **and** activates tab | Moves focus only |
-| Arrow Up/Down (vertical) | Moves focus **and** activates tab | Moves focus only |
-| Home | Focuses **and** activates first tab | Focuses first tab only |
-| End | Focuses **and** activates last tab | Focuses last tab only |
-| Enter/Space | — | Activates the focused tab |
+## Recipes
 
 ### Activation Modes
 
@@ -121,5 +104,19 @@ Set `enroll` to auto-select the first registered tab. Useful when tabs are rende
   </Tabs.Root>
 </template>
 ```
+
+## Accessibility
+
+### Keyboard Navigation
+
+The component implements full WAI-ARIA keyboard support. Keyboard behavior depends on the activation mode:
+
+| Key | Automatic | Manual |
+| - | - | - |
+| Arrow Left/Right (horizontal) | Moves focus **and** activates tab | Moves focus only |
+| Arrow Up/Down (vertical) | Moves focus **and** activates tab | Moves focus only |
+| Home | Focuses **and** activates first tab | Focuses first tab only |
+| End | Focuses **and** activates last tab | Focuses last tab only |
+| Enter/Space | — | Activates the focused tab |
 
 <DocsApi />
