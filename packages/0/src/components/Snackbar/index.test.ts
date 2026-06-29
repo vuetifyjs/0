@@ -683,5 +683,42 @@ describe('snackbar', () => {
       expect(document.body.querySelector('.snack-body')).not.toBeNull()
       wrapper.unmount()
     })
+
+    it('should reparent snackbar node to body when dialog closes, preserving node identity', async () => {
+      // No plugin — both test code and Portal.vue share the fallback singleton
+      const stack = useStack()
+      const dialogEl = document.createElement('dialog')
+      document.body.append(dialogEl)
+      const modal = stack.register({ el: dialogEl })
+      modal.select()
+
+      const wrapper = mount(Snackbar.Portal, {
+        slots: { default: () => h('div', { class: 'snack-reparent' }, 'Toast') },
+        attachTo: document.body,
+      })
+
+      try {
+        await nextTick()
+
+        // While dialog is open: snackbar must be inside the dialog
+        const snackNode = dialogEl.querySelector('.snack-reparent')
+        expect(snackNode).not.toBeNull()
+
+        // Capture identity before close — this exact node must survive the reparent
+        const captured = snackNode!
+
+        // Close the dialog: topElement drops to null → Portal retargets to 'body'
+        modal.unselect()
+        await nextTick()
+
+        // Same DOM node, new parent: document.body (not remounted)
+        expect(document.body.contains(captured)).toBe(true)
+        expect(dialogEl.contains(captured)).toBe(false)
+      } finally {
+        wrapper.unmount()
+        modal.unselect()
+        dialogEl.remove()
+      }
+    })
   })
 })
