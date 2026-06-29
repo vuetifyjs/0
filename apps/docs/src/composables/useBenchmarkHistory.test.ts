@@ -3,72 +3,77 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Utilities
 import { effectScope, nextTick } from 'vue'
 
-vi.mock('@/data/metrics/0.1.0.json', () => ({
-  default: {
-    version: '0.1.0',
-    items: {
-      createDataTable: {
-        benchmarks: {
-          _groups: {
-            initialization: {
-              'Create table (1,000 items)': { name: 'Create table (1,000 items)', hz: 20_000, hzLabel: '20.0k ops/s', mean: 0.000_05, meanLabel: '50.0μs', rme: 10, tier: 'blazing' },
+// The per-version snapshot directory is discovered via import.meta.glob, which
+// enumerates the filesystem at build time — so the snapshot files may legitimately
+// be absent (CI regenerates them). Mock the source module to feed fixtures.
+vi.mock('./benchmarkHistorySources', () => ({
+  historySources: {
+    '0.1.0.json': () => Promise.resolve({
+      default: {
+        version: '0.1.0',
+        items: {
+          createDataTable: {
+            benchmarks: {
+              _groups: {
+                initialization: {
+                  'Create table (1,000 items)': { name: 'Create table (1,000 items)', hz: 20_000, hzLabel: '20.0k ops/s', mean: 0.000_05, meanLabel: '50.0μs', rme: 10, tier: 'blazing' },
+                },
+              },
             },
           },
         },
       },
-    },
-  },
-}))
-
-vi.mock('@/data/metrics/0.2.0.json', () => ({
-  default: {
-    version: '0.2.0',
-    items: {
-      createDataTable: {
-        benchmarks: {
-          _groups: {
-            initialization: {
-              'Create table (1,000 items)': { name: 'Create table (1,000 items)', hz: 22_000, hzLabel: '22.0k ops/s', mean: 0.000_045_4, meanLabel: '45.4μs', rme: 11, tier: 'blazing' },
+    }),
+    '0.2.0.json': () => Promise.resolve({
+      default: {
+        version: '0.2.0',
+        items: {
+          createDataTable: {
+            benchmarks: {
+              _groups: {
+                initialization: {
+                  'Create table (1,000 items)': { name: 'Create table (1,000 items)', hz: 22_000, hzLabel: '22.0k ops/s', mean: 0.000_045_4, meanLabel: '45.4μs', rme: 11, tier: 'blazing' },
+                },
+              },
+            },
+          },
+          createFilter: {
+            benchmarks: {
+              _groups: {
+                'primitive filtering': {
+                  'Filter 1k strings': { name: 'Filter 1k strings', hz: 5000, hzLabel: '5.0k ops/s', mean: 0.0002, meanLabel: '200μs', rme: 8, tier: 'fast' },
+                },
+              },
             },
           },
         },
       },
-      createFilter: {
-        benchmarks: {
-          _groups: {
-            'primitive filtering': {
-              'Filter 1k strings': { name: 'Filter 1k strings', hz: 5000, hzLabel: '5.0k ops/s', mean: 0.0002, meanLabel: '200μs', rme: 8, tier: 'fast' },
+    }),
+    '1.0.0-alpha.0.json': () => Promise.resolve({
+      default: {
+        version: '1.0.0-alpha.0',
+        items: {
+          createDataTable: {
+            benchmarks: {
+              _groups: {
+                initialization: {
+                  'Create table (1,000 items)': { name: 'Create table (1,000 items)', hz: 25_000, hzLabel: '25.0k ops/s', mean: 0.000_04, meanLabel: '40.0μs', rme: 12, tier: 'blazing' },
+                },
+              },
+            },
+          },
+          createFilter: {
+            benchmarks: {
+              _groups: {
+                'primitive filtering': {
+                  'Filter 1k strings': { name: 'Filter 1k strings', hz: 5500, hzLabel: '5.5k ops/s', mean: 0.000_182, meanLabel: '182μs', rme: 9, tier: 'fast' },
+                },
+              },
             },
           },
         },
       },
-    },
-  },
-}))
-
-vi.mock('@/data/metrics/1.0.0-alpha.0.json', () => ({
-  default: {
-    version: '1.0.0-alpha.0',
-    items: {
-      createDataTable: {
-        benchmarks: {
-          _groups: {
-            initialization: {
-              'Create table (1,000 items)': { name: 'Create table (1,000 items)', hz: 25_000, hzLabel: '25.0k ops/s', mean: 0.000_04, meanLabel: '40.0μs', rme: 12, tier: 'blazing' },
-            },
-          },
-        },
-      },
-      createFilter: {
-        benchmarks: {
-          _groups: {
-            'primitive filtering': {
-              'Filter 1k strings': { name: 'Filter 1k strings', hz: 5500, hzLabel: '5.5k ops/s', mean: 0.000_182, meanLabel: '182μs', rme: 9, tier: 'fast' },
-            },
-          },
-        },
-      },
-    },
+    }),
   },
 }))
 

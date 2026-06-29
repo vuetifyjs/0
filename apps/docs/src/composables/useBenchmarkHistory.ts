@@ -1,10 +1,14 @@
 // Framework
 import { isNumber } from '@vuetify/v0'
 
+// Composables
+import { historySources } from './benchmarkHistorySources'
+
 // Utilities
 import { type ComputedRef, type MaybeRefOrGetter, type ShallowRef, computed, shallowRef, toValue } from 'vue'
 
 // Types
+import type { RawFeature } from './benchmarkHistorySources'
 import type { Tier } from './useBenchmarkData'
 
 const CURRENT_LABEL = 'current' as const
@@ -34,30 +38,7 @@ export interface FeatureHistory {
   groups: GroupHistory[]
 }
 
-interface RawBenchEntry {
-  name?: string
-  hz?: number
-  mean?: number
-  tier?: Tier
-}
-
-interface RawFeature {
-  benchmarks?: {
-    _groups?: Record<string, Record<string, RawBenchEntry>>
-  }
-}
-
-interface WrappedFile {
-  version: string
-  items?: Record<string, RawFeature>
-}
-
 type FeatureIndex = Map<string, Map<string, Map<string, HistoryPoint[]>>>
-
-// Every committed per-version snapshot, discovered from the directory. Adding or
-// removing a historical version is just adding/removing its JSON file here — there
-// is no version list to keep in sync.
-const historyFiles = import.meta.glob<{ default: WrappedFile }>('@/data/metrics/*.json')
 
 let cache: ShallowRef<FeatureIndex | null> | null = null
 let loadingState: ShallowRef<boolean> | null = null
@@ -164,7 +145,7 @@ async function loadAll (): Promise<FeatureIndex> {
   const index: FeatureIndex = new Map()
 
   const history = await Promise.all(
-    Object.values(historyFiles).map(load => load()
+    Object.values(historySources).map(load => load()
       .then(m => ({ version: m.default.version, items: m.default.items ?? {}, isCurrent: false }))
       .catch(() => null)),
   )
