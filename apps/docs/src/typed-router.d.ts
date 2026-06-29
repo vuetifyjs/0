@@ -856,6 +856,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/essentials/glossary': RouteRecordInfo<
+      '/guide/essentials/glossary',
+      '/guide/essentials/glossary',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/essentials/using-the-docs': RouteRecordInfo<
       '/guide/essentials/using-the-docs',
       '/guide/essentials/using-the-docs',
@@ -1847,6 +1854,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/index.md': {
       routes:
         | '/guide/'
+      views:
+        | never
+    }
+    'src/pages/guide/essentials/glossary.md': {
+      routes:
+        | '/guide/essentials/glossary'
       views:
         | never
     }
