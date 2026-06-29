@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Composables
 import { createNotificationsContext } from '#v0/composables/useNotifications'
-import { createStackPlugin } from '#v0/composables/useStack'
+import { createStackPlugin, useStack } from '#v0/composables/useStack'
 
 import { createLocalePlugin } from '#v0/composables'
 
@@ -10,7 +10,7 @@ import { Snackbar } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, provide } from 'vue'
+import { defineComponent, h, nextTick, provide } from 'vue'
 
 let stackPlugin: ReturnType<typeof createStackPlugin>
 
@@ -639,6 +639,47 @@ describe('snackbar', () => {
       expect(wrapper.findComponent(Snackbar.Content as any).text()).toBe('File uploaded')
       expect(wrapper.findComponent(Snackbar.Close as any).attributes('aria-label')).toBeDefined()
       expect(spy).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('top-layer default', () => {
+    it('defaults teleport to top-layer and renders into an open modal', async () => {
+      // mount without plugin so both test code and Portal.vue share the fallback stack
+      const stack = useStack()
+      const dialogEl = document.createElement('dialog')
+      document.body.append(dialogEl)
+      const modal = stack.register({ el: dialogEl })
+      modal.select()
+
+      const wrapper = mount(Snackbar.Portal, {
+        slots: { default: () => h('div', { class: 'snack' }) },
+        attachTo: document.body,
+      })
+      await nextTick()
+      expect(dialogEl.querySelector('.snack')).not.toBeNull()
+
+      wrapper.unmount()
+      modal.unselect()
+      dialogEl.remove()
+    })
+
+    it('still renders inline with teleport=false', () => {
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { teleport: false },
+        slots: { default: () => h('div', { class: 'snack-inline' }) },
+      })
+      expect(wrapper.find('.snack-inline').exists()).toBe(true)
+    })
+
+    it('honors an explicit body target', async () => {
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { teleport: 'body' },
+        slots: { default: () => h('div', { class: 'snack-body' }) },
+        attachTo: document.body,
+      })
+      await nextTick()
+      expect(document.body.querySelector('.snack-body')).not.toBeNull()
+      wrapper.unmount()
     })
   })
 })
