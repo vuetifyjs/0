@@ -98,6 +98,7 @@
   const ticket = stack.register({
     onDismiss: () => context.close(),
     blocking,
+    el: () => contentRef.value?.element,
   })
 
   watch(context.isOpen, isOpen => {
