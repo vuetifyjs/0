@@ -48,11 +48,13 @@
       </Dialog.Content>
     </Dialog.Root>
 
-    <!-- Defaults to teleport="top-layer" — mounts inside the open dialog, stays interactive -->
-    <Snackbar.Portal>
+    <!-- Defaults to teleport="top-layer" — mounts inside the open dialog, stays interactive.
+         Position lives on the Portal wrapper (like the basic example) so the useStack z-index
+         lands on a positioned element and still wins once it falls back to body on close. -->
+    <Snackbar.Portal class="fixed bottom-4 right-4">
       <Snackbar.Root
         v-if="saved"
-        class="fixed bottom-4 right-4 flex items-center gap-3 px-4 py-2.5 rounded-lg shadow-lg text-sm bg-surface border border-divider"
+        class="flex items-center gap-3 px-4 py-2.5 rounded-lg shadow-lg text-sm bg-surface border border-divider"
         role="status"
         @dismiss="onDismiss"
       >
