@@ -32,6 +32,7 @@ pnpm --filter @vuetify-private/vapor-tests test
 | `test/smoke.test.ts` | The beta toolchain compiles + mounts a `<script setup vapor>` SFC and reacts. If this fails, the harness is broken, not v0. |
 | `test/instance.vapor.test.ts` | `utilities/instance.ts` works under a real Vapor render: `getCurrentInstance()` is genuinely `null`, yet the `currentInstance` shim still detects the instance and `useId()` resolves. `instance.test.ts` can only mock this. |
 | `test/composables.vapor.test.ts` | `createSelection` (registry + reactive tickets + computed Set) runs in a Vapor setup and drives Vapor DOM updates. |
+| `test/context.vapor.test.ts` | `createContext` carries a value from a Vapor ancestor to a Vapor descendant — the provide/inject substrate beneath every v0 compound component. |
 | `test/interop.vapor.test.ts` | A classic (vdom) v0 component renders inside a Vapor root via `vaporInteropPlugin`, including slot content forwarded from the Vapor parent. |
 
 ## Why the vitest config is unusual
