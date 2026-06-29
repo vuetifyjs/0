@@ -7,14 +7,10 @@ import { type ComputedRef, type MaybeRefOrGetter, type ShallowRef, computed, sha
 // Types
 import type { Tier } from './useBenchmarkData'
 
-const VERSIONS = ['0.1.0', '0.2.0', '1.0.0-alpha.0'] as const
 const CURRENT_LABEL = 'current' as const
-const VERSION_ORDER = [...VERSIONS, CURRENT_LABEL] as const
-
-type VersionLabel = typeof VERSION_ORDER[number]
 
 export interface HistoryPoint {
-  version: VersionLabel
+  version: string
   hz: number
   mean: number
   isCurrent: boolean
@@ -34,7 +30,7 @@ export interface GroupHistory {
 
 export interface FeatureHistory {
   feature: string
-  versionsSpanned: VersionLabel[]
+  versionsSpanned: string[]
   groups: GroupHistory[]
 }
 
@@ -53,18 +49,48 @@ interface RawFeature {
 
 interface WrappedFile {
   version: string
-  items: Record<string, RawFeature>
+  items?: Record<string, RawFeature>
 }
 
 type FeatureIndex = Map<string, Map<string, Map<string, HistoryPoint[]>>>
+
+// Every committed per-version snapshot, discovered from the directory. Adding or
+// removing a historical version is just adding/removing its JSON file here — there
+// is no version list to keep in sync.
+const historyFiles = import.meta.glob<{ default: WrappedFile }>('@/data/metrics/*.json')
 
 let cache: ShallowRef<FeatureIndex | null> | null = null
 let loadingState: ShallowRef<boolean> | null = null
 let loadPromise: Promise<void> | null = null
 
+/** Chronological order; `current` always sorts last, releases outrank their prereleases. */
+function compareVersion (a: string, b: string): number {
+  if (a === b) return 0
+  if (a === CURRENT_LABEL) return 1
+  if (b === CURRENT_LABEL) return -1
+
+  function parse (v: string) {
+    const [core, pre] = v.split('-')
+    return { nums: core.split('.').map(Number), pre }
+  }
+
+  const pa = parse(a)
+  const pb = parse(b)
+
+  for (let i = 0; i < 3; i++) {
+    const diff = (pa.nums[i] ?? 0) - (pb.nums[i] ?? 0)
+    if (diff !== 0) return diff
+  }
+
+  if (!pa.pre && pb.pre) return 1
+  if (pa.pre && !pb.pre) return -1
+  if (pa.pre && pb.pre) return pa.pre < pb.pre ? -1 : (pa.pre > pb.pre ? 1 : 0)
+  return 0
+}
+
 function ingestSource (
   index: FeatureIndex,
-  version: VersionLabel,
+  version: string,
   items: Record<string, RawFeature>,
   isCurrent: boolean,
 ) {
@@ -110,15 +136,13 @@ function ingestSource (
 
 function shapeFeature (feature: string, featureMap: Map<string, Map<string, HistoryPoint[]>>): FeatureHistory | null {
   const groups: GroupHistory[] = []
-  const allVersions = new Set<VersionLabel>()
+  const allVersions = new Set<string>()
 
   for (const [groupName, benchMap] of featureMap) {
     const benchmarks: BenchmarkHistory[] = []
     for (const [benchName, points] of benchMap) {
       if (points.length < 2) continue
-      const sorted = points.toSorted(
-        (a, b) => VERSION_ORDER.indexOf(a.version) - VERSION_ORDER.indexOf(b.version),
-      )
+      const sorted = points.toSorted((a, b) => compareVersion(a.version, b.version))
       const first = sorted[0]!
       const last = sorted.at(-1)!
       const delta = first.hz === 0 ? 0 : ((last.hz - first.hz) / first.hz) * 100
@@ -132,21 +156,24 @@ function shapeFeature (feature: string, featureMap: Map<string, Map<string, Hist
 
   if (groups.length === 0) return null
 
-  const versionsSpanned = VERSION_ORDER.filter(v => allVersions.has(v))
+  const versionsSpanned = [...allVersions].toSorted(compareVersion)
   return { feature, versionsSpanned, groups }
 }
 
 async function loadAll (): Promise<FeatureIndex> {
   const index: FeatureIndex = new Map()
 
-  const sources = await Promise.all([
-    import('@/data/metrics/0.1.0.json').then(m => ({ version: '0.1.0' as const, items: (m.default as WrappedFile).items, isCurrent: false })).catch(() => null),
-    import('@/data/metrics/0.2.0.json').then(m => ({ version: '0.2.0' as const, items: (m.default as WrappedFile).items, isCurrent: false })).catch(() => null),
-    import('@/data/metrics/1.0.0-alpha.0.json').then(m => ({ version: '1.0.0-alpha.0' as const, items: (m.default as WrappedFile).items, isCurrent: false })).catch(() => null),
-    import('@/data/metrics.json').then(m => ({ version: CURRENT_LABEL, items: m.default as Record<string, RawFeature>, isCurrent: true })).catch(() => null),
-  ])
+  const history = await Promise.all(
+    Object.values(historyFiles).map(load => load()
+      .then(m => ({ version: m.default.version, items: m.default.items ?? {}, isCurrent: false }))
+      .catch(() => null)),
+  )
 
-  for (const source of sources) {
+  const current = await import('@/data/metrics.json')
+    .then(m => ({ version: CURRENT_LABEL, items: m.default as Record<string, RawFeature>, isCurrent: true }))
+    .catch(() => null)
+
+  for (const source of [...history, current]) {
     if (!source) continue
     ingestSource(index, source.version, source.items, source.isCurrent)
   }
