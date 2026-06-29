@@ -133,6 +133,10 @@ Yes. Anchor the queue to a `<div>` placed inside `Dialog.Content`, then re-targe
 </template>
 ```
 
+??? What's the difference between `closeOnClickOutside` and `blocking`?
+
+`:close-on-click-outside="false"` on `Dialog.Content` stops backdrop clicks from closing the dialog. `blocking` goes further and disables scrim-based dismissal entirely, so the dialog can only be closed programmatically via `Dialog.Close` or `v-model` — reach for it on critical confirmations that require an explicit choice.
+
 :::
 
 <DocsApi />

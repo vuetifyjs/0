@@ -452,6 +452,18 @@ Pick whichever fits your setup:
 
 3. **Server timezone:** Set `TZ=UTC` environment variable on your server for consistent baseline.
 
+??? Do I need to install the Temporal polyfill?
+
+Only if a runtime you target lacks native Temporal. `V0DateAdapter` prefers the runtime's native implementation and falls back to [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) when it's missing — once every target ships native Temporal, the polyfill is no longer required.
+
+??? Can I use date-fns, luxon, or dayjs instead of Temporal?
+
+Yes. The adapter pattern decouples date operations from the library — extend `DateAdapter<T>` (the page's `DateFnsAdapter` shows the shape) and pass it as the `adapter` option to `createDatePlugin`. Only `V0DateAdapter` ships built-in; other libraries need a custom adapter.
+
+??? What's the difference between `format()` and `formatByString()`?
+
+`format()` takes a named preset (`fullDate`, `shortDate`, `monthAndYear`, …) and is locale-aware. `formatByString()` takes an explicit token string (`YYYY-MM-DD`, `HH:mm`, …) for exact, hand-built output. Reach for presets first; drop to tokens when you need a specific layout.
+
 :::
 
 <DocsApi />

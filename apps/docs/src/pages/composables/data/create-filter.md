@@ -167,6 +167,14 @@ Pass `keys: ['name', 'email']` in the options. When `keys` is omitted, every val
 
 createFilter is pure in-memory filtering logic — reach for it for instant client-side search. When the dataset outgrows memory, or you also need sorting, pagination, and server support, move to [createDataTable](/composables/data/create-data-table).
 
+??? How do I replace the built-in matching with my own logic?
+
+Pass a `customFilter: (query, item) => boolean` predicate. It bypasses `keys` and `mode` entirely, so you own the comparison — e.g. a `startsWith` prefix match instead of the default substring check.
+
+??? Why don't the filter modes change anything for a single-string query?
+
+`mode` only governs how *multiple* queries match, so it takes effect when the query is an array. Split a multi-word string into an array (e.g. on whitespace) to make `some`, `every`, `union`, and `intersection` behave differently.
+
 :::
 
 <DocsApi />

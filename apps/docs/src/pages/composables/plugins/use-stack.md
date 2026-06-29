@@ -172,6 +172,10 @@ Use `createStackContext({ namespace, baseZIndex })` to create a separate stackin
 
 Register it with `blocking: true`. The overlay stays topmost, but the stack's `isBlocking` flag tells the Scrim to ignore pointer events, so clicking the backdrop won't dismiss it.
 
+??? How does useStack decide each overlay's z-index?
+
+It assigns them from selection order: the first activated overlay gets the base z-index (2000), and each one stacked on top steps up from there (2010, …). Pass `baseZIndex` to `createStackContext` to shift the starting point for a separate namespace.
+
 :::
 
 <DocsApi />

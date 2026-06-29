@@ -226,6 +226,14 @@ Set `name` on `Slider.Root` to auto-render hidden inputs — one per thumb — s
 
 `Slider.Root` emits `start` and `end` events for the pointer-drag lifecycle. Bind `@start` and `@end` for things like committing a value only once the drag completes.
 
+??? How do I make a vertical slider?
+
+Set `orientation="vertical"` on `Slider.Root`. It reflects through `aria-orientation` and the `data-orientation` attribute, and the arrow keys adapt so Up/Down increment and decrement.
+
+??? Can users move the thumb in larger increments with the keyboard?
+
+Yes. Arrow keys move by one step; `Shift+Arrow`, `PageUp`, and `PageDown` move by 10 steps; `Home` and `End` jump to the minimum and maximum.
+
 :::
 
 <DocsApi />

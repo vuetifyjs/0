@@ -148,6 +148,10 @@ Read `isAllSelected`, `isMixed`, and `isNoneSelected` to choose the checkbox sta
 
 Selected means the item is in `selectedIds`; mixed (indeterminate) means it's only partially selected — typically a parent whose children are some-selected. Read it with `mixed(id)` or ticket `isMixed`, set it with `mix()`/`unmix()`. For automatic parent/child cascading, see [createNested](/composables/selection/create-nested).
 
+??? Does selectAll() select disabled items too?
+
+No. `selectAll()`, `unselectAll()`, and `toggleAll()` act only on non-disabled items, and `isAllSelected` is `true` once every non-disabled item is selected — a disabled row is skipped, so it never keeps the select-all header from reading as fully checked.
+
 :::
 
 <DocsApi />

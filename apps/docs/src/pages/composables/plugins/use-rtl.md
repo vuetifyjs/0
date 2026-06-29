@@ -255,6 +255,10 @@ Use `createRtlContext` to provide a scoped direction via provide/inject. A desce
 
 The `ltr:` variant only applies when an ancestor carries an explicit `dir="ltr"` attribute, not as the default. Use the bare utility class for LTR behavior and `rtl:` for the override — e.g. `-translate-x-full rtl:translate-x-full`.
 
+??? Do I need `rtl:` variants on every margin and padding?
+
+No — prefer CSS logical properties (`ms`/`me`, `ps`/`pe`, `start`/`end`), which flip automatically with the `dir` attribute. Reserve direction variants for the cases logical properties can't express, like `translate-x`.
+
 :::
 
 <DocsApi />

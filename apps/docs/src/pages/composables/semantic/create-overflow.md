@@ -144,6 +144,10 @@ Items must keep their measured widths. If you unmount overflowing items (e.g. `s
 
 Variable-width measures each item individually (breadcrumbs, nav links of different sizes); uniform-width uses a single `itemWidth` for same-size items like pagination buttons, skipping per-item measurement. Use `reserved` to keep room for an overflow trigger.
 
+??? When should I use createOverflow instead of the Overflow component?
+
+Reach for createOverflow when you need full control over how truncation is presented — a custom overflow menu, breadcrumb ellipsis, or responsive toolbar. The [Overflow](/components/semantic/overflow) component wraps it with item registration and an indicator slot when the default presentation is enough.
+
 :::
 
 <DocsApi />

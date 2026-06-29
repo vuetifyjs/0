@@ -411,6 +411,18 @@ Row ordering resets on sort change by default. Pass `preserveRowOrder: true` to 
 
 Call `grid.layout.resize(id, delta)` — it grows that column by a percentage and shrinks its neighbor inversely so the columns always total 100%. `grid.layout.reset()` restores the initial sizes, order, and pins.
 
+??? How does a cell edit get validated before it commits?
+
+`grid.editing.commit(value)` runs the column's `validate` function first — the commit only lands when the validator returns `true`, and `grid.editing.error` holds the rejection string until the value passes or the user cancels.
+
+??? Does hiding a column redistribute the remaining column widths?
+
+No — `grid.layout.hide(id)` just drops the column from the render set; rebalancing is left to you via `grid.layout.distribute([...])` or CSS. `grid.layout.all` lists every column with a `visible` flag, which is exactly the shape a column chooser needs.
+
+??? Can I render grouped, multi-row column headers?
+
+Yes. Onboard columns with a `children` array and read `grid.headers` — a 2D grid carrying `colspan` / `rowspan` for `<thead>`. The layout and data pipeline still operate on the leaf columns only.
+
 :::
 
 <DocsApi />

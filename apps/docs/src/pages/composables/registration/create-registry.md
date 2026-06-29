@@ -199,6 +199,14 @@ createRegistry uses minimal reactivity by default for performance. Pass `{ react
 
 createRegistry is the base ordered, keyed collection — registration, indexing, and lookup. [createSelection](/composables/selection/create-selection) extends it (through createModel) with selection state. Use createRegistry when you need to track items but not which are selected.
 
+??? When should I use `{ reactive: true }` vs `useProxyRegistry`?
+
+Pass `{ reactive: true }` to make `keys()`, `values()`, `entries()`, `size`, and per-ticket field reads reactive directly on the registry. Reach for [useProxyRegistry](/composables/reactivity/use-proxy-registry) when you want event-driven snapshots, `deep: true` tracking, or reactivity without wrapping the tickets themselves.
+
+??? How do I run several mutations without firing events and reindexing on each one?
+
+Wrap them in `batch(fn)`. It defers cache invalidation and event emission until the callback finishes, so a sequence of `register` / `move` / `unregister` calls settles once instead of per-mutation.
+
 :::
 
 <DocsApi />

@@ -137,6 +137,18 @@ Inside a queue, `dismiss()` removes the toast from the display queue only — th
 
 Set `role="alert"` on `Snackbar.Root` (implicit `aria-live="assertive"`). The default `role="status"` is polite and waits for the reader to be idle.
 
+??? Does the auto-dismiss timer pause on hover?
+
+Yes. A queued stack pauses on hover and focus (WCAG 2.2.1) and resumes once focus leaves the container — no wiring needed.
+
+??? How do I render snackbars inline instead of teleporting to `<body>`?
+
+Pass `:teleport="false"` on `Snackbar.Portal`, optionally inside a `relative` container, to render the stack in place.
+
+??? How do I add an undo action to a toast?
+
+Attach a closure to the notification's `data` payload when you send it. `Snackbar.Queue` exposes each ticket through its slot, so the host reads `data.undo` and renders an Undo button beside `Snackbar.Close`.
+
 :::
 
 <DocsApi />

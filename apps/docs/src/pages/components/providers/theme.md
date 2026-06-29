@@ -143,6 +143,14 @@ Omit the `theme` prop. Theme then inherits the parent theme while still emitting
 
 Only when building a reusable component that must stay theme-isolated from the app's global theme. By default Theme provides under `'v0:theme'` (the key `useTheme()` reads); a custom namespace keeps descendants from affecting the global theme. Most apps don't need it.
 
+??? Can I render `<Theme>` as a specific element?
+
+Yes. Theme extends `Atom`, so the `as` prop renders it as any element — `<Theme theme="dark" as="section">` outputs `<section data-theme="dark">`.
+
+??? How do I scope a theme without adding a wrapper element?
+
+Set `renderless` and bind the `attrs` slot prop (which includes `data-theme`) to your own element.
+
 :::
 
 <DocsApi />

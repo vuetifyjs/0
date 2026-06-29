@@ -120,6 +120,14 @@ Call `pause()` to stop receiving callbacks and `resume()` to continue with the s
 
 Yes. `useElementSize` builds on `useResizeObserver` and exposes reactive `width` and `height` refs directly.
 
+??? What's the difference between useResizeObserver and useIntersectionObserver?
+
+`useResizeObserver` reports an element's size changes; [useIntersectionObserver](/composables/system/use-intersection-observer) reports when it enters or leaves the viewport. Reach for resize when layout depends on measured dimensions, intersection when it depends on visibility.
+
+??? How do I measure the border-box instead of the content-box?
+
+Pass `box: 'border-box'`. The default `'content-box'` excludes padding and borders; `'border-box'` includes them.
+
 :::
 
 <DocsApi />

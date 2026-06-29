@@ -170,6 +170,14 @@ Yes — `theme.register({ id, dark, colors })` adds a theme after install (e.g. 
 
 useTheme manages the app-wide theme. Reach for the [Theme](/components/providers/theme) provider when a subtree needs its own independent theme isolated from the rest of the app.
 
+??? How do I toggle between two themes when more are registered?
+
+`cycle()` with no arguments advances through every registered theme in insertion order; pass an array — `cycle(['light', 'dark'])` — to restrict the rotation to a subset. Use `select(id)` to jump straight to a specific theme.
+
+??? How do themes share a common palette?
+
+Register each theme's colors as token aliases that reference shared palette tokens, resolved through [createTokens](/composables/registration/create-tokens). Changing one palette shade then propagates to every theme that references it, instead of editing each theme's colors by hand.
+
 :::
 
 <DocsApi />

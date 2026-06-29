@@ -147,6 +147,18 @@ Register more than one thumb — call `register({ value })` per thumb, or `onboa
 
 Yes — it's a pure math primitive, not a UI widget. The examples drive a media scrubber and a before/after theme comparison from the same `fromPercent → set → fromValue` loop with no `Slider.*` components.
 
+??? How do I stop range thumbs from crossing each other?
+
+`set` enforces a minimum gap between adjacent thumbs via the `minStepsBetweenThumbs` option, alongside clamping to min/max and snapping to the nearest step.
+
+??? Why does `snap` return `0.3` instead of `0.30000000000000004`?
+
+`snap` runs the result through `toFixed`, deriving the decimal places from `step` and `min`, so it corrects floating-point artifacts — `snap(3 * 0.1)` yields a clean `0.3`.
+
+??? What's the difference between `disabled` and `readonly`?
+
+`disabled` blocks all mutations; `readonly` keeps thumbs focusable but turns `set`, `up`, `down`, `floor`, and `ceil` into no-ops. Both accept a `MaybeRefOrGetter`.
+
 :::
 
 <DocsApi />

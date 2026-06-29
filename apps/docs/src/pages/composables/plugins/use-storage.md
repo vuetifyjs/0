@@ -180,6 +180,14 @@ No. The ref returned by `get(key, default)` is watched with `{ deep: true }`, so
 
 Pass a `ttl` (in milliseconds) to `createStorage`. Entries are timestamped on write; once older than the TTL, `get()` returns the default and removes the entry from storage.
 
+??? How do I use sessionStorage instead of localStorage?
+
+Pass the backend you want as the `adapter` option. `localStorage` is the browser default; `sessionStorage` scopes values to the tab, and `MemoryStorageAdapter` (from `@vuetify/v0/storage/adapters/memory`) keeps them in memory only.
+
+??? Is useStorage safe to call during SSR?
+
+Yes. With no browser storage on the server it falls back to `MemoryStorageAdapter`, so reads and writes work and the render stays deterministic — values just don't persist across requests. Pair it with [useHydration](/composables/plugins/use-hydration) to coordinate reads with client hydration.
+
 :::
 
 <DocsApi />

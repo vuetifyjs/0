@@ -179,6 +179,14 @@ No. A [createValidation](/composables/forms/create-validation) created inside a 
 
 It's tri-state: `null` until the first `submit()`, then `true` when every registered validation passes or `false` when any fails.
 
+??? What does `form.submit()` actually do?
+
+It runs every registered validation in parallel and resolves to a boolean — `true` only when all pass. `form.isValidating` is `true` while async rules are in flight, so bind the submit button's disabled state to it.
+
+??? Why doesn't setting `disabled` actually disable my inputs?
+
+`createForm` is headless — `form.disabled` and `form.readonly` are advisory reactive refs. Child components must read them and disable or guard their own inputs; the form never touches the DOM itself.
+
 :::
 
 <DocsApi />

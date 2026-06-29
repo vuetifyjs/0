@@ -141,6 +141,14 @@ Pass a ref as the `page` option. `page` is a WritableComputedRef, so writes to i
 
 `items` returns `PaginationTicket[]`, where each is `{ type: 'page', value: number }` or `{ type: 'ellipsis', value: '…' }`. Branch on `item.type` to render numbered buttons versus the gap marker.
 
+??? What does the `visible` option control?
+
+It sets how many numbered page buttons `items` exposes before ellipsis entries collapse the rest — `visible: 5` over 20 pages yields a short window plus the boundary pages rather than all twenty.
+
+??? Can I change items-per-page at runtime?
+
+Yes — pass a ref or getter as `itemsPerPage`. The example passes a `shallowRef`, so changing it recomputes `pages`, `items`, `pageStart`, and `pageStop` automatically.
+
 :::
 
 <DocsApi />

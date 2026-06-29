@@ -186,6 +186,10 @@ They would be redundant — nothing is below `xs`, so `xs` already means "xsAndD
 
 With no window to measure, useBreakpoints defaults to `xs` and width `0` during SSR. Pass `ssr: { clientWidth, clientHeight }` to `createBreakpointsPlugin` so the first paint computes flags from known dimensions; real `window` values replace them on hydration.
 
+??? What's the difference between the `lg` flag and `lgAndUp`?
+
+`lg` is `true` only when `lg` is the current breakpoint — the highest threshold the viewport meets. `lgAndUp` is `true` whenever the viewport is at least `lg`, i.e. `lg`, `xl`, or `xxl`. Breakpoints are range-based, so `name` reports the single active breakpoint while the `AndUp` / `AndDown` flags test inclusive ranges.
+
 :::
 
 <DocsApi />

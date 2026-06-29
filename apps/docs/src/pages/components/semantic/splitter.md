@@ -263,6 +263,18 @@ Use `v-model:collapsed` on the panel for two-way binding — setting the ref col
 
 Call `distribute([...])` from the root's slot props to set all sizes at once; values are clamped to each panel's min/max. To react to user resizes, listen to `@layout` (all sizes) or a panel's `@resize`.
 
+??? How do I make a vertical splitter?
+
+Set `orientation="vertical"` on `Splitter.Root` to stack panels top-to-bottom; the default is `horizontal`.
+
+??? Can I nest splitters?
+
+Yes. Place a `Splitter.Root` inside any `Splitter.Panel` — each nested splitter manages its own sizes, handles, and orientation independently of the outer one.
+
+??? How do I resize a panel with the keyboard?
+
+Focus a handle, then use the arrow keys to resize by 1% and Page Up / Page Down by 10%. Home and End collapse or expand the preceding panel, and Enter toggles its collapse state.
+
 :::
 
 <DocsApi />

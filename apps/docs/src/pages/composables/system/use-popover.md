@@ -135,6 +135,14 @@ Reach for `usePopover` when you want full control over a select, combobox, toolt
 
 No. `contentAttrs` registers a native auto popover, so the browser handles light dismiss — outside click and Escape — for free. Reach for [useClickOutside](/composables/system/use-click-outside) only when you wire dismissal manually instead of using the native popover.
 
+??? How do I delay opening or closing the popover?
+
+Pass `openDelay` and `closeDelay` (ms) in the options. Call `cancel()` to abort a pending open or close transition before it fires.
+
+??? How do I control where the popover appears relative to its trigger?
+
+Set `positionArea` (e.g. `'bottom'`) for the primary placement and `positionTry` for the fallback positions the browser flips to when that area overflows — CSS anchor positioning handles it with no JavaScript layout math.
+
 :::
 
 <DocsApi />

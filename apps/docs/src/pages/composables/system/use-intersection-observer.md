@@ -127,6 +127,10 @@ useIntersectionObserver gives you the raw entries callback plus `pause()`, `resu
 
 Pass the container element as the `root` option — it defaults to `null`, the browser viewport. `rootMargin` and `threshold` are then calculated relative to that container.
 
+??? How do I track a continuous visibility percentage instead of just visible/hidden?
+
+Pass an array of thresholds so the callback fires at each ratio step — e.g. `Array.from({ length: 21 }, (_, i) => i / 20)` fires every 5%. The scroll-reveal example uses exactly this to drive its progress bar.
+
 :::
 
 <DocsApi />

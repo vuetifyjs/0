@@ -209,6 +209,10 @@ Pass `persist: true` to `createReducedMotionPlugin`, and install `createStorageP
 
 When installed, the plugin sets `data-reduced-motion="reduce" | "no-preference"` on `document.body`, so you can target `[data-reduced-motion="reduce"]` in CSS. In `system` mode the server renders `no-preference`, so pair the attribute with a native `@media (prefers-reduced-motion: reduce)` query to cover first paint before hydration.
 
+??? How do I read the raw OS preference regardless of the active mode?
+
+Call [usePrefersReducedMotion](/composables/system/use-media-query) directly — it reports what the system asks for, independent of `selectedMode`. Surface it next to `isReduced` in a settings panel so users can compare their OS preference against what the app is applying.
+
 :::
 
 <DocsApi />

@@ -209,6 +209,14 @@ Pass the id array to `reorder(ids)`. It accepts a strict permutation of the curr
 
 `reorder` is a bulk operation that declares the canonical order, so it bypasses per-ticket `disabled` (root `disabled` still gates it). To keep a disabled ticket pinned, exclude its id from the array.
 
+??? How do I react to a reorder?
+
+Subscribe with `on('move:ticket', cb)` — the payload is `{ ticket, from, to }`. `createSortable` always enables `events: true`, so `move`, `swap`, and `reorder` all emit it without extra setup.
+
+??? The surface is imperative — how do I render a list that stays in sync?
+
+Wrap the instance in [useProxyRegistry](/composables/reactivity/use-proxy-registry) for a reactive `{ keys, values, entries, size }` snapshot. Iterating it re-renders on every `move`, `swap`, and `reorder` — no manual `watch`, no second copy of the list.
+
 :::
 
 <DocsApi />

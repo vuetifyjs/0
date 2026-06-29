@@ -151,6 +151,14 @@ By default useHotkey skips text inputs so shortcuts don't hijack typing. Pass `{
 
 Use a hyphenated string: `useHotkey('g-h', cb)`. The keys must be pressed in order, and the sequence resets after `sequenceTimeout` if you pause between keystrokes.
 
+??? Do I have to use exact `KeyboardEvent.key` names like `escape` or `arrowup`?
+
+No. Keys are normalized before matching, so human-friendly aliases work — `esc`, `return`, `del`, `space`, `up`/`down`/`left`/`right`, `command`, `option`, and more. See the alias table above.
+
+??? Can I change a hotkey binding at runtime?
+
+Yes. The `keys` argument accepts a ref or getter and is watched, so updating it re-registers the binding for the new combination — useful for user-customizable shortcuts.
+
 :::
 
 <DocsApi />

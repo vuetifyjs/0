@@ -278,6 +278,18 @@ createCombobox is the low-level coordinator for fully custom markup and ARIA wir
 
 Pass `new ServerComboboxAdapter()` and watch `combobox.query` to drive your own fetch, registering or unregistering items through `combobox.selection`. The default `ClientComboboxAdapter` does case-insensitive substring matching in memory.
 
+??? What does `strict` mode do?
+
+With `strict: true`, closing the dropdown without a live match reverts `query` — to the selected item's label if one is selected, otherwise to `''`. Non-strict (the default) leaves whatever the user typed. It also sets `aria-autocomplete="both"` per the WAI-ARIA pattern.
+
+??? How does `select(id)` behave in multiple mode?
+
+It toggles the item, clears the query so the user can search for the next one, keeps the dropdown open, highlights the clicked item via `cursor.highlight(id)`, and refocuses the input — so keyboard navigation continues from that position.
+
+??? What is `cursor` and why isn't it real DOM focus?
+
+`cursor` is the [useVirtualFocus](/composables/system/use-virtual-focus) surface — it tracks the keyboard-highlighted option through `aria-activedescendant` while real focus stays in the input. Arrow keys call `cursor.next()` / `cursor.prev()`, and Enter reads `cursor.highlightedId` to route to `select(id)`.
+
 :::
 
 <DocsApi />

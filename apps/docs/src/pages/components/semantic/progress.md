@@ -190,6 +190,10 @@ When no value is provided or all segment values are `0`. Style it through `data-
 
 Buffer is independent of the segment registry — it reads `value` directly and computes its own percentage against Root's `min`/`max`, so it can show pre-loaded content ahead of the fill.
 
+??? How do I submit progress as part of a form?
+
+Set `name` on `Progress.Root` to auto-render a hidden input (the `Progress.HiddenInput` in the anatomy) carrying the current value, so it posts with the form.
+
 :::
 
 <DocsApi />

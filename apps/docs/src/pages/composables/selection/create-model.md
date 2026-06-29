@@ -181,6 +181,10 @@ createModel defaults `enroll` to `true`, since a two-way-bound value is expected
 
 By default `select()` clears the previous selection first (single-value semantics). With `multiple: true` it accumulates IDs so several tickets stay active at once — this is how `createSlider` keeps every thumb selected simultaneously.
 
+??? How is createModel different from Vue's `defineModel`?
+
+`defineModel` is a single component-level `v-model`. createModel stores values in a registry of tickets, so you can compose several values into one compound model and build selection on top — which is what [createSelection](/composables/selection/create-selection) does. Bridge a createModel value to a `v-model` ref with [useProxyModel](/composables/reactivity/use-proxy-model).
+
 :::
 
 <DocsApi />

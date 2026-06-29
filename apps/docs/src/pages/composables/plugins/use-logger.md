@@ -276,6 +276,10 @@ Pass a scope key — `useLogger('createKanban')` — and every message is tagged
 
 Yes — `logger.level('warn')` changes the active threshold, `logger.current()` reads it back, and `logger.disable()` / `logger.enable()` silence or restore all output. These affect every scope of the shared logger.
 
+??? How do I send logs to Pino or Consola instead of the console?
+
+Pass the matching adapter to `createLoggerPlugin` — `PinoLoggerAdapter` from `@vuetify/v0/logger/adapters/pino` or `ConsolaLoggerAdapter` from `@vuetify/v0/logger/adapters/consola`. For any other destination, extend `LoggerAdapter` and implement `debug` / `info` / `warn` / `error`.
+
 :::
 
 <DocsApi />

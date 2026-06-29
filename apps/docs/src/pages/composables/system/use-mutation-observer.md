@@ -125,6 +125,10 @@ Set `subtree: true` to extend observation to every descendant, then enable the r
 
 Use useMutationObserver for DOM-tree, attribute, and text changes. Reach for [useResizeObserver](/composables/system/use-resize-observer) for element size changes and [useIntersectionObserver](/composables/system/use-intersection-observer) for viewport visibility.
 
+??? Can I observe only specific attributes instead of every attribute change?
+
+Yes. Set `attributes: true` and pass `attributeFilter: ['class', 'data-state']` to limit observation to those names, which avoids callback noise from unrelated attribute writes.
+
 :::
 
 <DocsApi />

@@ -161,6 +161,10 @@ Configure a base `itemHeight`, then call `resize(index, height)` after each row 
 
 createVirtual windows whatever array you pass, so filter or sort first and feed the result in — pair it with [createFilter](/composables/data/create-filter), or use [createDataTable](/composables/data/create-data-table)'s `VirtualDataTableAdapter` to hand `table.items` to the scroller. The source ref is watched, so the window reflows when the list changes.
 
+??? How do I scroll to a specific item programmatically?
+
+Call `scrollTo(index, options?)` — it accepts `behavior`, `block`, and `offset`, so `scrollTo(500, { behavior: 'smooth' })` brings item 500 into view. Bound the index with `clamp` so it can't point past the data.
+
 :::
 
 <DocsApi />

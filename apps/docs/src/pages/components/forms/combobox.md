@@ -229,6 +229,14 @@ Pass a `ServerComboboxAdapter` to `Combobox.Root` to disable client-side filteri
 
 Items render with `v-show` (not `v-if`) against the filtered set, so they're hidden rather than unmounted. Selection state is preserved even when an option isn't currently matched.
 
+??? How do I stop users from keeping free text that doesn't match an option?
+
+Set `strict` on `Combobox.Root`. When the dropdown closes, the input reverts to the selected option's value — or clears if nothing is selected — so an unmatched query never sticks.
+
+??? How do I submit the selected value(s) with a native form?
+
+Set `name` on `Combobox.Root` and it auto-renders one hidden input per selected value. Combobox doesn't export a hidden-input sub-component, so you never place one by hand.
+
 :::
 
 <DocsApi />

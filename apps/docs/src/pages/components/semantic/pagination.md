@@ -102,6 +102,14 @@ Responsive sizing measures one sample button's width, so variable-width buttons 
 
 Use `renderless` mode and bind the `attrs` slot prop to your own `<nav>` — it carries the landmark label, `aria-current="page"`, and the live-region wiring.
 
+??? How do I navigate pages with the keyboard?
+
+Arrow keys move between page buttons, and Enter or Space selects the focused page. Page changes are announced to screen readers through an `aria-live` region.
+
+??? How do I localize the pagination label?
+
+The `<nav>` landmark's `aria-label` defaults to `"Pagination"` and is localizable via the `Pagination.label` key.
+
 :::
 
 <DocsApi />

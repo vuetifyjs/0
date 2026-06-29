@@ -144,6 +144,10 @@ Both extend createRegistry, but for opposite jobs. createTimeline is bounded und
 
 createTimeline inherits createRegistry's minimal reactivity. Wrap it with `useProxyRegistry(timeline)` for full template reactivity on the active timeline.
 
+??? How do I tell when there's something to redo?
+
+The redo stack is internal to the timeline and isn't exposed as a reactive property. Track it yourself with a `shallowRef` — the canvas example keeps a `redoStackSize` ref in sync as the user undoes and redoes, then drives the Redo button's state from it.
+
 :::
 
 <DocsApi />

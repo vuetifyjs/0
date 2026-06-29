@@ -156,6 +156,10 @@ Each `Avatar.Image` registers disabled until it loads; an internal selection wit
 
 Set `responsive` on the group to opt into [createOverflow](/composables/semantic/create-overflow); the indicator self-measures and reserves room, so the visible count adjusts to the available width.
 
+??? How do I show a loading or retry affordance while the image loads?
+
+`Avatar.Image` exposes the underlying `useImage` state via slot props — `status`, `isLoaded`, `isError`, and a `retry` method — so you can drive spinners, transitions, or a retry button.
+
 :::
 
 <DocsApi />

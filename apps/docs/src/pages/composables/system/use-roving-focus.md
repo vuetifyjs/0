@@ -141,6 +141,10 @@ Pass `columns`. Left/Right step one item, Up/Down step by a full row (±columns)
 
 Yes. `useRovingFocus` only manages focus, so compose it with a selection composable like [createSingle](/composables/selection/create-single) when you need a listbox or select that tracks both focus and the chosen value.
 
+??? Do I have to attach the keydown handler myself?
+
+No — when you pass a `target` element, `onKeydown` is auto-bound to it. Omit `target` and bind the returned `onKeydown` handler to your element manually instead.
+
 :::
 
 <DocsApi />

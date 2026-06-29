@@ -270,6 +270,14 @@ Add `multiple` to `Select.Root` and bind `v-model` to an array. The dropdown sta
 
 Use Select when users pick from a fixed list without typing. For free-text entry or typeahead filtering that can create new options, reach for [Combobox](/components/forms/combobox) instead.
 
+??? How do I keep one option always selected?
+
+Add `mandatory` to `Select.Root` to block deselecting the last item, or `mandatory="force"` to also auto-select the first non-disabled item on mount.
+
+??? How do I submit Select's value with a native form?
+
+Set `name` on `Select.Root` and it auto-renders one hidden input per selected value, so the field posts with the form without placing a hidden-input sub-component by hand.
+
 :::
 
 <DocsApi />

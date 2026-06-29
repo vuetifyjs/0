@@ -169,6 +169,14 @@ No. `pause()` captures the remaining budget and `resume()` continues from exactl
 
 It restarts from the full duration. A timer started for 5s that you `start()` again after 2s will fire 5s later, not 3s.
 
+??? How do I make the timer repeat instead of firing once?
+
+Pass `repeat: true`. By default the timer is one-shot — it fires once and `isActive` becomes `false`; with `repeat` it restarts after each fire until you call `stop()`.
+
+??? What replaced the old debounce utility?
+
+`useTimer` did. It provides the same delay behavior plus pause/resume, repeat support, and automatic cleanup on scope disposal.
+
 :::
 
 <DocsApi />

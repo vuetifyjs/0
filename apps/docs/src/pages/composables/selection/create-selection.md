@@ -170,6 +170,14 @@ createSelection defaults `enroll` to `false`, so tickets register inert — call
 
 Pass `mandatory: true`. It prevents deselecting the final selected item, so the collection always keeps at least one active entry.
 
+??? Why does selecting a second item clear the first?
+
+`multiple` defaults to `false`, so `select()` replaces the current selection. Pass `multiple: true` to accumulate IDs — that's why both examples on this page construct `createSelection({ multiple: true })`.
+
+??? How do I set the selection from an array of values?
+
+Call `apply(values)`. It resolves each value to its ticket ID via `browse()`, then adds and removes IDs so the selection matches the array.
+
 :::
 
 <DocsApi />

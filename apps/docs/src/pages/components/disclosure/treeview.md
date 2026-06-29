@@ -243,6 +243,14 @@ The `--v0-treeview-depth` CSS variable is set on each Item, enabling indentation
 
 Each `Treeview.Item` sets a `--v0-treeview-depth` CSS variable. Multiply it for `padding-left` — e.g. `padding-left: calc(var(--v0-treeview-depth) * 1rem)` — so indentation scales automatically with depth.
 
+??? How do I make the tree behave like an accordion, with only one node open at a time?
+
+The tree defaults to `open="multiple"`. Set `open="single"` on `Treeview.Root` for accordion behavior, or `open-all` to expand every node on mount.
+
+??? How do I auto-expand a deep node's ancestors when it opens?
+
+Set `reveal` on `Treeview.Root`. Opening a descendant then opens its entire ancestor chain — useful for "navigate to item" patterns where a deep node is opened programmatically.
+
 :::
 
 <DocsApi />

@@ -357,6 +357,10 @@ Give the feature a `$variation` payload — `search: { $value: true, $variation:
 
 Yes. Pass an array of adapters to `createFeaturesPlugin`; they initialize in order and their flags merge, with the last adapter winning on conflicting keys.
 
+??? Can I toggle or add a flag at runtime?
+
+Yes. `features.register({ id, value })` adds a flag after install, `features.select(id)` / `features.unselect(id)` enable or disable one, and `features.toggle(id)` flips it. Selection state is reactive, so gated UI updates on the next tick.
+
 :::
 
 <DocsApi />

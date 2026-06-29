@@ -262,6 +262,10 @@ A `string` is the inline error message shown on failure. Returning `false` defer
 
 [createValidation](/composables/forms/create-validation) resolves its alias strings through `useRules()` automatically, so you rarely call `resolve()` yourself. useRules owns the alias map and turns aliases, functions, and schemas into a `FormValidationRule[]`.
 
+??? Can I use rules without installing the plugin?
+
+Yes. `createRules` works standalone outside component scope, and `createRulesContext` with `provideRules()` shares aliases through provide/inject for a subtree. The app-wide `createRulesPlugin` is just the global option — pick whichever scope fits.
+
 :::
 
 <DocsApi />

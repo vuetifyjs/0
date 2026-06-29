@@ -358,6 +358,18 @@ Pass `open: 'single'` so only one node can be open at a time. The default `open:
 
 Use createNested when you're building custom tree UI and only want the hierarchy logic. The [Treeview](/components/disclosure/treeview) component wraps it with focus management and ARIA already wired up. For flat multi-select with no hierarchy, [createGroup](/composables/selection/create-group) is lighter.
 
+??? What happens to a node's children when I unregister it?
+
+By default they're orphaned — `unregister('parent')` removes only that node. Pass `true` to cascade: `unregister('parent', true)` removes the node and every descendant, and `offboard(['a', 'b'], true)` does the same for a batch.
+
+??? How do I get a node's ancestors, descendants, or path?
+
+Each registered ticket exposes `getPath()` (root-to-node), `getAncestors()`, and `getDescendants()`. Use them to highlight a node's lineage or operate on a whole subtree.
+
+??? How do I serialize the tree for an API or storage?
+
+Call `toFlat()` — it returns a flat `[{ id, parentId, value }, ...]` array (one entry per node) that you can `JSON.stringify` and send to an API or persist.
+
 :::
 
 <DocsApi />

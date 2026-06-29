@@ -132,6 +132,10 @@ Pass an array of targets — `useClickOutside([trigger, panel], cb)` — and cli
 
 Detection is two-phase (`pointerdown` → `pointerup`) and both must land outside. A drag that starts inside and releases outside is ignored, which keeps text selection and slider drags from triggering a false dismiss.
 
+??? How do I temporarily suspend outside-click detection?
+
+Call `pause()` to stop detection while preserving state, then `resume()` to re-enable it; `stop()` removes the listeners for good. `isActive` reflects whether detection is currently running.
+
 :::
 
 <DocsApi />

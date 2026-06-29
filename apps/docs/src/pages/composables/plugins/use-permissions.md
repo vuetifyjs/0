@@ -210,6 +210,14 @@ Make the condition a function instead of `true`: `['delete', 'post', context => 
 
 `can()` is a plain lookup, not a reactive property. Wrap it in a `computed` — `computed(() => permissions.can(user.role, 'edit', 'post'))` — so it re-evaluates when its reactive dependencies change.
 
+??? How do I grant several actions or subjects in one rule?
+
+Pass arrays inside the permission tuple — `[['read', 'write'], 'post', true]` grants both actions, and `['delete', ['user', 'post'], true]` covers both subjects. The third element is the grant: `true`, or a context function for ABAC.
+
+??? Can I resolve permissions from my backend instead of static tuples?
+
+Yes. Extend `PermissionsAdapter` and implement `can()` to delegate to your auth system, then pass it as the `adapter` option to `createPermissionsPlugin`. The default `V0PermissionsAdapter` does token-based lookup against the static rule map.
+
 :::
 
 <DocsApi />

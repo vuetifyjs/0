@@ -267,6 +267,14 @@ The `gap` prop (default `8`) must match your actual CSS gap. If they differ, the
 
 Pass `:as="RouterLink"` along with `to` on `Breadcrumbs.Link`.
 
+??? How do I change the collapse indicator?
+
+Set the `ellipsis` prop on `Breadcrumbs.Root` (for example `ellipsis="[more]"`) to replace the default overflow indicator, globally or per instance.
+
+??? How do I translate the breadcrumb's `aria-label`?
+
+Pass a `label` prop on `Breadcrumbs.Root`, or configure the `Breadcrumbs.label` key through the [Locale](/composables/plugins/use-locale) plugin for app-wide i18n. The `label` prop takes priority over locale messages.
+
 :::
 
 <DocsApi />

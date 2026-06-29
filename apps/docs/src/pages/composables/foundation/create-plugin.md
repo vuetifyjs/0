@@ -243,6 +243,10 @@ The `persist` return value is stored under the plugin namespace key (e.g. `v0:th
 
 Add `persist` and `restore` hooks to the plugin config and have consumers opt in with `persist: true`. The plugin reads and writes through `useStorage` under the plugin namespace, calling `restore` with the saved value before `setup` runs so adapters never flash wrong values.
 
+??? Why does my `default` option seem ignored after a reload?
+
+With `persist: true`, a previously persisted value wins on load — `default` is only used when no persisted value exists yet. `restore` runs before `setup` and applies the saved value, so `default` is the true fallback, not an override.
+
 :::
 
 <DocsApi />

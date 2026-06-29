@@ -150,6 +150,10 @@ With `circular: false` (default) `next()`/`prev()` clamp at the first and last s
 
 `next()`, `prev()`, and `step(count)` skip tickets marked `disabled: true` automatically — no manual guard needed — and `select()` on a disabled ticket is a no-op, so it stays unreachable from every entry point.
 
+??? When should I use createStep instead of the Step component?
+
+Reach for createStep when you're building custom wizard or carousel UI and only need the navigation logic. The [Step](/components/providers/step) component wraps it as a ready-made compound surface. For exclusive selection without `next()`/`prev()`, drop down to [createSingle](/composables/selection/create-single).
+
 :::
 
 <DocsApi />

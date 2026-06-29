@@ -172,6 +172,10 @@ Register it with `timeout: -1`. It's persistent — never auto-removed — and s
 
 createQueue extends [createRegistry](/composables/registration/create-registry) with minimal reactivity for performance. Wrap the instance with `useProxyRegistry(queue)` for full template reactivity on the queued items.
 
+??? How do I pause a toast's timer while the user hovers it?
+
+Call `queue.pause()` on `mouseenter` and `queue.resume()` on `mouseleave`. `pause()` stops the active (first) ticket's timer; `resume()` restarts it from full duration. Only the first ticket ever counts down, so this pauses whichever toast is currently showing.
+
 :::
 
 <DocsApi />

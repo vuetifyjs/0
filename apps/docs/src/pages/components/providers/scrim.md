@@ -145,6 +145,14 @@ Only for SSR. Client-side-only apps can skip it — Scrim falls back to the defa
 
 Pass `:teleport="false"` to render it inline within its parent, for example inside a `relative` container for a scoped overlay.
 
+??? How do I change the scrim's transition?
+
+The default transition is `fade`. Pass a `transition` prop with your own name (for example `slide-fade`) and define the matching enter/leave CSS.
+
+??? Can I give a scrim its own overlay stack?
+
+Yes. Call `createStack()` and `provide('v0:stack', stack)` above it so the scrim manages an isolated overlay system without touching the global stack.
+
 :::
 
 <DocsApi />

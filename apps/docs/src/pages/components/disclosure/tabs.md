@@ -135,6 +135,10 @@ Set `:circular="false"` on `Tabs.Root`. Navigation then stops at the first and l
 
 Add `enroll` to `Tabs.Root`. The first tab to register becomes the active one, which is useful when the tab set is built from data at runtime.
 
+??? How do I lay the tabs out vertically?
+
+Set `orientation="vertical"` on `Tabs.Root`. Keyboard navigation then uses Arrow Up/Down instead of Arrow Left/Right.
+
 :::
 
 <DocsApi />
