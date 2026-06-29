@@ -85,9 +85,13 @@ The `blocking` prop disables scrim-based dismissal entirely — the dialog can o
 
 ## FAQ
 
-### Showing a Snackbar over a Dialog
+::: faq
 
-A modal `Dialog` uses the native `<dialog>` element and `showModal()`, which promotes it to the browser **top layer** — it paints above all page content regardless of `z-index`, and makes everything outside its subtree inert. An overlay teleported to `body` therefore renders *beneath* the dialog and is not clickable.
+??? Why did my Snackbar, Tooltip, or Popover overlays render below a modal dialog?
+
+The native `<dialog>` element with `showModal()` promotes itself to the browser's **top layer** — a rendering surface that sits above all normal document content regardless of `z-index`, and makes everything outside its subtree inert. An overlay teleported to `body` therefore rendered _beneath_ the dialog and was not clickable. This is a browser-level constraint, not a v0 bug — but `Snackbar.Portal` now handles it for you (see below).
+
+??? How do I show a Snackbar (or other overlay) inside an open modal dialog?
 
 `Snackbar.Portal` handles this automatically: it defaults to `teleport="top-layer"`, which teleports the snackbar into the topmost open modal so it shares the dialog's top-layer context and stays interactive. When no modal is open it falls back to `body`.
 
@@ -103,5 +107,11 @@ A modal `Dialog` uses the native `<dialog>` element and `showModal()`, which pro
 ```
 
 To opt out, set `teleport="body"` (always body) or `:teleport="false"` (render inline). See [Snackbar](/components/semantic/snackbar) for the full `teleport` option reference.
+
+??? What's the difference between `closeOnClickOutside` and `blocking`?
+
+`:close-on-click-outside="false"` on `Dialog.Content` stops backdrop clicks from closing the dialog. `blocking` goes further and disables scrim-based dismissal entirely, so the dialog can only be closed programmatically via `Dialog.Close` or `v-model` — reach for it on critical confirmations that require an explicit choice.
+
+:::
 
 <DocsApi />

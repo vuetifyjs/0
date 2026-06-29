@@ -135,4 +135,30 @@ Reach for `useHotkey` plus `useToggleScope` whenever a surface needs context-sen
 | `command-palette.vue` | Entry — instantiates the composable, shows the last action, and lists the available shortcuts |
 :::
 
+## FAQ
+
+::: faq
+
+??? Do I need a separate `cmd+k` binding for macOS?
+
+No. Modifier mapping is platform-aware, so a `ctrl+k` binding fires with Cmd on macOS. Write the combination once with `ctrl` and let the composable translate it.
+
+??? Why doesn't my hotkey fire while I'm typing in a text field?
+
+By default useHotkey skips text inputs so shortcuts don't hijack typing. Pass `{ inputs: true }` on the binding to keep it active while focus is in an input — common for `escape` to close an open surface.
+
+??? How do I bind a sequence like "press g then h"?
+
+Use a hyphenated string: `useHotkey('g-h', cb)`. The keys must be pressed in order, and the sequence resets after `sequenceTimeout` if you pause between keystrokes.
+
+??? Do I have to use exact `KeyboardEvent.key` names like `escape` or `arrowup`?
+
+No. Keys are normalized before matching, so human-friendly aliases work — `esc`, `return`, `del`, `space`, `up`/`down`/`left`/`right`, `command`, `option`, and more. See the alias table above.
+
+??? Can I change a hotkey binding at runtime?
+
+Yes. The `keys` argument accepts a ref or getter and is watched, so updating it re-registers the binding for the new combination — useful for user-customizable shortcuts.
+
+:::
+
 <DocsApi />

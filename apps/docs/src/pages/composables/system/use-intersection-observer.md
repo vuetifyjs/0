@@ -111,4 +111,26 @@ Staggered entrance is achieved entirely in CSS with `transitionDelay: ${index * 
 
 :::
 
+## FAQ
+
+::: faq
+
+??? How do I stop observing after an element first becomes visible?
+
+Pass `{ once: true }` and the observer disconnects after the first intersection. This avoids ongoing callback overhead for one-shot cases like lazy-loading an image or a single entrance animation.
+
+??? What's the difference between useIntersectionObserver and useElementIntersection?
+
+useIntersectionObserver gives you the raw entries callback plus `pause()`, `resume()`, and `stop()` control. useElementIntersection is a thinner wrapper around a single element that just exposes reactive `isIntersecting` and `intersectionRatio`.
+
+??? How do I measure visibility against a scroll container instead of the viewport?
+
+Pass the container element as the `root` option — it defaults to `null`, the browser viewport. `rootMargin` and `threshold` are then calculated relative to that container.
+
+??? How do I track a continuous visibility percentage instead of just visible/hidden?
+
+Pass an array of thresholds so the callback fires at each ratio step — e.g. `Array.from({ length: 21 }, (_, i) => i / 20)` fires every 5%. The scroll-reveal example uses exactly this to drive its progress bar.
+
+:::
+
 <DocsApi />

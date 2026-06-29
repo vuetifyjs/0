@@ -164,4 +164,30 @@ const users = cache.get('users', [])
 > [!TIP] How TTL works
 > When `ttl` is set, values are internally wrapped as `{ __ttl, __v, __t }` with a timestamp. On `get()`, if the entry is older than the TTL, it is treated as absent and removed from storage. Non-TTL entries stored previously are read normally.
 
+## FAQ
+
+::: faq
+
+??? Do I need to call `set()` to persist a value?
+
+No. The ref returned by `get(key, default)` is watched with `{ deep: true }`, so writing to `.value` (or binding it with `v-model`) persists automatically. `set()` is the explicit alternative when you don't hold the ref.
+
+??? Why doesn't an empty string fall back to my default?
+
+`get()` uses nullish coalescing internally, so `''` is treated as a valid stored value — only `null` and `undefined` trigger the default. This preserves intentionally-cleared fields.
+
+??? How do I make cached entries expire automatically?
+
+Pass a `ttl` (in milliseconds) to `createStorage`. Entries are timestamped on write; once older than the TTL, `get()` returns the default and removes the entry from storage.
+
+??? How do I use sessionStorage instead of localStorage?
+
+Pass the backend you want as the `adapter` option. `localStorage` is the browser default; `sessionStorage` scopes values to the tab, and `MemoryStorageAdapter` (from `@vuetify/v0/storage/adapters/memory`) keeps them in memory only.
+
+??? Is useStorage safe to call during SSR?
+
+Yes. With no browser storage on the server it falls back to `MemoryStorageAdapter`, so reads and writes work and the render stays deterministic — values just don't persist across requests. Pair it with [useHydration](/composables/plugins/use-hydration) to coordinate reads with client hydration.
+
+:::
+
 <DocsApi />

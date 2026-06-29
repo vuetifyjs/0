@@ -119,4 +119,30 @@ The example exercises the full three-part spread that `usePopover` returns. `anc
 | `menu-button.vue` | Wires the composable to the component and shows the chosen action |
 :::
 
+## FAQ
+
+::: faq
+
+??? When should I use `usePopover` vs the Popover component?
+
+Reach for `usePopover` when you want full control over a select, combobox, tooltip, or menu surface built from your own markup. Use the [Popover](/components/disclosure/popover) component when its slots and transitions are enough.
+
+??? Why do I have to call `attach()`?
+
+`attach(el)` wires the native popover's `toggle` event back into `isOpen`. Without it, the browser's light dismiss (outside click, Escape) would close the popover but your reactive state would drift out of sync.
+
+??? Do I need useClickOutside to close the popover when clicking away?
+
+No. `contentAttrs` registers a native auto popover, so the browser handles light dismiss — outside click and Escape — for free. Reach for [useClickOutside](/composables/system/use-click-outside) only when you wire dismissal manually instead of using the native popover.
+
+??? How do I delay opening or closing the popover?
+
+Pass `openDelay` and `closeDelay` (ms) in the options. Call `cancel()` to abort a pending open or close transition before it fires.
+
+??? How do I control where the popover appears relative to its trigger?
+
+Set `positionArea` (e.g. `'bottom'`) for the primary placement and `positionTry` for the fallback positions the browser flips to when that area overflows — CSS anchor positioning handles it with no JavaScript layout math.
+
+:::
+
 <DocsApi />

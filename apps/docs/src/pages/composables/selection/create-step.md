@@ -134,4 +134,26 @@ This is the composable-only shape: `useCheckout` owns the state and exposes a fl
 | `checkout-wizard.vue` | Entry point that instantiates the composable and shows the live step and progress readout |
 :::
 
+## FAQ
+
+::: faq
+
+??? What's the difference between circular and bounded navigation?
+
+With `circular: false` (default) `next()`/`prev()` clamp at the first and last steps; with `circular: true` they wrap around — `next()` from the last step returns to the first. Use bounded for wizards, circular for carousels.
+
+??? Why do my Prev/Next buttons stay disabled at the ends even with `circular: true`?
+
+`circular` only affects `next()`/`prev()`. Boundary guards like `isFirst`/`isLast` are derived from the index (`0` and `size - 1`), so they're still true at the edges. Drop those guards in circular mode if you want the buttons to wrap too.
+
+??? How are disabled steps handled during navigation?
+
+`next()`, `prev()`, and `step(count)` skip tickets marked `disabled: true` automatically — no manual guard needed — and `select()` on a disabled ticket is a no-op, so it stays unreachable from every entry point.
+
+??? When should I use createStep instead of the Step component?
+
+Reach for createStep when you're building custom wizard or carousel UI and only need the navigation logic. The [Step](/components/providers/step) component wraps it as a ready-made compound surface. For exclusive selection without `next()`/`prev()`, drop down to [createSingle](/composables/selection/create-single).
+
+:::
+
 <DocsApi />

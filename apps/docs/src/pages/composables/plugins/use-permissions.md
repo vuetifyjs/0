@@ -194,4 +194,30 @@ Reach for this provider/consumer split when several disconnected parts of a scre
 | `access-control.vue` | Entry point that owns the role state and wraps both consumers in the provider |
 :::
 
+## FAQ
+
+::: faq
+
+??? What's the difference between usePermissions and useFeatures?
+
+usePermissions answers "can this role perform this action on this subject?" — role-based, with optional context conditions. [useFeatures](/composables/plugins/use-features) toggles capabilities on or off regardless of role. Use permissions for access control, flags for rollout and experiments.
+
+??? How do I write a permission that depends on ownership or other context (ABAC)?
+
+Make the condition a function instead of `true`: `['delete', 'post', context => context.isOwner]`. Supply the context as the fourth argument to `can()` — `can('editor', 'delete', 'post', { isOwner: true })` — and it re-evaluates on each check.
+
+??? Why doesn't my UI update when permissions change?
+
+`can()` is a plain lookup, not a reactive property. Wrap it in a `computed` — `computed(() => permissions.can(user.role, 'edit', 'post'))` — so it re-evaluates when its reactive dependencies change.
+
+??? How do I grant several actions or subjects in one rule?
+
+Pass arrays inside the permission tuple — `[['read', 'write'], 'post', true]` grants both actions, and `['delete', ['user', 'post'], true]` covers both subjects. The third element is the grant: `true`, or a context function for ABAC.
+
+??? Can I resolve permissions from my backend instead of static tuples?
+
+Yes. Extend `PermissionsAdapter` and implement `can()` to delegate to your auth system, then pass it as the `adapter` option to `createPermissionsPlugin`. The default `V0PermissionsAdapter` does token-based lookup against the static rule map.
+
+:::
+
 <DocsApi />

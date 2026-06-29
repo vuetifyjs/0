@@ -127,4 +127,30 @@ The default slot exposes `theme` (the active ID), `isDark` (boolean), and `attrs
 </template>
 ```
 
+## FAQ
+
+::: faq
+
+??? Does `<Theme theme="dark">` change my whole app's theme?
+
+No. It scopes the theme to its subtree — descendant `useTheme()` calls resolve to the override while the rest of the app is unaffected.
+
+??? How do I apply a `data-theme` wrapper without changing the active theme?
+
+Omit the `theme` prop. Theme then inherits the parent theme while still emitting the `data-theme` attribute on its wrapper, which your CSS variable declarations can target.
+
+??? When do I need the `namespace` prop?
+
+Only when building a reusable component that must stay theme-isolated from the app's global theme. By default Theme provides under `'v0:theme'` (the key `useTheme()` reads); a custom namespace keeps descendants from affecting the global theme. Most apps don't need it.
+
+??? Can I render `<Theme>` as a specific element?
+
+Yes. Theme extends `Atom`, so the `as` prop renders it as any element — `<Theme theme="dark" as="section">` outputs `<section data-theme="dark">`.
+
+??? How do I scope a theme without adding a wrapper element?
+
+Set `renderless` and bind the `attrs` slot prop (which includes `data-theme`) to your own element.
+
+:::
+
 <DocsApi />

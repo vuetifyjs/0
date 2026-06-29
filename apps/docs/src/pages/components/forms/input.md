@@ -197,4 +197,22 @@ Input.Control renders as a native `<input>` and manages all ARIA attributes auto
 
 Standard native `<input>` keyboard behavior. No custom key handlers — the browser handles focus, selection, and editing.
 
+## FAQ
+
+::: faq
+
+??? What do the `lazy` and `eager` validateOn modifiers do?
+
+`validate-on="blur lazy"` skips validation until the first blur, then validates on every blur afterward — so errors don't show while the user is still typing their first attempt. `eager` flips it: after the first error, the field validates on every keystroke.
+
+??? How do I surface a server-side error on a field?
+
+Set the `error` and `error-messages` props on `Input.Root`. They push the message through the same display channel as client-side rules, so no custom error UI is needed.
+
+??? How do I react to the input's value without wiring DOM events?
+
+`Input.Root` exposes `value` as a plain writable `Ref`. A composable can `watch` it directly — there's no `@input` to bind, since composables never attach DOM listeners.
+
+:::
+
 <DocsApi />

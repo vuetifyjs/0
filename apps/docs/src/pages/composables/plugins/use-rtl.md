@@ -239,4 +239,26 @@ export const [useLocalRtl, provideLocalRtl, localRtl] =
 > [!TIP]
 > Direction is independent from locale. To connect them (e.g., Arabic → RTL), use a custom adapter that watches `useLocale().selectedId` and sets `isRtl` based on a language→direction mapping.
 
+## FAQ
+
+::: faq
+
+??? Does switching the locale automatically change the direction?
+
+No — direction is independent from locale. To link them (e.g. Arabic → RTL), use a custom adapter that watches [useLocale](/composables/plugins/use-locale)'s `selectedId` and sets `isRtl` from a language-to-direction mapping.
+
+??? How do I apply RTL to just one subtree?
+
+Use `createRtlContext` to provide a scoped direction via provide/inject. A descendant reading it is isolated from the app-level flag, so toggling it doesn't affect the rest of the app.
+
+??? Why should I avoid the `ltr:` variant for left-to-right styles?
+
+The `ltr:` variant only applies when an ancestor carries an explicit `dir="ltr"` attribute, not as the default. Use the bare utility class for LTR behavior and `rtl:` for the override — e.g. `-translate-x-full rtl:translate-x-full`.
+
+??? Do I need `rtl:` variants on every margin and padding?
+
+No — prefer CSS logical properties (`ms`/`me`, `ps`/`pe`, `start`/`end`), which flip automatically with the `dir` attribute. Reserve direction variants for the cases logical properties can't express, like `translate-x`.
+
+:::
+
 <DocsApi />

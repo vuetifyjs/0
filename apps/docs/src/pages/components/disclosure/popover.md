@@ -83,4 +83,22 @@ Use `position-try` to specify fallback positions when the preferred position doe
 </template>
 ```
 
+## FAQ
+
+::: faq
+
+??? How do I control where the popover appears relative to its anchor?
+
+Set `position-area` on `Popover.Content` to any [CSS `position-area`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-area) value such as `top` or `end`. It defaults to `bottom`.
+
+??? What happens in browsers that don't support CSS Anchor Positioning?
+
+The component still renders and toggles open and closed, but automatic anchor positioning won't apply. In Safari and older browsers, position `Popover.Content` manually or use [Floating UI](https://floating-ui.com).
+
+??? How do I keep the popover on-screen when the preferred position doesn't fit?
+
+Pass `position-try` on `Popover.Content` with fallback positions (default `'most-width bottom'`); the browser picks the first that fits the viewport.
+
+:::
+
 <DocsApi />

@@ -112,4 +112,22 @@ Reach for this whenever a fixed set of mutually exclusive options needs the sele
 
 :::
 
+## FAQ
+
+::: faq
+
+??? When should I use createSingle vs createStep?
+
+createSingle is exclusive selection with no inherent order. Reach for [createStep](/composables/selection/create-step) when the items form a sequence you navigate with `next()`/`prev()`/`first()`/`last()` — wizards, carousels, steppers. createStep extends createSingle.
+
+??? How do I prevent an empty "nothing selected" state?
+
+Pass `mandatory: true`. Once an item is active, clicking it again is a no-op, so the selection never empties — preselect on mount with `seek('first')?.select()` so the UI starts valid.
+
+??? Can I read the selected value directly, not just its id?
+
+Yes. `selectedId`, `selectedValue`, and `selectedIndex` are all reactive and work directly in templates — `selectedValue` gives the registered value, not just the id.
+
+:::
+
 <DocsApi />

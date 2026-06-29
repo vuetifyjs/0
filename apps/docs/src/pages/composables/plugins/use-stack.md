@@ -171,4 +171,26 @@ import { Scrim } from '@vuetify/v0'
 
 The Scrim reads from the same stack context, so its z-index is always coordinated with your registered overlays.
 
+## FAQ
+
+::: faq
+
+??? Do I have to install the plugin to use useStack?
+
+Not for client-only apps — you can use the default `stack` singleton directly. Install `createStackPlugin` for SSR, where it ensures each request gets its own isolated stack instance instead of sharing one across requests.
+
+??? How do I give a nested group of overlays its own z-index range?
+
+Use `createStackContext({ namespace, baseZIndex })` to create a separate stacking namespace — e.g. overlays opened inside a modal — then provide it and register tickets against that context instead of the global stack.
+
+??? How do I stop a scrim click from dismissing the top overlay?
+
+Register it with `blocking: true`. The overlay stays topmost, but the stack's `isBlocking` flag tells the Scrim to ignore pointer events, so clicking the backdrop won't dismiss it.
+
+??? How does useStack decide each overlay's z-index?
+
+It assigns them from selection order: the first activated overlay gets the base z-index (2000), and each one stacked on top steps up from there (2010, …). Pass `baseZIndex` to `createStackContext` to shift the starting point for a separate namespace.
+
+:::
+
 <DocsApi />

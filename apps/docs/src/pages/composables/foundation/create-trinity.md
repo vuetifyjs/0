@@ -84,7 +84,7 @@ flowchart LR
 
 ### Plugin Trinity
 
-When building a Vue plugin, use [`createPluginContext`](/composables/foundation/create-plugin) instead of wiring `createContext + createTrinity` manually. It generates the same trinity tuple from a factory function with far less boilerplate:
+When building a Vue plugin, use [createPluginContext](/composables/foundation/create-plugin) instead of wiring `createContext + createTrinity` manually. It generates the same trinity tuple from a factory function with far less boilerplate:
 
 ```ts no-filename
 // Manual (createTrinity) — needed for non-plugin state
@@ -134,6 +134,24 @@ graph LR
 - `provideToasts()` called with no arguments provides the default context — the trinity's provider wrapper handles the fallback automatically
 - `ToastConsumer` calls `useToasts()` to inject the context from the nearest provider
 - The entry point composes Provider and Consumer — the same pattern scales to any app
+
+:::
+
+## FAQ
+
+::: faq
+
+??? What does `createTrinity` add over `createContext`?
+
+[createContext](/composables/foundation/create-context) gives you the `[use, provide]` pair; `createTrinity` returns a 3-tuple that also includes a default context instance. That third member lets `provide` be called with no arguments and fall back to the default automatically.
+
+??? Should I use `createTrinity` or `createPluginContext`?
+
+Use `createTrinity` for a shared singleton that doesn't need `app.use()` lifecycle — component-scoped contexts or library utilities. Use [createPluginContext](/composables/foundation/create-plugin) for plugin-backed state like theme, locale, or storage; it generates the same tuple plus install hooks.
+
+??? Can I provide the context without passing an argument?
+
+Yes. Because the trinity bundles a default context as its third member, calling `provideX()` with no arguments provides that fallback — the provider wrapper handles it automatically.
 
 :::
 

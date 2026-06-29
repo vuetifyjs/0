@@ -140,6 +140,8 @@ Reach for this pattern when you want full control over a field's markup and styl
 | `profile-form.vue` | Entry that renders two fields and coordinates submit/reset via template refs |
 :::
 
+## FAQ
+
 ::: faq
 
 ??? Why doesn't createInput handle events like blur or input?

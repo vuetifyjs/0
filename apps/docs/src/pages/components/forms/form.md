@@ -174,4 +174,22 @@ Call `submit()` from slot props when you need to trigger validation without a su
 | `Enter` (in input) | Submits the form |
 | `Escape` | No default behavior — handle in your submit handler |
 
+## FAQ
+
+::: faq
+
+??? Why does my `@submit` handler run even when the form is invalid?
+
+`@submit` is pass-through — it fires on every native submit regardless of validity. Guard inside the handler: read the `valid` flag from the payload and `return` early when it's `false`.
+
+??? How do I keep two forms on the same page from interfering?
+
+Give each a `namespace` (e.g. `namespace="billing"`). Children then resolve their form with `useForm('billing')`, so the two forms stay isolated.
+
+??? Why doesn't calling `submit()` from slot props emit the `@submit` event?
+
+`submit()` and `reset()` from slot props invoke the form methods directly. The `@submit` and `@reset` events only fire from native form submission or reset.
+
+:::
+
 <DocsApi />

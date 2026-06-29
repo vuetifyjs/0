@@ -106,4 +106,22 @@ Drill into **Home > Documents > Projects > v0-app > src** to see the trail grow,
 
 :::
 
+## FAQ
+
+::: faq
+
+??? What happens when I select an earlier item in the trail?
+
+Everything after it is removed. createBreadcrumbs models an ordered path, so selecting a crumb truncates the trail back to that point — the natural breadcrumb behavior.
+
+??? How do I render the current trail?
+
+Call `values()` to iterate the registered items in order. Push new crumbs with `register()` (e.g. `register({ text: 'Settings' })`) and navigate back by calling `select()` on an earlier one.
+
+??? When should I use createBreadcrumbs instead of the Breadcrumbs component?
+
+Use the composable when you need the trail logic behind custom markup. The [Breadcrumbs component](/components/semantic/breadcrumbs) consumes createBreadcrumbs as its backing model, the same way `Tabs.Root` builds on createStep. Use `depth`, `isRoot`, and `isEmpty` to toggle controls like a back button.
+
+:::
+
 <DocsApi />
