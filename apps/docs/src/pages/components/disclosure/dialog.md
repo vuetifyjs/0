@@ -89,49 +89,24 @@ The `blocking` prop disables scrim-based dismissal entirely — the dialog can o
 
 ??? Why do my Snackbar, Tooltip, or Popover overlays render below a modal dialog?
 
-The native `<dialog>` element with `showModal()` promotes itself to the browser's **top layer** — a rendering surface that sits above all normal document content. Any overlay rendered _outside_ the dialog (e.g., a `Snackbar.Portal` teleported to `body`, or a `Tooltip` inside a portal) appears **below** the dialog, not above it. This is a browser-level constraint, not a v0 bug.
+The native `<dialog>` element with `showModal()` promotes itself to the browser's **top layer** — a rendering surface that sits above all normal document content regardless of `z-index`, and makes everything outside its subtree inert. Any overlay rendered _outside_ the dialog (e.g. a `Snackbar.Portal` teleported to `body`, or a `Tooltip` inside a portal) appears **below** the dialog, not above it. This is a browser-level constraint, not a v0 bug — but `Snackbar.Portal` handles it for you by default (see below).
 
 ??? How do I show a Snackbar (or other overlay) inside an open modal dialog?
 
-Render the overlay inside the dialog element itself. Place `Snackbar.Portal` (or any overlay) as a direct child of `Dialog.Content` with `teleport="false"` so it renders inline instead of teleporting to `body` — it then stays inside the native `<dialog>` element and inherits the top-layer context:
+`Snackbar.Portal` handles this automatically: it defaults to `teleport="top-layer"`, which teleports the snackbar into the topmost open modal so it shares the dialog's top-layer context and stays interactive. When no modal is open it falls back to `body`.
 
-```vue
+```vue no-filename
 <template>
-  <Dialog.Root v-model="open">
-    <Dialog.Content>
-      <Dialog.Title>Settings</Dialog.Title>
-      <!-- ... dialog body ... -->
-
-      <!-- Snackbars that must appear inside this dialog -->
-      <Snackbar.Portal :teleport="false">
-        <Snackbar.Queue>
-          <!-- render queue items here -->
-        </Snackbar.Queue>
-      </Snackbar.Portal>
-    </Dialog.Content>
-  </Dialog.Root>
-</template>
-```
-
-??? Can I keep my Snackbar queue outside the dialog tree but still render it above an open dialog?
-
-Yes. Anchor the queue to a `<div>` placed inside `Dialog.Content`, then re-target the portal to that anchor while the dialog is open (and back to `body` when it closes):
-
-```vue
-<template>
-  <Dialog.Root v-model="open">
-    <Dialog.Content>
-      <!-- ... dialog body ... -->
-      <div id="dialog-toast-anchor" style="position: fixed; inset-block-end: 1rem; inset-inline-end: 1rem;" />
-    </Dialog.Content>
-  </Dialog.Root>
-
-  <!-- This portal re-targets to inside the dialog when it is open -->
-  <Snackbar.Portal :teleport="open ? '#dialog-toast-anchor' : 'body'">
-    <Snackbar.Queue><!-- ... --></Snackbar.Queue>
+  <!-- teleport="top-layer" is the default — no explicit prop needed -->
+  <Snackbar.Portal>
+    <Snackbar.Queue v-slot="{ items }">
+      <!-- ... -->
+    </Snackbar.Queue>
   </Snackbar.Portal>
 </template>
 ```
+
+To opt out, set `teleport="body"` (always body) or `:teleport="false"` (render inline). See [Snackbar](/components/semantic/snackbar) for the full `teleport` option reference.
 
 ??? What's the difference between `closeOnClickOutside` and `blocking`?
 

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
 // Composables
-import { createStackPlugin } from '#v0/composables/useStack'
+import { createStackPlugin, useStack } from '#v0/composables/useStack'
 
 import { createLocalePlugin } from '#v0/composables'
 
@@ -1139,5 +1139,31 @@ describe('dialog', () => {
       // Both the immediate watch and onMounted should call showModal
       expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
     })
+  })
+
+  it('registers the dialog element as the stack top element while open', async () => {
+    // Capture the plugin-provided stack from inside the component tree so
+    // the same registry is used for both the assertion and Dialog.Content.
+    let capturedStack: ReturnType<typeof useStack> | undefined
+    const wrapper = mountWithStack(
+      defineComponent({
+        setup () {
+          capturedStack = useStack()
+        },
+        render: () => h(Dialog.Root, { modelValue: true }, {
+          default: () => h(Dialog.Content as any, null, () => h('p', 'Body')),
+        }),
+      }),
+      { attachTo: document.body },
+    )
+
+    await nextTick()
+    const dialogEl = document.body.querySelector('dialog')
+    expect(dialogEl).not.toBeNull()
+    expect(capturedStack!.topElement.value).toBe(dialogEl)
+
+    wrapper.unmount()
+    await nextTick()
+    expect(capturedStack!.topElement.value).toBeNull()
   })
 })

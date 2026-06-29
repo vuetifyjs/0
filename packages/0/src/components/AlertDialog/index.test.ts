@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
 // Composables
-import { createStackPlugin } from '#v0/composables/useStack'
+import { createStackPlugin, useStack } from '#v0/composables/useStack'
 
 import { createLocalePlugin } from '#v0/composables'
 
@@ -1165,6 +1165,32 @@ describe('alertDialog', () => {
       expect(isOpen.value).toBe(false)
       expect(spy).toHaveBeenCalledTimes(1)
     })
+  })
+
+  it('registers the alert-dialog element as the stack top element while open', async () => {
+    // Capture the plugin-provided stack from inside the component tree so
+    // the same registry is used for both the assertion and AlertDialog.Content.
+    let capturedStack: ReturnType<typeof useStack> | undefined
+    const wrapper = mountWithStack(
+      defineComponent({
+        setup () {
+          capturedStack = useStack()
+        },
+        render: () => h(AlertDialog.Root, { modelValue: true }, {
+          default: () => h(AlertDialog.Content as any, null, () => h('p', 'Body')),
+        }),
+      }),
+      { attachTo: document.body },
+    )
+
+    await nextTick()
+    const dialogEl = document.body.querySelector('dialog')
+    expect(dialogEl).not.toBeNull()
+    expect(capturedStack!.topElement.value).toBe(dialogEl)
+
+    wrapper.unmount()
+    await nextTick()
+    expect(capturedStack!.topElement.value).toBeNull()
   })
 })
 

@@ -109,6 +109,7 @@ Stack state and ticket properties are reactive for automatic UI updates.
 | `top` | <AppSuccessIcon /> | Topmost overlay ticket |
 | `scrimZIndex` | <AppSuccessIcon /> | Z-index for scrim element |
 | `isBlocking` | <AppSuccessIcon /> | Top overlay blocks dismissal |
+| `topElement` | <AppSuccessIcon /> | Element of the topmost open modal (`<dialog>`), or `null`; consumed by `Portal`/`Snackbar.Portal` via `teleport="top-layer"` |
 | ticket `zIndex` | <AppSuccessIcon /> | Computed from selection order |
 | ticket `globalTop` | <AppSuccessIcon /> | True if topmost |
 | ticket `isSelected` | <AppSuccessIcon /> | Overlay active state |
@@ -139,6 +140,20 @@ Open multiple overlays to see z-index layering in action. This pattern applies d
 :::
 
 ## Recipes
+
+### Top-Layer Teleport
+
+Pass `el` when registering a modal overlay so `useStack().topElement` resolves to its DOM element. `Portal` and `Snackbar.Portal` read `topElement` when `teleport="top-layer"` (the Snackbar.Portal default), teleporting overlays into the topmost open modal's subtree so they share its top-layer context and stay interactive:
+
+```ts no-filename
+const stack = useStack()
+const ticket = stack.register({
+  el: () => dialogRef.value?.element,
+  onDismiss: () => { isOpen.value = false },
+})
+```
+
+Dialog and AlertDialog pass their `<dialog>` element automatically — this pattern is only needed when building a custom modal component from scratch.
 
 ### Scrim Integration
 
