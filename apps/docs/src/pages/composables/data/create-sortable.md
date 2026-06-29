@@ -75,7 +75,7 @@ The composable adds four things on top of `createModel`:
 |---|---|---|
 | `move` override | sortable | Wraps `registry.move` to emit `move:ticket` with `{ ticket, from, to }` |
 | `swap(a, b)` | sortable | Two batched `move` calls; emits two `move:ticket` events |
-| `reorder(ids)` | sortable | Strict permutation set; throws on length mismatch, unknown id, or duplicate id |
+| `reorder(ids)` | sortable | Strict permutation set; logs a warning and no-ops on length mismatch, unknown id, or duplicate id |
 | Typed `on` / `off` | sortable | Overloads narrow `move:ticket` callback payload to `SortableMovePayload<E>` |
 
 > [!TIP]
