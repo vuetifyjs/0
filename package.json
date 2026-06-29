@@ -36,6 +36,7 @@
     "preview:docs": "pnpm --filter=docs preview",
     "repo:knip": "knip",
     "repo:sherif": "sherif",
+    "repo:exports": "publint ./packages/0 && attw --pack ./packages/0 --profile esm-only --exclude-entrypoints browser",
     "repo:check": "pnpm repo:knip && pnpm repo:sherif",
     "validate": "pnpm lint && pnpm typecheck && pnpm test:run",
     "changeset": "changeset",
@@ -48,6 +49,7 @@
     "pre-push": "pnpm lint:fix && pnpm typecheck && pnpm test:run && pnpm repo:check"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "catalog:",
     "@changesets/changelog-github": "catalog:",
     "@changesets/cli": "catalog:",
     "@js-temporal/polyfill": "catalog:",
@@ -61,6 +63,7 @@
     "happy-dom": "catalog:",
     "knip": "catalog:",
     "pkg-pr-new": "catalog:",
+    "publint": "catalog:",
     "sherif": "catalog:",
     "simple-git-hooks": "catalog:",
     "typescript": "catalog:",

@@ -68,6 +68,8 @@ jobs:
       - uses: ./.github/actions/setup
       - name: Build packages
         run: pnpm build
+      - name: Validate package exports (publint + are-the-types-wrong)
+        run: pnpm repo:exports
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4
         with:
