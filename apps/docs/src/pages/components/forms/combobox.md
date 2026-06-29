@@ -213,4 +213,22 @@ The Combobox implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apg/
 | `Home` | Move highlight to first item |
 | `End` | Move highlight to last item |
 
+## FAQ
+
+::: faq
+
+??? When should I use Combobox instead of Select?
+
+Combobox accepts free text and filters options as the user types. [Select](/components/forms/select) is the non-typeahead equivalent, where the user picks from a fixed list without typing.
+
+??? How do I filter options on the server instead of the client?
+
+Pass a `ServerComboboxAdapter` to `Combobox.Root` to disable client-side filtering, then debounce the `query` and run your async lookup. The default [ClientComboboxAdapter](/composables/forms/create-combobox) filters the in-memory list by substring.
+
+??? Why does an item stay selected after it's filtered out of view?
+
+Items render with `v-show` (not `v-if`) against the filtered set, so they're hidden rather than unmounted. Selection state is preserved even when an option isn't currently matched.
+
+:::
+
 <DocsApi />

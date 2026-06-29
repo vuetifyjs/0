@@ -125,4 +125,22 @@ Reach for grid mode any time your items form a logical 2D structure: color picke
 | `grid.vue` | Entry point rendering the material color palette |
 :::
 
+## FAQ
+
+::: faq
+
+??? When should I use useRovingFocus vs useVirtualFocus?
+
+Use `useRovingFocus` when items are real focusable elements (buttons, links) and you want DOM focus to move between them. Use [useVirtualFocus](/composables/system/use-virtual-focus) when a single input drives a list of options that aren't individually focusable, like a combobox.
+
+??? How do I enable 2D grid navigation?
+
+Pass `columns`. Left/Right step one item, Up/Down step by a full row (±columns), and Home/End jump to the row edges. Add `circular: true` to wrap focus around the ends.
+
+??? Can I pair roving focus with selection state?
+
+Yes. `useRovingFocus` only manages focus, so compose it with a selection composable like [createSingle](/composables/selection/create-single) when you need a listbox or select that tracks both focus and the chosen value.
+
+:::
+
 <DocsApi />

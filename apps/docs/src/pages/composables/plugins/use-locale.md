@@ -304,4 +304,22 @@ app.use(
 
 Use it as a starting point for a new translation — copy the shape, swap the values for your language — or register it as-is to give every v0 component a complete English baseline.
 
+## FAQ
+
+::: faq
+
+??? What's the difference between `t()` and `ti()`?
+
+Both run the same lookup-then-interpolate pipeline; they differ only on a miss. `t('key')` echoes the raw `key` back, while `ti('key')` returns `undefined` — pair it with `?? 'Default'` to supply an inline fallback without bundling English strings into the runtime.
+
+??? How do I scope a different language to part of the page?
+
+Use `createLocaleContext` to provide a locale to a subtree via provide/inject — a nested scope shadows its parent, so an embedded widget can run a different language than the page around it. For a component-level override, see the [Locale](/components/providers/locale) provider.
+
+??? How do I use my existing vue-i18n messages with useLocale?
+
+Install the `VueI18nLocaleAdapter` from `@vuetify/v0/locale/adapters/vue-i18n` and pass it your i18n instance. Message storage and resolution stay in vue-i18n, so the `messages` option on `createLocalePlugin` isn't needed.
+
+:::
+
 <DocsApi />

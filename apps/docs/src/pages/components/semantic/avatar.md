@@ -140,4 +140,22 @@ The data lives in a separate module so the component stays focused on compositio
 
 :::
 
+## FAQ
+
+::: faq
+
+??? When should I use Avatar vs [Image](/components/semantic/image)?
+
+Avatar is for identity and profile UIs with priority-based multi-source fallback to initials or an icon. For a single-source content image with placeholder and error fallback, use Image instead.
+
+??? How does Avatar pick which source to show?
+
+Each `Avatar.Image` registers disabled until it loads; an internal selection with `mandatory: 'force'` keeps exactly one element visible, preferring the highest-`priority` loaded image and falling back to `Avatar.Fallback` when none load.
+
+??? How does `Avatar.Group` collapse into a `+N` chip?
+
+Set `responsive` on the group to opt into [createOverflow](/composables/semantic/create-overflow); the indicator self-measures and reserves room, so the visible count adjusts to the available width.
+
+:::
+
 <DocsApi />

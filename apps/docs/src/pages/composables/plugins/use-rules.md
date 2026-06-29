@@ -246,4 +246,22 @@ function myRuleFactory (input: unknown) {
 }
 ```
 
+## FAQ
+
+::: faq
+
+??? How do I use a Zod, Valibot, or ArkType schema as a rule?
+
+Pass the schema object directly in a `createValidation` `rules` array, alongside alias strings and inline functions — `resolve()` auto-detects [Standard Schema](https://standardschema.dev/) objects and wraps them. They produce async rules, which `createValidation` handles transparently.
+
+??? What's the difference between returning a `string` and `false` from an alias?
+
+A `string` is the inline error message shown on failure. Returning `false` defers the message to the locale plugin — it resolves to `locale.t('$rules.<aliasName>')` when `useLocale` is installed, falling back to the alias name otherwise.
+
+??? How does useRules relate to createValidation?
+
+[createValidation](/composables/forms/create-validation) resolves its alias strings through `useRules()` automatically, so you rarely call `resolve()` yourself. useRules owns the alias map and turns aliases, functions, and schemas into a `FormValidationRule[]`.
+
+:::
+
 <DocsApi />

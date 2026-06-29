@@ -454,4 +454,22 @@ table.grouping.openAll()
 table.grouping.closeAll()
 ```
 
+## FAQ
+
+::: faq
+
+??? Which adapter should I use?
+
+The default `ClientDataTableAdapter` runs filter, sort, and paginate client-side. Switch to `ServerDataTableAdapter` when your API owns those operations, or `VirtualDataTableAdapter` to skip pagination and feed all sorted rows to [createVirtual](/composables/data/create-virtual).
+
+??? Why doesn't mutating a row object in place update the table?
+
+The row registry is non-reactive so registering thousands of rows allocates no per-row proxies. Update a row with `table.upsert(id, { value })`, which re-runs the pipeline — mutating `ticket.value` directly does not.
+
+??? Can I add or remove columns after the table is created?
+
+Yes. Columns are a registry — call `table.columns.register(...)`, `unregister(id)`, or `clear()` at any time, and `leaves`, `headers`, sort state, and the filter pipeline all react.
+
+:::
+
 <DocsApi />

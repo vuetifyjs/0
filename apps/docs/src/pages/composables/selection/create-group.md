@@ -132,4 +132,22 @@ Reach for this pattern when a fixed tag set needs to control visible content and
 | `chip-filter.vue` | Entry point — wires filter to a results list |
 :::
 
+## FAQ
+
+::: faq
+
+??? When should I use createGroup instead of createSelection?
+
+Both are multi-select, but createGroup adds tri-state support — `mixedIds`, `isMixed`, and `mix()`/`unmix()` — plus batch helpers like `selectAll()` and `toggleAll()`. Reach for it when you need a select-all header checkbox or indeterminate states; plain [createSelection](/composables/selection/create-selection) has neither.
+
+??? How do I drive an indeterminate "select all" header checkbox?
+
+Read `isAllSelected`, `isMixed`, and `isNoneSelected` to choose the checkbox state, and wire the header to `toggleAll()`. `isMixed` is `true` when some but not all items are selected.
+
+??? What's the difference between a mixed ticket and a selected one?
+
+Selected means the item is in `selectedIds`; mixed (indeterminate) means it's only partially selected — typically a parent whose children are some-selected. Read it with `mixed(id)` or ticket `isMixed`, set it with `mix()`/`unmix()`. For automatic parent/child cascading, see [createNested](/composables/selection/create-nested).
+
+:::
+
 <DocsApi />

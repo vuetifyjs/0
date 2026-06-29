@@ -129,4 +129,22 @@ The default transition is `fade`. Customize with the `transition` prop:
 </style>
 ```
 
+## FAQ
+
+::: faq
+
+??? Why doesn't my scrim dismiss when I click it?
+
+The topmost overlay has `blocking: true`, which prevents click-to-dismiss. The `isBlocking` slot prop reflects this state so you can style the backdrop differently while blocking.
+
+??? Do I need to install the stack plugin?
+
+Only for SSR. Client-side-only apps can skip it — Scrim falls back to the default `stack` singleton automatically.
+
+??? How do I stop the scrim from teleporting to `<body>`?
+
+Pass `:teleport="false"` to render it inline within its parent, for example inside a `relative` container for a scoped overlay.
+
+:::
+
 <DocsApi />

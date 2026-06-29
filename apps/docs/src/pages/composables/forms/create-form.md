@@ -163,4 +163,22 @@ Because `createForm` never holds field values itself, `form.reset()` only re-arm
 | `contact-form.vue` | Entry point wrapping the provider around the consumer |
 :::
 
+## FAQ
+
+::: faq
+
+??? Why doesn't `form.reset()` clear my input values?
+
+createForm is a pure registry of validations and never holds field values. `reset()` only re-arms each validation to `null`; clear your own value object separately.
+
+??? Do I have to call `form.register()` for every field?
+
+No. A [createValidation](/composables/forms/create-validation) created inside a component with a parent form context auto-registers (and cleans up on unmount). Manual `form.register({ value })` is only needed for validations built outside the provided tree.
+
+??? What does `form.isValid` return before the first submit?
+
+It's tri-state: `null` until the first `submit()`, then `true` when every registered validation passes or `false` when any fails.
+
+:::
+
 <DocsApi />

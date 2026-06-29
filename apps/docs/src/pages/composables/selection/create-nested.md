@@ -342,4 +342,22 @@ tree.unregister('parent', true)
 tree.offboard(['node-1', 'node-2'], true)
 ```
 
+## FAQ
+
+::: faq
+
+??? What's the difference between the cascade, independent, and leaf selection modes?
+
+`cascade` (default) selects all descendants when you select a parent and shows ancestors as mixed; `independent` selects each node alone with no propagation; `leaf` lets only leaf nodes be selected, so selecting a parent selects its leaf descendants — the file-picker pattern.
+
+??? How do I make the tree behave like an accordion?
+
+Pass `open: 'single'` so only one node can be open at a time. The default `open: 'multiple'` lets several branches stay expanded simultaneously.
+
+??? When should I use createNested instead of the Treeview component?
+
+Use createNested when you're building custom tree UI and only want the hierarchy logic. The [Treeview](/components/disclosure/treeview) component wraps it with focus management and ARIA already wired up. For flat multi-select with no hierarchy, [createGroup](/composables/selection/create-group) is lighter.
+
+:::
+
 <DocsApi />

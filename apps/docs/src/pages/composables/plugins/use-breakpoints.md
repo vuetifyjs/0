@@ -170,4 +170,22 @@ On the server, all breakpoint flags are computed from the SSR dimensions — so 
 > [!TIP]
 > In Nuxt, read the viewport from a cookie or user-agent hint so the SSR dimensions match the actual device. See the [Nuxt integration guide](/guide/integration/nuxt#breakpoints-ssr) for a cookie-based example.
 
+## FAQ
+
+::: faq
+
+??? When should I use useBreakpoints vs useMediaQuery?
+
+useBreakpoints gives you named, range-based breakpoints (`name`, `mdAndUp`, `isMobile`) for making layout decisions in JavaScript. Reach for [useMediaQuery](/composables/system/use-media-query) when you only need a boolean for an arbitrary media query with no named-breakpoint machinery.
+
+??? Why is there no `xsAndDown` or `xxlAndUp` flag?
+
+They would be redundant — nothing is below `xs`, so `xs` already means "xsAndDown", and nothing is above `xxl`, so `xxl` already means "xxlAndUp". These combinations are intentionally omitted.
+
+??? Why does the server render the `xs` breakpoint?
+
+With no window to measure, useBreakpoints defaults to `xs` and width `0` during SSR. Pass `ssr: { clientWidth, clientHeight }` to `createBreakpointsPlugin` so the first paint computes flags from known dimensions; real `window` values replace them on hydration.
+
+:::
+
 <DocsApi />

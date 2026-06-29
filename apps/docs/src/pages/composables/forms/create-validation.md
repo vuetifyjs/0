@@ -231,4 +231,22 @@ Reach for this pattern when you need validation on a control the `Input` compone
 | `email-field.vue` | Entry — wires the composable to the field and shows a live validation-state panel |
 :::
 
+## FAQ
+
+::: faq
+
+??? Can I use a Zod or Valibot schema as a rule?
+
+Yes. Any [Standard Schema](https://standardschema.dev)-compliant schema works without an adapter — pass the schema object directly in `rules` and it's auto-detected alongside function rules and alias strings.
+
+??? How do I check validity without showing errors in the UI?
+
+Pass `silent` as the second argument: `validate(value, true)`. It returns the boolean result while leaving `errors` and `isValid` unchanged.
+
+??? How does createValidation differ from createForm?
+
+createValidation owns one input's rules and validity state; [createForm](/composables/forms/create-form) is a registry that coordinates `submit` and `reset` across many validations. A validation created inside a form's tree auto-registers with it.
+
+:::
+
 <DocsApi />

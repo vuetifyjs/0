@@ -341,4 +341,22 @@ Reach for this split when flag-editing UI and flag-consuming UI live in differen
 | `feature-flags.vue` | Entry that wraps the provider around both consumers |
 :::
 
+## FAQ
+
+::: faq
+
+??? What's the difference between useFeatures and usePermissions?
+
+useFeatures toggles capabilities on or off (with optional variations) regardless of who the user is; [usePermissions](/composables/plugins/use-permissions) answers whether a given role may perform an action on a subject. Use flags for rollout and experiments, permissions for access control.
+
+??? How do I serve a variation instead of a plain on/off flag?
+
+Give the feature a `$variation` payload — `search: { $value: true, $variation: 'v2' }` — and read it with `features.variation('search', 'v1')`, passing a fallback for when it's unset. Variation values are static, not reactive.
+
+??? Can I pull flags from more than one provider at once?
+
+Yes. Pass an array of adapters to `createFeaturesPlugin`; they initialize in order and their flags merge, with the last adapter winning on conflicting keys.
+
+:::
+
 <DocsApi />

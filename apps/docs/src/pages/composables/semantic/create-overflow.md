@@ -128,4 +128,22 @@ Reach for `createOverflow` directly when you need full control over how truncati
 | `overflow-nav.vue` | Entry point; constrains the container with width presets to demonstrate responsive recalculation |
 :::
 
+## FAQ
+
+::: faq
+
+??? When should I use createOverflow vs createVirtual?
+
+createOverflow measures how many items fit one row and hides the rest — overflow menus, breadcrumb ellipsis, responsive toolbars. [createVirtual](/composables/data/create-virtual) windows a long *scrollable* list, rendering only the rows in view. Horizontal truncation vs vertical windowing.
+
+??? Why does my bar collapse but never restore items when the container grows?
+
+Items must keep their measured widths. If you unmount overflowing items (e.g. `slice(0, capacity)`) their widths are thrown away and `capacity` can't recompute upward. Measure every item once, then hide with `v-show` so the widths stay in the map.
+
+??? What's the difference between variable-width and uniform-width mode?
+
+Variable-width measures each item individually (breadcrumbs, nav links of different sizes); uniform-width uses a single `itemWidth` for same-size items like pagination buttons, skipping per-item measurement. Use `reserved` to keep room for an overflow trigger.
+
+:::
+
 <DocsApi />

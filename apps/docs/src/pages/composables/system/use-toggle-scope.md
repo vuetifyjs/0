@@ -86,4 +86,22 @@ The example demonstrates the core use case: wrapping `useEventListener` (or any 
 
 :::
 
+## FAQ
+
+::: faq
+
+??? When should I avoid useToggleScope?
+
+Don't use it to guard a watcher that must run synchronously when a value changes — creating the scope introduces an async tick, so the watcher can miss the synchronous update. Use a plain conditional inside the watcher instead.
+
+??? What happens to effects created inside the scope when the condition turns false?
+
+The scope is stopped and every effect registered in it — watchers, `useEventListener` listeners, and the like — is cleaned up automatically via `onScopeDispose`. No manual teardown needed.
+
+??? What does reset() do?
+
+It stops the current scope and immediately restarts it, re-running your callback in a fresh scope. Useful when you need to rebuild the effects without toggling the source condition off and on.
+
+:::
+
 <DocsApi />

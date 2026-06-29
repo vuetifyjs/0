@@ -191,4 +191,22 @@ For custom implementations, use `renderless` mode and bind the `attrs` slot prop
 </template>
 ```
 
+## FAQ
+
+::: faq
+
+??? What's the difference between the `disabled` and `passive` states?
+
+Both block clicks, but `disabled` applies the native `disabled` attribute and drops the button from tab order, while `passive` uses `aria-disabled="true"` so the button stays focusable and screen readers announce it as disabled. Reach for `passive` when a control is only temporarily unavailable.
+
+??? Why doesn't the loading indicator appear right away?
+
+`Button.Loading` has a built-in 1-second grace period. If the async work finishes within that window the indicator never shows, preventing flicker on fast operations.
+
+??? How do I submit a toggle group's value with a native form?
+
+Put a `Button.HiddenInput` inside each `Button.Root`. It renders a visually hidden checkbox that reflects the button's selected state, so the group's value posts with the form.
+
+:::
+
 <DocsApi />

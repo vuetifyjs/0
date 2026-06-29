@@ -121,4 +121,22 @@ Pass `:teleport="false"` to render the portal inline instead of teleporting to `
 | Timing | Auto-dismiss pauses on hover and focus (WCAG 2.2.1). Tabbing into a snackbar pauses the queue; focus leaving the container resumes it. |
 | Focus | No focus trap — snackbars are non-modal. |
 
+## FAQ
+
+::: faq
+
+??? When should I use `Snackbar.Queue` vs a bare `Snackbar.Root`?
+
+Use `Snackbar.Queue` for notifications flowing through [useNotifications](/composables/plugins/use-notifications) — you get auto-dismiss, pause-on-hover, and stacking. For a transient one-off message whose lifecycle you control yourself, render a `Snackbar.Root` without a queue.
+
+??? What's the difference between `ticket.dismiss()` and `Snackbar.Close`?
+
+Inside a queue, `dismiss()` removes the toast from the display queue only — the item survives in the registry (e.g. an inbox). `Snackbar.Close` permanently unregisters it from both the queue and the registry.
+
+??? How do I make a snackbar interrupt screen readers for errors?
+
+Set `role="alert"` on `Snackbar.Root` (implicit `aria-live="assertive"`). The default `role="status"` is polite and waits for the reader to be idle.
+
+:::
+
 <DocsApi />

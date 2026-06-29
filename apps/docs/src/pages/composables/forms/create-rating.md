@@ -109,6 +109,8 @@ Reach for `createRating` over a plain reactive number whenever you want per-item
 | `star-rating.vue` | Entry point — creates the composable, wires the view, and shows the submitted score |
 :::
 
+## FAQ
+
 ::: faq
 
 ??? What determines the step size?

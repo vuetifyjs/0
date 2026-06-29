@@ -107,6 +107,8 @@ Toggle renders as a native `<button>` element with proper ARIA attributes:
 | `data-disabled` | present / absent | CSS styling hook for disabled state |
 | `data-orientation` | `horizontal` / `vertical` | Group orientation (on group element) |
 
+## FAQ
+
 ::: faq
 
 ??? What is the difference between Toggle and Checkbox?

@@ -381,4 +381,22 @@ The `severity` field categorizes notifications by urgency. It maps to ARIA live 
 
 `NotificationSeverity` is extensible — custom values like `'critical'` are accepted with autocomplete for the four defaults.
 
+## FAQ
+
+::: faq
+
+??? What's the difference between `send()` and `register()`?
+
+`send()` registers a notification and enqueues it for toast display — use it for real-time, in-the-moment events. `register()` adds it to the registry only, with no toast, which is what you want when loading historical or initial notifications.
+
+??? How do I keep a notification from auto-dismissing?
+
+Pass `timeout: -1` on `send()`. A positive `timeout` (e.g. `3000`) auto-dismisses after that many milliseconds; `-1` makes it persist until dismissed explicitly.
+
+??? What's the difference between marking a notification `seen` and `read`?
+
+They're independent. `seen` drives the unseen badge count (cleared when the inbox is opened); `read` drives visual weight (cleared when the user actually reads it) — mirroring how GitHub and Slack distinguish the two.
+
+:::
+
 <DocsApi />

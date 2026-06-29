@@ -144,6 +144,8 @@ For custom implementations, use `renderless` mode and bind the `attrs` slot prop
 </template>
 ```
 
+## FAQ
+
 ::: faq
 
 ??? When should I use Switch vs Checkbox?

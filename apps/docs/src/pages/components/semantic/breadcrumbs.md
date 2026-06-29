@@ -251,4 +251,22 @@ app.mount('#app')
 
 The `label` prop takes priority over locale messages, so you can still override individual instances when needed.
 
+## FAQ
+
+::: faq
+
+??? When do I use `Breadcrumbs.Link` vs `Breadcrumbs.Page`?
+
+Use `Breadcrumbs.Link` for navigable crumbs and `Breadcrumbs.Page` for the current item — Page applies `aria-current="page"`. Omitting `href` on the last segment renders it as a Page automatically.
+
+??? Why are my crumbs overflowing or leaving extra space?
+
+The `gap` prop (default `8`) must match your actual CSS gap. If they differ, the overflow capacity calculation drifts — set `:gap` to your pixel gap.
+
+??? How do I render crumbs as Vue Router links?
+
+Pass `:as="RouterLink"` along with `to` on `Breadcrumbs.Link`.
+
+:::
+
 <DocsApi />

@@ -183,4 +183,22 @@ Add tasks, toggle completion, and filter by priority. Watch the event log at the
 
 :::
 
+## FAQ
+
+::: faq
+
+??? Why is the `index` I pass to `register` ignored?
+
+`register` always appends to the end. A supplied `index` is intentionally ignored — call `move(id, index)` after registering to reposition a ticket, which reindexes only the affected span.
+
+??? Why don't registry reads update reactively in my template?
+
+createRegistry uses minimal reactivity by default for performance. Pass `{ reactive: true }` to make `keys()`, `values()`, `entries()`, `size`, and per-ticket field reads reactive in templates and computeds.
+
+??? What's the difference between createRegistry and createSelection?
+
+createRegistry is the base ordered, keyed collection — registration, indexing, and lookup. [createSelection](/composables/selection/create-selection) extends it (through createModel) with selection state. Use createRegistry when you need to track items but not which are selected.
+
+:::
+
 <DocsApi />

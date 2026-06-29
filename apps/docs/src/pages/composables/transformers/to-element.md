@@ -89,4 +89,22 @@ Reach for `toElement` whenever a composable or utility function accepts a flexib
 
 :::
 
+## FAQ
+
+::: faq
+
+??? What does toElement return when given a Vue component instance?
+
+It extracts and returns the instance's `$el`. Refs and getters are unwrapped, raw elements pass through, and `null`/`undefined` resolve to `undefined`.
+
+??? Why does it use a structural `{ readonly value: T }` type instead of Vue's Ref?
+
+To accept refs from any Vue version without nominal type mismatches — the structural shape matches a ref regardless of which Vue build produced it.
+
+??? Is toElement reactive?
+
+No. It resolves once when called. Wrap it in `toRef(() => toElement(source))` to re-resolve whenever the source ref changes — useful when a target is `null` until after mount.
+
+:::
+
 <DocsApi />

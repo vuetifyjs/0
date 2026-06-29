@@ -260,4 +260,22 @@ logger.warn('drop rejected')
 
 `useLogger()` with no argument is unchanged — it returns the plugin-configured logger as-is. A scoped logger shares the plugin's level, enabled state, and adapter; only the message prefix differs, so re-leveling or disabling the shared logger affects every scope. A blank scope key is treated as no scope. Without a plugin installed, `useLogger` falls back to a console logger and still appends the `[scope]` segment, so output stays attributable.
 
+## FAQ
+
+::: faq
+
+??? How do I attribute log output to a specific module or composable?
+
+Pass a scope key — `useLogger('createKanban')` — and every message is tagged with a `[createKanban]` segment after the plugin prefix. A scoped logger shares the plugin's level, enabled state, and adapter; only the prefix differs.
+
+??? Why do my `trace()` or `fatal()` calls silently disappear?
+
+`trace` and `fatal` are optional methods on `LoggerAdapter`. If your adapter doesn't implement them, those calls are dropped with no output — implement the methods to capture them.
+
+??? Can I change the log level or silence output at runtime?
+
+Yes — `logger.level('warn')` changes the active threshold, `logger.current()` reads it back, and `logger.disable()` / `logger.enable()` silence or restore all output. These affect every scope of the shared logger.
+
+:::
+
 <DocsApi />

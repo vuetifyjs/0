@@ -193,4 +193,22 @@ In the default `system` mode the server cannot read the OS preference, so the in
 }
 ```
 
+## FAQ
+
+::: faq
+
+??? What's the difference between the `system`, `always`, and `never` modes?
+
+`system` (default) follows the OS `prefers-reduced-motion` setting; `always` forces `isReduced` true; `never` forces it false. Reserve `never` for an explicit user control — it overrides a user who asked for less motion and flips the body attribute to `no-preference`, so your own reduce styles stop matching.
+
+??? How do I persist a user's motion choice across reloads?
+
+Pass `persist: true` to `createReducedMotionPlugin`, and install `createStoragePlugin` first — persistence is backed by the storage plugin.
+
+??? How do I respond to reduced motion in CSS without JavaScript?
+
+When installed, the plugin sets `data-reduced-motion="reduce" | "no-preference"` on `document.body`, so you can target `[data-reduced-motion="reduce"]` in CSS. In `system` mode the server renders `no-preference`, so pair the attribute with a native `@media (prefers-reduced-motion: reduce)` query to cover first paint before hydration.
+
+:::
+
 <DocsApi />

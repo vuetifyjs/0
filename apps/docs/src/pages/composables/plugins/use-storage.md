@@ -164,4 +164,22 @@ const users = cache.get('users', [])
 > [!TIP] How TTL works
 > When `ttl` is set, values are internally wrapped as `{ __ttl, __v, __t }` with a timestamp. On `get()`, if the entry is older than the TTL, it is treated as absent and removed from storage. Non-TTL entries stored previously are read normally.
 
+## FAQ
+
+::: faq
+
+??? Do I need to call `set()` to persist a value?
+
+No. The ref returned by `get(key, default)` is watched with `{ deep: true }`, so writing to `.value` (or binding it with `v-model`) persists automatically. `set()` is the explicit alternative when you don't hold the ref.
+
+??? Why doesn't an empty string fall back to my default?
+
+`get()` uses nullish coalescing internally, so `''` is treated as a valid stored value — only `null` and `undefined` trigger the default. This preserves intentionally-cleared fields.
+
+??? How do I make cached entries expire automatically?
+
+Pass a `ttl` (in milliseconds) to `createStorage`. Entries are timestamped on write; once older than the TTL, `get()` returns the default and removes the entry from storage.
+
+:::
+
 <DocsApi />

@@ -154,4 +154,22 @@ A multi-select track list with a select-all lever and a bulk "add to queue" acti
 
 :::
 
+## FAQ
+
+::: faq
+
+??? When should I reach for createSingle or createGroup instead of createSelection?
+
+createSelection is the multi-select base. Use [createSingle](/composables/selection/create-single) when only one item may be active at a time, or [createGroup](/composables/selection/create-group) when you need tri-state select-all (indeterminate) plus batch operations. Both extend createSelection.
+
+??? Why aren't my items selected after I register them?
+
+createSelection defaults `enroll` to `false`, so tickets register inert — call `select()` to activate one. [createModel](/composables/selection/create-model) flips this default to `true` because two-way-bound values typically start enrolled.
+
+??? How do I stop the user from clearing the last selection?
+
+Pass `mandatory: true`. It prevents deselecting the final selected item, so the collection always keeps at least one active entry.
+
+:::
+
 <DocsApi />

@@ -86,4 +86,22 @@ For custom implementations, use `renderless` mode and bind the `attrs` slot prop
 </template>
 ```
 
+## FAQ
+
+::: faq
+
+??? How is the page count determined?
+
+From `size` (total item count) divided by `items-per-page` (default `10`) — for example, 200 items at 25 per page yields 8 pages.
+
+??? Why is my responsive pagination overflowing or miscounting buttons?
+
+Responsive sizing measures one sample button's width, so variable-width buttons (single-digit "1" vs double-digit "50") throw off the fit calculation. Give every page button the same width.
+
+??? How do I keep the ARIA attributes when rendering custom controls?
+
+Use `renderless` mode and bind the `attrs` slot prop to your own `<nav>` — it carries the landmark label, `aria-current="page"`, and the live-region wiring.
+
+:::
+
 <DocsApi />

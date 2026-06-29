@@ -104,4 +104,22 @@ This component-query pattern is the key use case for `useResizeObserver` over CS
 
 :::
 
+## FAQ
+
+::: faq
+
+??? When should I use useResizeObserver instead of a CSS media query?
+
+Use it for component (container) queries — when an element's layout depends on its own measured width rather than the viewport. A media query only reacts to the global viewport, so the same component placed in a narrow column won't adapt.
+
+??? How do I pause observing without tearing the observer down?
+
+Call `pause()` to stop receiving callbacks and `resume()` to continue with the same observer. Use `stop()` only when you want to disconnect permanently.
+
+??? Can I read width and height without writing a callback?
+
+Yes. `useElementSize` builds on `useResizeObserver` and exposes reactive `width` and `height` refs directly.
+
+:::
+
 <DocsApi />

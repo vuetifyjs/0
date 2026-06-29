@@ -247,4 +247,22 @@ The Splitter implements the [WAI-ARIA Window Splitter](https://www.w3.org/WAI/AR
 
 Arrow direction follows the layout orientation — horizontal splitters use Left/Right, vertical splitters use Up/Down.
 
+## FAQ
+
+::: faq
+
+??? How do I set the initial panel sizes?
+
+Panel sizes are percentages set via `default-size` and must sum to 100. Constrain them with `min-size` and `max-size` so a panel can't collapse or dominate.
+
+??? How do I control collapse from outside the splitter?
+
+Use `v-model:collapsed` on the panel for two-way binding — setting the ref collapses or expands it, and drag-to-collapse or keyboard Home/End updates the ref. For inline controls, the panel's slot props expose `collapse()`, `expand()`, and `isCollapsed`.
+
+??? How do I resize panels programmatically?
+
+Call `distribute([...])` from the root's slot props to set all sizes at once; values are clamped to each panel's min/max. To react to user resizes, listen to `@layout` (all sizes) or a panel's `@resize`.
+
+:::
+
 <DocsApi />

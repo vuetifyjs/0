@@ -174,4 +174,22 @@ The Root component manages ARIA attributes automatically.
 | `data-state` | `determinate` / `indeterminate` | Reflects current mode |
 | `data-complete` | `true` | When total >= max |
 
+## FAQ
+
+::: faq
+
+??? How do I render a multi-segment progress bar?
+
+Bind an array, or render multiple `Progress.Fill` elements — each registers as a segment via the internal model and their values sum to the total. Bind a single number for a one-segment bar.
+
+??? When is the progress indeterminate?
+
+When no value is provided or all segment values are `0`. Style it through `data-[state=indeterminate]`; `aria-valuenow` and `aria-valuetext` are omitted and `aria-busy` is set.
+
+??? How is `Progress.Buffer` different from a segment?
+
+Buffer is independent of the segment registry — it reads `value` directly and computes its own percentage against Root's `min`/`max`, so it can show pre-loaded content ahead of the fill.
+
+:::
+
 <DocsApi />

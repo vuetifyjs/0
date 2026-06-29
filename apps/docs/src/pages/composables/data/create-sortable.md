@@ -193,4 +193,22 @@ dnd.zones.register({
 
 A first-class `useSortableDnD` adapter is on the roadmap; until then, wire `useDragDrop`'s callbacks to `sortable.move` directly.
 
+## FAQ
+
+::: faq
+
+??? Does createSortable handle drag-and-drop?
+
+No — it's pure order state with `move`, `swap`, and `reorder`. Pair it with [useDragDrop](/composables/system/use-drag-drop) for pointer dragging, or wire buttons and arrow keys straight to `move`. The split keeps order and input modality independently testable.
+
+??? How do I apply an authoritative order from my backend?
+
+Pass the id array to `reorder(ids)`. It accepts a strict permutation of the currently-registered ids — rejecting a length mismatch, unknown id, or duplicate — so you never diff positions yourself.
+
+??? Why doesn't `reorder` respect a disabled ticket?
+
+`reorder` is a bulk operation that declares the canonical order, so it bypasses per-ticket `disabled` (root `disabled` still gates it). To keep a disabled ticket pinned, exclude its id from the array.
+
+:::
+
 <DocsApi />

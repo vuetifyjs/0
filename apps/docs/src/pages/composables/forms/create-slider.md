@@ -131,4 +131,22 @@ Two identical UI panels are stacked with `position: absolute`. The bottom layer 
 Drag the divider handle left and right to compare themes.
 :::
 
+## FAQ
+
+::: faq
+
+??? How do I build a range or multi-thumb slider?
+
+Register more than one thumb — call `register({ value })` per thumb, or `onboard([...])` for several at once. Each thumb is addressed by index, e.g. `set(0, 30)` and `set(1, 60)`.
+
+??? What's the difference between `fromValue` and `fromPercent`?
+
+`fromValue` converts a thumb value to a track percentage (for positioning), `fromPercent` converts a percentage back to a snapped value (for pointer input). Together they form the loop `fromPercent → set → fromValue`.
+
+??? Can I use createSlider without rendering an actual slider?
+
+Yes — it's a pure math primitive, not a UI widget. The examples drive a media scrubber and a before/after theme comparison from the same `fromPercent → set → fromValue` loop with no `Slider.*` components.
+
+:::
+
 <DocsApi />

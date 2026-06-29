@@ -119,4 +119,22 @@ The component implements full WAI-ARIA keyboard support. Keyboard behavior depen
 | End | Focuses **and** activates last tab | Focuses last tab only |
 | Enter/Space | — | Activates the focused tab |
 
+## FAQ
+
+::: faq
+
+??? What's the difference between automatic and manual activation?
+
+With `activation="automatic"` (default), arrow keys move focus and activate the tab in one step. With `activation="manual"`, arrow keys only move focus — the user presses Enter or Space to activate the focused tab.
+
+??? How do I stop keyboard navigation from wrapping at the first and last tab?
+
+Set `:circular="false"` on `Tabs.Root`. Navigation then stops at the first and last tab instead of cycling around.
+
+??? How do I auto-select the first tab when tabs are rendered dynamically?
+
+Add `enroll` to `Tabs.Root`. The first tab to register becomes the active one, which is useful when the tab set is built from data at runtime.
+
+:::
+
 <DocsApi />

@@ -157,4 +157,22 @@ Click the buttons to add notifications. Click a notification to dismiss it.
 
 :::
 
+## FAQ
+
+::: faq
+
+??? When should I use `createContext` directly instead of `createTrinity`?
+
+`createContext` returns just the `[useContext, provideContext]` pair. [createTrinity](/composables/foundation/create-trinity) wraps it to also bundle a default context instance, so `provide` can be called with no arguments and fall back automatically. Reach for the bare pair when you don't need a built-in fallback.
+
+??? Why does `useContext` throw when no provider is found?
+
+Injection is required by default — a missing provider is treated as a bug. Pass a `defaultValue` (at creation for a static key, or at call time for a dynamic key) to make injection optional for components that work with or without a parent.
+
+??? How do I create multiple independent instances of the same context?
+
+Use dynamic key mode: omit the key at creation, then pass a runtime key to both `provide` and `use` (e.g. `providePanel('panel-main', ctx)` / `usePanel('panel-main')`). Each key identifies a separate instance.
+
+:::
+
 <DocsApi />

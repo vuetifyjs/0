@@ -128,6 +128,8 @@ For custom implementations, use `renderless` mode and bind the `attrs` slot prop
 </template>
 ```
 
+## FAQ
+
 ::: faq
 
 ??? How do I disable a checkbox?
