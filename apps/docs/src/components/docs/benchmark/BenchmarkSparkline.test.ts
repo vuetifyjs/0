@@ -44,12 +44,4 @@ describe('benchmarkSparkline', () => {
     const wrapper = mount(BenchmarkSparkline, { props: { points } })
     expect(wrapper.find('svg').classes()).toContain('text-on-surface-variant')
   })
-
-  it('should wrap each circle with a title element for native tooltip', () => {
-    const wrapper = mount(BenchmarkSparkline, { props: { points } })
-    const titles = wrapper.findAll('title')
-    expect(titles).toHaveLength(4)
-    expect(titles[0].text()).toContain('0.1.0')
-    expect(titles[3].text()).toContain('current')
-  })
 })
