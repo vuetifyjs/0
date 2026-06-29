@@ -129,10 +129,13 @@
   }
 
   function nextItemId (id: ID | undefined): ID | undefined {
+    /* v8 ignore next -- defensive: source is always a registered visible item */
     if (isNullOrUndefined(id)) return undefined
     const visible = nested.visibleItems()
     const index = visible.findIndex(item => item.id === id)
-    return index === -1 ? undefined : visible.slice(index + 1).find(item => !toValue(item.disabled))?.id
+    /* v8 ignore next -- defensive: a registered item is always found in visibleItems */
+    if (index === -1) return undefined
+    return visible.slice(index + 1).find(item => !toValue(item.disabled))?.id
   }
 
   function onKeydown (e: KeyboardEvent) {

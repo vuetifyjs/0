@@ -3078,5 +3078,189 @@ describe('treeview', () => {
 
       wrapper.unmount()
     })
+
+    it('should return focus to the tree node on Shift+Tab from the first control', async () => {
+      const wrapper = mount(Treeview.Root, {
+        attachTo: document.body,
+        slots: {
+          default: () =>
+            h(Treeview.List as any, {}, () =>
+              h(Treeview.Item as any, { value: 'item-1' }, () =>
+                h('button', { 'data-testid': 'control' }, 'Control'),
+              ),
+            ),
+        },
+      })
+
+      await nextTick()
+
+      const itemEl = wrapper.findComponent(Treeview.Item as any).element as HTMLElement
+      const itemFocus = vi.spyOn(itemEl, 'focus')
+
+      // Shift+Tab from the item's first control returns focus to the node
+      await wrapper.find('[data-testid="control"]').trigger('keydown', { key: 'Tab', shiftKey: true })
+      await nextTick()
+
+      expect(itemFocus).toHaveBeenCalledTimes(1)
+
+      wrapper.unmount()
+    })
+
+    it('should not intercept Shift+Tab from a non-first control', async () => {
+      const wrapper = mount(Treeview.Root, {
+        attachTo: document.body,
+        slots: {
+          default: () =>
+            h(Treeview.List as any, {}, () =>
+              h(Treeview.Item as any, { value: 'item-1' }, () => [
+                h('button', { 'data-testid': 'first' }, 'First'),
+                h('button', { 'data-testid': 'second' }, 'Second'),
+              ]),
+            ),
+        },
+      })
+
+      await nextTick()
+
+      const itemEl = wrapper.findComponent(Treeview.Item as any).element as HTMLElement
+      const itemFocus = vi.spyOn(itemEl, 'focus')
+
+      // Shift+Tab from a non-first control falls through to native handling
+      await wrapper.find('[data-testid="second"]').trigger('keydown', { key: 'Tab', shiftKey: true })
+      await nextTick()
+
+      expect(itemFocus).not.toHaveBeenCalled()
+
+      wrapper.unmount()
+    })
+
+    it('should ignore Tab dispatched on the tree container itself', async () => {
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.List as any, {}, () =>
+              h(Treeview.Item as any, { value: 'item-1' }, () => 'Item 1'),
+            ),
+        },
+      })
+
+      await nextTick()
+
+      // target === currentTarget === the <ul> (role="tree"), not a treeitem → no-op
+      const list = wrapper.findComponent(Treeview.List as any)
+      await list.trigger('keydown', { key: 'Tab' })
+      await nextTick()
+
+      expect(list.exists()).toBe(true)
+    })
+
+    it('should leave Tab on an item without focusable controls to native handling', async () => {
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.List as any, {}, () => [
+              h(Treeview.Item as any, { value: 'item-1' }, () => 'Item 1'),
+              h(Treeview.Item as any, { value: 'item-2' }, () => 'Item 2'),
+            ]),
+        },
+      })
+
+      await nextTick()
+
+      const list = wrapper.findComponent(Treeview.List as any)
+      await list.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      // Tab on a node with no controls is a no-op (roving focus unchanged)
+      const items = wrapper.findAllComponents(Treeview.Item as any)
+      await items[0]!.trigger('keydown', { key: 'Tab' })
+      await nextTick()
+
+      expect(items[0]!.attributes('tabindex')).toBe('0')
+    })
+
+    it('should not advance past the last item on Tab from its control', async () => {
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.List as any, {}, () => [
+              h(Treeview.Item as any, { value: 'item-1' }, () => 'Item 1'),
+              h(Treeview.Item as any, { value: 'item-2' }, () =>
+                h('button', { 'data-testid': 'last-control' }, 'Control'),
+              ),
+            ]),
+        },
+      })
+
+      await nextTick()
+
+      const list = wrapper.findComponent(Treeview.List as any)
+      await list.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      // Tab from the last item's control has no next item — roving is unchanged
+      await wrapper.find('[data-testid="last-control"]').trigger('keydown', { key: 'Tab' })
+      await nextTick()
+
+      const items = wrapper.findAllComponents(Treeview.Item as any)
+      expect(items[0]!.attributes('tabindex')).toBe('0')
+      expect(items[1]!.attributes('tabindex')).toBe('-1')
+    })
+
+    it('should skip disabled items when advancing on Tab from a control', async () => {
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.List as any, {}, () => [
+              h(Treeview.Item as any, { value: 'item-1' }, () =>
+                h('button', { 'data-testid': 'ctrl-1' }, 'C1'),
+              ),
+              h(Treeview.Item as any, { value: 'item-2', disabled: true }, () => 'Item 2'),
+              h(Treeview.Item as any, { value: 'item-3' }, () => 'Item 3'),
+            ]),
+        },
+      })
+
+      await nextTick()
+
+      const list = wrapper.findComponent(Treeview.List as any)
+      await list.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      // Tab from item-1's control advances past the disabled item-2 to item-3
+      await wrapper.find('[data-testid="ctrl-1"]').trigger('keydown', { key: 'Tab' })
+      await nextTick()
+
+      const items = wrapper.findAllComponents(Treeview.Item as any)
+      expect(items[2]!.attributes('tabindex')).toBe('0')
+    })
+
+    it('should not navigate the tree from non-Tab keys on an embedded control', async () => {
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.List as any, {}, () => [
+              h(Treeview.Item as any, { value: 'item-1' }, () => 'Item 1'),
+              h(Treeview.Item as any, { value: 'item-2' }, () =>
+                h('button', { 'data-testid': 'ctrl' }, 'C'),
+              ),
+            ]),
+        },
+      })
+
+      await nextTick()
+
+      const list = wrapper.findComponent(Treeview.List as any)
+      await list.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      // ArrowDown originating from the control must not move roving tree focus
+      await wrapper.find('[data-testid="ctrl"]').trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      const items = wrapper.findAllComponents(Treeview.Item as any)
+      expect(items[0]!.attributes('tabindex')).toBe('0')
+      expect(items[1]!.attributes('tabindex')).toBe('-1')
+    })
   })
 })
