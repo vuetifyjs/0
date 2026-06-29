@@ -10,10 +10,11 @@
 
 import { bench, describe } from 'vitest'
 
-import { createSortable } from './index'
+// Framework
+import { createSortable } from '@vuetify/v0/composables'
 
 // Types
-import type { SortableContext, SortableTicket, SortableTicketInput } from './index'
+import type { SortableContext, SortableTicket, SortableTicketInput } from '@vuetify/v0/composables'
 
 interface BenchmarkItem {
   id: string

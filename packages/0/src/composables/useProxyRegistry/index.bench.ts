@@ -10,10 +10,8 @@
 
 import { bench, describe } from 'vitest'
 
-// Composables
-import { createRegistry } from '#v0/composables/createRegistry'
-
-import { useProxyRegistry } from './index'
+// Framework
+import { createRegistry, useProxyRegistry } from '@vuetify/v0/composables'
 
 // Utilities
 import { effectScope } from 'vue'

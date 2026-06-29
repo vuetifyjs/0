@@ -11,10 +11,11 @@
 
 import { bench, describe } from 'vitest'
 
-import { createDataTable, ClientDataTableAdapter, VirtualDataTableAdapter } from './index'
+// Framework
+import { createDataTable, ClientDataTableAdapter, VirtualDataTableAdapter } from '@vuetify/v0/composables'
 
 // Types
-import type { DataTableColumnTicketInput, DataTableOptions, DataTableTicketInput } from './index'
+import type { DataTableColumnTicketInput, DataTableOptions, DataTableTicketInput } from '@vuetify/v0/composables'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks
