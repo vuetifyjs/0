@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+// Context
 import BenchmarkSparkline from './BenchmarkSparkline.vue'
 
 // Utilities
