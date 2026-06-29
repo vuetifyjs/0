@@ -27,7 +27,7 @@
 
   export interface SnackbarPortalProps extends AtomProps {
     /** Teleport target. `'top-layer'` mounts into the topmost open modal; `false` renders inline. @default 'top-layer' */
-    teleport?: string | false
+    teleport?: 'top-layer' | (string & {}) | false
   }
 
   export interface SnackbarPortalSlotProps {
