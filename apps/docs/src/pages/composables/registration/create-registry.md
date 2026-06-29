@@ -207,6 +207,10 @@ Pass `{ reactive: true }` to make `keys()`, `values()`, `entries()`, `size`, and
 
 Wrap them in `batch(fn)`. It defers cache invalidation and event emission until the callback finishes, so a sequence of `register` / `move` / `unregister` calls settles once instead of per-mutation.
 
+??? Does unregistering many tickets one at a time scale?
+
+Each `unregister` does an O(n) scan to locate and splice the ticket, so tearing down N tickets individually — a parent unmounting hundreds of registered children, for example — is O(n²). Batch removals through `offboard(ids)` or `clear()`, which compact in a single pass, and keep the mounted (and therefore registered) count bounded with [createVirtual](/composables/data/create-virtual) for large lists.
+
 :::
 
 <DocsApi />

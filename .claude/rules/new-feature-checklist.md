@@ -26,6 +26,7 @@ When a new component or composable is created, **all** items below must be compl
 | 6 | `apps/docs/src/pages/components/index.md` | Add table entry in the correct category section |
 | 7 | `packages/0/README.md` | Add to "What's Included" table [intent:247] |
 | 8 | `README.md` (root) | Keep in sync with package README [intent:247] |
+| 9 | `packages/0/src/surface.test.ts` | Add the new component's exported names to the `COMPONENTS` freeze array (sorted) — the public-surface freeze test fails until they match |
 
 ## Composables
 
@@ -39,6 +40,7 @@ When a new component or composable is created, **all** items below must be compl
 | 6 | `apps/docs/src/pages/composables/index.md` | Add table entry in the correct category section |
 | 7 | `packages/0/README.md` | Add to "What's Included" table |
 | 8 | `README.md` (root) | Keep in sync with package README |
+| 9 | `packages/0/src/surface.test.ts` | Add the new composable's exported names to the `COMPOSABLES` freeze array (sorted) — the public-surface freeze test fails until they match |
 
 ## Auto-generated (no manual action)
 
@@ -179,6 +181,7 @@ Prefer extending an existing pattern over creating a new one.
 ## Checklist
 
 - [ ] Directory and barrel entry created with alphabetical ordering
+- [ ] New public exports added to the `packages/0/src/surface.test.ts` freeze array (sorted)
 - [ ] `maturity.json` entry added with `level` (start at `draft`) and `category`; `since` once promoted past `draft` (`null` until first release ships, then the version)
 - [ ] Docs page created with required frontmatter fields
 - [ ] At least a basic example exists at `apps/docs/src/examples/{type}/{kebab-name}/basic.vue` (folder kebab-cased: `use-popover`, `alert-dialog` — never `usePopover`, `AlertDialog`)
