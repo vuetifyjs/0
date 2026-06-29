@@ -71,7 +71,36 @@ Reach for the queue whenever notifications flow through [useNotifications](/comp
 | `toast-host.vue` | Demo entry — action buttons and a file list wired to the composable, plus the mounted ToastHost |
 :::
 
+::: gn-example
+/components/snackbar/in-dialog
+
+### Snackbar inside a Dialog
+
+Click **Open Settings** to open the modal dialog, then **Save** to trigger the snackbar. The snackbar mounts directly inside the dialog's top-layer subtree via the default `teleport="top-layer"` — no extra configuration required.
+
+A native `<dialog>` with `showModal()` is promoted to the browser **top layer**, which paints it above all content and makes everything outside its subtree inert. A snackbar teleported to `body` would render beneath the dialog and be unclickable. `Snackbar.Portal` avoids this by resolving its target to `useStack().topElement` — the topmost open modal's `<dialog>` element — so the snackbar shares the dialog's top-layer context and stays interactive.
+
+When the dialog closes, the portal reparents back to `body` automatically; timers and queue state are preserved because Vue's Teleport moves the same live DOM nodes rather than re-mounting. To always target `body`, pass `teleport="body"`; for inline rendering inside a scoped container, see [Inline rendering](#inline-rendering).
+:::
+
 ## Recipes
+
+### Teleport target
+
+`Snackbar.Portal` defaults to `teleport="top-layer"` so snackbars work automatically when a modal dialog is open. Pass an explicit value to override:
+
+```vue collapse no-filename
+<template>
+  <!-- Default: mounts inside the topmost open modal, falls back to body -->
+  <Snackbar.Portal><!-- ... --></Snackbar.Portal>
+
+  <!-- Always teleport to body, even inside a modal -->
+  <Snackbar.Portal teleport="body"><!-- ... --></Snackbar.Portal>
+
+  <!-- Render inline — no teleport (useful in scoped containers, Storybook) -->
+  <Snackbar.Portal :teleport="false"><!-- ... --></Snackbar.Portal>
+</template>
+```
 
 ### ARIA role
 
