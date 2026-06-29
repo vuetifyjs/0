@@ -28,7 +28,7 @@
   import { toElement } from '#v0/composables/toElement'
 
   // Utilities
-  import { shallowRef, toRef, toValue, useTemplateRef } from 'vue'
+  import { computed, shallowRef, toRef, toValue, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -86,25 +86,30 @@
     reverse: () => priority === 'end',
   })
 
-  function isVisible (index: number): boolean {
-    if (disabled) return true
-    const tickets = registry.values()
-    const ticket = tickets[index]
-    if (!ticket) return true
-    if (toValue(ticket.disabled)) return true
+  // Cache the hidden set; O(1) lookup avoids the per-item O(n) rank scan (O(n²) per resize).
+  const hidden = computed(() => {
+    const set = new Set<number>()
+    if (disabled) return set
     const cap = overflow.capacity.value
-    if (cap === Infinity) return true
+    if (cap === Infinity) return set
 
-    let rank = 0
-    let total = 0
-    for (const [i, ticket_] of tickets.entries()) {
-      if (toValue(ticket_.disabled)) continue
-      if (i === index) rank = total
-      total++
+    const tickets = registry.values()
+    const enabled: number[] = []
+    for (const [i, ticket] of tickets.entries()) {
+      if (!toValue(ticket.disabled)) enabled.push(i)
     }
 
-    if (priority === 'end') return rank >= total - cap
-    return rank < cap
+    const total = enabled.length
+    for (let rank = 0; rank < total; rank++) {
+      const visible = priority === 'end' ? rank >= total - cap : rank < cap
+      if (!visible) set.add(enabled[rank])
+    }
+
+    return set
+  })
+
+  function isVisible (index: number): boolean {
+    return !hidden.value.has(index)
   }
 
   provideOverflowRoot(namespace, {
