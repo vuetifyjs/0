@@ -83,6 +83,7 @@ declare module 'vue' {
     BenchmarkFilters: typeof import('./components/docs/benchmark/BenchmarkFilters.vue')['default']
     BenchmarkGroup: typeof import('./components/docs/benchmark/BenchmarkGroup.vue')['default']
     BenchmarkRow: typeof import('./components/docs/benchmark/BenchmarkRow.vue')['default']
+    BenchmarkSparkline: typeof import('./components/docs/benchmark/BenchmarkSparkline.vue')['default']
     BenchmarkSummaryCards: typeof import('./components/docs/benchmark/BenchmarkSummaryCards.vue')['default']
     BenchmarkTierBadge: typeof import('./components/docs/benchmark/BenchmarkTierBadge.vue')['default']
     DiscoveryActivator: typeof import('./components/discovery/DiscoveryActivator.vue')['default']

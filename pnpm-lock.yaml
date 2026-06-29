@@ -395,6 +395,9 @@ importers:
       '@unhead/vue':
         specifier: 'catalog:'
         version: 2.1.13(vue@3.5.33(typescript@6.0.3))
+      '@vue/test-utils':
+        specifier: 'catalog:'
+        version: 2.4.10(@vue/compiler-dom@3.5.33)(@vue/server-renderer@3.5.33(vue@3.5.33(typescript@6.0.3)))(vue@3.5.33(typescript@6.0.3))
       markdown-it:
         specifier: 'catalog:'
         version: 14.1.1
