@@ -89,6 +89,7 @@
 <template>
   <GnDocsExample
     :id
+    class="mb-6"
     :code="resolvedCode"
     :collapse
     :file-name
