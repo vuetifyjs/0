@@ -48,12 +48,6 @@
   })
 
   const polylinePoints = toRef(() => coords.value.map(c => `${c.x.toFixed(2)},${c.y.toFixed(2)}`).join(' '))
-
-  function formatValue (value: number): string {
-    if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M ops/s`
-    if (value >= 1000) return `${(value / 1000).toFixed(1)}k ops/s`
-    return `${Math.round(value)} ops/s`
-  }
 </script>
 
 <template>
@@ -83,8 +77,6 @@
       r="2"
       stroke="currentColor"
       stroke-width="1.5"
-    >
-      <title>{{ c.point.label }}: {{ formatValue(c.point.value) }}</title>
-    </circle>
+    />
   </svg>
 </template>
