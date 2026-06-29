@@ -23,12 +23,14 @@ function createMockTicket (overrides: {
   id?: string
   zIndex?: number
   blocking?: boolean
+  scrim?: boolean
 } = {}): StackTicket {
   const dismiss = vi.fn()
   return {
     id: overrides.id ?? 'ticket-1',
     zIndex: computed(() => overrides.zIndex ?? 2000),
-    blocking: overrides.blocking ?? false,
+    blocking: computed(() => overrides.blocking ?? false),
+    scrim: computed(() => overrides.scrim ?? true),
     dismiss,
     // Minimal ticket properties for testing
     index: 0,

@@ -33,7 +33,7 @@ describe('createStack', () => {
 
         expect(ticket).toBeDefined()
         expect(ticket.id).toBeDefined()
-        expect(ticket.blocking).toBe(false)
+        expect(ticket.blocking.value).toBe(false)
       })
 
       it('should register tickets with options', () => {
@@ -42,7 +42,7 @@ describe('createStack', () => {
 
         const ticket = stack.register({ onDismiss, blocking: true })
 
-        expect(ticket.blocking).toBe(true)
+        expect(ticket.blocking.value).toBe(true)
         expect(ticket.onDismiss).toBe(onDismiss)
       })
 

@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+// Components
+import { Scrim } from '#v0/components/Scrim'
+
 // Composables
 import { createStackPlugin, useStack } from '#v0/composables/useStack'
 
@@ -1165,5 +1168,46 @@ describe('dialog', () => {
     wrapper.unmount()
     await nextTick()
     expect(capturedStack!.topElement.value).toBeNull()
+  })
+
+  it('reactively honors a blocking dialog when its scrim is clicked', async () => {
+    const open = ref(true)
+    const blocking = ref(true)
+    const wrapper = mountWithStack(
+      defineComponent({
+        setup () {
+          return () => [
+            h(Dialog.Root, {
+              'modelValue': open.value,
+              'onUpdate:modelValue': (v: boolean) => {
+                open.value = v
+              },
+            }, {
+              default: () => h(Dialog.Content as any, { blocking: blocking.value }, () => h('p', 'Body')),
+            }),
+            h(Scrim, { teleport: false, class: 'test-scrim' }),
+          ]
+        },
+      }),
+      { attachTo: document.body },
+    )
+
+    await nextTick()
+
+    // While blocking, a scrim click must not dismiss the dialog.
+    const scrim = wrapper.find('.test-scrim')
+    expect(scrim.exists()).toBe(true)
+    await scrim.trigger('click')
+    await nextTick()
+    expect(open.value).toBe(true)
+
+    // Flipping blocking off must propagate reactively: the same scrim now dismisses.
+    blocking.value = false
+    await nextTick()
+    await wrapper.find('.test-scrim').trigger('click')
+    await nextTick()
+    expect(open.value).toBe(false)
+
+    wrapper.unmount()
   })
 })

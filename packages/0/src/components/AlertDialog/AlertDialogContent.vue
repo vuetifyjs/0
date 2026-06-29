@@ -97,7 +97,7 @@
   const stack = useStack()
   const ticket = stack.register({
     onDismiss: () => context.close(),
-    blocking,
+    blocking: () => blocking,
     el: () => contentRef.value?.element,
   })
 
