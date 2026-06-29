@@ -81,10 +81,10 @@
   const attrs = useAttrs()
   const stack = useStack()
 
-  const tickets = computed(() => Array.from(stack.selectedItems.value).filter(ticket => ticket.scrim !== false))
+  const tickets = computed(() => Array.from(stack.selectedItems.value).filter(ticket => ticket.scrim.value !== false))
 
   function onDismiss (ticket: StackTicket) {
-    if (!ticket.blocking) {
+    if (!ticket.blocking.value) {
       ticket.dismiss()
     }
   }
@@ -94,7 +94,7 @@
     return {
       ticket,
       zIndex,
-      isBlocking: ticket.blocking,
+      isBlocking: ticket.blocking.value,
       dismiss: () => onDismiss(ticket),
       attrs: {
         style: { zIndex },

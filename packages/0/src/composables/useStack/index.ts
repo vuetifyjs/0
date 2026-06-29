@@ -59,7 +59,7 @@ export interface StackTicketInput extends SelectionTicketInput {
    * @remarks When true, clicking the scrim will not dismiss this overlay.
    * Use for critical dialogs requiring explicit user action.
    */
-  blocking?: boolean
+  blocking?: MaybeRefOrGetter<boolean>
   /**
    * Whether this overlay should be backed by a scrim/backdrop
    *
@@ -68,7 +68,7 @@ export interface StackTicketInput extends SelectionTicketInput {
    * but `Scrim` skips rendering a backdrop for it. Use for non-modal overlays
    * (snackbars, toasts, tooltips) that need layering without dimming.
    */
-  scrim?: boolean
+  scrim?: MaybeRefOrGetter<boolean>
   /**
    * The overlay's DOM element.
    *
@@ -95,11 +95,11 @@ export type StackTicket<Z extends StackTicketInput = StackTicketInput> = Selecti
   /**
    * Whether this overlay blocks scrim dismissal
    */
-  blocking: boolean
+  blocking: Readonly<Ref<boolean>>
   /**
    * Whether this overlay is backed by a scrim/backdrop
    */
-  scrim: boolean
+  scrim: Readonly<Ref<boolean>>
   /** The overlay's DOM element, if provided at registration. */
   el?: MaybeRefOrGetter<Element | null | undefined>
   /**
@@ -258,7 +258,7 @@ export function createStack (_options: StackOptions = {}): StackContext {
   function selectedScrims () {
     return Array.from(selection.selectedIds)
       .map(id => selection.get(id) as StackTicket | undefined)
-      .filter((ticket): ticket is StackTicket => !!ticket && ticket.scrim !== false)
+      .filter((ticket): ticket is StackTicket => !!ticket && ticket.scrim.value !== false)
   }
 
   const isActive = toRef(() => selectedScrims().length > 0)
@@ -270,7 +270,7 @@ export function createStack (_options: StackOptions = {}): StackContext {
     return ticket ? ticket.zIndex.value - 1 : 0
   })
 
-  const isBlocking = toRef(() => top.value?.blocking ?? false)
+  const isBlocking = toRef(() => toValue(top.value?.blocking) ?? false)
 
   const topElement = toRef(() => {
     const scrims = selectedScrims()
@@ -287,8 +287,8 @@ export function createStack (_options: StackOptions = {}): StackContext {
 
   function register (input: Partial<StackTicketInput> = {} as Partial<StackTicketInput>): StackTicket {
     const id = input.id ?? useId()
-    const blocking = input.blocking ?? false
-    const scrim = input.scrim ?? true
+    const blocking = toRef(() => toValue(input.blocking) ?? false)
+    const scrim = toRef(() => toValue(input.scrim) ?? true)
     const onDismiss = input.onDismiss
 
     const zIndex = toRef(() => {
@@ -304,19 +304,19 @@ export function createStack (_options: StackOptions = {}): StackContext {
     })
 
     function dismiss () {
-      if (blocking) return
+      if (blocking.value) return
       onDismiss?.()
       selection.unselect(id)
     }
 
     const ticket = selection.register({
+      ...input,
       blocking,
       scrim,
       onDismiss,
       zIndex,
       globalTop,
       dismiss,
-      ...input,
       id,
     } as Partial<StackTicketInput>)
 

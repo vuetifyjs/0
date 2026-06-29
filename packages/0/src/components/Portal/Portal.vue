@@ -65,8 +65,8 @@
   // inline portal is excluded from the stack (z-index pins to base, inline
   // portals collide, no dismiss/scrim coordination).
   const ticket = stack.register({
-    blocking,
-    scrim,
+    blocking: () => blocking,
+    scrim: () => scrim,
     onDismiss: () => emit('close'),
   })
   ticket.select()
