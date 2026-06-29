@@ -5,11 +5,11 @@ name: Regenerate Metrics
 # PR to discard a noisy run.
 #
 # Trigger: a published GitHub Release. In this changesets setup the aggregate
-# `v*` release (scripts/github-release.js) is the terminal, success-gated
-# artifact of a publish — it runs last and only when a publish actually
-# happened, and it creates the `v*` tag the history generator worktrees onto.
-# That makes `release: published` the right moment: the tag exists, and we never
-# fire on plain master pushes or the "version packages" PR churn.
+# `v*` release is the terminal, success-gated artifact of a publish (it runs
+# last, only when a publish actually happened), so `release: published` is the
+# right moment — and it never fires on plain master pushes or "version packages"
+# PR churn. The harness installs each configured version from npm and benches it
+# with the current suite (fixed apparatus), so no git tags/worktrees are needed.
 on:
   release:
     types: [published]
@@ -32,8 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 0 # generate-metrics-history worktrees onto old tags…
-          fetch-tags: true # …so every v{version} tag must be present, else each errors out
+          fetch-depth: 0 # full history for create-pull-request
 
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v6
@@ -42,11 +41,10 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
 
-      # --force re-measures EVERY configured version this run, so the historical
-      # points and the current point share one machine and trends stay honest.
-      # Cost grows with the version list (each is a worktree + install + bench).
-      # If that becomes too slow, drop --force to append-only (generates just the
-      # newest missing version) and accept a machine seam against older snapshots.
+      # Fixed apparatus: the current bench suite + toolchain measure each version's
+      # npm-installed dist, so the series is comparable. --force re-measures every
+      # configured version each run (each = npm install + bench); drop --force to
+      # generate only newly-added versions.
       - name: Regenerate history series
         run: pnpm metrics:history --force
 
@@ -68,8 +66,8 @@ jobs:
             tier badges may flip without a code change. **Close this PR to discard the
             run** if the numbers look like noise.
 
-            To add a new historical version, append it to `scripts/metrics-history.config.ts`
-            (minor/major only — patches are intentionally excluded).
+            To add a historical version, append it to `scripts/metrics-history.config.ts`
+            (must be published to npm; track the 1.x line).
           branch: chore/metrics-regen
           add-paths: |
             apps/docs/public/benchmarks.json

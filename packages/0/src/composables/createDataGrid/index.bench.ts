@@ -18,10 +18,11 @@
 
 import { bench, describe } from 'vitest'
 
-import { createDataGrid } from './index'
+// Framework
+import { createDataGrid } from '@vuetify/v0/composables'
 
 // Types
-import type { DataGridColumnTicketInput, DataGridOptions } from './index'
+import type { DataGridColumnTicketInput, DataGridOptions } from '@vuetify/v0/composables'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks

@@ -1,7 +1,10 @@
 import { bench, describe } from 'vitest'
 
+// Framework
+import { V0DateAdapter } from '@vuetify/v0/date'
+
 // Adapters
-import { Temporal, V0DateAdapter } from './adapters/v0'
+import { Temporal } from './adapters/v0'
 
 describe('useDate benchmarks', () => {
   describe('V0DateAdapter', () => {
