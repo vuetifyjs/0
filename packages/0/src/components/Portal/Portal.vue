@@ -18,9 +18,12 @@
   // Utilities
   import { toRef } from 'vue'
 
+  // Types
+  import type { Extensible } from '#v0/types'
+
   export interface PortalProps {
-    /** Teleport target. @default 'body' */
-    to?: string | HTMLElement
+    /** Teleport target. `'top-layer'` mounts into the topmost open modal. @default 'body' */
+    to?: Extensible<'top-layer'> | HTMLElement
     /** Render inline instead of teleporting. @default false */
     disabled?: boolean
     /** Block scrim close. @default false */
@@ -68,6 +71,10 @@
   })
   ticket.select()
 
+  const target = toRef(() => (
+    to === 'top-layer' ? stack.topElement.value ?? 'body' : to
+  ))
+
   const slotProps = toRef((): PortalSlotProps => ({
     zIndex: ticket.zIndex.value,
     close: ticket.dismiss,
@@ -75,7 +82,7 @@
 </script>
 
 <template>
-  <Teleport :disabled :to>
+  <Teleport :disabled :to="target">
     <slot v-bind="slotProps" />
   </Teleport>
 </template>
