@@ -60,6 +60,19 @@ jobs:
       - name: Run sherif check
         run: pnpm repo:sherif
 
+  # Vapor parity tests run on a beta Vue (tests/vapor, vue@3.6.0-beta), pinned
+  # separately from the rest of the repo. Non-blocking: a Vapor regression
+  # surfaces as a visible signal without redding the build on a beta hiccup.
+  vapor:
+    needs: prepare
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+      - name: Run Vapor-mode tests
+        run: pnpm test:vapor
+
   build:
     runs-on: ubuntu-latest
     needs: [prepare]
