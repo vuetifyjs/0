@@ -32,6 +32,8 @@
   import type { ID } from '#v0/types'
   import type { TreeviewListProps, TreeviewListSlotProps } from './types'
 
+  const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]'
+
   export type TreeviewListContext = RovingFocusReturn
 
   export const [useTreeviewList, provideTreeviewList] = createContext<TreeviewListContext | null>({ suffix: 'list' })
@@ -117,12 +119,11 @@
     }
   }
 
-  const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]'
-
   function focusableChildren (el: HTMLElement): HTMLElement[] {
     return Array.from(el.querySelectorAll<HTMLElement>(FOCUSABLE))
       .filter(child =>
         child.getAttribute('tabindex') !== '-1'
+        && child.getAttribute('aria-disabled') !== 'true'
         && child.closest('[role="treeitem"]') === el,
       )
   }
@@ -130,8 +131,8 @@
   function nextItemId (id: ID | undefined): ID | undefined {
     if (isNullOrUndefined(id)) return undefined
     const visible = nested.visibleItems()
-    const i = visible.findIndex(item => item.id === id)
-    return i === -1 ? undefined : visible.slice(i + 1).find(item => !toValue(item.disabled))?.id
+    const index = visible.findIndex(item => item.id === id)
+    return index === -1 ? undefined : visible.slice(index + 1).find(item => !toValue(item.disabled))?.id
   }
 
   function onKeydown (e: KeyboardEvent) {
@@ -147,7 +148,8 @@
         e.preventDefault()
         controls[0]!.focus()
       } else if (!e.shiftKey && target === controls.at(-1)) {
-        const next = nextItemId(roving.focusedId.value)
+        const source = nested.visibleItems().find(item => toValue(item.el) === itemEl)?.id
+        const next = nextItemId(source)
         if (!isNullOrUndefined(next)) {
           e.preventDefault()
           roving.focus(next)

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
 import { Treeview } from './index'
@@ -2968,6 +2968,78 @@ describe('treeview', () => {
       await nextTick()
 
       expect(wrapper.text()).toContain('Item 1')
+
+      wrapper.unmount()
+    })
+  })
+
+  describe('keyboard tab into item controls', () => {
+    it('should advance from the item that owns the focused control, not the stale roving focus', async () => {
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.List as any, {}, () => [
+              h(Treeview.Item as any, { value: 'item-1' }, () => 'Item 1'),
+              h(Treeview.Item as any, { value: 'item-2' }, () =>
+                h('button', { 'data-testid': 'item-2-control' }, 'Control 2'),
+              ),
+              h(Treeview.Item as any, { value: 'item-3' }, () => 'Item 3'),
+            ]),
+        },
+      })
+
+      await nextTick()
+
+      const list = wrapper.findComponent(Treeview.List as any)
+
+      // Roving focus is on item-1
+      await list.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      // Tab forward out of item-2's control. Focus must advance from the
+      // control's owner (item-2) to item-3 — not from the stale roving id
+      // (item-1), which would land on item-2.
+      await wrapper.find('[data-testid="item-2-control"]').trigger('keydown', { key: 'Tab' })
+      await nextTick()
+
+      const items = wrapper.findAllComponents(Treeview.Item as any)
+      expect(items[2]!.attributes('tabindex')).toBe('0')
+    })
+
+    it('should skip aria-disabled controls when tabbing into an item', async () => {
+      const wrapper = mount(Treeview.Root, {
+        attachTo: document.body,
+        slots: {
+          default: () =>
+            h(Treeview.List as any, {}, () =>
+              h(Treeview.Item as any, { value: 'item-1' }, () => [
+                h('button', { 'data-testid': 'disabled-control', 'aria-disabled': 'true' }, 'Disabled'),
+                h('button', { 'data-testid': 'enabled-control' }, 'Enabled'),
+              ]),
+            ),
+        },
+      })
+
+      await nextTick()
+
+      const list = wrapper.findComponent(Treeview.List as any)
+      const disabled = wrapper.find('[data-testid="disabled-control"]').element as HTMLElement
+      const enabled = wrapper.find('[data-testid="enabled-control"]').element as HTMLElement
+      const disabledFocus = vi.spyOn(disabled, 'focus')
+      const enabledFocus = vi.spyOn(enabled, 'focus')
+
+      // Focus item-1's node via roving
+      await list.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      // Tab forward from the item node lands on the first focusable control,
+      // skipping the aria-disabled one.
+      const items = wrapper.findAllComponents(Treeview.Item as any)
+      await items[0]!.trigger('keydown', { key: 'Tab' })
+      await nextTick()
+
+      expect(enabledFocus).toHaveBeenCalledTimes(1)
+      expect(disabledFocus).not.toHaveBeenCalled()
 
       wrapper.unmount()
     })
