@@ -32,7 +32,7 @@
   const historyByBench = toRef(() => {
     const h = history.value
     if (!h) return null
-    const match = h.groups.find(g => g.name === props.group.name)
+    const match = h.groups.find(g => g.name === props.group.name.split(' > ').pop())
     if (!match) return null
     const map = new Map<string, { points: HistoryPoint[], delta: number }>()
     for (const bench of match.benchmarks) {
