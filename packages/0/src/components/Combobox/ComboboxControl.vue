@@ -116,6 +116,10 @@
           } else {
             context.select(highlighted)
           }
+          // Multiple-select commit/select keeps the menu open; close it here so the
+          // listbox doesn't float over the next control (useClickOutside dismisses on
+          // pointer events, not on focus leaving via Tab).
+          context.close()
           break
         }
         case 'ArrowDown':
