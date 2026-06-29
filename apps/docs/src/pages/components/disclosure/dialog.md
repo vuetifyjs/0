@@ -87,9 +87,9 @@ The `blocking` prop disables scrim-based dismissal entirely — the dialog can o
 
 ::: faq
 
-??? Why did my Snackbar, Tooltip, or Popover overlays render below a modal dialog?
+??? Why do my Snackbar, Tooltip, or Popover overlays render below a modal dialog?
 
-The native `<dialog>` element with `showModal()` promotes itself to the browser's **top layer** — a rendering surface that sits above all normal document content regardless of `z-index`, and makes everything outside its subtree inert. An overlay teleported to `body` therefore rendered _beneath_ the dialog and was not clickable. This is a browser-level constraint, not a v0 bug — but `Snackbar.Portal` now handles it for you (see below).
+The native `<dialog>` element with `showModal()` promotes itself to the browser's **top layer** — a rendering surface that sits above all normal document content regardless of `z-index`, and makes everything outside its subtree inert. Any overlay rendered _outside_ the dialog (e.g. a `Snackbar.Portal` teleported to `body`, or a `Tooltip` inside a portal) appears **below** the dialog, not above it. This is a browser-level constraint, not a v0 bug — but `Snackbar.Portal` handles it for you by default (see below).
 
 ??? How do I show a Snackbar (or other overlay) inside an open modal dialog?
 
