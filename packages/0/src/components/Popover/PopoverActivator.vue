@@ -54,7 +54,7 @@
 
   const style = toRef(() => {
     if (target) {
-      return { anchorName: `--${target}` }
+      return { anchorName: `--${String(target).replace(/[^a-zA-Z0-9_-]/g, '')}` }
     }
     return context.anchorStyles.value
   })
