@@ -166,6 +166,13 @@ export interface StackContext<
    * interactive. Non-modal (`scrim: false`) tickets are never returned, so a
    * non-modal overlay never resolves to itself.
    *
+   * **One-tick window.** When a modal mounts already-open (`modelValue=true`),
+   * the ticket's `select()` fires synchronously in the `immediate: true` watch
+   * before the content ref resolves, so `topElement` is `null` for one tick.
+   * Consumers that read `topElement` reactively (e.g. `Portal` resolving its
+   * teleport target) see the correct element on the next tick after the
+   * modal's DOM node mounts.
+   *
    * @example
    * ```ts
    * const to = toRef(() => stack.topElement.value ?? 'body')
