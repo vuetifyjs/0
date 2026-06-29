@@ -29,7 +29,10 @@
 
   // Types
   import type { RovingFocusReturn } from '#v0/composables/useRovingFocus'
+  import type { ID } from '#v0/types'
   import type { TreeviewListProps, TreeviewListSlotProps } from './types'
+
+  const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]'
 
   export type TreeviewListContext = RovingFocusReturn
 
@@ -116,12 +119,55 @@
     }
   }
 
+  function focusableChildren (el: HTMLElement): HTMLElement[] {
+    return Array.from(el.querySelectorAll<HTMLElement>(FOCUSABLE))
+      .filter(child =>
+        child.getAttribute('tabindex') !== '-1'
+        && child.getAttribute('aria-disabled') !== 'true'
+        && child.closest('[role="treeitem"]') === el,
+      )
+  }
+
+  function nextItemId (id: ID | undefined): ID | undefined {
+    /* v8 ignore next -- defensive: source is always a registered visible item */
+    if (isNullOrUndefined(id)) return undefined
+    const visible = nested.visibleItems()
+    const index = visible.findIndex(item => item.id === id)
+    /* v8 ignore next -- defensive: a registered item is always found in visibleItems */
+    if (index === -1) return undefined
+    return visible.slice(index + 1).find(item => !toValue(item.disabled))?.id
+  }
+
   function onKeydown (e: KeyboardEvent) {
-    // When the event bubbles from a child element that is NOT a treeitem (e.g. an
-    // embedded switch or combobox inside a row), let that element handle its own
-    // key events rather than intercepting them at the tree level.
-    const target = e.target as Element
-    if (target !== e.currentTarget && target.getAttribute('role') !== 'treeitem') return
+    const target = e.target as HTMLElement
+    const itemEl = target.closest<HTMLElement>('[role="treeitem"]')
+    const onItem = target === e.currentTarget || target.getAttribute('role') === 'treeitem'
+
+    if (e.key === 'Tab') {
+      if (!itemEl) return
+      const controls = focusableChildren(itemEl)
+      if (controls.length === 0) return
+      if (!e.shiftKey && onItem) {
+        e.preventDefault()
+        controls[0]!.focus()
+      } else if (!e.shiftKey && target === controls.at(-1)) {
+        const source = nested.visibleItems().find(item => toValue(item.el) === itemEl)?.id
+        const next = nextItemId(source)
+        if (!isNullOrUndefined(next)) {
+          e.preventDefault()
+          roving.focus(next)
+        }
+      } else if (e.shiftKey && target === controls[0]) {
+        e.preventDefault()
+        itemEl.focus()
+      }
+      return
+    }
+
+    // When the event bubbles from a child that is NOT a treeitem (e.g. an
+    // embedded switch or combobox inside a row), let that control handle its
+    // own key events rather than intercepting them at the tree level.
+    if (!onItem) return
 
     const id = roving.focusedId.value
     const ticket = isNullOrUndefined(id) ? undefined : nested.get(id)
