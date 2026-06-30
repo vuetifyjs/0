@@ -1,11 +1,11 @@
 <script setup vapor lang="ts">
   // Utilities
-  import { instanceExists, instanceName, useId } from '#v0/utilities'
+  import { instanceExists, instanceName, isNull, useId } from '#v0/utilities'
   import { getCurrentInstance } from 'vue'
 
   // Under real Vapor, getCurrentInstance() returns null by design
   // (vuejs/core v3.6.0-beta.1 release notes).
-  const rawNull = getCurrentInstance() === null
+  const rawNull = isNull(getCurrentInstance())
 
   // ...but v0's shim (utilities/instance.ts) reads the `currentInstance`
   // export directly, so it must still detect the active component. This is the
