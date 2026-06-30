@@ -77,6 +77,7 @@ export class V0Error extends Error {
   readonly seed?: string
   readonly variant?: string
   readonly adapter?: string
+  readonly prefix?: string
 
   constructor (message: string, details: V0ErrorDetails & { cause?: unknown }) {
     const { cause, ...rest } = details
