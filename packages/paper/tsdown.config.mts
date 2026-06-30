@@ -5,8 +5,8 @@ import Vue from 'unplugin-vue/rolldown'
 
 import pkg from './package.json' with { type: 'json' }
 
-const v0 = fileURLToPath(new URL('../../0/src', import.meta.url))
-const paper = fileURLToPath(new URL('../src', import.meta.url))
+const v0 = fileURLToPath(new URL('../0/src', import.meta.url))
+const paper = fileURLToPath(new URL('src', import.meta.url))
 const __VERSION__ = JSON.stringify(pkg.version)
 
 export default defineConfig([{
