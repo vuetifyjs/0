@@ -20,7 +20,7 @@ import type { App } from 'vue'
 // Structural @unhead seam — duck-typed so v0 takes no dependency on @unhead types.
 interface ThemeHeadInput {
   htmlAttrs?: { 'data-theme': string }
-  style?: Array<{ innerHTML: string, id: string }>
+  style?: Array<{ innerHTML: string, id: string, nonce?: string }>
 }
 
 interface HeadEntry {
@@ -33,6 +33,7 @@ interface Head {
 }
 
 export interface V0UnheadThemeOptions {
+  cspNonce?: string
   stylesheetId?: string
   prefix?: string
 }
@@ -46,9 +47,11 @@ export interface V0UnheadThemeOptions {
  */
 export class V0UnheadThemeAdapter extends ThemeAdapter {
   private entry?: HeadEntry
+  cspNonce?: string
 
   constructor (options: V0UnheadThemeOptions = {}) {
     super(options.prefix ?? 'v0')
+    this.cspNonce = options.cspNonce
     this.stylesheetId = options.stylesheetId ?? this.stylesheetId
   }
 
@@ -68,6 +71,7 @@ export class V0UnheadThemeAdapter extends ThemeAdapter {
         style: [{
           innerHTML: this.generate(context.colors.value, context.isDark.value),
           id: this.stylesheetId,
+          ...(this.cspNonce != null && { nonce: this.cspNonce }),
         }],
       })
     }
@@ -103,6 +107,7 @@ export class V0UnheadThemeAdapter extends ThemeAdapter {
             style: [{
               innerHTML: this.generate(colors, isDark),
               id: this.stylesheetId,
+              ...(this.cspNonce != null && { nonce: this.cspNonce }),
             }],
           })
         },
@@ -127,6 +132,7 @@ export class V0UnheadThemeAdapter extends ThemeAdapter {
       style: [{
         innerHTML: this.generate(colors, isDark),
         id: this.stylesheetId,
+        ...(this.cspNonce != null && { nonce: this.cspNonce }),
       }],
     })
   }

@@ -57,6 +57,27 @@ describe('v0StyleSheetThemeAdapter', () => {
 
   // eslint-disable-next-line vitest/prefer-lowercase-title
   describe('SSR (non-browser) environment', () => {
+    it('should thread cspNonce into the style entry on SSR head push', () => {
+      mockInBrowser.value = false
+      const headMock = { push: vi.fn() }
+      const app = createMockApp(headMock)
+      const context = createMockContext()
+      const adapter = new V0StyleSheetThemeAdapter({ cspNonce: 'abc123' })
+
+      const scope = effectScope()
+      scope.run(() => {
+        adapter.setup(app, context)
+      })
+
+      expect(headMock.push).toHaveBeenCalledWith(
+        expect.objectContaining({
+          style: [expect.objectContaining({ nonce: 'abc123' })],
+        }),
+      )
+
+      scope.stop()
+    })
+
     it('should push styles to head when usehead is available', () => {
       mockInBrowser.value = false
       const headMock = { push: vi.fn() }

@@ -16,7 +16,7 @@ import type { App } from 'vue'
 // Structural @unhead seam — duck-typed so v0 takes no dependency on @unhead types.
 interface ThemeHeadInput {
   htmlAttrs: { 'data-theme': string }
-  style: Array<{ innerHTML: string, id: string }>
+  style: Array<{ innerHTML: string, id: string, nonce?: string }>
 }
 
 interface HeadEntry {
@@ -109,6 +109,7 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
           style: [{
             innerHTML: this.generate(context.colors.value, context.isDark.value),
             id: this.stylesheetId,
+            ...(this.cspNonce != null && { nonce: this.cspNonce }),
           }],
         })
 
