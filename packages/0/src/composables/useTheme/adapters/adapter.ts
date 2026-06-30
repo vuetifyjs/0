@@ -26,6 +26,9 @@ export abstract class ThemeAdapter {
   dispose?: () => void
 
   constructor (prefix: string) {
+    if (!ThemeAdapter.SAFE_IDENT.test(prefix)) {
+      throw new Error(`Invalid theme prefix "${prefix}": must match /^[a-zA-Z0-9_-]+$/.`)
+    }
     this.prefix = prefix
   }
 

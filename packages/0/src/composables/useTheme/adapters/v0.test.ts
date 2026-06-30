@@ -53,6 +53,12 @@ describe('v0StyleSheetThemeAdapter', () => {
 
       expect(adapter.cspNonce).toBe('test-nonce')
     })
+
+    it('should throw on a malformed prefix', () => {
+      expect(() => new V0StyleSheetThemeAdapter({ prefix: 'bad}{prefix' })).toThrow('Invalid theme prefix')
+      expect(() => new V0StyleSheetThemeAdapter({ prefix: 'bad<script>' })).toThrow('Invalid theme prefix')
+      expect(() => new V0StyleSheetThemeAdapter({ prefix: '' })).toThrow('Invalid theme prefix')
+    })
   })
 
   // eslint-disable-next-line vitest/prefer-lowercase-title
