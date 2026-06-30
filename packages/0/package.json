@@ -344,8 +344,8 @@
     },
     "./package.json": "./package.json",
     "./browser": {
-      "development": "./src/index.ts",
       "types": "./dist/index.d.mts",
+      "development": "./src/index.ts",
       "default": "./dist/browser/index.js"
     }
   }
