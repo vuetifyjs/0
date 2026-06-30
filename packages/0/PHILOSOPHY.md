@@ -12,8 +12,8 @@ v0 is a **headless meta-framework for building UI libraries** — a set of Vue 3
 
 ### What v0 is
 
-- A layer of Vue 3 composables (~64) and compound components (~37) that encode interaction patterns, selection state, registries, accessibility contracts, keyboard navigation, focus management, SSR safety, and adapter-backed plugin state.
-- The bottom of a four-layer stack: **v0 → Paper → Design Systems → Vuetify**. v0 handles logic; Paper handles styling primitives (`useColor`, `useTheme`, `useContrast`); design systems (Emerald, Codex, etc.) compose Paper into complete frameworks; Vuetify 3 is one such consumer. [intent:295, intent:296, intent:297, intent:298]
+- A layer of Vue 3 composables (~73) and compound components (~40) that encode interaction patterns, selection state, registries, accessibility contracts, keyboard navigation, focus management, SSR safety, and adapter-backed plugin state.
+- The bottom of a four-layer stack: **v0 → Paper → Design Systems → Vuetify**. v0 handles logic; Paper handles styling primitives (`useColor`, `useTheme`, `useContrast`); design systems (Emerald, Helix, etc.) compose Paper into complete frameworks; Vuetify 4 is one such consumer. [intent:295, intent:296, intent:297, intent:298]
 - Zero runtime dependencies on UI styling. No Tailwind, no UnoCSS, no Vuetify classes inside `packages/0/src/`. [intent:82, intent:278]
 - WAI-ARIA correct by default. Every interactive component ships `role`, `aria-*`, keyboard handlers, and `aria-disabled` semantics. [intent:174, intent:178]
 - Headless in the operational sense: consumers can replicate every visible behavior by writing CSS against the data attributes v0 exposes. [intent:281]
@@ -65,13 +65,13 @@ Non-negotiable. Each axiom carries a statement, a rationale, and a concrete anti
 
 **Operational definition.** Consumers must be able to replicate every visible behavior by writing CSS against the data attributes v0 emits. Acid test: "If I stripped every stylesheet from the consuming app, would v0's components still function and announce their state correctly to a screen reader?" [intent:281]
 
-**Canonical example.** `packages/0/src/components/Splitter/SplitterRoot.vue:363-366` — inline `:style="{ display: 'flex', flexDirection: '...' }"`. Structural layout, no visual opinion.
+**Canonical example.** `packages/0/src/components/Splitter/SplitterRoot.vue:373-376` — inline `:style="[..., { display: 'flex', flexDirection: '...' }]"`. Structural layout, no visual opinion.
 
 **Allowed.** Structural inline `:style` bindings when layout cannot work otherwise (flex directions, CSS custom properties for depth, visually-hidden positioning for hidden inputs, z-index from `useStack`). [intent:279]
 
 **Encouraged.** Data attributes for every state (`data-state`, `data-layer`, `data-disabled`, `data-orientation`). These are the consumer's styling hooks. [intent:280]
 
-**Anti-example.** Grep `class="(flex|px-|py-|bg-|text-|w-|h-|m-|gap-|grid)"` across `packages/0/src/**/*.vue` currently returns zero hits. Keep it that way. The single JSDoc example in `packages/0/src/components/RadioRoot.vue:170` is prose, not rendered.
+**Anti-example.** Grep `class="(flex|px-|py-|bg-|text-|w-|h-|m-|gap-|grid)"` across `packages/0/src/**/*.vue` currently returns zero hits. Keep it that way. The single JSDoc example in `packages/0/src/components/Radio/RadioRoot.vue:176` is prose, not rendered.
 
 ---
 
@@ -81,7 +81,7 @@ Non-negotiable. Each axiom carries a statement, a rationale, and a concrete anti
 
 **Why.** `any` silently disables type-checking downstream. A single `as any` in a composable propagates into every consumer that spreads it. `unknown` forces the consumer to narrow, which is the correct contract.
 
-**Current state.** Two runtime `as any` casts in source: `packages/0/src/components/Locale/Locale.vue:70-71` — reaches into `vue-i18n`'s private `_rootT`/`_rootN` fields. Single external-library interop exception, co-located, commented. Not a pattern to copy.
+**Current state.** Zero `as any` casts in source. The one place reaching into a foreign private shape — `packages/0/src/components/Locale/Locale.vue:69`, accessing `vue-i18n`'s `_rootT`/`_rootN` — declares those fields on a local `ScopedLocale` interface and uses a typed intersection cast (`parent as typeof parent & ScopedLocale`), so the shape is documented rather than erased. No `: any`, `as any`, or `<any>` anywhere in `packages/0/src/`.
 
 **Anti-example (do not do this).**
 ```ts
@@ -110,7 +110,7 @@ function register (input: unknown): unknown {
 
 **Anti-example.** `every(t => t.readAt !== null)` — a raw `!== null` comparison; the guard form is `every(t => !isNull(t.readAt))`. Both source-code and JSDoc `@example` comparisons across `packages/0/src/` are clean as of this writing.
 
-**Canonical example.** `packages/0/src/composables/createDataTable/index.ts` — 10 guard calls in one file, zero raw comparisons.
+**Canonical example.** `packages/0/src/composables/createDataTable/index.ts` — guard calls only (`isNullOrUndefined`), zero raw comparisons. For a denser exemplar (~10 guard calls across `isNullOrUndefined`/`isString`/`isNumber`/`isObject`/`isArray`) see `createDataTable/adapters/adapter.ts` or `composables/createNested/index.ts`.
 
 ---
 
@@ -151,9 +151,9 @@ import { createRegistry } from '../createRegistry'
 
 **Statement.** Composable extension happens by `{ ...parent, newProperty }`. Never redefine a property the parent already exposed. [intent:101, intent:142, intent:147]
 
-**Why.** Spread guarantees the child remains substitutable for the parent in types. The 27 registry-based composables all compose this way; consumers who hold a reference to the parent type can upgrade to the child type without refactoring call sites. Spread copies accessors by value — a parent's `get size ()` arrives as a data property frozen at spread time — so any accessor the child surface needs must be re-declared after the spread (`get size () { return model.size }`).
+**Why.** Spread guarantees the child remains substitutable for the parent in types. The registry-based composables all compose this way; consumers who hold a reference to the parent type can upgrade to the child type without refactoring call sites. Spread copies accessors by value — a parent's `get size ()` arrives as a data property frozen at spread time — so any accessor the child surface needs must be re-declared after the spread (`get size () { return model.size }`).
 
-**Canonical example.** `packages/0/src/composables/createSelection/index.ts:296-309` — spreads `createModel`, adds `multiple`, `toggle`, `apply`, `mandate`.
+**Canonical example.** `packages/0/src/composables/createSelection/index.ts:299-312` — spreads `createModel`, adds `multiple`, `toggle`, `apply`, `mandate`.
 
 ```ts
 return {
@@ -175,7 +175,7 @@ return {
 
 **Statement.** All utilities carry `#__NO_SIDE_EFFECTS__`. No top-level side effects in `packages/0/src/utilities/**`. [intent:95]
 
-**Why.** Consumers import from a flat barrel. Without the marker, bundlers retain every utility the barrel touches. Meta-frameworks with 64 composables and 37 components cannot afford a lazy barrel.
+**Why.** Consumers import from a flat barrel. Without the marker, bundlers retain every utility the barrel touches. Meta-frameworks with 73 composables and 40 components cannot afford a lazy barrel.
 
 **Canonical example.** `packages/0/src/utilities/helpers.ts:32,49,69,87,113,138,156,174,194,219` — every exported guard carries the comment directly above the function declaration.
 
@@ -187,7 +187,7 @@ export function isFunction (item: unknown): item is Function {
 }
 ```
 
-**Complementary marker — `/* @__PURE__ */` on module-level allocations.** `#__NO_SIDE_EFFECTS__` covers exported functions. The complementary marker `/* @__PURE__ */` covers *module-level call expressions* whose return value is bound to a constant — `new Set([...])`, `new Map([...])`, factory calls. Without it, bundlers cannot prove the allocation is side-effect-free and retain the binding even when nothing imports it. See `packages/0/src/utilities/helpers.ts:311` (`UNSAFE_KEYS = /* @__PURE__ */ new Set([...])`) and the `INSTANCE_KEY` literal in `utilities/instance.ts` for the placement convention. New module-level allocations inside `packages/0/src/utilities/**` always carry one or the other; elsewhere in `packages/0/src/`, the marker is a hygiene recommendation rather than a hard rule, but the same logic applies to any allocation a bundler would otherwise pin.
+**Complementary marker — `/* @__PURE__ */` on module-level allocations.** `#__NO_SIDE_EFFECTS__` covers exported functions. The complementary marker `/* @__PURE__ */` covers *module-level call expressions* whose return value is bound to a constant — `new Set([...])`, `new Map([...])`, factory calls. Without it, bundlers cannot prove the allocation is side-effect-free and retain the binding even when nothing imports it. See `packages/0/src/utilities/helpers.ts:312` (`UNSAFE_KEYS = /* @__PURE__ */ new Set([...])`) and the `INSTANCE_KEY` literal in `utilities/instance.ts` for the placement convention. New module-level `new`/factory allocations (`new Set`, `new Map`, factory calls) inside `packages/0/src/utilities/**` carry `/* @__PURE__ */`; exported functions carry `/* #__NO_SIDE_EFFECTS__ */`. Plain object/array literal initializers (e.g. `const BLACK: RGB = { r: 0, g: 0, b: 0 }` in `apca.ts`) are pure by default and need no marker. Elsewhere in `packages/0/src/`, the marker is a hygiene recommendation rather than a hard rule, but the same logic applies to any allocation a bundler would otherwise pin.
 
 **Anti-example (do not do this).**
 ```ts
@@ -272,7 +272,7 @@ function useFoo () {
 }
 ```
 
-Bare `Error` is forbidden in `packages/0/src` source by the `vuetify/no-bare-error-throw` ESLint config (a `no-restricted-syntax` rule over `packages/0/src/**/*.ts`). Throw a `V0Error` with a code from `V0ErrorDetails` (`packages/0/src/utilities/errors.ts`) instead — see `createContext` for the canonical form.
+Bare `Error` is forbidden in `packages/0/src` source by the `vuetify/no-bare-error-throw` ESLint config (a `no-restricted-syntax` rule over `packages/0/src/**/*.ts`). Throw a `V0Error` (`packages/0/src/utilities/errors.ts`) with a code from `V0ErrorDetails` (`packages/0/src/types/index.ts`) instead — see `createContext` for the canonical form.
 
 ---
 
@@ -282,7 +282,7 @@ Bare `Error` is forbidden in `packages/0/src` source by the `vuetify/no-bare-err
 
 **Why.** v0 runs under SSR. An unguarded `window.x` crashes the server build. The gate is one line and composes through adapters.
 
-**Canonical example.** `packages/0/src/composables/useStorage/index.ts:114` — `IN_BROWSER ? window.localStorage : new MemoryStorageAdapter()`.
+**Canonical example.** `packages/0/src/composables/useStorage/index.ts:115` — `IN_BROWSER ? window.localStorage : new MemoryStorageAdapter()`.
 
 ---
 
@@ -292,10 +292,10 @@ Bare `Error` is forbidden in `packages/0/src` source by the `vuetify/no-bare-err
 
 Three allowable return shapes, in order of prevalence:
 
-**3.1.1 Plain object.** The dominant shape. Used by ~51 of 63 composable directories. Returned from every selection, registry, model, data, and browser composable that is not a trinity builder itself.
+**3.1.1 Plain object.** The dominant shape. Used by ~61 of 73 composable directories. Returned from every selection, registry, model, data, and browser composable that is not a trinity builder itself.
 
 ```ts
-// packages/0/src/composables/createSelection/index.ts:296
+// packages/0/src/composables/createSelection/index.ts:299
 return {
   ...model,
   multiple,
@@ -392,7 +392,7 @@ Consumers in **non-renderless** components must not spread `attrs` onto a child 
 
 ### 3.6 Boolean data attributes
 
-Data attributes are always `true | undefined`, never `true | false`. Undefined removes the attribute from DOM. [intent:172]
+Data attributes are always `true | undefined` (or the equivalent `'' | undefined`), never `true | false`. Undefined removes the attribute from DOM. [intent:172]
 
 `aria-disabled` is the exception: always `boolean`, so assistive tech reads a concrete value. [intent:175]
 
@@ -434,7 +434,7 @@ The choice is **data shape × mutation scope**:
 |-----------|------------|----------------|---------|
 | `shallowRef(value)` | Primitive or opaque reference | Replace only (`.value = new`) | Booleans, numbers, strings, Dates, custom classes, module instances. [intent:10, intent:125] |
 | `ref(value)` | Object/array with nested fields | Deep mutation tracked | Nested config trees, arrays that are `push/splice`'d in place. [intent:11, intent:129] |
-| `shallowReactive(obj)` | Object/set with top-level fields | Top-level mutation tracked, nested ignored | `shallowReactive(new Set())` for mutable ID collections inside registries; `shallowReactive({ keys, values, size })` for registry-proxy state. [intent:102, intent:126] |
+| `shallowReactive(obj)` | Object/set with top-level fields | Top-level mutation tracked, nested ignored | `shallowReactive(new Set())` for mutable ID collections inside registries. [intent:102, intent:126] |
 | `reactive(obj)` | Deeply-nested object | Deep mutation tracked | **Rare.** Only when consumers must mutate nested fields and we cannot hand them a ref. Prefer `ref()` on the owner, `toRef(() => root.field)` for read-only access by subtrees. |
 | `toRef(() => expr)` | Derivation | Read-through (no cache) | Default for derivations — property access, booleans, ternaries, cheap composition. [intent:12, intent:37, intent:128] |
 | `computed(() => expr)` | Derivation | Cached until deps change | Only when the work is expensive: filtering, mapping, aggregation. [intent:38, intent:127] |
@@ -447,32 +447,33 @@ The default is `toRef`. Reach for `computed` only when you would otherwise pay t
 - If the object is **owned by the composable** and consumers mutate nested fields: `ref({...})`.
 - If the object is **owned by the composable** and consumers only read nested fields: `ref({...})` wrapped in `readonly()` at the boundary.
 - If the object is **a flat collection** (Set, Map, or record of simple keys) that the composable mutates top-level only: `shallowReactive(new Set())`. This is the registry shape. [intent:102]
-- If you find yourself reaching for `reactive({...})`, stop. v0 uses `ref()` + destructured reads, not `reactive()`, for owned state. The two deliberate exceptions in source are `useProxyRegistry` when the caller opts into `{ deep: true }`, and `toReactive` — a pure transformer whose entire contract is "unwrap a `Ref<T>` into a `reactive`-style proxy." Both are deliberate carve-outs, not the pattern.
+- If you find yourself reaching for `reactive({...})`, stop. v0 uses `ref()` + destructured reads, not `reactive()`, for owned state. The two deliberate exceptions in source are `useProxyRegistry` — whose returned proxy object is itself built with `reactive(...)`, and which additionally `reactive()`-wraps ticket values when the caller opts into `{ deep: true }` — and `toReactive`, a pure transformer whose entire contract is "unwrap a `Ref<T>` into a `reactive`-style proxy." Both are deliberate carve-outs, not the pattern.
 
 ### 4.2 Readonly at boundaries
 
 **Rule.** Registry collections stay mutable. Anything exposed to consumers through a plugin singleton gets a readonly wrapper. [intent:131]
 
-**Canonical form.** `shallowReadonly(state)` for scalar state, `readonly(registry)` for deep collections.
+**Canonical form.** `shallowReadonly(state)` or `readonly(state)` for scalar state (interchangeable on a primitive `shallowRef`), `readonly(registry)` for deep collections.
 
 **The `Readonly<Ref<T>>` return-type pattern.** When a composable exposes a ref to consumers and does NOT want them to write to it, the returned interface types the field as `Readonly<Ref<T>>`. The type is load-bearing — consumers read it as a promise ("you cannot write this") and IDEs flag `.value = ...` as a type error. Wrapping with `shallowReadonly()` at runtime reinforces the same contract. [intent:252]
 
 ```ts
 // Right — boundary contract clear from both value and type
 export interface BreakpointsContext {
-  width: Readonly<Ref<number>>
-  height: Readonly<Ref<number>>
-  isMobile: Readonly<Ref<boolean>>
+  width: Readonly<ShallowRef<number>>
+  height: Readonly<ShallowRef<number>>
+  isMobile: Readonly<ShallowRef<boolean>>
 }
 
 function useBreakpoints (): BreakpointsContext {
   const width = shallowRef(window.innerWidth)
   const height = shallowRef(window.innerHeight)
-  // ...
+  const isMobile = shallowRef(width.value < 768)
+  // width/height/isMobile are kept in sync inside a resize handler
   return {
-    width: shallowReadonly(width),
-    height: shallowReadonly(height),
-    isMobile: toRef(() => width.value < 768),
+    width: readonly(width),
+    height: readonly(height),
+    isMobile: readonly(isMobile),
   }
 }
 ```
@@ -485,7 +486,7 @@ Always use `.value` when reading these in templates. Never rely on Vue's auto-un
 - `packages/0/src/composables/usePopover/index.ts:58` — `isOpen: Ref<boolean>` for v-model bidirectional binding.
 - `packages/0/src/composables/createInput/index.ts:90,94,98` — `value`, `isFocused`, `isTouched` mutable so bound components can write; `isDirty` / `isPristine` are `Readonly<Ref<boolean>>` (do not write).
 
-**Follow-up audit.** `useRovingFocus` and `createFocusTraversal` are flagged for the same shape audit — confirm every consumer-visible ref is wrapped in `shallowReadonly` at the boundary, or, if it is intentionally mutable, declared as `ShallowRef<T>` in the return interface.
+**Audit (resolved).** `useRovingFocus` and `createFocusTraversal` each expose a single consumer-visible ref (`focusedId` / `activeId`), both declared `ShallowRef<ID | undefined>` in their return interface (`RovingFocusReturn` / `TraversalReturn`). These are intentionally mutable — consumers set focus by writing the ref — so the `ShallowRef<T>` type is the correct contract; no `shallowReadonly` boundary wrapper is required. (Design note: writing the ref directly bypasses the internal `applyFocus()` DOM-focus side-effect; switch to `Readonly<Ref>` + a `focus()` method if direct writes should be disallowed.)
 
 **Resolution rule.** Any mutable return at a boundary must be intentional and declared in the return interface. If the type says `ShallowRef<boolean>`, the contract is "you can write this." If the type says `Readonly<Ref<boolean>>`, the contract is "do not write this." The type is load-bearing — a `shallowReadonly` wrapper on the value without updating the type is useless; a `ShallowRef<T>` type on a value nobody should mutate is a leak. [intent:252]
 
@@ -522,15 +523,15 @@ createOverflow({ gap })
 createOverflow({ gap: () => gap })
 ```
 
-`packages/0/src/components/Overflow/OverflowRoot.vue` is the canonical worked example — `container`, `gap`, `reserved`, `reverse` all forwarded as getters.
+`packages/0/src/components/Overflow/OverflowRoot.vue` is the canonical worked example — `container`, `gap`, and `reverse` forwarded as getters; `reserved` is forwarded as a `shallowRef` (`indicatorWidth`), whose stable ref identity needs no getter wrapper.
 
-**Sibling shape — `number | ShallowRef<T>` inputs.** When a composable accepts a value that is already a `ShallowRef<T>` (typically a `defineModel` return), use `toRef(() => prop)` rather than a bare getter. The wrapped form gives the composable a stable ref identity to watch, where a getter would only re-run on dependency reads. `packages/0/src/components/Pagination/PaginationRoot.vue` — `page: toRef(() => page)` forwarded to `createPagination`, which holds the ref through its `useProxyModel` setup.
+**Sibling shape — `number | ShallowRef<T>` inputs.** When a composable accepts a value that is already a `ShallowRef<T>` (typically a `defineModel` return), forward the ref directly rather than wrapping it — wrapping an already-a-ref value in `toRef(() => ref)` yields a ref-of-ref. `packages/0/src/components/Pagination/PaginationRoot.vue` forwards the `defineModel` ref `page` via object shorthand (`createPagination({ page })`); `createPagination`'s `page` option is typed `number | ShallowRef<number>` and normalized internally with `isRef(_page) ? _page : shallowRef(_page)` behind a clamping `WritableComputedRef`.
 
 ### 4.4 Registry reactivity
 
 `reactive: true` on a registry wraps the internal collection as `shallowReactive` and each registered ticket as a `shallowReactive` proxy. When this option is set, `values()` / `keys()` / `entries()` skip their result cache and re-iterate on every call, so Vue's dep tracking holds across computed re-runs. Template iteration, `registry.size` reads, `get(id)` reads, and per-ticket field mutations via `upsert` all propagate to consumers. [intent:253]
 
-`useProxyRegistry(registry)` (on a registry created with `events: true`) exposes `proxy.values` / `proxy.keys` / `proxy.entries` / `proxy.size` as properties on a shallow-reactive object, updated from `register:ticket` / `unregister:ticket` / `update:ticket` / `clear:registry` / `reindex:registry` events. It does not wrap the tickets themselves, and supports `{ deep: true }` for nested tracking. [intent:254]
+`useProxyRegistry(registry)` (on a registry created with `events: true`) exposes `proxy.values` / `proxy.keys` / `proxy.entries` / `proxy.size` as properties on a reactive object, updated from `register:ticket` / `unregister:ticket` / `update:ticket` / `clear:registry` / `reindex:registry` events. It does not wrap the tickets themselves, and supports `{ deep: true }` for nested tracking. [intent:254]
 
 Both are valid and complementary. Pick based on the consumer's actual need:
 
@@ -576,7 +577,7 @@ This is an acid test, not a vibe. If the only way to get state X to render diffe
 ### 5.2 Composables
 
 - **No DOM creation.** Composables do not `document.createElement`. They accept targets via `MaybeRefOrGetter<EventTarget>`. [intent:99]
-- **No visual state.** A composable never cares what color something is. `createRating` tracks a number; `Rating.vue` tracks hover state internally — the composable is value-only. [intent:319, intent:320]
+- **No visual state.** A composable never cares what color something is. `createRating` tracks a number; `RatingRoot.vue` tracks hover state internally — the composable is value-only. [intent:319, intent:320]
 - **No event binding.** Restated for emphasis: composables expose handlers, components wire them. [intent:262, intent:263]
 
 ### 5.3 Components
@@ -584,7 +585,7 @@ This is an acid test, not a vibe. If the only way to get state X to render diffe
 - **No utility classes.** Zero `class="px-4"`, zero `class="bg-primary"`. [intent:278]
 - **Structural-only `:style`.** `display: flex`, `flex-grow`, `visibility`, z-index from `useStack`, CSS custom properties for depth, visually-hidden positioning. If your `:style` sets `color` or `padding`, it is not structural. [intent:279]
 - **Data attributes as styling hooks.** `data-state="open"`, `data-disabled`, `data-orientation="vertical"`. Consumers style against these. [intent:280]
-- **Root always `<Atom :as :renderless>`.** The universal wrapper that lets consumers swap the tag and strip the wrapper. [intent:186, intent:336]
+- **DOM-rendering Roots use `<Atom :as :renderless>`.** The universal wrapper that lets consumers swap the tag and strip it. Pure context-provider Roots — `Group`, `Selection`, `Single`, `Step`, `Tabs`, `Treeview` — render only `<slot v-bind="slotProps" />` with no `Atom` wrapper, because their DOM is emitted by sub-components. [intent:186, intent:336]
 
 ### 5.4 Hidden inputs
 
@@ -592,7 +593,7 @@ Interactive inputs with a `name` prop render a `<ComponentHiddenInput>`: `inert`
 
 ### 5.5 Locale-first strings
 
-Every user-facing string (`aria-label`, error messages, day-of-week names, month names) goes through `useLocale()` and `locale.t(key)`. Never hardcode English. Tests assert `toBeDefined()`, not exact strings. [intent:176, intent:177]
+Every user-facing string (`aria-label`, error messages, day-of-week names, month names) goes through `useLocale()`. The canonical pattern is `locale.ti(key) ?? '<English default>'` — `ti()` ("translate if exists") returns `undefined` for a missing key, where `t()` echoes the raw key back, and the `??` supplies an English fallback for the no-adapter case. Never hardcode a string with no `useLocale` path. Tests assert localizability — either via `toBeDefined()` or by asserting the English default plus a translated-locale value (e.g. Pagination `'Next page'` / `'Nächste Seite'`) — never by pinning a single hardcoded English string as the only expectation. [intent:176, intent:177]
 
 ---
 
@@ -631,7 +632,7 @@ Element refs shared between sub-components must propagate through registry regis
 
 **Carve-out — singleton 1:1 sub-components.** When the Root owns exactly one well-known sub-component (Popover's Activator, Slider's Track, Combobox's Control), the Root may expose a single boundary-typed `Readonly<Ref<Element | null>>` on its context and the sub-component writes to it directly on mount. The trade-off the registry pattern is solving (deregistration races for an unbounded set of children) does not apply when N is provably 1. The same Root must clear the field in `onBeforeUnmount` of the sub-component so the contract is symmetric.
 
-**Alternative — DOM query.** A Root that only needs the element for a one-shot read (measurement, focus on open) can query for it via the sub-component's well-known data attribute (`[data-v0-popover-activator]`) instead of holding a ref. The DOM query is acceptable for fire-and-forget reads; reactive observation (ResizeObserver, IntersectionObserver) still needs the ref so the observer can rebind across re-mounts.
+**Alternative — DOM query.** A Root that only needs the element for a one-shot read (measurement, focus on open) can query for it via a well-known data attribute the sub-component sets (illustratively, something like `[data-v0-popover-activator]` — note v0 does not currently ship a `data-v0-*` attribute convention) instead of holding a ref. The DOM query is acceptable for fire-and-forget reads; reactive observation (ResizeObserver, IntersectionObserver) still needs the ref so the observer can rebind across re-mounts.
 
 ### 6.4 Optional injection
 
@@ -641,14 +642,15 @@ Composables needing global/injected context use `instanceExists()` or an equival
 
 **Rule.** Components and composables never call Vue's raw `inject` / `provide` directly. Subtree DI always flows through `createContext(key)`, which returns a `[useX, provideX]` pair with namespace validation, optional-injection support, and a `[v0:context]` warning when the key lacks a `:`. [intent:119, intent:226, intent:227]
 
-**Current state.** `packages/0/src/` uses raw `inject`/`provide` in exactly two non-test locations: `composables/createContext/index.ts:30` (the factory that implements the wrapper itself) and `composables/createPlugin/index.ts:34` (the plugin context factory, which wraps `inject` for app-level singletons). Both are foundational — they define the contract every caller consumes. No component or user-facing composable imports `inject`/`provide` from Vue.
+**Current state.** `packages/0/src/` uses raw `inject`/`provide` in exactly two non-test locations: `composables/createContext/index.ts:30` (the factory that implements the wrapper itself) and `composables/createPlugin/index.ts:35` (the plugin context factory, which wraps `inject` for app-level singletons). Both are foundational — they define the contract every caller consumes. No component or user-facing composable imports `inject`/`provide` from Vue.
 
 **Canonical example (component side).**
 ```ts
 // Right — Root uses createContext, sub-component consumes the matching useX
 // packages/0/src/components/Tabs/TabsRoot.vue
-export const [useTabsRoot, provideTabsRoot] = createContext<TabsRootContext>('v0:tabs')
-// TabsItem.vue calls useTabsRoot(namespace); no inject() in the component.
+export const [useTabsRoot, provideTabsRoot] = createContext<TabsContext>()
+// namespace ('v0:tabs') is supplied at provide time: provideTabsRoot(namespace, context);
+// TabsItem.vue calls useTabsRoot(namespace) — no inject() in the component.
 ```
 
 **Anti-example (do not introduce).**
@@ -835,12 +837,12 @@ Composable return interfaces type consumer-visible refs as `Readonly<Ref<T>>` wh
 ```ts
 // Right
 export interface BreakpointsContext {
-  width: Readonly<Ref<number>>
+  width: Readonly<ShallowRef<number>>
 }
 
 function useBreakpoints (): BreakpointsContext {
   const width = shallowRef(window.innerWidth)
-  return { width: shallowReadonly(width) }
+  return { width: readonly(width) }
 }
 ```
 
@@ -897,7 +899,7 @@ return [useX, provideX, context]
 
 ### 8.7 Generic bounds
 
-Registry-based composables carry `Z extends FooTicketInput` (input shape) and `E extends FooTicket<Z>` (output shape); consumers parameterize once at the call site and the composable threads `Z` and `E` through every return-type contract. Factories in the selection chain (`createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`) add a third generic `R extends FooContext<Z, E>` so subclasses can override the return type; leaf factories (`createSortable`, `createKanban`, `createTimeline`, `createTokens`) stop at `Z` and `E`.
+Registry-based composables carry `Z extends FooTicketInput` (input shape) and `E extends FooTicket<Z>` (output shape); consumers parameterize once at the call site and the composable threads `Z` and `E` through every return-type contract. Factories in the selection chain (`createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`) add a third generic `R extends FooContext<Z, E>` so subclasses can override the return type; leaf factories (`createSortable`, `createKanban`, `createTimeline`, `createTokens`) stop at two generics with no `R` override. Their shapes vary: `createSortable` carries the input/output-ticket pair (`E extends FooTicket<Z>`); `createTimeline` / `createTokens` pair a ticket `Z` with a context `E` (`FooContext<Z>`); `createKanban` instead parameterizes two input shapes (`ItemZ` / `ColZ`) for its two-level board.
 
 ```ts
 // packages/0/src/composables/createSortable/index.ts
@@ -935,7 +937,7 @@ Current exempt sites:
 - `packages/0/src/composables/createContext/index.ts` — namespace-validation warn (Layer 0, circular if it imported `useLogger`)
 - `packages/0/src/utilities/helpers.ts` — `useId()` SSR-dev warn (foundation dependency of useLogger)
 
-**`__DEV__` gating.** Every exempt `console.*` call site must be gated on `__DEV__` so the warning vanishes from production bundles. The non-exempt path (composables that route through `useLogger`) gates inside the logger adapter, so callers do not need to repeat the check. Direct `console.*` callers (the three exempt sites above) carry the gate inline.
+**`__DEV__` gating.** Exempt *diagnostic warnings* must be gated on `__DEV__` so they vanish from production bundles — this covers two of the three sites (`createContext`'s namespace warn and `helpers.ts`'s `useId` SSR warn, each carrying the gate inline). The third site, `createFallbackLogger` in `useLogger/index.ts`, is the logger adapter itself, not a diagnostic warning: its `console.*` calls are the production logging output and are gated by log *level* (`enabled` / `level`), never `__DEV__`. The non-exempt path (composables that route through `useLogger`) gates inside the logger adapter, so callers do not repeat the check.
 
 ### 9.3 Namespace keys contain `:`
 
@@ -962,9 +964,8 @@ Concrete "never do this" with real before/after from `packages/0/src/`.
 
 ### 10.1 Raw equality checks
 
-**Before (wrong).**
+**Before (wrong — historical illustration; createOverflow/index.ts:224 now uses the fixed `!isUndefined` form).**
 ```ts
-// packages/0/src/composables/createOverflow/index.ts:195
 if (itemWidth !== undefined && uniformWidth <= 0) return Infinity
 ```
 
@@ -980,9 +981,8 @@ Reason: §2.3.
 
 ### 10.2 Unwrapped mutable state at a boundary
 
-**Before (wrong).**
+**Before (wrong — illustrative; the live `useResizeObserver` delegates to `createObserver`, and the sibling `useElementSize` already wraps `isActive` in `shallowReadonly`).**
 ```ts
-// packages/0/src/composables/useResizeObserver/index.ts:201-209
 return {
   width: shallowReadonly(width),
   height: shallowReadonly(height),
@@ -1015,7 +1015,7 @@ Reason: §4.2. Either all boundary state is readonly, or the interface explicitl
 
 **Before (wrong).**
 ```ts
-// packages/0/src/composables/useHotkey/index.ts:159
+// packages/0/src/composables/useHotkey/index.ts:164
 function isInputFocused (): boolean {
   if (toValue(inputs)) return false
   const activeElement = document.activeElement as HTMLElement | null
