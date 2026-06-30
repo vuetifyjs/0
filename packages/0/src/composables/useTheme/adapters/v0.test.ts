@@ -82,6 +82,29 @@ describe('v0StyleSheetThemeAdapter', () => {
       scope.stop()
     })
 
+    it('should include cspNonce in the pushed style entry', () => {
+      mockInBrowser.value = false
+      const headMock = { push: vi.fn() }
+      const app = createMockApp(headMock)
+      const context = createMockContext()
+      const adapter = new V0StyleSheetThemeAdapter({ cspNonce: 'test-nonce' })
+
+      const scope = effectScope()
+      scope.run(() => {
+        adapter.setup(app, context)
+      })
+
+      expect(headMock.push).toHaveBeenCalledWith(
+        expect.objectContaining({
+          style: expect.arrayContaining([
+            expect.objectContaining({ nonce: 'test-nonce' }),
+          ]),
+        }),
+      )
+
+      scope.stop()
+    })
+
     it('should use head provider when usehead not available', () => {
       mockInBrowser.value = false
       const headMock = { push: vi.fn() }

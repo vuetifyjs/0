@@ -66,6 +66,28 @@ describe('v0UnheadThemeAdapter', () => {
       mockInBrowser.value = true
     })
 
+    it('should include cspNonce in the pushed style entry', () => {
+      mockInBrowser.value = false
+      const head = createMockHead()
+      const app = createMockApp(head)
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter({ cspNonce: 'test-nonce' })
+
+      const scope = effectScope()
+      scope.run(() => adapter.setup(app, context))
+
+      expect(head.push).toHaveBeenCalledWith(
+        expect.objectContaining({
+          style: expect.arrayContaining([
+            expect.objectContaining({ nonce: 'test-nonce' }),
+          ]),
+        }),
+      )
+
+      scope.stop()
+      mockInBrowser.value = true
+    })
+
     it('should fall back to provides.head when usehead is missing', () => {
       mockInBrowser.value = false
       const head = createMockHead()
