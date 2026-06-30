@@ -2101,18 +2101,20 @@ describe('createTokens', () => {
       })
 
       it('should return undefined for inherited prototype members as path segments', () => {
+        // Use $value to register `colors` as a standalone token whose value
+        // is a plain object — this is what drives the segment traversal path.
         const tokens: TokenCollection = {
-          colors: {
-            primary: '#007BFF',
-          },
+          colors: { $value: { primary: '#007BFF' } as unknown as string },
         }
 
         const context = createTokens(tokens)
         using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
-        expect(context.resolve('colors.constructor')).toBeUndefined()
-        expect(context.resolve('colors.toString')).toBeUndefined()
-        expect(context.resolve('colors.hasOwnProperty')).toBeUndefined()
+        // Before the fix, `segment in current` would find prototype members;
+        // with hasOwnProperty, these correctly return undefined.
+        expect(context.resolve('{colors.constructor}')).toBeUndefined()
+        expect(context.resolve('{colors.toString}')).toBeUndefined()
+        expect(context.resolve('{colors.hasOwnProperty}')).toBeUndefined()
         expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Path not found'))
       })
 
