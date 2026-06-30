@@ -38,7 +38,7 @@
     "preview:docs": "pnpm --filter=docs preview",
     "repo:knip": "knip",
     "repo:sherif": "sherif",
-    "repo:exports": "publint ./packages/0 && attw --pack ./packages/0 --profile esm-only --exclude-entrypoints browser",
+    "repo:exports": "publint ./packages/0 && attw --pack ./packages/0 --profile esm-only",
     "repo:check": "pnpm repo:knip && pnpm repo:sherif",
     "validate": "pnpm lint && pnpm typecheck && pnpm test:run",
     "changeset": "changeset",

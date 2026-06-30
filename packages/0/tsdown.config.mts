@@ -49,7 +49,9 @@ export default defineConfig([{
   exports: {
     devExports: 'development',
     customExports (pkg, ctx) {
-      pkg['./browser'] = ctx.isPublish ? './dist/browser/index.js' : { ...pkg['.'], default: './dist/browser/index.js' }
+      pkg['./browser'] = ctx.isPublish
+        ? { types: './dist/index.d.mts', default: './dist/browser/index.js' }
+        : { ...pkg['.'], types: './dist/index.d.mts', default: './dist/browser/index.js' }
       return pkg
     },
   },
