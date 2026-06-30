@@ -13,7 +13,9 @@ export default defineConfig([{
     Vue({ isProduction: true }),
   ],
   platform: 'browser',
-  dts: false,
+  dts: {
+    vue: true,
+  },
   define: {
     __DEV__: 'false',
     __VITE_LOGGER_ENABLED__: 'false',
