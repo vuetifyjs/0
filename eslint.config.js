@@ -124,6 +124,18 @@ export default vuetify({
   },
 },
 {
+  // The vapor test package intentionally pins Vue 3.6 beta + the Vapor runtime.
+  // They can't be cataloged: a second catalog entry for `vue` would duplicate
+  // the default catalog's 3.5.x and trip pnpm/yaml-no-duplicate-catalog-item.
+  // Allow these specifiers to stay un-cataloged in this one package only.
+  files: ['tests/vapor/package.json'],
+  rules: {
+    'pnpm/json-enforce-catalog': ['error', {
+      ignores: ['vue', '@vue/runtime-vapor', '@vitejs/plugin-vue'],
+    }],
+  },
+},
+{
   ignores: ['**/export-templates/package.json'],
 },
 {

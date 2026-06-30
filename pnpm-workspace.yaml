@@ -117,11 +117,3 @@ patchedDependencies:
 peerDependencyRules:
   allowedVersions:
     vite: '8'
-catalogs:
-  # Vue 3.6 beta + Vapor toolchain, isolated to tests/vapor (the rest of the
-  # workspace stays on the default catalog's vue 3.5.x). Referenced as
-  # `catalog:vapor`.
-  vapor:
-    '@vitejs/plugin-vue': ^6.0.7
-    '@vue/runtime-vapor': 3.6.0-beta.15
-    vue: 3.6.0-beta.15
