@@ -109,8 +109,10 @@ jobs:
           filters: |
             docs:
               - 'apps/docs/**'
+              - 'packages/**'
             playground:
               - 'apps/playground/**'
+              - 'packages/**'
 
   docs-check:
     needs: changes
