@@ -1064,6 +1064,19 @@ describe('createSelection', () => {
         expect(selection.selectedIds.has('b')).toBe(true)
         expect(selection.selectedIds.size).toBe(2)
       })
+
+      it('should not select a disabled item when applying in multiple mode', () => {
+        const selection = createSelection({ multiple: true })
+        selection.onboard([
+          { id: 'a', value: 'A' },
+          { id: 'b', value: 'B', disabled: true },
+        ])
+
+        selection.apply(['A', 'B'])
+
+        expect(selection.selectedIds.has('a')).toBe(true)
+        expect(selection.selectedIds.has('b')).toBe(false)
+      })
     })
 
     describe('custom ticket types', () => {

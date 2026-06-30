@@ -510,6 +510,27 @@ describe('createModel', () => {
       expect(model.selectedIds.size).toBe(1)
       expect(model.selectedIds.has('item-1')).toBe(true)
     })
+
+    it('should not select a disabled ticket via browse resolution', () => {
+      const model = createModel()
+      model.register({ id: 'item-1', value: 'val-1', disabled: true })
+
+      model.apply(['val-1'])
+
+      expect(model.selectedIds.has('item-1')).toBe(false)
+      expect(model.selectedIds.size).toBe(0)
+    })
+
+    it('should still resolve a non-disabled value through the guard', () => {
+      const model = createModel()
+      model.register({ id: 'item-1', value: 'val-1' })
+      model.register({ id: 'item-2', value: 'val-2', disabled: true })
+
+      model.apply(['val-1'])
+
+      expect(model.selectedIds.has('item-1')).toBe(true)
+      expect(model.selectedIds.has('item-2')).toBe(false)
+    })
   })
 
   describe('size', () => {

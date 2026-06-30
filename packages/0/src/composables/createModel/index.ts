@@ -431,7 +431,7 @@ export function createModel<
 
     const ids = registry.browse(toRaw(value))
     const id = ids?.values().next().value
-    if (!isUndefined(id)) selectedIds.add(id)
+    if (!isUndefined(id)) select(id)
   }
 
   function register (registration: Partial<Z> = {}): E {
