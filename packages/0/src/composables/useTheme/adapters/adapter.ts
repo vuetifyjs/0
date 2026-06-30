@@ -1,5 +1,5 @@
 // Utilities
-import { hexToRgb, isUndefined } from '#v0/utilities'
+import { hexToRgb, isUndefined, V0Error } from '#v0/utilities'
 
 // Types
 import type { ID } from '#v0/types'
@@ -27,7 +27,7 @@ export abstract class ThemeAdapter {
 
   constructor (prefix: string) {
     if (!ThemeAdapter.SAFE_IDENT.test(prefix)) {
-      throw new Error(`Invalid theme prefix "${prefix}": must match /^[a-zA-Z0-9_-]+$/.`)
+      throw new V0Error(`Invalid theme prefix "${prefix}": must match /^[a-zA-Z0-9_-]+$/.`, { code: 'V0_THEME_INVALID_PREFIX', prefix })
     }
     this.prefix = prefix
   }
