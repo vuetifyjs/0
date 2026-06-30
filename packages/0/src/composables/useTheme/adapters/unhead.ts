@@ -46,8 +46,8 @@ export interface V0UnheadThemeOptions {
  * Requires @unhead/vue to be installed in the app.
  */
 export class V0UnheadThemeAdapter extends ThemeAdapter {
-  private entry?: HeadEntry
   cspNonce?: string
+  private entry?: HeadEntry
 
   constructor (options: V0UnheadThemeOptions = {}) {
     super(options.prefix ?? 'v0')
