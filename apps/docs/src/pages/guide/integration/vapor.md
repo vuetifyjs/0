@@ -34,13 +34,17 @@ This is a standing design rule, not an afterthought: every new v0 abstraction is
 
 ## What is verified today
 
-v0 ships an isolated Vapor test suite (`tests/vapor`, run with `pnpm test:vapor`) that mounts real Vapor components against a pinned Vue 3.6 beta and asserts:
+v0 ships an isolated Vapor test suite (`tests/vapor`, run with `pnpm test:vapor`) that mounts real Vapor components against a pinned Vue 3.6 beta[^beta-pin] and asserts:
 
 | Area | What it proves |
 | - | - |
-| Instance detection | `getCurrentInstance()` returns `null` in a Vapor component, but v0 still detects the active instance internally, so composables that rely on component context keep working. |
-| Composables | A registry-backed composable (`createSelection`) registers items, updates reactive state, and drives Vapor DOM updates from inside a Vapor `setup`. |
-| Component interop | A classic v0 component renders inside a Vapor app through `vaporInteropPlugin`, including slot content forwarded from a Vapor parent. |
+| Instance detection | `getCurrentInstance()` is `null` in a Vapor component, yet v0 still resolves the active instance[^instance-shim] — so composables that depend on component context keep working. |
+| Composables | `createSelection` registers items, updates reactive state, and drives Vapor DOM updates from inside a Vapor `setup`. |
+| Component interop | A classic (vdom) v0 component renders inside a Vapor app through `vaporInteropPlugin`, including slot content forwarded from a Vapor parent[^interop-slots]. |
+
+[^beta-pin]: Pinned to `vue@3.6.0-beta.15` — the newest 3.6 beta old enough to clear the workspace's install-age policy. The Vapor surface the suite touches (the `vapor` SFC attribute, `createVaporApp`, `vaporInteropPlugin`) has been stable across the beta line; bump the pin as 3.6 nears release.
+[^instance-shim]: Vapor exposes the active instance on Vue 3.6's `currentInstance` export; `getCurrentInstance()` returns `null` inside a Vapor component by design ([vuejs/core discussion #13629](https://github.com/orgs/vuejs/discussions/13629)). v0 reads `currentInstance` when present and falls back to `getCurrentInstance()` on Vue 3.5 — see `utilities/instance.ts`.
+[^interop-slots]: Interop is directional. A vdom component rendering inside a Vapor parent (the tested path) works; passing Vapor slots *into* a vdom component needs `renderSlot` rather than `slots.default()`, per [Vue's Vapor notes](https://github.com/vuejs/core/releases/tag/v3.6.0-beta.1). Keep a region in one rendering mode where you can.
 
 ## Using composables under Vapor
 
@@ -93,7 +97,7 @@ createApp(App)
 
 - **Vue 3.6 is beta.** The runtime, the `vapor` SFC attribute, and `vaporInteropPlugin` are stabilizing; APIs can still shift before release.
 - **Coverage is representative, not exhaustive.** The suite proves the instance-context substrate, a registry composable, and component interop. It does not yet mount every component under Vapor.
-- **Interop has rough edges.** Per Vue's own guidance, deeply interleaving Vapor and vdom regions (especially passing Vapor slots into vdom components) can hit edge cases. Keep a given region in one mode where you can.
+- **Interop has rough edges.** Vapor↔vdom interop still has edge cases, so keep a given region in one rendering mode where you can.
 
 ## Verifying it yourself
 
