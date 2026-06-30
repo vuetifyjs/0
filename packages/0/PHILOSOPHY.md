@@ -347,17 +347,31 @@ function createSelection <Z, E> (_options: SelectionOptions = {}): SelectionCont
 - **`create`** prefix for stateful factories. **`use`** prefix for DI consumers, browser wrappers, lifecycle hooks. **`to`** prefix for pure stateless transformers. [intent:116, intent:117, intent:118]
 - **`FooTicketInput` → `FooTicket`** pair for registry input/output types. [intent:97]
 - **Function declarations**, not `const foo = () => ...`. [intent:4]
-- **Underscore-prefixed local mirror of a prop.** When a composable or component needs a local variable that mirrors a prop by the same name, prefix with `_`. The prop owns the short name; the local owns `_name`. Never `nameProp`, never `propName`. [user-feedback:2026-04-20]
+- **Underscore-prefixed prop mirror — the short name follows the value, not the prop.** When a component holds both a raw prop and a derived local for the same concept, the short name belongs to whichever one the template binds and the logic treats as the prop's effective value; the other takes `_`. A value bound to the template never carries `_` without an explicit reason — the same-name shorthand (`:name`) depends on it, and the underscore is needless cognitive overhead on the variable you read most. Never `nameProp`, never `propName`. [user-feedback:2026-04-20]
+
+  **Resolve-then-bind** — the component resolves a prop against a fallback and binds the result, so the *resolved value* owns the short name and the raw `defineProps` binding takes `_` (Vue 3.5 reactive destructure stays reactive through the rename):
 
 ```ts
-// Right
+// Right — resolved value is the source of truth; the raw prop is one input
+const { name: _name, form: _form } = defineProps<HiddenInputProps>()
+const name = toRef(() => _name ?? root.name)
+const form = toRef(() => _form ?? root.form)
+// template binds <input :name :form> — same-name shorthand intact
+```
+
+  **Reactive wrapper** — the prop itself is the value the template binds, and the local only exists to hand a reactive ref to a composable, so the *prop* keeps the short name and the wrapper takes `_`:
+
+```ts
+// Right — `size` is bound directly; `_size` is the ref passed onward
 const { size = 'medium' } = defineProps<{ size?: 'small' | 'medium' | 'large' }>()
-const _size = toRef(() => size)                     // local mirror, reactive
+const _size = toRef(() => size)
 
 // Wrong — leaks "this is a prop" into every call site
 const sizeProp = toRef(() => size)
 const propSize = toRef(() => size)
 ```
+
+A prop used directly (no twin local) just keeps its short name — `SliderRoot`'s `readonly`, `SplitterPanel`'s `maxSize`. The `_` is only for disambiguating a genuine raw-prop / resolved-value pair.
 
 ### 3.4 No `withDefaults`
 

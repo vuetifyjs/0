@@ -46,18 +46,18 @@
 
   const {
     namespace = 'v0:switch:root',
-    name,
-    value,
-    form,
+    name: _name,
+    value: _value,
+    form: _form,
   } = defineProps<SwitchHiddenInputProps>()
 
   const root = useSwitchRoot(namespace)
 
-  const _name = toRef(() => name ?? root.name)
-  const _form = toRef(() => form ?? root.form)
+  const name = toRef(() => _name ?? root.name)
+  const form = toRef(() => _form ?? root.form)
 
-  const _value = toRef(() => {
-    const v = value ?? root.value ?? 'on'
+  const value = toRef(() => {
+    const v = _value ?? root.value ?? 'on'
     if (isNullOrUndefined(v)) return 'on'
     if (isObject(v)) return JSON.stringify(v)
     return String(v)
@@ -71,12 +71,12 @@
   <input
     :checked="isChecked"
     :disabled="isDisabled"
-    :form="_form"
+    :form
     inert
-    :name="_name"
+    :name
     :style="visuallyHiddenStyle"
     tabindex="-1"
     type="checkbox"
-    :value="_value"
+    :value
   >
 </template>
