@@ -570,7 +570,7 @@ describe('createStack', () => {
     })
   })
 
-  describe('SSR fallback isolation', () => {
+  describe('ssr fallback isolation', () => {
     beforeEach(() => {
       mockInBrowser.value = false
     })

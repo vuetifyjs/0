@@ -24,9 +24,6 @@
  */
 
 // Composables
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
 import { useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createSelection } from '#v0/composables/createSelection'
@@ -34,6 +31,9 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Transformers
 import { toElement } from '#v0/composables/toElement'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
 import { instanceExists, useId } from '#v0/utilities'
