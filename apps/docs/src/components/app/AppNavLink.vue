@@ -109,8 +109,17 @@
     // Don't scroll during initial state restoration or in flat mode
     if (!navNested.scrollEnabled.value || navConfig.flatMode.value) return
 
+    // When a route change expanded this category, scroll to the destination leaf —
+    // the link whose href exactly matches the current path — not the category header.
+    // Match by exact attribute, not [aria-current="page"]: ancestor links also carry
+    // aria-current (isActive uses startsWith), so a loose match would land on the
+    // category's own link. Fall back to the section itself for a manual expand of an
+    // unrelated category, where no descendant link matches the route.
     // block: 'nearest' resolves the .nav-scroll container itself and is a no-op when already visible
-    itemRef.value?.scrollIntoView({
+    const links = itemRef.value ? [...itemRef.value.querySelectorAll<HTMLElement>('a[href]')] : []
+    const target = links.find(link => link.getAttribute('href') === route.path) ?? itemRef.value
+
+    target?.scrollIntoView({
       block: 'nearest',
       behavior: settings.prefersReducedMotion.value ? 'instant' : 'smooth',
     })
