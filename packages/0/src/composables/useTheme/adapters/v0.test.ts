@@ -490,5 +490,71 @@ describe('v0StyleSheetThemeAdapter', () => {
 
       expect(updateSpy.mock.calls.length).toBe(callCount)
     })
+
+    it('should remove the adopted stylesheet on dispose', () => {
+      const app = createMockApp()
+      const context = createMockContext()
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      const scope = effectScope()
+      scope.run(() => {
+        adapter.setup(app, context, null)
+      })
+
+      expect(document.adoptedStyleSheets).toHaveLength(1)
+      expect(adapter.sheet).toBeDefined()
+
+      adapter.dispose?.()
+
+      expect(document.adoptedStyleSheets).toHaveLength(0)
+      expect(adapter.sheet).toBeUndefined()
+
+      scope.stop()
+    })
+
+    it('should remove the adopted stylesheet on dispose with a target element', () => {
+      const app = createMockApp()
+      const context = createMockContext()
+      const adapter = new V0StyleSheetThemeAdapter()
+      const targetEl = document.createElement('div')
+      document.body.append(targetEl)
+
+      const scope = effectScope()
+      scope.run(() => {
+        adapter.setup(app, context, targetEl)
+      })
+
+      expect(document.adoptedStyleSheets).toHaveLength(1)
+      expect(adapter.sheet).toBeDefined()
+
+      adapter.dispose?.()
+
+      expect(document.adoptedStyleSheets).toHaveLength(0)
+      expect(adapter.sheet).toBeUndefined()
+
+      targetEl.remove()
+      scope.stop()
+    })
+
+    it('should remove the adopted stylesheet on dispose when target resolves to no element', () => {
+      const app = createMockApp()
+      const context = createMockContext()
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      const scope = effectScope()
+      scope.run(() => {
+        adapter.setup(app, context, '#nonexistent-target')
+      })
+
+      expect(document.adoptedStyleSheets).toHaveLength(1)
+      expect(adapter.sheet).toBeDefined()
+
+      adapter.dispose?.()
+
+      expect(document.adoptedStyleSheets).toHaveLength(0)
+      expect(adapter.sheet).toBeUndefined()
+
+      scope.stop()
+    })
   })
 })

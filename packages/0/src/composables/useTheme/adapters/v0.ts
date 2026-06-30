@@ -61,7 +61,10 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
       })
 
       if (isNull(target)) {
-        this.dispose = stopWatch
+        this.dispose = () => {
+          stopWatch()
+          this.detach()
+        }
         return
       }
 
@@ -72,7 +75,10 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
             : (app._container as HTMLElement | undefined) || document.querySelector('#app') as HTMLElement | null || document.body)
 
       if (!targetEl) {
-        this.dispose = stopWatch
+        this.dispose = () => {
+          stopWatch()
+          this.detach()
+        }
         return
       }
 
@@ -89,6 +95,7 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
       this.dispose = () => {
         stopWatch()
         stopTheme()
+        this.detach()
       }
     } else {
       const head = (app._context?.provides?.usehead ?? app._context?.provides?.head) as Head | undefined
@@ -127,5 +134,12 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
       document.adoptedStyleSheets = [...document.adoptedStyleSheets, this.sheet]
     }
     this.sheet.replaceSync(styles)
+  }
+
+  private detach (): void {
+    if (!IN_BROWSER) return
+
+    document.adoptedStyleSheets = document.adoptedStyleSheets.filter(s => s !== this.sheet)
+    this.sheet = undefined
   }
 }
