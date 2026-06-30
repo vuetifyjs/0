@@ -111,3 +111,14 @@
     <slot v-bind="slotProps" />
   </Atom>
 </template>
+
+<style>
+/*
+  Author-level rule to restore native popover hiding when utility-class CSS
+  (e.g. Tailwind/UnoCSS) overrides the UA stylesheet's
+  `[popover]:not(:popover-open) { display: none }`.
+*/
+[popover]:not(:popover-open) {
+  display: none !important;
+}
+</style>

@@ -487,6 +487,24 @@ describe('createModel', () => {
       expect(model.selectedIds.has('item-2')).toBe(true)
     })
 
+    it('should not select a disabled ticket via apply', () => {
+      const model = createModel()
+      model.register({ id: 'item-1', value: 'val-1', disabled: true })
+
+      model.apply(['val-1'])
+
+      expect(model.selectedIds.size).toBe(0)
+    })
+
+    it('should not select when model instance is disabled via apply', () => {
+      const model = createModel({ disabled: true })
+      model.register({ id: 'item-1', value: 'val-1' })
+
+      model.apply(['val-1'])
+
+      expect(model.selectedIds.size).toBe(0)
+    })
+
     it('should handle value not found in browse', () => {
       const model = createModel()
       model.register({ id: 'item-1', value: 'val-1' })

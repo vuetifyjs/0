@@ -232,7 +232,7 @@ export function createTokens<
       if (isTokenAlias(current)) current = current.$value
 
       for (const segment of segments) {
-        if (!isObject(current) || !(segment in current)) {
+        if (!isObject(current) || !Object.prototype.hasOwnProperty.call(current, segment)) {
           current = undefined
           break
         }

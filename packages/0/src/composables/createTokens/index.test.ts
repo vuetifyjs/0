@@ -2100,6 +2100,22 @@ describe('createTokens', () => {
         expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Path not found'))
       })
 
+      it('should return undefined for inherited prototype members as path segments', () => {
+        const tokens: TokenCollection = {
+          colors: {
+            primary: '#007BFF',
+          },
+        }
+
+        const context = createTokens(tokens)
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+        expect(context.resolve('colors.constructor')).toBeUndefined()
+        expect(context.resolve('colors.toString')).toBeUndefined()
+        expect(context.resolve('colors.hasOwnProperty')).toBeUndefined()
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Path not found'))
+      })
+
       it('should handle object with $value when continuing path', () => {
         const tokens: TokenCollection = {
           config: {
