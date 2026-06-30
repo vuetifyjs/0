@@ -19,6 +19,7 @@
     "test:run": "vitest run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
+    "test:vapor": "pnpm --filter=@vuetify-private/vapor-tests test",
     "test:bench": "vitest --reporter=verbose bench --run",
     "test:bench:json": "vitest bench --run --outputJson apps/docs/public/benchmarks.json",
     "bench": "vitest --reporter=default bench",
