@@ -2100,6 +2100,23 @@ describe('createTokens', () => {
         expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Path not found'))
       })
 
+      it('should not resolve inherited Object.prototype members as token paths', () => {
+        const tokens: TokenCollection = {
+          complex: { inner: { leaf: '#FFFFFF' } },
+        }
+
+        const context = createTokens(tokens, { flat: true })
+
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+        expect(context.resolve('complex.inner.leaf')).toBe('#FFFFFF')
+        expect(context.resolve('complex.constructor')).toBeUndefined()
+        expect(context.resolve('complex.__proto__')).toBeUndefined()
+        expect(context.resolve('complex.hasOwnProperty')).toBeUndefined()
+
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Path not found'))
+      })
+
       it('should handle object with $value when continuing path', () => {
         const tokens: TokenCollection = {
           config: {
