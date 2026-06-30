@@ -14,12 +14,31 @@
 // Driven by the changesets/action `publishedPackages` output. `gh` is
 // preinstalled on the runner and authenticates via GITHUB_TOKEN.
 import { execFileSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 
 const SUBSTRATE = new Set(['@vuetify/v0', '@vuetify/paper'])
 
 const published = JSON.parse(process.env.PUBLISHED_PACKAGES || '[]')
 const sha = process.env.GITHUB_SHA
+
+// Reconcile against npm. `publishedPackages` only lists what THIS run published,
+// so a package that landed in an earlier (failed) run never gets its release on
+// the recovery run: its version is already on npm, `changeset publish` skips it,
+// and it drops out of `publishedPackages`. Add any publishable workspace package
+// whose CURRENT version is on npm but absent from this run's output. Minting is
+// idempotent (already-minted releases are skipped), so this only fills the gaps.
+const seen = new Set(published.map(p => p.name))
+for (const dir of readdirSync('packages')) {
+  const manifest = `packages/${dir}/package.json`
+  if (!existsSync(manifest)) continue
+  const pkg = JSON.parse(readFileSync(manifest, 'utf8'))
+  if (!pkg.name || pkg.private || seen.has(pkg.name)) continue
+  if (onNpm(pkg.name, pkg.version)) {
+    console.log(`reconcile: ${pkg.name}@${pkg.version} is on npm but not in this run — including`)
+    published.push({ name: pkg.name, version: pkg.version })
+  }
+}
+
 const version = Object.fromEntries(published.map(p => [p.name, p.version]))
 
 // Pull the `## <version>` block out of a changesets CHANGELOG.md. Returns '' when
@@ -48,6 +67,17 @@ function notes (changelog, value) {
 function exists (tag) {
   try {
     execFileSync('gh', ['release', 'view', tag], { stdio: 'ignore' })
+    return true
+  } catch {
+    return false
+  }
+}
+
+// `npm view name@version` exits non-zero when that exact version is not on the
+// registry — the "is it published?" signal used to reconcile recovery runs.
+function onNpm (name, value) {
+  try {
+    execFileSync('npm', ['view', `${name}@${value}`, 'version'], { stdio: 'ignore' })
     return true
   } catch {
     return false
