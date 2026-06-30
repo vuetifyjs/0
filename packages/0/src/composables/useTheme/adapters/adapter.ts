@@ -1,5 +1,5 @@
 // Utilities
-import { hexToRgb, isUndefined } from '#v0/utilities'
+import { hexToRgb, isUndefined, V0Error } from '#v0/utilities'
 
 // Types
 import type { ID } from '#v0/types'
@@ -26,6 +26,13 @@ export abstract class ThemeAdapter {
   dispose?: () => void
 
   constructor (prefix: string) {
+    if (!ThemeAdapter.SAFE_IDENT.test(prefix)) {
+      throw new V0Error(`Invalid theme prefix: "${prefix}". Expected an identifier matching ${ThemeAdapter.SAFE_IDENT}.`, {
+        code: 'V0_THEME_INVALID_PREFIX',
+        prefix,
+      })
+    }
+
     this.prefix = prefix
   }
 

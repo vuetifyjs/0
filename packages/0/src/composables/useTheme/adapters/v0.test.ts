@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { V0StyleSheetThemeAdapter } from './v0'
 
 // Utilities
+import { isV0Error } from '#v0/utilities'
 import { computed, effectScope, nextTick, ref } from 'vue'
 
 // Types
@@ -52,6 +53,41 @@ describe('v0StyleSheetThemeAdapter', () => {
       })
 
       expect(adapter.cspNonce).toBe('test-nonce')
+    })
+
+    it('should accept valid prefixes', () => {
+      const dashed = new V0StyleSheetThemeAdapter({ prefix: 'my-prefix' })
+      const underscored = new V0StyleSheetThemeAdapter({ prefix: 'theme_1' })
+
+      expect(dashed.prefix).toBe('my-prefix')
+      expect(underscored.prefix).toBe('theme_1')
+    })
+
+    it('should default the prefix when none is provided', () => {
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      expect(adapter.prefix).toBe('v0')
+    })
+
+    it('should throw a V0Error with code V0_THEME_INVALID_PREFIX for malformed prefixes', () => {
+      const prefixes = ['x}body{display:none', 'a b', 'url(']
+
+      for (const prefix of prefixes) {
+        function construct () {
+          return new V0StyleSheetThemeAdapter({ prefix })
+        }
+
+        expect(construct).toThrow()
+
+        let error: unknown
+        try {
+          construct()
+        } catch (error_) {
+          error = error_
+        }
+
+        expect(isV0Error(error, 'V0_THEME_INVALID_PREFIX')).toBe(true)
+      }
     })
   })
 
