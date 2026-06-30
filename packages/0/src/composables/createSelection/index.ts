@@ -257,7 +257,10 @@ export function createSelection<
         if (!targetIds.has(id)) unselect(id)
       }
       for (const id of targetIds) {
-        if (!currentIds.has(id)) model.selectedIds.add(id)
+        if (currentIds.has(id)) continue
+        const ticket = model.get(id)
+        if (ticket && toValue(ticket.disabled)) continue
+        model.selectedIds.add(id)
       }
     } else {
       const next = targetIds.values().next().value
