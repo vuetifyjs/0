@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   createStack,
@@ -13,6 +13,14 @@ import { defineComponent, nextTick, ref, watch } from 'vue'
 
 // Types
 import type { StackContext } from '.'
+
+const mockInBrowser = vi.hoisted(() => ({ value: true }))
+
+vi.mock('#v0/constants/globals', () => ({
+  get IN_BROWSER () {
+    return mockInBrowser.value
+  },
+}))
 
 describe('createStack', () => {
   describe('useStack', () => {
@@ -559,6 +567,23 @@ describe('createStack', () => {
         stack.register({ el: () => el }).select()
         expect(stack.topElement.value).toBe(el)
       })
+    })
+  })
+
+  describe('SSR fallback isolation', () => {
+    beforeEach(() => {
+      mockInBrowser.value = false
+    })
+
+    afterEach(() => {
+      mockInBrowser.value = true
+    })
+
+    it('should return a fresh stack on each useStack call in SSR to prevent cross-request bleed', () => {
+      const stack1 = useStack()
+      const stack2 = useStack()
+
+      expect(stack1).not.toBe(stack2)
     })
   })
 })

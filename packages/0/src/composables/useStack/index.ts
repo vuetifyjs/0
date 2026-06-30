@@ -24,6 +24,9 @@
  */
 
 // Composables
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 import { useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createSelection } from '#v0/composables/createSelection'
@@ -405,10 +408,14 @@ export function createStackPlugin (_options: StackPluginOptions = {}) {
   })
 }
 
-// Lazy singleton fallback for when no provider exists
+// Lazy singleton fallback for when no provider exists (browser-only)
 let fallbackStack: StackContext | undefined
 
 function getStackFallback (): StackContext {
+  // In SSR a module-scoped singleton persists across requests causing z-index
+  // bleed and unbounded memory growth. Return a fresh per-call context instead.
+  if (!IN_BROWSER) return createStack()
+
   if (!fallbackStack) {
     fallbackStack = createStack()
   }
