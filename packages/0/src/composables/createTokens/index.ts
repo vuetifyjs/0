@@ -404,7 +404,7 @@ export function flatten (tokens: TokenCollection, prefix = '', flat = false): Fl
 
     const meta: Record<string, unknown> = {}
     for (const k in currentTokens) {
-      if (!Object.prototype.hasOwnProperty.call(currentTokens, k)) continue
+      if (!Object.hasOwn(currentTokens, k)) continue
       if (k.startsWith('$')) meta[k] = (currentTokens as Record<string, unknown>)[k]
     }
 
@@ -416,7 +416,7 @@ export function flatten (tokens: TokenCollection, prefix = '', flat = false): Fl
       // Skip inherited keys and prototype-pollution sinks so a polluted
       // Object.prototype (or a caller-supplied `constructor`/`prototype` token)
       // can't leak in as a registered token id. Mirrors mergeDeep.
-      if (!Object.prototype.hasOwnProperty.call(currentTokens, key)) continue
+      if (!Object.hasOwn(currentTokens, key)) continue
       if (UNSAFE_KEYS.has(key)) continue
       if (key.startsWith('$')) continue
 
@@ -434,7 +434,7 @@ export function flatten (tokens: TokenCollection, prefix = '', flat = false): Fl
         const inner = value.$value
         if (isObject(inner) && !flat) {
           for (const innerKey in inner) {
-            if (!Object.prototype.hasOwnProperty.call(inner, innerKey)) continue
+            if (!Object.hasOwn(inner, innerKey)) continue
             if (UNSAFE_KEYS.has(innerKey)) continue
             if (innerKey.startsWith('$')) continue
 

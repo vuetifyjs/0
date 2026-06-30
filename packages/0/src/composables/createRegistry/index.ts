@@ -836,7 +836,7 @@ export function createRegistry<
 
     if (!existing) return register({ ...patch, id } as Partial<Z & RegistryTicket>)
 
-    const hasValue = Object.prototype.hasOwnProperty.call(patch, 'value')
+    const hasValue = Object.hasOwn(patch, 'value')
     let value = existing.value
     let valueIsIndex = existing.valueIsIndex
 
