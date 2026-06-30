@@ -32,6 +32,9 @@ import { createTrinity } from '#v0/composables/createTrinity'
 // Transformers
 import { toElement } from '#v0/composables/toElement'
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { instanceExists, useId } from '#v0/utilities'
 import { onScopeDispose, toRef, toValue } from 'vue'
@@ -409,6 +412,11 @@ export function createStackPlugin (_options: StackPluginOptions = {}) {
 let fallbackStack: StackContext | undefined
 
 function getStackFallback (): StackContext {
+  // SSR: never share a module-scoped stack across requests — a long-lived Node
+  // process would leak tickets and bleed z-index between requests. Each call gets
+  // an ephemeral stack; use createStackPlugin for coordinated per-app SSR z-index.
+  if (!IN_BROWSER) return createStack()
+
   if (!fallbackStack) {
     fallbackStack = createStack()
   }
