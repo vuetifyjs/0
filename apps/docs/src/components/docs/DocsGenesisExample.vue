@@ -186,6 +186,9 @@
     z-index: 10;
     display: flex;
     gap: 0.25rem;
+    /* Matches the discovery tour's highlight radius, which reads it off
+       this element's own computed border-radius. */
+    border-radius: 0.5rem;
     opacity: 0;
     transition: opacity 0.15s;
   }

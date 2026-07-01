@@ -147,6 +147,7 @@
         :aria-controls="`${uid}-code`"
         :aria-expanded="showCode"
         class="genesis-docs-example__toggle"
+        data-tour="example-toggle"
         type="button"
         @click="toggleCode"
       >

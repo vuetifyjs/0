@@ -1,3 +1,6 @@
+// Utilities
+import { nextTick } from 'vue'
+
 // Types
 import type { StepHandlerContext } from '@/composables/useDiscovery'
 
@@ -10,6 +13,14 @@ import type { StepHandlerContext } from '@/composables/useDiscovery'
  * `useDiscovery`'s `activate`/`deactivate` context helpers. Lookups for
  * multi-instance elements (copy/playground buttons) are scoped to the single
  * "host" example on the page to avoid matching the wrong instance.
+ *
+ * Guided steps never require the reader to click the highlighted target -
+ * DocsHighlight.vue blocks clicks on the activator for every non-interactive
+ * tour (`blockActivator = !discovery.isInteractive.value`). Steps that want
+ * to show a real interaction (selecting a preview item, revealing code,
+ * switching a code-group tab) simulate the click themselves via a real
+ * `HTMLElement.click()` so the reader sees the result without needing to
+ * (and being unable to) perform the action.
  *
  * Uses the unified `enter` handler pattern - each handler re-resolves the
  * host example so it works regardless of how the user arrived (forward,
@@ -36,6 +47,14 @@ export function defineTour () {
     getInHost('[data-tour="example-toolbar"]')?.style.removeProperty('opacity')
   }
 
+  // Reveal the code pane if it's collapsed. Idempotent - checks
+  // aria-expanded first so re-entering this step (back/resume) never
+  // accidentally re-toggles it closed.
+  function openCode (): void {
+    const toggle = getInHost('[data-tour="example-toggle"]')
+    if (toggle?.getAttribute('aria-expanded') === 'false') toggle.click()
+  }
+
   return {
     handlers: {
       intro: {
@@ -48,15 +67,20 @@ export function defineTour () {
 
       preview: {
         enter: ({ activate, done }: StepHandlerContext) => {
-          activate('[data-tour="example-preview"]')
+          const preview = getInHost('[data-tour="example-preview"]')
+          if (preview) {
+            activate(preview)
+            preview.querySelector<HTMLElement>('button')?.click()
+          }
           done()
         },
       },
 
       source: {
-        enter: ({ activate, done }: StepHandlerContext) => {
+        enter: async ({ activate }: StepHandlerContext) => {
+          openCode()
+          await nextTick()
           activate('[data-tour="example-code"]')
-          done()
         },
       },
 
@@ -87,6 +111,19 @@ export function defineTour () {
           done()
         },
         leave: hideToolbar,
+      },
+
+      codegroups: {
+        enter: ({ activate, done }: StepHandlerContext) => {
+          const group = document.querySelector<HTMLElement>('[data-tour="example-codegroup"]')
+          if (group) {
+            activate(group)
+            const npmTab = [...group.querySelectorAll<HTMLElement>('button')]
+              .find(button => button.textContent?.trim() === 'npm')
+            npmTab?.click()
+          }
+          done()
+        },
       },
     },
   }

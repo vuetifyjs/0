@@ -34,7 +34,7 @@
 import { createContext, createForm, createPlugin, createRegistry, createSingle, createStep, createTrinity, IN_BROWSER, isUndefined, useContext } from '@vuetify/v0'
 
 // Utilities
-import { effectScope, onScopeDispose, readonly, shallowRef, toRef } from 'vue'
+import { effectScope, readonly, shallowRef, toRef } from 'vue'
 
 // Types
 import type {
@@ -121,10 +121,11 @@ export interface StepHandlerContext {
    * handler, or an element it already holds), registers it in the same
    * activator registry a `Discovery.Activator` would, and mirrors the
    * activator's anchor-name + scroll-into-view behavior. Automatically
-   * deactivated when the step's effect scope tears down (next/back/exit).
+   * deactivated on leave (next/back/exit) - safe to call from a sync or
+   * async handler, before or after an `await`.
    */
   activate: (target: string | HTMLElement, options?: { padding?: number, scroll?: boolean }) => void
-  /** Clear the current `activate()` target early (rarely needed - scope teardown does this automatically). */
+  /** Clear the current `activate()` target early (rarely needed - leave does this automatically). */
   deactivate: () => void
 }
 
@@ -262,7 +263,6 @@ export function createDiscovery (): DiscoveryContext {
     }
 
     activeProgrammatic = { id, element }
-    onScopeDispose(deactivate)
   }
 
   function deactivate () {
@@ -362,6 +362,10 @@ export function createDiscovery (): DiscoveryContext {
     // Stop step's effect scope to clean up composables
     stepScope?.stop()
     stepScope = null
+    // Not tied to onScopeDispose: an async handler's activate() call can run
+    // after its await, outside stepScope.run()'s synchronous window, where
+    // there's no active effect scope to attach a dispose hook to.
+    deactivate()
   }
 
   function onCompleted (ticket: DiscoveryStepTicket) {

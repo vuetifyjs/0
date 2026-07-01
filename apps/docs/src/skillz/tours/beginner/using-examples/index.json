@@ -7,9 +7,9 @@
   "categories": ["meta"],
   "order": 3,
   "prerequisites": [],
-  "description": "Learn how the live code examples work - preview, source, copy, and Playground.",
-  "minutes": 2,
-  "startRoute": "/components/disclosure/tabs",
+  "description": "Learn how the live code examples work - preview, source, copy, Playground, and tabbed variants.",
+  "minutes": 3,
+  "startRoute": "/guide/essentials/using-the-docs",
   "steps": [
     {
       "id": "intro",
@@ -21,7 +21,7 @@
     {
       "id": "preview",
       "title": "It's Live",
-      "task": "This is the real component running. Click the tabs - it responds.",
+      "task": "This is the real component running. We just selected \"apple\" to show it responding to state.",
       "hint": "",
       "learn": "Interact with a live example",
       "placement": "bottom"
@@ -29,7 +29,7 @@
     {
       "id": "source",
       "title": "Real Source",
-      "task": "Below the preview is the exact code that produces it. Larger examples span multiple files - tabs let you read each.",
+      "task": "Every example ships the exact code that produces it. We opened it for you - click \"Show code\" anytime to toggle it.",
       "hint": "",
       "learn": "Read the source behind an example",
       "placement": "bottom"
@@ -57,6 +57,14 @@
       "hint": "",
       "learn": "Adjust code size and line wrap",
       "placement": "left"
+    },
+    {
+      "id": "codegroups",
+      "title": "More Ways to Read",
+      "task": "Some pages show multiple variants in tabbed code, like this package-manager picker. We switched it to \"npm\" - click a tab or use arrow keys to pick another.",
+      "hint": "",
+      "learn": "Switch between tabbed code variants",
+      "placement": "top"
     },
     {
       "id": "conclusion",
