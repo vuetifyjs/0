@@ -358,12 +358,7 @@ Minimal reactivity isn't just a design choice—it has measurable impact.
 
 ### Benchmark: Bulk Registration
 
-Registering items in batch, comparing `reactive: false` vs `reactive: true`:
-
-| Items | Non-Reactive | Reactive | Slowdown |
-| -: | -: | -: | :-: |
-| 1,000 | <AppIcon icon="benchmark-blazing" class="text-error" :size="16" /> 0.78ms | <AppIcon icon="benchmark-fast" class="text-warning" :size="16" /> 1.92ms | 2.5x |
-| 5,000 | <AppIcon icon="benchmark-blazing" class="text-error" :size="16" /> 2.14ms | <AppIcon icon="benchmark-good" class="text-info" :size="16" /> 9.55ms | **4.5x** |
+Registering items in batch is measurably slower with `reactive: true` than with the default non-reactive registry — every write goes through Vue's change-tracking machinery instead of a plain `Map` mutation. The exact slowdown depends on dataset size, browser, and hardware, so rather than quoting fixed numbers here, run the comparison live:
 
 ```vue playground collapse
 <script setup>
