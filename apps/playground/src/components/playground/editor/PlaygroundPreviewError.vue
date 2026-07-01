@@ -2,10 +2,8 @@
   // Framework
   import { Atom } from '@vuetify/v0'
 
-  export interface FailedDep {
-    url: string
-    name: string
-  }
+  // Types
+  import type { FailedDep } from '@/composables/usePreviewHealth'
 
   const { failed = [] } = defineProps<{
     failed?: FailedDep[]
