@@ -136,9 +136,9 @@ If you have an existing styled component library and want to adopt v0's headless
 <script setup lang="ts">
   import { createSingle } from '@vuetify/v0'
 
-  const tabs = createSingle({ mandatory: true })
+  const tabs = createSingle({ mandatory: 'force' })
 
-  // Bulk register tabs - first is auto-selected due to mandatory
+  // Bulk register tabs - first is auto-selected because mandatory: 'force'
   const items = tabs.onboard([
     { id: 'home', value: 'Home' },
     { id: 'profile', value: 'Profile' },
@@ -163,8 +163,8 @@ If you have an existing styled component library and want to adopt v0's headless
 
 ### What You Get
 
-- **`mandatory`** auto-selects first registered item
-- **Navigation** methods built-in: `next()`, `prev()`, `first()`, `last()`
+- **`mandatory: 'force'`** auto-selects first registered item
+- **`createStep`** extends `createSingle` with `next()`, `prev()`, `first()`, `last()` navigation for wizards and carousels
 - **Computed properties**: `selectedId`, `selectedIndex`, `selectedValue`
 - **Ticket methods**: each item has `isSelected`, `select()`, `toggle()`
 - **Disabled support** via `{ disabled: true }` on any ticket

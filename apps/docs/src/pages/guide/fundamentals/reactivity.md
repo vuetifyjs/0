@@ -97,8 +97,8 @@ Selection composables are fully reactive out of the box:
 | - | - |
 | [createSelection](/composables/selection/create-selection) | `selectedIds`, ticket `isSelected` |
 | [createSingle](/composables/selection/create-single) | `selectedId`, ticket `isSelected` |
-| [createGroup](/composables/selection/create-group) | `selectedIds`, `indeterminate` |
-| [createStep](/composables/selection/create-step) | `selectedId`, `canPrev`, `canNext` |
+| [createGroup](/composables/selection/create-group) | `selectedIds`, `isMixed` |
+| [createStep](/composables/selection/create-step) | `selectedId`, ticket `isSelected` |
 
 ```ts
 import { createSingle } from '@vuetify/v0'
