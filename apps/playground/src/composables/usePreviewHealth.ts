@@ -7,7 +7,6 @@ import { usePlayground } from '@/components/playground/app/PlaygroundApp.vue'
 // Utilities
 import { shallowRef, watch } from 'vue'
 
-const SHIMS = 'https://cdn.jsdelivr.net/npm/es-module-shims@1.5.18/dist/es-module-shims.wasm.js'
 const POLL = 500
 const SPECIFIC = 2500
 const GENERIC = 6000
@@ -34,17 +33,21 @@ export function usePreviewHealth (iframe: () => HTMLIFrameElement | null | undef
   }
 
   function collect () {
+    const doc = iframe()?.contentDocument
     const out = new Map<string, string>()
-    const script = iframe()?.contentDocument?.querySelector('script[type="importmap"]')
-    if (script?.textContent) {
+    const map = doc?.querySelector('script[type="importmap"]')
+    if (map?.textContent) {
       try {
-        const map = JSON.parse(script.textContent) as { imports?: Record<string, string> }
-        for (const [name, url] of Object.entries(map.imports ?? {})) {
+        const parsed = JSON.parse(map.textContent) as { imports?: Record<string, string> }
+        for (const [name, url] of Object.entries(parsed.imports ?? {})) {
           if (/^https?:\/\//.test(url)) out.set(url, name)
         }
       } catch { /* malformed importmap — still probe the shims loader below */ }
     }
-    out.set(SHIMS, 'es-module-shims')
+    // Derive the es-module-shims loader from the sandbox's own <script> rather than
+    // hardcoding @vue/repl's bundled version, which drifts when repl is upgraded.
+    const shims = doc?.querySelector<HTMLScriptElement>('script[src*="es-module-shims"]')
+    if (shims?.src) out.set(shims.src, 'es-module-shims')
     return out
   }
 
@@ -52,7 +55,7 @@ export function usePreviewHealth (iframe: () => HTMLIFrameElement | null | undef
     const out: FailedDep[] = []
     await Promise.all([...collect()].map(async ([url, name]) => {
       try {
-        const res = await fetch(url, { method: 'HEAD', mode: 'cors' })
+        const res = await fetch(url, { method: 'HEAD' })
         if (!res.ok && res.status !== 405) out.push({ url, name })
       } catch {
         out.push({ url, name })
@@ -62,12 +65,18 @@ export function usePreviewHealth (iframe: () => HTMLIFrameElement | null | undef
   }
 
   async function tick () {
+    // Confirmed mount → healthy. Reset the countdown on EVERY mount: useTimer
+    // (repeat) can't be stopped from inside its own handler, and @vue/repl empties
+    // #app on every recompile, so without this reset `elapsed` would creep up across
+    // ordinary edits and eventually false-trigger the banner over a working preview.
     if (mounted()) {
       status.value = 'ok'
       failed.value = []
-      watchdog.stop()
+      elapsed = 0
+      probed = false
       return
     }
+
     // A genuine compile error is already shown by the REPL's own overlay.
     if (playground.store.errors.length > 0) return
 
