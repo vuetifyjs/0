@@ -1,7 +1,4 @@
 <script setup lang="ts">
-  // Framework
-  import { Atom } from '@vuetify/v0'
-
   // Types
   import type { FailedDep } from '@/composables/usePreviewHealth'
 
@@ -50,14 +47,14 @@
       </div>
 
       <div class="flex justify-end">
-        <Atom
-          as="button"
+        <button
           class="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 text-sm font-medium text-on-primary hover:opacity-90"
+          type="button"
           @click="$emit('retry')"
         >
           <AppIcon icon="reset" :size="16" />
           Retry
-        </Atom>
+        </button>
       </div>
     </div>
   </div>
