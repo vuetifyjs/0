@@ -1,5 +1,6 @@
 // Icons
 import {
+  mdiAlertCircleOutline,
   mdiBookOpenBlankVariant,
   mdiBookOutline,
   mdiCheck,
@@ -43,6 +44,7 @@ import type { App } from 'vue'
 export const [useIconContext, provideIconContext, context] = createTokensContext({
   namespace: 'v0:icons',
   tokens: {
+    'alert': mdiAlertCircleOutline,
     'left': mdiChevronLeft,
     'book-open': mdiBookOpenBlankVariant,
     'book-closed': mdiBookOutline,
