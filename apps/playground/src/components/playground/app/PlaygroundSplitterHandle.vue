@@ -53,29 +53,39 @@
 </script>
 
 <template>
-  <SplitterHandle v-slot="{ state, attrs }" renderless>
+  <SplitterHandle v-slot="{ state, pending, attrs }" renderless>
     <div
       v-bind="attrs"
       class="hidden md:block bg-divider relative hover:bg-primary transition-colors shrink-0"
       :class="[
         state !== 'drag' && (direction === 'horizontal' ? 'cursor-col-resize' : 'cursor-row-resize'),
-        direction === 'horizontal' && 'w-[4px]',
-        direction === 'vertical' && 'h-[4px]',
+        direction === 'horizontal' && (pending ? 'w-[6px]' : 'w-[4px]'),
+        direction === 'vertical' && (pending ? 'h-[6px]' : 'h-[4px]'),
+        pending && '!bg-primary',
       ]"
       :style="hidden ? { display: 'none' } : undefined"
       @dblclick="onDblclick(attrs)"
     >
       <span
-        class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-1 rounded inline-flex items-center justify-center bg-surface text-on-surface border border-divider"
+        class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-1 rounded inline-flex items-center justify-center bg-surface border transition-colors"
         :class="[
           direction === 'horizontal' ? 'w-4 h-6' : 'w-6 h-4',
           state === 'drag' ? 'cursor-grabbing' : 'cursor-grab',
+          pending ? 'border-primary text-primary' : 'border-divider text-on-surface',
         ]"
       >
         <AppIcon
           :icon="direction === 'horizontal' ? 'drag-vertical' : 'drag-horizontal'"
           :size="16"
         />
+      </span>
+
+      <span
+        v-if="pending"
+        class="absolute left-1/2 top-1/2 z-2 whitespace-nowrap rounded border border-primary bg-surface px-2 py-1 text-xs font-medium text-primary shadow-sm pointer-events-none"
+        :class="direction === 'horizontal' ? 'translate-x-3 -translate-y-1/2' : '-translate-x-1/2 translate-y-3'"
+      >
+        {{ pending === 'collapse' ? 'Release to hide' : 'Release to open' }}
       </span>
     </div>
   </SplitterHandle>
