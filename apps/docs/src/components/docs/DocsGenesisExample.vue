@@ -92,6 +92,7 @@
     class="mb-6"
     :code="resolvedCode"
     :collapse
+    data-tour="example"
     :file-name
     :file-orders
     :files="resolvedFiles"
@@ -140,10 +141,11 @@
       <div
         class="docs-genesis-example-pane"
         :class="lineWrap && 'docs-genesis-example-pane--wrap'"
+        data-tour="example-code"
       >
         <DocsGenesisShikiBlock :code="paneCode ?? ''" :language="paneLanguage ?? 'text'" />
 
-        <div class="docs-genesis-example-pane__actions">
+        <div class="docs-genesis-example-pane__actions" data-tour="example-toolbar">
           <DocsCodeActions
             v-model:size="size"
             v-model:wrap="lineWrap"

@@ -34,7 +34,7 @@
 import { createContext, createForm, createPlugin, createRegistry, createSingle, createStep, createTrinity, IN_BROWSER, isUndefined, useContext } from '@vuetify/v0'
 
 // Utilities
-import { effectScope, readonly, shallowRef, toRef } from 'vue'
+import { effectScope, onScopeDispose, readonly, shallowRef, toRef } from 'vue'
 
 // Types
 import type {
@@ -115,6 +115,17 @@ export interface StepHandlerContext {
   next: () => Promise<void>
   /** How the user arrived at this step */
   direction: StepDirection
+  /**
+   * Highlight a page-content element for the current step without wrapping it
+   * in `<Discovery.Activator>`. Resolves `target` (a selector scoped by the
+   * handler, or an element it already holds), registers it in the same
+   * activator registry a `Discovery.Activator` would, and mirrors the
+   * activator's anchor-name + scroll-into-view behavior. Automatically
+   * deactivated when the step's effect scope tears down (next/back/exit).
+   */
+  activate: (target: string | HTMLElement, options?: { padding?: number, scroll?: boolean }) => void
+  /** Clear the current `activate()` target early (rarely needed - scope teardown does this automatically). */
+  deactivate: () => void
 }
 
 /**
@@ -215,6 +226,56 @@ export function createDiscovery (): DiscoveryContext {
   let stepScope: EffectScope | null = null
   let isStarting = false
 
+  // Programmatic (selector/element-resolved) activator state - at most one at a time.
+  let activeProgrammatic: { id: ID, element: HTMLElement } | null = null
+
+  /**
+   * Highlight a page-content element without a `<Discovery.Activator>` wrapper.
+   * Registers the resolved element under the current step's id via the same
+   * activator registry `<Discovery.Activator>` uses, so `DiscoveryHighlight`
+   * and `DiscoveryContent` track and position against it unchanged.
+   */
+  function activate (target: string | HTMLElement, options?: { padding?: number, scroll?: boolean }) {
+    const current = steps.selectedItem.value
+    if (!current) return
+
+    const element = typeof target === 'string' ? document.querySelector<HTMLElement>(target) : target
+    if (!element) {
+      console.warn(`[v0:discovery] activate() target not found: "${target}"`)
+      return
+    }
+
+    deactivate()
+
+    const id = current.id
+    activators.register({ id, element: shallowRef(element), padding: options?.padding })
+    element.style.setProperty('anchor-name', `--discovery-${String(id)}`)
+    // 'center' (not the activator's 'end') - unlike chrome activators, a
+    // content target's box can be tall, and both anchor-relative placements
+    // ('top' needs the anchor's top edge on-screen, 'bottom' needs its bottom
+    // edge on-screen) need a shot at holding; centering the target gives both
+    // edges the best chance of fitting within the viewport at once.
+    element.style.scrollMarginTop = '100px'
+    element.style.scrollMarginBottom = '100px'
+    if (options?.scroll !== false) {
+      element.scrollIntoView({ block: 'center', behavior: 'instant' })
+    }
+
+    activeProgrammatic = { id, element }
+    onScopeDispose(deactivate)
+  }
+
+  function deactivate () {
+    if (!activeProgrammatic) return
+
+    const { id, element } = activeProgrammatic
+    activators.unregister(id)
+    element.style.removeProperty('anchor-name')
+    element.style.removeProperty('scroll-margin-top')
+    element.style.removeProperty('scroll-margin-bottom')
+    activeProgrammatic = null
+  }
+
   /**
    * Invoke a step handler with async support.
    * Handles three patterns:
@@ -257,6 +318,8 @@ export function createDiscovery (): DiscoveryContext {
           await next()
         },
         direction,
+        activate,
+        deactivate,
       }
 
       // Run handler inside effect scope

@@ -1,0 +1,70 @@
+{
+  "mode": "guided",
+  "id": "using-examples",
+  "name": "Using Examples",
+  "level": 1,
+  "track": "essentials",
+  "categories": ["meta"],
+  "order": 3,
+  "prerequisites": [],
+  "description": "Learn how the live code examples work - preview, source, copy, and Playground.",
+  "minutes": 2,
+  "startRoute": "/components/disclosure/tabs",
+  "steps": [
+    {
+      "id": "intro",
+      "title": "Live Examples",
+      "task": "Every page ships a runnable example - not a screenshot.",
+      "hint": "",
+      "learn": "Recognize a live example"
+    },
+    {
+      "id": "preview",
+      "title": "It's Live",
+      "task": "This is the real component running. Click the tabs - it responds.",
+      "hint": "",
+      "learn": "Interact with a live example",
+      "placement": "bottom"
+    },
+    {
+      "id": "source",
+      "title": "Real Source",
+      "task": "Below the preview is the exact code that produces it. Larger examples span multiple files - tabs let you read each.",
+      "hint": "",
+      "learn": "Read the source behind an example",
+      "placement": "bottom"
+    },
+    {
+      "id": "copy",
+      "title": "Copy It",
+      "task": "Grab the whole file with one click.",
+      "hint": "",
+      "learn": "Copy an example's source",
+      "placement": "left"
+    },
+    {
+      "id": "playground",
+      "title": "Play With It",
+      "task": "Open it live in the Playground to edit and experiment - no setup.",
+      "hint": "",
+      "learn": "Open an example in the Playground",
+      "placement": "left"
+    },
+    {
+      "id": "tune",
+      "title": "Tune the View",
+      "task": "Resize the preview, bump the code size, wrap long lines.",
+      "hint": "",
+      "learn": "Adjust code size and line wrap",
+      "placement": "left"
+    },
+    {
+      "id": "conclusion",
+      "title": "That's Examples",
+      "task": "Every page works this way - read it, copy it, play with it.",
+      "hint": "",
+      "learn": "Use examples like a power user",
+      "noActivator": true
+    }
+  ]
+}
