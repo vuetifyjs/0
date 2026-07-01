@@ -264,6 +264,7 @@
     <GnPeek
       v-if="peek && !hasMultipleFiles && hasCode"
       v-model:expanded="peekExpanded"
+      data-tour="example-expand"
     />
   </div>
 </template>

@@ -29,7 +29,7 @@
     {
       "id": "source",
       "title": "Real Source",
-      "task": "Every example ships the exact code that produces it. We opened it for you - click \"Show code\" anytime to toggle it.",
+      "task": "Every example ships the exact code that produces it. We expanded it for you - the Expand pill collapses it again anytime.",
       "hint": "",
       "learn": "Read the source behind an example",
       "placement": "bottom"

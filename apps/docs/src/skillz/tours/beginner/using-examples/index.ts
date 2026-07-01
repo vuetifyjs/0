@@ -47,12 +47,16 @@ export function defineTour () {
     getInHost('[data-tour="example-toolbar"]')?.style.removeProperty('opacity')
   }
 
-  // Reveal the code pane if it's collapsed. Idempotent - checks
-  // aria-expanded first so re-entering this step (back/resume) never
-  // accidentally re-toggles it closed.
+  // Reveal the full code. Which control exists depends on the example's
+  // mode: non-peek examples render a "Show code" toggle bar
+  // (example-toggle), peek examples render the always-visible-but-
+  // truncated pane with an Expand pill (example-expand). The
+  // [aria-expanded="false"] guard makes this idempotent - re-entering the
+  // step (back/resume) never re-collapses an already-open pane.
   function openCode (): void {
-    const toggle = getInHost('[data-tour="example-toggle"]')
-    if (toggle?.getAttribute('aria-expanded') === 'false') toggle.click()
+    getInHost(
+      '[data-tour="example-toggle"][aria-expanded="false"], [data-tour="example-expand"][aria-expanded="false"]',
+    )?.click()
   }
 
   return {
