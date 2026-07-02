@@ -21,6 +21,7 @@
     "overflow-isvisible-perf",
     "philosophy-rc-attr-compliance",
     "popover-anchor-ident",
+    "stable-set-promotion",
     "theme-adapter-sheet-leak-399",
     "theme-csp-nonce-406",
     "theme-prefix-safe-ident-405",
