@@ -45,7 +45,7 @@ For new features:
 
 - Check if it's already been requested in [issues](https://github.com/vuetifyjs/0/issues)
 - Explain the use case and why it would benefit others
-- Consider if it fits the headless/composable philosophy of Vuetify0
+- Consider if it fits the [headless/composable philosophy](https://github.com/vuetifyjs/0/blob/master/packages/0/PHILOSOPHY.md) of Vuetify0
 
 ## Local Development
 
@@ -190,6 +190,8 @@ test(useForm): add validation edge cases
 - Reference issues when applicable: `fix(useForm): validation error (#123)`
 
 ## Code Style
+
+The sections below are a summary. The design contract behind them — axioms, return-shape conventions, reactivity rules — lives in [PHILOSOPHY.md](https://github.com/vuetifyjs/0/blob/master/packages/0/PHILOSOPHY.md), with detailed per-scope playbooks in [.claude/rules](https://github.com/vuetifyjs/0/tree/master/.claude/rules).
 
 ### General
 
