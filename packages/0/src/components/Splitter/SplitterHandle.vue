@@ -29,7 +29,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { SplitterOrientation } from './SplitterRoot.vue'
+  import type { SplitterIntentMode, SplitterOrientation } from './SplitterRoot.vue'
 
   export interface SplitterHandleProps extends AtomProps {
     disabled?: boolean
@@ -42,6 +42,7 @@
     isDragging: boolean
     isDisabled: boolean
     state: SplitterHandleState
+    pending: SplitterIntentMode | null
     attrs: {
       'role': 'separator'
       'tabindex': 0 | -1
@@ -55,6 +56,7 @@
       'data-state': SplitterHandleState
       'data-orientation': SplitterOrientation
       'data-disabled': true | undefined
+      'data-pending': SplitterIntentMode | undefined
       'style': Record<string, string>
       'onPointerdown': (e: PointerEvent) => void
       'onPointerenter': () => void
@@ -101,6 +103,15 @@
     if (splitter.draggingHandle.value === ticket.index) return 'drag'
     if (hovering.value) return 'hover'
     return 'inactive'
+  })
+
+  // Armed collapse/expand intent for either panel adjacent to this handle (null until past threshold)
+  const pending = toRef((): SplitterIntentMode | null => {
+    const intent = splitter.pending.value
+    if (!intent) return null
+    const before = splitter.panel(ticket.index)
+    const after = splitter.panel(ticket.index + 1)
+    return intent.id === before?.id || intent.id === after?.id ? intent.mode : null
   })
 
   // aria-valuenow: size of the panel before this handle (0-100), rounded for AT
@@ -260,6 +271,7 @@
     isDragging: splitter.draggingHandle.value === ticket.index,
     isDisabled: isDisabled.value,
     state: state.value,
+    pending: pending.value,
     attrs: {
       'role': 'separator',
       'tabindex': isDisabled.value ? -1 : 0,
@@ -273,6 +285,7 @@
       'data-state': state.value,
       'data-orientation': splitter.orientation.value,
       'data-disabled': isDisabled.value || undefined,
+      'data-pending': pending.value ?? undefined,
       'style': { 'touch-action': 'none' },
       'onPointerdown': onPointerDown,
       'onPointerenter': onPointerEnter,
