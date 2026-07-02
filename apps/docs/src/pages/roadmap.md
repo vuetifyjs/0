@@ -97,6 +97,12 @@ Whether you want to explore in the browser, scaffold a project, or integrate wit
 
 <DocsMaturity />
 
+### Graduation Criteria
+
+Every feature climbs the same track. Its level tells you what you can rely on today; the gate between levels is exactly what it takes to move up.
+
+<DocsGraduation />
+
 ## FAQ
 
 ::: faq
@@ -126,7 +132,7 @@ Yes. All composables and components are SSR-safe. Nuxt integration is documented
 
 ??? What's the difference between stable, preview, and draft?
 
-**Stable** means battle-tested with no planned breaking changes. **Preview** means feature-complete and documented, but the API may evolve in minor releases. **Draft** means experimental and subject to major changes. See the maturity matrix above for a full breakdown.
+**Stable** means battle-tested with no planned breaking changes. **Preview** means feature-complete and documented, but the API may evolve in minor releases. **Draft** means experimental and subject to major changes. See the [graduation criteria](#graduation-criteria) above for the full ladder and what it takes to move between levels.
 
 ??? How do I report a bug?
 
