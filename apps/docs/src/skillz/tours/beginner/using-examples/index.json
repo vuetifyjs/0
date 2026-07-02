@@ -37,7 +37,7 @@
     {
       "id": "copy",
       "title": "Copy It",
-      "task": "Grab the whole file with one click.",
+      "task": "This button copies the whole file to your clipboard in one click.",
       "hint": "",
       "learn": "Copy an example's source",
       "placement": "left"
@@ -45,7 +45,7 @@
     {
       "id": "playground",
       "title": "Play With It",
-      "task": "Open it live in the Playground to edit and experiment - no setup.",
+      "task": "This button opens the example live in the Playground - full editing, no setup.",
       "hint": "",
       "learn": "Open an example in the Playground",
       "placement": "left"
@@ -53,7 +53,7 @@
     {
       "id": "tune",
       "title": "Tune the View",
-      "task": "Resize the preview, bump the code size, wrap long lines.",
+      "task": "The rest of the toolbar tunes the reading view - code size cycling and line wrap for long lines.",
       "hint": "",
       "learn": "Adjust code size and line wrap",
       "placement": "left"
@@ -61,7 +61,7 @@
     {
       "id": "codegroups",
       "title": "More Ways to Read",
-      "task": "Some pages show multiple variants in tabbed code, like this package-manager picker. We switched it to \"npm\" - click a tab or use arrow keys to pick another.",
+      "task": "Some pages show multiple variants in tabbed code, like this package-manager picker - we switched it to \"npm\" to show it in action.",
       "hint": "",
       "learn": "Switch between tabbed code variants",
       "placement": "top"
