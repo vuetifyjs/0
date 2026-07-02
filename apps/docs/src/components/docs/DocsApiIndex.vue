@@ -5,9 +5,9 @@
   import DocsHeaderAnchor from './DocsHeaderAnchor.vue'
 
   // Utilities
-  import { renderMarkdown } from '@/utilities/markdown'
+  import { renderInlineMarkdown } from '@/utilities/markdown'
   import { toKebab, toTitle } from '@/utilities/strings'
-  import { computed, shallowRef } from 'vue'
+  import { computed } from 'vue'
 
   // Types
   import type { ApiData } from '@build/generate-api'
@@ -26,8 +26,8 @@
 
   const data = apiData as ApiData
   const maturityRecord = maturity as {
-    components?: Record<string, { category?: string }>
-    composables?: Record<string, { category?: string }>
+    components?: Record<string, { category?: string, description?: string }>
+    composables?: Record<string, { category?: string, description?: string }>
   }
 
   function categoryFor (name: string, kind: 'component' | 'composable'): string {
@@ -44,10 +44,9 @@
       if (seen.has(root)) continue
       seen.add(root)
 
-      const api = data.components[fullName]
       out.push({
         name: root,
-        description: api?.description ?? '',
+        description: maturityRecord.components?.[root]?.description ?? '',
         href: `/api/${toKebab(root)}`,
         kind: 'component',
         category: categoryFor(root, 'component'),
@@ -58,10 +57,10 @@
   })
 
   const composables = computed<IndexEntry[]>(() => {
-    return Object.entries(data.composables)
-      .map(([name, api]) => ({
+    return Object.keys(data.composables)
+      .map(name => ({
         name,
-        description: api?.description ?? '',
+        description: maturityRecord.composables?.[name]?.description ?? '',
         href: `/api/${toKebab(name)}`,
         kind: 'composable' as const,
         category: categoryFor(name, 'composable'),
@@ -81,28 +80,6 @@
 
   const componentGroups = computed(() => group(components.value))
   const composableGroups = computed(() => group(composables.value))
-
-  const DESCRIPTION_TRUNCATE_LENGTH = 180
-  const expanded = shallowRef<Set<string>>(new Set())
-
-  function isLong (entry: IndexEntry): boolean {
-    return entry.description.length > DESCRIPTION_TRUNCATE_LENGTH
-  }
-
-  function toggle (entry: IndexEntry) {
-    const key = `${entry.kind}-${entry.name}`
-    const next = new Set(expanded.value)
-    if (next.has(key)) {
-      next.delete(key)
-    } else {
-      next.add(key)
-    }
-    expanded.value = next
-  }
-
-  function isExpanded (entry: IndexEntry): boolean {
-    return expanded.value.has(`${entry.kind}-${entry.name}`)
-  }
 </script>
 
 <template>
@@ -129,19 +106,7 @@
                 <td><router-link class="v0-link" :to="entry.href">{{ entry.name }}</router-link></td>
 
                 <td>
-                  <div
-                    :class="[!isExpanded(entry) && isLong(entry) && 'line-clamp-2', '[&_p]:my-1 [&_ul]:my-1 [&_ul]:pl-5 [&_ol]:my-1 [&_ol]:pl-5']"
-                    v-html="renderMarkdown(entry.description)"
-                  />
-
-                  <button
-                    v-if="isLong(entry)"
-                    class="text-sm text-primary hover:underline focus-visible:underline focus-visible:outline-none"
-                    type="button"
-                    @click="toggle(entry)"
-                  >
-                    {{ isExpanded(entry) ? 'Show less' : 'Show more' }}
-                  </button>
+                  <p v-html="renderInlineMarkdown(entry.description)" />
                 </td>
               </tr>
             </tbody>
@@ -172,19 +137,7 @@
                 <td><router-link class="v0-link" :to="entry.href">{{ entry.name }}</router-link></td>
 
                 <td>
-                  <div
-                    :class="[!isExpanded(entry) && isLong(entry) && 'line-clamp-2', '[&_p]:my-1 [&_ul]:my-1 [&_ul]:pl-5 [&_ol]:my-1 [&_ol]:pl-5']"
-                    v-html="renderMarkdown(entry.description)"
-                  />
-
-                  <button
-                    v-if="isLong(entry)"
-                    class="text-sm text-primary hover:underline focus-visible:underline focus-visible:outline-none"
-                    type="button"
-                    @click="toggle(entry)"
-                  >
-                    {{ isExpanded(entry) ? 'Show less' : 'Show more' }}
-                  </button>
+                  <p v-html="renderInlineMarkdown(entry.description)" />
                 </td>
               </tr>
             </tbody>

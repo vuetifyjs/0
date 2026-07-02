@@ -3,445 +3,533 @@
     "createContext": {
       "level": "stable",
       "since": "0.1.0",
-      "category": "foundation"
+      "category": "foundation",
+      "description": "Type-safe dependency injection factory built on Vue's provide/inject. Shares state across component trees without prop drilling."
     },
     "createPlugin": {
       "level": "stable",
       "since": "0.1.0",
-      "category": "foundation"
+      "category": "foundation",
+      "description": "Factory for creating Vue plugins with typed dependency injection and lifecycle hooks."
     },
     "createTrinity": {
       "level": "stable",
       "since": "0.1.0",
-      "category": "foundation"
+      "category": "foundation",
+      "description": "Generates a typed `[useX, provideX, defaultX]` tuple for Vue's provide/inject dependency injection pattern."
     },
     "createQueue": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "registration"
+      "category": "registration",
+      "description": "FIFO queue for time-based collections with automatic timeout removal and pause/resume support."
     },
     "createRating": {
       "level": "preview",
       "since": "0.2.0",
-      "category": "forms"
+      "category": "forms",
+      "description": "Bounded number with discrete items. Give it a size, get items to iterate with full/half/empty state. Half-step support for 0.5 increments."
     },
     "createRegistry": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "registration"
+      "category": "registration",
+      "description": "Foundation for ordered, keyed collections. Items are registered with IDs and indexes, and can be looked up by ID, index, or value."
     },
     "createTimeline": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "registration"
+      "category": "registration",
+      "description": "Bounded undo/redo history built on `createRegistry` with a configurable size limit."
     },
     "createTokens": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "registration"
+      "category": "registration",
+      "description": "Design token registry with hierarchical collections, alias resolution, and namespace support."
     },
     "createGroup": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "selection"
+      "category": "selection",
+      "description": "Multi-selection with tri-state (mixed/indeterminate) support for checkbox trees, grouped toggles, and any pattern where items can be partially selected."
     },
     "createModel": {
       "level": "preview",
       "since": "0.1.5",
       "category": "selection",
+      "description": "Reactive value store that wraps a ref with two-way selection binding.",
       "notes": "Recently redesigned from selection system"
     },
     "createNested": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "selection"
+      "category": "selection",
+      "description": "Hierarchical tree management built on `createGroup`, with parent-child relationships, open/close state, and pluggable traversal strategies."
     },
     "createSelection": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "selection"
+      "category": "selection",
+      "description": "A composable for managing the selection of items in a collection with automatic indexing and lifecycle management."
     },
     "createSingle": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "selection"
+      "category": "selection",
+      "description": "Extends `createSelection` to enforce single-item selection, automatically clearing the previous selection."
     },
     "createStep": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "selection"
+      "category": "selection",
+      "description": "Extends `createSingle` with bounded or circular navigation. Built for wizards, multi-step forms, and onboarding flows."
     },
     "createForm": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "forms"
+      "category": "forms",
+      "description": "Coordinates validation across multiple inputs. Provides `submit()`, `reset()`, and aggregate validity state."
     },
     "createSlider": {
       "level": "preview",
       "since": "0.1.5",
-      "category": "forms"
+      "category": "forms",
+      "description": "Slider state composable for single-thumb, range, and multi-thumb sliders. Handles value math, step snapping, and percentage conversion."
     },
     "createCombobox": {
       "level": "preview",
       "since": "0.2.0",
-      "category": "forms"
+      "category": "forms",
+      "description": "Low-level combobox coordinator for custom implementations. Most users should use the `Combobox` component instead."
     },
     "createInput": {
       "level": "preview",
       "since": "0.2.0",
-      "category": "forms"
+      "category": "forms",
+      "description": "Shared form field primitive with validation state, ARIA ID generation, and automatic form registration."
     },
     "createNumberField": {
       "level": "preview",
       "since": "0.2.1",
-      "category": "forms"
+      "category": "forms",
+      "description": "Numeric value with locale-aware formatting, step snapping, and field validation. Give it a min/max/step, get increment/decrement, formatted display, and parse/commit for text input."
     },
     "createNumeric": {
       "level": "preview",
       "since": "0.2.0",
-      "category": "forms"
+      "category": "forms",
+      "description": "Pure numeric math for bounded values with step snapping, range clamping, and floating-point precision correction."
     },
     "createOtp": {
       "level": "preview",
       "since": "1.0.0-alpha.5",
-      "category": "forms"
+      "category": "forms",
+      "description": "Manage a fixed-length one-time-password or verification-code value with pattern-gated entry, length-based completion detection, and a decisional async hook. Headless — your component owns rendering, focus, and event wiring."
     },
     "createDataGrid": {
       "level": "preview",
       "since": "1.0.0-beta.0",
-      "category": "data"
+      "category": "data",
+      "description": "A headless data grid with column layout, cell editing, row ordering, and row spanning."
     },
     "createDataTable": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "data"
+      "category": "data",
+      "description": "Composable data table built on v0 primitives. Composes sorting, filtering, pagination, selection, and expansion into a single pipeline."
     },
     "createFilter": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "data"
+      "category": "data",
+      "description": "A composable for filtering arrays of items based on search queries, supporting both primitive values and complex objects with customizable filtering logic."
     },
     "createKanban": {
       "level": "preview",
       "since": "1.0.0-alpha.4",
-      "category": "data"
+      "category": "data",
+      "description": "Headless two-level board state for columns of cards, with column reorder, in-column reorder, and a cross-column `transfer` primitive. Pure logic — no drag-and-drop, no keyboard, no DOM — so consumers can drive it from any input modality."
     },
     "createPagination": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "data"
+      "category": "data",
+      "description": "A lightweight composable for managing pagination state with navigation methods and computed visible page items."
     },
     "createSortable": {
       "level": "preview",
       "since": "1.0.0-alpha.4",
-      "category": "data"
+      "category": "data",
+      "description": "Headless ordered-list primitive that owns a registry of value-bearing tickets and exposes `move`, `swap`, and `reorder` mutations. Pure logic — no DnD, no keyboard, no DOM — so consumers can drive it from any input modality."
     },
     "createProgress": {
       "level": "preview",
       "since": "0.2.1",
-      "category": "semantic"
+      "category": "semantic",
+      "description": "A composable for tracking progress across one or more segments, with percentage computation and indeterminate state detection."
     },
     "createVirtual": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "data"
+      "category": "data",
+      "description": "Virtual scrolling composable for efficiently rendering large lists by only rendering visible items."
     },
     "createBreadcrumbs": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "semantic"
+      "category": "semantic",
+      "description": "A composable that extends `createSingle` for breadcrumb navigation with automatic path truncation."
     },
     "createOverflow": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "semantic"
+      "category": "semantic",
+      "description": "A composable for computing how many items fit in a container based on available width, enabling responsive truncation for pagination, breadcrumbs, and similar components."
     },
     "useBreakpoints": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "plugins"
+      "category": "plugins",
+      "description": "Reactive viewport detection for building responsive layouts with named breakpoints."
     },
     "useDate": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "plugins"
+      "category": "plugins",
+      "description": "Date manipulation using the Temporal API with locale-aware formatting and adapter support."
     },
     "useFeatures": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "plugins"
+      "category": "plugins",
+      "description": "Manage feature flags and variations across your application."
     },
     "useHydration": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "plugins"
+      "category": "plugins",
+      "description": "Control SSR hydration timing to prevent mismatches and optimize client-side rendering."
     },
     "useLocale": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "plugins"
+      "category": "plugins",
+      "description": "i18n plugin with message translation, number formatting, and locale switching."
     },
     "useLogger": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "plugins"
+      "category": "plugins",
+      "description": "Application logging with configurable levels, filtering, and swappable adapters for popular logging libraries."
     },
     "usePermissions": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "plugins"
+      "category": "plugins",
+      "description": "Role-based access control with actions, subjects, and context-aware conditions."
     },
     "useStack": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "plugins"
+      "category": "plugins",
+      "description": "Overlay z-index coordinator with automatic stacking order and parent-child nesting support."
     },
     "useStorage": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "plugins"
+      "category": "plugins",
+      "description": "Reactive storage with automatic serialization, caching, and SSR-safe operations."
     },
     "useTheme": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "plugins"
+      "category": "plugins",
+      "description": "Theme management with multiple themes, CSS custom properties, and token alias resolution."
     },
     "useTooltip": {
       "level": "preview",
       "since": "1.0.0-beta.0",
-      "category": "plugins"
+      "category": "plugins",
+      "description": "Region-scoped coordination plugin for tooltip open/close delays. Holds shared `openDelay` / `closeDelay` / `skipDelay` defaults plus a registry of currently-open tooltip tickets so neighboring `<Tooltip.Root>` instances can skip their open delay during the warmup window."
     },
     "useClickOutside": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "system"
+      "category": "system",
+      "description": "A composable for detecting clicks outside of specified element(s) with automatic cleanup."
     },
     "useDelay": {
       "level": "preview",
       "since": "1.0.0-alpha.3",
-      "category": "system"
+      "category": "system",
+      "description": "Schedule open and close transitions with start, stop, pause, and resume controls and a reactive view of the pending delay."
     },
     "useDragDrop": {
       "level": "preview",
       "since": "1.0.0-alpha.4",
-      "category": "system"
+      "category": "system",
+      "description": "Headless drag-and-drop primitive. Owns two registries — draggables and zones — plus the active-drag state."
     },
     "useEventListener": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "system"
+      "category": "system",
+      "description": "A composable for handling DOM events with automatic cleanup on component unmount."
     },
     "useHotkey": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "system"
+      "category": "system",
+      "description": "A composable for handling hotkey combinations and sequences with platform-aware modifiers and automatic cleanup."
     },
     "useImage": {
       "level": "preview",
       "since": "1.0.0-alpha.1",
-      "category": "system"
+      "category": "system",
+      "description": "Tracks image loading state as a reactive state machine with idle, loading, loaded, and error states."
     },
     "useIntersectionObserver": {
       "level": "stable",
       "since": "0.1.0",
-      "category": "system"
+      "category": "system",
+      "description": "A composable for detecting when elements enter or leave the viewport using the Intersection Observer API with automatic cleanup."
     },
     "useLazy": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "system"
+      "category": "system",
+      "description": "A composable for deferring content rendering until first activation, with optional reset on deactivation."
     },
     "useMediaQuery": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "system"
+      "category": "system",
+      "description": "A composable for reactive CSS media query matching with automatic cleanup."
     },
     "useMutationObserver": {
       "level": "stable",
       "since": "0.1.0",
-      "category": "system"
+      "category": "system",
+      "description": "A composable for detecting DOM changes using the Mutation Observer API with automatic cleanup."
     },
     "useResizeObserver": {
       "level": "stable",
       "since": "0.1.0",
-      "category": "system"
+      "category": "system",
+      "description": "A composable for detecting element size changes using the Resize Observer API with automatic cleanup."
     },
     "useToggleScope": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "system"
+      "category": "system",
+      "description": "A composable for conditionally managing Vue effect scopes based on reactive boolean conditions with automatic cleanup."
     },
     "useProxyModel": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "reactivity"
+      "category": "reactivity",
+      "description": "A composable for syncing refs bidirectionally with selection contexts, enabling seamless v-model integration with selection state."
     },
     "useProxyRegistry": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "reactivity"
+      "category": "reactivity",
+      "description": "A reactive proxy wrapper for registry collections that automatically updates refs when items are registered or unregistered."
     },
     "toArray": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "transformers"
+      "category": "transformers",
+      "description": "Coerces any value — including `null` and `undefined` — to an array."
     },
     "toElement": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "transformers"
+      "category": "transformers",
+      "description": "Resolves various element reference types to a plain DOM Element. Accepts refs, getters, raw DOM elements, or Vue component instances and normalizes them to a single `Element | undefined`."
     },
     "toHighlight": {
       "level": "preview",
       "since": "1.0.0-alpha.5",
-      "category": "transformers"
+      "category": "transformers",
+      "description": "Pure transformer that splits text into matched and unmatched chunks. Returns a plain `HighlightChunk[]` — wrap the call in `computed()` for reactive recomputation."
     },
     "toReactive": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "transformers"
+      "category": "transformers",
+      "description": "Converts a `MaybeRef` object to a reactive proxy with automatic ref unwrapping and `Map`/`Set` support."
     },
     "createValidation": {
       "level": "preview",
       "since": "0.1.8",
-      "category": "forms"
+      "category": "forms",
+      "description": "Per-input validation with reactive rules, async validation, and Standard Schema support."
     },
     "usePopover": {
       "level": "preview",
       "since": "0.1.8",
-      "category": "system"
+      "category": "system",
+      "description": "A composable for native popover API behavior with CSS anchor positioning."
     },
     "usePresence": {
       "level": "preview",
       "since": "0.2.0",
-      "category": "system"
+      "category": "system",
+      "description": "Animation-agnostic mount lifecycle management."
     },
     "useRovingFocus": {
       "level": "preview",
       "since": "0.1.8",
-      "category": "system"
+      "category": "system",
+      "description": "Keyboard navigation for composite widgets where arrow keys move focus between items, skipping disabled ones."
     },
     "useNotifications": {
       "level": "preview",
       "since": "0.1.9",
-      "category": "plugins"
+      "category": "plugins",
+      "description": "Notification lifecycle management with severity levels, state mutations, toast queuing, and auto-dismiss."
     },
     "useRaf": {
       "level": "preview",
       "since": "0.1.9",
-      "category": "system"
+      "category": "system",
+      "description": "Throttles callbacks to the next animation frame with cancel-then-request deduplication. Cleans up automatically on scope disposal."
     },
     "useReducedMotion": {
       "level": "preview",
       "since": null,
-      "category": "plugins"
+      "category": "plugins",
+      "description": "Respect or override the user's `prefers-reduced-motion` setting, with a reactive flag and a body data attribute for CSS-only consumers."
     },
     "useRtl": {
       "level": "preview",
       "since": "0.1.7",
-      "category": "plugins"
+      "category": "plugins",
+      "description": "Right-to-left text direction management with reactive state and subtree overrides."
     },
     "useRules": {
       "level": "preview",
       "since": "0.1.7",
-      "category": "plugins"
+      "category": "plugins",
+      "description": "Validation rule management with Standard Schema support and custom aliases."
     },
     "useTimer": {
       "level": "preview",
       "since": "0.1.9",
-      "category": "system"
+      "category": "system",
+      "description": "A reactive timer composable with pause/resume support and remaining time tracking."
     },
     "useVirtualFocus": {
       "level": "preview",
       "since": "0.1.8",
-      "category": "system"
+      "category": "system",
+      "description": "A composable for keyboard navigation where DOM focus stays on a single control element while a visual highlight moves across items."
     }
   },
   "components": {
     "AspectRatio": {
       "level": "preview",
       "since": "1.0.0-alpha.1",
-      "category": "primitives"
+      "category": "primitives",
+      "description": "Reserves a box with a fixed width-to-height ratio using CSS `aspect-ratio`."
     },
     "Atom": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "primitives"
+      "category": "primitives",
+      "description": "Low-level primitive for building polymorphic components."
     },
     "Portal": {
       "level": "preview",
       "since": "0.2.0",
-      "category": "primitives"
+      "category": "primitives",
+      "description": "Renderless teleport wrapper with automatic z-index stacking."
     },
     "Presence": {
       "level": "preview",
       "since": "0.2.0",
-      "category": "primitives"
+      "category": "primitives",
+      "description": "Animation-agnostic mount lifecycle for conditional content."
     },
     "Group": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "providers"
+      "category": "providers",
+      "description": "A headless component for managing multi-selection with batch operations and tri-state support."
     },
     "Locale": {
       "level": "preview",
       "since": "0.1.11",
-      "category": "providers"
+      "category": "providers",
+      "description": "Scopes a locale to a component subtree for localized sections of your app."
     },
     "Scrim": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "providers"
+      "category": "providers",
+      "description": "Headless backdrop component for overlay systems with automatic z-index management and dismiss handling."
     },
     "Selection": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "providers"
+      "category": "providers",
+      "description": "A headless component for managing selection state in collections with support for single and multi-selection patterns."
     },
     "Single": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "providers"
+      "category": "providers",
+      "description": "A headless provider for exclusive single-selection — selecting an item automatically deselects the previously selected one. Drives tabs, segmented controls, theme pickers, and other exclusive-choice UIs."
     },
     "Step": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "providers"
+      "category": "providers",
+      "description": "A headless component for navigation through multi-step processes like wizards and forms."
     },
     "Theme": {
       "level": "preview",
       "since": "0.1.11",
-      "category": "providers"
+      "category": "providers",
+      "description": "Scopes a theme to a component subtree for independently themed sections of your app."
     },
     "Toggle": {
       "level": "preview",
       "since": "0.2.0",
-      "category": "actions"
+      "category": "actions",
+      "description": "A headless toggle button with dual-mode support: standalone boolean binding or group selection with single and multi-select."
     },
     "Button": {
       "level": "preview",
       "since": "0.1.10",
-      "category": "actions"
+      "category": "actions",
+      "description": "Headless button with loading state, toggle group support, and icon accessibility."
     },
     "Checkbox": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "forms"
+      "category": "forms",
+      "description": "A checkbox for boolean state or multi-selection groups with tri-state support."
     },
     "Combobox": {
       "level": "preview",
       "since": "0.2.0",
-      "category": "forms"
+      "category": "forms",
+      "description": "A headless autocomplete input that filters options as the user types, with client and server-side filtering support."
     },
     "Form": {
       "level": "preview",
       "since": "0.1.8",
-      "category": "forms"
+      "category": "forms",
+      "description": "A form wrapper that coordinates validation across child input fields and handles submit/reset events."
     },
     "Input": {
       "level": "preview",
       "since": "0.1.8",
-      "category": "forms"
+      "category": "forms",
+      "description": "Headless text input with integrated validation and automatic form registration."
     },
     "DatePicker": {
       "level": "draft",
@@ -454,7 +542,8 @@
     "NumberField": {
       "level": "preview",
       "since": "0.2.1",
-      "category": "forms"
+      "category": "forms",
+      "description": "Numeric input with increment/decrement buttons, drag-to-scrub, and locale-aware formatting. Supports currency, percent, and unit display via `Intl.NumberFormat`."
     },
     "Otp": {
       "level": "draft",
@@ -463,27 +552,32 @@
     "Radio": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "forms"
+      "category": "forms",
+      "description": "A radio button for single-selection groups with roving focus and shared v-model state."
     },
     "Rating": {
       "level": "preview",
       "since": "0.2.0",
-      "category": "forms"
+      "category": "forms",
+      "description": "Headless rating input with hover preview, keyboard navigation, and half-step support."
     },
     "Select": {
       "level": "preview",
       "since": "0.1.8",
-      "category": "forms"
+      "category": "forms",
+      "description": "Headless dropdown select with single and multi-selection, keyboard navigation, and native popover positioning."
     },
     "Slider": {
       "level": "preview",
       "since": "0.1.5",
-      "category": "forms"
+      "category": "forms",
+      "description": "Headless slider for single-value and range inputs with pointer drag, keyboard navigation, and step snapping."
     },
     "Switch": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "forms"
+      "category": "forms",
+      "description": "A switch for on/off state or multi-selection groups with tri-state support."
     },
     "TimePicker": {
       "level": "draft",
@@ -492,42 +586,50 @@
     "AlertDialog": {
       "level": "preview",
       "since": "0.2.0",
-      "category": "disclosure"
+      "category": "disclosure",
+      "description": "A headless confirmation dialog that seeks user input before proceeding. Features a `wait()`/`close()` pattern for deferred close during async operations."
     },
     "Collapsible": {
       "level": "preview",
       "since": "0.2.0",
-      "category": "disclosure"
+      "category": "disclosure",
+      "description": "A single-item disclosure toggle for showing and hiding content."
     },
     "Dialog": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "disclosure"
+      "category": "disclosure",
+      "description": "A headless modal dialog component using the native HTML dialog element."
     },
     "ExpansionPanel": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "disclosure"
+      "category": "disclosure",
+      "description": "A component for creating accordion-style expansion panels with proper ARIA support."
     },
     "Popover": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "disclosure"
+      "category": "disclosure",
+      "description": "A headless component for creating popovers and tooltips using modern CSS anchor positioning."
     },
     "Tabs": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "disclosure"
+      "category": "disclosure",
+      "description": "A component for creating accessible tabbed interfaces with proper ARIA support and keyboard navigation."
     },
     "Snackbar": {
       "level": "preview",
       "since": "0.1.9",
-      "category": "semantic"
+      "category": "semantic",
+      "description": "Headless compound component for toast and snackbar notifications. Pairs with `useNotifications` for queue-driven stacks with auto-dismiss and pause on hover."
     },
     "Tooltip": {
       "level": "preview",
       "since": "1.0.0-beta.0",
-      "category": "disclosure"
+      "category": "disclosure",
+      "description": "Headless description tooltip with hover and focus triggers, configurable open/close delays, region-scoped skip-window coordination, and optional interactive-content mode."
     },
     "Alert": {
       "level": "draft",
@@ -536,47 +638,56 @@
     "Avatar": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "semantic"
+      "category": "semantic",
+      "description": "Headless image component with automatic fallback to icon or text content."
     },
     "Breadcrumbs": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "semantic"
+      "category": "semantic",
+      "description": "A headless component for creating responsive breadcrumb navigation with proper ARIA support."
     },
     "Carousel": {
       "level": "preview",
       "since": "1.0.0-alpha.1",
-      "category": "semantic"
+      "category": "semantic",
+      "description": "Headless carousel built on CSS scroll-snap with multi-slide display and partial-slide peeking."
     },
     "Image": {
       "level": "preview",
       "since": "1.0.0-alpha.1",
-      "category": "semantic"
+      "category": "semantic",
+      "description": "Headless image component with state-driven placeholder and error fallback. Tracks the loading lifecycle and exposes `retry()`, with optional IntersectionObserver-driven lazy loading."
     },
     "Overflow": {
       "level": "preview",
       "since": "1.0.0-alpha.3",
-      "category": "semantic"
+      "category": "semantic",
+      "description": "Headless responsive truncation primitive. Children render until the container runs out of width, then overflowing items are hidden and an indicator surfaces the hidden count."
     },
     "Pagination": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "semantic"
+      "category": "semantic",
+      "description": "A headless component for creating page navigation with proper ARIA support."
     },
     "Progress": {
       "level": "preview",
       "since": "0.2.1",
-      "category": "semantic"
+      "category": "semantic",
+      "description": "A headless progress bar component for building determinate, indeterminate, and buffered loading indicators. Uses `createProgress` internally, which delegates segment tracking to `createModel`."
     },
     "Splitter": {
       "level": "preview",
       "since": "0.1.5",
-      "category": "semantic"
+      "category": "semantic",
+      "description": "A headless component for building resizable panel layouts with drag handles and full keyboard support."
     },
     "Treeview": {
       "level": "preview",
       "since": "0.1.11",
-      "category": "disclosure"
+      "category": "disclosure",
+      "description": "A compound component for building accessible hierarchical tree interfaces with expand/collapse and selection support."
     },
     "DataGrid": {
       "level": "draft",

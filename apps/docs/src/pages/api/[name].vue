@@ -7,16 +7,23 @@
   import { useParams } from '@/composables/useRoute'
 
   // Utilities
-  import { renderMarkdown } from '@/utilities/markdown'
+  import { renderInlineMarkdown } from '@/utilities/markdown'
   import { toCamel, toPascal } from '@/utilities/strings'
   import { computed, toRef } from 'vue'
 
   // Types
   import type { ApiData, ComponentApi, ComposableApi } from '@build/generate-api'
 
+  // Maturity (relative path; #v0 alias also works)
+  import maturity from '../../../../../packages/0/src/maturity.json'
+
   const params = useParams<{ name: string }>()
   const data = apiData as ApiData
   const helpers = useApiHelpers()
+  const maturityRecord = maturity as {
+    components?: Record<string, { description?: string }>
+    composables?: Record<string, { description?: string }>
+  }
 
   const itemName = computed(() => {
     const slug = params.value.name
@@ -76,8 +83,9 @@
   })
 
   const groupDescription = toRef(() => {
-    if (isComponent.value) return componentApis.value[0]?.description || undefined
-    if (isComposable.value) return composableApi.value?.description || undefined
+    if (!itemName.value) return undefined
+    if (isComponent.value) return maturityRecord.components?.[itemName.value]?.description || undefined
+    if (isComposable.value) return maturityRecord.composables?.[itemName.value]?.description || undefined
     return undefined
   })
 
@@ -135,7 +143,7 @@
       <div class="markdown-body">
         <h1>{{ itemName }} API</h1>
 
-        <div class="lead" v-html="renderMarkdown(description ?? '')" />
+        <div class="lead" v-html="renderInlineMarkdown(description ?? '')" />
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 
@@ -180,7 +188,7 @@
       <div class="markdown-body">
         <h1>{{ composableApi.name }} API</h1>
 
-        <div class="lead" v-html="renderMarkdown(description ?? '')" />
+        <div class="lead" v-html="renderInlineMarkdown(description ?? '')" />
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 
