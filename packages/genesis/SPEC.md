@@ -4,7 +4,7 @@
 
 A focused **docs-primitives library**: Vue 3 components that documentation sites need (live examples, callouts, code groups, API tables, atomic primitives). Headless on the parts that vary across consumers — code highlighting and icons are slot-injected.
 
-Genesis is a **thin component layer over v0's theme system**. Components consume `var(--v0-*)` tokens directly so they inherit whatever theme v0 has applied to the page. There is no Genesis-specific token namespace, no Genesis-specific theme plugin, no Genesis-specific stylesheet. Drop the package into any v0-themed app and components blend with the page's chrome.
+Genesis is a **thin component layer over v0's theme system**. Components consume `var(--v0-*)` tokens directly so they inherit whatever theme v0 has applied to the page. There is no Genesis-specific *theme* token namespace (the few `--gn-*` custom properties are consumer-tunable layout knobs, not tokens), no Genesis-specific theme plugin, no Genesis-specific stylesheet. Drop the package into any v0-themed app and components blend with the page's chrome.
 
 ## Package shape
 
@@ -27,7 +27,7 @@ No `GnDocsIcon`, no `adapter.ts`, no `plugin.ts`, no `theme.ts`. Genesis is just
 
 ## Theme inheritance
 
-Every component's `<style>` (scoped, except where a multi-root child blocks scoping — see `GnActionButton`) references v0 tokens with sensible standalone fallbacks. Examples:
+Every component's `<style>` (scoped, except where a multi-root child blocks scoping — see `GnActionButton`) references v0 tokens with sensible standalone fallbacks; purely structural sub-components (`GnDocsExamplePanel`, `GnDocsExampleActions`) have no chrome to theme and reference no tokens. Tokens can also enter through prop defaults — `GnDotGrid`'s `color` prop defaults to `var(--v0-on-background)` while its style block is token-free. Examples:
 
 ```css
 .genesis-docs-example {
@@ -48,6 +48,7 @@ When v0's theme plugin is installed (any paper-DS-or-v0-themed app), `--v0-surfa
 | `--v0-primary` | Active tab, filename badge, peek pill |
 | `--v0-on-primary` | Text on primary |
 | `--v0-pre` | Code pane background |
+| `--v0-on-background` | `GnDotGrid` dots/lines (via its `color` prop default, not its stylesheet) |
 
 ## Components
 
@@ -62,11 +63,14 @@ interface GnDocsExampleProps {
   files?: GnDocsExampleFile[]  // multi-file (overrides code/language/fileName)
   fileOrders?: (number | undefined)[]
   title?: string               // description heading
-  collapse?: boolean           // collapsible description
+  collapse?: boolean           // accepted for API compatibility; the description always collapses
   peek?: boolean               // truncated code with expand button
   peekLines?: number           // default 6
   disableResize?: boolean      // skip splitter affordance
   hideWidthIndicator?: boolean // hide drag-width indicator
+  theme?: string               // scope a v0 theme to the preview (via data-theme)
+  showPlayground?: boolean     // "open in playground" button (multi-file toolbar)
+  showBin?: boolean            // "open in bin" button (multi-file toolbar)
 }
 ```
 
@@ -77,7 +81,7 @@ interface GnDocsExampleProps {
 | `GnDocsExampleDescription` | Heading + optional collapsible body; emits anchor-click |
 | `GnDocsExamplePreview` | Wraps preview slot in `Splitter.Root` unless `disableResize`; exposes `reset()`; surfaces drag width on the consumer slot |
 | `GnDocsExampleCode` | Single code pane; peek truncation; `<slot :code :language :file-name>` for highlighter (default: `<pre>` fallback) |
-| `GnDocsExampleTabs` | Tab list + overflow dropdown for hidden tabs; reset and combine action buttons; `<slot name="reset-icon">`, `<slot name="combine-icon">`, `<slot name="split-icon">` with inline-SVG defaults |
+| `GnDocsExampleTabs` | Tab list + overflow dropdown for hidden tabs; reset, combine, and opt-in playground/bin action buttons; `<slot name="reset-icon">`, `<slot name="playground-icon">`, `<slot name="bin-icon">`, `<slot name="combine-icon">`, `<slot name="split-icon">` with inline-SVG defaults |
 | `GnDocsExamplePanel` | Wraps one file's code pane content; provides the structural row inside a tab |
 | `GnDocsExampleActions` | Toolbar host; renders an `aria-label`-ed group around action buttons |
 
@@ -144,7 +148,7 @@ Action buttons expose icon slots with inline `<svg>` defaults using MDI paths.
 | Component | Slots | Default icon |
 |---|---|---|
 | `GnDocsExample` | `reset-icon` (single-file mode reset button) | refresh |
-| `GnDocsExampleTabs` | `reset-icon`, `combine-icon`, `split-icon` | refresh / unfold-less / unfold-more |
+| `GnDocsExampleTabs` | `reset-icon`, `playground-icon`, `bin-icon`, `combine-icon`, `split-icon` | refresh / play / open-in-new / unfold-less / unfold-more |
 | `GnPeek` | `icon` (chevron, rotates when expanded) | chevron-down |
 | `GnDocsBadge` | `icon` | none — no generic badge icon to default to |
 
@@ -167,22 +171,22 @@ Consumer-injected via the default slot on `GnDocsExampleCode`:
 </GnDocsExampleCode>
 ```
 
-Genesis ships a `<pre>` fallback only. The dev workspace's `DevShikiBlock.vue` and apps/docs's `useHighlightCode` both demonstrate Shiki integration.
+Genesis ships a `<pre>` fallback only. apps/docs's `useHighlightCode` demonstrates Shiki integration.
 
 ## Non-goals
 
-- Genesis-specific token namespace — components consume v0 tokens via the cascade
+- Genesis-specific *theme* token namespace — components consume v0 tokens via the cascade (the few `--gn-*` properties — `--gn-docs-example-sticky-top`, `--gn-docs-example-toggle-h` — are per-component layout knobs, not theme tokens)
 - Genesis plugin / adapter / theme — none shipped; v0's theme system is the source of truth
-- Playground / Bin / "open in" actions — docs-site concern
+- Playground / Bin / "open in" actions — `GnDocsExampleTabs` ships the opt-in buttons (`showPlayground` / `showBin`) and emits `playground` / `bin` with the current files; URL construction and navigation stay a docs-site concern
 - Bundled Shiki — slot consumption only
 - Icon library — slot defaults with inline SVG
 - Paper composables / V0Paper — not used
 - General-purpose buttons / forms / dialogs — out of scope (`GnActionButton` is docs-toolbar chrome wrapping v0's Button, not a general-purpose button offering)
 - Tests — only when explicitly requested
 
-## Future — per-example theme override
+## Per-example theme override
 
-The next architectural step (not yet implemented):
+Shipped:
 
 ```vue
 <GnDocsExample theme="corporateIndigo">
@@ -190,7 +194,7 @@ The next architectural step (not yet implemented):
 </GnDocsExample>
 ```
 
-Implementation sketch: `GnDocsExample` wraps its preview slot in `<div :data-theme="theme">` when the `theme` prop is set, scoping the v0 cascade for that subtree. The available theme names come from v0's `useTheme()` registry.
+`GnDocsExample` forwards `theme` to `GnDocsExamplePreview`, which sets `data-theme="<name>"` on the preview panel, scoping the v0 cascade for that subtree. Theme names come from v0's theme registry.
 
 ## Phase 2 roadmap
 
@@ -200,7 +204,7 @@ In priority order:
 2. `GnDocsCodeGroup` (tabbed code blocks)
 3. `GnDocsKbd`, `GnDocsCard` (atomic primitives — `GnDocsBadge` shipped, see `## Components`)
 4. `GnDocsApi` (API reference tables with prop / event / slot sections + hover popovers)
-5. Per-example theme override prop on `GnDocsExample`
+5. Per-example theme override prop on `GnDocsExample` (shipped, see `## Per-example theme override`)
 
 ## Architectural lessons (Phase 1 → revised)
 
