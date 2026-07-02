@@ -16,8 +16,10 @@
 // Build
 import { createApiTransformer, renderVueApiInlineCode } from '@build/shiki-api-transformer'
 import { Marked } from 'marked'
+import { markedEmoji } from 'marked-emoji'
 
 // Constants
+import { EMOJIS } from '@/constants/emoji'
 import { SHIKI_THEMES } from '@/constants/shiki'
 
 // Utilities
@@ -36,12 +38,16 @@ export interface UseMarkdownReturn {
 let cachedMarked: Marked | null = null
 let cachedHighlighter: Highlighter | null = null
 
-// Separate synchronous instance used only for parseInline inside the blockquote renderer.
+// Separate synchronous instance used for parseInline (blockquote renderer, renderInline).
 // The main cachedMarked has async:true, which makes parseInline return a Promise — unusable
-// in a synchronous renderer. This instance is sync-only and has no extensions.
+// in a synchronous renderer.
 let syncInlineMarked: Marked | null = null
 function getInlineMarked (): Marked {
-  return syncInlineMarked ??= new Marked({ async: false, gfm: true })
+  if (!syncInlineMarked) {
+    syncInlineMarked = new Marked({ async: false, gfm: true })
+    syncInlineMarked.use(markedEmoji({ emojis: EMOJIS, renderer: token => token.emoji }))
+  }
+  return syncInlineMarked
 }
 
 /**
@@ -62,6 +68,8 @@ function getMarked (hl: Highlighter): Marked {
     gfm: true,
     breaks: true,
   })
+
+  cachedMarked.use(markedEmoji({ emojis: EMOJIS, renderer: token => token.emoji }))
 
   cachedMarked.use({
     renderer: {
