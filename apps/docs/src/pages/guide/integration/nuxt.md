@@ -278,9 +278,6 @@ When you see hydration warnings in the console:
 
 ```ts nuxt.config.ts
 export default defineNuxtConfig({
-  vue: {
-    propsDestructure: true,
-  },
   vite: {
     define: {
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true,

@@ -137,7 +137,7 @@ Utility functions are annotated with `/*#__NO_SIDE_EFFECTS__*/` so bundlers know
 ```ts
 /*#__NO_SIDE_EFFECTS__*/
 function isObject(value: unknown): value is object {
-  return value !== null && typeof value === 'object'
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 ```
 
