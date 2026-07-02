@@ -64,6 +64,30 @@ function notes (changelog, value) {
   return lines.slice(start + 1, end).join('\n').trim()
 }
 
+// Condense each changelog bullet's conventional-commit title into a flat, skimmable
+// list at the top of the release notes — changesets' per-entry prose buries the
+// one-line summaries readers skim for. Two authoring shapes both need trimming: a
+// title-only first line with the detail in a separate indented paragraph below
+// (BULLET's `.+$` already stops at line end), and a single line packing title +
+// detail together, separated by ' — ' (em dash).
+const BULLET = /^- (?:\[#(\d+)]\([^)]*\)\s*)?(?:\[`[0-9a-f]+`]\([^)]*\)\s*)?(?:Thanks .*?! - )?(.+)$/
+
+function overview (body) {
+  const titles = []
+  for (const line of body.split('\n')) {
+    const match = line.match(BULLET)
+    if (!match) continue
+    const [, pr, text] = match
+    // Changesets emits its own boilerplate bullet ("Updated dependencies [sha, …]:")
+    // for packages that only bumped because an internal dependency changed — no
+    // conventional-commit title to extract, and the sha list is pure noise here.
+    if (text.startsWith('Updated dependencies')) continue
+    const title = text.split(' — ')[0]
+    titles.push(pr ? `- ${title} (#${pr})` : `- ${title}`)
+  }
+  return titles.length > 0 ? `## Overview\n${titles.join('\n')}\n\n---\n\n` : ''
+}
+
 function exists (tag) {
   try {
     execFileSync('gh', ['release', 'view', tag], { stdio: 'ignore' })
@@ -120,6 +144,7 @@ function mint (tag, body, target, prerelease) {
 const substrate = version['@vuetify/v0'] ?? version['@vuetify/paper']
 if (substrate) {
   let body = notes('packages/0/CHANGELOG.md', substrate) || notes('packages/paper/CHANGELOG.md', substrate)
+  body = overview(body) + body
   if (version['@vuetify/v0'] && version['@vuetify/paper']) {
     body += `\n\n---\n\`@vuetify/paper@${version['@vuetify/paper']}\` shipped in lockstep.`
   }
@@ -131,7 +156,8 @@ if (substrate) {
 for (const { name, version: value } of published) {
   if (SUBSTRATE.has(name)) continue
   const dir = name.split('/').pop()
-  mint(`${name}@${value}`, notes(`packages/${dir}/CHANGELOG.md`, value), sha, value.includes('-'))
+  const body = notes(`packages/${dir}/CHANGELOG.md`, value)
+  mint(`${name}@${value}`, overview(body) + body, sha, value.includes('-'))
 }
 
 // Fail the step (after attempting every release) if any could not be minted, so a
