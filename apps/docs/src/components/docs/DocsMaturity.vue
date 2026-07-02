@@ -385,7 +385,7 @@
 
             <Tooltip.Content
               v-if="item.description"
-              class="px-2.5 py-1.5 rounded text-xs max-w-64 whitespace-normal bg-on-surface text-surface shadow-md"
+              class="px-2.5 py-1.5 rounded border border-divider text-xs max-w-64 whitespace-normal bg-surface text-on-surface shadow-lg"
               :style="{ margin: '6px 0' }"
             >
               {{ item.description }}
@@ -532,7 +532,7 @@
 
                   <Tooltip.Content
                     v-if="item.description"
-                    class="px-2.5 py-1.5 rounded text-xs max-w-64 whitespace-normal bg-on-surface text-surface shadow-md"
+                    class="px-2.5 py-1.5 rounded border border-divider text-xs max-w-64 whitespace-normal bg-surface text-on-surface shadow-lg"
                     :style="{ margin: '6px 0' }"
                   >
                     {{ item.description }}
