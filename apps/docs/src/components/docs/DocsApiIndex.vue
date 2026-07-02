@@ -1,6 +1,9 @@
 <script setup lang="ts">
   import apiData from 'virtual:api'
 
+  // Context
+  import DocsHeaderAnchor from './DocsHeaderAnchor.vue'
+
   // Utilities
   import { toKebab } from '@/utilities/strings'
   import { computed } from 'vue'
@@ -82,12 +85,12 @@
 <template>
   <div>
     <template v-if="componentGroups.length > 0">
-      <h2 class="text-3xl leading-9 mt-8 mb-3">Components</h2>
+      <DocsHeaderAnchor id="components" class="text-3xl leading-9 mt-8 mb-3" tag="h2">Components</DocsHeaderAnchor>
 
       <p>Detailed API reference for each component including props, events, and slots.</p>
 
       <template v-for="[category, entries] in componentGroups" :key="`c-${category}`">
-        <h3 class="capitalize text-2xl leading-8 mt-6 mb-2">{{ category }}</h3>
+        <DocsHeaderAnchor :id="`components-${toKebab(category)}`" class="capitalize text-2xl leading-8 mt-6 mb-2" tag="h3">{{ category }}</DocsHeaderAnchor>
 
         <div class="overflow-x-auto mb-4">
           <table>
@@ -110,12 +113,12 @@
     </template>
 
     <template v-if="composableGroups.length > 0">
-      <h2 class="text-3xl leading-9 mt-8 mb-3">Composables</h2>
+      <DocsHeaderAnchor id="composables" class="text-3xl leading-9 mt-8 mb-3" tag="h2">Composables</DocsHeaderAnchor>
 
       <p>Detailed API reference for each composable including options, properties, and methods.</p>
 
       <template v-for="[category, entries] in composableGroups" :key="`e-${category}`">
-        <h3 class="capitalize text-2xl leading-8 mt-6 mb-2">{{ category }}</h3>
+        <DocsHeaderAnchor :id="`composables-${toKebab(category)}`" class="capitalize text-2xl leading-8 mt-6 mb-2" tag="h3">{{ category }}</DocsHeaderAnchor>
 
         <div class="overflow-x-auto mb-4">
           <table>

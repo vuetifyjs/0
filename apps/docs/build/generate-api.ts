@@ -236,9 +236,9 @@ function extractPropsFromTypesFile (filePath: string): ApiProp[] {
  */
 function extractComponentDescription (filePath: string): string | undefined {
   const source = readFileSync(filePath, 'utf8')
-  const leadingJsDoc = source.match(/^\s*\/\*\*[\s\S]*?\*\//)
+  const leadingJsDoc = source.match(/^\s*(?:<script[^>]*>\s*)?(\/\*\*[\s\S]*?\*\/)/)
   if (!leadingJsDoc) return undefined
-  return extractRemarksFromJsDocText(leadingJsDoc[0])
+  return extractRemarksFromJsDocText(leadingJsDoc[1])
 }
 
 function extractComponentApi (filePath: string): ComponentApi | null {
