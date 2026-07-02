@@ -49,13 +49,15 @@
     watchEffect(async () => {
       const code = signature.value
       if (!code) return
-      chips.signature = (await highlighter.inline({ code, language: 'typescript' })).html
+      const result = await highlighter.inline({ code, language: 'typescript' })
+      if (signature.value === code) chips.signature = result.html
     })
 
     watchEffect(async () => {
       const code = preset.value
       if (!code) return
-      chips.preset = (await highlighter.inline({ code, language: 'typescript' })).html
+      const result = await highlighter.inline({ code, language: 'typescript' })
+      if (preset.value === code) chips.preset = result.html
     })
   }
 </script>
