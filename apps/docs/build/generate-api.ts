@@ -218,6 +218,29 @@ function extractPropsFromTypesFile (filePath: string): ApiProp[] {
   }
 }
 
+/**
+ * Extract a component's `@module`/`@remarks` description from the leading
+ * JSDoc block at the top of its SFC (see AvatarRoot.vue for the convention).
+ *
+ * vue-component-meta's own `meta.description` can't be used for this: its
+ * `getDescription()` reads JSDoc off the component node it resolves, but
+ * @vue/language-core's virtual codegen always resolves the default export to
+ * a synthetic `{} as typeof __VLS_export` wrapper with no relationship to any
+ * source comment — confirmed by patching vue-component-meta's checker to log
+ * the resolved node for both `<script setup>` and plain `<script>` SFCs, with
+ * the JSDoc placed in every position a component author might reasonably put
+ * it (above the whole file, above `defineOptions`, above the first import,
+ * even wedged directly between `export default` and `defineComponent(`).
+ * `meta.description` is `undefined` in every case, regardless of placement —
+ * this is a structural limitation, not a placement mistake.
+ */
+function extractComponentDescription (filePath: string): string | undefined {
+  const source = readFileSync(filePath, 'utf8')
+  const leadingJsDoc = source.match(/^\s*\/\*\*[\s\S]*?\*\//)
+  if (!leadingJsDoc) return undefined
+  return extractRemarksFromJsDocText(leadingJsDoc[0])
+}
+
 function extractComponentApi (filePath: string): ComponentApi | null {
   try {
     const meta = getChecker().getComponentMeta(filePath)
@@ -257,6 +280,7 @@ function extractComponentApi (filePath: string): ComponentApi | null {
     return {
       kind: 'component',
       name: meta.name || filePath.split('/').pop()?.replace('.vue', '') || 'Unknown',
+      description: meta.description ?? extractComponentDescription(filePath),
       props,
       events,
       slots,
@@ -326,6 +350,39 @@ function getProject () {
     })
   }
   return project
+}
+
+let jsDocScratchCount = 0
+
+/**
+ * Extract the `@remarks` tag content from a raw `/** ... *\/` JSDoc comment
+ * block's text by feeding it through ts-morph as a throwaway statement.
+ *
+ * Shared by both extractors for file-header `@module`/`@remarks` comments
+ * that aren't attached to any node ts-morph (or vue-component-meta) resolves
+ * in place: the leading comment on a component SFC (see `extractComponentApi`
+ * — vue-component-meta's own `meta.description` cannot see it, see the note
+ * there) and the module-header comment leading a composable's first import
+ * (see `extractComposableApi`).
+ */
+function extractRemarksFromJsDocText (jsDocText: string, requireTag = 'module'): string | undefined {
+  const proj = getProject()
+  const scratch = proj.createSourceFile(
+    resolve(API_CACHE_DIR, `__jsdoc-scratch-${jsDocScratchCount++}.ts`),
+    `${jsDocText}\ntype __Scratch = unknown\n`,
+    { overwrite: true },
+  )
+  try {
+    const firstStatement = scratch.getStatements()[0]
+    const jsDocs = firstStatement && Node.isJSDocable(firstStatement) ? firstStatement.getJsDocs() : []
+    if (jsDocs.length === 0) return undefined
+    const tags = jsDocs[0].getTags()
+    if (!tags.some(t => t.getTagName() === requireTag)) return undefined
+    const remarksTag = tags.find(t => t.getTagName() === 'remarks')
+    return remarksTag?.getCommentText()?.trim()
+  } finally {
+    proj.removeSourceFile(scratch)
+  }
 }
 
 /**
@@ -638,20 +695,17 @@ function extractComposableApi (filePath: string, composableName: string): Compos
     const proj = getProject()
     const sourceFile = proj.getSourceFile(filePath) ?? proj.addSourceFileAtPath(filePath)
 
-    // Get module description from first JSDoc comment
+    // Get the module description from the file-header JSDoc block. The header
+    // sits above the first statement — almost always an ImportDeclaration for
+    // composables — which ts-morph's JSDocableNode doesn't cover, so
+    // `getStatements()[0].getJsDocs` silently no-ops for every composable.
+    // getLeadingCommentRanges() works on any node and gives us the raw
+    // comment text regardless of what kind of statement follows it.
     const firstStatement = sourceFile.getStatements()[0]
-    let description: string | undefined
-    if (firstStatement && 'getJsDocs' in firstStatement) {
-      const jsDocs = (firstStatement as JSDocableNode).getJsDocs()
-      if (jsDocs.length > 0) {
-        const moduleTag = jsDocs[0].getTags().find(t => t.getTagName() === 'module')
-        if (moduleTag) {
-          // Get the remarks section
-          const remarksTag = jsDocs[0].getTags().find(t => t.getTagName() === 'remarks')
-          description = remarksTag?.getCommentText()?.trim()
-        }
-      }
-    }
+    const leadingJsDocRange = firstStatement
+      ?.getLeadingCommentRanges()
+      .find(range => range.getText().startsWith('/**'))
+    const description = leadingJsDocRange && extractRemarksFromJsDocText(leadingJsDocRange.getText())
 
     // Build list of possible interface name patterns
     // For useTheme -> Theme, ThemeOptions, ThemeContext

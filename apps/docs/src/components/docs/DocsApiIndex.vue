@@ -100,7 +100,7 @@
 
             <tbody>
               <tr v-for="entry in entries" :key="entry.name">
-                <td><router-link :to="entry.href">{{ entry.name }}</router-link></td>
+                <td><router-link class="v0-link" :to="entry.href">{{ entry.name }}</router-link></td>
                 <td>{{ entry.description }}</td>
               </tr>
             </tbody>
@@ -128,7 +128,7 @@
 
             <tbody>
               <tr v-for="entry in entries" :key="entry.name">
-                <td><router-link :to="entry.href">{{ entry.name }}</router-link></td>
+                <td><router-link class="v0-link" :to="entry.href">{{ entry.name }}</router-link></td>
                 <td>{{ entry.description }}</td>
               </tr>
             </tbody>
