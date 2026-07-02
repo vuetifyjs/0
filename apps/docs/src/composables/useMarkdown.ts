@@ -44,6 +44,14 @@ function getInlineMarked (): Marked {
   return syncInlineMarked ??= new Marked({ async: false, gfm: true })
 }
 
+/**
+ * Renders a single line of markdown as inline HTML with decorated links.
+ * No block elements — safe inside p, li, and other inline containers.
+ */
+export function renderInline (text: string): string {
+  return processLinks(getInlineMarked().parseInline(text) as string)
+}
+
 function getMarked (hl: Highlighter): Marked {
   // Return cached if highlighter is the same
   if (cachedMarked && cachedHighlighter === hl) return cachedMarked
