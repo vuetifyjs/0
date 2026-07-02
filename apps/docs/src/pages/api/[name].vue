@@ -66,12 +66,21 @@
   })
 
   const title = toRef(() => itemName.value ? `${itemName.value} API` : 'API Reference')
-  const description = toRef(() => {
+
+  const genericDescription = toRef(() => {
     if (!itemName.value) return undefined
     return isComponent.value
-      ? `API reference for the ${itemName.value} component.`
+      ? `API reference for the ${itemName.value} component${componentApis.value.length > 1 ? 's' : ''}.`
       : `API reference for the ${itemName.value} composable.`
   })
+
+  const groupDescription = toRef(() => {
+    if (isComponent.value) return componentApis.value[0]?.description || undefined
+    if (isComposable.value) return composableApi.value?.description || undefined
+    return undefined
+  })
+
+  const description = toRef(() => groupDescription.value ?? genericDescription.value)
 
   useHead({
     title,
@@ -125,7 +134,7 @@
       <div class="markdown-body">
         <h1>{{ itemName }} API</h1>
 
-        <p class="lead">API reference for the {{ itemName }} component{{ componentApis.length > 1 ? 's' : '' }}.</p>
+        <p class="lead">{{ description }}</p>
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 
@@ -170,7 +179,7 @@
       <div class="markdown-body">
         <h1>{{ composableApi.name }} API</h1>
 
-        <p class="lead">API reference for the {{ composableApi.name }} composable.</p>
+        <p class="lead">{{ description }}</p>
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 

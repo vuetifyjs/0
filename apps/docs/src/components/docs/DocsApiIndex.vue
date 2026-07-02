@@ -6,7 +6,7 @@
 
   // Utilities
   import { toKebab, toTitle } from '@/utilities/strings'
-  import { computed } from 'vue'
+  import { computed, shallowRef } from 'vue'
 
   // Types
   import type { ApiData } from '@build/generate-api'
@@ -80,6 +80,28 @@
 
   const componentGroups = computed(() => group(components.value))
   const composableGroups = computed(() => group(composables.value))
+
+  const DESCRIPTION_TRUNCATE_LENGTH = 180
+  const expanded = shallowRef<Set<string>>(new Set())
+
+  function isLong (entry: IndexEntry): boolean {
+    return entry.description.length > DESCRIPTION_TRUNCATE_LENGTH
+  }
+
+  function toggle (entry: IndexEntry) {
+    const key = `${entry.kind}-${entry.name}`
+    const next = new Set(expanded.value)
+    if (next.has(key)) {
+      next.delete(key)
+    } else {
+      next.add(key)
+    }
+    expanded.value = next
+  }
+
+  function isExpanded (entry: IndexEntry): boolean {
+    return expanded.value.has(`${entry.kind}-${entry.name}`)
+  }
 </script>
 
 <template>
@@ -104,7 +126,19 @@
             <tbody>
               <tr v-for="entry in entries" :key="entry.name">
                 <td><router-link class="v0-link" :to="entry.href">{{ entry.name }}</router-link></td>
-                <td>{{ entry.description }}</td>
+
+                <td>
+                  <p :class="!isExpanded(entry) && isLong(entry) && 'line-clamp-2'">{{ entry.description }}</p>
+
+                  <button
+                    v-if="isLong(entry)"
+                    class="text-sm text-primary hover:underline focus-visible:underline focus-visible:outline-none"
+                    type="button"
+                    @click="toggle(entry)"
+                  >
+                    {{ isExpanded(entry) ? 'Show less' : 'Show more' }}
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -132,7 +166,19 @@
             <tbody>
               <tr v-for="entry in entries" :key="entry.name">
                 <td><router-link class="v0-link" :to="entry.href">{{ entry.name }}</router-link></td>
-                <td>{{ entry.description }}</td>
+
+                <td>
+                  <p :class="!isExpanded(entry) && isLong(entry) && 'line-clamp-2'">{{ entry.description }}</p>
+
+                  <button
+                    v-if="isLong(entry)"
+                    class="text-sm text-primary hover:underline focus-visible:underline focus-visible:outline-none"
+                    type="button"
+                    @click="toggle(entry)"
+                  >
+                    {{ isExpanded(entry) ? 'Show less' : 'Show more' }}
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
