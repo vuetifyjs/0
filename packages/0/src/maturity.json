@@ -26,7 +26,7 @@
       "category": "forms"
     },
     "createRegistry": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "registration"
     },
@@ -41,33 +41,33 @@
       "category": "registration"
     },
     "createGroup": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "selection"
     },
     "createModel": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.5",
       "category": "selection",
       "notes": "Recently redesigned from selection system"
     },
     "createNested": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "selection"
     },
     "createSelection": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "selection"
     },
     "createSingle": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "selection"
     },
     "createStep": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "selection"
     },
@@ -157,7 +157,7 @@
       "category": "semantic"
     },
     "useBreakpoints": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "plugins"
     },
@@ -197,12 +197,12 @@
       "category": "plugins"
     },
     "useStorage": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "plugins"
     },
     "useTheme": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "plugins"
     },
@@ -333,7 +333,7 @@
     },
     "useReducedMotion": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-beta.2",
       "category": "plugins"
     },
     "useRtl": {

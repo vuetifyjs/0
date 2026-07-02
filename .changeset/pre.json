@@ -1,13 +1,13 @@
 {
   "mode": "pre",
-  "tag": "beta",
+  "tag": "rc",
   "initialVersions": {
     "@vuetify-private/docs": "1.0.0-beta.2",
     "@vuetify-private/playground": "1.0.0-beta.2",
     "dev": "1.0.0-beta.2",
-    "@vuetify/v0": "1.0.0-beta.3",
-    "@paper/genesis": "1.0.0-beta.2",
-    "@vuetify/paper": "1.0.0-beta.3",
+    "@vuetify/v0": "1.0.0-beta.5",
+    "@paper/genesis": "1.0.0-beta.4",
+    "@vuetify/paper": "1.0.0-beta.5",
     "@vuetify-private/vapor-tests": "0.0.0"
   },
   "changesets": [
