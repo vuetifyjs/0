@@ -274,6 +274,28 @@ Hover over the code block to reveal action buttons:
 
 [^size-examples]: The button appears on example code panes; the setting itself applies to every code block and can also be changed from the [settings panel](#code-size).
 
+### Multiple Files
+
+Larger examples span several real files — a composable, a component, and the app that wires them together:
+
+- Each tab is one source file; the last one is what runs in the preview
+- Play and Bin carry every file across together
+- The combine action stitches all files into a single scrollable view
+
+::: gn-example
+/components/combobox/useUserSearch.ts 1
+/components/combobox/UserPicker.vue 2
+/components/combobox/user-picker.vue 3
+:::
+
+### Recipes
+
+Component pages end with recipes — terse, single-purpose snippets designed to be lifted straight into an app:
+
+::: gn-example
+/guide/using-the-docs/recipe
+:::
+
 ### Code Groups
 
 Some examples show multiple variants in tabbed code blocks:

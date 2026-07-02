@@ -4,47 +4,54 @@ import { nextTick } from 'vue'
 // Types
 import type { StepHandlerContext } from '@/composables/useDiscovery'
 
+// Document-order positions of the host page's gn-examples
+// (/guide/essentials/using-the-docs): the live Group preview, the
+// multi-file combobox example, and the recipe snippet.
+const LIVE = 0
+const FILES = 1
+const RECIPE = 2
+
 /**
  * Using Examples tour handlers.
  *
- * Every step highlights a piece of the page's live example rather than app
+ * Every step highlights a piece of the page's live examples rather than app
  * chrome, so there's no `<Discovery.Activator>` to hang a step id on. Each
- * handler resolves its target via `ctx.activate(selector)` instead - see
- * `useDiscovery`'s `activate`/`deactivate` context helpers. Lookups for
- * multi-instance elements (copy/playground buttons) are scoped to the single
- * "host" example on the page to avoid matching the wrong instance.
+ * handler resolves its target via `ctx.activate(el)` instead - see
+ * `useDiscovery`'s `activate`/`deactivate` context helpers. The page hosts
+ * three examples, so every lookup is scoped to one of them by document
+ * order - a global selector would match the wrong instance.
  *
  * Guided steps never require the reader to click the highlighted target -
  * DocsHighlight.vue blocks clicks on the activator for every non-interactive
  * tour (`blockActivator = !discovery.isInteractive.value`). Steps that want
  * to show a real interaction (selecting a preview item, revealing code,
- * switching a code-group tab) simulate the click themselves via a real
+ * switching a file tab) simulate the click themselves via a real
  * `HTMLElement.click()` so the reader sees the result without needing to
  * (and being unable to) perform the action.
  *
- * Uses the unified `enter` handler pattern - each handler re-resolves the
+ * Uses the unified `enter` handler pattern - each handler re-resolves its
  * host example so it works regardless of how the user arrived (forward,
  * back, resume).
  */
 export function defineTour () {
-  function getHost (): HTMLElement | null {
-    return document.querySelector<HTMLElement>('[data-tour="example"]')
+  function example (index: number): HTMLElement | null {
+    return document.querySelectorAll<HTMLElement>('[data-tour="example"]')[index] ?? null
   }
 
-  function getInHost (selector: string): HTMLElement | null {
-    return getHost()?.querySelector<HTMLElement>(selector) ?? null
+  function getIn (index: number, selector: string): HTMLElement | null {
+    return example(index)?.querySelector<HTMLElement>(selector) ?? null
   }
 
   // The copy/size/wrap/playground toolbar is opacity:0 until the pane is
   // hovered or focus-within (see DocsGenesisExample.vue). The tour highlights
   // these buttons without the user's cursor over them, so force it visible
   // for the duration of the step and let CSS take back over on leave.
-  function showToolbar (): void {
-    getInHost('[data-tour="example-toolbar"]')?.style.setProperty('opacity', '1')
+  function showToolbar (index: number): void {
+    getIn(index, '[data-tour="example-toolbar"]')?.style.setProperty('opacity', '1')
   }
 
-  function hideToolbar (): void {
-    getInHost('[data-tour="example-toolbar"]')?.style.removeProperty('opacity')
+  function hideToolbar (index: number): void {
+    getIn(index, '[data-tour="example-toolbar"]')?.style.removeProperty('opacity')
   }
 
   // Reveal the full code. Which control exists depends on the example's
@@ -53,25 +60,26 @@ export function defineTour () {
   // truncated pane with an Expand pill (example-expand). The
   // [aria-expanded="false"] guard makes this idempotent - re-entering the
   // step (back/resume) never re-collapses an already-open pane.
-  function openCode (): void {
-    getInHost(
+  function openCode (index: number): void {
+    getIn(
+      index,
       '[data-tour="example-toggle"][aria-expanded="false"], [data-tour="example-expand"][aria-expanded="false"]',
     )?.click()
   }
 
   return {
     handlers: {
-      intro: {
+      'intro': {
         enter: ({ activate, done }: StepHandlerContext) => {
-          const host = getHost()
+          const host = example(LIVE)
           if (host) activate(host)
           done()
         },
       },
 
-      preview: {
+      'preview': {
         enter: ({ activate, done }: StepHandlerContext) => {
-          const preview = getInHost('[data-tour="example-preview"]')
+          const preview = getIn(LIVE, '[data-tour="example-preview"]')
           if (preview) {
             activate(preview)
             preview.querySelector<HTMLElement>('button')?.click()
@@ -80,44 +88,95 @@ export function defineTour () {
         },
       },
 
-      source: {
+      'source': {
         enter: async ({ activate }: StepHandlerContext) => {
-          openCode()
+          openCode(LIVE)
           await nextTick()
-          activate('[data-tour="example-code"]')
+          const pane = getIn(LIVE, '[data-tour="example-code"]')
+          if (pane) activate(pane)
         },
       },
 
-      copy: {
+      'copy': {
         enter: ({ activate, done }: StepHandlerContext) => {
-          showToolbar()
-          const button = getInHost('[aria-label="Copy code"]')
+          showToolbar(LIVE)
+          const button = getIn(LIVE, '[aria-label="Copy code"]')
           if (button) activate(button)
           done()
         },
-        leave: hideToolbar,
+        leave: () => hideToolbar(LIVE),
       },
 
-      playground: {
+      'playground': {
         enter: ({ activate, done }: StepHandlerContext) => {
-          showToolbar()
-          const button = getInHost('[aria-label="Open in Vuetify Play"]')
+          showToolbar(LIVE)
+          const button = getIn(LIVE, '[aria-label="Open in Vuetify Play"]')
           if (button) activate(button)
           done()
         },
-        leave: hideToolbar,
+        leave: () => hideToolbar(LIVE),
       },
 
-      tune: {
+      'tune': {
         enter: ({ activate, done }: StepHandlerContext) => {
-          showToolbar()
-          activate('[data-tour="example-toolbar"]')
+          showToolbar(LIVE)
+          const toolbar = getIn(LIVE, '[data-tour="example-toolbar"]')
+          if (toolbar) activate(toolbar)
           done()
         },
-        leave: hideToolbar,
+        leave: () => hideToolbar(LIVE),
       },
 
-      codegroups: {
+      'files': {
+        // Target the "Hide code - N file(s)" toggle bar rather than the
+        // whole example: the expanded multi-file example is taller than the
+        // viewport, which would push the anchored popover off-screen.
+        enter: async ({ activate }: StepHandlerContext) => {
+          openCode(FILES)
+          await nextTick()
+          const toggle = getIn(FILES, '[data-tour="example-toggle"]')
+          if (toggle) activate(toggle)
+        },
+      },
+
+      'file-tabs': {
+        enter: async ({ activate }: StepHandlerContext) => {
+          openCode(FILES)
+          await nextTick()
+          example(FILES)?.querySelectorAll<HTMLElement>('[role="tab"]')[1]?.click()
+          const bar = getIn(FILES, '[data-tour="example-tabs"]')
+          if (bar) activate(bar)
+        },
+      },
+
+      'file-actions': {
+        enter: async ({ activate }: StepHandlerContext) => {
+          openCode(FILES)
+          await nextTick()
+          const toolbar = getIn(FILES, '[role="toolbar"]')
+          if (toolbar) activate(toolbar)
+        },
+      },
+
+      'recipes': {
+        enter: ({ activate, done }: StepHandlerContext) => {
+          const host = example(RECIPE)
+          if (host) activate(host)
+          done()
+        },
+      },
+
+      'recipe-play': {
+        enter: ({ activate, done }: StepHandlerContext) => {
+          showToolbar(RECIPE)
+          const button = getIn(RECIPE, '[aria-label="Open in Vuetify Play"]')
+          if (button) activate(button)
+          done()
+        },
+        leave: () => hideToolbar(RECIPE),
+      },
+
+      'codegroups': {
         enter: ({ activate, done }: StepHandlerContext) => {
           const group = document.querySelector<HTMLElement>('[data-tour="example-codegroup"]')
           if (group) {
