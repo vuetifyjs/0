@@ -137,6 +137,8 @@ pnpm changeset
 
 Pick the affected package(s), a bump type (`patch`/`minor`/`major`), and a short summary, then commit the generated `.changeset/*.md` alongside your code. `@vuetify/v0` and `@vuetify/paper` version in lockstep — selecting `@vuetify/v0` carries `@vuetify/paper` automatically; the `@paper/*` design systems version separately. Docs-only, chore, refactor, or CI PRs don't need one. A bot comments on every PR to remind you.
 
+Never edit `package.json` versions by hand — release automation owns every bump. If you're unsure which bump type fits, pick your best guess; maintainers adjust it during release review.
+
 ### PR Guidelines
 
 - Keep PRs focused - one feature or fix per PR
