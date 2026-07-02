@@ -113,7 +113,7 @@
       "level": "preview",
       "since": "0.2.1",
       "category": "forms",
-      "description": "Numeric value with locale-aware formatting, step snapping, and field validation. Give it a min/max/step, get increment/decrement, formatted display, and parse/commit for text input."
+      "description": "Numeric value with locale-aware formatting, step snapping, min/max/step bounds, and parse/commit for text input."
     },
     "createNumeric": {
       "level": "preview",
@@ -125,7 +125,7 @@
       "level": "preview",
       "since": "1.0.0-alpha.5",
       "category": "forms",
-      "description": "Manage a fixed-length one-time-password or verification-code value with pattern-gated entry, length-based completion detection, and a decisional async hook. Headless — your component owns rendering, focus, and event wiring."
+      "description": "Fixed-length one-time-password or verification-code value with pattern-gated entry and completion detection."
     },
     "createDataGrid": {
       "level": "preview",
@@ -149,7 +149,7 @@
       "level": "preview",
       "since": "1.0.0-alpha.4",
       "category": "data",
-      "description": "Headless two-level board state for columns of cards, with column reorder, in-column reorder, and a cross-column `transfer` primitive. Pure logic — no drag-and-drop, no keyboard, no DOM — so consumers can drive it from any input modality."
+      "description": "Two-level board state for columns of cards, with column reorder, in-column reorder, and a cross-column `transfer` primitive."
     },
     "createPagination": {
       "level": "preview",
@@ -161,7 +161,7 @@
       "level": "preview",
       "since": "1.0.0-alpha.4",
       "category": "data",
-      "description": "Headless ordered-list primitive that owns a registry of value-bearing tickets and exposes `move`, `swap`, and `reorder` mutations. Pure logic — no DnD, no keyboard, no DOM — so consumers can drive it from any input modality."
+      "description": "Ordered-list state with `move`, `swap`, and `reorder` mutations."
     },
     "createProgress": {
       "level": "preview",
@@ -185,7 +185,7 @@
       "level": "preview",
       "since": "0.1.0",
       "category": "semantic",
-      "description": "A composable for computing how many items fit in a container based on available width, enabling responsive truncation for pagination, breadcrumbs, and similar components."
+      "description": "Computes how many items fit in a container based on available width, for responsive truncation in pagination, breadcrumbs, and similar UIs."
     },
     "useBreakpoints": {
       "level": "stable",
@@ -251,7 +251,7 @@
       "level": "preview",
       "since": "1.0.0-beta.0",
       "category": "plugins",
-      "description": "Region-scoped coordination plugin for tooltip open/close delays. Holds shared `openDelay` / `closeDelay` / `skipDelay` defaults plus a registry of currently-open tooltip tickets so neighboring `<Tooltip.Root>` instances can skip their open delay during the warmup window."
+      "description": "Shares tooltip open/close/skip delay defaults across a region, so nearby tooltips open instantly once one is already open."
     },
     "useClickOutside": {
       "level": "preview",
@@ -347,13 +347,13 @@
       "level": "preview",
       "since": "0.1.0",
       "category": "transformers",
-      "description": "Resolves various element reference types to a plain DOM Element. Accepts refs, getters, raw DOM elements, or Vue component instances and normalizes them to a single `Element | undefined`."
+      "description": "Resolves refs, getters, raw DOM elements, or Vue component instances to a single `Element | undefined`."
     },
     "toHighlight": {
       "level": "preview",
       "since": "1.0.0-alpha.5",
       "category": "transformers",
-      "description": "Pure transformer that splits text into matched and unmatched chunks. Returns a plain `HighlightChunk[]` — wrap the call in `computed()` for reactive recomputation."
+      "description": "Splits text into matched and unmatched chunks, returning a plain `HighlightChunk[]` for search-term highlighting."
     },
     "toReactive": {
       "level": "preview",
@@ -481,7 +481,7 @@
       "level": "preview",
       "since": "0.1.0",
       "category": "providers",
-      "description": "A headless provider for exclusive single-selection — selecting an item automatically deselects the previously selected one. Drives tabs, segmented controls, theme pickers, and other exclusive-choice UIs."
+      "description": "Headless single-selection provider — selecting an item automatically deselects the previously selected one, driving tabs, segmented controls, and theme pickers."
     },
     "Step": {
       "level": "preview",
@@ -543,7 +543,7 @@
       "level": "preview",
       "since": "0.2.1",
       "category": "forms",
-      "description": "Numeric input with increment/decrement buttons, drag-to-scrub, and locale-aware formatting. Supports currency, percent, and unit display via `Intl.NumberFormat`."
+      "description": "Numeric input with increment/decrement buttons, drag-to-scrub, and locale-aware formatting via `Intl.NumberFormat` for currency, percent, and units."
     },
     "Otp": {
       "level": "draft",
@@ -629,7 +629,7 @@
       "level": "preview",
       "since": "1.0.0-beta.0",
       "category": "disclosure",
-      "description": "Headless description tooltip with hover and focus triggers, configurable open/close delays, region-scoped skip-window coordination, and optional interactive-content mode."
+      "description": "Description tooltip with hover and focus triggers, configurable open/close delays, and an optional interactive-content mode."
     },
     "Alert": {
       "level": "draft",
@@ -657,13 +657,13 @@
       "level": "preview",
       "since": "1.0.0-alpha.1",
       "category": "semantic",
-      "description": "Headless image component with state-driven placeholder and error fallback. Tracks the loading lifecycle and exposes `retry()`, with optional IntersectionObserver-driven lazy loading."
+      "description": "Image loading with placeholder/error fallback, a `retry()` method, and optional lazy loading via IntersectionObserver."
     },
     "Overflow": {
       "level": "preview",
       "since": "1.0.0-alpha.3",
       "category": "semantic",
-      "description": "Headless responsive truncation primitive. Children render until the container runs out of width, then overflowing items are hidden and an indicator surfaces the hidden count."
+      "description": "Responsive truncation — hides overflowing items as the container runs out of width and surfaces the hidden count via an indicator."
     },
     "Pagination": {
       "level": "preview",
@@ -675,7 +675,7 @@
       "level": "preview",
       "since": "0.2.1",
       "category": "semantic",
-      "description": "A headless progress bar component for building determinate, indeterminate, and buffered loading indicators. Uses `createProgress` internally, which delegates segment tracking to `createModel`."
+      "description": "Progress bar supporting determinate, indeterminate, and buffered loading indicators."
     },
     "Splitter": {
       "level": "preview",

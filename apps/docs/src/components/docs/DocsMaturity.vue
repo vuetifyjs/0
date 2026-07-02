@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createDataTable, createGroup, createSingle, isString, toHighlight } from '@vuetify/v0'
+  import { createDataTable, createGroup, createSingle, isString, Tooltip, toHighlight } from '@vuetify/v0'
 
   import maturityData from '#v0/maturity.json'
   import { LEVEL_KEYS as levelKeys, MATURITY_LEVELS as levels } from '@/constants/maturity'
@@ -24,6 +24,7 @@
     since?: string | null
     levelOrder: number
     path: string
+    description?: string
   }
 
   function kebab (name: string): string {
@@ -46,6 +47,7 @@
         since: entry.since,
         levelOrder: levels[entry.level]?.order ?? -1,
         path: `/composables/${entry.category}/${kebab(name)}`,
+        description: entry.description,
       })
     }
 
@@ -59,6 +61,7 @@
         since: entry.since,
         levelOrder: levels[entry.level]?.order ?? -1,
         path: `/components/${entry.category}/${kebab(name)}`,
+        description: entry.description,
       })
     }
 
@@ -72,6 +75,7 @@
         since: entry.since,
         levelOrder: levels[entry.level]?.order ?? -1,
         path: '/utilities',
+        description: entry.description,
       })
     }
 
@@ -334,44 +338,60 @@
 
         <!-- Cards -->
         <div v-if="table.grouping.isOpen(group.key)" class="grid gap-2 pl-2 mb-3">
-          <component
-            :is="(item as MaturityItem).level === 'draft' ? 'div' : RouterLink"
+          <Tooltip.Root
             v-for="item in group.items"
             :key="item.id"
-            class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-glass-surface no-underline transition-colors hover:bg-surface-variant/80"
-            :to="(item as MaturityItem).level !== 'draft' ? String(item.path) : undefined"
+            :close-delay="200"
+            :open-delay="500"
           >
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium text-on-surface truncate">
-                <template v-for="(chunk, position) in toHighlight(item.name, feature, { ignoreCase: true })" :key="position">
-                  <mark v-if="chunk.match" class="bg-warning text-on-warning rounded px-0.5">{{ chunk.text }}</mark>
-                  <template v-else>{{ chunk.text }}</template>
-                </template>
-              </div>
+            <Tooltip.Activator v-slot="{ attrs }" renderless>
+              <component
+                :is="(item as MaturityItem).level === 'draft' ? 'div' : RouterLink"
+                v-bind="attrs"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-glass-surface no-underline transition-colors hover:bg-surface-variant/80"
+                :to="(item as MaturityItem).level !== 'draft' ? String(item.path) : undefined"
+              >
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-medium text-on-surface truncate">
+                    <template v-for="(chunk, position) in toHighlight(item.name, feature, { ignoreCase: true })" :key="position">
+                      <mark v-if="chunk.match" class="bg-warning text-on-warning rounded px-0.5">{{ chunk.text }}</mark>
+                      <template v-else>{{ chunk.text }}</template>
+                    </template>
+                  </div>
 
-              <div class="flex items-center gap-2 mt-1">
+                  <div class="flex items-center gap-2 mt-1">
+                    <span
+                      class="inline-block px-1.5 py-0 rounded-full text-[10px] font-medium"
+                      :class="[
+                        item.type === 'composable' && 'bg-primary/15 text-primary',
+                        item.type === 'component' && 'bg-info/15 text-info',
+                        item.type === 'utility' && 'bg-success/15 text-success',
+                      ]"
+                    >{{ item.type }}</span>
+
+                    <span v-if="item.since" class="text-[10px] text-on-surface-variant font-mono">
+                      {{ releaseAlias(item.since) }}
+                    </span>
+                  </div>
+                </div>
+
                 <span
-                  class="inline-block px-1.5 py-0 rounded-full text-[10px] font-medium"
-                  :class="[
-                    item.type === 'composable' && 'bg-primary/15 text-primary',
-                    item.type === 'component' && 'bg-info/15 text-info',
-                    item.type === 'utility' && 'bg-success/15 text-success',
-                  ]"
-                >{{ item.type }}</span>
-
-                <span v-if="item.since" class="text-[10px] text-on-surface-variant font-mono">
-                  {{ releaseAlias(item.since) }}
+                  class="inline-flex items-center gap-1 shrink-0"
+                  :style="{ color: levels[item.level]?.color }"
+                >
+                  <AppIcon :icon="levels[item.level]?.icon" :size="14" />
                 </span>
-              </div>
-            </div>
+              </component>
+            </Tooltip.Activator>
 
-            <span
-              class="inline-flex items-center gap-1 shrink-0"
-              :style="{ color: levels[item.level]?.color }"
+            <Tooltip.Content
+              v-if="item.description"
+              class="px-2.5 py-1.5 rounded text-xs max-w-64 bg-on-surface text-surface shadow-md"
+              :style="{ margin: '6px 0' }"
             >
-              <AppIcon :icon="levels[item.level]?.icon" :size="14" />
-            </span>
-          </component>
+              {{ item.description }}
+            </Tooltip.Content>
+          </Tooltip.Root>
         </div>
       </template>
 
@@ -497,16 +517,29 @@
             >
               <!-- Name -->
               <td class="!pl-[34px] pr-4 py-2.5 text-sm font-medium truncate">
-                <component
-                  :is="(item as MaturityItem).level === 'draft' ? 'span' : RouterLink"
-                  :class="(item as MaturityItem).level === 'draft' ? 'text-on-surface-variant' : 'text-primary no-underline hover:underline transition-colors'"
-                  :to="(item as MaturityItem).level !== 'draft' ? item.path : undefined"
-                >
-                  <template v-for="(chunk, position) in toHighlight(item.name, feature, { ignoreCase: true })" :key="position">
-                    <mark v-if="chunk.match" class="bg-warning text-on-warning rounded px-0.5">{{ chunk.text }}</mark>
-                    <template v-else>{{ chunk.text }}</template>
-                  </template>
-                </component>
+                <Tooltip.Root :close-delay="200" :open-delay="500">
+                  <Tooltip.Activator v-slot="{ attrs }" renderless>
+                    <component
+                      :is="(item as MaturityItem).level === 'draft' ? 'span' : RouterLink"
+                      v-bind="attrs"
+                      :class="(item as MaturityItem).level === 'draft' ? 'text-on-surface-variant' : 'text-primary no-underline hover:underline transition-colors'"
+                      :to="(item as MaturityItem).level !== 'draft' ? item.path : undefined"
+                    >
+                      <template v-for="(chunk, position) in toHighlight(item.name, feature, { ignoreCase: true })" :key="position">
+                        <mark v-if="chunk.match" class="bg-warning text-on-warning rounded px-0.5">{{ chunk.text }}</mark>
+                        <template v-else>{{ chunk.text }}</template>
+                      </template>
+                    </component>
+                  </Tooltip.Activator>
+
+                  <Tooltip.Content
+                    v-if="item.description"
+                    class="px-2.5 py-1.5 rounded text-xs max-w-64 bg-on-surface text-surface shadow-md"
+                    :style="{ margin: '6px 0' }"
+                  >
+                    {{ item.description }}
+                  </Tooltip.Content>
+                </Tooltip.Root>
               </td>
 
               <!-- Type badge -->

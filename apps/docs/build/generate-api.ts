@@ -742,9 +742,14 @@ async function findComposableFiles (): Promise<{ path: string, name: string }[]>
   const files: { path: string, name: string }[] = []
   const dirs = await readdir(COMPOSABLES_DIR)
 
+  // Only composables re-exported from the public barrel are part of the API —
+  // some directories (createFocusTraversal, createObserver) are internal
+  // implementation details shared by other composables and must stay hidden.
+  const barrelSource = readFileSync(resolve(COMPOSABLES_DIR, 'index.ts'), 'utf8')
+  const exported = new Set([...barrelSource.matchAll(/export \* from '\.\/(\w+)'/g)].map(m => m[1]))
+
   for (const dir of dirs) {
-    // Composable directories start with 'use', 'create', or 'to'
-    if (!dir.startsWith('use') && !dir.startsWith('create') && !dir.startsWith('to')) continue
+    if (!exported.has(dir)) continue
 
     const indexPath = resolve(COMPOSABLES_DIR, dir, 'index.ts')
     files.push({ path: indexPath, name: dir })
