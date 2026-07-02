@@ -211,29 +211,6 @@
     return counts
   })
 
-  // Graduation criteria
-  const criteria = [
-    {
-      from: 'draft' as Level,
-      to: 'preview' as Level,
-      requirements: 'Has unit tests, has documentation page, at least one working example.',
-    },
-    {
-      from: 'preview' as Level,
-      to: 'stable' as Level,
-      requirements: 'Edge-case test coverage, SSR safe or explicitly browser-only, accessibility reviewed, API unchanged for 2+ releases, benchmarked if performance-critical.',
-    },
-    {
-      from: 'stable' as Level,
-      to: 'mature' as Level,
-      requirements: 'Used in production downstream (e.g. Vuetify 5), adapter ecosystem (if applicable), API frozen — breaking changes require major version.',
-    },
-    {
-      from: null,
-      to: 'deprecated' as Level,
-      requirements: 'Superseded by a better pattern, migration guide provided, removal timeline set.',
-    },
-  ]
 </script>
 
 <template>
@@ -590,59 +567,6 @@
       </table>
 
       <AppDotGrid :coverage="65" />
-    </div>
-
-    <!-- Graduation criteria -->
-    <h2 class="text-xl font-bold m-0 mb-4 text-on-surface">Graduation Criteria</h2>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-      <div
-        v-for="(item, index) in criteria"
-        :key="index"
-        class="border border-divider rounded-xl p-4"
-      >
-        <div class="flex items-center gap-2 mb-2">
-          <template v-if="item.from">
-            <AppIcon
-              :icon="levels[item.from].icon"
-              :size="14"
-              :style="{ color: levels[item.from].color }"
-            />
-
-            <span
-              class="text-sm font-semibold"
-              :style="{ color: levels[item.from].color }"
-            >
-              {{ levels[item.from].label }}
-            </span>
-          </template>
-
-          <span v-else class="text-sm font-semibold text-on-surface-variant">Any</span>
-
-          <AppIcon
-            class="text-on-surface-variant"
-            icon="chevron-right"
-            :size="14"
-          />
-
-          <AppIcon
-            :icon="levels[item.to].icon"
-            :size="14"
-            :style="{ color: levels[item.to].color }"
-          />
-
-          <span
-            class="text-sm font-semibold"
-            :style="{ color: levels[item.to].color }"
-          >
-            {{ levels[item.to].label }}
-          </span>
-        </div>
-
-        <p class="text-sm text-on-surface-variant m-0 leading-relaxed">
-          {{ item.requirements }}
-        </p>
-      </div>
     </div>
   </div>
 </template>
