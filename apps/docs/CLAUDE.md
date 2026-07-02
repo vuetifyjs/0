@@ -212,6 +212,7 @@ import BasicExampleRaw from '@/examples/components/tabs/basic.vue?raw'
 | `useClipboard` | Copy to clipboard |
 | `useThemeToggle` | Dark/light mode toggle |
 | `useAsk` | AI Q&A chat with page context |
+| `useMarkdown` | Runtime markdown → HTML (GitHub API content, AI responses); also exports `renderInline` for single lines. Never instantiate `Marked` in a component — this is the only runtime markdown pipeline |
 
 ## Virtual Modules
 
