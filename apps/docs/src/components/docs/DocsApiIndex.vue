@@ -82,54 +82,58 @@
 <template>
   <div>
     <template v-if="componentGroups.length > 0">
-      <h2>Components</h2>
+      <h2 class="text-3xl leading-9 mt-8 mb-3">Components</h2>
 
       <p>Detailed API reference for each component including props, events, and slots.</p>
 
       <template v-for="[category, entries] in componentGroups" :key="`c-${category}`">
-        <h3 class="capitalize">{{ category }}</h3>
+        <h3 class="capitalize text-2xl leading-8 mt-6 mb-2">{{ category }}</h3>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Component</th>
-              <th>Description</th>
-            </tr>
-          </thead>
+        <div class="overflow-x-auto mb-4">
+          <table>
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Description</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            <tr v-for="entry in entries" :key="entry.name">
-              <td><router-link :to="entry.href">{{ entry.name }}</router-link></td>
-              <td>{{ entry.description }}</td>
-            </tr>
-          </tbody>
-        </table>
+            <tbody>
+              <tr v-for="entry in entries" :key="entry.name">
+                <td><router-link :to="entry.href">{{ entry.name }}</router-link></td>
+                <td>{{ entry.description }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </template>
     </template>
 
     <template v-if="composableGroups.length > 0">
-      <h2>Composables</h2>
+      <h2 class="text-3xl leading-9 mt-8 mb-3">Composables</h2>
 
       <p>Detailed API reference for each composable including options, properties, and methods.</p>
 
       <template v-for="[category, entries] in composableGroups" :key="`e-${category}`">
-        <h3 class="capitalize">{{ category }}</h3>
+        <h3 class="capitalize text-2xl leading-8 mt-6 mb-2">{{ category }}</h3>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Composable</th>
-              <th>Description</th>
-            </tr>
-          </thead>
+        <div class="overflow-x-auto mb-4">
+          <table>
+            <thead>
+              <tr>
+                <th>Composable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            <tr v-for="entry in entries" :key="entry.name">
-              <td><router-link :to="entry.href">{{ entry.name }}</router-link></td>
-              <td>{{ entry.description }}</td>
-            </tr>
-          </tbody>
-        </table>
+            <tbody>
+              <tr v-for="entry in entries" :key="entry.name">
+                <td><router-link :to="entry.href">{{ entry.name }}</router-link></td>
+                <td>{{ entry.description }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </template>
     </template>
   </div>
