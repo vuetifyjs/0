@@ -294,6 +294,21 @@ Real worked examples on master:
 | `` ```ts collapse `` `` | Collapsible code block |
 | `` ```ts no-filename `` `` | Hide filename in code block |
 
+## Runtime markdown
+
+Markdown that arrives at runtime (GitHub API bodies/descriptions, AI responses) renders through the single shared pipeline in `@/composables/useMarkdown`:
+
+- `useMarkdown(content)` — full documents (Shiki code blocks, callouts, tables). Consumers: `DocsAskMessage`, `DocsReleases`.
+- `renderInline(text)` — single lines inside `p`/`li` (e.g. roadmap milestone descriptions).
+
+Rules:
+
+- **Never instantiate `Marked` in a component** — extend `useMarkdown` instead. Duplicated configs drift (this is how `DocsReleases` and `DocsRoadmap` diverged before #485/#487).
+- **Never interpolate markdown-bearing API text with `{{ }}`** — raw `**`/`[]()` syntax leaks to the reader.
+- Link decoration comes from `processLinks` (`v0-link` class, `target=_blank`, `↗︎` suffix) so runtime content matches build-time markdown. Don't hand-roll link renderers or add `[&_a]` utility overrides.
+- **Trust boundary for `v-html`:** maintainer-authored content only (milestone descriptions, release bodies). Community-authored strings (issue titles, PR titles) must be HTML-escaped before rendering — marked passes raw inline HTML through.
+- Callout (`data-alert`) and mermaid placeholders render empty unless the consumer mounts them (see `DocsAskMessage`). If new runtime content can contain callouts, reuse that mounting pattern.
+
 ## API Reference
 
 Auto-generated at build time — no manual API tables. [intent:208]
@@ -481,3 +496,4 @@ Real worked examples:
 - [ ] Stable features expose playground-enabled fences/examples
 - [ ] No orphaned example files after edits; `pnpm repo:check` clean
 - [ ] Mermaid diagrams used for architecture/state/flow, not for content that belongs in tables
+- [ ] Runtime markdown rendered via `useMarkdown`/`renderInline` — no component-local `Marked` instances, no plain interpolation of API-sourced markdown
