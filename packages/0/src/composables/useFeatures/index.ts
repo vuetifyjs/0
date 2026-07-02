@@ -101,6 +101,16 @@ export interface FeaturePluginOptions extends FeatureContextOptions {
    * @remarks Adapters provide dynamic flag values from external services.
    */
   adapter?: MaybeArray<FeaturesAdapter>
+  /**
+   * Persist enabled feature flags to storage and restore them on load.
+   *
+   * @remarks Persists the set of selected flag ids, keyed by the plugin
+   * namespace. On load the selection is reconciled against the registered
+   * flags, so a user's toggles survive a page reload.
+   *
+   * @default false
+   */
+  persist?: boolean
 }
 
 /**
@@ -216,6 +226,16 @@ export const [createFeaturesContext, createFeaturesPlugin, useFeatures] =
     options => createFeatures(options),
     {
       fallback: () => createFeaturesFallback(),
+      persist: context => [...context.selectedIds],
+      restore: (context, saved) => {
+        if (!isArray(saved)) return
+
+        const wanted = new Set(saved)
+        for (const ticket of context.values()) {
+          if (wanted.has(ticket.id)) context.select(ticket.id)
+          else context.unselect(ticket.id)
+        }
+      },
       setup: (context, app, { adapter }) => {
         if (!adapter) return
 
