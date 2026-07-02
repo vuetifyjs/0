@@ -46,8 +46,14 @@
   // Context
   import { usePopoverContext } from './PopoverRoot.vue'
 
+  // Composables
+  import { useLogger } from '#v0/composables/useLogger'
+
+  // Globals
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Utilities
-  import { toRef, useTemplateRef } from 'vue'
+  import { onMounted, toRef, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'PopoverContent' })
 
@@ -85,6 +91,35 @@
   })
 
   context.attach(() => ref.value?.element)
+
+  if (typeof __DEV__ !== 'undefined' && __DEV__) {
+    const logger = useLogger('PopoverContent')
+
+    onMounted(() => {
+      if (!IN_BROWSER) return
+      const el = ref.value?.element
+      if (!el) return
+
+      // Clone the element without [popover] so neither the UA closed-state rule
+      // nor our [popover]:not(:popover-open){display:none!important} override
+      // applies. A non-block computed display on the clone signals that an author
+      // utility class (flex, grid, …) has been placed directly on the element.
+      const probe = el.cloneNode() as HTMLElement
+      probe.removeAttribute('popover')
+      probe.style.position = 'fixed'
+      probe.style.visibility = 'hidden'
+      probe.style.pointerEvents = 'none'
+      probe.style.top = '-9999px'
+      document.body.append(probe)
+      const display = window.getComputedStyle(probe).display
+      probe.remove()
+
+      if (display && display !== 'none' && display !== 'block') {
+        const msg = `[Popover.Content] A display utility class (detected: "${display}") is set directly on the content element. This conflicts with the native [popover] closed-state hide. Move layout classes (flex, grid, etc.) to a wrapper element inside the slot instead.`
+        logger.warn(msg)
+      }
+    })
+  }
 
   function onBeforeToggle (e: ToggleEvent) {
     emit('beforetoggle', e)

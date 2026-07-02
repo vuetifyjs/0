@@ -471,6 +471,57 @@ describe('popover', () => {
       })
     })
 
+    describe('dev warning', () => {
+      it('should warn when a display utility overrides the native popover hide', async () => {
+        const originalDev = (globalThis as unknown as Record<string, unknown>).__DEV__
+        ;(globalThis as unknown as Record<string, unknown>).__DEV__ = true
+
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+        vi.spyOn(window, 'getComputedStyle').mockImplementation((el) => {
+          // Identify the off-screen probe by its injected visibility style
+          if (el instanceof HTMLElement && el.style.visibility === 'hidden') {
+            return { display: 'flex' } as CSSStyleDeclaration
+          }
+          return { display: '' } as CSSStyleDeclaration
+        })
+
+        mount(Popover.Root, {
+          slots: {
+            default: () => h(Popover.Content, { class: 'flex flex-col' }, () => 'Content'),
+          },
+        })
+
+        await nextTick()
+
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('display utility'))
+
+        vi.restoreAllMocks()
+        ;(globalThis as unknown as Record<string, unknown>).__DEV__ = originalDev
+      })
+
+      it('should not warn when no display utility is present', async () => {
+        const originalDev = (globalThis as unknown as Record<string, unknown>).__DEV__
+        ;(globalThis as unknown as Record<string, unknown>).__DEV__ = true
+
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+        // getComputedStyle returns '' (happy-dom default) — no display detected
+        mount(Popover.Root, {
+          slots: {
+            default: () => h(Popover.Content, {}, () => 'Content'),
+          },
+        })
+
+        await nextTick()
+
+        expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('display utility'))
+
+        vi.restoreAllMocks()
+        ;(globalThis as unknown as Record<string, unknown>).__DEV__ = originalDev
+      })
+    })
+
     describe('renderless', () => {
       it('should expose popover attrs, style, and onBeforetoggle in slot props so renderless mode works', async () => {
         let contentProps: any
