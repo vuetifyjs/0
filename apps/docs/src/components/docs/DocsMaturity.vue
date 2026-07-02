@@ -344,10 +344,9 @@
             :close-delay="200"
             :open-delay="500"
           >
-            <Tooltip.Activator v-slot="{ attrs }" renderless>
+            <Tooltip.Activator as="div">
               <component
                 :is="(item as MaturityItem).level === 'draft' ? 'div' : RouterLink"
-                v-bind="attrs"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-glass-surface no-underline transition-colors hover:bg-surface-variant/80"
                 :to="(item as MaturityItem).level !== 'draft' ? String(item.path) : undefined"
               >
@@ -386,7 +385,7 @@
 
             <Tooltip.Content
               v-if="item.description"
-              class="px-2.5 py-1.5 rounded text-xs max-w-64 bg-on-surface text-surface shadow-md"
+              class="px-2.5 py-1.5 rounded text-xs max-w-64 whitespace-normal bg-on-surface text-surface shadow-md"
               :style="{ margin: '6px 0' }"
             >
               {{ item.description }}
@@ -518,10 +517,9 @@
               <!-- Name -->
               <td class="!pl-[34px] pr-4 py-2.5 text-sm font-medium truncate">
                 <Tooltip.Root :close-delay="200" :open-delay="500">
-                  <Tooltip.Activator v-slot="{ attrs }" renderless>
+                  <Tooltip.Activator as="span">
                     <component
                       :is="(item as MaturityItem).level === 'draft' ? 'span' : RouterLink"
-                      v-bind="attrs"
                       :class="(item as MaturityItem).level === 'draft' ? 'text-on-surface-variant' : 'text-primary no-underline hover:underline transition-colors'"
                       :to="(item as MaturityItem).level !== 'draft' ? item.path : undefined"
                     >
@@ -534,7 +532,7 @@
 
                   <Tooltip.Content
                     v-if="item.description"
-                    class="px-2.5 py-1.5 rounded text-xs max-w-64 bg-on-surface text-surface shadow-md"
+                    class="px-2.5 py-1.5 rounded text-xs max-w-64 whitespace-normal bg-on-surface text-surface shadow-md"
                     :style="{ margin: '6px 0' }"
                   >
                     {{ item.description }}
