@@ -5,6 +5,7 @@
   import DocsHeaderAnchor from './DocsHeaderAnchor.vue'
 
   // Utilities
+  import { renderMarkdown } from '@/utilities/markdown'
   import { toKebab, toTitle } from '@/utilities/strings'
   import { computed, shallowRef } from 'vue'
 
@@ -128,7 +129,10 @@
                 <td><router-link class="v0-link" :to="entry.href">{{ entry.name }}</router-link></td>
 
                 <td>
-                  <p :class="!isExpanded(entry) && isLong(entry) && 'line-clamp-2'">{{ entry.description }}</p>
+                  <div
+                    :class="[!isExpanded(entry) && isLong(entry) && 'line-clamp-2', '[&_p]:my-1 [&_ul]:my-1 [&_ul]:pl-5 [&_ol]:my-1 [&_ol]:pl-5']"
+                    v-html="renderMarkdown(entry.description)"
+                  />
 
                   <button
                     v-if="isLong(entry)"
@@ -168,7 +172,10 @@
                 <td><router-link class="v0-link" :to="entry.href">{{ entry.name }}</router-link></td>
 
                 <td>
-                  <p :class="!isExpanded(entry) && isLong(entry) && 'line-clamp-2'">{{ entry.description }}</p>
+                  <div
+                    :class="[!isExpanded(entry) && isLong(entry) && 'line-clamp-2', '[&_p]:my-1 [&_ul]:my-1 [&_ul]:pl-5 [&_ol]:my-1 [&_ol]:pl-5']"
+                    v-html="renderMarkdown(entry.description)"
+                  />
 
                   <button
                     v-if="isLong(entry)"

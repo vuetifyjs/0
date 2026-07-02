@@ -5,6 +5,7 @@
   import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
+  import { renderInlineMarkdown } from '@/utilities/markdown'
   import { toRef } from 'vue'
 
   // Types
@@ -66,9 +67,8 @@
         v-if="item.description"
         class="text-sm text-on-surface mt-1"
         :class="{ '!mb-0': kind !== 'option' }"
-      >
-        {{ item.description }}
-      </p>
+        v-html="renderInlineMarkdown(item.description)"
+      />
 
       <p
         v-if="(kind === 'option' || kind === 'prop') && 'default' in item && item.default"

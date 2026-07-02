@@ -7,6 +7,7 @@
   import { useParams } from '@/composables/useRoute'
 
   // Utilities
+  import { renderMarkdown } from '@/utilities/markdown'
   import { toCamel, toPascal } from '@/utilities/strings'
   import { computed, toRef } from 'vue'
 
@@ -134,7 +135,7 @@
       <div class="markdown-body">
         <h1>{{ itemName }} API</h1>
 
-        <p class="lead">{{ description }}</p>
+        <div class="lead" v-html="renderMarkdown(description ?? '')" />
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 
@@ -179,7 +180,7 @@
       <div class="markdown-body">
         <h1>{{ composableApi.name }} API</h1>
 
-        <p class="lead">{{ description }}</p>
+        <div class="lead" v-html="renderMarkdown(description ?? '')" />
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 
