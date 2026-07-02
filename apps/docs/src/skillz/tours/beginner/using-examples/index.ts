@@ -5,11 +5,11 @@ import { nextTick } from 'vue'
 import type { StepHandlerContext } from '@/composables/useDiscovery'
 
 // Document-order positions of the host page's gn-examples
-// (/guide/essentials/using-the-docs): the live Group preview, the
-// multi-file combobox example, and the recipe snippet.
+// (/guide/essentials/using-the-docs): the live Group preview and the
+// multi-file combobox example. The recipe is a plain code fence, not a
+// gn-example - it's resolved from the #recipes heading instead.
 const LIVE = 0
 const FILES = 1
-const RECIPE = 2
 
 /**
  * Using Examples tour handlers.
@@ -67,6 +67,35 @@ export function defineTour () {
     )?.click()
   }
 
+  // The recipe is a plain code fence tagged with a data-tour=example-recipe
+  // fence token (see build/markdown.ts), which lands on DocsMarkup's root.
+  function recipe (): HTMLElement | null {
+    return document.querySelector<HTMLElement>('[data-tour="example-recipe"]')
+  }
+
+  // A fence's action buttons hide behind an opacity:0 hover ancestor, and
+  // unlike gn-examples there's no example-toolbar hook to flip - walk up
+  // from the button to whichever ancestor carries the fade and force it
+  // visible for the step.
+  let revealed: HTMLElement | null = null
+
+  function reveal (from: HTMLElement): void {
+    let node: HTMLElement | null = from
+    while (node) {
+      if (getComputedStyle(node).opacity === '0') {
+        node.style.setProperty('opacity', '1')
+        revealed = node
+        return
+      }
+      node = node.parentElement
+    }
+  }
+
+  function unreveal (): void {
+    revealed?.style.removeProperty('opacity')
+    revealed = null
+  }
+
   return {
     handlers: {
       'intro': {
@@ -82,7 +111,11 @@ export function defineTour () {
           const preview = getIn(LIVE, '[data-tour="example-preview"]')
           if (preview) {
             activate(preview)
-            preview.querySelector<HTMLElement>('button')?.click()
+            // Group items toggle, so an unguarded click on re-entry (back/
+            // resume, or state left over from an earlier run) would unselect
+            // apple and contradict the step copy.
+            const first = preview.querySelector<HTMLElement>('button')
+            if (first?.getAttribute('aria-checked') === 'false') first.click()
           }
           done()
         },
@@ -160,20 +193,22 @@ export function defineTour () {
 
       'recipes': {
         enter: ({ activate, done }: StepHandlerContext) => {
-          const host = example(RECIPE)
-          if (host) activate(host)
+          const fence = recipe()
+          if (fence) activate(fence)
           done()
         },
       },
 
       'recipe-play': {
         enter: ({ activate, done }: StepHandlerContext) => {
-          showToolbar(RECIPE)
-          const button = getIn(RECIPE, '[aria-label="Open in Vuetify Play"]')
-          if (button) activate(button)
+          const button = recipe()?.querySelector<HTMLElement>('[aria-label="Open in Vuetify Play"]')
+          if (button) {
+            reveal(button)
+            activate(button)
+          }
           done()
         },
-        leave: () => hideToolbar(RECIPE),
+        leave: unreveal,
       },
 
       'codegroups': {

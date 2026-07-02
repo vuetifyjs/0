@@ -14,7 +14,7 @@
     {
       "id": "intro",
       "title": "Live Examples",
-      "task": "Every page ships a runnable example - not a screenshot.",
+      "task": "Most component and composable pages ship live examples - real Vue components running on the page, not screenshots.",
       "hint": "",
       "learn": "Recognize a live example"
     },
@@ -85,7 +85,7 @@
     {
       "id": "recipes",
       "title": "Recipes",
-      "task": "Recipes are the other example type - terse, single-purpose snippets designed to be lifted straight into your app.",
+      "task": "Recipes are the other example type - terse, single-purpose snippets in a plain code fence, ready to lift straight into your app.",
       "hint": "",
       "learn": "Recognize a recipe",
       "placement": "bottom"
@@ -93,7 +93,7 @@
     {
       "id": "recipe-play",
       "title": "Lift It",
-      "task": "Every recipe is playground-ready - one click and the snippet is running in Play.",
+      "task": "Recipe fences are playground-ready too - one click and the snippet is running in Play.",
       "hint": "",
       "learn": "Take a recipe into the Playground",
       "placement": "left"
