@@ -386,6 +386,8 @@ let idCounter = 0
  * - In component setup/lifecycle: Uses Vue's `useId()` for SSR-safe hydration
  * - Outside components: Falls back to sequential counter (`v0-0`, `v0-1`, ...)
  * - Vapor mode compatible
+ * - IDs are sequential and predictable — intended for DOM `id`/ARIA wiring only.
+ *   Never use them as security tokens (CSRF tokens, session ids, capabilities).
  *
  * @example
  * ```ts
