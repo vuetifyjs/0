@@ -16,13 +16,10 @@ packages/genesis/
 │   ├── index.ts          # re-exports components
 │   └── components/
 │       ├── index.ts
-│       ├── GnDocsExample/
-│       ├── GnDocsExampleDescription/
-│       ├── GnDocsExamplePreview/
-│       ├── GnDocsExampleCode/
-│       ├── GnDocsExampleTabs/
-│       ├── GnDocsExamplePanel/
-│       ├── GnDocsExampleActions/
+│       ├── GnActionButton/
+│       ├── GnDocsBadge/
+│       ├── GnDocsExample/    # GnDocsExample.vue + Description / Preview / Code / Tabs / Panel / Actions SFCs
+│       ├── GnDotGrid/
 │       └── GnPeek/
 ```
 
@@ -30,7 +27,7 @@ No `GnDocsIcon`, no `adapter.ts`, no `plugin.ts`, no `theme.ts`. Genesis is just
 
 ## Theme inheritance
 
-Every component's scoped `<style>` references v0 tokens with sensible standalone fallbacks. Examples:
+Every component's `<style>` (scoped, except where a multi-root child blocks scoping — see `GnActionButton`) references v0 tokens with sensible standalone fallbacks. Examples:
 
 ```css
 .genesis-docs-example {
@@ -97,6 +94,49 @@ interface GnPeekProps {
 
 `v-model:expanded` drives state. The default slot exposes `{ expanded }` for the label; a separate `icon` slot defaults to an inline chevron that rotates 180° when expanded. Both slots are overridable.
 
+### `GnDocsBadge` — static label/tag
+
+A non-interactive `<span>` for skill levels, skill modes, category tags, and similar docs-site chrome. No business logic, no icon-name resolution.
+
+```ts
+interface GnDocsBadgeProps {
+  color?: string             // any CSS color (e.g. var(--v0-primary)); drives background+text tint via color-mix. Omit for neutral.
+  backgroundOpacity?: number // default: 15 (color-mix percentage, 0-100)
+  shape?: 'rounded' | 'pill' // default: 'rounded'
+  title?: string              // native tooltip
+}
+```
+
+Default slot is the label. An `icon` slot (no default) renders an optional leading icon — same "slot, not string" pattern as every other Genesis icon surface. The icon wrapper is `aria-hidden` (the icon is decorative by contract — the label is the accessible content), and slotted icons keep their own dimensions — the badge does not resize them.
+
+### `GnActionButton` — toolbar action affordance
+
+A 32px icon action button for docs chrome (copy, reset, open-in). Wraps v0's `Button.Root` + `Button.Icon`; ships an unscoped `<style>` because a scoped rule's data-v never lands on `Button.Root`'s multi-root `<button>`.
+
+```ts
+interface GnActionButtonProps {
+  ariaLabel?: string                     // forwarded to Button.Root's ariaLabel (solo icon buttons)
+  title?: string                         // native tooltip
+  type?: 'button' | 'submit' | 'reset'   // default: 'button'
+}
+```
+
+The icon goes in the default slot, rendered inside `Button.Icon`.
+
+### `GnDotGrid` — decorative backdrop
+
+An `aria-hidden`, absolutely-positioned dot-grid layer with a radial fade mask.
+
+```ts
+interface GnDotGridProps {
+  color?: string     // default: 'var(--v0-on-background)' — any CSS color
+  coverage?: number  // default: 15 — % of the radial fade kept transparent
+  density?: number   // default: 20 — grid cell size in px
+  lines?: number     // default: 0 — connecting-line alpha %; 0 = dots only
+  origin?: string    // default: 'bottom left' — fade origin
+}
+```
+
 ## Icon strategy
 
 Action buttons expose icon slots with inline `<svg>` defaults using MDI paths.
@@ -106,6 +146,7 @@ Action buttons expose icon slots with inline `<svg>` defaults using MDI paths.
 | `GnDocsExample` | `reset-icon` (single-file mode reset button) | refresh |
 | `GnDocsExampleTabs` | `reset-icon`, `combine-icon`, `split-icon` | refresh / unfold-less / unfold-more |
 | `GnPeek` | `icon` (chevron, rotates when expanded) | chevron-down |
+| `GnDocsBadge` | `icon` | none — no generic badge icon to default to |
 
 ```vue
 <GnDocsExampleTabs>
@@ -136,7 +177,7 @@ Genesis ships a `<pre>` fallback only. The dev workspace's `DevShikiBlock.vue` a
 - Bundled Shiki — slot consumption only
 - Icon library — slot defaults with inline SVG
 - Paper composables / V0Paper — not used
-- Buttons / forms / dialogs — out of scope
+- General-purpose buttons / forms / dialogs — out of scope (`GnActionButton` is docs-toolbar chrome wrapping v0's Button, not a general-purpose button offering)
 - Tests — only when explicitly requested
 
 ## Future — per-example theme override
@@ -157,7 +198,7 @@ In priority order:
 
 1. `GnDocsCallout` (TIP / WARNING / ERROR / INFO admonitions)
 2. `GnDocsCodeGroup` (tabbed code blocks)
-3. `GnDocsKbd`, `GnDocsBadge`, `GnDocsCard` (atomic primitives)
+3. `GnDocsKbd`, `GnDocsCard` (atomic primitives — `GnDocsBadge` shipped, see `## Components`)
 4. `GnDocsApi` (API reference tables with prop / event / slot sections + hover popovers)
 5. Per-example theme override prop on `GnDocsExample`
 

@@ -1,4 +1,5 @@
 export * from './GnActionButton'
+export * from './GnDocsBadge'
 export * from './GnDocsExample'
 export * from './GnDotGrid'
 export * from './GnPeek'
