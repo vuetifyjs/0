@@ -213,6 +213,8 @@ export const [createLocaleContext, createLocalePlugin, useLocale] =
     {
       fallback: () => createLocaleFallback(),
       persist: ctx => ctx.selectedId.value,
-      restore: (ctx, saved) => ctx.select(saved as ID),
+      restore: (ctx, saved) => {
+        if (typeof saved === 'string' || typeof saved === 'number') ctx.select(saved)
+      },
     },
   )

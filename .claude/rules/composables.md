@@ -270,7 +270,7 @@ restore: (context, saved) => {
 },
 ```
 
-`useLocale`, `useTheme`, and `useRtl` still blind-cast (`saved as ID` / `saved as boolean`) — sweep pending; don't add new blind casts.
+`useLocale`, `useTheme`, and `useRtl` all validate the persisted value with a `typeof` guard before applying it — the blind-cast sweep is complete; don't reintroduce `saved as T`.
 
 #### Fallback contract — required for every plugin
 
