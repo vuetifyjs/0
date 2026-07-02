@@ -135,7 +135,19 @@ Releases are managed with [Changesets](https://github.com/changesets/changesets)
 pnpm changeset
 ```
 
-Pick the affected package(s), a bump type (`patch`/`minor`/`major`), and a short summary, then commit the generated `.changeset/*.md` alongside your code. `@vuetify/v0` and `@vuetify/paper` version in lockstep — selecting `@vuetify/v0` carries `@vuetify/paper` automatically; the `@paper/*` design systems version separately. Docs-only, chore, refactor, or CI PRs don't need one. A bot comments on every PR to remind you.
+Pick the affected package(s), a bump type (`patch`/`minor`/`major`), and a short summary. The command generates a markdown file that you commit alongside your code:
+
+```md
+---
+"@vuetify/v0": patch
+---
+
+fix(createSelection): reject disabled items in multiple-mode apply
+```
+
+The summary becomes the changelog entry for the release — describe the user-visible change, not the implementation. `@vuetify/v0` and `@vuetify/paper` version in lockstep — selecting `@vuetify/v0` carries `@vuetify/paper` automatically; the `@paper/*` design systems version separately. Docs-only, chore, refactor, or CI PRs don't need one. A bot comments on every PR to remind you.
+
+The changeset is how your change reaches a release. On every push to `master`, automation gathers all pending `.changeset/*.md` files into a "Version Packages" PR that applies the version bumps and writes the changelog entries. When a maintainer merges that PR, the packages are built, published to npm, and the GitHub releases are created. A `packages/*` change merged without a changeset still ships in the code — but with no version bump and no changelog entry.
 
 Never edit `package.json` versions by hand — release automation owns every bump. If you're unsure which bump type fits, pick your best guess; maintainers adjust it during release review.
 
