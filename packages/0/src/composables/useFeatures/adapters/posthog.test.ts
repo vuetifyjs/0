@@ -143,6 +143,26 @@ describe('postHogFeaturesAdapter', () => {
     })
   })
 
+  describe('prototype pollution', () => {
+    it('should skip unsafe flag keys', () => {
+      mockInBrowser.value = true
+      const mockClient = createMockClient()
+      mockClient.featureFlags.getFlags.mockReturnValue(['safe', '__proto__', 'constructor'])
+      mockClient.isFeatureEnabled.mockReturnValue(true)
+      mockClient.getFeatureFlagPayload.mockImplementation((key: string) => key === '__proto__' ? { evil: true } : undefined)
+      mockClient.getFeatureFlag.mockReturnValue(true)
+      mockClient.onFeatureFlags.mockImplementation((cb: Function) => cb())
+
+      const adapter = new PostHogFeaturesAdapter(mockClient as never)
+      const flags = adapter.setup(vi.fn())
+
+      expect(Object.hasOwn(flags, 'safe')).toBe(true)
+      expect(Object.hasOwn(flags, '__proto__')).toBe(false)
+      expect(Object.hasOwn(flags, 'constructor')).toBe(false)
+      expect(Object.getPrototypeOf(flags)).toBe(Object.prototype)
+    })
+  })
+
   // eslint-disable-next-line vitest/prefer-lowercase-title
   describe('SSR (non-browser) environment', () => {
     it('should return empty flags when not in browser', () => {
