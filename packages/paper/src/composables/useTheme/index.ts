@@ -127,6 +127,12 @@ export function DEFAULT_DARK (): Theme {
   }
 }
 
+// Mirrors the v0 ThemeAdapter sanitizer (packages/0/src/composables/useTheme/adapters/adapter.ts):
+// reject color keys that aren't safe identifiers and values carrying dangerous CSS
+// before they are interpolated into the injected <style> element.
+const SAFE_IDENT = /^[a-zA-Z0-9_-]+$/
+const UNSAFE_CSS = /url\s*\(|@import|expression\s*\(|[{}<>]/i
+
 export function createTheme (options: ThemeOptions) {
   const styleEl = ref()
   const theme = ref<ThemeOptions>({
@@ -147,6 +153,8 @@ export function createTheme (options: ThemeOptions) {
     let cssVariables = ':root {\n'
 
     for (const [key, value] of Object.entries(currentTheme.colors)) {
+      if (!SAFE_IDENT.test(key) || UNSAFE_CSS.test(String(value))) continue
+
       cssVariables += `  --v0-${toKebabCase(key)}: ${value};\n`
     }
 
