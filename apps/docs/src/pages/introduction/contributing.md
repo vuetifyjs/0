@@ -6,10 +6,11 @@ meta:
   - name: keywords
     content: vuetify0, contributing, open source, pull request, development, testing, Vue 3
 features:
-  order: 3
+  order: 3.5
   level: 1
 related:
   - /introduction/getting-started
+  - /introduction/code-of-conduct
 ---
 
 # Contributing
@@ -36,7 +37,7 @@ When reporting bugs, please include:
 - Steps to reproduce the issue
 - Expected vs actual behavior
 - Browser and OS information
-- A minimal reproduction (preferably a link to a repo or CodeSandbox)
+- A minimal reproduction (preferably a [Playground](/playground) link or a repo)
 
 ### Feature Requests
 
@@ -75,14 +76,17 @@ pnpm dev:docs
 
 ```text
 ├── packages/
-│   └── 0/              # @vuetify/v0 - main package
-│       ├── src/
-│       │   ├── components/    # Vue components
-│       │   ├── composables/   # Composable functions
-│       │   ├── utilities/     # Helper functions
-│       │   └── types/         # TypeScript types
+│   ├── 0/              # @vuetify/v0 - main package
+│   │   └── src/
+│   │       ├── components/    # Vue components
+│   │       ├── composables/   # Composable functions
+│   │       ├── utilities/     # Helper functions
+│   │       └── types/         # TypeScript types
+│   ├── genesis/        # @paper/genesis - design system
+│   └── paper/          # @vuetify/paper - styling primitives
 ├── apps/
-│   └── docs/           # Documentation site
+│   ├── docs/           # Documentation site
+│   └── playground/     # Browser-based code editor
 └── dev/               # Development environment
 ```
 
@@ -114,11 +118,14 @@ pnpm build            # Build packages
 
 1. Create a new branch from `master`
 2. Make your changes
-3. Run `pnpm lint:fix` to fix formatting
-4. Run `pnpm typecheck` to check types
-5. Run `pnpm test:run` to verify tests pass
-6. Write tests for new functionality
-7. Run `pnpm changeset` if you changed `packages/*` source (see [Changesets](#changesets))
+3. Write tests for new functionality
+4. Run `pnpm lint:fix` to fix formatting
+5. Run `pnpm typecheck` to check types
+6. Run `pnpm test:run` to verify tests pass
+7. Run `pnpm repo:check` to catch unused files and dependency issues
+8. Run `pnpm changeset` if you changed `packages/*` source (see [Changesets](#changesets))
+
+The pre-push hook runs lint, typecheck, tests, and repo checks automatically — the steps above keep it green.
 
 ### Changesets
 
@@ -162,6 +169,8 @@ type(scope): subject
 - `refactor` - Code refactoring
 - `test` - Adding or updating tests
 - `chore` - Maintenance tasks
+
+`feat` and `fix` are reserved for changes to `packages/*` source — they drive changelogs and version bumps. Everything else (docs, apps, tooling, CI) uses `docs`, `chore`, `refactor`, or `test`.
 
 ### Examples
 
