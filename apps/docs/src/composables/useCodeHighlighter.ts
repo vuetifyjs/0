@@ -84,10 +84,29 @@ export function useCodeHighlighter () {
     }
   }
 
+  async function inline (options: CodeHighlightOptions): Promise<CodeHighlightResult> {
+    const hl = highlighter.value ?? await getHighlighter()
+    const { shikiLang, displayLang } = normalizeLanguage(options.language)
+
+    const html = hl.codeToHtml(options.code, {
+      lang: shikiLang,
+      themes: SHIKI_THEMES,
+      defaultColor: false,
+      structure: 'inline',
+    })
+
+    return {
+      html,
+      code: options.code,
+      language: displayLang,
+    }
+  }
+
   return {
     highlight,
     highlighter,
     getHighlighter,
+    inline,
     normalizeLanguage,
   }
 }
