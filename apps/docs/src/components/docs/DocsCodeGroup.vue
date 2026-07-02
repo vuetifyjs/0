@@ -94,7 +94,7 @@
 </script>
 
 <template>
-  <div class="docs-code-group my-4">
+  <div class="docs-code-group my-4" data-tour="example-codegroup">
     <div
       aria-label="Code examples"
       class="flex gap-1 px-3 pt-3 pb-0 bg-surface rounded-t-lg overflow-x-auto border-t border-x border-divider"
