@@ -478,7 +478,7 @@ describe('popover', () => {
 
         const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
-        vi.spyOn(window, 'getComputedStyle').mockImplementation((el) => {
+        vi.spyOn(window, 'getComputedStyle').mockImplementation(el => {
           // Identify the off-screen probe by its injected visibility style
           if (el instanceof HTMLElement && el.style.visibility === 'hidden') {
             return { display: 'flex' } as CSSStyleDeclaration
