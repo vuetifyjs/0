@@ -31,7 +31,7 @@
       "description": "Bounded number with discrete items. Give it a size, get items to iterate with full/half/empty state. Half-step support for 0.5 increments."
     },
     "createRegistry": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "registration",
       "description": "Foundation for ordered, keyed collections. Items are registered with IDs and indexes, and can be looked up by ID, index, or value."
@@ -49,38 +49,38 @@
       "description": "Design token registry with hierarchical collections, alias resolution, and namespace support."
     },
     "createGroup": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "selection",
       "description": "Multi-selection with tri-state (mixed/indeterminate) support for checkbox trees, grouped toggles, and any pattern where items can be partially selected."
     },
     "createModel": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.5",
       "category": "selection",
       "description": "Reactive value store that wraps a ref with two-way selection binding.",
       "notes": "Recently redesigned from selection system"
     },
     "createNested": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "selection",
       "description": "Hierarchical tree management built on `createGroup`, with parent-child relationships, open/close state, and pluggable traversal strategies."
     },
     "createSelection": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "selection",
       "description": "A composable for managing the selection of items in a collection with automatic indexing and lifecycle management."
     },
     "createSingle": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "selection",
       "description": "Extends `createSelection` to enforce single-item selection, automatically clearing the previous selection."
     },
     "createStep": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "selection",
       "description": "Extends `createSingle` with bounded or circular navigation. Built for wizards, multi-step forms, and onboarding flows."
@@ -188,7 +188,7 @@
       "description": "A composable for computing how many items fit in a container based on available width, enabling responsive truncation for pagination, breadcrumbs, and similar components."
     },
     "useBreakpoints": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "plugins",
       "description": "Reactive viewport detection for building responsive layouts with named breakpoints."
@@ -236,13 +236,13 @@
       "description": "Overlay z-index coordinator with automatic stacking order and parent-child nesting support."
     },
     "useStorage": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "plugins",
       "description": "Reactive storage with automatic serialization, caching, and SSR-safe operations."
     },
     "useTheme": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "plugins",
       "description": "Theme management with multiple themes, CSS custom properties, and token alias resolution."
@@ -399,7 +399,7 @@
     },
     "useReducedMotion": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-beta.2",
       "category": "plugins",
       "description": "Respect or override the user's `prefers-reduced-motion` setting, with a reactive flag and a body data attribute for CSS-only consumers."
     },

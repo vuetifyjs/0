@@ -1,12 +1,16 @@
 <script setup lang="ts">
+  // Framework
+  import { IN_BROWSER } from '@vuetify/v0'
+
   // Composables
   import { useApiHelpers } from '@/composables/useApiHelpers'
+  import { useCodeHighlighter } from '@/composables/useCodeHighlighter'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
   import { renderInlineMarkdown } from '@/utilities/markdown'
-  import { toRef } from 'vue'
+  import { shallowReactive, toRef, watchEffect } from 'vue'
 
   // Types
   import type { ApiEvent, ApiFunction, ApiMethod, ApiOption, ApiProp, ApiProperty, ApiSlot } from '@build/generate-api'
@@ -21,6 +25,7 @@
 
   const api = useApiHelpers()
   const settings = useSettings()
+  const highlighter = useCodeHighlighter()
 
   const lineWrap = useSyncedRef(settings.lineWrap)
 
@@ -30,6 +35,32 @@
     if (!('example' in props.item) || !props.item.example) return null
     return /^<(?:template|script)/.test(props.item.example.trim()) ? 'vue' : 'ts'
   })
+
+  const signature = toRef(() => {
+    if ('signature' in props.item) return props.item.signature
+    if (['option', 'prop', 'event', 'slot'].includes(props.kind)) return props.item.type
+    return api.formatSignature(props.item as ApiProperty | ApiMethod)
+  })
+
+  const preset = toRef(() => 'default' in props.item ? props.item.default : '')
+
+  const chips = shallowReactive({ signature: '', preset: '' })
+
+  if (IN_BROWSER) {
+    watchEffect(async () => {
+      const code = signature.value
+      if (!code) return
+      const result = await highlighter.inline({ code, language: 'typescript' })
+      if (signature.value === code) chips.signature = result.html
+    })
+
+    watchEffect(async () => {
+      const code = preset.value
+      if (!code) return
+      const result = await highlighter.inline({ code, language: 'typescript' })
+      if (preset.value === code) chips.preset = result.html
+    })
+  }
 </script>
 
 <template>
@@ -58,9 +89,10 @@
 
       <code
         v-if="item.type || ('signature' in item && item.signature)"
-        class="text-xs mt-1 inline-block font-mono bg-surface-variant px-1.5 py-0.5 rounded"
+        class="shiki-inline text-xs mt-1 inline-block font-mono bg-surface-variant px-1.5 py-0.5 rounded"
       >
-        {{ 'signature' in item ? item.signature : ['option', 'prop', 'event', 'slot'].includes(kind) ? item.type : api.formatSignature(item as ApiProperty | ApiMethod) }}
+        <span v-if="chips.signature" v-html="chips.signature" />
+        <template v-else>{{ signature }}</template>
       </code>
 
       <p
@@ -74,7 +106,10 @@
         v-if="(kind === 'option' || kind === 'prop') && 'default' in item && item.default"
         class="text-xs text-on-surface-variant mt-2 !mb-0"
       >
-        Default: <code class="text-xs bg-surface-variant px-1.5 py-0.5 rounded">{{ item.default }}</code>
+        Default: <code class="shiki-inline text-xs bg-surface-variant px-1.5 py-0.5 rounded">
+          <span v-if="chips.preset" v-html="chips.preset" />
+          <template v-else>{{ item.default }}</template>
+        </code>
       </p>
     </div>
 

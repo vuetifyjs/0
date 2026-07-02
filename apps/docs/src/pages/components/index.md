@@ -18,6 +18,8 @@ A collection of <DocsCount type="component" /> foundational components designed 
 
 <DocsPageFeatures :frontmatter />
 
+> [!TOUR] using-examples
+
 ## Primitives
 
 Foundation components for building higher-level abstractions.

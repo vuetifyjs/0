@@ -1,5 +1,11 @@
 # @vuetify/v0
 
+## 1.0.0-rc.6
+
+### Patch Changes
+
+- [#470](https://github.com/vuetifyjs/0/pull/470) [`38b27ed`](https://github.com/vuetifyjs/0/commit/38b27edba93ecf4b2f9f9fb4d323bce0f4504d05) Thanks [@johnleider](https://github.com/johnleider)! - chore(maturity): promote the v1 stable set to `stable` — the selection family (`createModel`, `createSelection`, `createSingle`, `createStep`, `createGroup`, `createNested`), `createRegistry`, and the plugin trio (`useTheme`, `useStorage`, `useBreakpoints`) are now API-locked for 1.0. They join the already-stable foundation (`createContext`, `createPlugin`, `createTrinity`) and observer (`useIntersectionObserver`, `useMutationObserver`, `useResizeObserver`) composables, bringing the stable surface to 16 composables plus the 17 stable utilities.
+
 ## 1.0.0-beta.5
 
 ### Patch Changes
