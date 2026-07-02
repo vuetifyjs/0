@@ -24,8 +24,6 @@ Track the development of @vuetify/v0. Milestones are organized by time horizon:
 
 <DocsRoadmap />
 
-> [!IMPORTANT] Want to help shape the future of this project? [Become a Founder Supporter](mailto:john@vuetifyjs.com?subject=Founder%20Supporter%20Inquiry) and gain a guiding voice in what we build next.
-
 ## Release Candidate
 
 **Now a release candidate.** A headless UI framework for Vue 3 — composables and components that handle the logic so you can own the design. No opinions on styling. No markup you can't change. Just primitives that work.
