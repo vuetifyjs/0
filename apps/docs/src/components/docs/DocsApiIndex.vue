@@ -5,7 +5,7 @@
   import DocsHeaderAnchor from './DocsHeaderAnchor.vue'
 
   // Utilities
-  import { toKebab } from '@/utilities/strings'
+  import { toKebab, toTitle } from '@/utilities/strings'
   import { computed } from 'vue'
 
   // Types
@@ -90,7 +90,7 @@
       <p>Detailed API reference for each component including props, events, and slots.</p>
 
       <template v-for="[category, entries] in componentGroups" :key="`c-${category}`">
-        <DocsHeaderAnchor :id="`components-${toKebab(category)}`" class="capitalize text-2xl leading-8 mt-6 mb-2" tag="h3">{{ category }}</DocsHeaderAnchor>
+        <DocsHeaderAnchor :id="`components-${toKebab(category)}`" class="text-2xl leading-8 mt-6 mb-2" tag="h3">{{ toTitle(category) }}</DocsHeaderAnchor>
 
         <div class="overflow-x-auto mb-4">
           <table>
@@ -118,7 +118,7 @@
       <p>Detailed API reference for each composable including options, properties, and methods.</p>
 
       <template v-for="[category, entries] in composableGroups" :key="`e-${category}`">
-        <DocsHeaderAnchor :id="`composables-${toKebab(category)}`" class="capitalize text-2xl leading-8 mt-6 mb-2" tag="h3">{{ category }}</DocsHeaderAnchor>
+        <DocsHeaderAnchor :id="`composables-${toKebab(category)}`" class="text-2xl leading-8 mt-6 mb-2" tag="h3">{{ toTitle(category) }}</DocsHeaderAnchor>
 
         <div class="overflow-x-auto mb-4">
           <table>
