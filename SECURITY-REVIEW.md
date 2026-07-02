@@ -11,13 +11,13 @@
 
 `@vuetify/v0` is **well-defended**. It is genuinely headless — it renders almost no content itself — and it centralizes each injection/pollution guard into a single reusable primitive (`UNSAFE_KEYS`, `ThemeAdapter`'s `SAFE_IDENT`/`UNSAFE_CSS`, `CSS.escape`, `Map`-based registries). There is **no `eval`/`new Function`, no `v-html`/`innerHTML` in application logic, no `postMessage`, and no unsolicited network activity** anywhere in the library.
 
-The review found **one medium-severity issue, one low-to-medium issue, and one low issue**, all in the "a sibling missed the guard its twin already has" pattern that the repo's own rules document anticipates:
+The review found **three issues, all Low-to-Medium**, each in the "a sibling missed the guard its twin already has" pattern that the repo's own rules document anticipates. The highest-priority issue in **actually-shipping code** is Finding 2 (`useFeatures` adapters in `@vuetify/v0`). Finding 1 is in `@vuetify/paper`, which is currently a **pre-release placeholder** with no real consumers, so its CSS-injection sink is a latent gap to close before paper goes public rather than an active risk today.
 
 | # | Severity | Location | Issue |
 |---|----------|----------|-------|
-| 1 | **Medium** | `packages/paper` `useTheme` | Runtime-settable theme color values are written into a `<style>` element with no sanitization → CSS-rule injection. v0's theme adapter has the guard; paper's does not. |
-| 2 | **Low–Medium** | `useFeatures` adapters (launchdarkly / flagsmith / posthog) | Plain objects are keyed by feature-flag names without the `UNSAFE_KEYS` guard the sibling sinks (`mergeDeep`, `usePermissions`, `createTokens`) all apply → conditional prototype pollution. |
-| 3 | **Low** | `useLocale` plugin `restore()` | Persisted `localStorage` value is applied via `saved as ID` with no validation. (Its siblings `useTheme` and `useRtl` have since been fixed — this is the last remaining blind cast, and the rules doc that lists all three as unfixed is now stale.) |
+| 2 | **Low–Medium** | `useFeatures` adapters (launchdarkly / flagsmith / posthog), `@vuetify/v0` | Plain objects are keyed by feature-flag names without the `UNSAFE_KEYS` guard the sibling sinks (`mergeDeep`, `usePermissions`, `createTokens`) all apply → conditional prototype pollution. **Highest-priority shipping issue.** |
+| 3 | **Low** | `useLocale` plugin `restore()`, `@vuetify/v0` | Persisted `localStorage` value is applied via `saved as ID` with no validation. (Its siblings `useTheme` and `useRtl` have since been fixed — this is the last remaining blind cast, and the rules doc that lists all three as unfixed is now stale.) |
+| 1 | **Low** (latent) | `packages/paper` `useTheme` | Runtime-settable theme color values are written into a `<style>` element with no sanitization → CSS-rule injection. v0's theme adapter has the guard; paper's does not. **Paper is a pre-release placeholder** — harden before it gains real consumers. |
 
 All three are consistent with existing guard patterns already present elsewhere in the codebase, so remediation is "mirror the sibling," not "design something new." A set of informational observations and a full clean-bill-of-health inventory follow.
 
@@ -32,7 +32,7 @@ The threat model (`apps/docs/src/pages/introduction/security.md:111-120`) assert
 | **No network requests** — v0 makes no HTTP calls; adapters are opt-in | ✅ Confirmed | The only network I/O in the library is inside opt-in third-party notification/feature adapters, and always through a **consumer-supplied client**: `useNotifications/adapters/knock.ts` and `novu.ts` (Novu calls are `IN_BROWSER`-gated and go through the injected `novu` client — `novu.ts:126-135`). No adapter constructs a URL or calls `fetch` on its own. |
 | **No dynamic code evaluation** | ✅ Confirmed | Zero `eval`, `new Function`, or string-argument `setTimeout`/`setInterval` in `packages/0/src` or `packages/paper/src`. (All `Function(` grep hits are the `isFunction` type guard.) |
 | **Prototype-pollution protection — `mergeDeep` blocks `__proto__`/`constructor`/`prototype`** | ✅ Confirmed | `utilities/helpers.ts:348-376`. `mergeDeep` builds a fresh output object, skips `UNSAFE_KEYS` (`:363`, the set defined at `:312`), skips non-own and `undefined` keys, and only recurses when **both** sides pass `isPlainObject` (`:314`, which requires an `Object.prototype`/`null` prototype). Prototype-pollution-safe. |
-| **CSS-injection protection — theme adapters validate names/keys and reject dangerous values** | ⚠️ True for `@vuetify/v0`, **false for `@vuetify/paper`** | v0's `ThemeAdapter` fully implements the guard (`useTheme/adapters/adapter.ts:16-64`): `UNSAFE_CSS = /url\s*\(|@import|expression\s*\(|[{}<>]/i`, `SAFE_IDENT = /^[a-zA-Z0-9_-]+$/`, applied to theme names, color keys, **and** values. But `@vuetify/paper`'s `useTheme` has no equivalent — see **Finding 1**. The claim names only `@vuetify/v0` theme adapters, so it is literally accurate, but a shipped sibling package in the same repo lacks the protection. |
+| **CSS-injection protection — theme adapters validate names/keys and reject dangerous values** | ✅ True for `@vuetify/v0`; gap in `@vuetify/paper` (pre-release) | v0's `ThemeAdapter` fully implements the guard (`useTheme/adapters/adapter.ts:16-64`): `UNSAFE_CSS = /url\s*\(|@import|expression\s*\(|[{}<>]/i`, `SAFE_IDENT = /^[a-zA-Z0-9_-]+$/`, applied to theme names, color keys, **and** values. `@vuetify/paper`'s `useTheme` has no equivalent (see **Finding 1**), but paper is a pre-release placeholder with no real consumers, so the claim's **practical coverage for what actually ships is intact**. Close the paper gap before it goes public. |
 | **SSR-safe globals — all browser access guarded by `IN_BROWSER`** | ✅ Confirmed (spot-checked) | The DOM-touching theme adapter gates every browser branch (`useTheme/adapters/v0.ts:55,125,131,141`), as do the notification/feature adapters (`novu.ts:126`, `posthog.ts:27`). `useStorage` swaps in a `MemoryStorageAdapter` under SSR. |
 | **No cross-origin communication — no `postMessage`** | ✅ Confirmed for the library | No `postMessage` or `message`-event listener in `packages/0/src` or `packages/paper/src`. (The playground app depends on `@vue/repl`, which uses `postMessage` internally — but that is the app, explicitly out of scope, and does not contradict the claim about the library.) |
 | **Supply chain — "No lifecycle scripts"** | ✅ Confirmed for the published package | `packages/0/package.json` has only `build`/`typecheck` scripts and ships `files: ["dist"]` — no `postinstall`/`preinstall`. `packages/paper/package.json` likewise. (The monorepo **root** `package.json` has a first-party `postinstall`, but the root is never published to npm, so the claim — scoped to the published package — holds.) |
@@ -43,7 +43,9 @@ The threat model (`apps/docs/src/pages/introduction/security.md:111-120`) assert
 
 ## Findings
 
-### Finding 1 — Medium: `@vuetify/paper` `useTheme` writes unsanitized color values into a `<style>` element (CSS injection)
+### Finding 1 — Low (latent): `@vuetify/paper` `useTheme` writes unsanitized color values into a `<style>` element (CSS injection)
+
+> **Priority note.** `@vuetify/paper` is currently a **pre-release placeholder** and is not meaningfully consumed yet, so this sink has no real blast radius today. It is recorded as a **latent** gap to close *before* paper gains real consumers, not as an active risk. The technical detail below stands, and the guard to mirror already exists one package over — so the fix is cheap to land ahead of paper's public debut.
 
 **Location:** `packages/paper/src/composables/useTheme/index.ts:141-172`
 
@@ -76,11 +78,11 @@ produces:
 
 The injected `} … {` breaks out of the `:root` block and adds attacker-chosen rules. Because the value lands in `textContent` (not `innerHTML`), HTML breakout is not possible, but **CSS-rule injection is** — including `url(https://attacker/beacon)` on `background`/`content` for data exfiltration, full-page `display:none` defacement, and (on legacy engines) `expression(...)`.
 
-**Why this is the notable one.** The repo's own `.claude/rules/implementation.md` lists this exact case in its "Security primitives" table: *"Interpolate a value into a CSS string or `<style>` text → mirror `ThemeAdapter` … v0 `ThemeAdapter` has it; paper `useTheme` didn't."* The guard already exists and is battle-tested one package over.
+**Known pattern, guard already exists.** The repo's own `.claude/rules/implementation.md` lists this exact case in its "Security primitives" table: *"Interpolate a value into a CSS string or `<style>` text → mirror `ThemeAdapter` … v0 `ThemeAdapter` has it; paper `useTheme` didn't."* The guard is battle-tested one package over, so closing this before paper ships is low-effort.
 
 **Recommendation (no new design needed).** Mirror the `private static UNSAFE_CSS` / `SAFE_IDENT` pattern from `packages/0/src/composables/useTheme/adapters/adapter.ts:16-52`: validate each color **key** against `SAFE_IDENT` and reject any **value** matching `UNSAFE_CSS` before appending it to `cssVariables`. Values that fail validation should be skipped (as the v0 adapter does via `.filter(...)`).
 
-**Residual risk if unaddressed.** Exploitability depends on a consumer routing untrusted input into a theme color — which the threat model already flags as consumer responsibility. But the whole point of the v0 guard is defense-in-depth against exactly that mistake, and paper is the sibling that should match it.
+**Residual risk if unaddressed.** Low while paper stays a placeholder: no real consumers means no path for untrusted input to reach a theme color today. The risk materializes only when paper gains real adoption, at which point the v0 guard's defense-in-depth rationale applies. Land the fix before that transition.
 
 ---
 
@@ -173,7 +175,9 @@ Surfaced during exploration; recorded so they are not lost, but **not** part of 
 
 ### C. Suggested remediation order
 
-1. **Finding 1** (paper `useTheme`) — mirror the v0 `ThemeAdapter` sanitizer. Highest impact, guard already exists.
-2. **Finding 2** (`useFeatures` adapters) — add the `UNSAFE_KEYS` skip to all three adapters.
-3. **Finding 3** (`useLocale` restore) — add a `typeof` guard matching its two already-fixed siblings, and update the stale note in `.claude/rules/composables.md`.
+Ordered by priority in **actually-shipping** code (`@vuetify/v0`):
+
+1. **Finding 2** (`useFeatures` adapters) — add the `UNSAFE_KEYS` skip to all three adapters. Highest-priority shipping issue.
+2. **Finding 3** (`useLocale` restore) — add a `typeof` guard matching its two already-fixed siblings, and update the stale note in `.claude/rules/composables.md`.
+3. **Finding 1** (paper `useTheme`) — pre-public hardening: mirror the v0 `ThemeAdapter` sanitizer before `@vuetify/paper` graduates from placeholder to a real, consumed package. Low urgency today, low effort (guard already exists).
 4. **Finding 4** informational items — optional hardening and one line of consumer guidance about `useId()` predictability.
