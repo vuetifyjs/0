@@ -305,7 +305,7 @@ pnpm validate
 
 ## Contributing
 
-Vuetify0 is in beta — open for feedback, bug reports, and contributions. See the [Roadmap](https://0.vuetifyjs.com/roadmap#beta) for what's planned and how to get involved.
+Vuetify0 is a release candidate — open for final validation, bug reports, and contributions. See the [Roadmap](https://0.vuetifyjs.com/roadmap#release-candidate) for what's planned and how to get involved.
 
 ## Supporting Vuetify
 
