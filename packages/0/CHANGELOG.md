@@ -1,5 +1,11 @@
 # @vuetify/v0
 
+## 1.0.0-beta.5
+
+### Patch Changes
+
+- [#451](https://github.com/vuetifyjs/0/pull/451) [`fe12826`](https://github.com/vuetifyjs/0/commit/fe12826195d1d887681c9bab67506de2ddd7b391) Thanks [@johnleider](https://github.com/johnleider)! - fix: bring component ARIA/data attributes into PHILOSOPHY §3.6 compliance — `ExpansionPanel` content now emits `data-selected` as `true | undefined` (it was a raw boolean, so `[data-selected]` matched even when unselected), and `Slider` thumb / `Rating` root now emit `aria-disabled` as a concrete boolean (it was `true | undefined`, which dropped the attribute when not disabled).
+
 ## 1.0.0-beta.4
 
 ### Minor Changes
