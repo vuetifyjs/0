@@ -28,7 +28,7 @@
 
 Headless Vue 3 UI primitives and composables for building modern applications and design systems. `@vuetify/v0` is the foundation of the Vuetify ecosystem, offering lightweight, unstyled building blocks with full TypeScript support and accessibility features built-in.
 
-> **Note:** v0 is in beta — the API is stabilizing toward 1.0. Some APIs may still change before the stable release.
+> **Note:** v0 is a release candidate — the v1 stable set is locked. Install with `npm i @vuetify/v0@rc`. Preview APIs may still see minor, documented changes before the stable release.
 
 ## Primary Sponsor
 
