@@ -104,7 +104,7 @@ The composable adds the following on top of two `createSortable` instances:
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-kanban/headless-board/types.ts 1
 /composables/create-kanban/headless-board/useKanbanView.ts 2
 /composables/create-kanban/headless-board/app.vue 3

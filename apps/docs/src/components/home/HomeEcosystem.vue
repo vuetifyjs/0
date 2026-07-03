@@ -207,7 +207,7 @@
             class="ecosystem-card relative overflow-hidden p-3 rounded-xl border bg-surface hover:bg-surface/50 hover:border-primary transition-colors flex items-center gap-2"
             :to="domain.items.some(i => i.type === 'component') ? '/components' : '/composables'"
           >
-            <AppDotGrid :coverage="50" :density="16" />
+            <AppDotGrid :coverage="50" />
 
             <span class="relative font-mono text-sm text-primary">...</span>
             <span class="relative text-xs opacity-50">+{{ domain.items.length - count }} more</span>

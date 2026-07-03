@@ -66,7 +66,19 @@ Keyboard navigation for composite widgets where arrow keys move focus between it
 </template>
 ```
 
-## useRovingFocus vs useVirtualFocus
+## Architecture
+
+`useRovingFocus` builds on `useEventListener` for keydown handling. It is a standalone composable — not part of the registry/selection hierarchy — making it composable alongside `createSingle` or `createSelection` for widgets that separate focus from selection (e.g., listboxes, selects).
+
+```mermaid "Roving Focus Architecture"
+flowchart TD
+  useEventListener --> useRovingFocus
+  useRovingFocus --> Linear["Linear: toolbar, menu, tabs"]
+  useRovingFocus --> Grid["Grid: calendar, color picker, data table"]
+  useRovingFocus --> Composed["+ createSingle = listbox/select"]
+```
+
+### useRovingFocus vs useVirtualFocus
 
 Both manage keyboard navigation, but they use different focus strategies:
 
@@ -79,18 +91,6 @@ Both manage keyboard navigation, but they use different focus strategies:
 | **Keyboard pattern** | Items are real focusable elements | Items are virtual — only one DOM node has focus |
 
 Choose `useRovingFocus` when items are real interactive elements (buttons, links). Choose `useVirtualFocus` when a single input drives a list of options that aren't individually focusable.
-
-## Architecture
-
-`useRovingFocus` builds on `useEventListener` for keydown handling. It is a standalone composable — not part of the registry/selection hierarchy — making it composable alongside `createSingle` or `createSelection` for widgets that separate focus from selection (e.g., listboxes, selects).
-
-```mermaid "Roving Focus Architecture"
-flowchart TD
-  useEventListener --> useRovingFocus
-  useRovingFocus --> Linear["Linear: toolbar, menu, tabs"]
-  useRovingFocus --> Grid["Grid: calendar, color picker, data table"]
-  useRovingFocus --> Composed["+ createSingle = listbox/select"]
-```
 
 ## Reactivity
 
@@ -107,18 +107,44 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-roving-focus/Grid.vue 1
 /composables/use-roving-focus/grid.vue 2
 
 ### Color Grid
 
-2D grid navigation with the `columns` option. Arrow keys navigate in two dimensions, Home/End are row-scoped, Ctrl+Home/End jump to absolute first/last.
+A 24-swatch material color palette arranged in a 6-column grid, demonstrating `useRovingFocus` in 2D mode. Passing `columns: 6` enables full grid navigation: left/right arrow keys step one swatch, up/down step one row (±6), Home and End jump to the first and last swatch in the current row, and Ctrl+Home/Ctrl+End jump to the absolute first and last swatch. The `circular: true` option wraps navigation so the focus cycles back to the start when it reaches either end.
+
+`Grid.vue` is a reusable component that accepts a `swatches` prop and exposes `v-model` for the selected swatch. It registers each swatch by element reference using a `querySelector` on the grid container, and passes the IDs back through `isTabbable` to set `tabindex="0"` on exactly one swatch at a time. The `onFocus` callback fires whenever keyboard navigation lands on a swatch and immediately updates the model — so selection and keyboard focus stay in sync without a separate event handler. `grid.vue` wires the 24 swatches and the `v-model` together in a minimal entry point.
+
+Reach for grid mode any time your items form a logical 2D structure: color pickers, emoji grids, calendar date cells, data table cells. For strictly linear focus (toolbar buttons, menu items, tabs), use `orientation: 'horizontal'` or `'vertical'` without `columns`. To pair keyboard focus with selection state from a composable, see the [createSingle](/composables/selection/create-single) decision table.
 
 | File | Role |
 |------|------|
-| `Grid.vue` | Color swatch grid with 2D keyboard navigation |
-| `grid.vue` | Entry point rendering a material color palette |
+| `Grid.vue` | Reusable swatch grid with 2D keyboard navigation |
+| `grid.vue` | Entry point rendering the material color palette |
+:::
+
+## FAQ
+
+::: faq
+
+??? When should I use useRovingFocus vs useVirtualFocus?
+
+Use `useRovingFocus` when items are real focusable elements (buttons, links) and you want DOM focus to move between them. Use [useVirtualFocus](/composables/system/use-virtual-focus) when a single input drives a list of options that aren't individually focusable, like a combobox.
+
+??? How do I enable 2D grid navigation?
+
+Pass `columns`. Left/Right step one item, Up/Down step by a full row (±columns), and Home/End jump to the row edges. Add `circular: true` to wrap focus around the ends.
+
+??? Can I pair roving focus with selection state?
+
+Yes. `useRovingFocus` only manages focus, so compose it with a selection composable like [createSingle](/composables/selection/create-single) when you need a listbox or select that tracks both focus and the chosen value.
+
+??? Do I have to attach the keydown handler myself?
+
+No — when you pass a `target` element, `onKeydown` is auto-bound to it. Omit `target` and bind the returned `onKeydown` handler to your element manually instead.
+
 :::
 
 <DocsApi />

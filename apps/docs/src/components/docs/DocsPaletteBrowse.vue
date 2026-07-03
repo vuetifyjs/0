@@ -112,7 +112,10 @@
       >
         <Select.Activator class="h-[30px] px-2 text-xs font-medium bg-surface-tint border border-divider rounded inline-flex items-center gap-1 cursor-pointer">
           <Select.Value v-slot="{ selectedValue }">{{ PALETTES[String(selectedValue)]?.label }}</Select.Value>
-          <Select.Cue v-slot="{ isOpen }" class="text-[10px] opacity-50">{{ isOpen ? '&#x25B4;' : '&#x25BE;' }}</Select.Cue>
+
+          <Select.Cue v-slot="{ isOpen }" class="opacity-50">
+            <AppChevron :open="isOpen" :size="12" vertical />
+          </Select.Cue>
         </Select.Activator>
 
         <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">

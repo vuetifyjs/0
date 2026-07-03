@@ -7,7 +7,7 @@
  *
  * TODO: Dedupe with build/markdown.ts - shared logic includes:
  * - Table wrapping (overflow-x-auto)
- * - Callout detection ([!TIP], [!INFO], etc.)
+ * - Callout detection ([!TIP], [!NOTE], etc.)
  * - Mermaid code block handling
  * - VUE_API_NAMES inline code detection
  * - Shiki themes and createApiTransformer()
@@ -16,8 +16,10 @@
 // Build
 import { createApiTransformer, renderVueApiInlineCode } from '@build/shiki-api-transformer'
 import { Marked } from 'marked'
+import { markedEmoji } from 'marked-emoji'
 
 // Constants
+import { EMOJIS } from '@/constants/emoji'
 import { SHIKI_THEMES } from '@/constants/shiki'
 
 // Utilities
@@ -36,12 +38,24 @@ export interface UseMarkdownReturn {
 let cachedMarked: Marked | null = null
 let cachedHighlighter: Highlighter | null = null
 
-// Separate synchronous instance used only for parseInline inside the blockquote renderer.
+// Separate synchronous instance used for parseInline (blockquote renderer, renderInline).
 // The main cachedMarked has async:true, which makes parseInline return a Promise — unusable
-// in a synchronous renderer. This instance is sync-only and has no extensions.
+// in a synchronous renderer.
 let syncInlineMarked: Marked | null = null
 function getInlineMarked (): Marked {
-  return syncInlineMarked ??= new Marked({ async: false, gfm: true })
+  if (!syncInlineMarked) {
+    syncInlineMarked = new Marked({ async: false, gfm: true })
+    syncInlineMarked.use(markedEmoji({ emojis: EMOJIS, renderer: token => token.emoji }))
+  }
+  return syncInlineMarked
+}
+
+/**
+ * Renders a single line of markdown as inline HTML with decorated links.
+ * No block elements — safe inside p, li, and other inline containers.
+ */
+export function renderInline (text: string): string {
+  return processLinks(getInlineMarked().parseInline(text) as string)
 }
 
 function getMarked (hl: Highlighter): Marked {
@@ -55,6 +69,8 @@ function getMarked (hl: Highlighter): Marked {
     breaks: true,
   })
 
+  cachedMarked.use(markedEmoji({ emojis: EMOJIS, renderer: token => token.emoji }))
+
   cachedMarked.use({
     renderer: {
       table ({ header, rows }) {
@@ -66,14 +82,14 @@ function getMarked (hl: Highlighter): Marked {
         return `<div class="overflow-x-auto mb-4"><table>${thead}${tbody}</table></div>`
       },
       blockquote ({ raw }) {
-        // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!TRY], > [!TOUR]
+        // GitHub-style callouts: > [!TIP], > [!NOTE], > [!WARNING], > [!CAUTION], > [!IMPORTANT], > [!TRY], > [!TOUR]
         const innerContent = raw
           .split('\n')
           .map(line => line.replace(/^>\s?/, ''))
           .join('\n')
           .trim()
 
-        const match = innerContent.match(/^\[!(TIP|INFO|WARNING|ERROR|TRY|TOUR)\]\s*([\s\S]*)/)
+        const match = innerContent.match(/^\[!(TIP|NOTE|WARNING|CAUTION|IMPORTANT|TRY|TOUR)\]\s*([\s\S]*)/)
         if (match) {
           const type = match[1].toLowerCase()
           const rest = match[2].trim()

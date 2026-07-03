@@ -10,10 +10,11 @@
 
 import { bench, describe } from 'vitest'
 
-import { createRegistry } from './index'
+// Framework
+import { createRegistry } from '@vuetify/v0/composables'
 
 // Types
-import type { RegistryContext, RegistryTicket } from './index'
+import type { RegistryContext, RegistryTicket } from '@vuetify/v0/composables'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks
@@ -38,6 +39,15 @@ const ITEMS_10K: BenchmarkItem[] = Array.from({ length: 10_000 }, (_, i) => ({
 // Pre-populated registries for READ-ONLY benchmarks only
 function createPopulatedRegistry (count: number): RegistryContext<RegistryTicket> {
   const registry = createRegistry()
+  const items = count === 1000 ? ITEMS_1K : ITEMS_10K
+  registry.onboard(items.slice(0, count))
+  return registry
+}
+
+// Reactive variant: keys()/values()/entries() skip the read cache and recompute
+// on every call, so these fixtures isolate the uncached O(n) read cost.
+function createReactiveRegistry (count: number): RegistryContext<RegistryTicket> {
+  const registry = createRegistry({ reactive: true })
   const items = count === 1000 ? ITEMS_1K : ITEMS_10K
   registry.onboard(items.slice(0, count))
   return registry
@@ -249,6 +259,72 @@ describe('createRegistry benchmarks', () => {
     bench('Access entries 100 times (10,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         registry10k.entries()
+      }
+    })
+  })
+
+  // ===========================================================================
+  // REACTIVE ACCESS - Uncached recompute path (reactive: true bypasses the cache)
+  // Shared fixture (safe - read-only operations, no state changes)
+  // Measures: full O(n) recompute of keys/values/entries on every call (the
+  // `computed access` group above measures the cached path), plus the combined
+  // snapshot rebuild useProxyRegistry performs (keys + values + entries together)
+  // on each version bump (#280) — the read shape that dominates once a reactive
+  // registry is consumed from a template or computed.
+  // ===========================================================================
+  describe('reactive access', () => {
+    const reactive1k = createReactiveRegistry(1000)
+    const reactive10k = createReactiveRegistry(10_000)
+
+    bench('Access keys 100 times (1,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive1k.keys()
+      }
+    })
+
+    bench('Access keys 100 times (10,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive10k.keys()
+      }
+    })
+
+    bench('Access values 100 times (1,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive1k.values()
+      }
+    })
+
+    bench('Access values 100 times (10,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive10k.values()
+      }
+    })
+
+    bench('Access entries 100 times (1,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive1k.entries()
+      }
+    })
+
+    bench('Access entries 100 times (10,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive10k.entries()
+      }
+    })
+
+    bench('Rebuild snapshot 100 times (1,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive1k.keys()
+        reactive1k.values()
+        reactive1k.entries()
+      }
+    })
+
+    bench('Rebuild snapshot 100 times (10,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive10k.keys()
+        reactive10k.values()
+        reactive10k.entries()
       }
     })
   })

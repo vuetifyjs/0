@@ -10,13 +10,14 @@
 
 import { bench, describe, vi } from 'vitest'
 
-import { createVirtual } from './index'
+// Framework
+import { createVirtual } from '@vuetify/v0/composables'
 
 // Utilities
 import { ref } from 'vue'
 
 // Types
-import type { VirtualContext } from './index'
+import type { VirtualContext } from '@vuetify/v0/composables'
 import type { Ref } from 'vue'
 
 // =============================================================================

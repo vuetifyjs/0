@@ -102,7 +102,7 @@
     return {
       'type': 'button',
       'tabindex': -1,
-      'aria-label': locale.t('NumberField.increment'),
+      'aria-label': locale.ti('NumberField.increment') ?? 'Increment',
       'disabled': disabled || undefined,
       'data-disabled': disabled ? true : undefined,
       onBlur,

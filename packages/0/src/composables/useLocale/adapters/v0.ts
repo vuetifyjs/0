@@ -26,24 +26,13 @@ export class V0LocaleAdapter extends LocaleAdapter {
   }
 
   t (key: string, ...params: unknown[]): string {
-    const locale = this.context.selectedId.value
+    const found = this.lookup(key, params)
 
-    if (!locale) return this.interpolate(key, params)
+    return isUndefined(found) ? this.interpolate(key, params) : found
+  }
 
-    const message = this.context.tokens.get(`${locale}.${key}`)?.value
-
-    if (isString(message)) {
-      return this.interpolate(this.resolve(locale, message), params)
-    }
-
-    if (this.context.fallbackLocale) {
-      const fbMessage = this.context.tokens.get(`${this.context.fallbackLocale}.${key}`)?.value
-      if (isString(fbMessage)) {
-        return this.interpolate(this.resolve(this.context.fallbackLocale, fbMessage), params)
-      }
-    }
-
-    return this.interpolate(key, params)
+  ti (key: string, ...params: unknown[]): string | undefined {
+    return this.lookup(key, params)
   }
 
   n (value: number): string {
@@ -52,6 +41,23 @@ export class V0LocaleAdapter extends LocaleAdapter {
     if (!IN_BROWSER || !locale) return value.toString()
 
     return new Intl.NumberFormat(String(locale)).format(value)
+  }
+
+  private lookup (key: string, params: unknown[]): string | undefined {
+    const locale = this.context.selectedId.value
+
+    if (!locale) return undefined
+
+    const message = this.context.tokens.get(`${locale}.${key}`)?.value
+
+    if (isString(message)) return this.interpolate(this.resolve(locale, message), params)
+
+    if (this.context.fallbackLocale) {
+      const fb = this.context.tokens.get(`${this.context.fallbackLocale}.${key}`)?.value
+      if (isString(fb)) return this.interpolate(this.resolve(this.context.fallbackLocale, fb), params)
+    }
+
+    return undefined
   }
 
   private resolve (locale: ID, str: string, visited = new Set<string>()): string {
@@ -64,12 +70,14 @@ export class V0LocaleAdapter extends LocaleAdapter {
 
       if (visited.has(path)) return match
 
-      visited.add(path)
-
       const resolved = this.context.tokens.get(path)?.value
 
       if (isString(resolved)) {
-        return this.resolve(target, resolved, visited)
+        // Branch with a copy of `visited` so sibling references to the same
+        // token resolve independently; only ancestor paths (carried down the
+        // copy) count as cycles. A shared, mutated set would drop the second
+        // `{app}` in `'{app} loves {app}'`.
+        return this.resolve(target, resolved, new Set(visited).add(path))
       }
 
       return match

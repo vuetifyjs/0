@@ -4,17 +4,17 @@
  * @remarks
  * Utilities for resolving recursive column definitions into flat leaf
  * columns and 2D header grids. Used by createDataTable for header
- * rendering and by createDataGrid for column layout.
+ * rendering.
  */
 
 export interface ColumnNode {
-  readonly key: string
+  readonly id: string
   readonly title?: string
   readonly children?: readonly ColumnNode[]
 }
 
 export interface InternalHeader {
-  key: string
+  id: string
   title: string
   colspan: number
   rowspan: number
@@ -78,7 +78,7 @@ export function resolveHeaders (columns: readonly ColumnNode[]): InternalHeader[
       if (col.children?.length) {
         const leaves = extractLeaves(col.children)
         rows[depth].push({
-          key: col.key,
+          id: col.id,
           title: col.title ?? '',
           colspan: leaves.length,
           rowspan: 1,
@@ -87,7 +87,7 @@ export function resolveHeaders (columns: readonly ColumnNode[]): InternalHeader[
         walk(col.children, depth + 1)
       } else {
         rows[depth].push({
-          key: col.key,
+          id: col.id,
           title: col.title ?? '',
           colspan: 1,
           rowspan: maxDepth - depth + 1,

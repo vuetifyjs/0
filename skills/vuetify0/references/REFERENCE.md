@@ -113,6 +113,22 @@ email.validate()
 form.submit()   // Validates all fields
 ```
 
+#### createOtp — OTP / verification code
+```ts
+import { createOtp } from '@vuetify/v0'
+
+const otp = createOtp({
+  length: 6,
+  pattern: 'numeric',
+  onComplete: async value => await verify(value),
+})
+
+otp.write(0, '4')
+otp.distribute('123456') // returns count consumed
+otp.value.value     // joined string
+otp.isComplete.value
+```
+
 ### Context & State Sharing
 
 #### createContext — Type-Safe Provide/Inject

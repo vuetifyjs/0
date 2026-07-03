@@ -570,7 +570,7 @@ describe('useRovingFocus', () => {
         result.first()
 
         const event = createKeyboardEvent('ArrowDown')
-        const spy = vi.spyOn(event, 'preventDefault')
+        using spy = vi.spyOn(event, 'preventDefault')
         result.onKeydown(event)
 
         expect(spy).toHaveBeenCalled()
@@ -587,7 +587,7 @@ describe('useRovingFocus', () => {
         result.first()
 
         const event = createKeyboardEvent('Tab')
-        const spy = vi.spyOn(event, 'preventDefault')
+        using spy = vi.spyOn(event, 'preventDefault')
         result.onKeydown(event)
 
         expect(spy).not.toHaveBeenCalled()

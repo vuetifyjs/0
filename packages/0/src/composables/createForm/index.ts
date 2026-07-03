@@ -35,7 +35,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { toArray } from '#v0/composables/toArray'
 
 // Utilities
-import { isNull } from '#v0/utilities'
+import { isNull, isUndefined } from '#v0/utilities'
 import { computed, hasInjectionContext } from 'vue'
 
 // Types
@@ -132,14 +132,14 @@ export interface FormContextOptions extends FormOptions {
  * form.reset()
  * ```
  */
-export function createForm (options: FormOptions = {}): FormContext {
+export function createForm (_options: FormOptions = {}): FormContext {
   const {
     disabled = false,
     readonly = false,
-    ..._options
-  } = options
+    ...options
+  } = _options
 
-  const registry = createRegistry<FormTicket>({ ..._options, reactive: true })
+  const registry = createRegistry<FormTicket>({ ...options, reactive: true })
 
   const isValidating = computed(() => {
     for (const ticket of registry.values()) {
@@ -171,7 +171,7 @@ export function createForm (options: FormOptions = {}): FormContext {
   }
 
   async function submit (id?: ID | ID[]): Promise<boolean> {
-    const ids = id ? toArray(id) : [...registry.keys()]
+    const ids = isUndefined(id) ? [...registry.keys()] : toArray(id)
     const results = await Promise.all(
       ids.map(async key => {
         const ticket = registry.get(key)

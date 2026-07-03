@@ -5,7 +5,7 @@ export interface User {
   score: number
 }
 
-export function generateUsers (count = 1000): User[] {
+export function generate (count = 1000): User[] {
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
     name: `User ${i + 1}`,

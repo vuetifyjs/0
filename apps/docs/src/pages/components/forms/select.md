@@ -28,18 +28,13 @@ Headless dropdown select with single and multi-selection, keyboard navigation, a
 
 The Select component provides a compound pattern for building accessible dropdown selects. It supports `v-model` for both single values and arrays (multi-select mode).
 
-::: example
+::: gn-example
 /components/select/basic
-
-### Basic Select
-
-A single-select color dropdown with placeholder text and selected value display.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Select } from '@vuetify/v0'
 </script>
@@ -49,7 +44,6 @@ A single-select color dropdown with placeholder text and selected value display.
     <Select.Activator>
       <Select.Value />
       <Select.Placeholder />
-
       <Select.Cue />
     </Select.Activator>
 
@@ -90,22 +84,24 @@ flowchart TD
 
 ## Examples
 
-::: example
-/components/select/disabled
+::: gn-example
+/components/select/useTagFilter.ts 1
+/components/select/TagFilter.vue 2
+/components/select/tag-filter.vue 3
 
-### Disabled States
+### Multi-Select Tag Filter
 
-Both individual items and the entire select can be disabled. Disabled items are skipped by virtual focus keyboard navigation. The `disabled` prop on Root prevents the dropdown from opening.
+This example wires a multi-select dropdown to a live list. Adding `multiple` to `Select.Root` switches the `v-model` binding from a single value to an array, and the dropdown stays open after each pick so the user can stack several tags in one pass. The selected tags surface as chips inside the `Select.Activator` via the `selectedValues` slot prop on `Select.Value`, and those same tags drive a reactive filter over the article list below — pick a tag and the list narrows, remove it and the list widens again. When no article carries every active tag, an empty state explains how to recover.
 
-:::
+The interesting detail is the relationship between `Select.Item`'s `id` and `value` props. The `id` is the registry key used for virtual focus and ARIA wiring; the `value` is what syncs to `v-model`. Here both are the tag string, which keeps the model array identical to the chip labels and to the filter predicate — no lookup table needed. Filtering, the tag universe, and the AND-match predicate all live in the `useTagFilter` composable, so the markup component stays declarative. The `name` prop on `Select.Root` auto-renders a hidden input per selected value, making the filter submittable inside a real form without ever placing a hidden-input sub-component by hand.
 
-::: example
-/components/select/multiple
+Reach for this pattern whenever a field accepts several independent choices that shape what's shown elsewhere — tag pickers, faceted search, permission editors. For single-choice fields drop `multiple` and bind a scalar; for free-text entry that creates new options on the fly, prefer [Combobox](/components/forms/combobox) instead. The selection logic underneath comes from [createSelection](/composables/selection/create-selection); the dropdown positioning from [Popover](/components/disclosure/popover).
 
-### Multi-Select
-
-Set `multiple` on Root to enable multi-selection. The dropdown stays open after each selection. `v-model` binds to an array of IDs. The Value slot receives `selectedValues` for rendering chips, tags, or comma-separated text.
-
+| File | Role |
+|------|------|
+| `useTagFilter.ts` | Owns the article corpus, derives the tag universe, and computes the AND-matched results from the active tags |
+| `TagFilter.vue` | Renders the multi-select Select compound, surfacing chips in the activator and binding the tag array via `defineModel` |
+| `tag-filter.vue` | Wires the composable to the component and renders the filtered article list with its empty state |
 :::
 
 ## Recipes
@@ -230,7 +226,7 @@ Style interactive states without slot props:
 
 ## Accessibility
 
-The Select implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apd/patterns/combobox/) pattern with a listbox popup.
+The Select implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) pattern with a listbox popup.
 
 ### ARIA Attributes
 
@@ -257,5 +253,31 @@ The Select implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apd/pa
 | `End` | Move highlight to last item |
 | `Escape` | Close dropdown |
 | `Tab` | Close dropdown and move focus |
+
+## FAQ
+
+::: faq
+
+??? What's the difference between an Item's `id` and `value` props?
+
+`id` is the internal registry key used for virtual focus, ARIA wiring, and ticket lookup; `value` is what syncs to `v-model`. When they differ, use the `selectedValue` slot prop on `Select.Value` to map the model value to a display label.
+
+??? How do I switch Select into multi-select mode?
+
+Add `multiple` to `Select.Root` and bind `v-model` to an array. The dropdown stays open after each pick so the user can stack several values in one pass.
+
+??? When should I use Select instead of Combobox?
+
+Use Select when users pick from a fixed list without typing. For free-text entry or typeahead filtering that can create new options, reach for [Combobox](/components/forms/combobox) instead.
+
+??? How do I keep one option always selected?
+
+Add `mandatory` to `Select.Root` to block deselecting the last item, or `mandatory="force"` to also auto-select the first non-disabled item on mount.
+
+??? How do I submit Select's value with a native form?
+
+Set `name` on `Select.Root` and it auto-renders one hidden input per selected value, so the field posts with the form without placing a hidden-input sub-component by hand.
+
+:::
 
 <DocsApi />

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { useRtl } from '@vuetify/v0'
+  import { Button, useRtl } from '@vuetify/v0'
   import { toRef } from 'vue'
 
   const { isRtl, toggle } = useRtl()
@@ -10,7 +10,7 @@
 <template>
   <div class="flex flex-col gap-6">
     <div class="flex items-center gap-3">
-      <button
+      <Button.Root
         class="px-4 py-2 rounded-lg bg-primary text-on-primary font-medium text-sm"
         @click="toggle"
       >
@@ -18,7 +18,7 @@
           <span class="i-lucide-arrow-left-right" />
           Switch to {{ isRtl ? 'LTR' : 'RTL' }}
         </span>
-      </button>
+      </Button.Root>
 
       <span class="px-3 py-1 rounded-full bg-surface-variant text-on-surface-variant text-xs font-mono uppercase">
         {{ direction }}
@@ -50,13 +50,13 @@
       </p>
 
       <div class="flex gap-2">
-        <button class="px-3 py-1.5 rounded bg-primary text-on-primary text-sm">
+        <Button.Root class="px-3 py-1.5 rounded bg-primary text-on-primary text-sm">
           {{ isRtl ? 'إرسال' : 'Send' }}
-        </button>
+        </Button.Root>
 
-        <button class="px-3 py-1.5 rounded bg-surface-variant text-on-surface-variant text-sm">
+        <Button.Root class="px-3 py-1.5 rounded bg-surface-variant text-on-surface-variant text-sm">
           {{ isRtl ? 'إلغاء' : 'Cancel' }}
-        </button>
+        </Button.Root>
       </div>
     </div>
 

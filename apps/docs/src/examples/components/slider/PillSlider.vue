@@ -19,7 +19,7 @@
       :step="1"
       @update:model-value="value = $event[0] ?? 0"
     >
-      <Slider.Track class="pill-track">
+      <Slider.Track class="pill-track" :renderless="true">
         <template #default="{ attrs }">
           <div v-bind="attrs" class="pill-track-container">
             <!-- Inactive segment BEFORE thumb -->

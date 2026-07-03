@@ -91,7 +91,7 @@
     isAtEdge: isAtEdge.value,
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
-      'aria-label': locale.t('Carousel.prev'),
+      'aria-label': locale.ti('Carousel.prev') ?? 'Previous slide',
       'aria-controls': viewportId,
       'aria-disabled': isDisabled.value,
       'disabled': as === 'button' ? isDisabled.value : undefined,

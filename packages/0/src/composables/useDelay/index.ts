@@ -46,8 +46,8 @@ export interface UseDelayOptions {
    *
    * @example
    * ```ts
-   * useDelay({ openDelay: 300 })
-   * useDelay({ openDelay: () => isFocus.value ? 0 : 500 })
+   * useDelay(undefined, { openDelay: 300 })
+   * useDelay(undefined, { openDelay: () => isFocus.value ? 0 : 500 })
    * ```
    */
   openDelay?: MaybeRefOrGetter<number>
@@ -56,7 +56,7 @@ export interface UseDelayOptions {
    *
    * @example
    * ```ts
-   * useDelay({ closeDelay: 200 })
+   * useDelay(undefined, { closeDelay: 200 })
    * ```
    */
   closeDelay?: MaybeRefOrGetter<number>
@@ -96,7 +96,7 @@ export interface UseDelayReturn {
    *
    * @example
    * ```ts
-   * const delay = useDelay({ openDelay: 300, closeDelay: 200 })
+   * const delay = useDelay(undefined, { openDelay: 300, closeDelay: 200 })
    * await delay.start(true)                    // resolves true after 300ms
    * await delay.start(false, { minDelay: 500 }) // resolves false after max(200, 500)
    * ```

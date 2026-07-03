@@ -49,7 +49,7 @@ All v0 components expose state via `data-*` attributes in the `attrs` object:
 | [Popover](/components/disclosure/popover) | <span class="whitespace-nowrap">`data-open`</span> | Activator element |
 | [Dialog](/components/disclosure/dialog) | <span class="whitespace-nowrap">`data-open`</span> | Activator element |
 
-> [!INFO]
+> [!NOTE]
 > Attributes are only present when `true`. Use `[data-selected]` not `[data-selected="true"]`.
 
 > [!ASKAI] What data attributes does Selection.Item expose and how do I style them?
@@ -62,7 +62,7 @@ Data attribute selectors let you style based on state purely in CSS. This works 
 
 Use the `data-[attr]:` [variant](https://unocss.dev/transformers/variant-group) to apply classes when an attribute is present:
 
-::: example
+::: gn-example
 /guide/styling/data-attributes
 
 ### Tailwind / UnoCSS Data Attributes
@@ -75,7 +75,7 @@ Tabs styled with utility classes using `data-[selected]:bg-primary` attribute se
 
 Target data attributes in your [module styles](https://vuejs.org/api/sfc-css-features#css-modules):
 
-::: example
+::: gn-example
 /guide/styling/css-modules
 
 ### CSS Modules
@@ -114,7 +114,7 @@ Standard [attribute selectors](https://developer.mozilla.org/en-US/docs/Web/CSS/
 - **Conditional rendering** (icons, badges, text)
 - **Dynamic inline styles** (progress bars, animations)
 
-::: example
+::: gn-example
 /guide/styling/slot-props
 
 ### Slot Props
@@ -132,7 +132,7 @@ Selection items styled using reactive slot props (`isSelected`, `attrs`) for con
 
 Add CSS transitions for smooth state changes:
 
-::: example
+::: gn-example
 /guide/styling/transitions
 
 ### CSS Transitions
@@ -161,7 +161,7 @@ Combine focus-visible with selection state for keyboard navigation feedback:
 
 Style combinations using CSS attribute selectors:
 
-::: example
+::: gn-example
 /guide/styling/compound-states
 
 ### Compound State Selectors

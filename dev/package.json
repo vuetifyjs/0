@@ -1,6 +1,6 @@
 {
   "name": "dev",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-beta.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@paper/emerald": "workspace:*",
+    "@paper/genesis": "workspace:*",
     "@phosphor-icons/vue": "catalog:",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",

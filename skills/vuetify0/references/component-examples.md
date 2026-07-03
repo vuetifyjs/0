@@ -3,7 +3,7 @@
 Real-world examples of v0 headless components. All styling uses UnoCSS utility classes.
 
 > **Styling guide:** v0 components are headless — they emit `data-*` attributes as styling hooks.
-> See the [v0 styling docs](https://0.vuetifyjs.com/guide/styling) for UnoCSS setup and data attribute patterns.
+> See the [v0 styling docs](https://0.vuetifyjs.com/guide/fundamentals/styling) for UnoCSS setup and data attribute patterns.
 
 ## Contents
 

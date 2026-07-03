@@ -244,7 +244,7 @@
 
       <!-- Live demo -->
       <div class="relative px-6 py-8 rounded-xl border bg-surface flex flex-col justify-center overflow-hidden">
-        <AppDotGrid :coverage="60" :density="18" />
+        <AppDotGrid :coverage="60" />
 
         <p class="relative text-xs font-medium uppercase tracking-wide opacity-50 mb-6">Live Preview</p>
 

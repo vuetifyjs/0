@@ -113,18 +113,40 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-virtual-focus/Listbox.vue 1
 /composables/use-virtual-focus/listbox.vue 2
 
 ### Searchable Fruit Picker
 
-A searchable listbox where the input keeps DOM focus. Arrow keys navigate filtered results, Enter selects the highlighted item, and disabled items are skipped.
+A combobox-style fruit picker where the input retains DOM focus while arrow keys move a visual highlight across the filtered option list. Typing in the input filters the list via a `computed`; `watch(filtered, () => clear())` resets the highlight when the list changes so the highlighted item is never pointing at a stale position. Pressing Enter confirms the currently highlighted item; clicking a non-disabled option focuses the input again to keep DOM focus on the control.
+
+`Listbox.vue` passes each option's element reference as a `querySelector` callback so `useVirtualFocus` can call `el.setAttribute('data-highlighted', '')` on the active option and `el.removeAttribute('data-highlighted')` on departure — without moving real focus. The CSS in `Listbox.vue` styles `[data-highlighted]` and `[data-selected]` with CSS custom properties from the v0 theme so the example works under both light and dark modes. Disabled options carry `aria-disabled` and `data-disabled` attributes, and `useVirtualFocus` skips them automatically when navigating with arrow keys.
+
+`listbox.vue` provides the fruit data and a `selected` ref, wiring the `Listbox` component through `v-model` and a `@select` emit. Reach for `useVirtualFocus` whenever a single `<input>` controls a list that cannot individually receive browser focus — comboboxes, autocompletes, token fields, and searchable selects. For lists of real focusable buttons or links, use [useRovingFocus](/composables/system/use-roving-focus) instead.
 
 | File | Role |
 |------|------|
-| `Listbox.vue` | Reusable listbox component using useVirtualFocus |
+| `Listbox.vue` | Reusable listbox with filtering, virtual focus, and ARIA markup |
 | `listbox.vue` | Entry point with a fruit list |
+:::
+
+## FAQ
+
+::: faq
+
+??? When should I use useVirtualFocus vs useRovingFocus?
+
+Use `useVirtualFocus` when a single control (usually an `<input>`) keeps DOM focus while a highlight moves across non-focusable options — comboboxes, autocompletes, searchable selects. Use [useRovingFocus](/composables/system/use-roving-focus) when the items are real focusable elements that should receive browser focus directly.
+
+??? How do I know which item is active if focus never moves?
+
+`aria-activedescendant` on the control references the active item's id, and `data-highlighted` is set on the highlighted element so you can style it with a `[data-highlighted]` selector.
+
+??? Should I reset the highlight when the filtered list changes?
+
+Yes. Call `clear()` when the list changes (e.g. `watch(filtered, () => clear())`) so the highlight never points at a stale or removed item.
+
 :::
 
 <DocsApi />
