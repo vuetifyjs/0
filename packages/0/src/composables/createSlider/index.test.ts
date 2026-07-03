@@ -201,8 +201,24 @@ describe('createSlider', () => {
       addThumb(0)
       addThumb(100)
       slider.apply([50, 55])
-      expect(slider.values.value[0]).toBe(45)
+      // Forward sweep: the first thumb keeps its requested value and the second
+      // is pushed up to satisfy minStepsBetweenThumbs (gap 10), rather than
+      // pulling the first thumb down. Matches set()'s written-prev anchoring.
+      expect(slider.values.value[0]).toBe(50)
       expect(slider.values.value[1]).toBe(60)
+    })
+
+    it('should enforce the minimum gap across three or more thumbs', () => {
+      const { slider, addThumb } = setup({ min: 0, max: 100, step: 1, minStepsBetweenThumbs: 10 })
+      addThumb(10)
+      addThumb(20)
+      addThumb(30)
+      // The old two-sided clamp anchored on the raw incoming neighbours, so the
+      // middle thumb's upper bound (following - gap) could drop below its lower
+      // bound (prev + gap) and squeeze the gap under the minimum: apply([10,12,14])
+      // collapsed to [2,4,22] (a 2-step gap). The forward sweep keeps every gap >= 10.
+      slider.apply([10, 12, 14])
+      expect(slider.values.value).toEqual([10, 20, 30])
     })
   })
 

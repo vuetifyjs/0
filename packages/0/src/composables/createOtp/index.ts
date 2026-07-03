@@ -1,0 +1,357 @@
+/**
+ * @module createOtp
+ *
+ * @see https://0.vuetifyjs.com/composables/forms/create-otp
+ *
+ * @remarks
+ * Headless state for a fixed-length one-time-password / verification-code value.
+ * Owns the joined string, per-character pattern matching, length contract,
+ * completion edge detection with a decisional async `onComplete` hook, and
+ * validation through `createInput`. Rendering, focus, and per-element event
+ * wiring are the consumer's responsibility.
+ *
+ * @example
+ * ```ts
+ * import { createOtp } from '@vuetify/v0'
+ *
+ * const otp = createOtp({
+ *   length: 6,
+ *   pattern: 'numeric',
+ *   onComplete: async value => {
+ *     const ok = await verify(value)
+ *     return ok
+ *   },
+ * })
+ *
+ * otp.write(0, '4')
+ * otp.distribute('12345', 1) // returns 5; value becomes '412345'
+ * otp.isComplete.value  // true
+ * ```
+ */
+
+// Composables
+import { createInput } from '#v0/composables/createInput'
+import { useLogger } from '#v0/composables/useLogger'
+
+// Utilities
+import { clamp, isString, isThenable } from '#v0/utilities'
+import { shallowRef, toRef, toValue, watch } from 'vue'
+
+// Types
+import type { InputContext, InputOptions } from '#v0/composables/createInput'
+import type { MaybeRefOrGetter, Ref } from 'vue'
+
+/**
+ * Pattern presets — string literals compile to internal RegExps; arbitrary
+ * RegExp values are applied per character.
+ *
+ * @example
+ * ```ts
+ * const otp = createOtp({ pattern: 'numeric' })
+ * const hex = createOtp({ pattern: /^[0-9a-fA-F]$/ })
+ * ```
+ */
+export type OtpPattern = 'numeric' | 'alphanumeric' | 'alphabetic' | RegExp
+
+const PRESETS: Record<Exclude<OtpPattern, RegExp>, RegExp> = {
+  numeric: /^[0-9]$/,
+  alphanumeric: /^[a-zA-Z0-9]$/,
+  alphabetic: /^[a-zA-Z]$/,
+}
+
+const WARNED_PATTERNS = /* @__PURE__ */ new WeakSet<RegExp>()
+
+/**
+ * Options accepted by `createOtp`.
+ *
+ * @example
+ * ```ts
+ * const otp = createOtp({
+ *   length: 6,
+ *   pattern: 'numeric',
+ *   disabled: false,
+ *   onComplete: async value => {
+ *     const ok = await verify(value)
+ *     return ok
+ *   },
+ * })
+ * ```
+ */
+export interface OtpOptions extends Omit<InputOptions<string>, 'value' | 'error' | 'errorMessages'> {
+  /** Number of characters. @default 6 */
+  length?: MaybeRefOrGetter<number>
+  /** Joined value source. @default shallowRef('') */
+  value?: Ref<string>
+  /**
+   * Per-character pattern. String presets compile to internal RegExps;
+   * custom RegExp must match a single character.
+   * @default 'numeric'
+   */
+  pattern?: MaybeRefOrGetter<OtpPattern>
+  /**
+   * Fire when the joined value first reaches `length`. Decisional —
+   * return / resolve `false` to reject (clears value, sets error).
+   * A rejected Promise is treated as `false` and logs a warning.
+   */
+  onComplete?: (value: string) => boolean | void | PromiseLike<boolean | void>
+}
+
+/**
+ * Reactive context returned by `createOtp`. Consumers index into `value`
+ * for per-character rendering and call the mutation helpers to drive state.
+ *
+ * @example
+ * ```ts
+ * const otp = createOtp({ length: 6 })
+ *
+ * otp.write(0, '4')
+ * otp.distribute('12345', 1) // returns 5
+ * otp.isComplete.value  // true
+ * otp.clear()
+ * ```
+ */
+export interface OtpContext {
+  /**
+   * The joined OTP string. Use the mutation helpers (`write`, `distribute`,
+   * `fill`, `clear`) to update. Writing through this ref directly is
+   * intentionally prevented to preserve pattern, length, and lock invariants.
+   */
+  value: Readonly<Ref<string>>
+  /** Resolved character count from the `length` option. */
+  length: Readonly<Ref<number>>
+  /**
+   * The underlying `createInput` context — exposes ARIA IDs, validation
+   * state, focus/touched, and the `validate` / `reset` methods.
+   *
+   * Note: `input.value` aliases `OtpContext.value` and is also readonly on
+   * the public surface. Use the mutation helpers (`write`, `distribute`,
+   * `fill`, `clear`) to update.
+   */
+  input: Omit<InputContext<string>, 'value'> & { value: Readonly<Ref<string>> }
+  /** True when `value` reaches `length` and every character matches `pattern`. */
+  isComplete: Readonly<Ref<boolean>>
+  /**
+   * True while an async `onComplete` is in flight. Mutation helpers no-op
+   * during this window; consumers can render a spinner against this ref.
+   */
+  isValidating: Readonly<Ref<boolean>>
+  /**
+   * Write a single character at `index`. Empty string clears trailing
+   * characters from `index` onward. Out-of-range indices and characters
+   * rejected by `pattern` are ignored. No-ops while locked.
+   */
+  write: (index: number, char: string) => void
+  /**
+   * Splice pattern-accepted characters from `text` into `value` starting
+   * at `index`. Returns the number of characters written. No-ops while
+   * locked or when no characters pass the pattern.
+   */
+  distribute: (text: string, index?: number) => number
+  /** Clear `value` and rejection state. No-ops while locked. */
+  clear: () => void
+  /**
+   * Replace `value` with pattern-accepted characters from `text`, truncated
+   * to `length`. Clears rejection state on deliberate empty input or any
+   * accepted characters. No-ops while locked.
+   */
+  fill: (text: string) => void
+  /** Whether `char` is a single character matching the current `pattern`. */
+  accepts: (char: string) => boolean
+}
+
+export function createOtp (_options: OtpOptions = {}): OtpContext {
+  const {
+    value = shallowRef(''),
+    length = 6,
+    pattern = 'numeric',
+    disabled = false,
+    readonly: _readonly = false,
+    onComplete,
+    ...options
+  } = _options
+
+  const logger = useLogger()
+
+  const errorRef = shallowRef(false)
+  const errorMessagesRef = shallowRef<string[] | undefined>(undefined)
+
+  const input = createInput<string>({
+    ...options,
+    value,
+    disabled,
+    readonly: _readonly,
+    error: errorRef,
+    errorMessages: errorMessagesRef,
+  })
+
+  const lengthRef = toRef(() => toValue(length))
+
+  // Track the last value that triggered onComplete to detect repeated completion edges.
+  // Watching isComplete directly misses cycles where value clears then refills within
+  // the same flush tick (old === new === true, Vue skips the callback).
+  let lastCompleted = ''
+
+  function compile (resolved: OtpPattern): RegExp {
+    if (isString(resolved)) return PRESETS[resolved]
+    if (__DEV__ && !WARNED_PATTERNS.has(resolved)) {
+      WARNED_PATTERNS.add(resolved)
+      if (resolved.test('aa') || resolved.test('00')) {
+        logger.warn('createOtp: pattern matches multi-character input; per-character matching may behave unexpectedly')
+      }
+    }
+    return resolved
+  }
+
+  function accepts (char: string): boolean {
+    if (char.length !== 1) return false
+    return compile(toValue(pattern)).test(char)
+  }
+
+  function filterAccepted (text: string): string {
+    let out = ''
+    for (const ch of text) {
+      if (accepts(ch)) out += ch
+    }
+    return out
+  }
+
+  // While an async onComplete is pending, mutation helpers no-op via `isLocked()`.
+  // Surfaced as `isValidating` on the returned context; once createInput accepts
+  // an external isValidating source, also wire it into `input.isValidating`.
+  const isPending = shallowRef(false)
+
+  function isLocked (): boolean {
+    return toValue(disabled) || toValue(_readonly) || isPending.value
+  }
+
+  function clearRejection (): void {
+    if (errorRef.value || errorMessagesRef.value) {
+      errorRef.value = false
+      errorMessagesRef.value = undefined
+    }
+  }
+
+  function write (index: number, char: string): void {
+    if (isLocked()) return
+    const max = toValue(lengthRef)
+    if (index < 0 || index >= max) return
+    if (char === '') {
+      clearRejection()
+      value.value = value.value.slice(0, index)
+      return
+    }
+    const first = char[0]
+    if (!accepts(first)) return
+    clearRejection()
+    const current = value.value
+    const head = current.slice(0, index)
+    const tail = current.slice(index + 1)
+    value.value = (head + first + tail).slice(0, max)
+  }
+
+  function distribute (text: string, index = 0): number {
+    if (isLocked()) return 0
+    const max = toValue(lengthRef)
+    const start = clamp(index, 0, max)
+    const filtered = filterAccepted(text)
+    if (filtered.length === 0) return 0
+    clearRejection()
+    const head = value.value.slice(0, start)
+    const next = (head + filtered).slice(0, max)
+    value.value = next
+    return next.length - head.length
+  }
+
+  function clear (): void {
+    if (isLocked()) return
+    clearRejection()
+    lastCompleted = ''
+    value.value = ''
+  }
+
+  function fill (text: string): void {
+    if (isLocked()) return
+    const max = toValue(lengthRef)
+    const filtered = filterAccepted(text).slice(0, max)
+    // Clear rejection on deliberate empty (fill('')) or any accepted input.
+    // Skip clearing if user provided non-empty input that was entirely rejected
+    // — preserves the rejection signal until the user enters a valid character.
+    if (text.length === 0 || filtered.length > 0) clearRejection()
+    value.value = filtered
+  }
+
+  function reject (): void {
+    errorRef.value = true
+    errorMessagesRef.value = ['Invalid code']
+    lastCompleted = ''
+    value.value = ''
+  }
+
+  const isComplete = toRef(() => {
+    const max = toValue(lengthRef)
+    const v = value.value
+    if (v.length !== max) return false
+    const re = compile(toValue(pattern))
+    for (const ch of v) {
+      if (!re.test(ch)) return false
+    }
+    return true
+  })
+
+  watch(value, next => {
+    if (!isComplete.value) {
+      lastCompleted = ''
+      return
+    }
+    if (!onComplete) return
+    if (isLocked()) return
+    if (next === lastCompleted) return
+    lastCompleted = next
+    let result: ReturnType<NonNullable<OtpOptions['onComplete']>>
+    try {
+      result = onComplete(next)
+    } catch (error) {
+      logger.warn('createOtp: onComplete threw', error)
+      reject()
+      return
+    }
+    if (isThenable(result)) {
+      isPending.value = true
+      result.then(
+        ok => {
+          isPending.value = false
+          if (ok === false) reject()
+        },
+        error => {
+          isPending.value = false
+          logger.warn('createOtp: onComplete rejected', error)
+          reject()
+        },
+      )
+      return
+    }
+    if (result === false) reject()
+  })
+
+  const inputContext: InputContext<string> = {
+    ...input,
+    reset () {
+      clearRejection()
+      lastCompleted = ''
+      input.reset()
+    },
+  }
+
+  return {
+    value,
+    length: lengthRef,
+    input: inputContext,
+    isComplete,
+    isValidating: isPending,
+    write,
+    distribute,
+    clear,
+    fill,
+    accepts,
+  }
+}

@@ -1,5 +1,8 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
+
+// Composables
+import { createLocalePlugin } from '#v0/composables'
 
 import { Avatar } from './index'
 
@@ -45,6 +48,11 @@ describe('avatar', () => {
       })
 
       it('should support renderless mode', () => {
+        // The Root's `v-show` is a no-op on a renderless Atom (the consumer
+        // owns the rendered element), so Vue warns about a runtime directive
+        // on a non-element root. Silence the expected, benign warning.
+        using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
         const wrapper = mount(Avatar.Root, {
           props: {
             renderless: true,
@@ -55,6 +63,7 @@ describe('avatar', () => {
         })
 
         expect(wrapper.find('.custom-root').exists()).toBe(true)
+        expect(warn).toHaveBeenCalled()
       })
     })
 
@@ -326,6 +335,35 @@ describe('avatar', () => {
         // After both load, the one with higher priority should be selected
         expect(highPriorityImage?.isVisible()).toBe(true)
       })
+
+      it('should keep the higher priority image selected when a lower priority image loads last', async () => {
+        const wrapper = mount(Avatar.Root, {
+          slots: {
+            default: () => [
+              h(Avatar.Image, { src: '/low-priority.jpg', priority: 1 }),
+              h(Avatar.Image, { src: '/high-priority.jpg', priority: 10 }),
+              h(Avatar.Fallback, {}, () => 'JD'),
+            ],
+          },
+        })
+
+        const images = wrapper.findAllComponents(Avatar.Image as any)
+        const lowPriorityImage = images[0]
+        const highPriorityImage = images[1]
+
+        // Reverse load order: high priority loads first, low priority loads LAST.
+        // Pre-fix, the last image to load won via ticket.select(), so the lower
+        // priority image wrongly took over the selection. Selection drives the
+        // v-show, so the higher priority image must stay visible.
+        await highPriorityImage?.trigger('load')
+        await lowPriorityImage?.trigger('load')
+        await nextTick()
+        await nextTick()
+
+        // Selection drives the v-show: the selected image has no display:none.
+        expect(String(highPriorityImage?.attributes('style'))).not.toContain('display: none')
+        expect(String(lowPriorityImage?.attributes('style'))).toContain('display: none')
+      })
     })
 
     describe('slot props', () => {
@@ -361,7 +399,7 @@ describe('avatar', () => {
       it('should support renderless mode with slot props', () => {
         // Suppress Vue warning about runtime directive on non-element root
         // This is expected when using v-show with renderless components
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
         let slotProps: any
 
@@ -379,8 +417,7 @@ describe('avatar', () => {
 
         expect(slotProps).toBeDefined()
         expect(wrapper.find('.custom-img').exists()).toBe(true)
-
-        warnSpy.mockRestore()
+        expect(warnSpy).toHaveBeenCalled()
       })
     })
   })
@@ -815,6 +852,555 @@ describe('avatar', () => {
       await nextTick()
 
       expect(wrapper.findComponent(Avatar.Image as any).attributes('src')).toBe('/avatar2.jpg')
+    })
+  })
+
+  describe('group', () => {
+    it('should register children and expose total/visible/hidden + role=group', async () => {
+      let captured: any
+      const wrapper = mount(Avatar.Group, {
+        props: { max: undefined },
+        slots: {
+          default: (props: any) => {
+            captured = props
+            return Array.from({ length: 4 }, (_, i) =>
+              h(Avatar.Root, { key: i, value: `u${i}` }, {
+                default: () => h(Avatar.Fallback, {}, () => `U${i}`),
+              }),
+            )
+          },
+        },
+      })
+
+      await nextTick()
+
+      expect(captured).toBeDefined()
+      expect(captured.total).toBe(4)
+      expect(captured.visible).toBe(4)
+      expect(captured.hidden).toEqual([])
+      expect(captured.isOverflowing).toBe(false)
+      expect(captured.attrs.role).toBe('group')
+      expect(captured.attrs['data-overflow']).toBeUndefined()
+      expect(wrapper.attributes('role')).toBe('group')
+
+      wrapper.unmount()
+    })
+
+    it('should decrement total when a child unmounts', async () => {
+      let captured: any
+      const count = ref(4)
+
+      const Wrapper = defineComponent({
+        setup () {
+          return () => h(Avatar.Group, {}, {
+            default: (props: any) => {
+              captured = props
+              return Array.from({ length: count.value }, (_, i) =>
+                h(Avatar.Root, { key: i, value: `u${i}` }, {
+                  default: () => h(Avatar.Fallback, {}, () => `U${i}`),
+                }),
+              )
+            },
+          })
+        },
+      })
+
+      const wrapper = mount(Wrapper)
+
+      await nextTick()
+      expect(captured.total).toBe(4)
+
+      count.value = 3
+      await nextTick()
+      expect(captured.total).toBe(3)
+
+      wrapper.unmount()
+    })
+
+    it('should truncate from end when priority="start"', async () => {
+      const wrapper = mount(Avatar.Group, {
+        props: { max: 3, priority: 'start' },
+        slots: {
+          default: () => Array.from({ length: 5 }, (_, i) =>
+            h(Avatar.Root, { key: i, value: `u${i}` }, {
+              default: () => h(Avatar.Fallback, {}, () => `U${i}`),
+            }),
+          ),
+        },
+      })
+
+      await nextTick()
+
+      const roots = wrapper.findAllComponents(Avatar.Root as any)
+      expect(roots).toHaveLength(5)
+
+      expect(roots[0]!.attributes('data-hidden')).toBeUndefined()
+      expect(roots[1]!.attributes('data-hidden')).toBeUndefined()
+      expect(roots[2]!.attributes('data-hidden')).toBeUndefined()
+      expect(roots[3]!.attributes('data-hidden')).toBe('true')
+      expect(roots[3]!.attributes('aria-hidden')).toBe('true')
+      expect(roots[4]!.attributes('data-hidden')).toBe('true')
+      expect(roots[4]!.attributes('aria-hidden')).toBe('true')
+
+      // data-index emitted only inside a Group
+      expect(roots[0]!.attributes('data-index')).toBe('0')
+      expect(roots[4]!.attributes('data-index')).toBe('4')
+
+      wrapper.unmount()
+    })
+
+    it('should truncate from start when priority="end"', async () => {
+      const wrapper = mount(Avatar.Group, {
+        props: { max: 3, priority: 'end' },
+        slots: {
+          default: () => Array.from({ length: 5 }, (_, i) =>
+            h(Avatar.Root, { key: i, value: `u${i}` }, {
+              default: () => h(Avatar.Fallback, {}, () => `U${i}`),
+            }),
+          ),
+        },
+      })
+
+      await nextTick()
+
+      const roots = wrapper.findAllComponents(Avatar.Root as any)
+      expect(roots[0]!.attributes('data-hidden')).toBe('true')
+      expect(roots[1]!.attributes('data-hidden')).toBe('true')
+      expect(roots[2]!.attributes('data-hidden')).toBeUndefined()
+      expect(roots[3]!.attributes('data-hidden')).toBeUndefined()
+      expect(roots[4]!.attributes('data-hidden')).toBeUndefined()
+
+      wrapper.unmount()
+    })
+
+    it('should keep disabled avatars visible and exclude them from capacity rank', async () => {
+      // 6 avatars, the middle one disabled. max=3, priority=start.
+      // Expected: disabled item is always visible; the 3 non-disabled visible slots
+      // fill from the start; trailing non-disabled items are hidden.
+      const wrapper = mount(Avatar.Group, {
+        props: { max: 3, priority: 'start' },
+        slots: {
+          default: () => [
+            h(Avatar.Root, { key: 0, value: 'u0' }, { default: () => h(Avatar.Fallback, {}, () => 'U0') }),
+            h(Avatar.Root, { key: 1, value: 'u1' }, { default: () => h(Avatar.Fallback, {}, () => 'U1') }),
+            h(Avatar.Root, { key: 2, value: 'u2', disabled: true }, { default: () => h(Avatar.Fallback, {}, () => 'U2') }),
+            h(Avatar.Root, { key: 3, value: 'u3' }, { default: () => h(Avatar.Fallback, {}, () => 'U3') }),
+            h(Avatar.Root, { key: 4, value: 'u4' }, { default: () => h(Avatar.Fallback, {}, () => 'U4') }),
+            h(Avatar.Root, { key: 5, value: 'u5' }, { default: () => h(Avatar.Fallback, {}, () => 'U5') }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const roots = wrapper.findAllComponents(Avatar.Root as any)
+      expect(roots[0]!.attributes('data-hidden')).toBeUndefined()
+      expect(roots[1]!.attributes('data-hidden')).toBeUndefined()
+      // Disabled avatar always visible regardless of max
+      expect(roots[2]!.attributes('data-hidden')).toBeUndefined()
+      // Third non-disabled slot
+      expect(roots[3]!.attributes('data-hidden')).toBeUndefined()
+      // The two remaining non-disabled avatars are hidden
+      expect(roots[4]!.attributes('data-hidden')).toBe('true')
+      expect(roots[5]!.attributes('data-hidden')).toBe('true')
+
+      wrapper.unmount()
+    })
+
+    it('should leave standalone Avatar.Root unhidden and without data-index/data-hidden', async () => {
+      let captured: any
+      const wrapper = mount(Avatar.Root, {
+        slots: {
+          default: (props: any) => {
+            captured = props
+            return h(Avatar.Fallback, {}, () => 'JD')
+          },
+        },
+      })
+
+      await nextTick()
+
+      expect(captured).toBeDefined()
+      expect(captured.isHidden).toBe(false)
+      expect(wrapper.attributes('data-hidden')).toBeUndefined()
+      expect(wrapper.attributes('data-index')).toBeUndefined()
+      expect(wrapper.attributes('aria-hidden')).toBeUndefined()
+
+      wrapper.unmount()
+    })
+  })
+
+  describe('indicator', () => {
+    it('should render only when the group is overflowing and expose count + hidden', async () => {
+      let captured: any
+      const wrapper = mount(Avatar.Group, {
+        props: { max: 2 },
+        slots: {
+          default: () => [
+            ...Array.from({ length: 5 }, (_, i) =>
+              h(Avatar.Root, { key: i, value: `u${i}` }, {
+                default: () => h(Avatar.Fallback, {}, () => `U${i}`),
+              }),
+            ),
+            h(Avatar.Indicator, {}, {
+              default: (props: any) => {
+                captured = props
+                return h('span', { class: 'indicator' }, `+${props.count}`)
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      expect(wrapper.find('.indicator').exists()).toBe(true)
+      expect(captured).toBeDefined()
+      expect(captured.count).toBe(3)
+      expect(captured.hidden).toHaveLength(3)
+      expect(captured.hidden[0].value).toBe('u2')
+      expect(captured.hidden[1].value).toBe('u3')
+      expect(captured.hidden[2].value).toBe('u4')
+      expect(captured.attrs['aria-live']).toBe('polite')
+      expect(captured.attrs['data-overflow-indicator']).toBe('true')
+
+      wrapper.unmount()
+    })
+
+    it('should render nothing when group is not overflowing', async () => {
+      const wrapper = mount(Avatar.Group, {
+        props: { max: 10 },
+        slots: {
+          default: () => [
+            ...Array.from({ length: 3 }, (_, i) =>
+              h(Avatar.Root, { key: i, value: `u${i}` }, {
+                default: () => h(Avatar.Fallback, {}, () => `U${i}`),
+              }),
+            ),
+            h(Avatar.Indicator, {}, {
+              default: (props: any) => h('span', { class: 'indicator' }, `+${props.count}`),
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      expect(wrapper.find('.indicator').exists()).toBe(false)
+
+      wrapper.unmount()
+    })
+
+    it('should render nothing when used standalone without an Avatar.Group ancestor', async () => {
+      const wrapper = mount(Avatar.Indicator, {
+        slots: {
+          default: (props: any) => h('span', { class: 'indicator' }, `+${props.count}`),
+        },
+      })
+
+      await nextTick()
+
+      expect(wrapper.find('.indicator').exists()).toBe(false)
+
+      wrapper.unmount()
+    })
+
+    it('should use English aria-label from locale when no locale plugin is configured', async () => {
+      let captured: any
+      const wrapper = mount(Avatar.Group, {
+        props: { max: 2 },
+        slots: {
+          default: () => [
+            ...Array.from({ length: 5 }, (_, i) =>
+              h(Avatar.Root, { key: i, value: `u${i}` }, {
+                default: () => h(Avatar.Fallback, {}, () => `U${i}`),
+              }),
+            ),
+            h(Avatar.Indicator, {}, {
+              default: (props: any) => {
+                captured = props
+                return h('span', { class: 'indicator' }, `+${props.count}`)
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      expect(captured).toBeDefined()
+      expect(captured.attrs['aria-label']).toBe('+3 more')
+
+      wrapper.unmount()
+    })
+
+    it('should use the translated locale string for aria-label when one is registered', async () => {
+      const plugin = createLocalePlugin({
+        default: 'en',
+        messages: {
+          en: {
+            Avatar: {
+              indicatorLabel: '{count} more',
+            },
+          },
+        },
+      })
+
+      let captured: any
+      const wrapper = mount(Avatar.Group, {
+        props: { max: 2 },
+        global: { plugins: [plugin] },
+        slots: {
+          default: () => [
+            ...Array.from({ length: 5 }, (_, i) =>
+              h(Avatar.Root, { key: i, value: `u${i}` }, {
+                default: () => h(Avatar.Fallback, {}, () => `U${i}`),
+              }),
+            ),
+            h(Avatar.Indicator, {}, {
+              default: (props: any) => {
+                captured = props
+                return h('span', { class: 'indicator' }, `+${props.count}`)
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      expect(captured).toBeDefined()
+      expect(captured.attrs['aria-label']).toBeDefined()
+      expect(captured.attrs['aria-label']).not.toBe('+3')
+      expect(captured.attrs['aria-label']).toBe('3 more')
+
+      wrapper.unmount()
+    })
+  })
+
+  describe('group responsive', () => {
+    let resizeObserverCallbacks: ResizeObserverCallback[] = []
+    let resizeObserverTargets: Element[] = []
+
+    class TestResizeObserver {
+      cb: ResizeObserverCallback
+
+      constructor (cb: ResizeObserverCallback) {
+        this.cb = cb
+        resizeObserverCallbacks.push(cb)
+      }
+
+      observe (el: Element) {
+        resizeObserverTargets.push(el)
+      }
+
+      unobserve () {}
+      disconnect () {}
+    }
+
+    function triggerResize (target: Element, width: number, height = 100): void {
+      const rect = {
+        width,
+        height,
+        top: 0,
+        left: 0,
+        right: width,
+        bottom: height,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      } as DOMRectReadOnly
+
+      for (const cb of resizeObserverCallbacks) {
+        cb(
+          [{
+            contentRect: rect,
+            target,
+            borderBoxSize: [],
+            contentBoxSize: [],
+            devicePixelContentBoxSize: [],
+          }],
+          {} as ResizeObserver,
+        )
+      }
+    }
+
+    beforeEach(() => {
+      resizeObserverCallbacks = []
+      resizeObserverTargets = []
+      vi.stubGlobal('ResizeObserver', TestResizeObserver)
+      vi.stubGlobal('getComputedStyle', () => ({ marginLeft: '0px', marginRight: '0px' } as CSSStyleDeclaration))
+      Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
+        configurable: true,
+        get () {
+          return 100
+        },
+      })
+    })
+
+    afterEach(() => {
+      vi.unstubAllGlobals()
+      // Restore offsetWidth to default (delete the override on the prototype)
+      delete (HTMLElement.prototype as any).offsetWidth
+    })
+
+    it('should mark group as overflowing when count exceeds responsive capacity', async () => {
+      let captured: any
+      const wrapper = mount(Avatar.Group, {
+        props: { responsive: true, gap: 0 },
+        attachTo: document.body,
+        slots: {
+          default: (props: any) => {
+            captured = props
+            return [
+              ...Array.from({ length: 6 }, (_, i) =>
+                h(Avatar.Root, { key: i, value: `u${i}` }, {
+                  default: () => h(Avatar.Fallback, {}, () => `U${i}`),
+                }),
+              ),
+              h(Avatar.Indicator, {}, {
+                default: (props: any) => h('span', { class: 'indicator' }, `+${props.count}`),
+              }),
+            ]
+          },
+        },
+      })
+
+      await nextTick()
+
+      // itemWidth=100, indicatorWidth=100 (reserved), gap=0
+      // available = 400 - 100 = 300; capacity = floor((300 - 100) / 100) + 1 = 3
+      const container = wrapper.element as Element
+      triggerResize(container, 400)
+      await nextTick()
+      await nextTick()
+
+      expect(captured.isOverflowing).toBe(true)
+      expect(wrapper.attributes('data-overflow')).toBe('true')
+
+      // Indicator renders with count=3
+      const indicator = wrapper.findComponent(Avatar.Indicator as any)
+      expect(indicator.exists()).toBe(true)
+      const indicatorSpan = wrapper.find('.indicator')
+      expect(indicatorSpan.exists()).toBe(true)
+      expect(indicatorSpan.text()).toBe('+3')
+
+      // Three roots visible, three hidden
+      const roots = wrapper.findAllComponents(Avatar.Root as any)
+      let hiddenCount = 0
+      let visibleCount = 0
+      for (const root of roots) {
+        if (root.attributes('data-hidden') === 'true') hiddenCount++
+        else visibleCount++
+      }
+      expect(visibleCount).toBe(3)
+      expect(hiddenCount).toBe(3)
+
+      wrapper.unmount()
+    })
+
+    it('should truncate the head when priority="end" and still sample itemWidth from visible tail', async () => {
+      let captured: any
+      const wrapper = mount(Avatar.Group, {
+        props: { responsive: true, priority: 'end', gap: 0 },
+        attachTo: document.body,
+        slots: {
+          default: (props: any) => {
+            captured = props
+            return [
+              ...Array.from({ length: 6 }, (_, i) =>
+                h(Avatar.Root, { key: i, value: `u${i}` }, {
+                  default: () => h(Avatar.Fallback, {}, () => `U${i}`),
+                }),
+              ),
+              h(Avatar.Indicator, {}, {
+                default: (props: any) => h('span', { class: 'indicator' }, `+${props.count}`),
+              }),
+            ]
+          },
+        },
+      })
+
+      await nextTick()
+
+      const container = wrapper.element as Element
+      triggerResize(container, 400)
+      await nextTick()
+      await nextTick()
+
+      // Truncation actually happened — proves itemWidth got sampled despite
+      // a99397f5: pre-fix, index-0 being hidden would zero itemWidth →
+      // capacity Infinity → no truncation.
+      expect(captured.isOverflowing).toBe(true)
+      expect(wrapper.attributes('data-overflow')).toBe('true')
+      expect(wrapper.find('.indicator').text()).toBe('+3')
+
+      // First three hidden, last three visible
+      const roots = wrapper.findAllComponents(Avatar.Root as any)
+      expect(roots[0]!.attributes('data-hidden')).toBe('true')
+      expect(roots[1]!.attributes('data-hidden')).toBe('true')
+      expect(roots[2]!.attributes('data-hidden')).toBe('true')
+      expect(roots[3]!.attributes('data-hidden')).toBeUndefined()
+      expect(roots[4]!.attributes('data-hidden')).toBeUndefined()
+      expect(roots[5]!.attributes('data-hidden')).toBeUndefined()
+
+      wrapper.unmount()
+    })
+
+    it('should preserve truncation after the first avatar is removed (no itemWidth zeroing on unmount)', async () => {
+      let captured: any
+      const members = ref(['m0', 'm1', 'm2', 'm3', 'm4', 'm5'])
+
+      const Wrapper = defineComponent({
+        setup () {
+          return () => h(Avatar.Group, { responsive: true, gap: 0 }, {
+            default: (props: any) => {
+              captured = props
+              return [
+                ...members.value.map(m =>
+                  h(Avatar.Root, { key: m, value: m }, {
+                    default: () => h(Avatar.Fallback, {}, () => m.toUpperCase()),
+                  }),
+                ),
+                h(Avatar.Indicator, {}, {
+                  default: (props: any) => h('span', { class: 'indicator' }, `+${props.count}`),
+                }),
+              ]
+            },
+          })
+        },
+      })
+
+      const wrapper = mount(Wrapper, { attachTo: document.body })
+
+      await nextTick()
+
+      const container = wrapper.element as Element
+      triggerResize(container, 400)
+      await nextTick()
+      await nextTick()
+
+      // Baseline: capacity=3, 6 avatars → overflowing
+      expect(captured.isOverflowing).toBe(true)
+      expect(captured.total).toBe(6)
+      expect(wrapper.find('.indicator').text()).toBe('+3')
+
+      // Remove first avatar — exercises onBeforeUnmount + reindex path
+      members.value = members.value.slice(1)
+      await nextTick()
+      await nextTick()
+
+      // 5 avatars left; capacity is still 3; should still be overflowing.
+      // The bogus d7b37136 assumption was that itemWidth needed to be reset
+      // on unmount — that reset would zero the shared sample and break
+      // truncation for survivors. This test guards against re-introducing it.
+      expect(captured.total).toBe(5)
+      expect(captured.isOverflowing).toBe(true)
+      expect(captured.hidden.length).toBe(2)
+      expect(wrapper.find('.indicator').exists()).toBe(true)
+      expect(wrapper.find('.indicator').text()).toBe('+2')
+
+      wrapper.unmount()
     })
   })
 })

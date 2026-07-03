@@ -5,13 +5,27 @@ import { ThemeAdapter } from './adapter'
 
 // Utilities
 import { isNull, isString } from '#v0/utilities'
-import { onScopeDispose, watch } from 'vue'
+import { watch } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
 import type { Colors } from '../index'
 import type { ThemeAdapterSetupContext } from './adapter'
 import type { App } from 'vue'
+
+// Structural @unhead seam — duck-typed so v0 takes no dependency on @unhead types.
+interface ThemeHeadInput {
+  htmlAttrs: { 'data-theme': string }
+  style: Array<{ innerHTML: string, id: string, nonce?: string }>
+}
+
+interface HeadEntry {
+  dispose?: () => void
+}
+
+interface Head {
+  push: (input: ThemeHeadInput) => HeadEntry
+}
 
 export interface Vuetify0ThemeOptions {
   cspNonce?: string
@@ -46,9 +60,13 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
         this.update(colors, isDark)
       })
 
-      onScopeDispose(stopWatch, true)
-
-      if (isNull(target)) return
+      if (isNull(target)) {
+        this.dispose = () => {
+          stopWatch()
+          this.detach()
+        }
+        return
+      }
 
       const targetEl = target instanceof HTMLElement
         ? target
@@ -56,7 +74,13 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
             ? document.querySelector(target) as HTMLElement | null
             : (app._container as HTMLElement | undefined) || document.querySelector('#app') as HTMLElement | null || document.body)
 
-      if (!targetEl) return
+      if (!targetEl) {
+        this.dispose = () => {
+          stopWatch()
+          this.detach()
+        }
+        return
+      }
 
       // Set data-theme synchronously to prevent flash
       if (context.selectedId.value) {
@@ -65,24 +89,31 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
 
       const stopTheme = watch(context.selectedId, id => {
         if (!id) return
-
         targetEl.dataset.theme = String(id)
       })
 
-      onScopeDispose(stopTheme, true)
+      this.dispose = () => {
+        stopWatch()
+        stopTheme()
+        this.detach()
+      }
     } else {
-      const head = app._context?.provides?.usehead ?? app._context?.provides?.head
+      const head = (app._context?.provides?.usehead ?? app._context?.provides?.head) as Head | undefined
+
       if (head?.push) {
         const id = context.selectedId.value
-        head.push({
+        const entry = head.push({
           htmlAttrs: {
             'data-theme': id ? String(id) : '',
           },
           style: [{
             innerHTML: this.generate(context.colors.value, context.isDark.value),
             id: this.stylesheetId,
+            ...(this.cspNonce ? { nonce: this.cspNonce } : {}),
           }],
         })
+
+        if (entry?.dispose) this.dispose = entry.dispose
       }
     }
   }
@@ -104,5 +135,12 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
       document.adoptedStyleSheets = [...document.adoptedStyleSheets, this.sheet]
     }
     this.sheet.replaceSync(styles)
+  }
+
+  private detach (): void {
+    if (!IN_BROWSER) return
+
+    document.adoptedStyleSheets = document.adoptedStyleSheets.filter(s => s !== this.sheet)
+    this.sheet = undefined
   }
 }

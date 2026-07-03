@@ -212,4 +212,13 @@ app.use(
 
 ## Custom Adapters
 
-The `PaletteGenerator` type is exported from `@vuetify/v0` for building custom adapters that conform to the same `{ palette, themes }` return shape.
+The `PaletteGenerator` type is exported from `@vuetify/v0/palettes` for building custom adapters that conform to the same `{ palette, themes }` return shape.
+
+```ts
+import type { PaletteGenerator } from '@vuetify/v0/palettes'
+
+const myGenerator: PaletteGenerator<{ variant?: 'vibrant' | 'muted' }> = (seed, options) => {
+  // ... derive palette + themes from seed
+  return { palette, themes }
+}
+```

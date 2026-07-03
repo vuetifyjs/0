@@ -1,50 +1,20 @@
 <script setup lang="ts">
+  // Framework
+  import { GnDotGrid, type GnDotGridProps } from '@paper/genesis'
+
   // Composables
-  import { useThemeToggle } from '@/composables/useThemeToggle'
+  import { useSettings } from '@/composables/useSettings'
 
-  // Utilities
-  import { computed } from 'vue'
+  // Docs adapter for the canonical GnDotGrid primitive in @paper/genesis.
+  // Kept as a thin local component so the docs auto-import keeps resolving
+  // <AppDotGrid>. The connecting-line intensity defaults to the user's
+  // "Line intensity" setting (shared with the app-shell grid); the genesis
+  // primitive itself stays neutral (lines=0). Any usage can override :lines.
+  const { lines, ...props } = defineProps<GnDotGridProps>()
 
-  const {
-    coverage = 15,
-    density = 24,
-    origin = 'bottom left',
-  } = defineProps<{
-    coverage?: number
-    density?: number
-    origin?: string
-  }>()
-
-  const { isDark } = useThemeToggle()
-
-  const maskStyle = computed(() => {
-    const fadeEnd = coverage + 20
-    const gradient = `radial-gradient(ellipse at ${origin}, transparent 0%, transparent ${coverage}%, black ${fadeEnd}%)`
-    return {
-      maskImage: gradient,
-      WebkitMaskImage: gradient,
-      backgroundSize: `${density}px ${density}px`,
-    }
-  })
+  const settings = useSettings()
 </script>
 
 <template>
-  <div
-    aria-hidden="true"
-    class="app-dot-grid absolute inset-0 pointer-events-none z-0"
-    :class="isDark ? 'dot-dark' : 'dot-light'"
-    :style="maskStyle"
-  />
+  <GnDotGrid v-bind="props" :lines="lines ?? settings.dotGridIntensity.value" />
 </template>
-
-<style scoped>
-  .app-dot-grid.dot-dark {
-    background:
-      radial-gradient(circle, color-mix(in srgb, var(--v0-on-background) 10%, transparent) 1px, transparent 1px);
-  }
-
-  .app-dot-grid.dot-light {
-    background:
-      radial-gradient(circle, color-mix(in srgb, var(--v0-on-background) 12%, transparent) 1px, transparent 1px);
-  }
-</style>

@@ -26,16 +26,25 @@ A headless component for managing multi-selection with batch operations and tri-
 
 The Group component is a specialization of Selection that enforces multi-selection behavior and supports batch operations on arrays of IDs. It always uses array-based v-model binding.
 
-::: example
+::: gn-example
 /components/group/basic
-
-### Multi-Selection Group
-
-Button items in a group with shared multi-selection state — toggling any item updates the shared selection.
-
 :::
 
-## Features
+## Anatomy
+
+```vue Anatomy no-filename
+<script setup lang="ts">
+  import { Group } from '@vuetify/v0'
+</script>
+
+<template>
+  <Group.Root>
+    <Group.Item />
+  </Group.Root>
+</template>
+```
+
+## Recipes
 
 ### Batch Operations
 
@@ -76,18 +85,22 @@ The slot props `isAllSelected`, `isNoneSelected`, and `isMixed` reflect the aggr
 </template>
 ```
 
-## Anatomy
+## FAQ
 
-```vue Anatomy playground
-<script setup lang="ts">
-  import { Group } from '@vuetify/v0'
-</script>
+::: faq
 
-<template>
-  <Group.Root>
-    <Group.Item />
-  </Group.Root>
-</template>
-```
+??? When should I use Group instead of [Selection](/components/providers/selection)?
+
+Group is a specialization of Selection that always binds an array and enforces multi-selection, adding batch operations (`selectAll`, `unselectAll`, `toggleAll`) and tri-state aggregate state. Reach for Selection when you want the general wrapper; reach for Group for a checkbox group with select-all.
+
+??? How do I drive an indeterminate checkbox from the group's state?
+
+Bind `isAllSelected` to the checkbox's `checked` and `isMixed` to its `indeterminate`, then call `toggleAll` on change — all three are exposed on the default slot.
+
+??? Can I bind a single value instead of an array?
+
+No — Group always uses array-based v-model. For single-choice state use [Single](/components/providers/single) instead.
+
+:::
 
 <DocsApi />

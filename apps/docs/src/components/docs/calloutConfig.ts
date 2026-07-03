@@ -9,7 +9,7 @@ export interface CalloutConfig {
   classes: string
 }
 
-export type CalloutType = 'tip' | 'info' | 'warning' | 'error' | 'askai' | 'discord' | 'tour'
+export type CalloutType = 'tip' | 'note' | 'warning' | 'caution' | 'important' | 'askai' | 'discord' | 'tour'
 
 const CALLOUT_CONFIG: Record<CalloutType, CalloutConfig> = {
   tip: {
@@ -17,9 +17,9 @@ const CALLOUT_CONFIG: Record<CalloutType, CalloutConfig> = {
     title: 'Tip',
     classes: 'bg-success-10 border-success-50 text-success',
   },
-  info: {
+  note: {
     icon: 'info',
-    title: 'Info',
+    title: 'Note',
     classes: 'bg-info-10 border-info-50 text-info',
   },
   warning: {
@@ -27,15 +27,20 @@ const CALLOUT_CONFIG: Record<CalloutType, CalloutConfig> = {
     title: 'Warning',
     classes: 'bg-warning-10 border-warning-50 text-warning',
   },
-  error: {
+  caution: {
     icon: 'error',
-    title: 'Error',
+    title: 'Caution',
     classes: 'bg-error-10 border-error-50 text-error',
+  },
+  important: {
+    icon: 'alert-circle',
+    title: 'Important',
+    classes: 'bg-accent-10 border-accent-50 text-accent',
   },
   askai: {
     icon: 'create',
     title: 'Ask AI',
-    classes: 'bg-accent-10 border-accent-50 text-accent cursor-pointer hover:bg-accent-20 transition-colors',
+    classes: 'bg-secondary-10 border-secondary-50 text-secondary cursor-pointer hover:bg-secondary-20 transition-colors',
   },
   discord: {
     icon: 'discord',

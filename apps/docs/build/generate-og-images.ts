@@ -8,6 +8,7 @@ import { Worker } from 'node:worker_threads'
 
 import { getApiNamesGrouped } from './api-names'
 import { parseFrontmatter } from './frontmatter'
+import { getSkillzTours } from './skillz-tours'
 
 // Types
 import type { Frontmatter } from './frontmatter'
@@ -224,6 +225,20 @@ export async function generateOgImages (): Promise<void> {
     const category = 'API Reference'
     files.push({
       path: `/api/${info.slug}`,
+      title,
+      description,
+      category,
+      hash: hash(`${TEMPLATE_VERSION}|${title}|${description}|${category}`),
+    })
+  }
+
+  const tours = await getSkillzTours()
+  for (const tour of tours) {
+    const title = tour.name
+    const description = tour.description
+    const category = 'Skillz'
+    files.push({
+      path: `/skillz/${tour.id}`,
       title,
       description,
       category,

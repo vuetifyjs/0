@@ -25,29 +25,22 @@ A headless component for building resizable panel layouts with drag handles and 
 
 The Splitter provides resizable panels separated by draggable handles. Panel sizes are specified as percentages and must sum to 100.
 
-::: example
+::: gn-example
 /components/splitter/basic
-
-### Two-Panel Splitter
-
-Horizontal split with a drag handle and min-size constraints on each panel.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Splitter } from '@vuetify/v0'
 </script>
 
 <template>
   <Splitter.Root>
-    <Splitter.Panel :default-size="50" />
-
+    <Splitter.Panel />
     <Splitter.Handle />
-
-    <Splitter.Panel :default-size="50" />
+    <Splitter.Panel />
   </Splitter.Root>
 </template>
 ```
@@ -60,7 +53,7 @@ Splitters compose naturally — place a `Splitter.Root` inside any panel to buil
 
 This IDE-style workspace demonstrates the pattern with two levels of nesting: a horizontal splitter divides the sidebar from the main content area, and a vertical splitter inside the content panel separates the code editor from a live preview.
 
-::: example
+::: gn-example
 /components/splitter/resize-handle.vue 1
 /components/splitter/playground.vue 2
 
@@ -253,5 +246,35 @@ The Splitter implements the [WAI-ARIA Window Splitter](https://www.w3.org/WAI/AR
 | Enter | Toggle collapse state of preceding panel (if collapsible) |
 
 Arrow direction follows the layout orientation — horizontal splitters use Left/Right, vertical splitters use Up/Down.
+
+## FAQ
+
+::: faq
+
+??? How do I set the initial panel sizes?
+
+Panel sizes are percentages set via `default-size` and must sum to 100. Constrain them with `min-size` and `max-size` so a panel can't collapse or dominate.
+
+??? How do I control collapse from outside the splitter?
+
+Use `v-model:collapsed` on the panel for two-way binding — setting the ref collapses or expands it, and drag-to-collapse or keyboard Home/End updates the ref. For inline controls, the panel's slot props expose `collapse()`, `expand()`, and `isCollapsed`.
+
+??? How do I resize panels programmatically?
+
+Call `distribute([...])` from the root's slot props to set all sizes at once; values are clamped to each panel's min/max. To react to user resizes, listen to `@layout` (all sizes) or a panel's `@resize`.
+
+??? How do I make a vertical splitter?
+
+Set `orientation="vertical"` on `Splitter.Root` to stack panels top-to-bottom; the default is `horizontal`.
+
+??? Can I nest splitters?
+
+Yes. Place a `Splitter.Root` inside any `Splitter.Panel` — each nested splitter manages its own sizes, handles, and orientation independently of the outer one.
+
+??? How do I resize a panel with the keyboard?
+
+Focus a handle, then use the arrow keys to resize by 1% and Page Up / Page Down by 10%. Home and End collapse or expand the preceding panel, and Enter toggles its collapse state.
+
+:::
 
 <DocsApi />

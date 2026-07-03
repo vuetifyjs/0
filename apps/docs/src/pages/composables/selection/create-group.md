@@ -111,25 +111,47 @@ Group selection state is **always reactive**, including the tri-state `mixedIds`
 
 ## Examples
 
-### Chip Filter
-
-Chip filters are a common pattern for narrowing content by tags. This example shows how `createGroup` handles per-item toggling, bulk selection via a tri-state header, and reactive state queries (`isAllSelected`, `isMixed`, `isNoneSelected`) — all out of the box.
-
-::: example
+::: gn-example
 /composables/create-group/context.ts 1
 /composables/create-group/TagFilter.vue 2
 /composables/create-group/chip-filter.vue 3
 @import @mdi/js
 
-### Chip Tag Filter
+### Chip Filter
 
-Toggleable tag chips with a tri-state select-all header, showing `isAllSelected`, `isMixed`, and `isNoneSelected` update live.
+Chip filters are a common pattern for narrowing content by tags. This example builds a togglable tag cloud using `createGroup` and shows three concerns working together: per-item toggling via `ticket.toggle()` and `ticket.isSelected`, batch selection via `toggleAll()`, and tri-state header state from `isAllSelected`, `isMixed`, and `isNoneSelected`.
+
+`context.ts` defines the `TagInput` type, a typed `createTagFilter()` factory, and the seed data so the shape of each tag (id, value, color) is agreed on before either component touches the group. `TagFilter.vue` calls `onboard()` to register all tags in one shot and exposes `{ group, tickets }` via `defineExpose` so the parent can reach the group state. The select-all button's icon switches between `mdiCheckboxBlankOutline`, `mdiCheckboxIntermediate`, and `mdiCheckboxMarked` by reading `isMixed` and `isAllSelected` through a `toRef` — no extra local state needed. `chip-filter.vue` reads `group.isNoneSelected` to decide whether to show all tags or only the selected ones in the results strip below.
+
+Reach for this pattern when a fixed tag set needs to control visible content and the user should be able to toggle all at once. The tri-state header is genuinely useful when the set is large enough that "clear all" and "select all" are common operations. For a tree of nested tags with parent/child relationships, see [createNested](/composables/selection/create-nested).
 
 | File | Role |
 |------|------|
 | `context.ts` | Tag type, factory, and seed data |
 | `TagFilter.vue` | Chip cloud with tri-state select-all header |
 | `chip-filter.vue` | Entry point — wires filter to a results list |
+:::
+
+## FAQ
+
+::: faq
+
+??? When should I use createGroup instead of createSelection?
+
+Both are multi-select, but createGroup adds tri-state support — `mixedIds`, `isMixed`, and `mix()`/`unmix()` — plus batch helpers like `selectAll()` and `toggleAll()`. Reach for it when you need a select-all header checkbox or indeterminate states; plain [createSelection](/composables/selection/create-selection) has neither.
+
+??? How do I drive an indeterminate "select all" header checkbox?
+
+Read `isAllSelected`, `isMixed`, and `isNoneSelected` to choose the checkbox state, and wire the header to `toggleAll()`. `isMixed` is `true` when some but not all items are selected.
+
+??? What's the difference between a mixed ticket and a selected one?
+
+Selected means the item is in `selectedIds`; mixed (indeterminate) means it's only partially selected — typically a parent whose children are some-selected. Read it with `mixed(id)` or ticket `isMixed`, set it with `mix()`/`unmix()`. For automatic parent/child cascading, see [createNested](/composables/selection/create-nested).
+
+??? Does selectAll() select disabled items too?
+
+No. `selectAll()`, `unselectAll()`, and `toggleAll()` act only on non-disabled items, and `isAllSelected` is `true` once every non-disabled item is selected — a disabled row is skipped, so it never keeps the select-all header from reading as fully checked.
+
 :::
 
 <DocsApi />

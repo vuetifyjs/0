@@ -33,7 +33,7 @@ describe('createStack', () => {
 
         expect(ticket).toBeDefined()
         expect(ticket.id).toBeDefined()
-        expect(ticket.blocking).toBe(false)
+        expect(ticket.blocking.value).toBe(false)
       })
 
       it('should register tickets with options', () => {
@@ -42,7 +42,7 @@ describe('createStack', () => {
 
         const ticket = stack.register({ onDismiss, blocking: true })
 
-        expect(ticket.blocking).toBe(true)
+        expect(ticket.blocking.value).toBe(true)
         expect(ticket.onDismiss).toBe(onDismiss)
       })
 
@@ -322,6 +322,13 @@ describe('createStack', () => {
     })
 
     describe('useStack', () => {
+      it('should reuse the same fallback instance across calls in the browser', () => {
+        const first = useStack()
+        const second = useStack()
+
+        expect(first).toBe(second)
+      })
+
       it('should return context from provider', () => {
         const plugin = createStackPlugin()
 
@@ -505,6 +512,59 @@ describe('createStack', () => {
         ticket2.dismiss()
         expect(onDismiss2).not.toHaveBeenCalled()
         expect(ticket2.isSelected.value).toBe(true)
+      })
+    })
+
+    describe('topElement', () => {
+      it('is null when no overlay is selected', () => {
+        const stack = createStack()
+        expect(stack.topElement.value).toBeNull()
+      })
+
+      it('resolves to the topmost selected modal element', () => {
+        const stack = createStack()
+        const el = document.createElement('dialog')
+        const ticket = stack.register({ el })
+        ticket.select()
+        expect(stack.topElement.value).toBe(el)
+      })
+
+      it('ignores non-modal (scrim:false) tickets', () => {
+        const stack = createStack()
+        const dialogEl = document.createElement('dialog')
+        const toastEl = document.createElement('div')
+        stack.register({ el: dialogEl }).select()
+        stack.register({ el: toastEl, scrim: false }).select()
+        expect(stack.topElement.value).toBe(dialogEl)
+      })
+
+      it('skips selected modal tickets that have no resolvable element', () => {
+        const stack = createStack()
+        const dialogEl = document.createElement('dialog')
+        stack.register({ el: dialogEl }).select()
+        stack.register().select() // scrim:true but no el (e.g. a bare Portal)
+        expect(stack.topElement.value).toBe(dialogEl)
+      })
+
+      it('updates as modals select and unselect', () => {
+        const stack = createStack()
+        const a = document.createElement('dialog')
+        const b = document.createElement('dialog')
+        const ta = stack.register({ el: a })
+        const tb = stack.register({ el: b })
+        ta.select()
+        expect(stack.topElement.value).toBe(a)
+        tb.select()
+        expect(stack.topElement.value).toBe(b)
+        tb.unselect()
+        expect(stack.topElement.value).toBe(a)
+      })
+
+      it('accepts a getter for el', () => {
+        const stack = createStack()
+        const el = document.createElement('dialog')
+        stack.register({ el: () => el }).select()
+        expect(stack.topElement.value).toBe(el)
       })
     })
   })

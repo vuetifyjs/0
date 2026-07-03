@@ -197,6 +197,21 @@ describe('createPermissions', () => {
         const missing = permissions.get('admin.delete.users')
         expect(missing).toBeUndefined()
       })
+
+      it('should track size for tokens registered after creation', () => {
+        const permissions = createPermissions({
+          permissions: {
+            admin: [
+              ['read', 'users'],
+            ],
+          },
+        })
+
+        permissions.register({ id: 'editor.edit.posts', value: true })
+        permissions.register({ id: 'viewer.read.posts', value: true })
+
+        expect(permissions.size).toBe(3)
+      })
     })
 
     describe('v0PermissionsAdapter', () => {

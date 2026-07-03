@@ -25,17 +25,21 @@
   ]
 
   const table = createDataTable<PageFreshness>({
-    items: pages,
-    columns: [
-      { key: 'path', title: 'Page', sortable: true, filterable: true },
-      { key: 'category', title: 'Category', sortable: true, filterable: true },
-      { key: 'updated', title: 'Last updated', sortable: true },
-      { key: 'ageMs', title: 'Age', sortable: true },
-    ],
-    itemValue: 'path',
     firstSortOrder: 'desc',
     pagination: { itemsPerPage: pageSize.value },
   })
+
+  table.columns.onboard([
+    { id: 'path', title: 'Page', sortable: true, filterable: true },
+    { id: 'category', title: 'Category', sortable: true, filterable: true },
+    { id: 'updated', title: 'Last updated', sortable: true },
+    { id: 'ageMs', title: 'Age', sortable: true },
+  ])
+
+  watch(pages, list => {
+    table.clear()
+    table.onboard(list.map(page => ({ id: page.path, value: page })))
+  }, { immediate: true })
 
   table.sort.toggle('ageMs')
 
@@ -90,12 +94,7 @@
           </Select.Value>
 
           <Select.Cue v-slot="{ isOpen }" class="inline-flex items-center opacity-60">
-            <AppIcon
-              class="transition-transform"
-              :class="isOpen ? '-rotate-90' : 'rotate-90'"
-              icon="chevron-right"
-              :size="14"
-            />
+            <AppChevron :open="isOpen" :size="14" vertical />
           </Select.Cue>
         </Select.Activator>
 
@@ -131,15 +130,15 @@
           <thead class="bg-surface-variant-50 text-left">
             <tr>
               <th
-                v-for="col in table.columns"
-                :key="col.key"
+                v-for="col in table.leaves.value"
+                :key="col.id"
                 class="px-3 py-2 font-medium text-on-surface-variant cursor-pointer select-none"
-                @click="col.sortable && table.sort.toggle(col.key)"
+                @click="col.sortable && table.sort.toggle(col.id)"
               >
                 <span class="inline-flex items-center gap-1">
                   {{ col.title }}
                   <AppIcon
-                    v-if="table.sort.columns.value[0]?.key === col.key"
+                    v-if="table.sort.columns.value[0]?.key === col.id"
                     aria-hidden="true"
                     class="transition-transform"
                     :class="table.sort.columns.value[0]?.direction === 'asc' ? '-rotate-90' : 'rotate-90'"

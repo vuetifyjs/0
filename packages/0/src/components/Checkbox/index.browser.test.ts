@@ -1017,6 +1017,15 @@ describe('checkbox', () => {
         expect(wrapper.find('.custom').exists()).toBe(true)
         expect(capturedProps.attrs.role).toBe('checkbox')
       })
+
+      it('should expose onClick and onKeydown in slot attrs for renderless mode', () => {
+        const { selectAllProps } = mountGroup({ withSelectAll: true })
+
+        // Pre-fix these handlers lived on @click/@keydown directives (lost in
+        // renderless mode); they must be exposed through slot attrs instead.
+        expect(selectAllProps!().attrs.onClick).toBeTypeOf('function')
+        expect(selectAllProps!().attrs.onKeydown).toBeTypeOf('function')
+      })
     })
   })
 

@@ -25,13 +25,13 @@ A headless progress bar component for building determinate, indeterminate, and b
 
 The Progress supports single-value and multi-segment modes. Bind a number for a single bar, or an array for multiple segments.
 
-::: example
+::: gn-example
 /components/progress/basic
 :::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Progress } from '@vuetify/v0'
 </script>
@@ -39,15 +39,11 @@ The Progress supports single-value and multi-segment modes. Bind a number for a 
 <template>
   <Progress.Root>
     <Progress.Label />
-
     <Progress.Track>
       <Progress.Fill />
-
       <Progress.Buffer />
     </Progress.Track>
-
     <Progress.Value />
-
     <Progress.HiddenInput />
   </Progress.Root>
 </template>
@@ -55,7 +51,7 @@ The Progress supports single-value and multi-segment modes. Bind a number for a 
 
 ## Examples
 
-::: example
+::: gn-example
 /components/progress/StorageBar.vue 1
 /components/progress/storage.vue 2
 
@@ -78,7 +74,7 @@ Multi-segment progress bar showing disk usage by category. Each `Progress.Fill` 
 
 :::
 
-::: example
+::: gn-example
 /components/progress/MediaProgress.vue 1
 /components/progress/media.vue 2
 
@@ -177,5 +173,27 @@ The Root component manages ARIA attributes automatically.
 | `aria-busy` | `true` | Set when indeterminate |
 | `data-state` | `determinate` / `indeterminate` | Reflects current mode |
 | `data-complete` | `true` | When total >= max |
+
+## FAQ
+
+::: faq
+
+??? How do I render a multi-segment progress bar?
+
+Bind an array, or render multiple `Progress.Fill` elements — each registers as a segment via the internal model and their values sum to the total. Bind a single number for a one-segment bar.
+
+??? When is the progress indeterminate?
+
+When no value is provided or all segment values are `0`. Style it through `data-[state=indeterminate]`; `aria-valuenow` and `aria-valuetext` are omitted and `aria-busy` is set.
+
+??? How is `Progress.Buffer` different from a segment?
+
+Buffer is independent of the segment registry — it reads `value` directly and computes its own percentage against Root's `min`/`max`, so it can show pre-loaded content ahead of the fill.
+
+??? How do I submit progress as part of a form?
+
+Set `name` on `Progress.Root` to auto-render a hidden input (the `Progress.HiddenInput` in the anatomy) carrying the current value, so it posts with the form.
+
+:::
 
 <DocsApi />

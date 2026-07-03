@@ -29,18 +29,13 @@ A headless autocomplete input that filters options as the user types, with clien
 
 The Combobox component follows the same compound pattern as Select, but replaces the activator button with a `Control` input that accepts free text. Filtering happens automatically as the user types.
 
-::: example
+::: gn-example
 /components/combobox/basic
-
-### Searchable Combobox
-
-A filterable fruit list with an empty state when no results match.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Combobox } from '@vuetify/v0'
 </script>
@@ -104,40 +99,24 @@ flowchart TD
 
 ## Examples
 
-::: example
-/components/combobox/multiple
+::: gn-example
+/components/combobox/useUserSearch.ts 1
+/components/combobox/UserPicker.vue 2
+/components/combobox/user-picker.vue 3
 
-### Multi-Select
+### Async assignee picker
 
-Set `multiple` on Root to enable multi-selection. The dropdown stays open after each selection and the query clears so the user can keep searching. `v-model` binds to an array of IDs. Render selected chips or tags using the `selected` model value directly.
+A GitHub-style assignee picker that searches people from a mocked server as you type. It wires `ServerComboboxAdapter` onto `Combobox.Root` to disable client-side filtering, debounces the `query`, runs an async lookup that resolves a `Promise`, shows a loading hint while the request is in flight, and renders multi-select chips for everyone assigned. When the server returns nothing, `Combobox.Empty` reports the unmatched term.
 
-:::
+The interesting piece is how the query reaches the fetch without prop-drilling. A renderless `SearchWatcher` — a `defineComponent` with `render: () => null` — reads the combobox context via [useComboboxContext](/composables/forms/create-combobox) and watches its `query`, emitting a `search` event that the composable debounces before calling the mock `search()`. Results flow back down as a prop, so `Combobox.Item` re-registers on each update. `open-on="input"` on `Combobox.Control` keeps an empty focus from firing a needless fetch, and the `name` prop on `Combobox.Root` auto-renders the hidden inputs for native form submission — one per selected handle — so you never place a hidden input by hand (Combobox does not export one).
 
-::: example
-/components/combobox/strict
+Reach for this whenever the dataset is too large to ship to the client, needs full-text indexing, or depends on server context like permissions or org membership. The trade-off versus the default [ClientComboboxAdapter](/composables/forms/create-combobox) is the debounce-and-network latency and the loading state you must surface; for small static lists, prefer client filtering. Related: [createSelection](/composables/selection/create-selection) powers the multi-select state, and [Select](/components/forms/select) covers the non-typeahead equivalent.
 
-### Strict Mode
-
-Set `strict` on Root to enforce valid selections. When the dropdown closes without a matching item being selected, the input reverts to the last confirmed selection (or clears if nothing was selected). Use this when free-text values are not allowed.
-
-:::
-
-::: example
-/components/combobox/disabled
-
-### Disabled States
-
-Both individual items and the entire combobox can be disabled. Disabled items are skipped by virtual focus keyboard navigation. The `disabled` prop on Root prevents the input from opening the dropdown and suppresses keyboard interactions.
-
-:::
-
-::: example
-/components/combobox/server
-
-### Server-Side Filtering
-
-Pass a `ServerComboboxAdapter` instance via the `adapter` prop to disable client-side filtering. The adapter is a pass-through — it shows all registered items and leaves filtering to the consumer. Watch `context.query` via `useComboboxContext()` to drive your own async data fetching.
-
+| File | Role |
+|------|------|
+| `useUserSearch.ts` | Owns the mock user dataset, debounced `onSearch`, async `search` returning a Promise, loading flag, and assignee state |
+| `UserPicker.vue` | Reusable combobox surface — server adapter, SearchWatcher, chips, results list, and Empty state; owns the UnoCSS classes |
+| `user-picker.vue` | Demo entry wiring the composable to the picker, with an assignment summary and a clear action |
 :::
 
 ## Recipes
@@ -197,7 +176,7 @@ Style interactive states without slot props:
 
 ## Accessibility
 
-The Combobox implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apd/patterns/combobox/) pattern with a listbox popup.
+The Combobox implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) pattern with a listbox popup.
 
 ### ARIA Attributes
 
@@ -233,5 +212,31 @@ The Combobox implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apd/
 | `Tab` | Close dropdown and move focus |
 | `Home` | Move highlight to first item |
 | `End` | Move highlight to last item |
+
+## FAQ
+
+::: faq
+
+??? When should I use Combobox instead of Select?
+
+Combobox accepts free text and filters options as the user types. [Select](/components/forms/select) is the non-typeahead equivalent, where the user picks from a fixed list without typing.
+
+??? How do I filter options on the server instead of the client?
+
+Pass a `ServerComboboxAdapter` to `Combobox.Root` to disable client-side filtering, then debounce the `query` and run your async lookup. The default [ClientComboboxAdapter](/composables/forms/create-combobox) filters the in-memory list by substring.
+
+??? Why does an item stay selected after it's filtered out of view?
+
+Items render with `v-show` (not `v-if`) against the filtered set, so they're hidden rather than unmounted. Selection state is preserved even when an option isn't currently matched.
+
+??? How do I stop users from keeping free text that doesn't match an option?
+
+Set `strict` on `Combobox.Root`. When the dropdown closes, the input reverts to the selected option's value — or clears if nothing is selected — so an unmatched query never sticks.
+
+??? How do I submit the selected value(s) with a native form?
+
+Set `name` on `Combobox.Root` and it auto-renders one hidden input per selected value. Combobox doesn't export a hidden-input sub-component, so you never place one by hand.
+
+:::
 
 <DocsApi />

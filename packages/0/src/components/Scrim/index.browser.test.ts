@@ -23,12 +23,14 @@ function createMockTicket (overrides: {
   id?: string
   zIndex?: number
   blocking?: boolean
+  scrim?: boolean
 } = {}): StackTicket {
   const dismiss = vi.fn()
   return {
     id: overrides.id ?? 'ticket-1',
     zIndex: computed(() => overrides.zIndex ?? 2000),
-    blocking: overrides.blocking ?? false,
+    blocking: computed(() => overrides.blocking ?? false),
+    scrim: computed(() => overrides.scrim ?? true),
     dismiss,
     // Minimal ticket properties for testing
     index: 0,
@@ -319,6 +321,64 @@ describe('scrim', () => {
 
       slotProps.dismiss()
       expect(ticket.dismiss).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('renderless', () => {
+    it('should render no wrapper and carry the element contract in slot attrs', async () => {
+      let captured: any
+      const ticket = createMockTicket({ zIndex: 2500 })
+      mockSelectedItems.value = new Set([ticket])
+
+      const wrapper = mount(Scrim, {
+        props: { teleport: false, renderless: true },
+        slots: {
+          default: (props: any) => {
+            captured = props
+            return h('aside', { class: 'custom-scrim', ...props.attrs })
+          },
+        },
+      })
+
+      await nextTick()
+      const custom = wrapper.find('.custom-scrim')
+      expect(custom.exists()).toBe(true)
+      expect(wrapper.findAll('.custom-scrim')).toHaveLength(1)
+      expect(wrapper.findAll('div')).toHaveLength(0)
+      expect(captured.attrs.style.zIndex).toBe(2499)
+      expect((custom.element as HTMLElement).style.zIndex).toBe('2499')
+
+      await custom.trigger('click')
+      expect(ticket.dismiss).toHaveBeenCalledTimes(1)
+    })
+
+    it('should dismiss from the consumer element when teleported', async () => {
+      const target = document.createElement('div')
+      target.id = 'renderless-target'
+      document.body.append(target)
+
+      const ticket = createMockTicket({ zIndex: 3000 })
+      mockSelectedItems.value = new Set([ticket])
+
+      mount(Scrim, {
+        props: { teleportTo: '#renderless-target', renderless: true },
+        attachTo: document.body,
+        slots: {
+          default: (props: any) => h('aside', { class: 'custom-scrim', ...props.attrs }),
+        },
+      })
+
+      await nextTick()
+      const custom = target.querySelector('.custom-scrim') as HTMLElement
+      expect(custom).toBeTruthy()
+      expect(target.contains(custom)).toBe(true)
+      expect(target.querySelector('div')).toBeNull()
+      expect(custom.style.zIndex).toBe('2999')
+
+      custom.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      expect(ticket.dismiss).toHaveBeenCalledTimes(1)
+
+      target.remove()
     })
   })
 

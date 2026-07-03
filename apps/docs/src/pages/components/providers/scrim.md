@@ -45,71 +45,25 @@ app.mount('#app')
 
 The Scrim component renders a backdrop that appears when any overlay is active. It automatically positions itself below the topmost overlay using z-index management from the stack context.
 
-```vue
-<script setup lang="ts">
-  import { Scrim } from '@vuetify/v0'
-</script>
-
-<template>
-  <Scrim class="fixed inset-0 bg-black/50" />
-</template>
-```
+::: gn-example
+/components/scrim/basic
+:::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Scrim } from '@vuetify/v0'
 </script>
 
 <template>
-  <!-- Teleports to body by default -->
-  <Scrim class="fixed inset-0 bg-black/50 transition-opacity" />
+  <Scrim />
 </template>
 ```
 
-## Examples
+## Recipes
 
-### Basic
-
-Demonstrates a dismissible overlay and a blocking overlay. Click the scrim to dismiss the first; the blocking overlay requires explicit action.
-
-::: example
-/components/scrim/basic
-
-### Dismissible and Blocking Overlays
-
-Dismissible and blocking scrims with backdrop, stack management, and z-index control.
-
-:::
-
-## Custom Styling via Slot Props
-
-Access the stack state through slot props for custom rendering:
-
-```vue
-<script setup lang="ts">
-  import { Scrim } from '@vuetify/v0'
-</script>
-
-<template>
-  <Scrim
-    v-slot="{ isActive, isBlocking, zIndex, dismiss }"
-    :teleport="false"
-    class="fixed inset-0"
-  >
-    <div
-      class="size-full bg-black/50"
-      :class="{ 'cursor-not-allowed': isBlocking }"
-      @click="dismiss"
-    >
-      Active: {{ isActive }}, Z-Index: {{ zIndex }}
-    </div>
-  </Scrim>
-</template>
-```
-
-## Blocking Mode
+### Blocking Mode
 
 When the topmost overlay has `blocking: true`, the scrim will not dismiss on click. The `isBlocking` slot prop reflects this state:
 
@@ -121,7 +75,7 @@ When the topmost overlay has `blocking: true`, the scrim will not dismiss on cli
 </template>
 ```
 
-## Inline Rendering
+### Inline Rendering
 
 By default, Scrim teleports to `body`. Disable teleport for inline rendering:
 
@@ -134,7 +88,7 @@ By default, Scrim teleports to `body`. Disable teleport for inline rendering:
 </template>
 ```
 
-## Custom Stack Context
+#### Custom Stack Context
 
 For isolated overlay systems, create a custom stack and provide it via Vue's injection system:
 
@@ -153,7 +107,7 @@ For isolated overlay systems, create a custom stack and provide it via Vue's inj
 </template>
 ```
 
-## Transitions
+#### Transitions
 
 The default transition is `fade`. Customize with the `transition` prop:
 
@@ -174,5 +128,31 @@ The default transition is `fade`. Customize with the `transition` prop:
   }
 </style>
 ```
+
+## FAQ
+
+::: faq
+
+??? Why doesn't my scrim dismiss when I click it?
+
+The topmost overlay has `blocking: true`, which prevents click-to-dismiss. The `isBlocking` slot prop reflects this state so you can style the backdrop differently while blocking.
+
+??? Do I need to install the stack plugin?
+
+Only for SSR. Client-side-only apps can skip it — Scrim falls back to the default `stack` singleton automatically.
+
+??? How do I stop the scrim from teleporting to `<body>`?
+
+Pass `:teleport="false"` to render it inline within its parent, for example inside a `relative` container for a scoped overlay.
+
+??? How do I change the scrim's transition?
+
+The default transition is `fade`. Pass a `transition` prop with your own name (for example `slide-fade`) and define the matching enter/leave CSS.
+
+??? Can I give a scrim its own overlay stack?
+
+Yes. Call `createStack()` and `provide('v0:stack', stack)` above it so the scrim manages an isolated overlay system without touching the global stack.
+
+:::
 
 <DocsApi />

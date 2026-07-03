@@ -145,7 +145,7 @@
     max = 100,
     step = 1,
     disabled = false,
-    readonly: readonlyProp = false,
+    readonly = false,
     orientation = 'horizontal',
     inverted = false,
     minStepsBetweenThumbs = 0,
@@ -170,10 +170,10 @@
     min,
     max,
     step,
-    disabled,
-    readonly: readonlyProp,
-    orientation,
-    inverted,
+    disabled: () => toValue(disabled),
+    readonly: () => toValue(readonly),
+    orientation: () => toValue(orientation),
+    inverted: () => toValue(inverted),
     minStepsBetweenThumbs,
     crossover,
   })
@@ -228,7 +228,7 @@
 
   function onDrag (index: number, event: PointerEvent, thumbEl?: HTMLElement): void {
     if (toValue(disabled)) return
-    if (toValue(readonlyProp)) return
+    if (toValue(readonly)) return
     if (event.button !== 0) return
     event.preventDefault()
 
@@ -261,7 +261,7 @@
   provideSliderRoot(namespace, context)
 
   const isDisabled = toRef(() => toValue(disabled))
-  const isReadonly = toRef(() => toValue(readonlyProp))
+  const isReadonly = toRef(() => toValue(readonly))
 
   const slotProps = toRef((): SliderRootSlotProps => ({
     id,

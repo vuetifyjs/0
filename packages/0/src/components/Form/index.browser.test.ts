@@ -36,6 +36,45 @@ describe('form', () => {
     })
   })
 
+  describe('renderless', () => {
+    it('should expose onSubmit and onReset in slot attrs so renderless mode works', async () => {
+      let slot: any
+
+      const wrapper = mount(Form, {
+        props: { renderless: true },
+        slots: {
+          default: (props: any) => {
+            slot = props
+            return h('form', { 'data-testid': 'custom', ...props.attrs })
+          },
+        },
+      })
+
+      expect(slot.attrs.onSubmit).toBeTypeOf('function')
+      expect(slot.attrs.onReset).toBeTypeOf('function')
+
+      const form = wrapper.find('form')
+      expect(form.exists()).toBe(true)
+      expect(form.element.dataset.testid).toBe('custom')
+      expect(form.element.parentElement?.tagName).not.toBe('FORM')
+      expect(wrapper.findAll('form')).toHaveLength(1)
+
+      const submit = new Event('submit', { bubbles: true, cancelable: true })
+      form.element.dispatchEvent(submit)
+      await flushPromises()
+
+      expect(submit.defaultPrevented).toBe(true)
+      expect(wrapper.emitted('submit')).toHaveLength(1)
+
+      const reset = new Event('reset', { bubbles: true, cancelable: true })
+      form.element.dispatchEvent(reset)
+      await nextTick()
+
+      expect(reset.defaultPrevented).toBe(true)
+      expect(wrapper.emitted('reset')).toHaveLength(1)
+    })
+  })
+
   describe('context provision', () => {
     it('should provide form context consumable via useForm()', () => {
       let injected: ReturnType<typeof useForm>

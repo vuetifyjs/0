@@ -7,6 +7,7 @@ import { computed, isReactive, nextTick, shallowRef, watchEffect } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
+import type { RegistryTicketInput } from './index'
 
 describe('createRegistry', () => {
   describe('registration', () => {
@@ -141,6 +142,30 @@ describe('createRegistry', () => {
       expect(listener).toHaveBeenCalledTimes(2)
     })
 
+    it('should dedupe repeated ids within a single offboard call', () => {
+      const registry = createRegistry({ events: true })
+      const listener = vi.fn()
+
+      // No explicit value → valueIsIndex true, so removal touches indexDependentCount.
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+
+      registry.on('unregister:ticket', listener)
+      const removed = registry.offboard(['a', 'a'])
+
+      // The repeated id is removed once — not double-counted into a second
+      // indexDependentCount decrement or a second unregister emit.
+      expect(removed).toHaveLength(1)
+      expect(listener).toHaveBeenCalledTimes(1)
+      expect(registry.size).toBe(2)
+      expect(registry.keys()).toEqual(['b', 'c'])
+
+      // lookup() drains the deferred reindex; survivors renumber cleanly.
+      expect(registry.lookup(0)).toBe('b')
+      expect(registry.lookup(1)).toBe('c')
+      expect(registry.get('b')?.index).toBe(0)
+      expect(registry.get('c')?.index).toBe(1)
+    })
+
     it('should return removed inputs preserving id when valueIsIndex is false', () => {
       const registry = createRegistry()
 
@@ -231,6 +256,71 @@ describe('createRegistry', () => {
       expect(explicit.valueIsIndex).toBe(false)
     })
 
+    it('should ignore a supplied index and append when registering', () => {
+      const registry = createRegistry()
+      const a = registry.register({ id: 'a' })
+      const b = registry.register({ id: 'b' })
+      const c = registry.register({ id: 'c', index: 0 })
+      const d = registry.register({ id: 'd', index: 99 })
+
+      expect(registry.keys()).toEqual(['a', 'b', 'c', 'd'])
+      expect(registry.lookup(0)).toBe('a')
+      expect(registry.lookup(2)).toBe('c')
+      expect(registry.lookup(99)).toBeUndefined()
+      expect(registry.values()[2]?.id).toBe('c')
+      expect(a.index).toBe(0)
+      expect(b.index).toBe(1)
+      expect(c.index).toBe(2)
+      expect(d.index).toBe(3)
+    })
+
+    it('should keep order and collection consistent when moving after a registration with a supplied index', () => {
+      const registry = createRegistry()
+      registry.register({ id: 'a' })
+      registry.register({ id: 'b' })
+      registry.register({ id: 'c', index: 0 })
+
+      registry.move('c', 0)
+
+      expect(registry.keys()).toEqual(['c', 'a', 'b'])
+      expect(registry.keys().length).toBe(registry.size)
+      expect(new Set(registry.keys()).size).toBe(registry.size)
+      for (const id of ['a', 'b', 'c']) {
+        expect(registry.has(id)).toBe(true)
+      }
+      for (const [index, ticket] of registry.values().entries()) {
+        expect(ticket.index).toBe(index)
+        expect(registry.lookup(index)).toBe(ticket.id)
+      }
+    })
+
+    it('should ignore a supplied index when upserting a missing id', () => {
+      const registry = createRegistry<RegistryTicketInput & { index?: number }>()
+      registry.register({ id: 'a' })
+      registry.register({ id: 'b' })
+      registry.upsert('c', { index: 0 })
+
+      expect(registry.keys()).toEqual(['a', 'b', 'c'])
+      expect(registry.lookup(0)).toBe('a')
+      expect(registry.get('c')?.index).toBe(2)
+    })
+
+    it('should append a re-registered ticket that carries a stale index', () => {
+      const registry = createRegistry()
+      registry.register({ id: 'a' })
+      const b = registry.register({ id: 'b' })
+      registry.register({ id: 'c' })
+
+      registry.unregister('b')
+      const again = registry.register({ ...b })
+
+      expect(again.index).toBe(2)
+      expect(registry.keys()).toEqual(['a', 'c', 'b'])
+      expect(registry.lookup(0)).toBe('a')
+      expect(registry.lookup(2)).toBe('b')
+      expect(new Set(registry.keys()).size).toBe(registry.size)
+    })
+
     it('should not remove an item if unregistering a non-existent id', () => {
       const registry = createRegistry()
       const tickets = registry.onboard([
@@ -258,7 +348,8 @@ describe('createRegistry', () => {
 
     it('should lookup an items ID by index', () => {
       const registry = createRegistry()
-      registry.register({ id: 'lookup-me', index: 1 })
+      registry.register({ id: 'zero' })
+      registry.register({ id: 'lookup-me' })
 
       const found = registry.lookup(1)
 
@@ -292,8 +383,8 @@ describe('createRegistry', () => {
       registry.register({ id: 'item-2', index: 3, value: 'value-2' })
       registry.register({ id: 'item-3', index: 4 })
 
-      expect(registry.lookup(2)).toBe('item-1')
-      expect(registry.get('item-1')?.index).toBe(2)
+      expect(registry.lookup(2)).toBe('item-3')
+      expect(registry.get('item-1')?.index).toBe(0)
 
       registry.reindex()
 
@@ -418,15 +509,13 @@ describe('createRegistry', () => {
     it('should not emit events when events option is disabled', () => {
       const registry = createRegistry({ events: false })
       const listener = vi.fn()
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       registry.on('register:ticket', listener)
       registry.register({ id: 'test' })
 
       expect(listener).not.toHaveBeenCalled()
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Events are disabled'))
-
-      warnSpy.mockRestore()
     })
 
     it('should emit register:ticket event when enabled', () => {
@@ -516,24 +605,20 @@ describe('createRegistry', () => {
 
     it('should warn when attempting to register listener without events enabled', () => {
       const registry = createRegistry({ events: false })
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       registry.on('register:ticket', vi.fn())
 
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Events are disabled'))
-
-      warnSpy.mockRestore()
     })
 
     it('should warn when attempting to remove listener without events enabled', () => {
       const registry = createRegistry({ events: false })
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       registry.off('register:ticket', vi.fn())
 
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Events are disabled'))
-
-      warnSpy.mockRestore()
     })
 
     it('should support multiple listeners for same event', () => {
@@ -551,7 +636,7 @@ describe('createRegistry', () => {
 
     it('should warn when listener count exceeds 100', () => {
       const registry = createRegistry({ events: true })
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       for (let index = 0; index <= 100; index++) {
         registry.on('test-event', vi.fn())
@@ -561,8 +646,6 @@ describe('createRegistry', () => {
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('101 listeners'),
       )
-
-      warnSpy.mockRestore()
     })
   })
 
@@ -788,7 +871,7 @@ describe('createRegistry', () => {
   describe('edge cases', () => {
     it('should handle registering duplicate IDs by returning existing ticket', () => {
       const registry = createRegistry()
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const ticket1 = registry.register({ id: 'duplicate', value: 'first' })
       const ticket2 = registry.register({ id: 'duplicate', value: 'second' })
@@ -797,8 +880,6 @@ describe('createRegistry', () => {
       expect(registry.size).toBe(1)
       expect(ticket1.value).toBe('first')
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('already exists'))
-
-      warnSpy.mockRestore()
     })
 
     it('should handle null value in browse', () => {
@@ -1064,6 +1145,58 @@ describe('createRegistry', () => {
       expect(clearListener).toHaveBeenCalledTimes(1)
     })
 
+    it('should keep keys, values, and entries coherent after a listener mutates during batch dispatch', () => {
+      const registry = createRegistry({ events: true })
+      let mutated = false
+
+      registry.on('register:ticket', () => {
+        registry.keys()
+        registry.values()
+        registry.entries()
+      })
+      registry.on('register:ticket', () => {
+        if (mutated) return
+        mutated = true
+        registry.register({ id: 'extra' })
+      })
+
+      registry.batch(() => {
+        registry.register({ id: 'item-1' })
+      })
+
+      expect(registry.size).toBe(2)
+      expect(registry.keys().length).toBe(2)
+      expect(registry.values().length).toBe(2)
+      expect(registry.entries().length).toBe(2)
+      expect(registry.keys()).toContain('extra')
+    })
+
+    it('should keep caches coherent after a clear:registry listener mutates during batch dispatch', () => {
+      const registry = createRegistry({ events: true })
+      registry.register({ id: 'item-1' })
+
+      let seeded = false
+      registry.on('clear:registry', () => {
+        registry.keys()
+        registry.values()
+        registry.entries()
+      })
+      registry.on('clear:registry', () => {
+        if (seeded) return
+        seeded = true
+        registry.register({ id: 'seed' })
+      })
+
+      registry.batch(() => {
+        registry.clear()
+      })
+
+      expect(registry.size).toBe(1)
+      expect(registry.keys()).toEqual(['seed'])
+      expect(registry.values().length).toBe(1)
+      expect(registry.entries().length).toBe(1)
+    })
+
     it('should update valueIsIndex and catalog on upsert', () => {
       const registry = createRegistry()
 
@@ -1226,9 +1359,13 @@ describe('createRegistry', () => {
 
   describe('useRegistry', () => {
     it('should throw when no registry context is provided', () => {
+      // Calling the consumer outside a component setup makes Vue's inject()
+      // warn; the throw is what we assert. Silence the incidental warning.
+      using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
       expect(() => useRegistry('v0:missing-registry')).toThrow(
         'Context "v0:missing-registry" not found. Ensure it\'s provided by an ancestor.',
       )
+      expect(warn).toHaveBeenCalled()
     })
   })
 
@@ -1337,6 +1474,138 @@ describe('createRegistry', () => {
       expect(registry.lookup(1)).toBe('c')
       expect(registry.lookup(2)).toBe('a')
       expect(registry.browse('alpha')).toEqual(['a'])
+    })
+  })
+
+  describe('move functionality — windowed (issue #258)', () => {
+    function fixture () {
+      const registry = createRegistry()
+      registry.onboard([
+        { id: 'a', value: 'alpha' },
+        { id: 'b', value: 'beta' },
+        { id: 'c', value: 'gamma' },
+        { id: 'd', value: 'delta' },
+        { id: 'e', value: 'epsilon' },
+      ])
+      return registry
+    }
+
+    it('should not corrupt directory or catalog on a mid-list move', () => {
+      const registry = fixture()
+
+      registry.move('b', 3)
+
+      expect(registry.keys()).toEqual(['a', 'c', 'd', 'b', 'e'])
+
+      expect(registry.get('a')?.index).toBe(0)
+      expect(registry.get('c')?.index).toBe(1)
+      expect(registry.get('d')?.index).toBe(2)
+      expect(registry.get('b')?.index).toBe(3)
+      expect(registry.get('e')?.index).toBe(4)
+
+      expect(registry.lookup(0)).toBe('a')
+      expect(registry.lookup(1)).toBe('c')
+      expect(registry.lookup(2)).toBe('d')
+      expect(registry.lookup(3)).toBe('b')
+      expect(registry.lookup(4)).toBe('e')
+
+      expect(registry.browse('alpha')).toEqual(['a'])
+      expect(registry.browse('beta')).toEqual(['b'])
+      expect(registry.browse('gamma')).toEqual(['c'])
+    })
+
+    it('should keep lookup and index consistent on a mid-list move by 1 upward', () => {
+      const registry = fixture()
+
+      registry.move('c', 3)
+
+      expect(registry.keys()).toEqual(['a', 'b', 'd', 'c', 'e'])
+
+      const keys = registry.keys()
+      for (const [i, key] of keys.entries()) {
+        expect(registry.lookup(i)).toBe(key)
+        expect(registry.get(key!)?.index).toBe(i)
+      }
+    })
+
+    it('should keep lookup and index consistent on a mid-list move downward', () => {
+      const registry = fixture()
+
+      registry.move('d', 1)
+
+      expect(registry.keys()).toEqual(['a', 'd', 'b', 'c', 'e'])
+
+      const keys = registry.keys()
+      for (const [i, key] of keys.entries()) {
+        expect(registry.lookup(i)).toBe(key)
+        expect(registry.get(key!)?.index).toBe(i)
+      }
+    })
+
+    it('should track valueIsIndex values after a mid-list move', () => {
+      const registry = createRegistry()
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }])
+
+      registry.move('b', 2)
+
+      expect(registry.keys()).toEqual(['a', 'c', 'b', 'd'])
+
+      expect(registry.get('a')?.value).toBe(0)
+      expect(registry.get('c')?.value).toBe(1)
+      expect(registry.get('b')?.value).toBe(2)
+      expect(registry.get('d')?.value).toBe(3)
+
+      expect(registry.browse(2)).toContain('b')
+      expect(registry.lookup(2)).toBe('b')
+    })
+
+    it('should hold the lookup/index invariant across a sequence of moves', () => {
+      const registry = createRegistry()
+      registry.onboard([
+        { id: 'a', value: 'v0' },
+        { id: 'b', value: 'v1' },
+        { id: 'c', value: 'v2' },
+        { id: 'd', value: 'v3' },
+        { id: 'e', value: 'v4' },
+        { id: 'f', value: 'v5' },
+      ])
+
+      function assertInvariant () {
+        const keys = registry.keys()
+        for (const [i, key] of keys.entries()) {
+          expect(registry.lookup(i)).toBe(key)
+          expect(registry.get(key!)?.index).toBe(i)
+        }
+      }
+
+      registry.move('a', 5)
+      assertInvariant()
+      registry.move('f', 0)
+      assertInvariant()
+      registry.move('c', 4)
+      assertInvariant()
+      registry.move('e', 1)
+      assertInvariant()
+    })
+
+    it('should trigger keys() reactivity on a move in reactive mode', async () => {
+      const registry = createRegistry({ reactive: true })
+      registry.onboard([
+        { id: 'a', value: 'alpha' },
+        { id: 'b', value: 'beta' },
+        { id: 'c', value: 'gamma' },
+      ])
+
+      const snapshots: string[] = []
+      watchEffect(() => snapshots.push(registry.keys().join(',')))
+
+      await nextTick()
+      expect(snapshots.at(-1)).toBe('a,b,c')
+
+      registry.move('a', 2)
+      await nextTick()
+
+      expect(snapshots.at(-1)).toBe('b,c,a')
     })
   })
 

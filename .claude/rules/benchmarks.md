@@ -292,6 +292,15 @@ pnpm metrics
 
 To narrow to a single file, append the path: `pnpm test:bench packages/0/src/composables/createRegistry/index.bench.ts`.
 
+## Apparatus & imports (benchmark-history harness)
+
+The benchmark-history trend (`apps/docs/src/data/metrics/<version>.json`) is produced by running the **current** bench suite against each version's npm-installed dist — one fixed apparatus, only the library varies (see `scripts/generate-metrics-history.ts`). Two rules follow:
+
+- **Import the library from the public package, never relative source.** Benches import the composable and its types from `@vuetify/v0/composables` (or `@vuetify/v0/date`, `@vuetify/v0` for utilities) — *not* `from './index'`. The harness aliases `@vuetify/v0` to an installed version's dist via `V0_BENCH_TARGET`; a `./index` import would silently measure current source for every version instead. Keep the bench's own fixtures (`./fixtures/...`) relative.
+- **The metrics pipeline benches the built dist; dev benches source.** `V0_BENCH_TARGET` (read in `packages/0/vitest.config.ts`): unset → source (`pnpm bench`/`test:bench`); `dist` → this package's build (`pnpm metrics`); a path → an installed version (the history harness). So `pnpm metrics` runs `build:0` first.
+
+**Caveat — mocking internal deps breaks historical measurement.** A bench that `vi.mock`s an *internal* module (e.g. `createVirtual` mocks `#v0/composables/useResizeObserver`) cannot intercept that dependency once the composable is a bundled dist — the mock no-ops against installed versions, so that bench's historical numbers are noisier/less controlled. Prefer not mocking internals in performance-critical benches; if you must, expect its trend line to be unreliable.
+
 ## Reference Implementation
 
 `packages/0/src/composables/createRegistry/index.bench.ts` — canonical example of:
@@ -314,3 +323,4 @@ To narrow to a single file, append the path: `pnpm test:bench packages/0/src/com
 - [ ] >= 5 benchmarks, >= 3 categories, >= 2 dataset sizes (1K + 10K)
 - [ ] Lookup targets are middle of registry
 - [ ] Mocks limited to lifecycle-dependent code (observers, SSR constants)
+- [ ] Library imports use the public `@vuetify/v0/*` surface, not `./index` (the history harness measures installed versions via that alias)

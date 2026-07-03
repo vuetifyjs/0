@@ -21,7 +21,7 @@
     <router-link
       v-if="devmode?.isSelected.value"
       :aria-label="freshnessLabel"
-      class="inline-flex items-center justify-center w-9 h-9 rounded-lg hover:bg-surface-tint transition-colors"
+      class="inline-flex items-center justify-center w-7 h-7 rounded-lg hover:bg-surface-tint transition-colors"
       :title="freshnessLabel"
       to="/health"
     >

@@ -1021,6 +1021,62 @@ describe('createSelection', () => {
         // Mandatory must keep at least one selected, like in non-multiple mode
         expect(selection.selectedIds.size).toBe(1)
       })
+
+      it('should apply in multiple mode without Set.prototype.difference', () => {
+        const original = Set.prototype.difference
+
+        // @ts-expect-error removing the ES2025 method to pin the documented ES2016 floor
+        delete Set.prototype.difference
+
+        try {
+          const selection = createSelection({ multiple: true })
+          selection.onboard([
+            { id: 'a', value: 'A' },
+            { id: 'b', value: 'B' },
+            { id: 'c', value: 'C' },
+          ])
+          selection.select('a')
+          selection.select('b')
+
+          selection.apply(['B', 'C'])
+
+          expect(selection.selectedIds.has('a')).toBe(false)
+          expect(selection.selectedIds.has('b')).toBe(true)
+          expect(selection.selectedIds.has('c')).toBe(true)
+          expect(selection.selectedIds.size).toBe(2)
+        } finally {
+          Set.prototype.difference = original
+        }
+      })
+
+      it('should keep the mandatory survivor when apply swaps the last selected id', () => {
+        const selection = createSelection({ multiple: true, mandatory: true })
+        selection.onboard([
+          { id: 'a', value: 'A' },
+          { id: 'b', value: 'B' },
+        ])
+        selection.select('a')
+
+        selection.apply(['B'])
+
+        // Removals run before additions, so the mandatory guard keeps 'a'
+        expect(selection.selectedIds.has('a')).toBe(true)
+        expect(selection.selectedIds.has('b')).toBe(true)
+        expect(selection.selectedIds.size).toBe(2)
+      })
+
+      it('should not select a disabled item when applying in multiple mode', () => {
+        const selection = createSelection({ multiple: true })
+        selection.onboard([
+          { id: 'a', value: 'A' },
+          { id: 'b', value: 'B', disabled: true },
+        ])
+
+        selection.apply(['A', 'B'])
+
+        expect(selection.selectedIds.has('a')).toBe(true)
+        expect(selection.selectedIds.has('b')).toBe(false)
+      })
     })
 
     describe('custom ticket types', () => {

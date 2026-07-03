@@ -28,7 +28,7 @@ export default defineConfig({
     // Buttons
     'btn-primary': 'px-4 py-2 bg-primary text-on-primary rounded-lg font-semibold hover:opacity-90 transition-opacity',
     'btn-secondary': 'px-4 py-2 bg-surface text-on-surface border rounded-lg font-semibold hover:bg-surface-tint transition-colors',
-    'btn-ghost': 'px-4 py-2 bg-transparent hover:bg-surface-tint transition-colors cursor-pointer',
+    'btn-ghost': 'px-4 py-2 bg-transparent rounded-lg hover:bg-surface-tint transition-colors cursor-pointer',
     'btn-icon': 'p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider',
     'btn-action': 'inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors cursor-pointer',
 
@@ -84,6 +84,7 @@ export default defineConfig({
 
         :not(pre) > code {
           background: var(--v0-surface-tint);
+          color: var(--v0-on-surface-variant);
           padding: 0.125rem 0.375rem;
           border-radius: 0.25rem;
           font-size: 0.875em;

@@ -25,6 +25,14 @@ export function toCamel (str: string): string {
 }
 
 /**
+ * Capitalize the first letter of a string.
+ * e.g., "actions" → "Actions"
+ */
+export function toTitle (str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
+/**
  * Extract and resolve the item name from a route path.
  * Components → PascalCase, composables → camelCase.
  * e.g., "/components/disclosure/expansion-panel" → "ExpansionPanel"

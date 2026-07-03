@@ -94,6 +94,15 @@ export function usePlaygroundFiles () {
         delete decoded.files['src/import-map.json']
       }
 
+      // Pre-declare Vuetify's cascade-layer order so it is established before any
+      // other style enters the cascade. createVuetify() synchronously injects
+      // <style>@layer vuetify-utilities{…}</style>, while the vuetify-labs.css
+      // <link> is appended async — without this preamble vuetify-utilities ends
+      // up declared before vuetify-components and components beat helpers.
+      if (decoded.files['src/setup.ts']?.includes('vuetify-labs.css')) {
+        decoded.files['src/setup.ts'] = `document.head.insertAdjacentHTML('afterbegin', '<style>@layer vuetify-core,vuetify-components,vuetify-overrides,vuetify-utilities,vuetify-final;</style>')\n${decoded.files['src/setup.ts']}`
+      }
+
       await loadExample(decoded.files, decoded.active)
       if (decoded.imports && Object.keys(decoded.imports).length > 0) {
         extraImports.value = decoded.imports
