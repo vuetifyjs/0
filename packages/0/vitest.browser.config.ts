@@ -20,9 +20,14 @@ export default defineConfig({
   },
   plugins: [Vue()],
   define: {
-    __DEV__: 'process.env.NODE_ENV !== \'production\'',
-    __VITE_LOGGER_ENABLED__: 'process.env.VITE_LOGGER_ENABLED',
-    __VERSION__: '"0.0.1"',
+    // Real browser environment: `process` does not exist, so these must be
+    // evaluated at config time rather than injected as runtime expressions.
+    '__DEV__': JSON.stringify(process.env.NODE_ENV !== 'production'),
+    '__VITE_LOGGER_ENABLED__': JSON.stringify(process.env.VITE_LOGGER_ENABLED ?? false),
+    '__VERSION__': '"0.0.1"',
+    // Node-flavored deps (e.g. @testing-library/vue) read process.env at
+    // import time; give them an empty object since the browser has none.
+    'process.env': '{}',
   },
   test: {
     name: 'v0:browser',
