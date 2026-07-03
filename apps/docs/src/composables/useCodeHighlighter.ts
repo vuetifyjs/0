@@ -1,6 +1,9 @@
 // Transformers
 import { createApiTransformer } from '@build/shiki-api-transformer'
 
+// Framework
+import { isUndefined } from '@vuetify/v0'
+
 // Composables
 import { useHighlighter } from './useHighlighter'
 
@@ -41,6 +44,24 @@ function normalizeLanguage (lang?: string): { shikiLang: string, displayLang: st
   return LANGUAGE_MAP[lower] ?? { shikiLang: lower, displayLang: lower }
 }
 
+const MAX_CACHE = 256
+
+// Highlighted HTML keyed by language + code (default transformers only) so
+// remounted code panes resolve synchronously instead of flashing raw code.
+const cache = new Map<string, string>()
+
+function cacheKey (lang: string, code: string): string {
+  return `${lang}\n${code}`
+}
+
+function remember (key: string, html: string) {
+  if (cache.size >= MAX_CACHE) {
+    const oldest = cache.keys().next().value
+    if (!isUndefined(oldest)) cache.delete(oldest)
+  }
+  cache.set(key, html)
+}
+
 /**
  * Creates a transformer that adds language-* class to the code element.
  */
@@ -63,8 +84,24 @@ export function useCodeHighlighter () {
   const { highlighter, getHighlighter } = useHighlighter()
 
   async function highlight (options: CodeHighlightOptions): Promise<CodeHighlightResult> {
-    const hl = highlighter.value ?? await getHighlighter()
     const { shikiLang, displayLang } = normalizeLanguage(options.language)
+
+    // Custom transformers change the output, so only default calls are cacheable
+    const cacheable = !options.transformers?.length
+    const key = cacheKey(shikiLang, options.code)
+
+    if (cacheable) {
+      const hit = cache.get(key)
+      if (!isUndefined(hit)) {
+        return {
+          html: hit,
+          code: options.code,
+          language: displayLang,
+        }
+      }
+    }
+
+    const hl = highlighter.value ?? await getHighlighter()
 
     const html = hl.codeToHtml(options.code, {
       lang: shikiLang,
@@ -76,6 +113,8 @@ export function useCodeHighlighter () {
         ...(options.transformers ?? []),
       ],
     })
+
+    if (cacheable) remember(key, html)
 
     return {
       html,
