@@ -3,7 +3,7 @@
   import { Tabs } from '@vuetify/v0'
 
   // Data
-  import { INFRASTRUCTURE_FILES } from '@/data/playground-defaults'
+  import { CONFIG_FILE_IDS, INFRASTRUCTURE_FILES } from '@/data/playground-defaults'
 
   // Utilities
   import { computed, shallowRef, watch } from 'vue'
@@ -14,6 +14,7 @@
   const playground = usePlayground()
 
   function isTabbable (f: { filename: string, hidden?: boolean }) {
+    if (CONFIG_FILE_IDS.has(f.filename)) return playground.showConfig.value
     if (INFRASTRUCTURE_FILES.has(f.filename)) return false
     if (f.hidden) return false
     return true

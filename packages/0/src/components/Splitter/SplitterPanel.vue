@@ -81,7 +81,7 @@
     renderless,
     defaultSize,
     minSize = 0,
-    maxSize: maxSizeProp = 100,
+    maxSize = 100,
     collapsible = false,
     collapsedSize = 0,
   } = defineProps<SplitterPanelProps>()
@@ -94,7 +94,7 @@
     return isString(value) && value.endsWith('px')
   }
 
-  if (isPx(defaultSize) || isPx(minSize) || isPx(maxSizeProp) || isPx(collapsedSize)) {
+  if (isPx(defaultSize) || isPx(minSize) || isPx(maxSize) || isPx(collapsedSize)) {
     /* v8 ignore start -- px-mode panels not exercised in happy-dom (no real layout) */
     useResizeObserver(splitter.rootEl, entries => {
       const rect = entries[0]?.contentRect
@@ -131,7 +131,7 @@
     id: panelId,
     size: percent(defaultSize, 0),
     minSize: percent(minSize, 0),
-    maxSize: percent(maxSizeProp, 100),
+    maxSize: percent(maxSize, 100),
     collapsible,
     collapsedSize: percent(collapsedSize, 0),
     defaultSize: percent(defaultSize, 0),
@@ -139,7 +139,7 @@
 
   watchEffect(() => {
     ticket.minSize = percent(minSize, 0)
-    ticket.maxSize = percent(maxSizeProp, 100)
+    ticket.maxSize = percent(maxSize, 100)
     ticket.collapsible = collapsible
     ticket.collapsedSize = percent(collapsedSize, 0)
     ticket.defaultSize = percent(defaultSize, 0)

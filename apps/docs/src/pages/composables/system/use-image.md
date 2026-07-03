@@ -75,20 +75,28 @@ stateDiagram-v2
 
 ## Examples
 
-::: example
-/composables/use-image/basic
+::: gn-example
+/composables/use-image/useImageCard.ts 1
+/composables/use-image/ImageCard.vue 2
+/composables/use-image/gallery.vue 3
 
-### Basic usage
+### Image card with placeholder and fallback
 
-Wire `useImage` directly to a plain `<img>` element. The composable returns `source`, `onLoad`, `onError`, and four state refs — bind them to the element and you have the full load lifecycle for ~10 lines of setup.
+Wrap `useImage` in a small composable to build a self-contained image card that drives the full state machine — `idle → loading → loaded | error` — and surfaces it as UI: a placeholder while loading, the photo when it arrives, a broken-image affordance on hard failure, and a status badge that reflects the live `status` ref. This is the "build your own smart image" pattern when the `Image` compound's DOM isn't what you need.
 
-Reach for raw `useImage` when the image lives in markup the `Image` compound can't produce — hand-rolled `<picture>`, a canvas-adjacent element, third-party wrappers, or anywhere you want the state machine without v0's DOM. For typical content images, prefer `Image.Root` + `Image.Img` which packages the same composable with built-in placeholder and fallback slots.
+The interesting work happens in the wrapper. Rather than reaching for a `watch` on `isError`, the composable intercepts `onError`: when the primary source fails and a fallback URL exists, it swaps the *gated* `source` instead of reporting the error. Because `useImage` resets its state machine whenever `src` changes, that single assignment re-runs `idle → loading → loaded | error` against the fallback for free — no imperative re-fetch, no second `useImage` instance. A `reload()` method rewinds the active source back to the primary so the entire lifecycle replays on demand, demonstrating how `retry()` and reactive `src` changes compose.
 
-The example surfaces the `status` ref as a live label and includes buttons that swap between a working URL and a known-broken URL, so the transitions `idle → loading → loaded | error` play out on click.
+Reach for this when you want consistent placeholder and fallback behavior across many images without the `Image` component — a gallery, a card grid, an avatar wall. The gallery wires three cards that exercise every branch: one that loads directly, one whose primary fails but recovers via fallback, and one where neither source resolves. For viewport-gated loading, compose it with [useIntersectionObserver](/composables/system/use-intersection-observer) (see the next example) or defer the whole card with [useLazy](/composables/system/use-lazy); for a batteries-included version, [Image](/components/semantic/image) and [Avatar](/components/semantic/avatar) package the same machine with built-in slots.
+
+| File | Role |
+|------|------|
+| `useImageCard.ts` | Wraps `useImage`, swaps the gated source to a fallback on error, and exposes `reload()` to replay the lifecycle |
+| `ImageCard.vue` | Renders one card — placeholder while loading, the image when loaded, a broken state on hard failure, a status badge, and a fallback marker |
+| `gallery.vue` | Entry rendering three cards: direct load, fallback recovery, and total failure |
 
 :::
 
-::: example
+::: gn-example
 /composables/use-image/useLazyImage.ts 1
 /composables/use-image/LazyImage.vue 2
 /composables/use-image/lazy.vue 3
@@ -126,7 +134,7 @@ Under the hood `<Image.Root lazy>` does exactly this; the custom composable exis
 
 :::
 
-::: example
+::: gn-example
 /composables/use-image/RetryableImage.vue 1
 /composables/use-image/retry.vue 2
 

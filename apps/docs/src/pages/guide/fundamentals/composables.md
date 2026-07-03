@@ -119,7 +119,9 @@ Form state and validation:
 | [createCombobox](/composables/forms/create-combobox) | Autocomplete with filtering and virtual focus |
 | [createForm](/composables/forms/create-form) | Form validation coordinator |
 | [createInput](/composables/forms/create-input) | Shared form field primitive with ARIA IDs |
+| [createNumberField](/composables/forms/create-number-field) | Numeric input with formatting, parsing, and stepping |
 | [createNumeric](/composables/forms/create-numeric) | Bounded numeric math with step and clamp |
+| [createOtp](/composables/forms/create-otp) | Fixed-length OTP / verification-code value with pattern-gated entry |
 | [createRating](/composables/forms/create-rating) | Bounded rating with discrete items |
 | [createSlider](/composables/forms/create-slider) | Multi-thumb slider with step snapping |
 | [createValidation](/composables/forms/create-validation) | Per-field validation lifecycle |
@@ -159,9 +161,12 @@ Filtering, pagination, and virtualization for collections:
 
 | Composable | Purpose |
 | - | - |
+| [createDataGrid](/composables/data/create-data-grid) | Column layout, cell editing, and row spanning for data tables |
 | [createDataTable](/composables/data/create-data-table) | Data table with sort, filter, paginate, and select |
 | [createFilter](/composables/data/create-filter) | Array filtering |
+| [createKanban](/composables/data/create-kanban) | Two-level sortable board with cross-column transfer |
 | [createPagination](/composables/data/create-pagination) | Page navigation |
+| [createSortable](/composables/data/create-sortable) | Reorderable list with swap and move events |
 | [createVirtual](/composables/data/create-virtual) | Virtual scrolling |
 
 ## Usage Patterns
@@ -263,7 +268,7 @@ ticket?.value // MyItem
 
 > [!ASKAI] Which composables should I use for a data table with filtering and pagination?
 
-## Frequently Asked Questions
+## FAQ
 
 ::: faq
 ??? Should I always use context injection or can I call factories directly?
@@ -298,7 +303,7 @@ const [useTheme, provideTheme, theme] = createThemeContext()
 
 // 'theme' is the shared default instance
 // Access it anywhere without injection
-theme.current.value // Works outside components, in tests, etc.
+theme.selectedId.value // Works outside components, in tests, etc.
 ```
 
 **Module singleton** — Export a factory result:
@@ -307,10 +312,13 @@ theme.current.value // Works outside components, in tests, etc.
 export const globalSelection = createSelection({ multiple: true })
 ```
 
-**Plugin installation** — App-wide via dependency injection:
+**Context injection** — App-wide via dependency injection:
 
 ```ts main.ts
-app.use(createSelectionPlugin({ multiple: true }))
+import { createSelectionContext } from '@vuetify/v0'
+
+export const [useSelection, provideSelection] = createSelectionContext({ multiple: true })
+provideSelection() // Call once at the app root; descendants call useSelection()
 ```
 
 ```mermaid "Sharing Patterns"
@@ -323,14 +331,14 @@ flowchart TD
         A[Component A] --> S[globalSelection]
         B[Component B] --> S
     end
-    subgraph Plugin DI
+    subgraph Context DI
         C[Component C] --> P[useSelection]
         D[Component D] --> P
         P --> I[Injected instance]
     end
 ```
 
-Trinity's third element is the idiomatic v0 approach—see [The Trinity Pattern](/guide/fundamentals/core#the-trinity-pattern) for details. Module singletons work outside Vue. Plugins integrate with devtools.
+Trinity's third element is the idiomatic v0 approach—see [The Trinity Pattern](/guide/fundamentals/core#the-trinity-pattern) for details. Module singletons work outside Vue. Context injection scopes sharing to the providing component's subtree.
 
 ??? What's the lifecycle of a composable when components unmount?
 

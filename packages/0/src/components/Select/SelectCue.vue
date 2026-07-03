@@ -45,6 +45,7 @@
   const {
     as = 'span',
     namespace = 'v0:select',
+    renderless,
   } = defineProps<SelectCueProps>()
 
   const context = useSelectContext(namespace)
@@ -61,6 +62,7 @@
 <template>
   <Atom
     :as
+    :renderless
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />

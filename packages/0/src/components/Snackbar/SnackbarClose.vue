@@ -47,7 +47,7 @@
     default: (props: SnackbarCloseSlotProps) => any
   }>()
 
-  const { as = 'button', namespace = 'v0:notifications' } = defineProps<SnackbarCloseProps>()
+  const { as = 'button', namespace = 'v0:notifications', renderless } = defineProps<SnackbarCloseProps>()
 
   const context = useSnackbarRootContext(namespace)
   const locale = useLocale()
@@ -59,7 +59,7 @@
   const slotProps = toRef((): SnackbarCloseSlotProps => ({
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
-      'aria-label': locale.t('Snackbar.close'),
+      'aria-label': locale.ti('Snackbar.close') ?? 'Dismiss',
       'onClick': onClick,
     },
   }))
@@ -67,8 +67,9 @@
 
 <template>
   <Atom
-    v-bind="slotProps.attrs"
     :as
+    :renderless
+    v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />
   </Atom>

@@ -10,14 +10,14 @@
 
 import { bench, describe } from 'vitest'
 
+// Framework
+import { createTokens } from '@vuetify/v0/composables'
+
 // Fixtures
 import TOKENS from './fixtures/tokens'
 
-// Composables
-import { createTokens } from './index'
-
 // Types
-import type { TokenContext, TokenTicket } from './index'
+import type { TokenContext, TokenTicket } from '@vuetify/v0/composables'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks

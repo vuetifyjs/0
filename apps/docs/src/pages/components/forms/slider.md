@@ -25,50 +25,24 @@ Headless slider for single-value and range inputs with pointer drag, keyboard na
 
 The Slider supports single-value and range modes. Add one `Slider.Thumb` for a single value, or two for a range.
 
-::: example
+::: gn-example
 /components/slider/basic
-
-### Single and Range Slider
-
-A single-value slider and a range slider with track and thumb components.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Slider } from '@vuetify/v0'
 </script>
 
 <template>
-  <!-- Single thumb -->
   <Slider.Root>
     <Slider.Track>
       <Slider.Range />
     </Slider.Track>
 
     <Slider.Thumb />
-  </Slider.Root>
-
-  <!-- Range (two thumbs) -->
-  <Slider.Root>
-    <Slider.Track>
-      <Slider.Range />
-    </Slider.Track>
-
-    <Slider.Thumb />
-    <Slider.Thumb />
-  </Slider.Root>
-
-  <!-- With form submission -->
-  <Slider.Root>
-    <Slider.Track>
-      <Slider.Range />
-    </Slider.Track>
-
-    <Slider.Thumb />
-
     <Slider.HiddenInput />
   </Slider.Root>
 </template>
@@ -100,7 +74,7 @@ The Root creates a slider instance and provides it via context. Track listens fo
 
 ## Examples
 
-::: example
+::: gn-example
 /components/slider/useEqualizer.ts 1
 /components/slider/Equalizer.vue 2
 /components/slider/equalizer.vue 3
@@ -125,7 +99,7 @@ Multiple vertical sliders composed into a 5-band equalizer with preset managemen
 
 :::
 
-::: example
+::: gn-example
 /components/slider/ColorSlider.vue 1
 /components/slider/ColorPicker.vue 2
 /components/slider/color-picker.vue 3
@@ -235,5 +209,31 @@ Each `Slider.Thumb` manages its own ARIA attributes automatically.
 | `PageDown` | Decrement by 10 steps |
 | `Home` | Set to minimum |
 | `End` | Set to maximum |
+
+## FAQ
+
+::: faq
+
+??? How do I create a range slider instead of a single value?
+
+Render two `Slider.Thumb` elements inside `Slider.Root` for a range; a single `Slider.Thumb` gives a single value. `Slider.Range` fills the region between the thumbs (or from min to a lone thumb).
+
+??? How do I submit a slider's value with a form?
+
+Set `name` on `Slider.Root` to auto-render hidden inputs — one per thumb — so both single values and ranges post with the form.
+
+??? How do I run code when the user starts or stops dragging?
+
+`Slider.Root` emits `start` and `end` events for the pointer-drag lifecycle. Bind `@start` and `@end` for things like committing a value only once the drag completes.
+
+??? How do I make a vertical slider?
+
+Set `orientation="vertical"` on `Slider.Root`. It reflects through `aria-orientation` and the `data-orientation` attribute, and the arrow keys adapt so Up/Down increment and decrement.
+
+??? Can users move the thumb in larger increments with the keyboard?
+
+Yes. Arrow keys move by one step; `Shift+Arrow`, `PageUp`, and `PageDown` move by 10 steps; `Home` and `End` jump to the minimum and maximum.
+
+:::
 
 <DocsApi />

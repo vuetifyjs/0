@@ -76,7 +76,7 @@ The `DocsCodeGroup` component powers all tabbed code examples. It uses `createSi
 </template>
 ```
 
-> [!INFO]
+> [!NOTE]
 > **Why this works:** `createSingle` handles the selection logic. `useProxyRegistry` exposes registered items for iteration. The component owns all styling and accessibility attributes.
 
 ### Mobile Navigation

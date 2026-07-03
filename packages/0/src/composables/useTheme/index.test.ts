@@ -391,10 +391,48 @@ describe('createTheme', () => {
       expect(plugin.install).toBeDefined()
     })
 
+    it('should call adapter.dispose on app.unmount', async () => {
+      const disposeFn = vi.fn()
+      const customAdapter = {
+        setup: vi.fn(),
+        dispose: disposeFn,
+        update: vi.fn(),
+        rgb: false,
+      }
+
+      const app = createApp({ template: '<div />' })
+      app.use(createThemePlugin({ adapter: customAdapter as any }))
+
+      const container = document.createElement('div')
+      app.mount(container)
+      await nextTick()
+
+      expect(disposeFn).not.toHaveBeenCalled()
+      app.unmount()
+      expect(disposeFn).toHaveBeenCalledTimes(1)
+    })
+
+    it('should not throw when adapter has no dispose on app.unmount', async () => {
+      const customAdapter = {
+        setup: vi.fn(),
+        update: vi.fn(),
+        rgb: false,
+      }
+
+      const app = createApp({ template: '<div />' })
+      app.use(createThemePlugin({ adapter: customAdapter as any }))
+
+      const container = document.createElement('div')
+      app.mount(container)
+      await nextTick()
+
+      expect(() => app.unmount()).not.toThrow()
+    })
+
     it('should inject CSS variables into DOM', async () => {
       let mockStyleSheets: CSSStyleSheet[] = []
-      const spy = vi.spyOn(document, 'adoptedStyleSheets', 'get').mockImplementation(() => mockStyleSheets)
-      vi.spyOn(document, 'adoptedStyleSheets', 'set').mockImplementation(v => {
+      using spy = vi.spyOn(document, 'adoptedStyleSheets', 'get').mockImplementation(() => mockStyleSheets)
+      using setSpy = vi.spyOn(document, 'adoptedStyleSheets', 'set').mockImplementation(v => {
         mockStyleSheets = v as CSSStyleSheet[]
       })
 
@@ -426,8 +464,10 @@ describe('createTheme', () => {
       expect(styleContent).toContain('--v0-primary: #1976d2')
       expect(styleContent).toContain('--v0-secondary: #424242')
 
+      expect(spy).toHaveBeenCalled()
+      expect(setSpy).toHaveBeenCalled()
+
       app.unmount()
-      spy.mockRestore()
     })
 
     it('should apply theme class to target element', async () => {
@@ -695,6 +735,35 @@ describe('createTheme', () => {
           stored = storage.get('theme').value
         })
         expect(stored).toBe('light')
+      })
+
+      it('should ignore non-id persisted values', () => {
+        const app = createApp({ render: () => null })
+        app.use(createStoragePlugin())
+        app.runWithContext(() => {
+          const storage = useStorage()
+          storage.set('theme', { selected: 'dark' })
+        })
+
+        app.use(
+          createThemePlugin({
+            persist: true,
+            default: 'light',
+            themes: {
+              light: { dark: false, colors: { primary: '#1976d2' } },
+              dark: { dark: true, colors: { primary: '#90caf9' } },
+            },
+          }),
+        )
+
+        let theme: ThemeContext | undefined
+        app.runWithContext(() => {
+          theme = useTheme()
+        })
+
+        expect(theme!.selectedId.value).toBe('light')
+
+        app.unmount()
       })
     })
   })
@@ -1077,7 +1146,7 @@ describe('createTheme', () => {
 
   describe('register with colors and tokens', () => {
     it('should not duplicate theme if already registered', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const theme = createTheme({
         themes: {
@@ -1091,8 +1160,6 @@ describe('createTheme', () => {
       expect(theme.size).toBe(before)
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('light'))
-
-      spy.mockRestore()
     })
   })
 

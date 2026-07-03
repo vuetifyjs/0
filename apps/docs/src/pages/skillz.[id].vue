@@ -58,13 +58,16 @@
       .toSorted((a, b) => a.order - b.order)[0] ?? null
   })
 
+  const ogImage = toRef(() => tour.value ? `https://0.vuetifyjs.com/og/skillz/${tour.value.id}.png` : undefined)
+
   useHead({
     title: () => tour.value ? `${tour.value.name} - Skillz` : 'Skill Not Found - Skillz',
-    meta: [
-      { key: 'description', name: 'description', content: () => tour.value?.description ?? 'The requested skill could not be found.' },
-      { key: 'og:title', property: 'og:title', content: () => tour.value ? `${tour.value.name} - Vuetify0 Skillz` : 'Skill Not Found' },
-      { key: 'og:description', property: 'og:description', content: () => tour.value?.description ?? 'The requested skill could not be found.' },
-    ],
+    meta: toRef(() => [
+      { key: 'description', name: 'description', content: tour.value?.description ?? 'The requested skill could not be found.' },
+      { key: 'og:title', property: 'og:title', content: tour.value ? `${tour.value.name} - Vuetify0 Skillz` : 'Skill Not Found' },
+      { key: 'og:description', property: 'og:description', content: tour.value?.description ?? 'The requested skill could not be found.' },
+      ...(ogImage.value ? [{ key: 'og:image', property: 'og:image', content: ogImage.value }] : []),
+    ]),
   })
 
   async function onClick (stepId?: string) {

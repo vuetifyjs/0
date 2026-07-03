@@ -26,7 +26,7 @@
  */
 
 // Utilities
-import { isObject, isString, isSymbol, isUndefined } from '#v0/utilities'
+import { isObject, isString, isSymbol, isUndefined, V0Error } from '#v0/utilities'
 import { inject, provide } from 'vue'
 
 // Types
@@ -64,7 +64,10 @@ export function useContext<Z> (key: ContextKey<Z>, defaultValue?: Z) {
   const context = inject<Z>(key, defaultValue as Z)
 
   if (isUndefined(context)) {
-    throw new Error(`Context "${String(key)}" not found. Ensure it's provided by an ancestor.`)
+    throw new V0Error(`Context "${String(key)}" not found. Ensure it's provided by an ancestor.`, {
+      code: 'V0_CONTEXT_MISSING',
+      key,
+    })
   }
 
   return context
@@ -151,7 +154,7 @@ export function createContext<Z> (
 ) {
   // Static key mode: createContext('my-key') or createContext(Symbol())
   if (isString(keyOrOptions) || isSymbol(keyOrOptions)) {
-    // console.warn (not useLogger) — createContext is Layer 0, cannot import useLogger without circular dep
+    // PHILOSOPHY §9.2 Layer-0 exception: createContext is Layer 0, cannot import useLogger without a circular dep
     if (__DEV__ && isString(keyOrOptions) && !keyOrOptions.includes(':')) {
       console.warn(
         `[v0:context] String key "${keyOrOptions}" has no namespace separator. `

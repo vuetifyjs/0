@@ -104,51 +104,62 @@ Adapters let you swap the underlying implementation without changing your applic
 1. **H1 title** — component name
 2. `<DocsPageFeatures :frontmatter />` — badges from frontmatter
 3. `<DocsBrowserSupport>` — optional, for native API features
-4. **Usage** — brief intro + code fence (not a live example)
-5. **Anatomy** — Vue template tree in `` ```vue Anatomy playground `` `` (preferred) or `` ```vue playground `` `` (acceptable). Wrap a `<script setup lang="ts">` block that imports the component(s) so the playground link compiles cleanly, then render the component-tree shell — bare `<Component.Sub />` elements showing the available compound surface. Prefer structural shells with no runtime values, but real props are acceptable when they clarify the surface (e.g., `<ExpansionPanel.Group multiple>`). The runnable preview comes from Examples; Anatomy is the structural map. Reference: `pages/components/disclosure/expansion-panel.md`. [intent:345]
+4. **Usage** — brief description + the `basic` live example (see Usage forms below)
+5. **Anatomy** — Vue template tree in `` ```vue Anatomy no-filename `` ``, placed directly after the Usage example. Wrap a `<script setup lang="ts">` block that imports the component(s), then render the bare compound skeleton — `<Root>` plus one of each distinct named child, with NO props, classes, `v-slot`, comments, or alternate modes. Anatomy is the structural map of the compound surface; the runnable preview comes from Examples. Reference: `pages/components/providers/group.md`. [intent:345]
 
 > **Usage** accepts either form below — pick based on what the section needs to do:
-> - `::: example` with the `basic` file (no extension) when a runnable demo is enough on its own. Dominant practice. Example: `pages/components/semantic/breadcrumbs.md`.
+> - `::: gn-example` with the `basic` file (no extension) when a runnable demo is enough on its own. Strip any inline `### Heading`/description so it renders as a peek. Dominant practice. Example: `pages/components/semantic/breadcrumbs.md`.
 > - Code fence + prose when the page has key props or behaviors that warrant explanation before the demo. Example: `pages/components/semantic/pagination.md`.
 6. **Architecture** — optional Mermaid diagram
-7. **Examples** — `::: example` blocks, each with 2+ files
-8. **Recipes** — code fences or single-file `::: example` blocks
+7. **Examples** — `::: gn-example` blocks, each with 2+ files
+8. **Recipes** — code fences or single-file `::: gn-example` blocks
 9. **Accessibility** — ARIA roles, keyboard interaction, screen reader behavior
 10. **FAQ** — `::: faq` container with `???` questions
 11. `<DocsApi />` — auto-generated API reference
+
+Providers that require plugin setup (`locale`, `scrim`) prepend an optional **Installation** section before **Usage**. Section order is canonical: pages omit sections they don't need but never reorder them. Bespoke H2 headings are folded to H3 under the nearest canonical parent — default **Recipes**; keyboard/ARIA content → **Accessibility**; limitations/gotchas → **FAQ**.
 
 ## Section Content Rules
 
 | Section | Component pages | Composable pages |
 |---------|----------------|-----------------|
-| **Usage** | `::: example` with `basic` (no extension) **or** code fence + prose when the page needs explanatory text before the demo [intent:302] | `` ```ts collapse `` `` code fence [intent:302] |
-| **Anatomy** | `` ```vue Anatomy playground `` `` (preferred) or `` ```vue playground `` `` — `<script setup>` import + component-tree shell [intent:345] | — |
-| **Examples** | `::: example` with 2+ files [intent:304] | `::: example` with 2+ files [intent:304] |
-| **Recipes** | Code fence or single-file `::: example` [intent:303] | Code fence or single-file `::: example` [intent:303] |
+| **Usage** | `::: gn-example` with `basic` (no extension, peek — strip inline heading/description) **or** code fence + prose when the page needs explanatory text before the demo [intent:302] | `` ```ts collapse `` `` code fence [intent:302] |
+| **Anatomy** | `` ```vue Anatomy no-filename `` `` — `<script setup>` import + bare compound skeleton (Root + one of each named child, no props) [intent:345] | — |
+| **Examples** | `::: gn-example` with 2+ files [intent:304] | `::: gn-example` with 2+ files [intent:304] |
+| **Recipes** | Code fence or single-file `::: gn-example` [intent:303] | Code fence or single-file `::: gn-example` [intent:303] |
 
 ## Composable Page Structure [intent:201]
 
 1. **H1 title** — composable name
 2. `<DocsPageFeatures :frontmatter />`
 3. **Intro** — 1-2 sentences (see Page Intro rules)
-4. **Usage** — `` ```ts collapse `` `` block
-5. **Architecture** — Mermaid diagram showing composable hierarchy
-6. **Adapters** — if the composable accepts adapters
-7. **Reactivity** — table of reactive properties/methods
-8. **Examples** — `::: example` with live demos
-9. **FAQ** — `::: faq` container
-10. `<DocsApi />` — auto-generated API reference
+4. **Installation** — plugins only; `createXPlugin` setup in `main.ts`
+5. **Usage** — `` ```ts collapse `` `` block
+6. **Context / DI** — provide/inject + `createXContext`, when present
+7. **Adapters** — if the composable accepts adapters (before **Architecture** — choosing an adapter is a setup-time decision)
+8. **Architecture** — Mermaid diagram showing composable hierarchy
+9. **Options** — config-object reference, when present
+10. **Reactivity** — table of reactive properties/methods
+11. **Examples** — `::: gn-example` with live demos
+12. **Recipes** — code fences or single-file `::: gn-example`, when present
+13. **Accessibility** — ARIA / keyboard, when the composable exposes an a11y surface
+14. **FAQ** — `::: faq` container
+15. `<DocsApi />` — auto-generated API reference
+
+Section order is canonical: pages omit sections they don't need but never reorder them. Bespoke H2 headings are folded to H3 under the nearest canonical parent (default **Recipes**).
 
 ## Examples
 
 Example files live in `apps/docs/src/examples/{type}/{name}/`. [intent:202]
 
+`::: gn-example` (emits `<DocsGenesisExample>`) is the canonical directive for component and composable feature pages. The legacy `::: example` (emits `<DocsExample>`) still exists for other page types (guides, index pages) but new feature-page work uses `gn-example`. Both share identical path/ordering/collapse syntax.
+
 ### Single file (no extension in path)
 
-Single-file `::: example` paths have **no extension** — `.vue` is auto-appended. [intent:305]
+Single-file `::: gn-example` paths have **no extension** — `.vue` is auto-appended. A single-file block with no inline description renders as a peek. [intent:305]
 
 ```markdown
-::: example
+::: gn-example
 /components/dialog/basic
 :::
 ```
@@ -156,7 +167,7 @@ Single-file `::: example` paths have **no extension** — `.vue` is auto-appende
 ### Collapsed
 
 ```markdown
-::: example collapse
+::: gn-example collapse
 /components/dialog/basic
 :::
 ```
@@ -166,7 +177,7 @@ Single-file `::: example` paths have **no extension** — `.vue` is auto-appende
 Multi-file example paths **must have extensions**. Order numbers are optional; the last `.vue` file is the rendered entry point. [intent:306]
 
 ```markdown
-::: example
+::: gn-example
 /composables/create-context/context.ts 1
 /composables/create-context/Provider.vue 2
 /composables/create-context/Consumer.vue 3
@@ -186,7 +197,7 @@ for it, what tradeoffs apply, and any related APIs. Not a one-liner.
 
 ### Examples prose depth
 
-Prose inside `::: example` blocks under `## Examples` should be lengthened — multi-paragraph, explaining *what* it demonstrates, *when* to reach for it, tradeoffs, and related APIs — followed by a `| File | Role |` table. [intent:274, intent:275]
+Prose inside `::: gn-example` blocks under `## Examples` should be lengthened — multi-paragraph, explaining *what* it demonstrates, *when* to reach for it, tradeoffs, and related APIs — followed by a `| File | Role |` table (multi-file only; omit the table for single-file examples). [intent:274, intent:275]
 
 The same depth rule does **not** apply to `## Usage` or `## Recipes` blocks — those are deliberately terse. [intent:276]
 
@@ -238,29 +249,29 @@ Don't use a footnote for:
 - Information that applies to the whole table or page — that's still a TIP/NOTE block.
 - Short qualifiers (1–4 words) that read fine inline — e.g. `(zero-padded)`, `(0-indexed)`, `(includes NaN)`.
 
-**Naming:** short kebab identifiers tied to the row content, not numbered. `[^safari-anchor]`, not `[^1]` — survives reorder, scans better in source, makes the link descriptive when the footnote text is far from the anchor.
+**Naming:** short kebab identifiers tied to the row content, not numbered. `[^safari-temporal]`, not `[^1]` — survives reorder, scans better in source, makes the link descriptive when the footnote text is far from the anchor.
 
 ```markdown
 <!-- Right -->
 | Feature | Safari | Fallback |
 |---------|--------|----------|
-| [CSS Anchor Positioning](https://...) | —[^safari-anchor] | Properties ignored |
+| [Temporal](https://...) | —[^safari-temporal] | `@js-temporal/polyfill` |
 
-[^safari-anchor]: Not yet implemented in Safari; track at [WebKit Bug 286106](https://bugs.webkit.org/show_bug.cgi?id=286106).
+[^safari-temporal]: Not yet in stable Safari (available in Safari Technology Preview).
 
 <!-- Wrong — caveat wedged into cell, breaks row alignment -->
-| [CSS Anchor Positioning](https://...) | — (Not yet supported in Safari; tracking at WebKit) | Properties ignored |
+| [Temporal](https://...) | — (Not yet in stable Safari; available in Technology Preview) | `@js-temporal/polyfill` |
 
 <!-- Wrong — TIP block restating one row's caveat -->
-| [CSS Anchor Positioning](https://...) | — | Properties ignored |
+| [Temporal](https://...) | — | `@js-temporal/polyfill` |
 
 > [!TIP]
-> CSS Anchor Positioning is not yet supported in Safari; track at WebKit Bug 286106.
+> Temporal is not yet available in stable Safari; it ships in Safari Technology Preview.
 ```
 
 Real worked examples on master:
 
-- `apps/docs/src/pages/introduction/browser-support.md` — `[^safari-anchor]` on the Cutting-Edge Features table.
+- `apps/docs/src/pages/introduction/browser-support.md` — `[^safari-temporal]` on the Cutting-Edge Features table.
 - `apps/docs/src/pages/composables/index.md` — `[^plugin-install]` on the Plugin consumers row.
 - `apps/docs/src/pages/composables/plugins/use-date.md` — `[^temporal]` on the adapter's polyfill requirement.
 - `apps/docs/src/pages/guide/features/accessibility.md` — `[^pagination-nav]` and `[^popover-native]` on the ARIA attributes table.
@@ -269,16 +280,34 @@ Real worked examples on master:
 
 | Syntax | Purpose |
 |--------|---------|
-| `::: example` | Live interactive example |
+| `::: gn-example` | Live interactive example (canonical for feature pages; emits `<DocsGenesisExample>`) |
+| `::: example` | Legacy live example (`<DocsExample>`) — guides/index pages only |
 | `::: code-group` | Tabbed code blocks |
 | `::: faq` | FAQ section with `???` questions |
 | `> [!TIP]` | Informational callout (empty tip surfaces a random tip from curated pool) [intent:340, intent:341] |
+| `> [!NOTE]` | Neutral informational callout |
 | `> [!WARNING]` | Cautionary callout |
-| `> [!ERROR]` | Error/danger callout |
+| `> [!CAUTION]` | Danger/severe callout |
+| `> [!IMPORTANT]` | Critical-emphasis callout |
 | `[^name]` | Footnote anchor — see [Footnotes](#footnotes) |
-| `` ```vue Anatomy playground `` `` | Live anatomy preview |
+| `` ```vue Anatomy no-filename `` `` | Anatomy structural map (bare compound skeleton; not playground-linked) |
 | `` ```ts collapse `` `` | Collapsible code block |
 | `` ```ts no-filename `` `` | Hide filename in code block |
+
+## Runtime markdown
+
+Markdown that arrives at runtime (GitHub API bodies/descriptions, AI responses) renders through the single shared pipeline in `@/composables/useMarkdown`:
+
+- `useMarkdown(content)` — full documents (Shiki code blocks, callouts, tables). Consumers: `DocsAskMessage`, `DocsReleases`.
+- `renderInline(text)` — single lines inside `p`/`li` (e.g. roadmap milestone descriptions).
+
+Rules:
+
+- **Never instantiate `Marked` in a component** — extend `useMarkdown` instead. Duplicated configs drift (this is how `DocsReleases` and `DocsRoadmap` diverged before #485/#487).
+- **Never interpolate markdown-bearing API text with `{{ }}`** — raw `**`/`[]()` syntax leaks to the reader.
+- Link decoration comes from `processLinks` (`v0-link` class, `target=_blank`, `↗︎` suffix) so runtime content matches build-time markdown. Don't hand-roll link renderers or add `[&_a]` utility overrides.
+- **Trust boundary for `v-html`:** maintainer-authored content only (milestone descriptions, release bodies). Community-authored strings (issue titles, PR titles) must be HTML-escaped before rendering — marked passes raw inline HTML through.
+- Callout (`data-alert`) and mermaid placeholders render empty unless the consumer mounts them (see `DocsAskMessage`). If new runtime content can contain callouts, reuse that mounting pattern.
 
 ## API Reference
 
@@ -355,7 +384,9 @@ When auditing docs or specs, read the rules file **line-by-line** and build a pe
 
 ## Playground — the interactive browser editor
 
-v0 ships a standalone playground at `apps/playground/` that lets consumers edit a Vue file and see the result live. Docs pages can deep-link into the playground: every `DocsExample` code pane exposes a "Open in Playground" action via `DocsCodeActions`, and every ``` ```vue playground ``` fence renders with the same action. The action calls `usePlayground(files)` (see `apps/docs/src/composables/usePlayground.ts`), which encodes the files into a URL and navigates to the deployed playground. [intent:344]
+v0 ships a standalone playground at `apps/playground/` that lets consumers edit a Vue file and see the result live. Docs pages can deep-link into the playground: every `::: gn-example` / `DocsExample` code pane exposes a "Open in Playground" action via `DocsCodeActions`, and every ``` ```vue playground ``` fence renders with the same action. The action calls `usePlayground(files)` (see `apps/docs/src/composables/usePlayground.ts`), which encodes the files into a URL and navigates to the deployed playground. [intent:344]
+
+> **Note.** The `## Anatomy` fence is `` ```vue Anatomy no-filename `` `` and is **not** playground-linked — it's a static structural map. The runnable, playground-enabled preview is the `basic` `::: gn-example` under Usage.
 
 ### When to enable playground linking
 
@@ -367,11 +398,12 @@ v0 ships a standalone playground at `apps/playground/` that lets consumers edit 
 
 | Fence / directive | Playground enabled? | Usage |
 |-------------------|--------------------|-------|
-| ``` ```vue playground ``` | Yes | Anatomy fences; single-file live-editable |
-| ``` ```vue playground collapse ``` | Yes | Anatomy fences, collapsed by default |
-| `::: example` with multi-file | Yes | Full example transferred to playground |
+| `::: gn-example` with multi-file | Yes | Full example transferred to playground |
+| `::: gn-example collapse` with single-file | Yes | Copies the single file to playground |
+| ``` ```vue playground ``` | Yes | Single-file live-editable Usage fence |
+| ``` ```vue playground collapse ``` | Yes | Single-file live-editable, collapsed by default |
+| ``` ```vue Anatomy no-filename ``` | No | Structural map; reader-only |
 | Bare ``` ```vue ``` | No | Quick illustrations; reader-only |
-| `::: example collapse` with single-file | Yes | Copies the single file to playground |
 
 The `DocsCodeActions` button is visible on hover over any playground-enabled block. Consumers clicking it land in `apps/playground/` with the code pre-populated.
 
@@ -388,7 +420,7 @@ Write examples so they are *immediately* runnable when dropped into the playgrou
 
 The monorepo uses **knip** (see `knip.json`) to detect unreferenced files, exports, and dependencies across workspaces. The `apps/docs` workspace explicitly lists `src/examples/**/*.vue` as entry points, which means every file in that directory tree must either:
 
-1. Be imported by a markdown page via `::: example` / `<DocsExample>`, or
+1. Be imported by a markdown page via `::: gn-example` / `::: example` / `<DocsExample>`, or
 2. Be listed in `knip.json`'s `ignore` array (only for multi-file example sub-files that aren't the entry), or
 3. Be removed.
 
@@ -464,3 +496,4 @@ Real worked examples:
 - [ ] Stable features expose playground-enabled fences/examples
 - [ ] No orphaned example files after edits; `pnpm repo:check` clean
 - [ ] Mermaid diagrams used for architecture/state/flow, not for content that belongs in tables
+- [ ] Runtime markdown rendered via `useMarkdown`/`renderInline` — no component-local `Marked` instances, no plain interpolation of API-sourced markdown

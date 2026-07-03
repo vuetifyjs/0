@@ -31,7 +31,7 @@
    * Callout props - certain props are required based on type:
    * - type: 'askai' requires `question`
    * - type: 'tour' requires `tourId`
-   * - type: 'tip' | 'info' | 'warning' | 'error' | 'discord' have no additional required props
+   * - type: 'tip' | 'note' | 'warning' | 'caution' | 'important' | 'discord' have no additional required props
    */
   export interface DocsCalloutProps {
     type: CalloutType
@@ -97,12 +97,16 @@
     return decodeURIComponent(escape(atob(encoded)))
   }
 
-  function onClick () {
+  async function onClick () {
     if (props.type === 'askai' && props.question) {
       ask.ask(decodeQuestion(props.question))
     } else if (props.type === 'discord') {
       window.open('https://discord.gg/vK6T89eNP7', '_blank', 'noopener,noreferrer')
     } else if (props.type === 'tour' && props.tourId) {
+      if (!tour.value) return
+
+      await router.push(tour.value.startRoute)
+
       skillz.start(props.tourId, {
         context: {
           ask,

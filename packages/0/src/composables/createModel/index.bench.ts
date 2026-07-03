@@ -10,13 +10,14 @@
 
 import { bench, describe } from 'vitest'
 
-import { createModel } from './index'
+// Framework
+import { createModel } from '@vuetify/v0/composables'
 
 // Utilities
 import { shallowRef } from 'vue'
 
 // Types
-import type { ModelContext, ModelTicket, ModelTicketInput } from './index'
+import type { ModelContext, ModelTicket, ModelTicketInput } from '@vuetify/v0/composables'
 
 interface BenchmarkItem {
   id: string

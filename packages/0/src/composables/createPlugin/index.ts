@@ -26,6 +26,7 @@
  * ```
  */
 
+// Composables
 import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
@@ -90,7 +91,7 @@ export function createPlugin<Z extends Plugin = Plugin> (options: PluginOptions)
         options.setup?.(app)
       })
     },
-  } as Z
+  } satisfies Plugin as Z
 }
 
 export interface PluginContextConfig<O, E> {
@@ -148,7 +149,7 @@ function getPersistedStorage (): PersistedStorage {
  *   createPluginContext('v0:logger', options => createLogger(options), {
  *     fallback: ns => createFallbackLogger(ns),
  *     setup: (context) => {
- *       if (__DEV__ && IN_BROWSER) (window as any).__v0Logger__ = context
+ *       if (__DEV__ && IN_BROWSER) (window as Window & { __v0Logger__?: typeof context }).__v0Logger__ = context
  *     },
  *   })
  * ```
@@ -174,11 +175,17 @@ export function createPluginContext<
 
   function createXPlugin (_options: O = {} as O): Plugin {
     const { namespace = defaultNamespace, persist: shouldPersist, ...options } = _options as O & { namespace?: string, persist?: boolean }
-    const [, provide, context] = createXContext({ ...options, namespace } as O)
+
+    // Created lazily inside provide (install time) so a never-installed or skipped
+    // duplicate-namespace plugin allocates no live resources.
+    // https://github.com/vuetifyjs/0/issues/338
+    let context!: E
 
     return createPlugin({
       namespace,
       provide: app => {
+        const [, provide, ctx] = createXContext({ ...options, namespace } as O)
+        context = ctx
         provide(context, app)
 
         if (shouldPersist && config?.restore) {
@@ -192,14 +199,19 @@ export function createPluginContext<
       },
       setup: (config?.setup || shouldPersist)
         ? app => {
-          config?.setup?.(context, app, options as Omit<O, 'namespace' | 'persist'>)
+          // Capture once: provide ran first and set context for this app. Reusing the
+          // same plugin object on another app reassigns the shared binding, so the
+          // persist watch must close over this local, not the outer `context`.
+          const ctx = context
+
+          config?.setup?.(ctx, app, options as Omit<O, 'namespace' | 'persist'>)
 
           if (shouldPersist && config?.persist) {
             const storage = getPersistedStorage()
             const key = deriveKey(namespace)
             const stored = storage.get(key)
             const stop = watch(
-              () => config.persist!(context),
+              () => config.persist!(ctx),
               val => {
                 stored.value = val
               },

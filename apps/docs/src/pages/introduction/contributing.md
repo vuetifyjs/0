@@ -6,10 +6,11 @@ meta:
   - name: keywords
     content: vuetify0, contributing, open source, pull request, development, testing, Vue 3
 features:
-  order: 3
+  order: 3.5
   level: 1
 related:
   - /introduction/getting-started
+  - /introduction/code-of-conduct
 ---
 
 # Contributing
@@ -36,7 +37,7 @@ When reporting bugs, please include:
 - Steps to reproduce the issue
 - Expected vs actual behavior
 - Browser and OS information
-- A minimal reproduction (preferably a link to a repo or CodeSandbox)
+- A minimal reproduction (preferably a [Playground](/playground) link or a repo)
 
 ### Feature Requests
 
@@ -44,13 +45,13 @@ For new features:
 
 - Check if it's already been requested in [issues](https://github.com/vuetifyjs/0/issues)
 - Explain the use case and why it would benefit others
-- Consider if it fits the headless/composable philosophy of Vuetify0
+- Consider if it fits the [headless/composable philosophy](https://github.com/vuetifyjs/0/blob/master/packages/0/PHILOSOPHY.md) of Vuetify0
 
 ## Local Development
 
 ### Prerequisites
 
-- Node.js 20.19+ or 22+
+- Node 26+ (matches .nvmrc)
 - pnpm 10.6+
 - Git
 
@@ -75,14 +76,17 @@ pnpm dev:docs
 
 ```text
 ├── packages/
-│   └── 0/              # @vuetify/v0 - main package
-│       ├── src/
-│       │   ├── components/    # Vue components
-│       │   ├── composables/   # Composable functions
-│       │   ├── utilities/     # Helper functions
-│       │   └── types/         # TypeScript types
+│   ├── 0/              # @vuetify/v0 - main package
+│   │   └── src/
+│   │       ├── components/    # Vue components
+│   │       ├── composables/   # Composable functions
+│   │       ├── utilities/     # Helper functions
+│   │       └── types/         # TypeScript types
+│   ├── genesis/        # @paper/genesis - design system
+│   └── paper/          # @vuetify/paper - styling primitives
 ├── apps/
-│   └── docs/           # Documentation site
+│   ├── docs/           # Documentation site
+│   └── playground/     # Browser-based code editor
 └── dev/               # Development environment
 ```
 
@@ -114,10 +118,38 @@ pnpm build            # Build packages
 
 1. Create a new branch from `master`
 2. Make your changes
-3. Run `pnpm lint:fix` to fix formatting
-4. Run `pnpm typecheck` to check types
-5. Run `pnpm test:run` to verify tests pass
-6. Write tests for new functionality
+3. Write tests for new functionality
+4. Run `pnpm lint:fix` to fix formatting
+5. Run `pnpm typecheck` to check types
+6. Run `pnpm test:run` to verify tests pass
+7. Run `pnpm repo:check` to catch unused files and dependency issues
+8. Run `pnpm changeset` if you changed `packages/*` source (see [Changesets](#changesets))
+
+The pre-push hook runs lint, typecheck, tests, and repo checks automatically — the steps above keep it green.
+
+### Changesets
+
+Releases are managed with [Changesets](https://github.com/changesets/changesets). If your PR changes published source under `packages/*`, add a changeset so the change lands in the next release's version bump and changelog:
+
+```bash
+pnpm changeset
+```
+
+Pick the affected package(s), a bump type (`patch`/`minor`/`major`), and a short summary. The command generates a markdown file that you commit alongside your code:
+
+```md
+---
+"@vuetify/v0": patch
+---
+
+fix(createSelection): reject disabled items in multiple-mode apply
+```
+
+The summary becomes the changelog entry for the release — describe the user-visible change, not the implementation. `@vuetify/v0` and `@vuetify/paper` version in lockstep — selecting `@vuetify/v0` carries `@vuetify/paper` automatically; the `@paper/*` design systems version separately. Docs-only, chore, refactor, or CI PRs don't need one. A bot comments on every PR to remind you.
+
+The changeset is how your change reaches a release. On every push to `master`, automation gathers all pending `.changeset/*.md` files into a "Version Packages" PR that applies the version bumps and writes the changelog entries. When a maintainer merges that PR, the packages are built, published to npm, and the GitHub releases are created. A `packages/*` change merged without a changeset still ships in the code — but with no version bump and no changelog entry.
+
+Never edit `package.json` versions by hand — release automation owns every bump. If you're unsure which bump type fits, pick your best guess; maintainers adjust it during release review.
 
 ### PR Guidelines
 
@@ -152,6 +184,8 @@ type(scope): subject
 - `test` - Adding or updating tests
 - `chore` - Maintenance tasks
 
+`feat` and `fix` are reserved for changes to `packages/*` source — they drive changelogs and version bumps. Everything else (docs, apps, tooling, CI) uses `docs`, `chore`, `refactor`, or `test`.
+
 ### Examples
 
 ```bash
@@ -170,6 +204,8 @@ test(useForm): add validation edge cases
 - Reference issues when applicable: `fix(useForm): validation error (#123)`
 
 ## Code Style
+
+The sections below are a summary. The design contract behind them — axioms, return-shape conventions, reactivity rules — lives in [PHILOSOPHY.md](https://github.com/vuetifyjs/0/blob/master/packages/0/PHILOSOPHY.md), with detailed per-scope playbooks in [.claude/rules](https://github.com/vuetifyjs/0/tree/master/.claude/rules).
 
 ### General
 

@@ -50,6 +50,8 @@
       'aria-invalid': boolean | undefined
       'aria-disabled': boolean
       'disabled': boolean | undefined
+      'placeholder': string | undefined
+      'value': string
       'onInput': (e: Event) => void
       'onFocus': () => void
       'onKeydown': (e: KeyboardEvent) => void
@@ -69,6 +71,7 @@
     namespace = 'v0:combobox',
     openOn = 'focus',
     placeholder,
+    renderless,
   } = defineProps<ComboboxControlProps>()
 
   const context = useComboboxContext(namespace)
@@ -154,6 +157,8 @@
       'aria-invalid': invalid.value || undefined,
       'aria-disabled': toValue(context.disabled),
       'disabled': toValue(context.disabled) || undefined,
+      'placeholder': placeholder,
+      'value': context.display.value,
       'onInput': onInput,
       'onFocus': onFocus,
       'onKeydown': onKeydown,
@@ -166,8 +171,7 @@
     ref="input"
     v-bind="slotProps.attrs"
     :as
-    :placeholder
-    :value="context.display.value"
+    :renderless
   >
     <slot v-bind="slotProps" />
   </Atom>

@@ -28,7 +28,7 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ComboboxAdapter, ComboboxContext } from '#v0/composables/createCombobox'
-  import type { MaybeArray, ID } from '#v0/types'
+  import type { MaybeArray } from '#v0/types'
 
   export interface ComboboxRootProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -91,7 +91,7 @@
   export const [useComboboxContext, provideComboboxContext] = createContext<ComboboxContext>()
 </script>
 
-<script setup lang="ts">
+<script lang="ts" setup generic="T = unknown">
   defineOptions({ name: 'ComboboxRoot' })
 
   defineSlots<{
@@ -99,7 +99,7 @@
   }>()
 
   defineEmits<{
-    'update:model-value': [value: ID | ID[]]
+    'update:model-value': [value: T | T[]]
   }>()
 
   const {
@@ -118,7 +118,7 @@
     displayValue,
   } = defineProps<ComboboxRootProps>()
 
-  const model = defineModel<ID | ID[]>()
+  const model = defineModel<T | T[]>()
 
   const context = createCombobox({
     id,

@@ -1,7 +1,7 @@
 import { bench, describe } from 'vitest'
 
-// Utilities
-import { mergeDeep } from './helpers'
+// Framework
+import { mergeDeep } from '@vuetify/v0'
 
 describe('mergeDeep', () => {
   bench('shallow merge (2 objects, 5 keys each)', () => {

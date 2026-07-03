@@ -42,8 +42,10 @@ import type { TokenCollection } from '#v0/composables/createTokens'
 import type { FeaturesAdapterFlags, FeaturesAdapter } from '#v0/composables/useFeatures/adapters'
 import type { ID, MaybeArray } from '#v0/types'
 
-export type { FeaturesAdapterFlags, FeaturesAdapterValue } from '#v0/composables/useFeatures/adapters'
+// Exports
 export { FeaturesAdapter } from '#v0/composables/useFeatures/adapters'
+
+export type { FeaturesAdapterFlags, FeaturesAdapterValue } from '#v0/composables/useFeatures/adapters'
 
 /**
  * Input type for feature tickets - what users provide to register().
@@ -113,8 +115,7 @@ export interface FeaturePluginOptions extends FeatureContextOptions {
  * ```ts
  * import { createFeatures } from '@vuetify/v0'
  *
- * const [useFeatures, provideFeaturesContext, context] = createFeatures({
- *   namespace: 'v0:features',
+ * const features = createFeatures({
  *   features: {
  *     'dark-mode': true,
  *     'theme-color': { $variation: 'blue' },

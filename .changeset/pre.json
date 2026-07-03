@@ -1,0 +1,35 @@
+{
+  "mode": "pre",
+  "tag": "rc",
+  "initialVersions": {
+    "@vuetify-private/docs": "1.0.0-beta.2",
+    "@vuetify-private/playground": "1.0.0-beta.2",
+    "dev": "1.0.0-beta.2",
+    "@vuetify/v0": "1.0.0-beta.5",
+    "@paper/genesis": "1.0.0-beta.4",
+    "@vuetify/paper": "1.0.0-beta.5",
+    "@vuetify-private/vapor-tests": "0.0.0"
+  },
+  "changesets": [
+    "browser-entry-types-408",
+    "button-aria-label-330",
+    "disabled-apply-guard-398",
+    "genesis-docs-example-tour-hook",
+    "genesis-example-description-padding",
+    "locale-wcag-fallback-196",
+    "number-field-vmodel-329",
+    "overflow-isvisible-perf",
+    "philosophy-rc-attr-compliance",
+    "popover-anchor-ident",
+    "stable-set-promotion",
+    "theme-adapter-sheet-leak-399",
+    "theme-csp-nonce-406",
+    "theme-prefix-safe-ident-405",
+    "tokens-resolve-proto-guard-400",
+    "top-layer-overlay-teleport-279",
+    "treeview-keyboard-336",
+    "treeview-tab-controls",
+    "usestack-reactive-blocking",
+    "usestack-ssr-fallback-407"
+  ]
+}

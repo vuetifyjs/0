@@ -16,7 +16,7 @@
  *
  * const numeric = createNumeric({ min: 0, max: 10, step: 1 })
  * console.log(numeric.snap(3.7)) // 4
- * console.log(numeric.toPercent(5)) // 0.5
+ * console.log(numeric.fromValue(5)) // 50
  * ```
  */
 

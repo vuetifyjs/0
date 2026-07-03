@@ -144,6 +144,9 @@
           title="Code Examples"
         />
 
+        <!-- Code Size -->
+        <AppSettingsCodeSize />
+
         <!-- Motion -->
         <AppSettingsMotion />
 

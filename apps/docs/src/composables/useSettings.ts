@@ -7,13 +7,18 @@ import { isNullOrUndefined } from '@vuetify/v0/utilities'
 import { nextTick, shallowRef, toRef, watch } from 'vue'
 
 // Types
-import type { UseStorageReturn } from '@vuetify/v0'
+import type { StorageContext } from '@vuetify/v0'
 import type { Ref, ShallowRef } from 'vue'
 
 export type PackageManager = 'pnpm' | 'npm' | 'yarn' | 'bun'
 
+export type CodeSize = 'small' | 'medium' | 'large'
+
+export const CODE_SIZES: CodeSize[] = ['small', 'medium', 'large']
+
 export interface DocSettings {
   lineWrap: boolean
+  codeSize: CodeSize
   reduceMotion: 'system' | 'on' | 'off'
   packageManager: PackageManager
   showInlineApi: boolean
@@ -22,6 +27,7 @@ export interface DocSettings {
   showSocialLinks: boolean
   collapsibleNav: boolean
   showDotGrid: boolean
+  dotGridIntensity: number
 
   showMeshGrid: boolean
   showMeshTransition: boolean
@@ -31,6 +37,7 @@ export interface DocSettings {
 export interface SettingsContext {
   isOpen: ShallowRef<boolean>
   lineWrap: ShallowRef<boolean>
+  codeSize: ShallowRef<CodeSize>
   reduceMotion: ShallowRef<DocSettings['reduceMotion']>
   packageManager: ShallowRef<DocSettings['packageManager']>
   prefersReducedMotion: Ref<boolean>
@@ -44,6 +51,7 @@ export interface SettingsContext {
   showSocialLinks: ShallowRef<boolean>
   collapsibleNav: ShallowRef<boolean>
   showDotGrid: ShallowRef<boolean>
+  dotGridIntensity: ShallowRef<number>
 
   showMeshGrid: ShallowRef<boolean>
   showMeshTransition: ShallowRef<boolean>
@@ -57,14 +65,16 @@ export interface SettingsContext {
 
 const DEFAULTS: DocSettings = {
   lineWrap: false,
+  codeSize: 'small',
   reduceMotion: 'system',
   packageManager: 'pnpm',
-  showInlineApi: true,
+  showInlineApi: false,
   showSkillFilter: true,
   showThemeToggle: true,
   showSocialLinks: true,
   collapsibleNav: true,
   showDotGrid: true,
+  dotGridIntensity: 0.85,
 
   showMeshGrid: true,
   showMeshTransition: true,
@@ -93,7 +103,7 @@ export function getPrefersReducedMotion (): boolean {
 
 /** Load a setting from storage into a ref */
 function loadSetting<T> (
-  storage: UseStorageReturn,
+  storage: StorageContext,
   key: keyof DocSettings,
   ref: ShallowRef<T>,
 ) {
@@ -115,6 +125,7 @@ export function createSettingsContext (): SettingsContext {
   const isOpen = shallowRef(false)
   const forceReducedMotion = shallowRef(false)
   const lineWrap = shallowRef(DEFAULTS.lineWrap)
+  const codeSize = shallowRef<CodeSize>(DEFAULTS.codeSize)
   const reduceMotion = shallowRef<DocSettings['reduceMotion']>(DEFAULTS.reduceMotion)
   const packageManager = shallowRef<DocSettings['packageManager']>(DEFAULTS.packageManager)
   const showInlineApi = shallowRef(DEFAULTS.showInlineApi)
@@ -123,6 +134,7 @@ export function createSettingsContext (): SettingsContext {
   const showSocialLinks = shallowRef(DEFAULTS.showSocialLinks)
   const collapsibleNav = shallowRef(DEFAULTS.collapsibleNav)
   const showDotGrid = shallowRef(DEFAULTS.showDotGrid)
+  const dotGridIntensity = shallowRef(DEFAULTS.dotGridIntensity)
 
   const showMeshGrid = shallowRef(DEFAULTS.showMeshGrid)
   const showMeshTransition = shallowRef(DEFAULTS.showMeshTransition)
@@ -130,6 +142,7 @@ export function createSettingsContext (): SettingsContext {
 
   // Load stored preferences
   loadSetting(storage, 'lineWrap', lineWrap)
+  loadSetting(storage, 'codeSize', codeSize)
   loadSetting(storage, 'reduceMotion', reduceMotion)
   loadSetting(storage, 'packageManager', packageManager)
   loadSetting(storage, 'showInlineApi', showInlineApi)
@@ -138,13 +151,14 @@ export function createSettingsContext (): SettingsContext {
   loadSetting(storage, 'showSocialLinks', showSocialLinks)
   loadSetting(storage, 'collapsibleNav', collapsibleNav)
   loadSetting(storage, 'showDotGrid', showDotGrid)
+  loadSetting(storage, 'dotGridIntensity', dotGridIntensity)
 
   loadSetting(storage, 'showMeshGrid', showMeshGrid)
   loadSetting(storage, 'showMeshTransition', showMeshTransition)
   loadSetting(storage, 'showBgGlass', showBgGlass)
 
   // Persist on change
-  const settings = { lineWrap, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks, collapsibleNav, showDotGrid, showMeshGrid, showMeshTransition, showBgGlass }
+  const settings = { lineWrap, codeSize, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks, collapsibleNav, showDotGrid, dotGridIntensity, showMeshGrid, showMeshTransition, showBgGlass }
   for (const [key, ref] of Object.entries(settings)) {
     watch(ref, val => storage.set(key, val))
   }
@@ -164,6 +178,7 @@ export function createSettingsContext (): SettingsContext {
   // Check if any setting differs from defaults
   const hasChanges = toRef(() => (
     lineWrap.value !== DEFAULTS.lineWrap ||
+    codeSize.value !== DEFAULTS.codeSize ||
     reduceMotion.value !== DEFAULTS.reduceMotion ||
     packageManager.value !== DEFAULTS.packageManager ||
     showInlineApi.value !== DEFAULTS.showInlineApi ||
@@ -172,6 +187,7 @@ export function createSettingsContext (): SettingsContext {
     showSocialLinks.value !== DEFAULTS.showSocialLinks ||
     collapsibleNav.value !== DEFAULTS.collapsibleNav ||
     showDotGrid.value !== DEFAULTS.showDotGrid ||
+    dotGridIntensity.value !== DEFAULTS.dotGridIntensity ||
     showMeshGrid.value !== DEFAULTS.showMeshGrid ||
     showMeshTransition.value !== DEFAULTS.showMeshTransition ||
     showBgGlass.value !== DEFAULTS.showBgGlass
@@ -205,6 +221,7 @@ export function createSettingsContext (): SettingsContext {
 
   function reset () {
     lineWrap.value = DEFAULTS.lineWrap
+    codeSize.value = DEFAULTS.codeSize
     reduceMotion.value = DEFAULTS.reduceMotion
     packageManager.value = DEFAULTS.packageManager
     showInlineApi.value = DEFAULTS.showInlineApi
@@ -213,6 +230,7 @@ export function createSettingsContext (): SettingsContext {
     showSocialLinks.value = DEFAULTS.showSocialLinks
     collapsibleNav.value = DEFAULTS.collapsibleNav
     showDotGrid.value = DEFAULTS.showDotGrid
+    dotGridIntensity.value = DEFAULTS.dotGridIntensity
     showMeshGrid.value = DEFAULTS.showMeshGrid
     showMeshTransition.value = DEFAULTS.showMeshTransition
     showBgGlass.value = DEFAULTS.showBgGlass
@@ -222,6 +240,7 @@ export function createSettingsContext (): SettingsContext {
     isOpen,
     forceReducedMotion,
     lineWrap,
+    codeSize,
     reduceMotion,
     packageManager,
     prefersReducedMotion,
@@ -232,6 +251,7 @@ export function createSettingsContext (): SettingsContext {
     showSocialLinks,
     collapsibleNav,
     showDotGrid,
+    dotGridIntensity,
     showMeshGrid,
     showMeshTransition,
     showBgGlass,

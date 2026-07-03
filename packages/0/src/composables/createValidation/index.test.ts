@@ -65,7 +65,7 @@ describe('createValidation', () => {
     })
 
     it('should use noop for unresolvable string aliases', async () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const validation = createValidation()
       validation.register('nonexistent')
@@ -75,8 +75,6 @@ describe('createValidation', () => {
       expect(result).toBe(true)
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('nonexistent'))
-
-      spy.mockRestore()
     })
   })
 
@@ -380,7 +378,7 @@ describe('createValidation', () => {
       expect(firstResult).toBe(false)
     })
 
-    it.skip('should not let an in-flight validate overwrite state set by a later no-rules call', async () => {
+    it('should not let an in-flight validate overwrite state set by a later no-rules call', async () => {
       let resolveSlow: ((val: string | boolean) => void) | undefined
       function slowRule (_v: unknown) {
         return new Promise<string | boolean>(r => {
@@ -471,7 +469,7 @@ describe('createValidation', () => {
     })
 
     it('should use noop for string aliases without rules context', async () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const validation = createValidation({ rules: ['required'] })
 
@@ -480,8 +478,6 @@ describe('createValidation', () => {
       expect(result).toBe(true)
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('required'))
-
-      spy.mockRestore()
     })
   })
 
@@ -498,7 +494,7 @@ describe('createValidation', () => {
   describe('form auto-registration', () => {
     it('should register with parent form on creation', () => {
       const form = createForm()
-      const spy = vi.spyOn(form, 'register')
+      using spy = vi.spyOn(form, 'register')
       mockUseForm.mockReturnValueOnce(form as any)
 
       const validation = createValidation()
@@ -509,7 +505,7 @@ describe('createValidation', () => {
 
     it('should unregister from parent form on scope dispose', () => {
       const form = createForm()
-      const unregisterSpy = vi.spyOn(form, 'unregister')
+      using unregisterSpy = vi.spyOn(form, 'unregister')
       mockUseForm.mockReturnValueOnce(form as any)
 
       const scope = effectScope()

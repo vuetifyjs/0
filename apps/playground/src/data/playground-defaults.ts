@@ -6,6 +6,9 @@ export const INFRASTRUCTURE_FILES = new Set(['import-map.json', 'tsconfig.json',
 /** Subset of infrastructure files shown in the "project" folder of the file tree */
 export const REPL_BUILTIN_FILES = ['import-map.json', 'tsconfig.json'] as const
 
+/** Infrastructure files revealed by the file tree's "Toggle config files" button */
+export const CONFIG_FILE_IDS = new Set(['src/main.ts', 'src/uno.config.ts', 'import-map.json'])
+
 // ── Template files (matching Vuetify Play's v0 template) ────────────────
 
 export interface MainOptions {
@@ -33,6 +36,12 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
   if (options?.vuetify) {
     extraImports.push(`import { createVuetify } from 'vuetify'`)
     extraSetup.push(
+      // Pre-declare Vuetify's cascade-layer order before any other styles can.
+      // The vuetify-labs.css <link> below loads async — meanwhile createVuetify()
+      // synchronously injects <style>@layer vuetify-utilities{…}</style>. Without
+      // this preamble, vuetify-utilities ends up declared before vuetify-components
+      // and components beat helpers in the cascade.
+      `document.head.insertAdjacentHTML('afterbegin', '<style>@layer vuetify-core,vuetify-components,vuetify-overrides,vuetify-utilities,vuetify-final;</style>')`,
       `const link = document.createElement('link')`,
       `link.rel = 'stylesheet'`,
       `link.setAttribute('data-preset-css', 'vuetify')`,

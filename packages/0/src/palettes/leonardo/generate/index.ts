@@ -1,7 +1,7 @@
 import { Color, Theme } from '@adobe/leonardo-contrast-colors'
 
 // Utilities
-import { isArray, isObject } from '#v0/utilities'
+import { isArray, isObject, V0Error } from '#v0/utilities'
 
 // Types
 import type { PaletteDefinition } from '#v0/palettes'
@@ -77,7 +77,11 @@ function mapSemanticColors (colors: Record<number, string>, ratios: number[]): R
 /* #__NO_SIDE_EFFECTS__ */
 export function leonardo (seed: string, options: LeonardoGenerateOptions = {}): PaletteDefinition {
   if (!HEX_RE.test(seed)) {
-    throw new Error(`[@vuetify/v0] Invalid seed color: "${seed}". Expected a hex string (e.g., "#0ea5e9").`)
+    throw new V0Error(`[@vuetify/v0] Invalid seed color: "${seed}". Expected a hex string (e.g., "#0ea5e9").`, {
+      code: 'V0_PALETTE_INVALID_SEED',
+      palette: 'leonardo',
+      seed,
+    })
   }
 
   const { ratios = DEFAULT_RATIOS, colorSpace = 'OKLCH' } = options

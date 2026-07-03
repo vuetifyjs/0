@@ -36,6 +36,7 @@ v0 components are Vue wrappers around composables. Composables hold logic, compo
 | - | - | - |
 | **Primitives** | Base building blocks | [Atom](/components/primitives/atom) |
 | **Providers** | Pure state management, no DOM | [Selection](/components/providers/selection), [Single](/components/providers/single), [Group](/components/providers/group), [Step](/components/providers/step) |
+| **Actions** | Interactive controls that trigger behavior | [Button](/components/actions/button), [Toggle](/components/actions/toggle) |
 | **Forms** | Form controls with accessibility | [Checkbox](/components/forms/checkbox) |
 | **Semantic** | Meaningful HTML defaults | [Avatar](/components/semantic/avatar), [Pagination](/components/semantic/pagination) |
 | **Disclosure** | Show/hide patterns | [Dialog](/components/disclosure/dialog), [ExpansionPanel](/components/disclosure/expansion-panel), [Popover](/components/disclosure/popover) |

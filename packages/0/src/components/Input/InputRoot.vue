@@ -20,7 +20,7 @@
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { mergeProps, nextTick, toRef, useAttrs, watch } from 'vue'
+  import { mergeProps, nextTick, toRef, toValue, useAttrs, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -216,11 +216,11 @@
     name,
     form,
     required,
-    disabled,
-    readonly: _readonly,
+    disabled: () => toValue(disabled),
+    readonly: () => toValue(_readonly),
     rules,
-    error,
-    errorMessages,
+    error: () => toValue(error),
+    errorMessages: () => toValue(errorMessages),
   })
 
   const parsed = toRef(() => parseValidateOn(validateOn))
@@ -229,7 +229,14 @@
     const { event, modifier } = parsed.value
     if (event === 'submit') return false
     if (modifier === 'lazy' && !input.isTouched.value) return false
-    if (modifier === 'eager' && input.isValid.value === false) return true
+    if (modifier === 'eager') {
+      // Eager validates on every keystroke only AFTER the first error. Before
+      // any error, a passing `input` keystroke must not trigger validation —
+      // the first error is seeded by the base trigger (blur/submit).
+      if (input.isValid.value === false) return true
+      if (trigger === 'input') return false
+      return trigger === event
+    }
     return trigger === event
   }
 

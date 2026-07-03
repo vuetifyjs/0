@@ -27,13 +27,13 @@ Reserves a box with a fixed width-to-height ratio using CSS `aspect-ratio`.
 Wrap any content whose height should track its width. The child fills the
 reserved frame — pair with `w-full h-full` or absolute positioning.
 
-::: example
+::: gn-example
 /components/aspect-ratio/basic
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { AspectRatio } from '@vuetify/v0'
 </script>
@@ -45,7 +45,7 @@ reserved frame — pair with `w-full h-full` or absolute positioning.
 
 ## Examples
 
-::: example
+::: gn-example
 /components/aspect-ratio/ResponsiveImage.vue 1
 /components/aspect-ratio/responsive.vue 2
 
@@ -143,7 +143,7 @@ inline style and no semantics of its own. Any ARIA attributes belong on the
 content inside. Pass `as` to change the element when a different semantic
 wrapper is needed (e.g. `as="figure"`).
 
-## Questions
+## FAQ
 
 ::: faq
 

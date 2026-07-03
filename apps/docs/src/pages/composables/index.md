@@ -14,9 +14,11 @@ related:
 
 # Composables
 
-Type-safe composables for headless UI. Components wrap these composables—you can use either approach.
+Type-safe composables for headless UI — <DocsCount type="composable" /> of them. Components wrap these composables—you can use either approach.
 
 <DocsPageFeatures :frontmatter />
+
+> [!TOUR] using-examples
 
 ## Minimal Reactivity
 
@@ -245,6 +247,8 @@ Form state management and model binding utilities.
 | [createForm](/composables/forms/create-form) | Form validation coordinator |
 | [createInput](/composables/forms/create-input) | Shared form field primitive: validation, field state, ARIA IDs |
 | [createNumberField](/composables/forms/create-number-field) | Numeric input state with formatting, parsing, and validation |
+| [createNumeric](/composables/forms/create-numeric) | Pure numeric math: clamp, snap, step, percentage, and circular wrapping |
+| [createOtp](/composables/forms/create-otp) | OTP / verification code state with pattern-gated entry and decisional completion hook |
 | [createRating](/composables/forms/create-rating) | Bounded rating value with discrete items and half-step support |
 | [createSlider](/composables/forms/create-slider) | Slider state with multi-thumb support, step snapping, and value math |
 | [createValidation](/composables/forms/create-validation) | Per-field validation lifecycle |
@@ -297,11 +301,13 @@ Application-level features installable via Vue plugins.
 | [useLogger](/composables/plugins/use-logger) | Logging system with multiple adapters |
 | [useNotifications](/composables/plugins/use-notifications) | Notification lifecycle with toast queue and service adapter integration |
 | [usePermissions](/composables/plugins/use-permissions) | Role-based access control |
+| [useReducedMotion](/composables/plugins/use-reduced-motion) | Respect or override the prefers-reduced-motion media query |
 | [useRtl](/composables/plugins/use-rtl) | Reactive RTL text direction with dir attribute management |
 | [useRules](/composables/plugins/use-rules) | Validation rule aliases with locale-aware messages |
 | [useStack](/composables/plugins/use-stack) | Overlay z-index stacking with automatic calculation and scrim integration |
 | [useStorage](/composables/plugins/use-storage) | Reactive browser storage interface |
 | [useTheme](/composables/plugins/use-theme) | Theme management with CSS custom properties |
+| [useTooltip](/composables/plugins/use-tooltip) | Region-scoped tooltip delay coordination plugin |
 
 ## Data
 
@@ -309,6 +315,7 @@ Composables for filtering, sorting, paginating, and virtualizing collections.
 
 | Name | Description |
 | - | - |
+| [createDataGrid](/composables/data/create-data-grid) | Headless data grid: column layout, cell editing, row ordering, and row spanning over createDataTable |
 | [createDataTable](/composables/data/create-data-table) | Composable data table with sort, filter, paginate, select, and expand |
 | [createFilter](/composables/data/create-filter) | Filter arrays based on search queries |
 | [createKanban](/composables/data/create-kanban) | Two-level sortable orchestrator (columns + items) |
@@ -324,7 +331,7 @@ Composables for presentational and semantic components.
 | - | - |
 | [createBreadcrumbs](/composables/semantic/create-breadcrumbs) | Breadcrumb navigation with path truncation |
 | [createOverflow](/composables/semantic/create-overflow) | Compute item capacity for responsive truncation |
-| [createProgress](/composables/semantic/create-progress/) | Progress tracking with multi-segment registration |
+| [createProgress](/composables/semantic/create-progress) | Progress tracking with multi-segment registration |
 
 ## Transformers
 
@@ -334,5 +341,6 @@ Value transformation utilities.
 | - | - |
 | [toArray](/composables/transformers/to-array) | Convert any value to an array |
 | [toElement](/composables/transformers/to-element) | Resolve refs, getters, or component instances to a plain DOM element |
+| [toHighlight](/composables/transformers/to-highlight) | Split text into matched and unmatched chunks for query highlighting |
 | [toReactive](/composables/transformers/to-reactive) | Convert MaybeRef objects to reactive proxies |
 

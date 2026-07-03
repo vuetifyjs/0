@@ -53,8 +53,8 @@
         class="relative overflow-hidden p-6 rounded-xl border bg-surface hover:border-primary hover:bg-surface-tint hover:shadow-md transition-all duration-150 flex flex-col"
         :style="{ '--reveal-index': i }"
       >
-        <AppDotGrid v-if="feature.title === 'Vuetify MCP'" :coverage="60" :density="18" origin="top right" />
-        <AppDotGrid v-else-if="feature.title === 'AI-Ready Scaffold'" :coverage="60" :density="18" />
+        <AppDotGrid v-if="feature.title === 'Vuetify MCP'" :coverage="60" origin="top right" />
+        <AppDotGrid v-else-if="feature.title === 'AI-Ready Scaffold'" :coverage="60" />
 
         <div class="relative flex items-center gap-3 mb-3">
           <div class="w-10 h-10 shrink-0 rounded-lg bg-primary flex items-center justify-center text-on-primary">

@@ -118,4 +118,20 @@ describe('flagsmithFeaturesAdapter', () => {
       expect(flags).toEqual({})
     })
   })
+
+  describe('prototype pollution', () => {
+    it('should skip unsafe flag keys', () => {
+      const mockClient = createMockClient()
+      const allFlags = JSON.parse('{"safe": {"enabled": true, "value": "ok"}, "__proto__": {"enabled": true, "value": "evil"}, "constructor": {"enabled": true, "value": "evil"}}')
+      mockClient.getAllFlags.mockReturnValue(allFlags)
+
+      const adapter = new FlagsmithFeaturesAdapter(mockClient as never, { environmentID: 'test-env' })
+      const flags = adapter.setup(vi.fn())
+
+      expect(Object.hasOwn(flags, 'safe')).toBe(true)
+      expect(Object.hasOwn(flags, '__proto__')).toBe(false)
+      expect(Object.hasOwn(flags, 'constructor')).toBe(false)
+      expect(Object.getPrototypeOf(flags)).toBe(Object.prototype)
+    })
+  })
 })
