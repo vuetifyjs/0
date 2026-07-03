@@ -73,9 +73,11 @@ A tall scrollable container that tracks three metrics — `scrollTop` in pixels,
 
 :::
 
-## Key Features
+## Recipes
 
-### Cancel-Then-Request Pattern
+### Key Features
+
+#### Cancel-Then-Request Pattern
 
 Each call cancels any pending frame before requesting a new one. This deduplicates rapid calls, ensuring only the latest request executes:
 
@@ -90,7 +92,7 @@ update()
 update()
 ```
 
-### Automatic Cleanup
+#### Automatic Cleanup
 
 The composable automatically cancels pending frames when the Vue scope is disposed (component unmount, effect scope stop):
 
@@ -99,8 +101,26 @@ The composable automatically cancels pending frames when the Vue scope is dispos
 const update = useRaf(callback)
 ```
 
-### SSR Safe
+#### SSR Safe
 
 The composable is a no-op in non-browser environments. `isActive` always returns `false` during SSR.
+
+## FAQ
+
+::: faq
+
+??? Why does calling the returned function several times only run my callback once?
+
+Each call cancels any pending frame before requesting a new one, so rapid calls within the same frame collapse into a single callback. Only the latest request executes per animation frame.
+
+??? Do I need to cancel the pending frame on unmount?
+
+No. The composable cancels any outstanding frame automatically on scope disposal. Call `.cancel()` yourself only when you want to abort a pending frame early.
+
+??? What does useRaf do during SSR?
+
+It is a no-op in non-browser environments — the callback never runs and `isActive` stays `false`.
+
+:::
 
 <DocsApi />

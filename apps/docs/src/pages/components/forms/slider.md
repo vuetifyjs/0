@@ -210,4 +210,30 @@ Each `Slider.Thumb` manages its own ARIA attributes automatically.
 | `Home` | Set to minimum |
 | `End` | Set to maximum |
 
+## FAQ
+
+::: faq
+
+??? How do I create a range slider instead of a single value?
+
+Render two `Slider.Thumb` elements inside `Slider.Root` for a range; a single `Slider.Thumb` gives a single value. `Slider.Range` fills the region between the thumbs (or from min to a lone thumb).
+
+??? How do I submit a slider's value with a form?
+
+Set `name` on `Slider.Root` to auto-render hidden inputs — one per thumb — so both single values and ranges post with the form.
+
+??? How do I run code when the user starts or stops dragging?
+
+`Slider.Root` emits `start` and `end` events for the pointer-drag lifecycle. Bind `@start` and `@end` for things like committing a value only once the drag completes.
+
+??? How do I make a vertical slider?
+
+Set `orientation="vertical"` on `Slider.Root`. It reflects through `aria-orientation` and the `data-orientation` attribute, and the arrow keys adapt so Up/Down increment and decrement.
+
+??? Can users move the thumb in larger increments with the keyboard?
+
+Yes. Arrow keys move by one step; `Shift+Arrow`, `PageUp`, and `PageDown` move by 10 steps; `Home` and `End` jump to the minimum and maximum.
+
+:::
+
 <DocsApi />

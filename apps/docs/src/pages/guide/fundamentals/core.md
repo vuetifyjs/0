@@ -17,7 +17,7 @@ related:
 
 # Core
 
-v0's core architecture provides type-safe dependency injection and composable patterns. This page explains **how v0 works**. For creating plugins, see [Plugins Guide](/guide/fundamentals/plugins).
+v0's core architecture provides type-safe dependency injection and composable patterns. This page explains **how v0 works**. For creating plugins, see [Plugins Guide](/guide/fundamentals/plugins); for one-line definitions of the terms used here, see the [Glossary](/guide/essentials/glossary).
 
 <DocsPageFeatures :frontmatter />
 

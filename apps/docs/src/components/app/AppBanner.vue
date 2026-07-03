@@ -17,10 +17,10 @@
   // snooze/dismiss — banner.snooze() is persisted and restored by the plugin.
   const SNOOZE_MS = 7 * 24 * 60 * 60 * 1000
 
-  if (!notifications.has('alpha-banner')) {
+  if (!notifications.has('rc-banner')) {
     notifications.register({
-      id: 'alpha-banner',
-      subject: 'Vuetify0 is now in beta!',
+      id: 'rc-banner',
+      subject: 'Vuetify0 is now a release candidate!',
       severity: 'warning',
       data: { type: 'banner' },
     })
@@ -66,7 +66,7 @@
     <AppIcon icon="vuetify-0" :size="14" />
 
     <div>
-      {{ banner?.subject }} <span class="hidden md:inline">See the <RouterLink class="underline underline-offset-2" to="/roadmap#beta">roadmap</RouterLink> for details.</span>
+      {{ banner?.subject }} <span class="hidden md:inline">See the <RouterLink class="underline underline-offset-2" to="/roadmap#release-candidate">roadmap</RouterLink> for details.</span>
     </div>
 
     <div class="absolute end-2 flex items-center gap-2">

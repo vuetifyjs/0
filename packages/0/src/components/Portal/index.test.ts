@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
+// Composables
+import { useStack } from '#v0/composables/useStack'
+
 import { Portal } from './index'
 
 // Utilities
@@ -346,6 +349,44 @@ describe('portal', () => {
       expect(document.body.querySelector('div')).not.toBeNull()
 
       wrapper.unmount()
+    })
+  })
+
+  describe('top-layer teleport', () => {
+    it('teleports into the topmost modal element when one is open', async () => {
+      const stack = useStack()
+      const dialogEl = document.createElement('dialog')
+      document.body.append(dialogEl)
+      const modal = stack.register({ el: dialogEl })
+      modal.select()
+
+      const wrapper = mount(Portal, {
+        props: { to: 'top-layer', scrim: false },
+        slots: { default: () => h('div', { class: 'portaled' }) },
+        attachTo: document.body,
+      })
+      try {
+        await nextTick()
+        expect(dialogEl.querySelector('.portaled')).not.toBeNull()
+      } finally {
+        wrapper.unmount()
+        modal.unselect()
+        dialogEl.remove()
+      }
+    })
+
+    it('falls back to body when no modal is open', async () => {
+      const wrapper = mount(Portal, {
+        props: { to: 'top-layer', scrim: false },
+        slots: { default: () => h('div', { class: 'portaled-body' }) },
+        attachTo: document.body,
+      })
+      try {
+        await nextTick()
+        expect(document.body.querySelector('.portaled-body')).not.toBeNull()
+      } finally {
+        wrapper.unmount()
+      }
     })
   })
 })

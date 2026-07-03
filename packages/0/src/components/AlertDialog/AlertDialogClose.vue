@@ -65,7 +65,7 @@
     isOpen: context.isOpen.value,
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
-      'aria-label': locale.t('AlertDialog.close'),
+      'aria-label': locale.ti('AlertDialog.close') ?? 'Close',
       'onClick': onClick,
     },
   }))

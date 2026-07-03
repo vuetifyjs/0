@@ -52,6 +52,7 @@
       ref="preview-content"
       class="genesis-docs-example-preview__panel"
       :data-theme="theme"
+      data-tour="example-preview"
     >
       <slot />
     </div>
@@ -64,6 +65,7 @@
             v-bind="attrs"
             class="genesis-docs-example-preview__panel"
             :data-theme="theme"
+            data-tour="example-preview"
           >
             <slot :is-dragging :width />
 

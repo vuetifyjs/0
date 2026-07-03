@@ -110,4 +110,22 @@ The `useUpload.ts` composable wraps `createProgress` in domain terms: it owns th
 
 :::
 
+## FAQ
+
+::: faq
+
+??? How does createProgress support multiple segments?
+
+Each call to `register(value)` adds a segment ticket holding a `ShallowRef<number>`. `total` sums every segment (clamped to `[min, max]`) and `percent` normalizes it to 0–100, so one instance can drive both per-segment and aggregate bars.
+
+??? When does isIndeterminate become true?
+
+When there are no registered segments, or when every segment value is 0. A progress component reads it to switch to an indeterminate animation.
+
+??? How do I update a segment's value after registering it?
+
+Assign to the inner ref — `ticket.value.value = 80` — not the ticket itself. Each segment's `value` is a `ShallowRef<number>`, so mutating `.value` triggers recomputation of `total` and `percent`. Use `fromValue(raw)` to express a single segment as a percentage.
+
+:::
+
 <DocsApi />

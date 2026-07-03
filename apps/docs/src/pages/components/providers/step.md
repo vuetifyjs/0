@@ -85,4 +85,22 @@ Disabled items are automatically skipped by `next`, `prev`, and `step`. Use this
 </template>
 ```
 
+## FAQ
+
+::: faq
+
+??? What's the difference between Step and [Single](/components/providers/single)?
+
+Step extends Single, adding navigation methods (`first`, `last`, `next`, `prev`, `step`) for moving through an ordered sequence. Use Step for wizards and steppers; use Single when you only need single-selection without traversal.
+
+??? How do I skip a step conditionally?
+
+Mark the `Step.Item` as `:disabled` — `next`, `prev`, and `step` automatically skip disabled items, so you can hide steps based on form state.
+
+??? Can I jump more than one step at a time?
+
+Yes. `step(n)` moves by count — `step(2)` advances two steps and `step(-1)` goes back one, skipping any disabled items along the way.
+
+:::
+
 <DocsApi />

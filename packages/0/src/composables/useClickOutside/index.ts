@@ -301,6 +301,20 @@ export function useClickOutside (
   }
 
   /**
+   * Check if the event target is a strict descendant of any target element.
+   *
+   * @remarks Used by bounds mode so content rendered *inside* the element but
+   * positioned outside its box (e.g. a top-layer overlay teleported into a
+   * native `<dialog>`) is not treated as an outside click. A backdrop click has
+   * `target === el`, so it is not a strict descendant and still counts as outside.
+   */
+  function isDescendant (eventTarget: EventTarget | null): boolean {
+    /* v8 ignore next -- defensive guard, callers always pass an Element */
+    if (!(eventTarget instanceof Node)) return false
+    return getTargets().some(el => el !== eventTarget && el.contains(eventTarget))
+  }
+
+  /**
    * Validate that the target is still in the DOM.
    */
   function isValidTarget (eventTarget: EventTarget | null): eventTarget is Element {
@@ -349,7 +363,10 @@ export function useClickOutside (
     }
 
     const clickIsOutside = bounds
-      ? startedOutsideBounds && isOutsideBounds(event.clientX, event.clientY)
+      ? startedOutsideBounds
+      && isOutsideBounds(event.clientX, event.clientY)
+      && !isDescendant(pointerdownTarget)
+      && !isDescendant(pointerupTarget)
       : isOutside(pointerdownTarget) && isOutside(pointerupTarget)
 
     if (clickIsOutside && !shouldIgnore(path)) {

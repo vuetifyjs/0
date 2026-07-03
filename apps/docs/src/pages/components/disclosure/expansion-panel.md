@@ -55,19 +55,41 @@ The ExpansionPanel component provides a wrapper and item pattern for managing ex
 ## Examples
 
 ::: gn-example
-/components/expansion-panel/transition
+/components/expansion-panel/useFaq.ts 1
+/components/expansion-panel/FaqAccordion.vue 2
+/components/expansion-panel/faq-accordion.vue 3
 
-### Animated Transitions
+### Product FAQ accordion
 
-By default, `ExpansionPanel.Content` toggles visibility with the `hidden` attribute — instant, but not animatable. To animate the open and close, add `renderless` to `ExpansionPanel.Content` and render your own element: the slot exposes `isSelected` to drive a `v-if` inside Vue's `<Transition>`, and an `attrs` object you must bind to your replacement element so it keeps the component's accessibility contract (`role="region"`, the `id` targeted by the activator's `aria-controls`, and `aria-labelledby`).
+This FAQ widget renders an accordion from a plain data array, mapping each entry to an `ExpansionPanel.Root` keyed by its question id. The `ExpansionPanel.Group` defaults to single-open mode, so opening one answer collapses the previous one — its `v-model` holds the id of the open panel, or `undefined` when every panel is closed. The composable seeds that model with the first question's id, so the accordion shows one answer on mount instead of opening empty.
 
-The height animation itself needs no JavaScript measurements. CSS `interpolate-size: allow-keywords` lets `max-height` transition to and from the intrinsic `max-content` keyword, so panels of any content size animate smoothly. Padding lives on an inner wrapper rather than the transitioned element — animating `max-height` on the padded element would make the content jump at the ends of the transition.
+Each `ExpansionPanel.Header` renders a heading that wraps the `ExpansionPanel.Activator` button — the WAI-ARIA accordion shape that lets screen-reader users jump between questions by heading. The chevron is an `ExpansionPanel.Cue`, which emits `data-state="open"` and `data-state="closed"` on its element; the example rotates it with the `data-[state=open]:rotate-180` utility, no JavaScript class toggling. `ExpansionPanel.Content` shows and hides with the native `hidden` attribute, keeping the markup accessible and the example free of custom CSS.
 
-Reach for this pattern whenever panel content deserves a smooth reveal — tables, long text, nested forms. If you only need the default show and hide behavior, skip `renderless` entirely; the non-renderless Content keeps its element mounted and is the simpler, more accessible default for static content.
+Reach for single-open mode when answers are long and you want the reader focused on one at a time; add `multiple` to `ExpansionPanel.Group` — and switch the model to an array — when panels are short and comparing them side by side matters. The Group is built on [createSelection](/composables/selection/create-selection), so the same mandatory and enroll options apply. For a single standalone disclosure with no sibling coordination, prefer [Collapsible](/components/disclosure/collapsible).
 
+| File | Role |
+|------|------|
+| `useFaq.ts` | FAQ data array, the single-open model seeded to the first question, and a collapse helper |
+| `FaqAccordion.vue` | Renders the ExpansionPanel compound — Group, Header, Activator, animated Cue, and Content |
+| `faq-accordion.vue` | Wires the composable to the accordion and adds the status line and collapse control |
 :::
 
-> [!NOTE]
-> [interpolate-size](https://developer.mozilla.org/en-US/docs/Web/CSS/interpolate-size) is currently a Chromium-only CSS feature (Chrome and Edge 129+). Other browsers skip the animation and open the panel instantly — the content itself works everywhere.
+## FAQ
+
+::: faq
+
+??? How do I allow multiple panels to stay open at once?
+
+By default the Group is single-open. Add `multiple` to `ExpansionPanel.Group` and bind its `v-model` to an array — it's built on [createSelection](/composables/selection/create-selection), so the same `mandatory` and `enroll` options apply.
+
+??? When should I use ExpansionPanel instead of Collapsible?
+
+ExpansionPanel coordinates a set of sibling panels — opening one can collapse the others. For a single standalone disclosure with no sibling coordination, reach for [Collapsible](/components/disclosure/collapsible) instead.
+
+??? How do I rotate the chevron when a panel opens?
+
+`ExpansionPanel.Cue` emits `data-state="open"` / `data-state="closed"` on its element. Style it with a data-attribute utility like `data-[state=open]:rotate-180` — no JavaScript class toggling needed.
+
+:::
 
 <DocsApi />

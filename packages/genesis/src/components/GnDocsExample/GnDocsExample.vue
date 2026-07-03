@@ -147,6 +147,7 @@
         :aria-controls="`${uid}-code`"
         :aria-expanded="showCode"
         class="genesis-docs-example__toggle"
+        data-tour="example-toggle"
         type="button"
         @click="toggleCode"
       >
@@ -263,6 +264,7 @@
     <GnPeek
       v-if="peek && !hasMultipleFiles && hasCode"
       v-model:expanded="peekExpanded"
+      data-tour="example-expand"
     />
   </div>
 </template>

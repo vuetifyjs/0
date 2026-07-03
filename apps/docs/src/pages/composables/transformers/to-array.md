@@ -66,4 +66,22 @@ The primary use case for `toArray` is normalizing props or options that accept e
 
 :::
 
+## FAQ
+
+::: faq
+
+??? What does toArray return for null or undefined?
+
+An empty array (`[]`), not `[null]` or `[undefined]`. This makes it safe to iterate the result without a separate nullish check.
+
+??? Does toArray wrap an array that's already an array?
+
+No. Existing arrays pass through unchanged; only non-array values are wrapped in a single-element array.
+
+??? Is the result reactive?
+
+No — `toArray` is a pure synchronous transformer. Wrap it in `toRef(() => toArray(prop))` or `computed()` when you need the normalized array to update reactively.
+
+:::
+
 <DocsApi />

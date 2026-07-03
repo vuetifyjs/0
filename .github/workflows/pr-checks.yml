@@ -60,6 +60,19 @@ jobs:
       - name: Run sherif check
         run: pnpm repo:sherif
 
+  # Vapor parity tests run on a beta Vue (tests/vapor, vue@3.6.0-beta), pinned
+  # separately from the rest of the repo. Non-blocking: a Vapor regression
+  # surfaces as a visible signal without redding the build on a beta hiccup.
+  vapor:
+    needs: prepare
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+      - name: Run Vapor-mode tests
+        run: pnpm test:vapor
+
   build:
     runs-on: ubuntu-latest
     needs: [prepare]
@@ -68,6 +81,8 @@ jobs:
       - uses: ./.github/actions/setup
       - name: Build packages
         run: pnpm build
+      - name: Validate package exports (publint + are-the-types-wrong)
+        run: pnpm repo:exports
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4
         with:
@@ -94,8 +109,10 @@ jobs:
           filters: |
             docs:
               - 'apps/docs/**'
+              - 'packages/**'
             playground:
               - 'apps/playground/**'
+              - 'packages/**'
 
   docs-check:
     needs: changes
@@ -103,7 +120,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: vuetifyjs/setup-action@fb6949e3ee1041636b7fa9eef3c7694ff31840b8 # master
+      - uses: vuetifyjs/setup-action@cb5ac088588387e65433a762de90c0b06d878677 # master
       - run: pnpm run build:docs
         env:
           VITE_API_SERVER_URL: ${{ vars.API_SERVER_URL }}
@@ -128,7 +145,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: vuetifyjs/setup-action@fb6949e3ee1041636b7fa9eef3c7694ff31840b8 # master
+      - uses: vuetifyjs/setup-action@cb5ac088588387e65433a762de90c0b06d878677 # master
       - run: pnpm run build:play
 
   pkg-pr-new:

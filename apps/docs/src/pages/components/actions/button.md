@@ -53,36 +53,6 @@ The Button component renders as a native `<button>` by default (or an anchor, ro
 </template>
 ```
 
-## Interaction States
-
-Button supports four states that block click events. Each state has a distinct semantic meaning:
-
-| State | Click blocked | Focusable | Hoverable | Tab order | Use case |
-|-------|:---:|:---:|:---:|:---:|---|
-| **disabled** | Yes | No | No | Removed | Button is not applicable |
-| **readonly** | Yes | Yes | Yes | Kept | Display-only, no action needed |
-| **passive** | Yes | Yes | Yes | Kept | Temporarily unavailable |
-| **loading** | Yes | Yes | Yes | Kept | Waiting for async operation |
-
-::: gn-example
-/components/button/states
-:::
-
-### Data Attributes
-
-Each state sets a corresponding `data-*` attribute on the element for CSS styling:
-
-| Attribute | When set |
-|-----------|----------|
-| `data-disabled` | `disabled` prop is true |
-| `data-readonly` | `readonly` prop is true |
-| `data-passive` | `passive` prop is true |
-| `data-loading` | Loading grace period has elapsed |
-| `data-selected` | Button is selected in a group |
-
-> [!TIP]
-> `disabled` uses native `disabled` attribute and removes the button from tab order. `passive` uses `aria-disabled="true"` instead — the button stays focusable and screen readers announce it as disabled.
-
 ## Recipes
 
 ### Loading with Grace Period
@@ -167,6 +137,36 @@ Use `Button.HiddenInput` inside a group to submit toggle state with forms. It re
 </template>
 ```
 
+### Interaction States
+
+Button supports four states that block click events. Each state has a distinct semantic meaning:
+
+| State | Click blocked | Focusable | Hoverable | Tab order | Use case |
+|-------|:---:|:---:|:---:|:---:|---|
+| **disabled** | Yes | No | No | Removed | Button is not applicable |
+| **readonly** | Yes | Yes | Yes | Kept | Display-only, no action needed |
+| **passive** | Yes | Yes | Yes | Kept | Temporarily unavailable |
+| **loading** | Yes | Yes | Yes | Kept | Waiting for async operation |
+
+::: gn-example
+/components/button/states
+:::
+
+#### Data Attributes
+
+Each state sets a corresponding `data-*` attribute on the element for CSS styling:
+
+| Attribute | When set |
+|-----------|----------|
+| `data-disabled` | `disabled` prop is true |
+| `data-readonly` | `readonly` prop is true |
+| `data-passive` | `passive` prop is true |
+| `data-loading` | Loading grace period has elapsed |
+| `data-selected` | Button is selected in a group |
+
+> [!TIP]
+> `disabled` uses native `disabled` attribute and removes the button from tab order. `passive` uses `aria-disabled="true"` instead — the button stays focusable and screen readers announce it as disabled.
+
 ## Accessibility
 
 Button.Root handles ARIA attributes automatically:
@@ -190,5 +190,23 @@ For custom implementations, use `renderless` mode and bind the `attrs` slot prop
   </Button.Root>
 </template>
 ```
+
+## FAQ
+
+::: faq
+
+??? What's the difference between the `disabled` and `passive` states?
+
+Both block clicks, but `disabled` applies the native `disabled` attribute and drops the button from tab order, while `passive` uses `aria-disabled="true"` so the button stays focusable and screen readers announce it as disabled. Reach for `passive` when a control is only temporarily unavailable.
+
+??? Why doesn't the loading indicator appear right away?
+
+`Button.Loading` has a built-in 1-second grace period. If the async work finishes within that window the indicator never shows, preventing flicker on fast operations.
+
+??? How do I submit a toggle group's value with a native form?
+
+Put a `Button.HiddenInput` inside each `Button.Root`. It renders a visually hidden checkbox that reflects the button's selected state, so the group's value posts with the form.
+
+:::
 
 <DocsApi />

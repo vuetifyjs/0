@@ -101,9 +101,11 @@ The key design point is one timer per toast, not a single shared timer. Each toa
 
 :::
 
-## Key Features
+## Recipes
 
-### One-Shot vs Repeating
+### Key Features
+
+#### One-Shot vs Repeating
 
 By default, the timer fires once and stops. Set `repeat: true` for an interval that restarts after each fire:
 
@@ -115,7 +117,7 @@ const delay = useTimer(() => save(), { duration: 3000 })
 const poll = useTimer(() => refresh(), { duration: 5000, repeat: true })
 ```
 
-### Pause and Resume
+#### Pause and Resume
 
 Pause preserves the remaining time. Resume continues from where it left off:
 
@@ -132,7 +134,7 @@ timer.resume()
 // fires after ~7 more seconds
 ```
 
-### Restart Behavior
+#### Restart Behavior
 
 Calling `start()` while already running restarts from full duration:
 
@@ -142,7 +144,7 @@ timer.start()  // starts 5s countdown
 timer.start()  // restarts — fires in 5s, not 3s
 ```
 
-### Automatic Cleanup
+#### Automatic Cleanup
 
 The timer clears on scope disposal — no manual cleanup needed:
 
@@ -150,5 +152,31 @@ The timer clears on scope disposal — no manual cleanup needed:
 // Timer automatically stops when component unmounts
 const timer = useTimer(handler, { duration: 1000 })
 ```
+
+## FAQ
+
+::: faq
+
+??? What's the difference between useTimer and useRaf?
+
+`useTimer` is a `setTimeout`-based delay or interval with pause/resume and remaining-time tracking — reach for it for user-facing delays like auto-dismiss or cooldowns. [useRaf](/composables/system/use-raf) throttles a callback to animation frames, for per-frame work like scroll or animation updates.
+
+??? Does pausing lose the remaining time?
+
+No. `pause()` captures the remaining budget and `resume()` continues from exactly where it left off, not from the full duration.
+
+??? What happens if I call start() while the timer is already running?
+
+It restarts from the full duration. A timer started for 5s that you `start()` again after 2s will fire 5s later, not 3s.
+
+??? How do I make the timer repeat instead of firing once?
+
+Pass `repeat: true`. By default the timer is one-shot — it fires once and `isActive` becomes `false`; with `repeat` it restarts after each fire until you call `stop()`.
+
+??? What replaced the old debounce utility?
+
+`useTimer` did. It provides the same delay behavior plus pause/resume, repeat support, and automatic cleanup on scope disposal.
+
+:::
 
 <DocsApi />

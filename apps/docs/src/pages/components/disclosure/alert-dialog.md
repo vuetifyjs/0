@@ -53,16 +53,24 @@ AlertDialog mirrors Dialog but with stricter defaults: no close on click outside
 
 ## Examples
 
-### Async Confirmation
-
-The `AlertDialog.Action` component emits an `@action` event with an `AlertDialogActionEvent` payload. Call `e.wait()` at the top of your handler to hold the dialog open while the async work runs, then call `e.close()` once it completes. The `isPending` slot prop on `AlertDialog.Action` flips to `true` immediately after `wait()` is called, letting you swap button labels or show a spinner without managing a separate `shallowRef`.
-
-This pattern keeps the dialog in a locked state during the operation — the user cannot dismiss it, and escape is already blocked by default. Use it for any action where the consequence of double-submission or premature dismissal is dangerous (permanent deletion, irreversible writes).
-
-Compare with a plain Dialog approach, where you would manage loading state yourself and wire up a separate `shallowRef`. The `wait()`/`close()` contract removes that boilerplate and ensures the dialog stays open exactly as long as needed.
-
 ::: gn-example
-/components/alert-dialog/async
+/components/alert-dialog/useDeleteProject.ts 1
+/components/alert-dialog/DeleteProjectDialog.vue 2
+/components/alert-dialog/delete-project-dialog.vue 3
+
+### Destructive delete confirmation
+
+This flow wraps the full AlertDialog surface around an async operation. Every project row renders its own `AlertDialog.Root`: the Activator opens the modal, `AlertDialog.Action` drives the destructive confirm, and `AlertDialog.Cancel` dismisses it. The load-bearing API is the `@action` event — calling `e.wait()` at the top of the handler holds the dialog open while the mocked delete runs, and `e.close()` resolves it once the promise settles.
+
+The Root slot exposes `isPending`, which flips to `true` the moment `wait()` is called. Binding it to `:disabled` on both the Action and Cancel buttons locks the dialog for the duration of the request, so a slow network can't be double-submitted and a half-finished delete can't be dismissed. Because AlertDialog already blocks Escape and click-outside by default, `isPending` is the only extra state you need — no separate loading ref, no manual open/close bookkeeping. Styling hooks off the emitted `data-disabled` attribute rather than a JS class binding.
+
+Reach for this pattern whenever an accidental confirm is expensive or irreversible — permanent deletes, billing changes, irreversible writes. For non-destructive flows where dismissal is harmless (settings, informational content), a plain [Dialog](/components/disclosure/dialog) is the lighter choice; [Popover](/components/disclosure/popover) covers non-modal disclosure.
+
+| File | Role |
+|------|------|
+| `useDeleteProject.ts` | Owns the project list and the mocked async delete that drops a project after a short delay |
+| `DeleteProjectDialog.vue` | Reusable confirmation dialog — wires `@action` to `wait()`/`close()` and disables its buttons while `isPending` |
+| `delete-project-dialog.vue` | Entry — renders the project list and mounts a dialog per row |
 :::
 
 ## Accessibility
@@ -80,6 +88,8 @@ AlertDialog uses `role="alertdialog"` instead of `role="dialog"`, signaling to a
 ### Focus management
 
 Focus moves to the Cancel button on open, as it represents the safest action. This follows the WAI-ARIA alertdialog pattern where destructive actions should not receive initial focus.
+
+## FAQ
 
 ::: faq
 

@@ -16,7 +16,7 @@ import type { App } from 'vue'
 // Structural @unhead seam — duck-typed so v0 takes no dependency on @unhead types.
 interface ThemeHeadInput {
   htmlAttrs: { 'data-theme': string }
-  style: Array<{ innerHTML: string, id: string }>
+  style: Array<{ innerHTML: string, id: string, nonce?: string }>
 }
 
 interface HeadEntry {
@@ -61,7 +61,10 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
       })
 
       if (isNull(target)) {
-        this.dispose = stopWatch
+        this.dispose = () => {
+          stopWatch()
+          this.detach()
+        }
         return
       }
 
@@ -72,7 +75,10 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
             : (app._container as HTMLElement | undefined) || document.querySelector('#app') as HTMLElement | null || document.body)
 
       if (!targetEl) {
-        this.dispose = stopWatch
+        this.dispose = () => {
+          stopWatch()
+          this.detach()
+        }
         return
       }
 
@@ -89,6 +95,7 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
       this.dispose = () => {
         stopWatch()
         stopTheme()
+        this.detach()
       }
     } else {
       const head = (app._context?.provides?.usehead ?? app._context?.provides?.head) as Head | undefined
@@ -102,6 +109,7 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
           style: [{
             innerHTML: this.generate(context.colors.value, context.isDark.value),
             id: this.stylesheetId,
+            ...(this.cspNonce ? { nonce: this.cspNonce } : {}),
           }],
         })
 
@@ -127,5 +135,12 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
       document.adoptedStyleSheets = [...document.adoptedStyleSheets, this.sheet]
     }
     this.sheet.replaceSync(styles)
+  }
+
+  private detach (): void {
+    if (!IN_BROWSER) return
+
+    document.adoptedStyleSheets = document.adoptedStyleSheets.filter(s => s !== this.sheet)
+    this.sheet = undefined
   }
 }

@@ -16,7 +16,7 @@
  */
 
 // Utilities
-import { isUndefined } from './helpers'
+import { isUndefined, UNSAFE_KEYS } from './helpers'
 
 // Types
 import type { V0ErrorCode, V0ErrorDetails } from '#v0/types'
@@ -77,12 +77,17 @@ export class V0Error extends Error {
   readonly seed?: string
   readonly variant?: string
   readonly adapter?: string
+  readonly prefix?: string
 
   constructor (message: string, details: V0ErrorDetails & { cause?: unknown }) {
     const { cause, ...rest } = details
     super(message, isUndefined(cause) ? undefined : { cause })
     this.code = details.code
-    Object.assign(this, rest)
+
+    for (const [key, value] of Object.entries(rest)) {
+      if (UNSAFE_KEYS.has(key)) continue
+      ;(this as Record<string, unknown>)[key] = value
+    }
   }
 }
 

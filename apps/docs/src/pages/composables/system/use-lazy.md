@@ -60,21 +60,31 @@ stateDiagram-v2
 ## Examples
 
 ::: gn-example
-/composables/use-lazy/basic
+/composables/use-lazy/tabs.ts
+/composables/use-lazy/HeavyPanel.vue
+/composables/use-lazy/LazyTab.vue
+/composables/use-lazy/demo.vue
 
-### Lazy Content Panel
+### Lazy Tab Panels
 
-A collapsible panel that defers DOM rendering until the first time it opens, then simulates an 800 ms async content load before rendering a 50-item list.
+A three-tab interface where each panel's heavy content mounts only the first time its tab is opened, and a live mount counter proves each panel mounts exactly once no matter how often you switch back and forth.
 
-The core of the pattern is `hasContent`, which starts `false` and flips to `true` after `isOpen` is first set to `true`. The template gates the entire content subtree on `hasContent` inside a `<template v-if>`, so Vue never mounts the heavy list until it's actually needed. A `watch` on `hasContent` kicks off the simulated fetch — the actual content is a `shallowRef<string[]>` that starts empty and is populated after the timeout.
+Each panel is a `LazyTab` that calls `useLazy(() => active)` and gates its body on `hasContent`. The gate starts `false`, so the expensive `HeavyPanel` subtree is never created for a tab the reader has not visited yet. The moment a tab is first selected, `isBooted` flips to `true` and `hasContent` stays `true` permanently — this example deliberately omits `onAfterLeave`, so once a panel boots it survives every subsequent tab switch. The panel wrapper toggles visibility with `v-show`, keeping the already-mounted DOM around for instant re-display instead of paying the mount cost again. `HeavyPanel` increments a shared counter in its `onMounted` hook, and the readout under the tabs confirms the count never climbs past one per panel.
 
-`onAfterLeave` is wired to the `<Transition>`'s `@after-leave` event. When the panel closes and its leave animation completes, `isBooted` resets to `false` — causing `hasContent` to go back to `false`. The `watch` on `isBooted` clears `items` at the same time, so re-opening the panel triggers a fresh load. Omit this hook if you want the content to survive close/reopen cycles (for example, a settings panel whose form state should persist).
+This is the canonical pattern for tabbed dashboards, wizard steps, and any layout where most panels are never viewed in a given session. Contrast it with [usePresence](/composables/system/use-presence), which orchestrates enter and leave animations rather than deferring the first mount, and with [useToggleScope](/composables/system/use-toggle-scope) for tearing an effect scope down when content hides. To reclaim memory when a panel closes, wire `onAfterLeave` into a `Transition` so `isBooted` resets and the subtree unmounts — at the cost of re-mounting on the next open.
 
-Reach for `useLazy` whenever deferred mounting matters: dialogs, drawers, accordion sections, or any content that is conditionally shown and expensive to mount. The `delay` and `eager` options (not used in this example) add a debounce floor and an always-mounted escape hatch — see the "Delay" and "Eager Mode" sections below.
+| File | Role |
+|------|------|
+| `tabs.ts` | Tab definitions plus a shared composable that tracks per-panel mount counts |
+| `HeavyPanel.vue` | The expensive content; reports its mount to the shared counter |
+| `LazyTab.vue` | Wraps a panel with `useLazy`, gating its body on `hasContent` |
+| `demo.vue` | Renders the tab bar, the lazy panels, and the live mount readout |
 
 :::
 
-## Delay
+## Recipes
+
+### Delay
 
 Use the `delay` option to defer the first mount by a fixed number of milliseconds. This prevents a flash of content for operations that complete very quickly:
 
@@ -83,7 +93,7 @@ const { hasContent } = useLazy(isOpen, { delay: 200 })
 // Content only mounts if isOpen stays true for 200ms
 ```
 
-## Eager Mode
+### Eager Mode
 
 Use the `eager` option to render content immediately without waiting for activation:
 
@@ -101,7 +111,7 @@ const { hasContent } = useLazy(isOpen, {
 })
 ```
 
-## Transition Integration
+### Transition Integration
 
 The `onAfterLeave` callback resets the lazy state after the leave transition completes (unless eager mode is enabled):
 
@@ -118,5 +128,23 @@ The `onAfterLeave` callback resets the lazy state after the leave transition com
 ```
 
 This allows memory to be reclaimed when the content is hidden, while preserving the content during the leave animation.
+
+## FAQ
+
+::: faq
+
+??? What's the difference between useLazy and usePresence?
+
+useLazy defers a subtree's first mount until it's activated, and can tear it back down later. [usePresence](/composables/system/use-presence) orchestrates enter and leave animations for content that is already mounting. Reach for useLazy to skip render cost, usePresence to animate transitions.
+
+??? How do I reclaim memory when lazy content closes?
+
+Wire `onAfterLeave` into a `Transition`'s `@after-leave`. It resets `isBooted` once the leave animation finishes, so the subtree unmounts — at the cost of re-mounting on the next open. Omit it to keep content alive after first boot.
+
+??? Can I render the content immediately and bypass the lazy gate?
+
+Yes — pass `{ eager: true }` and `hasContent` is always `true`. `eager` also accepts a ref or getter, so you can drive lazy behavior from a prop.
+
+:::
 
 <DocsApi />

@@ -83,6 +83,18 @@ const tokens = useTokens()
 tokens.resolve('colors.primary')  // '#3b82f6'
 ```
 
+## Architecture
+
+`createTokens` extends `createRegistry` and powers token-based systems:
+
+```mermaid "Tokens Hierarchy"
+flowchart TD
+  createTokens --> useTheme
+  createTokens --> useLocale
+  createTokens --> useFeatures
+  createTokens --> usePermissions
+```
+
 ## Options
 
 ### createTokens
@@ -100,18 +112,6 @@ Accepts all `createTokens` options plus:
 | - | - | - | - |
 | `namespace` | `string` | — | DI namespace string (e.g. `'my:tokens'`) |
 | `tokens` | `TokenCollection` | — | Initial token collection registered when the context is created |
-
-## Architecture
-
-`createTokens` extends `createRegistry` and powers token-based systems:
-
-```mermaid "Tokens Hierarchy"
-flowchart TD
-  createTokens --> useTheme
-  createTokens --> useLocale
-  createTokens --> useFeatures
-  createTokens --> usePermissions
-```
 
 ## Reactivity
 

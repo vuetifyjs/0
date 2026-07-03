@@ -274,6 +274,42 @@ Hover over the code block to reveal action buttons:
 
 [^size-examples]: The button appears on example code panes; the setting itself applies to every code block and can also be changed from the [settings panel](#code-size).
 
+### Multiple Files
+
+Larger examples span several real files — a composable, a component, and the app that wires them together:
+
+- Each tab is one source file; the last one is what runs in the preview
+- Play and Bin carry every file across together
+- The combine action stitches all files into a single scrollable view
+
+::: gn-example
+/components/combobox/useUserSearch.ts 1
+/components/combobox/UserPicker.vue 2
+/components/combobox/user-picker.vue 3
+:::
+
+### Recipes
+
+Component pages end with recipes — terse, single-purpose snippets in a plain code fence, designed to be lifted straight into an app:
+
+```vue playground data-tour=example-recipe
+<script setup lang="ts">
+  import { useHotkey } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+
+  const count = shallowRef(0)
+
+  useHotkey('shift+k', () => count.value++)
+</script>
+
+<template>
+  <div class="flex items-center gap-3">
+    <kbd class="px-2 py-1 border border-divider rounded bg-surface-tint text-xs font-mono">Shift+K</kbd>
+    <span class="text-sm">Pressed {{ count }} times</span>
+  </div>
+</template>
+```
+
 ### Code Groups
 
 Some examples show multiple variants in tabbed code blocks:

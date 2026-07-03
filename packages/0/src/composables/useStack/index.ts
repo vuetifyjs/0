@@ -29,14 +29,20 @@ import { createPlugin } from '#v0/composables/createPlugin'
 import { createSelection } from '#v0/composables/createSelection'
 import { createTrinity } from '#v0/composables/createTrinity'
 
+// Transformers
+import { toElement } from '#v0/composables/toElement'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { instanceExists, useId } from '#v0/utilities'
-import { onScopeDispose, toRef } from 'vue'
+import { onScopeDispose, toRef, toValue } from 'vue'
 
 // Types
 import type { SelectionContext, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, Ref } from 'vue'
+import type { App, ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
 /**
  * Input type for stack tickets - what users provide to register().
@@ -56,7 +62,7 @@ export interface StackTicketInput extends SelectionTicketInput {
    * @remarks When true, clicking the scrim will not dismiss this overlay.
    * Use for critical dialogs requiring explicit user action.
    */
-  blocking?: boolean
+  blocking?: MaybeRefOrGetter<boolean>
   /**
    * Whether this overlay should be backed by a scrim/backdrop
    *
@@ -65,7 +71,20 @@ export interface StackTicketInput extends SelectionTicketInput {
    * but `Scrim` skips rendering a backdrop for it. Use for non-modal overlays
    * (snackbars, toasts, tooltips) that need layering without dimming.
    */
-  scrim?: boolean
+  scrim?: MaybeRefOrGetter<boolean>
+  /**
+   * The overlay's DOM element.
+   *
+   * @remarks When set, the stack can expose this element as a top-layer teleport
+   * target via {@link StackContext.topElement}. Native modal dialogs pass their
+   * `<dialog>` element so non-modal overlays (snackbars) can teleport into them.
+   *
+   * @example
+   * ```ts
+   * stack.register({ el: () => dialogRef.value?.element })
+   * ```
+   */
+  el?: MaybeRefOrGetter<Element | null | undefined>
 }
 
 /**
@@ -79,11 +98,13 @@ export type StackTicket<Z extends StackTicketInput = StackTicketInput> = Selecti
   /**
    * Whether this overlay blocks scrim dismissal
    */
-  blocking: boolean
+  blocking: Readonly<Ref<boolean>>
   /**
    * Whether this overlay is backed by a scrim/backdrop
    */
-  scrim: boolean
+  scrim: Readonly<Ref<boolean>>
+  /** The overlay's DOM element, if provided at registration. */
+  el?: MaybeRefOrGetter<Element | null | undefined>
   /**
    * The calculated z-index for this overlay
    *
@@ -139,6 +160,28 @@ export interface StackContext<
    * and scrim clicks should be ignored.
    */
   isBlocking: Readonly<Ref<boolean>>
+  /**
+   * Element of the topmost selected modal overlay that has a resolvable DOM
+   * element (a top-layer `<dialog>`), or `null`.
+   *
+   * @remarks Overlays that must appear above a modal (snackbars, tooltips)
+   * teleport into this element so they share its top-layer context and remain
+   * interactive. Non-modal (`scrim: false`) tickets are never returned, so a
+   * non-modal overlay never resolves to itself.
+   *
+   * **One-tick window.** When a modal mounts already-open (`modelValue=true`),
+   * the ticket's `select()` fires synchronously in the `immediate: true` watch
+   * before the content ref resolves, so `topElement` is `null` for one tick.
+   * Consumers that read `topElement` reactively (e.g. `Portal` resolving its
+   * teleport target) see the correct element on the next tick after the
+   * modal's DOM node mounts.
+   *
+   * @example
+   * ```ts
+   * const to = toRef(() => stack.topElement.value ?? 'body')
+   * ```
+   */
+  topElement: Readonly<Ref<Element | null>>
   /**
    * Register an overlay ticket
    *
@@ -218,7 +261,7 @@ export function createStack (_options: StackOptions = {}): StackContext {
   function selectedScrims () {
     return Array.from(selection.selectedIds)
       .map(id => selection.get(id) as StackTicket | undefined)
-      .filter((ticket): ticket is StackTicket => !!ticket && ticket.scrim !== false)
+      .filter((ticket): ticket is StackTicket => !!ticket && ticket.scrim.value !== false)
   }
 
   const isActive = toRef(() => selectedScrims().length > 0)
@@ -230,7 +273,16 @@ export function createStack (_options: StackOptions = {}): StackContext {
     return ticket ? ticket.zIndex.value - 1 : 0
   })
 
-  const isBlocking = toRef(() => top.value?.blocking ?? false)
+  const isBlocking = toRef(() => toValue(top.value?.blocking) ?? false)
+
+  const topElement = toRef(() => {
+    const scrims = selectedScrims()
+    for (let i = scrims.length - 1; i >= 0; i--) {
+      const el = toElement(toValue(scrims[i].el))
+      if (el) return el
+    }
+    return null
+  })
 
   function ids () {
     return Array.from(selection.selectedIds)
@@ -238,8 +290,8 @@ export function createStack (_options: StackOptions = {}): StackContext {
 
   function register (input: Partial<StackTicketInput> = {} as Partial<StackTicketInput>): StackTicket {
     const id = input.id ?? useId()
-    const blocking = input.blocking ?? false
-    const scrim = input.scrim ?? true
+    const blocking = toRef(() => toValue(input.blocking) ?? false)
+    const scrim = toRef(() => toValue(input.scrim) ?? true)
     const onDismiss = input.onDismiss
 
     const zIndex = toRef(() => {
@@ -255,19 +307,19 @@ export function createStack (_options: StackOptions = {}): StackContext {
     })
 
     function dismiss () {
-      if (blocking) return
+      if (blocking.value) return
       onDismiss?.()
       selection.unselect(id)
     }
 
     const ticket = selection.register({
+      ...input,
       blocking,
       scrim,
       onDismiss,
       zIndex,
       globalTop,
       dismiss,
-      ...input,
       id,
     } as Partial<StackTicketInput>)
 
@@ -288,6 +340,7 @@ export function createStack (_options: StackOptions = {}): StackContext {
     top,
     scrimZIndex,
     isBlocking,
+    topElement,
     get size () {
       return selection.size
     },
@@ -359,6 +412,11 @@ export function createStackPlugin (_options: StackPluginOptions = {}) {
 let fallbackStack: StackContext | undefined
 
 function getStackFallback (): StackContext {
+  // SSR: never share a module-scoped stack across requests — a long-lived Node
+  // process would leak tickets and bleed z-index between requests. Each call gets
+  // an ephemeral stack; use createStackPlugin for coordinated per-app SSR z-index.
+  if (!IN_BROWSER) return createStack()
+
   if (!fallbackStack) {
     fallbackStack = createStack()
   }

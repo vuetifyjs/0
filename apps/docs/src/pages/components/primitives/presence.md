@@ -68,29 +68,23 @@ The `mounted` state lasts one tick, giving the browser a frame to apply initial 
 ## Examples
 
 ::: gn-example
-/components/presence/animation
+/components/presence/useToastDemo.ts 1
+/components/presence/AnimatedToast.vue 2
+/components/presence/animated-toast.vue 3
 
-### Re-Entry
+### Animated Toast That Exits Cleanly
 
-This example uses `immediate: false` so Presence waits for `done()` before unmounting, giving CSS `@keyframes` animations time to complete. The exit animation runs while `isLeaving` is `true`; `animationend` calls `done()` to trigger the unmount.
+This toast mounts when you press Show, plays a CSS enter animation, and on dismiss plays an exit animation while staying in the DOM until `animationend` fires `done()` — only then does it unmount. Driving it is a single `v-model` boolean plus `:immediate="false"`, which tells Presence to hold the `leaving` state until you signal the animation is over. The keyframes are selected entirely by the `data-state` attribute Presence writes through its slot `attrs`, so the markup carries no animation logic — CSS owns the motion, Presence owns the lifecycle.
 
-Toggle rapidly during the exit animation. Presence detects that `present` has flipped back to `true` while still in the `leaving` state, cancels the leave, and transitions directly back to `present` — no unmount and remount cycle, no animation glitch. The in-DOM element continues from wherever it was visually.
+The Lazy mount toggle flips the mount strategy. In eager mode every dismiss unmounts the toast and every show mounts a fresh instance, so the mount counter climbs on each open; in lazy mode the content mounts once on first show and hides via state on subsequent dismisses, so the counter stays at 1. Re-entry is the other behavior worth provoking: dismiss the toast and press Show again before the exit finishes, and Presence cancels the leave and returns to `present` without an unmount and remount cycle — the in-DOM element continues from wherever it was visually.
 
-This re-entry behavior is important when animations are driven by `data-state` attribute selectors (`[data-state="mounted"]`, `[data-state="leaving"]`), which Presence sets automatically via `attrs`. CSS handles the visual interruption naturally because the element never leaves the DOM.
+Reach for this pattern whenever conditional content needs an exit animation that `v-if` would cut short, or when expensive content should pay its setup cost once. The tradeoff of `:immediate="false"` is that you must call `done()` — forget it and the element is stranded in the `leaving` state forever; the safety valve is the default immediate mode, which auto-unmounts on the next tick when you do not need an exit animation. Presence is renderless and adds no DOM of its own, so accessibility lives in the content you render. For the composable form used inside custom setup functions, see [usePresence](/composables/system/use-presence); to render the toast in a top-level layer, wrap it with [Portal](/components/primitives/portal).
 
-:::
-
-::: gn-example
-/components/presence/lazy
-
-### Lazy Mounting
-
-By default, Presence mounts content immediately when `v-model` becomes `true` for the first time. The `lazy` prop changes this: content is not mounted at all until the first truthy transition — subsequent hide/show cycles keep the content in the DOM and toggle its `data-state` attribute rather than mounting and unmounting on every change.
-
-The mount counter tracks `@enter` events. After the first toggle, it increments to 1 and stays there no matter how many times you hide and show. This is the key difference from `v-if`: `v-if` destroys and recreates the component subtree on every toggle; `lazy` mounts once and hides via state.
-
-Reach for `lazy` when the content is expensive to initialize (deep component trees, heavy computations on `onMounted`) and you want to pay the setup cost once rather than on every open.
-
+| File | Role |
+|------|------|
+| `useToastDemo.ts` | Owns demo state — visibility, lazy mode, the mount counter — and restarts the demo when the strategy changes |
+| `AnimatedToast.vue` | Wraps Presence, binds the `data-state` attrs to the toast element, and owns the enter and exit keyframes |
+| `animated-toast.vue` | Wires the composable to the component and adds the Show button, Lazy toggle, and mount counter |
 :::
 
 ## Accessibility

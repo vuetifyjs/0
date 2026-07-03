@@ -44,7 +44,7 @@ The Group component is a specialization of Selection that enforces multi-selecti
 </template>
 ```
 
-## Features
+## Recipes
 
 ### Batch Operations
 
@@ -84,5 +84,23 @@ The slot props `isAllSelected`, `isNoneSelected`, and `isMixed` reflect the aggr
   </Group.Root>
 </template>
 ```
+
+## FAQ
+
+::: faq
+
+??? When should I use Group instead of [Selection](/components/providers/selection)?
+
+Group is a specialization of Selection that always binds an array and enforces multi-selection, adding batch operations (`selectAll`, `unselectAll`, `toggleAll`) and tri-state aggregate state. Reach for Selection when you want the general wrapper; reach for Group for a checkbox group with select-all.
+
+??? How do I drive an indeterminate checkbox from the group's state?
+
+Bind `isAllSelected` to the checkbox's `checked` and `isMixed` to its `indeterminate`, then call `toggleAll` on change — all three are exposed on the default slot.
+
+??? Can I bind a single value instead of an array?
+
+No — Group always uses array-based v-model. For single-choice state use [Single](/components/providers/single) instead.
+
+:::
 
 <DocsApi />

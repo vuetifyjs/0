@@ -237,69 +237,7 @@ The `formatByString()` method supports these tokens:
 | `A` | AM/PM | AM |
 | `a` | am/pm | am |
 
-## Reactivity
-
-The date context provides minimal reactivity, with the adapter being a static instance.
-
-| Property | Reactive | Notes |
-| - | :-: | - |
-| `locale` | <AppSuccessIcon /> | Computed from `useLocale` if available |
-| `adapter` | <AppErrorIcon /> | Static adapter instance |
-
-## Examples
-
-The following examples demonstrate common date operations using the default Temporal adapter:
-
-::: gn-example
-/composables/use-date/calendar
-
-### Interactive Calendar
-
-A navigable month/year calendar built entirely from adapter calls. `getWeekArray()` produces the 2D week grid; `getWeekdays('narrow')` drives the column headers; `getPreviousMonth()` and `getNextMonth()` handle navigation; `isSameDay()` and `isSameMonth()` power the today highlight and greyed-out overflow cells. The grid is held at exactly five rows by padding short months with the first row of the next month.
-
-The example exercises the structural half of the adapter interface — the part that builds calendar grids and navigates between months — rather than the formatting presets shown in the Usage example above. `getDate()` extracts the day number for each cell, and `format(current, 'monthAndYear')` renders the header.
-
-Reach for this pattern when building a DatePicker, DateRangePicker, or any calendar surface where the adapter needs to own the grid layout. The adapter is locale-aware by default: `getWeekdays` and the month name both respond to the locale set at plugin install time. For locale-switching at runtime, see [useLocale](/composables/plugins/use-locale) and the locale integration section below.
-
-:::
-
-## Locale Integration
-
-When `useLocale` is available, `useDate` automatically syncs with the selected locale:
-
-```ts src/main.ts
-import { createApp } from 'vue'
-import { V0DateAdapter } from '@vuetify/v0/date'
-import { createLocalePlugin, createDatePlugin } from '@vuetify/v0'
-
-const app = createApp(App)
-
-// Install locale plugin first
-app.use(
-  createLocalePlugin({
-    default: 'en',
-    messages: {
-      en: { /* ... */ },
-      de: { /* ... */ },
-    }
-  })
-)
-
-// Date plugin will auto-sync with locale
-app.use(
-  createDatePlugin({
-    adapter: new V0DateAdapter(),
-    locales: {
-      en: 'en-US',  // Map short codes to Intl locales
-      de: 'de-DE',
-    }
-  })
-)
-```
-
-When switching locales via `useLocale`, the date adapter automatically updates its formatting locale.
-
-## Custom Adapters
+### Custom Adapters
 
 The adapter pattern decouples date operations from the underlying library. When you call `adapter.format()`, the request flows through the provided adapter to its underlying date library:
 
@@ -395,30 +333,102 @@ app.use(
 > }
 > ```
 
-## Known Limitations
+## Reactivity
 
-- **parse() format parameter**: The `parse()` method's format parameter is currently ignored. The Temporal API doesn't provide built-in format parsing. The method delegates to `date()` which handles ISO 8601 strings. For custom format parsing, use a library like date-fns or luxon with a custom adapter.
+The date context provides minimal reactivity, with the adapter being a static instance.
 
-### SSR and Hydration
+| Property | Reactive | Notes |
+| - | :-: | - |
+| `locale` | <AppSuccessIcon /> | Computed from `useLocale` if available |
+| `adapter` | <AppErrorIcon /> | Static adapter instance |
 
-> [!WARNING]
-> Date formatting can cause hydration mismatches in SSR applications. Server and client environments may produce different formatted output due to timezone differences.
+## Examples
 
-**SSR Behavior for `adapter.date()`:**
-- Browser: Returns current time via `Temporal.Now.plainDateTimeISO()`
-- Server: Returns epoch (1970-01-01T00:00:00) for deterministic rendering
+The following example builds a complete, interactive date surface from adapter calls alone — no DatePicker component required.
 
-This is intentional to prevent hydration mismatches. For SSR apps needing current time, pass `Date.now()` explicitly.
+::: gn-example
+/composables/use-date/useCalendar.ts 1
+/composables/use-date/CalendarGrid.vue 2
+/composables/use-date/month-calendar.vue 3
 
-**Timezone-dependent formatting:** `Intl.DateTimeFormat` uses the system timezone. Server environments (often UTC) and client browsers (user's local timezone) produce different formatted strings.
+### Interactive month calendar
 
-**Solutions:**
+A navigable month grid with click-to-select, built entirely from the adapter. `useCalendar.ts` calls `useDate()` once and owns all the date math: `getWeekArray()` produces the 2D week grid, `getWeekdays('narrow')` drives the column headers, `getPreviousMonth()` and `getNextMonth()` handle navigation, and `isSameDay()` / `isSameMonth()` power the today ring, the selected fill, and the greyed-out overflow cells. The grid renders as many week rows as the month spans — four to six — straight from `getWeekArray()`, so every in-month day stays visible and the calendar never truncates a long month or borrows days from the wrong neighbouring week.
+
+The composable precomputes each `weeks` cell into a flat `{ date, day, today, selected, outside }` record, so `CalendarGrid.vue` renders the surface from plain props — `weekdays`, `weeks`, `monthYear`, plus the `prev`, `next`, `today`, and `select` callbacks — without ever touching the adapter directly. The entry instantiates the calendar once and reads `selectedLabel` and `locale` for the summary panel. This is the structural half of the adapter interface — building and navigating grids — rather than the formatting presets shown in the Usage example above.
+
+Reach for this pattern when building a DatePicker, DateRangePicker, or any calendar surface where the adapter should own the grid layout. The adapter is locale-aware by default: `getWeekdays` and the month name both respond to the locale set at plugin install time, so switching the active locale via [useLocale](/composables/plugins/use-locale) reformats the calendar with no extra code. See the locale integration section below for how the two plugins sync.
+
+| File | Role |
+|------|------|
+| `useCalendar.ts` | Wraps `useDate()`; owns month/selection state and exposes weekday labels, precomputed week cells, and navigation callbacks |
+| `CalendarGrid.vue` | Renders the weekday headers and day buttons from its props; styles today, selected, and outside-month cells via data attributes |
+| `month-calendar.vue` | Entry point — instantiates the calendar, wires it to the grid, and shows the selected date and active locale |
+:::
+
+## Recipes
+
+### Locale Integration
+
+When `useLocale` is available, `useDate` automatically syncs with the selected locale:
+
+```ts src/main.ts
+import { createApp } from 'vue'
+import { V0DateAdapter } from '@vuetify/v0/date'
+import { createLocalePlugin, createDatePlugin } from '@vuetify/v0'
+
+const app = createApp(App)
+
+// Install locale plugin first
+app.use(
+  createLocalePlugin({
+    default: 'en',
+    messages: {
+      en: { /* ... */ },
+      de: { /* ... */ },
+    }
+  })
+)
+
+// Date plugin will auto-sync with locale
+app.use(
+  createDatePlugin({
+    adapter: new V0DateAdapter(),
+    locales: {
+      en: 'en-US',  // Map short codes to Intl locales
+      de: 'de-DE',
+    }
+  })
+)
+```
+
+When switching locales via `useLocale`, the date adapter automatically updates its formatting locale.
+
+## FAQ
+
+::: faq
+
+??? Why does parse()'s format parameter seem to be ignored?
+
+The `parse()` method's format parameter is currently ignored — the Temporal API doesn't provide built-in format parsing, so the method delegates to `date()`, which handles ISO 8601 strings. For custom format parsing, use a library like date-fns or luxon with a [custom adapter](#custom-adapters).
+
+??? Why do my formatted dates differ between the server and the client?
+
+Date formatting can cause hydration mismatches in SSR applications because the server and client environments may produce different formatted output. Two effects are at play:
+
+- **`adapter.date()` is environment-dependent by design.** In the browser it returns the current time via `Temporal.Now.plainDateTimeISO()`; on the server it returns the epoch (`1970-01-01T00:00:00`) for deterministic rendering. This is intentional, to prevent hydration mismatches — if an SSR app needs the current time, pass `Date.now()` explicitly.
+- **`Intl.DateTimeFormat` uses the system timezone.** Server environments (often UTC) and client browsers (the user's local timezone) produce different formatted strings.
+
+??? How do I avoid date hydration mismatches in SSR?
+
+Pick whichever fits your setup:
+
 1. **Nuxt/SSR:** Wrap formatted dates in `<ClientOnly>`:
    ```vue
    <template>
      <ClientOnly>
-      <span>{{ adapter.format(date, 'fullDate') }}</span>
-    </ClientOnly>
+       <span>{{ adapter.format(date, 'fullDate') }}</span>
+     </ClientOnly>
    </template>
    ```
 
@@ -440,6 +450,20 @@ This is intentional to prevent hydration mismatches. For SSR apps needing curren
    </script>
    ```
 
-3. **Server timezone:** Set `TZ=UTC` environment variable on your server for consistent baseline
+3. **Server timezone:** Set `TZ=UTC` environment variable on your server for consistent baseline.
+
+??? Do I need to install the Temporal polyfill?
+
+Only if a runtime you target lacks native Temporal. `V0DateAdapter` prefers the runtime's native implementation and falls back to [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) when it's missing — once every target ships native Temporal, the polyfill is no longer required.
+
+??? Can I use date-fns, luxon, or dayjs instead of Temporal?
+
+Yes. The adapter pattern decouples date operations from the library — extend `DateAdapter<T>` (the page's `DateFnsAdapter` shows the shape) and pass it as the `adapter` option to `createDatePlugin`. Only `V0DateAdapter` ships built-in; other libraries need a custom adapter.
+
+??? What's the difference between `format()` and `formatByString()`?
+
+`format()` takes a named preset (`fullDate`, `shortDate`, `monthAndYear`, …) and is locale-aware. `formatByString()` takes an explicit token string (`YYYY-MM-DD`, `HH:mm`, …) for exact, hand-built output. Reach for presets first; drop to tokens when you need a specific layout.
+
+:::
 
 <DocsApi />

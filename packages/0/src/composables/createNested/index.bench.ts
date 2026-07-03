@@ -10,10 +10,11 @@
 
 import { bench, describe } from 'vitest'
 
-import { createNested } from './index'
+// Framework
+import { createNested } from '@vuetify/v0/composables'
 
 // Types
-import type { NestedContext, NestedRegistration, NestedTicket } from './types'
+import type { NestedContext, NestedRegistration, NestedTicket } from '@vuetify/v0/composables'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks

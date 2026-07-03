@@ -59,7 +59,7 @@
   const slotProps = toRef((): SnackbarCloseSlotProps => ({
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
-      'aria-label': locale.t('Snackbar.close'),
+      'aria-label': locale.ti('Snackbar.close') ?? 'Dismiss',
       'onClick': onClick,
     },
   }))

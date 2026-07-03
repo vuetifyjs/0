@@ -92,15 +92,41 @@ Single-selection state is **always reactive**. All computed properties update au
 ## Examples
 
 ::: gn-example
-/composables/create-single/theme-picker
+/composables/create-single/useThemePicker.ts 1
+/composables/create-single/ThemeSwatches.vue 2
+/composables/create-single/theme-picker.vue 3
 
 ### Theme Picker
 
-A single-selection color theme switcher built entirely from `createSingle`. Each swatch is a registered item; clicking one selects it exclusively and automatically deselects the previous choice, so the preview panel always reflects exactly one active palette.
+A single-selection color theme switcher built entirely from `createSingle`. The composable owns the palette data and registers each theme as a ticket; clicking a swatch selects it exclusively and automatically deselects the previous choice, so the preview panel always reflects exactly one active palette. State lives in `useThemePicker.ts`, the swatch grid renders in `ThemeSwatches.vue`, and the entry file wires them together with a live preview and a state readout.
 
-The example leans on three parts of the API working together. `onboard()` bulk-registers the five themes up front and returns one ticket per item, so the template iterates `tickets` directly — calling `ticket.select()` and reading `ticket.isSelected` without routing back through the parent instance. `mandatory: true` keeps the selection sticky: once a theme is active, clicking it again is a no-op, guaranteeing the preview never renders an empty state. `seek('first')?.select()` preselects the first item on mount so the UI starts valid rather than blank.
+The example leans on three parts of the API working together. `onboard()` bulk-registers the five themes up front and returns one ticket per item, so the swatch component iterates `tickets` directly — calling `ticket.select()` and reading `ticket.isSelected` without routing back through the parent instance. `mandatory: true` keeps the selection sticky: once a theme is active, clicking it again is a no-op, guaranteeing the preview never renders an empty state. `seek('first')?.select()` preselects the first item on mount so the UI starts valid rather than blank, and the composable re-exports `selectedValue`, `selectedId`, `selectedIndex`, and `size` as flat derived refs so consumers never reach into the underlying instance.
 
 Reach for this whenever a fixed set of mutually exclusive options needs the selected *value* — not just its id — reactively available for rendering: theme pickers, density toggles, segmented controls. The trade-off of `mandatory` is that there is no "nothing selected" state; if you need one, omit it and guard the consumer on `selectedValue` being `undefined`. For ordered next/prev navigation over the same selection, see [createStep](/composables/selection/create-step); for the multi-select parent, see [createSelection](/composables/selection/create-selection).
+
+| File | Role |
+|------|------|
+| `useThemePicker.ts` | Owns the theme data and the `createSingle` instance; exposes tickets and flat derived selection refs |
+| `ThemeSwatches.vue` | Renders the swatch grid, selecting a theme on click via `ticket.select()` |
+| `theme-picker.vue` | Entry point — wires the composable to the swatches, live preview, and state readout |
+
+:::
+
+## FAQ
+
+::: faq
+
+??? When should I use createSingle vs createStep?
+
+createSingle is exclusive selection with no inherent order. Reach for [createStep](/composables/selection/create-step) when the items form a sequence you navigate with `next()`/`prev()`/`first()`/`last()` — wizards, carousels, steppers. createStep extends createSingle.
+
+??? How do I prevent an empty "nothing selected" state?
+
+Pass `mandatory: true`. Once an item is active, clicking it again is a no-op, so the selection never empties — preselect on mount with `seek('first')?.select()` so the UI starts valid.
+
+??? Can I read the selected value directly, not just its id?
+
+Yes. `selectedId`, `selectedValue`, and `selectedIndex` are all reactive and work directly in templates — `selectedValue` gives the registered value, not just the id.
 
 :::
 

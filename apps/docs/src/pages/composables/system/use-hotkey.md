@@ -63,7 +63,21 @@ The `useHotkey` composable registers hotkey handlers on the window with automati
 </template>
 ```
 
-## Key Aliases
+## Architecture
+
+`useHotkey` builds on `useEventListener` for keyboard event handling:
+
+```mermaid "Hotkey Hierarchy"
+flowchart TD
+  useEventListener --> useHotkey
+  useHotkey --> Combinations["ctrl+k, cmd+s"]
+  useHotkey --> Sequences["g-h, g-i"]
+  useHotkey --> Components["Command Palette, Shortcuts"]
+```
+
+## Options
+
+### Key Aliases
 
 Key strings are normalized before matching, so you can use human-friendly names instead of exact `KeyboardEvent.key` values:
 
@@ -91,18 +105,6 @@ useHotkey('ctrl+plus', zoomIn)   // matches Ctrl ++
 useHotkey('cmd+minus', zoomOut)  // matches Cmd +-
 ```
 
-## Architecture
-
-`useHotkey` builds on `useEventListener` for keyboard event handling:
-
-```mermaid "Hotkey Hierarchy"
-flowchart TD
-  useEventListener --> useHotkey
-  useHotkey --> Combinations["ctrl+k, cmd+s"]
-  useHotkey --> Sequences["g-h, g-i"]
-  useHotkey --> Components["Command Palette, Shortcuts"]
-```
-
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
@@ -114,17 +116,48 @@ flowchart TD
 ## Examples
 
 ::: gn-example
-/composables/use-hotkey/command-palette
+/composables/use-hotkey/useCommandPalette.ts 1
+/composables/use-hotkey/CommandPalette.vue 2
+/composables/use-hotkey/command-palette.vue 3
 
 ### Command Palette
 
-A searchable command palette (Cmd+J / Ctrl+J) built with `useHotkey`, `Dialog`, and `useToggleScope`. Three layers of hotkey registration work together: a global `cmd+j` binding opens the palette unconditionally; inside the palette, per-command shortcuts (`cmd+l`, `cmd+s`, …) fire while the user types in the search field thanks to `{ inputs: true }`; and arrow-key navigation moves the selection through filtered results.
+A searchable command palette driven entirely by `useHotkey`, with the keyboard wiring extracted into a composable. Three kinds of binding work together: a global `cmd+j` combination opens the palette from anywhere; GitHub-style sequences — press `g` then `h`, or `g` then `s` — fire actions without opening it at all; and once the palette is open, per-command combinations (`cmd+l`, `cmd+s`, …) run alongside arrow-key navigation through the filtered list. The composable owns every binding and all the state; the component only renders the `Dialog` surface.
 
-`useToggleScope` is the key composition pattern: scoped hotkeys — navigation and per-command shortcuts — are registered only while `isOpen` is `true`, and automatically torn down when the palette closes. This prevents global key conflicts and avoids manual cleanup.
+The key composition pattern is [useToggleScope](/composables/system/use-toggle-scope). The scoped bindings — navigation and the per-command shortcuts — are registered only while `isOpen` is `true` and are torn down automatically when the palette closes, so global keys never collide with palette keys and there is no manual cleanup. Those scoped shortcuts pass `{ inputs: true }` so they keep firing while focus is in the search field; by default `useHotkey` skips text inputs. The sequences reset after `sequenceTimeout` if you pause between keystrokes.
 
-The `computed` filtered list re-derives on every `query` change, and a `watch` on `filtered` resets `selectedIndex` to `0` so the highlight never sits on a stale position. Platform awareness is handled with `IN_BROWSER && navigator.userAgent.includes('Mac')` to display the correct modifier key label.
+Reach for `useHotkey` plus `useToggleScope` whenever a surface needs context-sensitive shortcuts that exist only while it is open — command palettes, modals, sidebars, and feature-specific overlays all share this shape. For one-shot global bindings without scope gating, call `useHotkey` directly. For element-level arrow navigation inside a listbox, reach for [useRovingFocus](/composables/system/use-roving-focus) instead; for the lower-level keyboard plumbing `useHotkey` builds on, see [useEventListener](/composables/system/use-event-listener).
 
-Reach for `useHotkey` + `useToggleScope` whenever a UI surface needs context-sensitive shortcuts that exist only while it is open — command palettes, modals, sidebars, and feature-specific shortcut overlays all benefit from this shape. For simpler one-shot bindings without scope gating, call `useHotkey` directly. For element-level keyboard handling (arrow keys inside a listbox, roving focus), see [useRovingFocus](/composables/system/use-roving-focus).
+| File | Role |
+|------|------|
+| `useCommandPalette.ts` | Composable — owns palette state, the command list, and every `useHotkey` binding (global combination, sequences, scoped per-command shortcuts) |
+| `CommandPalette.vue` | Reusable component — renders the `Dialog`, the search field, and the filtered command list |
+| `command-palette.vue` | Entry — instantiates the composable, shows the last action, and lists the available shortcuts |
+:::
+
+## FAQ
+
+::: faq
+
+??? Do I need a separate `cmd+k` binding for macOS?
+
+No. Modifier mapping is platform-aware, so a `ctrl+k` binding fires with Cmd on macOS. Write the combination once with `ctrl` and let the composable translate it.
+
+??? Why doesn't my hotkey fire while I'm typing in a text field?
+
+By default useHotkey skips text inputs so shortcuts don't hijack typing. Pass `{ inputs: true }` on the binding to keep it active while focus is in an input — common for `escape` to close an open surface.
+
+??? How do I bind a sequence like "press g then h"?
+
+Use a hyphenated string: `useHotkey('g-h', cb)`. The keys must be pressed in order, and the sequence resets after `sequenceTimeout` if you pause between keystrokes.
+
+??? Do I have to use exact `KeyboardEvent.key` names like `escape` or `arrowup`?
+
+No. Keys are normalized before matching, so human-friendly aliases work — `esc`, `return`, `del`, `space`, `up`/`down`/`left`/`right`, `command`, `option`, and more. See the alias table above.
+
+??? Can I change a hotkey binding at runtime?
+
+Yes. The `keys` argument accepts a ref or getter and is watched, so updating it re-registers the binding for the new combination — useful for user-customizable shortcuts.
 
 :::
 

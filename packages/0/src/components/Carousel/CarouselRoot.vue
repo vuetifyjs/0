@@ -260,7 +260,7 @@
     attrs: {
       'role': 'region',
       'aria-roledescription': 'carousel',
-      'aria-label': label ?? locale.t('Carousel.label'),
+      'aria-label': label ?? locale.ti('Carousel.label') ?? 'Carousel',
       'aria-disabled': toValue(step.disabled),
       'data-disabled': toValue(step.disabled) || undefined,
     },

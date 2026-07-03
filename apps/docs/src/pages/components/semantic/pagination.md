@@ -69,7 +69,7 @@ The two core props are `size` (total item count) and `items-per-page` (items per
 
 The Pagination component renders semantic HTML and manages ARIA attributes automatically:
 
-- Wraps controls in a `<nav>` element with `aria-label="pagination"` for landmark navigation
+- Wraps controls in a `<nav>` element whose `aria-label` defaults to `"Pagination"` (localizable via the `Pagination.label` key) for landmark navigation
 - Current page button is marked with `aria-current="page"` so screen readers announce it as the active page
 - Arrow keys navigate between page buttons; Enter and Space select the focused page
 - Page changes are announced to screen readers via `aria-live` region updates
@@ -85,5 +85,31 @@ For custom implementations, use `renderless` mode and bind the `attrs` slot prop
   </Pagination.Root>
 </template>
 ```
+
+## FAQ
+
+::: faq
+
+??? How is the page count determined?
+
+From `size` (total item count) divided by `items-per-page` (default `10`) — for example, 200 items at 25 per page yields 8 pages.
+
+??? Why is my responsive pagination overflowing or miscounting buttons?
+
+Responsive sizing measures one sample button's width, so variable-width buttons (single-digit "1" vs double-digit "50") throw off the fit calculation. Give every page button the same width.
+
+??? How do I keep the ARIA attributes when rendering custom controls?
+
+Use `renderless` mode and bind the `attrs` slot prop to your own `<nav>` — it carries the landmark label, `aria-current="page"`, and the live-region wiring.
+
+??? How do I navigate pages with the keyboard?
+
+Arrow keys move between page buttons, and Enter or Space selects the focused page. Page changes are announced to screen readers through an `aria-live` region.
+
+??? How do I localize the pagination label?
+
+The `<nav>` landmark's `aria-label` defaults to `"Pagination"` and is localizable via the `Pagination.label` key.
+
+:::
 
 <DocsApi />

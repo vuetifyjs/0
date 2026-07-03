@@ -49,16 +49,24 @@ The Collapsible component provides a simple open/closed toggle for a single cont
 
 ## Examples
 
-### Controlled
-
-Bind `v-model` to a `shallowRef<boolean>` to take full control of the open state from outside the component. This is useful when an external trigger — a "Expand all" button, a route change, or a parent form reset — needs to drive the collapsible without the user clicking the activator directly.
-
-The example wires up three buttons (Open, Close, Toggle) that mutate the same `open` ref, and a Switch that toggles the `disabled` prop. When `disabled` is true, the activator becomes non-interactive and both the Root and Activator receive `data-disabled` for CSS styling.
-
-Without `v-model`, the component manages its own internal state starting from `false` (closed). Add `:default-open="true"` to start open in uncontrolled mode.
-
 ::: gn-example
-/components/collapsible/controlled
+/components/collapsible/useFilterPanel.ts 1
+/components/collapsible/FilterPanel.vue 2
+/components/collapsible/filter-panel.vue 3
+
+### Filters sidebar
+
+A product-filters sidebar built from several independent Collapsible sections — Price, Brand, and Rating — whose open state lives in a single reactive map instead of each section tracking its own boolean. Every section binds `v-model` to `open[section.id]`, so the Expand all and Collapse all buttons flip every section at once by mutating that one object, while a user clicking an individual activator still toggles only that section. This externally-owned open state is the main reason to reach for Collapsible over a self-contained accordion: each instance is independent, and you decide where the state lives and who is allowed to change it.
+
+The `Collapsible.Cue` inside each activator mirrors its Root's `data-state`, so the chevron rotation is pure CSS — `data-[state=open]:rotate-180` — with no slot prop or watcher. The filter controls themselves compose other v0 primitives rather than native inputs: Price and Brand use a [Checkbox](/components/forms/checkbox) group with an array `v-model`, and Rating uses a single-select [Radio](/components/forms/radio) group. All three read and write one shared `filters` object that drives the active-filter count and the summary chips below the panel.
+
+Reach for this pattern whenever sections must be controllable from outside — a clear-filters action, deep-linking a specific section open, or restoring panel state from storage. The trade-off is that you own the coordination logic: nothing stops two sections from being open at once. If you instead want strict "only one section open at a time" accordion behavior, use [ExpansionPanel](/components/disclosure/expansion-panel), which coordinates selection across panels through a shared parent context.
+
+| File | Role |
+|------|------|
+| `useFilterPanel.ts` | Owns the section open-state map, filter selections, and the derived count, chips, and expand/collapse/clear actions |
+| `FilterPanel.vue` | Renders the Collapsible sections with Checkbox and Radio controls plus the expand/collapse header |
+| `filter-panel.vue` | Wires the composable to the panel and renders the active-filter summary |
 :::
 
 ::: gn-example
@@ -123,6 +131,8 @@ Collapsible follows the [WAI-ARIA Disclosure pattern](https://www.w3.org/WAI/ARI
 ### Data attributes
 
 All three sub-components expose `data-state="open"` or `data-state="closed"` for CSS-driven styling without JavaScript. The Root and Activator also expose `data-disabled` when the `disabled` prop is set.
+
+## FAQ
 
 ::: faq
 

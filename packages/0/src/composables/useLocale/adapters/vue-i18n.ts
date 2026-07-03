@@ -33,6 +33,10 @@ export class VueI18nLocaleAdapter extends LocaleAdapter {
       : this.composer.t(key)
   }
 
+  ti (key: string, ...params: unknown[]): string | undefined {
+    return this.composer.te(key) ? this.t(key, ...params) : undefined
+  }
+
   n (value: number): string {
     return this.composer.n(value)
   }
