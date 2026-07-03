@@ -24,10 +24,10 @@ A headless component for creating popovers and tooltips using modern CSS anchor 
 
 <DocsBrowserSupport
   feature="CSS Anchor Positioning"
-  :versions="{ chrome: '125+', edge: '125+', firefox: '147+ (beta)' }"
+  :versions="{ chrome: '125+', edge: '125+', firefox: '147+', safari: '26+' }"
   anchor="css-anchor-positioning"
 >
-  The component works in all browsers, but automatic anchor positioning requires CSS Anchor Positioning support. In unsupported browsers, you'll need to position the popover manually or use [Floating UI](https://floating-ui.com).
+  The component works in all browsers, but automatic anchor positioning requires CSS Anchor Positioning support. In older browsers without it, you'll need to position the popover manually or use [Floating UI](https://floating-ui.com).
 </DocsBrowserSupport>
 
 ## Usage
@@ -93,7 +93,7 @@ Set `position-area` on `Popover.Content` to any [CSS `position-area`](https://de
 
 ??? What happens in browsers that don't support CSS Anchor Positioning?
 
-The component still renders and toggles open and closed, but automatic anchor positioning won't apply. In Safari and older browsers, position `Popover.Content` manually or use [Floating UI](https://floating-ui.com).
+The component still renders and toggles open and closed, but automatic anchor positioning won't apply. In older browsers (before Chrome/Edge 125, Firefox 147, or Safari 26), position `Popover.Content` manually or use [Floating UI](https://floating-ui.com).
 
 ??? How do I keep the popover on-screen when the preferred position doesn't fit?
 

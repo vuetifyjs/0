@@ -1,6 +1,6 @@
 // Vuetify0
 // Framework
-import { createStorage, isArray, useLogger } from '@vuetify/v0'
+import { createStorage, isArray, isNull, useLogger } from '@vuetify/v0'
 
 import { CACHE_TTL } from '@/constants/cache'
 import { type ResolvedFeature, auditBuckets, featuresFor } from '@/constants/roadmap-buckets'
@@ -35,37 +35,43 @@ const REPO = 'vuetifyjs/0'
 const storage = createStorage({ prefix: 'v0-roadmap:', ttl: CACHE_TTL })
 const logger = useLogger()
 
+const VERSION = /^v?(\d+)\.(\d+)\.(\d+)/
+
+function version (title: string): number | null {
+  const match = title.match(VERSION)
+  if (isNull(match)) return null
+  return Number(match[1]) * 1e6 + Number(match[2]) * 1e3 + Number(match[3])
+}
+
 /**
- * Assigns horizons based on due date order:
- * - 1st by due date = now (actively being worked on)
+ * Assigns horizons by release order:
+ * - 1st = now (actively being worked on)
  * - 2nd-3rd = next
- * - 4th+ or no due date = later
+ * - 4th+ = later
+ *
+ * Release order comes from the version in the milestone title (v1.0.0 ships
+ * before v1.1.0), not the due date — due dates get cleared to TBD while a
+ * release stabilizes (e.g. during RC), which must not drop the active
+ * milestone out of "now". Non-version titles sort after versioned ones,
+ * by due date then milestone number.
  */
 function assignHorizons (milestones: GitHubMilestone[]): Milestone[] {
-  // Separate by due date presence
-  const withDueDate = milestones.filter(m => m.due_on)
-  const withoutDueDate = milestones.filter(m => !m.due_on)
+  const sorted = milestones.toSorted((a, b) => {
+    const av = version(a.title)
+    const bv = version(b.title)
+    if (!isNull(av) && !isNull(bv)) return av - bv
+    if (!isNull(av) || !isNull(bv)) return isNull(av) ? 1 : -1
+    const ad = a.due_on ? new Date(a.due_on).getTime() : Number.POSITIVE_INFINITY
+    const bd = b.due_on ? new Date(b.due_on).getTime() : Number.POSITIVE_INFINITY
+    return (ad - bd) || (a.number - b.number)
+  })
 
-  // Sort by due date (ascending - soonest first)
-  withDueDate.sort((a, b) =>
-    new Date(a.due_on!).getTime() - new Date(b.due_on!).getTime(),
-  )
-
-  // Assign horizons by position
-  const assigned: Milestone[] = withDueDate.map((m, index) => {
+  return sorted.map((m, index) => {
     let horizon: TimeHorizon = 'later'
     if (index === 0) horizon = 'now'
     else if (index <= 2) horizon = 'next'
     return { ...m, horizon }
   })
-
-  // Milestones without due dates are "later"
-  const later: Milestone[] = withoutDueDate.map(m => ({
-    ...m,
-    horizon: 'later',
-  }))
-
-  return [...assigned, ...later]
 }
 
 function isRateLimited (status: number): boolean {
