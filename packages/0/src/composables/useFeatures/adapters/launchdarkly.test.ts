@@ -119,9 +119,7 @@ describe('launchDarklyFeaturesAdapter', () => {
   describe('prototype pollution', () => {
     it('should skip unsafe flag keys', () => {
       const mockClient = createMockClient()
-      const allFlags: Record<string, unknown> = { safe: { color: 'blue' } }
-      Object.defineProperty(allFlags, '__proto__', { value: { color: 'evil' }, enumerable: true, configurable: true, writable: true })
-      Object.defineProperty(allFlags, 'constructor', { value: { color: 'evil' }, enumerable: true, configurable: true, writable: true })
+      const allFlags = JSON.parse('{"safe": {"color": "blue"}, "__proto__": {"color": "evil"}, "constructor": {"color": "evil"}}')
       mockClient.allFlags.mockReturnValue(allFlags)
 
       const adapter = new LaunchDarklyFeaturesAdapter(mockClient as never)

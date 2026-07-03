@@ -12,9 +12,7 @@ describe('v0Error', () => {
   })
 
   it('should not copy prototype-polluting detail keys', () => {
-    const details: Record<string, unknown> = { code: 'V0_CONTEXT_MISSING', key: 'v0:test' }
-    Object.defineProperty(details, '__proto__', { value: { polluted: true }, enumerable: true, configurable: true, writable: true })
-    Object.defineProperty(details, 'constructor', { value: { polluted: true }, enumerable: true, configurable: true, writable: true })
+    const details = JSON.parse('{"code": "V0_CONTEXT_MISSING", "key": "v0:test", "__proto__": {"polluted": true}, "constructor": {"polluted": true}}')
 
     const err = new V0Error('missing', details as never)
 

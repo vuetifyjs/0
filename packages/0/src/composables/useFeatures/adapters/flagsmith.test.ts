@@ -122,9 +122,7 @@ describe('flagsmithFeaturesAdapter', () => {
   describe('prototype pollution', () => {
     it('should skip unsafe flag keys', () => {
       const mockClient = createMockClient()
-      const allFlags: Record<string, unknown> = { safe: { enabled: true, value: 'ok' } }
-      Object.defineProperty(allFlags, '__proto__', { value: { enabled: true, value: 'evil' }, enumerable: true, configurable: true, writable: true })
-      Object.defineProperty(allFlags, 'constructor', { value: { enabled: true, value: 'evil' }, enumerable: true, configurable: true, writable: true })
+      const allFlags = JSON.parse('{"safe": {"enabled": true, "value": "ok"}, "__proto__": {"enabled": true, "value": "evil"}, "constructor": {"enabled": true, "value": "evil"}}')
       mockClient.getAllFlags.mockReturnValue(allFlags)
 
       const adapter = new FlagsmithFeaturesAdapter(mockClient as never, { environmentID: 'test-env' })

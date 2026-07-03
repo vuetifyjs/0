@@ -84,9 +84,9 @@ export class V0Error extends Error {
     super(message, isUndefined(cause) ? undefined : { cause })
     this.code = details.code
 
-    for (const key in rest) {
-      if (UNSAFE_KEYS.has(key) || !Object.hasOwn(rest, key)) continue
-      ;(this as Record<string, unknown>)[key] = (rest as Record<string, unknown>)[key]
+    for (const [key, value] of Object.entries(rest)) {
+      if (UNSAFE_KEYS.has(key)) continue
+      ;(this as Record<string, unknown>)[key] = value
     }
   }
 }
