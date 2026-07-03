@@ -1,3 +1,6 @@
+// Framework
+import { mergeDeep } from '@vuetify/v0/utilities'
+
 // Utilities
 import { toKebabCase } from '#paper/utilities/helpers'
 import { computed, provide, ref, watchEffect } from 'vue'
@@ -131,17 +134,17 @@ export function DEFAULT_DARK (): Theme {
 // reject color keys that aren't safe identifiers and values carrying dangerous CSS
 // before they are interpolated into the injected <style> element.
 const SAFE_IDENT = /^[a-zA-Z0-9_-]+$/
-const UNSAFE_CSS = /url\s*\(|@import|expression\s*\(|[{}<>]/i
+const UNSAFE_CSS = /url\s*\(|src\s*\(|image\s*\(|image-set\s*\(|cross-fade\s*\(|@import|expression\s*\(|[;{}<>\\]/i
 
 export function createTheme (options: ThemeOptions) {
   const styleEl = ref()
   const theme = ref<ThemeOptions>({
     auto: options.auto ?? true,
     current: options.current,
-    themes: structuredClone({
+    themes: structuredClone(mergeDeep<Record<string, Theme>>({
       light: DEFAULT_LIGHT(),
       dark: DEFAULT_DARK(),
-    }, options.themes),
+    }, options.themes)),
   })
 
   const css = computed(() => {
