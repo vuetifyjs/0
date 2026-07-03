@@ -45,12 +45,11 @@ These features require the latest browser versions and may not work in all brows
 
 | Feature | <AppBrowserIcon browser="chrome" /> | <AppBrowserIcon browser="firefox" /> | <AppBrowserIcon browser="safari" /> | <AppBrowserIcon browser="edge" /> | Fallback |
 |---------|---:|---:|---:|---:|----------|
-| [CSS Anchor Positioning](https://caniuse.com/css-anchor-positioning) | 125+ | 147+ | —[^safari-anchor] | 125+ | Properties ignored |
+| [CSS Anchor Positioning](https://caniuse.com/css-anchor-positioning) | 125+ | 147+ | 26+ | 125+ | Properties ignored |
 | [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) | 114+ | 125+ | 17+ | 114+ | Optional chaining |
-| [Scrollend Event](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event) | 112+ | 109+ | 18+ | 112+ | Falls back to scroll |
+| [Scrollend Event](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event) | 114+ | 109+ | 26.2+ | 114+ | Falls back to scroll |
 | [Temporal](https://caniuse.com/temporal) | 144+ | 139+ | —[^safari-temporal] | 144+ | `@js-temporal/polyfill` |
 
-[^safari-anchor]: Safari support for CSS Anchor Positioning is not yet available; track at [WebKit Bug 286106](https://bugs.webkit.org/show_bug.cgi?id=286106). Firefox 147+ requires the beta channel.
 [^safari-temporal]: Temporal is not yet in stable Safari (available in Safari Technology Preview). `useDate`'s `V0DateAdapter` automatically uses the [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) peer when native Temporal is absent. The API reached TC39 Stage 4 (ES2026) in 2026.
 
 ### Well-Supported Features
@@ -126,14 +125,14 @@ The documentation site uses these modern CSS and browser features:
 
 ### CSS Anchor Positioning
 
-The `Popover` component uses CSS Anchor Positioning for automatic placement relative to trigger elements. This is a new CSS feature with limited support:
+The `Popover` component uses CSS Anchor Positioning for automatic placement relative to trigger elements. Support landed in all major engines between mid-2024 and early 2026, so only recent versions have it:
 
 - <AppBrowserIcon browser="chrome" /> **Chrome 125+**: Full support
 - <AppBrowserIcon browser="edge" /> **Edge 125+**: Full support
-- <AppBrowserIcon browser="firefox" /> **Firefox 147+**: Beta support only
-- <AppBrowserIcon browser="safari" /> **Safari**: Not yet supported
+- <AppBrowserIcon browser="firefox" /> **Firefox 147+**: Full support
+- <AppBrowserIcon browser="safari" /> **Safari 26+**: Full support
 
-When anchor positioning is unavailable, the CSS properties are simply ignored. Consider using a JavaScript positioning library like [Floating UI](https://floating-ui.com) for broader browser support.
+When anchor positioning is unavailable, the CSS properties are simply ignored. Consider using a JavaScript positioning library like [Floating UI](https://floating-ui.com) if you need to support older browser versions.
 
 ### Popover API
 

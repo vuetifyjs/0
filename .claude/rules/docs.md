@@ -249,29 +249,29 @@ Don't use a footnote for:
 - Information that applies to the whole table or page — that's still a TIP/NOTE block.
 - Short qualifiers (1–4 words) that read fine inline — e.g. `(zero-padded)`, `(0-indexed)`, `(includes NaN)`.
 
-**Naming:** short kebab identifiers tied to the row content, not numbered. `[^safari-anchor]`, not `[^1]` — survives reorder, scans better in source, makes the link descriptive when the footnote text is far from the anchor.
+**Naming:** short kebab identifiers tied to the row content, not numbered. `[^safari-temporal]`, not `[^1]` — survives reorder, scans better in source, makes the link descriptive when the footnote text is far from the anchor.
 
 ```markdown
 <!-- Right -->
 | Feature | Safari | Fallback |
 |---------|--------|----------|
-| [CSS Anchor Positioning](https://...) | —[^safari-anchor] | Properties ignored |
+| [Temporal](https://...) | —[^safari-temporal] | `@js-temporal/polyfill` |
 
-[^safari-anchor]: Not yet implemented in Safari; track at [WebKit Bug 286106](https://bugs.webkit.org/show_bug.cgi?id=286106).
+[^safari-temporal]: Not yet in stable Safari (available in Safari Technology Preview).
 
 <!-- Wrong — caveat wedged into cell, breaks row alignment -->
-| [CSS Anchor Positioning](https://...) | — (Not yet supported in Safari; tracking at WebKit) | Properties ignored |
+| [Temporal](https://...) | — (Not yet in stable Safari; available in Technology Preview) | `@js-temporal/polyfill` |
 
 <!-- Wrong — TIP block restating one row's caveat -->
-| [CSS Anchor Positioning](https://...) | — | Properties ignored |
+| [Temporal](https://...) | — | `@js-temporal/polyfill` |
 
 > [!TIP]
-> CSS Anchor Positioning is not yet supported in Safari; track at WebKit Bug 286106.
+> Temporal is not yet available in stable Safari; it ships in Safari Technology Preview.
 ```
 
 Real worked examples on master:
 
-- `apps/docs/src/pages/introduction/browser-support.md` — `[^safari-anchor]` on the Cutting-Edge Features table.
+- `apps/docs/src/pages/introduction/browser-support.md` — `[^safari-temporal]` on the Cutting-Edge Features table.
 - `apps/docs/src/pages/composables/index.md` — `[^plugin-install]` on the Plugin consumers row.
 - `apps/docs/src/pages/composables/plugins/use-date.md` — `[^temporal]` on the adapter's polyfill requirement.
 - `apps/docs/src/pages/guide/features/accessibility.md` — `[^pagination-nav]` and `[^popover-native]` on the ARIA attributes table.
