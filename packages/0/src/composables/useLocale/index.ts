@@ -33,6 +33,9 @@ import { createTokens, flatten } from '#v0/composables/createTokens'
 // Adapters
 import { V0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
 
+// Utilities
+import { isNumber, isString } from '#v0/utilities'
+
 // Types
 import type { SingleContext, SingleOptions, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
 import type { TokenCollection } from '#v0/composables/createTokens'
@@ -214,7 +217,7 @@ export const [createLocaleContext, createLocalePlugin, useLocale] =
       fallback: () => createLocaleFallback(),
       persist: ctx => ctx.selectedId.value,
       restore: (ctx, saved) => {
-        if (typeof saved === 'string' || typeof saved === 'number') ctx.select(saved)
+        if (isString(saved) || isNumber(saved)) ctx.select(saved)
       },
     },
   )
