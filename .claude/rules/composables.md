@@ -206,7 +206,7 @@ See PHILOSOPHY §2.9 for the three-way split (throw / warn / return) and the ful
 Child spreads parent and adds or overrides: [intent:142]
 
 ```ts
-// packages/0/src/composables/createSelection/index.ts:296
+// packages/0/src/composables/createSelection/index.ts:299
 const model = createModel(options)
 return { ...model, multiple, register, onboard, unselect, toggle, apply, mandate, seek }
 ```
@@ -270,7 +270,7 @@ restore: (context, saved) => {
 },
 ```
 
-`useLocale`, `useTheme`, and `useRtl` still blind-cast (`saved as ID` / `saved as boolean`) — sweep pending; don't add new blind casts.
+`useLocale`, `useTheme`, and `useRtl` all validate the persisted value with `#v0/utilities` type guards (`isString` / `isNumber` / `isBoolean`) before applying it — the blind-cast sweep is complete; don't reintroduce `saved as T` or raw `typeof` comparisons.
 
 #### Fallback contract — required for every plugin
 

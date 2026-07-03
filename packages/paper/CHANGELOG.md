@@ -1,5 +1,19 @@
 # @vuetify/paper
 
+## 1.0.0-rc.6
+
+### Patch Changes
+
+- Updated dependencies [[`38b27ed`](https://github.com/vuetifyjs/0/commit/38b27edba93ecf4b2f9f9fb4d323bce0f4504d05)]:
+  - @vuetify/v0@1.0.0-rc.6
+
+## 1.0.0-beta.5
+
+### Patch Changes
+
+- Updated dependencies [[`fe12826`](https://github.com/vuetifyjs/0/commit/fe12826195d1d887681c9bab67506de2ddd7b391)]:
+  - @vuetify/v0@1.0.0-beta.5
+
 ## 1.0.0-beta.4
 
 ### Patch Changes

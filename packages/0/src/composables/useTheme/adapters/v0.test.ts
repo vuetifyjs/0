@@ -490,6 +490,28 @@ describe('v0StyleSheetThemeAdapter', () => {
       expect(css).toContain('--v0-primary: #1976d2')
     })
 
+    it('should drop values carrying dangerous CSS from generated output', () => {
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      const css = adapter.generate(
+        {
+          light: {
+            primary: '#1976d2',
+            breakout: 'red } body { display: none',
+            beacon: 'url(https://evil.example/x)',
+            declaration: 'red; background-image: image-set("https://evil.example/x.png" 1x)',
+            escape: String.raw`\75 rl(https://evil.example/x)`,
+          },
+        },
+        false,
+      )
+
+      expect(css).toContain('--v0-primary: #1976d2')
+      expect(css).not.toContain('evil.example')
+      expect(css).not.toContain('display: none')
+      expect(css).not.toContain('image-set')
+    })
+
     it('should ignore null selectedId in watcher', async () => {
       const app = createMockApp()
       const el = document.createElement('div')

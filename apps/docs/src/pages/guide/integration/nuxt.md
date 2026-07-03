@@ -90,7 +90,27 @@ The hydration plugin:
 
 ### Theme SSR Integration
 
-The theme plugin automatically integrates with Nuxt's `@unhead/vue` to inject styles during SSR. No additional configuration required.
+The default theme adapter (`V0StyleSheetThemeAdapter`) injects CSS via `document.adoptedStyleSheets`, a client-only API — it renders nothing during SSR. Under Nuxt this ships a themeless server response that repaints once the client hydrates, causing a flash of unstyled content.
+
+For SSR, opt into `V0UnheadThemeAdapter`. It renders the `<style>` tag and `data-theme` attribute into the initial HTML via [Unhead](https://unhead.unjs.io/) — the head manager Nuxt already ships — so the correct theme is present before hydration:
+
+```ts plugins/v0.ts
+import { createThemePlugin } from '@vuetify/v0'
+import { V0UnheadThemeAdapter } from '@vuetify/v0/theme/adapters/unhead'
+
+export default defineNuxtPlugin((nuxtApp) => {
+  nuxtApp.vueApp.use(
+    createThemePlugin({
+      adapter: new V0UnheadThemeAdapter(),
+      default: 'light',
+      themes: {
+        light: { dark: false, colors: { primary: '#3b82f6' } },
+        dark: { dark: true, colors: { primary: '#60a5fa' } },
+      },
+    }),
+  )
+})
+```
 
 ## Theme Persistence
 
@@ -165,7 +185,7 @@ To sync theme changes back to the cookie:
 | Feature | SSR Support | Notes |
 | - | - | - |
 | Components | Full | All compound components work in SSR |
-| `useTheme` | Full | Auto-injects styles via Nuxt head manager |
+| `useTheme` | Partial | Client-only by default; pass `adapter: new V0UnheadThemeAdapter()` for SSR'd styles |
 | `useHydration` | Full | Designed for SSR/client state sync |
 | `useBreakpoints` | Full | Pass `ssr` option for server-side viewport matching |
 | `useStorage` | Partial | Uses memory adapter on server |
@@ -258,9 +278,6 @@ When you see hydration warnings in the console:
 
 ```ts nuxt.config.ts
 export default defineNuxtConfig({
-  vue: {
-    propsDestructure: true,
-  },
   vite: {
     define: {
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true,

@@ -1,5 +1,14 @@
 # @paper/genesis
 
+## 1.0.0-beta.4
+
+### Patch Changes
+
+- [#459](https://github.com/vuetifyjs/0/pull/459) [`d4b434d`](https://github.com/vuetifyjs/0/commit/d4b434dc3e2591eef93733387281f4a6bab8fa05) Thanks [@johnleider](https://github.com/johnleider)! - chore(GnDocsExample): expose `data-tour` hooks on the docs-example surface — `example-preview` on the preview panel (GnDocsExamplePreview), `example-toggle` on the Show-code toggle, `example-expand` on the peek Expand pill (GnPeek instance), and `example-tabs` on the multi-file tab bar (GnDocsExampleTabs). Stable, docs-consumer-addressable anchors for the v0 docs' guided-tour system to spotlight and drive the example without wrapper components. Purely additive; no visual or behavioral change.
+
+- Updated dependencies [[`fe12826`](https://github.com/vuetifyjs/0/commit/fe12826195d1d887681c9bab67506de2ddd7b391)]:
+  - @vuetify/v0@1.0.0-beta.5
+
 ## 1.0.0-beta.3
 
 ### Patch Changes

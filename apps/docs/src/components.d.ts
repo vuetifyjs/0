@@ -133,6 +133,7 @@ declare module 'vue' {
     DocsFreshnessTable: typeof import('./components/docs/DocsFreshnessTable.vue')['default']
     DocsGenesisExample: typeof import('./components/docs/DocsGenesisExample.vue')['default']
     DocsGenesisShikiBlock: typeof import('./components/docs/DocsGenesisShikiBlock.vue')['default']
+    DocsGraduation: typeof import('./components/docs/DocsGraduation.vue')['default']
     DocsHeaderAnchor: typeof import('./components/docs/DocsHeaderAnchor.vue')['default']
     DocsHighlight: typeof import('./components/docs/DocsHighlight.vue')['default']
     DocsKbd: typeof import('./components/docs/DocsKbd.vue')['default']

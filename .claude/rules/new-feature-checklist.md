@@ -104,7 +104,9 @@ Shoehorning a feature into a category that doesn't fit creates compound confusio
 
 ### Maturity matrix — where each level lives
 
-`maturity.json` is the single source of truth. Every entry has `level` and `category`, plus an optional `notes` field. `since` is required from `preview` onward and may be omitted on `draft` entries (no implementation has shipped yet). Once a feature is implemented, the entry should carry `since: null` until a maintainer cuts the release that first ships it — at which point `since` is flipped to that version. `since` and `level` are independent: `level` tracks API stability; `since` tracks first-release version. A `preview` feature carries a real `since` once it ships in any release.
+`maturity.json` is the single source of truth. Every entry has `level` and `category`, plus optional `notes` and `description` fields. `since` is required from `preview` onward and may be omitted on `draft` entries (no implementation has shipped yet). Once a feature is implemented, the entry should carry `since: null` until a maintainer cuts the release that first ships it — at which point `since` is flipped to that version. `since` and `level` are independent: `level` tracks API stability; `since` tracks first-release version. A `preview` feature carries a real `since` once it ships in any release.
+
+`description` is a short, plain 1-2 sentence blurb of the feature, filled in on the same timing as `since` — required from `preview` onward, once the feature has a docs page; omit it on `draft` entries with no page yet.
 
 ```json
 {

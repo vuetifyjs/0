@@ -154,7 +154,7 @@ export function createContext<Z> (
 ) {
   // Static key mode: createContext('my-key') or createContext(Symbol())
   if (isString(keyOrOptions) || isSymbol(keyOrOptions)) {
-    // console.warn (not useLogger) — createContext is Layer 0, cannot import useLogger without circular dep
+    // PHILOSOPHY §9.2 Layer-0 exception: createContext is Layer 0, cannot import useLogger without a circular dep
     if (__DEV__ && isString(keyOrOptions) && !keyOrOptions.includes(':')) {
       console.warn(
         `[v0:context] String key "${keyOrOptions}" has no namespace separator. `

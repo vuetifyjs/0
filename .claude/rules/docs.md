@@ -249,29 +249,29 @@ Don't use a footnote for:
 - Information that applies to the whole table or page — that's still a TIP/NOTE block.
 - Short qualifiers (1–4 words) that read fine inline — e.g. `(zero-padded)`, `(0-indexed)`, `(includes NaN)`.
 
-**Naming:** short kebab identifiers tied to the row content, not numbered. `[^safari-anchor]`, not `[^1]` — survives reorder, scans better in source, makes the link descriptive when the footnote text is far from the anchor.
+**Naming:** short kebab identifiers tied to the row content, not numbered. `[^safari-temporal]`, not `[^1]` — survives reorder, scans better in source, makes the link descriptive when the footnote text is far from the anchor.
 
 ```markdown
 <!-- Right -->
 | Feature | Safari | Fallback |
 |---------|--------|----------|
-| [CSS Anchor Positioning](https://...) | —[^safari-anchor] | Properties ignored |
+| [Temporal](https://...) | —[^safari-temporal] | `@js-temporal/polyfill` |
 
-[^safari-anchor]: Not yet implemented in Safari; track at [WebKit Bug 286106](https://bugs.webkit.org/show_bug.cgi?id=286106).
+[^safari-temporal]: Not yet in stable Safari (available in Safari Technology Preview).
 
 <!-- Wrong — caveat wedged into cell, breaks row alignment -->
-| [CSS Anchor Positioning](https://...) | — (Not yet supported in Safari; tracking at WebKit) | Properties ignored |
+| [Temporal](https://...) | — (Not yet in stable Safari; available in Technology Preview) | `@js-temporal/polyfill` |
 
 <!-- Wrong — TIP block restating one row's caveat -->
-| [CSS Anchor Positioning](https://...) | — | Properties ignored |
+| [Temporal](https://...) | — | `@js-temporal/polyfill` |
 
 > [!TIP]
-> CSS Anchor Positioning is not yet supported in Safari; track at WebKit Bug 286106.
+> Temporal is not yet available in stable Safari; it ships in Safari Technology Preview.
 ```
 
 Real worked examples on master:
 
-- `apps/docs/src/pages/introduction/browser-support.md` — `[^safari-anchor]` on the Cutting-Edge Features table.
+- `apps/docs/src/pages/introduction/browser-support.md` — `[^safari-temporal]` on the Cutting-Edge Features table.
 - `apps/docs/src/pages/composables/index.md` — `[^plugin-install]` on the Plugin consumers row.
 - `apps/docs/src/pages/composables/plugins/use-date.md` — `[^temporal]` on the adapter's polyfill requirement.
 - `apps/docs/src/pages/guide/features/accessibility.md` — `[^pagination-nav]` and `[^popover-native]` on the ARIA attributes table.
@@ -293,6 +293,21 @@ Real worked examples on master:
 | `` ```vue Anatomy no-filename `` `` | Anatomy structural map (bare compound skeleton; not playground-linked) |
 | `` ```ts collapse `` `` | Collapsible code block |
 | `` ```ts no-filename `` `` | Hide filename in code block |
+
+## Runtime markdown
+
+Markdown that arrives at runtime (GitHub API bodies/descriptions, AI responses) renders through the single shared pipeline in `@/composables/useMarkdown`:
+
+- `useMarkdown(content)` — full documents (Shiki code blocks, callouts, tables). Consumers: `DocsAskMessage`, `DocsReleases`.
+- `renderInline(text)` — single lines inside `p`/`li` (e.g. roadmap milestone descriptions).
+
+Rules:
+
+- **Never instantiate `Marked` in a component** — extend `useMarkdown` instead. Duplicated configs drift (this is how `DocsReleases` and `DocsRoadmap` diverged before #485/#487).
+- **Never interpolate markdown-bearing API text with `{{ }}`** — raw `**`/`[]()` syntax leaks to the reader.
+- Link decoration comes from `processLinks` (`v0-link` class, `target=_blank`, `↗︎` suffix) so runtime content matches build-time markdown. Don't hand-roll link renderers or add `[&_a]` utility overrides.
+- **Trust boundary for `v-html`:** maintainer-authored content only (milestone descriptions, release bodies). Community-authored strings (issue titles, PR titles) must be HTML-escaped before rendering — marked passes raw inline HTML through.
+- Callout (`data-alert`) and mermaid placeholders render empty unless the consumer mounts them (see `DocsAskMessage`). If new runtime content can contain callouts, reuse that mounting pattern.
 
 ## API Reference
 
@@ -481,3 +496,4 @@ Real worked examples:
 - [ ] Stable features expose playground-enabled fences/examples
 - [ ] No orphaned example files after edits; `pnpm repo:check` clean
 - [ ] Mermaid diagrams used for architecture/state/flow, not for content that belongs in tables
+- [ ] Runtime markdown rendered via `useMarkdown`/`renderInline` — no component-local `Marked` instances, no plain interpolation of API-sourced markdown
