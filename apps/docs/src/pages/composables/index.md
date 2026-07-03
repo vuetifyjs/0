@@ -18,6 +18,8 @@ Type-safe composables for headless UI — <DocsCount type="composable" /> of the
 
 <DocsPageFeatures :frontmatter />
 
+> [!TOUR] using-examples
+
 ## Minimal Reactivity
 
 Vuetify0 composables use the absolute minimum reactivity required to fulfill their responsibilities. This deliberate constraint keeps bundle sizes small, maximizes performance, and gives you full control over what triggers updates.

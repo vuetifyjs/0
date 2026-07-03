@@ -79,6 +79,8 @@ See v0 patterns in production.
 > [!TIP]
 > New to v0? Start with Track A. Already building? Jump to Track B as needed.
 
+> [!TOUR] using-the-docs
+
 ## Migrating to Headless
 
 If you have an existing styled component library and want to adopt v0's headless approach:

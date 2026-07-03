@@ -9,7 +9,7 @@
 import { FeaturesAdapter } from './adapter'
 
 // Utilities
-import { isBoolean } from '#v0/utilities'
+import { isBoolean, UNSAFE_KEYS } from '#v0/utilities'
 
 // Types
 import type { FeaturesAdapterFlags } from './adapter'
@@ -26,6 +26,8 @@ export class LaunchDarklyFeaturesAdapter extends FeaturesAdapter {
       const flags: FeaturesAdapterFlags = {}
 
       for (const [key, value] of Object.entries(allFlags)) {
+        if (UNSAFE_KEYS.has(key)) continue
+
         flags[key] = isBoolean(value)
           ? value
           : { $value: true, $variation: value }

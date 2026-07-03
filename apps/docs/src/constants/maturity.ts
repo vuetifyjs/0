@@ -19,6 +19,7 @@ export interface MaturityEntry {
   category: string
   since?: string | null
   notes?: string
+  description?: string
 }
 
 /** Typed view of the `maturity.json` import (which otherwise infers `level: string`). */

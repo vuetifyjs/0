@@ -121,6 +121,7 @@ Form state and validation:
 | [createInput](/composables/forms/create-input) | Shared form field primitive with ARIA IDs |
 | [createNumberField](/composables/forms/create-number-field) | Numeric input with formatting, parsing, and stepping |
 | [createNumeric](/composables/forms/create-numeric) | Bounded numeric math with step and clamp |
+| [createOtp](/composables/forms/create-otp) | Fixed-length OTP / verification-code value with pattern-gated entry |
 | [createRating](/composables/forms/create-rating) | Bounded rating with discrete items |
 | [createSlider](/composables/forms/create-slider) | Multi-thumb slider with step snapping |
 | [createValidation](/composables/forms/create-validation) | Per-field validation lifecycle |
@@ -160,6 +161,7 @@ Filtering, pagination, and virtualization for collections:
 
 | Composable | Purpose |
 | - | - |
+| [createDataGrid](/composables/data/create-data-grid) | Column layout, cell editing, and row spanning for data tables |
 | [createDataTable](/composables/data/create-data-table) | Data table with sort, filter, paginate, and select |
 | [createFilter](/composables/data/create-filter) | Array filtering |
 | [createKanban](/composables/data/create-kanban) | Two-level sortable board with cross-column transfer |
