@@ -139,9 +139,11 @@ export default defineConfig({
       '@build': fileURLToPath(new URL('build', import.meta.url)),
       '@vuetify/v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '@vuetify/paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
+      '@paper/genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
       // internal
       '#v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
+      '#genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
     },
   },
   server: {

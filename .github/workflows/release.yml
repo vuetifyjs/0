@@ -2,55 +2,80 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - master
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   release:
     permissions:
-      id-token: write
-      contents: write
+      id-token: write # npm OIDC trusted publishing (tokenless)
+      contents: write # push the version commit + tags, create releases
+      pull-requests: write # open/update the "Version Packages" PR
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Verify tag is on master
-        env:
-          TAG_SHA: ${{ github.sha }}
-          TAG_NAME: ${{ github.ref_name }}
-        run: |
-          git fetch origin master
-          if ! git merge-base --is-ancestor "$TAG_SHA" origin/master; then
-            echo "::error::Tag $TAG_NAME ($TAG_SHA) is not an ancestor of origin/master. Refusing to release from an off-master commit."
-            exit 1
-          fi
-
       - name: Install pnpm
         uses: pnpm/action-setup@v6
 
+      # No registry-url on purpose: tokenless OIDC publishing (npm >= 11.5.1)
+      # resolves the public registry itself. Setting registry-url makes setup-node
+      # write an `.npmrc` `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}` line;
+      # with NODE_AUTH_TOKEN unset that empty token can 401 ("need: BASIC") instead
+      # of falling through to OIDC.
       - name: Set node
         uses: actions/setup-node@v6
         with:
-          node-version: lts/*
+          node-version-file: .nvmrc
           cache: pnpm
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Install
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
-      - name: GitHub release
-        run: pnpm conventional-github-releaser -p vuetify
-        env:
-          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build
-        run: pnpm build
-
-      # Ensure npm 11.5.1 or later is installed
-      - name: Update NPM
+      # OIDC trusted publishing requires npm >= 11.5.1
+      - name: Update npm
         run: npm install -g npm@latest
 
-      - name: Publish to NPM
-        run: pnpm -r publish --access public --no-git-checks
+      # When changesets are present this opens/updates the "Version Packages" PR
+      # (runs `changeset version`). When none remain (that PR was merged) it runs
+      # the publish command — `pnpm build && changeset publish` — which publishes
+      # every package whose version is not yet on npm (substrate + @paper/*),
+      # tokenless via OIDC. Per-package GitHub releases are disabled (which also
+      # means the action does not push the per-package tags); the aggregate
+      # releases — and their tags — are minted in the GitHub releases step below.
+      # Pinned by SHA (v1.9.0) because this step holds id-token: write.
+      - name: Changesets
+        id: changesets
+        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
+        with:
+          version: pnpm changeset version
+          publish: pnpm release
+          createGithubReleases: false
+          commit: 'chore: version packages'
+          title: 'chore: version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Fail loud if any just-published version is not actually visible on npm yet
+      # (guards the partial-publish / propagation-lag failure mode).
+      - name: Verify published
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
+        run: node scripts/verify-published.js
+
+      # One aggregate GitHub Release for the substrate (@vuetify/v0 + @vuetify/paper
+      # share a version) on a `v*` tag, so downstream tooling keyed off a single
+      # versioned release keeps working, plus a separate release for each design
+      # system (@paper/*). Runs last so a red publish/verify never mints a release.
+      - name: GitHub releases
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_SHA: ${{ github.sha }}
+          PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
+        run: node scripts/github-release.js

@@ -76,7 +76,7 @@
         class="relative overflow-hidden p-6 rounded-xl border bg-surface text-center"
         :style="{ '--reveal-index': 0 }"
       >
-        <AppDotGrid :coverage="60" :density="12" origin="top left" />
+        <AppDotGrid :coverage="60" origin="top left" />
 
         <div class="relative stat-number">{{ opsCount }}M+</div>
         <div class="relative stat-label">ops/s peak</div>
@@ -94,7 +94,7 @@
         class="relative overflow-hidden p-6 rounded-xl border bg-surface text-center"
         :style="{ '--reveal-index': 2 }"
       >
-        <AppDotGrid :coverage="60" :density="12" />
+        <AppDotGrid :coverage="60" />
 
         <div class="relative stat-number">{{ testCount }}+</div>
         <div class="relative stat-label">unit tests</div>

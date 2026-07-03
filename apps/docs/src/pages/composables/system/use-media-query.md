@@ -79,12 +79,34 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-media-query/basic
 
 ### Dynamic Min-Width Detection
 
-Reactively detects landscape orientation and a slider-adjustable min-width threshold, showing how media queries update live as conditions change.
+Two media queries running in parallel: a static `(orientation: landscape)` check and a dynamic `(min-width: Npx)` query whose threshold is controlled by a `Slider`. Dragging the slider updates `minWidth`, which flows into a getter passed to `useMediaQuery` — the composable re-evaluates the query string reactively and updates `isWide` without any manual teardown or re-registration.
+
+The key detail is the getter form: `` () => `(min-width: ${minWidth.value}px)` `` — a function rather than a plain string. `useMediaQuery` watches for getter changes, disconnects the previous `MediaQueryList` listener, and attaches a new one for the updated query. Pass a plain string when the query is constant; pass a getter (or a `Ref<string>`) when it depends on reactive state.
+
+Both `matches` refs are `shallowRef`, so reads in templates are direct boolean values — no `.value` unwrapping needed in the interpolation. Reach for `useMediaQuery` when you need a single custom query; reach for [useBreakpoints](/composables/plugins/use-breakpoints) when you need a named set of named viewport tiers across the whole application.
+
+:::
+
+## FAQ
+
+::: faq
+
+??? When should I use useMediaQuery vs useBreakpoints?
+
+Use useMediaQuery for a single custom query string like `(orientation: landscape)`. Use [useBreakpoints](/composables/plugins/use-breakpoints) when you need a named set of viewport tiers shared across the whole application.
+
+??? How do I make the query itself reactive?
+
+Pass a getter or a `Ref<string>` instead of a plain string. When the value changes, useMediaQuery disconnects the old `MediaQueryList` listener and attaches one for the new query. Use a plain string only when the query is constant.
+
+??? Is there a shortcut for common queries like dark mode or reduced motion?
+
+Yes. `usePrefersDark`, `usePrefersReducedMotion`, and `usePrefersContrast` are built on useMediaQuery and wrap the matching `prefers-*` media features.
 
 :::
 

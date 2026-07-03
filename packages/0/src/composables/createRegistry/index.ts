@@ -62,7 +62,7 @@ export interface RegistryTicket<V = unknown> {
   /**
    * The index of the ticket in the registry.
    *
-   * @remarks Automatically managed by the registry. Updated during reindexing. It's not recommended to manually set this.
+   * @remarks Automatically managed by the registry. Assigned at registration and updated during reindexing; a supplied index is ignored — use `move()` to position a ticket. It's not recommended to manually set this. A ticket read via `values()`/`entries()` immediately after `unregister()`/`offboard()` may carry a stale index until the next position-reading call (`register`/`upsert`/`browse`/`lookup`/`move`/`reorder`/`seek`) drains the deferred reindex.
    */
   index: number
   /** The value associated with the ticket. If not provided, it defaults to the index. */
@@ -327,7 +327,7 @@ export interface RegistryContext<
    * Register a new ticket
    *
    * @param ticket The partial ticket data to register.
-   * @remarks If no ID is provided, a unique ID will be generated automatically. If no value is provided, it defaults to the ticket's index. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   * @remarks If no ID is provided, a unique ID will be generated automatically. If no value is provided, it defaults to the ticket's index. The index is always assigned by the registry — a supplied index is ignored; use `move()` to position a ticket. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -663,7 +663,7 @@ export interface RegistryContext<
    *
    * @param fn The function containing batch operations.
    * @returns The return value of the batch function.
-   * @remarks Useful for bulk operations like onboard(). Invalidation and events happen once at the end, not after each operation.
+   * @remarks Useful for bulk operations like onboard(). Cache invalidation and events are deferred to the end of the batch instead of running after each operation.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -769,10 +769,14 @@ export function createRegistry<
   const directory = new Map<number, ID>()
   const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()
   const listeners = new Map<string, Set<InternalEventCallback>>()
+  // Canonical position sequence, kept in lockstep with `collection`. Holds
+  // ticket refs so values()/entries()/reindex() read them without a Map lookup.
+  const order = (reactive ? shallowReactive([] as E[]) : []) as E[]
 
   let indexDependentCount = 0
   let needsReindex = false
   let minDirtyIndex = Infinity
+  let maxDirtyIndex = -Infinity
   let isBatching = false
   let batched: Array<{ event: string, data: unknown }> = []
 
@@ -832,7 +836,7 @@ export function createRegistry<
 
     if (!existing) return register({ ...patch, id } as Partial<Z & RegistryTicket>)
 
-    const hasValue = Object.prototype.hasOwnProperty.call(patch, 'value')
+    const hasValue = Object.hasOwn(patch, 'value')
     let value = existing.value
     let valueIsIndex = existing.valueIsIndex
 
@@ -902,12 +906,16 @@ export function createRegistry<
   }
 
   function keys (): readonly ID[] {
-    if (reactive) return Array.from(collection.keys())
+    if (reactive) {
+      // `order` is shallowReactive, so reading it here registers the dependency.
+      // Effects re-evaluate when order is mutated (register, unregister, move, …).
+      return order.map(ticket => ticket.id)
+    }
 
     const cached = cache.get('keys')
     if (!isUndefined(cached)) return cached as readonly ID[]
 
-    const out = Array.from(collection.keys())
+    const out = order.map(ticket => ticket.id)
 
     cache.set('keys', out)
 
@@ -915,12 +923,14 @@ export function createRegistry<
   }
 
   function values (): readonly E[] {
-    if (reactive) return Array.from(collection.values())
+    if (reactive) {
+      return order.slice()
+    }
 
     const cached = cache.get('values')
     if (!isUndefined(cached)) return cached as readonly E[]
 
-    const out = Array.from(collection.values())
+    const out = order.slice()
 
     cache.set('values', out)
 
@@ -928,12 +938,14 @@ export function createRegistry<
   }
 
   function entries (): readonly [ID, E][] {
-    if (reactive) return Array.from(collection.entries())
+    if (reactive) {
+      return order.map(ticket => [ticket.id, ticket] as [ID, E])
+    }
 
     const cached = cache.get('entries')
     if (!isUndefined(cached)) return cached as readonly [ID, E][]
 
-    const out = Array.from(collection.entries())
+    const out = order.map(ticket => [ticket.id, ticket] as [ID, E])
 
     cache.set('entries', out)
 
@@ -941,6 +953,7 @@ export function createRegistry<
   }
 
   function clear () {
+    order.length = 0
     collection.clear()
     catalog.clear()
     directory.clear()
@@ -948,6 +961,7 @@ export function createRegistry<
     indexDependentCount = 0
     needsReindex = false
     minDirtyIndex = Infinity
+    maxDirtyIndex = -Infinity
     emit('clear:registry')
   }
 
@@ -975,49 +989,53 @@ export function createRegistry<
     } finally {
       isBatching = false
       batched = []
+      cache.clear()
     }
   }
 
   function reindex () {
-    const startIndex = minDirtyIndex === Infinity ? 0 : minDirtyIndex
-
-    if (startIndex === 0) {
-      catalog.clear()
-      directory.clear()
-    }
+    // The dirty window is [start..end]. `minDirtyIndex === Infinity` means "no
+    // lower bound recorded" (renumber from 0); `maxDirtyIndex === -Infinity`
+    // means "no upper bound recorded" (renumber to the end) — the case for
+    // removals and full reorders, where every trailing index shifts.
+    const size = order.length
+    const start = minDirtyIndex === Infinity ? 0 : minDirtyIndex
+    const end = maxDirtyIndex === -Infinity ? size - 1 : Math.min(maxDirtyIndex, size - 1)
+    const full = start === 0 && end === size - 1
 
     invalidate()
 
-    let index = 0
-
-    for (const ticket of collection.values()) {
-      if (index < startIndex) {
-        index++
-        continue
-      }
-
-      if (startIndex > 0) {
+    if (full) {
+      catalog.clear()
+      directory.clear()
+    } else {
+      // Clear stale window entries before reassigning. Two passes are required
+      // because a single delete-then-set pass would clobber a freshly-set slot
+      // when the dirty window is a non-monotonic permutation (e.g. a mid-list move).
+      for (let i = start; i <= end; i++) {
+        const ticket = order[i]
         directory.delete(ticket.index)
+        if (ticket.valueIsIndex) unassign(ticket.value, ticket.id)
       }
+    }
+
+    for (let i = start; i <= end; i++) {
+      const ticket = order[i]
 
       if (ticket.valueIsIndex) {
-        if (startIndex > 0) {
-          unassign(ticket.value, ticket.id)
-        }
-        ticket.value = index
+        ticket.value = i
         assign(ticket.value, ticket.id)
-      } else if (startIndex === 0) {
+      } else if (full) {
         assign(ticket.value, ticket.id)
       }
 
-      ticket.index = index
-      directory.set(index, ticket.id)
-
-      index++
+      ticket.index = i
+      directory.set(i, ticket.id)
     }
 
     needsReindex = false
     minDirtyIndex = Infinity
+    maxDirtyIndex = -Infinity
     emit('reindex:registry')
   }
 
@@ -1034,7 +1052,7 @@ export function createRegistry<
     }
 
     const valueIsUndefined = isUndefined(registration.value)
-    const index = registration.index ?? size
+    const index = size
     const value = valueIsUndefined ? index : registration.value
     const valueIsIndex = registration.valueIsIndex ?? valueIsUndefined
 
@@ -1054,6 +1072,7 @@ export function createRegistry<
     const ticket = reactive ? shallowReactive(input) : input
 
     collection.set(ticket.id, ticket)
+    order.push(ticket)
     directory.set(ticket.index, ticket.id)
 
     assign(ticket.value, ticket.id)
@@ -1072,6 +1091,12 @@ export function createRegistry<
       indexDependentCount--
     }
 
+    // O(n) locate + splice. ticket.index can't be used as the position — this
+    // method defers reindex (lazy contract), so the index may be stale. Single
+    // removals are cheap; bulk removal should go through offboard(), which
+    // compacts order in one O(n) pass instead of N indexOf scans.
+    const orderPos = order.indexOf(ticket)
+    if (orderPos !== -1) order.splice(orderPos, 1)
     collection.delete(ticket.id)
     directory.delete(ticket.index)
     unassign(ticket.value, ticket.id)
@@ -1110,25 +1135,41 @@ export function createRegistry<
   }
 
   function offboard (ids: ID[]): Partial<Z>[] {
+    // Collect valid tickets before any mutations so we know what to remove.
+    // Dedupe up front: a repeated id must not double-decrement indexDependentCount
+    // or emit `unregister:ticket` twice. The old delete-then-get loop was
+    // incidentally dedupe-safe; reading all tickets first is not.
     const removed: E[] = []
+    const removedIds = new Set<ID>()
+    for (const id of ids) {
+      if (removedIds.has(id)) continue
+      const ticket = collection.get(id)
+      if (ticket) {
+        removed.push(ticket)
+        removedIds.add(id)
+      }
+    }
+
+    if (removed.length === 0) return []
 
     batch(() => {
-      for (const id of ids) {
-        const ticket = collection.get(id)
-        if (!ticket) continue
+      // Compact order FIRST so that Vue sync effects triggered by the subsequent
+      // Map mutations see a consistent snapshot (no dangling IDs in order).
+      let w = 0
+      for (const ticket of order) {
+        if (!removedIds.has(ticket.id)) order[w++] = ticket
+      }
+      order.length = w
 
+      for (const ticket of removed) {
         if (ticket.valueIsIndex) {
           indexDependentCount--
         }
-
         minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
         collection.delete(ticket.id)
         directory.delete(ticket.index)
         unassign(ticket.value, ticket.id)
-        removed.push(ticket)
       }
-
-      if (removed.length === 0) return
 
       for (const ticket of removed) {
         emit('unregister:ticket', ticket)
@@ -1151,22 +1192,18 @@ export function createRegistry<
 
     const size = collection.size
     const target = clamp(toIndex, 0, size - 1)
+    const from = ticket.index
 
-    if (ticket.index === target) return ticket
+    if (from === target) return ticket
 
     return batch(() => {
-      const items = Array.from(collection.entries())
-      const fromIndex = items.findIndex(([key]) => key === id)
-      const [entry] = items.splice(fromIndex, 1)
+      order.splice(from, 1)
+      order.splice(target, 0, ticket)
 
-      items.splice(target, 0, entry!)
-
-      collection.clear()
-      for (const [key, value] of items) {
-        collection.set(key, value)
-      }
-
-      minDirtyIndex = Math.min(ticket.index, target)
+      // Bound the reindex to the [from..target] window: only those indices
+      // changed, so reindex() touches O(distance) tickets instead of the tail.
+      minDirtyIndex = Math.min(from, target)
+      maxDirtyIndex = Math.max(from, target)
       reindex()
       emit('update:ticket', ticket)
 
@@ -1180,21 +1217,21 @@ export function createRegistry<
     if (ids.length !== collection.size) return
 
     const seen = new Set<ID>()
-    const entries: [ID, E][] = []
+    const next: E[] = []
     for (const id of ids) {
       if (seen.has(id)) return
       const ticket = collection.get(id)
       if (!ticket) return
       seen.add(id)
-      entries.push([id, ticket])
+      next.push(ticket)
     }
 
     batch(() => {
-      collection.clear()
-      for (const [id, ticket] of entries) {
-        collection.set(id, ticket)
+      for (const [i, ticket] of next.entries()) {
+        order[i] = ticket
       }
       minDirtyIndex = 0
+      maxDirtyIndex = -Infinity
       reindex()
     })
   }
@@ -1220,13 +1257,13 @@ export function createRegistry<
     if (direction === 'last') {
       const start = isUndefined(index) ? tickets.length - 1 : index
       for (let i = start; i >= 0; i--) {
-        const ticket = tickets[i]!
+        const ticket = tickets[i]
         if (!predicate || predicate(ticket)) return ticket
       }
     } else {
       const start = isUndefined(index) ? 0 : index
       for (let i = start; i < tickets.length; i++) {
-        const ticket = tickets[i]!
+        const ticket = tickets[i]
         if (!predicate || predicate(ticket)) return ticket
       }
     }

@@ -1,3 +1,7 @@
-exclude = ["^https?://(www\\.)?github\\.com", "^https?://discord\\.gg", "^https?://community\\.vuetifyjs\\.com", "invalid.jpg", "^https://mcp\\.vuetifyjs\\.com/mcp", "^https?://.*\\.vuejs\\.org"]
+# Shared by both passes: PR internal-only (pr-checks.yml, --offline) and weekly full (link-check.yml).
+# /dist/documents: breadcrumbs examples use intentional demo hrefs.
+# /dist/https:: lychee misparses Vue component markup (<DocsCard href>) in the
+# copied page-source markdown, resolving the URL as a relative path.
+exclude = ["/dist/documents", "/dist/https:", "^https?://(www\\.)?github\\.com", "^https?://discord\\.gg", "^https?://community\\.vuetifyjs\\.com", "invalid.jpg", "^https://mcp\\.vuetifyjs\\.com/mcp", "^https?://([^/]*\\.)?vuejs\\.org", "^https?://(www\\.)?npmjs\\.com"]
 
 root_dir = "./apps/docs/dist"

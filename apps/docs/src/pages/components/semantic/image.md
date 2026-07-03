@@ -27,13 +27,13 @@ Headless image component with state-driven placeholder and error fallback. Track
 
 `Image.Root` owns the loading state machine via `useImage`. `Image.Img` renders the image element and reports load and error events to the context. `Image.Placeholder` is shown while idle or loading; `Image.Fallback` is shown on error.
 
-::: example
+::: gn-example
 /components/image/basic
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Image } from '@vuetify/v0'
 </script>
@@ -41,15 +41,13 @@ Headless image component with state-driven placeholder and error fallback. Track
 <template>
   <Image.Root>
     <Image.Img />
-
     <Image.Placeholder />
-
     <Image.Fallback />
   </Image.Root>
 </template>
 ```
 
-> [!INFO]
+> [!NOTE]
 > `src` is the only native image attribute that doesn't live on `Image.Img` because it drives the load state machine — the `idle → loading → loaded | error` lifecycle can't function without knowing the URL to track, so `Image.Root` owns it. Every other image attribute (`alt`, `width`, `height`, `srcset`, `sizes`, `crossorigin`, `referrerpolicy`, `decoding`, `loading`, `fetchpriority`) is a pure rendering concern and lives on `Image.Img`, where it describes the element that actually renders it.
 
 ## Architecture
@@ -80,7 +78,7 @@ You can combine both: use the observer for state control and `loading="lazy"` as
 
 ## Examples
 
-::: example
+::: gn-example
 /components/image/BlurUpImage.vue 1
 /components/image/observer.vue 2
 
@@ -117,7 +115,7 @@ Gotcha: the `lazy` prop needs a wrapper element to observe — it warns and skip
 
 :::
 
-::: example
+::: gn-example
 /components/image/PictureImage.vue 1
 /components/image/picture.vue 2
 
@@ -180,7 +178,7 @@ The `retry()` function is available from both `Image.Root` and `Image.Fallback` 
 </template>
 ```
 
-## Styling
+### Styling
 
 Every Image sub-component exposes `data-state` reflecting the current status (`idle`, `loading`, `loaded`, or `error`). Prefer styling against these data attributes with CSS over threading slot props — the transitions stay CSS-only and the template stays declarative.
 

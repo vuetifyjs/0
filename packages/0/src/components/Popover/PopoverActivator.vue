@@ -25,6 +25,7 @@
       'popovertarget': string
       'type': 'button' | undefined
       'data-open': true | undefined
+      'style': Record<string, string>
     }
   }
 </script>
@@ -45,7 +46,7 @@
     default: (props: PopoverActivatorSlotProps) => any
   }>()
 
-  const { as = 'button', target } = defineProps<PopoverActivatorProps>()
+  const { as = 'button', renderless, target } = defineProps<PopoverActivatorProps>()
 
   const context = usePopoverContext()
 
@@ -53,7 +54,7 @@
 
   const style = toRef(() => {
     if (target) {
-      return { anchorName: `--${target}` }
+      return { anchorName: `--${String(target).replace(/[^a-zA-Z0-9_-]/g, '')}` }
     }
     return context.anchorStyles.value
   })
@@ -64,6 +65,7 @@
       'popovertarget': toValue(popovertarget),
       'type': as === 'button' ? 'button' : undefined,
       'data-open': context.isOpen.value || undefined,
+      'style': style.value,
     },
   }))
 </script>
@@ -71,7 +73,7 @@
 <template>
   <Atom
     :as
-    :style
+    :renderless
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />

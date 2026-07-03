@@ -121,6 +121,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/disclosure/tooltip': RouteRecordInfo<
+      '/components/disclosure/tooltip',
+      '/components/disclosure/tooltip',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/treeview': RouteRecordInfo<
       '/components/disclosure/treeview',
       '/components/disclosure/treeview',
@@ -345,6 +352,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/data/create-data-grid': RouteRecordInfo<
+      '/composables/data/create-data-grid',
+      '/composables/data/create-data-grid',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/data/create-data-table': RouteRecordInfo<
       '/composables/data/create-data-table',
       '/composables/data/create-data-table',
@@ -527,6 +541,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/plugins/use-reduced-motion': RouteRecordInfo<
+      '/composables/plugins/use-reduced-motion',
+      '/composables/plugins/use-reduced-motion',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/plugins/use-rtl': RouteRecordInfo<
       '/composables/plugins/use-rtl',
       '/composables/plugins/use-rtl',
@@ -558,6 +579,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-theme': RouteRecordInfo<
       '/composables/plugins/use-theme',
       '/composables/plugins/use-theme',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/plugins/use-tooltip': RouteRecordInfo<
+      '/composables/plugins/use-tooltip',
+      '/composables/plugins/use-tooltip',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -828,6 +856,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/essentials/glossary': RouteRecordInfo<
+      '/guide/essentials/glossary',
+      '/guide/essentials/glossary',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/essentials/using-the-docs': RouteRecordInfo<
       '/guide/essentials/using-the-docs',
       '/guide/essentials/using-the-docs',
@@ -961,9 +996,23 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/integration/vapor': RouteRecordInfo<
+      '/guide/integration/vapor',
+      '/guide/integration/vapor',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/tooling/ai-tools': RouteRecordInfo<
       '/guide/tooling/ai-tools',
       '/guide/tooling/ai-tools',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guide/tooling/testing': RouteRecordInfo<
+      '/guide/tooling/testing',
+      '/guide/tooling/testing',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1066,6 +1115,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/services': RouteRecordInfo<
+      '/services',
+      '/services',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/skillz/': RouteRecordInfo<
       '/skillz/',
       '/skillz',
@@ -1078,6 +1134,13 @@ declare module 'vue-router/auto-routes' {
       '/skillz/:id',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
+      | never
+    >,
+    '/sponsor': RouteRecordInfo<
+      '/sponsor',
+      '/sponsor',
+      Record<never, never>,
+      Record<never, never>,
       | never
     >,
   }
@@ -1168,6 +1231,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/disclosure/tabs.md': {
       routes:
         | '/components/disclosure/tabs'
+      views:
+        | never
+    }
+    'src/pages/components/disclosure/tooltip.md': {
+      routes:
+        | '/components/disclosure/tooltip'
       views:
         | never
     }
@@ -1363,6 +1432,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/data/create-data-grid.md': {
+      routes:
+        | '/composables/data/create-data-grid'
+      views:
+        | never
+    }
     'src/pages/composables/data/create-data-table.md': {
       routes:
         | '/composables/data/create-data-table'
@@ -1519,6 +1594,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/plugins/use-reduced-motion.md': {
+      routes:
+        | '/composables/plugins/use-reduced-motion'
+      views:
+        | never
+    }
     'src/pages/composables/plugins/use-rtl.md': {
       routes:
         | '/composables/plugins/use-rtl'
@@ -1546,6 +1627,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/plugins/use-theme.md': {
       routes:
         | '/composables/plugins/use-theme'
+      views:
+        | never
+    }
+    'src/pages/composables/plugins/use-tooltip.md': {
+      routes:
+        | '/composables/plugins/use-tooltip'
       views:
         | never
     }
@@ -1777,6 +1864,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/guide/essentials/glossary.md': {
+      routes:
+        | '/guide/essentials/glossary'
+      views:
+        | never
+    }
     'src/pages/guide/essentials/using-the-docs.md': {
       routes:
         | '/guide/essentials/using-the-docs'
@@ -1891,9 +1984,21 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/guide/integration/vapor.md': {
+      routes:
+        | '/guide/integration/vapor'
+      views:
+        | never
+    }
     'src/pages/guide/tooling/ai-tools.md': {
       routes:
         | '/guide/tooling/ai-tools'
+      views:
+        | never
+    }
+    'src/pages/guide/tooling/testing.md': {
+      routes:
+        | '/guide/tooling/testing'
       views:
         | never
     }
@@ -1981,6 +2086,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/services.md': {
+      routes:
+        | '/services'
+      views:
+        | never
+    }
     'src/pages/skillz/index.md': {
       routes:
         | '/skillz/'
@@ -1990,6 +2101,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/skillz.[id].vue': {
       routes:
         | '/skillz.[id]'
+      views:
+        | never
+    }
+    'src/pages/sponsor.md': {
+      routes:
+        | '/sponsor'
       views:
         | never
     }

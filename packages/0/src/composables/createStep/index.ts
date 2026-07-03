@@ -236,7 +236,7 @@ export function createStep<
     get size () {
       return registry.size
     },
-  } as R
+  } satisfies StepContext<Z, E> as R
 }
 
 /**

@@ -82,35 +82,26 @@ flowchart LR
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-delay/basic
 
 ### Hover with Pause/Resume
 
-Hover the target to schedule a 2000 ms open; leave it to schedule a 1500 ms
-close. The progress bar reflects `remaining` against the active direction,
-the badges surface every reactive flag, and the controls demonstrate
-`pause`, `resume`, and `stop` against the in-flight delay.
+Hover the target to schedule a 2000 ms open; leave it to schedule a 1500 ms close. The progress bar reflects `remaining` against the active direction, the badges surface every reactive flag, and the controls demonstrate `pause`, `resume`, and `stop` against the in-flight delay.
 
-Reach for this pattern when you want a tooltip or popover that respects
-hover intent without flickering. Pause/Resume is the differentiator —
-without it, briefly leaving the target to interact with adjacent UI would
-restart the close countdown. The promise returned by `start()` lets you
-sequence side effects after the delay elapses without a second `watch`.
-
-| File | Role |
-|------|------|
-| `basic.vue` | Demonstrates hover-driven open/close with pause/resume |
+Reach for this pattern when you want a tooltip or popover that respects hover intent without flickering. Pause/Resume is the differentiator — without it, briefly leaving the target to interact with adjacent UI would restart the close countdown. The promise returned by `start()` lets you sequence side effects after the delay elapses without a second `watch`.
 
 :::
 
-## Key Features
+## Recipes
 
-### Lifecycle Vocabulary
+### Key Features
+
+#### Lifecycle Vocabulary
 
 `useDelay` exposes the same lifecycle surface as `useTimer` (`start`, `stop`, `pause`, `resume`, `isActive`, `isPaused`, `remaining`) and adds an `isOpening` direction flag. Consumers that already know `useTimer` get the same shape with one extra dimension — direction.
 
-### Reactive Delays
+#### Reactive Delays
 
 `openDelay` and `closeDelay` accept any `MaybeRefOrGetter<number>`. Resolution happens when `start()` is called, so updates after start do not affect the in-flight delay.
 
@@ -125,7 +116,7 @@ const delay = useDelay({
 })
 ```
 
-### Minimum Delay Floor
+#### Minimum Delay Floor
 
 Pass `minDelay` to `start()` to enforce a floor on the resolved delay. Useful for transient feedback like toasts where the close delay must not be shorter than the time the content has been visible.
 
@@ -137,7 +128,7 @@ await delay.start(true)
 await delay.start(false, { minDelay: 500 })
 ```
 
-### Re-Start Behavior
+#### Re-Start Behavior
 
 Calling `start()` while another delay is pending cancels the previous timer and resolves the previous promise with the *new* direction. Awaiting code sees a single source of truth — the latest intent — instead of stale resolutions.
 
@@ -147,7 +138,7 @@ delay.start(true)
 delay.start(false) // previous promise resolves false, new close delay begins
 ```
 
-### Pause and Resume
+#### Pause and Resume
 
 Pause preserves the remaining delay; resume continues from where pause left off. Useful for hover-driven UI where the user briefly interacts with the panel itself and you don't want the auto-close timer to keep counting.
 
@@ -163,7 +154,7 @@ delay.pause() // remaining ≈ 700ms
 delay.resume() // fires after ~700 more ms
 ```
 
-### Automatic Cleanup
+#### Automatic Cleanup
 
 The pending timer clears on scope disposal — no manual cleanup needed.
 

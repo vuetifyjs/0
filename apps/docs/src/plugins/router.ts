@@ -28,7 +28,7 @@ function readPersistedPosition (to: RouteLocationNormalized) {
 
 const routerOptions: Omit<RouterOptions, 'history'> = {
   routes: setupLayouts(routes),
-  scrollBehavior (to, _from, savedPosition) {
+  scrollBehavior (to, from, savedPosition) {
     // SSR safety - scrollBehavior only runs client-side but guard for clarity
     if (!IN_BROWSER) return { top: 0 }
 
@@ -52,14 +52,16 @@ const routerOptions: Omit<RouterOptions, 'history'> = {
     // If navigating to a hash (anchor), scroll to that element
     // Delay to allow DOM to settle after hydration
     if (to.hash) {
+      // Cross-page hashes jump instantly — a smooth scroll lets the scroll spy
+      // rewrite the URL through each heading it passes. Same-page anchors stay smooth.
+      const instant = to.path !== from.path || getPrefersReducedMotion()
       return new Promise(resolve => {
         setTimeout(() => {
           try {
             const el = document.querySelector(`#${CSS.escape(to.hash.slice(1))}`)
             if (el) {
               const top = el.getBoundingClientRect().top + window.scrollY - 80
-              const behavior = getPrefersReducedMotion() ? 'auto' : 'smooth'
-              resolve({ top, behavior })
+              resolve({ top, behavior: instant ? 'auto' : 'smooth' })
               return
             }
           } catch {

@@ -40,19 +40,9 @@ Vue 3 headless UI primitives and composables. Unstyled, logic-focused building b
 | `SUPPORTS_INTERSECTION_OBSERVER` | IntersectionObserver availability |
 | `SUPPORTS_MUTATION_OBSERVER` | MutationObserver availability |
 
-### Check Existing Composables (`#v0/composables`)
+### Check Existing Composables & Components (`#v0/composables`, `#v0/components`)
 
-**Foundation**: `createContext`, `createTrinity`, `createPlugin`
-**Registry**: `createRegistry`, `useProxyRegistry`
-**Selection**: `createSelection`, `createSingle`, `createGroup`, `createStep`, `createModel`, `createNested`
-**Observers**: `useResizeObserver`, `useIntersectionObserver`, `useMutationObserver`
-**Events**: `useEventListener`, `useHotkey`, `useClickOutside`
-**Reactivity**: `useProxyModel`, `useToggleScope`, `toReactive`, `toArray`, `toElement`
-**Plugins**: `useFeatures`, `usePermissions`, `useTheme`, `useLocale`, `useLogger`, `useNotifications`, `useRtl`, `useStack`, `useRules`
-**Data**: `createFilter`, `createPagination`, `createVirtual`, `useDate`, `createForm`, `createQueue`, `createTimeline`, `createTokens`, `createDataTable`
-**Browser**: `useBreakpoints`, `useMediaQuery`, `useStorage`, `useHydration`, `createOverflow`, `useLazy`, `usePopover`, `usePresence`, `useRaf`, `useTimer`
-**Forms**: `createValidation`, `createCombobox`, `createSlider`, `createInput`, `createNumeric`, `createRating`
-**Focus**: `useVirtualFocus`, `useRovingFocus`, `createFocusTraversal`, `createBreadcrumbs`
+Before building anything, consult the `vuetify0` skill's `SKILL.md` — invoke the **`vuetify0`** skill (Skill tool). Its **"Decision table — reach for these first"** maps each task (selection, validation, registries, virtual scroll, popovers, focus, etc.) to the composable/component to use, and `references/layer-decisions.md` covers the component-vs-composable-vs-both call. Use it to decide **what** to reach for and **when** — don't reinvent a primitive v0 already ships. The skill is the source of truth; this file does not duplicate the inventory.
 
 ## Path Alias
 
@@ -99,14 +89,33 @@ pnpm typecheck        # All packages
 pnpm lint:fix         # Always use lint:fix, not lint
 pnpm validate         # lint + typecheck + test
 
-# Release
-pnpm release:prepare  # Pre-release validation
-pnpm release:patch    # Bump patch
-pnpm release:minor    # Bump minor
+# Release (Changesets)
+pnpm changeset        # Author a changeset for your PR (run per change)
+pnpm release:prepare  # Pre-release validation (validate + build)
+# Publishing is automated: pushing to master opens a "Version Packages" PR;
+# merging it builds, publishes to npm via OIDC, and creates the GitHub releases.
+# Currently in PRE mode (beta dist-tag) — see "Releasing" below before cutting stable.
 
 # Repo health
 pnpm repo:check       # knip + sherif
 ```
+
+## Releasing
+
+Changesets-driven. Pushing to `master` opens/updates a "Version Packages" PR; merging it publishes to npm (tokenless OIDC) and mints the GitHub releases (`.github/workflows/release.yml`).
+
+- **Substrate** (`@vuetify/v0` + `@vuetify/paper`) is a `fixed` group: one shared version, one aggregate `v<version>` GitHub release.
+- **Design systems** (`@paper/*`, e.g. `@paper/genesis`) version and release independently, each on its own `name@version` release. Note `@paper/genesis` depends on `@vuetify/v0`, so a substrate **major** bump (e.g. `1.x` → `2.0.0`) leaves genesis's `^` range and changesets will also bump + republish genesis. That is expected — review it in the "Version Packages" PR before merging.
+
+### Exiting beta / cutting a stable release
+
+The repo is in changesets **pre mode** (`.changeset/pre.json`, `beta` dist-tag); every release is `…-beta.N` published under the `beta` tag. Before the first stable release:
+
+1. `pnpm changeset pre exit`
+2. Commit the removal of `.changeset/pre.json`
+3. Let the next "Version Packages" PR produce the clean `1.0.0`, then merge it
+
+Skipping `pre exit` ships `1.0.0-beta.N` (or mistags it) instead of a real `1.0.0`.
 
 ## Conventions
 

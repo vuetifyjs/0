@@ -102,7 +102,7 @@
     return {
       'type': 'button',
       'tabindex': -1,
-      'aria-label': locale.t('NumberField.decrement'),
+      'aria-label': locale.ti('NumberField.decrement') ?? 'Decrement',
       'disabled': disabled || undefined,
       'data-disabled': disabled ? true : undefined,
       onBlur,

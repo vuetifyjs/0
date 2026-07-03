@@ -58,27 +58,34 @@
   </Treeview.Item>
 
   <!-- Leaf setting -->
-  <Treeview.Item v-else v-slot="{ activate }" :value="node.label">
-    <button
-      class="row flex items-center gap-2 w-full border-none bg-transparent text-inherit cursor-pointer rounded py-1.5 pr-3 hover:bg-surface-tint"
+  <Treeview.Item
+    v-else
+    v-slot="{ activate }"
+    :value="node.label"
+    @keydown.enter.self="emit('activate', node)"
+  >
+    <div
+      class="row flex items-center gap-2 w-full cursor-pointer rounded py-1.5 pr-3 hover:bg-surface-tint"
       @click="() => { activate(); emit('activate', node) }"
     >
       <span class="text-sm flex-1 text-left">{{ node.label }}</span>
 
       <!-- Toggle -->
-      <span
+      <button
         v-if="node.type === 'toggle'"
         :aria-checked="!!node.value"
-        class="relative inline-flex items-center w-8 h-4.5 rounded-full shrink-0 transition-colors duration-150"
+        :aria-label="node.label"
+        class="relative inline-flex items-center w-8 h-4.5 rounded-full shrink-0 border-none cursor-pointer transition-colors duration-150"
         :class="node.value ? 'bg-primary' : 'bg-surface-variant'"
         role="switch"
+        type="button"
         @click.stop="onToggle(node)"
       >
         <span
           class="absolute size-3.5 rounded-full bg-white shadow-sm transition-transform duration-150"
           :class="node.value ? 'translate-x-3.75' : 'translate-x-0.5'"
         />
-      </span>
+      </button>
 
       <!-- Select -->
       <span v-else-if="node.type === 'select'" @click.stop>
@@ -87,7 +94,7 @@
           :model-value="node.value"
           @update:model-value="onSelect(node, String($event))"
         >
-          <Select.Activator as="div" class="inline-flex items-center gap-1 bg-transparent border border-divider rounded px-1.5 py-0.5 text-xs text-on-surface cursor-pointer">
+          <Select.Activator class="inline-flex items-center gap-1 bg-transparent border border-divider rounded px-1.5 py-0.5 text-xs text-on-surface cursor-pointer">
             <Select.Value v-slot="{ selectedValue }">{{ selectedValue }}</Select.Value>
             <Select.Cue v-slot="{ isOpen }" class="text-[10px] opacity-50">{{ isOpen ? '&#x25B4;' : '&#x25BE;' }}</Select.Cue>
           </Select.Activator>
@@ -114,6 +121,6 @@
           </Select.Content>
         </Select.Root>
       </span>
-    </button>
+    </div>
   </Treeview.Item>
 </template>

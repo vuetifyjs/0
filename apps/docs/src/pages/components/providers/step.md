@@ -26,16 +26,25 @@ A headless component for navigation through multi-step processes like wizards an
 
 The Step component extends Single with navigation methods for moving through a sequence of items. It provides methods for first, last, next, previous, and step-by-count navigation with automatic disabled item skipping.
 
-::: example
+::: gn-example
 /components/step/basic
-
-### Step Wizard
-
-A 3-step wizard with next/previous navigation buttons and per-step content rendering.
-
 :::
 
-## Features
+## Anatomy
+
+```vue Anatomy no-filename
+<script setup lang="ts">
+  import { Step } from '@vuetify/v0'
+</script>
+
+<template>
+  <Step.Root>
+    <Step.Item />
+  </Step.Root>
+</template>
+```
+
+## Recipes
 
 ### Navigation Methods
 
@@ -76,20 +85,22 @@ Disabled items are automatically skipped by `next`, `prev`, and `step`. Use this
 </template>
 ```
 
-## Anatomy
+## FAQ
 
-```vue Anatomy playground
-<script setup lang="ts">
-  import { Step } from '@vuetify/v0'
-</script>
+::: faq
 
-<template>
-  <Step.Root>
-    <Step.Item value="step-1" />
+??? What's the difference between Step and [Single](/components/providers/single)?
 
-    <Step.Item value="step-2" />
-  </Step.Root>
-</template>
-```
+Step extends Single, adding navigation methods (`first`, `last`, `next`, `prev`, `step`) for moving through an ordered sequence. Use Step for wizards and steppers; use Single when you only need single-selection without traversal.
+
+??? How do I skip a step conditionally?
+
+Mark the `Step.Item` as `:disabled` — `next`, `prev`, and `step` automatically skip disabled items, so you can hide steps based on form state.
+
+??? Can I jump more than one step at a time?
+
+Yes. `step(n)` moves by count — `step(2)` advances two steps and `step(-1)` goes back one, skipping any disabled items along the way.
+
+:::
 
 <DocsApi />

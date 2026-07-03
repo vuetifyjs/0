@@ -93,8 +93,10 @@
     --color-branding-dark: #89ddff;
   }
 
+  /* .file-selector is hidden above, but @vue/repl still sizes .editor-container as
+     calc(100% - var(--header-height)). Override so Monaco fills the full panel. */
   .playground-repl :deep(.editor-container) {
-    height: calc(100% + 1px) !important;
+    height: 100% !important;
     width: 100% !important;
   }
 </style>

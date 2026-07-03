@@ -25,7 +25,7 @@ DevKey ([live](https://devkey.vuetifyjs.com), [source](https://github.com/vuetif
 > [!TIP]
 > Looking for the fastest way to start? Run `pnpm create vuetify0` to scaffold a fresh DevKey-shaped project locally.
 
-> [!INFO]
+> [!NOTE]
 > Want a guided walkthrough? The [Vuetify0 alpha announcement](https://vuetifyjs.com/blog/announcing-vuetify0-alpha) builds DevKey step-by-step as a reusable UI library — landing page, auth flow, dashboard, and command palette.
 
 ## Preview
@@ -41,7 +41,7 @@ DevKey pairs `@vuetify/v0` with a minimal but production-shaped toolchain so you
 | Layer | Choice |
 | - | - |
 | Framework | [Vue 3.5+](https://vuejs.org) |
-| Build tool | [Vite 8](https://vitejs.dev) |
+| Build tool | [Vite 8](https://vite.dev) |
 | Language | [TypeScript](https://www.typescriptlang.org) |
 | UI primitives | [@vuetify/v0](https://www.npmjs.com/package/@vuetify/v0) |
 | Styling | [UnoCSS](https://unocss.dev) |
@@ -105,7 +105,7 @@ bun install
 
 :::
 
-> [!INFO]
+> [!NOTE]
 > `create vuetify0` produces the same layout as the DevKey repository. Cloning directly is useful if you want to track upstream changes.
 
 ## Scripts

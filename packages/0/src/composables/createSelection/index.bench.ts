@@ -10,10 +10,11 @@
 
 import { bench, describe } from 'vitest'
 
-import { createSelection } from './index'
+// Framework
+import { createSelection } from '@vuetify/v0/composables'
 
 // Types
-import type { SelectionContext, SelectionTicket, SelectionTicketInput } from './index'
+import type { SelectionContext, SelectionTicket, SelectionTicketInput } from '@vuetify/v0/composables'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks

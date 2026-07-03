@@ -60,6 +60,19 @@ flowchart TD
 
 Layer 2 orchestrator. Aggregates createInput for validation, dirty tracking, and ARIA wiring. No registry, no focus traversal, no observers — rendering, per-element refs, and keyboard wiring are the consumer's responsibility.
 
+## Options
+
+### Patterns
+
+| Pattern | Matches |
+| - | - |
+| `'numeric'` | `[0-9]` |
+| `'alphanumeric'` | `[a-zA-Z0-9]` |
+| `'alphabetic'` | `[a-zA-Z]` |
+| `RegExp` | Custom; tested per character |
+
+`accepts(char)` is the single point of truth and is reactive through `MaybeRefOrGetter` — toggle modes at runtime and every helper respects the new pattern on the next call.
+
 ## Reactivity
 
 | Property | Type | Reactive | Description |
@@ -76,31 +89,26 @@ Layer 2 orchestrator. Aggregates createInput for validation, dirty tracking, and
 
 Every helper is gated on the configured `disabled` and `readonly` options, and on the internal pending state while an async `onComplete` is in flight.
 
-## Patterns
-
-| Pattern | Matches |
-| - | - |
-| `'numeric'` | `[0-9]` |
-| `'alphanumeric'` | `[a-zA-Z0-9]` |
-| `'alphabetic'` | `[a-zA-Z]` |
-| `RegExp` | Custom; tested per character |
-
-`accepts(char)` is the single point of truth and is reactive through `MaybeRefOrGetter` — toggle modes at runtime and every helper respects the new pattern on the next call.
-
 ## Examples
 
-::: example
-/composables/create-otp/basic
+::: gn-example
+/composables/create-otp/useVerification.ts 1
+/composables/create-otp/VerificationCode.vue 2
+/composables/create-otp/verification-code.vue 3
 
-### Six-Input Numeric OTP
+### Email Verification Flow
 
-A minimal six-input numeric OTP. The consumer's component owns the inputs, the template refs, and the per-element focus advance; `createOtp` owns the state, the pattern contract, and the length contract underneath. This is the headless-contract acid test: every visible behavior is replayable by writing markup against `value`, `length`, and `accepts`, with no slot tickets or focus indices baked into the composable.
+A six-digit verification-code field with an async, decisional completion check. The composable owns the `createOtp` instance and a mock backend round-trip: `onComplete` resolves `true` to accept the code or `false` to reject it, clearing the value and surfacing `input.errors`. The component owns the per-cell `<input>` elements, the template refs, the focus advance, and the paste handler — focus and rendering are deliberately outside the composable. The entry wires the two together and renders a status line driven by `isValidating`, the rejection error, and a local `verified` flag.
 
-When to reach for this over a single wide `<input maxlength="6">`: when the design calls for boxed per-character slots, when the consumer needs to react to per-position events (highlighting the focused position, animating fills), or when paste-handling deserves first-class treatment. For a single-input rendering of the same state, the same `createOtp` underneath works without modification — only the markup changes.
+Reach for this split when the verification step is more than a value capture: an async check that locks input while it runs, a rejection path that re-arms cleanly, and paste support that distributes a copied code across the cells in one keystroke. `distribute` returns how many characters it consumed so the component can land focus on the next empty slot, and while the async `onComplete` is pending every mutation helper no-ops — the user cannot race the verifier. Enter `424242` to pass; any other code exercises the reject-and-retry branch, where the first new keystroke clears the error automatically.
 
-Tradeoffs to know about. The example wires focus advance manually because focus is rendering territory; consumers preferring roving focus across the inputs can wrap the `<input>`s in `useRovingFocus` without changing the state model. The `distribute` helper returns the count consumed so the consumer can choose where to land focus after the characters land — the example moves to the next still-empty slot, but other strategies (stay put, focus the last input, focus the submit button) are equally valid.
+The tradeoffs mirror the headless contract. Because focus is rendering territory, the component wires it by hand; consumers who prefer roving focus can wrap the cells in useRovingFocus without touching the state model. A single wide input over the same `createOtp` works without modification — only the markup changes. See [createInput](/composables/forms/create-input) for the validation, error, and field-state surface aggregated underneath, and [createValidation](/composables/forms/create-validation) for the rules array that flows through unchanged.
 
-Related: see [createInput](/composables/forms/create-input) for the validation, error, and field-state surface that `createOtp` aggregates underneath, and [createValidation](/composables/forms/create-validation) for the `rules` array that flows through unchanged.
+| File | Role |
+|------|------|
+| `useVerification.ts` | Owns the `createOtp` instance, the async `onComplete` backend check, and a derived `status` |
+| `VerificationCode.vue` | Renders the per-cell inputs and owns template refs, focus advance, backspace, and paste |
+| `verification-code.vue` | Wires the composable to the component and renders the status line and reset control |
 
 :::
 

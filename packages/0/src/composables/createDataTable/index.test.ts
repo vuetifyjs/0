@@ -98,6 +98,17 @@ describe('createDataTable', () => {
       expect(table.allItems.value.length).toBe(0)
       expect(table.size).toBe(0)
     })
+
+    it('should re-run the pipeline when a row value is replaced via upsert', () => {
+      const table = createTable()
+      table.search('alice')
+      expect(table.filteredItems.value.length).toBe(1)
+
+      table.upsert(2, { value: { ...users[1]!, name: 'Alice Cooper' } })
+
+      expect(table.filteredItems.value.length).toBe(2)
+      expect(table.allItems.value.find(item => item.id === 2)?.name).toBe('Alice Cooper')
+    })
   })
 
   describe('columns', () => {
@@ -1036,6 +1047,33 @@ describe('createDataTable', () => {
     })
   })
 
+  describe('items reactivity', () => {
+    it('should update a computed over items after register and unregister', () => {
+      const table = createDataTable<User>()
+      table.columns.onboard(columns)
+      const names = computed(() => table.items.value.map(item => item.name))
+
+      expect(names.value).toEqual([])
+
+      table.onboard(toInputs(users.slice(0, 2)))
+      expect(names.value).toEqual(['Alice', 'Bob'])
+
+      table.unregister(1)
+      expect(names.value).toEqual(['Bob'])
+    })
+
+    it('should reflect a reorder in items', () => {
+      const table = createDataTable<User>()
+      table.columns.onboard(columns)
+      table.onboard(toInputs(users.slice(0, 3)))
+      expect(table.items.value.map(item => item.name)).toEqual(['Alice', 'Bob', 'Carol'])
+
+      table.reorder([3, 1, 2])
+
+      expect(table.items.value.map(item => item.name)).toEqual(['Carol', 'Alice', 'Bob'])
+    })
+  })
+
   describe('size reactivity', () => {
     it('should track registration changes when read from a computed', () => {
       const table = createDataTable<User>()
@@ -1091,6 +1129,30 @@ describe('createDataTable', () => {
 
       table.unregister(99)
       expect(table.filteredItems.value.length).toBe(1)
+    })
+
+    it('should recompute selectable rows after clear() + onboard() with itemSelectable', () => {
+      const table = createDataTable<User>({ itemSelectable: 'active', selectStrategy: 'all' })
+      table.columns.onboard(columns)
+      table.onboard(toInputs(users))
+
+      expect(table.selection.isSelectable(3)).toBe(false)
+      table.selection.selectAll()
+      expect(table.selection.selectedIds.size).toBe(4)
+
+      table.clear()
+      table.onboard(toInputs([
+        { id: 10, name: 'Zoe', email: 'zoe@t.com', department: 'Sales', salary: 90_000, active: true },
+        { id: 11, name: 'Mira', email: 'mira@t.com', department: 'Sales', salary: 80_000, active: false },
+      ]))
+
+      expect(table.selection.isSelectable(10)).toBe(true)
+      expect(table.selection.isSelectable(11)).toBe(false)
+
+      table.selection.selectAll()
+      expect(table.selection.selectedIds.has(10)).toBe(true)
+      expect(table.selection.selectedIds.has(11)).toBe(false)
+      expect(table.selection.isAllSelected.value).toBe(true)
     })
   })
 })
