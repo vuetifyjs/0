@@ -159,11 +159,13 @@ The controls let you trigger validation, prefill valid or invalid data, and rese
 
 :::
 
-## Standard Schema
+## Recipes
+
+### Standard Schema
 
 `useRules` supports [Standard Schema](https://standardschema.dev/) — a universal interface for validation libraries. Pass schema objects directly in `rules` arrays alongside alias strings and inline functions — `resolve()` auto-detects and wraps them.
 
-### Zod
+#### Zod
 
 ```vue
 <script setup lang="ts">
@@ -185,7 +187,7 @@ The controls let you trigger validation, prefill valid or invalid data, and rese
 </script>
 ```
 
-### Valibot
+#### Valibot
 
 ```vue
 <script setup lang="ts">
@@ -201,7 +203,7 @@ The controls let you trigger validation, prefill valid or invalid data, and rese
 </script>
 ```
 
-### ArkType
+#### ArkType
 
 ```vue
 <script setup lang="ts">
@@ -220,7 +222,7 @@ The controls let you trigger validation, prefill valid or invalid data, and rese
 > [!TIP]
 > Schema objects produce async rules. `createValidation` handles this transparently — no special handling needed in components.
 
-### Compatible Libraries
+#### Compatible Libraries
 
 Any library that implements the [Standard Schema v1 spec](https://standardschema.dev/) works out of the box:
 
@@ -230,7 +232,7 @@ Any library that implements the [Standard Schema v1 spec](https://standardschema
 | [Valibot](https://valibot.dev/) | v1.0+ | `import * as v from 'valibot'` |
 | [ArkType](https://arktype.io/) | v2.0+ | `import { type } from 'arktype'` |
 
-### isStandardSchema()
+#### isStandardSchema()
 
 `isStandardSchema(value)` is exported for use in custom rule factories. Returns `true` if the value implements the Standard Schema v1 interface (`~standard.version === 1`):
 
@@ -243,5 +245,27 @@ function myRuleFactory (input: unknown) {
   }
 }
 ```
+
+## FAQ
+
+::: faq
+
+??? How do I use a Zod, Valibot, or ArkType schema as a rule?
+
+Pass the schema object directly in a `createValidation` `rules` array, alongside alias strings and inline functions — `resolve()` auto-detects [Standard Schema](https://standardschema.dev/) objects and wraps them. They produce async rules, which `createValidation` handles transparently.
+
+??? What's the difference between returning a `string` and `false` from an alias?
+
+A `string` is the inline error message shown on failure. Returning `false` defers the message to the locale plugin — it resolves to `locale.t('$rules.<aliasName>')` when `useLocale` is installed, falling back to the alias name otherwise.
+
+??? How does useRules relate to createValidation?
+
+[createValidation](/composables/forms/create-validation) resolves its alias strings through `useRules()` automatically, so you rarely call `resolve()` yourself. useRules owns the alias map and turns aliases, functions, and schemas into a `FormValidationRule[]`.
+
+??? Can I use rules without installing the plugin?
+
+Yes. `createRules` works standalone outside component scope, and `createRulesContext` with `provideRules()` shares aliases through provide/inject for a subtree. The app-wide `createRulesPlugin` is just the global option — pick whichever scope fits.
+
+:::
 
 <DocsApi />

@@ -77,7 +77,7 @@
         'margin': 'unset',
         'inset-area': positionArea ?? 'bottom',
         'position-area': positionArea ?? 'bottom',
-        'position-anchor': `--${_id}`,
+        'position-anchor': `--${String(_id).replace(/[^a-zA-Z0-9_-]/g, '')}`,
         'position-try-fallbacks': positionTry ?? 'most-width bottom',
       }
     }

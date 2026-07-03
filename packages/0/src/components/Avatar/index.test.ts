@@ -1105,7 +1105,7 @@ describe('avatar', () => {
       wrapper.unmount()
     })
 
-    it('should fall back to "+N" aria-label when locale has no entry for the key', async () => {
+    it('should use English aria-label from locale when no locale plugin is configured', async () => {
       let captured: any
       const wrapper = mount(Avatar.Group, {
         props: { max: 2 },
@@ -1129,7 +1129,7 @@ describe('avatar', () => {
       await nextTick()
 
       expect(captured).toBeDefined()
-      expect(captured.attrs['aria-label']).toBe('+3')
+      expect(captured.attrs['aria-label']).toBe('+3 more')
 
       wrapper.unmount()
     })

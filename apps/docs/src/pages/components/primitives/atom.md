@@ -117,7 +117,7 @@ In **element mode**, Atom renders the element and applies attrs to it. In **rend
 </template>
 ```
 
-## Guide
+## Architecture
 
 Atom is an advanced, low-level primitive that enables **polymorphic components**. A polymorphic component can render an element with default attributes applied, or go renderless and expose its functionality entirely through slot props. Most of the time you won't need Atom directly — it's there for when you're building your own components that need this flexibility.
 
@@ -191,6 +191,27 @@ In renderless mode, the component provides state and behavior through its slot p
 > [!TIP]
 > Any v0 component can be switched between rendered and renderless. Pass `renderless` to strip the wrapper. Pass `as="section"` to add one. This works on every component because they all use Atom underneath.
 
+## Examples
+
+::: gn-example
+/components/atom/AppButton.vue 1
+/components/atom/polymorphic.vue 2
+
+### Polymorphic Button
+
+The same `AppButton` component used two ways. In rendered mode, it outputs a `<button>` and applies attrs automatically — you just drop it in. In renderless mode, it outputs nothing — you provide your own element and bind the attrs from the slot.
+
+This is the core value of building on Atom: one component definition, two consumption patterns.
+
+| File | Role |
+|------|------|
+| `AppButton.vue` | Reusable button — extends `AtomProps`, builds `slotProps.attrs` with class and type, forwards through Atom |
+| `polymorphic.vue` | Demo — same component used rendered (3 variants) and renderless (consumer `<a>` with attrs from slot) |
+
+:::
+
+## Recipes
+
 ### Choosing a default element
 
 When you build a component on Atom, the first decision is: **should it render an element by default, or should it be renderless?**
@@ -252,25 +273,6 @@ When your component needs a reference to Atom's rendered DOM element — for mea
 ```
 
 This is how Pagination components register their elements for width measurement, and how Splitter accesses its root for pointer event coordinates. In renderless mode, `element` is `null` — there's no wrapper to reference.
-
-## Examples
-
-::: gn-example
-/components/atom/AppButton.vue 1
-/components/atom/polymorphic.vue 2
-
-### Polymorphic Button
-
-The same `AppButton` component used two ways. In rendered mode, it outputs a `<button>` and applies attrs automatically — you just drop it in. In renderless mode, it outputs nothing — you provide your own element and bind the attrs from the slot.
-
-This is the core value of building on Atom: one component definition, two consumption patterns.
-
-| File | Role |
-|------|------|
-| `AppButton.vue` | Reusable button — extends `AtomProps`, builds `slotProps.attrs` with class and type, forwards through Atom |
-| `polymorphic.vue` | Demo — same component used rendered (3 variants) and renderless (consumer `<a>` with attrs from slot) |
-
-:::
 
 ## Accessibility
 

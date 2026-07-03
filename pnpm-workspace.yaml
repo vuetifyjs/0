@@ -2,12 +2,14 @@ packages:
   - packages/*
   - apps/*
   - dev
+  - tests/*
 
 autoInstallPeers: true
 
 catalog:
   '@adobe/leonardo-contrast-colors': ^1.1.0
   '@ant-design/colors': ^8.0.1
+  '@arethetypeswrong/cli': ^0.18.3
   '@changesets/changelog-github': ^0.7.0
   '@changesets/cli': ^2.31.0
   '@flagsmith/flagsmith': ^11.0.0
@@ -54,6 +56,7 @@ catalog:
   pinia: ^3.0.4
   pkg-pr-new: ^0.0.70
   posthog-js: ^1.372.6
+  publint: ^0.3.21
   rollup-plugin-sass: ^1.15.3
   sass: ^1.99.0
   sass-embedded: ^1.99.0

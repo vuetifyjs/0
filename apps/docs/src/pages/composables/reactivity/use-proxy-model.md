@@ -136,4 +136,22 @@ Reach for `useProxyModel` when you need to expose a selection context through a 
 
 :::
 
+## FAQ
+
+::: faq
+
+??? Why isn't my array model syncing with a multi-select context?
+
+`multiple` is never inferred from the context — you must pass `{ multiple: true }` explicitly and back it with a `ref<string[]>`. It accepts `MaybeRefOrGetter<boolean>`, so you can also drive it from a prop or computed.
+
+??? Why isn't a disabled item selected when the model already holds its value?
+
+On registration, useProxyModel selects an item whose value the model already holds — but it skips that check for disabled items. The `disabled` property is unwrapped first if it's a `Ref<boolean>`, so a reactively-disabled item also won't auto-select.
+
+??? Do I need to call the returned `stop()` function?
+
+Not inside a component — the watchers dispose automatically via `onScopeDispose`. `stop()` is for early manual cleanup, or when you use the composable outside a component scope where automatic disposal doesn't apply.
+
+:::
+
 <DocsApi />

@@ -1,8 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+// Components
+import { Scrim } from '#v0/components/Scrim'
+
 // Composables
-import { createStackPlugin } from '#v0/composables/useStack'
+import { createStackPlugin, useStack } from '#v0/composables/useStack'
+
+import { createLocalePlugin } from '#v0/composables'
 
 import { AlertDialog } from './index'
 
@@ -689,6 +694,45 @@ describe('alertDialog', () => {
       expect(close.attributes('aria-label')).toBeDefined()
     })
 
+    it('should fall back to the inline default aria-label when no locale plugin is configured', () => {
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Close, {}, () => 'X'),
+          ]),
+        },
+      })
+
+      const close = wrapper.findComponent(AlertDialog.Close as any)
+      expect(close.attributes('aria-label')).toBe('Close')
+    })
+
+    it('should use the translated locale string for aria-label when one is registered', () => {
+      const plugin = createLocalePlugin({
+        default: 'en',
+        messages: {
+          en: {
+            AlertDialog: {
+              close: 'Schließen',
+            },
+          },
+        },
+      })
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        global: { plugins: [plugin] },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Close, {}, () => 'X'),
+          ]),
+        },
+      })
+
+      const close = wrapper.findComponent(AlertDialog.Close as any)
+      expect(close.attributes('aria-label')).not.toBe('Close')
+      expect(close.attributes('aria-label')).toBe('Schließen')
+    })
+
     it('should close dialog on click', async () => {
       const isOpen = ref(true)
 
@@ -1124,6 +1168,73 @@ describe('alertDialog', () => {
       expect(isOpen.value).toBe(false)
       expect(spy).toHaveBeenCalledTimes(1)
     })
+  })
+
+  it('registers the alert-dialog element as the stack top element while open', async () => {
+    // Capture the plugin-provided stack from inside the component tree so
+    // the same registry is used for both the assertion and AlertDialog.Content.
+    let capturedStack: ReturnType<typeof useStack> | undefined
+    const wrapper = mountWithStack(
+      defineComponent({
+        setup () {
+          capturedStack = useStack()
+        },
+        render: () => h(AlertDialog.Root, { modelValue: true }, {
+          default: () => h(AlertDialog.Content as any, null, () => h('p', 'Body')),
+        }),
+      }),
+      { attachTo: document.body },
+    )
+
+    await nextTick()
+    const dialogEl = document.body.querySelector('dialog')
+    expect(dialogEl).not.toBeNull()
+    expect(capturedStack!.topElement.value).toBe(dialogEl)
+
+    wrapper.unmount()
+    await nextTick()
+    expect(capturedStack!.topElement.value).toBeNull()
+  })
+
+  it('reactively honors a blocking alert dialog when its scrim is clicked', async () => {
+    const open = ref(true)
+    const blocking = ref(true)
+    const wrapper = mountWithStack(
+      defineComponent({
+        setup () {
+          return () => [
+            h(AlertDialog.Root, {
+              'modelValue': open.value,
+              'onUpdate:modelValue': (v: boolean) => {
+                open.value = v
+              },
+            }, {
+              default: () => h(AlertDialog.Content as any, { blocking: blocking.value }, () => h('p', 'Body')),
+            }),
+            h(Scrim, { teleport: false, class: 'test-scrim' }),
+          ]
+        },
+      }),
+      { attachTo: document.body },
+    )
+
+    await nextTick()
+
+    // While blocking, a scrim click must not dismiss the alert dialog.
+    const scrim = wrapper.find('.test-scrim')
+    expect(scrim.exists()).toBe(true)
+    await scrim.trigger('click')
+    await nextTick()
+    expect(open.value).toBe(true)
+
+    // Flipping blocking off must propagate reactively: the same scrim now dismisses.
+    blocking.value = false
+    await nextTick()
+    await wrapper.find('.test-scrim').trigger('click')
+    await nextTick()
+    expect(open.value).toBe(false)
+
+    wrapper.unmount()
   })
 })
 

@@ -10,7 +10,8 @@
 
 import { bench, describe } from 'vitest'
 
-import { createFilter } from './index'
+// Framework
+import { createFilter } from '@vuetify/v0/composables'
 
 // Utilities
 import { ref } from 'vue'

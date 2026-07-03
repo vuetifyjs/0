@@ -64,45 +64,6 @@ Once the plugin is installed, use the `useStorage` composable in any component:
 </template>
 ```
 
-## Standalone Usage
-
-Use `createStorage` directly without the plugin system for standalone or module-level caching:
-
-```ts collapse no-filename createStorage
-import { createStorage } from '@vuetify/v0'
-
-const storage = createStorage({ prefix: 'myapp:' })
-
-storage.set('theme', 'dark')
-
-const theme = storage.get('theme', 'light')
-
-console.log(theme.value) // 'dark'
-```
-
-### TTL (Time-to-Live)
-
-Set a `ttl` option (in milliseconds) to automatically expire cached entries. Expired entries return the default value on `get()` and are removed from storage.
-
-```ts collapse no-filename TTL
-import { createStorage } from '@vuetify/v0'
-
-// Cache expires after 5 minutes
-const cache = createStorage({
-  prefix: 'api-cache:',
-  ttl: 5 * 60 * 1000,
-})
-
-// Store fetched data — automatically timestamped
-cache.set('users', await fetchUsers())
-
-// Later reads return the default if expired
-const users = cache.get('users', [])
-```
-
-> [!TIP] How TTL works
-> When `ttl` is set, values are internally wrapped as `{ __ttl, __v, __t }` with a timestamp. On `get()`, if the entry is older than the TTL, it is treated as absent and removed from storage. Non-TTL entries stored previously are read normally.
-
 ## Adapters
 
 Adapters let you swap the underlying storage backend without changing your application code.
@@ -143,15 +104,89 @@ The `get()` method returns reactive refs that sync with storage automatically.
 ## Examples
 
 ::: gn-example
-/composables/use-storage/persistent-settings
+/composables/use-storage/useSettings.ts 1
+/composables/use-storage/SettingsPanel.vue 2
+/composables/use-storage/settings-panel.vue 3
 
-### Persistent Settings
+### Persistent Settings Panel
 
-A settings panel with four independently persisted keys — `name`, `theme`, `count`, and `items` — each returned from `storage.get()` as a reactive `Ref`. Writing to any ref (e.g. incrementing `count.value++` or pushing to `items.value`) is sufficient to persist the value; there is no explicit `set()` call because the refs are watched with `{ deep: true }` internally.
+A settings panel built directly on `createStorage` — the standalone factory behind the plugin. The `name` and `theme` fields are reactive refs returned from `storage.get()` with a default; writing to either ref is enough to persist it, because `get()` watches the value with `{ deep: true }` internally. There is no explicit `set()` call for these — editing the input or picking a theme writes through automatically. A separate "draft note" demonstrates the explicit lifecycle: `set()` to persist, `has()` to check presence, and `remove()` to drop the key.
 
-The `items` key demonstrates deep-watch auto-persistence on an array: adding or removing elements triggers the watcher and serializes the new array to storage in a single write. The `has('count')` readout at the bottom shows how to distinguish "key present with a stored value" from "key absent, returning default" — useful when you need to detect a first visit vs. a returning user.
+The draft is the interesting part. It is held in a local `shallowRef` buffer and only copied into storage when you click Save, so `has('note')` honestly reports whether a draft has been persisted rather than merely cached. Because `has()` returns a plain boolean snapshot — it is not reactive, per the Reactivity table above — the composable re-reads it into a reactive `saved` flag after every `set()` and `remove()`. Forget calls `remove()` to delete the key and clears the buffer, flipping `saved` back to `false`.
 
-The example uses `MemoryStorageAdapter` for isolation, but swapping in `localStorage` or `sessionStorage` requires only changing the adapter at plugin-install time. In a real app the panel's state would survive page refreshes with `localStorage`. Reach for `useStorage` over raw `localStorage` calls whenever you want reactive refs, a shared prefix, TTL expiration, or SSR safety without writing the serialization layer yourself. See [useHydration](/composables/plugins/use-hydration) for coordinating storage reads with SSR hydration.
+The example uses `MemoryStorageAdapter` for isolation; swapping in `localStorage` or `sessionStorage` is a one-line adapter change and makes the panel survive page refreshes. Reach for the storage layer over raw `localStorage` calls whenever you want reactive refs, a shared key prefix, TTL expiration, or SSR safety without hand-writing serialization. With the plugin installed you would call [useStorage](/composables/plugins/use-storage) instead of `createStorage` to share one instance app-wide; see [useHydration](/composables/plugins/use-hydration) and the [plugins guide](/guide/fundamentals/plugins) for coordinating storage reads with SSR hydration.
+
+| File | Role |
+|------|------|
+| `useSettings.ts` | Wraps `createStorage`, exposing persisted `name` and `theme` refs plus the draft buffer and `save` / `forget` / `reset` behavior |
+| `SettingsPanel.vue` | Presentational panel built on `Input` and `Button` that binds the settings and triggers the save and forget actions |
+| `settings-panel.vue` | Entry that instantiates the composable, wires it to the panel, and renders the live stored snapshot |
+:::
+
+## Recipes
+
+### Standalone Usage
+
+Use `createStorage` directly without the plugin system for standalone or module-level caching:
+
+```ts collapse no-filename createStorage
+import { createStorage } from '@vuetify/v0'
+
+const storage = createStorage({ prefix: 'myapp:' })
+
+storage.set('theme', 'dark')
+
+const theme = storage.get('theme', 'light')
+
+console.log(theme.value) // 'dark'
+```
+
+#### TTL (Time-to-Live)
+
+Set a `ttl` option (in milliseconds) to automatically expire cached entries. Expired entries return the default value on `get()` and are removed from storage.
+
+```ts collapse no-filename TTL
+import { createStorage } from '@vuetify/v0'
+
+// Cache expires after 5 minutes
+const cache = createStorage({
+  prefix: 'api-cache:',
+  ttl: 5 * 60 * 1000,
+})
+
+// Store fetched data — automatically timestamped
+cache.set('users', await fetchUsers())
+
+// Later reads return the default if expired
+const users = cache.get('users', [])
+```
+
+> [!TIP] How TTL works
+> When `ttl` is set, values are internally wrapped as `{ __ttl, __v, __t }` with a timestamp. On `get()`, if the entry is older than the TTL, it is treated as absent and removed from storage. Non-TTL entries stored previously are read normally.
+
+## FAQ
+
+::: faq
+
+??? Do I need to call `set()` to persist a value?
+
+No. The ref returned by `get(key, default)` is watched with `{ deep: true }`, so writing to `.value` (or binding it with `v-model`) persists automatically. `set()` is the explicit alternative when you don't hold the ref.
+
+??? Why doesn't an empty string fall back to my default?
+
+`get()` uses nullish coalescing internally, so `''` is treated as a valid stored value — only `null` and `undefined` trigger the default. This preserves intentionally-cleared fields.
+
+??? How do I make cached entries expire automatically?
+
+Pass a `ttl` (in milliseconds) to `createStorage`. Entries are timestamped on write; once older than the TTL, `get()` returns the default and removes the entry from storage.
+
+??? How do I use sessionStorage instead of localStorage?
+
+Pass the backend you want as the `adapter` option. `localStorage` is the browser default; `sessionStorage` scopes values to the tab, and `MemoryStorageAdapter` (from `@vuetify/v0/storage/adapters/memory`) keeps them in memory only.
+
+??? Is useStorage safe to call during SSR?
+
+Yes. With no browser storage on the server it falls back to `MemoryStorageAdapter`, so reads and writes work and the render stays deterministic — values just don't persist across requests. Pair it with [useHydration](/composables/plugins/use-hydration) to coordinate reads with client hydration.
 
 :::
 

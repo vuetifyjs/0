@@ -46,6 +46,27 @@ tree.open('root')
 tree.select('child-1')
 ```
 
+## Context / DI
+
+### Context Pattern
+
+Use with Vue's provide/inject for component trees:
+
+```ts
+import { createNestedContext } from '@vuetify/v0'
+
+// Create a trinity
+const [useTree, provideTree, defaultTree] = createNestedContext({
+  namespace: 'my-tree',
+})
+
+// In parent component
+provideTree()
+
+// In child components
+const tree = useTree()
+```
+
 ## Architecture
 
 `createNested` extends `createGroup` with hierarchical tree management:
@@ -60,40 +81,6 @@ flowchart TD
   createNested --> parents[parents Map]
   createNested --> openedIds[openedIds Set]
 ```
-
-## Reactivity
-
-`createNested` uses **shallowReactive** for tree state, making structural changes reactive while keeping traversal methods non-reactive for performance.
-
-| Property/Method | Reactive | Notes |
-| - | :-: | - |
-| `children` | <AppSuccessIcon /> | ShallowReactive Map |
-| `parents` | <AppSuccessIcon /> | ShallowReactive Map |
-| `openedIds` | <AppSuccessIcon /> | ShallowReactive Set |
-| `openedItems` | <AppSuccessIcon /> | Computed from openedIds |
-| `rootIds` | <AppSuccessIcon /> | ShallowReactive Set — IDs of all top-level (parentless) nodes |
-| `roots` | <AppSuccessIcon /> | Computed, root nodes |
-| `leaves` | <AppSuccessIcon /> | Computed, leaf nodes |
-| `ticket.isOpen` | <AppSuccessIcon /> | Ref via toRef() |
-| `ticket.isLeaf` | <AppSuccessIcon /> | Ref via toRef() |
-| `ticket.depth` | <AppSuccessIcon /> | Ref via toRef() |
-
-## Examples
-
-::: gn-example
-/composables/create-nested/basic
-
-### Collapsible Navigation Tree
-
-A navigation sidebar built with `createNested` demonstrating inline child registration, expand/collapse controls, and multi-select checkboxes with indeterminate parent state — all in a single file.
-
-`onboard()` accepts a recursive `children` array, so the entire four-level tree (Getting Started → Components → Inputs → individual inputs) is registered in one call. `nav.open('getting-started')` preselects the first branch on mount. The `getVisibleNodes()` function walks `nav.children` and short-circuits at any node where `nav.opened(id)` is false, producing a flat list of currently visible IDs; the template iterates this flat list and uses `nav.getDepth(id)` to calculate left-padding, so depth-based indentation requires no extra state.
-
-Each row renders a checkbox that calls `nav.toggle(id)` on click (stopping propagation so the row's expand-toggle doesn't fire at the same time). Parent checkboxes show the mixed/indeterminate state via `nav.mixed(id)` — a check mark for fully selected, a dash for mixed, empty for unselected — which is automatically maintained by `createNested`'s cascade logic. `expandAll()` and `collapseAll()` are wired to the toolbar buttons with no additional logic.
-
-Reach for this when you need a sidebar nav, file browser, or category tree where nodes expand independently and selection can cascade through parent-child relationships. For flat multi-select without hierarchy, [createGroup](/composables/selection/create-group) is lighter. For three selection strategies (cascade, independent, leaf), see the `selection` option on [createNested](/composables/selection/create-nested).
-
-:::
 
 ## Options
 
@@ -177,9 +164,73 @@ const flat = createNested({ selection: 'independent' })
 const picker = createNested({ selection: 'leaf' })
 ```
 
-## Selection Modes
+## Reactivity
 
-### Cascade Mode (Default)
+`createNested` uses **shallowReactive** for tree state, making structural changes reactive while keeping traversal methods non-reactive for performance.
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `children` | <AppSuccessIcon /> | ShallowReactive Map |
+| `parents` | <AppSuccessIcon /> | ShallowReactive Map |
+| `openedIds` | <AppSuccessIcon /> | ShallowReactive Set |
+| `openedItems` | <AppSuccessIcon /> | Computed from openedIds |
+| `rootIds` | <AppSuccessIcon /> | ShallowReactive Set — IDs of all top-level (parentless) nodes |
+| `roots` | <AppSuccessIcon /> | Computed, root nodes |
+| `leaves` | <AppSuccessIcon /> | Computed, leaf nodes |
+| `ticket.isOpen` | <AppSuccessIcon /> | Ref via toRef() |
+| `ticket.isLeaf` | <AppSuccessIcon /> | Ref via toRef() |
+| `ticket.depth` | <AppSuccessIcon /> | Ref via toRef() |
+
+### Ticket Properties
+
+Each registered node receives additional properties:
+
+```ts
+const node = tree.register({ id: 'node', value: 'Node', parentId: 'root' })
+
+// Reactive refs
+node.isOpen.value      // boolean - is this node open?
+node.isLeaf.value      // boolean - has no children?
+node.depth.value       // number - depth in tree (0 = root)
+
+// Methods
+node.open()            // Open this node
+node.close()           // Close this node
+node.flip()            // Flip open/closed state
+node.getPath()         // Get path from root to this node
+node.getAncestors()    // Get all ancestors
+node.getDescendants()  // Get all descendants
+```
+
+## Examples
+
+::: gn-example
+/composables/create-nested/context.ts 1
+/composables/create-nested/FileTreeProvider.vue 2
+/composables/create-nested/FileTreeExplorer.vue 3
+/composables/create-nested/file-explorer.vue 4
+
+### File Tree Explorer
+
+A file-tree explorer split across the provider/consumer pattern, showing how `createNested` coordinates expand/collapse state and cascading selection over a hierarchy. `context.ts` is the only file that touches the composable: it pairs `createNested({ selection: 'cascade' })` with a `createContext` tuple, declares the per-node `FileMeta` (a label plus a `folder`/`file` kind stored as the ticket `value`), and exposes a typed `toRegistration` mapper that turns a plain nested `FileNode[]` into the recursive `children` shape `onboard()` expects. `FileTreeProvider.vue` instantiates the tree, batch-registers the whole structure with one `onboard()` call, opens the root, and provides the context augmented with a typed `meta(id)` reader and a `stats` computed. `FileTreeExplorer.vue` injects that context and renders the UI without ever knowing how the tree was built.
+
+The consumer flattens the tree for rendering with a small `walk()` helper that reads `children.get(id)` and short-circuits wherever `opened(id)` is false, so collapsed branches contribute nothing to the visible list; `getDepth(id)` then drives left-padding, so indentation needs no extra bookkeeping. Selection is the headline: each row uses a standalone [Checkbox](/components/forms/checkbox) bound to `selected(id)` with `:indeterminate="mixed(id)"`, and clicking it calls `toggle(id)`. Because the instance runs in cascade mode, toggling a folder selects or clears every descendant while ancestors automatically resolve to selected, mixed, or empty — the indeterminate dash you see on a partially-selected folder is maintained entirely by the composable, not by the example. `expandAll()` and `collapseAll()` wire straight to the toolbar.
+
+Reach for this pattern when you need a file browser, sidebar nav, or category picker where branches expand independently and a parent's checkbox should reflect its children. The provider/consumer split keeps the consumer reusable against any context that satisfies the interface. For flat multi-select without hierarchy, [createGroup](/composables/selection/create-group) is lighter; for a batteries-included tree with focus and ARIA wired up, see the [Treeview](/components/disclosure/treeview) component. Switch the `selection` option to `independent` or `leaf` to change how toggling a folder propagates.
+
+| File | Role |
+|------|------|
+| `context.ts` | Creates the nested instance and `createContext` tuple, defines `FileMeta` plus the `toRegistration` mapper and `source` data |
+| `FileTreeProvider.vue` | Instantiates the tree, batch-registers via `onboard()`, and provides the context with `meta()` and `stats` |
+| `FileTreeExplorer.vue` | Consumes the context to render rows, drive cascade selection, and flatten visible nodes |
+| `file-explorer.vue` | Entry point composing the provider around the explorer |
+:::
+
+## Recipes
+
+### Selection Modes
+
+#### Cascade Mode (Default)
 
 Selection propagates through the hierarchy:
 
@@ -204,7 +255,7 @@ tree.select('child-1')
 - **Some children selected** → Parent becomes mixed
 - **No children selected** → Parent becomes unselected (not mixed)
 
-### Independent Mode
+#### Independent Mode
 
 Each node is selected independently with no cascading:
 
@@ -215,7 +266,7 @@ tree.select('parent')
 // Only 'parent' is selected, children unchanged
 ```
 
-### Leaf Mode
+#### Leaf Mode
 
 Only leaf nodes can be selected. Selecting a parent selects all leaf descendants:
 
@@ -227,9 +278,9 @@ tree.select('folder')
 // 'folder' itself is not in selectedIds
 ```
 
-## Convenience Methods
+### Convenience Methods
 
-### Expand/Collapse All
+#### Expand/Collapse All
 
 ```ts
 // Open all non-leaf nodes
@@ -239,7 +290,7 @@ tree.expandAll()
 tree.collapseAll()
 ```
 
-### Data Transformation
+#### Data Transformation
 
 Convert tree to flat array for serialization or API consumption:
 
@@ -251,7 +302,7 @@ const flat = tree.toFlat()
 console.log(JSON.stringify(flat))
 ```
 
-## Inline Children Registration
+### Inline Children Registration
 
 Define children directly when registering items:
 
@@ -276,7 +327,7 @@ tree.onboard([
 ])
 ```
 
-## Cascade Unregister
+### Cascade Unregister
 
 Remove a node and optionally all its descendants:
 
@@ -291,44 +342,34 @@ tree.unregister('parent', true)
 tree.offboard(['node-1', 'node-2'], true)
 ```
 
-## Ticket Properties
+## FAQ
 
-Each registered node receives additional properties:
+::: faq
 
-```ts
-const node = tree.register({ id: 'node', value: 'Node', parentId: 'root' })
+??? What's the difference between the cascade, independent, and leaf selection modes?
 
-// Reactive refs
-node.isOpen.value      // boolean - is this node open?
-node.isLeaf.value      // boolean - has no children?
-node.depth.value       // number - depth in tree (0 = root)
+`cascade` (default) selects all descendants when you select a parent and shows ancestors as mixed; `independent` selects each node alone with no propagation; `leaf` lets only leaf nodes be selected, so selecting a parent selects its leaf descendants — the file-picker pattern.
 
-// Methods
-node.open()            // Open this node
-node.close()           // Close this node
-node.flip()            // Flip open/closed state
-node.getPath()         // Get path from root to this node
-node.getAncestors()    // Get all ancestors
-node.getDescendants()  // Get all descendants
-```
+??? How do I make the tree behave like an accordion?
 
-## Context Pattern
+Pass `open: 'single'` so only one node can be open at a time. The default `open: 'multiple'` lets several branches stay expanded simultaneously.
 
-Use with Vue's provide/inject for component trees:
+??? When should I use createNested instead of the Treeview component?
 
-```ts
-import { createNestedContext } from '@vuetify/v0'
+Use createNested when you're building custom tree UI and only want the hierarchy logic. The [Treeview](/components/disclosure/treeview) component wraps it with focus management and ARIA already wired up. For flat multi-select with no hierarchy, [createGroup](/composables/selection/create-group) is lighter.
 
-// Create a trinity
-const [useTree, provideTree, defaultTree] = createNestedContext({
-  namespace: 'my-tree',
-})
+??? What happens to a node's children when I unregister it?
 
-// In parent component
-provideTree()
+By default they're orphaned — `unregister('parent')` removes only that node. Pass `true` to cascade: `unregister('parent', true)` removes the node and every descendant, and `offboard(['a', 'b'], true)` does the same for a batch.
 
-// In child components
-const tree = useTree()
-```
+??? How do I get a node's ancestors, descendants, or path?
+
+Each registered ticket exposes `getPath()` (root-to-node), `getAncestors()`, and `getDescendants()`. Use them to highlight a node's lineage or operate on a whole subtree.
+
+??? How do I serialize the tree for an API or storage?
+
+Call `toFlat()` — it returns a flat `[{ id, parentId, value }, ...]` array (one entry per node) that you can `JSON.stringify` and send to an API or persist.
+
+:::
 
 <DocsApi />

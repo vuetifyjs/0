@@ -16,7 +16,7 @@ jobs:
       issues: write # peter-evans/create-issue-from-file
     steps:
       - uses: actions/checkout@v6
-      - uses: vuetifyjs/setup-action@fb6949e3ee1041636b7fa9eef3c7694ff31840b8 # master
+      - uses: vuetifyjs/setup-action@cb5ac088588387e65433a762de90c0b06d878677 # master
       - run: pnpm run build:docs
         env:
           VITE_API_SERVER_URL: ${{ vars.API_SERVER_URL }}

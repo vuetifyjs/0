@@ -109,6 +109,7 @@ Stack state and ticket properties are reactive for automatic UI updates.
 | `top` | <AppSuccessIcon /> | Topmost overlay ticket |
 | `scrimZIndex` | <AppSuccessIcon /> | Z-index for scrim element |
 | `isBlocking` | <AppSuccessIcon /> | Top overlay blocks dismissal |
+| `topElement` | <AppSuccessIcon /> | Element of the topmost open modal (`<dialog>`), or `null`; consumed by `Portal`/`Snackbar.Portal` via `teleport="top-layer"` |
 | ticket `zIndex` | <AppSuccessIcon /> | Computed from selection order |
 | ticket `globalTop` | <AppSuccessIcon /> | True if topmost |
 | ticket `isSelected` | <AppSuccessIcon /> | Overlay active state |
@@ -138,7 +139,23 @@ Open multiple overlays to see z-index layering in action. This pattern applies d
 
 :::
 
-## Scrim Integration
+## Recipes
+
+### Top-Layer Teleport
+
+Pass `el` when registering a modal overlay so `useStack().topElement` resolves to its DOM element. `Portal` and `Snackbar.Portal` read `topElement` when `teleport="top-layer"` (the Snackbar.Portal default), teleporting overlays into the topmost open modal's subtree so they share its top-layer context and stay interactive:
+
+```ts no-filename
+const stack = useStack()
+const ticket = stack.register({
+  el: () => dialogRef.value?.element,
+  onDismiss: () => { isOpen.value = false },
+})
+```
+
+Dialog and AlertDialog pass their `<dialog>` element automatically — this pattern is only needed when building a custom modal component from scratch.
+
+### Scrim Integration
 
 Use the `Scrim` component alongside `useStack` to provide a backdrop for your overlays. The Scrim automatically positions itself below the topmost overlay:
 
@@ -153,5 +170,27 @@ import { Scrim } from '@vuetify/v0'
 ```
 
 The Scrim reads from the same stack context, so its z-index is always coordinated with your registered overlays.
+
+## FAQ
+
+::: faq
+
+??? Do I have to install the plugin to use useStack?
+
+Not for client-only apps — you can use the default `stack` singleton directly. Install `createStackPlugin` for SSR, where it ensures each request gets its own isolated stack instance instead of sharing one across requests.
+
+??? How do I give a nested group of overlays its own z-index range?
+
+Use `createStackContext({ namespace, baseZIndex })` to create a separate stacking namespace — e.g. overlays opened inside a modal — then provide it and register tickets against that context instead of the global stack.
+
+??? How do I stop a scrim click from dismissing the top overlay?
+
+Register it with `blocking: true`. The overlay stays topmost, but the stack's `isBlocking` flag tells the Scrim to ignore pointer events, so clicking the backdrop won't dismiss it.
+
+??? How does useStack decide each overlay's z-index?
+
+It assigns them from selection order: the first activated overlay gets the base z-index (2000), and each one stacked on top steps up from there (2010, …). Pass `baseZIndex` to `createStackContext` to shift the starting point for a separate namespace.
+
+:::
 
 <DocsApi />

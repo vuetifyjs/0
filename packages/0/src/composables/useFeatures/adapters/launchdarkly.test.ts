@@ -115,4 +115,20 @@ describe('launchDarklyFeaturesAdapter', () => {
       expect(flags).toEqual({})
     })
   })
+
+  describe('prototype pollution', () => {
+    it('should skip unsafe flag keys', () => {
+      const mockClient = createMockClient()
+      const allFlags = JSON.parse('{"safe": {"color": "blue"}, "__proto__": {"color": "evil"}, "constructor": {"color": "evil"}}')
+      mockClient.allFlags.mockReturnValue(allFlags)
+
+      const adapter = new LaunchDarklyFeaturesAdapter(mockClient as never)
+      const flags = adapter.setup(vi.fn())
+
+      expect(Object.hasOwn(flags, 'safe')).toBe(true)
+      expect(Object.hasOwn(flags, '__proto__')).toBe(false)
+      expect(Object.hasOwn(flags, 'constructor')).toBe(false)
+      expect(Object.getPrototypeOf(flags)).toBe(Object.prototype)
+    })
+  })
 })

@@ -109,4 +109,26 @@ The example exercises `pause()` and `resume()` so you can see that mutations fir
 
 :::
 
+## FAQ
+
+::: faq
+
+??? Why are mutations that happen while paused never reported?
+
+`pause()` stops observation outright; changes during the pause are dropped and are not replayed when you call `resume()`. Use it to skip noise during bulk DOM writes, then resume once the work is done.
+
+??? How do I watch text or attribute changes on descendants, not just direct children?
+
+Set `subtree: true` to extend observation to every descendant, then enable the record types you need — `characterData` for text, `attributes` for attribute changes. `childList` is on by default.
+
+??? When should I use useMutationObserver vs the other observers?
+
+Use useMutationObserver for DOM-tree, attribute, and text changes. Reach for [useResizeObserver](/composables/system/use-resize-observer) for element size changes and [useIntersectionObserver](/composables/system/use-intersection-observer) for viewport visibility.
+
+??? Can I observe only specific attributes instead of every attribute change?
+
+Yes. Set `attributes: true` and pass `attributeFilter: ['class', 'data-state']` to limit observation to those names, which avoids callback noise from unrelated attribute writes.
+
+:::
+
 <DocsApi />

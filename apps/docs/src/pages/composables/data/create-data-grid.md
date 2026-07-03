@@ -58,32 +58,6 @@ grid.layout.hide('budget')    // exclude from the render set
 grid.layout.reset()            // restore initial layout
 ```
 
-## Architecture
-
-`createDataGrid` composes [createDataTable](/composables/data/create-data-table) — which owns the data pipeline (filter, sort, paginate) — with four grid modules: column layout, cell editing, row ordering ([createSortable](/composables/data/create-sortable)), and row spanning. Columns and rows are both onboarded through registries (`grid.columns.onboard(...)`, `grid.onboard(...)`) rather than passed as options, the same shape as createDataTable. Per-column config (`size`, `pinned`, `editable`, `validate`, `span`) rides on each column ticket, so layout, editing, and spanning read it straight off `grid.columns` and pick up columns onboarded at any time.
-
-```mermaid "createDataGrid Architecture"
-flowchart TD
-  createDataGrid:::primary --> table["createDataTable (pipeline)"]
-  createDataGrid --> layout["layout (grid.columns + createGroup)"]
-  createDataGrid --> editing["editing (createCellEditing)"]
-  createDataGrid --> ordering["rows (createSortable)"]
-  createDataGrid --> spanning["spans (createRowSpanning)"]
-  table --> adapter["DataTableAdapter (Client / Server / Virtual)"]
-  ordering -. "id sequence" .-> createDataGrid
-  layout --> pin["pin / resize / reorder"]
-  editing --> edit["edit / commit / cancel + validate"]
-  spanning --> span["computed span map (hidden cell tracking)"]
-```
-
-| Module | Built on | Purpose |
-| - | - | - |
-| `table` (spread) | `createDataTable` | Search, sort, filter, paginate, total — all v-modeled through |
-| `layout` | `grid.columns` + `createGroup` | Reads column order and config from the column registry; layers tri-region pinning, percentage sizing, delta-based resize, and visibility (`show` / `hide` / `toggle` / `all`) on top |
-| `editing` | internal factory | Click-to-edit lifecycle, per-column validation, dirty tracking |
-| `rows` | `createSortable` | Post-sort row reordering, layered in the grid's `items` projection over the sorted rows before pagination — not inside the adapter |
-| `spans` | computed map | Row span resolution and hidden-cell tracking |
-
 ## Adapters
 
 The grid uses the standard data table adapters — row ordering is layered above the pipeline, not inside it, so any [DataTableAdapter](/composables/data/create-data-table#adapters) works without modification.
@@ -149,6 +123,32 @@ const grid = createDataGrid({
 grid.columns.onboard(columns)
 grid.onboard(largeDataset.map(value => ({ id: value.id, value })))
 ```
+
+## Architecture
+
+`createDataGrid` composes [createDataTable](/composables/data/create-data-table) — which owns the data pipeline (filter, sort, paginate) — with four grid modules: column layout, cell editing, row ordering ([createSortable](/composables/data/create-sortable)), and row spanning. Columns and rows are both onboarded through registries (`grid.columns.onboard(...)`, `grid.onboard(...)`) rather than passed as options, the same shape as createDataTable. Per-column config (`size`, `pinned`, `editable`, `validate`, `span`) rides on each column ticket, so layout, editing, and spanning read it straight off `grid.columns` and pick up columns onboarded at any time.
+
+```mermaid "createDataGrid Architecture"
+flowchart TD
+  createDataGrid:::primary --> table["createDataTable (pipeline)"]
+  createDataGrid --> layout["layout (grid.columns + createGroup)"]
+  createDataGrid --> editing["editing (createCellEditing)"]
+  createDataGrid --> ordering["rows (createSortable)"]
+  createDataGrid --> spanning["spans (createRowSpanning)"]
+  table --> adapter["DataTableAdapter (Client / Server / Virtual)"]
+  ordering -. "id sequence" .-> createDataGrid
+  layout --> pin["pin / resize / reorder"]
+  editing --> edit["edit / commit / cancel + validate"]
+  spanning --> span["computed span map (hidden cell tracking)"]
+```
+
+| Module | Built on | Purpose |
+| - | - | - |
+| `table` (spread) | `createDataTable` | Search, sort, filter, paginate, total — all v-modeled through |
+| `layout` | `grid.columns` + `createGroup` | Reads column order and config from the column registry; layers tri-region pinning, percentage sizing, delta-based resize, and visibility (`show` / `hide` / `toggle` / `all`) on top |
+| `editing` | internal factory | Click-to-edit lifecycle, per-column validation, dirty tracking |
+| `rows` | `createSortable` | Post-sort row reordering, layered in the grid's `items` projection over the sorted rows before pagination — not inside the adapter |
+| `spans` | computed map | Row span resolution and hidden-cell tracking |
 
 ## Reactivity
 
@@ -394,5 +394,35 @@ grid.headers.value
 // [[{ id: 'name', rowspan: 2 }, { id: 'contact', colspan: 2 }],
 //  [{ id: 'email' }, { id: 'phone' }]]
 ```
+
+## FAQ
+
+::: faq
+
+??? When should I use createDataGrid vs createDataTable?
+
+createDataGrid composes [createDataTable](/composables/data/create-data-table) and layers on column `layout` (pin, resize, reorder, hide), cell `editing`, row `ordering`, and row `spanning`. Use the table when you only need the data pipeline; reach for the grid when you need spreadsheet-style column manipulation or editable cells.
+
+??? Why does my manual row order reset when I sort a column?
+
+Row ordering resets on sort change by default. Pass `preserveRowOrder: true` to keep the custom `rows.order` across sort changes.
+
+??? How do I resize one column without breaking the layout?
+
+Call `grid.layout.resize(id, delta)` — it grows that column by a percentage and shrinks its neighbor inversely so the columns always total 100%. `grid.layout.reset()` restores the initial sizes, order, and pins.
+
+??? How does a cell edit get validated before it commits?
+
+`grid.editing.commit(value)` runs the column's `validate` function first — the commit only lands when the validator returns `true`, and `grid.editing.error` holds the rejection string until the value passes or the user cancels.
+
+??? Does hiding a column redistribute the remaining column widths?
+
+No — `grid.layout.hide(id)` just drops the column from the render set; rebalancing is left to you via `grid.layout.distribute([...])` or CSS. `grid.layout.all` lists every column with a `visible` flag, which is exactly the shape a column chooser needs.
+
+??? Can I render grouped, multi-row column headers?
+
+Yes. Onboard columns with a `children` array and read `grid.headers` — a 2D grid carrying `colspan` / `rowspan` for `<thead>`. The layout and data pipeline still operate on the leaf columns only.
+
+:::
 
 <DocsApi />

@@ -48,27 +48,23 @@ Rating supports whole and half-star modes. Items expose their state via data att
 ## Examples
 
 ::: gn-example
-/components/rating/basic
+/components/rating/useReview.ts 1
+/components/rating/ReviewForm.vue 2
+/components/rating/review-form.vue 3
 
-### Basic
+### Product review form
 
-A 5-star rating widget driven by `Rating.Root` (which provides `role="slider"` semantics) with five `Rating.Item` children rendered as buttons. Each item receives a `state` slot prop — `"full"`, `"half"`, or `"empty"` — used here to switch between a filled star (★) and an empty star outline (☆) with amber/muted coloring. Hover updates a live preview before committing; clicking commits the value to the `v-model`.
+A "leave a review" widget that pairs a half-star `Rating.Root` with a validated comment field inside a single [Form](/components/forms/form). The rating runs in `renderless` mode, so the slot `attrs` (which carry `role="slider"` plus the `aria-value*` and keyboard bundle) bind to your own wrapper element, and each `Rating.Item` renders a star from its `state` slot prop — layering a clipped filled star over an outline for the `"half"` state. The `half` prop unlocks 0.5-step precision, and a live label translates the hovered or committed value ("Good", "Excellent") so the reader always sees what they are about to submit.
 
-Keyboard users can increment or decrement the rating with arrow keys, jump to 0 with `Home`, and jump to the maximum with `End` — all handled by `Rating.Root` without extra event listeners. The current numeric value is tracked in a `shallowRef` and displayed below the widget.
+Form submission is where the two controls diverge. The comment is an [Input](/components/forms/input) field, so it auto-registers with the `Form` validation registry and the `@submit` payload's `valid` flag already reflects its rules. The rating is not a validation field, so it cannot ride that flag — the component keeps a local `starsError` and only forwards a successful submit when both the Form is valid and a rating was chosen. The `name="review-rating"` prop on `Rating.Root` auto-renders the hidden input, so the star value posts with the form without ever placing a `Rating.HiddenInput` by hand.
 
-Reach for this pattern whenever you need a compact, accessible star rating in a review form, product listing, or feedback widget.
+Reach for this triad when a rating is one part of a larger form rather than a standalone control: the composable owns the submitted-review state and reset, the reusable component owns the v0 surface and styling, and the entry wires them together with a summary panel. The trade-off is the manual rating-required guard — acceptable here because mixing a slider-style control with text validation in one submit is a common real-world shape. Related: [createRating](/composables/forms/create-rating), [Slider](/components/forms/slider).
 
-:::
-
-::: gn-example
-/components/rating/half-stars
-
-### Half Stars
-
-Adds the `half` prop to `Rating.Root`, enabling 0.5-step precision (values like 2.5 or 3.5). Each `Rating.Item` receives three possible states — `"full"`, `"half"`, and `"empty"` — and the half state is rendered by layering a clipped filled star over an empty outline to show the left half filled. Hovering over the left portion of a star previews a half value; the right portion previews the full value.
-
-This pattern is useful for product ratings or reviews where half-star granularity matters. The initial value is set to 2.5, demonstrating that pre-set fractional values render correctly before any user interaction. The step increment/decrement via arrow keys also steps by 0.5 when `half` is enabled.
-
+| File | Role |
+|------|------|
+| `useReview.ts` | Owns the review state (`stars`, `comment`, `submitted`) plus submit/reset behavior |
+| `ReviewForm.vue` | Renders the Rating + Input inside a Form and guards the rating-required rule |
+| `review-form.vue` | Wires the composable to the form and shows the submitted-review summary |
 :::
 
 ## Accessibility
@@ -104,6 +100,8 @@ Rating.Root provides `role="slider"` with `aria-valuenow`, `aria-valuemin`, `ari
 | `data-highlighted` | present/absent | Within hover range |
 | `data-disabled` | present/absent | Inherited from root |
 | `data-readonly` | present/absent | Inherited from root |
+
+## FAQ
 
 ::: faq
 

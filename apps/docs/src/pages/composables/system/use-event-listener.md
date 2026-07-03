@@ -106,4 +106,22 @@ Reach for this pattern over a template-level `@mousemove` when the listener targ
 
 :::
 
+## FAQ
+
+::: faq
+
+??? When should I use useEventListener instead of a template `@click` handler?
+
+When the target is dynamic (a ref, getter, or `window`/`document`), when you want one call site for setup and automatic teardown, or when the event name itself is reactive. Native `addEventListener` has no `effectScope` awareness, so its listeners outlive scope disposal; useEventListener wires `onScopeDispose` for you.
+
+??? Is `useWindowEventListener` safe to call during SSR?
+
+Yes — `useWindowEventListener` and `useDocumentEventListener` check `IN_BROWSER` and return a no-op cleanup on the server. Raw `window`/`document` access inside the listener body (e.g. `window.innerWidth`) is not guarded for you; wrap that yourself.
+
+??? Can one call listen for several events at once?
+
+Yes. The second argument accepts an array of event names — `useEventListener(el, ['mouseenter', 'mouseleave'], cb)` — and the same handler runs for each.
+
+:::
+
 <DocsApi />

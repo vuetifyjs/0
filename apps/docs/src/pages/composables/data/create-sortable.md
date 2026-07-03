@@ -75,7 +75,7 @@ The composable adds four things on top of `createModel`:
 |---|---|---|
 | `move` override | sortable | Wraps `registry.move` to emit `move:ticket` with `{ ticket, from, to }` |
 | `swap(a, b)` | sortable | Two batched `move` calls; emits two `move:ticket` events |
-| `reorder(ids)` | sortable | Strict permutation set; throws on length mismatch, unknown id, or duplicate id |
+| `reorder(ids)` | sortable | Strict permutation set; logs a warning and no-ops on length mismatch, unknown id, or duplicate id |
 | Typed `on` / `off` | sortable | Overloads narrow `move:ticket` callback payload to `SortableMovePayload<E>` |
 
 > [!TIP]
@@ -100,17 +100,23 @@ createSortable's surface is mostly imperative — `move`, `swap`, and `reorder` 
 ## Examples
 
 ::: gn-example
-/composables/create-sortable/basic
+/composables/create-sortable/usePlaylist.ts 1
+/composables/create-sortable/Playlist.vue 2
+/composables/create-sortable/playlist.vue 3
 
-### Button-driven reorder
+### Button and keyboard reorder
 
-Four tasks registered via `onboard`, rendered in order, each with an up-arrow and down-arrow button. That is the complete surface: `sortable.move(ticket.id, ticket.index - 1)` and `sortable.move(ticket.id, ticket.index + 1)`.
+A playlist queue reordered two ways from the same state: per-row up and down buttons, and arrow-key presses while a row is focused. Both paths funnel into `sortable.move(id, index)` — the entire mutation surface for this example. The composable owns the order and the move semantics; `Playlist.vue` is pure presentation that calls back into it, so the same logic drives clicks and keystrokes without duplication.
 
-The template iterates `proxy.values` from `useProxyRegistry(sortable)`, which returns a reactive array that updates whenever the registry order changes — no manual `watch`, no state duplication. Up and down buttons disable themselves at the edges via `:disabled="ticket.index === 0"` and `:disabled="ticket.index === proxy.size - 1"`, so the boundary check lives entirely in the template without any helper logic.
+The template iterates `proxy.values` from `useProxyRegistry(sortable)`, a reactive snapshot that re-renders whenever the registry order changes — no manual `watch`, no second copy of the list. Buttons disable at the edges via `:disabled="ticket.index === 0"` and `:disabled="ticket.index === proxy.size - 1"`, and `moveUp` / `moveDown` repeat the bounds check so arrow keys no-op past the ends. Subscribing to the typed `move:ticket` event drives the live status line below the list, and because `TransitionGroup` reuses the keyed DOM nodes, focus rides along with a row as it moves — press the arrow key again to keep nudging it. The `.list-move` transition on `transform` animates the slide.
 
-A CSS `TransitionGroup` with a `.list-move` transition on `transform` gives the animated slide on each reorder. The transition only needs one CSS class — the browser handles the intermediate frames.
+Reach for this pattern for any user-ordered list where drag is unnecessary: priority queues, column choosers, sidebar section ordering. It builds on [createModel](/composables/selection/create-model) for the value store and [useProxyRegistry](/composables/reactivity/use-proxy-registry) for the reactive view. Upgrade to the drag-and-drop example below — pairing with [useDragDrop](/composables/system/use-drag-drop) — when pointer dragging is required.
 
-Reach for this pattern for any user-ordered list where drag is unnecessary: priority queues, column choosers, sidebar section ordering. Upgrade to the DnD example below when pointer dragging is required.
+| File | Role |
+|------|------|
+| `usePlaylist.ts` | Owns the sortable instance, track data, the proxy snapshot, the `move:ticket` status line, and bounds-checked `moveUp` / `moveDown` |
+| `Playlist.vue` | Renders the ordered rows with up/down buttons and translates arrow-key presses into move calls |
+| `playlist.vue` | Wires the composable to the component and shows the live reorder status |
 
 :::
 
@@ -186,5 +192,31 @@ dnd.zones.register({
 ```
 
 A first-class `useSortableDnD` adapter is on the roadmap; until then, wire `useDragDrop`'s callbacks to `sortable.move` directly.
+
+## FAQ
+
+::: faq
+
+??? Does createSortable handle drag-and-drop?
+
+No — it's pure order state with `move`, `swap`, and `reorder`. Pair it with [useDragDrop](/composables/system/use-drag-drop) for pointer dragging, or wire buttons and arrow keys straight to `move`. The split keeps order and input modality independently testable.
+
+??? How do I apply an authoritative order from my backend?
+
+Pass the id array to `reorder(ids)`. It accepts a strict permutation of the currently-registered ids — rejecting a length mismatch, unknown id, or duplicate — so you never diff positions yourself.
+
+??? Why doesn't `reorder` respect a disabled ticket?
+
+`reorder` is a bulk operation that declares the canonical order, so it bypasses per-ticket `disabled` (root `disabled` still gates it). To keep a disabled ticket pinned, exclude its id from the array.
+
+??? How do I react to a reorder?
+
+Subscribe with `on('move:ticket', cb)` — the payload is `{ ticket, from, to }`. `createSortable` always enables `events: true`, so `move`, `swap`, and `reorder` all emit it without extra setup.
+
+??? The surface is imperative — how do I render a list that stays in sync?
+
+Wrap the instance in [useProxyRegistry](/composables/reactivity/use-proxy-registry) for a reactive `{ keys, values, entries, size }` snapshot. Iterating it re-renders on every `move`, `swap`, and `reorder` — no manual `watch`, no second copy of the list.
+
+:::
 
 <DocsApi />

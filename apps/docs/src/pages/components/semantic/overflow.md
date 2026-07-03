@@ -64,14 +64,23 @@ Headless responsive truncation primitive. Children render until the container ru
 ## Examples
 
 ::: gn-example
-/components/overflow/basic
+/components/overflow/useToolbarItems.ts 1
+/components/overflow/OverflowToolbar.vue 2
+/components/overflow/overflow-toolbar.vue 3
 
-### Tags
+### Responsive toolbar
 
-The canonical use case. As the container shrinks, trailing tags hide and an indicator counts how many are missing. The default `priority="start"` keeps leading items visible — natural for tag chips, filters, and breadcrumb-style lists where the first items are the most relevant.
+A horizontal action bar is the textbook case for measured truncation: there are more buttons than the row can hold on a narrow screen, and stacking or wrapping them looks broken. `Overflow.Root` measures the available width, keeps as many leading actions visible as fit, and surfaces the rest through a single `Overflow.Indicator`. Because measurement runs through a `ResizeObserver`, the split between visible and collapsed actions recomputes live as the container resizes — no breakpoints, no manual width math.
 
-The container needs `overflow: hidden` so the natural layout doesn't push items out of frame before the component can react. The indicator's slot exposes `count`; you control its rendering completely.
+The interesting detail is what lives inside the indicator. Its slot exposes `count` and the array of currently `hidden` tickets, so the overflow affordance here is a real menu rather than a dead label: the indicator wraps a [Popover](/components/disclosure/popover), the hidden tickets are mapped back to their actions, and each renders as a menu button. Selecting one runs the same handler a visible button would, then calls the popover's `toggle` to dismiss the menu. Each `Overflow.Item` carries its action id as its `value`, which is the key the indicator reads back out of `hidden`.
 
+Reach for this whenever a command surface must stay on one line across viewports — document toolbars, table row actions, editor controls. Keep `priority="start"` (the default) so the most-used leading actions never collapse; flip to `priority="end"` only when the newest items matter most. For first-plus-last "show the ends, hide the middle" trails, use [Breadcrumbs](/components/semantic/breadcrumbs) instead — `Overflow` is deliberately one-sided.
+
+| File | Role |
+|------|------|
+| `useToolbarItems.ts` | Action data plus the run handler that records the last invocation |
+| `OverflowToolbar.vue` | Overflow row, the +N more indicator, and the popover menu of hidden actions |
+| `overflow-toolbar.vue` | Wires the composable to the toolbar and shows the last action |
 :::
 
 ::: gn-example
@@ -88,28 +97,6 @@ Because each avatar has the same width, the trailing avatars drop in predictable
 |------|------|
 | `users.ts` | Sample user data (id, name, initials, hue) |
 | `avatar-group.vue` | Overlapping avatar stack with `+N` indicator |
-:::
-
-::: gn-example
-/components/overflow/popover
-
-### Popover of hidden items
-
-`Overflow.Indicator` exposes the array of currently-hidden tickets via the `hidden` slot prop. Wrap the indicator content in a `Popover.Activator` and render the hidden values inside `Popover.Content` to give users access to truncated content without losing the compact display.
-
-This is the same pattern used by GitHub's repo language list and Linear's project tag list. The indicator only renders when overflow occurs, so the popover trigger naturally appears and disappears with the available space.
-
-:::
-
-::: gn-example
-/components/overflow/priority-end
-
-### End priority
-
-When the latest items matter most — chat reactions, recent activity, message lists — `priority="end"` flips the behavior: leading items hide first and the indicator naturally renders at the start. Visual order is preserved (DOM order = display order); only visibility flips.
-
-Place the `Overflow.Indicator` first in source order so it renders to the left of the visible items. One tradeoff to keep in mind: the indicator's `aria-live="polite"` region announces before the items it summarizes, so screen-reader users hear "+3 earlier" *before* the most recent entries. That's usually correct for the "show me what's new, but tell me how much I missed" reading model — but if your use case needs the items announced first, prefer `priority="start"` and place the indicator at the end. For breadcrumb-style "first + last, hide middle" bisecting, reach for [Breadcrumbs](/components/semantic/breadcrumbs) instead — `Overflow` is deliberately one-sided.
-
 :::
 
 ## Recipes

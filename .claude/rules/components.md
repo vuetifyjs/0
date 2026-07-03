@@ -209,7 +209,7 @@ const slotProps = toRef((): ComponentRootSlotProps => ({
 
 ## ARIA Pattern (WAI-ARIA compliant)
 
-Every interactive component ships a correct `role`, `aria-*` state attributes, keyboard handlers, and locale-driven strings via `useLocale()` / `locale.t(key)`. `aria-disabled` is always concrete `boolean` (not `true | undefined`). Tests assert `toBeDefined()` on the locale strings, not exact values. [intent:174, intent:175, intent:176, intent:177]
+Every interactive component ships a correct `role`, `aria-*` state attributes, keyboard handlers, and locale-driven strings via `useLocale()` (canonical: `locale.ti(key) ?? '<English default>'`). `aria-disabled` is always concrete `boolean` (not `true | undefined`). Tests assert `toBeDefined()` on the locale strings, not exact values. [intent:174, intent:175, intent:176, intent:177]
 
 The full ARIA vocabulary, WCAG success-criterion mapping, and worked precedents live under [WCAG Accessibility — how we apply the patterns](#wcag-accessibility--how-we-apply-the-patterns) below. Don't restate the table here.
 
@@ -339,7 +339,7 @@ A wrapper that supplies shared defaults or context to a compound family's Roots 
 
 ## Template Pattern (100% enforced)
 
-- Root element is always `<Atom :as :renderless>`. [intent:186, intent:336]
+- DOM-rendering Roots use `<Atom :as :renderless>`; pure context-provider Roots (`Group`, `Selection`, `Single`, `Step`, `Tabs`, `Treeview`) render only `<slot v-bind="slotProps" />` with no `Atom`. [intent:186, intent:336] (PHILOSOPHY §5.3)
 - Slot props via `<slot v-bind="slotProps" />`.
 - Hidden inputs conditionally rendered: `<ComponentHiddenInput v-if="name" />`. [intent:187]
 - `v-if` for structural conditionals; `v-show` only when the element must stay mounted to preserve state. [intent:188]
@@ -668,7 +668,7 @@ When uncertain, don't hook up. Adding a plugin later is a non-breaking change; r
 - [ ] Three-pronged disabled (`aria-disabled`, `data-disabled`, tabindex)
 - [ ] Hidden input conditionally rendered with `v-if="name"`
 - [ ] Barrel: no `export *` from `.vue`, named exports plus compound object
-- [ ] Template root is `<Atom :as :renderless>` and uses `<slot v-bind="slotProps" />`
+- [ ] Template root is `<Atom :as :renderless>` (DOM-rendering Roots) or a bare `<slot v-bind="slotProps" />` (pure context-provider Roots — §5.3)
 - [ ] `v-if` for structural conditionals; `v-show` only when the element must stay mounted (registry-driven visibility, load-state preservation, virtualization)
 - [ ] `onBeforeUnmount` for deregistration, not `onUnmounted`
 - [ ] Zero utility classes; all `:style` bindings structural
@@ -680,5 +680,5 @@ When uncertain, don't hook up. Adding a plugin later is a non-breaking change; r
 - [ ] Global plugins hooked up only when the component genuinely depends on app-level state
 - [ ] Multi-source `attrs` forwarding uses `mergeProps`, not spread
 - [ ] Props destructured directly (never `withDefaults`)
-- [ ] Local mirrors of props named `_option`, not `optionProp`
+- [ ] `_`-prefix on the raw prop when a resolved value is bound (never on the template-bound value); never `nameProp`/`optionProp` (§3.3)
 - [ ] No comments that restate the next line

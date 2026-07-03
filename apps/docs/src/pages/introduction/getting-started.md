@@ -451,6 +451,7 @@ The following export paths exist for the Vuetify0 framework:
 | `@vuetify/v0/composables` | Composables only. |
 | `@vuetify/v0/utilities` | Utilities only. |
 | `@vuetify/v0/constants` | Constants only (not included in main entry). |
+| `@vuetify/v0/locale/messages/en` | Optional canonical English aria-string map for component accessible names. Never imported by the runtime. |
 
 ```ts
 // Everything
@@ -482,6 +483,8 @@ Now that v0 is installed, choose your path:
 
 > [!TIP]
 > Use `Cmd+/` on any documentation page to ask AI questions about v0.
+
+> [!TOUR] using-search
 
 ## Support v0
 

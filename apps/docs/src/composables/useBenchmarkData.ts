@@ -164,7 +164,7 @@ export const GROUP_DESCRIPTIONS: Record<string, string> = {
 // Module-level cache so re-visits don't re-fetch
 let cachedData: ShallowRef<RawBenchmarkFile[] | null> | null = null
 
-function formatHz (hz: number): string {
+export function formatHz (hz: number): string {
   if (hz >= 1_000_000) return `${(hz / 1_000_000).toFixed(1)}M ops/s`
   if (hz >= 1000) return `${(hz / 1000).toFixed(1)}k ops/s`
   return `${Math.round(hz)} ops/s`

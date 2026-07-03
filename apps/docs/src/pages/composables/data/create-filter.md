@@ -71,6 +71,18 @@ const { items: filtered } = filter.apply(query, products)
 
 Returns the standard trinity `[useSearchFilter, provideSearchFilter, searchFilter]`. The third element gives standalone access without injection — useful for testing and server-side use.
 
+## Architecture
+
+`createFilter` provides pure filtering logic with context support:
+
+```mermaid "Filter Flow"
+flowchart LR
+  query[query ref] --> apply
+  items[items ref] --> apply
+  filter[createFilter]:::primary --> apply
+  apply --> computed[filtered items]
+```
+
 ## Options
 
 | Option | Type | Default | Notes |
@@ -93,29 +105,7 @@ const filter = createFilter({
 })
 ```
 
-## Architecture
-
-`createFilter` provides pure filtering logic with context support:
-
-```mermaid "Filter Flow"
-flowchart LR
-  query[query ref] --> apply
-  items[items ref] --> apply
-  filter[createFilter]:::primary --> apply
-  apply --> computed[filtered items]
-```
-
-## Reactivity
-
-| Property/Method | Reactive | Notes |
-| - | :-: | - |
-| `query` | <AppSuccessIcon /> | ShallowRef, updated on each `apply()` |
-| `items` (from apply) | <AppSuccessIcon /> | Computed, filters reactively |
-
-> [!TIP] Reactive filtering
-> Both the query and items passed to `apply()` can be reactive. The filtered result automatically updates when either changes.
-
-## Filter Modes
+### Filter Modes
 
 When the query is an array, each mode controls how multiple queries are matched against item values:
 
@@ -129,20 +119,61 @@ When the query is an array, each mode controls how multiple queries are matched 
 > [!TIP] some vs union
 > `some` and `union` both pass when any query matches, but `some` checks each value independently while `union` joins all values into a single string. The difference matters when a match spans multiple fields.
 
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `query` | <AppSuccessIcon /> | ShallowRef, updated on each `apply()` |
+| `items` (from apply) | <AppSuccessIcon /> | Computed, filters reactively |
+
+> [!TIP] Reactive filtering
+> Both the query and items passed to `apply()` can be reactive. The filtered result automatically updates when either changes.
+
 ## Examples
 
 ::: gn-example
-/composables/create-filter/live-search
+/composables/create-filter/useProductFilter.ts 1
+/composables/create-filter/ProductBrowser.vue 2
+/composables/create-filter/product-browser.vue 3
 
-### Live Search with Highlighting
+### Faceted Product Search
 
-A city search that filters 12 records by both name and country simultaneously, with matching characters highlighted inline. Typing "usa" returns all three American cities; typing "sin" returns Singapore.
+A product catalog filtered by two independent facets at once: a free-text search box and a set of category chips. The composable owns a dozen products plus the live query, match-mode, and selected-category state, then chains two `createFilter` instances so the visible list — and the match count beside it — stay in sync without a single hand-written watcher.
 
-The filter is configured with `keys: ['name', 'country']`, so both fields are checked against a single query — no mode flag needed because `some` (the default) already matches any value in either key. The filtered output is a `computed` ref returned from `filter.apply(query, cities)`, so the list re-renders with no extra watcher on your part.
+The text facet shows the `mode` option doing real work. Two filters are built over `keys: ['name', 'description']`, one in `union` mode and one in `intersection` mode, and a `toRef` picks whichever matches the active toggle. Splitting the query on whitespace turns multi-word input into an array, so "Any word" (`union`) matches products containing any term while "All words" (`intersection`) requires every term to appear somewhere across the searched fields. The category facet is a third `createFilter` in `union` mode, applied to the *output* of the text filter — `apply` accepts a getter, so feeding one filter's `items` into the next composes the two passes into a single reactive computed.
 
-Highlighting is handled by `toHighlight(text, query, { ignoreCase: true, matchAll: true })`, a pure transformer that returns an array of `{ text, match }` chunks. The template walks the chunks with `v-for`, wrapping matched segments in a `<mark>` element. This is completely decoupled from the filter itself — you can swap out `toHighlight` for any renderer without touching the filter logic.
+Reach for this pattern whenever you have a fixed in-memory dataset and want instant, multi-criteria filtering with no backend round-trip. Because every `apply` result is a `computed`, the count is just `results.length` and clearing all facets is a plain state reset. When the dataset outgrows memory, move filtering server-side with [createDataTable](/composables/data/create-data-table); to page or windowing the results, pair it with [createPagination](/composables/data/create-pagination) or [createVirtual](/composables/data/create-virtual).
 
-Reach for this pattern whenever you have a fixed in-memory dataset and want instant search without a backend. For paginated or server-side filtering see [createDataTable](/composables/data/create-data-table); for filtering within a larger data pipeline see the `createFilter` options section above.
+| File | Role |
+|------|------|
+| `useProductFilter.ts` | Owns the product data, query/mode/category state, and chains the createFilter passes into a single results computed |
+| `ProductBrowser.vue` | Renders the search box, mode toggle, category chips, count, and results list bound to the composable |
+| `product-browser.vue` | Entry point — instantiates the composable and wires its state into the browser component |
+:::
+
+## FAQ
+
+::: faq
+
+??? What's the difference between `some` and `union` mode?
+
+Both pass when any query matches, but `some` tests each field value independently while `union` joins all values into a single string first. The distinction matters when a match spans multiple fields.
+
+??? How do I limit filtering to specific object fields?
+
+Pass `keys: ['name', 'email']` in the options. When `keys` is omitted, every value on the item is checked.
+
+??? When should I use createFilter vs createDataTable?
+
+createFilter is pure in-memory filtering logic — reach for it for instant client-side search. When the dataset outgrows memory, or you also need sorting, pagination, and server support, move to [createDataTable](/composables/data/create-data-table).
+
+??? How do I replace the built-in matching with my own logic?
+
+Pass a `customFilter: (query, item) => boolean` predicate. It bypasses `keys` and `mode` entirely, so you own the comparison — e.g. a `startsWith` prefix match instead of the default substring check.
+
+??? Why don't the filter modes change anything for a single-string query?
+
+`mode` only governs how *multiple* queries match, so it takes effect when the query is an array. Split a multi-word string into an array (e.g. on whitespace) to make `some`, `every`, `union`, and `intersection` behave differently.
 
 :::
 

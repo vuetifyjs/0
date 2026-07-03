@@ -75,7 +75,7 @@ When the topmost overlay has `blocking: true`, the scrim will not dismiss on cli
 </template>
 ```
 
-## Inline Rendering
+### Inline Rendering
 
 By default, Scrim teleports to `body`. Disable teleport for inline rendering:
 
@@ -88,7 +88,7 @@ By default, Scrim teleports to `body`. Disable teleport for inline rendering:
 </template>
 ```
 
-### Custom Stack Context
+#### Custom Stack Context
 
 For isolated overlay systems, create a custom stack and provide it via Vue's injection system:
 
@@ -107,7 +107,7 @@ For isolated overlay systems, create a custom stack and provide it via Vue's inj
 </template>
 ```
 
-### Transitions
+#### Transitions
 
 The default transition is `fade`. Customize with the `transition` prop:
 
@@ -128,5 +128,31 @@ The default transition is `fade`. Customize with the `transition` prop:
   }
 </style>
 ```
+
+## FAQ
+
+::: faq
+
+??? Why doesn't my scrim dismiss when I click it?
+
+The topmost overlay has `blocking: true`, which prevents click-to-dismiss. The `isBlocking` slot prop reflects this state so you can style the backdrop differently while blocking.
+
+??? Do I need to install the stack plugin?
+
+Only for SSR. Client-side-only apps can skip it — Scrim falls back to the default `stack` singleton automatically.
+
+??? How do I stop the scrim from teleporting to `<body>`?
+
+Pass `:teleport="false"` to render it inline within its parent, for example inside a `relative` container for a scoped overlay.
+
+??? How do I change the scrim's transition?
+
+The default transition is `fade`. Pass a `transition` prop with your own name (for example `slide-fade`) and define the matching enter/leave CSS.
+
+??? Can I give a scrim its own overlay stack?
+
+Yes. Call `createStack()` and `provide('v0:stack', stack)` above it so the scrim manages an isolated overlay system without touching the global stack.
+
+:::
 
 <DocsApi />

@@ -64,13 +64,6 @@ rtl.toggle() // Now true (RTL)
 rtl.isRtl.value = false // Back to LTR
 ```
 
-## Reactivity
-
-| Property | Type | Description |
-| - | - | - |
-| `isRtl` | `Ref<boolean>` | Writable ref — `true` for RTL, `false` for LTR |
-| `toggle` | `() => void` | Flips the current direction |
-
 ## Adapters
 
 Adapters let you swap the underlying `dir` attribute management without changing your application code.
@@ -116,7 +109,31 @@ abstract class RtlAdapter {
 }
 ```
 
-## Standalone Usage
+## Reactivity
+
+| Property | Type | Description |
+| - | - | - |
+| `isRtl` | `Ref<boolean>` | Writable ref — `true` for RTL, `false` for LTR |
+| `toggle` | `() => void` | Flips the current direction |
+
+## Examples
+
+::: gn-example
+/composables/use-rtl/direction-toggle
+
+### Direction Toggle
+
+A live RTL/LTR switcher that calls `toggle()` from `useRtl()` and binds the resulting direction string to a container's `dir` attribute. Because `isRtl` is a writable ref, the template derives `direction` via `toRef(() => isRtl.value ? 'rtl' : 'ltr')` and uses it both for the `dir` prop and for conditionally rendering Arabic vs. English copy.
+
+The card inside the panel demonstrates how the browser's native bidirectional layout engine handles the flip: the avatar, name, and action buttons all reflow without any CSS overrides because they're positioned with flexbox and the `dir` attribute propagates automatically to descendants. This is the cheapest way to test whether your own components are already direction-aware — no special `rtl:` variants or logical properties needed if the flex container gets the right `dir`.
+
+Reach for `useRtl()` when you need to read or imperatively change the active direction from script. For locale-linked RTL (e.g. Arabic or Hebrew auto-sets `isRtl`), wire a watcher between `useLocale().selectedId` and `isRtl` inside a custom adapter. For subtree-scoped direction that is isolated from the app-level flag, see `createRtlContext` in the Subtree Overrides section above.
+
+:::
+
+## Recipes
+
+### Standalone Usage
 
 Use `createRtl` to create a raw RTL context without the plugin system — useful for testing or embedding in other composables:
 
@@ -131,11 +148,11 @@ rtl.isRtl.value  // false
 
 `createRtl` accepts `default?: boolean` (initial direction) and returns `{ isRtl: ShallowRef<boolean>, toggle: () => void }`. No `app` is required.
 
-## Styling
+### Styling
 
 The `dir` attribute set by the adapter enables three approaches to direction-aware styling with utility classes:
 
-### Logical Properties (preferred)
+#### Logical Properties (preferred)
 
 CSS logical properties automatically flip based on `dir`. Use these by default:
 
@@ -159,7 +176,7 @@ CSS logical properties automatically flip based on `dir`. Use these by default:
 > [!TIP]
 > The utility class names above use UnoCSS `presetWind4` / Tailwind v4 syntax. Exact class names may vary depending on your CSS framework or preset — the underlying CSS logical properties are the same.
 
-### Direction Variants
+#### Direction Variants
 
 For cases logical properties can't handle (like `translate-x`), use the bare class as the LTR default and the `rtl:` variant as the override:
 
@@ -173,7 +190,7 @@ For cases logical properties can't handle (like `translate-x`), use the bare cla
 > [!TIP]
 > Avoid the `ltr:` variant — it only applies when an ancestor has an explicit `dir="ltr"` attribute, not as the default. Use the bare utility class for LTR behavior and `rtl:` for the RTL override.
 
-### Symmetric Shorthand
+#### Symmetric Shorthand
 
 When both sides use the same value, use `inset-x-*` instead of `left-* right-*`:
 
@@ -185,7 +202,7 @@ When both sides use the same value, use `inset-x-*` instead of `left-* right-*`:
 <div class="fixed inset-x-0 top-0">...</div>
 ```
 
-## Subtree Overrides
+### Subtree Overrides
 
 Use `createRtlContext` to scope direction to a subtree — isolated from the app-level direction:
 
@@ -222,18 +239,25 @@ export const [useLocalRtl, provideLocalRtl, localRtl] =
 > [!TIP]
 > Direction is independent from locale. To connect them (e.g., Arabic → RTL), use a custom adapter that watches `useLocale().selectedId` and sets `isRtl` based on a language→direction mapping.
 
-## Examples
+## FAQ
 
-::: gn-example
-/composables/use-rtl/direction-toggle
+::: faq
 
-### Direction Toggle
+??? Does switching the locale automatically change the direction?
 
-A live RTL/LTR switcher that calls `toggle()` from `useRtl()` and binds the resulting direction string to a container's `dir` attribute. Because `isRtl` is a writable ref, the template derives `direction` via `toRef(() => isRtl.value ? 'rtl' : 'ltr')` and uses it both for the `dir` prop and for conditionally rendering Arabic vs. English copy.
+No — direction is independent from locale. To link them (e.g. Arabic → RTL), use a custom adapter that watches [useLocale](/composables/plugins/use-locale)'s `selectedId` and sets `isRtl` from a language-to-direction mapping.
 
-The card inside the panel demonstrates how the browser's native bidirectional layout engine handles the flip: the avatar, name, and action buttons all reflow without any CSS overrides because they're positioned with flexbox and the `dir` attribute propagates automatically to descendants. This is the cheapest way to test whether your own components are already direction-aware — no special `rtl:` variants or logical properties needed if the flex container gets the right `dir`.
+??? How do I apply RTL to just one subtree?
 
-Reach for `useRtl()` when you need to read or imperatively change the active direction from script. For locale-linked RTL (e.g. Arabic or Hebrew auto-sets `isRtl`), wire a watcher between `useLocale().selectedId` and `isRtl` inside a custom adapter. For subtree-scoped direction that is isolated from the app-level flag, see `createRtlContext` in the Subtree Overrides section above.
+Use `createRtlContext` to provide a scoped direction via provide/inject. A descendant reading it is isolated from the app-level flag, so toggling it doesn't affect the rest of the app.
+
+??? Why should I avoid the `ltr:` variant for left-to-right styles?
+
+The `ltr:` variant only applies when an ancestor carries an explicit `dir="ltr"` attribute, not as the default. Use the bare utility class for LTR behavior and `rtl:` for the override — e.g. `-translate-x-full rtl:translate-x-full`.
+
+??? Do I need `rtl:` variants on every margin and padding?
+
+No — prefer CSS logical properties (`ms`/`me`, `ps`/`pe`, `start`/`end`), which flip automatically with the `dir` attribute. Reserve direction variants for the cases logical properties can't express, like `translate-x`.
 
 :::
 

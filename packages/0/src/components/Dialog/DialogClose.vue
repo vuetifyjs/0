@@ -65,7 +65,7 @@
     isOpen: context.isOpen.value,
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
-      'aria-label': locale.t('Dialog.close'),
+      'aria-label': locale.ti('Dialog.close') ?? 'Close',
       'onClick': onClick,
     },
   }))

@@ -14,12 +14,31 @@
 // Driven by the changesets/action `publishedPackages` output. `gh` is
 // preinstalled on the runner and authenticates via GITHUB_TOKEN.
 import { execFileSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 
 const SUBSTRATE = new Set(['@vuetify/v0', '@vuetify/paper'])
 
 const published = JSON.parse(process.env.PUBLISHED_PACKAGES || '[]')
 const sha = process.env.GITHUB_SHA
+
+// Reconcile against npm. `publishedPackages` only lists what THIS run published,
+// so a package that landed in an earlier (failed) run never gets its release on
+// the recovery run: its version is already on npm, `changeset publish` skips it,
+// and it drops out of `publishedPackages`. Add any publishable workspace package
+// whose CURRENT version is on npm but absent from this run's output. Minting is
+// idempotent (already-minted releases are skipped), so this only fills the gaps.
+const seen = new Set(published.map(p => p.name))
+for (const dir of readdirSync('packages')) {
+  const manifest = `packages/${dir}/package.json`
+  if (!existsSync(manifest)) continue
+  const pkg = JSON.parse(readFileSync(manifest, 'utf8'))
+  if (!pkg.name || pkg.private || seen.has(pkg.name)) continue
+  if (onNpm(pkg.name, pkg.version)) {
+    console.log(`reconcile: ${pkg.name}@${pkg.version} is on npm but not in this run — including`)
+    published.push({ name: pkg.name, version: pkg.version })
+  }
+}
+
 const version = Object.fromEntries(published.map(p => [p.name, p.version]))
 
 // Pull the `## <version>` block out of a changesets CHANGELOG.md. Returns '' when
@@ -45,9 +64,44 @@ function notes (changelog, value) {
   return lines.slice(start + 1, end).join('\n').trim()
 }
 
+// Condense each changelog bullet's conventional-commit title into a flat, skimmable
+// list at the top of the release notes — changesets' per-entry prose buries the
+// one-line summaries readers skim for. Two authoring shapes both need trimming: a
+// title-only first line with the detail in a separate indented paragraph below
+// (BULLET's `.+$` already stops at line end), and a single line packing title +
+// detail together, separated by ' — ' (em dash).
+const BULLET = /^- (?:\[#(\d+)]\([^)]*\)\s*)?(?:\[`[0-9a-f]+`]\([^)]*\)\s*)?(?:Thanks .*?! - )?(.+)$/
+
+function overview (body) {
+  const titles = []
+  for (const line of body.split('\n')) {
+    const match = line.match(BULLET)
+    if (!match) continue
+    const [, pr, text] = match
+    // Changesets emits its own boilerplate bullet ("Updated dependencies [sha, …]:")
+    // for packages that only bumped because an internal dependency changed — no
+    // conventional-commit title to extract, and the sha list is pure noise here.
+    if (text.startsWith('Updated dependencies')) continue
+    const title = text.split(' — ')[0]
+    titles.push(pr ? `- ${title} (#${pr})` : `- ${title}`)
+  }
+  return titles.length > 0 ? `## Overview\n${titles.join('\n')}\n\n---\n\n` : ''
+}
+
 function exists (tag) {
   try {
     execFileSync('gh', ['release', 'view', tag], { stdio: 'ignore' })
+    return true
+  } catch {
+    return false
+  }
+}
+
+// `npm view name@version` exits non-zero when that exact version is not on the
+// registry — the "is it published?" signal used to reconcile recovery runs.
+function onNpm (name, value) {
+  try {
+    execFileSync('npm', ['view', `${name}@${value}`, 'version'], { stdio: 'ignore' })
     return true
   } catch {
     return false
@@ -90,6 +144,7 @@ function mint (tag, body, target, prerelease) {
 const substrate = version['@vuetify/v0'] ?? version['@vuetify/paper']
 if (substrate) {
   let body = notes('packages/0/CHANGELOG.md', substrate) || notes('packages/paper/CHANGELOG.md', substrate)
+  body = overview(body) + body
   if (version['@vuetify/v0'] && version['@vuetify/paper']) {
     body += `\n\n---\n\`@vuetify/paper@${version['@vuetify/paper']}\` shipped in lockstep.`
   }
@@ -101,7 +156,8 @@ if (substrate) {
 for (const { name, version: value } of published) {
   if (SUBSTRATE.has(name)) continue
   const dir = name.split('/').pop()
-  mint(`${name}@${value}`, notes(`packages/${dir}/CHANGELOG.md`, value), sha, value.includes('-'))
+  const body = notes(`packages/${dir}/CHANGELOG.md`, value)
+  mint(`${name}@${value}`, overview(body) + body, sha, value.includes('-'))
 }
 
 // Fail the step (after attempting every release) if any could not be minted, so a

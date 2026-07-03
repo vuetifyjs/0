@@ -28,7 +28,7 @@ All cross-cutting naming rules live in PHILOSOPHY §3.3. Restated invariants for
 - **`index`** not `idx`.
 - **`on<Action>`** not `handle<Action>`.
 - **Single-word** over multi-word when both are unambiguous.
-- **`_option`** for local mirrors of a prop or option; never `optionProp`.
+- **`_`-prefix marks a raw input, never the bound value** — the raw `defineProps` binding when a resolved value supersedes it (`{ name: _name }` → `const name = toRef(() => _name ?? …)`), or the rest-options param (`_options`). The value the template binds / logic reads keeps the short name. Never `nameProp`, never `optionProp`. See §3.3.
 - **`create` / `use` / `to`** prefix rule — see §3.3.
 - **`FooTicketInput` → `FooTicket`** pair for registry types.
 
@@ -121,7 +121,7 @@ interface RegistryTicket {
 
 ## Spread Pattern for Extension (PHILOSOPHY §2.6)
 
-100% enforced across all 27 registry-based composables. Parent is spread first, new properties added after. Never redefine.
+100% enforced across the registry-based composables. Parent is spread first, new properties added after. Never redefine.
 
 ```ts
 // packages/0/src/composables/createSelection/index.ts — see the spread `return { ...model, … }` near the end of createSelection()

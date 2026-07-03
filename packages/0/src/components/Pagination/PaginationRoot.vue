@@ -201,7 +201,7 @@
     prev: pagination.prev,
     select: pagination.select,
     attrs: {
-      'aria-label': locale.t('Pagination.label'),
+      'aria-label': locale.ti('Pagination.label') ?? 'Pagination',
       'role': as === 'nav' ? undefined : 'navigation',
     },
   }))

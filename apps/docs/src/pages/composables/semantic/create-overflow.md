@@ -107,15 +107,46 @@ flowchart LR
 ## Examples
 
 ::: gn-example
-/composables/create-overflow/tag-overflow
+/composables/create-overflow/useOverflowNav.ts 1
+/composables/create-overflow/NavItem.vue 2
+/composables/create-overflow/OverflowNav.vue 3
+/composables/create-overflow/overflow-nav.vue 4
 
-### Tag Overflow
+### Collapsing Navigation Bar
 
-A 12-tag list that hides items when they overflow the container width, replacing them with a `+N more` count badge. Resizing the browser window — or embedding this example in a narrower panel — causes `capacity` to recalculate in real time via `ResizeObserver`, and the visible slice and badge update reactively.
+A responsive nav bar that shows as many destinations as fit and folds the rest into a `+N more` Popover menu. The composable owns the destination list and a single `createOverflow` instance configured with `gap` and a `reserved` band that keeps room for the overflow trigger; the display component supplies its `<ul>` as the tracked container and reads `capacity` to decide how many items stay inline, `isOverflowing` to decide whether the trigger renders, and `hidden` to populate the menu. Use the width presets in the entry to drive the container narrower and wider without resizing the browser.
 
-The example shows the two key integration points: `overflow.measure(index, el)` is called via a ref callback for each rendered tag so `createOverflow` can track each element's width independently; `tags.slice(0, overflow.capacity.value)` drives the rendered list; and `overflow.isOverflowing.value` controls whether the badge appears. The `reserved: 60` option holds back 60px for the badge itself so it never gets clipped.
+The load-bearing detail is the measurement contract. Each `NavItem` measures its own element exactly once on mount — while `capacity` is still `Infinity` and every item is visible — then toggles with `v-show` instead of unmounting. Because the measured widths stay in the map after an item is hidden, `capacity` recomputes correctly in both directions: the bar collapses as the container shrinks and restores items as it grows. A naive `slice(0, capacity)` that unmounts overflowing items throws their widths away, so the bar can collapse but never recover — measuring every item and hiding with `v-show` is what makes the demo bidirectional, and it mirrors how the [Overflow](/components/semantic/overflow) component works internally.
 
-Reach for this when a fixed container must show as many items as possible and degrade gracefully — nav bars, tag lists, breadcrumb trails with an overflow menu. For the inverse (computing a virtual scroll viewport), see [createVirtual](/composables/data/create-virtual); for the pre-built component wrapper, see [Overflow](/components/semantic/overflow).
+Reach for `createOverflow` directly when you need full control over how truncation is presented — an overflow menu, a breadcrumb ellipsis, or a responsive toolbar. When the default presentation is enough, the [Overflow](/components/semantic/overflow) component wraps this composable with item registration and an indicator slot. For windowing a long scrollable list instead of a single row, see [createVirtual](/composables/data/create-virtual).
+
+| File | Role |
+|------|------|
+| `useOverflowNav.ts` | Owns the destination data and the `createOverflow` instance; derives the hidden slice and exposes a `measure` helper |
+| `NavItem.vue` | Renders one destination and self-measures its element on mount, toggling visibility with `v-show` |
+| `OverflowNav.vue` | Binds the container, renders the items and the `+N more` Popover menu, and shows a live capacity readout |
+| `overflow-nav.vue` | Entry point; constrains the container with width presets to demonstrate responsive recalculation |
+:::
+
+## FAQ
+
+::: faq
+
+??? When should I use createOverflow vs createVirtual?
+
+createOverflow measures how many items fit one row and hides the rest — overflow menus, breadcrumb ellipsis, responsive toolbars. [createVirtual](/composables/data/create-virtual) windows a long *scrollable* list, rendering only the rows in view. Horizontal truncation vs vertical windowing.
+
+??? Why does my bar collapse but never restore items when the container grows?
+
+Items must keep their measured widths. If you unmount overflowing items (e.g. `slice(0, capacity)`) their widths are thrown away and `capacity` can't recompute upward. Measure every item once, then hide with `v-show` so the widths stay in the map.
+
+??? What's the difference between variable-width and uniform-width mode?
+
+Variable-width measures each item individually (breadcrumbs, nav links of different sizes); uniform-width uses a single `itemWidth` for same-size items like pagination buttons, skipping per-item measurement. Use `reserved` to keep room for an overflow trigger.
+
+??? When should I use createOverflow instead of the Overflow component?
+
+Reach for createOverflow when you need full control over how truncation is presented — a custom overflow menu, breadcrumb ellipsis, or responsive toolbar. The [Overflow](/components/semantic/overflow) component wraps it with item registration and an indicator slot when the default presentation is enough.
 
 :::
 

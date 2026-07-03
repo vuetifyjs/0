@@ -65,12 +65,6 @@ timeline.register({ id: 'action-1', value: 'Created item' })
 timeline.undo()
 ```
 
-## Options
-
-| Option | Type | Default | Notes |
-| - | - | - | - |
-| `size` | `number` | `10` | Maximum number of entries in the active timeline. When exceeded, the oldest entry moves to an internal overflow buffer — it remains accessible via `undo()` but no longer counts against the limit |
-
 ## Architecture
 
 `createTimeline` extends `createRegistry` with bounded history and overflow management:
@@ -82,6 +76,12 @@ flowchart TD
   createTimeline --> overflow[overflow buffer]
   createTimeline --> cursor[history cursor]
 ```
+
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `size` | `number` | `10` | Maximum number of entries in the active timeline. When exceeded, the oldest entry moves to an internal overflow buffer — it remains accessible via `undo()` but no longer counts against the limit |
 
 ## Reactivity
 
@@ -125,6 +125,28 @@ graph LR
 - History bar visualizes the 20-slot bounded timeline capacity
 
 Draw on the canvas, then use Undo/Redo to time-travel through your strokes.
+
+:::
+
+## FAQ
+
+::: faq
+
+??? What happens when the timeline exceeds its `size` limit?
+
+The oldest entry moves to an internal overflow buffer. It's still reachable via `undo()`, but it no longer counts against the size limit — so the active timeline stays a fixed size while older history remains recoverable.
+
+??? When should I use createTimeline vs createQueue?
+
+Both extend createRegistry, but for opposite jobs. createTimeline is bounded undo/redo history with a cursor and overflow buffer. [createQueue](/composables/registration/create-queue) is a time-based FIFO with auto-timeout and pause/resume. Use timeline for time-travel, queue for auto-dismissing sequential items.
+
+??? How do I make the active timeline reactive in my template?
+
+createTimeline inherits createRegistry's minimal reactivity. Wrap it with `useProxyRegistry(timeline)` for full template reactivity on the active timeline.
+
+??? How do I tell when there's something to redo?
+
+The redo stack is internal to the timeline and isn't exposed as a reactive property. Track it yourself with a `shallowRef` — the canvas example keeps a `redoStackSize` ref in sync as the user undoes and redoes, then drives the Redo button's state from it.
 
 :::
 

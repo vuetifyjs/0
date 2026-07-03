@@ -84,6 +84,8 @@ This composable has no opinions about where the value lives — the same `numeri
 
 :::
 
+## FAQ
+
 ::: faq
 
 ??? What happens with floating-point steps like 0.1?

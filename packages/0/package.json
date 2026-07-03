@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/v0",
-  "version": "1.0.0-beta.3",
+  "version": "1.0.0-rc.6",
   "description": "A meta UI framework for building applications, component libraries, and design systems with Vue 3",
   "license": "MIT",
   "funding": [
@@ -52,6 +52,7 @@
       "./locale/adapters": "./dist/locale/adapters/index.mjs",
       "./locale/adapters/v0": "./dist/locale/adapters/v0/index.mjs",
       "./locale/adapters/vue-i18n": "./dist/locale/adapters/vue-i18n/index.mjs",
+      "./locale/messages/en": "./dist/locale/messages/en/index.mjs",
       "./logger": "./dist/logger/index.mjs",
       "./logger/adapters": "./dist/logger/adapters/index.mjs",
       "./logger/adapters/consola": "./dist/logger/adapters/consola/index.mjs",
@@ -217,6 +218,10 @@
     "./locale/adapters/vue-i18n": {
       "development": "./src/locale/adapters/vue-i18n/index.ts",
       "default": "./dist/locale/adapters/vue-i18n/index.mjs"
+    },
+    "./locale/messages/en": {
+      "development": "./src/locale/messages/en/index.ts",
+      "default": "./dist/locale/messages/en/index.mjs"
     },
     "./logger": {
       "development": "./src/logger/index.ts",

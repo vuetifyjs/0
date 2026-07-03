@@ -318,15 +318,48 @@ Feature flags inherit reactivity from `createGroup`. Selection state is reactive
 ## Examples
 
 ::: gn-example
-/composables/use-features/feature-flags
+/composables/use-features/context.ts 1
+/composables/use-features/FeatureProvider.vue 2
+/composables/use-features/FeaturePanel.vue 3
+/composables/use-features/FeaturePreview.vue 4
+/composables/use-features/feature-flags.vue 5
 
-### Feature Flag Panel
+### Feature flag admin panel
 
-A runtime flag dashboard built from `createFeaturesContext` with six pre-registered flags — four boolean and two with `$variation` values. Each row reads `ticket.isSelected` for visual state and calls `features.toggle(ticket.id)` on click. The "Enable all" / "Disable all" buttons exercise `selectAll()` and `unselectAll()` from the underlying `createGroup` layer. The counter at the top derives enabled count from `features.selectedIds.size`.
+A provider/consumer demo where one features context drives two independent consumers: an admin panel that mutates flags and a storefront preview that reacts live. `FeatureProvider` calls `createFeaturesContext` with a scoped namespace and provides it through its default slot, so every descendant resolves the same flag registry without prop-drilling. Five flags are registered up front — three boolean and two carrying a `$variation` payload — and the variation flags auto-enable because their `$value` is `true`.
 
-The variation lookup panel at the bottom demonstrates `features.variation(id, fallback)`: `search` returns `'v2'`, `layout` returns `'grid'`, and `missing` returns the supplied fallback `'fallback'` because no such flag exists. This is the key distinction from boolean flags — a variation flag can be enabled *and* carry a string payload that determines *which* variant to render.
+The panel reads `useProxyRegistry` to iterate tickets reactively, flips boolean flags with `features.toggle(id)`, and changes a variation with `features.sync({ [id]: { $value, $variation } })` — preserving the current enabled state by reading `features.selectedIds.has(id)`. The preview consumes the same context but never mutates it: it derives a reactive map from `ticket.isSelected` and `features.variation(id)`, then gates the beta banner, dark theme, checkout label, and grid-vs-list layout off that map. Because both consumers inject one registry, a toggle in the panel re-renders the preview on the next tick.
 
-Reach for this when you need a dev panel to audit and override flags locally, or as a template for a LaunchDarkly / Flagsmith / PostHog adapter integration where the same UI surface is driven by remote flag state instead of static configuration. See the Adapters section for how to swap the built-in context for an external provider.
+Reach for this split when flag-editing UI and flag-consuming UI live in different parts of the tree, or as a template for an adapter integration where remote flag state from [usePermissions](/composables/plugins/use-permissions) or a service like LaunchDarkly replaces the static config. See the Adapters section for swapping the built-in context for an external provider, and [createTokens](/composables/registration/create-tokens) for how variation payloads are stored.
+
+| File | Role |
+|------|------|
+| `context.ts` | Shared namespace, flag metadata, and the config builder |
+| `FeatureProvider.vue` | Creates the features context and provides it via slot |
+| `FeaturePanel.vue` | Admin consumer that toggles flags and picks variations |
+| `FeaturePreview.vue` | Gated consumer that reacts to flags and variations live |
+| `feature-flags.vue` | Entry that wraps the provider around both consumers |
+:::
+
+## FAQ
+
+::: faq
+
+??? What's the difference between useFeatures and usePermissions?
+
+useFeatures toggles capabilities on or off (with optional variations) regardless of who the user is; [usePermissions](/composables/plugins/use-permissions) answers whether a given role may perform an action on a subject. Use flags for rollout and experiments, permissions for access control.
+
+??? How do I serve a variation instead of a plain on/off flag?
+
+Give the feature a `$variation` payload — `search: { $value: true, $variation: 'v2' }` — and read it with `features.variation('search', 'v1')`, passing a fallback for when it's unset. Variation values are static, not reactive.
+
+??? Can I pull flags from more than one provider at once?
+
+Yes. Pass an array of adapters to `createFeaturesPlugin`; they initialize in order and their flags merge, with the last adapter winning on conflicting keys.
+
+??? Can I toggle or add a flag at runtime?
+
+Yes. `features.register({ id, value })` adds a flag after install, `features.select(id)` / `features.unselect(id)` enable or disable one, and `features.toggle(id)` flips it. Selection state is reactive, so gated UI updates on the next tick.
 
 :::
 

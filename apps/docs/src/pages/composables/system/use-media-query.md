@@ -92,4 +92,22 @@ Both `matches` refs are `shallowRef`, so reads in templates are direct boolean v
 
 :::
 
+## FAQ
+
+::: faq
+
+??? When should I use useMediaQuery vs useBreakpoints?
+
+Use useMediaQuery for a single custom query string like `(orientation: landscape)`. Use [useBreakpoints](/composables/plugins/use-breakpoints) when you need a named set of viewport tiers shared across the whole application.
+
+??? How do I make the query itself reactive?
+
+Pass a getter or a `Ref<string>` instead of a plain string. When the value changes, useMediaQuery disconnects the old `MediaQueryList` listener and attaches one for the new query. Use a plain string only when the query is constant.
+
+??? Is there a shortcut for common queries like dark mode or reduced motion?
+
+Yes. `usePrefersDark`, `usePrefersReducedMotion`, and `usePrefersContrast` are built on useMediaQuery and wrap the matching `prefers-*` media features.
+
+:::
+
 <DocsApi />

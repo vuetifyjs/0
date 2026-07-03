@@ -101,17 +101,26 @@ flowchart TD
 ## Examples
 
 ::: gn-example
-/composables/create-number-field/basic
+/composables/create-number-field/useOrder.ts 1
+/composables/create-number-field/NumberStepper.vue 2
+/composables/create-number-field/order-calculator.vue 3
 
-### Basic
+### Build your own number input
 
-A standalone counter (0–100, step 1) that shows the three reactive surfaces `createNumberField` provides without the `NumberField` component. `field.display` holds the formatted string rendered in the center; `field.canDecrement` and `field.canIncrement` disable the buttons at the boundaries, eliminating any manual `value <= min` guards in the template.
+This example builds a reusable numeric field entirely from `createNumberField`, without reaching for the NumberField component. `useOrder` creates two field contexts over shared value refs — a unit price formatted as USD currency and an integer quantity — then derives a live order total by calling `priceField.formatValue` on the product of the two raw values. Keeping the numbers in `value` and the formatting in `display`/`formatValue` is what lets the total reuse the price field's currency formatter without re-implementing Intl.
 
-The example does not wire a `value` ref, so `createNumberField` manages its own internal ref starting at `null`. The raw value appears below the display string as `Raw: null` until the first interaction. Separating `value` (the numeric source of truth) from `display` (the Intl-formatted string) is the key pattern: formatters, currency symbols, and thousands separators live in `display` and never touch the number stored in `value`.
+`NumberStepper` is the headless input you would otherwise get from the component. It renders a text box plus a pair of stepper buttons and wires the four interaction surfaces by hand: `decrement`/`increment` on the buttons, `canDecrement`/`canIncrement` to disable them at the min/max boundaries, `display` for the formatted read-only view, and `parse` + `commit` on blur to turn typed text back into a clamped, step-snapped number. A local draft string holds the raw text only while the field is focused, so typing never fights the formatter and the cursor never jumps.
 
-Reach for the [NumberField component](/components/forms/number-field) when you need the full field surface (labels, errors, accessible spin-button). Use `createNumberField` directly when you need the math and formatting without the component's markup constraints, or when composing a custom numeric control. For pure step math without formatting or field state, see [createNumeric](/composables/forms/create-numeric).
+Reach for this pattern when you need numeric input with custom markup the component's structure does not allow — a stepper baked into a larger control, an inline editable total, or a non-standard layout. When you just need a labelled, accessible spin-button with errors, use the [NumberField component](/components/forms/number-field) instead; for the pure step math underneath, see [createNumeric](/composables/forms/create-numeric).
 
+| File | Role |
+|------|------|
+| `useOrder.ts` | Creates the price and quantity field contexts and derives the formatted total |
+| `NumberStepper.vue` | Renders a custom text input plus stepper buttons from a field context |
+| `order-calculator.vue` | Wires the composable to two steppers and shows the live total |
 :::
+
+## FAQ
 
 ::: faq
 

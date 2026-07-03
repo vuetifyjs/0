@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
+// Composables
+import { createLocalePlugin } from '#v0/composables'
+
 import { Rating } from './index'
 
 // Utilities
@@ -308,11 +311,51 @@ describe('rating', () => {
         expect(rootProps().attrs['aria-valuetext']).toBeDefined()
       })
 
-      it('should not set aria-disabled when not disabled', async () => {
+      it('should fall back to the inline default aria-valuetext when no locale plugin is configured', async () => {
+        const model = ref(3)
+        const { rootProps, wait } = mountRating({ model })
+        await wait()
+
+        expect(rootProps().attrs['aria-valuetext']).toBe('3 of 5 stars')
+      })
+
+      it('should use the translated, interpolated locale string for aria-valuetext when registered', async () => {
+        const plugin = createLocalePlugin({
+          default: 'en',
+          messages: {
+            en: {
+              Rating: {
+                valueText: '{value} von {size} Sternen',
+              },
+            },
+          },
+        })
+
+        let rootProps: any
+        const wrapper = mount(Rating.Root, {
+          props: { modelValue: 3 },
+          global: { plugins: [plugin] },
+          slots: {
+            default: (props: any) => {
+              rootProps = props
+              return h('span', 'content')
+            },
+          },
+        })
+
+        await nextTick()
+
+        expect(rootProps.attrs['aria-valuetext']).not.toBe('3 of 5 stars')
+        expect(rootProps.attrs['aria-valuetext']).toBe('3 von 5 Sternen')
+
+        wrapper.unmount()
+      })
+
+      it('should set aria-disabled to false when not disabled', async () => {
         const { rootProps, wait } = mountRating()
         await wait()
 
-        expect(rootProps().attrs['aria-disabled']).toBeUndefined()
+        expect(rootProps().attrs['aria-disabled']).toBe(false)
       })
 
       it('should not set aria-readonly when not readonly', async () => {
