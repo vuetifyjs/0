@@ -117,6 +117,10 @@
       <slot name="description" />
     </template>
 
+    <template #toggle-icon="{ expanded }">
+      <AppChevron :open="expanded" :size="16" vertical />
+    </template>
+
     <template #reset-icon>
       <AppIcon icon="restart" :size="16" />
     </template>
