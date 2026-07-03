@@ -24,6 +24,7 @@
     attrs: {
       'type': 'button' | undefined
       'aria-label': string
+      'onClick': () => void
     }
   }
 </script>
@@ -50,6 +51,7 @@
   const {
     as = 'button',
     namespace = 'v0:dialog',
+    renderless,
   } = defineProps<DialogCloseProps>()
 
   const context = useDialogContext(namespace)
@@ -59,24 +61,21 @@
     context.close()
   }
 
-  const slotProps = toRef((): DialogCloseSlotProps => {
-    const close = locale.t('Dialog.close')
-
-    return {
-      isOpen: context.isOpen.value,
-      attrs: {
-        'type': as === 'button' ? 'button' : undefined,
-        'aria-label': close === 'Dialog.close' ? 'Close' : close,
-      },
-    }
-  })
+  const slotProps = toRef((): DialogCloseSlotProps => ({
+    isOpen: context.isOpen.value,
+    attrs: {
+      'type': as === 'button' ? 'button' : undefined,
+      'aria-label': locale.ti('Dialog.close') ?? 'Close',
+      'onClick': onClick,
+    },
+  }))
 </script>
 
 <template>
   <Atom
     :as
+    :renderless
     v-bind="slotProps.attrs"
-    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>

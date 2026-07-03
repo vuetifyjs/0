@@ -151,10 +151,10 @@
     requestAnimationFrame(() => {
       const rootStyle = getComputedStyle(root)
       const style = getComputedStyle(el)
-      const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
+      const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
       const gapX = Number.parseFloat(rootStyle.gap) || 0
 
-      itemWidth.value = el.offsetWidth + marginX
+      itemWidth.value = (el.offsetWidth || 0) + marginX
       itemGap.value = gapX
     })
   }, { flush: 'post' })
@@ -185,30 +185,26 @@
     itemsPerPage: () => itemsPerPage,
   })
 
-  const slotProps = toRef((): PaginationRootSlotProps => {
-    const label = locale.t('Pagination.label')
-
-    return {
-      page: pagination.page.value,
-      size: pagination.size,
-      pages: pagination.pages,
-      itemsPerPage: pagination.itemsPerPage,
-      items: pagination.items.value,
-      pageStart: pagination.pageStart.value,
-      pageStop: pagination.pageStop.value,
-      isFirst: pagination.isFirst.value,
-      isLast: pagination.isLast.value,
-      first: pagination.first,
-      last: pagination.last,
-      next: pagination.next,
-      prev: pagination.prev,
-      select: pagination.select,
-      attrs: {
-        'aria-label': label === 'Pagination.label' ? 'Pagination' : label,
-        'role': as === 'nav' ? undefined : 'navigation',
-      },
-    }
-  })
+  const slotProps = toRef((): PaginationRootSlotProps => ({
+    page: pagination.page.value,
+    size: pagination.size,
+    pages: pagination.pages,
+    itemsPerPage: pagination.itemsPerPage,
+    items: pagination.items.value,
+    pageStart: pagination.pageStart.value,
+    pageStop: pagination.pageStop.value,
+    isFirst: pagination.isFirst.value,
+    isLast: pagination.isLast.value,
+    first: pagination.first,
+    last: pagination.last,
+    next: pagination.next,
+    prev: pagination.prev,
+    select: pagination.select,
+    attrs: {
+      'aria-label': locale.ti('Pagination.label') ?? 'Pagination',
+      'role': as === 'nav' ? undefined : 'navigation',
+    },
+  }))
 
   providePaginationRoot(namespace, pagination)
   providePaginationControls(namespace, controls)

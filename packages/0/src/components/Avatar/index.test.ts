@@ -48,6 +48,11 @@ describe('avatar', () => {
       })
 
       it('should support renderless mode', () => {
+        // The Root's `v-show` is a no-op on a renderless Atom (the consumer
+        // owns the rendered element), so Vue warns about a runtime directive
+        // on a non-element root. Silence the expected, benign warning.
+        using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
         const wrapper = mount(Avatar.Root, {
           props: {
             renderless: true,
@@ -58,6 +63,7 @@ describe('avatar', () => {
         })
 
         expect(wrapper.find('.custom-root').exists()).toBe(true)
+        expect(warn).toHaveBeenCalled()
       })
     })
 
@@ -328,6 +334,35 @@ describe('avatar', () => {
         // Higher priority image should be visible, lower should be hidden
         // After both load, the one with higher priority should be selected
         expect(highPriorityImage?.isVisible()).toBe(true)
+      })
+
+      it('should keep the higher priority image selected when a lower priority image loads last', async () => {
+        const wrapper = mount(Avatar.Root, {
+          slots: {
+            default: () => [
+              h(Avatar.Image, { src: '/low-priority.jpg', priority: 1 }),
+              h(Avatar.Image, { src: '/high-priority.jpg', priority: 10 }),
+              h(Avatar.Fallback, {}, () => 'JD'),
+            ],
+          },
+        })
+
+        const images = wrapper.findAllComponents(Avatar.Image as any)
+        const lowPriorityImage = images[0]
+        const highPriorityImage = images[1]
+
+        // Reverse load order: high priority loads first, low priority loads LAST.
+        // Pre-fix, the last image to load won via ticket.select(), so the lower
+        // priority image wrongly took over the selection. Selection drives the
+        // v-show, so the higher priority image must stay visible.
+        await highPriorityImage?.trigger('load')
+        await lowPriorityImage?.trigger('load')
+        await nextTick()
+        await nextTick()
+
+        // Selection drives the v-show: the selected image has no display:none.
+        expect(String(highPriorityImage?.attributes('style'))).not.toContain('display: none')
+        expect(String(lowPriorityImage?.attributes('style'))).toContain('display: none')
       })
     })
 
@@ -1070,7 +1105,7 @@ describe('avatar', () => {
       wrapper.unmount()
     })
 
-    it('should fall back to "+N" aria-label when locale has no entry for the key', async () => {
+    it('should use English aria-label from locale when no locale plugin is configured', async () => {
       let captured: any
       const wrapper = mount(Avatar.Group, {
         props: { max: 2 },
@@ -1094,7 +1129,7 @@ describe('avatar', () => {
       await nextTick()
 
       expect(captured).toBeDefined()
-      expect(captured.attrs['aria-label']).toBe('+3')
+      expect(captured.attrs['aria-label']).toBe('+3 more')
 
       wrapper.unmount()
     })

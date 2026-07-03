@@ -20,11 +20,12 @@
   import DocsApiHoverSection from './DocsApiHoverSection.vue'
 
   // Composables
+  import { useCodeHighlighter } from '@/composables/useCodeHighlighter'
   import { usePopoverPosition } from '@/composables/usePopoverPosition'
 
   // Utilities
   import { toKebab } from '@/utilities/strings'
-  import { computed, onScopeDispose, ref, shallowRef, toRef } from 'vue'
+  import { computed, onScopeDispose, ref, shallowRef, toRef, watchEffect } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
@@ -251,6 +252,19 @@
     activeApiType.value === 'vue' ? activeApi.value as VueApiEntry : null,
   )
 
+  const highlighter = useCodeHighlighter()
+  const signature = shallowRef('')
+
+  if (IN_BROWSER) {
+    watchEffect(async () => {
+      const code = vueApi.value?.signature
+      signature.value = ''
+      if (!code) return
+      const result = await highlighter.inline({ code, language: 'typescript' })
+      if (vueApi.value?.signature === code) signature.value = result.html
+    })
+  }
+
   const displayProps = toRef(() => componentApi.value?.props || [])
   const displayEvents = toRef(() => componentApi.value?.events || [])
   const displaySlots = toRef(() => componentApi.value?.slots || [])
@@ -326,7 +340,10 @@
             </DocsApiHoverSection>
 
             <DocsApiHoverSection title="Signature">
-              <code>{{ vueApi.signature }}</code>
+              <code class="shiki-inline">
+                <span v-if="signature" v-html="signature" />
+                <template v-else>{{ vueApi.signature }}</template>
+              </code>
             </DocsApiHoverSection>
           </div>
         </template>

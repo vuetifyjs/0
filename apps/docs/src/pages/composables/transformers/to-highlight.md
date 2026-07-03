@@ -9,7 +9,7 @@ features:
   category: Transformer
   label: 'E: toHighlight'
   github: /composables/toHighlight/
-  level: 1
+  level: 2
 related:
   - /composables/data/create-filter
   - /components/forms/combobox
@@ -73,7 +73,7 @@ call in `computed()` (or any reactive scope). The function itself creates no rea
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/to-highlight/messages.ts
 /composables/to-highlight/MessageRow.vue
 /composables/to-highlight/inbox.vue

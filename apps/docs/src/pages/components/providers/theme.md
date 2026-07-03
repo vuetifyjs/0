@@ -41,43 +41,34 @@ Wrap any section of your template in `<Theme>` to override the active theme for 
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Theme } from '@vuetify/v0'
 </script>
 
 <template>
-  <!-- Wrapper mode (default) -->
-  <Theme theme="dark">
-    <div>Dark-scoped content</div>
-  </Theme>
-
-  <!-- Polymorphic rendering -->
-  <Theme theme="dark" as="section">
-    <div>Renders as section element</div>
-  </Theme>
-
-  <!-- Renderless mode -->
-  <Theme theme="dark" renderless v-slot="{ attrs }">
-    <section v-bind="attrs">Custom element</section>
-  </Theme>
+  <Theme />
 </template>
 ```
 
 ## Examples
 
-::: example
+::: gn-example
 /components/theme/ThemeCard.vue 1
 /components/theme/scoped-override.vue 2
 
 ### Scoped Override
 
-Nest `<Theme>` components to create layered theme contexts. Each section applies `data-theme` to its wrapper, scoping the active theme for that subtree.
+`Theme` wraps a subtree in a scoped theme context. Descendant calls to `useTheme()` resolve to the overridden theme without affecting anything outside the wrapper. The component applies a `data-theme` attribute to its wrapper element, which CSS variable declarations can target to inject the correct token values.
+
+This example sets up a `light` root context via `createThemeContext`, then places two independent `<Theme theme="dark">` overrides alongside it. The second override nests a `<Theme theme="light">` inside — demonstrating that nesting is arbitrary-depth and each level sees only its nearest ancestor's scope, not the global default.
+
+Reach for this pattern when a page section, card, sidebar, or marketing block needs a different theme from the surrounding app — dark headers, promotional banners, or inverted footers are common cases. The `ThemeCard` helper renders the active theme's color swatches, making it easy to confirm the correct scope is resolved at each level.
 
 | File | Role |
 |------|------|
-| `ThemeCard.vue` | Displays theme colors for the given theme prop |
-| `scoped-override.vue` | Entry — sets up themes and nests scoped overrides |
+| `ThemeCard.vue` | Displays the color palette for a given theme — used as a visual probe at each scope level |
+| `scoped-override.vue` | Entry — bootstraps the theme context and nests scoped overrides at multiple levels |
 :::
 
 ## Recipes
@@ -135,5 +126,31 @@ The default slot exposes `theme` (the active ID), `isDark` (boolean), and `attrs
   </Theme>
 </template>
 ```
+
+## FAQ
+
+::: faq
+
+??? Does `<Theme theme="dark">` change my whole app's theme?
+
+No. It scopes the theme to its subtree — descendant `useTheme()` calls resolve to the override while the rest of the app is unaffected.
+
+??? How do I apply a `data-theme` wrapper without changing the active theme?
+
+Omit the `theme` prop. Theme then inherits the parent theme while still emitting the `data-theme` attribute on its wrapper, which your CSS variable declarations can target.
+
+??? When do I need the `namespace` prop?
+
+Only when building a reusable component that must stay theme-isolated from the app's global theme. By default Theme provides under `'v0:theme'` (the key `useTheme()` reads); a custom namespace keeps descendants from affecting the global theme. Most apps don't need it.
+
+??? Can I render `<Theme>` as a specific element?
+
+Yes. Theme extends `Atom`, so the `as` prop renders it as any element — `<Theme theme="dark" as="section">` outputs `<section data-theme="dark">`.
+
+??? How do I scope a theme without adding a wrapper element?
+
+Set `renderless` and bind the `attrs` slot prop (which includes `data-theme`) to your own element.
+
+:::
 
 <DocsApi />

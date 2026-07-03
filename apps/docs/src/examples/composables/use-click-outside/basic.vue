@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { useClickOutside } from '@vuetify/v0'
+  import { Button, useClickOutside } from '@vuetify/v0'
   import { shallowRef, useTemplateRef } from 'vue'
 
   const isOpen = shallowRef(false)
@@ -12,28 +12,28 @@
 
 <template>
   <div ref="menu" class="inline-block relative">
-    <button
+    <Button.Root
       class="px-4 py-2 bg-primary text-on-primary rounded"
       @click="isOpen = !isOpen"
     >
       {{ isOpen ? 'Close' : 'Open' }} Menu
-    </button>
+    </Button.Root>
 
     <div
       v-if="isOpen"
       class="mt-2 w-48 py-2 bg-surface border border-divider rounded shadow-lg"
     >
-      <button class="w-full text-left px-4 py-2 text-sm hover:bg-surface-tint">
+      <Button.Root class="w-full text-left px-4 py-2 text-sm hover:bg-surface-tint">
         Profile
-      </button>
+      </Button.Root>
 
-      <button class="w-full text-left px-4 py-2 text-sm hover:bg-surface-tint">
+      <Button.Root class="w-full text-left px-4 py-2 text-sm hover:bg-surface-tint">
         Settings
-      </button>
+      </Button.Root>
 
-      <button class="w-full text-left px-4 py-2 text-sm hover:bg-surface-tint">
+      <Button.Root class="w-full text-left px-4 py-2 text-sm hover:bg-surface-tint">
         Sign out
-      </button>
+      </Button.Root>
     </div>
   </div>
 </template>

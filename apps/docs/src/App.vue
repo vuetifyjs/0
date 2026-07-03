@@ -142,6 +142,8 @@
   <div
     class="app-shell min-h-screen text-on-background"
     :class="{ 'dot-grid': settings.showDotGrid.value }"
+    :data-code-size="settings.codeSize.value"
+    :style="{ '--line-opacity': `${settings.dotGridIntensity.value}%` }"
   >
     <a
       class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:start-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-on-primary focus:rounded"
@@ -199,8 +201,21 @@
     position: relative;
     background: color-mix(in srgb, var(--v0-background) 85%, transparent);
 
+    /*
+     * App-shell dot grid (toggled via Settings → "Dot grid pattern").
+     *
+     * Intentionally a separate inline implementation from the AppDotGrid
+     * component: this is a full-viewport shell background with a diagonal fade
+     * and a user toggle, whereas AppDotGrid is a per-section accent with a
+     * radial fade from a corner — different roles, so neither is forced onto
+     * the other. The dot weight, 20px density, and connecting-line construction
+     * (lines offset half a cell so the dots sit on the intersections) are kept
+     * deliberately in sync with the GnDotGrid primitive in @paper/genesis;
+     * change the look there and mirror it here.
+     */
     &.dot-grid::before {
-      --dot-opacity: 24%;
+      --dot-opacity: 12%;
+      /* --line-opacity is set inline from the "Line intensity" setting (defaults to 0.85%). */
       content: '';
       position: absolute;
       top: 0;
@@ -210,9 +225,11 @@
       z-index: 0;
       pointer-events: none;
       background:
-        radial-gradient(circle, color-mix(in srgb, var(--v0-on-background) var(--dot-opacity), transparent) 1px, transparent 1px);
-      background-size: 24px 24px;
-      background-position: 18px 0;
+        radial-gradient(circle, color-mix(in srgb, var(--v0-on-background) var(--dot-opacity), transparent) 1px, transparent 1px),
+        linear-gradient(to right, color-mix(in srgb, var(--v0-on-background) var(--line-opacity, 0.85%), transparent) 1px, transparent 1px),
+        linear-gradient(to bottom, color-mix(in srgb, var(--v0-on-background) var(--line-opacity, 0.85%), transparent) 1px, transparent 1px);
+      background-size: 20px 20px;
+      background-position: 0 0, 10px 10px, 10px 10px;
       mask-image: linear-gradient(
         225deg,
         black 0%,
@@ -368,7 +385,11 @@
       padding: 0.5rem 1rem;
     }
 
-    table {
+    /* Prose tables only. Self-styled grid examples opt out via [data-grid] on
+       their wrapper — otherwise this rule's specificity (0,1,1) overrides their
+       own utility classes (0,1,0) and double-borders the table. Bare example
+       tables (no wrapper) still get this default styling. */
+    table:not([data-grid] table) {
       width: 100%;
       background-color: var(--v0-surface);
       border-collapse: separate;
@@ -376,25 +397,25 @@
       border-radius: 0.5rem;
       border: thin solid var(--v0-divider);
       overflow: hidden;
-    }
 
-    th, td {
-      padding: 0.5rem 0.75rem;
-      border-bottom: thin solid var(--v0-divider);
-      border-right: thin solid var(--v0-divider);
-    }
+      th, td {
+        padding: 0.5rem 0.75rem;
+        border-bottom: thin solid var(--v0-divider);
+        border-right: thin solid var(--v0-divider);
+      }
 
-    th {
-      background-color: var(--v0-surface-tint);
-      font-weight: 600;
-    }
+      th {
+        background-color: var(--v0-surface-tint);
+        font-weight: 600;
+      }
 
-    th:last-child, td:last-child {
-      border-right: none;
-    }
+      th:last-child, td:last-child {
+        border-right: none;
+      }
 
-    tr:last-child td {
-      border-bottom: none;
+      tr:last-child td {
+        border-bottom: none;
+      }
     }
   }
 
@@ -450,6 +471,25 @@
 
   .footnote-backref:hover {
     text-decoration: underline;
+  }
+
+  /* Code size — one variable drives every shiki surface (fences, code
+     groups, API cards, example panes). The app-shell data attribute is
+     bound to the codeSize setting. */
+  .app-shell {
+    --docs-code-size: 0.8125rem;
+  }
+
+  .app-shell[data-code-size='medium'] {
+    --docs-code-size: 0.875rem;
+  }
+
+  .app-shell[data-code-size='large'] {
+    --docs-code-size: 1rem;
+  }
+
+  .shiki code {
+    font-size: var(--docs-code-size);
   }
 
   /* DocsMarkup code block styling */

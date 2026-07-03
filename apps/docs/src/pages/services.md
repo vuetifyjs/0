@@ -1,5 +1,5 @@
 ---
-title: Vuetify Services - Hire the creator of Vuetify0
+title: Vuetify0 Services - Hire the creator of Vuetify0
 meta:
   - name: description
     content: Hire the creator of Vuetify0. Subscribe for direct support, or hire him for a fixed-scope custom framework, app, or monorepo on Vuetify0.
@@ -13,7 +13,7 @@ related:
   - /roadmap
 ---
 
-# Vuetify Services
+# Vuetify0 Services
 
 Hire the creator of Vuetify0. Subscribe for direct support, or hire me for a fixed-scope project — just one person, building software to keep Vuetify0 going.
 

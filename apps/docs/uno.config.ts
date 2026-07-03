@@ -84,6 +84,7 @@ export default defineConfig({
 
         :not(pre) > code {
           background: var(--v0-surface-tint);
+          color: var(--v0-on-surface-variant);
           padding: 0.125rem 0.375rem;
           border-radius: 0.25rem;
           font-size: 0.875em;

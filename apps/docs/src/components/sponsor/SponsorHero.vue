@@ -50,14 +50,14 @@
   </section>
 
   <section v-else class="relative my-10 px-6 py-10 rounded-2xl border border-divider bg-surface overflow-hidden text-center">
-    <AppDotGrid :coverage="40" />
+    <AppDotGrid :coverage="60" origin="top right" />
 
     <p class="relative text-xl md:text-2xl tracking-tight mb-3">
       The Primary Sponsor spot is currently open.
     </p>
 
     <p class="relative text-sm text-on-surface-variant max-w-prose mx-auto mb-6">
-      One company at a time. If your product is built on Vuetify0, this is how you fund its development and share that relationship with the community.
+      One company at a time. Whether your team is building on Vuetify0 or building toward it, this is how you fund its development and put your brand alongside the framework.
     </p>
 
     <div class="relative flex flex-wrap justify-center gap-3">

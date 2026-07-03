@@ -1,7 +1,7 @@
 /**
  * @module createOverflow
  *
- * @see https://0.vuetifyjs.com/composables/utilities/create-overflow
+ * @see https://0.vuetifyjs.com/composables/semantic/create-overflow
  *
  * @remarks
  * Composable for computing how many items fit in a container based on available width.
@@ -183,8 +183,8 @@ export function createOverflow<
     if (!IN_BROWSER) return
 
     const style = getComputedStyle(el)
-    const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-    const w = (el as HTMLElement).offsetWidth + marginX
+    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    const w = ((el as HTMLElement).offsetWidth || 0) + marginX
 
     if (widths.value.get(index) !== w) {
       widths.value = new Map(widths.value).set(index, w)

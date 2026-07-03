@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Components
+  import { GnPeek } from '@paper/genesis'
+
   // Composables
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
@@ -29,6 +32,7 @@
 
   const settings = useSettings()
   const lineWrap = useSyncedRef(settings.lineWrap)
+  const size = settings.codeSize
 
   const decodedCode = toRef(() => decodeBase64(code))
 
@@ -40,7 +44,7 @@
 </script>
 
 <template>
-  <div class="relative my-4" :class="shouldCollapse && !expanded && 'mb-8'">
+  <div class="relative my-4" :class="shouldCollapse && 'mb-8'">
     <div
       class="docs-markup relative group"
       :class="[
@@ -58,6 +62,7 @@
 
       <div class="absolute top-3 end-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100">
         <DocsCodeActions
+          v-model:size="size"
           v-model:wrap="lineWrap"
           bin
           :bin-title
@@ -65,20 +70,10 @@
           :language
           :playground
           show-copy
+          show-size
           show-wrap
           :title
         />
-
-        <button
-          v-if="shouldCollapse && expanded"
-          aria-label="Collapse code"
-          class="inline-flex items-center justify-center size-7 text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
-          title="Collapse code"
-          type="button"
-          @click="expanded = false"
-        >
-          <AppIcon icon="fullscreen-exit" :size="16" />
-        </button>
       </div>
 
       <div
@@ -91,16 +86,15 @@
       <div v-if="shouldCollapse && !expanded" class="docs-markup-fade absolute inset-x-0 bottom-0 h-16 rounded-b-2 pointer-events-none" />
     </div>
 
-    <button
-      v-if="shouldCollapse && !expanded"
-      aria-label="Expand code"
-      class="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center gap-1 px-2 py-1 text-xs text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85 touch-action-manipulation"
-      type="button"
-      @click="expanded = true"
+    <GnPeek
+      v-if="shouldCollapse"
+      v-slot="{ expanded: open }"
+      v-model:expanded="expanded"
+      collapsed-label="Expand code"
+      expanded-label="Collapse code"
     >
-      <span>Expand</span>
-      <AppIcon icon="down" :size="14" />
-    </button>
+      {{ open ? 'Collapse' : 'Expand' }}
+    </GnPeek>
   </div>
 </template>
 

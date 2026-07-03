@@ -2,9 +2,9 @@
 title: Roadmap - Vuetify0 Development Timeline
 meta:
   - name: description
-    content: Track upcoming features, releases, milestones, and maturity status for @vuetify/v0 headless UI library. v0 enters alpha on April 7, 2026.
+    content: Track upcoming features, releases, milestones, and maturity status for @vuetify/v0 headless UI library. v0 is a release candidate on the road to v1.0.
   - name: keywords
-    content: vuetify0, roadmap, alpha, timeline, milestones, releases, features, maturity, stability, Vue 3, v0, headless ui
+    content: vuetify0, roadmap, release candidate, rc, beta, alpha, timeline, milestones, releases, features, maturity, stability, Vue 3, v0, headless ui
 features:
   level: 1
 related:
@@ -24,29 +24,28 @@ Track the development of @vuetify/v0. Milestones are organized by time horizon:
 
 <DocsRoadmap />
 
-> [!NOTE] Want to help shape the future of this project? [Become a Founder Supporter](mailto:john@vuetifyjs.com?subject=Founder%20Supporter%20Inquiry) and gain a guiding voice in what we build next.
+## Release Candidate
 
-## Alpha
+**Now a release candidate.** A headless UI framework for Vue 3 — composables and components that handle the logic so you can own the design. No opinions on styling. No markup you can't change. Just primitives that work.
 
-**Launching April 7, 2026.** A headless UI framework for Vue 3 — composables and components that handle the logic so you can own the design. No opinions on styling. No markup you can't change. Just primitives that work.
-
-We're opening v0 for feedback, bug reports, and contributions. Your input shapes what gets locked in for v1.
+Alpha opened on April 7, 2026 for feedback; beta hardened the APIs. The release candidate locks the v1 stable set — what remains is final validation, documentation, and bug fixes before v1.0.
 
 ### Road to v1
 
 <DocsTimeline :milestones="[
-  { id: 'alpha', label: 'Alpha', date: 'April 7, 2026', description: 'Open for feedback, bug reports, and contributions. APIs mostly stable, may evolve.', active: true },
+  { id: 'alpha', label: 'Alpha', date: 'April 7, 2026', description: 'Opened for feedback, bug reports, and contributions. APIs mostly stable, may evolve.' },
   { id: 'beta', label: 'Beta', date: 'June 2026', description: 'API freeze. Focus shifts to stability, documentation, and edge cases.' },
-  { id: 'v1', label: 'v1.0', date: 'July 2026', description: 'Milestone-driven. Ships when the milestones are met.' },
+  { id: 'rc', label: 'RC', date: 'July 2026', description: 'Release candidate for final testing and documentation. No new features.', active: true },
+  { id: 'v1', label: 'v1.0', date: 'Q3 2026', description: 'Milestone-driven. Ships when the milestones are met.' },
 ]" />
 
-### What alpha means
+### What RC means
 
-This isn't a proof of concept. v0 is feature-complete enough to build with and evaluate seriously.
+This isn't a proof of concept. v0 is feature-complete for v1 and ready to build with.
 
-- **APIs are mostly stable.** They may evolve based on community feedback, but the foundation is solid.
+- **The stable set is locked.** 16 composables and 17 utilities are now marked stable — breaking changes require a major version. See the [maturity matrix](#maturity-matrix) below for the full breakdown.
 - **v0 is being built directly into Vuetify.** The composables and patterns here are the same ones powering Vuetify's next generation. This isn't a side project — it's the core.
-- **Your feedback matters now.** Alpha is when design decisions are still open. Once we hit beta, APIs freeze. If something feels wrong, this is the time to say so.
+- **This is the final validation window.** No new features land before v1.0 — every regression, gap, or rough edge you report gets priority. If something feels wrong, say so now.
 
 ### Try v0
 
@@ -84,7 +83,7 @@ Whether you want to explore in the browser, scaffold a project, or integrate wit
 </div>
 
 > [!TIP]
-> Want a complete working reference? [DevKey](/guide/integration/devkey) is the example project shipped with Alpha — a full Vue 3 + Vite + UnoCSS app built on `@vuetify/v0`. Clone it, or run `pnpm create vuetify0` to scaffold your own copy.
+> Want a complete working reference? [DevKey](/guide/integration/devkey) is the example project that ships with v0 — a full Vue 3 + Vite + UnoCSS app built on `@vuetify/v0`. Clone it, or run `pnpm create vuetify0` to scaffold your own copy.
 
 ### Get involved
 
@@ -97,6 +96,12 @@ Whether you want to explore in the browser, scaffold a project, or integrate wit
 ## Maturity Matrix
 
 <DocsMaturity />
+
+### Graduation Criteria
+
+Every feature climbs the same track. Its level tells you what you can rely on today; the gate between levels is exactly what it takes to move up.
+
+<DocsGraduation />
 
 ## FAQ
 
@@ -111,11 +116,11 @@ v0 is the foundation layer being built directly into Vuetify's next generation. 
 
 ??? Can I use v0 in production?
 
-Yes, with the understanding that APIs may evolve during alpha. The core is solid and is already being used to build Vuetify itself. If you're comfortable with occasional minor adjustments as things stabilize, v0 is ready to build with.
+Yes. The v1 stable set is locked, and the release candidate is the build we intend to ship as v1.0. The core is solid and is already being used to build Vuetify itself. Preview APIs may still see minor, documented adjustments.
 
-??? Will APIs break during alpha?
+??? Will APIs break before v1?
 
-APIs are mostly stable. Breaking changes are possible but will be documented in release notes. The goal of alpha is to gather feedback before locking APIs at beta.
+The stable set is locked — breaking changes to it now require a major version. Preview features may still evolve in minor releases, with every change documented in release notes. Alpha gathered the feedback; beta locked things down; RC is the final validation pass.
 
 ??? What styling framework should I use with v0?
 
@@ -127,7 +132,7 @@ Yes. All composables and components are SSR-safe. Nuxt integration is documented
 
 ??? What's the difference between stable, preview, and draft?
 
-**Stable** means battle-tested with no planned breaking changes. **Preview** means feature-complete and documented, but the API may evolve in minor releases. **Draft** means experimental and subject to major changes. See the maturity matrix above for a full breakdown.
+**Stable** means battle-tested with no planned breaking changes. **Preview** means feature-complete and documented, but the API may evolve in minor releases. **Draft** means experimental and subject to major changes. See the [graduation criteria](#graduation-criteria) above for the full ladder and what it takes to move between levels.
 
 ??? How do I report a bug?
 
@@ -144,5 +149,3 @@ Join the [Discord](https://community.vuetifyjs.com) community. You can also use 
 
 ::: sponsor
 :::
-
-> [!DISCORD]

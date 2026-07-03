@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { V0StyleSheetThemeAdapter } from './v0'
 
 // Utilities
+import { isV0Error } from '#v0/utilities'
 import { computed, effectScope, nextTick, ref } from 'vue'
 
 // Types
@@ -53,6 +54,41 @@ describe('v0StyleSheetThemeAdapter', () => {
 
       expect(adapter.cspNonce).toBe('test-nonce')
     })
+
+    it('should accept valid prefixes', () => {
+      const dashed = new V0StyleSheetThemeAdapter({ prefix: 'my-prefix' })
+      const underscored = new V0StyleSheetThemeAdapter({ prefix: 'theme_1' })
+
+      expect(dashed.prefix).toBe('my-prefix')
+      expect(underscored.prefix).toBe('theme_1')
+    })
+
+    it('should default the prefix when none is provided', () => {
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      expect(adapter.prefix).toBe('v0')
+    })
+
+    it('should throw a V0Error with code V0_THEME_INVALID_PREFIX for malformed prefixes', () => {
+      const prefixes = ['x}body{display:none', 'a b', 'url(']
+
+      for (const prefix of prefixes) {
+        function construct () {
+          return new V0StyleSheetThemeAdapter({ prefix })
+        }
+
+        expect(construct).toThrow()
+
+        let error: unknown
+        try {
+          construct()
+        } catch (error_) {
+          error = error_
+        }
+
+        expect(isV0Error(error, 'V0_THEME_INVALID_PREFIX')).toBe(true)
+      }
+    })
   })
 
   // eslint-disable-next-line vitest/prefer-lowercase-title
@@ -78,6 +114,29 @@ describe('v0StyleSheetThemeAdapter', () => {
           id: expect.any(String),
         }],
       })
+
+      scope.stop()
+    })
+
+    it('should include cspNonce in the pushed style entry', () => {
+      mockInBrowser.value = false
+      const headMock = { push: vi.fn() }
+      const app = createMockApp(headMock)
+      const context = createMockContext()
+      const adapter = new V0StyleSheetThemeAdapter({ cspNonce: 'test-nonce' })
+
+      const scope = effectScope()
+      scope.run(() => {
+        adapter.setup(app, context)
+      })
+
+      expect(headMock.push).toHaveBeenCalledWith(
+        expect.objectContaining({
+          style: expect.arrayContaining([
+            expect.objectContaining({ nonce: 'test-nonce' }),
+          ]),
+        }),
+      )
 
       scope.stop()
     })
@@ -139,6 +198,31 @@ describe('v0StyleSheetThemeAdapter', () => {
       }).not.toThrow()
 
       scope.stop()
+    })
+
+    it('should assign entry.dispose to adapter.dispose when entry has dispose', () => {
+      mockInBrowser.value = false
+      const entryDispose = vi.fn()
+      const headMock = { push: vi.fn(() => ({ dispose: entryDispose })) }
+      const app = createMockApp(headMock)
+      const context = createMockContext()
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      adapter.setup(app, context)
+
+      expect(adapter.dispose).toBe(entryDispose)
+    })
+
+    it('should leave dispose unset when head entry has no dispose', () => {
+      mockInBrowser.value = false
+      const headMock = { push: vi.fn(() => ({})) }
+      const app = createMockApp(headMock)
+      const context = createMockContext()
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      adapter.setup(app, context)
+
+      expect(adapter.dispose).toBeUndefined()
     })
 
     it('should not call update in SSR', () => {
@@ -406,6 +490,28 @@ describe('v0StyleSheetThemeAdapter', () => {
       expect(css).toContain('--v0-primary: #1976d2')
     })
 
+    it('should drop values carrying dangerous CSS from generated output', () => {
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      const css = adapter.generate(
+        {
+          light: {
+            primary: '#1976d2',
+            breakout: 'red } body { display: none',
+            beacon: 'url(https://evil.example/x)',
+            declaration: 'red; background-image: image-set("https://evil.example/x.png" 1x)',
+            escape: String.raw`\75 rl(https://evil.example/x)`,
+          },
+        },
+        false,
+      )
+
+      expect(css).toContain('--v0-primary: #1976d2')
+      expect(css).not.toContain('evil.example')
+      expect(css).not.toContain('display: none')
+      expect(css).not.toContain('image-set')
+    })
+
     it('should ignore null selectedId in watcher', async () => {
       const app = createMockApp()
       const el = document.createElement('div')
@@ -464,6 +570,72 @@ describe('v0StyleSheetThemeAdapter', () => {
       await nextTick()
 
       expect(updateSpy.mock.calls.length).toBe(callCount)
+    })
+
+    it('should remove the adopted stylesheet on dispose', () => {
+      const app = createMockApp()
+      const context = createMockContext()
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      const scope = effectScope()
+      scope.run(() => {
+        adapter.setup(app, context, null)
+      })
+
+      expect(document.adoptedStyleSheets).toHaveLength(1)
+      expect(adapter.sheet).toBeDefined()
+
+      adapter.dispose?.()
+
+      expect(document.adoptedStyleSheets).toHaveLength(0)
+      expect(adapter.sheet).toBeUndefined()
+
+      scope.stop()
+    })
+
+    it('should remove the adopted stylesheet on dispose with a target element', () => {
+      const app = createMockApp()
+      const context = createMockContext()
+      const adapter = new V0StyleSheetThemeAdapter()
+      const targetEl = document.createElement('div')
+      document.body.append(targetEl)
+
+      const scope = effectScope()
+      scope.run(() => {
+        adapter.setup(app, context, targetEl)
+      })
+
+      expect(document.adoptedStyleSheets).toHaveLength(1)
+      expect(adapter.sheet).toBeDefined()
+
+      adapter.dispose?.()
+
+      expect(document.adoptedStyleSheets).toHaveLength(0)
+      expect(adapter.sheet).toBeUndefined()
+
+      targetEl.remove()
+      scope.stop()
+    })
+
+    it('should remove the adopted stylesheet on dispose when target resolves to no element', () => {
+      const app = createMockApp()
+      const context = createMockContext()
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      const scope = effectScope()
+      scope.run(() => {
+        adapter.setup(app, context, '#nonexistent-target')
+      })
+
+      expect(document.adoptedStyleSheets).toHaveLength(1)
+      expect(adapter.sheet).toBeDefined()
+
+      adapter.dispose?.()
+
+      expect(document.adoptedStyleSheets).toHaveLength(0)
+      expect(adapter.sheet).toBeUndefined()
+
+      scope.stop()
     })
   })
 })

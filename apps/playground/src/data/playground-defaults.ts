@@ -6,6 +6,9 @@ export const INFRASTRUCTURE_FILES = new Set(['import-map.json', 'tsconfig.json',
 /** Subset of infrastructure files shown in the "project" folder of the file tree */
 export const REPL_BUILTIN_FILES = ['import-map.json', 'tsconfig.json'] as const
 
+/** Infrastructure files revealed by the file tree's "Toggle config files" button */
+export const CONFIG_FILE_IDS = new Set(['src/main.ts', 'src/uno.config.ts', 'import-map.json'])
+
 // ── Template files (matching Vuetify Play's v0 template) ────────────────
 
 export interface MainOptions {

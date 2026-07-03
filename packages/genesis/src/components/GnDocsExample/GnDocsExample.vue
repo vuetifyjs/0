@@ -46,12 +46,14 @@
   import GnDocsExampleActions from './GnDocsExampleActions.vue'
   import GnDocsExampleCode from './GnDocsExampleCode.vue'
   import GnDocsExampleDescription from './GnDocsExampleDescription.vue'
-  import GnDocsExamplePeek from './GnDocsExamplePeek.vue'
   import GnDocsExamplePreview from './GnDocsExamplePreview.vue'
   import GnDocsExampleTabs from './GnDocsExampleTabs.vue'
 
   // Utilities
   import { shallowRef, toRef, useId, useTemplateRef } from 'vue'
+
+  import GnActionButton from '../GnActionButton/GnActionButton.vue'
+  import GnPeek from '../GnPeek/GnPeek.vue'
 
   defineOptions({ name: 'GnDocsExample' })
 
@@ -119,11 +121,13 @@
     :data-peek="peek || undefined"
   >
     <GnDocsExampleDescription
-      v-if="title"
+      v-if="title || $slots.description"
       :anchor-id="id"
       :collapse
       :title
-    />
+    >
+      <slot name="description" />
+    </GnDocsExampleDescription>
 
     <GnDocsExamplePreview
       ref="preview"
@@ -143,6 +147,7 @@
         :aria-controls="`${uid}-code`"
         :aria-expanded="showCode"
         class="genesis-docs-example__toggle"
+        data-tour="example-toggle"
         type="button"
         @click="toggleCode"
       >
@@ -212,10 +217,9 @@
           </span>
 
           <GnDocsExampleActions label="Example actions">
-            <button
+            <GnActionButton
               aria-label="Reset example"
               title="Reset example"
-              type="button"
               @click="onReset"
             >
               <slot name="reset-icon">
@@ -230,7 +234,7 @@
                   <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
                 </svg>
               </slot>
-            </button>
+            </GnActionButton>
           </GnDocsExampleActions>
         </div>
 
@@ -257,9 +261,10 @@
       </template>
     </div>
 
-    <GnDocsExamplePeek
+    <GnPeek
       v-if="peek && !hasMultipleFiles && hasCode"
       v-model:expanded="peekExpanded"
+      data-tour="example-expand"
     />
   </div>
 </template>
@@ -287,17 +292,17 @@
     border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
   }
 
-  .genesis-docs-example > *:first-child:not(.genesis-docs-example-peek) {
+  .genesis-docs-example > *:first-child:not(.genesis-peek) {
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
   }
 
-  .genesis-docs-example > *:nth-last-child(1 of :not(.genesis-docs-example-peek)) {
+  .genesis-docs-example > *:nth-last-child(1 of :not(.genesis-peek)) {
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
   }
 
-  .genesis-docs-example > *:nth-last-child(1 of :not(.genesis-docs-example-peek)) .genesis-docs-example__toggle {
+  .genesis-docs-example > *:nth-last-child(1 of :not(.genesis-peek)) .genesis-docs-example__toggle {
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
   }

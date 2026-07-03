@@ -79,7 +79,7 @@
       'aria-valuemin': 0
       'aria-valuemax': number
       'aria-valuetext': string
-      'aria-disabled': true | undefined
+      'aria-disabled': boolean
       'aria-readonly': true | undefined
       'data-disabled': true | undefined
       'data-readonly': true | undefined
@@ -116,8 +116,10 @@
 
   const rating = createRating({
     value: model,
-    size,
-    half,
+    // Wrap reactive props as getters — createRating reads size/half via
+    // toValue(), so bare scalar snapshots would freeze them at mount.
+    size: toRef(() => size),
+    half: toRef(() => half),
   })
 
   // Hover tracking — UI concern, not in composable
@@ -169,32 +171,28 @@
 
   provideRatingRoot(namespace, context)
 
-  const slotProps = toRef((): RatingRootSlotProps => {
-    const valueText = locale.t('Rating.valueText', { value: rating.value.value, size: rating.size })
-
-    return {
-      value: displayValue.value,
-      items: rating.items.value,
-      isHovering: isHovering.value,
-      isDisabled: isDisabled.value,
-      isReadonly: isReadonly.value,
-      attrs: {
-        'role': 'slider',
-        'tabindex': isDisabled.value ? -1 : 0,
-        'aria-valuenow': rating.value.value,
-        'aria-valuemin': 0,
-        'aria-valuemax': rating.size,
-        'aria-valuetext': valueText === 'Rating.valueText' ? `${rating.value.value} of ${rating.size}` : valueText,
-        'aria-disabled': isDisabled.value ? true : undefined,
-        'aria-readonly': isReadonly.value ? true : undefined,
-        'data-disabled': isDisabled.value ? true : undefined,
-        'data-readonly': isReadonly.value ? true : undefined,
-        'data-hovering': isHovering.value ? true : undefined,
-        'onKeydown': onKeydown,
-        'onPointerleave': onPointerleave,
-      },
-    }
-  })
+  const slotProps = toRef((): RatingRootSlotProps => ({
+    value: displayValue.value,
+    items: rating.items.value,
+    isHovering: isHovering.value,
+    isDisabled: isDisabled.value,
+    isReadonly: isReadonly.value,
+    attrs: {
+      'role': 'slider',
+      'tabindex': isDisabled.value ? -1 : 0,
+      'aria-valuenow': rating.value.value,
+      'aria-valuemin': 0,
+      'aria-valuemax': rating.size,
+      'aria-valuetext': locale.ti('Rating.valueText', { value: rating.value.value, size: rating.size }) ?? `${rating.value.value} of ${rating.size} stars`,
+      'aria-disabled': isDisabled.value,
+      'aria-readonly': isReadonly.value ? true : undefined,
+      'data-disabled': isDisabled.value ? true : undefined,
+      'data-readonly': isReadonly.value ? true : undefined,
+      'data-hovering': isHovering.value ? true : undefined,
+      'onKeydown': onKeydown,
+      'onPointerleave': onPointerleave,
+    },
+  }))
 </script>
 
 <template>

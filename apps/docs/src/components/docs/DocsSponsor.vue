@@ -15,7 +15,7 @@
             alt=""
             class="opacity-80"
             height="14"
-            src="https://cdn.vuetifyjs.com/docs/images/one/logos/vuetify.png"
+            src="https://cdn.vuetifyjs.com/docs/images/one/logos/vzero.svg"
             width="14"
           >
           Sponsor

@@ -3,11 +3,25 @@ import { fileURLToPath } from 'node:url'
 import Vue from 'unplugin-vue/rolldown'
 import { defineConfig } from 'vitest/config'
 
+// Benchmark apparatus selection. The metrics pipeline benches the built dist so
+// the current point and every historical point share one fixed apparatus; dev
+// (`pnpm bench`/`test:bench`) benches source. V0_BENCH_TARGET:
+//   unset    → source (dev/test)
+//   'dist'   → this package's built dist (current point — `pnpm metrics`)
+//   <path>   → an installed version's dist (history harness)
+function v0Target (): string {
+  const target = process.env.V0_BENCH_TARGET
+  if (!target) return fileURLToPath(new URL('src', import.meta.url))
+  if (target === 'dist') return fileURLToPath(new URL('dist', import.meta.url))
+  return target
+}
+const v0 = v0Target()
+
 export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('src', import.meta.url)),
-      '@vuetify/v0': fileURLToPath(new URL('src', import.meta.url)),
+      '@vuetify/v0': v0,
       '@vuetify/paper': fileURLToPath(new URL('../paper/src', import.meta.url)),
       // internal
       '#v0': fileURLToPath(new URL('src', import.meta.url)),

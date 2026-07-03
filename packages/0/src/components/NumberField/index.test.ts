@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { createLocalePlugin } from '#v0/composables'
+
 import { NumberField } from './index'
 
 // Utilities
@@ -698,6 +701,41 @@ describe('numberField', () => {
       expect(decrementEl().attributes('aria-label')).toBeDefined()
     })
 
+    it('should use translated locale strings for increment/decrement aria-labels when registered', async () => {
+      const plugin = createLocalePlugin({
+        default: 'en',
+        messages: {
+          en: {
+            NumberField: {
+              increment: 'Erhöhen',
+              decrement: 'Verringern',
+            },
+          },
+        },
+      })
+
+      const wrapper = mount(NumberField.Root, {
+        props: { modelValue: 5 },
+        global: { plugins: [plugin] },
+        slots: {
+          default: () => [
+            h(NumberField.Decrement as any, {}, () => '-'),
+            h(NumberField.Control as any),
+            h(NumberField.Increment as any, {}, () => '+'),
+          ],
+        },
+      })
+      wrappers.push(wrapper)
+
+      await nextTick()
+
+      const labels = wrapper.findAll('button').map(button => button.attributes('aria-label'))
+      expect(labels).toContain('Erhöhen')
+      expect(labels).toContain('Verringern')
+      expect(labels).not.toContain('Increment')
+      expect(labels).not.toContain('Decrement')
+    })
+
     it('should set increment button tabindex=-1', async () => {
       const model = ref<number | null>(5)
       const { incrementEl, wait } = mountNumberField({ model })
@@ -1327,7 +1365,7 @@ describe('numberField', () => {
       expect(captured.attrs['data-readonly']).toBeUndefined()
     })
 
-    it.skip('should expose pointer event handlers in slot attrs for renderless mode', async () => {
+    it('should expose pointer event handlers in slot attrs for renderless mode', async () => {
       const model = ref<number | null>(5)
       let captured: any
       mount(NumberField.Root, {
@@ -1350,7 +1388,7 @@ describe('numberField', () => {
       expect(captured.attrs.onPointerup).toBeTypeOf('function')
     })
 
-    it.skip('should support renderless mode with bound slot attrs', async () => {
+    it('should support renderless mode with bound slot attrs', async () => {
       const rafSpy = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb: any) => {
         cb(0)
         return 1
@@ -1563,9 +1601,7 @@ describe('numberField', () => {
       await wait()
       input.dispatchEvent(new FocusEvent('blur'))
       await wait()
-      // Either the v-model committed via onBlur, or it's still 5;
-      // cover the path itself, not the v-model bridge.
-      expect([42, 5]).toContain(model.value)
+      expect(model.value).toBe(42)
     })
 
     it('should commit on Enter key', async () => {
@@ -1583,9 +1619,43 @@ describe('numberField', () => {
       await wait()
       await controlEl().trigger('keydown', { key: 'Enter' })
       await wait()
-      // Cover the keydown Enter branch; commit may or may not propagate
-      // through happy-dom's input event chain.
-      expect([42, 5]).toContain(model.value)
+      expect(model.value).toBe(42)
+    })
+
+    it('should commit typed value to parent-bound v-model on blur (regression #329)', async () => {
+      const model = ref<number | null>(5)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { min: 0, max: 200 },
+      })
+      await wait()
+
+      await controlEl().trigger('focus')
+      const input = controlEl().element as HTMLInputElement
+      input.value = '100'
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+      await wait()
+      input.dispatchEvent(new FocusEvent('blur'))
+      await wait()
+      expect(model.value).toBe(100)
+    })
+
+    it('should commit typed value to parent-bound v-model on Enter (regression #329)', async () => {
+      const model = ref<number | null>(5)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { min: 0, max: 200 },
+      })
+      await wait()
+
+      await controlEl().trigger('focus')
+      const input = controlEl().element as HTMLInputElement
+      input.value = '100'
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+      await wait()
+      await controlEl().trigger('keydown', { key: 'Enter' })
+      await wait()
+      expect(model.value).toBe(100)
     })
 
     it('should leap on PageUp', async () => {
@@ -1878,6 +1948,26 @@ describe('numberField', () => {
       await flushPromises()
 
       expect(rule).toHaveBeenCalled()
+    })
+
+    it('should not validate on input before the first error in eager mode', async () => {
+      const model = ref<number | null>(5)
+      const rule = vi.fn(() => true)
+      const { wrapper, wait } = mountNumberField({
+        model,
+        props: { rules: [rule], validateOn: 'eager input' },
+      })
+      await wait()
+      await flushPromises()
+      rule.mockClear()
+
+      // A passing input change before any error must NOT validate in eager
+      // mode — eager re-validates on input only once an error exists.
+      await wrapper.setProps({ modelValue: 7 })
+      await wait()
+      await flushPromises()
+
+      expect(rule).not.toHaveBeenCalled()
     })
 
     it('should accept input modifier in validateOn string', async () => {

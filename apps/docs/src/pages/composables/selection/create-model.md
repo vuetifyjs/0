@@ -91,7 +91,7 @@ Value state is **always reactive**. Collection methods follow the base `createRe
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-model/createCompound.ts
 /composables/create-model/compound.vue
 @import @mdi/js
@@ -127,7 +127,7 @@ This pattern is the foundation for compound inputs like forms, filters, and conf
 
 :::
 
-::: example
+::: gn-example
 /composables/create-model/model.ts
 /composables/create-model/ColorProvider.vue
 /composables/create-model/ColorConsumer.vue
@@ -162,6 +162,28 @@ The provider/consumer split keeps the model definition (`model.ts`) separate fro
 | `ColorProvider.vue` | Calls `createColorModel()` and provides context via slot |
 | `ColorConsumer.vue` | Injects context, renders hue sliders with gradient tracks and composite strip |
 | `colors.vue` | Entry point composing Provider around Consumer |
+
+:::
+
+## FAQ
+
+::: faq
+
+??? When should I use createModel instead of createSelection?
+
+createModel is a value store — register a ref and keep it synced with `useProxyModel`. Reach for [createSelection](/composables/selection/create-selection) when you need selection semantics like `mandatory` enforcement or ticket self-methods (`select()`, `toggle()`); createModel deliberately omits them.
+
+??? Why are tickets active the moment I register them?
+
+createModel defaults `enroll` to `true`, since a two-way-bound value is expected to start active. Pass `enroll: false` to opt out. Note [createSelection](/composables/selection/create-selection) flips this default to `false`.
+
+??? What does the `multiple` option do?
+
+By default `select()` clears the previous selection first (single-value semantics). With `multiple: true` it accumulates IDs so several tickets stay active at once — this is how `createSlider` keeps every thumb selected simultaneously.
+
+??? How is createModel different from Vue's `defineModel`?
+
+`defineModel` is a single component-level `v-model`. createModel stores values in a registry of tickets, so you can compose several values into one compound model and build selection on top — which is what [createSelection](/composables/selection/create-selection) does. Bridge a createModel value to a `v-model` ref with [useProxyModel](/composables/reactivity/use-proxy-model).
 
 :::
 

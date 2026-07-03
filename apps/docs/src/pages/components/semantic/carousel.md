@@ -27,13 +27,13 @@ Headless carousel built on CSS scroll-snap with multi-slide display and partial-
 
 The Carousel provides slide navigation with native drag/swipe via CSS scroll-snap. Slides register with a step context for programmatic navigation.
 
-::: example
+::: gn-example
 /components/carousel/basic
 :::
 
 ## Anatomy
 
-```vue Anatomy playground no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Carousel } from '@vuetify/v0'
 </script>
@@ -43,7 +43,6 @@ The Carousel provides slide navigation with native drag/swipe via CSS scroll-sna
     <Carousel.Viewport>
       <Carousel.Item />
     </Carousel.Viewport>
-
     <Carousel.Indicator />
     <Carousel.Previous />
     <Carousel.Next />
@@ -55,43 +54,24 @@ The Carousel provides slide navigation with native drag/swipe via CSS scroll-sna
 
 ## Examples
 
-### Indicator
+::: gn-example
+/components/carousel/useGallery.ts 1
+/components/carousel/Gallery.vue 2
+/components/carousel/gallery.vue 3
 
-Dot indicators show which slide is active and allow direct navigation. The `Carousel.Indicator` exposes an `items` array via slot props — render each dot with `v-bind="item.attrs"` for built-in keyboard navigation and ARIA.
+### Image Gallery
 
-::: example
-/components/carousel/indicator
+A photo gallery that folds every navigation affordance into one cohesive surface: dot indicators, overlay Previous/Next arrows, autoplay with a pause toggle and a timer bar, and a peek viewport that reveals the edges of the neighbouring slides. The selected slide drives a caption panel below the carousel, so the demo also shows how to read the active value back out.
 
-### Dot Navigation
+The gallery leans on the full compound surface. `Carousel.Root` is `circular` with `:autoplay` set to a fixed interval, and its `v-model` carries the active slide value — the same value `Carousel.Item` registers with `:value`. `Carousel.Indicator` hands each dot an `attrs` object (role, `aria-selected`, `aria-controls`, and roving tabindex) that you bind with `v-bind="item.attrs"` for keyboard navigation at no cost. The peek is pure CSS: horizontal padding on `Carousel.Viewport` carves the bleed, and the component mirrors that padding onto `scroll-padding` so snap points stay aligned. Autoplay does not start on its own — the play button calls the root's `play` and `stop` slot props, and the carousel auto-pauses the timer during drag and touch. `Carousel.Progress` visualizes the remaining time, faded out via `data-[state=idle]:opacity-0` until playback begins.
 
-Indicators between Previous/Next buttons with roving tabindex and `aria-controls` linking each dot to its slide.
+Reach for this layout when a single carousel needs to be discoverable through several input paths at once — common for marketing heroes, onboarding flows, and product galleries. The tradeoff is surface area: a barebones swipe carousel needs only Root, Viewport, and Item. Because navigation is built on [createStep](/composables/selection/create-step), you get the same first/last/next/prev model the [Step provider](/components/providers/step) exposes; for fade transitions instead of scroll-snap sliding, compose Step with Presence rather than reaching for this scroll-based layout.
 
-:::
-
-### Multi-Slide Display
-
-Show multiple slides at once with the `per-view` prop. This is useful for card grids, skill lists, or product carousels where users can browse items in groups.
-
-::: example
-/components/carousel/multi-slide
-
-### Three Slides Per View
-
-A circular carousel showing 3 slides at once with a 12px gap between them.
-
-:::
-
-### Peek
-
-Add padding to the viewport to reveal a portion of adjacent slides, signaling to the user that more content is available and encouraging drag/swipe interaction.
-
-::: example
-/components/carousel/peek
-
-### Partial Slide Visibility
-
-A carousel with 48px peek on each side showing portions of adjacent slides.
-
+| File | Role |
+|------|------|
+| `useGallery.ts` | Owns the photo data, the autoplay interval, and the derived active photo plus position |
+| `Gallery.vue` | Renders the carousel compound — peek viewport, overlay arrows, autoplay toggle, progress bar, and indicator dots |
+| `gallery.vue` | Wires the composable to the gallery and shows a caption panel reflecting the selected slide |
 :::
 
 ## Recipes
@@ -190,13 +170,15 @@ The Carousel implements the [WAI-ARIA Carousel Pattern](https://www.w3.org/WAI/A
 | Root | `role="region"`, `aria-roledescription="carousel"`, `aria-label`, `aria-disabled` |
 | Viewport | `aria-live="polite"` |
 | Slide | `role="group"`, `aria-roledescription="slide"`, `aria-label="N of M"` |
-| Previous | `aria-label` via locale, `aria-controls` links to viewport |
-| Next | `aria-label` via locale, `aria-controls` links to viewport |
+| Previous | `aria-label` defaults to `"Previous slide"` (`Carousel.prev` key, localizable), `aria-controls` links to viewport |
+| Next | `aria-label` defaults to `"Next slide"` (`Carousel.next` key, localizable), `aria-controls` links to viewport |
 | Indicator | `role="tablist"` container with `aria-orientation`, `role="tab"` per dot, `aria-selected` |
 | Progress | `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax` |
 | LiveRegion | `role="status"`, `aria-live="polite"`, `aria-atomic` |
 
 Slides outside the visible window are marked with `aria-hidden="true"` so screen readers only announce visible content. The LiveRegion provides a dedicated announcement channel for slide changes, using a 100ms delay for reliable screen reader detection.
+
+## FAQ
 
 ::: faq
 

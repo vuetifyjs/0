@@ -92,8 +92,6 @@
 
   const slotProps = toRef((): CarouselProgressSlotProps => {
     const percent = Math.round(progress.value * 100)
-    const valueText = locale.t('Carousel.progress', { percent })
-    const ariaLabel = locale.t('Carousel.progressLabel')
 
     return {
       progress: progress.value,
@@ -104,8 +102,8 @@
         'aria-valuenow': percent,
         'aria-valuemin': 0,
         'aria-valuemax': 100,
-        'aria-valuetext': valueText === 'Carousel.progress' ? `${percent}% complete` : valueText,
-        'aria-label': ariaLabel === 'Carousel.progressLabel' ? 'Progress' : ariaLabel,
+        'aria-valuetext': locale.ti('Carousel.progress', { percent }) ?? `${percent}% complete`,
+        'aria-label': locale.ti('Carousel.progressLabel') ?? 'Carousel progress',
         'data-state': state.value,
         'style': { width: `${percent}%` },
       },

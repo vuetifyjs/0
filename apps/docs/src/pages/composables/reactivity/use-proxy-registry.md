@@ -65,6 +65,21 @@ flowchart LR
 > [!TIP] Deep vs shallow
 > Pass `{ deep: true }` for `reactive()`, or omit for `shallowReactive()` (default). Shallow is more performant when ticket internals don't need tracking.
 
+## Examples
+
+::: gn-example
+/composables/use-proxy-registry/notification-center
+
+### Notification Center
+
+A notification center that manages an event-sourced list of items through `createRegistry` with `events: true` and exposes them reactively to the template via `useProxyRegistry`. Three notifications are seeded with `onboard()` on mount; the + Add button calls `registry.register()` with a random message and type; clicking the mail icon calls `registry.upsert()` to flip the `read` flag; dismiss calls `registry.unregister()`. The template iterates `proxy.values` — a reactive array that updates automatically on every registry mutation without any manual `watch` or event subscription in the component.
+
+The debug panel at the top shows `proxy.size`, `proxy.keys`, and a `toRef`-derived `unread` count, making the reactivity boundary visible: all three update the moment the registry changes, driven entirely by the event bridge `useProxyRegistry` installs. The unread badge on the header demonstrates that derived values — computed from `proxy.values` via `toRef` — are also reactive without extra wiring.
+
+Use `useProxyRegistry` any time a registry's contents need to drive a `v-for` or a reactive count in a template. The alternative — `reactive: true` on the registry — carries a subtle cache-invalidation footgun (see the FAQ) that `useProxyRegistry` avoids entirely by listening to events rather than relying on Vue's dep tracking of the internal Map. For selection composables like `createSingle` or `createGroup`, pass the selection instance directly since they extend `createRegistry` and support `events: true` the same way.
+
+:::
+
 ## FAQ
 
 ::: faq
@@ -185,17 +200,6 @@ selection.selectedIds // Set of selected IDs
 ```
 
 The proxy only exposes registry properties. For reactive selection state, use the selection instance directly or create a custom reactive wrapper.
-:::
-
-## Examples
-
-::: example
-/composables/use-proxy-registry/notification-center
-
-### Notification Center
-
-A registry-based notification queue using `useProxyRegistry` to make the item list reactively drive the template without manual event subscriptions.
-
 :::
 
 <DocsApi />

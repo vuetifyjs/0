@@ -277,7 +277,7 @@
 
 <template>
   <Dialog.Root v-model="isOpen">
-    <Dialog.Activator class="docs-mermaid flex justify-center w-full my-4 overflow-x-auto cursor-pointer hover:opacity-80 transition-opacity">
+    <Dialog.Activator class="docs-mermaid flex justify-center w-full my-4 overflow-x-auto cursor-pointer">
       <figure class="flex flex-col items-center w-full">
         <div class="flex justify-center w-full" v-html="svg" />
 

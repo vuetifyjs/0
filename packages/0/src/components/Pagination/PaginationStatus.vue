@@ -85,12 +85,10 @@
 
     clearTimeout(pending)
     pending = setTimeout(() => {
-      const status = locale.t(
+      text.value = locale.ti(
         'Pagination.status',
         { page, pages: pagination.pages },
-      )
-
-      text.value = status === 'Pagination.status' ? `Page ${page} of ${pagination.pages}` : status
+      ) ?? `Page ${page} of ${pagination.pages}`
     }, 100)
   })
 

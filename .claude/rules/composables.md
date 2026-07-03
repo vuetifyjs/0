@@ -155,8 +155,8 @@ When destructuring the options object, the rest variable is `options`, never `mo
 
 ```ts
 // Right
-function createFoo (options: FooOptions = {}) {
-  const { disabled, namespace = 'v0:foo', ...rest } = options
+function createFoo (_options: FooOptions = {}) {
+  const { disabled, namespace = 'v0:foo', ...options } = _options
 }
 ```
 
@@ -206,12 +206,12 @@ See PHILOSOPHY §2.9 for the three-way split (throw / warn / return) and the ful
 Child spreads parent and adds or overrides: [intent:142]
 
 ```ts
-// packages/0/src/composables/createSelection/index.ts:286
+// packages/0/src/composables/createSelection/index.ts:299
 const model = createModel(options)
-return { ...model, selectedIds, select, toggle, /* ... */ }
+return { ...model, multiple, register, onboard, unselect, toggle, apply, mandate, seek }
 ```
 
-Used by the selection chain: `createModel → createSelection → createSingle → createGroup → createStep`.
+Used by the selection chain: `createModel → createSelection → { createSingle → createStep, createGroup → createNested }`.
 
 ### 2. Aggregation (multi-system orchestrator)
 
@@ -239,6 +239,39 @@ export const [createXContext, createXPlugin, useX] = createPluginContext('v0:x',
 
 Used by `useTheme`, `useLocale`, `useLogger`, `useStack`, and friends.
 
+#### Options tiers — required shape
+
+Plugin composables declare three option tiers. `namespace` lives on the context options, `persist` on the plugin options — never inlined together:
+
+```ts
+export interface FooOptions { /* factory options */ }
+
+export interface FooContextOptions extends FooOptions {
+  namespace?: string
+}
+
+export interface FooPluginOptions extends FooContextOptions {
+  persist?: boolean
+}
+```
+
+This is the standard shape across the plugin family (`useTheme`, `useRtl`, `useReducedMotion`, …); `useNotifications` and `useBreakpoints` predate the convention — don't copy their flat shape into new plugins.
+
+#### Persist/restore validation
+
+`restore` callbacks must validate the persisted value before applying it — a type guard or literal-union check, never `saved as T`. Storage contents are user-tamperable and survive schema drift:
+
+```ts
+// packages/0/src/composables/useReducedMotion/index.ts
+restore: (context, saved) => {
+  if (saved === 'system' || saved === 'always' || saved === 'never') {
+    context.select(saved)
+  }
+},
+```
+
+`useLocale`, `useTheme`, and `useRtl` all validate the persisted value with `#v0/utilities` type guards (`isString` / `isNumber` / `isBoolean`) before applying it — the blind-cast sweep is complete; don't reintroduce `saved as T` or raw `typeof` comparisons.
+
 #### Fallback contract — required for every plugin
 
 Any `useX` whose docs promise it works without `app.use(createXPlugin())` must pass a `fallback: (namespace) => Context` factory to `createPluginContext`. Without it, calling `useX()` outside an installed app throws an injection error — the docs FAQ promise breaks silently.
@@ -258,7 +291,11 @@ export const [createLoggerContext, createLoggerPlugin, useLogger] =
   )
 ```
 
-When the fallback is in place, `useLogger()` returns synthesized defaults instead of throwing. Sibling plugins that follow the same convention: `useLocale` (`createLocaleFallback`), `useHydration` (`createFallbackHydration`). If a plugin **must** be installed (e.g., it depends on caller-provided adapters with no defensible default — `useDate`), omit the fallback and let injection throw; document that explicitly on the docs page so the failure is loud, not silent.
+> `useLogger` additionally wraps the generated consumer in a hand-written function to support an optional scope key (see its source); the snippet above shows the fallback wiring it still uses, not its literal export shape.
+
+When the fallback is in place, `useLogger()` returns synthesized defaults instead of throwing. Nearly every plugin composable follows the convention (`useStack` hand-rolls an equivalent lazy-singleton fallback outside it). If a plugin **must** be installed (e.g., it depends on caller-provided adapters with no defensible default — `useDate`), omit the fallback and let injection throw; document that explicitly on the docs page so the failure is loud, not silent.
+
+**Naming.** Fallback factories use the suffix form `create<X>Fallback` (`createLocaleFallback`, `createThemeFallback`, `createReducedMotionFallback`); `createFallbackLogger` and `createFallbackHydration` are grandfathered exceptions — don't mimic them.
 
 ### 4. Adapter (pluggable implementation)
 
@@ -289,16 +326,13 @@ The adapter pattern shows up in two distinct situations. They look similar in so
 - **`useStorage`** — ships `MemoryStorageAdapter` (SSR-safe fallback) under `useStorage/adapters/memory.ts`; `useStorage` itself reaches for `window.localStorage` when running in the browser, swapping in the memory adapter under SSR.
 - **`useNotifications`** — ships no `V0`-prefixed default; consumers pick a third-party-branded adapter (`KnockNotificationsAdapter`, `NovuNotificationsAdapter`) at install time.
 
-**Interface contract.** Every adapter interface is defined in the composable's `adapters/index.ts` and includes optional lifecycle hooks:
+**Adapter contract.** Every adapter contract is an abstract class defined in the composable's `adapters/adapter.ts` (re-exported through the `adapters/index.ts` barrel); lifecycle hooks (`setup`, `dispose?`) appear on adapters with install-time side effects:
 
 ```ts
-// packages/0/src/composables/useLocale/adapters/index.ts (illustrative)
-export interface LocaleAdapter {
-  setup?: (context: LocaleAdapterContext) => void
-  dispose?: () => void
-  t: (key: string, params?: Record<string, unknown>) => string
-  n: (value: number, options?: Intl.NumberFormatOptions) => string
-  // ... domain-specific methods
+// packages/0/src/composables/useLocale/adapters/adapter.ts
+export abstract class LocaleAdapter {
+  abstract t (key: string, ...params: unknown[]): string
+  abstract n (value: number): string
 }
 ```
 
@@ -355,6 +389,27 @@ Both composables are covered in PHILOSOPHY §6.6 and §6.7. Repeating the when-t
 - **`useProxyModel(context, model, { multiple? })`** — when your composable/component owns a `createModel`-derived context internally and exposes v-model externally. Registry must be created with `events: true` so late-registering tickets can sync. [intent:182, intent:309]
 - **`useProxyRegistry(registry, { deep? })`** — when you want a reactive `{ keys, values, entries, size }` snapshot of a registry for template iteration. The registry must be created with `events: true` (the proxy subscribes to `register:ticket`, `unregister:ticket`, `update:ticket`, `clear:registry`, `reindex:registry`); the proxy itself only accepts `{ deep?: boolean }`. Use `deep: true` when consumers will mutate ticket fields and need the snapshot to track those mutations. [intent:253, intent:254]
 
+## Sub-modules: inline, private sibling, or promote
+
+A complex composable (`createDataGrid`, `createDataTable`) is decomposed into multiple files (`layout.ts`, `editing.ts`, `spanning.ts`, `columns.ts`). A separate file is justified **only by reusability or a load-bearing separation — never by "the file got long."** For each candidate chunk, decide with this test:
+
+1. **Named, self-contained concept?** Does the chunk model a thing a user would name ("cell editing", "row spanning", "column layout") with its own state/lifecycle — not just a slice of the parent's wiring? **No → inline it** in the parent's `index.ts`. Cohesion, not line count, is the bar.
+2. **Decoupled from the parent's types?** Is its contract describable and callable using only generic/structural inputs (a structural registry, generic columns, refs, callbacks), with **zero imports of the parent's concrete types**? **No → private sibling module.** It is legitimate parent-specific glue (own file for cohesion + isolated tests); it must **never** be promoted.
+3. **A decoupled concept is a *latent composable* — is there a second consumer?** ≥1 actual or imminent second caller? **Yes → promote** to a public `createX/` composable (full New Feature Checklist: dir, barrel, `maturity.json`, docs page + example, READMEs). **No → keep as a private sibling, but mark it `@internal` with an explicit "promote on second consumer" note.** Promote on the second consumer, not speculatively — the checklist commits you to public-API stability, docs, and support.
+
+The middle state — a private sibling that is *also* a latent composable — is legitimate **only when it is explicitly marked** as such in its `@module` JSDoc. An unmarked "why is this its own file?" module is the smell this rule exists to kill: resolve it through the test above so the next author knows whether it is extraction-ready or permanent glue.
+
+Worked examples (the `createDataGrid` sub-modules):
+
+| Module | Named concept | Decoupled from parent types | Verdict |
+|---|---|---|---|
+| `createDataGrid/editing.ts` (`createCellEditing`) | yes | yes — `#v0/utilities` + `#v0/types` + Vue only | latent composable → private sibling, **marked promotion candidate** |
+| `createDataGrid/spanning.ts` (`createRowSpanning`) | yes | yes — items ref + columns + span fn | latent composable → private sibling, **marked promotion candidate** |
+| `createDataGrid/layout.ts` (`createColumnLayout`) | yes | **no** — depends on `DataTableColumnTicket` | parent-bound glue → private sibling, **never promote** |
+| `createDataTable/columns.ts` (`extractLeaves`, `resolveHeaders`) | utilities | n/a — column-tree helpers | parent-bound helpers → private sibling |
+
+Rule of thumb: **inline** when it is the parent's own logic, **promote** when a second consumer exists, and **private sibling** in between — but only with the `@internal` marking that records which of the two it is (extraction-ready vs. permanent glue).
+
 ## Dependency Layers (PHILOSOPHY §6)
 
 ```
@@ -368,7 +423,7 @@ Layer 1: Single-layer deps
   useBreakpoints, useLocale, useTheme, useRules, etc.
 
 Layer 2: Complex orchestrators
-  createSelection → createSingle → createGroup → createStep
+  createSelection → { createSingle → createStep, createGroup → createNested }
   createCombobox, createDataTable
 ```
 
@@ -434,7 +489,7 @@ This split is why `useTheme` and `useLocale` work fine even though their reactiv
 
 ### Escape hatch for unbounded collections
 
-For plugins whose registries can grow without bound (notifications, data tables, logs, queues), `reactive: true` is still the right default but consider exposing an explicit opt-out on the plugin options. The shape is "bake in reactive behavior, let the consumer turn it off if they hit a scale wall." `useNotifications` is the canonical example.
+For plugins whose registries can grow without bound (notifications, logs, queues), `reactive: true` with an explicit opt-out on the plugin options is the right shape when consumers iterate the registry directly — "bake in reactive behavior, let the consumer turn it off if they hit a scale wall." `useNotifications` is the canonical example. When iteration is confined to internal derived computeds, skip registry reactivity entirely and wrap the registry in `useProxyRegistry` instead (PHILOSOPHY §4.4) — `createDataTable`'s row registry is the canonical example.
 
 ### `useProxyRegistry` vs `reactive: true`
 
@@ -462,7 +517,7 @@ Always use `useId()` from `#v0/utilities`. Never auto-increment. SSR-safe. [inte
 
 ## Events and Lifecycle
 
-See PHILOSOPHY §2.5 for the DOM-event rule. Scope-specific reminder: the only composables exempt from it are the three browser-primitive wrappers — `useEventListener`, `useHotkey`, `useClickOutside`. Anything else that reaches for `addEventListener` is in the wrong file.
+See PHILOSOPHY §2.5 for the DOM-event rule. Scope-specific reminder: the only composables exempt from it are the four browser-primitive wrappers — `useEventListener`, `useHotkey`, `useClickOutside`, `useMediaQuery`. Anything else that reaches for `addEventListener` is in the wrong file.
 
 ## Naming Instance (PHILOSOPHY §3.3)
 

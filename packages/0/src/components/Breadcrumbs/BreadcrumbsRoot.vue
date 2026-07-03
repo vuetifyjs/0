@@ -137,8 +137,8 @@
     }
     const htmlEl = el as HTMLElement
     const style = getComputedStyle(htmlEl)
-    const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-    target.value = htmlEl.offsetWidth + marginX
+    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    target.value = (htmlEl.offsetWidth || 0) + marginX
   }
 
   function measureElement (index: number, type: 'item' | 'divider', el: Element | undefined) {
@@ -244,24 +244,20 @@
     measureElement,
   })
 
-  const slotProps = toRef((): BreadcrumbsRootSlotProps => {
-    const bc = locale.t('Breadcrumbs.label')
-
-    return {
-      isOverflowing: overflow.isOverflowing.value,
-      capacity: overflow.capacity.value,
-      total: group.size,
-      depth: breadcrumbs.depth.value,
-      isRoot: breadcrumbs.isRoot.value,
-      first: breadcrumbs.first,
-      prev: breadcrumbs.prev,
-      select: breadcrumbs.select,
-      attrs: {
-        'aria-label': label ?? (bc === 'Breadcrumbs.label' ? 'Breadcrumb' : bc),
-        'role': as === 'nav' ? undefined : 'navigation',
-      },
-    }
-  })
+  const slotProps = toRef((): BreadcrumbsRootSlotProps => ({
+    isOverflowing: overflow.isOverflowing.value,
+    capacity: overflow.capacity.value,
+    total: group.size,
+    depth: breadcrumbs.depth.value,
+    isRoot: breadcrumbs.isRoot.value,
+    first: breadcrumbs.first,
+    prev: breadcrumbs.prev,
+    select: breadcrumbs.select,
+    attrs: {
+      'aria-label': label ?? locale.ti('Breadcrumbs.label') ?? 'Breadcrumbs',
+      'role': as === 'nav' ? undefined : 'navigation',
+    },
+  }))
 </script>
 
 <template>

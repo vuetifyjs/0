@@ -100,7 +100,7 @@ export interface GroupContext<
   /** Check if a ticket is in mixed/indeterminate state by ID */
   mixed: (id: ID) => boolean
   /** Whether no items are currently selected */
-  isNoneSelected: ComputedRef<boolean>
+  isNoneSelected: Readonly<Ref<boolean>>
   /** Whether all selectable (non-disabled) items are selected */
   isAllSelected: ComputedRef<boolean>
   /** Whether some but not all selectable items are selected */
@@ -360,7 +360,7 @@ export function createGroup<
     get size () {
       return selection.size
     },
-  } as unknown as R
+  } satisfies GroupContext<Z, E> as unknown as R
 }
 
 /**

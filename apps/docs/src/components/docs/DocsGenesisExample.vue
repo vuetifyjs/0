@@ -8,12 +8,14 @@
   // Composables
   import { getMultiFileBinUrl } from '@/composables/bin'
   import { useExamples } from '@/composables/useExamples'
+  import { prehighlight } from '@/composables/useHighlightCode'
+  import { useIdleCallback } from '@/composables/useIdleCallback'
   import { usePlayground } from '@/composables/usePlayground'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
-  import { computed, toRef } from 'vue'
+  import { computed, onMounted, toRef } from 'vue'
 
   // Types
   import type { GnDocsExampleFile } from '@paper/genesis'
@@ -71,6 +73,22 @@
 
   const settings = useSettings()
   const lineWrap = useSyncedRef(settings.lineWrap)
+  const size = settings.codeSize
+
+  // Highlight code into the shared cache before the pane opens, so the first
+  // "Show code" renders highlighted output instead of flashing raw text
+  function warm () {
+    const files = resolvedFiles.value
+    if (files?.length) {
+      for (const f of files) prehighlight(f.code, f.language || f.name.split('.').pop() || 'text')
+    } else if (resolvedCode.value) {
+      prehighlight(resolvedCode.value, language.value)
+    }
+  }
+
+  onMounted(() => {
+    useIdleCallback(warm)
+  })
 
   async function onPlayground (list: GnDocsExampleFile[]) {
     const files = list.map(f => ({ name: f.name, code: f.code }))
@@ -88,8 +106,10 @@
 <template>
   <GnDocsExample
     :id
+    class="mb-6"
     :code="resolvedCode"
     :collapse
+    data-tour="example"
     :file-name
     :file-orders
     :files="resolvedFiles"
@@ -135,17 +155,23 @@
     </template>
 
     <template #code="{ code: paneCode, file: paneFile, language: paneLanguage }">
-      <div class="docs-genesis-example-pane" :class="lineWrap && 'docs-genesis-example-pane--wrap'">
+      <div
+        class="docs-genesis-example-pane"
+        :class="lineWrap && 'docs-genesis-example-pane--wrap'"
+        data-tour="example-code"
+      >
         <DocsGenesisShikiBlock :code="paneCode ?? ''" :language="paneLanguage ?? 'text'" />
 
-        <div class="docs-genesis-example-pane__actions">
+        <div class="docs-genesis-example-pane__actions" data-tour="example-toolbar">
           <DocsCodeActions
+            v-model:size="size"
             v-model:wrap="lineWrap"
             bin
             :code="paneCode ?? ''"
             :language="paneLanguage"
             :playground="!paneFile"
             show-copy
+            show-size
             show-wrap
             :title="paneFile?.name ?? fileName"
           />
@@ -156,8 +182,9 @@
 </template>
 
 <style scoped>
-  /* Match the AppBar's glass treatment on sticky toolbars so they read as a
-     continuous surface with the page chrome while scrolling. */
+  /* Skin the example surfaces with the AppBar's glass treatment so the
+     description and the sticky toolbars read as continuous page chrome. */
+  :deep(.genesis-docs-example-description),
   :deep(.genesis-docs-example__toggle-bar),
   :deep(.genesis-docs-example__code-bar),
   :deep(.genesis-docs-example-tabs__bar) {
@@ -178,26 +205,6 @@
     gap: 0.25rem;
     opacity: 0;
     transition: opacity 0.15s;
-  }
-
-  /* Normalize DocsCodeActions buttons to match GnDocsExampleActions toolbar:
-     32x32 hit target, 16x16 icon. */
-  .docs-genesis-example-pane__actions :deep(button) {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .docs-genesis-example-pane__actions :deep(button > i) {
-    width: 16px;
-    height: 16px;
-  }
-
-  .docs-genesis-example-pane__actions :deep(svg) {
-    width: 16px;
-    height: 16px;
   }
 
   .docs-genesis-example-pane:hover .docs-genesis-example-pane__actions,

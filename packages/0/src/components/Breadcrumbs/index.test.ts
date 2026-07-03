@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+// Composables
+import { createLocalePlugin } from '#v0/composables'
+
 import { Breadcrumbs, useBreadcrumbsRoot } from './index'
 
 // Utilities
@@ -62,17 +65,37 @@ describe('breadcrumbs', () => {
     })
 
     describe('accessibility', () => {
-      it('should have a default aria-label when the locale key is unresolved', () => {
+      it('should have aria-label from locale key', () => {
         const wrapper = mount(Breadcrumbs.Root, {
           slots: {
             default: () => h('div', 'Content'),
           },
         })
 
-        const label = wrapper.find('nav').attributes('aria-label')
+        expect(wrapper.find('nav').attributes('aria-label')).toBe('Breadcrumbs')
+      })
 
-        expect(label).toBeDefined()
-        expect(label).not.toBe('Breadcrumbs.label')
+      it('should use the translated locale string for aria-label when one is registered', () => {
+        const plugin = createLocalePlugin({
+          default: 'en',
+          messages: {
+            en: {
+              Breadcrumbs: {
+                label: 'Brotkrumen',
+              },
+            },
+          },
+        })
+
+        const wrapper = mount(Breadcrumbs.Root, {
+          global: { plugins: [plugin] },
+          slots: {
+            default: () => h('div', 'Content'),
+          },
+        })
+
+        expect(wrapper.find('nav').attributes('aria-label')).not.toBe('Breadcrumbs')
+        expect(wrapper.find('nav').attributes('aria-label')).toBe('Brotkrumen')
       })
 
       it('should not have role="navigation" when as="nav"', () => {
@@ -533,7 +556,7 @@ describe('breadcrumbs', () => {
       expect(wrapper.find('nav').exists()).toBe(true)
       expect(wrapper.find('ol').exists()).toBe(true)
       expect(wrapper.findAll('li').length).toBeGreaterThan(0)
-      expect(wrapper.find('nav').exists()).toBe(true)
+      expect(wrapper.find('[aria-label="Breadcrumbs"]').exists()).toBe(true)
       expect(wrapper.find('[role="list"]').exists()).toBe(true)
     })
 
@@ -911,7 +934,7 @@ describe('breadcrumbs', () => {
       expect(html).toBeTruthy()
       expect(html).toContain('Home')
       expect(html).toContain('Current')
-      expect(html).toContain('aria-label="Breadcrumb"')
+      expect(html).toContain('aria-label="Breadcrumbs"')
       expect(html).toContain('role="list"')
       expect(html).toContain('aria-current="page"')
     })

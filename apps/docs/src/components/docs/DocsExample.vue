@@ -7,12 +7,14 @@
 
   // Composables
   import { getMultiFileBinUrl } from '@/composables/bin'
+  import { useCodeHighlighter } from '@/composables/useCodeHighlighter'
   import { useExamples } from '@/composables/useExamples'
+  import { useIdleCallback } from '@/composables/useIdleCallback'
   import { usePlayground } from '@/composables/usePlayground'
 
   // Utilities
   import { toKebab } from '@/utilities/strings'
-  import { computed, ref, shallowRef, toRef, useId, useSlots, useTemplateRef, watch } from 'vue'
+  import { computed, onMounted, ref, shallowRef, toRef, useId, useSlots, useTemplateRef, watch } from 'vue'
 
   // Types
   import type DocsExampleCodePaneType from './DocsExampleCodePane.vue'
@@ -184,6 +186,23 @@
   )
 
   const language = toRef(() => file?.split('.').pop() || 'vue')
+
+  const { highlight: highlightCode } = useCodeHighlighter()
+
+  // Highlight code into the shared cache before the pane opens, so the first
+  // "show code" renders highlighted output instead of flashing raw text
+  function warm () {
+    const files = displayFiles.value
+    if (files?.length) {
+      for (const f of files) highlightCode({ code: f.code, language: f.language || f.name.split('.').pop() || 'text' })
+    } else if (resolvedCode.value) {
+      highlightCode({ code: resolvedCode.value, language: language.value })
+    }
+  }
+
+  onMounted(() => {
+    useIdleCallback(warm)
+  })
 
   async function openAllInPlayground () {
     if (!displayFiles.value?.length) return
@@ -399,7 +418,10 @@
               >
                 <Select.Value v-slot="{ selectedValue }">{{ selectedValue }}</Select.Value>
                 <Select.Placeholder>+{{ hiddenFiles.length }} more</Select.Placeholder>
-                <Select.Cue v-slot="{ isOpen }" class="text-[10px] opacity-50">{{ isOpen ? '&#x25B4;' : '&#x25BE;' }}</Select.Cue>
+
+                <Select.Cue v-slot="{ isOpen }" class="opacity-50">
+                  <AppChevron :open="isOpen" :size="12" vertical />
+                </Select.Cue>
               </Select.Activator>
 
               <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
@@ -517,7 +539,7 @@
       @click="peekExpanded = !peekExpanded"
     >
       <span>{{ peekExpanded ? 'Collapse' : 'Expand' }}</span>
-      <AppIcon :icon="peekExpanded ? 'up' : 'down'" :size="14" />
+      <AppChevron :open="peekExpanded" :size="14" vertical />
     </button>
   </div>
 </template>

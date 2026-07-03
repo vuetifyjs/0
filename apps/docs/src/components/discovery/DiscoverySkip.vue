@@ -34,7 +34,7 @@
 
 <template>
   <button
-    aria-label="Skip tour"
+    :aria-label="root.isLast.value ? 'Complete tour' : 'Skip tour'"
     type="button"
     @click="skip"
   >

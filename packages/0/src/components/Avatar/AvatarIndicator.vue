@@ -79,8 +79,8 @@
       return
     }
     const style = getComputedStyle(el.value)
-    const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-    group.indicatorWidth.value = (el.value as HTMLElement).offsetWidth + marginX
+    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    group.indicatorWidth.value = ((el.value as HTMLElement).offsetWidth || 0) + marginX
   }
 
   useToggleScope(() => !!group && group.responsive.value, () => {
@@ -100,8 +100,7 @@
   const count = toRef(() => hidden.value.length)
 
   const slotProps = toRef((): AvatarIndicatorSlotProps => {
-    const translated = locale.t(LABEL_KEY, { count: count.value })
-    const ariaLabel = translated === LABEL_KEY ? `+${count.value}` : translated
+    const ariaLabel = locale.ti(LABEL_KEY, { count: count.value }) ?? `+${count.value} more`
 
     return {
       count: count.value,

@@ -24,26 +24,37 @@ A headless component for creating popovers and tooltips using modern CSS anchor 
 
 <DocsBrowserSupport
   feature="CSS Anchor Positioning"
-  :versions="{ chrome: '125+', edge: '125+', firefox: '147+ (beta)' }"
+  :versions="{ chrome: '125+', edge: '125+', firefox: '147+', safari: '26+' }"
   anchor="css-anchor-positioning"
 >
-  The component works in all browsers, but automatic anchor positioning requires CSS Anchor Positioning support. In unsupported browsers, you'll need to position the popover manually or use [Floating UI](https://floating-ui.com).
+  The component works in all browsers, but automatic anchor positioning requires CSS Anchor Positioning support. In older browsers without it, you'll need to position the popover manually or use [Floating UI](https://floating-ui.com).
 </DocsBrowserSupport>
 
 ## Usage
 
 The Popover component leverages the CSS Anchor Positioning API to create popovers, tooltips, and dropdown menus without JavaScript-based positioning. It provides v-model support for open/closed state management.
 
-::: example
+::: gn-example
 /components/popover/basic
-
-### Anchored Popover
-
-A simple popover positioned via CSS anchor positioning, opened and closed by a button trigger.
-
 :::
 
-## Features
+## Anatomy
+
+```vue Anatomy no-filename
+<script setup lang="ts">
+  import { Popover } from '@vuetify/v0'
+</script>
+
+<template>
+  <Popover.Root>
+    <Popover.Activator />
+
+    <Popover.Content />
+  </Popover.Root>
+</template>
+```
+
+## Recipes
 
 ### Positioning
 
@@ -72,20 +83,22 @@ Use `position-try` to specify fallback positions when the preferred position doe
 </template>
 ```
 
-## Anatomy
+## FAQ
 
-```vue Anatomy playground
-<script setup lang="ts">
-  import { Popover } from '@vuetify/v0'
-</script>
+::: faq
 
-<template>
-  <Popover.Root>
-    <Popover.Activator />
+??? How do I control where the popover appears relative to its anchor?
 
-    <Popover.Content />
-  </Popover.Root>
-</template>
-```
+Set `position-area` on `Popover.Content` to any [CSS `position-area`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-area) value such as `top` or `end`. It defaults to `bottom`.
+
+??? What happens in browsers that don't support CSS Anchor Positioning?
+
+The component still renders and toggles open and closed, but automatic anchor positioning won't apply. In older browsers (before Chrome/Edge 125, Firefox 147, or Safari 26), position `Popover.Content` manually or use [Floating UI](https://floating-ui.com).
+
+??? How do I keep the popover on-screen when the preferred position doesn't fit?
+
+Pass `position-try` on `Popover.Content` with fallback positions (default `'most-width bottom'`); the browser picks the first that fits the viewport.
+
+:::
 
 <DocsApi />

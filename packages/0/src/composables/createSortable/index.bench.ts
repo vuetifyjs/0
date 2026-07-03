@@ -10,10 +10,11 @@
 
 import { bench, describe } from 'vitest'
 
-import { createSortable } from './index'
+// Framework
+import { createSortable } from '@vuetify/v0/composables'
 
 // Types
-import type { SortableContext, SortableTicket, SortableTicketInput } from './index'
+import type { SortableContext, SortableTicket, SortableTicketInput } from '@vuetify/v0/composables'
 
 interface BenchmarkItem {
   id: string
@@ -99,18 +100,26 @@ describe('createSortable benchmarks', () => {
 
   // ===========================================================================
   // MOVE OPERATIONS - Index reassignment with cascade shift
-  // Fresh fixture per iteration (required - mutations change state)
-  // Measures: setup + O(distance) shift cost
+  // 1K benches: fresh fixture per iteration (setup cost is acceptable)
+  // 10K benches: shared fixture with alternating targets (self-inverting: odd
+  //   iterations move forward, even iterations restore; both have identical
+  //   O(n) map-rebuild cost, isolating move from O(n) onboard setup cost)
   // ===========================================================================
   describe('move operations', () => {
+    const sortable10kMoveFirstLast = createPopulatedSortable(10_000)
+    let moveFirstLastTarget = LAST_INDEX_10K
+
+    const sortable10kMoveMid = createPopulatedSortable(10_000)
+    let moveMidTarget = MID_INDEX_10K + 1
+
     bench('Move first to last (1,000 items)', () => {
       const sortable = createPopulatedSortable(1000)
       sortable.move(FIRST_ID, LAST_INDEX_1K)
     })
 
     bench('Move first to last (10,000 items)', () => {
-      const sortable = createPopulatedSortable(10_000)
-      sortable.move(FIRST_ID, LAST_INDEX_10K)
+      sortable10kMoveFirstLast.move(FIRST_ID, moveFirstLastTarget)
+      moveFirstLastTarget = moveFirstLastTarget === LAST_INDEX_10K ? 0 : LAST_INDEX_10K
     })
 
     bench('Move mid by 1 (1,000 items)', () => {
@@ -119,42 +128,49 @@ describe('createSortable benchmarks', () => {
     })
 
     bench('Move mid by 1 (10,000 items)', () => {
-      const sortable = createPopulatedSortable(10_000)
-      sortable.move(MID_ID_10K, MID_INDEX_10K + 1)
+      sortable10kMoveMid.move(MID_ID_10K, moveMidTarget)
+      moveMidTarget = moveMidTarget === MID_INDEX_10K + 1 ? MID_INDEX_10K : MID_INDEX_10K + 1
     })
   })
 
   // ===========================================================================
   // SWAP OPERATIONS - Two-position exchange via batched moves
-  // Fresh fixture per iteration (required - mutations change state)
-  // Measures: batched dual-move cost (should be near-constant)
+  // 1K benches: fresh fixture per iteration (setup cost is acceptable)
+  // 10K benches: shared fixture — swap is self-inverting (A↔B then B↔A =
+  //   identity), isolating dual-move cost from O(n) onboard setup cost
   // ===========================================================================
   describe('swap operations', () => {
+    const sortable10kSwap = createPopulatedSortable(10_000)
+
     bench('Swap two tickets (1,000 items)', () => {
       const sortable = createPopulatedSortable(1000)
       sortable.swap(SWAP_A_1K, SWAP_B_1K)
     })
 
     bench('Swap two tickets (10,000 items)', () => {
-      const sortable = createPopulatedSortable(10_000)
-      sortable.swap(SWAP_A_10K, SWAP_B_10K)
+      sortable10kSwap.swap(SWAP_A_10K, SWAP_B_10K)
     })
   })
 
   // ===========================================================================
   // REORDER OPERATIONS - Bulk permutation: validation pass + full reindex
-  // Fresh fixture per iteration (required - mutations change state)
-  // Measures: length / unique / known validation plus per-id move loop
+  // 1K benches: fresh fixture per iteration (setup cost is acceptable)
+  // 10K benches: shared fixture with alternating permutations (reversed↔original
+  //   is self-inverting), isolating reorder cost from O(n) onboard setup cost
   // ===========================================================================
   describe('reorder operations', () => {
+    const PERMUTATION_10K_ORIG = ITEMS_10K.map(item => item.id)
+    const sortable10kReorder = createPopulatedSortable(10_000)
+    let reorderTarget = PERMUTATION_10K
+
     bench('Reorder reverse (1,000 items)', () => {
       const sortable = createPopulatedSortable(1000)
       sortable.reorder(PERMUTATION_1K)
     })
 
     bench('Reorder reverse (10,000 items)', () => {
-      const sortable = createPopulatedSortable(10_000)
-      sortable.reorder(PERMUTATION_10K)
+      sortable10kReorder.reorder(reorderTarget)
+      reorderTarget = reorderTarget === PERMUTATION_10K ? PERMUTATION_10K_ORIG : PERMUTATION_10K
     })
   })
 
@@ -194,12 +210,20 @@ describe('createSortable benchmarks', () => {
 
   // ===========================================================================
   // EVENTS OVERHEAD - Quantifies move:ticket emit cost
-  // Fresh fixture per iteration (required - listener subscription changes state)
-  // Measures: cost added by attached subscribers on the emit path
+  // 1K benches: fresh fixture per iteration (setup cost is acceptable)
+  // 10K benches: shared fixtures with alternating move targets (self-inverting),
+  //   isolating listener overhead from O(n) onboard setup cost
   // Note: events:true is hardcoded inside createSortable, so the meaningful
   // comparison is "no listeners attached" vs "one listener attached"
   // ===========================================================================
   describe('events overhead', () => {
+    const sortable10kNoListener = createPopulatedSortable(10_000)
+    let noListenerMidTarget = MID_INDEX_10K + 1
+
+    const sortable10kWithListener = createPopulatedSortable(10_000)
+    sortable10kWithListener.on('move:ticket', () => {})
+    let withListenerMidTarget = MID_INDEX_10K + 1
+
     bench('Move with no listeners (1,000 items)', () => {
       const sortable = createPopulatedSortable(1000)
       sortable.move(MID_ID_1K, MID_INDEX_1K + 1)
@@ -212,14 +236,13 @@ describe('createSortable benchmarks', () => {
     })
 
     bench('Move with no listeners (10,000 items)', () => {
-      const sortable = createPopulatedSortable(10_000)
-      sortable.move(MID_ID_10K, MID_INDEX_10K + 1)
+      sortable10kNoListener.move(MID_ID_10K, noListenerMidTarget)
+      noListenerMidTarget = noListenerMidTarget === MID_INDEX_10K + 1 ? MID_INDEX_10K : MID_INDEX_10K + 1
     })
 
     bench('Move with listener attached (10,000 items)', () => {
-      const sortable = createPopulatedSortable(10_000)
-      sortable.on('move:ticket', () => {})
-      sortable.move(MID_ID_10K, MID_INDEX_10K + 1)
+      sortable10kWithListener.move(MID_ID_10K, withListenerMidTarget)
+      withListenerMidTarget = withListenerMidTarget === MID_INDEX_10K + 1 ? MID_INDEX_10K : MID_INDEX_10K + 1
     })
   })
 })

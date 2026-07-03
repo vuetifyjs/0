@@ -1,0 +1,75 @@
+name: Regenerate Metrics
+
+# Regenerates benchmark + coverage metrics and the per-version history series,
+# then opens an auto-PR for review. Never pushes to master directly — close the
+# PR to discard a noisy run.
+#
+# Trigger: a published GitHub Release. In this changesets setup the aggregate
+# `v*` release is the terminal, success-gated artifact of a publish (it runs
+# last, only when a publish actually happened), so `release: published` is the
+# right moment — and it never fires on plain master pushes or "version packages"
+# PR churn. The harness installs each configured version from npm and benches it
+# with the current suite (fixed apparatus), so no git tags/worktrees are needed.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: metrics-regen
+  cancel-in-progress: false # never abort a half-written history series
+
+permissions:
+  contents: write # commit regenerated artifacts to the PR branch
+  pull-requests: write # open/update the auto-PR
+
+jobs:
+  regen:
+    # Substrate `v*` releases only — skip the independent @paper/* design-system
+    # releases (which tag as `name@version`, not `v*`).
+    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'v') }}
+    runs-on: ubuntu-24.04 # pinned, NOT ubuntu-latest — OS drift moves benchmark numbers
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # full history for create-pull-request
+
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc # pin V8 — anchors the whole multi-version series
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # Fixed apparatus: the current bench suite + toolchain measure each version's
+      # npm-installed dist, so the series is comparable. --force re-measures every
+      # configured version each run (each = npm install + bench); drop --force to
+      # generate only newly-added versions.
+      - name: Regenerate history series
+        run: pnpm metrics:history --force
+
+      - name: Regenerate current metrics
+        run: pnpm metrics
+
+      - name: Open/update auto-PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore: regenerate benchmark + history metrics"
+          title: "chore: regenerate benchmark + history metrics"
+          body: |
+            Auto-regenerated on release, pinned to `ubuntu-24.04` + Node from `.nvmrc`.
+
+            The full history series is re-measured on one runner (`metrics:history --force`)
+            so the per-row sparklines stay comparable across versions.
+
+            Benchmark hz is jittery (~10–20% on shared CI runners), so near-threshold
+            tier badges may flip without a code change. **Close this PR to discard the
+            run** if the numbers look like noise.
+
+            To add a historical version, append it to `scripts/metrics-history.config.ts`
+            (must be published to npm; track the 1.x line).
+          branch: chore/metrics-regen
+          add-paths: |
+            apps/docs/public/benchmarks.json
+            apps/docs/src/data/metrics.json
+            apps/docs/src/data/metrics/*.json

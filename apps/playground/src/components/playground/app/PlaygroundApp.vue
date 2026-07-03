@@ -32,6 +32,7 @@
     toggleAddon: (id: string) => Promise<void>
     filesVersion: ShallowRef<number>
     openPlayground: (content: string) => Promise<void>
+    showConfig: ShallowRef<boolean>
   }
 
   export const [usePlayground, providePlayground] = createContext<PlaygroundContext>('v0:playground')
@@ -66,6 +67,10 @@
   // while panels and splitters resolve to their persisted sizes.
   const settled = shallowRef(false)
 
+  // Shared with the tabs strip so config files are enrolled as tabbable
+  // before a click can race the mandatory Tabs.Root selection.
+  const showConfig = shallowRef(false)
+
   providePlayground({
     store,
     isReady,
@@ -86,6 +91,7 @@
     toggleAddon,
     filesVersion,
     openPlayground,
+    showConfig,
   })
 
   // Restore panel state on runtime breakpoint changes

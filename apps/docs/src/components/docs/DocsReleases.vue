@@ -1,7 +1,4 @@
 <script setup lang="ts">
-  import { Marked } from 'marked'
-  import { markedEmoji } from 'marked-emoji'
-
   // Framework
   import { createFilter, IN_BROWSER, Popover, useDate } from '@vuetify/v0'
 
@@ -10,6 +7,10 @@
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
+  import { useMarkdown } from '@/composables/useMarkdown'
+
+  // Constants
+  import { EMOJIS } from '@/constants/emoji'
 
   // Stores
   import { type Release, useReleasesStore } from '@/stores/releases'
@@ -18,38 +19,7 @@
   import { computed, onBeforeMount, onScopeDispose, shallowRef, toRef, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
-  const emojis: Record<string, string> = {
-    '+1': '👍',
-    '-1': '👎',
-    'rocket': '🚀',
-    'tada': '🎉',
-    'sparkles': '✨',
-    'bug': '🐛',
-    'memo': '📝',
-    'fire': '🔥',
-    'warning': '⚠️',
-    'boom': '💥',
-    'wrench': '🔧',
-    'hammer': '🔨',
-    'gear': '⚙️',
-    'package': '📦',
-    'lock': '🔒',
-    'key': '🔑',
-    'zap': '⚡',
-    'bulb': '💡',
-    'star': '⭐',
-    'heart': '❤️',
-    'hooray': '🎉',
-    'laugh': '😂',
-    'eyes': '👀',
-    'check': '✅',
-    'x': '❌',
-    'arrow_up': '⬆️',
-    'arrow_down': '⬇️',
-    'microscope': '🔬',
-  }
-
-  const reactions = emojis
+  const reactions = EMOJIS
 
   const route = useRoute()
   const router = useRouter()
@@ -63,34 +33,15 @@
   const isOpen = shallowRef(false)
   let timeout: ReturnType<typeof setTimeout> | undefined
 
-  const marked = new Marked({
-    breaks: true,
-    gfm: true,
-    renderer: {
-      link ({ href, text }) {
-        const isExternal = href?.startsWith('http')
-        if (isExternal) {
-          return `<a href="${href}" target="_blank" rel="noopener">${text}↗</a>`
-        }
-        return `<a href="${href}">${text}</a>`
-      },
-    },
-  })
-
-  marked.use(markedEmoji({ emojis, renderer: token => token.emoji }))
-
   const tag = toRef(() => route.query.version as string | undefined)
+
+  const markdown = useMarkdown(() => model.value?.body ?? undefined)
 
   const publishedOn = computed(() => {
     if (!model.value?.published_at) return undefined
 
     const d = date.adapter.date(model.value.published_at)
     return d ? date.adapter.format(d, 'fullDateWithWeekday') : undefined
-  })
-
-  const renderedBody = computed(() => {
-    if (!model.value?.body) return ''
-    return marked.parse(model.value.body) as string
   })
 
   const releases = toRef(() => store.releases)
@@ -187,11 +138,7 @@
 
         <span v-else class="opacity-50">Select a release...</span>
 
-        <AppIcon
-          class="ml-auto opacity-50"
-          :icon="open ? 'chevron-up' : 'chevron-down'"
-          :size="20"
-        />
+        <AppChevron class="ml-auto opacity-50" :open :size="20" vertical />
 
         <div
           v-if="store.isLoading"
@@ -306,9 +253,9 @@
 
       <!-- Body -->
       <div
-        v-if="renderedBody"
+        v-if="markdown.html.value"
         class="docs-releases px-4 max-w-none [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-6 [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-5 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-base [&_h4]:font-medium [&_h4]:mt-3 [&_h4]:mb-2 [&_p]:my-3 [&_ul]:my-3 [&_ul]:pl-5 [&_ul]:list-disc [&_ol]:my-3 [&_ol]:pl-5 [&_ol]:list-decimal [&_li]:my-1 [&_img]:max-w-full [&_a]:text-primary [&_a]:no-underline [&_a:hover]:underline [&_a]:underline-offset-2"
-        v-html="renderedBody"
+        v-html="markdown.html.value"
       />
 
       <!-- Assets -->

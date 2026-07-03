@@ -43,6 +43,7 @@
   const {
     as = 'div',
     namespace = 'v0:combobox',
+    renderless,
   } = defineProps<ComboboxEmptyProps>()
 
   const context = useComboboxContext(namespace)
@@ -53,7 +54,7 @@
 </script>
 
 <template>
-  <Atom v-if="context.isEmpty.value" :as>
+  <Atom v-if="context.isEmpty.value" :as :renderless>
     <slot v-bind="slotProps">No results</slot>
   </Atom>
 </template>

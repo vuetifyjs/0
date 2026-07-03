@@ -5,11 +5,19 @@
   // Components
   import { usePlayground } from '@/components/playground/app/PlaygroundApp.vue'
 
+  // Composables
+  import { usePreviewHealth } from '@/composables/usePreviewHealth'
+
   // Utilities
-  import { defineAsyncComponent } from 'vue'
+  import { defineAsyncComponent, useTemplateRef } from 'vue'
 
   const playground = usePlayground()
   const theme = useTheme()
+
+  const host = useTemplateRef<HTMLElement>('host')
+  const { status, failed, dismissed, reloadKey, retry, dismiss } = usePreviewHealth(
+    () => host.value?.querySelector('iframe'),
+  )
 
   const Sandbox = defineAsyncComponent(() =>
     import('@vue/repl').then(m => m.Sandbox),
@@ -17,9 +25,10 @@
 </script>
 
 <template>
-  <div class="relative flex-1 min-w-0 min-h-0">
+  <div ref="host" class="relative flex-1 min-w-0 min-h-0">
     <Sandbox
       v-if="playground.isReady.value"
+      :key="reloadKey"
       :auto-store-init="false"
       :clear-console="false"
       show
@@ -30,6 +39,13 @@
     <div v-else class="absolute inset-0 flex items-center justify-center">
       <AppSkeleton height="h-16" :lines="1" :widths="['w-16']" />
     </div>
+
+    <PlaygroundPreviewError
+      v-if="status === 'failed' && !dismissed"
+      :failed
+      @dismiss="dismiss"
+      @retry="retry"
+    />
   </div>
 </template>
 

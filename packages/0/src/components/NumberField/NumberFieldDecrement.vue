@@ -98,12 +98,11 @@
 
   const controlAttrs = toRef((): Record<string, unknown> => {
     const disabled = isDisabled.value
-    const label = locale.t('NumberField.decrement')
 
     return {
       'type': 'button',
       'tabindex': -1,
-      'aria-label': label === 'NumberField.decrement' ? 'Decrement' : label,
+      'aria-label': locale.ti('NumberField.decrement') ?? 'Decrement',
       'disabled': disabled || undefined,
       'data-disabled': disabled ? true : undefined,
       onBlur,

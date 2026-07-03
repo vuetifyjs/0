@@ -86,24 +86,20 @@
     }
   }
 
-  const slotProps = toRef((): CarouselPreviousSlotProps => {
-    const ariaLabel = locale.t('Carousel.prev')
-
-    return {
-      isDisabled: isDisabled.value,
-      isAtEdge: isAtEdge.value,
-      attrs: {
-        'type': as === 'button' ? 'button' : undefined,
-        'aria-label': ariaLabel === 'Carousel.prev' ? 'Previous slide' : ariaLabel,
-        'aria-controls': viewportId,
-        'aria-disabled': isDisabled.value,
-        'disabled': as === 'button' ? isDisabled.value : undefined,
-        'data-disabled': isDisabled.value || undefined,
-        'data-edge': isAtEdge.value || undefined,
-        'onClick': onClick,
-      },
-    }
-  })
+  const slotProps = toRef((): CarouselPreviousSlotProps => ({
+    isDisabled: isDisabled.value,
+    isAtEdge: isAtEdge.value,
+    attrs: {
+      'type': as === 'button' ? 'button' : undefined,
+      'aria-label': locale.ti('Carousel.prev') ?? 'Previous slide',
+      'aria-controls': viewportId,
+      'aria-disabled': isDisabled.value,
+      'disabled': as === 'button' ? isDisabled.value : undefined,
+      'data-disabled': isDisabled.value || undefined,
+      'data-edge': isAtEdge.value || undefined,
+      'onClick': onClick,
+    },
+  }))
 </script>
 
 <template>

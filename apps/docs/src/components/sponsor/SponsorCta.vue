@@ -4,7 +4,7 @@
 
 <template>
   <section class="relative my-10 px-5 py-8 sm:px-8 sm:py-10 rounded-2xl border border-divider bg-surface overflow-hidden text-center">
-    <AppDotGrid :coverage="40" origin="top right" />
+    <AppDotGrid :coverage="60" origin="top right" />
 
     <p class="relative text-sm text-on-surface-variant mb-6 max-w-prose mx-auto">
       One slot. First-come, first-served. Reach out before subscribing to confirm availability.

@@ -2,13 +2,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Composables
 import { createNotificationsContext } from '#v0/composables/useNotifications'
-import { createStackPlugin } from '#v0/composables/useStack'
+import { createStackPlugin, useStack } from '#v0/composables/useStack'
+
+import { createLocalePlugin } from '#v0/composables'
 
 import { Snackbar } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, provide } from 'vue'
+import { defineComponent, h, nextTick, provide } from 'vue'
 
 let stackPlugin: ReturnType<typeof createStackPlugin>
 
@@ -27,6 +29,11 @@ function mountWithStack<T extends Parameters<typeof mount>[0]> (
       plugins: [...(options?.global?.plugins ?? []), stackPlugin],
     },
   })
+}
+
+function makeNotificationsPlugin () {
+  const [, provide, context] = createNotificationsContext()
+  return { context, install: (app: any) => app.runWithContext(() => provide(context, app)) }
 }
 
 describe('snackbar', () => {
@@ -159,6 +166,35 @@ describe('snackbar', () => {
       expect(close.attributes('aria-label')).toBeDefined()
     })
 
+    it('should fall back to the inline default aria-label when no locale plugin is configured', () => {
+      const wrapper = mount(Snackbar.Root, {
+        slots: { default: () => h(Snackbar.Close) },
+      })
+      const close = wrapper.findComponent(Snackbar.Close as any)
+      expect(close.attributes('aria-label')).toBe('Dismiss')
+    })
+
+    it('should use the translated locale string for aria-label when one is registered', () => {
+      const plugin = createLocalePlugin({
+        default: 'en',
+        messages: {
+          en: {
+            Snackbar: {
+              close: 'Verwerfen',
+            },
+          },
+        },
+      })
+
+      const wrapper = mount(Snackbar.Root, {
+        global: { plugins: [plugin] },
+        slots: { default: () => h(Snackbar.Close) },
+      })
+      const close = wrapper.findComponent(Snackbar.Close as any)
+      expect(close.attributes('aria-label')).not.toBe('Dismiss')
+      expect(close.attributes('aria-label')).toBe('Verwerfen')
+    })
+
     it('should render as button with type="button"', () => {
       const wrapper = mount(Snackbar.Root, {
         slots: { default: () => h(Snackbar.Close) },
@@ -214,11 +250,6 @@ describe('snackbar', () => {
   })
 
   describe('queue', () => {
-    function makeNotificationsPlugin () {
-      const [, provide, context] = createNotificationsContext()
-      return { context, install: (app: any) => app.runWithContext(() => provide(context, app)) }
-    }
-
     it('should expose items via slot', async () => {
       const { context, install } = makeNotificationsPlugin()
       let slotProps: any
@@ -469,6 +500,110 @@ describe('snackbar', () => {
     })
   })
 
+  describe('renderless', () => {
+    it('should render no wrapper and carry zIndex style in slot attrs on portal', () => {
+      let captured: any
+
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { teleport: false, renderless: true },
+        slots: {
+          default: (props: any) => {
+            captured = props
+            return h('section', { 'data-testid': 'custom-portal', ...props.attrs }, 'Toasts')
+          },
+        },
+      })
+
+      const custom = wrapper.find('[data-testid="custom-portal"]')
+      expect(custom.exists()).toBe(true)
+      expect(wrapper.findAll('[data-testid="custom-portal"]')).toHaveLength(1)
+      expect(wrapper.findAll('div')).toHaveLength(0)
+      expect(captured.attrs.style.zIndex).toBe(captured.zIndex)
+      expect((custom.element as HTMLElement).style.zIndex).toBe(String(captured.zIndex))
+    })
+
+    it('should render no wrapper and carry role in slot attrs on root', () => {
+      let captured: any
+
+      const wrapper = mount(Snackbar.Root, {
+        props: { renderless: true },
+        slots: {
+          default: (props: any) => {
+            captured = props
+            return h('span', { 'data-testid': 'custom-root', ...props.attrs }, 'Saved')
+          },
+        },
+      })
+
+      const custom = wrapper.find('span')
+      expect(captured.attrs.role).toBe('status')
+      expect(custom.exists()).toBe(true)
+      expect(custom.attributes('role')).toBe('status')
+      expect(wrapper.findAll('[role="status"]')).toHaveLength(1)
+      expect(wrapper.findAll('div')).toHaveLength(0)
+    })
+
+    it('should expose onClick in slot attrs so renderless mode works on close', async () => {
+      let captured: any
+
+      const wrapper = mount(Snackbar.Root, {
+        props: { id: 'test-id' },
+        slots: {
+          default: () => h(Snackbar.Close, { renderless: true }, {
+            default: (props: any) => {
+              captured = props
+              return h('span', { 'data-testid': 'custom-close', ...props.attrs }, 'X')
+            },
+          }),
+        },
+      })
+
+      expect(captured.attrs.onClick).toBeTypeOf('function')
+
+      const custom = wrapper.find('[data-testid="custom-close"]')
+      expect(custom.element.parentElement?.tagName).not.toBe('BUTTON')
+      expect(wrapper.findAll('[aria-label]')).toHaveLength(1)
+
+      await custom.trigger('click')
+      expect(wrapper.emitted('dismiss')![0]).toEqual(['test-id'])
+    })
+
+    it('should expose pause handlers in slot attrs so renderless mode works on queue', async () => {
+      const { context, install } = makeNotificationsPlugin()
+      context.send({ subject: 'Test', timeout: 5000 })
+      let captured: any
+
+      const wrapper = mount(Snackbar.Queue, {
+        props: { renderless: true },
+        global: { plugins: [stackPlugin, { install }] },
+        slots: {
+          default: (props: any) => {
+            captured = props
+            return h('section', { 'data-testid': 'custom-queue', ...props.attrs })
+          },
+        },
+      })
+
+      const custom = wrapper.find('section')
+      expect(captured.attrs.onMouseenter).toBeTypeOf('function')
+      expect(captured.attrs.onFocusin).toBeTypeOf('function')
+      expect(custom.exists()).toBe(true)
+      expect(wrapper.findAll('div')).toHaveLength(0)
+
+      await custom.trigger('mouseenter')
+      expect(context.queue.values()[0]?.isPaused).toBe(true)
+
+      await custom.trigger('mouseleave')
+      expect(context.queue.values()[0]?.isPaused).toBe(false)
+
+      await custom.trigger('focusin')
+      expect(context.queue.values()[0]?.isPaused).toBe(true)
+
+      await custom.trigger('focusout', { relatedTarget: null })
+      expect(context.queue.values()[0]?.isPaused).toBe(false)
+    })
+  })
+
   describe('integration', () => {
     it('should render Portal > Queue > Root > Content + Close', () => {
       using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -504,6 +639,86 @@ describe('snackbar', () => {
       expect(wrapper.findComponent(Snackbar.Content as any).text()).toBe('File uploaded')
       expect(wrapper.findComponent(Snackbar.Close as any).attributes('aria-label')).toBeDefined()
       expect(spy).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('top-layer default', () => {
+    it('defaults teleport to top-layer and renders into an open modal', async () => {
+      // mount without plugin so both test code and Portal.vue share the fallback stack
+      const stack = useStack()
+      const dialogEl = document.createElement('dialog')
+      document.body.append(dialogEl)
+      const modal = stack.register({ el: dialogEl })
+      modal.select()
+
+      const wrapper = mount(Snackbar.Portal, {
+        slots: { default: () => h('div', { class: 'snack' }) },
+        attachTo: document.body,
+      })
+      try {
+        await nextTick()
+        expect(dialogEl.querySelector('.snack')).not.toBeNull()
+      } finally {
+        wrapper.unmount()
+        modal.unselect()
+        dialogEl.remove()
+      }
+    })
+
+    it('still renders inline with teleport=false', () => {
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { teleport: false },
+        slots: { default: () => h('div', { class: 'snack-inline' }) },
+      })
+      expect(wrapper.find('.snack-inline').exists()).toBe(true)
+    })
+
+    it('honors an explicit body target', async () => {
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { teleport: 'body' },
+        slots: { default: () => h('div', { class: 'snack-body' }) },
+        attachTo: document.body,
+      })
+      await nextTick()
+      expect(document.body.querySelector('.snack-body')).not.toBeNull()
+      wrapper.unmount()
+    })
+
+    it('should reparent snackbar node to body when dialog closes, preserving node identity', async () => {
+      // No plugin — both test code and Portal.vue share the fallback singleton
+      const stack = useStack()
+      const dialogEl = document.createElement('dialog')
+      document.body.append(dialogEl)
+      const modal = stack.register({ el: dialogEl })
+      modal.select()
+
+      const wrapper = mount(Snackbar.Portal, {
+        slots: { default: () => h('div', { class: 'snack-reparent' }, 'Toast') },
+        attachTo: document.body,
+      })
+
+      try {
+        await nextTick()
+
+        // While dialog is open: snackbar must be inside the dialog
+        const snackNode = dialogEl.querySelector('.snack-reparent')
+        expect(snackNode).not.toBeNull()
+
+        // Capture identity before close — this exact node must survive the reparent
+        const captured = snackNode!
+
+        // Close the dialog: topElement drops to null → Portal retargets to 'body'
+        modal.unselect()
+        await nextTick()
+
+        // Same DOM node, new parent: document.body (not remounted)
+        expect(document.body.contains(captured)).toBe(true)
+        expect(dialogEl.contains(captured)).toBe(false)
+      } finally {
+        wrapper.unmount()
+        modal.unselect()
+        dialogEl.remove()
+      }
     })
   })
 })

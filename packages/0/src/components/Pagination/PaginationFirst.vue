@@ -88,23 +88,19 @@
     pagination.first()
   }
 
-  const slotProps = toRef((): PaginationFirstSlotProps => {
-    const label = locale.t('Pagination.first')
-
-    return {
-      isDisabled: isDisabled.value,
-      first,
-      attrs: {
-        'aria-label': label === 'Pagination.first' ? 'First page' : label,
-        'aria-disabled': isDisabled.value,
-        'data-disabled': isDisabled.value || undefined,
-        'disabled': as === 'button' ? isDisabled.value : undefined,
-        'tabindex': isDisabled.value ? -1 : 0,
-        'type': as === 'button' ? 'button' : undefined,
-        'onClick': first,
-      },
-    }
-  })
+  const slotProps = toRef((): PaginationFirstSlotProps => ({
+    isDisabled: isDisabled.value,
+    first,
+    attrs: {
+      'aria-label': locale.ti('Pagination.first') ?? 'First page',
+      'aria-disabled': isDisabled.value,
+      'data-disabled': isDisabled.value || undefined,
+      'disabled': as === 'button' ? isDisabled.value : undefined,
+      'tabindex': isDisabled.value ? -1 : 0,
+      'type': as === 'button' ? 'button' : undefined,
+      'onClick': first,
+    },
+  }))
 
   onBeforeUnmount(() => controls.unregister(id))
 </script>

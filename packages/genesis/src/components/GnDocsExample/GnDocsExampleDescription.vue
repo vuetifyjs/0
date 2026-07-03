@@ -4,7 +4,7 @@
     title?: string
     /** Anchor id rendered on the heading for deep-linking */
     anchorId?: string
-    /** Collapse the description with an expand toggle */
+    /** Accepted for API compatibility; the description always collapses behind an expand toggle */
     collapse?: boolean
   }
 </script>
@@ -13,12 +13,14 @@
   // Utilities
   import { shallowRef, toRef, useSlots } from 'vue'
 
+  // Context
+  import GnPeek from '../GnPeek/GnPeek.vue'
+
   defineOptions({ name: 'GnDocsExampleDescription' })
 
   const {
     title,
     anchorId,
-    collapse = false,
   } = defineProps<GnDocsExampleDescriptionProps>()
 
   defineEmits<{
@@ -29,12 +31,11 @@
   const expanded = defineModel<boolean>('expanded', { default: false })
 
   const hasContent = toRef(() => !!slots.default)
-  const truncated = toRef(() => collapse && !expanded.value && hasContent.value)
+  // Truncate by default with an always-available toggle, matching the legacy
+  // DocsExampleDescription. `collapse` is a boolean prop, so it casts to false
+  // when absent — gating truncation on it would make long prose never collapse.
+  const truncated = toRef(() => !expanded.value && hasContent.value)
   const maxHeight = shallowRef('4.5rem')
-
-  function onToggle () {
-    expanded.value = !expanded.value
-  }
 </script>
 
 <template>
@@ -69,26 +70,37 @@
 
     <div v-if="truncated" aria-hidden="true" class="genesis-docs-example-description__fade" />
 
-    <button
-      v-if="hasContent && collapse"
-      :aria-expanded="expanded ? 'true' : 'false'"
-      :aria-label="expanded ? 'Collapse description' : 'Expand description'"
-      class="genesis-docs-example-description__toggle"
-      type="button"
-      @click="onToggle"
+    <GnPeek
+      v-if="hasContent"
+      v-slot="{ expanded: open }"
+      v-model:expanded="expanded"
+      collapsed-label="Expand description"
+      expanded-label="Collapse description"
     >
-      {{ expanded ? 'Collapse' : 'Expand' }}
-    </button>
+      {{ open ? 'Collapse' : 'Expand' }}
+    </GnPeek>
   </div>
 </template>
 
 <style scoped>
   .genesis-docs-example-description {
     position: relative;
-    padding: 1rem 1.25rem;
+    /* The expand pill overflows below the description onto the preview. A
+       consumer glass treatment (backdrop-filter) turns the description into a
+       stacking context that would otherwise trap the pill behind the following
+       preview, so lift it above. */
+    z-index: 2;
+    padding: 1rem 1.25rem 0;
     border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     background: var(--v0-surface-tint, var(--v0-surface, #f5f5f8));
     color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
+  }
+
+  /* Expanded prose runs to the bottom edge, where the centered expand pill
+     straddles the border and would clip the last line. Reserve clearance only
+     when expanded — collapsed prose is covered by the fade. */
+  .genesis-docs-example-description[data-expanded] {
+    padding-bottom: 1rem;
   }
 
   .genesis-docs-example-description__title {
@@ -108,10 +120,29 @@
   }
 
   .genesis-docs-example-description__body {
-    margin-top: 0.25rem;
+    margin-top: 0;
     font-size: 0.875rem;
     line-height: 1.5;
     transition: max-height 0.3s ease-out;
+  }
+
+  /* The body renders forwarded markdown prose. Match the legacy
+     DocsExampleDescription's compact heading scale so a `### Title` inside the
+     description reads as a heading, not body text. */
+  .genesis-docs-example-description__body :deep(h3) {
+    margin: 0 0 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--v0-on-surface, #1a1c1e);
+  }
+
+  .genesis-docs-example-description__body :deep(h4),
+  .genesis-docs-example-description__body :deep(h5),
+  .genesis-docs-example-description__body :deep(h6) {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--v0-on-surface, #1a1c1e);
   }
 
   .genesis-docs-example-description__fade {
@@ -121,26 +152,5 @@
     height: 3rem;
     pointer-events: none;
     background: linear-gradient(transparent, var(--v0-surface-tint, var(--v0-surface, #f5f5f8)));
-  }
-
-  .genesis-docs-example-description__toggle {
-    position: absolute;
-    inset-inline-end: 0.75rem;
-    top: 0.75rem;
-    z-index: 1;
-    padding: 0.25rem 0.5rem;
-    border: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
-    border-radius: 0.25rem;
-    background: transparent;
-    color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
-    font: inherit;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: background-color 0.15s, border-color 0.15s;
-  }
-
-  .genesis-docs-example-description__toggle:hover {
-    background: color-mix(in srgb, var(--v0-on-surface-variant, rgb(0 0 0 / 0.6)) 6%, transparent);
-    border-color: color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
   }
 </style>

@@ -21,6 +21,36 @@ Scopes a locale to a component subtree for localized sections of your app.
 
 <DocsPageFeatures :frontmatter />
 
+## Installation
+
+Install the Locale plugin in your app’s entry point:
+
+```ts main.ts collapse
+import { createApp } from 'vue'
+import { createLocalePlugin } from '@vuetify/v0'
+import App from './App.vue'
+
+const app = createApp(App)
+
+app.use(
+  createLocalePlugin({
+    default: 'en',
+    messages: {
+      en: {
+        hello: 'Hello',
+        welcome: 'Welcome, {name}!',
+      },
+      es: {
+        hello: 'Hola',
+        welcome: '¡Bienvenido, {name}!',
+      },
+    },
+  })
+)
+
+app.mount('#app')
+```
+
 ## Usage
 
 Wrap any section of your template in `<Locale>` to override the active locale for that subtree. Children calling `useLocale()` will see the scoped locale as the current selection, and `t()` / `n()` calls will resolve against the scoped locale — not the parent's.
@@ -40,27 +70,19 @@ Wrap any section of your template in `<Locale>` to override the active locale fo
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Locale } from '@vuetify/v0'
 </script>
 
 <template>
-  <!-- Wrapper mode (default) -->
-  <Locale locale="fr">
-    <div>French-scoped content</div>
-  </Locale>
-
-  <!-- Renderless mode -->
-  <Locale locale="es" renderless v-slot="{ attrs }">
-    <section v-bind="attrs">Custom element</section>
-  </Locale>
+  <Locale />
 </template>
 ```
 
 ## Examples
 
-::: example
+::: gn-example
 /components/locale/LocaleCard.vue 1
 /components/locale/LocaleSection.vue 2
 /components/locale/scoped-override.vue 3
@@ -79,7 +101,9 @@ Nest `<Locale>` components to create layered locale contexts. Each card reads it
 > [!TIP] Scoped translations
 > `t()` and `n()` are fully scoped. A `<Locale locale="fr">` subtree resolves all translations against the French messages, even when nested inside another `<Locale>` override. Each scope is independent.
 
-## Renderless Mode
+## Recipes
+
+### Renderless Mode
 
 When `renderless` is set, the component does not render a wrapper element. Instead, it passes `attrs` (including `data-locale` and `lang`) via the slot scope for you to bind to your own element:
 
@@ -96,5 +120,23 @@ When `renderless` is set, the component does not render a wrapper element. Inste
   </Locale>
 </template>
 ```
+
+## FAQ
+
+::: faq
+
+??? Does `<Locale>` change my whole app's locale?
+
+No. It only overrides the active locale for its subtree — descendant `useLocale()`, `t()`, and `n()` calls resolve to the scoped locale, and the rest of the app is unaffected. Set the app-wide default in `createLocalePlugin`.
+
+??? Do nested `<Locale>` overrides stack or resolve independently?
+
+Each scope is independent. A `<Locale locale="fr">` subtree resolves all translations against the French messages even when nested inside another override, and each level sees only its nearest ancestor's scope.
+
+??? How do I scope a locale without adding a wrapper element?
+
+Set `renderless` and bind the `attrs` slot prop (which includes `data-locale` and `lang`) to your own element.
+
+:::
 
 <DocsApi />

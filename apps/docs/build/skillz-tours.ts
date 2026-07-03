@@ -50,3 +50,31 @@ export async function getSkillzSlugs (): Promise<string[]> {
 
   return slugs
 }
+
+export interface SkillzTourInfo {
+  id: string
+  name: string
+  description: string
+}
+
+/**
+ * Get id/name/description for every skillz tour, for OG image generation
+ */
+export async function getSkillzTours (): Promise<SkillzTourInfo[]> {
+  const tourFiles = await findTourFiles(TOURS_DIR)
+  const tours: SkillzTourInfo[] = []
+
+  for (const file of tourFiles) {
+    try {
+      const content = await readFile(file, 'utf8')
+      const tour = JSON.parse(content)
+      if (tour.id && tour.name) {
+        tours.push({ id: tour.id, name: tour.name, description: tour.description ?? '' })
+      }
+    } catch {
+      // Skip invalid files
+    }
+  }
+
+  return tours
+}

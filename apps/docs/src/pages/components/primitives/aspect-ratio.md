@@ -33,7 +33,7 @@ reserved frame — pair with `w-full h-full` or absolute positioning.
 
 ## Anatomy
 
-```vue Anatomy playground collapse
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { AspectRatio } from '@vuetify/v0'
 </script>

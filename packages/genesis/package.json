@@ -1,8 +1,13 @@
 {
   "name": "@paper/genesis",
-  "version": "0.0.1",
+  "version": "1.0.0-beta.4",
   "description": "Genesis Design System — minimal docs primitives extracted from the v0 docs site",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vuetifyjs/0.git",
+    "directory": "packages/genesis"
+  },
   "types": "./dist/index.d.mts",
   "type": "module",
   "files": [
@@ -31,7 +36,7 @@
     }
   },
   "dependencies": {
-    "@vuetify/v0": "workspace:*"
+    "@vuetify/v0": "workspace:^"
   },
   "devDependencies": {
     "tsdown": "catalog:",
