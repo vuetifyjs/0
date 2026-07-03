@@ -10,10 +10,11 @@
 
 import { bench, describe } from 'vitest'
 
-import { createRegistry } from './index'
+// Framework
+import { createRegistry } from '@vuetify/v0/composables'
 
 // Types
-import type { RegistryContext, RegistryTicket } from './index'
+import type { RegistryContext, RegistryTicket } from '@vuetify/v0/composables'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks

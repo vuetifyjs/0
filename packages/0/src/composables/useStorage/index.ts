@@ -52,9 +52,9 @@ export interface StorageContext {
   get: <T>(key: string, defaultValue?: T) => Ref<T>
   /** Set a value for a storage key */
   set: <T>(key: string, value: T) => void
-  /** Remove a key from storage */
+  /** Remove a key accessed through this storage instance. Keys persisted by a previous session but never read here are not removed. */
   remove: (key: string) => void
-  /** Clear all keys from storage */
+  /** Clear keys accessed through this storage instance. Keys persisted by a previous session but never read here are not removed. */
   clear: () => void
 }
 

@@ -146,6 +146,8 @@ Use this checklist during manual QA:
 
 ## Internationalization
 
-v0's `useLocale` handles translated labels. See `useLocale` for accessibility label translations.
+Every v0 component ships an inline English accessible name for the ARIA labels it renders — a Dialog close button reads `"Close"`, a pagination landmark reads `"Pagination"`, and so on. Each default lives at the component's call site as `locale.ti(key) ?? 'English default'`, so an app that never installs a locale plugin still satisfies [WCAG 4.1.2 Name, Role, Value](https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html) out of the box. No locale strings are bundled into the runtime.
+
+To localize those names, install the [Locale plugin](/composables/plugins/use-locale) with translations for the component keys (`Dialog.close`, `Pagination.label`, `Carousel.next`, …). When a key resolves the component uses your translation; when it doesn't, the inline English default still renders. The optional `@vuetify/v0/locale/messages/en` export is the canonical map of every key v0 components look up — import it as a starting point for a new translation, or register it as-is for a complete English baseline.
 
 For RTL (right-to-left) support, see `useRtl`. Direction is managed independently from locale — `useRtl` provides a reactive `isRtl` boolean and sets the `dir` attribute on the target element.

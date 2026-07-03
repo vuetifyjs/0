@@ -14,9 +14,11 @@ related:
 
 # Components
 
-A collection of foundational components designed to be headless, accessible, and highly customizable.
+A collection of <DocsCount type="component" /> foundational components designed to be headless, accessible, and highly customizable.
 
 <DocsPageFeatures :frontmatter />
+
+> [!TOUR] using-examples
 
 ## Primitives
 

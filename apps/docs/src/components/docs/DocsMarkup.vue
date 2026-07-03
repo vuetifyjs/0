@@ -32,6 +32,7 @@
 
   const settings = useSettings()
   const lineWrap = useSyncedRef(settings.lineWrap)
+  const size = settings.codeSize
 
   const decodedCode = toRef(() => decodeBase64(code))
 
@@ -61,6 +62,7 @@
 
       <div class="absolute top-3 end-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100">
         <DocsCodeActions
+          v-model:size="size"
           v-model:wrap="lineWrap"
           bin
           :bin-title
@@ -68,6 +70,7 @@
           :language
           :playground
           show-copy
+          show-size
           show-wrap
           :title
         />

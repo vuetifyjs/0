@@ -2,6 +2,9 @@
   // Framework
   import { createFilter, createFilterContext, ExpansionPanel } from '@vuetify/v0'
 
+  // Components
+  import DocsCallout from '@/components/docs/DocsCallout.vue'
+
   // Utilities
   import { toRef, useSlots } from 'vue'
 
@@ -52,5 +55,7 @@
     <ExpansionPanel.Group class="flex flex-col gap-3" :multiple>
       <slot />
     </ExpansionPanel.Group>
+
+    <DocsCallout type="discord" />
   </div>
 </template>

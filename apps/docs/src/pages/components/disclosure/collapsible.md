@@ -26,18 +26,13 @@ A single-item disclosure toggle for showing and hiding content.
 
 The Collapsible component provides a simple open/closed toggle for a single content region. It supports `v-model` for controlled state and exposes `data-state` attributes for CSS-driven styling.
 
-::: example
+::: gn-example
 /components/collapsible/basic
-
-### Basic Collapsible
-
-A simple collapsible section with a rotating chevron cue and toggled content.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Collapsible } from '@vuetify/v0'
 </script>
@@ -47,7 +42,6 @@ A simple collapsible section with a rotating chevron cue and toggled content.
     <Collapsible.Activator>
       <Collapsible.Cue />
     </Collapsible.Activator>
-
     <Collapsible.Content />
   </Collapsible.Root>
 </template>
@@ -55,26 +49,37 @@ A simple collapsible section with a rotating chevron cue and toggled content.
 
 ## Examples
 
-### Controlled
+::: gn-example
+/components/collapsible/useFilterPanel.ts 1
+/components/collapsible/FilterPanel.vue 2
+/components/collapsible/filter-panel.vue 3
 
-Use `v-model` to control the open state externally. The `disabled` prop prevents interaction.
+### Filters sidebar
 
-::: example
-/components/collapsible/controlled
+A product-filters sidebar built from several independent Collapsible sections — Price, Brand, and Rating — whose open state lives in a single reactive map instead of each section tracking its own boolean. Every section binds `v-model` to `open[section.id]`, so the Expand all and Collapse all buttons flip every section at once by mutating that one object, while a user clicking an individual activator still toggles only that section. This externally-owned open state is the main reason to reach for Collapsible over a self-contained accordion: each instance is independent, and you decide where the state lives and who is allowed to change it.
 
-### Controlled Collapsible
+The `Collapsible.Cue` inside each activator mirrors its Root's `data-state`, so the chevron rotation is pure CSS — `data-[state=open]:rotate-180` — with no slot prop or watcher. The filter controls themselves compose other v0 primitives rather than native inputs: Price and Brand use a [Checkbox](/components/forms/checkbox) group with an array `v-model`, and Rating uses a single-select [Radio](/components/forms/radio) group. All three read and write one shared `filters` object that drives the active-filter count and the summary chips below the panel.
 
-Externally controlled open/close/toggle buttons with a disabled state.
+Reach for this pattern whenever sections must be controllable from outside — a clear-filters action, deep-linking a specific section open, or restoring panel state from storage. The trade-off is that you own the coordination logic: nothing stops two sections from being open at once. If you instead want strict "only one section open at a time" accordion behavior, use [ExpansionPanel](/components/disclosure/expansion-panel), which coordinates selection across panels through a shared parent context.
 
+| File | Role |
+|------|------|
+| `useFilterPanel.ts` | Owns the section open-state map, filter selections, and the derived count, chips, and expand/collapse/clear actions |
+| `FilterPanel.vue` | Renders the Collapsible sections with Checkbox and Radio controls plus the expand/collapse header |
+| `filter-panel.vue` | Wires the composable to the panel and renders the active-filter summary |
 :::
 
-::: example
+::: gn-example
 /components/collapsible/FaqItem.vue 1
 /components/collapsible/faq.vue 2
 
 ### FAQ
 
-Build a reusable FAQ component by wrapping Collapsible in a custom `FaqItem` component. Each item is an independent Collapsible instance — they don't coordinate with each other.
+Each FAQ item is an independent `Collapsible.Root` — they share no state, so opening one never collapses another. The example extracts `FaqItem.vue` as a reusable wrapper that accepts a `question` prop and a default slot for the answer, keeping the entry-point file (`faq.vue`) a clean data-driven list.
+
+`Collapsible.Cue` inside the activator automatically mirrors the `data-state` of its parent Root, so the chevron rotation is wired up with a single CSS transition class — no slot prop or manual binding needed.
+
+When you need "only one open at a time" behavior, reach for [ExpansionPanel](/components/disclosure/expansion-panel) instead. It coordinates selection across all panels through a shared parent context, making accordion mode a one-prop change.
 
 | File | Role |
 |------|------|
@@ -82,7 +87,9 @@ Build a reusable FAQ component by wrapping Collapsible in a custom `FaqItem` com
 | `faq.vue` | Entry point rendering items from data |
 :::
 
-## Collapsible vs ExpansionPanel
+## Recipes
+
+### Collapsible vs ExpansionPanel
 
 Both components handle expanding and collapsing content, but they solve different problems:
 
@@ -124,6 +131,8 @@ Collapsible follows the [WAI-ARIA Disclosure pattern](https://www.w3.org/WAI/ARI
 ### Data attributes
 
 All three sub-components expose `data-state="open"` or `data-state="closed"` for CSS-driven styling without JavaScript. The Root and Activator also expose `data-disabled` when the `disabled` prop is set.
+
+## FAQ
 
 ::: faq
 

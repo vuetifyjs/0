@@ -30,46 +30,44 @@ A headless provider for exclusive single-selection — selecting an item automat
 
 The Single component is a specialization of Selection that enforces single-selection behavior. When an item is selected, any previously selected item is automatically deselected.
 
-::: example
+::: gn-example
 /components/single/basic
-
-### Single-Select Group
-
-Three size options that behave as an exclusive choice — selecting one deselects the rest. Each item binds its slot `attrs`, so selection state drives styling through the `data-selected` attribute.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Single } from '@vuetify/v0'
 </script>
 
 <template>
   <Single.Root>
-    <Single.Item value="option-1" v-slot="{ attrs }">
-      <button v-bind="attrs">Option 1</button>
-    </Single.Item>
-
-    <Single.Item value="option-2" v-slot="{ attrs }">
-      <button v-bind="attrs">Option 2</button>
-    </Single.Item>
+    <Single.Item />
   </Single.Root>
 </template>
 ```
 
 ## Examples
 
-::: example
-/components/single/mandatory
+::: gn-example
+/components/single/usePlanPricing.ts 1
+/components/single/BillingToggle.vue 2
+/components/single/billing-toggle.vue 3
 
-### Mandatory Selection
+### Billing-period segmented control
 
-Use `mandatory` to prevent deselecting the active item — once something is selected, clicking it again is a no-op, so at least one item always stays selected. `mandatory="force"` goes further: it auto-selects the first non-disabled item on mount and enforces the no-deselect rule.
+A Monthly/Yearly segmented control built on `Single.Root` with `mandatory`. Each `Single.Item` is a billing period; selecting one auto-deselects the other, and `mandatory` blocks clicking the active segment off, so a period is always chosen. The selected value flows straight through the Root's `v-model`, and the live price card below it reacts to that one value — switching to Yearly drops the per-month price and reveals the savings badge.
 
-In this example the first option is disabled, so `mandatory="force"` skips it and selects the second item on mount.
+Single ships no roles, keyboard handling, or focus management — it is a pure selection-state provider, so both `Single.Root` and `Single.Item` are renderless. That is why the segment binds the item's slot `attrs` directly onto its own `<button>`: `attrs` carries the `onClick` toggle plus the `data-selected` / `aria-selected` state. Styling keys off `data-selected` (the active label darkens) and a sliding indicator is positioned with a `translateX` derived from the selected index — the example owns its own semantics and visuals on top of the provider's state.
 
+Reach for Single when you are building an exclusive-choice control you want to style yourself — segmented toggles, theme pickers, view switchers. If you need an accessible, form-ready radio group with `role="radiogroup"`, arrow-key navigation, and a hidden input, use [Radio](/components/forms/radio) instead; for multi-select, use [Selection](/components/providers/selection). The underlying logic is [createSingle](/composables/selection/create-single).
+
+| File | Role |
+|------|------|
+| `usePlanPricing.ts` | Owns the selected period and derives the per-month price, billed amount, and savings |
+| `BillingToggle.vue` | Renders the Single segmented control with a sliding data-selected indicator |
+| `billing-toggle.vue` | Wires the composable to the toggle and renders the live price card |
 :::
 
 ## Accessibility

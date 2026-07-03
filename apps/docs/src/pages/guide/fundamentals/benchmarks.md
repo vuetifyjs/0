@@ -42,6 +42,8 @@ Headless UI libraries must be fast—they're foundational infrastructure. v0 ben
 | `createFilter` | Search/filter on large datasets must remain responsive |
 | `createVirtual` | Virtual scrolling is performance-critical by definition |
 | `createDataTable` | Composed orchestrator—measures sorting, filtering, and pagination together |
+| `createDataGrid` | Composed on top of createDataTable—measures column layout, cell editing, row ordering, and row spanning overhead |
+| `createSortable` | Ordered-list primitive—move, swap, and reorder operations must scale to large lists |
 | `useDate` | Date operations are frequent in UIs |
 | `useProxyRegistry` | Reactive proxy for templates—shows reactivity overhead vs raw registry |
 
@@ -115,14 +117,17 @@ Each benchmark is assigned a tier based on its throughput and detected complexit
 
 ### Complexity Detection
 
-Tiers adjust based on detected algorithmic complexity:
+Tiers adjust based on detected algorithmic complexity. Detection checks the benchmark name against patterns **in order** and uses the first match—so the check order matters as much as the patterns themselves:
 
-| Pattern in Benchmark Name | Complexity |
-| - | - |
-| "single" or "one item/query/key" | O(1) |
-| Number + items/objects/entries/elements | O(n) — default for most benchmarks |
-| "nested" or "recursive" | O(n²) |
-| No pattern matched | O(n) — conservative fallback |
+| Order | Pattern in Benchmark Name | Complexity |
+| - | - | - |
+| 1 | "nested", "recursive", or "all ... all" | O(n²) |
+| 2 | Number + items/objects/entries/elements | O(n) |
+| 3 | "all items" or "all keys" | O(n) |
+| 4 | "single" or "one item/query/key" | O(1) |
+| 5 | No pattern matched | O(n) — conservative fallback |
+
+"Nested"/"recursive" checks run first so a benchmark like "recursive lookup (single item)" is classified O(n²), not O(1)—the more expensive complexity wins on ambiguous names.
 
 ### Reading Results
 

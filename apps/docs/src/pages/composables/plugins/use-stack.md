@@ -109,51 +109,53 @@ Stack state and ticket properties are reactive for automatic UI updates.
 | `top` | <AppSuccessIcon /> | Topmost overlay ticket |
 | `scrimZIndex` | <AppSuccessIcon /> | Z-index for scrim element |
 | `isBlocking` | <AppSuccessIcon /> | Top overlay blocks dismissal |
+| `topElement` | <AppSuccessIcon /> | Element of the topmost open modal (`<dialog>`), or `null`; consumed by `Portal`/`Snackbar.Portal` via `teleport="top-layer"` |
 | ticket `zIndex` | <AppSuccessIcon /> | Computed from selection order |
 | ticket `globalTop` | <AppSuccessIcon /> | True if topmost |
 | ticket `isSelected` | <AppSuccessIcon /> | Overlay active state |
 
 ## Examples
 
-::: example
-/composables/use-stack/context.ts
-/composables/use-stack/StackProvider.vue
-/composables/use-stack/StackConsumer.vue
-/composables/use-stack/overlays.vue
+::: gn-example
+/composables/use-stack/context.ts 1
+/composables/use-stack/StackProvider.vue 2
+/composables/use-stack/StackConsumer.vue 3
+/composables/use-stack/overlays.vue 4
 
 ### Overlay Stack
 
-This example demonstrates overlay stacking with `createStack`. Each overlay gets an automatically calculated z-index, and the scrim appears below the topmost overlay.
+Three overlays — Settings, Confirm, and Alert — share a single `createStack` instance scoped to the example via `provide('v0:stack', stack)`. Each overlay registers with `stack.register({ onDismiss })` and calls `ticket.select()` / `ticket.unselect()` to activate or deactivate. The stack computes `ticket.zIndex` automatically based on registration order, so the third overlay always renders above the second.
 
-```mermaid "Stack Data Flow"
-graph LR
-  A["context.ts"]:::info -->|"provideStack()"| B["StackProvider"]:::success
-  A -->|"useOverlays()"| C["StackConsumer"]:::warning
-  B -->|"wraps"| C
-```
+`StackProvider` creates the isolated stack and wires the `Scrim` component alongside it — Scrim reads from the same context, so its z-index is always coordinated with the topmost overlay without any manual calculation. The Alert overlay uses `blocking: true`, which prevents dismissal via the scrim click (`ticket.globalTop` is still `true`, but the stack's `isBlocking` flag tells the scrim to ignore pointer events).
 
-**File breakdown:**
+Open multiple overlays to see z-index layering in action. This pattern applies directly to any overlay surface — dialogs, drawers, notification toasts — because the stacking logic lives entirely in `createStack`, not in the overlay components themselves. For SSR, install `createStackPlugin` at app level instead of calling `createStack` directly. See [Scrim](/components/providers/scrim) for the backdrop component and [createRegistry](/composables/registration/create-registry) for the underlying registry pattern.
 
 | File | Role |
 |------|------|
-| `context.ts` | Defines overlay context with open/close methods |
-| `StackProvider.vue` | Provides stack context and renders scrim |
-| `StackConsumer.vue` | Displays buttons to open overlays at different stack levels |
+| `context.ts` | Defines the overlay shape and provides a typed context via `createContext` |
+| `StackProvider.vue` | Creates an isolated `createStack`, provides it to descendants, and renders the Scrim |
+| `StackConsumer.vue` | Renders buttons to open each overlay and displays their active z-index |
 | `overlays.vue` | Entry point that composes Provider around Consumer |
-
-**Key patterns:**
-
-- `stack.register({ onDismiss })` creates a ticket for the overlay
-- `ticket.select()` / `ticket.unselect()` activates/deactivates the overlay
-- `ticket.globalTop` determines if this overlay should handle escape key
-- `ticket.zIndex` provides the z-index value
-- Scrim reads from the stack context to position below the top overlay
-
-Click a button to open an overlay. Open multiple overlays to observe z-index layering.
 
 :::
 
-## Scrim Integration
+## Recipes
+
+### Top-Layer Teleport
+
+Pass `el` when registering a modal overlay so `useStack().topElement` resolves to its DOM element. `Portal` and `Snackbar.Portal` read `topElement` when `teleport="top-layer"` (the Snackbar.Portal default), teleporting overlays into the topmost open modal's subtree so they share its top-layer context and stay interactive:
+
+```ts no-filename
+const stack = useStack()
+const ticket = stack.register({
+  el: () => dialogRef.value?.element,
+  onDismiss: () => { isOpen.value = false },
+})
+```
+
+Dialog and AlertDialog pass their `<dialog>` element automatically — this pattern is only needed when building a custom modal component from scratch.
+
+### Scrim Integration
 
 Use the `Scrim` component alongside `useStack` to provide a backdrop for your overlays. The Scrim automatically positions itself below the topmost overlay:
 
@@ -168,5 +170,27 @@ import { Scrim } from '@vuetify/v0'
 ```
 
 The Scrim reads from the same stack context, so its z-index is always coordinated with your registered overlays.
+
+## FAQ
+
+::: faq
+
+??? Do I have to install the plugin to use useStack?
+
+Not for client-only apps — you can use the default `stack` singleton directly. Install `createStackPlugin` for SSR, where it ensures each request gets its own isolated stack instance instead of sharing one across requests.
+
+??? How do I give a nested group of overlays its own z-index range?
+
+Use `createStackContext({ namespace, baseZIndex })` to create a separate stacking namespace — e.g. overlays opened inside a modal — then provide it and register tickets against that context instead of the global stack.
+
+??? How do I stop a scrim click from dismissing the top overlay?
+
+Register it with `blocking: true`. The overlay stays topmost, but the stack's `isBlocking` flag tells the Scrim to ignore pointer events, so clicking the backdrop won't dismiss it.
+
+??? How does useStack decide each overlay's z-index?
+
+It assigns them from selection order: the first activated overlay gets the base z-index (2000), and each one stacked on top steps up from there (2010, …). Pass `baseZIndex` to `createStackContext` to shift the starting point for a separate namespace.
+
+:::
 
 <DocsApi />

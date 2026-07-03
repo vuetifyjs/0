@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { createLocalePlugin } from '#v0/composables'
+
 import { Button } from './index'
 
 // Utilities
@@ -609,7 +612,25 @@ describe('button', () => {
       })
 
       await nextTick()
-      expect(wrapper.find('button').attributes('aria-label')).toBeDefined()
+      expect(wrapper.find('button').attributes('aria-label')).toBe('Button')
+    })
+
+    it('should use the translated locale string for solo aria-label when registered', async () => {
+      const plugin = createLocalePlugin({
+        default: 'en',
+        messages: { en: { Button: { label: 'Knopf' } } },
+      })
+      const wrapper = mount(Button.Root, {
+        global: { plugins: [plugin] },
+        slots: {
+          default: () => h(Button.Icon as any, {}, {
+            default: () => h('span', '✕'),
+          }),
+        },
+      })
+
+      await nextTick()
+      expect(wrapper.find('button').attributes('aria-label')).toBe('Knopf')
     })
 
     it('should use explicit aria-label over default', async () => {
@@ -624,6 +645,32 @@ describe('button', () => {
 
       await nextTick()
       expect(wrapper.find('button').attributes('aria-label')).toBe('Close')
+    })
+
+    it('should not auto-set aria-label in renderless mode even when solo (regression #330)', async () => {
+      const wrapper = mount(Button.Root, {
+        props: { renderless: true },
+        slots: {
+          default: (p: any) =>
+            h('button', p.attrs, [
+              h(Button.Icon as any, {}, { default: () => h('span', '✕') }),
+            ]),
+        },
+      })
+
+      await nextTick()
+      expect(wrapper.find('button').attributes('aria-label')).toBeUndefined()
+    })
+
+    it('should not auto-set aria-label when button has visible text (no icon, non-renderless)', async () => {
+      const wrapper = mount(Button.Root, {
+        slots: {
+          default: () => h(Button.Content as any, {}, { default: () => 'Save & Next' }),
+        },
+      })
+
+      await nextTick()
+      expect(wrapper.find('button').attributes('aria-label')).toBeUndefined()
     })
   })
 

@@ -230,13 +230,19 @@ While v0 is new, its patterns are not. Registration, selection, theming, forms �
 
 Active Discord. Weekly releases. Responsive maintainers. The kind of support that comes from 10 years of earning trust — not a weekend project that might go quiet.
 
+### Open Source, Forever
+
+**MIT licensed — and nothing to gate.**
+
+v0 is MIT licensed — every component, composable, and utility. No pro tier, no paywalled features, no plans for either. There's nothing to gate, because the project isn't funded by gating it: development is carried by the wider Vuetify ecosystem — sponsorships, optional services, and a decade of continuous open-source work. The foundation you build on today stays free, and stays maintained.
+
 ### Vuetify Convergence
 
 Vuetify0 is already being merged into Vuetify's next major release. The first PR has landed. Investing in v0 now means your foundation aligns with where the entire Vuetify ecosystem is actively heading.
 
 ### Road to v1
 
-**Alpha (April 7, 2026) → Beta (June 2026) → v1.0 (July 2026)** — [see the full roadmap](/roadmap).
+**Alpha → Beta → Release Candidate → v1.0 (Q3 2026)** — [see the full roadmap](/roadmap).
 
 What comes after v1: **Vuetify Paper** — a styled layer built on v0 that provides opinionated design system primitives. Emerald and Onyx are the first design systems. Build on v0 today; Paper gives you a head start on the styled layer when you're ready.
 
@@ -332,4 +338,4 @@ bun add @vuetify/v0
 ::: sponsor
 :::
 
-> [!ASKAI] What v0 composables should I start with?
+> [!ASKAI] What is an easy feature to get started with in Vuetify0?

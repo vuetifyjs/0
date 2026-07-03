@@ -82,8 +82,8 @@ export interface NumberFieldContext {
   formatValue: (value: number) => string
   /** Parse locale-formatted text to a number or null. */
   parse: (text: string) => number | null
-  /** Snap and optionally clamp the current value. */
-  commit: () => void
+  /** Snap and optionally clamp the current value. Pass `next` to avoid reading the stale model on the same tick as a write. */
+  commit: (next?: number | null) => void
 }
 
 export function createNumberField (options: NumberFieldOptions = {}): NumberFieldContext {
@@ -205,17 +205,20 @@ export function createNumberField (options: NumberFieldOptions = {}): NumberFiel
     return Number.isNaN(result) ? null : result
   }
 
-  function commit (): void {
-    if (isNull(value.value)) return
-    if (!shouldClamp && (value.value < numeric.min || value.value > numeric.max)) {
+  function commit (next?: number | null): void {
+    // Use the provided value when available — avoids reading a stale model on
+    // the same tick as a write (parent-bound v-model hasn't round-tripped yet).
+    const val = arguments.length === 0 ? value.value : next as number | null
+    if (isNull(val)) return
+    if (!shouldClamp && (val < numeric.min || val > numeric.max)) {
       // Snap to nearest step without clamping to [min, max]
       if (numeric.step > 0 && Number.isFinite(numeric.min)) {
-        const steps = Math.round((value.value - numeric.min) / numeric.step)
+        const steps = Math.round((val - numeric.min) / numeric.step)
         value.value = numeric.min + steps * numeric.step
       }
       return
     }
-    value.value = numeric.snap(value.value)
+    value.value = numeric.snap(val)
   }
 
   return {

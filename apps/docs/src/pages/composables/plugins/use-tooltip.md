@@ -73,19 +73,28 @@ flowchart LR
 
 ## Examples
 
-::: example
-/composables/use-tooltip/basic
+::: gn-example
+/composables/use-tooltip/context.ts 1
+/composables/use-tooltip/RegionProvider.vue 2
+/composables/use-tooltip/RegionControls.vue 3
+/composables/use-tooltip/TooltipToolbar.vue 4
+/composables/use-tooltip/tooltip-region.vue 5
 
-### Region inspection
+### Coordinated tooltip region
 
-The example surfaces the live `isAnyOpen` flag and the resolved delay defaults beside four `<Tooltip.Root>` instances that share one region. Hover the first item and wait out the open delay; move to a neighbor while it is still open and the next tooltip appears instantly because the region already reports one open. Leave all four and `isAnyOpen` returns to false as they close — yet for the length of the skip-window the next hover still opens instantly before the full open delay returns.
+A text-editor toolbar where every button shares one tooltip region. `RegionProvider` owns the writable delay state, passes those refs into `createTooltipContext` so the region tracks them reactively, and provides the context at the default `v0:tooltip` namespace — which is exactly where every `Tooltip.Root` reads its region from via `useTooltip()`. That single provide configures the open delay, close delay, skip window, and a region-wide disabled flag for the whole subtree at once, without touching any individual tooltip.
 
-Reach for `useTooltip()` directly only when you're wiring a tooltip surface that doesn't go through `<Tooltip.Root>` — most consumers should use the component family and let it call this composable internally.
+`RegionControls` is the payoff of the split: it injects the same writable settings to step the delays and flip the disabled toggle, and it reads the region back through `useTooltip()` to surface the live `isAnyOpen` flag and the resolved delays the toolbar actually sees. The warmup behavior is the headline — hover one button, wait out the open delay, then move to a neighbor while the first is still open and it opens instantly. The instant reveals are tinted via the `data-[state=instant-open]` hook so the skip-window coordination is visible, not just felt. Idle the toolbar past the skip window and the next hover pays the full delay again.
+
+Reach for `useTooltip()` directly only when you are wiring a tooltip surface that does not go through the component family — most consumers should use [Tooltip](/components/disclosure/tooltip) and let it call this composable internally. The delay and anchoring mechanics underneath come from [useDelay](/composables/system/use-delay) and [usePopover](/composables/system/use-popover).
 
 | File | Role |
 |------|------|
-| `basic.vue` | Inspects shared region state while four tooltips coordinate their warmup |
-
+| `context.ts` | Defines the writable settings context plus the toolbar's tool data |
+| `RegionProvider.vue` | Owns the delay state, feeds it to `createTooltipContext`, and provides the region |
+| `RegionControls.vue` | Injects the settings to adjust them and reads the region's live state |
+| `TooltipToolbar.vue` | Renders the buttons, each a `Tooltip.Root` reading the shared region |
+| `tooltip-region.vue` | Wraps the provider around the controls and toolbar |
 :::
 
 ## FAQ

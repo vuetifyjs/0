@@ -67,22 +67,24 @@ The `mounted` state lasts one tick, giving the browser a frame to apply initial 
 
 ## Examples
 
-::: example
-/components/presence/animation
+::: gn-example
+/components/presence/useToastDemo.ts 1
+/components/presence/AnimatedToast.vue 2
+/components/presence/animated-toast.vue 3
 
-### Re-Entry
+### Animated Toast That Exits Cleanly
 
-Toggle rapidly during the exit animation. Presence cancels the leave and returns to `present` without unmounting and remounting — the element stays in the DOM and the exit animation is interrupted cleanly.
+This toast mounts when you press Show, plays a CSS enter animation, and on dismiss plays an exit animation while staying in the DOM until `animationend` fires `done()` — only then does it unmount. Driving it is a single `v-model` boolean plus `:immediate="false"`, which tells Presence to hold the `leaving` state until you signal the animation is over. The keyframes are selected entirely by the `data-state` attribute Presence writes through its slot `attrs`, so the markup carries no animation logic — CSS owns the motion, Presence owns the lifecycle.
 
-:::
+The Lazy mount toggle flips the mount strategy. In eager mode every dismiss unmounts the toast and every show mounts a fresh instance, so the mount counter climbs on each open; in lazy mode the content mounts once on first show and hides via state on subsequent dismisses, so the counter stays at 1. Re-entry is the other behavior worth provoking: dismiss the toast and press Show again before the exit finishes, and Presence cancels the leave and returns to `present` without an unmount and remount cycle — the in-DOM element continues from wherever it was visually.
 
-::: example
-/components/presence/lazy
+Reach for this pattern whenever conditional content needs an exit animation that `v-if` would cut short, or when expensive content should pay its setup cost once. The tradeoff of `:immediate="false"` is that you must call `done()` — forget it and the element is stranded in the `leaving` state forever; the safety valve is the default immediate mode, which auto-unmounts on the next tick when you do not need an exit animation. Presence is renderless and adds no DOM of its own, so accessibility lives in the content you render. For the composable form used inside custom setup functions, see [usePresence](/composables/system/use-presence); to render the toast in a top-level layer, wrap it with [Portal](/components/primitives/portal).
 
-### Lazy Mounting
-
-With `lazy`, content is not mounted until `v-model` is first `true`. The event log shows the full mount/unmount lifecycle — notice that nothing happens until the first toggle.
-
+| File | Role |
+|------|------|
+| `useToastDemo.ts` | Owns demo state — visibility, lazy mode, the mount counter — and restarts the demo when the strategy changes |
+| `AnimatedToast.vue` | Wraps Presence, binds the `data-state` attrs to the toast element, and owns the enter and exit keyframes |
+| `animated-toast.vue` | Wires the composable to the component and adds the Show button, Lazy toggle, and mount counter |
 :::
 
 ## Accessibility

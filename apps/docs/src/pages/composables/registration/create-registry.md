@@ -136,7 +136,7 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-registry/context.ts
 /composables/create-registry/TaskProvider.vue
 /composables/create-registry/TaskConsumer.vue
@@ -180,6 +180,36 @@ sequenceDiagram
 - `void version.value` inside a computed — the standard pattern for making a non-reactive `registry.values()` snapshot reactive
 
 Add tasks, toggle completion, and filter by priority. Watch the event log at the bottom track every registration change in real time.
+
+:::
+
+## FAQ
+
+::: faq
+
+??? Why is the `index` I pass to `register` ignored?
+
+`register` always appends to the end. A supplied `index` is intentionally ignored — call `move(id, index)` after registering to reposition a ticket, which reindexes only the affected span.
+
+??? Why don't registry reads update reactively in my template?
+
+createRegistry uses minimal reactivity by default for performance. Pass `{ reactive: true }` to make `keys()`, `values()`, `entries()`, `size`, and per-ticket field reads reactive in templates and computeds.
+
+??? What's the difference between createRegistry and createSelection?
+
+createRegistry is the base ordered, keyed collection — registration, indexing, and lookup. [createSelection](/composables/selection/create-selection) extends it (through createModel) with selection state. Use createRegistry when you need to track items but not which are selected.
+
+??? When should I use `{ reactive: true }` vs `useProxyRegistry`?
+
+Pass `{ reactive: true }` to make `keys()`, `values()`, `entries()`, `size`, and per-ticket field reads reactive directly on the registry. Reach for [useProxyRegistry](/composables/reactivity/use-proxy-registry) when you want event-driven snapshots, `deep: true` tracking, or reactivity without wrapping the tickets themselves.
+
+??? How do I run several mutations without firing events and reindexing on each one?
+
+Wrap them in `batch(fn)`. It defers cache invalidation and event emission until the callback finishes, so a sequence of `register` / `move` / `unregister` calls settles once instead of per-mutation.
+
+??? Does unregistering many tickets one at a time scale?
+
+Each `unregister` does an O(n) scan to locate and splice the ticket, so tearing down N tickets individually — a parent unmounting hundreds of registered children, for example — is O(n²). Batch removals through `offboard(ids)` or `clear()`, which compact in a single pass, and keep the mounted (and therefore registered) count bounded with [createVirtual](/composables/data/create-virtual) for large lists.
 
 :::
 

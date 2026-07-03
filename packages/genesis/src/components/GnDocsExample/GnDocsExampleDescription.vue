@@ -96,6 +96,13 @@
     color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
   }
 
+  /* Expanded prose runs to the bottom edge, where the centered expand pill
+     straddles the border and would clip the last line. Reserve clearance only
+     when expanded — collapsed prose is covered by the fade. */
+  .genesis-docs-example-description[data-expanded] {
+    padding-bottom: 1rem;
+  }
+
   .genesis-docs-example-description__title {
     margin: 0;
     font-size: 1.125rem;

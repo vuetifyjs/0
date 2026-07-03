@@ -1,8 +1,14 @@
 <script setup lang="ts">
+  // Framework
+  import { useHydration } from '@vuetify/v0'
+
   // Context
   import SkillCard from './SkillCard.vue'
 
   import { SKILL_TRACK_META } from '@/types/skill'
+
+  // Stores
+  import { useSkillzStore } from '@/stores/skillz'
 
   // Utilities
   import { computed } from 'vue'
@@ -14,6 +20,9 @@
     items: SkillMeta[]
   }>()
 
+  const store = useSkillzStore()
+  const { isHydrated } = useHydration()
+
   // Group skills by track
   const tracks: SkillTrack[] = ['essentials', 'fundamentals', 'features', 'integration']
 
@@ -24,6 +33,13 @@
       skills: props.items
         .filter(s => s.track === track)
         .toSorted((a, b) => {
+          // Locked cards sink to the end of their track. Applied only after
+          // hydration - lock state lives in localStorage, so sorting by it
+          // during SSR/first paint would mismatch the SSG payload.
+          if (isHydrated.value) {
+            const lockDiff = Number(store.locked(a.id)) - Number(store.locked(b.id))
+            if (lockDiff !== 0) return lockDiff
+          }
           const levelDiff = a.level - b.level
           if (levelDiff !== 0) return levelDiff
           return a.order - b.order

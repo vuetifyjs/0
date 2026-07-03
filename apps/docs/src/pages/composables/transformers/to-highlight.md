@@ -73,7 +73,7 @@ call in `computed()` (or any reactive scope). The function itself creates no rea
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/to-highlight/messages.ts
 /composables/to-highlight/MessageRow.vue
 /composables/to-highlight/inbox.vue

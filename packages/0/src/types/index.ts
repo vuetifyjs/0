@@ -166,6 +166,7 @@ export type V0ErrorDetails =
   | { code: 'V0_PALETTE_INVALID_SEED', palette: 'material' | 'leonardo' | 'ant', seed: string }
   | { code: 'V0_PALETTE_UNKNOWN_VARIANT', palette: 'material', variant: string }
   | { code: 'V0_ADAPTER_INSTANCE_MISSING', adapter: string }
+  | { code: 'V0_THEME_INVALID_PREFIX', prefix: string }
 
 /**
  * Union of every error code thrown by v0

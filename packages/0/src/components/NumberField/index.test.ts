@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { createLocalePlugin } from '#v0/composables'
+
 import { NumberField } from './index'
 
 // Utilities
@@ -111,8 +114,8 @@ function mountNumberField (options: {
     wrapper,
     rootProps: () => capturedRootProps,
     controlEl: () => wrapper.find('[role="spinbutton"]'),
-    incrementEl: () => wrapper.find('[aria-label="NumberField.increment"]'),
-    decrementEl: () => wrapper.find('[aria-label="NumberField.decrement"]'),
+    incrementEl: () => wrapper.find('[aria-label="Increment"]'),
+    decrementEl: () => wrapper.find('[aria-label="Decrement"]'),
     errorEl: () => wrapper.find('[aria-live="polite"]'),
     scrubEl: () => wrapper.find('label'),
     wait: () => nextTick(),
@@ -696,6 +699,41 @@ describe('numberField', () => {
       const { decrementEl, wait } = mountNumberField({ model })
       await wait()
       expect(decrementEl().attributes('aria-label')).toBeDefined()
+    })
+
+    it('should use translated locale strings for increment/decrement aria-labels when registered', async () => {
+      const plugin = createLocalePlugin({
+        default: 'en',
+        messages: {
+          en: {
+            NumberField: {
+              increment: 'Erhöhen',
+              decrement: 'Verringern',
+            },
+          },
+        },
+      })
+
+      const wrapper = mount(NumberField.Root, {
+        props: { modelValue: 5 },
+        global: { plugins: [plugin] },
+        slots: {
+          default: () => [
+            h(NumberField.Decrement as any, {}, () => '-'),
+            h(NumberField.Control as any),
+            h(NumberField.Increment as any, {}, () => '+'),
+          ],
+        },
+      })
+      wrappers.push(wrapper)
+
+      await nextTick()
+
+      const labels = wrapper.findAll('button').map(button => button.attributes('aria-label'))
+      expect(labels).toContain('Erhöhen')
+      expect(labels).toContain('Verringern')
+      expect(labels).not.toContain('Increment')
+      expect(labels).not.toContain('Decrement')
     })
 
     it('should set increment button tabindex=-1', async () => {
@@ -1563,9 +1601,7 @@ describe('numberField', () => {
       await wait()
       input.dispatchEvent(new FocusEvent('blur'))
       await wait()
-      // Either the v-model committed via onBlur, or it's still 5;
-      // cover the path itself, not the v-model bridge.
-      expect([42, 5]).toContain(model.value)
+      expect(model.value).toBe(42)
     })
 
     it('should commit on Enter key', async () => {
@@ -1583,9 +1619,43 @@ describe('numberField', () => {
       await wait()
       await controlEl().trigger('keydown', { key: 'Enter' })
       await wait()
-      // Cover the keydown Enter branch; commit may or may not propagate
-      // through happy-dom's input event chain.
-      expect([42, 5]).toContain(model.value)
+      expect(model.value).toBe(42)
+    })
+
+    it('should commit typed value to parent-bound v-model on blur (regression #329)', async () => {
+      const model = ref<number | null>(5)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { min: 0, max: 200 },
+      })
+      await wait()
+
+      await controlEl().trigger('focus')
+      const input = controlEl().element as HTMLInputElement
+      input.value = '100'
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+      await wait()
+      input.dispatchEvent(new FocusEvent('blur'))
+      await wait()
+      expect(model.value).toBe(100)
+    })
+
+    it('should commit typed value to parent-bound v-model on Enter (regression #329)', async () => {
+      const model = ref<number | null>(5)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { min: 0, max: 200 },
+      })
+      await wait()
+
+      await controlEl().trigger('focus')
+      const input = controlEl().element as HTMLInputElement
+      input.value = '100'
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+      await wait()
+      await controlEl().trigger('keydown', { key: 'Enter' })
+      await wait()
+      expect(model.value).toBe(100)
     })
 
     it('should leap on PageUp', async () => {

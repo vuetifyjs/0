@@ -856,6 +856,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/essentials/glossary': RouteRecordInfo<
+      '/guide/essentials/glossary',
+      '/guide/essentials/glossary',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/essentials/using-the-docs': RouteRecordInfo<
       '/guide/essentials/using-the-docs',
       '/guide/essentials/using-the-docs',
@@ -985,6 +992,13 @@ declare module 'vue-router/auto-routes' {
     '/guide/integration/nuxt': RouteRecordInfo<
       '/guide/integration/nuxt',
       '/guide/integration/nuxt',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guide/integration/vapor': RouteRecordInfo<
+      '/guide/integration/vapor',
+      '/guide/integration/vapor',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1850,6 +1864,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/guide/essentials/glossary.md': {
+      routes:
+        | '/guide/essentials/glossary'
+      views:
+        | never
+    }
     'src/pages/guide/essentials/using-the-docs.md': {
       routes:
         | '/guide/essentials/using-the-docs'
@@ -1961,6 +1981,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/integration/nuxt.md': {
       routes:
         | '/guide/integration/nuxt'
+      views:
+        | never
+    }
+    'src/pages/guide/integration/vapor.md': {
+      routes:
+        | '/guide/integration/vapor'
       views:
         | never
     }

@@ -6,12 +6,20 @@
   import DocsProgressBar from './DocsProgressBar.vue'
   import DocsSkeleton from './DocsSkeleton.vue'
 
+  // Composables
+  import { renderInline } from '@/composables/useMarkdown'
+
+  import { MATURITY_LEVELS as levels } from '@/constants/maturity'
+
   // Stores
   import { type Milestone, type TimeHorizon, useRoadmapStore } from '@/stores/roadmap'
 
   // Utilities
-  import { computed, onBeforeMount, watch } from 'vue'
-  import { useRoute, useRouter } from 'vue-router'
+  import { computed, onBeforeMount, ref, watch } from 'vue'
+  import { RouterLink, useRoute, useRouter } from 'vue-router'
+
+  // Types
+  import type { FeatureType } from '@/constants/roadmap-buckets'
 
   const route = useRoute()
   const router = useRouter()
@@ -25,12 +33,37 @@
     { key: 'done', label: 'Completed', icon: 'check-circle' },
   ]
 
+  const typeIcon: Record<FeatureType, string> = {
+    composable: 'code',
+    component: 'puzzle',
+    utility: 'typescript',
+  }
+
   const groupedMilestones = computed(() => {
     return horizons.map(h => ({
       ...h,
       milestones: store.byHorizon(h.key),
     })).filter(g => g.milestones.length > 0)
   })
+
+  // Cap the lower-priority horizons; user can reveal the rest per-section.
+  const CAP = 3
+  const showAll = ref<TimeHorizon[]>([])
+
+  function isCapped (key: TimeHorizon): boolean {
+    return key === 'later' || key === 'done'
+  }
+
+  function visible (group: { key: TimeHorizon, milestones: Milestone[] }): Milestone[] {
+    if (!isCapped(group.key) || showAll.value.includes(group.key)) return group.milestones
+    return group.milestones.slice(0, CAP)
+  }
+
+  function onShowAll (key: TimeHorizon): void {
+    showAll.value = showAll.value.includes(key)
+      ? showAll.value.filter(k => k !== key)
+      : [...showAll.value, key]
+  }
 
   function formatDate (date: string | null): string {
     if (!date) return 'No due date'
@@ -48,12 +81,12 @@
 
   function getSummary (description: string | null | undefined): string {
     if (!description) return ''
-    return description.split('\n')[0]
+    return renderInline(description.split('\n')[0])
   }
 
   function getDetails (description: string | null | undefined): string[] {
     if (!description) return []
-    return description.split('\n').slice(1).map(line => line.trim()).filter(Boolean).map(line => line.replace(/^[•\-\*]\s*/, '')) // Strip leading bullets
+    return description.split('\n').slice(1).map(line => line.trim()).filter(Boolean).map(line => line.replace(/^[•*-]\s+/, '')).map(line => renderInline(line))
   }
 
   function findMilestoneByQuery (query: string | undefined) {
@@ -153,7 +186,7 @@
 
     <!-- Timeline -->
     <ExpansionPanel.Group v-else v-model="expanded" class="space-y-10" multiple>
-      <section v-for="group in groupedMilestones" :key="group.key">
+      <section v-for="group in groupedMilestones" :key="group.key" class="mb-4">
         <!-- Horizon Header -->
         <div class="flex items-center gap-3 mb-4">
           <div
@@ -174,7 +207,7 @@
         <!-- Timeline line + milestones -->
         <div class="relative ps-5 border-s-2 border-divider ms-5 space-y-6">
           <ExpansionPanel.Root
-            v-for="milestone in group.milestones"
+            v-for="milestone in visible(group)"
             :key="milestone.id"
             v-slot="{ isSelected }"
             as="article"
@@ -209,9 +242,11 @@
                       </span>
                     </div>
 
-                    <p v-if="milestone.description" class="text-sm opacity-70 mt-1">
-                      {{ getSummary(milestone.description) }}
-                    </p>
+                    <p
+                      v-if="milestone.description"
+                      class="text-sm opacity-70 mt-1"
+                      v-html="getSummary(milestone.description)"
+                    />
 
                     <!-- Progress bar -->
                     <DocsProgressBar
@@ -244,10 +279,29 @@
                       v-for="(line, i) in getDetails(milestone.description)"
                       :key="i"
                       class="text-sm opacity-80"
-                    >
-                      {{ line }}
-                    </li>
+                      v-html="line"
+                    />
                   </ul>
+                </div>
+
+                <!-- Planned features -->
+                <div v-if="milestone.features?.length" class="px-4 py-3 border-b border-divider">
+                  <div class="text-xs font-semibold uppercase tracking-wide opacity-60 mb-2">Planned features</div>
+
+                  <div class="flex flex-wrap gap-2">
+                    <component
+                      :is="feature.level === 'draft' ? 'span' : RouterLink"
+                      v-for="feature in milestone.features"
+                      :key="feature.id"
+                      class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border no-underline"
+                      :class="feature.level === 'draft' ? 'cursor-default' : 'hover:bg-surface-tint transition-colors'"
+                      :style="{ borderColor: levels[feature.level].color, color: levels[feature.level].color }"
+                      :to="feature.level !== 'draft' ? feature.path : undefined"
+                    >
+                      <AppIcon :icon="typeIcon[feature.type]" :size="12" />
+                      {{ feature.name }}
+                    </component>
+                  </div>
                 </div>
 
                 <!-- Loading issues -->
@@ -294,6 +348,15 @@
               </ExpansionPanel.Content>
             </div>
           </ExpansionPanel.Root>
+
+          <button
+            v-if="isCapped(group.key) && group.milestones.length > CAP"
+            class="ms-4 text-sm font-medium text-primary hover:underline"
+            type="button"
+            @click="onShowAll(group.key)"
+          >
+            {{ showAll.includes(group.key) ? 'Show less' : `View all (${group.milestones.length})` }}
+          </button>
         </div>
       </section>
     </ExpansionPanel.Group>

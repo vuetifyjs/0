@@ -14,16 +14,40 @@
 // Driven by the changesets/action `publishedPackages` output. `gh` is
 // preinstalled on the runner and authenticates via GITHUB_TOKEN.
 import { execFileSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 
 const SUBSTRATE = new Set(['@vuetify/v0', '@vuetify/paper'])
 
 const published = JSON.parse(process.env.PUBLISHED_PACKAGES || '[]')
 const sha = process.env.GITHUB_SHA
+
+// Reconcile against npm. `publishedPackages` only lists what THIS run published,
+// so a package that landed in an earlier (failed) run never gets its release on
+// the recovery run: its version is already on npm, `changeset publish` skips it,
+// and it drops out of `publishedPackages`. Add any publishable workspace package
+// whose CURRENT version is on npm but absent from this run's output. Minting is
+// idempotent (already-minted releases are skipped), so this only fills the gaps.
+const seen = new Set(published.map(p => p.name))
+for (const dir of readdirSync('packages')) {
+  const manifest = `packages/${dir}/package.json`
+  if (!existsSync(manifest)) continue
+  const pkg = JSON.parse(readFileSync(manifest, 'utf8'))
+  if (!pkg.name || pkg.private || seen.has(pkg.name)) continue
+  if (onNpm(pkg.name, pkg.version)) {
+    console.log(`reconcile: ${pkg.name}@${pkg.version} is on npm but not in this run — including`)
+    published.push({ name: pkg.name, version: pkg.version })
+  }
+}
+
 const version = Object.fromEntries(published.map(p => [p.name, p.version]))
 
-// Pull the `## <version>` block out of a changesets CHANGELOG.md.
+// Pull the `## <version>` block out of a changesets CHANGELOG.md. Returns '' when
+// the file is absent: a package can land in publishedPackages before its
+// CHANGELOG.md exists, and an unreadable changelog must NOT abort the release run
+// (npm publish has already succeeded by the time this script runs).
 function notes (changelog, value) {
+  if (!existsSync(changelog)) return ''
+
   const lines = readFileSync(changelog, 'utf8').split('\n')
   const start = lines.findIndex(line => line.trim() === `## ${value}`)
 
@@ -40,6 +64,30 @@ function notes (changelog, value) {
   return lines.slice(start + 1, end).join('\n').trim()
 }
 
+// Condense each changelog bullet's conventional-commit title into a flat, skimmable
+// list at the top of the release notes — changesets' per-entry prose buries the
+// one-line summaries readers skim for. Two authoring shapes both need trimming: a
+// title-only first line with the detail in a separate indented paragraph below
+// (BULLET's `.+$` already stops at line end), and a single line packing title +
+// detail together, separated by ' — ' (em dash).
+const BULLET = /^- (?:\[#(\d+)]\([^)]*\)\s*)?(?:\[`[0-9a-f]+`]\([^)]*\)\s*)?(?:Thanks .*?! - )?(.+)$/
+
+function overview (body) {
+  const titles = []
+  for (const line of body.split('\n')) {
+    const match = line.match(BULLET)
+    if (!match) continue
+    const [, pr, text] = match
+    // Changesets emits its own boilerplate bullet ("Updated dependencies [sha, …]:")
+    // for packages that only bumped because an internal dependency changed — no
+    // conventional-commit title to extract, and the sha list is pure noise here.
+    if (text.startsWith('Updated dependencies')) continue
+    const title = text.split(' — ')[0]
+    titles.push(pr ? `- ${title} (#${pr})` : `- ${title}`)
+  }
+  return titles.length > 0 ? `## Overview\n${titles.join('\n')}\n\n---\n\n` : ''
+}
+
 function exists (tag) {
   try {
     execFileSync('gh', ['release', 'view', tag], { stdio: 'ignore' })
@@ -49,24 +97,58 @@ function exists (tag) {
   }
 }
 
+// `npm view name@version` exits non-zero when that exact version is not on the
+// registry — the "is it published?" signal used to reconcile recovery runs.
+function onNpm (name, value) {
+  try {
+    execFileSync('npm', ['view', `${name}@${value}`, 'version'], { stdio: 'ignore' })
+    return true
+  } catch {
+    return false
+  }
+}
+
 // `gh release create` mints the tag at `target` (the publish commit) and the
 // release together. Idempotent on re-run: an already-minted release is skipped
 // so a retry reconciles the missing ones instead of dying on the first 422.
-function release (tag, body, target) {
+// A prerelease version (anything carrying a `-`, e.g. `-beta.N`) is flagged
+// `--prerelease` so GitHub never marks a beta as the repo's "Latest release".
+function release (tag, body, target, prerelease) {
   if (exists(tag)) {
     console.log(`release ${tag} already exists, skipping`)
     return
   }
-  execFileSync('gh', ['release', 'create', tag, '--title', tag, '--notes', body || 'No release notes.', '--target', target], { stdio: 'inherit' })
+
+  const args = ['release', 'create', tag, '--title', tag, '--notes', body || 'No release notes.', '--target', target]
+  if (prerelease) args.push('--prerelease')
+  execFileSync('gh', args, { stdio: 'inherit' })
 }
 
-// Aggregate substrate release — v0 + paper share a version; v0's changelog is the body.
-const substrate = version['@vuetify/v0']
+const failures = []
+
+// Each release is isolated so one failure (e.g. an API hiccup) reports and is
+// retried on a re-run instead of aborting every release not yet minted.
+function mint (tag, body, target, prerelease) {
+  try {
+    release(tag, body, target, prerelease)
+  } catch (error) {
+    console.error(`::error::failed to create release ${tag}: ${error.message}`)
+    failures.push(tag)
+  }
+}
+
+// Aggregate substrate release — v0 + paper share a version. v0's changelog is the
+// body; paper's is the fallback for a paper-only recovery publish (where v0 was
+// already on npm). Keyed on either substrate package so the aggregate `v*` release
+// still mints if only one of the lockstep pair lands in publishedPackages.
+const substrate = version['@vuetify/v0'] ?? version['@vuetify/paper']
 if (substrate) {
-  let body = notes('packages/0/CHANGELOG.md', substrate)
-  const paper = version['@vuetify/paper']
-  if (paper) body += `\n\n---\n\`@vuetify/paper@${paper}\` shipped in lockstep.`
-  release(`v${substrate}`, body, sha)
+  let body = notes('packages/0/CHANGELOG.md', substrate) || notes('packages/paper/CHANGELOG.md', substrate)
+  body = overview(body) + body
+  if (version['@vuetify/v0'] && version['@vuetify/paper']) {
+    body += `\n\n---\n\`@vuetify/paper@${version['@vuetify/paper']}\` shipped in lockstep.`
+  }
+  mint(`v${substrate}`, body, sha, substrate.includes('-'))
 }
 
 // Each design system (@paper/*) releases independently on its own tag.
@@ -74,5 +156,13 @@ if (substrate) {
 for (const { name, version: value } of published) {
   if (SUBSTRATE.has(name)) continue
   const dir = name.split('/').pop()
-  release(`${name}@${value}`, notes(`packages/${dir}/CHANGELOG.md`, value), sha)
+  const body = notes(`packages/${dir}/CHANGELOG.md`, value)
+  mint(`${name}@${value}`, overview(body) + body, sha, value.includes('-'))
+}
+
+// Fail the step (after attempting every release) if any could not be minted, so a
+// partial GitHub-release run is visible rather than silently green.
+if (failures.length > 0) {
+  console.error(`::error::${failures.length} GitHub release(s) failed: ${failures.join(', ')}`)
+  process.exitCode = 1
 }

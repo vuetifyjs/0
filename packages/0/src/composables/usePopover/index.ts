@@ -86,6 +86,7 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
   } = options
 
   const id = _id ?? useId()
+  const anchor = `--${String(id).replace(/[^a-zA-Z0-9_-]/g, '')}`
   const isOpen = options.isOpen ?? shallowRef(false)
 
   const delay = useDelay(direction => {
@@ -113,7 +114,7 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
   }
 
   const anchorStyles = toRef(() => ({
-    anchorName: `--${id}`,
+    anchorName: anchor,
   }))
 
   const contentAttrs = toRef((): { id: string, popover: '' } => ({
@@ -126,7 +127,7 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
     'margin': 'unset',
     'inset-area': positionArea,
     'position-area': positionArea,
-    'position-anchor': `--${id}`,
+    'position-anchor': anchor,
     'position-try-fallbacks': positionTry,
   }))
 

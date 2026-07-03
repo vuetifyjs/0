@@ -94,10 +94,28 @@ pnpm changeset        # Author a changeset for your PR (run per change)
 pnpm release:prepare  # Pre-release validation (validate + build)
 # Publishing is automated: pushing to master opens a "Version Packages" PR;
 # merging it builds, publishes to npm via OIDC, and creates the GitHub releases.
+# Currently in PRE mode (beta dist-tag) — see "Releasing" below before cutting stable.
 
 # Repo health
 pnpm repo:check       # knip + sherif
 ```
+
+## Releasing
+
+Changesets-driven. Pushing to `master` opens/updates a "Version Packages" PR; merging it publishes to npm (tokenless OIDC) and mints the GitHub releases (`.github/workflows/release.yml`).
+
+- **Substrate** (`@vuetify/v0` + `@vuetify/paper`) is a `fixed` group: one shared version, one aggregate `v<version>` GitHub release.
+- **Design systems** (`@paper/*`, e.g. `@paper/genesis`) version and release independently, each on its own `name@version` release. Note `@paper/genesis` depends on `@vuetify/v0`, so a substrate **major** bump (e.g. `1.x` → `2.0.0`) leaves genesis's `^` range and changesets will also bump + republish genesis. That is expected — review it in the "Version Packages" PR before merging.
+
+### Exiting beta / cutting a stable release
+
+The repo is in changesets **pre mode** (`.changeset/pre.json`, `beta` dist-tag); every release is `…-beta.N` published under the `beta` tag. Before the first stable release:
+
+1. `pnpm changeset pre exit`
+2. Commit the removal of `.changeset/pre.json`
+3. Let the next "Version Packages" PR produce the clean `1.0.0`, then merge it
+
+Skipping `pre exit` ships `1.0.0-beta.N` (or mistags it) instead of a real `1.0.0`.
 
 ## Conventions
 

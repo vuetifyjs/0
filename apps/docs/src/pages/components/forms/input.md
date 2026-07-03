@@ -30,18 +30,13 @@ Headless text input with integrated validation and automatic form registration.
 
 The Input supports text, email, password, and other native input types. Validation rules run on blur by default, with `lazy` and `eager` modifiers available.
 
-::: example
+::: gn-example
 /components/input/basic
-
-### Basic Input with Validation
-
-Email input with validation rules, inline error display, and helper text.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Input } from '@vuetify/v0'
 </script>
@@ -77,16 +72,18 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /components/input/useContact.ts 1
 /components/input/ContactForm.vue 2
 /components/input/contact-form.vue 3
 
 ### Contact Form
 
-Multi-field form with `createForm` integration, lazy validation, and server-side error injection. Each `Input.Root` creates its own `createValidation` and auto-registers with the parent form.
+A multi-field form showing `createForm` integration, lazy validation, and server-side error injection. Each `Input.Root` creates its own `createValidation` instance and auto-registers with the parent `Form` on mount — no manual wiring is required.
 
-**File breakdown:**
+The `validateOn="blur lazy"` modifier defers validation until the first blur, then validates on every subsequent blur. This avoids showing errors while the user is still typing their first attempt. After the initial blur, the field becomes responsive again so corrections are caught immediately.
+
+Server-side error injection is demonstrated on the email field: entering `taken@example.com` and submitting causes the composable to push an error string through the `:error-messages` prop. This pattern keeps client-side rules and server responses in the same display channel without any custom error UI.
 
 | File | Role |
 |------|------|
@@ -94,36 +91,26 @@ Multi-field form with `createForm` integration, lazy validation, and server-side
 | `ContactForm.vue` | Reusable component — three Input fields with different rules and types |
 | `contact-form.vue` | Demo — wires composable to form, shows submitted data |
 
-**Key patterns:**
-
-- `validateOn="blur lazy"` defers validation until the user blurs the field for the first time, then validates on every subsequent blur
-- `:error` and `:error-messages` inject server-side errors after submit — the email field shows "already registered" when `taken@example.com` is used
-- `Input.Control as="textarea"` renders the message field as a native textarea while keeping all validation and ARIA wiring
-
 :::
 
-::: example
+::: gn-example
 /components/input/useSearch.ts 1
 /components/input/SearchInput.vue 2
 /components/input/search.vue 3
 
 ### Live Search
 
-Debounced search with `validateOn="input"` for real-time validation. The composable watches the Input's value ref directly — no event wiring needed.
+Debounced search with `validateOn="input"` for real-time validation as the user types. The composable watches the Input's value ref directly — no event wiring needed.
 
-**File breakdown:**
+Because `Input.Root` exposes `value` as a plain writable `Ref`, any composable can `watch` it without subscribing to DOM events. `useSearch.ts` uses `useTimer` from `@vuetify/v0` for debouncing — staying within the v0 primitive layer rather than reaching for raw `setTimeout`. Minimum 2 characters are required before the search fires.
+
+Visual states are driven exclusively through data attributes: `data-[focused]:border-primary` and `data-[state=invalid]:border-error` on `Input.Control` with no slot props or conditional classes. This is the recommended styling approach — it keeps the template clean and decouples visual states from layout logic.
 
 | File | Role |
 |------|------|
 | `useSearch.ts` | Composable — debounced search with mock results, watches the query ref |
 | `SearchInput.vue` | Reusable component — Input with search icon, loading spinner, result count |
 | `search.vue` | Demo — renders SearchInput with a result list |
-
-**Key patterns:**
-
-- `validateOn="input"` validates on every keystroke (minimum 2 characters)
-- The composable watches the query ref with `useTimer` from `@vuetify/v0`, demonstrating that `value` is a standard writable Ref
-- `data-[focused]:border-primary` and `data-[state=invalid]:border-error` style the input purely through data attributes — no slot props needed for visual states
 
 :::
 
@@ -209,5 +196,23 @@ Input.Control renders as a native `<input>` and manages all ARIA attributes auto
 ### Keyboard Navigation
 
 Standard native `<input>` keyboard behavior. No custom key handlers — the browser handles focus, selection, and editing.
+
+## FAQ
+
+::: faq
+
+??? What do the `lazy` and `eager` validateOn modifiers do?
+
+`validate-on="blur lazy"` skips validation until the first blur, then validates on every blur afterward — so errors don't show while the user is still typing their first attempt. `eager` flips it: after the first error, the field validates on every keystroke.
+
+??? How do I surface a server-side error on a field?
+
+Set the `error` and `error-messages` props on `Input.Root`. They push the message through the same display channel as client-side rules, so no custom error UI is needed.
+
+??? How do I react to the input's value without wiring DOM events?
+
+`Input.Root` exposes `value` as a plain writable `Ref`. A composable can `watch` it directly — there's no `@input` to bind, since composables never attach DOM listeners.
+
+:::
 
 <DocsApi />

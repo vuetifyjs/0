@@ -12,5 +12,6 @@ export interface LocaleAdapterContext {
 
 export abstract class LocaleAdapter {
   abstract t (key: string, ...params: unknown[]): string
+  abstract ti (key: string, ...params: unknown[]): string | undefined
   abstract n (value: number): string
 }

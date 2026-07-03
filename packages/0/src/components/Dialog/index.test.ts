@@ -1,8 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+// Components
+import { Scrim } from '#v0/components/Scrim'
+
 // Composables
-import { createStackPlugin } from '#v0/composables/useStack'
+import { createStackPlugin, useStack } from '#v0/composables/useStack'
+
+import { createLocalePlugin } from '#v0/composables'
 
 import { Dialog } from './index'
 
@@ -688,6 +693,45 @@ describe('dialog', () => {
         const close = wrapper.findComponent(Dialog.Close as any)
         expect(close.attributes('aria-label')).toBeDefined()
       })
+
+      it('should fall back to the inline default aria-label when no locale plugin is configured', () => {
+        const wrapper = mountWithStack(Dialog.Root, {
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              h(Dialog.Close, {}, () => 'Close'),
+            ]),
+          },
+        })
+
+        const close = wrapper.findComponent(Dialog.Close as any)
+        expect(close.attributes('aria-label')).toBe('Close')
+      })
+
+      it('should use the translated locale string for aria-label when one is registered', () => {
+        const plugin = createLocalePlugin({
+          default: 'en',
+          messages: {
+            en: {
+              Dialog: {
+                close: 'Schließen',
+              },
+            },
+          },
+        })
+
+        const wrapper = mountWithStack(Dialog.Root, {
+          global: { plugins: [plugin] },
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              h(Dialog.Close, {}, () => 'Close'),
+            ]),
+          },
+        })
+
+        const close = wrapper.findComponent(Dialog.Close as any)
+        expect(close.attributes('aria-label')).not.toBe('Close')
+        expect(close.attributes('aria-label')).toBe('Schließen')
+      })
     })
 
     describe('click handling', () => {
@@ -1098,5 +1142,72 @@ describe('dialog', () => {
       // Both the immediate watch and onMounted should call showModal
       expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
     })
+  })
+
+  it('registers the dialog element as the stack top element while open', async () => {
+    // Capture the plugin-provided stack from inside the component tree so
+    // the same registry is used for both the assertion and Dialog.Content.
+    let capturedStack: ReturnType<typeof useStack> | undefined
+    const wrapper = mountWithStack(
+      defineComponent({
+        setup () {
+          capturedStack = useStack()
+        },
+        render: () => h(Dialog.Root, { modelValue: true }, {
+          default: () => h(Dialog.Content as any, null, () => h('p', 'Body')),
+        }),
+      }),
+      { attachTo: document.body },
+    )
+
+    await nextTick()
+    const dialogEl = document.body.querySelector('dialog')
+    expect(dialogEl).not.toBeNull()
+    expect(capturedStack!.topElement.value).toBe(dialogEl)
+
+    wrapper.unmount()
+    await nextTick()
+    expect(capturedStack!.topElement.value).toBeNull()
+  })
+
+  it('reactively honors a blocking dialog when its scrim is clicked', async () => {
+    const open = ref(true)
+    const blocking = ref(true)
+    const wrapper = mountWithStack(
+      defineComponent({
+        setup () {
+          return () => [
+            h(Dialog.Root, {
+              'modelValue': open.value,
+              'onUpdate:modelValue': (v: boolean) => {
+                open.value = v
+              },
+            }, {
+              default: () => h(Dialog.Content as any, { blocking: blocking.value }, () => h('p', 'Body')),
+            }),
+            h(Scrim, { teleport: false, class: 'test-scrim' }),
+          ]
+        },
+      }),
+      { attachTo: document.body },
+    )
+
+    await nextTick()
+
+    // While blocking, a scrim click must not dismiss the dialog.
+    const scrim = wrapper.find('.test-scrim')
+    expect(scrim.exists()).toBe(true)
+    await scrim.trigger('click')
+    await nextTick()
+    expect(open.value).toBe(true)
+
+    // Flipping blocking off must propagate reactively: the same scrim now dismisses.
+    blocking.value = false
+    await nextTick()
+    await wrapper.find('.test-scrim').trigger('click')
+    await nextTick()
+    expect(open.value).toBe(false)
+
+    wrapper.unmount()
   })
 })

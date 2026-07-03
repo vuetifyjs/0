@@ -26,13 +26,8 @@ A composable that extends `createSingle` for breadcrumb navigation with automati
 
 The `createBreadcrumbs` composable manages an ordered path of items. When you select an earlier item, everything after it is removed. Use `values()` to iterate the current trail for rendering.
 
-::: example
+::: gn-example
 /composables/create-breadcrumbs/basic
-
-### Breadcrumb Navigation
-
-A clickable file-path breadcrumb trail — selecting an earlier crumb truncates everything after it.
-
 :::
 
 ## Context / DI
@@ -86,7 +81,7 @@ Breadcrumb state is **always reactive**. All derived properties update automatic
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-breadcrumbs/file-explorer/FileExplorer.vue
 /composables/create-breadcrumbs/file-explorer/tree.ts
 
@@ -108,6 +103,24 @@ A file explorer that uses `createBreadcrumbs` to track the user's position in a 
 - `isRoot` controls whether the back button is visible
 
 Drill into **Home > Documents > Projects > v0-app > src** to see the trail grow, then click an earlier crumb to truncate back.
+
+:::
+
+## FAQ
+
+::: faq
+
+??? What happens when I select an earlier item in the trail?
+
+Everything after it is removed. createBreadcrumbs models an ordered path, so selecting a crumb truncates the trail back to that point — the natural breadcrumb behavior.
+
+??? How do I render the current trail?
+
+Call `values()` to iterate the registered items in order. Push new crumbs with `register()` (e.g. `register({ text: 'Settings' })`) and navigate back by calling `select()` on an earlier one.
+
+??? When should I use createBreadcrumbs instead of the Breadcrumbs component?
+
+Use the composable when you need the trail logic behind custom markup. The [Breadcrumbs component](/components/semantic/breadcrumbs) consumes createBreadcrumbs as its backing model, the same way `Tabs.Root` builds on createStep. Use `depth`, `isRoot`, and `isEmpty` to toggle controls like a back button.
 
 :::
 
