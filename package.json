@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/zero",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-beta.3",
   "private": true,
   "type": "module",
   "scripts": {
@@ -19,10 +19,14 @@
     "test:run": "vitest run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
+    "test:vapor": "pnpm --filter=@vuetify-private/vapor-tests test",
     "test:bench": "vitest --reporter=verbose bench --run",
     "test:bench:json": "vitest bench --run --outputJson apps/docs/public/benchmarks.json",
     "bench": "vitest --reporter=default bench",
-    "metrics": "pnpm test:coverage && pnpm test:bench:json && node scripts/generate-metrics.js",
+    "metrics": "pnpm test:coverage && pnpm build:0 && pnpm metrics:bench && node scripts/generate-metrics.js",
+    "metrics:bench": "V0_BENCH_TARGET=dist vitest bench --run --outputJson apps/docs/public/benchmarks.json",
+    "metrics:history": "node scripts/generate-metrics-history.ts",
+    "skill": "node scripts/generate-skill.ts",
     "typecheck": "pnpm --filter=\"./packages/*\" typecheck",
     "typecheck:0": "pnpm --filter=\"./packages/0\" typecheck",
     "typecheck:paper": "pnpm --filter=\"./packages/paper\" typecheck",
@@ -34,41 +38,43 @@
     "preview:docs": "pnpm --filter=docs preview",
     "repo:knip": "knip",
     "repo:sherif": "sherif",
+    "repo:exports": "publint ./packages/0 && attw --pack ./packages/0 --profile esm-only",
     "repo:check": "pnpm repo:knip && pnpm repo:sherif",
     "validate": "pnpm lint && pnpm typecheck && pnpm test:run",
-    "release": "bumpp -r",
+    "changeset": "changeset",
+    "release": "pnpm build && changeset publish",
     "release:prepare": "pnpm validate && pnpm build",
-    "release:patch": "bumpp patch -r",
-    "release:minor": "bumpp minor -r",
-    "release:major": "bumpp major -r",
-    "postinstall": "tsx apps/docs/build/generate-api-whitelist.ts && node scripts/init-dev.js",
+    "postinstall": "node apps/docs/build/generate-api-whitelist.ts && node scripts/init-dev.js",
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-push": "pnpm lint:fix && pnpm typecheck && pnpm test:run && pnpm repo:check"
+    "pre-push": "pnpm lint && pnpm typecheck && pnpm test:run && pnpm repo:check"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "catalog:",
+    "@changesets/changelog-github": "catalog:",
+    "@changesets/cli": "catalog:",
     "@js-temporal/polyfill": "catalog:",
     "@tsconfig/node24": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vue/tsconfig": "catalog:",
-    "@vuetify/github-releaser": "catalog:",
-    "bumpp": "catalog:",
-    "conventional-changelog-vuetify": "catalog:",
     "eslint": "catalog:",
     "eslint-config-vuetify": "catalog:",
     "eslint-plugin-vuejs-accessibility": "catalog:",
     "happy-dom": "catalog:",
     "knip": "catalog:",
     "pkg-pr-new": "catalog:",
+    "publint": "catalog:",
     "sherif": "catalog:",
     "simple-git-hooks": "catalog:",
-    "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
   },
   "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=26"
+  },
   "web-types": "dist/json/web-types.json"
 }

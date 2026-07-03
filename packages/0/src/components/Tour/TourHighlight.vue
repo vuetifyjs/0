@@ -27,18 +27,18 @@
 </script>
 
 <script setup lang="ts">
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Composables
   import { useTour } from '#v0/composables/useTour'
+
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
   import { useId } from '#v0/utilities'
   import { onBeforeUnmount, shallowRef, toRef, watch } from 'vue'
-
-  // Transformers
-  import { toElement } from '#v0/composables/toElement'
 
   defineOptions({ name: 'TourHighlight' })
 
@@ -172,6 +172,7 @@
           <defs>
             <mask :id="maskId">
               <rect fill="white" height="100%" width="100%" />
+
               <rect
                 fill="black"
                 :height="rect.height"

@@ -32,7 +32,7 @@ export type { TourNextProps, TourNextSlotProps } from './TourNext.vue'
 export { default as TourSkip } from './TourSkip.vue'
 export type { TourSkipEmits, TourSkipProps, TourSkipSlotProps } from './TourSkip.vue'
 
-// Components
+// Context
 import Activator from './TourActivator.vue'
 import Content from './TourContent.vue'
 import Description from './TourDescription.vue'

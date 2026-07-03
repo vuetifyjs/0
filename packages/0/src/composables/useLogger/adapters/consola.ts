@@ -1,13 +1,19 @@
 // Adapters
 import { LoggerAdapter } from './adapter'
 
+// Utilities
+import { V0Error } from '#v0/utilities'
+
 export class ConsolaLoggerAdapter extends LoggerAdapter {
   private consola: LoggerAdapter
 
   constructor (consolaInstance: LoggerAdapter | null | undefined) {
     super()
     if (!consolaInstance) {
-      throw new Error('Consola instance is required for ConsolaLoggerAdapter')
+      throw new V0Error('Consola instance is required for ConsolaLoggerAdapter', {
+        code: 'V0_ADAPTER_INSTANCE_MISSING',
+        adapter: 'ConsolaLoggerAdapter',
+      })
     }
     this.consola = consolaInstance
   }

@@ -4,11 +4,11 @@ import { describe, expect, it } from 'vitest'
 import { createStackPlugin } from '#v0/composables/useStack'
 import { createTourPlugin, useTour } from '#v0/composables/useTour'
 
+import { Tour } from '.'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, nextTick } from 'vue'
-
-import { Tour } from '.'
 
 function createApp (template: string, setup?: () => Record<string, unknown>) {
   return defineComponent({

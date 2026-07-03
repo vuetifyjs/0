@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
+// Composables
+import { useStack } from '#v0/composables/useStack'
+
 import { Portal } from './index'
 
 // Utilities
@@ -117,6 +120,39 @@ describe('portal', () => {
       const wrapper = mount(Host)
 
       expect(zIndexes[0]).toBe(2000)
+      expect(zIndexes[1]).toBe(2010)
+
+      wrapper.unmount()
+    })
+
+    it('should still occupy a stack slot when rendered inline (disabled)', () => {
+      const zIndexes: number[] = []
+
+      const Host = defineComponent({
+        setup () {
+          return () => [
+            h(Portal, { disabled: true }, {
+              default: (props: any) => {
+                zIndexes[0] = props.zIndex
+                return h('div', 'Inline')
+              },
+            }),
+            h(Portal, null, {
+              default: (props: any) => {
+                zIndexes[1] = props.zIndex
+                return h('div', 'Teleported')
+              },
+            }),
+          ]
+        },
+      })
+
+      const wrapper = mount(Host)
+
+      // The inline (disabled) portal still registers AND selects into the stack,
+      // so the second portal stacks above it. Pre-fix, forwarding `disabled`
+      // (the Teleport toggle) to the stack ticket made its select() a no-op, so
+      // it took no slot and the second portal collapsed onto the base z-index.
       expect(zIndexes[1]).toBe(2010)
 
       wrapper.unmount()
@@ -313,6 +349,44 @@ describe('portal', () => {
       expect(document.body.querySelector('div')).not.toBeNull()
 
       wrapper.unmount()
+    })
+  })
+
+  describe('top-layer teleport', () => {
+    it('teleports into the topmost modal element when one is open', async () => {
+      const stack = useStack()
+      const dialogEl = document.createElement('dialog')
+      document.body.append(dialogEl)
+      const modal = stack.register({ el: dialogEl })
+      modal.select()
+
+      const wrapper = mount(Portal, {
+        props: { to: 'top-layer', scrim: false },
+        slots: { default: () => h('div', { class: 'portaled' }) },
+        attachTo: document.body,
+      })
+      try {
+        await nextTick()
+        expect(dialogEl.querySelector('.portaled')).not.toBeNull()
+      } finally {
+        wrapper.unmount()
+        modal.unselect()
+        dialogEl.remove()
+      }
+    })
+
+    it('falls back to body when no modal is open', async () => {
+      const wrapper = mount(Portal, {
+        props: { to: 'top-layer', scrim: false },
+        slots: { default: () => h('div', { class: 'portaled-body' }) },
+        attachTo: document.body,
+      })
+      try {
+        await nextTick()
+        expect(document.body.querySelector('.portaled-body')).not.toBeNull()
+      } finally {
+        wrapper.unmount()
+      }
     })
   })
 })

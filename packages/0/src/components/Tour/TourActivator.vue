@@ -32,12 +32,12 @@
   // Composables
   import { useTour } from '#v0/composables/useTour'
 
-  // Utilities
-  import { nextTick, onBeforeUnmount, onMounted, toRef, useTemplateRef, watch } from 'vue'
-
   // Transformers
   import { toArray } from '#v0/composables/toArray'
   import { toElement } from '#v0/composables/toElement'
+
+  // Utilities
+  import { nextTick, onBeforeUnmount, onMounted, toRef, useTemplateRef, watch } from 'vue'
 
   defineOptions({ name: 'TourActivator' })
 

@@ -192,6 +192,22 @@ export interface TreeviewItemSlotProps<V = unknown> {
   activate: () => void
   /** Deactivate/unhighlight this item */
   deactivate: () => void
+  /** Attributes to bind to the item element */
+  attrs: {
+    'role': 'treeitem'
+    'aria-disabled': boolean
+    'aria-expanded': boolean | undefined
+    'aria-level': number
+    'aria-posinset': number
+    'aria-selected': boolean
+    'aria-setsize': number
+    'data-active': true | undefined
+    'data-disabled': true | undefined
+    'data-open': true | undefined
+    'data-selected': true | undefined
+    'tabindex': 0 | -1 | undefined
+    'style': { '--v0-treeview-depth': number }
+  }
 }
 
 // TreeviewList

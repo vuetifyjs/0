@@ -112,7 +112,7 @@
 
   const overflow = createOverflow({
     container: () => containerRef.value?.element as Element | undefined,
-    gap,
+    gap: () => gap,
     reserved: () => {
       let r = 0
       if (firstItemWidth.value > 0) r += firstItemWidth.value + gap
@@ -137,8 +137,8 @@
     }
     const htmlEl = el as HTMLElement
     const style = getComputedStyle(htmlEl)
-    const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-    target.value = htmlEl.offsetWidth + marginX
+    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    target.value = (htmlEl.offsetWidth || 0) + marginX
   }
 
   function measureElement (index: number, type: 'item' | 'divider', el: Element | undefined) {
@@ -254,7 +254,7 @@
     prev: breadcrumbs.prev,
     select: breadcrumbs.select,
     attrs: {
-      'aria-label': label ?? locale.t('Breadcrumbs.label'),
+      'aria-label': label ?? locale.ti('Breadcrumbs.label') ?? 'Breadcrumbs',
       'role': as === 'nav' ? undefined : 'navigation',
     },
   }))

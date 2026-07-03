@@ -5,14 +5,14 @@
  * PostHog adapter for feature flags.
  */
 
-// Constants
+// Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Adapters
 import { FeaturesAdapter } from './adapter'
 
 // Utilities
-import { isBoolean, isNullOrUndefined } from '#v0/utilities'
+import { isBoolean, isNullOrUndefined, UNSAFE_KEYS } from '#v0/utilities'
 
 // Types
 import type { FeaturesAdapterFlags } from './adapter'
@@ -32,6 +32,8 @@ export class PostHogFeaturesAdapter extends FeaturesAdapter {
       if (!activeFlags) return flags
 
       for (const key of activeFlags) {
+        if (UNSAFE_KEYS.has(key)) continue
+
         const isEnabled = this.client.isFeatureEnabled(key) ?? false
         const payload = this.client.getFeatureFlagPayload(key)
 

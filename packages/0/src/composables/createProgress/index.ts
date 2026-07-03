@@ -175,7 +175,10 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
     apply,
     min,
     max,
-  } as ProgressContext
+    get size () {
+      return model.size
+    },
+  } satisfies ProgressContext as ProgressContext
 }
 
 /**

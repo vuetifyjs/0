@@ -22,14 +22,14 @@
 </script>
 
 <script setup lang="ts">
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Context
   import { useTourRootContext } from './TourRoot.vue'
 
   // Composables
   import { useTour } from '#v0/composables/useTour'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
   import { nextTick, toRef, useAttrs, useTemplateRef, watch } from 'vue'

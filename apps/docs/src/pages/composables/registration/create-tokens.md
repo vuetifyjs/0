@@ -83,6 +83,18 @@ const tokens = useTokens()
 tokens.resolve('colors.primary')  // '#3b82f6'
 ```
 
+## Architecture
+
+`createTokens` extends `createRegistry` and powers token-based systems:
+
+```mermaid "Tokens Hierarchy"
+flowchart TD
+  createTokens --> useTheme
+  createTokens --> useLocale
+  createTokens --> useFeatures
+  createTokens --> usePermissions
+```
+
 ## Options
 
 ### createTokens
@@ -101,18 +113,6 @@ Accepts all `createTokens` options plus:
 | `namespace` | `string` | — | DI namespace string (e.g. `'my:tokens'`) |
 | `tokens` | `TokenCollection` | — | Initial token collection registered when the context is created |
 
-## Architecture
-
-`createTokens` extends `createRegistry` and powers token-based systems:
-
-```mermaid "Tokens Hierarchy"
-flowchart TD
-  createTokens --> useTheme
-  createTokens --> useLocale
-  createTokens --> useFeatures
-  createTokens --> usePermissions
-```
-
 ## Reactivity
 
 `createTokens` uses **minimal reactivity** like its parent `createRegistry`. Token resolution is cached but not reactive.
@@ -122,7 +122,7 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-tokens/tokens.ts 1
 /composables/create-tokens/design-system.vue 2
 
@@ -144,7 +144,7 @@ A design system with four token categories — color palettes, semantic aliases,
 
 :::
 
-## Frequently Asked Questions
+## FAQ
 
 ::: faq
 ??? What's the difference between `depth: Infinity` and `flat: true`?

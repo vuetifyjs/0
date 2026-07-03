@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Switch } from '@vuetify/v0'
+  import { Button, Switch } from '@vuetify/v0'
   import { toRef } from 'vue'
   import { useDashboard } from './plugin'
 
@@ -18,19 +18,19 @@
       </div>
 
       <div class="flex gap-1.5">
-        <button
+        <Button.Root
           class="px-2 py-1 text-xs rounded-md border border-divider text-on-surface-variant hover:text-on-surface hover:bg-surface-tint transition-colors"
           @click="group.selectAll()"
         >
           Enable all
-        </button>
+        </Button.Root>
 
-        <button
+        <Button.Root
           class="px-2 py-1 text-xs rounded-md border border-divider text-on-surface-variant hover:text-on-surface hover:bg-surface-tint transition-colors"
           @click="group.unselectAll()"
         >
           Disable all
-        </button>
+        </Button.Root>
       </div>
     </div>
 
@@ -39,7 +39,7 @@
       <label class="block text-xs font-medium text-on-surface-variant mb-1.5">Locale</label>
 
       <div class="flex flex-wrap gap-1.5">
-        <button
+        <Button.Root
           v-for="loc in locales"
           :key="loc.code"
           class="px-2.5 py-1 text-xs rounded-md border transition-all"
@@ -49,13 +49,13 @@
           @click="locale = loc.code"
         >
           {{ loc.label }}
-        </button>
+        </Button.Root>
       </div>
     </div>
 
     <!-- Feature toggles -->
     <div class="space-y-1">
-      <button
+      <Button.Root
         v-for="ticket in tickets"
         :key="ticket.id"
         class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all"
@@ -80,7 +80,7 @@
             />
           </Switch.Track>
         </Switch.Root>
-      </button>
+      </Button.Root>
     </div>
 
     <!-- Live preview -->

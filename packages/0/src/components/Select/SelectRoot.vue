@@ -72,8 +72,8 @@
     toggle: () => void
     /** Select an item by ID, closing dropdown in single-select mode */
     select: (id: ID) => void
-    /** Raw model value for fallback display before items register */
-    modelValue: Ref<ID | ID[] | undefined>
+    /** Raw model value for fallback display before items register. Carries ticket values (type-erased at the compound boundary) */
+    modelValue: Ref<unknown>
   }
 
   export interface SelectRootProps extends AtomProps {
@@ -116,7 +116,7 @@
   export const [useSelectContext, provideSelectContext] = createContext<SelectContext>()
 </script>
 
-<script setup lang="ts">
+<script lang="ts" setup generic="T = unknown">
   defineOptions({ name: 'SelectRoot' })
 
   defineSlots<{
@@ -124,7 +124,7 @@
   }>()
 
   defineEmits<{
-    'update:model-value': [value: ID | ID[]]
+    'update:model-value': [value: T | T[]]
   }>()
 
   const {
@@ -138,7 +138,7 @@
     mandatory = false,
   } = defineProps<SelectRootProps>()
 
-  const model = defineModel<ID | ID[]>()
+  const model = defineModel<T | T[]>()
 
   const id = _id ?? useId()
   const listboxId = `${id}-listbox`

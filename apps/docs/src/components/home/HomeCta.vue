@@ -48,7 +48,7 @@
         :style="{ '--reveal-index': i }"
         :to="action.to"
       >
-        <AppDotGrid v-if="action.title === 'Open Playground'" :coverage="50" :density="14" origin="bottom right" />
+        <AppDotGrid v-if="action.title === 'Open Playground'" :coverage="50" origin="bottom right" />
 
         <div class="relative w-10 h-10 shrink-0 rounded-lg bg-primary flex items-center justify-center text-on-primary">
           <AppIcon class="!opacity-100" :icon="action.icon" :size="20" />

@@ -43,6 +43,7 @@
       'disabled': boolean | undefined
       'data-disabled': '' | undefined
       'data-pending': '' | undefined
+      'onClick': () => void
     }
   }
 </script>
@@ -67,6 +68,7 @@
     as = 'button',
     namespace = 'v0:alert-dialog',
     disabled = false,
+    renderless,
   } = defineProps<AlertDialogActionProps>()
 
   const emit = defineEmits<AlertDialogActionEmits>()
@@ -103,6 +105,7 @@
       'disabled': disabled || undefined,
       'data-disabled': disabled ? '' : undefined,
       'data-pending': context.isPending.value ? '' : undefined,
+      'onClick': onClick,
     },
   }))
 </script>
@@ -110,8 +113,8 @@
 <template>
   <Atom
     :as
+    :renderless
     v-bind="slotProps.attrs"
-    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>

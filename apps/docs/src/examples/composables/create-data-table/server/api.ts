@@ -23,7 +23,7 @@ export interface FetchResult {
  * Simulates a server API call with filtering, sorting, and pagination.
  * Returns only the current page of results after a short delay.
  */
-export function fetchUsers (
+export function fetchPage (
   query: string,
   sorts: SortEntry[],
   page: number,
@@ -46,9 +46,9 @@ export function fetchUsers (
       if (sorts.length > 0) {
         const { key, direction } = sorts[0]
         result.sort((a, b) => {
-          const aVal = String(a[key as keyof User])
-          const bVal = String(b[key as keyof User])
-          const cmp = aVal.localeCompare(bVal)
+          const left = String(a[key as keyof User])
+          const right = String(b[key as keyof User])
+          const cmp = left.localeCompare(right)
           return direction === 'desc' ? -cmp : cmp
         })
       }

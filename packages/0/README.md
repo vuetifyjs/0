@@ -19,8 +19,8 @@
   <a href="https://github.com/vuetifyjs/0/blob/master/LICENSE.md">
     <img src="https://img.shields.io/npm/l/@vuetify/v0.svg" alt="License">
   </a>
-  <a href="https://community.vuetifyjs.com">
-    <img src="https://discordapp.com/api/guilds/340160225338195969/widget.png" alt="Chat">
+  <a href="https://discord.gg/vuetify">
+    <img src="https://img.shields.io/discord/1513968811047522396?logo=discord&logoColor=white&label=Discord&color=5865F2" alt="Discord">
   </a>
 </p>
 
@@ -28,7 +28,11 @@
 
 Headless Vue 3 UI primitives and composables for building modern applications and design systems. `@vuetify/v0` is the foundation of the Vuetify ecosystem, offering lightweight, unstyled building blocks with full TypeScript support and accessibility features built-in.
 
-> **Note:** This package is in early development (pre-1.0). APIs may change between minor versions.
+> **Note:** v0 is a release candidate — the v1 stable set is locked. Install with `npm i @vuetify/v0@rc`. Preview APIs may still see minor, documented changes before the stable release.
+
+## Primary Sponsor
+
+This spot is open. Vuetify0 accepts one Primary Sponsor at a time — $2,000/mo gets your logo on the Vuetify0 docs site (home page + desktop sidebar on every docs page) and this README. [Become the Primary Sponsor →](https://0.vuetifyjs.com/sponsor)
 
 ## Repository Structure
 
@@ -130,6 +134,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [ExpansionPanel](https://0.vuetifyjs.com/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
 | [Popover](https://0.vuetifyjs.com/components/disclosure/popover) | CSS anchor-positioned popup content |
 | [Tabs](https://0.vuetifyjs.com/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
+| [Tooltip](https://0.vuetifyjs.com/components/disclosure/tooltip) | Description tooltip with hover/focus triggers |
 | [Tour](https://0.vuetifyjs.com/components/disclosure/tour) | Guided tour with step navigation, validation gates, and keyboard support |
 | [Treeview](https://0.vuetifyjs.com/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
 
@@ -143,6 +148,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Image](https://0.vuetifyjs.com/components/semantic/image) | Image with placeholder, error fallback, and lazy loading |
 | [Overflow](https://0.vuetifyjs.com/components/semantic/overflow) | Responsive truncation primitive with overflow detection and indicator |
 | [Pagination](https://0.vuetifyjs.com/components/semantic/pagination) | Page navigation with semantic `<nav>` wrapper |
+| [Progress](https://0.vuetifyjs.com/components/semantic/progress) | Headless progress indicator with multi-segment and buffer support |
 | [Snackbar](https://0.vuetifyjs.com/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](https://0.vuetifyjs.com/components/semantic/splitter) | Resizable panel layout with drag handles |
 
@@ -167,6 +173,7 @@ Base data structures that most other composables build upon:
 
 #### Data
 
+- [`createDataGrid`](https://0.vuetifyjs.com/composables/data/create-data-grid) - Headless data grid layering column layout, cell editing, row ordering, and row spanning on top of createDataTable
 - [`createDataTable`](https://0.vuetifyjs.com/composables/data/create-data-table) - Data table with sort, filter, pagination, row selection, grouping, and adapter pattern
 - [`createFilter`](https://0.vuetifyjs.com/composables/data/create-filter) - Reactive array filtering with multiple modes
 - [`createKanban`](https://0.vuetifyjs.com/composables/data/create-kanban) - Two-level sortable orchestrator (columns + items)
@@ -190,6 +197,8 @@ Selection management composables built on `createRegistry`:
 - [`createForm`](https://0.vuetifyjs.com/composables/forms/create-form) - Form validation and state management with async rules
 - [`createInput`](https://0.vuetifyjs.com/composables/forms/create-input) - Shared form field state: validation, dirty/pristine, ARIA IDs
 - [`createNumberField`](https://0.vuetifyjs.com/composables/forms/create-number-field) - Numeric input state with formatting, stepping, and validation
+- [`createNumeric`](https://0.vuetifyjs.com/composables/forms/create-numeric) - Pure numeric math primitive: clamp, snap, step, percentage, and circular wrapping
+- [`createOtp`](https://0.vuetifyjs.com/composables/forms/create-otp) - OTP / verification code state with pattern-gated entry and decisional completion hook
 - [`createValidation`](https://0.vuetifyjs.com/composables/forms/create-validation) - Field-level validation with sync/async rules
 - [`createCombobox`](https://0.vuetifyjs.com/composables/forms/create-combobox) - Combobox state management with filtering and virtual focus
 - [`createRating`](https://0.vuetifyjs.com/composables/forms/create-rating) - Bounded rating value with discrete items and half-step support
@@ -200,15 +209,17 @@ Selection management composables built on `createRegistry`:
 - [`useProxyModel`](https://0.vuetifyjs.com/composables/reactivity/use-proxy-model) - Bridge selection context to component v-model
 - [`useProxyRegistry`](https://0.vuetifyjs.com/composables/reactivity/use-proxy-registry) - Convert registry Map to reactive object
 
-#### Utilities
+#### Semantic
 
-- [`createBreadcrumbs`](https://0.vuetifyjs.com/composables/utilities/create-breadcrumbs) - Breadcrumb navigation model with depth tracking and path traversal
-- [`createOverflow`](https://0.vuetifyjs.com/composables/utilities/create-overflow) - Container overflow measurement for item capacity
+- [`createBreadcrumbs`](https://0.vuetifyjs.com/composables/semantic/create-breadcrumbs) - Breadcrumb navigation model with depth tracking and path traversal
+- [`createOverflow`](https://0.vuetifyjs.com/composables/semantic/create-overflow) - Container overflow measurement for item capacity
+- [`createProgress`](https://0.vuetifyjs.com/composables/semantic/create-progress) - Progress state with multi-segment and buffer tracking
 
 #### Transformers
 
 - [`toArray`](https://0.vuetifyjs.com/composables/transformers/to-array) - Array transformation utilities
 - [`toElement`](https://0.vuetifyjs.com/composables/transformers/to-element) - Normalize refs, selectors, and elements to DOM elements
+- [`toHighlight`](https://0.vuetifyjs.com/composables/transformers/to-highlight) - Split text into matched and unmatched chunks for query highlighting
 - [`toReactive`](https://0.vuetifyjs.com/composables/transformers/to-reactive) - Reactive object conversion
 
 #### System
@@ -244,11 +255,13 @@ Plugin-capable composables following the trinity pattern:
 - [`useLogger`](https://0.vuetifyjs.com/composables/plugins/use-logger) - Logging adapter (consola/pino/custom)
 - [`useNotifications`](https://0.vuetifyjs.com/composables/plugins/use-notifications) - Toast/snackbar queue management with positioning
 - [`usePermissions`](https://0.vuetifyjs.com/composables/plugins/use-permissions) - RBAC/ABAC permission system
+- [`useReducedMotion`](https://0.vuetifyjs.com/composables/plugins/use-reduced-motion) - Respect or override the prefers-reduced-motion media query
 - [`useRtl`](https://0.vuetifyjs.com/composables/plugins/use-rtl) - Right-to-left text direction detection and management
 - [`useRules`](https://0.vuetifyjs.com/composables/plugins/use-rules) - Validation rule adapter with built-in rule library
 - [`useStack`](https://0.vuetifyjs.com/composables/plugins/use-stack) - Overlay z-index stacking with automatic scrim coordination
 - [`useStorage`](https://0.vuetifyjs.com/composables/plugins/use-storage) - Storage adapter (localStorage/sessionStorage/memory)
 - [`useTheme`](https://0.vuetifyjs.com/composables/plugins/use-theme) - Theme management with CSS variable injection
+- [`useTooltip`](https://0.vuetifyjs.com/composables/plugins/use-tooltip) - Region-scoped tooltip delay coordination
 - [`useTour`](https://0.vuetifyjs.com/composables/plugins/use-tour) - Guided tour orchestration with step navigation and validation gates
 
 ## Design Principles
@@ -294,7 +307,16 @@ pnpm validate
 
 ## Contributing
 
-v0 is in alpha — open for feedback, bug reports, and contributions. See the [Alpha Roadmap](https://0.vuetifyjs.com/roadmap#alpha) for what's planned and how to get involved.
+Vuetify0 is a release candidate — open for final validation, bug reports, and contributions. See the [Roadmap](https://0.vuetifyjs.com/roadmap#release-candidate) for what's planned and how to get involved.
+
+## Supporting Vuetify
+
+Vuetify0 is an MIT-licensed open source project. Its ongoing development is made possible by the support of sponsors and backers. If you'd like to join them, please consider:
+
+- [Sponsor on GitHub](https://github.com/sponsors/johnleider)
+- [Donate via Open Collective](https://opencollective.com/vuetify)
+
+For direct support plans and fixed-scope project builds, see [Vuetify Services](https://0.vuetifyjs.com/services).
 
 ## License
 

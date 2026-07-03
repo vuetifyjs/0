@@ -3,7 +3,7 @@
   import { createNested, isString, useBreakpoints } from '@vuetify/v0'
 
   // Data
-  import { REPL_BUILTIN_FILES } from '@/data/playground-defaults'
+  import { CONFIG_FILE_IDS, REPL_BUILTIN_FILES } from '@/data/playground-defaults'
 
   // Utilities
   import { computed, nextTick, shallowRef, toRef, useTemplateRef, watch } from 'vue'
@@ -51,7 +51,7 @@
     return children
   }
 
-  const showConfig = shallowRef(false)
+  const showConfig = playground.showConfig
   const targetFolder = shallowRef('src')
 
   function rebuildFileTree () {
@@ -98,7 +98,7 @@
     { id: 'import-map.json', value: 'import-map.json' },
   ]
 
-  const CONFIG_IDS = new Set(CONFIG_FILES.map(f => f.id))
+  const CONFIG_IDS = CONFIG_FILE_IDS
 
   function toggleConfig () {
     showConfig.value = !showConfig.value

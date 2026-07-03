@@ -9,6 +9,7 @@ import {
   isObject,
   isThenable,
   isArray,
+  isElement,
   isNull,
   isNullOrUndefined,
   isUndefined,
@@ -189,6 +190,34 @@ describe('helpers', () => {
         expect(isArray({})).toBe(false)
         expect(isArray('array')).toBe(false)
         expect(isArray({ length: 3 })).toBe(false)
+      })
+    })
+
+    describe('isElement', () => {
+      it('should return true for DOM elements', () => {
+        expect(isElement(document.createElement('div'))).toBe(true)
+        expect(isElement(document.body)).toBe(true)
+      })
+
+      it('should return false for non-elements', () => {
+        expect(isElement(null)).toBe(false)
+        expect(isElement(undefined)).toBe(false)
+        expect(isElement({})).toBe(false)
+        expect(isElement('div')).toBe(false)
+      })
+
+      it('should return false instead of throwing when Element is undefined (SSR/SSG)', () => {
+        const ElementCtor = globalThis.Element
+        // Simulate a non-DOM server runtime where `Element` is not a global.
+        // Pre-guard, `item instanceof Element` threw a ReferenceError here,
+        // crashing SSG on every observer-using docs page.
+        Reflect.deleteProperty(globalThis, 'Element')
+        try {
+          expect(() => isElement({})).not.toThrow()
+          expect(isElement({})).toBe(false)
+        } finally {
+          globalThis.Element = ElementCtor
+        }
       })
     })
 

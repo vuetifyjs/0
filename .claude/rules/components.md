@@ -209,7 +209,7 @@ const slotProps = toRef((): ComponentRootSlotProps => ({
 
 ## ARIA Pattern (WAI-ARIA compliant)
 
-Every interactive component ships a correct `role`, `aria-*` state attributes, keyboard handlers, and locale-driven strings via `useLocale()` / `locale.t(key)`. `aria-disabled` is always concrete `boolean` (not `true | undefined`). Tests assert `toBeDefined()` on the locale strings, not exact values. [intent:174, intent:175, intent:176, intent:177]
+Every interactive component ships a correct `role`, `aria-*` state attributes, keyboard handlers, and locale-driven strings via `useLocale()` (canonical: `locale.ti(key) ?? '<English default>'`). `aria-disabled` is always concrete `boolean` (not `true | undefined`). Tests assert `toBeDefined()` on the locale strings, not exact values. [intent:174, intent:175, intent:176, intent:177]
 
 The full ARIA vocabulary, WCAG success-criterion mapping, and worked precedents live under [WCAG Accessibility — how we apply the patterns](#wcag-accessibility--how-we-apply-the-patterns) below. Don't restate the table here.
 
@@ -279,23 +279,67 @@ When a composable uses `useProxyModel`, its underlying registry/model must have 
 
 Never `export *` from `.vue` files — breaks Volar slot type inference. [intent:184, intent:338]
 
-```ts
-// Named exports for tree-shaking
-export type { ComponentRootProps, ComponentRootSlotProps } from './ComponentRoot.vue'
-export { default as ComponentRoot } from './ComponentRoot.vue'
-export { useComponentRoot, provideComponentRoot } from './ComponentRoot.vue'
+A barrel is one of two shapes — **compound** or **single** — chosen by whether the component exposes dotted sub-components. Audited 100% consistent across all 40 component barrels (the one historical violator, Tooltip's `Object.assign`, was normalized to this canon).
 
-// Object compound export for dot notation
-import ComponentRoot from './ComponentRoot.vue'
-import ComponentItem from './ComponentItem.vue'
-export const Component = { Root: ComponentRoot, Item: ComponentItem }
+### Compound (Root + sub-components)
+
+```ts
+// 1. Named default re-export per sub-component; co-locate the Root's context fns
+//    with the Root default. Never `export *` from a .vue.
+export { default as ComponentItem } from './ComponentItem.vue'
+export { provideComponentRoot, useComponentRoot } from './ComponentRoot.vue'
+export { default as ComponentRoot } from './ComponentRoot.vue'
+
+// 2. All `export type` re-exports grouped in one block after the named exports.
+export type { ComponentItemProps, ComponentItemSlotProps } from './ComponentItem.vue'
+export type { ComponentRootContext, ComponentRootProps, ComponentRootSlotProps } from './ComponentRoot.vue'
+
+// Context
+import Item from './ComponentItem.vue'
+import Root from './ComponentRoot.vue'
+
+/**
+ * Component compound.
+ *
+ * @see …
+ * @example …
+ */
+export const Component = {
+  /** Single instance root. @example … */ Root,
+  /** A repeated item. @example … */ Item,
+}
 ```
+
+- The compound is a **plain object literal** built from short-aliased default imports. **Never `Object.assign`**, and never re-bind the compound name to a `.vue` default — the namespace object is *not* a renderable component. `<Component>` (bare) is invalid; only `<Component.Root>` renders.
+- Every member of the literal carries a one-line `/** */` with `@example` (it surfaces in `<DocsApi />`). Member order is anatomy/usage order — the Root (or the outer region provider) first — not alphabetical.
+- `// Context` is the (de-facto, slightly misnamed) header over the short-aliased sub-component imports — keep it for family consistency.
+- `perfectionist/sort-imports` settles ordering *within* each export/import block; run `pnpm lint:fix`, don't hand-author order.
+
+### Single (one renderable component — providers like Theme/Locale/Scrim, primitives like Atom/Form/Portal)
+
+```ts
+export type { ComponentProps, ComponentSlotProps } from './Component.vue'
+
+/**
+ * @see …
+ * @example …
+ */
+export { default as Component } from './Component.vue'
+```
+
+Type re-export at the top, JSDoc, single default at the bottom. No compound object, no `// Context` imports, no provide/use.
+
+### Region/scope providers belong to the compound, never the namespace
+
+A wrapper that supplies shared defaults or context to a compound family's Roots (delay defaults, a selection group, a notification queue) is a **dotted member** of the compound — living in its own `Component<Member>.vue` file and named-exported like any other sub-component. It is **never** the bare renderable `<Component>`, and the compound is never made renderable via `Object.assign` to host it. Precedent: `ExpansionPanel.Group`, `Toggle.Group`, `Switch.Group`, `Radio.Group`, `Checkbox.Group`, `Button.Group`, `Snackbar.Queue`.
+
+**Naming.** Name the member with the **domain noun** for what it coordinates — `.Group` (a selection group), `.Queue` (a notification queue). When the member is a *pure* context/defaults provider with no domain verb of its own, `.Provider` is acceptable, mirroring the upstream React-ecosystem `.Provider` wrappers. Prefer a domain noun where one fits; reach for `.Provider` only for a defaults-only wrapper. No shipped v0 compound uses `.Provider` today — app-wide defaults are supplied by a framework plugin (e.g. `createTooltipPlugin`) rather than a Provider component, which is the v0 analog of the React-ecosystem Provider.
 
 [intent:185]
 
 ## Template Pattern (100% enforced)
 
-- Root element is always `<Atom :as :renderless>`. [intent:186, intent:336]
+- DOM-rendering Roots use `<Atom :as :renderless>`; pure context-provider Roots (`Group`, `Selection`, `Single`, `Step`, `Tabs`, `Treeview`) render only `<slot v-bind="slotProps" />` with no `Atom`. [intent:186, intent:336] (PHILOSOPHY §5.3)
 - Slot props via `<slot v-bind="slotProps" />`.
 - Hidden inputs conditionally rendered: `<ComponentHiddenInput v-if="name" />`. [intent:187]
 - `v-if` for structural conditionals; `v-show` only when the element must stay mounted to preserve state. [intent:188]
@@ -624,7 +668,7 @@ When uncertain, don't hook up. Adding a plugin later is a non-breaking change; r
 - [ ] Three-pronged disabled (`aria-disabled`, `data-disabled`, tabindex)
 - [ ] Hidden input conditionally rendered with `v-if="name"`
 - [ ] Barrel: no `export *` from `.vue`, named exports plus compound object
-- [ ] Template root is `<Atom :as :renderless>` and uses `<slot v-bind="slotProps" />`
+- [ ] Template root is `<Atom :as :renderless>` (DOM-rendering Roots) or a bare `<slot v-bind="slotProps" />` (pure context-provider Roots — §5.3)
 - [ ] `v-if` for structural conditionals; `v-show` only when the element must stay mounted (registry-driven visibility, load-state preservation, virtualization)
 - [ ] `onBeforeUnmount` for deregistration, not `onUnmounted`
 - [ ] Zero utility classes; all `:style` bindings structural
@@ -636,5 +680,5 @@ When uncertain, don't hook up. Adding a plugin later is a non-breaking change; r
 - [ ] Global plugins hooked up only when the component genuinely depends on app-level state
 - [ ] Multi-source `attrs` forwarding uses `mergeProps`, not spread
 - [ ] Props destructured directly (never `withDefaults`)
-- [ ] Local mirrors of props named `_option`, not `optionProp`
+- [ ] `_`-prefix on the raw prop when a resolved value is bound (never on the template-bound value); never `nameProp`/`optionProp` (§3.3)
 - [ ] No comments that restate the next line

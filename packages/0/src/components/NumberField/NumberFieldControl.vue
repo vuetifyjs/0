@@ -102,7 +102,7 @@
   function onBlur () {
     const parsed = root.parse(text.value)
     root.value.value = parsed
-    root.commit()
+    root.commit(parsed)
     root.isFocused.value = false
     syncText()
   }
@@ -128,7 +128,7 @@
       Enter: () => {
         const parsed = root.parse(text.value)
         root.value.value = parsed
-        root.commit()
+        root.commit(parsed)
       },
     }
 

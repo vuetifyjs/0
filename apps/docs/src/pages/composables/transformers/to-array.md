@@ -55,12 +55,32 @@ const items = computed(() => toArray(props.items))
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/to-array/normalize
 
 ### Normalize Inputs
 
-Shows `toArray` converting various input types — single values, arrays, `null`, `undefined` — to a consistent array output.
+An interactive input explorer that runs `toArray` against five different input shapes — string, number, array, `null`, and `undefined` — and displays the raw input, its JavaScript type, the output array, and the resulting length. Selecting String or Number reveals an editable field so you can verify the wrapping behavior with any value; selecting Array lets you add and remove items to confirm that an existing array passes through unchanged; selecting null or undefined demonstrates that both produce an empty array rather than `[null]` or `[undefined]`.
+
+The primary use case for `toArray` is normalizing props or options that accept either a single value or an array — the canonical `MaybeArray<T>` pattern. Rather than branching on `Array.isArray(input)` at every call site, call `toArray(input)` once and iterate the result. Because it is a pure synchronous function, wrap it in `toRef(() => toArray(prop))` for reactive derivation or in `computed()` when the result feeds expensive downstream work. For the inverse operation — converting arrays to reactive proxies with automatic ref unwrapping — see [toReactive](/composables/transformers/to-reactive).
+
+:::
+
+## FAQ
+
+::: faq
+
+??? What does toArray return for null or undefined?
+
+An empty array (`[]`), not `[null]` or `[undefined]`. This makes it safe to iterate the result without a separate nullish check.
+
+??? Does toArray wrap an array that's already an array?
+
+No. Existing arrays pass through unchanged; only non-array values are wrapped in a single-element array.
+
+??? Is the result reactive?
+
+No — `toArray` is a pure synchronous transformer. Wrap it in `toRef(() => toArray(prop))` or `computed()` when you need the normalized array to update reactively.
 
 :::
 
