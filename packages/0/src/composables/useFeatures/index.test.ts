@@ -1,9 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { createStoragePlugin, MemoryStorageAdapter, useStorage } from '#v0/composables/useStorage'
+
 import { createFeatures, createFeaturesPlugin, useFeatures } from './index'
 
 // Utilities
-import { createApp, watchEffect } from 'vue'
+import { createApp, nextTick, watchEffect } from 'vue'
 
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapter } from './adapters'
@@ -724,6 +727,107 @@ describe('createFeaturesPlugin', () => {
 
       expect(dispose1).toHaveBeenCalled()
       expect(dispose2).toHaveBeenCalled()
+    })
+  })
+
+  describe('persist/restore', () => {
+    it('should restore persisted flag ids before setup', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        const storage = useStorage()
+        storage.set('features', ['feature-b'])
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+            'feature-b': false,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-b')).toBe(true)
+      expect(context.selectedIds.has('feature-a')).toBe(false)
+    })
+
+    it('should auto-save selected flag ids when the selection changes', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      app.runWithContext(() => {
+        const context = useFeatures()
+        context.select('feature-a')
+      })
+
+      await nextTick()
+
+      const stored = app.runWithContext(() => useStorage().get('features').value)
+
+      expect(stored).toEqual(['feature-a'])
+
+      app.unmount()
+    })
+
+    it('should ignore a non-array persisted value', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        const storage = useStorage()
+        storage.set('features', 'garbage')
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+    })
+
+    it('should ignore persisted ids that are not registered', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        const storage = useStorage()
+        storage.set('features', ['ghost', 'feature-a'])
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('ghost')).toBe(false)
     })
   })
 })
