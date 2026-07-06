@@ -65,7 +65,7 @@ export interface SettingsContext {
 
 const DEFAULTS: DocSettings = {
   lineWrap: false,
-  codeSize: 'small',
+  codeSize: 'medium',
   reduceMotion: 'system',
   packageManager: 'pnpm',
   showInlineApi: false,
