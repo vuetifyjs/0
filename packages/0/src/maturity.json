@@ -127,6 +127,14 @@
       "category": "forms",
       "description": "Fixed-length one-time-password or verification-code value with pattern-gated entry and completion detection."
     },
+    "createDatePicker": {
+      "level": "draft",
+      "category": "forms"
+    },
+    "createTimePicker": {
+      "level": "draft",
+      "category": "forms"
+    },
     "createDataGrid": {
       "level": "preview",
       "since": "1.0.0-beta.0",
@@ -186,6 +194,10 @@
       "since": "0.1.0",
       "category": "semantic",
       "description": "Computes how many items fit in a container based on available width, for responsive truncation in pagination, breadcrumbs, and similar UIs."
+    },
+    "createTour": {
+      "level": "draft",
+      "category": "semantic"
     },
     "useBreakpoints": {
       "level": "stable",
