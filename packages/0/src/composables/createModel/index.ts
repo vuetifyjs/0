@@ -377,9 +377,11 @@ export function createModel<
   const selectedItems = computed(() => new Set(resolveIds(selectedIds, registry.get)))
 
   const selectedValues = computed(() => {
-    return new Set(
-      Array.from(selectedItems.value).map(item => toValue(item.value) as E['value'] extends Ref<infer U> ? U : E['value']),
-    )
+    const out = new Set<unknown>()
+    for (const item of selectedItems.value) {
+      out.add(toValue(item.value))
+    }
+    return out as Set<E['value'] extends Ref<infer U> ? U : E['value']>
   })
 
   function select (id: ID) {
