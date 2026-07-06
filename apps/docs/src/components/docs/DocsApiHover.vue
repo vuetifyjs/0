@@ -279,6 +279,18 @@
   const displayProperties = toRef(() => composableApi.value?.properties || [])
   const displayMethods = toRef(() => composableApi.value?.methods || [])
 
+  // The key used to look up the feature in apiData.related — namespace for
+  // components ("Popover.Root" -> "Popover"), full name for composables.
+  const apiName = toRef(() => {
+    if (!activeApi.value || activeApiType.value === 'vue') return null
+    if (activeApiType.value === 'component') {
+      const name = (activeApi.value as ComponentApi).name
+      const dotIndex = name.indexOf('.')
+      return dotIndex === -1 ? name : name.slice(0, dotIndex)
+    }
+    return (activeApi.value as ComposableApi).name
+  })
+
   const apiLink = computed(() => {
     if (!activeApi.value) return null
 
@@ -302,6 +314,14 @@
 
     // Composable
     return `/api/${toKebab((activeApi.value as ComposableApi).name)}`
+  })
+
+  // Link to the feature's regular docs page. apiData.related keys each v0 symbol
+  // to its own docs route (first entry), so v0 features get both an API and a
+  // docs link. Vue APIs have no v0 docs page.
+  const docsLink = toRef(() => {
+    if (!apiName.value) return null
+    return apiData.related[apiName.value]?.[0] ?? null
   })
 
   // Whether the link is external (Vue docs) or internal (v0 API page)
@@ -411,11 +431,11 @@
           </div>
         </template>
 
-        <!-- Footer link -->
-        <template v-if="apiLink">
+        <!-- Footer links -->
+        <div v-if="apiLink" class="popover-footer">
           <a
             v-if="isExternalLink"
-            class="popover-footer"
+            class="popover-footer-link"
             :href="apiLink"
             rel="noopener noreferrer"
             target="_blank"
@@ -424,15 +444,25 @@
             View Vue docs↗
           </a>
 
-          <router-link
-            v-else
-            class="popover-footer"
-            :to="apiLink"
-            @click.stop="hidePopover"
-          >
-            View API
-          </router-link>
-        </template>
+          <template v-else>
+            <router-link
+              v-if="docsLink"
+              class="popover-footer-link"
+              :to="docsLink"
+              @click.stop="hidePopover"
+            >
+              View Docs
+            </router-link>
+
+            <router-link
+              class="popover-footer-link"
+              :to="apiLink"
+              @click.stop="hidePopover"
+            >
+              View API
+            </router-link>
+          </template>
+        </div>
       </div>
     </Transition>
   </Teleport>
@@ -535,11 +565,15 @@
 }
 
 .popover-footer {
-  display: block;
+  display: flex;
   flex-shrink: 0;
   margin: 0 -12px -12px;
-  padding: 12px;
   border-top: 1px solid var(--v0-divider);
+}
+
+.popover-footer-link {
+  flex: 1;
+  padding: 12px;
   font-size: 12px;
   color: var(--v0-primary);
   text-align: center;
@@ -547,7 +581,11 @@
   cursor: pointer;
 }
 
-.popover-footer:hover {
+.popover-footer-link + .popover-footer-link {
+  border-left: 1px solid var(--v0-divider);
+}
+
+.popover-footer-link:hover {
   text-decoration: underline;
 }
 </style>
