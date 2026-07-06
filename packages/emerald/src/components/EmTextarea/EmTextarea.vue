@@ -72,15 +72,12 @@
 .emerald-textarea {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
+  gap: var(--emerald-spacing-xs, 8px);
+  font-family: var(--emerald-font-sans, Manrope, system-ui, -apple-system, sans-serif);
 }
 
-.emerald-textarea[data-error] .emerald-textarea__label {
-  color: var(--emerald-error-700, #b8302a);
-}
-
-.emerald-textarea[data-disabled] {
-  pointer-events: none;
+.emerald-textarea[data-error] .emerald-textarea__label,
+.emerald-textarea:has(.emerald-textarea__control[data-state="invalid"]) .emerald-textarea__label {
+  color: var(--emerald-danger-600, #a1000e);
 }
 </style>

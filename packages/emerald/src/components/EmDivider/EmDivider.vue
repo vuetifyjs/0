@@ -38,6 +38,7 @@
   display: flex;
   align-items: center;
   gap: 0;
+  padding: var(--emerald-spacing-xs);
   color: var(--emerald-on-background);
 }
 

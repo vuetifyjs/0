@@ -31,7 +31,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 6px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -41,18 +41,17 @@
 .emerald-carousel__indicator {
   display: inline-block;
   height: 7px;
-  width: 28px;
+  width: 34px;
   padding: 0;
   border: 0;
-  border-radius: 60px;
-  background: var(--emerald-secondary-300, #c6d2db);
+  border-radius: var(--emerald-radius-full);
+  background: var(--emerald-neutral-300);
   cursor: pointer;
-  transition: width 180ms ease, background 180ms ease;
+  transition: background 180ms ease;
 }
 
 .emerald-carousel__indicator[data-selected] {
-  width: 34px;
-  background: var(--emerald-secondary-500, #94a3b8);
+  background: var(--emerald-neutral-600);
 }
 
 .emerald-carousel__indicator:focus-visible {
@@ -60,7 +59,7 @@
   outline-offset: 2px;
 }
 
-.emerald-carousel__indicator[aria-disabled="true"] {
+.emerald-carousel__indicator[data-disabled] {
   opacity: 0.4;
   cursor: not-allowed;
 }

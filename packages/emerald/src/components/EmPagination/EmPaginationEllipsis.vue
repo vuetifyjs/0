@@ -22,15 +22,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 8px;
-  color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.7);
+  box-sizing: border-box;
+  min-width: 32px;
+  height: 28px;
+  padding: var(--emerald-spacing-xs) var(--emerald-spacing-s);
+  color: inherit;
   user-select: none;
 }
 
 .emerald-pagination__ellipsis > * {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
 }
 </style>

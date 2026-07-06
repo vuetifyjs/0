@@ -44,7 +44,6 @@
   >
     <SwitchRoot
       v-model="model"
-      as="span"
       class="emerald-switch__root"
       :disabled
       :label
@@ -55,6 +54,8 @@
         <slot v-bind="slotProps" />
       </template>
     </SwitchRoot>
+
+    <span v-if="label" class="emerald-switch__label">{{ label }}</span>
   </V0Paper>
 </template>
 
@@ -62,11 +63,9 @@
 .emerald-switch {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
+  gap: var(--emerald-spacing-xs, 8px);
+  font-family: var(--emerald-font-sans, Manrope, system-ui, -apple-system, sans-serif);
   color: var(--emerald-on-background);
-  font-size: 14px;
-  line-height: 1.4;
   cursor: pointer;
   user-select: none;
 }
@@ -85,14 +84,28 @@
   margin: 0;
   outline: none;
   flex-shrink: 0;
+  font: inherit;
+  color: inherit;
+  cursor: inherit;
+}
+
+.emerald-switch__label {
+  font-size: var(--emerald-text-b1-size, 16px);
+  line-height: var(--emerald-text-b1-height, 24px);
+  font-weight: var(--emerald-text-b1-bold-weight, 700);
+  color: var(--emerald-on-surface, #2b2d2e);
 }
 
 .emerald-switch__root:focus-visible::after {
   content: '';
   position: absolute;
-  inset: -3px;
-  border: 1px solid var(--emerald-primary-500, #7c5cf6);
-  border-radius: 999px;
+  inset: -1px -2px;
+  border: 1px solid var(--emerald-primary-600, #1fae60);
+  border-radius: var(--emerald-radius-full, 999px);
   pointer-events: none;
+}
+
+.emerald-switch__root[data-state="checked"]:focus-visible::after {
+  inset: -1px;
 }
 </style>

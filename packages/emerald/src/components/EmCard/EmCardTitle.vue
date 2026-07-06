@@ -16,14 +16,11 @@
   </component>
 </template>
 
-<style>
+<style scoped>
 .emerald-card__title {
   margin: 0;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 26px;
-  letter-spacing: -0.2px;
-  color: var(--emerald-neutral-700);
+  font: var(--emerald-text-h4-weight) var(--emerald-text-h4-size) / var(--emerald-text-h4-height) var(--emerald-font-sans);
+  letter-spacing: 0;
+  color: var(--emerald-on-surface);
 }
 </style>

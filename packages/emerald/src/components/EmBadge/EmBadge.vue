@@ -4,16 +4,12 @@
   // Types
   import type { V0PaperProps } from '@vuetify/paper'
 
-  export type EmBadgeVariant = 'primary' | 'success' | 'warning' | 'error' | 'info' | 'neutral'
-  export type EmBadgeSize = 'sm' | 'md' | 'lg'
-  export type EmBadgeShape = 'pill' | 'dot' | 'indicator' | 'count'
+  export type EmBadgeVariant = 'default' | 'alert'
+  export type EmBadgeShape = 'dot' | 'indicator' | 'count'
 
   export interface EmBadgeProps extends V0PaperProps {
     variant?: EmBadgeVariant
-    size?: EmBadgeSize
     shape?: EmBadgeShape
-    /** @deprecated use `shape="dot"` */
-    dot?: boolean
   }
 </script>
 
@@ -21,14 +17,10 @@
   defineOptions({ name: 'EmBadge' })
 
   const {
-    variant = 'primary',
-    size = 'md',
-    shape,
-    dot = false,
+    variant = 'default',
+    shape = 'indicator',
     ...paperProps
   } = defineProps<EmBadgeProps>()
-
-  const resolvedShape = shape ?? (dot ? 'dot' : 'pill')
 </script>
 
 <template>
@@ -36,8 +28,7 @@
     v-bind="paperProps"
     as="span"
     class="emerald-badge"
-    :data-shape="resolvedShape"
-    :data-size="size"
+    :data-shape="shape"
     :data-variant="variant"
   >
     <slot />
@@ -49,42 +40,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-weight: 700;
-  border-radius: 9999px;
+  box-sizing: border-box;
   white-space: nowrap;
-  line-height: 1;
-}
-
-/* Pill (text label) — default */
-.emerald-badge[data-shape="pill"][data-size="sm"] {
-  padding: 2px 6px;
-  font-size: 10px;
-  line-height: 14px;
-}
-
-.emerald-badge[data-shape="pill"][data-size="md"] {
-  padding: 3px 8px;
-  font-size: 12px;
-  line-height: 16px;
-}
-
-.emerald-badge[data-shape="pill"][data-size="lg"] {
-  padding: 4px 10px;
-  font-size: 14px;
-  line-height: 18px;
-}
-
-/* Notification indicator variants — bordered + shadowed per Figma spec */
-.emerald-badge[data-shape="dot"],
-.emerald-badge[data-shape="indicator"],
-.emerald-badge[data-shape="count"] {
-  border: 2px solid var(--emerald-background, #faf9ff);
-  box-shadow:
-    0 3px 8px 0 rgb(5 0 18 / 0.13),
-    0 2px 4px 0 rgb(5 0 18 / 0.10);
-  padding: 0;
+  border: var(--emerald-stroke-m) solid var(--emerald-background);
+  border-radius: var(--emerald-radius-full);
+  box-shadow: var(--emerald-shadow-badge);
   overflow: hidden;
 }
 
@@ -104,44 +64,21 @@
 .emerald-badge[data-shape="count"] {
   min-width: 20px;
   height: 20px;
-  padding: 0 4px;
-  font-size: 10px;
-  font-weight: 700;
+  padding: 0 var(--emerald-spacing-2xs);
+  font-family: var(--emerald-font-sans);
+  font-size: var(--emerald-text-b3-size);
+  line-height: var(--emerald-text-b3-height);
+  font-weight: var(--emerald-text-b3-bold-weight);
 }
 
-/* Variants — background color only; border/shadow handled above */
-.emerald-badge[data-variant="primary"] {
-  background: var(--emerald-primary-500);
-  color: var(--emerald-primary-100);
+/* Colorways */
+.emerald-badge[data-variant="default"] {
+  background: var(--emerald-primary-600);
+  color: var(--emerald-on-primary);
 }
 
-.emerald-badge[data-variant="success"] {
-  background: var(--emerald-success-500);
-  color: #fff;
-}
-
-.emerald-badge[data-variant="warning"] {
-  background: var(--emerald-warning-500);
-  color: #fff;
-}
-
-.emerald-badge[data-variant="error"] {
-  background: var(--emerald-error-500);
-  color: #fff;
-}
-
-.emerald-badge[data-variant="info"] {
-  background: var(--emerald-info-500);
-  color: #fff;
-}
-
-.emerald-badge[data-variant="neutral"] {
-  background: var(--emerald-neutral-200);
-  color: var(--emerald-neutral-800);
-}
-
-/* Neutral count keeps darker text since the surface is light. */
-.emerald-badge[data-shape="count"][data-variant="neutral"] {
-  color: var(--emerald-neutral-800);
+.emerald-badge[data-variant="alert"] {
+  background: var(--emerald-danger-400);
+  color: var(--emerald-on-danger);
 }
 </style>

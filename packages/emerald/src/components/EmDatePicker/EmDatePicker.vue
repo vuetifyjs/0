@@ -4,9 +4,12 @@
   // Types
   import type { V0PaperProps } from '@vuetify/paper'
 
+  export type EmDatePickerValue = Date | [Date | null, Date | null] | null
+
   export interface EmDatePickerProps extends V0PaperProps {
-    modelValue?: Date | null
+    modelValue?: EmDatePickerValue
     disabled?: boolean
+    range?: boolean
   }
 </script>
 
@@ -14,9 +17,9 @@
   defineOptions({ name: 'EmDatePicker' })
 
   // TODO(emerald): wire createCalendar/useDate once v0 ships a DatePicker primitive
-  const { disabled = false, ...paperProps } = defineProps<EmDatePickerProps>()
+  const { disabled = false, range = false, ...paperProps } = defineProps<EmDatePickerProps>()
 
-  const model = defineModel<Date | null>({ default: null })
+  const model = defineModel<EmDatePickerValue>({ default: null })
 </script>
 
 <template>
@@ -25,27 +28,37 @@
     as="div"
     class="emerald-date-picker"
     :data-disabled="disabled || undefined"
+    :data-range="range || undefined"
   >
     <slot :model />
   </V0Paper>
 </template>
 
-<style>
+<style scoped>
 .emerald-date-picker {
   display: inline-flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 12px;
-  width: 234px;
-  padding: 12px 7px;
-  border-radius: 6px;
-  background: #ffffff;
-  box-shadow:
-    0 1px 3px rgb(5 0 18 / 0.12),
-    0 1px 5px rgb(5 0 18 / 0.2);
+  gap: var(--emerald-spacing-s);
+  width: 266px;
+  /* TODO(token): spec horizontal padding is 7px — no spacing token between 3xs (2px) and 2xs (4px) fits */
+  padding: var(--emerald-spacing-s) 7px;
+  border-radius: var(--emerald-radius-s);
+  background: var(--emerald-surface);
+  box-shadow: var(--emerald-shadow-m);
   overflow: clip;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  color: #000000;
+  font-family: var(--emerald-font-sans);
+  font-size: var(--emerald-text-b2-size);
+  line-height: var(--emerald-text-b2-height);
+  color: var(--emerald-on-surface);
+}
+
+.emerald-date-picker[data-range] {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  width: fit-content;
+  column-gap: var(--emerald-spacing-xl);
 }
 
 .emerald-date-picker[data-disabled] {

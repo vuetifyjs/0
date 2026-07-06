@@ -19,7 +19,7 @@
   }
 </script>
 
-<script setup lang="ts" generic="T">
+<script lang="ts" setup generic="T">
   defineOptions({ name: 'EmTabs' })
 
   const {
@@ -57,13 +57,13 @@
   </V0Paper>
 </template>
 
-<style>
+<style scoped>
 .emerald-tabs {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  color: var(--emerald-primary-950, #221065);
+  gap: var(--emerald-spacing-s);
+  font-family: var(--emerald-font-sans);
+  color: var(--emerald-on-surface);
 }
 
 .emerald-tabs[data-orientation="vertical"] {

@@ -55,28 +55,39 @@
   </V0Paper>
 </template>
 
-<style>
+<style scoped>
 .emerald-radio {
+  --emerald-radio-control: 20px;
+  --emerald-radio-dot: 10px;
+
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
+  gap: var(--emerald-spacing-2xs);
+  font-family: var(--emerald-font-sans);
   color: var(--emerald-on-background);
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: var(--emerald-text-b1-size);
+  font-weight: var(--emerald-text-b1-bold-weight);
+  line-height: var(--emerald-text-b1-height);
   cursor: pointer;
   user-select: none;
-  border-radius: 999px;
-  padding: 2px 8px 2px 2px;
-  transition: box-shadow 120ms ease;
+}
+
+.emerald-radio[data-size="sm"] {
+  --emerald-radio-control: 16px;
+  --emerald-radio-dot: 8px;
+}
+
+.emerald-radio[data-size="lg"] {
+  --emerald-radio-control: 24px;
+  --emerald-radio-dot: 12px;
 }
 
 .emerald-radio[data-disabled] {
   cursor: not-allowed;
-  opacity: 0.6;
 }
 
-.emerald-radio__root {
+/* :deep — RadioRoot is a multi-root v0 component (Atom + optional hidden input), so it never receives this scope attribute */
+.emerald-radio :deep(.emerald-radio__root) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -87,10 +98,5 @@
   margin: 0;
   outline: none;
   flex-shrink: 0;
-}
-
-/* Focus ring on the whole label (control + text) */
-.emerald-radio:has(.emerald-radio__root:focus-visible) {
-  box-shadow: 0 0 0 2px rgb(var(--emerald-primary-500-channels, 124 92 246) / 0.35);
 }
 </style>

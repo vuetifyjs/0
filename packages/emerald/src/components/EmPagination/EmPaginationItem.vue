@@ -33,12 +33,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 28px;
+  box-sizing: border-box;
+  min-width: 32px;
   height: 28px;
-  padding: 6px 12px;
+  padding: var(--emerald-spacing-xs) var(--emerald-spacing-s);
   background: transparent;
-  border: 1px solid transparent;
-  border-radius: 4px;
+  border: var(--emerald-stroke-s) solid transparent;
+  border-radius: var(--emerald-radius-xs);
   color: inherit;
   font: inherit;
   text-align: center;
@@ -47,22 +48,22 @@
 }
 
 .emerald-pagination__item[data-selected] {
-  background: var(--emerald-background, #ffffff);
-  border-color: var(--emerald-secondary-500);
-  color: inherit;
+  background: var(--emerald-primary-100);
+  border-color: var(--emerald-primary-600);
+  font-weight: var(--emerald-text-b2-bold-weight);
 }
 
 .emerald-pagination__item:hover:not([data-disabled]):not([data-selected]) {
-  background: rgb(var(--emerald-primary-500-channels) / 0.08);
+  background: var(--emerald-neutral-200);
 }
 
 .emerald-pagination__item:focus-visible {
-  outline: 2px solid var(--emerald-primary-500);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--emerald-shadow-focus);
 }
 
 .emerald-pagination__item[data-disabled] {
-  opacity: 0.4;
+  color: var(--emerald-neutral-400);
   cursor: not-allowed;
 }
 </style>

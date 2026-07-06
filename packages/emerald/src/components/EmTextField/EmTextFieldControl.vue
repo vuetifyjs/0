@@ -50,65 +50,44 @@
   display: block;
   box-sizing: border-box;
   width: 100%;
-  height: 32px;
   margin: 0;
-  padding: 6px 8px;
-  border: 1px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
-  border-radius: 4px;
-  background: #ffffff;
+  padding: var(--emerald-spacing-xs, 8px) var(--emerald-spacing-m, 16px);
+  border: var(--emerald-stroke-s, 1px) solid var(--emerald-border, #AEB6BE);
+  border-radius: var(--emerald-radius-m, 8px);
+  background: var(--emerald-background, #FEFEFE);
   font-family: inherit;
-  font-size: 12px;
-  line-height: 20px;
-  color: #000000;
+  font-size: var(--emerald-text-b1-size, 16px);
+  font-weight: var(--emerald-text-b1-weight, 400);
+  line-height: var(--emerald-text-b1-height, 24px);
+  color: var(--emerald-neutral-1000, #2B2D2E);
   outline: none;
   transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
 .emerald-text-field__control::placeholder {
-  color: #000000;
-  opacity: 0.3;
+  color: var(--emerald-neutral-500, #A3AFBE);
+  opacity: 1;
 }
 
 .emerald-text-field__control:hover:not([data-disabled]):not([data-focused]) {
-  border-color: rgb(var(--emerald-primary-500-channels, 124 92 246) / 0.3);
-  box-shadow:
-    0 1px 3px 0 rgb(var(--emerald-primary-500-channels, 124 92 246) / 0.12),
-    0 1px 5px 0 rgb(var(--emerald-primary-500-channels, 124 92 246) / 0.2);
+  border-color: var(--emerald-neutral-600, #939DAC);
 }
 
 .emerald-text-field__control:focus,
 .emerald-text-field__control[data-focused] {
-  border-color: var(--emerald-primary-500, #7c5cf6);
-  box-shadow: 0 0 0 2px rgb(var(--emerald-primary-500-channels, 124 92 246) / 0.12);
+  box-shadow: var(--emerald-shadow-focus, 0px 0px 0px 5px rgba(38, 194, 109, 0.2));
 }
 
-.emerald-text-field__control[data-disabled],
-.emerald-text-field[data-disabled] .emerald-text-field__control {
-  background: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.05);
-  border-color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.08);
-  color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.4);
+.emerald-text-field__control[data-disabled] {
+  background: var(--emerald-neutral-200, #EBF0F4);
+  border-color: var(--emerald-neutral-300, #CCD6E7);
+  color: var(--emerald-neutral-400, #AEB6BE);
   cursor: not-allowed;
 }
 
-.emerald-text-field__control[data-disabled]::placeholder,
-.emerald-text-field[data-disabled] .emerald-text-field__control::placeholder {
-  color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.4);
-  opacity: 1;
-}
-
-.emerald-text-field__control[data-state="invalid"] {
-  border-color: var(--emerald-error-500, #e5484d);
-}
-
-.emerald-text-field__control[data-state="invalid"]:hover:not([data-disabled]):not([data-focused]) {
-  border-color: var(--emerald-error-700, #b8302a);
-  box-shadow:
-    0 1px 3px 0 rgb(var(--emerald-error-500-channels, 229 72 77) / 0.18),
-    0 1px 5px 0 rgb(var(--emerald-error-500-channels, 229 72 77) / 0.22);
-}
-
+.emerald-text-field__control[data-state="invalid"]:not([data-disabled]),
 .emerald-text-field__control[data-state="invalid"]:focus,
 .emerald-text-field__control[data-state="invalid"][data-focused] {
-  box-shadow: 0 0 0 2px rgb(var(--emerald-error-500-channels, 229 72 77) / 0.18);
+  box-shadow: var(--emerald-shadow-danger, 0px 0px 0px 5px rgba(251, 55, 72, 0.2));
 }
 </style>

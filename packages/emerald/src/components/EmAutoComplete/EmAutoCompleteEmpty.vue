@@ -22,10 +22,10 @@
   display: flex;
   align-items: center;
   min-height: 36px;
-  padding: 8px 12px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 12px;
-  line-height: 20px;
-  color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.5);
+  padding: var(--emerald-spacing-xs) var(--emerald-spacing-s);
+  font-family: var(--emerald-font-sans);
+  font-size: var(--emerald-text-b1-size);
+  line-height: var(--emerald-text-b1-height);
+  color: rgb(var(--emerald-on-surface-channels) / 0.5);
 }
 </style>

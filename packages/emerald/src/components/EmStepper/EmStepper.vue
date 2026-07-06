@@ -51,9 +51,9 @@
 .emerald-stepper {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  color: var(--emerald-on-background, #2d3139);
+  gap: var(--emerald-spacing-xs);
+  font-family: var(--emerald-font-sans);
+  color: var(--emerald-on-background);
 }
 
 .emerald-stepper[data-disabled] {

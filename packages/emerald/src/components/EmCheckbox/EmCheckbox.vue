@@ -65,21 +65,18 @@
 .emerald-checkbox {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
+  gap: var(--emerald-spacing-2xs);
+  font-family: var(--emerald-font-sans);
   color: var(--emerald-on-background);
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: var(--emerald-text-b1-size);
+  font-weight: var(--emerald-text-b1-weight);
+  line-height: var(--emerald-text-b1-height);
   cursor: pointer;
   user-select: none;
-  border-radius: 6px;
-  padding: 2px 6px 2px 2px;
-  transition: box-shadow 120ms ease;
 }
 
 .emerald-checkbox[data-disabled] {
   cursor: not-allowed;
-  opacity: 0.6;
 }
 
 .emerald-checkbox__root {
@@ -93,10 +90,5 @@
   margin: 0;
   outline: none;
   flex-shrink: 0;
-}
-
-/* Focus ring on the whole label (control + text) */
-.emerald-checkbox:has(.emerald-checkbox__root:focus-visible) {
-  box-shadow: 0 0 0 2px rgb(var(--emerald-primary-500-channels, 124 92 246) / 0.35);
 }
 </style>

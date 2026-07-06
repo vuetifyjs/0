@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { EmeraldStyleSheetAdapter, EmListItemAction, EmListItemBody, EmListSeparator, EmListSubheader, emeraldColors } from '@paper/emerald'
-  import { PhAirplaneTilt, PhArchive, PhBookOpen, PhCalendarBlank, PhCalendarDots, PhCaretCircleDown, PhCaretCircleUp, PhCaretDown, PhCaretLeft, PhCaretRight, PhCaretUp, PhCaretUpDown, PhChalkboardTeacher, PhChartPieSlice, PhChatsCircle, PhChatText, PhCheck, PhCheckCircle, PhCheckSquare, PhCube, PhDotsThree, PhDotsThreeCircle, PhFileArrowUp, PhFunnel, PhHouse, PhHouseLine, PhInfo, PhMapPin, PhNotePencil, PhPlusCircle, PhShareNetwork, PhUser, PhWarning, PhX, PhXCircle } from '@phosphor-icons/vue'
+  import { PhAirplaneTilt, PhArchive, PhBell, PhBookOpen, PhCalendarBlank, PhCalendarDots, PhCaretCircleDown, PhCaretCircleUp, PhCaretDown, PhCaretLeft, PhCaretRight, PhCaretUp, PhCaretUpDown, PhChalkboardTeacher, PhChartPieSlice, PhChatsCircle, PhChatText, PhCheck, PhCheckCircle, PhCheckSquare, PhCube, PhDotsThree, PhDotsThreeCircle, PhFileArrowUp, PhFunnel, PhHouse, PhHouseLine, PhInfo, PhMapPin, PhNotePencil, PhPlusCircle, PhShareNetwork, PhUser, PhWarning, PhX, PhXCircle } from '@phosphor-icons/vue'
 
   const adapter = new EmeraldStyleSheetAdapter()
   adapter.upsert(adapter.generate({ emerald: emeraldColors }, false))
@@ -27,6 +27,8 @@
 
   const uploadFiles = ref<File[]>([])
   const formValid = ref<boolean | null>(null)
+
+  const tagSelected = shallowRef(false)
 </script>
 
 <template>
@@ -261,145 +263,35 @@
       <h2>Badge</h2>
 
       <div class="row">
-        <EmBadge>Primary</EmBadge>
-        <EmBadge variant="success">Success</EmBadge>
-        <EmBadge variant="warning">Warning</EmBadge>
-        <EmBadge variant="error">Error</EmBadge>
-        <EmBadge variant="info">Info</EmBadge>
-        <EmBadge variant="neutral">Neutral</EmBadge>
+        <EmBadge shape="dot" />
+        <EmBadge />
+        <EmBadge shape="count">1</EmBadge>
+        <EmBadge shape="count">99+</EmBadge>
+        <EmBadge shape="dot" variant="alert" />
+        <EmBadge variant="alert" />
+        <EmBadge shape="count" variant="alert">1</EmBadge>
+        <EmBadge shape="count" variant="alert">99+</EmBadge>
       </div>
 
       <div class="row">
-        <EmBadge size="sm">Small</EmBadge>
-        <EmBadge size="md">Medium</EmBadge>
-        <EmBadge size="lg">Large</EmBadge>
-      </div>
+        <EmBadgeAnchor>
+          <PhBell :size="32" />
+          <EmBadge shape="count">1</EmBadge>
+        </EmBadgeAnchor>
 
-      <div class="row">
-        <EmBadge shape="dot" variant="success" />
-        <EmBadge shape="indicator" variant="success" />
-        <EmBadge shape="count" variant="success">1</EmBadge>
-        <EmBadge shape="count" variant="success">9</EmBadge>
-        <EmBadge shape="count" variant="error">99+</EmBadge>
-        <EmBadge shape="dot" variant="error" />
-        <EmBadge shape="indicator" variant="warning" />
-        <EmBadge shape="count" variant="info">3</EmBadge>
+        <EmBadgeAnchor>
+          <PhBell :size="32" />
+          <EmBadge shape="dot" variant="alert" />
+        </EmBadgeAnchor>
       </div>
     </section>
 
     <section>
       <h2>Tag</h2>
-      <p class="muted">Tinted — filled surface, semantic luminosity/50 background</p>
-
-      <div class="row">
-        <EmTag tone="tinted" variant="neutral">
-          <PhPlusCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag tone="tinted" variant="primary">
-          <PhPlusCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag tone="tinted" variant="success">
-          <PhPlusCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag tone="tinted" variant="error">
-          <PhPlusCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag tone="tinted" variant="warning">
-          <PhPlusCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag tone="tinted" variant="info">
-          <PhPlusCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-      </div>
-
-      <p class="muted">Outlined elevated (lg) — white surface, colored shadow</p>
-
-      <div class="row">
-        <EmTag elevation="lg" variant="neutral">
-          <PhCheckCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag elevation="lg" variant="primary">
-          <PhCheckCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag elevation="lg" variant="success">
-          <PhCheckCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag elevation="lg" variant="error">
-          <PhCheckCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag elevation="lg" variant="warning">
-          <PhCheckCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag elevation="lg" variant="info">
-          <PhCheckCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-      </div>
-
-      <p class="muted">Outlined elevated (sm) — subtle drop shadow</p>
-
-      <div class="row">
-        <EmTag elevation="sm" variant="neutral">
-          <PhCheckCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag elevation="sm" variant="primary">
-          <PhCheckCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag elevation="sm" variant="success">
-          <PhCheckCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag elevation="sm" variant="error">
-          <PhCheckCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag elevation="sm" variant="warning">
-          <PhCheckCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag elevation="sm" variant="info">
-          <PhCheckCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-      </div>
-
-      <p class="muted">Outlined flat — bordered, no shadow</p>
+      <p class="muted">Variants — outlined, semantic border color</p>
 
       <div class="row">
         <EmTag variant="neutral">
-          <PhCheckCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-
-        <EmTag variant="primary">
           <PhCheckCircle :size="16" weight="fill" />
           chip text
         </EmTag>
@@ -409,12 +301,12 @@
           chip text
         </EmTag>
 
-        <EmTag variant="error">
+        <EmTag variant="danger">
           <PhCheckCircle :size="16" weight="fill" />
           chip text
         </EmTag>
 
-        <EmTag variant="warning">
+        <EmTag variant="alert">
           <PhCheckCircle :size="16" weight="fill" />
           chip text
         </EmTag>
@@ -425,11 +317,49 @@
         </EmTag>
       </div>
 
+      <p class="muted">Selected — tinted surface per variant</p>
+
+      <div class="row">
+        <EmTag :selected="true" variant="neutral">
+          <PhPlusCircle :size="16" weight="fill" />
+          chip text
+        </EmTag>
+
+        <EmTag :selected="true" variant="success">
+          <PhPlusCircle :size="16" weight="fill" />
+          chip text
+        </EmTag>
+
+        <EmTag :selected="true" variant="danger">
+          <PhPlusCircle :size="16" weight="fill" />
+          chip text
+        </EmTag>
+
+        <EmTag :selected="true" variant="alert">
+          <PhPlusCircle :size="16" weight="fill" />
+          chip text
+        </EmTag>
+
+        <EmTag :selected="true" variant="info">
+          <PhPlusCircle :size="16" weight="fill" />
+          chip text
+        </EmTag>
+      </div>
+
+      <p class="muted">Selectable — click to toggle</p>
+
+      <div class="row">
+        <EmTag v-model:selected="tagSelected" selectable variant="success">
+          <PhPlusCircle :size="16" weight="fill" />
+          {{ tagSelected ? 'selected' : 'toggle me' }}
+        </EmTag>
+      </div>
+
       <p class="muted">Text only — no icon</p>
 
       <div class="row">
         <EmTag variant="neutral">vue</EmTag>
-        <EmTag variant="primary">typescript</EmTag>
+        <EmTag variant="info">typescript</EmTag>
         <EmTag variant="success">emerald</EmTag>
       </div>
     </section>
@@ -681,58 +611,46 @@
       <h2>Stepper</h2>
 
       <EmStepper v-model="stepperModel">
-        <EmStepperItem value="date">
-          <PhCalendarBlank weight="duotone" />
+        <EmStepperItem v-slot="{ isCompleted }" value="date">
+          <EmStepperIcon>
+            <PhCheck v-if="isCompleted" weight="duotone" />
+            <PhCalendarBlank v-else weight="duotone" />
+          </EmStepperIcon>
 
-          <template #completed>
-            <PhCheck weight="duotone" />
-          </template>
-
-          <template #label>
-            <EmStepperLabel>Choose Date<EmStepperLabelDescription>Lorem Ipsum</EmStepperLabelDescription></EmStepperLabel>
-          </template>
+          <EmStepperLabel>Choose Date<EmStepperLabelDescription>Lorem Ipsum</EmStepperLabelDescription></EmStepperLabel>
         </EmStepperItem>
 
         <EmStepperSeparator />
 
-        <EmStepperItem value="house">
-          <PhHouse weight="duotone" />
+        <EmStepperItem v-slot="{ isCompleted }" value="house">
+          <EmStepperIcon>
+            <PhCheck v-if="isCompleted" weight="duotone" />
+            <PhHouse v-else weight="duotone" />
+          </EmStepperIcon>
 
-          <template #completed>
-            <PhCheck weight="duotone" />
-          </template>
-
-          <template #label>
-            <EmStepperLabel>Choose House<EmStepperLabelDescription>Lorem Ipsum</EmStepperLabelDescription></EmStepperLabel>
-          </template>
+          <EmStepperLabel>Choose House<EmStepperLabelDescription>Lorem Ipsum</EmStepperLabelDescription></EmStepperLabel>
         </EmStepperItem>
 
         <EmStepperSeparator />
 
-        <EmStepperItem value="flight">
-          <PhAirplaneTilt weight="duotone" />
+        <EmStepperItem v-slot="{ isCompleted }" value="flight">
+          <EmStepperIcon>
+            <PhCheck v-if="isCompleted" weight="duotone" />
+            <PhAirplaneTilt v-else weight="duotone" />
+          </EmStepperIcon>
 
-          <template #completed>
-            <PhCheck weight="duotone" />
-          </template>
-
-          <template #label>
-            <EmStepperLabel>Choose Flight<EmStepperLabelDescription>Lorem Ipsum</EmStepperLabelDescription></EmStepperLabel>
-          </template>
+          <EmStepperLabel>Choose Flight<EmStepperLabelDescription>Lorem Ipsum</EmStepperLabelDescription></EmStepperLabel>
         </EmStepperItem>
 
         <EmStepperSeparator />
 
-        <EmStepperItem value="destination">
-          <PhMapPin weight="duotone" />
+        <EmStepperItem v-slot="{ isCompleted }" value="destination">
+          <EmStepperIcon>
+            <PhCheck v-if="isCompleted" weight="duotone" />
+            <PhMapPin v-else weight="duotone" />
+          </EmStepperIcon>
 
-          <template #completed>
-            <PhCheck weight="duotone" />
-          </template>
-
-          <template #label>
-            <EmStepperLabel>Destination<EmStepperLabelDescription>Lorem Ipsum</EmStepperLabelDescription></EmStepperLabel>
-          </template>
+          <EmStepperLabel>Destination<EmStepperLabelDescription>Lorem Ipsum</EmStepperLabelDescription></EmStepperLabel>
         </EmStepperItem>
       </EmStepper>
     </section>
@@ -1216,17 +1134,6 @@
             <EmAlertDescription>Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi, ratione debitis quis est labore voluptatibus!</EmAlertDescription>
           </EmAlertBody>
         </EmAlert>
-
-        <EmAlert variant="neutral">
-          <EmAlertIcon>
-            <PhAirplaneTilt :size="24" weight="regular" />
-          </EmAlertIcon>
-
-          <EmAlertBody>
-            <EmAlertTitle>Alert</EmAlertTitle>
-            <EmAlertDescription>Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi, ratione debitis quis est labore voluptatibus!</EmAlertDescription>
-          </EmAlertBody>
-        </EmAlert>
       </div>
     </section>
 
@@ -1269,34 +1176,22 @@
       <h2>Toast</h2>
 
       <div class="stack" style="max-width: 360px;">
-        <EmToast>
-          <EmToastIcon>
-            <PhInfo :size="16" weight="duotone" />
-          </EmToastIcon>
-
-          <EmToastBody>
-            <EmToastTitle>Successful toast</EmToastTitle>
-            <EmToastDescription>It's a violet notification state</EmToastDescription>
-          </EmToastBody>
-
-          <EmToastClose>
-            <PhX :size="12" weight="bold" />
-          </EmToastClose>
-        </EmToast>
-
         <EmToast variant="error">
           <EmToastIcon>
             <PhXCircle :size="16" weight="duotone" />
           </EmToastIcon>
 
           <EmToastBody>
-            <EmToastTitle>Successful toast</EmToastTitle>
+            <EmToastHeader>
+              <EmToastTitle>Error toast</EmToastTitle>
+
+              <EmToastClose>
+                <PhX :size="18" weight="bold" />
+              </EmToastClose>
+            </EmToastHeader>
+
             <EmToastDescription>It's a red notification state</EmToastDescription>
           </EmToastBody>
-
-          <EmToastClose>
-            <PhX :size="12" weight="bold" />
-          </EmToastClose>
         </EmToast>
 
         <EmToast variant="success">
@@ -1305,13 +1200,16 @@
           </EmToastIcon>
 
           <EmToastBody>
-            <EmToastTitle>Successful toast</EmToastTitle>
+            <EmToastHeader>
+              <EmToastTitle>Successful toast</EmToastTitle>
+
+              <EmToastClose>
+                <PhX :size="18" weight="bold" />
+              </EmToastClose>
+            </EmToastHeader>
+
             <EmToastDescription>It's a green notification state</EmToastDescription>
           </EmToastBody>
-
-          <EmToastClose>
-            <PhX :size="12" weight="bold" />
-          </EmToastClose>
         </EmToast>
 
         <EmToast variant="info">
@@ -1320,13 +1218,16 @@
           </EmToastIcon>
 
           <EmToastBody>
-            <EmToastTitle>Successful toast</EmToastTitle>
+            <EmToastHeader>
+              <EmToastTitle>Informative toast</EmToastTitle>
+
+              <EmToastClose>
+                <PhX :size="18" weight="bold" />
+              </EmToastClose>
+            </EmToastHeader>
+
             <EmToastDescription>It's a blue notification state</EmToastDescription>
           </EmToastBody>
-
-          <EmToastClose>
-            <PhX :size="12" weight="bold" />
-          </EmToastClose>
         </EmToast>
 
         <EmToast variant="warning">
@@ -1335,28 +1236,16 @@
           </EmToastIcon>
 
           <EmToastBody>
-            <EmToastTitle>Successful toast</EmToastTitle>
-            <EmToastDescription>It's an amber notification state</EmToastDescription>
+            <EmToastHeader>
+              <EmToastTitle>Warning toast</EmToastTitle>
+
+              <EmToastClose>
+                <PhX :size="18" weight="bold" />
+              </EmToastClose>
+            </EmToastHeader>
+
+            <EmToastDescription>It's a yellow notification state</EmToastDescription>
           </EmToastBody>
-
-          <EmToastClose>
-            <PhX :size="12" weight="bold" />
-          </EmToastClose>
-        </EmToast>
-
-        <EmToast variant="neutral">
-          <EmToastIcon>
-            <PhCheckCircle :size="16" weight="duotone" />
-          </EmToastIcon>
-
-          <EmToastBody>
-            <EmToastTitle>Successful toast</EmToastTitle>
-            <EmToastDescription>It's a neutral notification state</EmToastDescription>
-          </EmToastBody>
-
-          <EmToastClose>
-            <PhX :size="12" weight="bold" />
-          </EmToastClose>
         </EmToast>
       </div>
     </section>
@@ -1364,9 +1253,15 @@
     <section>
       <h2>Tooltip</h2>
 
-      <EmTooltip>
-        <EmTooltipContent position-area="top">
-          Hello, I'm Tooltip
+      <EmTooltip position-area="top">
+        <EmTooltipContent>
+          <EmTooltipHeader>
+            <EmTooltipTitle>This is a tooltip.</EmTooltipTitle>
+          </EmTooltipHeader>
+
+          <EmTooltipDescription>
+            Lorem ipsum dolor sit amet mauris incididunt praesent morbi arcu senectus nisl volutpat massa.
+          </EmTooltipDescription>
         </EmTooltipContent>
 
         <EmTooltipActivator>
@@ -1509,7 +1404,7 @@
             <EmTableCell>Starter</EmTableCell>
 
             <EmTableCell>
-              <EmTag tone="tinted" variant="success">
+              <EmTag variant="success">
                 <PhCheckCircle :size="14" weight="fill" />
                 active
               </EmTag>
@@ -1523,7 +1418,7 @@
             <EmTableCell>Pro</EmTableCell>
 
             <EmTableCell>
-              <EmTag tone="tinted" variant="warning">
+              <EmTag variant="alert">
                 <PhWarning :size="14" weight="fill" />
                 trial
               </EmTag>
@@ -1537,7 +1432,7 @@
             <EmTableCell>Enterprise</EmTableCell>
 
             <EmTableCell>
-              <EmTag tone="tinted" variant="error">
+              <EmTag variant="danger">
                 <PhXCircle :size="14" weight="fill" />
                 churned
               </EmTag>
@@ -1715,7 +1610,7 @@
   .emerald-avatar-group > :deep(.emerald-avatar) {
     border: none;
     box-shadow:
-      0 0 0 2px var(--emerald-background, #faf9ff),
+      0 0 0 2px var(--emerald-background, #fefefe),
       0 1px 2px 0 rgba(5, 0, 18, 0.1);
   }
 

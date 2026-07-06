@@ -33,14 +33,16 @@
 .emerald-accordion__item {
   display: flex;
   flex-direction: column;
-  border: 0.5px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
-  border-radius: 6px;
-  overflow: clip;
-  background: var(--emerald-secondary-50);
+  border-top: var(--emerald-stroke-s) solid var(--emerald-divider);
   transition: background-color 120ms ease;
 }
 
+.emerald-accordion__item:last-child {
+  border-bottom: var(--emerald-stroke-s) solid var(--emerald-divider);
+}
+
 .emerald-accordion__item[data-selected] {
-  background: var(--emerald-secondary-100);
+  background: var(--emerald-neutral-alpha-gray-20);
+  border-radius: var(--emerald-radius-xs);
 }
 </style>

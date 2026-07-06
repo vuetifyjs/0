@@ -1,4 +1,4 @@
-export type { EmCardProps } from './EmCard.vue'
+export type { EmCardProps, EmCardVariant } from './EmCard.vue'
 export { default as EmCard } from './EmCard.vue'
 
 export type { EmCardBodyProps } from './EmCardBody.vue'

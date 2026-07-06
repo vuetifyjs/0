@@ -23,18 +23,20 @@
   flex: 1;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px; /* TODO(token): spec header gap is 10px — no --emerald-spacing token for 10px */
   width: 100%;
-  padding: 16px 12px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-weight: 600;
-  font-size: 12px;
-  line-height: normal;
-  color: #000000;
+  padding: var(--emerald-spacing-s);
+  font: inherit;
+  color: inherit;
   background: transparent;
   border: none;
   cursor: pointer;
-  text-align: left;
+  text-align: start;
+}
+
+.emerald-accordion__trigger[data-selected] {
+  font-weight: 700;
+  color: var(--emerald-success-600);
 }
 
 .emerald-accordion__trigger[aria-disabled="true"] {

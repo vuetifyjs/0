@@ -20,11 +20,19 @@
   } = defineProps<EmListItemProps>()
 
   const emit = defineEmits<{
-    click: [event: MouseEvent]
+    click: [event: MouseEvent | KeyboardEvent]
   }>()
 
   function onClick (event: MouseEvent) {
     if (disabled) return
+    emit('click', event)
+  }
+
+  function onKeydown (event: KeyboardEvent) {
+    if (disabled || !interactive) return
+    if (event.key !== 'Enter' && event.key !== ' ') return
+
+    event.preventDefault()
     emit('click', event)
   }
 </script>
@@ -37,7 +45,9 @@
     :data-disabled="disabled || undefined"
     :data-indent="(indent && !active && !header) || undefined"
     :data-interactive="interactive || undefined"
+    :tabindex="interactive && !disabled ? 0 : undefined"
     @click="onClick"
+    @keydown="onKeydown"
   >
     <slot />
   </li>

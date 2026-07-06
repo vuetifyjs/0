@@ -58,23 +58,21 @@
 }
 
 .emerald-dialog::backdrop {
-  background: rgba(81, 81, 81, 0.3);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  background: var(--emerald-neutral-alpha-30, rgba(51, 51, 51, 0.3));
 }
 
 .emerald-dialog__content {
   display: flex;
   flex-direction: column;
-  width: 520px;
+  gap: var(--emerald-spacing-xl, 24px);
+  width: fit-content;
   max-width: 100%;
-  background: linear-gradient(to bottom, #ffffff, var(--emerald-background, #faf9ff));
-  border: 1px solid var(--emerald-primary-500, #7c5cf6);
-  border-radius: 12px;
+  padding: var(--emerald-spacing-4xl, 48px) var(--emerald-spacing-5xl, 56px);
+  background: var(--emerald-background, #fefefe);
+  border-radius: var(--emerald-radius-m, 8px);
   overflow: clip;
-  box-shadow:
-    0 3px 8px 0 rgba(5, 0, 18, 0.13),
-    0 2px 4px 0 rgba(5, 0, 18, 0.1);
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
+  box-shadow: var(--emerald-shadow-l, 0px 5px 12px -1px rgba(51, 51, 51, 0.2));
+  font-family: var(--emerald-font-sans, Manrope, system-ui, -apple-system, sans-serif);
+  color: var(--emerald-on-surface, #2b2d2e);
 }
 </style>

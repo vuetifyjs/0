@@ -24,9 +24,8 @@
   height: 12px;
   width: 100%;
   overflow: hidden;
-  border-radius: 999px;
-  border: 0.5px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
-  background: var(--emerald-secondary-50, #f4f7f9);
+  border-radius: var(--emerald-radius-full, 999px);
+  background: var(--emerald-neutral-200, #ebf0f4);
   cursor: pointer;
 }
 

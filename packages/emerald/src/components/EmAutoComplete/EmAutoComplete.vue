@@ -66,11 +66,11 @@
   position: relative;
   display: inline-flex;
   flex-direction: column;
-  gap: 4px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 12px;
-  line-height: 20px;
-  color: #000000;
+  gap: var(--emerald-spacing-2xs);
+  font-family: var(--emerald-font-sans);
+  font-size: var(--emerald-text-b1-size);
+  line-height: var(--emerald-text-b1-height);
+  color: var(--emerald-on-surface);
 }
 
 .emerald-auto-complete[data-disabled] {

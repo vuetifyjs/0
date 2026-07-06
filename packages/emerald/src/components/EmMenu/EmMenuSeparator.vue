@@ -20,12 +20,12 @@
 .emerald-menu__separator-wrapper {
   display: flex;
   align-items: center;
-  padding: 8px;
+  height: var(--emerald-spacing-m);
+  padding: 0 var(--emerald-spacing-2xs);
 }
 
 .emerald-menu__separator {
   flex: 1;
-  height: 0.5px;
-  background: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
+  border-top: var(--emerald-stroke-s) dashed var(--emerald-divider);
 }
 </style>

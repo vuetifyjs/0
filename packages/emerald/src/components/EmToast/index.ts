@@ -10,6 +10,9 @@ export { default as EmToastClose } from './EmToastClose.vue'
 export type { EmToastDescriptionProps } from './EmToastDescription.vue'
 export { default as EmToastDescription } from './EmToastDescription.vue'
 
+export type { EmToastHeaderProps } from './EmToastHeader.vue'
+export { default as EmToastHeader } from './EmToastHeader.vue'
+
 export type { EmToastIconProps } from './EmToastIcon.vue'
 export { default as EmToastIcon } from './EmToastIcon.vue'
 

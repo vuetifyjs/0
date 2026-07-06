@@ -4,9 +4,6 @@ export { default as EmAlert } from './EmAlert.vue'
 export type { EmAlertBodyProps } from './EmAlertBody.vue'
 export { default as EmAlertBody } from './EmAlertBody.vue'
 
-export type { EmAlertCloseProps } from './EmAlertClose.vue'
-export { default as EmAlertClose } from './EmAlertClose.vue'
-
 export type { EmAlertDescriptionProps } from './EmAlertDescription.vue'
 export { default as EmAlertDescription } from './EmAlertDescription.vue'
 

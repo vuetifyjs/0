@@ -1,4 +1,10 @@
 <script lang="ts">
+  // Framework
+  import { isNumber } from '@vuetify/v0'
+
+  // Utilities
+  import { toRef } from 'vue'
+
   export type EmTableHeaderAlign = 'start' | 'center' | 'end'
   export type EmTableHeaderSort = 'ascending' | 'descending' | 'none'
 
@@ -7,6 +13,7 @@
     scope?: 'col' | 'row'
     sortable?: boolean
     sort?: EmTableHeaderSort
+    order?: number
     filterable?: boolean
   }
 </script>
@@ -19,6 +26,7 @@
     scope = 'col',
     sortable = false,
     sort = 'none',
+    order,
     filterable = false,
   } = defineProps<EmTableHeaderProps>()
 
@@ -26,6 +34,8 @@
     sort: []
     filter: []
   }>()
+
+  const ordered = toRef(() => sortable && sort !== 'none' && isNumber(order))
 
   function onSort () {
     if (sortable) emit('sort')
@@ -56,8 +66,32 @@
         <span><slot /></span>
 
         <span class="emerald-table__header-sort">
-          <slot name="sort-icon" />
+          <svg
+            fill="none"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M6 8.125 10 4.125 14 8.125"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+            />
+
+            <path
+              d="M6 11.875 10 15.875 14 11.875"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+            />
+          </svg>
         </span>
+
+        <span
+          v-if="ordered"
+          class="emerald-table__header-order"
+        >{{ order }}</span>
       </button>
 
       <span
@@ -74,7 +108,18 @@
         type="button"
         @click="onFilter"
       >
-        <slot name="filter-icon" />
+        <svg
+          fill="none"
+          viewBox="0 0 20 20"
+        >
+          <path
+            d="M3.5 4.5h13l-5 5.75v4.5l-3-1.75v-2.75l-5-5.75Z"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+          />
+        </svg>
       </button>
     </div>
   </th>
@@ -82,16 +127,19 @@
 
 <style>
 .emerald-table__header {
-  padding: 12px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
+  padding: var(--emerald-spacing-xs) var(--emerald-spacing-s);
   font-weight: 600;
-  font-size: 12px;
-  line-height: normal;
-  letter-spacing: 0.24px;
-  color: #000;
-  text-align: left;
+  background: var(--emerald-neutral-200);
+  text-align: start;
   vertical-align: middle;
   white-space: nowrap;
+  transition: background 120ms ease;
+}
+
+.emerald-table__header[data-sortable]:hover,
+.emerald-table__header[data-sort="ascending"],
+.emerald-table__header[data-sort="descending"] {
+  background: var(--emerald-neutral-300);
 }
 
 .emerald-table__header[data-align="center"] {
@@ -103,7 +151,7 @@
 }
 
 .emerald-table__header[data-align="end"] {
-  text-align: right;
+  text-align: end;
 }
 
 .emerald-table__header[data-align="end"] .emerald-table__header-inner {
@@ -113,14 +161,14 @@
 .emerald-table__header-inner {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--emerald-spacing-xs);
   width: 100%;
 }
 
 .emerald-table__header-label {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--emerald-spacing-xs);
   padding: 0;
   margin: 0;
   background: none;
@@ -136,20 +184,18 @@
   cursor: pointer;
 }
 
-.emerald-table__header[data-sortable] .emerald-table__header-label:hover {
-  color: var(--emerald-primary-600, #6446e4);
-}
-
-.emerald-table__header[data-sort="ascending"] .emerald-table__header-label,
-.emerald-table__header[data-sort="descending"] .emerald-table__header-label {
-  color: var(--emerald-primary-600, #6446e4);
-}
-
 .emerald-table__header-sort {
   display: inline-flex;
   align-items: center;
+  width: 20px;
+  height: 20px;
   color: currentColor;
   opacity: 0.6;
+}
+
+.emerald-table__header-sort svg {
+  width: 100%;
+  height: 100%;
 }
 
 .emerald-table__header[data-sort="ascending"] .emerald-table__header-sort,
@@ -157,24 +203,33 @@
   opacity: 1;
 }
 
+.emerald-table__header-order {
+  font: inherit;
+}
+
 .emerald-table__header-filter {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   padding: 0;
-  margin-left: auto;
+  margin-inline-start: auto;
   background: none;
   border: 0;
   color: inherit;
   opacity: 0.6;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: var(--emerald-radius-2xs);
+}
+
+.emerald-table__header-filter svg {
+  width: 100%;
+  height: 100%;
 }
 
 .emerald-table__header-filter:hover {
   opacity: 1;
-  background: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.06);
+  background: var(--emerald-neutral-alpha-10);
 }
 </style>

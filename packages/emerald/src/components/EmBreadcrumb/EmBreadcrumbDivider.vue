@@ -19,7 +19,25 @@
     :divider
   >
     <template #default="slotProps">
-      <slot v-bind="slotProps" />
+      <slot v-bind="slotProps">
+        <template v-if="slotProps.divider">{{ slotProps.divider }}</template>
+
+        <svg
+          v-else
+          class="emerald-breadcrumb__icon"
+          fill="none"
+          viewBox="0 0 18 18"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M6.75 3.75 12 9l-5.25 5.25"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+          />
+        </svg>
+      </slot>
     </template>
   </BreadcrumbsDivider>
 </template>
@@ -29,15 +47,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
-  color: rgb(var(--emerald-on-background-channels, 26 18 48) / 0.5);
+  height: 24px;
+  padding: 0 var(--emerald-spacing-2xs, 4px);
+  color: inherit;
   user-select: none;
   flex-shrink: 0;
 }
 
-.emerald-breadcrumb__divider :deep(svg) {
-  width: 16px;
-  height: 16px;
+.emerald-breadcrumb__divider svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 </style>

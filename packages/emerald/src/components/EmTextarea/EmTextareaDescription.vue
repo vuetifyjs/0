@@ -17,10 +17,10 @@
 
 <style>
 .emerald-textarea__description {
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 11px;
-  font-weight: 400;
-  line-height: 16px;
-  color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.6);
+  font-family: var(--emerald-font-sans, Manrope, system-ui, -apple-system, sans-serif);
+  font-size: var(--emerald-text-b3-size, 12px);
+  font-weight: var(--emerald-text-b3-weight, 400);
+  line-height: var(--emerald-text-b3-height, 18px);
+  color: var(--emerald-neutral-700, #757e85);
 }
 </style>

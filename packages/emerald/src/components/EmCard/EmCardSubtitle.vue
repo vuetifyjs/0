@@ -12,13 +12,10 @@
   </p>
 </template>
 
-<style>
+<style scoped>
 .emerald-card__subtitle {
   margin: 0;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 21.7px;
-  color: rgb(var(--emerald-neutral-700-channels, 30 28 40) / 0.5);
+  font: var(--emerald-text-b2-weight) var(--emerald-text-b2-size) / var(--emerald-text-b2-height) var(--emerald-font-sans);
+  color: var(--emerald-neutral-700);
 }
 </style>

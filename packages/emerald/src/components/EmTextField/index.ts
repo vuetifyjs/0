@@ -13,6 +13,9 @@ export { default as EmTextFieldDescription } from './EmTextFieldDescription.vue'
 export type { EmTextFieldErrorProps } from './EmTextFieldError.vue'
 export { default as EmTextFieldError } from './EmTextFieldError.vue'
 
+export type { EmTextFieldInfoProps } from './EmTextFieldInfo.vue'
+export { default as EmTextFieldInfo } from './EmTextFieldInfo.vue'
+
 export type { EmTextFieldLabelProps } from './EmTextFieldLabel.vue'
 export { default as EmTextFieldLabel } from './EmTextFieldLabel.vue'
 

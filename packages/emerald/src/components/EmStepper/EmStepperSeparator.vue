@@ -15,16 +15,8 @@
 
 <style>
 .emerald-stepper__separator {
-  height: 2px;
-  width: 64px;
-  border-radius: 8px;
-  background: rgb(var(--emerald-neutral-channels) / 0.1);
-  flex-shrink: 0;
-  transition: background 120ms ease;
-}
-
-/* Separator turns green when it follows a completed step */
-.emerald-stepper__item[data-completed] + .emerald-stepper__separator {
-  background: var(--emerald-success-100);
+  height: var(--emerald-stroke-m);
+  flex: 1 0 64px;
+  background: var(--emerald-divider);
 }
 </style>

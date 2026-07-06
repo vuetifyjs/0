@@ -67,9 +67,9 @@
   grid-template-columns: auto 1fr auto;
   grid-template-rows: 1fr auto;
   align-items: center;
-  gap: 14px 12px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  color: #000000;
+  gap: 14px var(--emerald-spacing-s);
+  font-family: var(--emerald-font-sans, Manrope, system-ui, -apple-system, sans-serif);
+  color: var(--emerald-on-surface);
 }
 
 .emerald-carousel[data-orientation="vertical"] {

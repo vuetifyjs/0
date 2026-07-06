@@ -62,10 +62,8 @@
 .emerald-progress {
   position: relative;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 205px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  flex-wrap: nowrap;
+  flex-direction: column;
+  gap: var(--emerald-spacing-2xs, 4px);
+  font-family: var(--emerald-font-sans, Manrope, system-ui, -apple-system, sans-serif);
 }
 </style>

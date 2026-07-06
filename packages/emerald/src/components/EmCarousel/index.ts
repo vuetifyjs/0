@@ -4,6 +4,9 @@ export { default as EmCarousel } from './EmCarousel.vue'
 export type { EmCarouselIndicatorProps } from './EmCarouselIndicator.vue'
 export { default as EmCarouselIndicator } from './EmCarouselIndicator.vue'
 
+export type { EmCarouselIndicatorItemProps } from './EmCarouselIndicatorItem.vue'
+export { default as EmCarouselIndicatorItem } from './EmCarouselIndicatorItem.vue'
+
 export type { EmCarouselItemProps } from './EmCarouselItem.vue'
 export { default as EmCarouselItem } from './EmCarouselItem.vue'
 

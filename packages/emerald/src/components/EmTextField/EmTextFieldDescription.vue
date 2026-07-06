@@ -17,9 +17,13 @@
 
 <style>
 .emerald-text-field__description {
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 12px;
-  line-height: 18px;
-  color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.6);
+  font-size: var(--emerald-text-b3-size, 12px);
+  font-weight: var(--emerald-text-b3-weight, 400);
+  line-height: var(--emerald-text-b3-height, 18px);
+  color: var(--emerald-neutral-700, #757E85);
+}
+
+.emerald-text-field [data-state="invalid"] .emerald-text-field__description {
+  color: var(--emerald-danger-600, #A1000E);
 }
 </style>

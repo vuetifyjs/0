@@ -2,6 +2,7 @@
   import { V0Paper } from '@vuetify/paper'
 
   // Context
+  import EmButtonContent from './EmButtonContent.vue'
   import EmButtonLoader from './EmButtonLoader.vue'
 
   // Types
@@ -9,10 +10,13 @@
 
   export type EmButtonSize = 'sm' | 'md' | 'lg'
 
+  export type EmButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'destructive'
+
   export interface EmButtonProps extends V0PaperProps {
     disabled?: boolean
     loading?: boolean
     size?: EmButtonSize
+    variant?: EmButtonVariant
     type?: 'button' | 'submit' | 'reset'
     href?: string
   }
@@ -25,6 +29,7 @@
     disabled = false,
     loading = false,
     size = 'md',
+    variant = 'primary',
     type = 'button',
     href,
     ...paperProps
@@ -35,7 +40,11 @@
   }>()
 
   function onClick (event: MouseEvent) {
-    if (disabled || loading) return
+    if (disabled || loading) {
+      event.preventDefault()
+
+      return
+    }
 
     emit('click', event)
   }
@@ -51,8 +60,9 @@
     :data-disabled="(disabled || loading) || undefined"
     :data-loading="loading || undefined"
     :data-size="size"
+    :data-variant="variant"
     :disabled="(disabled || loading) || undefined"
-    :href
+    :href="(disabled || loading) ? undefined : href"
     :type="href ? undefined : type"
     @click="onClick"
   >
@@ -60,9 +70,9 @@
       <EmButtonLoader />
     </span>
 
-    <span :class="['emerald-button__content', loading && 'emerald-button__content--hidden']">
+    <EmButtonContent :class="loading && 'emerald-button__content--hidden'">
       <slot />
-    </span>
+    </EmButtonContent>
   </V0Paper>
 </template>
 
@@ -71,72 +81,169 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-weight: 500;
-  border: none;
+  gap: var(--emerald-spacing-xs);
+  padding: var(--emerald-spacing-xs) var(--emerald-spacing-s);
+  border: var(--emerald-stroke-s) solid transparent;
+  border-radius: var(--emerald-radius-m);
+  font-family: var(--emerald-font-sans);
+  text-decoration: none;
   cursor: pointer;
   user-select: none;
-  background: var(--emerald-primary-500);
-  color: var(--emerald-primary-100);
-  box-shadow: none;
-  transition: background-color 120ms ease, box-shadow 120ms ease, transform 80ms ease;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
 }
 
+/* Sizes — shared padding/radius/gap; only typography and icon boxes scale */
 .emerald-button[data-size="sm"] {
-  padding: 4.5px 9px;
-  border-radius: 3px;
-  font-size: 10.5px;
-  line-height: 15px;
-  gap: 6px;
+  font-size: var(--emerald-text-b3-size);
+  line-height: var(--emerald-text-b3-height);
+  font-weight: var(--emerald-text-b3-bold-weight);
 }
 
 .emerald-button[data-size="md"] {
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  line-height: 20px;
-  gap: 8px;
+  font-size: var(--emerald-text-b2-size);
+  line-height: var(--emerald-text-b2-height);
+  font-weight: var(--emerald-text-b2-bold-weight);
 }
 
 .emerald-button[data-size="lg"] {
-  padding: 7.5px 15px;
-  border-radius: 5px;
-  font-size: 17.5px;
-  line-height: 25px;
-  gap: 10px;
+  font-size: var(--emerald-text-b1-size);
+  line-height: var(--emerald-text-b1-height);
+  font-weight: var(--emerald-text-b1-bold-weight);
 }
 
-.emerald-button:hover:not([data-disabled]):not(:active) {
+/* Icon boxes — spec fixes 18px (S) / 20px (M) / 24px (L) */
+.emerald-button :deep(.emerald-button__prepend),
+.emerald-button :deep(.emerald-button__append) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.emerald-button[data-size="sm"] :deep(.emerald-button__prepend),
+.emerald-button[data-size="sm"] :deep(.emerald-button__append) {
+  width: var(--emerald-icon-s);
+  height: var(--emerald-icon-s);
+}
+
+.emerald-button[data-size="md"] :deep(.emerald-button__prepend),
+.emerald-button[data-size="md"] :deep(.emerald-button__append) {
+  width: var(--emerald-icon-m);
+  height: var(--emerald-icon-m);
+}
+
+.emerald-button[data-size="lg"] :deep(.emerald-button__prepend),
+.emerald-button[data-size="lg"] :deep(.emerald-button__append) {
+  width: var(--emerald-icon-l);
+  height: var(--emerald-icon-l);
+}
+
+/* Primary — green fill */
+.emerald-button[data-variant="primary"] {
+  background: var(--emerald-primary-600);
+  color: var(--emerald-on-primary);
+}
+
+.emerald-button[data-variant="primary"]:hover:not([data-disabled]):not(:active) {
   background: var(--emerald-primary-700);
-  color: var(--emerald-primary-200);
-  box-shadow:
-    0 2px 4px 0 rgb(var(--emerald-primary-700-channels) / 0.32),
-    0 3px 8px 0 rgb(var(--emerald-primary-700-channels) / 0.22);
 }
 
-.emerald-button:active:not([data-disabled]) {
-  background: var(--emerald-primary-900);
-  color: var(--emerald-primary-100);
-  transform: scale(0.95);
-  box-shadow: none;
+.emerald-button[data-variant="primary"]:active:not([data-disabled]) {
+  background: var(--emerald-primary-800);
 }
 
-.emerald-button:focus-visible {
-  outline: 2px solid var(--emerald-primary-500);
-  outline-offset: 2px;
+.emerald-button[data-variant="primary"][data-disabled] {
+  background: var(--emerald-neutral-300);
 }
 
+.emerald-button[data-variant="primary"]:focus-visible {
+  outline: var(--emerald-stroke-m) solid var(--emerald-primary-600);
+  outline-offset: 0;
+}
+
+/* Secondary — cyan outline, transparent fill */
+.emerald-button[data-variant="secondary"] {
+  background: transparent;
+  border-color: var(--emerald-secondary-600);
+  color: var(--emerald-secondary-600);
+}
+
+.emerald-button[data-variant="secondary"]:hover:not([data-disabled]):not(:active) {
+  border-color: var(--emerald-secondary-700);
+  color: var(--emerald-secondary-700);
+}
+
+.emerald-button[data-variant="secondary"]:active:not([data-disabled]) {
+  border-color: var(--emerald-secondary-800);
+  color: var(--emerald-secondary-800);
+}
+
+.emerald-button[data-variant="secondary"][data-disabled] {
+  border-color: var(--emerald-neutral-400);
+  color: var(--emerald-neutral-400);
+}
+
+.emerald-button[data-variant="secondary"]:focus-visible {
+  outline: var(--emerald-stroke-m) solid var(--emerald-secondary-600);
+  outline-offset: 1px;
+}
+
+/* Tertiary ("Ghost") — borderless text button */
+.emerald-button[data-variant="tertiary"] {
+  background: transparent;
+  color: var(--emerald-neutral-900);
+}
+
+.emerald-button[data-variant="tertiary"]:hover:not([data-disabled]):not(:active) {
+  background: var(--emerald-neutral-200);
+}
+
+.emerald-button[data-variant="tertiary"]:active:not([data-disabled]) {
+  background: var(--emerald-neutral-300);
+}
+
+.emerald-button[data-variant="tertiary"][data-disabled] {
+  color: var(--emerald-neutral-400);
+}
+
+.emerald-button[data-variant="tertiary"]:focus-visible {
+  background: var(--emerald-neutral-200);
+  box-shadow: inset 0 0 0 var(--emerald-stroke-l) var(--emerald-neutral-600);
+  outline: none;
+}
+
+/* Destructive — red fill */
+.emerald-button[data-variant="destructive"] {
+  background: var(--emerald-danger-400);
+  color: var(--emerald-on-danger);
+}
+
+.emerald-button[data-variant="destructive"]:hover:not([data-disabled]):not(:active) {
+  background: var(--emerald-danger-500);
+}
+
+.emerald-button[data-variant="destructive"]:active:not([data-disabled]) {
+  background: var(--emerald-danger-600);
+}
+
+.emerald-button[data-variant="destructive"][data-disabled] {
+  background: var(--emerald-neutral-300);
+}
+
+.emerald-button[data-variant="destructive"]:focus-visible {
+  outline: var(--emerald-stroke-m) solid var(--emerald-danger-400);
+  outline-offset: 0;
+}
+
+/* States */
 .emerald-button[data-disabled] {
-  opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
-  box-shadow: none;
 }
 
 .emerald-button[data-loading] {
   position: relative;
   cursor: progress;
-  box-shadow: none;
 }
 
 .emerald-button__content {

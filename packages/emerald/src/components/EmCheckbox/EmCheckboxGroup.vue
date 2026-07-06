@@ -42,6 +42,6 @@
 .emerald-checkbox-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--emerald-spacing-xs);
 }
 </style>

@@ -11,17 +11,19 @@
 
 <template>
   <DialogDescription class="emerald-dialog__description">
-    <slot />
+    <template #default="slotProps">
+      <slot v-bind="slotProps" />
+    </template>
   </DialogDescription>
 </template>
 
 <style>
 .emerald-dialog__description {
   margin: 0;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 24px;
-  color: rgb(var(--emerald-neutral-700-channels, 30 28 40) / 0.6);
+  font-size: var(--emerald-text-b1-size, 16px);
+  font-weight: var(--emerald-text-b1-weight, 400);
+  line-height: var(--emerald-text-b1-height, 24px);
+  overflow-wrap: break-word;
+  color: var(--emerald-neutral-700, #757e85);
 }
 </style>

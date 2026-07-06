@@ -32,11 +32,12 @@
 <template>
   <V0Paper
     v-bind="paperProps"
-    as="nav"
+    as="div"
     class="emerald-pagination"
   >
     <PaginationRoot
       v-model="page"
+      class="emerald-pagination__nav"
       :ellipsis
       :items-per-page
       :size
@@ -51,22 +52,19 @@
 
 <style>
 .emerald-pagination {
-  width: fit-content;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 12px;
-  line-height: 20px;
-  color: var(--emerald-on-background, #1a1230);
-}
-
-.emerald-pagination > nav,
-.emerald-pagination {
   display: inline-flex;
   align-items: center;
-  gap: 0;
+  width: fit-content;
+  font-family: var(--emerald-font-sans);
+  font-size: var(--emerald-text-b2-size);
+  font-weight: var(--emerald-text-b2-weight);
+  line-height: var(--emerald-text-b2-height);
+  color: var(--emerald-on-background);
 }
 
-.emerald-pagination__prev,
-.emerald-pagination__next {
-  margin: 0 8px;
+.emerald-pagination__nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--emerald-spacing-s);
 }
 </style>

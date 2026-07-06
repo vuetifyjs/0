@@ -33,37 +33,36 @@
 .emerald-auto-complete__item {
   display: flex;
   align-items: center;
+  gap: var(--emerald-spacing-xs);
   min-height: 36px;
-  padding: 8px 12px;
-  border-left: 1px solid transparent;
-  border-radius: 0 6px 6px 0;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 20px;
-  color: var(--emerald-primary-950);
+  padding: var(--emerald-spacing-xs) var(--emerald-spacing-s);
+  background: var(--emerald-background);
+  border-inline-start: var(--emerald-stroke-s) solid var(--emerald-divider);
+  border-start-end-radius: var(--emerald-radius-xs);
+  border-end-end-radius: var(--emerald-radius-xs);
+  font-family: var(--emerald-font-sans);
+  font-size: var(--emerald-text-b1-size);
+  font-weight: var(--emerald-text-b1-weight);
+  line-height: var(--emerald-text-b1-height);
+  color: var(--emerald-on-surface);
   cursor: pointer;
   user-select: none;
-  transition: background-color 120ms ease, color 120ms ease;
+  transition: background-color 120ms ease, border-color 120ms ease;
 }
 
-.emerald-auto-complete__item[data-focused],
-.emerald-auto-complete__item:hover {
-  background: var(--emerald-primary-100);
-  border-left-color: var(--emerald-primary-500);
-  color: var(--emerald-primary-500);
-  font-weight: 500;
+.emerald-auto-complete__item[data-focused]:not([data-selected]),
+.emerald-auto-complete__item:hover:not([data-selected]) {
+  background: var(--emerald-neutral-200);
+  border-inline-start-color: var(--emerald-neutral-600);
 }
 
 .emerald-auto-complete__item[data-selected] {
   background: var(--emerald-primary-100);
-  border-left-color: var(--emerald-primary-500);
-  color: var(--emerald-primary-500);
-  font-weight: 500;
+  border-inline-start-color: var(--emerald-primary-600);
 }
 
 .emerald-auto-complete__item[data-disabled] {
-  opacity: 0.5;
+  color: var(--emerald-neutral-400);
   pointer-events: none;
 }
 </style>

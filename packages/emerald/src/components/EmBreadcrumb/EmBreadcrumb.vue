@@ -10,6 +10,7 @@
   export interface EmBreadcrumbProps extends V0PaperProps {
     divider?: string
     ellipsis?: string
+    gap?: number
     label?: string
   }
 </script>
@@ -18,8 +19,9 @@
   defineOptions({ name: 'EmBreadcrumb' })
 
   const {
-    divider = '/',
-    ellipsis = '…',
+    divider = '',
+    ellipsis = '',
+    gap = 4,
     label = 'Breadcrumb',
     ...paperProps
   } = defineProps<EmBreadcrumbProps>()
@@ -28,12 +30,13 @@
 <template>
   <V0Paper
     v-bind="paperProps"
-    as="nav"
+    as="div"
     class="emerald-breadcrumb"
   >
     <BreadcrumbsRoot
       :divider
       :ellipsis
+      :gap
       :label
     >
       <template #default="slotProps">
@@ -45,9 +48,10 @@
 
 <style>
 .emerald-breadcrumb {
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 14px;
-  line-height: normal;
-  color: var(--emerald-on-background, #1a1230);
+  font-family: var(--emerald-font-sans, Manrope, system-ui, -apple-system, sans-serif);
+  font-size: var(--emerald-text-b2-size, 14px);
+  font-weight: var(--emerald-text-b2-weight, 400);
+  line-height: var(--emerald-text-b2-height, 21px);
+  color: var(--emerald-on-background, #2b2d2e);
 }
 </style>

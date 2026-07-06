@@ -35,13 +35,12 @@
   outline: none;
   background: transparent;
   font-family: inherit;
-  font-size: 12px;
-  line-height: 20px;
-  color: #000000;
+  font-size: var(--emerald-text-b1-size);
+  line-height: var(--emerald-text-b1-height);
+  color: var(--emerald-on-surface);
 }
 
 .emerald-auto-complete__input::placeholder {
-  color: #000000;
-  opacity: 0.3;
+  color: var(--emerald-neutral-500);
 }
 </style>

@@ -22,7 +22,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--emerald-spacing-2xs, 4px);
   margin: 0;
   padding: 0;
   list-style: none;

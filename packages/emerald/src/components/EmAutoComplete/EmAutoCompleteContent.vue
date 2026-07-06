@@ -26,17 +26,16 @@
   flex-direction: column;
   align-items: stretch;
   width: anchor-size(width);
-  padding: 8px;
-  border: 1px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
-  border-radius: 8px;
-  background: #ffffff;
-  box-shadow:
-    0 2px 4px rgba(5, 0, 18, 0.1),
-    0 3px 8px rgba(5, 0, 18, 0.13);
-  margin-top: 4px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 12px;
-  line-height: 20px;
+  padding: var(--emerald-spacing-xs) var(--emerald-spacing-xs) var(--emerald-spacing-m);
+  border: var(--emerald-stroke-s) solid var(--emerald-neutral-alpha-gray-20);
+  border-radius: var(--emerald-radius-m);
+  background: var(--emerald-surface);
+  box-shadow: var(--emerald-shadow-m);
+  margin-top: var(--emerald-spacing-2xs);
+  font-family: var(--emerald-font-sans);
+  font-size: var(--emerald-text-b1-size);
+  line-height: var(--emerald-text-b1-height);
+  color: var(--emerald-on-surface);
 }
 
 .emerald-auto-complete__content:popover-open {

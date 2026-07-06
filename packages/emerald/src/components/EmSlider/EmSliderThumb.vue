@@ -23,15 +23,14 @@
 
 <style>
 .emerald-slider__thumb {
+  --emerald-slider-thumb-shadow: var(--emerald-shadow-thumb, 0 1px 3px 0 rgba(5, 0, 18, 0.12), 0 1px 5px 0 rgba(5, 0, 18, 0.2));
   position: absolute;
   display: block;
   width: 8px;
   height: 8px;
-  border-radius: 999px;
-  background: #ffffff;
-  box-shadow:
-    0 1px 3px 0 rgba(5, 0, 18, 0.12),
-    0 1px 5px 0 rgba(5, 0, 18, 0.2);
+  border-radius: var(--emerald-radius-full, 999px);
+  background: var(--emerald-neutral-100, #fefefe);
+  box-shadow: var(--emerald-slider-thumb-shadow);
   cursor: grab;
   transform: translate(-50%, -50%);
   top: 50%;
@@ -45,8 +44,10 @@
 }
 
 .emerald-slider__thumb:focus-visible {
-  outline: 2px solid var(--emerald-primary-500, #3b82f6);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow:
+    var(--emerald-slider-thumb-shadow),
+    var(--emerald-shadow-focus, 0 0 0 5px rgba(38, 194, 109, 0.2));
 }
 
 .emerald-slider__thumb[data-state="dragging"] {

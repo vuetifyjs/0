@@ -10,24 +10,38 @@
 <script setup lang="ts">
   defineOptions({ name: 'EmTextFieldLabel' })
 
+  const { for: forId } = defineProps<EmTextFieldLabelProps>()
+
   const root = useInputRoot('v0:input:root')
 </script>
 
 <template>
   <label
     class="emerald-text-field__label"
-    :for="root.id as string"
+    :for="forId ?? String(root.id)"
   >
     <slot />
+
+    <span
+      v-if="root.required"
+      aria-hidden="true"
+      class="emerald-text-field__mandatory"
+    >*</span>
   </label>
 </template>
 
 <style>
 .emerald-text-field__label {
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 20px;
-  color: var(--emerald-primary-950, #221065);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--emerald-spacing-2xs, 4px);
+  font-size: var(--emerald-text-b1-size, 16px);
+  font-weight: var(--emerald-text-b1-bold-weight, 700);
+  line-height: var(--emerald-text-b1-height, 24px);
+  color: var(--emerald-neutral-1000, #2B2D2E);
+}
+
+.emerald-text-field__mandatory {
+  color: var(--emerald-danger-600, #A1000E);
 }
 </style>

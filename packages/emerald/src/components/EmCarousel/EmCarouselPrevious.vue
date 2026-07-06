@@ -12,7 +12,30 @@
 <template>
   <CarouselPrevious class="emerald-carousel__previous">
     <template #default="slotProps">
-      <slot v-bind="slotProps" />
+      <slot v-bind="slotProps">
+        <svg
+          class="emerald-carousel__caret"
+          fill="none"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="m18 17-5-5 5-5"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          />
+
+          <path
+            d="m11 17-5-5 5-5"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          />
+        </svg>
+      </slot>
     </template>
   </CarouselPrevious>
 </template>
@@ -24,18 +47,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
+  width: 40px;
+  height: 40px;
+  padding: var(--emerald-spacing-xs);
   background: transparent;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--emerald-radius-s);
   color: var(--emerald-neutral-800);
   cursor: pointer;
   transition: background 120ms ease, color 120ms ease, opacity 120ms ease;
 }
 
-.emerald-carousel__previous:hover:not([aria-disabled="true"]) {
+.emerald-carousel__caret {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.emerald-carousel__previous:hover:not([data-disabled]) {
   background: rgb(var(--emerald-neutral-channels) / 0.06);
 }
 
@@ -44,7 +73,7 @@
   outline-offset: 2px;
 }
 
-.emerald-carousel__previous[aria-disabled="true"] {
+.emerald-carousel__previous[data-disabled] {
   opacity: 0.35;
   cursor: not-allowed;
 }

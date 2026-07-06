@@ -17,11 +17,15 @@
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
-  line-height: 1.3;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-weight: 700;
-  font-size: 12px;
-  color: var(--emerald-neutral-700, #4b5563);
+  gap: var(--emerald-spacing-3xs);
+  font-size: var(--emerald-text-b2-size);
+  line-height: var(--emerald-text-b2-height);
+  font-weight: var(--emerald-text-b2-bold-weight);
+  color: var(--emerald-on-background);
+}
+
+/* Spec: label + description render only on the current step */
+.emerald-stepper__item:not([data-selected]) .emerald-stepper__label {
+  display: none;
 }
 </style>

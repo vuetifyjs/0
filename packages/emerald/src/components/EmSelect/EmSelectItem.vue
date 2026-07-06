@@ -2,12 +2,9 @@
   // Framework
   import { SelectItem } from '@vuetify/v0'
 
-  // Types
-  import type { MaybeRefOrGetter } from 'vue'
-
   export interface EmSelectItemProps {
     value?: unknown
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean
   }
 </script>
 
@@ -33,33 +30,29 @@
 .emerald-select__item {
   display: flex;
   align-items: center;
-  min-height: 36px;
-  padding: 8px 12px;
-  border-left: 1px solid transparent;
-  border-radius: 0 6px 6px 0;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
-  color: var(--emerald-primary-950);
+  padding: var(--emerald-spacing-xs) var(--emerald-spacing-s);
+  border-left: var(--emerald-stroke-s) solid var(--emerald-neutral-300);
+  border-radius: 0 var(--emerald-radius-xs) var(--emerald-radius-xs) 0;
+  background: var(--emerald-neutral-100);
+  font-family: var(--emerald-font-sans);
+  font-size: var(--emerald-text-b1-size);
+  font-weight: var(--emerald-text-b1-weight);
+  line-height: var(--emerald-text-b1-height);
+  color: var(--emerald-on-surface);
   cursor: pointer;
   user-select: none;
-  transition: background-color 120ms ease, color 120ms ease;
+  transition: background-color 120ms ease, border-color 120ms ease;
 }
 
 .emerald-select__item[data-focused],
 .emerald-select__item:hover {
-  background: var(--emerald-primary-100);
-  border-left-color: var(--emerald-primary-500);
-  color: var(--emerald-primary-500);
-  font-weight: 500;
+  background: var(--emerald-neutral-200);
+  border-left-color: var(--emerald-neutral-600);
 }
 
 .emerald-select__item[data-selected] {
   background: var(--emerald-primary-100);
-  border-left-color: var(--emerald-primary-500);
-  color: var(--emerald-primary-500);
-  font-weight: 500;
+  border-left-color: var(--emerald-primary-600);
 }
 
 .emerald-select__item[data-disabled] {

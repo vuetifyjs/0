@@ -34,25 +34,26 @@
 .emerald-table-wrapper {
   box-sizing: border-box;
   width: 100%;
-  background: #fff;
+  background: var(--emerald-surface);
   overflow-x: auto;
 }
 
 .emerald-table-wrapper[data-bordered] {
-  padding: 12px;
-  border: 1px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
-  border-radius: 6px;
+  padding: var(--emerald-spacing-l);
+  border: var(--emerald-stroke-s) solid var(--emerald-neutral-alpha-10);
+  border-radius: var(--emerald-radius-s);
 }
 
 .emerald-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 12px;
-  line-height: normal;
-  letter-spacing: 0.24px;
-  color: #000;
-  text-align: left;
+  font-family: var(--emerald-font-sans);
+  font-size: var(--emerald-text-b2-size);
+  font-weight: var(--emerald-text-b2-weight);
+  line-height: var(--emerald-text-b2-height);
+  letter-spacing: 0;
+  color: var(--emerald-on-surface);
+  text-align: start;
 }
 </style>

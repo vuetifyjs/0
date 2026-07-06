@@ -22,10 +22,10 @@
   flex: 1 1 auto;
   min-width: 0;
   font-family: inherit;
-  font-size: 12px;
-  line-height: 20px;
-  color: #000000;
-  opacity: 0.3;
+  font-size: var(--emerald-text-b1-size);
+  font-weight: var(--emerald-text-b1-weight);
+  line-height: var(--emerald-text-b1-height);
+  color: var(--emerald-neutral-500);
   text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;

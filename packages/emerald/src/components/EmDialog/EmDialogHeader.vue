@@ -15,8 +15,17 @@
 <style>
 .emerald-dialog__header {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 24px 24px 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--emerald-spacing-xs, 8px);
+}
+
+.emerald-dialog__header > .emerald-dialog__title {
+  flex: 1 1 0;
+  min-width: 1px;
+}
+
+.emerald-dialog__header > .emerald-dialog__description {
+  width: 100%;
 }
 </style>

@@ -12,7 +12,21 @@
 <template>
   <BreadcrumbsEllipsis class="emerald-breadcrumb__ellipsis">
     <template #default="slotProps">
-      <slot v-bind="slotProps" />
+      <slot v-bind="slotProps">
+        <template v-if="slotProps.ellipsis">{{ slotProps.ellipsis }}</template>
+
+        <svg
+          v-else
+          class="emerald-breadcrumb__icon"
+          fill="currentColor"
+          viewBox="0 0 18 18"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle cx="4.5" cy="9" r="1.5" />
+          <circle cx="9" cy="9" r="1.5" />
+          <circle cx="13.5" cy="9" r="1.5" />
+        </svg>
+      </slot>
     </template>
   </BreadcrumbsEllipsis>
 </template>
@@ -22,15 +36,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
   height: 24px;
-  color: rgb(var(--emerald-on-background-channels, 26 18 48) / 0.6);
+  padding: 0 var(--emerald-spacing-2xs, 4px);
+  color: inherit;
   user-select: none;
   flex-shrink: 0;
 }
 
-.emerald-breadcrumb__ellipsis :deep(svg) {
-  width: 16px;
-  height: 16px;
+.emerald-breadcrumb__ellipsis svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 </style>

@@ -65,8 +65,7 @@
 <style>
 .emerald-slider {
   position: relative;
-  width: 205px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
+  width: 100%;
 }
 
 .emerald-slider > [data-orientation="horizontal"] {

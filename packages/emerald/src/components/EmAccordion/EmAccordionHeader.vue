@@ -20,6 +20,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px; /* TODO(token): spec header gap is 10px — no --emerald-spacing token for 10px */
 }
 </style>

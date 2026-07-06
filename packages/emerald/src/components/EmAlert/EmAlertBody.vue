@@ -11,3 +11,13 @@
     <slot />
   </div>
 </template>
+
+<style scoped>
+.emerald-alert__body {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  gap: var(--emerald-spacing-2xs);
+  min-width: 0;
+}
+</style>

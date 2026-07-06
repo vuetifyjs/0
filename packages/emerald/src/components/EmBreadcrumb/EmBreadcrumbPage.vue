@@ -11,7 +11,9 @@
 
 <template>
   <BreadcrumbsPage class="emerald-breadcrumb__page">
-    <slot />
+    <template #default="slotProps">
+      <slot v-bind="slotProps" />
+    </template>
   </BreadcrumbsPage>
 </template>
 
@@ -19,8 +21,7 @@
 .emerald-breadcrumb__page {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-weight: 400;
-  color: rgb(var(--emerald-on-background-channels, 26 18 48) / 0.6);
+  gap: var(--emerald-spacing-2xs, 4px);
+  color: var(--emerald-neutral-400, #aeb6be);
 }
 </style>

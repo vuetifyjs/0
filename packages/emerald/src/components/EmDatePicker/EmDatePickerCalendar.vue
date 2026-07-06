@@ -12,12 +12,13 @@
   </div>
 </template>
 
-<style>
+<style scoped>
 .emerald-date-picker__calendar {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 12px;
-  width: 100%;
+  gap: var(--emerald-spacing-s);
+  width: 252px;
+  max-width: 100%;
 }
 </style>

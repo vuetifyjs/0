@@ -4,6 +4,9 @@
   // Framework
   import { InputRoot } from '@vuetify/v0'
 
+  // Utilities
+  import { toValue } from 'vue'
+
   // Types
   import type { V0PaperProps } from '@vuetify/paper'
   import type { FormValidationRule, ValidateOn } from '@vuetify/v0'
@@ -48,7 +51,7 @@
     v-bind="paperProps"
     as="div"
     class="emerald-text-field"
-    :data-disabled="disabled || undefined"
+    :data-disabled="toValue(disabled) || undefined"
     :data-error="error || undefined"
   >
     <InputRoot
@@ -75,18 +78,13 @@
 .emerald-text-field {
   display: inline-flex;
   flex-direction: column;
-  gap: 4px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 12px;
-  line-height: 20px;
-  color: #000000;
+  gap: var(--emerald-spacing-xs, 8px);
+  font-family: var(--emerald-font-sans, Manrope, system-ui, -apple-system, sans-serif);
+  color: var(--emerald-neutral-1000, #2B2D2E);
 }
 
-.emerald-text-field[data-error] .emerald-text-field__label {
-  color: var(--emerald-error-700, #b8302a);
-}
-
-.emerald-text-field[data-disabled] {
-  pointer-events: none;
+.emerald-text-field[data-disabled] .emerald-text-field__label,
+.emerald-text-field[data-disabled] .emerald-text-field__description {
+  color: var(--emerald-neutral-400, #AEB6BE);
 }
 </style>

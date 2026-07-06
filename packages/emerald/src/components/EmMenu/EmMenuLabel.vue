@@ -16,13 +16,14 @@
 .emerald-menu__label {
   display: flex;
   align-items: center;
-  height: 36px;
-  padding: 8px 12px 8px 0;
+  min-height: 36px;
+  padding-block: var(--emerald-spacing-xs);
+  padding-inline: 0 var(--emerald-spacing-s);
   font-family: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 20px;
-  color: var(--emerald-primary-950);
+  font-size: var(--emerald-text-b1-size);
+  font-weight: 700;
+  line-height: var(--emerald-text-b1-height);
+  color: var(--emerald-secondary);
   opacity: 0.7;
   user-select: none;
 }

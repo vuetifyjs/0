@@ -16,6 +16,9 @@
 .emerald-text-field__append {
   display: inline-flex;
   align-items: center;
-  color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.6);
+  justify-content: center;
+  inline-size: var(--emerald-icon-l, 24px);
+  block-size: var(--emerald-icon-l, 24px);
+  color: var(--emerald-neutral-700, #757E85);
 }
 </style>

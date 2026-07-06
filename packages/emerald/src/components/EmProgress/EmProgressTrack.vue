@@ -15,20 +15,20 @@
 <style>
 .emerald-progress__track {
   position: relative;
-  flex: 1 1 auto;
   width: 100%;
   overflow: clip;
-  border-radius: 999px;
-  border: 0.5px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
-  background: var(--emerald-secondary-50, #f4f7f9);
+  border-radius: var(--emerald-radius-full, 999px);
+  /* TODO(token): spec hairline is 0.5px; stroke scale starts at 1px (--emerald-stroke-s) */
+  border: 0.5px solid var(--emerald-divider, #ccd6e7);
+  background: var(--emerald-background, #fefefe);
 }
 
 .emerald-progress[data-size="md"] .emerald-progress__track {
-  height: 16px;
-  background: #ffffff;
+  height: var(--emerald-spacing-m, 16px);
+  background: var(--emerald-surface, #ffffff);
 }
 
 .emerald-progress[data-size="sm"] .emerald-progress__track {
-  height: 8px;
+  height: var(--emerald-spacing-xs, 8px);
 }
 </style>

@@ -11,6 +11,8 @@
 
 <template>
   <DialogActivator class="emerald-dialog__activator">
-    <slot />
+    <template #default="slotProps">
+      <slot v-bind="slotProps" />
+    </template>
   </DialogActivator>
 </template>

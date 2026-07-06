@@ -3,19 +3,21 @@
 
   export interface EmTableCellProps {
     align?: EmTableCellAlign
+    disabled?: boolean
   }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmTableCell' })
 
-  const { align = 'start' } = defineProps<EmTableCellProps>()
+  const { align = 'start', disabled = false } = defineProps<EmTableCellProps>()
 </script>
 
 <template>
   <td
     class="emerald-table__cell"
     :data-align="align"
+    :data-disabled="disabled || undefined"
   >
     <slot />
   </td>
@@ -23,13 +25,7 @@
 
 <style>
 .emerald-table__cell {
-  padding: 12px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: normal;
-  letter-spacing: 0.24px;
-  color: #000;
+  padding: var(--emerald-spacing-s);
   vertical-align: middle;
   background: transparent;
   transition: background 120ms ease;
@@ -40,6 +36,10 @@
 }
 
 .emerald-table__cell[data-align="end"] {
-  text-align: right;
+  text-align: end;
+}
+
+.emerald-table__cell[data-disabled] {
+  color: var(--emerald-neutral-400);
 }
 </style>

@@ -38,10 +38,10 @@
   </RadioGroup>
 </template>
 
-<style>
+<style scoped>
 .emerald-radio-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--emerald-spacing-xs);
 }
 </style>

@@ -10,6 +10,9 @@ export { default as EmAccordionCue } from './EmAccordionCue.vue'
 export type { EmAccordionHeaderProps } from './EmAccordionHeader.vue'
 export { default as EmAccordionHeader } from './EmAccordionHeader.vue'
 
+export type { EmAccordionIconProps } from './EmAccordionIcon.vue'
+export { default as EmAccordionIcon } from './EmAccordionIcon.vue'
+
 export type { EmAccordionItemProps } from './EmAccordionItem.vue'
 export { default as EmAccordionItem } from './EmAccordionItem.vue'
 

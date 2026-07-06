@@ -12,12 +12,11 @@
   </div>
 </template>
 
-<style>
+<style scoped>
 .emerald-card__footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
-  padding: 16px 24px;
+  gap: var(--emerald-spacing-xs);
 }
 </style>

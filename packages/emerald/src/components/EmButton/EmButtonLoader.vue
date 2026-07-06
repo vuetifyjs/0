@@ -14,7 +14,7 @@
   </span>
 </template>
 
-<style>
+<style scoped>
 .emerald-button__loader {
   display: inline-flex;
   align-items: center;

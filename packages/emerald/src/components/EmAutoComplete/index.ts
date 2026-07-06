@@ -15,3 +15,9 @@ export { default as EmAutoCompleteInput } from './EmAutoCompleteInput.vue'
 
 export type { EmAutoCompleteItemProps } from './EmAutoCompleteItem.vue'
 export { default as EmAutoCompleteItem } from './EmAutoCompleteItem.vue'
+
+export type { EmAutoCompleteLabelProps } from './EmAutoCompleteLabel.vue'
+export { default as EmAutoCompleteLabel } from './EmAutoCompleteLabel.vue'
+
+export type { EmAutoCompleteSeparatorProps } from './EmAutoCompleteSeparator.vue'
+export { default as EmAutoCompleteSeparator } from './EmAutoCompleteSeparator.vue'

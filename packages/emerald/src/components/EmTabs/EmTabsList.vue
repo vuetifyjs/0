@@ -21,20 +21,14 @@
   </TabsList>
 </template>
 
-<style>
+<style scoped>
 .emerald-tabs__list {
   display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 4px;
-  border-radius: 8px;
-  border: 1px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
-  background: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.03);
+  align-items: stretch;
   width: fit-content;
 }
 
 .emerald-tabs__list[aria-orientation="vertical"] {
   flex-direction: column;
-  align-items: stretch;
 }
 </style>

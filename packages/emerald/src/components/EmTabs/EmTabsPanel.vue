@@ -7,7 +7,7 @@
   }
 </script>
 
-<script setup lang="ts" generic="V = unknown">
+<script lang="ts" setup generic="V = unknown">
   defineOptions({ name: 'EmTabsPanel' })
 
   const { value } = defineProps<EmTabsPanelProps<V>>()
@@ -21,12 +21,11 @@
   </TabsPanel>
 </template>
 
-<style>
+<style scoped>
 .emerald-tabs__panel {
-  padding: 12px 0;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 14px;
-  color: var(--emerald-primary-950, #221065);
+  padding: var(--emerald-spacing-s) 0;
+  font-size: var(--emerald-text-b2-size);
+  line-height: var(--emerald-text-b2-height);
   animation: emerald-tabs-fade 280ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 

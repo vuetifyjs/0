@@ -57,11 +57,11 @@
   display: inline-flex;
   flex-direction: column;
   gap: 0;
-  border-radius: 4px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 12px;
-  line-height: 20px;
-  color: #000000;
+  font-family: var(--emerald-font-sans);
+  font-size: var(--emerald-text-b1-size);
+  font-weight: var(--emerald-text-b1-weight);
+  line-height: var(--emerald-text-b1-height);
+  color: var(--emerald-on-surface);
 }
 
 .emerald-select[data-disabled] {

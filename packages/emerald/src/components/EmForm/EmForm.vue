@@ -88,14 +88,14 @@
 }
 
 .emerald-form .emerald-form-field[data-invalid] .emerald-form-field__label {
-  color: var(--emerald-error-700);
+  color: var(--emerald-danger-600);
 }
 
 .emerald-form .emerald-form-field[data-invalid] .emerald-form-field__control:hover {
-  border-color: var(--emerald-error-700);
+  border-color: var(--emerald-danger-600);
   box-shadow:
-    0 1px 3px 0 rgb(var(--emerald-error-500-channels) / 0.18),
-    0 1px 5px 0 rgb(var(--emerald-error-500-channels) / 0.22);
+    0 1px 3px 0 rgb(var(--emerald-danger-500-channels) / 0.18),
+    0 1px 5px 0 rgb(var(--emerald-danger-500-channels) / 0.22);
 }
 
 .emerald-form .emerald-form-field__control {
@@ -116,7 +116,7 @@
 }
 
 .emerald-form .emerald-form-field[data-invalid] .emerald-form-field__control {
-  border-color: rgb(var(--emerald-error-700-channels) / 0.5);
+  border-color: rgb(var(--emerald-danger-600-channels) / 0.5);
 }
 
 .emerald-form .emerald-form-field__control input {
@@ -152,7 +152,7 @@
   font-weight: 400;
   font-size: 11px;
   line-height: 1.4;
-  color: var(--emerald-error-700);
+  color: var(--emerald-danger-600);
   opacity: 0.85;
 }
 

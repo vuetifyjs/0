@@ -22,14 +22,14 @@
   grid-column: 2;
   grid-row: 1;
   align-self: stretch;
-  padding: 8px 20%;
-  gap: 12px;
+  padding: var(--emerald-spacing-xs) 20%;
+  gap: var(--emerald-spacing-s);
 }
 
 .emerald-carousel__viewport[data-orientation="vertical"] {
   grid-column: 1;
   grid-row: 2;
-  padding: 20% 8px;
+  padding: 20% var(--emerald-spacing-xs);
 }
 
 .emerald-carousel__viewport[data-dragging] {

@@ -7,7 +7,7 @@
 </script>
 
 <template>
-  <span aria-hidden="true" class="emerald-list__item-action">
+  <span class="emerald-list__item-action">
     <slot />
   </span>
 </template>

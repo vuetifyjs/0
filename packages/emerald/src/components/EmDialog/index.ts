@@ -16,11 +16,17 @@ export { default as EmDialogContent } from './EmDialogContent.vue'
 export type { EmDialogDescriptionProps } from './EmDialogDescription.vue'
 export { default as EmDialogDescription } from './EmDialogDescription.vue'
 
-export type { EmDialogFooterProps } from './EmDialogFooter.vue'
+export type { EmDialogDividerProps } from './EmDialogDivider.vue'
+export { default as EmDialogDivider } from './EmDialogDivider.vue'
+
+export type { EmDialogFooterProps, EmDialogFooterVariant } from './EmDialogFooter.vue'
 export { default as EmDialogFooter } from './EmDialogFooter.vue'
 
 export type { EmDialogHeaderProps } from './EmDialogHeader.vue'
 export { default as EmDialogHeader } from './EmDialogHeader.vue'
+
+export type { EmDialogIconProps } from './EmDialogIcon.vue'
+export { default as EmDialogIcon } from './EmDialogIcon.vue'
 
 export type { EmDialogTitleProps } from './EmDialogTitle.vue'
 export { default as EmDialogTitle } from './EmDialogTitle.vue'

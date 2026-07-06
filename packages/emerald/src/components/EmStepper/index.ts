@@ -1,7 +1,10 @@
 export type { EmStepperProps } from './EmStepper.vue'
 export { default as EmStepper } from './EmStepper.vue'
 
-export type { EmStepperItemProps } from './EmStepperItem.vue'
+export type { EmStepperIconProps } from './EmStepperIcon.vue'
+export { default as EmStepperIcon } from './EmStepperIcon.vue'
+
+export type { EmStepperItemProps, EmStepperItemSlotProps } from './EmStepperItem.vue'
 export { default as EmStepperItem } from './EmStepperItem.vue'
 
 export type { EmStepperLabelProps } from './EmStepperLabel.vue'

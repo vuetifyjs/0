@@ -12,11 +12,10 @@
   </div>
 </template>
 
-<style>
+<style scoped>
 .emerald-card__header {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 24px 24px 0;
+  gap: var(--emerald-spacing-2xs);
 }
 </style>

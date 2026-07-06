@@ -51,8 +51,10 @@
 .emerald-accordion {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  color: #000000;
+  font-family: var(--emerald-font-sans);
+  font-size: var(--emerald-text-b1-size);
+  font-weight: var(--emerald-text-b1-weight);
+  line-height: var(--emerald-text-b1-height);
+  color: var(--emerald-on-surface);
 }
 </style>

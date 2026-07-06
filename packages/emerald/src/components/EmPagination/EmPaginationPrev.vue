@@ -22,33 +22,34 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 4px;
+  box-sizing: border-box;
+  width: 32px;
+  height: 28px;
+  padding: 0;
   background: transparent;
-  border: 1px solid transparent;
-  border-radius: 4px;
+  border: var(--emerald-stroke-s) solid transparent;
+  border-radius: var(--emerald-radius-xs);
   color: inherit;
   cursor: pointer;
   transition: background-color 120ms ease;
 }
 
 .emerald-pagination__prev > * {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
 }
 
-.emerald-pagination__prev:hover:not([aria-disabled="true"]) {
-  background: rgb(var(--emerald-primary-500-channels) / 0.08);
+.emerald-pagination__prev:hover:not([data-disabled]) {
+  background: var(--emerald-neutral-200);
 }
 
 .emerald-pagination__prev:focus-visible {
-  outline: 2px solid var(--emerald-primary-500);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--emerald-shadow-focus);
 }
 
-.emerald-pagination__prev[aria-disabled="true"] {
-  opacity: 0.4;
+.emerald-pagination__prev[data-disabled] {
+  color: var(--emerald-neutral-400);
   cursor: not-allowed;
 }
 </style>

@@ -13,17 +13,13 @@
 </template>
 
 <style>
-.emerald-table__head .emerald-table__header {
-  background: var(--emerald-secondary-50, #f4f7f9);
-}
-
 .emerald-table__head tr > .emerald-table__header:first-child {
-  border-top-left-radius: 6px;
-  border-bottom-left-radius: 6px;
+  border-start-start-radius: var(--emerald-radius-m);
+  border-end-start-radius: var(--emerald-radius-m);
 }
 
 .emerald-table__head tr > .emerald-table__header:last-child {
-  border-top-right-radius: 6px;
-  border-bottom-right-radius: 6px;
+  border-start-end-radius: var(--emerald-radius-m);
+  border-end-end-radius: var(--emerald-radius-m);
 }
 </style>

@@ -21,16 +21,14 @@
 
 <style>
 .emerald-progress__value {
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-weight: 600;
-  font-size: 10px;
-  line-height: 10px;
-  color: var(--emerald-secondary-500, #94a3b8);
+  font-weight: var(--emerald-text-b3-bold-weight, 600);
+  font-size: var(--emerald-text-b3-size, 12px);
+  line-height: var(--emerald-text-b3-height, 18px);
+  color: var(--emerald-neutral-700, #757e85);
   white-space: nowrap;
-  padding-inline: 2px;
 }
 
 .emerald-progress__value[data-inside] {
-  color: var(--emerald-secondary-700, #6f7a93);
+  color: var(--emerald-on-secondary, #fefefe);
 }
 </style>

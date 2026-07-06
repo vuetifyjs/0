@@ -19,10 +19,9 @@
 
 <style>
 .emerald-text-field__error {
-  font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 11px;
-  font-weight: 400;
-  line-height: 16px;
-  color: rgb(var(--emerald-error-500-channels, 229 72 77) / 0.85);
+  font-size: var(--emerald-text-b3-size, 12px);
+  font-weight: var(--emerald-text-b3-weight, 400);
+  line-height: var(--emerald-text-b3-height, 18px);
+  color: var(--emerald-danger-600, #A1000E);
 }
 </style>
