@@ -285,9 +285,9 @@ bunx @vuetify/cli analyze --reporter json
 
 The analyzer scans your project and detects all imports from `@vuetify/v0`:
 
-- **Components** — `VBtn`, `VCard`, `VDataTable`, etc.
-- **Composables** — `useDisplay`, `useTheme`, `createFilter`, etc.
-- **Plugins** — `createVuetify`, `createIconsPlugin`, etc.
+- **Components** — `Dialog`, `Tabs`, `Avatar`, etc.
+- **Composables** — `useBreakpoints`, `useTheme`, `createFilter`, etc.
+- **Plugins** — `createThemePlugin`, `createBreakpointsPlugin`, etc.
 - **Utilities and constants**
 
 #### Custom Documentation URL
@@ -295,7 +295,7 @@ The analyzer scans your project and detects all imports from `@vuetify/v0`:
 After analyzing your project, the CLI generates a **personalized documentation URL**:
 
 ```text
-https://0.vuetifyjs.com/?features=Dialog,Avatar,useDisplay,...
+https://0.vuetifyjs.com/?features=Dialog,Avatar,useBreakpoints,...
 ```
 
 This URL filters the v0 documentation to show **only the features you're actually using**, giving you a focused, clutter-free reference tailored to your project. Share this URL with your team to onboard developers faster.
