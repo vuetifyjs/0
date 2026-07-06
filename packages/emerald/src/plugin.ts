@@ -10,13 +10,17 @@ import {
 // Adapters
 import { EmeraldStyleSheetAdapter } from './adapter'
 import {
-  error,
+  alert,
+  background,
+  border,
+  danger,
   info,
   neutral,
+  on,
   primary,
   secondary,
   success,
-  warning,
+  surface,
 } from './theme'
 
 // Types
@@ -49,18 +53,28 @@ function scale (name: string, values: Scale): Scale {
 export const emeraldColors: Record<string, string> = {
   ...scale('primary', primary),
   ...scale('secondary', secondary),
-  ...scale('success', success),
-  ...scale('warning', warning),
-  ...scale('error', error),
-  ...scale('info', info),
   ...scale('neutral', neutral),
-  'background': '#FAF9FF',
-  'surface': '#F5F4FF',
-  'surface-tint': '#EBE9FE',
-  'divider': '#DEE2E6',
-  'on-primary': '#FFFFFF',
-  'on-background': '#1A1C1E',
-  'on-surface': '#1A1C1E',
+  ...scale('danger', danger),
+  ...scale('alert', alert),
+  ...scale('success', success),
+  ...scale('info', info),
+  ...scale('on', on),
+  'background': background.DEFAULT,
+  'surface': surface.DEFAULT,
+  'surface-tint': primary['alpha-10'],
+  'divider': neutral[300],
+  'border': border.DEFAULT,
+  // Semantic status aliases (Figma status/* bg + br bindings).
+  // Note: spec binds status/success to the PRIMARY green family,
+  // not the success family.
+  'status-danger-bg': danger[100],
+  'status-danger-br': danger[500],
+  'status-success-bg': primary[100],
+  'status-success-br': primary[600],
+  'status-info-bg': info[100],
+  'status-info-br': info[500],
+  'status-warning-bg': alert[100],
+  'status-warning-br': alert[500],
 }
 
 function emeraldThemeDefaults (): ThemePluginOptions {

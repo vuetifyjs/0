@@ -2,6 +2,9 @@
 import { V0StyleSheetThemeAdapter } from '@vuetify/v0'
 import { hexToRgb } from '@vuetify/v0/utilities'
 
+// Tokens
+import { fontFamily, fontSize, icon, radius, shadow, spacing, stroke } from './theme'
+
 // Types
 import type { Colors } from '@vuetify/v0'
 
@@ -20,7 +23,7 @@ export class EmeraldStyleSheetAdapter extends V0StyleSheetThemeAdapter {
   }
 
   override generate (colors: Record<string, Colors>, isDark?: boolean): string {
-    let css = ''
+    let css = foundations(this.prefix)
 
     for (const theme in colors) {
       if (!SAFE_IDENT.test(theme)) continue
@@ -47,6 +50,39 @@ export class EmeraldStyleSheetAdapter extends V0StyleSheetThemeAdapter {
 
     return css
   }
+}
+
+function foundations (prefix: string): string {
+  const lines: string[] = []
+
+  for (const [key, val] of Object.entries(spacing)) {
+    lines.push(`  --${prefix}-spacing-${key}: ${val};`)
+  }
+
+  for (const [key, val] of Object.entries(radius)) {
+    lines.push(`  --${prefix}-radius-${key}: ${val};`)
+  }
+
+  for (const [key, val] of Object.entries(stroke)) {
+    lines.push(`  --${prefix}-stroke-${key}: ${val};`)
+  }
+
+  for (const [key, val] of Object.entries(icon)) {
+    lines.push(`  --${prefix}-icon-${key}: ${val};`)
+  }
+
+  for (const [key, val] of Object.entries(shadow)) {
+    lines.push(`  --${prefix}-shadow-${key}: ${val};`)
+  }
+
+  lines.push(`  --${prefix}-font-sans: ${fontFamily.sans};`)
+
+  for (const [key, val] of Object.entries(fontSize)) {
+    const [size, meta] = val
+    lines.push(`  --${prefix}-text-${key}-size: ${size};`, `  --${prefix}-text-${key}-height: ${meta.lineHeight};`, `  --${prefix}-text-${key}-weight: ${meta.fontWeight};`)
+  }
+
+  return `:root {\n${lines.join('\n')}\n}\n`
 }
 
 function toChannels (hex: string): string | null {
