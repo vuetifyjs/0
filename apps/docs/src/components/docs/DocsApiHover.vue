@@ -306,6 +306,13 @@
 
   // Whether the link is external (Vue docs) or internal (v0 API page)
   const isExternalLink = toRef(() => activeApiType.value === 'vue')
+
+  // Kind chip links to the relevant index page (Vue APIs have no v0 index)
+  const kindLink = toRef(() => {
+    if (activeApiType.value === 'component') return '/components'
+    if (activeApiType.value === 'composable') return '/composables'
+    return null
+  })
 </script>
 
 <template>
@@ -326,6 +333,17 @@
         <div class="popover-header">
           <span class="popover-name">{{ displayName }}</span>
           <span v-if="vueApi" class="popover-kind popover-kind-vue">{{ vueApi.category }}</span>
+
+          <router-link
+            v-else-if="kindLink"
+            class="popover-kind popover-kind-link"
+            :class="`popover-kind-${activeApiType}`"
+            :to="kindLink"
+            @click.stop="hidePopover"
+          >
+            {{ (activeApi as Api).kind }}
+          </router-link>
+
           <span v-else class="popover-kind" :class="`popover-kind-${activeApiType}`">{{ (activeApi as Api).kind }}</span>
           <AppCloseButton class="ml-auto" @click.stop="hidePopover" />
         </div>
@@ -485,6 +503,16 @@
   overflow-y: auto;
   margin: 0 -12px;
   padding: 0 12px 12px;
+}
+
+.popover-kind-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.popover-kind-link:hover {
+  opacity: 0.85;
 }
 
 /* Vue API specific styles */
