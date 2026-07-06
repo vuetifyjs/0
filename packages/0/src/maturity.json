@@ -127,6 +127,16 @@
       "category": "forms",
       "description": "Fixed-length one-time-password or verification-code value with pattern-gated entry and completion detection."
     },
+    "createDatePicker": {
+      "level": "draft",
+      "category": "forms",
+      "description": "Headless date state with calendar-grid geometry, single-date and range modes, preset ranges, min/max bounds, and disabled-date rules. Composable-first, without an `@internationalized/date` dependency."
+    },
+    "createTimePicker": {
+      "level": "draft",
+      "category": "forms",
+      "description": "Segmented time value with hour, minute, and second fields, 12/24-hour modes, meridiem handling, step snapping, and min/max bounds."
+    },
     "createDataGrid": {
       "level": "preview",
       "since": "1.0.0-beta.0",
@@ -186,6 +196,11 @@
       "since": "0.1.0",
       "category": "semantic",
       "description": "Computes how many items fit in a container based on available width, for responsive truncation in pagination, breadcrumbs, and similar UIs."
+    },
+    "createTour": {
+      "level": "draft",
+      "category": "semantic",
+      "description": "Headless state for guided product tours and feature discovery: step sequencing, target-element tracking, mask cutout geometry, and per-step focus management. Built on `createStep`, `usePopover`, and `useRovingFocus`."
     },
     "useBreakpoints": {
       "level": "stable",
