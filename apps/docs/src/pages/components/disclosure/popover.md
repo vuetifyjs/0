@@ -58,7 +58,7 @@ The Popover component leverages the CSS Anchor Positioning API to create popover
 
 ### Positioning
 
-Use `position-area` on `Popover.Content` to control where the popover appears relative to its anchor. Accepts any [CSS `position-area`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-area) value (default: `'bottom'`):
+Use `position-area` on `Popover.Content` to control where the popover appears relative to its anchor. Accepts any [CSS `position-area`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/position-area) value (default: `'bottom'`):
 
 ```vue
 <template>
@@ -89,7 +89,7 @@ Use `position-try` to specify fallback positions when the preferred position doe
 
 ??? How do I control where the popover appears relative to its anchor?
 
-Set `position-area` on `Popover.Content` to any [CSS `position-area`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-area) value such as `top` or `end`. It defaults to `bottom`.
+Set `position-area` on `Popover.Content` to any [CSS `position-area`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/position-area) value such as `top` or `end`. It defaults to `bottom`.
 
 ??? What happens in browsers that don't support CSS Anchor Positioning?
 
