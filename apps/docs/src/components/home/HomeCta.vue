@@ -65,7 +65,7 @@
     <div class="flex justify-center">
       <a
         class="px-6 py-2.5 bg-surface text-on-surface rounded-xl font-semibold border hover:bg-surface-tint hover:border-primary transition-all duration-150 text-sm inline-flex items-center gap-2"
-        href="https://github.com/vuetifyjs/0"
+        href="https://github.com/vuetifyjs/0/stargazers"
         rel="noopener"
         target="_blank"
       >
