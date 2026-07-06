@@ -7,7 +7,7 @@
 
   // Stateful demos
   const dialogOpen = ref(false)
-  const menuOpen = ref(true)
+  const menuOpen = ref(false)
 
   const accordionModel = ref<string[]>(['overview'])
   const tabsModel = ref('overview')
