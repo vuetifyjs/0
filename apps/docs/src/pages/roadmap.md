@@ -34,8 +34,8 @@ Alpha opened on April 7, 2026 for feedback; beta hardened the APIs. The release 
 
 <DocsTimeline :milestones="[
   { id: 'alpha', label: 'Alpha', date: 'April 7, 2026', description: 'Opened for feedback, bug reports, and contributions. APIs mostly stable, may evolve.' },
-  { id: 'beta', label: 'Beta', date: 'June 2026', description: 'API freeze. Focus shifts to stability, documentation, and edge cases.' },
-  { id: 'rc', label: 'RC', date: 'July 2026', description: 'Release candidate for final testing and documentation. No new features.', active: true },
+  { id: 'beta', label: 'Beta', date: 'June 2, 2026', description: 'API freeze. Focus shifts to stability, documentation, and edge cases.' },
+  { id: 'rc', label: 'RC', date: 'July 2, 2026', description: 'Release candidate for final testing and documentation. No new features.', active: true },
   { id: 'v1', label: 'v1.0', date: 'Q3 2026', description: 'Milestone-driven. Ships when the milestones are met.' },
 ]" />
 
