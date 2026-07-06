@@ -51,10 +51,11 @@
 
 <style scoped>
 .emerald-date-picker__grid {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  row-gap: var(--emerald-spacing-xs);
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: center;
+  justify-items: center;
+  gap: var(--emerald-spacing-2xs);
   width: 100%;
 }
 </style>

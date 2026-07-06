@@ -31,7 +31,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--emerald-spacing-2xs);
+  width: var(--emerald-icon-l);
+  height: var(--emerald-icon-l);
+  padding: 0;
   margin: 0;
   border: none;
   border-radius: var(--emerald-radius-xs);
