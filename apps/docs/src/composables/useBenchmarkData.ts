@@ -51,7 +51,7 @@ export interface NormalizedBenchmark {
   meanLabel: string
   rme: number
   rank: number
-  tier: Tier
+  tier: TierState
   /** 0–100, fastest in group = 100 */
   relativeHz: number
   /** Percentage slower than fastest. null if this IS fastest */
@@ -63,16 +63,23 @@ export interface NormalizedGroup {
   name: string
   fullName: string
   composable: string
-  tier: Tier
+  tier: TierState
   benchmarks: NormalizedBenchmark[]
   fastest: NormalizedBenchmark
 }
 
 export type Tier = 'blazing' | 'fast' | 'good' | 'slow'
 
+/**
+ * A tier plus the honest absence of one. 'unmeasured' surfaces when
+ * metrics.json has no entry for a bench — never silently default to a
+ * passing grade.
+ */
+export type TierState = Tier | 'unmeasured'
+
 export interface NormalizedComposable {
   name: string
-  tier: Tier
+  tier: TierState
   fastest: { name: string, hz: number, hzLabel: string }
   groupCount: number
   benchmarkCount: number
@@ -83,7 +90,7 @@ export interface BenchmarkSummary {
   totalBenchmarks: number
   totalGroups: number
   composableCount: number
-  tierCounts: Record<Tier, number>
+  tierCounts: Record<TierState, number>
 }
 
 export interface UseBenchmarkDataOptions {
@@ -110,18 +117,20 @@ export interface UseBenchmarkDataReturn {
 }
 
 // Tier config
-export const TIER_CONFIG: Record<Tier, { icon: string, color: string, label: string }> = {
+export const TIER_CONFIG: Record<TierState, { icon: string, color: string, label: string }> = {
   blazing: { icon: 'benchmark-blazing', color: 'text-error', label: 'Blazing' },
   fast: { icon: 'benchmark-fast', color: 'text-warning', label: 'Fast' },
   good: { icon: 'benchmark-good', color: 'text-info', label: 'Good' },
   slow: { icon: 'benchmark-slow', color: 'text-on-surface-variant', label: 'Slow' },
+  unmeasured: { icon: 'benchmark-unmeasured', color: 'text-on-surface-variant', label: 'Unmeasured' },
 }
 
-export const TIER_BG: Record<Tier, string> = {
+export const TIER_BG: Record<TierState, string> = {
   blazing: 'bg-error',
   fast: 'bg-warning',
   good: 'bg-info',
   slow: 'bg-on-surface-variant',
+  unmeasured: 'bg-on-surface-variant',
 }
 
 /** Short descriptions for benchmark groups, keyed by extracted group name */
@@ -195,7 +204,9 @@ function normalizeFiles (
     const composableName = extractComposableName(file.filepath)
     const metrics = metricsData[composableName]
     const metricsGroups = (metrics?.benchmarks as { _groups?: Record<string, { _tier?: Tier }> })?._groups
-    const tier = (metrics?.benchmarks as { _fastest?: { tier?: Tier } })?._fastest?.tier ?? 'good'
+    // Worst-of-groups roll-up computed by scripts/lib/benchmarks.ts — a feature
+    // is as fast as its slowest documented operation, never its most flattering bench.
+    const tier: TierState = (metrics?.benchmarks as { _tier?: Tier })?._tier ?? 'unmeasured'
 
     const groups: NormalizedGroup[] = file.groups.map((group, gi) => {
       const groupName = extractGroupName(group.fullName)
@@ -206,7 +217,7 @@ function normalizeFiles (
         .map(b => {
           const relativeHz = maxHz > 0 ? (b.hz / maxHz) * 100 : 0
           const isFastest = b.hz === maxHz
-          const benchTier = (metrics?.benchmarks as Record<string, { tier?: Tier }> | undefined)?.[b.name]?.tier ?? 'good'
+          const benchTier: TierState = (metrics?.benchmarks as Record<string, { tier?: Tier }> | undefined)?.[b.name]?.tier ?? 'unmeasured'
           return {
             id: b.id,
             name: b.name,
@@ -223,7 +234,7 @@ function normalizeFiles (
         })
         .toSorted((a, b) => b.hz - a.hz)
 
-      const groupTier = metricsGroups?.[groupKey]?._tier ?? 'good'
+      const groupTier: TierState = metricsGroups?.[groupKey]?._tier ?? 'unmeasured'
 
       return {
         id: `${composableName}-${gi}`,
@@ -369,7 +380,7 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
 
   // Summary (unfiltered)
   const summary = computed<BenchmarkSummary>(() => {
-    const tierCounts: Record<Tier, number> = { blazing: 0, fast: 0, good: 0, slow: 0 }
+    const tierCounts: Record<TierState, number> = { blazing: 0, fast: 0, good: 0, slow: 0, unmeasured: 0 }
     for (const c of composables.value) {
       tierCounts[c.tier]++
     }
