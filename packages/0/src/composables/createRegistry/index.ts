@@ -262,7 +262,7 @@ export interface RegistryContext<
    * @param id The ID of the ticket to upsert.
    * @param ticket The partial ticket data to update or insert.
    * @param event Optional custom event name to emit alongside `update:ticket`. The patched ticket is dispatched as the event payload.
-   * @remarks If the ticket exists, it will be updated in place — the ticket reference returned by `register()` remains valid and reactive (when `reactive: true`). If it doesn't exist, a new ticket will be created with the given ID and data. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   * @remarks If the ticket exists, it will be updated in place — the ticket reference returned by `register()` remains valid and reactive (when `reactive: true`), and cached `keys()` / `values()` / `entries()` results stay valid (same refs, membership and order unchanged; iterating effects are not re-notified). If it doesn't exist, a new ticket will be created with the given ID and data, which invalidates the cached results.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -871,7 +871,14 @@ export function createRegistry<
 
     Object.assign(existing, patch, { id, index: existing.index, value, valueIsIndex })
     collection.set(id, existing)
-    invalidate()
+    // Cache clear WITHOUT a version bump: patching an existing ticket changes
+    // neither membership nor order, so version-subscribed iterating effects are
+    // not re-notified (field changes propagate through the shallowReactive
+    // ticket proxies and the update:ticket event). The cache still clears so
+    // event-driven snapshot consumers (useProxyRegistry) that re-read values()
+    // off update:ticket observe a fresh array identity — their reactive set
+    // would no-op on the same ref.
+    cache.clear()
     emit('update:ticket', existing)
     if (event) emit(event, existing)
 

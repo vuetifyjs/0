@@ -716,7 +716,40 @@ describe('createRegistry', () => {
       registry.upsert('item-2', { value: 'new' })
       const keys2 = registry.keys()
 
+      // Missing id → register path → membership changed
       expect(keys1).not.toBe(keys2)
+
+      // Existing id → in-place patch → contents unchanged, but a fresh array
+      // identity so event-driven snapshot consumers (useProxyRegistry) observe
+      // the update off update:ticket
+      registry.upsert('item-1', { value: 'patched' })
+      const keys3 = registry.keys()
+      expect(keys3).not.toBe(keys2)
+      expect(keys3).toEqual(keys2)
+      expect(registry.get('item-1')!.value).toBe('patched')
+    })
+
+    it('should not re-notify iterating effects on field-only upsert (reactive)', () => {
+      const registry = createRegistry({ reactive: true })
+      registry.register({ id: 'a', value: 1 })
+
+      let runs = 0
+      const stop = watchEffect(() => {
+        registry.values()
+        runs++
+      }, { flush: 'sync' })
+      expect(runs).toBe(1)
+
+      // Field patch — membership and order unchanged → no version notification
+      registry.upsert('a', { value: 2 })
+      expect(runs).toBe(1)
+      expect(registry.get('a')!.value).toBe(2)
+
+      // Structural mutation → notified
+      registry.register({ id: 'b' })
+      expect(runs).toBe(2)
+
+      stop()
     })
   })
 
