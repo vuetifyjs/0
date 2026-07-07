@@ -2598,7 +2598,7 @@
             "mean": 0.01444210822908673,
             "meanLabel": "14.4μs",
             "rme": 29.8,
-            "tier": "good"
+            "tier": "fast"
           },
           "Register 1,000 items": {
             "name": "Register 1,000 items",
@@ -2642,7 +2642,7 @@
             "hzLabel": "69.2k ops/s",
             "mean": 0.01444210822908673,
             "meanLabel": "14.4μs",
-            "tier": "good"
+            "tier": "fast"
           },
           "_slowest": {
             "name": "Register 10,000 items",
@@ -2652,7 +2652,7 @@
             "meanLabel": "23.07ms",
             "tier": "fast"
           },
-          "_tier": "good"
+          "_tier": "fast"
         },
         "lookup operations": {
           "Check selected (1,000 items)": {
@@ -2872,7 +2872,7 @@
             "mean": 2.191067004366371,
             "meanLabel": "2.19ms",
             "rme": 6.3,
-            "tier": "good"
+            "tier": "fast"
           },
           "Onboard 10,000 then offboard 1,000 items": {
             "name": "Onboard 10,000 then offboard 1,000 items",
@@ -2881,7 +2881,7 @@
             "mean": 23.435951090901984,
             "meanLabel": "23.44ms",
             "rme": 5.8,
-            "tier": "good"
+            "tier": "fast"
           },
           "Reset (1,000 items)": {
             "name": "Reset (1,000 items)",
@@ -2907,7 +2907,7 @@
             "hzLabel": "456 ops/s",
             "mean": 2.191067004366371,
             "meanLabel": "2.19ms",
-            "tier": "good"
+            "tier": "fast"
           },
           "_slowest": {
             "name": "Onboard 10,000 then offboard 1,000 items",
@@ -2915,9 +2915,9 @@
             "hzLabel": "43 ops/s",
             "mean": 23.435951090901984,
             "meanLabel": "23.44ms",
-            "tier": "good"
+            "tier": "fast"
           },
-          "_tier": "good"
+          "_tier": "fast"
         },
         "computed access": {
           "Access selectedItems 100 times (1 of 1,000 selected, cached)": {
@@ -2982,7 +2982,7 @@
         "mean": 0.01444210822908673,
         "meanLabel": "14.4μs",
         "rme": 29.8,
-        "tier": "good"
+        "tier": "fast"
       },
       "Register 1,000 items": {
         "name": "Register 1,000 items",
@@ -3180,7 +3180,7 @@
         "mean": 2.191067004366371,
         "meanLabel": "2.19ms",
         "rme": 6.3,
-        "tier": "good"
+        "tier": "fast"
       },
       "Onboard 10,000 then offboard 1,000 items": {
         "name": "Onboard 10,000 then offboard 1,000 items",
@@ -3189,7 +3189,7 @@
         "mean": 23.435951090901984,
         "meanLabel": "23.44ms",
         "rme": 5.8,
-        "tier": "good"
+        "tier": "fast"
       },
       "Reset (1,000 items)": {
         "name": "Reset (1,000 items)",
@@ -3259,9 +3259,9 @@
         "hzLabel": "43 ops/s",
         "mean": 23.435951090901984,
         "meanLabel": "23.44ms",
-        "tier": "good"
+        "tier": "fast"
       },
-      "_tier": "good"
+      "_tier": "fast"
     }
   },
   "createNested": {
@@ -3281,7 +3281,7 @@
             "mean": 0.06568985430899281,
             "meanLabel": "65.7μs",
             "rme": 13.7,
-            "tier": "good"
+            "tier": "fast"
           },
           "Onboard 1,000 flat items": {
             "name": "Onboard 1,000 flat items",
@@ -3325,7 +3325,7 @@
             "hzLabel": "15.2k ops/s",
             "mean": 0.06568985430899281,
             "meanLabel": "65.7μs",
-            "tier": "good"
+            "tier": "fast"
           },
           "_slowest": {
             "name": "Onboard 10,000 flat items",
@@ -3700,7 +3700,7 @@
             "mean": 0.07128363673522282,
             "meanLabel": "71.3μs",
             "rme": 13.2,
-            "tier": "good"
+            "tier": "fast"
           },
           "Register item with parent (1,000 items)": {
             "name": "Register item with parent (1,000 items)",
@@ -3744,7 +3744,7 @@
             "hzLabel": "14.0k ops/s",
             "mean": 0.07128363673522282,
             "meanLabel": "71.3μs",
-            "tier": "good"
+            "tier": "fast"
           },
           "_slowest": {
             "name": "Unregister root with cascade (10,000 tree items)",
@@ -3902,7 +3902,7 @@
         "mean": 0.06568985430899281,
         "meanLabel": "65.7μs",
         "rme": 13.7,
-        "tier": "good"
+        "tier": "fast"
       },
       "Onboard 1,000 flat items": {
         "name": "Onboard 1,000 flat items",
@@ -4226,7 +4226,7 @@
         "mean": 0.07128363673522282,
         "meanLabel": "71.3μs",
         "rme": 13.2,
-        "tier": "good"
+        "tier": "fast"
       },
       "Register item with parent (1,000 items)": {
         "name": "Register item with parent (1,000 items)",
@@ -4461,7 +4461,7 @@
             "mean": 0.004266684326785373,
             "meanLabel": "4.3μs",
             "rme": 14.6,
-            "tier": "fast"
+            "tier": "blazing"
           },
           "Onboard 1,000 items": {
             "name": "Onboard 1,000 items",
@@ -4487,7 +4487,7 @@
             "hzLabel": "234.4k ops/s",
             "mean": 0.004266684326785373,
             "meanLabel": "4.3μs",
-            "tier": "fast"
+            "tier": "blazing"
           },
           "_slowest": {
             "name": "Onboard 10,000 items",
@@ -4497,7 +4497,7 @@
             "meanLabel": "5.10ms",
             "tier": "blazing"
           },
-          "_tier": "fast"
+          "_tier": "blazing"
         },
         "lookup operations": {
           "Get by id (1,000 items)": {
@@ -4616,7 +4616,7 @@
             "mean": 0.004399675727044739,
             "meanLabel": "4.4μs",
             "rme": 12.9,
-            "tier": "fast"
+            "tier": "blazing"
           },
           "Register then unregister single item": {
             "name": "Register then unregister single item",
@@ -4625,7 +4625,7 @@
             "mean": 0.004748803656560493,
             "meanLabel": "4.7μs",
             "rme": 11.7,
-            "tier": "fast"
+            "tier": "blazing"
           },
           "_fastest": {
             "name": "Register single item",
@@ -4633,7 +4633,7 @@
             "hzLabel": "227.3k ops/s",
             "mean": 0.004399675727044739,
             "meanLabel": "4.4μs",
-            "tier": "fast"
+            "tier": "blazing"
           },
           "_slowest": {
             "name": "Upsert single item (10,000 items)",
@@ -4643,7 +4643,7 @@
             "meanLabel": "5.51ms",
             "tier": "blazing"
           },
-          "_tier": "fast"
+          "_tier": "blazing"
         },
         "batch operations": {
           "Onboard then clear 1,000 items": {
@@ -4689,7 +4689,7 @@
             "mean": 0.552178807946977,
             "meanLabel": "552.2μs",
             "rme": 5.6,
-            "tier": "fast"
+            "tier": "blazing"
           },
           "Onboard 10,000 then offboard 5,000 items": {
             "name": "Onboard 10,000 then offboard 5,000 items",
@@ -4698,7 +4698,7 @@
             "mean": 7.539027492537299,
             "meanLabel": "7.54ms",
             "rme": 5.4,
-            "tier": "fast"
+            "tier": "blazing"
           },
           "Reorder reverse (1,000 items)": {
             "name": "Reorder reverse (1,000 items)",
@@ -4732,9 +4732,9 @@
             "hzLabel": "133 ops/s",
             "mean": 7.539027492537299,
             "meanLabel": "7.54ms",
-            "tier": "fast"
+            "tier": "blazing"
           },
-          "_tier": "fast"
+          "_tier": "blazing"
         },
         "computed access": {
           "Access keys 100 times (1,000 items, cached)": {
@@ -4981,7 +4981,7 @@
         "mean": 0.004266684326785373,
         "meanLabel": "4.3μs",
         "rme": 14.6,
-        "tier": "fast"
+        "tier": "blazing"
       },
       "Onboard 1,000 items": {
         "name": "Onboard 1,000 items",
@@ -5098,7 +5098,7 @@
         "mean": 0.004399675727044739,
         "meanLabel": "4.4μs",
         "rme": 12.9,
-        "tier": "fast"
+        "tier": "blazing"
       },
       "Register then unregister single item": {
         "name": "Register then unregister single item",
@@ -5107,7 +5107,7 @@
         "mean": 0.004748803656560493,
         "meanLabel": "4.7μs",
         "rme": 11.7,
-        "tier": "fast"
+        "tier": "blazing"
       },
       "Onboard then clear 1,000 items": {
         "name": "Onboard then clear 1,000 items",
@@ -5152,7 +5152,7 @@
         "mean": 0.552178807946977,
         "meanLabel": "552.2μs",
         "rme": 5.6,
-        "tier": "fast"
+        "tier": "blazing"
       },
       "Onboard 10,000 then offboard 5,000 items": {
         "name": "Onboard 10,000 then offboard 5,000 items",
@@ -5161,7 +5161,7 @@
         "mean": 7.539027492537299,
         "meanLabel": "7.54ms",
         "rme": 5.4,
-        "tier": "fast"
+        "tier": "blazing"
       },
       "Reorder reverse (1,000 items)": {
         "name": "Reorder reverse (1,000 items)",
@@ -5377,7 +5377,7 @@
         "meanLabel": "597.86ms",
         "tier": "blazing"
       },
-      "_tier": "fast"
+      "_tier": "blazing"
     }
   },
   "createSelection": {
@@ -5397,7 +5397,7 @@
             "mean": 0.022362672123144595,
             "meanLabel": "22.4μs",
             "rme": 13.1,
-            "tier": "good"
+            "tier": "fast"
           },
           "Onboard 1,000 items": {
             "name": "Onboard 1,000 items",
@@ -5459,7 +5459,7 @@
             "hzLabel": "44.7k ops/s",
             "mean": 0.022362672123144595,
             "meanLabel": "22.4μs",
-            "tier": "good"
+            "tier": "fast"
           },
           "_slowest": {
             "name": "Onboard 10,000 items (enroll)",
@@ -5469,7 +5469,7 @@
             "meanLabel": "22.97ms",
             "tier": "fast"
           },
-          "_tier": "good"
+          "_tier": "fast"
         },
         "lookup operations": {
           "Check selected (1,000 items)": {
@@ -5772,7 +5772,7 @@
         "mean": 0.022362672123144595,
         "meanLabel": "22.4μs",
         "rme": 13.1,
-        "tier": "good"
+        "tier": "fast"
       },
       "Onboard 1,000 items": {
         "name": "Onboard 1,000 items",
@@ -6042,7 +6042,7 @@
         "meanLabel": "23.95ms",
         "tier": "fast"
       },
-      "_tier": "good"
+      "_tier": "fast"
     }
   },
   "createSingle": {
@@ -6078,7 +6078,7 @@
             "mean": 0.021407807972152876,
             "meanLabel": "21.4μs",
             "rme": 14.1,
-            "tier": "good"
+            "tier": "fast"
           },
           "Create empty sortable (disabled)": {
             "name": "Create empty sortable (disabled)",
@@ -6087,7 +6087,7 @@
             "mean": 0.02233939746166011,
             "meanLabel": "22.3μs",
             "rme": 15.2,
-            "tier": "good"
+            "tier": "fast"
           },
           "_fastest": {
             "name": "Create empty sortable",
@@ -6095,7 +6095,7 @@
             "hzLabel": "46.7k ops/s",
             "mean": 0.021407807972152876,
             "meanLabel": "21.4μs",
-            "tier": "good"
+            "tier": "fast"
           },
           "_slowest": {
             "name": "Create empty sortable (disabled)",
@@ -6103,9 +6103,9 @@
             "hzLabel": "44.8k ops/s",
             "mean": 0.02233939746166011,
             "meanLabel": "22.3μs",
-            "tier": "good"
+            "tier": "fast"
           },
-          "_tier": "good"
+          "_tier": "fast"
         },
         "lookup operations": {
           "Get by id (1,000 items)": {
@@ -6409,7 +6409,7 @@
         "mean": 0.021407807972152876,
         "meanLabel": "21.4μs",
         "rme": 14.1,
-        "tier": "good"
+        "tier": "fast"
       },
       "Create empty sortable (disabled)": {
         "name": "Create empty sortable (disabled)",
@@ -6418,7 +6418,7 @@
         "mean": 0.02233939746166011,
         "meanLabel": "22.3μs",
         "rme": 15.2,
-        "tier": "good"
+        "tier": "fast"
       },
       "Get by id (1,000 items)": {
         "name": "Get by id (1,000 items)",
@@ -6616,7 +6616,7 @@
         "meanLabel": "22.33ms",
         "tier": "fast"
       },
-      "_tier": "good"
+      "_tier": "fast"
     }
   },
   "createStep": {
@@ -7828,7 +7828,7 @@
             "mean": 0.0013242593585349822,
             "meanLabel": "1.3μs",
             "rme": 11.6,
-            "tier": "fast"
+            "tier": "blazing"
           },
           "create 1000 dates": {
             "name": "create 1000 dates",
@@ -7855,7 +7855,7 @@
             "meanLabel": "536.8μs",
             "tier": "blazing"
           },
-          "_tier": "fast"
+          "_tier": "blazing"
         },
         "formatting": {
           "format fullDate": {
@@ -7865,7 +7865,7 @@
             "mean": 0.0019875066620888126,
             "meanLabel": "2.0μs",
             "rme": 0.5,
-            "tier": "fast"
+            "tier": "blazing"
           },
           "format shortDate": {
             "name": "format shortDate",
@@ -7874,7 +7874,7 @@
             "mean": 0.002080370359712379,
             "meanLabel": "2.1μs",
             "rme": 0.5,
-            "tier": "fast"
+            "tier": "blazing"
           },
           "format 1000 dates": {
             "name": "format 1000 dates",
@@ -7891,7 +7891,7 @@
             "hzLabel": "503.1k ops/s",
             "mean": 0.0019875066620888126,
             "meanLabel": "2.0μs",
-            "tier": "fast"
+            "tier": "blazing"
           },
           "_slowest": {
             "name": "format 1000 dates",
@@ -7920,7 +7920,7 @@
             "mean": 0.002076620103224711,
             "meanLabel": "2.1μs",
             "rme": 24.5,
-            "tier": "fast"
+            "tier": "blazing"
           },
           "startOfMonth": {
             "name": "startOfMonth",
@@ -7929,7 +7929,7 @@
             "mean": 0.0018043767141199783,
             "meanLabel": "1.8μs",
             "rme": 20.9,
-            "tier": "fast"
+            "tier": "blazing"
           },
           "getWeekArray": {
             "name": "getWeekArray",
@@ -7938,7 +7938,7 @@
             "mean": 0.06182900704837456,
             "meanLabel": "61.8μs",
             "rme": 44.4,
-            "tier": "good"
+            "tier": "fast"
           },
           "_fastest": {
             "name": "startOfDay",
@@ -7954,9 +7954,9 @@
             "hzLabel": "16.2k ops/s",
             "mean": 0.06182900704837456,
             "meanLabel": "61.8μs",
-            "tier": "good"
+            "tier": "fast"
           },
-          "_tier": "good"
+          "_tier": "fast"
         },
         "arithmetic": {
           "addDays": {
@@ -7966,7 +7966,7 @@
             "mean": 0.0011565100384744293,
             "meanLabel": "1.2μs",
             "rme": 23.6,
-            "tier": "fast"
+            "tier": "blazing"
           },
           "addMonths": {
             "name": "addMonths",
@@ -7975,7 +7975,7 @@
             "mean": 0.0012695379201751729,
             "meanLabel": "1.3μs",
             "rme": 31.2,
-            "tier": "fast"
+            "tier": "blazing"
           },
           "chain 10 additions": {
             "name": "chain 10 additions",
@@ -7992,7 +7992,7 @@
             "hzLabel": "864.7k ops/s",
             "mean": 0.0011565100384744293,
             "meanLabel": "1.2μs",
-            "tier": "fast"
+            "tier": "blazing"
           },
           "_slowest": {
             "name": "chain 10 additions",
@@ -8021,7 +8021,7 @@
             "mean": 0.001408961343856639,
             "meanLabel": "1.4μs",
             "rme": 38.1,
-            "tier": "fast"
+            "tier": "blazing"
           },
           "compare 1000 pairs": {
             "name": "compare 1000 pairs",
@@ -8048,7 +8048,7 @@
             "meanLabel": "704.3μs",
             "tier": "blazing"
           },
-          "_tier": "fast"
+          "_tier": "blazing"
         },
         "getters/setters": {
           "get components": {
@@ -8067,7 +8067,7 @@
             "mean": 0.002317594105871255,
             "meanLabel": "2.3μs",
             "rme": 20.8,
-            "tier": "fast"
+            "tier": "blazing"
           },
           "_fastest": {
             "name": "get components",
@@ -8083,9 +8083,9 @@
             "hzLabel": "431.5k ops/s",
             "mean": 0.002317594105871255,
             "meanLabel": "2.3μs",
-            "tier": "fast"
+            "tier": "blazing"
           },
-          "_tier": "fast"
+          "_tier": "blazing"
         },
         "locale switching": {
           "locale change + reformat": {
@@ -8095,7 +8095,7 @@
             "mean": 0.05120960446560821,
             "meanLabel": "51.2μs",
             "rme": 1.9,
-            "tier": "good"
+            "tier": "fast"
           },
           "toggle locale 10 times": {
             "name": "toggle locale 10 times",
@@ -8104,7 +8104,7 @@
             "mean": 0.5897762334914076,
             "meanLabel": "589.8μs",
             "rme": 2,
-            "tier": "good"
+            "tier": "fast"
           },
           "cache eviction (60 unique formats)": {
             "name": "cache eviction (60 unique formats)",
@@ -8121,7 +8121,7 @@
             "hzLabel": "19.5k ops/s",
             "mean": 0.05120960446560821,
             "meanLabel": "51.2μs",
-            "tier": "good"
+            "tier": "fast"
           },
           "_slowest": {
             "name": "toggle locale 10 times",
@@ -8129,9 +8129,9 @@
             "hzLabel": "1.7k ops/s",
             "mean": 0.5897762334914076,
             "meanLabel": "589.8μs",
-            "tier": "good"
+            "tier": "fast"
           },
-          "_tier": "good"
+          "_tier": "fast"
         }
       },
       "create date from null (now)": {
@@ -8159,7 +8159,7 @@
         "mean": 0.0013242593585349822,
         "meanLabel": "1.3μs",
         "rme": 11.6,
-        "tier": "fast"
+        "tier": "blazing"
       },
       "create 1000 dates": {
         "name": "create 1000 dates",
@@ -8177,7 +8177,7 @@
         "mean": 0.0019875066620888126,
         "meanLabel": "2.0μs",
         "rme": 0.5,
-        "tier": "fast"
+        "tier": "blazing"
       },
       "format shortDate": {
         "name": "format shortDate",
@@ -8186,7 +8186,7 @@
         "mean": 0.002080370359712379,
         "meanLabel": "2.1μs",
         "rme": 0.5,
-        "tier": "fast"
+        "tier": "blazing"
       },
       "format 1000 dates": {
         "name": "format 1000 dates",
@@ -8213,7 +8213,7 @@
         "mean": 0.002076620103224711,
         "meanLabel": "2.1μs",
         "rme": 24.5,
-        "tier": "fast"
+        "tier": "blazing"
       },
       "startOfMonth": {
         "name": "startOfMonth",
@@ -8222,7 +8222,7 @@
         "mean": 0.0018043767141199783,
         "meanLabel": "1.8μs",
         "rme": 20.9,
-        "tier": "fast"
+        "tier": "blazing"
       },
       "getWeekArray": {
         "name": "getWeekArray",
@@ -8231,7 +8231,7 @@
         "mean": 0.06182900704837456,
         "meanLabel": "61.8μs",
         "rme": 44.4,
-        "tier": "good"
+        "tier": "fast"
       },
       "addDays": {
         "name": "addDays",
@@ -8240,7 +8240,7 @@
         "mean": 0.0011565100384744293,
         "meanLabel": "1.2μs",
         "rme": 23.6,
-        "tier": "fast"
+        "tier": "blazing"
       },
       "addMonths": {
         "name": "addMonths",
@@ -8249,7 +8249,7 @@
         "mean": 0.0012695379201751729,
         "meanLabel": "1.3μs",
         "rme": 31.2,
-        "tier": "fast"
+        "tier": "blazing"
       },
       "chain 10 additions": {
         "name": "chain 10 additions",
@@ -8276,7 +8276,7 @@
         "mean": 0.001408961343856639,
         "meanLabel": "1.4μs",
         "rme": 38.1,
-        "tier": "fast"
+        "tier": "blazing"
       },
       "compare 1000 pairs": {
         "name": "compare 1000 pairs",
@@ -8303,7 +8303,7 @@
         "mean": 0.002317594105871255,
         "meanLabel": "2.3μs",
         "rme": 20.8,
-        "tier": "fast"
+        "tier": "blazing"
       },
       "locale change + reformat": {
         "name": "locale change + reformat",
@@ -8312,7 +8312,7 @@
         "mean": 0.05120960446560821,
         "meanLabel": "51.2μs",
         "rme": 1.9,
-        "tier": "good"
+        "tier": "fast"
       },
       "toggle locale 10 times": {
         "name": "toggle locale 10 times",
@@ -8321,7 +8321,7 @@
         "mean": 0.5897762334914076,
         "meanLabel": "589.8μs",
         "rme": 2,
-        "tier": "good"
+        "tier": "fast"
       },
       "cache eviction (60 unique formats)": {
         "name": "cache eviction (60 unique formats)",
@@ -8348,7 +8348,7 @@
         "meanLabel": "1.89ms",
         "tier": "fast"
       },
-      "_tier": "good"
+      "_tier": "fast"
     }
   },
   "useDelay": {
@@ -8512,7 +8512,7 @@
             "mean": 0.012048663319607116,
             "meanLabel": "12.0μs",
             "rme": 22.1,
-            "tier": "good"
+            "tier": "fast"
           },
           "Create proxy (1,000 items)": {
             "name": "Create proxy (1,000 items)",
@@ -8538,7 +8538,7 @@
             "hzLabel": "83.0k ops/s",
             "mean": 0.012048663319607116,
             "meanLabel": "12.0μs",
-            "tier": "good"
+            "tier": "fast"
           },
           "_slowest": {
             "name": "Create proxy (10,000 items)",
@@ -8548,7 +8548,7 @@
             "meanLabel": "5.73ms",
             "tier": "blazing"
           },
-          "_tier": "good"
+          "_tier": "fast"
         },
         "computed access": {
           "registry.keys() (1,000 items)": {
@@ -8831,7 +8831,7 @@
         "mean": 0.012048663319607116,
         "meanLabel": "12.0μs",
         "rme": 22.1,
-        "tier": "good"
+        "tier": "fast"
       },
       "Create proxy (1,000 items)": {
         "name": "Create proxy (1,000 items)",
@@ -9083,7 +9083,7 @@
         "meanLabel": "6.99ms",
         "tier": "blazing"
       },
-      "_tier": "good"
+      "_tier": "fast"
     }
   },
   "useRaf": {

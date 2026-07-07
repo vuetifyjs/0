@@ -45,10 +45,10 @@
   }
 
   const tierDescriptions: Record<string, string> = {
-    blazing: 'Under 1μs per unit of work and under one frame per call — imperceptible at any scale',
-    fast: 'Under 10μs per unit of work, single call within two frames — smooth for typical workloads',
-    good: 'Under 100μs per unit of work, single call under 100ms — fine for standard use',
-    slow: 'Costly per unit of work or a single call over 100ms — user-perceptible, needs investigation',
+    blazing: 'Under 1μs per item (or 10μs per one-shot call) — imperceptible at any scale',
+    fast: 'Under 10μs per item, single call within two frames — smooth for typical workloads',
+    good: 'Under 100μs per item, single call under 100ms — fine for standard use',
+    slow: 'Costly per item or a single call over 100ms — user-perceptible, needs investigation',
     unmeasured: 'No benchmark data recorded for this feature yet',
   }
 

@@ -75,13 +75,16 @@ export function formatTime (ms: number): string {
 /**
  * Parse the declared workload out of a bench name. Bench names consistently
  * encode collection size ("(10,000 items)", "~1,000 tree items") and repeat
- * factor ("Access values 100 times"). Unmatched quantities default to 1, which
- * under-counts work and therefore over-estimates cost — errs strict, never lenient.
+ * factor ("Access values 100 times"). Bare numbers ≥ 1000 also count as
+ * collection size ("Onboard 10,000 then offboard 1,000 items"). Unmatched
+ * quantities default to 1, which under-counts work and therefore
+ * over-estimates cost — errs strict, never lenient.
  */
 const NOUN = /~?([\d,]+)(?:\s+\w+){0,2}?\s+(?:items?|elements?|entries|objects?|dates?|pairs?|nodes?|rows?|cells?|keys?|queries|tokens?|fields?|values?|columns?|groups?|thumbs?|primitives?|paths?|additions?|formats?)\b/gi
 const TIMES = /([\d,]+)\s+times\b/i
+const BARE = /([\d,]{4,})/g
 
-export function workload (name: string): { units: number, repeats: number } {
+export function workload (name: string): { items: number, repeats: number } {
   const match = name.match(TIMES)
   const repeats = match ? Number.parseInt(match[1].replaceAll(',', '')) : 1
   let items = 1
@@ -89,7 +92,11 @@ export function workload (name: string): { units: number, repeats: number } {
     const n = Number.parseInt(m[1].replaceAll(',', ''))
     if (n > items) items = n
   }
-  return { units: items * repeats, repeats }
+  for (const m of name.matchAll(BARE)) {
+    const n = Number.parseInt(m[1].replaceAll(',', ''))
+    if (n >= 1000 && n > items) items = n
+  }
+  return { items, repeats }
 }
 
 /**
@@ -97,14 +104,19 @@ export function workload (name: string): { units: number, repeats: number } {
  * a 10k-item op at 17 hz (5.9μs/item) can be better engineered than a
  * single-item op at 200k hz (5μs/item).
  *
- * Two axes, worst wins:
- * 1. Per-unit cost (μs per item·repeat): is the work done efficiently?
+ * Collection benches (items > 1) — two axes, worst wins:
+ * 1. Per-item cost: is the work done efficiently?
  * 2. Single-op latency (mean ÷ repeats vs frame budget): is one logical call
  *    something a user would feel? Keeps a 160ms 10k-row sort from badging
  *    "fast" just because its per-item cost is honest.
+ *
+ * One-shot benches (items = 1: constructors, single utility calls) have no
+ * workload to amortize — "per-item" would be a category error that grades a
+ * 22μs constructor against per-item budgets. They tier on call latency alone,
+ * against one-shot budgets.
  */
-const UNIT_TIERS: Array<[number, Tier]> = [
-  [1, 'blazing'], // < 1μs per unit
+const ITEM_TIERS: Array<[number, Tier]> = [
+  [1, 'blazing'], // < 1μs per item
   [10, 'fast'],
   [100, 'good'],
   [Infinity, 'slow'],
@@ -115,13 +127,25 @@ const LATENCY_TIERS: Array<[number, Tier]> = [
   [100, 'good'], // perceptibility threshold
   [Infinity, 'slow'],
 ]
+const SHOT_TIERS: Array<[number, Tier]> = [
+  [10, 'blazing'], // < 10μs per call
+  [100, 'fast'],
+  [16_700, 'good'], // within one frame
+  [Infinity, 'slow'],
+]
 const TIER_SCORES: Record<Tier, number> = { blazing: 4, fast: 3, good: 2, slow: 1 }
 
 export function getTier (mean: number, name: string): Tier {
-  const { units, repeats } = workload(name)
-  const unit = (mean * 1000) / units // μs per unit of work
+  const { items, repeats } = workload(name)
   const latency = mean / repeats // ms per single logical op
-  const efficiency = UNIT_TIERS.find(([edge]) => unit < edge)![1]
+
+  if (items === 1) {
+    const us = latency * 1000
+    return SHOT_TIERS.find(([edge]) => us < edge)![1]
+  }
+
+  const cost = (mean * 1000) / (items * repeats) // μs per item
+  const efficiency = ITEM_TIERS.find(([edge]) => cost < edge)![1]
   const feel = LATENCY_TIERS.find(([edge]) => latency <= edge)![1]
   return TIER_SCORES[efficiency] < TIER_SCORES[feel] ? efficiency : feel
 }
