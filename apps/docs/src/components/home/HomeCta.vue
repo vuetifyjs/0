@@ -15,7 +15,7 @@
     {
       title: 'Join Discord',
       description: 'Get help, share ideas, showcase your work.',
-      to: 'https://community.vuetifyjs.com',
+      to: 'https://discord.gg/vuetify',
       icon: 'discord',
     },
   ]
