@@ -44,8 +44,8 @@ function createPopulatedRegistry (count: number): RegistryContext<RegistryTicket
   return registry
 }
 
-// Reactive variant: keys()/values()/entries() skip the read cache and recompute
-// on every call, so these fixtures isolate the uncached O(n) read cost.
+// Reactive variant: keys()/values()/entries() read through the version-memoized
+// cache; these fixtures isolate the reactive read path (touch signal + cache hit).
 function createReactiveRegistry (count: number): RegistryContext<RegistryTicket> {
   const registry = createRegistry({ reactive: true })
   const items = count === 1000 ? ITEMS_1K : ITEMS_10K
@@ -264,7 +264,7 @@ describe('createRegistry benchmarks', () => {
   })
 
   // ===========================================================================
-  // REACTIVE ACCESS - Uncached recompute path (reactive: true bypasses the cache)
+  // REACTIVE ACCESS - Version-memoized path (reactive: true tracks one signal)
   // Shared fixture (safe - read-only operations, no state changes)
   // Measures: full O(n) recompute of keys/values/entries on every call (the
   // `computed access` group above measures the cached path), plus the combined

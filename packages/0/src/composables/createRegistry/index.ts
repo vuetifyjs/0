@@ -34,7 +34,7 @@ import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
 import { clamp, isUndefined, useId } from '#v0/utilities'
-import { shallowReactive } from 'vue'
+import { shallowReactive, shallowRef } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -712,7 +712,7 @@ export interface RegistryOptions {
    * Enable reactive behavior for registry operations
    *
    * @default false
-   * @remarks When enabled, the registry will use Vue's shallowReactive to track changes. This is useful for scenarios where you want to reactively update the registry state in response to changes.
+   * @remarks When enabled, tickets and the backing collection are shallowReactive, and `keys()`, `values()`, and `entries()` register a single version dependency so effects and templates re-evaluate on structural mutation. Iteration results stay cached between mutations — reactive reads cost the same as non-reactive ones.
    *
    * @example
    * ```ts
@@ -771,7 +771,13 @@ export function createRegistry<
   const listeners = new Map<string, Set<InternalEventCallback>>()
   // Canonical position sequence, kept in lockstep with `collection`. Holds
   // ticket refs so values()/entries()/reindex() read them without a Map lookup.
-  const order = (reactive ? shallowReactive([] as E[]) : []) as E[]
+  // Deliberately NOT shallowReactive: element-by-element reads of a reactive
+  // array pay a proxy trap per index and, inside an effect, track a dependency
+  // per index. Iteration reactivity comes from `version` instead — one signal
+  // bumped on every structural mutation — so a subscribing effect holds a
+  // single dependency regardless of collection size.
+  const order: E[] = []
+  const version = shallowRef(0)
 
   let indexDependentCount = 0
   let needsReindex = false
@@ -906,11 +912,9 @@ export function createRegistry<
   }
 
   function keys (): readonly ID[] {
-    if (reactive) {
-      // `order` is shallowReactive, so reading it here registers the dependency.
-      // Effects re-evaluate when order is mutated (register, unregister, move, …).
-      return order.map(ticket => ticket.id)
-    }
+    // Touching `version` registers the (single) dependency; effects re-evaluate
+    // when the registry is structurally mutated (register, unregister, move, …).
+    if (reactive) void version.value
 
     const cached = cache.get('keys')
     if (!isUndefined(cached)) return cached as readonly ID[]
@@ -923,9 +927,7 @@ export function createRegistry<
   }
 
   function values (): readonly E[] {
-    if (reactive) {
-      return order.slice()
-    }
+    if (reactive) void version.value
 
     const cached = cache.get('values')
     if (!isUndefined(cached)) return cached as readonly E[]
@@ -938,9 +940,7 @@ export function createRegistry<
   }
 
   function entries (): readonly [ID, E][] {
-    if (reactive) {
-      return order.map(ticket => [ticket.id, ticket] as [ID, E])
-    }
+    if (reactive) void version.value
 
     const cached = cache.get('entries')
     if (!isUndefined(cached)) return cached as readonly [ID, E][]
@@ -966,8 +966,13 @@ export function createRegistry<
   }
 
   function invalidate () {
-    if (isBatching) return
+    // Always drop the cache — a sync effect firing mid-batch (e.g. off a
+    // collection Map write) must rebuild from the already-compacted order,
+    // never read a pre-batch snapshot. The version bump alone is deferred to
+    // the end of a batch so subscribers are notified once per batch.
     cache.clear()
+    if (isBatching) return
+    version.value++
   }
 
   function batch<R> (fn: () => R): R {
@@ -990,6 +995,7 @@ export function createRegistry<
       isBatching = false
       batched = []
       cache.clear()
+      version.value++
     }
   }
 
