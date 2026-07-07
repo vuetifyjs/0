@@ -13,7 +13,7 @@
               "mean": 9.580319811325884,
               "meanLabel": "9.58ms",
               "rme": 7,
-              "tier": "good"
+              "tier": "fast"
             },
             "Create grid (10,000 items)": {
               "name": "Create grid (10,000 items)",
@@ -22,7 +22,7 @@
               "mean": 97.0885154999938,
               "meanLabel": "97.09ms",
               "rme": 3.3,
-              "tier": "slow"
+              "tier": "good"
             },
             "Create grid with pinned columns (1,000 items)": {
               "name": "Create grid with pinned columns (1,000 items)",
@@ -31,7 +31,7 @@
               "mean": 9.911546352943155,
               "meanLabel": "9.91ms",
               "rme": 10.4,
-              "tier": "good"
+              "tier": "fast"
             },
             "Create grid with editable columns (1,000 items)": {
               "name": "Create grid with editable columns (1,000 items)",
@@ -40,7 +40,7 @@
               "mean": 9.535016018867093,
               "meanLabel": "9.54ms",
               "rme": 8.3,
-              "tier": "good"
+              "tier": "fast"
             },
             "Create grid with all options (1,000 items)": {
               "name": "Create grid with all options (1,000 items)",
@@ -49,7 +49,7 @@
               "mean": 9.741058903845373,
               "meanLabel": "9.74ms",
               "rme": 8.6,
-              "tier": "good"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Create grid with editable columns (1,000 items)",
@@ -57,7 +57,7 @@
               "hzLabel": "105 ops/s",
               "mean": 9.535016018867093,
               "meanLabel": "9.54ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Create grid (10,000 items)",
@@ -65,7 +65,7 @@
               "hzLabel": "10 ops/s",
               "mean": 97.0885154999938,
               "meanLabel": "97.09ms",
-              "tier": "slow"
+              "tier": "good"
             },
             "_tier": "good"
           },
@@ -77,7 +77,7 @@
               "mean": 10.561935448976904,
               "meanLabel": "10.56ms",
               "rme": 8,
-              "tier": "slow"
+              "tier": "good"
             },
             "Search then read filtered items (10,000 items)": {
               "name": "Search then read filtered items (10,000 items)",
@@ -94,7 +94,7 @@
               "hzLabel": "95 ops/s",
               "mean": 10.561935448976904,
               "meanLabel": "10.56ms",
-              "tier": "slow"
+              "tier": "good"
             },
             "_slowest": {
               "name": "Search then read filtered items (10,000 items)",
@@ -114,7 +114,7 @@
               "mean": 14.190382583332799,
               "meanLabel": "14.19ms",
               "rme": 5.6,
-              "tier": "slow"
+              "tier": "good"
             },
             "Sort by string column ascending (10,000 items)": {
               "name": "Sort by string column ascending (10,000 items)",
@@ -132,7 +132,7 @@
               "mean": 14.051633972218648,
               "meanLabel": "14.05ms",
               "rme": 5.8,
-              "tier": "slow"
+              "tier": "good"
             },
             "Sort by custom comparator (10,000 items)": {
               "name": "Sort by custom comparator (10,000 items)",
@@ -149,7 +149,7 @@
               "hzLabel": "71 ops/s",
               "mean": 14.051633972218648,
               "meanLabel": "14.05ms",
-              "tier": "slow"
+              "tier": "good"
             },
             "_slowest": {
               "name": "Sort by custom comparator (10,000 items)",
@@ -169,7 +169,7 @@
               "mean": 9.723114134614521,
               "meanLabel": "9.72ms",
               "rme": 7.4,
-              "tier": "good"
+              "tier": "fast"
             },
             "Resize column (1,000 items)": {
               "name": "Resize column (1,000 items)",
@@ -178,7 +178,7 @@
               "mean": 9.597901226417271,
               "meanLabel": "9.60ms",
               "rme": 7.1,
-              "tier": "good"
+              "tier": "fast"
             },
             "Resize column 10 times (1,000 items)": {
               "name": "Resize column 10 times (1,000 items)",
@@ -187,7 +187,7 @@
               "mean": 9.865570865385122,
               "meanLabel": "9.87ms",
               "rme": 8,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Reorder column (1,000 items)": {
               "name": "Reorder column (1,000 items)",
@@ -196,7 +196,7 @@
               "mean": 10.73870321276766,
               "meanLabel": "10.74ms",
               "rme": 8.1,
-              "tier": "slow"
+              "tier": "good"
             },
             "Reset layout (1,000 items)": {
               "name": "Reset layout (1,000 items)",
@@ -205,7 +205,7 @@
               "mean": 14.40056242857411,
               "meanLabel": "14.40ms",
               "rme": 46.2,
-              "tier": "slow"
+              "tier": "good"
             },
             "_fastest": {
               "name": "Resize column (1,000 items)",
@@ -213,7 +213,7 @@
               "hzLabel": "104 ops/s",
               "mean": 9.597901226417271,
               "meanLabel": "9.60ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Reset layout (1,000 items)",
@@ -221,7 +221,7 @@
               "hzLabel": "69 ops/s",
               "mean": 14.40056242857411,
               "meanLabel": "14.40ms",
-              "tier": "slow"
+              "tier": "good"
             },
             "_tier": "good"
           },
@@ -233,7 +233,7 @@
               "mean": 10.261178734696266,
               "meanLabel": "10.26ms",
               "rme": 7.1,
-              "tier": "slow"
+              "tier": "good"
             },
             "Edit then commit (1,000 items)": {
               "name": "Edit then commit (1,000 items)",
@@ -242,7 +242,7 @@
               "mean": 10.166408000002265,
               "meanLabel": "10.17ms",
               "rme": 6.3,
-              "tier": "slow"
+              "tier": "good"
             },
             "Edit then cancel (1,000 items)": {
               "name": "Edit then cancel (1,000 items)",
@@ -251,7 +251,7 @@
               "mean": 10.249974877552168,
               "meanLabel": "10.25ms",
               "rme": 6.6,
-              "tier": "slow"
+              "tier": "good"
             },
             "Edit with validation failure (1,000 items)": {
               "name": "Edit with validation failure (1,000 items)",
@@ -260,7 +260,7 @@
               "mean": 10.142201780001633,
               "meanLabel": "10.14ms",
               "rme": 6.4,
-              "tier": "slow"
+              "tier": "good"
             },
             "Edit 10 cells sequentially (1,000 items)": {
               "name": "Edit 10 cells sequentially (1,000 items)",
@@ -269,7 +269,7 @@
               "mean": 10.451285854168114,
               "meanLabel": "10.45ms",
               "rme": 7.1,
-              "tier": "slow"
+              "tier": "good"
             },
             "_fastest": {
               "name": "Edit with validation failure (1,000 items)",
@@ -277,7 +277,7 @@
               "hzLabel": "99 ops/s",
               "mean": 10.142201780001633,
               "meanLabel": "10.14ms",
-              "tier": "slow"
+              "tier": "good"
             },
             "_slowest": {
               "name": "Edit 10 cells sequentially (1,000 items)",
@@ -285,9 +285,9 @@
               "hzLabel": "96 ops/s",
               "mean": 10.451285854168114,
               "meanLabel": "10.45ms",
-              "tier": "slow"
+              "tier": "good"
             },
-            "_tier": "slow"
+            "_tier": "good"
           },
           "row ordering": {
             "Move row (1,000 items)": {
@@ -297,7 +297,7 @@
               "mean": 18.900169703701977,
               "meanLabel": "18.90ms",
               "rme": 4.8,
-              "tier": "slow"
+              "tier": "good"
             },
             "Move 10 rows (1,000 items)": {
               "name": "Move 10 rows (1,000 items)",
@@ -306,7 +306,7 @@
               "mean": 47.89782009091207,
               "meanLabel": "47.90ms",
               "rme": 3.5,
-              "tier": "slow"
+              "tier": "good"
             },
             "Reset row order (1,000 items)": {
               "name": "Reset row order (1,000 items)",
@@ -315,7 +315,7 @@
               "mean": 23.34374959091127,
               "meanLabel": "23.34ms",
               "rme": 5.3,
-              "tier": "slow"
+              "tier": "good"
             },
             "_fastest": {
               "name": "Move row (1,000 items)",
@@ -323,7 +323,7 @@
               "hzLabel": "53 ops/s",
               "mean": 18.900169703701977,
               "meanLabel": "18.90ms",
-              "tier": "slow"
+              "tier": "good"
             },
             "_slowest": {
               "name": "Move 10 rows (1,000 items)",
@@ -331,9 +331,9 @@
               "hzLabel": "21 ops/s",
               "mean": 47.89782009091207,
               "meanLabel": "47.90ms",
-              "tier": "slow"
+              "tier": "good"
             },
-            "_tier": "slow"
+            "_tier": "good"
           },
           "row spanning": {
             "Compute spans (1,000 items, 1 column)": {
@@ -343,7 +343,7 @@
               "mean": 10.431601104169507,
               "meanLabel": "10.43ms",
               "rme": 6.6,
-              "tier": "slow"
+              "tier": "good"
             },
             "Compute spans (10,000 items, 1 column)": {
               "name": "Compute spans (10,000 items, 1 column)",
@@ -360,7 +360,7 @@
               "hzLabel": "96 ops/s",
               "mean": 10.431601104169507,
               "meanLabel": "10.43ms",
-              "tier": "slow"
+              "tier": "good"
             },
             "_slowest": {
               "name": "Compute spans (10,000 items, 1 column)",
@@ -444,7 +444,7 @@
               "mean": 15.360385121211452,
               "meanLabel": "15.36ms",
               "rme": 4.7,
-              "tier": "slow"
+              "tier": "good"
             },
             "Search + sort + paginate (10,000 items)": {
               "name": "Search + sort + paginate (10,000 items)",
@@ -462,7 +462,7 @@
               "mean": 15.393179878790045,
               "meanLabel": "15.39ms",
               "rme": 5.6,
-              "tier": "slow"
+              "tier": "good"
             },
             "Search + sort + paginate + layout (10,000 items)": {
               "name": "Search + sort + paginate + layout (10,000 items)",
@@ -479,7 +479,7 @@
               "hzLabel": "65 ops/s",
               "mean": 15.360385121211452,
               "meanLabel": "15.36ms",
-              "tier": "slow"
+              "tier": "good"
             },
             "_slowest": {
               "name": "Search + sort + paginate + layout (10,000 items)",
@@ -499,7 +499,7 @@
           "mean": 9.580319811325884,
           "meanLabel": "9.58ms",
           "rme": 7,
-          "tier": "good"
+          "tier": "fast"
         },
         "Create grid (10,000 items)": {
           "name": "Create grid (10,000 items)",
@@ -508,7 +508,7 @@
           "mean": 97.0885154999938,
           "meanLabel": "97.09ms",
           "rme": 3.3,
-          "tier": "slow"
+          "tier": "good"
         },
         "Create grid with pinned columns (1,000 items)": {
           "name": "Create grid with pinned columns (1,000 items)",
@@ -517,7 +517,7 @@
           "mean": 9.911546352943155,
           "meanLabel": "9.91ms",
           "rme": 10.4,
-          "tier": "good"
+          "tier": "fast"
         },
         "Create grid with editable columns (1,000 items)": {
           "name": "Create grid with editable columns (1,000 items)",
@@ -526,7 +526,7 @@
           "mean": 9.535016018867093,
           "meanLabel": "9.54ms",
           "rme": 8.3,
-          "tier": "good"
+          "tier": "fast"
         },
         "Create grid with all options (1,000 items)": {
           "name": "Create grid with all options (1,000 items)",
@@ -535,7 +535,7 @@
           "mean": 9.741058903845373,
           "meanLabel": "9.74ms",
           "rme": 8.6,
-          "tier": "good"
+          "tier": "fast"
         },
         "Search then read filtered items (1,000 items)": {
           "name": "Search then read filtered items (1,000 items)",
@@ -544,7 +544,7 @@
           "mean": 10.561935448976904,
           "meanLabel": "10.56ms",
           "rme": 8,
-          "tier": "slow"
+          "tier": "good"
         },
         "Search then read filtered items (10,000 items)": {
           "name": "Search then read filtered items (10,000 items)",
@@ -562,7 +562,7 @@
           "mean": 14.190382583332799,
           "meanLabel": "14.19ms",
           "rme": 5.6,
-          "tier": "slow"
+          "tier": "good"
         },
         "Sort by string column ascending (10,000 items)": {
           "name": "Sort by string column ascending (10,000 items)",
@@ -580,7 +580,7 @@
           "mean": 14.051633972218648,
           "meanLabel": "14.05ms",
           "rme": 5.8,
-          "tier": "slow"
+          "tier": "good"
         },
         "Sort by custom comparator (10,000 items)": {
           "name": "Sort by custom comparator (10,000 items)",
@@ -598,7 +598,7 @@
           "mean": 9.723114134614521,
           "meanLabel": "9.72ms",
           "rme": 7.4,
-          "tier": "good"
+          "tier": "fast"
         },
         "Resize column (1,000 items)": {
           "name": "Resize column (1,000 items)",
@@ -607,7 +607,7 @@
           "mean": 9.597901226417271,
           "meanLabel": "9.60ms",
           "rme": 7.1,
-          "tier": "good"
+          "tier": "fast"
         },
         "Resize column 10 times (1,000 items)": {
           "name": "Resize column 10 times (1,000 items)",
@@ -616,7 +616,7 @@
           "mean": 9.865570865385122,
           "meanLabel": "9.87ms",
           "rme": 8,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Reorder column (1,000 items)": {
           "name": "Reorder column (1,000 items)",
@@ -625,7 +625,7 @@
           "mean": 10.73870321276766,
           "meanLabel": "10.74ms",
           "rme": 8.1,
-          "tier": "slow"
+          "tier": "good"
         },
         "Reset layout (1,000 items)": {
           "name": "Reset layout (1,000 items)",
@@ -634,7 +634,7 @@
           "mean": 14.40056242857411,
           "meanLabel": "14.40ms",
           "rme": 46.2,
-          "tier": "slow"
+          "tier": "good"
         },
         "Edit cell (1,000 items)": {
           "name": "Edit cell (1,000 items)",
@@ -643,7 +643,7 @@
           "mean": 10.261178734696266,
           "meanLabel": "10.26ms",
           "rme": 7.1,
-          "tier": "slow"
+          "tier": "good"
         },
         "Edit then commit (1,000 items)": {
           "name": "Edit then commit (1,000 items)",
@@ -652,7 +652,7 @@
           "mean": 10.166408000002265,
           "meanLabel": "10.17ms",
           "rme": 6.3,
-          "tier": "slow"
+          "tier": "good"
         },
         "Edit then cancel (1,000 items)": {
           "name": "Edit then cancel (1,000 items)",
@@ -661,7 +661,7 @@
           "mean": 10.249974877552168,
           "meanLabel": "10.25ms",
           "rme": 6.6,
-          "tier": "slow"
+          "tier": "good"
         },
         "Edit with validation failure (1,000 items)": {
           "name": "Edit with validation failure (1,000 items)",
@@ -670,7 +670,7 @@
           "mean": 10.142201780001633,
           "meanLabel": "10.14ms",
           "rme": 6.4,
-          "tier": "slow"
+          "tier": "good"
         },
         "Edit 10 cells sequentially (1,000 items)": {
           "name": "Edit 10 cells sequentially (1,000 items)",
@@ -679,7 +679,7 @@
           "mean": 10.451285854168114,
           "meanLabel": "10.45ms",
           "rme": 7.1,
-          "tier": "slow"
+          "tier": "good"
         },
         "Move row (1,000 items)": {
           "name": "Move row (1,000 items)",
@@ -688,7 +688,7 @@
           "mean": 18.900169703701977,
           "meanLabel": "18.90ms",
           "rme": 4.8,
-          "tier": "slow"
+          "tier": "good"
         },
         "Move 10 rows (1,000 items)": {
           "name": "Move 10 rows (1,000 items)",
@@ -697,7 +697,7 @@
           "mean": 47.89782009091207,
           "meanLabel": "47.90ms",
           "rme": 3.5,
-          "tier": "slow"
+          "tier": "good"
         },
         "Reset row order (1,000 items)": {
           "name": "Reset row order (1,000 items)",
@@ -706,7 +706,7 @@
           "mean": 23.34374959091127,
           "meanLabel": "23.34ms",
           "rme": 5.3,
-          "tier": "slow"
+          "tier": "good"
         },
         "Compute spans (1,000 items, 1 column)": {
           "name": "Compute spans (1,000 items, 1 column)",
@@ -715,7 +715,7 @@
           "mean": 10.431601104169507,
           "meanLabel": "10.43ms",
           "rme": 6.6,
-          "tier": "slow"
+          "tier": "good"
         },
         "Compute spans (10,000 items, 1 column)": {
           "name": "Compute spans (10,000 items, 1 column)",
@@ -778,7 +778,7 @@
           "mean": 15.360385121211452,
           "meanLabel": "15.36ms",
           "rme": 4.7,
-          "tier": "slow"
+          "tier": "good"
         },
         "Search + sort + paginate (10,000 items)": {
           "name": "Search + sort + paginate (10,000 items)",
@@ -796,7 +796,7 @@
           "mean": 15.393179878790045,
           "meanLabel": "15.39ms",
           "rme": 5.6,
-          "tier": "slow"
+          "tier": "good"
         },
         "Search + sort + paginate + layout (10,000 items)": {
           "name": "Search + sort + paginate + layout (10,000 items)",
@@ -822,7 +822,8 @@
           "mean": 170.22047509999828,
           "meanLabel": "170.22ms",
           "tier": "slow"
-        }
+        },
+        "_tier": "slow"
       }
     },
     "createDataTable": {
@@ -836,7 +837,7 @@
               "mean": 0.8452164712828046,
               "meanLabel": "845.2μs",
               "rme": 12.6,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Create table (10,000 items)": {
               "name": "Create table (10,000 items)",
@@ -845,7 +846,7 @@
               "mean": 7.7195227384603085,
               "meanLabel": "7.72ms",
               "rme": 14.8,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Create table with groupBy (1,000 items)": {
               "name": "Create table with groupBy (1,000 items)",
@@ -854,7 +855,7 @@
               "mean": 0.8641063851468822,
               "meanLabel": "864.1μs",
               "rme": 12.6,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Create table with all options (1,000 items)": {
               "name": "Create table with all options (1,000 items)",
@@ -863,7 +864,7 @@
               "mean": 1.3884161823200518,
               "meanLabel": "1.39ms",
               "rme": 10.5,
-              "tier": "good"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Create table (1,000 items)",
@@ -871,7 +872,7 @@
               "hzLabel": "1.2k ops/s",
               "mean": 0.8452164712828046,
               "meanLabel": "845.2μs",
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_slowest": {
               "name": "Create table (10,000 items)",
@@ -879,7 +880,7 @@
               "hzLabel": "130 ops/s",
               "mean": 7.7195227384603085,
               "meanLabel": "7.72ms",
-              "tier": "good"
+              "tier": "blazing"
             },
             "_tier": "fast"
           },
@@ -891,7 +892,7 @@
               "mean": 1.315917260528199,
               "meanLabel": "1.32ms",
               "rme": 8.9,
-              "tier": "good"
+              "tier": "fast"
             },
             "Search then read filtered items (10,000 items)": {
               "name": "Search then read filtered items (10,000 items)",
@@ -900,7 +901,7 @@
               "mean": 12.430258878049576,
               "meanLabel": "12.43ms",
               "rme": 8.8,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Search with custom column filter (1,000 items)": {
               "name": "Search with custom column filter (1,000 items)",
@@ -909,7 +910,7 @@
               "mean": 1.3637661989102627,
               "meanLabel": "1.36ms",
               "rme": 10.3,
-              "tier": "good"
+              "tier": "fast"
             },
             "Search with custom column filter (10,000 items)": {
               "name": "Search with custom column filter (10,000 items)",
@@ -918,7 +919,7 @@
               "mean": 12.252502853659879,
               "meanLabel": "12.25ms",
               "rme": 9.1,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Update search 10 times (1,000 items)": {
               "name": "Update search 10 times (1,000 items)",
@@ -927,7 +928,7 @@
               "mean": 5.819142896554235,
               "meanLabel": "5.82ms",
               "rme": 5.5,
-              "tier": "good"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Search then read filtered items (1,000 items)",
@@ -935,7 +936,7 @@
               "hzLabel": "760 ops/s",
               "mean": 1.315917260528199,
               "meanLabel": "1.32ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Search then read filtered items (10,000 items)",
@@ -943,9 +944,9 @@
               "hzLabel": "80 ops/s",
               "mean": 12.430258878049576,
               "meanLabel": "12.43ms",
-              "tier": "slow"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "sort pipeline": {
             "Sort by string column ascending (1,000 items)": {
@@ -955,7 +956,7 @@
               "mean": 1.1301451914413856,
               "meanLabel": "1.13ms",
               "rme": 10.5,
-              "tier": "good"
+              "tier": "fast"
             },
             "Sort by string column ascending (10,000 items)": {
               "name": "Sort by string column ascending (10,000 items)",
@@ -964,7 +965,7 @@
               "mean": 10.000367140000453,
               "meanLabel": "10.00ms",
               "rme": 12.8,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Sort by custom comparator (1,000 items)": {
               "name": "Sort by custom comparator (1,000 items)",
@@ -973,7 +974,7 @@
               "mean": 1.156190612008709,
               "meanLabel": "1.16ms",
               "rme": 11.2,
-              "tier": "good"
+              "tier": "fast"
             },
             "Sort by custom comparator (10,000 items)": {
               "name": "Sort by custom comparator (10,000 items)",
@@ -982,7 +983,7 @@
               "mean": 15.299651242422193,
               "meanLabel": "15.30ms",
               "rme": 8.6,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Multi-sort two columns (1,000 items)": {
               "name": "Multi-sort two columns (1,000 items)",
@@ -991,7 +992,7 @@
               "mean": 1.7732901489372441,
               "meanLabel": "1.77ms",
               "rme": 10,
-              "tier": "good"
+              "tier": "fast"
             },
             "Multi-sort two columns (10,000 items)": {
               "name": "Multi-sort two columns (10,000 items)",
@@ -1000,7 +1001,7 @@
               "mean": 17.566163827582855,
               "meanLabel": "17.57ms",
               "rme": 14,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Toggle sort cycle 3 times (1,000 items)": {
               "name": "Toggle sort cycle 3 times (1,000 items)",
@@ -1009,7 +1010,7 @@
               "mean": 1.4685338269801376,
               "meanLabel": "1.47ms",
               "rme": 10.5,
-              "tier": "good"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Sort by string column ascending (1,000 items)",
@@ -1017,7 +1018,7 @@
               "hzLabel": "885 ops/s",
               "mean": 1.1301451914413856,
               "meanLabel": "1.13ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Multi-sort two columns (10,000 items)",
@@ -1025,9 +1026,9 @@
               "hzLabel": "57 ops/s",
               "mean": 17.566163827582855,
               "meanLabel": "17.57ms",
-              "tier": "slow"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "selection operations": {
             "Select single item (1,000 items)": {
@@ -1037,7 +1038,7 @@
               "mean": 0.8667382703651392,
               "meanLabel": "866.7μs",
               "rme": 13.5,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Select all items (1,000 items)": {
               "name": "Select all items (1,000 items)",
@@ -1046,7 +1047,7 @@
               "mean": 1.428784442856143,
               "meanLabel": "1.43ms",
               "rme": 10,
-              "tier": "good"
+              "tier": "fast"
             },
             "Select all items (10,000 items)": {
               "name": "Select all items (10,000 items)",
@@ -1055,7 +1056,7 @@
               "mean": 13.72367802563792,
               "meanLabel": "13.72ms",
               "rme": 11.5,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Select all with itemSelectable (1,000 items)": {
               "name": "Select all with itemSelectable (1,000 items)",
@@ -1064,7 +1065,7 @@
               "mean": 1.2489856508723924,
               "meanLabel": "1.25ms",
               "rme": 9.1,
-              "tier": "good"
+              "tier": "fast"
             },
             "Toggle all then check isAllSelected (1,000 items)": {
               "name": "Toggle all then check isAllSelected (1,000 items)",
@@ -1082,7 +1083,7 @@
               "mean": 0.9148480291434866,
               "meanLabel": "914.8μs",
               "rme": 11.5,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Select single item (1,000 items)",
@@ -1090,7 +1091,7 @@
               "hzLabel": "1.2k ops/s",
               "mean": 0.8667382703651392,
               "meanLabel": "866.7μs",
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_slowest": {
               "name": "Select all items (10,000 items)",
@@ -1098,9 +1099,9 @@
               "hzLabel": "73 ops/s",
               "mean": 13.72367802563792,
               "meanLabel": "13.72ms",
-              "tier": "slow"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "grouping": {
             "Compute groups (1,000 items, 8 groups)": {
@@ -1110,7 +1111,7 @@
               "mean": 0.9564250038252711,
               "meanLabel": "956.4μs",
               "rme": 12.3,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Compute groups (10,000 items, 8 groups)": {
               "name": "Compute groups (10,000 items, 8 groups)",
@@ -1119,7 +1120,7 @@
               "mean": 9.124802254544656,
               "meanLabel": "9.12ms",
               "rme": 14.4,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Open all then close all groups (1,000 items)": {
               "name": "Open all then close all groups (1,000 items)",
@@ -1137,7 +1138,7 @@
               "mean": 1.3613502146728695,
               "meanLabel": "1.36ms",
               "rme": 10.4,
-              "tier": "good"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Compute groups (1,000 items, 8 groups)",
@@ -1145,7 +1146,7 @@
               "hzLabel": "1.0k ops/s",
               "mean": 0.9564250038252711,
               "meanLabel": "956.4μs",
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_slowest": {
               "name": "Compute groups (10,000 items, 8 groups)",
@@ -1153,7 +1154,7 @@
               "hzLabel": "110 ops/s",
               "mean": 9.124802254544656,
               "meanLabel": "9.12ms",
-              "tier": "good"
+              "tier": "blazing"
             },
             "_tier": "fast"
           },
@@ -1220,7 +1221,7 @@
               "mean": 1.4843225697328706,
               "meanLabel": "1.48ms",
               "rme": 10.1,
-              "tier": "good"
+              "tier": "fast"
             },
             "Search + sort + paginate (10,000 items)": {
               "name": "Search + sort + paginate (10,000 items)",
@@ -1229,7 +1230,7 @@
               "mean": 13.221864657896253,
               "meanLabel": "13.22ms",
               "rme": 11.5,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Search + multi-sort + paginate (1,000 items)": {
               "name": "Search + multi-sort + paginate (1,000 items)",
@@ -1238,7 +1239,7 @@
               "mean": 2.201760403510937,
               "meanLabel": "2.20ms",
               "rme": 7.2,
-              "tier": "good"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Search + sort + paginate (1,000 items)",
@@ -1246,7 +1247,7 @@
               "hzLabel": "674 ops/s",
               "mean": 1.4843225697328706,
               "meanLabel": "1.48ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Search + sort + paginate (10,000 items)",
@@ -1254,9 +1255,9 @@
               "hzLabel": "76 ops/s",
               "mean": 13.221864657896253,
               "meanLabel": "13.22ms",
-              "tier": "slow"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "adapter comparison": {
             "ClientDataTableAdapter: sort + paginate (10,000 items)": {
@@ -1266,7 +1267,7 @@
               "mean": 10.091405740000774,
               "meanLabel": "10.09ms",
               "rme": 11.8,
-              "tier": "slow"
+              "tier": "fast"
             },
             "VirtualDataTableAdapter: sort, no pagination (10,000 items)": {
               "name": "VirtualDataTableAdapter: sort, no pagination (10,000 items)",
@@ -1275,7 +1276,7 @@
               "mean": 9.931476274508682,
               "meanLabel": "9.93ms",
               "rme": 11.7,
-              "tier": "good"
+              "tier": "blazing"
             },
             "ClientDataTableAdapter: full pipeline (10,000 items)": {
               "name": "ClientDataTableAdapter: full pipeline (10,000 items)",
@@ -1284,7 +1285,7 @@
               "mean": 12.957038128211234,
               "meanLabel": "12.96ms",
               "rme": 9.2,
-              "tier": "slow"
+              "tier": "fast"
             },
             "VirtualDataTableAdapter: full pipeline (10,000 items)": {
               "name": "VirtualDataTableAdapter: full pipeline (10,000 items)",
@@ -1293,7 +1294,7 @@
               "mean": 12.828628974998718,
               "meanLabel": "12.83ms",
               "rme": 9,
-              "tier": "slow"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "VirtualDataTableAdapter: sort, no pagination (10,000 items)",
@@ -1301,7 +1302,7 @@
               "hzLabel": "101 ops/s",
               "mean": 9.931476274508682,
               "meanLabel": "9.93ms",
-              "tier": "good"
+              "tier": "blazing"
             },
             "_slowest": {
               "name": "ClientDataTableAdapter: full pipeline (10,000 items)",
@@ -1309,9 +1310,9 @@
               "hzLabel": "77 ops/s",
               "mean": 12.957038128211234,
               "meanLabel": "12.96ms",
-              "tier": "slow"
+              "tier": "fast"
             },
-            "_tier": "slow"
+            "_tier": "fast"
           }
         },
         "Create table (1,000 items)": {
@@ -1321,7 +1322,7 @@
           "mean": 0.8452164712828046,
           "meanLabel": "845.2μs",
           "rme": 12.6,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Create table (10,000 items)": {
           "name": "Create table (10,000 items)",
@@ -1330,7 +1331,7 @@
           "mean": 7.7195227384603085,
           "meanLabel": "7.72ms",
           "rme": 14.8,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Create table with groupBy (1,000 items)": {
           "name": "Create table with groupBy (1,000 items)",
@@ -1339,7 +1340,7 @@
           "mean": 0.8641063851468822,
           "meanLabel": "864.1μs",
           "rme": 12.6,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Create table with all options (1,000 items)": {
           "name": "Create table with all options (1,000 items)",
@@ -1348,7 +1349,7 @@
           "mean": 1.3884161823200518,
           "meanLabel": "1.39ms",
           "rme": 10.5,
-          "tier": "good"
+          "tier": "fast"
         },
         "Search then read filtered items (1,000 items)": {
           "name": "Search then read filtered items (1,000 items)",
@@ -1357,7 +1358,7 @@
           "mean": 1.315917260528199,
           "meanLabel": "1.32ms",
           "rme": 8.9,
-          "tier": "good"
+          "tier": "fast"
         },
         "Search then read filtered items (10,000 items)": {
           "name": "Search then read filtered items (10,000 items)",
@@ -1366,7 +1367,7 @@
           "mean": 12.430258878049576,
           "meanLabel": "12.43ms",
           "rme": 8.8,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Search with custom column filter (1,000 items)": {
           "name": "Search with custom column filter (1,000 items)",
@@ -1375,7 +1376,7 @@
           "mean": 1.3637661989102627,
           "meanLabel": "1.36ms",
           "rme": 10.3,
-          "tier": "good"
+          "tier": "fast"
         },
         "Search with custom column filter (10,000 items)": {
           "name": "Search with custom column filter (10,000 items)",
@@ -1384,7 +1385,7 @@
           "mean": 12.252502853659879,
           "meanLabel": "12.25ms",
           "rme": 9.1,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Update search 10 times (1,000 items)": {
           "name": "Update search 10 times (1,000 items)",
@@ -1393,7 +1394,7 @@
           "mean": 5.819142896554235,
           "meanLabel": "5.82ms",
           "rme": 5.5,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Sort by string column ascending (1,000 items)": {
           "name": "Sort by string column ascending (1,000 items)",
@@ -1402,7 +1403,7 @@
           "mean": 1.1301451914413856,
           "meanLabel": "1.13ms",
           "rme": 10.5,
-          "tier": "good"
+          "tier": "fast"
         },
         "Sort by string column ascending (10,000 items)": {
           "name": "Sort by string column ascending (10,000 items)",
@@ -1411,7 +1412,7 @@
           "mean": 10.000367140000453,
           "meanLabel": "10.00ms",
           "rme": 12.8,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Sort by custom comparator (1,000 items)": {
           "name": "Sort by custom comparator (1,000 items)",
@@ -1420,7 +1421,7 @@
           "mean": 1.156190612008709,
           "meanLabel": "1.16ms",
           "rme": 11.2,
-          "tier": "good"
+          "tier": "fast"
         },
         "Sort by custom comparator (10,000 items)": {
           "name": "Sort by custom comparator (10,000 items)",
@@ -1429,7 +1430,7 @@
           "mean": 15.299651242422193,
           "meanLabel": "15.30ms",
           "rme": 8.6,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Multi-sort two columns (1,000 items)": {
           "name": "Multi-sort two columns (1,000 items)",
@@ -1438,7 +1439,7 @@
           "mean": 1.7732901489372441,
           "meanLabel": "1.77ms",
           "rme": 10,
-          "tier": "good"
+          "tier": "fast"
         },
         "Multi-sort two columns (10,000 items)": {
           "name": "Multi-sort two columns (10,000 items)",
@@ -1447,7 +1448,7 @@
           "mean": 17.566163827582855,
           "meanLabel": "17.57ms",
           "rme": 14,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Toggle sort cycle 3 times (1,000 items)": {
           "name": "Toggle sort cycle 3 times (1,000 items)",
@@ -1456,7 +1457,7 @@
           "mean": 1.4685338269801376,
           "meanLabel": "1.47ms",
           "rme": 10.5,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Select single item (1,000 items)": {
           "name": "Select single item (1,000 items)",
@@ -1465,7 +1466,7 @@
           "mean": 0.8667382703651392,
           "meanLabel": "866.7μs",
           "rme": 13.5,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Select all items (1,000 items)": {
           "name": "Select all items (1,000 items)",
@@ -1474,7 +1475,7 @@
           "mean": 1.428784442856143,
           "meanLabel": "1.43ms",
           "rme": 10,
-          "tier": "good"
+          "tier": "fast"
         },
         "Select all items (10,000 items)": {
           "name": "Select all items (10,000 items)",
@@ -1483,7 +1484,7 @@
           "mean": 13.72367802563792,
           "meanLabel": "13.72ms",
           "rme": 11.5,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Select all with itemSelectable (1,000 items)": {
           "name": "Select all with itemSelectable (1,000 items)",
@@ -1492,7 +1493,7 @@
           "mean": 1.2489856508723924,
           "meanLabel": "1.25ms",
           "rme": 9.1,
-          "tier": "good"
+          "tier": "fast"
         },
         "Toggle all then check isAllSelected (1,000 items)": {
           "name": "Toggle all then check isAllSelected (1,000 items)",
@@ -1510,7 +1511,7 @@
           "mean": 0.9148480291434866,
           "meanLabel": "914.8μs",
           "rme": 11.5,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Compute groups (1,000 items, 8 groups)": {
           "name": "Compute groups (1,000 items, 8 groups)",
@@ -1519,7 +1520,7 @@
           "mean": 0.9564250038252711,
           "meanLabel": "956.4μs",
           "rme": 12.3,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Compute groups (10,000 items, 8 groups)": {
           "name": "Compute groups (10,000 items, 8 groups)",
@@ -1528,7 +1529,7 @@
           "mean": 9.124802254544656,
           "meanLabel": "9.12ms",
           "rme": 14.4,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Open all then close all groups (1,000 items)": {
           "name": "Open all then close all groups (1,000 items)",
@@ -1546,7 +1547,7 @@
           "mean": 1.3613502146728695,
           "meanLabel": "1.36ms",
           "rme": 10.4,
-          "tier": "good"
+          "tier": "fast"
         },
         "Access items 100 times (1,000 items, cached)": {
           "name": "Access items 100 times (1,000 items, cached)",
@@ -1591,7 +1592,7 @@
           "mean": 1.4843225697328706,
           "meanLabel": "1.48ms",
           "rme": 10.1,
-          "tier": "good"
+          "tier": "fast"
         },
         "Search + sort + paginate (10,000 items)": {
           "name": "Search + sort + paginate (10,000 items)",
@@ -1600,7 +1601,7 @@
           "mean": 13.221864657896253,
           "meanLabel": "13.22ms",
           "rme": 11.5,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Search + multi-sort + paginate (1,000 items)": {
           "name": "Search + multi-sort + paginate (1,000 items)",
@@ -1609,7 +1610,7 @@
           "mean": 2.201760403510937,
           "meanLabel": "2.20ms",
           "rme": 7.2,
-          "tier": "good"
+          "tier": "fast"
         },
         "ClientDataTableAdapter: sort + paginate (10,000 items)": {
           "name": "ClientDataTableAdapter: sort + paginate (10,000 items)",
@@ -1618,7 +1619,7 @@
           "mean": 10.091405740000774,
           "meanLabel": "10.09ms",
           "rme": 11.8,
-          "tier": "slow"
+          "tier": "fast"
         },
         "VirtualDataTableAdapter: sort, no pagination (10,000 items)": {
           "name": "VirtualDataTableAdapter: sort, no pagination (10,000 items)",
@@ -1627,7 +1628,7 @@
           "mean": 9.931476274508682,
           "meanLabel": "9.93ms",
           "rme": 11.7,
-          "tier": "good"
+          "tier": "blazing"
         },
         "ClientDataTableAdapter: full pipeline (10,000 items)": {
           "name": "ClientDataTableAdapter: full pipeline (10,000 items)",
@@ -1636,7 +1637,7 @@
           "mean": 12.957038128211234,
           "meanLabel": "12.96ms",
           "rme": 9.2,
-          "tier": "slow"
+          "tier": "fast"
         },
         "VirtualDataTableAdapter: full pipeline (10,000 items)": {
           "name": "VirtualDataTableAdapter: full pipeline (10,000 items)",
@@ -1645,7 +1646,7 @@
           "mean": 12.828628974998718,
           "meanLabel": "12.83ms",
           "rme": 9,
-          "tier": "slow"
+          "tier": "fast"
         },
         "_fastest": {
           "name": "Access items 100 times (1,000 items, cached)",
@@ -1661,8 +1662,9 @@
           "hzLabel": "57 ops/s",
           "mean": 17.566163827582855,
           "meanLabel": "17.57ms",
-          "tier": "slow"
-        }
+          "tier": "fast"
+        },
+        "_tier": "fast"
       }
     },
     "createFilter": {
@@ -1887,7 +1889,7 @@
               "mean": 3.4429511849324728,
               "meanLabel": "3.44ms",
               "rme": 0.5,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Access filtered 100 times (10,000 items, cached)": {
               "name": "Access filtered 100 times (10,000 items, cached)",
@@ -1896,7 +1898,7 @@
               "mean": 34.79361473333168,
               "meanLabel": "34.79ms",
               "rme": 0.5,
-              "tier": "slow"
+              "tier": "blazing"
             },
             "Update query 10 times (1,000 items)": {
               "name": "Update query 10 times (1,000 items)",
@@ -1905,7 +1907,7 @@
               "mean": 3.432224171231772,
               "meanLabel": "3.43ms",
               "rme": 0.5,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Update query 10 times (10,000 items)": {
               "name": "Update query 10 times (10,000 items)",
@@ -1914,7 +1916,7 @@
               "mean": 34.75914326666582,
               "meanLabel": "34.76ms",
               "rme": 0.3,
-              "tier": "slow"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Update query 10 times (1,000 items)",
@@ -1922,7 +1924,7 @@
               "hzLabel": "291 ops/s",
               "mean": 3.432224171231772,
               "meanLabel": "3.43ms",
-              "tier": "good"
+              "tier": "blazing"
             },
             "_slowest": {
               "name": "Access filtered 100 times (10,000 items, cached)",
@@ -1930,9 +1932,9 @@
               "hzLabel": "29 ops/s",
               "mean": 34.79361473333168,
               "meanLabel": "34.79ms",
-              "tier": "slow"
+              "tier": "blazing"
             },
-            "_tier": "good"
+            "_tier": "blazing"
           },
           "native comparison": {
             "Native Array.filter 1,000 objects": {
@@ -1942,7 +1944,7 @@
               "mean": 0.42806308041020474,
               "meanLabel": "428.1μs",
               "rme": 0.5,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Native Array.filter 10,000 objects": {
               "name": "Native Array.filter 10,000 objects",
@@ -1951,7 +1953,7 @@
               "mean": 4.362684756521713,
               "meanLabel": "4.36ms",
               "rme": 0.5,
-              "tier": "good"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Native Array.filter 1,000 objects",
@@ -1959,7 +1961,7 @@
               "hzLabel": "2.3k ops/s",
               "mean": 0.42806308041020474,
               "meanLabel": "428.1μs",
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_slowest": {
               "name": "Native Array.filter 10,000 objects",
@@ -1967,9 +1969,9 @@
               "hzLabel": "229 ops/s",
               "mean": 4.362684756521713,
               "meanLabel": "4.36ms",
-              "tier": "good"
+              "tier": "blazing"
             },
-            "_tier": "fast"
+            "_tier": "blazing"
           }
         },
         "Create empty filter": {
@@ -2114,7 +2116,7 @@
           "mean": 3.4429511849324728,
           "meanLabel": "3.44ms",
           "rme": 0.5,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Access filtered 100 times (10,000 items, cached)": {
           "name": "Access filtered 100 times (10,000 items, cached)",
@@ -2123,7 +2125,7 @@
           "mean": 34.79361473333168,
           "meanLabel": "34.79ms",
           "rme": 0.5,
-          "tier": "slow"
+          "tier": "blazing"
         },
         "Update query 10 times (1,000 items)": {
           "name": "Update query 10 times (1,000 items)",
@@ -2132,7 +2134,7 @@
           "mean": 3.432224171231772,
           "meanLabel": "3.43ms",
           "rme": 0.5,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Update query 10 times (10,000 items)": {
           "name": "Update query 10 times (10,000 items)",
@@ -2141,7 +2143,7 @@
           "mean": 34.75914326666582,
           "meanLabel": "34.76ms",
           "rme": 0.3,
-          "tier": "slow"
+          "tier": "blazing"
         },
         "Native Array.filter 1,000 objects": {
           "name": "Native Array.filter 1,000 objects",
@@ -2150,7 +2152,7 @@
           "mean": 0.42806308041020474,
           "meanLabel": "428.1μs",
           "rme": 0.5,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Native Array.filter 10,000 objects": {
           "name": "Native Array.filter 10,000 objects",
@@ -2159,7 +2161,7 @@
           "mean": 4.362684756521713,
           "meanLabel": "4.36ms",
           "rme": 0.5,
-          "tier": "good"
+          "tier": "blazing"
         },
         "_fastest": {
           "name": "Create empty filter",
@@ -2175,8 +2177,9 @@
           "hzLabel": "29 ops/s",
           "mean": 34.79361473333168,
           "meanLabel": "34.79ms",
-          "tier": "slow"
-        }
+          "tier": "blazing"
+        },
+        "_tier": "blazing"
       }
     },
     "createModel": {
@@ -2190,7 +2193,7 @@
               "mean": 0.013637180826415414,
               "meanLabel": "13.6μs",
               "rme": 24.6,
-              "tier": "blazing"
+              "tier": "fast"
             },
             "Register 1,000 items": {
               "name": "Register 1,000 items",
@@ -2199,7 +2202,7 @@
               "mean": 2.15344416738169,
               "meanLabel": "2.15ms",
               "rme": 9.3,
-              "tier": "good"
+              "tier": "fast"
             },
             "Register 10,000 items": {
               "name": "Register 10,000 items",
@@ -2208,7 +2211,7 @@
               "mean": 21.258927000001375,
               "meanLabel": "21.26ms",
               "rme": 6.1,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Register 1,000 items (disabled)": {
               "name": "Register 1,000 items (disabled)",
@@ -2217,7 +2220,7 @@
               "mean": 1.0277696199188902,
               "meanLabel": "1.03ms",
               "rme": 10.8,
-              "tier": "good"
+              "tier": "fast"
             },
             "Register 10,000 items (disabled)": {
               "name": "Register 10,000 items (disabled)",
@@ -2226,7 +2229,7 @@
               "mean": 11.4095880888894,
               "meanLabel": "11.41ms",
               "rme": 12.2,
-              "tier": "slow"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Create empty model",
@@ -2234,7 +2237,7 @@
               "hzLabel": "73.3k ops/s",
               "mean": 0.013637180826415414,
               "meanLabel": "13.6μs",
-              "tier": "blazing"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Register 10,000 items",
@@ -2242,9 +2245,9 @@
               "hzLabel": "47 ops/s",
               "mean": 21.258927000001375,
               "meanLabel": "21.26ms",
-              "tier": "slow"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "lookup operations": {
             "Check selected (1,000 items)": {
@@ -2327,7 +2330,7 @@
               "mean": 2.1804118695653694,
               "meanLabel": "2.18ms",
               "rme": 9.8,
-              "tier": "good"
+              "tier": "fast"
             },
             "Select single item (10,000 items)": {
               "name": "Select single item (10,000 items)",
@@ -2336,7 +2339,7 @@
               "mean": 22.000234565221827,
               "meanLabel": "22.00ms",
               "rme": 6.8,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Unselect single item (1,000 items)": {
               "name": "Unselect single item (1,000 items)",
@@ -2345,7 +2348,7 @@
               "mean": 2.1769537652173314,
               "meanLabel": "2.18ms",
               "rme": 9.7,
-              "tier": "good"
+              "tier": "fast"
             },
             "Unselect single item (10,000 items)": {
               "name": "Unselect single item (10,000 items)",
@@ -2354,7 +2357,7 @@
               "mean": 23.1012854545446,
               "meanLabel": "23.10ms",
               "rme": 12.6,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Toggle single item (1,000 items)": {
               "name": "Toggle single item (1,000 items)",
@@ -2363,7 +2366,7 @@
               "mean": 2.072038520661987,
               "meanLabel": "2.07ms",
               "rme": 8.1,
-              "tier": "good"
+              "tier": "fast"
             },
             "Toggle single item (10,000 items)": {
               "name": "Toggle single item (10,000 items)",
@@ -2372,7 +2375,7 @@
               "mean": 22.05103339130216,
               "meanLabel": "22.05ms",
               "rme": 6.9,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Select disabled item (1,000 items)": {
               "name": "Select disabled item (1,000 items)",
@@ -2381,7 +2384,7 @@
               "mean": 1.0724666209858906,
               "meanLabel": "1.07ms",
               "rme": 12,
-              "tier": "good"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Select disabled item (1,000 items)",
@@ -2389,7 +2392,7 @@
               "hzLabel": "932 ops/s",
               "mean": 1.0724666209858906,
               "meanLabel": "1.07ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Unselect single item (10,000 items)",
@@ -2397,9 +2400,9 @@
               "hzLabel": "43 ops/s",
               "mean": 23.1012854545446,
               "meanLabel": "23.10ms",
-              "tier": "slow"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "apply operations": {
             "Apply static value (1,000 items)": {
@@ -2409,7 +2412,7 @@
               "mean": 2.0783232489641352,
               "meanLabel": "2.08ms",
               "rme": 8,
-              "tier": "good"
+              "tier": "fast"
             },
             "Apply static value (10,000 items)": {
               "name": "Apply static value (10,000 items)",
@@ -2418,7 +2421,7 @@
               "mean": 23.0226952727257,
               "meanLabel": "23.02ms",
               "rme": 12.6,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Apply ref value (1,000 items)": {
               "name": "Apply ref value (1,000 items)",
@@ -2436,7 +2439,7 @@
               "mean": 2.195434228069963,
               "meanLabel": "2.20ms",
               "rme": 9.4,
-              "tier": "good"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Apply ref value (1,000 items)",
@@ -2452,9 +2455,9 @@
               "hzLabel": "43 ops/s",
               "mean": 23.0226952727257,
               "meanLabel": "23.02ms",
-              "tier": "slow"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "batch operations": {
             "Onboard 1,000 then offboard 100 items": {
@@ -2464,7 +2467,7 @@
               "mean": 2.2236744844464638,
               "meanLabel": "2.22ms",
               "rme": 7.4,
-              "tier": "good"
+              "tier": "fast"
             },
             "Onboard 10,000 then offboard 1,000 items": {
               "name": "Onboard 10,000 then offboard 1,000 items",
@@ -2473,7 +2476,7 @@
               "mean": 23.607824045451707,
               "meanLabel": "23.61ms",
               "rme": 5.9,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Reset (1,000 items)": {
               "name": "Reset (1,000 items)",
@@ -2482,7 +2485,7 @@
               "mean": 2.1659937965367653,
               "meanLabel": "2.17ms",
               "rme": 9.3,
-              "tier": "good"
+              "tier": "fast"
             },
             "Reset (10,000 items)": {
               "name": "Reset (10,000 items)",
@@ -2491,7 +2494,7 @@
               "mean": 22.258689739118815,
               "meanLabel": "22.26ms",
               "rme": 6.9,
-              "tier": "slow"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Reset (1,000 items)",
@@ -2499,7 +2502,7 @@
               "hzLabel": "462 ops/s",
               "mean": 2.1659937965367653,
               "meanLabel": "2.17ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Onboard 10,000 then offboard 1,000 items",
@@ -2507,9 +2510,9 @@
               "hzLabel": "42 ops/s",
               "mean": 23.607824045451707,
               "meanLabel": "23.61ms",
-              "tier": "slow"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "computed access": {
             "Access selectedItems 100 times (1 of 1,000 selected, cached)": {
@@ -2574,7 +2577,7 @@
           "mean": 0.013637180826415414,
           "meanLabel": "13.6μs",
           "rme": 24.6,
-          "tier": "blazing"
+          "tier": "fast"
         },
         "Register 1,000 items": {
           "name": "Register 1,000 items",
@@ -2583,7 +2586,7 @@
           "mean": 2.15344416738169,
           "meanLabel": "2.15ms",
           "rme": 9.3,
-          "tier": "good"
+          "tier": "fast"
         },
         "Register 10,000 items": {
           "name": "Register 10,000 items",
@@ -2592,7 +2595,7 @@
           "mean": 21.258927000001375,
           "meanLabel": "21.26ms",
           "rme": 6.1,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Register 1,000 items (disabled)": {
           "name": "Register 1,000 items (disabled)",
@@ -2601,7 +2604,7 @@
           "mean": 1.0277696199188902,
           "meanLabel": "1.03ms",
           "rme": 10.8,
-          "tier": "good"
+          "tier": "fast"
         },
         "Register 10,000 items (disabled)": {
           "name": "Register 10,000 items (disabled)",
@@ -2610,7 +2613,7 @@
           "mean": 11.4095880888894,
           "meanLabel": "11.41ms",
           "rme": 12.2,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Check selected (1,000 items)": {
           "name": "Check selected (1,000 items)",
@@ -2673,7 +2676,7 @@
           "mean": 2.1804118695653694,
           "meanLabel": "2.18ms",
           "rme": 9.8,
-          "tier": "good"
+          "tier": "fast"
         },
         "Select single item (10,000 items)": {
           "name": "Select single item (10,000 items)",
@@ -2682,7 +2685,7 @@
           "mean": 22.000234565221827,
           "meanLabel": "22.00ms",
           "rme": 6.8,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Unselect single item (1,000 items)": {
           "name": "Unselect single item (1,000 items)",
@@ -2691,7 +2694,7 @@
           "mean": 2.1769537652173314,
           "meanLabel": "2.18ms",
           "rme": 9.7,
-          "tier": "good"
+          "tier": "fast"
         },
         "Unselect single item (10,000 items)": {
           "name": "Unselect single item (10,000 items)",
@@ -2700,7 +2703,7 @@
           "mean": 23.1012854545446,
           "meanLabel": "23.10ms",
           "rme": 12.6,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Toggle single item (1,000 items)": {
           "name": "Toggle single item (1,000 items)",
@@ -2709,7 +2712,7 @@
           "mean": 2.072038520661987,
           "meanLabel": "2.07ms",
           "rme": 8.1,
-          "tier": "good"
+          "tier": "fast"
         },
         "Toggle single item (10,000 items)": {
           "name": "Toggle single item (10,000 items)",
@@ -2718,7 +2721,7 @@
           "mean": 22.05103339130216,
           "meanLabel": "22.05ms",
           "rme": 6.9,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Select disabled item (1,000 items)": {
           "name": "Select disabled item (1,000 items)",
@@ -2727,7 +2730,7 @@
           "mean": 1.0724666209858906,
           "meanLabel": "1.07ms",
           "rme": 12,
-          "tier": "good"
+          "tier": "fast"
         },
         "Apply static value (1,000 items)": {
           "name": "Apply static value (1,000 items)",
@@ -2736,7 +2739,7 @@
           "mean": 2.0783232489641352,
           "meanLabel": "2.08ms",
           "rme": 8,
-          "tier": "good"
+          "tier": "fast"
         },
         "Apply static value (10,000 items)": {
           "name": "Apply static value (10,000 items)",
@@ -2745,7 +2748,7 @@
           "mean": 23.0226952727257,
           "meanLabel": "23.02ms",
           "rme": 12.6,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Apply ref value (1,000 items)": {
           "name": "Apply ref value (1,000 items)",
@@ -2763,7 +2766,7 @@
           "mean": 2.195434228069963,
           "meanLabel": "2.20ms",
           "rme": 9.4,
-          "tier": "good"
+          "tier": "fast"
         },
         "Onboard 1,000 then offboard 100 items": {
           "name": "Onboard 1,000 then offboard 100 items",
@@ -2772,7 +2775,7 @@
           "mean": 2.2236744844464638,
           "meanLabel": "2.22ms",
           "rme": 7.4,
-          "tier": "good"
+          "tier": "fast"
         },
         "Onboard 10,000 then offboard 1,000 items": {
           "name": "Onboard 10,000 then offboard 1,000 items",
@@ -2781,7 +2784,7 @@
           "mean": 23.607824045451707,
           "meanLabel": "23.61ms",
           "rme": 5.9,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Reset (1,000 items)": {
           "name": "Reset (1,000 items)",
@@ -2790,7 +2793,7 @@
           "mean": 2.1659937965367653,
           "meanLabel": "2.17ms",
           "rme": 9.3,
-          "tier": "good"
+          "tier": "fast"
         },
         "Reset (10,000 items)": {
           "name": "Reset (10,000 items)",
@@ -2799,7 +2802,7 @@
           "mean": 22.258689739118815,
           "meanLabel": "22.26ms",
           "rme": 6.9,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Access selectedItems 100 times (1 of 1,000 selected, cached)": {
           "name": "Access selectedItems 100 times (1 of 1,000 selected, cached)",
@@ -2851,8 +2854,9 @@
           "hzLabel": "42 ops/s",
           "mean": 23.607824045451707,
           "meanLabel": "23.61ms",
-          "tier": "slow"
-        }
+          "tier": "fast"
+        },
+        "_tier": "fast"
       }
     },
     "createNested": {
@@ -2866,7 +2870,7 @@
               "mean": 0.059440491271932676,
               "meanLabel": "59.4μs",
               "rme": 11.2,
-              "tier": "blazing"
+              "tier": "fast"
             },
             "Onboard 1,000 flat items": {
               "name": "Onboard 1,000 flat items",
@@ -2875,7 +2879,7 @@
               "mean": 5.273011800000524,
               "meanLabel": "5.27ms",
               "rme": 10.9,
-              "tier": "good"
+              "tier": "fast"
             },
             "Onboard 10,000 flat items": {
               "name": "Onboard 10,000 flat items",
@@ -2884,7 +2888,7 @@
               "mean": 53.86220849999809,
               "meanLabel": "53.86ms",
               "rme": 4.1,
-              "tier": "slow"
+              "tier": "good"
             },
             "Onboard ~1,000 tree items (depth 3)": {
               "name": "Onboard ~1,000 tree items (depth 3)",
@@ -2893,7 +2897,7 @@
               "mean": 5.136005214285266,
               "meanLabel": "5.14ms",
               "rme": 8.8,
-              "tier": "good"
+              "tier": "fast"
             },
             "Onboard ~10,000 tree items (depth 4)": {
               "name": "Onboard ~10,000 tree items (depth 4)",
@@ -2902,7 +2906,7 @@
               "mean": 55.47887639999972,
               "meanLabel": "55.48ms",
               "rme": 3.4,
-              "tier": "slow"
+              "tier": "good"
             },
             "_fastest": {
               "name": "Create empty nested",
@@ -2910,7 +2914,7 @@
               "hzLabel": "16.8k ops/s",
               "mean": 0.059440491271932676,
               "meanLabel": "59.4μs",
-              "tier": "blazing"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Onboard ~10,000 tree items (depth 4)",
@@ -2918,7 +2922,7 @@
               "hzLabel": "18 ops/s",
               "mean": 55.47887639999972,
               "meanLabel": "55.48ms",
-              "tier": "slow"
+              "tier": "good"
             },
             "_tier": "good"
           },
@@ -3066,7 +3070,7 @@
               "mean": 0.44804492204301527,
               "meanLabel": "448.0μs",
               "rme": 0.5,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Access roots (1,000 tree items)": {
               "name": "Access roots (1,000 tree items)",
@@ -3100,7 +3104,7 @@
               "hzLabel": "2.2k ops/s",
               "mean": 0.44804492204301527,
               "meanLabel": "448.0μs",
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_tier": "blazing"
           },
@@ -3112,7 +3116,7 @@
               "mean": 6.120364926829253,
               "meanLabel": "6.12ms",
               "rme": 18.5,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Open single node (10,000 tree items)": {
               "name": "Open single node (10,000 tree items)",
@@ -3130,7 +3134,7 @@
               "mean": 5.84632531395314,
               "meanLabel": "5.85ms",
               "rme": 10.6,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Toggle open (1,000 tree items)": {
               "name": "Toggle open (1,000 tree items)",
@@ -3139,7 +3143,7 @@
               "mean": 6.947485240000339,
               "meanLabel": "6.95ms",
               "rme": 32.3,
-              "tier": "good"
+              "tier": "fast"
             },
             "Expand all (1,000 tree items)": {
               "name": "Expand all (1,000 tree items)",
@@ -3148,7 +3152,7 @@
               "mean": 5.359572957446792,
               "meanLabel": "5.36ms",
               "rme": 9,
-              "tier": "good"
+              "tier": "fast"
             },
             "Expand all (10,000 tree items)": {
               "name": "Expand all (10,000 tree items)",
@@ -3157,7 +3161,7 @@
               "mean": 0.4008956522437961,
               "meanLabel": "400.9μs",
               "rme": 0.7,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Collapse all (1,000 tree items)": {
               "name": "Collapse all (1,000 tree items)",
@@ -3166,7 +3170,7 @@
               "mean": 5.377178258064637,
               "meanLabel": "5.38ms",
               "rme": 8.9,
-              "tier": "good"
+              "tier": "fast"
             },
             "Collapse all (10,000 tree items)": {
               "name": "Collapse all (10,000 tree items)",
@@ -3175,7 +3179,7 @@
               "mean": 0.6603024643799782,
               "meanLabel": "660.3μs",
               "rme": 21.3,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Open single node (10,000 tree items)",
@@ -3191,9 +3195,9 @@
               "hzLabel": "144 ops/s",
               "mean": 6.947485240000339,
               "meanLabel": "6.95ms",
-              "tier": "good"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "selection operations": {
             "Select leaf node (1,000 tree items)": {
@@ -3203,7 +3207,7 @@
               "mean": 5.159587288659112,
               "meanLabel": "5.16ms",
               "rme": 8.9,
-              "tier": "good"
+              "tier": "fast"
             },
             "Select root node with cascade (1,000 tree items)": {
               "name": "Select root node with cascade (1,000 tree items)",
@@ -3212,7 +3216,7 @@
               "mean": 5.82190534883794,
               "meanLabel": "5.82ms",
               "rme": 11.3,
-              "tier": "good"
+              "tier": "fast"
             },
             "Select root node with cascade (10,000 tree items)": {
               "name": "Select root node with cascade (10,000 tree items)",
@@ -3221,7 +3225,7 @@
               "mean": 1.159620571759155,
               "meanLabel": "1.16ms",
               "rme": 1,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Unselect root node with cascade (1,000 tree items)": {
               "name": "Unselect root node with cascade (1,000 tree items)",
@@ -3230,7 +3234,7 @@
               "mean": 5.528392274726015,
               "meanLabel": "5.53ms",
               "rme": 8.8,
-              "tier": "good"
+              "tier": "fast"
             },
             "Toggle selection (1,000 tree items)": {
               "name": "Toggle selection (1,000 tree items)",
@@ -3239,7 +3243,7 @@
               "mean": 5.394774860213636,
               "meanLabel": "5.39ms",
               "rme": 9,
-              "tier": "good"
+              "tier": "fast"
             },
             "Select all via selectAll (1,000 tree items)": {
               "name": "Select all via selectAll (1,000 tree items)",
@@ -3257,7 +3261,7 @@
               "mean": 3.1873991273888196,
               "meanLabel": "3.19ms",
               "rme": 0.1,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Select root node with cascade (10,000 tree items)",
@@ -3265,7 +3269,7 @@
               "hzLabel": "862 ops/s",
               "mean": 1.159620571759155,
               "meanLabel": "1.16ms",
-              "tier": "good"
+              "tier": "blazing"
             },
             "_slowest": {
               "name": "Select all via selectAll (1,000 tree items)",
@@ -3275,7 +3279,7 @@
               "meanLabel": "7.56ms",
               "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "mutation operations": {
             "Register single root item": {
@@ -3294,7 +3298,7 @@
               "mean": 5.650208811110416,
               "meanLabel": "5.65ms",
               "rme": 12.4,
-              "tier": "good"
+              "tier": "fast"
             },
             "Unregister leaf node (1,000 tree items)": {
               "name": "Unregister leaf node (1,000 tree items)",
@@ -3303,7 +3307,7 @@
               "mean": 5.310165884210513,
               "meanLabel": "5.31ms",
               "rme": 9.7,
-              "tier": "good"
+              "tier": "fast"
             },
             "Unregister root with cascade (1,000 tree items)": {
               "name": "Unregister root with cascade (1,000 tree items)",
@@ -3312,7 +3316,7 @@
               "mean": 5.650244505618165,
               "meanLabel": "5.65ms",
               "rme": 8,
-              "tier": "good"
+              "tier": "fast"
             },
             "Unregister root with cascade (10,000 tree items)": {
               "name": "Unregister root with cascade (10,000 tree items)",
@@ -3321,7 +3325,7 @@
               "mean": 74.74877749999868,
               "meanLabel": "74.75ms",
               "rme": 34.9,
-              "tier": "slow"
+              "tier": "good"
             },
             "_fastest": {
               "name": "Register single root item",
@@ -3337,7 +3341,7 @@
               "hzLabel": "13 ops/s",
               "mean": 74.74877749999868,
               "meanLabel": "74.75ms",
-              "tier": "slow"
+              "tier": "good"
             },
             "_tier": "good"
           },
@@ -3349,7 +3353,7 @@
               "mean": 3.8694956000001044,
               "meanLabel": "3.87ms",
               "rme": 2.2,
-              "tier": "good"
+              "tier": "fast"
             },
             "Onboard then clear 10,000 tree items": {
               "name": "Onboard then clear 10,000 tree items",
@@ -3358,7 +3362,7 @@
               "mean": 54.92035529999994,
               "meanLabel": "54.92ms",
               "rme": 2.9,
-              "tier": "slow"
+              "tier": "good"
             },
             "toFlat conversion (1,000 tree items)": {
               "name": "toFlat conversion (1,000 tree items)",
@@ -3367,7 +3371,7 @@
               "mean": 5.579608611110598,
               "meanLabel": "5.58ms",
               "rme": 9,
-              "tier": "good"
+              "tier": "fast"
             },
             "toFlat conversion (10,000 tree items)": {
               "name": "toFlat conversion (10,000 tree items)",
@@ -3376,7 +3380,7 @@
               "mean": 71.30235559999855,
               "meanLabel": "71.30ms",
               "rme": 33.9,
-              "tier": "slow"
+              "tier": "good"
             },
             "_fastest": {
               "name": "Onboard then clear 1,000 tree items",
@@ -3384,7 +3388,7 @@
               "hzLabel": "258 ops/s",
               "mean": 3.8694956000001044,
               "meanLabel": "3.87ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "toFlat conversion (10,000 tree items)",
@@ -3392,7 +3396,7 @@
               "hzLabel": "14 ops/s",
               "mean": 71.30235559999855,
               "meanLabel": "71.30ms",
-              "tier": "slow"
+              "tier": "good"
             },
             "_tier": "good"
           },
@@ -3404,7 +3408,7 @@
               "mean": 5.244380114584298,
               "meanLabel": "5.24ms",
               "rme": 8.9,
-              "tier": "good"
+              "tier": "fast"
             },
             "Select root - independent mode (1,000 tree items)": {
               "name": "Select root - independent mode (1,000 tree items)",
@@ -3413,7 +3417,7 @@
               "mean": 5.117574663264665,
               "meanLabel": "5.12ms",
               "rme": 9.1,
-              "tier": "good"
+              "tier": "fast"
             },
             "Select root - leaf mode (1,000 tree items)": {
               "name": "Select root - leaf mode (1,000 tree items)",
@@ -3422,7 +3426,7 @@
               "mean": 5.964627658822642,
               "meanLabel": "5.96ms",
               "rme": 10.6,
-              "tier": "good"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Select root - independent mode (1,000 tree items)",
@@ -3430,7 +3434,7 @@
               "hzLabel": "195 ops/s",
               "mean": 5.117574663264665,
               "meanLabel": "5.12ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Select root - leaf mode (1,000 tree items)",
@@ -3438,9 +3442,9 @@
               "hzLabel": "168 ops/s",
               "mean": 5.964627658822642,
               "meanLabel": "5.96ms",
-              "tier": "good"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "open mode comparison": {
             "Open 3 nodes - multiple mode (1,000 tree items)": {
@@ -3450,7 +3454,7 @@
               "mean": 5.616193166667331,
               "meanLabel": "5.62ms",
               "rme": 10.8,
-              "tier": "good"
+              "tier": "fast"
             },
             "Open 3 nodes - single mode (1,000 tree items)": {
               "name": "Open 3 nodes - single mode (1,000 tree items)",
@@ -3459,7 +3463,7 @@
               "mean": 6.814704472971907,
               "meanLabel": "6.81ms",
               "rme": 32.7,
-              "tier": "slow"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Open 3 nodes - multiple mode (1,000 tree items)",
@@ -3467,7 +3471,7 @@
               "hzLabel": "178 ops/s",
               "mean": 5.616193166667331,
               "meanLabel": "5.62ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Open 3 nodes - single mode (1,000 tree items)",
@@ -3475,9 +3479,9 @@
               "hzLabel": "147 ops/s",
               "mean": 6.814704472971907,
               "meanLabel": "6.81ms",
-              "tier": "slow"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           }
         },
         "Create empty nested": {
@@ -3487,7 +3491,7 @@
           "mean": 0.059440491271932676,
           "meanLabel": "59.4μs",
           "rme": 11.2,
-          "tier": "blazing"
+          "tier": "fast"
         },
         "Onboard 1,000 flat items": {
           "name": "Onboard 1,000 flat items",
@@ -3496,7 +3500,7 @@
           "mean": 5.273011800000524,
           "meanLabel": "5.27ms",
           "rme": 10.9,
-          "tier": "good"
+          "tier": "fast"
         },
         "Onboard 10,000 flat items": {
           "name": "Onboard 10,000 flat items",
@@ -3505,7 +3509,7 @@
           "mean": 53.86220849999809,
           "meanLabel": "53.86ms",
           "rme": 4.1,
-          "tier": "slow"
+          "tier": "good"
         },
         "Onboard ~1,000 tree items (depth 3)": {
           "name": "Onboard ~1,000 tree items (depth 3)",
@@ -3514,7 +3518,7 @@
           "mean": 5.136005214285266,
           "meanLabel": "5.14ms",
           "rme": 8.8,
-          "tier": "good"
+          "tier": "fast"
         },
         "Onboard ~10,000 tree items (depth 4)": {
           "name": "Onboard ~10,000 tree items (depth 4)",
@@ -3523,7 +3527,7 @@
           "mean": 55.47887639999972,
           "meanLabel": "55.48ms",
           "rme": 3.4,
-          "tier": "slow"
+          "tier": "good"
         },
         "Get by id (1,000 flat items)": {
           "name": "Get by id (1,000 flat items)",
@@ -3649,7 +3653,7 @@
           "mean": 0.44804492204301527,
           "meanLabel": "448.0μs",
           "rme": 0.5,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Access roots (1,000 tree items)": {
           "name": "Access roots (1,000 tree items)",
@@ -3676,7 +3680,7 @@
           "mean": 6.120364926829253,
           "meanLabel": "6.12ms",
           "rme": 18.5,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Open single node (10,000 tree items)": {
           "name": "Open single node (10,000 tree items)",
@@ -3694,7 +3698,7 @@
           "mean": 5.84632531395314,
           "meanLabel": "5.85ms",
           "rme": 10.6,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Toggle open (1,000 tree items)": {
           "name": "Toggle open (1,000 tree items)",
@@ -3703,7 +3707,7 @@
           "mean": 6.947485240000339,
           "meanLabel": "6.95ms",
           "rme": 32.3,
-          "tier": "good"
+          "tier": "fast"
         },
         "Expand all (1,000 tree items)": {
           "name": "Expand all (1,000 tree items)",
@@ -3712,7 +3716,7 @@
           "mean": 5.359572957446792,
           "meanLabel": "5.36ms",
           "rme": 9,
-          "tier": "good"
+          "tier": "fast"
         },
         "Expand all (10,000 tree items)": {
           "name": "Expand all (10,000 tree items)",
@@ -3721,7 +3725,7 @@
           "mean": 0.4008956522437961,
           "meanLabel": "400.9μs",
           "rme": 0.7,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Collapse all (1,000 tree items)": {
           "name": "Collapse all (1,000 tree items)",
@@ -3730,7 +3734,7 @@
           "mean": 5.377178258064637,
           "meanLabel": "5.38ms",
           "rme": 8.9,
-          "tier": "good"
+          "tier": "fast"
         },
         "Collapse all (10,000 tree items)": {
           "name": "Collapse all (10,000 tree items)",
@@ -3739,7 +3743,7 @@
           "mean": 0.6603024643799782,
           "meanLabel": "660.3μs",
           "rme": 21.3,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Select leaf node (1,000 tree items)": {
           "name": "Select leaf node (1,000 tree items)",
@@ -3748,7 +3752,7 @@
           "mean": 5.159587288659112,
           "meanLabel": "5.16ms",
           "rme": 8.9,
-          "tier": "good"
+          "tier": "fast"
         },
         "Select root node with cascade (1,000 tree items)": {
           "name": "Select root node with cascade (1,000 tree items)",
@@ -3757,7 +3761,7 @@
           "mean": 5.82190534883794,
           "meanLabel": "5.82ms",
           "rme": 11.3,
-          "tier": "good"
+          "tier": "fast"
         },
         "Select root node with cascade (10,000 tree items)": {
           "name": "Select root node with cascade (10,000 tree items)",
@@ -3766,7 +3770,7 @@
           "mean": 1.159620571759155,
           "meanLabel": "1.16ms",
           "rme": 1,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Unselect root node with cascade (1,000 tree items)": {
           "name": "Unselect root node with cascade (1,000 tree items)",
@@ -3775,7 +3779,7 @@
           "mean": 5.528392274726015,
           "meanLabel": "5.53ms",
           "rme": 8.8,
-          "tier": "good"
+          "tier": "fast"
         },
         "Toggle selection (1,000 tree items)": {
           "name": "Toggle selection (1,000 tree items)",
@@ -3784,7 +3788,7 @@
           "mean": 5.394774860213636,
           "meanLabel": "5.39ms",
           "rme": 9,
-          "tier": "good"
+          "tier": "fast"
         },
         "Select all via selectAll (1,000 tree items)": {
           "name": "Select all via selectAll (1,000 tree items)",
@@ -3802,7 +3806,7 @@
           "mean": 3.1873991273888196,
           "meanLabel": "3.19ms",
           "rme": 0.1,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Register single root item": {
           "name": "Register single root item",
@@ -3820,7 +3824,7 @@
           "mean": 5.650208811110416,
           "meanLabel": "5.65ms",
           "rme": 12.4,
-          "tier": "good"
+          "tier": "fast"
         },
         "Unregister leaf node (1,000 tree items)": {
           "name": "Unregister leaf node (1,000 tree items)",
@@ -3829,7 +3833,7 @@
           "mean": 5.310165884210513,
           "meanLabel": "5.31ms",
           "rme": 9.7,
-          "tier": "good"
+          "tier": "fast"
         },
         "Unregister root with cascade (1,000 tree items)": {
           "name": "Unregister root with cascade (1,000 tree items)",
@@ -3838,7 +3842,7 @@
           "mean": 5.650244505618165,
           "meanLabel": "5.65ms",
           "rme": 8,
-          "tier": "good"
+          "tier": "fast"
         },
         "Unregister root with cascade (10,000 tree items)": {
           "name": "Unregister root with cascade (10,000 tree items)",
@@ -3847,7 +3851,7 @@
           "mean": 74.74877749999868,
           "meanLabel": "74.75ms",
           "rme": 34.9,
-          "tier": "slow"
+          "tier": "good"
         },
         "Onboard then clear 1,000 tree items": {
           "name": "Onboard then clear 1,000 tree items",
@@ -3856,7 +3860,7 @@
           "mean": 3.8694956000001044,
           "meanLabel": "3.87ms",
           "rme": 2.2,
-          "tier": "good"
+          "tier": "fast"
         },
         "Onboard then clear 10,000 tree items": {
           "name": "Onboard then clear 10,000 tree items",
@@ -3865,7 +3869,7 @@
           "mean": 54.92035529999994,
           "meanLabel": "54.92ms",
           "rme": 2.9,
-          "tier": "slow"
+          "tier": "good"
         },
         "toFlat conversion (1,000 tree items)": {
           "name": "toFlat conversion (1,000 tree items)",
@@ -3874,7 +3878,7 @@
           "mean": 5.579608611110598,
           "meanLabel": "5.58ms",
           "rme": 9,
-          "tier": "good"
+          "tier": "fast"
         },
         "toFlat conversion (10,000 tree items)": {
           "name": "toFlat conversion (10,000 tree items)",
@@ -3883,7 +3887,7 @@
           "mean": 71.30235559999855,
           "meanLabel": "71.30ms",
           "rme": 33.9,
-          "tier": "slow"
+          "tier": "good"
         },
         "Select root - cascade mode (1,000 tree items)": {
           "name": "Select root - cascade mode (1,000 tree items)",
@@ -3892,7 +3896,7 @@
           "mean": 5.244380114584298,
           "meanLabel": "5.24ms",
           "rme": 8.9,
-          "tier": "good"
+          "tier": "fast"
         },
         "Select root - independent mode (1,000 tree items)": {
           "name": "Select root - independent mode (1,000 tree items)",
@@ -3901,7 +3905,7 @@
           "mean": 5.117574663264665,
           "meanLabel": "5.12ms",
           "rme": 9.1,
-          "tier": "good"
+          "tier": "fast"
         },
         "Select root - leaf mode (1,000 tree items)": {
           "name": "Select root - leaf mode (1,000 tree items)",
@@ -3910,7 +3914,7 @@
           "mean": 5.964627658822642,
           "meanLabel": "5.96ms",
           "rme": 10.6,
-          "tier": "good"
+          "tier": "fast"
         },
         "Open 3 nodes - multiple mode (1,000 tree items)": {
           "name": "Open 3 nodes - multiple mode (1,000 tree items)",
@@ -3919,7 +3923,7 @@
           "mean": 5.616193166667331,
           "meanLabel": "5.62ms",
           "rme": 10.8,
-          "tier": "good"
+          "tier": "fast"
         },
         "Open 3 nodes - single mode (1,000 tree items)": {
           "name": "Open 3 nodes - single mode (1,000 tree items)",
@@ -3928,7 +3932,7 @@
           "mean": 6.814704472971907,
           "meanLabel": "6.81ms",
           "rme": 32.7,
-          "tier": "slow"
+          "tier": "fast"
         },
         "_fastest": {
           "name": "Get by id (1,000 flat items)",
@@ -3944,8 +3948,9 @@
           "hzLabel": "13 ops/s",
           "mean": 74.74877749999868,
           "meanLabel": "74.75ms",
-          "tier": "slow"
-        }
+          "tier": "good"
+        },
+        "_tier": "good"
       }
     },
     "createSelection": {
@@ -3959,7 +3964,7 @@
               "mean": 0.020807372950479335,
               "meanLabel": "20.8μs",
               "rme": 11.4,
-              "tier": "blazing"
+              "tier": "fast"
             },
             "Onboard 1,000 items": {
               "name": "Onboard 1,000 items",
@@ -3968,7 +3973,7 @@
               "mean": 1.4552172645374857,
               "meanLabel": "1.46ms",
               "rme": 13.8,
-              "tier": "good"
+              "tier": "fast"
             },
             "Onboard 10,000 items": {
               "name": "Onboard 10,000 items",
@@ -3977,7 +3982,7 @@
               "mean": 14.560086685718437,
               "meanLabel": "14.56ms",
               "rme": 9.9,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Onboard 1,000 items (enroll)": {
               "name": "Onboard 1,000 items (enroll)",
@@ -3986,7 +3991,7 @@
               "mean": 2.094514832637569,
               "meanLabel": "2.09ms",
               "rme": 9.9,
-              "tier": "good"
+              "tier": "fast"
             },
             "Onboard 10,000 items (enroll)": {
               "name": "Onboard 10,000 items (enroll)",
@@ -3995,7 +4000,7 @@
               "mean": 23.782949136374306,
               "meanLabel": "23.78ms",
               "rme": 16.3,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Onboard 1,000 items (mandatory: force)": {
               "name": "Onboard 1,000 items (mandatory: force)",
@@ -4004,7 +4009,7 @@
               "mean": 1.808188064981652,
               "meanLabel": "1.81ms",
               "rme": 11.5,
-              "tier": "good"
+              "tier": "fast"
             },
             "Onboard 10,000 items (mandatory: force)": {
               "name": "Onboard 10,000 items (mandatory: force)",
@@ -4013,7 +4018,7 @@
               "mean": 19.02039199999611,
               "meanLabel": "19.02ms",
               "rme": 17.1,
-              "tier": "slow"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Create empty selection",
@@ -4021,7 +4026,7 @@
               "hzLabel": "48.1k ops/s",
               "mean": 0.020807372950479335,
               "meanLabel": "20.8μs",
-              "tier": "blazing"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Onboard 10,000 items (enroll)",
@@ -4029,9 +4034,9 @@
               "hzLabel": "42 ops/s",
               "mean": 23.782949136374306,
               "meanLabel": "23.78ms",
-              "tier": "slow"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "lookup operations": {
             "Check selected (1,000 items)": {
@@ -4078,7 +4083,7 @@
               "mean": 1.328865509235428,
               "meanLabel": "1.33ms",
               "rme": 11.6,
-              "tier": "good"
+              "tier": "fast"
             },
             "Select single item (10,000 items)": {
               "name": "Select single item (10,000 items)",
@@ -4087,7 +4092,7 @@
               "mean": 15.419730914287669,
               "meanLabel": "15.42ms",
               "rme": 16.7,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Unselect single item (1,000 items)": {
               "name": "Unselect single item (1,000 items)",
@@ -4096,7 +4101,7 @@
               "mean": 1.4345015386820978,
               "meanLabel": "1.43ms",
               "rme": 12.3,
-              "tier": "good"
+              "tier": "fast"
             },
             "Unselect single item (10,000 items)": {
               "name": "Unselect single item (10,000 items)",
@@ -4105,7 +4110,7 @@
               "mean": 15.355421181819331,
               "meanLabel": "15.36ms",
               "rme": 14,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Toggle single item (1,000 items)": {
               "name": "Toggle single item (1,000 items)",
@@ -4114,7 +4119,7 @@
               "mean": 1.4101914140833607,
               "meanLabel": "1.41ms",
               "rme": 12.1,
-              "tier": "good"
+              "tier": "fast"
             },
             "Toggle single item (10,000 items)": {
               "name": "Toggle single item (10,000 items)",
@@ -4123,7 +4128,7 @@
               "mean": 15.48350581818853,
               "meanLabel": "15.48ms",
               "rme": 14.7,
-              "tier": "slow"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Select single item (1,000 items)",
@@ -4131,7 +4136,7 @@
               "hzLabel": "753 ops/s",
               "mean": 1.328865509235428,
               "meanLabel": "1.33ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Toggle single item (10,000 items)",
@@ -4139,9 +4144,9 @@
               "hzLabel": "65 ops/s",
               "mean": 15.48350581818853,
               "meanLabel": "15.48ms",
-              "tier": "slow"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "mandatory enforcement": {
             "Select with mandatory (1,000 items)": {
@@ -4151,7 +4156,7 @@
               "mean": 1.4557132383737088,
               "meanLabel": "1.46ms",
               "rme": 12.5,
-              "tier": "good"
+              "tier": "fast"
             },
             "Unselect blocked by mandatory (1,000 items)": {
               "name": "Unselect blocked by mandatory (1,000 items)",
@@ -4160,7 +4165,7 @@
               "mean": 1.422206866476038,
               "meanLabel": "1.42ms",
               "rme": 11.8,
-              "tier": "good"
+              "tier": "fast"
             },
             "Mandate on empty (1,000 items)": {
               "name": "Mandate on empty (1,000 items)",
@@ -4169,7 +4174,7 @@
               "mean": 1.7124090205470566,
               "meanLabel": "1.71ms",
               "rme": 10.7,
-              "tier": "good"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Unselect blocked by mandatory (1,000 items)",
@@ -4177,7 +4182,7 @@
               "hzLabel": "703 ops/s",
               "mean": 1.422206866476038,
               "meanLabel": "1.42ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Mandate on empty (1,000 items)",
@@ -4185,9 +4190,9 @@
               "hzLabel": "584 ops/s",
               "mean": 1.7124090205470566,
               "meanLabel": "1.71ms",
-              "tier": "good"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "batch operations": {
             "Select all 1,000 items": {
@@ -4197,7 +4202,7 @@
               "mean": 2.033153739838522,
               "meanLabel": "2.03ms",
               "rme": 10.3,
-              "tier": "good"
+              "tier": "fast"
             },
             "Select all 10,000 items": {
               "name": "Select all 10,000 items",
@@ -4206,7 +4211,7 @@
               "mean": 22.833314590907488,
               "meanLabel": "22.83ms",
               "rme": 18,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Select then unselect all 1,000 items": {
               "name": "Select then unselect all 1,000 items",
@@ -4215,7 +4220,7 @@
               "mean": 2.2794002954530614,
               "meanLabel": "2.28ms",
               "rme": 8.8,
-              "tier": "good"
+              "tier": "fast"
             },
             "Reset selection (1,000 items)": {
               "name": "Reset selection (1,000 items)",
@@ -4224,7 +4229,7 @@
               "mean": 2.094766464435825,
               "meanLabel": "2.09ms",
               "rme": 9.6,
-              "tier": "good"
+              "tier": "fast"
             },
             "Reset selection (10,000 items)": {
               "name": "Reset selection (10,000 items)",
@@ -4233,7 +4238,7 @@
               "mean": 23.651456454554467,
               "meanLabel": "23.65ms",
               "rme": 16.2,
-              "tier": "slow"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Select all 1,000 items",
@@ -4241,7 +4246,7 @@
               "hzLabel": "492 ops/s",
               "mean": 2.033153739838522,
               "meanLabel": "2.03ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Reset selection (10,000 items)",
@@ -4249,9 +4254,9 @@
               "hzLabel": "42 ops/s",
               "mean": 23.651456454554467,
               "meanLabel": "23.65ms",
-              "tier": "slow"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "computed access": {
             "Access selectedItems 100 times (100 of 1,000 selected, cached)": {
@@ -4334,7 +4339,7 @@
           "mean": 0.020807372950479335,
           "meanLabel": "20.8μs",
           "rme": 11.4,
-          "tier": "blazing"
+          "tier": "fast"
         },
         "Onboard 1,000 items": {
           "name": "Onboard 1,000 items",
@@ -4343,7 +4348,7 @@
           "mean": 1.4552172645374857,
           "meanLabel": "1.46ms",
           "rme": 13.8,
-          "tier": "good"
+          "tier": "fast"
         },
         "Onboard 10,000 items": {
           "name": "Onboard 10,000 items",
@@ -4352,7 +4357,7 @@
           "mean": 14.560086685718437,
           "meanLabel": "14.56ms",
           "rme": 9.9,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Onboard 1,000 items (enroll)": {
           "name": "Onboard 1,000 items (enroll)",
@@ -4361,7 +4366,7 @@
           "mean": 2.094514832637569,
           "meanLabel": "2.09ms",
           "rme": 9.9,
-          "tier": "good"
+          "tier": "fast"
         },
         "Onboard 10,000 items (enroll)": {
           "name": "Onboard 10,000 items (enroll)",
@@ -4370,7 +4375,7 @@
           "mean": 23.782949136374306,
           "meanLabel": "23.78ms",
           "rme": 16.3,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Onboard 1,000 items (mandatory: force)": {
           "name": "Onboard 1,000 items (mandatory: force)",
@@ -4379,7 +4384,7 @@
           "mean": 1.808188064981652,
           "meanLabel": "1.81ms",
           "rme": 11.5,
-          "tier": "good"
+          "tier": "fast"
         },
         "Onboard 10,000 items (mandatory: force)": {
           "name": "Onboard 10,000 items (mandatory: force)",
@@ -4388,7 +4393,7 @@
           "mean": 19.02039199999611,
           "meanLabel": "19.02ms",
           "rme": 17.1,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Check selected (1,000 items)": {
           "name": "Check selected (1,000 items)",
@@ -4415,7 +4420,7 @@
           "mean": 1.328865509235428,
           "meanLabel": "1.33ms",
           "rme": 11.6,
-          "tier": "good"
+          "tier": "fast"
         },
         "Select single item (10,000 items)": {
           "name": "Select single item (10,000 items)",
@@ -4424,7 +4429,7 @@
           "mean": 15.419730914287669,
           "meanLabel": "15.42ms",
           "rme": 16.7,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Unselect single item (1,000 items)": {
           "name": "Unselect single item (1,000 items)",
@@ -4433,7 +4438,7 @@
           "mean": 1.4345015386820978,
           "meanLabel": "1.43ms",
           "rme": 12.3,
-          "tier": "good"
+          "tier": "fast"
         },
         "Unselect single item (10,000 items)": {
           "name": "Unselect single item (10,000 items)",
@@ -4442,7 +4447,7 @@
           "mean": 15.355421181819331,
           "meanLabel": "15.36ms",
           "rme": 14,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Toggle single item (1,000 items)": {
           "name": "Toggle single item (1,000 items)",
@@ -4451,7 +4456,7 @@
           "mean": 1.4101914140833607,
           "meanLabel": "1.41ms",
           "rme": 12.1,
-          "tier": "good"
+          "tier": "fast"
         },
         "Toggle single item (10,000 items)": {
           "name": "Toggle single item (10,000 items)",
@@ -4460,7 +4465,7 @@
           "mean": 15.48350581818853,
           "meanLabel": "15.48ms",
           "rme": 14.7,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Select with mandatory (1,000 items)": {
           "name": "Select with mandatory (1,000 items)",
@@ -4469,7 +4474,7 @@
           "mean": 1.4557132383737088,
           "meanLabel": "1.46ms",
           "rme": 12.5,
-          "tier": "good"
+          "tier": "fast"
         },
         "Unselect blocked by mandatory (1,000 items)": {
           "name": "Unselect blocked by mandatory (1,000 items)",
@@ -4478,7 +4483,7 @@
           "mean": 1.422206866476038,
           "meanLabel": "1.42ms",
           "rme": 11.8,
-          "tier": "good"
+          "tier": "fast"
         },
         "Mandate on empty (1,000 items)": {
           "name": "Mandate on empty (1,000 items)",
@@ -4487,7 +4492,7 @@
           "mean": 1.7124090205470566,
           "meanLabel": "1.71ms",
           "rme": 10.7,
-          "tier": "good"
+          "tier": "fast"
         },
         "Select all 1,000 items": {
           "name": "Select all 1,000 items",
@@ -4496,7 +4501,7 @@
           "mean": 2.033153739838522,
           "meanLabel": "2.03ms",
           "rme": 10.3,
-          "tier": "good"
+          "tier": "fast"
         },
         "Select all 10,000 items": {
           "name": "Select all 10,000 items",
@@ -4505,7 +4510,7 @@
           "mean": 22.833314590907488,
           "meanLabel": "22.83ms",
           "rme": 18,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Select then unselect all 1,000 items": {
           "name": "Select then unselect all 1,000 items",
@@ -4514,7 +4519,7 @@
           "mean": 2.2794002954530614,
           "meanLabel": "2.28ms",
           "rme": 8.8,
-          "tier": "good"
+          "tier": "fast"
         },
         "Reset selection (1,000 items)": {
           "name": "Reset selection (1,000 items)",
@@ -4523,7 +4528,7 @@
           "mean": 2.094766464435825,
           "meanLabel": "2.09ms",
           "rme": 9.6,
-          "tier": "good"
+          "tier": "fast"
         },
         "Reset selection (10,000 items)": {
           "name": "Reset selection (10,000 items)",
@@ -4532,7 +4537,7 @@
           "mean": 23.651456454554467,
           "meanLabel": "23.65ms",
           "rme": 16.2,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Access selectedItems 100 times (100 of 1,000 selected, cached)": {
           "name": "Access selectedItems 100 times (100 of 1,000 selected, cached)",
@@ -4602,8 +4607,9 @@
           "hzLabel": "42 ops/s",
           "mean": 23.782949136374306,
           "meanLabel": "23.78ms",
-          "tier": "slow"
-        }
+          "tier": "fast"
+        },
+        "_tier": "fast"
       }
     },
     "createRegistry": {
@@ -4626,7 +4632,7 @@
               "mean": 0.38736680414746605,
               "meanLabel": "387.4μs",
               "rme": 13.7,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Onboard 10,000 items": {
               "name": "Onboard 10,000 items",
@@ -4635,7 +4641,7 @@
               "mean": 5.126950292929294,
               "meanLabel": "5.13ms",
               "rme": 15.6,
-              "tier": "good"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Create empty registry",
@@ -4651,9 +4657,9 @@
               "hzLabel": "195 ops/s",
               "mean": 5.126950292929294,
               "meanLabel": "5.13ms",
-              "tier": "good"
+              "tier": "blazing"
             },
-            "_tier": "fast"
+            "_tier": "blazing"
           },
           "lookup operations": {
             "Get by id (1,000 items)": {
@@ -4754,7 +4760,7 @@
               "mean": 0.4229720848026397,
               "meanLabel": "423.0μs",
               "rme": 15,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Upsert single item (10,000 items)": {
               "name": "Upsert single item (10,000 items)",
@@ -4763,7 +4769,7 @@
               "mean": 5.399200419354896,
               "meanLabel": "5.40ms",
               "rme": 16.6,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Register single item": {
               "name": "Register single item",
@@ -4797,9 +4803,9 @@
               "hzLabel": "185 ops/s",
               "mean": 5.399200419354896,
               "meanLabel": "5.40ms",
-              "tier": "good"
+              "tier": "blazing"
             },
-            "_tier": "fast"
+            "_tier": "blazing"
           },
           "batch operations": {
             "Onboard then clear 1,000 items": {
@@ -4809,7 +4815,7 @@
               "mean": 0.24740915685308812,
               "meanLabel": "247.4μs",
               "rme": 3.1,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Onboard then clear 10,000 items": {
               "name": "Onboard then clear 10,000 items",
@@ -4818,7 +4824,7 @@
               "mean": 2.947265017647014,
               "meanLabel": "2.95ms",
               "rme": 1.8,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Onboard then reindex 1,000 items": {
               "name": "Onboard then reindex 1,000 items",
@@ -4827,7 +4833,7 @@
               "mean": 0.49524450099001976,
               "meanLabel": "495.2μs",
               "rme": 12.2,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Onboard then reindex 10,000 items": {
               "name": "Onboard then reindex 10,000 items",
@@ -4836,7 +4842,7 @@
               "mean": 6.00259763095255,
               "meanLabel": "6.00ms",
               "rme": 12.8,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Onboard 1,000 then offboard 500 items": {
               "name": "Onboard 1,000 then offboard 500 items",
@@ -4845,7 +4851,7 @@
               "mean": 0.5745407588977639,
               "meanLabel": "574.5μs",
               "rme": 6.1,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Onboard 10,000 then offboard 5,000 items": {
               "name": "Onboard 10,000 then offboard 5,000 items",
@@ -4854,7 +4860,7 @@
               "mean": 7.727018984848407,
               "meanLabel": "7.73ms",
               "rme": 9.5,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Reorder reverse (1,000 items)": {
               "name": "Reorder reverse (1,000 items)",
@@ -4863,7 +4869,7 @@
               "mean": 0.5151965818743348,
               "meanLabel": "515.2μs",
               "rme": 9.8,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Reorder reverse (10,000 items)": {
               "name": "Reorder reverse (10,000 items)",
@@ -4872,7 +4878,7 @@
               "mean": 6.933036452054432,
               "meanLabel": "6.93ms",
               "rme": 11.5,
-              "tier": "good"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Onboard then clear 1,000 items",
@@ -4880,7 +4886,7 @@
               "hzLabel": "4.0k ops/s",
               "mean": 0.24740915685308812,
               "meanLabel": "247.4μs",
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_slowest": {
               "name": "Onboard 10,000 then offboard 5,000 items",
@@ -4888,9 +4894,9 @@
               "hzLabel": "129 ops/s",
               "mean": 7.727018984848407,
               "meanLabel": "7.73ms",
-              "tier": "good"
+              "tier": "blazing"
             },
-            "_tier": "fast"
+            "_tier": "blazing"
           },
           "computed access": {
             "Access keys 100 times (1,000 items, cached)": {
@@ -4973,7 +4979,7 @@
               "mean": 12.94866874358969,
               "meanLabel": "12.95ms",
               "rme": 0.3,
-              "tier": "slow"
+              "tier": "blazing"
             },
             "Access keys 100 times (10,000 items, reactive)": {
               "name": "Access keys 100 times (10,000 items, reactive)",
@@ -4982,7 +4988,7 @@
               "mean": 137.44073420000058,
               "meanLabel": "137.44ms",
               "rme": 0.2,
-              "tier": "slow"
+              "tier": "blazing"
             },
             "Access values 100 times (1,000 items, reactive)": {
               "name": "Access values 100 times (1,000 items, reactive)",
@@ -4991,7 +4997,7 @@
               "mean": 30.991117352941192,
               "meanLabel": "30.99ms",
               "rme": 0.3,
-              "tier": "slow"
+              "tier": "blazing"
             },
             "Access values 100 times (10,000 items, reactive)": {
               "name": "Access values 100 times (10,000 items, reactive)",
@@ -5000,7 +5006,7 @@
               "mean": 316.5213888000006,
               "meanLabel": "316.52ms",
               "rme": 0.1,
-              "tier": "slow"
+              "tier": "blazing"
             },
             "Access entries 100 times (1,000 items, reactive)": {
               "name": "Access entries 100 times (1,000 items, reactive)",
@@ -5009,7 +5015,7 @@
               "mean": 13.944121305555907,
               "meanLabel": "13.94ms",
               "rme": 1.9,
-              "tier": "slow"
+              "tier": "blazing"
             },
             "Access entries 100 times (10,000 items, reactive)": {
               "name": "Access entries 100 times (10,000 items, reactive)",
@@ -5018,7 +5024,7 @@
               "mean": 144.38578000000126,
               "meanLabel": "144.39ms",
               "rme": 0.2,
-              "tier": "slow"
+              "tier": "blazing"
             },
             "Rebuild snapshot 100 times (1,000 items, reactive)": {
               "name": "Rebuild snapshot 100 times (1,000 items, reactive)",
@@ -5027,7 +5033,7 @@
               "mean": 58.33982120000146,
               "meanLabel": "58.34ms",
               "rme": 0.3,
-              "tier": "slow"
+              "tier": "blazing"
             },
             "Rebuild snapshot 100 times (10,000 items, reactive)": {
               "name": "Rebuild snapshot 100 times (10,000 items, reactive)",
@@ -5036,7 +5042,7 @@
               "mean": 606.7066672000016,
               "meanLabel": "606.71ms",
               "rme": 0.1,
-              "tier": "slow"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Access keys 100 times (1,000 items, reactive)",
@@ -5044,7 +5050,7 @@
               "hzLabel": "77 ops/s",
               "mean": 12.94866874358969,
               "meanLabel": "12.95ms",
-              "tier": "slow"
+              "tier": "blazing"
             },
             "_slowest": {
               "name": "Rebuild snapshot 100 times (10,000 items, reactive)",
@@ -5052,9 +5058,9 @@
               "hzLabel": "2 ops/s",
               "mean": 606.7066672000016,
               "meanLabel": "606.71ms",
-              "tier": "slow"
+              "tier": "blazing"
             },
-            "_tier": "slow"
+            "_tier": "blazing"
           },
           "seek operations": {
             "Seek first (1,000 items)": {
@@ -5146,7 +5152,7 @@
           "mean": 0.38736680414746605,
           "meanLabel": "387.4μs",
           "rme": 13.7,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Onboard 10,000 items": {
           "name": "Onboard 10,000 items",
@@ -5155,7 +5161,7 @@
           "mean": 5.126950292929294,
           "meanLabel": "5.13ms",
           "rme": 15.6,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Get by id (1,000 items)": {
           "name": "Get by id (1,000 items)",
@@ -5236,7 +5242,7 @@
           "mean": 0.4229720848026397,
           "meanLabel": "423.0μs",
           "rme": 15,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Upsert single item (10,000 items)": {
           "name": "Upsert single item (10,000 items)",
@@ -5245,7 +5251,7 @@
           "mean": 5.399200419354896,
           "meanLabel": "5.40ms",
           "rme": 16.6,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Register single item": {
           "name": "Register single item",
@@ -5272,7 +5278,7 @@
           "mean": 0.24740915685308812,
           "meanLabel": "247.4μs",
           "rme": 3.1,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Onboard then clear 10,000 items": {
           "name": "Onboard then clear 10,000 items",
@@ -5281,7 +5287,7 @@
           "mean": 2.947265017647014,
           "meanLabel": "2.95ms",
           "rme": 1.8,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Onboard then reindex 1,000 items": {
           "name": "Onboard then reindex 1,000 items",
@@ -5290,7 +5296,7 @@
           "mean": 0.49524450099001976,
           "meanLabel": "495.2μs",
           "rme": 12.2,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Onboard then reindex 10,000 items": {
           "name": "Onboard then reindex 10,000 items",
@@ -5299,7 +5305,7 @@
           "mean": 6.00259763095255,
           "meanLabel": "6.00ms",
           "rme": 12.8,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Onboard 1,000 then offboard 500 items": {
           "name": "Onboard 1,000 then offboard 500 items",
@@ -5308,7 +5314,7 @@
           "mean": 0.5745407588977639,
           "meanLabel": "574.5μs",
           "rme": 6.1,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Onboard 10,000 then offboard 5,000 items": {
           "name": "Onboard 10,000 then offboard 5,000 items",
@@ -5317,7 +5323,7 @@
           "mean": 7.727018984848407,
           "meanLabel": "7.73ms",
           "rme": 9.5,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Reorder reverse (1,000 items)": {
           "name": "Reorder reverse (1,000 items)",
@@ -5326,7 +5332,7 @@
           "mean": 0.5151965818743348,
           "meanLabel": "515.2μs",
           "rme": 9.8,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Reorder reverse (10,000 items)": {
           "name": "Reorder reverse (10,000 items)",
@@ -5335,7 +5341,7 @@
           "mean": 6.933036452054432,
           "meanLabel": "6.93ms",
           "rme": 11.5,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Access keys 100 times (1,000 items, cached)": {
           "name": "Access keys 100 times (1,000 items, cached)",
@@ -5398,7 +5404,7 @@
           "mean": 12.94866874358969,
           "meanLabel": "12.95ms",
           "rme": 0.3,
-          "tier": "slow"
+          "tier": "blazing"
         },
         "Access keys 100 times (10,000 items, reactive)": {
           "name": "Access keys 100 times (10,000 items, reactive)",
@@ -5407,7 +5413,7 @@
           "mean": 137.44073420000058,
           "meanLabel": "137.44ms",
           "rme": 0.2,
-          "tier": "slow"
+          "tier": "blazing"
         },
         "Access values 100 times (1,000 items, reactive)": {
           "name": "Access values 100 times (1,000 items, reactive)",
@@ -5416,7 +5422,7 @@
           "mean": 30.991117352941192,
           "meanLabel": "30.99ms",
           "rme": 0.3,
-          "tier": "slow"
+          "tier": "blazing"
         },
         "Access values 100 times (10,000 items, reactive)": {
           "name": "Access values 100 times (10,000 items, reactive)",
@@ -5425,7 +5431,7 @@
           "mean": 316.5213888000006,
           "meanLabel": "316.52ms",
           "rme": 0.1,
-          "tier": "slow"
+          "tier": "blazing"
         },
         "Access entries 100 times (1,000 items, reactive)": {
           "name": "Access entries 100 times (1,000 items, reactive)",
@@ -5434,7 +5440,7 @@
           "mean": 13.944121305555907,
           "meanLabel": "13.94ms",
           "rme": 1.9,
-          "tier": "slow"
+          "tier": "blazing"
         },
         "Access entries 100 times (10,000 items, reactive)": {
           "name": "Access entries 100 times (10,000 items, reactive)",
@@ -5443,7 +5449,7 @@
           "mean": 144.38578000000126,
           "meanLabel": "144.39ms",
           "rme": 0.2,
-          "tier": "slow"
+          "tier": "blazing"
         },
         "Rebuild snapshot 100 times (1,000 items, reactive)": {
           "name": "Rebuild snapshot 100 times (1,000 items, reactive)",
@@ -5452,7 +5458,7 @@
           "mean": 58.33982120000146,
           "meanLabel": "58.34ms",
           "rme": 0.3,
-          "tier": "slow"
+          "tier": "blazing"
         },
         "Rebuild snapshot 100 times (10,000 items, reactive)": {
           "name": "Rebuild snapshot 100 times (10,000 items, reactive)",
@@ -5461,7 +5467,7 @@
           "mean": 606.7066672000016,
           "meanLabel": "606.71ms",
           "rme": 0.1,
-          "tier": "slow"
+          "tier": "blazing"
         },
         "Seek first (1,000 items)": {
           "name": "Seek first (1,000 items)",
@@ -5531,8 +5537,9 @@
           "hzLabel": "2 ops/s",
           "mean": 606.7066672000016,
           "meanLabel": "606.71ms",
-          "tier": "slow"
-        }
+          "tier": "blazing"
+        },
+        "_tier": "blazing"
       }
     },
     "createSortable": {
@@ -5546,7 +5553,7 @@
               "mean": 0.021165524350254244,
               "meanLabel": "21.2μs",
               "rme": 12,
-              "tier": "blazing"
+              "tier": "fast"
             },
             "Create empty sortable (disabled)": {
               "name": "Create empty sortable (disabled)",
@@ -5555,7 +5562,7 @@
               "mean": 0.030579684883444744,
               "meanLabel": "30.6μs",
               "rme": 57.5,
-              "tier": "blazing"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Create empty sortable",
@@ -5563,7 +5570,7 @@
               "hzLabel": "47.2k ops/s",
               "mean": 0.021165524350254244,
               "meanLabel": "21.2μs",
-              "tier": "blazing"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Create empty sortable (disabled)",
@@ -5571,9 +5578,9 @@
               "hzLabel": "32.7k ops/s",
               "mean": 0.030579684883444744,
               "meanLabel": "30.6μs",
-              "tier": "blazing"
+              "tier": "fast"
             },
-            "_tier": "blazing"
+            "_tier": "fast"
           },
           "lookup operations": {
             "Get by id (1,000 items)": {
@@ -5629,7 +5636,7 @@
               "mean": 2.190694393013354,
               "meanLabel": "2.19ms",
               "rme": 7,
-              "tier": "good"
+              "tier": "fast"
             },
             "Move first to last (10,000 items)": {
               "name": "Move first to last (10,000 items)",
@@ -5638,7 +5645,7 @@
               "mean": 2.2362524598211166,
               "meanLabel": "2.24ms",
               "rme": 14.6,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Move mid by 1 (1,000 items)": {
               "name": "Move mid by 1 (1,000 items)",
@@ -5647,7 +5654,7 @@
               "mean": 2.230785486841597,
               "meanLabel": "2.23ms",
               "rme": 10.1,
-              "tier": "good"
+              "tier": "fast"
             },
             "Move mid by 1 (10,000 items)": {
               "name": "Move mid by 1 (10,000 items)",
@@ -5672,7 +5679,7 @@
               "hzLabel": "447 ops/s",
               "mean": 2.2362524598211166,
               "meanLabel": "2.24ms",
-              "tier": "good"
+              "tier": "blazing"
             },
             "_tier": "fast"
           },
@@ -5684,7 +5691,7 @@
               "mean": 2.1784968260865476,
               "meanLabel": "2.18ms",
               "rme": 6.9,
-              "tier": "good"
+              "tier": "fast"
             },
             "Swap two tickets (10,000 items)": {
               "name": "Swap two tickets (10,000 items)",
@@ -5693,7 +5700,7 @@
               "mean": 2.7059134540557106,
               "meanLabel": "2.71ms",
               "rme": 9,
-              "tier": "good"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Swap two tickets (1,000 items)",
@@ -5701,7 +5708,7 @@
               "hzLabel": "459 ops/s",
               "mean": 2.1784968260865476,
               "meanLabel": "2.18ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Swap two tickets (10,000 items)",
@@ -5709,9 +5716,9 @@
               "hzLabel": "370 ops/s",
               "mean": 2.7059134540557106,
               "meanLabel": "2.71ms",
-              "tier": "good"
+              "tier": "blazing"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "reorder operations": {
             "Reorder reverse (1,000 items)": {
@@ -5721,7 +5728,7 @@
               "mean": 2.81146868539443,
               "meanLabel": "2.81ms",
               "rme": 14.5,
-              "tier": "good"
+              "tier": "fast"
             },
             "Reorder reverse (10,000 items)": {
               "name": "Reorder reverse (10,000 items)",
@@ -5730,7 +5737,7 @@
               "mean": 6.447013615385797,
               "meanLabel": "6.45ms",
               "rme": 8.9,
-              "tier": "good"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Reorder reverse (1,000 items)",
@@ -5738,7 +5745,7 @@
               "hzLabel": "356 ops/s",
               "mean": 2.81146868539443,
               "meanLabel": "2.81ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Reorder reverse (10,000 items)",
@@ -5746,9 +5753,9 @@
               "hzLabel": "155 ops/s",
               "mean": 6.447013615385797,
               "meanLabel": "6.45ms",
-              "tier": "good"
+              "tier": "blazing"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "batch operations": {
             "Onboard 100 items": {
@@ -5767,7 +5774,7 @@
               "mean": 2.0210439072590463,
               "meanLabel": "2.02ms",
               "rme": 7.2,
-              "tier": "good"
+              "tier": "fast"
             },
             "Onboard 10,000 items": {
               "name": "Onboard 10,000 items",
@@ -5776,7 +5783,7 @@
               "mean": 21.81449054166539,
               "meanLabel": "21.81ms",
               "rme": 6.6,
-              "tier": "slow"
+              "tier": "fast"
             },
             "Register then move to mid (1,000 items)": {
               "name": "Register then move to mid (1,000 items)",
@@ -5785,7 +5792,7 @@
               "mean": 2.1060700462189477,
               "meanLabel": "2.11ms",
               "rme": 7.3,
-              "tier": "good"
+              "tier": "fast"
             },
             "Register then move to mid (10,000 items)": {
               "name": "Register then move to mid (10,000 items)",
@@ -5794,7 +5801,7 @@
               "mean": 22.491593782612853,
               "meanLabel": "22.49ms",
               "rme": 6.4,
-              "tier": "slow"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Onboard 100 items",
@@ -5810,9 +5817,9 @@
               "hzLabel": "44 ops/s",
               "mean": 22.491593782612853,
               "meanLabel": "22.49ms",
-              "tier": "slow"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "events overhead": {
             "Move with no listeners (1,000 items)": {
@@ -5822,7 +5829,7 @@
               "mean": 2.058660962961187,
               "meanLabel": "2.06ms",
               "rme": 7.5,
-              "tier": "good"
+              "tier": "fast"
             },
             "Move with listener attached (1,000 items)": {
               "name": "Move with listener attached (1,000 items)",
@@ -5831,7 +5838,7 @@
               "mean": 2.183930257642357,
               "meanLabel": "2.18ms",
               "rme": 10.1,
-              "tier": "good"
+              "tier": "fast"
             },
             "Move with no listeners (10,000 items)": {
               "name": "Move with no listeners (10,000 items)",
@@ -5865,7 +5872,7 @@
               "hzLabel": "458 ops/s",
               "mean": 2.183930257642357,
               "meanLabel": "2.18ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_tier": "fast"
           }
@@ -5877,7 +5884,7 @@
           "mean": 0.021165524350254244,
           "meanLabel": "21.2μs",
           "rme": 12,
-          "tier": "blazing"
+          "tier": "fast"
         },
         "Create empty sortable (disabled)": {
           "name": "Create empty sortable (disabled)",
@@ -5886,7 +5893,7 @@
           "mean": 0.030579684883444744,
           "meanLabel": "30.6μs",
           "rme": 57.5,
-          "tier": "blazing"
+          "tier": "fast"
         },
         "Get by id (1,000 items)": {
           "name": "Get by id (1,000 items)",
@@ -5922,7 +5929,7 @@
           "mean": 2.190694393013354,
           "meanLabel": "2.19ms",
           "rme": 7,
-          "tier": "good"
+          "tier": "fast"
         },
         "Move first to last (10,000 items)": {
           "name": "Move first to last (10,000 items)",
@@ -5931,7 +5938,7 @@
           "mean": 2.2362524598211166,
           "meanLabel": "2.24ms",
           "rme": 14.6,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Move mid by 1 (1,000 items)": {
           "name": "Move mid by 1 (1,000 items)",
@@ -5940,7 +5947,7 @@
           "mean": 2.230785486841597,
           "meanLabel": "2.23ms",
           "rme": 10.1,
-          "tier": "good"
+          "tier": "fast"
         },
         "Move mid by 1 (10,000 items)": {
           "name": "Move mid by 1 (10,000 items)",
@@ -5958,7 +5965,7 @@
           "mean": 2.1784968260865476,
           "meanLabel": "2.18ms",
           "rme": 6.9,
-          "tier": "good"
+          "tier": "fast"
         },
         "Swap two tickets (10,000 items)": {
           "name": "Swap two tickets (10,000 items)",
@@ -5967,7 +5974,7 @@
           "mean": 2.7059134540557106,
           "meanLabel": "2.71ms",
           "rme": 9,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Reorder reverse (1,000 items)": {
           "name": "Reorder reverse (1,000 items)",
@@ -5976,7 +5983,7 @@
           "mean": 2.81146868539443,
           "meanLabel": "2.81ms",
           "rme": 14.5,
-          "tier": "good"
+          "tier": "fast"
         },
         "Reorder reverse (10,000 items)": {
           "name": "Reorder reverse (10,000 items)",
@@ -5985,7 +5992,7 @@
           "mean": 6.447013615385797,
           "meanLabel": "6.45ms",
           "rme": 8.9,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Onboard 100 items": {
           "name": "Onboard 100 items",
@@ -6003,7 +6010,7 @@
           "mean": 2.0210439072590463,
           "meanLabel": "2.02ms",
           "rme": 7.2,
-          "tier": "good"
+          "tier": "fast"
         },
         "Onboard 10,000 items": {
           "name": "Onboard 10,000 items",
@@ -6012,7 +6019,7 @@
           "mean": 21.81449054166539,
           "meanLabel": "21.81ms",
           "rme": 6.6,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Register then move to mid (1,000 items)": {
           "name": "Register then move to mid (1,000 items)",
@@ -6021,7 +6028,7 @@
           "mean": 2.1060700462189477,
           "meanLabel": "2.11ms",
           "rme": 7.3,
-          "tier": "good"
+          "tier": "fast"
         },
         "Register then move to mid (10,000 items)": {
           "name": "Register then move to mid (10,000 items)",
@@ -6030,7 +6037,7 @@
           "mean": 22.491593782612853,
           "meanLabel": "22.49ms",
           "rme": 6.4,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Move with no listeners (1,000 items)": {
           "name": "Move with no listeners (1,000 items)",
@@ -6039,7 +6046,7 @@
           "mean": 2.058660962961187,
           "meanLabel": "2.06ms",
           "rme": 7.5,
-          "tier": "good"
+          "tier": "fast"
         },
         "Move with listener attached (1,000 items)": {
           "name": "Move with listener attached (1,000 items)",
@@ -6048,7 +6055,7 @@
           "mean": 2.183930257642357,
           "meanLabel": "2.18ms",
           "rme": 10.1,
-          "tier": "good"
+          "tier": "fast"
         },
         "Move with no listeners (10,000 items)": {
           "name": "Move with no listeners (10,000 items)",
@@ -6082,8 +6089,9 @@
           "hzLabel": "44 ops/s",
           "mean": 22.491593782612853,
           "meanLabel": "22.49ms",
-          "tier": "slow"
-        }
+          "tier": "fast"
+        },
+        "_tier": "fast"
       }
     },
     "createVirtual": {
@@ -6097,7 +6105,7 @@
               "mean": 0.12131655604044998,
               "meanLabel": "121.3μs",
               "rme": 6.6,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Create virtual (10,000 items)": {
               "name": "Create virtual (10,000 items)",
@@ -6106,7 +6114,7 @@
               "mean": 1.0341058822306861,
               "meanLabel": "1.03ms",
               "rme": 8.9,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Create virtual (100,000 items)": {
               "name": "Create virtual (100,000 items)",
@@ -6115,7 +6123,7 @@
               "mean": 9.524178537037827,
               "meanLabel": "9.52ms",
               "rme": 4.3,
-              "tier": "good"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Create virtual (1,000 items)",
@@ -6123,7 +6131,7 @@
               "hzLabel": "8.2k ops/s",
               "mean": 0.12131655604044998,
               "meanLabel": "121.3μs",
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_slowest": {
               "name": "Create virtual (100,000 items)",
@@ -6131,9 +6139,9 @@
               "hzLabel": "105 ops/s",
               "mean": 9.524178537037827,
               "meanLabel": "9.52ms",
-              "tier": "good"
+              "tier": "blazing"
             },
-            "_tier": "good"
+            "_tier": "blazing"
           },
           "scroll operations": {
             "Scroll to start position (1,000 items)": {
@@ -6197,7 +6205,7 @@
               "mean": 0.18742981034601902,
               "meanLabel": "187.4μs",
               "rme": 0.4,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Process 100 scroll events (10,000 items)": {
               "name": "Process 100 scroll events (10,000 items)",
@@ -6206,7 +6214,7 @@
               "mean": 0.18442869505785858,
               "meanLabel": "184.4μs",
               "rme": 0.4,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Scroll to start position (1,000 items)",
@@ -6222,7 +6230,7 @@
               "hzLabel": "5.3k ops/s",
               "mean": 0.18742981034601902,
               "meanLabel": "187.4μs",
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_tier": "blazing"
           },
@@ -6234,7 +6242,7 @@
               "mean": 0.12392295216884731,
               "meanLabel": "123.9μs",
               "rme": 7,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Resize single item (10,000 items)": {
               "name": "Resize single item (10,000 items)",
@@ -6243,7 +6251,7 @@
               "mean": 1.0488018259961076,
               "meanLabel": "1.05ms",
               "rme": 9.3,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Resize 100 items sequentially (1,000 items)": {
               "name": "Resize 100 items sequentially (1,000 items)",
@@ -6252,7 +6260,7 @@
               "mean": 0.19675352242217456,
               "meanLabel": "196.8μs",
               "rme": 4.7,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Resize 100 items sequentially (10,000 items)": {
               "name": "Resize 100 items sequentially (10,000 items)",
@@ -6261,7 +6269,7 @@
               "mean": 1.0321103319574925,
               "meanLabel": "1.03ms",
               "rme": 4,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Resize with variable heights (1,000 items)": {
               "name": "Resize with variable heights (1,000 items)",
@@ -6270,7 +6278,7 @@
               "mean": 0.19608591023114444,
               "meanLabel": "196.1μs",
               "rme": 4.6,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Resize single item (1,000 items)",
@@ -6278,7 +6286,7 @@
               "hzLabel": "8.1k ops/s",
               "mean": 0.12392295216884731,
               "meanLabel": "123.9μs",
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_slowest": {
               "name": "Resize single item (10,000 items)",
@@ -6286,9 +6294,9 @@
               "hzLabel": "953 ops/s",
               "mean": 1.0488018259961076,
               "meanLabel": "1.05ms",
-              "tier": "good"
+              "tier": "blazing"
             },
-            "_tier": "fast"
+            "_tier": "blazing"
           },
           "scrollTo operations": {
             "ScrollTo start (1,000 items)": {
@@ -6298,7 +6306,7 @@
               "mean": 0.15066049322145342,
               "meanLabel": "150.7μs",
               "rme": 24.3,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "ScrollTo start (10,000 items)": {
               "name": "ScrollTo start (10,000 items)",
@@ -6307,7 +6315,7 @@
               "mean": 1.015216044624573,
               "meanLabel": "1.02ms",
               "rme": 6.5,
-              "tier": "good"
+              "tier": "blazing"
             },
             "ScrollTo middle (1,000 items)": {
               "name": "ScrollTo middle (1,000 items)",
@@ -6316,7 +6324,7 @@
               "mean": 0.12505507601961743,
               "meanLabel": "125.1μs",
               "rme": 6.5,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "ScrollTo middle (10,000 items)": {
               "name": "ScrollTo middle (10,000 items)",
@@ -6325,7 +6333,7 @@
               "mean": 1.0663530511717285,
               "meanLabel": "1.07ms",
               "rme": 10.9,
-              "tier": "good"
+              "tier": "blazing"
             },
             "ScrollTo end (1,000 items)": {
               "name": "ScrollTo end (1,000 items)",
@@ -6334,7 +6342,7 @@
               "mean": 0.1298294073218085,
               "meanLabel": "129.8μs",
               "rme": 7.1,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "ScrollTo end (10,000 items)": {
               "name": "ScrollTo end (10,000 items)",
@@ -6343,7 +6351,7 @@
               "mean": 1.0907172287577431,
               "meanLabel": "1.09ms",
               "rme": 10.1,
-              "tier": "good"
+              "tier": "blazing"
             },
             "ScrollTo 5 positions (10,000 items)": {
               "name": "ScrollTo 5 positions (10,000 items)",
@@ -6352,7 +6360,7 @@
               "mean": 1.037052130433885,
               "meanLabel": "1.04ms",
               "rme": 6.2,
-              "tier": "good"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "ScrollTo middle (1,000 items)",
@@ -6360,7 +6368,7 @@
               "hzLabel": "8.0k ops/s",
               "mean": 0.12505507601961743,
               "meanLabel": "125.1μs",
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_slowest": {
               "name": "ScrollTo end (10,000 items)",
@@ -6368,9 +6376,9 @@
               "hzLabel": "917 ops/s",
               "mean": 1.0907172287577431,
               "meanLabel": "1.09ms",
-              "tier": "good"
+              "tier": "blazing"
             },
-            "_tier": "good"
+            "_tier": "blazing"
           },
           "computed access": {
             "Access items 100 times (1,000 items, cached)": {
@@ -6453,7 +6461,7 @@
           "mean": 0.12131655604044998,
           "meanLabel": "121.3μs",
           "rme": 6.6,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Create virtual (10,000 items)": {
           "name": "Create virtual (10,000 items)",
@@ -6462,7 +6470,7 @@
           "mean": 1.0341058822306861,
           "meanLabel": "1.03ms",
           "rme": 8.9,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Create virtual (100,000 items)": {
           "name": "Create virtual (100,000 items)",
@@ -6471,7 +6479,7 @@
           "mean": 9.524178537037827,
           "meanLabel": "9.52ms",
           "rme": 4.3,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Scroll to start position (1,000 items)": {
           "name": "Scroll to start position (1,000 items)",
@@ -6534,7 +6542,7 @@
           "mean": 0.18742981034601902,
           "meanLabel": "187.4μs",
           "rme": 0.4,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Process 100 scroll events (10,000 items)": {
           "name": "Process 100 scroll events (10,000 items)",
@@ -6543,7 +6551,7 @@
           "mean": 0.18442869505785858,
           "meanLabel": "184.4μs",
           "rme": 0.4,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Resize single item (1,000 items)": {
           "name": "Resize single item (1,000 items)",
@@ -6552,7 +6560,7 @@
           "mean": 0.12392295216884731,
           "meanLabel": "123.9μs",
           "rme": 7,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Resize single item (10,000 items)": {
           "name": "Resize single item (10,000 items)",
@@ -6561,7 +6569,7 @@
           "mean": 1.0488018259961076,
           "meanLabel": "1.05ms",
           "rme": 9.3,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Resize 100 items sequentially (1,000 items)": {
           "name": "Resize 100 items sequentially (1,000 items)",
@@ -6570,7 +6578,7 @@
           "mean": 0.19675352242217456,
           "meanLabel": "196.8μs",
           "rme": 4.7,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Resize 100 items sequentially (10,000 items)": {
           "name": "Resize 100 items sequentially (10,000 items)",
@@ -6579,7 +6587,7 @@
           "mean": 1.0321103319574925,
           "meanLabel": "1.03ms",
           "rme": 4,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Resize with variable heights (1,000 items)": {
           "name": "Resize with variable heights (1,000 items)",
@@ -6588,7 +6596,7 @@
           "mean": 0.19608591023114444,
           "meanLabel": "196.1μs",
           "rme": 4.6,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "ScrollTo start (1,000 items)": {
           "name": "ScrollTo start (1,000 items)",
@@ -6597,7 +6605,7 @@
           "mean": 0.15066049322145342,
           "meanLabel": "150.7μs",
           "rme": 24.3,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "ScrollTo start (10,000 items)": {
           "name": "ScrollTo start (10,000 items)",
@@ -6606,7 +6614,7 @@
           "mean": 1.015216044624573,
           "meanLabel": "1.02ms",
           "rme": 6.5,
-          "tier": "good"
+          "tier": "blazing"
         },
         "ScrollTo middle (1,000 items)": {
           "name": "ScrollTo middle (1,000 items)",
@@ -6615,7 +6623,7 @@
           "mean": 0.12505507601961743,
           "meanLabel": "125.1μs",
           "rme": 6.5,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "ScrollTo middle (10,000 items)": {
           "name": "ScrollTo middle (10,000 items)",
@@ -6624,7 +6632,7 @@
           "mean": 1.0663530511717285,
           "meanLabel": "1.07ms",
           "rme": 10.9,
-          "tier": "good"
+          "tier": "blazing"
         },
         "ScrollTo end (1,000 items)": {
           "name": "ScrollTo end (1,000 items)",
@@ -6633,7 +6641,7 @@
           "mean": 0.1298294073218085,
           "meanLabel": "129.8μs",
           "rme": 7.1,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "ScrollTo end (10,000 items)": {
           "name": "ScrollTo end (10,000 items)",
@@ -6642,7 +6650,7 @@
           "mean": 1.0907172287577431,
           "meanLabel": "1.09ms",
           "rme": 10.1,
-          "tier": "good"
+          "tier": "blazing"
         },
         "ScrollTo 5 positions (10,000 items)": {
           "name": "ScrollTo 5 positions (10,000 items)",
@@ -6651,7 +6659,7 @@
           "mean": 1.037052130433885,
           "meanLabel": "1.04ms",
           "rme": 6.2,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Access items 100 times (1,000 items, cached)": {
           "name": "Access items 100 times (1,000 items, cached)",
@@ -6721,8 +6729,9 @@
           "hzLabel": "105 ops/s",
           "mean": 9.524178537037827,
           "meanLabel": "9.52ms",
-          "tier": "good"
-        }
+          "tier": "blazing"
+        },
+        "_tier": "blazing"
       }
     },
     "createTokens": {
@@ -6745,7 +6754,7 @@
               "mean": 1.0071353393554945,
               "meanLabel": "1.01ms",
               "rme": 9.2,
-              "tier": "good"
+              "tier": "fast"
             },
             "Create tokens (10,000 tokens)": {
               "name": "Create tokens (10,000 tokens)",
@@ -6754,7 +6763,7 @@
               "mean": 11.252502133331209,
               "meanLabel": "11.25ms",
               "rme": 7.6,
-              "tier": "slow"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "Create tokens (~100 tokens)",
@@ -6770,9 +6779,9 @@
               "hzLabel": "89 ops/s",
               "mean": 11.252502133331209,
               "meanLabel": "11.25ms",
-              "tier": "slow"
+              "tier": "fast"
             },
-            "_tier": "good"
+            "_tier": "fast"
           },
           "lookup operations": {
             "Resolve primitive token": {
@@ -7002,7 +7011,7 @@
           "mean": 1.0071353393554945,
           "meanLabel": "1.01ms",
           "rme": 9.2,
-          "tier": "good"
+          "tier": "fast"
         },
         "Create tokens (10,000 tokens)": {
           "name": "Create tokens (10,000 tokens)",
@@ -7011,7 +7020,7 @@
           "mean": 11.252502133331209,
           "meanLabel": "11.25ms",
           "rme": 7.6,
-          "tier": "slow"
+          "tier": "fast"
         },
         "Resolve primitive token": {
           "name": "Resolve primitive token",
@@ -7162,8 +7171,9 @@
           "hzLabel": "89 ops/s",
           "mean": 11.252502133331209,
           "meanLabel": "11.25ms",
-          "tier": "slow"
-        }
+          "tier": "fast"
+        },
+        "_tier": "fast"
       }
     },
     "useDate": {
@@ -7204,7 +7214,7 @@
               "mean": 0.4781579130033034,
               "meanLabel": "478.2μs",
               "rme": 18,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "create date from ISO string",
@@ -7220,7 +7230,7 @@
               "hzLabel": "2.1k ops/s",
               "mean": 0.4781579130033034,
               "meanLabel": "478.2μs",
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_tier": "blazing"
           },
@@ -7250,7 +7260,7 @@
               "mean": 1.8654202156149278,
               "meanLabel": "1.87ms",
               "rme": 0.4,
-              "tier": "good"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "format fullDate",
@@ -7266,7 +7276,7 @@
               "hzLabel": "536 ops/s",
               "mean": 1.8654202156149278,
               "meanLabel": "1.87ms",
-              "tier": "good"
+              "tier": "fast"
             },
             "_tier": "fast"
           },
@@ -7305,7 +7315,7 @@
               "mean": 0.06288831253908997,
               "meanLabel": "62.9μs",
               "rme": 45.9,
-              "tier": "blazing"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "startOfDay",
@@ -7321,9 +7331,9 @@
               "hzLabel": "15.9k ops/s",
               "mean": 0.06288831253908997,
               "meanLabel": "62.9μs",
-              "tier": "blazing"
+              "tier": "fast"
             },
-            "_tier": "blazing"
+            "_tier": "fast"
           },
           "arithmetic": {
             "addDays": {
@@ -7351,7 +7361,7 @@
               "mean": 0.012785541104940656,
               "meanLabel": "12.8μs",
               "rme": 44.2,
-              "tier": "blazing"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "addMonths",
@@ -7367,9 +7377,9 @@
               "hzLabel": "78.2k ops/s",
               "mean": 0.012785541104940656,
               "meanLabel": "12.8μs",
-              "tier": "blazing"
+              "tier": "fast"
             },
-            "_tier": "blazing"
+            "_tier": "fast"
           },
           "comparison": {
             "isAfter": {
@@ -7397,7 +7407,7 @@
               "mean": 0.7058027263754408,
               "meanLabel": "705.8μs",
               "rme": 59.8,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "isAfter",
@@ -7413,7 +7423,7 @@
               "hzLabel": "1.4k ops/s",
               "mean": 0.7058027263754408,
               "meanLabel": "705.8μs",
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_tier": "blazing"
           },
@@ -7462,7 +7472,7 @@
               "mean": 0.05085132116335527,
               "meanLabel": "50.9μs",
               "rme": 0.2,
-              "tier": "blazing"
+              "tier": "fast"
             },
             "toggle locale 10 times": {
               "name": "toggle locale 10 times",
@@ -7480,7 +7490,7 @@
               "mean": 0.06301818979232411,
               "meanLabel": "63.0μs",
               "rme": 1.5,
-              "tier": "blazing"
+              "tier": "fast"
             },
             "_fastest": {
               "name": "locale change + reformat",
@@ -7488,7 +7498,7 @@
               "hzLabel": "19.7k ops/s",
               "mean": 0.05085132116335527,
               "meanLabel": "50.9μs",
-              "tier": "blazing"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "toggle locale 10 times",
@@ -7498,7 +7508,7 @@
               "meanLabel": "593.1μs",
               "tier": "fast"
             },
-            "_tier": "blazing"
+            "_tier": "fast"
           }
         },
         "create date from null (now)": {
@@ -7535,7 +7545,7 @@
           "mean": 0.4781579130033034,
           "meanLabel": "478.2μs",
           "rme": 18,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "format fullDate": {
           "name": "format fullDate",
@@ -7562,7 +7572,7 @@
           "mean": 1.8654202156149278,
           "meanLabel": "1.87ms",
           "rme": 0.4,
-          "tier": "good"
+          "tier": "fast"
         },
         "startOfDay": {
           "name": "startOfDay",
@@ -7598,7 +7608,7 @@
           "mean": 0.06288831253908997,
           "meanLabel": "62.9μs",
           "rme": 45.9,
-          "tier": "blazing"
+          "tier": "fast"
         },
         "addDays": {
           "name": "addDays",
@@ -7625,7 +7635,7 @@
           "mean": 0.012785541104940656,
           "meanLabel": "12.8μs",
           "rme": 44.2,
-          "tier": "blazing"
+          "tier": "fast"
         },
         "isAfter": {
           "name": "isAfter",
@@ -7652,7 +7662,7 @@
           "mean": 0.7058027263754408,
           "meanLabel": "705.8μs",
           "rme": 59.8,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "get components": {
           "name": "get components",
@@ -7679,7 +7689,7 @@
           "mean": 0.05085132116335527,
           "meanLabel": "50.9μs",
           "rme": 0.2,
-          "tier": "blazing"
+          "tier": "fast"
         },
         "toggle locale 10 times": {
           "name": "toggle locale 10 times",
@@ -7697,7 +7707,7 @@
           "mean": 0.06301818979232411,
           "meanLabel": "63.0μs",
           "rme": 1.5,
-          "tier": "blazing"
+          "tier": "fast"
         },
         "_fastest": {
           "name": "get components",
@@ -7713,8 +7723,9 @@
           "hzLabel": "536 ops/s",
           "mean": 1.8654202156149278,
           "meanLabel": "1.87ms",
-          "tier": "good"
-        }
+          "tier": "fast"
+        },
+        "_tier": "fast"
       }
     },
     "useProxyRegistry": {
@@ -7728,7 +7739,7 @@
               "mean": 0.010536827302875288,
               "meanLabel": "10.5μs",
               "rme": 19.3,
-              "tier": "blazing"
+              "tier": "fast"
             },
             "Create proxy (1,000 items)": {
               "name": "Create proxy (1,000 items)",
@@ -7737,7 +7748,7 @@
               "mean": 0.4257256272342056,
               "meanLabel": "425.7μs",
               "rme": 12,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Create proxy (10,000 items)": {
               "name": "Create proxy (10,000 items)",
@@ -7746,7 +7757,7 @@
               "mean": 5.28406636842165,
               "meanLabel": "5.28ms",
               "rme": 14.6,
-              "tier": "good"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Create empty proxy",
@@ -7754,7 +7765,7 @@
               "hzLabel": "94.9k ops/s",
               "mean": 0.010536827302875288,
               "meanLabel": "10.5μs",
-              "tier": "blazing"
+              "tier": "fast"
             },
             "_slowest": {
               "name": "Create proxy (10,000 items)",
@@ -7762,7 +7773,7 @@
               "hzLabel": "189 ops/s",
               "mean": 5.28406636842165,
               "meanLabel": "5.28ms",
-              "tier": "good"
+              "tier": "blazing"
             },
             "_tier": "fast"
           },
@@ -7919,7 +7930,7 @@
               "mean": 0.46519197395285267,
               "meanLabel": "465.2μs",
               "rme": 14.6,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Register single item (10,000 items)": {
               "name": "Register single item (10,000 items)",
@@ -7928,7 +7939,7 @@
               "mean": 5.106408326530221,
               "meanLabel": "5.11ms",
               "rme": 12.9,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Unregister single item (1,000 items)": {
               "name": "Unregister single item (1,000 items)",
@@ -7937,7 +7948,7 @@
               "mean": 0.42762565221086596,
               "meanLabel": "427.6μs",
               "rme": 12.1,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Unregister single item (10,000 items)": {
               "name": "Unregister single item (10,000 items)",
@@ -7946,7 +7957,7 @@
               "mean": 5.410138378947005,
               "meanLabel": "5.41ms",
               "rme": 14.6,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Upsert single item (1,000 items)": {
               "name": "Upsert single item (1,000 items)",
@@ -7955,7 +7966,7 @@
               "mean": 0.4205387258198511,
               "meanLabel": "420.5μs",
               "rme": 11.8,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Upsert single item (10,000 items)": {
               "name": "Upsert single item (10,000 items)",
@@ -7964,7 +7975,7 @@
               "mean": 5.3449815744698235,
               "meanLabel": "5.34ms",
               "rme": 14.6,
-              "tier": "good"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Upsert single item (1,000 items)",
@@ -7972,7 +7983,7 @@
               "hzLabel": "2.4k ops/s",
               "mean": 0.4205387258198511,
               "meanLabel": "420.5μs",
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_slowest": {
               "name": "Unregister single item (10,000 items)",
@@ -7980,9 +7991,9 @@
               "hzLabel": "185 ops/s",
               "mean": 5.410138378947005,
               "meanLabel": "5.41ms",
-              "tier": "good"
+              "tier": "blazing"
             },
-            "_tier": "fast"
+            "_tier": "blazing"
           },
           "bulk registration": {
             "Onboard 1,000 items (proxy attached)": {
@@ -7992,7 +8003,7 @@
               "mean": 0.5146393223818166,
               "meanLabel": "514.6μs",
               "rme": 11.2,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Onboard 10,000 items (proxy attached)": {
               "name": "Onboard 10,000 items (proxy attached)",
@@ -8001,7 +8012,7 @@
               "mean": 6.030846602410704,
               "meanLabel": "6.03ms",
               "rme": 13.9,
-              "tier": "good"
+              "tier": "blazing"
             },
             "Register 1,000 items one-by-one (proxy attached)": {
               "name": "Register 1,000 items one-by-one (proxy attached)",
@@ -8010,7 +8021,7 @@
               "mean": 0.5717316491424239,
               "meanLabel": "571.7μs",
               "rme": 10,
-              "tier": "fast"
+              "tier": "blazing"
             },
             "Register 10,000 items one-by-one (proxy attached)": {
               "name": "Register 10,000 items one-by-one (proxy attached)",
@@ -8019,7 +8030,7 @@
               "mean": 6.67030870666611,
               "meanLabel": "6.67ms",
               "rme": 11.9,
-              "tier": "good"
+              "tier": "blazing"
             },
             "_fastest": {
               "name": "Onboard 1,000 items (proxy attached)",
@@ -8027,7 +8038,7 @@
               "hzLabel": "1.9k ops/s",
               "mean": 0.5146393223818166,
               "meanLabel": "514.6μs",
-              "tier": "fast"
+              "tier": "blazing"
             },
             "_slowest": {
               "name": "Register 10,000 items one-by-one (proxy attached)",
@@ -8035,9 +8046,9 @@
               "hzLabel": "150 ops/s",
               "mean": 6.67030870666611,
               "meanLabel": "6.67ms",
-              "tier": "good"
+              "tier": "blazing"
             },
-            "_tier": "fast"
+            "_tier": "blazing"
           }
         },
         "Create empty proxy": {
@@ -8047,7 +8058,7 @@
           "mean": 0.010536827302875288,
           "meanLabel": "10.5μs",
           "rme": 19.3,
-          "tier": "blazing"
+          "tier": "fast"
         },
         "Create proxy (1,000 items)": {
           "name": "Create proxy (1,000 items)",
@@ -8056,7 +8067,7 @@
           "mean": 0.4257256272342056,
           "meanLabel": "425.7μs",
           "rme": 12,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Create proxy (10,000 items)": {
           "name": "Create proxy (10,000 items)",
@@ -8065,7 +8076,7 @@
           "mean": 5.28406636842165,
           "meanLabel": "5.28ms",
           "rme": 14.6,
-          "tier": "good"
+          "tier": "blazing"
         },
         "registry.keys() (1,000 items)": {
           "name": "registry.keys() (1,000 items)",
@@ -8200,7 +8211,7 @@
           "mean": 0.46519197395285267,
           "meanLabel": "465.2μs",
           "rme": 14.6,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Register single item (10,000 items)": {
           "name": "Register single item (10,000 items)",
@@ -8209,7 +8220,7 @@
           "mean": 5.106408326530221,
           "meanLabel": "5.11ms",
           "rme": 12.9,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Unregister single item (1,000 items)": {
           "name": "Unregister single item (1,000 items)",
@@ -8218,7 +8229,7 @@
           "mean": 0.42762565221086596,
           "meanLabel": "427.6μs",
           "rme": 12.1,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Unregister single item (10,000 items)": {
           "name": "Unregister single item (10,000 items)",
@@ -8227,7 +8238,7 @@
           "mean": 5.410138378947005,
           "meanLabel": "5.41ms",
           "rme": 14.6,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Upsert single item (1,000 items)": {
           "name": "Upsert single item (1,000 items)",
@@ -8236,7 +8247,7 @@
           "mean": 0.4205387258198511,
           "meanLabel": "420.5μs",
           "rme": 11.8,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Upsert single item (10,000 items)": {
           "name": "Upsert single item (10,000 items)",
@@ -8245,7 +8256,7 @@
           "mean": 5.3449815744698235,
           "meanLabel": "5.34ms",
           "rme": 14.6,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Onboard 1,000 items (proxy attached)": {
           "name": "Onboard 1,000 items (proxy attached)",
@@ -8254,7 +8265,7 @@
           "mean": 0.5146393223818166,
           "meanLabel": "514.6μs",
           "rme": 11.2,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Onboard 10,000 items (proxy attached)": {
           "name": "Onboard 10,000 items (proxy attached)",
@@ -8263,7 +8274,7 @@
           "mean": 6.030846602410704,
           "meanLabel": "6.03ms",
           "rme": 13.9,
-          "tier": "good"
+          "tier": "blazing"
         },
         "Register 1,000 items one-by-one (proxy attached)": {
           "name": "Register 1,000 items one-by-one (proxy attached)",
@@ -8272,7 +8283,7 @@
           "mean": 0.5717316491424239,
           "meanLabel": "571.7μs",
           "rme": 10,
-          "tier": "fast"
+          "tier": "blazing"
         },
         "Register 10,000 items one-by-one (proxy attached)": {
           "name": "Register 10,000 items one-by-one (proxy attached)",
@@ -8281,7 +8292,7 @@
           "mean": 6.67030870666611,
           "meanLabel": "6.67ms",
           "rme": 11.9,
-          "tier": "good"
+          "tier": "blazing"
         },
         "_fastest": {
           "name": "registry.keys() (10,000 items)",
@@ -8297,8 +8308,9 @@
           "hzLabel": "150 ops/s",
           "mean": 6.67030870666611,
           "meanLabel": "6.67ms",
-          "tier": "good"
-        }
+          "tier": "blazing"
+        },
+        "_tier": "fast"
       }
     }
   }

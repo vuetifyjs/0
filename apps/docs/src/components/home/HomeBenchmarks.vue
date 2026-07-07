@@ -45,10 +45,11 @@
   }
 
   const tierDescriptions: Record<string, string> = {
-    blazing: '100K+ ops/s — handles massive datasets with zero perceptible delay',
-    fast: '10K–100K ops/s — smooth performance for typical application workloads',
-    good: '1K–10K ops/s — reliable for standard use cases and smaller datasets',
-    slow: '<1K ops/s — performance bottleneck, needs investigation',
+    blazing: 'Under 1μs per item (or 10μs per one-shot call) — imperceptible at any scale',
+    fast: 'Under 10μs per item, single call within two frames — smooth for typical workloads',
+    good: 'Under 100μs per item, single call under 100ms — fine for standard use',
+    slow: 'Costly per item or a single call over 100ms — user-perceptible, needs investigation',
+    unmeasured: 'No benchmark data recorded for this feature yet',
   }
 
   const showcaseComposables = computed(() => composables.value.filter(c => c.name in composablePaths).slice(0, 6))
