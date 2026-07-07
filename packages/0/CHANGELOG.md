@@ -1,5 +1,43 @@
 # @vuetify/v0
 
+## 1.0.0-rc.7
+
+### Patch Changes
+
+- [#540](https://github.com/vuetifyjs/0/pull/540) [`2ed9618`](https://github.com/vuetifyjs/0/commit/2ed9618ed365ef9e1a6c6b3bce6c4c6962f689e0) Thanks [@johnleider](https://github.com/johnleider)! - perf(createRegistry): memoize reactive keys/values/entries behind a version signal
+
+  Reactive-mode iteration reads previously bypassed the result cache and read the
+  order array through its shallowReactive proxy — one trap per index and, inside
+  an effect, one tracked dependency per index. Reads now touch a single version
+  signal (bumped on every structural mutation) and share the non-reactive cache,
+  making reactive reads O(1) between mutations and giving subscribing effects one
+  dependency regardless of collection size. Mid-batch reads now always reflect
+  mutations already applied instead of a stale pre-batch snapshot.
+
+- [#531](https://github.com/vuetifyjs/0/pull/531) [`49e4f8b`](https://github.com/vuetifyjs/0/commit/49e4f8b7235f3c2a5213ccce63850b8b78014f66) Thanks [@johnleider](https://github.com/johnleider)! - perf(createRegistry): use O(1) ticket.index for unregister splice locate (with indexOf fallback); avoid values() allocation/copy in seek first/last; never eagerly drain reindex in unregister to preserve the lazy contract
+
+- [#489](https://github.com/vuetifyjs/0/pull/489) [`5c6d087`](https://github.com/vuetifyjs/0/commit/5c6d0871ddc148c52fe6ba4cbd569b433f7b77fc) Thanks [@johnleider](https://github.com/johnleider)! - fix(security): apply prototype-pollution and CSS-injection guards flagged in the security review
+
+  - `useFeatures` adapters (LaunchDarkly / Flagsmith / PostHog) now skip `UNSAFE_KEYS` (`__proto__` / `constructor` / `prototype`) flag names when building the flags object, matching the guard already used by `mergeDeep`, `usePermissions`, and `createTokens`
+  - `useLocale` `restore()` validates the persisted value with `isString` / `isNumber` guards before applying it instead of blind-casting `saved as ID`, completing the persist/restore sweep (`useTheme` and `useRtl` now use the same guards)
+  - `ThemeAdapter`'s `UNSAFE_CSS` denylist is hardened against declaration injection: it now also rejects `;`, `\` (CSS escape evasion), and the URL-loading functions `src()` / `image()` / `image-set()` / `cross-fade()`
+  - `@vuetify/paper` `useTheme` sanitizes color keys and values before writing them into the injected `<style>` element, mirroring the hardened v0 `ThemeAdapter` `SAFE_IDENT` / `UNSAFE_CSS` guards
+  - `@vuetify/paper` `createTheme` now merges `options.themes` into the defaults — previously they were passed as `structuredClone`'s options bag and silently dropped, so a custom `current` theme threw at first render
+  - `V0Error` filters `UNSAFE_KEYS` when copying caller-supplied error details onto the instance
+
+- [#500](https://github.com/vuetifyjs/0/pull/500) [`ffc4e5a`](https://github.com/vuetifyjs/0/commit/ffc4e5aaec7df81b1b62f022fe78cb4dfc5ef01b) Thanks [@johnleider](https://github.com/johnleider)! - fix(useRules): accept spec-compliant Standard Schema issue paths
+
+  Widens the vendored `StandardSchemaV1` issue `path` typing to `ReadonlyArray<PropertyKey | PathSegment>` per the Standard Schema v1 spec, so schemas typed with `@standard-schema/spec` (Valibot, Zod, ArkType) are assignable to `rules` again.
+
+- [#542](https://github.com/vuetifyjs/0/pull/542) [`76ca193`](https://github.com/vuetifyjs/0/commit/76ca1933d9c147a1f3ca53e4e9a9f579b49169cc) Thanks [@johnleider](https://github.com/johnleider)! - perf(createRegistry): skip version notification on field-only upsert
+
+  Patching an existing ticket via `upsert` no longer re-notifies version-subscribed
+  iterating effects — membership and order are unchanged, and field changes already
+  propagate through the shallowReactive ticket proxies and the `update:ticket`
+  event. The read cache still refreshes so event-driven snapshot consumers
+  (`useProxyRegistry`) observe a fresh array identity. This restores the pre-[#540](https://github.com/vuetifyjs/0/issues/540)
+  iteration granularity for field patches.
+
 ## 1.0.0-rc.6
 
 ### Patch Changes
