@@ -1091,10 +1091,10 @@ export function createRegistry<
       indexDependentCount--
     }
 
-    if (needsReindex) reindex()
-
-    // With reindex drained (if needed), ticket.index is now canonical for position in order.
-    // Falls back to indexOf only if the ticket is not at its declared index (should not happen).
+    // Never drain reindex here — unregister deletes by ticket-local data, so it stays
+    // on the lazy contract (see .claude/rules/composables.md). ticket.index is canonical
+    // when no reindex is pending, giving an O(1) splice locate; if a deferred reindex left
+    // it stale, the position check misses and we fall back to the O(n) indexOf scan.
     let orderPos = ticket.index
     if (order[orderPos] !== ticket) {
       orderPos = order.indexOf(ticket)
