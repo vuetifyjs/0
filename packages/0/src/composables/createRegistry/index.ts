@@ -1097,12 +1097,16 @@ export function createRegistry<
       indexDependentCount--
     }
 
-    // O(n) locate + splice. ticket.index can't be used as the position — this
-    // method defers reindex (lazy contract), so the index may be stale. Single
-    // removals are cheap; bulk removal should go through offboard(), which
-    // compacts order in one O(n) pass instead of N indexOf scans.
-    const orderPos = order.indexOf(ticket)
+    // Never drain reindex here — unregister deletes by ticket-local data, so it stays
+    // on the lazy contract (see .claude/rules/composables.md). ticket.index is canonical
+    // when no reindex is pending, giving an O(1) splice locate; if a deferred reindex left
+    // it stale, the position check misses and we fall back to the O(n) indexOf scan.
+    let orderPos = ticket.index
+    if (order[orderPos] !== ticket) {
+      orderPos = order.indexOf(ticket)
+    }
     if (orderPos !== -1) order.splice(orderPos, 1)
+
     collection.delete(ticket.id)
     directory.delete(ticket.index)
     unassign(ticket.value, ticket.id)
@@ -1251,25 +1255,26 @@ export function createRegistry<
 
     if (needsReindex) reindex()
 
-    // Fast path: simple first/last without predicate or offset
+    const n = order.length
+
+    // Fast path: simple first/last without predicate or offset. Use order directly
+    // to avoid the values() copy (slice or map) for the common case.
     if (!predicate && isUndefined(from)) {
-      const tickets = values()
-      return direction === 'first' ? tickets[0] : tickets.at(-1)
+      return direction === 'first' ? order[0] : order.at(-1)
     }
 
-    const tickets = values()
-    const index = isUndefined(from) ? undefined : clamp(from, 0, tickets.length - 1)
+    const index = isUndefined(from) ? undefined : clamp(from, 0, n - 1)
 
     if (direction === 'last') {
-      const start = isUndefined(index) ? tickets.length - 1 : index
+      const start = isUndefined(index) ? n - 1 : index
       for (let i = start; i >= 0; i--) {
-        const ticket = tickets[i]
+        const ticket = order[i]
         if (!predicate || predicate(ticket)) return ticket
       }
     } else {
       const start = isUndefined(index) ? 0 : index
-      for (let i = start; i < tickets.length; i++) {
-        const ticket = tickets[i]
+      for (let i = start; i < n; i++) {
+        const ticket = order[i]
         if (!predicate || predicate(ticket)) return ticket
       }
     }
