@@ -489,10 +489,10 @@ This split is why `useTheme` and `useLocale` work fine even though their reactiv
 
 ### Unbounded collections — pick by capability, not iteration cost
 
-Iteration cost is no longer the deciding factor: reactive reads are version-memoized and O(1) between mutations, so `reactive: true` iteration costs the same as cached non-reactive iteration at any collection size (PHILOSOPHY §4.4). What `reactive: true` still pays for at scale is a `shallowReactive` proxy allocated per ticket. Decide by what the contract needs:
+Reactive reads are version-memoized (PHILOSOPHY §4.4), so iteration cost no longer differentiates the two paths; what `reactive: true` still pays at scale is one `shallowReactive` proxy per ticket. Decide by contract:
 
-- Consumers iterate the registry directly **and** need per-ticket field tracking → `reactive: true`. An explicit opt-out on the plugin options remains the right shape for allocation-sensitive scale (`useNotifications` is the canonical example).
-- Iteration is confined to internal derived computeds, or nothing reads ticket fields reactively → non-reactive registry (`events: true`) wrapped in `useProxyRegistry` (PHILOSOPHY §4.4) — `createDataTable`'s row registry is the canonical example. Don't hand-roll an event-driven snapshot; `useProxyRegistry` is that pattern.
+- Consumers iterate directly **and** need per-ticket field tracking → `reactive: true`, with a plugin-options opt-out for allocation-sensitive scale (`useNotifications`).
+- Iteration confined to internal computeds, or no reactive ticket-field reads → non-reactive registry (`events: true`) + `useProxyRegistry` (`createDataTable`'s row registry). Don't hand-roll an event-driven snapshot; `useProxyRegistry` is that pattern.
 
 ### `useProxyRegistry` vs `reactive: true`
 
