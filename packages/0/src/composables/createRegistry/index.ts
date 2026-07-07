@@ -871,13 +871,9 @@ export function createRegistry<
 
     Object.assign(existing, patch, { id, index: existing.index, value, valueIsIndex })
     collection.set(id, existing)
-    // Cache clear WITHOUT a version bump: patching an existing ticket changes
-    // neither membership nor order, so version-subscribed iterating effects are
-    // not re-notified (field changes propagate through the shallowReactive
-    // ticket proxies and the update:ticket event). The cache still clears so
-    // event-driven snapshot consumers (useProxyRegistry) that re-read values()
-    // off update:ticket observe a fresh array identity — their reactive set
-    // would no-op on the same ref.
+    // Not invalidate(): no structural change, so version subscribers aren't
+    // notified — but the clear stays; update:ticket consumers re-reading
+    // values() need a fresh array identity or their reactive assignment no-ops.
     cache.clear()
     emit('update:ticket', existing)
     if (event) emit(event, existing)
