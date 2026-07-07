@@ -977,7 +977,7 @@ describe('createRegistry', () => {
       ])
     })
 
-    it('should only invalidate cache once at end of batch', () => {
+    it('should keep mid-batch reads consistent and re-cache after batch', () => {
       const registry = createRegistry()
       registry.register({ id: 'initial' })
 
@@ -985,17 +985,19 @@ describe('createRegistry', () => {
 
       registry.batch(() => {
         registry.register({ id: 'item-1' })
-        const keysDuringBatch = registry.keys()
-        // During batch, cache should still be valid (same reference)
-        expect(keysDuringBatch).toBe(keys1)
+        // Mid-batch reads reflect mutations already applied — never a stale
+        // pre-batch snapshot (a reader mid-batch must not see removed tickets
+        // or miss registered ones).
+        expect(registry.keys()).toEqual(['initial', 'item-1'])
 
         registry.register({ id: 'item-2' })
       })
 
       const keys2 = registry.keys()
-      // After batch, cache should be invalidated
       expect(keys2).not.toBe(keys1)
       expect(keys2.length).toBe(3)
+      // Cache is warm again after the batch — repeat reads return the same array.
+      expect(registry.keys()).toBe(keys2)
     })
 
     it('should handle nested batch calls correctly', () => {

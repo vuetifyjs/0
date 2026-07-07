@@ -546,7 +546,7 @@ createOverflow({ gap: () => gap })
 
 ### 4.4 Registry reactivity
 
-`reactive: true` on a registry wraps the internal collection as `shallowReactive` and each registered ticket as a `shallowReactive` proxy. When this option is set, `values()` / `keys()` / `entries()` skip their result cache and re-iterate on every call, so Vue's dep tracking holds across computed re-runs. Template iteration, `registry.size` reads, `get(id)` reads, and per-ticket field mutations via `upsert` all propagate to consumers. [intent:253]
+`reactive: true` on a registry wraps the internal collection as `shallowReactive` and each registered ticket as a `shallowReactive` proxy. When this option is set, `values()` / `keys()` / `entries()` additionally register a single version dependency — a signal bumped on every structural mutation — so Vue's dep tracking holds across computed re-runs while iteration results stay cached between mutations. A subscribing effect holds one dependency regardless of collection size, and reactive reads cost the same as non-reactive ones. Template iteration, `registry.size` reads, `get(id)` reads, and per-ticket field mutations via `upsert` all propagate to consumers. [intent:253]
 
 `useProxyRegistry(registry)` (on a registry created with `events: true`) exposes `proxy.values` / `proxy.keys` / `proxy.entries` / `proxy.size` as properties on a reactive object, updated from `register:ticket` / `unregister:ticket` / `update:ticket` / `clear:registry` / `reindex:registry` events. It does not wrap the tickets themselves, and supports `{ deep: true }` for nested tracking. [intent:254]
 
