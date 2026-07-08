@@ -149,7 +149,7 @@
             v-if="settings.showDotGrid.value"
             v-model="settings.dotGridCoverage.value"
             class="ml-4"
-            description="How far the dots spread before fading"
+            description="Fade distance"
             label="Dot coverage"
             :max="60"
             :min="0"
