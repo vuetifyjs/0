@@ -9,13 +9,14 @@
  */
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 const COMPOSABLES_DIR = path.resolve(import.meta.dirname)
 
 function readFileIfExists (filePath: string): string | null {
   try {
-    return fs.readFileSync(filePath, 'utf-8')
+    return fs.readFileSync(filePath, 'utf8')
   } catch {
     return null
   }
@@ -40,7 +41,7 @@ function discoverPluginComposables (): string[] {
     }
   }
 
-  return plugins.sort()
+  return plugins.toSorted()
 }
 
 describe('plugin SSR coverage meta-test', () => {
@@ -53,10 +54,11 @@ describe('plugin SSR coverage meta-test', () => {
   it.each(plugins)('%s has an index.ssr.test.ts file', plugin => {
     const ssrTestPath = path.join(COMPOSABLES_DIR, plugin, 'index.ssr.test.ts')
 
-    expect(
-      fs.existsSync(ssrTestPath),
-      `Missing SSR test: packages/0/src/composables/${plugin}/index.ssr.test.ts\n` +
-      `Every plugin composable must have a sibling index.ssr.test.ts covering its SSR contract.`,
-    ).toBe(true)
+    if (!fs.existsSync(ssrTestPath)) {
+      throw new Error(
+        `Missing SSR test: packages/0/src/composables/${plugin}/index.ssr.test.ts\n` +
+        `Every plugin composable must have a sibling index.ssr.test.ts covering its SSR contract.`,
+      )
+    }
   })
 })

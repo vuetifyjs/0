@@ -19,7 +19,7 @@ describe('useRules SSR', () => {
 
   it('resolve() returns an array containing the raw function when no alias is registered', () => {
     const ctx = useRules()
-    const rule = (v: unknown) => !!v || 'required'
+    function rule (v: unknown) { return !!v || 'required' }
 
     expect(ctx.resolve([rule])).toEqual([rule])
   })
