@@ -104,6 +104,14 @@ pnpm repo:check       # knip + sherif
 
 Changesets-driven. Pushing to `master` opens/updates a "Version Packages" PR; merging it publishes to npm (tokenless OIDC) and mints the GitHub releases (`.github/workflows/release.yml`).
 
+### Changeset content contract
+
+The `.changeset/*.md` body renders verbatim into the changelog and GitHub release notes — it is release-note copy, not a commit message. Don't budget by character count; budget by what belongs:
+
+- **First line** — conventional-commit summary `type(Scope): what changed (#PR)`, written from the consumer's side. Usually the entire changeset.
+- **Body (optional)** — only for consumer-visible consequence: behavior delta, breaking/migration step, new public options or escape hatches. Length is earned by impact, not padded to a target.
+- **Never the mechanism** — internal composables touched, private fields, refactors mirrored from a sibling go in the PR description and commit body, never the changelog.
+
 - **Substrate** (`@vuetify/v0` + `@vuetify/paper`) is a `fixed` group: one shared version, one aggregate `v<version>` GitHub release.
 - **Design systems** (`@paper/*`, e.g. `@paper/genesis`) version and release independently, each on its own `name@version` release. Note `@paper/genesis` depends on `@vuetify/v0`, so a substrate **major** bump (e.g. `1.x` → `2.0.0`) leaves genesis's `^` range and changesets will also bump + republish genesis. That is expected — review it in the "Version Packages" PR before merging.
 

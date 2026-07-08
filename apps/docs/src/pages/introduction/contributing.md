@@ -145,7 +145,13 @@ Pick the affected package(s), a bump type (`patch`/`minor`/`major`), and a short
 fix(createSelection): reject disabled items in multiple-mode apply
 ```
 
-The summary becomes the changelog entry for the release — describe the user-visible change, not the implementation. `@vuetify/v0` and `@vuetify/paper` version in lockstep — selecting `@vuetify/v0` carries `@vuetify/paper` automatically; the `@paper/*` design systems version separately. Docs-only, chore, refactor, or CI PRs don't need one. A bot comments on every PR to remind you.
+The entire changeset body — everything after the frontmatter — is rendered verbatim into the changelog and the GitHub release notes. It is release-note copy, not a commit message. So the rule is not "how long" but "what belongs":
+
+- **First line** — the conventional-commit summary: `type(Scope): what changed (#PR)`. This is the scannable entry and is often the whole changeset. Describe the change from the consumer's side, not the diff's.
+- **Body (optional)** — add one only when there is a consumer-visible consequence to convey: a behavior delta, a breaking change or migration step, or new public options / escape hatches. Length is earned by consumer impact — a genuinely rich behavior change may run to a paragraph; a routine fix stays one line.
+- **Never the mechanism.** How you implemented it — internal composables touched, private fields, refactors mirrored from a sibling — belongs in the PR description and the commit body, not the changelog. A consumer reads release notes to decide whether to upgrade and whether they must act, nothing more.
+
+`@vuetify/v0` and `@vuetify/paper` version in lockstep — selecting `@vuetify/v0` carries `@vuetify/paper` automatically; the `@paper/*` design systems version separately. Docs-only, chore, refactor, or CI PRs don't need one. A bot comments on every PR to remind you.
 
 The changeset is how your change reaches a release. On every push to `master`, automation gathers all pending `.changeset/*.md` files into a "Version Packages" PR that applies the version bumps and writes the changelog entries. When a maintainer merges that PR, the packages are built, published to npm, and the GitHub releases are created. A `packages/*` change merged without a changeset still ships in the code — but with no version bump and no changelog entry.
 
