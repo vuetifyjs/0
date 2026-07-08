@@ -4,7 +4,7 @@
  * These tests run with IN_BROWSER = false to validate server-side behavior.
  * Separated from main tests because vi.mock is hoisted and applies file-wide.
  */
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('#v0/constants/globals', () => ({
   IN_BROWSER: false,
@@ -19,7 +19,9 @@ describe('useRules SSR', () => {
 
   it('resolve() returns an array containing the raw function when no alias is registered', () => {
     const ctx = useRules()
-    function rule (v: unknown) { return !!v || 'required' }
+    function rule (v: unknown) {
+      return !!v || 'required'
+    }
 
     expect(ctx.resolve([rule])).toEqual([rule])
   })

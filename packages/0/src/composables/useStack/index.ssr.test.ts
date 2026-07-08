@@ -7,7 +7,7 @@
  *
  * Separated from main tests because vi.mock is hoisted and applies file-wide.
  */
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('#v0/constants/globals', () => ({
   IN_BROWSER: false,

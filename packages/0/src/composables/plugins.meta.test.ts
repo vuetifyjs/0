@@ -1,3 +1,4 @@
+/// <reference types="node" />
 /**
  * Meta-test: every composable that uses createPluginContext must have a
  * corresponding index.ssr.test.ts file. This prevents new plugins from
@@ -22,7 +23,7 @@ function readFileIfExists (filePath: string): string | null {
   }
 }
 
-// createPlugin is the infrastructure that provides createPluginContext — it is not itself a plugin
+// createPlugin is the infrastructure itself — not a consumer plugin.
 const INFRASTRUCTURE = new Set(['createPlugin'])
 
 function discoverPluginComposables (): string[] {
@@ -55,9 +56,6 @@ describe('plugin SSR coverage meta-test', () => {
     const ssrTestPath = path.join(COMPOSABLES_DIR, plugin, 'index.ssr.test.ts')
     const exists = fs.existsSync(ssrTestPath)
 
-    // The test name already names the missing file; this assertion is here to
-    // satisfy vitest/expect-expect while keeping the failure message in the
-    // throw for humans adding new plugins.
     expect(exists).toBe(true)
 
     if (!exists) {

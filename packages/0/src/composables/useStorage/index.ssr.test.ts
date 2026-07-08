@@ -7,7 +7,7 @@
  * In SSR the fallback uses MemoryStorageAdapter instead of window.localStorage
  * so storage operations work without crashing.
  */
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('#v0/constants/globals', () => ({
   IN_BROWSER: false,
