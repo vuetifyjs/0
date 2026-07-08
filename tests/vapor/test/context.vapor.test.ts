@@ -10,7 +10,7 @@ import ContextProvider from '../src/ContextProvider.vue'
 // createContext is the provide/inject substrate beneath every v0 compound
 // component. This proves it carries a value from a Vapor ancestor to a Vapor
 // descendant — i.e. the compound-component pattern holds in a pure Vapor tree.
-describe('v0 createContext under real Vapor', () => {
+describe('createContext', () => {
   let wrapper: VaporMount
 
   afterEach(() => {

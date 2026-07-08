@@ -14,7 +14,7 @@ import Counter from '../src/Counter.vue'
 // @vitejs/plugin-vue) can compile a <script setup vapor> SFC, mount it, and
 // observe reactive DOM updates. Nothing v0-specific here — if this fails, the
 // harness is broken, not v0.
-describe('vapor toolchain smoke', () => {
+describe('smoke', () => {
   let wrapper: VaporMount
 
   afterEach(() => {
