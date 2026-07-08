@@ -31,6 +31,9 @@ export default {
   Button: {
     label: 'Button',
   },
+  Combobox: {
+    noResults: 'No results',
+  },
   Carousel: {
     indicator: 'Go to slide {current} of {size}',
     indicators: 'Carousel indicators',
