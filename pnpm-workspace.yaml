@@ -44,7 +44,6 @@ catalog:
   eslint-plugin-vuejs-accessibility: ^2.5.0
   fflate: ^0.8.2
   happy-dom: ^20.9.0
-  jsdom: ^26.1.0
   knip: ^6.11.0
   launchdarkly-js-client-sdk: ^3.9.1
   markdown-it: ^14.1.1
