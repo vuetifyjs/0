@@ -394,9 +394,10 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
 
   function expandAll () {
     for (const g of filteredGroups.value) {
-      if (!expandedGroups.selected(g.id)) {
-        expandedGroups.select(g.id)
+      if (!expandedGroups.has(g.id)) {
+        expandedGroups.register({ id: g.id })
       }
+      expandedGroups.select(g.id)
     }
   }
 
