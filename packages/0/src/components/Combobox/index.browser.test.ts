@@ -3,6 +3,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // Adapters
 import { ClientComboboxAdapter } from '#v0/composables/createCombobox/adapters/client'
 
+// Composables
+import { createLocalePlugin } from '#v0/composables'
+
 import { Combobox } from './index'
 
 // Utilities
@@ -510,6 +513,77 @@ describe('combobox', () => {
 
       const empty = wrapper.findComponent(Combobox.Empty as any)
       expect(empty.exists()).toBe(true)
+    })
+
+    it('should fall back to the inline default "No results" when no locale plugin is configured', async () => {
+      const wrapper = mount(
+        defineComponent({
+          render: () =>
+            h(Combobox.Root as any, { adapter: new ClientComboboxAdapter() }, {
+              default: () => [
+                h(Combobox.Activator as any, {}, {
+                  default: () => h(Combobox.Control as any),
+                }),
+                h(Combobox.Content as any, {}, {
+                  default: () => h(Combobox.Empty as any),
+                }),
+              ],
+            }),
+        }),
+        { attachTo: document.body },
+      )
+      wrappers.push(wrapper)
+
+      const input = wrapper.find('input')
+      await input.trigger('focus')
+      await nextTick()
+      await input.setValue('zzzzz')
+      await input.trigger('input')
+      await nextTick()
+
+      const empty = wrapper.findComponent(Combobox.Empty as any)
+      expect(empty.text()).toBe('No results')
+    })
+
+    it('should use the translated string when locale plugin is configured', async () => {
+      const plugin = createLocalePlugin({
+        default: 'fr',
+        messages: {
+          fr: {
+            Combobox: {
+              noResults: 'Aucun résultat',
+            },
+          },
+        },
+      })
+
+      const wrapper = mount(
+        defineComponent({
+          render: () =>
+            h(Combobox.Root as any, { adapter: new ClientComboboxAdapter() }, {
+              default: () => [
+                h(Combobox.Activator as any, {}, {
+                  default: () => h(Combobox.Control as any),
+                }),
+                h(Combobox.Content as any, {}, {
+                  default: () => h(Combobox.Empty as any),
+                }),
+              ],
+            }),
+        }),
+        { global: { plugins: [plugin] }, attachTo: document.body },
+      )
+      wrappers.push(wrapper)
+
+      const input = wrapper.find('input')
+      await input.trigger('focus')
+      await nextTick()
+      await input.setValue('zzzzz')
+      await input.trigger('input')
+      await nextTick()
+
+      const empty = wrapper.findComponent(Combobox.Empty as any)
+      expect(empty.text()).toBe('Aucun résultat')
     })
 
     it('should hide filtered-out items via v-show', async () => {

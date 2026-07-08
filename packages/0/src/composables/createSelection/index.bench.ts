@@ -3,7 +3,13 @@
  *
  * Structure:
  * - READ-ONLY operations use shared fixtures (safe, isolates operation cost)
- * - MUTATION operations create fresh fixtures per iteration (includes setup cost)
+ * - WARM operations (select, unselect, toggle, mandate, select-all) share a
+ *   populated fixture and time only the operation — the O(n) onboard is not
+ *   re-paid per iteration. select is idempotent (Set add), unselect/select-all
+ *   pair to a canonical end state, mandate resets first via the cheap reset()
+ * - FRESH fixtures only where the populate IS the measured op (initialization)
+ *   or the op consumes the fixture with no cheap restore ('Reset selection'
+ *   destroys the enrolled selection; re-establishing it is the O(n) enroll)
  * - Tests both 1,000 and 10,000 item datasets
  * - Categories: initialization, lookup operations, selection operations, mandatory enforcement, batch operations, computed access
  */
@@ -126,93 +132,103 @@ describe('createSelection benchmarks', () => {
 
   // ===========================================================================
   // SELECTION OPERATIONS - Single item select/unselect/toggle
-  // Fresh fixture per iteration (required - mutations change state)
-  // Measures: setup + operation cost
+  // WARM: shared multi-select fixture per size; the O(n) onboard is hoisted out
+  // of the timed block. select adds an id (idempotent, no drift); unselect pairs
+  // with a select so it ends empty each iteration; toggle oscillates between two
+  // O(1) states. No computed reads in the timed block, so no memoization to defeat.
   // ===========================================================================
   describe('selection operations', () => {
+    const sel1k = createPopulatedSelection(1000, { multiple: true })
+    const sel10k = createPopulatedSelection(10_000, { multiple: true })
+
     bench('Select single item (1,000 items)', () => {
-      const selection = createPopulatedSelection(1000, { multiple: true })
-      selection.select(LOOKUP_ID_1K)
+      sel1k.select(LOOKUP_ID_1K)
     })
 
     bench('Select single item (10,000 items)', () => {
-      const selection = createPopulatedSelection(10_000, { multiple: true })
-      selection.select(LOOKUP_ID_10K)
+      sel10k.select(LOOKUP_ID_10K)
     })
 
     bench('Unselect single item (1,000 items)', () => {
-      const selection = createPopulatedSelection(1000, { multiple: true })
-      selection.select(LOOKUP_ID_1K)
-      selection.unselect(LOOKUP_ID_1K)
+      sel1k.select(LOOKUP_ID_1K)
+      sel1k.unselect(LOOKUP_ID_1K)
     })
 
     bench('Unselect single item (10,000 items)', () => {
-      const selection = createPopulatedSelection(10_000, { multiple: true })
-      selection.select(LOOKUP_ID_10K)
-      selection.unselect(LOOKUP_ID_10K)
+      sel10k.select(LOOKUP_ID_10K)
+      sel10k.unselect(LOOKUP_ID_10K)
     })
 
     bench('Toggle single item (1,000 items)', () => {
-      const selection = createPopulatedSelection(1000, { multiple: true })
-      selection.toggle(LOOKUP_ID_1K)
+      sel1k.toggle(LOOKUP_ID_1K)
     })
 
     bench('Toggle single item (10,000 items)', () => {
-      const selection = createPopulatedSelection(10_000, { multiple: true })
-      selection.toggle(LOOKUP_ID_10K)
+      sel10k.toggle(LOOKUP_ID_10K)
     })
   })
 
   // ===========================================================================
   // MANDATORY ENFORCEMENT - Select/unselect under mandatory constraints
-  // Fresh fixture per iteration (required - mutations change state)
-  // Measures: guard logic overhead
+  // WARM: shared mandatory fixtures; the O(n) onboard is hoisted out. select
+  // clears + adds (single mode, self-canonicalizing); the blocked unselect leaves
+  // the single selection intact (guard returns) — deterministic. 'Mandate on
+  // empty' resets first via the cheap reset() so mandate() does real work (seek
+  // first + select) each iteration, instead of the force-onboard's no-op.
   // ===========================================================================
   describe('mandatory enforcement', () => {
+    const mandatory1k = createPopulatedSelection(1000, { mandatory: true })
+    const force1k = createPopulatedSelection(1000, { mandatory: 'force' })
+
     bench('Select with mandatory (1,000 items)', () => {
-      const selection = createPopulatedSelection(1000, { mandatory: true })
-      selection.select(LOOKUP_ID_1K)
+      mandatory1k.select(LOOKUP_ID_1K)
     })
 
     bench('Unselect blocked by mandatory (1,000 items)', () => {
-      const selection = createPopulatedSelection(1000, { mandatory: true })
-      selection.select(LOOKUP_ID_1K)
-      selection.unselect(LOOKUP_ID_1K)
+      mandatory1k.select(LOOKUP_ID_1K)
+      mandatory1k.unselect(LOOKUP_ID_1K)
     })
 
     bench('Mandate on empty (1,000 items)', () => {
-      const selection = createPopulatedSelection(1000, { mandatory: 'force' })
-      selection.mandate()
+      force1k.reset()
+      force1k.mandate()
     })
   })
 
   // ===========================================================================
   // BATCH OPERATIONS - Bulk select/unselect cycles
-  // Fresh fixture per iteration (required - mutations change state)
-  // Measures: setup + operation cost for bulk workflows
+  // WARM: 'Select all' shares a multi-select fixture and resets first via the
+  // cheap reset() so each iteration is a genuine empty -> full O(n) select loop;
+  // 'Select then unselect all' loops both halves to a canonical empty end state.
+  // The O(n) onboard is hoisted out of the timed block in both.
+  // FRESH: 'Reset selection' consumes the fixture — reset() destroys the enrolled
+  // selection, and re-establishing a full selection is the O(n) enroll (no cheap
+  // restore), so it can't be warmed without paying the populate again.
   // ===========================================================================
   describe('batch operations', () => {
+    const batch1k = createPopulatedSelection(1000, { multiple: true })
+    const batch10k = createPopulatedSelection(10_000, { multiple: true })
+
     bench('Select all 1,000 items', () => {
-      const selection = createPopulatedSelection(1000, { multiple: true })
+      batch1k.reset()
       for (const item of ITEMS_1K) {
-        selection.select(item.id)
+        batch1k.select(item.id)
       }
     })
 
     bench('Select all 10,000 items', () => {
-      const selection = createPopulatedSelection(10_000, { multiple: true })
+      batch10k.reset()
       for (const item of ITEMS_10K) {
-        selection.select(item.id)
+        batch10k.select(item.id)
       }
     })
 
     bench('Select then unselect all 1,000 items', () => {
-      const selection = createPopulatedSelection(1000, { multiple: true })
       for (const item of ITEMS_1K) {
-        selection.select(item.id)
+        batch1k.select(item.id)
       }
       for (const item of ITEMS_1K) {
-        selection.unselect(item.id)
+        batch1k.unselect(item.id)
       }
     })
 

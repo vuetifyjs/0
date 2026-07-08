@@ -462,9 +462,12 @@ export function range (length: number, start = 0): number[] {
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function resolveIds<E> (ids: Iterable<ID>, getter: (id: ID) => E | undefined): E[] {
-  return Array.from(ids)
-    .map(id => getter(id))
-    .filter((item): item is E => !isUndefined(item))
+  const result: E[] = []
+  for (const id of ids) {
+    const item = getter(id)
+    if (!isUndefined(item)) result.push(item)
+  }
+  return result
 }
 
 /**
@@ -474,7 +477,10 @@ export function resolveIds<E> (ids: Iterable<ID>, getter: (id: ID) => E | undefi
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function resolveIndexes (items: Iterable<{ index?: number }>): number[] {
-  return Array.from(items)
-    .map(item => item?.index)
-    .filter((index): index is number => !isUndefined(index))
+  const result: number[] = []
+  for (const item of items) {
+    const index = item?.index
+    if (!isUndefined(index)) result.push(index)
+  }
+  return result
 }

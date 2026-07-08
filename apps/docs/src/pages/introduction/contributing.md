@@ -25,7 +25,7 @@ Before contributing, please:
 
 1. Read the [Getting Started](/introduction/getting-started) guide to understand the project
 2. Review existing [issues](https://github.com/vuetifyjs/0/issues)
-3. Join our [Discord community](https://community.vuetifyjs.com) for questions
+3. Join our [Discord community](https://discord.gg/vuetify) for questions
 
 ## Reporting Issues
 

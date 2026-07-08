@@ -6,7 +6,7 @@
   import { toRef } from 'vue'
 
   // Types
-  import type { Tier } from '@/composables/useBenchmarkData'
+  import type { TierState } from '@/composables/useBenchmarkData'
 
   interface Point {
     label: string
@@ -21,7 +21,7 @@
     height = 28,
   } = defineProps<{
     points: Point[]
-    tier?: Tier
+    tier?: TierState
     width?: number
     height?: number
   }>()

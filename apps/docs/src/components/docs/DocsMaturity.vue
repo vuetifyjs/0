@@ -74,7 +74,7 @@
         level: entry.level,
         since: entry.since,
         levelOrder: levels[entry.level]?.order ?? -1,
-        path: '/utilities',
+        path: '/guide/features/utilities',
         description: entry.description,
       })
     }

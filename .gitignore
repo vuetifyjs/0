@@ -52,3 +52,6 @@ apps/docs/build/generated/
 .superpowers/
 .worktrees/
 /docs/
+
+# Grok
+.grok/worktrees/

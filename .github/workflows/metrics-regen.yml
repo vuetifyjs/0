@@ -4,15 +4,19 @@ name: Regenerate Metrics
 # then opens an auto-PR for review. Never pushes to master directly — close the
 # PR to discard a noisy run.
 #
-# Trigger: a published GitHub Release. In this changesets setup the aggregate
-# `v*` release is the terminal, success-gated artifact of a publish (it runs
-# last, only when a publish actually happened), so `release: published` is the
-# right moment — and it never fires on plain master pushes or "version packages"
-# PR churn. The harness installs each configured version from npm and benches it
-# with the current suite (fixed apparatus), so no git tags/worktrees are needed.
+# Trigger: completion of the Release workflow (NOT `on: release: published`).
+# The aggregate `v*` release is minted by scripts/github-release.js with the
+# default GITHUB_TOKEN, and GitHub deliberately does not fire event triggers for
+# actions taken by that token (recursion prevention) — so `release: published`
+# never runs on an automated publish. `workflow_run` fires when the upstream
+# workflow finishes regardless of the token that drove it, which is the
+# sanctioned chain. Release runs on every master push (most just open the
+# "Version Packages" PR and publish nothing), so the job gates on upstream
+# success AND a newly published 1.x version that has no snapshot yet — see `gate`.
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
   workflow_dispatch:
 
 concurrency:
@@ -25,13 +29,12 @@ permissions:
 
 jobs:
   regen:
-    # Substrate `v*` releases only — skip the independent @paper/* design-system
-    # releases (which tag as `name@version`, not `v*`).
-    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'v') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-24.04 # pinned, NOT ubuntu-latest — OS drift moves benchmark numbers
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: master # workflow_run checks out a detached SHA otherwise; create-pull-request needs a branch base
           fetch-depth: 0 # full history for create-pull-request
 
       - uses: pnpm/action-setup@v6
@@ -41,33 +44,55 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
 
+      # Discover published 1.x versions from npm and list those with no snapshot.
+      # On the automatic (workflow_run) path, skip the expensive bench when nothing
+      # new shipped. A manual dispatch always proceeds — e.g. to re-measure the
+      # whole series after a bench-suite change even though no version is new.
+      - name: Gate on new version
+        id: gate
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          MISSING=$(node scripts/generate-metrics-history.ts --print-missing)
+          if [ "$EVENT_NAME" != "workflow_dispatch" ] && [ -z "$MISSING" ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "No new 1.x version to bench — skipping regen."
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Regenerating — missing: ${MISSING:-<none; manual dispatch>}"
+          fi
+
       # Fixed apparatus: the current bench suite + toolchain measure each version's
-      # npm-installed dist, so the series is comparable. --force re-measures every
-      # configured version each run (each = npm install + bench); drop --force to
-      # generate only newly-added versions.
+      # npm-installed dist, so the series is comparable. The version set is
+      # discovered from npm per scripts/metrics-history.config.ts. --force
+      # re-measures every discovered version each run (each = npm install + bench)
+      # so old snapshots stay comparable with the current suite.
       - name: Regenerate history series
+        if: steps.gate.outputs.run == 'true'
         run: pnpm metrics:history --force
 
       - name: Regenerate current metrics
+        if: steps.gate.outputs.run == 'true'
         run: pnpm metrics
 
       - name: Open/update auto-PR
+        if: steps.gate.outputs.run == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
+          base: master # required — checkout is a detached commit on the workflow_run path
           commit-message: "chore: regenerate benchmark + history metrics"
           title: "chore: regenerate benchmark + history metrics"
           body: |
-            Auto-regenerated on release, pinned to `ubuntu-24.04` + Node from `.nvmrc`.
+            Auto-regenerated after a release, pinned to `ubuntu-24.04` + Node from `.nvmrc`.
 
             The full history series is re-measured on one runner (`metrics:history --force`)
-            so the per-row sparklines stay comparable across versions.
+            so the per-row sparklines stay comparable across versions. The version set is
+            discovered from npm — every published 1.x release is picked up automatically
+            (policy lives in `scripts/metrics-history.config.ts`; no per-release edit).
 
             Benchmark hz is jittery (~10–20% on shared CI runners), so near-threshold
             tier badges may flip without a code change. **Close this PR to discard the
             run** if the numbers look like noise.
-
-            To add a historical version, append it to `scripts/metrics-history.config.ts`
-            (must be published to npm; track the 1.x line).
           branch: chore/metrics-regen
           add-paths: |
             apps/docs/public/benchmarks.json

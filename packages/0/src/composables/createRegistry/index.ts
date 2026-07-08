@@ -34,7 +34,7 @@ import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
 import { clamp, isUndefined, useId } from '#v0/utilities'
-import { shallowReactive } from 'vue'
+import { shallowReactive, shallowRef } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -262,7 +262,7 @@ export interface RegistryContext<
    * @param id The ID of the ticket to upsert.
    * @param ticket The partial ticket data to update or insert.
    * @param event Optional custom event name to emit alongside `update:ticket`. The patched ticket is dispatched as the event payload.
-   * @remarks If the ticket exists, it will be updated in place — the ticket reference returned by `register()` remains valid and reactive (when `reactive: true`). If it doesn't exist, a new ticket will be created with the given ID and data. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   * @remarks If the ticket exists, it will be updated in place — the ticket reference returned by `register()` remains valid and reactive (when `reactive: true`), and cached `keys()` / `values()` / `entries()` results stay valid (same refs, membership and order unchanged; iterating effects are not re-notified). If it doesn't exist, a new ticket will be created with the given ID and data, which invalidates the cached results.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -712,7 +712,7 @@ export interface RegistryOptions {
    * Enable reactive behavior for registry operations
    *
    * @default false
-   * @remarks When enabled, the registry will use Vue's shallowReactive to track changes. This is useful for scenarios where you want to reactively update the registry state in response to changes.
+   * @remarks When enabled, tickets and the backing collection are shallowReactive, and `keys()`, `values()`, and `entries()` register a single version dependency so effects and templates re-evaluate on structural mutation. Iteration results stay cached between mutations — reactive reads cost the same as non-reactive ones.
    *
    * @example
    * ```ts
@@ -771,7 +771,13 @@ export function createRegistry<
   const listeners = new Map<string, Set<InternalEventCallback>>()
   // Canonical position sequence, kept in lockstep with `collection`. Holds
   // ticket refs so values()/entries()/reindex() read them without a Map lookup.
-  const order = (reactive ? shallowReactive([] as E[]) : []) as E[]
+  // Deliberately NOT shallowReactive: element-by-element reads of a reactive
+  // array pay a proxy trap per index and, inside an effect, track a dependency
+  // per index. Iteration reactivity comes from `version` instead — one signal
+  // bumped on every structural mutation — so a subscribing effect holds a
+  // single dependency regardless of collection size.
+  const order: E[] = []
+  const version = shallowRef(0)
 
   let indexDependentCount = 0
   let needsReindex = false
@@ -865,7 +871,10 @@ export function createRegistry<
 
     Object.assign(existing, patch, { id, index: existing.index, value, valueIsIndex })
     collection.set(id, existing)
-    invalidate()
+    // Not invalidate(): no structural change, so version subscribers aren't
+    // notified — but the clear stays; update:ticket consumers re-reading
+    // values() need a fresh array identity or their reactive assignment no-ops.
+    cache.clear()
     emit('update:ticket', existing)
     if (event) emit(event, existing)
 
@@ -906,11 +915,9 @@ export function createRegistry<
   }
 
   function keys (): readonly ID[] {
-    if (reactive) {
-      // `order` is shallowReactive, so reading it here registers the dependency.
-      // Effects re-evaluate when order is mutated (register, unregister, move, …).
-      return order.map(ticket => ticket.id)
-    }
+    // Touching `version` registers the (single) dependency; effects re-evaluate
+    // when the registry is structurally mutated (register, unregister, move, …).
+    if (reactive) void version.value
 
     const cached = cache.get('keys')
     if (!isUndefined(cached)) return cached as readonly ID[]
@@ -923,9 +930,7 @@ export function createRegistry<
   }
 
   function values (): readonly E[] {
-    if (reactive) {
-      return order.slice()
-    }
+    if (reactive) void version.value
 
     const cached = cache.get('values')
     if (!isUndefined(cached)) return cached as readonly E[]
@@ -938,9 +943,7 @@ export function createRegistry<
   }
 
   function entries (): readonly [ID, E][] {
-    if (reactive) {
-      return order.map(ticket => [ticket.id, ticket] as [ID, E])
-    }
+    if (reactive) void version.value
 
     const cached = cache.get('entries')
     if (!isUndefined(cached)) return cached as readonly [ID, E][]
@@ -966,8 +969,13 @@ export function createRegistry<
   }
 
   function invalidate () {
-    if (isBatching) return
+    // Always drop the cache — a sync effect firing mid-batch (e.g. off a
+    // collection Map write) must rebuild from the already-compacted order,
+    // never read a pre-batch snapshot. The version bump alone is deferred to
+    // the end of a batch so subscribers are notified once per batch.
     cache.clear()
+    if (isBatching) return
+    version.value++
   }
 
   function batch<R> (fn: () => R): R {
@@ -990,6 +998,7 @@ export function createRegistry<
       isBatching = false
       batched = []
       cache.clear()
+      version.value++
     }
   }
 
@@ -1091,12 +1100,16 @@ export function createRegistry<
       indexDependentCount--
     }
 
-    // O(n) locate + splice. ticket.index can't be used as the position — this
-    // method defers reindex (lazy contract), so the index may be stale. Single
-    // removals are cheap; bulk removal should go through offboard(), which
-    // compacts order in one O(n) pass instead of N indexOf scans.
-    const orderPos = order.indexOf(ticket)
+    // Never drain reindex here — unregister deletes by ticket-local data, so it stays
+    // on the lazy contract (see .claude/rules/composables.md). ticket.index is canonical
+    // when no reindex is pending, giving an O(1) splice locate; if a deferred reindex left
+    // it stale, the position check misses and we fall back to the O(n) indexOf scan.
+    let orderPos = ticket.index
+    if (order[orderPos] !== ticket) {
+      orderPos = order.indexOf(ticket)
+    }
     if (orderPos !== -1) order.splice(orderPos, 1)
+
     collection.delete(ticket.id)
     directory.delete(ticket.index)
     unassign(ticket.value, ticket.id)
@@ -1245,25 +1258,26 @@ export function createRegistry<
 
     if (needsReindex) reindex()
 
-    // Fast path: simple first/last without predicate or offset
+    const n = order.length
+
+    // Fast path: simple first/last without predicate or offset. Use order directly
+    // to avoid the values() copy (slice or map) for the common case.
     if (!predicate && isUndefined(from)) {
-      const tickets = values()
-      return direction === 'first' ? tickets[0] : tickets.at(-1)
+      return direction === 'first' ? order[0] : order.at(-1)
     }
 
-    const tickets = values()
-    const index = isUndefined(from) ? undefined : clamp(from, 0, tickets.length - 1)
+    const index = isUndefined(from) ? undefined : clamp(from, 0, n - 1)
 
     if (direction === 'last') {
-      const start = isUndefined(index) ? tickets.length - 1 : index
+      const start = isUndefined(index) ? n - 1 : index
       for (let i = start; i >= 0; i--) {
-        const ticket = tickets[i]
+        const ticket = order[i]
         if (!predicate || predicate(ticket)) return ticket
       }
     } else {
       const start = isUndefined(index) ? 0 : index
-      for (let i = start; i < tickets.length; i++) {
-        const ticket = tickets[i]
+      for (let i = start; i < n; i++) {
+        const ticket = order[i]
         if (!predicate || predicate(ticket)) return ticket
       }
     }

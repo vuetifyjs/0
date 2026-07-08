@@ -716,7 +716,40 @@ describe('createRegistry', () => {
       registry.upsert('item-2', { value: 'new' })
       const keys2 = registry.keys()
 
+      // Missing id → register path → membership changed
       expect(keys1).not.toBe(keys2)
+
+      // Existing id → in-place patch → contents unchanged, but a fresh array
+      // identity so event-driven snapshot consumers (useProxyRegistry) observe
+      // the update off update:ticket
+      registry.upsert('item-1', { value: 'patched' })
+      const keys3 = registry.keys()
+      expect(keys3).not.toBe(keys2)
+      expect(keys3).toEqual(keys2)
+      expect(registry.get('item-1')!.value).toBe('patched')
+    })
+
+    it('should not re-notify iterating effects on field-only upsert (reactive)', () => {
+      const registry = createRegistry({ reactive: true })
+      registry.register({ id: 'a', value: 1 })
+
+      let runs = 0
+      const stop = watchEffect(() => {
+        registry.values()
+        runs++
+      }, { flush: 'sync' })
+      expect(runs).toBe(1)
+
+      // Field patch — membership and order unchanged → no version notification
+      registry.upsert('a', { value: 2 })
+      expect(runs).toBe(1)
+      expect(registry.get('a')!.value).toBe(2)
+
+      // Structural mutation → notified
+      registry.register({ id: 'b' })
+      expect(runs).toBe(2)
+
+      stop()
     })
   })
 
@@ -977,7 +1010,7 @@ describe('createRegistry', () => {
       ])
     })
 
-    it('should only invalidate cache once at end of batch', () => {
+    it('should keep mid-batch reads consistent and re-cache after batch', () => {
       const registry = createRegistry()
       registry.register({ id: 'initial' })
 
@@ -985,17 +1018,19 @@ describe('createRegistry', () => {
 
       registry.batch(() => {
         registry.register({ id: 'item-1' })
-        const keysDuringBatch = registry.keys()
-        // During batch, cache should still be valid (same reference)
-        expect(keysDuringBatch).toBe(keys1)
+        // Mid-batch reads reflect mutations already applied — never a stale
+        // pre-batch snapshot (a reader mid-batch must not see removed tickets
+        // or miss registered ones).
+        expect(registry.keys()).toEqual(['initial', 'item-1'])
 
         registry.register({ id: 'item-2' })
       })
 
       const keys2 = registry.keys()
-      // After batch, cache should be invalidated
       expect(keys2).not.toBe(keys1)
       expect(keys2.length).toBe(3)
+      // Cache is warm again after the batch — repeat reads return the same array.
+      expect(registry.keys()).toBe(keys2)
     })
 
     it('should handle nested batch calls correctly', () => {

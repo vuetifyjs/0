@@ -231,7 +231,7 @@
 
           <a
             class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
-            href="https://community.vuetifyjs.com/"
+            href="https://discord.gg/vuetify"
             rel="noopener"
             target="_blank"
             title="Discuss on Discord"
