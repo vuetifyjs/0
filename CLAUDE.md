@@ -134,8 +134,8 @@ Skipping `pre exit` ships `1.0.0-beta.N` (or mistags it) instead of a real `1.0.
 - **Never use `ltr:` variant** — it requires an explicit `dir="ltr"` attribute on an ancestor. Use the bare class for default (LTR) behavior, `rtl:` for the override (e.g. `-translate-x-full rtl:translate-x-full`, not `ltr:-translate-x-full rtl:translate-x-full`)
 
 ### Testing
-- Vitest + happy-dom
-- Colocated with source (`*.test.ts`)
+- Vitest, two projects: `v0:unit` (happy-dom, `*.test.ts` — composables/utilities) and `v0:browser` (real Chromium via Playwright, `*.browser.test.ts` — components)
+- Colocated with source (`*.test.ts`, components `*.browser.test.ts`)
 - Focus: edge cases, error conditions, async, SSR safety
 
 ## Requirements

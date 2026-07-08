@@ -18,9 +18,10 @@ async function drag (ctx: BrowserCommandContext, start: [number, number], ...mov
       touchPoints: [{ x: move[0], y: move[1] }],
     })
   }
+  const end = moves.at(-1) ?? start
   await cdp.send('Input.dispatchTouchEvent', {
     type: 'touchEnd',
-    touchPoints: [{ x: moves.at(-1)[0], y: moves.at(-1)[1] }],
+    touchPoints: [{ x: end[0], y: end[1] }],
   })
 }
 
@@ -54,7 +55,7 @@ export const commands = {
 }
 
 export type CustomCommands = {
-  [K in keyof typeof commands]: typeof commands[K] extends (ctx: any, ...args: infer A) => any
-    ? (...args: A) => any
+  [K in keyof typeof commands]: typeof commands[K] extends (ctx: BrowserCommandContext, ...args: infer A) => infer R
+    ? (...args: A) => R
     : never
 }

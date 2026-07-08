@@ -13,9 +13,12 @@ export function touch (element: Element) {
   function trigger (eventName: string) {
     return (clientX: number, clientY: number) => {
       const touches = [{ clientX, clientY }]
-      const event = new Event(eventName)
-      ;(event as any).touches = touches
-      ;(event as any).changedTouches = touches
+      const event = new Event(eventName) as Event & {
+        touches: typeof touches
+        changedTouches: typeof touches
+      }
+      event.touches = touches
+      event.changedTouches = touches
       element.dispatchEvent(event)
       return touch(element)
     }
