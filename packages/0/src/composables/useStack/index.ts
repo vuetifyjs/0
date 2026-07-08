@@ -29,6 +29,9 @@ import { createPlugin } from '#v0/composables/createPlugin'
 import { createSelection } from '#v0/composables/createSelection'
 import { createTrinity } from '#v0/composables/createTrinity'
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Transformers
 import { toElement } from '#v0/composables/toElement'
 
@@ -405,10 +408,12 @@ export function createStackPlugin (_options: StackPluginOptions = {}) {
   })
 }
 
-// Lazy singleton fallback for when no provider exists
+// Browser-only lazy singleton; SSR always returns a fresh ephemeral instance
+// so tickets from one request cannot bleed into the next.
 let fallbackStack: StackContext | undefined
 
 function getStackFallback (): StackContext {
+  if (!IN_BROWSER) return createStack()
   if (!fallbackStack) {
     fallbackStack = createStack()
   }
