@@ -7,6 +7,7 @@
 
   const {
     composable,
+    hideFilters,
     hideSummary,
     collapsed,
   } = defineProps<{
@@ -27,9 +28,12 @@
     summary,
     filter,
     composableSelection,
+    tierSelection,
+    sortBy,
     expandedGroups,
     expandAll,
     collapseAll,
+    clearFilters,
   } = useBenchmarkData({ composable: () => composable })
 
   // Default expand behavior: expand all when not collapsed
@@ -70,8 +74,21 @@
     expandedGroups.toggle(id)
   }
 
+  // Tier facet: register tier and toggle
+  function onTierToggle (tier: string) {
+    if (!tierSelection.has(tier)) {
+      tierSelection.register({ id: tier })
+    }
+    tierSelection.toggle(tier)
+  }
+
   // Derive selected composable names from group selectedIds
   const selectedComposableNames = toRef(() => Array.from(composableSelection.selectedIds) as string[])
+
+  // Count benchmarks currently passing all filters (for the "N of M" status)
+  const visibleBenchmarkCount = toRef(() =>
+    filteredGroups.value.reduce((sum, group) => sum + group.benchmarks.length, 0),
+  )
 </script>
 
 <template>
@@ -100,20 +117,19 @@
         <span>{{ summary.composableCount }} composables</span>
       </div>
 
-      <!-- Filters (commented out for now)
+      <!-- Filters -->
       <BenchmarkFilters
         v-if="!hideFilters"
         :search-query="String(filter.query.value)"
         :selected-tiers="tierSelection.selectedIds"
-        :sort-by="sortBy"
+        :sort-by
         :total-all="summary.totalBenchmarks"
         :total-visible="visibleBenchmarkCount"
         @clear-filters="clearFilters"
-        @toggle-tier="handleTierToggle"
+        @toggle-tier="onTierToggle"
         @update:search-query="filter.query.value = $event"
         @update:sort-by="sortBy = $event"
       />
-      -->
 
       <!-- Expand/collapse toggle -->
       <div v-if="filteredGroups.length > 1" class="flex items-center justify-end">
@@ -137,12 +153,13 @@
         />
       </div>
 
-      <!-- Empty filter state (commented out with filters)
+      <!-- Empty filter state -->
       <div
         v-if="filteredGroups.length === 0"
         class="py-12 text-center"
       >
         <p class="text-sm text-on-surface-variant">No benchmarks match your filters.</p>
+
         <button
           class="mt-2 text-sm text-primary hover:underline"
           @click="clearFilters"
@@ -150,7 +167,6 @@
           Clear filters
         </button>
       </div>
-      -->
     </template>
   </div>
 </template>
