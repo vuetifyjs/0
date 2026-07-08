@@ -18,10 +18,11 @@ import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 // Create fresh stack plugin for each test to avoid "Ticket already exists" warnings
 let stackPlugin: ReturnType<typeof createStackPlugin>
 
-// Mock showModal and close for happy-dom
+// Spy on the native dialog methods (keeping their real behavior) so tests can
+// assert showModal/close calls without mocking them away like happy-dom did.
 beforeEach(() => {
-  HTMLDialogElement.prototype.showModal = vi.fn()
-  HTMLDialogElement.prototype.close = vi.fn()
+  vi.spyOn(HTMLDialogElement.prototype, 'showModal')
+  vi.spyOn(HTMLDialogElement.prototype, 'close')
   stackPlugin = createStackPlugin()
 })
 
@@ -34,6 +35,7 @@ afterEach(() => {
   while (wrappers.length > 0) {
     wrappers.pop()!.unmount()
   }
+  vi.restoreAllMocks()
 })
 
 // Helper to mount with stack plugin
@@ -42,6 +44,9 @@ function mountWithStack<T extends Parameters<typeof mount>[0]> (
   options: Parameters<typeof mount<T>>[1] = {},
 ) {
   const wrapper = mount(component, {
+    // Real <dialog> elements must be connected to the document before
+    // showModal() may be called — chromium throws InvalidStateError otherwise.
+    attachTo: document.body,
     ...options,
     global: {
       ...options?.global,

@@ -654,7 +654,7 @@ When uncertain, don't hook up. Adding a plugin later is a non-breaking change; r
 
 ## Checklist
 
-- [ ] Directory follows compound pattern (Root + sub-components + `index.ts` + `index.test.ts`) unless in the exceptions list
+- [ ] Directory follows compound pattern (Root + sub-components + `index.ts` + `index.browser.test.ts`) unless in the exceptions list
 - [ ] All imports in `<script lang="ts">`, zero in `<script setup>` (preferred — DialogRoot/TabsRoot legacy violations excepted; do not introduce new ones)
 - [ ] Type guards from `#v0/utilities` (`isUndefined`, `isObject`, `isString`, …) — never raw `=== undefined`, `=== null`, or `typeof x === 'object'`
 - [ ] `defineOptions({ name: '...' })` present

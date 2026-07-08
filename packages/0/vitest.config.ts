@@ -23,6 +23,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('src', import.meta.url)),
       '@vuetify/v0': v0,
       '@vuetify/paper': fileURLToPath(new URL('../paper/src', import.meta.url)),
+      '@test': fileURLToPath(new URL('test/index.ts', import.meta.url)),
       // internal
       '#v0': fileURLToPath(new URL('src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../paper/src', import.meta.url)),
@@ -35,11 +36,13 @@ export default defineConfig({
     __VERSION__: '"0.0.1"',
   },
   test: {
+    name: 'v0:unit',
     projects: ['packages/*'],
     environment: 'happy-dom',
     pool: 'vmThreads',
     globals: true,
     include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
+    exclude: ['**/*.browser.test.{ts,tsx}'],
     setupFiles: ['./vitest.setup.ts'],
     testTimeout: 20_000,
     coverage: {

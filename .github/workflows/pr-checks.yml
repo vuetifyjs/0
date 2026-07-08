@@ -40,13 +40,52 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      - name: Run tests with coverage
-        run: pnpm test:run --coverage
+      # Coverage is scoped to .ts (composables/utilities/plugins); component
+      # .vue coverage comes from the browser job below and Codecov merges the
+      # two flagged uploads into one project total.
+      - name: Run unit tests with coverage
+        run: pnpm test:run --coverage --project '!v0:browser' --coverage.include='packages/0/src/**/*.ts'
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/coverage-final.json
+          flags: unit
+          fail_ci_if_error: false
+
+  # Component tests run in a real browser (Playwright/Chromium) and are kept in
+  # their own job so a render/timing flake can't red the unit + coverage signal.
+  # The Chromium binary is cached on ~/.cache/ms-playwright keyed by the pinned
+  # playwright version; only the apt system deps are (re)installed each run.
+  browser:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+      - name: Cache Playwright browser
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          # TODO: bump the version in this key whenever the `playwright` catalog
+          # pin changes in pnpm-workspace.yaml, or the cache serves a stale binary.
+          key: playwright-chromium-1.61.0-${{ runner.os }}
+      - name: Install Playwright browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install chromium
+      - name: Install Playwright system dependencies
+        run: pnpm exec playwright install-deps chromium
+      # Coverage scoped to component .vue; composable .ts coverage comes from the
+      # unit job. Uploaded under the `browser` flag so Codecov merges the two.
+      - name: Run component tests with coverage
+        run: pnpm exec vitest run --project v0:browser --coverage --coverage.include='packages/0/src/components/**/*.vue'
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/coverage-final.json
+          flags: browser
           fail_ci_if_error: false
 
   repo-integrity:
