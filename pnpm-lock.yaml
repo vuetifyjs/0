@@ -156,6 +156,9 @@ catalogs:
     pkg-pr-new:
       specifier: ^0.0.70
       version: 0.0.70
+    playwright:
+      specifier: 1.61.0
+      version: 1.61.0
     posthog-js:
       specifier: ^1.372.6
       version: 1.372.8
@@ -304,6 +307,9 @@ importers:
       pkg-pr-new:
         specifier: 'catalog:'
         version: 0.0.70
+      playwright:
+        specifier: 'catalog:'
+        version: 1.61.0
       publint:
         specifier: 'catalog:'
         version: 0.3.21

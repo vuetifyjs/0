@@ -57,6 +57,7 @@ catalog:
   minisearch: ^7.2.0
   pinia: ^3.0.4
   pkg-pr-new: ^0.0.70
+  playwright: 1.61.0
   posthog-js: ^1.372.6
   publint: ^0.3.21
   rollup-plugin-sass: ^1.15.3
