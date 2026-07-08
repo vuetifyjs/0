@@ -108,8 +108,8 @@ Changesets-driven. Pushing to `master` opens/updates a "Version Packages" PR; me
 
 The `.changeset/*.md` body renders verbatim into the changelog and GitHub release notes — it is release-note copy, not a commit message. Don't budget by character count; budget by what belongs:
 
-- **First line** — conventional-commit summary `type(Scope): what changed (#PR)`, written from the consumer's side. Usually the entire changeset.
-- **Body (optional)** — only for consumer-visible consequence: behavior delta, breaking/migration step, new public options or escape hatches. Length is earned by impact, not padded to a target.
+- **First line** — conventional-commit summary `type(Scope): what changed (#PR)`, written from the consumer's side, not the diff's. It stands alone as the whole changeset when it already answers both questions a consumer asks — *does this affect me, and must I do anything?* A title that instead restates the diff (what code moved) is a commit message in changeset frontmatter — that is the failure to avoid, body or not.
+- **Body (optional)** — add one when the title can't answer those questions itself: a behavior delta, a performance change worth quantifying (state the magnitude), a breaking/migration step, or new public options or escape hatches. Length is earned by impact, not padded to a target.
 - **Never the mechanism** — internal composables touched, private fields, refactors mirrored from a sibling go in the PR description and commit body, never the changelog.
 
 - **Substrate** (`@vuetify/v0` + `@vuetify/paper`) is a `fixed` group: one shared version, one aggregate `v<version>` GitHub release.
