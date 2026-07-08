@@ -145,6 +145,24 @@
             </template>
           </AppSettingsSlider>
 
+          <AppSettingsSlider
+            v-if="settings.showDotGrid.value"
+            v-model="settings.dotGridCoverage.value"
+            class="ml-4"
+            description="How far the dots spread before fading"
+            label="Dot coverage"
+            :max="60"
+            :min="0"
+            :precision="0"
+            :step="5"
+          >
+            <template #preview>
+              <div class="relative h-20 rounded-md overflow-hidden border bg-background">
+                <AppDotGrid :coverage="settings.dotGridCoverage.value" />
+              </div>
+            </template>
+          </AppSettingsSlider>
+
           <AppSettingsToggle
             v-model="settings.showMeshGrid.value"
             description="Colorful gradient background"

@@ -28,6 +28,7 @@ export interface DocSettings {
   collapsibleNav: boolean
   showDotGrid: boolean
   dotGridIntensity: number
+  dotGridCoverage: number
 
   showMeshGrid: boolean
   showMeshTransition: boolean
@@ -52,6 +53,7 @@ export interface SettingsContext {
   collapsibleNav: ShallowRef<boolean>
   showDotGrid: ShallowRef<boolean>
   dotGridIntensity: ShallowRef<number>
+  dotGridCoverage: ShallowRef<number>
 
   showMeshGrid: ShallowRef<boolean>
   showMeshTransition: ShallowRef<boolean>
@@ -75,6 +77,7 @@ const DEFAULTS: DocSettings = {
   collapsibleNav: true,
   showDotGrid: true,
   dotGridIntensity: 0.85,
+  dotGridCoverage: 15,
 
   showMeshGrid: true,
   showMeshTransition: true,
@@ -135,6 +138,7 @@ export function createSettingsContext (): SettingsContext {
   const collapsibleNav = shallowRef(DEFAULTS.collapsibleNav)
   const showDotGrid = shallowRef(DEFAULTS.showDotGrid)
   const dotGridIntensity = shallowRef(DEFAULTS.dotGridIntensity)
+  const dotGridCoverage = shallowRef(DEFAULTS.dotGridCoverage)
 
   const showMeshGrid = shallowRef(DEFAULTS.showMeshGrid)
   const showMeshTransition = shallowRef(DEFAULTS.showMeshTransition)
@@ -152,13 +156,14 @@ export function createSettingsContext (): SettingsContext {
   loadSetting(storage, 'collapsibleNav', collapsibleNav)
   loadSetting(storage, 'showDotGrid', showDotGrid)
   loadSetting(storage, 'dotGridIntensity', dotGridIntensity)
+  loadSetting(storage, 'dotGridCoverage', dotGridCoverage)
 
   loadSetting(storage, 'showMeshGrid', showMeshGrid)
   loadSetting(storage, 'showMeshTransition', showMeshTransition)
   loadSetting(storage, 'showBgGlass', showBgGlass)
 
   // Persist on change
-  const settings = { lineWrap, codeSize, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks, collapsibleNav, showDotGrid, dotGridIntensity, showMeshGrid, showMeshTransition, showBgGlass }
+  const settings = { lineWrap, codeSize, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks, collapsibleNav, showDotGrid, dotGridIntensity, dotGridCoverage, showMeshGrid, showMeshTransition, showBgGlass }
   for (const [key, ref] of Object.entries(settings)) {
     watch(ref, val => storage.set(key, val))
   }
@@ -188,6 +193,7 @@ export function createSettingsContext (): SettingsContext {
     collapsibleNav.value !== DEFAULTS.collapsibleNav ||
     showDotGrid.value !== DEFAULTS.showDotGrid ||
     dotGridIntensity.value !== DEFAULTS.dotGridIntensity ||
+    dotGridCoverage.value !== DEFAULTS.dotGridCoverage ||
     showMeshGrid.value !== DEFAULTS.showMeshGrid ||
     showMeshTransition.value !== DEFAULTS.showMeshTransition ||
     showBgGlass.value !== DEFAULTS.showBgGlass
@@ -231,6 +237,7 @@ export function createSettingsContext (): SettingsContext {
     collapsibleNav.value = DEFAULTS.collapsibleNav
     showDotGrid.value = DEFAULTS.showDotGrid
     dotGridIntensity.value = DEFAULTS.dotGridIntensity
+    dotGridCoverage.value = DEFAULTS.dotGridCoverage
     showMeshGrid.value = DEFAULTS.showMeshGrid
     showMeshTransition.value = DEFAULTS.showMeshTransition
     showBgGlass.value = DEFAULTS.showBgGlass
@@ -252,6 +259,7 @@ export function createSettingsContext (): SettingsContext {
     collapsibleNav,
     showDotGrid,
     dotGridIntensity,
+    dotGridCoverage,
     showMeshGrid,
     showMeshTransition,
     showBgGlass,
