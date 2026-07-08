@@ -145,6 +145,26 @@
             </template>
           </AppSettingsSlider>
 
+          <AppSettingsSlider
+            v-if="settings.showDotGrid.value"
+            v-model="settings.dotGridCoverage.value"
+            class="ml-4"
+            description="Fade distance"
+            label="Dot coverage"
+            :max="60"
+            :min="0"
+            :precision="0"
+            :step="5"
+          >
+            <template #preview>
+              <div class="relative h-20 rounded-md overflow-hidden border bg-background">
+                <!-- GnDotGrid coverage is the transparent gap, so invert to track the
+                     shell grid where a higher setting means more dot coverage. -->
+                <AppDotGrid :coverage="60 - settings.dotGridCoverage.value" />
+              </div>
+            </template>
+          </AppSettingsSlider>
+
           <AppSettingsToggle
             v-model="settings.showMeshGrid.value"
             description="Colorful gradient background"
