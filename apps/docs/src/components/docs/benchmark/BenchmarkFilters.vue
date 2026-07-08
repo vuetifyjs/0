@@ -57,6 +57,7 @@
         role="radio"
         @click="emit('update:sortBy', opt.value)"
       >
+        <AppIcon v-if="sortBy === opt.value" icon="sort" :size="12" />
         {{ opt.label }}
       </button>
     </div>
@@ -99,22 +100,14 @@
 
     <!-- Search + expand toggle -->
     <div class="flex items-center gap-2 mb-4">
-      <div class="relative flex-1">
-        <AppIcon
-          class="absolute start-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant"
-          icon="search"
-          :size="16"
-        />
-
-        <input
-          aria-label="Search benchmarks"
-          class="w-full ps-8 pe-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm placeholder-on-surface-variant/50 outline-none transition-colors focus:border-primary"
-          placeholder="Search benchmarks..."
-          type="search"
-          :value="searchQuery"
-          @input="emit('update:searchQuery', ($event.target as HTMLInputElement).value)"
-        >
-      </div>
+      <input
+        aria-label="Search benchmarks"
+        class="flex-1 px-4 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm placeholder-on-surface-variant/50 outline-none transition-colors focus:border-primary"
+        placeholder="Search benchmarks..."
+        type="search"
+        :value="searchQuery"
+        @input="emit('update:searchQuery', ($event.target as HTMLInputElement).value)"
+      >
 
       <button
         v-if="showExpand"
