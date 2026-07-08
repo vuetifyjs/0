@@ -10,7 +10,7 @@ import InteropAtom from '../src/InteropAtom.vue'
 // v0 components are authored as classic (vdom) SFCs. This proves one renders
 // inside a Vapor root through vaporInteropPlugin — the path a real app on a
 // Vapor root would hit when consuming v0's component layer.
-describe('interop', () => {
+describe('interop under vapor', () => {
   let wrapper: VaporMount
 
   afterEach(() => {

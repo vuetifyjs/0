@@ -13,7 +13,7 @@ import SelectionProbe from '../src/SelectionProbe.vue'
 // Proves a registry-backed v0 composable (createSelection) runs correctly when
 // instantiated inside a Vapor component setup, and that its reactive state
 // drives Vapor DOM updates.
-describe('createSelection', () => {
+describe('createSelection under vapor', () => {
   let wrapper: VaporMount
 
   afterEach(() => {
