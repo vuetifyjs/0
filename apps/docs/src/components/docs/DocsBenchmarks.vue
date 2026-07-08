@@ -69,7 +69,6 @@
     </p>
 
     <BenchmarkExplorer
-      collapsed
       :composable="itemName"
       hide-summary
     />

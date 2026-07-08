@@ -9,7 +9,6 @@
     composable,
     hideFilters,
     hideSummary,
-    collapsed,
   } = defineProps<{
     /** Restrict to a single composable (embed mode) */
     composable?: string
@@ -17,8 +16,6 @@
     hideFilters?: boolean
     /** Hide summary cards */
     hideSummary?: boolean
-    /** Start with groups collapsed */
-    collapsed?: boolean
   }>()
 
   const {
@@ -36,22 +33,12 @@
     clearFilters,
   } = useBenchmarkData({ composable: () => composable })
 
-  // Default expand behavior: expand all when not collapsed
-  const shouldCollapse = toRef(() => collapsed ?? !!composable)
-
-  // Auto-expand groups when search is active
+  // Groups start collapsed; expand on demand or when a search is active
   watch(toRef(() => filter.query.value), query => {
     if (query) {
       expandAll()
     }
   })
-
-  // Auto-expand all groups when not in collapsed mode and data loads
-  watch(filteredGroups, groups => {
-    if (!shouldCollapse.value && groups.length > 0 && expandedGroups.selectedIds.size === 0) {
-      expandAll()
-    }
-  }, { once: true })
 
   const allExpanded = computed(() =>
     filteredGroups.value.length > 0
@@ -120,26 +107,19 @@
       <!-- Filters -->
       <BenchmarkFilters
         v-if="!hideFilters"
+        :all-expanded
         :search-query="String(filter.query.value)"
         :selected-tiers="tierSelection.selectedIds"
+        :show-expand="filteredGroups.length > 1"
         :sort-by
         :total-all="summary.totalBenchmarks"
         :total-visible="visibleBenchmarkCount"
         @clear-filters="clearFilters"
+        @toggle-expand="allExpanded ? collapseAll() : expandAll()"
         @toggle-tier="onTierToggle"
         @update:search-query="filter.query.value = $event"
         @update:sort-by="sortBy = $event"
       />
-
-      <!-- Expand/collapse toggle -->
-      <div v-if="filteredGroups.length > 1" class="flex items-center justify-end">
-        <button
-          class="text-xs text-on-surface-variant hover:text-primary transition-colors"
-          @click="allExpanded ? collapseAll() : expandAll()"
-        >
-          {{ allExpanded ? 'Collapse all' : 'Expand all' }}
-        </button>
-      </div>
 
       <!-- Groups -->
       <div class="space-y-2">
