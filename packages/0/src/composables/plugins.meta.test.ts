@@ -53,8 +53,14 @@ describe('plugin SSR coverage meta-test', () => {
 
   it.each(plugins)('%s has an index.ssr.test.ts file', plugin => {
     const ssrTestPath = path.join(COMPOSABLES_DIR, plugin, 'index.ssr.test.ts')
+    const exists = fs.existsSync(ssrTestPath)
 
-    if (!fs.existsSync(ssrTestPath)) {
+    // The test name already names the missing file; this assertion is here to
+    // satisfy vitest/expect-expect while keeping the failure message in the
+    // throw for humans adding new plugins.
+    expect(exists).toBe(true)
+
+    if (!exists) {
       throw new Error(
         `Missing SSR test: packages/0/src/composables/${plugin}/index.ssr.test.ts\n` +
         `Every plugin composable must have a sibling index.ssr.test.ts covering its SSR contract.`,
