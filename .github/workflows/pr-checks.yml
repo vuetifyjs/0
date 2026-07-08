@@ -40,16 +40,38 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      - name: Install Playwright chromium
-        run: pnpm exec playwright install --with-deps chromium
-      - name: Run tests with coverage
-        run: pnpm test:run --coverage
+      - name: Run unit tests with coverage
+        run: pnpm test:run --coverage --project '!v0:browser'
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/coverage-final.json
           fail_ci_if_error: false
+
+  # Component tests run in a real browser (Playwright/Chromium) and are kept in
+  # their own job so a render/timing flake can't red the unit + coverage signal.
+  # The Chromium binary is cached on ~/.cache/ms-playwright keyed by the pinned
+  # playwright version; only the apt system deps are (re)installed each run.
+  browser:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+      - name: Cache Playwright browser
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-1.61.0-${{ runner.os }}
+      - name: Install Playwright browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install chromium
+      - name: Install Playwright system dependencies
+        run: pnpm exec playwright install-deps chromium
+      - name: Run component tests
+        run: pnpm exec vitest run --project v0:browser
 
   repo-integrity:
     needs: prepare

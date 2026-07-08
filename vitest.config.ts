@@ -24,10 +24,13 @@ export default defineConfig({
         '**/types.ts',
         '**/adapter.ts',
         '**/fixtures/**',
+        // Components are exercised by the v0:browser project (real Chromium),
+        // which is excluded from this coverage run — so don't count their
+        // lines as uncovered here.
+        'packages/0/src/components/**',
         // Barrel re-exports only (not implementation files)
         'packages/0/src/index.ts',
         'packages/0/src/*/index.ts',
-        'packages/0/src/components/*/index.ts',
         'packages/0/src/*/*/adapters/index.ts',
       ],
     },
