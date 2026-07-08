@@ -290,6 +290,11 @@ export function createDataGrid<T extends Record<string, unknown>> (
   }
 
   function reset () {
+    // With no manual order in effect the sortable already matches registration
+    // order and its order isn't read for the page projection, so there is
+    // nothing to discard — skip the O(n) reorder the sort-columns watch would
+    // otherwise fire across every ticket on each sort change.
+    if (!dirty.value) return
     if (sortable.size > 0) {
       sortable.reorder(table.keys() as ID[])
     }
