@@ -158,7 +158,9 @@
           >
             <template #preview>
               <div class="relative h-20 rounded-md overflow-hidden border bg-background">
-                <AppDotGrid :coverage="settings.dotGridCoverage.value" />
+                <!-- GnDotGrid coverage is the transparent gap, so invert to track the
+                     shell grid where a higher setting means more dot coverage. -->
+                <AppDotGrid :coverage="60 - settings.dotGridCoverage.value" />
               </div>
             </template>
           </AppSettingsSlider>
