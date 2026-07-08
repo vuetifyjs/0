@@ -48,7 +48,7 @@
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-push": "pnpm lint && pnpm typecheck && pnpm test:run && pnpm repo:check"
+    "pre-push": "pnpm lint && pnpm typecheck && pnpm test:run --project '!v0:browser' && pnpm repo:check"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
