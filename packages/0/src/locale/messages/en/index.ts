@@ -31,9 +31,6 @@ export default {
   Button: {
     label: 'Button',
   },
-  Combobox: {
-    noResults: 'No results',
-  },
   Carousel: {
     indicator: 'Go to slide {current} of {size}',
     indicators: 'Carousel indicators',
@@ -44,6 +41,9 @@ export default {
     progress: '{percent}% complete',
     progressLabel: 'Carousel progress',
     slide: 'Slide {current} of {size}',
+  },
+  Combobox: {
+    noResults: 'No results',
   },
   Dialog: {
     close: 'Close',

@@ -521,7 +521,7 @@ describe('combobox', () => {
       expect(empty.exists()).toBe(true)
     })
 
-    it('should fall back to hardcoded "No results" when no locale plugin is installed', async () => {
+    it('should fall back to the inline default "No results" when no locale plugin is configured', async () => {
       const wrapper = mount(
         defineComponent({
           render: () =>
@@ -551,7 +551,7 @@ describe('combobox', () => {
       expect(empty.text()).toBe('No results')
     })
 
-    it('should use locale-translated string when locale plugin is installed', async () => {
+    it('should use the translated string when locale plugin is configured', async () => {
       const plugin = createLocalePlugin({
         default: 'fr',
         messages: {
