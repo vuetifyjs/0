@@ -29,11 +29,11 @@ import { createPlugin } from '#v0/composables/createPlugin'
 import { createSelection } from '#v0/composables/createSelection'
 import { createTrinity } from '#v0/composables/createTrinity'
 
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Transformers
 import { toElement } from '#v0/composables/toElement'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
 import { instanceExists, useId } from '#v0/utilities'
