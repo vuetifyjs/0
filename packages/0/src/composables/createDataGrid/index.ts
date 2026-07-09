@@ -36,6 +36,7 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createDataTable } from '#v0/composables/createDataTable'
 import { createSortable } from '#v0/composables/createSortable'
 import { createTrinity } from '#v0/composables/createTrinity'
+import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
 import { useToggleScope } from '#v0/composables/useToggleScope'
 
 // Grid modules
@@ -229,7 +230,12 @@ export function createDataGrid<T extends Record<string, unknown>> (
 
   const table = createDataTable<T>(options)
 
-  const sortable = createSortable<SortableTicketInput<ID>>({ reactive: true })
+  // Row order is derived from the sortable's key order only — no per-ticket
+  // field is ever read reactively — so an event-driven proxy gives `order` its
+  // reactivity without allocating a reactive proxy per row. `reorder` / `move`
+  // both emit `reindex:registry`, which the proxy subscribes to.
+  const sortable = createSortable<SortableTicketInput<ID>>()
+  const sortableProxy = useProxyRegistry(sortable)
 
   // Tracks whether the consumer has explicitly reordered rows. While false the
   // grid passes the table's own sorted+paginated projection through untouched,
@@ -250,7 +256,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
     dirty.value = false
   })
 
-  const order = toRef(() => sortable.keys() as ID[])
+  const order = toRef(() => sortableProxy.keys as ID[])
 
   // Sorted ticket ids parallel to `table.sortedItems`. Identity is the registry
   // ticket id, never `value.id`. Tickets are bucketed by value reference into an
@@ -290,6 +296,11 @@ export function createDataGrid<T extends Record<string, unknown>> (
   }
 
   function reset () {
+    // With no manual order in effect the sortable already matches registration
+    // order and its order isn't read for the page projection, so there is
+    // nothing to discard — skip the O(n) reorder the sort-columns watch would
+    // otherwise fire across every ticket on each sort change.
+    if (!dirty.value) return
     if (sortable.size > 0) {
       sortable.reorder(table.keys() as ID[])
     }
