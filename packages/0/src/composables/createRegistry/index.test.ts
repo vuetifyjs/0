@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { createRegistry, createRegistryContext, useRegistry } from './index'
 
 // Utilities
-import { computed, isReactive, nextTick, shallowRef, watchEffect } from 'vue'
+import { computed, isReactive, nextTick, shallowRef, watchEffect, watchSyncEffect } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
@@ -1892,6 +1892,143 @@ describe('createRegistry', () => {
 
       expect(patched).toBe(ticket)
       expect(values).toEqual(['initial', 'updated'])
+    })
+  })
+
+  describe('offboard reindex + id provenance + batch version', () => {
+    it('should eagerly heal index and value of index-derived tickets after a mid-list offboard', () => {
+      const registry = createRegistry()
+      const tickets = registry.onboard([{}, {}, {}, {}])
+
+      registry.offboard([tickets[1].id])
+
+      // No drain method called — values()/entries() must already reflect the
+      // renumbered survivors, not the pre-offboard index/value.
+      const values = registry.values()
+      expect(values.map(ticket => ticket.index)).toEqual([0, 1, 2])
+      expect(values.map(ticket => ticket.value)).toEqual([0, 1, 2])
+
+      // The surviving ticket references are healed in place.
+      expect(tickets[2].index).toBe(1)
+      expect(tickets[2].value).toBe(1)
+      expect(tickets[3].index).toBe(2)
+      expect(tickets[3].value).toBe(2)
+    })
+
+    it('should emit reindex:registry when a mid-list offboard shifts index-derived survivors', () => {
+      const registry = createRegistry({ events: true })
+
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+
+      const onReindex = vi.fn()
+      registry.on('reindex:registry', onReindex)
+
+      registry.offboard(['b'])
+
+      expect(onReindex).toHaveBeenCalledTimes(1)
+    })
+
+    it('should defer (not reindex) when an offboard removes only a tail block', () => {
+      const registry = createRegistry({ events: true })
+
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+
+      const onReindex = vi.fn()
+      registry.on('reindex:registry', onReindex)
+
+      registry.offboard(['c'])
+
+      expect(onReindex).not.toHaveBeenCalled()
+    })
+
+    it('should renumber correctly after a tail offboard followed by a lazy unregister', () => {
+      const registry = createRegistry()
+      const tickets = registry.onboard([{}, {}, {}, {}, {}])
+
+      registry.offboard([tickets[4].id])
+      registry.unregister(tickets[1].id)
+
+      expect(registry.keys()).toEqual([tickets[0].id, tickets[2].id, tickets[3].id])
+      expect(registry.lookup(0)).toBe(tickets[0].id)
+      expect(registry.get(tickets[2].id)?.index).toBe(1)
+      expect(registry.get(tickets[3].id)?.index).toBe(2)
+    })
+
+    it('should preserve a user-supplied id on offboard even when the value is index-derived', () => {
+      const registry = createRegistry<{ id?: string, value?: string }>()
+
+      registry.register({ id: 'keep' })
+
+      const [removed] = registry.offboard(['keep'])
+
+      expect(removed).toEqual({ id: 'keep' })
+    })
+
+    it('should round-trip a user-supplied id with no value across registries', () => {
+      const source = createRegistry<{ id?: string }>()
+      const destination = createRegistry<{ id?: string }>()
+
+      source.register({ id: 'x' })
+
+      const inputs = source.offboard(['x'])
+      const [ticket] = destination.onboard(inputs)
+
+      expect(ticket.id).toBe('x')
+    })
+
+    it('should re-register a previously offboarded auto id as auto again', () => {
+      const registry = createRegistry()
+
+      const auto = registry.register({})
+      registry.offboard([auto.id])
+
+      const next = registry.register({})
+      const [removed] = registry.offboard([next.id])
+
+      expect(removed).not.toHaveProperty('id')
+    })
+
+    it('should not re-notify iteration subscribers for a field-only upsert batch', () => {
+      const registry = createRegistry({ reactive: true })
+      registry.onboard([{ id: 'a', value: 'x' }, { id: 'b', value: 'y' }])
+
+      const runs = vi.fn()
+      const stop = watchSyncEffect(() => {
+        runs()
+        void registry.values()
+      })
+
+      expect(runs).toHaveBeenCalledTimes(1)
+
+      registry.batch(() => {
+        registry.upsert('a', { value: 'z' })
+      })
+      expect(runs).toHaveBeenCalledTimes(1)
+
+      registry.batch(() => {
+        registry.register({ id: 'c', value: 'w' })
+      })
+      expect(runs).toHaveBeenCalledTimes(2)
+
+      stop()
+    })
+
+    it('should not notify iteration subscribers for an empty batch', () => {
+      const registry = createRegistry({ reactive: true })
+      registry.register({ id: 'a', value: 'x' })
+
+      const runs = vi.fn()
+      const stop = watchSyncEffect(() => {
+        runs()
+        void registry.values()
+      })
+
+      expect(runs).toHaveBeenCalledTimes(1)
+
+      registry.batch(() => {})
+      expect(runs).toHaveBeenCalledTimes(1)
+
+      stop()
     })
   })
 })
