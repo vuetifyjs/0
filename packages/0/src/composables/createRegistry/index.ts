@@ -33,7 +33,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { clamp, isUndefined, useId } from '#v0/utilities'
+import { clamp, isNullOrUndefined, isUndefined, useId } from '#v0/utilities'
 import { shallowReactive, shallowRef } from 'vue'
 
 // Types
@@ -62,7 +62,7 @@ export interface RegistryTicket<V = unknown> {
   /**
    * The index of the ticket in the registry.
    *
-   * @remarks Automatically managed by the registry. Assigned at registration and updated during reindexing; a supplied index is ignored — use `move()` to position a ticket. It's not recommended to manually set this. A ticket read via `values()`/`entries()` immediately after `unregister()`/`offboard()` may carry a stale index until the next position-reading call (`register`/`upsert`/`browse`/`lookup`/`move`/`reorder`/`seek`) drains the deferred reindex.
+   * @remarks Automatically managed by the registry. Assigned at registration and updated during reindexing; a supplied index is ignored — use `move()` to position a ticket. It's not recommended to manually set this. When a removal defers its reindex — a tail-block removal, or a registry with no index-derived values — a ticket read via `values()`/`entries()` may carry a stale index until the next position-reading call (`register`/`upsert`/`browse`/`lookup`/`move`/`reorder`/`seek`) drains it. A mid-list `unregister`/`offboard` that shifts index-derived survivors reindexes eagerly, so those reads are already current.
    */
   index: number
   /** The value associated with the ticket. If not provided, it defaults to the index. */
@@ -604,12 +604,13 @@ export interface RegistryContext<
    * @param ids An array of ticket IDs to unregister.
    * @returns An array of `Partial<Z>` — the inputs that were registered, with
    * registry-managed fields (`index`, `valueIsIndex`, `unregister`) stripped.
-   * The `id` is preserved only when `valueIsIndex` was false (i.e. the user
-   * supplied a meaningful value); otherwise the id is stripped so the receiving
-   * registry can assign a fresh one. Order matches the input `ids` array. Missing
-   * ids are silently skipped — the returned array may be shorter than `ids`.
-   * @remarks Unregisters multiple tickets in a single operation with optimized
-   * reindexing. The inverse of `onboard`: onboard takes inputs and returns outputs;
+   * A user-supplied `id` is preserved so identity survives the transfer; an
+   * auto-generated `id` is stripped so the receiving registry can assign a fresh
+   * one. The `value` is stripped only when it was index-derived (`valueIsIndex`).
+   * Order matches the input `ids` array. Missing ids are silently skipped — the
+   * returned array may be shorter than `ids`.
+   * @remarks Unregisters multiple tickets in a single compaction pass, reindexing
+   * eagerly only when index-derived survivors shift. The inverse of `onboard`: onboard takes inputs and returns outputs;
    * offboard takes ids and returns the inputs back. Pair with `onboard` on a
    * different registry to move tickets across registries.
    *
@@ -769,6 +770,11 @@ export function createRegistry<
   const directory = new Map<number, ID>()
   const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()
   const listeners = new Map<string, Set<InternalEventCallback>>()
+  // Tickets whose `id` the registry generated (none supplied at registration).
+  // Drives `toInput`: a synthesized id is dropped so the reconstructed input matches
+  // what was registered, while a user-supplied id is preserved so identity survives a
+  // transfer. A WeakSet needs no cleanup — entries vanish with the tickets themselves.
+  const minted = new WeakSet<E>()
   // Canonical position sequence, kept in lockstep with `collection`. Holds
   // ticket refs so values()/entries()/reindex() read them without a Map lookup.
   // Deliberately NOT shallowReactive: element-by-element reads of a reactive
@@ -784,6 +790,7 @@ export function createRegistry<
   let minDirtyIndex = Infinity
   let maxDirtyIndex = -Infinity
   let isBatching = false
+  let structural = false
   let batched: Array<{ event: string, data: unknown }> = []
 
   function dispatch (event: string, data: unknown) {
@@ -969,12 +976,15 @@ export function createRegistry<
   }
 
   function invalidate () {
-    // Always drop the cache — a sync effect firing mid-batch (e.g. off a
-    // collection Map write) must rebuild from the already-compacted order,
-    // never read a pre-batch snapshot. The version bump alone is deferred to
-    // the end of a batch so subscribers are notified once per batch.
+    // Always drop the cache so a sync effect firing mid-batch rebuilds from the
+    // compacted order, never a pre-batch snapshot. Defer the version bump to the
+    // batch end, and only if a structural mutation ran — a field-only-upsert batch
+    // must not re-notify iteration subscribers (§4.4). Hence the `structural` flag.
     cache.clear()
-    if (isBatching) return
+    if (isBatching) {
+      structural = true
+      return
+    }
     version.value++
   }
 
@@ -982,6 +992,7 @@ export function createRegistry<
     if (isBatching) return fn()
 
     isBatching = true
+    structural = false
     batched = []
 
     try {
@@ -998,7 +1009,10 @@ export function createRegistry<
       isBatching = false
       batched = []
       cache.clear()
-      version.value++
+      // Only notify iteration subscribers when the batch actually changed
+      // membership or order; a field-only-upsert batch leaves `structural`
+      // false and must not re-notify (mirrors the non-batched upsert path).
+      if (structural) version.value++
     }
   }
 
@@ -1052,6 +1066,7 @@ export function createRegistry<
     if (needsReindex) reindex()
 
     const size = collection.size
+    const auto = isNullOrUndefined(registration.id)
     const id = registration.id ?? useId()
 
     if (has(id)) {
@@ -1079,6 +1094,8 @@ export function createRegistry<
     } as E
 
     const ticket = reactive ? shallowReactive(input) : input
+
+    if (auto) minted.add(ticket)
 
     collection.set(ticket.id, ticket)
     order.push(ticket)
@@ -1132,18 +1149,18 @@ export function createRegistry<
   }
 
   // Strip registry-managed fields off an output ticket to produce its input shape.
-  // `id` is preserved only when the user supplied a meaningful value; otherwise
-  // the id was auto-generated and stripping it lets the receiving registry assign
-  // a fresh one.
+  // Two independent provenance checks decide what survives:
+  // - `id` is dropped only when the registry generated it (`minted`), so a
+  //   user-supplied id keeps identity across a transfer even when no value was set.
+  // - `value` is dropped only when it was index-derived (`valueIsIndex`), since a
+  //   positional number is meaningless in the receiving registry.
   function toInput (ticket: E): Partial<Z> {
     const input = { ...ticket } as Record<string, unknown>
     delete input.index
     delete input.valueIsIndex
     delete input.unregister
-    if (ticket.valueIsIndex) {
-      delete input.id
-      delete input.value
-    }
+    if (minted.has(ticket)) delete input.id
+    if (ticket.valueIsIndex) delete input.value
     return input as Partial<Z>
   }
 
@@ -1174,6 +1191,11 @@ export function createRegistry<
       }
       order.length = w
 
+      // Drop the stale iteration cache now that `order` is compacted, so a sync
+      // effect firing off the Map deletes below rebuilds keys/values/entries from
+      // the surviving set instead of returning removed ids from a warm cache.
+      invalidate()
+
       for (const ticket of removed) {
         if (ticket.valueIsIndex) {
           indexDependentCount--
@@ -1188,7 +1210,16 @@ export function createRegistry<
         emit('unregister:ticket', ticket)
       }
 
-      needsReindex = true
+      // Mirror unregister: eagerly reindex when index-derived survivors shifted
+      // (index-dependent tickets remain AND the smallest removed index is still
+      // inside the compacted range) so iteration/proxy consumers never read stale
+      // index/value. Otherwise defer — a tail-block removal, or a registry with no
+      // index-derived values whose stale `.index` fields drain lazily.
+      if (indexDependentCount > 0 && minDirtyIndex < collection.size) {
+        reindex()
+      } else {
+        needsReindex = true
+      }
     })
 
     // TODO: this builds an array even when the caller discards the return value.
