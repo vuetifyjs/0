@@ -604,7 +604,7 @@ This is an acid test, not a vibe. If the only way to get state X to render diffe
 - **No utility classes.** Zero `class="px-4"`, zero `class="bg-primary"`. [intent:278]
 - **Structural-only `:style`.** `display: flex`, `flex-grow`, `visibility`, z-index from `useStack`, CSS custom properties for depth, visually-hidden positioning. If your `:style` sets `color` or `padding`, it is not structural. [intent:279]
 - **Data attributes as styling hooks.** `data-state="open"`, `data-disabled`, `data-orientation="vertical"`. Consumers style against these. [intent:280]
-- **DOM-rendering Roots use `<Atom :as :renderless>`.** The universal wrapper that lets consumers swap the tag and strip it. Pure context-provider Roots — `Group`, `Selection`, `Single`, `Step`, `Tabs`, `Treeview` — render only `<slot v-bind="slotProps" />` with no `Atom` wrapper, because their DOM is emitted by sub-components. [intent:186, intent:336]
+- **DOM-rendering Roots use `<Atom :as :renderless>`.** The universal wrapper that lets consumers swap the tag and strip it. Provider / slot-only Roots — `Group`, `Locale`, `Portal`, `Presence`, `Selection`, `Single`, `Step`, `Tabs`, `Treeview` — render only `<slot v-bind="slotProps" />` (or teleport their children) with no `Atom` wrapper, because their DOM is emitted by sub-components or the wrapper would be meaningless. [intent:186, intent:336]
 
 ### 5.4 Hidden inputs
 
@@ -635,16 +635,16 @@ Every user-facing string (`aria-label`, error messages, day-of-week names, month
 ```
 RegistryTicketInput
   ├── ModelTicketInput
-  │     ├── SelectionTicketInput
-  │     │     └── SingleTicketInput
-  │     │           └── StepTicketInput
-  │     └── GroupTicketInput
-  │           └── NestedTicketInput
+  │     └── SelectionTicketInput
+  │           ├── SingleTicketInput
+  │           │     └── StepTicketInput
+  │           └── GroupTicketInput
+  │                 └── NestedTicketInput
   ├── QueueTicketInput
   └── FormTicketInput
 ```
 
-Every ticket has the base interface `{ id: ID, index: number, value: unknown, valueIsIndex: boolean, unregister: () => void }`. [intent:96] Extensions spread the parent; they never override it. [intent:101]
+The tree above is the **input** hierarchy — the `*TicketInput` shapes a caller passes to `register`. The base `RegistryTicketInput` is just `{ id?: ID, value?: V }` (both optional); each extension spreads its parent and adds its own optional fields. The registry then resolves every input into a **`RegistryTicket`** — the output shape read via `get()` / `values()` — which carries the full base interface `{ id: ID, index: number, value: unknown, valueIsIndex: boolean, unregister: () => void }`. [intent:96] Extensions spread the parent; they never override it. [intent:101]
 
 ### 6.3 Element refs via registry
 
@@ -824,7 +824,7 @@ Components that defer the mount of **complex DOM** default to lazy. Expose only 
 **Carve-outs.** Components whose entire identity is "manage the mount lifecycle" expose their own dedicated knobs and do not follow the `eager?` shorthand:
 
 - `Image` — `<Image.Img>` mounts on load-state transitions; the `Image.Placeholder` / `Image.Fallback` slots are the visible mount surface. There is no `eager` prop because the load lifecycle is the component.
-- `Presence` — owns the `UNMOUNTED → MOUNTED → PRESENT → LEAVING → UNMOUNTED` state machine directly. `Presence` takes `present: boolean` and `lazy: boolean` separately because both are observable states, not opt-ins to a single shorthand.
+- `Presence` — owns the `UNMOUNTED → MOUNTED → PRESENT → LEAVING → UNMOUNTED` state machine directly. The component drives presence through a `v-model` (`defineModel<boolean>`) plus separate `lazy` / `immediate` props; the underlying `usePresence` composable takes the resolved model as its `present` option alongside `lazy`, because both are observable states, not opt-ins to a single shorthand.
 
 ### 7.3 Cleanup on unmount
 
@@ -969,8 +969,8 @@ Every key passed to `createContext(key)` or `createXContext({ namespace })` must
 
 **Static-key vs dynamic-key modes.** `createContext` operates in two modes:
 
-- **Static-key mode** — the call site passes a single string (`createContext('v0:tabs')`). The namespace is fixed at module load; the `[useX, provideX]` pair injects against that one key. Used by every compound component that scopes a single context per Root (`Tabs`, `Dialog`, `Combobox`).
-- **Dynamic-key mode** — the call site passes an options object or omits the positional key (`createContext({ suffix: 'item' })` or `createContext()`), which makes the returned `useX` / `provideX` accept a runtime namespace argument; `suffix` is an optional string appended to that runtime key (`key:suffix`). Used when a single composable services multiple disjoint subtrees within the same app (e.g., nested `Selection` providers). The `[v0:context]` colon warning is static-key-mode only (gated on `isString(keyOrOptions)`); the dynamic branch performs no colon check on the runtime key.
+- **Static-key mode** — the call site passes a single string (`createContext('v0:popover')`). The namespace is fixed at module load; the `[useX, provideX]` pair injects against that one key. Used by the few Roots whose namespace never needs to vary per subtree — in component source today, only `Popover` (`'v0:popover'`) and `Splitter` (`'v0:splitter'`).
+- **Dynamic-key mode** — the call site passes an options object or omits the positional key (`createContext({ suffix: 'item' })` or `createContext()`), which makes the returned `useX` / `provideX` accept a runtime namespace argument supplied at provide time; `suffix` is an optional string appended to that runtime key (`key:suffix`). This is the default for compound Roots — `Tabs`, `Dialog`, `Combobox`, `Select`, and the rest omit the positional key and pass the namespace to `provideXRoot(namespace, context)` (see §6.5). It is also what lets a single composable service multiple disjoint subtrees within the same app (e.g., nested `Selection` providers). The `[v0:context]` colon warning is static-key-mode only (gated on `isString(keyOrOptions)`); the dynamic branch performs no colon check on the runtime key.
 
 ### 9.4 SSR gating
 
@@ -1250,7 +1250,7 @@ Reason: §3.6, [intent:172]. `false` writes `data-disabled="false"` to the DOM, 
 
 **Exceptions — where `v-show` is correct.** A child component that registers a ticket with its Root must stay mounted even while invisible; `v-if` would unmount it, fire `onBeforeUnmount`, unregister the ticket, drop its measurement, and on re-include cause a measurement / capacity / visibility cascade that thrashes neighbours. Use `v-show` when state must survive the visibility flip:
 
-- **Registry-driven visibility.** `Breadcrumbs/BreadcrumbsItem.vue`, `BreadcrumbsDivider.vue`, `BreadcrumbsEllipsis.vue`, `Overflow/OverflowItem.vue` — items registered with the Root for measurement or selection must stay mounted so their ticket and width entry survive the flip.
+- **Registry-driven visibility.** `Breadcrumbs/BreadcrumbsItem.vue`, `BreadcrumbsDivider.vue`, `BreadcrumbsEllipsis.vue`, `Overflow/OverflowItem.vue`, `Avatar/AvatarRoot.vue` — items registered with the Root (or an enclosing group) for measurement, selection, or overflow counting must stay mounted so their ticket survives the flip; `AvatarRoot` hides via `v-show="!isHidden"` when the group's visible count excludes it, yet keeps its ticket so the count stays correct.
 - **Load-state preservation.** `Avatar/AvatarImage.vue` — image load state would reset on remount.
 - **Virtualization.** `Combobox/ComboboxItem.vue` — load-bearing for the filtered list.
 
