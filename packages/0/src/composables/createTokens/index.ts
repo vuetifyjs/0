@@ -38,7 +38,6 @@ import { isObject, isString, isUndefined, UNSAFE_KEYS } from '#v0/utilities'
 // Types
 import type { RegistryContext, RegistryContextOptions, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { ID } from '#v0/types'
 
 export interface TokenAlias<T = unknown> {
   [key: string]: unknown
@@ -167,9 +166,22 @@ export function createTokens<
   options: TokenOptions = {},
 ): E {
   const logger = useLogger()
-  const registry = createRegistry<Z>(options)
+  const registry = createRegistry<Z>({ ...options, events: true })
 
   const cache = new Map<string, unknown | undefined>()
+
+  // Invalidate the resolution cache on any structural mutation, including a
+  // ticket's own `unregister()` — subscribing covers every path uniformly,
+  // whereas wrapping the context methods misses ticket-level self-removal.
+  function invalidate () {
+    cache.clear()
+  }
+
+  registry.on('register:ticket', invalidate)
+  registry.on('unregister:ticket', invalidate)
+  registry.on('update:ticket', invalidate)
+  registry.on('reindex:registry', invalidate)
+  registry.on('clear:registry', invalidate)
 
   registry.onboard(flatten(tokens, options.prefix, !!options.flat) as Partial<Z>[])
 
@@ -266,60 +278,8 @@ export function createTokens<
     return result
   }
 
-  const {
-    register: _register,
-    upsert: _upsert,
-    unregister: _unregister,
-    onboard: _onboard,
-    offboard: _offboard,
-    move: _move,
-    clear: _clear,
-  } = registry
-
-  function register (registration?: Partial<Z & RegistryTicket>) {
-    cache.clear()
-    return _register(registration)
-  }
-
-  function upsert (id: ID, registration?: Partial<Z>, event?: string) {
-    cache.clear()
-    return _upsert(id, registration, event)
-  }
-
-  function unregister (id: ID) {
-    cache.clear()
-    return _unregister(id)
-  }
-
-  function onboard (registrations: Partial<Z & RegistryTicket>[]) {
-    cache.clear()
-    return _onboard(registrations)
-  }
-
-  function offboard (ids: ID[]) {
-    cache.clear()
-    return _offboard(ids)
-  }
-
-  function move (id: ID, index: number) {
-    cache.clear()
-    return _move(id, index)
-  }
-
-  function clear () {
-    cache.clear()
-    return _clear()
-  }
-
   return {
     ...registry,
-    register,
-    upsert,
-    unregister,
-    onboard,
-    offboard,
-    move,
-    clear,
     resolve,
     isAlias,
     get size () {
