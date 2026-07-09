@@ -62,7 +62,7 @@ export interface RegistryTicket<V = unknown> {
   /**
    * The index of the ticket in the registry.
    *
-   * @remarks Automatically managed by the registry. Assigned at registration and updated during reindexing; a supplied index is ignored — use `move()` to position a ticket. It's not recommended to manually set this. A ticket read via `values()`/`entries()` immediately after `unregister()`/`offboard()` may carry a stale index until the next position-reading call (`register`/`upsert`/`browse`/`lookup`/`move`/`reorder`/`seek`) drains the deferred reindex.
+   * @remarks Automatically managed by the registry. Assigned at registration and updated during reindexing; a supplied index is ignored — use `move()` to position a ticket. It's not recommended to manually set this. When a removal defers its reindex — a tail-block removal, or a registry with no index-derived values — a ticket read via `values()`/`entries()` may carry a stale index until the next position-reading call (`register`/`upsert`/`browse`/`lookup`/`move`/`reorder`/`seek`) drains it. A mid-list `unregister`/`offboard` that shifts index-derived survivors reindexes eagerly, so those reads are already current.
    */
   index: number
   /** The value associated with the ticket. If not provided, it defaults to the index. */
@@ -609,8 +609,8 @@ export interface RegistryContext<
    * one. The `value` is stripped only when it was index-derived (`valueIsIndex`).
    * Order matches the input `ids` array. Missing ids are silently skipped — the
    * returned array may be shorter than `ids`.
-   * @remarks Unregisters multiple tickets in a single operation with optimized
-   * reindexing. The inverse of `onboard`: onboard takes inputs and returns outputs;
+   * @remarks Unregisters multiple tickets in a single compaction pass, reindexing
+   * eagerly only when index-derived survivors shift. The inverse of `onboard`: onboard takes inputs and returns outputs;
    * offboard takes ids and returns the inputs back. Pair with `onboard` on a
    * different registry to move tickets across registries.
    *
@@ -774,7 +774,7 @@ export function createRegistry<
   // Drives `toInput`: a synthesized id is dropped so the reconstructed input matches
   // what was registered, while a user-supplied id is preserved so identity survives a
   // transfer. A WeakSet needs no cleanup — entries vanish with the tickets themselves.
-  const autoTickets = new WeakSet<E>()
+  const minted = new WeakSet<E>()
   // Canonical position sequence, kept in lockstep with `collection`. Holds
   // ticket refs so values()/entries()/reindex() read them without a Map lookup.
   // Deliberately NOT shallowReactive: element-by-element reads of a reactive
@@ -1066,7 +1066,7 @@ export function createRegistry<
     if (needsReindex) reindex()
 
     const size = collection.size
-    const idIsAuto = isNullOrUndefined(registration.id)
+    const auto = isNullOrUndefined(registration.id)
     const id = registration.id ?? useId()
 
     if (has(id)) {
@@ -1095,7 +1095,7 @@ export function createRegistry<
 
     const ticket = reactive ? shallowReactive(input) : input
 
-    if (idIsAuto) autoTickets.add(ticket)
+    if (auto) minted.add(ticket)
 
     collection.set(ticket.id, ticket)
     order.push(ticket)
@@ -1150,7 +1150,7 @@ export function createRegistry<
 
   // Strip registry-managed fields off an output ticket to produce its input shape.
   // Two independent provenance checks decide what survives:
-  // - `id` is dropped only when the registry generated it (`autoTickets`), so a
+  // - `id` is dropped only when the registry generated it (`minted`), so a
   //   user-supplied id keeps identity across a transfer even when no value was set.
   // - `value` is dropped only when it was index-derived (`valueIsIndex`), since a
   //   positional number is meaningless in the receiving registry.
@@ -1159,7 +1159,7 @@ export function createRegistry<
     delete input.index
     delete input.valueIsIndex
     delete input.unregister
-    if (autoTickets.has(ticket)) delete input.id
+    if (minted.has(ticket)) delete input.id
     if (ticket.valueIsIndex) delete input.value
     return input as Partial<Z>
   }
@@ -1211,8 +1211,10 @@ export function createRegistry<
       }
 
       // Mirror unregister: eagerly reindex when index-derived survivors shifted
-      // (smallest removed index still inside the compacted range) so iteration and
-      // proxy consumers never read stale index/value; a tail-block removal defers.
+      // (index-dependent tickets remain AND the smallest removed index is still
+      // inside the compacted range) so iteration/proxy consumers never read stale
+      // index/value. Otherwise defer — a tail-block removal, or a registry with no
+      // index-derived values whose stale `.index` fields drain lazily.
       if (indexDependentCount > 0 && minDirtyIndex < collection.size) {
         reindex()
       } else {
