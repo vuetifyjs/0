@@ -311,7 +311,7 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     // Look ahead: blockquote_open -> paragraph_open -> inline
     const inlineToken = tokens[index + 2]
     if (inlineToken?.type === 'inline' && inlineToken.content) {
-      const match = inlineToken.content.match(/^\[!(TIP|NOTE|WARNING|CAUTION|IMPORTANT|ASKAI|DISCORD|TOUR)\]\s*(.*)/)
+      const match = inlineToken.content.match(/^\[!(TIP|NOTE|WARNING|CAUTION|IMPORTANT|ASKAI|DISCORD|TOUR|QUESTION)\]\s*(.*)/)
       if (match) {
         const type = match[1].toLowerCase()
         env._calloutType = type
@@ -339,6 +339,14 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
           return `<DocsCallout type="${type}" tour-id="${tourId}">`
         }
 
+        if (type === 'question') {
+          // rest of the line is the question ID — DocsQuestion renders from the registry
+          const questionId = match[2].trim()
+          inlineToken.content = ''
+          inlineToken.children = []
+          return `<DocsQuestion question-id="${questionId}" />`
+        }
+
         // For other types, strip the marker and keep content
         const remainder = match[2]
         inlineToken.content = remainder
@@ -362,6 +370,12 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
   }
 
   md.renderer.rules.blockquote_close = (tokens, index, options, env, self) => {
+    if (env._calloutType === 'question') {
+      // DocsQuestion is self-closing (rendered from the blockquote_open branch) - no matching close tag
+      delete env._calloutType
+      return ''
+    }
+
     if (env._calloutType) {
       delete env._calloutType
       return '</DocsCallout>'

@@ -112,6 +112,8 @@ Reach for this whenever a fixed set of mutually exclusive options needs the sele
 
 :::
 
+> [!QUESTION] single-selection
+
 ## FAQ
 
 ::: faq
