@@ -143,7 +143,7 @@
     class="app-shell min-h-screen text-on-background"
     :class="{ 'dot-grid': settings.showDotGrid.value }"
     :data-code-size="settings.codeSize.value"
-    :style="{ '--line-opacity': `${settings.dotGridIntensity.value}%` }"
+    :style="{ '--line-opacity': `${settings.dotGridIntensity.value}%`, '--dot-coverage': `${settings.dotGridCoverage.value}%` }"
   >
     <a
       class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:start-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-on-primary focus:rounded"
@@ -216,6 +216,8 @@
     &.dot-grid::before {
       --dot-opacity: 12%;
       /* --line-opacity is set inline from the "Line intensity" setting (defaults to 0.85%). */
+      /* --dot-coverage is set inline from the "Dot coverage" setting (defaults to 15%): the
+         diagonal fade stays solid to that stop, then ramps to transparent 20% further out. */
       content: '';
       position: absolute;
       top: 0;
@@ -233,14 +235,14 @@
       mask-image: linear-gradient(
         225deg,
         black 0%,
-        black 15%,
-        transparent 35%
+        black var(--dot-coverage, 15%),
+        transparent calc(var(--dot-coverage, 15%) + 20%)
       );
       -webkit-mask-image: linear-gradient(
         225deg,
         black 0%,
-        black 15%,
-        transparent 35%
+        black var(--dot-coverage, 15%),
+        transparent calc(var(--dot-coverage, 15%) + 20%)
       );
     }
 

@@ -11,20 +11,20 @@ import type { FormValidationRule } from '#v0/composables/createForm'
  * @see https://standardschema.dev/
  */
 interface StandardSchemaIssue {
-  message: string
-  path?: ReadonlyArray<{ key: PropertyKey }>
+  readonly message: string
+  readonly path?: ReadonlyArray<PropertyKey | { readonly key: PropertyKey }> | undefined
 }
 
 interface StandardSchemaResult {
-  value?: unknown
-  issues?: ReadonlyArray<StandardSchemaIssue>
+  readonly value?: unknown
+  readonly issues?: ReadonlyArray<StandardSchemaIssue> | undefined
 }
 
 export interface StandardSchemaV1 {
-  '~standard': {
-    version: 1
-    vendor: string
-    validate: (value: unknown) => StandardSchemaResult | Promise<StandardSchemaResult>
+  readonly '~standard': {
+    readonly version: 1
+    readonly vendor: string
+    readonly validate: (value: unknown) => StandardSchemaResult | Promise<StandardSchemaResult>
   }
 }
 

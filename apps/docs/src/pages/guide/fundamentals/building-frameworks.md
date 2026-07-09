@@ -1,7 +1,7 @@
 ---
 title: Building Frameworks - Using v0 as a Dependency
 features:
-  order: 6
+  order: 8
   level: 3
 meta:
   - name: description

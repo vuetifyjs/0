@@ -420,7 +420,6 @@ describe('popover', () => {
       })
 
       it('should reflect open state via context', async () => {
-        // Note: Native showPopover() doesn't exist in happy-dom
         // This test verifies the context state is properly reflected
         let contentProps: any
         let rootProps: any

@@ -14,6 +14,8 @@
     sortBy: 'hz' | 'mean' | 'rme'
     totalVisible: number
     totalAll: number
+    allExpanded: boolean
+    showExpand: boolean
   }>()
 
   const emit = defineEmits<{
@@ -21,6 +23,7 @@
     'toggle-tier': [tier: Tier]
     'update:sortBy': [value: 'hz' | 'mean' | 'rme']
     'clear-filters': []
+    'toggle-expand': []
   }>()
 
   const tiers: Tier[] = ['blazing', 'fast', 'good', 'slow']
@@ -40,80 +43,80 @@
 </script>
 
 <template>
-  <div class="space-y-3">
-    <!-- Search + sort row -->
-    <div class="flex flex-wrap items-center gap-2">
-      <!-- Search -->
-      <div class="relative flex-1 min-w-48">
-        <AppIcon
-          class="absolute start-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant"
-          icon="search"
-          :size="16"
-        />
-
-        <input
-          aria-label="Search benchmarks"
-          class="w-full ps-8 pe-3 py-1.5 text-sm bg-surface border border-divider rounded-lg text-on-surface placeholder:text-on-surface-variant/50 outline-none focus:border-primary transition-colors"
-          placeholder="Search benchmarks..."
-          type="search"
-          :value="searchQuery"
-          @input="emit('update:searchQuery', ($event.target as HTMLInputElement).value)"
-        >
-      </div>
-
-      <!-- Sort options -->
-      <div class="flex items-center gap-0.5 border border-divider rounded-lg p-0.5 bg-surface" role="radiogroup">
-        <button
-          v-for="opt in sortOptions"
-          :key="opt.value"
-          :aria-checked="sortBy === opt.value"
-          class="px-2.5 py-1 text-xs font-medium rounded-md transition-colors"
-          :class="sortBy === opt.value
-            ? 'bg-primary text-on-primary'
-            : 'text-on-surface-variant hover:text-on-surface'"
-          role="radio"
-          @click="emit('update:sortBy', opt.value)"
-        >
-          {{ opt.label }}
-        </button>
-      </div>
+  <div>
+    <!-- Sort toggles -->
+    <div aria-label="Sort by" class="flex flex-wrap items-center gap-2 mt-2 mb-3" role="radiogroup">
+      <button
+        v-for="opt in sortOptions"
+        :key="opt.value"
+        :aria-checked="sortBy === opt.value"
+        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border cursor-pointer transition-all"
+        :class="sortBy === opt.value
+          ? 'border-primary text-primary bg-primary/10 opacity-100'
+          : 'border-divider text-on-surface-variant opacity-70 hover:opacity-100'"
+        role="radio"
+        @click="emit('update:sortBy', opt.value)"
+      >
+        <AppIcon v-if="sortBy === opt.value" icon="sort" :size="12" />
+        {{ opt.label }}
+      </button>
     </div>
 
-    <!-- Tier filters + status -->
-    <div class="flex flex-wrap items-center gap-2">
-      <!-- Tier chips -->
+    <!-- Tier chips -->
+    <div class="flex flex-wrap items-center gap-2 mb-3">
       <button
         v-for="tier in tiers"
         :key="tier"
         :aria-pressed="selectedTiers.has(tier)"
-        class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full border transition-colors"
-        :class="selectedTiers.has(tier)
-          ? `border-current ${TIER_CONFIG[tier].color} bg-current/10`
-          : 'border-divider text-on-surface-variant hover:border-current hover:text-on-surface'"
+        class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border border-current cursor-pointer transition-all"
+        :class="[
+          TIER_CONFIG[tier].color,
+          selectedTiers.size === 0 || selectedTiers.has(tier) ? 'opacity-100' : 'opacity-40',
+          selectedTiers.has(tier) ? 'bg-current/10' : 'bg-transparent',
+        ]"
         @click="emit('toggle-tier', tier)"
       >
-        <AppIcon :icon="TIER_CONFIG[tier].icon" :size="12" />
+        <AppIcon :icon="TIER_CONFIG[tier].icon" :size="14" />
         {{ TIER_CONFIG[tier].label }}
       </button>
 
-      <!-- Status + clear -->
-      <div class="ml-auto flex items-center gap-2">
-        <span
-          v-if="isFiltered"
-          aria-live="polite"
-          class="text-xs text-on-surface-variant"
-        >
-          {{ totalVisible }} of {{ totalAll }}
-        </span>
+      <button
+        class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border border-divider text-on-surface-variant bg-transparent cursor-pointer transition-colors hover:bg-surface-variant"
+        :class="hasActiveFilters ? 'visible' : 'invisible'"
+        @click="emit('clear-filters')"
+      >
+        <AppIcon icon="close" :size="14" />
+        Clear
+      </button>
 
-        <button
-          v-if="hasActiveFilters"
-          class="text-xs text-primary hover:underline"
-          @click="emit('clear-filters')"
-        >
-          Clear
-        </button>
-      </div>
+      <span
+        v-if="isFiltered"
+        aria-live="polite"
+        class="ml-auto text-xs text-on-surface-variant"
+      >
+        {{ totalVisible }} of {{ totalAll }}
+      </span>
+    </div>
+
+    <!-- Search + expand toggle -->
+    <div class="flex items-center gap-2 mb-4">
+      <input
+        aria-label="Search benchmarks"
+        class="flex-1 px-4 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm placeholder-on-surface-variant/50 outline-none transition-colors focus:border-primary"
+        placeholder="Search benchmarks..."
+        type="search"
+        :value="searchQuery"
+        @input="emit('update:searchQuery', ($event.target as HTMLInputElement).value)"
+      >
+
+      <button
+        v-if="showExpand"
+        class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-on-surface-variant bg-transparent border-0 cursor-pointer transition-colors hover:text-on-surface whitespace-nowrap"
+        @click="emit('toggle-expand')"
+      >
+        <AppIcon :icon="allExpanded ? 'combine' : 'split'" :size="14" />
+        {{ allExpanded ? 'Collapse all' : 'Expand all' }}
+      </button>
     </div>
   </div>
 </template>

@@ -1,7 +1,7 @@
 ---
 title: Plugins Guide - Extend Vuetify0 Functionality
 features:
-  order: 4
+  order: 5
   level: 3
 meta:
   - name: description

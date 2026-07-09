@@ -34,8 +34,8 @@ Alpha opened on April 7, 2026 for feedback; beta hardened the APIs. The release 
 
 <DocsTimeline :milestones="[
   { id: 'alpha', label: 'Alpha', date: 'April 7, 2026', description: 'Opened for feedback, bug reports, and contributions. APIs mostly stable, may evolve.' },
-  { id: 'beta', label: 'Beta', date: 'June 2026', description: 'API freeze. Focus shifts to stability, documentation, and edge cases.' },
-  { id: 'rc', label: 'RC', date: 'July 2026', description: 'Release candidate for final testing and documentation. No new features.', active: true },
+  { id: 'beta', label: 'Beta', date: 'June 2, 2026', description: 'API freeze. Focus shifts to stability, documentation, and edge cases.' },
+  { id: 'rc', label: 'RC', date: 'July 2, 2026', description: 'Release candidate for final testing and documentation. No new features.', active: true },
   { id: 'v1', label: 'v1.0', date: 'Q3 2026', description: 'Milestone-driven. Ships when the milestones are met.' },
 ]" />
 
@@ -89,7 +89,7 @@ Whether you want to explore in the browser, scaffold a project, or integrate wit
 
 **Report a bug or request a feature** — [Open an issue](https://github.com/vuetifyjs/0/issues) on GitHub.
 
-**Ask a question or join the conversation** — Find us on [Discord](https://community.vuetifyjs.com).
+**Ask a question or join the conversation** — Find us on [Discord](https://discord.gg/vuetify).
 
 **Contribute code** — PRs are welcome. See the [contributing guide](/introduction/contributing) for how to get started.
 
@@ -144,7 +144,7 @@ See the [contributing guide](/introduction/contributing). PRs are welcome for bu
 
 ??? Where can I get help?
 
-Join the [Discord](https://community.vuetifyjs.com) community. You can also use the AI assistant built into the docs — look for the Ask AI button on any page.
+Join the [Discord](https://discord.gg/vuetify) community. You can also use the AI assistant built into the docs — look for the Ask AI button on any page.
 :::
 
 ::: sponsor

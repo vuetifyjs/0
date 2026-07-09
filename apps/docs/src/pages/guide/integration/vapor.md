@@ -1,7 +1,7 @@
 ---
 title: Vapor - Vue Vapor Mode Compatibility
 features:
-  order: 2
+  order: 4
   level: 3
 meta:
   - name: description

@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/v0",
-  "version": "1.0.0-rc.6",
+  "version": "1.0.0-rc.7",
   "description": "A meta UI framework for building applications, component libraries, and design systems with Vue 3",
   "license": "MIT",
   "funding": [
@@ -30,7 +30,10 @@
     "build:tsdown": "tsdown",
     "build:web-types": "node scripts/generate-web-types.ts",
     "generate:web-types": "node scripts/generate-web-types.ts",
-    "typecheck": "vue-tsc --noEmit --incremental"
+    "typecheck": "vue-tsc --noEmit --incremental",
+    "test:unit": "vitest --project v0:unit",
+    "test:browser": "vitest --project v0:browser",
+    "test:open": "TEST_BAIL=1 vitest --project v0:browser -w"
   },
   "publishConfig": {
     "exports": {
@@ -129,6 +132,8 @@
     "@flagsmith/flagsmith": "catalog:",
     "@js-temporal/polyfill": "catalog:",
     "@material/material-color-utilities": "catalog:",
+    "@testing-library/vue": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
     "@vue/compiler-dom": "catalog:",
     "@vue/test-utils": "catalog:",
     "launchdarkly-js-client-sdk": "catalog:",

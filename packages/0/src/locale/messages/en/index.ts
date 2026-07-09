@@ -42,6 +42,9 @@ export default {
     progressLabel: 'Carousel progress',
     slide: 'Slide {current} of {size}',
   },
+  Combobox: {
+    noResults: 'No results',
+  },
   Dialog: {
     close: 'Close',
   },

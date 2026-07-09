@@ -1,5 +1,16 @@
 # @paper/genesis
 
+## 1.0.0-rc.5
+
+### Minor Changes
+
+- [#493](https://github.com/vuetifyjs/0/pull/493) [`5b17730`](https://github.com/vuetifyjs/0/commit/5b1773032d0975ecabb1d0424dd082e077e74eab) Thanks [@johnleider](https://github.com/johnleider)! - feat(GnDocsExample): replace the "Show code" / "Hide code" text label on the code toggle bar with a rotating chevron indicator. The chevron is a new `toggle-icon` scoped slot (receives `expanded`) with an inline-SVG fallback matching the GnPeek idiom (chevron-down, rotates 180° when expanded). The button keeps its accessible name via a dynamic `aria-label` ("Show code" / "Hide code"), and the filename/language/file-count meta on the right is unchanged.
+
+### Patch Changes
+
+- Updated dependencies [[`2ed9618`](https://github.com/vuetifyjs/0/commit/2ed9618ed365ef9e1a6c6b3bce6c4c6962f689e0), [`49e4f8b`](https://github.com/vuetifyjs/0/commit/49e4f8b7235f3c2a5213ccce63850b8b78014f66), [`5c6d087`](https://github.com/vuetifyjs/0/commit/5c6d0871ddc148c52fe6ba4cbd569b433f7b77fc), [`ffc4e5a`](https://github.com/vuetifyjs/0/commit/ffc4e5aaec7df81b1b62f022fe78cb4dfc5ef01b), [`76ca193`](https://github.com/vuetifyjs/0/commit/76ca1933d9c147a1f3ca53e4e9a9f579b49169cc)]:
+  - @vuetify/v0@1.0.0-rc.7
+
 ## 1.0.0-beta.4
 
 ### Patch Changes
