@@ -1072,7 +1072,7 @@ describe('createRegistry', () => {
       // Batching state should be reset
       // Next register should emit immediately
       registry.register({ id: 'item-2' })
-      expect(listener).toHaveBeenCalledTimes(1)
+      expect(listener).toHaveBeenCalledTimes(2)
     })
 
     it('should batch multiple different operations', () => {

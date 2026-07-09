@@ -996,23 +996,23 @@ export function createRegistry<
     batched = []
 
     try {
-      const result = fn()
-
-      cache.clear()
-
-      for (const { event, data } of batched) {
-        dispatch(event, data)
-      }
-
-      return result
+      return fn()
     } finally {
       isBatching = false
+      const queue = batched
       batched = []
       cache.clear()
-      // Only notify iteration subscribers when the batch actually changed
-      // membership or order; a field-only-upsert batch leaves `structural`
-      // false and must not re-notify (mirrors the non-batched upsert path).
-      if (structural) version.value++
+
+      try {
+        for (const { event, data } of queue) {
+          dispatch(event, data)
+        }
+      } finally {
+        // Only notify iteration subscribers when the batch actually changed
+        // membership or order; a field-only-upsert batch leaves `structural`
+        // false and must not re-notify (mirrors the non-batched upsert path).
+        if (structural) version.value++
+      }
     }
   }
 
