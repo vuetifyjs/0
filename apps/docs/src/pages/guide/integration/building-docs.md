@@ -81,45 +81,65 @@ The `DocsCodeGroup` component powers all tabbed code examples. It uses `createSi
 
 ### Mobile Navigation
 
-The `AppNav` component uses v0 primitives for polymorphism and interaction:
+The `AppNav` component composes v0 primitives for interaction, overlay stacking, and SSR-safe responsiveness:
 
 ```vue AppNav.vue collapse
 <script setup lang="ts">
-  import { shallowRef, useTemplateRef } from 'vue'
-  import { Atom, useClickOutside, useBreakpoints } from '@vuetify/v0'
+  import { onMounted, shallowRef, useTemplateRef } from 'vue'
+  import { IN_BROWSER, useClickOutside, useStack, useWindowEventListener } from '@vuetify/v0'
+  import { useNavigation } from '@/composables/useNavigation'
 
-  const navRef = useTemplateRef<AtomExpose>('nav')
-  const breakpoints = useBreakpoints()
+  const navigation = useNavigation()
+  const navRef = useTemplateRef<HTMLElement>('nav')
+  const stack = useStack()
 
-  // Close drawer when clicking outside
+  // Match Tailwind's md breakpoint (768px) for mobile detection
+  const isMobile = shallowRef(true)
+
+  function updateMobile () {
+    if (!IN_BROWSER) return
+    isMobile.value = window.innerWidth < 768
+  }
+
+  onMounted(updateMobile)
+  useWindowEventListener('resize', updateMobile, { passive: true })
+
+  // Coordinate z-index with other overlays; dismiss when popped off the stack (mobile only)
+  const ticket = stack.register({ onDismiss: () => navigation.close() })
+
+  // Close the drawer when clicking outside it on mobile
   useClickOutside(
-    () => navRef.value?.element,
+    () => navRef.value,
     () => {
-      if (drawer.value && breakpoints.isMobile.value) {
-        drawer.value = false
+      if (navigation.isOpen.value && isMobile.value) {
+        navigation.close()
       }
     },
-    { ignore: ['[data-app-bar]'] }
+    { ignore: ['[data-app-bar]'] },
   )
 </script>
 
 <template>
-  <Atom
+  <nav
     ref="nav"
-    as="nav"
     aria-label="Main navigation"
-    :inert="!drawer && breakpoints.isMobile.value ? true : undefined"
+    :inert="!navigation.isOpen.value && isMobile ? true : undefined"
+    :style="{ zIndex: isMobile ? ticket.zIndex.value : undefined }"
   >
     <slot />
-  </Atom>
+  </nav>
 </template>
 ```
 
 | Primitive | Role |
 | - | - |
-| `Atom` | Polymorphic element—renders as `<nav>` with ref access |
-| `useClickOutside` | Closes mobile drawer on outside click |
-| `useBreakpoints` | Tracks viewport for responsive behavior |
+| `useClickOutside` | Closes the mobile drawer when a click lands outside it |
+| `useStack` | Coordinates overlay z-index and dismissal on stack pop |
+| `useWindowEventListener` | SSR-safe resize listener driving mobile detection |
+| `IN_BROWSER` | Guards `window` access during server render |
+
+> [!NOTE]
+> The shipped `AppNav` additionally wraps its root in a `Discovery.Activator` (docs tour system) and hand-rolls `isMobile` against Tailwind's `md` breakpoint rather than `useBreakpoints`, since the nav's visibility already keys off the same 768px threshold in CSS.
 
 ### Interactive Demos
 
@@ -198,7 +218,7 @@ export default defineConfig({
     },
   },
   shortcuts: {
-    'bg-glass-surface': '[background:color-mix(in_srgb,var(--v0-surface)_70%,transparent)] backdrop-blur-12',
+    'bg-glass-surface': '[background:var(--v0-glass-surface)] backdrop-blur-12',
   },
 })
 ```
@@ -311,9 +331,10 @@ const pref = storage.get('key', 'default')
 
 ```text
 apps/docs/
-├── build/                 # Build-time plugins
+├── build/                 # Build-time plugins (selected)
 │   ├── generate-api.ts    # API extraction
 │   ├── generate-nav.ts    # Navigation tree
+│   ├── generate-search-index.ts  # Search index
 │   └── markdown.ts        # Shiki + callouts
 ├── src/
 │   ├── components/
@@ -336,8 +357,9 @@ This documentation site demonstrates that v0's patterns scale from simple toggle
 | Pattern | Where Used |
 | - | - |
 | `createSingle` + Registry | Tabbed code groups |
-| `Atom` polymorphism | Navigation, buttons, links |
+| `Atom` polymorphism | Buttons, links, dividers |
 | `useClickOutside` | Mobile drawer dismissal |
+| `useStack` | Mobile drawer z-index coordination |
 | `useStorage` | User preferences |
 | `Selection` compound | Interactive demos |
 | CSS variable theming | Entire design system |
