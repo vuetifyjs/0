@@ -6,7 +6,7 @@ meta:
   - name: keywords
     content: "documentation, navigation, ask ai, search, examples, learning tracks, keyboard shortcuts, accessibility"
 features:
-  order: 0.5
+  order: 1
   level: 1
 related:
   - /guide

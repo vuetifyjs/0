@@ -6,7 +6,7 @@ meta:
   - name: keywords
     content: "vuetify0, glossary, terminology, ticket, registry, trinity, context, namespace, model, selection, plugin, adapter, headless"
 features:
-  order: 0.6
+  order: 2
   level: 1
 related:
   - /guide/fundamentals/core

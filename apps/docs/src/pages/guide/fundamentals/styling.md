@@ -1,7 +1,7 @@
 ---
 title: Styling Headless Components - Data Attributes & Slot Props
 features:
-  order: 5
+  order: 7
   level: 2
 meta:
   - name: description
