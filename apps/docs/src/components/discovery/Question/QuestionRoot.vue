@@ -176,8 +176,7 @@
   const ticketRegistry = new Map<ID, QuestionTicket>()
 
   // Sync selection back to v-model
-  watch(() => selection.selectedIds.size, () => {
-    const values = getSelectedValues()
+  watch(getSelectedValues, values => {
     model.value = mode === 'single' ? values[0] : values
   })
 
