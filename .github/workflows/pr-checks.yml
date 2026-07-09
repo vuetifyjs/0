@@ -122,15 +122,6 @@ jobs:
         run: pnpm build
       - name: Validate package exports (publint + are-the-types-wrong)
         run: pnpm repo:exports
-      - name: Upload dist artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: packages-dist
-          path: |
-            packages/0/dist
-            packages/paper/dist
-          retention-days: 1
-          if-no-files-found: error
 
   changes:
     runs-on: ubuntu-latest
@@ -186,20 +177,3 @@ jobs:
       - uses: actions/checkout@v6
       - uses: vuetifyjs/setup-action@cb5ac088588387e65433a762de90c0b06d878677 # master
       - run: pnpm run build:play
-
-  pkg-pr-new:
-    needs: [build]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-      - name: Download dist artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: packages-dist
-          path: packages
-      - name: Publish preview
-        run: pnpm exec pkg-pr-new publish --compact --pnpm './packages/0' --only-templates
