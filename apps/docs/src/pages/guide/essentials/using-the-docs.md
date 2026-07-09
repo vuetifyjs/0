@@ -482,6 +482,8 @@ The documentation uses callout boxes to highlight important information:
 
 > [!TOUR] using-the-docs
 
+> [!QUESTION] single-selection
+
 ## Keyboard Shortcuts
 
 Navigate the entire documentation without touching a mouse:
