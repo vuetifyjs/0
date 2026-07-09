@@ -303,7 +303,7 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
       : '</p>'
   }
 
-  // GitHub-style callouts: > [!TIP], > [!NOTE], > [!WARNING], > [!CAUTION], > [!IMPORTANT], > [!ASKAI], > [!DISCORD], > [!TOUR]
+  // GitHub-style callouts: > [!TIP], > [!NOTE], > [!WARNING], > [!CAUTION], > [!IMPORTANT], > [!ASKAI], > [!DISCORD], > [!TOUR], > [!QUESTION]
   const defaultBlockquoteOpen = md.renderer.rules.blockquote_open
   const defaultBlockquoteClose = md.renderer.rules.blockquote_close
 
@@ -355,7 +355,7 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
         if (inlineToken.children?.length) {
           const firstChild = inlineToken.children[0]
           if (firstChild?.type === 'text') {
-            // Only TIP|NOTE|WARNING|CAUTION|IMPORTANT reach here - ASKAI, DISCORD, TOUR return early with cleared content
+            // Only TIP|NOTE|WARNING|CAUTION|IMPORTANT reach here - ASKAI, DISCORD, TOUR, QUESTION return early with cleared content
             firstChild.content = firstChild.content.replace(/^\[!(TIP|NOTE|WARNING|CAUTION|IMPORTANT)\]\s*/, '')
           }
         }
