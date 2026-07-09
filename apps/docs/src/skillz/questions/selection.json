@@ -1,0 +1,15 @@
+[
+  {
+    "id": "single-selection",
+    "stem": "Which composable enforces that only one item can be selected at a time?",
+    "options": [
+      { "value": "createSelection", "label": "createSelection" },
+      { "value": "createSingle", "label": "createSingle", "correct": true },
+      { "value": "createGroup", "label": "createGroup" }
+    ],
+    "feedback": "createSingle extends createSelection to cap selection at a single item — that's the enforcement. createSelection allows multiple; createGroup adds batch/tri-state.",
+    "level": 2,
+    "track": "selection",
+    "categories": ["selection"]
+  }
+]
