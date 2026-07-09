@@ -1,9 +1,3 @@
-export { provideQuestionRoot, default as QuestionRoot, useQuestionRoot } from './QuestionRoot.vue'
-export { default as QuestionStem } from './QuestionStem.vue'
-export { provideQuestionOption, default as QuestionOption, useQuestionOption } from './QuestionOption.vue'
-export { default as QuestionIndicator } from './QuestionIndicator.vue'
-export { default as QuestionFeedback } from './QuestionFeedback.vue'
-
 export type {
   QuestionMode,
   QuestionResult,
