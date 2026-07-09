@@ -6,7 +6,7 @@ meta:
   - name: keywords
     content: vuetify0, documentation, vite-ssg, unocss, proof of concept, headless ui
 features:
-  order: 2
+  order: 3
   label: 'Building Docs'
   level: 2
 related:

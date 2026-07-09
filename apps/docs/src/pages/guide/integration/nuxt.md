@@ -1,7 +1,7 @@
 ---
 title: Nuxt - SSR Integration Guide
 features:
-  order: 1
+  order: 2
   level: 2
 meta:
   - name: description

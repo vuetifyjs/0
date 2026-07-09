@@ -2,7 +2,7 @@
 title: Vuetify CLI - Project Scaffolding & Management
 features:
   label: Vuetify CLI
-  order: 1
+  order: 2
   level: 1
 meta:
   - name: description

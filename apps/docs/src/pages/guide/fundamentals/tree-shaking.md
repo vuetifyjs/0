@@ -1,7 +1,7 @@
 ---
 title: Tree-Shaking - Bundle Size Optimization
 features:
-  order: 7
+  order: 9
   level: 2
 meta:
   - name: description
