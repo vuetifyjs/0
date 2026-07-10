@@ -6,12 +6,18 @@
   import { useQuestions } from '@/composables/useQuestions'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   const { questionId } = defineProps<{ questionId: string }>()
 
   const questions = useQuestions()
   const question = toRef(() => questions.get(questionId))
+
+  const open = shallowRef(false)
+
+  function onStart () {
+    open.value = true
+  }
 </script>
 
 <template>
@@ -19,7 +25,31 @@
     v-if="question"
     class="my-6 rounded-lg border border-divider bg-surface p-4"
   >
+    <div
+      v-if="!open"
+      class="flex flex-col items-start gap-1"
+    >
+      <p class="text-sm font-medium text-on-surface">
+        Check your understanding
+      </p>
+
+      <p class="text-sm text-on-surface-variant">
+        Take a quick quiz to test what you just learned.
+      </p>
+
+      <button
+        :aria-controls="`${questionId}-quiz`"
+        aria-expanded="false"
+        class="mt-2 rounded-md bg-primary px-3 py-1.5 text-sm text-on-primary"
+        @click="onStart"
+      >
+        Start quiz
+      </button>
+    </div>
+
     <Question.Root
+      v-else
+      :id="`${questionId}-quiz`"
       v-slot="{ submit, isSubmitted, hasSelection, result }"
       :correct-answer="question.correctAnswers"
       :mode="question.mode"
