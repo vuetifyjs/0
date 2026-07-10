@@ -119,7 +119,7 @@
           <div class="text-xs opacity-60">{{ comp.fastest.hzLabel }}</div>
         </div>
 
-        <BenchmarkTierBadge size="sm" :tier="comp.tier" />
+        <BenchmarkTierBadge size="sm" :tier="comp.fastest.tier" />
       </router-link>
     </div>
 

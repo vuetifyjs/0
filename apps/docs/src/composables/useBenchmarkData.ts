@@ -80,7 +80,7 @@ export type TierState = Tier | 'unmeasured'
 export interface NormalizedComposable {
   name: string
   tier: TierState
-  fastest: { name: string, hz: number, hzLabel: string }
+  fastest: { name: string, hz: number, hzLabel: string, tier: TierState }
   groupCount: number
   benchmarkCount: number
   groups: NormalizedGroup[]
@@ -258,8 +258,8 @@ function normalizeFiles (
       name: composableName,
       tier,
       fastest: overallFastest
-        ? { name: overallFastest.name, hz: overallFastest.hz, hzLabel: overallFastest.hzLabel }
-        : { name: '', hz: 0, hzLabel: '0 ops/s' },
+        ? { name: overallFastest.name, hz: overallFastest.hz, hzLabel: overallFastest.hzLabel, tier: overallFastest.tier }
+        : { name: '', hz: 0, hzLabel: '0 ops/s', tier: 'unmeasured' },
       groupCount: groups.length,
       benchmarkCount: groups.reduce((sum, g) => sum + g.benchmarks.length, 0),
       groups,
