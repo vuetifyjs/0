@@ -5,7 +5,7 @@
   import { useIntersectionObserver } from '@vuetify/v0'
 
   // Composables
-  import { TIER_CONFIG, useBenchmarkData } from '@/composables/useBenchmarkData'
+  import { useBenchmarkData } from '@/composables/useBenchmarkData'
   import { useCountUp } from '@/composables/useCountUp'
 
   // Utilities
@@ -42,14 +42,6 @@
     createTokens: '/composables/registration/create-tokens',
     createVirtual: '/composables/data/create-virtual',
     useDate: '/composables/plugins/use-date',
-  }
-
-  const tierDescriptions: Record<string, string> = {
-    blazing: 'Under 1μs per item (or 10μs per one-shot call) — imperceptible at any scale',
-    fast: 'Under 10μs per item, single call within two frames — smooth for typical workloads',
-    good: 'Under 100μs per item, single call under 100ms — fine for standard use',
-    slow: 'Costly per item or a single call over 100ms — user-perceptible, needs investigation',
-    unmeasured: 'No benchmark data recorded for this feature yet',
   }
 
   const showcaseComposables = computed(() => composables.value.filter(c => c.name in composablePaths).slice(0, 6))
@@ -123,21 +115,8 @@
       </router-link>
     </div>
 
-    <!-- Tier legend + CTA -->
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-6 text-sm">
-        <span
-          v-for="(config, tier) in TIER_CONFIG"
-          :key="tier"
-          class="inline-flex items-center gap-1"
-          :class="config.color"
-          :title="tierDescriptions[tier]"
-        >
-          <AppIcon :icon="config.icon" :size="14" />
-          {{ config.label }}
-        </span>
-      </div>
-
+    <!-- CTA -->
+    <div class="flex items-center justify-center">
       <router-link
         class="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1"
         to="/guide/fundamentals/benchmarks"
