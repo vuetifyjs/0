@@ -50,7 +50,7 @@
     <Question.Root
       v-else
       :id="`${questionId}-quiz`"
-      v-slot="{ submit, isSubmitted, hasSelection, result }"
+      v-slot="{ submit, reset, isSubmitted, hasSelection, result }"
       :correct-answer="question.correctAnswers"
       :mode="question.mode"
     >
@@ -92,6 +92,20 @@
       >
         {{ question.feedback }}
       </Question.Feedback>
+
+      <div
+        v-if="isSubmitted"
+        class="mt-3 flex justify-end"
+      >
+        <button
+          class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+          title="Reset quiz"
+          type="button"
+          @click="reset"
+        >
+          <AppIcon icon="restart" :size="16" />
+        </button>
+      </div>
     </Question.Root>
   </div>
 </template>
