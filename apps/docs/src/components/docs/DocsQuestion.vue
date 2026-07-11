@@ -126,19 +126,20 @@
       v-else
       :id="`${track}-quiz`"
     >
-      <div class="mb-3 flex items-center gap-3">
+      <div class="mb-3 flex items-center gap-2">
+        <AppIcon class="text-on-surface-variant" icon="test" :size="16" />
+
         <span class="text-xs font-medium text-on-surface-variant whitespace-nowrap">
           Question {{ index + 1 }} of {{ total }}
         </span>
 
-        <div class="flex flex-1 gap-1">
-          <div
-            v-for="n in total"
-            :key="n"
-            class="h-1 flex-1 rounded-full transition-colors"
-            :class="n <= index + 1 ? 'bg-success' : 'bg-surface-variant'"
-          />
-        </div>
+        <span
+          v-if="current?.mode === 'multiple'"
+          class="ml-auto inline-flex items-center gap-1 rounded-full bg-info/10 px-2 py-0.5 text-xs font-medium text-info"
+        >
+          <AppIcon icon="layers" :size="12" />
+          Select all that apply
+        </span>
       </div>
 
       <Question.Root
@@ -197,6 +198,15 @@
           {{ isLast ? 'Finish' : 'Next' }}
         </button>
       </Question.Root>
+
+      <div class="mt-4 flex gap-0.5">
+        <div
+          v-for="n in total"
+          :key="n"
+          class="h-0.5 flex-1 rounded-full transition-colors"
+          :class="n <= index + 1 ? 'bg-success' : 'bg-surface-variant'"
+        />
+      </div>
     </div>
   </div>
 </template>
