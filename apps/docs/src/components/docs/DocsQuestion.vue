@@ -127,7 +127,7 @@
       :id="`${track}-quiz`"
     >
       <div class="mb-3 flex items-center gap-2">
-        <AppIcon class="text-on-surface-variant" icon="test" :size="16" />
+        <AppIcon class="text-on-surface-variant" icon="puzzle" :size="16" />
 
         <span class="text-xs font-medium text-on-surface-variant whitespace-nowrap">
           Question {{ index + 1 }} of {{ total }}
@@ -163,13 +163,36 @@
             :value="option.value"
           >
             <span
-              class="block rounded-md border border-divider px-3 py-2 text-sm text-on-surface transition-colors"
+              class="flex w-full items-center gap-2.5 rounded-md border border-divider px-3 py-2 text-sm text-on-surface transition-colors"
               :class="[
                 isSelected && !submitted ? 'border-primary bg-primary/10' : '',
                 submitted && isCorrect ? 'border-success bg-success/10' : '',
                 submitted && isSelected && !isCorrect ? 'border-error bg-error/10' : '',
               ]"
-            >{{ option.label }}</span>
+            >
+              <span
+                class="inline-flex size-4 shrink-0 items-center justify-center border-2 transition-colors"
+                :class="[
+                  current?.mode === 'multiple' ? 'rounded-sm' : 'rounded-full',
+                  isSelected
+                    ? (current?.mode === 'multiple' ? 'border-primary bg-primary text-on-primary' : 'border-primary')
+                    : 'border-on-surface-variant',
+                ]"
+              >
+                <AppIcon
+                  v-if="current?.mode === 'multiple' && isSelected"
+                  icon="check"
+                  :size="12"
+                />
+
+                <span
+                  v-else-if="current?.mode !== 'multiple' && isSelected"
+                  class="size-1.5 rounded-full bg-primary"
+                />
+              </span>
+
+              {{ option.label }}
+            </span>
           </Question.Option>
         </div>
 
