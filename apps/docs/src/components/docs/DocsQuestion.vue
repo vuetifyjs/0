@@ -66,12 +66,14 @@
 <template>
   <div
     v-if="pool.length > 0"
-    class="my-6 rounded-lg border border-divider bg-surface p-4"
+    class="relative my-6 overflow-hidden rounded-lg border border-divider bg-surface p-4"
   >
     <!-- Invite -->
+    <AppDotGrid v-if="!open" :coverage="60" />
+
     <div
       v-if="!open"
-      class="flex flex-col items-start gap-1"
+      class="relative flex flex-col items-start gap-1"
     >
       <p class="text-sm font-medium text-on-surface">
         Check your understanding
