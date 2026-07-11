@@ -29,7 +29,6 @@
   const total = toRef(() => pool.value.length)
   const isLast = toRef(() => index.value === total.value - 1)
   const score = toRef(() => [...results.value.values()].filter(result => result === 'correct').length)
-  const progress = toRef(() => `${Math.round(((index.value + 1) / total.value) * 100)}%`)
 
   function shuffle (ids: string[]): string[] {
     const next = ids.slice()
@@ -132,10 +131,12 @@
           Question {{ index + 1 }} of {{ total }}
         </span>
 
-        <div class="h-1 flex-1 overflow-hidden rounded-full bg-surface-variant">
+        <div class="flex flex-1 gap-1">
           <div
-            class="h-full rounded-full bg-primary transition-all"
-            :style="{ width: progress }"
+            v-for="n in total"
+            :key="n"
+            class="h-1 flex-1 rounded-full transition-colors"
+            :class="n <= index + 1 ? 'bg-success' : 'bg-surface-variant'"
           />
         </div>
       </div>
