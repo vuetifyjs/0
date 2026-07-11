@@ -11,5 +11,58 @@
     "level": 2,
     "track": "selection",
     "categories": ["selection"]
+  },
+  {
+    "id": "selection-base",
+    "stem": "Which composable is the multi-select foundation that the others extend?",
+    "options": [
+      { "value": "createModel", "label": "createModel" },
+      { "value": "createSelection", "label": "createSelection", "correct": true },
+      { "value": "createStep", "label": "createStep" }
+    ],
+    "feedback": "createSelection is the multi-select base. createSingle, createGroup, and createNested all build on it; createModel is the lower-level value store beneath it.",
+    "level": 2,
+    "track": "selection",
+    "categories": ["selection"]
+  },
+  {
+    "id": "group-tristate",
+    "stem": "You need select-all with an indeterminate (tri-state) parent checkbox. Which composable?",
+    "options": [
+      { "value": "createSingle", "label": "createSingle" },
+      { "value": "createNested", "label": "createNested" },
+      { "value": "createGroup", "label": "createGroup", "correct": true }
+    ],
+    "feedback": "createGroup extends createSelection with batch operations and tri-state support — exactly the select-all/indeterminate pattern.",
+    "level": 2,
+    "track": "selection",
+    "categories": ["selection"]
+  },
+  {
+    "id": "nested-tree",
+    "stem": "Which composable manages hierarchical, parent/child (tree) selection?",
+    "options": [
+      { "value": "createGroup", "label": "createGroup" },
+      { "value": "createNested", "label": "createNested", "correct": true },
+      { "value": "createStep", "label": "createStep" }
+    ],
+    "feedback": "createNested extends createGroup for tree structures — treeviews, nested menus, and cascading parent/child selection.",
+    "level": 3,
+    "track": "selection",
+    "categories": ["selection"]
+  },
+  {
+    "id": "selection-family",
+    "stem": "Which of these are built on the selection system? (Select all that apply)",
+    "options": [
+      { "value": "createSingle", "label": "createSingle", "correct": true },
+      { "value": "createGroup", "label": "createGroup", "correct": true },
+      { "value": "createNested", "label": "createNested", "correct": true },
+      { "value": "useBreakpoints", "label": "useBreakpoints" }
+    ],
+    "feedback": "createSingle, createGroup, and createNested all extend the selection stack. useBreakpoints is a responsive plugin — unrelated to selection.",
+    "level": 2,
+    "track": "selection",
+    "categories": ["selection"]
   }
 ]

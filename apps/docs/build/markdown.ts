@@ -340,11 +340,11 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
         }
 
         if (type === 'question') {
-          // rest of the line is the question ID — DocsQuestion renders from the registry
-          const questionId = match[2].trim()
+          // rest of the line is the track key — DocsQuestion builds a quiz from that track's questions
+          const track = match[2].trim()
           inlineToken.content = ''
           inlineToken.children = []
-          return `<DocsQuestion question-id="${questionId}" />`
+          return `<DocsQuestion track="${track}" />`
         }
 
         // For other types, strip the marker and keep content

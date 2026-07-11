@@ -482,7 +482,7 @@ The documentation uses callout boxes to highlight important information:
 
 > [!TOUR] using-the-docs
 
-> [!QUESTION] single-selection
+> [!QUESTION] selection
 
 ## Keyboard Shortcuts
 

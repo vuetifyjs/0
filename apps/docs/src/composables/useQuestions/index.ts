@@ -74,5 +74,6 @@ export function useQuestions () {
     get: (id: string): Question | undefined => store.get(id),
     has: (id: string): boolean => store.has(id),
     all: (): readonly Question[] => store.values(),
+    byTrack: (track: string): Question[] => store.values().filter(q => q.track === track),
   }
 }
