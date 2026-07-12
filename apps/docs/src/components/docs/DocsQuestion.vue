@@ -221,15 +221,6 @@
           {{ isLast ? 'Finish' : 'Next' }}
         </button>
       </Question.Root>
-
-      <div class="mt-4 flex gap-0.5">
-        <div
-          v-for="n in total"
-          :key="n"
-          class="h-0.5 flex-1 rounded-full transition-colors"
-          :class="n <= index + 1 ? 'bg-success' : 'bg-surface-variant'"
-        />
-      </div>
     </div>
   </div>
 </template>
