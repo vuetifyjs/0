@@ -61,6 +61,9 @@ function build (): RegistryContext<QuestionTicket> {
         continue
       }
       seen.add(input.id)
+      if (input.options.length < 4) {
+        console.warn(`[docs:questions] question "${input.id}" has ${input.options.length} options — questions should offer at least 4`)
+      }
       store.register(normalizeQuestion(input))
     }
   }

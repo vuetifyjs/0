@@ -5,9 +5,10 @@
     "options": [
       { "value": "createSelection", "label": "createSelection" },
       { "value": "createSingle", "label": "createSingle", "correct": true },
-      { "value": "createGroup", "label": "createGroup" }
+      { "value": "createGroup", "label": "createGroup" },
+      { "value": "createModel", "label": "createModel" }
     ],
-    "feedback": "createSingle extends createSelection to cap selection at a single item — that's the enforcement. createSelection allows multiple; createGroup adds batch/tri-state.",
+    "feedback": "createSingle extends createSelection to cap selection at a single item — that's the enforcement. createSelection allows multiple; createGroup adds batch/tri-state; createModel is the value store beneath them.",
     "level": 2,
     "track": "selection",
     "categories": ["selection"]
@@ -18,7 +19,8 @@
     "options": [
       { "value": "createModel", "label": "createModel" },
       { "value": "createSelection", "label": "createSelection", "correct": true },
-      { "value": "createStep", "label": "createStep" }
+      { "value": "createStep", "label": "createStep" },
+      { "value": "createGroup", "label": "createGroup" }
     ],
     "feedback": "createSelection is the multi-select base. createSingle, createGroup, and createNested all build on it; createModel is the lower-level value store beneath it.",
     "level": 2,
@@ -31,7 +33,8 @@
     "options": [
       { "value": "createSingle", "label": "createSingle" },
       { "value": "createNested", "label": "createNested" },
-      { "value": "createGroup", "label": "createGroup", "correct": true }
+      { "value": "createGroup", "label": "createGroup", "correct": true },
+      { "value": "createSelection", "label": "createSelection" }
     ],
     "feedback": "createGroup extends createSelection with batch operations and tri-state support — exactly the select-all/indeterminate pattern.",
     "level": 2,
@@ -44,7 +47,8 @@
     "options": [
       { "value": "createGroup", "label": "createGroup" },
       { "value": "createNested", "label": "createNested", "correct": true },
-      { "value": "createStep", "label": "createStep" }
+      { "value": "createStep", "label": "createStep" },
+      { "value": "createSingle", "label": "createSingle" }
     ],
     "feedback": "createNested extends createGroup for tree structures — treeviews, nested menus, and cascading parent/child selection.",
     "level": 3,
