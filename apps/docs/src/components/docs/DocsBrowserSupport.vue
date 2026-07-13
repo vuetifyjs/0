@@ -3,11 +3,15 @@
   import AppBrowserIcon from '@/components/app/AppBrowserIcon.vue'
   import AppIcon from '@/components/app/AppIcon.vue'
 
+  // Composables
+  import { renderInline } from '@/composables/useMarkdown'
+
   // Utilities
-  import { computed, toRef } from 'vue'
+  import { computed, toRef, useSlots } from 'vue'
 
   // Types
   import type { BrowserName } from '@/components/app/AppBrowserIcon.vue'
+  import type { VNode } from 'vue'
 
   export interface BrowserVersion {
     chrome?: string
@@ -51,6 +55,22 @@
   })
 
   const hasLimitedSupport = toRef(() => !versions.safari || versions.safari === '—')
+
+  const slots = useSlots()
+
+  function text (nodes: VNode[] | undefined): string {
+    if (!nodes) return ''
+
+    let out = ''
+    for (const node of nodes) {
+      if (typeof node.children === 'string') out += node.children
+      else if (Array.isArray(node.children)) out += text(node.children as VNode[])
+    }
+
+    return out
+  }
+
+  const content = toRef(() => renderInline(text(slots.default?.()).trim()))
 </script>
 
 <template>
@@ -77,7 +97,9 @@
     </div>
 
     <div class="mt-2 text-sm text-on-surface/80">
-      <slot>
+      <span v-if="content" v-html="content" />
+
+      <template v-else>
         This feature requires modern browser support.
         <RouterLink
           v-if="anchor"
@@ -86,7 +108,7 @@
         >
           Learn more
         </RouterLink>
-      </slot>
+      </template>
     </div>
   </div>
 </template>
