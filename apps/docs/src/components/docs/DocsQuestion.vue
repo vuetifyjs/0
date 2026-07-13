@@ -78,9 +78,9 @@
     v-if="pool.length > 0"
     class="relative my-6 overflow-hidden rounded-lg border border-divider bg-surface p-4"
   >
-    <!-- Invite -->
-    <AppDotGrid v-if="!open" :coverage="60" />
+    <AppDotGrid :coverage="60" />
 
+    <!-- Invite -->
     <div
       v-if="!open"
       class="relative flex flex-col items-start gap-1"
@@ -108,7 +108,7 @@
     <div
       v-else-if="finished"
       :id="`${track}-quiz`"
-      class="flex flex-col items-start gap-2"
+      class="relative flex flex-col items-start gap-2"
     >
       <p class="text-sm font-medium text-on-surface">
         Quiz complete
@@ -137,6 +137,7 @@
     <div
       v-else
       :id="`${track}-quiz`"
+      class="relative"
     >
       <div class="mb-3 flex items-center gap-2">
         <AppIcon class="text-on-surface-variant" icon="puzzle" :size="16" />
