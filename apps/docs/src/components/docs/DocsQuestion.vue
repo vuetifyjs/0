@@ -4,11 +4,12 @@
 
   // Components
   import { Question } from '@/components/discovery/Question'
-  import SkillLevelBadge from '@/components/skillz/SkillLevelBadge.vue'
   import SkillMasteredBadge from '@/components/skillz/SkillMasteredBadge.vue'
 
   // Composables
   import { useQuestions } from '@/composables/useQuestions'
+
+  import { SKILL_LEVEL_META } from '@/types/skill'
 
   // Utilities
   import { ref, shallowRef, toRef } from 'vue'
@@ -32,7 +33,10 @@
     return question ? [question] : []
   }))
   const currentId = toRef(() => step.selectedId.value)
-  const currentLevel = toRef(() => ordered.value.find(question => question.id === currentId.value)?.level)
+  const currentLevelMeta = toRef(() => {
+    const level = ordered.value.find(question => question.id === currentId.value)?.level
+    return level ? SKILL_LEVEL_META[level] : undefined
+  })
   const index = toRef(() => step.selectedIndex.value)
   const total = toRef(() => pool.value.length)
   const isLast = toRef(() => index.value === total.value - 1)
@@ -151,11 +155,14 @@
           Question {{ index + 1 }} of {{ total }}
         </span>
 
-        <SkillLevelBadge
-          v-if="currentLevel"
-          class="ml-auto"
-          :level="currentLevel"
-        />
+        <span
+          class="skillz-badge ml-auto inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-bold uppercase tracking-wide"
+          :style="currentLevelMeta ? { '--level-color': currentLevelMeta.color } : undefined"
+          :title="currentLevelMeta ? `${currentLevelMeta.label} level` : undefined"
+        >
+          SKILLZ
+          <AppIcon v-if="currentLevelMeta" :icon="currentLevelMeta.icon" :size="14" />
+        </span>
       </div>
 
       <Question.Root
@@ -254,3 +261,10 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+  .skillz-badge {
+    background: color-mix(in srgb, var(--level-color, var(--v0-primary)) 15%, transparent);
+    color: var(--level-color, var(--v0-primary));
+  }
+</style>
