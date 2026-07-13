@@ -23,8 +23,13 @@
   const open = shallowRef(false)
   const finished = shallowRef(false)
   const results = ref(new Map<string, QuestionResult>())
+  const order = shallowRef<string[]>([])
 
-  const current = toRef(() => pool.value.find(question => question.id === step.selectedId.value))
+  const ordered = toRef(() => order.value.flatMap(id => {
+    const question = pool.value.find(item => item.id === id)
+    return question ? [question] : []
+  }))
+  const currentId = toRef(() => step.selectedId.value)
   const index = toRef(() => step.selectedIndex.value)
   const total = toRef(() => pool.value.length)
   const isLast = toRef(() => index.value === total.value - 1)
@@ -40,8 +45,10 @@
   }
 
   function begin () {
+    const ids = shuffle(pool.value.map(question => question.id))
+    order.value = ids
     step.clear()
-    step.onboard(shuffle(pool.value.map(question => question.id)).map(id => ({ id, value: id })))
+    step.onboard(ids.map(id => ({ id, value: id })))
     results.value = new Map()
     finished.value = false
     step.first()
@@ -52,8 +59,12 @@
     open.value = true
   }
 
-  function onAnswer (result: QuestionResult) {
-    results.value.set(step.selectedId.value as string, result)
+  function onAnswer (id: string, result: QuestionResult) {
+    results.value.set(id, result)
+  }
+
+  function onPrev () {
+    step.prev()
   }
 
   function onNext () {
@@ -136,20 +147,21 @@
       </div>
 
       <Question.Root
-        v-if="current"
-        :key="current.id"
+        v-for="question in ordered"
+        v-show="question.id === currentId"
+        :key="question.id"
         v-slot="{ submit, isSubmitted, hasSelection, result }"
-        :correct-answer="current.correctAnswers"
-        :mode="current.mode"
-        @submit="onAnswer"
+        :correct-answer="question.correctAnswers"
+        :mode="question.mode"
+        @submit="onAnswer(question.id, $event)"
       >
         <Question.Stem class="mb-3 block font-medium text-on-surface">
-          {{ current.stem }}
+          {{ question.stem }}
         </Question.Stem>
 
         <div class="flex flex-col gap-2">
           <Question.Option
-            v-for="option in current.options"
+            v-for="option in question.options"
             :key="option.value"
             v-slot="{ isSelected, isCorrect, isSubmitted: submitted }"
             class="block w-full cursor-pointer text-left"
@@ -166,20 +178,20 @@
               <span
                 class="inline-flex size-4 shrink-0 items-center justify-center border-2 transition-colors"
                 :class="[
-                  current?.mode === 'multiple' ? 'rounded-sm' : 'rounded-full',
+                  question.mode === 'multiple' ? 'rounded-sm' : 'rounded-full',
                   isSelected
-                    ? (current?.mode === 'multiple' ? 'border-primary bg-primary text-on-primary' : 'border-primary')
+                    ? (question.mode === 'multiple' ? 'border-primary bg-primary text-on-primary' : 'border-primary')
                     : 'border-on-surface-variant',
                 ]"
               >
                 <AppIcon
-                  v-if="current?.mode === 'multiple' && isSelected"
+                  v-if="question.mode === 'multiple' && isSelected"
                   icon="check"
                   :size="12"
                 />
 
                 <span
-                  v-else-if="current?.mode !== 'multiple' && isSelected"
+                  v-else-if="question.mode !== 'multiple' && isSelected"
                   class="size-1.5 rounded-full bg-primary"
                 />
               </span>
@@ -189,30 +201,43 @@
           </Question.Option>
         </div>
 
-        <button
-          v-if="!isSubmitted"
-          class="mt-3 rounded-md bg-primary px-3 py-1.5 text-sm text-on-primary disabled:opacity-50"
-          :disabled="!hasSelection"
-          @click="submit"
-        >
-          Check answer
-        </button>
-
         <Question.Feedback
           class="mt-3 block rounded-md p-3 text-sm"
           :class="result === 'correct' ? 'bg-success/10 text-on-surface' : 'bg-warning/10 text-on-surface'"
         >
-          {{ current.feedback }}
+          {{ question.feedback }}
         </Question.Feedback>
 
-        <button
-          v-if="isSubmitted"
-          class="mt-3 rounded-md bg-primary px-3 py-1.5 text-sm text-on-primary"
-          type="button"
-          @click="onNext"
-        >
-          {{ isLast ? 'Finish' : 'Next' }}
-        </button>
+        <div class="mt-4 flex items-center gap-2">
+          <button
+            class="inline-flex items-center gap-1 rounded-md border border-divider px-3 py-1.5 text-sm text-on-surface transition-colors hover:bg-surface-variant disabled:opacity-40"
+            :disabled="index === 0"
+            type="button"
+            @click="onPrev"
+          >
+            <AppIcon icon="left" :size="16" />
+            Back
+          </button>
+
+          <button
+            v-if="!isSubmitted"
+            class="ml-auto rounded-md bg-primary px-3 py-1.5 text-sm text-on-primary disabled:opacity-50"
+            :disabled="!hasSelection"
+            @click="submit"
+          >
+            Check answer
+          </button>
+
+          <button
+            v-else
+            class="ml-auto inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm text-on-primary"
+            type="button"
+            @click="onNext"
+          >
+            {{ isLast ? 'Finish' : 'Next' }}
+            <AppIcon v-if="!isLast" icon="right" :size="16" />
+          </button>
+        </div>
       </Question.Root>
     </div>
   </div>
