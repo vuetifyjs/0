@@ -74,7 +74,8 @@
       v-if="!open"
       class="relative flex flex-col items-start gap-1"
     >
-      <p class="text-sm font-medium text-on-surface">
+      <p class="flex items-center gap-1.5 text-sm font-medium text-on-surface">
+        <AppIcon class="text-warning" icon="medal" :size="16" />
         Check your understanding
       </p>
 
