@@ -27,6 +27,7 @@
   const finished = shallowRef(false)
   const results = ref(new Map<string, QuestionResult>())
   const order = shallowRef<string[]>([])
+  const run = shallowRef(0)
 
   const ordered = toRef(() => order.value.flatMap(id => {
     const question = pool.value.find(item => item.id === id)
@@ -52,6 +53,7 @@
   }
 
   function begin () {
+    run.value++
     const ids = shuffle(pool.value.map(question => question.id))
     order.value = ids
     step.clear()
@@ -155,8 +157,17 @@
           Question {{ index + 1 }} of {{ total }}
         </span>
 
+        <button
+          class="ml-auto inline-flex size-[26px] items-center justify-center rounded text-on-surface-variant transition-colors hover:bg-surface-variant"
+          title="Restart quiz"
+          type="button"
+          @click="begin"
+        >
+          <AppIcon icon="restart" :size="15" />
+        </button>
+
         <span
-          class="skillz-badge ml-auto inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-bold uppercase tracking-wide"
+          class="skillz-badge inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-bold uppercase tracking-wide"
           :style="currentLevelMeta ? { '--level-color': currentLevelMeta.color } : undefined"
           :title="currentLevelMeta ? `${currentLevelMeta.label} level` : undefined"
         >
@@ -168,7 +179,7 @@
       <Question.Root
         v-for="question in ordered"
         v-show="question.id === currentId"
-        :key="question.id"
+        :key="`${run}-${question.id}`"
         v-slot="{ submit, isSubmitted, hasSelection, result }"
         :correct-answer="question.correctAnswers"
         :mode="question.mode"
