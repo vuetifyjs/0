@@ -133,14 +133,6 @@
         <span class="text-xs font-medium text-on-surface-variant whitespace-nowrap">
           Question {{ index + 1 }} of {{ total }}
         </span>
-
-        <span
-          v-if="current?.mode === 'multiple'"
-          class="ml-auto inline-flex items-center gap-1 rounded-full bg-info/10 px-2 py-0.5 text-xs font-medium text-info"
-        >
-          <AppIcon icon="layers" :size="12" />
-          Select all that apply
-        </span>
       </div>
 
       <Question.Root
