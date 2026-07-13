@@ -4,6 +4,8 @@
 
   // Components
   import { Question } from '@/components/discovery/Question'
+  import SkillLevelBadge from '@/components/skillz/SkillLevelBadge.vue'
+  import SkillMasteredBadge from '@/components/skillz/SkillMasteredBadge.vue'
 
   // Composables
   import { useQuestions } from '@/composables/useQuestions'
@@ -30,6 +32,7 @@
     return question ? [question] : []
   }))
   const currentId = toRef(() => step.selectedId.value)
+  const currentLevel = toRef(() => ordered.value.find(question => question.id === currentId.value)?.level)
   const index = toRef(() => step.selectedIndex.value)
   const total = toRef(() => pool.value.length)
   const isLast = toRef(() => index.value === total.value - 1)
@@ -110,8 +113,10 @@
       :id="`${track}-quiz`"
       class="relative flex flex-col items-start gap-2"
     >
+      <SkillMasteredBadge v-if="score === total" :size="28" />
+
       <p class="text-sm font-medium text-on-surface">
-        Quiz complete
+        {{ score === total ? 'Skill mastered' : 'Quiz complete' }}
       </p>
 
       <p class="text-2xl font-semibold text-on-surface">
@@ -145,6 +150,12 @@
         <span class="text-xs font-medium text-on-surface-variant whitespace-nowrap">
           Question {{ index + 1 }} of {{ total }}
         </span>
+
+        <SkillLevelBadge
+          v-if="currentLevel"
+          class="ml-auto"
+          :level="currentLevel"
+        />
       </div>
 
       <Question.Root
