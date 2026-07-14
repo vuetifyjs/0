@@ -1,17 +1,15 @@
 <script setup lang="ts">
   import apiData from 'virtual:api'
 
-  // Framework
-  import { createFilter } from '@vuetify/v0'
-
   // Composables
+  import { useApiFilter } from '@/composables/useApiFilter'
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
   import { resolveItemName } from '@/utilities/strings'
-  import { computed, shallowRef, toRef } from 'vue'
+  import { computed, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -61,48 +59,7 @@
     return data.composables[name] || null
   })
 
-  const search = shallowRef('')
-
-  const items = toRef(() => {
-    if (pageType.value === 'component') {
-      return componentApis.value.flatMap(api => [
-        ...api.props ?? [],
-        ...api.events ?? [],
-        ...api.slots ?? [],
-      ])
-    }
-
-    const api = composableApi.value
-    if (!api) return []
-
-    return [
-      ...api.functions ?? [],
-      ...api.options ?? [],
-      ...api.properties ?? [],
-      ...api.methods ?? [],
-    ]
-  })
-
-  const filter = createFilter({ keys: ['name', 'description'] })
-  const { items: matches } = filter.apply(search, items)
-
-  const matched = toRef(() => new Set(matches.value))
-
-  const visibleApis = toRef(() => {
-    if (!search.value) return componentApis.value
-
-    return componentApis.value.filter(api =>
-      [...api.props ?? [], ...api.events ?? [], ...api.slots ?? []].some(item => matched.value.has(item)),
-    )
-  })
-
-  const placeholder = toRef(() =>
-    pageType.value === 'component'
-      ? 'Filter props, events, slots…'
-      : 'Filter functions, options, methods…',
-  )
-
-  const empty = toRef(() => !!search.value && matches.value.length === 0)
+  const { search, visibleApis, placeholder, empty } = useApiFilter(componentApis, composableApi)
 </script>
 
 <template>

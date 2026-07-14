@@ -3,6 +3,7 @@
   import apiData from 'virtual:api'
 
   // Composables
+  import { useApiFilter } from '@/composables/useApiFilter'
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useParams } from '@/composables/useRoute'
 
@@ -72,6 +73,8 @@
     if (!isComposable.value || !itemName.value) return null
     return data.composables[itemName.value] || null
   })
+
+  const { search, visibleApis, placeholder, empty } = useApiFilter(componentApis, composableApi)
 
   const title = toRef(() => itemName.value ? `${itemName.value} API` : 'API Reference')
 
@@ -147,8 +150,23 @@
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 
+        <div class="relative mt-4">
+          <AppIcon
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
+            icon="search"
+            :size="16"
+          />
+
+          <input
+            v-model="search"
+            class="w-full pl-9 pr-3 py-2 text-sm bg-surface-tint border border-divider rounded-lg outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant"
+            :placeholder
+            type="text"
+          >
+        </div>
+
         <template
-          v-for="api in componentApis"
+          v-for="api in visibleApis"
           :key="api.name"
         >
           <DocsHeaderAnchor
@@ -162,6 +180,7 @@
             :anchor-id="`${helpers.toKebab(api.name)}-props`"
             :items="api.props"
             kind="prop"
+            :query="search"
             title="Props"
           />
 
@@ -170,6 +189,7 @@
             class="mt-8"
             :items="api.events"
             kind="event"
+            :query="search"
             title="Events"
           />
 
@@ -178,9 +198,14 @@
             class="mt-8"
             :items="api.slots"
             kind="slot"
+            :query="search"
             title="Slots"
           />
         </template>
+
+        <p v-if="empty" class="text-on-surface-variant mt-4">
+          No API items match "{{ search }}".
+        </p>
       </div>
     </template>
 
@@ -192,10 +217,27 @@
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 
+        <div class="relative mt-4">
+          <AppIcon
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
+            icon="search"
+            :size="16"
+          />
+
+          <input
+            v-model="search"
+            class="w-full pl-9 pr-3 py-2 text-sm bg-surface-tint border border-divider rounded-lg outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant"
+            :placeholder
+            type="text"
+          >
+        </div>
+
         <DocsApiSection
           anchor-id="functions"
+          class="mt-8"
           :items="composableApi.functions"
           kind="function"
+          :query="search"
           title="Functions"
         />
 
@@ -204,6 +246,7 @@
           class="mt-8"
           :items="composableApi.options"
           kind="option"
+          :query="search"
           title="Options"
         />
 
@@ -212,6 +255,7 @@
           class="mt-8"
           :items="composableApi.properties"
           kind="property"
+          :query="search"
           title="Properties"
         />
 
@@ -220,8 +264,13 @@
           class="mt-8"
           :items="composableApi.methods"
           kind="method"
+          :query="search"
           title="Methods"
         />
+
+        <p v-if="empty" class="text-on-surface-variant mt-4">
+          No API items match "{{ search }}".
+        </p>
       </div>
     </template>
   </article>
