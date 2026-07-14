@@ -1,9 +1,7 @@
 ---
-"@vuetify/v0": patch
+'@vuetify/v0': patch
 ---
 
-Fix SSR singleton leak in `useStack` and add SSR contract tests for all plugins
+test(plugins): lock in SSR safety for every plugin composable (#569)
 
-`useStack` had a module-level `fallbackStack` variable that persisted across SSR requests, causing tickets registered in one request to bleed into the next. `getStackFallback()` now returns a fresh `createStack()` instance on every call when `IN_BROWSER` is false, while keeping the lazy singleton on the browser side.
-
-Adds `index.ssr.test.ts` for all 14 plugin composables (useBreakpoints, useDate, useFeatures, useHydration, useLocale, useLogger, useNotifications, usePermissions, useReducedMotion, useRtl, useRules, useStack, useStorage, useTheme, useTooltip) and a `plugins.meta.test.ts` that fails if any future plugin composable ships without SSR coverage.
+Adds an SSR contract test to each plugin composable — no throw without a provider, and a fresh fallback per call so nothing leaks between requests — plus a guard that fails if a new plugin ships without one. The `useStack` leak these guard against was fixed in #442.
