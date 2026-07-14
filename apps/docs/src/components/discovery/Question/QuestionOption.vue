@@ -91,7 +91,7 @@
   import { useQuestionRoot } from './QuestionRoot.vue'
 
   // Utilities
-  import { computed, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
+  import { computed, mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'QuestionOption', inheritAttrs: false })
 
@@ -243,7 +243,7 @@
 <template>
   <Atom
     ref="root"
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :data-question-option="value"
     :renderless
