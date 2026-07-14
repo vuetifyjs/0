@@ -150,7 +150,7 @@
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 
-        <DocsSearchInput v-model="search" class="mt-4" :placeholder />
+        <DocsSearchInput v-model="search" class="mt-4 -mb-3" :placeholder />
 
         <template
           v-for="api in visibleApis"
@@ -204,7 +204,7 @@
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 
-        <DocsSearchInput v-model="search" class="mt-4" :placeholder />
+        <DocsSearchInput v-model="search" class="mt-4 -mb-3" :placeholder />
 
         <DocsApiSection
           anchor-id="functions"
