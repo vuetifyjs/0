@@ -61,7 +61,7 @@ app.use(
 
 ## Generator Adapters
 
-Generator adapters take a single brand color and produce a complete `palette` + `themes` object ready to pass to `createThemePlugin`. Each adapter wraps a third-party color algorithm.
+Generator adapters take a single brand color and produce a complete `palette` + `themes` object ready to pass to `createThemePlugin`. Each adapter wraps a third-party color algorithm. The color libraries are **optional peer dependencies** — install the peer for the generator you import; without it, module resolution fails at load time.
 
 ### Material
 
@@ -95,7 +95,12 @@ const { palette, themes } = material('#6750A4')
 app.use(createThemePlugin({ palette, themes }))
 ```
 
-The `variant` option controls how the seed color influences secondary and tertiary roles: `tonalSpot` (default), `vibrant`, `expressive`, `fidelity`, `monochrome`, `neutral`.
+Options (second argument):
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `variant` | `'tonalSpot' \| 'vibrant' \| 'expressive' \| 'fidelity' \| 'monochrome' \| 'neutral'` | `'tonalSpot'` | How the seed influences secondary and tertiary roles |
+| `contrast` | `number` | `0` | Contrast preference passed through to Material's dynamic scheme |
 
 ### Ant Design
 
@@ -129,6 +134,12 @@ const { palette, themes } = ant('#1677ff')
 app.use(createThemePlugin({ palette, themes }))
 ```
 
+Options (second argument):
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `background` | `string` | `'#141414'` | Background hex used when generating the dark ramp |
+
 ### Leonardo
 
 Uses Adobe's `@adobe/leonardo-contrast-colors` to generate perceptually uniform ramps based on target contrast ratios against a background.
@@ -160,6 +171,13 @@ const { palette, themes } = leonardo('#0ea5e9')
 
 app.use(createThemePlugin({ palette, themes }))
 ```
+
+Options (second argument):
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `ratios` | `number[]` | `[1.25, 1.5, 2, 3, 4.5, 7, 11]` | Target contrast ratios against the background |
+| `colorSpace` | `'CAM02' \| 'CAM02p' \| 'HSL' \| 'HSLuv' \| 'HSV' \| 'LAB' \| 'LCH' \| 'OKLAB' \| 'OKLCH' \| 'RGB'` | Leonardo's default | Color space for ramp generation |
 
 ## Overriding Colors
 
@@ -222,3 +240,21 @@ const myGenerator: PaletteGenerator<{ variant?: 'vibrant' | 'muted' }> = (seed, 
   return { palette, themes }
 }
 ```
+
+## FAQ
+
+::: faq
+
+??? What seed format do generators accept?
+
+A CSS hex string with a leading `#` — 3, 6, or 8 hex digits (e.g. `#6750A4`, `#0ea`, `#6750A4FF`). Anything else throws `V0_PALETTE_INVALID_SEED`. Use `isV0Error(err, 'V0_PALETTE_INVALID_SEED')` when asserting in tests — see [Testing](/guide/tooling/testing).
+
+??? What happens if I pass an unknown Material `variant`?
+
+`material()` throws `V0_PALETTE_UNKNOWN_VARIANT`. Stick to `tonalSpot`, `vibrant`, `expressive`, `fidelity`, `monochrome`, or `neutral`.
+
+??? Do I need every palette peer dependency installed?
+
+No. Peers are optional until you import a `/generate` entry. Install only the library for the generator you use (`@material/material-color-utilities`, `@ant-design/colors`, or `@adobe/leonardo-contrast-colors`). Static palette imports need no peers.
+
+:::
