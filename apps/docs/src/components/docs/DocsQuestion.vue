@@ -70,8 +70,6 @@
     }
   }))
 
-  // Highest level the user cleared, requiring every lower level in the deck to
-  // also pass. Drives the skill verdict on the results screen.
   const verdictLevel = toRef((): SkillLevel | 0 => {
     let determined: SkillLevel | 0 = 0
     for (const level of [1, 2, 3] as const) {
@@ -105,8 +103,7 @@
     return shuffle(items).slice(0, amount)
   }
 
-  // Round-robin across level buckets so a short quiz still spans levels and the
-  // verdict can gauge skill. Falls back to a plain shuffle when levels are absent.
+  // Round-robin across levels so a short quiz still spans skill levels.
   function pick (defs: QuestionDef[], amount: number): QuestionDef[] {
     const buckets = new Map<number, QuestionDef[]>()
     for (const def of defs) {
@@ -202,7 +199,6 @@
   >
     <AppDotGrid :coverage="60" />
 
-    <!-- Invite -->
     <div
       v-if="!open"
       class="relative flex flex-col items-start gap-1"
@@ -226,7 +222,6 @@
       </button>
     </div>
 
-    <!-- Results -->
     <div
       v-else-if="finished"
       :id="`${track}-quiz`"
@@ -258,7 +253,6 @@
         </p>
       </div>
 
-      <!-- Per-question review -->
       <ul class="flex flex-col gap-2">
         <li
           v-for="item in review"
@@ -311,7 +305,6 @@
       </div>
     </div>
 
-    <!-- Question -->
     <div
       v-else
       :id="`${track}-quiz`"
@@ -435,7 +428,6 @@
             <AppIcon icon="left" :size="16" />
           </button>
 
-          <!-- Stepper: jump to any question, including skipped ones -->
           <div class="flex flex-1 flex-wrap items-center justify-center gap-1.5">
             <button
               v-for="(item, i) in deck"

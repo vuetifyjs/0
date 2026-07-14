@@ -166,7 +166,6 @@
     events: true,
   })
 
-  // Bidirectional v-model <-> selection sync (v0 pattern; replaces a hand-rolled watch)
   useProxyModel(selection, model, { multiple: toRef(() => mode === 'multiple') })
 
   // Map from ticket ID to full ticket info for keyboard navigation
