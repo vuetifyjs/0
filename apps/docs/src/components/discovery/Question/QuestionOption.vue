@@ -228,7 +228,9 @@
       'aria-label': ariaLabel || label || undefined,
       'aria-labelledby': ariaLabelledby || undefined,
       'aria-describedby': ariaDescribedby || undefined,
-      'tabindex': isTabbable.value ? 0 : -1,
+      'tabindex': toValue(question.mode) === 'single'
+        ? (isTabbable.value ? 0 : -1)
+        : (isDisabled.value ? -1 : 0),
       'data-state': state.value,
       'data-correct': (toValue(question.isSubmitted) && toValue(isCorrect)) || undefined,
       'data-disabled': isDisabled.value ? true : undefined,

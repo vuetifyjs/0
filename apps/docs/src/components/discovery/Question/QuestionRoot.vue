@@ -10,7 +10,7 @@
 
 <script lang="ts">
   // Framework
-  import { Atom, createContext, createSelection, toArray, useId } from '@vuetify/v0'
+  import { Atom, createContext, createSelection, toArray, useId, useProxyModel } from '@vuetify/v0'
 
   // Types
   import type { AtomProps, ID } from '@vuetify/v0'
@@ -125,7 +125,7 @@
 
 <script setup lang="ts">
   // Utilities
-  import { computed, shallowRef, toRef, watch } from 'vue'
+  import { computed, shallowRef, toRef } from 'vue'
 
   defineOptions({ name: 'QuestionRoot' })
 
@@ -163,15 +163,14 @@
   const selection = createSelection({
     multiple: toRef(() => mode === 'multiple'),
     disabled: toRef(() => disabled || isSubmitted.value),
+    events: true,
   })
+
+  // Bidirectional v-model <-> selection sync (v0 pattern; replaces a hand-rolled watch)
+  useProxyModel(selection, model, { multiple: toRef(() => mode === 'multiple') })
 
   // Map from ticket ID to full ticket info for keyboard navigation
   const ticketRegistry = new Map<ID, QuestionTicket>()
-
-  // Sync selection back to v-model
-  watch(getSelectedValues, values => {
-    model.value = mode === 'single' ? values[0] : values
-  })
 
   function getSelectedValues (): string[] {
     const values: string[] = []
