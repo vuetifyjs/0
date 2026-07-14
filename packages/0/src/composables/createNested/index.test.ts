@@ -936,6 +936,72 @@ describe('createNested', () => {
         expect(nested.selected('leaf-1')).toBe(false)
         expect(nested.selected('leaf-2')).toBe(false)
       })
+
+      it('should block parent unselect when mandatory leaf descendants are the entire selection', () => {
+        const nested = createNested({ selection: 'leaf', mandatory: true })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'root' })
+        nested.register({ id: 'leaf-2', value: 'Leaf 2', parentId: 'root' })
+
+        nested.select('root')
+        nested.unselect('root')
+
+        expect(nested.selected('leaf-1')).toBe(true)
+        expect(nested.selected('leaf-2')).toBe(true)
+        expect(nested.mixed('root')).toBe(false)
+      })
+
+      it('should unselect parent leaves when mandatory selection remains in another branch', () => {
+        const nested = createNested({ selection: 'leaf', mandatory: true })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'root' })
+        nested.register({ id: 'leaf-2', value: 'Leaf 2', parentId: 'root' })
+        nested.register({ id: 'other', value: 'Other' })
+        nested.register({ id: 'leaf-3', value: 'Leaf 3', parentId: 'other' })
+
+        nested.select('root')
+        nested.select('leaf-3')
+        nested.unselect('root')
+
+        expect(nested.selected('leaf-1')).toBe(false)
+        expect(nested.selected('leaf-2')).toBe(false)
+        expect(nested.selected('leaf-3')).toBe(true)
+      })
+
+      it('should block parent toggle off when mandatory leaf descendants are the entire selection', () => {
+        const nested = createNested({ selection: 'leaf', mandatory: true })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'root' })
+        nested.register({ id: 'leaf-2', value: 'Leaf 2', parentId: 'root' })
+
+        nested.select('root')
+        nested.toggle('root')
+
+        expect(nested.selected('leaf-1')).toBe(true)
+        expect(nested.selected('leaf-2')).toBe(true)
+        expect(nested.mixed('root')).toBe(false)
+      })
+
+      it('should toggle parent leaves off when mandatory selection remains in another branch', () => {
+        const nested = createNested({ selection: 'leaf', mandatory: true })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'root' })
+        nested.register({ id: 'leaf-2', value: 'Leaf 2', parentId: 'root' })
+        nested.register({ id: 'other', value: 'Other' })
+        nested.register({ id: 'leaf-3', value: 'Leaf 3', parentId: 'other' })
+
+        nested.select('root')
+        nested.select('leaf-3')
+        nested.toggle('root')
+
+        expect(nested.selected('leaf-1')).toBe(false)
+        expect(nested.selected('leaf-2')).toBe(false)
+        expect(nested.selected('leaf-3')).toBe(true)
+      })
     })
   })
 
