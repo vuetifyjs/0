@@ -257,6 +257,24 @@ describe('createValidation', () => {
       expect(validation.isValidating.value).toBe(false)
     })
 
+    it('should clear isValidating when a silent run interleaves an in-flight non-silent one', async () => {
+      const { calls, rule } = createRule()
+      const validation = createValidation({ rules: [rule] })
+
+      // Slow non-silent run begins → isValidating true, generation 1.
+      const nonSilent = validation.validate('x', false)
+      expect(validation.isValidating.value).toBe(true)
+
+      // A silent run interleaves → bumps the shared generation to 2.
+      const silent = validation.validate('x', true)
+
+      for (const call of calls) call.resolve(true)
+      await Promise.all([nonSilent, silent])
+
+      // The non-silent run must still own and clear the flag despite the bump.
+      expect(validation.isValidating.value).toBe(false)
+    })
+
     it('should catch throwing rules and surface error message', async () => {
       const validation = createValidation({
         rules: [() => {
