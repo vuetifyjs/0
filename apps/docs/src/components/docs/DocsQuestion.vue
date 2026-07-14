@@ -7,6 +7,7 @@
   import SkillMasteredBadge from '@/components/skillz/SkillMasteredBadge.vue'
 
   // Composables
+  import { renderInline } from '@/composables/useMarkdown'
   import { distractorsNeeded, useQuestions } from '@/composables/useQuestions'
 
   import { SKILL_LEVEL_META } from '@/types/skill'
@@ -38,6 +39,7 @@
     id: string
     stem: string
     feedback?: string
+    hint?: string
     level?: SkillLevel
     mode: 'single' | 'multiple'
     options: QuestionOption[]
@@ -53,6 +55,7 @@
   const finished = shallowRef(false)
   const results = ref(new Map<string, QuestionResult>())
   const answered = ref(new Map<string, string | string[]>())
+  const shownHints = ref(new Set<string>())
   const deck = ref<Slate[]>([])
   const run = shallowRef(0)
 
@@ -147,6 +150,7 @@
       id: def.id,
       stem: def.stem,
       feedback: def.feedback,
+      hint: def.hint,
       level: def.level,
       mode: def.mode,
       options,
@@ -161,8 +165,14 @@
     step.onboard(deck.value.map(slate => ({ id: slate.id, value: slate.id })))
     results.value = new Map()
     answered.value = new Map()
+    shownHints.value = new Set()
     finished.value = false
     step.first()
+  }
+
+  function toggleHint (id: string) {
+    if (shownHints.value.has(id)) shownHints.value.delete(id)
+    else shownHints.value.add(id)
   }
 
   function onStart () {
@@ -396,11 +406,28 @@
           </Question.Option>
         </div>
 
+        <div v-if="slate.hint && !isSubmitted" class="mt-3">
+          <button
+            v-if="!shownHints.has(slate.id)"
+            class="inline-flex items-center gap-1.5 text-xs font-medium text-on-surface-variant transition-colors hover:text-on-surface"
+            type="button"
+            @click="toggleHint(slate.id)"
+          >
+            <AppIcon icon="lightbulb" :size="14" />
+            Show hint
+          </button>
+
+          <p v-else class="flex items-start gap-2 rounded-md bg-info/10 p-3 text-sm text-on-surface">
+            <AppIcon class="mt-0.5 shrink-0 text-info" icon="lightbulb" :size="16" />
+            <span v-html="renderInline(slate.hint)" />
+          </p>
+        </div>
+
         <Question.Feedback
           class="mt-3 block rounded-md p-3 text-sm"
           :class="result === 'correct' ? 'bg-success/10 text-on-surface' : 'bg-warning/10 text-on-surface'"
         >
-          {{ slate.feedback }}
+          <span v-html="renderInline(slate.feedback ?? '')" />
         </Question.Feedback>
 
         <div class="mt-4 flex items-center gap-2">

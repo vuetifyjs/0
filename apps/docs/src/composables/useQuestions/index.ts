@@ -32,6 +32,7 @@ export interface QuestionInput {
   answers: QuestionOptionInput[]
   distractors: QuestionOptionInput[]
   feedback?: string
+  hint?: string
   mode?: 'single' | 'multiple'
   level?: 1 | 2 | 3
   track?: string
@@ -45,6 +46,7 @@ export interface Question {
   distractors: QuestionOption[]
   correctAnswers: string[]
   feedback?: string
+  hint?: string
   mode: 'single' | 'multiple'
   level?: 1 | 2 | 3
   track?: string
@@ -68,6 +70,7 @@ export function normalizeQuestion (input: QuestionInput): Question {
     distractors,
     correctAnswers: answers.map(answer => answer.value),
     feedback: input.feedback,
+    hint: input.hint,
     mode,
     level: input.level,
     track: input.track,
