@@ -151,12 +151,11 @@
         class="bg-surface border-t border-divider rounded-b-lg max-h-80 overflow-auto shadow-lg w-[anchor-size(width)]"
         position-area="bottom"
       >
-        <input
+        <DocsSearchInput
           v-model="search"
-          class="w-full px-4 py-2 bg-transparent border-none border-b border-divider font-inherit text-inherit outline-none focus-visible:bg-surface-tint"
+          class="p-2"
           placeholder="Search releases..."
-          type="text"
-        >
+        />
 
         <div v-if="filteredReleases.length === 0" class="px-4 py-3 text-center opacity-50">
           No releases found
