@@ -432,6 +432,63 @@ describe('createValidation', () => {
       expect(validation.errors.value).toEqual([])
     })
 
+    it('should follow the winner when a stale call\'s rules throw', async () => {
+      let reject: (error: Error) => void
+      let calls = 0
+      async function rule (_v: unknown) {
+        calls++
+        if (calls === 1) {
+          return new Promise<boolean>((_, r) => {
+            reject = r
+          })
+        }
+        return true
+      }
+
+      const validation = createValidation({ rules: [rule] })
+
+      const stale = validation.validate('first')
+      const winner = validation.validate('second')
+
+      reject!(new Error('boom'))
+
+      expect(await winner).toBe(true)
+      // The stale call's rejection routes through the catch-path reroute and
+      // resolves to the winning generation's outcome.
+      expect(await stale).toBe(true)
+      expect(validation.isValid.value).toBe(true)
+      expect(validation.errors.value).toEqual([])
+    })
+
+    it('should re-await when the winner it followed was itself superseded', async () => {
+      const gates: Array<(v: boolean) => void> = []
+      async function rule (_v: unknown) {
+        return new Promise<boolean>(resolve => {
+          gates.push(resolve)
+        })
+      }
+
+      const validation = createValidation({ rules: [rule] })
+
+      const first = validation.validate('a')
+      const second = validation.validate('b')
+
+      // Let the first call settle its rules and start following the second.
+      gates[0](true)
+      await new Promise(resolve => setTimeout(resolve, 0))
+
+      const third = validation.validate('c')
+      gates[1](true)
+      gates[2](true)
+
+      expect(await third).toBe(true)
+      // The second call defers to the third; the first call awaited the
+      // second, found it superseded, and re-awaited the third.
+      expect(await second).toBe(true)
+      expect(await first).toBe(true)
+      expect(validation.isValid.value).toBe(true)
+    })
+
     it('should not let an in-flight validate overwrite state set by a later no-rules call', async () => {
       let resolveSlow: ((val: string | boolean) => void) | undefined
       function slowRule (_v: unknown) {

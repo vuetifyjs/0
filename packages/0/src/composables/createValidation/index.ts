@@ -145,16 +145,17 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
     return group.batch(() => rules.map(r => register(r)))
   }
 
-  async function wait (gen: number): Promise<boolean> {
-    while (gen !== generation) {
+  // A superseded call defers to the winning generation's outcome. Loops
+  // because the awaited winner may itself be superseded before settling;
+  // every iteration either returns or awaits a strictly newer generation.
+  async function wait (): Promise<boolean> {
+    while (true) {
       const current = latest
-      if (isUndefined(current) || current.generation !== generation) return false
+      if (isUndefined(current)) return false
 
       const result = await current.promise
       if (current.generation === generation) return result
     }
-
-    return false
   }
 
   async function run (gen: number, _value: unknown, silent: boolean): Promise<boolean> {
@@ -166,8 +167,6 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
     }
 
     if (activeRules.length === 0) {
-      if (gen !== generation) return wait(gen)
-
       if (!silent) {
         errors.value = []
         isValid.value = true
@@ -180,7 +179,7 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
 
     try {
       const results = await Promise.all(activeRules.map(rule => rule(val)))
-      if (gen !== generation) return wait(gen)
+      if (gen !== generation) return wait()
 
       const errorMessages = results
         .filter(result => isString(result) || result === false)
@@ -193,7 +192,7 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
 
       return errorMessages.length === 0
     } catch (error) {
-      if (gen !== generation) return wait(gen)
+      if (gen !== generation) return wait()
 
       if (!silent) {
         errors.value = [error instanceof Error ? error.message : 'Validation error']
