@@ -139,7 +139,6 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   function open (ids: ID | ID[]): void {
     if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
-      if (!group.has(id)) continue
       const item = group.get(id)
       if (!item || toValue(item.disabled)) continue
 
@@ -173,7 +172,6 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   function close (ids: ID | ID[]): void {
     if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
-      if (!group.has(id)) continue
       const item = group.get(id)
       if (!item || toValue(item.disabled)) continue
       openedIds.delete(id)
@@ -183,7 +181,6 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   function flip (ids: ID | ID[]): void {
     if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
-      if (!group.has(id)) continue
       const item = group.get(id)
       if (!item || toValue(item.disabled)) continue
       if (opened(id)) {
@@ -493,21 +490,24 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   function select (ids: ID | ID[]): void {
     if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
-      if (!group.has(id)) continue
-      const item = group.get(id)
-      if (!item || toValue(item.disabled)) continue
-
       if (selectionMode === 'independent') {
         group.select(id)
       } else if (selectionMode === 'leaf') {
         if (isLeaf(id)) {
           group.select(id)
         } else {
+          const item = group.get(id)
+          if (!item || toValue(item.disabled)) continue
           for (const lid of getLeafDescendants(id)) {
             group.select(lid)
           }
         }
       } else {
+        // Cascade mutates selectedIds directly, so the targeted-id gesture
+        // guard the chain provides elsewhere must be enforced locally.
+        const item = group.get(id)
+        if (!item || toValue(item.disabled)) continue
+
         if (!toValue(multipleOption)) {
           group.select(id)
           return
@@ -529,21 +529,24 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   function unselect (ids: ID | ID[]): void {
     if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
-      if (!group.has(id)) continue
-      const item = group.get(id)
-      if (!item || toValue(item.disabled)) continue
-
       if (selectionMode === 'independent') {
         group.unselect(id)
       } else if (selectionMode === 'leaf') {
         if (isLeaf(id)) {
           group.unselect(id)
         } else {
+          const item = group.get(id)
+          if (!item || toValue(item.disabled)) continue
           for (const lid of getLeafDescendants(id)) {
             group.unselect(lid)
           }
         }
       } else {
+        // Cascade mutates selectedIds directly, so the targeted-id gesture
+        // guard the chain provides elsewhere must be enforced locally.
+        const item = group.get(id)
+        if (!item || toValue(item.disabled)) continue
+
         const { selectedIds, mixedIds } = group
         if (toValue(mandatoryOption)) {
           const toRemove = new Set<ID>([id, ...getDescendants(id)])
@@ -565,8 +568,6 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   function toggle (ids: ID | ID[]): void {
     if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
-      const item = group.get(id)
-      if (!item || toValue(item.disabled)) continue
       if (selectionMode === 'independent') {
         // Independent: just toggle this node
         group.toggle(id)
@@ -575,6 +576,8 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
         if (isLeaf(id)) {
           group.toggle(id)
         } else {
+          const item = group.get(id)
+          if (!item || toValue(item.disabled)) continue
           const leafIds = getLeafDescendants(id)
           const allSelected = leafIds.every(lid => group.selected(lid))
           if (allSelected) {
