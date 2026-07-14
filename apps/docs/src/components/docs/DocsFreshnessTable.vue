@@ -48,10 +48,6 @@
     table.pagination.first()
   })
 
-  function onSearch (event: Event) {
-    table.search((event.target as HTMLInputElement).value)
-  }
-
   function formatAge (ms: number): string {
     const days = Math.round(ms / DAY_MS)
     if (days <= 0) return 'today'
@@ -79,13 +75,12 @@
     </header>
 
     <div class="flex items-center gap-2 mb-4">
-      <input
-        class="flex-1 px-4 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm placeholder-on-surface-variant/50 outline-none transition-colors focus:border-primary"
+      <DocsSearchInput
+        class="flex-1"
+        :model-value="table.query.value"
         placeholder="Search by page or category..."
-        type="text"
-        :value="table.query.value"
-        @input="onSearch"
-      >
+        @update:model-value="table.search($event)"
+      />
 
       <Select.Root v-model="pageSize">
         <Select.Activator class="flex items-center gap-2 min-w-[140px] px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
