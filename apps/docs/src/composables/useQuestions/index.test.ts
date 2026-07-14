@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { distractorsNeeded, normalizeQuestion } from './index'
+import { distractorsNeeded, normalizeQuestion, useQuestions } from './index'
 
 describe('normalizeQuestion', () => {
   it('infers single mode from exactly one answer', () => {
@@ -80,5 +80,18 @@ describe('distractorsNeeded', () => {
   it('always needs at least one distractor', () => {
     expect(distractorsNeeded(4)).toBe(1)
     expect(distractorsNeeded(5)).toBe(1)
+  })
+})
+
+describe('useQuestions', () => {
+  it('byTrack returns only questions for the given track', () => {
+    const questions = useQuestions()
+    const vue = questions.byTrack('vue')
+    expect(vue.length).toBeGreaterThan(0)
+    expect(vue.every(question => question.track === 'vue')).toBe(true)
+  })
+
+  it('byTrack returns an empty array for an unknown track', () => {
+    expect(useQuestions().byTrack('does-not-exist')).toEqual([])
   })
 })

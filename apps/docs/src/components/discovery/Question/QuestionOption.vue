@@ -8,7 +8,7 @@
 
 <script lang="ts">
   // Framework
-  import { Atom, createContext } from '@vuetify/v0'
+  import { Atom, createContext, toElement } from '@vuetify/v0'
 
   // Types
   import type { AtomExpose, AtomProps } from '@vuetify/v0'
@@ -22,7 +22,7 @@
     /** Whether this option is selected */
     readonly isSelected: Ref<boolean>
     /** Whether this option is the correct answer */
-    readonly isCorrect: boolean
+    readonly isCorrect: Readonly<Ref<boolean>>
     /** Whether the question has been submitted */
     readonly isSubmitted: Ref<boolean>
   }
@@ -70,7 +70,7 @@
       'type': 'button' | undefined
       'role': 'radio' | 'checkbox'
       'aria-checked': boolean
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
       'aria-describedby': string | undefined
@@ -121,7 +121,7 @@
   const question = useQuestionRoot(questionNamespace)
 
   // Element ref for focus management during arrow key navigation
-  const el = toRef(() => (rootRef.value?.element as HTMLElement | null | undefined) ?? undefined)
+  const el = toRef(() => (toElement(rootRef.value?.element) as HTMLElement | null) ?? undefined)
 
   // Register with parent selection context
   const ticket = question.register({
@@ -132,9 +132,9 @@
   })
 
   const isSelected = ticket.isSelected
-  const isCorrect = question.isCorrect(value)
+  const isCorrect = toRef(() => question.isCorrect(value))
   const isDisabled = toRef(() => disabled || toValue(question.isSubmitted))
-  const state = computed((): QuestionOptionState => toValue(isSelected) ? 'selected' : 'unselected')
+  const state = toRef((): QuestionOptionState => toValue(isSelected) ? 'selected' : 'unselected')
 
   // Roving tabindex: tabbable if selected, or first non-disabled when none selected
   const isTabbable = computed(() => {
@@ -214,7 +214,7 @@
     value,
     label,
     isSelected: toValue(isSelected),
-    isCorrect,
+    isCorrect: toValue(isCorrect),
     isDisabled: isDisabled.value,
     isSubmitted: toValue(question.isSubmitted),
     state: state.value,
@@ -224,13 +224,13 @@
       'type': as === 'button' ? 'button' : undefined,
       'role': toValue(question.mode) === 'single' ? 'radio' : 'checkbox',
       'aria-checked': toValue(isSelected),
-      'aria-disabled': isDisabled.value || undefined,
+      'aria-disabled': isDisabled.value,
       'aria-label': ariaLabel || label || undefined,
       'aria-labelledby': ariaLabelledby || undefined,
       'aria-describedby': ariaDescribedby || undefined,
       'tabindex': isTabbable.value ? 0 : -1,
       'data-state': state.value,
-      'data-correct': (toValue(question.isSubmitted) && isCorrect) || undefined,
+      'data-correct': (toValue(question.isSubmitted) && toValue(isCorrect)) || undefined,
       'data-disabled': isDisabled.value ? true : undefined,
       'onClick': onClick,
       'onKeydown': onKeydown,

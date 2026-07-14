@@ -13,10 +13,8 @@
   import { Atom, createContext, createSelection, toArray, useId } from '@vuetify/v0'
 
   // Types
-  import type { AtomProps } from '@vuetify/v0'
+  import type { AtomProps, ID } from '@vuetify/v0'
   import type { MaybeRef, Ref } from 'vue'
-
-  type ID = string | number
 
   /** Selection mode for the question */
   export type QuestionMode = 'single' | 'multiple'
@@ -30,7 +28,7 @@
     value: string
     disabled?: MaybeRef<boolean>
     el?: MaybeRef<HTMLElement | null | undefined>
-    isSelected: Ref<boolean>
+    isSelected: Readonly<Ref<boolean>>
     select: () => void
     unselect: () => void
     toggle: () => void
@@ -200,14 +198,10 @@
     })
 
     const ticket: QuestionTicket = {
-      id: selectionTicket.id,
+      ...selectionTicket,
       value: option.value,
       disabled: option.disabled,
       el: option.el,
-      isSelected: selectionTicket.isSelected,
-      select: selectionTicket.select,
-      unselect: selectionTicket.unselect,
-      toggle: selectionTicket.toggle,
     }
 
     ticketRegistry.set(ticket.id, ticket)

@@ -37,7 +37,7 @@
   import { useQuestionRoot } from './QuestionRoot.vue'
 
   // Utilities
-  import { computed, toValue } from 'vue'
+  import { toRef, toValue } from 'vue'
 
   defineOptions({ name: 'QuestionFeedback' })
 
@@ -60,10 +60,10 @@
 
   const question = useQuestionRoot(namespace)
 
-  const result = computed(() => toValue(question.result))
-  const isSubmitted = computed(() => toValue(question.isSubmitted))
+  const result = toRef(() => toValue(question.result))
+  const isSubmitted = toRef(() => toValue(question.isSubmitted))
 
-  const slotProps = computed((): QuestionFeedbackSlotProps => ({
+  const slotProps = toRef((): QuestionFeedbackSlotProps => ({
     result: result.value,
     isCorrect: result.value === 'correct',
     isIncorrect: result.value === 'incorrect',
