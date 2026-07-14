@@ -27,7 +27,9 @@ A headless modal dialog component using the native HTML dialog element.
   :versions="{ chrome: '37+', edge: '79+', firefox: '98+', safari: '15.4+', opera: '24+' }"
   anchor="native-dialog"
 >
-  Uses the native dialog element with showModal(). Safari 15.4+ is required; older versions have no support.
+
+Uses the native dialog element with showModal(). Safari 15.4+ is required; older versions have no support.
+
 </DocsBrowserSupport>
 
 ## Usage
