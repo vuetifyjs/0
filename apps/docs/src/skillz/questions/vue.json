@@ -49,6 +49,65 @@
     "categories": ["components"]
   },
   {
+    "id": "vue-interpolation",
+    "stem": "Which template syntax interpolates a reactive value as text?",
+    "answers": [{ "value": "mustache", "label": "{{ value }}" }],
+    "distractors": [
+      { "value": "template-literal", "label": "${ value }" },
+      { "value": "single-brace", "label": "{ value }" },
+      { "value": "double-bracket", "label": "[[ value ]]" },
+      { "value": "erb", "label": "<%= value %>" }
+    ],
+    "hint": "Vue calls it the mustache syntax.",
+    "feedback": "Vue uses the mustache syntax `{{ }}` for text interpolation; whatever sits inside is evaluated as a JavaScript expression.",
+    "level": 1,
+    "track": "vue",
+    "categories": ["template"]
+  },
+  {
+    "id": "vue-two-way-input",
+    "stem": "Which directive creates a two-way binding on a form input?",
+    "answers": ["v-model"],
+    "distractors": ["v-bind", "v-on", "v-sync", "v-input", "v-value"],
+    "hint": "On a native input it's shorthand for a value bind plus an input listener.",
+    "feedback": "`v-model` on a native input is sugar for `:value` + `@input`. `v-sync` was a Vue 2 modifier and was removed in Vue 3.",
+    "level": 1,
+    "track": "vue",
+    "categories": ["template"]
+  },
+  {
+    "id": "vue-class-binding",
+    "stem": "How do you conditionally apply a CSS class in a template?",
+    "answers": [{ "value": "class-bind", "label": ":class" }],
+    "distractors": [
+      { "value": "v-class", "label": "v-class" },
+      { "value": "style-bind", "label": ":style" },
+      { "value": "class-if", "label": "v-class-if" },
+      { "value": "css-bind", "label": ":css" }
+    ],
+    "hint": "It's an attribute binding, not its own directive.",
+    "feedback": "`:class` (shorthand for `v-bind:class`) takes an object or array to toggle classes reactively. There is no `v-class` directive in Vue.",
+    "level": 1,
+    "track": "vue",
+    "categories": ["template"]
+  },
+  {
+    "id": "vue-slot",
+    "stem": "Which element marks where a child renders content passed in by its parent?",
+    "answers": [{ "value": "slot", "label": "<slot>" }],
+    "distractors": [
+      { "value": "template", "label": "<template>" },
+      { "value": "content", "label": "<content>" },
+      { "value": "outlet", "label": "<outlet>" },
+      { "value": "fragment", "label": "<fragment>" }
+    ],
+    "hint": "The child marks the hole; the parent fills it.",
+    "feedback": "The child places a `<slot>` where parent-provided content should render. The parent fills the default slot, or a named one via `#name`.",
+    "level": 1,
+    "track": "vue",
+    "categories": ["components"]
+  },
+  {
     "id": "vue-ref",
     "stem": "Which Composition API function creates a reactive reference to a primitive value?",
     "answers": ["ref"],
@@ -88,6 +147,50 @@
     "distractors": ["input", "change", "update:value", "model", "modelValue"],
     "hint": "It desugars to a modelValue prop plus an update event.",
     "feedback": "In Vue 3, `v-model` on a component is sugar for `:modelValue` plus `@update:modelValue`. Named models like `v-model:title` use `update:title`.",
+    "level": 2,
+    "track": "vue",
+    "categories": ["components"]
+  },
+  {
+    "id": "vue-watch",
+    "stem": "Which function runs a callback with the old and new value when a specific source changes?",
+    "answers": ["watch"],
+    "distractors": ["watchEffect", "computed", "onUpdated", "effect", "reactive"],
+    "hint": "It hands you both the previous and current value.",
+    "feedback": "`watch` observes a specific source and passes `(next, prev)` to its callback. `watchEffect` runs immediately and tracks dependencies automatically, with no old/new values.",
+    "level": 2,
+    "track": "vue",
+    "categories": ["reactivity"]
+  },
+  {
+    "id": "vue-reactive",
+    "stem": "Which function makes an object deeply reactive with no .value wrapper?",
+    "answers": ["reactive"],
+    "distractors": ["ref", "shallowRef", "readonly", "toRefs", "markRaw"],
+    "hint": "For objects, and you access properties directly.",
+    "feedback": "`reactive` makes an object deeply reactive and is accessed without `.value`. `ref` is preferred for primitives and works for objects too when you want a single reassignable reference.",
+    "level": 2,
+    "track": "vue",
+    "categories": ["reactivity"]
+  },
+  {
+    "id": "vue-lifecycle-mounted",
+    "stem": "Which Composition API hook runs after the component is inserted into the DOM?",
+    "answers": ["onMounted"],
+    "distractors": ["mounted", "created", "onBeforeMount", "onCreated", "onUpdated"],
+    "hint": "Composition API lifecycle hooks start with on.",
+    "feedback": "`onMounted` fires once the component's DOM is in the page. `mounted`/`created` are Options API; there is no `onCreated` — `setup()` itself runs at that point.",
+    "level": 2,
+    "track": "vue",
+    "categories": ["lifecycle"]
+  },
+  {
+    "id": "vue-defineprops",
+    "stem": "Which compiler macro declares a component's props in script setup?",
+    "answers": ["defineProps"],
+    "distractors": ["defineEmits", "defineModel", "withDefaults", "defineOptions", "props"],
+    "hint": "A macro you use without importing it.",
+    "feedback": "`defineProps` is the `<script setup>` compiler macro for declaring props. `defineEmits` declares events and `defineModel` wires up `v-model`.",
     "level": 2,
     "track": "vue",
     "categories": ["components"]
@@ -135,5 +238,54 @@
     "level": 3,
     "track": "vue",
     "categories": ["rendering"]
+  },
+  {
+    "id": "vue-teleport",
+    "stem": "Which built-in component renders its children at a different place in the DOM?",
+    "answers": ["Teleport"],
+    "distractors": ["Suspense", "Portal", "Transition", "KeepAlive", "Fragment"],
+    "hint": "Perfect for modals that must escape an overflow-clipped parent.",
+    "feedback": "`Teleport` moves its children to a target elsewhere in the DOM (often `body`) while keeping them logically in the component — ideal for modals and tooltips. `Portal` was its Vue 2 / React name.",
+    "level": 3,
+    "track": "vue",
+    "categories": ["components"]
+  },
+  {
+    "id": "vue-suspense",
+    "stem": "Which built-in component waits on async setup and shows fallback content while pending?",
+    "answers": ["Suspense"],
+    "distractors": ["Teleport", "Transition", "KeepAlive", "Defer", "Async"],
+    "hint": "It has a default slot and a fallback slot.",
+    "feedback": "`Suspense` coordinates async dependencies — async `setup()` and async components — showing its `#fallback` slot until they resolve. It's still marked experimental.",
+    "level": 3,
+    "track": "vue",
+    "categories": ["components"]
+  },
+  {
+    "id": "vue-hydration",
+    "stem": "In SSR, what is the client-side step that makes server-rendered HTML interactive called?",
+    "answers": ["hydration"],
+    "distractors": ["mounting", "reconciliation", "rendering", "bootstrapping", "activation"],
+    "hint": "It attaches reactivity to HTML that already exists.",
+    "feedback": "Hydration is the step where Vue attaches event listeners and reactivity to server-rendered markup instead of recreating the DOM — a mismatch between server and client output breaks it.",
+    "level": 3,
+    "track": "vue",
+    "categories": ["ssr"]
+  },
+  {
+    "id": "vue-flush-post",
+    "stem": "Which watcher flush timing runs the callback after Vue has updated the DOM?",
+    "answers": [{ "value": "post", "label": "flush: 'post'" }],
+    "distractors": [
+      { "value": "pre", "label": "flush: 'pre'" },
+      { "value": "sync", "label": "flush: 'sync'" },
+      { "value": "immediate", "label": "immediate: true" },
+      { "value": "deep", "label": "deep: true" }
+    ],
+    "hint": "The timing that waits for the DOM to settle first.",
+    "feedback": "`flush: 'post'` runs the watcher after Vue flushes DOM updates, so you can read updated elements. `'pre'` (the default) runs before, and `'sync'` runs synchronously on every change.",
+    "level": 3,
+    "track": "vue",
+    "categories": ["reactivity"]
   }
 ]
