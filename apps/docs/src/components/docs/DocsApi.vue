@@ -1,6 +1,9 @@
 <script setup lang="ts">
   import apiData from 'virtual:api'
 
+  // Framework
+  import { createFilter } from '@vuetify/v0'
+
   // Composables
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useSettings } from '@/composables/useSettings'
@@ -8,7 +11,7 @@
 
   // Utilities
   import { resolveItemName } from '@/utilities/strings'
-  import { computed, toRef } from 'vue'
+  import { computed, shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -58,6 +61,48 @@
     return data.composables[name] || null
   })
 
+  const search = shallowRef('')
+
+  const items = toRef(() => {
+    if (pageType.value === 'component') {
+      return componentApis.value.flatMap(api => [
+        ...api.props ?? [],
+        ...api.events ?? [],
+        ...api.slots ?? [],
+      ])
+    }
+
+    const api = composableApi.value
+    if (!api) return []
+
+    return [
+      ...api.functions ?? [],
+      ...api.options ?? [],
+      ...api.properties ?? [],
+      ...api.methods ?? [],
+    ]
+  })
+
+  const filter = createFilter({ keys: ['name', 'description'] })
+  const { items: matches } = filter.apply(search, items)
+
+  const matched = toRef(() => new Set(matches.value))
+
+  const visibleApis = toRef(() => {
+    if (!search.value) return componentApis.value
+
+    return componentApis.value.filter(api =>
+      [...api.props ?? [], ...api.events ?? [], ...api.slots ?? []].some(item => matched.value.has(item)),
+    )
+  })
+
+  const placeholder = toRef(() =>
+    pageType.value === 'component'
+      ? 'Filter props, events, slots…'
+      : 'Filter functions, options, methods…',
+  )
+
+  const empty = toRef(() => !!search.value && matches.value.length === 0)
 </script>
 
 <template>
@@ -91,8 +136,23 @@
     />
 
     <template v-if="showInlineApi">
+      <div class="relative mt-4">
+        <AppIcon
+          class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
+          icon="search"
+          :size="16"
+        />
+
+        <input
+          v-model="search"
+          class="w-full pl-9 pr-3 py-2 text-sm bg-surface-tint border border-divider rounded-lg outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant"
+          :placeholder
+          type="text"
+        >
+      </div>
+
       <template
-        v-for="api in componentApis"
+        v-for="api in visibleApis"
         :key="api.name"
       >
         <DocsHeaderAnchor :id="helpers.toKebab(api.name)" class="mt-8">
@@ -103,6 +163,7 @@
           :anchor-id="`${helpers.toKebab(api.name)}-props`"
           :items="api.props"
           kind="prop"
+          :query="search"
           title="Props"
         />
 
@@ -111,6 +172,7 @@
           class="mt-8"
           :items="api.events"
           kind="event"
+          :query="search"
           title="Events"
         />
 
@@ -119,9 +181,14 @@
           class="mt-8"
           :items="api.slots"
           kind="slot"
+          :query="search"
           title="Slots"
         />
       </template>
+
+      <p v-if="empty" class="text-sm text-on-surface-variant mt-4">
+        No API items match "{{ search }}".
+      </p>
     </template>
   </div>
 
@@ -155,11 +222,27 @@
     />
 
     <template v-if="showInlineApi">
+      <div class="relative mt-4">
+        <AppIcon
+          class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
+          icon="search"
+          :size="16"
+        />
+
+        <input
+          v-model="search"
+          class="w-full pl-9 pr-3 py-2 text-sm bg-surface-tint border border-divider rounded-lg outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant"
+          :placeholder
+          type="text"
+        >
+      </div>
+
       <DocsApiSection
         anchor-id="functions"
         class="mt-8"
         :items="composableApi.functions"
         kind="function"
+        :query="search"
         title="Functions"
       />
 
@@ -168,6 +251,7 @@
         class="mt-8"
         :items="composableApi.options"
         kind="option"
+        :query="search"
         title="Options"
       />
 
@@ -176,6 +260,7 @@
         class="mt-8"
         :items="composableApi.properties"
         kind="property"
+        :query="search"
         title="Properties"
       />
 
@@ -184,8 +269,13 @@
         class="mt-8"
         :items="composableApi.methods"
         kind="method"
+        :query="search"
         title="Methods"
       />
+
+      <p v-if="empty" class="text-sm text-on-surface-variant mt-4">
+        No API items match "{{ search }}".
+      </p>
     </template>
   </div>
 </template>
