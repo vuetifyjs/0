@@ -20,20 +20,9 @@
   import type { Question as QuestionDef, QuestionOption } from '@/composables/useQuestions'
   import type { SkillLevel } from '@/types/skill'
 
-  const { track, count = 5, purpose = 'check' } = defineProps<{
-    track: string
-    count?: number
-    /**
-     * 'check' — a self-check quiz that scores understanding.
-     * 'placement' — frames the quiz as a skill-level finder and, on completion,
-     * emits `apply` with the suggested level so a host can act on it.
-     */
-    purpose?: 'check' | 'placement'
-  }>()
+  const { track, count = 5 } = defineProps<{ track: string, count?: number }>()
 
   const emit = defineEmits<{ apply: [level: SkillLevel] }>()
-
-  const placement = toRef(() => purpose === 'placement')
 
   interface Slate {
     id: string
@@ -220,12 +209,11 @@
     >
       <p class="flex min-h-8 items-center gap-1.5 text-sm font-medium text-on-surface">
         <AppIcon class="text-warning" icon="medal" :size="16" />
-        {{ placement ? 'Find your skill level' : 'Check your understanding' }}
+        Find your skill level
       </p>
 
       <p class="text-sm text-on-surface-variant">
-        <template v-if="placement">Answer {{ take }} quick questions and we'll suggest where to start.</template>
-        <template v-else>Take a quick {{ take }}-question quiz to test what you just learned.</template>
+        Answer {{ take }} quick questions and we'll suggest where to start.
       </p>
 
       <button
@@ -264,15 +252,9 @@
           {{ score }} / {{ total }}
         </p>
 
-        <p v-if="placement" class="text-sm text-on-surface-variant">
+        <p class="text-sm text-on-surface-variant">
           <template v-if="verdict">Based on your answers, we suggest starting at the {{ verdict.label }} level. Apply it to the filter, or review the misses below.</template>
           <template v-else>Start with the beginner material — retake this once the fundamentals click.</template>
-        </p>
-
-        <p v-else class="text-sm text-on-surface-variant">
-          <template v-if="score === total">Perfect score — you've got this cold.</template>
-          <template v-else-if="verdict">You're performing at the {{ verdict.label }} level. Review the misses below and try again.</template>
-          <template v-else>Keep practicing the fundamentals, then try again.</template>
         </p>
       </div>
 
@@ -308,7 +290,7 @@
 
       <div class="mt-1 flex items-center gap-2">
         <button
-          v-if="placement && verdictLevel"
+          v-if="verdictLevel"
           class="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm text-on-primary transition-colors"
           type="button"
           @click="apply"

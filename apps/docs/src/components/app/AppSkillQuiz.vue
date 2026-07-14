@@ -22,7 +22,6 @@
   <section id="skill-quiz" class="scroll-mt-24">
     <DocsQuestion
       :count
-      purpose="placement"
       :track
       @apply="onApply"
     />
