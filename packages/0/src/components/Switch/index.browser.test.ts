@@ -678,26 +678,24 @@ describe('switch', () => {
       expect(track.attributes('data-state')).toBe('checked')
     })
 
-    it('should render Thumb with visibility hidden when unchecked', async () => {
+    it('should render Thumb with data-state unchecked when off', async () => {
       const { wrapper, wait } = mountSwitch({ props: { modelValue: false } })
       await wait()
 
-      const thumb = wrapper.findAll('span[data-state]').find(
-        el => el.attributes('style')?.includes('visibility'),
-      )
+      const thumb = wrapper.findAll('span[data-state]').at(1)
       expect(thumb).toBeDefined()
-      expect(thumb!.attributes('style')).toContain('hidden')
+      expect(thumb!.attributes('data-state')).toBe('unchecked')
+      expect(thumb!.attributes('style')).toBeUndefined()
     })
 
-    it('should render Thumb with visibility visible when checked', async () => {
+    it('should render Thumb with data-state checked when on', async () => {
       const { wrapper, wait } = mountSwitch({ props: { modelValue: true } })
       await wait()
 
-      const thumb = wrapper.findAll('span[data-state]').find(
-        el => el.attributes('style')?.includes('visibility'),
-      )
+      const thumb = wrapper.findAll('span[data-state]').at(1)
       expect(thumb).toBeDefined()
-      expect(thumb!.attributes('style')).toContain('visible')
+      expect(thumb!.attributes('data-state')).toBe('checked')
+      expect(thumb!.attributes('style')).toBeUndefined()
     })
 
     it('should throw when Track used outside Root', () => {
