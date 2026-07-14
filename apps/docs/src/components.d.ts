@@ -159,6 +159,7 @@ declare module 'vue' {
     DocsReleases: typeof import('./components/docs/DocsReleases.vue')['default']
     DocsRoadmap: typeof import('./components/docs/DocsRoadmap.vue')['default']
     DocsSearch: typeof import('./components/docs/DocsSearch.vue')['default']
+    DocsSearchInput: typeof import('./components/docs/DocsSearchInput.vue')['default']
     DocsSkeleton: typeof import('./components/docs/DocsSkeleton.vue')['default']
     DocsSkillToggle: typeof import('./components/docs/meta/DocsSkillToggle.vue')['default']
     DocsSponsor: typeof import('./components/docs/DocsSponsor.vue')['default']
