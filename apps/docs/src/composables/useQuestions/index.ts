@@ -83,7 +83,7 @@ export function distractorsNeeded (answerCount: number): number {
   return Math.max(MIN_OPTIONS - answerCount, 1)
 }
 
-const globQuestions = import.meta.glob<QuestionInput[]>(
+const banks = import.meta.glob<QuestionInput[]>(
   '@/skillz/questions/*.json',
   { eager: true, import: 'default' },
 )
@@ -93,7 +93,7 @@ let registry: RegistryContext<QuestionTicket> | null = null
 function build (): RegistryContext<QuestionTicket> {
   const store = createRegistry<QuestionTicket>()
   const seen = new Set<string>()
-  for (const bank of Object.values(globQuestions)) {
+  for (const bank of Object.values(banks)) {
     if (!isArray(bank)) continue
     for (const input of bank) {
       if (seen.has(input.id)) {
