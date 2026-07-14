@@ -63,6 +63,7 @@ declare module 'vue' {
     AppSettingsToggle: typeof import('./components/app/settings/AppSettingsToggle.vue')['default']
     AppSettingsToggleSection: typeof import('./components/app/settings/AppSettingsToggleSection.vue')['default']
     AppSkillFilter: typeof import('./components/app/AppSkillFilter.vue')['default']
+    AppSkillQuiz: typeof import('./components/app/AppSkillQuiz.vue')['default']
     AppSuccessIcon: typeof import('./components/app/AppSuccessIcon.vue')['default']
     AppSwitch: typeof import('./components/app/AppSwitch.vue')['default']
     AppThemeButton: typeof import('./components/app/theme/AppThemeButton.vue')['default']

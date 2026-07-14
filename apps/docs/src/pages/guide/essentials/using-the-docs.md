@@ -93,6 +93,10 @@ Every page is tagged with a skill level to help you find content appropriate for
 | <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-intermediate', color: 'text-info', label: 'Intermediate' }" /></span> | Building with components, practical usage | <span class="flex justify-center"><DocsSkillToggle :level="2" /></span> |
 | <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-advanced', color: 'text-warning', label: 'Advanced' }" /></span> | Architecture deep-dives, custom patterns | <span class="flex justify-center"><DocsSkillToggle :level="3" /></span> |
 
+Not sure where you land? Take a short quiz and we'll suggest a level you can apply to the filter with one click.
+
+<AppSkillQuiz />
+
 ### Learning Tracks
 
 The [Guide overview](/guide) defines three learning tracks for structured progression:
@@ -481,8 +485,6 @@ The documentation uses callout boxes to highlight important information:
 > [!ASKAI] How do I find the right composable for what I'm building?
 
 > [!TOUR] using-the-docs
-
-> [!QUESTION] selection
 
 ## Keyboard Shortcuts
 

@@ -19,7 +19,20 @@
   import type { Question as QuestionDef, QuestionOption } from '@/composables/useQuestions'
   import type { SkillLevel } from '@/types/skill'
 
-  const { track, count = 5 } = defineProps<{ track: string, count?: number }>()
+  const { track, count = 5, purpose = 'check' } = defineProps<{
+    track: string
+    count?: number
+    /**
+     * 'check' — a self-check quiz that scores understanding.
+     * 'placement' — frames the quiz as a skill-level finder and, on completion,
+     * emits `apply` with the suggested level so a host can act on it.
+     */
+    purpose?: 'check' | 'placement'
+  }>()
+
+  const emit = defineEmits<{ apply: [level: SkillLevel] }>()
+
+  const placement = toRef(() => purpose === 'placement')
 
   interface Slate {
     id: string
@@ -67,7 +80,7 @@
 
   // Highest level the user cleared, requiring every lower level in the deck to
   // also pass. Drives the skill verdict on the results screen.
-  const verdict = toRef(() => {
+  const verdictLevel = toRef((): SkillLevel | 0 => {
     let determined: SkillLevel | 0 = 0
     for (const level of [1, 2, 3] as const) {
       const bucket = review.value.filter(item => item.level === level)
@@ -76,8 +89,9 @@
       if (ratio >= 0.5) determined = level
       else break
     }
-    return determined ? SKILL_LEVEL_META[determined] : undefined
+    return determined
   })
+  const verdict = toRef(() => verdictLevel.value ? SKILL_LEVEL_META[verdictLevel.value] : undefined)
 
   function labelsFor (slate: Slate, values: string | string[] | undefined): string {
     const list = isUndefined(values) ? [] : (isArray(values) ? values : [values])
@@ -168,6 +182,10 @@
     if (isLast.value) finished.value = true
     else step.next()
   }
+
+  function apply () {
+    if (verdictLevel.value) emit('apply', verdictLevel.value)
+  }
 </script>
 
 <template>
@@ -184,11 +202,12 @@
     >
       <p class="flex items-center gap-1.5 text-sm font-medium text-on-surface">
         <AppIcon class="text-warning" icon="medal" :size="16" />
-        Check your understanding
+        {{ placement ? 'Find your skill level' : 'Check your understanding' }}
       </p>
 
       <p class="text-sm text-on-surface-variant">
-        Take a quick {{ take }}-question quiz to test what you just learned.
+        <template v-if="placement">Answer {{ take }} quick questions and we'll suggest where to start.</template>
+        <template v-else>Take a quick {{ take }}-question quiz to test what you just learned.</template>
       </p>
 
       <button
@@ -227,7 +246,12 @@
           {{ score }} / {{ total }}
         </p>
 
-        <p class="text-sm text-on-surface-variant">
+        <p v-if="placement" class="text-sm text-on-surface-variant">
+          <template v-if="verdict">Based on your answers, we suggest starting at the {{ verdict.label }} level. Apply it to the filter, or review the misses below.</template>
+          <template v-else>Start with the beginner material — retake this once the fundamentals click.</template>
+        </p>
+
+        <p v-else class="text-sm text-on-surface-variant">
           <template v-if="score === total">Perfect score — you've got this cold.</template>
           <template v-else-if="verdict">You're performing at the {{ verdict.label }} level. Review the misses below and try again.</template>
           <template v-else>Keep practicing the fundamentals, then try again.</template>
@@ -260,15 +284,27 @@
         </li>
       </ul>
 
-      <button
-        class="mt-1 inline-flex items-center gap-2 self-start rounded-md border border-divider px-3 py-1.5 text-sm text-on-surface transition-colors hover:bg-surface-variant"
-        title="Try again"
-        type="button"
-        @click="onStart"
-      >
-        <AppIcon icon="restart" :size="16" />
-        Try again
-      </button>
+      <div class="mt-1 flex items-center gap-2">
+        <button
+          v-if="placement && verdictLevel"
+          class="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm text-on-primary transition-colors"
+          type="button"
+          @click="apply"
+        >
+          <AppIcon icon="tune" :size="16" />
+          Apply {{ verdict?.label }} to filter
+        </button>
+
+        <button
+          class="inline-flex items-center gap-2 rounded-md border border-divider px-3 py-1.5 text-sm text-on-surface transition-colors hover:bg-surface-variant"
+          title="Try again"
+          type="button"
+          @click="onStart"
+        >
+          <AppIcon icon="restart" :size="16" />
+          Try again
+        </button>
+      </div>
     </div>
 
     <!-- Question -->
