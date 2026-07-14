@@ -88,7 +88,7 @@ Every public composable and utility, grouped by category. `(stable)` and `(draft
 **Registration:**
 
 - `createQueue` — A queue composable for managing time-based collections
-- `createRegistry` — A foundational composable for managing collections of items (tickets)
+- `createRegistry` — A foundational composable for managing collections of items (tickets) (stable)
 - `createTimeline` — Bounded undo/redo system with overflow management.
 - `createTokens` — Design token registry with alias resolution and W3C Design Tokens format support.
 
@@ -106,12 +106,12 @@ Every public composable and utility, grouped by category. `(stable)` and `(draft
 
 **Selection:**
 
-- `createGroup` — Multi-selection composable that extends createSelection with batch operations and tri-state support.
-- `createModel` — Recently redesigned from selection system
-- `createNested` — Hierarchical tree management composable extending createGroup
-- `createSelection` — Selection composable that extends createModel with multi-select, mandatory enforcement, auto-enrollment, and ticket self-methods.
-- `createSingle` — Single-selection composable that extends createSelection to enforce only one selected item.
-- `createStep` — Navigation composable that extends createSingle with first/last/next/prev/step methods.
+- `createGroup` — Multi-selection composable that extends createSelection with batch operations and tri-state support. (stable)
+- `createModel` — Recently redesigned from selection system (stable)
+- `createNested` — Hierarchical tree management composable extending createGroup (stable)
+- `createSelection` — Selection composable that extends createModel with multi-select, mandatory enforcement, auto-enrollment, and ticket self-methods. (stable)
+- `createSingle` — Single-selection composable that extends createSelection to enforce only one selected item. (stable)
+- `createStep` — Navigation composable that extends createSingle with first/last/next/prev/step methods. (stable)
 
 **Data:**
 
@@ -131,7 +131,7 @@ Every public composable and utility, grouped by category. `(stable)` and `(draft
 
 **Plugins:**
 
-- `useBreakpoints` — Responsive breakpoint detection composable with window resize handling.
+- `useBreakpoints` — Responsive breakpoint detection composable with window resize handling. (stable)
 - `useDate` — Date manipulation composable with adapter pattern for date operations.
 - `useFeatures` — Feature flag system with boolean and token-based features.
 - `useHydration` — SSR hydration state management composable.
@@ -143,8 +143,8 @@ Every public composable and utility, grouped by category. `(stable)` and `(draft
 - `useRtl` — RTL (right-to-left) direction composable with adapter pattern.
 - `useRules` — Validation rule composable with Standard Schema support.
 - `useStack` — Overlay z-index stacking composable
-- `useStorage` — Reactive storage composable with adapter pattern for localStorage, sessionStorage, or memory.
-- `useTheme` — Theme management composable with token resolution and CSS variable injection.
+- `useStorage` — Reactive storage composable with adapter pattern for localStorage, sessionStorage, or memory. (stable)
+- `useTheme` — Theme management composable with token resolution and CSS variable injection. (stable)
 - `useTooltip` — Region-scoped tooltip coordination plugin.
 
 **System:**
@@ -247,7 +247,7 @@ All components are headless and compound. Root owns state, children are named su
 
 **Planned (not yet exported — do not import):**
 
-- `Alert`, `DataGrid`, `DatePicker`, `DateRangePicker`, `Kanban`, `Otp`, `TimePicker`, `Tour`, `Virtualizer`
+- `Alert`, `DataGrid`, `DataTable`, `DatePicker`, `DateRangePicker`, `Kanban`, `Otp`, `TimePicker`, `Tour`, `Virtualizer`
 <!-- @generated:components:end -->
 
 **More compound examples:** see [references/component-examples.md](references/component-examples.md).

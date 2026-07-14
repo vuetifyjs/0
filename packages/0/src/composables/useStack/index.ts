@@ -408,12 +408,15 @@ export function createStackPlugin (_options: StackPluginOptions = {}) {
   })
 }
 
-// Browser-only lazy singleton; SSR always returns a fresh ephemeral instance
-// so tickets from one request cannot bleed into the next.
+// Lazy singleton fallback for when no provider exists
 let fallbackStack: StackContext | undefined
 
 function getStackFallback (): StackContext {
+  // SSR: never share a module-scoped stack across requests — a long-lived Node
+  // process would leak tickets and bleed z-index between requests. Each call gets
+  // an ephemeral stack; use createStackPlugin for coordinated per-app SSR z-index.
   if (!IN_BROWSER) return createStack()
+
   if (!fallbackStack) {
     fallbackStack = createStack()
   }

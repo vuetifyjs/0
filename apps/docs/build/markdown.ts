@@ -479,6 +479,16 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     const hideFilename = noFilenameIndex !== -1
     if (hideFilename) rest.splice(noFilenameIndex, 1)
 
+    // Parse data-tour=<id> modifier: marks the fence as a guided-tour target
+    // (falls through to DocsMarkup's root element)
+    const tourIndex = rest.findIndex(r => r.startsWith('data-tour='))
+    let tour: string | undefined
+    if (tourIndex !== -1) {
+      const value = rest[tourIndex].slice('data-tour='.length)
+      if (/^[\w-]+$/.test(value)) tour = value
+      rest.splice(tourIndex, 1)
+    }
+
     const title = rest.join(' ')
     const highlighted = defaultFence(tokens, index, options, env, self)
     // Base64 encode to avoid escaping issues
@@ -488,7 +498,8 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     const collapseAttr = collapse ? ' collapse' : ''
     const collapseLinesAttr = collapseLines ? ` :collapse-lines="${collapseLines}"` : ''
     const hideFilenameAttr = hideFilename ? ' hide-filename' : ''
-    return `<DocsMarkup code="${encodedCode}" language="${lang || 'text'}"${titleAttr}${binTitleAttr}${playgroundAttr}${collapseAttr}${collapseLinesAttr}${hideFilenameAttr}>${highlighted}</DocsMarkup>`
+    const tourAttr = tour ? ` data-tour="${tour}"` : ''
+    return `<DocsMarkup code="${encodedCode}" language="${lang || 'text'}"${titleAttr}${binTitleAttr}${playgroundAttr}${collapseAttr}${collapseLinesAttr}${hideFilenameAttr}${tourAttr}>${highlighted}</DocsMarkup>`
   }
   // Wrap tables in scrollable container for mobile
   md.renderer.rules.table_open = () => '<div class="overflow-x-auto mb-4"><table>'

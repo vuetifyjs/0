@@ -6,7 +6,7 @@ meta:
   - name: keywords
     content: "documentation, navigation, ask ai, search, examples, learning tracks, keyboard shortcuts, accessibility"
 features:
-  order: 0.5
+  order: 1
   level: 1
 related:
   - /guide
@@ -92,6 +92,10 @@ Every page is tagged with a skill level to help you find content appropriate for
 | <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-beginner', color: 'text-success', label: 'Beginner' }" /></span> | New to v0, learning fundamentals | <span class="flex justify-center"><DocsSkillToggle :level="1" /></span> |
 | <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-intermediate', color: 'text-info', label: 'Intermediate' }" /></span> | Building with components, practical usage | <span class="flex justify-center"><DocsSkillToggle :level="2" /></span> |
 | <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-advanced', color: 'text-warning', label: 'Advanced' }" /></span> | Architecture deep-dives, custom patterns | <span class="flex justify-center"><DocsSkillToggle :level="3" /></span> |
+
+Not sure where you land? Take a short quiz and we'll suggest a level you can apply to the filter with one click.
+
+<AppSkillQuiz />
 
 ### Learning Tracks
 
@@ -273,6 +277,42 @@ Hover over the code block to reveal action buttons:
 | <span class="whitespace-nowrap"><AppIcon icon="copy" :size="16" class="inline-block align-text-bottom" /> **Copy**</span> | Copy code to clipboard (checkmark confirms success) |
 
 [^size-examples]: The button appears on example code panes; the setting itself applies to every code block and can also be changed from the [settings panel](#code-size).
+
+### Multiple Files
+
+Larger examples span several real files — a composable, a component, and the app that wires them together:
+
+- Each tab is one source file; the last one is what runs in the preview
+- Play and Bin carry every file across together
+- The combine action stitches all files into a single scrollable view
+
+::: gn-example
+/components/combobox/useUserSearch.ts 1
+/components/combobox/UserPicker.vue 2
+/components/combobox/user-picker.vue 3
+:::
+
+### Recipes
+
+Component pages end with recipes — terse, single-purpose snippets in a plain code fence, designed to be lifted straight into an app:
+
+```vue playground data-tour=example-recipe
+<script setup lang="ts">
+  import { useHotkey } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+
+  const count = shallowRef(0)
+
+  useHotkey('shift+k', () => count.value++)
+</script>
+
+<template>
+  <div class="flex items-center gap-3">
+    <kbd class="px-2 py-1 border border-divider rounded bg-surface-tint text-xs font-mono">Shift+K</kbd>
+    <span class="text-sm">Pressed {{ count }} times</span>
+  </div>
+</template>
+```
 
 ### Code Groups
 

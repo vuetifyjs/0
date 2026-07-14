@@ -206,6 +206,7 @@ export function createNumberField (options: NumberFieldOptions = {}): NumberFiel
   }
 
   function commit (next?: number | null): void {
+    if (isLocked()) return
     // Use the provided value when available — avoids reading a stale model on
     // the same tick as a write (parent-bound v-model hasn't round-tripped yet).
     const val = arguments.length === 0 ? value.value : next as number | null

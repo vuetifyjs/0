@@ -59,6 +59,18 @@
 
         <span>{{ levelConfig[level].label }}</span>
       </button>
+
+      <div class="mt-1 pt-2 border-t border-divider">
+        <AppLink
+          class="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-surface-tint transition-colors text-left cursor-pointer text-on-surface no-underline"
+          no-suffix
+          to="/guide/essentials/using-the-docs#skill-quiz"
+          @click="isOpen = false"
+        >
+          <AppIcon class="text-warning" icon="medal" size="16" />
+          <span>Not sure? Take a quiz</span>
+        </AppLink>
+      </div>
     </Popover.Content>
   </Popover.Root>
 </template>

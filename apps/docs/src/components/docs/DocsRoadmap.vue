@@ -6,6 +6,9 @@
   import DocsProgressBar from './DocsProgressBar.vue'
   import DocsSkeleton from './DocsSkeleton.vue'
 
+  // Composables
+  import { renderInline } from '@/composables/useMarkdown'
+
   import { MATURITY_LEVELS as levels } from '@/constants/maturity'
 
   // Stores
@@ -78,12 +81,12 @@
 
   function getSummary (description: string | null | undefined): string {
     if (!description) return ''
-    return description.split('\n')[0]
+    return renderInline(description.split('\n')[0])
   }
 
   function getDetails (description: string | null | undefined): string[] {
     if (!description) return []
-    return description.split('\n').slice(1).map(line => line.trim()).filter(Boolean).map(line => line.replace(/^[•\-\*]\s*/, '')) // Strip leading bullets
+    return description.split('\n').slice(1).map(line => line.trim()).filter(Boolean).map(line => line.replace(/^[•*-]\s+/, '')).map(line => renderInline(line))
   }
 
   function findMilestoneByQuery (query: string | undefined) {
@@ -239,9 +242,11 @@
                       </span>
                     </div>
 
-                    <p v-if="milestone.description" class="text-sm opacity-70 mt-1">
-                      {{ getSummary(milestone.description) }}
-                    </p>
+                    <p
+                      v-if="milestone.description"
+                      class="text-sm opacity-70 mt-1"
+                      v-html="getSummary(milestone.description)"
+                    />
 
                     <!-- Progress bar -->
                     <DocsProgressBar
@@ -274,9 +279,8 @@
                       v-for="(line, i) in getDetails(milestone.description)"
                       :key="i"
                       class="text-sm opacity-80"
-                    >
-                      {{ line }}
-                    </li>
+                      v-html="line"
+                    />
                   </ul>
                 </div>
 

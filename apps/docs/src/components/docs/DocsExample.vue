@@ -7,12 +7,14 @@
 
   // Composables
   import { getMultiFileBinUrl } from '@/composables/bin'
+  import { useCodeHighlighter } from '@/composables/useCodeHighlighter'
   import { useExamples } from '@/composables/useExamples'
+  import { useIdleCallback } from '@/composables/useIdleCallback'
   import { usePlayground } from '@/composables/usePlayground'
 
   // Utilities
   import { toKebab } from '@/utilities/strings'
-  import { computed, ref, shallowRef, toRef, useId, useSlots, useTemplateRef, watch } from 'vue'
+  import { computed, onMounted, ref, shallowRef, toRef, useId, useSlots, useTemplateRef, watch } from 'vue'
 
   // Types
   import type DocsExampleCodePaneType from './DocsExampleCodePane.vue'
@@ -184,6 +186,23 @@
   )
 
   const language = toRef(() => file?.split('.').pop() || 'vue')
+
+  const { highlight: highlightCode } = useCodeHighlighter()
+
+  // Highlight code into the shared cache before the pane opens, so the first
+  // "show code" renders highlighted output instead of flashing raw text
+  function warm () {
+    const files = displayFiles.value
+    if (files?.length) {
+      for (const f of files) highlightCode({ code: f.code, language: f.language || f.name.split('.').pop() || 'text' })
+    } else if (resolvedCode.value) {
+      highlightCode({ code: resolvedCode.value, language: language.value })
+    }
+  }
+
+  onMounted(() => {
+    useIdleCallback(warm)
+  })
 
   async function openAllInPlayground () {
     if (!displayFiles.value?.length) return

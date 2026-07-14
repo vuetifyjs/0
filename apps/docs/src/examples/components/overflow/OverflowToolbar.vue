@@ -42,17 +42,19 @@
           +{{ count }} more
         </Popover.Activator>
 
-        <Popover.Content class="flex flex-col gap-0.5 rounded-lg border border-divider bg-surface p-1 shadow-lg min-w-40">
-          <Button.Root
-            v-for="action in resolve(hidden)"
-            :key="action.id"
-            as="button"
-            class="whitespace-nowrap rounded-md px-3 py-1.5 text-left text-sm text-on-surface hover:bg-surface-variant"
-            type="button"
-            @click="run(action); toggle()"
-          >
-            {{ action.label }}
-          </Button.Root>
+        <Popover.Content class="rounded-lg border border-divider bg-surface p-1 shadow-lg min-w-40">
+          <div class="flex flex-col gap-0.5">
+            <Button.Root
+              v-for="action in resolve(hidden)"
+              :key="action.id"
+              as="button"
+              class="whitespace-nowrap rounded-md px-3 py-1.5 text-left text-sm text-on-surface hover:bg-surface-variant"
+              type="button"
+              @click="run(action); toggle()"
+            >
+              {{ action.label }}
+            </Button.Root>
+          </div>
         </Popover.Content>
       </Popover.Root>
     </Overflow.Indicator>

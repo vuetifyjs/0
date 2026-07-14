@@ -3,19 +3,28 @@
   import apiData from 'virtual:api'
 
   // Composables
+  import { useApiFilter } from '@/composables/useApiFilter'
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useParams } from '@/composables/useRoute'
 
   // Utilities
+  import { renderInlineMarkdown } from '@/utilities/markdown'
   import { toCamel, toPascal } from '@/utilities/strings'
   import { computed, toRef } from 'vue'
 
   // Types
   import type { ApiData, ComponentApi, ComposableApi } from '@build/generate-api'
 
+  // Maturity (relative path; #v0 alias also works)
+  import maturity from '../../../../../packages/0/src/maturity.json'
+
   const params = useParams<{ name: string }>()
   const data = apiData as ApiData
   const helpers = useApiHelpers()
+  const maturityRecord = maturity as {
+    components?: Record<string, { description?: string }>
+    composables?: Record<string, { description?: string }>
+  }
 
   const itemName = computed(() => {
     const slug = params.value.name
@@ -65,13 +74,25 @@
     return data.composables[itemName.value] || null
   })
 
+  const { search, visibleApis, placeholder, empty } = useApiFilter(componentApis, composableApi)
+
   const title = toRef(() => itemName.value ? `${itemName.value} API` : 'API Reference')
-  const description = toRef(() => {
+
+  const genericDescription = toRef(() => {
     if (!itemName.value) return undefined
     return isComponent.value
-      ? `API reference for the ${itemName.value} component.`
+      ? `API reference for the ${itemName.value} component${componentApis.value.length > 1 ? 's' : ''}.`
       : `API reference for the ${itemName.value} composable.`
   })
+
+  const groupDescription = toRef(() => {
+    if (!itemName.value) return undefined
+    if (isComponent.value) return maturityRecord.components?.[itemName.value]?.description || undefined
+    if (isComposable.value) return maturityRecord.composables?.[itemName.value]?.description || undefined
+    return undefined
+  })
+
+  const description = toRef(() => groupDescription.value ?? genericDescription.value)
 
   useHead({
     title,
@@ -125,12 +146,16 @@
       <div class="markdown-body">
         <h1>{{ itemName }} API</h1>
 
-        <p class="lead">API reference for the {{ itemName }} component{{ componentApis.length > 1 ? 's' : '' }}.</p>
+        <div class="lead" v-html="renderInlineMarkdown(description ?? '')" />
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 
+        <DocsSearchInput v-model="search" class="mt-8 mb-4" :placeholder />
+
+        <hr class="mt-4 -mb-6">
+
         <template
-          v-for="api in componentApis"
+          v-for="api in visibleApis"
           :key="api.name"
         >
           <DocsHeaderAnchor
@@ -144,6 +169,7 @@
             :anchor-id="`${helpers.toKebab(api.name)}-props`"
             :items="api.props"
             kind="prop"
+            :query="search"
             title="Props"
           />
 
@@ -152,6 +178,7 @@
             class="mt-8"
             :items="api.events"
             kind="event"
+            :query="search"
             title="Events"
           />
 
@@ -160,9 +187,14 @@
             class="mt-8"
             :items="api.slots"
             kind="slot"
+            :query="search"
             title="Slots"
           />
         </template>
+
+        <p v-if="empty" class="text-on-surface-variant mt-4">
+          No API items match "{{ search }}".
+        </p>
       </div>
     </template>
 
@@ -170,14 +202,18 @@
       <div class="markdown-body">
         <h1>{{ composableApi.name }} API</h1>
 
-        <p class="lead">API reference for the {{ composableApi.name }} composable.</p>
+        <div class="lead" v-html="renderInlineMarkdown(description ?? '')" />
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 
+        <DocsSearchInput v-model="search" class="mt-4 -mb-3" :placeholder />
+
         <DocsApiSection
           anchor-id="functions"
+          class="mt-8"
           :items="composableApi.functions"
           kind="function"
+          :query="search"
           title="Functions"
         />
 
@@ -186,6 +222,7 @@
           class="mt-8"
           :items="composableApi.options"
           kind="option"
+          :query="search"
           title="Options"
         />
 
@@ -194,6 +231,7 @@
           class="mt-8"
           :items="composableApi.properties"
           kind="property"
+          :query="search"
           title="Properties"
         />
 
@@ -202,8 +240,13 @@
           class="mt-8"
           :items="composableApi.methods"
           kind="method"
+          :query="search"
           title="Methods"
         />
+
+        <p v-if="empty" class="text-on-surface-variant mt-4">
+          No API items match "{{ search }}".
+        </p>
       </div>
     </template>
   </article>

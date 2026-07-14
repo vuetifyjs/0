@@ -20,11 +20,12 @@
   import DocsApiHoverSection from './DocsApiHoverSection.vue'
 
   // Composables
+  import { useCodeHighlighter } from '@/composables/useCodeHighlighter'
   import { usePopoverPosition } from '@/composables/usePopoverPosition'
 
   // Utilities
   import { toKebab } from '@/utilities/strings'
-  import { computed, onScopeDispose, ref, shallowRef, toRef } from 'vue'
+  import { computed, onScopeDispose, ref, shallowRef, toRef, watchEffect } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
@@ -251,6 +252,19 @@
     activeApiType.value === 'vue' ? activeApi.value as VueApiEntry : null,
   )
 
+  const highlighter = useCodeHighlighter()
+  const signature = shallowRef('')
+
+  if (IN_BROWSER) {
+    watchEffect(async () => {
+      const code = vueApi.value?.signature
+      signature.value = ''
+      if (!code) return
+      const result = await highlighter.inline({ code, language: 'typescript' })
+      if (vueApi.value?.signature === code) signature.value = result.html
+    })
+  }
+
   const displayProps = toRef(() => componentApi.value?.props || [])
   const displayEvents = toRef(() => componentApi.value?.events || [])
   const displaySlots = toRef(() => componentApi.value?.slots || [])
@@ -264,6 +278,18 @@
   const displayOptions = toRef(() => composableApi.value?.options || [])
   const displayProperties = toRef(() => composableApi.value?.properties || [])
   const displayMethods = toRef(() => composableApi.value?.methods || [])
+
+  // The key used to look up the feature in apiData.related — namespace for
+  // components ("Popover.Root" -> "Popover"), full name for composables.
+  const apiName = toRef(() => {
+    if (!activeApi.value || activeApiType.value === 'vue') return null
+    if (activeApiType.value === 'component') {
+      const name = (activeApi.value as ComponentApi).name
+      const dotIndex = name.indexOf('.')
+      return dotIndex === -1 ? name : name.slice(0, dotIndex)
+    }
+    return (activeApi.value as ComposableApi).name
+  })
 
   const apiLink = computed(() => {
     if (!activeApi.value) return null
@@ -290,8 +316,23 @@
     return `/api/${toKebab((activeApi.value as ComposableApi).name)}`
   })
 
+  // Link to the feature's regular docs page. apiData.related keys each v0 symbol
+  // to its own docs route (first entry), so v0 features get both an API and a
+  // docs link. Vue APIs have no v0 docs page.
+  const docsLink = toRef(() => {
+    if (!apiName.value) return null
+    return apiData.related[apiName.value]?.[0] ?? null
+  })
+
   // Whether the link is external (Vue docs) or internal (v0 API page)
   const isExternalLink = toRef(() => activeApiType.value === 'vue')
+
+  // Kind chip links to the relevant index page (Vue APIs have no v0 index)
+  const kindLink = toRef(() => {
+    if (activeApiType.value === 'component') return '/components'
+    if (activeApiType.value === 'composable') return '/composables'
+    return null
+  })
 </script>
 
 <template>
@@ -312,6 +353,17 @@
         <div class="popover-header">
           <span class="popover-name">{{ displayName }}</span>
           <span v-if="vueApi" class="popover-kind popover-kind-vue">{{ vueApi.category }}</span>
+
+          <router-link
+            v-else-if="kindLink"
+            class="popover-kind popover-kind-link"
+            :class="`popover-kind-${activeApiType}`"
+            :to="kindLink"
+            @click.stop="hidePopover"
+          >
+            {{ (activeApi as Api).kind }}
+          </router-link>
+
           <span v-else class="popover-kind" :class="`popover-kind-${activeApiType}`">{{ (activeApi as Api).kind }}</span>
           <AppCloseButton class="ml-auto" @click.stop="hidePopover" />
         </div>
@@ -326,7 +378,10 @@
             </DocsApiHoverSection>
 
             <DocsApiHoverSection title="Signature">
-              <code>{{ vueApi.signature }}</code>
+              <code class="shiki-inline">
+                <span v-if="signature" v-html="signature" />
+                <template v-else>{{ vueApi.signature }}</template>
+              </code>
             </DocsApiHoverSection>
           </div>
         </template>
@@ -376,11 +431,11 @@
           </div>
         </template>
 
-        <!-- Footer link -->
-        <template v-if="apiLink">
+        <!-- Footer links -->
+        <div v-if="apiLink" class="popover-footer">
           <a
             v-if="isExternalLink"
-            class="popover-footer"
+            class="popover-footer-link"
             :href="apiLink"
             rel="noopener noreferrer"
             target="_blank"
@@ -389,15 +444,25 @@
             View Vue docs↗
           </a>
 
-          <router-link
-            v-else
-            class="popover-footer"
-            :to="apiLink"
-            @click.stop="hidePopover"
-          >
-            View API
-          </router-link>
-        </template>
+          <template v-else>
+            <router-link
+              v-if="docsLink"
+              class="popover-footer-link"
+              :to="docsLink"
+              @click.stop="hidePopover"
+            >
+              View Docs
+            </router-link>
+
+            <router-link
+              class="popover-footer-link"
+              :to="apiLink"
+              @click.stop="hidePopover"
+            >
+              View API
+            </router-link>
+          </template>
+        </div>
       </div>
     </Transition>
   </Teleport>
@@ -470,6 +535,16 @@
   padding: 0 12px 12px;
 }
 
+.popover-kind-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.popover-kind-link:hover {
+  opacity: 0.85;
+}
+
 /* Vue API specific styles */
 .popover-kind-component {
   background: var(--v0-primary);
@@ -490,11 +565,15 @@
 }
 
 .popover-footer {
-  display: block;
+  display: flex;
   flex-shrink: 0;
   margin: 0 -12px -12px;
-  padding: 12px;
   border-top: 1px solid var(--v0-divider);
+}
+
+.popover-footer-link {
+  flex: 1;
+  padding: 12px;
   font-size: 12px;
   color: var(--v0-primary);
   text-align: center;
@@ -502,7 +581,11 @@
   cursor: pointer;
 }
 
-.popover-footer:hover {
+.popover-footer-link + .popover-footer-link {
+  border-left: 1px solid var(--v0-divider);
+}
+
+.popover-footer-link:hover {
   text-decoration: underline;
 }
 </style>

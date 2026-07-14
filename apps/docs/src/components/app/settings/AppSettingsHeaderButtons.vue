@@ -11,7 +11,7 @@
 
 <template>
   <section>
-    <AppSettingsHeader icon="menu" title="Header" />
+    <AppSettingsHeader icon="header" title="Header" />
 
     <div class="space-y-1">
       <AppSettingsToggle

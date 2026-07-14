@@ -341,7 +341,7 @@ export function createQueue (_options: QueueOptions = {}): QueueContext {
 
   function register (registration: Partial<QueueTicketInput> = {} as Partial<QueueTicketInput>): QueueTicket {
     const id = registration.id ?? useId()
-    const hasExplicitTimeout = Object.prototype.hasOwnProperty.call(registration, 'timeout')
+    const hasExplicitTimeout = Object.hasOwn(registration, 'timeout')
     const timeout = hasExplicitTimeout ? registration.timeout : _timeout
 
     const ticket = {

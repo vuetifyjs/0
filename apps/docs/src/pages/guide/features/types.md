@@ -20,7 +20,8 @@ Shared TypeScript types used across the library and available for your own code.
 <DocsPageFeatures :frontmatter />
 
 ```ts
-import type { ID, Activation, DeepPartial, Extensible, MaybeArray } from '@vuetify/v0'
+import type { ID } from '@vuetify/v0'
+import type { Activation, DeepPartial, Extensible, MaybeArray } from '@vuetify/v0/types'
 ```
 
 ## ID
@@ -123,4 +124,38 @@ Object with string keys and unknown values for generic record handling. Requires
 
 ```ts
 type UnknownObject = Record<string, unknown>
+```
+
+## V0ErrorDetails
+
+Discriminated union of structured details attached to every v0-thrown error. Each arm pairs a stable `code` with the domain context for that code — consumed by the `V0Error` constructor and narrowed by `isV0Error(err, code)` (both from `@vuetify/v0`, see [Utilities](/guide/features/utilities#errors)).
+
+```ts
+type V0ErrorDetails =
+  | { code: 'V0_CONTEXT_MISSING', key: string | symbol }
+  | { code: 'V0_PLUGIN_MISSING', plugin: string }
+  | { code: 'V0_PALETTE_INVALID_SEED', palette: 'material' | 'leonardo' | 'ant', seed: string }
+  | { code: 'V0_PALETTE_UNKNOWN_VARIANT', palette: 'material', variant: string }
+  | { code: 'V0_ADAPTER_INSTANCE_MISSING', adapter: string }
+  | { code: 'V0_THEME_INVALID_PREFIX', prefix: string }
+```
+
+## V0ErrorCode
+
+Union of every error code thrown by v0. Convenience alias for the discriminant field of `V0ErrorDetails`.
+
+```ts
+type V0ErrorCode = V0ErrorDetails['code']
+```
+
+```ts
+import { isV0Error, V0Error } from '@vuetify/v0'
+
+try {
+  throw new V0Error('Context not found.', { code: 'V0_CONTEXT_MISSING', key: 'v0:theme' })
+} catch (err) {
+  if (isV0Error(err, 'V0_CONTEXT_MISSING')) {
+    console.log(err.key) // typed as string | symbol, not string | symbol | undefined
+  }
+}
 ```

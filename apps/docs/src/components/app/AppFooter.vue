@@ -29,7 +29,7 @@
   const footerRef = useTemplateRef<HTMLElement | null>('footer')
 
   const links = [
-    { icon: 'discord', href: 'https://discord.gg/vK6T89eNP7', label: 'Discord', bg: 'bg-discord' },
+    { icon: 'discord', href: 'https://discord.gg/vuetify', label: 'Discord', bg: 'bg-discord' },
     { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub', bg: 'bg-[#24292f]' },
     { icon: 'heart', href: GITHUB_SPONSORS, label: 'Sponsor', bg: 'bg-[#bf3989]' },
   ]

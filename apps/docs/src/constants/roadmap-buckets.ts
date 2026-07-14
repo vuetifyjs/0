@@ -67,7 +67,7 @@ for (const [name, entry] of Object.entries(data.utilities)) {
     type: 'utility',
     category: entry.category,
     level: entry.level,
-    path: '/utilities',
+    path: '/guide/features/utilities',
   })
 }
 

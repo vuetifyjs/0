@@ -114,7 +114,7 @@
         v-if="isHomePage || settings.showSocialLinks.value"
         aria-label="Discord Community (opens in new tab)"
         class="bg-[#5865F2] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
-        href="https://discord.gg/vK6T89eNP7"
+        href="https://discord.gg/vuetify"
         rel="noopener noreferrer"
         target="_blank"
         title="Discord Community"

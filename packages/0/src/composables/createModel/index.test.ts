@@ -270,6 +270,27 @@ describe('createModel', () => {
 
       expect(disabledModel.selectedIds.has('item-1')).toBe(true)
     })
+
+    it('should not unselect a disabled ticket', () => {
+      const disabled = ref(false)
+      const model = createModel()
+      model.register({ id: 'item-1', value: 'val-1', disabled })
+      model.select('item-1')
+
+      disabled.value = true
+      model.unselect('item-1')
+
+      expect(model.selectedIds.has('item-1')).toBe(true)
+    })
+
+    it('should not unselect a non-existent ticket id', () => {
+      const model = createModel()
+      model.selectedIds.add('ghost')
+
+      model.unselect('ghost')
+
+      expect(model.selectedIds.has('ghost')).toBe(true)
+    })
   })
 
   describe('toggle', () => {
@@ -309,6 +330,18 @@ describe('createModel', () => {
 
       disabled.value = true
 
+      model.toggle('item-1')
+
+      expect(model.selectedIds.has('item-1')).toBe(true)
+    })
+
+    it('should not toggle off a selected disabled ticket', () => {
+      const disabled = ref(false)
+      const model = createModel()
+      model.register({ id: 'item-1', value: 'val-1', disabled })
+      model.select('item-1')
+
+      disabled.value = true
       model.toggle('item-1')
 
       expect(model.selectedIds.has('item-1')).toBe(true)
@@ -509,6 +542,27 @@ describe('createModel', () => {
 
       expect(model.selectedIds.size).toBe(1)
       expect(model.selectedIds.has('item-1')).toBe(true)
+    })
+
+    it('should not select a disabled ticket via browse resolution', () => {
+      const model = createModel()
+      model.register({ id: 'item-1', value: 'val-1', disabled: true })
+
+      model.apply(['val-1'])
+
+      expect(model.selectedIds.has('item-1')).toBe(false)
+      expect(model.selectedIds.size).toBe(0)
+    })
+
+    it('should still resolve a non-disabled value through the guard', () => {
+      const model = createModel()
+      model.register({ id: 'item-1', value: 'val-1' })
+      model.register({ id: 'item-2', value: 'val-2', disabled: true })
+
+      model.apply(['val-1'])
+
+      expect(model.selectedIds.has('item-1')).toBe(true)
+      expect(model.selectedIds.has('item-2')).toBe(false)
     })
   })
 

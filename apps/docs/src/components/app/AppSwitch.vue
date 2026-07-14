@@ -27,7 +27,7 @@
     >
       <Switch.Thumb
         :class="[
-          '![visibility:visible] block rounded-full bg-white shadow-sm transition-transform',
+          'block rounded-full bg-white shadow-sm transition-transform',
           small
             ? 'size-3.5 translate-x-0.5 data-[state=checked]:translate-x-3.75'
             : 'size-4 translate-x-1 data-[state=checked]:translate-x-6',

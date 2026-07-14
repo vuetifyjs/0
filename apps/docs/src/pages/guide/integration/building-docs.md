@@ -6,7 +6,7 @@ meta:
   - name: keywords
     content: vuetify0, documentation, vite-ssg, unocss, proof of concept, headless ui
 features:
-  order: 2
+  order: 3
   label: 'Building Docs'
   level: 2
 related:
@@ -36,27 +36,49 @@ This documentation site is itself a proof of concept for v0. Every pattern docum
 
 ### Tabbed Code Groups
 
-The `DocsCodeGroup` component powers all tabbed code examples. It uses `createSingle` for exclusive selection and `useProxyRegistry` for keyboard navigation.
+The `DocsCodeGroup` component powers all tabbed code examples. It uses `createSingle` for exclusive selection and `useProxyRegistry` so registered tabs are iterable for rendering and keyboard focus.
 
 ```vue DocsCodeGroup.vue collapse
 <script setup lang="ts">
   import { createSingle, useProxyRegistry } from '@vuetify/v0'
+  import { useId } from 'vue'
 
-  // Events are required for useProxyRegistry
+  // events: true is required for useProxyRegistry snapshots
   const single = createSingle({ mandatory: 'force', events: true })
   const proxy = useProxyRegistry(single)
+  const uid = useId()
 
+  // Manual activation: arrows move focus only; Enter/Space selects (native button)
   function onKeydown (event: KeyboardEvent) {
     const tabs = Array.from(proxy.values)
     const currentIndex = tabs.findIndex(t => t.isSelected.value)
+    let nextIndex = currentIndex
 
     switch (event.key) {
       case 'ArrowLeft':
-        // Move to previous tab
+        nextIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1
+        event.preventDefault()
         break
       case 'ArrowRight':
-        // Move to next tab
+        nextIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0
+        event.preventDefault()
         break
+      case 'Home':
+        nextIndex = 0
+        event.preventDefault()
+        break
+      case 'End':
+        nextIndex = tabs.length - 1
+        event.preventDefault()
+        break
+      default:
+        return
+    }
+
+    if (nextIndex !== currentIndex) {
+      document.querySelector<HTMLButtonElement>(
+        `#${CSS.escape(`${uid}-tab-${tabs[nextIndex].id}`)}`,
+      )?.focus()
     }
   }
 </script>
@@ -65,9 +87,11 @@ The `DocsCodeGroup` component powers all tabbed code examples. It uses `createSi
   <div role="tablist" @keydown="onKeydown">
     <button
       v-for="tab in proxy.values"
+      :id="`${uid}-tab-${tab.id}`"
       :key="tab.id"
       :aria-selected="tab.isSelected.value"
       role="tab"
+      :tabindex="tab.isSelected.value ? 0 : -1"
       @click="tab.toggle"
     >
       {{ tab.value }}
@@ -77,49 +101,69 @@ The `DocsCodeGroup` component powers all tabbed code examples. It uses `createSi
 ```
 
 > [!NOTE]
-> **Why this works:** `createSingle` handles the selection logic. `useProxyRegistry` exposes registered items for iteration. The component owns all styling and accessibility attributes.
+> **Why this works:** `createSingle` owns exclusive selection. `useProxyRegistry` exposes tickets for iteration — keyboard handling is hand-rolled roving tabindex + manual activation on top of that list. The component owns styling and the remaining ARIA wiring.
 
 ### Mobile Navigation
 
-The `AppNav` component uses v0 primitives for polymorphism and interaction:
+The `AppNav` component composes v0 primitives for interaction, overlay stacking, and SSR-safe responsiveness:
 
 ```vue AppNav.vue collapse
 <script setup lang="ts">
-  import { shallowRef, useTemplateRef } from 'vue'
-  import { Atom, useClickOutside, useBreakpoints } from '@vuetify/v0'
+  import { onMounted, shallowRef, useTemplateRef } from 'vue'
+  import { IN_BROWSER, useClickOutside, useStack, useWindowEventListener } from '@vuetify/v0'
+  import { useNavigation } from '@/composables/useNavigation'
 
-  const navRef = useTemplateRef<AtomExpose>('nav')
-  const breakpoints = useBreakpoints()
+  const navigation = useNavigation()
+  const navRef = useTemplateRef<HTMLElement>('nav')
+  const stack = useStack()
 
-  // Close drawer when clicking outside
+  // Match Tailwind's md breakpoint (768px) for mobile detection
+  const isMobile = shallowRef(true)
+
+  function updateMobile () {
+    if (!IN_BROWSER) return
+    isMobile.value = window.innerWidth < 768
+  }
+
+  onMounted(updateMobile)
+  useWindowEventListener('resize', updateMobile, { passive: true })
+
+  // Coordinate z-index with other overlays; dismiss when popped off the stack (mobile only)
+  const ticket = stack.register({ onDismiss: () => navigation.close() })
+
+  // Close the drawer when clicking outside it on mobile
   useClickOutside(
-    () => navRef.value?.element,
+    () => navRef.value,
     () => {
-      if (drawer.value && breakpoints.isMobile.value) {
-        drawer.value = false
+      if (navigation.isOpen.value && isMobile.value) {
+        navigation.close()
       }
     },
-    { ignore: ['[data-app-bar]'] }
+    { ignore: ['[data-app-bar]'] },
   )
 </script>
 
 <template>
-  <Atom
+  <nav
     ref="nav"
-    as="nav"
     aria-label="Main navigation"
-    :inert="!drawer && breakpoints.isMobile.value ? true : undefined"
+    :inert="!navigation.isOpen.value && isMobile ? true : undefined"
+    :style="{ zIndex: isMobile ? ticket.zIndex.value : undefined }"
   >
     <slot />
-  </Atom>
+  </nav>
 </template>
 ```
 
 | Primitive | Role |
 | - | - |
-| `Atom` | Polymorphic element—renders as `<nav>` with ref access |
-| `useClickOutside` | Closes mobile drawer on outside click |
-| `useBreakpoints` | Tracks viewport for responsive behavior |
+| `useClickOutside` | Closes the mobile drawer when a click lands outside it |
+| `useStack` | Coordinates overlay z-index and dismissal on stack pop |
+| `useWindowEventListener` | SSR-safe resize listener driving mobile detection |
+| `IN_BROWSER` | Guards `window` access during server render |
+
+> [!NOTE]
+> The shipped `AppNav` additionally wraps its root in a `Discovery.Activator` (docs tour system) and hand-rolls `isMobile` against Tailwind's `md` breakpoint rather than `useBreakpoints`, since the nav's visibility already keys off the same 768px threshold in CSS.
 
 ### Interactive Demos
 
@@ -144,12 +188,12 @@ The homepage demo uses `Selection` to show v0's component pattern:
     <Selection.Item
       v-for="item in items"
       :key="item.id"
-      v-slot="{ isSelected, toggle }"
+      v-slot="{ attrs, isSelected }"
       :value="item.id"
     >
       <button
+        v-bind="attrs"
         :class="isSelected ? 'bg-primary' : 'bg-surface'"
-        @click="toggle"
       >
         {{ item.label }}
       </button>
@@ -198,7 +242,7 @@ export default defineConfig({
     },
   },
   shortcuts: {
-    'bg-glass-surface': '[background:color-mix(in_srgb,var(--v0-surface)_70%,transparent)] backdrop-blur-12',
+    'bg-glass-surface': '[background:var(--v0-glass-surface)] backdrop-blur-12',
   },
 })
 ```
@@ -311,9 +355,10 @@ const pref = storage.get('key', 'default')
 
 ```text
 apps/docs/
-├── build/                 # Build-time plugins
+├── build/                 # Build-time plugins (selected)
 │   ├── generate-api.ts    # API extraction
 │   ├── generate-nav.ts    # Navigation tree
+│   ├── generate-search-index.ts  # Search index
 │   └── markdown.ts        # Shiki + callouts
 ├── src/
 │   ├── components/
@@ -336,8 +381,9 @@ This documentation site demonstrates that v0's patterns scale from simple toggle
 | Pattern | Where Used |
 | - | - |
 | `createSingle` + Registry | Tabbed code groups |
-| `Atom` polymorphism | Navigation, buttons, links |
+| `Atom` polymorphism | Buttons, links, dividers |
 | `useClickOutside` | Mobile drawer dismissal |
+| `useStack` | Mobile drawer z-index coordination |
 | `useStorage` | User preferences |
 | `Selection` compound | Interactive demos |
 | CSS variable theming | Entire design system |

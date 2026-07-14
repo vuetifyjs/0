@@ -1,10 +1,7 @@
 /**
  * SSR-specific tests for useStack composable.
  *
- * Verifies that two no-provider useStack() calls in server context do not
- * share tickets — i.e. getStackFallback() returns a fresh ephemeral instance
- * per call rather than a module-level singleton.
- *
+ * These tests run with IN_BROWSER = false to validate server-side behavior.
  * Separated from main tests because vi.mock is hoisted and applies file-wide.
  */
 import { describe, expect, it, vi } from 'vitest'
@@ -16,23 +13,24 @@ vi.mock('#v0/constants/globals', () => ({
 import { useStack } from './index'
 
 describe('useStack SSR', () => {
-  it('two no-provider calls return distinct stack instances', () => {
+  it('should not throw when called without a provider in SSR', () => {
+    expect(() => useStack()).not.toThrow()
+  })
+
+  it('should return a fresh ephemeral stack per call in SSR', () => {
     const first = useStack()
     const second = useStack()
 
     expect(first).not.toBe(second)
   })
 
-  it('tickets registered in the first call do not appear in the second call', () => {
+  it('should not share registered tickets across calls in SSR', () => {
     const first = useStack()
     first.register()
 
     const second = useStack()
 
+    expect(first.size).toBe(1)
     expect(second.size).toBe(0)
-  })
-
-  it('does not throw when called outside component context under SSR', () => {
-    expect(() => useStack()).not.toThrow()
   })
 })

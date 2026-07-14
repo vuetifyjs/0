@@ -6,7 +6,7 @@ meta:
   - name: keywords
     content: "vuetify0, glossary, terminology, ticket, registry, trinity, context, namespace, model, selection, plugin, adapter, headless"
 features:
-  order: 0.6
+  order: 2
   level: 1
 related:
   - /guide/fundamentals/core
@@ -23,6 +23,24 @@ Short definitions of the vocabulary that recurs throughout v0's docs and source 
 
 > [!TIP]
 > The terms build on each other. If you want the full picture of how they connect, read [Core](/guide/fundamentals/core) — this page is the quick-lookup reference.
+
+## Quick reference
+
+| Term | One-line meaning | Created with |
+|------|------------------|--------------|
+| [Headless](#headless) | Behavior, state, and accessibility but no styling | — |
+| [Compound component](#compound-component) | Stateful Root plus named sub-components sharing a context | — |
+| [Trinity](#trinity) | Readonly three-element tuple returned by context and plugin factories | `createTrinity` |
+| [Context](#context) | Type-safe provide/inject that throws when the provider is missing | `createContext` |
+| [Namespace](#namespace) | Colon-scoped string key for a context, prefixed `v0:` | — |
+| [Plugin](#plugin) | App-level singleton installed with `app.use(...)` | `createPlugin` |
+| [Adapter](#adapter) | Swappable backend behind a composable's interface | — |
+| [Registry](#registry) | Indexed store of registered items, keyed by id | `createRegistry` |
+| [Ticket](#ticket) | Handle a sub-component holds on its slot in the registry | `register()` |
+| [Register / onboard / unregister](#register-onboard-and-unregister) | The registry lifecycle verbs for adding and removing items | `createRegistry` |
+| [Enroll](#enroll) | Auto-selection on registration | `createModel` |
+| [Model](#model) | The value layer — a registry plus a reactive Set of selected ids | `createModel` |
+| [Selection](#selection) | Selection rules layered on a model | `createSelection` |
 
 ## Core architecture
 
