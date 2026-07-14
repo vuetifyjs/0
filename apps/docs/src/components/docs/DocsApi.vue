@@ -93,20 +93,7 @@
     />
 
     <template v-if="showInlineApi">
-      <div class="relative mt-4">
-        <AppIcon
-          class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
-          icon="search"
-          :size="16"
-        />
-
-        <input
-          v-model="search"
-          class="w-full pl-9 pr-3 py-2 text-sm bg-surface-tint border border-divider rounded-lg outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant"
-          :placeholder
-          type="text"
-        >
-      </div>
+      <DocsSearchInput v-model="search" class="mt-4" :placeholder />
 
       <template
         v-for="api in visibleApis"
@@ -179,20 +166,7 @@
     />
 
     <template v-if="showInlineApi">
-      <div class="relative mt-4">
-        <AppIcon
-          class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
-          icon="search"
-          :size="16"
-        />
-
-        <input
-          v-model="search"
-          class="w-full pl-9 pr-3 py-2 text-sm bg-surface-tint border border-divider rounded-lg outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant"
-          :placeholder
-          type="text"
-        >
-      </div>
+      <DocsSearchInput v-model="search" class="mt-4" :placeholder />
 
       <DocsApiSection
         anchor-id="functions"
