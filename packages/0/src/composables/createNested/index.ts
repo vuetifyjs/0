@@ -551,9 +551,9 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
         }
         mixedIds.delete(id)
         selectedIds.delete(id)
+        // Cascade removal is wholesale — disabled descendants drain too,
+        // so state can never get stuck behind a disabled ticket.
         for (const did of getDescendants(id)) {
-          const desc = group.get(did)
-          if (desc && toValue(desc.disabled)) continue
           mixedIds.delete(did)
           selectedIds.delete(did)
         }

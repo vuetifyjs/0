@@ -171,7 +171,9 @@ export interface ModelContext<
    * Unselect a ticket by ID
    *
    * @param id The ID of the ticket to unselect.
-   * @remarks Removes the ID from `selectedIds`. No-op if the model instance is disabled.
+   * @remarks Removes the ID from `selectedIds`.
+   * No-op if the model instance is disabled, the ticket doesn't exist, or the ticket is disabled.
+   * Wholesale operations (`apply`, `reset`, `clear`) bypass this guard so disabled ids can always drain.
    *
    * @example
    * ```ts
@@ -186,7 +188,7 @@ export interface ModelContext<
    *
    * @param id The ID of the ticket to toggle.
    * @remarks Calls `select(id)` if not selected, `unselect(id)` if already selected.
-   * No-op if the model instance is disabled.
+   * No-op if the model instance is disabled or the ticket is disabled.
    *
    * @example
    * ```ts
@@ -396,6 +398,9 @@ export function createModel<
 
   function unselect (id: ID) {
     if (toValue(disabled)) return
+
+    const item = registry.get(id)
+    if (!item || toValue(item.disabled)) return
 
     selectedIds.delete(id)
   }

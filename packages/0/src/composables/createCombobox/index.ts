@@ -253,8 +253,12 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   function clear () {
     query.value = ''
     pristine.value = true
+    if (toValue(disabled)) return
+    // Clear is wholesale — drain directly so disabled selected ids still
+    // empty out, preserving the mandatory floor of one.
     for (const id of Array.from(selection.selectedIds)) {
-      selection.unselect(id)
+      if (toValue(mandatory) && selection.selectedIds.size === 1) break
+      selection.selectedIds.delete(id)
     }
   }
 

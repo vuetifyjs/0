@@ -805,6 +805,12 @@ Callers who want domain-stable identity pass `id` explicitly — same pattern as
 
 **Composables that follow this rule.** `createRegistry`, `createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`, `createNested`, `createSortable`, `createKanban`, `createQueue`, `createTimeline`, `createTokens`, `createDataGrid`. `createDataTable` predated the convention and has been brought in line — `items`, `itemValue`, and `columns` are all gone; consumers `onboard` rows on the returned context and columns on `table.columns`. [intent:353]
 
+### 6.11 Disabled semantics: gestures vs wholesale
+
+**Rule.** Operations targeted at a specific id — `select`, `unselect`, `toggle`, at both the context and the ticket level — treat a disabled ticket as inert in **both** directions: it can be neither selected nor unselected. Wholesale operations — `apply` (the v-model path), `selectAll`, cascade/propagated mutation, `clear` / `reset` — skip disabled tickets on **add** but never guard **removal**; they mutate `selectedIds` directly instead of routing through the gesture-guarded functions.
+
+**Why.** A gesture on a disabled control must do nothing, in either direction, or `disabled` is only half a contract. But programmatic state application must always be able to converge: if removal were guarded too, a ticket disabled while selected would wedge its id in `selectedIds` forever — no v-model write, clear, or cascade could drain it. So the guard splits by intent: gestures are inert; state can always drain.
+
 ---
 
 ## 7. Events & lifecycle
@@ -1470,7 +1476,7 @@ The bug family: any composable that exposes two derived values where one is driv
 | 3 API shape | returns, args, names, slots, comments | 22 |
 | 4 Reactivity | primitives, readonly, options, scope | 22 |
 | 5 Headless | operational definition | 10 |
-| 6 Registries | context, tickets, useProxyModel, useProxyRegistry, mergeProps, collection composables | 17 |
+| 6 Registries | context, tickets, useProxyModel, useProxyRegistry, mergeProps, collection composables, disabled semantics | 17 |
 | 7 Events & lifecycle | binding, mounting, cleanup, toggle scope | 7 |
 | 8 Types | any, readonly-ref, MRG, generics, slot guards | 8 |
 | 9 Errors | throw/warn/return, logger, SSR | 9 |

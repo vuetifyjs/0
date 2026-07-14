@@ -1307,6 +1307,28 @@ describe('edge cases', () => {
       expect(nested.selected('a')).toBe(true)
       expect(nested.selected('d')).toBe(false)
     })
+
+    it('should skip disabled items in unselect for independent mode', () => {
+      const nested = createNested({ selection: 'independent' })
+      nested.register({ id: 'a', value: 'A' })
+      nested.register({ id: 'd', value: 'D', disabled: true })
+      nested.selectedIds.add('a')
+      nested.selectedIds.add('d')
+      nested.unselect(['a', 'd'])
+      expect(nested.selected('a')).toBe(false)
+      expect(nested.selected('d')).toBe(true)
+    })
+
+    it('should skip disabled items in unselect for leaf mode', () => {
+      const nested = createNested({ selection: 'leaf' })
+      nested.register({ id: 'a', value: 'A' })
+      nested.register({ id: 'd', value: 'D', disabled: true })
+      nested.selectedIds.add('a')
+      nested.selectedIds.add('d')
+      nested.unselect(['a', 'd'])
+      expect(nested.selected('a')).toBe(false)
+      expect(nested.selected('d')).toBe(true)
+    })
   })
 
   describe('memory leak prevention', () => {
@@ -1659,23 +1681,22 @@ describe('disabled state blocking', () => {
     expect(nested.selected('child-2')).toBe(false)
   })
 
-  it('should not cascade unselect to disabled descendants', () => {
+  it('should drain disabled descendants on cascade unselect', () => {
     const nested = createNested()
 
     nested.register({ id: 'root', value: 'Root' })
     nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
     nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root', disabled: true })
 
-    // Manually select child-2 by working around disabled check
-    nested.select('child-1')
-    // Force child-2 into selected state via selectAll (which also skips disabled)
-    // Instead, select root which cascades to child-1 only
     nested.select('root')
+    // Force the disabled child into the selected state — cascade select skips it
+    nested.selectedIds.add('child-2')
     expect(nested.selected('child-1')).toBe(true)
-    expect(nested.selected('child-2')).toBe(false)
+    expect(nested.selected('child-2')).toBe(true)
 
     nested.unselect('root')
 
+    expect(nested.selected('root')).toBe(false)
     expect(nested.selected('child-1')).toBe(false)
     expect(nested.selected('child-2')).toBe(false)
   })

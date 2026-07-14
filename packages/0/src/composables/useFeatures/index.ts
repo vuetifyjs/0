@@ -177,7 +177,9 @@ export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
         if (shouldSelect) {
           registry.select(id)
         } else {
-          registry.unselect(id)
+          // Adapter sync is wholesale — drain directly so a disabled flag
+          // ticket still turns off when the external source says so.
+          registry.selectedIds.delete(id)
         }
       } else {
         register({ id, value } as Partial<FeatureTicketInput>)
