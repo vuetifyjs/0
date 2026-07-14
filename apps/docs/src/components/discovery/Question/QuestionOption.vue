@@ -76,8 +76,10 @@
       'aria-describedby': string | undefined
       'tabindex': 0 | -1
       'data-state': QuestionOptionState
-      'data-correct': boolean | undefined
+      'data-correct': true | undefined
       'data-disabled': true | undefined
+      'onClick': () => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
   }
 
@@ -89,7 +91,7 @@
   import { useQuestionRoot } from './QuestionRoot.vue'
 
   // Utilities
-  import { computed, onUnmounted, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
+  import { computed, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'QuestionOption', inheritAttrs: false })
 
@@ -195,7 +197,7 @@
     toValue(nextItem.el)?.focus()
   }
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     question.unregister(ticket.id)
   })
 
@@ -228,8 +230,10 @@
       'aria-describedby': ariaDescribedby || undefined,
       'tabindex': isTabbable.value ? 0 : -1,
       'data-state': state.value,
-      'data-correct': toValue(question.isSubmitted) ? isCorrect : undefined,
+      'data-correct': (toValue(question.isSubmitted) && isCorrect) || undefined,
       'data-disabled': isDisabled.value ? true : undefined,
+      'onClick': onClick,
+      'onKeydown': onKeydown,
     },
   }))
 </script>
@@ -241,8 +245,6 @@
     :as
     :data-question-option="value"
     :renderless
-    @click="onClick"
-    @keydown="onKeydown"
   >
     <slot v-bind="slotProps" />
   </Atom>

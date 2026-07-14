@@ -163,7 +163,7 @@
 
   // Use v0's createSelection for selection management
   const selection = createSelection({
-    multiple: mode === 'multiple',
+    multiple: toRef(() => mode === 'multiple'),
     disabled: toRef(() => disabled || isSubmitted.value),
   })
 
