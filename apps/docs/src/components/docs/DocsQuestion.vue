@@ -55,7 +55,7 @@
   const finished = shallowRef(false)
   const results = ref(new Map<string, QuestionResult>())
   const answered = ref(new Map<string, string | string[]>())
-  const shownHints = ref(new Set<string>())
+  const revealed = ref(new Set<string>())
   const deck = ref<Slate[]>([])
   const run = shallowRef(0)
 
@@ -165,14 +165,13 @@
     step.onboard(deck.value.map(slate => ({ id: slate.id, value: slate.id })))
     results.value = new Map()
     answered.value = new Map()
-    shownHints.value = new Set()
+    revealed.value = new Set()
     finished.value = false
     step.first()
   }
 
-  function toggleHint (id: string) {
-    if (shownHints.value.has(id)) shownHints.value.delete(id)
-    else shownHints.value.add(id)
+  function reveal (id: string) {
+    revealed.value.add(id)
   }
 
   function onStart () {
@@ -191,6 +190,15 @@
   function onNext () {
     if (isLast.value) finished.value = true
     else step.next()
+  }
+
+  function onSkip () {
+    if (isLast.value) finished.value = true
+    else step.next()
+  }
+
+  function go (to: number) {
+    step.step(to - index.value)
   }
 
   function apply () {
@@ -274,21 +282,25 @@
           v-for="item in review"
           :key="item.id"
           class="flex items-start gap-2.5 rounded-md border border-divider p-3 text-sm"
-          :class="item.correct ? 'bg-success/5' : 'bg-error/5'"
+          :class="item.correct ? 'bg-success/5' : item.result ? 'bg-error/5' : 'bg-surface-variant/30'"
         >
           <AppIcon
+            v-if="item.result"
             class="mt-0.5 shrink-0"
             :class="item.correct ? 'text-success' : 'text-error'"
             :icon="item.correct ? 'check-circle' : 'close'"
             :size="16"
           />
 
+          <span v-else class="mt-0.5 size-4 shrink-0 rounded-full border-2 border-on-surface-variant/50" />
+
           <div class="flex flex-col gap-0.5">
             <span class="font-medium text-on-surface">{{ item.stem }}</span>
 
             <span class="text-xs text-on-surface-variant">
               <template v-if="item.correct">Correct — {{ item.solution }}</template>
-              <template v-else>You chose {{ item.picked || '—' }} · answer: {{ item.solution }}</template>
+              <template v-else-if="item.result">You chose {{ item.picked || '—' }} · answer: {{ item.solution }}</template>
+              <template v-else>Skipped — answer: {{ item.solution }}</template>
             </span>
           </div>
         </li>
@@ -330,17 +342,8 @@
           Question {{ index + 1 }} of {{ total }}
         </span>
 
-        <button
-          class="ml-auto inline-flex size-[26px] items-center justify-center rounded text-on-surface-variant transition-colors hover:bg-surface-variant"
-          title="Restart quiz"
-          type="button"
-          @click="begin"
-        >
-          <AppIcon icon="restart" :size="15" />
-        </button>
-
         <span
-          class="skillz-badge inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-bold uppercase tracking-wide"
+          class="skillz-badge ml-auto inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-bold uppercase tracking-wide"
           :style="currentLevelMeta ? { '--level-color': currentLevelMeta.color } : undefined"
           :title="currentLevelMeta ? `${currentLevelMeta.label} level` : undefined"
         >
@@ -360,9 +363,24 @@
         @submit="onAnswer(slate.id, $event)"
         @update:model-value="answered.set(slate.id, $event)"
       >
-        <Question.Stem class="mb-3 block font-medium text-on-surface">
-          {{ slate.stem }}
-        </Question.Stem>
+        <div class="mb-3">
+          <Question.Stem class="block font-medium text-on-surface">
+            {{ slate.stem }}
+          </Question.Stem>
+
+          <p v-if="slate.hint" class="mt-1 text-sm text-on-surface-variant opacity-80">
+            <span
+              class="rounded align-middle transition-colors"
+              :class="revealed.has(slate.id) ? '' : 'cursor-pointer select-none bg-on-surface-variant/25 text-transparent hover:bg-on-surface-variant/35'"
+              :role="revealed.has(slate.id) ? undefined : 'button'"
+              :tabindex="revealed.has(slate.id) ? undefined : 0"
+              :title="revealed.has(slate.id) ? undefined : 'Reveal hint'"
+              @click="reveal(slate.id)"
+              @keydown.enter="reveal(slate.id)"
+              @keydown.space.prevent="reveal(slate.id)"
+            >{{ slate.hint }}</span>
+          </p>
+        </div>
 
         <div class="flex flex-col gap-2">
           <Question.Option
@@ -406,23 +424,6 @@
           </Question.Option>
         </div>
 
-        <div v-if="slate.hint && !isSubmitted" class="mt-3">
-          <button
-            v-if="!shownHints.has(slate.id)"
-            class="inline-flex items-center gap-1.5 text-xs font-medium text-on-surface-variant transition-colors hover:text-on-surface"
-            type="button"
-            @click="toggleHint(slate.id)"
-          >
-            <AppIcon icon="lightbulb" :size="14" />
-            Show hint
-          </button>
-
-          <p v-else class="flex items-start gap-2 rounded-md bg-info/10 p-3 text-sm text-on-surface">
-            <AppIcon class="mt-0.5 shrink-0 text-info" icon="lightbulb" :size="16" />
-            <span v-html="renderInline(slate.hint)" />
-          </p>
-        </div>
-
         <Question.Feedback
           class="mt-3 block rounded-md p-3 text-sm"
           :class="result === 'correct' ? 'bg-success/10 text-on-surface' : 'bg-warning/10 text-on-surface'"
@@ -432,27 +433,77 @@
 
         <div class="mt-4 flex items-center gap-2">
           <button
-            class="inline-flex items-center gap-1 rounded-md border border-divider px-3 py-1.5 text-sm text-on-surface transition-colors hover:bg-surface-variant disabled:opacity-40"
+            aria-label="Restart quiz"
+            class="inline-flex size-9 items-center justify-center rounded-md border border-divider text-on-surface-variant transition-colors hover:bg-surface-variant"
+            title="Restart quiz"
+            type="button"
+            @click="begin"
+          >
+            <AppIcon icon="restart" :size="16" />
+          </button>
+
+          <button
+            aria-label="Previous question"
+            class="inline-flex size-9 items-center justify-center rounded-md border border-divider text-on-surface transition-colors hover:bg-surface-variant disabled:opacity-40"
             :disabled="index === 0"
+            title="Back"
             type="button"
             @click="onPrev"
           >
             <AppIcon icon="left" :size="16" />
-            Back
           </button>
 
-          <button
-            v-if="!isSubmitted"
-            class="ml-auto rounded-md bg-primary px-3 py-1.5 text-sm text-on-primary disabled:opacity-50"
-            :disabled="!hasSelection"
-            @click="submit"
-          >
-            Check answer
-          </button>
+          <!-- Stepper: jump to any question, including skipped ones -->
+          <div class="flex flex-1 flex-wrap items-center justify-center gap-1.5">
+            <button
+              v-for="(item, i) in deck"
+              :key="item.id"
+              :aria-current="item.id === currentId ? 'step' : undefined"
+              :aria-label="`Question ${i + 1}${results.has(item.id) ? ', answered' : ', not answered'}`"
+              class="size-2.5 rounded-full transition-colors"
+              :class="item.id === currentId
+                ? 'bg-primary'
+                : results.has(item.id)
+                  ? 'bg-on-surface-variant'
+                  : 'bg-on-surface-variant/25 hover:bg-on-surface-variant/50'"
+              type="button"
+              @click="go(i)"
+            />
+          </div>
+
+          <template v-if="!isSubmitted">
+            <button
+              v-if="!isLast"
+              aria-label="Skip question"
+              class="inline-flex size-9 items-center justify-center rounded-md border border-divider text-on-surface transition-colors hover:bg-surface-variant"
+              title="Skip"
+              type="button"
+              @click="onSkip"
+            >
+              <AppIcon icon="right" :size="16" />
+            </button>
+
+            <button
+              v-else
+              class="rounded-md border border-divider px-3 py-1.5 text-sm text-on-surface transition-colors hover:bg-surface-variant"
+              type="button"
+              @click="onSkip"
+            >
+              Finish
+            </button>
+
+            <button
+              class="rounded-md bg-primary px-3 py-1.5 text-sm text-on-primary disabled:opacity-50"
+              :disabled="!hasSelection"
+              @click="submit"
+            >
+              Check answer
+            </button>
+          </template>
 
           <button
             v-else
-            class="ml-auto inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm text-on-primary"
+            class="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm text-on-primary"
             type="button"
             @click="onNext"
           >
