@@ -28,6 +28,23 @@ vi.mock('#v0/composables/createForm', async () => {
 const mockUseRules = vi.mocked(useRules)
 const mockUseForm = vi.mocked(useForm)
 
+interface RuleCall {
+  value: unknown
+  resolve: (result: boolean | string) => void
+}
+
+function createRule () {
+  const calls: RuleCall[] = []
+
+  function rule (value: unknown): Promise<boolean | string> {
+    return new Promise(resolve => {
+      calls.push({ value, resolve })
+    })
+  }
+
+  return { calls, rule }
+}
+
 describe('createValidation', () => {
   describe('register', () => {
     it('should register a function rule', () => {
@@ -350,32 +367,126 @@ describe('createValidation', () => {
       expect(validation.errors.value).toEqual(['Error from call 2'])
     })
 
-    // Regression: the stale-check used to return `isValid.value ?? false`,
-    // leaking the newer call's result. createForm.submit() uses
-    // `results.every(Boolean)` so a stale failing call could resolve to true
-    // and flip the form to "valid".
-    it('should return false from a stale call even when newer call passed', async () => {
-      let callCount = 0
-      async function slowRule (v: unknown) {
-        const call = ++callCount
-        await new Promise(resolve => setTimeout(resolve, call === 1 ? 100 : 10))
-        // Call 1 fails; call 2 passes
-        return call === 1 ? `Error from call ${call}` : (v as string).length > 0
-      }
-
-      const validation = createValidation({ rules: [slowRule] })
+    // Regression: stale callers must not read `isValid.value` because that can
+    // leak unrelated state. They now wait for the latest generation's result.
+    it('should return the latest result from a stale call when the newer call passed', async () => {
+      const { calls, rule } = createRule()
+      const validation = createValidation({ rules: [rule] })
 
       const first = validation.validate('ab')
       const second = validation.validate('ab')
 
+      calls[1]!.resolve(true)
+      const secondResult = await second
+
+      calls[0]!.resolve('Error from call 1')
+      const firstResult = await first
+
+      expect(secondResult).toBe(true)
+      expect(firstResult).toBe(true)
+      expect(validation.isValid.value).toBe(true)
+      expect(validation.errors.value).toEqual([])
+    })
+
+    it('should return false from stale and winning calls when the newer call failed', async () => {
+      const { calls, rule } = createRule()
+      const validation = createValidation({ rules: [rule] })
+
+      const first = validation.validate('ab')
+      const second = validation.validate('ab')
+
+      calls[1]!.resolve('Error from call 2')
+      const secondResult = await second
+
+      calls[0]!.resolve(true)
+      const firstResult = await first
+
+      expect(secondResult).toBe(false)
+      expect(firstResult).toBe(false)
+      expect(validation.isValid.value).toBe(false)
+      expect(validation.errors.value).toEqual(['Error from call 2'])
+    })
+
+    it('should follow a superseded middle validation to the latest result', async () => {
+      const { calls, rule } = createRule()
+      const validation = createValidation({ rules: [rule] })
+
+      const first = validation.validate('ab')
+      const second = validation.validate('ab')
+
+      calls[0]!.resolve('Error from call 1')
+      await Promise.resolve()
+
+      const third = validation.validate('ab')
+
+      calls[2]!.resolve(true)
+      const thirdResult = await third
+
+      calls[1]!.resolve('Error from call 2')
       const [firstResult, secondResult] = await Promise.all([first, second])
 
-      // Newer call resolved truthy and updated isValid.value to true.
+      expect(thirdResult).toBe(true)
       expect(secondResult).toBe(true)
+      expect(firstResult).toBe(true)
       expect(validation.isValid.value).toBe(true)
-      // Older call must still report its own outcome (false), not leak the
-      // newer call's state.
-      expect(firstResult).toBe(false)
+      expect(validation.errors.value).toEqual([])
+    })
+
+    it('should follow the winner when a stale call\'s rules throw', async () => {
+      let reject: (error: Error) => void
+      let calls = 0
+      async function rule (_v: unknown) {
+        calls++
+        if (calls === 1) {
+          return new Promise<boolean>((_, r) => {
+            reject = r
+          })
+        }
+        return true
+      }
+
+      const validation = createValidation({ rules: [rule] })
+
+      const stale = validation.validate('first')
+      const winner = validation.validate('second')
+
+      reject!(new Error('boom'))
+
+      expect(await winner).toBe(true)
+      // The stale call's rejection routes through the catch-path reroute and
+      // resolves to the winning generation's outcome.
+      expect(await stale).toBe(true)
+      expect(validation.isValid.value).toBe(true)
+      expect(validation.errors.value).toEqual([])
+    })
+
+    it('should re-await when the winner it followed was itself superseded', async () => {
+      const gates: Array<(v: boolean) => void> = []
+      async function rule (_v: unknown) {
+        return new Promise<boolean>(resolve => {
+          gates.push(resolve)
+        })
+      }
+
+      const validation = createValidation({ rules: [rule] })
+
+      const first = validation.validate('a')
+      const second = validation.validate('b')
+
+      // Let the first call settle its rules and start following the second.
+      gates[0](true)
+      await new Promise(resolve => setTimeout(resolve, 0))
+
+      const third = validation.validate('c')
+      gates[1](true)
+      gates[2](true)
+
+      expect(await third).toBe(true)
+      // The second call defers to the third; the first call awaited the
+      // second, found it superseded, and re-awaited the third.
+      expect(await second).toBe(true)
+      expect(await first).toBe(true)
+      expect(validation.isValid.value).toBe(true)
     })
 
     it('should not let an in-flight validate overwrite state set by a later no-rules call', async () => {
