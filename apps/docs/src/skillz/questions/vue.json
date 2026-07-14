@@ -1,0 +1,127 @@
+[
+  {
+    "id": "vue-conditional",
+    "stem": "Which directive adds or removes an element from the DOM based on a condition?",
+    "answers": ["v-if"],
+    "distractors": ["v-show", "v-for", "v-bind", "v-model", "v-on"],
+    "feedback": "v-if actually adds/removes the element from the DOM. v-show keeps it mounted and only toggles CSS display — reach for v-show when you toggle often, v-if when the condition rarely changes.",
+    "level": 1,
+    "track": "vue",
+    "categories": ["template"]
+  },
+  {
+    "id": "vue-events",
+    "stem": "Which directive listens for DOM events such as click?",
+    "answers": ["v-on"],
+    "distractors": ["v-bind", "v-model", "v-if", "v-html", "v-slot"],
+    "feedback": "v-on (shorthand @) attaches event listeners — @click, @input, and so on. v-bind (shorthand :) binds attributes and props, not events.",
+    "level": 1,
+    "track": "vue",
+    "categories": ["template"]
+  },
+  {
+    "id": "vue-list",
+    "stem": "Which directive renders a list of elements from an array?",
+    "answers": ["v-for"],
+    "distractors": ["v-each", "v-loop", "v-repeat", "v-map", "v-if"],
+    "feedback": "v-for iterates arrays, objects, or ranges — `v-for=\"item in items\"`. Always pair it with a unique `:key`.",
+    "level": 1,
+    "track": "vue",
+    "categories": ["template"]
+  },
+  {
+    "id": "vue-props-flow",
+    "stem": "How does data flow through props between a parent and child component?",
+    "answers": [{ "value": "one-way-down", "label": "One-way, parent down to child" }],
+    "distractors": [
+      { "value": "two-way", "label": "Two-way by default" },
+      { "value": "child-up", "label": "One-way, child up to parent" },
+      { "value": "dom", "label": "Bidirectionally through the DOM" },
+      { "value": "global", "label": "Through a shared global object" }
+    ],
+    "feedback": "Props form a one-way-down binding: the parent updates the child, never the reverse. To send data upward, emit an event.",
+    "level": 1,
+    "track": "vue",
+    "categories": ["components"]
+  },
+  {
+    "id": "vue-ref",
+    "stem": "Which Composition API function creates a reactive reference to a primitive value?",
+    "answers": ["ref"],
+    "distractors": ["reactive", "computed", "watch", "shallowRef", "toRef"],
+    "feedback": "ref wraps any value — including primitives — and exposes it as `.value`. reactive only works on objects and can't hold a primitive directly.",
+    "level": 2,
+    "track": "vue",
+    "categories": ["reactivity"]
+  },
+  {
+    "id": "vue-computed",
+    "stem": "Which function creates cached state that derives from other reactive sources?",
+    "answers": ["computed"],
+    "distractors": ["watch", "ref", "watchEffect", "reactive", "toRef"],
+    "feedback": "computed caches its result and only re-evaluates when a dependency changes. watch runs side effects; it doesn't produce a cached value.",
+    "level": 2,
+    "track": "vue",
+    "categories": ["reactivity"]
+  },
+  {
+    "id": "vue-composable-prefix",
+    "stem": "By convention, what prefix do composable function names use?",
+    "answers": ["use"],
+    "distractors": ["create", "with", "get", "make", "on"],
+    "feedback": "Composables are named with a `use` prefix — useMouse, useFetch — signalling they tap into Vue's reactivity and lifecycle.",
+    "level": 2,
+    "track": "vue",
+    "categories": ["composables"]
+  },
+  {
+    "id": "vue-component-vmodel",
+    "stem": "By default, a component's v-model binds the modelValue prop and emits which event?",
+    "answers": ["update:modelValue"],
+    "distractors": ["input", "change", "update:value", "model", "modelValue"],
+    "feedback": "In Vue 3, `v-model` on a component is sugar for `:modelValue` plus `@update:modelValue`. Named models like `v-model:title` use `update:title`.",
+    "level": 2,
+    "track": "vue",
+    "categories": ["components"]
+  },
+  {
+    "id": "vue-effect-scope",
+    "stem": "Which API groups reactive effects so they can all be disposed together?",
+    "answers": ["effectScope"],
+    "distractors": ["watchEffect", "onScopeDispose", "getCurrentScope", "stop", "onUnmounted"],
+    "feedback": "effectScope() captures the watchers/computeds created inside it; calling the scope's `.stop()` disposes them all at once — the backbone of reusable, self-cleaning composables.",
+    "level": 3,
+    "track": "vue",
+    "categories": ["reactivity"]
+  },
+  {
+    "id": "vue-shallow-ref",
+    "stem": "Which ref variant reacts only to reassigning .value, not to deep mutations of its contents?",
+    "answers": ["shallowRef"],
+    "distractors": ["ref", "shallowReactive", "toRaw", "markRaw", "triggerRef"],
+    "feedback": "shallowRef tracks only `.value` reassignment — ideal for large or externally-managed objects where deep tracking is wasteful. Use triggerRef to force an update after an in-place change.",
+    "level": 3,
+    "track": "vue",
+    "categories": ["reactivity"]
+  },
+  {
+    "id": "vue-next-tick",
+    "stem": "Which function resolves after Vue has flushed pending DOM updates?",
+    "answers": ["nextTick"],
+    "distractors": ["onMounted", "watchPostEffect", "requestAnimationFrame", "flush", "onUpdated"],
+    "feedback": "nextTick() returns a promise that resolves once the DOM reflects the latest state change — await it before measuring or reading updated elements.",
+    "level": 3,
+    "track": "vue",
+    "categories": ["reactivity"]
+  },
+  {
+    "id": "vue-render-h",
+    "stem": "Which function creates virtual DOM nodes inside a render function?",
+    "answers": ["h"],
+    "distractors": ["render", "createApp", "defineComponent", "resolveComponent", "cloneVNode"],
+    "feedback": "h() (hyperscript) builds vnodes: `h('div', { class: 'x' }, children)`. It's what templates compile down to and what you write by hand in a render function.",
+    "level": 3,
+    "track": "vue",
+    "categories": ["rendering"]
+  }
+]

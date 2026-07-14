@@ -8,7 +8,7 @@
   // Types
   import type { Level } from '@/composables/useLevelFilter'
 
-  const { track = 'selection', count = 10 } = defineProps<{ track?: string, count?: number }>()
+  const { track = 'vue', count = 10 } = defineProps<{ track?: string, count?: number }>()
 
   const levelFilter = useLevelFilterContext()
 
