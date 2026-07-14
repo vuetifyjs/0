@@ -490,6 +490,22 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     return getDescendants(id).filter(did => isLeaf(did))
   }
 
+  function removeLeaves (leafIds: ID[]): void {
+    const { selectedIds, mixedIds } = group
+    const ids = new Set(leafIds)
+
+    if (toValue(mandatoryOption) && [...selectedIds].every(id => ids.has(id))) return
+
+    for (const id of ids) {
+      mixedIds.delete(id)
+      selectedIds.delete(id)
+    }
+
+    for (const id of ids) {
+      updateAncestors(id)
+    }
+  }
+
   function select (ids: ID | ID[]): void {
     if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
@@ -537,11 +553,9 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
         group.unselect(id)
       } else if (selectionMode === 'leaf') {
         if (isLeaf(id)) {
-          group.unselect(id)
+          removeLeaves([id])
         } else {
-          for (const lid of getLeafDescendants(id)) {
-            group.unselect(lid)
-          }
+          removeLeaves(getLeafDescendants(id))
         }
       } else {
         const { selectedIds, mixedIds } = group
@@ -578,9 +592,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
           const leafIds = getLeafDescendants(id)
           const allSelected = leafIds.every(lid => group.selected(lid))
           if (allSelected) {
-            for (const lid of leafIds) {
-              group.unselect(lid)
-            }
+            removeLeaves(leafIds)
           } else {
             for (const lid of leafIds) {
               group.select(lid)
