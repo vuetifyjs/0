@@ -2,26 +2,18 @@
   {
     "id": "single-selection",
     "stem": "Which composable enforces that only one item can be selected at a time?",
-    "options": [
-      { "value": "createSelection", "label": "createSelection" },
-      { "value": "createSingle", "label": "createSingle", "correct": true },
-      { "value": "createGroup", "label": "createGroup" },
-      { "value": "createModel", "label": "createModel" }
-    ],
+    "answers": ["createSingle"],
+    "distractors": ["createSelection", "createGroup", "createModel", "createStep", "createNested"],
     "feedback": "createSingle extends createSelection to cap selection at a single item — that's the enforcement. createSelection allows multiple; createGroup adds batch/tri-state; createModel is the value store beneath them.",
-    "level": 2,
+    "level": 1,
     "track": "selection",
     "categories": ["selection"]
   },
   {
     "id": "selection-base",
     "stem": "Which composable is the multi-select foundation that the others extend?",
-    "options": [
-      { "value": "createModel", "label": "createModel" },
-      { "value": "createSelection", "label": "createSelection", "correct": true },
-      { "value": "createStep", "label": "createStep" },
-      { "value": "createGroup", "label": "createGroup" }
-    ],
+    "answers": ["createSelection"],
+    "distractors": ["createModel", "createSingle", "createGroup", "createNested", "createStep"],
     "feedback": "createSelection is the multi-select base. createSingle, createGroup, and createNested all build on it; createModel is the lower-level value store beneath it.",
     "level": 2,
     "track": "selection",
@@ -30,12 +22,8 @@
   {
     "id": "group-tristate",
     "stem": "You need select-all with an indeterminate (tri-state) parent checkbox. Which composable?",
-    "options": [
-      { "value": "createSingle", "label": "createSingle" },
-      { "value": "createNested", "label": "createNested" },
-      { "value": "createGroup", "label": "createGroup", "correct": true },
-      { "value": "createSelection", "label": "createSelection" }
-    ],
+    "answers": ["createGroup"],
+    "distractors": ["createSingle", "createNested", "createSelection", "createModel", "createStep"],
     "feedback": "createGroup extends createSelection with batch operations and tri-state support — exactly the select-all/indeterminate pattern.",
     "level": 2,
     "track": "selection",
@@ -44,12 +32,8 @@
   {
     "id": "nested-tree",
     "stem": "Which composable manages hierarchical, parent/child (tree) selection?",
-    "options": [
-      { "value": "createGroup", "label": "createGroup" },
-      { "value": "createNested", "label": "createNested", "correct": true },
-      { "value": "createStep", "label": "createStep" },
-      { "value": "createSingle", "label": "createSingle" }
-    ],
+    "answers": ["createNested"],
+    "distractors": ["createGroup", "createStep", "createSingle", "createSelection", "createModel"],
     "feedback": "createNested extends createGroup for tree structures — treeviews, nested menus, and cascading parent/child selection.",
     "level": 3,
     "track": "selection",
@@ -58,14 +42,80 @@
   {
     "id": "selection-family",
     "stem": "Which of these are built on the selection system? (Select all that apply)",
-    "options": [
-      { "value": "createSingle", "label": "createSingle", "correct": true },
-      { "value": "createGroup", "label": "createGroup", "correct": true },
-      { "value": "createNested", "label": "createNested", "correct": true },
-      { "value": "useBreakpoints", "label": "useBreakpoints" }
-    ],
-    "feedback": "createSingle, createGroup, and createNested all extend the selection stack. useBreakpoints is a responsive plugin — unrelated to selection.",
+    "answers": ["createSingle", "createGroup", "createNested"],
+    "distractors": ["useBreakpoints", "createRegistry", "createContext", "createPagination", "createFilter"],
+    "feedback": "createSingle, createGroup, and createNested all extend the selection stack. The rest are unrelated — useBreakpoints is a responsive plugin, createRegistry/createContext are foundation primitives, createPagination/createFilter are data composables.",
     "level": 2,
+    "track": "selection",
+    "categories": ["selection"]
+  },
+  {
+    "id": "model-value-store",
+    "stem": "Which composable is the id-based value store that sits beneath the selection composables?",
+    "answers": ["createModel"],
+    "distractors": ["createSelection", "createRegistry", "createSingle", "createGroup", "createStep"],
+    "feedback": "createModel is the value store — it holds the id-keyed values that createSelection and its descendants layer selection semantics on top of.",
+    "level": 3,
+    "track": "selection",
+    "categories": ["selection"]
+  },
+  {
+    "id": "step-navigation",
+    "stem": "You're building a wizard with next/prev/first/last step navigation. Which composable?",
+    "answers": ["createStep"],
+    "distractors": ["createSingle", "createSelection", "createPagination", "createGroup", "createNested"],
+    "feedback": "createStep extends createSingle with first/last/next/prev/step methods — the natural fit for wizards and carousels.",
+    "level": 2,
+    "track": "selection",
+    "categories": ["selection"]
+  },
+  {
+    "id": "mandatory-selection",
+    "stem": "Which createSelection option prevents the user from deselecting the last selected item?",
+    "answers": ["mandatory"],
+    "distractors": ["required", "multiple", "disabled", "min", "strict"],
+    "feedback": "mandatory enforces that at least one item stays selected — deselecting the last one is blocked. multiple toggles multi-select; disabled turns the whole selection off.",
+    "level": 2,
+    "track": "selection",
+    "categories": ["selection"]
+  },
+  {
+    "id": "multiple-option",
+    "stem": "Which createSelection option turns it into a multi-select?",
+    "answers": ["multiple"],
+    "distractors": ["multi", "many", "mode", "group", "several"],
+    "feedback": "Pass multiple: true to allow more than one item selected at once. Without it, createSelection still permits multiple — createSingle is what caps it to one.",
+    "level": 1,
+    "track": "selection",
+    "categories": ["selection"]
+  },
+  {
+    "id": "single-extends",
+    "stem": "createSingle is built by extending which composable?",
+    "answers": ["createSelection"],
+    "distractors": ["createModel", "createGroup", "createNested", "createStep", "createRegistry"],
+    "feedback": "createSingle extends createSelection, narrowing it to a single-item selection. createStep in turn extends createSingle.",
+    "level": 3,
+    "track": "selection",
+    "categories": ["selection"]
+  },
+  {
+    "id": "nested-extends",
+    "stem": "createNested adds tree structure by extending which composable?",
+    "answers": ["createGroup"],
+    "distractors": ["createSelection", "createSingle", "createStep", "createModel", "createRegistry"],
+    "feedback": "createNested extends createGroup, inheriting its batch and tri-state operations before layering on parent/child hierarchy.",
+    "level": 3,
+    "track": "selection",
+    "categories": ["selection"]
+  },
+  {
+    "id": "registry-under",
+    "stem": "Which foundational composable manages the collection of items (tickets) that selection builds on?",
+    "answers": ["createRegistry"],
+    "distractors": ["createContext", "createModel", "createQueue", "createTokens", "createTimeline"],
+    "feedback": "createRegistry is the item/ticket collection primitive. Selection composables register their items as tickets in a registry, then track which ids are selected.",
+    "level": 3,
     "track": "selection",
     "categories": ["selection"]
   }

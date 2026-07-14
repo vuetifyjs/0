@@ -340,11 +340,15 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
         }
 
         if (type === 'question') {
-          // rest of the line is the track key — DocsQuestion builds a quiz from that track's questions
-          const track = match[2].trim()
+          // rest of the line is the track key, optionally followed by a quiz length:
+          // `> [!QUESTION] selection` or `> [!QUESTION] selection 8`
+          const [track, countRaw] = match[2].trim().split(/\s+/)
+          const count = Number(countRaw)
           inlineToken.content = ''
           inlineToken.children = []
-          return `<DocsQuestion track="${track}" />`
+          return Number.isInteger(count) && count > 0
+            ? `<DocsQuestion track="${track}" :count="${count}" />`
+            : `<DocsQuestion track="${track}" />`
         }
 
         // For other types, strip the marker and keep content

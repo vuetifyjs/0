@@ -1,13 +1,13 @@
 <script setup lang="ts">
   // Framework
-  import { createStep } from '@vuetify/v0'
+  import { createStep, isArray, isUndefined } from '@vuetify/v0'
 
   // Components
   import { Question } from '@/components/discovery/Question'
   import SkillMasteredBadge from '@/components/skillz/SkillMasteredBadge.vue'
 
   // Composables
-  import { useQuestions } from '@/composables/useQuestions'
+  import { distractorsNeeded, useQuestions } from '@/composables/useQuestions'
 
   import { SKILL_LEVEL_META } from '@/types/skill'
 
@@ -16,35 +16,78 @@
 
   // Types
   import type { QuestionResult } from '@/components/discovery/Question'
+  import type { Question as QuestionDef, QuestionOption } from '@/composables/useQuestions'
+  import type { SkillLevel } from '@/types/skill'
 
-  const { track } = defineProps<{ track: string }>()
+  const { track, count = 5 } = defineProps<{ track: string, count?: number }>()
+
+  interface Slate {
+    id: string
+    stem: string
+    feedback?: string
+    level?: SkillLevel
+    mode: 'single' | 'multiple'
+    options: QuestionOption[]
+    correctAnswers: string[]
+  }
 
   const questions = useQuestions()
   const pool = toRef(() => questions.byTrack(track))
+  const take = toRef(() => Math.min(count, pool.value.length))
 
   const step = createStep()
   const open = shallowRef(false)
   const finished = shallowRef(false)
   const results = ref(new Map<string, QuestionResult>())
-  const order = shallowRef<string[]>([])
+  const answered = ref(new Map<string, string | string[]>())
+  const deck = ref<Slate[]>([])
   const run = shallowRef(0)
 
-  const ordered = toRef(() => order.value.flatMap(id => {
-    const question = pool.value.find(item => item.id === id)
-    return question ? [question] : []
-  }))
   const currentId = toRef(() => step.selectedId.value)
-  const currentLevelMeta = toRef(() => {
-    const level = ordered.value.find(question => question.id === currentId.value)?.level
-    return level ? SKILL_LEVEL_META[level] : undefined
-  })
   const index = toRef(() => step.selectedIndex.value)
-  const total = toRef(() => pool.value.length)
+  const total = toRef(() => deck.value.length)
   const isLast = toRef(() => index.value === total.value - 1)
   const score = toRef(() => [...results.value.values()].filter(result => result === 'correct').length)
 
-  function shuffle (ids: string[]): string[] {
-    const next = ids.slice()
+  const currentLevelMeta = toRef(() => {
+    const level = deck.value.find(slate => slate.id === currentId.value)?.level
+    return level ? SKILL_LEVEL_META[level] : undefined
+  })
+
+  const review = toRef(() => deck.value.map(slate => {
+    const result = results.value.get(slate.id) ?? null
+    return {
+      ...slate,
+      result,
+      correct: result === 'correct',
+      picked: labelsFor(slate, answered.value.get(slate.id)),
+      solution: labelsFor(slate, slate.correctAnswers),
+    }
+  }))
+
+  // Highest level the user cleared, requiring every lower level in the deck to
+  // also pass. Drives the skill verdict on the results screen.
+  const verdict = toRef(() => {
+    let determined: SkillLevel | 0 = 0
+    for (const level of [1, 2, 3] as const) {
+      const bucket = review.value.filter(item => item.level === level)
+      if (bucket.length === 0) continue
+      const ratio = bucket.filter(item => item.correct).length / bucket.length
+      if (ratio >= 0.5) determined = level
+      else break
+    }
+    return determined ? SKILL_LEVEL_META[determined] : undefined
+  })
+
+  function labelsFor (slate: Slate, values: string | string[] | undefined): string {
+    const list = isUndefined(values) ? [] : (isArray(values) ? values : [values])
+    return list
+      .map(value => slate.options.find(option => option.value === value)?.label ?? value)
+      .join(', ')
+  }
+
+  function shuffle<T> (items: T[]): T[] {
+    const next = items.slice()
     for (let i = next.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
       ;[next[i], next[j]] = [next[j], next[i]]
@@ -52,13 +95,58 @@
     return next
   }
 
+  function sample<T> (items: T[], amount: number): T[] {
+    return shuffle(items).slice(0, amount)
+  }
+
+  // Round-robin across level buckets so a short quiz still spans levels and the
+  // verdict can gauge skill. Falls back to a plain shuffle when levels are absent.
+  function pick (defs: QuestionDef[], amount: number): QuestionDef[] {
+    const buckets = new Map<number, QuestionDef[]>()
+    for (const def of defs) {
+      const level = def.level ?? 0
+      const bucket = buckets.get(level) ?? []
+      bucket.push(def)
+      buckets.set(level, bucket)
+    }
+
+    const ordered = [...buckets.entries()]
+      .toSorted((a, b) => a[0] - b[0])
+      .map(entry => shuffle(entry[1]))
+
+    const picked: QuestionDef[] = []
+    let cursor = 0
+    while (picked.length < amount && ordered.some(bucket => bucket.length > 0)) {
+      const bucket = ordered[cursor % ordered.length]
+      const next = bucket.shift()
+      if (next) picked.push(next)
+      cursor++
+    }
+
+    return shuffle(picked)
+  }
+
+  function materialize (def: QuestionDef): Slate {
+    const needed = distractorsNeeded(def.answers.length)
+    const options = shuffle([...def.answers, ...sample(def.distractors, needed)])
+    return {
+      id: def.id,
+      stem: def.stem,
+      feedback: def.feedback,
+      level: def.level,
+      mode: def.mode,
+      options,
+      correctAnswers: def.correctAnswers,
+    }
+  }
+
   function begin () {
     run.value++
-    const ids = shuffle(pool.value.map(question => question.id))
-    order.value = ids
+    deck.value = pick(pool.value, take.value).map(materialize)
     step.clear()
-    step.onboard(ids.map(id => ({ id, value: id })))
+    step.onboard(deck.value.map(slate => ({ id: slate.id, value: slate.id })))
     results.value = new Map()
+    answered.value = new Map()
     finished.value = false
     step.first()
   }
@@ -100,7 +188,7 @@
       </p>
 
       <p class="text-sm text-on-surface-variant">
-        Take a quick {{ pool.length }}-question quiz to test what you just learned.
+        Take a quick {{ take }}-question quiz to test what you just learned.
       </p>
 
       <button
@@ -117,24 +205,63 @@
     <div
       v-else-if="finished"
       :id="`${track}-quiz`"
-      class="relative flex flex-col items-start gap-2"
+      class="relative flex flex-col items-stretch gap-4"
     >
-      <SkillMasteredBadge v-if="score === total" :size="28" />
+      <div class="flex flex-col items-start gap-2">
+        <SkillMasteredBadge v-if="score === total" :size="28" />
 
-      <p class="text-sm font-medium text-on-surface">
-        {{ score === total ? 'Skill mastered' : 'Quiz complete' }}
-      </p>
+        <span
+          v-else-if="verdict"
+          class="skillz-badge inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-bold uppercase tracking-wide"
+          :style="{ '--level-color': verdict.color }"
+        >
+          {{ verdict.label }}
+          <AppIcon :icon="verdict.icon" :size="14" />
+        </span>
 
-      <p class="text-2xl font-semibold text-on-surface">
-        {{ score }} / {{ total }}
-      </p>
+        <p class="text-sm font-medium text-on-surface">
+          {{ score === total ? 'Skill mastered' : 'Quiz complete' }}
+        </p>
 
-      <p class="text-sm text-on-surface-variant">
-        {{ score === total ? 'Perfect score.' : 'Review the answers and try again.' }}
-      </p>
+        <p class="text-2xl font-semibold text-on-surface">
+          {{ score }} / {{ total }}
+        </p>
+
+        <p class="text-sm text-on-surface-variant">
+          <template v-if="score === total">Perfect score — you've got this cold.</template>
+          <template v-else-if="verdict">You're performing at the {{ verdict.label }} level. Review the misses below and try again.</template>
+          <template v-else>Keep practicing the fundamentals, then try again.</template>
+        </p>
+      </div>
+
+      <!-- Per-question review -->
+      <ul class="flex flex-col gap-2">
+        <li
+          v-for="item in review"
+          :key="item.id"
+          class="flex items-start gap-2.5 rounded-md border border-divider p-3 text-sm"
+          :class="item.correct ? 'bg-success/5' : 'bg-error/5'"
+        >
+          <AppIcon
+            class="mt-0.5 shrink-0"
+            :class="item.correct ? 'text-success' : 'text-error'"
+            :icon="item.correct ? 'check-circle' : 'close'"
+            :size="16"
+          />
+
+          <div class="flex flex-col gap-0.5">
+            <span class="font-medium text-on-surface">{{ item.stem }}</span>
+
+            <span class="text-xs text-on-surface-variant">
+              <template v-if="item.correct">Correct — {{ item.solution }}</template>
+              <template v-else>You chose {{ item.picked || '—' }} · answer: {{ item.solution }}</template>
+            </span>
+          </div>
+        </li>
+      </ul>
 
       <button
-        class="mt-2 inline-flex items-center gap-2 rounded-md border border-divider px-3 py-1.5 text-sm text-on-surface hover:bg-surface-variant transition-colors"
+        class="mt-1 inline-flex items-center gap-2 self-start rounded-md border border-divider px-3 py-1.5 text-sm text-on-surface transition-colors hover:bg-surface-variant"
         title="Try again"
         type="button"
         @click="onStart"
@@ -177,21 +304,23 @@
       </div>
 
       <Question.Root
-        v-for="question in ordered"
-        v-show="question.id === currentId"
-        :key="`${run}-${question.id}`"
+        v-for="slate in deck"
+        v-show="slate.id === currentId"
+        :key="`${run}-${slate.id}`"
         v-slot="{ submit, isSubmitted, hasSelection, result }"
-        :correct-answer="question.correctAnswers"
-        :mode="question.mode"
-        @submit="onAnswer(question.id, $event)"
+        :correct-answer="slate.correctAnswers"
+        :mode="slate.mode"
+        :model-value="answered.get(slate.id)"
+        @submit="onAnswer(slate.id, $event)"
+        @update:model-value="answered.set(slate.id, $event)"
       >
         <Question.Stem class="mb-3 block font-medium text-on-surface">
-          {{ question.stem }}
+          {{ slate.stem }}
         </Question.Stem>
 
         <div class="flex flex-col gap-2">
           <Question.Option
-            v-for="option in question.options"
+            v-for="option in slate.options"
             :key="option.value"
             v-slot="{ isSelected, isCorrect, isSubmitted: submitted }"
             class="block w-full cursor-pointer text-left"
@@ -208,20 +337,20 @@
               <span
                 class="inline-flex size-4 shrink-0 items-center justify-center border-2 transition-colors"
                 :class="[
-                  question.mode === 'multiple' ? 'rounded-sm' : 'rounded-full',
+                  slate.mode === 'multiple' ? 'rounded-sm' : 'rounded-full',
                   isSelected
-                    ? (question.mode === 'multiple' ? 'border-primary bg-primary text-on-primary' : 'border-primary')
+                    ? (slate.mode === 'multiple' ? 'border-primary bg-primary text-on-primary' : 'border-primary')
                     : 'border-on-surface-variant',
                 ]"
               >
                 <AppIcon
-                  v-if="question.mode === 'multiple' && isSelected"
+                  v-if="slate.mode === 'multiple' && isSelected"
                   icon="check"
                   :size="12"
                 />
 
                 <span
-                  v-else-if="question.mode !== 'multiple' && isSelected"
+                  v-else-if="slate.mode !== 'multiple' && isSelected"
                   class="size-1.5 rounded-full bg-primary"
                 />
               </span>
@@ -235,7 +364,7 @@
           class="mt-3 block rounded-md p-3 text-sm"
           :class="result === 'correct' ? 'bg-success/10 text-on-surface' : 'bg-warning/10 text-on-surface'"
         >
-          {{ question.feedback }}
+          {{ slate.feedback }}
         </Question.Feedback>
 
         <div class="mt-4 flex items-center gap-2">
