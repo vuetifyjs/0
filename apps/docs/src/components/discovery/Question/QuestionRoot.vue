@@ -10,7 +10,7 @@
 
 <script lang="ts">
   // Framework
-  import { Atom, createContext, createSelection, useId } from '@vuetify/v0'
+  import { Atom, createContext, createSelection, toArray, useId } from '@vuetify/v0'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
@@ -155,12 +155,7 @@
   const id = _id ?? useId()
 
   // Normalize correct answers to a Set (reactive)
-  const correctAnswers = computed(() => {
-    const answers = Array.isArray(correctAnswer)
-      ? correctAnswer
-      : [correctAnswer]
-    return new Set<string>(answers)
-  })
+  const correctAnswers = computed(() => new Set<string>(toArray(correctAnswer)))
 
   // Submission state
   const isSubmitted = shallowRef(false)
