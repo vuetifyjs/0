@@ -218,7 +218,7 @@
       v-if="!open"
       class="relative flex flex-col items-start gap-1"
     >
-      <p class="flex items-center gap-1.5 text-sm font-medium text-on-surface">
+      <p class="flex min-h-8 items-center gap-1.5 text-sm font-medium text-on-surface">
         <AppIcon class="text-warning" icon="medal" :size="16" />
         {{ placement ? 'Find your skill level' : 'Check your understanding' }}
       </p>
@@ -335,7 +335,7 @@
       :id="`${track}-quiz`"
       class="relative"
     >
-      <div class="mb-3 flex items-center gap-2">
+      <div class="mb-3 flex min-h-8 items-center gap-2">
         <AppIcon class="text-on-surface-variant" icon="puzzle" :size="16" />
 
         <span class="text-xs font-medium text-on-surface-variant whitespace-nowrap">
