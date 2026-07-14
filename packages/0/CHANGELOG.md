@@ -1,5 +1,63 @@
 # @vuetify/v0
 
+## 1.0.0-rc.8
+
+### Patch Changes
+
+- [#546](https://github.com/vuetifyjs/0/pull/546) [`03b298f`](https://github.com/vuetifyjs/0/commit/03b298f61270dea573e64f618b48173de20cbd4d) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(Combobox): route ComboboxEmpty default slot text through useLocale
+
+  The hardcoded `"No results"` fallback in `ComboboxEmpty` was not going through `useLocale`, violating PHILOSOPHY §5.5 (locale-first strings). Added a `Combobox.noResults` key to the English message bundle and changed the default slot content to `{{ locale.ti('Combobox.noResults') ?? 'No results' }}`, matching the pattern used by `Dialog.Close` and other components. Consumers who override the default slot are unaffected.
+
+- [#555](https://github.com/vuetifyjs/0/pull/555) [`9c04ead`](https://github.com/vuetifyjs/0/commit/9c04eadc12c5b2f037aa1202184fe70142646030) Thanks [@johnleider](https://github.com/johnleider)! - perf(createDataGrid): dramatically faster sorting, drag-reordering, and initialization on large grids ([#555](https://github.com/vuetifyjs/0/issues/555))
+
+  Grids with thousands of rows are far faster to sort, drag-reorder, and build — a 10k-row sort is ~28× faster, drag-reordering ~6.5×, and initial construction ~2×. No API change and no migration: existing grids get the speedup on upgrade.
+
+- [#585](https://github.com/vuetifyjs/0/pull/585) [`da2e0c1`](https://github.com/vuetifyjs/0/commit/da2e0c115fb3b1001634a392162c8e22e82a8bfa) Thanks [@johnleider](https://github.com/johnleider)! - fix(createSelection): disabled tickets are now inert to unselect and toggle
+
+  Gesture operations (select, unselect, toggle) no longer mutate disabled tickets in either direction. Wholesale operations (apply/v-model, selectAll, cascade propagation, clear) still drain disabled ids so state can never get stuck.
+
+- [#579](https://github.com/vuetifyjs/0/pull/579) [`23e7a0b`](https://github.com/vuetifyjs/0/commit/23e7a0b421d74397c1a70fbb59c99781c52ebb96) Thanks [@johnleider](https://github.com/johnleider)! - fix(createNested): leaf-mode parent unselect respects mandatory atomically instead of half-clearing the branch
+
+- [#584](https://github.com/vuetifyjs/0/pull/584) [`df823ca`](https://github.com/vuetifyjs/0/commit/df823cad723bb23dc67ce98036d795ce064173dc) Thanks [@johnleider](https://github.com/johnleider)! - fix(createNumberField): commit now no-ops while disabled or readonly, matching increment and decrement
+
+- [#580](https://github.com/vuetifyjs/0/pull/580) [`52b0ea8`](https://github.com/vuetifyjs/0/commit/52b0ea8387242de5f43424d37f2d0c9d80727f74) Thanks [@johnleider](https://github.com/johnleider)! - fix(createProgress): fromValue offsets by min so ProgressFill width matches the ARIA percent
+
+- [#582](https://github.com/vuetifyjs/0/pull/582) [`e741325`](https://github.com/vuetifyjs/0/commit/e741325cf10874c682acd119529e4cdb44a9fb26) Thanks [@johnleider](https://github.com/johnleider)! - fix(createSelection): apply fully replaces the selection under multiple+mandatory instead of stranding a stale id
+
+- [#583](https://github.com/vuetifyjs/0/pull/583) [`9127759`](https://github.com/vuetifyjs/0/commit/9127759efd6dc53b18e260d238277825fed017ea) Thanks [@johnleider](https://github.com/johnleider)! - fix(createSlider): thumb operations (set, up, down, floor, ceil) now no-op while disabled, as documented
+
+- [#581](https://github.com/vuetifyjs/0/pull/581) [`cdc9fb5`](https://github.com/vuetifyjs/0/commit/cdc9fb556844f5545227ca88eb44c4401afc69c7) Thanks [@johnleider](https://github.com/johnleider)! - fix(createForm): submit no longer reports failure when a field validation was superseded by a newer concurrent call
+
+  A superseded validate() now resolves to the latest validation's outcome instead of false, so double-submits and concurrent field validation report the form's actual validity.
+
+- [#587](https://github.com/vuetifyjs/0/pull/587) [`7f01ea0`](https://github.com/vuetifyjs/0/commit/7f01ea01b211bc0c0c3defa86c13c8ab5c6bffa8) Thanks [@johnleider](https://github.com/johnleider)! - fix(useProxyModel): apply the current v-model to late-registering tickets ([#587](https://github.com/vuetifyjs/0/issues/587)) — when the v-model changed before a value's ticket registered (e.g. tabs, carousels, or button groups whose items load asynchronously), the stale value was still selected once the ticket arrived, leaving the registry out of sync with the v-model. Late registration now honours the current model value.
+
+- [#570](https://github.com/vuetifyjs/0/pull/570) [`e770c89`](https://github.com/vuetifyjs/0/commit/e770c89545cf4ec6666cc2b743f78938851fa7c6) Thanks [@johnleider](https://github.com/johnleider)! - fix(createRegistry): dispatch batched events even when the batch callback throws ([#570](https://github.com/vuetifyjs/0/issues/570))
+
+  Event-driven consumers (e.g. `useProxyRegistry` snapshots) no longer go stale when a batch or `onboard` throws after some mutations already applied — the queued events for those applied mutations now flush regardless of whether the callback completes.
+
+- [#565](https://github.com/vuetifyjs/0/pull/565) [`05be673`](https://github.com/vuetifyjs/0/commit/05be673d6affb83143a8dcba04554fac49d43c64) Thanks [@johnleider](https://github.com/johnleider)! - fix(createRegistry): heal offboard reindex, id identity, and batched field-only upserts
+
+  Three correctness fixes to the registry foundation:
+
+  - **`offboard` now eagerly reindexes** when index-derived tickets shift position, so `values()` / `entries()` and `useProxyRegistry` consumers see corrected `index` / `value` immediately — previously a mid-list `offboard()` left the default (index-valued) survivors stale until some later position-reading call drained the deferred reindex, and iteration-only consumers never healed. It also drops the stale iteration cache before the removals so a sync effect firing mid-`offboard` never observes removed ids.
+  - **`offboard` preserves a supplied `id`** across a transfer even when the ticket has no explicit value. It previously used `valueIsIndex` as a proxy for "id was auto-generated" and stripped the id of any value-less ticket, so `register({ id: 'a' })` → `offboard(['a'])` returned `{}` and lost identity. Now only ids the registry itself minted are stripped. **Behavior delta for the selection chain:** `createModel` and everything built on it mint ids in their wrappers before calling `register`, so those ids read as supplied to the base registry — `offboard` now preserves them where it previously stripped them for value-less tickets. Downstream transfers (e.g. moving items between selections) keep their identity instead of getting a fresh id on re-onboard.
+  - **`batch()` no longer re-notifies iteration subscribers for a field-only upsert (or an empty batch)**, matching the non-batched `upsert` contract (§4.4): a batch that changes no membership or order leaves version subscribers untouched.
+
+- [#569](https://github.com/vuetifyjs/0/pull/569) [`e653ef5`](https://github.com/vuetifyjs/0/commit/e653ef59537ccb489765b505b320a1db18cf5133) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - test(plugins): lock in SSR safety for every plugin composable ([#569](https://github.com/vuetifyjs/0/issues/569))
+
+  Adds an SSR contract test to each plugin composable — no throw without a provider, and a fresh fallback per call so nothing leaks between requests — plus a guard that fails if a new plugin ships without one. The `useStack` leak these guard against was fixed in [#442](https://github.com/vuetifyjs/0/issues/442).
+
+- [#586](https://github.com/vuetifyjs/0/pull/586) [`562bd14`](https://github.com/vuetifyjs/0/commit/562bd1457c5c5b05c73fa8af69b4a61cef029451) Thanks [@johnleider](https://github.com/johnleider)! - fix(Switch): keep `Switch.Thumb` visible in every state — it no longer forces an inline `visibility: hidden` when the switch is off. The thumb had inherited the "present-when-on" indicator template from `Checkbox`/`Radio`/`Toggle`, but a switch knob is always visible and slides between positions. The inline style also sat at the top of the cascade, forcing consumers to override it with `visibility: visible !important`. Drive the off/on appearance from the `data-state` attribute (`checked` / `unchecked` / `indeterminate`) — e.g. `translate-x-1 data-[state=checked]:translate-x-6` — which now animates directly from the off position. `Switch.Thumb`'s slot `attrs` no longer includes a `style` key.
+
+- [#564](https://github.com/vuetifyjs/0/pull/564) [`ef7316b`](https://github.com/vuetifyjs/0/commit/ef7316bb08861501cf163aebac4c805b61c89da5) Thanks [@johnleider](https://github.com/johnleider)! - fix(createTokens): mutators now forward their `event` argument and `ticket.value` is typed accurately under `flat: true` ([#564](https://github.com/vuetifyjs/0/issues/564))
+
+  `upsert` (and the other registry mutators) silently dropped the optional `event` argument, so custom events never emitted for token registries; the wrappers now forward it and match the inherited `RegistryContext` signatures. `TokenValue` also widens to include `TokenCollection` so `ticket.value` reflects the nested objects stored under `flat: true` — the mode `useTheme`/`useFeatures` rely on — instead of claiming leaf/alias only.
+
+  If you exhaustively narrow a `TokenValue` (or `ticket.value`) in a `switch`/type guard, add a `TokenCollection` (object) branch — the union now has an object member alongside the primitive and alias cases.
+
+- [#588](https://github.com/vuetifyjs/0/pull/588) [`237c90a`](https://github.com/vuetifyjs/0/commit/237c90a6888b364e0c4bb650c8b79e69745c6a5b) Thanks [@johnleider](https://github.com/johnleider)! - fix(createValidation): stop `isValidating` sticking `true` when a silent validation interleaves an async one ([#588](https://github.com/vuetifyjs/0/issues/588)) — triggering a silent `validate()` while a non-silent async validation was still in flight left `isValidating` stuck at `true` (a permanent loading/validating state) until the next clean validation. The flag is now owned by the latest non-silent run and clears reliably.
+
 ## 1.0.0-rc.7
 
 ### Patch Changes
