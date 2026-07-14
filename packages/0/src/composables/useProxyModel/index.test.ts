@@ -282,4 +282,24 @@ describe('useProxyModel', () => {
     model.value = ['value-1', 'unknown']
     expect(model.value).toEqual(['value-1'])
   })
+
+  it('should not resurrect a stale value the model dropped before its ticket registered', () => {
+    const selection = createSelection({ events: true })
+    const model = shallowRef<string>('a')
+
+    useProxyModel(selection, model)
+
+    // Ticket for 'a' has not registered yet; the model moves on to 'b'.
+    model.value = 'b'
+
+    // 'b' then 'a' register late. Only 'b' — the current model — should select.
+    selection.onboard([
+      { id: 'ticket-b', value: 'b' },
+      { id: 'ticket-a', value: 'a' },
+    ])
+
+    expect(model.value).toBe('b')
+    expect(selection.selected('ticket-b')).toBe(true)
+    expect(selection.selected('ticket-a')).toBe(false)
+  })
 })
