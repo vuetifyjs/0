@@ -131,6 +131,10 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
   const isValid = shallowRef<boolean | null>(null)
   const isValidating = shallowRef(false)
   let generation = 0
+  // Generation of the most recent non-silent (visible) run — owns isValidating.
+  // Tracked separately from `generation` so a silent run bumping the shared
+  // counter can't strand the flag an in-flight non-silent run set.
+  let visible = 0
   let latest: ValidationRun | undefined
 
   function register (input: RuleInput | Partial<ValidationTicketInput>): ValidationTicket {
@@ -201,7 +205,7 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
 
       return false
     } finally {
-      if (gen === generation && !silent) {
+      if (!silent && gen === visible) {
         isValidating.value = false
       }
     }
@@ -212,6 +216,7 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
     // path - invalidates any in-flight validation. Otherwise a slow rule
     // resolving after a later no-rules call would overwrite the newer state.
     const gen = ++generation
+    if (!silent) visible = gen
     const promise = run(gen, _value, silent)
     latest = { generation: gen, promise }
 
