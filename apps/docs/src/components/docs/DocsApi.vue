@@ -93,13 +93,15 @@
     />
 
     <template v-if="showInlineApi">
-      <DocsSearchInput v-model="search" class="mt-4" :placeholder />
+      <DocsSearchInput v-model="search" class="mt-8" :placeholder />
+
+      <hr class="mt-4 -mb-4">
 
       <template
         v-for="api in visibleApis"
         :key="api.name"
       >
-        <DocsHeaderAnchor :id="helpers.toKebab(api.name)" class="mt-8">
+        <DocsHeaderAnchor :id="helpers.toKebab(api.name)">
           {{ api.name }}
         </DocsHeaderAnchor>
 

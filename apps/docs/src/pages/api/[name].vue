@@ -150,7 +150,9 @@
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 
-        <DocsSearchInput v-model="search" class="mt-4 -mb-3" :placeholder />
+        <DocsSearchInput v-model="search" class="mt-8 mb-4" :placeholder />
+
+        <hr class="mt-4 -mb-6">
 
         <template
           v-for="api in visibleApis"
