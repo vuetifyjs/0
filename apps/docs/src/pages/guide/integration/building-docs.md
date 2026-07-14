@@ -36,27 +36,49 @@ This documentation site is itself a proof of concept for v0. Every pattern docum
 
 ### Tabbed Code Groups
 
-The `DocsCodeGroup` component powers all tabbed code examples. It uses `createSingle` for exclusive selection and `useProxyRegistry` for keyboard navigation.
+The `DocsCodeGroup` component powers all tabbed code examples. It uses `createSingle` for exclusive selection and `useProxyRegistry` so registered tabs are iterable for rendering and keyboard focus.
 
 ```vue DocsCodeGroup.vue collapse
 <script setup lang="ts">
   import { createSingle, useProxyRegistry } from '@vuetify/v0'
+  import { useId } from 'vue'
 
-  // Events are required for useProxyRegistry
+  // events: true is required for useProxyRegistry snapshots
   const single = createSingle({ mandatory: 'force', events: true })
   const proxy = useProxyRegistry(single)
+  const uid = useId()
 
+  // Manual activation: arrows move focus only; Enter/Space selects (native button)
   function onKeydown (event: KeyboardEvent) {
     const tabs = Array.from(proxy.values)
     const currentIndex = tabs.findIndex(t => t.isSelected.value)
+    let nextIndex = currentIndex
 
     switch (event.key) {
       case 'ArrowLeft':
-        // Move to previous tab
+        nextIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1
+        event.preventDefault()
         break
       case 'ArrowRight':
-        // Move to next tab
+        nextIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0
+        event.preventDefault()
         break
+      case 'Home':
+        nextIndex = 0
+        event.preventDefault()
+        break
+      case 'End':
+        nextIndex = tabs.length - 1
+        event.preventDefault()
+        break
+      default:
+        return
+    }
+
+    if (nextIndex !== currentIndex) {
+      document.querySelector<HTMLButtonElement>(
+        `#${CSS.escape(`${uid}-tab-${tabs[nextIndex].id}`)}`,
+      )?.focus()
     }
   }
 </script>
@@ -65,9 +87,11 @@ The `DocsCodeGroup` component powers all tabbed code examples. It uses `createSi
   <div role="tablist" @keydown="onKeydown">
     <button
       v-for="tab in proxy.values"
+      :id="`${uid}-tab-${tab.id}`"
       :key="tab.id"
       :aria-selected="tab.isSelected.value"
       role="tab"
+      :tabindex="tab.isSelected.value ? 0 : -1"
       @click="tab.toggle"
     >
       {{ tab.value }}
@@ -77,7 +101,7 @@ The `DocsCodeGroup` component powers all tabbed code examples. It uses `createSi
 ```
 
 > [!NOTE]
-> **Why this works:** `createSingle` handles the selection logic. `useProxyRegistry` exposes registered items for iteration. The component owns all styling and accessibility attributes.
+> **Why this works:** `createSingle` owns exclusive selection. `useProxyRegistry` exposes tickets for iteration — keyboard handling is hand-rolled roving tabindex + manual activation on top of that list. The component owns styling and the remaining ARIA wiring.
 
 ### Mobile Navigation
 
@@ -164,12 +188,12 @@ The homepage demo uses `Selection` to show v0's component pattern:
     <Selection.Item
       v-for="item in items"
       :key="item.id"
-      v-slot="{ isSelected, toggle }"
+      v-slot="{ attrs, isSelected }"
       :value="item.id"
     >
       <button
+        v-bind="attrs"
         :class="isSelected ? 'bg-primary' : 'bg-surface'"
-        @click="toggle"
       >
         {{ item.label }}
       </button>

@@ -89,6 +89,9 @@ Single-selection state is **always reactive**. All computed properties update au
 > [!TIP] Perfect for UI controls
 > `selectedId`, `selectedValue`, and `selectedIndex` work directly in templates without any extra setup.
 
+> [!NOTE] Prefer the Single component for `v-model`
+> For a ready-made `v-model` surface, use [Single](/components/providers/single). This composable is the logic layer underneath — drive it with `select()` / `selectedId` / `selectedValue`, or wrap it in your own component.
+
 ## Examples
 
 ::: gn-example
@@ -122,7 +125,15 @@ createSingle is exclusive selection with no inherent order. Reach for [createSte
 
 ??? How do I prevent an empty "nothing selected" state?
 
-Pass `mandatory: true`. Once an item is active, clicking it again is a no-op, so the selection never empties — preselect on mount with `seek('first')?.select()` so the UI starts valid.
+`mandatory` accepts three modes (inherited from [createSelection](/composables/selection/create-selection)):
+
+| Value | Behavior |
+| - | - |
+| `false` (default) | Empty selection allowed |
+| `true` | Blocks deselecting the last item; does **not** auto-select on register |
+| `'force'` | Auto-selects the first non-disabled item on register/onboard **and** blocks empty |
+
+With `true`, preselect on mount (`seek('first')?.select()`) so the UI starts valid. With `'force'`, registration itself picks the first item — you usually skip the manual seek.
 
 ??? Can I read the selected value directly, not just its id?
 

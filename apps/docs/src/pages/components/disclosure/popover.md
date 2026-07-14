@@ -27,7 +27,9 @@ A headless component for creating popovers and tooltips using modern CSS anchor 
   :versions="{ chrome: '125+', edge: '125+', firefox: '147+', safari: '26+' }"
   anchor="css-anchor-positioning"
 >
-  The component works in all browsers, but automatic anchor positioning requires CSS Anchor Positioning support. In older browsers without it, you'll need to position the popover manually or use [Floating UI](https://floating-ui.com).
+
+The component works in all browsers, but automatic anchor positioning requires CSS Anchor Positioning support. In older browsers without it, you'll need to position the popover manually or use [Floating UI](https://floating-ui.com).
+
 </DocsBrowserSupport>
 
 ## Usage

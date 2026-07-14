@@ -232,6 +232,24 @@ describe('useProxyModel', () => {
     expect(model.value).toBe('value-1')
   })
 
+  it('should keep v-model clean when multiple mandatory apply replaces selection', () => {
+    const selection = createSelection({ events: true, mandatory: true, multiple: true })
+    selection.onboard([
+      { id: 'a', value: 'A' },
+      { id: 'b', value: 'B' },
+    ])
+
+    const model = ref<string[]>(['A'])
+    useProxyModel(selection, model)
+
+    model.value = ['B']
+
+    expect(model.value).toEqual(['B'])
+    expect(selection.selectedIds.has('a')).toBe(false)
+    expect(selection.selectedIds.has('b')).toBe(true)
+    expect(selection.selectedIds.size).toBe(1)
+  })
+
   it('should treat non-array values as not equal in array mode', () => {
     // shallowEqual rejects when one side isn't an array — exercises the
     // `!isArray(a) || !isArray(b)` short-circuit.

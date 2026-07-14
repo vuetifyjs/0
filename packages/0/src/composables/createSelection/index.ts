@@ -257,24 +257,34 @@ export function createSelection<
     const currentIds = new Set(model.selectedIds)
     const targetIds = new Set<ID>()
 
-    for (const value of values) {
-      const ids = model.browse(toRaw(value))
-      if (ids) {
-        for (const id of ids) targetIds.add(id)
-      }
-    }
-
     if (isMultiple) {
+      for (const value of values) {
+        const ids = model.browse(toRaw(value))
+        if (isUndefined(ids)) continue
+
+        for (const id of ids) {
+          const ticket = model.get(id)
+          if (!ticket || toValue(ticket.disabled)) continue
+          targetIds.add(id)
+        }
+      }
+
+      if (toValue(mandatory) && targetIds.size === 0) return
+
       for (const id of currentIds) {
-        if (!targetIds.has(id)) drain(id)
+        if (!targetIds.has(id)) model.selectedIds.delete(id)
       }
       for (const id of targetIds) {
-        if (currentIds.has(id)) continue
-        const ticket = model.get(id)
-        if (ticket && toValue(ticket.disabled)) continue
         model.selectedIds.add(id)
       }
     } else {
+      for (const value of values) {
+        const ids = model.browse(toRaw(value))
+        if (isUndefined(ids)) continue
+
+        for (const id of ids) targetIds.add(id)
+      }
+
       const next = targetIds.values().next().value
       const last = currentIds.values().next().value
       if (!isUndefined(last)) drain(last)

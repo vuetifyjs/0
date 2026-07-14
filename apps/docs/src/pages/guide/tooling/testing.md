@@ -6,7 +6,7 @@ features:
   level: 2
 meta:
   - name: description
-    content: Test v0-based code with Vitest and @vue/test-utils. Covers setup, Vue DI mocking, plugin mocking, fake timers, SSR-only tests, and asserting v0 errors and warnings.
+    content: Test v0-based code with Vitest and @vue/test-utils. Covers setup, plugin installation, fake timers, asserting v0 errors and warnings, and package-internal DI/SSR patterns for contributors.
   - name: keywords
     content: vuetify0, testing, vitest, vue test utils, unit tests, component tests, mocking, V0Error, isV0Error, happy-dom
 related:
@@ -17,7 +17,7 @@ related:
 
 # Testing
 
-This guide covers testing patterns for v0 consumers — from environment setup through asserting errors, warnings, and locale-safe output.
+Patterns for testing apps that use v0, plus the package-internal techniques used when contributing to `@vuetify/v0`.
 
 <DocsPageFeatures :frontmatter />
 
@@ -59,36 +59,9 @@ export default defineConfig({
 })
 ```
 
-## Mocking Vue DI
+## Installing plugins
 
-Many v0 composables use `provide` / `inject` internally. Mock them at the top of any test file that exercises these composables:
-
-```ts
-import { vi } from 'vitest'
-
-vi.mock('vue', () => ({
-  provide: vi.fn(),
-  inject: vi.fn(),
-}))
-```
-
-When the composable also calls `hasInjectionContext()` to guard against use outside a component, extend the mock to keep that gate truthy:
-
-```ts
-vi.mock('vue', async () => {
-  const actual = await vi.importActual('vue')
-  return {
-    ...actual,
-    provide: vi.fn(),
-    inject: vi.fn(),
-    hasInjectionContext: vi.fn(() => true),
-  }
-})
-```
-
-## Mocking plugins
-
-Use `global.plugins` in `@vue/test-utils` mount options to install v0 plugins. This covers Stack, Theme, and any other plugin-based contexts:
+When a component under test calls plugin-backed composables (`useStack`, `useTheme`, and similar), install those plugins in `@vue/test-utils` mount options. Prefer real providers over mocking Vue's `provide` / `inject`:
 
 ```ts
 import { mount } from '@vue/test-utils'
@@ -104,7 +77,7 @@ const wrapper = mount(MyComponent, {
 
 ## Fake timers
 
-Composables that schedule work via `setTimeout` or `setInterval` (such as `useTimer`, `useDelay`, and `usePopover`) require fake timers. Enable them in `beforeEach` and restore in `afterEach`:
+Composables that schedule work via `setTimeout` or `setInterval` (such as `useTimer`, `useDelay`, and `usePopover`) require fake timers. Enable them in `beforeEach` and restore real timers in `afterEach`:
 
 ```ts
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -115,7 +88,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  vi.restoreAllMocks()
+  vi.useRealTimers()
 })
 
 it('should fire handler after duration', () => {
@@ -187,9 +160,45 @@ it('should warn on duplicate registration', () => {
 
 Never silently swallow warnings — always assert that the spy was called.
 
-## SSR-only tests
+## Locale-safe assertions
 
-`vi.mock` is hoisted and applies file-wide, so mixing client and SSR branches in the same file causes the mock to leak. Split SSR-only tests into a sibling `*.ssr.test.ts` file and hoist the `IN_BROWSER` mock there:
+v0 formats user-visible strings through the locale system. Pin assertions to structure, not English text, so tests pass under any locale:
+
+```ts
+// Right — locale-safe
+expect(wrapper.find('[aria-label]').element.getAttribute('aria-label')).toBeDefined()
+
+// Wrong — breaks under non-English locales
+expect(wrapper.find('[aria-label]').element.getAttribute('aria-label')).toBe('Close dialog')
+```
+
+## Contributing to v0
+
+The patterns below apply when unit-testing composables **inside the `@vuetify/v0` package**. When testing your own components, prefer [Installing plugins](#installing-plugins) and real provide/inject instead.
+
+### Mocking Vue DI
+
+Many package tests isolate composables by stubbing `provide` / `inject` (and `hasInjectionContext` when the composable guards against use outside a component). Always spread `importActual` so the rest of Vue stays real:
+
+```ts
+import { vi } from 'vitest'
+
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    provide: vi.fn(),
+    inject: vi.fn(),
+    hasInjectionContext: vi.fn(() => true),
+  }
+})
+```
+
+### SSR-only tests
+
+`vi.mock` is hoisted and applies file-wide, so mixing client and SSR branches in the same file causes the mock to leak. Split SSR-only tests into a sibling `*.ssr.test.ts` file.
+
+The package resolves internals via the `#v0/*` import map (`package.json` `imports`). That specifier is **not available to app consumers** — only monorepo tests that run against package source can mock it:
 
 ```ts index.ssr.test.ts
 // Must be the first statement — vi.mock is hoisted
@@ -206,15 +215,3 @@ it('should throw when called outside a component in SSR', () => {
 ```
 
 The corresponding client tests live in `index.test.ts` and are unaffected by the SSR mock.
-
-## Locale-safe assertions
-
-v0 formats user-visible strings through the locale system. Pin assertions to structure, not English text, so tests pass under any locale:
-
-```ts
-// Right — locale-safe
-expect(wrapper.find('[aria-label]').element.getAttribute('aria-label')).toBeDefined()
-
-// Wrong — breaks under non-English locales
-expect(wrapper.find('[aria-label]').element.getAttribute('aria-label')).toBe('Close dialog')
-```

@@ -2,6 +2,7 @@
   import apiData from 'virtual:api'
 
   // Composables
+  import { useApiFilter } from '@/composables/useApiFilter'
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
@@ -58,6 +59,7 @@
     return data.composables[name] || null
   })
 
+  const { search, visibleApis, placeholder, empty } = useApiFilter(componentApis, composableApi)
 </script>
 
 <template>
@@ -91,11 +93,15 @@
     />
 
     <template v-if="showInlineApi">
+      <DocsSearchInput v-model="search" class="mt-8" :placeholder />
+
+      <hr class="mt-4 -mb-4">
+
       <template
-        v-for="api in componentApis"
+        v-for="api in visibleApis"
         :key="api.name"
       >
-        <DocsHeaderAnchor :id="helpers.toKebab(api.name)" class="mt-8">
+        <DocsHeaderAnchor :id="helpers.toKebab(api.name)">
           {{ api.name }}
         </DocsHeaderAnchor>
 
@@ -103,6 +109,7 @@
           :anchor-id="`${helpers.toKebab(api.name)}-props`"
           :items="api.props"
           kind="prop"
+          :query="search"
           title="Props"
         />
 
@@ -111,6 +118,7 @@
           class="mt-8"
           :items="api.events"
           kind="event"
+          :query="search"
           title="Events"
         />
 
@@ -119,9 +127,14 @@
           class="mt-8"
           :items="api.slots"
           kind="slot"
+          :query="search"
           title="Slots"
         />
       </template>
+
+      <p v-if="empty" class="text-sm text-on-surface-variant mt-4">
+        No API items match "{{ search }}".
+      </p>
     </template>
   </div>
 
@@ -155,11 +168,14 @@
     />
 
     <template v-if="showInlineApi">
+      <DocsSearchInput v-model="search" class="mt-4" :placeholder />
+
       <DocsApiSection
         anchor-id="functions"
         class="mt-8"
         :items="composableApi.functions"
         kind="function"
+        :query="search"
         title="Functions"
       />
 
@@ -168,6 +184,7 @@
         class="mt-8"
         :items="composableApi.options"
         kind="option"
+        :query="search"
         title="Options"
       />
 
@@ -176,6 +193,7 @@
         class="mt-8"
         :items="composableApi.properties"
         kind="property"
+        :query="search"
         title="Properties"
       />
 
@@ -184,8 +202,13 @@
         class="mt-8"
         :items="composableApi.methods"
         kind="method"
+        :query="search"
         title="Methods"
       />
+
+      <p v-if="empty" class="text-sm text-on-surface-variant mt-4">
+        No API items match "{{ search }}".
+      </p>
     </template>
   </div>
 </template>
