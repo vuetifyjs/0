@@ -512,6 +512,51 @@ describe('createSelection', () => {
         expect(selection.selectedIds.size).toBe(0)
       })
 
+      it('should not unselect a selected disabled ticket', () => {
+        const disabled = ref(false)
+        const selection = createSelection({ multiple: true })
+
+        selection.onboard([
+          { id: 'item-1', value: 'value-1', disabled },
+          { id: 'item-2', value: 'value-2' },
+        ])
+
+        selection.select('item-1')
+        selection.select('item-2')
+
+        disabled.value = true
+        selection.unselect('item-1')
+
+        expect(selection.selectedIds.has('item-1')).toBe(true)
+        expect(selection.selectedIds.has('item-2')).toBe(true)
+      })
+
+      it('should not toggle off a selected disabled ticket', () => {
+        const disabled = ref(false)
+        const selection = createSelection({ multiple: true })
+
+        selection.onboard([{ id: 'item-1', value: 'value-1', disabled }])
+        selection.select('item-1')
+
+        disabled.value = true
+        selection.toggle('item-1')
+
+        expect(selection.selectedIds.has('item-1')).toBe(true)
+      })
+
+      it('should not unselect a selected disabled ticket via ticket.unselect()', () => {
+        const disabled = ref(false)
+        const selection = createSelection({ multiple: true })
+
+        const ticket = selection.register({ id: 'item-1', value: 'value-1', disabled })
+        selection.select('item-1')
+
+        disabled.value = true
+        ticket.unselect()
+
+        expect(selection.selectedIds.has('item-1')).toBe(true)
+      })
+
       it('should not select non-existent items', () => {
         const selection = createSelection()
 
@@ -1116,6 +1161,52 @@ describe('createSelection', () => {
 
         expect(selection.selectedIds.has('a')).toBe(true)
         expect(selection.selectedIds.has('b')).toBe(false)
+      })
+
+      it('should swap away from a disabled selected id in non-multiple mode', () => {
+        const disabled = ref(false)
+        const selection = createSelection()
+        selection.onboard([
+          { id: 'a', value: 'A', disabled },
+          { id: 'b', value: 'B' },
+        ])
+        selection.select('a')
+
+        disabled.value = true
+        selection.apply(['B'])
+
+        expect(selection.selectedIds.has('a')).toBe(false)
+        expect(selection.selectedIds.has('b')).toBe(true)
+        expect(selection.selectedIds.size).toBe(1)
+      })
+
+      it('should drain a disabled selected id when applying empty in non-multiple mode', () => {
+        const disabled = ref(false)
+        const selection = createSelection()
+        selection.onboard([{ id: 'a', value: 'A', disabled }])
+        selection.select('a')
+
+        disabled.value = true
+        selection.apply([])
+
+        expect(selection.selectedIds.size).toBe(0)
+      })
+
+      it('should drain a disabled selected id when applying in multiple mode', () => {
+        const disabled = ref(false)
+        const selection = createSelection({ multiple: true })
+        selection.onboard([
+          { id: 'a', value: 'A', disabled },
+          { id: 'b', value: 'B' },
+        ])
+        selection.select('a')
+
+        disabled.value = true
+        selection.apply(['B'])
+
+        expect(selection.selectedIds.has('a')).toBe(false)
+        expect(selection.selectedIds.has('b')).toBe(true)
+        expect(selection.selectedIds.size).toBe(1)
       })
     })
 
