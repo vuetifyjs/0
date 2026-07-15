@@ -41,14 +41,17 @@ The Avatar component provides a robust image loading system with automatic fallb
 <template>
   <Avatar.Root>
     <Avatar.Image />
+
     <Avatar.Fallback />
   </Avatar.Root>
 
   <Avatar.Group>
     <Avatar.Root>
       <Avatar.Image />
+
       <Avatar.Fallback />
     </Avatar.Root>
+
     <Avatar.Indicator />
   </Avatar.Group>
 </template>

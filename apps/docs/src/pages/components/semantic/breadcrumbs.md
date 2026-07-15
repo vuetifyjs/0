@@ -46,9 +46,13 @@ The Breadcrumbs component provides a compound component pattern for building nav
       <Breadcrumbs.Item>
         <Breadcrumbs.Link />
       </Breadcrumbs.Item>
+
       <Breadcrumbs.Divider />
+
       <Breadcrumbs.Ellipsis />
+
       <Breadcrumbs.Divider />
+
       <Breadcrumbs.Item>
         <Breadcrumbs.Page />
       </Breadcrumbs.Item>

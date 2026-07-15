@@ -52,11 +52,17 @@ The two core props are `size` (total item count) and `items-per-page` (items per
 <template>
   <Pagination.Root>
     <Pagination.Status />
+
     <Pagination.First />
+
     <Pagination.Prev />
+
     <Pagination.Ellipsis />
+
     <Pagination.Item />
+
     <Pagination.Next />
+
     <Pagination.Last />
   </Pagination.Root>
 </template>

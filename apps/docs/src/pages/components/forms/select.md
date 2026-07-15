@@ -43,7 +43,9 @@ The Select component provides a compound pattern for building accessible dropdow
   <Select.Root>
     <Select.Activator>
       <Select.Value />
+
       <Select.Placeholder />
+
       <Select.Cue />
     </Select.Activator>
 

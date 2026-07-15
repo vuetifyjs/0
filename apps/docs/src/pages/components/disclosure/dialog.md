@@ -50,9 +50,12 @@ The Dialog component leverages the native `showModal()` API for proper modal beh
 <template>
   <Dialog.Root>
     <Dialog.Activator />
+
     <Dialog.Content>
       <Dialog.Title />
+
       <Dialog.Description />
+
       <Dialog.Close />
     </Dialog.Content>
   </Dialog.Root>
