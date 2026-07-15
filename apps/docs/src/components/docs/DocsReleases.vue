@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createFilter, IN_BROWSER, Popover, useDate } from '@vuetify/v0'
+  import { createFilter, IN_BROWSER, isString, Popover, useDate } from '@vuetify/v0'
 
   // Context
   import DocsSkeleton from './DocsSkeleton.vue'
@@ -27,6 +27,7 @@
   const date = useDate()
   const linkClipboard = useClipboard()
   const markdownClipboard = useClipboard()
+  const installClipboard = useClipboard()
 
   const model = shallowRef<Release>()
   const search = shallowRef('')
@@ -45,8 +46,36 @@
   })
 
   const releases = toRef(() => store.releases)
-  const filter = createFilter({ keys: ['tag_name', 'name'] })
+  const filter = createFilter({ keys: ['tag_name', 'name', 'body'] })
   const { items: filteredReleases } = filter.apply(search, releases)
+
+  // Splits a release tag into the npm package and its version. Substrate tags are
+  // `v<version>` (package `@vuetify/v0`); design-system tags are `@scope/name@<version>`.
+  function parseTag (tag: string) {
+    const scoped = /^(@[^@]+)@(.+)$/.exec(tag)
+    if (scoped) return { name: scoped[1], version: scoped[2] }
+    return { name: '@vuetify/v0', version: tag.replace(/^v/, '') }
+  }
+
+  function channelOf (version: string) {
+    return /-(alpha|beta|rc)\./.exec(version)?.[1] ?? 'stable'
+  }
+
+  // Heuristic: changeset bodies surface breaking work under a "Major Changes"
+  // heading; conventional footers use "BREAKING CHANGE".
+  function isBreaking (release: Release) {
+    const body = release.body
+    if (!isString(body)) return false
+    return /breaking change/i.test(body) || /^#{1,6}\s*major changes/im.test(body)
+  }
+
+  const install = toRef(() => {
+    if (!model.value) return undefined
+    const { name, version } = parseTag(model.value.tag_name)
+    return `pnpm add ${name}@${version}`
+  })
+
+  const channel = toRef(() => model.value ? channelOf(parseTag(model.value.tag_name).version) : undefined)
 
   function genEmoji (count: number) {
     if (count >= 100) return '\uD83D\uDCAB'
@@ -70,6 +99,11 @@
   async function copyReleaseMarkdown () {
     if (!model.value?.body) return
     await markdownClipboard.copy(model.value.body)
+  }
+
+  async function copyInstall () {
+    if (!install.value) return
+    await installClipboard.copy(install.value)
   }
 
   function selectRelease (release: Release) {
@@ -175,8 +209,17 @@
             {{ release.name }}
           </span>
 
-          <span v-if="release.reactions?.total_count" class="ml-auto">
-            {{ genEmoji(release.reactions.total_count) }}
+          <span class="ml-auto flex items-center gap-1.5">
+            <AppIcon
+              v-if="isBreaking(release)"
+              class="text-error"
+              icon="alert"
+              :size="14"
+            />
+
+            <span v-if="release.reactions?.total_count">
+              {{ genEmoji(release.reactions.total_count) }}
+            </span>
           </span>
         </button>
 
@@ -202,9 +245,28 @@
     <div v-if="model?.author" class="border-t border-divider">
       <!-- Header -->
       <div class="flex items-center justify-between px-4 py-3 border-b border-divider">
-        <div class="flex items-center gap-2 text-sm">
+        <div class="flex items-center gap-2 text-sm flex-wrap">
           <AppIcon class="opacity-50" icon="calendar" :size="16" />
           <span>{{ publishedOn }}</span>
+
+          <span
+            v-if="channel"
+            class="text-xs font-medium px-2 py-0.5 rounded-full capitalize"
+            :class="{
+              'bg-success text-on-success': channel === 'stable',
+              'bg-info text-on-info': channel === 'rc',
+              'bg-warning text-on-warning': channel === 'beta',
+              'bg-error text-on-error': channel === 'alpha',
+            }"
+          >{{ channel }}</span>
+
+          <span
+            v-if="isBreaking(model)"
+            class="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-error text-on-error"
+          >
+            <AppIcon icon="alert" :size="12" />
+            Breaking
+          </span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -248,6 +310,22 @@
             <AppIcon icon="github" :size="18" />
           </a>
         </div>
+      </div>
+
+      <!-- Install -->
+      <div v-if="install" class="flex items-center gap-2 px-4 py-2 border-b border-divider bg-surface-tint">
+        <AppIcon class="opacity-50 shrink-0" icon="package" :size="16" />
+        <code class="text-sm truncate flex-1">{{ install }}</code>
+
+        <button
+          aria-label="Copy install command"
+          class="p-1.5 rounded hover:bg-surface focus-visible:bg-surface inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none shrink-0"
+          :title="installClipboard.copied.value ? 'Copied!' : 'Copy install command'"
+          type="button"
+          @click="copyInstall"
+        >
+          <AppIcon :icon="installClipboard.copied.value ? 'success' : 'copy'" :size="16" />
+        </button>
       </div>
 
       <!-- Body -->
