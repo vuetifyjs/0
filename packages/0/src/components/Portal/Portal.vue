@@ -52,7 +52,7 @@
   }>()
 
   const {
-    to = 'body',
+    to,
     disabled = false,
     blocking = false,
     scrim = true,
@@ -71,9 +71,10 @@
   })
   ticket.select()
 
-  const target = toRef(() => (
-    to === 'top-layer' ? stack.topElement.value ?? 'body' : to
-  ))
+  const target = toRef(() => {
+    const resolvedTo = to ?? stack.default.value ?? 'body'
+    return resolvedTo === 'top-layer' ? stack.topElement.value ?? 'body' : resolvedTo
+  })
 
   const slotProps = toRef((): PortalSlotProps => ({
     zIndex: ticket.zIndex.value,
