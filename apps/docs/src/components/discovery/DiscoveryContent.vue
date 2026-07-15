@@ -84,7 +84,7 @@
         transform: 'translate(-50%, -50%)',
         width: 'max-content',
         height: 'max-content',
-        maxWidth: `calc(100vw - ${offset * 2}px)`,
+        maxWidth: `min(20rem, calc(100vw - ${offset * 2}px))`,
         maxHeight: `calc(100vh - ${offset * 2}px)`,
         overflow: noOverflow ? 'visible' : 'auto',
       }
@@ -95,7 +95,7 @@
         position: 'fixed' as const,
         width: 'max-content',
         height: 'max-content',
-        maxWidth: `calc(100vw - ${offset * 2}px)`,
+        maxWidth: `min(20rem, calc(100vw - ${offset * 2}px))`,
         maxHeight: `calc(100vh - ${offset * 2}px)`,
         overflow: noOverflow ? 'visible' : 'auto',
         positionAnchor: `--discovery-${root.step}`,
