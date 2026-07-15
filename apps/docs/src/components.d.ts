@@ -79,6 +79,7 @@ declare module 'vue' {
     AppThemeSystemButton: typeof import('./components/app/theme/mode/AppThemeSystemButton.vue')['default']
     AppThemeToggle: typeof import('./components/app/AppThemeToggle.vue')['default']
     AppThemeTritanopiaButton: typeof import('./components/app/theme/a11y/AppThemeTritanopiaButton.vue')['default']
+    AppTooltip: typeof import('./components/app/AppTooltip.vue')['default']
     AppVersionChip: typeof import('./components/app/AppVersionChip.vue')['default']
     BenchmarkExplorer: typeof import('./components/docs/benchmark/BenchmarkExplorer.vue')['default']
     BenchmarkFilters: typeof import('./components/docs/benchmark/BenchmarkFilters.vue')['default']
