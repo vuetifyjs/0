@@ -57,7 +57,7 @@
       </Popover.Activator>
 
       <Popover.Content
-        class="p-1.5 rounded-lg bg-surface border border-divider shadow-lg min-w-[140px] !mt-1"
+        class="p-1.5 rounded-lg bg-surface border border-divider shadow-lg min-w-[140px] !mt-[9px]"
         position-area="bottom span-right"
         position-try="bottom span-right, bottom span-left, top span-right, top span-left"
       >
