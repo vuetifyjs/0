@@ -45,6 +45,9 @@ app.mount('#app')
 
 The Scrim component renders a backdrop that appears when any overlay is active. It automatically positions itself below the topmost overlay using z-index management from the stack context.
 
+> [!IMPORTANT]
+> The scrim is rendered with `aria-hidden` — it is decorative. Don't place interactive or focusable content in its default slot; keep controls inside the overlay itself.
+
 ::: gn-example
 /components/scrim/basic
 :::
