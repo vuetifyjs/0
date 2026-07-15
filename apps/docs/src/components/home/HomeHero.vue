@@ -4,11 +4,36 @@
 
   // Composables
   import { useAsk } from '@/composables/useAsk'
+  import { useDiscovery } from '@/composables/useDiscovery'
+  import { useNavigation } from '@/composables/useNavigation'
+  import { useSettings } from '@/composables/useSettings'
+
+  // Stores
+  import { useSkillzStore } from '@/stores/skillz'
 
   // Utilities
   import { onMounted, shallowRef } from 'vue'
+  import { useRouter } from 'vue-router'
+
+  const TOUR_ID = 'using-the-docs'
 
   const ask = useAsk()
+  const discovery = useDiscovery()
+  const navigation = useNavigation()
+  const router = useRouter()
+  const settings = useSettings()
+  const skillz = useSkillzStore()
+
+  async function onTour () {
+    const tour = discovery.tours.get(TOUR_ID)
+    if (!tour) return
+
+    await router.push(tour.startRoute)
+
+    skillz.start(TOUR_ID, {
+      context: { ask, navigation, settings },
+    })
+  }
 
   const logger = useLogger()
   const stats = shallowRef({
@@ -81,13 +106,12 @@
         </router-link>
 
         <button
-          aria-haspopup="dialog"
           class="px-8 py-3.5 bg-surface text-on-surface rounded-xl font-semibold text-lg border text-center whitespace-nowrap hover:bg-surface-tint hover:border-primary transition-all duration-150 inline-flex items-center justify-center gap-2"
           type="button"
-          @click="ask.open(); ask.focus()"
+          @click="onTour"
         >
-          <AppIcon icon="create" :size="18" />
-          Try Ask AI
+          <AppIcon icon="compass" :size="18" />
+          Take a tour
         </button>
       </div>
 
