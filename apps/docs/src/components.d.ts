@@ -178,6 +178,7 @@ declare module 'vue' {
     HomeEcosystem: typeof import('./components/home/HomeEcosystem.vue')['default']
     HomeFoundation: typeof import('./components/home/HomeFoundation.vue')['default']
     HomeHero: typeof import('./components/home/HomeHero.vue')['default']
+    HomeInstallCommand: typeof import('./components/home/HomeInstallCommand.vue')['default']
     HomePrimarySponsor: typeof import('./components/home/HomePrimarySponsor.vue')['default']
     HomeSpecialSponsor: typeof import('./components/home/HomeSpecialSponsor.vue')['default']
     QuestionFeedback: typeof import('./components/discovery/Question/QuestionFeedback.vue')['default']

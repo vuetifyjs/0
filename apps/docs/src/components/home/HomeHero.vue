@@ -116,7 +116,7 @@
         </button>
       </div>
 
-      <HomeCopyCommand command="pnpm add @vuetify/v0" />
+      <HomeInstallCommand />
     </div>
 
     <div class="relative grid grid-cols-2 md:flex gap-4 md:gap-12 justify-center text-center">
