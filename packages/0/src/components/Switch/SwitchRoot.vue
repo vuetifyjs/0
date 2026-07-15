@@ -282,7 +282,7 @@
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
       'role': 'switch',
-      'aria-checked': isMixed.value ? false : isChecked.value,
+      'aria-checked': !isMixed.value && isChecked.value,
       'aria-disabled': isDisabled.value,
       'aria-label': label || undefined,
       'aria-labelledby': ariaLabelledby || undefined,

@@ -148,7 +148,7 @@
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
       'role': 'switch',
-      'aria-checked': isMixed.value ? false : isAllSelected.value,
+      'aria-checked': !isMixed.value && isAllSelected.value,
       'aria-disabled': isDisabled.value,
       'aria-label': label || undefined,
       'aria-labelledby': ariaLabelledby || undefined,
