@@ -76,6 +76,7 @@
   })
 
   const channel = toRef(() => model.value ? channelOf(parseTag(model.value.tag_name).version) : undefined)
+  const channelLabel = toRef(() => channel.value === 'rc' ? 'RC' : channel.value)
 
   function genEmoji (count: number) {
     if (count >= 100) return '\uD83D\uDCAB'
@@ -258,7 +259,7 @@
               'bg-warning text-on-warning': channel === 'beta',
               'bg-error text-on-error': channel === 'alpha',
             }"
-          >{{ channel }}</span>
+          >{{ channelLabel }}</span>
 
           <span
             v-if="isBreaking(model)"
@@ -313,13 +314,13 @@
       </div>
 
       <!-- Install -->
-      <div v-if="install" class="flex items-center gap-2 px-4 py-2 border-b border-divider bg-surface-tint">
+      <div v-if="install" class="flex items-center gap-2 px-4 py-2 border-b border-divider bg-surface-variant">
         <AppIcon class="opacity-50 shrink-0" icon="package" :size="16" />
-        <code class="text-sm truncate flex-1">{{ install }}</code>
+        <code class="text-sm truncate flex-1 bg-surface-variant">{{ install }}</code>
 
         <button
           aria-label="Copy install command"
-          class="p-1.5 rounded hover:bg-surface focus-visible:bg-surface inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none shrink-0"
+          class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none shrink-0"
           :title="installClipboard.copied.value ? 'Copied!' : 'Copy install command'"
           type="button"
           @click="copyInstall"
