@@ -565,6 +565,14 @@ describe('splitter', () => {
         expect(handle.attributes('aria-label')).toBe('Resize panels')
       })
 
+      it('should set a default aria-label when label prop is omitted', async () => {
+        const wrapper = twoPanel()
+        await nextTick()
+
+        const handle = wrapper.findComponent(SplitterHandle as any)
+        expect(handle.attributes('aria-label')).toBe('Resize panels')
+      })
+
       it('should set aria-disabled when disabled', async () => {
         const wrapper = twoPanel({ disabled: true })
         await nextTick()

@@ -68,4 +68,7 @@ export default {
   Snackbar: {
     close: 'Dismiss',
   },
+  Splitter: {
+    handle: 'Resize panels',
+  },
 } as const
