@@ -51,11 +51,29 @@ export function useApiFilter (
 
   const matched = toRef(() => new Set(matches.value))
 
+  // Component-name matching. The item filter above only sees the flattened
+  // props/events/slots, so a search for a compound name (e.g. "Trigger" in
+  // Dialog.Trigger) never surfaces its group. Match the group names too.
+  const nameFilter = createFilter({ keys: ['name'] })
+  const { items: nameMatches } = nameFilter.apply(search, () => toValue(componentApis) as unknown as Item[])
+
+  const named = toRef(() => new Set(nameMatches.value))
+
+  function matchesName (api: ComponentApi) {
+    return named.value.has(api as unknown as Item)
+  }
+
   const visibleApis = toRef(() => {
     if (!search.value) return toValue(componentApis)
 
-    return toValue(componentApis).filter(api => group(api).some(item => matched.value.has(item)))
+    return toValue(componentApis).filter(api => matchesName(api) || group(api).some(item => matched.value.has(item)))
   })
+
+  // A group surfaced by its name shows every item, so its DocsApiSections must
+  // not re-filter by the query and empty themselves out.
+  function queryFor (api: ComponentApi) {
+    return matchesName(api) ? '' : search.value
+  }
 
   const placeholder = toRef(() =>
     isComponent.value
@@ -63,7 +81,7 @@ export function useApiFilter (
       : 'Filter functions, options, methods…',
   )
 
-  const empty = toRef(() => !!search.value && matches.value.length === 0)
+  const empty = toRef(() => !!search.value && matches.value.length === 0 && nameMatches.value.length === 0)
 
-  return { search, visibleApis, placeholder, empty }
+  return { search, visibleApis, queryFor, placeholder, empty }
 }
