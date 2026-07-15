@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { GnActionButton } from '@paper/genesis'
+
   // Framework
   import { createFilter, IN_BROWSER, isString, Popover, useDate } from '@vuetify/v0'
 
@@ -322,15 +324,14 @@
         <AppIcon class="opacity-50 shrink-0" icon="package" :size="16" />
         <code class="text-sm truncate flex-1 bg-surface-variant">{{ install }}</code>
 
-        <button
+        <GnActionButton
           aria-label="Copy install command"
-          class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none shrink-0"
+          class="shrink-0"
           :title="installClipboard.copied.value ? 'Copied!' : 'Copy install command'"
-          type="button"
           @click="copyInstall"
         >
           <AppIcon :icon="installClipboard.copied.value ? 'success' : 'copy'" :size="16" />
-        </button>
+        </GnActionButton>
       </div>
 
       <!-- Body -->
