@@ -7,15 +7,25 @@
   import { useSettings, type PackageManager } from '@/composables/useSettings'
 
   // Utilities
-  import { shallowRef, toRef } from 'vue'
+  import { shallowRef, toRef, watch } from 'vue'
+
+  // Types
+  import type { SingleSelectOption } from '@/components/app/settings/AppSettingsSingleSelect.vue'
 
   const PACKAGE = '@vuetify/v0'
 
-  const MANAGERS: { id: PackageManager, verb: string }[] = [
-    { id: 'pnpm', verb: 'add' },
-    { id: 'npm', verb: 'install' },
-    { id: 'yarn', verb: 'add' },
-    { id: 'bun', verb: 'add' },
+  const VERBS: Record<PackageManager, string> = {
+    pnpm: 'add',
+    npm: 'install',
+    yarn: 'add',
+    bun: 'add',
+  }
+
+  const options: SingleSelectOption<PackageManager>[] = [
+    { id: 'pnpm', value: 'pnpm', label: 'pnpm' },
+    { id: 'npm', value: 'npm', label: 'npm' },
+    { id: 'yarn', value: 'yarn', label: 'yarn' },
+    { id: 'bun', value: 'bun', label: 'bun' },
   ]
 
   const settings = useSettings()
@@ -23,13 +33,12 @@
 
   const isOpen = shallowRef(false)
 
-  const verb = toRef(() => MANAGERS.find(manager => manager.id === settings.packageManager.value)?.verb ?? 'add')
-  const command = toRef(() => `${settings.packageManager.value} ${verb.value} ${PACKAGE}`)
+  const command = toRef(() => `${settings.packageManager.value} ${VERBS[settings.packageManager.value]} ${PACKAGE}`)
 
-  function select (id: PackageManager) {
-    settings.packageManager.value = id
+  // Close the menu once a manager is chosen
+  watch(() => settings.packageManager.value, () => {
     isOpen.value = false
-  }
+  })
 </script>
 
 <template>
@@ -48,31 +57,21 @@
       </Popover.Activator>
 
       <Popover.Content
-        aria-label="Package manager"
-        class="p-1 rounded-lg bg-surface border border-divider shadow-lg min-w-[140px] !mt-1"
+        class="p-1.5 rounded-lg bg-surface border border-divider shadow-lg min-w-[140px] !mt-1"
         position-area="bottom span-right"
         position-try="bottom span-right, bottom span-left, top span-right, top span-left"
-        role="menu"
       >
-        <button
-          v-for="manager in MANAGERS"
-          :key="manager.id"
-          :aria-checked="settings.packageManager.value === manager.id"
-          class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-lg transition-colors text-left font-mono"
-          :class="settings.packageManager.value === manager.id
-            ? 'bg-primary/10 text-primary'
-            : 'hover:bg-surface-tint text-on-surface'"
-          role="menuitemradio"
-          type="button"
-          @click="select(manager.id)"
-        >
-          <span>{{ manager.id }}</span>
-          <AppIcon v-if="settings.packageManager.value === manager.id" icon="check" :size="14" />
-        </button>
+        <AppSettingsSingleSelect
+          v-model="settings.packageManager.value"
+          aria-label="Package manager"
+          class="font-mono"
+          layout="list"
+          :options
+        />
       </Popover.Content>
     </Popover.Root>
 
-    <code class="flex-1 truncate opacity-80 !bg-transparent !p-0 !rounded-none">{{ verb }} {{ PACKAGE }}</code>
+    <code class="flex-1 truncate opacity-80 !bg-transparent !p-0 !rounded-none">{{ VERBS[settings.packageManager.value] }} {{ PACKAGE }}</code>
 
     <button
       :aria-label="copied ? 'Copied!' : 'Copy command'"
