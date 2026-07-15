@@ -40,6 +40,7 @@
     "repo:sherif": "sherif",
     "repo:exports": "publint ./packages/0 && attw --pack ./packages/0 --profile esm-only",
     "repo:check": "pnpm repo:knip && pnpm repo:sherif",
+    "size": "size-limit",
     "validate": "pnpm lint && pnpm typecheck && pnpm test:run",
     "changeset": "changeset",
     "release": "pnpm build && changeset publish",
@@ -55,6 +56,7 @@
     "@changesets/changelog-github": "catalog:",
     "@changesets/cli": "catalog:",
     "@js-temporal/polyfill": "catalog:",
+    "@size-limit/preset-small-lib": "catalog:",
     "@tsconfig/node24": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
@@ -68,6 +70,7 @@
     "publint": "catalog:",
     "sherif": "catalog:",
     "simple-git-hooks": "catalog:",
+    "size-limit": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"

@@ -22,6 +22,7 @@ catalog:
   '@shikijs/langs': ^4.0.2
   '@shikijs/markdown-it': ^4.0.2
   '@shikijs/themes': ^4.0.2
+  '@size-limit/preset-small-lib': ^11.0.0
   '@testing-library/vue': ^8.1.0
   '@tsconfig/node24': ^24.0.4
   '@tsdown/css': ^0.21.10
@@ -65,6 +66,7 @@ catalog:
   satori: ^0.26.0
   sherif: ^1.11.1
   shiki: ^4.0.2
+  'size-limit': ^11.0.0
   simple-git-hooks: ^2.13.1
   svg-pan-zoom: ^3.6.2
   swetrix: ^4.2.0
