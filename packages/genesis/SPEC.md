@@ -23,6 +23,7 @@ packages/genesis/
 │       ├── GnDocsExampleTabs/
 │       ├── GnDocsExamplePanel/
 │       ├── GnDocsExampleActions/
+│       ├── GnDocsCallout/
 │       └── GnPeek/
 ```
 
@@ -97,6 +98,24 @@ interface GnPeekProps {
 
 `v-model:expanded` drives state. The default slot exposes `{ expanded }` for the label; a separate `icon` slot defaults to an inline chevron that rotates 180° when expanded. Both slots are overridable.
 
+### `GnDocsCallout` — admonition shell
+
+A presentational admonition box (info / tip / warning / caution / important). Pure shell — no interactivity, no app dependencies. Consumers layer behavior on top (the v0 docs site keeps the `askai` / `discord` / `tour` interactive callout types in its own `DocsCallout` wrapper, which delegates the five standard types to this component).
+
+```ts
+interface GnDocsCalloutProps {
+  type?: 'tip' | 'note' | 'warning' | 'caution' | 'important' // default: 'note'
+}
+```
+
+`type` drives three things: the severity color, the default icon, and the default title. Color comes from a per-type v0 severity token consumed via the cascade with a standalone fallback — `tip → --v0-success`, `note → --v0-info`, `warning → --v0-warning`, `caution → --v0-error`, `important → --v0-accent`. These severity tokens are supplied by the consuming app (they are not part of v0's core token set); without them the hardcoded fallbacks render a reasonable standalone appearance.
+
+| Slot | Exposes | Default |
+|---|---|---|
+| `icon` | `{ type }` | inline MDI SVG per type |
+| `title` | `{ type }` | capitalized type name |
+| default | — | callout body |
+
 ## Icon strategy
 
 Action buttons expose icon slots with inline `<svg>` defaults using MDI paths.
@@ -155,7 +174,7 @@ Implementation sketch: `GnDocsExample` wraps its preview slot in `<div :data-the
 
 In priority order:
 
-1. `GnDocsCallout` (TIP / WARNING / ERROR / INFO admonitions)
+1. ~~`GnDocsCallout` (TIP / WARNING / ERROR / INFO admonitions)~~ — shipped; see below.
 2. `GnDocsCodeGroup` (tabbed code blocks)
 3. `GnDocsKbd`, `GnDocsBadge`, `GnDocsCard` (atomic primitives)
 4. `GnDocsApi` (API reference tables with prop / event / slot sections + hover popovers)
