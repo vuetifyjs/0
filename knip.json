@@ -143,6 +143,7 @@
   ],
   "ignoreDependencies": [
     "@js-temporal/polyfill",
+    "@size-limit/preset-small-lib",
     "@vue/repl",
     "@vuetify/paper"
   ],
