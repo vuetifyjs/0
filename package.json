@@ -21,6 +21,7 @@
     "test:coverage": "vitest run --coverage",
     "test:vapor": "pnpm --filter=@vuetify-private/vapor-tests test",
     "test:bench": "vitest --reporter=verbose bench --run",
+    "test:ssr": "vitest run --reporter=verbose hydration",
     "test:bench:json": "vitest bench --run --outputJson apps/docs/public/benchmarks.json",
     "bench": "vitest --reporter=default bench",
     "metrics": "pnpm test:coverage && pnpm build:0 && pnpm metrics:bench && node scripts/generate-metrics.js",
