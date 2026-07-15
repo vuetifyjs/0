@@ -195,6 +195,7 @@
         <DocsSearchInput
           v-model="search"
           class="p-2"
+          :icon="false"
           placeholder="Search releases..."
         />
 
