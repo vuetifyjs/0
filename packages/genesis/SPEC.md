@@ -31,6 +31,7 @@ packages/genesis/
 │       ├── index.ts
 │       ├── GnActionButton/
 │       ├── GnDocsBadge/
+│       ├── GnDocsCallout/
 │       ├── GnDocsExample/          # + Description, Preview, Code, Tabs, Panel, Actions
 │       ├── GnDotGrid/
 │       └── GnPeek/
@@ -69,13 +70,18 @@ pass an explicit `color`.
 | `--v0-on-primary` | Text on primary |
 | `--v0-pre` | Code pane background |
 | `--v0-on-background` | `GnDotGrid` dots and lines (no literal fallback) |
+| `--v0-success` | `GnDocsCallout` tip |
+| `--v0-info` | `GnDocsCallout` note |
+| `--v0-warning` | `GnDocsCallout` warning |
+| `--v0-error` | `GnDocsCallout` caution |
+| `--v0-accent` | `GnDocsCallout` important — not in v0 `SEMANTIC_COLORS`; host-supplied or hex fallback |
 
 ### Token bridge
 
 Genesis **does not** read `--emerald-*` (or any other DS prefix). A design-system docs
 app that mounts Genesis chrome must still provide `--v0-*` on the cascade. The preferred
 mechanism (family contract): the DS adapter also emits `--v0-*` aliases for the color
-roles Genesis consumes (`surface`, `on-surface`, `primary`, `on-background`, …), so Genesis
+roles Genesis consumes (`surface`, `on-surface`, `primary`, `on-background`, plus the severity tokens `success` / `info` / `warning` / `error` / `accent`), so Genesis
 blends without a Genesis-side theming contract. Alternatives (register a parallel v0 theme;
 host-side alias stylesheet) are allowed; the kit stays prefix-blind either way.
 
@@ -201,6 +207,24 @@ same "slot, not string" pattern as every other Genesis icon surface. The icon wr
 `aria-hidden` (decorative by contract; the label is the accessible name). Slotted icons
 keep their own dimensions — the badge does not resize them.
 
+### `GnDocsCallout` — admonition shell
+
+A presentational admonition box (note / tip / warning / caution / important). Pure shell — no interactivity, no app dependencies. Consumers layer behavior on top (the v0 docs site keeps the `askai` / `discord` / `tour` interactive types and the random-tip pool in its own `DocsCallout` wrapper, which delegates the five standard types to this component).
+
+```ts
+interface GnDocsCalloutProps {
+  type?: 'tip' | 'note' | 'warning' | 'caution' | 'important' // default: 'note'
+}
+```
+
+`type` drives three things: the severity color, the default icon, and the default title. Color comes from a per-type v0 token consumed via the cascade with a standalone fallback — `tip → --v0-success`, `note → --v0-info`, `warning → --v0-warning`, `caution → --v0-error`, `important → --v0-accent`. `success` / `info` / `warning` / `error` are v0 semantic colors. `--v0-accent` is not; hosts must publish it (or accept the hex fallback).
+
+| Slot | Exposes | Default |
+|---|---|---|
+| `icon` | `{ type }` | inline MDI SVG per type |
+| `title` | `{ type }` | English title for the type (`Tip`, `Note`, …) |
+| default | — | callout body |
+
 ## Icon strategy
 
 Action buttons expose icon slots with inline `<svg>` defaults using MDI paths.
@@ -211,6 +235,7 @@ Action buttons expose icon slots with inline `<svg>` defaults using MDI paths.
 | `GnDocsExampleTabs` | `reset-icon`, `playground-icon`, `bin-icon`, `combine-icon`, `split-icon` | refresh / play / open-in-new / unfold-less / unfold-more |
 | `GnPeek` | `icon` (chevron, rotates when expanded) | chevron-down |
 | `GnDocsBadge` | `icon` | none — no generic badge icon to default to |
+| `GnDocsCallout` | `icon` (per-type glyph) | MDI path per type |
 
 ```vue
 <GnDocsExampleTabs>
@@ -265,21 +290,17 @@ rule for every Tier A primitive:
 
 In priority order:
 
-1. `GnDocsCallout` — TIP / NOTE / WARNING / CAUTION / IMPORTANT admonition shell (severity
-   tokens via cascade; interactive types stay docs-site)
-2. `GnDocsCodeGroup` — tabbed code blocks
-3. `GnDocsCard` — atomic primitives (`GnDocsBadge` shipped)
-4. `GnDocsMarkup` — code block chrome with slot-injected highlighter (no URL actions)
-5. `GnDocsApi*` — presentation-only API tables/cards/sections; **data is injected** by the
+1. `GnDocsCodeGroup` — tabbed code blocks
+2. `GnDocsCard` — atomic primitives (`GnDocsBadge` shipped)
+3. `GnDocsMarkup` — code block chrome with slot-injected highlighter (no URL actions)
+4. `GnDocsApi*` — presentation-only API tables/cards/sections; **data is injected** by the
    host (props or provide). Do not import `virtual:api`
-6. `GnDocsToc`, `GnDocsHeaderAnchor`, `GnDocsNavigator` — heading scan / prev-next with
+5. `GnDocsToc`, `GnDocsHeaderAnchor`, `GnDocsNavigator` — heading scan / prev-next with
    nav data **injected**; no Discovery/Sponsor/Ask coupling
-7. `GnDocsBackToTop`, `GnDocsProgressBar`, `GnDocsSkeleton` — page chrome affordances
-8. `GnDocsThemeSwitcher` — **first-class** for design-system docs whose product *is*
+6. `GnDocsBackToTop`, `GnDocsProgressBar`, `GnDocsSkeleton` — page chrome affordances
+7. `GnDocsThemeSwitcher` — **first-class** for design-system docs whose product *is*
    theming; drives host `theme`/`adapter`/`plugin` rather than a thin local toggle
 
-Already open against `packages/genesis` (item 1 above, not a blocker for the rest of
-Phase 2): `GnDocsCallout` (#593).
 
 ### Phase 3 — design-system docs primitives
 
