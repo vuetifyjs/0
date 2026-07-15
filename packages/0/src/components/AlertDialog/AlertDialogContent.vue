@@ -109,6 +109,10 @@
     }
   }, { immediate: true })
 
+  function focusCancel () {
+    context.cancelEl.value?.focus()
+  }
+
   watch(context.isOpen, isOpen => {
     const element = contentRef.value?.element as HTMLDialogElement | undefined
     /* v8 ignore next -- defensive guard, element is always present after mount */
@@ -116,6 +120,7 @@
 
     if (isOpen) {
       element.showModal?.()
+      focusCancel()
     } else {
       element.close?.()
     }
@@ -124,6 +129,7 @@
   onMounted(() => {
     if (context.isOpen.value) {
       (contentRef.value?.element as HTMLDialogElement | undefined)?.showModal()
+      focusCancel()
     }
   })
 
