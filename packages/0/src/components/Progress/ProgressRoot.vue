@@ -21,16 +21,18 @@
 
   // Utilities
   import { isArray, isNullOrUndefined, useId } from '#v0/utilities'
-  import { computed, mergeProps, toRef, useAttrs } from 'vue'
+  import { computed, mergeProps, shallowRef, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ProgressContext, ProgressTicket } from '#v0/composables/createProgress'
+  import type { ShallowRef } from 'vue'
 
   export interface ProgressRootContext extends ProgressContext {
     readonly id: string
     readonly name?: string
     readonly labelId: string
+    readonly hasLabel: ShallowRef<boolean>
   }
 
   export interface ProgressRootProps extends AtomProps {
@@ -54,7 +56,7 @@
       'aria-valuemin': number
       'aria-valuemax': number
       'aria-valuetext': string | undefined
-      'aria-labelledby': string
+      'aria-labelledby': string | undefined
       'aria-busy': true | undefined
       'data-state': 'determinate' | 'indeterminate'
       'data-complete': true | undefined
@@ -104,12 +106,14 @@
   useProxyModel(progress, internal, { multiple: true })
 
   const labelId = `${id}-label`
+  const hasLabel = shallowRef(false)
 
   const context: ProgressRootContext = {
     ...progress,
     id,
     name,
     labelId,
+    hasLabel,
   }
 
   provideProgressRoot(namespace, context)
@@ -131,7 +135,7 @@
         'aria-valuemin': min,
         'aria-valuemax': max,
         'aria-valuetext': indeterminate ? undefined : `${Math.round(pct)}%`,
-        'aria-labelledby': labelId,
+        'aria-labelledby': hasLabel.value ? labelId : undefined,
         'aria-busy': indeterminate ? true : undefined,
         'data-state': indeterminate ? 'indeterminate' : 'determinate',
         'data-complete': total >= max ? true : undefined,

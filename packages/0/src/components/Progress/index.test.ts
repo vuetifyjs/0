@@ -203,9 +203,16 @@ describe('progress', () => {
 
     it('should set aria-labelledby referencing the label id', async () => {
       const model = ref(50)
-      const { rootProps, wait } = mountProgress({ model, props: { id: 'test' } })
+      const { rootProps, wait } = mountProgress({ model, props: { id: 'test' }, withLabel: true })
       await wait()
       expect(rootProps().attrs['aria-labelledby']).toBe('test-label')
+    })
+
+    it('should omit aria-labelledby when label is missing', async () => {
+      const model = ref(50)
+      const { rootProps, wait } = mountProgress({ model, props: { id: 'test' } })
+      await wait()
+      expect(rootProps().attrs['aria-labelledby']).toBeUndefined()
     })
   })
 

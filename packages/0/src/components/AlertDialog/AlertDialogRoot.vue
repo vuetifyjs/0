@@ -22,6 +22,8 @@
     id: string
     titleId: string
     descriptionId: string
+    hasTitle: ShallowRef<boolean>
+    hasDescription: ShallowRef<boolean>
     isPending: ShallowRef<boolean>
     open: () => void
     close: () => void
@@ -81,6 +83,8 @@
 
   const titleId = `${id}-title`
   const descriptionId = `${id}-description`
+  const hasTitle = shallowRef(false)
+  const hasDescription = shallowRef(false)
 
   function open () {
     isOpen.value = true
@@ -96,6 +100,8 @@
     id,
     titleId,
     descriptionId,
+    hasTitle,
+    hasDescription,
     isPending,
     open,
     close,

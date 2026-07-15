@@ -47,8 +47,8 @@
       'id': string
       'role': 'dialog'
       'aria-modal': 'true'
-      'aria-labelledby': string
-      'aria-describedby': string
+      'aria-labelledby': string | undefined
+      'aria-describedby': string | undefined
       'style': { zIndex: number }
       'onCancel': (e: Event) => void
       'onClose': (e: Event) => void
@@ -156,8 +156,8 @@
       'id': context.id,
       'role': 'dialog',
       'aria-modal': 'true',
-      'aria-labelledby': context.titleId,
-      'aria-describedby': context.descriptionId,
+      'aria-labelledby': context.hasTitle.value ? context.titleId : undefined,
+      'aria-describedby': context.hasDescription.value ? context.descriptionId : undefined,
       'style': { zIndex: ticket.zIndex.value },
       'onCancel': onCancel,
       'onClose': onClose,
