@@ -59,7 +59,12 @@
       Learn more in the <router-link class="v0-link" to="/guide/fundamentals/benchmarks">benchmarks guide</router-link>.
     </p>
 
-    <p v-if="githubLink" class="mb-4">
+    <BenchmarkExplorer
+      :composable="itemName"
+      hide-summary
+    />
+
+    <p v-if="githubLink" class="mt-4">
       <a
         class="v0-link"
         :href="githubLink"
@@ -67,10 +72,5 @@
         target="_blank"
       >View benchmark source↗</a>
     </p>
-
-    <BenchmarkExplorer
-      :composable="itemName"
-      hide-summary
-    />
   </div>
 </template>
