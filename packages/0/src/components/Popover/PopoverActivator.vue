@@ -24,6 +24,8 @@
     attrs: {
       'popovertarget': string
       'type': 'button' | undefined
+      'aria-expanded': boolean
+      'aria-controls': string
       'data-open': true | undefined
       'style': Record<string, string>
     }
@@ -64,6 +66,8 @@
     attrs: {
       'popovertarget': toValue(popovertarget),
       'type': as === 'button' ? 'button' : undefined,
+      'aria-expanded': context.isOpen.value,
+      'aria-controls': toValue(popovertarget),
       'data-open': context.isOpen.value || undefined,
       'style': style.value,
     },
