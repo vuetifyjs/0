@@ -40,7 +40,8 @@
       "task": "This button copies the whole file to your clipboard in one click.",
       "hint": "",
       "learn": "Copy an example's source",
-      "placement": "left"
+      "placement": "left",
+      "placementMobile": "bottom"
     },
     {
       "id": "playground",
@@ -48,7 +49,8 @@
       "task": "This button opens the example live in the Playground - full editing, no setup.",
       "hint": "",
       "learn": "Open an example in the Playground",
-      "placement": "left"
+      "placement": "left",
+      "placementMobile": "bottom"
     },
     {
       "id": "tune",
@@ -56,7 +58,8 @@
       "task": "The rest of the toolbar tunes the reading view - code size cycling and line wrap for long lines.",
       "hint": "",
       "learn": "Adjust code size and line wrap",
-      "placement": "left"
+      "placement": "left",
+      "placementMobile": "bottom"
     },
     {
       "id": "files",
@@ -80,7 +83,8 @@
       "task": "For multi-file examples, Play and Bin carry every file across, and the combine action stitches them into one scrollable view.",
       "hint": "",
       "learn": "Open every file in Play or Bin at once",
-      "placement": "left"
+      "placement": "left",
+      "placementMobile": "bottom"
     },
     {
       "id": "recipes",
@@ -96,7 +100,8 @@
       "task": "Recipe fences are playground-ready too - one click and the snippet is running in Play.",
       "hint": "",
       "learn": "Take a recipe into the Playground",
-      "placement": "left"
+      "placement": "left",
+      "placementMobile": "bottom"
     },
     {
       "id": "codegroups",
