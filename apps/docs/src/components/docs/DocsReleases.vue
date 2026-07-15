@@ -8,6 +8,7 @@
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
   import { useMarkdown } from '@/composables/useMarkdown'
+  import { useSettings } from '@/composables/useSettings'
 
   // Constants
   import { EMOJIS } from '@/constants/emoji'
@@ -25,6 +26,7 @@
   const router = useRouter()
   const store = useReleasesStore()
   const date = useDate()
+  const settings = useSettings()
   const linkClipboard = useClipboard()
   const markdownClipboard = useClipboard()
   const installClipboard = useClipboard()
@@ -72,7 +74,9 @@
   const install = toRef(() => {
     if (!model.value) return undefined
     const { name, version } = parseTag(model.value.tag_name)
-    return `pnpm add ${name}@${version}`
+    const pm = settings.packageManager.value
+    const verb = pm === 'npm' ? 'install' : 'add'
+    return `${pm} ${verb} ${name}@${version}`
   })
 
   const channel = toRef(() => model.value ? channelOf(parseTag(model.value.tag_name).version) : undefined)
