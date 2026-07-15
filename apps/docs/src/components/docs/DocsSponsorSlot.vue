@@ -48,6 +48,6 @@
       Your logo here
     </p>
 
-    <p class="text-xs mt-1">Become the Primary Sponsor&nbsp;→</p>
+    <p class="text-xs mt-1">Become the Primary Sponsor →</p>
   </router-link>
 </template>
