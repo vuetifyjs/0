@@ -167,7 +167,7 @@ describe('createRtl', () => {
       expect(() => adapter.setup(mockApp, { isRtl, toggle: () => {} }, undefined)).not.toThrow()
     })
 
-    it('should assign entry.dispose to adapter.dispose when entry has dispose', async () => {
+    it('should call entry.dispose through adapter.dispose when entry has dispose', async () => {
       vi.resetModules()
 
       vi.doMock('#v0/constants/globals', () => ({
@@ -175,7 +175,7 @@ describe('createRtl', () => {
       }))
 
       const { V0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
-      const { shallowRef: ssrShallowRef } = await import('vue')
+      const { shallowRef: ssrShallowRef, effectScope: ssrEffectScope } = await import('vue')
 
       const entryDispose = vi.fn()
       const pushFn = vi.fn(() => ({ dispose: entryDispose }))
@@ -185,9 +185,18 @@ describe('createRtl', () => {
 
       const adapter = new SSRAdapter()
       const isRtl = ssrShallowRef(true)
-      adapter.setup(mockApp, { isRtl, toggle: () => {} }, undefined)
+      const scope = ssrEffectScope()
+      scope.run(() => {
+        adapter.setup(mockApp, { isRtl, toggle: () => {} }, undefined)
+      })
 
-      expect(adapter.dispose).toBe(entryDispose)
+      expect(adapter.dispose).toBeTypeOf('function')
+
+      adapter.dispose!()
+
+      expect(entryDispose).toHaveBeenCalledOnce()
+
+      scope.stop()
     })
   })
 

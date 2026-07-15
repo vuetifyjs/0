@@ -19,6 +19,7 @@ interface RtlHeadInput {
 
 interface HeadEntry {
   dispose?: () => void
+  patch?: (input: RtlHeadInput) => void
 }
 
 interface Head {
@@ -51,13 +52,12 @@ export class V0RtlAdapter extends RtlAdapter {
       const head = (app._context?.provides?.usehead ?? app._context?.provides?.head) as Head | undefined
 
       if (head?.push) {
-        const entry = head.push({
-          htmlAttrs: {
-            dir: context.isRtl.value ? 'rtl' : 'ltr',
-          },
-        })
-
-        if (entry?.dispose) this.dispose = entry.dispose
+        const entry = head.push({ htmlAttrs: { dir: context.isRtl.value ? 'rtl' : 'ltr' } })
+        const stop = watch(context.isRtl, rtl => entry.patch?.({ htmlAttrs: { dir: rtl ? 'rtl' : 'ltr' } }))
+        this.dispose = () => {
+          stop()
+          entry.dispose?.()
+        }
       }
     }
   }
