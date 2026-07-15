@@ -40,11 +40,16 @@ AlertDialog mirrors Dialog but with stricter defaults: no close on click outside
 <template>
   <AlertDialog.Root>
     <AlertDialog.Activator />
+
     <AlertDialog.Content>
       <AlertDialog.Title />
+
       <AlertDialog.Description />
+
       <AlertDialog.Close />
+
       <AlertDialog.Cancel />
+
       <AlertDialog.Action />
     </AlertDialog.Content>
   </AlertDialog.Root>

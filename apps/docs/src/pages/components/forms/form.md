@@ -42,6 +42,7 @@ Wrap your inputs in `<Form>`. Native `<button type="submit">` and `<button type=
   <Form>
     <Input.Root>
       <Input.Control />
+
       <Input.Error />
     </Input.Root>
   </Form>
