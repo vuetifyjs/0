@@ -40,6 +40,7 @@
       'data-interactive': true | undefined
       'onPointerenter': (e: PointerEvent) => void
       'onPointerleave': (e: PointerEvent) => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
     styles: Record<string, string>
   }
@@ -75,6 +76,12 @@
     root.close()
   }
 
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      root.close()
+    }
+  }
+
   const slotProps = toRef((): TooltipContentSlotProps => ({
     isOpen: root.isOpen.value,
     isInteractive: root.isInteractive.value,
@@ -85,6 +92,7 @@
       'data-interactive': root.isInteractive.value || undefined,
       'onPointerenter': onPointerenter,
       'onPointerleave': onPointerleave,
+      'onKeydown': onKeydown,
     },
     styles: root.contentStyles.value,
   }))
