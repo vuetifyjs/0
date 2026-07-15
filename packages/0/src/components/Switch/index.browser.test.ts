@@ -516,16 +516,16 @@ describe('switch', () => {
         await wait()
 
         expect(itemProps('item-1').isMixed).toBe(true)
-        expect(itemProps('item-1').attrs['aria-checked']).toBe('mixed')
+        expect(itemProps('item-1').attrs['aria-checked']).toBe(false)
       })
 
-      it('should set aria-checked to mixed', async () => {
+      it('should clamp aria-checked to false when mixed', async () => {
         const { itemProps, wait } = mountGroup()
         await wait()
 
         itemProps('item-1').mix()
         await wait()
-        expect(itemProps('item-1').attrs['aria-checked']).toBe('mixed')
+        expect(itemProps('item-1').attrs['aria-checked']).toBe(false)
         expect(itemProps('item-1').attrs['data-state']).toBe('indeterminate')
       })
     })
@@ -1350,12 +1350,12 @@ describe('switch', () => {
         expect(itemProps('item-1').attrs['data-state']).toBe('indeterminate')
       })
 
-      it('should set aria-checked to mixed when indeterminate', async () => {
+      it('should clamp aria-checked to false when indeterminate', async () => {
         const { itemProps, wait } = mountGroup({
           items: [{ value: 'item-1', indeterminate: true }],
         })
         await wait()
-        expect(itemProps('item-1').attrs['aria-checked']).toBe('mixed')
+        expect(itemProps('item-1').attrs['aria-checked']).toBe(false)
       })
 
       it('should set data-disabled when disabled', async () => {
