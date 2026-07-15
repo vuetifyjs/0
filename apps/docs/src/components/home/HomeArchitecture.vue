@@ -44,7 +44,14 @@
     {{ item.value }}
   </button>
 
-  <p>Selected: {{ [...selection.selectedIds].join(', ') }}</p>
+  <p>
+    Selected:
+    <span
+      v-for="item in items"
+      v-show="item.isSelected.value"
+      :key="item.id"
+    >{{ item.value }}</span>
+  </p>
 </template>`,
 
     component: `<script setup lang="ts">
@@ -111,8 +118,14 @@
       </button>
     </div>
 
-    <p class="text-sm opacity-60">
-      Selected: <span class="font-mono">{{ [...selection.selectedIds].join(', ') || 'none' }}</span>
+    <p class="text-sm opacity-60 flex items-center gap-1.5">
+      <span>Selected:</span>
+      <span
+        v-for="item in items"
+        v-show="item.isSelected.value"
+        :key="item.id"
+        class="font-mono px-1.5 py-0.5 rounded bg-surface-variant"
+      >{{ item.value }}</span>
     </p>
   </div>
 </template>`,
