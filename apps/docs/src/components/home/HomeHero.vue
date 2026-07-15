@@ -99,10 +99,11 @@
     <div class="relative flex flex-col items-center gap-6 mb-10">
       <div class="grid grid-cols-2 md:flex gap-4 justify-center">
         <router-link
-          class="home-hero-cta-primary px-8 py-3.5 bg-primary text-on-primary rounded-xl font-semibold text-lg text-center whitespace-nowrap transition-all duration-150"
+          class="home-hero-cta-primary px-8 py-3.5 bg-primary text-on-primary rounded-xl font-semibold text-lg text-center whitespace-nowrap transition-all duration-150 inline-flex items-center justify-center gap-2"
           to="/introduction/getting-started"
         >
           Get Started
+          <AppIcon icon="arrow-right" :size="18" />
         </router-link>
 
         <button
