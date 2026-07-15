@@ -74,7 +74,7 @@
     return data.composables[itemName.value] || null
   })
 
-  const { search, visibleApis, placeholder, empty } = useApiFilter(componentApis, composableApi)
+  const { search, visibleApis, queryFor, placeholder, empty } = useApiFilter(componentApis, composableApi)
 
   const title = toRef(() => itemName.value ? `${itemName.value} API` : 'API Reference')
 
@@ -152,7 +152,7 @@
 
         <DocsSearchInput v-model="search" class="mt-8 mb-4" :placeholder />
 
-        <hr class="mt-4 -mb-6">
+        <hr class="mt-4" :class="{ '-mb-6': !empty }">
 
         <template
           v-for="api in visibleApis"
@@ -169,7 +169,7 @@
             :anchor-id="`${helpers.toKebab(api.name)}-props`"
             :items="api.props"
             kind="prop"
-            :query="search"
+            :query="queryFor(api)"
             title="Props"
           />
 
@@ -178,7 +178,7 @@
             class="mt-8"
             :items="api.events"
             kind="event"
-            :query="search"
+            :query="queryFor(api)"
             title="Events"
           />
 
@@ -187,7 +187,7 @@
             class="mt-8"
             :items="api.slots"
             kind="slot"
-            :query="search"
+            :query="queryFor(api)"
             title="Slots"
           />
         </template>
