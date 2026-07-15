@@ -140,6 +140,7 @@ jobs:
           filters: |
             docs:
               - 'apps/docs/**'
+              - 'packages/**'
             packages:
               - 'packages/**'
             playground:
