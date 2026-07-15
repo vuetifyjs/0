@@ -37,6 +37,7 @@
     reset: () => void
     /** Attributes to bind to the form element */
     attrs: {
+      novalidate: true
       onSubmit: (event: Event) => void
       onReset: (event: Event) => void
     }
@@ -110,6 +111,7 @@
     submit: form.submit,
     reset: form.reset,
     attrs: {
+      novalidate: true,
       onSubmit,
       onReset,
     },
