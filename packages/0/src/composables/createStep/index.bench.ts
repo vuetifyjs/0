@@ -156,13 +156,13 @@ describe('createStep benchmarks', () => {
 
     bench('next() wrapping past end circular (1,000 items)', () => {
       circ1k.last()
-      circ1k.next()   // wraps to item-0
+      circ1k.next() // wraps to item-0
       circ1k.select('item-999')
     })
 
     bench('prev() wrapping past start circular (1,000 items)', () => {
       circ1k.first()
-      circ1k.prev()   // wraps to item-999
+      circ1k.prev() // wraps to item-999
       circ1k.select('item-0')
     })
   })
@@ -175,12 +175,12 @@ describe('createStep benchmarks', () => {
 
     bench('next() at last item — no-op (1,000 items)', () => {
       bound1k.last()
-      bound1k.next()   // no-op in linear mode
+      bound1k.next() // no-op in linear mode
     })
 
     bench('prev() at first item — no-op (1,000 items)', () => {
       bound1k.first()
-      bound1k.prev()   // no-op in linear mode
+      bound1k.prev() // no-op in linear mode
     })
   })
 
