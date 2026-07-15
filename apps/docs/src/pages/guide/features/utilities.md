@@ -1,7 +1,7 @@
 ---
 title: Utilities Guide - Helper Functions for Vue 3
 features:
-  order: 3
+  order: 4
   level: 2
 meta:
   - name: description
@@ -133,11 +133,15 @@ const virtual = createVirtual(items, {
 ```
 
 ```vue playground VirtualList.vue
+<script setup lang="ts">
+  const { element, items: virtualItems, offset, size } = virtual
+</script>
+
 <template>
-  <div ref="virtual.element" style="height: 400px; overflow: auto;">
-    <div :style="{ height: `${virtual.size}px`, paddingTop: `${virtual.offset}px` }">
+  <div ref="element" style="height: 400px; overflow: auto;">
+    <div :style="{ height: `${size}px`, paddingTop: `${offset}px` }">
       <div
-        v-for="item in virtual.items"
+        v-for="item in virtualItems"
         :key="item.index"
         style="height: 40px"
       >
@@ -273,6 +277,26 @@ foreground('#ffd600')  // '#000000' (black reads better on yellow)
 > [!TIP]
 > `foreground` is ideal for computing on-color text in design tokens. It uses APCA to select the higher-contrast option.
 
+## Errors
+
+Structured error class and type guard for errors thrown by v0 internals.
+
+### V0Error / isV0Error
+
+```ts
+import { isV0Error, V0Error } from '@vuetify/v0'
+
+try {
+  useContext('v0:missing')
+} catch (err) {
+  if (isV0Error(err, 'V0_CONTEXT_MISSING')) {
+    console.log(err.code, err.key) // 'V0_CONTEXT_MISSING', 'v0:missing'
+  }
+}
+```
+
+`V0Error` carries a stable `code` discriminant (see [V0ErrorCode](/guide/features/types#v0errorcode)) instead of a message-only `Error`, so callers can branch on failure kind without parsing strings. `isV0Error(err, code?)` narrows `unknown` to `V0Error`, and — when `code` is passed — further narrows to the matching error-detail shape, so per-code fields like `key` or `plugin` become required instead of optional.
+
 ## Best Practices
 
 ### Combine Utilities
@@ -312,8 +336,8 @@ const virtual = createVirtual(filtered, {
 For large datasets that need all three utilities working together:
 
 ```ts collapse
-import { shallowRef, computed } from 'vue'
-import { createFilter, createPagination, createVirtual } from '@vuetify/v0'
+import { computed, shallowRef } from 'vue'
+import { createFilter, createPagination, createVirtual, Pagination } from '@vuetify/v0'
 
 // Source data
 const items = shallowRef(Array.from({ length: 10000 }, (_, i) => ({
@@ -326,8 +350,10 @@ const query = shallowRef('')
 const filter = createFilter({ keys: ['name'] })
 const { items: filtered } = filter.apply(query, items)
 
-// 2. Paginate the filtered results
+// 2. Paginate the filtered results — `page` is shared with Pagination.Root below
+const page = shallowRef(1)
 const pagination = createPagination({
+  page,
   size: () => filtered.value.length,
   itemsPerPage: 100,
 })
@@ -341,21 +367,33 @@ const pageItems = computed(() => {
 
 // 4. Virtual scroll the current page
 const virtual = createVirtual(pageItems, { itemHeight: 40 })
+const { element, items: virtualItems, offset, size } = virtual
 ```
 
 ```vue
 <template>
   <input v-model="query" placeholder="Search..." />
 
-  <div ref="virtual.element" style="height: 400px; overflow: auto;">
-    <div :style="{ height: `${virtual.size}px`, paddingTop: `${virtual.offset}px` }">
-      <div v-for="item in virtual.items" :key="item.raw.id" style="height: 40px">
+  <div ref="element" style="height: 400px; overflow: auto;">
+    <div :style="{ height: `${size}px`, paddingTop: `${offset}px` }">
+      <div v-for="item in virtualItems" :key="item.raw.id" style="height: 40px">
         {{ item.raw.name }}
       </div>
     </div>
   </div>
 
-  <Pagination :pagination="pagination" />
+  <Pagination.Root v-model="page" :size="filtered.length" :items-per-page="100" v-slot="{ items: pageNumbers }" class="flex items-center gap-1">
+    <Pagination.Prev>‹</Pagination.Prev>
+
+    <template v-for="entry in pageNumbers" :key="entry.value">
+      <Pagination.Ellipsis v-if="entry.type === 'ellipsis'" />
+      <Pagination.Item v-else :value="entry.value as number">
+        {{ entry.value }}
+      </Pagination.Item>
+    </template>
+
+    <Pagination.Next>›</Pagination.Next>
+  </Pagination.Root>
 </template>
 ```
 
@@ -399,8 +437,10 @@ if (!isNullOrUndefined(x)) {
 | `isPrimitive(x)` | `string \| number \| boolean` |
 | `isSymbol(x)` | `symbol` |
 | `isNaN(x)` | `number` (only the NaN value)[^isnan-vs-global] |
+| `isThenable(x)` | `{ then: Function }`[^isthenable-duck-typed] |
 
 [^isnan-vs-global]: `isNaN` here uses `Number.isNaN()` internally — it does not coerce strings like the global `isNaN()`. `isNaN("foo")` returns `false`, not `true`.
+[^isthenable-duck-typed]: Duck-typed — matches native `Promise` instances and any other object exposing a callable `.then`, not just `instanceof Promise`. Use it to guard async-vs-sync return values; use `instanceof Promise` directly when only native promises should pass.
 
 > [!TIP]
 > Prefer these over raw comparisons.

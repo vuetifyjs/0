@@ -30,6 +30,7 @@ import { createPluginContext } from '#v0/composables/createPlugin'
 import { V0RtlAdapter } from '#v0/composables/useRtl/adapters/v0'
 
 // Utilities
+import { isBoolean } from '#v0/utilities'
 import { shallowRef } from 'vue'
 
 // Types
@@ -109,7 +110,7 @@ export const [createRtlContext, createRtlPlugin, useRtl] =
       },
       persist: ctx => ctx.isRtl.value,
       restore: (ctx, saved) => {
-        if (typeof saved === 'boolean') ctx.isRtl.value = saved
+        if (isBoolean(saved)) ctx.isRtl.value = saved
       },
     },
   )

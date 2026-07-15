@@ -16,7 +16,7 @@ import type { App } from 'vue'
 // Structural @unhead seam — duck-typed so v0 takes no dependency on @unhead types.
 interface ThemeHeadInput {
   htmlAttrs: { 'data-theme': string }
-  style: Array<{ innerHTML: string, id: string }>
+  style: Array<{ innerHTML: string, id: string, nonce?: string }>
 }
 
 interface HeadEntry {
@@ -104,13 +104,23 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
       if (head?.push) {
         const id = context.selectedId.value
         const entry = head.push({
-          htmlAttrs: { 'data-theme': id ? String(id) : '' },
-          style: [{ innerHTML: this.generate(context.colors.value, context.isDark.value), id: this.stylesheetId }],
+          htmlAttrs: {
+            'data-theme': id ? String(id) : '',
+          },
+          style: [{
+            innerHTML: this.generate(context.colors.value, context.isDark.value),
+            id: this.stylesheetId,
+            ...(this.cspNonce ? { nonce: this.cspNonce } : {}),
+          }],
         })
         const stop = watch([context.selectedId, context.colors, context.isDark], ([themeId, colors, isDark]) => {
           entry.patch?.({
             htmlAttrs: { 'data-theme': themeId ? String(themeId) : '' },
-            style: [{ innerHTML: this.generate(colors, isDark), id: this.stylesheetId }],
+            style: [{
+              innerHTML: this.generate(colors, isDark),
+              id: this.stylesheetId,
+              ...(this.cspNonce ? { nonce: this.cspNonce } : {}),
+            }],
           })
         })
         this.dispose = () => {

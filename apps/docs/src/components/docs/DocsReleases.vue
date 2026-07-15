@@ -1,15 +1,19 @@
 <script setup lang="ts">
-  import { Marked } from 'marked'
-  import { markedEmoji } from 'marked-emoji'
+  import { GnActionButton } from '@paper/genesis'
 
   // Framework
-  import { createFilter, IN_BROWSER, Popover, useDate } from '@vuetify/v0'
+  import { createFilter, IN_BROWSER, isString, Popover, useDate } from '@vuetify/v0'
 
   // Context
   import DocsSkeleton from './DocsSkeleton.vue'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
+  import { useMarkdown } from '@/composables/useMarkdown'
+  import { useSettings } from '@/composables/useSettings'
+
+  // Constants
+  import { EMOJIS } from '@/constants/emoji'
 
   // Stores
   import { type Release, useReleasesStore } from '@/stores/releases'
@@ -18,68 +22,25 @@
   import { computed, onBeforeMount, onScopeDispose, shallowRef, toRef, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
-  const emojis: Record<string, string> = {
-    '+1': '👍',
-    '-1': '👎',
-    'rocket': '🚀',
-    'tada': '🎉',
-    'sparkles': '✨',
-    'bug': '🐛',
-    'memo': '📝',
-    'fire': '🔥',
-    'warning': '⚠️',
-    'boom': '💥',
-    'wrench': '🔧',
-    'hammer': '🔨',
-    'gear': '⚙️',
-    'package': '📦',
-    'lock': '🔒',
-    'key': '🔑',
-    'zap': '⚡',
-    'bulb': '💡',
-    'star': '⭐',
-    'heart': '❤️',
-    'hooray': '🎉',
-    'laugh': '😂',
-    'eyes': '👀',
-    'check': '✅',
-    'x': '❌',
-    'arrow_up': '⬆️',
-    'arrow_down': '⬇️',
-    'microscope': '🔬',
-  }
-
-  const reactions = emojis
+  const reactions = EMOJIS
 
   const route = useRoute()
   const router = useRouter()
   const store = useReleasesStore()
   const date = useDate()
+  const settings = useSettings()
   const linkClipboard = useClipboard()
   const markdownClipboard = useClipboard()
+  const installClipboard = useClipboard()
 
   const model = shallowRef<Release>()
   const search = shallowRef('')
   const isOpen = shallowRef(false)
   let timeout: ReturnType<typeof setTimeout> | undefined
 
-  const marked = new Marked({
-    breaks: true,
-    gfm: true,
-    renderer: {
-      link ({ href, text }) {
-        const isExternal = href?.startsWith('http')
-        if (isExternal) {
-          return `<a href="${href}" target="_blank" rel="noopener">${text}↗</a>`
-        }
-        return `<a href="${href}">${text}</a>`
-      },
-    },
-  })
-
-  marked.use(markedEmoji({ emojis, renderer: token => token.emoji }))
-
   const tag = toRef(() => route.query.version as string | undefined)
+
+  const markdown = useMarkdown(() => model.value?.body ?? undefined)
 
   const publishedOn = computed(() => {
     if (!model.value?.published_at) return undefined
@@ -88,14 +49,40 @@
     return d ? date.adapter.format(d, 'fullDateWithWeekday') : undefined
   })
 
-  const renderedBody = computed(() => {
-    if (!model.value?.body) return ''
-    return marked.parse(model.value.body) as string
+  const releases = toRef(() => store.releases)
+  const filter = createFilter({ keys: ['tag_name', 'name', 'body'] })
+  const { items: filteredReleases } = filter.apply(search, releases)
+
+  // Splits a release tag into the npm package and its version. Substrate tags are
+  // `v<version>` (package `@vuetify/v0`); design-system tags are `@scope/name@<version>`.
+  function parseTag (tag: string) {
+    const scoped = /^(@[^@]+)@(.+)$/.exec(tag)
+    if (scoped) return { name: scoped[1], version: scoped[2] }
+    return { name: '@vuetify/v0', version: tag.replace(/^v/, '') }
+  }
+
+  function channelOf (version: string) {
+    return /-(alpha|beta|rc)\./.exec(version)?.[1] ?? 'stable'
+  }
+
+  // Heuristic: changeset bodies surface breaking work under a "Major Changes"
+  // heading; conventional footers use "BREAKING CHANGE".
+  function isBreaking (release: Release) {
+    const body = release.body
+    if (!isString(body)) return false
+    return /breaking change/i.test(body) || /^#{1,6}\s*major changes/im.test(body)
+  }
+
+  const install = toRef(() => {
+    if (!model.value) return undefined
+    const { name, version } = parseTag(model.value.tag_name)
+    const pm = settings.packageManager.value
+    const verb = pm === 'npm' ? 'install' : 'add'
+    return `${pm} ${verb} ${name}@${version}`
   })
 
-  const releases = toRef(() => store.releases)
-  const filter = createFilter({ keys: ['tag_name', 'name'] })
-  const { items: filteredReleases } = filter.apply(search, releases)
+  const channel = toRef(() => model.value ? channelOf(parseTag(model.value.tag_name).version) : undefined)
+  const channelLabel = toRef(() => channel.value === 'rc' ? 'RC' : channel.value)
 
   function genEmoji (count: number) {
     if (count >= 100) return '\uD83D\uDCAB'
@@ -119,6 +106,11 @@
   async function copyReleaseMarkdown () {
     if (!model.value?.body) return
     await markdownClipboard.copy(model.value.body)
+  }
+
+  async function copyInstall () {
+    if (!install.value) return
+    await installClipboard.copy(install.value)
   }
 
   function selectRelease (release: Release) {
@@ -200,12 +192,12 @@
         class="bg-surface border-t border-divider rounded-b-lg max-h-80 overflow-auto shadow-lg w-[anchor-size(width)]"
         position-area="bottom"
       >
-        <input
+        <DocsSearchInput
           v-model="search"
-          class="w-full px-4 py-2 bg-transparent border-none border-b border-divider font-inherit text-inherit outline-none focus-visible:bg-surface-tint"
+          class="p-2"
+          :icon="false"
           placeholder="Search releases..."
-          type="text"
-        >
+        />
 
         <div v-if="filteredReleases.length === 0" class="px-4 py-3 text-center opacity-50">
           No releases found
@@ -225,8 +217,17 @@
             {{ release.name }}
           </span>
 
-          <span v-if="release.reactions?.total_count" class="ml-auto">
-            {{ genEmoji(release.reactions.total_count) }}
+          <span class="ml-auto flex items-center gap-1.5">
+            <AppIcon
+              v-if="isBreaking(release)"
+              class="text-error"
+              icon="alert"
+              :size="14"
+            />
+
+            <span v-if="release.reactions?.total_count">
+              {{ genEmoji(release.reactions.total_count) }}
+            </span>
           </span>
         </button>
 
@@ -252,9 +253,28 @@
     <div v-if="model?.author" class="border-t border-divider">
       <!-- Header -->
       <div class="flex items-center justify-between px-4 py-3 border-b border-divider">
-        <div class="flex items-center gap-2 text-sm">
+        <div class="flex items-center gap-2 text-sm flex-wrap">
           <AppIcon class="opacity-50" icon="calendar" :size="16" />
           <span>{{ publishedOn }}</span>
+
+          <span
+            v-if="channel"
+            class="text-xs font-medium px-2 py-0.5 rounded-full capitalize"
+            :class="{
+              'bg-success text-on-success': channel === 'stable',
+              'bg-info text-on-info': channel === 'rc',
+              'bg-warning text-on-warning': channel === 'beta',
+              'bg-error text-on-error': channel === 'alpha',
+            }"
+          >{{ channelLabel }}</span>
+
+          <span
+            v-if="isBreaking(model)"
+            class="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-error text-on-error"
+          >
+            <AppIcon icon="alert" :size="12" />
+            Breaking
+          </span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -280,7 +300,7 @@
 
           <a
             class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
-            href="https://community.vuetifyjs.com/"
+            href="https://discord.gg/vuetify"
             rel="noopener"
             target="_blank"
             title="Discuss on Discord"
@@ -300,11 +320,26 @@
         </div>
       </div>
 
+      <!-- Install -->
+      <div v-if="install" class="flex items-center gap-2 px-4 py-2 border-b border-divider bg-surface-variant">
+        <AppIcon class="opacity-50 shrink-0" icon="package" :size="16" />
+        <code class="text-sm truncate flex-1 bg-surface-variant">{{ install }}</code>
+
+        <GnActionButton
+          aria-label="Copy install command"
+          class="shrink-0"
+          :title="installClipboard.copied.value ? 'Copied!' : 'Copy install command'"
+          @click="copyInstall"
+        >
+          <AppIcon :icon="installClipboard.copied.value ? 'success' : 'copy'" :size="16" />
+        </GnActionButton>
+      </div>
+
       <!-- Body -->
       <div
-        v-if="renderedBody"
+        v-if="markdown.html.value"
         class="docs-releases px-4 max-w-none [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-6 [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-5 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-base [&_h4]:font-medium [&_h4]:mt-3 [&_h4]:mb-2 [&_p]:my-3 [&_ul]:my-3 [&_ul]:pl-5 [&_ul]:list-disc [&_ol]:my-3 [&_ol]:pl-5 [&_ol]:list-decimal [&_li]:my-1 [&_img]:max-w-full [&_a]:text-primary [&_a]:no-underline [&_a:hover]:underline [&_a]:underline-offset-2"
-        v-html="renderedBody"
+        v-html="markdown.html.value"
       />
 
       <!-- Assets -->

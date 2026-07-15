@@ -350,7 +350,7 @@ export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<
 
   // Copy all properties from target
   for (const key in target) {
-    if (Object.prototype.hasOwnProperty.call(target, key)) {
+    if (Object.hasOwn(target, key)) {
       out[key] = target[key]
     }
   }
@@ -361,7 +361,7 @@ export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<
     for (const key in source) {
       // Skip prototype pollution vectors and non-own properties
       if (UNSAFE_KEYS.has(key)) continue
-      if (!Object.prototype.hasOwnProperty.call(source, key)) continue
+      if (!Object.hasOwn(source, key)) continue
 
       const sourceValue = (source as Record<string, unknown>)[key]
       if (isUndefined(sourceValue)) continue
@@ -386,6 +386,8 @@ let idCounter = 0
  * - In component setup/lifecycle: Uses Vue's `useId()` for SSR-safe hydration
  * - Outside components: Falls back to sequential counter (`v0-0`, `v0-1`, ...)
  * - Vapor mode compatible
+ * - IDs are sequential and predictable — intended for DOM `id`/ARIA wiring only.
+ *   Never use them as security tokens (CSRF tokens, session ids, capabilities).
  *
  * @example
  * ```ts
@@ -460,9 +462,12 @@ export function range (length: number, start = 0): number[] {
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function resolveIds<E> (ids: Iterable<ID>, getter: (id: ID) => E | undefined): E[] {
-  return Array.from(ids)
-    .map(id => getter(id))
-    .filter((item): item is E => !isUndefined(item))
+  const result: E[] = []
+  for (const id of ids) {
+    const item = getter(id)
+    if (!isUndefined(item)) result.push(item)
+  }
+  return result
 }
 
 /**
@@ -472,7 +477,10 @@ export function resolveIds<E> (ids: Iterable<ID>, getter: (id: ID) => E | undefi
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function resolveIndexes (items: Iterable<{ index?: number }>): number[] {
-  return Array.from(items)
-    .map(item => item?.index)
-    .filter((index): index is number => !isUndefined(index))
+  const result: number[] = []
+  for (const item of items) {
+    const index = item?.index
+    if (!isUndefined(index)) result.push(index)
+  }
+  return result
 }

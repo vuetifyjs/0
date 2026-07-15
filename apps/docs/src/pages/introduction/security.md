@@ -127,6 +127,7 @@ As a headless library, v0 delegates rendering to consumers. To maintain security
 - **Review CSP requirements** below if you use Content Security Policy headers
 - **Use the adapter pattern** to control storage backends and notification services
 - **Bound dataset sizes** when using `createVirtual`, `createFilter`, or `createDataTable` with user-controlled data
+- **Never treat generated IDs as secrets** — `useId()` produces sequential, predictable identifiers for DOM/ARIA wiring, not unguessable tokens. Use a CSPRNG for CSRF tokens, session ids, or capabilities
 
 ## Content Security Policy (CSP)
 

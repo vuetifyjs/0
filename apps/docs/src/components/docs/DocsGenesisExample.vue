@@ -8,12 +8,14 @@
   // Composables
   import { getMultiFileBinUrl } from '@/composables/bin'
   import { useExamples } from '@/composables/useExamples'
+  import { prehighlight } from '@/composables/useHighlightCode'
+  import { useIdleCallback } from '@/composables/useIdleCallback'
   import { usePlayground } from '@/composables/usePlayground'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
-  import { computed, toRef } from 'vue'
+  import { computed, onMounted, toRef } from 'vue'
 
   // Types
   import type { GnDocsExampleFile } from '@paper/genesis'
@@ -73,6 +75,21 @@
   const lineWrap = useSyncedRef(settings.lineWrap)
   const size = settings.codeSize
 
+  // Highlight code into the shared cache before the pane opens, so the first
+  // "Show code" renders highlighted output instead of flashing raw text
+  function warm () {
+    const files = resolvedFiles.value
+    if (files?.length) {
+      for (const f of files) prehighlight(f.code, f.language || f.name.split('.').pop() || 'text')
+    } else if (resolvedCode.value) {
+      prehighlight(resolvedCode.value, language.value)
+    }
+  }
+
+  onMounted(() => {
+    useIdleCallback(warm)
+  })
+
   async function onPlayground (list: GnDocsExampleFile[]) {
     const files = list.map(f => ({ name: f.name, code: f.code }))
     const url = await usePlayground(files, undefined, props.imports)
@@ -92,6 +109,7 @@
     class="mb-6"
     :code="resolvedCode"
     :collapse
+    data-tour="example"
     :file-name
     :file-orders
     :files="resolvedFiles"
@@ -114,6 +132,10 @@
 
     <template v-if="$slots.description" #description>
       <slot name="description" />
+    </template>
+
+    <template #toggle-icon="{ expanded }">
+      <AppChevron :open="expanded" :size="16" vertical />
     </template>
 
     <template #reset-icon>
@@ -140,10 +162,11 @@
       <div
         class="docs-genesis-example-pane"
         :class="lineWrap && 'docs-genesis-example-pane--wrap'"
+        data-tour="example-code"
       >
         <DocsGenesisShikiBlock :code="paneCode ?? ''" :language="paneLanguage ?? 'text'" />
 
-        <div class="docs-genesis-example-pane__actions">
+        <div class="docs-genesis-example-pane__actions" data-tour="example-toolbar">
           <DocsCodeActions
             v-model:size="size"
             v-model:wrap="lineWrap"

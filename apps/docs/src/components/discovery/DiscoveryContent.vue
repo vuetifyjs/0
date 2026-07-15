@@ -84,28 +84,58 @@
         transform: 'translate(-50%, -50%)',
         width: 'max-content',
         height: 'max-content',
+        maxWidth: `min(20rem, calc(100vw - ${offset * 2}px))`,
         maxHeight: `calc(100vh - ${offset * 2}px)`,
         overflow: noOverflow ? 'visible' : 'auto',
       }
     }
 
     if (supportsAnchor) {
-      return {
+      const base = {
         position: 'fixed' as const,
-        inset: `${offset}px`,
         width: 'max-content',
         height: 'max-content',
-        // maxWidth: `calc(100vw - ${offset * 2}px)`,
+        maxWidth: `min(20rem, calc(100vw - ${offset * 2}px))`,
         maxHeight: `calc(100vh - ${offset * 2}px)`,
         overflow: noOverflow ? 'visible' : 'auto',
         positionAnchor: `--discovery-${root.step}`,
+      }
+
+      // On mobile, only anchor the popover's vertical edge to the target and keep
+      // it centered in the viewport horizontally. A narrow screen has no room for
+      // left/right placement (those collapse to top/bottom via placementMobile),
+      // and position-area centers on the anchor's own box - a target pinned to (or
+      // overflowing) a screen edge would drag the popover off-screen. Decoupling
+      // the horizontal axis keeps the box fully visible regardless of where its
+      // target sits.
+      if (breakpoints.smAndDown.value && (currentPlacement === 'top' || currentPlacement === 'bottom')) {
+        const vertical = currentPlacement === 'bottom'
+          ? { top: 'anchor(bottom)', marginTop: `${offset}px` }
+          : { bottom: 'anchor(top)', marginBottom: `${offset}px` }
+        return {
+          ...base,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          ...vertical,
+        }
+      }
+
+      return {
+        ...base,
+        inset: `${offset}px`,
         ...placementStyles[currentPlacement] ?? placementStyles.bottom,
       }
     }
     // Fallback for browsers without anchor positioning (Safari/iOS)
     // Centers popover at viewport edge since we can't anchor to elements
     // Reset inset to avoid top-layer default positioning
-    const base = { inset: 'auto', position: 'fixed' as const }
+    const base = {
+      inset: 'auto',
+      position: 'fixed' as const,
+      maxWidth: `calc(100vw - ${offset * 2}px)`,
+      maxHeight: `calc(100vh - ${offset * 2}px)`,
+      overflow: noOverflow ? 'visible' : 'auto',
+    }
     const fallbackStyles: Record<string, Record<string, string>> = {
       bottom: { bottom: `${offset}px`, left: '50%', transform: 'translateX(-50%)' },
       top: { top: `${offset}px`, left: '50%', transform: 'translateX(-50%)' },

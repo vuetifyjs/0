@@ -32,6 +32,7 @@ catalog:
   '@types/markdown-it-footnote': ^3.0.4
   '@types/node': ^25.6.0
   '@unhead/vue': ^2.1.13
+  '@vitest/browser-playwright': 4.1.5
   '@vitest/coverage-v8': ^4.1.5
   '@vue/compiler-dom': ^3.5.33
   '@vue/repl': ^4.7.1
@@ -56,7 +57,7 @@ catalog:
   mermaid: ^11.14.0
   minisearch: ^7.2.0
   pinia: ^3.0.4
-  pkg-pr-new: ^0.0.70
+  playwright: 1.61.0
   posthog-js: ^1.372.6
   publint: ^0.3.21
   rollup-plugin-sass: ^1.15.3
@@ -107,7 +108,6 @@ minimumReleaseAgeExclude:
   - typescript-eslint
   - '@typescript-eslint/*'
   - '@eslint/*'
-  - pkg-pr-new
 
 onlyBuiltDependencies:
   - '@parcel/watcher'

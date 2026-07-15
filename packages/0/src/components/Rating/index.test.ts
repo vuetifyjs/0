@@ -351,11 +351,11 @@ describe('rating', () => {
         wrapper.unmount()
       })
 
-      it('should not set aria-disabled when not disabled', async () => {
+      it('should set aria-disabled to false when not disabled', async () => {
         const { rootProps, wait } = mountRating()
         await wait()
 
-        expect(rootProps().attrs['aria-disabled']).toBeUndefined()
+        expect(rootProps().attrs['aria-disabled']).toBe(false)
       })
 
       it('should not set aria-readonly when not readonly', async () => {

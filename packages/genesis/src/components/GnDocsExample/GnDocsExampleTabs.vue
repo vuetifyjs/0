@@ -123,6 +123,7 @@
       <div
         ref="tabs-container"
         class="genesis-docs-example-tabs__bar"
+        data-tour="example-tabs"
       >
         <template v-if="!combined">
           <Tabs.List class="genesis-docs-example-tabs__list" label="Example files">

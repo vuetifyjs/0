@@ -512,6 +512,51 @@ describe('createSelection', () => {
         expect(selection.selectedIds.size).toBe(0)
       })
 
+      it('should not unselect a selected disabled ticket', () => {
+        const disabled = ref(false)
+        const selection = createSelection({ multiple: true })
+
+        selection.onboard([
+          { id: 'item-1', value: 'value-1', disabled },
+          { id: 'item-2', value: 'value-2' },
+        ])
+
+        selection.select('item-1')
+        selection.select('item-2')
+
+        disabled.value = true
+        selection.unselect('item-1')
+
+        expect(selection.selectedIds.has('item-1')).toBe(true)
+        expect(selection.selectedIds.has('item-2')).toBe(true)
+      })
+
+      it('should not toggle off a selected disabled ticket', () => {
+        const disabled = ref(false)
+        const selection = createSelection({ multiple: true })
+
+        selection.onboard([{ id: 'item-1', value: 'value-1', disabled }])
+        selection.select('item-1')
+
+        disabled.value = true
+        selection.toggle('item-1')
+
+        expect(selection.selectedIds.has('item-1')).toBe(true)
+      })
+
+      it('should not unselect a selected disabled ticket via ticket.unselect()', () => {
+        const disabled = ref(false)
+        const selection = createSelection({ multiple: true })
+
+        const ticket = selection.register({ id: 'item-1', value: 'value-1', disabled })
+        selection.select('item-1')
+
+        disabled.value = true
+        ticket.unselect()
+
+        expect(selection.selectedIds.has('item-1')).toBe(true)
+      })
+
       it('should not select non-existent items', () => {
         const selection = createSelection()
 
@@ -1007,7 +1052,7 @@ describe('createSelection', () => {
         expect(selection.selectedIds.has('b')).toBe(true)
       })
 
-      it('should respect mandatory when applying empty array in multiple mode', () => {
+      it('should keep current selection when applying empty array under mandatory', () => {
         const selection = createSelection({ multiple: true, mandatory: true })
         selection.onboard([
           { id: 'a', value: 'A' },
@@ -1018,8 +1063,9 @@ describe('createSelection', () => {
 
         selection.apply([])
 
-        // Mandatory must keep at least one selected, like in non-multiple mode
-        expect(selection.selectedIds.size).toBe(1)
+        expect(selection.selectedIds.has('a')).toBe(true)
+        expect(selection.selectedIds.has('b')).toBe(true)
+        expect(selection.selectedIds.size).toBe(2)
       })
 
       it('should apply in multiple mode without Set.prototype.difference', () => {
@@ -1049,7 +1095,7 @@ describe('createSelection', () => {
         }
       })
 
-      it('should keep the mandatory survivor when apply swaps the last selected id', () => {
+      it('should replace the last selected id under mandatory', () => {
         const selection = createSelection({ multiple: true, mandatory: true })
         selection.onboard([
           { id: 'a', value: 'A' },
@@ -1059,10 +1105,108 @@ describe('createSelection', () => {
 
         selection.apply(['B'])
 
-        // Removals run before additions, so the mandatory guard keeps 'a'
+        expect(selection.selectedIds.has('a')).toBe(false)
+        expect(selection.selectedIds.has('b')).toBe(true)
+        expect(selection.selectedIds.size).toBe(1)
+      })
+
+      it('should fully replace multiple selected ids under mandatory', () => {
+        const selection = createSelection({ multiple: true, mandatory: true })
+        selection.onboard([
+          { id: 'a', value: 'A' },
+          { id: 'b', value: 'B' },
+          { id: 'c', value: 'C' },
+          { id: 'd', value: 'D' },
+        ])
+        selection.select('a')
+        selection.select('b')
+
+        selection.apply(['C', 'D'])
+
+        expect(selection.selectedIds.has('a')).toBe(false)
+        expect(selection.selectedIds.has('b')).toBe(false)
+        expect(selection.selectedIds.has('c')).toBe(true)
+        expect(selection.selectedIds.has('d')).toBe(true)
+        expect(selection.selectedIds.size).toBe(2)
+      })
+
+      it('should keep current selection when all applied targets are disabled under mandatory', () => {
+        const selection = createSelection({ multiple: true, mandatory: true })
+        selection.onboard([
+          { id: 'a', value: 'A' },
+          { id: 'b', value: 'B' },
+          { id: 'c', value: 'C', disabled: true },
+          { id: 'd', value: 'D', disabled: true },
+        ])
+        selection.select('a')
+        selection.select('b')
+
+        selection.apply(['C', 'D'])
+
         expect(selection.selectedIds.has('a')).toBe(true)
         expect(selection.selectedIds.has('b')).toBe(true)
+        expect(selection.selectedIds.has('c')).toBe(false)
+        expect(selection.selectedIds.has('d')).toBe(false)
         expect(selection.selectedIds.size).toBe(2)
+      })
+
+      it('should not select a disabled item when applying in multiple mode', () => {
+        const selection = createSelection({ multiple: true })
+        selection.onboard([
+          { id: 'a', value: 'A' },
+          { id: 'b', value: 'B', disabled: true },
+        ])
+
+        selection.apply(['A', 'B'])
+
+        expect(selection.selectedIds.has('a')).toBe(true)
+        expect(selection.selectedIds.has('b')).toBe(false)
+      })
+
+      it('should swap away from a disabled selected id in non-multiple mode', () => {
+        const disabled = ref(false)
+        const selection = createSelection()
+        selection.onboard([
+          { id: 'a', value: 'A', disabled },
+          { id: 'b', value: 'B' },
+        ])
+        selection.select('a')
+
+        disabled.value = true
+        selection.apply(['B'])
+
+        expect(selection.selectedIds.has('a')).toBe(false)
+        expect(selection.selectedIds.has('b')).toBe(true)
+        expect(selection.selectedIds.size).toBe(1)
+      })
+
+      it('should drain a disabled selected id when applying empty in non-multiple mode', () => {
+        const disabled = ref(false)
+        const selection = createSelection()
+        selection.onboard([{ id: 'a', value: 'A', disabled }])
+        selection.select('a')
+
+        disabled.value = true
+        selection.apply([])
+
+        expect(selection.selectedIds.size).toBe(0)
+      })
+
+      it('should drain a disabled selected id when applying in multiple mode', () => {
+        const disabled = ref(false)
+        const selection = createSelection({ multiple: true })
+        selection.onboard([
+          { id: 'a', value: 'A', disabled },
+          { id: 'b', value: 'B' },
+        ])
+        selection.select('a')
+
+        disabled.value = true
+        selection.apply(['B'])
+
+        expect(selection.selectedIds.has('a')).toBe(false)
+        expect(selection.selectedIds.has('b')).toBe(true)
+        expect(selection.selectedIds.size).toBe(1)
       })
     })
 

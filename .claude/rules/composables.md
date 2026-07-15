@@ -206,7 +206,7 @@ See PHILOSOPHY §2.9 for the three-way split (throw / warn / return) and the ful
 Child spreads parent and adds or overrides: [intent:142]
 
 ```ts
-// packages/0/src/composables/createSelection/index.ts:296
+// packages/0/src/composables/createSelection/index.ts:299
 const model = createModel(options)
 return { ...model, multiple, register, onboard, unselect, toggle, apply, mandate, seek }
 ```
@@ -270,7 +270,7 @@ restore: (context, saved) => {
 },
 ```
 
-`useLocale`, `useTheme`, and `useRtl` still blind-cast (`saved as ID` / `saved as boolean`) — sweep pending; don't add new blind casts.
+`useLocale`, `useTheme`, and `useRtl` all validate the persisted value with `#v0/utilities` type guards (`isString` / `isNumber` / `isBoolean`) before applying it — the blind-cast sweep is complete; don't reintroduce `saved as T` or raw `typeof` comparisons.
 
 #### Fallback contract — required for every plugin
 
@@ -487,9 +487,12 @@ The big table stays cheap (plain `Map`, O(1) lookups). Runtime mutations that ne
 
 This split is why `useTheme` and `useLocale` work fine even though their reactive registries are bounded to 2–20 entries — the bulk data never needed reactivity in the first place.
 
-### Escape hatch for unbounded collections
+### Unbounded collections — pick by capability, not iteration cost
 
-For plugins whose registries can grow without bound (notifications, logs, queues), `reactive: true` with an explicit opt-out on the plugin options is the right shape when consumers iterate the registry directly — "bake in reactive behavior, let the consumer turn it off if they hit a scale wall." `useNotifications` is the canonical example. When iteration is confined to internal derived computeds, skip registry reactivity entirely and wrap the registry in `useProxyRegistry` instead (PHILOSOPHY §4.4) — `createDataTable`'s row registry is the canonical example.
+Reactive reads are version-memoized (PHILOSOPHY §4.4), so iteration cost no longer differentiates the two paths; what `reactive: true` still pays at scale is one `shallowReactive` proxy per ticket. Decide by contract:
+
+- Consumers iterate directly **and** need per-ticket field tracking → `reactive: true`, with a plugin-options opt-out for allocation-sensitive scale (`useNotifications`).
+- Iteration confined to internal computeds, or no reactive ticket-field reads → non-reactive registry (`events: true`) + `useProxyRegistry` (`createDataTable`'s row registry). Don't hand-roll an event-driven snapshot; `useProxyRegistry` is that pattern.
 
 ### `useProxyRegistry` vs `reactive: true`
 

@@ -3,7 +3,12 @@
  *
  * Structure:
  * - READ-ONLY operations use shared fixtures (safe - filter.apply() doesn't mutate state)
- * - REACTIVE UPDATE operations create fresh fixtures per iteration (refs are mutated)
+ * - WARM operations (reactive reads) build the filter + reactive computed ONCE and
+ *   time only the reads/updates — never the createFilter()+apply() setup. "Access …
+ *   cached" reads a constant query (the computed stays cached after the first read);
+ *   "Update query" resets the query to its base then performs N distinct updates,
+ *   each dirtying the computed so the read re-runs the O(n) filter (no drift).
+ * - FRESH fixtures only where the populate IS the measured op (initialization)
  * - Tests both 1,000 and 10,000 item datasets
  * - Categories: initialization, primitive filtering, object filtering, filter modes, mutation operations, native comparison
  */
@@ -178,48 +183,57 @@ describe('createFilter benchmarks', () => {
 
   // ===========================================================================
   // REACTIVE UPDATES - Reactive filtering with refs
-  // Fresh fixture per iteration (required - ref mutations change state)
-  // Measures: setup + operation cost (unavoidable for mutations)
+  // WARM: the filter and its reactive computed are built ONCE per bench (the
+  //   createFilter()+apply() construction is not the op). "Access … cached" reads
+  //   a constant query, so the computed is evaluated once then served from cache —
+  //   timing the 100 cached reads. "Update query" resets the query to its base then
+  //   performs 10 distinct updates; each update dirties the computed so the read
+  //   re-runs the O(n) filter. Deterministic: identical query sequence each
+  //   iteration, no drift. Isolates the reactive read/recompute from setup.
   // ===========================================================================
   describe('mutation operations', () => {
     const itemsRef1k = ref(OBJECTS_1K)
     const itemsRef10k = ref(OBJECTS_10K)
 
+    const readFilter1k = createFilter()
+    const readFiltered1k = readFilter1k.apply(ref(LOOKUP_USER_1K), itemsRef1k).items
+
+    const readFilter10k = createFilter()
+    const readFiltered10k = readFilter10k.apply(ref(LOOKUP_USER_10K), itemsRef10k).items
+
+    const updateQuery1k = ref(LOOKUP_USER_1K)
+    const updateFilter1k = createFilter()
+    const updateFiltered1k = updateFilter1k.apply(updateQuery1k, itemsRef1k).items
+
+    const updateQuery10k = ref(LOOKUP_USER_10K)
+    const updateFilter10k = createFilter()
+    const updateFiltered10k = updateFilter10k.apply(updateQuery10k, itemsRef10k).items
+
     bench('Access filtered 100 times (1,000 items, cached)', () => {
-      const query = ref(LOOKUP_USER_1K)
-      const filter = createFilter()
-      const { items: filtered } = filter.apply(query, itemsRef1k)
       for (let i = 0; i < 100; i++) {
-        void filtered.value
+        void readFiltered1k.value
       }
     })
 
     bench('Access filtered 100 times (10,000 items, cached)', () => {
-      const query = ref(LOOKUP_USER_10K)
-      const filter = createFilter()
-      const { items: filtered } = filter.apply(query, itemsRef10k)
       for (let i = 0; i < 100; i++) {
-        void filtered.value
+        void readFiltered10k.value
       }
     })
 
     bench('Update query 10 times (1,000 items)', () => {
-      const query = ref(LOOKUP_USER_1K)
-      const filter = createFilter()
-      const { items: filtered } = filter.apply(query, itemsRef1k)
+      updateQuery1k.value = LOOKUP_USER_1K
       for (let i = 0; i < 10; i++) {
-        query.value = `User ${500 + i}`
-        void filtered.value
+        updateQuery1k.value = `User ${500 + i}`
+        void updateFiltered1k.value
       }
     })
 
     bench('Update query 10 times (10,000 items)', () => {
-      const query = ref(LOOKUP_USER_10K)
-      const filter = createFilter()
-      const { items: filtered } = filter.apply(query, itemsRef10k)
+      updateQuery10k.value = LOOKUP_USER_10K
       for (let i = 0; i < 10; i++) {
-        query.value = `User ${5000 + i}`
-        void filtered.value
+        updateQuery10k.value = `User ${5000 + i}`
+        void updateFiltered10k.value
       }
     })
   })

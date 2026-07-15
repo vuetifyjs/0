@@ -36,7 +36,7 @@ import { createTokens, flatten } from '#v0/composables/createTokens'
 import { V0StyleSheetThemeAdapter } from '#v0/composables/useTheme/adapters'
 
 // Utilities
-import { foreground as foregroundFn } from '#v0/utilities'
+import { foreground as foregroundFn, isNumber, isString } from '#v0/utilities'
 import { computed, shallowRef, toRef } from 'vue'
 
 // Types
@@ -400,7 +400,7 @@ export const [createThemeContext, createThemePlugin, useTheme] =
       },
       persist: ctx => ctx.selectedId.value,
       restore: (ctx, saved) => {
-        if (typeof saved === 'string' || typeof saved === 'number') ctx.select(saved)
+        if (isString(saved) || isNumber(saved)) ctx.select(saved)
       },
     },
   )

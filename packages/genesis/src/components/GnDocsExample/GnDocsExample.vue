@@ -146,11 +146,25 @@
       <button
         :aria-controls="`${uid}-code`"
         :aria-expanded="showCode"
+        :aria-label="showCode ? 'Hide code' : 'Show code'"
         class="genesis-docs-example__toggle"
+        data-tour="example-toggle"
         type="button"
         @click="toggleCode"
       >
-        {{ showCode ? 'Hide code' : 'Show code' }}
+        <slot :expanded="showCode" name="toggle-icon">
+          <svg
+            aria-hidden="true"
+            class="genesis-docs-example__toggle-chevron"
+            fill="currentColor"
+            height="14"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
+          </svg>
+        </slot>
 
         <span v-if="hasMultipleFiles" class="genesis-docs-example__meta">
           {{ files!.length }} file(s)
@@ -263,6 +277,7 @@
     <GnPeek
       v-if="peek && !hasMultipleFiles && hasCode"
       v-model:expanded="peekExpanded"
+      data-tour="example-expand"
     />
   </div>
 </template>
@@ -322,6 +337,14 @@
 
   .genesis-docs-example__toggle:hover {
     background: var(--v0-surface, #fff);
+  }
+
+  .genesis-docs-example__toggle-chevron {
+    transition: transform 0.15s;
+  }
+
+  .genesis-docs-example[data-expanded] .genesis-docs-example__toggle-chevron {
+    transform: rotate(180deg);
   }
 
   .genesis-docs-example__meta {

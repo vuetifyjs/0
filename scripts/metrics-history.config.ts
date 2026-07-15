@@ -1,18 +1,30 @@
 /**
- * Versions to collect historical benchmark metrics for — must be published to npm.
+ * Policy for which published `@vuetify/v0` versions get a historical benchmark
+ * snapshot.
+ *
+ * Versions are DISCOVERED from npm at run time (see `generate-metrics-history.ts`)
+ * rather than hand-listed, so every new 1.x release is picked up automatically —
+ * no config edit per release. This file only tunes the filter:
+ *
+ *   - `major`   — only versions on this major line are tracked.
+ *   - `since`   — floor; versions ordered below this are ignored (skips the
+ *                 pre-`beta.0` alphas, which predate the comparable series).
+ *   - `exclude` — explicit versions to drop even if published (yanked/broken cuts).
  *
  * The harness installs `@vuetify/v0@<version>` and benches it with the CURRENT
- * suite + toolchain (see `generate-metrics-history.ts`), so versions are directly
- * comparable. Track the 1.0 line onward; append each 1.x release as it ships.
- *
- * Re-run `pnpm metrics:history` after adding an entry (existing per-version files
- * are skipped; `--force` re-measures all). To retire a version, delete its
- * `apps/docs/src/data/metrics/<version>.json` and remove it here — the docs trend
- * lines read whatever snapshot files remain in that directory.
+ * suite + toolchain, so versions stay directly comparable. To retire a version,
+ * delete its `apps/docs/src/data/metrics/<version>.json` and (if it would
+ * otherwise be rediscovered) add it to `exclude` — the docs trend lines read
+ * whatever snapshot files remain in that directory.
  */
-export const versions: string[] = [
-  '1.0.0-beta.0',
-  '1.0.0-beta.1',
-  '1.0.0-beta.2',
-  '1.0.0-beta.3',
-]
+interface HistoryConfig {
+  major: number
+  since: string
+  exclude: string[]
+}
+
+export const config: HistoryConfig = {
+  major: 1,
+  since: '1.0.0-beta.0',
+  exclude: [],
+}

@@ -97,12 +97,16 @@
     return decodeURIComponent(escape(atob(encoded)))
   }
 
-  function onClick () {
+  async function onClick () {
     if (props.type === 'askai' && props.question) {
       ask.ask(decodeQuestion(props.question))
     } else if (props.type === 'discord') {
-      window.open('https://discord.gg/vK6T89eNP7', '_blank', 'noopener,noreferrer')
+      window.open('https://discord.gg/vuetify', '_blank', 'noopener,noreferrer')
     } else if (props.type === 'tour' && props.tourId) {
+      if (!tour.value) return
+
+      await router.push(tour.value.startRoute)
+
       skillz.start(props.tourId, {
         context: {
           ask,

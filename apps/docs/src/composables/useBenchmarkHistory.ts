@@ -9,7 +9,7 @@ import { type ComputedRef, type MaybeRefOrGetter, type ShallowRef, computed, sha
 
 // Types
 import type { RawFeature } from './benchmarkHistorySources'
-import type { Tier } from './useBenchmarkData'
+import type { TierState } from './useBenchmarkData'
 
 const CURRENT_LABEL = 'current' as const
 
@@ -18,7 +18,7 @@ export interface HistoryPoint {
   hz: number
   mean: number
   isCurrent: boolean
-  tier: Tier
+  tier: TierState
 }
 
 export interface BenchmarkHistory {
@@ -108,7 +108,7 @@ function ingestSource (
           hz,
           mean,
           isCurrent,
-          tier: tier ?? 'good',
+          tier: tier ?? 'unmeasured',
         })
       }
     }

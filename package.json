@@ -38,7 +38,7 @@
     "preview:docs": "pnpm --filter=docs preview",
     "repo:knip": "knip",
     "repo:sherif": "sherif",
-    "repo:exports": "publint ./packages/0 && attw --pack ./packages/0 --profile esm-only --exclude-entrypoints browser",
+    "repo:exports": "publint ./packages/0 && attw --pack ./packages/0 --profile esm-only",
     "repo:check": "pnpm repo:knip && pnpm repo:sherif",
     "size": "size-limit",
     "validate": "pnpm lint && pnpm typecheck && pnpm test:run",
@@ -49,13 +49,14 @@
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-push": "pnpm lint:fix && pnpm typecheck && pnpm test:run && pnpm repo:check"
+    "pre-push": "pnpm lint && pnpm typecheck && pnpm test:run --project '!v0:browser' && pnpm repo:check"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
     "@changesets/changelog-github": "catalog:",
     "@changesets/cli": "catalog:",
     "@js-temporal/polyfill": "catalog:",
+    "@size-limit/preset-small-lib": "catalog:",
     "@tsconfig/node24": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
@@ -65,16 +66,18 @@
     "eslint-plugin-vuejs-accessibility": "catalog:",
     "happy-dom": "catalog:",
     "knip": "catalog:",
-    "@size-limit/preset-small-lib": "catalog:",
-    "pkg-pr-new": "catalog:",
+    "playwright": "catalog:",
     "publint": "catalog:",
-    "size-limit": "catalog:",
     "sherif": "catalog:",
     "simple-git-hooks": "catalog:",
+    "size-limit": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
   },
   "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=26"
+  },
   "web-types": "dist/json/web-types.json"
 }

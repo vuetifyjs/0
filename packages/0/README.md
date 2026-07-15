@@ -20,7 +20,7 @@
     <img src="https://img.shields.io/npm/l/@vuetify/v0.svg" alt="License">
   </a>
   <a href="https://discord.gg/vuetify">
-    <img src="https://discordapp.com/api/guilds/340160225338195969/widget.png" alt="Chat">
+    <img src="https://img.shields.io/discord/1513968811047522396?logo=discord&logoColor=white&label=Discord&color=5865F2" alt="Discord">
   </a>
 </p>
 
@@ -28,11 +28,7 @@
 
 Headless Vue 3 UI primitives and composables for building modern applications and design systems. `@vuetify/v0` is the foundation of the Vuetify ecosystem, offering lightweight, unstyled building blocks with full TypeScript support and accessibility features built-in.
 
-> **Note:** v0 is in beta — the API is stabilizing toward 1.0. Some APIs may still change before the stable release.
-
-## Primary Sponsor
-
-This spot is open. Vuetify0 accepts one Primary Sponsor at a time — $2,000/mo gets your logo on the Vuetify0 docs site (home page + desktop sidebar on every docs page) and this README. [Become the Primary Sponsor →](https://0.vuetifyjs.com/sponsor)
+> **Note:** v0 is a release candidate — the v1 stable set is locked. Install with `npm i @vuetify/v0@rc`. Preview APIs may still see minor, documented changes before the stable release.
 
 ## Repository Structure
 
@@ -305,16 +301,7 @@ pnpm validate
 
 ## Contributing
 
-Vuetify0 is in beta — open for feedback, bug reports, and contributions. See the [Roadmap](https://0.vuetifyjs.com/roadmap#beta) for what's planned and how to get involved.
-
-## Supporting Vuetify
-
-Vuetify0 is an MIT-licensed open source project. Its ongoing development is made possible by the support of sponsors and backers. If you'd like to join them, please consider:
-
-- [Sponsor on GitHub](https://github.com/sponsors/johnleider)
-- [Donate via Open Collective](https://opencollective.com/vuetify)
-
-For direct support plans and fixed-scope project builds, see [Vuetify Services](https://0.vuetifyjs.com/services).
+Vuetify0 is a release candidate — open for final validation, bug reports, and contributions. See the [Roadmap](https://0.vuetifyjs.com/roadmap#release-candidate) for what's planned and how to get involved.
 
 ## License
 

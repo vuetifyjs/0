@@ -322,6 +322,13 @@ describe('createStack', () => {
     })
 
     describe('useStack', () => {
+      it('should reuse the same fallback instance across calls in the browser', () => {
+        const first = useStack()
+        const second = useStack()
+
+        expect(first).toBe(second)
+      })
+
       it('should return context from provider', () => {
         const plugin = createStackPlugin()
 
