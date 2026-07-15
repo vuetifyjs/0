@@ -1,6 +1,8 @@
-import { createSSRApp, defineComponent, nextTick } from 'vue'
-import { renderToString } from 'vue/server-renderer'
 import { vi } from 'vitest'
+import { renderToString } from 'vue/server-renderer'
+
+// Utilities
+import { createSSRApp, defineComponent, nextTick } from 'vue'
 
 // Types
 import type { App } from 'vue'
@@ -26,7 +28,9 @@ export interface HydrateOptions {
  */
 export async function hydrate (render: () => unknown, options?: HydrateOptions): Promise<HydrateResult> {
   const messages: string[] = []
-  const capture = (...args: unknown[]) => void messages.push(args.map(String).join(' '))
+  function capture (...args: unknown[]) {
+    messages.push(args.map(String).join(' '))
+  }
   const warn = vi.spyOn(console, 'warn').mockImplementation(capture)
   const error = vi.spyOn(console, 'error').mockImplementation(capture)
 

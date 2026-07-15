@@ -1,15 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { h } from 'vue'
 
 import { hydrate } from '#v0/test-utils/hydrate'
 
 import { Tabs } from './index'
 
+// Utilities
+import { h } from 'vue'
+
 // Types
 import type { Component } from 'vue'
 
-const TabsFixture = () =>
-  h(Tabs.Root as unknown as Component, { modelValue: 'profile' }, () => [
+function TabsFixture () {
+  return h(Tabs.Root as unknown as Component, { modelValue: 'profile' }, () => [
     h(Tabs.List as unknown as Component, { label: 'Account settings' }, () => [
       h(Tabs.Item as unknown as Component, { value: 'profile' }, () => 'Profile'),
       h(Tabs.Item as unknown as Component, { value: 'password' }, () => 'Password'),
@@ -17,8 +19,9 @@ const TabsFixture = () =>
     h(Tabs.Panel as unknown as Component, { value: 'profile' }, () => 'Profile content'),
     h(Tabs.Panel as unknown as Component, { value: 'password' }, () => 'Password content'),
   ])
+}
 
-describe('Tabs SSR hydration', () => {
+describe('tabs SSR hydration', () => {
   it('hydrates with stable useId-derived ARIA IDs and zero mismatch warnings', async () => {
     const { html, mismatches } = await hydrate(TabsFixture)
 

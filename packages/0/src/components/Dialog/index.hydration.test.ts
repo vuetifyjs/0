@@ -1,10 +1,14 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { h } from 'vue'
 
-import { hydrate } from '#v0/test-utils/hydrate'
+// Composables
 import { createStackPlugin } from '#v0/composables/useStack'
 
+import { hydrate } from '#v0/test-utils/hydrate'
+
 import { Dialog } from './index'
+
+// Utilities
+import { h } from 'vue'
 
 // Types
 import type { Component } from 'vue'
@@ -14,7 +18,7 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = vi.fn()
 })
 
-describe('Dialog SSR hydration', () => {
+describe('dialog SSR hydration', () => {
   it('hydrates a closed Dialog without mismatch warnings', async () => {
     const { html, mismatches } = await hydrate(
       () =>
