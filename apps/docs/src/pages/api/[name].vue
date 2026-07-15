@@ -152,7 +152,7 @@
 
         <DocsSearchInput v-model="search" class="mt-8 mb-4" :placeholder />
 
-        <hr class="mt-4 -mb-6">
+        <hr class="mt-4" :class="{ '-mb-6': !empty }">
 
         <template
           v-for="api in visibleApis"

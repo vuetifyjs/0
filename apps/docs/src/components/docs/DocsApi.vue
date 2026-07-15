@@ -95,7 +95,7 @@
     <template v-if="showInlineApi">
       <DocsSearchInput v-model="search" class="mt-8" :placeholder />
 
-      <hr class="mt-4 -mb-4">
+      <hr class="mt-4" :class="{ '-mb-4': !empty }">
 
       <template
         v-for="api in visibleApis"
