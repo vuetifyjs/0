@@ -100,6 +100,7 @@ jobs:
       pull-requests: read
     outputs:
       docs: ${{ steps.filter.outputs.docs }}
+      packages: ${{ steps.filter.outputs.packages }}
       playground: ${{ steps.filter.outputs.playground }}
     steps:
       - uses: actions/checkout@v6
@@ -109,6 +110,8 @@ jobs:
           filters: |
             docs:
               - 'apps/docs/**'
+            packages:
+              - 'packages/**'
             playground:
               - 'apps/playground/**'
 
@@ -145,6 +148,21 @@ jobs:
       - uses: actions/checkout@v6
       - uses: vuetifyjs/setup-action@cb5ac088588387e65433a762de90c0b06d878677 # master
       - run: pnpm run build:play
+
+  size:
+    needs: [build, changes]
+    if: ${{ needs.changes.outputs.packages == 'true' && github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-dist
+          path: packages
+      - name: Check bundle sizes
+        run: pnpm size
 
   pkg-pr-new:
     needs: [build]
