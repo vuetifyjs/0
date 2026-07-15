@@ -41,7 +41,9 @@ The Button component renders as a native `<button>` by default (or an anchor, ro
 <template>
   <Button.Root>
     <Button.Icon />
+
     <Button.Content />
+
     <Button.Loading />
   </Button.Root>
 

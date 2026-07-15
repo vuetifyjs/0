@@ -40,6 +40,7 @@ Rating supports whole and half-star modes. Items expose their state via data att
 <template>
   <Rating.Root>
     <Rating.Item />
+
     <Rating.HiddenInput />
   </Rating.Root>
 </template>
