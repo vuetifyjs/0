@@ -31,16 +31,16 @@
 </script>
 
 <template>
-  <button
+  <AppTooltip
     v-if="!auth.isAuthenticated"
     aria-label="Sign in"
     class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer border-0"
-    title="Sign in"
-    type="button"
+    position-area="bottom"
+    text="Sign in"
     @click="auth.dialog = true"
   >
     <AppIcon icon="account" />
-  </button>
+  </AppTooltip>
 
   <Discovery.Activator v-else class="inline-flex rounded-full" step="settings">
     <button

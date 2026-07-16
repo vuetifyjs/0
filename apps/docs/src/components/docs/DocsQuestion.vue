@@ -293,15 +293,14 @@
           Apply {{ verdict?.label }} to filter
         </button>
 
-        <button
+        <AppTooltip
           class="inline-flex items-center gap-2 rounded-md border border-divider px-3 py-1.5 text-sm text-on-surface transition-colors hover:bg-surface-variant"
-          title="Try again"
-          type="button"
+          text="Try again"
           @click="onStart"
         >
           <AppIcon icon="restart" :size="16" />
           Try again
-        </button>
+        </AppTooltip>
       </div>
     </div>
 
@@ -407,26 +406,24 @@
         </Question.Feedback>
 
         <div class="mt-4 flex items-center gap-2">
-          <button
+          <AppTooltip
             aria-label="Restart quiz"
             class="inline-flex size-9 items-center justify-center rounded-md border border-divider text-on-surface-variant transition-colors hover:bg-surface-variant"
-            title="Restart quiz"
-            type="button"
+            text="Restart quiz"
             @click="begin"
           >
             <AppIcon icon="restart" :size="16" />
-          </button>
+          </AppTooltip>
 
-          <button
+          <AppTooltip
             aria-label="Previous question"
             class="inline-flex size-9 items-center justify-center rounded-md border border-divider text-on-surface transition-colors hover:bg-surface-variant disabled:opacity-40"
             :disabled="index === 0"
-            title="Back"
-            type="button"
+            text="Back"
             @click="onPrev"
           >
             <AppIcon icon="left" :size="16" />
-          </button>
+          </AppTooltip>
 
           <div class="flex flex-1 flex-wrap items-center justify-center gap-1.5">
             <button
@@ -446,16 +443,15 @@
           </div>
 
           <template v-if="!isSubmitted">
-            <button
+            <AppTooltip
               v-if="!isLast"
               aria-label="Skip question"
               class="inline-flex size-9 items-center justify-center rounded-md border border-divider text-on-surface transition-colors hover:bg-surface-variant"
-              title="Skip"
-              type="button"
+              text="Skip"
               @click="onSkip"
             >
               <AppIcon icon="right" :size="16" />
-            </button>
+            </AppTooltip>
 
             <button
               v-else

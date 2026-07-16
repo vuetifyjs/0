@@ -136,15 +136,14 @@
 
         <div class="hidden md:block w-px h-5 bg-divider" />
 
-        <button
+        <AppTooltip
           :aria-label="toggle.title.value"
           class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-surface-tint transition-colors text-on-surface"
-          :title="toggle.title.value"
-          type="button"
+          :text="toggle.title.value"
           @click="toggle.toggle"
         >
           <AppIcon :icon="toggle.icon.value" :size="20" />
-        </button>
+        </AppTooltip>
       </div>
     </div>
   </footer>

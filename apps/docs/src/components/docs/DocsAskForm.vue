@@ -67,16 +67,15 @@
       class="shrink-0 px-1.5 py-0.5 rounded bg-surface-tint text-on-surface-tint text-[10px] font-mono inline-flex items-center"
     >Ctrl+/</kbd>
 
-    <button
+    <AppTooltip
       v-if="isLoading"
       aria-label="Stop generating"
       class="shrink-0 size-6 rounded-full bg-error text-on-error flex items-center justify-center hover:opacity-90 transition-opacity"
-      title="Stop generating"
-      type="button"
+      text="Stop generating"
       @click="emit('stop')"
     >
       <AppIcon icon="stop" size="12" />
-    </button>
+    </AppTooltip>
 
     <button
       v-else
