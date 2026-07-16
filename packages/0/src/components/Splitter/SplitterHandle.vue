@@ -270,7 +270,7 @@
       'aria-valuemax': valuemax.value,
       'aria-orientation': ariaOrientation.value,
       'aria-controls': ariaControls.value,
-      'aria-label': label || (locale.ti('Splitter.handle') ?? 'Resize') || undefined,
+      'aria-label': label || (locale.ti('Splitter.handle') ?? 'Resize'),
       'aria-disabled': isDisabled.value,
       'data-state': state.value,
       'data-orientation': splitter.orientation.value,
