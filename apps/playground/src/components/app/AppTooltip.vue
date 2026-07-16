@@ -10,6 +10,7 @@
     openDelay = 500,
     closeDelay = 200,
     positionArea = 'top',
+    disabled = false,
   } = defineProps<{
     /** Tooltip text. When empty the trigger renders on its own, no tooltip. */
     text?: string
@@ -18,6 +19,8 @@
     openDelay?: number
     closeDelay?: number
     positionArea?: string
+    /** Disables the trigger and suppresses the tooltip. Declared so a caller's `:disabled` survives Tooltip.Activator's attr merge. */
+    disabled?: boolean
   }>()
 </script>
 
@@ -25,6 +28,7 @@
   <Tooltip.Root
     v-if="text"
     :close-delay
+    :disabled
     :open-delay
     :position-area
   >
@@ -40,7 +44,7 @@
     </Tooltip.Content>
   </Tooltip.Root>
 
-  <component :is="as" v-else v-bind="$attrs">
+  <component :is="as" v-else :disabled="disabled || undefined" v-bind="$attrs">
     <slot />
   </component>
 </template>
