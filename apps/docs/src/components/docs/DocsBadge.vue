@@ -49,13 +49,14 @@
 </script>
 
 <template>
-  <span
+  <AppTooltip
+    as="span"
     class="badge-base"
     :class="shapeClass"
     :style="badgeStyle"
-    :title
+    :text="title"
   >
     <AppIcon v-if="icon && showIcon" :icon :size="iconSize" />
     <span v-if="showLabel">{{ label }}</span>
-  </span>
+  </AppTooltip>
 </template>
