@@ -55,12 +55,14 @@
     /** Attributes to bind to the item element */
     attrs: {
       'role': 'checkbox'
+      'tabindex': 0 | -1
       'aria-checked': boolean | 'mixed'
       'aria-disabled': boolean
       'data-selected': true | undefined
       'data-disabled': true | undefined
       'data-mixed': true | undefined
       'onClick': () => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
   }
 </script>
@@ -99,6 +101,14 @@
     ticket.toggle()
   }
 
+  // role=checkbox implies an interactive element, so keyboard users need
+  // parity with click — Space toggles per the WAI-ARIA APG checkbox pattern.
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key !== ' ') return
+    e.preventDefault()
+    onClick()
+  }
+
   onBeforeUnmount(() => {
     group.unregister(ticket.id)
   })
@@ -117,12 +127,14 @@
     unmix: ticket.unmix,
     attrs: {
       'role': 'checkbox',
+      'tabindex': toValue(isDisabled) ? -1 : 0,
       'aria-checked': toValue(ticket.isMixed) ? 'mixed' : toValue(ticket.isSelected),
       'aria-disabled': toValue(isDisabled),
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-disabled': toValue(isDisabled) || undefined,
       'data-mixed': toValue(ticket.isMixed) || undefined,
       'onClick': onClick,
+      'onKeydown': onKeydown,
     },
   }))
 </script>
