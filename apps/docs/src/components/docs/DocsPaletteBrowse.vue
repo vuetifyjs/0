@@ -29,6 +29,8 @@
     ant: { label: 'Ant Design', data: ant as Record<string, Record<string, string>>, namespace: 'ant' },
   }
 
+  const ROLES = ['primary', 'secondary', 'accent', 'error', 'info', 'success', 'warning']
+
   const selected = shallowRef('tailwind')
   const clicks = ref(new Map<string, string>())
   const { copied, copy } = useClipboard()
@@ -76,23 +78,33 @@
   }
 
   function onExport () {
-    const p = palette.value
-    const ns = p.namespace
+    const ns = palette.value.namespace
     const name = selected.value
+
+    const lines: string[] = []
+
+    if (clicks.value.size > 0) {
+      // Map each clicked swatch to a theme role, in click order
+      let i = 0
+      for (const [path] of clicks.value) {
+        const role = ROLES[i] ?? `color${i + 1}`
+        lines.push(`          ${role}: '{palette.${ns}.${path}}',`)
+        i++
+      }
+    } else {
+      // No clicks: seed primary/secondary from real hues in this palette so the config resolves
+      const shade = columns.value[Math.floor(columns.value.length / 2)]
+      for (const [index, [hue, collection]] of rows.value.slice(0, 2).entries()) {
+        const key = shade && collection[shade] ? shade : Object.keys(collection)[0]!
+        lines.push(`          ${ROLES[index]}: '{palette.${ns}.${hue}.${key}}',`)
+      }
+    }
+
     let code = `import { ${name} } from '@vuetify/v0/palettes/${name}'\n\n`
     code += `app.use(\n  createThemePlugin({\n    palette: { ${ns}: ${name} },\n`
     code += `    themes: {\n      light: {\n        colors: {\n`
-
-    if (clicks.value.size > 0) {
-      for (const [path] of clicks.value) {
-        code += `          // '{palette.${ns}.${path}}',\n`
-      }
-    } else {
-      code += `          // primary: '{palette.${ns}.blue.500}',\n`
-      code += `          // secondary: '{palette.${ns}.slate.600}',\n`
-    }
-
-    code += `        }\n      }\n    }\n  })\n)`
+    code += `${lines.join('\n')}\n`
+    code += `        },\n      },\n    },\n  })\n)`
     copy(code)
   }
 </script>
@@ -139,6 +151,11 @@
           </Select.Item>
         </Select.Content>
       </Select.Root>
+    </div>
+
+    <!-- Hint -->
+    <div class="text-xs op-60">
+      Click a swatch to copy its token path and add it to the config. Then use <span class="font-medium">Copy Config</span> for a ready-to-paste theme.
     </div>
 
     <!-- Swatch grid — fixed height container, uniform cell sizes -->
