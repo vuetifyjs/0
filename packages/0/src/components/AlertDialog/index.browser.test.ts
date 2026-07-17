@@ -444,6 +444,71 @@ describe('alertDialog', () => {
       expect(custom.element.parentElement?.tagName).not.toBe('DIALOG')
       expect(wrapper.findAll('[role="alertdialog"]')).toHaveLength(1)
     })
+
+    it('should focus the Cancel element when dialog opens', async () => {
+      const isOpen = ref(false)
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: {
+          'modelValue': isOpen.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            isOpen.value = v as boolean
+          },
+        },
+        attachTo: document.body,
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Cancel, {}, () => 'Cancel'),
+          ]),
+        },
+      })
+
+      await nextTick()
+
+      const cancel = wrapper.findComponent(AlertDialog.Cancel as any)
+      const focusSpy = vi.spyOn(cancel.element as HTMLElement, 'focus')
+
+      await wrapper.setProps({ modelValue: true })
+      await nextTick()
+
+      expect(focusSpy).toHaveBeenCalled()
+      wrapper.unmount()
+    })
+
+    it('should focus the Cancel element when opened with modelValue=true from the start', async () => {
+      const focusMock = vi.fn()
+
+      HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
+        const cancel = this.querySelector('button[type="button"]') as HTMLElement | null
+        if (cancel) cancel.focus = focusMock
+      })
+
+      mountWithStack(AlertDialog.Root, {
+        props: { modelValue: true },
+        attachTo: document.body,
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Cancel, {}, () => 'Cancel'),
+          ]),
+        },
+      })
+
+      await nextTick()
+      expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
+    })
+
+    it('should not throw when opened without a Cancel element', async () => {
+      expect(async () => {
+        const wrapper = mountWithStack(AlertDialog.Root, {
+          props: { modelValue: true },
+          slots: {
+            default: () => h(AlertDialog.Content, {}, () => 'No cancel here'),
+          },
+        })
+        await nextTick()
+        wrapper.unmount()
+      }).not.toThrow()
+    })
   })
 
   describe('title', () => {
