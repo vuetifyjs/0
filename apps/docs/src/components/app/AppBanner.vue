@@ -16,7 +16,7 @@
   if (!notifications.has('rc-banner')) {
     notifications.register({
       id: 'rc-banner',
-      subject: 'Vuetify0 is now a release candidate!',
+      subject: 'Vuetify0 v1.0 releases July 22, 2026 — the stable release is almost here!',
       severity: 'warning',
       data: { type: 'banner' },
     })

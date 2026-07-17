@@ -28,7 +28,7 @@
 
 Headless Vue 3 UI primitives and composables for building modern applications and design systems. `@vuetify/v0` is the foundation of the Vuetify ecosystem, offering lightweight, unstyled building blocks with full TypeScript support and accessibility features built-in.
 
-> **Note:** v0 is a release candidate — the v1 stable set is locked. Install with `npm i @vuetify/v0@rc`. Preview APIs may still see minor, documented changes before the stable release.
+> **Note:** v0 is a release candidate — the v1 stable set is locked. Install with `npm i @vuetify/v0@rc`. Preview APIs may still see minor, documented changes before the stable v1.0.0 release on July 22, 2026 (final candidate, rc.9, lands July 21).
 
 ## Repository Structure
 
@@ -301,7 +301,7 @@ pnpm validate
 
 ## Contributing
 
-Vuetify0 is a release candidate — open for final validation, bug reports, and contributions. See the [Roadmap](https://0.vuetifyjs.com/roadmap#release-candidate) for what's planned and how to get involved.
+Vuetify0 is a release candidate — open for final validation, bug reports, and contributions. The stable v1.0.0 release ships July 22, 2026 (final candidate, rc.9, on July 21). See the [Roadmap](https://0.vuetifyjs.com/roadmap#release-candidate) for what's planned and how to get involved.
 
 ## License
 
