@@ -119,12 +119,13 @@
 
         <!-- Theme swatches -->
         <div v-if="feature.swatches" class="flex items-center gap-2">
-          <div
+          <AppTooltip
             v-for="swatch in feature.swatches"
             :key="swatch.id"
+            as="div"
             class="w-5 h-5 rounded-full border border-divider"
             :style="{ background: swatch.color }"
-            :title="swatch.label"
+            :text="swatch.label"
           />
 
           <span class="text-xs opacity-40 ml-1">+{{ Object.keys(themes).length - 6 }} more</span>

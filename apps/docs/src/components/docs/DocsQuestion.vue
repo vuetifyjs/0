@@ -316,14 +316,15 @@
           Question {{ index + 1 }} of {{ total }}
         </span>
 
-        <span
+        <AppTooltip
+          as="span"
           class="skillz-badge ml-auto inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-bold uppercase tracking-wide"
           :style="currentLevelMeta ? { '--level-color': currentLevelMeta.color } : undefined"
-          :title="currentLevelMeta ? `${currentLevelMeta.label} level` : undefined"
+          :text="currentLevelMeta ? `${currentLevelMeta.label} level` : undefined"
         >
           SKILLZ
           <AppIcon v-if="currentLevelMeta" :icon="currentLevelMeta.icon" :size="14" />
-        </span>
+        </AppTooltip>
       </div>
 
       <Question.Root
@@ -486,7 +487,11 @@
   </div>
 </template>
 
-<style scoped>
+<!-- Unscoped: AppTooltip renders a multi-root fragment (activator + popover
+     content), so the parent scope-id is not forwarded to the .skillz-badge
+     activator element — a scoped rule would no longer match. See
+     scoped-css-multiroot-child (#359). -->
+<style>
   .skillz-badge {
     background: color-mix(in srgb, var(--level-color, var(--v0-primary)) 15%, transparent);
     color: var(--level-color, var(--v0-primary));

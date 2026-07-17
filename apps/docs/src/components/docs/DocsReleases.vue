@@ -296,25 +296,27 @@
             <AppIcon :icon="linkClipboard.copied.value ? 'success' : 'share'" :size="18" />
           </AppTooltip>
 
-          <a
+          <AppTooltip
+            as="a"
             class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
             href="https://discord.gg/vuetify"
             rel="noopener"
             target="_blank"
-            title="Discuss on Discord"
+            text="Discuss on Discord"
           >
             <AppIcon icon="discord" :size="18" />
-          </a>
+          </AppTooltip>
 
-          <a
+          <AppTooltip
+            as="a"
             class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
             :href="model.html_url"
             rel="noopener"
             target="_blank"
-            title="View on GitHub"
+            text="View on GitHub"
           >
             <AppIcon icon="github" :size="18" />
-          </a>
+          </AppTooltip>
         </div>
       </div>
 
