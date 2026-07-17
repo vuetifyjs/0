@@ -395,7 +395,7 @@ describe('dialog', () => {
         expect(content.attributes('aria-modal')).toBe('true')
       })
 
-      it('should have aria-labelledby pointing to title', () => {
+      it('should have aria-labelledby pointing to title', async () => {
         const wrapper = mountWithStack(Dialog.Root, {
           props: { id: 'test-dialog' },
           slots: {
@@ -405,11 +405,12 @@ describe('dialog', () => {
           },
         })
 
+        await nextTick()
         const content = wrapper.findComponent(Dialog.Content as any)
         expect(content.attributes('aria-labelledby')).toBe('test-dialog-title')
       })
 
-      it('should have aria-describedby pointing to description', () => {
+      it('should have aria-describedby pointing to description', async () => {
         const wrapper = mountWithStack(Dialog.Root, {
           props: { id: 'test-dialog' },
           slots: {
@@ -419,6 +420,7 @@ describe('dialog', () => {
           },
         })
 
+        await nextTick()
         const content = wrapper.findComponent(Dialog.Content as any)
         expect(content.attributes('aria-describedby')).toBe('test-dialog-description')
       })
@@ -989,7 +991,7 @@ describe('dialog', () => {
       expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
     })
 
-    it('should handle missing title and description', () => {
+    it('should omit aria-labelledby and aria-describedby when title and description are absent', () => {
       const wrapper = mountWithStack(Dialog.Root, {
         props: { id: 'no-title-dialog' },
         slots: {
@@ -998,9 +1000,8 @@ describe('dialog', () => {
       })
 
       const content = wrapper.findComponent(Dialog.Content as any)
-      // Should still have aria attributes pointing to potentially missing elements
-      expect(content.attributes('aria-labelledby')).toBe('no-title-dialog-title')
-      expect(content.attributes('aria-describedby')).toBe('no-title-dialog-description')
+      expect(content.attributes('aria-labelledby')).toBeUndefined()
+      expect(content.attributes('aria-describedby')).toBeUndefined()
     })
 
     it('should handle dialog without trigger (controlled)', async () => {
