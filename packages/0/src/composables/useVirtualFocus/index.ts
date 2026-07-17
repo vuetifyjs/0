@@ -72,6 +72,7 @@ export interface VirtualFocusReturn {
   first: () => void
   last: () => void
   onKeydown: (e: KeyboardEvent) => void
+  typeahead: (char: string) => void
 }
 
 export function useVirtualFocus (
@@ -151,6 +152,23 @@ export function useVirtualFocus (
     useEventListener(listener, 'keydown', traversal.onKeydown)
   }
 
+  function typeahead (char: string) {
+    const all = items().filter(i => !toValue(i.disabled))
+    if (all.length === 0) return
+
+    const currentIndex = all.findIndex(i => i.id === traversal.activeId.value)
+    const start = currentIndex === -1 ? 0 : (currentIndex + 1) % all.length
+
+    for (let offset = 0; offset < all.length; offset++) {
+      const item = all[(start + offset) % all.length]
+      const text = item.el ? (toValue(item.el)?.textContent?.trim() ?? '') : ''
+      if (text.toLowerCase().startsWith(char.toLowerCase())) {
+        highlight(item.id)
+        return
+      }
+    }
+  }
+
   onScopeDispose(() => {
     clear()
   })
@@ -164,5 +182,6 @@ export function useVirtualFocus (
     first: traversal.first,
     last: traversal.last,
     onKeydown: traversal.onKeydown,
+    typeahead,
   }
 }
