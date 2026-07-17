@@ -42,6 +42,7 @@
     isSelected: boolean
     /** Attributes to bind to the item element */
     attrs: {
+      'aria-hidden': 'true' | undefined
       'data-selected': true | undefined
     }
   }
@@ -100,6 +101,9 @@
     id: ticket.id,
     isSelected: isSelected.value,
     attrs: {
+      // Collapsed items are display:none via v-show, but renderless consumers
+      // control rendering themselves — keep them out of the a11y tree too.
+      'aria-hidden': isSelected.value ? undefined : 'true',
       'data-selected': isSelected.value || undefined,
     },
   }))
