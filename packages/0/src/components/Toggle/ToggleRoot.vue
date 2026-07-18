@@ -53,6 +53,7 @@
     toggle: () => void
     /** Attributes to bind to the toggle element */
     attrs: {
+      'role': 'button' | undefined
       'type': 'button' | undefined
       'aria-pressed': boolean
       'aria-disabled': boolean
@@ -147,7 +148,7 @@
   }
 
   function onKeydown (e: KeyboardEvent) {
-    if (e.key !== ' ') return
+    if (e.key !== ' ' && e.key !== 'Enter') return
 
     e.preventDefault()
     toggle()
@@ -170,6 +171,7 @@
     isDisabled: isDisabled.value,
     toggle,
     attrs: {
+      'role': as === 'button' ? undefined : 'button',
       'type': as === 'button' ? 'button' : undefined,
       'aria-pressed': isPressed.value,
       'aria-disabled': isDisabled.value,

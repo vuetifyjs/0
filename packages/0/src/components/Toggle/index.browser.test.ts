@@ -164,12 +164,11 @@ describe('toggle', () => {
         expect(model.value).toBe(true)
       })
 
-      it('should toggle on Enter key via native button behavior', async () => {
+      it('should toggle on Enter key', async () => {
         const model = ref(false)
         const { wrapper, wait } = mountToggle({ model })
 
-        // Native buttons fire click on Enter, so trigger click directly
-        await wrapper.trigger('click')
+        await wrapper.trigger('keydown', { key: 'Enter' })
         await wait()
 
         expect(model.value).toBe(true)
@@ -226,14 +225,13 @@ describe('toggle', () => {
         expect(model.value).toBe(true)
       })
 
-      it('should ignore non-Space keydown', async () => {
+      it('should ignore non-Space/Enter keydown', async () => {
         const model = ref(false)
         const { wrapper, wait } = mountToggle({ model })
 
         await wrapper.trigger('keydown', { key: 'a' })
         await wait()
 
-        // Non-space keys should leave the model unchanged
         expect(model.value).toBe(false)
       })
 
@@ -244,6 +242,59 @@ describe('toggle', () => {
         })
 
         expect(wrapper.attributes('type')).toBeUndefined()
+      })
+
+      it('should have role=button when rendered as non-native element', () => {
+        const wrapper = mount(Toggle.Root, {
+          props: { as: 'div' },
+          slots: { default: () => h('span', 'X') },
+        })
+
+        expect(wrapper.attributes('role')).toBe('button')
+      })
+
+      it('should not have role attribute on native button element', () => {
+        const { wrapper } = mountToggle()
+
+        expect(wrapper.attributes('role')).toBeUndefined()
+      })
+
+      it('should toggle on Enter key when rendered as non-native element', async () => {
+        const model = ref(false)
+        const wrapper = mount(Toggle.Root, {
+          props: {
+            'as': 'div',
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              model.value = v as boolean
+            },
+          },
+          slots: { default: () => h('span', 'Toggle') },
+        })
+
+        await wrapper.trigger('keydown', { key: 'Enter' })
+        await nextTick()
+
+        expect(model.value).toBe(true)
+      })
+
+      it('should toggle on Space key when rendered as non-native element', async () => {
+        const model = ref(false)
+        const wrapper = mount(Toggle.Root, {
+          props: {
+            'as': 'div',
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              model.value = v as boolean
+            },
+          },
+          slots: { default: () => h('span', 'Toggle') },
+        })
+
+        await wrapper.trigger('keydown', { key: ' ' })
+        await nextTick()
+
+        expect(model.value).toBe(true)
       })
 
       it('should reset pressed state when v-model becomes undefined', async () => {
