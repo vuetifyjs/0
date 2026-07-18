@@ -127,9 +127,9 @@
       'disabled': as === 'button' ? disabled : undefined,
       'tabindex': disabled ? -1 : 0,
       'type': as === 'button' ? 'button' : undefined,
-      'role': as !== 'button' ? 'button' : undefined,
+      'role': as === 'button' ? undefined : 'button',
       'onClick': select,
-      'onKeydown': as !== 'button' ? onKeydown : undefined,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
 

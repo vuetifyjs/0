@@ -231,7 +231,7 @@
     'data-selected': group && isSelected.value ? true : undefined,
     'data-solo': isSolo.value ? true : undefined,
     'onClick': ticket ? onClick : undefined,
-    'onKeydown': as !== 'button' ? onKeydown : undefined,
+    'onKeydown': as === 'button' ? undefined : onKeydown,
   }))
 
   const slotProps = toRef((): ButtonRootSlotProps => ({

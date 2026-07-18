@@ -172,7 +172,7 @@
     toggle,
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
-      'role': as !== 'button' ? 'button' : undefined,
+      'role': as === 'button' ? undefined : 'button',
       'aria-pressed': isPressed.value,
       'aria-disabled': isDisabled.value,
       'tabindex': isDisabled.value ? undefined : 0,
