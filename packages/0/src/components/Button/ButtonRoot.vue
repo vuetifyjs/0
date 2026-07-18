@@ -110,6 +110,7 @@
       'data-selected': true | undefined
       'data-solo': true | undefined
       'onClick': (() => void) | undefined
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 
@@ -187,6 +188,13 @@
     ticket.toggle()
   }
 
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
   onBeforeUnmount(() => {
     timer.stop()
     ticket?.unregister()
@@ -223,6 +231,7 @@
     'data-selected': group && isSelected.value ? true : undefined,
     'data-solo': isSolo.value ? true : undefined,
     'onClick': ticket ? onClick : undefined,
+    'onKeydown': as !== 'button' ? onKeydown : undefined,
   }))
 
   const slotProps = toRef((): ButtonRootSlotProps => ({

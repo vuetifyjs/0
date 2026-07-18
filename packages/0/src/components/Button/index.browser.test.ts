@@ -124,6 +124,57 @@ describe('button', () => {
       })
     })
 
+    describe('keyboard interaction', () => {
+      it('should activate on Enter keydown when rendered as non-button element', async () => {
+        const model = ref<string | undefined>()
+
+        const wrapper = mount(Button.Group, {
+          props: {
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: unknown) => { model.value = v as string },
+          },
+          slots: {
+            default: () => h(Button.Root as any, { as: 'div', value: 'bold' }, {
+              default: () => h('span', 'Bold'),
+            }),
+          },
+        })
+
+        await nextTick()
+        await wrapper.find('[role="button"]').trigger('keydown', { key: 'Enter' })
+        await nextTick()
+
+        expect(model.value).toBe('bold')
+      })
+
+      it('should activate on Space keydown when rendered as non-button element', async () => {
+        const model = ref<string | undefined>()
+
+        const wrapper = mount(Button.Group, {
+          props: {
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: unknown) => { model.value = v as string },
+          },
+          slots: {
+            default: () => h(Button.Root as any, { as: 'div', value: 'bold' }, {
+              default: () => h('span', 'Bold'),
+            }),
+          },
+        })
+
+        await nextTick()
+        await wrapper.find('[role="button"]').trigger('keydown', { key: ' ' })
+        await nextTick()
+
+        expect(model.value).toBe('bold')
+      })
+
+      it('should not expose onKeydown when rendered as native button', () => {
+        const { props } = mountButton()
+        expect((props().attrs as any).onKeydown).toBeUndefined()
+      })
+    })
+
     describe('disabled state', () => {
       it('should set native disabled attribute', () => {
         const { wrapper } = mountButton({ props: { disabled: true } })

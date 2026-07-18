@@ -237,6 +237,38 @@ describe('toggle', () => {
         expect(model.value).toBe(false)
       })
 
+      it('should toggle on Enter keydown when rendered as non-button element', async () => {
+        const model = ref(false)
+
+        const wrapper = mount(Toggle.Root, {
+          props: {
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: boolean | undefined) => { model.value = v ?? false },
+            'as': 'div',
+          },
+          slots: { default: () => h('span', 'Toggle') },
+        })
+
+        await wrapper.trigger('keydown', { key: 'Enter' })
+        await nextTick()
+
+        expect(model.value).toBe(true)
+      })
+
+      it('should set role="button" when rendered as non-button element', () => {
+        const wrapper = mount(Toggle.Root, {
+          props: { as: 'div' },
+          slots: { default: () => h('span', 'X') },
+        })
+
+        expect(wrapper.attributes('role')).toBe('button')
+      })
+
+      it('should not set role when rendered as native button', () => {
+        const { wrapper } = mountToggle()
+        expect(wrapper.attributes('role')).toBeUndefined()
+      })
+
       it('should omit type attribute when as is non-button element', () => {
         const wrapper = mount(Toggle.Root, {
           props: { as: 'div' },
