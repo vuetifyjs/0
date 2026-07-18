@@ -263,6 +263,26 @@ describe('collapsible', () => {
 
       expect(content().hasAttribute('hidden')).toBe(false)
     })
+
+    it('should toggle on Enter when rendered as a div', async () => {
+      const { wrapper, content, wait } = mountCollapsible({ activatorAs: 'div' })
+      await wait()
+
+      await wrapper.get('[role="button"]').trigger('keydown', { key: 'Enter' })
+      await wait()
+
+      expect(content().hasAttribute('hidden')).toBe(false)
+    })
+
+    it('should toggle on Space when rendered as a div', async () => {
+      const { wrapper, content, wait } = mountCollapsible({ activatorAs: 'div' })
+      await wait()
+
+      await wrapper.get('[role="button"]').trigger('keydown', { key: ' ' })
+      await wait()
+
+      expect(content().hasAttribute('hidden')).toBe(false)
+    })
   })
 
   describe('cue', () => {
