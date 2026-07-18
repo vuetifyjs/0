@@ -433,6 +433,85 @@ describe('select', () => {
       // No selection should be made when nothing is highlighted
       expect(selected.value).toBeUndefined()
     })
+
+    it('should typeahead-highlight a matching item when a printable char is pressed while open', async () => {
+      // typeahead calls document.querySelector inside useVirtualFocus; the
+      // component must be attached to the live document for the query to resolve.
+      const container = document.createElement('div')
+      document.body.append(container)
+
+      const taItemSlotProps = ref<Record<string, any>>({})
+      let taRootSlotProps: any
+      const taItems = [
+        { value: 'Apple' },
+        { value: 'Banana' },
+        { value: 'Cherry' },
+      ]
+
+      const taWrapper = mount(
+        defineComponent({
+          setup () {
+            return { taItemSlotProps }
+          },
+          render () {
+            return h(Select.Root as any, { id: 'ta-test' }, {
+              default: (sp: any) => {
+                taRootSlotProps = sp
+                return [
+                  h(Select.Activator as any, {}, {
+                    default: (slotProps: any) => h('span', slotProps.attrs),
+                  }),
+                  h(Select.Content as any, {}, {
+                    default: () => taItems.map(item =>
+                      h(Select.Item as any, { key: item.value, value: item.value }, {
+                        default: (slotProps: any) => {
+                          this.taItemSlotProps[item.value] = slotProps
+                          return h('div', slotProps.attrs, item.value)
+                        },
+                      }),
+                    ),
+                  }),
+                ]
+              },
+            })
+          },
+        }),
+        { attachTo: container },
+      )
+
+      // Boot lazy content and register items
+      await nextTick()
+      taRootSlotProps.open()
+      await nextTick()
+      taRootSlotProps.close()
+      await nextTick()
+
+      // Open for the test
+      taRootSlotProps.open()
+      await nextTick()
+
+      const activator = taWrapper.findComponent(Select.Activator as any)
+      expect(activator.attributes('aria-expanded')).toBe('true')
+
+      await activator.trigger('keydown', { key: 'b' })
+      await nextTick()
+
+      expect(taItemSlotProps.value.Banana.isHighlighted).toBe(true)
+      expect(taItemSlotProps.value.Apple.isHighlighted).toBe(false)
+
+      taWrapper.unmount()
+      container.remove()
+    })
+
+    it('should not typeahead when select is closed', async () => {
+      const { wrapper, itemSlotProps } = await createSelect({ id: 'ta-closed-test' })
+
+      // select is closed
+      await triggerKeydown(wrapper, 'b')
+      await nextTick()
+
+      expect(itemSlotProps.value.Banana.isHighlighted).toBe(false)
+    })
   })
 
   describe('accessibility', () => {
@@ -579,6 +658,32 @@ describe('select', () => {
       })
 
       expect(itemSlotProps.value.Apple.attrs['data-id']).toBe('a')
+    })
+
+    it('should set aria-label on activator when label prop is provided', async () => {
+      const wrapper = mount(
+        defineComponent({
+          render () {
+            return h(Select.Root as any, { id: 'label-test' }, {
+              default: () => h(Select.Activator as any, { label: 'Choose a fruit' }, {
+                default: (slotProps: any) => h('span', slotProps.attrs),
+              }),
+            })
+          },
+        }),
+      )
+
+      await nextTick()
+
+      const activator = wrapper.findComponent(Select.Activator as any)
+      expect(activator.attributes('aria-label')).toBe('Choose a fruit')
+    })
+
+    it('should omit aria-label when label prop is not provided', async () => {
+      const { wrapper } = await createSelect({ id: 'no-label-test' })
+
+      const activator = wrapper.findComponent(Select.Activator as any)
+      expect(activator.attributes('aria-label')).toBeUndefined()
     })
   })
 
