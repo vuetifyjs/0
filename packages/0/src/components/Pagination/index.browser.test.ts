@@ -519,7 +519,9 @@ describe('pagination', () => {
             'size': 100,
             'renderless': true,
             'modelValue': page.value,
-            'onUpdate:modelValue': (v: number) => { page.value = v },
+            'onUpdate:modelValue': (v: number) => {
+              page.value = v
+            },
           },
           slots: {
             default: () => h(Pagination.Item, { value: 5, as: 'div' }, {
@@ -543,7 +545,9 @@ describe('pagination', () => {
             'size': 100,
             'renderless': true,
             'modelValue': page.value,
-            'onUpdate:modelValue': (v: number) => { page.value = v },
+            'onUpdate:modelValue': (v: number) => {
+              page.value = v
+            },
           },
           slots: {
             default: () => h(Pagination.Item, { value: 5, as: 'div' }, {

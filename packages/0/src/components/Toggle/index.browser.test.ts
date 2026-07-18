@@ -243,7 +243,9 @@ describe('toggle', () => {
         const wrapper = mount(Toggle.Root, {
           props: {
             'modelValue': model.value,
-            'onUpdate:modelValue': (v: boolean | undefined) => { model.value = v ?? false },
+            'onUpdate:modelValue': (v: boolean | undefined) => {
+              model.value = v ?? false
+            },
             'as': 'div',
           },
           slots: { default: () => h('span', 'Toggle') },

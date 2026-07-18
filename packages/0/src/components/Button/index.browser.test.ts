@@ -131,7 +131,9 @@ describe('button', () => {
         const wrapper = mount(Button.Group, {
           props: {
             'modelValue': model.value,
-            'onUpdate:modelValue': (v: unknown) => { model.value = v as string },
+            'onUpdate:modelValue': (v: unknown) => {
+              model.value = v as string
+            },
           },
           slots: {
             default: () => h(Button.Root as any, { as: 'div', value: 'bold' }, {
@@ -153,7 +155,9 @@ describe('button', () => {
         const wrapper = mount(Button.Group, {
           props: {
             'modelValue': model.value,
-            'onUpdate:modelValue': (v: unknown) => { model.value = v as string },
+            'onUpdate:modelValue': (v: unknown) => {
+              model.value = v as string
+            },
           },
           slots: {
             default: () => h(Button.Root as any, { as: 'div', value: 'bold' }, {
