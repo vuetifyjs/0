@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Avatar, Dialog } from '@vuetify/v0'
+  import { Avatar, Dialog, Tooltip } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -31,37 +31,51 @@
 </script>
 
 <template>
-  <button
-    v-if="!auth.isAuthenticated"
-    aria-label="Sign in"
-    class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer border-0"
-    title="Sign in"
-    type="button"
-    @click="auth.dialog = true"
-  >
-    <AppIcon icon="account" />
-  </button>
+  <Tooltip.Root v-if="!auth.isAuthenticated" :close-delay="100" :open-delay="500">
+    <Tooltip.Activator
+      aria-label="Sign in"
+      class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer border-0"
+      type="button"
+      @click="auth.dialog = true"
+    >
+      <AppIcon icon="account" />
+    </Tooltip.Activator>
+
+    <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+      Sign in
+    </Tooltip.Content>
+  </Tooltip.Root>
 
   <Discovery.Activator v-else class="inline-flex rounded-full" step="settings">
-    <button
-      aria-label="Account settings"
-      class="inline-flex items-center justify-center rounded-full cursor-pointer border-0 bg-transparent p-0 hover:ring-2 hover:ring-primary/50 transition-all"
-      title="Account settings"
-      type="button"
-      @click="settings.toggle"
-    >
-      <Avatar.Root class="size-6 rounded-full overflow-hidden">
-        <Avatar.Image
-          alt="User avatar"
-          class="size-6 rounded-full object-cover"
-          :src="auth.user?.picture"
-        />
+    <Tooltip.Root :close-delay="100" :open-delay="500">
+      <Tooltip.Activator renderless>
+        <template #default="{ attrs: tooltipAttrs }">
+          <button
+            v-bind="tooltipAttrs"
+            aria-label="Account settings"
+            class="inline-flex items-center justify-center rounded-full cursor-pointer border-0 bg-transparent p-0 hover:ring-2 hover:ring-primary/50 transition-all"
+            type="button"
+            @click="settings.toggle"
+          >
+            <Avatar.Root class="size-6 rounded-full overflow-hidden">
+              <Avatar.Image
+                alt="User avatar"
+                class="size-6 rounded-full object-cover"
+                :src="auth.user?.picture"
+              />
 
-        <Avatar.Fallback class="size-6 rounded-full bg-primary text-on-primary flex items-center justify-center text-xs font-medium">
-          {{ initial }}
-        </Avatar.Fallback>
-      </Avatar.Root>
-    </button>
+              <Avatar.Fallback class="size-6 rounded-full bg-primary text-on-primary flex items-center justify-center text-xs font-medium">
+                {{ initial }}
+              </Avatar.Fallback>
+            </Avatar.Root>
+          </button>
+        </template>
+      </Tooltip.Activator>
+
+      <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+        Account settings
+      </Tooltip.Content>
+    </Tooltip.Root>
   </Discovery.Activator>
 
   <Dialog.Root v-model="auth.dialog">

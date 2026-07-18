@@ -91,7 +91,6 @@
         <button
           aria-label="Search (Ctrl+K)"
           :class="['inline-flex items-center gap-1.5 rounded-full md:border md:border-divider md:pl-1.5 md:pr-1.5 md:py-1.5 hover:border-primary/50 transition-colors', settings.showBgGlass.value ? 'md:bg-glass-surface' : 'md:bg-surface']"
-          title="Search (Ctrl+K)"
           type="button"
           @click="search.focus()"
         >
@@ -117,7 +116,6 @@
         href="https://discord.gg/vuetify"
         rel="noopener noreferrer"
         target="_blank"
-        title="Discord Community"
       >
         <AppIcon class="!opacity-100" icon="discord" />
       </a>
@@ -129,7 +127,6 @@
         href="https://github.com/vuetifyjs/0"
         rel="noopener noreferrer"
         target="_blank"
-        title="GitHub Repository"
       >
         <AppIcon class="!opacity-100" icon="github" />
       </a>

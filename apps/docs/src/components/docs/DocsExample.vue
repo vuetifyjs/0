@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createOverflow, isUndefined, Select, Splitter, Tabs, useBreakpoints, useElementSize } from '@vuetify/v0'
+  import { createOverflow, isUndefined, Select, Splitter, Tabs, Tooltip, useBreakpoints, useElementSize } from '@vuetify/v0'
 
   // Context
   import DocsSkeleton from './DocsSkeleton.vue'
@@ -336,14 +336,19 @@
         </span>
 
         <div class="ml-auto flex items-center gap-1">
-          <button
-            class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-            title="Reset example"
-            type="button"
-            @click="onReset"
-          >
-            <AppIcon icon="restart" :size="16" />
-          </button>
+          <Tooltip.Root :close-delay="100" :open-delay="500">
+            <Tooltip.Activator
+              class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+              type="button"
+              @click="onReset"
+            >
+              <AppIcon icon="restart" :size="16" />
+            </Tooltip.Activator>
+
+            <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+              Reset example
+            </Tooltip.Content>
+          </Tooltip.Root>
         </div>
       </div>
 
@@ -455,41 +460,61 @@
           </span>
 
           <div class="ml-auto flex items-center gap-1">
-            <button
-              class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-              title="Reset example"
-              type="button"
-              @click="onReset"
-            >
-              <AppIcon icon="restart" :size="16" />
-            </button>
+            <Tooltip.Root :close-delay="100" :open-delay="500">
+              <Tooltip.Activator
+                class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+                type="button"
+                @click="onReset"
+              >
+                <AppIcon icon="restart" :size="16" />
+              </Tooltip.Activator>
 
-            <button
-              class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-              title="Open in Playground"
-              type="button"
-              @click="openAllInPlayground"
-            >
-              <AppIcon icon="vuetify-play" :size="16" />
-            </button>
+              <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+                Reset example
+              </Tooltip.Content>
+            </Tooltip.Root>
 
-            <button
-              class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-              title="Open in Bin"
-              type="button"
-              @click="openAllInBin"
-            >
-              <AppIcon icon="vuetify-bin" :size="16" />
-            </button>
+            <Tooltip.Root :close-delay="100" :open-delay="500">
+              <Tooltip.Activator
+                class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+                type="button"
+                @click="openAllInPlayground"
+              >
+                <AppIcon icon="vuetify-play" :size="16" />
+              </Tooltip.Activator>
 
-            <button
-              class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-              :title="combinedView ? 'Split files' : 'Combine files'"
-              type="button"
-              @click="combinedView = !combinedView"
-            >
-              <AppIcon :icon="combinedView ? 'split' : 'combine'" :size="16" />
-            </button>
+              <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+                Open in Playground
+              </Tooltip.Content>
+            </Tooltip.Root>
+
+            <Tooltip.Root :close-delay="100" :open-delay="500">
+              <Tooltip.Activator
+                class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+                type="button"
+                @click="openAllInBin"
+              >
+                <AppIcon icon="vuetify-bin" :size="16" />
+              </Tooltip.Activator>
+
+              <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+                Open in Bin
+              </Tooltip.Content>
+            </Tooltip.Root>
+
+            <Tooltip.Root :close-delay="100" :open-delay="500">
+              <Tooltip.Activator
+                class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+                type="button"
+                @click="combinedView = !combinedView"
+              >
+                <AppIcon :icon="combinedView ? 'split' : 'combine'" :size="16" />
+              </Tooltip.Activator>
+
+              <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+                {{ combinedView ? 'Split files' : 'Combine files' }}
+              </Tooltip.Content>
+            </Tooltip.Root>
           </div>
         </div>
 
