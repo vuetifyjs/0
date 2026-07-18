@@ -424,6 +424,48 @@ describe('dialog', () => {
         const content = wrapper.findComponent(Dialog.Content as any)
         expect(content.attributes('aria-describedby')).toBe('test-dialog-description')
       })
+
+      it('should remove aria-labelledby when title is dynamically removed', async () => {
+        const showTitle = ref(true)
+
+        const wrapper = mountWithStack(Dialog.Root, {
+          props: { id: 'test-dialog' },
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              showTitle.value ? h(Dialog.Title, {}, () => 'Title') : null,
+            ]),
+          },
+        })
+
+        await nextTick()
+        const content = wrapper.findComponent(Dialog.Content as any)
+        expect(content.attributes('aria-labelledby')).toBe('test-dialog-title')
+
+        showTitle.value = false
+        await nextTick()
+        expect(content.attributes('aria-labelledby')).toBeUndefined()
+      })
+
+      it('should remove aria-describedby when description is dynamically removed', async () => {
+        const showDesc = ref(true)
+
+        const wrapper = mountWithStack(Dialog.Root, {
+          props: { id: 'test-dialog' },
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              showDesc.value ? h(Dialog.Description, {}, () => 'Description') : null,
+            ]),
+          },
+        })
+
+        await nextTick()
+        const content = wrapper.findComponent(Dialog.Content as any)
+        expect(content.attributes('aria-describedby')).toBe('test-dialog-description')
+
+        showDesc.value = false
+        await nextTick()
+        expect(content.attributes('aria-describedby')).toBeUndefined()
+      })
     })
 
     describe('modal behavior', () => {

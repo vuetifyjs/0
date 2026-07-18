@@ -272,6 +272,60 @@ describe('alertDialog', () => {
       expect(content.attributes('aria-describedby')).toBe('test-alert-description')
     })
 
+    it('should omit aria-labelledby when no title is rendered', async () => {
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { id: 'test-alert' },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => 'No title'),
+        },
+      })
+
+      const content = wrapper.findComponent(AlertDialog.Content as any)
+      expect(content.attributes('aria-labelledby')).toBeUndefined()
+    })
+
+    it('should remove aria-labelledby when title is dynamically removed', async () => {
+      const showTitle = ref(true)
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { id: 'test-alert' },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            showTitle.value ? h(AlertDialog.Title, {}, () => 'Title') : null,
+          ]),
+        },
+      })
+
+      await nextTick()
+      const content = wrapper.findComponent(AlertDialog.Content as any)
+      expect(content.attributes('aria-labelledby')).toBe('test-alert-title')
+
+      showTitle.value = false
+      await nextTick()
+      expect(content.attributes('aria-labelledby')).toBeUndefined()
+    })
+
+    it('should remove aria-describedby when description is dynamically removed', async () => {
+      const showDesc = ref(true)
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { id: 'test-alert' },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            showDesc.value ? h(AlertDialog.Description, {}, () => 'Description') : null,
+          ]),
+        },
+      })
+
+      await nextTick()
+      const content = wrapper.findComponent(AlertDialog.Content as any)
+      expect(content.attributes('aria-describedby')).toBe('test-alert-description')
+
+      showDesc.value = false
+      await nextTick()
+      expect(content.attributes('aria-describedby')).toBeUndefined()
+    })
+
     it('should call showModal when opened', async () => {
       mountWithStack(AlertDialog.Root, {
         props: { modelValue: true },
