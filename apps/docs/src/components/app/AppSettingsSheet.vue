@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Avatar, useFeatures, useRtl, useStack, useStorage } from '@vuetify/v0'
+  import { Avatar, Tooltip, useFeatures, useRtl, useStack, useStorage } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -114,15 +114,20 @@
           <div class="text-xs text-on-surface-variant capitalize">{{ auth.user?.role }}</div>
         </div>
 
-        <button
-          aria-label="Sign out"
-          class="pa-1 cursor-pointer bg-transparent border-0 inline-flex items-center justify-center rounded hover:bg-surface-variant transition-colors text-on-surface-variant hover:text-error"
-          title="Sign out"
-          type="button"
-          @click="auth.logout()"
-        >
-          <AppIcon icon="logout" :size="16" />
-        </button>
+        <Tooltip.Root :close-delay="100" :open-delay="500">
+          <Tooltip.Activator
+            aria-label="Sign out"
+            class="pa-1 cursor-pointer bg-transparent border-0 inline-flex items-center justify-center rounded hover:bg-surface-variant transition-colors text-on-surface-variant hover:text-error"
+            type="button"
+            @click="auth.logout()"
+          >
+            <AppIcon icon="logout" :size="16" />
+          </Tooltip.Activator>
+
+          <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+            Sign out
+          </Tooltip.Content>
+        </Tooltip.Root>
       </div>
 
       <!-- Theme -->

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Popover } from '@vuetify/v0'
+  import { Popover, Tooltip } from '@vuetify/v0'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
@@ -47,14 +47,24 @@
     :title="command"
   >
     <Popover.Root v-model="isOpen">
-      <Popover.Activator
-        aria-label="Change package manager"
-        class="inline-flex items-center gap-1 pl-2.5 pr-2 py-1 rounded-full text-primary hover:bg-surface-tint transition-colors cursor-pointer"
-        title="Change package manager"
-      >
-        <span>{{ settings.packageManager.value }}</span>
-        <AppChevron :open="isOpen" :size="12" vertical />
-      </Popover.Activator>
+      <Tooltip.Root :close-delay="100" :open-delay="500">
+        <Tooltip.Activator renderless>
+          <template #default="{ attrs: tooltipAttrs }">
+            <Popover.Activator
+              v-bind="tooltipAttrs"
+              aria-label="Change package manager"
+              class="inline-flex items-center gap-1 pl-2.5 pr-2 py-1 rounded-full text-primary hover:bg-surface-tint transition-colors cursor-pointer"
+            >
+              <span>{{ settings.packageManager.value }}</span>
+              <AppChevron :open="isOpen" :size="12" vertical />
+            </Popover.Activator>
+          </template>
+        </Tooltip.Activator>
+
+        <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+          Change package manager
+        </Tooltip.Content>
+      </Tooltip.Root>
 
       <Popover.Content
         class="p-1.5 rounded-lg bg-surface border border-divider shadow-lg min-w-[140px] !mt-[9px]"

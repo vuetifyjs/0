@@ -11,7 +11,6 @@
   <button
     aria-label="Search (Ctrl+K)"
     :class="['inline-flex items-center gap-1.5 rounded-full border border-divider pl-1.5 pr-1.5 py-1.5 hover:border-primary/50 focus-visible:border-primary focus-visible:outline-none transition-colors', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
-    title="Search (Ctrl+K)"
     type="button"
     @click="search.open"
   >

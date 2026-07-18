@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { Tooltip } from '@vuetify/v0'
+
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
   import { useCustomThemes } from '@/composables/useCustomThemes'
@@ -44,14 +47,19 @@
         <AppIcon icon="paint" size="16" />
         <span>Theme</span>
 
-        <button
-          class="ml-auto p-1 rounded hover:bg-surface-tint transition-colors inline-flex items-center justify-center shrink-0"
-          title="Copy theme as Vuetify0 config"
-          type="button"
-          @click="exportTheme"
-        >
-          <AppIcon :icon="clipboard.copied.value ? 'check-circle' : 'copy'" size="14" />
-        </button>
+        <Tooltip.Root :close-delay="100" :open-delay="500">
+          <Tooltip.Activator
+            class="ml-auto p-1 rounded hover:bg-surface-tint transition-colors inline-flex items-center justify-center shrink-0"
+            type="button"
+            @click="exportTheme"
+          >
+            <AppIcon :icon="clipboard.copied.value ? 'check-circle' : 'copy'" size="14" />
+          </Tooltip.Activator>
+
+          <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+            Copy theme as Vuetify0 config
+          </Tooltip.Content>
+        </Tooltip.Root>
       </h3>
 
       <!-- Mode -->

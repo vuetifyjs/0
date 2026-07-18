@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useIntersectionObserver, useLogger } from '@vuetify/v0'
+  import { Tooltip, useIntersectionObserver, useLogger } from '@vuetify/v0'
 
   // Composables
   import { useCodeHighlighter } from '@/composables/useCodeHighlighter'
@@ -115,16 +115,20 @@
         :title="title || fileName"
       />
 
-      <button
-        v-if="shouldPeek && expanded"
-        aria-label="Collapse code"
-        class="inline-flex items-center justify-center size-7 text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
-        title="Collapse code"
-        type="button"
-        @click="expanded = false"
-      >
-        <AppIcon icon="fullscreen-exit" :size="16" />
-      </button>
+      <Tooltip.Root v-if="shouldPeek && expanded" :close-delay="100" :open-delay="500">
+        <Tooltip.Activator
+          aria-label="Collapse code"
+          class="inline-flex items-center justify-center size-7 text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
+          type="button"
+          @click="expanded = false"
+        >
+          <AppIcon icon="fullscreen-exit" :size="16" />
+        </Tooltip.Activator>
+
+        <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+          Collapse code
+        </Tooltip.Content>
+      </Tooltip.Root>
     </div>
 
     <div

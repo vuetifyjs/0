@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { isNull, useBreakpoints } from '@vuetify/v0'
+  import { isNull, Tooltip, useBreakpoints } from '@vuetify/v0'
 
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
@@ -178,45 +178,61 @@
         </div>
 
         <div class="flex items-center gap-0.5">
-          <button
-            v-if="messages.length > 0"
-            class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-            title="Open in Bin"
-            type="button"
-            @click="openInBin"
-          >
-            <AppIcon icon="vuetify-bin" size="16" />
-          </button>
+          <Tooltip.Root v-if="messages.length > 0" :close-delay="100" :open-delay="500">
+            <Tooltip.Activator
+              class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+              type="button"
+              @click="openInBin"
+            >
+              <AppIcon icon="vuetify-bin" size="16" />
+            </Tooltip.Activator>
 
-          <button
-            v-if="messages.length > 0"
-            class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-            :title="clipboard.copied.value ? 'Copied!' : 'Copy conversation'"
-            type="button"
-            @click="copyConversation"
-          >
-            <AppIcon :icon="clipboard.copied.value ? 'success' : 'copy'" size="16" />
-          </button>
+            <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+              Open in Bin
+            </Tooltip.Content>
+          </Tooltip.Root>
 
-          <button
-            v-if="messages.length > 0"
-            class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-            title="Reset conversation"
-            type="button"
-            @click="emit('clear')"
-          >
-            <AppIcon icon="restart" size="16" />
-          </button>
+          <Tooltip.Root v-if="messages.length > 0" :close-delay="100" :open-delay="500">
+            <Tooltip.Activator
+              class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+              type="button"
+              @click="copyConversation"
+            >
+              <AppIcon :icon="clipboard.copied.value ? 'success' : 'copy'" size="16" />
+            </Tooltip.Activator>
 
-          <button
-            v-if="isDesktop"
-            class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-            :title="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
-            type="button"
-            @click="emit('update:fullscreen', !fullscreen)"
-          >
-            <AppIcon :icon="fullscreen ? 'fullscreen-exit' : 'fullscreen'" size="16" />
-          </button>
+            <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+              {{ clipboard.copied.value ? 'Copied!' : 'Copy conversation' }}
+            </Tooltip.Content>
+          </Tooltip.Root>
+
+          <Tooltip.Root v-if="messages.length > 0" :close-delay="100" :open-delay="500">
+            <Tooltip.Activator
+              class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+              type="button"
+              @click="emit('clear')"
+            >
+              <AppIcon icon="restart" size="16" />
+            </Tooltip.Activator>
+
+            <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+              Reset conversation
+            </Tooltip.Content>
+          </Tooltip.Root>
+
+          <Tooltip.Root v-if="isDesktop" :close-delay="100" :open-delay="500">
+            <Tooltip.Activator
+              class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+              type="button"
+              @click="emit('update:fullscreen', !fullscreen)"
+            >
+              <AppIcon :icon="fullscreen ? 'fullscreen-exit' : 'fullscreen'" size="16" />
+            </Tooltip.Activator>
+
+            <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+              {{ fullscreen ? 'Exit fullscreen' : 'Fullscreen' }}
+            </Tooltip.Content>
+          </Tooltip.Root>
 
           <AppCloseButton @click="emit('close')" />
         </div>
