@@ -50,8 +50,12 @@
 
   const root = useProgressRoot(namespace)
 
-  onMounted(() => { root.hasLabel.value = true })
-  onBeforeUnmount(() => { root.hasLabel.value = false })
+  onMounted(() => {
+    root.hasLabel.value = true
+  })
+  onBeforeUnmount(() => {
+    root.hasLabel.value = false
+  })
 
   const slotProps = toRef((): ProgressLabelSlotProps => ({
     total: root.total.value,
