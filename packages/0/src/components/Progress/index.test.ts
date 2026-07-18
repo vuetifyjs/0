@@ -201,11 +201,38 @@ describe('progress', () => {
       expect(rootProps().attrs['aria-busy']).toBeUndefined()
     })
 
-    it('should set aria-labelledby referencing the label id', async () => {
+    it('should omit aria-labelledby when no Progress.Label is mounted', async () => {
       const model = ref(50)
       const { rootProps, wait } = mountProgress({ model, props: { id: 'test' } })
       await wait()
+      expect(rootProps().attrs['aria-labelledby']).toBeUndefined()
+    })
+
+    it('should set aria-labelledby when Progress.Label is mounted', async () => {
+      const model = ref(50)
+      const { rootProps, wait } = mountProgress({ model, props: { id: 'test' }, withLabel: true })
+      await wait()
       expect(rootProps().attrs['aria-labelledby']).toBe('test-label')
+    })
+
+    it('should set aria-label when ariaLabel prop is provided and no label is mounted', async () => {
+      const model = ref(50)
+      const { rootProps, wait } = mountProgress({ model, props: { ariaLabel: 'Upload progress' } })
+      await wait()
+      expect(rootProps().attrs['aria-label']).toBe('Upload progress')
+      expect(rootProps().attrs['aria-labelledby']).toBeUndefined()
+    })
+
+    it('should prefer aria-labelledby over aria-label when Progress.Label is mounted', async () => {
+      const model = ref(50)
+      const { rootProps, wait } = mountProgress({
+        model,
+        props: { id: 'test', ariaLabel: 'Upload progress' },
+        withLabel: true,
+      })
+      await wait()
+      expect(rootProps().attrs['aria-labelledby']).toBe('test-label')
+      expect(rootProps().attrs['aria-label']).toBeUndefined()
     })
   })
 
