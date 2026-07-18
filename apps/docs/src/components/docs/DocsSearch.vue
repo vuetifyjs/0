@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useDocumentEventListener, useStack } from '@vuetify/v0'
+  import { Tooltip, useDocumentEventListener, useStack } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -272,18 +272,28 @@
                     <span class="text-xs text-on-surface-variant ml-2">{{ result.category }}</span>
                   </div>
 
-                  <span
-                    aria-label="Remove from favorites"
-                    class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
-                    role="button"
-                    tabindex="0"
-                    title="Remove from favorites"
-                    @click="onRemove($event, result.id)"
-                    @keydown.enter.stop="onRemove($event, result.id)"
-                    @keydown.space.stop.prevent="onRemove($event, result.id)"
-                  >
-                    <AppIcon aria-hidden="true" icon="close" size="16" />
-                  </span>
+                  <Tooltip.Root>
+                    <Tooltip.Activator renderless>
+                      <template #default="{ attrs: tooltipAttrs }">
+                        <span
+                          aria-label="Remove from favorites"
+                          class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                          role="button"
+                          tabindex="0"
+                          v-bind="tooltipAttrs"
+                          @click="onRemove($event, result.id)"
+                          @keydown.enter.stop="onRemove($event, result.id)"
+                          @keydown.space.stop.prevent="onRemove($event, result.id)"
+                        >
+                          <AppIcon aria-hidden="true" icon="close" size="16" />
+                        </span>
+                      </template>
+                    </Tooltip.Activator>
+
+                    <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+                      Remove from favorites
+                    </Tooltip.Content>
+                  </Tooltip.Root>
                 </div>
               </Discovery.Activator>
 
@@ -330,31 +340,51 @@
 
                   <div class="flex items-center gap-1 shrink-0">
                     <!-- Favorite toggle -->
-                    <span
-                      aria-label="Add to favorites"
-                      class="btn-action text-on-surface/60 hover:text-warning focus-visible:text-warning opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
-                      role="button"
-                      tabindex="0"
-                      title="Add to favorites"
-                      @click="toggleFavorite($event, result.id)"
-                      @keydown.enter.stop="toggleFavorite($event, result.id)"
-                      @keydown.space.stop.prevent="toggleFavorite($event, result.id)"
-                    >
-                      <AppIcon aria-hidden="true" icon="star-outline" size="16" />
-                    </span>
+                    <Tooltip.Root>
+                      <Tooltip.Activator renderless>
+                        <template #default="{ attrs: tooltipAttrs }">
+                          <span
+                            aria-label="Add to favorites"
+                            class="btn-action text-on-surface/60 hover:text-warning focus-visible:text-warning opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                            role="button"
+                            tabindex="0"
+                            v-bind="tooltipAttrs"
+                            @click="toggleFavorite($event, result.id)"
+                            @keydown.enter.stop="toggleFavorite($event, result.id)"
+                            @keydown.space.stop.prevent="toggleFavorite($event, result.id)"
+                          >
+                            <AppIcon aria-hidden="true" icon="star-outline" size="16" />
+                          </span>
+                        </template>
+                      </Tooltip.Activator>
+
+                      <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+                        Add to favorites
+                      </Tooltip.Content>
+                    </Tooltip.Root>
                     <!-- Remove button -->
-                    <span
-                      aria-label="Remove from recent searches"
-                      class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
-                      role="button"
-                      tabindex="0"
-                      title="Remove from recent"
-                      @click="onRemove($event, result.id)"
-                      @keydown.enter.stop="onRemove($event, result.id)"
-                      @keydown.space.stop.prevent="onRemove($event, result.id)"
-                    >
-                      <AppIcon aria-hidden="true" icon="close" size="16" />
-                    </span>
+                    <Tooltip.Root>
+                      <Tooltip.Activator renderless>
+                        <template #default="{ attrs: tooltipAttrs }">
+                          <span
+                            aria-label="Remove from recent searches"
+                            class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                            role="button"
+                            tabindex="0"
+                            v-bind="tooltipAttrs"
+                            @click="onRemove($event, result.id)"
+                            @keydown.enter.stop="onRemove($event, result.id)"
+                            @keydown.space.stop.prevent="onRemove($event, result.id)"
+                          >
+                            <AppIcon aria-hidden="true" icon="close" size="16" />
+                          </span>
+                        </template>
+                      </Tooltip.Activator>
+
+                      <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+                        Remove from recent
+                      </Tooltip.Content>
+                    </Tooltip.Root>
                   </div>
                 </div>
               </Discovery.Activator>
@@ -436,25 +466,35 @@
                       :padding="4"
                       step="search-favorite"
                     >
-                      <span
-                        :aria-label="search.isFavorite(group.items[0].id) ? 'Remove from favorites' : 'Add to favorites'"
-                        :class="[
-                          'btn-action cursor-pointer',
-                          search.isFavorite(group.items[0].id) || discovery.isActive.value ? 'opacity-100 text-warning' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
-                        ]"
-                        role="button"
-                        tabindex="0"
-                        :title="search.isFavorite(group.items[0].id) ? 'Remove from favorites' : 'Add to favorites'"
-                        @click="toggleFavorite($event, group.items[0].id)"
-                        @keydown.enter.stop="toggleFavorite($event, group.items[0].id)"
-                        @keydown.space.stop.prevent="toggleFavorite($event, group.items[0].id)"
-                      >
-                        <AppIcon
-                          aria-hidden="true"
-                          :icon="search.isFavorite(group.items[0].id) ? 'star' : 'star-outline'"
-                          size="16"
-                        />
-                      </span>
+                      <Tooltip.Root>
+                        <Tooltip.Activator renderless>
+                          <template #default="{ attrs: tooltipAttrs }">
+                            <span
+                              :aria-label="search.isFavorite(group.items[0].id) ? 'Remove from favorites' : 'Add to favorites'"
+                              :class="[
+                                'btn-action cursor-pointer',
+                                search.isFavorite(group.items[0].id) || discovery.isActive.value ? 'opacity-100 text-warning' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
+                              ]"
+                              role="button"
+                              tabindex="0"
+                              v-bind="tooltipAttrs"
+                              @click="toggleFavorite($event, group.items[0].id)"
+                              @keydown.enter.stop="toggleFavorite($event, group.items[0].id)"
+                              @keydown.space.stop.prevent="toggleFavorite($event, group.items[0].id)"
+                            >
+                              <AppIcon
+                                aria-hidden="true"
+                                :icon="search.isFavorite(group.items[0].id) ? 'star' : 'star-outline'"
+                                size="16"
+                              />
+                            </span>
+                          </template>
+                        </Tooltip.Activator>
+
+                        <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+                          {{ search.isFavorite(group.items[0].id) ? 'Remove from favorites' : 'Add to favorites' }}
+                        </Tooltip.Content>
+                      </Tooltip.Root>
                     </Discovery.Activator>
 
                     <!-- Ask AI button -->
@@ -463,21 +503,31 @@
                       :padding="4"
                       step="search-ask-ai"
                     >
-                      <span
-                        aria-label="Ask AI about this page"
-                        :class="[
-                          'btn-action text-on-surface/60 hover:text-primary focus-visible:text-primary cursor-pointer',
-                          discovery.isActive.value ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
-                        ]"
-                        role="button"
-                        tabindex="0"
-                        title="Ask AI"
-                        @click="askAbout($event, group.items[0])"
-                        @keydown.enter.stop="askAbout($event, group.items[0])"
-                        @keydown.space.stop.prevent="askAbout($event, group.items[0])"
-                      >
-                        <AppIcon aria-hidden="true" icon="create" size="16" />
-                      </span>
+                      <Tooltip.Root>
+                        <Tooltip.Activator renderless>
+                          <template #default="{ attrs: tooltipAttrs }">
+                            <span
+                              aria-label="Ask AI about this page"
+                              :class="[
+                                'btn-action text-on-surface/60 hover:text-primary focus-visible:text-primary cursor-pointer',
+                                discovery.isActive.value ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
+                              ]"
+                              role="button"
+                              tabindex="0"
+                              v-bind="tooltipAttrs"
+                              @click="askAbout($event, group.items[0])"
+                              @keydown.enter.stop="askAbout($event, group.items[0])"
+                              @keydown.space.stop.prevent="askAbout($event, group.items[0])"
+                            >
+                              <AppIcon aria-hidden="true" icon="create" size="16" />
+                            </span>
+                          </template>
+                        </Tooltip.Activator>
+
+                        <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+                          Ask AI
+                        </Tooltip.Content>
+                      </Tooltip.Root>
                     </Discovery.Activator>
 
                     <!-- Dismiss button -->
@@ -486,21 +536,31 @@
                       :padding="4"
                       step="search-dismiss"
                     >
-                      <span
-                        aria-label="Dismiss result"
-                        :class="[
-                          'btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant cursor-pointer',
-                          discovery.isActive.value ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
-                        ]"
-                        role="button"
-                        tabindex="0"
-                        title="Dismiss result"
-                        @click="dismissResult($event, group.items[0].id)"
-                        @keydown.enter.stop="dismissResult($event, group.items[0].id)"
-                        @keydown.space.stop.prevent="dismissResult($event, group.items[0].id)"
-                      >
-                        <AppIcon aria-hidden="true" icon="close" size="16" />
-                      </span>
+                      <Tooltip.Root>
+                        <Tooltip.Activator renderless>
+                          <template #default="{ attrs: tooltipAttrs }">
+                            <span
+                              aria-label="Dismiss result"
+                              :class="[
+                                'btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant cursor-pointer',
+                                discovery.isActive.value ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
+                              ]"
+                              role="button"
+                              tabindex="0"
+                              v-bind="tooltipAttrs"
+                              @click="dismissResult($event, group.items[0].id)"
+                              @keydown.enter.stop="dismissResult($event, group.items[0].id)"
+                              @keydown.space.stop.prevent="dismissResult($event, group.items[0].id)"
+                            >
+                              <AppIcon aria-hidden="true" icon="close" size="16" />
+                            </span>
+                          </template>
+                        </Tooltip.Activator>
+
+                        <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+                          Dismiss result
+                        </Tooltip.Content>
+                      </Tooltip.Root>
                     </Discovery.Activator>
                   </div>
                 </div>
@@ -535,51 +595,81 @@
 
                   <div class="flex items-center gap-1 shrink-0">
                     <!-- Favorite toggle -->
-                    <span
-                      :aria-label="search.isFavorite(result.id) ? 'Remove from favorites' : 'Add to favorites'"
-                      :class="[
-                        'btn-action cursor-pointer',
-                        search.isFavorite(result.id) ? 'opacity-100 text-warning' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
-                      ]"
-                      role="button"
-                      tabindex="0"
-                      :title="search.isFavorite(result.id) ? 'Remove from favorites' : 'Add to favorites'"
-                      @click="toggleFavorite($event, result.id)"
-                      @keydown.enter.stop="toggleFavorite($event, result.id)"
-                      @keydown.space.stop.prevent="toggleFavorite($event, result.id)"
-                    >
-                      <AppIcon
-                        aria-hidden="true"
-                        :icon="search.isFavorite(result.id) ? 'star' : 'star-outline'"
-                        size="16"
-                      />
-                    </span>
+                    <Tooltip.Root>
+                      <Tooltip.Activator renderless>
+                        <template #default="{ attrs: tooltipAttrs }">
+                          <span
+                            :aria-label="search.isFavorite(result.id) ? 'Remove from favorites' : 'Add to favorites'"
+                            :class="[
+                              'btn-action cursor-pointer',
+                              search.isFavorite(result.id) ? 'opacity-100 text-warning' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
+                            ]"
+                            role="button"
+                            tabindex="0"
+                            v-bind="tooltipAttrs"
+                            @click="toggleFavorite($event, result.id)"
+                            @keydown.enter.stop="toggleFavorite($event, result.id)"
+                            @keydown.space.stop.prevent="toggleFavorite($event, result.id)"
+                          >
+                            <AppIcon
+                              aria-hidden="true"
+                              :icon="search.isFavorite(result.id) ? 'star' : 'star-outline'"
+                              size="16"
+                            />
+                          </span>
+                        </template>
+                      </Tooltip.Activator>
+
+                      <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+                        {{ search.isFavorite(result.id) ? 'Remove from favorites' : 'Add to favorites' }}
+                      </Tooltip.Content>
+                    </Tooltip.Root>
                     <!-- Ask AI button -->
-                    <span
-                      aria-label="Ask AI about this page"
-                      class="btn-action text-on-surface/60 hover:text-primary focus-visible:text-primary opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
-                      role="button"
-                      tabindex="0"
-                      title="Ask AI"
-                      @click="askAbout($event, result)"
-                      @keydown.enter.stop="askAbout($event, result)"
-                      @keydown.space.stop.prevent="askAbout($event, result)"
-                    >
-                      <AppIcon aria-hidden="true" icon="create" size="16" />
-                    </span>
+                    <Tooltip.Root>
+                      <Tooltip.Activator renderless>
+                        <template #default="{ attrs: tooltipAttrs }">
+                          <span
+                            aria-label="Ask AI about this page"
+                            class="btn-action text-on-surface/60 hover:text-primary focus-visible:text-primary opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                            role="button"
+                            tabindex="0"
+                            v-bind="tooltipAttrs"
+                            @click="askAbout($event, result)"
+                            @keydown.enter.stop="askAbout($event, result)"
+                            @keydown.space.stop.prevent="askAbout($event, result)"
+                          >
+                            <AppIcon aria-hidden="true" icon="create" size="16" />
+                          </span>
+                        </template>
+                      </Tooltip.Activator>
+
+                      <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+                        Ask AI
+                      </Tooltip.Content>
+                    </Tooltip.Root>
                     <!-- Dismiss button -->
-                    <span
-                      aria-label="Dismiss result"
-                      class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
-                      role="button"
-                      tabindex="0"
-                      title="Dismiss result"
-                      @click="dismissResult($event, result.id)"
-                      @keydown.enter.stop="dismissResult($event, result.id)"
-                      @keydown.space.stop.prevent="dismissResult($event, result.id)"
-                    >
-                      <AppIcon aria-hidden="true" icon="close" size="16" />
-                    </span>
+                    <Tooltip.Root>
+                      <Tooltip.Activator renderless>
+                        <template #default="{ attrs: tooltipAttrs }">
+                          <span
+                            aria-label="Dismiss result"
+                            class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                            role="button"
+                            tabindex="0"
+                            v-bind="tooltipAttrs"
+                            @click="dismissResult($event, result.id)"
+                            @keydown.enter.stop="dismissResult($event, result.id)"
+                            @keydown.space.stop.prevent="dismissResult($event, result.id)"
+                          >
+                            <AppIcon aria-hidden="true" icon="close" size="16" />
+                          </span>
+                        </template>
+                      </Tooltip.Activator>
+
+                      <Tooltip.Content class="px-2.5 py-1.5 rounded border border-divider text-xs bg-surface text-on-surface shadow-lg">
+                        Dismiss result
+                      </Tooltip.Content>
+                    </Tooltip.Root>
                   </div>
                 </div>
               </div>
