@@ -180,7 +180,6 @@ describe('snackbar', () => {
       expect(wrapper.attributes('role')).toBe('alert')
       expect(slotProps.attrs.role).toBe('alert')
     })
-
   })
 
   describe('close', () => {
