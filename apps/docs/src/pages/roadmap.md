@@ -28,15 +28,15 @@ Track the development of @vuetify/v0. Milestones are organized by time horizon:
 
 **Now a release candidate.** A headless UI framework for Vue 3 — composables and components that handle the logic so you can own the design. No opinions on styling. No markup you can't change. Just primitives that work.
 
-Alpha opened on April 7, 2026 for feedback; beta hardened the APIs. The release candidate locks the v1 stable set — what remains is final validation, documentation, and bug fixes before v1.0.
+Alpha opened on April 7, 2026 for feedback; beta hardened the APIs. The release candidate locks the v1 stable set — what remains is final validation, documentation, and bug fixes. The final candidate, rc.9, lands July 21, 2026, with the stable v1.0.0 release the next day, July 22, 2026.
 
 ### Road to v1
 
 <DocsTimeline :milestones="[
   { id: 'alpha', label: 'Alpha', date: 'April 7, 2026', description: 'Opened for feedback, bug reports, and contributions. APIs mostly stable, may evolve.' },
   { id: 'beta', label: 'Beta', date: 'June 2, 2026', description: 'API freeze. Focus shifts to stability, documentation, and edge cases.' },
-  { id: 'rc', label: 'RC', date: 'July 2, 2026', description: 'Release candidate for final testing and documentation. No new features.', active: true },
-  { id: 'v1', label: 'v1.0', date: 'Q3 2026', description: 'Milestone-driven. Ships when the milestones are met.' },
+  { id: 'rc', label: 'RC', date: 'July 2, 2026', description: 'Release candidate for final testing and documentation. No new features. The final candidate, rc.9, lands July 21, 2026.', active: true },
+  { id: 'v1', label: 'v1.0', date: 'July 22, 2026', description: 'Stable release. v0 1.0.0 ships July 22, 2026.' },
 ]" />
 
 ### What RC means

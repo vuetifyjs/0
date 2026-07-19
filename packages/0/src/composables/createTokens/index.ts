@@ -248,6 +248,8 @@ export function createTokens<
         return undefined
       }
 
+      if (isString(current) && isAlias(current)) return resolve(current, visited)
+
       result = current
     } else {
       if (isTokenAlias(current)) {

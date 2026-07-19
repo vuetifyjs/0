@@ -145,7 +145,7 @@
         </Discovery.Skip>
 
         <div class="ml-auto flex gap-2">
-          <Discovery.Prev v-if="!isFirst" class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface">
+          <Discovery.Prev v-if="!isFirst" class="px-3 py-1.5 text-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-on-surface/10 transition-colors">
             Back
           </Discovery.Prev>
 
