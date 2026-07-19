@@ -212,7 +212,7 @@
       <!-- Code panel -->
       <div class="demo-code rounded-xl border overflow-hidden bg-surface flex flex-col h-[350px] md:h-[510px]">
         <Tabs.Root v-model="activeTab">
-          <div class="px-2 py-2 bg-surface-tint border-b flex items-center gap-2">
+          <div class="px-2 py-2 bg-surface-tint border-b border-divider flex items-center gap-2">
             <Tabs.List class="flex items-center gap-2" label="Code examples">
               <Tabs.Item v-slot="{ attrs }" renderless value="composable">
                 <button
@@ -285,7 +285,7 @@
           </div>
         </Selection.Root>
 
-        <div class="relative mt-8 pt-6 border-t">
+        <div class="relative mt-8 pt-6 border-t border-divider">
           <router-link
             class="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1"
             to="/components/providers/selection"
