@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { Tooltip } from '@vuetify/v0'
+
   // Composables
   import { useSettings } from '@/composables/useSettings'
 
@@ -77,15 +80,31 @@
       <AppIcon icon="stop" size="12" />
     </AppTooltip>
 
-    <button
+    <Tooltip.Root
       v-else
-      aria-label="Send question"
-      class="shrink-0 size-6 rounded-full bg-primary text-on-primary flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-      :disabled="!question.trim()"
-      title="Send"
-      type="submit"
+      :close-delay="200"
+      :open-delay="500"
     >
-      <AppIcon icon="send" size="12" />
-    </button>
+      <!-- Renderless: the trigger is a native type="submit" button; binding
+           attrs + styles keeps the tooltip wiring without the activator forcing
+           type="button". Requires Tooltip.Activator exposing anchor styles. -->
+      <Tooltip.Activator v-slot="{ attrs, styles }" renderless>
+        <button
+          aria-label="Send question"
+          class="shrink-0 size-6 rounded-full bg-primary text-on-primary flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+          :style="styles"
+          v-bind="{ ...attrs, type: 'submit', disabled: !question.trim() }"
+        >
+          <AppIcon icon="send" size="12" />
+        </button>
+      </Tooltip.Activator>
+
+      <Tooltip.Content
+        class="max-w-64 whitespace-normal rounded border border-divider bg-surface px-2 py-1 text-xs text-on-surface shadow-lg"
+        :style="{ margin: '6px 0' }"
+      >
+        Send
+      </Tooltip.Content>
+    </Tooltip.Root>
   </form>
 </template>
