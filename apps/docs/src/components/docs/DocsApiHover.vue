@@ -89,7 +89,7 @@
   const HIDE_DELAY = 100 // Grace period when moving to popover
 
   // Position state
-  const { position, flipped: flipAbove, calculate: calculatePosition } = usePopoverPosition({
+  const { position, flipped: flipBelow, calculate: calculatePosition } = usePopoverPosition({
     maxWidth: 450,
     maxHeight: 400,
   })
@@ -342,7 +342,7 @@
         v-if="isVisible && activeApi"
         ref="popover"
         class="docs-api-hover-popover"
-        :class="{ 'popover-flipped': flipAbove }"
+        :class="{ 'popover-flipped': flipBelow }"
         :style="{
           top: `${position.top}px`,
           left: `${position.left}px`,
@@ -484,10 +484,11 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   font-size: 13px;
   line-height: 1.5;
+  transform: translateY(calc(-100% - 8px));
 }
 
 .docs-api-hover-popover.popover-flipped {
-  transform: translateY(calc(-100% - 8px));
+  transform: none;
 }
 
 .popover-header {

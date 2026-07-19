@@ -32,8 +32,8 @@ export function usePopoverPosition (options: PopoverPositionOptions = {}) {
 
   /**
    * Calculate position for popover relative to target element.
-   * By default positions below the target and centered horizontally, flips
-   * above when there isn't enough space below.
+   * By default positions above the target and centered horizontally, flips
+   * below when there isn't enough space above.
    */
   function calculate (target: HTMLElement) {
     if (!IN_BROWSER) return
@@ -47,15 +47,15 @@ export function usePopoverPosition (options: PopoverPositionOptions = {}) {
     let left = rect.left + rect.width / 2 - maxWidth / 2 + window.scrollX
     left = Math.max(min, Math.min(left, max))
 
-    // Flip above only when there isn't room below but there is above
-    const spaceBelow = window.innerHeight - rect.bottom - gap
+    // Flip below only when there isn't room above but there is below
     const spaceAbove = rect.top - gap
-    flipped.value = spaceBelow < maxHeight && spaceAbove > spaceBelow
+    const spaceBelow = window.innerHeight - rect.bottom - gap
+    flipped.value = spaceAbove < maxHeight && spaceBelow > spaceAbove
 
     position.value = {
       top: flipped.value
-        ? rect.top + window.scrollY
-        : rect.bottom + window.scrollY + gap,
+        ? rect.bottom + window.scrollY + gap
+        : rect.top + window.scrollY,
       left,
     }
   }
