@@ -96,17 +96,18 @@
               <div class="w-px h-4 bg-divider" />
             </template>
 
-            <a
+            <AppTooltip
               v-if="app.stats.commit"
+              as="a"
               class="flex items-center gap-1 hover:text-primary hover:underline"
               :href="app.stats.commit.html_url"
               rel="noopener nofollow"
               target="_blank"
-              :title="`Last Commit: ${new Date(app.stats.commit.commit.author.date).toLocaleString()}`"
+              :text="`Last Commit: ${new Date(app.stats.commit.commit.author.date).toLocaleString()}`"
             >
               <AppIcon :class="outOfDate && 'text-warning'" icon="history" :size="14" />
               {{ app.stats.commit.sha.slice(0, 7) }}
-            </a>
+            </AppTooltip>
           </div>
         </template>
       </div>
