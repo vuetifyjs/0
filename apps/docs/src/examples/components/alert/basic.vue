@@ -15,8 +15,8 @@
     </Alert.Root>
 
     <Alert.Root
-      role="status"
       class="flex items-start gap-3 rounded border border-success/30 bg-success/10 px-4 py-3 text-sm text-success"
+      role="status"
     >
       <Alert.Title class="font-semibold">
         Changes saved
