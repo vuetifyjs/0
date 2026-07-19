@@ -138,7 +138,7 @@ describe('alert', () => {
     })
   })
 
-  describe('SSR', () => {
+  describe('sSR', () => {
     it('should render to string on server without errors', async () => {
       const { renderToString } = await import('vue/server-renderer')
       const { createSSRApp, h } = await import('vue')
