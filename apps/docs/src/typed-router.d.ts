@@ -982,6 +982,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/integration/compatibility': RouteRecordInfo<
+      '/guide/integration/compatibility',
+      '/guide/integration/compatibility',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/integration/devkey': RouteRecordInfo<
       '/guide/integration/devkey',
       '/guide/integration/devkey',
@@ -1969,6 +1976,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/integration/building-docs.md': {
       routes:
         | '/guide/integration/building-docs'
+      views:
+        | never
+    }
+    'src/pages/guide/integration/compatibility.md': {
+      routes:
+        | '/guide/integration/compatibility'
       views:
         | never
     }
