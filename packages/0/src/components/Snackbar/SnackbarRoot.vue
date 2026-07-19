@@ -40,12 +40,14 @@
     namespace?: string
     /** Unique identifier. Auto-generated if not provided. */
     id?: ID
+    /** ARIA live-region role. Use 'alert' for urgent messages, 'status' for informational. @default 'status' */
+    role?: 'alert' | 'status'
   }
 
   export interface SnackbarRootSlotProps {
     id: ID
     attrs: {
-      role: string
+      role: 'alert' | 'status'
     }
   }
 </script>
@@ -61,7 +63,7 @@
     default: (props: SnackbarRootSlotProps) => any
   }>()
 
-  const { as = 'div', namespace = 'v0:notifications', id = useId(), renderless } = defineProps<SnackbarRootProps>()
+  const { as = 'div', namespace = 'v0:notifications', id = useId(), renderless, role = 'status' } = defineProps<SnackbarRootProps>()
 
   const queue = useSnackbarQueueContext(namespace, null)
 
@@ -78,7 +80,7 @@
   const slotProps = toRef((): SnackbarRootSlotProps => ({
     id,
     attrs: {
-      role: 'status',
+      role,
     },
   }))
 </script>

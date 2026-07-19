@@ -155,6 +155,32 @@ describe('snackbar', () => {
 
       expect(wrapper.attributes('role')).toBe('alert')
     })
+
+    it('should default to role="status"', () => {
+      const wrapper = mount(Snackbar.Root, {
+        slots: { default: () => h('span', 'Message') },
+      })
+
+      expect(wrapper.attributes('role')).toBe('status')
+    })
+
+    it('should set role="alert" when role prop is alert', () => {
+      let slotProps: any
+
+      const wrapper = mount(Snackbar.Root, {
+        props: { role: 'alert' },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('span', 'Urgent message')
+          },
+        },
+      })
+
+      expect(wrapper.attributes('role')).toBe('alert')
+      expect(slotProps.attrs.role).toBe('alert')
+    })
+
   })
 
   describe('close', () => {
