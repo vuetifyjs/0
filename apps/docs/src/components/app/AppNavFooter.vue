@@ -18,14 +18,19 @@
   <div class="shrink-0 p-2 border-t border-divider/50 flex items-center justify-between gap-2">
     <AppVersionChip />
 
-    <router-link
+    <AppTooltip
       v-if="devmode?.isSelected.value"
-      :aria-label="freshnessLabel"
-      class="inline-flex items-center justify-center w-7 h-7 rounded-lg hover:bg-surface-tint transition-colors"
-      :title="freshnessLabel"
-      to="/health"
+      as="span"
+      class="inline-flex"
+      :text="freshnessLabel"
     >
-      <AppIcon icon="freshness-avocado" :size="22" />
-    </router-link>
+      <router-link
+        :aria-label="freshnessLabel"
+        class="inline-flex items-center justify-center w-7 h-7 rounded-lg hover:bg-surface-tint transition-colors"
+        to="/health"
+      >
+        <AppIcon icon="freshness-avocado" :size="22" />
+      </router-link>
+    </AppTooltip>
   </div>
 </template>

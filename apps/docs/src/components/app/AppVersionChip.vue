@@ -40,22 +40,27 @@
 </script>
 
 <template>
-  <AppLink
+  <AppTooltip
     v-if="latest"
-    :aria-label="label"
-    class="relative inline-flex items-center gap-1 px-2 py-1 text-sm rounded text-on-surface-variant hover:bg-surface-tint hover:text-on-surface transition-colors"
-    :title
-    :to="`/releases?version=${latest.tag_name}`"
+    as="span"
+    class="inline-flex"
+    :text="title"
   >
-    <AppIcon icon="tag" :size="14" />
-    {{ latest.tag_name }}
+    <AppLink
+      :aria-label="label"
+      class="relative inline-flex items-center gap-1 px-2 py-1 text-sm rounded text-on-surface-variant hover:bg-surface-tint hover:text-on-surface transition-colors"
+      :to="`/releases?version=${latest.tag_name}`"
+    >
+      <AppIcon icon="tag" :size="14" />
+      {{ latest.tag_name }}
 
-    <span
-      v-if="fresh"
-      aria-hidden="true"
-      class="absolute top-0 end-0 w-2 h-2 rounded-[2px] bg-success"
-    />
-  </AppLink>
+      <span
+        v-if="fresh"
+        aria-hidden="true"
+        class="absolute top-0 end-0 w-2 h-2 rounded-[2px] bg-success"
+      />
+    </AppLink>
+  </AppTooltip>
 
   <span
     v-else

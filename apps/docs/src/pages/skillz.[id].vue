@@ -126,14 +126,14 @@
             <SkillDuration class="text-sm text-on-surface-variant" :minutes="tour.minutes" />
 
             <!-- Reset button (shows when there's progress) -->
-            <button
+            <AppTooltip
               v-if="progress"
               class="px-3 py-1.5 text-sm font-medium text-on-surface-variant bg-transparent border border-divider rounded-lg cursor-pointer transition-colors hover:bg-surface-variant hover:text-on-surface whitespace-nowrap"
-              title="Reset progress"
+              text="Reset progress"
               @click="onReset()"
             >
               Reset
-            </button>
+            </AppTooltip>
 
             <!-- Completed with next tour: Next is primary, Restart is secondary -->
             <template v-if="isCompleted && nextTour">

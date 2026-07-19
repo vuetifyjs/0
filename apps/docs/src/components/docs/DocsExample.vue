@@ -336,14 +336,14 @@
         </span>
 
         <div class="ml-auto flex items-center gap-1">
-          <button
+          <AppTooltip
+            aria-label="Reset example"
             class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-            title="Reset example"
-            type="button"
+            text="Reset example"
             @click="onReset"
           >
             <AppIcon icon="restart" :size="16" />
-          </button>
+          </AppTooltip>
         </div>
       </div>
 
@@ -455,41 +455,41 @@
           </span>
 
           <div class="ml-auto flex items-center gap-1">
-            <button
+            <AppTooltip
+              aria-label="Reset example"
               class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-              title="Reset example"
-              type="button"
+              text="Reset example"
               @click="onReset"
             >
               <AppIcon icon="restart" :size="16" />
-            </button>
+            </AppTooltip>
 
-            <button
+            <AppTooltip
+              aria-label="Open in Playground"
               class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-              title="Open in Playground"
-              type="button"
+              text="Open in Playground"
               @click="openAllInPlayground"
             >
               <AppIcon icon="vuetify-play" :size="16" />
-            </button>
+            </AppTooltip>
 
-            <button
+            <AppTooltip
+              aria-label="Open in Bin"
               class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-              title="Open in Bin"
-              type="button"
+              text="Open in Bin"
               @click="openAllInBin"
             >
               <AppIcon icon="vuetify-bin" :size="16" />
-            </button>
+            </AppTooltip>
 
-            <button
+            <AppTooltip
+              :aria-label="combinedView ? 'Split files' : 'Combine files'"
               class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-              :title="combinedView ? 'Split files' : 'Combine files'"
-              type="button"
+              :text="combinedView ? 'Split files' : 'Combine files'"
               @click="combinedView = !combinedView"
             >
               <AppIcon :icon="combinedView ? 'split' : 'combine'" :size="16" />
-            </button>
+            </AppTooltip>
           </div>
         </div>
 
