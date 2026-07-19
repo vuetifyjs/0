@@ -2,8 +2,15 @@
   // Framework
   import { Tooltip } from '@vuetify/v0'
 
+  // Types
+  import type { AtomProps, TooltipRootProps } from '@vuetify/v0'
+
   defineOptions({ inheritAttrs: false })
 
+  // openDelay/closeDelay/positionArea/disabled forward to Tooltip.Root; their
+  // types come from TooltipRootProps so this wrapper can't drift. `disabled` is
+  // a declared prop (not a fall-through attr) so a caller's `:disabled` is not
+  // clobbered by Tooltip.Activator's mergeProps.
   const {
     text,
     as = 'button',
@@ -15,13 +22,8 @@
     /** Tooltip text. When empty the trigger renders on its own, no tooltip. */
     text?: string
     /** Element the trigger renders as; forwarded to Tooltip.Activator. */
-    as?: string
-    openDelay?: number
-    closeDelay?: number
-    positionArea?: string
-    /** Disables the trigger and suppresses the tooltip. Declared so a caller's `:disabled` survives Tooltip.Activator's attr merge. */
-    disabled?: boolean
-  }>()
+    as?: AtomProps['as']
+  } & Pick<TooltipRootProps, 'closeDelay' | 'disabled' | 'openDelay' | 'positionArea'>>()
 </script>
 
 <template>
