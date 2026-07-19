@@ -16,7 +16,7 @@
   if (!notifications.has('rc-banner')) {
     notifications.register({
       id: 'rc-banner',
-      subject: 'Vuetify0 v1.0 releases July 22, 2026 — the stable release is almost here!',
+      subject: 'Vuetify0 v1.0 releases July 22, 2026',
       severity: 'warning',
       data: { type: 'banner' },
     })
@@ -51,10 +51,10 @@
     :as
     class="flex items-center justify-center h-[24px] fixed inset-x-0 top-0 px-3 text-xs gap-2 text-on-primary z-1 bg-glass-primary"
   >
-    <AppIcon icon="vuetify-0" :size="14" />
+    <AppIcon class="shrink-0" icon="vuetify-0" :size="14" />
 
-    <div>
-      {{ banner?.subject }} <span class="hidden md:inline">See the <RouterLink class="underline underline-offset-2" to="/roadmap#release-candidate">roadmap</RouterLink> for details.</span>
+    <div class="min-w-0 truncate pe-6">
+      {{ banner?.subject }}<span class="hidden sm:inline"> — the stable release is almost here!</span><span class="hidden md:inline"> See the <RouterLink class="underline underline-offset-2" to="/roadmap#release-candidate">roadmap</RouterLink> for details.</span>
     </div>
 
     <button
