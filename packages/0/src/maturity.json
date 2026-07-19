@@ -284,7 +284,7 @@
       "level": "preview",
       "since": "1.0.0-alpha.4",
       "category": "system",
-      "description": "Headless drag-and-drop primitive. Owns two registries — draggables and zones — plus the active-drag state."
+      "description": "Headless drag-and-drop primitive. Owns two registries \u2014 draggables and zones \u2014 plus the active-drag state."
     },
     "useEventListener": {
       "level": "preview",
@@ -356,7 +356,7 @@
       "level": "preview",
       "since": "0.1.0",
       "category": "transformers",
-      "description": "Coerces any value — including `null` and `undefined` — to an array."
+      "description": "Coerces any value \u2014 including `null` and `undefined` \u2014 to an array."
     },
     "toElement": {
       "level": "preview",
@@ -496,7 +496,7 @@
       "level": "preview",
       "since": "0.1.0",
       "category": "providers",
-      "description": "Headless single-selection provider — selecting an item automatically deselects the previously selected one, driving tabs, segmented controls, and theme pickers."
+      "description": "Headless single-selection provider \u2014 selecting an item automatically deselects the previously selected one, driving tabs, segmented controls, and theme pickers."
     },
     "Step": {
       "level": "preview",
@@ -647,8 +647,10 @@
       "description": "Description tooltip with hover and focus triggers, configurable open/close delays, and an optional interactive-content mode."
     },
     "Alert": {
-      "level": "draft",
-      "category": "semantic"
+      "level": "preview",
+      "category": "semantic",
+      "since": "1.1.0",
+      "description": "Inline status message with ARIA live-region semantics. Use role=alert for urgent messages, role=status for informational."
     },
     "Avatar": {
       "level": "preview",
@@ -678,7 +680,7 @@
       "level": "preview",
       "since": "1.0.0-alpha.3",
       "category": "semantic",
-      "description": "Responsive truncation — hides overflowing items as the container runs out of width and surfaces the hidden count via an indicator."
+      "description": "Responsive truncation \u2014 hides overflowing items as the container runs out of width and surfaces the hidden count via an indicator."
     },
     "Pagination": {
       "level": "preview",
