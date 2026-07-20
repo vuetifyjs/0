@@ -27,7 +27,7 @@ A composable for managing the selection of items in a collection with automatic 
 
 `createSelection` extends `createModel` with selection-specific concepts: `mandatory` enforcement, `multiple` selection mode, auto-enrollment, and ticket self-methods (`select()`, `unselect()`, `toggle()`). It is reactive and provides helper properties for working with selected IDs, values, and items.
 
-```ts
+```ts collapse
 import { createSelection } from '@vuetify/v0'
 
 const selection = createSelection()

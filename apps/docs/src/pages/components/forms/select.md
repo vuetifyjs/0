@@ -132,7 +132,7 @@ Use `mandatory` to prevent deselecting the last item, or `mandatory="force"` to 
 </template>
 ```
 
-### Understanding `id` vs `value`
+### Understanding id vs value
 
 Each `Select.Item` has two key props:
 

@@ -27,7 +27,7 @@ A headless component for creating responsive breadcrumb navigation with proper A
 
 ## Usage
 
-The Breadcrumbs component provides a compound component pattern for building navigation trails. It uses `createBreadcrumbs`, `createGroup`, and `createOverflow` internally.
+Breadcrumbs renders a navigation trail that shows where the current page sits in a hierarchy. When the trail is wider than its container, the middle crumbs automatically collapse behind an ellipsis so the first crumb and the current page stay visible.
 
 ::: gn-example
 /components/breadcrumbs/basic
@@ -254,6 +254,28 @@ app.mount('#app')
 ```
 
 The `label` prop takes priority over locale messages, so you can still override individual instances when needed.
+
+## Accessibility
+
+The Breadcrumbs component renders semantic navigation markup and manages ARIA attributes automatically:
+
+- `Breadcrumbs.Root` renders a `<nav>` landmark whose `aria-label` defaults to `"Breadcrumbs"` (override with the `label` prop or the `Breadcrumbs.label` locale key). When you change the element with `as`, it applies `role="navigation"` instead so the landmark is preserved.
+- `Breadcrumbs.List` renders an ordered list with `role="list"` to expose the trail as a list to screen readers.
+- `Breadcrumbs.Page` marks the current item with `aria-current="page"` so it is announced as the current location. Omitting `href` on the last crumb renders it as a Page automatically.
+- `Breadcrumbs.Link` renders a native `<a>`, so crumbs are focusable and activated with the keyboard like any link — no custom key handling is added.
+- `Breadcrumbs.Divider` and `Breadcrumbs.Ellipsis` render `aria-hidden="true"`, keeping the visual separators and the collapsed-items indicator out of the accessibility tree.
+
+For custom implementations, use `renderless` mode and bind the `attrs` slot prop to preserve the landmark role and label:
+
+```vue
+<template>
+  <Breadcrumbs.Root v-slot="{ attrs }" renderless>
+    <nav v-bind="attrs">
+      <!-- Custom breadcrumb trail -->
+    </nav>
+  </Breadcrumbs.Root>
+</template>
+```
 
 ## FAQ
 

@@ -333,6 +333,24 @@ app.use(
 > }
 > ```
 
+## Architecture
+
+`useDate` is a thin plugin around a required `DateAdapter` — there is no default, so `createDatePlugin` must be installed with an explicit adapter. It resolves the active locale (from `useLocale` when present, otherwise its own option) and pushes it plus the derived `firstDayOfWeek` onto the adapter; all date math is delegated. `V0DateAdapter` is the bundled Temporal-backed implementation, but any `DateAdapter` subclass can back a different library.
+
+```mermaid "useDate Architecture"
+flowchart TD
+  Locale["useLocale"]
+  UD["useDate"]:::primary
+  Adapter["DateAdapter"]
+  V0["V0DateAdapter (Temporal)"]
+  Custom["Custom adapter (date-fns, dayjs, …)"]
+
+  Locale --> UD
+  UD --> Adapter
+  Adapter --> V0
+  Adapter --> Custom
+```
+
 ## Reactivity
 
 The date context provides minimal reactivity, with the adapter being a static instance.

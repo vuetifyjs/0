@@ -189,9 +189,9 @@ Even though cycles fail safe, design your token hierarchy as a directed acyclic 
 
 ```mermaid "Valid Token Graph"
 flowchart TD
-    primary["primary: #3b82f6"] --> info["info: {primary}"]
-    primary --> link["link: {primary}"]
-    info --> infoBorder["info-border: {info}"]
+    primary["color.primary: #3b82f6"] --> info["color.info: {color.primary}"]
+    primary --> link["color.link: {color.primary}"]
+    info --> infoBorder["color.info-border: {color.info}"]
 ```
 
 ??? Can I use refs or computed values as tokens?
