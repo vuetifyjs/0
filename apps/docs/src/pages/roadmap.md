@@ -24,6 +24,12 @@ Track the development of @vuetify/v0. Milestones are organized by time horizon:
 
 <DocsRoadmap />
 
+## Release Calendar
+
+Expected dates for the v1.1–v1.5 minor releases, the net-new features landing in each, and the existing preview features on track to graduate to stable as of that release.
+
+<DocsReleaseCalendar />
+
 ## Release Candidate
 
 **Now a release candidate.** A headless UI framework for Vue 3 — composables and components that handle the logic so you can own the design. No opinions on styling. No markup you can't change. Just primitives that work.
