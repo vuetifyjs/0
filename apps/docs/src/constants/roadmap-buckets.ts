@@ -56,12 +56,12 @@ export const ROADMAP_BUCKETS: Record<string, ReleaseBucket> = {
     ],
   },
   'v1.1.0': {
-    date: '2026-09-04',
+    date: '2026-08-25',
     features: ['DataTable', 'DataGrid', 'Alert'],
     stabilizing: [],
   },
   'v1.2.0': {
-    date: '2026-09-25',
+    date: '2026-09-22',
     features: ['Tour'],
     stabilizing: [
       'createValidation', 'createForm', 'createInput', 'usePopover', 'usePresence',
@@ -71,7 +71,7 @@ export const ROADMAP_BUCKETS: Record<string, ReleaseBucket> = {
     ],
   },
   'v1.3.0': {
-    date: '2026-10-22',
+    date: '2026-10-20',
     features: ['Virtualizer', 'Kanban', 'Otp'],
     stabilizing: [
       'useClickOutside', 'useEventListener', 'useHotkey', 'useMediaQuery', 'useToggleScope',
@@ -80,7 +80,7 @@ export const ROADMAP_BUCKETS: Record<string, ReleaseBucket> = {
     ],
   },
   'v1.4.0': {
-    date: '2026-11-13',
+    date: '2026-11-17',
     features: ['TimePicker'],
     stabilizing: [
       'createSlider', 'createNumeric', 'createNumberField', 'createProgress', 'createRating',
@@ -90,7 +90,7 @@ export const ROADMAP_BUCKETS: Record<string, ReleaseBucket> = {
     ],
   },
   'v1.5.0': {
-    date: '2026-12-11',
+    date: '2026-12-15',
     features: ['DatePicker', 'DateRangePicker'],
     stabilizing: [
       'Dialog', 'Popover', 'Tabs', 'AlertDialog', 'Collapsible', 'ExpansionPanel',
