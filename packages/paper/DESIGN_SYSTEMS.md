@@ -1,18 +1,24 @@
 # Building on Paper — Design Systems & Kits
 
-The contract for every package built on the Paper layer. Per-package specifics live in
+The contract for every package in the `@paper/*` family. Per-package specifics live in
 that package's `SPEC.md` (see [Per-package SPEC.md](#per-package-specmd)); this document
 defines what is common, what is required, and what is forbidden — so patterns are decided
 once, not rediscovered per component.
+
+Rulings 1–3 below are **decided**; sections 4–5 are **PROPOSED** and open for review.
 
 The stack:
 
 ```
 @vuetify/v0      headless logic — compound components, composables, theme engine
-@vuetify/paper   styling primitives — useColor, useTheme, useContrast, adapter bases
-@paper/*         packages built on Paper (both classes below)
+                 (incl. V0StyleSheetThemeAdapter, the adapter base)
+@vuetify/paper   styling primitives — useColor, useTheme, useContrast
+@paper/*         design systems and kits (the classes below)
 vuetify          orchestration + defaults (Material ships here)
 ```
+
+`@paper/*` names the family, not a dependency: a kit may depend on `@vuetify/v0`
+alone (Genesis does today).
 
 ## Two classes
 
@@ -23,7 +29,7 @@ system missing one is broken.
 | | **Design system** | **Kit** |
 |---|---|---|
 | Intent | Encompass everything — a complete visual framework | Purpose-scoped component set |
-| Exemplars | Material, Emerald, Onyx | Genesis (docs), Helix (docs platform) |
+| Exemplars | Material, Emerald, Onyx | Genesis (docs) |
 | Token namespace | Owns one (`--emerald-*`) | **None** — consumes `--v0-*` |
 | Theme plugin / adapter | Required (`theme.ts`, `adapter.ts`, `plugin.ts`) | **Forbidden** |
 | Stylesheet artifact | `dist/theme.css` (prebaked default theme) | None — inherits the page's theme |
@@ -39,8 +45,9 @@ customer's file. This is why the token pipeline must be reproducible end to end.
 ### 1. Tokens and the zero-config on-ramp (design systems)
 
 Tokens are TypeScript objects (`theme.ts`), published as CSS custom properties at
-runtime by a stylesheet adapter extending v0's theme system. Two consumption paths, both
-required:
+runtime by a stylesheet adapter extending **v0's theme engine**
+(`V0StyleSheetThemeAdapter`, imported from `@vuetify/v0`, constructed with the design
+system's prefix). Two consumption paths, both required:
 
 - **Zero-config**: the build prebakes the default theme to `dist/theme.css`. A newcomer
   installs, imports one CSS file, and components render correctly — no plugin.
@@ -53,15 +60,19 @@ path is wired. Design values live in tokens; literals appear **only** as `var()`
 fallbacks or in `theme.ts`.
 
 Kits skip all of this: consume `--v0-*` variables with literal fallbacks, exactly as
-`@paper/genesis` documents in its SPEC.md.
+`@paper/genesis` documents in its SPEC.md. (Paper's own composables — `useColor`,
+`useTheme`, `useContrast` — also operate on the `--v0-*` namespace today.)
 
 ### 2. Composition
 
-Components compose **v0 compound primitives directly** — `Button.Root`, `Dialog.Root`,
-`Tabs.Root`, and friends own behavior, accessibility, and state. Paper contributes
-through its **composables** (`useColor`, `useTheme`, `useContrast`, …) and **adapter
-base classes**, not as a component base: `V0Paper` is not the foundation for design
-system or kit components. Never compose native HTML form controls.
+- **Behavioral components** compose **v0 compound primitives directly** —
+  `Button.Root`, `Dialog.Root`, `Tabs.Root`, and friends own behavior, accessibility,
+  and state.
+- **Purely presentational components** (cards, badges, dividers) render semantic
+  elements or v0's `Atom`; there is no behavioral primitive to compose and none should
+  be invented.
+- In neither case is `V0Paper` the component base.
+- Never compose native HTML form controls.
 
 ### 3. Styling
 
@@ -88,6 +99,8 @@ packages start from the canonical shape rather than copying a sibling:
 - `tsdown.config.mts`: `unplugin-vue/rolldown`, `dts: { vue: true }`, the deferred
   `__DEV__: 'process.env.NODE_ENV !== \'production\''` expression (never baked at
   build time), `exports: { devExports: 'development' }`.
+- **Design systems additionally**: `src/theme.ts`, `src/adapter.ts`, `src/plugin.ts`,
+  and the build step that prebakes `dist/theme.css` from the default theme (ruling 1).
 
 ### 5. Component maturity bar (PROPOSED)
 
@@ -111,4 +124,6 @@ Every `@paper/*` package carries a `SPEC.md` declaring:
 3. its component inventory and any intentional deviations from this contract, with
    reasons.
 
-`packages/genesis/SPEC.md` is the exemplar for kits.
+`packages/genesis/SPEC.md` is the exemplar of the kit *shape*. Genesis itself predates
+this contract (most of its components still use `<style scoped>`, and its SPEC declares
+no class); its alignment is tracked separately and does not weaken the rulings above.
