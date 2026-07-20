@@ -118,60 +118,58 @@
       </span>
     </div>
 
-    <!-- One unified calendar object, four months across -->
-    <div class="border border-divider rounded-xl bg-surface overflow-hidden">
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-divider">
-        <div v-for="month in months" :key="month.key" class="p-3">
-          <div class="flex items-baseline justify-between mb-2 px-0.5">
-            <span class="text-sm font-semibold tracking-tight">{{ month.month }}</span>
-            <span class="text-[11px] font-mono text-on-surface-variant/50">{{ month.year }}</span>
+    <!-- Month cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+      <div v-for="month in months" :key="month.key" class="border border-divider rounded-xl bg-surface p-3">
+        <div class="flex items-baseline justify-between mb-2 px-0.5">
+          <span class="text-sm font-semibold tracking-tight">{{ month.month }}</span>
+          <span class="text-[11px] font-mono text-on-surface-variant/50">{{ month.year }}</span>
+        </div>
+
+        <div class="grid grid-cols-7 gap-0.5">
+          <div
+            v-for="(weekday, w) in WEEKDAYS"
+            :key="`w-${w}`"
+            class="h-6 grid place-items-center text-[10px] font-medium text-on-surface-variant/40"
+          >
+            {{ weekday }}
           </div>
 
-          <div class="grid grid-cols-7 gap-0.5">
-            <div
-              v-for="(weekday, w) in WEEKDAYS"
-              :key="`w-${w}`"
-              class="h-6 grid place-items-center text-[10px] font-medium text-on-surface-variant/40"
+          <template v-for="(cell, index) in month.cells">
+            <!-- Release day -->
+            <button
+              v-if="cell.release"
+              :key="`r-${index}`"
+              :aria-current="selectedTitle === cell.release.title ? 'true' : undefined"
+              :aria-label="`${cell.release.title}, ${longDate(cell.release.date)}: ${cell.release.features.length} arriving, ${cell.release.stabilizing.length} graduating to stable`"
+              class="group relative h-9 flex flex-col items-center justify-center rounded-md overflow-hidden cursor-pointer transition duration-150 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-surface"
+              :style="{
+                background: tint(accent(cell.release), selectedTitle === cell.release.title ? 26 : 12),
+                boxShadow: `inset 0 0 0 ${selectedTitle === cell.release.title ? 2 : 1}px ${tint(accent(cell.release), selectedTitle === cell.release.title ? 100 : 45)}`,
+              }"
+              type="button"
+              @click="single.select(cell.release.title)"
             >
-              {{ weekday }}
+              <span class="text-xs font-mono font-bold leading-none tabular-nums">{{ cell.day }}</span>
+              <span class="text-[10px] font-mono leading-none mt-0.5" :style="{ color: accent(cell.release) }">{{ shortTitle(cell.release.title) }}</span>
+
+              <!-- Payload split: arriving | graduating -->
+              <span class="absolute inset-x-0 bottom-0 h-1 flex">
+                <span class="h-full" :style="{ width: `${newPct(cell.release)}%`, background: ARRIVING.color }" />
+                <span class="h-full flex-1" :style="{ background: GRADUATING.color }" />
+              </span>
+            </button>
+
+            <!-- Non-release day -->
+            <div
+              v-else
+              :key="`d-${index}`"
+              class="h-9 grid place-items-center text-[11px] font-mono tabular-nums"
+              :class="cell.day === null ? '' : cell.weekend ? 'text-on-surface-variant/20' : 'text-on-surface-variant/45'"
+            >
+              {{ cell.day }}
             </div>
-
-            <template v-for="(cell, index) in month.cells">
-              <!-- Release day -->
-              <button
-                v-if="cell.release"
-                :key="`r-${index}`"
-                :aria-current="selectedTitle === cell.release.title ? 'true' : undefined"
-                :aria-label="`${cell.release.title}, ${longDate(cell.release.date)}: ${cell.release.features.length} arriving, ${cell.release.stabilizing.length} graduating to stable`"
-                class="group relative h-9 flex flex-col items-center justify-center rounded-md overflow-hidden transition-all duration-150 hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-surface"
-                :style="{
-                  background: tint(accent(cell.release), selectedTitle === cell.release.title ? 26 : 12),
-                  boxShadow: `inset 0 0 0 ${selectedTitle === cell.release.title ? 2 : 1}px ${tint(accent(cell.release), selectedTitle === cell.release.title ? 100 : 45)}`,
-                }"
-                type="button"
-                @click="single.select(cell.release.title)"
-              >
-                <span class="text-xs font-mono font-bold leading-none tabular-nums">{{ cell.day }}</span>
-                <span class="text-[10px] font-mono leading-none mt-0.5" :style="{ color: accent(cell.release) }">{{ shortTitle(cell.release.title) }}</span>
-
-                <!-- Payload split: arriving | graduating -->
-                <span class="absolute inset-x-0 bottom-0 h-1 flex">
-                  <span class="h-full" :style="{ width: `${newPct(cell.release)}%`, background: ARRIVING.color }" />
-                  <span class="h-full flex-1" :style="{ background: GRADUATING.color }" />
-                </span>
-              </button>
-
-              <!-- Non-release day -->
-              <div
-                v-else
-                :key="`d-${index}`"
-                class="h-9 grid place-items-center text-[11px] font-mono tabular-nums"
-                :class="cell.day === null ? '' : cell.weekend ? 'text-on-surface-variant/20' : 'text-on-surface-variant/45'"
-              >
-                {{ cell.day }}
-              </div>
-            </template>
-          </div>
+          </template>
         </div>
       </div>
     </div>

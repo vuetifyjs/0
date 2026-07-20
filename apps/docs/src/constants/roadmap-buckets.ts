@@ -42,6 +42,19 @@ export interface ReleaseBucket {
  * under the calendar.
  */
 export const ROADMAP_BUCKETS: Record<string, ReleaseBucket> = {
+  'v1.0.0': {
+    date: '2026-07-22',
+    features: [],
+    // The v1 stable set locked at launch — the 16 composables promoted to stable.
+    // (The 17 stable utilities are also locked here; omitted from the calendar as
+    // low-signal chips that all resolve to the same utilities page.)
+    stabilizing: [
+      'createContext', 'createPlugin', 'createTrinity', 'createRegistry', 'createModel',
+      'createSelection', 'createSingle', 'createStep', 'createGroup', 'createNested',
+      'useBreakpoints', 'useStorage', 'useTheme', 'useIntersectionObserver',
+      'useMutationObserver', 'useResizeObserver',
+    ],
+  },
   'v1.1.0': {
     date: '2026-09-04',
     features: ['DataTable', 'DataGrid', 'Alert'],
