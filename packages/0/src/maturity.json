@@ -445,7 +445,7 @@
   },
   "components": {
     "AspectRatio": {
-      "level": "preview",
+      "level": "stable",
       "since": "1.0.0-alpha.1",
       "category": "primitives",
       "description": "Reserves a box with a fixed width-to-height ratio using CSS `aspect-ratio`."
@@ -605,7 +605,7 @@
       "description": "A headless confirmation dialog that seeks user input before proceeding. Features a `wait()`/`close()` pattern for deferred close during async operations."
     },
     "Collapsible": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.2.0",
       "category": "disclosure",
       "description": "A single-item disclosure toggle for showing and hiding content."
