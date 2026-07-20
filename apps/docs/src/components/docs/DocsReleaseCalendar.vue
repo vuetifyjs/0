@@ -1,16 +1,17 @@
 <script setup lang="ts">
   // Framework
-  import { createSingle } from '@vuetify/v0'
+  import { Collapsible, createStep } from '@vuetify/v0'
 
   // Constants
   import { MATURITY_LEVELS as levels } from '@/constants/maturity'
   import { type FeatureType, type ResolvedRelease, releases } from '@/constants/roadmap-buckets'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
   import { RouterLink } from 'vue-router'
 
   const items = releases()
+  const count = items.length
 
   const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
@@ -101,12 +102,15 @@
     return `color-mix(in srgb, ${color} ${pct}%, transparent)`
   }
 
-  const single = createSingle({ mandatory: 'force' })
-  single.onboard(items.map(release => ({ id: release.title, value: release.title })))
-  single.select(items[0].title)
+  const step = createStep({ mandatory: 'force' })
+  step.onboard(items.map(release => ({ id: release.title, value: release.title })))
+  step.select(items[0].title)
 
-  const selectedTitle = toRef(() => single.selectedValue.value)
+  const selectedTitle = toRef(() => step.selectedValue.value)
+  const selectedIndex = toRef(() => step.selectedIndex.value)
   const selected = toRef(() => items.find(release => release.title === selectedTitle.value))
+
+  const calendarOpen = shallowRef(false)
 
   function longDate (iso: string): string {
     const at = parts(iso)
@@ -131,72 +135,36 @@
       </span>
     </div>
 
-    <!-- Month cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-      <div v-for="month in months" :key="month.key" class="border border-divider rounded-xl bg-surface p-3">
-        <div class="flex items-baseline justify-between mb-2 px-0.5">
-          <span class="text-sm font-semibold tracking-tight">{{ month.month }}</span>
-          <span class="text-[11px] font-mono text-on-surface-variant/50">{{ month.year }}</span>
-        </div>
-
-        <div class="grid grid-cols-7 gap-0.5">
-          <div
-            v-for="(weekday, w) in WEEKDAYS"
-            :key="`w-${w}`"
-            class="h-5 grid place-items-center text-[10px] font-medium text-on-surface-variant/40"
-          >
-            {{ weekday }}
-          </div>
-
-          <template v-for="(cell, index) in month.cells">
-            <!-- Release day -->
-            <button
-              v-if="cell.release"
-              :key="`r-${index}`"
-              :aria-current="selectedTitle === cell.release.title ? 'true' : undefined"
-              :aria-label="`${cell.release.title}, ${longDate(cell.release.date)}: ${cell.release.features.length} arriving, ${cell.release.stabilizing.length} graduating to stable`"
-              class="group relative h-8 flex flex-col items-center justify-center rounded-md overflow-hidden cursor-pointer transition duration-150 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-surface"
-              :style="{
-                background: tint(accent(cell.release), selectedTitle === cell.release.title ? 26 : 12),
-                boxShadow: `inset 0 0 0 ${selectedTitle === cell.release.title ? 2 : 1}px ${tint(accent(cell.release), selectedTitle === cell.release.title ? 100 : 45)}`,
-              }"
-              type="button"
-              @click="single.select(cell.release.title)"
-            >
-              <span class="text-xs font-mono font-bold leading-none tabular-nums">{{ cell.day }}</span>
-              <span class="text-[10px] font-mono leading-none mt-0.5" :style="{ color: accent(cell.release) }">{{ shortTitle(cell.release.title) }}</span>
-
-              <!-- Payload split: arriving | graduating -->
-              <span class="absolute inset-x-0 bottom-0 h-1 flex">
-                <span class="h-full" :style="{ width: `${newPct(cell.release)}%`, background: ARRIVING.color }" />
-                <span class="h-full flex-1" :style="{ background: GRADUATING.color }" />
-              </span>
-            </button>
-
-            <!-- Non-release day -->
-            <div
-              v-else
-              :key="`d-${index}`"
-              class="h-8 grid place-items-center text-[11px] font-mono tabular-nums"
-              :class="cell.adjacent ? 'text-on-surface-variant/25' : cell.weekend ? 'text-on-surface-variant/45' : 'text-on-surface-variant/70'"
-            >
-              {{ cell.day }}
-            </div>
-          </template>
-        </div>
-      </div>
-    </div>
-
-    <!-- Selected release detail -->
+    <!-- Selected release detail (always visible; step through releases) -->
     <div
       v-if="selected"
       aria-live="polite"
-      class="mt-5 rounded-xl bg-surface border border-divider p-4"
+      class="rounded-xl bg-surface border border-divider p-4"
       :style="{ borderInlineStartWidth: '4px', borderInlineStartColor: accent(selected) }"
     >
-      <div class="flex items-baseline gap-3 flex-wrap">
+      <div class="flex items-center gap-2 flex-wrap">
+        <button
+          aria-label="Previous release"
+          class="grid place-items-center w-7 h-7 rounded-md hover:bg-surface-tint disabled:opacity-30 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors"
+          :disabled="selectedIndex === 0"
+          type="button"
+          @click="step.prev()"
+        >
+          <AppIcon icon="chevron-left" :size="18" />
+        </button>
+
         <h3 class="text-lg font-mono font-bold">{{ selected.title }}</h3>
         <span class="text-sm text-on-surface-variant">{{ longDate(selected.date) }}</span>
+
+        <button
+          aria-label="Next release"
+          class="grid place-items-center w-7 h-7 rounded-md hover:bg-surface-tint disabled:opacity-30 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors"
+          :disabled="selectedIndex === count - 1"
+          type="button"
+          @click="step.next()"
+        >
+          <AppIcon icon="chevron-right" :size="18" />
+        </button>
 
         <span class="ms-auto inline-flex items-center gap-3 text-xs">
           <span v-if="selected.features.length > 0" class="inline-flex items-center gap-1" :style="{ color: ARRIVING.color }">
@@ -253,6 +221,71 @@
         </p>
       </div>
     </div>
+
+    <!-- Full calendar, collapsed by default -->
+    <Collapsible.Root v-model="calendarOpen" class="mt-3">
+      <Collapsible.Activator class="w-full flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-primary rounded-lg hover:bg-surface-tint transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+        <AppIcon :icon="calendarOpen ? 'chevron-up' : 'chevron-down'" :size="16" />
+        {{ calendarOpen ? 'Hide calendar' : 'Show calendar' }}
+      </Collapsible.Activator>
+
+      <Collapsible.Content>
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mt-3">
+          <div v-for="month in months" :key="month.key" class="border border-divider rounded-xl bg-surface p-3">
+            <div class="flex items-baseline justify-between mb-2 px-0.5">
+              <span class="text-sm font-semibold tracking-tight">{{ month.month }}</span>
+              <span class="text-[11px] font-mono text-on-surface-variant/50">{{ month.year }}</span>
+            </div>
+
+            <div class="grid grid-cols-7 gap-0.5">
+              <div
+                v-for="(weekday, w) in WEEKDAYS"
+                :key="`w-${w}`"
+                class="h-5 grid place-items-center text-[10px] font-medium text-on-surface-variant/40"
+              >
+                {{ weekday }}
+              </div>
+
+              <template v-for="(cell, index) in month.cells">
+                <!-- Release day -->
+                <button
+                  v-if="cell.release"
+                  :key="`r-${index}`"
+                  :aria-current="selectedTitle === cell.release.title ? 'true' : undefined"
+                  :aria-label="`${cell.release.title}, ${longDate(cell.release.date)}: ${cell.release.features.length} arriving, ${cell.release.stabilizing.length} graduating to stable`"
+                  class="group relative h-8 flex flex-col items-center justify-center rounded-md overflow-hidden cursor-pointer transition duration-150 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-surface"
+                  :style="{
+                    background: tint(accent(cell.release), selectedTitle === cell.release.title ? 26 : 12),
+                    boxShadow: `inset 0 0 0 ${selectedTitle === cell.release.title ? 2 : 1}px ${tint(accent(cell.release), selectedTitle === cell.release.title ? 100 : 45)}`,
+                  }"
+                  type="button"
+                  @click="step.select(cell.release.title)"
+                >
+                  <span class="text-xs font-mono font-bold leading-none tabular-nums">{{ cell.day }}</span>
+                  <span class="text-[10px] font-mono leading-none mt-0.5" :style="{ color: accent(cell.release) }">{{ shortTitle(cell.release.title) }}</span>
+
+                  <!-- Payload split: arriving | graduating -->
+                  <span class="absolute inset-x-0 bottom-0 h-1 flex">
+                    <span class="h-full" :style="{ width: `${newPct(cell.release)}%`, background: ARRIVING.color }" />
+                    <span class="h-full flex-1" :style="{ background: GRADUATING.color }" />
+                  </span>
+                </button>
+
+                <!-- Non-release day -->
+                <div
+                  v-else
+                  :key="`d-${index}`"
+                  class="h-8 grid place-items-center text-[11px] font-mono tabular-nums"
+                  :class="cell.adjacent ? 'text-on-surface-variant/25' : cell.weekend ? 'text-on-surface-variant/45' : 'text-on-surface-variant/70'"
+                >
+                  {{ cell.day }}
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </Collapsible.Content>
+    </Collapsible.Root>
 
     <!-- Disclaimer -->
     <p class="mt-6 text-sm opacity-60 text-center">
