@@ -1,24 +1,23 @@
-# Building on Paper — Design Systems & Kits
+# Paper — Design Systems & Kits
 
-The contract for every package in the `@paper/*` family. Per-package specifics live in
-that package's `SPEC.md` (see [Per-package SPEC.md](#per-package-specmd)); this document
-defines what is common, what is required, and what is forbidden — so patterns are decided
-once, not rediscovered per component.
+**Paper** is the family of design systems and kits built on `@vuetify/v0`, published
+under the `@paper/*` scope. Each package stands on its own — v0 is the only substrate.
+
+This document is the family contract. Per-package specifics live in that package's
+`SPEC.md` (see [Per-package SPEC.md](#per-package-specmd)); this document defines what
+is common, what is required, and what is forbidden — so patterns are decided once, not
+rediscovered per component.
 
 Rulings 1–3 below are **decided**; sections 4–5 are **PROPOSED** and open for review.
 
 The stack:
 
 ```
-@vuetify/v0      headless logic — compound components, composables, theme engine
-                 (incl. V0StyleSheetThemeAdapter, the adapter base)
-@vuetify/paper   styling primitives — useColor, useTheme, useContrast
-@paper/*         design systems and kits (the classes below)
+@vuetify/v0      the substrate — compound components, composables, utilities,
+                 and the theme engine (incl. V0StyleSheetThemeAdapter)
+@paper/*         design systems and kits (the classes below), each standalone on v0
 vuetify          orchestration + defaults (Material ships here)
 ```
-
-`@paper/*` names the family, not a dependency: a kit may depend on `@vuetify/v0`
-alone (Genesis does today).
 
 ## Two classes
 
@@ -46,8 +45,8 @@ customer's file. This is why the token pipeline must be reproducible end to end.
 
 Tokens are TypeScript objects (`theme.ts`), published as CSS custom properties at
 runtime by a stylesheet adapter extending **v0's theme engine**
-(`V0StyleSheetThemeAdapter`, imported from `@vuetify/v0`, constructed with the design
-system's prefix). Two consumption paths, both required:
+(`V0StyleSheetThemeAdapter`, constructed with the design system's prefix). Two
+consumption paths, both required:
 
 - **Zero-config**: the build prebakes the default theme to `dist/theme.css`. A newcomer
   installs, imports one CSS file, and components render correctly — no plugin.
@@ -60,8 +59,7 @@ path is wired. Design values live in tokens; literals appear **only** as `var()`
 fallbacks or in `theme.ts`.
 
 Kits skip all of this: consume `--v0-*` variables with literal fallbacks, exactly as
-`@paper/genesis` documents in its SPEC.md. (Paper's own composables — `useColor`,
-`useTheme`, `useContrast` — also operate on the `--v0-*` namespace today.)
+`@paper/genesis` documents in its SPEC.md.
 
 ### 2. Composition
 
@@ -71,7 +69,8 @@ Kits skip all of this: consume `--v0-*` variables with literal fallbacks, exactl
 - **Purely presentational components** (cards, badges, dividers) render semantic
   elements or v0's `Atom`; there is no behavioral primitive to compose and none should
   be invented.
-- In neither case is `V0Paper` the component base.
+- Styling logic comes from v0's utilities (`apca`, `foreground`, `hexToRgb`, …) and the
+  package's own tokens — there is no intermediate styling-primitives package.
 - Never compose native HTML form controls.
 
 ### 3. Styling
@@ -92,10 +91,11 @@ The config layer is mechanical and must be **generated, not authored** — scaff
 packages start from the canonical shape rather than copying a sibling:
 
 - `package.json`: two-tier exports (`development` condition → `src/index.ts`,
-  `publishConfig` dist-only), `workspace:^` internal ranges, `vue >=3.5.0` peer
-  (components use reactive props destructure), `catalog:` dev deps.
-- `tsconfig.json`: extends `@vue/tsconfig/tsconfig.dom.json`; `#<name>`/`#paper`/`#v0`
-  path aliases; `lib` includes `esnext`; no `baseUrl`.
+  `publishConfig` dist-only), `@vuetify/v0` as the sole internal dependency
+  (`workspace:^`), `vue >=3.5.0` peer (components use reactive props destructure),
+  `catalog:` dev deps.
+- `tsconfig.json`: extends `@vue/tsconfig/tsconfig.dom.json`; `#<name>` and `#v0` path
+  aliases; `lib` includes `esnext`; no `baseUrl`.
 - `tsdown.config.mts`: `unplugin-vue/rolldown`, `dts: { vue: true }`, the deferred
   `__DEV__: 'process.env.NODE_ENV !== \'production\''` expression (never baked at
   build time), `exports: { devExports: 'development' }`.
