@@ -1,5 +1,5 @@
 ---
-title: useTheme Composable
+title: useTheme - Theme Management for Vue 3
 meta:
 - name: description
   content: A composable for theme management that registers multiple themes, switches

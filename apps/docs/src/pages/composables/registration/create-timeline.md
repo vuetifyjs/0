@@ -25,7 +25,7 @@ Bounded undo/redo history built on `createRegistry` with a configurable size lim
 
 The `createTimeline` composable extends `createRegistry` to provide undo/redo functionality with a bounded history. When the timeline reaches its size limit, older items are moved to an overflow buffer, allowing you to undo back to them while maintaining a fixed active timeline size.
 
-```ts
+```ts collapse
 import { createTimeline } from '@vuetify/v0'
 
 const timeline = createTimeline({ size: 10 })

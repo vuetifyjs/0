@@ -88,6 +88,36 @@ The `blocking` prop disables scrim-based dismissal entirely — the dialog can o
 </template>
 ```
 
+## Accessibility
+
+Dialog renders its panel through the native `<dialog>` element opened with `showModal()`, so focus trapping, backdrop rendering, inerting of the page behind it, and Escape-to-close all come from the browser.
+
+### ARIA Attributes
+
+| Attribute | Value | Element |
+|-----------|-------|---------|
+| `aria-haspopup` | `dialog` | Activator |
+| `aria-expanded` | `true` / `false` | Activator |
+| `role` | `dialog` | Content |
+| `aria-modal` | `true` | Content |
+| `aria-labelledby` | Title element ID | Content |
+| `aria-describedby` | Description element ID | Content |
+| `aria-label` | Localized "Close" string | Close |
+
+`Dialog.Title` and `Dialog.Description` generate the IDs referenced by `aria-labelledby` and `aria-describedby`. Render them inside `Dialog.Content` so the dialog has an accessible name and description.
+
+### Keyboard Navigation
+
+| Key | Action |
+|-----|--------|
+| `Tab` / `Shift + Tab` | Cycles focus through focusable controls inside Content (trapped by `showModal()`) |
+| `Escape` | Closes the dialog (native `cancel` event) |
+| `Enter` / `Space` | Activates the focused control |
+
+### Focus management
+
+`showModal()` moves focus into the dialog on open, and the browser traps `Tab` within it while it stays open. `Dialog.Activator` renders a `<button>` by default — carrying `aria-haspopup="dialog"` and `aria-expanded` — and opens the dialog on click.
+
 ## FAQ
 
 ::: faq

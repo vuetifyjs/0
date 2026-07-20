@@ -1,10 +1,10 @@
 ---
 title: createInput - Shared Form Field Primitive
 meta:
-  - name: description
-    content: Generic form field primitive with validation, field state tracking, ARIA IDs, and form registration for Vue 3 headless components.
-  - name: keywords
-    content: createInput, input, form, validation, field state, composable, Vue 3, headless
+- name: description
+  content: Generic form field primitive with validation, field state tracking, ARIA IDs, and form registration for Vue 3 headless components.
+- name: keywords
+  content: createInput, input, form, validation, field state, composable, Vue 3, headless
 features:
   category: Composable
   label: 'E: createInput'

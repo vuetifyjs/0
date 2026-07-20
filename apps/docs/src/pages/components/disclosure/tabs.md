@@ -25,7 +25,7 @@ A component for creating accessible tabbed interfaces with proper ARIA support a
 
 ## Usage
 
-The Tabs component provides a compound pattern for building accessible tab interfaces. It uses the `createStep` composable internally for navigation and provides full v-model support with automatic state synchronization.
+Organize content into panels that share the same space, showing one at a time. Bind `v-model` to track the active tab and switch panels declaratively.
 
 ::: gn-example
 /components/tabs/basic
