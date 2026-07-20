@@ -159,6 +159,7 @@ declare module 'vue' {
     DocsProgressBar: typeof import('./components/docs/DocsProgressBar.vue')['default']
     DocsQuestion: typeof import('./components/docs/DocsQuestion.vue')['default']
     DocsRelated: typeof import('./components/docs/DocsRelated.vue')['default']
+    DocsReleaseCalendar: typeof import('./components/docs/DocsReleaseCalendar.vue')['default']
     DocsReleases: typeof import('./components/docs/DocsReleases.vue')['default']
     DocsRoadmap: typeof import('./components/docs/DocsRoadmap.vue')['default']
     DocsSearch: typeof import('./components/docs/DocsSearch.vue')['default']

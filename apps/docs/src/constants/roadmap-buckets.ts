@@ -21,7 +21,7 @@ export interface ResolvedFeature {
  * expect to graduate to stable as of that release.
  */
 export interface ReleaseBucket {
-  /** Expected release date, as a display string (e.g. "September 4, 2026"). */
+  /** Expected release date, ISO `YYYY-MM-DD` (parsed locally for the calendar grid). */
   date: string
   /** Net-new features landing in this release (draft → preview). */
   features: string[]
@@ -43,12 +43,12 @@ export interface ReleaseBucket {
  */
 export const ROADMAP_BUCKETS: Record<string, ReleaseBucket> = {
   'v1.1.0': {
-    date: 'September 4, 2026',
+    date: '2026-09-04',
     features: ['DataTable', 'DataGrid', 'Alert'],
     stabilizing: [],
   },
   'v1.2.0': {
-    date: 'September 25, 2026',
+    date: '2026-09-25',
     features: ['Tour'],
     stabilizing: [
       'createValidation', 'createForm', 'createInput', 'usePopover', 'usePresence',
@@ -58,7 +58,7 @@ export const ROADMAP_BUCKETS: Record<string, ReleaseBucket> = {
     ],
   },
   'v1.3.0': {
-    date: 'October 22, 2026',
+    date: '2026-10-22',
     features: ['Virtualizer', 'Kanban', 'Otp'],
     stabilizing: [
       'useClickOutside', 'useEventListener', 'useHotkey', 'useMediaQuery', 'useToggleScope',
@@ -67,7 +67,7 @@ export const ROADMAP_BUCKETS: Record<string, ReleaseBucket> = {
     ],
   },
   'v1.4.0': {
-    date: 'November 13, 2026',
+    date: '2026-11-13',
     features: ['TimePicker'],
     stabilizing: [
       'createSlider', 'createNumeric', 'createNumberField', 'createProgress', 'createRating',
@@ -77,7 +77,7 @@ export const ROADMAP_BUCKETS: Record<string, ReleaseBucket> = {
     ],
   },
   'v1.5.0': {
-    date: 'December 11, 2026',
+    date: '2026-12-11',
     features: ['DatePicker', 'DateRangePicker'],
     stabilizing: [
       'Dialog', 'Popover', 'Tabs', 'AlertDialog', 'Collapsible', 'ExpansionPanel',
