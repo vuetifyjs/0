@@ -35,8 +35,12 @@
   const dated = items.map(release => ({ release, at: parts(release.date) }))
   const byDay = new Map(dated.map(({ release, at }) => [`${at.year}-${at.month}-${at.day}`, release]))
 
-  interface Cell { day: number | null, weekend: boolean, release?: ResolvedRelease }
+  interface Cell { day: number, adjacent: boolean, weekend: boolean, release?: ResolvedRelease }
   interface MonthGrid { key: string, month: string, year: number, cells: Cell[] }
+
+  // Every grid is a fixed 6-week block (42 cells) so all month cards share one
+  // height. Leading/trailing slots are filled with adjacent-month days, dimmed.
+  const WEEKS = 6
 
   // Render every month from the first release to the last, inclusive.
   const start = dated[0].at
@@ -46,12 +50,21 @@
   for (let year = start.year, month = start.month; year < end.year || (year === end.year && month <= end.month);) {
     const firstDow = new Date(year, month, 1).getDay()
     const total = new Date(year, month + 1, 0).getDate()
+    const prevTotal = new Date(year, month, 0).getDate()
 
-    const cells: Cell[] = Array.from({ length: firstDow }, (_, i) => ({ day: null, weekend: i % 7 === 0 || i % 7 === 6 }))
-    for (let day = 1; day <= total; day++) {
-      const column = (firstDow + day - 1) % 7
-      cells.push({ day, weekend: column === 0 || column === 6, release: byDay.get(`${year}-${month}-${day}`) })
+    const cells: Cell[] = []
+
+    function push (day: number, adjacent: boolean, release?: ResolvedRelease): void {
+      const column = cells.length % 7
+      cells.push({ day, adjacent, weekend: column === 0 || column === 6, release })
     }
+
+    // Leading days from the previous month.
+    for (let i = firstDow - 1; i >= 0; i--) push(prevTotal - i, true)
+    // This month.
+    for (let day = 1; day <= total; day++) push(day, false, byDay.get(`${year}-${month}-${day}`))
+    // Trailing days from the next month, to a fixed 6-week grid.
+    for (let day = 1; cells.length < WEEKS * 7; day++) push(day, true)
 
     months.push({
       key: `${year}-${month}`,
@@ -130,7 +143,7 @@
           <div
             v-for="(weekday, w) in WEEKDAYS"
             :key="`w-${w}`"
-            class="h-6 grid place-items-center text-[10px] font-medium text-on-surface-variant/40"
+            class="h-5 grid place-items-center text-[10px] font-medium text-on-surface-variant/40"
           >
             {{ weekday }}
           </div>
@@ -142,7 +155,7 @@
               :key="`r-${index}`"
               :aria-current="selectedTitle === cell.release.title ? 'true' : undefined"
               :aria-label="`${cell.release.title}, ${longDate(cell.release.date)}: ${cell.release.features.length} arriving, ${cell.release.stabilizing.length} graduating to stable`"
-              class="group relative h-9 flex flex-col items-center justify-center rounded-md overflow-hidden cursor-pointer transition duration-150 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-surface"
+              class="group relative h-8 flex flex-col items-center justify-center rounded-md overflow-hidden cursor-pointer transition duration-150 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-surface"
               :style="{
                 background: tint(accent(cell.release), selectedTitle === cell.release.title ? 26 : 12),
                 boxShadow: `inset 0 0 0 ${selectedTitle === cell.release.title ? 2 : 1}px ${tint(accent(cell.release), selectedTitle === cell.release.title ? 100 : 45)}`,
@@ -164,8 +177,8 @@
             <div
               v-else
               :key="`d-${index}`"
-              class="h-9 grid place-items-center text-[11px] font-mono tabular-nums"
-              :class="cell.day === null ? '' : cell.weekend ? 'text-on-surface-variant/20' : 'text-on-surface-variant/45'"
+              class="h-8 grid place-items-center text-[11px] font-mono tabular-nums"
+              :class="cell.adjacent ? 'text-on-surface-variant/25' : cell.weekend ? 'text-on-surface-variant/45' : 'text-on-surface-variant/70'"
             >
               {{ cell.day }}
             </div>
