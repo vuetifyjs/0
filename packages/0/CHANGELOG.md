@@ -1,5 +1,51 @@
 # @vuetify/v0
 
+## 1.0.0-rc.9
+
+### Patch Changes
+
+- [#619](https://github.com/vuetifyjs/0/pull/619) [`95d2d34`](https://github.com/vuetifyjs/0/commit/95d2d34c08692b15b9c6d2d173b010d80be7e024) Thanks [@johnleider](https://github.com/johnleider)! - fix(Switch,Form,Slider): correct ARIA states for mixed, native validation, and grouped form controls ([#543](https://github.com/vuetifyjs/0/issues/543))
+
+  - `Switch.Root` and `Switch.SelectAll` no longer emit the spec-invalid `aria-checked="mixed"`; the value is clamped to `false` while indeterminate, so screen readers announce a valid switch state. Style indeterminate switches with `data-state="indeterminate"` as before.
+  - `Switch.Thumb` and `Switch.Track` are now marked `aria-hidden="true"`, hiding the decorative visuals from assistive technology.
+  - `Form.Root` now renders `novalidate` by default, so the browser's native constraint popups no longer block submit before v0's async validation runs. Opt back into native constraint validation with `:novalidate="false"`.
+  - `Slider.Root` now exposes `role="group"` plus optional `label` / `ariaLabelledby` props, giving multi-thumb sliders an accessible group name.
+
+- [#618](https://github.com/vuetifyjs/0/pull/618) [`d611c03`](https://github.com/vuetifyjs/0/commit/d611c03a1c8f462e51cc2a96032a114da8e91328) Thanks [@johnleider](https://github.com/johnleider)! - fix(Avatar,Scrim,Popover,Tooltip,Select,Toggle): restore dropped alt text and complete missing ARIA wiring ([#543](https://github.com/vuetifyjs/0/issues/543))
+
+  - `Avatar.Image` now accepts an `alt` prop and passes consumer attributes (`alt`, `aria-label`, ...) through to the rendered element — previously they were silently dropped
+  - `Scrim` backdrops are hidden from assistive technology with `aria-hidden="true"`
+  - `Popover.Activator` explicitly exposes `aria-expanded` and `aria-controls` instead of relying on inconsistent native `popovertarget` mapping
+  - `Tooltip.Content` closes on Escape when focus is inside interactive tooltip content
+  - `Select.Activator` reflects the disabled state (`aria-disabled` + native `disabled`) and stays keyboard-focusable when rendered as a non-button element; `Select.Content` names its listbox via `aria-labelledby`
+  - `Toggle.Group` gains `label`, `ariaLabelledby`, and `ariaDescribedby` props so the group can be named
+
+- [#625](https://github.com/vuetifyjs/0/pull/625) [`584668d`](https://github.com/vuetifyjs/0/commit/584668d559add9271593b5089d16c01c25134214) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(Carousel): pause autoplay while keyboard focus is inside the carousel ([#625](https://github.com/vuetifyjs/0/issues/625))
+
+  Moving focus into the carousel now pauses auto-rotation and moving focus out resumes it, mirroring the existing pointer/touch behavior and satisfying WCAG 2.2.2 (Pause, Stop, Hide).
+
+- [#627](https://github.com/vuetifyjs/0/pull/627) [`396ea49`](https://github.com/vuetifyjs/0/commit/396ea49d9ddcc17091bfd9907babbb256301e118) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(Splitter): give the resize handle a default localized `aria-label` ([#627](https://github.com/vuetifyjs/0/issues/627))
+
+  A `Splitter.Handle` without an explicit `label` now falls back to the localized `Splitter.handle` string ("Resize"), so `role="separator"` always exposes an accessible name to assistive technology (WCAG 4.1.2, Name/Role/Value).
+
+- [#626](https://github.com/vuetifyjs/0/pull/626) [`a1df426`](https://github.com/vuetifyjs/0/commit/a1df4263153830feffacfa23fcab575d1feaf809) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(Treeview): expose the active node to assistive technology via `aria-current` ([#626](https://github.com/vuetifyjs/0/issues/626))
+
+  Navigation trees without checkbox selection now convey the current node — the active `treeitem` emits `aria-current="true"` alongside the existing `aria-selected`, so screen readers can announce the focused node.
+
+- [#606](https://github.com/vuetifyjs/0/pull/606) [`9ca3fb3`](https://github.com/vuetifyjs/0/commit/9ca3fb3d23b8b7153083edc2a1dbff48c8b74512) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(useRtl,useTheme): keep SSR head entries in sync with reactive state ([#606](https://github.com/vuetifyjs/0/issues/606))
+
+  During server rendering, the `dir` attribute, `data-theme`, and injected theme styles now update via `entry.patch` when RTL or theme state changes after the initial head push — previously the first-rendered values were frozen for the rest of the request. Adapter disposal also cleans up the new watchers alongside the head entry.
+
+- [#655](https://github.com/vuetifyjs/0/pull/655) [`65952f2`](https://github.com/vuetifyjs/0/commit/65952f27190745da40ff62e82505cf04c56a6a40) Thanks [@johnleider](https://github.com/johnleider)! - chore(maturity): promote the 1.0 component spine to `stable` — 13 headless components are now API-locked for 1.0: the primitives `Atom` and `AspectRatio`, the providers `Theme`, `Group`, `Selection`, `Single`, and `Step`, the `Tabs`, `Toggle`, and `Collapsible` disclosure/interaction components, and the `Checkbox`, `Radio`, and `Switch` form controls. Three supporting composables graduate with them — `useProxyModel`, `toElement`, and `toArray` — because every promoted component rests on them, and a stable component cannot sit on a `preview` logic layer. No behavior or signature changes: this is a stability commitment, not a code change, so no consumer action is required.
+
+- [#589](https://github.com/vuetifyjs/0/pull/589) [`3b5565d`](https://github.com/vuetifyjs/0/commit/3b5565d8450260e4ca27174e710c19082bf82ef1) Thanks [@johnleider](https://github.com/johnleider)! - fix(createTokens): follow a `{alias}` reached through a segment path ([#566](https://github.com/vuetifyjs/0/issues/566))
+
+  `resolve()` now re-resolves an alias that a dotted-segment lookup lands on, instead of returning the raw `'{alias}'` string. This is visible under `flat: true` (where nested groups are stored whole and addressed by segment), so `useTheme` — which resolves theme colors through a `flat: true` token table — no longer drops or leaks an unresolved `{alias}` for a palette entry that is itself an alias. The leaf-value branch already followed terminal aliases; the segment branch now matches it.
+
+- [#648](https://github.com/vuetifyjs/0/pull/648) [`4c2ede3`](https://github.com/vuetifyjs/0/commit/4c2ede35af553631e2af9383014288a476f2636a) Thanks [@johnleider](https://github.com/johnleider)! - fix(Tooltip): expose anchor styles on Tooltip.Activator's renderless slot
+
+  `Tooltip.Activator` now surfaces its CSS anchor-positioning styles as a `styles` slot prop (mirroring `Tooltip.Content`). In renderless mode the activator no longer renders its own element, so previously the anchor name was lost and the tooltip content could not position. Consumers can now bind `attrs` and apply `styles` onto their own trigger element — e.g. attaching a tooltip to a native `<button type="submit">` without the activator overriding its `type`.
+
 ## 1.0.0-rc.8
 
 ### Patch Changes
