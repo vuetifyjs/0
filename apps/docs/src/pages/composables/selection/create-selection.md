@@ -78,7 +78,7 @@ flowchart TD
 
 | Option | Type | Default | Notes |
 | - | - | - | - |
-| `mandatory` | `MaybeRefOrGetter<boolean>` | `false` | Prevent deselecting the last selected item |
+| `mandatory` | `MaybeRefOrGetter<boolean \| 'force'>` | `false` | Prevent deselecting the last selected item; `'force'` additionally auto-selects the first non-disabled item on registration |
 | `multiple` | `MaybeRefOrGetter<boolean>` | `false` | Allow multiple IDs to be selected simultaneously |
 | `enroll` | `MaybeRefOrGetter<boolean>` | `false` | Auto-select tickets on registration[^enroll-createmodel] |
 
@@ -95,9 +95,11 @@ Selection state is **always reactive**. Collection methods follow the base `crea
 | `selectedValues` | <AppSuccessIcon /> | Computed from `selectedItems` |
 | ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
 | `apply(values, options?)` | — | Sync selection from external values — resolves values to IDs via `browse()`, then adds/removes to match |
+| `mandate()` | — | Select the first non-disabled item when nothing is selected — invoked automatically under `mandatory: 'force'` |
+| `seek(direction?, from?)` | — | Return the first (`'first'`, default) or last (`'last'`) non-disabled ticket, optionally starting from an index |
 
 > [!TIP] Reactive options
-> The `mandatory`, `multiple`, and `enroll` options all accept `MaybeRefOrGetter<boolean>`. Pass a getter to drive selection behavior from a prop or computed:
+> The `mandatory` (`boolean | 'force'`), `multiple`, and `enroll` options all accept `MaybeRefOrGetter`. Pass a getter to drive selection behavior from a prop or computed:
 > ```ts no-filename
 > const props = defineProps<{ multiple?: boolean }>()
 > const selection = createSelection({ multiple: () => props.multiple ?? false })
