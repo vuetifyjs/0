@@ -70,7 +70,12 @@ Kits skip all of this: consume `--v0-*` variables with literal fallbacks, exactl
   elements or v0's `Atom`; there is no behavioral primitive to compose and none should
   be invented.
 - Styling logic comes from v0's utilities (`apca`, `foreground`, `hexToRgb`, …) and the
-  package's own tokens — there is no intermediate styling-primitives package.
+  package's own tokens; no published `@paper/*` package routes styling through an
+  intermediate styling-primitives layer. (`@vuetify/paper` is removed from the
+  version/publish path and kept dormant in-repo. Whether v0's utilities fully cover the
+  color/contrast math a design system needs — and so whether Paper's primitives are still
+  required — is to be evaluated against the second design system, Onyx: decision deferred,
+  not made.)
 - Never compose native HTML form controls.
 
 ### 3. Styling
