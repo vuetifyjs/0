@@ -81,11 +81,17 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
       // this preamble, vuetify-utilities ends up declared before vuetify-components
       // and components beat helpers in the cascade.
       `document.head.insertAdjacentHTML('afterbegin', '<style>@layer vuetify-core,vuetify-components,vuetify-overrides,vuetify-utilities,vuetify-final;</style>')`,
-      `const link = document.createElement('link')`,
-      `link.rel = 'stylesheet'`,
-      `link.setAttribute('data-preset-css', 'vuetify')`,
-      `link.href = 'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css'`,
-      `document.head.appendChild(link)`,
+      // Vuetify's CSS plus the MDI webfont — its default icon set, which
+      // vuetify-labs.css doesn't bundle, so without it every mdi-* icon renders
+      // as tofu. Add further icon-set stylesheets here as list entries.
+      `for (const href of [`,
+      `  'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css',`,
+      `  'https://cdn.jsdelivr.net/npm/@mdi/font@7.x/css/materialdesignicons.min.css',`,
+      `]) {`,
+      `  const link = Object.assign(document.createElement('link'), { rel: 'stylesheet', href })`,
+      `  link.dataset.presetCss = 'vuetify'`,
+      `  document.head.appendChild(link)`,
+      `}`,
     )
     extraPlugins.push(`app.use(createVuetify())`)
   }
