@@ -6,7 +6,7 @@ import { decodePlaygroundHash, encodePlaygroundHash, parseVuetifyPlayTuple } fro
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
 // Data
-import { createMainTs, UNO_CONFIG_TS } from '@/data/playground-defaults'
+import { createMainTs, REPL_BUILTIN_FILES, REPL_TSCONFIG, UNO_CONFIG_TS } from '@/data/playground-defaults'
 import { ADDONS, DEFAULT_APP, PRESETS } from '@/data/presets'
 
 // Utilities
@@ -115,11 +115,13 @@ export function usePlaygroundFiles () {
           'src/main.ts': createMainTs(theme_),
           'src/uno.config.ts': UNO_CONFIG_TS,
           'src/App.vue': DEFAULT_APP,
+          'tsconfig.json': REPL_TSCONFIG,
         },
         'src/main.ts',
       )
       store.files['src/main.ts']!.hidden = true
       store.files['src/uno.config.ts']!.hidden = true
+      store.files['tsconfig.json']!.hidden = true
       store.setActive('src/App.vue')
     }
 
@@ -159,6 +161,7 @@ export function usePlaygroundFiles () {
       {
         'src/main.ts': createMainTs(theme_, mergedMainOptions()),
         'src/uno.config.ts': UNO_CONFIG_TS,
+        'tsconfig.json': REPL_TSCONFIG,
         ...files,
         ...aliases,
       },
@@ -166,6 +169,7 @@ export function usePlaygroundFiles () {
     )
     store.files['src/main.ts']!.hidden = true
     store.files['src/uno.config.ts']!.hidden = true
+    store.files['tsconfig.json']!.hidden = true
     for (const key of Object.keys(aliases)) {
       if (store.files[key]) store.files[key]!.hidden = true
     }
@@ -180,9 +184,11 @@ export function usePlaygroundFiles () {
     const aliases = new Set(aliasMap.value.values())
     const files: Record<string, string> = {}
     for (const [path, file] of Object.entries(store.files)) {
-      if (!aliases.has(path)) {
-        files[path] = file.code
-      }
+      // Skip aliases and repl builtins (tsconfig.json / import-map.json) — the
+      // builtins are re-seeded on load, so baking them into the share hash only
+      // bloats the URL.
+      if (aliases.has(path) || REPL_BUILTIN_FILES.includes(path as typeof REPL_BUILTIN_FILES[number])) continue
+      files[path] = file.code
     }
     if (Object.keys(files).length === 0) return
     const active = store.activeFile?.filename
@@ -244,12 +250,14 @@ export function usePlaygroundFiles () {
       {
         'src/main.ts': createMainTs(theme_, preset.mainOptions),
         'src/uno.config.ts': UNO_CONFIG_TS,
+        'tsconfig.json': REPL_TSCONFIG,
         ...preset.files,
       },
       'src/main.ts', // must be main.ts so the sandbox runs it (installs plugins)
     )
     store.files['src/main.ts']!.hidden = true
     store.files['src/uno.config.ts']!.hidden = true
+    store.files['tsconfig.json']!.hidden = true
     store.setActive('src/App.vue')
 
     rebuildImportMap()
