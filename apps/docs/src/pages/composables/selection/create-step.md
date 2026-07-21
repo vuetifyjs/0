@@ -24,7 +24,7 @@ Extends `createSingle` with bounded or circular navigation. Built for wizards, m
 ## Usage
 
 The `createStep` composable manages a list of steps and allows navigation between them with configurable circular (wrapping) or bounded (stopping at edges) behavior.
-You register each step (with an `id` and value) in the order they should be navigated, then use the navigation methods to move
+You register each step (with an `id` and value) in the order they should be navigated, then use the navigation methods to move between them.
 
 ```ts collapse no-filename
 import { createStep } from '@vuetify/v0'
