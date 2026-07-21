@@ -146,6 +146,9 @@
     "@vue/repl",
     "@vuetify/paper"
   ],
+  "ignoreBinaries": [
+    "gh"
+  ],
   "ignoreExportsUsedInFile": {
     "interface": true,
     "type": true
