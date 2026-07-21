@@ -396,9 +396,13 @@ describe('avatar', () => {
     })
 
     describe('renderless mode', () => {
-      it('should support renderless mode with slot props', () => {
-        // Suppress Vue warning about runtime directive on non-element root
-        // This is expected when using v-show with renderless components
+      it('should support renderless mode with slot props', async () => {
+        // A renderless AvatarImage applies its mandated v-show (PHILOSOPHY
+        // §10.11) to a renderless Atom, whose root is the slot rather than an
+        // element, so Vue emits a benign runtime-directive warning — on mount
+        // and again on the async re-render when the image load settles. Drive
+        // that settle inside the spy's scope so the warning is captured here
+        // instead of leaking to stderr after the test body exits.
         using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
         let slotProps: any
@@ -415,9 +419,19 @@ describe('avatar', () => {
           },
         })
 
+        const image = wrapper.findComponent(Avatar.Image as any)
+        await image.trigger('error')
+        await nextTick()
+
         expect(slotProps).toBeDefined()
         expect(wrapper.find('.custom-img').exists()).toBe(true)
         expect(warnSpy).toHaveBeenCalled()
+
+        // Unmount inside the spy's scope so the re-render triggered by the
+        // image's native async load/error settling can't fire the warning
+        // during global teardown, after the spy has been restored.
+        wrapper.unmount()
+        await nextTick()
       })
     })
   })

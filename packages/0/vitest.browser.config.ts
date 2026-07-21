@@ -25,6 +25,12 @@ export default defineConfig({
     '__DEV__': JSON.stringify(process.env.NODE_ENV !== 'production'),
     '__VITE_LOGGER_ENABLED__': JSON.stringify(process.env.VITE_LOGGER_ENABLED ?? false),
     '__VERSION__': '"0.0.1"',
+    // Vue esm-bundler feature flags. The dev/docs/playground apps inject these;
+    // the browser test project must too, or every app creation logs a
+    // "feature flags not explicitly defined" warning. Matches apps/docs.
+    '__VUE_OPTIONS_API__': 'true',
+    '__VUE_PROD_DEVTOOLS__': 'false',
+    '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': 'false',
     // Node-flavored deps (e.g. @testing-library/vue) read process.env at
     // import time; give them an empty object since the browser has none.
     'process.env': '{}',

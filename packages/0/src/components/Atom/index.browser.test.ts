@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
 import { Atom } from './index'
@@ -12,6 +12,19 @@ import type { Component } from 'vue'
 
 describe('atom', () => {
   describe('rendering modes', () => {
+    // VTU compiles the string-literal slots below at runtime; Vue's compiler
+    // emits a benign "[@vue/compiler-core] decodeEntities … ignored in
+    // non-browser builds" notice on each compile. Capture and assert it so it
+    // does not leak to stderr (testing.md zero-warnings policy).
+    let warn: ReturnType<typeof vi.spyOn>
+    beforeEach(() => {
+      warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    })
+    afterEach(() => {
+      expect(warn).toHaveBeenCalled()
+      warn.mockRestore()
+    })
+
     it('should render as div by default', () => {
       const wrapper = mount(Atom, {
         slots: {
@@ -53,6 +66,17 @@ describe('atom', () => {
   })
 
   describe('renderless mode', () => {
+    // String-literal slots below are compiled at runtime by VTU, triggering
+    // Vue's benign decodeEntities compiler notice. Capture and assert it.
+    let warn: ReturnType<typeof vi.spyOn>
+    beforeEach(() => {
+      warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    })
+    afterEach(() => {
+      expect(warn).toHaveBeenCalled()
+      warn.mockRestore()
+    })
+
     it('should render slot content directly when renderless=true', () => {
       const wrapper = mount(Atom, {
         props: {
@@ -99,6 +123,10 @@ describe('atom', () => {
 
   describe('self-closing tags', () => {
     it('should render self-closing img tag without children', () => {
+      // VTU compiles the string slot at runtime; Vue emits a benign
+      // decodeEntities compiler notice. Capture and assert it.
+      using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const wrapper = mount(Atom, {
         props: {
           as: 'img',
@@ -117,6 +145,7 @@ describe('atom', () => {
       expect(img.attributes('src')).toBe('test.jpg')
       expect(img.attributes('alt')).toBe('Test')
       expect(wrapper.text()).toBe('')
+      expect(warn).toHaveBeenCalled()
     })
 
     it('should render self-closing input tag', () => {
@@ -289,6 +318,10 @@ describe('atom', () => {
     })
 
     it('should not expose element ref in renderless mode', () => {
+      // VTU compiles the string slot at runtime; Vue emits a benign
+      // decodeEntities compiler notice. Capture and assert it.
+      using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const wrapper = mount(Atom, {
         props: {
           renderless: true,
@@ -300,10 +333,22 @@ describe('atom', () => {
 
       const exposed = wrapper.vm as any
       expect(exposed.element).toBeNull()
+      expect(warn).toHaveBeenCalled()
     })
   })
 
   describe('complex element types', () => {
+    // String-literal slots below are compiled at runtime by VTU, triggering
+    // Vue's benign decodeEntities compiler notice. Capture and assert it.
+    let warn: ReturnType<typeof vi.spyOn>
+    beforeEach(() => {
+      warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    })
+    afterEach(() => {
+      expect(warn).toHaveBeenCalled()
+      warn.mockRestore()
+    })
+
     it('should render section element', () => {
       const wrapper = mount(Atom, {
         props: {
@@ -383,6 +428,10 @@ describe('atom', () => {
     })
 
     it('should handle multiple root elements in slot', () => {
+      // VTU compiles the string slot at runtime; Vue emits a benign
+      // decodeEntities compiler notice. Capture and assert it.
+      using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const wrapper = mount(Atom, {
         props: {
           as: 'div',
@@ -393,6 +442,7 @@ describe('atom', () => {
       })
 
       expect(wrapper.findAll('span').length).toBe(2)
+      expect(warn).toHaveBeenCalled()
     })
 
     it('should handle nested Atom components', () => {
