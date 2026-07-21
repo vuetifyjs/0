@@ -58,7 +58,7 @@ import { createRegistry } from '#v0/composables'
 ## Packages
 
 - **`@vuetify/v0`** (`packages/0/`): Headless components and composables
-- **`@vuetify/paper`** (`packages/paper/`): Styling primitives depending on v0
+- **`@vuetify/paper`** (`packages/paper/`): Styling primitives depending on v0 — **not published (dormant)**
 
 ## Apps
 
@@ -112,7 +112,7 @@ The `.changeset/*.md` body renders verbatim into the changelog and GitHub releas
 - **Body (optional)** — add one when the title can't answer those questions itself: a behavior delta, a performance change worth quantifying (state the magnitude), a breaking/migration step, or new public options or escape hatches. Length is earned by impact, not padded to a target.
 - **Never the mechanism** — internal composables touched, private fields, refactors mirrored from a sibling go in the PR description and commit body, never the changelog.
 
-- **Substrate** (`@vuetify/v0` + `@vuetify/paper`) is a `fixed` group: one shared version, one aggregate `v<version>` GitHub release.
+- **Substrate** — `@vuetify/v0` is the sole published substrate, versioned and released on its own `v<version>` GitHub release. `@vuetify/paper` is `private`/dormant and no longer part of the changesets `fixed` group.
 - **Design systems** (`@paper/*`, e.g. `@paper/genesis`) version and release independently, each on its own `name@version` release. Note `@paper/genesis` depends on `@vuetify/v0`, so a substrate **major** bump (e.g. `1.x` → `2.0.0`) leaves genesis's `^` range and changesets will also bump + republish genesis. That is expected — review it in the "Version Packages" PR before merging.
 
 ### Exiting beta / cutting a stable release
