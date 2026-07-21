@@ -37,7 +37,6 @@ This is a **pnpm monorepo** containing:
 | Package | Description |
 |---------|-------------|
 | [`@vuetify/v0`](./packages/0) | Core headless components and composables |
-| [`@vuetify/paper`](./packages/paper) | Styling and layout primitives |
 | [`apps/docs`](./apps/docs) | Documentation site ([0.vuetifyjs.com](https://0.vuetifyjs.com)) |
 | [`apps/playground`](./apps/playground) | Interactive development environment |
 

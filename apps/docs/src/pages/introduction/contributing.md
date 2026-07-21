@@ -83,7 +83,7 @@ pnpm dev:docs
 │   │       ├── utilities/     # Helper functions
 │   │       └── types/         # TypeScript types
 │   ├── genesis/        # @paper/genesis - design system
-│   └── paper/          # @vuetify/paper - styling primitives
+│   └── paper/          # @vuetify/paper - styling primitives (dormant, not published)
 ├── apps/
 │   ├── docs/           # Documentation site
 │   └── playground/     # Browser-based code editor
@@ -151,7 +151,7 @@ The entire changeset body — everything after the frontmatter — is rendered v
 - **Body (optional)** — add one when the title can't carry the whole consumer-visible consequence: a behavior delta, a performance change worth quantifying (state the magnitude), a breaking change or migration step, or new public options / escape hatches. Length is earned by consumer impact — a genuinely rich behavior change may run to a paragraph; a routine, self-evident fix stays one line.
 - **Never the mechanism.** How you implemented it — internal composables touched, private fields, refactors mirrored from a sibling — belongs in the PR description and the commit body, not the changelog. A consumer reads release notes to decide whether to upgrade and whether they must act, nothing more.
 
-`@vuetify/v0` and `@vuetify/paper` version in lockstep — selecting `@vuetify/v0` carries `@vuetify/paper` automatically; the `@paper/*` design systems version separately. Docs-only, chore, refactor, or CI PRs don't need one. A bot comments on every PR to remind you.
+`@vuetify/v0` versions and publishes independently; `@vuetify/paper` is `private` and unpublished, so it takes no changeset. The `@paper/*` design systems version separately. Docs-only, chore, refactor, or CI PRs don't need one. A bot comments on every PR to remind you.
 
 The changeset is how your change reaches a release. On every push to `master`, automation gathers all pending `.changeset/*.md` files into a "Version Packages" PR that applies the version bumps and writes the changelog entries. When a maintainer merges that PR, the packages are built, published to npm, and the GitHub releases are created. A `packages/*` change merged without a changeset still ships in the code — but with no version bump and no changelog entry.
 
