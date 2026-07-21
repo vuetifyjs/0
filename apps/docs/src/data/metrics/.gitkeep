@@ -1,0 +1,12 @@
+# Per-version historical benchmark snapshots (`<version>.json`).
+#
+# Empty as of the v1.0 baseline reset: the pre-1.0 prerelease series
+# (1.0.0-beta.0 → 1.0.0-rc.7) was archived (removed) here and lives in git
+# history. The floor in `scripts/metrics-history.config.ts` (`since: '1.0.0'`)
+# excludes those prereleases from rediscovery, so the trend series starts clean
+# at the 1.0.0 stable release.
+#
+# The first snapshot (`1.0.0.json`) is minted by the post-release metrics-regen
+# workflow once 1.0.0 publishes. `import.meta.glob('@/data/metrics/*.json')`
+# (benchmarkHistorySources.ts) reads whatever files land here; this .gitkeep is
+# not matched by the glob.
