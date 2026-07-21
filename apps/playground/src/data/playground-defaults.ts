@@ -9,6 +9,32 @@ export const REPL_BUILTIN_FILES = ['import-map.json', 'tsconfig.json'] as const
 /** Infrastructure files revealed by the file tree's "Toggle config files" button */
 export const CONFIG_FILE_IDS = new Set(['src/main.ts', 'src/uno.config.ts', 'import-map.json'])
 
+// ── REPL tsconfig ──────────────────────────────────────────────────────────
+//
+// @vue/repl auto-injects a default tsconfig once during store init, but only
+// if none exists. Every store.setFiles() call rebuilds the file map from
+// scratch and drops it, and the injection is a one-time `if` — not a watcher —
+// so it never comes back. With no tsconfig, store.getTsConfig() throws and the
+// Monaco worker falls back to empty compilerOptions: no `allowImportingTsExtensions`
+// (the sandbox `import './uno.config.ts'` reports TS5097) and no `dom` lib
+// (`document` reports TS2584). Seeding this alongside the other builtins keeps
+// the worker's type environment correct.
+export const REPL_TSCONFIG = JSON.stringify({
+  compilerOptions: {
+    allowJs: true,
+    checkJs: true,
+    jsx: 'Preserve',
+    target: 'ESNext',
+    module: 'ESNext',
+    moduleResolution: 'Bundler',
+    allowImportingTsExtensions: true,
+    lib: ['ESNext', 'DOM', 'DOM.Iterable'],
+  },
+  vueCompilerOptions: {
+    target: 3.5,
+  },
+}, undefined, 2)
+
 // ── Template files (matching Vuetify Play's v0 template) ────────────────
 
 export interface MainOptions {
