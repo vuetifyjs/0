@@ -17,7 +17,7 @@ related:
 
 # createTimeline
 
-Bounded undo/redo history built on `createRegistry` with a configurable size limit.
+Bounded undo/redo history with a configurable size limit; older entries overflow into a buffer you can still undo back into.
 
 <DocsPageFeatures :frontmatter />
 

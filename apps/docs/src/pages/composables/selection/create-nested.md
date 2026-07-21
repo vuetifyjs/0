@@ -18,7 +18,7 @@ related:
 
 # createNested
 
-Hierarchical tree management built on `createGroup`, with parent-child relationships, open/close state, and pluggable traversal strategies.
+Manage hierarchical tree structures with parent-child relationships, open/close state, and pluggable traversal strategies.
 
 <DocsPageFeatures :frontmatter />
 
