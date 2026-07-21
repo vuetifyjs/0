@@ -290,6 +290,8 @@ describe('createNested', () => {
     })
 
     it('should not infinite loop in getDescendants when children form a cycle', { timeout: 1000 }, () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const nested = createNested()
 
       nested.register({ id: 'a', value: 'A' })
@@ -303,9 +305,12 @@ describe('createNested', () => {
 
       // Should terminate, returning each descendant at most once.
       expect(descendants.length).toBeLessThanOrEqual(2)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('Circular'))
     })
 
     it('should not stack-overflow in visibleItems when children form a cycle of opened nodes', { timeout: 1000 }, () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const nested = createNested()
 
       nested.register({ id: 'a', value: 'A' })
@@ -321,6 +326,7 @@ describe('createNested', () => {
 
       // Should terminate with each item at most once
       expect(items.length).toBeLessThanOrEqual(2)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('Circular'))
     })
 
     it('should not infinite loop in open() reveal when parents form a cycle', { timeout: 1000 }, () => {
