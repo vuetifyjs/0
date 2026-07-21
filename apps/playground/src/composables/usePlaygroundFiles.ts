@@ -6,7 +6,7 @@ import { decodePlaygroundHash, encodePlaygroundHash, parseVuetifyPlayTuple } fro
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
 // Data
-import { createMainTs, REPL_BUILTIN_FILES, REPL_TSCONFIG, UNO_CONFIG_TS } from '@/data/playground-defaults'
+import { createMainTs, REPL_BUILTIN_FILES, REPL_TSCONFIG, REPL_TYPESCRIPT_VERSION, UNO_CONFIG_TS } from '@/data/playground-defaults'
 import { ADDONS, DEFAULT_APP, PRESETS } from '@/data/presets'
 
 // Utilities
@@ -33,6 +33,9 @@ export function usePlaygroundFiles () {
   const store = useStore({
     builtinImportMap,
     vueVersion,
+    // Pin the worker's TypeScript so it doesn't float to typescript@latest (TS 7
+    // native port), which breaks lib .d.ts loading — see REPL_TYPESCRIPT_VERSION.
+    typescriptVersion: shallowRef(REPL_TYPESCRIPT_VERSION),
     showOutput: shallowRef(false),
   })
 
