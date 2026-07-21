@@ -333,10 +333,15 @@ export function usePlaygroundFiles () {
 
       const { files, imports, active, vue } = result
 
-      // Detect preset: vuetify template has 'vuetify' in the import map and setup.ts;
-      // v0 template uses @vuetify/v0 with createThemePlugin in main.ts
-      const isVuetifyPreset = 'vuetify' in imports || !!files['src/vuetify.ts'] || !!files['src/setup.ts']
-      activePreset.value = isVuetifyPreset ? 'vuetify' : 'default'
+      // The tuple (array) format is exclusive to Vuetify Play exports — the v0
+      // playground's own saves use the object format handled by decodePlaygroundHash.
+      // Since only arrays reach this point, the preset is always vuetify, matching
+      // decodePlaygroundHash's Format 4 branch. The old feature-sniff
+      // ('vuetify' in imports || setup.ts) misfired on single-file Vuetify Play
+      // playgrounds (just App.vue, no stored import-map, no setup.ts): they fell
+      // back to 'default', so main.ts kept v0's createThemePlugin with no
+      // createVuetify() and every v-* component failed to resolve.
+      activePreset.value = 'vuetify'
       activeAddons.value = []
       extraImports.value = Object.keys(imports).length > 0 ? imports : undefined
       aliasMap.value = new Map()
