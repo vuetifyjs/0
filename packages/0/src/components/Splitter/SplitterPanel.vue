@@ -65,7 +65,7 @@
 
   const attrs = useAttrs()
 
-  const collapsed = defineModel<boolean>('collapsed', { default: undefined })
+  const collapsed = defineModel<boolean>('collapsed')
 
   const emit = defineEmits<{
     'update:collapsed': [value: boolean]
