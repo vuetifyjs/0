@@ -158,6 +158,7 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'right': mdiChevronRight,
     'chevron-up': mdiChevronUp,
     'chevron-down': mdiChevronDown,
+    'chevron-left': mdiChevronLeft,
     'chevron-right': mdiChevronRight,
     'up': '{chevron-up}',
     'down': '{chevron-down}',
