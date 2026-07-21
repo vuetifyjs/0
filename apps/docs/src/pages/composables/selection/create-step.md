@@ -17,7 +17,7 @@ related:
 
 # createStep
 
-Extends `createSingle` with bounded or circular navigation. Built for wizards, multi-step forms, and onboarding flows.
+Navigate a collection one step at a time with bounded or circular movement. Built for wizards, multi-step forms, and onboarding flows.
 
 <DocsPageFeatures :frontmatter />
 

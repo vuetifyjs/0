@@ -18,7 +18,7 @@ related:
 
 # createSingle
 
-Extends `createSelection` to enforce single-item selection, automatically clearing the previous selection.
+Enforce single-item selection in a collection — selecting one item automatically clears the previous.
 
 <DocsPageFeatures :frontmatter />
 
