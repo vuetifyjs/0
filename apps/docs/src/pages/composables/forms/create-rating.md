@@ -98,7 +98,7 @@ flowchart TD
 | `value` | `WritableComputedRef<number>` | Yes | Current rating, clamped 0–size |
 | `size` | `number` | Getter | Total items |
 | `half` | `boolean` | Getter | Half-step enabled |
-| `items` | `ComputedRef<RatingItem[]>` | Yes | Items with `full`/`half`/`empty` state |
+| `items` | `ComputedRef<RatingItemDescriptor[]>` | Yes | Items with `full`/`half`/`empty` state |
 | `isFirst` | `Readonly<Ref<boolean>>` | Yes | Value is 0 |
 | `isLast` | `Readonly<Ref<boolean>>` | Yes | Value equals size |
 | `select(v)` | `(value: number) => void` | — | Set rating |
