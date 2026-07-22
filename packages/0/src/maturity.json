@@ -741,6 +741,11 @@
       "since": "0.1.11",
       "category": "utilities"
     },
+    "getActiveElement": {
+      "level": "preview",
+      "since": null,
+      "category": "utilities"
+    },
     "hexToRgb": {
       "level": "preview",
       "since": "0.1.11",
