@@ -65,7 +65,7 @@
       : [...showAll.value, key]
   }
 
-  function formatDate (date: string | null): string {
+  function formatDate (date: string | null | undefined): string {
     if (!date) return 'No due date'
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
@@ -235,10 +235,10 @@
                       <h3 class="font-semibold">{{ milestone.title }}</h3>
 
                       <span
-                        v-if="milestone.due_on"
+                        v-if="milestone.date"
                         class="text-xs px-2 py-0.5 rounded-full bg-surface-tint"
                       >
-                        {{ formatDate(milestone.due_on) }}
+                        {{ formatDate(milestone.date) }}
                       </span>
                     </div>
 

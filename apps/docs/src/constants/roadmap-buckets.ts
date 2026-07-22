@@ -171,6 +171,16 @@ export function stabilizingFor (title: string): ResolvedFeature[] {
   return resolve(ROADMAP_BUCKETS[title]?.stabilizing)
 }
 
+/**
+ * Resolve a milestone title's expected release date. This is the published
+ * calendar's single source of truth for dates — the roadmap store overlays it
+ * so both the calendar and the milestone list render the same value, rather
+ * than the calendar reading the constant and the list reading GitHub `due_on`.
+ */
+export function dateFor (title: string): string | undefined {
+  return ROADMAP_BUCKETS[title]?.date
+}
+
 /** Ordered, fully resolved releases for the release-calendar view. */
 export function releases (): ResolvedRelease[] {
   return Object.entries(ROADMAP_BUCKETS).map(([title, bucket]) => ({
