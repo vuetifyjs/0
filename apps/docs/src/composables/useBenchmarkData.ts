@@ -196,23 +196,11 @@ function extractGroupName (fullName: string): string {
   return parts.length > 1 ? parts.slice(1).join(' > ') : fullName
 }
 
-/** First entry per filepath — unscoped vitest bench used to emit unit + browser. */
-function dedupeFiles (files: RawBenchmarkFile[]): RawBenchmarkFile[] {
-  const seen = new Set<string>()
-  const out: RawBenchmarkFile[] = []
-  for (const file of files) {
-    if (seen.has(file.filepath)) continue
-    seen.add(file.filepath)
-    out.push(file)
-  }
-  return out
-}
-
 function normalizeFiles (
   files: RawBenchmarkFile[],
   metricsData: Record<string, { benchmarks?: Record<string, unknown> }>,
 ): NormalizedComposable[] {
-  return dedupeFiles(files).map(file => {
+  return files.map(file => {
     const composableName = extractComposableName(file.filepath)
     const metrics = metricsData[composableName]
     const metricsGroups = (metrics?.benchmarks as { _groups?: Record<string, { _tier?: Tier }> })?._groups

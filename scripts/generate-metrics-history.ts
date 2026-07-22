@@ -36,7 +36,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { buildItemBenchmarks, dedupeBenchFiles, extractName, type ItemBenchmarks } from './lib/benchmarks.ts'
+import { buildItemBenchmarks, extractName, type ItemBenchmarks } from './lib/benchmarks.ts'
 import { config } from './metrics-history.config.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -229,7 +229,7 @@ function processVersion (version: string, force: boolean): void {
     const raw = benchAgainst(dist, join(dir, 'benchmarks.json'))
 
     const items: Record<string, { benchmarks: ItemBenchmarks }> = {}
-    for (const file of dedupeBenchFiles(raw.files ?? [])) {
+    for (const file of raw.files ?? []) {
       const name = extractName(file.filepath)
       if (!name) continue
       items[name] = { benchmarks: buildItemBenchmarks(file) }

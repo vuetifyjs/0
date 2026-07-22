@@ -60,22 +60,6 @@ export interface RawBenchFile {
   groups?: RawGroup[]
 }
 
-/**
- * Keep the first entry per filepath. Unscoped `vitest bench` used to emit each
- * file twice (v0:unit then v0:browser); consumers that keyed only on extractName
- * last-write-won into the browser copy. Prefer first = unit when both exist.
- */
-export function dedupeBenchFiles<T extends { filepath: string }> (files: T[]): T[] {
-  const seen = new Set<string>()
-  const out: T[] = []
-  for (const file of files) {
-    if (seen.has(file.filepath)) continue
-    seen.add(file.filepath)
-    out.push(file)
-  }
-  return out
-}
-
 export function formatHz (hz: number): string {
   if (hz >= 1_000_000) return `${(hz / 1_000_000).toFixed(1)}M ops/s`
   if (hz >= 1000) return `${(hz / 1000).toFixed(1)}k ops/s`
