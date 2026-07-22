@@ -62,19 +62,19 @@ jobs:
             echo "Regenerating — missing: ${MISSING:-<none; manual dispatch>}"
           fi
 
-      # `pnpm metrics` runs the browser vitest project, so Chromium must be present.
-      # Gated on run == 'true' to keep skip-runs (no new version) cheap.
-      - name: Install Playwright browser
+      # Fixed apparatus (see scripts/lib/bench-stable.ts + .claude/rules/benchmarks.md):
+      #   ubuntu-24.04 + .nvmrc Node, v0:unit only, maxWorkers=1, no file parallelism,
+      #   V0_BENCH_TARGET=dist, median of 3 runs (current) / 1 run (history).
+      # Playwright is NOT required — benches never use v0:browser.
+
+      # Snapshot previous canaries before overwrite for the PR delta report.
+      - name: Snapshot previous benchmarks.json
         if: steps.gate.outputs.run == 'true'
         run: |
-          pnpm exec playwright install chromium
-          pnpm exec playwright install-deps chromium
+          if [ -f apps/docs/public/benchmarks.json ]; then
+            cp apps/docs/public/benchmarks.json /tmp/benchmarks-prev.json
+          fi
 
-      # Fixed apparatus: the current bench suite + toolchain measure each version's
-      # npm-installed dist, so the series is comparable. The version set is
-      # discovered from npm per scripts/metrics-history.config.ts. --force
-      # re-measures every discovered version each run (each = npm install + bench)
-      # so old snapshots stay comparable with the current suite.
       - name: Regenerate history series
         if: steps.gate.outputs.run == 'true'
         run: pnpm metrics:history --force
@@ -82,6 +82,25 @@ jobs:
       - name: Regenerate current metrics
         if: steps.gate.outputs.run == 'true'
         run: pnpm metrics
+
+      - name: Canary delta report
+        if: steps.gate.outputs.run == 'true'
+        id: delta
+        run: |
+          if [ -f /tmp/benchmarks-prev.json ]; then
+            node scripts/report-benchmark-delta.ts \
+              --prev /tmp/benchmarks-prev.json \
+              --next apps/docs/public/benchmarks.json \
+              --out /tmp/bench-delta.md
+            {
+              echo "report<<EOF"
+              cat /tmp/bench-delta.md
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "report=_(no previous benchmarks.json to compare)_" >> "$GITHUB_OUTPUT"
+          fi
+          pnpm metrics:check
 
       - name: Open/update auto-PR
         if: steps.gate.outputs.run == 'true'
@@ -91,16 +110,27 @@ jobs:
           commit-message: "chore: regenerate benchmark + history metrics"
           title: "chore: regenerate benchmark + history metrics"
           body: |
-            Auto-regenerated after a release, pinned to `ubuntu-24.04` + Node from `.nvmrc`.
+            Auto-regenerated after a release.
 
-            The full history series is re-measured on one runner (`metrics:history --force`)
-            so the per-row sparklines stay comparable across versions. The version set is
-            discovered from npm — every published 1.x release is picked up automatically
-            (policy lives in `scripts/metrics-history.config.ts`; no per-release edit).
+            ## Apparatus (fixed)
 
-            Benchmark hz is jittery (~10–20% on shared CI runners), so near-threshold
-            tier badges may flip without a code change. **Close this PR to discard the
-            run** if the numbers look like noise.
+            - Runner: `ubuntu-24.04` + Node from `.nvmrc`
+            - Project: `v0:unit` only (`maxWorkers=1`, no file parallelism)
+            - Target: built dist (`V0_BENCH_TARGET=dist`); history uses npm-installed dists
+            - Aggregation: **median of 3 runs** (current); history 1 run with same isolation
+            - Paths: repo-relative (`packages/0/src/...`) — never laptop absolute paths
+
+            History series re-measured on one runner (`metrics:history --force`) so
+            sparklines stay comparable. Version set is discovered from npm
+            (`scripts/metrics-history.config.ts`).
+
+            ## Canary delta
+
+            ${{ steps.delta.outputs.report }}
+
+            Acceptable canary noise on shared GHA: **±20%**. Tier badges near a
+            boundary may still flip. **Close this PR to discard** if the delta looks
+            like runner noise rather than a real change.
           branch: chore/metrics-regen
           add-paths: |
             apps/docs/public/benchmarks.json

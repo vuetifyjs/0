@@ -93,11 +93,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # need base...HEAD for metrics artifact guard
       - uses: ./.github/actions/setup
       - name: Run knip check
         run: pnpm repo:knip
       - name: Run sherif check
         run: pnpm repo:sherif
+      - name: Guard benchmark artifacts
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch origin "$GITHUB_BASE_REF" --depth=1
+          pnpm metrics:check
 
   # Vapor parity tests run on a beta Vue (tests/vapor, vue@3.6.0-beta), pinned
   # separately from the rest of the repo. Non-blocking: a Vapor regression
