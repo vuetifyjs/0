@@ -39,6 +39,13 @@ export default defineConfig({
     name: 'v0:browser',
     globals: true,
     include: ['**/*.browser.test.{ts,tsx}'],
+    // Vitest's default benchmark.include is **/*.{bench,benchmark}.* — independent
+    // of test.include. Without an empty list, `vitest bench` with no --project
+    // re-runs every packages/0 *.bench.ts in Chromium and outputJson doubles each
+    // file (unit happy-dom + browser). Canonical benches live on v0:unit only.
+    benchmark: {
+      include: [],
+    },
     testTimeout: 20_000,
     setupFiles: ['./test/setup.ts'],
     browser: {

@@ -184,12 +184,23 @@ function installVersion (version: string, dir: string): string {
 
 /** Run the current bench suite against `dist`; return the parsed benchmarks JSON. */
 function benchAgainst (dist: string, jsonOut: string): { files?: { filepath: string }[] } {
-  // Mirror `test:bench:json`, but target a temp output and a specific dist via the
-  // V0_BENCH_TARGET alias (read in packages/0/vitest.config.ts). Vitest may exit
-  // non-zero if a bench references a symbol absent in this version — that's fine;
-  // we read whatever results were written.
+  // Mirror `test:bench:json` (incl. --project v0:unit). Without the project pin,
+  // vitest also collects *.bench.ts under v0:browser — same path, different env —
+  // and outputJson records every file twice (see #698). V0_BENCH_TARGET aliases
+  // @vuetify/v0 to the installed dist (packages/0/vitest.config.ts). Vitest may
+  // exit non-zero if a bench references a symbol absent in this version — that's
+  // fine; we read whatever results were written.
   try {
-    execFileSync('pnpm', ['exec', 'vitest', 'bench', '--run', '--outputJson', jsonOut], {
+    execFileSync('pnpm', [
+      'exec',
+      'vitest',
+      'bench',
+      '--run',
+      '--project',
+      'v0:unit',
+      '--outputJson',
+      jsonOut,
+    ], {
       cwd: ROOT,
       stdio: 'inherit',
       env: { ...process.env, V0_BENCH_TARGET: dist },
