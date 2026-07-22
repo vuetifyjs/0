@@ -169,7 +169,7 @@
             v-if="settings.showDotGrid.value"
             v-model="settings.dotGridSkew.value"
             class="ml-4"
-            description="Tilt the grid into perspective"
+            description="Curve the grid onto a sphere"
             label="Skew"
             :max="100"
             :min="-100"
@@ -178,7 +178,11 @@
           >
             <template #preview>
               <div class="relative h-20 rounded-md overflow-hidden border bg-background">
-                <AppDotGrid :coverage="0" :skew="settings.dotGridSkew.value" />
+                <AppDotSphere
+                  :coverage="settings.dotGridCoverage.value"
+                  :curvature="settings.dotGridSkew.value"
+                  :intensity="settings.dotGridIntensity.value"
+                />
               </div>
             </template>
           </AppSettingsSlider>

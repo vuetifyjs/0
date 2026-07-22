@@ -24,6 +24,7 @@ declare module 'vue' {
     AppCopyright: typeof import('./components/app/AppCopyright.vue')['default']
     AppDivider: typeof import('./components/app/AppDivider.vue')['default']
     AppDotGrid: typeof import('./components/app/AppDotGrid.vue')['default']
+    AppDotSphere: typeof import('./components/app/AppDotSphere.vue')['default']
     AppErrorIcon: typeof import('./components/app/AppErrorIcon.vue')['default']
     AppFooter: typeof import('./components/app/AppFooter.vue')['default']
     AppHomePage: typeof import('./components/app/AppHomePage.vue')['default']
