@@ -62,6 +62,14 @@ jobs:
             echo "Regenerating — missing: ${MISSING:-<none; manual dispatch>}"
           fi
 
+      # `pnpm metrics` runs the browser vitest project, so Chromium must be present.
+      # Gated on run == 'true' to keep skip-runs (no new version) cheap.
+      - name: Install Playwright browser
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          pnpm exec playwright install chromium
+          pnpm exec playwright install-deps chromium
+
       # Fixed apparatus: the current bench suite + toolchain measure each version's
       # npm-installed dist, so the series is comparable. The version set is
       # discovered from npm per scripts/metrics-history.config.ts. --force
