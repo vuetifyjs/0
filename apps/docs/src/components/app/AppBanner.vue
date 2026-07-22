@@ -60,7 +60,7 @@
     <AppIcon class="shrink-0" icon="vuetify-0" :size="14" />
 
     <div class="min-w-0 truncate pe-6">
-      {{ banner?.subject }}<span class="hidden sm:inline"> — the stable release is live!</span><span class="hidden md:inline"> Read the <RouterLink class="underline underline-offset-2" to="/releases">release notes</RouterLink>.</span>
+      {{ banner?.subject }}<span class="hidden sm:inline"> — the stable release is live!</span><span class="hidden md:inline"> Read the <a class="underline underline-offset-2" href="https://vtfy.link/announcing-vuetify0-v1" rel="noopener" target="_blank">announcement</a>.</span>
     </div>
 
     <button
