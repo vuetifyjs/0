@@ -14,9 +14,9 @@
     /** Origin of the radial fade mask, e.g. `'bottom left'`. */
     origin?: string
     /**
-     * Directional stretch of the grid, `-100`–`100`. Positive stretches the
-     * cells horizontally and pinches them vertically; negative does the
-     * reverse. `0` keeps the cells square.
+     * Perspective tilt of the grid, `-100`–`100`. Bends the flat plane into a
+     * receding surface so the dots bunch toward the far edge; the sign picks
+     * which edge tips away. `0` keeps the grid flat.
      */
     skew?: number
   }
@@ -38,13 +38,6 @@
 
     const dot = `radial-gradient(circle, color-mix(in srgb, ${color} 12%, transparent) 1px, transparent 1px)`
 
-    // Stretch one axis and pinch the other by an equal, opposite amount so the
-    // grid appears pulled in a direction while the mean cell size holds. `skew`
-    // is clamped to -100..100, mapped to a ±0.5 cell-size delta per axis.
-    const ratio = Math.max(-100, Math.min(100, skew)) / 200
-    const cellX = density * (1 + ratio)
-    const cellY = density * (1 - ratio)
-
     const layers = [dot]
     // Dots are centered in each cell; offset the lines by half a cell so they
     // cross through the dot centers, seating each dot on a grid intersection.
@@ -52,22 +45,34 @@
 
     if (lines > 0) {
       const line = `color-mix(in srgb, ${color} ${lines}%, transparent)`
-      const halfX = cellX / 2
-      const halfY = cellY / 2
+      const half = density / 2
       layers.push(
         `linear-gradient(to right, ${line} 1px, transparent 1px)`,
         `linear-gradient(to bottom, ${line} 1px, transparent 1px)`,
       )
-      positions.push(`${halfX}px ${halfY}px`, `${halfX}px ${halfY}px`)
+      positions.push(`${half}px ${half}px`, `${half}px ${half}px`)
     }
 
-    return {
+    const style: Record<string, string> = {
       maskImage: mask,
       WebkitMaskImage: mask,
       backgroundImage: layers.join(', '),
       backgroundPosition: positions.join(', '),
-      backgroundSize: `${cellX}px ${cellY}px`,
+      backgroundSize: `${density}px ${density}px`,
     }
+
+    // Perspective tilt: bend the flat plane into a receding surface so dots
+    // bunch toward the far edge (a sheet tipping away), rather than scaling
+    // every cell the same. `skew` (-100..100) maps to an X-axis rotation; the
+    // fixed perspective supplies the foreshortening and the scale keeps the
+    // tilted plane covering its box. 0 stays flat.
+    const tilt = Math.max(-100, Math.min(100, skew)) / 100
+    if (tilt !== 0) {
+      style.transform = `perspective(600px) rotateX(${tilt * 45}deg) scale(${1 + Math.abs(tilt) * 0.3})`
+      style.transformOrigin = 'center'
+    }
+
+    return style
   })
 </script>
 
