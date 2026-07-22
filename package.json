@@ -24,7 +24,7 @@
     "test:ssr": "vitest run --reporter=verbose hydration",
     "test:bench:json": "vitest bench --run --project v0:unit --maxWorkers=1 --no-file-parallelism --outputJson apps/docs/public/benchmarks.json",
     "bench": "vitest --reporter=default bench --project v0:unit --maxWorkers=1 --no-file-parallelism",
-    "metrics": "pnpm test:coverage && pnpm build:0 && pnpm metrics:bench && node scripts/generate-metrics.js",
+    "metrics": "pnpm exec vitest run --coverage --project v0:unit && pnpm build:0 && pnpm metrics:bench && node scripts/generate-metrics.js",
     "metrics:bench": "V0_BENCH_TARGET=dist node scripts/run-bench-stable.ts --runs 3 --out apps/docs/public/benchmarks.json",
     "metrics:history": "node scripts/generate-metrics-history.ts",
     "metrics:check": "node scripts/check-benchmark-artifacts.ts",
