@@ -135,3 +135,9 @@ overrides:
 peerDependencyRules:
   allowedVersions:
     vite: '8'
+
+allowBuilds:
+  '@parcel/watcher': true
+  core-js: true
+  esbuild: true
+  simple-git-hooks: true
