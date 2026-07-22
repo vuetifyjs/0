@@ -7,7 +7,13 @@
 
 <p align="center">
   <a href="https://codecov.io/github/vuetifyjs/0">
-    <img src="https://img.shields.io/codecov/c/github/vuetifyjs/0" alt="Coverage">
+    <!--
+      shields.io/codecov scrapes Codecov's graph/badge.svg, which has been stuck
+      on "unknown" for this repo even when API v2 repo totals are complete
+      (~99%). Point at the same Codecov numbers via the public API instead —
+      still their signal, not a self-hosted %.
+    -->
+    <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.codecov.io%2Fapi%2Fv2%2Fgithub%2Fvuetifyjs%2Frepos%2F0%2F&query=%24.totals.coverage&suffix=%25&label=coverage&color=brightgreen" alt="Coverage">
   </a>
   <a href="https://www.npmjs.com/package/@vuetify/v0">
     <img src="https://img.shields.io/npm/dt/@vuetify/v0.svg" alt="Downloads">
