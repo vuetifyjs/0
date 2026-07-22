@@ -1,9 +1,9 @@
 <script setup lang="ts">
   // Framework
-  import { IN_BROWSER, Atom, useNotifications } from '@vuetify/v0'
+  import { IN_BROWSER, Atom, useNotifications, useStorage } from '@vuetify/v0'
 
   // Utilities
-  import { onScopeDispose, shallowRef, toRef, watchEffect } from 'vue'
+  import { onScopeDispose, toRef, watchEffect } from 'vue'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
@@ -11,11 +11,15 @@
   const { as = 'header' } = defineProps<AtomProps>()
 
   const notifications = useNotifications()
+  const storage = useStorage()
 
-  // Seed banner notification (repla
-  if (!notifications.has('rc-banner')) {
+  // Bump BANNER_ID whenever the banner content changes — a new id re-shows the
+  // banner even for readers who dismissed the previous one.
+  const BANNER_ID = 'v1.0-live'
+
+  if (!notifications.has(BANNER_ID)) {
     notifications.register({
-      id: 'rc-banner',
+      id: BANNER_ID,
       subject: 'Vuetify0 v1.0 is here',
       severity: 'warning',
       data: { type: 'banner' },
@@ -26,11 +30,13 @@
     return notifications.values().find(n => n.data?.type === 'banner')
   })
 
-  const dismissed = shallowRef(false)
-  const visible = toRef(() => banner.value && !dismissed.value)
+  // Persist dismissal keyed to the banner id, so a dismissed banner stays closed
+  // across reloads until BANNER_ID changes.
+  const dismissedId = storage.get<string>('docs-banner-dismissed', '')
+  const visible = toRef(() => banner.value && dismissedId.value !== BANNER_ID)
 
   function onDismiss () {
-    dismissed.value = true
+    storage.set('docs-banner-dismissed', BANNER_ID)
   }
 
   // Sync banner height to CSS variable so AppBar, AppNav, and layouts can adapt
