@@ -242,7 +242,7 @@ Vuetify0 is already being merged into Vuetify's next major release. The first PR
 
 ### Road to v1
 
-**Alpha → Beta → Release Candidate → v1.0 (July 22, 2026)** — [see the full roadmap](/roadmap).
+**Alpha → Beta → Release Candidate → v1.0** — stable, shipped July 22, 2026. [See the full roadmap](/roadmap).
 
 What comes after v1: **Vuetify Paper** — a styled layer built on v0 that provides opinionated design system primitives. Emerald and Onyx are the first design systems. Build on v0 today; Paper gives you a head start on the styled layer when you're ready.
 

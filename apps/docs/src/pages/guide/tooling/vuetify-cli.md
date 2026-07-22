@@ -264,22 +264,22 @@ Print the release notes for a Vuetify package without leaving the terminal:
 pnpm dlx @vuetify/cli release-notes v0
 
 # A specific version
-pnpm dlx @vuetify/cli release-notes v0 --version 1.0.0-rc.9
+pnpm dlx @vuetify/cli release-notes v0 --version 1.0.0
 ```
 
 ```bash npm
 npx @vuetify/cli release-notes v0
-npx @vuetify/cli release-notes v0 --version 1.0.0-rc.9
+npx @vuetify/cli release-notes v0 --version 1.0.0
 ```
 
 ```bash yarn
 yarn dlx @vuetify/cli release-notes v0
-yarn dlx @vuetify/cli release-notes v0 --version 1.0.0-rc.9
+yarn dlx @vuetify/cli release-notes v0 --version 1.0.0
 ```
 
 ```bash bun
 bunx @vuetify/cli release-notes v0
-bunx @vuetify/cli release-notes v0 --version 1.0.0-rc.9
+bunx @vuetify/cli release-notes v0 --version 1.0.0
 ```
 
 :::
