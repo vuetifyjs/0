@@ -12,7 +12,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { buildItemBenchmarks, extractName } from './lib/benchmarks.ts'
+import { buildItemBenchmarks, dedupeBenchFiles, extractName } from './lib/benchmarks.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -73,8 +73,9 @@ function main () {
   if (existsSync(BENCHMARKS_PATH)) {
     console.log('Reading benchmark data...')
     const benchmarks = JSON.parse(readFileSync(BENCHMARKS_PATH, 'utf8'))
+    const files = dedupeBenchFiles(benchmarks.files || [])
 
-    for (const file of benchmarks.files || []) {
+    for (const file of files) {
       const name = extractName(file.filepath)
       if (!name) continue
 
