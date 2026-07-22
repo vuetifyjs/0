@@ -202,18 +202,6 @@ Select supports pre-selected values via `v-model` or `:model-value`. The `Select
 </template>
 ```
 
-### Custom Positioning
-
-Control dropdown placement with CSS anchor positioning props on Content:
-
-```vue
-<template>
-  <Select.Content position-area="top" position-try="flip-block">
-    <!-- Dropdown appears above the activator -->
-  </Select.Content>
-</template>
-```
-
 ### Data Attributes
 
 Style interactive states without slot props:
