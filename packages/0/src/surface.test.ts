@@ -44,7 +44,7 @@ const COMPONENTS = [
 ]
 
 const UTILITIES = [
-  'UNSAFE_KEYS', 'V0Error', 'apca', 'clamp', 'foreground', 'hexToRgb', 'instanceExists', 'instanceName', 'isArray', 'isBoolean', 'isElement', 'isFunction', 'isNaN', 'isNull', 'isNullOrUndefined', 'isNumber', 'isObject', 'isPrimitive', 'isString', 'isSymbol', 'isThenable', 'isUndefined', 'isV0Error', 'mergeDeep', 'range', 'resolveIds', 'resolveIndexes', 'rgbToHex', 'useId',
+  'UNSAFE_KEYS', 'V0Error', 'apca', 'clamp', 'foreground', 'getActiveElement', 'hexToRgb', 'instanceExists', 'instanceName', 'isArray', 'isBoolean', 'isElement', 'isFunction', 'isNaN', 'isNull', 'isNullOrUndefined', 'isNumber', 'isObject', 'isPrimitive', 'isString', 'isSymbol', 'isThenable', 'isUndefined', 'isV0Error', 'mergeDeep', 'range', 'resolveIds', 'resolveIndexes', 'rgbToHex', 'useId',
 ]
 
 describe('public surface', () => {

@@ -18,7 +18,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import { DragDropAdapter } from './adapter'
 
 // Utilities
-import { isNull } from '#v0/utilities'
+import { getActiveElement, isNull } from '#v0/utilities'
 
 // Types
 import type { DragType } from '../'
@@ -72,7 +72,7 @@ export class KeyboardAdapter<Z extends DragType = DragType> extends DragDropAdap
 
     // Arrow form so `this.locate` / `this.activate` / `this.step` resolve on the adapter instance.
     const onKeydown = (event: KeyboardEvent) => {
-      const focused = document.activeElement
+      const focused = getActiveElement()
       if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return
       if (isEditable(focused)) return
       const ticket = this.locate(focused, context)

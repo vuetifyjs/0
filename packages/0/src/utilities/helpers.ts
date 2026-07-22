@@ -177,6 +177,30 @@ export function isElement (item: unknown): item is Element {
 }
 
 /**
+ * Resolve the deepest focused element, piercing open shadow roots.
+ *
+ * `document.activeElement` returns the shadow *host* when focus is inside an
+ * open shadow root — walk down through open roots so focus/keyboard logic
+ * resolves the real focused element (e.g. a control inside a custom element).
+ * Returns the same value as `document.activeElement` in light DOM, and `null`
+ * under SSR. Closed shadow roots can't be traversed.
+ *
+ * @example
+ * ```ts
+ * const active = getActiveElement()
+ * ```
+ */
+/* #__NO_SIDE_EFFECTS__ */
+export function getActiveElement (): Element | null {
+  if (typeof document === 'undefined') return null
+  let active = document.activeElement
+  while (active?.shadowRoot?.activeElement) {
+    active = active.shadowRoot.activeElement
+  }
+  return active
+}
+
+/**
  * Checks if a value is null
  *
  * @param item The value to check
