@@ -13,12 +13,6 @@
     lines?: number
     /** Origin of the radial fade mask, e.g. `'bottom left'`. */
     origin?: string
-    /**
-     * Perspective tilt of the grid, `-100`–`100`. Bends the flat plane into a
-     * receding surface so the dots bunch toward the far edge; the sign picks
-     * which edge tips away. `0` keeps the grid flat.
-     */
-    skew?: number
   }
 </script>
 
@@ -29,7 +23,6 @@
     density = 20,
     lines = 0,
     origin = 'bottom left',
-    skew = 0,
   } = defineProps<GnDotGridProps>()
 
   const maskStyle = computed(() => {
@@ -53,26 +46,13 @@
       positions.push(`${half}px ${half}px`, `${half}px ${half}px`)
     }
 
-    const style: Record<string, string> = {
+    return {
       maskImage: mask,
       WebkitMaskImage: mask,
       backgroundImage: layers.join(', '),
       backgroundPosition: positions.join(', '),
       backgroundSize: `${density}px ${density}px`,
     }
-
-    // Perspective tilt: bend the flat plane into a receding surface so dots
-    // bunch toward the far edge (a sheet tipping away), rather than scaling
-    // every cell the same. `skew` (-100..100) maps to an X-axis rotation; the
-    // fixed perspective supplies the foreshortening and the scale keeps the
-    // tilted plane covering its box. 0 stays flat.
-    const tilt = Math.max(-100, Math.min(100, skew)) / 100
-    if (tilt !== 0) {
-      style.transform = `perspective(600px) rotateX(${tilt * 45}deg) scale(${1 + Math.abs(tilt) * 0.3})`
-      style.transformOrigin = 'center'
-    }
-
-    return style
   })
 </script>
 
