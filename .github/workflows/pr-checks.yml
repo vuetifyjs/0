@@ -50,8 +50,12 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
+          disable_search: true
           flags: unit
-          fail_ci_if_error: false
+          name: unit
+          slug: vuetifyjs/0
+          fail_ci_if_error: true
+          verbose: true
 
   # Component tests run in a real browser (Playwright/Chromium) and are kept in
   # their own job so a render/timing flake can't red the unit + coverage signal.
@@ -85,8 +89,44 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
+          disable_search: true
           flags: browser
-          fail_ci_if_error: false
+          name: browser
+          slug: vuetifyjs/0
+          fail_ci_if_error: true
+          verbose: true
+
+  # Upload success ≠ processed report. Codecov queues OK then sometimes leaves
+  # commit state/totals null (badge graph → "unknown"). Surface that here so we
+  # don't ship a green CI over a dark coverage signal. Non-blocking: processing
+  # can lag; the annotation is the loud signal until reports complete again.
+  codecov-health:
+    needs: [test, browser]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    steps:
+      - name: Poll Codecov commit report
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          url="https://api.codecov.io/api/v2/github/vuetifyjs/repos/0/commits/${SHA}"
+          echo "Polling $url"
+          state=""
+          coverage=""
+          for attempt in 1 2 3 4 5 6; do
+            body=$(curl -fsS "$url" || true)
+            state=$(printf '%s' "$body" | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("state") or "")' 2>/dev/null || true)
+            coverage=$(printf '%s' "$body" | python3 -c 'import sys,json; d=json.load(sys.stdin); t=d.get("totals") or {}; print(t.get("coverage") if isinstance(t, dict) else "")' 2>/dev/null || true)
+            echo "attempt=$attempt state=${state:-null} coverage=${coverage:-null}"
+            if [ -n "$state" ] && [ "$state" != "null" ] && [ -n "$coverage" ]; then
+              echo "Codecov report complete: state=$state coverage=$coverage"
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "::warning::Codecov upload queued but commit ${SHA} still has state/totals null after ~2m. Repo totals badge may be stale; check https://app.codecov.io/github/vuetifyjs/0/commit/${SHA}"
+          exit 0
 
   repo-integrity:
     needs: prepare
