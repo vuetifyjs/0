@@ -51,11 +51,13 @@
     const dotAlpha = toggle.isDark.value ? 0.16 : 0.2
     const lineAlpha = Math.max(0, intensity) / 100
 
-    const cx = w / 2
-    const cy = h / 2
-    // On-screen radius the projected unit sphere maps to; sized to the diagonal
-    // so a flat grid still reaches the corners.
-    const screenR = Math.hypot(w, h) / 2
+    // Pole anchored to the top-right corner (matching the flat grid's diagonal
+    // fade) so the sphere fans out across the viewport toward the bottom-left,
+    // rather than doming from the centre.
+    const cx = w
+    const cy = 0
+    // Full diagonal, so at max coverage the field reaches the far corner.
+    const screenR = Math.hypot(w, h)
 
     const t = Math.max(-100, Math.min(100, curvature)) / 100
     const amt = Math.abs(t)
@@ -89,13 +91,15 @@
 
     // Warped mesh — connecting lines between adjacent nodes read as the
     // curving latitude/longitude of a globe.
+    // Only the quadrant left-of and below the corner is on-screen (nx <= 0,
+    // ny >= 0), so iterate just that span instead of the full grid.
     if (lineAlpha > 0) {
       ctx.strokeStyle = ink
       ctx.lineWidth = 1
-      for (let i = -half; i <= half; i++) {
-        for (let j = -half; j <= half; j++) {
+      for (let i = -half; i <= 0; i++) {
+        for (let j = 0; j <= half; j++) {
           const a = project(i * density, j * density)
-          if (i < half) stroke(ctx, a, project((i + 1) * density, j * density), lineAlpha, amt)
+          if (i < 0) stroke(ctx, a, project((i + 1) * density, j * density), lineAlpha, amt)
           if (j < half) stroke(ctx, a, project(i * density, (j + 1) * density), lineAlpha, amt)
         }
       }
@@ -104,8 +108,8 @@
     // Dots — shrink and dim toward the rim so the field reads as a curved
     // surface, not a flat pattern.
     ctx.fillStyle = ink
-    for (let i = -half; i <= half; i++) {
-      for (let j = -half; j <= half; j++) {
+    for (let i = -half; i <= 0; i++) {
+      for (let j = 0; j <= half; j++) {
         const p = project(i * density, j * density)
         if (p.vignette <= 0) continue
         const depth = 1 - amt + p.depth * amt
