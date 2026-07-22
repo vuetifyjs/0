@@ -96,7 +96,7 @@ flowchart TD
 | `ceil()` | `() => void` | -- | Set to maximum |
 | `formatValue(v)` | `(value: number) => string` | -- | Format a number |
 | `parse(text)` | `(text: string) => number \| null` | -- | Parse text to number |
-| `commit()` | `() => void` | -- | Snap and optionally clamp |
+| `commit(next?)` | `(next?: number \| null) => void` | -- | Snap and optionally clamp |
 
 ## Examples
 
