@@ -29,7 +29,10 @@ import type { Ref } from 'vue'
 // MOCKS - Required for lifecycle-dependent code
 // =============================================================================
 
-vi.mock('#v0/composables/useResizeObserver', () => ({
+vi.mock('#v0/composables/useResizeObserver', async importOriginal => ({
+  // spread the real module so co-exports (e.g. useElementSize) survive the mock —
+  // a partial factory drops them and breaks any importer of that path
+  ...await importOriginal<typeof import('#v0/composables/useResizeObserver')>(),
   useResizeObserver: (target: Ref<HTMLElement | undefined>, callback: (entries: ResizeObserverEntry[]) => void) => {
     if (target.value) {
       callback([{
