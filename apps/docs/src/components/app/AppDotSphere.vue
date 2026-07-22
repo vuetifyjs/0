@@ -62,8 +62,12 @@
 
     const half = Math.ceil(screenR / density) + 1
     const gridR = half * density
-    const fadeStart = 0.35 + coverage / 100
-    const fadeEnd = fadeStart + 0.4
+    // Coverage (0..60 from the UI) sets how far the dome stays solid before it
+    // fades out — the radial analogue of the flat grid's fade distance. Mapped
+    // across most of the radius so the visible field clearly grows/shrinks
+    // rather than only nudging a faint outer band.
+    const edge = 0.3 + Math.max(0, Math.min(60, coverage)) / 60 * 0.95
+    const band = 0.18
 
     // Bend a flat node onto the sphere: distance from centre becomes an arc
     // angle, so equal grid steps compress toward the rim (a sheet wrapping over
@@ -79,7 +83,7 @@
       const x = cx + (nx / r) * rp * screenR
       const y = cy + (ny / r) * rp * screenR
       const d = Math.hypot(x - cx, y - cy) / screenR
-      const vignette = 1 - clamp01((d - fadeStart) / (fadeEnd - fadeStart))
+      const vignette = 1 - clamp01((d - (edge - band)) / band)
       return { x, y, depth: Math.cos(angle), vignette }
     }
 
