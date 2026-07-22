@@ -25,6 +25,7 @@ const BENCH_PATH = resolve(ROOT, 'apps/docs/public/benchmarks.json')
 
 const METRICS_PATHS = new Set([
   'apps/docs/public/benchmarks.json',
+  'apps/docs/public/coverage-badge.json',
   'apps/docs/src/data/metrics.json',
 ])
 

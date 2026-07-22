@@ -13,11 +13,13 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { buildItemBenchmarks, extractName } from './lib/benchmarks.ts'
+import { writeCoverageBadge } from './lib/coverage-badge.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
 
 const COVERAGE_PATH = resolve(ROOT, 'coverage/coverage-final.json')
+const COVERAGE_BADGE_PATH = resolve(ROOT, 'apps/docs/public/coverage-badge.json')
 const BENCHMARKS_PATH = resolve(ROOT, 'apps/docs/public/benchmarks.json')
 const OUTPUT_PATH = resolve(ROOT, 'apps/docs/src/data/metrics.json')
 
@@ -66,6 +68,14 @@ function main () {
       }
     }
     console.log(`  Processed ${Object.keys(metrics).length} items with coverage`)
+
+    // Self-hosted README badge (Codecov commit reports have been null since #663;
+    // uploads still queue, processing does not). Seeded JSON on master; metrics
+    // pipeline refreshes this each run.
+    const pct = writeCoverageBadge(coverage, COVERAGE_BADGE_PATH)
+    console.log(pct === null
+      ? '  No source coverage found — skipped coverage badge'
+      : `  Wrote coverage badge: ${pct}%`)
   } else {
     console.log('No coverage data found at', COVERAGE_PATH)
   }

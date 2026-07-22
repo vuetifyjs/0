@@ -6,8 +6,8 @@
 </div>
 
 <p align="center">
-  <a href="https://codecov.io/github/vuetifyjs/0">
-    <img src="https://img.shields.io/codecov/c/github/vuetifyjs/0" alt="Coverage">
+  <a href="https://github.com/vuetifyjs/0/actions/workflows/pr-checks.yml">
+    <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/vuetifyjs/0/master/apps/docs/public/coverage-badge.json" alt="Coverage">
   </a>
   <a href="https://www.npmjs.com/package/@vuetify/v0">
     <img src="https://img.shields.io/npm/dt/@vuetify/v0.svg" alt="Downloads">
