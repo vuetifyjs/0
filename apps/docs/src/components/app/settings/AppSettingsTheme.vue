@@ -169,7 +169,7 @@
             v-if="settings.showDotGrid.value"
             v-model="settings.dotGridSkew.value"
             class="ml-4"
-            description="Stretch and pinch the grid"
+            description="Tilt the grid into perspective"
             label="Skew"
             :max="100"
             :min="-100"

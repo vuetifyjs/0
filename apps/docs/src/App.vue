@@ -31,6 +31,16 @@
   const settings = useSettings()
   const route = useRoute()
 
+  // Dot-grid "Skew": tilt the flat grid into perspective so dots bunch toward
+  // the far edge (a sheet tipping away), rather than scaling every cell alike.
+  // -100..100 maps to an X-axis rotation; the scale keeps the tilted plane
+  // covering the viewport. Mirrors the GnDotGrid primitive's tilt math.
+  const dotTransform = toRef(() => {
+    const tilt = Math.max(-100, Math.min(100, settings.dotGridSkew.value)) / 100
+    if (!tilt) return 'none'
+    return `perspective(600px) rotateX(${tilt * 45}deg) scale(${1 + Math.abs(tilt) * 0.3})`
+  })
+
   watch(() => route.fullPath, (to, from) => {
     if (!IN_BROWSER) return
     if (to.includes('#') || history.state?.scroll) return
@@ -143,7 +153,7 @@
     class="app-shell min-h-screen text-on-background"
     :class="{ 'dot-grid': settings.showDotGrid.value }"
     :data-code-size="settings.codeSize.value"
-    :style="{ '--line-opacity': `${settings.dotGridIntensity.value}%`, '--dot-coverage': `${settings.dotGridCoverage.value}%`, '--dot-skew': settings.dotGridSkew.value }"
+    :style="{ '--line-opacity': `${settings.dotGridIntensity.value}%`, '--dot-coverage': `${settings.dotGridCoverage.value}%`, '--dot-transform': dotTransform }"
   >
     <a
       class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:start-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-on-primary focus:rounded"
@@ -218,13 +228,8 @@
       /* --line-opacity is set inline from the "Line intensity" setting (defaults to 0.85%). */
       /* --dot-coverage is set inline from the "Dot coverage" setting (defaults to 15%): the
          diagonal fade stays solid to that stop, then ramps to transparent 20% further out. */
-      /* --dot-skew is set inline from the "Skew" setting (unitless -100..100, defaults to 0):
-         stretch one axis and pinch the other by an equal, opposite amount so the mean 20px
-         cell holds. Mirrors the GnDotGrid primitive's skew math. */
-      --dot-cell-x: calc(20px * (1 + var(--dot-skew, 0) / 200));
-      --dot-cell-y: calc(20px * (1 - var(--dot-skew, 0) / 200));
-      --dot-half-x: calc(var(--dot-cell-x) / 2);
-      --dot-half-y: calc(var(--dot-cell-y) / 2);
+      /* --dot-transform is set inline from the "Skew" setting: a perspective tilt that bends
+         the flat grid into a receding surface. Defaults to none. Mirrors GnDotGrid's math. */
       content: '';
       position: absolute;
       top: 0;
@@ -237,8 +242,10 @@
         radial-gradient(circle, color-mix(in srgb, var(--v0-on-background) var(--dot-opacity), transparent) 1px, transparent 1px),
         linear-gradient(to right, color-mix(in srgb, var(--v0-on-background) var(--line-opacity, 0.85%), transparent) 1px, transparent 1px),
         linear-gradient(to bottom, color-mix(in srgb, var(--v0-on-background) var(--line-opacity, 0.85%), transparent) 1px, transparent 1px);
-      background-size: var(--dot-cell-x) var(--dot-cell-y);
-      background-position: 0 0, var(--dot-half-x) var(--dot-half-y), var(--dot-half-x) var(--dot-half-y);
+      background-size: 20px 20px;
+      background-position: 0 0, 10px 10px, 10px 10px;
+      transform: var(--dot-transform, none);
+      transform-origin: center;
       mask-image: linear-gradient(
         225deg,
         black 0%,
