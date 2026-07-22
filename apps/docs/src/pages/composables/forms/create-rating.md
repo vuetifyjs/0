@@ -61,7 +61,7 @@ Use `createRatingContext` to share a rating instance across a component tree:
 import { createRatingContext } from '@vuetify/v0'
 
 export const [useProductRating, provideProductRating, productRating] =
-  createRatingContext({ namespace: 'my:rating', max: 5 })
+  createRatingContext({ namespace: 'my:rating', size: 5 })
 
 // In parent component
 provideProductRating()
