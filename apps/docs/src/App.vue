@@ -143,7 +143,7 @@
     class="app-shell min-h-screen text-on-background"
     :class="{ 'dot-grid': settings.showDotGrid.value }"
     :data-code-size="settings.codeSize.value"
-    :style="{ '--line-opacity': `${settings.dotGridIntensity.value}%`, '--dot-coverage': `${settings.dotGridCoverage.value}%` }"
+    :style="{ '--line-opacity': `${settings.dotGridIntensity.value}%`, '--dot-coverage': `${settings.dotGridCoverage.value}%`, '--dot-skew': settings.dotGridSkew.value }"
   >
     <a
       class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:start-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-on-primary focus:rounded"
@@ -218,6 +218,13 @@
       /* --line-opacity is set inline from the "Line intensity" setting (defaults to 0.85%). */
       /* --dot-coverage is set inline from the "Dot coverage" setting (defaults to 15%): the
          diagonal fade stays solid to that stop, then ramps to transparent 20% further out. */
+      /* --dot-skew is set inline from the "Skew" setting (unitless -100..100, defaults to 0):
+         stretch one axis and pinch the other by an equal, opposite amount so the mean 20px
+         cell holds. Mirrors the GnDotGrid primitive's skew math. */
+      --dot-cell-x: calc(20px * (1 + var(--dot-skew, 0) / 200));
+      --dot-cell-y: calc(20px * (1 - var(--dot-skew, 0) / 200));
+      --dot-half-x: calc(var(--dot-cell-x) / 2);
+      --dot-half-y: calc(var(--dot-cell-y) / 2);
       content: '';
       position: absolute;
       top: 0;
@@ -230,8 +237,8 @@
         radial-gradient(circle, color-mix(in srgb, var(--v0-on-background) var(--dot-opacity), transparent) 1px, transparent 1px),
         linear-gradient(to right, color-mix(in srgb, var(--v0-on-background) var(--line-opacity, 0.85%), transparent) 1px, transparent 1px),
         linear-gradient(to bottom, color-mix(in srgb, var(--v0-on-background) var(--line-opacity, 0.85%), transparent) 1px, transparent 1px);
-      background-size: 20px 20px;
-      background-position: 0 0, 10px 10px, 10px 10px;
+      background-size: var(--dot-cell-x) var(--dot-cell-y);
+      background-position: 0 0, var(--dot-half-x) var(--dot-half-y), var(--dot-half-x) var(--dot-half-y);
       mask-image: linear-gradient(
         225deg,
         black 0%,

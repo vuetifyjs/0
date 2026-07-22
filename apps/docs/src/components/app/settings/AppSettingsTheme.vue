@@ -165,6 +165,24 @@
             </template>
           </AppSettingsSlider>
 
+          <AppSettingsSlider
+            v-if="settings.showDotGrid.value"
+            v-model="settings.dotGridSkew.value"
+            class="ml-4"
+            description="Stretch and pinch the grid"
+            label="Skew"
+            :max="100"
+            :min="-100"
+            :precision="0"
+            :step="5"
+          >
+            <template #preview>
+              <div class="relative h-20 rounded-md overflow-hidden border bg-background">
+                <AppDotGrid :coverage="0" :skew="settings.dotGridSkew.value" />
+              </div>
+            </template>
+          </AppSettingsSlider>
+
           <AppSettingsToggle
             v-model="settings.showMeshGrid.value"
             description="Colorful gradient background"
