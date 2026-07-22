@@ -44,7 +44,7 @@
     "size": "size-limit",
     "validate": "pnpm lint && pnpm typecheck && pnpm test:run",
     "changeset": "changeset",
-    "release": "pnpm build && changeset publish",
+    "release": "pnpm build && node scripts/changeset-publish.js",
     "release:prepare": "pnpm validate && pnpm build",
     "postinstall": "node apps/docs/build/generate-api-whitelist.ts && node scripts/init-dev.js",
     "prepare": "simple-git-hooks"
