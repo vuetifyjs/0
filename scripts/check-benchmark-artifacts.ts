@@ -49,11 +49,25 @@ function changedMetricsPaths (): string[] {
   }
 }
 
-function headSubject (): string {
+function commitSubjects (): string[] {
+  const base = process.env.GITHUB_BASE_REF
   try {
-    return execFileSync('git', ['log', '-1', '--pretty=%s'], { cwd: ROOT, encoding: 'utf8' }).trim()
+    // PR checks often land on a merge commit ("Merge …"); scan the whole
+    // base...HEAD range so a chore(bench)/regen subject still counts.
+    if (base) {
+      const out = execFileSync(
+        'git',
+        ['log', '--pretty=%s', `origin/${base}...HEAD`],
+        { cwd: ROOT, encoding: 'utf8' },
+      )
+      const list = out.split('\n').map(s => s.trim()).filter(Boolean)
+      if (list.length > 0) return list
+    }
+    return [
+      execFileSync('git', ['log', '-1', '--pretty=%s'], { cwd: ROOT, encoding: 'utf8' }).trim(),
+    ]
   } catch {
-    return ''
+    return []
   }
 }
 
@@ -75,20 +89,19 @@ function main (): void {
 
   const changed = changedMetricsPaths()
   if (changed.length > 0) {
-    const subject = headSubject()
+    const subjects = commitSubjects()
     const actor = process.env.GITHUB_ACTOR ?? ''
-    const allowed = REGEN_SUBJECT.test(subject)
+    const allowed = subjects.some(s => REGEN_SUBJECT.test(s) || /^chore\(bench\):/.test(s))
       || actor === 'github-actions[bot]'
       || process.env.ALLOW_METRICS_ARTIFACT_EDIT === '1'
-      // Path-normalization / stability tooling PRs touch the JSON without re-benching.
-      || /^chore\(bench\):/.test(subject)
 
     if (!allowed) {
       errors.push(
-        `Metrics artifacts changed on this PR without a metrics-regen commit:\n`
+        `Metrics artifacts changed on this PR without a metrics-regen / chore(bench) commit:\n`
         + changed.map(p => `  - ${p}`).join('\n')
-        + '\n\nOnly the metrics-regen workflow should update these files '
-        + '(commit subject: "chore: regenerate benchmark + history metrics").\n'
+        + `\n\nSubjects seen: ${subjects.map(s => JSON.stringify(s)).join(', ') || '(none)'}\n`
+        + 'Only metrics-regen ("chore: regenerate benchmark + history metrics") or '
+        + 'bench-tooling ("chore(bench): …") may touch these files.\n'
         + 'Feature PRs must not commit local `pnpm test:bench:json` / `pnpm metrics` output.\n'
         + 'To override intentionally: ALLOW_METRICS_ARTIFACT_EDIT=1 (rare; document why).',
       )
