@@ -98,9 +98,9 @@ Set `enroll` to auto-select the first registered tab. Useful when tabs are rende
 <template>
   <Tabs.Root enroll>
     <!-- First tab to register is automatically selected -->
-    <Tabs.Tab v-for="tab in dynamicTabs" :key="tab.id" :value="tab.id">
+    <Tabs.Item v-for="tab in dynamicTabs" :key="tab.id" :value="tab.id">
       {{ tab.label }}
-    </Tabs.Tab>
+    </Tabs.Item>
   </Tabs.Root>
 </template>
 ```
