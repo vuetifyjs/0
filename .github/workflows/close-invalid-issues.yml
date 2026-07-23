@@ -35,7 +35,7 @@ jobs:
             [issue creator](https://issues.vuetifyjs.com/?repo=vuetify0).
             Issues opened without it are closed automatically.
             For general questions, please join
-            [the Discord chat room](https://community.vuetifyjs.com). Thank you.
+            [the Discord chat room](https://discord.gg/vuetify). Thank you.
         run: |
           gh issue comment "$NUMBER" --repo "$REPO" --body "$COMMENT"
           gh issue edit "$NUMBER" --repo "$REPO" --add-label invalid

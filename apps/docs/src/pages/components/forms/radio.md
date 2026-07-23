@@ -40,6 +40,7 @@ A radio button for single-selection groups with roving focus and shared v-model 
   <Radio.Group>
     <Radio.Root>
       <Radio.Indicator />
+
       <Radio.HiddenInput />
     </Radio.Root>
   </Radio.Group>

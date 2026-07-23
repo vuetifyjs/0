@@ -124,7 +124,7 @@ Providers that require plugin setup (`locale`, `scrim`) prepend an optional **In
 | Section | Component pages | Composable pages |
 |---------|----------------|-----------------|
 | **Usage** | `::: gn-example` with `basic` (no extension, peek — strip inline heading/description) **or** code fence + prose when the page needs explanatory text before the demo [intent:302] | `` ```ts collapse `` `` code fence [intent:302] |
-| **Anatomy** | `` ```vue Anatomy no-filename `` `` — `<script setup>` import + bare compound skeleton (Root + one of each named child, no props) [intent:345] | — |
+| **Anatomy** | `` ```vue Anatomy no-filename `` `` — `<script setup>` import + bare compound skeleton (Root + one of each named child, no props). Separate every pair of adjacent same-level siblings with one blank line for visual scanning; an only-child gets none [intent:345] | — |
 | **Examples** | `::: gn-example` with 2+ files [intent:304] | `::: gn-example` with 2+ files [intent:304] |
 | **Recipes** | Code fence or single-file `::: gn-example` [intent:303] | Code fence or single-file `::: gn-example` [intent:303] |
 

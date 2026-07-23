@@ -16,17 +16,95 @@ export interface ResolvedFeature {
 }
 
 /**
- * Roadmap bucket membership, keyed by GitHub milestone title. Values are
- * `maturity.json` keys. This overlay is the single place to move a feature
- * between milestones — `maturity.json` stays the stability source of truth and
- * is never edited for planning. Unknown ids are surfaced by `auditBuckets()`.
+ * A planned release: the date we expect to ship it, the net-new features
+ * arriving in it (draft → preview), and the existing preview features we
+ * expect to graduate to stable as of that release.
  */
-export const ROADMAP_BUCKETS: Record<string, string[]> = {
-  'v1.1.0': ['DataTable', 'DataGrid', 'Alert'],
-  'v1.2.0': ['Tour'],
-  'v1.3.0': ['Virtualizer', 'Kanban', 'Otp'],
-  'v1.4.0': ['TimePicker'],
-  'v1.5.0': ['DatePicker', 'DateRangePicker'],
+export interface ReleaseBucket {
+  /** Expected release date, ISO `YYYY-MM-DD` (parsed locally for the calendar grid). */
+  date: string
+  /** Net-new features landing in this release (draft → preview). */
+  features: string[]
+  /** Existing preview features graduating to stable in this release. */
+  stabilizing?: string[]
+}
+
+/**
+ * Roadmap bucket membership, keyed by GitHub milestone title. `features` and
+ * `stabilizing` values are `maturity.json` keys. This overlay is the single
+ * place to move a feature between milestones — `maturity.json` stays the
+ * stability source of truth and is never edited for planning. Unknown ids are
+ * surfaced by `auditBuckets()`.
+ *
+ * Dates are the published expected minor-release targets; the date a feature is
+ * expected to reach stable falls out of the release it is listed under. Both
+ * are strategic targets, not hard commitments — see the disclaimer rendered
+ * under the calendar.
+ */
+export const ROADMAP_BUCKETS: Record<string, ReleaseBucket> = {
+  'v1.0.0': {
+    date: '2026-07-22',
+    features: [],
+    // The v1 stable set locked at launch — the 16 composables promoted to stable.
+    // (The 17 stable utilities are also locked here; omitted from the calendar as
+    // low-signal chips that all resolve to the same utilities page.)
+    stabilizing: [
+      'createContext', 'createPlugin', 'createTrinity', 'createRegistry', 'createModel',
+      'createSelection', 'createSingle', 'createStep', 'createGroup', 'createNested',
+      'useBreakpoints', 'useStorage', 'useTheme', 'useIntersectionObserver',
+      'useMutationObserver', 'useResizeObserver',
+    ],
+  },
+  'v1.1.0': {
+    date: '2026-08-25',
+    features: ['DataTable', 'DataGrid', 'Alert'],
+    stabilizing: [],
+  },
+  'v1.2.0': {
+    date: '2026-09-22',
+    features: ['Tour'],
+    stabilizing: [
+      'createValidation', 'createForm', 'createInput', 'usePopover', 'usePresence',
+      'useRovingFocus', 'useVirtualFocus', 'createFilter', 'createPagination', 'useRtl',
+      'useLocale', 'useStack',
+      'Single', 'Step', 'Selection', 'Group', 'Theme', 'Locale', 'Scrim',
+    ],
+  },
+  'v1.3.0': {
+    date: '2026-10-20',
+    features: ['Virtualizer', 'Kanban', 'Otp'],
+    stabilizing: [
+      'useClickOutside', 'useEventListener', 'useHotkey', 'useMediaQuery', 'useToggleScope',
+      'useRaf', 'useTimer', 'useProxyModel', 'useProxyRegistry', 'toArray', 'toElement',
+      'toReactive', 'useDelay', 'useHydration',
+    ],
+  },
+  'v1.4.0': {
+    date: '2026-11-17',
+    features: ['TimePicker'],
+    stabilizing: [
+      'createSlider', 'createNumeric', 'createNumberField', 'createProgress', 'createRating',
+      'createBreadcrumbs', 'createOverflow',
+      'Slider', 'NumberField', 'Radio', 'Checkbox', 'Switch', 'Rating', 'Progress',
+      'Form', 'Input',
+    ],
+  },
+  'v1.5.0': {
+    date: '2026-12-15',
+    features: ['DatePicker', 'DateRangePicker'],
+    stabilizing: [
+      'Dialog', 'Popover', 'Tabs', 'AlertDialog', 'Collapsible', 'ExpansionPanel',
+      'Treeview', 'Avatar', 'Pagination', 'Splitter', 'Select',
+    ],
+  },
+}
+
+/** A release with its bucket ids resolved to maturity-backed features. */
+export interface ResolvedRelease {
+  title: string
+  date: string
+  features: ResolvedFeature[]
+  stabilizing: ResolvedFeature[]
 }
 
 function kebab (name: string): string {
@@ -67,13 +145,12 @@ for (const [name, entry] of Object.entries(data.utilities)) {
     type: 'utility',
     category: entry.category,
     level: entry.level,
-    path: '/utilities',
+    path: '/guide/features/utilities',
   })
 }
 
-/** Resolve a milestone title's bucket into its maturity-backed features. */
-export function featuresFor (title: string): ResolvedFeature[] {
-  const ids = ROADMAP_BUCKETS[title]
+/** Resolve a list of bucket ids into their maturity-backed features. */
+function resolve (ids: string[] | undefined): ResolvedFeature[] {
   if (!ids) return []
 
   const result: ResolvedFeature[] = []
@@ -84,11 +161,41 @@ export function featuresFor (title: string): ResolvedFeature[] {
   return result
 }
 
+/** Resolve a milestone title's net-new features. */
+export function featuresFor (title: string): ResolvedFeature[] {
+  return resolve(ROADMAP_BUCKETS[title]?.features)
+}
+
+/** Resolve a milestone title's stabilizing (preview → stable) features. */
+export function stabilizingFor (title: string): ResolvedFeature[] {
+  return resolve(ROADMAP_BUCKETS[title]?.stabilizing)
+}
+
+/**
+ * Resolve a milestone title's expected release date. This is the published
+ * calendar's single source of truth for dates — the roadmap store overlays it
+ * so both the calendar and the milestone list render the same value, rather
+ * than the calendar reading the constant and the list reading GitHub `due_on`.
+ */
+export function dateFor (title: string): string | undefined {
+  return ROADMAP_BUCKETS[title]?.date
+}
+
+/** Ordered, fully resolved releases for the release-calendar view. */
+export function releases (): ResolvedRelease[] {
+  return Object.entries(ROADMAP_BUCKETS).map(([title, bucket]) => ({
+    title,
+    date: bucket.date,
+    features: resolve(bucket.features),
+    stabilizing: resolve(bucket.stabilizing),
+  }))
+}
+
 /** Bucket ids that no longer resolve against maturity.json (typos, renames). */
 export function auditBuckets (): string[] {
   const unknown: string[] = []
-  for (const [title, ids] of Object.entries(ROADMAP_BUCKETS)) {
-    for (const id of ids) {
+  for (const [title, bucket] of Object.entries(ROADMAP_BUCKETS)) {
+    for (const id of [...bucket.features, ...(bucket.stabilizing ?? [])]) {
       if (!index.has(id)) unknown.push(`${title}:${id}`)
     }
   }

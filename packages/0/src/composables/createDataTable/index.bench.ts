@@ -3,7 +3,14 @@
  *
  * Structure:
  * - READ-ONLY operations use shared fixtures (safe - lookups, computed access)
- * - MUTATION operations create fresh fixtures per iteration (sort toggle, search, selection)
+ * - WARM operations (search, sort, select, full pipeline, adapters) share a
+ *   populated table and reset only the pipeline's own state (search(''),
+ *   sort.reset(), selection.unselectAll()) at the top of the timed block, so
+ *   the O(n) onboard is paid once at setup, never per iteration. Each reset
+ *   dirties the derived computed so the following read recomputes real work.
+ * - FRESH fixtures only where the populate IS the op (initialization, create
+ *   with openAll) or where a shared read would hit the memo cache (Compute
+ *   groups — the `groups` computed only recomputes on input change).
  * - Tests both 1,000 and 10,000 item datasets
  * - Categories: initialization, search pipeline, sort pipeline, selection operations,
  *   grouping, computed access, adapter comparison
@@ -120,143 +127,164 @@ describe('createDataTable benchmarks', () => {
 
   // ===========================================================================
   // SEARCH PIPELINE - Filter stage of the data pipeline
-  // Fresh fixture per iteration (required - search() mutates query ref)
-  // Measures: filter computation triggered by search query change
+  // WARM: shared populated table; reset the query with search('') then run the
+  // search. filteredItems recomputes because the query changed, so the read
+  // times a real filter pass over all items — never the onboard.
   // ===========================================================================
   describe('search pipeline', () => {
+    const search1k = createTable({ items: ROWS_1K })
+    const search10k = createTable({ items: ROWS_10K })
+    const searchFilter1k = createTable({ items: ROWS_1K, columns: COLUMNS_WITH_FILTER })
+    const searchFilter10k = createTable({ items: ROWS_10K, columns: COLUMNS_WITH_FILTER })
+
     bench('Search then read filtered items (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K })
-      table.search(SEARCH_QUERY_1K)
-      void table.filteredItems.value
+      search1k.search('')
+      search1k.search(SEARCH_QUERY_1K)
+      void search1k.filteredItems.value
     })
 
     bench('Search then read filtered items (10,000 items)', () => {
-      const table = createTable({ items: ROWS_10K })
-      table.search(SEARCH_QUERY_10K)
-      void table.filteredItems.value
+      search10k.search('')
+      search10k.search(SEARCH_QUERY_10K)
+      void search10k.filteredItems.value
     })
 
     bench('Search with custom column filter (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K, columns: COLUMNS_WITH_FILTER })
-      table.search('user 5')
-      void table.filteredItems.value
+      searchFilter1k.search('')
+      searchFilter1k.search('user 5')
+      void searchFilter1k.filteredItems.value
     })
 
     bench('Search with custom column filter (10,000 items)', () => {
-      const table = createTable({ items: ROWS_10K, columns: COLUMNS_WITH_FILTER })
-      table.search('user 5')
-      void table.filteredItems.value
+      searchFilter10k.search('')
+      searchFilter10k.search('user 5')
+      void searchFilter10k.filteredItems.value
     })
 
     bench('Update search 10 times (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K })
+      search1k.search('')
       for (let i = 0; i < 10; i++) {
-        table.search(`User ${500 + i}`)
-        void table.items.value
+        search1k.search(`User ${500 + i}`)
+        void search1k.items.value
       }
     })
   })
 
   // ===========================================================================
   // SORT PIPELINE - Sort stage including localeCompare and custom comparators
-  // Fresh fixture per iteration (required - toggle() mutates sort state)
-  // Measures: sort computation triggered by column toggle
+  // WARM: shared populated table; sort.reset() clears the sort group (dirtying
+  // sortedItems), then toggle() re-sorts, so the read times a real sort pass.
+  // Empty query on these fixtures means the full N rows are sorted every time.
   // ===========================================================================
   describe('sort pipeline', () => {
+    const sort1k = createTable({ items: ROWS_1K })
+    const sort10k = createTable({ items: ROWS_10K })
+    const sortMulti1k = createTable({ items: ROWS_1K, sortMultiple: true })
+    const sortMulti10k = createTable({ items: ROWS_10K, sortMultiple: true })
+
     bench('Sort by string column ascending (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K })
-      table.sort.toggle('name')
-      void table.sortedItems.value
+      sort1k.sort.reset()
+      sort1k.sort.toggle('name')
+      void sort1k.sortedItems.value
     })
 
     bench('Sort by string column ascending (10,000 items)', () => {
-      const table = createTable({ items: ROWS_10K })
-      table.sort.toggle('name')
-      void table.sortedItems.value
+      sort10k.sort.reset()
+      sort10k.sort.toggle('name')
+      void sort10k.sortedItems.value
     })
 
     bench('Sort by custom comparator (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K })
-      table.sort.toggle('salary')
-      void table.sortedItems.value
+      sort1k.sort.reset()
+      sort1k.sort.toggle('salary')
+      void sort1k.sortedItems.value
     })
 
     bench('Sort by custom comparator (10,000 items)', () => {
-      const table = createTable({ items: ROWS_10K })
-      table.sort.toggle('salary')
-      void table.sortedItems.value
+      sort10k.sort.reset()
+      sort10k.sort.toggle('salary')
+      void sort10k.sortedItems.value
     })
 
     bench('Multi-sort two columns (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K, sortMultiple: true })
-      table.sort.toggle('department')
-      table.sort.toggle('name')
-      void table.sortedItems.value
+      sortMulti1k.sort.reset()
+      sortMulti1k.sort.toggle('department')
+      sortMulti1k.sort.toggle('name')
+      void sortMulti1k.sortedItems.value
     })
 
     bench('Multi-sort two columns (10,000 items)', () => {
-      const table = createTable({ items: ROWS_10K, sortMultiple: true })
-      table.sort.toggle('department')
-      table.sort.toggle('name')
-      void table.sortedItems.value
+      sortMulti10k.sort.reset()
+      sortMulti10k.sort.toggle('department')
+      sortMulti10k.sort.toggle('name')
+      void sortMulti10k.sortedItems.value
     })
 
     bench('Toggle sort cycle 3 times (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K })
-      table.sort.toggle('name') // asc
-      void table.sortedItems.value
-      table.sort.toggle('name') // desc
-      void table.sortedItems.value
-      table.sort.toggle('name') // none
-      void table.sortedItems.value
+      sort1k.sort.reset()
+      sort1k.sort.toggle('name') // asc
+      void sort1k.sortedItems.value
+      sort1k.sort.toggle('name') // desc
+      void sort1k.sortedItems.value
+      sort1k.sort.toggle('name') // none
+      void sort1k.sortedItems.value
     })
   })
 
   // ===========================================================================
   // SELECTION OPERATIONS - Set-based selection with strategy scoping
-  // Fresh fixture per iteration (required - selection mutates Set state)
-  // Measures: selection operations including itemSelectable checks
+  // WARM: shared populated table; unselectAll() returns the Set to empty before
+  // each op, so every iteration measures the same selection work (no drift).
   // ===========================================================================
   describe('selection operations', () => {
+    const selSingle1k = createTable({ items: ROWS_1K })
+    const selAll1k = createTable({ items: ROWS_1K, selectStrategy: 'all' })
+    const selAll10k = createTable({ items: ROWS_10K, selectStrategy: 'all' })
+    const selActive1k = createTable({ items: ROWS_1K, selectStrategy: 'all', itemSelectable: 'active' })
+
     bench('Select single item (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K })
-      table.selection.select(500)
+      selSingle1k.selection.unselectAll()
+      selSingle1k.selection.select(500)
     })
 
     bench('Select all items (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K, selectStrategy: 'all' })
-      table.selection.selectAll()
+      selAll1k.selection.unselectAll()
+      selAll1k.selection.selectAll()
     })
 
     bench('Select all items (10,000 items)', () => {
-      const table = createTable({ items: ROWS_10K, selectStrategy: 'all' })
-      table.selection.selectAll()
+      selAll10k.selection.unselectAll()
+      selAll10k.selection.selectAll()
     })
 
     bench('Select all with itemSelectable (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K, selectStrategy: 'all', itemSelectable: 'active' })
-      table.selection.selectAll()
+      selActive1k.selection.unselectAll()
+      selActive1k.selection.selectAll()
     })
 
     bench('Toggle all then check isAllSelected (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K, selectStrategy: 'all' })
-      table.selection.toggleAll()
-      void table.selection.isAllSelected.value
-      void table.selection.isMixed.value
+      selAll1k.selection.unselectAll()
+      selAll1k.selection.toggleAll()
+      void selAll1k.selection.isAllSelected.value
+      void selAll1k.selection.isMixed.value
     })
 
     bench('Toggle 100 individual rows (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K, selectStrategy: 'all' })
+      selAll1k.selection.unselectAll()
       for (let i = 0; i < 100; i++) {
-        table.selection.toggle(i)
+        selAll1k.selection.toggle(i)
       }
     })
   })
 
   // ===========================================================================
   // GROUPING - Computed group derivation from sorted items
-  // Shared fixture for read-only group access, fresh for open/close mutations
-  // Measures: group computation cost and open/close state management
+  // Compute groups stays FRESH: the `groups` computed only recomputes when its
+  // inputs (sorted items / groupBy) change, so a shared fixture would read a
+  // cache hit (~0) and hide the very derivation being benchmarked — fresh
+  // construction is the only honest recompute trigger. Open/close is WARM
+  // (self-inverting on a shared fixture); Create-with-openAll is FRESH because
+  // the eager group expansion at construction IS the measured op.
   // ===========================================================================
   describe('grouping', () => {
     bench('Compute groups (1,000 items, 8 groups)', () => {
@@ -269,11 +297,12 @@ describe('createDataTable benchmarks', () => {
       void table.grouping.groups.value
     })
 
+    const group1k = createTable({ items: ROWS_1K, groupBy: 'department' })
+
     bench('Open all then close all groups (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K, groupBy: 'department' })
-      void table.grouping.groups.value
-      table.grouping.openAll()
-      table.grouping.closeAll()
+      void group1k.grouping.groups.value
+      group1k.grouping.openAll()
+      group1k.grouping.closeAll()
     })
 
     bench('Create with openAll (1,000 items)', () => {
@@ -318,77 +347,85 @@ describe('createDataTable benchmarks', () => {
 
   // ===========================================================================
   // FULL PIPELINE - End-to-end search → sort → paginate
-  // Fresh fixture per iteration (required - mutates search and sort state)
-  // Measures: combined pipeline cost for realistic usage
+  // WARM: shared paginated table; reset search + sort at the top so each
+  // iteration runs the whole pipeline from the same clean state and the read
+  // recomputes real work. Onboard is paid once at setup.
   // ===========================================================================
   describe('full pipeline', () => {
+    const full1k = createTable({ items: ROWS_1K, pagination: { itemsPerPage: 25 } })
+    const full10k = createTable({ items: ROWS_10K, pagination: { itemsPerPage: 25 } })
+    const fullMulti1k = createTable({ items: ROWS_1K, sortMultiple: true, pagination: { itemsPerPage: 25 } })
+
     bench('Search + sort + paginate (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K, pagination: { itemsPerPage: 25 } })
-      table.search('User 5')
-      table.sort.toggle('name')
-      void table.items.value
+      full1k.search('')
+      full1k.sort.reset()
+      full1k.search('User 5')
+      full1k.sort.toggle('name')
+      void full1k.items.value
     })
 
     bench('Search + sort + paginate (10,000 items)', () => {
-      const table = createTable({ items: ROWS_10K, pagination: { itemsPerPage: 25 } })
-      table.search('User 5')
-      table.sort.toggle('name')
-      void table.items.value
+      full10k.search('')
+      full10k.sort.reset()
+      full10k.search('User 5')
+      full10k.sort.toggle('name')
+      void full10k.items.value
     })
 
     bench('Search + multi-sort + paginate (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K, sortMultiple: true, pagination: { itemsPerPage: 25 } })
-      table.search('User')
-      table.sort.toggle('department')
-      table.sort.toggle('salary')
-      void table.items.value
+      fullMulti1k.search('')
+      fullMulti1k.sort.reset()
+      fullMulti1k.search('User')
+      fullMulti1k.sort.toggle('department')
+      fullMulti1k.sort.toggle('salary')
+      void fullMulti1k.items.value
     })
   })
 
   // ===========================================================================
   // ADAPTER COMPARISON - ClientDataTableAdapter vs VirtualDataTableAdapter pipeline cost
-  // Fresh fixture per iteration (required - sort/search mutations)
-  // Measures: adapter-specific overhead for same dataset
+  // WARM: one shared table per adapter; reset search + sort at the top so the
+  // measured cost is the adapter's pipeline work, not the onboard.
   // ===========================================================================
   describe('adapter comparison', () => {
+    const client10k = createTable({
+      items: ROWS_10K,
+      adapter: new ClientDataTableAdapter<BenchmarkRow>(),
+      pagination: { itemsPerPage: 25 },
+    })
+    const virtual10k = createTable({
+      items: ROWS_10K,
+      adapter: new VirtualDataTableAdapter<BenchmarkRow>(),
+    })
+
     bench('ClientDataTableAdapter: sort + paginate (10,000 items)', () => {
-      const table = createTable({
-        items: ROWS_10K,
-        adapter: new ClientDataTableAdapter<BenchmarkRow>(),
-        pagination: { itemsPerPage: 25 },
-      })
-      table.sort.toggle('name')
-      void table.items.value
+      client10k.search('')
+      client10k.sort.reset()
+      client10k.sort.toggle('name')
+      void client10k.items.value
     })
 
     bench('VirtualDataTableAdapter: sort, no pagination (10,000 items)', () => {
-      const table = createTable({
-        items: ROWS_10K,
-        adapter: new VirtualDataTableAdapter<BenchmarkRow>(),
-      })
-      table.sort.toggle('name')
-      void table.items.value
+      virtual10k.search('')
+      virtual10k.sort.reset()
+      virtual10k.sort.toggle('name')
+      void virtual10k.items.value
     })
 
     bench('ClientDataTableAdapter: full pipeline (10,000 items)', () => {
-      const table = createTable({
-        items: ROWS_10K,
-        adapter: new ClientDataTableAdapter<BenchmarkRow>(),
-        pagination: { itemsPerPage: 25 },
-      })
-      table.search('User 5')
-      table.sort.toggle('name')
-      void table.items.value
+      client10k.search('')
+      client10k.sort.reset()
+      client10k.search('User 5')
+      client10k.sort.toggle('name')
+      void client10k.items.value
     })
 
     bench('VirtualDataTableAdapter: full pipeline (10,000 items)', () => {
-      const table = createTable({
-        items: ROWS_10K,
-        adapter: new VirtualDataTableAdapter<BenchmarkRow>(),
-      })
-      table.search('User 5')
-      table.sort.toggle('name')
-      void table.items.value
+      virtual10k.search('')
+      virtual10k.sort.reset()
+      virtual10k.search('User 5')
+      virtual10k.sort.toggle('name')
+      void virtual10k.items.value
     })
   })
 })

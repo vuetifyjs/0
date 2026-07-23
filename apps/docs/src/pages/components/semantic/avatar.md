@@ -41,14 +41,17 @@ The Avatar component provides a robust image loading system with automatic fallb
 <template>
   <Avatar.Root>
     <Avatar.Image />
+
     <Avatar.Fallback />
   </Avatar.Root>
 
   <Avatar.Group>
     <Avatar.Root>
       <Avatar.Image />
+
       <Avatar.Fallback />
     </Avatar.Root>
+
     <Avatar.Indicator />
   </Avatar.Group>
 </template>
@@ -139,6 +142,26 @@ The data lives in a separate module so the component stays focused on compositio
 | `team.vue` | Panel UI — labelled `Avatar.Group` with hover tooltips on every avatar and the `+N` chip |
 
 :::
+
+## Accessibility
+
+Avatar is presentational — it renders an image with a text or icon fallback and ships no interactive roles or keyboard behavior. Its accessibility surface is about naming the image and announcing group truncation:
+
+- `Avatar.Image` renders an `<img>` with `role="img"` and forwards the `alt` prop as its accessible name. Pass `alt` with a meaningful description (for example the person's name) for identifying avatars; pass `alt=""` for purely decorative avatars so screen readers skip them.
+- `Avatar.Fallback` renders the initials or icon shown when no image loads. Use readable initials so identity is still conveyed when the image is unavailable.
+- `Avatar.Group` renders `role="group"` and accepts a `label` (mapped to `aria-label`), `ariaLabelledby`, and `ariaDescribedby` so the collection has an accessible name.
+- `Avatar.Indicator` (the `+N` overflow chip) renders `aria-live="polite"` and a localized `aria-label` (`"+N more"`, via the `Avatar.indicatorLabel` key) so the hidden count is announced when it changes.
+- Avatars hidden by `Avatar.Group` truncation are marked `aria-hidden`, removing them from the accessibility tree while the group reports the remainder through the indicator.
+
+For custom markup, use `renderless` mode and bind the `attrs` slot prop to preserve these attributes:
+
+```vue
+<template>
+  <Avatar.Image v-slot="{ attrs }" src="/avatar.jpg" alt="Jane Doe" renderless>
+    <img v-bind="attrs">
+  </Avatar.Image>
+</template>
+```
 
 ## FAQ
 

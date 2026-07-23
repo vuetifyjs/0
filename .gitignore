@@ -48,7 +48,13 @@ apps/docs/build/generated/
 .claude/plans/
 .claude/specs/
 .claude/scheduled_tasks.lock
+
+# Grok
+.grok
 .playwright-mcp/
 .superpowers/
 .worktrees/
 /docs/
+
+# Grok
+.grok/worktrees/

@@ -25,7 +25,7 @@ A component for creating accessible tabbed interfaces with proper ARIA support a
 
 ## Usage
 
-The Tabs component provides a compound pattern for building accessible tab interfaces. It uses the `createStep` composable internally for navigation and provides full v-model support with automatic state synchronization.
+Organize content into panels that share the same space, showing one at a time. Bind `v-model` to track the active tab and switch panels declaratively.
 
 ::: gn-example
 /components/tabs/basic
@@ -98,9 +98,9 @@ Set `enroll` to auto-select the first registered tab. Useful when tabs are rende
 <template>
   <Tabs.Root enroll>
     <!-- First tab to register is automatically selected -->
-    <Tabs.Tab v-for="tab in dynamicTabs" :key="tab.id" :value="tab.id">
+    <Tabs.Item v-for="tab in dynamicTabs" :key="tab.id" :value="tab.id">
       {{ tab.label }}
-    </Tabs.Tab>
+    </Tabs.Item>
   </Tabs.Root>
 </template>
 ```

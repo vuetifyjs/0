@@ -27,7 +27,7 @@ Reactive value store that wraps a ref with two-way selection binding.
 
 `createModel` stores a reactive value. Register a ref and `useProxyModel` keeps it synced — the same idea as `defineModel` but built on the registry pattern.
 
-```ts
+```ts collapse
 import { shallowRef } from 'vue'
 import { createModel, useProxyModel } from '@vuetify/v0'
 

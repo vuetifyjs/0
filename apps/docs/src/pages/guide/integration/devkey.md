@@ -7,7 +7,7 @@ meta:
   - name: keywords
     content: vuetify0, devkey, starter, example project, vue 3, vite, typescript, unocss, scaffold, alpha
 features:
-  order: 0
+  order: 1
   label: 'DevKey'
   level: 1
 related:

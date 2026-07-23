@@ -17,6 +17,7 @@
 
   // Composables
   import { useDocumentEventListener } from '#v0/composables/useEventListener'
+  import { useLocale } from '#v0/composables/useLocale'
   import { useRaf } from '#v0/composables/useRaf'
   import { useToggleScope } from '#v0/composables/useToggleScope'
 
@@ -85,6 +86,7 @@
   const ARROW_STEP = 1
   const PAGE_STEP = 10
 
+  const locale = useLocale()
   const splitter = useSplitterRoot()
   const ticket = splitter.handles.register()
 
@@ -280,7 +282,7 @@
       'aria-valuemax': valuemax.value,
       'aria-orientation': ariaOrientation.value,
       'aria-controls': ariaControls.value,
-      'aria-label': label || undefined,
+      'aria-label': label || (locale.ti('Splitter.handle') ?? 'Resize'),
       'aria-disabled': isDisabled.value,
       'data-state': state.value,
       'data-orientation': splitter.orientation.value,

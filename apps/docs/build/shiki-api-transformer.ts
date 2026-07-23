@@ -11,8 +11,10 @@
 
 // Auto-generated whitelists from packages/0/src/
 import { V0_COMPONENTS, V0_COMPOSABLES, V0_COMPOSABLE_TO_DIR } from './generated/api-whitelist'
-// Vue API content - import only keys for build-time detection
-import { VUE_API_CONTENT } from './vue-api-content'
+// Vue API names only — the heavy content in vue-api-content.ts stays
+// dynamically imported (DocsApiHover, hover-time) so it doesn't ride along in
+// the client bundle this transformer is part of.
+import { VUE_API_NAMES as VUE_API_NAME_LIST } from './vue-api-names'
 
 // Types
 import type { ShikiTransformer } from 'shiki'
@@ -31,7 +33,7 @@ const TRINITY_RETURNS: Record<string, string> = {
 
 // Vue API names derived from vue-api-content.ts
 // Used for build-time detection of Vue functions in code
-const VUE_API_NAMES = new Set(Object.keys(VUE_API_CONTENT))
+const VUE_API_NAMES = new Set<string>(VUE_API_NAME_LIST)
 
 /**
  * Maps composable names to their canonical API page (directory name).
@@ -199,5 +201,3 @@ export function renderV0ApiInlineCode (
 
 // Export for use in markdown.ts inline code processing
 export { VUE_API_NAMES }
-
-export { VUE_API_CONTENT } from './vue-api-content'

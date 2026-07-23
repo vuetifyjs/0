@@ -7,6 +7,9 @@
  * NOTE: This module is imported client-side, so no Node.js APIs allowed.
  */
 
+// Types
+import type { VueApiName } from './vue-api-names'
+
 export interface VueApiEntry {
   name: string
   category: 'Reactivity' | 'Lifecycle' | 'Injection' | 'Setup' | 'Render' | 'General' | 'Types'
@@ -16,7 +19,10 @@ export interface VueApiEntry {
   href: string
 }
 
-export const VUE_API_CONTENT: Record<string, VueApiEntry> = {
+// Keyed by VueApiName so TypeScript keeps this content in exact sync with
+// vue-api-names.ts (the statically-imported names list). A missing or extra
+// key fails the build.
+export const VUE_API_CONTENT: Record<VueApiName, VueApiEntry> = {
   // ===========================================================================
   // Reactivity: Core
   // ===========================================================================
