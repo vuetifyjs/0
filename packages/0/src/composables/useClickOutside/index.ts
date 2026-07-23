@@ -44,7 +44,7 @@ import { toArray } from '#v0/composables/toArray'
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { isElement, isFunction, isNull, isNullOrUndefined, isString } from '#v0/utilities'
+import { getActiveElement, isElement, isFunction, isNull, isNullOrUndefined, isString } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
 
 // Types
@@ -383,7 +383,7 @@ export function useClickOutside (
     if (event.defaultPrevented) return
 
     if (document.activeElement instanceof HTMLIFrameElement) {
-      const iframeIsOutside = getTargets().every(el => !el.contains(document.activeElement))
+      const iframeIsOutside = getTargets().every(el => !el.contains(getActiveElement()))
       const [selectors, elements] = resolveIgnoreTargets()
 
       if (iframeIsOutside && !isIgnored(document.activeElement, selectors, elements)) {

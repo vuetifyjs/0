@@ -37,7 +37,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import { splitKeyCombination, splitKeySequence, MODIFIERS } from './parsing'
 
 // Utilities
-import { isNull, isUndefined } from '#v0/utilities'
+import { getActiveElement, isNull, isUndefined } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
@@ -166,7 +166,7 @@ export function useHotkey (
     if (!IN_BROWSER) return false
     if (toValue(inputs)) return false
 
-    const activeElement = document.activeElement as HTMLElement | null
+    const activeElement = getActiveElement() as HTMLElement | null
     /* v8 ignore next -- defensive: document.activeElement is always set in happy-dom */
     if (!activeElement) return false
 
