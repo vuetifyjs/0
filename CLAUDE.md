@@ -94,6 +94,7 @@ pnpm changeset        # Author a changeset for your PR (run per change)
 pnpm release:prepare  # Pre-release validation (validate + build)
 # Publishing is automated: pushing to master opens a "Version Packages" PR;
 # merging it builds, publishes to npm via OIDC, and creates the GitHub releases.
+# Base branch by change type: fix/patch → master, feat/minor → dev, breaking/major → next.
 # Currently in PRE mode (beta dist-tag) — see "Releasing" below before cutting stable.
 
 # Repo health
@@ -103,6 +104,21 @@ pnpm repo:check       # knip + sherif
 ## Releasing
 
 Changesets-driven. Pushing to `master` opens/updates a "Version Packages" PR; merging it publishes to npm (tokenless OIDC) and mints the GitHub releases (`.github/workflows/release.yml`).
+
+### Branch model — where a PR goes by change type
+
+Three long-lived branches; a PR's base is chosen by the semver impact of the change, not by its commit-type label alone:
+
+| Base | Change type | Semver | Examples |
+|------|-------------|--------|----------|
+| `master` | fixes, docs, chore, refactor, tests | patch / none | `fix(...)`, `docs(...)`, `test(...)`, and any app/tooling change that ships no package version |
+| `dev` | new features that add public API | minor | `feat(...)` that adds a component, composable, prop, or option |
+| `next` | breaking changes | major | anything with a `BREAKING CHANGE:` footer |
+
+- **Only `master` publishes.** `dev` and `next` accumulate work and merge **into `master`** at the next minor / major cut — that merge is what triggers the changesets release. Never publish from `dev`/`next` directly.
+- **`feat`/`fix` are still reserved for `packages/*` source.** A `feat(docs)` / `feat(playground)` / app-only change ships no package version, so it targets `master` (patch train) regardless of the `feat` label — prefer `docs`/`chore` for those.
+- **Design systems** (`@paper/*`) version independently; a DS feature still targets `dev` (it's a minor bump for that package).
+- CI (`pr-checks.yml`) and the changeset reminder (`changeset-reminder.yml`) run on PRs into all three branches; `release.yml` triggers on `master` pushes only.
 
 ### Changeset content contract
 
