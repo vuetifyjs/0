@@ -12,7 +12,7 @@
  * - Adapter-based filtering (client-side or server-side via ClientComboboxAdapter/ServerComboboxAdapter)
  * - Single or multi-select mode
  * - Virtual focus keyboard navigation (aria-activedescendant pattern)
- * - Strict mode: reverts query to selected value on close if no match
+ * - Strict mode: constrains values to registered options; non-strict commits typed text as a new value
  * - Popover-based dropdown positioning
  * - Context DI via createComboboxContext / useCombobox
  *
@@ -103,6 +103,7 @@ export interface ComboboxContext {
   open: () => void
   close: () => void
   toggle: () => void
+  commit: () => void
   select: (id: ID) => void
   clear: () => void
 }
@@ -174,6 +175,11 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   const pristine = shallowRef(true)
   const inputEl = shallowRef<HTMLElement | null>(null)
 
+  // Ids of tickets minted from free-text commits (strict === false). Tracked so
+  // single-select can prune a superseded value once a new one is committed,
+  // instead of leaving it behind as a ghost option in the list.
+  const adhoc = new Set<ID>()
+
   // items for the adapter — track registration events to trigger reactivity
   // since selection.values() is not natively reactive
   const version = shallowRef(0)
@@ -196,7 +202,9 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
 
   const cursor = useVirtualFocus(
     () => selection.values()
-      .filter(ticket => filtered.value.has(ticket.id) && !toValue(ticket.disabled))
+      // Ad-hoc free-text values have no rendered option, so keep them out of
+      // keyboard navigation — they're committed values, not list options.
+      .filter(ticket => filtered.value.has(ticket.id) && !toValue(ticket.disabled) && !adhoc.has(ticket.id))
       .map(ticket => ({
         id: ticket.id,
         el: () => IN_BROWSER ? document.querySelector<HTMLElement>(`#${CSS.escape(`${id}-option-${ticket.id}`)}`) : null,
@@ -244,6 +252,61 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
       inputEl.value?.focus()
     } else {
       selection.select(itemId)
+      purge()
+      query.value = ''
+      pristine.value = true
+      close()
+    }
+  }
+
+  function mint (value: string): ID {
+    const ticket = selection.register({ value })
+    adhoc.add(ticket.id)
+    return ticket.id
+  }
+
+  // Single-select keeps at most one free-text value, so drop any prior ad-hoc
+  // ticket that is no longer selected. Multi-select keeps every committed value
+  // as a tag, so it is left untouched.
+  function purge () {
+    if (toValue(multiple)) return
+    for (const id of adhoc) {
+      if (!selection.selectedIds.has(id)) {
+        selection.unregister(id)
+        adhoc.delete(id)
+      }
+    }
+  }
+
+  function commit () {
+    const text = query.value
+
+    if (pristine.value || text === '') {
+      close()
+      return
+    }
+
+    const matches = selection.browse(text)
+    const matchId = matches && matches.length > 0 ? matches[0] : undefined
+
+    // Strict mode only accepts a value that maps to a registered option;
+    // unmatched free text is discarded on confirm.
+    if (isUndefined(matchId) && toValue(strict)) {
+      close()
+      return
+    }
+
+    const id = matchId ?? mint(text)
+
+    if (toValue(multiple)) {
+      if (!selection.selectedIds.has(id)) selection.select(id)
+      query.value = ''
+      pristine.value = true
+      cursor.highlight(id)
+      inputEl.value?.focus()
+    } else {
+      selection.select(id)
+      purge()
       query.value = ''
       pristine.value = true
       close()
@@ -260,6 +323,10 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
       if (toValue(mandatory) && selection.selectedIds.size === 1) break
       selection.selectedIds.delete(id)
     }
+    for (const id of adhoc) {
+      selection.unregister(id)
+    }
+    adhoc.clear()
   }
 
   watch(isOpen, open => {
@@ -297,6 +364,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     open,
     close,
     toggle,
+    commit,
     select,
     clear,
   }

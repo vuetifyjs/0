@@ -49,7 +49,11 @@
      * - true: Prevents deselecting the last selected item
      */
     mandatory?: boolean
-    /** Strict mode: reverts query to selected value on close if no match */
+    /**
+     * Constrains accepted values to registered options.
+     * - false (default): confirming (Enter/Tab) typed text with no match commits it as a new value
+     * - true: unmatched text is discarded on confirm; only registered options can be selected
+     */
     strict?: boolean
     /** Manual error state override — forces invalid regardless of error messages */
     error?: boolean
