@@ -441,6 +441,12 @@
       "since": "0.1.8",
       "category": "system",
       "description": "A composable for keyboard navigation where DOM focus stays on a single control element while a visual highlight moves across items."
+    },
+    "useTour": {
+      "level": "preview",
+      "since": null,
+      "category": "plugins",
+      "description": "Guided tour plugin composing createStep, createRegistry, and createForm for step-by-step product walkthroughs with validation-gated navigation."
     }
   },
   "components": {
@@ -721,8 +727,10 @@
       "category": "data"
     },
     "Tour": {
-      "level": "draft",
-      "category": "disclosure"
+      "level": "preview",
+      "since": null,
+      "category": "disclosure",
+      "description": "Headless compound component for guided product tours with anchored tooltip, centered dialog, floating, and wait step types."
     }
   },
   "utilities": {

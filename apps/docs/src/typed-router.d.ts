@@ -129,6 +129,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/disclosure/tour': RouteRecordInfo<
+      '/components/disclosure/tour',
+      '/components/disclosure/tour',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/treeview': RouteRecordInfo<
       '/components/disclosure/treeview',
       '/components/disclosure/treeview',
@@ -587,6 +594,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-tooltip': RouteRecordInfo<
       '/composables/plugins/use-tooltip',
       '/composables/plugins/use-tooltip',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/plugins/use-tour': RouteRecordInfo<
+      '/composables/plugins/use-tour',
+      '/composables/plugins/use-tour',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1276,6 +1290,12 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/components/disclosure/tour.md': {
+      routes:
+        | '/components/disclosure/tour'
+      views:
+        | never
+    }
     'src/pages/components/disclosure/treeview.md': {
       routes:
         | '/components/disclosure/treeview'
@@ -1802,6 +1822,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
       pathParamNames:
+        | never
+    }
+    'src/pages/composables/plugins/use-tour.md': {
+      routes:
+        | '/composables/plugins/use-tour'
+      views:
         | never
     }
     'src/pages/composables/reactivity/use-proxy-model.md': {

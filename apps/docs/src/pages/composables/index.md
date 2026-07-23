@@ -308,6 +308,7 @@ Application-level features installable via Vue plugins.
 | [useStorage](/composables/plugins/use-storage) | Reactive browser storage interface |
 | [useTheme](/composables/plugins/use-theme) | Theme management with CSS custom properties |
 | [useTooltip](/composables/plugins/use-tooltip) | Region-scoped tooltip delay coordination plugin |
+| [useTour](/composables/plugins/use-tour) | Guided tour orchestration with step navigation and validation gates |
 
 ## Data
 

@@ -136,6 +136,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Popover](https://0.vuetifyjs.com/components/disclosure/popover) | CSS anchor-positioned popup content |
 | [Tabs](https://0.vuetifyjs.com/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
 | [Tooltip](https://0.vuetifyjs.com/components/disclosure/tooltip) | Description tooltip with hover/focus triggers |
+| [Tour](https://0.vuetifyjs.com/components/disclosure/tour) | Guided tour with step navigation, validation gates, and keyboard support |
 | [Treeview](https://0.vuetifyjs.com/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
 
 #### Semantic
@@ -262,6 +263,7 @@ Plugin-capable composables following the trinity pattern:
 - [`useStorage`](https://0.vuetifyjs.com/composables/plugins/use-storage) - Storage adapter (localStorage/sessionStorage/memory)
 - [`useTheme`](https://0.vuetifyjs.com/composables/plugins/use-theme) - Theme management with CSS variable injection
 - [`useTooltip`](https://0.vuetifyjs.com/composables/plugins/use-tooltip) - Region-scoped tooltip delay coordination
+- [`useTour`](https://0.vuetifyjs.com/composables/plugins/use-tour) - Guided tour orchestration with step navigation and validation gates
 
 ## Design Principles
 
