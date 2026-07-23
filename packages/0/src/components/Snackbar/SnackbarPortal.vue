@@ -35,7 +35,7 @@
     zIndex: number
     /** Attributes to bind to the portal element */
     attrs: {
-      style: { zIndex: number }
+      style: { position: 'relative', zIndex: number }
     }
   }
 </script>
@@ -57,7 +57,7 @@
     return {
       zIndex,
       attrs: {
-        style: { zIndex },
+        style: { position: 'relative' as const, zIndex },
       },
     }
   }
