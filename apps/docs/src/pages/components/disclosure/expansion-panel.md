@@ -24,7 +24,7 @@ A component for creating accordion-style expansion panels with proper ARIA suppo
 
 ## Usage
 
-The ExpansionPanel component provides a wrapper and item pattern for managing expansion state in accordion-style interfaces. It uses the `createSelection` composable internally and provides full v-model support with automatic state synchronization.
+Group a set of panels into an accordion where opening one can collapse the others. Bind `v-model` to track which panel is open — or, in `multiple` mode, which panels.
 
 ::: gn-example
 /components/expansion-panel/basic
@@ -73,6 +73,32 @@ Reach for single-open mode when answers are long and you want the reader focused
 | `FaqAccordion.vue` | Renders the ExpansionPanel compound — Group, Header, Activator, animated Cue, and Content |
 | `faq-accordion.vue` | Wires the composable to the accordion and adds the status line and collapse control |
 :::
+
+## Accessibility
+
+ExpansionPanel follows the [WAI-ARIA Accordion pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/). `ExpansionPanel.Header` renders a heading (`<h3>` by default) that wraps the `ExpansionPanel.Activator` button, so screen-reader users can move between panels by heading.
+
+### ARIA Attributes
+
+| Attribute | Value | Element |
+|-----------|-------|---------|
+| `role` | `button` (only when Activator is not a native `<button>`) | Activator |
+| `aria-expanded` | `true` / `false` | Activator |
+| `aria-controls` | Content region ID | Activator |
+| `aria-disabled` | `true` / `false` | Activator |
+| `role` | `region` | Content |
+| `aria-labelledby` | Activator ID | Content |
+| `hidden` | Present when collapsed | Content |
+| `aria-hidden` | `true` | Cue |
+
+The Activator and Content IDs are paired: `aria-controls` on the Activator points at the Content, and `aria-labelledby` on the Content points back at the Activator. The Cue chevron is decorative and hidden from assistive technology.
+
+### Keyboard Navigation
+
+| Key | Action |
+|-----|--------|
+| `Enter` | Toggles the focused panel |
+| `Space` | Toggles the focused panel |
 
 ## FAQ
 

@@ -10,7 +10,7 @@ import InstanceProbe from '../src/InstanceProbe.vue'
 // The payoff test. instance.test.ts proves the shim's branch logic with a
 // mocked `currentInstance`; this proves it against a REAL Vapor render where
 // getCurrentInstance() genuinely returns null but the component is live.
-describe('v0 instance shim under real Vapor', () => {
+describe('instance under vapor', () => {
   let wrapper: VaporMount
 
   afterEach(() => {

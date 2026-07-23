@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Composables
-  import { GROUP_DESCRIPTIONS, TIER_CONFIG, type NormalizedGroup, type Tier } from '@/composables/useBenchmarkData'
+  import { GROUP_DESCRIPTIONS, TIER_CONFIG, type NormalizedGroup, type TierState } from '@/composables/useBenchmarkData'
   import { useBenchmarkHistory } from '@/composables/useBenchmarkHistory'
 
   // Utilities
@@ -12,7 +12,7 @@
   const props = defineProps<{
     group: NormalizedGroup
     expanded: boolean
-    tier: Tier
+    tier: TierState
   }>()
 
   const emit = defineEmits<{

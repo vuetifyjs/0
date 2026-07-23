@@ -47,7 +47,7 @@ These features require the latest browser versions and may not work in all brows
 |---------|---:|---:|---:|---:|----------|
 | [CSS Anchor Positioning](https://caniuse.com/css-anchor-positioning) | 125+ | 147+ | 26+ | 125+ | Properties ignored |
 | [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) | 114+ | 125+ | 17+ | 114+ | Optional chaining |
-| [Scrollend Event](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event) | 114+ | 109+ | 26.2+ | 114+ | Falls back to scroll |
+| [Scrollend Event](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event) | 114+ | 109+ | 26.2+ | 114+ | `createVirtual` `scrollend()` aliases `scroll`; no automatic event fallback |
 | [Temporal](https://caniuse.com/temporal) | 144+ | 139+ | —[^safari-temporal] | 144+ | `@js-temporal/polyfill` |
 
 [^safari-temporal]: Temporal is not yet in stable Safari (available in Safari Technology Preview). `useDate`'s `V0DateAdapter` automatically uses the [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) peer when native Temporal is absent. The API reached TC39 Stage 4 (ES2026) in 2026.

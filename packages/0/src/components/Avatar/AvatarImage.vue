@@ -30,6 +30,8 @@
   export interface AvatarImageProps extends AtomProps {
     /** Image source URL */
     src?: string
+    /** Accessible alt text. */
+    alt?: string
     /** Priority for display order (higher = more preferred) */
     priority?: number
     /** Namespace for retrieving avatar context */
@@ -56,6 +58,7 @@
     attrs: {
       role: 'img'
       src?: string
+      alt?: string
       onLoad: (e: Event) => void
       onError: (e: Event) => void
     }
@@ -63,10 +66,7 @@
 </script>
 
 <script setup lang="ts">
-  defineOptions({
-    name: 'AvatarImage',
-    inheritAttrs: false,
-  })
+  defineOptions({ name: 'AvatarImage' })
 
   defineSlots<{
     default: (props: AvatarImageSlotProps) => any
@@ -76,6 +76,7 @@
     as = 'img',
     renderless,
     src,
+    alt,
     priority = 0,
     namespace = 'v0:avatar',
   } = defineProps<AvatarImageProps>()
@@ -143,6 +144,7 @@
     attrs: {
       role: 'img',
       src: image.source.value,
+      alt,
       onLoad,
       onError,
     },

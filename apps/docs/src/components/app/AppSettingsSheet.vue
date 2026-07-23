@@ -114,15 +114,15 @@
           <div class="text-xs text-on-surface-variant capitalize">{{ auth.user?.role }}</div>
         </div>
 
-        <button
+        <AppTooltip
           aria-label="Sign out"
           class="pa-1 cursor-pointer bg-transparent border-0 inline-flex items-center justify-center rounded hover:bg-surface-variant transition-colors text-on-surface-variant hover:text-error"
-          title="Sign out"
-          type="button"
+          position-area="bottom"
+          text="Sign out"
           @click="auth.logout()"
         >
           <AppIcon icon="logout" :size="16" />
-        </button>
+        </AppTooltip>
       </div>
 
       <!-- Theme -->

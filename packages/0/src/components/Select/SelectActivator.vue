@@ -18,7 +18,7 @@
 
   // Utilities
   import { isUndefined } from '#v0/utilities'
-  import { toRef, useTemplateRef, watchEffect } from 'vue'
+  import { toRef, toValue, useTemplateRef, watchEffect } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -39,6 +39,9 @@
       'aria-expanded': boolean
       'aria-haspopup': 'listbox'
       'aria-controls': string
+      'aria-disabled': boolean
+      'disabled': true | undefined
+      'tabindex': 0 | undefined
       'data-open': true | undefined
       'style': Record<string, string>
       'onClick': () => void
@@ -122,6 +125,9 @@
       'aria-expanded': context.isOpen.value,
       'aria-haspopup': 'listbox',
       'aria-controls': context.listboxId,
+      'aria-disabled': toValue(context.disabled),
+      'disabled': toValue(context.disabled) || undefined,
+      'tabindex': as === 'button' ? undefined : 0,
       'data-open': context.isOpen.value || undefined,
       'style': context.popover.anchorStyles.value,
       onClick,

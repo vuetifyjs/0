@@ -51,7 +51,7 @@
         :key="item.id"
         v-slot="{ isSelected }"
         class="item"
-        :value="item.label"
+        :value="item.id"
       >
         <span>{{ item.label }}</span>
 

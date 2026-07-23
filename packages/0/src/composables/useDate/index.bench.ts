@@ -1,3 +1,17 @@
+/**
+ * useDate Performance Benchmarks
+ *
+ * Structure:
+ * - A single shared V0DateAdapter backs every bench: the adapter is stateless
+ *   and its methods return new immutable Temporal values, so the operations are
+ *   already isolated (no per-iteration fixture construction to hoist).
+ * - FRESH fixtures only in `locale switching`: those benches build a cold
+ *   adapter per iteration because a shared adapter's warm format cache would
+ *   defeat the locale-swap / cache-eviction measurement.
+ * - Categories: construction, formatting, navigation, arithmetic, comparison,
+ *   getters/setters, locale switching
+ */
+
 import { bench, describe } from 'vitest'
 
 // Framework

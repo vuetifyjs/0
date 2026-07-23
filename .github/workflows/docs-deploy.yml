@@ -2,6 +2,25 @@ name: Docs Deploy
 on:
   push:
     branches: [master]
+    # Single paths list with `!` negations — GitHub does not allow both
+    # `paths` and `paths-ignore` on the same event. Order matters: a negation
+    # after a positive match wins, so a test-only src commit is excluded.
+    paths:
+      - 'apps/docs/**'
+      - 'packages/0/src/**'
+      - 'packages/0/package.json'
+      - 'packages/genesis/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/docs-deploy.yml'
+      - '!packages/0/src/**/*.test.ts'
+      - '!packages/0/src/**/*.bench.ts'
+      - '!packages/0/src/**/*.browser.test.ts'
+      - '!packages/0/src/**/*.ssr.test.ts'
+
+concurrency:
+  group: docs-deploy
+  cancel-in-progress: true
 
 jobs:
   deploy:

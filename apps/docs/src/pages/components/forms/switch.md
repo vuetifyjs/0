@@ -71,7 +71,7 @@ A switch for on/off state or multi-selection groups with tri-state support.
 
 A notification preferences panel that groups four independent switches under a master "Enable all" lever and submits the result through a `Form`. Each `Switch.Root` carries a `name` prop, so v0 auto-renders a hidden native input and the toggled values participate in `FormData` — there is no `Switch.HiddenInput` to place by hand. The panel pairs each switch with a label and a line of helper text, and a summary line below echoes the saved selection.
 
-The interesting piece is the master toggle. `Switch.SelectAll` is not a group item — it never registers a value into the array v-model. Instead it reads the group's aggregate `isAllSelected` / `isMixed` state and calls `toggleAll`, so it renders checked when every setting is on, unchecked when all are off, and indeterminate (`aria-checked="mixed"`, `data-state="indeterminate"`) when only some are on. The tri-state and batch operations come straight from [createGroup](/composables/selection/create-group) — the same multi-selection logic that powers [Group](/components/providers/group). The thumb is animated through `data-[state=...]` variants on the `Switch.Track` rather than a transform from the off position, because `Switch.Thumb` is `visibility: hidden` when off and cannot animate in from there.
+The interesting piece is the master toggle. `Switch.SelectAll` is not a group item — it never registers a value into the array v-model. Instead it reads the group's aggregate `isAllSelected` / `isMixed` state and calls `toggleAll`, so it renders checked when every setting is on, unchecked when all are off, and indeterminate (`aria-checked="mixed"`, `data-state="indeterminate"`) when only some are on. The tri-state and batch operations come straight from [createGroup](/composables/selection/create-group) — the same multi-selection logic that powers [Group](/components/providers/group). The thumb slides between the off and on positions via `data-[state=...]` transform variants on `Switch.Thumb`, which stays visible in every state.
 
 Reach for this pattern for any settings surface — notification preferences, feature flags, privacy controls — where a list of independent on/off toggles needs a single shared model, a select-all lever, and form submission. Because `Form`'s `@submit` is pass-through (it fires on every native submit regardless of validity), the handler guards on `payload.valid` before committing the saved state. See [Form](/components/forms/form) for the validation surface and [Checkbox](/components/forms/checkbox) for the equivalent committed-selection control.
 
@@ -119,7 +119,7 @@ Switch subcomponents expose data attributes for CSS styling without conditional 
 </template>
 ```
 
-`Switch.Thumb` applies an inline `visibility: hidden` when unchecked, so the thumb is not visible until the switch is on. This means a sliding transform on `Switch.Thumb` cannot animate *from* the "off" position. Animate the `Switch.Track` background color instead, as shown above.
+`Switch.Thumb` stays visible in every state and emits `data-state` (`checked` / `unchecked` / `indeterminate`), so a sliding transform can animate directly between the off and on positions — for example `translate-x-1 data-[state=checked]:translate-x-6`. Pair it with a `transition-transform` on the thumb and a `transition-colors` on the `Switch.Track` for the rail.
 
 ## Accessibility
 
@@ -158,7 +158,7 @@ Use `Switch` for settings that take immediate effect, like toggling a feature on
 
 ??? How do I animate the switch state change?
 
-`Switch.Thumb` applies an inline `visibility: hidden` when unchecked, so transforms on the thumb cannot animate from the "off" position. Apply a CSS `transition` to `Switch.Track` and use the `data-[state=checked]:` variant to change its background — for example, `class="transition-colors bg-gray-300 data-[state=checked]:bg-primary"`. No JavaScript event handling is needed — the data attribute flip drives the animation.
+Drive it off the `data-state` attribute — no JavaScript event handling needed. Apply a `transition-transform` to `Switch.Thumb` and slide it with the `data-[state=checked]:` variant (`class="transition-transform translate-x-1 data-[state=checked]:translate-x-6"`), and add a `transition-colors` to `Switch.Track` to shift the rail background (`class="transition-colors bg-gray-300 data-[state=checked]:bg-primary"`). The data attribute flip drives both.
 
 ??? Can I use Switch.Root without the Track and Thumb subcomponents?
 

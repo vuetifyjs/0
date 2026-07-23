@@ -1,10 +1,10 @@
 ---
 title: Rating - Accessible Star Rating Controls
 meta:
-  - name: description
-    content: Headless rating component with hover preview, half-star support, keyboard navigation, and full ARIA compliance for Vue 3.
-  - name: keywords
-    content: rating, stars, review, score, form control, accessible, ARIA, Vue 3, headless
+- name: description
+  content: Headless rating component with hover preview, half-star support, keyboard navigation, and full ARIA compliance for Vue 3.
+- name: keywords
+  content: rating, stars, review, score, form control, accessible, ARIA, Vue 3, headless
 features:
   category: Component
   label: 'C: Rating'
@@ -40,6 +40,7 @@ Rating supports whole and half-star modes. Items expose their state via data att
 <template>
   <Rating.Root>
     <Rating.Item />
+
     <Rating.HiddenInput />
   </Rating.Root>
 </template>

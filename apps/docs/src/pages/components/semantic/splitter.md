@@ -39,7 +39,9 @@ The Splitter provides resizable panels separated by draggable handles. Panel siz
 <template>
   <Splitter.Root>
     <Splitter.Panel />
+
     <Splitter.Handle />
+
     <Splitter.Panel />
   </Splitter.Root>
 </template>

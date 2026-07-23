@@ -16,7 +16,8 @@
       "title": "Live Examples",
       "task": "Most component and composable pages ship live examples - real Vue components running on the page, not screenshots.",
       "hint": "",
-      "learn": "Recognize a live example"
+      "learn": "Recognize a live example",
+      "placement": "top"
     },
     {
       "id": "preview",
@@ -24,7 +25,7 @@
       "task": "This is the real component running. We just selected \"apple\" to show it responding to state.",
       "hint": "",
       "learn": "Interact with a live example",
-      "placement": "bottom"
+      "placement": "top"
     },
     {
       "id": "source",
@@ -32,7 +33,7 @@
       "task": "Every example ships the exact code that produces it. We expanded it for you - the Expand pill collapses it again anytime.",
       "hint": "",
       "learn": "Read the source behind an example",
-      "placement": "bottom"
+      "placement": "top"
     },
     {
       "id": "copy",
@@ -40,7 +41,8 @@
       "task": "This button copies the whole file to your clipboard in one click.",
       "hint": "",
       "learn": "Copy an example's source",
-      "placement": "left"
+      "placement": "left",
+      "placementMobile": "top"
     },
     {
       "id": "playground",
@@ -48,7 +50,8 @@
       "task": "This button opens the example live in the Playground - full editing, no setup.",
       "hint": "",
       "learn": "Open an example in the Playground",
-      "placement": "left"
+      "placement": "left",
+      "placementMobile": "top"
     },
     {
       "id": "tune",
@@ -56,7 +59,8 @@
       "task": "The rest of the toolbar tunes the reading view - code size cycling and line wrap for long lines.",
       "hint": "",
       "learn": "Adjust code size and line wrap",
-      "placement": "left"
+      "placement": "left",
+      "placementMobile": "top"
     },
     {
       "id": "files",
@@ -64,7 +68,7 @@
       "task": "Bigger examples span several real files - this one builds an async picker from a composable, a component, and the app wiring them together. We opened its code to show the file tabs.",
       "hint": "",
       "learn": "Navigate multi-file examples",
-      "placement": "bottom"
+      "placement": "top"
     },
     {
       "id": "file-tabs",
@@ -72,7 +76,7 @@
       "task": "Each tab is one source file of the same example - we switched to UserPicker.vue. The last file is the one running in the preview.",
       "hint": "",
       "learn": "Switch between an example's files",
-      "placement": "bottom"
+      "placement": "top"
     },
     {
       "id": "file-actions",
@@ -80,7 +84,8 @@
       "task": "For multi-file examples, Play and Bin carry every file across, and the combine action stitches them into one scrollable view.",
       "hint": "",
       "learn": "Open every file in Play or Bin at once",
-      "placement": "left"
+      "placement": "left",
+      "placementMobile": "top"
     },
     {
       "id": "recipes",
@@ -88,7 +93,7 @@
       "task": "Recipes are the other example type - terse, single-purpose snippets in a plain code fence, ready to lift straight into your app.",
       "hint": "",
       "learn": "Recognize a recipe",
-      "placement": "bottom"
+      "placement": "top"
     },
     {
       "id": "recipe-play",
@@ -96,7 +101,8 @@
       "task": "Recipe fences are playground-ready too - one click and the snippet is running in Play.",
       "hint": "",
       "learn": "Take a recipe into the Playground",
-      "placement": "left"
+      "placement": "left",
+      "placementMobile": "top"
     },
     {
       "id": "codegroups",

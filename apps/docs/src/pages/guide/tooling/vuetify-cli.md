@@ -2,7 +2,7 @@
 title: Vuetify CLI - Project Scaffolding & Management
 features:
   label: Vuetify CLI
-  order: 1
+  order: 2
   level: 1
 meta:
   - name: description
@@ -114,6 +114,7 @@ bun create vuetify0
 | `vuetify add mcp` | Add MCP server configuration |
 | `vuetify update` | Update Vuetify packages |
 | `vuetify docs` | Open version-specific documentation |
+| `vuetify release-notes` | Print release notes for a package |
 | `vuetify analyze` | Scan codebase for usage patterns |
 | `vuetify upgrade` | Self-upgrade the CLI |
 
@@ -252,6 +253,47 @@ bunx @vuetify/cli docs
 > [!NOTE]
 > The CLI auto-detects your installed Vuetify version and opens the correct documentation site.
 
+### release-notes
+
+Print the release notes for a Vuetify package without leaving the terminal:
+
+::: code-group no-filename
+
+```bash pnpm
+# Latest v0 release
+pnpm dlx @vuetify/cli release-notes v0
+
+# A specific version
+pnpm dlx @vuetify/cli release-notes v0 --version 1.0.0
+```
+
+```bash npm
+npx @vuetify/cli release-notes v0
+npx @vuetify/cli release-notes v0 --version 1.0.0
+```
+
+```bash yarn
+yarn dlx @vuetify/cli release-notes v0
+yarn dlx @vuetify/cli release-notes v0 --version 1.0.0
+```
+
+```bash bun
+bunx @vuetify/cli release-notes v0
+bunx @vuetify/cli release-notes v0 --version 1.0.0
+```
+
+:::
+
+The command prints the release name, tag, publish date, and full notes, along with links to the documentation and the GitHub release.
+
+| Argument | Default | Description |
+| - | - | - |
+| `package` | `vuetify` | Package to fetch — `vuetify` or `v0` (aliases: `vuetify0`, `0`) |
+| `--version`, `-v` | `latest` | Release version; `latest` resolves to the newest core release |
+
+> [!TIP]
+> Pass `v0` to read the [Vuetify0 release notes](/releases). Omitting `--version` shows the latest release.
+
 ### analyze
 
 Scan your codebase for Vuetify usage patterns:
@@ -285,9 +327,9 @@ bunx @vuetify/cli analyze --reporter json
 
 The analyzer scans your project and detects all imports from `@vuetify/v0`:
 
-- **Components** — `VBtn`, `VCard`, `VDataTable`, etc.
-- **Composables** — `useDisplay`, `useTheme`, `createFilter`, etc.
-- **Plugins** — `createVuetify`, `createIconsPlugin`, etc.
+- **Components** — `Dialog`, `Tabs`, `Avatar`, etc.
+- **Composables** — `useBreakpoints`, `useTheme`, `createFilter`, etc.
+- **Plugins** — `createThemePlugin`, `createBreakpointsPlugin`, etc.
 - **Utilities and constants**
 
 #### Custom Documentation URL
@@ -295,7 +337,7 @@ The analyzer scans your project and detects all imports from `@vuetify/v0`:
 After analyzing your project, the CLI generates a **personalized documentation URL**:
 
 ```text
-https://0.vuetifyjs.com/?features=Dialog,Avatar,useDisplay,...
+https://0.vuetifyjs.com/?features=Dialog,Avatar,useBreakpoints,...
 ```
 
 This URL filters the v0 documentation to show **only the features you're actually using**, giving you a focused, clutter-free reference tailored to your project. Share this URL with your team to onboard developers faster.

@@ -25,7 +25,7 @@ A compound component for building accessible hierarchical tree interfaces with e
 
 ## Usage
 
-The Treeview component provides a compound pattern for building accessible tree structures. It uses the `createNested` composable internally for hierarchical state management — tracking parent-child relationships, open/close state, and cascade selection.
+Display hierarchical data as an expandable, selectable tree. Nodes open and close, selection cascades through parents and children, and `v-model` tracks the selected nodes.
 
 ::: gn-example
 /components/treeview/basic
@@ -226,6 +226,47 @@ The `--v0-treeview-depth` CSS variable is set on each Item, enabling indentation
   padding-left: calc(var(--v0-treeview-depth) * 1rem);
 }
 ```
+
+## Accessibility
+
+Treeview implements the [WAI-ARIA Tree View pattern](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/). `Treeview.List` establishes roving tabindex, so only one node is in the Tab order at a time and the arrow keys move focus between nodes. The Activator and Checkbox are `tabindex="-1"` and are reached through the tree rather than the page's Tab sequence.
+
+### ARIA Attributes
+
+| Attribute | Value | Element |
+|-----------|-------|---------|
+| `role` | `tree` | List |
+| `aria-multiselectable` | `true` / `false` | List |
+| `aria-label` | Provided `label` | List |
+| `role` | `group` | Group |
+| `role` | `treeitem` | Item |
+| `aria-expanded` | `true` / `false` (only when the node has children) | Item |
+| `aria-selected` | `true` / `false` | Item |
+| `aria-disabled` | `true` / `false` | Item |
+| `aria-level` | Depth (1-based) | Item |
+| `aria-posinset` | Position among siblings | Item |
+| `aria-setsize` | Sibling count | Item |
+| `aria-current` | `true` when active | Item |
+| `role` | `checkbox` | Checkbox, SelectAll |
+| `aria-checked` | `true` / `false` / `mixed` | Checkbox, SelectAll |
+| `aria-hidden` | `true` | Cue, Indicator |
+
+### Keyboard Navigation
+
+| Key | Action |
+|-----|--------|
+| `ArrowUp` | Moves focus to the previous visible node |
+| `ArrowDown` | Moves focus to the next visible node |
+| `ArrowRight` | Expands a collapsed node, or moves focus to its first child |
+| `ArrowLeft` | Collapses an expanded node, or moves focus to its parent |
+| `Home` | Moves focus to the first node |
+| `End` | Moves focus to the last visible node |
+| `Enter` | Toggles expansion (when expandable) and activates the node |
+| `Space` | Toggles selection of the focused node |
+| `*` | Expands all sibling nodes at the current level |
+| `Tab` | Moves focus to focusable controls inside a row, then out to the next node |
+
+In RTL, the `ArrowRight` and `ArrowLeft` directions are swapped. `Treeview.SelectAll` toggles the whole tree with `Enter` or `Space`.
 
 ## FAQ
 

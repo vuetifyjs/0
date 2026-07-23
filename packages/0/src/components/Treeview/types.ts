@@ -199,6 +199,7 @@ export interface TreeviewItemSlotProps<V = unknown> {
     'aria-expanded': boolean | undefined
     'aria-level': number
     'aria-posinset': number
+    'aria-current': 'true' | undefined
     'aria-selected': boolean
     'aria-setsize': number
     'data-active': true | undefined

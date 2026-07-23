@@ -27,7 +27,9 @@ A headless component for creating popovers and tooltips using modern CSS anchor 
   :versions="{ chrome: '125+', edge: '125+', firefox: '147+', safari: '26+' }"
   anchor="css-anchor-positioning"
 >
-  The component works in all browsers, but automatic anchor positioning requires CSS Anchor Positioning support. In older browsers without it, you'll need to position the popover manually or use [Floating UI](https://floating-ui.com).
+
+The component works in all browsers, but automatic anchor positioning requires CSS Anchor Positioning support. In older browsers without it, you'll need to position the popover manually or use [Floating UI](https://floating-ui.com).
+
 </DocsBrowserSupport>
 
 ## Usage
@@ -58,7 +60,7 @@ The Popover component leverages the CSS Anchor Positioning API to create popover
 
 ### Positioning
 
-Use `position-area` on `Popover.Content` to control where the popover appears relative to its anchor. Accepts any [CSS `position-area`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-area) value (default: `'bottom'`):
+Use `position-area` on `Popover.Content` to control where the popover appears relative to its anchor. Accepts any [CSS `position-area`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/position-area) value (default: `'bottom'`):
 
 ```vue
 <template>
@@ -83,13 +85,35 @@ Use `position-try` to specify fallback positions when the preferred position doe
 </template>
 ```
 
+## Accessibility
+
+Popover uses the native Popover API — the `popover` attribute on the content plus `popovertarget` on the trigger — so opening, closing, light-dismiss (clicking outside), and Escape-to-close are all handled by the browser. Placement uses CSS Anchor Positioning.
+
+### ARIA Attributes
+
+| Attribute | Value | Element |
+|-----------|-------|---------|
+| `popovertarget` | Content popover ID | Activator |
+| `aria-expanded` | `true` / `false` | Activator |
+| `aria-controls` | Content popover ID | Activator |
+| `popover` | `auto` | Content |
+
+`Popover.Activator` renders a `<button>` by default and toggles the popover through the native `popovertarget` attribute. `Popover.Content` is unstyled and carries no semantic `role` of its own — assign one that matches what the popover contains (for example `menu`, `listbox`, or `tooltip`).
+
+### Keyboard Navigation
+
+| Key | Action |
+|-----|--------|
+| `Enter` / `Space` | Toggles the popover (native button activating `popovertarget`) |
+| `Escape` | Closes the popover (native `popover="auto"` light-dismiss) |
+
 ## FAQ
 
 ::: faq
 
 ??? How do I control where the popover appears relative to its anchor?
 
-Set `position-area` on `Popover.Content` to any [CSS `position-area`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-area) value such as `top` or `end`. It defaults to `bottom`.
+Set `position-area` on `Popover.Content` to any [CSS `position-area`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/position-area) value such as `top` or `end`. It defaults to `bottom`.
 
 ??? What happens in browsers that don't support CSS Anchor Positioning?
 
