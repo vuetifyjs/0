@@ -80,6 +80,13 @@
         "src/**/helpers.ts"
       ]
     },
+    "packages/emerald": {
+      "project": [
+        "src/**/*.{ts,vue}",
+        "!src/**/*.test.ts",
+        "!src/**/*.spec.ts"
+      ]
+    },
     "apps/playground": {
       "entry": [
         "src/App.vue",

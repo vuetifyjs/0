@@ -1,0 +1,6 @@
+export { default as EmTag } from './EmTag.vue'
+export { default as EmTagClose } from './EmTagClose.vue'
+export { default as EmTagIcon } from './EmTagIcon.vue'
+export type { EmTagProps, EmTagVariant } from './EmTag.vue'
+export type { EmTagCloseProps } from './EmTagClose.vue'
+export type { EmTagIconProps } from './EmTagIcon.vue'
