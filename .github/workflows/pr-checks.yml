@@ -2,9 +2,9 @@ name: PR Checks
 
 on:
   pull_request:
-    branches: [master]
+    branches: [master, dev, next]
   push:
-    branches: [master]
+    branches: [master, dev, next]
 
 permissions:
   contents: read

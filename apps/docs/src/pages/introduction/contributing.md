@@ -114,9 +114,25 @@ pnpm build            # Build packages
 
 ## Pull Requests
 
+### Branch Model
+
+`@vuetify/v0` uses three long-lived branches. Open your PR against the base that matches the **semver impact** of your change:
+
+| Base | Use it for | Release |
+|------|-----------|---------|
+| `master` | Bug fixes, docs, chores, refactors, tests | Patch (or no version bump) |
+| `dev` | New features that add public API (a component, composable, prop, or option) | Minor |
+| `next` | Breaking changes (anything with a `BREAKING CHANGE:` footer) | Major |
+
+Only `master` publishes to npm. Work on `dev` and `next` merges into `master` at the next minor or major release, and that merge is what ships it. If you're unsure which base fits, open against `master` — a maintainer will retarget it.
+
+::: tip
+A `feat` that only touches the docs site, playground, or other tooling (not `packages/*` source) ships no package version, so it targets `master` — prefer a `docs`/`chore` prefix for those.
+:::
+
 ### Before Submitting
 
-1. Create a new branch from `master`
+1. Create a new branch from the right base for your change (see [Branch Model](#branch-model)): `master` for fixes, `dev` for features, `next` for breaking changes
 2. Make your changes
 3. Write tests for new functionality
 4. Run `pnpm lint:fix` to fix formatting
@@ -166,12 +182,14 @@ Never edit `package.json` versions by hand — release automation owns every bum
 
 ### Branch Naming
 
-Use descriptive branch names:
+Use descriptive branch names; the prefix should match the base branch you target (see [Branch Model](#branch-model)):
 
-- `fix/issue-description` - Bug fixes
-- `feat/feature-name` - New features
-- `docs/what-changed` - Documentation updates
-- `refactor/what-changed` - Code refactoring
+- `fix/issue-description` - Bug fixes → base `master`
+- `feat/feature-name` - New features → base `dev`
+- `docs/what-changed` - Documentation updates → base `master`
+- `refactor/what-changed` - Code refactoring → base `master`
+
+Breaking changes target `next` regardless of prefix.
 
 ## Commit Messages
 
