@@ -127,6 +127,16 @@
       "category": "forms",
       "description": "Fixed-length one-time-password or verification-code value with pattern-gated entry and completion detection."
     },
+    "createDatePicker": {
+      "level": "draft",
+      "category": "forms",
+      "description": "Headless date state with calendar-grid geometry, single-date and range modes, preset ranges, min/max bounds, and disabled-date rules. Composable-first, without an `@internationalized/date` dependency."
+    },
+    "createTimePicker": {
+      "level": "draft",
+      "category": "forms",
+      "description": "Segmented time value with hour, minute, and second fields, 12/24-hour modes, meridiem handling, step snapping, and min/max bounds."
+    },
     "createDataGrid": {
       "level": "preview",
       "since": "1.0.0-beta.0",
@@ -186,6 +196,11 @@
       "since": "0.1.0",
       "category": "semantic",
       "description": "Computes how many items fit in a container based on available width, for responsive truncation in pagination, breadcrumbs, and similar UIs."
+    },
+    "createTour": {
+      "level": "draft",
+      "category": "semantic",
+      "description": "Headless state for guided product tours and feature discovery: step sequencing, target-element tracking, mask cutout geometry, and per-step focus management. Built on `createStep`, `usePopover`, and `useRovingFocus`."
     },
     "useBreakpoints": {
       "level": "stable",
@@ -326,7 +341,7 @@
       "description": "A composable for conditionally managing Vue effect scopes based on reactive boolean conditions with automatic cleanup."
     },
     "useProxyModel": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "reactivity",
       "description": "A composable for syncing refs bidirectionally with selection contexts, enabling seamless v-model integration with selection state."
@@ -338,13 +353,13 @@
       "description": "A reactive proxy wrapper for registry collections that automatically updates refs when items are registered or unregistered."
     },
     "toArray": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "transformers",
       "description": "Coerces any value — including `null` and `undefined` — to an array."
     },
     "toElement": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "transformers",
       "description": "Resolves refs, getters, raw DOM elements, or Vue component instances to a single `Element | undefined`."
@@ -430,13 +445,13 @@
   },
   "components": {
     "AspectRatio": {
-      "level": "preview",
+      "level": "stable",
       "since": "1.0.0-alpha.1",
       "category": "primitives",
       "description": "Reserves a box with a fixed width-to-height ratio using CSS `aspect-ratio`."
     },
     "Atom": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "primitives",
       "description": "Low-level primitive for building polymorphic components."
@@ -454,7 +469,7 @@
       "description": "Animation-agnostic mount lifecycle for conditional content."
     },
     "Group": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "providers",
       "description": "A headless component for managing multi-selection with batch operations and tri-state support."
@@ -472,31 +487,31 @@
       "description": "Headless backdrop component for overlay systems with automatic z-index management and dismiss handling."
     },
     "Selection": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "providers",
       "description": "A headless component for managing selection state in collections with support for single and multi-selection patterns."
     },
     "Single": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "providers",
       "description": "Headless single-selection provider — selecting an item automatically deselects the previously selected one, driving tabs, segmented controls, and theme pickers."
     },
     "Step": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "providers",
       "description": "A headless component for navigation through multi-step processes like wizards and forms."
     },
     "Theme": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.11",
       "category": "providers",
       "description": "Scopes a theme to a component subtree for independently themed sections of your app."
     },
     "Toggle": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.2.0",
       "category": "actions",
       "description": "A headless toggle button with dual-mode support: standalone boolean binding or group selection with single and multi-select."
@@ -508,7 +523,7 @@
       "description": "Headless button with loading state, toggle group support, and icon accessibility."
     },
     "Checkbox": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "forms",
       "description": "A checkbox for boolean state or multi-selection groups with tri-state support."
@@ -550,7 +565,7 @@
       "category": "forms"
     },
     "Radio": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "forms",
       "description": "A radio button for single-selection groups with roving focus and shared v-model state."
@@ -574,7 +589,7 @@
       "description": "Headless slider for single-value and range inputs with pointer drag, keyboard navigation, and step snapping."
     },
     "Switch": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "forms",
       "description": "A switch for on/off state or multi-selection groups with tri-state support."
@@ -590,7 +605,7 @@
       "description": "A headless confirmation dialog that seeks user input before proceeding. Features a `wait()`/`close()` pattern for deferred close during async operations."
     },
     "Collapsible": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.2.0",
       "category": "disclosure",
       "description": "A single-item disclosure toggle for showing and hiding content."
@@ -614,7 +629,7 @@
       "description": "A headless component for creating popovers and tooltips using modern CSS anchor positioning."
     },
     "Tabs": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "disclosure",
       "description": "A component for creating accessible tabbed interfaces with proper ARIA support and keyboard navigation."

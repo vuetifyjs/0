@@ -139,7 +139,7 @@ build/
 
 | Component | Purpose |
 |-----------|---------|
-| `DocsCallout` | GitHub-style callouts (`> [!TIP]`, `> [!NOTE]`, `> [!WARNING]`, `> [!CAUTION]`, `> [!IMPORTANT]`, `> [!ASKAI]`) |
+| `DocsCallout` | GitHub-style callouts (`> [!TIP]`, `> [!NOTE]`, `> [!WARNING]`, `> [!CAUTION]`, `> [!IMPORTANT]`, `> [!ASKAI]`, `> [!TOUR]`) |
 | `DocsExample` | Live examples from `examples/` with code |
 | `DocsMarkup` | Syntax-highlighted code blocks |
 | `DocsApi` | Auto-generated API tables with inline/links toggle |
@@ -195,6 +195,8 @@ import BasicExampleRaw from '@/examples/components/tabs/basic.vue?raw'
 - Prefer markdown for documentation pages
 - **Examples**: Use `::: example` blocks in `.md` pages for live demos; use `<DocsExample>` directly only in `.vue` pages
 - **Callouts**: Use `> [!TIP]`, `> [!NOTE]`, `> [!WARNING]`, `> [!CAUTION]`, `> [!IMPORTANT]` for alerts (GitHub-aligned). Use `> [!ASKAI] question` to prompt Ask AI—phrase as a question the user would ask (e.g., "How do I add validation?"), not a question to the user. Use `> [!TOUR] tour-id` to embed a clickable tour callout—the tour name and description are pulled from the discovery registry automatically.
+
+The skill-level placement quiz is **not** a callout directive: it is the `AppSkillQuiz` component (rendered under the Skill Levels section of `guide/essentials/using-the-docs.md`), which drives `DocsQuestion` off the central bank in `apps/docs/src/skillz/questions/{track}.json`. Each attempt samples a level-spread subset and builds each question's options from its `answers` + a fresh draw from its own `distractors` pool; completing it suggests a skill level the reader can apply to the docs filter.
 - **Vue code in markdown fences**: Indent `<script>` and `<style>` content by 2 spaces for visual alignment with `<template>`
 - Examples: `src/examples/components/{component}/` or `src/examples/composables/{composable}/`
 - Component docs: `pages/components/{category}/{component}.md`

@@ -6,9 +6,9 @@ features:
   level: 1
 meta:
   - name: description
-    content: Use llms.txt and llms-full.txt files to provide AI assistants like Claude, ChatGPT, and Cursor with comprehensive Vuetify0 documentation context.
+    content: Use llms.txt and llms-full.txt files to provide AI assistants like Claude, ChatGPT, Grok, and Cursor with comprehensive Vuetify0 documentation context.
   - name: keywords
-    content: llms.txt, AI tools, LLM, Claude, ChatGPT, Cursor, documentation, developer experience
+    content: llms.txt, AI tools, LLM, Claude, ChatGPT, Grok, Cursor, documentation, developer experience
 related:
   - /guide/tooling/vuetify-mcp
   - /guide/tooling/vuetify-cli
@@ -31,13 +31,13 @@ v0 provides machine-readable documentation files following the [llms.txt](https:
 | - | - | - | - |
 | <a href="/llms.txt" target="_blank" class="v0-link">llms.txt↗</a> | {{ llmsStats.llms.sizeFormatted }} | Curated index with links | Quick context, navigation |
 | <a href="/llms-full.txt" target="_blank" class="v0-link whitespace-nowrap">llms-full.txt↗</a> | {{ llmsStats.llmsFull.sizeFormatted }} | Complete documentation | Deep understanding, code generation |
-| <a href="/SKILL.md" target="_blank" class="v0-link">SKILL.md↗</a> | ~5KB | Patterns & anti-patterns | Claude Code, Cursor, Windsurf |
+| <a href="/SKILL.md" target="_blank" class="v0-link">SKILL.md↗</a> | ~5KB | Patterns & anti-patterns | Claude Code, Grok Build, Cursor, Windsurf |
 
 > [!ASKAI] How do I configure my AI agent to consume llms-full.txt?
 
 ## Usage
 
-Install SKILL.md via [skills.sh](https://www.skills.sh) — works with Claude Code, Cursor, Windsurf, Codex, and [35+ agents](https://github.com/vercel-labs/skills#supported-agents):
+Install SKILL.md via [skills.sh](https://www.skills.sh) — works with Claude Code, Grok Build, Cursor, Windsurf, Codex, and [35+ agents](https://github.com/vercel-labs/skills#supported-agents):
 
 ```bash
 npx skills add vuetifyjs/0
@@ -56,6 +56,20 @@ Or fetch docs directly in your session:
 ```text
 WebFetch https://0.vuetifyjs.com/llms-full.txt
 ```
+
+**Grok Build** — Add Vuetify MCP for structured API access:
+
+```bash
+grok mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
+```
+
+Or fetch docs directly in your session:
+
+```text
+WebFetch https://0.vuetifyjs.com/llms-full.txt
+```
+
+Grok also loads SKILL.md (via `npx skills add vuetifyjs/0` or `.grok/skills/`) and project rules from `AGENTS.md` / `CLAUDE.md`.
 
 **Cursor / Windsurf** — Add to .cursorrules or configure MCP:
 
@@ -114,7 +128,7 @@ If a name below covers the need, use it — never hand-roll an equivalent.
 - createSelection — multi/single selection with mandatory guards
 - createForm — form state + field coordination
 - useHotkey — keyboard shortcuts
-- useVirtual — virtual scrolling for large lists
+- createVirtual — virtual scrolling for large lists
 <!-- ...full export list... -->
 ```
 
@@ -159,14 +173,14 @@ Hallucinated v0 APIs fail to compile. Run `vue-tsc --noEmit` (or `tsc --noEmit`)
 
 **llms.txt** contains categorized links to:
 
-- 10 guide pages (introduction, theming, accessibility, etc.)
+- Guide pages (fundamentals, features, tooling, integration, and more)
 - <DocsCount type="component" /> headless components (Atom, Avatar, Pagination, etc.)
-- <DocsCount type="composable" /> composables across 7 categories
+- <DocsCount type="composable" /> composables across categories
 - FAQ and contributing guides
 
 **llms-full.txt** includes the complete content of every documentation page, stripped of Vue components and frontmatter for cleaner LLM consumption.
 
-**SKILL.md** is a compact reference optimized for AI coding assistants. It focuses on decision trees, code conventions, anti-patterns, and the composition hierarchy. Detailed API examples live in a separate [REFERENCE.md](/references/REFERENCE.md) that agents load on demand. Install via [skills.sh](https://www.skills.sh) (`npx skills add vuetifyjs/0`) to make it available across Claude Code, Cursor, Windsurf, and 35+ other agents.
+**SKILL.md** is a compact reference optimized for AI coding assistants. It focuses on decision trees, code conventions, anti-patterns, and the composition hierarchy. Detailed API examples live in a separate [REFERENCE.md](/references/REFERENCE.md) that agents load on demand. Install via [skills.sh](https://www.skills.sh) (`npx skills add vuetifyjs/0`) to make it available across Claude Code, Grok Build, Cursor, Windsurf, and 35+ other agents.
 
 ## How It Works
 

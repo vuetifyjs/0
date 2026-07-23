@@ -203,6 +203,28 @@ const virtual = createVirtual(table.items, { itemHeight: 40 })
 > table.register({ id, value })
 > ```
 
+## Architecture
+
+`createDataTable` composes independent primitives rather than extending a selection chain. Rows live in a non-reactive `createRegistry` surfaced reactively through `useProxyRegistry`, while columns live in a second, reactive registry. Sort state rides `createGroup`'s tri-state (selected = ascending, mixed = descending, unselected = none), `useLocale` supplies the collation locale, and the `DataTableAdapter` runs the filter → sort → paginate pipeline — the client adapter in memory, the server and virtual adapters against a fetcher.
+
+```mermaid "createDataTable Architecture"
+flowchart TD
+  Rows["createRegistry (rows)"]
+  Proxy["useProxyRegistry"]
+  Columns["createRegistry (columns)"]
+  Group["createGroup"]
+  Locale["useLocale"]
+  Adapter["DataTableAdapter (Client / Server / Virtual)"]
+  CDT["createDataTable"]:::primary
+
+  Rows --> Proxy
+  Proxy --> CDT
+  Columns --> CDT
+  Group --> CDT
+  Locale --> CDT
+  Adapter --> CDT
+```
+
 ## Reactivity
 
 | Property / Method | Reactive | Notes |

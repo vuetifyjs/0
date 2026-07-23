@@ -1,0 +1,51 @@
+[
+  {
+    "name": "createRegistry",
+    "path": "packages/0/dist/composables/index.mjs",
+    "import": "{ createRegistry }",
+    "limit": "4.5 kB",
+    "ignore": ["vue"]
+  },
+  {
+    "name": "createSelection",
+    "path": "packages/0/dist/composables/index.mjs",
+    "import": "{ createSelection }",
+    "limit": "5.5 kB",
+    "ignore": ["vue"]
+  },
+  {
+    "name": "useStack",
+    "path": "packages/0/dist/composables/index.mjs",
+    "import": "{ useStack }",
+    "limit": "6.5 kB",
+    "ignore": ["vue"]
+  },
+  {
+    "name": "useTheme",
+    "path": "packages/0/dist/composables/index.mjs",
+    "import": "{ useTheme }",
+    "limit": "8.5 kB",
+    "ignore": ["vue"]
+  },
+  {
+    "name": "usePopover",
+    "path": "packages/0/dist/composables/index.mjs",
+    "import": "{ usePopover }",
+    "limit": "7.5 kB",
+    "ignore": ["vue"]
+  },
+  {
+    "name": "createDataTable",
+    "path": "packages/0/dist/data-table/index.mjs",
+    "import": "{ createDataTable }",
+    "limit": "11.5 kB",
+    "ignore": ["vue"]
+  },
+  {
+    "name": "barrel ceiling (6 named exports from root)",
+    "path": "packages/0/dist/index.mjs",
+    "import": "{ createStack, useTheme, createDataTable, createRegistry, createSelection, usePopover }",
+    "limit": "17 kB",
+    "ignore": ["vue"]
+  }
+]

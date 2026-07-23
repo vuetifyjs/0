@@ -6,7 +6,7 @@ meta:
   - name: keywords
     content: "documentation, navigation, ask ai, search, examples, learning tracks, keyboard shortcuts, accessibility"
 features:
-  order: 0.5
+  order: 1
   level: 1
 related:
   - /guide
@@ -92,6 +92,10 @@ Every page is tagged with a skill level to help you find content appropriate for
 | <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-beginner', color: 'text-success', label: 'Beginner' }" /></span> | New to v0, learning fundamentals | <span class="flex justify-center"><DocsSkillToggle :level="1" /></span> |
 | <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-intermediate', color: 'text-info', label: 'Intermediate' }" /></span> | Building with components, practical usage | <span class="flex justify-center"><DocsSkillToggle :level="2" /></span> |
 | <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-advanced', color: 'text-warning', label: 'Advanced' }" /></span> | Architecture deep-dives, custom patterns | <span class="flex justify-center"><DocsSkillToggle :level="3" /></span> |
+
+Not sure where you land? Take a short quiz and we'll suggest a level you can apply to the filter with one click.
+
+<AppSkillQuiz />
 
 ### Learning Tracks
 

@@ -121,6 +121,12 @@ When `renderless` is set, the component does not render a wrapper element. Inste
 </template>
 ```
 
+## Accessibility
+
+Locale sets the `lang` attribute on its wrapper element — or exposes it via `attrs` in renderless mode — to match the scoped locale. This is a genuine accessibility affordance: assistive technology reads `lang` to select the correct pronunciation and voice, satisfying [WCAG 3.1.2 Language of Parts](https://www.w3.org/WAI/WCAG22/Understanding/language-of-parts). It also sets a `data-locale` attribute for styling and selection.
+
+Beyond `lang`, Locale is a headless context provider — it adds no roles, keyboard behavior, or interactive elements. In renderless mode you are responsible for binding `attrs` (which includes `lang`) to your own element, so the language information reaches the accessibility tree.
+
 ## FAQ
 
 ::: faq

@@ -43,6 +43,12 @@
     mandatory?: boolean | 'force'
     /** Layout direction for ARIA */
     orientation?: ToggleOrientation
+    /** Accessible name for the group */
+    label?: string
+    /** ID of element that labels this group */
+    ariaLabelledby?: string
+    /** ID of element that describes this group */
+    ariaDescribedby?: string
   }
 
   export interface ToggleGroupSlotProps {
@@ -51,6 +57,9 @@
     /** Attributes to bind to the root element */
     attrs: {
       'role': 'group'
+      'aria-label': string | undefined
+      'aria-labelledby': string | undefined
+      'aria-describedby': string | undefined
       'aria-orientation': ToggleOrientation
       'aria-disabled': boolean
       'data-orientation': ToggleOrientation
@@ -84,10 +93,13 @@
     as = 'div',
     renderless,
     namespace = 'v0:toggle:group',
+    ariaLabelledby,
+    ariaDescribedby,
     disabled = false,
     multiple = false,
     mandatory = false,
     orientation = 'horizontal',
+    label,
   } = defineProps<ToggleGroupProps>()
 
   const model = defineModel<T | T[]>()
@@ -116,6 +128,9 @@
     isDisabled: toValue(disabled),
     attrs: {
       'role': 'group',
+      'aria-label': label || undefined,
+      'aria-labelledby': ariaLabelledby || undefined,
+      'aria-describedby': ariaDescribedby || undefined,
       'aria-orientation': orientation,
       'aria-disabled': disabled,
       'data-orientation': orientation,

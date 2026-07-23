@@ -4,15 +4,22 @@ name: Regenerate Metrics
 # then opens an auto-PR for review. Never pushes to master directly — close the
 # PR to discard a noisy run.
 #
-# Trigger: a published GitHub Release. In this changesets setup the aggregate
-# `v*` release is the terminal, success-gated artifact of a publish (it runs
-# last, only when a publish actually happened), so `release: published` is the
-# right moment — and it never fires on plain master pushes or "version packages"
-# PR churn. The harness installs each configured version from npm and benches it
-# with the current suite (fixed apparatus), so no git tags/worktrees are needed.
+# Trigger: completion of the Release workflow (NOT `on: release: published`).
+# The aggregate `v*` release is minted by scripts/github-release.js with the
+# default GITHUB_TOKEN, and GitHub deliberately does not fire event triggers for
+# actions taken by that token (recursion prevention) — so `release: published`
+# never runs on an automated publish. `workflow_run` fires when the upstream
+# workflow finishes regardless of the token that drove it, which is the
+# sanctioned chain. Release runs on every master push (most just open the
+# "Version Packages" PR and publish nothing), so the job gates on upstream
+# success AND a newly published 1.x version that has no snapshot yet — see `gate`.
+#
+# Manual re-measure (apparatus change, discarded PR, etc.): Actions → this
+# workflow → Run workflow (workflow_dispatch). That always regenerates.
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
   workflow_dispatch:
 
 concurrency:
@@ -25,13 +32,12 @@ permissions:
 
 jobs:
   regen:
-    # Substrate `v*` releases only — skip the independent @paper/* design-system
-    # releases (which tag as `name@version`, not `v*`).
-    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'v') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-24.04 # pinned, NOT ubuntu-latest — OS drift moves benchmark numbers
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: master # workflow_run checks out a detached SHA otherwise; create-pull-request needs a branch base
           fetch-depth: 0 # full history for create-pull-request
 
       - uses: pnpm/action-setup@v6
@@ -41,33 +47,115 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
 
-      # Fixed apparatus: the current bench suite + toolchain measure each version's
-      # npm-installed dist, so the series is comparable. --force re-measures every
-      # configured version each run (each = npm install + bench); drop --force to
-      # generate only newly-added versions.
+      # Discover published 1.x versions from npm and list those with no snapshot.
+      # On the automatic (workflow_run) path, skip the expensive bench when nothing
+      # new shipped. A manual dispatch always proceeds — e.g. to re-measure the
+      # whole series after a bench-suite change even though no version is new.
+      - name: Gate on new version
+        id: gate
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          MISSING=$(node scripts/generate-metrics-history.ts --print-missing)
+          if [ "$EVENT_NAME" != "workflow_dispatch" ] && [ -z "$MISSING" ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "No new 1.x version to bench — skipping regen."
+            {
+              echo "### Metrics regen skipped"
+              echo ""
+              echo "Automatic \`workflow_run\` only regenerates when a published 1.x"
+              echo "version has no snapshot yet (\`--print-missing\` was empty)."
+              echo ""
+              echo "To force a full re-measure (e.g. after apparatus changes), use"
+              echo "**Actions → Regenerate Metrics → Run workflow** (\`workflow_dispatch\`)."
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Regenerating — missing: ${MISSING:-<none; manual dispatch>}"
+          fi
+
+      # Fixed apparatus (see scripts/lib/bench-stable.ts + .claude/rules/benchmarks.md):
+      #   ubuntu-24.04 + .nvmrc Node, v0:unit only, maxWorkers=1, no file parallelism,
+      #   V0_BENCH_TARGET=dist, median of 3 runs (current) / 1 run (history).
+      # Coverage for metrics is v0:unit only — no Playwright.
+
+      - name: Snapshot previous benchmarks.json
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          if [ -f apps/docs/public/benchmarks.json ]; then
+            cp apps/docs/public/benchmarks.json /tmp/benchmarks-prev.json
+          fi
+
       - name: Regenerate history series
+        if: steps.gate.outputs.run == 'true'
         run: pnpm metrics:history --force
 
       - name: Regenerate current metrics
+        if: steps.gate.outputs.run == 'true'
         run: pnpm metrics
 
+      - name: Canary delta report
+        if: steps.gate.outputs.run == 'true'
+        id: delta
+        run: |
+          if [ -f /tmp/benchmarks-prev.json ]; then
+            node scripts/report-benchmark-delta.ts \
+              --prev /tmp/benchmarks-prev.json \
+              --next apps/docs/public/benchmarks.json \
+              --out /tmp/bench-delta.md
+            {
+              echo "report<<EOF"
+              cat /tmp/bench-delta.md
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "report=_(no previous benchmarks.json to compare)_" >> "$GITHUB_OUTPUT"
+          fi
+          pnpm metrics:check
+
+      # create-pull-request will not open a *new* PR if one was closed for this
+      # branch — it only updates the branch. Reopen so "Close to discard" is not
+      # a one-way trap on the next regen.
+      - name: Reopen closed metrics-regen PR if needed
+        if: steps.gate.outputs.run == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          state=$(gh pr view chore/metrics-regen --json state -q .state 2>/dev/null || echo none)
+          echo "chore/metrics-regen PR state: $state"
+          if [ "$state" = "CLOSED" ]; then
+            gh pr reopen chore/metrics-regen
+          fi
+
       - name: Open/update auto-PR
+        if: steps.gate.outputs.run == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
+          base: master # required — checkout is a detached commit on the workflow_run path
           commit-message: "chore: regenerate benchmark + history metrics"
           title: "chore: regenerate benchmark + history metrics"
           body: |
-            Auto-regenerated on release, pinned to `ubuntu-24.04` + Node from `.nvmrc`.
+            Auto-regenerated after a release.
 
-            The full history series is re-measured on one runner (`metrics:history --force`)
-            so the per-row sparklines stay comparable across versions.
+            ## Apparatus (fixed)
 
-            Benchmark hz is jittery (~10–20% on shared CI runners), so near-threshold
-            tier badges may flip without a code change. **Close this PR to discard the
-            run** if the numbers look like noise.
+            - Runner: `ubuntu-24.04` + Node from `.nvmrc`
+            - Project: `v0:unit` only (`maxWorkers=1`, no file parallelism)
+            - Target: built dist (`V0_BENCH_TARGET=dist`); history uses npm-installed dists
+            - Aggregation: **median of 3 runs** (current); history 1 run with same isolation
+            - Paths: repo-relative (`packages/0/src/...`) — never laptop absolute paths
 
-            To add a historical version, append it to `scripts/metrics-history.config.ts`
-            (must be published to npm; track the 1.x line).
+            History series re-measured on one runner (`metrics:history --force`) so
+            sparklines stay comparable. Version set is discovered from npm
+            (`scripts/metrics-history.config.ts`).
+
+            ## Canary delta
+
+            ${{ steps.delta.outputs.report }}
+
+            Acceptable canary noise on shared GHA: **±20%**. Tier badges near a
+            boundary may still flip. **Close this PR to discard** if the delta looks
+            like runner noise rather than a real change.
           branch: chore/metrics-regen
           add-paths: |
             apps/docs/public/benchmarks.json

@@ -32,7 +32,10 @@ Every bench file starts with a `@fileoverview`-style JSDoc block describing stru
  *
  * Structure:
  * - READ-ONLY operations use shared fixtures (safe, isolates operation cost)
- * - MUTATION operations create fresh fixtures per iteration (includes setup cost)
+ * - WARM operations (upsert, reorder) share a populated fixture and reset per
+ *   iteration, so only the operation is timed — never the O(n) populate
+ * - FRESH fixtures only where the populate IS the op (initialization, batch
+ *   onboard-then-clear)
  * - Tests both 1,000 and 10,000 item datasets
  * - Categories: initialization, lookup, mutation, batch, computed access, seek
  */
@@ -49,9 +52,13 @@ describe('createRegistry benchmarks', () => {
 
 ## Fixture Isolation (critical)
 
-Separate read-only operations from mutations so measurements are accurate. [intent:234]
+**The timed region of an operation bench must contain the operation and nothing else.** In particular it must never contain an `O(n)` fixture population (`onboard`/`register`-loop of N rows) that is *not itself* the operation under measurement. A bench that builds its fixture inside the timed block measures construction, not the operation — and because `getTier` normalizes `mean` by the item count parsed from the bench name (see "Performance Tiers"), it then reports the *populate's* per-item cost under the operation's label. This is the single most common way a bench lies. [intent:234]
 
-### Read-Only Benchmarks (Shared Fixtures)
+The litmus test for every bench: **strip the timed block down to the one call named in the title. Is anything O(n) left besides that call?** If yes, hoist it to a shared fixture.
+
+Three fixture strategies, by what the bench measures:
+
+### 1. Read-Only Benchmarks (Shared Fixtures)
 
 Shared fixtures for operations that don't modify state. Isolates the operation cost: [intent:235]
 
@@ -75,26 +82,51 @@ Safe for shared fixtures:
 - Cached computations (repeated reads)
 - Pure functions
 
-### Mutation Benchmarks (Fresh Fixtures)
+### 2. Warm Operation Benchmarks (Shared Fixture + Reset)
 
-Fresh fixtures per iteration for operations that modify state: [intent:236]
+For an operation that mutates state but whose input is an already-populated fixture — sort, filter, search, paginate, group, pin, select, move, reorder, toggle. **Share the populated fixture; reset the operation's own state at the top of the timed block, then run the operation.** The reset is a cheap `O(1)`–`O(sort-columns)` call (`sort.reset()`, `selection.clear()`, `layout.reset()`), never a re-populate — so it costs nothing next to the `O(n)` operation and does not pollute the measurement.
 
 ```ts
-describe('mutation operations', () => {
-  bench('Upsert single item (1,000 items)', () => {
-    const registry = createPopulatedRegistry(1_000)  // Fresh per iteration
-    registry.upsert('item-500', { value: 'updated' })
+describe('sort pipeline', () => {
+  const table1k = createPopulatedTable(1_000)   // populated ONCE
+  const table10k = createPopulatedTable(10_000)
+
+  bench('Sort by string column ascending (10,000 items)', () => {
+    table10k.sort.reset()          // canonical state — cheap, not a re-populate
+    table10k.sort.toggle('name')   // the operation
+    void table10k.sortedItems.value // force the recompute
+  })
+})
+```
+
+Two invariants make this correct:
+
+- **Determinism.** The reset must return the fixture to the *same* canonical state every iteration, so measurements don't drift as the run accumulates state. Verify: a warm bench should report a much tighter `rme` than its fresh predecessor (construction noise is gone). If `rme` is high or the mean climbs across samples, state is leaking — the reset is incomplete.
+- **Defeat memoization.** Reading a derived `.value` only re-runs the computation if a dependency changed since the last read. The reset-then-operate sequence must leave the derivation *dirty* (the operation changed an input). Confirm the measured mean reflects real work, not a cache hit returning in nanoseconds. When in doubt, alternate the operation's argument across iterations (e.g. toggle `'name'` then `'email'`) so each iteration ends in a distinct state.
+
+Reserve fresh fixtures (below) only for the cases warm can't express.
+
+### 3. Fresh Fixtures — when construction *is* the operation
+
+Fresh fixture per iteration **only** when the O(n) work in the timed block is the thing being measured, or when the operation permanently accumulates state with no cheap reset: [intent:236]
+
+```ts
+describe('initialization', () => {
+  bench('Onboard 10,000 items', () => {
+    const registry = createRegistry()          // O(1) construct
+    registry.onboard(ITEMS_10K)                 // the operation IS the O(n) populate
   })
 })
 ```
 
 Requires fresh fixtures:
-- Operations that modify internal state
-- Side effects (cache invalidation)
-- Register/unregister cycles
-- Batch operations (clear, offboard)
+- Construction / onboarding / registration benches — the populate is the measured op (`Create …`, `Onboard N …`).
+- Batch operations that consume the fixture (`Onboard then clear N`, `Onboard N then offboard M`) — both halves are the measured batch.
+- Register/unregister into a *growing* collection with no stable-size variant — a shared fixture would grow unbounded across iterations.
 
-Fresh fixtures include setup cost; document it in the category comment.
+Note the distinction: an **empty** `createRegistry()` then a single `register()` is O(1) construction and stays fresh with no harm — the pollution rule is about O(n) *populate*, not any construction. But an operation named `… (1,000 items)` that populates 1,000 rows to exercise one call belongs in category 2, not here.
+
+Every fresh-fixture operation bench must carry a category comment stating *why* it can't be warm (construction-is-op / consumes-fixture / unbounded-growth).
 
 ## TypeScript Requirements
 
@@ -201,14 +233,16 @@ Domain-specific operations are allowed but must follow the same `{Verb} {target}
 
 Each file must cover at least 3. The names below are the **standard** categories — they drive cross-composable comparison in the metrics pipeline, so reuse them when a benchmark fits.
 
-| Category | Description | Fixture Type |
-|----------|-------------|--------------|
-| `initialization` | Setup/creation cost | Fresh |
-| `lookup operations` | Finding/accessing items | Shared |
-| `mutation operations` | Updates and modifications | Fresh |
-| `batch operations` | Bulk actions | Fresh |
-| `computed access` | Derived value reads | Shared |
-| `seek operations` | Directional search | Shared |
+| Category | Description | Fixture Strategy |
+|----------|-------------|------------------|
+| `initialization` | Setup/creation cost | Fresh — construction *is* the op (§3) |
+| `lookup operations` | Finding/accessing items | Shared read-only (§1) |
+| `mutation operations` | Updates on a populated collection (upsert, move, reorder) | Warm — shared + reset (§2). Fresh only if it consumes/grows the fixture (§3) |
+| `batch operations` | Bulk actions that consume the fixture (onboard-then-clear/offboard) | Fresh — both halves are the op (§3) |
+| `computed access` | Derived value reads | Shared read-only (§1) |
+| `seek operations` | Directional search | Shared read-only (§1) |
+
+(§1/§2/§3 refer to the three strategies under "Fixture Isolation".) Pipeline categories (`search pipeline`, `sort pipeline`, `full pipeline`, `grouping`) are Warm (§2): the pipeline runs against a pre-populated fixture, so share it and reset the pipeline's own state (`sort.reset()`, clear the query) per iteration.
 
 Domain-specific categories are allowed when the standard set doesn't fit, as long as the name follows the lowercase `{verb} {target}` shape. Examples in source: `traversal operations` and `selection mode comparison` (createNested), `primitive filtering`, `object filtering`, `filter modes`, `native comparison` (createFilter), `search pipeline`, `sort pipeline`, `grouping`, `full pipeline`, `adapter comparison` (createDataTable).
 
@@ -232,25 +266,27 @@ const LOOKUP_ID_10K = 'item-5000'  // Middle of 10K registry
 
 ## Performance Tiers
 
-Each benchmark gets its own tier. The `_fastest` and `_slowest` summaries surface the best and worst performers per composable.
+Each benchmark gets its own tier. The `_fastest` and `_slowest` summaries surface the best and worst performers per composable. Tiers are computed in `scripts/lib/benchmarks.ts` (`getTier`) from the bench's `mean` and the workload parsed out of its **name** — so the tier is only as honest as the name and the fixture isolation.
 
-| Tier | O(1) threshold | O(n) threshold | O(n²) threshold |
-|------|----------------|----------------|-----------------|
-| `blazing` | >= 100,000 ops/s | >= 10,000 ops/s | >= 1,000 ops/s |
-| `fast` | >= 10,000 ops/s | >= 1,000 ops/s | >= 100 ops/s |
-| `good` | >= 1,000 ops/s | >= 100 ops/s | >= 10 ops/s |
-| `slow` | < 1,000 ops/s | < 100 ops/s | < 10 ops/s |
+**Tiers grade cost, not raw ops/s.** Raw ops/s measures workload size, not code quality — a 10k-item op at 17 ops/s (5.9μs/item) can be better engineered than a 1-item op at 200k ops/s (5μs/item). `getTier` therefore normalizes by the workload:
 
-**Important.** Tiers are only meaningful with proper fixture isolation. A file that mixes setup cost into read-only benchmarks will show misleadingly low numbers.
+- **Collection benches** (`workload.items > 1`) — worst of two axes wins:
+  - *Efficiency* — per-item cost `μs = mean·1000 / (items·repeats)`: `<1` blazing, `<10` fast, `<100` good, else slow.
+  - *Feel* — single-op latency `ms = mean / repeats` against the frame budget: `≤16.7` blazing, `≤33.4` fast, `≤100` good, else slow. Keeps a 160ms 10k-row sort from badging `fast` on honest per-item cost alone.
+- **One-shot benches** (`workload.items === 1`: constructors, single utility calls) — no workload to amortize, so they tier on call latency alone: `<10μs` blazing, `<100μs` fast, `<16.7ms` good, else slow.
 
-### Complexity Detection
+A group's tier is its **worst** member's tier; a composable's tier is its worst group's. A feature is as fast as its slowest documented operation, never its most flattering microbench.
 
-Auto-detected from benchmark names by `scripts/generate-metrics.js`:
-- `nested` / `recursive` / `all.*all` → O(n²)
-- `{N} items` / `{N} objects` / `{N} entries` / `{N} elements` (any digit-and-noun pair) → O(n)
-- `all items` / `all keys` → O(n)
-- `single` / `one item` / `one query` / `one key` → O(1)
-- Default fallback → O(n)
+**Why fixture isolation is load-bearing here.** The per-item cost divides `mean` by the item count from the name. If the timed block populated those items (an `O(n)` onboard that isn't the operation), the tier reports the *populate's* per-item cost under the operation's label — often flattering, always wrong. A warm operation bench (shared fixture + reset) feeds `getTier` a clean operation `mean`, so the tier finally means what its label claims. See "Fixture Isolation" — this is why the overhaul to warm benches was necessary.
+
+### Workload Detection
+
+`workload(name)` parses two quantities from the bench name (`scripts/lib/benchmarks.ts`):
+
+- **items** — the largest collection size in the name: `~?N <noun>` where noun ∈ items/elements/entries/objects/dates/pairs/nodes/rows/cells/keys/queries/tokens/fields/values/columns/groups/thumbs/primitives/paths/additions/formats, plus any bare number `≥ 1000`. Unmatched → `1` (treated as one-shot).
+- **repeats** — `N times` (e.g. "Access values 100 times"), else `1`.
+
+Consequence for naming: a warm operation over N rows must keep `(N items)` in its title so it tiers as a collection op, not a one-shot. Keep the `{N} items` suffix when converting fresh→warm.
 
 ## Mocking
 
@@ -277,24 +313,57 @@ Don't mock pure logic — let it run. Mocking too aggressively defeats the purpo
 ## Running Benchmarks
 
 ```bash
-# All benchmarks (canonical, used by CI)
+# Dev: all benches (source, isolated workers, single pass)
 pnpm test:bench
 
-# All benchmarks, JSON output to apps/docs/public/benchmarks.json
+# Dev: JSON dump — do not commit from a laptop
 pnpm test:bench:json
 
 # Watch mode while iterating on a bench file
 pnpm bench
 
-# Generate metrics.json (runs coverage + bench:json + scripts/generate-metrics.js)
+# Canonical metrics (coverage + dist median-of-3 + metrics.json) — CI only for commits
 pnpm metrics
+pnpm metrics:check
 ```
 
 To narrow to a single file, append the path: `pnpm test:bench packages/0/src/composables/createRegistry/index.bench.ts`.
 
+## Apparatus contract (stability — non-negotiable)
+
+Numbers only mean something if the **writer, machine, and flags** are fixed. Homepage peak, tier badges, and history sparklines all read the same artifacts.
+
+| Knob | Canonical value | Why |
+|------|-----------------|-----|
+| Writer | **metrics-regen workflow only** | Feature PRs must not commit laptop `benchmarks.json` |
+| Runner | `ubuntu-24.04` + Node from `.nvmrc` | OS/V8 drift moves hz |
+| Vitest project | `v0:unit` only | `v0:browser` also matches `*.bench.ts` and double-records |
+| Parallelism | `--maxWorkers=1 --no-file-parallelism` | File/worker interleaving adds jitter |
+| Library under test | `V0_BENCH_TARGET=dist` (current) or npm dist path (history) | Source vs dist is a different apparatus |
+| Aggregation | **median of 3 runs** (`pnpm metrics:bench`) | Single GHA run is ~10–20% noisy |
+| Paths in JSON | repo-relative `packages/0/src/...` | Absolute `/home/john/...` vs `/home/runner/...` confuses audits |
+
+**Acceptable deviation:** canary benches (see `scripts/lib/bench-stable.ts` `CANARY_BENCHES`) may move **±20%** run-to-run on shared GHA with no code change. Beyond that, re-run or investigate — do not merge noise as signal.
+
+**Commands:**
+
+```bash
+# Dev iteration (source, single run, still isolated workers)
+pnpm test:bench
+pnpm test:bench:json   # ad-hoc JSON — do NOT commit from a laptop
+
+# Canonical metrics (dist, median of 3) — CI metrics-regen only for commits
+pnpm metrics           # coverage + build:0 + metrics:bench + generate-metrics.js
+pnpm metrics:bench     # node scripts/run-bench-stable.ts --runs 3
+pnpm metrics:check     # guard: no local paths; PR must not touch metrics artifacts casually
+pnpm metrics:delta --prev old.json --next new.json
+```
+
+**Do not** commit `apps/docs/public/benchmarks.json` or `apps/docs/src/data/metrics*.json` from a feature branch. `pnpm metrics:check` fails the PR. Override only with `ALLOW_METRICS_ARTIFACT_EDIT=1` and a written reason.
+
 ## Apparatus & imports (benchmark-history harness)
 
-The benchmark-history trend (`apps/docs/src/data/metrics/<version>.json`) is produced by running the **current** bench suite against each version's npm-installed dist — one fixed apparatus, only the library varies (see `scripts/generate-metrics-history.ts`). Two rules follow:
+The benchmark-history trend (`apps/docs/src/data/metrics/<version>.json`) is produced by running the **current** bench suite against each version's npm-installed dist — one fixed apparatus, only the library varies (see `scripts/generate-metrics-history.ts` → `run-bench-stable.ts`). Two rules follow:
 
 - **Import the library from the public package, never relative source.** Benches import the composable and its types from `@vuetify/v0/composables` (or `@vuetify/v0/date`, `@vuetify/v0` for utilities) — *not* `from './index'`. The harness aliases `@vuetify/v0` to an installed version's dist via `V0_BENCH_TARGET`; a `./index` import would silently measure current source for every version instead. Keep the bench's own fixtures (`./fixtures/...`) relative.
 - **The metrics pipeline benches the built dist; dev benches source.** `V0_BENCH_TARGET` (read in `packages/0/vitest.config.ts`): unset → source (`pnpm bench`/`test:bench`); `dist` → this package's build (`pnpm metrics`); a path → an installed version (the history harness). So `pnpm metrics` runs `build:0` first.
@@ -315,7 +384,10 @@ The benchmark-history trend (`apps/docs/src/data/metrics/<version>.json`) is pro
 
 - [ ] Bench file colocated with source as `index.bench.ts`
 - [ ] Read-only benchmarks use shared fixtures
-- [ ] Mutation benchmarks create fresh fixtures per iteration
+- [ ] Operation benches over a populated collection are warm (shared fixture + cheap reset); the timed block contains no O(n) populate that isn't the operation
+- [ ] Fresh fixtures used only where the populate IS the op (initialization, batch onboard-then-clear) or the fixture grows unbounded — with a category comment saying which
+- [ ] Warm benches verified: tight `rme` (no state drift) and the measured mean reflects real work (memoization defeated)
+- [ ] Operation benches keep the `(N items)` suffix so the tier grades them as collection ops
 - [ ] Fixtures have explicit TypeScript types
 - [ ] Each category has a comment block explaining what it measures
 - [ ] Describe blocks use lowercase standard category names

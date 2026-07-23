@@ -42,6 +42,9 @@ export default {
     progressLabel: 'Carousel progress',
     slide: 'Slide {current} of {size}',
   },
+  Combobox: {
+    noResults: 'No results',
+  },
   Dialog: {
     close: 'Close',
   },
@@ -64,5 +67,8 @@ export default {
   },
   Snackbar: {
     close: 'Dismiss',
+  },
+  Splitter: {
+    handle: 'Resize',
   },
 } as const

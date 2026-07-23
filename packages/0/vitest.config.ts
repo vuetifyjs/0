@@ -23,6 +23,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('src', import.meta.url)),
       '@vuetify/v0': v0,
       '@vuetify/paper': fileURLToPath(new URL('../paper/src', import.meta.url)),
+      '@test': fileURLToPath(new URL('test/index.ts', import.meta.url)),
       // internal
       '#v0': fileURLToPath(new URL('src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../paper/src', import.meta.url)),
@@ -33,13 +34,20 @@ export default defineConfig({
     __DEV__: 'process.env.NODE_ENV !== \'production\'',
     __VITE_LOGGER_ENABLED__: 'process.env.VITE_LOGGER_ENABLED',
     __VERSION__: '"0.0.1"',
+    // Vue esm-bundler feature flags — silence the "not explicitly defined"
+    // warning on app creation. Matches apps/docs and the browser config.
+    __VUE_OPTIONS_API__: 'true',
+    __VUE_PROD_DEVTOOLS__: 'false',
+    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
   },
   test: {
+    name: 'v0:unit',
     projects: ['packages/*'],
     environment: 'happy-dom',
     pool: 'vmThreads',
     globals: true,
     include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
+    exclude: ['**/*.browser.test.{ts,tsx}'],
     setupFiles: ['./vitest.setup.ts'],
     testTimeout: 20_000,
     coverage: {

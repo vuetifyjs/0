@@ -43,10 +43,15 @@ The Carousel provides slide navigation with native drag/swipe via CSS scroll-sna
     <Carousel.Viewport>
       <Carousel.Item />
     </Carousel.Viewport>
+
     <Carousel.Indicator />
+
     <Carousel.Previous />
+
     <Carousel.Next />
+
     <Carousel.Progress />
+
     <Carousel.LiveRegion />
   </Carousel.Root>
 </template>

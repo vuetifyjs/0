@@ -1,7 +1,7 @@
 ---
 title: Benchmarks - Performance Metrics and Tiers
 features:
-  order: 5
+  order: 6
   level: 2
 meta:
   - name: description

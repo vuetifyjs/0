@@ -8,7 +8,6 @@
  */
 
 export type Tier = 'blazing' | 'fast' | 'good' | 'slow'
-export type Complexity = 'O(1)' | 'O(n)' | 'O(n²)'
 
 export interface BenchEntry {
   name: string
@@ -37,10 +36,11 @@ export interface GroupEntry {
 }
 
 export interface ItemBenchmarks {
-  [benchName: string]: BenchEntry | BenchSummary | Record<string, GroupEntry> | undefined
+  [benchName: string]: BenchEntry | BenchSummary | Record<string, GroupEntry> | Tier | undefined
   _groups: Record<string, GroupEntry>
   _fastest?: BenchSummary
   _slowest?: BenchSummary
+  _tier?: Tier
 }
 
 interface RawBench {
@@ -72,41 +72,91 @@ export function formatTime (ms: number): string {
   return `${ms.toFixed(2)}ms`
 }
 
-export function detectComplexity (name: string): Complexity {
-  const lower = name.toLowerCase()
-  if (/nested|recursive|all.*all/.test(lower)) return 'O(n²)'
-  if (/\d+[,\d]*\s*(items?|objects?|entries|elements)/.test(lower)) return 'O(n)'
-  if (/all\s+(items?|keys?)/.test(lower)) return 'O(n)'
-  if (/single|one\s+(item|query|key)/.test(lower)) return 'O(1)'
-  return 'O(n)'
-}
+/**
+ * Parse the declared workload out of a bench name. Bench names consistently
+ * encode collection size ("(10,000 items)", "~1,000 tree items") and repeat
+ * factor ("Access values 100 times"). Bare numbers ≥ 1000 also count as
+ * collection size ("Onboard 10,000 then offboard 1,000 items"). Unmatched
+ * quantities default to 1, which under-counts work and therefore
+ * over-estimates cost — errs strict, never lenient.
+ */
+const NOUN = /~?([\d,]+)(?:\s+\w+){0,2}?\s+(?:items?|elements?|entries|objects?|dates?|pairs?|nodes?|rows?|cells?|keys?|queries|tokens?|fields?|values?|columns?|groups?|thumbs?|primitives?|paths?|additions?|formats?)\b/gi
+const TIMES = /([\d,]+)\s+times\b/i
+const BARE = /([\d,]{4,})/g
 
-export function getTier (hz: number, name: string): Tier {
-  const complexity = detectComplexity(name)
-  const thresholds: Record<Complexity, { blazing: number, fast: number, good: number }> = {
-    'O(1)': { blazing: 100_000, fast: 10_000, good: 1000 },
-    'O(n)': { blazing: 10_000, fast: 1000, good: 100 },
-    'O(n²)': { blazing: 1000, fast: 100, good: 10 },
+export function workload (name: string): { items: number, repeats: number } {
+  const match = name.match(TIMES)
+  const repeats = match ? Number.parseInt(match[1].replaceAll(',', '')) : 1
+  let items = 1
+  for (const m of name.matchAll(NOUN)) {
+    const n = Number.parseInt(m[1].replaceAll(',', ''))
+    if (n > items) items = n
   }
-  const { blazing, fast, good } = thresholds[complexity]
-  if (hz >= blazing) return 'blazing'
-  if (hz >= fast) return 'fast'
-  if (hz >= good) return 'good'
-  return 'slow'
+  for (const m of name.matchAll(BARE)) {
+    const n = Number.parseInt(m[1].replaceAll(',', ''))
+    if (n >= 1000 && n > items) items = n
+  }
+  return { items, repeats }
 }
 
-const TIER_SCORES: Record<Tier, number> = { blazing: 4, fast: 3, good: 2, slow: 1 }
-const SCORE_TIERS: Array<[number, Tier]> = [
-  [3.5, 'blazing'],
-  [2.5, 'fast'],
-  [1.5, 'good'],
-  [0, 'slow'],
+/**
+ * Tier on cost, not raw hz. Raw ops/s measures workload size, not code speed —
+ * a 10k-item op at 17 hz (5.9μs/item) can be better engineered than a
+ * single-item op at 200k hz (5μs/item).
+ *
+ * Collection benches (items > 1) — two axes, worst wins:
+ * 1. Per-item cost: is the work done efficiently?
+ * 2. Single-op latency (mean ÷ repeats vs frame budget): is one logical call
+ *    something a user would feel? Keeps a 160ms 10k-row sort from badging
+ *    "fast" just because its per-item cost is honest.
+ *
+ * One-shot benches (items = 1: constructors, single utility calls) have no
+ * workload to amortize — "per-item" would be a category error that grades a
+ * 22μs constructor against per-item budgets. They tier on call latency alone,
+ * against one-shot budgets.
+ */
+const ITEM_TIERS: Array<[number, Tier]> = [
+  [1, 'blazing'], // < 1μs per item
+  [10, 'fast'],
+  [100, 'good'],
+  [Infinity, 'slow'],
 ]
+const LATENCY_TIERS: Array<[number, Tier]> = [
+  [16.7, 'blazing'], // one 60fps frame
+  [33.4, 'fast'], // two frames
+  [100, 'good'], // perceptibility threshold
+  [Infinity, 'slow'],
+]
+const SHOT_TIERS: Array<[number, Tier]> = [
+  [10, 'blazing'], // < 10μs per call
+  [100, 'fast'],
+  [16_700, 'good'], // within one frame
+  [Infinity, 'slow'],
+]
+const TIER_SCORES: Record<Tier, number> = { blazing: 4, fast: 3, good: 2, slow: 1 }
 
+export function getTier (mean: number, name: string): Tier {
+  const { items, repeats } = workload(name)
+  const latency = mean / repeats // ms per single logical op
+
+  if (items === 1) {
+    const us = latency * 1000
+    return SHOT_TIERS.find(([edge]) => us < edge)![1]
+  }
+
+  const cost = (mean * 1000) / (items * repeats) // μs per item
+  const efficiency = ITEM_TIERS.find(([edge]) => cost < edge)![1]
+  const feel = LATENCY_TIERS.find(([edge]) => latency <= edge)![1]
+  return TIER_SCORES[efficiency] < TIER_SCORES[feel] ? efficiency : feel
+}
+
+/**
+ * A group is as fast as its slowest bench. Averaging (or taking the fastest)
+ * lets one flattering microbench mask a genuinely slow path.
+ */
 export function getGroupTier (tiers: Tier[]): Tier {
   if (tiers.length === 0) return 'good'
-  const avg = tiers.reduce((sum, t) => sum + TIER_SCORES[t], 0) / tiers.length
-  return SCORE_TIERS.find(([threshold]) => avg >= threshold)![1]
+  return tiers.reduce((worst, t) => TIER_SCORES[t] < TIER_SCORES[worst] ? t : worst)
 }
 
 function benchSummary (b: RawBench): BenchSummary {
@@ -116,7 +166,7 @@ function benchSummary (b: RawBench): BenchSummary {
     hzLabel: formatHz(b.hz),
     mean: b.mean,
     meanLabel: formatTime(b.mean),
-    tier: getTier(b.hz, b.name),
+    tier: getTier(b.mean, b.name),
   }
 }
 
@@ -140,7 +190,7 @@ export function buildItemBenchmarks (file: RawBenchFile): ItemBenchmarks {
         mean: b.mean,
         meanLabel: formatTime(b.mean),
         rme: Math.round(b.rme * 10) / 10,
-        tier: getTier(b.hz, b.name),
+        tier: getTier(b.mean, b.name),
       }
       result[b.name] = entry
       groupEntry[b.name] = entry
@@ -152,7 +202,7 @@ export function buildItemBenchmarks (file: RawBenchFile): ItemBenchmarks {
     if (fastest && slowest) {
       groupEntry._fastest = benchSummary(fastest)
       groupEntry._slowest = benchSummary(slowest)
-      groupEntry._tier = getGroupTier(groupBenchmarks.map(b => getTier(b.hz, b.name)))
+      groupEntry._tier = getGroupTier(groupBenchmarks.map(b => getTier(b.mean, b.name)))
     }
 
     result._groups[groupName] = groupEntry
@@ -163,6 +213,13 @@ export function buildItemBenchmarks (file: RawBenchFile): ItemBenchmarks {
   const slowestOverall = allBenchmarks.reduce<RawBench | null>((a, b) => (!a || b.hz < a.hz) ? b : a, null)
   if (fastestOverall) result._fastest = benchSummary(fastestOverall)
   if (slowestOverall) result._slowest = benchSummary(slowestOverall)
+
+  // Item tier = worst group tier. A feature is as fast as its slowest
+  // documented operation — never the tier of its most flattering bench.
+  const groupTiers = Object.values(result._groups)
+    .map(g => g._tier)
+    .filter((t): t is Tier => t !== undefined)
+  if (groupTiers.length > 0) result._tier = getGroupTier(groupTiers)
 
   return result
 }
@@ -176,5 +233,10 @@ export function extractName (filePath: string): string | null {
   if (composableMatch) return composableMatch[1]
   const componentMatch = filePath.match(/\/components\/([^/]+)\//)
   if (componentMatch) return componentMatch[1]
+  // Utilities are flat files (utilities/helpers.ts, utilities/helpers.bench.ts),
+  // not a dir/index pair — without this, a utilities bench (e.g. helpers) never
+  // gets a metrics.json entry and its docs card falls back to "Unmeasured".
+  const utilityMatch = filePath.match(/\/utilities\/([^/]+?)(?:\.(?:bench|test))?\.ts$/)
+  if (utilityMatch && utilityMatch[1] !== 'index') return utilityMatch[1]
   return null
 }

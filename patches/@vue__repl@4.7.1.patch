@@ -1,8 +1,20 @@
 diff --git a/dist/monaco-editor.js b/dist/monaco-editor.js
-index 0000000000000000000000000000000000000000..0000000000000000000000000000000000000001 100644
+index 32187d073bfa62031a526f4e20a21ee8ac14c857..06df068c8e78db8e521008e63849e324ed078ba5 100644
 --- a/dist/monaco-editor.js
 +++ b/dist/monaco-editor.js
-@@ -190204,7 +190204,6 @@
+@@ -178523,6 +178523,11 @@ class WorkerHost {
+ let disposeVue;
+ async function reloadLanguageTools(store) {
+   disposeVue?.();
++  for (const model of editor.getModels()) {
++    if (model.uri.toString().startsWith("file:///node_modules")) {
++      model.dispose();
++    }
++  }
+   let dependencies = {
+     ...store.dependencyVersion
+   };
+@@ -190204,7 +190209,6 @@ const _sfc_main$1 = /* @__PURE__ */ defineComponent({
              editorInstance.setModel(model);
              if (file.editorViewState) {
                editorInstance.restoreViewState(file.editorViewState);

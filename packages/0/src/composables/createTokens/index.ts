@@ -10,10 +10,10 @@
  * - Alias resolution with circular reference detection
  * - Nested token flattening with dot notation
  * - W3C Design Tokens format ($value, $type, $description, $extensions)
- * - Path-based resolution (e.g., {colors}.blue.500)
- * - Resolution caching for performance (~28,590 ops/sec)
+ * - Path-based resolution (e.g., {colors.blue.500} or colors.blue.500)
+ * - Resolution caching for performance
  *
- * Used by useTheme, useLocale, and useFeatures for token-based configuration.
+ * Used by useTheme, useLocale, useFeatures, and usePermissions for token-based configuration.
  *
  * @example
  * ```ts
@@ -51,7 +51,7 @@ export interface TokenAlias<T = unknown> {
 
 export type TokenPrimitive = string | number | boolean | null | Function
 
-export type TokenValue = TokenPrimitive | TokenAlias
+export type TokenValue = TokenPrimitive | TokenAlias | TokenCollection
 
 export interface TokenCollection {
   [key: string]: TokenValue | TokenCollection
@@ -248,6 +248,8 @@ export function createTokens<
         return undefined
       }
 
+      if (isString(current) && isAlias(current)) return resolve(current, visited)
+
       result = current
     } else {
       if (isTokenAlias(current)) {
@@ -276,22 +278,22 @@ export function createTokens<
     clear: _clear,
   } = registry
 
-  function register (registration: Partial<Z>) {
+  function register (registration?: Partial<Z & RegistryTicket>) {
     cache.clear()
     return _register(registration)
   }
 
-  function upsert (id: string, registration: Partial<Z>) {
+  function upsert (id: ID, registration?: Partial<Z>, event?: string) {
     cache.clear()
-    return _upsert(id, registration)
+    return _upsert(id, registration, event)
   }
 
-  function unregister (id: string) {
+  function unregister (id: ID) {
     cache.clear()
     return _unregister(id)
   }
 
-  function onboard (registrations: Partial<Z>[]) {
+  function onboard (registrations: Partial<Z & RegistryTicket>[]) {
     cache.clear()
     return _onboard(registrations)
   }
@@ -301,7 +303,7 @@ export function createTokens<
     return _offboard(ids)
   }
 
-  function move (id: string, index: number) {
+  function move (id: ID, index: number) {
     cache.clear()
     return _move(id, index)
   }
@@ -453,7 +455,7 @@ export function flatten (tokens: TokenCollection, prefix = '', flat = false): Fl
       }
 
       if (flat) {
-        flattened.push({ id, value: value as unknown as TokenValue })
+        flattened.push({ id, value: value as TokenValue })
         continue
       }
 

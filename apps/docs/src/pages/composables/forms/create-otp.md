@@ -130,7 +130,7 @@ Exactly once on the false → true edge of `isComplete` — when the value first
 
 ??? What happens during async verification?
 
-While an async `onComplete` is pending, every mutation helper (`write`, `distribute`, `fill`, `clear`) is a no-op — the field is effectively locked until the promise settles, so the user can't race the verifier. On rejection, the value clears and `input.errors` surfaces `v0.otp.rejected`; on the next successful mutation the rejection clears automatically.
+While an async `onComplete` is pending, every mutation helper (`write`, `distribute`, `fill`, `clear`) is a no-op — the field is effectively locked until the promise settles, so the user can't race the verifier. On rejection, the value clears and `input.errors` surfaces an `Invalid code` message; on the next successful mutation the rejection clears automatically.
 
 ??? Where does focus management live?
 

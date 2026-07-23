@@ -3,7 +3,12 @@
  *
  * Structure:
  * - READ-ONLY operations use shared fixtures (safe, isolates operation cost)
- * - MUTATION operations create fresh fixtures per iteration (includes setup cost)
+ * - WARM operations (resize, scrollTo) share a populated instance and time only
+ *   the operation — never the O(n) create + item-array setup. resize alternates
+ *   the target height each iteration to defeat its `heights[i] === height`
+ *   early-bail (a constant height would measure a ~0 cache hit); scrollTo is
+ *   index-driven and recomputes on every call, so it needs no reset.
+ * - FRESH fixtures only where the populate IS the measured op (initialization)
  * - Tests both 1,000 and 10,000 item datasets
  * - Categories: initialization, scroll operations, resize operations, scrollTo operations, computed access
  */
@@ -24,20 +29,24 @@ import type { Ref } from 'vue'
 // MOCKS - Required for lifecycle-dependent code
 // =============================================================================
 
-vi.mock('#v0/composables/useResizeObserver', () => ({
-  useResizeObserver: (target: Ref<HTMLElement | undefined>, callback: (entries: ResizeObserverEntry[]) => void) => {
-    if (target.value) {
-      callback([{
-        target: target.value,
-        contentRect: { height: 600, width: 400 },
-        borderBoxSize: [],
-        contentBoxSize: [],
-        devicePixelContentBoxSize: [],
-      }] as unknown as ResizeObserverEntry[])
-    }
-    return { stop: vi.fn() }
-  },
-}))
+vi.mock('#v0/composables/useResizeObserver', async () => {
+  const actual = await vi.importActual('#v0/composables/useResizeObserver')
+  return {
+    ...actual,
+    useResizeObserver: (target: Ref<HTMLElement | undefined>, callback: (entries: ResizeObserverEntry[]) => void) => {
+      if (target.value) {
+        callback([{
+          target: target.value,
+          contentRect: { height: 600, width: 400 },
+          borderBoxSize: [],
+          contentBoxSize: [],
+          devicePixelContentBoxSize: [],
+        }] as unknown as ResizeObserverEntry[])
+      }
+      return { stop: vi.fn() }
+    },
+  }
+})
 
 vi.mock('#v0/constants/globals', async () => {
   const actual = await vi.importActual('#v0/constants/globals')
@@ -180,87 +189,105 @@ describe('createVirtual benchmarks', () => {
 
   // ===========================================================================
   // RESIZE OPERATIONS - Item height mutations
-  // Fresh fixture per iteration (required - resize() modifies internal heights array)
-  // Measures: setup + operation cost (unavoidable for mutations)
+  // WARM: shared instance per bench, alternating the target height each iteration.
+  //   resize() early-bails when `heights[index] === height`, so a constant height
+  //   would measure a ~0 cache hit after the first call — the toggle keeps every
+  //   call doing real work while oscillating between two deterministic states (no
+  //   drift). Own instances, not the scroll-group fixtures, since resize mutates
+  //   the heights array. Isolates resize from the O(n) create + item-array setup.
   // ===========================================================================
   describe('resize operations', () => {
+    const resizeSingle1k = createVirtualInstance(1000)
+    let singleHeight1k = 150
+
+    const resizeSingle10k = createVirtualInstance(10_000)
+    let singleHeight10k = 150
+
+    const resizeSeq1k = createVirtualInstance(1000)
+    let seqParity1k = 0
+
+    const resizeSeq10k = createVirtualInstance(10_000)
+    let seqParity10k = 0
+
+    const variableItems = ref(ITEMS_1K) as Ref<readonly BenchmarkItem[]>
+    const resizeVariable = createVirtual(variableItems, { itemHeight: null, height: 600 })
+    resizeVariable.element.value = createMockContainer()
+    let variableParity = 0
+
     bench('Resize single item (1,000 items)', () => {
-      const virtual = createVirtualInstance(1000)
-      virtual.resize(500, 150)
+      resizeSingle1k.resize(500, singleHeight1k)
+      singleHeight1k = singleHeight1k === 150 ? 50 : 150
     })
 
     bench('Resize single item (10,000 items)', () => {
-      const virtual = createVirtualInstance(10_000)
-      virtual.resize(5000, 150)
+      resizeSingle10k.resize(5000, singleHeight10k)
+      singleHeight10k = singleHeight10k === 150 ? 50 : 150
     })
 
     bench('Resize 100 items sequentially (1,000 items)', () => {
-      const virtual = createVirtualInstance(1000)
       for (let i = 0; i < 100; i++) {
-        virtual.resize(i, 50 + i)
+        resizeSeq1k.resize(i, 50 + i + seqParity1k)
       }
+      seqParity1k = seqParity1k === 0 ? 1 : 0
     })
 
     bench('Resize 100 items sequentially (10,000 items)', () => {
-      const virtual = createVirtualInstance(10_000)
       for (let i = 0; i < 100; i++) {
-        virtual.resize(i, 50 + i)
+        resizeSeq10k.resize(i, 50 + i + seqParity10k)
       }
+      seqParity10k = seqParity10k === 0 ? 1 : 0
     })
 
     bench('Resize with variable heights (1,000 items)', () => {
-      const items = ref(ITEMS_1K) as Ref<readonly BenchmarkItem[]>
-      const virtual = createVirtual(items, { itemHeight: null, height: 600 })
-      virtual.element.value = createMockContainer()
       for (let i = 0; i < 100; i++) {
-        virtual.resize(i, 50 + (i % 10) * 10)
+        resizeVariable.resize(i, 50 + (i % 10) * 10 + variableParity)
       }
+      variableParity = variableParity === 0 ? 1 : 0
     })
   })
 
   // ===========================================================================
   // SCROLLTO OPERATIONS - Programmatic scroll position changes
-  // Fresh fixture per iteration (required - scrollTo() mutates element.scrollTop)
-  // Measures: setup + operation cost
+  // WARM: shared instance per size. scrollTo() sets element.scrollTop and calls
+  //   update() synchronously, recomputing the visible window (binary search) on
+  //   every call regardless of the target — so no reset is needed and no memoized
+  //   read is skipped (same pattern as the shared "scroll operations" group).
+  //   Isolates scrollTo from the O(n) create + item-array setup.
   // ===========================================================================
   describe('scrollTo operations', () => {
+    const scrollTo1k = createVirtualInstance(1000)
+    const scrollTo10k = createVirtualInstance(10_000)
+
     bench('ScrollTo start (1,000 items)', () => {
-      const virtual = createVirtualInstance(1000)
-      virtual.scrollTo(0)
+      scrollTo1k.scrollTo(0)
     })
 
     bench('ScrollTo start (10,000 items)', () => {
-      const virtual = createVirtualInstance(10_000)
-      virtual.scrollTo(0)
+      scrollTo10k.scrollTo(0)
     })
 
     bench('ScrollTo middle (1,000 items)', () => {
-      const virtual = createVirtualInstance(1000)
-      virtual.scrollTo(500)
+      scrollTo1k.scrollTo(500)
     })
 
     bench('ScrollTo middle (10,000 items)', () => {
-      const virtual = createVirtualInstance(10_000)
-      virtual.scrollTo(5000)
+      scrollTo10k.scrollTo(5000)
     })
 
     bench('ScrollTo end (1,000 items)', () => {
-      const virtual = createVirtualInstance(1000)
-      virtual.scrollTo(999)
+      scrollTo1k.scrollTo(999)
     })
 
     bench('ScrollTo end (10,000 items)', () => {
-      const virtual = createVirtualInstance(10_000)
-      virtual.scrollTo(9999)
+      scrollTo10k.scrollTo(9999)
     })
 
     bench('ScrollTo 5 positions (10,000 items)', () => {
-      const virtual = createVirtualInstance(10_000)
-      virtual.scrollTo(0)
-      virtual.scrollTo(5000)
-      virtual.scrollTo(9999)
-      virtual.scrollTo(2500)
-      virtual.scrollTo(7500)
+      scrollTo10k.scrollTo(0)
+      scrollTo10k.scrollTo(5000)
+      scrollTo10k.scrollTo(9999)
+      scrollTo10k.scrollTo(2500)
+      scrollTo10k.scrollTo(7500)
     })
   })
 

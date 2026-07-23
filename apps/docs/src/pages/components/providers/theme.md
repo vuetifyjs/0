@@ -127,6 +127,12 @@ The default slot exposes `theme` (the active ID), `isDark` (boolean), and `attrs
 </template>
 ```
 
+## Accessibility
+
+Theme is a headless **context provider**. It scopes theme state to a subtree and writes a `data-theme` attribute on its wrapper element for CSS variable targeting; it adds no ARIA attributes, roles, or keyboard behavior, and it introduces no interactive elements of its own.
+
+Theme selection is a visual concern, not a semantic one — a scoped theme changes token values, not the accessibility tree. Ensure the color choices in every theme you expose meet [WCAG contrast requirements](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum); the component does not enforce contrast for you.
+
 ## FAQ
 
 ::: faq

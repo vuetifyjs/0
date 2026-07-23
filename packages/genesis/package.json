@@ -1,6 +1,6 @@
 {
   "name": "@paper/genesis",
-  "version": "1.0.0-beta.4",
+  "version": "1.0.0",
   "description": "Genesis Design System — minimal docs primitives extracted from the v0 docs site",
   "license": "MIT",
   "repository": {

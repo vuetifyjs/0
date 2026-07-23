@@ -29,7 +29,7 @@
   const footerRef = useTemplateRef<HTMLElement | null>('footer')
 
   const links = [
-    { icon: 'discord', href: 'https://discord.gg/vK6T89eNP7', label: 'Discord', bg: 'bg-discord' },
+    { icon: 'discord', href: 'https://discord.gg/vuetify', label: 'Discord', bg: 'bg-discord' },
     { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub', bg: 'bg-[#24292f]' },
     { icon: 'heart', href: GITHUB_SPONSORS, label: 'Sponsor', bg: 'bg-[#bf3989]' },
   ]
@@ -96,17 +96,18 @@
               <div class="w-px h-4 bg-divider" />
             </template>
 
-            <a
+            <AppTooltip
               v-if="app.stats.commit"
+              as="a"
               class="flex items-center gap-1 hover:text-primary hover:underline"
               :href="app.stats.commit.html_url"
               rel="noopener nofollow"
               target="_blank"
-              :title="`Last Commit: ${new Date(app.stats.commit.commit.author.date).toLocaleString()}`"
+              :text="`Last Commit: ${new Date(app.stats.commit.commit.author.date).toLocaleString()}`"
             >
               <AppIcon :class="outOfDate && 'text-warning'" icon="history" :size="14" />
               {{ app.stats.commit.sha.slice(0, 7) }}
-            </a>
+            </AppTooltip>
           </div>
         </template>
       </div>
@@ -136,15 +137,14 @@
 
         <div class="hidden md:block w-px h-5 bg-divider" />
 
-        <button
+        <AppTooltip
           :aria-label="toggle.title.value"
           class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-surface-tint transition-colors text-on-surface"
-          :title="toggle.title.value"
-          type="button"
+          :text="toggle.title.value"
           @click="toggle.toggle"
         >
           <AppIcon :icon="toggle.icon.value" :size="20" />
-        </button>
+        </AppTooltip>
       </div>
     </div>
   </footer>

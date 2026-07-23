@@ -102,18 +102,22 @@ export function useProxyModel (
     ? undefined
     : { multiple: toValue(multiple) as boolean }
 
-  // Initialize: apply current model value, track unresolved values
-  const modelAsArray = transformIn(model)
-  const pending = new Set(modelAsArray)
+  // Values from the model with no registered ticket yet. Rebuilt on every apply
+  // so late registration reflects the CURRENT model, never a stale initial value.
+  const pending = new Set<unknown>()
 
-  context.apply(modelAsArray, applyOptions)
+  function reconcile (values: unknown[]) {
+    context.apply(values, applyOptions)
 
-  const selected = new Set(context.selectedValues.value)
-  for (const value of modelAsArray) {
-    if (selected.has(value)) {
-      pending.delete(value)
+    const selected = new Set(context.selectedValues.value)
+    pending.clear()
+    for (const value of values) {
+      if (!selected.has(value)) pending.add(value)
     }
   }
+
+  // Initialize: apply current model value, track unresolved values
+  reconcile(transformIn(model))
 
   let syncing = false
 
@@ -126,9 +130,14 @@ export function useProxyModel (
   const contextWatch = watch(context.selectedValues as Ref, val => {
     if (syncing) return
 
+    // Mark the write as internal so the paused modelWatch — which Vue replays on
+    // resume() rather than dropping — bails instead of reconciling pending
+    // against this context-driven value.
+    syncing = true
     modelWatch.pause()
     model.value = transformOut(Array.from(toValue(val)))
     modelWatch.resume()
+    syncing = false
   }, { flush: 'sync' })
 
   const modelWatch = watch(model, val => {
@@ -136,7 +145,7 @@ export function useProxyModel (
 
     syncing = true
     contextWatch.pause()
-    context.apply(transformIn(val), applyOptions)
+    reconcile(transformIn(val))
     // Sync model back to actual selection state (apply may have rejected due to disabled/mandatory)
     const actual = transformOut(Array.from(context.selectedValues.value))
     if (!shallowEqual(val, actual)) model.value = actual

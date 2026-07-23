@@ -2,9 +2,9 @@
 title: Roadmap - Vuetify0 Development Timeline
 meta:
   - name: description
-    content: Track upcoming features, releases, milestones, and maturity status for @vuetify/v0 headless UI library. v0 is a release candidate on the road to v1.0.
+    content: Track upcoming features, releases, milestones, and maturity status for @vuetify/v0 headless UI library. v0 is stable — v1.0 shipped July 22, 2026.
   - name: keywords
-    content: vuetify0, roadmap, release candidate, rc, beta, alpha, timeline, milestones, releases, features, maturity, stability, Vue 3, v0, headless ui
+    content: vuetify0, roadmap, stable, v1.0, semver, timeline, milestones, releases, features, maturity, stability, Vue 3, v0, headless ui
 features:
   level: 1
 related:
@@ -24,28 +24,34 @@ Track the development of @vuetify/v0. Milestones are organized by time horizon:
 
 <DocsRoadmap />
 
-## Release Candidate
+## Release Calendar
 
-**Now a release candidate.** A headless UI framework for Vue 3 — composables and components that handle the logic so you can own the design. No opinions on styling. No markup you can't change. Just primitives that work.
+Expected dates for the v1.1–v1.5 minor releases, the net-new features landing in each, and the existing preview features on track to graduate to stable as of that release.
 
-Alpha opened on April 7, 2026 for feedback; beta hardened the APIs. The release candidate locks the v1 stable set — what remains is final validation, documentation, and bug fixes before v1.0.
+<DocsReleaseCalendar />
+
+## Now Stable
+
+**v1.0 is here.** A headless UI framework for Vue 3 — composables and components that handle the logic so you can own the design. No opinions on styling. No markup you can't change. Just primitives that work.
+
+Alpha opened on April 7, 2026 for feedback; beta hardened the APIs; the release candidate locked the v1 stable set. The stable `v1.0.0` release shipped July 22, 2026 — the public API surface is now committed under [SemVer](https://semver.org/).
 
 ### Road to v1
 
 <DocsTimeline :milestones="[
   { id: 'alpha', label: 'Alpha', date: 'April 7, 2026', description: 'Opened for feedback, bug reports, and contributions. APIs mostly stable, may evolve.' },
-  { id: 'beta', label: 'Beta', date: 'June 2026', description: 'API freeze. Focus shifts to stability, documentation, and edge cases.' },
-  { id: 'rc', label: 'RC', date: 'July 2026', description: 'Release candidate for final testing and documentation. No new features.', active: true },
-  { id: 'v1', label: 'v1.0', date: 'Q3 2026', description: 'Milestone-driven. Ships when the milestones are met.' },
+  { id: 'beta', label: 'Beta', date: 'June 2, 2026', description: 'API freeze. Focus shifts to stability, documentation, and edge cases.' },
+  { id: 'rc', label: 'RC', date: 'July 2, 2026', description: 'Release candidate for final testing and documentation. No new features.' },
+  { id: 'v1', label: 'v1.0', date: 'July 22, 2026', description: 'Stable release. v0 1.0.0 shipped July 22, 2026.', active: true },
 ]" />
 
-### What RC means
+### What v1.0 means
 
 This isn't a proof of concept. v0 is feature-complete for v1 and ready to build with.
 
-- **The stable set is locked.** 16 composables and 17 utilities are now marked stable — breaking changes require a major version. See the [maturity matrix](#maturity-matrix) below for the full breakdown.
+- **The stable set is locked.** 16 composables and 17 utilities are marked stable — breaking changes require a major version. See the [maturity matrix](#maturity-matrix) below for the full breakdown.
 - **v0 is being built directly into Vuetify.** The composables and patterns here are the same ones powering Vuetify's next generation. This isn't a side project — it's the core.
-- **This is the final validation window.** No new features land before v1.0 — every regression, gap, or rough edge you report gets priority. If something feels wrong, say so now.
+- **Development continues.** v1.1 and beyond are on the roadmap above, and preview APIs graduate to stable release by release. Every regression, gap, or rough edge you report still gets priority — if something feels wrong, say so.
 
 ### Try v0
 
@@ -89,7 +95,7 @@ Whether you want to explore in the browser, scaffold a project, or integrate wit
 
 **Report a bug or request a feature** — [Open an issue](https://github.com/vuetifyjs/0/issues) on GitHub.
 
-**Ask a question or join the conversation** — Find us on [Discord](https://community.vuetifyjs.com).
+**Ask a question or join the conversation** — Find us on [Discord](https://discord.gg/vuetify).
 
 **Contribute code** — PRs are welcome. See the [contributing guide](/introduction/contributing) for how to get started.
 
@@ -116,11 +122,11 @@ v0 is the foundation layer being built directly into Vuetify's next generation. 
 
 ??? Can I use v0 in production?
 
-Yes. The v1 stable set is locked, and the release candidate is the build we intend to ship as v1.0. The core is solid and is already being used to build Vuetify itself. Preview APIs may still see minor, documented adjustments.
+Yes. `v1.0.0` is stable and shipped July 22, 2026. The v1 stable set is locked, and the core is already being used to build Vuetify itself. Preview APIs may still see minor, documented adjustments.
 
-??? Will APIs break before v1?
+??? Will stable APIs break?
 
-The stable set is locked — breaking changes to it now require a major version. Preview features may still evolve in minor releases, with every change documented in release notes. Alpha gathered the feedback; beta locked things down; RC is the final validation pass.
+No — the stable set is locked, and breaking changes to it require a major version. Preview features may still evolve in minor releases, with every change documented in release notes. Alpha gathered the feedback; beta locked things down; the release candidate was the final validation pass before v1.0.
 
 ??? What styling framework should I use with v0?
 
@@ -144,7 +150,7 @@ See the [contributing guide](/introduction/contributing). PRs are welcome for bu
 
 ??? Where can I get help?
 
-Join the [Discord](https://community.vuetifyjs.com) community. You can also use the AI assistant built into the docs — look for the Ask AI button on any page.
+Join the [Discord](https://discord.gg/vuetify) community. You can also use the AI assistant built into the docs — look for the Ask AI button on any page.
 :::
 
 ::: sponsor

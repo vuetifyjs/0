@@ -2,6 +2,24 @@ name: Playground Deploy
 on:
   push:
     branches: [master]
+    # Single paths list with `!` negations — GitHub does not allow both
+    # `paths` and `paths-ignore` on the same event. Playground bundles only
+    # @vuetify/v0 (no genesis, no paper), so those packages are omitted.
+    paths:
+      - 'apps/playground/**'
+      - 'packages/0/src/**'
+      - 'packages/0/package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/playground-deploy.yml'
+      - '!packages/0/src/**/*.test.ts'
+      - '!packages/0/src/**/*.bench.ts'
+      - '!packages/0/src/**/*.browser.test.ts'
+      - '!packages/0/src/**/*.ssr.test.ts'
+
+concurrency:
+  group: playground-deploy
+  cancel-in-progress: true
 
 jobs:
   deploy:

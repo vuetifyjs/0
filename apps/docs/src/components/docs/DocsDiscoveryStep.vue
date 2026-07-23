@@ -96,14 +96,15 @@
     >
       <!-- Header -->
       <div v-if="!isLastStep" class="flex justify-between items-center mb-4">
-        <span
+        <AppTooltip
+          as="span"
           class="skillz-badge inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wide px-2 py-1 rounded"
           :style="levelMeta ? { '--level-color': levelMeta.color } : undefined"
-          :title="levelMeta ? `${levelMeta.label} level` : undefined"
+          :text="levelMeta ? `${levelMeta.label} level` : undefined"
         >
           SKILLZ
           <AppIcon v-if="levelMeta" :icon="levelMeta.icon" :size="14" />
-        </span>
+        </AppTooltip>
 
         <Discovery.Progress class="text-xs text-on-surface-variant" />
       </div>
@@ -144,7 +145,7 @@
         </Discovery.Skip>
 
         <div class="ml-auto flex gap-2">
-          <Discovery.Prev v-if="!isFirst" class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface">
+          <Discovery.Prev v-if="!isFirst" class="px-3 py-1.5 text-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-on-surface/10 transition-colors">
             Back
           </Discovery.Prev>
 
@@ -164,7 +165,11 @@
   </Discovery.Root>
 </template>
 
-<style scoped>
+<!-- Unscoped: AppTooltip renders a multi-root fragment (activator + popover
+     content), so the parent scope-id is not forwarded to the .skillz-badge
+     activator element — a scoped rule would no longer match. See
+     scoped-css-multiroot-child (#359). -->
+<style>
 .skillz-badge {
   background: color-mix(in srgb, var(--level-color, var(--v0-primary)) 15%, transparent);
   color: var(--level-color, var(--v0-primary));
