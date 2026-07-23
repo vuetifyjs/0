@@ -1158,6 +1158,25 @@ describe('createTokens', () => {
         expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Alias not found'))
       })
 
+      it('should clear resolution cache when a token is removed via its own ticket.unregister()', () => {
+        const tokens: TokenCollection = {
+          primary: '#007BFF',
+          accent: { $value: '{primary}' },
+        }
+        const context = createTokens(tokens)
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+        expect(context.resolve('accent')).toBe('#007BFF')
+
+        // The ticket's own unregister() is bound to the underlying registry and
+        // bypasses the context-level mutators, so cache invalidation has to hang
+        // off the registry mutation event, not off wrapping those methods.
+        context.get('primary')!.unregister()
+
+        expect(context.resolve('accent')).toBeUndefined()
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Alias not found'))
+      })
+
       it('should remove token with dependencies', () => {
         const tokens: TokenCollection = {
           base: '#007BFF',
