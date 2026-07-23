@@ -1259,6 +1259,37 @@ describe('createTokens', () => {
       })
     })
 
+    describe('segment-path terminal alias (#566)', () => {
+      it('should follow a {alias} reached through a segment path', () => {
+        const context = createTokens({
+          colors: { primary: '#00f' },
+          group: { blue: '{colors.primary}' },
+        }, { flat: true })
+
+        expect(context.resolve('{group.blue}')).toBe('#00f')
+      })
+
+      it('should follow a multi-hop chain reached through a segment path', () => {
+        const context = createTokens({
+          colors: { base: '#0f0', primary: '{colors.base}' },
+          group: { blue: '{colors.primary}' },
+        }, { flat: true })
+
+        expect(context.resolve('{group.blue}')).toBe('#0f0')
+      })
+
+      it('should detect a circular reference reached through a segment path', () => {
+        const context = createTokens({
+          a: { x: '{b.y}' },
+          b: { y: '{a.x}' },
+        }, { flat: true })
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+        expect(context.resolve('{a.x}')).toBeUndefined()
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Circular alias detected'))
+      })
+    })
+
     describe('cache behavior', () => {
       it('should cache resolved values', () => {
         const tokens: TokenCollection = {

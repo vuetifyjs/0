@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { createRegistry, createRegistryContext, useRegistry } from './index'
 
 // Utilities
-import { computed, isReactive, nextTick, shallowRef, watchEffect } from 'vue'
+import { computed, isReactive, nextTick, shallowRef, watchEffect, watchSyncEffect } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
@@ -182,7 +182,7 @@ describe('createRegistry', () => {
       expect(removed[1]).toEqual({ id: 'c', value: 'gamma' })
     })
 
-    it('should strip id and value from returned input when valueIsIndex is true', () => {
+    it('should strip a registry-minted id and an index-derived value from the returned input', () => {
       const registry = createRegistry()
 
       const auto = registry.register({})
@@ -435,12 +435,13 @@ describe('createRegistry', () => {
       registry.register({ id: 'item-2' }) // valueIsIndex: true
       registry.register({ id: 'item-3' }) // valueIsIndex: true
 
-      // Offboard sets needsReindex but doesn't immediately reindex
-      registry.offboard(['item-1'])
+      // Tail-only removal defers the reindex (no survivor shifts), so needsReindex
+      // survives until browse() drains it — a mid-list removal would reindex eagerly.
+      registry.offboard(['item-3'])
 
-      // browse() should trigger lazy reindex when indexDependentCount > 0
-      expect(registry.browse(0)).toEqual(['item-2'])
-      expect(registry.browse(1)).toEqual(['item-3'])
+      // browse() drains the deferred reindex before reading the catalog.
+      expect(registry.browse(0)).toEqual(['item-1'])
+      expect(registry.browse(1)).toEqual(['item-2'])
     })
 
     it('should clear the entire registry', () => {
@@ -1071,7 +1072,7 @@ describe('createRegistry', () => {
       // Batching state should be reset
       // Next register should emit immediately
       registry.register({ id: 'item-2' })
-      expect(listener).toHaveBeenCalledTimes(1)
+      expect(listener).toHaveBeenCalledTimes(2)
     })
 
     it('should batch multiple different operations', () => {
@@ -1450,9 +1451,11 @@ describe('createRegistry', () => {
     it('should trigger lazy reindex before moving', () => {
       const registry = createRegistry()
       registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
-      registry.offboard(['b'])
+      // Tail-only removal defers the reindex so move() must drain it first.
+      registry.offboard(['c'])
       const result = registry.move('a', 1)
       expect(result).toBeDefined()
+      expect(registry.keys()).toEqual(['b', 'a'])
     })
 
     it('should emit update:ticket for the moved ticket', () => {
@@ -1723,12 +1726,13 @@ describe('createRegistry', () => {
     it('should trigger lazy reindex before reorder', () => {
       const registry = createRegistry()
       registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }])
-      registry.offboard(['b'])
-      registry.reorder(['d', 'a', 'c'])
-      expect(registry.keys()).toEqual(['d', 'a', 'c'])
-      expect(registry.get('d')?.index).toBe(0)
+      // Tail-only removal defers the reindex so reorder() must drain it first.
+      registry.offboard(['d'])
+      registry.reorder(['c', 'a', 'b'])
+      expect(registry.keys()).toEqual(['c', 'a', 'b'])
+      expect(registry.get('c')?.index).toBe(0)
       expect(registry.get('a')?.index).toBe(1)
-      expect(registry.get('c')?.index).toBe(2)
+      expect(registry.get('b')?.index).toBe(2)
     })
   })
 
@@ -1892,6 +1896,194 @@ describe('createRegistry', () => {
 
       expect(patched).toBe(ticket)
       expect(values).toEqual(['initial', 'updated'])
+    })
+  })
+
+  describe('offboard reindex + id provenance + batch version', () => {
+    it('should eagerly heal index and value of index-derived tickets after a mid-list offboard', () => {
+      const registry = createRegistry()
+      const tickets = registry.onboard([{}, {}, {}, {}])
+
+      registry.offboard([tickets[1].id])
+
+      // No drain method called — values()/entries() must already reflect the
+      // renumbered survivors, not the pre-offboard index/value.
+      const values = registry.values()
+      expect(values.map(ticket => ticket.index)).toEqual([0, 1, 2])
+      expect(values.map(ticket => ticket.value)).toEqual([0, 1, 2])
+
+      // The surviving ticket references are healed in place.
+      expect(tickets[2].index).toBe(1)
+      expect(tickets[2].value).toBe(1)
+      expect(tickets[3].index).toBe(2)
+      expect(tickets[3].value).toBe(2)
+    })
+
+    it('should emit reindex:registry when a mid-list offboard shifts index-derived survivors', () => {
+      const registry = createRegistry({ events: true })
+
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+
+      const onReindex = vi.fn()
+      registry.on('reindex:registry', onReindex)
+
+      registry.offboard(['b'])
+
+      expect(onReindex).toHaveBeenCalledTimes(1)
+    })
+
+    it('should defer (not reindex) when an offboard removes only a tail block', () => {
+      const registry = createRegistry({ events: true })
+
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+
+      const onReindex = vi.fn()
+      registry.on('reindex:registry', onReindex)
+
+      registry.offboard(['c'])
+
+      expect(onReindex).not.toHaveBeenCalled()
+    })
+
+    it('should renumber correctly after a tail offboard followed by a lazy unregister', () => {
+      const registry = createRegistry()
+      const tickets = registry.onboard([{}, {}, {}, {}, {}])
+
+      registry.offboard([tickets[4].id])
+      registry.unregister(tickets[1].id)
+
+      expect(registry.keys()).toEqual([tickets[0].id, tickets[2].id, tickets[3].id])
+      expect(registry.lookup(0)).toBe(tickets[0].id)
+      expect(registry.get(tickets[2].id)?.index).toBe(1)
+      expect(registry.get(tickets[3].id)?.index).toBe(2)
+    })
+
+    it('should preserve a user-supplied id on offboard even when the value is index-derived', () => {
+      const registry = createRegistry<{ id?: string, value?: string }>()
+
+      registry.register({ id: 'keep' })
+
+      const [removed] = registry.offboard(['keep'])
+
+      expect(removed).toEqual({ id: 'keep' })
+    })
+
+    it('should round-trip a user-supplied id with no value across registries', () => {
+      const source = createRegistry<{ id?: string }>()
+      const destination = createRegistry<{ id?: string }>()
+
+      source.register({ id: 'x' })
+
+      const inputs = source.offboard(['x'])
+      const [ticket] = destination.onboard(inputs)
+
+      expect(ticket.id).toBe('x')
+    })
+
+    it('should re-register a previously offboarded auto id as auto again', () => {
+      const registry = createRegistry()
+
+      const auto = registry.register({})
+      registry.offboard([auto.id])
+
+      const next = registry.register({})
+      const [removed] = registry.offboard([next.id])
+
+      expect(removed).not.toHaveProperty('id')
+    })
+
+    it('should strip a minted id but keep an explicit value on offboard', () => {
+      const registry = createRegistry<{ id?: string, value?: string }>()
+
+      // Minted id (none supplied) + explicit value: id is stripped, value survives.
+      const ticket = registry.register({ value: 'x' })
+
+      const [removed] = registry.offboard([ticket.id])
+
+      expect(removed).toEqual({ value: 'x' })
+    })
+
+    it('should never expose removed ids to a sync effect firing mid-offboard', () => {
+      const registry = createRegistry({ reactive: true })
+      registry.onboard([{ id: 'a', value: 'x' }, { id: 'b', value: 'y' }, { id: 'c', value: 'z' }])
+
+      const seen: ID[][] = []
+      const stop = watchSyncEffect(() => {
+        // Track the collection so the effect fires on the Map delete below, and read
+        // keys() inside it: the early invalidate() must have cleared the cache so the
+        // rebuild reflects the compacted order, never a mid-delete stale snapshot.
+        void registry.collection.size
+        seen.push([...registry.keys()])
+      })
+
+      seen.length = 0 // discard the pre-offboard snapshot
+      registry.offboard(['b'])
+      stop()
+
+      expect(seen.every(snapshot => !snapshot.includes('b'))).toBe(true)
+      expect(registry.keys()).toEqual(['a', 'c'])
+    })
+
+    it('should notify iteration subscribers after a tail offboard', () => {
+      const registry = createRegistry({ reactive: true })
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+
+      const runs = vi.fn()
+      const stop = watchSyncEffect(() => {
+        runs()
+        void registry.values()
+      })
+      expect(runs).toHaveBeenCalledTimes(1)
+
+      // A tail offboard defers the reindex; the early invalidate() is the only
+      // structural setter on that path, so it must still bump the version.
+      registry.offboard(['c'])
+      expect(runs).toHaveBeenCalledTimes(2)
+
+      stop()
+    })
+
+    it('should not re-notify iteration subscribers for a field-only upsert batch', () => {
+      const registry = createRegistry({ reactive: true })
+      registry.onboard([{ id: 'a', value: 'x' }, { id: 'b', value: 'y' }])
+
+      const runs = vi.fn()
+      const stop = watchSyncEffect(() => {
+        runs()
+        void registry.values()
+      })
+
+      expect(runs).toHaveBeenCalledTimes(1)
+
+      registry.batch(() => {
+        registry.upsert('a', { value: 'z' })
+      })
+      expect(runs).toHaveBeenCalledTimes(1)
+
+      registry.batch(() => {
+        registry.register({ id: 'c', value: 'w' })
+      })
+      expect(runs).toHaveBeenCalledTimes(2)
+
+      stop()
+    })
+
+    it('should not notify iteration subscribers for an empty batch', () => {
+      const registry = createRegistry({ reactive: true })
+      registry.register({ id: 'a', value: 'x' })
+
+      const runs = vi.fn()
+      const stop = watchSyncEffect(() => {
+        runs()
+        void registry.values()
+      })
+
+      expect(runs).toHaveBeenCalledTimes(1)
+
+      registry.batch(() => {})
+      expect(runs).toHaveBeenCalledTimes(1)
+
+      stop()
     })
   })
 })

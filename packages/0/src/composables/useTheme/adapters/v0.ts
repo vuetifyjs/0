@@ -21,6 +21,7 @@ interface ThemeHeadInput {
 
 interface HeadEntry {
   dispose?: () => void
+  patch?: (input: ThemeHeadInput) => void
 }
 
 interface Head {
@@ -112,8 +113,20 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
             ...(this.cspNonce ? { nonce: this.cspNonce } : {}),
           }],
         })
-
-        if (entry?.dispose) this.dispose = entry.dispose
+        const stop = watch([context.selectedId, context.colors, context.isDark], ([themeId, colors, isDark]) => {
+          entry.patch?.({
+            htmlAttrs: { 'data-theme': themeId ? String(themeId) : '' },
+            style: [{
+              innerHTML: this.generate(colors, isDark),
+              id: this.stylesheetId,
+              ...(this.cspNonce ? { nonce: this.cspNonce } : {}),
+            }],
+          })
+        })
+        this.dispose = () => {
+          stop()
+          entry.dispose?.()
+        }
       }
     }
   }

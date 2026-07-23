@@ -10,10 +10,10 @@
  * - Alias resolution with circular reference detection
  * - Nested token flattening with dot notation
  * - W3C Design Tokens format ($value, $type, $description, $extensions)
- * - Path-based resolution (e.g., {colors}.blue.500)
- * - Resolution caching for performance (~28,590 ops/sec)
+ * - Path-based resolution (e.g., {colors.blue.500} or colors.blue.500)
+ * - Resolution caching for performance
  *
- * Used by useTheme, useLocale, and useFeatures for token-based configuration.
+ * Used by useTheme, useLocale, useFeatures, and usePermissions for token-based configuration.
  *
  * @example
  * ```ts

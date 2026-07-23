@@ -1,6 +1,8 @@
 <script setup lang="ts">
+  import { GnActionButton } from '@paper/genesis'
+
   // Framework
-  import { createFilter, IN_BROWSER, Popover, useDate } from '@vuetify/v0'
+  import { createFilter, IN_BROWSER, isString, Popover, useDate } from '@vuetify/v0'
 
   // Context
   import DocsSkeleton from './DocsSkeleton.vue'
@@ -8,6 +10,7 @@
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
   import { useMarkdown } from '@/composables/useMarkdown'
+  import { useSettings } from '@/composables/useSettings'
 
   // Constants
   import { EMOJIS } from '@/constants/emoji'
@@ -25,8 +28,10 @@
   const router = useRouter()
   const store = useReleasesStore()
   const date = useDate()
+  const settings = useSettings()
   const linkClipboard = useClipboard()
   const markdownClipboard = useClipboard()
+  const installClipboard = useClipboard()
 
   const model = shallowRef<Release>()
   const search = shallowRef('')
@@ -45,8 +50,39 @@
   })
 
   const releases = toRef(() => store.releases)
-  const filter = createFilter({ keys: ['tag_name', 'name'] })
+  const filter = createFilter({ keys: ['tag_name', 'name', 'body'] })
   const { items: filteredReleases } = filter.apply(search, releases)
+
+  // Splits a release tag into the npm package and its version. Substrate tags are
+  // `v<version>` (package `@vuetify/v0`); design-system tags are `@scope/name@<version>`.
+  function parseTag (tag: string) {
+    const scoped = /^(@[^@]+)@(.+)$/.exec(tag)
+    if (scoped) return { name: scoped[1], version: scoped[2] }
+    return { name: '@vuetify/v0', version: tag.replace(/^v/, '') }
+  }
+
+  function channelOf (version: string) {
+    return /-(alpha|beta|rc)\./.exec(version)?.[1] ?? 'stable'
+  }
+
+  // Heuristic: changeset bodies surface breaking work under a "Major Changes"
+  // heading; conventional footers use "BREAKING CHANGE".
+  function isBreaking (release: Release) {
+    const body = release.body
+    if (!isString(body)) return false
+    return /breaking change/i.test(body) || /^#{1,6}\s*major changes/im.test(body)
+  }
+
+  const install = toRef(() => {
+    if (!model.value) return undefined
+    const { name, version } = parseTag(model.value.tag_name)
+    const pm = settings.packageManager.value
+    const verb = pm === 'npm' ? 'install' : 'add'
+    return `${pm} ${verb} ${name}@${version}`
+  })
+
+  const channel = toRef(() => model.value ? channelOf(parseTag(model.value.tag_name).version) : undefined)
+  const channelLabel = toRef(() => channel.value === 'rc' ? 'RC' : channel.value)
 
   function genEmoji (count: number) {
     if (count >= 100) return '\uD83D\uDCAB'
@@ -70,6 +106,11 @@
   async function copyReleaseMarkdown () {
     if (!model.value?.body) return
     await markdownClipboard.copy(model.value.body)
+  }
+
+  async function copyInstall () {
+    if (!install.value) return
+    await installClipboard.copy(install.value)
   }
 
   function selectRelease (release: Release) {
@@ -151,12 +192,12 @@
         class="bg-surface border-t border-divider rounded-b-lg max-h-80 overflow-auto shadow-lg w-[anchor-size(width)]"
         position-area="bottom"
       >
-        <input
+        <DocsSearchInput
           v-model="search"
-          class="w-full px-4 py-2 bg-transparent border-none border-b border-divider font-inherit text-inherit outline-none focus-visible:bg-surface-tint"
+          class="p-2"
+          :icon="false"
           placeholder="Search releases..."
-          type="text"
-        >
+        />
 
         <div v-if="filteredReleases.length === 0" class="px-4 py-3 text-center opacity-50">
           No releases found
@@ -176,8 +217,17 @@
             {{ release.name }}
           </span>
 
-          <span v-if="release.reactions?.total_count" class="ml-auto">
-            {{ genEmoji(release.reactions.total_count) }}
+          <span class="ml-auto flex items-center gap-1.5">
+            <AppIcon
+              v-if="isBreaking(release)"
+              class="text-error"
+              icon="alert"
+              :size="14"
+            />
+
+            <span v-if="release.reactions?.total_count">
+              {{ genEmoji(release.reactions.total_count) }}
+            </span>
           </span>
         </button>
 
@@ -203,52 +253,86 @@
     <div v-if="model?.author" class="border-t border-divider">
       <!-- Header -->
       <div class="flex items-center justify-between px-4 py-3 border-b border-divider">
-        <div class="flex items-center gap-2 text-sm">
+        <div class="flex items-center gap-2 text-sm flex-wrap">
           <AppIcon class="opacity-50" icon="calendar" :size="16" />
           <span>{{ publishedOn }}</span>
+
+          <span
+            v-if="channel"
+            class="text-xs font-medium px-2 py-0.5 rounded-full capitalize"
+            :class="{
+              'bg-success text-on-success': channel === 'stable',
+              'bg-info text-on-info': channel === 'rc',
+              'bg-warning text-on-warning': channel === 'beta',
+              'bg-error text-on-error': channel === 'alpha',
+            }"
+          >{{ channelLabel }}</span>
+
+          <span
+            v-if="isBreaking(model)"
+            class="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-error text-on-error"
+          >
+            <AppIcon icon="alert" :size="12" />
+            Breaking
+          </span>
         </div>
 
         <div class="flex items-center gap-2">
-          <button
+          <AppTooltip
             aria-label="Copy markdown"
             class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
-            :title="markdownClipboard.copied.value ? 'Copied!' : 'Copy markdown'"
-            type="button"
+            :text="markdownClipboard.copied.value ? 'Copied!' : 'Copy markdown'"
             @click="copyReleaseMarkdown"
           >
             <AppIcon :icon="markdownClipboard.copied.value ? 'success' : 'copy'" :size="18" />
-          </button>
+          </AppTooltip>
 
-          <button
+          <AppTooltip
             aria-label="Copy link"
             class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
-            :title="linkClipboard.copied.value ? 'Copied!' : 'Copy link'"
-            type="button"
+            :text="linkClipboard.copied.value ? 'Copied!' : 'Copy link'"
             @click="copyReleaseLink"
           >
             <AppIcon :icon="linkClipboard.copied.value ? 'success' : 'share'" :size="18" />
-          </button>
+          </AppTooltip>
 
-          <a
+          <AppTooltip
+            as="a"
             class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
             href="https://discord.gg/vuetify"
             rel="noopener"
             target="_blank"
-            title="Discuss on Discord"
+            text="Discuss on Discord"
           >
             <AppIcon icon="discord" :size="18" />
-          </a>
+          </AppTooltip>
 
-          <a
+          <AppTooltip
+            as="a"
             class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
             :href="model.html_url"
             rel="noopener"
             target="_blank"
-            title="View on GitHub"
+            text="View on GitHub"
           >
             <AppIcon icon="github" :size="18" />
-          </a>
+          </AppTooltip>
         </div>
+      </div>
+
+      <!-- Install -->
+      <div v-if="install" class="flex items-center gap-2 px-4 py-2 border-b border-divider bg-surface-variant">
+        <AppIcon class="opacity-50 shrink-0" icon="package" :size="16" />
+        <code class="text-sm truncate flex-1 bg-surface-variant">{{ install }}</code>
+
+        <GnActionButton
+          aria-label="Copy install command"
+          class="shrink-0"
+          :title="installClipboard.copied.value ? 'Copied!' : 'Copy install command'"
+          @click="copyInstall"
+        >
+          <AppIcon :icon="installClipboard.copied.value ? 'success' : 'copy'" :size="16" />
+        </GnActionButton>
       </div>
 
       <!-- Body -->

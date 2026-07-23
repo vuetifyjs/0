@@ -2,11 +2,9 @@
   // Composables
   import { TIER_CONFIG } from '@/composables/useBenchmarkData'
 
-  import metrics from '@/data/metrics.json'
-
   // Utilities
   import { resolveItemName } from '@/utilities/strings'
-  import { computed, toRef } from 'vue'
+  import { computed, shallowRef, toRef, watchEffect } from 'vue'
   import { useRoute } from 'vue-router'
 
   const tiers = (['good', 'fast', 'blazing', 'slow'] as const).map(t => [t, TIER_CONFIG[t]] as const)
@@ -15,11 +13,22 @@
 
   const itemName = computed(() => resolveItemName(route.path))
 
+  // metrics.json (~183 KB) is code-split via dynamic import so it stays out of
+  // the shared bundle — matching useBenchmarkData/useBenchmarkHistory. A static
+  // import here would defeat that split for every consumer.
+  const metrics = shallowRef<Record<string, { benchmarks?: Record<string, unknown> }> | null>(null)
+
+  watchEffect(() => {
+    if (!itemName.value || metrics.value) return
+    import('@/data/metrics.json').then(m => {
+      metrics.value = m.default as Record<string, { benchmarks?: Record<string, unknown> }>
+    })
+  })
+
   const hasBenchmarks = toRef(() => {
     const name = itemName.value
-    if (!name) return false
-    const m = (metrics as Record<string, { benchmarks?: Record<string, unknown> }>)[name]
-    return !!m?.benchmarks
+    if (!name || !metrics.value) return false
+    return !!metrics.value[name]?.benchmarks
   })
 
   const githubLink = toRef(() => {
@@ -59,7 +68,12 @@
       Learn more in the <router-link class="v0-link" to="/guide/fundamentals/benchmarks">benchmarks guide</router-link>.
     </p>
 
-    <p v-if="githubLink" class="mb-4">
+    <BenchmarkExplorer
+      :composable="itemName"
+      hide-summary
+    />
+
+    <p v-if="githubLink" class="mt-4">
       <a
         class="v0-link"
         :href="githubLink"
@@ -67,10 +81,5 @@
         target="_blank"
       >View benchmark source↗</a>
     </p>
-
-    <BenchmarkExplorer
-      :composable="itemName"
-      hide-summary
-    />
   </div>
 </template>

@@ -102,6 +102,7 @@
       'aria-expanded': hasContent.value ? toValue(ticket.isOpen) : undefined,
       'aria-level': toValue(ticket.depth) + 1,
       'aria-posinset': ticket.position(),
+      'aria-current': toValue(ticket.isActive) ? 'true' : undefined,
       'aria-selected': toValue(ticket.isSelected),
       'aria-setsize': ticket.siblings().length,
       'data-active': toValue(ticket.isActive) || undefined,

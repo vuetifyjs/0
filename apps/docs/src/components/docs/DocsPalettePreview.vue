@@ -59,7 +59,7 @@
       >
         <!-- Tab nav -->
         <div class="flex gap-3 mb-3 border-b border-solid pb-1" :style="{ borderColor: definition.themes[mode]?.colors?.['outline'] as string }">
-          <button
+          <AppTooltip
             v-for="(tab, index) in tabs"
             :key="tab"
             class="cursor-pointer text-xs font-medium pb-1 bg-transparent border-none border-b-2 border-solid"
@@ -71,7 +71,7 @@
                 ? (definition.themes[mode]?.colors?.['primary'] as string)
                 : 'transparent',
             }"
-            :title="(index === 0
+            :text="(index === 0
               ? definition.themes[mode]?.colors?.['primary']
               : definition.themes[mode]?.colors?.['on-surface-variant']) as string"
             @click="onCopy((index === 0
@@ -85,12 +85,12 @@
                 : definition.themes[mode]?.colors?.['on-surface-variant']) as string)"
               class="text-[10px] ml-1 op-70"
             >Copied!</span>
-          </button>
+          </AppTooltip>
         </div>
 
         <!-- Stat cards -->
         <div class="flex gap-2 mb-3">
-          <button
+          <AppTooltip
             v-for="stat in stats"
             :key="stat.label"
             class="cursor-pointer flex-1 rounded-md px-2 py-1.5 border-none"
@@ -98,7 +98,7 @@
               backgroundColor: definition.themes[mode]?.colors?.[stat.bg] as string,
               color: definition.themes[mode]?.colors?.[stat.fg] as string,
             }"
-            :title="`bg: ${definition.themes[mode]?.colors?.[stat.bg]} / text: ${definition.themes[mode]?.colors?.[stat.fg]}`"
+            :text="`bg: ${definition.themes[mode]?.colors?.[stat.bg]} / text: ${definition.themes[mode]?.colors?.[stat.fg]}`"
             @click="onCopy(definition.themes[mode]?.colors?.[stat.bg] as string)"
           >
             <div class="text-[10px] op-80">{{ stat.label }}</div>
@@ -108,7 +108,7 @@
               v-if="isCopied(definition.themes[mode]?.colors?.[stat.bg] as string)"
               class="text-[10px] op-70"
             >Copied!</span>
-          </button>
+          </AppTooltip>
         </div>
 
         <!-- Task list -->

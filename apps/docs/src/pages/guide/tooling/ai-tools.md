@@ -128,7 +128,7 @@ If a name below covers the need, use it — never hand-roll an equivalent.
 - createSelection — multi/single selection with mandatory guards
 - createForm — form state + field coordination
 - useHotkey — keyboard shortcuts
-- useVirtual — virtual scrolling for large lists
+- createVirtual — virtual scrolling for large lists
 <!-- ...full export list... -->
 ```
 
@@ -173,9 +173,9 @@ Hallucinated v0 APIs fail to compile. Run `vue-tsc --noEmit` (or `tsc --noEmit`)
 
 **llms.txt** contains categorized links to:
 
-- 10 guide pages (introduction, theming, accessibility, etc.)
+- Guide pages (fundamentals, features, tooling, integration, and more)
 - <DocsCount type="component" /> headless components (Atom, Avatar, Pagination, etc.)
-- <DocsCount type="composable" /> composables across 7 categories
+- <DocsCount type="composable" /> composables across categories
 - FAQ and contributing guides
 
 **llms-full.txt** includes the complete content of every documentation page, stripped of Vue components and frontmatter for cleaner LLM consumption.

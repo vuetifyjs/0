@@ -39,13 +39,19 @@
 
 <template>
   <Popover.Root id="theme-selector" v-model="isOpen">
-    <Popover.Activator
-      aria-label="Select theme"
-      class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
-      :title="toggle.title.value"
+    <AppTooltip
+      as="span"
+      class="inline-flex"
+      position-area="bottom"
+      :text="toggle.title.value"
     >
-      <AppIcon :icon="toggle.icon.value" />
-    </Popover.Activator>
+      <Popover.Activator
+        aria-label="Select theme"
+        class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
+      >
+        <AppIcon :icon="toggle.icon.value" />
+      </Popover.Activator>
+    </AppTooltip>
 
     <Popover.Content
       id="theme-selector"

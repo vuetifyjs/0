@@ -233,5 +233,10 @@ export function extractName (filePath: string): string | null {
   if (composableMatch) return composableMatch[1]
   const componentMatch = filePath.match(/\/components\/([^/]+)\//)
   if (componentMatch) return componentMatch[1]
+  // Utilities are flat files (utilities/helpers.ts, utilities/helpers.bench.ts),
+  // not a dir/index pair — without this, a utilities bench (e.g. helpers) never
+  // gets a metrics.json entry and its docs card falls back to "Unmeasured".
+  const utilityMatch = filePath.match(/\/utilities\/([^/]+?)(?:\.(?:bench|test))?\.ts$/)
+  if (utilityMatch && utilityMatch[1] !== 'index') return utilityMatch[1]
   return null
 }

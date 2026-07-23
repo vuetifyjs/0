@@ -274,6 +274,32 @@ describe('createNumberField', () => {
       field.commit()
       expect(field.value.value).toBeNull()
     })
+
+    it('should no-op when disabled', () => {
+      const field = setup({ value: ref(13), min: 0, max: 100, step: 5, disabled: true })
+      field.commit()
+      expect(field.value.value).toBe(13)
+      field.commit(42)
+      expect(field.value.value).toBe(13)
+    })
+
+    it('should no-op when readonly', () => {
+      const field = setup({ value: ref(13), min: 0, max: 100, step: 5, readonly: true })
+      field.commit()
+      expect(field.value.value).toBe(13)
+      field.commit(42)
+      expect(field.value.value).toBe(13)
+    })
+
+    it('should commit again once unlocked', () => {
+      const disabled = shallowRef(true)
+      const field = setup({ value: ref(13), min: 0, max: 100, step: 5, disabled })
+      field.commit()
+      expect(field.value.value).toBe(13)
+      disabled.value = false
+      field.commit()
+      expect(field.value.value).toBe(15)
+    })
   })
 
   describe('numeric context', () => {

@@ -146,10 +146,6 @@
     table.onboard(items.map(item => ({ id: item.id, value: item })))
   }, { immediate: true })
 
-  function onSearch (event: Event) {
-    table.search((event.target as HTMLInputElement).value)
-  }
-
   // Feature pages deep-link here with `?category=&feature=` so the reader's
   // category is auto-expanded and their feature's row is highlighted, instead
   // of being buried among collapsed groups.
@@ -269,13 +265,12 @@
 
     <!-- Search + expand toggle -->
     <div class="flex items-center gap-2 mb-4">
-      <input
-        class="flex-1 px-4 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm placeholder-on-surface-variant/50 outline-none transition-colors focus:border-primary"
+      <DocsSearchInput
+        class="flex-1"
+        :model-value="table.query.value"
         placeholder="Search by name, type, or category..."
-        type="text"
-        :value="table.query.value"
-        @input="onSearch"
-      >
+        @update:model-value="table.search($event)"
+      />
 
       <button
         class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-on-surface-variant bg-transparent border-0 cursor-pointer transition-colors hover:text-on-surface whitespace-nowrap"

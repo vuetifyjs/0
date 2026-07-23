@@ -40,11 +40,16 @@ AlertDialog mirrors Dialog but with stricter defaults: no close on click outside
 <template>
   <AlertDialog.Root>
     <AlertDialog.Activator />
+
     <AlertDialog.Content>
       <AlertDialog.Title />
+
       <AlertDialog.Description />
+
       <AlertDialog.Close />
+
       <AlertDialog.Cancel />
+
       <AlertDialog.Action />
     </AlertDialog.Content>
   </AlertDialog.Root>
@@ -81,13 +86,15 @@ AlertDialog uses `role="alertdialog"` instead of `role="dialog"`, signaling to a
 
 | Key | Behavior |
 |-----|----------|
-| `Tab` | Moves focus between Cancel and Action buttons |
+| `Tab` | Cycles focus through focusable controls inside Content (trapped by `showModal()`) |
 | `Escape` | Blocked by default (opt-in via `closeOnEscape` prop) |
 | `Enter` / `Space` | Activates the focused button |
 
 ### Focus management
 
-Focus moves to the Cancel button on open, as it represents the safest action. This follows the WAI-ARIA alertdialog pattern where destructive actions should not receive initial focus.
+Focus is handled by the native dialog: `showModal()` moves focus to the **first focusable** control inside Content. AlertDialog does not retarget focus to Cancel on its own.
+
+For the WAI-ARIA alertdialog pattern — safe action first, destructive confirm not initially focused — put Cancel (or another non-destructive control) **first among focusables** in DOM order. The shipped examples do this. If something focusable must appear before Cancel, put `autofocus` on Cancel (or call `.focus()` yourself after open).
 
 ## FAQ
 

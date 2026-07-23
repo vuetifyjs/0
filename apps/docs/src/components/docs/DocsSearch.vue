@@ -272,18 +272,19 @@
                     <span class="text-xs text-on-surface-variant ml-2">{{ result.category }}</span>
                   </div>
 
-                  <span
+                  <AppTooltip
                     aria-label="Remove from favorites"
+                    as="span"
                     class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                     role="button"
                     tabindex="0"
-                    title="Remove from favorites"
+                    text="Remove from favorites"
                     @click="onRemove($event, result.id)"
                     @keydown.enter.stop="onRemove($event, result.id)"
                     @keydown.space.stop.prevent="onRemove($event, result.id)"
                   >
                     <AppIcon aria-hidden="true" icon="close" size="16" />
-                  </span>
+                  </AppTooltip>
                 </div>
               </Discovery.Activator>
 
@@ -330,31 +331,33 @@
 
                   <div class="flex items-center gap-1 shrink-0">
                     <!-- Favorite toggle -->
-                    <span
+                    <AppTooltip
                       aria-label="Add to favorites"
+                      as="span"
                       class="btn-action text-on-surface/60 hover:text-warning focus-visible:text-warning opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                       role="button"
                       tabindex="0"
-                      title="Add to favorites"
+                      text="Add to favorites"
                       @click="toggleFavorite($event, result.id)"
                       @keydown.enter.stop="toggleFavorite($event, result.id)"
                       @keydown.space.stop.prevent="toggleFavorite($event, result.id)"
                     >
                       <AppIcon aria-hidden="true" icon="star-outline" size="16" />
-                    </span>
+                    </AppTooltip>
                     <!-- Remove button -->
-                    <span
+                    <AppTooltip
                       aria-label="Remove from recent searches"
+                      as="span"
                       class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                       role="button"
                       tabindex="0"
-                      title="Remove from recent"
+                      text="Remove from recent"
                       @click="onRemove($event, result.id)"
                       @keydown.enter.stop="onRemove($event, result.id)"
                       @keydown.space.stop.prevent="onRemove($event, result.id)"
                     >
                       <AppIcon aria-hidden="true" icon="close" size="16" />
-                    </span>
+                    </AppTooltip>
                   </div>
                 </div>
               </Discovery.Activator>
@@ -436,15 +439,16 @@
                       :padding="4"
                       step="search-favorite"
                     >
-                      <span
+                      <AppTooltip
                         :aria-label="search.isFavorite(group.items[0].id) ? 'Remove from favorites' : 'Add to favorites'"
+                        as="span"
                         :class="[
                           'btn-action cursor-pointer',
                           search.isFavorite(group.items[0].id) || discovery.isActive.value ? 'opacity-100 text-warning' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
                         ]"
                         role="button"
                         tabindex="0"
-                        :title="search.isFavorite(group.items[0].id) ? 'Remove from favorites' : 'Add to favorites'"
+                        :text="search.isFavorite(group.items[0].id) ? 'Remove from favorites' : 'Add to favorites'"
                         @click="toggleFavorite($event, group.items[0].id)"
                         @keydown.enter.stop="toggleFavorite($event, group.items[0].id)"
                         @keydown.space.stop.prevent="toggleFavorite($event, group.items[0].id)"
@@ -454,7 +458,7 @@
                           :icon="search.isFavorite(group.items[0].id) ? 'star' : 'star-outline'"
                           size="16"
                         />
-                      </span>
+                      </AppTooltip>
                     </Discovery.Activator>
 
                     <!-- Ask AI button -->
@@ -463,21 +467,22 @@
                       :padding="4"
                       step="search-ask-ai"
                     >
-                      <span
+                      <AppTooltip
                         aria-label="Ask AI about this page"
+                        as="span"
                         :class="[
                           'btn-action text-on-surface/60 hover:text-primary focus-visible:text-primary cursor-pointer',
                           discovery.isActive.value ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
                         ]"
                         role="button"
                         tabindex="0"
-                        title="Ask AI"
+                        text="Ask AI"
                         @click="askAbout($event, group.items[0])"
                         @keydown.enter.stop="askAbout($event, group.items[0])"
                         @keydown.space.stop.prevent="askAbout($event, group.items[0])"
                       >
                         <AppIcon aria-hidden="true" icon="create" size="16" />
-                      </span>
+                      </AppTooltip>
                     </Discovery.Activator>
 
                     <!-- Dismiss button -->
@@ -486,21 +491,22 @@
                       :padding="4"
                       step="search-dismiss"
                     >
-                      <span
+                      <AppTooltip
                         aria-label="Dismiss result"
+                        as="span"
                         :class="[
                           'btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant cursor-pointer',
                           discovery.isActive.value ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
                         ]"
                         role="button"
                         tabindex="0"
-                        title="Dismiss result"
+                        text="Dismiss result"
                         @click="dismissResult($event, group.items[0].id)"
                         @keydown.enter.stop="dismissResult($event, group.items[0].id)"
                         @keydown.space.stop.prevent="dismissResult($event, group.items[0].id)"
                       >
                         <AppIcon aria-hidden="true" icon="close" size="16" />
-                      </span>
+                      </AppTooltip>
                     </Discovery.Activator>
                   </div>
                 </div>
@@ -535,15 +541,16 @@
 
                   <div class="flex items-center gap-1 shrink-0">
                     <!-- Favorite toggle -->
-                    <span
+                    <AppTooltip
                       :aria-label="search.isFavorite(result.id) ? 'Remove from favorites' : 'Add to favorites'"
+                      as="span"
                       :class="[
                         'btn-action cursor-pointer',
                         search.isFavorite(result.id) ? 'opacity-100 text-warning' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
                       ]"
                       role="button"
                       tabindex="0"
-                      :title="search.isFavorite(result.id) ? 'Remove from favorites' : 'Add to favorites'"
+                      :text="search.isFavorite(result.id) ? 'Remove from favorites' : 'Add to favorites'"
                       @click="toggleFavorite($event, result.id)"
                       @keydown.enter.stop="toggleFavorite($event, result.id)"
                       @keydown.space.stop.prevent="toggleFavorite($event, result.id)"
@@ -553,33 +560,35 @@
                         :icon="search.isFavorite(result.id) ? 'star' : 'star-outline'"
                         size="16"
                       />
-                    </span>
+                    </AppTooltip>
                     <!-- Ask AI button -->
-                    <span
+                    <AppTooltip
                       aria-label="Ask AI about this page"
+                      as="span"
                       class="btn-action text-on-surface/60 hover:text-primary focus-visible:text-primary opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                       role="button"
                       tabindex="0"
-                      title="Ask AI"
+                      text="Ask AI"
                       @click="askAbout($event, result)"
                       @keydown.enter.stop="askAbout($event, result)"
                       @keydown.space.stop.prevent="askAbout($event, result)"
                     >
                       <AppIcon aria-hidden="true" icon="create" size="16" />
-                    </span>
+                    </AppTooltip>
                     <!-- Dismiss button -->
-                    <span
+                    <AppTooltip
                       aria-label="Dismiss result"
+                      as="span"
                       class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                       role="button"
                       tabindex="0"
-                      title="Dismiss result"
+                      text="Dismiss result"
                       @click="dismissResult($event, result.id)"
                       @keydown.enter.stop="dismissResult($event, result.id)"
                       @keydown.space.stop.prevent="dismissResult($event, result.id)"
                     >
                       <AppIcon aria-hidden="true" icon="close" size="16" />
-                    </span>
+                    </AppTooltip>
                   </div>
                 </div>
               </div>
