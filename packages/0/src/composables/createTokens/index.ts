@@ -110,7 +110,7 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
    * console.log(tokens.resolve('{colors.secondary}')) // '#3b82f6'
    * ```
    */
-  resolve: (token: string | TokenAlias) => unknown | undefined
+  resolve: <T = unknown>(token: string | TokenAlias) => T | undefined
 }
 
 export interface TokenOptions extends RegistryOptions {
@@ -188,6 +188,14 @@ export function createTokens<
 
     const reference: unknown = isTokenAlias(token) ? token.$value : token
     const isAliasReference = isString(reference) && isAlias(reference)
+
+    // A TokenAlias passed directly carries its own value: only a brace-alias
+    // $value needs further resolution — a literal or object $value is the value.
+    if (isTokenAlias(token) && !isAliasReference) {
+      cache.set(cacheKey, reference)
+      return reference
+    }
+
     const clean = isAliasReference ? reference.slice(1, -1) : String(reference)
 
     // Detect circular references
@@ -225,7 +233,6 @@ export function createTokens<
       return undefined
     }
 
-    let result: unknown | undefined
     let current: unknown = found.value
 
     if (segments.length > 0) {
@@ -247,21 +254,15 @@ export function createTokens<
         cache.set(cacheKey, undefined)
         return undefined
       }
-
-      if (isString(current) && isAlias(current)) return resolve(current, visited)
-
-      result = current
-    } else {
-      if (isTokenAlias(current)) {
-        const inner = current.$value
-        if (isString(inner) && isAlias(inner)) return resolve(inner as string, visited)
-        result = inner
-      } else if (isString(current) && isAlias(current)) {
-        return resolve(current, visited)
-      } else {
-        result = current
-      }
+    } else if (isTokenAlias(current)) {
+      current = current.$value
     }
+
+    // A terminal string alias resolves one more hop, whether it came from a
+    // segment walk or a leaf value; anything else is the resolved result.
+    const result: unknown = isString(current) && isAlias(current)
+      ? resolve(current, visited)
+      : current
 
     cache.set(cacheKey, result)
 

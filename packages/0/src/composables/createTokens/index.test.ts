@@ -2248,25 +2248,24 @@ describe('createTokens', () => {
         expect(result).toBe('#007BFF')
       })
 
-      it('should handle TokenAlias with non-string $value (converts to string for lookup)', () => {
+      it('should return a non-string $value literal directly', () => {
         const aliasObj: TokenAlias = { $value: 42 }
 
         const context = createTokens({})
 
-        // When passing TokenAlias with non-string $value, it converts to string "42"
-        // and tries to look it up in registry, which returns undefined
+        // A directly-passed TokenAlias carries its own value; a non-alias $value
+        // is the resolved value, not a registry id to look up.
         const result = context.resolve(aliasObj)
-        expect(result).toBeUndefined()
+        expect(result).toBe(42)
       })
 
-      it('should handle TokenAlias with object $value (converts to string for lookup)', () => {
+      it('should return an object $value directly', () => {
         const aliasObj: TokenAlias = { $value: { a: 1, b: 2 } }
 
         const context = createTokens({})
 
-        // Object values get stringified, lookup fails, returns undefined
         const result = context.resolve(aliasObj)
-        expect(result).toBeUndefined()
+        expect(result).toEqual({ a: 1, b: 2 })
       })
 
       it('should handle TokenAlias with undefined $value', () => {
