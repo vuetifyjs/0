@@ -33,7 +33,7 @@
 
     <!-- Install command -->
     <div class="flex justify-center mb-12">
-      <HomeCopyCommand command="pnpm add @vuetify/v0" />
+      <HomeInstallCommand />
     </div>
 
     <!-- Action cards -->

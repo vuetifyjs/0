@@ -1,10 +1,10 @@
 ---
 title: Vuetify0 Composables - Vue 3 Headless Primitives
 meta:
-  - name: description
-    content: Type-safe Vue 3 composables for headless UI. Selection, forms, theming, tokens, and state management primitives for building custom design systems.
-  - name: keywords
-    content: composables, Vue 3, headless ui, primitives, selection, forms, theming, state management, TypeScript
+- name: description
+  content: Type-safe Vue 3 composables for headless UI. Selection, forms, theming, tokens, and state management primitives for building custom design systems.
+- name: keywords
+  content: composables, Vue 3, headless ui, primitives, selection, forms, theming, state management, TypeScript
 features:
   level: 1
 related:
@@ -181,7 +181,7 @@ registry.on('unregister:ticket', ticket => {
 
 Composable names signal how they're used:
 
-### `create*` — Factory Functions
+### create* — Factory Functions
 
 Factory functions construct a new instance of stateful logic. They return an object you can provide, pass around, or destructure.
 
@@ -191,7 +191,7 @@ Factory functions construct a new instance of stateful logic. They return an obj
 | State factories | `createSelection`, `createRegistry` | Creating isolated state instances |
 | Feature factories | `createDataTable`, `createForm` | Composing multiple primitives into a feature |
 
-### `use*` — Composables
+### use* — Composables
 
 Composables consume existing context or wrap browser APIs. They're called inside `setup()` and return reactive state.
 

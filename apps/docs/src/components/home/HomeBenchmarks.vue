@@ -5,7 +5,7 @@
   import { useIntersectionObserver } from '@vuetify/v0'
 
   // Composables
-  import { TIER_CONFIG, useBenchmarkData } from '@/composables/useBenchmarkData'
+  import { useBenchmarkData } from '@/composables/useBenchmarkData'
   import { useCountUp } from '@/composables/useCountUp'
 
   // Utilities
@@ -22,15 +22,16 @@
 
   const { composables, summary } = useBenchmarkData({ trigger: visible })
 
+  // One decimal million (6.9) — Math.floor made 6.87 look like 6 and exaggerated CI noise.
   const peakOps = computed(() => {
     let max = 0
     for (const c of composables.value) {
       if (c.fastest.hz > max) max = c.fastest.hz
     }
-    return Math.floor(max / 1_000_000)
+    return Math.round(max / 100_000) / 10
   })
 
-  const { current: opsCount } = useCountUp(sectionRef, peakOps, { duration: 1500 })
+  const { current: opsCount } = useCountUp(sectionRef, peakOps, { duration: 1500, decimals: 1 })
   const { current: benchmarkCount } = useCountUp(sectionRef, () => summary.value.totalBenchmarks, { duration: 1800 })
   const flooredTestCount = Math.floor(testCountData.tests / 100) * 100
   const { current: testCount } = useCountUp(sectionRef, flooredTestCount, { duration: 2000 })
@@ -42,14 +43,6 @@
     createTokens: '/composables/registration/create-tokens',
     createVirtual: '/composables/data/create-virtual',
     useDate: '/composables/plugins/use-date',
-  }
-
-  const tierDescriptions: Record<string, string> = {
-    blazing: 'Under 1μs per item (or 10μs per one-shot call) — imperceptible at any scale',
-    fast: 'Under 10μs per item, single call within two frames — smooth for typical workloads',
-    good: 'Under 100μs per item, single call under 100ms — fine for standard use',
-    slow: 'Costly per item or a single call over 100ms — user-perceptible, needs investigation',
-    unmeasured: 'No benchmark data recorded for this feature yet',
   }
 
   const showcaseComposables = computed(() => composables.value.filter(c => c.name in composablePaths).slice(0, 6))
@@ -79,7 +72,7 @@
       >
         <AppDotGrid :coverage="60" origin="top left" />
 
-        <div class="relative stat-number">{{ opsCount }}M+</div>
+        <div class="relative stat-number">{{ opsCount.toFixed(1) }}M+</div>
         <div class="relative stat-label">ops/s peak</div>
       </div>
 
@@ -119,25 +112,12 @@
           <div class="text-xs opacity-60">{{ comp.fastest.hzLabel }}</div>
         </div>
 
-        <BenchmarkTierBadge size="sm" :tier="comp.tier" />
+        <BenchmarkTierBadge size="sm" :tier="comp.fastest.tier" />
       </router-link>
     </div>
 
-    <!-- Tier legend + CTA -->
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-6 text-sm">
-        <span
-          v-for="(config, tier) in TIER_CONFIG"
-          :key="tier"
-          class="inline-flex items-center gap-1"
-          :class="config.color"
-          :title="tierDescriptions[tier]"
-        >
-          <AppIcon :icon="config.icon" :size="14" />
-          {{ config.label }}
-        </span>
-      </div>
-
+    <!-- CTA -->
+    <div class="flex items-center justify-center">
       <router-link
         class="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1"
         to="/guide/fundamentals/benchmarks"

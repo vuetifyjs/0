@@ -85,6 +85,15 @@ Disabled items are automatically skipped by `next`, `prev`, and `step`. Use this
 </template>
 ```
 
+## Accessibility
+
+Step is a headless **state provider**, not a complete interactive widget. It tracks the active item and exposes sequential navigation methods (`first`, `last`, `next`, `prev`, `step`) plus per-item state on each slot's `attrs`; it ships pointer activation (a click handler) but no `role`, keyboard navigation, or focus management.
+
+- `Step.Root` exposes `aria-multiselectable="false"` — single-selection.
+- `Step.Item` exposes `aria-selected` and `aria-disabled`, plus `data-selected` and `data-disabled` for styling.
+
+This is single-selection navigation state. For a fully accessible tabbed stepper — `role="tablist"` / `role="tab"`, arrow-key navigation, and roving `tabindex` — use [Tabs](/components/disclosure/tabs), which composes the same step logic. When you bind `attrs` to your own element, you are responsible for wiring the navigation methods to keyboard handlers and supplying the roles the pattern requires.
+
 ## FAQ
 
 ::: faq

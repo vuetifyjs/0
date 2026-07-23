@@ -100,14 +100,12 @@
 
     <!-- Search + expand toggle -->
     <div class="flex items-center gap-2 mb-4">
-      <input
-        aria-label="Search benchmarks"
-        class="flex-1 px-4 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm placeholder-on-surface-variant/50 outline-none transition-colors focus:border-primary"
+      <DocsSearchInput
+        class="flex-1"
+        :model-value="searchQuery"
         placeholder="Search benchmarks..."
-        type="search"
-        :value="searchQuery"
-        @input="emit('update:searchQuery', ($event.target as HTMLInputElement).value)"
-      >
+        @update:model-value="emit('update:searchQuery', $event)"
+      />
 
       <button
         v-if="showExpand"

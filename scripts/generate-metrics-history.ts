@@ -184,12 +184,19 @@ function installVersion (version: string, dir: string): string {
 
 /** Run the current bench suite against `dist`; return the parsed benchmarks JSON. */
 function benchAgainst (dist: string, jsonOut: string): { files?: { filepath: string }[] } {
-  // Mirror `test:bench:json`, but target a temp output and a specific dist via the
-  // V0_BENCH_TARGET alias (read in packages/0/vitest.config.ts). Vitest may exit
-  // non-zero if a bench references a symbol absent in this version — that's fine;
-  // we read whatever results were written.
+  // Same stability apparatus as `pnpm metrics:bench` (scripts/run-bench-stable.ts):
+  // v0:unit only, maxWorkers=1, no file parallelism, path-normalized output.
+  // History uses --runs 1 (full series is already multi-hour); isolation flags
+  // still match current metrics so version points are comparable.
+  // V0_BENCH_TARGET aliases @vuetify/v0 to the installed dist.
   try {
-    execFileSync('pnpm', ['exec', 'vitest', 'bench', '--run', '--outputJson', jsonOut], {
+    execFileSync('node', [
+      resolve(ROOT, 'scripts/run-bench-stable.ts'),
+      '--runs',
+      '1',
+      '--out',
+      jsonOut,
+    ], {
       cwd: ROOT,
       stdio: 'inherit',
       env: { ...process.env, V0_BENCH_TARGET: dist },

@@ -118,7 +118,19 @@ export class V0UnheadThemeAdapter extends ThemeAdapter {
         this.entry?.dispose?.()
       }
     } else {
-      this.dispose = () => this.entry?.dispose?.()
+      const stop = watch(
+        [context.colors, context.isDark, context.selectedId],
+        ([colors, isDark, id]) => {
+          this.entry?.patch?.({
+            htmlAttrs: { 'data-theme': id ? String(id) : '' },
+            style: [{ innerHTML: this.generate(colors, isDark), id: this.stylesheetId }],
+          })
+        },
+      )
+      this.dispose = () => {
+        stop()
+        this.entry?.dispose?.()
+      }
     }
   }
 

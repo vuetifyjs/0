@@ -1259,6 +1259,37 @@ describe('createTokens', () => {
       })
     })
 
+    describe('segment-path terminal alias (#566)', () => {
+      it('should follow a {alias} reached through a segment path', () => {
+        const context = createTokens({
+          colors: { primary: '#00f' },
+          group: { blue: '{colors.primary}' },
+        }, { flat: true })
+
+        expect(context.resolve('{group.blue}')).toBe('#00f')
+      })
+
+      it('should follow a multi-hop chain reached through a segment path', () => {
+        const context = createTokens({
+          colors: { base: '#0f0', primary: '{colors.base}' },
+          group: { blue: '{colors.primary}' },
+        }, { flat: true })
+
+        expect(context.resolve('{group.blue}')).toBe('#0f0')
+      })
+
+      it('should detect a circular reference reached through a segment path', () => {
+        const context = createTokens({
+          a: { x: '{b.y}' },
+          b: { y: '{a.x}' },
+        }, { flat: true })
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+        expect(context.resolve('{a.x}')).toBeUndefined()
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Circular alias detected'))
+      })
+    })
+
     describe('cache behavior', () => {
       it('should cache resolved values', () => {
         const tokens: TokenCollection = {
@@ -2217,25 +2248,24 @@ describe('createTokens', () => {
         expect(result).toBe('#007BFF')
       })
 
-      it('should handle TokenAlias with non-string $value (converts to string for lookup)', () => {
+      it('should return a non-string $value literal directly', () => {
         const aliasObj: TokenAlias = { $value: 42 }
 
         const context = createTokens({})
 
-        // When passing TokenAlias with non-string $value, it converts to string "42"
-        // and tries to look it up in registry, which returns undefined
+        // A directly-passed TokenAlias carries its own value; a non-alias $value
+        // is the resolved value, not a registry id to look up.
         const result = context.resolve(aliasObj)
-        expect(result).toBeUndefined()
+        expect(result).toBe(42)
       })
 
-      it('should handle TokenAlias with object $value (converts to string for lookup)', () => {
+      it('should return an object $value directly', () => {
         const aliasObj: TokenAlias = { $value: { a: 1, b: 2 } }
 
         const context = createTokens({})
 
-        // Object values get stringified, lookup fails, returns undefined
         const result = context.resolve(aliasObj)
-        expect(result).toBeUndefined()
+        expect(result).toEqual({ a: 1, b: 2 })
       })
 
       it('should handle TokenAlias with undefined $value', () => {

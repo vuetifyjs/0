@@ -284,10 +284,9 @@ Sub-components talk to the root via `createContext`. Never prop-drill state betw
 ## Paper and Vuetify relationship
 
 - `@vuetify/v0` — headless (this skill)
-- `@vuetify/paper` — styling primitives that depend on v0
 - `vuetify` v4 — Material Design framework, integrates v0 via minor releases
 
-When the user asks to "style" a v0 component or build a design system, point them at `@vuetify/paper` or a Paper-based design system (e.g., Emerald, Helix). Keep v0 itself headless.
+When the user asks to "style" a v0 component or build a design system, point them at a Paper design system (e.g., Emerald, Helix) — that is how styling is layered on top of headless v0. Keep v0 itself headless.
 
 ## Vuetify MCP
 

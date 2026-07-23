@@ -57,8 +57,6 @@ The Combobox component follows the same compound pattern as Select, but replaces
 
       <Combobox.Empty />
     </Combobox.Content>
-
-    <Combobox.HiddenInput />
   </Combobox.Root>
 </template>
 ```

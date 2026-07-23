@@ -201,6 +201,15 @@ describe('createProgress', () => {
       expect(progress.fromValue(-10)).toBe(0)
     })
 
+    it('should handle custom min/max', () => {
+      const progress = setup({ min: 20, max: 80 })
+      expect(progress.fromValue(20)).toBe(0)
+      expect(progress.fromValue(50)).toBe(50)
+      expect(progress.fromValue(80)).toBe(100)
+      expect(progress.fromValue(10)).toBe(0)
+      expect(progress.fromValue(90)).toBe(100)
+    })
+
     it('should return 0 when extent is zero', () => {
       const progress = setup({ min: 50, max: 50 })
       expect(progress.fromValue(50)).toBe(0)

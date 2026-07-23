@@ -26,7 +26,9 @@ describe('useStack SSR', () => {
 
   it('should not share registered tickets across calls in SSR', () => {
     const first = useStack()
-    first.register()
+    // Explicit id: useId() warns when called outside a component during SSR,
+    // and this test only cares about ticket isolation, not id generation.
+    first.register({ id: 'v0:ssr-stack' })
 
     const second = useStack()
 

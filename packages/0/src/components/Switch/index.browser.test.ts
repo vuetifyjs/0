@@ -516,16 +516,16 @@ describe('switch', () => {
         await wait()
 
         expect(itemProps('item-1').isMixed).toBe(true)
-        expect(itemProps('item-1').attrs['aria-checked']).toBe('mixed')
+        expect(itemProps('item-1').attrs['aria-checked']).toBe(false)
       })
 
-      it('should set aria-checked to mixed', async () => {
+      it('should clamp aria-checked to false when mixed', async () => {
         const { itemProps, wait } = mountGroup()
         await wait()
 
         itemProps('item-1').mix()
         await wait()
-        expect(itemProps('item-1').attrs['aria-checked']).toBe('mixed')
+        expect(itemProps('item-1').attrs['aria-checked']).toBe(false)
         expect(itemProps('item-1').attrs['data-state']).toBe('indeterminate')
       })
     })
@@ -678,26 +678,24 @@ describe('switch', () => {
       expect(track.attributes('data-state')).toBe('checked')
     })
 
-    it('should render Thumb with visibility hidden when unchecked', async () => {
+    it('should render Thumb with data-state unchecked when off', async () => {
       const { wrapper, wait } = mountSwitch({ props: { modelValue: false } })
       await wait()
 
-      const thumb = wrapper.findAll('span[data-state]').find(
-        el => el.attributes('style')?.includes('visibility'),
-      )
+      const thumb = wrapper.findAll('span[data-state]').at(1)
       expect(thumb).toBeDefined()
-      expect(thumb!.attributes('style')).toContain('hidden')
+      expect(thumb!.attributes('data-state')).toBe('unchecked')
+      expect(thumb!.attributes('style')).toBeUndefined()
     })
 
-    it('should render Thumb with visibility visible when checked', async () => {
+    it('should render Thumb with data-state checked when on', async () => {
       const { wrapper, wait } = mountSwitch({ props: { modelValue: true } })
       await wait()
 
-      const thumb = wrapper.findAll('span[data-state]').find(
-        el => el.attributes('style')?.includes('visibility'),
-      )
+      const thumb = wrapper.findAll('span[data-state]').at(1)
       expect(thumb).toBeDefined()
-      expect(thumb!.attributes('style')).toContain('visible')
+      expect(thumb!.attributes('data-state')).toBe('checked')
+      expect(thumb!.attributes('style')).toBeUndefined()
     })
 
     it('should throw when Track used outside Root', () => {
@@ -1352,12 +1350,12 @@ describe('switch', () => {
         expect(itemProps('item-1').attrs['data-state']).toBe('indeterminate')
       })
 
-      it('should set aria-checked to mixed when indeterminate', async () => {
+      it('should clamp aria-checked to false when indeterminate', async () => {
         const { itemProps, wait } = mountGroup({
           items: [{ value: 'item-1', indeterminate: true }],
         })
         await wait()
-        expect(itemProps('item-1').attrs['aria-checked']).toBe('mixed')
+        expect(itemProps('item-1').attrs['aria-checked']).toBe(false)
       })
 
       it('should set data-disabled when disabled', async () => {

@@ -20,20 +20,26 @@
 
 <template>
   <Popover.Root v-model="isOpen" class="hidden md:block">
-    <Popover.Activator
-      aria-label="Filter by skill level"
-      class="relative bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
-      title="Filter by skill level"
+    <AppTooltip
+      as="span"
+      class="inline-flex"
+      position-area="bottom"
+      text="Filter by skill level"
     >
-      <AppIcon icon="tune" />
-
-      <span
-        v-if="levelFilter.selectedLevels.size > 0"
-        class="absolute -top-1 -right-1 w-4 h-4 text-[10px] bg-primary text-on-primary rounded-full flex items-center justify-center"
+      <Popover.Activator
+        aria-label="Filter by skill level"
+        class="relative bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
       >
-        {{ levelFilter.selectedLevels.size }}
-      </span>
-    </Popover.Activator>
+        <AppIcon icon="tune" />
+
+        <span
+          v-if="levelFilter.selectedLevels.size > 0"
+          class="absolute -top-1 -right-1 w-4 h-4 text-[10px] bg-primary text-on-primary rounded-full flex items-center justify-center"
+        >
+          {{ levelFilter.selectedLevels.size }}
+        </span>
+      </Popover.Activator>
+    </AppTooltip>
 
     <Popover.Content class="p-2 rounded-lg bg-surface border border-divider shadow-lg min-w-[160px] !mt-1" position-area="bottom span-left">
       <!-- Header -->
@@ -59,6 +65,18 @@
 
         <span>{{ levelConfig[level].label }}</span>
       </button>
+
+      <div class="mt-1 pt-2 border-t border-divider">
+        <AppLink
+          class="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-surface-tint transition-colors text-left cursor-pointer text-on-surface no-underline"
+          no-suffix
+          to="/guide/essentials/using-the-docs#skill-quiz"
+          @click="isOpen = false"
+        >
+          <AppIcon class="text-warning" icon="medal" size="16" />
+          <span>Not sure? Take a quiz</span>
+        </AppLink>
+      </div>
     </Popover.Content>
   </Popover.Root>
 </template>

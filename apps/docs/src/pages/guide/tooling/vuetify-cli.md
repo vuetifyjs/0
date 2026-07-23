@@ -114,6 +114,7 @@ bun create vuetify0
 | `vuetify add mcp` | Add MCP server configuration |
 | `vuetify update` | Update Vuetify packages |
 | `vuetify docs` | Open version-specific documentation |
+| `vuetify release-notes` | Print release notes for a package |
 | `vuetify analyze` | Scan codebase for usage patterns |
 | `vuetify upgrade` | Self-upgrade the CLI |
 
@@ -251,6 +252,47 @@ bunx @vuetify/cli docs
 
 > [!NOTE]
 > The CLI auto-detects your installed Vuetify version and opens the correct documentation site.
+
+### release-notes
+
+Print the release notes for a Vuetify package without leaving the terminal:
+
+::: code-group no-filename
+
+```bash pnpm
+# Latest v0 release
+pnpm dlx @vuetify/cli release-notes v0
+
+# A specific version
+pnpm dlx @vuetify/cli release-notes v0 --version 1.0.0
+```
+
+```bash npm
+npx @vuetify/cli release-notes v0
+npx @vuetify/cli release-notes v0 --version 1.0.0
+```
+
+```bash yarn
+yarn dlx @vuetify/cli release-notes v0
+yarn dlx @vuetify/cli release-notes v0 --version 1.0.0
+```
+
+```bash bun
+bunx @vuetify/cli release-notes v0
+bunx @vuetify/cli release-notes v0 --version 1.0.0
+```
+
+:::
+
+The command prints the release name, tag, publish date, and full notes, along with links to the documentation and the GitHub release.
+
+| Argument | Default | Description |
+| - | - | - |
+| `package` | `vuetify` | Package to fetch — `vuetify` or `v0` (aliases: `vuetify0`, `0`) |
+| `--version`, `-v` | `latest` | Release version; `latest` resolves to the newest core release |
+
+> [!TIP]
+> Pass `v0` to read the [Vuetify0 release notes](/releases). Omitting `--version` shows the latest release.
 
 ### analyze
 

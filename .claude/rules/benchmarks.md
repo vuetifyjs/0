@@ -313,24 +313,57 @@ Don't mock pure logic — let it run. Mocking too aggressively defeats the purpo
 ## Running Benchmarks
 
 ```bash
-# All benchmarks (canonical, used by CI)
+# Dev: all benches (source, isolated workers, single pass)
 pnpm test:bench
 
-# All benchmarks, JSON output to apps/docs/public/benchmarks.json
+# Dev: JSON dump — do not commit from a laptop
 pnpm test:bench:json
 
 # Watch mode while iterating on a bench file
 pnpm bench
 
-# Generate metrics.json (runs coverage + bench:json + scripts/generate-metrics.js)
+# Canonical metrics (coverage + dist median-of-3 + metrics.json) — CI only for commits
 pnpm metrics
+pnpm metrics:check
 ```
 
 To narrow to a single file, append the path: `pnpm test:bench packages/0/src/composables/createRegistry/index.bench.ts`.
 
+## Apparatus contract (stability — non-negotiable)
+
+Numbers only mean something if the **writer, machine, and flags** are fixed. Homepage peak, tier badges, and history sparklines all read the same artifacts.
+
+| Knob | Canonical value | Why |
+|------|-----------------|-----|
+| Writer | **metrics-regen workflow only** | Feature PRs must not commit laptop `benchmarks.json` |
+| Runner | `ubuntu-24.04` + Node from `.nvmrc` | OS/V8 drift moves hz |
+| Vitest project | `v0:unit` only | `v0:browser` also matches `*.bench.ts` and double-records |
+| Parallelism | `--maxWorkers=1 --no-file-parallelism` | File/worker interleaving adds jitter |
+| Library under test | `V0_BENCH_TARGET=dist` (current) or npm dist path (history) | Source vs dist is a different apparatus |
+| Aggregation | **median of 3 runs** (`pnpm metrics:bench`) | Single GHA run is ~10–20% noisy |
+| Paths in JSON | repo-relative `packages/0/src/...` | Absolute `/home/john/...` vs `/home/runner/...` confuses audits |
+
+**Acceptable deviation:** canary benches (see `scripts/lib/bench-stable.ts` `CANARY_BENCHES`) may move **±20%** run-to-run on shared GHA with no code change. Beyond that, re-run or investigate — do not merge noise as signal.
+
+**Commands:**
+
+```bash
+# Dev iteration (source, single run, still isolated workers)
+pnpm test:bench
+pnpm test:bench:json   # ad-hoc JSON — do NOT commit from a laptop
+
+# Canonical metrics (dist, median of 3) — CI metrics-regen only for commits
+pnpm metrics           # coverage + build:0 + metrics:bench + generate-metrics.js
+pnpm metrics:bench     # node scripts/run-bench-stable.ts --runs 3
+pnpm metrics:check     # guard: no local paths; PR must not touch metrics artifacts casually
+pnpm metrics:delta --prev old.json --next new.json
+```
+
+**Do not** commit `apps/docs/public/benchmarks.json` or `apps/docs/src/data/metrics*.json` from a feature branch. `pnpm metrics:check` fails the PR. Override only with `ALLOW_METRICS_ARTIFACT_EDIT=1` and a written reason.
+
 ## Apparatus & imports (benchmark-history harness)
 
-The benchmark-history trend (`apps/docs/src/data/metrics/<version>.json`) is produced by running the **current** bench suite against each version's npm-installed dist — one fixed apparatus, only the library varies (see `scripts/generate-metrics-history.ts`). Two rules follow:
+The benchmark-history trend (`apps/docs/src/data/metrics/<version>.json`) is produced by running the **current** bench suite against each version's npm-installed dist — one fixed apparatus, only the library varies (see `scripts/generate-metrics-history.ts` → `run-bench-stable.ts`). Two rules follow:
 
 - **Import the library from the public package, never relative source.** Benches import the composable and its types from `@vuetify/v0/composables` (or `@vuetify/v0/date`, `@vuetify/v0` for utilities) — *not* `from './index'`. The harness aliases `@vuetify/v0` to an installed version's dist via `V0_BENCH_TARGET`; a `./index` import would silently measure current source for every version instead. Keep the bench's own fixtures (`./fixtures/...`) relative.
 - **The metrics pipeline benches the built dist; dev benches source.** `V0_BENCH_TARGET` (read in `packages/0/vitest.config.ts`): unset → source (`pnpm bench`/`test:bench`); `dist` → this package's build (`pnpm metrics`); a path → an installed version (the history harness). So `pnpm metrics` runs `build:0` first.

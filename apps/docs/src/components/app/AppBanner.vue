@@ -1,9 +1,9 @@
 <script setup lang="ts">
   // Framework
-  import { IN_BROWSER, Atom, useNotifications } from '@vuetify/v0'
+  import { IN_BROWSER, Atom, useNotifications, useStorage } from '@vuetify/v0'
 
   // Utilities
-  import { onScopeDispose, shallowRef, toRef, watchEffect } from 'vue'
+  import { onScopeDispose, toRef, watchEffect } from 'vue'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
@@ -11,12 +11,16 @@
   const { as = 'header' } = defineProps<AtomProps>()
 
   const notifications = useNotifications()
+  const storage = useStorage()
 
-  // Seed banner notification (repla
-  if (!notifications.has('rc-banner')) {
+  // Bump BANNER_ID whenever the banner content changes — a new id re-shows the
+  // banner even for readers who dismissed the previous one.
+  const BANNER_ID = 'v1.0-live'
+
+  if (!notifications.has(BANNER_ID)) {
     notifications.register({
-      id: 'rc-banner',
-      subject: 'Vuetify0 is now a release candidate!',
+      id: BANNER_ID,
+      subject: 'Vuetify0 v1.0 is here',
       severity: 'warning',
       data: { type: 'banner' },
     })
@@ -26,11 +30,13 @@
     return notifications.values().find(n => n.data?.type === 'banner')
   })
 
-  const dismissed = shallowRef(false)
-  const visible = toRef(() => banner.value && !dismissed.value)
+  // Persist dismissal keyed to the banner id, so a dismissed banner stays closed
+  // across reloads until BANNER_ID changes.
+  const dismissedId = storage.get<string>('docs-banner-dismissed', '')
+  const visible = toRef(() => banner.value && dismissedId.value !== BANNER_ID)
 
   function onDismiss () {
-    dismissed.value = true
+    storage.set('docs-banner-dismissed', BANNER_ID)
   }
 
   // Sync banner height to CSS variable so AppBar, AppNav, and layouts can adapt
@@ -51,10 +57,10 @@
     :as
     class="flex items-center justify-center h-[24px] fixed inset-x-0 top-0 px-3 text-xs gap-2 text-on-primary z-1 bg-glass-primary"
   >
-    <AppIcon icon="vuetify-0" :size="14" />
+    <AppIcon class="shrink-0" icon="vuetify-0" :size="14" />
 
-    <div>
-      {{ banner?.subject }} <span class="hidden md:inline">See the <RouterLink class="underline underline-offset-2" to="/roadmap#release-candidate">roadmap</RouterLink> for details.</span>
+    <div class="min-w-0 truncate pe-6">
+      {{ banner?.subject }}<span class="hidden sm:inline"> — the stable release is live!</span><span class="hidden md:inline"> Read the <a class="underline underline-offset-2" href="https://vtfy.link/announcing-vuetify0-v1" rel="noopener" target="_blank">announcement</a>.</span>
     </div>
 
     <button

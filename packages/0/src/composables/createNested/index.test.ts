@@ -290,6 +290,8 @@ describe('createNested', () => {
     })
 
     it('should not infinite loop in getDescendants when children form a cycle', { timeout: 1000 }, () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const nested = createNested()
 
       nested.register({ id: 'a', value: 'A' })
@@ -303,9 +305,12 @@ describe('createNested', () => {
 
       // Should terminate, returning each descendant at most once.
       expect(descendants.length).toBeLessThanOrEqual(2)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('Circular'))
     })
 
     it('should not stack-overflow in visibleItems when children form a cycle of opened nodes', { timeout: 1000 }, () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const nested = createNested()
 
       nested.register({ id: 'a', value: 'A' })
@@ -321,6 +326,7 @@ describe('createNested', () => {
 
       // Should terminate with each item at most once
       expect(items.length).toBeLessThanOrEqual(2)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('Circular'))
     })
 
     it('should not infinite loop in open() reveal when parents form a cycle', { timeout: 1000 }, () => {
@@ -936,6 +942,72 @@ describe('createNested', () => {
         expect(nested.selected('leaf-1')).toBe(false)
         expect(nested.selected('leaf-2')).toBe(false)
       })
+
+      it('should block parent unselect when mandatory leaf descendants are the entire selection', () => {
+        const nested = createNested({ selection: 'leaf', mandatory: true })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'root' })
+        nested.register({ id: 'leaf-2', value: 'Leaf 2', parentId: 'root' })
+
+        nested.select('root')
+        nested.unselect('root')
+
+        expect(nested.selected('leaf-1')).toBe(true)
+        expect(nested.selected('leaf-2')).toBe(true)
+        expect(nested.mixed('root')).toBe(false)
+      })
+
+      it('should unselect parent leaves when mandatory selection remains in another branch', () => {
+        const nested = createNested({ selection: 'leaf', mandatory: true })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'root' })
+        nested.register({ id: 'leaf-2', value: 'Leaf 2', parentId: 'root' })
+        nested.register({ id: 'other', value: 'Other' })
+        nested.register({ id: 'leaf-3', value: 'Leaf 3', parentId: 'other' })
+
+        nested.select('root')
+        nested.select('leaf-3')
+        nested.unselect('root')
+
+        expect(nested.selected('leaf-1')).toBe(false)
+        expect(nested.selected('leaf-2')).toBe(false)
+        expect(nested.selected('leaf-3')).toBe(true)
+      })
+
+      it('should block parent toggle off when mandatory leaf descendants are the entire selection', () => {
+        const nested = createNested({ selection: 'leaf', mandatory: true })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'root' })
+        nested.register({ id: 'leaf-2', value: 'Leaf 2', parentId: 'root' })
+
+        nested.select('root')
+        nested.toggle('root')
+
+        expect(nested.selected('leaf-1')).toBe(true)
+        expect(nested.selected('leaf-2')).toBe(true)
+        expect(nested.mixed('root')).toBe(false)
+      })
+
+      it('should toggle parent leaves off when mandatory selection remains in another branch', () => {
+        const nested = createNested({ selection: 'leaf', mandatory: true })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'root' })
+        nested.register({ id: 'leaf-2', value: 'Leaf 2', parentId: 'root' })
+        nested.register({ id: 'other', value: 'Other' })
+        nested.register({ id: 'leaf-3', value: 'Leaf 3', parentId: 'other' })
+
+        nested.select('root')
+        nested.select('leaf-3')
+        nested.toggle('root')
+
+        expect(nested.selected('leaf-1')).toBe(false)
+        expect(nested.selected('leaf-2')).toBe(false)
+        expect(nested.selected('leaf-3')).toBe(true)
+      })
     })
   })
 
@@ -1307,6 +1379,28 @@ describe('edge cases', () => {
       expect(nested.selected('a')).toBe(true)
       expect(nested.selected('d')).toBe(false)
     })
+
+    it('should skip disabled items in unselect for independent mode', () => {
+      const nested = createNested({ selection: 'independent' })
+      nested.register({ id: 'a', value: 'A' })
+      nested.register({ id: 'd', value: 'D', disabled: true })
+      nested.selectedIds.add('a')
+      nested.selectedIds.add('d')
+      nested.unselect(['a', 'd'])
+      expect(nested.selected('a')).toBe(false)
+      expect(nested.selected('d')).toBe(true)
+    })
+
+    it('should skip disabled items in unselect for leaf mode', () => {
+      const nested = createNested({ selection: 'leaf' })
+      nested.register({ id: 'a', value: 'A' })
+      nested.register({ id: 'd', value: 'D', disabled: true })
+      nested.selectedIds.add('a')
+      nested.selectedIds.add('d')
+      nested.unselect(['a', 'd'])
+      expect(nested.selected('a')).toBe(false)
+      expect(nested.selected('d')).toBe(true)
+    })
   })
 
   describe('memory leak prevention', () => {
@@ -1659,23 +1753,22 @@ describe('disabled state blocking', () => {
     expect(nested.selected('child-2')).toBe(false)
   })
 
-  it('should not cascade unselect to disabled descendants', () => {
+  it('should drain disabled descendants on cascade unselect', () => {
     const nested = createNested()
 
     nested.register({ id: 'root', value: 'Root' })
     nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
     nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root', disabled: true })
 
-    // Manually select child-2 by working around disabled check
-    nested.select('child-1')
-    // Force child-2 into selected state via selectAll (which also skips disabled)
-    // Instead, select root which cascades to child-1 only
     nested.select('root')
+    // Force the disabled child into the selected state — cascade select skips it
+    nested.selectedIds.add('child-2')
     expect(nested.selected('child-1')).toBe(true)
-    expect(nested.selected('child-2')).toBe(false)
+    expect(nested.selected('child-2')).toBe(true)
 
     nested.unselect('root')
 
+    expect(nested.selected('root')).toBe(false)
     expect(nested.selected('child-1')).toBe(false)
     expect(nested.selected('child-2')).toBe(false)
   })

@@ -13,7 +13,11 @@ export default defineConfig({
     testTimeout: 20_000,
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json'],
+      // 'json' (coverage-final.json) feeds the metrics pipeline; 'lcov' is what
+      // we upload to Codecov — @vitest/coverage-v8 4.1.10 emits a coverage-final
+      // shape Codecov 5 ingests but can't process (see PR #663 regression), and
+      // lcov parses reliably regardless of the v8 json format.
+      reporter: ['text', 'json', 'lcov'],
       include: ['packages/0/src/**/*.ts', 'packages/0/src/**/*.vue'],
       exclude: [
         '**/*.test.ts',

@@ -43,6 +43,7 @@ The Slider supports single-value and range modes. Add one `Slider.Thumb` for a s
     </Slider.Track>
 
     <Slider.Thumb />
+
     <Slider.HiddenInput />
   </Slider.Root>
 </template>
