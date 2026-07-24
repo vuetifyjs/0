@@ -365,35 +365,38 @@
       <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Files</span>
 
       <div class="flex items-center gap-1.5">
-        <button
+        <AppTooltip
           aria-label="New file"
           class="opacity-50 hover:opacity-100 transition-opacity"
-          title="New file"
+          position-area="bottom"
+          text="New file"
           @click="add('file')"
         >
           <AppIcon icon="file-plus" :size="14" />
-        </button>
+        </AppTooltip>
 
-        <button
+        <AppTooltip
           aria-label="New folder"
           class="opacity-50 hover:opacity-100 transition-opacity"
-          title="New folder"
+          position-area="bottom"
+          text="New folder"
           @click="add('folder')"
         >
           <AppIcon icon="folder-plus" :size="14" />
-        </button>
+        </AppTooltip>
 
         <div class="w-px h-3 bg-divider mx-0.5" />
 
-        <button
+        <AppTooltip
           :aria-label="showConfig ? 'Hide config files' : 'Show config files'"
           class="transition-opacity"
           :class="showConfig ? 'opacity-100' : 'opacity-50 hover:opacity-100'"
-          title="Toggle config files"
+          position-area="bottom"
+          text="Toggle config files"
           @click="toggleConfig"
         >
           <AppIcon icon="cog" :size="14" />
-        </button>
+        </AppTooltip>
       </div>
     </div>
 
@@ -456,15 +459,16 @@
             {{ tree.get(id)?.value }}
           </span>
 
-          <button
+          <AppTooltip
             v-if="deletable(id)"
             :aria-label="`Delete ${tree.get(id)?.value}`"
             class="shrink-0 inline-flex items-center justify-center opacity-0 group-hover/row:opacity-60 hover:!opacity-100 transition-opacity"
-            title="Delete"
+            position-area="bottom"
+            text="Delete"
             @click.stop="remove(id)"
           >
             <AppIcon icon="close" :size="14" />
-          </button>
+          </AppTooltip>
         </div>
 
         <div

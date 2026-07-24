@@ -20,15 +20,14 @@
 </script>
 
 <template>
-  <button
+  <AppTooltip
     :aria-label="label"
     class="close-button"
     :style="{
       width: `${sizes[size].button}px`,
       height: `${sizes[size].button}px`,
     }"
-    :title="label"
-    type="button"
+    :text="label"
     @click="$emit('click', $event)"
   >
     <svg
@@ -42,10 +41,13 @@
     >
       <path d="M18 6L6 18M6 6l12 12" />
     </svg>
-  </button>
+  </AppTooltip>
 </template>
 
-<style scoped>
+<!-- Unscoped: AppTooltip renders a multi-root fragment, so the parent scope-id
+     is not forwarded to its rendered <button>; a scoped .close-button selector
+     would not match. See scoped-css-multiroot-child (#359). -->
+<style>
 .close-button {
   display: flex;
   align-items: center;
