@@ -23,6 +23,7 @@
     titleId: string
     descriptionId: string
     isPending: ShallowRef<boolean>
+    cancelEl: ShallowRef<HTMLElement | null>
     open: () => void
     close: () => void
   }
@@ -78,6 +79,7 @@
 
   const isOpen = defineModel<boolean>({ default: false })
   const isPending = shallowRef(false)
+  const cancelEl = shallowRef<HTMLElement | null>(null)
 
   const titleId = `${id}-title`
   const descriptionId = `${id}-description`
@@ -97,6 +99,7 @@
     titleId,
     descriptionId,
     isPending,
+    cancelEl,
     open,
     close,
   })

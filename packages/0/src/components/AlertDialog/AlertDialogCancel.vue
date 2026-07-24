@@ -40,7 +40,7 @@
   import { useAlertDialogContext } from './AlertDialogRoot.vue'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { onMounted, onUnmounted, toRef, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'AlertDialogCancel' })
 
@@ -56,6 +56,16 @@
   } = defineProps<AlertDialogCancelProps>()
 
   const context = useAlertDialogContext(namespace)
+
+  const cancelRef = useTemplateRef('cancel')
+
+  onMounted(() => {
+    context.cancelEl.value = (cancelRef.value?.element as HTMLElement | null) ?? null
+  })
+
+  onUnmounted(() => {
+    context.cancelEl.value = null
+  })
 
   function onClick () {
     if (disabled) return
@@ -75,6 +85,7 @@
 
 <template>
   <Atom
+    ref="cancel"
     :as
     :renderless
     v-bind="slotProps.attrs"
