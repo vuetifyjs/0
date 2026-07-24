@@ -244,6 +244,43 @@ describe('breadcrumbs', () => {
       expect(typeof itemProps!.isSelected).toBe('boolean')
       expect(itemProps!.attrs).toBeDefined()
     })
+
+    it('should expose aria-hidden on collapsed items', async () => {
+      let itemProps: Record<string, unknown> | undefined
+      let ctx: any
+
+      const Spy = defineComponent({
+        setup () {
+          ctx = useBreadcrumbsRoot('v0:breadcrumbs')
+          return () => null
+        },
+      })
+
+      mount(Breadcrumbs.Root, {
+        slots: {
+          default: () => [
+            h(Breadcrumbs.Item as never, {}, {
+              default: (props: Record<string, unknown>) => {
+                itemProps = props
+                return h('span', 'Home')
+              },
+            }),
+            h(Spy),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      // Visible items are not aria-hidden
+      expect((itemProps!.attrs as Record<string, unknown>)['aria-hidden']).toBeUndefined()
+
+      ctx.group.unselect(itemProps!.id)
+      await nextTick()
+
+      // Collapsed items are removed from the a11y tree
+      expect((itemProps!.attrs as Record<string, unknown>)['aria-hidden']).toBe('true')
+    })
   })
 
   describe('link', () => {
@@ -527,6 +564,151 @@ describe('breadcrumbs', () => {
 
       const attrs = ellipsisProps!.attrs as Record<string, unknown>
       expect(attrs['aria-hidden']).toBe('true')
+      expect(attrs['aria-expanded']).toBeUndefined()
+      expect(attrs.onClick).toBeUndefined()
+    })
+
+    it('should expose disclosure attrs when interactive', async () => {
+      let ellipsisProps: Record<string, unknown> | undefined
+
+      mount(Breadcrumbs.Root, {
+        slots: {
+          default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }, {
+            default: (props: Record<string, unknown>) => {
+              ellipsisProps = props
+              return h('span', '…')
+            },
+          }),
+        },
+      })
+
+      await nextTick()
+
+      const attrs = ellipsisProps!.attrs as Record<string, unknown>
+      expect(attrs['aria-hidden']).toBeUndefined()
+      expect(attrs['aria-expanded']).toBe('false')
+      expect(attrs['aria-label']).toBe('Show 0 more breadcrumbs')
+      expect(attrs.role).toBe('button')
+      expect(attrs.tabindex).toBe(0)
+      expect(typeof attrs.onClick).toBe('function')
+      expect(typeof attrs.onKeydown).toBe('function')
+    })
+
+    it('should not add role/tabindex/onKeydown when interactive and as="button"', async () => {
+      let ellipsisProps: Record<string, unknown> | undefined
+
+      mount(Breadcrumbs.Root, {
+        slots: {
+          default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true, as: 'button' }, {
+            default: (props: Record<string, unknown>) => {
+              ellipsisProps = props
+              return h('span', '…')
+            },
+          }),
+        },
+      })
+
+      await nextTick()
+
+      const attrs = ellipsisProps!.attrs as Record<string, unknown>
+      expect(attrs.role).toBeUndefined()
+      expect(attrs.tabindex).toBeUndefined()
+      expect(attrs.onKeydown).toBeUndefined()
+      expect(typeof attrs.onClick).toBe('function')
+    })
+
+    it('should toggle aria-expanded on click', async () => {
+      let ellipsisProps: Record<string, unknown> | undefined
+
+      mount(Breadcrumbs.Root, {
+        slots: {
+          default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }, {
+            default: (props: Record<string, unknown>) => {
+              ellipsisProps = props
+              return h('span', '…')
+            },
+          }),
+        },
+      })
+
+      await nextTick()
+
+      let attrs = ellipsisProps!.attrs as Record<string, unknown>
+      expect(attrs['aria-expanded']).toBe('false')
+
+      ;(attrs.onClick as () => void)()
+      await nextTick()
+
+      attrs = ellipsisProps!.attrs as Record<string, unknown>
+      expect(attrs['aria-expanded']).toBe('true')
+
+      ;(attrs.onClick as () => void)()
+      await nextTick()
+
+      attrs = ellipsisProps!.attrs as Record<string, unknown>
+      expect(attrs['aria-expanded']).toBe('false')
+    })
+
+    it('should toggle on Enter and Space keydown', async () => {
+      let ellipsisProps: Record<string, unknown> | undefined
+
+      mount(Breadcrumbs.Root, {
+        slots: {
+          default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }, {
+            default: (props: Record<string, unknown>) => {
+              ellipsisProps = props
+              return h('span', '…')
+            },
+          }),
+        },
+      })
+
+      await nextTick()
+
+      let attrs = ellipsisProps!.attrs as Record<string, unknown>
+      ;(attrs.onKeydown as (e: KeyboardEvent) => void)(new KeyboardEvent('keydown', { key: 'Enter' }))
+      await nextTick()
+
+      attrs = ellipsisProps!.attrs as Record<string, unknown>
+      expect(attrs['aria-expanded']).toBe('true')
+
+      ;(attrs.onKeydown as (e: KeyboardEvent) => void)(new KeyboardEvent('keydown', { key: ' ' }))
+      await nextTick()
+
+      attrs = ellipsisProps!.attrs as Record<string, unknown>
+      expect(attrs['aria-expanded']).toBe('false')
+    })
+
+    it('should use the translated locale string for the disclosure label', async () => {
+      const plugin = createLocalePlugin({
+        default: 'en',
+        messages: {
+          en: {
+            Breadcrumbs: {
+              expand: 'Zeige {count} weitere',
+            },
+          },
+        },
+      })
+
+      let ellipsisProps: Record<string, unknown> | undefined
+
+      mount(Breadcrumbs.Root, {
+        global: { plugins: [plugin] },
+        slots: {
+          default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }, {
+            default: (props: Record<string, unknown>) => {
+              ellipsisProps = props
+              return h('span', '…')
+            },
+          }),
+        },
+      })
+
+      await nextTick()
+
+      const attrs = ellipsisProps!.attrs as Record<string, unknown>
+      expect(attrs['aria-label']).toBe('Zeige 0 weitere')
     })
   })
 
@@ -1469,6 +1651,43 @@ describe('breadcrumbs', () => {
           expect(t.isSelected.value).toBe(true)
         }
       }
+
+      el.remove()
+    })
+
+    it('should reveal collapsed items and track hiddenCount when expanded', async () => {
+      const { context } = mountOverflowTree({ itemCount: 5, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
+
+      const el = createMeasurableElement(15)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 15
+      await nextTick()
+
+      // reserved = 15+8+15+8+15+8 = 69; width=60 => capacity=0
+      triggerResize(60)
+      await nextTick()
+
+      expect(ctx.overflow.capacity.value).toBe(0)
+      expect(ctx.hiddenCount.value).toBeGreaterThan(0)
+
+      // Open the disclosure — all content is revealed, ellipsis stays
+      // visible so it can serve as the collapse toggle
+      ctx.expanded.value = true
+      await nextTick()
+
+      for (const t of ctx.group.values()) {
+        expect(t.isSelected.value).toBe(true)
+      }
+      expect(ctx.hiddenCount.value).toBe(0)
+
+      // Close the disclosure — items collapse again
+      ctx.expanded.value = false
+      await nextTick()
+
+      expect(ctx.hiddenCount.value).toBeGreaterThan(0)
 
       el.remove()
     })

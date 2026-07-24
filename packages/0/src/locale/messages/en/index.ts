@@ -26,6 +26,7 @@ export default {
     indicatorLabel: '+{count} more',
   },
   Breadcrumbs: {
+    expand: 'Show {count} more breadcrumbs',
     label: 'Breadcrumbs',
   },
   Button: {

@@ -125,6 +125,18 @@
 
   const isOverflowing = overflow.isOverflowing
 
+  // Disclosure state — when true, collapsed items are revealed (toggled by
+  // an interactive BreadcrumbsEllipsis).
+  const expanded = shallowRef(false)
+
+  const hiddenCount = toRef(() => {
+    let count = 0
+    for (const t of group.values()) {
+      if (t.type === 'item' && !t.isSelected.value) count++
+    }
+    return count
+  })
+
   // Element measurement routing — first item/divider write to reserved refs,
   // everything else feeds into the overflow pool.
   let _firstItemIndex: number | null = null
@@ -156,7 +168,7 @@
   }
 
   watch(
-    [() => overflow.capacity.value, () => group.size],
+    [() => overflow.capacity.value, () => group.size, expanded],
     ([capacity]) => {
       const all = group.values()
 
@@ -184,6 +196,16 @@
       if (capacity === Infinity || capacity >= measuredCount) {
         // Everything fits — show all content, hide ellipsis
         for (const t of ellipsisTickets) group.unselect(t.id)
+        for (const t of contentTickets) {
+          if (!t.isSelected.value) group.select(t.id)
+        }
+        return
+      }
+
+      if (expanded.value) {
+        // Disclosure is open — reveal all collapsed content and keep the
+        // ellipsis visible so it can serve as the collapse toggle.
+        for (const t of ellipsisTickets) group.select(t.id)
         for (const t of contentTickets) {
           if (!t.isSelected.value) group.select(t.id)
         }
@@ -240,6 +262,8 @@
     divider: toRef(() => divider),
     ellipsis: toRef(() => ellipsis),
     isOverflowing,
+    expanded,
+    hiddenCount,
     ellipsisWidth,
     measureElement,
   })

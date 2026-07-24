@@ -32,6 +32,10 @@ export interface BreadcrumbsRootContext {
   ellipsis: Ref<string>
   /** Whether items are being truncated */
   isOverflowing: Readonly<Ref<boolean>>
+  /** Whether collapsed items are revealed via the ellipsis disclosure */
+  expanded: ShallowRef<boolean>
+  /** Number of breadcrumb items currently hidden by truncation */
+  hiddenCount: Readonly<Ref<number>>
   /** Measured ellipsis width in pixels (set by BreadcrumbsEllipsis) */
   ellipsisWidth: ShallowRef<number>
   /** Route element measurement — first item/divider go to reserved space, rest to overflow */
