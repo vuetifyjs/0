@@ -566,6 +566,9 @@ importers:
 
   dev:
     dependencies:
+      '@paper/emerald':
+        specifier: workspace:*
+        version: link:../packages/emerald
       '@paper/genesis':
         specifier: workspace:*
         version: link:../packages/genesis
