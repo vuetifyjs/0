@@ -33,7 +33,7 @@
   import { useDialogContext } from './DialogRoot.vue'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { onMounted, onUnmounted, toRef } from 'vue'
 
   defineOptions({ name: 'DialogTitle' })
 
@@ -48,6 +48,13 @@
   } = defineProps<DialogTitleProps>()
 
   const context = useDialogContext(namespace)
+
+  onMounted(() => {
+    context.titlePresent.value = true
+  })
+  onUnmounted(() => {
+    context.titlePresent.value = false
+  })
 
   const slotProps = toRef((): DialogTitleSlotProps => ({
     attrs: {

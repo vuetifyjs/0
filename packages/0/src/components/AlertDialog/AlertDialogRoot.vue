@@ -22,6 +22,8 @@
     id: string
     titleId: string
     descriptionId: string
+    titlePresent: ShallowRef<boolean>
+    descriptionPresent: ShallowRef<boolean>
     isPending: ShallowRef<boolean>
     open: () => void
     close: () => void
@@ -78,6 +80,8 @@
 
   const isOpen = defineModel<boolean>({ default: false })
   const isPending = shallowRef(false)
+  const titlePresent = shallowRef(false)
+  const descriptionPresent = shallowRef(false)
 
   const titleId = `${id}-title`
   const descriptionId = `${id}-description`
@@ -96,6 +100,8 @@
     id,
     titleId,
     descriptionId,
+    titlePresent,
+    descriptionPresent,
     isPending,
     open,
     close,
