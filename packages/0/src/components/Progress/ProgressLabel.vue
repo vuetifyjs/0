@@ -14,7 +14,7 @@
   import { useProgressRoot } from './ProgressRoot.vue'
 
   // Utilities
-  import { mergeProps, toRef, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, onMounted, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -49,6 +49,13 @@
   } = defineProps<ProgressLabelProps>()
 
   const root = useProgressRoot(namespace)
+
+  onMounted(() => {
+    root.hasLabel.value = true
+  })
+  onBeforeUnmount(() => {
+    root.hasLabel.value = false
+  })
 
   const slotProps = toRef((): ProgressLabelSlotProps => ({
     total: root.total.value,
