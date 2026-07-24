@@ -1,5 +1,5 @@
 // Framework
-import { createFilter, createGroup } from '@vuetify/v0'
+import { createFilter, createGroup, isNumber } from '@vuetify/v0'
 
 // Utilities
 import { type ComputedRef, type MaybeRefOrGetter, type ShallowRef, computed, onBeforeMount, shallowRef, toValue, watch } from 'vue'
@@ -202,7 +202,7 @@ function extractGroupName (fullName: string): string {
  * `extractComposableName` would fall back to rendering its whole filepath as a
  * card title, so it is dropped before shaping.
  */
-const CALIBRATION_BENCH = '__bench__/calibration.bench.ts'
+const CALIBRATION_BENCH = 'bench/calibration.bench.ts'
 
 /**
  * Divide the host out of the fetched artifact.
@@ -214,7 +214,7 @@ const CALIBRATION_BENCH = '__bench__/calibration.bench.ts'
  */
 function rescale (files: RawBenchmarkFile[], scale: number | undefined): RawBenchmarkFile[] {
   const relevant = (files ?? []).filter(file => !file.filepath.endsWith(CALIBRATION_BENCH))
-  const factor = typeof scale === 'number' && scale > 0 ? scale : 1
+  const factor = isNumber(scale) && scale > 0 ? scale : 1
   if (factor === 1) return relevant
   return relevant.map(file => ({
     ...file,

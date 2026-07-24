@@ -36,6 +36,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { scaleOf } from './lib/bench-stable.ts'
 import { buildItemBenchmarks, extractName, type ItemBenchmarks } from './lib/benchmarks.ts'
 import { config } from './metrics-history.config.ts'
 
@@ -238,7 +239,7 @@ function processVersion (version: string, force: boolean): void {
     // point: every version in the sweep is scaled by the same ruler, which is
     // what makes points taken on different runners comparable to each other.
     const apparatus = raw.apparatus
-    const scale = typeof apparatus?.scale === 'number' && apparatus.scale > 0 ? apparatus.scale : 1
+    const scale = scaleOf(raw)
 
     const items: Record<string, { benchmarks: ItemBenchmarks }> = {}
     for (const file of raw.files ?? []) {

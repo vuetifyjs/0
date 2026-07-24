@@ -10,7 +10,7 @@
  * cross-release comparison meaningless.
  *
  * The fix: every bench run also measures a fixed anchor suite
- * (`packages/0/src/__bench__/calibration.bench.ts`). The ratio of this run's
+ * (`packages/0/bench/calibration.bench.ts`). The ratio of this run's
  * anchor throughput to the stored baseline is the host's speed relative to the
  * reference machine. Dividing measurements by that scale removes the host
  * component. Empirically this drops the whole-suite bias from +49.3% to +1.5%.
@@ -25,8 +25,16 @@ import { cpus } from 'node:os'
 
 import { normalizeFilepath, type BenchJson } from './bench-stable.ts'
 
-/** Repo-relative path of the anchor suite. Hash-guarded by calibration.test.ts. */
-export const CALIBRATION_FILE = 'packages/0/src/__bench__/calibration.bench.ts'
+/**
+ * Repo-relative path of the anchor suite. Hash-guarded by calibration.test.ts.
+ *
+ * Deliberately outside `packages/0/src/` — the anchors measure the host, not v0,
+ * and never reach the published dist. Tooling that treats a path under
+ * `packages/<name>/src/` as "shipped source" (the changeset reminder, coverage)
+ * would otherwise misclassify apparatus as a library change and ask for a
+ * version bump that alters nothing consumers can observe.
+ */
+export const CALIBRATION_FILE = 'packages/0/bench/calibration.bench.ts'
 
 /** Bench names in the anchor suite are prefixed so they are trivially identifiable. */
 const ANCHOR_PREFIX = 'anchor a'

@@ -8,7 +8,7 @@
  */
 
 // Framework
-import { IN_BROWSER, useDocumentEventListener, useRaf } from '@vuetify/v0'
+import { IN_BROWSER, isNumber, useDocumentEventListener, useRaf } from '@vuetify/v0'
 
 // Composables
 import { useSettings } from './useSettings'
@@ -136,9 +136,8 @@ async function getBenchmarksData (): Promise<Record<string, BenchmarkSummary[]>>
     // of the runner that measured it. Without dividing it out, answers quote
     // numbers that move ~1.5x with GHA host rotation. The anchor suite itself is
     // excluded by the composable-name filter below, which it cannot match.
-    const scale = typeof data.apparatus?.scale === 'number' && data.apparatus.scale > 0
-      ? data.apparatus.scale
-      : 1
+    const raw = data.apparatus?.scale
+    const scale = isNumber(raw) && raw > 0 ? raw : 1
 
     for (const file of data.files || []) {
       // Extract composable name from filepath

@@ -34,11 +34,18 @@ export interface BenchJson {
   files?: BenchFile[]
 }
 
-/** Strip machine-absolute prefixes down to packages/0/src/... (or leave relative). */
+/**
+ * Strip machine-absolute prefixes down to packages/0/... (or leave relative).
+ *
+ * Anchored at the package root rather than `src/` so bench files outside src —
+ * the calibration anchors live in `packages/0/bench/`, which is apparatus, not
+ * shipped source — normalize too. Anything under `src/` yields the identical
+ * string it did before, since the marker only sets where the slice starts.
+ */
 export function normalizeFilepath (filepath: string): string {
   const markers = [
-    '/packages/0/src/',
-    'packages/0/src/',
+    '/packages/0/',
+    'packages/0/',
   ]
   for (const marker of markers) {
     const index = filepath.indexOf(marker)

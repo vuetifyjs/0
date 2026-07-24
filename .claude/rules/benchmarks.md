@@ -1,5 +1,5 @@
 ---
-paths: ['packages/0/src/**/*.bench.ts']
+paths: ['packages/0/src/**/*.bench.ts', 'packages/0/bench/**/*.bench.ts']
 ---
 
 # Benchmark Standards
@@ -366,7 +366,9 @@ pnpm metrics:delta --prev old.json --next new.json
 
 `runs-on: ubuntu-24.04` pins the **OS image, not the CPU**. GHA rotates hosts across generations that differ by roughly 1.5x in single-thread throughput, so identical code benched on two runners yields two different sets of absolute ops/s. That is what produced #714's phantom 50% "improvement".
 
-Every bench run therefore also measures `packages/0/src/__bench__/calibration.bench.ts` — 13 fixed anchors spanning ~100ns to ~1ms that import nothing from v0. The trimmed geometric mean of `this run's anchors ÷ the stored baseline` is `apparatus.scale`, recorded in `benchmarks.json`, `metrics.json`, and every `metrics/<version>.json` alongside a CPU/node/pnpm/runner fingerprint. Artifacts store **raw** hz; consumers divide by `scale`. Raw is always recoverable as `hz * scale`.
+Every bench run therefore also measures `packages/0/bench/calibration.bench.ts` — 13 fixed anchors spanning ~100ns to ~1ms that import nothing from v0. It lives outside `packages/0/src/` on purpose: it is apparatus, not shipped source, and tooling that reads a `packages/<name>/src/` path as a library change (the changeset reminder, coverage) would otherwise demand a version bump for a file that never enters `dist`.
+
+**The anchors are exempt from the per-bench-file standards above** — fixture isolation, 1K/10K dataset coverage, category comments, the `(N items)` naming convention, the ≥5-benchmarks minimum. Those rules exist to make a bench describe v0 honestly; the anchors deliberately describe the *machine*, and their content is frozen by hash. The trimmed geometric mean of `this run's anchors ÷ the stored baseline` is `apparatus.scale`, recorded in `benchmarks.json`, `metrics.json`, and every `metrics/<version>.json` alongside a CPU/node/pnpm/runner fingerprint. Artifacts store **raw** hz; consumers divide by `scale`. Raw is always recoverable as `hz * scale`.
 
 Measured effect on the #714 pair: whole-suite bias drops from **+49.3% to +1.5%**, and all five canaries fall from +44…+61% (all flagged) to −1.9…+9.6% (none flagged).
 

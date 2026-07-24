@@ -12,6 +12,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { scaleOf } from './lib/bench-stable.ts'
 import { buildItemBenchmarks, extractName } from './lib/benchmarks.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -78,7 +79,7 @@ function main () {
     // baseline is captured. Applying it here makes every number in metrics.json
     // host-independent, so tier badges stop flipping when GHA rotates runners.
     const apparatus = benchmarks.apparatus
-    const scale = typeof apparatus?.scale === 'number' && apparatus.scale > 0 ? apparatus.scale : 1
+    const scale = scaleOf(benchmarks)
 
     for (const file of benchmarks.files || []) {
       const name = extractName(file.filepath)
