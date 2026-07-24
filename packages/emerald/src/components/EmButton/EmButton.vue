@@ -10,7 +10,6 @@
     loading?: boolean
     size?: EmButtonSize
     variant?: EmButtonVariant
-    type?: 'button' | 'submit' | 'reset'
     /** Accessible label for icon-only buttons */
     ariaLabel?: string
     /** Form field name — renders a hidden input when set */
@@ -26,7 +25,6 @@
     loading = false,
     size = 'md',
     variant = 'primary',
-    type = 'button',
     ariaLabel,
     name,
   } = defineProps<EmButtonProps>()
@@ -41,10 +39,15 @@
     :disabled
     :loading
     :name
-    :type
   >
-    <Button.Loading class="emerald-button__loading">
-      <span aria-hidden="true" class="emerald-button__spinner" />
+    <!--
+      Button.Loading is a slot-only shell (no DOM node). Own the absolute
+      positioning wrapper inside the slot — see v0 button/loading example.
+    -->
+    <Button.Loading>
+      <span class="emerald-button__loading">
+        <span aria-hidden="true" class="emerald-button__spinner" />
+      </span>
     </Button.Loading>
 
     <Button.Content class="emerald-button__content">
@@ -56,6 +59,7 @@
 <!-- Unscoped: Button.Root is multi-root; scoped data-v never lands on the <button>. -->
 <style>
   .emerald-button {
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -187,7 +191,6 @@
   }
 
   .emerald-button[data-loading] {
-    position: relative;
     cursor: progress;
   }
 

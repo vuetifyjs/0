@@ -2,19 +2,28 @@
   // Framework
   import { Input } from '@vuetify/v0'
 
+  // Utilities
+  import { useId } from 'vue'
+
   // Types
-  import type { FormValidationRule, ValidateOn } from '@vuetify/v0'
+  import type { FormValidationRule, ID, ValidateOn } from '@vuetify/v0'
 
   export interface EmTextFieldProps {
+    id?: ID
+    /** String label — also wires Root `label` / control aria-label */
+    label?: string
     disabled?: boolean
     readonly?: boolean
+    required?: boolean
     name?: string
+    /** Native input type — owned by Input.Root, not Control */
     type?: string
     placeholder?: string
-    /** Native autocomplete attribute */
     autocomplete?: string
     rules?: FormValidationRule[]
     validateOn?: ValidateOn
+    error?: boolean
+    errorMessages?: string | string[]
   }
 </script>
 
@@ -22,45 +31,62 @@
   defineOptions({ name: 'EmTextField' })
 
   const {
+    id: idProp,
+    label,
     disabled = false,
     readonly = false,
+    required = false,
     name,
     type = 'text',
     placeholder,
     autocomplete,
     rules,
     validateOn,
+    error = false,
+    errorMessages,
   } = defineProps<EmTextFieldProps>()
 
   const model = defineModel<string>({ default: '' })
+  const id = idProp ?? useId()
 </script>
 
 <template>
   <Input.Root
+    :id
     v-model="model"
     class="emerald-text-field"
     :disabled
+    :error
+    :error-messages
+    :label
     :name
     :readonly
+    :required
     :rules
+    :type
     :validate-on
   >
-    <label v-if="$slots.label" class="emerald-text-field__label">
-      <slot name="label" />
+    <label
+      v-if="label || $slots.label"
+      class="emerald-text-field__label"
+      :for="String(id)"
+    >
+      <slot name="label">{{ label }}</slot>
     </label>
 
     <Input.Control
       :autocomplete
       class="emerald-text-field__control"
       :placeholder
-      :type
     />
 
     <Input.Description v-if="$slots.description" class="emerald-text-field__description">
       <slot name="description" />
     </Input.Description>
 
-    <Input.Error class="emerald-text-field__error" />
+    <Input.Error v-slot="{ errors }" class="emerald-text-field__error">
+      <span v-for="message in errors" :key="message">{{ message }}</span>
+    </Input.Error>
   </Input.Root>
 </template>
 
@@ -136,5 +162,9 @@
     font-size: var(--emerald-text-b3-size, 12px);
     line-height: var(--emerald-text-b3-height, 18px);
     color: var(--emerald-danger-600, #a1000e);
+  }
+
+  .emerald-text-field__error[data-state='hidden'] {
+    display: none;
   }
 </style>

@@ -21,9 +21,13 @@ export interface EmeraldAdapterOptions {
 }
 
 const SAFE_IDENT = /^[a-zA-Z0-9_-]+$/
-const UNSAFE_CSS = /url\s*\(|@import|expression\s*\(|[{}]/i
+/** Mirrors v0 ThemeAdapter.UNSAFE_CSS — keep in lockstep. */
+const UNSAFE_CSS = /url\s*\(|src\s*\(|image\s*\(|image-set\s*\(|cross-fade\s*\(|@import|expression\s*\(|[;{}<>\\]/i
 
-/** Color keys mirrored onto `--v0-*` for kit interop. */
+/**
+ * Color keys mirrored onto `--v0-*` for kit interop (Genesis chrome).
+ * Severity remaps (warning/error/accent) are handled separately below.
+ */
 const V0_ALIAS_KEYS = [
   'primary',
   'on-primary',
@@ -33,6 +37,7 @@ const V0_ALIAS_KEYS = [
   'on-background',
   'surface',
   'on-surface',
+  'on-surface-variant',
   'surface-tint',
   'divider',
   'border',
@@ -80,9 +85,7 @@ export class EmeraldStyleSheetAdapter extends V0StyleSheetThemeAdapter {
             lines.push(`  --v0-${key}: var(--${this.prefix}-${key});`)
           }
         }
-        // Severity tokens kits use for callouts
-        if ('success' in themeColors) lines.push(`  --v0-success: var(--${this.prefix}-success);`)
-        if ('info' in themeColors) lines.push(`  --v0-info: var(--${this.prefix}-info);`)
+        // Severity / accent remaps kits use for callouts (names differ)
         if ('alert' in themeColors) lines.push(`  --v0-warning: var(--${this.prefix}-alert);`)
         if ('danger' in themeColors) lines.push(`  --v0-error: var(--${this.prefix}-danger);`)
         if ('primary' in themeColors) lines.push(`  --v0-accent: var(--${this.prefix}-primary);`)

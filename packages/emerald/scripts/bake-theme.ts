@@ -4,6 +4,8 @@
  *
  * Self-contained (no @vuetify/v0 import) so it runs after tsdown without
  * requiring packages/0 dist to be built first.
+ *
+ * Keep V0_ALIAS_KEYS / UNSAFE_CSS / foundations in lockstep with src/adapter.ts.
  */
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
@@ -21,7 +23,8 @@ import {
 } from '../src/theme'
 
 const SAFE_IDENT = /^[a-zA-Z0-9_-]+$/
-const UNSAFE_CSS = /url\s*\(|@import|expression\s*\(|[{}]/i
+/** Mirrors v0 ThemeAdapter.UNSAFE_CSS — keep in lockstep with adapter.ts. */
+const UNSAFE_CSS = /url\s*\(|src\s*\(|image\s*\(|image-set\s*\(|cross-fade\s*\(|@import|expression\s*\(|[;{}<>\\]/i
 
 const V0_ALIAS_KEYS = [
   'primary',
@@ -32,6 +35,7 @@ const V0_ALIAS_KEYS = [
   'on-background',
   'surface',
   'on-surface',
+  'on-surface-variant',
   'surface-tint',
   'divider',
   'border',
@@ -100,8 +104,6 @@ function colorBlock (selector: string): string {
       lines.push(`  --v0-${key}: var(--emerald-${key});`)
     }
   }
-  if ('success' in emeraldColors) lines.push('  --v0-success: var(--emerald-success);')
-  if ('info' in emeraldColors) lines.push('  --v0-info: var(--emerald-info);')
   if ('alert' in emeraldColors) lines.push('  --v0-warning: var(--emerald-alert);')
   if ('danger' in emeraldColors) lines.push('  --v0-error: var(--emerald-danger);')
   if ('primary' in emeraldColors) lines.push('  --v0-accent: var(--emerald-primary);')

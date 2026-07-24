@@ -1,14 +1,31 @@
 <script lang="ts">
   // Framework
   import { Dialog } from '@vuetify/v0'
+
+  export interface EmDialogContentProps {
+    closeOnClickOutside?: boolean
+    blocking?: boolean
+    namespace?: string
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmDialogContent' })
+
+  const {
+    closeOnClickOutside,
+    blocking,
+    namespace,
+  } = defineProps<EmDialogContentProps>()
 </script>
 
 <template>
-  <Dialog.Content class="emerald-dialog">
+  <Dialog.Content
+    :blocking
+    class="emerald-dialog"
+    :close-on-click-outside
+    :namespace
+  >
     <div class="emerald-dialog__content">
       <slot />
     </div>
