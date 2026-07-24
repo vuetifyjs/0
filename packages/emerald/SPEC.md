@@ -38,17 +38,30 @@ Token values live in `src/theme.ts`. Flat color map for the adapter: `src/colors
 | `EmTextField` | `Input.Root` + `Control` + `Description` + `Error` |
 | `EmCheckbox` | `Checkbox.Root` + `Indicator` |
 | `EmSwitch` | `Switch.Root` + `Track` + `Thumb` |
-| `EmDialog` (+ Activator/Content/Title/Description/Close) | `Dialog.*` |
+| `EmDialog` (+ Activator/Content/Title/Description/Close/Footer) | `Dialog.*` |
 | `EmSelect` (+ Activator/Content/Item/Value/Placeholder) | `Select.*` |
 
-Maturity: **preview**. Not published (`private: true` until first release cut).
+## Wave 2 surface (preview)
 
-## Non-goals (Wave 1)
+| Component | v0 / shell |
+|---|---|
+| `EmAlert` (+ Title/Description) | `Atom` + `role="alert"` (no v0 Alert) |
+| `EmCard` (+ Header/Title/Subtitle/Body/Footer) | `Atom` presentational |
+| `EmTag` | `Atom` presentational / button |
+| `EmAvatar` (+ Image/Fallback) | `Avatar.*` |
+| `EmTabs` (+ List/Item/Panel) | `Tabs.*` |
+| `EmPagination` (+ Item/Prev/Next) | `Pagination.*` |
+| `EmSlider` | `Slider.Root` + `Track` + `Range` + `Thumb` |
+
+Foundations also export `motion` and `control` (switch/checkbox/avatar geometry) as CSS vars.
+
+Maturity: **preview**. Not published (`private: true` until first release cut). Kitchen sink: `dev` → `/emerald`.
+
+## Non-goals (current)
 
 - Dark theme registration (tokens reserve dark surfaces; not wired)
 - DatePicker / Toast / Upload / DataTable (no finished v0 primitive or deferred)
 - Full 35-component inventory from the prior reference branch
-- Docs app / kitchen sink (follow-up)
 
 ## Reference
 

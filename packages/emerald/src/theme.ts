@@ -276,6 +276,42 @@ export const fontSize = {
 } as const
 
 // ──────────────────────────────────────────────
+// Motion (component transitions — not in Figma color page)
+// ──────────────────────────────────────────────
+
+export const motion = {
+  'duration-fast': '120ms',
+  'duration-base': '180ms',
+  'duration-slow': '220ms',
+  'ease-standard': 'cubic-bezier(0.4, 0, 0.2, 1)',
+} as const
+
+// ──────────────────────────────────────────────
+// Control anatomy (component geometry used ≥2 times)
+// ──────────────────────────────────────────────
+
+export const control = {
+  'switch-track-width-sm': '28px',
+  'switch-track-height-sm': '16px',
+  'switch-track-width-md': '36px',
+  'switch-track-height-md': '20px',
+  'switch-track-width-lg': '44px',
+  'switch-track-height-lg': '24px',
+  'switch-thumb-sm': '12px',
+  'switch-thumb-md': '16px',
+  'switch-thumb-lg': '20px',
+  'switch-travel-sm': '6px',
+  'switch-travel-md': '8px',
+  'switch-travel-lg': '10px',
+  'checkbox-sm': '16px',
+  'checkbox-md': '20px',
+  'checkbox-lg': '24px',
+  'avatar-sm': '32px',
+  'avatar-md': '40px',
+  'avatar-lg': '48px',
+} as const
+
+// ──────────────────────────────────────────────
 // Full theme export (UnoCSS theme config shape)
 // ──────────────────────────────────────────────
 
@@ -300,4 +336,6 @@ export const emeraldTheme = {
   boxShadow: shadow,
   fontFamily,
   fontSize,
+  motion,
+  control,
 } as const

@@ -96,24 +96,24 @@
     align-items: center;
     position: relative;
     box-sizing: border-box;
-    width: 36px;
-    height: 20px;
+    width: var(--emerald-control-switch-track-width-md, 36px);
+    height: var(--emerald-control-switch-track-height-md, 20px);
     border: 1px solid var(--emerald-neutral-400, #aeb6be);
     border-radius: var(--emerald-radius-full, 999px);
     background: var(--emerald-neutral-200, #ebf0f4);
     box-shadow: var(--emerald-shadow-field, 0 1px 2px 0 rgba(5, 0, 18, 0.05));
-    transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    transition: background-color var(--emerald-motion-duration-fast, 120ms) ease, border-color var(--emerald-motion-duration-fast, 120ms) ease, box-shadow var(--emerald-motion-duration-fast, 120ms) ease;
     overflow: visible;
   }
 
   .emerald-switch[data-size='sm'] .emerald-switch__track {
-    width: 28px;
-    height: 16px;
+    width: var(--emerald-control-switch-track-width-sm, 28px);
+    height: var(--emerald-control-switch-track-height-sm, 16px);
   }
 
   .emerald-switch[data-size='lg'] .emerald-switch__track {
-    width: 44px;
-    height: 24px;
+    width: var(--emerald-control-switch-track-width-lg, 44px);
+    height: var(--emerald-control-switch-track-height-lg, 24px);
   }
 
   .emerald-switch__track[data-state='checked'] {
@@ -143,18 +143,18 @@
   }
 
   .emerald-switch__thumb {
-    --travel: 8px;
+    --travel: var(--emerald-control-switch-travel-md, 8px);
     --sign: -1;
     display: block;
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 16px;
-    height: 16px;
+    width: var(--emerald-control-switch-thumb-md, 16px);
+    height: var(--emerald-control-switch-thumb-md, 16px);
     border-radius: var(--emerald-radius-full, 999px);
     background: var(--emerald-neutral-100, #fefefe);
     transform: translate(calc(-50% + var(--sign) * var(--travel)), -50%);
-    transition: transform 120ms ease;
+    transition: transform var(--emerald-motion-duration-fast, 120ms) ease;
     pointer-events: none;
     box-shadow: var(--emerald-shadow-thumb, 0 1px 3px 0 rgba(5, 0, 18, 0.12));
   }
@@ -166,14 +166,14 @@
   /* Track forces dir=ltr in v0 — do not reverse travel under [dir=rtl]. */
 
   .emerald-switch[data-size='sm'] .emerald-switch__thumb {
-    --travel: 6px;
-    width: 12px;
-    height: 12px;
+    --travel: var(--emerald-control-switch-travel-sm, 6px);
+    width: var(--emerald-control-switch-thumb-sm, 12px);
+    height: var(--emerald-control-switch-thumb-sm, 12px);
   }
 
   .emerald-switch[data-size='lg'] .emerald-switch__thumb {
-    --travel: 10px;
-    width: 20px;
-    height: 20px;
+    --travel: var(--emerald-control-switch-travel-lg, 10px);
+    width: var(--emerald-control-switch-thumb-lg, 20px);
+    height: var(--emerald-control-switch-thumb-lg, 20px);
   }
 </style>
