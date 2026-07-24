@@ -509,6 +509,80 @@ describe('pagination', () => {
         expect(page.value).toBe(1)
       })
     })
+
+    describe('keyboard interaction', () => {
+      it('should navigate on Enter keydown when rendered as non-button element', async () => {
+        const page = ref(1)
+
+        const wrapper = mount(Pagination.Root, {
+          props: {
+            'size': 100,
+            'renderless': true,
+            'modelValue': page.value,
+            'onUpdate:modelValue': (v: number) => {
+              page.value = v
+            },
+          },
+          slots: {
+            default: () => h(Pagination.Item, { value: 5, as: 'div' }, {
+              default: (props: any) => h('div', props.attrs, 'Page 5'),
+            }),
+          },
+        })
+
+        await nextTick()
+        await wrapper.find('[role="button"]').trigger('keydown', { key: 'Enter' })
+        await nextTick()
+
+        expect(page.value).toBe(5)
+      })
+
+      it('should navigate on Space keydown when rendered as non-button element', async () => {
+        const page = ref(1)
+
+        const wrapper = mount(Pagination.Root, {
+          props: {
+            'size': 100,
+            'renderless': true,
+            'modelValue': page.value,
+            'onUpdate:modelValue': (v: number) => {
+              page.value = v
+            },
+          },
+          slots: {
+            default: () => h(Pagination.Item, { value: 5, as: 'div' }, {
+              default: (props: any) => h('div', props.attrs, 'Page 5'),
+            }),
+          },
+        })
+
+        await nextTick()
+        await wrapper.find('[role="button"]').trigger('keydown', { key: ' ' })
+        await nextTick()
+
+        expect(page.value).toBe(5)
+      })
+
+      it('should expose role="button" and onKeydown when rendered as non-button element', async () => {
+        let itemProps: any
+
+        mount(Pagination.Root, {
+          props: { size: 100, renderless: true },
+          slots: {
+            default: () => h(Pagination.Item, { value: 1, as: 'div' }, {
+              default: (props: any) => {
+                itemProps = props
+                return h('div', 'Page 1')
+              },
+            }),
+          },
+        })
+
+        await nextTick()
+        expect(itemProps.attrs.role).toBe('button')
+        expect(typeof itemProps.attrs.onKeydown).toBe('function')
+      })
+    })
   })
 
   describe('first', () => {
