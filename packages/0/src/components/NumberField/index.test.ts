@@ -763,6 +763,34 @@ describe('numberField', () => {
       await wait()
       expect(decrementEl().attributes('type')).toBe('button')
     })
+
+    it('should set aria-labelledby from labelledBy prop', async () => {
+      const model = ref<number | null>(5)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { labelledBy: 'my-label' },
+      })
+      await wait()
+      expect(controlEl().attributes('aria-labelledby')).toBe('my-label')
+    })
+
+    it('should suppress aria-label when labelledBy prop is set', async () => {
+      const model = ref<number | null>(5)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { label: 'Quantity', labelledBy: 'my-label' },
+      })
+      await wait()
+      expect(controlEl().attributes('aria-label')).toBeUndefined()
+      expect(controlEl().attributes('aria-labelledby')).toBe('my-label')
+    })
+
+    it('should not set aria-label when no label prop is provided', async () => {
+      const model = ref<number | null>(5)
+      const { controlEl, wait } = mountNumberField({ model })
+      await wait()
+      expect(controlEl().attributes('aria-label')).toBeUndefined()
+    })
   })
 
   describe('data attributes', () => {
