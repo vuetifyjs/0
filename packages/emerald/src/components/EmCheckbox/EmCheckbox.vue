@@ -39,8 +39,21 @@
     >
       <span aria-hidden="true" class="emerald-checkbox__box" />
 
-      <Checkbox.Indicator class="emerald-checkbox__indicator">
+      <Checkbox.Indicator v-slot="{ isMixed }" class="emerald-checkbox__indicator">
         <svg
+          v-if="isMixed"
+          class="emerald-checkbox__glyph"
+          fill="none"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-width="2.5"
+          viewBox="0 0 16 16"
+        >
+          <path d="M3.5 8h9" />
+        </svg>
+
+        <svg
+          v-else
           class="emerald-checkbox__glyph"
           fill="none"
           stroke="currentColor"

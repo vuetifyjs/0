@@ -9,10 +9,11 @@ Figma-sourced tokens + thin Vue wrappers over `@vuetify/v0` compounds.
 ```ts
 import { createApp } from 'vue'
 import { createEmeraldPlugin, EmButton } from '@paper/emerald'
-import '@paper/emerald/theme.css' // zero-config tokens (or use the plugin)
+import '@paper/emerald/theme.css' // tokens (zero-config; plugin also injects at runtime)
+import '@paper/emerald/style.css' // component CSS (required for Em* styling)
 
 const app = createApp(App)
-app.use(createEmeraldPlugin())
+app.use(createEmeraldPlugin()) // optional if theme.css is imported and data-theme is set
 ```
 
 ## Wave 1 components
