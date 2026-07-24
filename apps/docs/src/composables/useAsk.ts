@@ -132,6 +132,14 @@ async function getBenchmarksData (): Promise<Record<string, BenchmarkSummary[]>>
     const data = await response.json()
     const result: Record<string, BenchmarkSummary[]> = {}
 
+    // Host calibration factor — benchmarks.json stores raw ops/s plus the scale
+    // of the runner that measured it. Without dividing it out, answers quote
+    // numbers that move ~1.5x with GHA host rotation. The anchor suite itself is
+    // excluded by the composable-name filter below, which it cannot match.
+    const scale = typeof data.apparatus?.scale === 'number' && data.apparatus.scale > 0
+      ? data.apparatus.scale
+      : 1
+
     for (const file of data.files || []) {
       // Extract composable name from filepath
       // e.g., ".../createFilter/index.bench.ts" -> "create-filter"
@@ -148,8 +156,8 @@ async function getBenchmarksData (): Promise<Record<string, BenchmarkSummary[]>>
         for (const bench of group.benchmarks || []) {
           benchmarks.push({
             name: bench.name,
-            hz: bench.hz,
-            mean: bench.mean,
+            hz: bench.hz / scale,
+            mean: bench.mean * scale,
           })
         }
       }

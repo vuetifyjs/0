@@ -18,6 +18,7 @@ import {
   assertCiOrRelativePaths,
   type BenchJson,
 } from './lib/bench-stable.ts'
+import { CALIBRATION_FILE } from './lib/calibration.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -83,6 +84,31 @@ function main (): void {
       errors.push(
         'benchmarks.json still uses absolute filepaths. Re-run via `pnpm metrics:bench` '
         + '(run-bench-stable normalizes to packages/0/src/...).',
+      )
+    }
+
+    // Warn, not fail: artifacts committed before the calibration anchors landed
+    // legitimately have no apparatus block, and failing here would block the very
+    // regen run that would add one. Becomes worth promoting to an error once a
+    // baseline is stored and every artifact is expected to carry a scale.
+    const apparatus = raw.apparatus as
+      | { scale?: number, complete?: boolean, baseline?: unknown }
+      | undefined
+    if (!apparatus) {
+      console.warn(
+        '[check-benchmark-artifacts] warning: benchmarks.json has no `apparatus` block, so its '
+        + 'numbers are raw and not comparable to any other run. Regenerate via metrics-regen.',
+      )
+    } else if (apparatus.complete === false) {
+      console.warn(
+        '[check-benchmark-artifacts] warning: calibration anchors incomplete — host scale forced '
+        + `to 1. Check that ${CALIBRATION_FILE} ran.`,
+      )
+    } else if (!apparatus.baseline) {
+      console.warn(
+        '[check-benchmark-artifacts] warning: no calibration baseline stored yet — numbers are raw. '
+        + 'Capture `apparatus.anchors` into BASELINE_ANCHOR_HZ (scripts/lib/calibration.ts) to enable '
+        + 'host normalization.',
       )
     }
   }

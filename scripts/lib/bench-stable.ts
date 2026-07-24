@@ -188,13 +188,36 @@ export interface DeltaRow {
   pct: number | null
 }
 
+/**
+ * Host calibration factor recorded by run-bench-stable.ts, or 1 when absent.
+ *
+ * Read positionally rather than by importing scripts/lib/calibration.ts, which
+ * imports this module — the dependency stays one-directional.
+ */
+export function scaleOf (raw: BenchJson | null | undefined): number {
+  const scale = (raw?.apparatus as { scale?: number } | undefined)?.scale
+  return typeof scale === 'number' && scale > 0 ? scale : 1
+}
+
+/**
+ * Compare canaries in baseline units, not raw ops/s.
+ *
+ * The two artifacts are, in general, measured on different GHA hosts — the
+ * previous one was committed by an earlier regen run. Comparing raw hz across
+ * them measures the runner lottery: on PR #714 every one of the five canaries
+ * "regressed" 44–61% on completely unchanged code. Dividing each side by its own
+ * recorded scale is what makes this gate a regression detector instead of a
+ * hardware detector.
+ */
 export function compareCanaries (prev: BenchJson | null, next: BenchJson): DeltaRow[] {
   const nextC = extractCanaries(next)
   const prevC = prev ? extractCanaries(prev) : []
+  const prevScale = scaleOf(prev)
+  const nextScale = scaleOf(next)
   return nextC.map(n => {
     const p = prevC.find(x => x.id === n.id)
-    const prevHz = p?.hz ?? null
-    const nextHz = n.hz
+    const prevHz = p?.hz == null ? null : p.hz / prevScale
+    const nextHz = n.hz == null ? null : n.hz / nextScale
     if (prevHz == null || nextHz == null || prevHz === 0) {
       return { id: n.id, prevHz, nextHz, ratio: null, pct: null }
     }
@@ -206,9 +229,21 @@ export function compareCanaries (prev: BenchJson | null, next: BenchJson): Delta
 /** Default acceptable |pct| swing on canaries before a run is flagged noisy. */
 export const CANARY_NOISE_PCT = 20
 
-export function formatDeltaReport (rows: DeltaRow[], noisePct = CANARY_NOISE_PCT): string {
+export function formatDeltaReport (
+  rows: DeltaRow[],
+  noisePct = CANARY_NOISE_PCT,
+  scales?: { prev: number, next: number },
+): string {
+  const calibrated = scales != null && (scales.prev !== 1 || scales.next !== 1)
   const lines = [
     '### Canary bench delta (next / prev)',
+    '',
+    calibrated
+      ? `Host-normalized (prev scale ${scales.prev.toFixed(4)}, next ${scales.next.toFixed(4)}) — `
+      + 'runner speed is divided out, so a flagged delta is a real change.'
+      : '**Raw ops/s — not host-normalized.** No calibration baseline is stored yet, so a '
+        + 'whole-panel shift in one direction is most likely a GHA host rotation rather than a '
+        + 'code change. See scripts/lib/calibration.ts.',
     '',
     '| Canary | prev | next | Δ |',
     '|--------|-----:|-----:|----:|',
