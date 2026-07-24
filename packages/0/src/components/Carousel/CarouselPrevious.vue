@@ -48,6 +48,7 @@
       'data-disabled': true | undefined
       'data-edge': true | undefined
       'onClick': () => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
   }
 </script>
@@ -86,6 +87,13 @@
     }
   }
 
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
   const slotProps = toRef((): CarouselPreviousSlotProps => ({
     isDisabled: isDisabled.value,
     isAtEdge: isAtEdge.value,
@@ -98,6 +106,7 @@
       'data-disabled': isDisabled.value || undefined,
       'data-edge': isAtEdge.value || undefined,
       'onClick': onClick,
+      'onKeydown': onKeydown,
     },
   }))
 </script>
