@@ -39,6 +39,7 @@ export const emeraldColors: Record<string, string> = {
   'background': background.DEFAULT,
   'surface': surface.DEFAULT,
   'surface-tint': primary['alpha-10'],
+  'on-surface-variant': neutral[700],
   'divider': neutral[300],
   'border': border.DEFAULT,
   'status-danger-bg': danger[100],

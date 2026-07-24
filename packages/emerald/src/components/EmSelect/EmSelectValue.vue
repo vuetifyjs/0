@@ -8,8 +8,8 @@
 </script>
 
 <template>
-  <Select.Value class="emerald-select__value">
-    <slot />
+  <Select.Value v-slot="slotProps" class="emerald-select__value">
+    <slot v-bind="slotProps">{{ slotProps.selectedValue }}</slot>
   </Select.Value>
 </template>
 

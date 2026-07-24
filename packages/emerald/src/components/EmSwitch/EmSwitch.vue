@@ -163,13 +163,7 @@
     --sign: 1;
   }
 
-  [dir='rtl'] .emerald-switch__thumb {
-    --sign: 1;
-  }
-
-  [dir='rtl'] .emerald-switch__thumb[data-state='checked'] {
-    --sign: -1;
-  }
+  /* Track forces dir=ltr in v0 — do not reverse travel under [dir=rtl]. */
 
   .emerald-switch[data-size='sm'] .emerald-switch__thumb {
     --travel: 6px;
