@@ -14,6 +14,7 @@ import {
   type BenchJson,
   compareCanaries,
   formatDeltaReport,
+  scaleOf,
 } from './lib/bench-stable.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -57,7 +58,10 @@ function main (): void {
     : null
 
   const rows = compareCanaries(prevJson, nextJson)
-  const report = formatDeltaReport(rows, CANARY_NOISE_PCT)
+  const report = formatDeltaReport(rows, CANARY_NOISE_PCT, {
+    prev: scaleOf(prevJson),
+    next: scaleOf(nextJson),
+  })
   console.log(report)
 
   if (out) writeFileSync(out, `${report}\n`)

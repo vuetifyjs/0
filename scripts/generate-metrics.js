@@ -12,6 +12,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { scaleOf } from './lib/bench-stable.ts'
 import { buildItemBenchmarks, extractName } from './lib/benchmarks.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -74,14 +75,29 @@ function main () {
     console.log('Reading benchmark data...')
     const benchmarks = JSON.parse(readFileSync(BENCHMARKS_PATH, 'utf8'))
 
+    // Host calibration factor recorded by run-bench-stable.ts. 1 (no-op) until a
+    // baseline is captured. Applying it here makes every number in metrics.json
+    // host-independent, so tier badges stop flipping when GHA rotates runners.
+    const apparatus = benchmarks.apparatus
+    const scale = scaleOf(benchmarks)
+
     for (const file of benchmarks.files || []) {
       const name = extractName(file.filepath)
       if (!name) continue
 
       metrics[name] = metrics[name] || {}
-      metrics[name].benchmarks = buildItemBenchmarks(file)
+      metrics[name].benchmarks = buildItemBenchmarks(file, scale)
     }
+
+    // Underscore-prefixed so it cannot collide with a feature name, matching the
+    // `_groups`/`_tier` convention one level down. Consumers key into this map by
+    // feature name or skip entries without `.benchmarks._groups`, so it is inert
+    // to the docs while keeping each artifact self-describing about how it was
+    // measured — the provenance whose absence made PR #714 an hour of forensics.
+    if (apparatus) metrics._apparatus = apparatus
+
     console.log(`  Processed benchmark data for ${Object.keys(metrics).filter(k => metrics[k].benchmarks).length} items`)
+    console.log(`  Host scale ${scale.toFixed(4)}${scale === 1 ? ' (uncalibrated — raw numbers)' : ''}`)
   } else {
     console.log('No benchmark data found at', BENCHMARKS_PATH)
   }
@@ -93,7 +109,7 @@ function main () {
 
   writeFileSync(OUTPUT_PATH, JSON.stringify(metrics, null, 2))
   console.log(`\nWrote metrics to ${OUTPUT_PATH}`)
-  console.log(`  Total items: ${Object.keys(metrics).length}`)
+  console.log(`  Total items: ${Object.keys(metrics).filter(k => !k.startsWith('_')).length}`)
 }
 
 main()

@@ -27,6 +27,7 @@ import {
   medianMergeRuns,
   normalizeBenchJson,
 } from './lib/bench-stable.ts'
+import { CALIBRATION_FILE, buildApparatus } from './lib/calibration.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -107,14 +108,35 @@ function main (): void {
       ? normalizeBenchJson(runFiles[0]!)
       : medianMergeRuns(runFiles)
 
+    // Host fingerprint + scale factor travel with the numbers they describe.
+    // Raw hz stays raw here — this file is the source of truth for what was
+    // actually measured; normalization happens where artifacts are shaped for
+    // consumption, so a bad baseline can always be re-derived rather than
+    // having been baked in irreversibly.
+    const apparatus = buildApparatus(merged, runs)
+    const withApparatus: BenchJson = { ...merged, apparatus }
+
     mkdirSync(dirname(out), { recursive: true })
-    writeFileSync(out, `${JSON.stringify(merged, null, 2)}\n`)
+    writeFileSync(out, `${JSON.stringify(withApparatus, null, 2)}\n`)
     const nFiles = merged.files?.length ?? 0
     const nBenches = (merged.files ?? []).reduce(
       (sum, f) => sum + (f.groups ?? []).reduce((s, g) => s + (g.benchmarks?.length ?? 0), 0),
       0,
     )
     console.log(`[run-bench-stable] wrote ${out} (${nFiles} files, ${nBenches} benches, median of ${runs})`)
+    const anchorCount = Object.keys(apparatus.anchors).length
+    console.log(
+      `[run-bench-stable] apparatus: scale=${apparatus.scale.toFixed(4)} `
+      + `anchors=${anchorCount}${apparatus.complete ? '' : ' (INCOMPLETE)'} `
+      + `baseline=${apparatus.baseline ? 'stored' : 'null — numbers are raw, not yet host-normalized'} `
+      + `cpu=${apparatus.env.cpu ?? 'unknown'}`,
+    )
+    if (!apparatus.complete) {
+      console.warn(
+        '[run-bench-stable] calibration anchors missing or partial — scale forced to 1. '
+        + `Expected ${CALIBRATION_FILE} to contribute its full anchor set.`,
+      )
+    }
   } finally {
     rmSync(dir, { recursive: true, force: true })
   }

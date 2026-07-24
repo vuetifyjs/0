@@ -1,5 +1,5 @@
 ---
-paths: ['packages/0/src/**/*.bench.ts']
+paths: ['packages/0/src/**/*.bench.ts', 'packages/0/bench/**/*.bench.ts']
 ---
 
 # Benchmark Standards
@@ -342,8 +342,9 @@ Numbers only mean something if the **writer, machine, and flags** are fixed. Hom
 | Library under test | `V0_BENCH_TARGET=dist` (current) or npm dist path (history) | Source vs dist is a different apparatus |
 | Aggregation | **median of 3 runs** (`pnpm metrics:bench`) | Single GHA run is ~10–20% noisy |
 | Paths in JSON | repo-relative `packages/0/src/...` | Absolute `/home/john/...` vs `/home/runner/...` confuses audits |
+| Host calibration | anchor suite + `apparatus.scale` in every artifact | Pinning the OS image does **not** pin the CPU — see below |
 
-**Acceptable deviation:** canary benches (see `scripts/lib/bench-stable.ts` `CANARY_BENCHES`) may move **±20%** run-to-run on shared GHA with no code change. Beyond that, re-run or investigate — do not merge noise as signal.
+**Acceptable deviation:** canary benches (see `scripts/lib/bench-stable.ts` `CANARY_BENCHES`) may move **±20%** run-to-run on shared GHA with no code change — *but only once numbers are host-normalized*. On raw ops/s the real spread is far wider: PR #714 re-benched the byte-identical 1.0.0 npm dist and moved **+50.9% median across 623 benches**, with 582 of them outside ±20% and 35 tier badges flipped. Never read a raw cross-run delta as signal.
 
 **Commands:**
 
@@ -360,6 +361,27 @@ pnpm metrics:delta --prev old.json --next new.json
 ```
 
 **Do not** commit `apps/docs/public/benchmarks.json` or `apps/docs/src/data/metrics*.json` from a feature branch. `pnpm metrics:check` fails the PR. Override only with `ALLOW_METRICS_ARTIFACT_EDIT=1` and a written reason.
+
+## Host calibration
+
+`runs-on: ubuntu-24.04` pins the **OS image, not the CPU**. GHA rotates hosts across generations that differ by roughly 1.5x in single-thread throughput, so identical code benched on two runners yields two different sets of absolute ops/s. That is what produced #714's phantom 50% "improvement".
+
+Every bench run therefore also measures `packages/0/bench/calibration.bench.ts` — 13 fixed anchors spanning ~100ns to ~1ms that import nothing from v0. It lives outside `packages/0/src/` on purpose: it is apparatus, not shipped source, and tooling that reads a `packages/<name>/src/` path as a library change (the changeset reminder, coverage) would otherwise demand a version bump for a file that never enters `dist`.
+
+**The anchors are exempt from the per-bench-file standards above** — fixture isolation, 1K/10K dataset coverage, category comments, the `(N items)` naming convention, the ≥5-benchmarks minimum. Those rules exist to make a bench describe v0 honestly; the anchors deliberately describe the *machine*, and their content is frozen by hash. The trimmed geometric mean of `this run's anchors ÷ the stored baseline` is `apparatus.scale`, recorded in `benchmarks.json`, `metrics.json`, and every `metrics/<version>.json` alongside a CPU/node/pnpm/runner fingerprint. Artifacts store **raw** hz; consumers divide by `scale`. Raw is always recoverable as `hz * scale`.
+
+Measured effect on the #714 pair: whole-suite bias drops from **+49.3% to +1.5%**, and all five canaries fall from +44…+61% (all flagged) to −1.9…+9.6% (none flagged).
+
+Two rules follow, both load-bearing:
+
+- **Never edit `calibration.bench.ts`.** `scripts/lib/calibration.ts` stores the anchor throughput that every normalized number in the entire history series is expressed in. Changing an anchor redefines the unit without changing any stored baseline, so every trend line silently starts comparing against a different ruler. `calibration.test.ts` hashes the file and fails on any byte change. A genuine change is a deliberate re-baseline: update the hash, reset `BASELINE_ANCHOR_HZ` to `null`, re-measure every snapshot.
+- **The anchors must not import from v0.** `V0_BENCH_TARGET` aliases `@vuetify/v0` to source, this package's dist, or an installed version. An anchor resolving through that alias would vary with the very thing it is the fixed unit for, so the scale factor would absorb v0's own performance changes and cancel them out of the results.
+
+**One-time transition.** The regen workflow diffs against the previously *committed* benchmarks.json. Artifacts produced before calibration carry no apparatus, so `scaleOf` treats them as baseline-speed. The first regen after a baseline is captured therefore compares a raw `prev` against a normalized `next` and will report a spurious whole-panel delta — expected once, on that run only. Every regen after it compares normalized to normalized.
+
+`BASELINE_ANCHOR_HZ` starts `null`, mirroring `since: null` in maturity.json — the reference value is only knowable once the anchors have actually run on CI. While it is null, `scale` is 1 and the pipeline behaves exactly as before, so nothing is silently rescaled against a guess. A maintainer captures `apparatus.anchors` from the first metrics-regen run, pastes it in, and re-runs so every snapshot is expressed in the new unit.
+
+**What calibration does not fix.** About 6% of benches are host-*shape*-sensitive, not merely host-speed-sensitive: on the #714 pair, `createTokens` alias resolution moved ~2.5x while the suite moved 1.47x. Those survive normalization as genuine outliers and need quarantining from tiering and gating separately — a single scale factor cannot rescue them.
 
 ## Apparatus & imports (benchmark-history harness)
 
