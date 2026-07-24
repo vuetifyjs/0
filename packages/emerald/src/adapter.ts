@@ -3,7 +3,7 @@ import { V0StyleSheetThemeAdapter } from '@vuetify/v0'
 import { hexToRgb } from '@vuetify/v0/utilities'
 
 // Tokens
-import { fontFamily, fontSize, icon, radius, shadow, spacing, stroke } from './theme'
+import { control, fontFamily, fontSize, icon, motion, radius, shadow, spacing, stroke } from './theme'
 
 // Types
 import type { Colors } from '@vuetify/v0'
@@ -123,6 +123,14 @@ function foundations (prefix: string): string {
 
   for (const [key, val] of Object.entries(shadow)) {
     lines.push(`  --${prefix}-shadow-${key}: ${val};`)
+  }
+
+  for (const [key, val] of Object.entries(motion)) {
+    lines.push(`  --${prefix}-motion-${key}: ${val};`)
+  }
+
+  for (const [key, val] of Object.entries(control)) {
+    lines.push(`  --${prefix}-control-${key}: ${val};`)
   }
 
   lines.push(`  --${prefix}-font-sans: ${fontFamily.sans};`)

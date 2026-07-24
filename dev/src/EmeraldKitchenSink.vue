@@ -2,7 +2,18 @@
   import {
     EmeraldStyleSheetAdapter,
     emeraldColors,
+    EmAlert,
+    EmAlertDescription,
+    EmAlertTitle,
+    EmAvatar,
+    EmAvatarFallback,
     EmButton,
+    EmCard,
+    EmCardBody,
+    EmCardFooter,
+    EmCardHeader,
+    EmCardSubtitle,
+    EmCardTitle,
     EmCheckbox,
     EmDialog,
     EmDialogActivator,
@@ -11,13 +22,23 @@
     EmDialogDescription,
     EmDialogFooter,
     EmDialogTitle,
+    EmPagination,
+    EmPaginationItem,
+    EmPaginationNext,
+    EmPaginationPrev,
     EmSelect,
     EmSelectActivator,
     EmSelectContent,
     EmSelectItem,
     EmSelectPlaceholder,
     EmSelectValue,
+    EmSlider,
     EmSwitch,
+    EmTabs,
+    EmTabsItem,
+    EmTabsList,
+    EmTabsPanel,
+    EmTag,
     EmTextField,
   } from '@paper/emerald'
 
@@ -25,7 +46,7 @@
   import { IN_BROWSER } from '@vuetify/v0'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { ref, shallowRef } from 'vue'
 
   // Inject Emerald tokens without fighting the app-wide createThemePlugin.
   if (IN_BROWSER) {
@@ -42,6 +63,10 @@
   const name = shallowRef('Emerald')
   const email = shallowRef('')
   const fruit = shallowRef<string | undefined>()
+  const tab = shallowRef('overview')
+  const page = shallowRef(2)
+  const slider = ref([40])
+  const tagOn = shallowRef(true)
 
   function onLoadDemo () {
     loading.value = true
@@ -55,8 +80,140 @@
   <div class="emerald-sink" data-theme="emerald">
     <header class="sink-header">
       <h1>Emerald Kitchen Sink</h1>
-      <p>Wave 1 surface — visual check for #715.</p>
+      <p>Wave 1 + Wave 2 surface — visual check for #715.</p>
     </header>
+
+    <section>
+      <h2>Alert</h2>
+
+      <div class="stack" style="max-width: 480px; width: 100%;">
+        <EmAlert variant="success">
+          <EmAlertTitle>Saved</EmAlertTitle>
+          <EmAlertDescription>Your changes are live.</EmAlertDescription>
+        </EmAlert>
+
+        <EmAlert variant="warning">
+          <EmAlertTitle>Check tokens</EmAlertTitle>
+          <EmAlertDescription>Figma parity still pending live MCP.</EmAlertDescription>
+        </EmAlert>
+
+        <EmAlert variant="error">
+          <EmAlertTitle>Failed</EmAlertTitle>
+          <EmAlertDescription>Something went wrong.</EmAlertDescription>
+        </EmAlert>
+
+        <EmAlert variant="info">
+          <EmAlertTitle>Tip</EmAlertTitle>
+          <EmAlertDescription>Compose on v0, style with Emerald tokens.</EmAlertDescription>
+        </EmAlert>
+      </div>
+    </section>
+
+    <section>
+      <h2>Card</h2>
+
+      <div class="row">
+        <EmCard style="width: 320px;" variant="complete">
+          <EmCardHeader>
+            <EmCardTitle>Preferences</EmCardTitle>
+            <EmCardSubtitle>Wave 2 card shell</EmCardSubtitle>
+          </EmCardHeader>
+
+          <EmCardBody>
+            Token-driven surface with end-aligned footer actions.
+          </EmCardBody>
+
+          <EmCardFooter>
+            <EmButton variant="tertiary">Cancel</EmButton>
+            <EmButton>Save</EmButton>
+          </EmCardFooter>
+        </EmCard>
+
+        <EmCard hoverable style="width: 320px;" variant="complete">
+          <EmCardHeader>
+            <EmCardTitle>Hoverable</EmCardTitle>
+            <EmCardSubtitle>Hover for primary border</EmCardSubtitle>
+          </EmCardHeader>
+
+          <EmCardBody>Card with hoverable elevation.</EmCardBody>
+        </EmCard>
+      </div>
+    </section>
+
+    <section>
+      <h2>Tag</h2>
+
+      <div class="row">
+        <EmTag variant="neutral">Neutral</EmTag>
+
+        <EmTag interactive :selected="tagOn" variant="success" @click="tagOn = !tagOn">
+          Success {{ tagOn ? 'on' : 'off' }}
+        </EmTag>
+
+        <EmTag variant="danger">Danger</EmTag>
+        <EmTag variant="info">Info</EmTag>
+        <EmTag disabled variant="neutral">Disabled</EmTag>
+      </div>
+    </section>
+
+    <section>
+      <h2>Avatar</h2>
+
+      <div class="row">
+        <EmAvatar size="sm">
+          <EmAvatarFallback>SM</EmAvatarFallback>
+        </EmAvatar>
+
+        <EmAvatar size="md">
+          <EmAvatarFallback>MD</EmAvatarFallback>
+        </EmAvatar>
+
+        <EmAvatar size="lg">
+          <EmAvatarFallback>LG</EmAvatarFallback>
+        </EmAvatar>
+      </div>
+    </section>
+
+    <section>
+      <h2>Tabs</h2>
+
+      <EmTabs v-model="tab">
+        <EmTabsList>
+          <EmTabsItem value="overview">Overview</EmTabsItem>
+          <EmTabsItem value="tokens">Tokens</EmTabsItem>
+          <EmTabsItem disabled value="api">API</EmTabsItem>
+        </EmTabsList>
+
+        <EmTabsPanel value="overview">Overview panel content.</EmTabsPanel>
+        <EmTabsPanel value="tokens">Token panel content.</EmTabsPanel>
+        <EmTabsPanel value="api">API panel content.</EmTabsPanel>
+      </EmTabs>
+    </section>
+
+    <section>
+      <h2>Pagination</h2>
+
+      <EmPagination v-model="page" :items-per-page="10" :size="50">
+        <EmPaginationPrev>‹</EmPaginationPrev>
+        <EmPaginationItem :value="1">1</EmPaginationItem>
+        <EmPaginationItem :value="2">2</EmPaginationItem>
+        <EmPaginationItem :value="3">3</EmPaginationItem>
+        <EmPaginationItem :value="4">4</EmPaginationItem>
+        <EmPaginationItem :value="5">5</EmPaginationItem>
+        <EmPaginationNext>›</EmPaginationNext>
+      </EmPagination>
+
+      <p class="muted">Page {{ page }}</p>
+    </section>
+
+    <section>
+      <h2>Slider</h2>
+
+      <div class="stack narrow" style="width: 100%; max-width: 360px;">
+        <EmSlider v-model="slider" :max="100" :min="0" :step="1" />
+        <p class="muted">Value: {{ slider[0] }}</p>
+      </div>
+    </section>
 
     <section>
       <h2>Button</h2>

@@ -28,14 +28,12 @@
       "default": "./dist/index.mjs"
     },
     "./package.json": "./package.json",
-    "./theme.css": "./dist/theme.css",
     "./style.css": "./dist/style.css"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.mjs",
       "./package.json": "./package.json",
-      "./theme.css": "./dist/theme.css",
       "./style.css": "./dist/style.css"
     }
   },

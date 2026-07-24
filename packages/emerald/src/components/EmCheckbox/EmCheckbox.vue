@@ -102,18 +102,18 @@
     margin: 0;
     outline: none;
     flex-shrink: 0;
-    width: 20px;
-    height: 20px;
+    width: var(--emerald-control-checkbox-md, 20px);
+    height: var(--emerald-control-checkbox-md, 20px);
   }
 
   .emerald-checkbox[data-size='sm'] .emerald-checkbox__root {
-    width: 16px;
-    height: 16px;
+    width: var(--emerald-control-checkbox-sm, 16px);
+    height: var(--emerald-control-checkbox-sm, 16px);
   }
 
   .emerald-checkbox[data-size='lg'] .emerald-checkbox__root {
-    width: 24px;
-    height: 24px;
+    width: var(--emerald-control-checkbox-lg, 24px);
+    height: var(--emerald-control-checkbox-lg, 24px);
   }
 
   .emerald-checkbox__box {
@@ -124,7 +124,7 @@
     border-radius: var(--emerald-radius-xs, 4px);
     background: var(--emerald-neutral-100, #fefefe);
     box-shadow: var(--emerald-shadow-field, 0 1px 2px 0 rgba(5, 0, 18, 0.05));
-    transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    transition: background-color var(--emerald-motion-duration-fast, 120ms) ease, border-color var(--emerald-motion-duration-fast, 120ms) ease, box-shadow var(--emerald-motion-duration-fast, 120ms) ease;
   }
 
   .emerald-checkbox:hover:not([data-disabled]) .emerald-checkbox__root[data-state='unchecked'] .emerald-checkbox__box {

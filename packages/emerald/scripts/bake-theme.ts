@@ -13,9 +13,11 @@ import { fileURLToPath } from 'node:url'
 
 import { emeraldColors } from '../src/colors'
 import {
+  control,
   fontFamily,
   fontSize,
   icon,
+  motion,
   radius,
   shadow,
   spacing,
@@ -75,6 +77,12 @@ function foundations (): string {
   }
   for (const [key, val] of Object.entries(shadow)) {
     lines.push(`  --emerald-shadow-${key}: ${val};`)
+  }
+  for (const [key, val] of Object.entries(motion)) {
+    lines.push(`  --emerald-motion-${key}: ${val};`)
+  }
+  for (const [key, val] of Object.entries(control)) {
+    lines.push(`  --emerald-control-${key}: ${val};`)
   }
   lines.push(`  --emerald-font-sans: ${fontFamily.sans};`)
   for (const [key, val] of Object.entries(fontSize)) {
