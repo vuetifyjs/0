@@ -388,6 +388,93 @@ describe('button', () => {
         expect(props().isSelected).toBe(false)
       })
     })
+
+    describe('keyboard activation for non-native elements', () => {
+      it('should expose onKeydown in slot attrs when as is non-button', () => {
+        const { props } = mountButton({ props: { as: 'div' } })
+        expect(typeof props().attrs.onKeydown).toBe('function')
+      })
+
+      it('should not expose onKeydown in slot attrs when as is button', () => {
+        const { props } = mountButton()
+        expect(props().attrs.onKeydown).toBeUndefined()
+      })
+
+      it('should toggle selection on Enter key for non-native element in a group', async () => {
+        const model = ref<string | undefined>(undefined)
+        const wrapper = mount(Button.Group, {
+          props: {
+            'as': 'div',
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              model.value = v as string
+            },
+          },
+          slots: {
+            default: () => [
+              h(Button.Root as any, { value: 'bold', as: 'div' }, { default: (p: any) => h('div', p.attrs, 'Bold') }),
+            ],
+          },
+        })
+
+        const btn = wrapper.find('div[role="button"]')
+        await btn.trigger('keydown', { key: 'Enter' })
+        await nextTick()
+        expect(model.value).toBe('bold')
+      })
+
+      it('should prevent default on Enter key for non-native element', async () => {
+        let prevented = false
+        const wrapper = mount(Button.Root, {
+          props: { as: 'div' },
+          slots: {
+            default: (props: any) => h('div', {
+              onKeydown: (e: KeyboardEvent) => {
+                props.attrs.onKeydown(e)
+              },
+            }, 'Label'),
+          },
+        })
+
+        const div = wrapper.find('div')
+        const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
+        Object.defineProperty(event, 'preventDefault', {
+          value: () => {
+            prevented = true
+          },
+          writable: false,
+        })
+        div.element.dispatchEvent(event)
+        await nextTick()
+        expect(prevented).toBe(true)
+      })
+
+      it('should prevent default on Space key for non-native element', async () => {
+        let prevented = false
+        const wrapper = mount(Button.Root, {
+          props: { as: 'div' },
+          slots: {
+            default: (props: any) => h('div', {
+              onKeydown: (e: KeyboardEvent) => {
+                props.attrs.onKeydown(e)
+              },
+            }, 'Label'),
+          },
+        })
+
+        const div = wrapper.find('div')
+        const event = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true })
+        Object.defineProperty(event, 'preventDefault', {
+          value: () => {
+            prevented = true
+          },
+          writable: false,
+        })
+        div.element.dispatchEvent(event)
+        await nextTick()
+        expect(prevented).toBe(true)
+      })
+    })
   })
 
   describe('loading/content visibility', () => {

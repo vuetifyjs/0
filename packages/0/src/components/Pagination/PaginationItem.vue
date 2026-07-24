@@ -57,6 +57,7 @@
       'tabindex': number
       'type': 'button' | undefined
       'onClick': () => void
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 
@@ -104,6 +105,13 @@
     pagination.select(value)
   }
 
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      select()
+    }
+  }
+
   const slotProps = toRef((): PaginationItemSlotProps => ({
     page: value,
     isSelected: isSelected.value,
@@ -119,6 +127,7 @@
       'tabindex': disabled ? -1 : 0,
       'type': as === 'button' ? 'button' : undefined,
       'onClick': select,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
 
