@@ -1,0 +1,51 @@
+{
+  "name": "@paper/emerald",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Emerald design system — Wave 1 (v0-composed, Figma-tokened)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vuetifyjs/0.git",
+    "directory": "packages/emerald"
+  },
+  "types": "./dist/index.d.mts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown && pnpm bake:theme",
+    "bake:theme": "tsx scripts/bake-theme.ts",
+    "typecheck": "vue-tsc --noEmit --incremental"
+  },
+  "peerDependencies": {
+    "vue": ">=3.5.0"
+  },
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json",
+    "./theme.css": "./dist/theme.css",
+    "./style.css": "./dist/style.css"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json",
+      "./theme.css": "./dist/theme.css",
+      "./style.css": "./dist/style.css"
+    }
+  },
+  "dependencies": {
+    "@vuetify/v0": "workspace:^"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "unplugin-vue": "catalog:"
+  }
+}
