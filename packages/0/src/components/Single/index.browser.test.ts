@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
 import { Single } from './index'
@@ -459,6 +459,149 @@ describe('single', () => {
         await nextTick()
 
         expect(itemProps.attrs['data-disabled']).toBe(true)
+      })
+    })
+
+    describe('role and tabindex', () => {
+      it('should expose role="option" in attrs', async () => {
+        let itemProps: any
+
+        mount(Single.Root, {
+          slots: {
+            default: () =>
+              h(Single.Item, { value: 'item-1' }, {
+                default: (props: any) => {
+                  itemProps = props
+                  return h('div', 'Item')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        expect(itemProps.attrs.role).toBe('option')
+      })
+
+      it('should set tabindex="0" for enabled item', async () => {
+        let itemProps: any
+
+        mount(Single.Root, {
+          slots: {
+            default: () =>
+              h(Single.Item, { value: 'item-1' }, {
+                default: (props: any) => {
+                  itemProps = props
+                  return h('div', 'Item')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        expect(itemProps.attrs.tabindex).toBe(0)
+      })
+
+      it('should set tabindex="-1" for disabled item', async () => {
+        let itemProps: any
+
+        mount(Single.Root, {
+          slots: {
+            default: () =>
+              h(Single.Item, { value: 'item-1', disabled: true }, {
+                default: (props: any) => {
+                  itemProps = props
+                  return h('div', 'Item')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        expect(itemProps.attrs.tabindex).toBe(-1)
+      })
+    })
+
+    describe('keyboard activation', () => {
+      it('should toggle selection on Enter and call preventDefault', async () => {
+        let itemProps: any
+
+        mount(Single.Root, {
+          slots: {
+            default: () =>
+              h(Single.Item, { value: 'item-1' }, {
+                default: (props: any) => {
+                  itemProps = props
+                  return h('div', 'Item')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        expect(itemProps.isSelected).toBe(false)
+
+        const preventDefault = vi.fn()
+        itemProps.attrs.onKeydown({ key: 'Enter', preventDefault })
+        await nextTick()
+
+        expect(preventDefault).toHaveBeenCalled()
+        expect(itemProps.isSelected).toBe(true)
+      })
+
+      it('should toggle selection on Space and call preventDefault', async () => {
+        let itemProps: any
+
+        mount(Single.Root, {
+          slots: {
+            default: () =>
+              h(Single.Item, { value: 'item-1' }, {
+                default: (props: any) => {
+                  itemProps = props
+                  return h('div', 'Item')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        expect(itemProps.isSelected).toBe(false)
+
+        const preventDefault = vi.fn()
+        itemProps.attrs.onKeydown({ key: ' ', preventDefault })
+        await nextTick()
+
+        expect(preventDefault).toHaveBeenCalled()
+        expect(itemProps.isSelected).toBe(true)
+      })
+
+      it('should not activate on unrelated keys', async () => {
+        let itemProps: any
+
+        mount(Single.Root, {
+          slots: {
+            default: () =>
+              h(Single.Item, { value: 'item-1' }, {
+                default: (props: any) => {
+                  itemProps = props
+                  return h('div', 'Item')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        const preventDefault = vi.fn()
+        itemProps.attrs.onKeydown({ key: 'ArrowDown', preventDefault })
+        await nextTick()
+
+        expect(preventDefault).not.toHaveBeenCalled()
+        expect(itemProps.isSelected).toBe(false)
       })
     })
   })
