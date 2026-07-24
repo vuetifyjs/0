@@ -53,16 +53,16 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <button
+      <AppTooltip
         :aria-pressed="!playground.editor.value"
         class="md:hidden pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
         :class="!playground.editor.value ? 'opacity-80' : 'opacity-50'"
-        :title="playground.editor.value ? 'Switch to preview' : 'Switch to editor'"
-        type="button"
+        position-area="bottom"
+        :text="playground.editor.value ? 'Switch to preview' : 'Switch to editor'"
         @click="onView"
       >
         <AppIcon :icon="playground.editor.value ? 'editor' : 'eye'" />
-      </button>
+      </AppTooltip>
 
       <AppTooltip
         aria-label="Copy share link"
