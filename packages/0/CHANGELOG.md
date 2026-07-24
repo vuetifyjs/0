@@ -1,5 +1,25 @@
 # @vuetify/v0
 
+## 1.0.1
+
+### Patch Changes
+
+- [#602](https://github.com/vuetifyjs/0/pull/602) [`e866af7`](https://github.com/vuetifyjs/0/commit/e866af72035f90cad3a05a77df2d08f7430f0580) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(Snackbar): SnackbarPortal creates a stacking context so its z-index takes effect ([#602](https://github.com/vuetifyjs/0/issues/602))
+
+  The teleported snackbar region applied its stack z-index to a `position: static` element, which CSS ignores — a body-fallback snackbar could render behind positioned page chrome regardless of its z-index. `SnackbarPortal` now sets `position: relative` alongside the z-index (visually neutral, no offsets) so the stacking context is established. `Portal`'s `zIndex` slot prop is now documented to require a positioned element.
+
+- [#624](https://github.com/vuetifyjs/0/pull/624) [`64b839c`](https://github.com/vuetifyjs/0/commit/64b839c96ef015269e637477c98c96b87dcb7b49) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(Snackbar): add an `urgent` prop that switches the live region to `role="alert"` ([#624](https://github.com/vuetifyjs/0/issues/624))
+
+  Informational snackbars keep `role="status"` (a polite live region); setting `urgent` switches to `role="alert"` (assertive) so critical notifications interrupt assistive technology instead of waiting for it to go idle (WCAG 4.1.3, Status Messages).
+
+- [#567](https://github.com/vuetifyjs/0/pull/567) [`05526f0`](https://github.com/vuetifyjs/0/commit/05526f079b70e05c9fc4beace4ad158c5c2e6b44) Thanks [@johnleider](https://github.com/johnleider)! - fix(createTokens): a token removed via its own `ticket.unregister()` no longer leaves a stale value in the resolution cache ([#567](https://github.com/vuetifyjs/0/issues/567))
+
+  `resolve()` results were only invalidated through the context-level mutator methods, so removing a token via its ticket's own `unregister()` — which is bound to the underlying registry — left the cache stale and subsequent `resolve()` calls returned the removed value. Cache invalidation now runs off registry mutation events, covering every removal and update path uniformly.
+
+- [#566](https://github.com/vuetifyjs/0/pull/566) [`ff9c430`](https://github.com/vuetifyjs/0/commit/ff9c430f1215e4deb7e6c2ae1571858eada4fb8a) Thanks [@johnleider](https://github.com/johnleider)! - fix(createTokens): resolve aliases reached through a segment path, return directly-passed TokenAlias literals, and cache chained resolutions ([#566](https://github.com/vuetifyjs/0/issues/566))
+
+  `resolve()` now follows a `{alias}` that a dotted-segment lookup lands on — previously it returned the raw `'{alias}'` string (visible under `flat: true`, where nested objects are stored whole and addressed by segment). A `TokenAlias` object passed directly to `resolve()` now returns its `$value` (previously a non-alias `$value` was stringified and looked up as an id, yielding `undefined`), and aliased resolutions cache the outer key rather than only the terminal hop. `resolve<T = unknown>()` also accepts an optional return-type parameter.
+
 ## 1.0.0
 
 ### Minor Changes
