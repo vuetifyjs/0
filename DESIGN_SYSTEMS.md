@@ -61,6 +61,28 @@ fallbacks or in `theme.ts`.
 Kits skip all of this: consume `--v0-*` variables with literal fallbacks, exactly as
 `@paper/genesis` documents in its SPEC.md.
 
+#### Kit interop — `--v0-*` bridge (design systems)
+
+A design system that hosts a kit (today: Genesis chrome on an Emerald docs page) must
+still provide the `--v0-*` cascade the kit reads. Preferred mechanism: the design
+system's stylesheet adapter **also emits `--v0-*` aliases** for the color roles kits
+consume (`surface`, `on-surface`, `surface-tint`, `on-surface-variant`, `primary`,
+`on-primary`, `pre`, `background`, `on-background`, and the severity tokens kits use for
+admonitions). Kits stay prefix-blind; the DS owns the bridge.
+
+```css
+/* Emitted alongside --emerald-* by the DS adapter (illustrative) */
+[data-theme="emerald"] {
+  --emerald-primary: #26c26d;
+  --v0-primary: var(--emerald-primary);
+  /* …same for surface / on-surface / … */
+}
+```
+
+Alternatives (register a parallel v0 theme; host-only alias stylesheet) are allowed.
+Do **not** teach kits a DS prefix — that reintroduces the dual-cascade failure mode
+Genesis already rejected (Phase 1 → revised).
+
 ### 2. Composition
 
 - **Behavioral components** compose **v0 compound primitives directly** —
