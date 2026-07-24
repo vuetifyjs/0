@@ -54,7 +54,8 @@
     width: fit-content;
     max-width: 100%;
     min-width: min(320px, 100%);
-    padding: var(--emerald-spacing-4xl, 48px) var(--emerald-spacing-5xl, 56px);
+    /* Spec-adjacent panel pad — 4xl/5xl (48/56) read oversized for confirm dialogs */
+    padding: var(--emerald-spacing-2xl, 32px);
     background: var(--emerald-background, #fefefe);
     border-radius: var(--emerald-radius-m, 8px);
     overflow: clip;
