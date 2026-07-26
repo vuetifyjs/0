@@ -679,6 +679,29 @@ describe('breadcrumbs', () => {
       expect(attrs['aria-expanded']).toBe('false')
     })
 
+    it('should ignore keys other than Enter and Space', async () => {
+      let ellipsisProps: Record<string, unknown> | undefined
+
+      mount(Breadcrumbs.Root, {
+        slots: {
+          default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }, {
+            default: (props: Record<string, unknown>) => {
+              ellipsisProps = props
+              return h('span', '…')
+            },
+          }),
+        },
+      })
+
+      await nextTick()
+
+      const attrs = ellipsisProps!.attrs as Record<string, unknown>
+      ;(attrs.onKeydown as (e: KeyboardEvent) => void)(new KeyboardEvent('keydown', { key: 'Tab' }))
+      await nextTick()
+
+      expect((ellipsisProps!.attrs as Record<string, unknown>)['aria-expanded']).toBe('false')
+    })
+
     it('should use the translated locale string for the disclosure label', async () => {
       const plugin = createLocalePlugin({
         default: 'en',
