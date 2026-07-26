@@ -563,6 +563,32 @@ describe('pagination', () => {
         expect(page.value).toBe(5)
       })
 
+      it('should ignore keys other than Enter and Space when rendered as non-button element', async () => {
+        const page = ref(1)
+
+        const wrapper = mount(Pagination.Root, {
+          props: {
+            'size': 100,
+            'renderless': true,
+            'modelValue': page.value,
+            'onUpdate:modelValue': (v: number) => {
+              page.value = v
+            },
+          },
+          slots: {
+            default: () => h(Pagination.Item, { value: 5, as: 'div' }, {
+              default: (props: any) => h('div', props.attrs, 'Page 5'),
+            }),
+          },
+        })
+
+        await nextTick()
+        await wrapper.find('[role="button"]').trigger('keydown', { key: 'Tab' })
+        await nextTick()
+
+        expect(page.value).toBe(1)
+      })
+
       it('should expose role="button" and onKeydown when rendered as non-button element', async () => {
         let itemProps: any
 

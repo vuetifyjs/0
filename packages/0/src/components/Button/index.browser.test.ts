@@ -177,6 +177,30 @@ describe('button', () => {
         const { props } = mountButton()
         expect((props().attrs as any).onKeydown).toBeUndefined()
       })
+
+      it('should ignore keys other than Enter and Space when rendered as non-button element', async () => {
+        const model = ref<string | undefined>()
+
+        const wrapper = mount(Button.Group, {
+          props: {
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              model.value = v as string
+            },
+          },
+          slots: {
+            default: () => h(Button.Root as any, { as: 'div', value: 'bold' }, {
+              default: () => h('span', 'Bold'),
+            }),
+          },
+        })
+
+        await nextTick()
+        await wrapper.find('[role="button"]').trigger('keydown', { key: 'Tab' })
+        await nextTick()
+
+        expect(model.value).toBeUndefined()
+      })
     })
 
     describe('disabled state', () => {
