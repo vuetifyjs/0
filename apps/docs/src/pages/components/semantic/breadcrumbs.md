@@ -263,7 +263,43 @@ The Breadcrumbs component renders semantic navigation markup and manages ARIA at
 - `Breadcrumbs.List` renders an ordered list with `role="list"` to expose the trail as a list to screen readers.
 - `Breadcrumbs.Page` marks the current item with `aria-current="page"` so it is announced as the current location. Omitting `href` on the last crumb renders it as a Page automatically.
 - `Breadcrumbs.Link` renders a native `<a>`, so crumbs are focusable and activated with the keyboard like any link — no custom key handling is added.
-- `Breadcrumbs.Divider` and `Breadcrumbs.Ellipsis` render `aria-hidden="true"`, keeping the visual separators and the collapsed-items indicator out of the accessibility tree.
+- `Breadcrumbs.Divider` renders `aria-hidden="true"`, keeping the visual separators out of the accessibility tree. `Breadcrumbs.Ellipsis` does the same by default — pass `interactive` to turn it into a disclosure instead.
+- `Breadcrumbs.Item` marks collapsed crumbs `inert`, which removes them from the accessibility tree *and* from the tab order. `aria-hidden` alone would leave a collapsed crumb's link reachable by keyboard while invisible to assistive technology.
+
+### Revealing collapsed crumbs
+
+By default a truncated trail gives assistive technology no signal that levels were dropped. Pass `interactive` to `Breadcrumbs.Ellipsis` to render a disclosure button that reveals them:
+
+```vue
+<template>
+  <Breadcrumbs.Root v-model:expanded="expanded">
+    <Breadcrumbs.List>
+      <Breadcrumbs.Ellipsis interactive />
+    </Breadcrumbs.List>
+  </Breadcrumbs.Root>
+</template>
+```
+
+The button is rendered *inside* the list item rather than applied to it, so the trail keeps a valid list structure — `role="button"` on the `<li>` would replace its `listitem` role and break the list's required children. It carries `aria-expanded`, a count-aware accessible name, and a `data-state` of `open` or `closed` for styling. Enter and Space activation come from the native button.
+
+Disclosure state is exposed as `v-model:expanded` on `Breadcrumbs.Root`, so a control elsewhere in your UI can drive it. It resets on its own once the container grows enough that nothing is truncated.
+
+#### Locale
+
+The disclosure's accessible name resolves `Breadcrumbs.expand`, falling back to `Show {count} more breadcrumbs`. `{count}` is how many crumbs truncation hides, and it keeps reporting that total while the disclosure is open so the name stays meaningful.
+
+```ts
+app.use(createLocalePlugin({
+  default: 'en',
+  messages: {
+    en: {
+      Breadcrumbs: {
+        expand: 'Show {count} more breadcrumbs',
+      },
+    },
+  },
+}))
+```
 
 For custom implementations, use `renderless` mode and bind the `attrs` slot prop to preserve the landmark role and label:
 
