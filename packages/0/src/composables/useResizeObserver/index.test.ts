@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 
 import { useElementSize, useResizeObserver } from './index'
 
@@ -585,5 +585,129 @@ describe('useResizeObserver SSR', () => {
 
     expect(width.value).toBe(0)
     expect(height.value).toBe(0)
+  })
+})
+
+describe('useResizeObserver box model synthesis', () => {
+  // The `immediate` entry is synthesized from computed style rather than
+  // delivered by the observer, so each box-model branch is driven here by
+  // stubbing getComputedStyle. Real-layout verification of the same math lives
+  // in index.browser.test.ts, which happy-dom cannot do.
+  const PADDED = {
+    paddingLeft: '16px',
+    paddingRight: '16px',
+    paddingTop: '4px',
+    paddingBottom: '4px',
+    borderLeftWidth: '1px',
+    borderRightWidth: '1px',
+    borderTopWidth: '1px',
+    borderBottomWidth: '1px',
+    writingMode: 'horizontal-tb',
+  }
+
+  let element: HTMLDivElement
+
+  beforeEach(() => {
+    mockIsHydrated.value = true
+
+    globalThis.ResizeObserver = vi.fn(function (this: any) {
+      return { observe: vi.fn(), unobserve: vi.fn(), disconnect: vi.fn() }
+    }) as any
+    window.ResizeObserver = globalThis.ResizeObserver
+
+    element = document.createElement('div')
+    element.getBoundingClientRect = vi.fn(() => ({
+      width: 100,
+      height: 50,
+      top: 0,
+      left: 0,
+      right: 100,
+      bottom: 50,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    })) as any
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  async function synthesize (style: Record<string, string>) {
+    vi.stubGlobal('getComputedStyle', () => style)
+
+    const callback = vi.fn()
+
+    useResizeObserver(ref<Element | undefined>(element), callback, { immediate: true })
+    await nextTick()
+
+    return callback.mock.calls[0]![0][0]
+  }
+
+  it('should derive the content box by subtracting padding and border under border-box', async () => {
+    const entry = await synthesize({
+      ...PADDED,
+      boxSizing: 'border-box',
+      width: '200px',
+      height: '40px',
+    })
+
+    expect(entry.borderBoxSize).toEqual([{ inlineSize: 200, blockSize: 40 }])
+    expect(entry.contentBoxSize).toEqual([{ inlineSize: 166, blockSize: 30 }])
+  })
+
+  it('should derive the border box by adding padding and border under content-box', async () => {
+    const entry = await synthesize({
+      ...PADDED,
+      boxSizing: 'content-box',
+      width: '166px',
+      height: '30px',
+    })
+
+    expect(entry.borderBoxSize).toEqual([{ inlineSize: 200, blockSize: 40 }])
+    expect(entry.contentBoxSize).toEqual([{ inlineSize: 166, blockSize: 30 }])
+  })
+
+  it('should swap the logical axes under a vertical writing mode', async () => {
+    const entry = await synthesize({
+      ...PADDED,
+      writingMode: 'vertical-rl',
+      boxSizing: 'border-box',
+      width: '200px',
+      height: '40px',
+    })
+
+    expect(entry.borderBoxSize).toEqual([{ inlineSize: 40, blockSize: 200 }])
+    expect(entry.contentBoxSize).toEqual([{ inlineSize: 30, blockSize: 166 }])
+  })
+
+  it('should fall back to the client rect when a resolved length is not a number', async () => {
+    const entry = await synthesize({
+      ...PADDED,
+      boxSizing: 'content-box',
+      width: 'auto',
+      height: 'auto',
+    })
+
+    expect(entry.contentBoxSize).toEqual([{ inlineSize: 100, blockSize: 50 }])
+    expect(entry.borderBoxSize).toEqual([{ inlineSize: 134, blockSize: 60 }])
+  })
+
+  it('should treat a partial style declaration as zero rather than throwing', async () => {
+    const entry = await synthesize({ marginLeft: '0px', marginRight: '0px' })
+
+    expect(entry.borderBoxSize).toEqual([{ inlineSize: 100, blockSize: 50 }])
+    expect(entry.contentBoxSize).toEqual([{ inlineSize: 100, blockSize: 50 }])
+  })
+
+  it('should clamp the content box at zero when padding exceeds the border box', async () => {
+    const entry = await synthesize({
+      ...PADDED,
+      boxSizing: 'border-box',
+      width: '10px',
+      height: '4px',
+    })
+
+    expect(entry.contentBoxSize).toEqual([{ inlineSize: 0, blockSize: 0 }])
   })
 })

@@ -99,7 +99,7 @@ export interface ResizeObserverOptions {
 export interface UseResizeObserverReturn extends ObserverReturn {}
 
 /* #__NO_SIDE_EFFECTS__ */
-function px (value: string | undefined, fallback = 0): number {
+function pxToNumber (value: string | undefined, fallback = 0): number {
   if (!isString(value)) return fallback
 
   const parsed = Number.parseFloat(value)
@@ -126,17 +126,17 @@ function measure (el: Element): ResizeObserverEntry {
   const rect = el.getBoundingClientRect()
   const style = getComputedStyle(el)
 
-  const paddingX = px(style.paddingLeft) + px(style.paddingRight)
-  const paddingY = px(style.paddingTop) + px(style.paddingBottom)
-  const borderX = px(style.borderLeftWidth) + px(style.borderRightWidth)
-  const borderY = px(style.borderTopWidth) + px(style.borderBottomWidth)
+  const paddingX = pxToNumber(style.paddingLeft) + pxToNumber(style.paddingRight)
+  const paddingY = pxToNumber(style.paddingTop) + pxToNumber(style.paddingBottom)
+  const borderX = pxToNumber(style.borderLeftWidth) + pxToNumber(style.borderRightWidth)
+  const borderY = pxToNumber(style.borderTopWidth) + pxToNumber(style.borderBottomWidth)
 
   // Resolved width/height follow `box-sizing` — they describe the border box
   // under `border-box` and the content box otherwise — so which box needs the
   // padding and border added depends on which one they already measured.
   const outer = style.boxSizing === 'border-box'
-  const resolvedX = px(style.width, rect.width)
-  const resolvedY = px(style.height, rect.height)
+  const resolvedX = pxToNumber(style.width, rect.width)
+  const resolvedY = pxToNumber(style.height, rect.height)
 
   const width = {
     border: outer ? resolvedX : resolvedX + paddingX + borderX,
