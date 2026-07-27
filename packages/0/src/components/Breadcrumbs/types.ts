@@ -34,6 +34,8 @@ export interface BreadcrumbsRootContext {
   isOverflowing: Readonly<Ref<boolean>>
   /** Whether collapsed items are revealed via the ellipsis disclosure */
   expanded: ShallowRef<boolean>
+  /** Whether a BreadcrumbsActivator is registered in the trail */
+  hasActivator: Readonly<Ref<boolean>>
   /** Number of breadcrumb items currently hidden by truncation */
   hiddenCount: Readonly<ShallowRef<number>>
   /** Measured ellipsis width in pixels (set by BreadcrumbsEllipsis) */

@@ -132,6 +132,10 @@
 
   const isOverflowing = overflow.isOverflowing
 
+  // Derived here rather than in each ellipsis — the Root owns the registry and
+  // is already where isOverflowing and hiddenCount are worked out.
+  const hasActivator = toRef(() => group.values().some(t => t.type === 'activator'))
+
   // Disclosure state — when true, collapsed items are revealed (toggled by
   // an interactive BreadcrumbsEllipsis).
   const expanded = defineModel<boolean>('expanded', { default: false })
@@ -271,6 +275,7 @@
     ellipsis: toRef(() => ellipsis),
     isOverflowing,
     expanded,
+    hasActivator,
     hiddenCount,
     ellipsisWidth,
     measureElement,

@@ -107,8 +107,6 @@
   const isSelected = toRef(() => ticket.isSelected.value)
   const count = toRef(() => context.hiddenCount.value)
 
-  const hasActivator = toRef(() => context.group.values().some(t => t.type === 'activator'))
-
   const slotProps = toRef((): BreadcrumbsEllipsisSlotProps => ({
     id: ticket.id,
     ellipsis: resolvedEllipsis.value,
@@ -117,7 +115,7 @@
     attrs: {
       // A decorative ellipsis stays out of the a11y tree; hosting an Activator
       // makes it the disclosure, which has to be reachable.
-      'aria-hidden': hasActivator.value ? undefined : 'true',
+      'aria-hidden': context.hasActivator.value ? undefined : 'true',
       'data-selected': isSelected.value || undefined,
     },
   }))
