@@ -611,24 +611,6 @@ describe('breadcrumbs', () => {
       expect(wrapper.find('li button').exists()).toBe(false)
     })
 
-    it('should emit update:expanded so the disclosure can be controlled', async () => {
-      const wrapper = mount(Breadcrumbs.Root, {
-        slots: {
-          default: () => h(Breadcrumbs.List as never, {}, {
-            default: () => h(Breadcrumbs.Ellipsis as never, {}, {
-              default: () => h(Breadcrumbs.Activator as never),
-            }),
-          }),
-        },
-      })
-
-      await nextTick()
-      await wrapper.find('li button').trigger('click')
-
-      expect(wrapper.emitted('update:expanded')).toBeTruthy()
-      expect(wrapper.emitted('update:expanded')![0]).toEqual([true])
-    })
-
     it('should use the registered locale string for the disclosure label', async () => {
       const plugin = createLocalePlugin({
         default: 'en',

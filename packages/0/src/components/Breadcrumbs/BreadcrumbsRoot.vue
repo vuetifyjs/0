@@ -94,9 +94,6 @@
     label,
   } = defineProps<BreadcrumbsRootProps>()
 
-  // Redundant alongside defineModel, but vue-devtools needs the declaration.
-  defineEmits<{ 'update:expanded': [boolean] }>()
-
   const locale = useLocale()
   const containerRef = useTemplateRef('container')
 
@@ -138,7 +135,7 @@
 
   // Disclosure state — when true, collapsed items are revealed (toggled by
   // an interactive BreadcrumbsEllipsis).
-  const expanded = defineModel<boolean>('expanded', { default: false })
+  const expanded = shallowRef(false)
 
   // Written imperatively by the visibility watcher below rather than derived.
   // The group is not `reactive`, so membership is not a tracked dependency and

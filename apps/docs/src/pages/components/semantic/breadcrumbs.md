@@ -262,7 +262,7 @@ By default a truncated trail gives assistive technology no signal that levels we
 
 ```vue
 <template>
-  <Breadcrumbs.Root v-model:expanded="expanded">
+  <Breadcrumbs.Root>
     <Breadcrumbs.List>
       <Breadcrumbs.Ellipsis>
         <Breadcrumbs.Activator />
@@ -274,7 +274,7 @@ By default a truncated trail gives assistive technology no signal that levels we
 
 The ellipsis stays the list item and the Activator is the control, so the trail keeps a valid list structure — button semantics on the `<li>` would replace its `listitem` role and break the list's required children. The Activator renders a native `button` by default, carrying `aria-expanded`, a count-aware accessible name, and a `data-state` of `open` or `closed` for styling. Render it as something else with `as` and it picks up `role="button"`, `tabindex`, and Enter/Space handling instead.
 
-Disclosure state is exposed as `v-model:expanded` on `Breadcrumbs.Root`, so a control elsewhere in your UI can drive it. It resets on its own once the container grows enough that nothing is truncated.
+The disclosure resets on its own once the container grows enough that nothing is truncated.
 
 #### Locale
 
