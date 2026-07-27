@@ -215,59 +215,47 @@
       const toShow = Math.min(poolSize, capacity)
       const showStart = lastIndex - toShow + 1
 
-      for (const t of ellipsisTickets) group.select(t.id)
+      // Plan the truncated layout as data before touching selection. The
+      // disclosure only changes which plan gets applied, so the hidden count
+      // stays a function of the current measurements either way.
+      const visible = Array.from({ length: contentSize }, (_, i) => i < 2 || i >= showStart)
+      let showEllipsis = true
 
-      if (expanded.value) {
-        // Disclosure is open — reveal all collapsed content and keep the
-        // ellipsis visible so it can serve as the collapse toggle. hiddenCount
-        // is deliberately left at its collapsed value so the expander keeps
-        // announcing how many crumbs the trail hides when closed.
-        for (const t of contentTickets) {
-          if (!t.isSelected.value) group.select(t.id)
-        }
-        return
+      if (toShow > 0 && showStart > poolStart && contentTickets[showStart]!.type === 'item') {
+        const sep = showStart - 1
+        if (sep >= poolStart && contentTickets[sep]!.type === 'divider') visible[sep] = true
       }
 
-      for (let i = 0; i < 2 && i < contentSize; i++) {
-        if (!contentTickets[i]!.isSelected.value) group.select(contentTickets[i]!.id)
+      if (capacity === 0) {
+        if (lastIndex >= poolStart) visible[lastIndex] = true
+
+        const w = overflow.width.value
+
+        if (w < reserved + fD && contentSize > 1) visible[1] = false
+        if (w < fI + gap + eW + gap) showEllipsis = false
+        if (w < fI + gap) visible[0] = false
       }
 
-      for (let i = poolStart; i <= lastIndex; i++) {
+      let hidden = 0
+      for (let i = 0; i < contentSize; i++) {
+        if (!visible[i] && contentTickets[i]!.type === 'item') hidden++
+      }
+      hiddenCount.value = hidden
+
+      // An open disclosure keeps the ellipsis so it can collapse the trail again.
+      for (const t of ellipsisTickets) {
+        if (showEllipsis || expanded.value) group.select(t.id)
+        else group.unselect(t.id)
+      }
+
+      for (let i = 0; i < contentSize; i++) {
         const t = contentTickets[i]!
-        if (i >= showStart) {
+        if (expanded.value || visible[i]) {
           if (!t.isSelected.value) group.select(t.id)
         } else {
           group.unselect(t.id)
         }
       }
-
-      if (toShow > 0 && showStart > poolStart && contentTickets[showStart]!.type === 'item') {
-        const sep = showStart - 1
-        if (sep >= poolStart && contentTickets[sep]!.type === 'divider' && !contentTickets[sep]!.isSelected.value) group.select(contentTickets[sep]!.id)
-      }
-
-      if (capacity === 0) {
-        if (lastIndex >= poolStart && !contentTickets[lastIndex]!.isSelected.value) group.select(contentTickets[lastIndex]!.id)
-
-        const w = overflow.width.value
-
-        if (w < reserved + fD && contentSize > 1) group.unselect(contentTickets[1]!.id)
-        if (w < fI + gap + eW + gap) {
-          for (const t of ellipsisTickets) group.unselect(t.id)
-        }
-        if (w < fI + gap) {
-          group.unselect(contentTickets[0]!.id)
-        }
-      }
-
-      // Counted once the layout has settled — the passes above re-select a
-      // trailing item and drop separators, so a count taken from the pool
-      // range alone would overstate what is actually hidden.
-      let hidden = 0
-      for (const t of contentTickets) {
-        if (t.type === 'item' && !t.isSelected.value) hidden++
-      }
-      hiddenCount.value = hidden
     },
     { immediate: true },
   )

@@ -1642,6 +1642,35 @@ describe('breadcrumbs', () => {
       el.remove()
     })
 
+    it('should keep tracking the hidden count while the disclosure is open', async () => {
+      const { context } = mountOverflowTree({ itemCount: 5, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
+
+      const el = createMeasurableElement(15)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 15
+      await nextTick()
+
+      triggerResize(60)
+      await nextTick()
+      expect(ctx.hiddenCount.value).toBe(3)
+
+      ctx.expanded.value = true
+      await nextTick()
+
+      // Widening while open still truncates, so the count must follow the new
+      // measurements rather than stay frozen at whatever the last closed pass left
+      triggerResize(100)
+      await nextTick()
+
+      expect(ctx.expanded.value).toBe(true)
+      expect(ctx.hiddenCount.value).toBe(2)
+
+      el.remove()
+    })
+
     it('should re-collapse after the container grows and shrinks again', async () => {
       const { context } = mountOverflowTree({ itemCount: 5, withEllipsis: true })
       await nextTick()
