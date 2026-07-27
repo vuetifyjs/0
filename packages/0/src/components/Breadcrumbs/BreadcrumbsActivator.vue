@@ -18,13 +18,14 @@
   import { Atom } from '#v0/components/Atom'
 
   // Context
+  import { useBreadcrumbsEllipsis } from './BreadcrumbsEllipsis.vue'
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
 
   // Composables
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
-  import { onBeforeUnmount, toRef } from 'vue'
+  import { onActivated, onBeforeUnmount, onDeactivated, toRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -70,11 +71,23 @@
 
   const locale = useLocale()
   const context = useBreadcrumbsRoot(namespace)
+  const ellipsis = useBreadcrumbsEllipsis(namespace)
 
-  context.hasActivator.value = true
+  // Presence tells the ellipsis it is a disclosure rather than decoration.
+  // Mirrors TreeviewContent, including the KeepAlive hooks — a deactivated
+  // activator is not in the tree, so the ellipsis must go back to aria-hidden.
+  ellipsis.hasActivator.value = true
+
+  onActivated(() => {
+    ellipsis.hasActivator.value = true
+  })
+
+  onDeactivated(() => {
+    ellipsis.hasActivator.value = false
+  })
 
   onBeforeUnmount(() => {
-    context.hasActivator.value = false
+    ellipsis.hasActivator.value = false
   })
 
   const isExpanded = toRef(() => context.expanded.value)

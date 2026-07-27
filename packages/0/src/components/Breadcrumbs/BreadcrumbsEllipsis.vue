@@ -22,15 +22,24 @@
   // Context
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
 
+  // Composables
+  import { createContext } from '#v0/composables/createContext'
+
   // Constants
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
-  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
+  import { onBeforeUnmount, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
+  import type { ShallowRef } from 'vue'
+
+  export interface BreadcrumbsEllipsisContext {
+    /** Whether a BreadcrumbsActivator is mounted inside this ellipsis */
+    hasActivator: ShallowRef<boolean>
+  }
 
   export interface BreadcrumbsEllipsisProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -56,6 +65,8 @@
       'data-selected': true | undefined
     }
   }
+
+  export const [useBreadcrumbsEllipsis, provideBreadcrumbsEllipsis] = createContext<BreadcrumbsEllipsisContext>({ suffix: 'ellipsis' })
 </script>
 
 <script setup lang="ts">
@@ -75,6 +86,10 @@
 
   const elRef = useTemplateRef('el')
   const context = useBreadcrumbsRoot(namespace)
+
+  const hasActivator = shallowRef(false)
+
+  provideBreadcrumbsEllipsis(namespace, { hasActivator })
 
   const ticket = context.group.register({
     id,
@@ -114,7 +129,7 @@
     attrs: {
       // A decorative ellipsis stays out of the a11y tree; hosting an Activator
       // makes it the disclosure, which has to be reachable.
-      'aria-hidden': context.hasActivator.value ? undefined : 'true',
+      'aria-hidden': hasActivator.value ? undefined : 'true',
       'data-selected': isSelected.value || undefined,
     },
   }))
