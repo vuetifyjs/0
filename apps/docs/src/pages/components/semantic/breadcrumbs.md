@@ -291,16 +291,18 @@ Disclosure state is exposed as `v-model:expanded` on `Breadcrumbs.Root`, so a co
 The disclosure's accessible name resolves `Breadcrumbs.expand`, falling back to `Show {count} more breadcrumbs`. `{count}` is how many crumbs truncation hides, and it keeps reporting that total while the disclosure is open so the name stays meaningful.
 
 ```ts
-app.use(createLocalePlugin({
-  default: 'en',
-  messages: {
-    en: {
-      Breadcrumbs: {
-        expand: 'Show {count} more breadcrumbs',
+app.use(
+  createLocalePlugin({
+    default: 'en',
+    messages: {
+      en: {
+        Breadcrumbs: {
+          expand: 'Show {count} more breadcrumbs',
+        },
       },
     },
-  },
-}))
+  })
+)
 ```
 
 For custom implementations, use `renderless` mode and bind the `attrs` slot prop to preserve the landmark role and label:
