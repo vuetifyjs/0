@@ -50,6 +50,7 @@ export interface ProxyModelTarget {
   selectedValues: { readonly value: Iterable<unknown> }
   apply: (values: unknown[], options?: { multiple?: boolean }) => void
   select?: (id: string | number) => void
+  browse?: (value: unknown) => readonly (string | number)[] | undefined
   multiple?: MaybeRefOrGetter<boolean>
   on?: (event: string, cb: (data: unknown) => void) => void
   off?: (event: string, cb: (data: unknown) => void) => void
@@ -106,13 +107,20 @@ export function useProxyModel (
   // so late registration reflects the CURRENT model, never a stale initial value.
   const pending = new Set<unknown>()
 
+  // An unselected value is only deferred when nothing has registered under it.
+  // If a ticket exists, the context refused it (disabled, mandatory) and the
+  // rejection is final — deferring would leave the model waiting forever.
+  function deferred (value: unknown) {
+    return !context.browse?.(value)?.length
+  }
+
   function reconcile (values: unknown[]) {
     context.apply(values, applyOptions)
 
     const selected = new Set(context.selectedValues.value)
     pending.clear()
     for (const value of values) {
-      if (!selected.has(value)) pending.add(value)
+      if (!selected.has(value) && deferred(value)) pending.add(value)
     }
   }
 
@@ -146,9 +154,14 @@ export function useProxyModel (
     syncing = true
     contextWatch.pause()
     reconcile(transformIn(val))
-    // Sync model back to actual selection state (apply may have rejected due to disabled/mandatory)
-    const actual = transformOut(Array.from(context.selectedValues.value))
-    if (!shallowEqual(val, actual)) model.value = actual
+    // Sync model back to actual selection state (apply may have rejected due to disabled/mandatory).
+    // Pending values are unregistered rather than rejected, so writing back here would discard the
+    // caller's intent before onRegister can resolve it — and for a model backed by a setter, the
+    // write echoes back as a fresh change that clears `pending` outright.
+    if (pending.size === 0) {
+      const actual = transformOut(Array.from(context.selectedValues.value))
+      if (!shallowEqual(val, actual)) model.value = actual
+    }
     contextWatch.resume()
     syncing = false
   }, { flush: 'sync', deep: toValue(multiple) })
