@@ -18,6 +18,7 @@ import generateLlmsFullPlugin from './build/generate-llms-full'
 import generateNavPlugin from './build/generate-nav'
 import { generateOgImages } from './build/generate-og-images'
 import generatePageDatesPlugin from './build/generate-page-dates'
+import generateRegistryPlugin from './build/generate-registry'
 import generateSearchIndexPlugin from './build/generate-search-index'
 import generateTestCountPlugin from './build/generate-test-count'
 import generateTipsPlugin from './build/generate-tips'
@@ -96,6 +97,7 @@ export default defineConfig({
     generateTipsPlugin(),
     generateNavPlugin(),
     generatePageDatesPlugin(),
+    generateRegistryPlugin(),
     VitePWA({
       injectRegister: 'script-defer',
       registerType: 'autoUpdate',
