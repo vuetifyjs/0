@@ -42,7 +42,7 @@
     isSelected: boolean
     /** Attributes to bind to the item element */
     attrs: {
-      'aria-hidden': 'true' | undefined
+      'inert': true | undefined
       'data-selected': true | undefined
     }
   }
@@ -102,8 +102,10 @@
     isSelected: isSelected.value,
     attrs: {
       // Collapsed items are display:none via v-show, but renderless consumers
-      // control rendering themselves — keep them out of the a11y tree too.
-      'aria-hidden': isSelected.value ? undefined : 'true',
+      // control rendering themselves. `inert` implies aria-hidden *and* drops
+      // focusability — aria-hidden alone would leave the crumb's link tabbable
+      // while hidden from assistive tech (WCAG 4.1.2).
+      'inert': isSelected.value ? undefined : true,
       'data-selected': isSelected.value || undefined,
     },
   }))

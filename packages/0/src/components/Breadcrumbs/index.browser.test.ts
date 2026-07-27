@@ -245,7 +245,7 @@ describe('breadcrumbs', () => {
       expect(itemProps!.attrs).toBeDefined()
     })
 
-    it('should expose aria-hidden on collapsed items', async () => {
+    it('should expose inert on collapsed items', async () => {
       let itemProps: Record<string, unknown> | undefined
       let ctx: any
 
@@ -272,14 +272,14 @@ describe('breadcrumbs', () => {
 
       await nextTick()
 
-      // Visible items are not aria-hidden
-      expect((itemProps!.attrs as Record<string, unknown>)['aria-hidden']).toBeUndefined()
+      // Visible items stay interactive
+      expect((itemProps!.attrs as Record<string, unknown>).inert).toBeUndefined()
 
       ctx.group.unselect(itemProps!.id)
       await nextTick()
 
-      // Collapsed items are removed from the a11y tree
-      expect((itemProps!.attrs as Record<string, unknown>)['aria-hidden']).toBe('true')
+      // Collapsed items leave the a11y tree AND stop being focusable
+      expect((itemProps!.attrs as Record<string, unknown>).inert).toBe(true)
     })
   })
 
@@ -568,141 +568,64 @@ describe('breadcrumbs', () => {
       expect(attrs.onClick).toBeUndefined()
     })
 
-    it('should expose disclosure attrs when interactive', async () => {
-      let ellipsisProps: Record<string, unknown> | undefined
-
-      mount(Breadcrumbs.Root, {
+    it('should render a nested button and keep the list item role when interactive', async () => {
+      const wrapper = mount(Breadcrumbs.Root, {
         slots: {
-          default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }, {
-            default: (props: Record<string, unknown>) => {
-              ellipsisProps = props
-              return h('span', '…')
-            },
+          default: () => h(Breadcrumbs.List as never, {}, {
+            default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }),
           }),
         },
       })
 
       await nextTick()
 
-      const attrs = ellipsisProps!.attrs as Record<string, unknown>
-      expect(attrs['aria-hidden']).toBeUndefined()
-      expect(attrs['aria-expanded']).toBe('false')
-      expect(attrs['aria-label']).toBe('Show 0 more breadcrumbs')
-      expect(attrs.role).toBe('button')
-      expect(attrs.tabindex).toBe(0)
-      expect(typeof attrs.onClick).toBe('function')
-      expect(typeof attrs.onKeydown).toBe('function')
+      const li = wrapper.find('li')
+      const trigger = wrapper.find('li button')
+
+      // The li must stay a listitem — role="button" on it would break the list
+      expect(li.attributes('role')).toBeUndefined()
+      expect(li.attributes('aria-hidden')).toBeUndefined()
+      expect(li.attributes('tabindex')).toBeUndefined()
+
+      expect(trigger.exists()).toBe(true)
+      expect(trigger.attributes('type')).toBe('button')
+      expect(trigger.attributes('aria-expanded')).toBe('false')
+      expect(trigger.attributes('aria-label')).toBeDefined()
+      expect(trigger.attributes('data-state')).toBe('closed')
     })
 
-    it('should not add role/tabindex/onKeydown when interactive and as="button"', async () => {
-      let ellipsisProps: Record<string, unknown> | undefined
-
-      mount(Breadcrumbs.Root, {
+    it('should not render a trigger when not interactive', async () => {
+      const wrapper = mount(Breadcrumbs.Root, {
         slots: {
-          default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true, as: 'button' }, {
-            default: (props: Record<string, unknown>) => {
-              ellipsisProps = props
-              return h('span', '…')
-            },
+          default: () => h(Breadcrumbs.List as never, {}, {
+            default: () => h(Breadcrumbs.Ellipsis as never),
           }),
         },
       })
 
       await nextTick()
 
-      const attrs = ellipsisProps!.attrs as Record<string, unknown>
-      expect(attrs.role).toBeUndefined()
-      expect(attrs.tabindex).toBeUndefined()
-      expect(attrs.onKeydown).toBeUndefined()
-      expect(typeof attrs.onClick).toBe('function')
+      expect(wrapper.find('li').attributes('aria-hidden')).toBe('true')
+      expect(wrapper.find('li button').exists()).toBe(false)
     })
 
-    it('should toggle aria-expanded on click', async () => {
-      let ellipsisProps: Record<string, unknown> | undefined
-
-      mount(Breadcrumbs.Root, {
+    it('should emit update:expanded so the disclosure can be controlled', async () => {
+      const wrapper = mount(Breadcrumbs.Root, {
         slots: {
-          default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }, {
-            default: (props: Record<string, unknown>) => {
-              ellipsisProps = props
-              return h('span', '…')
-            },
+          default: () => h(Breadcrumbs.List as never, {}, {
+            default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }),
           }),
         },
       })
 
       await nextTick()
+      await wrapper.find('li button').trigger('click')
 
-      let attrs = ellipsisProps!.attrs as Record<string, unknown>
-      expect(attrs['aria-expanded']).toBe('false')
-
-      ;(attrs.onClick as () => void)()
-      await nextTick()
-
-      attrs = ellipsisProps!.attrs as Record<string, unknown>
-      expect(attrs['aria-expanded']).toBe('true')
-
-      ;(attrs.onClick as () => void)()
-      await nextTick()
-
-      attrs = ellipsisProps!.attrs as Record<string, unknown>
-      expect(attrs['aria-expanded']).toBe('false')
+      expect(wrapper.emitted('update:expanded')).toBeTruthy()
+      expect(wrapper.emitted('update:expanded')![0]).toEqual([true])
     })
 
-    it('should toggle on Enter and Space keydown', async () => {
-      let ellipsisProps: Record<string, unknown> | undefined
-
-      mount(Breadcrumbs.Root, {
-        slots: {
-          default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }, {
-            default: (props: Record<string, unknown>) => {
-              ellipsisProps = props
-              return h('span', '…')
-            },
-          }),
-        },
-      })
-
-      await nextTick()
-
-      let attrs = ellipsisProps!.attrs as Record<string, unknown>
-      ;(attrs.onKeydown as (e: KeyboardEvent) => void)(new KeyboardEvent('keydown', { key: 'Enter' }))
-      await nextTick()
-
-      attrs = ellipsisProps!.attrs as Record<string, unknown>
-      expect(attrs['aria-expanded']).toBe('true')
-
-      ;(attrs.onKeydown as (e: KeyboardEvent) => void)(new KeyboardEvent('keydown', { key: ' ' }))
-      await nextTick()
-
-      attrs = ellipsisProps!.attrs as Record<string, unknown>
-      expect(attrs['aria-expanded']).toBe('false')
-    })
-
-    it('should ignore keys other than Enter and Space', async () => {
-      let ellipsisProps: Record<string, unknown> | undefined
-
-      mount(Breadcrumbs.Root, {
-        slots: {
-          default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }, {
-            default: (props: Record<string, unknown>) => {
-              ellipsisProps = props
-              return h('span', '…')
-            },
-          }),
-        },
-      })
-
-      await nextTick()
-
-      const attrs = ellipsisProps!.attrs as Record<string, unknown>
-      ;(attrs.onKeydown as (e: KeyboardEvent) => void)(new KeyboardEvent('keydown', { key: 'Tab' }))
-      await nextTick()
-
-      expect((ellipsisProps!.attrs as Record<string, unknown>)['aria-expanded']).toBe('false')
-    })
-
-    it('should use the translated locale string for the disclosure label', async () => {
+    it('should use the registered locale string for the disclosure label', async () => {
       const plugin = createLocalePlugin({
         default: 'en',
         messages: {
@@ -714,24 +637,18 @@ describe('breadcrumbs', () => {
         },
       })
 
-      let ellipsisProps: Record<string, unknown> | undefined
-
-      mount(Breadcrumbs.Root, {
+      const wrapper = mount(Breadcrumbs.Root, {
         global: { plugins: [plugin] },
         slots: {
-          default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }, {
-            default: (props: Record<string, unknown>) => {
-              ellipsisProps = props
-              return h('span', '…')
-            },
+          default: () => h(Breadcrumbs.List as never, {}, {
+            default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }),
           }),
         },
       })
 
       await nextTick()
 
-      const attrs = ellipsisProps!.attrs as Record<string, unknown>
-      expect(attrs['aria-label']).toBe('Zeige 0 weitere')
+      expect(wrapper.find('li button').attributes('aria-label')).toContain('weitere')
     })
   })
 
@@ -1694,7 +1611,8 @@ describe('breadcrumbs', () => {
       await nextTick()
 
       expect(ctx.overflow.capacity.value).toBe(0)
-      expect(ctx.hiddenCount.value).toBeGreaterThan(0)
+      // item0 and item4 stay visible; items 1-3 are truncated away
+      expect(ctx.hiddenCount.value).toBe(3)
 
       // Open the disclosure — all content is revealed, ellipsis stays
       // visible so it can serve as the collapse toggle
@@ -1704,13 +1622,46 @@ describe('breadcrumbs', () => {
       for (const t of ctx.group.values()) {
         expect(t.isSelected.value).toBe(true)
       }
-      expect(ctx.hiddenCount.value).toBe(0)
+
+      // The count reports what truncation hides, not what is on screen, so
+      // the expander's accessible name stays meaningful while open
+      expect(ctx.hiddenCount.value).toBe(3)
 
       // Close the disclosure — items collapse again
       ctx.expanded.value = false
       await nextTick()
 
-      expect(ctx.hiddenCount.value).toBeGreaterThan(0)
+      expect(ctx.hiddenCount.value).toBe(3)
+
+      el.remove()
+    })
+
+    it('should re-collapse after the container grows and shrinks again', async () => {
+      const { context } = mountOverflowTree({ itemCount: 5, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
+
+      const el = createMeasurableElement(15)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 15
+      await nextTick()
+
+      triggerResize(60)
+      await nextTick()
+      ctx.expanded.value = true
+      await nextTick()
+
+      // Widening removes the truncation entirely, so a disclosure left open
+      // from the narrow layout is stale and must not survive
+      triggerResize(1000)
+      await nextTick()
+      expect(ctx.hiddenCount.value).toBe(0)
+      expect(ctx.expanded.value).toBe(false)
+
+      triggerResize(60)
+      await nextTick()
+      expect(ctx.hiddenCount.value).toBe(3)
 
       el.remove()
     })

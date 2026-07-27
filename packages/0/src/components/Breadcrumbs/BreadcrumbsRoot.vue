@@ -94,6 +94,9 @@
     label,
   } = defineProps<BreadcrumbsRootProps>()
 
+  // Redundant alongside defineModel, but vue-devtools needs the declaration.
+  defineEmits<{ 'update:expanded': [boolean] }>()
+
   const locale = useLocale()
   const containerRef = useTemplateRef('container')
 
@@ -127,15 +130,12 @@
 
   // Disclosure state — when true, collapsed items are revealed (toggled by
   // an interactive BreadcrumbsEllipsis).
-  const expanded = shallowRef(false)
+  const expanded = defineModel<boolean>('expanded', { default: false })
 
-  const hiddenCount = toRef(() => {
-    let count = 0
-    for (const t of group.values()) {
-      if (t.type === 'item' && !t.isSelected.value) count++
-    }
-    return count
-  })
+  // Written imperatively by the visibility watcher below rather than derived.
+  // The group is not `reactive`, so membership is not a tracked dependency and
+  // a getter would go stale inside render effects when crumbs come and go.
+  const hiddenCount = shallowRef(0)
 
   // Element measurement routing — first item/divider write to reserved refs,
   // everything else feeds into the overflow pool.
@@ -194,7 +194,10 @@
       const reserved = fI + gap + fD + gap + eW + gap
 
       if (capacity === Infinity || capacity >= measuredCount) {
-        // Everything fits — show all content, hide ellipsis
+        // Everything fits — show all content, hide ellipsis. Truncation is
+        // gone, so a disclosure left open from a narrower viewport is stale.
+        hiddenCount.value = 0
+        if (expanded.value) expanded.value = false
         for (const t of ellipsisTickets) group.unselect(t.id)
         for (const t of contentTickets) {
           if (!t.isSelected.value) group.select(t.id)
@@ -202,27 +205,28 @@
         return
       }
 
+      const lastIndex = contentSize - 1
+      const poolStart = 2
+      const poolSize = Math.max(0, lastIndex - poolStart + 1)
+      const toShow = Math.min(poolSize, capacity)
+      const showStart = lastIndex - toShow + 1
+
+      for (const t of ellipsisTickets) group.select(t.id)
+
       if (expanded.value) {
         // Disclosure is open — reveal all collapsed content and keep the
-        // ellipsis visible so it can serve as the collapse toggle.
-        for (const t of ellipsisTickets) group.select(t.id)
+        // ellipsis visible so it can serve as the collapse toggle. hiddenCount
+        // is deliberately left at its collapsed value so the expander keeps
+        // announcing how many crumbs the trail hides when closed.
         for (const t of contentTickets) {
           if (!t.isSelected.value) group.select(t.id)
         }
         return
       }
 
-      for (const t of ellipsisTickets) group.select(t.id)
-
       for (let i = 0; i < 2 && i < contentSize; i++) {
         if (!contentTickets[i]!.isSelected.value) group.select(contentTickets[i]!.id)
       }
-
-      const lastIndex = contentSize - 1
-      const poolStart = 2
-      const poolSize = Math.max(0, lastIndex - poolStart + 1)
-      const toShow = Math.min(poolSize, capacity)
-      const showStart = lastIndex - toShow + 1
 
       for (let i = poolStart; i <= lastIndex; i++) {
         const t = contentTickets[i]!
@@ -251,6 +255,15 @@
           group.unselect(contentTickets[0]!.id)
         }
       }
+
+      // Counted once the layout has settled — the passes above re-select a
+      // trailing item and drop separators, so a count taken from the pool
+      // range alone would overstate what is actually hidden.
+      let hidden = 0
+      for (const t of contentTickets) {
+        if (t.type === 'item' && !t.isSelected.value) hidden++
+      }
+      hiddenCount.value = hidden
     },
     { immediate: true },
   )
