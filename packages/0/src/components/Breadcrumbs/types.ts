@@ -12,7 +12,7 @@ import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
 import type { OverflowContext } from '#v0/composables/createOverflow'
 import type { Ref, ShallowRef } from 'vue'
 
-export type BreadcrumbsTicketType = 'item' | 'divider' | 'ellipsis'
+export type BreadcrumbsTicketType = 'item' | 'divider' | 'ellipsis' | 'activator'
 
 export interface BreadcrumbsTicket extends GroupTicket {
   /** Type of breadcrumb element */

@@ -22,24 +22,15 @@
   // Context
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
 
-  // Composables
-  import { createContext } from '#v0/composables/createContext'
-
   // Constants
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
-  import { onBeforeUnmount, shallowRef, toRef, useTemplateRef, watch } from 'vue'
+  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
-  import type { ShallowRef } from 'vue'
-
-  export interface BreadcrumbsEllipsisContext {
-    /** Whether a BreadcrumbsActivator is mounted inside this ellipsis */
-    hasActivator: ShallowRef<boolean>
-  }
 
   export interface BreadcrumbsEllipsisProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -66,7 +57,6 @@
     }
   }
 
-  export const [useBreadcrumbsEllipsis, provideBreadcrumbsEllipsis] = createContext<BreadcrumbsEllipsisContext>({ suffix: 'ellipsis' })
 </script>
 
 <script setup lang="ts">
@@ -86,10 +76,6 @@
 
   const elRef = useTemplateRef('el')
   const context = useBreadcrumbsRoot(namespace)
-
-  const hasActivator = shallowRef(false)
-
-  provideBreadcrumbsEllipsis(namespace, { hasActivator })
 
   const ticket = context.group.register({
     id,
@@ -120,6 +106,8 @@
   const resolvedEllipsis = toRef(() => ellipsis ?? context.ellipsis.value)
   const isSelected = toRef(() => ticket.isSelected.value)
   const count = toRef(() => context.hiddenCount.value)
+
+  const hasActivator = toRef(() => context.group.values().some(t => t.type === 'activator'))
 
   const slotProps = toRef((): BreadcrumbsEllipsisSlotProps => ({
     id: ticket.id,

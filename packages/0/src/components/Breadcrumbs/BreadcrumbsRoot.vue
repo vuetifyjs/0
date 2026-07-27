@@ -105,6 +105,10 @@
   const group = createGroup<BreadcrumbsTicket>({
     enroll: true,
     multiple: true,
+    // Membership must be a tracked dependency: children register after the
+    // Root renders, and both the hidden count and the ellipsis's disclosure
+    // state are read from this registry. Never passed to a template v-for.
+    reactive: true,
   })
 
   // Reserved widths — first pair + ellipsis are excluded from the overflow
@@ -178,6 +182,9 @@
       const ellipsisTickets: Ticket[] = []
 
       for (const ticket of all) {
+        // Activators live inside an ellipsis and occupy no space of their own,
+        // so they take no part in the layout maths.
+        if (ticket.type === 'activator') continue
         if (ticket.type === 'ellipsis') {
           ellipsisTickets.push(ticket)
         } else {

@@ -18,14 +18,13 @@
   import { Atom } from '#v0/components/Atom'
 
   // Context
-  import { useBreadcrumbsEllipsis } from './BreadcrumbsEllipsis.vue'
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
 
   // Composables
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
-  import { onActivated, onBeforeUnmount, onDeactivated, toRef } from 'vue'
+  import { onBeforeUnmount, toRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -71,23 +70,13 @@
 
   const locale = useLocale()
   const context = useBreadcrumbsRoot(namespace)
-  const ellipsis = useBreadcrumbsEllipsis(namespace)
 
-  // Presence tells the ellipsis it is a disclosure rather than decoration.
-  // Mirrors TreeviewContent, including the KeepAlive hooks — a deactivated
-  // activator is not in the tree, so the ellipsis must go back to aria-hidden.
-  ellipsis.hasActivator.value = true
-
-  onActivated(() => {
-    ellipsis.hasActivator.value = true
-  })
-
-  onDeactivated(() => {
-    ellipsis.hasActivator.value = false
-  })
+  // Registering is what tells the ellipsis it hosts a disclosure rather than
+  // decoration — the registry is the Root's view of its child tree.
+  const ticket = context.group.register({ type: 'activator' as const })
 
   onBeforeUnmount(() => {
-    ellipsis.hasActivator.value = false
+    context.group.unregister(ticket.id)
   })
 
   const isExpanded = toRef(() => context.expanded.value)
