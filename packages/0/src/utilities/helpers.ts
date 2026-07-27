@@ -506,6 +506,47 @@ export function range (length: number, start = 0): number[] {
 }
 
 /**
+ * Parses a CSS pixel length into a number
+ *
+ * @param value The resolved CSS length, e.g. `getComputedStyle(el).marginLeft`
+ * @param fallback The value to return when `value` does not parse (default: 0)
+ * @returns The parsed number, or `fallback`
+ *
+ * @remarks
+ * Built for reading `getComputedStyle` output, where a length that does not
+ * apply resolves to `''` or `'auto'` rather than to a number. An unparseable
+ * length returns `fallback`; a length that legitimately parses to `0` returns
+ * `0`. That distinction is why this exists — `Number.parseFloat(v) || 0`
+ * collapses both cases onto `0`, which is only correct when the fallback is
+ * itself `0`.
+ *
+ * Only the leading number is read, matching `Number.parseFloat`, so any unit
+ * suffix is ignored. Values `getComputedStyle` never returns — percentages,
+ * `calc()` expressions, multi-value shorthands — are out of scope.
+ *
+ * @example
+ * ```ts
+ * pxToNumber('16px')          // 16
+ * pxToNumber('0px')           // 0
+ * pxToNumber('-4.5px')        // -4.5
+ * pxToNumber('auto')          // 0
+ * pxToNumber(undefined)       // 0
+ *
+ * // A non-zero fallback is the case `|| 0` cannot express
+ * pxToNumber('auto', 100)     // 100
+ * pxToNumber('0px', 100)      // 0
+ * ```
+ */
+/* #__NO_SIDE_EFFECTS__ */
+export function pxToNumber (value: string | undefined, fallback = 0): number {
+  if (!isString(value)) return fallback
+
+  const parsed = Number.parseFloat(value)
+
+  return isNaN(parsed) ? fallback : parsed
+}
+
+/**
  * Resolves an iterable of IDs to their items via a getter,
  * filtering out any that return undefined.
  *
