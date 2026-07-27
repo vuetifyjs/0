@@ -6,6 +6,6 @@ fix(Breadcrumbs): collapsed crumbs no longer strand focusable links in the acces
 
 Truncated crumbs are now marked `inert` rather than relying on `display: none` alone. Renderless consumers who bind `attrs` onto their own markup were shipping links that assistive technology could not see but the keyboard could still reach.
 
-`Breadcrumbs.Ellipsis` accepts a new `interactive` prop that renders a nested disclosure button revealing the collapsed crumbs, with `aria-expanded`, a count-aware label, and a `data-state` hook for styling. The button is nested inside the list item rather than applied to it, so the trail keeps a valid list structure. Disclosure state is readable and controllable as `v-model:expanded` on `Breadcrumbs.Root`.
+A new `Breadcrumbs.Activator` reveals the collapsed crumbs. Place one inside `Breadcrumbs.Ellipsis` and the ellipsis becomes a disclosure — the ellipsis stays the list item and the Activator is the control, so the trail keeps a valid list structure. It ships `aria-expanded`, a count-aware label, and a `data-state` hook for styling. Disclosure state is readable and controllable as `v-model:expanded` on `Breadcrumbs.Root`.
 
-The default is unchanged — without `interactive` the ellipsis stays hidden from assistive technology, so opt in where the collapsed levels matter.
+The default is unchanged — an ellipsis with no Activator stays hidden from assistive technology, so opt in where the collapsed levels matter.

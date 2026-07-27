@@ -568,11 +568,13 @@ describe('breadcrumbs', () => {
       expect(attrs.onClick).toBeUndefined()
     })
 
-    it('should render a nested button and keep the list item role when interactive', async () => {
+    it('should render a nested activator and keep the list item role', async () => {
       const wrapper = mount(Breadcrumbs.Root, {
         slots: {
           default: () => h(Breadcrumbs.List as never, {}, {
-            default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }),
+            default: () => h(Breadcrumbs.Ellipsis as never, {}, {
+              default: () => h(Breadcrumbs.Activator as never),
+            }),
           }),
         },
       })
@@ -594,7 +596,7 @@ describe('breadcrumbs', () => {
       expect(trigger.attributes('data-state')).toBe('closed')
     })
 
-    it('should not render a trigger when not interactive', async () => {
+    it('should stay decorative without an activator', async () => {
       const wrapper = mount(Breadcrumbs.Root, {
         slots: {
           default: () => h(Breadcrumbs.List as never, {}, {
@@ -613,7 +615,9 @@ describe('breadcrumbs', () => {
       const wrapper = mount(Breadcrumbs.Root, {
         slots: {
           default: () => h(Breadcrumbs.List as never, {}, {
-            default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }),
+            default: () => h(Breadcrumbs.Ellipsis as never, {}, {
+              default: () => h(Breadcrumbs.Activator as never),
+            }),
           }),
         },
       })
@@ -641,7 +645,9 @@ describe('breadcrumbs', () => {
         global: { plugins: [plugin] },
         slots: {
           default: () => h(Breadcrumbs.List as never, {}, {
-            default: () => h(Breadcrumbs.Ellipsis as never, { interactive: true }),
+            default: () => h(Breadcrumbs.Ellipsis as never, {}, {
+              default: () => h(Breadcrumbs.Activator as never),
+            }),
           }),
         },
       })

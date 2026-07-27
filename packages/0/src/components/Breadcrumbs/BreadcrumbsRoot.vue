@@ -132,6 +132,10 @@
   // an interactive BreadcrumbsEllipsis).
   const expanded = defineModel<boolean>('expanded', { default: false })
 
+  // Set by BreadcrumbsActivator; the ellipsis reads it to decide whether it is
+  // decorative or the disclosure control's host.
+  const hasActivator = shallowRef(false)
+
   // Written imperatively by the visibility watcher below rather than derived.
   // The group is not `reactive`, so membership is not a tracked dependency and
   // a getter would go stale inside render effects when crumbs come and go.
@@ -276,6 +280,7 @@
     ellipsis: toRef(() => ellipsis),
     isOverflowing,
     expanded,
+    hasActivator,
     hiddenCount,
     ellipsisWidth,
     measureElement,
