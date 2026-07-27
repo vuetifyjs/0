@@ -423,7 +423,7 @@
           v-else
           :aria-expanded="!isFile(id) ? tree.opened(id) : undefined"
           :aria-selected="current(id) ? true : undefined"
-          class="group/row flex items-center gap-1.5 py-1 pr-2 text-sm cursor-pointer select-none hover:bg-[color-mix(in_srgb,var(--v0-on-surface),transparent_94%)] transition-colors"
+          class="group/row flex items-center gap-1.5 py-1 pr-2 text-sm cursor-pointer select-none rounded-s-md hover:bg-[color-mix(in_srgb,var(--v0-on-surface),transparent_94%)] transition-colors"
           :class="current(id) ? 'opacity-100 !bg-[color-mix(in_srgb,var(--v0-primary),transparent_88%)]' : isConfig(id) ? 'opacity-50' : 'opacity-80'"
           :data-id="id"
           role="treeitem"
