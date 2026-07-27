@@ -100,6 +100,8 @@ describe('useResizeObserver', () => {
         top: 0,
         left: 0,
       },
+      borderBoxSize: [{ inlineSize: 100, blockSize: 50 }],
+      contentBoxSize: [{ inlineSize: 100, blockSize: 50 }],
     }])
   })
 
@@ -122,6 +124,8 @@ describe('useResizeObserver', () => {
         top: 0,
         left: 0,
       },
+      borderBoxSize: [{ inlineSize: 100, blockSize: 50 }],
+      contentBoxSize: [{ inlineSize: 100, blockSize: 50 }],
     }])
   })
 
@@ -162,6 +166,42 @@ describe('useResizeObserver', () => {
 
     resume()
     expect(isPaused.value).toBe(false)
+  })
+
+  it('should forward the native border-box and content-box sizes to the callback', async () => {
+    let observerCallback: (entries: any[]) => void
+    globalThis.ResizeObserver = vi.fn(function (this: any, cb: any) {
+      observerCallback = cb
+      return mockObserver
+    }) as any
+    window.ResizeObserver = globalThis.ResizeObserver
+
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    useResizeObserver(target, callback, { box: 'border-box' })
+
+    mockIsHydrated.value = true
+    await nextTick()
+
+    expect(mockObserver.observe).toHaveBeenCalledWith(element, { box: 'border-box' })
+
+    const borderBoxSize = [{ inlineSize: 200, blockSize: 40 }]
+    const contentBoxSize = [{ inlineSize: 166, blockSize: 30 }]
+
+    observerCallback!([{
+      contentRect: { width: 166, height: 30, top: 0, left: 0 },
+      borderBoxSize,
+      contentBoxSize,
+      target: element,
+    }])
+
+    expect(callback).toHaveBeenCalledWith([{
+      contentRect: { width: 166, height: 30, top: 0, left: 0 },
+      borderBoxSize,
+      contentBoxSize,
+      target: element,
+    }])
   })
 
   it('should stop observing after first resize when once option is true', async () => {
