@@ -34,6 +34,7 @@ import { isArray, isFunction } from '#v0/utilities'
 import { onScopeDispose, toValue, watch } from 'vue'
 
 // Types
+import type { ID } from '#v0/types'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 export interface ProxyModelOptions {
@@ -50,7 +51,10 @@ export interface ProxyModelTarget {
   selectedValues: { readonly value: Iterable<unknown> }
   apply: (values: unknown[], options?: { multiple?: boolean }) => void
   select?: (id: string | number) => void
-  browse?: (value: unknown) => readonly (string | number)[] | undefined
+  // Contexts type browse by their own ticket value — Slider's is a
+  // ShallowRef<number> — so an `unknown` parameter here would reject them under
+  // contravariance. `never` accepts any of them; the call site widens instead.
+  browse?: (value: never) => readonly ID[] | undefined
   multiple?: MaybeRefOrGetter<boolean>
   on?: (event: string, cb: (data: unknown) => void) => void
   off?: (event: string, cb: (data: unknown) => void) => void
@@ -111,7 +115,7 @@ export function useProxyModel (
   // If a ticket exists, the context refused it (disabled, mandatory) and the
   // rejection is final — deferring would leave the model waiting forever.
   function deferred (value: unknown) {
-    return !context.browse?.(value)?.length
+    return !context.browse?.(value as never)?.length
   }
 
   function reconcile (values: unknown[]) {
