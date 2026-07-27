@@ -21,6 +21,7 @@
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
+  import { pxToNumber } from '#v0/utilities'
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -84,7 +85,7 @@
 
       const el = element as HTMLElement
       const style = getComputedStyle(el)
-      const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+      const marginX = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
       context.ellipsisWidth.value = (el.offsetWidth || 0) + marginX
     },
     { immediate: true },

@@ -26,7 +26,7 @@
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
-  import { isNull } from '#v0/utilities'
+  import { isNull, pxToNumber } from '#v0/utilities'
   import { shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -137,7 +137,7 @@
     }
     const htmlEl = el as HTMLElement
     const style = getComputedStyle(htmlEl)
-    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    const marginX = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
     target.value = (htmlEl.offsetWidth || 0) + marginX
   }
 

@@ -826,6 +826,12 @@
       "since": "0.0.1",
       "category": "utilities"
     },
+    "pxToNumber": {
+      "level": "preview",
+      "since": null,
+      "category": "utilities",
+      "description": "Parses a CSS pixel length into a number, returning a caller-supplied fallback when the length does not parse."
+    },
     "range": {
       "level": "stable",
       "since": "0.0.15",

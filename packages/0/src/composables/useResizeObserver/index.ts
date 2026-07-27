@@ -38,7 +38,7 @@ import { createObserver } from '#v0/composables/createObserver'
 import { SUPPORTS_OBSERVER } from '#v0/constants/globals'
 
 // Utilities
-import { isNaN, isString } from '#v0/utilities'
+import { isString, pxToNumber } from '#v0/utilities'
 import { shallowReadonly, shallowRef } from 'vue'
 
 // Types
@@ -97,15 +97,6 @@ export interface ResizeObserverOptions {
 }
 
 export interface UseResizeObserverReturn extends ObserverReturn {}
-
-/* #__NO_SIDE_EFFECTS__ */
-function pxToNumber (value: string | undefined, fallback = 0): number {
-  if (!isString(value)) return fallback
-
-  const parsed = Number.parseFloat(value)
-
-  return isNaN(parsed) ? fallback : parsed
-}
 
 /**
  * Synthesize the entry the observer would report for `el`, for the `immediate`
