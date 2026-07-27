@@ -1,10 +1,10 @@
 ---
 title: createRating - Bounded Rating Value Management
 meta:
-  - name: description
-    content: Headless composable for discrete star ratings with half-step support, value clamping, and computed item states for Vue 3.
-  - name: keywords
-    content: rating, stars, review, score, composable, bounded, Vue 3, headless
+- name: description
+  content: Headless composable for discrete star ratings with half-step support, value clamping, and computed item states for Vue 3.
+- name: keywords
+  content: rating, stars, review, score, composable, bounded, Vue 3, headless
 features:
   category: Composable
   label: 'E: createRating'
@@ -61,7 +61,7 @@ Use `createRatingContext` to share a rating instance across a component tree:
 import { createRatingContext } from '@vuetify/v0'
 
 export const [useProductRating, provideProductRating, productRating] =
-  createRatingContext({ namespace: 'my:rating', max: 5 })
+  createRatingContext({ namespace: 'my:rating', size: 5 })
 
 // In parent component
 provideProductRating()
@@ -71,6 +71,26 @@ const rating = useProductRating()
 rating.select(4)
 ```
 
+## Architecture
+
+`createRating` is standalone — it does not build on the registry or selection chain. The current rating is a single `clamp`-bounded number and the item descriptors are derived with `range`, so there is no per-item ticket overhead. Optional dependency injection is layered on by `createRatingContext`, which wraps the context in `createTrinity`.
+
+```mermaid "createRating Architecture"
+flowchart TD
+  Options["RatingOptions"]
+  clamp["clamp"]
+  range["range"]
+  CR["createRating"]:::primary
+  Context["RatingContext"]
+  Trinity["createRatingContext + createTrinity"]
+
+  Options --> CR
+  clamp --> CR
+  range --> CR
+  CR --> Context
+  Context --> Trinity
+```
+
 ## Reactivity
 
 | Property | Type | Reactive | Description |
@@ -78,7 +98,7 @@ rating.select(4)
 | `value` | `WritableComputedRef<number>` | Yes | Current rating, clamped 0–size |
 | `size` | `number` | Getter | Total items |
 | `half` | `boolean` | Getter | Half-step enabled |
-| `items` | `ComputedRef<RatingItem[]>` | Yes | Items with `full`/`half`/`empty` state |
+| `items` | `ComputedRef<RatingItemDescriptor[]>` | Yes | Items with `full`/`half`/`empty` state |
 | `isFirst` | `Readonly<Ref<boolean>>` | Yes | Value is 0 |
 | `isLast` | `Readonly<Ref<boolean>>` | Yes | Value equals size |
 | `select(v)` | `(value: number) => void` | — | Set rating |

@@ -29,20 +29,24 @@ import type { Ref } from 'vue'
 // MOCKS - Required for lifecycle-dependent code
 // =============================================================================
 
-vi.mock('#v0/composables/useResizeObserver', () => ({
-  useResizeObserver: (target: Ref<HTMLElement | undefined>, callback: (entries: ResizeObserverEntry[]) => void) => {
-    if (target.value) {
-      callback([{
-        target: target.value,
-        contentRect: { height: 600, width: 400 },
-        borderBoxSize: [],
-        contentBoxSize: [],
-        devicePixelContentBoxSize: [],
-      }] as unknown as ResizeObserverEntry[])
-    }
-    return { stop: vi.fn() }
-  },
-}))
+vi.mock('#v0/composables/useResizeObserver', async () => {
+  const actual = await vi.importActual('#v0/composables/useResizeObserver')
+  return {
+    ...actual,
+    useResizeObserver: (target: Ref<HTMLElement | undefined>, callback: (entries: ResizeObserverEntry[]) => void) => {
+      if (target.value) {
+        callback([{
+          target: target.value,
+          contentRect: { height: 600, width: 400 },
+          borderBoxSize: [],
+          contentBoxSize: [],
+          devicePixelContentBoxSize: [],
+        }] as unknown as ResizeObserverEntry[])
+      }
+      return { stop: vi.fn() }
+    },
+  }
+})
 
 vi.mock('#v0/constants/globals', async () => {
   const actual = await vi.importActual('#v0/constants/globals')

@@ -1,5 +1,5 @@
 // Framework
-import { createFilter, createGroup } from '@vuetify/v0'
+import { createFilter, createGroup, isNumber } from '@vuetify/v0'
 
 // Utilities
 import { type ComputedRef, type MaybeRefOrGetter, type ShallowRef, computed, onBeforeMount, shallowRef, toValue, watch } from 'vue'
@@ -196,6 +196,35 @@ function extractGroupName (fullName: string): string {
   return parts.length > 1 ? parts.slice(1).join(' > ') : fullName
 }
 
+/**
+ * The anchor suite measures the host, not v0 — it exists only to derive
+ * `apparatus.scale`. It has no docs page and no feature name, and
+ * `extractComposableName` would fall back to rendering its whole filepath as a
+ * card title, so it is dropped before shaping.
+ */
+const CALIBRATION_BENCH = 'bench/calibration.bench.ts'
+
+/**
+ * Divide the host out of the fetched artifact.
+ *
+ * benchmarks.json stores raw ops/s as measured, plus the scale factor of the
+ * runner that produced it. Shared GHA hosts differ by ~1.5x, so displaying raw
+ * numbers means the docs report the runner as much as the code. Applying the
+ * scale here — once, on load — keeps every downstream consumer unchanged.
+ */
+function rescale (files: RawBenchmarkFile[], scale: number | undefined): RawBenchmarkFile[] {
+  const relevant = (files ?? []).filter(file => !file.filepath.endsWith(CALIBRATION_BENCH))
+  const factor = isNumber(scale) && scale > 0 ? scale : 1
+  if (factor === 1) return relevant
+  return relevant.map(file => ({
+    ...file,
+    groups: file.groups.map(group => ({
+      ...group,
+      benchmarks: group.benchmarks.map(b => ({ ...b, hz: b.hz / factor, mean: b.mean * factor })),
+    })),
+  }))
+}
+
 function normalizeFiles (
   files: RawBenchmarkFile[],
   metricsData: Record<string, { benchmarks?: Record<string, unknown> }>,
@@ -297,8 +326,11 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
       isLoading.value = true
       try {
         const response = await fetch('/benchmarks.json')
-        const json = await response.json() as { files: RawBenchmarkFile[] }
-        rawData.value = json.files
+        const json = await response.json() as {
+          files: RawBenchmarkFile[]
+          apparatus?: { scale?: number }
+        }
+        rawData.value = rescale(json.files, json.apparatus?.scale)
       } catch {
         rawData.value = []
       } finally {

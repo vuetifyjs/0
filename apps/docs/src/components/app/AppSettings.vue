@@ -13,15 +13,15 @@
 </script>
 
 <template>
-  <button
+  <AppTooltip
     aria-label="Open settings"
     class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
-    title="Settings"
-    type="button"
+    position-area="bottom"
+    text="Settings"
     @click="settings.toggle"
     @focus="preload"
     @mouseenter="preload"
   >
     <AppIcon icon="cog" />
-  </button>
+  </AppTooltip>
 </template>

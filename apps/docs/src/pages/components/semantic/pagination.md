@@ -24,7 +24,7 @@ A headless component for creating page navigation with proper ARIA support.
 
 ## Usage
 
-The Pagination component provides a compound component pattern for building page navigation interfaces. It uses the `createPagination` and `createOverflow` composable internally.
+The Pagination component provides a compound component pattern for building page navigation interfaces. It adjusts how many page buttons it shows to fit the available width, collapsing the overflow behind ellipses.
 
 The two core props are `size` (total item count) and `items-per-page` (items per page, default `10`). Together they determine the page count:
 

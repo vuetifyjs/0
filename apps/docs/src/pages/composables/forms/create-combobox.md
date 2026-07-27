@@ -1,10 +1,10 @@
 ---
 title: createCombobox - Orchestrator Composable for Combobox Components
 meta:
-  - name: description
-    content: Orchestrator composable that coordinates selection, popover, virtual focus, and adapter-based filtering for building combobox and autocomplete components.
-  - name: keywords
-    content: createCombobox, combobox, autocomplete, composable, filtering, virtual focus, Vue 3, headless
+- name: description
+  content: Orchestrator composable that coordinates selection, popover, virtual focus, and adapter-based filtering for building combobox and autocomplete components.
+- name: keywords
+  content: createCombobox, combobox, autocomplete, composable, filtering, virtual focus, Vue 3, headless
 features:
   category: Composable
   label: 'E: createCombobox'

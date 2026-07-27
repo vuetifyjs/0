@@ -33,7 +33,14 @@
   }
 
   export interface PortalSlotProps {
-    /** Calculated z-index from useStack */
+    /**
+     * Calculated z-index from useStack.
+     *
+     * @remarks
+     * Must be applied to a **positioned** element (`position: relative`, `absolute`,
+     * `fixed`, or `sticky`) to create a stacking context. Applying it to a
+     * `position: static` element has no effect.
+     */
     zIndex: number
     /** Close this portal (unselects from stack) */
     close: () => void

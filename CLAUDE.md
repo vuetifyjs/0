@@ -58,7 +58,7 @@ import { createRegistry } from '#v0/composables'
 ## Packages
 
 - **`@vuetify/v0`** (`packages/0/`): Headless components and composables
-- **`@vuetify/paper`** (`packages/paper/`): Styling primitives depending on v0
+- **`@vuetify/paper`** (`packages/paper/`): Styling primitives depending on v0 — **not published (dormant)**
 
 ## Apps
 
@@ -94,6 +94,7 @@ pnpm changeset        # Author a changeset for your PR (run per change)
 pnpm release:prepare  # Pre-release validation (validate + build)
 # Publishing is automated: pushing to master opens a "Version Packages" PR;
 # merging it builds, publishes to npm via OIDC, and creates the GitHub releases.
+# Base branch by change type: fix/patch → master, feat/minor → dev, breaking/major → next.
 # Currently in PRE mode (beta dist-tag) — see "Releasing" below before cutting stable.
 
 # Repo health
@@ -104,6 +105,21 @@ pnpm repo:check       # knip + sherif
 
 Changesets-driven. Pushing to `master` opens/updates a "Version Packages" PR; merging it publishes to npm (tokenless OIDC) and mints the GitHub releases (`.github/workflows/release.yml`).
 
+### Branch model — where a PR goes by change type
+
+Three long-lived branches; a PR's base is chosen by the semver impact of the change, not by its commit-type label alone:
+
+| Base | Change type | Semver | Examples |
+|------|-------------|--------|----------|
+| `master` | fixes, docs, chore, refactor, tests | patch / none | `fix(...)`, `docs(...)`, `test(...)`, and any app/tooling change that ships no package version |
+| `dev` | new features that add public API | minor | `feat(...)` that adds a component, composable, prop, or option |
+| `next` | breaking changes | major | anything with a `BREAKING CHANGE:` footer |
+
+- **Only `master` publishes.** `dev` and `next` accumulate work and merge **into `master`** at the next minor / major cut — that merge is what triggers the changesets release. Never publish from `dev`/`next` directly.
+- **`feat`/`fix` are still reserved for `packages/*` source.** A `feat(docs)` / `feat(playground)` / app-only change ships no package version, so it targets `master` (patch train) regardless of the `feat` label — prefer `docs`/`chore` for those.
+- **Design systems** (`@paper/*`) version independently; a DS feature still targets `dev` (it's a minor bump for that package).
+- CI (`pr-checks.yml`) and the changeset reminder (`changeset-reminder.yml`) run on PRs into all three branches; `release.yml` triggers on `master` pushes only.
+
 ### Changeset content contract
 
 The `.changeset/*.md` body renders verbatim into the changelog and GitHub release notes — it is release-note copy, not a commit message. Don't budget by character count; budget by what belongs:
@@ -112,7 +128,7 @@ The `.changeset/*.md` body renders verbatim into the changelog and GitHub releas
 - **Body (optional)** — add one when the title can't answer those questions itself: a behavior delta, a performance change worth quantifying (state the magnitude), a breaking/migration step, or new public options or escape hatches. Length is earned by impact, not padded to a target.
 - **Never the mechanism** — internal composables touched, private fields, refactors mirrored from a sibling go in the PR description and commit body, never the changelog.
 
-- **Substrate** (`@vuetify/v0` + `@vuetify/paper`) is a `fixed` group: one shared version, one aggregate `v<version>` GitHub release.
+- **Substrate** — `@vuetify/v0` is the sole published substrate, versioned and released on its own `v<version>` GitHub release. `@vuetify/paper` is `private`/dormant and no longer part of the changesets `fixed` group.
 - **Design systems** (`@paper/*`, e.g. `@paper/genesis`) version and release independently, each on its own `name@version` release. Note `@paper/genesis` depends on `@vuetify/v0`, so a substrate **major** bump (e.g. `1.x` → `2.0.0`) leaves genesis's `^` range and changesets will also bump + republish genesis. That is expected — review it in the "Version Packages" PR before merging.
 
 ### Exiting beta / cutting a stable release

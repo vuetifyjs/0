@@ -7,8 +7,11 @@
  * no config edit per release. This file only tunes the filter:
  *
  *   - `major`   — only versions on this major line are tracked.
- *   - `since`   — floor; versions ordered below this are ignored (skips the
- *                 pre-`beta.0` alphas, which predate the comparable series).
+ *   - `since`   — floor; versions ordered below this are ignored. Set to the
+ *                 `1.0.0` stable baseline: the entire pre-1.0 prerelease series
+ *                 (alpha/beta/rc) sorts below it and is excluded. Those snapshots
+ *                 were archived (removed) at the v1.0 baseline reset; git history
+ *                 at that commit is their record.
  *   - `exclude` — explicit versions to drop even if published (yanked/broken cuts).
  *
  * The harness installs `@vuetify/v0@<version>` and benches it with the CURRENT
@@ -25,6 +28,6 @@ interface HistoryConfig {
 
 export const config: HistoryConfig = {
   major: 1,
-  since: '1.0.0-beta.0',
+  since: '1.0.0',
   exclude: [],
 }

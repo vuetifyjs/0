@@ -7,9 +7,7 @@ When to use composables, components, or both.
 ```
 Vuetify 4 (design system consumer)
     ↑
-Design Systems (Emerald, Helix, …)
-    ↑
-Paper (styling primitives)
+Design Systems (Emerald, Helix, …) — add styling on top of v0
     ↑
 v0 — components (WAI-ARIA wrappers)
 v0 — composables (state, logic, registries)

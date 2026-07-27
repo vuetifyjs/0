@@ -132,7 +132,7 @@ Use `mandatory` to prevent deselecting the last item, or `mandatory="force"` to 
 </template>
 ```
 
-### Understanding `id` vs `value`
+### Understanding id vs value
 
 Each `Select.Item` has two key props:
 
@@ -199,18 +199,6 @@ Select supports pre-selected values via `v-model` or `:model-value`. The `Select
       <Select.Item value="Banana">Banana</Select.Item>
     </Select.Content>
   </Select.Root>
-</template>
-```
-
-### Custom Positioning
-
-Control dropdown placement with CSS anchor positioning props on Content:
-
-```vue
-<template>
-  <Select.Content position-area="top" position-try="flip-block">
-    <!-- Dropdown appears above the activator -->
-  </Select.Content>
 </template>
 ```
 

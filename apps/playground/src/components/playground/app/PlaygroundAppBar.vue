@@ -64,26 +64,28 @@
         <AppIcon :icon="playground.editor.value ? 'editor' : 'eye'" />
       </button>
 
-      <button
+      <AppTooltip
+        aria-label="Copy share link"
         class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
         :class="copied ? 'opacity-80' : 'opacity-50'"
-        :title="copied ? 'Link copied!' : 'Copy share link'"
-        type="button"
+        position-area="bottom"
+        :text="copied ? 'Link copied!' : 'Copy share link'"
         @click="onShare"
       >
         <AppIcon :icon="copied ? 'check' : 'link'" />
-      </button>
+      </AppTooltip>
 
-      <button
+      <AppTooltip
+        aria-label="Settings"
         :aria-pressed="open"
         class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
         :class="open ? 'opacity-80' : 'opacity-50'"
-        title="Settings"
-        type="button"
+        position-area="bottom"
+        text="Settings"
         @click="open = true"
       >
         <AppIcon icon="cog" />
-      </button>
+      </AppTooltip>
 
       <AppThemeToggle />
     </div>

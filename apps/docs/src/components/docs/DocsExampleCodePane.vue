@@ -115,16 +115,15 @@
         :title="title || fileName"
       />
 
-      <button
+      <AppTooltip
         v-if="shouldPeek && expanded"
         aria-label="Collapse code"
         class="inline-flex items-center justify-center size-7 text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
-        title="Collapse code"
-        type="button"
+        text="Collapse code"
         @click="expanded = false"
       >
         <AppIcon icon="fullscreen-exit" :size="16" />
-      </button>
+      </AppTooltip>
     </div>
 
     <div

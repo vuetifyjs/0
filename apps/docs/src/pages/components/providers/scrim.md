@@ -132,6 +132,12 @@ The default transition is `fade`. Customize with the `transition` prop:
 </style>
 ```
 
+## Accessibility
+
+Scrim renders each backdrop layer with `aria-hidden="true"`, so assistive technology skips it entirely — the scrim is decorative and must never hold focusable or interactive content. Its only behavior is click-to-dismiss (suppressed when the topmost overlay is `blocking`), which is a pointer convenience, not the accessible dismissal path.
+
+The accessible dismissal contract — Escape-to-close, focus trapping, and focus return — belongs to the overlay the scrim sits behind, not to the scrim itself. Pair Scrim with [Dialog](/components/disclosure/dialog), which owns `role="dialog"`, focus management, and keyboard handling; the scrim only paints the backdrop.
+
 ## FAQ
 
 ::: faq

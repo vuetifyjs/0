@@ -178,45 +178,45 @@
         </div>
 
         <div class="flex items-center gap-0.5">
-          <button
+          <AppTooltip
             v-if="messages.length > 0"
+            aria-label="Open in Bin"
             class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-            title="Open in Bin"
-            type="button"
+            text="Open in Bin"
             @click="openInBin"
           >
             <AppIcon icon="vuetify-bin" size="16" />
-          </button>
+          </AppTooltip>
 
-          <button
+          <AppTooltip
             v-if="messages.length > 0"
+            aria-label="Copy conversation"
             class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-            :title="clipboard.copied.value ? 'Copied!' : 'Copy conversation'"
-            type="button"
+            :text="clipboard.copied.value ? 'Copied!' : 'Copy conversation'"
             @click="copyConversation"
           >
             <AppIcon :icon="clipboard.copied.value ? 'success' : 'copy'" size="16" />
-          </button>
+          </AppTooltip>
 
-          <button
+          <AppTooltip
             v-if="messages.length > 0"
+            aria-label="Reset conversation"
             class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-            title="Reset conversation"
-            type="button"
+            text="Reset conversation"
             @click="emit('clear')"
           >
             <AppIcon icon="restart" size="16" />
-          </button>
+          </AppTooltip>
 
-          <button
+          <AppTooltip
             v-if="isDesktop"
+            :aria-label="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
             class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-            :title="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
-            type="button"
+            :text="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
             @click="emit('update:fullscreen', !fullscreen)"
           >
             <AppIcon :icon="fullscreen ? 'fullscreen-exit' : 'fullscreen'" size="16" />
-          </button>
+          </AppTooltip>
 
           <AppCloseButton @click="emit('close')" />
         </div>

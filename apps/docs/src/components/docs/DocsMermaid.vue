@@ -300,52 +300,48 @@
 
         <!-- Zoom controls -->
         <div class="flex items-center gap-1">
-          <button
+          <AppTooltip
             aria-label="Zoom out"
             class="btn-icon"
-            title="Zoom out"
-            type="button"
+            text="Zoom out"
             @click="zoomOut"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
             </svg>
-          </button>
+          </AppTooltip>
 
-          <button
+          <AppTooltip
             aria-label="Zoom in"
             class="btn-icon"
-            title="Zoom in"
-            type="button"
+            text="Zoom in"
             @click="zoomIn"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
             </svg>
-          </button>
+          </AppTooltip>
 
-          <button
+          <AppTooltip
             aria-label="Reset view"
             class="btn-icon"
-            title="Reset view"
-            type="button"
+            text="Reset view"
             @click="resetZoom"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
             </svg>
-          </button>
+          </AppTooltip>
 
           <div class="w-px h-4 bg-divider mx-1" />
         </div>
 
         <!-- Action buttons -->
         <div class="flex items-center gap-1">
-          <button
-            :aria-label="clipboard.copied.value ? 'Copied!' : 'Copy SVG'"
+          <AppTooltip
+            aria-label="Copy SVG"
             class="btn-icon"
-            :title="clipboard.copied.value ? 'Copied!' : 'Copy SVG'"
-            type="button"
+            :text="clipboard.copied.value ? 'Copied!' : 'Copy SVG'"
             @click="copySvg"
           >
             <svg
@@ -367,19 +363,18 @@
             >
               <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
             </svg>
-          </button>
+          </AppTooltip>
 
-          <button
+          <AppTooltip
             aria-label="Download SVG"
             class="btn-icon"
-            title="Download SVG"
-            type="button"
+            text="Download SVG"
             @click="downloadSvg"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
             </svg>
-          </button>
+          </AppTooltip>
 
           <div class="w-px h-4 bg-divider mx-1" />
 

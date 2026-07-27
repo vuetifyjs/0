@@ -44,16 +44,17 @@
 </script>
 
 <template>
-  <a
+  <AppTooltip
     v-if="app.stats.commit"
+    as="a"
     class="icon-text"
     :href="app.stats.commit.html_url"
     rel="noopener nofollow"
     target="_blank"
-    :title="`Latest commit: ${app.stats.commit.sha}`"
+    :text="`Latest commit: ${app.stats.commit.sha}`"
   >
     <strong>Latest commit:</strong>
     {{ app.stats.commit.sha.slice(0, 7) }}
     <AppIcon icon="open-in-new" size="1em" />
-  </a>
+  </AppTooltip>
 </template>

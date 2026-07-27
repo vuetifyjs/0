@@ -24,10 +24,12 @@
     tailwind: { label: 'Tailwind', data: tailwind as Record<string, Record<string, string>>, namespace: 'tw' },
     md1: { label: 'MD1', data: md1 as Record<string, Record<string, string>>, namespace: 'md1' },
     md2: { label: 'MD2', data: md2 as Record<string, Record<string, string>>, namespace: 'md2' },
-    material: { label: 'Material', data: material as Record<string, Record<string, string>>, namespace: 'md' },
+    material: { label: 'Material 3', data: material as Record<string, Record<string, string>>, namespace: 'md' },
     radix: { label: 'Radix', data: radix as Record<string, Record<string, string>>, namespace: 'radix' },
     ant: { label: 'Ant Design', data: ant as Record<string, Record<string, string>>, namespace: 'ant' },
   }
+
+  const ROLES = ['primary', 'secondary', 'accent', 'error', 'info', 'success', 'warning']
 
   const selected = shallowRef('tailwind')
   const clicks = ref(new Map<string, string>())
@@ -65,6 +67,18 @@
   // This swaps axes so groups become columns and tones become rows
   const transposed = computed(() => columns.value.length > rows.value.length * 2)
 
+  // Clicked swatches mapped to theme roles, in click order — drives the summary chips and the export
+  const selection = computed(() =>
+    [...clicks.value].map(([path, hex], index) => ({
+      path,
+      hex,
+      role: ROLES[index] ?? `color${index + 1}`,
+    })),
+  )
+
+  // Fast path -> role lookup so each swatch can show whether it is picked
+  const picked = computed(() => new Map(selection.value.map(entry => [entry.path, entry.role])))
+
   watch(selected, () => {
     clicks.value.clear()
   })
@@ -75,24 +89,39 @@
     clicks.value.set(path, hex)
   }
 
+  function onRemove (path: string) {
+    clicks.value.delete(path)
+  }
+
+  function onClear () {
+    clicks.value.clear()
+  }
+
   function onExport () {
-    const p = palette.value
-    const ns = p.namespace
+    const ns = palette.value.namespace
     const name = selected.value
+
+    const lines: string[] = []
+
+    if (selection.value.length > 0) {
+      // Each clicked swatch is already mapped to a role
+      for (const { path, role } of selection.value) {
+        lines.push(`          ${role}: '{palette.${ns}.${path}}',`)
+      }
+    } else {
+      // No clicks: seed primary/secondary from real hues in this palette so the config resolves
+      const shade = columns.value[Math.floor(columns.value.length / 2)]
+      for (const [index, [hue, collection]] of rows.value.slice(0, 2).entries()) {
+        const key = shade && collection[shade] ? shade : Object.keys(collection)[0]!
+        lines.push(`          ${ROLES[index]}: '{palette.${ns}.${hue}.${key}}',`)
+      }
+    }
+
     let code = `import { ${name} } from '@vuetify/v0/palettes/${name}'\n\n`
     code += `app.use(\n  createThemePlugin({\n    palette: { ${ns}: ${name} },\n`
     code += `    themes: {\n      light: {\n        colors: {\n`
-
-    if (clicks.value.size > 0) {
-      for (const [path] of clicks.value) {
-        code += `          // '{palette.${ns}.${path}}',\n`
-      }
-    } else {
-      code += `          // primary: '{palette.${ns}.blue.500}',\n`
-      code += `          // secondary: '{palette.${ns}.slate.600}',\n`
-    }
-
-    code += `        }\n      }\n    }\n  })\n)`
+    code += `${lines.join('\n')}\n`
+    code += `        },\n      },\n    },\n  })\n)`
     copy(code)
   }
 </script>
@@ -141,6 +170,11 @@
       </Select.Root>
     </div>
 
+    <!-- Hint -->
+    <div class="text-xs op-60">
+      Click a swatch to copy its token path and add it to the config. Then use <span class="font-medium">Copy Config</span> for a ready-to-paste theme.
+    </div>
+
     <!-- Swatch grid — fixed height container, uniform cell sizes -->
     <div class="h-[420px] overflow-auto border border-divider rounded-lg">
       <!-- Transposed: groups as columns, tones as rows (for Material) -->
@@ -172,9 +206,12 @@
             v-for="([hue, collection]) in rows"
             :key="hue"
             class="h-7 cursor-pointer border-0 transition-opacity"
-            :class="collection[tone] ? 'hover:opacity-80' : 'opacity-0 pointer-events-none'"
+            :class="[
+              collection[tone] ? 'hover:opacity-80' : 'opacity-0 pointer-events-none',
+              picked.has(`${hue}.${tone}`) && 'outline outline-2 -outline-offset-2 outline-on-surface',
+            ]"
             :style="collection[tone] ? { backgroundColor: collection[tone] } : {}"
-            :title="collection[tone] ? `${hue}.${tone} · ${collection[tone]}` : ''"
+            :title="collection[tone] ? `${hue}.${tone} · ${collection[tone]}${picked.has(`${hue}.${tone}`) ? ` · ${picked.get(`${hue}.${tone}`)}` : ''}` : ''"
             @click="collection[tone] && onSwatch(hue, tone, collection[tone]!)"
           />
         </template>
@@ -211,13 +248,37 @@
             v-for="col in columns"
             :key="col"
             class="h-7 cursor-pointer border-0 transition-opacity"
-            :class="collection[col] ? 'hover:opacity-80' : 'opacity-0 pointer-events-none'"
+            :class="[
+              collection[col] ? 'hover:opacity-80' : 'opacity-0 pointer-events-none',
+              picked.has(`${hue}.${col}`) && 'outline outline-2 -outline-offset-2 outline-on-surface',
+            ]"
             :style="collection[col] ? { backgroundColor: collection[col] } : {}"
-            :title="collection[col] ? `${hue}.${col} · ${collection[col]}` : ''"
+            :title="collection[col] ? `${hue}.${col} · ${collection[col]}${picked.has(`${hue}.${col}`) ? ` · ${picked.get(`${hue}.${col}`)}` : ''}` : ''"
             @click="collection[col] && onSwatch(hue, col, collection[col]!)"
           />
         </template>
       </div>
+    </div>
+
+    <!-- Selection summary — which swatches are picked and the role each maps to -->
+    <div v-if="selection.length > 0" class="flex flex-wrap items-center gap-2">
+      <div
+        v-for="item in selection"
+        :key="item.path"
+        class="inline-flex items-center gap-1.5 h-7 pl-1.5 pr-0.5 text-xs border border-divider rounded-full"
+      >
+        <span class="w-3 h-3 rounded-full border border-divider" :style="{ backgroundColor: item.hex }" />
+        <span class="font-medium">{{ item.role }}</span>
+        <span class="op-50 font-mono">{{ item.path }}</span>
+        <AppCloseButton :label="`Remove ${item.role}`" size="sm" @click="onRemove(item.path)" />
+      </div>
+
+      <button
+        class="text-xs op-60 hover:op-100 underline underline-offset-2 cursor-pointer bg-transparent border-0"
+        @click="onClear"
+      >
+        Clear
+      </button>
     </div>
 
     <!-- Export button with inline copied indicator -->

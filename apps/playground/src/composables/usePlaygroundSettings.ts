@@ -25,7 +25,9 @@ export function usePlaygroundSettings () {
     fetching.value = true
     try {
       const [vue, v0] = await Promise.all([
-        fetchNpmVersions('vue', '3.2.0', false),
+        // Floor at 3.5.0: @vuetify/v0 requires vue >=3.5.0 (uses useId), and
+        // Vuetify 4 needs 3.5+ too — offering older Vue breaks both presets.
+        fetchNpmVersions('vue', '3.5.0', false),
         fetchNpmVersions('@vuetify/v0', '0.1.0', true),
       ])
       vueVersions.value = vue

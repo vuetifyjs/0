@@ -762,8 +762,6 @@ describe('createTheme', () => {
         })
 
         expect(theme!.selectedId.value).toBe('light')
-
-        app.unmount()
       })
     })
   })

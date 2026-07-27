@@ -40,6 +40,8 @@
     namespace?: string
     /** Unique identifier. Auto-generated if not provided. */
     id?: ID
+    /** When true, sets role="alert" for urgent messages; otherwise role="status". */
+    urgent?: boolean
   }
 
   export interface SnackbarRootSlotProps {
@@ -61,7 +63,7 @@
     default: (props: SnackbarRootSlotProps) => any
   }>()
 
-  const { as = 'div', namespace = 'v0:notifications', id = useId(), renderless } = defineProps<SnackbarRootProps>()
+  const { as = 'div', namespace = 'v0:notifications', id = useId(), renderless, urgent } = defineProps<SnackbarRootProps>()
 
   const queue = useSnackbarQueueContext(namespace, null)
 
@@ -78,7 +80,7 @@
   const slotProps = toRef((): SnackbarRootSlotProps => ({
     id,
     attrs: {
-      role: 'status',
+      role: urgent ? 'alert' : 'status',
     },
   }))
 </script>

@@ -26,11 +26,15 @@
 </script>
 
 <template>
-  <AppIcon
-    class="align-sub"
-    :class="config.color"
-    :icon="config.icon"
-    :size
-    :title="config.title"
-  />
+  <AppTooltip
+    as="span"
+    class="inline-flex align-sub"
+    :text="config.title"
+  >
+    <AppIcon
+      :class="config.color"
+      :icon="config.icon"
+      :size
+    />
+  </AppTooltip>
 </template>

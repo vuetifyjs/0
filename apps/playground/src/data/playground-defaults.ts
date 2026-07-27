@@ -9,6 +9,45 @@ export const REPL_BUILTIN_FILES = ['import-map.json', 'tsconfig.json'] as const
 /** Infrastructure files revealed by the file tree's "Toggle config files" button */
 export const CONFIG_FILE_IDS = new Set(['src/main.ts', 'src/uno.config.ts', 'import-map.json'])
 
+// ── REPL TypeScript version ─────────────────────────────────────────────────
+//
+// @vue/repl's Monaco worker fetches TypeScript's lib .d.ts files (lib.dom.d.ts,
+// lib.esnext.d.ts, …) from the `typescript@<version>` package on the CDN. Left
+// unpinned, the store defaults to `typescript@latest`, which now resolves to the
+// 7.0.x native/Go port — a package layout the bundled Volar tools can't read, so
+// the worker loads NO libs at all and every global (document, window, console,
+// even Array.map/Promise/Symbol) reports "Cannot find name". Pinning to the last
+// 5.x keeps the worker's type environment intact until @vue/repl supports TS 7.
+export const REPL_TYPESCRIPT_VERSION = '5.9.3'
+
+// ── REPL tsconfig ──────────────────────────────────────────────────────────
+//
+// @vue/repl auto-injects a default tsconfig once during store init, but only
+// if none exists. Every store.setFiles() call rebuilds the file map from
+// scratch and drops it, and the injection is a one-time `if` — not a watcher —
+// so it never comes back. With no tsconfig, store.getTsConfig() throws and the
+// Monaco worker falls back to empty compilerOptions — notably no
+// `allowImportingTsExtensions`, so the sandbox `import './uno.config.ts'`
+// reports TS5097. Seeding this alongside the other builtins keeps the worker's
+// compiler options stable across setFiles() calls. (DOM/ESNext globals like
+// `document` are provided by the worker's lib .d.ts files, not this `lib`
+// array — see REPL_TYPESCRIPT_VERSION for why those must stay on TS 5.x.)
+export const REPL_TSCONFIG = JSON.stringify({
+  compilerOptions: {
+    allowJs: true,
+    checkJs: true,
+    jsx: 'Preserve',
+    target: 'ESNext',
+    module: 'ESNext',
+    moduleResolution: 'Bundler',
+    allowImportingTsExtensions: true,
+    lib: ['ESNext', 'DOM', 'DOM.Iterable'],
+  },
+  vueCompilerOptions: {
+    target: 3.5,
+  },
+}, undefined, 2)
+
 // ── Template files (matching Vuetify Play's v0 template) ────────────────
 
 export interface MainOptions {
@@ -42,11 +81,17 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
       // this preamble, vuetify-utilities ends up declared before vuetify-components
       // and components beat helpers in the cascade.
       `document.head.insertAdjacentHTML('afterbegin', '<style>@layer vuetify-core,vuetify-components,vuetify-overrides,vuetify-utilities,vuetify-final;</style>')`,
-      `const link = document.createElement('link')`,
-      `link.rel = 'stylesheet'`,
-      `link.setAttribute('data-preset-css', 'vuetify')`,
-      `link.href = 'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css'`,
-      `document.head.appendChild(link)`,
+      // Vuetify's CSS plus the MDI webfont — its default icon set, which
+      // vuetify-labs.css doesn't bundle, so without it every mdi-* icon renders
+      // as tofu. Add further icon-set stylesheets here as list entries.
+      `for (const href of [`,
+      `  'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css',`,
+      `  'https://cdn.jsdelivr.net/npm/@mdi/font@7.x/css/materialdesignicons.min.css',`,
+      `]) {`,
+      `  const link = Object.assign(document.createElement('link'), { rel: 'stylesheet', href })`,
+      `  link.dataset.presetCss = 'vuetify'`,
+      `  document.head.appendChild(link)`,
+      `}`,
     )
     extraPlugins.push(`app.use(createVuetify())`)
   }

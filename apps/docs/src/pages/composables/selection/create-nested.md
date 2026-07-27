@@ -18,7 +18,7 @@ related:
 
 # createNested
 
-Hierarchical tree management built on `createGroup`, with parent-child relationships, open/close state, and pluggable traversal strategies.
+Manage hierarchical tree structures with parent-child relationships, open/close state, and pluggable traversal strategies.
 
 <DocsPageFeatures :frontmatter />
 
@@ -174,7 +174,6 @@ const picker = createNested({ selection: 'leaf' })
 | `parents` | <AppSuccessIcon /> | ShallowReactive Map |
 | `openedIds` | <AppSuccessIcon /> | ShallowReactive Set |
 | `openedItems` | <AppSuccessIcon /> | Computed from openedIds |
-| `rootIds` | <AppSuccessIcon /> | ShallowReactive Set — IDs of all top-level (parentless) nodes |
 | `roots` | <AppSuccessIcon /> | Computed, root nodes |
 | `leaves` | <AppSuccessIcon /> | Computed, leaf nodes |
 | `ticket.isOpen` | <AppSuccessIcon /> | Ref via toRef() |

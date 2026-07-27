@@ -5,10 +5,12 @@
  *
  * @remarks
  * Tooltip trigger element. Binds pointer, focus, and escape events and
- * exposes them on slot attrs for renderless usage. Touch interactions
- * are suppressed per WAI-ARIA APG. Keyboard focus opens the tooltip
- * instantly (no delay), gated on :focus-visible so a mouse click that
- * incidentally moves focus does not open the tooltip.
+ * exposes them on slot `attrs` — alongside the anchor-positioning `styles` —
+ * for renderless usage, so a consumer can wire the tooltip onto their own
+ * element (e.g. a native `type="submit"` button) and still anchor the
+ * content. Touch interactions are suppressed per WAI-ARIA APG. Keyboard
+ * focus opens the tooltip instantly (no delay), gated on :focus-visible so a
+ * mouse click that incidentally moves focus does not open the tooltip.
  */
 
 <script lang="ts">
@@ -46,6 +48,7 @@
       'onClick': () => void
       'onKeydown': (e: KeyboardEvent) => void
     }
+    styles: Record<string, string>
   }
 </script>
 
@@ -114,6 +117,7 @@
       'onClick': onClick,
       'onKeydown': onKeydown,
     },
+    styles: root.anchorStyles.value,
   }))
 </script>
 
