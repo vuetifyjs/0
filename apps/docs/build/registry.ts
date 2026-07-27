@@ -25,6 +25,10 @@ import { parseFrontmatter } from './frontmatter'
 
 import pkg from '../../../packages/0/package.json' with { type: 'json' }
 import maturity from '../../../packages/0/src/maturity.json' with { type: 'json' }
+// Imported from the leaf module rather than the `@vuetify/v0/theme` barrel:
+// this file is pulled into the Vite config, where the package's own aliases do
+// not resolve and the barrel would drag the theme runtime in with it.
+import { SEMANTIC_COLORS } from '../../../packages/0/src/theme/tokens'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
@@ -38,36 +42,14 @@ export const DOCS_ORIGIN = 'https://0.vuetifyjs.com'
 /**
  * The semantic colors a copied example may rely on.
  *
- * This is a contract, not a derivation. v0's palettes emit different token sets
- * (material adds `tertiary`/`outline`, radix adds scales), and the docs site
- * adds chrome-only colors (`accent`, `discord`, `github`, `pre`, `vue`). Only
- * the names below are mapped by the `create-vuetify0` templates in both their
- * UnoCSS and Tailwind flavors, so only these survive a copy into a user
- * project. Anything else in an example is a portability bug — `validate()`
- * fails the build on it rather than shipping a demo that renders unstyled.
+ * Owned by `packages/0/src/theme`, not by this build, because the guarantee is
+ * the theme layer's: those are the names `createThemePlugin` emits and a
+ * consumer maps. The docs theme additionally defines chrome-only colors (`accent`,
+ * `discord`, `github`, `pre`, `vue`) that no consumer project has, so an
+ * example reaching for one is a portability bug — `build()` reports it and the
+ * production build fails rather than shipping a demo that renders unstyled.
  */
-export const PORTABLE_TOKENS = [
-  'background',
-  'divider',
-  'error',
-  'info',
-  'on-background',
-  'on-error',
-  'on-info',
-  'on-primary',
-  'on-secondary',
-  'on-success',
-  'on-surface',
-  'on-surface-variant',
-  'on-warning',
-  'primary',
-  'secondary',
-  'success',
-  'surface',
-  'surface-tint',
-  'surface-variant',
-  'warning',
-] as const
+export const PORTABLE_TOKENS = SEMANTIC_COLORS
 
 /** Utility prefixes that can take a semantic color token. */
 const COLOR_PREFIXES = [
