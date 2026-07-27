@@ -1,7 +1,28 @@
 {
   "name": "@vuetify/v0",
   "version": "1.0.1",
-  "description": "A meta UI framework for building applications, component libraries, and design systems with Vue 3",
+  "description": "Headless, unstyled, accessible Vue 3 primitives and composables — a meta UI framework for building applications, component libraries, and design systems",
+  "keywords": [
+    "vue",
+    "vue3",
+    "headless",
+    "headless-ui",
+    "unstyled",
+    "composables",
+    "primitives",
+    "accessible",
+    "accessibility",
+    "a11y",
+    "wai-aria",
+    "design-system",
+    "component-library",
+    "ui",
+    "vuetify"
+  ],
+  "homepage": "https://0.vuetifyjs.com",
+  "bugs": {
+    "url": "https://github.com/vuetifyjs/0/issues"
+  },
   "license": "MIT",
   "funding": [
     {
@@ -97,7 +118,7 @@
     "@material/material-color-utilities": ">=0.3.0",
     "launchdarkly-js-client-sdk": "^3.0.0",
     "posthog-js": "^1.0.0",
-    "vue": ">=3.5.0",
+    "vue": ">=3.5.0 || >=3.6.0-0",
     "vue-i18n": ">=10.0.0"
   },
   "peerDependenciesMeta": {
