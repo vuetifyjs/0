@@ -611,6 +611,32 @@ describe('breadcrumbs', () => {
       expect(wrapper.find('li button').exists()).toBe(false)
     })
 
+    it('should return to decorative when the activator unmounts', async () => {
+      const show = ref(true)
+
+      const wrapper = mount(Breadcrumbs.Root, {
+        slots: {
+          default: () => h(Breadcrumbs.List as never, {}, {
+            default: () => h(Breadcrumbs.Ellipsis as never, {}, {
+              default: () => (show.value ? h(Breadcrumbs.Activator as never) : null),
+            }),
+          }),
+        },
+      })
+
+      await nextTick()
+
+      expect(wrapper.find('li').attributes('aria-hidden')).toBeUndefined()
+
+      show.value = false
+      await nextTick()
+
+      // Reachability is tied to hosting a disclosure, so losing the activator
+      // has to put the ellipsis back out of the a11y tree
+      expect(wrapper.find('li button').exists()).toBe(false)
+      expect(wrapper.find('li').attributes('aria-hidden')).toBe('true')
+    })
+
     it('should use the registered locale string for the disclosure label', async () => {
       const plugin = createLocalePlugin({
         default: 'en',
@@ -1157,8 +1183,10 @@ describe('breadcrumbs', () => {
     function mountOverflowTree (options: {
       itemCount?: number
       withEllipsis?: boolean
+      withDividers?: boolean
+      activator?: Record<string, unknown>
     } = {}) {
-      const { itemCount = 4, withEllipsis = true } = options
+      const { itemCount = 4, withEllipsis = true, withDividers = true, activator } = options
 
       let ctx: any
 
@@ -1175,12 +1203,17 @@ describe('breadcrumbs', () => {
             const children: ReturnType<typeof h>[] = []
             for (let i = 0; i < itemCount; i++) {
               children.push(h(Breadcrumbs.Item as never, { key: `item-${i}` }, () => `Item ${i}`))
-              if (i < itemCount - 1) {
+              if (withDividers && i < itemCount - 1) {
                 children.push(h(Breadcrumbs.Divider as never, { key: `div-${i}` }))
               }
             }
             if (withEllipsis) {
-              children.push(h(Breadcrumbs.Ellipsis as never, { key: 'ellipsis' }))
+              children.push(activator
+                ? h(Breadcrumbs.Ellipsis as never, { key: 'ellipsis' }, {
+                    default: () => h(Breadcrumbs.Activator as never, activator),
+                  })
+                : h(Breadcrumbs.Ellipsis as never, { key: 'ellipsis' }),
+              )
             }
             children.push(h(Spy, { key: 'spy' }))
             return children
@@ -1719,6 +1752,141 @@ describe('breadcrumbs', () => {
 
       // contentTickets[6] = item3 should be hidden (unselected)
       expect(content[6]!.isSelected.value).toBe(false)
+
+      el.remove()
+    })
+
+    it('should not reveal a separator when the crumb before the shown one is an item', async () => {
+      // Dividers are optional — a trail styled with CSS separators registers
+      // items back to back, so the slot before a shown crumb is not a divider
+      const { context } = mountOverflowTree({ itemCount: 5, withDividers: false })
+      await nextTick()
+      const ctx = context()
+
+      const el = createMeasurableElement(15)
+      ctx.measureElement(0, 'item', el)
+      ctx.ellipsisWidth.value = 15
+
+      const pool = createMeasurableElement(10)
+      for (let i = 2; i <= 4; i++) {
+        ctx.overflow.measure(i, pool)
+      }
+      await nextTick()
+
+      // reserved = 15+8+15+8 = 46; available = 60-46 = 14 fits one pool item
+      triggerResize(60)
+      await nextTick()
+
+      expect(ctx.overflow.capacity.value).toBe(1)
+
+      const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
+
+      expect(content[4]!.isSelected.value).toBe(true)
+      expect(content[3]!.isSelected.value).toBe(false)
+      expect(ctx.hiddenCount.value).toBe(2)
+
+      el.remove()
+      pool.remove()
+    })
+
+    it('should keep the first divider when the container still fits it', async () => {
+      const { context } = mountOverflowTree({ itemCount: 5 })
+      await nextTick()
+      const ctx = context()
+
+      const item = createMeasurableElement(15)
+      const divider = createMeasurableElement(5)
+      ctx.measureElement(0, 'item', item)
+      ctx.measureElement(0, 'divider', divider)
+      ctx.ellipsisWidth.value = 15
+
+      const pool = createMeasurableElement(30)
+      for (let i = 2; i <= 8; i++) {
+        ctx.overflow.measure(i, pool)
+      }
+      await nextTick()
+
+      // reserved = 15+8+5+8+15+8 = 59; available = 70-59 = 11 fits no pool item,
+      // yet 70 still clears reserved + fD = 64, so the first divider survives
+      triggerResize(70)
+      await nextTick()
+
+      expect(ctx.overflow.capacity.value).toBe(0)
+
+      const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
+
+      expect(content[0]!.isSelected.value).toBe(true)
+      expect(content[1]!.isSelected.value).toBe(true)
+
+      item.remove()
+      divider.remove()
+      pool.remove()
+    })
+
+    it('should toggle the disclosure when the activator is clicked', async () => {
+      const { wrapper, context } = mountOverflowTree({ itemCount: 5, activator: {} })
+      await nextTick()
+      const ctx = context()
+
+      const el = createMeasurableElement(15)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 15
+      await nextTick()
+
+      triggerResize(60)
+      await nextTick()
+      expect(ctx.hiddenCount.value).toBe(3)
+
+      const trigger = wrapper.find('button')
+      expect(trigger.attributes('aria-expanded')).toBe('false')
+      expect(trigger.attributes('data-state')).toBe('closed')
+
+      await trigger.trigger('click')
+
+      expect(ctx.expanded.value).toBe(true)
+      expect(trigger.attributes('aria-expanded')).toBe('true')
+      expect(trigger.attributes('data-state')).toBe('open')
+
+      await trigger.trigger('click')
+
+      expect(ctx.expanded.value).toBe(false)
+      expect(trigger.attributes('aria-expanded')).toBe('false')
+      expect(trigger.attributes('data-state')).toBe('closed')
+
+      el.remove()
+    })
+
+    it('should drive the disclosure from the keyboard when not rendered as a button', async () => {
+      const { wrapper, context } = mountOverflowTree({ itemCount: 5, activator: { as: 'span' } })
+      await nextTick()
+      const ctx = context()
+
+      const el = createMeasurableElement(15)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 15
+      await nextTick()
+
+      triggerResize(60)
+      await nextTick()
+
+      const trigger = wrapper.find('span[role="button"]')
+
+      // A non-button host has to carry the role and be focusable on its own
+      expect(trigger.exists()).toBe(true)
+      expect(trigger.attributes('type')).toBeUndefined()
+      expect(trigger.attributes('tabindex')).toBe('0')
+
+      await trigger.trigger('keydown', { key: 'Enter' })
+      expect(ctx.expanded.value).toBe(true)
+
+      await trigger.trigger('keydown', { key: ' ' })
+      expect(ctx.expanded.value).toBe(false)
+
+      // Everything else belongs to the page, not the disclosure
+      await trigger.trigger('keydown', { key: 'a' })
+      expect(ctx.expanded.value).toBe(false)
 
       el.remove()
     })
