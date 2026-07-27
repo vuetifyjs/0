@@ -225,17 +225,21 @@
       const visible = Array.from({ length: contentSize }, (_, i) => i < 2 || i >= showStart)
       let showEllipsis = true
 
+      // showStart > poolStart puts the separator inside the pool, so it needs no
+      // lower-bound check of its own.
       if (toShow > 0 && showStart > poolStart && contentTickets[showStart]!.type === 'item') {
         const sep = showStart - 1
-        if (sep >= poolStart && contentTickets[sep]!.type === 'divider') visible[sep] = true
+        if (contentTickets[sep]!.type === 'divider') visible[sep] = true
       }
 
       if (capacity === 0) {
-        if (lastIndex >= poolStart) visible[lastIndex] = true
+        // Getting past the early return means capacity < measuredCount, so there
+        // are at least three content tickets and every index below is in range.
+        visible[lastIndex] = true
 
         const w = overflow.width.value
 
-        if (w < reserved + fD && contentSize > 1) visible[1] = false
+        if (w < reserved + fD) visible[1] = false
         if (w < fI + gap + eW + gap) showEllipsis = false
         if (w < fI + gap) visible[0] = false
       }
