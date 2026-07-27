@@ -27,7 +27,7 @@ v0 provides headless composables, unstyled components, and reactive primitives �
 
 No custom compiler, no proprietary patterns. Use it to build a full design system shared across projects, or import a single composable to solve one problem in your app. v0 scales to your ambition.
 
-From the creators of [Vuetify](https://vuetifyjs.com) — **41K+ GitHub stars**, **4M+ monthly downloads**, a decade of production use. Vuetify itself is adopting v0 — core depends on it from 4.2.0, and Vuetify 5 will be built on it.
+From the creators of [Vuetify](https://vuetifyjs.com) — **41K+ GitHub stars**, **4M+ monthly downloads**, a decade of production use. Vuetify itself is being rebuilt on v0.
 
 ## Composable-First Architecture
 
