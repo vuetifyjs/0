@@ -139,6 +139,10 @@
     return VALID_EXT.test(id)
   }
 
+  function current (id: string) {
+    return isFile(id) && id === activeFile.value
+  }
+
   function fileExt (id: string) {
     const ext = id.split('.').pop()
     return ext ? EXT_ICONS[ext] : undefined
@@ -418,9 +422,9 @@
         <div
           v-else
           :aria-expanded="!isFile(id) ? tree.opened(id) : undefined"
-          :aria-selected="isFile(id) && id === activeFile ? true : undefined"
-          class="group/row flex items-center gap-1.5 py-1 pr-2 text-sm cursor-pointer select-none hover:bg-surface-tint transition-colors"
-          :class="isFile(id) && id === activeFile ? 'opacity-100 bg-surface-tint' : isConfig(id) ? 'opacity-50' : 'opacity-80'"
+          :aria-selected="current(id) ? true : undefined"
+          class="group/row flex items-center gap-1.5 py-1 pr-2 text-sm cursor-pointer select-none rounded-s-md hover:bg-[color-mix(in_srgb,var(--v0-on-surface),transparent_94%)] transition-colors"
+          :class="current(id) ? 'opacity-100 !bg-[color-mix(in_srgb,var(--v0-primary),transparent_88%)]' : isConfig(id) ? 'opacity-50' : 'opacity-80'"
           :data-id="id"
           role="treeitem"
           :style="{ paddingInlineStart: `${depth * 8 + 8}px` }"
@@ -452,7 +456,7 @@
             <span v-else class="w-[14px]" />
           </template>
 
-          <span class="flex-1 truncate" :class="isFile(id) ? 'opacity-80' : 'font-medium opacity-60'">
+          <span class="flex-1 truncate" :class="current(id) ? 'font-medium opacity-100' : isFile(id) ? 'opacity-80' : 'font-medium opacity-60'">
             {{ tree.get(id)?.value }}
           </span>
 
