@@ -274,13 +274,35 @@ describe('useProxyModel', () => {
 
     selection.onboard([
       { id: 'item-1', value: 'value-1' },
+      { id: 'item-2', value: 'value-2', disabled: true },
     ])
 
-    // Try to assign a longer array — only known value selects; mandatory
-    // rejects clearing, so the actual selection doesn't change. The shallowEqual
-    // length-check forces a reset.
-    model.value = ['value-1', 'unknown']
+    // Try to assign a longer array — the extra value has a registered ticket that
+    // apply refuses because it is disabled, so the rejection is final rather than
+    // deferred. The shallowEqual length-check forces a reset.
+    model.value = ['value-1', 'value-2']
     expect(model.value).toEqual(['value-1'])
+  })
+
+  it('should hold a value whose ticket has not registered instead of reverting it', () => {
+    const selection = createSelection({ events: true, mandatory: true, multiple: true })
+    const model = ref<string[]>(['value-1'])
+    useProxyModel(selection, model, { multiple: true })
+
+    selection.onboard([
+      { id: 'item-1', value: 'value-1' },
+    ])
+
+    // 'value-2' is unregistered, so it is deferred rather than rejected — reverting
+    // here would discard the caller's intent before its ticket can register.
+    model.value = ['value-1', 'value-2']
+    expect(model.value).toEqual(['value-1', 'value-2'])
+
+    selection.onboard([
+      { id: 'item-2', value: 'value-2' },
+    ])
+
+    expect(Array.from(selection.selectedValues.value)).toEqual(['value-1', 'value-2'])
   })
 
   it('should not resurrect a stale value the model dropped before its ticket registered', () => {
