@@ -49,7 +49,9 @@ Breadcrumbs renders a navigation trail that shows where the current page sits in
 
       <Breadcrumbs.Divider />
 
-      <Breadcrumbs.Ellipsis />
+      <Breadcrumbs.Ellipsis>
+        <Breadcrumbs.Activator />
+      </Breadcrumbs.Ellipsis>
 
       <Breadcrumbs.Divider />
 
@@ -71,25 +73,13 @@ flowchart TD
   Overflow["createOverflow"]
   Group["createGroup"]
   Root["Breadcrumbs.Root"]:::primary
-  List["Breadcrumbs.List"]
-  Item["Breadcrumbs.Item"]
-  Divider["Breadcrumbs.Divider"]
-  Ellipsis["Breadcrumbs.Ellipsis"]
-  Link["Breadcrumbs.Link"]
-  Page["Breadcrumbs.Page"]
 
   Breadcrumbs --> Root
   Overflow --> Root
   Group --> Root
-  Root --> List
-  List --> Item
-  List --> Divider
-  List --> Ellipsis
-  Item --> Link
-  Item --> Page
 ```
 
-The Root creates three internal composables: `createBreadcrumbs` manages the navigation model, `createGroup` tracks item visibility, and `createOverflow` measures widths to determine how many items fit.
+`createBreadcrumbs` manages the navigation model, `createGroup` tracks which crumbs are visible, and `createOverflow` measures widths to decide how many fit.
 
 ## Examples
 
