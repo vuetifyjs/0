@@ -57,24 +57,14 @@
     isExpanded: boolean
     /** Number of breadcrumb items hidden by truncation */
     count: number
+    /** Resolved accessible name for the disclosure control */
+    label: string | undefined
     /** Toggle visibility of collapsed items (interactive only) */
     toggle: () => void
-    /** Attributes to bind to the ellipsis list item */
+    /** Attributes to bind to the ellipsis element */
     attrs: {
       'aria-hidden': 'true' | undefined
       'data-selected': true | undefined
-    }
-    /**
-     * Attributes for the nested disclosure control (interactive only). Bind
-     * these to a native `button` — the list item itself must keep its
-     * `listitem` role, so the button semantics live on a child element.
-     */
-    triggerAttrs: {
-      'type': 'button' | undefined
-      'aria-expanded': boolean | undefined
-      'aria-label': string | undefined
-      'data-state': 'open' | 'closed' | undefined
-      'onClick': (() => void) | undefined
     }
   }
 </script>
@@ -135,25 +125,22 @@
     context.expanded.value = !context.expanded.value
   }
 
+  const label = toRef(() => interactive
+    ? locale.ti('Breadcrumbs.expand', { count: count.value }) ?? `Show ${count.value} more breadcrumbs`
+    : undefined,
+  )
+
   const slotProps = toRef((): BreadcrumbsEllipsisSlotProps => ({
     id: ticket.id,
     ellipsis: resolvedEllipsis.value,
     isSelected: isSelected.value,
     isExpanded: isExpanded.value,
     count: count.value,
+    label: label.value,
     toggle,
     attrs: {
       'aria-hidden': interactive ? undefined : 'true',
       'data-selected': isSelected.value || undefined,
-    },
-    triggerAttrs: {
-      'type': interactive ? 'button' : undefined,
-      'aria-expanded': interactive ? isExpanded.value : undefined,
-      'aria-label': interactive
-        ? locale.ti('Breadcrumbs.expand', { count: count.value }) ?? `Show ${count.value} more breadcrumbs`
-        : undefined,
-      'data-state': interactive ? (isExpanded.value ? 'open' : 'closed') : undefined,
-      'onClick': interactive ? toggle : undefined,
     },
   }))
 </script>
@@ -166,15 +153,18 @@
     :renderless
     v-bind="slotProps.attrs"
   >
-    <Atom
+    <button
       v-if="interactive && !renderless"
-      as="button"
-      v-bind="slotProps.triggerAttrs"
+      :aria-expanded="isExpanded"
+      :aria-label="label"
+      :data-state="isExpanded ? 'open' : 'closed'"
+      type="button"
+      @click="toggle"
     >
       <slot v-bind="slotProps">
         {{ resolvedEllipsis }}
       </slot>
-    </Atom>
+    </button>
 
     <slot v-else v-bind="slotProps">
       {{ resolvedEllipsis }}
