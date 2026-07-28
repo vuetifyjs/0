@@ -11,6 +11,17 @@ import CarouselFixture from './fixtures/Carousel.vue'
 import CheckboxFixture from './fixtures/Checkbox.vue'
 import CollapsibleFixture from './fixtures/Collapsible.vue'
 import ComboboxFixture from './fixtures/Combobox.vue'
+import AlertDialogDegenerate from './fixtures/degenerate/AlertDialog.vue'
+import AvatarDegenerate from './fixtures/degenerate/Avatar.vue'
+import ButtonDegenerate from './fixtures/degenerate/Button.vue'
+import CheckboxDegenerate from './fixtures/degenerate/Checkbox.vue'
+import ComboboxDegenerate from './fixtures/degenerate/Combobox.vue'
+import DialogDegenerate from './fixtures/degenerate/Dialog.vue'
+import ImageDegenerate from './fixtures/degenerate/Image.vue'
+import InputDegenerate from './fixtures/degenerate/Input.vue'
+import RadioDegenerate from './fixtures/degenerate/Radio.vue'
+import SwitchDegenerate from './fixtures/degenerate/Switch.vue'
+import ToggleDegenerate from './fixtures/degenerate/Toggle.vue'
 import DialogFixture from './fixtures/Dialog.vue'
 import ExpansionPanelFixture from './fixtures/ExpansionPanel.vue'
 import FormFixture from './fixtures/Form.vue'
@@ -71,6 +82,12 @@ import type { AxeViolation } from './fixtures/audit'
  * 35 test files that already assert `aria-*` by hand are not replaced by this —
  * they check the attribute the author remembered; this checks the ones nobody
  * thought to.
+ *
+ * Two passes, counted and reported separately. `FIXTURES` is the documented
+ * shape — the number a consumer following the docs would hit. `DEGENERATE` is
+ * that same shape with a documented-*optional* part removed, which is where the
+ * defects that actually ship live; see its own docblock for the membership rule
+ * and for why the two counts are not summed.
  *
  * The sweep does not fail on violations. The first pass is red by design: the
  * open a11y batch (#608, #611-#616) was found by manual audit *after* those 35
@@ -135,6 +152,57 @@ const FIXTURES: Record<string, unknown> = {
 }
 
 /**
+ * Degenerate shapes — the second half of #732's open question.
+ *
+ * `FIXTURES` above audits each component in the shape its own `@example`
+ * documents, and a documented example is written by someone thinking about the
+ * example. The failure mode that actually ships is the *omission*: the optional
+ * sub-component nobody mounted, the optional prop nobody passed. #608 is
+ * exactly that — `Dialog.Content` emits `aria-labelledby={titleId}` whether or
+ * not `Dialog.Title` exists — and the canonical sweep only caught its Progress
+ * half by the accident that Progress's own example happens to omit the label.
+ *
+ * The membership rule, so this map does not drift into a grab bag: a component
+ * earns a degenerate fixture when its canonical fixture supplies an accessible
+ * name, or mounts a labelling sub-component, that the API leaves optional. The
+ * fixture is that same shape with the optional part removed and nothing else
+ * changed.
+ *
+ * Components whose canonical fixture *already* omits its optional name are
+ * absent by that rule, not by oversight — NumberField, Progress, Rating,
+ * Select and Slider are degenerate as documented, which is why they are in the
+ * first-pass count already.
+ *
+ * These are consumer mistakes, not v0 defects, and a headless library cannot
+ * stop a consumer from omitting a name. What the sweep is asking is narrower
+ * and is v0's problem: does the component *degrade* to a merely-unnamed widget,
+ * or does it degrade to a broken one — a dangling IDREF, a role stripped of a
+ * property it requires? The first is the consumer's to fix. The second is ours,
+ * and it is invisible from the documented shape.
+ *
+ * Reported separately from the canonical count below so the headline number
+ * stays the one a consumer following the docs would hit.
+ */
+const DEGENERATE: Record<string, unknown> = {
+  AlertDialog: AlertDialogDegenerate,
+  Avatar: AvatarDegenerate,
+  Button: ButtonDegenerate,
+  Checkbox: CheckboxDegenerate,
+  Combobox: ComboboxDegenerate,
+  Dialog: DialogDegenerate,
+  Image: ImageDegenerate,
+  Input: InputDegenerate,
+  Radio: RadioDegenerate,
+  Switch: SwitchDegenerate,
+  Toggle: ToggleDegenerate,
+}
+
+/** Distinguishes the two passes in the report; `summarize` groups by subject. */
+function degenerate (name: string) {
+  return `${name} (degenerate)`
+}
+
+/**
  * Shipped components, per maturity.json — the same registry that drives the
  * docs badges. `draft` entries are planned components with no source yet.
  * Deriving the expected set from it rather than from this file is what makes
@@ -164,13 +232,86 @@ function dedupe (collected: AxeViolation[]) {
 }
 
 const violations: AxeViolation[] = []
+const omissions: AxeViolation[] = []
 
 afterAll(() => {
-  // Single place the count is published. Fenced by markers so the `a11y` job
-  // can lift it out of the run log and into the GitHub step summary without
+  // Single place the counts are published. Fenced by markers so the `a11y` job
+  // can lift them out of the run log and into the GitHub step summary without
   // the sweep needing filesystem access it does not have — it runs in Chromium.
-  console.log(`\n${REPORT_START}\n${summarize(violations)}\n${REPORT_END}\n`)
+  // Both sections sit inside one fence; the job's awk lifts the whole block.
+  console.log(
+    `\n${REPORT_START}\n` +
+    `${summarize(violations)}\n\n` +
+    `--- degenerate shapes (documented-optional parts omitted) ---\n` +
+    `${summarize(omissions)}\n` +
+    `${REPORT_END}\n`,
+  )
 })
+
+/**
+ * Mount one fixture into a `<main>` landmark, audit it collapsed and expanded,
+ * and return what axe found alongside the number of elements the fixture put on
+ * the page — the caller asserts on that, because a fixture that renders nothing
+ * passes every axe rule silently.
+ *
+ * A bare `<div>` hung off `<body>` is not a page, and axe is right to say so —
+ * every component would otherwise report `region` ("all content must be
+ * contained by landmarks") for markup the component does not own. The `<main>`
+ * fixes the actual defect rather than turning the rule off, so the published
+ * count stays the components' own.
+ */
+async function sweep (subject: string, fixture: unknown) {
+  const container = document.createElement('main')
+  document.body.append(container)
+
+  const before = document.body.querySelectorAll('*').length
+
+  const wrapper = mount(fixture as any, {
+    attachTo: container,
+    global: {
+      plugins: [
+        createStackPlugin(),
+        createLocalePlugin(),
+        createRtlPlugin(),
+        createTooltipPlugin(),
+        createNotificationsPlugin(),
+        createThemePlugin({
+          default: 'light',
+          themes: {
+            light: { dark: false, colors: { primary: '#1976d2' } },
+            dark: { dark: true, colors: { primary: '#90caf9' } },
+          },
+        }),
+      ],
+    },
+  })
+
+  await settle()
+
+  const rendered = document.body.querySelectorAll('*').length - before
+
+  // document.body, not wrapper.element: Dialog, Popover, Select, Combobox,
+  // Tooltip and Snackbar teleport their content out of the mount point, and
+  // that content is where most of their ARIA lives.
+  const collected = await audit(subject, document.body)
+
+  // Audit the expanded state too. Select and Combobox own their open state
+  // internally — there is no prop to start them open — so the only way to see
+  // the listbox markup is to press the thing a user would press. Roots that
+  // expose an open v-model are already mounted open by their fixture.
+  const trigger = document.body.querySelector<HTMLElement>('[aria-expanded="false"]')
+
+  if (trigger) {
+    trigger.click()
+    await settle()
+    collected.push(...await audit(subject, document.body))
+  }
+
+  wrapper.unmount()
+  container.remove()
+
+  return { rendered, violations: dedupe(collected) }
+}
 
 describe('accessibility sweep', () => {
   it('should have a fixture for every shipped component', () => {
@@ -184,67 +325,36 @@ describe('accessibility sweep', () => {
     expect({ missing, orphaned }).toEqual({ missing: [], orphaned: [] })
   })
 
+  it('should base every degenerate shape on a canonical fixture', () => {
+    // Deliberately not a completeness check — degenerate shapes are opt-in, and
+    // most components have no optional name to remove. What must hold is that a
+    // degenerate shape is a *delta* against a documented one: without the
+    // canonical fixture beside it there is no baseline, and a violation it
+    // reports cannot be attributed to the omission rather than to the component.
+    const orphaned = Object.keys(DEGENERATE).filter(name => !(name in FIXTURES)).toSorted()
+
+    expect(orphaned).toEqual([])
+  })
+
   for (const [name, fixture] of Object.entries(FIXTURES)) {
     it(`should record axe violations for ${name}`, async () => {
-      // A bare `<div>` hung off `<body>` is not a page, and axe is right to say
-      // so — every component would otherwise report `region` ("all content must
-      // be contained by landmarks") for markup the component does not own. Give
-      // the harness a `<main>` landmark instead of turning the rule off, so the
-      // published count stays the components' own.
-      const container = document.createElement('main')
-      document.body.append(container)
+      const result = await sweep(name, fixture)
 
-      const before = document.body.querySelectorAll('*').length
+      // The one thing asserted per fixture. Violations themselves are
+      // collected, not asserted — see the header comment.
+      expect(result.rendered).toBeGreaterThan(0)
 
-      const wrapper = mount(fixture as any, {
-        attachTo: container,
-        global: {
-          plugins: [
-            createStackPlugin(),
-            createLocalePlugin(),
-            createRtlPlugin(),
-            createTooltipPlugin(),
-            createNotificationsPlugin(),
-            createThemePlugin({
-              default: 'light',
-              themes: {
-                light: { dark: false, colors: { primary: '#1976d2' } },
-                dark: { dark: true, colors: { primary: '#90caf9' } },
-              },
-            }),
-          ],
-        },
-      })
+      violations.push(...result.violations)
+    })
+  }
 
-      await settle()
+  for (const [name, fixture] of Object.entries(DEGENERATE)) {
+    it(`should record axe violations for ${name} with its optional parts omitted`, async () => {
+      const result = await sweep(degenerate(name), fixture)
 
-      // A fixture that renders nothing passes every axe rule, silently. That is
-      // the one way this sweep could report a clean component while auditing an
-      // empty page, so it is the one thing asserted per fixture. Violations
-      // themselves are collected, not asserted — see the header comment.
-      expect(document.body.querySelectorAll('*').length).toBeGreaterThan(before)
+      expect(result.rendered).toBeGreaterThan(0)
 
-      // document.body, not wrapper.element: Dialog, Popover, Select, Combobox,
-      // Tooltip and Snackbar teleport their content out of the mount point, and
-      // that content is where most of their ARIA lives.
-      const collected = await audit(name, document.body)
-
-      // Audit the expanded state too. Select and Combobox own their open state
-      // internally — there is no prop to start them open — so the only way to
-      // see the listbox markup is to press the thing a user would press. Roots
-      // that expose an open v-model are already mounted open by their fixture.
-      const trigger = document.body.querySelector<HTMLElement>('[aria-expanded="false"]')
-
-      if (trigger) {
-        trigger.click()
-        await settle()
-        collected.push(...await audit(name, document.body))
-      }
-
-      violations.push(...dedupe(collected))
-
-      wrapper.unmount()
-      container.remove()
+      omissions.push(...result.violations)
     })
   }
 })
