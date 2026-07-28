@@ -108,7 +108,8 @@ function main (): void {
       console.warn(
         '[check-benchmark-artifacts] warning: no calibration baseline stored yet — numbers are raw. '
         + 'Capture `apparatus.anchors` into BASELINE_ANCHOR_HZ (scripts/lib/calibration.ts) to enable '
-        + 'host normalization.',
+        + 'host normalization — on the dedicated reference host, never from a GHA run '
+        + '(see .claude/specs/2026-07-24-dedicated-bench-host.md §6).',
       )
     }
   }
