@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { GnDocsCallout, type GnDocsCalloutType } from '@paper/genesis'
+
   // Framework
   import { useBreakpoints } from '@vuetify/v0'
 
@@ -65,6 +67,12 @@
 
   const config = toRef(() => getCalloutConfig(props.type))
 
+  // askai / discord / tour are clickable action cards — docs-only, not
+  // admonitions. The five standard types delegate their shell to GnDocsCallout.
+  const interactive = toRef(() =>
+    props.type === 'askai' || props.type === 'discord' || props.type === 'tour',
+  )
+
   const randomTip = shallowRef<CompiledTip>()
   const mounted = shallowRef(false)
 
@@ -123,11 +131,11 @@
 
 <template>
   <div
-    v-if="!suppress"
+    v-if="interactive"
     class="my-4 rounded-lg border-s-4 px-4 py-3"
     :class="config.classes"
-    :role="props.type === 'askai' || props.type === 'discord' || props.type === 'tour' ? 'button' : undefined"
-    :tabindex="props.type === 'askai' || props.type === 'discord' || props.type === 'tour' ? 0 : undefined"
+    role="button"
+    :tabindex="0"
     @click="onClick"
     @keydown.enter="onClick"
     @keydown.space.prevent="onClick"
@@ -156,7 +164,7 @@
       </div>
     </template>
 
-    <template v-else-if="props.type === 'tour'">
+    <template v-else>
       <div class="flex items-center gap-2 mb-1">
         <AppIcon :icon="config.icon" :size="18" />
 
@@ -170,15 +178,18 @@
         {{ tour?.description ?? 'Click to start this interactive tour' }}
       </div>
     </template>
+  </div>
 
-    <template v-else-if="props.type === 'tip' && randomTip">
-      <div class="flex items-center gap-2 font-semibold mb-1">
-        <AppIcon :icon="config.icon" :size="18" />
+  <GnDocsCallout
+    v-else-if="!suppress"
+    :type="(props.type as GnDocsCalloutType)"
+  >
+    <template #icon>
+      <AppIcon :icon="config.icon" :size="18" />
+    </template>
 
-        <span>{{ config.title }}</span>
-      </div>
-
-      <div class="docs-alert-content text-on-surface" v-html="randomTip.bodyHtml" />
+    <template v-if="props.type === 'tip' && randomTip">
+      <div class="docs-alert-content" v-html="randomTip.bodyHtml" />
 
       <RouterLink
         v-if="randomTip.link"
@@ -189,18 +200,10 @@
       </RouterLink>
     </template>
 
-    <template v-else>
-      <div class="flex items-center gap-2 font-semibold mb-1">
-        <AppIcon :icon="config.icon" :size="18" />
-
-        <span>{{ config.title }}</span>
-      </div>
-
-      <div class="docs-alert-content text-on-surface">
-        <slot />
-      </div>
-    </template>
-  </div>
+    <div v-else class="docs-alert-content">
+      <slot />
+    </div>
+  </GnDocsCallout>
 </template>
 
 <style scoped>
