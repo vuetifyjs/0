@@ -124,6 +124,20 @@ it('passes accessibility audit', async () => {
 })
 ```
 
+`vitest-axe` is a Node package — it reaches for `node:module` on import, so it works in a jsdom or happy-dom test environment and not in Vitest's browser mode. If your components are tested in a real browser, drop the wrapper and call `axe-core` directly:
+
+```ts MyComponent.browser.test.ts
+import axe from 'axe-core'
+
+it('passes accessibility audit', async () => {
+  const { container } = render(MyComponent)
+  const results = await axe.run(container)
+  expect(results.violations).toEqual([])
+})
+```
+
+Prefer the browser form where you can. Layout-dependent rules — colour contrast, target size, element overlap — need real computed styles, and a simulated DOM either skips them or answers from a layout that does not exist. v0 audits its own components this way; see `packages/0/src/components/a11y.browser.test.ts`.
+
 ### Manual Testing Checklist
 
 Use this checklist during manual QA:
