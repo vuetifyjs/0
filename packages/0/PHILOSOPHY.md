@@ -81,7 +81,10 @@ Non-negotiable. Each axiom carries a statement, a rationale, and a concrete anti
 
 **Why.** `any` silently disables type-checking downstream. A single `as any` in a composable propagates into every consumer that spreads it. `unknown` forces the consumer to narrow, which is the correct contract.
 
-**Current state.** Zero `as any` casts in source. The one place reaching into a foreign private shape — `packages/0/src/components/Locale/Locale.vue:69`, accessing `vue-i18n`'s `_rootT`/`_rootN` — declares those fields on a local `ScopedLocale` interface and uses a typed intersection cast (`parent as typeof parent & ScopedLocale`), so the shape is documented rather than erased. No `: any`, `as any`, or `<any>` in `packages/0/src/` — with one sanctioned exception: the slot-return type in `defineSlots<{ default: (props: SlotProps) => any }>()`, which Volar requires for correct slot inference (see §8.8). That `=> any` types the slot's *return*, never a value or argument, so it disables no downstream checking.
+**Current state.** Zero `as any` casts in source. The one place reaching into a foreign private shape — `packages/0/src/components/Locale/Locale.vue:69`, accessing `vue-i18n`'s `_rootT`/`_rootN` — declares those fields on a local `ScopedLocale` interface and uses a typed intersection cast (`parent as typeof parent & ScopedLocale`), so the shape is documented rather than erased. No `: any`, `as any`, or `<any>` in `packages/0/src/` — with two sanctioned exceptions:
+
+1. **Slot returns** — `defineSlots<{ default: (props: SlotProps) => any }>()`, which Volar requires for correct slot inference (see §8.8). That `=> any` types the slot's *return*, never a value or argument, so it disables no downstream checking.
+2. **`isObject` predicate** — `item is Record<string, any>` in `packages/0/src/utilities/helpers.ts`. `Record<string, unknown>` is *incorrect* as a type predicate: TypeScript never grants interfaces an implicit index signature, so the guard destroys known property types and fails to subtract `Record<string, any>` members in the `else` branch (issue #723). The `any` is only the *index* type of the predicate; it is not a value typed `any`, and it is not a license for `as any` elsewhere. Call sites that walk untyped trees and need checked property access must pin the read: `const inner: unknown = value.$value`. The private `isPlainObject` helper used by `mergeDeep` stays on `Record<string, unknown>` deliberately — it is not a public predicate and must keep index reads as `unknown`.
 
 **Anti-example (do not do this).**
 ```ts
@@ -859,6 +862,8 @@ See §2.2.
 ### 8.2 `unknown` over `any`
 
 When a type is genuinely indeterminate (e.g., ticket `value`), it is `unknown`. Narrowing happens at the point of use through `isObject`, `isString`, etc. [intent:79]
+
+**`isObject` caveat.** Guarding an `unknown` (or other indeterminate) value with `isObject` narrows to `Record<string, any>`, so property reads are `any` — not a further-checked type. That is intentional (see §2.2 exception 2): the alternative predicate collapses interface-typed unions. Prefer typed inputs (`interface` / object type in a union) when you need known properties after the guard; when walking untyped trees, pin intermediate reads to `unknown` before re-guarding.
 
 ### 8.3 `Readonly<Ref<T>>` return contract
 
