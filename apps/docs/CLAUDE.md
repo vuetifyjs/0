@@ -11,22 +11,7 @@ docs: message                  # No scope needed
 docs(ComponentName): message   # With scope when specific
 ```
 
-## Commands
-
-```bash
-pnpm dev       # Start on port 8000
-pnpm build     # SSG build
-pnpm preview   # Preview build
-```
-
-## Stack
-
-- **SSG**: vite-ssg (generates static HTML)
-- **Routing**: vue-router 5 (file-based, built-in) + vite-plugin-vue-layouts-next
-- **Markdown**: unplugin-vue-markdown + Shiki + Mermaid
-- **Styling**: UnoCSS with `presetWind4()` (Tailwind v4 syntax, integrated reset)
-- **State**: Pinia
-- **PWA**: vite-plugin-pwa
+`pnpm dev` serves on port 8000. Remaining scripts and the stack are in this app's `package.json` and `vite.config.ts`.
 
 ## Routing & Layouts
 
@@ -96,62 +81,12 @@ features:
 ---
 ```
 
-## Structure
-
-```
-src/
-├── components/
-│   ├── app/          # App shell (AppHeader, AppDrawer, etc.)
-│   ├── docs/         # Doc components (DocsExample, DocsApi, DocsToc, etc.)
-│   └── home/         # Homepage components
-├── composables/      # App-specific composables
-├── examples/         # Live examples loaded by DocsExample
-│   ├── components/   # examples/components/{component}/
-│   └── composables/  # examples/composables/{composable}/
-├── layouts/          # Page layouts
-├── pages/            # File-based routing (.vue and .md)
-│   ├── api/          # Dynamic API reference pages ([name].vue)
-│   ├── components/   # disclosure, primitives, providers, semantic
-│   ├── composables/  # foundation, forms, plugins, registration, selection, system, transformers, utilities
-│   ├── guide/        # How-to guides
-│   ├── introduction/ # Getting started, FAQ, contributing
-│   └── utilities/    # Utility docs
-├── plugins/          # Vue plugins
-├── stores/           # Pinia stores
-└── utilities/        # Helpers
-
-build/
-├── api-names.ts      # Shared API name discovery for SSG routes
-├── generate-api.ts   # virtual:api - component/composable API extraction
-├── generate-nav.ts   # virtual:nav - navigation structure
-├── generate-search-index.ts  # Search index generation
-└── markdown.ts       # Markdown processing
-```
-
 ## Path Aliases
 
 - `@` → `src/`
 - `@vuetify/v0` → `packages/0/src`
 - `#v0` → `packages/0/src`
 - `#paper` → `packages/paper/src`
-
-## Key Components
-
-| Component | Purpose |
-|-----------|---------|
-| `DocsCallout` | GitHub-style callouts (`> [!TIP]`, `> [!NOTE]`, `> [!WARNING]`, `> [!CAUTION]`, `> [!IMPORTANT]`, `> [!ASKAI]`, `> [!TOUR]`) |
-| `DocsExample` | Live examples from `examples/` with code |
-| `DocsMarkup` | Syntax-highlighted code blocks |
-| `DocsApi` | Auto-generated API tables with inline/links toggle |
-| `DocsApiLinks` | Card grid linking to dedicated API pages |
-| `DocsToc` | Auto-generated table of contents |
-| `DocsCodeGroup` | Tabbed code examples |
-| `DocsMermaid` | Mermaid diagram renderer |
-| `DocsPageFeatures` | Renders frontmatter features badge |
-| `DocsBackToTop` | Scroll-to-top button |
-| `DocsBackmatter` | Page footer with last commit info |
-| `DocsNavigator` | Prev/next page navigation |
-| `DocsReleases` | Release changelog display |
 
 ## Live Examples with DocsExample
 
@@ -204,23 +139,6 @@ The skill-level placement quiz is **not** a callout directive: it is the `AppSki
 
 ## App Composables
 
-| Composable | Purpose |
-|------------|---------|
-| `useHighlighter` | Shiki code highlighting |
-| `useHighlightCode` | Code block highlighting |
-| `useToc` | Table of contents generation |
-| `useScrollSpy` | Active section tracking |
-| `useScrollPersist` | Scroll position persistence |
-| `useClipboard` | Copy to clipboard |
-| `useThemeToggle` | Dark/light mode toggle |
-| `useAsk` | AI Q&A chat with page context |
-| `useMarkdown` | Runtime markdown → HTML (GitHub API content, AI responses); also exports `renderInline` for single lines. Never instantiate `Marked` in a component — this is the only runtime markdown pipeline |
+Browse `src/composables/` for the full set. One rule that isn't obvious from the source:
 
-## Virtual Modules
-
-| Module | Purpose |
-|--------|---------|
-| `virtual:api` | Component/composable API data extracted at build time |
-| `virtual:nav` | Navigation structure generated from pages |
-
-Import via `import data from 'virtual:api'`. Types in `vite-env.d.ts`.
+- `useMarkdown` is the **only** runtime markdown → HTML pipeline (GitHub API content, AI responses); it also exports `renderInline` for single lines. Never instantiate `Marked` in a component — extend `useMarkdown` instead.
