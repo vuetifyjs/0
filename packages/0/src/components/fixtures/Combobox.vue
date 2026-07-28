@@ -1,10 +1,10 @@
 <script setup lang="ts">
   // Utilities
-  import { ref } from 'vue'
+  import { shallowRef } from 'vue'
 
   import { Combobox } from '../Combobox/index'
 
-  const selected = ref()
+  const selected = shallowRef()
   const items = [
     { id: 'apple', label: 'Apple' },
     { id: 'banana', label: 'Banana' },
@@ -20,14 +20,14 @@
     </Combobox.Activator>
 
     <Combobox.Content>
+      <!-- Item already binds option attrs on its Atom; do not re-spread. -->
       <Combobox.Item
         v-for="item in items"
         :id="item.id"
         :key="item.id"
-        v-slot="{ attrs }"
         :value="item.label"
       >
-        <div v-bind="attrs">{{ item.label }}</div>
+        {{ item.label }}
       </Combobox.Item>
 
       <Combobox.Empty>No results found</Combobox.Empty>

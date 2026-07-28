@@ -1,10 +1,10 @@
 <script setup lang="ts">
   // Utilities
-  import { ref } from 'vue'
+  import { shallowRef } from 'vue'
 
   import { Select } from '../Select/index'
 
-  const selected = ref()
+  const selected = shallowRef()
   const items = [
     { id: 'apple', label: 'Apple' },
     { id: 'banana', label: 'Banana' },
@@ -20,14 +20,17 @@
     </Select.Activator>
 
     <Select.Content>
+      <!--
+        Item already binds role="option" on its Atom. Do not re-spread attrs onto
+        a child — that is the double-fire hazard and produces nested options.
+      -->
       <Select.Item
         v-for="item in items"
         :id="item.id"
         :key="item.id"
-        v-slot="{ attrs }"
         :value="item.label"
       >
-        <div v-bind="attrs">{{ item.label }}</div>
+        {{ item.label }}
       </Select.Item>
     </Select.Content>
   </Select.Root>

@@ -73,6 +73,7 @@ import { nextTick } from 'vue'
 
 // Types
 import type { AxeViolation } from './fixtures/audit'
+import type { Component } from 'vue'
 
 /**
  * Advisory accessibility sweep.
@@ -94,21 +95,27 @@ import type { AxeViolation } from './fixtures/audit'
  * files passed, and #608 and #613 map onto stock axe rules. Gating on day one
  * buys either a red master or a pile of rule suppressions written to deadline,
  * and a suppression written to get CI green is a permanently invisible
- * violation. This reports; the burn-down happens in its own PRs; the gate goes
- * on by deleting `continue-on-error` from the `a11y` job in pr-checks.yml and
- * asserting on `violations` here.
+ * violation. This reports; the burn-down happens in its own PRs. To gate: assert
+ * on `violations` here **and** drop `continue-on-error` from the `a11y` job in
+ * pr-checks.yml (two edits, not one).
  *
- * axe-core direct rather than `vitest-axe`, which the accessibility guide
- * recommends to users: `vitest-axe` reaches for `node:module` at import time
- * and cannot load in browser mode at either 0.1.0 or 1.0.0-pre.5. It is a
- * jsdom/happy-dom tool. Running the audit where layout is simulated is the
- * thing this sweep exists to avoid, so the wrapper goes and the engine stays.
+ * axe-core direct rather than `vitest-axe`: the accessibility guide still shows
+ * `vitest-axe` for jsdom/happy-dom, and documents `axe-core` for browser mode.
+ * `vitest-axe` reaches for `node:module` at import time and cannot load in
+ * browser mode. Running the audit where layout is simulated is the thing this
+ * sweep exists to avoid, so the wrapper goes and the engine stays.
+ *
+ * Open strategies (fixtures force open where the API allows; the rest expand here):
+ * - Dialog / Popover / Tooltip / Collapsible / ExpansionPanel / AlertDialog — `v-model` open in fixture
+ * - Treeview — `open-all` in fixture (flip lives on Activator, not the treeitem)
+ * - Select — click `[aria-expanded="false"]`
+ * - Combobox — **focus** the combobox control (`openOn: 'focus'`), not click
  */
 
 // One fixture per shipped component. Listed rather than globbed, matching the
 // explicit-array convention in src/surface.test.ts — a component entering or
 // leaving the sweep should be a reviewable diff, not a side effect of a glob.
-const FIXTURES: Record<string, unknown> = {
+const FIXTURES = {
   AlertDialog: AlertDialogFixture,
   AspectRatio: AspectRatioFixture,
   Atom: AtomFixture,
@@ -149,7 +156,7 @@ const FIXTURES: Record<string, unknown> = {
   Toggle: ToggleFixture,
   Tooltip: TooltipFixture,
   Treeview: TreeviewFixture,
-}
+} as const satisfies Record<string, Component>
 
 /**
  * Degenerate shapes — the second half of #732's open question.
@@ -165,25 +172,24 @@ const FIXTURES: Record<string, unknown> = {
  * The membership rule, so this map does not drift into a grab bag: a component
  * earns a degenerate fixture when its canonical fixture supplies an accessible
  * name, or mounts a labelling sub-component, that the API leaves optional. The
- * fixture is that same shape with the optional part removed and nothing else
- * changed.
+ * fixture is that same shape with the primary optional name/labelling surface
+ * removed.
  *
  * Components whose canonical fixture *already* omits its optional name are
- * absent by that rule, not by oversight — NumberField, Progress, Rating,
- * Select and Slider are degenerate as documented, which is why they are in the
- * first-pass count already.
+ * absent by that rule, not by oversight — NumberField, Progress, Rating, and
+ * Slider are degenerate as documented, which is why they are in the first-pass
+ * count already.
  *
- * These are consumer mistakes, not v0 defects, and a headless library cannot
- * stop a consumer from omitting a name. What the sweep is asking is narrower
- * and is v0's problem: does the component *degrade* to a merely-unnamed widget,
- * or does it degrade to a broken one — a dangling IDREF, a role stripped of a
- * property it requires? The first is the consumer's to fix. The second is ours,
- * and it is invisible from the documented shape.
+ * The question is whether the component *degrades* to a merely-unnamed widget
+ * (consumer's fix) or to a broken one — a dangling IDREF, a role stripped of a
+ * required property (v0's fix). Dialog and AlertDialog without Title are the
+ * latter; nameless Button/Checkbox/etc. are the former. Both show up here so the
+ * report can distinguish them.
  *
  * Reported separately from the canonical count below so the headline number
  * stays the one a consumer following the docs would hit.
  */
-const DEGENERATE: Record<string, unknown> = {
+const DEGENERATE = {
   AlertDialog: AlertDialogDegenerate,
   Avatar: AvatarDegenerate,
   Button: ButtonDegenerate,
@@ -195,7 +201,7 @@ const DEGENERATE: Record<string, unknown> = {
   Radio: RadioDegenerate,
   Switch: SwitchDegenerate,
   Toggle: ToggleDegenerate,
-}
+} as const satisfies Partial<Record<keyof typeof FIXTURES, Component>>
 
 /** Distinguishes the two passes in the report; `summarize` groups by subject. */
 function degenerate (name: string) {
@@ -219,32 +225,88 @@ function settle () {
   return nextTick().then(() => new Promise(resolve => requestAnimationFrame(resolve)))
 }
 
+/**
+ * Strip open-state attrs so the same control audited collapsed and expanded
+ * does not count as two violations (e.g. Select activator `button-name`).
+ */
+function normalizeNode (html: string) {
+  return html
+    .replaceAll(/\s*aria-expanded="(?:true|false)"/gi, '')
+    .replaceAll(/\s*data-state="[^"]*"/gi, '')
+    .replaceAll(/\s*data-open(?:="[^"]*")?/gi, '')
+    .replaceAll(/\s+/g, ' ')
+    .trim()
+}
+
 /** The same violation found in both the collapsed and expanded pass is one violation. */
 function dedupe (collected: AxeViolation[]) {
   const seen = new Map<string, AxeViolation>()
 
   for (const violation of collected) {
-    const key = `${violation.rule}::${violation.nodes.join('|')}`
+    const identity = violation.nodes.map(normalizeNode).toSorted().join('|')
+    const key = `${violation.subject}::${violation.rule}::${identity}`
     if (!seen.has(key)) seen.set(key, violation)
   }
 
   return [...seen.values()]
 }
 
+/**
+ * Open disclosures so listboxes / nested content enter the DOM.
+ * Returns whether anything newly expanded (for the unverified list).
+ */
+async function openDisclosures (): Promise<boolean> {
+  const before = document.body.querySelectorAll('[aria-expanded="true"]').length
+  const closed = [...document.body.querySelectorAll<HTMLElement>('[aria-expanded="false"]')]
+
+  for (const el of closed) {
+    // Combobox Control is an input and opens on focus (`openOn: 'focus'`).
+    // Select.Activator is role="combobox" on a *button* and opens on click —
+    // do not treat every combobox as focus-open.
+    if (el.matches('input, textarea')) {
+      el.focus()
+      continue
+    }
+
+    // Treeview: aria-expanded is on treeitem; flip is on the Activator child.
+    if (el.getAttribute('role') === 'treeitem') {
+      const activator = el.querySelector<HTMLElement>('button, [tabindex], a')
+      ;(activator ?? el).click()
+      continue
+    }
+
+    el.click()
+  }
+
+  await settle()
+
+  const after = document.body.querySelectorAll('[aria-expanded="true"]').length
+  const listbox = document.body.querySelector('[role="listbox"]')
+
+  return after > before || Boolean(listbox)
+}
+
 const violations: AxeViolation[] = []
 const omissions: AxeViolation[] = []
+/** Subjects that had a closed disclosure we failed to open — clean line is unverified. */
+const unverified: string[] = []
 
 afterAll(() => {
   // Single place the counts are published. Fenced by markers so the `a11y` job
   // can lift them out of the run log and into the GitHub step summary without
   // the sweep needing filesystem access it does not have — it runs in Chromium.
   // Both sections sit inside one fence; the job's awk lifts the whole block.
+  const unverifiedBlock = unverified.length > 0
+    ? `\nunverified open (do not treat clean as clean):\n${unverified.map(name => `  ${name}`).join('\n')}\n`
+    : ''
+
   console.log(
     `\n${REPORT_START}\n` +
     `${summarize(violations)}\n\n` +
     `--- degenerate shapes (documented-optional parts omitted) ---\n` +
-    `${summarize(omissions)}\n` +
-    `${REPORT_END}\n`,
+    `${summarize(omissions)}` +
+    unverifiedBlock +
+    `\n${REPORT_END}\n`,
   )
 })
 
@@ -258,15 +320,16 @@ afterAll(() => {
  * every component would otherwise report `region` ("all content must be
  * contained by landmarks") for markup the component does not own. The `<main>`
  * fixes the actual defect rather than turning the rule off, so the published
- * count stays the components' own.
+ * count stays the components' own. Portal still fires `region` correctly when
+ * it teleports outside the landmark.
  */
-async function sweep (subject: string, fixture: unknown) {
+async function sweep (subject: string, fixture: Component) {
   const container = document.createElement('main')
   document.body.append(container)
 
   const before = document.body.querySelectorAll('*').length
 
-  const wrapper = mount(fixture as any, {
+  const wrapper = mount(fixture, {
     attachTo: container,
     global: {
       plugins: [
@@ -295,15 +358,14 @@ async function sweep (subject: string, fixture: unknown) {
   // that content is where most of their ARIA lives.
   const collected = await audit(subject, document.body)
 
-  // Audit the expanded state too. Select and Combobox own their open state
-  // internally — there is no prop to start them open — so the only way to see
-  // the listbox markup is to press the thing a user would press. Roots that
-  // expose an open v-model are already mounted open by their fixture.
-  const trigger = document.body.querySelector<HTMLElement>('[aria-expanded="false"]')
+  // Audit the expanded state too. Select / Combobox own open state internally —
+  // there is no prop to start them open — so expand via openDisclosures().
+  // Roots that expose an open v-model (or open-all) are already mounted open.
+  const closed = document.body.querySelectorAll('[aria-expanded="false"]').length
 
-  if (trigger) {
-    trigger.click()
-    await settle()
+  if (closed > 0) {
+    const opened = await openDisclosures()
+    if (!opened) unverified.push(subject)
     collected.push(...await audit(subject, document.body))
   }
 
@@ -340,8 +402,6 @@ describe('accessibility sweep', () => {
     it(`should record axe violations for ${name}`, async () => {
       const result = await sweep(name, fixture)
 
-      // The one thing asserted per fixture. Violations themselves are
-      // collected, not asserted — see the header comment.
       expect(result.rendered).toBeGreaterThan(0)
 
       violations.push(...result.violations)

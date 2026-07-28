@@ -1,10 +1,10 @@
 <script setup lang="ts">
   // Utilities
-  import { ref } from 'vue'
+  import { shallowRef } from 'vue'
 
   import { Combobox } from '../../Combobox/index'
 
-  const selected = ref()
+  const selected = shallowRef()
   const items = [
     { id: 'apple', label: 'Apple' },
     { id: 'banana', label: 'Banana' },
@@ -13,6 +13,10 @@
 </script>
 
 <template>
+  <!--
+    Degenerate: no accessible name on the control (placeholder dropped).
+    Empty omitted so the only intentional omission is naming.
+  -->
   <Combobox.Root v-model="selected">
     <Combobox.Activator>
       <Combobox.Control />
@@ -24,10 +28,9 @@
         v-for="item in items"
         :id="item.id"
         :key="item.id"
-        v-slot="{ attrs }"
         :value="item.label"
       >
-        <div v-bind="attrs">{{ item.label }}</div>
+        {{ item.label }}
       </Combobox.Item>
     </Combobox.Content>
   </Combobox.Root>

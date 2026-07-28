@@ -3,14 +3,15 @@
 </script>
 
 <template>
+  <!--
+    Static portal shape (not Queue-over-empty-store). The queue example only
+    mounts Root when items exist; an empty notifications store would pass the
+    rendered>0 check on the portal shell and never audit status/alert or Close.
+  -->
   <Snackbar.Portal>
-    <Snackbar.Queue v-slot="{ items }">
-      <template v-for="item in items" :key="item.id">
-        <Snackbar.Root :id="item.id">
-          <Snackbar.Content>{{ item.subject }}</Snackbar.Content>
-          <Snackbar.Close />
-        </Snackbar.Root>
-      </template>
-    </Snackbar.Queue>
+    <Snackbar.Root>
+      <Snackbar.Content>Saved</Snackbar.Content>
+      <Snackbar.Close />
+    </Snackbar.Root>
   </Snackbar.Portal>
 </template>

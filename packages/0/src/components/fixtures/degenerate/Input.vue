@@ -1,14 +1,15 @@
 <script setup lang="ts">
   // Utilities
-  import { ref } from 'vue'
+  import { shallowRef } from 'vue'
 
   import { Input } from '../../Input/index'
 
-  const email = ref('')
+  const email = shallowRef('')
 </script>
 
 <template>
+  <!-- Degenerate: label / description / error omitted; no placeholder name either. -->
   <Input.Root v-model="email">
-    <Input.Control placeholder="Email" />
+    <Input.Control />
   </Input.Root>
 </template>

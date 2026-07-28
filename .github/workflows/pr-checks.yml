@@ -99,13 +99,15 @@ jobs:
   # Automated accessibility audit: axe-core over every component, mounted in the
   # shape its own @example JSDoc documents, in the same real Chromium the
   # browser job uses. Advisory on purpose — see the header comment in
-  # packages/0/src/components/a11y.browser.test.ts. Delete `continue-on-error`
-  # to make it a gate once the count reaches zero.
+  # packages/0/src/components/a11y.browser.test.ts.
+  #
+  # Gate (two edits, not one): assert on `violations` in the sweep file, then
+  # drop `continue-on-error` below once the count reaches zero. Manifest and
+  # render smoke still fail hard via the `browser` job (same `*.browser.test.ts`).
   #
   # Its own job rather than a step on `browser` so the breakdown gets its own
-  # step summary instead of being buried under the coverage upload, and so a
-  # future flip to blocking is a one-line change. Same cache key as `browser`,
-  # so Chromium restores rather than re-downloads.
+  # step summary instead of being buried under the coverage upload. Same cache
+  # key as `browser`, so Chromium restores rather than re-downloads.
   a11y:
     needs: prepare
     runs-on: ubuntu-latest

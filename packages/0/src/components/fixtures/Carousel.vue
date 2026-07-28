@@ -10,5 +10,6 @@
 
     <Carousel.Previous>Previous</Carousel.Previous>
     <Carousel.Next>Next</Carousel.Next>
+    <Carousel.LiveRegion />
   </Carousel.Root>
 </template>

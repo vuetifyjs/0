@@ -3,7 +3,8 @@
 </script>
 
 <template>
-  <Treeview.Root>
+  <!-- open-all so nested treeitems are in the DOM for the audit (expand is on Activator, not the treeitem). -->
+  <Treeview.Root open-all>
     <Treeview.List>
       <Treeview.Item>
         <Treeview.Activator>Documents</Treeview.Activator>
