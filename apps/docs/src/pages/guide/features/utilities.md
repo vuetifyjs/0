@@ -428,8 +428,8 @@ if (!isNullOrUndefined(x)) {
 | `isString(x)` | `string` |
 | `isNumber(x)` | `number` (includes NaN) |
 | `isBoolean(x)` | `boolean` |
-| `isObject(x)` | `Record<string, unknown>` (excludes null and arrays) |
-| `isArray(x)` | `unknown[]` |
+| `isObject(x)` | `Record<string, any>` (excludes null and arrays)[^isobject-any] |
+| `isArray(x)` | the array member of `x`[^isarray-preserves] |
 | `isElement(x)` | `Element` |
 | `isNull(x)` | `null` |
 | `isUndefined(x)` | `undefined` |
@@ -439,6 +439,8 @@ if (!isNullOrUndefined(x)) {
 | `isNaN(x)` | `number` (only the NaN value)[^isnan-vs-global] |
 | `isThenable(x)` | `{ then: Function }`[^isthenable-duck-typed] |
 
+[^isobject-any]: The value type is `any` rather than `unknown` so that narrowing preserves what you already knew. TypeScript never grants an interface an implicit index signature, so a predicate of `Record<string, unknown>` would collapse an interface-typed value's known property types and would fail to remove object members in the `else` branch. `any` here widens only the *index* type — the union member itself survives narrowing intact.
+[^isarray-preserves]: Narrowing preserves the element type, so a `string[] | string` narrows to `string[]`, not `unknown[]`. Tuples keep their arity and `readonly` arrays stay `readonly`. When nothing more specific is known (e.g. `x: unknown`), it falls back to `unknown[]`.
 [^isnan-vs-global]: `isNaN` here uses `Number.isNaN()` internally — it does not coerce strings like the global `isNaN()`. `isNaN("foo")` returns `false`, not `true`.
 [^isthenable-duck-typed]: Duck-typed — matches native `Promise` instances and any other object exposing a callable `.then`, not just `instanceof Promise`. Use it to guard async-vs-sync return values; use `instanceof Promise` directly when only native promises should pass.
 
