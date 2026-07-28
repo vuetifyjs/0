@@ -99,6 +99,11 @@ export function isBoolean (item: unknown): item is boolean {
  * Returns false for null and arrays, even though `typeof null === 'object'`
  * and `typeof [] === 'object'` in JavaScript.
  *
+ * `Record<string, any>` is load-bearing: TypeScript does not grant interfaces
+ * an implicit index signature, so `Record<string, unknown>` destroys known
+ * property types on interface-typed values and fails to subtract
+ * `Record<string, any>` members in the negative branch.
+ *
  * @example
  * ```ts
  * isObject({})        // true
@@ -111,7 +116,8 @@ export function isBoolean (item: unknown): item is boolean {
  * @see {@link isNull} to check for null
  */
 /* #__NO_SIDE_EFFECTS__ */
-export function isObject (item: unknown): item is Record<string, unknown> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- intentional: Record<string, unknown> breaks interface narrowing (#723)
+export function isObject (item: unknown): item is Record<string, any> {
   return typeof item === 'object' && item !== null && !Array.isArray(item)
 }
 

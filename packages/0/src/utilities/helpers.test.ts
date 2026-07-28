@@ -136,6 +136,32 @@ describe('helpers', () => {
         expect(isObject(new Map())).toBe(true)
         expect(isObject(/regex/)).toBe(true)
       })
+
+      // Narrowing is the point of the guard, so assert the narrowed types
+      // themselves. These are checked by `pnpm typecheck`, which includes
+      // `src/**/*.ts`; the runtime expectations only keep the branches live.
+      it('should preserve known props on interface-typed unions', () => {
+        interface Opts { tokens: number }
+        const value = { tokens: 3 } as string | Opts
+
+        if (isObject(value)) {
+          expectTypeOf(value.tokens).toEqualTypeOf<number>()
+          expect(value.tokens).toBe(3)
+        } else {
+          expectTypeOf(value).toEqualTypeOf<string>()
+        }
+      })
+
+      it('should subtract Record<string, any> from a union in the negative branch', () => {
+        const value = 'x' as string | boolean | Record<string, any>
+
+        if (isObject(value)) {
+          expectTypeOf(value).toEqualTypeOf<Record<string, any>>()
+        } else {
+          expectTypeOf(value).toEqualTypeOf<string | boolean>()
+          expect(value).toBe('x')
+        }
+      })
     })
 
     describe('isThenable', () => {
