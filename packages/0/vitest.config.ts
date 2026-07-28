@@ -50,16 +50,11 @@ export default defineConfig({
     exclude: ['**/*.browser.test.{ts,tsx}'],
     setupFiles: ['./vitest.setup.ts'],
     testTimeout: 20_000,
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json-summary'],
-      reportsDirectory: 'packages/0/coverage',
-      include: ['packages/0/src/**/*.{ts,vue}'],
-      exclude: [
-        '**/*.{test,spec,bench}.?(c|m)[jt]s',
-        '**/index.ts',
-        'packages/0/src/maturity.json',
-      ],
-    },
+    // No `coverage` block here on purpose. Vitest resolves coverage from the
+    // root config only; a project-level block is silently inert. The one that
+    // used to live here excluded `**/index.ts`, which is where every composable
+    // implementation lives (composables/<name>/index.ts) — had it ever been
+    // honoured it would have zeroed the bulk of the report. Coverage include /
+    // exclude belongs in the root vitest.config.ts.
   },
 })
