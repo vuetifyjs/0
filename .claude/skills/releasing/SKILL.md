@@ -1,6 +1,6 @@
 ---
 name: releasing
-description: Authoring a changeset, or cutting a release for @vuetify/v0 and the @paper/* design systems. Use when writing a .changeset/*.md file, deciding what belongs in changelog copy, exiting changesets pre/beta mode, or cutting a stable release. Covers the changeset content contract, the two version domains, and the pre-exit steps.
+description: Authoring a changeset, or cutting a release for @vuetify/v0 and the @paper/* design systems. Use when writing a .changeset/*.md file, deciding what belongs in changelog copy, re-entering or exiting changesets pre/beta mode, or reviewing a Version Packages PR. Covers the changeset content contract, the two version domains, and optional pre-channel workflow.
 ---
 
 # Releasing
@@ -8,6 +8,15 @@ description: Authoring a changeset, or cutting a release for @vuetify/v0 and the
 Changesets-driven. Pushing to `master` opens/updates a "Version Packages" PR; merging it publishes to npm (tokenless OIDC) and mints the GitHub releases (`.github/workflows/release.yml`).
 
 The branch model — which base branch a PR targets by change type — lives in the root `CLAUDE.md` and is always loaded. This skill covers what happens once the PR is on the right branch.
+
+## Commands
+
+```bash
+pnpm changeset         # Author a changeset — once per change
+pnpm release:prepare   # Pre-release validation (validate + build)
+```
+
+Publishing is automated via the Version Packages PR on `master` — do not `npm publish` by hand.
 
 ## Changeset content contract
 
@@ -22,12 +31,12 @@ The `.changeset/*.md` body renders verbatim into the changelog and GitHub releas
 - **Substrate** — `@vuetify/v0` is the sole published substrate, versioned and released on its own `v<version>` GitHub release. `@vuetify/paper` is `private`/dormant and no longer part of the changesets `fixed` group.
 - **Design systems** (`@paper/*`, e.g. `@paper/genesis`) version and release independently, each on its own `name@version` release. Note `@paper/genesis` depends on `@vuetify/v0`, so a substrate **major** bump (e.g. `1.x` → `2.0.0`) leaves genesis's `^` range and changesets will also bump + republish genesis. That is expected — review it in the "Version Packages" PR before merging.
 
-## Exiting beta / cutting a stable release
+## Pre / beta channel (optional)
 
-The repo is in changesets **pre mode** (`.changeset/pre.json`, `beta` dist-tag); every release is `…-beta.N` published under the `beta` tag. Before the first stable release:
+Stable releases are the default. The repo is **not** in changesets pre mode unless `.changeset/pre.json` exists. To enter a prerelease channel again:
 
-1. `pnpm changeset pre exit`
-2. Commit the removal of `.changeset/pre.json`
-3. Let the next "Version Packages" PR produce the clean `1.0.0`, then merge it
+1. `pnpm changeset pre enter <tag>` (e.g. `beta` or `rc`)
+2. Ship pre-releases via the normal Version Packages flow (`…-<tag>.N` under that dist-tag)
+3. Before the next stable cut: `pnpm changeset pre exit`, commit the removal of `.changeset/pre.json`, then merge the Version Packages PR that produces the clean stable version
 
-Skipping `pre exit` ships `1.0.0-beta.N` (or mistags it) instead of a real `1.0.0`.
+Skipping `pre exit` ships another pre version (or mistags) instead of a real stable.

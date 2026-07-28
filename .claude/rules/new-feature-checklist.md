@@ -1,14 +1,5 @@
 ---
-paths:
-  - packages/0/src/components/**
-  - packages/0/src/composables/**
-  - packages/0/src/maturity.json
-  - packages/0/src/surface.test.ts
-  - packages/0/README.md
-  - README.md
-  - apps/docs/src/pages/components/**
-  - apps/docs/src/pages/composables/**
-  - apps/docs/src/examples/**
+paths: ['packages/0/src/components/**', 'packages/0/src/composables/**', 'packages/0/src/maturity.json', 'packages/0/src/surface.test.ts', 'packages/0/README.md', 'README.md', 'apps/docs/src/pages/components/**', 'apps/docs/src/pages/composables/**', 'apps/docs/src/examples/**']
 ---
 
 # New Feature Checklist

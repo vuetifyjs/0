@@ -10,7 +10,7 @@ Vue 3 headless UI primitives and composables. Unstyled, logic-focused building b
 
 Never hand-roll a helper, type, or environment check that the package already exports. Read the barrels before writing:
 
-- `#v0/utilities` — type guards, `mergeDeep`, `useId`, `clamp`, `range`
+- `#v0/utilities` — type guards (incl. `isThenable`), `mergeDeep`, `useId`, `clamp`, `range`
 - `#v0/types` — `ID`, `Extensible`, `MaybeArray`, `DeepPartial`, `Activation`
 - `#v0/constants/globals` — `IN_BROWSER`, `SUPPORTS_*` (never write `typeof window !== 'undefined'`)
 
@@ -41,7 +41,7 @@ Scripts live in the root `package.json` — read it for the full list. The non-o
 ```bash
 pnpm lint:fix         # Always use lint:fix, never plain lint
 pnpm validate         # lint + typecheck + test
-pnpm metrics          # Regenerate performance metrics (required after editing a .bench.ts)
+pnpm metrics          # CI metrics-regen only — do not commit artifacts from feature branches; local: pnpm test:bench
 pnpm repo:check       # knip + sherif
 pnpm changeset        # Author a changeset — run once per change, see "Releasing"
 ```
@@ -67,7 +67,7 @@ Three long-lived branches; a PR's base is chosen by the semver impact of the cha
 
 ### Authoring a changeset / cutting a release
 
-The repo is in changesets **pre mode** (`beta` dist-tag). For the changeset content contract, the two version domains (`@vuetify/v0` vs `@paper/*`), and the pre-exit steps for a stable release, invoke the **`releasing`** skill.
+For the changeset content contract, the two version domains (`@vuetify/v0` vs `@paper/*`), and optional pre/beta channel workflow, invoke the **`releasing`** skill (`.claude/skills/releasing/SKILL.md`).
 
 ## Conventions
 
@@ -103,4 +103,4 @@ See `.claude/rules/` for path-scoped documentation:
 - `benchmarks.md` - Standards for `*.bench.ts` files
 - `docs.md` - Architecture for `apps/docs/**`
 - `testing.md` - Standards for `*.test.ts` files
-- `new-feature-checklist.md` - Required files when adding a component or composable
+- `new-feature-checklist.md` - Required files when adding a component or composable (path-scoped)
