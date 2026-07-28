@@ -152,9 +152,30 @@ export function isThenable (item: unknown): item is { then: Function } {
  * isArray([1, 2, 3]) // true
  * isArray('string')  // false
  * ```
+ *
+ * @remarks The guard keeps whichever array constituents the input already had —
+ * element types, tuple arity and `readonly` all survive, and the `else` branch
+ * drops exactly those constituents. Three branches, in order:
+ *
+ * 1. `0 extends (1 & T)` detects an `any` input and yields `T[]` (`any[]`),
+ *    matching `Array.isArray` so callback parameters stay contextually typed.
+ * 2. Nothing array-shaped to extract (an `unknown` value, say) falls back to
+ *    `unknown[]`, reproducing the previous narrowing so mutation and assignment
+ *    to `unknown[]` keep compiling.
+ * 3. Otherwise the array constituents of `T` pass through untouched.
+ *
+ * `NoInfer<T[]>` widens the parameter just enough for TypeScript to accept the
+ * first branch (a predicate must be assignable to its parameter's type) without
+ * letting an array argument capture the inference site.
  */
 /* #__NO_SIDE_EFFECTS__ */
-export function isArray (item: unknown): item is unknown[] {
+export function isArray<T> (
+  item: T | NoInfer<T[]>,
+): item is 0 extends (1 & T)
+  ? T[]
+  : [Extract<T, readonly unknown[]>] extends [never]
+      ? T & unknown[]
+      : Extract<T, readonly unknown[]> {
   return Array.isArray(item)
 }
 
