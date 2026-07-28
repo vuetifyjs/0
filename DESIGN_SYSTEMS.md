@@ -151,6 +151,7 @@ Every `@paper/*` package carries a `SPEC.md` declaring:
 3. its component inventory and any intentional deviations from this contract, with
    reasons.
 
-`packages/genesis/SPEC.md` is the exemplar of the kit *shape*. Genesis itself predates
-this contract (most of its components still use `<style scoped>`, and its SPEC declares
-no class); its alignment is tracked separately and does not weaken the rulings above.
+`packages/genesis/SPEC.md` is the exemplar of the kit *shape*, and declares its class.
+Genesis otherwise predates this contract (most of its components still use
+`<style scoped>`); that alignment is tracked separately and does not weaken the rulings
+above.

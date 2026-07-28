@@ -11,8 +11,9 @@ parts that vary across consumers — code highlighting and icons are slot-inject
 Genesis is a **thin component layer over v0's theme system**. Components consume
 `var(--v0-*)` tokens directly so they inherit whatever theme v0 has applied to the page.
 There is no Genesis-specific token namespace, no Genesis-specific theme plugin, no
-Genesis-specific stylesheet. Drop the package into any v0-themed app and components blend
-with the page's chrome.
+Genesis-specific *theme* stylesheet. Drop the package into any v0-themed app and components
+blend with the page's chrome. (The build still extracts component CSS to
+`@paper/genesis/style.css`; published consumers import that once.)
 
 **Hosting on a design-system page** (Emerald, Onyx, …) requires that host to publish the
 `--v0-*` cascade Genesis reads — see DESIGN_SYSTEMS.md *Kit interop* and
@@ -52,6 +53,11 @@ When v0's theme plugin is installed (any paper-DS-or-v0-themed app), `--v0-surfa
 resolve via the cascade and Genesis inherits the active theme. When Genesis is used in a
 v0-less app, the fallbacks provide a reasonable light-theme appearance.
 
+The one exception is `GnDotGrid`'s `color` default, `var(--v0-on-background)`, which carries
+no literal fallback — an unresolved value makes the generated `color-mix()` invalid and the
+grid renders nothing. Hosts must alias that token (see [Token bridge](#token-bridge)) or
+pass an explicit `color`.
+
 | v0 token consumed | Used for |
 |---|---|
 | `--v0-surface` | Outer component background |
@@ -61,15 +67,16 @@ v0-less app, the fallbacks provide a reasonable light-theme appearance.
 | `--v0-primary` | Active tab, filename badge, peek pill |
 | `--v0-on-primary` | Text on primary |
 | `--v0-pre` | Code pane background |
+| `--v0-on-background` | `GnDotGrid` dots and lines (no literal fallback) |
 
 ### Token bridge
 
 Genesis **does not** read `--emerald-*` (or any other DS prefix). A design-system docs
 app that mounts Genesis chrome must still provide `--v0-*` on the cascade. The preferred
 mechanism (family contract): the DS adapter also emits `--v0-*` aliases for the color
-roles Genesis consumes (`surface`, `on-surface`, `primary`, …), so Genesis blends without
-a Genesis-side theming contract. Alternatives (register a parallel v0 theme; host-side
-alias stylesheet) are allowed; the kit stays prefix-blind either way.
+roles Genesis consumes (`surface`, `on-surface`, `primary`, `on-background`, …), so Genesis
+blends without a Genesis-side theming contract. Alternatives (register a parallel v0 theme;
+host-side alias stylesheet) are allowed; the kit stays prefix-blind either way.
 
 ## Components
 
@@ -138,8 +145,8 @@ slots are overridable.
 
 ### `GnActionButton` — toolbar action affordance
 
-A 32px icon action button for docs chrome (copy, reset, open-in). Wraps v0's `Button.Root`
-+ `Button.Icon`.
+A 32px icon action button for docs chrome (copy, reset, open-in). Wraps v0's
+`Button.Root` + `Button.Icon`.
 
 ```ts
 interface GnActionButtonProps {
@@ -171,7 +178,7 @@ Action buttons expose icon slots with inline `<svg>` defaults using MDI paths.
 
 | Component | Slots | Default icon |
 |---|---|---|
-| `GnDocsExample` | `reset-icon` (single-file mode reset button) | refresh |
+| `GnDocsExample` | `reset-icon` (single-file mode reset button), `toggle-icon` (show/hide-code button) | refresh / chevron-down |
 | `GnDocsExampleTabs` | `reset-icon`, `playground-icon`, `bin-icon`, `combine-icon`, `split-icon` | refresh / play / open-in-new / unfold-less / unfold-more |
 | `GnPeek` | `icon` (chevron, rotates when expanded) | chevron-down |
 
@@ -240,7 +247,8 @@ In priority order:
 8. `GnDocsThemeSwitcher` — **first-class** for design-system docs whose product *is*
    theming; drives host `theme`/`adapter`/`plugin` rather than a thin local toggle
 
-Open in apps/docs (not Genesis blockers): `GnDocsCallout` (#593), `GnDocsBadge` (#463).
+Already open against `packages/genesis` (items 1 and 3 above, not blockers for the rest of
+Phase 2): `GnDocsCallout` (#593), `GnDocsBadge` (#463).
 
 ### Phase 3 — design-system docs primitives
 
