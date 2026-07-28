@@ -52,22 +52,8 @@ export const ANCHOR_COUNT = 13
  * records `scale: 1, baseline: null`, so the pipeline behaves exactly as it
  * does today and nothing is silently rescaled.
  *
- * Do NOT capture this from a GHA run, however tempting a green metrics-regen
- * artifact looks. `runs-on: ubuntu-24.04` pins the image, not the CPU: the pool
- * spans ~1.9x in single-thread throughput across at least two vendors whose
- * anchors do not differ by a scalar (0.55–0.86 per-anchor, Xeon 6973P-C to EPYC
- * 7763), so a capture freezes whichever host that draw happened to land on. A
- * median of three GHA runs does not fix it either — with two vendors in three
- * draws the median just selects the majority vendor. An in-flight GHA capture
- * was halted for exactly this reason on 2026-07-24.
- *
- * The baseline belongs on the dedicated reference host. Capture procedure and
- * its acceptance bar — three runs agreeing within ±2% aggregate, no single
- * anchor beyond ±5% — are in `.claude/specs/2026-07-24-dedicated-bench-host.md`
- * §6. For reference, GHA does not clear that bar even against itself: the
- * committed 1.0.0/1.0.1 history anchors sit 0.99x/0.92x from the current
- * benchmarks.json anchors measured in the same job on the same host, worst
- * anchor 0.78x.
+ * Capture it on the dedicated reference host, never from a GHA run — procedure
+ * and acceptance bar in `.claude/specs/2026-07-24-dedicated-bench-host.md` §6.
  *
  * Changing these numbers re-defines the unit for the whole history series —
  * treat it as a deliberate re-baseline, never a tweak.
