@@ -241,7 +241,7 @@ describe('helpers', () => {
       it('should keep every array constituent of a multi-array union', () => {
         const value = [1] as number[] | string[] | boolean
 
-        if (value !== true && isArray(value)) {
+        if (isArray(value)) {
           expectTypeOf(value).toEqualTypeOf<number[] | string[]>()
           expect(value[0]).toBe(1)
         }
