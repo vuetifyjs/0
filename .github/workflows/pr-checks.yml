@@ -40,11 +40,15 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      # Coverage is scoped to .ts (composables/utilities/plugins); component
-      # .vue coverage comes from the browser job below and Codecov merges the
-      # two flagged uploads into one project total.
+      # No --coverage.include override: both jobs report the full source set
+      # from the root vitest.config.ts and Codecov unions the two flagged
+      # uploads per line. Scoping this job to .ts hid every .vue belonging to a
+      # component tested in v0:unit rather than v0:browser (36 files across 8
+      # components had an SF: entry in neither report). The v8 provider only
+      # emits records for files a run actually loaded, so a wide include costs
+      # this job nothing — it does not backfill untouched files at 0%.
       - name: Run unit tests with coverage
-        run: pnpm test:run --coverage --project '!v0:browser' --coverage.include='packages/0/src/**/*.ts'
+        run: pnpm test:run --coverage --project '!v0:browser'
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
@@ -80,10 +84,13 @@ jobs:
         run: pnpm exec playwright install chromium
       - name: Install Playwright system dependencies
         run: pnpm exec playwright install-deps chromium
-      # Coverage scoped to component .vue; composable .ts coverage comes from the
-      # unit job. Uploaded under the `browser` flag so Codecov merges the two.
+      # Uploaded under the `browser` flag so Codecov merges it with the unit
+      # flag. Scoping this job to component .vue threw away every .ts line a
+      # *.browser.test.ts was the only test to exercise, which is what forced
+      # PR #725 to duplicate its browser assertions as unit tests to recover
+      # codecov/patch (70.83% -> 100%). Keep the include wide.
       - name: Run component tests with coverage
-        run: pnpm exec vitest run --project v0:browser --coverage --coverage.include='packages/0/src/components/**/*.vue'
+        run: pnpm exec vitest run --project v0:browser --coverage
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
