@@ -394,14 +394,16 @@ export function flatten (tokens: TokenCollection, prefix = '', flat = false): Fl
       if ('$value' in value) {
         flattened.push({ id, value: value as TokenAlias })
 
-        const inner = value.$value
+        // Pinned to unknown: isObject's index type is `any`, so reading through
+        // it unpinned would make the guards below compile-optional.
+        const inner: unknown = value.$value
         if (isObject(inner) && !flat) {
           for (const innerKey in inner) {
             if (!Object.hasOwn(inner, innerKey)) continue
             if (UNSAFE_KEYS.has(innerKey)) continue
             if (innerKey.startsWith('$')) continue
 
-            const child = inner[innerKey]
+            const child: unknown = inner[innerKey]
             const childId = `${id}.${innerKey}`
             if (!isObject(child)) {
               flattened.push({ id: childId, value: child as string | boolean | number })
