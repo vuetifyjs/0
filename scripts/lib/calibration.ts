@@ -135,6 +135,7 @@ export interface Apparatus {
  */
 export interface HostFacts {
   busy: number | null
+  peak: number | null
   governor: string | null
 }
 
@@ -150,13 +151,17 @@ export interface EnvFingerprint {
   imageVersion: string | null
   ci: boolean
   /**
-   * Fraction of CPU busy with other work when the run started, and the scaling
-   * governor in force. Recorded because the fixed-host apparatus trades CI's
-   * host rotation for a desktop's contention and clock drift — when a snapshot
-   * later looks wrong, these are the two fields that say whether the machine
-   * was fit to produce it. Absent on artifacts written before the host guard.
+   * How busy the machine was with other work when the run started — `busy`
+   * whole-machine, `peak` on its busiest single CPU — and the scaling governor
+   * in force while measuring. Recorded because the fixed-host apparatus trades
+   * CI's host rotation for a desktop's contention and clock drift: when a
+   * snapshot later looks wrong, these are the fields that say whether the
+   * machine was fit to produce it. `peak` is the load-bearing one — a single
+   * saturated core is only ~2.8% of a 36-thread host, so `busy` alone can look
+   * idle while a competing process runs. Absent on pre-guard artifacts.
    */
   busy?: number | null
+  peak?: number | null
   governor?: string | null
 }
 
@@ -240,7 +245,7 @@ export function describeEnv (host?: HostFacts): EnvFingerprint {
     imageOs: process.env.ImageOS ?? null,
     imageVersion: process.env.ImageVersion ?? null,
     ci: process.env.CI === 'true',
-    ...(host === undefined ? {} : { busy: host.busy, governor: host.governor }),
+    ...(host === undefined ? {} : { busy: host.busy, peak: host.peak, governor: host.governor }),
   }
 }
 

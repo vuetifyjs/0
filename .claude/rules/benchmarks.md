@@ -337,7 +337,7 @@ Numbers only mean something if the **writer, machine, and flags** are fixed. Hom
 |------|-----------------|-----|
 | Writer | **the reference host only** | Feature PRs must not commit laptop `benchmarks.json` |
 | Runner | **fixed reference workstation** + Node from `.nvmrc` | A pinned OS image does not pin the CPU — see "Reference host" |
-| Host readiness | CPU <5% busy at run start (`scripts/lib/host-guard.ts`) | A fixed host trades runner rotation for desktop contention |
+| Host readiness | <5% busy machine-wide **and** <35% on any single CPU (`scripts/lib/host-guard.ts`) | A fixed host trades runner rotation for desktop contention |
 | Vitest project | `v0:unit` only | `v0:browser` also matches `*.bench.ts` and double-records |
 | Parallelism | `--maxWorkers=1 --no-file-parallelism` | File/worker interleaving adds jitter |
 | Library under test | `V0_BENCH_TARGET=dist` (current) or npm dist path (history) | Source vs dist is a different apparatus |
@@ -394,16 +394,22 @@ Measured on the reference box (i9-7980XE, 18C/36T), 5 consecutive unpinned runs 
 
 A fixed host trades CI's rotation problem for one CI never had: the machine is a real desktop that other people use. A run overlapping a game or a build is not a slow measurement, it is a wrong one, and no downstream consumer can tell afterwards. `scripts/run-bench-stable.ts` therefore refuses to start when the host is busy, and records `busy` / `governor` into `apparatus.env` so any suspect snapshot is attributable without a forensic dig.
 
-The signal is aggregate non-idle CPU sampled from `/proc/stat` over 1s, not load average and not "is anyone logged in":
+The signal is non-idle CPU sampled from `/proc/stat` over 1s — both machine-wide and per logical CPU — and deliberately not load average, not "is anyone logged in":
 
 - **Login presence is the wrong rule.** An idle desktop session is not contention, so a guard keyed on it is red permanently and gets switched off. Other logins are reported as context when the guard trips, never as the reason.
 - **Load average is the wrong rule.** It is exponentially damped and lags in both directions. Measured on the reference box: under synthetic load, `busy` read 16.7% while the 1-minute load average still read 0.09; twelve seconds after the load stopped, `busy` had cleared to 0.1% while load had climbed to 0.92. Keyed on load, the guard would have admitted the contended run and then blocked the clean one.
+- **The machine-wide figure alone is not enough, and this is the subtle one.** One fully saturated core on a 36-thread host is 2.8% of total CPU — under any sane whole-machine threshold — yet a single competing CPU-bound process is the likeliest contention there is. Measured: one busy thread read 2.8% aggregate and passed a 5%-total-only guard; with the per-CPU check it reads 100% on its core and blocks. The per-core limit is 35%, set from the gap between the measured idle floor (0–1% on the busiest core) and a real workload (100%).
+- **`iowait` counts as busy, not idle.** The CPU is stalled during it, but a disk-bound neighbour still moves memory bandwidth, evicts page cache and raises interrupt load, all of which land on the benchmark. Measured: a `dd` loop read 2.9% aggregate — invisible whole-machine — and 38.4% on one core, which blocks.
 
-The guard is skipped when `CI=true` — an ephemeral runner is doing nothing else, and there the rotation problem dominates instead. A non-`performance` scaling governor warns rather than blocks: clock drift widens dispersion without inventing a result. Escape hatch for a deliberately contended run: `--allow-contended` / `V0_BENCH_ALLOW_CONTENDED=1`, which measures anyway and says so in the log.
+Enforcement is skipped only on an **ephemeral** CI runner, read as `CI` set *and* the governor helper absent. `CI` alone is the wrong test: the reference workstation driven by automation also sets `CI`, and that is exactly where the readiness contract must still hold — keying on `CI` alone disables the guard on the one machine it was written for. The host is always *inspected* regardless, so `apparatus.env` records `busy` / `peak` / `governor` behind every artifact even where nothing would have been stopped. A non-`performance` scaling governor warns rather than blocks: clock drift widens dispersion without inventing a result. Escape hatch for a deliberately contended run: `--allow-contended` / `V0_BENCH_ALLOW_CONTENDED=1`, which measures anyway and says so in the log.
 
 ### Scaling governor
 
-`run-bench-stable.ts` sets `performance` for the duration of the suite and restores the previous governor in a `finally`. The reference host carries a sudoers rule scoped to a single root-owned helper (`/usr/local/sbin/v0-governor`) that accepts only `performance` or `powersave`; everywhere else the toggle no-ops, so this is not a prerequisite for running benches.
+`run-bench-stable.ts` sets `performance` for the duration of the suite and restores the previous governor. The reference host carries a sudoers rule scoped to a single root-owned helper (`/usr/local/sbin/v0-governor`) that accepts only `performance` or `powersave`; everywhere else the toggle no-ops, so this is not a prerequisite for running benches.
+
+**The hold declines rather than half-works.** It changes nothing when the helper is absent, when the governor is already `performance`, or — importantly — when the original value is one the helper cannot set back (`schedutil`, `ondemand`, the `mixed(...)` marker for CPUs that disagree). Flipping to `performance` from an unrestorable governor would strand somebody's desktop at max clocks permanently, which is worse than benching at whatever was already in force.
+
+**Restore is wired to signals, and that required the child to be async.** `finally` does not run on Ctrl-C, so release is also bound to SIGINT/SIGTERM. That alone was not enough: signal handlers only run when the event loop turns, and the original `execFileSync` blocked it for the whole suite. Verified before the change — SIGINT to the parent left vitest still benching and the box pinned to `performance`, with the interrupt queued behind the very run it was meant to abort. `runOnce` now spawns asynchronously and the handler kills the child, so an interrupt aborts the run and hands the machine back.
 
 **The measured benefit is small, and the honest number matters more than the intuition here.** A first sequential comparison — five `powersave` runs, then five `performance` runs — showed `performance` looking dramatically *worse* (median spread 6.33% vs 4.20%, worst anchor 26.07% vs 10.88%). That result did not survive an interleaved re-test. Alternating the governors across four paired runs, which cancels time-ordered drift, reversed it: median per-anchor CV **1.79% on `performance` against 1.98% on `powersave`**, with a median speed delta of **+0.06%**. The sequential comparison was measuring the passage of time, not the governor.
 
