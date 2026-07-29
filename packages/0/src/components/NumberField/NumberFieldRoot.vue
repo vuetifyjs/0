@@ -35,8 +35,8 @@
     readonly id: ID
     /** Optional display label (used as aria-label on spinbutton) */
     readonly label?: string
-    /** ID(s) of external element(s) labelling the spinbutton (aria-labelledby) */
-    readonly labelledBy?: string
+    /** ID of element that labels this spinbutton */
+    readonly ariaLabelledby?: string
     /** Form field name */
     readonly name?: string
     /** Associate with form by ID */
@@ -88,8 +88,8 @@
     id?: ID
     /** Optional display label (rendered as aria-label on the spinbutton) */
     label?: string
-    /** ID(s) of an external visible label element to associate via aria-labelledby */
-    labelledBy?: string
+    /** ID of element that labels this spinbutton */
+    ariaLabelledby?: string
     /** Form field name */
     name?: string
     /** Associate with form by ID */
@@ -205,7 +205,7 @@
     renderless,
     id = useId(),
     label,
-    labelledBy,
+    ariaLabelledby,
     name,
     form,
     required,
@@ -293,7 +293,7 @@
     input,
     id: input.id,
     label,
-    labelledBy,
+    ariaLabelledby,
     name,
     form,
     required,
