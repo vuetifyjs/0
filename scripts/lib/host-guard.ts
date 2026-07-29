@@ -160,6 +160,33 @@ export function checkHost (limit: number = BUSY_LIMIT): HostReport {
   return { busy, governor, load, others, blocks, warns }
 }
 
+/**
+ * Root-owned helper that sets the scaling governor, installed on the reference
+ * host with a sudoers rule scoped to this one path. Absent everywhere else,
+ * which is why every call site treats it as optional.
+ */
+const GOVERNOR_HELPER = '/usr/local/sbin/v0-governor'
+
+/**
+ * Set the scaling governor, returning whether it took.
+ *
+ * Fail-soft on purpose: a machine that cannot set its governor is a machine
+ * that benches slightly noisier, not one that should refuse to bench. The
+ * measured difference on the reference host is small — interleaved A/B over
+ * four pairs put median per-anchor CV at 1.79% on `performance` against 1.98%
+ * on `powersave`, with a median speed delta of +0.06%. Worth removing as a
+ * variable since the mechanism is already there; not worth failing a run over.
+ */
+export function setGovernor (value: 'performance' | 'powersave'): boolean {
+  if (!existsSync(GOVERNOR_HELPER)) return false
+  try {
+    execFileSync('sudo', ['-n', GOVERNOR_HELPER, value], { stdio: 'ignore' })
+    return readGovernor() === value
+  } catch {
+    return false
+  }
+}
+
 /** One-line summary for the run log. */
 export function formatHost (report: HostReport): string {
   const busy = report.busy === null ? 'unknown' : `${(report.busy * 100).toFixed(1)}%`

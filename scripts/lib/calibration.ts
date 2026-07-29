@@ -66,8 +66,26 @@ export const BASELINE_ANCHOR_HZ: Record<string, number> | null = null
  * consecutive runs on a deliberately noisy machine, the worst single anchor
  * moved 29.3% while the trimmed geometric mean of the rest held to 2.2% (the
  * untrimmed mean drifted 3.5%).
+ *
+ * Raised 1 → 2 on the reference host, where 18 runs scored as all 306 ordered
+ * pairs (each run scaled against every other, so the ideal result is exactly 1)
+ * gave a median scale error of 1.182% untrimmed, 0.945% at 1, 0.753% at 2,
+ * 0.615% at 3, 0.565% at 4. The curve knees around 2–3; 2 buys most of the
+ * improvement while still averaging 9 of 13 anchors. Dispersion on this host
+ * concentrates in the allocation-heavy anchors (`object churn`,
+ * `grouped aggregate`, `tree walk`) whose timing is dominated by GC scheduling,
+ * and there are more than one of them — which is what a trim of 1 cannot absorb.
+ *
+ * Caveat on that evidence: it is single-host, so it shows trimming suppressing
+ * GC noise, not trimming suppressing the host-*shape* outliers it also exists
+ * for. The two should respond the same way to a wider trim, but that direction
+ * is inference rather than measurement.
+ *
+ * Changing this is cheap only while `BASELINE_ANCHOR_HZ` is null. Afterwards it
+ * shifts every computed scale by a fraction of a percent — mild next to editing
+ * the anchors themselves, but still a change of ruler applied to stored history.
  */
-const TRIM = 1
+const TRIM = 2
 
 export interface Apparatus {
   /** This host's speed relative to the baseline host. 1 when uncalibrated. */

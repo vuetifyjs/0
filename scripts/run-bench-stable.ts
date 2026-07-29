@@ -28,7 +28,7 @@ import {
   normalizeBenchJson,
 } from './lib/bench-stable.ts'
 import { CALIBRATION_FILE, buildApparatus } from './lib/calibration.ts'
-import { checkHost, formatHost } from './lib/host-guard.ts'
+import { checkHost, formatHost, readGovernor, setGovernor } from './lib/host-guard.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -131,6 +131,15 @@ function main (): void {
 
   const host = guardHost(contended)
 
+  // Hold the clock steady for the duration of the suite, then hand the machine
+  // back as it was found — this is somebody's desktop, and leaving 18 cores
+  // pinned to max clocks after a bench is a cost paid around the clock for a
+  // benefit that only exists during one. No-ops wherever the helper is not
+  // installed, which is everywhere except the reference host.
+  const governor = readGovernor()
+  const restore = governor !== null && governor !== 'performance' && setGovernor('performance')
+  if (restore) console.log(`[run-bench-stable] governor: ${governor} → performance (restored after)`)
+
   const dir = mkdtempSync(resolve(tmpdir(), 'v0-bench-stable-'))
   const runFiles: BenchJson[] = []
 
@@ -150,7 +159,11 @@ function main (): void {
     // actually measured; normalization happens where artifacts are shaped for
     // consumption, so a bad baseline can always be re-derived rather than
     // having been baked in irreversibly.
-    const apparatus = buildApparatus(merged, runs, host ?? undefined)
+    // Record the governor that was in force while measuring, not the one the
+    // host happened to idle at before the toggle.
+    const apparatus = buildApparatus(merged, runs, host
+      ? { busy: host.busy, governor: restore ? 'performance' : host.governor }
+      : undefined)
     const withApparatus: BenchJson = { ...merged, apparatus }
 
     mkdirSync(dirname(out), { recursive: true })
@@ -176,6 +189,9 @@ function main (): void {
     }
   } finally {
     rmSync(dir, { recursive: true, force: true })
+    if (restore && !setGovernor(governor as 'performance' | 'powersave')) {
+      console.warn(`[run-bench-stable] could not restore governor to ${governor} — host left on performance`)
+    }
   }
 }
 
