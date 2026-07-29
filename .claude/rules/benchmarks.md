@@ -335,8 +335,9 @@ Numbers only mean something if the **writer, machine, and flags** are fixed. Hom
 
 | Knob | Canonical value | Why |
 |------|-----------------|-----|
-| Writer | **metrics-regen workflow only** | Feature PRs must not commit laptop `benchmarks.json` |
-| Runner | `ubuntu-24.04` + Node from `.nvmrc` | OS/V8 drift moves hz |
+| Writer | **the reference host only** | Feature PRs must not commit laptop `benchmarks.json` |
+| Runner | **fixed reference workstation** + Node from `.nvmrc` | A pinned OS image does not pin the CPU — see "Reference host" |
+| Host readiness | CPU <5% busy at run start (`scripts/lib/host-guard.ts`) | A fixed host trades runner rotation for desktop contention |
 | Vitest project | `v0:unit` only | `v0:browser` also matches `*.bench.ts` and double-records |
 | Parallelism | `--maxWorkers=1 --no-file-parallelism` | File/worker interleaving adds jitter |
 | Library under test | `V0_BENCH_TARGET=dist` (current) or npm dist path (history) | Source vs dist is a different apparatus |
@@ -379,7 +380,26 @@ Two rules follow, both load-bearing:
 
 **One-time transition.** The regen workflow diffs against the previously *committed* benchmarks.json. Artifacts produced before calibration carry no apparatus, so `scaleOf` treats them as baseline-speed. The first regen after a baseline is captured therefore compares a raw `prev` against a normalized `next` and will report a spurious whole-panel delta — expected once, on that run only. Every regen after it compares normalized to normalized.
 
-`BASELINE_ANCHOR_HZ` starts `null`, mirroring `since: null` in maturity.json — the reference value is only knowable once the anchors have actually run on CI. While it is null, `scale` is 1 and the pipeline behaves exactly as before, so nothing is silently rescaled against a guess. A maintainer captures `apparatus.anchors` from the first metrics-regen run, pastes it in, and re-runs so every snapshot is expressed in the new unit.
+`BASELINE_ANCHOR_HZ` starts `null`, mirroring `since: null` in maturity.json — the reference value is only knowable once the anchors have actually run on the reference host. While it is null, `scale` is 1 and the pipeline behaves exactly as before, so nothing is silently rescaled against a guess. A maintainer captures `apparatus.anchors` from the first reference-host metrics run, pastes it in, and re-runs so every snapshot is expressed in the new unit.
+
+## Reference host
+
+Benchmarks are measured on a **fixed workstation**, not a CI runner. Calibration compensates for host rotation; a fixed host removes it. The two are complements, not alternatives — the anchor suite still runs every time, because it is what proves the host has not drifted and what makes any future host migration re-derivable.
+
+Measured on the reference box (i9-7980XE, 18C/36T), 5 consecutive unpinned runs of the anchor suite: **median spread 4.2%, worst anchor 10.9%**, against the +50.9% median that host rotation produced on GHA. Dispersion concentrates in the allocation-heavy anchors (`object churn`, `grouped aggregate`) and is GC-shaped, not placement-shaped.
+
+**Do not pin the bench to a core subset.** The intuitive hardening step measures worse. Restricting the run to 2 physical cores cost 5–8% throughput on the fast anchors and widened the tails; widening to all 18 physical cores restored throughput but not stability. Node's GC and marking threads plus the vitest main process need cores of their own, and taking them away is a cost with no matching benefit. `taskset` is not part of the apparatus.
+
+### Host readiness guard
+
+A fixed host trades CI's rotation problem for one CI never had: the machine is a real desktop that other people use. A run overlapping a game or a build is not a slow measurement, it is a wrong one, and no downstream consumer can tell afterwards. `scripts/run-bench-stable.ts` therefore refuses to start when the host is busy, and records `busy` / `governor` into `apparatus.env` so any suspect snapshot is attributable without a forensic dig.
+
+The signal is aggregate non-idle CPU sampled from `/proc/stat` over 1s, not load average and not "is anyone logged in":
+
+- **Login presence is the wrong rule.** An idle desktop session is not contention, so a guard keyed on it is red permanently and gets switched off. Other logins are reported as context when the guard trips, never as the reason.
+- **Load average is the wrong rule.** It is exponentially damped and lags in both directions. Measured on the reference box: under synthetic load, `busy` read 16.7% while the 1-minute load average still read 0.09; twelve seconds after the load stopped, `busy` had cleared to 0.1% while load had climbed to 0.92. Keyed on load, the guard would have admitted the contended run and then blocked the clean one.
+
+The guard is skipped when `CI=true` — an ephemeral runner is doing nothing else, and there the rotation problem dominates instead. A non-`performance` scaling governor warns rather than blocks: clock drift widens dispersion without inventing a result, and the account that runs benches cannot set the governor without root, so promoting it to a block would make the guard unusable by its own caller. Escape hatch for a deliberately contended run: `--allow-contended` / `V0_BENCH_ALLOW_CONTENDED=1`, which measures anyway and says so in the log.
 
 **What calibration does not fix.** About 6% of benches are host-*shape*-sensitive, not merely host-speed-sensitive: on the #714 pair, `createTokens` alias resolution moved ~2.5x while the suite moved 1.47x. Those survive normalization as genuine outliers and need quarantining from tiering and gating separately — a single scale factor cannot rescue them.
 

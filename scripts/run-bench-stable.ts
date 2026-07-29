@@ -28,18 +28,24 @@ import {
   normalizeBenchJson,
 } from './lib/bench-stable.ts'
 import { CALIBRATION_FILE, buildApparatus } from './lib/calibration.ts'
+import { checkHost, formatHost } from './lib/host-guard.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
 const DEFAULT_OUT = resolve(ROOT, 'apps/docs/public/benchmarks.json')
 
-function parseArgs (argv: string[]): { runs: number, out: string, help: boolean } {
+function parseArgs (argv: string[]): { runs: number, out: string, help: boolean, contended: boolean } {
   let runs = 3
   let out = DEFAULT_OUT
   let help = false
+  let contended = process.env.V0_BENCH_ALLOW_CONTENDED === '1'
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]
     switch (arg) {
+      case '--allow-contended': {
+        contended = true
+        break
+      }
       case '--runs': {
         runs = Number(argv[++i])
         if (!Number.isFinite(runs) || runs < 1) throw new Error(`--runs must be >= 1, got ${argv[i]}`)
@@ -56,7 +62,35 @@ function parseArgs (argv: string[]): { runs: number, out: string, help: boolean 
       }
     }
   }
-  return { runs, out, help }
+  return { runs, out, help, contended }
+}
+
+/**
+ * Refuse to measure a machine that is busy with something else.
+ *
+ * Skipped on CI, where the runner is an ephemeral VM doing nothing else and the
+ * host-rotation problem calibration exists for is the dominant error instead.
+ * On the fixed workstation the trade runs the other way: rotation is gone and
+ * contention is the live risk, so a competing workload has to stop the run
+ * rather than quietly widen it.
+ */
+function guardHost (contended: boolean): ReturnType<typeof checkHost> | null {
+  if (process.env.CI === 'true') return null
+
+  const report = checkHost()
+  console.log(`[run-bench-stable] host: ${formatHost(report)}`)
+  for (const warn of report.warns) console.warn(`[run-bench-stable] warn: ${warn}`)
+
+  if (report.blocks.length === 0) return report
+  for (const block of report.blocks) console.error(`[run-bench-stable] blocked: ${block}`)
+  if (contended) {
+    console.warn('[run-bench-stable] --allow-contended set — measuring anyway, numbers are not comparable')
+    return report
+  }
+  throw new Error(
+    '[run-bench-stable] host is not idle enough to bench. Wait for it to settle, '
+    + 'or pass --allow-contended (V0_BENCH_ALLOW_CONTENDED=1) to measure anyway.',
+  )
 }
 
 function runOnce (jsonOut: string): BenchJson {
@@ -84,15 +118,18 @@ function runOnce (jsonOut: string): BenchJson {
 }
 
 function main (): void {
-  const { runs, out, help } = parseArgs(process.argv.slice(2))
+  const { runs, out, help, contended } = parseArgs(process.argv.slice(2))
   if (help) {
     console.log(`Usage: node scripts/run-bench-stable.ts [--runs N] [--out path]
-  --runs  Independent vitest bench passes to median-merge (default: 3)
-  --out   Output JSON path (default: apps/docs/public/benchmarks.json)`)
+  --runs             Independent vitest bench passes to median-merge (default: 3)
+  --out              Output JSON path (default: apps/docs/public/benchmarks.json)
+  --allow-contended  Measure even when the host is busy (default: refuse)`)
     return
   }
   const target = process.env.V0_BENCH_TARGET ?? '(source)'
   console.log(`[run-bench-stable] apparatus: project=v0:unit maxWorkers=1 no-file-parallelism runs=${runs} V0_BENCH_TARGET=${target}`)
+
+  const host = guardHost(contended)
 
   const dir = mkdtempSync(resolve(tmpdir(), 'v0-bench-stable-'))
   const runFiles: BenchJson[] = []
@@ -113,7 +150,7 @@ function main (): void {
     // actually measured; normalization happens where artifacts are shaped for
     // consumption, so a bad baseline can always be re-derived rather than
     // having been baked in irreversibly.
-    const apparatus = buildApparatus(merged, runs)
+    const apparatus = buildApparatus(merged, runs, host ?? undefined)
     const withApparatus: BenchJson = { ...merged, apparatus }
 
     mkdirSync(dirname(out), { recursive: true })

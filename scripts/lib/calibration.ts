@@ -45,8 +45,8 @@ export const ANCHOR_COUNT = 13
 /**
  * Anchor throughput (ops/s) on the reference run, keyed by bench name.
  *
- * `null` until a maintainer captures it from the first CI run of the anchor
- * suite, mirroring the `since: null` convention in maturity.json — the value is
+ * `null` until a maintainer captures it from the first reference-host run of the
+ * anchor suite, mirroring the `since: null` convention in maturity.json — the value is
  * only knowable once the measurement has actually happened on the reference
  * host, and guessing it would ossify a fictional unit. While null, `computeScale`
  * returns 1 and every artifact records `scale: 1, baseline: null`, so the
@@ -83,6 +83,18 @@ export interface Apparatus {
   env: EnvFingerprint
 }
 
+/**
+ * The host-condition subset of the guard's report.
+ *
+ * Declared structurally rather than imported so calibration keeps depending on
+ * nothing but the bench JSON — the guard decides whether to run, this file only
+ * records what the machine looked like when it did.
+ */
+export interface HostFacts {
+  busy: number | null
+  governor: string | null
+}
+
 export interface EnvFingerprint {
   cpu: string | null
   cores: number | null
@@ -94,6 +106,15 @@ export interface EnvFingerprint {
   imageOs: string | null
   imageVersion: string | null
   ci: boolean
+  /**
+   * Fraction of CPU busy with other work when the run started, and the scaling
+   * governor in force. Recorded because the fixed-host apparatus trades CI's
+   * host rotation for a desktop's contention and clock drift — when a snapshot
+   * later looks wrong, these are the two fields that say whether the machine
+   * was fit to produce it. Absent on artifacts written before the host guard.
+   */
+  busy?: number | null
+  governor?: string | null
 }
 
 /** Geometric mean — the right average for ratios; an arithmetic mean is biased upward. */
@@ -155,7 +176,7 @@ function pnpmVersion (): string | null {
  * nothing in the artifact said which machine produced it — the shift was only
  * attributable by elimination.
  */
-export function describeEnv (): EnvFingerprint {
+export function describeEnv (host?: HostFacts): EnvFingerprint {
   let cpu: string | null = null
   let cores: number | null = null
   try {
@@ -176,11 +197,12 @@ export function describeEnv (): EnvFingerprint {
     imageOs: process.env.ImageOS ?? null,
     imageVersion: process.env.ImageVersion ?? null,
     ci: process.env.CI === 'true',
+    ...(host === undefined ? {} : { busy: host.busy, governor: host.governor }),
   }
 }
 
 /** Build the apparatus block embedded in every metrics artifact. */
-export function buildApparatus (raw: BenchJson, runs?: number): Apparatus {
+export function buildApparatus (raw: BenchJson, runs?: number, host?: HostFacts): Apparatus {
   const anchors = extractAnchors(raw)
   const count = Object.keys(anchors).length
   return {
@@ -189,7 +211,7 @@ export function buildApparatus (raw: BenchJson, runs?: number): Apparatus {
     baseline: BASELINE_ANCHOR_HZ,
     complete: count === ANCHOR_COUNT,
     ...(runs === undefined ? {} : { runs }),
-    env: describeEnv(),
+    env: describeEnv(host),
   }
 }
 
