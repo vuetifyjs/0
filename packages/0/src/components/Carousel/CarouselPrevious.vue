@@ -48,7 +48,7 @@
       'data-disabled': true | undefined
       'data-edge': true | undefined
       'onClick': () => void
-      'onKeydown': (e: KeyboardEvent) => void
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 </script>
@@ -106,7 +106,7 @@
       'data-disabled': isDisabled.value || undefined,
       'data-edge': isAtEdge.value || undefined,
       'onClick': onClick,
-      'onKeydown': onKeydown,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
 </script>

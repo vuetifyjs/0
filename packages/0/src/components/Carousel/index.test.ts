@@ -744,6 +744,7 @@ describe('carousel', () => {
       expect(typeof prevProps.isAtEdge).toBe('boolean')
       expect(prevProps.attrs['aria-label']).toBeDefined()
       expect(prevProps.attrs.type).toBe('button')
+      expect(prevProps.attrs.onKeydown).toBeUndefined()
     })
 
     it('should be disabled at first slide in non-circular mode', async () => {
@@ -891,6 +892,7 @@ describe('carousel', () => {
 
       expect(prevProps.attrs.type).toBeUndefined()
       expect(prevProps.attrs.disabled).toBeUndefined()
+      expect(typeof prevProps.attrs.onKeydown).toBe('function')
     })
 
     it('should navigate with Enter / Space when rendered as non-button', async () => {
@@ -957,6 +959,7 @@ describe('carousel', () => {
       expect(typeof nextBtnProps.isAtEdge).toBe('boolean')
       expect(nextBtnProps.attrs['aria-label']).toBeDefined()
       expect(nextBtnProps.attrs.type).toBe('button')
+      expect(nextBtnProps.attrs.onKeydown).toBeUndefined()
     })
 
     it('should be disabled at last slide in non-circular mode', async () => {
@@ -1130,6 +1133,7 @@ describe('carousel', () => {
 
       expect(nextBtnProps.attrs.type).toBeUndefined()
       expect(nextBtnProps.attrs.disabled).toBeUndefined()
+      expect(typeof nextBtnProps.attrs.onKeydown).toBe('function')
     })
 
     it('should navigate with Enter / Space when rendered as non-button', async () => {
