@@ -396,6 +396,24 @@ Benchmarks are measured on a **fixed workstation**, not a CI runner. This is the
 
 Measured on the reference box (i9-7980XE, 18C/36T), four full-suite runs of identical code: **per-feature spread 2.16% median, 4.96% worst; per-bench 1.81% median, 8.51% at p95** — against the +50.9% median that host rotation produced on GHA. Run `pnpm metrics:verify` to reproduce those figures on demand; it is the standing proof that the setup still deserves trust.
 
+### Nine benches are unreliable, and no pipeline change fixes them
+
+These nine spread **>20% on identical code** across four runs and are the *entire* >20% tail — they are the only benches capable of tripping a ±20% canary band without a code change. 42 of 433 spread >10%.
+
+| spread | bench |
+|-------:|-------|
+| 46.5% | `createNested` :: Unregister root with cascade (1,000 tree items) |
+| 34.3% | `createNested` :: Onboard 1,000 flat items |
+| 32.0% | `createSortable` :: Create empty sortable |
+| 28.1% | `useDate` :: compare 1000 pairs |
+| 28.0% | `createNested` :: Onboard ~10,000 tree items (depth 4) |
+| 27.3% | `createRegistry` :: Reorder reverse (1,000 items) |
+| 24.7% | `useDate` :: isSameDay |
+| 24.3% | `useDate` :: addMonths |
+| 24.2% | `createNested` :: Get depth (1,000 tree items) |
+
+The clustering in `createNested` and `useDate` is a hint about the benches, not the machine — check them against "Fixture Isolation" above before blaming the host. Note `rme` does not predict this: correlation between `log(rme)` and `log(cross-run spread)` is only 0.413, so a low in-run `rme` is no evidence of between-run stability (`useDate :: format shortDate` reports `rme` 0.27 and still swings 14.6%). Gate on a flat band, not an rme-derived one.
+
 **Read feature aggregates, not individual benches.** 127 of 433 benches report `rme > 5` and swing 6–7% run-to-run (worst 46%), so a single bench moving 10% is usually noise. The same data aggregated per feature moves 2.16%. Tier badges already operate at feature level; regression judgements should too.
 
 **Do not pin the bench to a core subset.** The intuitive hardening step measures worse. Restricting the run to 2 physical cores cost 5–8% throughput on the fast benches and widened the tails; widening to all 18 physical cores restored throughput but not stability. Node's GC and marking threads plus the vitest main process need cores of their own, and taking them away is a cost with no matching benefit. `taskset` is not part of the apparatus.
