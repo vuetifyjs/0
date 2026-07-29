@@ -45,19 +45,44 @@ export const ANCHOR_COUNT = 13
 /**
  * Anchor throughput (ops/s) on the reference run, keyed by bench name.
  *
- * `null` until a maintainer captures it from the first reference-host run of the
- * anchor suite, mirroring the `since: null` convention in maturity.json — the value is
- * only knowable once the measurement has actually happened on the reference
- * host, and guessing it would ossify a fictional unit. While null, `computeScale`
- * returns 1 and every artifact records `scale: 1, baseline: null`, so the
- * pipeline behaves exactly as it does today and nothing is silently rescaled.
+ * This is the unit. Every normalized number in the whole history series is
+ * expressed as a ratio against these values, so they are not a measurement that
+ * can be refreshed — they are the definition of "baseline speed".
  *
- * To capture: run metrics-regen, read `apparatus.anchors` out of the produced
- * benchmarks.json, paste it here, and re-run so every snapshot is expressed in
- * the new unit. Changing these numbers re-defines the unit for the whole
- * history series — treat it as a deliberate re-baseline, never a tweak.
+ * Captured 2026-07-28 on the reference host: Intel i9-7980XE (18C/36T), Linux
+ * x64, Node v26.0.0, `V0_BENCH_TARGET=dist`, median of 3 runs, host verified
+ * idle (0.19% busy) with the scaling governor held at `performance`. Held `null`
+ * until then, mirroring the `since: null` convention in maturity.json, because
+ * the value is only knowable once the measurement has actually happened and
+ * guessing it would have ossified a fictional unit.
+ *
+ * Re-capturing these numbers re-rulers every stored snapshot — a deliberate
+ * re-baseline, never a tweak, and never a way to "fix" a suspicious result. The
+ * legitimate reasons are the reference host being replaced or the anchor suite
+ * itself changing. Both require re-measuring the whole history series in the new
+ * unit; neither is a same-PR change. To re-baseline: reset to `null`, run
+ * metrics on the new reference host, paste the resulting `apparatus.anchors`,
+ * and re-run so every snapshot is re-expressed.
+ *
+ * Expect exactly one spurious whole-panel delta on the first regen after this
+ * landed: the gate diffs a pre-apparatus (raw) `prev` against a normalized
+ * `next`. Once only — every regen after it compares normalized to normalized.
  */
-export const BASELINE_ANCHOR_HZ: Record<string, number> | null = null
+export const BASELINE_ANCHOR_HZ: Record<string, number> | null = {
+  'anchor a01 property read': 4_446_741.946_214_202,
+  'anchor a02 map get': 1_192_640.261_224_444_3,
+  'anchor a03 array sum': 1_045_067.924_737_868_7,
+  'anchor a04 object spread': 544_112.280_590_834_2,
+  'anchor a05 closure calls': 231_574.460_031_297_55,
+  'anchor a06 map build': 37_105.222_052_120_31,
+  'anchor a07 array sort': 6783.491_251_731_42,
+  'anchor a08 tree walk': 104_206.970_018_071_88,
+  'anchor a09 string build': 3414.127_931_224_647_5,
+  'anchor a10 object churn': 58_275.851_163_984_59,
+  'anchor a11 filter map reduce': 6651.132_479_475_818,
+  'anchor a12 grouped aggregate': 6850.491_960_079_82,
+  'anchor a13 large sort': 545.036_815_299_884_4,
+}
 
 /**
  * Anchors dropped from each end of the sorted ratio list before averaging.
