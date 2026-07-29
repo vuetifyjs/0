@@ -34,8 +34,11 @@
     /** Attributes to bind to the close button element */
     attrs: {
       'type': 'button' | undefined
+      'role': 'button' | undefined
+      'tabindex': number
       'aria-label': string
       'onClick': () => void
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 </script>
@@ -56,11 +59,21 @@
     context.onDismiss()
   }
 
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
   const slotProps = toRef((): SnackbarCloseSlotProps => ({
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
+      'role': as === 'button' ? undefined : 'button',
+      'tabindex': 0,
       'aria-label': locale.ti('Snackbar.close') ?? 'Dismiss',
       'onClick': onClick,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
 </script>

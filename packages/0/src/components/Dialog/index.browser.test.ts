@@ -305,6 +305,89 @@ describe('dialog', () => {
       })
     })
 
+    describe('non-button host polyfill', () => {
+      it('should expose role, tabindex, and onKeydown when as is not button', () => {
+        let attrs: any
+
+        mountWithStack(Dialog.Root, {
+          slots: {
+            default: () => h(Dialog.Activator, { as: 'div' }, {
+              default: (p: any) => {
+                attrs = p.attrs
+                return 'Open'
+              },
+            }),
+          },
+        })
+
+        expect(attrs.role).toBe('button')
+        expect(attrs.tabindex).toBe(0)
+        expect(typeof attrs.onKeydown).toBe('function')
+      })
+
+      it('should open dialog via onKeydown Enter/Space on non-button activator', async () => {
+        const isOpen = ref(false)
+        let attrs: any
+
+        mountWithStack(Dialog.Root, {
+          props: {
+            'modelValue': isOpen.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              isOpen.value = v as boolean
+            },
+          },
+          slots: {
+            default: () => [
+              h(Dialog.Activator, { as: 'div' }, {
+                default: (p: any) => {
+                  attrs = p.attrs
+                  return 'Open'
+                },
+              }),
+              h(Dialog.Content, {}, () => 'Content'),
+            ],
+          },
+        })
+
+        await nextTick()
+        const enter = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+        attrs.onKeydown(enter)
+        await nextTick()
+        expect(isOpen.value).toBe(true)
+        expect(enter.defaultPrevented).toBe(true)
+
+        isOpen.value = false
+        await nextTick()
+        // remount attrs still bound to same context open()
+        const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+        attrs.onKeydown(space)
+        await nextTick()
+        expect(isOpen.value).toBe(true)
+        expect(space.defaultPrevented).toBe(true)
+
+        const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+        attrs.onKeydown(tab)
+        expect(tab.defaultPrevented).toBe(false)
+      })
+
+      it('should omit onKeydown when as is button', () => {
+        let attrs: any
+
+        mountWithStack(Dialog.Root, {
+          slots: {
+            default: () => h(Dialog.Activator, {}, {
+              default: (p: any) => {
+                attrs = p.attrs
+                return 'Open'
+              },
+            }),
+          },
+        })
+
+        expect(attrs.onKeydown).toBeUndefined()
+      })
+    })
+
     describe('click handling', () => {
       it('should open dialog on click', async () => {
         const wrapper = mountWithStack(Dialog.Root, {
@@ -736,6 +819,77 @@ describe('dialog', () => {
         const close = wrapper.findComponent(Dialog.Close as any)
         expect(close.attributes('aria-label')).not.toBe('Close')
         expect(close.attributes('aria-label')).toBe('Schließen')
+      })
+    })
+
+    describe('non-button host polyfill', () => {
+      it('should close via onKeydown Enter/Space when as is not button', async () => {
+        const isOpen = ref(true)
+        let attrs: any
+
+        mountWithStack(Dialog.Root, {
+          props: {
+            'modelValue': isOpen.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              isOpen.value = v as boolean
+            },
+          },
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              h(Dialog.Close, { as: 'div' }, {
+                default: (p: any) => {
+                  attrs = p.attrs
+                  return 'Close'
+                },
+              }),
+            ]),
+          },
+        })
+
+        await nextTick()
+        expect(attrs.role).toBe('button')
+        expect(attrs.tabindex).toBe(0)
+
+        const enter = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+        attrs.onKeydown(enter)
+        await nextTick()
+        expect(isOpen.value).toBe(false)
+        expect(enter.defaultPrevented).toBe(true)
+      })
+
+      it('should close via onKeydown Space when as is not button', async () => {
+        const isOpen = ref(true)
+        let attrs: any
+
+        mountWithStack(Dialog.Root, {
+          props: {
+            'modelValue': isOpen.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              isOpen.value = v as boolean
+            },
+          },
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              h(Dialog.Close, { as: 'div' }, {
+                default: (p: any) => {
+                  attrs = p.attrs
+                  return 'Close'
+                },
+              }),
+            ]),
+          },
+        })
+
+        await nextTick()
+        const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+        attrs.onKeydown(space)
+        await nextTick()
+        expect(isOpen.value).toBe(false)
+        expect(space.defaultPrevented).toBe(true)
+
+        const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+        attrs.onKeydown(tab)
+        expect(tab.defaultPrevented).toBe(false)
       })
     })
 

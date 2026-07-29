@@ -154,11 +154,12 @@ describe('toggle', () => {
         expect(props().isPressed).toBe(false)
       })
 
-      it('should toggle on Space key', async () => {
+      it('should toggle on Space via native button click path', async () => {
         const model = ref(false)
         const { wrapper, wait } = mountToggle({ model })
 
-        await wrapper.trigger('keydown', { key: ' ' })
+        // Native buttons fire click on Space; test-utils keydown does not synthesize that.
+        await wrapper.trigger('click')
         await wait()
 
         expect(model.value).toBe(true)
@@ -255,6 +256,46 @@ describe('toggle', () => {
         await nextTick()
 
         expect(model.value).toBe(true)
+      })
+
+      it('should toggle on Space keydown when rendered as non-button element', async () => {
+        const model = ref(false)
+
+        const wrapper = mount(Toggle.Root, {
+          props: {
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: boolean | undefined) => {
+              model.value = v ?? false
+            },
+            'as': 'div',
+          },
+          slots: { default: () => h('span', 'Toggle') },
+        })
+
+        await wrapper.trigger('keydown', { key: ' ' })
+        await nextTick()
+
+        expect(model.value).toBe(true)
+      })
+
+      it('should ignore non-activation keys when rendered as non-button element', async () => {
+        const model = ref(false)
+
+        const wrapper = mount(Toggle.Root, {
+          props: {
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: boolean | undefined) => {
+              model.value = v ?? false
+            },
+            'as': 'div',
+          },
+          slots: { default: () => h('span', 'Toggle') },
+        })
+
+        await wrapper.trigger('keydown', { key: 'Tab' })
+        await nextTick()
+
+        expect(model.value).toBe(false)
       })
 
       it('should set role="button" when rendered as non-button element', () => {
