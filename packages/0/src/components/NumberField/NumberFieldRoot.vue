@@ -33,8 +33,10 @@
   export interface NumberFieldRootContext extends NumberFieldContext {
     /** Unique identifier */
     readonly id: ID
-    /** Optional display label */
+    /** Optional display label (used as aria-label on spinbutton) */
     readonly label?: string
+    /** ID of element that labels this spinbutton */
+    readonly ariaLabelledby?: string
     /** Form field name */
     readonly name?: string
     /** Associate with form by ID */
@@ -84,8 +86,10 @@
   export interface NumberFieldRootProps extends AtomProps {
     /** Unique identifier (auto-generated if not provided) */
     id?: ID
-    /** Optional display label */
+    /** Optional display label (rendered as aria-label on the spinbutton) */
     label?: string
+    /** ID of element that labels this spinbutton */
+    ariaLabelledby?: string
     /** Form field name */
     name?: string
     /** Associate with form by ID */
@@ -201,6 +205,7 @@
     renderless,
     id = useId(),
     label,
+    ariaLabelledby,
     name,
     form,
     required,
@@ -288,6 +293,7 @@
     input,
     id: input.id,
     label,
+    ariaLabelledby,
     name,
     form,
     required,
