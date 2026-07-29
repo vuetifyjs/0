@@ -23,8 +23,11 @@
     /** Attributes to bind to the close button element */
     attrs: {
       'type': 'button' | undefined
+      'role': 'button' | undefined
+      'tabindex': number
       'aria-label': string
       'onClick': () => void
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 </script>
@@ -61,12 +64,22 @@
     context.close()
   }
 
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
   const slotProps = toRef((): DialogCloseSlotProps => ({
     isOpen: context.isOpen.value,
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
+      'role': as === 'button' ? undefined : 'button',
+      'tabindex': 0,
       'aria-label': locale.ti('Dialog.close') ?? 'Close',
       'onClick': onClick,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
 </script>

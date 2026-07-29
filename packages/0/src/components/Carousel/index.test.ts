@@ -744,6 +744,7 @@ describe('carousel', () => {
       expect(typeof prevProps.isAtEdge).toBe('boolean')
       expect(prevProps.attrs['aria-label']).toBeDefined()
       expect(prevProps.attrs.type).toBe('button')
+      expect(prevProps.attrs.onKeydown).toBeUndefined()
     })
 
     it('should be disabled at first slide in non-circular mode', async () => {
@@ -891,6 +892,48 @@ describe('carousel', () => {
 
       expect(prevProps.attrs.type).toBeUndefined()
       expect(prevProps.attrs.disabled).toBeUndefined()
+      expect(prevProps.attrs.role).toBe('button')
+      expect(prevProps.attrs.tabindex).toBe(-1) // single item → at edge → disabled
+      expect(typeof prevProps.attrs.onKeydown).toBe('function')
+    })
+
+    it('should navigate with Enter / Space when rendered as non-button', async () => {
+      const selected = ref<string>('b')
+      let prevProps: any
+
+      mount(Carousel.Root, {
+        props: {
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            selected.value = v as string
+          },
+        },
+        slots: {
+          default: () => [
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
+            h(Carousel.Previous as any, { as: 'div' }, {
+              default: (p: any) => {
+                prevProps = p
+                return h('div', 'Prev')
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const enter = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+      prevProps.attrs.onKeydown(enter)
+      await nextTick()
+      expect(selected.value).toBe('a')
+
+      const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      prevProps.attrs.onKeydown(space)
+      await nextTick()
+      expect(selected.value).toBe('a')
+      expect(enter.defaultPrevented).toBe(true)
     })
   })
 
@@ -918,6 +961,7 @@ describe('carousel', () => {
       expect(typeof nextBtnProps.isAtEdge).toBe('boolean')
       expect(nextBtnProps.attrs['aria-label']).toBeDefined()
       expect(nextBtnProps.attrs.type).toBe('button')
+      expect(nextBtnProps.attrs.onKeydown).toBeUndefined()
     })
 
     it('should be disabled at last slide in non-circular mode', async () => {
@@ -1091,6 +1135,48 @@ describe('carousel', () => {
 
       expect(nextBtnProps.attrs.type).toBeUndefined()
       expect(nextBtnProps.attrs.disabled).toBeUndefined()
+      expect(nextBtnProps.attrs.role).toBe('button')
+      expect(nextBtnProps.attrs.tabindex).toBe(-1) // single item → at edge → disabled
+      expect(typeof nextBtnProps.attrs.onKeydown).toBe('function')
+    })
+
+    it('should navigate with Enter / Space when rendered as non-button', async () => {
+      const selected = ref<string>('a')
+      let nextBtnProps: any
+
+      mount(Carousel.Root, {
+        props: {
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            selected.value = v as string
+          },
+        },
+        slots: {
+          default: () => [
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
+            h(Carousel.Next as any, { as: 'div' }, {
+              default: (p: any) => {
+                nextBtnProps = p
+                return h('div', 'Next')
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const enter = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+      nextBtnProps.attrs.onKeydown(enter)
+      await nextTick()
+      expect(selected.value).toBe('b')
+
+      const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      nextBtnProps.attrs.onKeydown(space)
+      await nextTick()
+      expect(selected.value).toBe('b')
+      expect(enter.defaultPrevented).toBe(true)
     })
   })
 

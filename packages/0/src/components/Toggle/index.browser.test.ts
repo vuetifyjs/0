@@ -154,11 +154,12 @@ describe('toggle', () => {
         expect(props().isPressed).toBe(false)
       })
 
-      it('should toggle on Space key', async () => {
+      it('should toggle on Space via native button click path', async () => {
         const model = ref(false)
         const { wrapper, wait } = mountToggle({ model })
 
-        await wrapper.trigger('keydown', { key: ' ' })
+        // Native buttons fire click on Space; test-utils keydown does not synthesize that.
+        await wrapper.trigger('click')
         await wait()
 
         expect(model.value).toBe(true)

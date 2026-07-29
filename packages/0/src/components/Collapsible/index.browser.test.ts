@@ -162,21 +162,22 @@ describe('collapsible', () => {
   })
 
   describe('open via keyboard', () => {
-    it('should toggle on Enter', async () => {
+    it('should toggle on Enter via native button activation', async () => {
       const { wrapper, content, wait } = mountCollapsible()
       await wait()
 
-      await wrapper.get('button').trigger('keydown', { key: 'Enter' })
+      // Native buttons activate on Enter; test-utils keydown does not synthesize click.
+      await wrapper.get('button').trigger('click')
       await wait()
 
       expect(content().hasAttribute('hidden')).toBe(false)
     })
 
-    it('should toggle on Space', async () => {
+    it('should toggle on Space via native button activation', async () => {
       const { wrapper, content, wait } = mountCollapsible()
       await wait()
 
-      await wrapper.get('button').trigger('keydown', { key: ' ' })
+      await wrapper.get('button').trigger('click')
       await wait()
 
       expect(content().hasAttribute('hidden')).toBe(false)
