@@ -53,6 +53,7 @@
   onMounted(() => {
     root.hasLabel.value = true
   })
+
   onBeforeUnmount(() => {
     root.hasLabel.value = false
   })
