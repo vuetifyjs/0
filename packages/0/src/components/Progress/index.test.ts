@@ -12,7 +12,7 @@ import {
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { h, nextTick, ref } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
 // Types
 import type { ProgressRootSlotProps } from './index'
@@ -201,11 +201,69 @@ describe('progress', () => {
       expect(rootProps().attrs['aria-busy']).toBeUndefined()
     })
 
-    it('should set aria-labelledby referencing the label id', async () => {
+    it('should omit aria-labelledby when no Progress.Label is mounted', async () => {
       const model = ref(50)
       const { rootProps, wait } = mountProgress({ model, props: { id: 'test' } })
       await wait()
+      expect(rootProps().attrs['aria-labelledby']).toBeUndefined()
+    })
+
+    it('should set aria-labelledby when Progress.Label is mounted', async () => {
+      const model = ref(50)
+      const { rootProps, wait } = mountProgress({ model, props: { id: 'test' }, withLabel: true })
+      await wait()
       expect(rootProps().attrs['aria-labelledby']).toBe('test-label')
+    })
+
+    it('should set aria-label when ariaLabel prop is provided and no label is mounted', async () => {
+      const model = ref(50)
+      const { rootProps, wait } = mountProgress({ model, props: { ariaLabel: 'Upload progress' } })
+      await wait()
+      expect(rootProps().attrs['aria-label']).toBe('Upload progress')
+      expect(rootProps().attrs['aria-labelledby']).toBeUndefined()
+    })
+
+    it('should prefer aria-labelledby over aria-label when Progress.Label is mounted', async () => {
+      const model = ref(50)
+      const { rootProps, wait } = mountProgress({
+        model,
+        props: { id: 'test', ariaLabel: 'Upload progress' },
+        withLabel: true,
+      })
+      await wait()
+      expect(rootProps().attrs['aria-labelledby']).toBe('test-label')
+      expect(rootProps().attrs['aria-label']).toBeUndefined()
+    })
+
+    it('should clear aria-labelledby and restore aria-label when Progress.Label unmounts', async () => {
+      const showLabel = ref(true)
+      let captured: ProgressRootSlotProps | undefined
+
+      mount(defineComponent({
+        setup () {
+          return () => h(ProgressRoot, {
+            id: 'test',
+            ariaLabel: 'Upload progress',
+            modelValue: 50,
+          }, {
+            default: (rootProps: ProgressRootSlotProps) => {
+              captured = rootProps
+              return showLabel.value
+                ? h(ProgressLabel as any, {}, () => h('span', 'Loading...'))
+                : null
+            },
+          })
+        },
+      }))
+
+      await nextTick()
+      expect(captured?.attrs['aria-labelledby']).toBe('test-label')
+      expect(captured?.attrs['aria-label']).toBeUndefined()
+
+      showLabel.value = false
+      await nextTick()
+      expect(captured?.attrs['aria-labelledby']).toBeUndefined()
+      expect(captured?.attrs['aria-label']).toBe('Upload progress')
     })
   })
 
