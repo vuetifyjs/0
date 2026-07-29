@@ -168,6 +168,28 @@ describe('expansionPanel', () => {
 
         expect(event.defaultPrevented).toBe(false)
       })
+
+      it('should no-op onClick when panel is disabled', () => {
+        let activatorProps: any
+
+        mount(ExpansionPanel.Group, {
+          props: { multiple: true },
+          slots: {
+            default: () => h(ExpansionPanel.Root as any, { id: 'item-1', value: 'value-1', disabled: true }, {
+              default: () => h(ExpansionPanel.Activator as any, {}, {
+                default: (ap: any) => {
+                  activatorProps = ap
+                  return 'Header'
+                },
+              }),
+            }),
+          },
+        })
+
+        expect(activatorProps.isDisabled).toBe(true)
+        activatorProps.attrs.onClick()
+        expect(activatorProps.isSelected).toBe(false)
+      })
     })
 
     describe('slot props', () => {
@@ -510,6 +532,52 @@ describe('expansionPanel', () => {
         await nextTick()
 
         expect(selected.value).toBe('value-1')
+      })
+
+      it('should toggle via onKeydown Enter/Space/Tab when as is not button', async () => {
+        const selected = ref<string>()
+        let attrs: any
+
+        mount(ExpansionPanel.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string
+            },
+          },
+          slots: {
+            default: () =>
+              h(
+                ExpansionPanel.Root as any,
+                { id: 'item-1', value: 'value-1' },
+                () => h(ExpansionPanel.Activator as any, { as: 'div' }, {
+                  default: (p: any) => {
+                    attrs = p.attrs
+                    return 'Header'
+                  },
+                }),
+              ),
+          },
+        })
+
+        await nextTick()
+        const enter = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+        attrs.onKeydown(enter)
+        await nextTick()
+        expect(selected.value).toBe('value-1')
+        expect(enter.defaultPrevented).toBe(true)
+
+        selected.value = undefined
+        await nextTick()
+        // remount attrs still work on same ticket if still selected - use Space on current
+        const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+        attrs.onKeydown(space)
+        await nextTick()
+        expect(space.defaultPrevented).toBe(true)
+
+        const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+        attrs.onKeydown(tab)
+        expect(tab.defaultPrevented).toBe(false)
       })
     })
 

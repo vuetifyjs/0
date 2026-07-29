@@ -267,6 +267,12 @@ describe('snackbar', () => {
       const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
       attrs.onKeydown(space)
       expect(onDismiss).toHaveBeenCalledTimes(2)
+      expect(space.defaultPrevented).toBe(true)
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+      attrs.onKeydown(tab)
+      expect(tab.defaultPrevented).toBe(false)
+      expect(onDismiss).toHaveBeenCalledTimes(2)
     })
 
     it('should throw when used without root context', () => {

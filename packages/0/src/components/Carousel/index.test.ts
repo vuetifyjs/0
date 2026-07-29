@@ -934,6 +934,36 @@ describe('carousel', () => {
       await nextTick()
       expect(selected.value).toBe('a')
       expect(enter.defaultPrevented).toBe(true)
+      expect(space.defaultPrevented).toBe(true)
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+      prevProps.attrs.onKeydown(tab)
+      expect(tab.defaultPrevented).toBe(false)
+    })
+
+    it('should not report edge when circular even on first slide', async () => {
+      let prevProps: any
+
+      mount(Carousel.Root, {
+        props: { modelValue: 'a', circular: true },
+        slots: {
+          default: () => [
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
+            h(Carousel.Previous as any, { as: 'div' }, {
+              default: (p: any) => {
+                prevProps = p
+                return h('div', 'Prev')
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+      expect(prevProps.isAtEdge).toBe(false)
+      expect(prevProps.isDisabled).toBe(false)
+      expect(prevProps.attrs.tabindex).toBe(0)
     })
   })
 
@@ -1177,6 +1207,36 @@ describe('carousel', () => {
       await nextTick()
       expect(selected.value).toBe('b')
       expect(enter.defaultPrevented).toBe(true)
+      expect(space.defaultPrevented).toBe(true)
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+      nextBtnProps.attrs.onKeydown(tab)
+      expect(tab.defaultPrevented).toBe(false)
+    })
+
+    it('should not report edge when circular even on last slide', async () => {
+      let nextProps: any
+
+      mount(Carousel.Root, {
+        props: { modelValue: 'b', circular: true },
+        slots: {
+          default: () => [
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
+            h(Carousel.Next as any, { as: 'div' }, {
+              default: (p: any) => {
+                nextProps = p
+                return h('div', 'Next')
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+      expect(nextProps.isAtEdge).toBe(false)
+      expect(nextProps.isDisabled).toBe(false)
+      expect(nextProps.attrs.tabindex).toBe(0)
     })
   })
 

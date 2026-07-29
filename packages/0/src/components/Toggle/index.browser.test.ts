@@ -258,6 +258,46 @@ describe('toggle', () => {
         expect(model.value).toBe(true)
       })
 
+      it('should toggle on Space keydown when rendered as non-button element', async () => {
+        const model = ref(false)
+
+        const wrapper = mount(Toggle.Root, {
+          props: {
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: boolean | undefined) => {
+              model.value = v ?? false
+            },
+            'as': 'div',
+          },
+          slots: { default: () => h('span', 'Toggle') },
+        })
+
+        await wrapper.trigger('keydown', { key: ' ' })
+        await nextTick()
+
+        expect(model.value).toBe(true)
+      })
+
+      it('should ignore non-activation keys when rendered as non-button element', async () => {
+        const model = ref(false)
+
+        const wrapper = mount(Toggle.Root, {
+          props: {
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: boolean | undefined) => {
+              model.value = v ?? false
+            },
+            'as': 'div',
+          },
+          slots: { default: () => h('span', 'Toggle') },
+        })
+
+        await wrapper.trigger('keydown', { key: 'Tab' })
+        await nextTick()
+
+        expect(model.value).toBe(false)
+      })
+
       it('should set role="button" when rendered as non-button element', () => {
         const wrapper = mount(Toggle.Root, {
           props: { as: 'div' },

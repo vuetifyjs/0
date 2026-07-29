@@ -358,10 +358,16 @@ describe('dialog', () => {
 
         isOpen.value = false
         await nextTick()
+        // remount attrs still bound to same context open()
         const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
         attrs.onKeydown(space)
         await nextTick()
         expect(isOpen.value).toBe(true)
+        expect(space.defaultPrevented).toBe(true)
+
+        const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+        attrs.onKeydown(tab)
+        expect(tab.defaultPrevented).toBe(false)
       })
 
       it('should omit onKeydown when as is button', () => {
@@ -849,6 +855,41 @@ describe('dialog', () => {
         await nextTick()
         expect(isOpen.value).toBe(false)
         expect(enter.defaultPrevented).toBe(true)
+      })
+
+      it('should close via onKeydown Space when as is not button', async () => {
+        const isOpen = ref(true)
+        let attrs: any
+
+        mountWithStack(Dialog.Root, {
+          props: {
+            'modelValue': isOpen.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              isOpen.value = v as boolean
+            },
+          },
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              h(Dialog.Close, { as: 'div' }, {
+                default: (p: any) => {
+                  attrs = p.attrs
+                  return 'Close'
+                },
+              }),
+            ]),
+          },
+        })
+
+        await nextTick()
+        const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+        attrs.onKeydown(space)
+        await nextTick()
+        expect(isOpen.value).toBe(false)
+        expect(space.defaultPrevented).toBe(true)
+
+        const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+        attrs.onKeydown(tab)
+        expect(tab.defaultPrevented).toBe(false)
       })
     })
 

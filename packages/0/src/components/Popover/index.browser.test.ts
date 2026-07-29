@@ -202,6 +202,11 @@ describe('popover', () => {
         activatorAttrs.onKeydown(space)
         await nextTick()
         expect(rootProps.isSelected).toBe(false)
+        expect(space.defaultPrevented).toBe(true)
+
+        const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+        activatorAttrs.onKeydown(tab)
+        expect(tab.defaultPrevented).toBe(false)
       })
 
       it('should expose slot props', async () => {

@@ -284,6 +284,16 @@ describe('collapsible', () => {
 
       expect(content().hasAttribute('hidden')).toBe(false)
     })
+
+    it('should not activate on non-Enter/Space keys when as is not button', async () => {
+      const { wrapper, content, wait } = mountCollapsible({ activatorAs: 'div' })
+      await wait()
+
+      await wrapper.get('[role="button"]').trigger('keydown', { key: 'Tab' })
+      await wait()
+
+      expect(content().hasAttribute('hidden')).toBe(true)
+    })
   })
 
   describe('cue', () => {

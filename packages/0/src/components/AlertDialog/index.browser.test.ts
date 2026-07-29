@@ -176,6 +176,18 @@ describe('alertDialog', () => {
       await nextTick()
       expect(isOpen.value).toBe(true)
       expect(enter.defaultPrevented).toBe(true)
+
+      isOpen.value = false
+      await nextTick()
+      const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      attrs.onKeydown(space)
+      await nextTick()
+      expect(isOpen.value).toBe(true)
+      expect(space.defaultPrevented).toBe(true)
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+      attrs.onKeydown(tab)
+      expect(tab.defaultPrevented).toBe(false)
     })
 
     it('should have aria-haspopup=dialog', () => {
@@ -628,6 +640,41 @@ describe('alertDialog', () => {
       attrs.onKeydown(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }))
       await nextTick()
       expect(isOpen.value).toBe(false)
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+      attrs.onKeydown(tab)
+      expect(tab.defaultPrevented).toBe(false)
+    })
+
+    it('should close via onKeydown Space when as is not button', async () => {
+      const isOpen = ref(true)
+      let attrs: any
+
+      mountWithStack(AlertDialog.Root, {
+        props: {
+          'modelValue': isOpen.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            isOpen.value = v as boolean
+          },
+        },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Cancel, { as: 'div' }, {
+              default: (p: any) => {
+                attrs = p.attrs
+                return 'Cancel'
+              },
+            }),
+          ]),
+        },
+      })
+
+      await nextTick()
+      const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      attrs.onKeydown(space)
+      await nextTick()
+      expect(isOpen.value).toBe(false)
+      expect(space.defaultPrevented).toBe(true)
     })
 
     it('should set type=button', () => {
@@ -825,6 +872,41 @@ describe('alertDialog', () => {
       attrs.onKeydown(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }))
       await nextTick()
       expect(isOpen.value).toBe(false)
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+      attrs.onKeydown(tab)
+      expect(tab.defaultPrevented).toBe(false)
+    })
+
+    it('should close via onKeydown Space when as is not button', async () => {
+      const isOpen = ref(true)
+      let attrs: any
+
+      mountWithStack(AlertDialog.Root, {
+        props: {
+          'modelValue': isOpen.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            isOpen.value = v as boolean
+          },
+        },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Close, { as: 'div' }, {
+              default: (p: any) => {
+                attrs = p.attrs
+                return 'X'
+              },
+            }),
+          ]),
+        },
+      })
+
+      await nextTick()
+      const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      attrs.onKeydown(space)
+      await nextTick()
+      expect(isOpen.value).toBe(false)
+      expect(space.defaultPrevented).toBe(true)
     })
 
     it('should close dialog on click', async () => {
@@ -944,6 +1026,41 @@ describe('alertDialog', () => {
       attrs.onKeydown(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }))
       await nextTick()
       expect(isOpen.value).toBe(false)
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+      attrs.onKeydown(tab)
+      expect(tab.defaultPrevented).toBe(false)
+    })
+
+    it('should close via onKeydown Space when as is not button', async () => {
+      const isOpen = ref(true)
+      let attrs: any
+
+      mountWithStack(AlertDialog.Root, {
+        props: {
+          'modelValue': isOpen.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            isOpen.value = v as boolean
+          },
+        },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Action, { as: 'div' }, {
+              default: (p: any) => {
+                attrs = p.attrs
+                return 'Confirm'
+              },
+            }),
+          ]),
+        },
+      })
+
+      await nextTick()
+      const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      attrs.onKeydown(space)
+      await nextTick()
+      expect(isOpen.value).toBe(false)
+      expect(space.defaultPrevented).toBe(true)
     })
 
     it('should set type=button', () => {

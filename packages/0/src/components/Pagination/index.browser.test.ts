@@ -802,6 +802,10 @@ describe('pagination', () => {
       await nextTick()
       expect(page.value).toBe(2)
       expect(enter.defaultPrevented).toBe(true)
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+      nextProps.attrs.onKeydown(tab)
+      expect(tab.defaultPrevented).toBe(false)
     })
 
     it('should navigate via onKeydown Space when as is not button', async () => {
@@ -1250,6 +1254,43 @@ describe('pagination', () => {
       prevProps.attrs.onKeydown(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }))
       await nextTick()
       expect(page.value).toBe(2)
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+      prevProps.attrs.onKeydown(tab)
+      expect(tab.defaultPrevented).toBe(false)
+    })
+
+    it('should navigate via onKeydown Space when as is not button', async () => {
+      const page = ref(3)
+      let prevProps: any
+
+      mount(Pagination.Root, {
+        props: {
+          'size': 100,
+          'itemsPerPage': 10,
+          'modelValue': page.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            page.value = v as number
+          },
+          'renderless': true,
+        },
+        slots: {
+          default: () =>
+            h(Pagination.Prev, { as: 'div' }, {
+              default: (props: any) => {
+                prevProps = props
+                return h('div', 'Prev')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+      const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      prevProps.attrs.onKeydown(space)
+      await nextTick()
+      expect(page.value).toBe(2)
+      expect(space.defaultPrevented).toBe(true)
     })
   })
 
@@ -1283,6 +1324,43 @@ describe('pagination', () => {
       firstProps.attrs.onKeydown(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }))
       await nextTick()
       expect(page.value).toBe(1)
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+      firstProps.attrs.onKeydown(tab)
+      expect(tab.defaultPrevented).toBe(false)
+    })
+
+    it('should jump to first via onKeydown Space when as is not button', async () => {
+      const page = ref(5)
+      let firstProps: any
+
+      mount(Pagination.Root, {
+        props: {
+          'size': 100,
+          'itemsPerPage': 10,
+          'modelValue': page.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            page.value = v as number
+          },
+          'renderless': true,
+        },
+        slots: {
+          default: () =>
+            h(Pagination.First, { as: 'div' }, {
+              default: (props: any) => {
+                firstProps = props
+                return h('div', 'First')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+      const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      firstProps.attrs.onKeydown(space)
+      await nextTick()
+      expect(page.value).toBe(1)
+      expect(space.defaultPrevented).toBe(true)
     })
   })
 
@@ -1316,6 +1394,43 @@ describe('pagination', () => {
       lastProps.attrs.onKeydown(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }))
       await nextTick()
       expect(page.value).toBe(10)
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+      lastProps.attrs.onKeydown(tab)
+      expect(tab.defaultPrevented).toBe(false)
+    })
+
+    it('should jump to last via onKeydown Space when as is not button', async () => {
+      const page = ref(1)
+      let lastProps: any
+
+      mount(Pagination.Root, {
+        props: {
+          'size': 100,
+          'itemsPerPage': 10,
+          'modelValue': page.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            page.value = v as number
+          },
+          'renderless': true,
+        },
+        slots: {
+          default: () =>
+            h(Pagination.Last, { as: 'div' }, {
+              default: (props: any) => {
+                lastProps = props
+                return h('div', 'Last')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+      const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      lastProps.attrs.onKeydown(space)
+      await nextTick()
+      expect(page.value).toBe(10)
+      expect(space.defaultPrevented).toBe(true)
     })
   })
 
