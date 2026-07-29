@@ -322,9 +322,13 @@ pnpm test:bench:json
 # Watch mode while iterating on a bench file
 pnpm bench
 
-# Canonical metrics (coverage + dist median-of-3 + metrics.json) — CI only for commits
+# Canonical metrics (coverage + dist median-of-3 + metrics.json) — reference host only
 pnpm metrics
 pnpm metrics:check
+
+# Prove the apparatus still reproduces itself (run after any change to the machine)
+pnpm metrics:verify --runs 3
+pnpm metrics:verify --from a.json b.json    # compare artifacts you already have
 ```
 
 To narrow to a single file, append the path: `pnpm test:bench packages/0/src/composables/createRegistry/index.bench.ts`.
@@ -343,7 +347,7 @@ Numbers only mean something if the **writer, machine, and flags** are fixed. Hom
 | Library under test | `V0_BENCH_TARGET=dist` (current) or npm dist path (history) | Source vs dist is a different apparatus |
 | Aggregation | **median of 3 runs** (`pnpm metrics:bench`) | Single GHA run is ~10–20% noisy |
 | Paths in JSON | repo-relative `packages/0/src/...` | Absolute `/home/john/...` vs `/home/runner/...` confuses audits |
-| Host calibration | anchor suite + `apparatus.scale` in every artifact | Pinning the OS image does **not** pin the CPU — see below |
+| Host identity | `env` fingerprint in every artifact; **no** correction factor | Two artifacts are comparable only if cpu/node match — see below |
 
 **Acceptable deviation:** canary benches (see `scripts/lib/bench-stable.ts` `CANARY_BENCHES`) may move **±20%** run-to-run on shared GHA with no code change — *but only once numbers are host-normalized*. On raw ops/s the real spread is far wider: PR #714 re-benched the byte-identical 1.0.0 npm dist and moved **+50.9% median across 623 benches**, with 582 of them outside ±20% and 35 tier badges flipped. Never read a raw cross-run delta as signal.
 
@@ -363,32 +367,36 @@ pnpm metrics:delta --prev old.json --next new.json
 
 **Do not** commit `apps/docs/public/benchmarks.json` or `apps/docs/src/data/metrics*.json` from a feature branch. `pnpm metrics:check` fails the PR. Override only with `ALLOW_METRICS_ARTIFACT_EDIT=1` and a written reason.
 
-## Host calibration
+## Why there is no host calibration
 
-`runs-on: ubuntu-24.04` pins the **OS image, not the CPU**. GHA rotates hosts across generations that differ by roughly 1.5x in single-thread throughput, so identical code benched on two runners yields two different sets of absolute ops/s. That is what produced #714's phantom 50% "improvement".
+There used to be. It is worth knowing why it is gone, because the reasoning that produced it is seductive and will otherwise be reinvented.
 
-Every bench run therefore also measures `packages/0/bench/calibration.bench.ts` — 13 fixed anchors spanning ~100ns to ~1ms that import nothing from v0. It lives outside `packages/0/src/` on purpose: it is apparatus, not shipped source, and tooling that reads a `packages/<name>/src/` path as a library change (the changeset reminder, coverage) would otherwise demand a version bump for a file that never enters `dist`.
+`runs-on: ubuntu-24.04` pins the **OS image, not the CPU**. GHA rotates hosts across generations differing ~1.5x in single-thread throughput, so identical code benched on two runners yields two different sets of absolute ops/s — that is what produced #714's phantom 50% "improvement". The fix built for it was a frozen 13-anchor microbenchmark suite that imported nothing from v0, whose trimmed geometric mean against a stored baseline gave a per-run `scale` that every consumer divided by.
 
-**The anchors are exempt from the per-bench-file standards above** — fixture isolation, 1K/10K dataset coverage, category comments, the `(N items)` naming convention, the ≥5-benchmarks minimum. Those rules exist to make a bench describe v0 honestly; the anchors deliberately describe the *machine*, and their content is frozen by hash. The trimmed geometric mean of `this run's anchors ÷ the stored baseline` is `apparatus.scale`, recorded in `benchmarks.json`, `metrics.json`, and every `metrics/<version>.json` alongside a CPU/node/pnpm/runner fingerprint. Artifacts store **raw** hz; consumers divide by `scale`. Raw is always recoverable as `hz * scale`.
+**It was deleted because it made the numbers worse.** Measured across four full-suite runs of identical code on the fixed workstation:
 
-Measured effect on the #714 pair: whole-suite bias drops from **+49.3% to +1.5%**, and all five canaries fall from +44…+61% (all flagged) to −1.9…+9.6% (none flagged).
+| method | per-bench median | per-feature median | per-feature worst |
+|--------|-----------------:|-------------------:|------------------:|
+| raw ops/s | **1.81%** | **2.16%** | **4.96%** |
+| anchor-normalized | 3.53% | 6.23% | 9.50% |
 
-Two rules follow, both load-bearing:
+Dividing by the scale roughly tripled the disagreement between measurements of identical code. The cause: on one of the four runs the anchors moved −4.6% at the median (allocation-heavy ones −38% and −27%) while the 446 real benches moved +1.4%. The probe did not track the workload it was correcting, so its "correction" was injected error. No trim setting rescues that — the anchors' central tendency was wrong, not their tails. The single least reproducible file in the whole suite was `calibration.bench.ts` itself, at 9.42% against a worst real feature of 4.96%.
 
-- **Never edit `calibration.bench.ts`.** `scripts/lib/calibration.ts` stores the anchor throughput that every normalized number in the entire history series is expressed in. Changing an anchor redefines the unit without changing any stored baseline, so every trend line silently starts comparing against a different ruler. `calibration.test.ts` hashes the file and fails on any byte change. A genuine change is a deliberate re-baseline: update the hash, reset `BASELINE_ANCHOR_HZ` to `null`, re-measure every snapshot.
-- **The anchors must not import from v0.** `V0_BENCH_TARGET` aliases `@vuetify/v0` to source, this package's dist, or an installed version. An anchor resolving through that alias would vary with the very thing it is the fixed unit for, so the scale factor would absorb v0's own performance changes and cancel them out of the results.
+Two further facts settled it. **Every committed artifact had `scale: 1`** — the apparatus was inert for its entire life, so deleting it changed no published number and required no migration. And a survey of ~35 comparable projects (V8, JetStream, Speedometer, Node core, TypeScript `ts-perf`, rustc-perf, LNT, SPEC, JMH, Go `benchstat`, criterion.rs, Vue core, React, Deno, Bun, esbuild, Biome, tinybench, mitata, CodSpeed, BenchmarkDotNet, MongoDB, Mozilla) found **zero** that derive a host scale from a synthetic probe and divide by it. Benchmark.js shipped exactly this mechanism and removed it, for exactly this reason. SPEC's reference-machine ratio looks like precedent but is not: it normalizes each benchmark against *its own* reference time, a unit conversion that provably cancels.
 
-**One-time transition.** The regen workflow diffs against the previously *committed* benchmarks.json. Artifacts produced before calibration carry no apparatus, so `scaleOf` treats them as baseline-speed. The first regen after a baseline is captured therefore compares a raw `prev` against a normalized `next` and will report a spurious whole-panel delta — expected once, on that run only. Every regen after it compares normalized to normalized.
+**What replaces it:** nothing corrects the host. Instead the host is *fixed*, its identity is *recorded* (`env`), and whole-suite movement is *reported* (`suiteShiftPct` in the delta report). If every bench moves together, that is visible in one line and a human draws the obvious conclusion — rather than the shift being silently folded into every figure. If two artifacts' `env.cpu` or `env.node` differ, their absolute numbers are not comparable and the answer is to re-measure the series, not to rescale it.
 
-`BASELINE_ANCHOR_HZ` starts `null`, mirroring `since: null` in maturity.json — the reference value is only knowable once the anchors have actually run on the reference host. While it is null, `scale` is 1 and the pipeline behaves exactly as before, so nothing is silently rescaled against a guess. A maintainer captures `apparatus.anchors` from the first reference-host metrics run, pastes it in, and re-runs so every snapshot is expressed in the new unit.
+**Do not reintroduce a calibration probe.** If cross-machine comparison becomes genuinely necessary, the options with real precedent are: re-measure history on the new machine (what `metrics:history` already does), switch the gated metric to something deterministic such as instruction counts (rustc-perf's answer, ±0.2%), or bench both versions in one interleaved run and publish only the ratio (Node core's answer). A synthetic probe disjoint from the workload is not on that list.
 
 ## Reference host
 
-Benchmarks are measured on a **fixed workstation**, not a CI runner. Calibration compensates for host rotation; a fixed host removes it. The two are complements, not alternatives — the anchor suite still runs every time, because it is what proves the host has not drifted and what makes any future host migration re-derivable.
+Benchmarks are measured on a **fixed workstation**, not a CI runner. This is the entire mechanism — fixing the host removes host rotation rather than compensating for it, which is why nothing downstream needs a correction factor.
 
-Measured on the reference box (i9-7980XE, 18C/36T), 5 consecutive unpinned runs of the anchor suite: **median spread 4.2%, worst anchor 10.9%**, against the +50.9% median that host rotation produced on GHA. Dispersion concentrates in the allocation-heavy anchors (`object churn`, `grouped aggregate`) and is GC-shaped, not placement-shaped.
+Measured on the reference box (i9-7980XE, 18C/36T), four full-suite runs of identical code: **per-feature spread 2.16% median, 4.96% worst; per-bench 1.81% median, 8.51% at p95** — against the +50.9% median that host rotation produced on GHA. Run `pnpm metrics:verify` to reproduce those figures on demand; it is the standing proof that the setup still deserves trust.
 
-**Do not pin the bench to a core subset.** The intuitive hardening step measures worse. Restricting the run to 2 physical cores cost 5–8% throughput on the fast anchors and widened the tails; widening to all 18 physical cores restored throughput but not stability. Node's GC and marking threads plus the vitest main process need cores of their own, and taking them away is a cost with no matching benefit. `taskset` is not part of the apparatus.
+**Read feature aggregates, not individual benches.** 127 of 433 benches report `rme > 5` and swing 6–7% run-to-run (worst 46%), so a single bench moving 10% is usually noise. The same data aggregated per feature moves 2.16%. Tier badges already operate at feature level; regression judgements should too.
+
+**Do not pin the bench to a core subset.** The intuitive hardening step measures worse. Restricting the run to 2 physical cores cost 5–8% throughput on the fast benches and widened the tails; widening to all 18 physical cores restored throughput but not stability. Node's GC and marking threads plus the vitest main process need cores of their own, and taking them away is a cost with no matching benefit. `taskset` is not part of the apparatus.
 
 ### Host readiness guard
 
@@ -411,21 +419,13 @@ Enforcement is skipped only on an **ephemeral** CI runner, read as `CI` set *and
 
 **Restore is wired to signals, and that required the child to be async.** `finally` does not run on Ctrl-C, so release is also bound to SIGINT/SIGTERM. That alone was not enough: signal handlers only run when the event loop turns, and the original `execFileSync` blocked it for the whole suite. Verified before the change — SIGINT to the parent left vitest still benching and the box pinned to `performance`, with the interrupt queued behind the very run it was meant to abort. `runOnce` now spawns asynchronously and the handler kills the child, so an interrupt aborts the run and hands the machine back.
 
-**The measured benefit is small, and the honest number matters more than the intuition here.** A first sequential comparison — five `powersave` runs, then five `performance` runs — showed `performance` looking dramatically *worse* (median spread 6.33% vs 4.20%, worst anchor 26.07% vs 10.88%). That result did not survive an interleaved re-test. Alternating the governors across four paired runs, which cancels time-ordered drift, reversed it: median per-anchor CV **1.79% on `performance` against 1.98% on `powersave`**, with a median speed delta of **+0.06%**. The sequential comparison was measuring the passage of time, not the governor.
+**The measured benefit is small, and the honest number matters more than the intuition here.** A first sequential comparison — five `powersave` runs, then five `performance` runs — showed `performance` looking dramatically *worse*. That result did not survive an interleaved re-test. Alternating the governors across four paired runs, which cancels time-ordered drift, reversed it: median CV **1.79% on `performance` against 1.98% on `powersave`**, with a median speed delta of **+0.06%**. The sequential comparison was measuring the passage of time, not the governor.
 
 Two things follow. The toggle stays, because it removes a variable for roughly nothing and the mechanism already exists — but it is not what makes these numbers trustworthy, and nobody should expect it to rescue a noisy suite. And any future governor/apparatus comparison must be **interleaved**, never run as one block after another; on this host a sequential A/B produced a confident result with the wrong sign.
 
 The governor is restored afterwards rather than left on `performance`, because the reference host is a desktop somebody else uses; pinning 18 cores to max clocks permanently is a round-the-clock cost for a benefit that exists only during a run.
 
-**Trimming.** `computeScale` drops `TRIM` anchors from each end of the sorted ratio list before taking the geometric mean, so one pathological anchor cannot move the scale factor. `TRIM` is **2**, raised from 1 on the reference host: scoring 18 runs as all 306 ordered pairs (each run scaled against every other, where the ideal answer is exactly 1) gave a median scale error of 1.182% untrimmed, 0.945% at 1, 0.753% at 2, 0.615% at 3, 0.565% at 4. The curve knees at 2–3, and 2 still averages 9 of the 13 anchors. The reason 1 was not enough is that this host has *more than one* unstable anchor — dispersion concentrates in the allocation-heavy trio whose timing is GC-scheduled. Note the evidence is single-host, so it demonstrates trimming suppressing GC noise rather than trimming suppressing host-shape outliers; widening should help both, but that half is inference. Raising `TRIM` is nearly free while `BASELINE_ANCHOR_HZ` is null and a sub-percent re-ruler afterwards.
-
-**The baseline is a median of four full-suite runs, and normalization is insurance rather than an improvement.** A single capture bakes its own noise into the unit, so `BASELINE_ANCHOR_HZ` is the per-anchor median across four independent full-suite runs (each itself a median of 3) on the idle reference host.
-
-Measured caveat, and it is the important one: across those four runs, three produced a scale within 0.4% of 1 while the fourth produced **0.963** — its allocation-heavy anchors collapsed (`object churn` −38%, `grouped aggregate` −27%) while the 446 real benches moved only **+1.4%**. The median anchor moved −4.6%, so no trim setting rescues it; the anchors just did not track the suite that run. Dividing by that scale would have *injected* ~4% of error across every bench instead of removing any.
-
-So on an unchanged host this apparatus is a no-op two runs in three and a ~4% distortion in the third. Its value is cross-host — it exists so a future CPU, kernel, or Node major can be corrected for, and because every artifact stores its raw anchors that correction stays derivable after the fact. Read a sub-5% normalized delta as noise, not signal.
-
-**What calibration does not fix.** About 6% of benches are host-*shape*-sensitive, not merely host-speed-sensitive: on the #714 pair, `createTokens` alias resolution moved ~2.5x while the suite moved 1.47x. Those survive normalization as genuine outliers and need quarantining from tiering and gating separately — a single scale factor cannot rescue them.
+**A note on what the fixed host does not fix.** About 6% of benches are host-*shape*-sensitive rather than merely host-speed-sensitive: on the #714 pair, `createTokens` alias resolution moved ~2.5x while the suite moved 1.47x. On a fixed host this stops mattering day to day, but it is the reason a future machine migration cannot be papered over with any single factor — the honest migration is to re-measure the series on the new host.
 
 ## Apparatus & imports (benchmark-history harness)
 

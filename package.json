@@ -28,6 +28,7 @@
     "metrics:bench": "V0_BENCH_TARGET=dist node scripts/run-bench-stable.ts --runs 3 --out apps/docs/public/benchmarks.json",
     "metrics:history": "node scripts/generate-metrics-history.ts",
     "metrics:check": "node scripts/check-benchmark-artifacts.ts",
+    "metrics:verify": "node scripts/verify-bench-stability.ts",
     "metrics:delta": "node scripts/report-benchmark-delta.ts",
     "skill": "node scripts/generate-skill.ts",
     "typecheck": "pnpm --filter=\"./packages/*\" typecheck",

@@ -27,7 +27,7 @@ import {
   medianMergeRuns,
   normalizeBenchJson,
 } from './lib/bench-stable.ts'
-import { CALIBRATION_FILE, buildApparatus } from './lib/calibration.ts'
+import { describeEnv } from './lib/env.ts'
 import { checkHost, formatHost, holdGovernor, isReferenceHost } from './lib/host-guard.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -198,41 +198,31 @@ async function main (): Promise<void> {
       ? normalizeBenchJson(runFiles[0]!)
       : medianMergeRuns(runFiles)
 
-    // Host fingerprint + scale factor travel with the numbers they describe.
-    // Raw hz stays raw here — this file is the source of truth for what was
-    // actually measured; normalization happens where artifacts are shaped for
-    // consumption, so a bad baseline can always be re-derived rather than
-    // having been baked in irreversibly.
-    // Record the governor that was in force while measuring, not the one the
-    // host happened to idle at before the toggle.
-    const apparatus = buildApparatus(merged, runs, {
+    // The fingerprint travels with the numbers it describes. Values stay raw:
+    // there is nothing to correct for when every artifact comes from the same
+    // machine, and the fingerprint is what reveals the day that stops being
+    // true. Governor recorded is the one in force while measuring, not the one
+    // the host idled at beforehand.
+    const env = describeEnv({
       busy: host.busy,
       peak: host.peak,
       governor: release ? 'performance' : host.governor,
     })
-    const withApparatus: BenchJson = { ...merged, apparatus }
+    const withEnv: BenchJson = { ...merged, env, runs }
 
     mkdirSync(dirname(out), { recursive: true })
-    writeFileSync(out, `${JSON.stringify(withApparatus, null, 2)}\n`)
+    writeFileSync(out, `${JSON.stringify(withEnv, null, 2)}\n`)
     const nFiles = merged.files?.length ?? 0
     const nBenches = (merged.files ?? []).reduce(
       (sum, f) => sum + (f.groups ?? []).reduce((s, g) => s + (g.benchmarks?.length ?? 0), 0),
       0,
     )
     console.log(`[run-bench-stable] wrote ${out} (${nFiles} files, ${nBenches} benches, median of ${runs})`)
-    const anchorCount = Object.keys(apparatus.anchors).length
     console.log(
-      `[run-bench-stable] apparatus: scale=${apparatus.scale.toFixed(4)} `
-      + `anchors=${anchorCount}${apparatus.complete ? '' : ' (INCOMPLETE)'} `
-      + `baseline=${apparatus.baseline ? 'stored' : 'null — numbers are raw, not yet host-normalized'} `
-      + `cpu=${apparatus.env.cpu ?? 'unknown'}`,
+      `[run-bench-stable] env: cpu=${env.cpu ?? 'unknown'} node=${env.node} `
+      + `busy=${env.busy === null || env.busy === undefined ? 'unknown' : `${(env.busy * 100).toFixed(1)}%`} `
+      + `governor=${env.governor ?? 'n/a'}`,
     )
-    if (!apparatus.complete) {
-      console.warn(
-        '[run-bench-stable] calibration anchors missing or partial — scale forced to 1. '
-        + `Expected ${CALIBRATION_FILE} to contribute its full anchor set.`,
-      )
-    }
   } finally {
     rmSync(dir, { recursive: true, force: true })
     release?.()
