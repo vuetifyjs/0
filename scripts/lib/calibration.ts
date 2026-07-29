@@ -50,11 +50,25 @@ export const ANCHOR_COUNT = 13
  * can be refreshed — they are the definition of "baseline speed".
  *
  * Captured 2026-07-28 on the reference host: Intel i9-7980XE (18C/36T), Linux
- * x64, Node v26.0.0, `V0_BENCH_TARGET=dist`, median of 3 runs, host verified
- * idle (0.19% busy) with the scaling governor held at `performance`. Held `null`
- * until then, mirroring the `since: null` convention in maturity.json, because
- * the value is only knowable once the measurement has actually happened and
- * guessing it would have ossified a fictional unit.
+ * x64, Node v26.0.0, `V0_BENCH_TARGET=dist`, host verified idle with the
+ * scaling governor held at `performance`. Each value is the median across four
+ * independent full-suite runs, each itself a median of 3 — not one capture.
+ * That matters: a single run bakes its own noise into the unit, and one of the
+ * four diverged badly (see below). Held `null` until then, mirroring the
+ * `since: null` convention in maturity.json, because the value is only knowable
+ * once the measurement has actually happened and guessing it would have
+ * ossified a fictional unit.
+ *
+ * ⚠️ Known residual, measured not theorised. Across four full-suite runs on the
+ * same idle host, three produced a scale within 0.4% of 1 while one produced
+ * 0.963 — its allocation-heavy anchors collapsed (`object churn` −38%,
+ * `grouped aggregate` −27%) while the 446 real benches moved only +1.4%. The
+ * median anchor moved −4.6%, so trimming cannot rescue it; the anchors simply
+ * did not track the suite that run. Normalizing by that scale would have
+ * injected ~4% of error into every bench rather than removing any. Same-host,
+ * this apparatus is a no-op two runs in three and a 4% distortion in the third
+ * — its value is cross-host, and it should be read as insurance against a
+ * future host change rather than as something improving today's numbers.
  *
  * Re-capturing these numbers re-rulers every stored snapshot — a deliberate
  * re-baseline, never a tweak, and never a way to "fix" a suspicious result. The
@@ -69,19 +83,19 @@ export const ANCHOR_COUNT = 13
  * `next`. Once only — every regen after it compares normalized to normalized.
  */
 export const BASELINE_ANCHOR_HZ: Record<string, number> | null = {
-  'anchor a01 property read': 4_446_741.946_214_202,
-  'anchor a02 map get': 1_192_640.261_224_444_3,
-  'anchor a03 array sum': 1_045_067.924_737_868_7,
-  'anchor a04 object spread': 544_112.280_590_834_2,
-  'anchor a05 closure calls': 231_574.460_031_297_55,
-  'anchor a06 map build': 37_105.222_052_120_31,
-  'anchor a07 array sort': 6783.491_251_731_42,
-  'anchor a08 tree walk': 104_206.970_018_071_88,
-  'anchor a09 string build': 3414.127_931_224_647_5,
-  'anchor a10 object churn': 58_275.851_163_984_59,
-  'anchor a11 filter map reduce': 6651.132_479_475_818,
-  'anchor a12 grouped aggregate': 6850.491_960_079_82,
-  'anchor a13 large sort': 545.036_815_299_884_4,
+  'anchor a01 property read': 4_467_210.901_183_255,
+  'anchor a02 map get': 1_183_028.075_491_718,
+  'anchor a03 array sum': 1_029_829.487_836_776,
+  'anchor a04 object spread': 544_078.337_835_636,
+  'anchor a05 closure calls': 231_535.284_357_314,
+  'anchor a06 map build': 37_064.228_020_680_2,
+  'anchor a07 array sort': 6788.042_184_798_543,
+  'anchor a08 tree walk': 103_478.357_393_760_38,
+  'anchor a09 string build': 3407.019_177_305_796_3,
+  'anchor a10 object churn': 56_342.383_227_671_03,
+  'anchor a11 filter map reduce': 6577.703_329_317_783,
+  'anchor a12 grouped aggregate': 6830.500_651_511_602,
+  'anchor a13 large sort': 543.437_717_789_633_8,
 }
 
 /**
