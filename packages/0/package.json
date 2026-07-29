@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/v0",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Headless, unstyled, accessible Vue 3 primitives and composables — a meta UI framework for building applications, component libraries, and design systems",
   "keywords": [
     "vue",
