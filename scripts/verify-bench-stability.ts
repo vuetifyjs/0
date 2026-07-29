@@ -12,8 +12,12 @@
  *
  * Usage:
  *   node scripts/verify-bench-stability.ts --runs 3
- *     Measure the suite N times back-to-back and compare. Slow (~25 min/run)
- *     and the real test, because it exercises the whole path.
+ *     Measure the suite N times back-to-back and compare. Slow and the real
+ *     test, because it exercises the whole path.
+ *
+ *   node scripts/verify-bench-stability.ts --runs 3 --merge 1
+ *     Faster and much noisier: each sample is a single pass rather than the
+ *     median-of-3 the pipeline actually ships. Bands below do not apply.
  *
  *   node scripts/verify-bench-stability.ts --from a.json b.json c.json
  *     Compare artifacts that already exist. Fast, and useful for re-checking a
@@ -37,18 +41,24 @@ const ROOT = resolve(__dirname, '..')
 /**
  * Pass/fail bands, in percent.
  *
- * Measured across four independent full-suite runs of identical code on the
- * idle reference workstation: per-feature spread was 2.16% median and 4.96%
- * worst, per-bench 1.81% median and 8.51% at p95. The limits sit roughly double
- * the observed worst case, so ordinary variation passes and a genuine change in
- * measurement conditions fails. They are deliberately not tight: this checks
- * that the apparatus is sound, not that the machine is fast.
+ * Calibrated against what the pipeline actually publishes — median-of-3
+ * artifacts, which is why `--merge` defaults to 3. Measured across four such
+ * artifacts of identical code on the idle reference workstation: per-feature
+ * spread 2.16% median / 4.96% worst, per-bench 3.90% median / 14.60% at p95.
+ * The limits sit at roughly 1.4-2x the observed worst case, so ordinary
+ * variation passes and a genuine change in measurement conditions fails.
+ *
+ * The merge level matters more than it looks: repeated passes are the only
+ * lever that measurably reduces error here, far more than any normalization
+ * scheme. Single-pass samples run ~6% per-bench median against the ~3.9% of a
+ * median-of-3, so comparing single passes against these bands fails on healthy
+ * hardware — an earlier version of this script did exactly that.
  */
 const THRESHOLDS = {
   featureMedian: 5,
   featureMax: 10,
-  benchMedian: 4,
-  benchP95: 15,
+  benchMedian: 6,
+  benchP95: 20,
 }
 
 interface Sample {
@@ -57,20 +67,31 @@ interface Sample {
   benches: Record<string, number>
 }
 
-function parseArgs (argv: string[]): { runs: number, from: string[] } {
+function parseArgs (argv: string[]): { runs: number, merge: number, from: string[] } {
   let runs = 0
+  let merge = 3
   const from: string[] = []
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--runs') {
-      runs = Number(argv[++i])
-      if (!Number.isFinite(runs) || runs < 2) throw new Error('--runs must be >= 2 to compare anything')
-    } else if (argv[i] === '--from') {
-      while (i + 1 < argv.length && !argv[i + 1]!.startsWith('--')) from.push(resolve(argv[++i]!))
+    switch (argv[i]) {
+      case '--runs': {
+        runs = Number(argv[++i])
+        if (!Number.isFinite(runs) || runs < 2) throw new Error('--runs must be >= 2 to compare anything')
+        break
+      }
+      case '--merge': {
+        merge = Number(argv[++i])
+        if (!Number.isFinite(merge) || merge < 1) throw new Error('--merge must be >= 1')
+        break
+      }
+      case '--from': {
+        while (i + 1 < argv.length && !argv[i + 1]!.startsWith('--')) from.push(resolve(argv[++i]!))
+        break
+      }
     }
   }
   if (runs === 0 && from.length === 0) runs = 2
   if (from.length === 1) throw new Error('--from needs at least two artifacts to compare')
-  return { runs, from }
+  return { runs, merge, from }
 }
 
 function read (path: string, label: string): Sample {
@@ -87,14 +108,14 @@ function read (path: string, label: string): Sample {
   return { label, benches }
 }
 
-function measure (count: number): Sample[] {
+function measure (count: number, merge: number): Sample[] {
   const dir = mkdtempSync(resolve(tmpdir(), 'v0-bench-verify-'))
   const samples: Sample[] = []
   try {
     for (let i = 0; i < count; i++) {
       const out = resolve(dir, `run-${i + 1}.json`)
-      console.log(`[verify] measuring ${i + 1}/${count} — this takes a while by design`)
-      execFileSync('node', [resolve(ROOT, 'scripts/run-bench-stable.ts'), '--runs', '1', '--out', out], {
+      console.log(`[verify] measuring ${i + 1}/${count} (median of ${merge}) — this takes a while by design`)
+      execFileSync('node', [resolve(ROOT, 'scripts/run-bench-stable.ts'), '--runs', String(merge), '--out', out], {
         cwd: ROOT,
         stdio: 'inherit',
         env: { ...process.env, V0_BENCH_TARGET: process.env.V0_BENCH_TARGET ?? 'dist' },
@@ -123,10 +144,13 @@ function spread (values: number[]): number {
 }
 
 function main (): void {
-  const { runs, from } = parseArgs(process.argv.slice(2))
+  const { runs, merge, from } = parseArgs(process.argv.slice(2))
   const samples = from.length > 0
     ? from.map((path, index) => read(path, `artifact-${index + 1}`))
-    : measure(runs)
+    : measure(runs, merge)
+  if (from.length === 0 && merge !== 3) {
+    console.warn(`[verify] --merge ${merge} does not match the shipping pipeline's median-of-3; the bands below are calibrated for 3 and will misjudge this run.`)
+  }
 
   // Only benches present in every sample can be compared at all.
   const keys = Object.keys(samples[0]!.benches).filter(key => samples.every(s => s.benches[key] !== undefined))
