@@ -4,7 +4,7 @@
  *
  * Context: benchmarks are measured on a fixed workstation rather than a CI
  * runner, because `runs-on: ubuntu-24.04` pins the OS image and not the CPU —
- * see the header of `calibration.ts` for the +50.9% host-rotation evidence.
+ * see `.claude/rules/benchmarks.md` for the +50.9% host-rotation evidence.
  * A fixed host removes that variance, but introduces one CI never had: the
  * machine is a real desktop that other people use. A bench run that overlaps a
  * game, a build, or a browser is not a slow measurement, it is a wrong one, and
@@ -48,22 +48,6 @@ const SAMPLE_MS = 1000
 
 /** Governor that keeps clocks from drifting mid-suite. Anything else is a warning. */
 const WANTED_GOVERNOR = 'performance'
-
-/**
- * Governors the helper can set, and therefore the only ones a run can promise
- * to put back. Holding `performance` is refused outright when the host started
- * on anything else — leaving somebody's desktop pinned to max clocks because
- * the original value was unrepresentable is a worse outcome than benching at
- * whatever governor was already in force.
- */
-const RESTORABLE = new Set(['performance', 'powersave'])
-
-/**
- * Root-owned helper that sets the scaling governor, installed on the reference
- * host with a sudoers rule scoped to this one path. Absent everywhere else,
- * which is why every call site treats it as optional.
- */
-const GOVERNOR_HELPER = '/usr/local/sbin/v0-governor'
 
 export interface HostReport {
   /** Fraction of whole-machine CPU time busy across the window, or null if unreadable. */
@@ -186,6 +170,13 @@ export function otherUsers (): string[] {
  * measurement or merely degrades it. Competing load corrupts: the numbers are
  * wrong and silently so. A non-performance governor degrades: clocks drift
  * during the suite, which widens dispersion without inventing a fake result.
+ *
+ * The governor is reported, never set. A previous version toggled it per run
+ * through a root-owned helper; the only evidence for that was a CV of 1.79%
+ * against 1.98%, measured on the calibration anchors — the one part of this
+ * system since proven not to track the suite. A sudoers rule and signal-restore
+ * plumbing for a +0.06% median effect measured with a discredited instrument is
+ * not a trade worth making. Set it persistently in host config if you want it.
  */
 export function checkHost (limit: number = BUSY_LIMIT, core: number = CORE_LIMIT): HostReport {
   const sample = sampleBusy()
@@ -214,81 +205,6 @@ export function checkHost (limit: number = BUSY_LIMIT, core: number = CORE_LIMIT
   }
 
   return { busy: sample?.busy ?? null, peak: sample?.peak ?? null, governor, load, others, blocks, warns }
-}
-
-/**
- * Set the scaling governor, returning whether it took.
- *
- * Fail-soft on purpose: a machine that cannot set its governor is a machine
- * that benches slightly noisier, not one that should refuse to bench. The
- * measured difference on the reference host is small — interleaved A/B over
- * four pairs put median per-anchor CV at 1.79% on `performance` against 1.98%
- * on `powersave`, with a median speed delta of +0.06%. Worth removing as a
- * variable since the mechanism is already there; not worth failing a run over.
- */
-export function setGovernor (value: 'performance' | 'powersave'): boolean {
-  if (!existsSync(GOVERNOR_HELPER)) return false
-  try {
-    execFileSync('sudo', ['-n', GOVERNOR_HELPER, value], { stdio: 'ignore' })
-    return readGovernor() === value
-  } catch {
-    return false
-  }
-}
-
-/** True when the governor helper is installed, i.e. this is a managed reference host. */
-export function isReferenceHost (): boolean {
-  return existsSync(GOVERNOR_HELPER)
-}
-
-/**
- * Hold `performance` for the duration of a run and give back a release function.
- *
- * Returns null — changing nothing — when there is no helper, when the governor
- * is already `performance`, or when the original value is one the helper cannot
- * set back (`schedutil`, `ondemand`, the `mixed(...)` marker). That last case is
- * the important one: flipping to `performance` from an unrestorable governor
- * would strand somebody's desktop at max clocks forever, so the run simply
- * declines to touch it.
- *
- * Release is wired to SIGINT and SIGTERM as well as to the caller's `finally`,
- * because the window being protected is a ~25 minute suite and the likeliest
- * way it ends early is a human pressing Ctrl-C — which does not run `finally`.
- *
- * `onSignal` lets the caller tear down whatever it has in flight before the
- * process re-raises. That is not optional in practice: signal handlers only run
- * when the event loop turns, so a caller blocking on a synchronous child would
- * never reach this code until the child it wanted to abort had already
- * finished.
- */
-export function holdGovernor (onStop?: (signal: NodeJS.Signals) => void): (() => void) | null {
-  const previous = readGovernor()
-  if (previous === null || previous === WANTED_GOVERNOR) return null
-  if (!RESTORABLE.has(previous)) return null
-  if (!setGovernor(WANTED_GOVERNOR)) return null
-
-  let released = false
-  function release (): void {
-    if (released) return
-    released = true
-    process.off('SIGINT', onSignal)
-    process.off('SIGTERM', onSignal)
-    if (!setGovernor(previous as 'performance' | 'powersave')) {
-      console.warn(`[host-guard] could not restore governor to ${previous} — host left on ${WANTED_GOVERNOR}`)
-    }
-  }
-
-  function onSignal (signal: NodeJS.Signals): void {
-    onStop?.(signal)
-    release()
-    // Re-raise with the handler removed so the exit code reflects the signal
-    // rather than a clean 0, which would read as a successful bench.
-    process.kill(process.pid, signal)
-  }
-
-  process.once('SIGINT', onSignal)
-  process.once('SIGTERM', onSignal)
-  return release
 }
 
 /** One-line summary for the run log. */

@@ -28,7 +28,7 @@ import {
   normalizeBenchJson,
 } from './lib/bench-stable.ts'
 import { describeEnv } from './lib/env.ts'
-import { checkHost, formatHost, holdGovernor, isReferenceHost } from './lib/host-guard.ts'
+import { checkHost, formatHost } from './lib/host-guard.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -68,21 +68,18 @@ function parseArgs (argv: string[]): { runs: number, out: string, help: boolean,
 /**
  * Refuse to measure a machine that is busy with something else.
  *
- * The host is *always* inspected, so `apparatus.env` records the conditions
- * behind every artifact even where the guard would not stop anything — that
- * attribution is the whole reason the fields exist.
+ * The host is *always* inspected, so `env` records the conditions behind every
+ * artifact even where the guard would not stop anything — that attribution is
+ * the whole reason the fields exist.
  *
- * Enforcement is skipped only on an ephemeral CI runner, which is a fresh VM
- * doing nothing else and where the host-rotation problem calibration exists for
- * dominates instead. "Ephemeral" is read as `CI` set *and* no governor helper
- * installed, rather than `CI` alone: the reference workstation driven by
- * automation also sets `CI`, and that is precisely the case where the readiness
- * contract must still hold. Keying on `CI` alone would disable the guard on the
- * one machine it was written for.
+ * Enforcement is skipped on CI, which is an ephemeral VM doing nothing else.
+ * Note the reference workstation is not driven by CI; if that ever changes,
+ * this check needs a sharper discriminator than the `CI` variable alone,
+ * because it would then disable the guard on the one machine it was written for.
  */
 function guardHost (contended: boolean): ReturnType<typeof checkHost> {
   const report = checkHost()
-  const ephemeral = process.env.CI === 'true' && !isReferenceHost()
+  const ephemeral = process.env.CI === 'true'
   console.log(`[run-bench-stable] host: ${formatHost(report)}`)
   for (const warn of report.warns) console.warn(`[run-bench-stable] warn: ${warn}`)
 
@@ -111,11 +108,9 @@ let child: ChildProcess | null = null
  * Spawned asynchronously rather than with `execFileSync` specifically so the
  * event loop stays free. A synchronous exec blocks signal delivery for its
  * whole duration, which here is the entire suite — a Ctrl-C would sit queued
- * behind a 25-minute child, the interrupt would appear to do nothing, and the
- * governor restore wired to that signal could not run until the run it was
- * meant to abort had finished anyway. Verified on the reference host before
- * this was changed: SIGINT to the parent left vitest benching on and the box
- * pinned to `performance`.
+ * behind a 25-minute child and the interrupt would appear to do nothing.
+ * Verified on the reference host before this was changed: SIGINT to the parent
+ * left vitest benching on, orphaned, with the parent waiting on it.
  */
 function runOnce (jsonOut: string): Promise<BenchJson> {
   return new Promise((resolve, reject) => {
@@ -153,10 +148,19 @@ function runOnce (jsonOut: string): Promise<BenchJson> {
   })
 }
 
-/** Take the in-flight vitest process down so an interrupt is not silently ignored. */
+/**
+ * Take the in-flight vitest process down with us, so an interrupt is not
+ * silently ignored and a 25-minute child is not orphaned to run to completion
+ * after its parent is gone.
+ */
 function stopChild (signal: NodeJS.Signals): void {
   child?.kill(signal)
+  process.off(signal, stopChild)
+  process.kill(process.pid, signal)
 }
+
+process.once('SIGINT', stopChild)
+process.once('SIGTERM', stopChild)
 
 async function main (): Promise<void> {
   const { runs, out, help, contended } = parseArgs(process.argv.slice(2))
@@ -172,20 +176,8 @@ async function main (): Promise<void> {
 
   const host = guardHost(contended)
 
-  // Everything that can throw happens before the governor is touched, so there
-  // is no window in which the host has been changed but the restore is not yet
-  // armed.
   const dir = mkdtempSync(resolve(tmpdir(), 'v0-bench-stable-'))
   const runFiles: BenchJson[] = []
-
-  // Hold the clock steady for the duration of the suite, then hand the machine
-  // back as it was found — this is somebody's desktop, and leaving 18 cores
-  // pinned to max clocks after a bench is a cost paid around the clock for a
-  // benefit that only exists during one. No-ops wherever the helper is absent,
-  // where the governor is already `performance`, or where the original value is
-  // one the helper cannot set back.
-  const release = holdGovernor(stopChild)
-  if (release) console.log(`[run-bench-stable] governor: ${host.governor} → performance (restored after)`)
 
   try {
     for (let i = 0; i < runs; i++) {
@@ -200,13 +192,11 @@ async function main (): Promise<void> {
 
     // The fingerprint travels with the numbers it describes. Values stay raw:
     // there is nothing to correct for when every artifact comes from the same
-    // machine, and the fingerprint is what reveals the day that stops being
-    // true. Governor recorded is the one in force while measuring, not the one
-    // the host idled at beforehand.
+    // machine, and the fingerprint is what reveals the day that stops being true.
     const env = describeEnv({
       busy: host.busy,
       peak: host.peak,
-      governor: release ? 'performance' : host.governor,
+      governor: host.governor,
     })
     const withEnv: BenchJson = { ...merged, env, runs }
 
@@ -225,7 +215,6 @@ async function main (): Promise<void> {
     )
   } finally {
     rmSync(dir, { recursive: true, force: true })
-    release?.()
   }
 }
 
