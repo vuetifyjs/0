@@ -234,6 +234,41 @@ describe('snackbar', () => {
       expect(close.attributes('type')).toBeUndefined()
     })
 
+    it('should dismiss via onKeydown Enter when as is not button', async () => {
+      const onDismiss = vi.fn()
+      let attrs: any
+
+      mount(
+        defineComponent({
+          setup () {
+            provide('v0:notifications:root', { id: 'x', onDismiss })
+          },
+          render () {
+            return h(Snackbar.Close, { as: 'div' }, {
+              default: (p: any) => {
+                attrs = p.attrs
+                return 'X'
+              },
+            })
+          },
+        }),
+      )
+
+      await nextTick()
+      expect(attrs.role).toBe('button')
+      expect(attrs.tabindex).toBe(0)
+      expect(attrs.onKeydown).toBeTypeOf('function')
+
+      const enter = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+      attrs.onKeydown(enter)
+      expect(onDismiss).toHaveBeenCalledTimes(1)
+      expect(enter.defaultPrevented).toBe(true)
+
+      const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      attrs.onKeydown(space)
+      expect(onDismiss).toHaveBeenCalledTimes(2)
+    })
+
     it('should throw when used without root context', () => {
       expect(() => mount(Snackbar.Close)).toThrow()
     })

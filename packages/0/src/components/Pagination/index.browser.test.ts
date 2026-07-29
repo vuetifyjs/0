@@ -767,6 +767,97 @@ describe('pagination', () => {
       expect(typeof nextProps.next).toBe('function')
     })
 
+    it('should navigate via onKeydown Enter/Space when as is not button', async () => {
+      const page = ref(1)
+      let nextProps: any
+
+      mount(Pagination.Root, {
+        props: {
+          'size': 100,
+          'itemsPerPage': 10,
+          'modelValue': page.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            page.value = v as number
+          },
+          'renderless': true,
+        },
+        slots: {
+          default: () =>
+            h(Pagination.Next, { as: 'div' }, {
+              default: (props: any) => {
+                nextProps = props
+                return h('div', 'Next')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+      expect(nextProps.attrs.role).toBe('button')
+      expect(nextProps.attrs.tabindex).toBe(0)
+      expect(nextProps.attrs.onKeydown).toBeTypeOf('function')
+
+      const enter = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+      nextProps.attrs.onKeydown(enter)
+      await nextTick()
+      expect(page.value).toBe(2)
+      expect(enter.defaultPrevented).toBe(true)
+    })
+
+    it('should navigate via onKeydown Space when as is not button', async () => {
+      const page = ref(1)
+      let nextProps: any
+
+      mount(Pagination.Root, {
+        props: {
+          'size': 100,
+          'itemsPerPage': 10,
+          'modelValue': page.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            page.value = v as number
+          },
+          'renderless': true,
+        },
+        slots: {
+          default: () =>
+            h(Pagination.Next, { as: 'div' }, {
+              default: (props: any) => {
+                nextProps = props
+                return h('div', 'Next')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+      const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      nextProps.attrs.onKeydown(space)
+      await nextTick()
+      expect(page.value).toBe(2)
+      expect(space.defaultPrevented).toBe(true)
+    })
+
+    it('should omit onKeydown when as is button', async () => {
+      let nextProps: any
+
+      mount(Pagination.Root, {
+        props: { size: 100, renderless: true },
+        slots: {
+          default: () =>
+            h(Pagination.Next, {}, {
+              default: (props: any) => {
+                nextProps = props
+                return h('button', 'Next')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+      expect(nextProps.attrs.onKeydown).toBeUndefined()
+      expect(nextProps.attrs.role).toBeUndefined()
+    })
+
     it('should fall back to the inline default aria-label when no locale plugin is configured', async () => {
       let nextProps: any
 
@@ -1125,6 +1216,106 @@ describe('pagination', () => {
       expect(clearSpy.mock.calls.length).toBeGreaterThan(callsBeforeUnmount)
 
       vi.useRealTimers()
+    })
+  })
+
+  describe('prev non-button host', () => {
+    it('should navigate via onKeydown Enter when as is not button', async () => {
+      const page = ref(3)
+      let prevProps: any
+
+      mount(Pagination.Root, {
+        props: {
+          'size': 100,
+          'itemsPerPage': 10,
+          'modelValue': page.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            page.value = v as number
+          },
+          'renderless': true,
+        },
+        slots: {
+          default: () =>
+            h(Pagination.Prev, { as: 'div' }, {
+              default: (props: any) => {
+                prevProps = props
+                return h('div', 'Prev')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+      expect(prevProps.attrs.role).toBe('button')
+      prevProps.attrs.onKeydown(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }))
+      await nextTick()
+      expect(page.value).toBe(2)
+    })
+  })
+
+  describe('first non-button host', () => {
+    it('should jump to first via onKeydown Enter when as is not button', async () => {
+      const page = ref(5)
+      let firstProps: any
+
+      mount(Pagination.Root, {
+        props: {
+          'size': 100,
+          'itemsPerPage': 10,
+          'modelValue': page.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            page.value = v as number
+          },
+          'renderless': true,
+        },
+        slots: {
+          default: () =>
+            h(Pagination.First, { as: 'div' }, {
+              default: (props: any) => {
+                firstProps = props
+                return h('div', 'First')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+      firstProps.attrs.onKeydown(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }))
+      await nextTick()
+      expect(page.value).toBe(1)
+    })
+  })
+
+  describe('last non-button host', () => {
+    it('should jump to last via onKeydown Enter when as is not button', async () => {
+      const page = ref(1)
+      let lastProps: any
+
+      mount(Pagination.Root, {
+        props: {
+          'size': 100,
+          'itemsPerPage': 10,
+          'modelValue': page.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            page.value = v as number
+          },
+          'renderless': true,
+        },
+        slots: {
+          default: () =>
+            h(Pagination.Last, { as: 'div' }, {
+              default: (props: any) => {
+                lastProps = props
+                return h('div', 'Last')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+      lastProps.attrs.onKeydown(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }))
+      await nextTick()
+      expect(page.value).toBe(10)
     })
   })
 

@@ -168,6 +168,42 @@ describe('popover', () => {
         expect(wrapper.find('button').exists()).toBe(true)
       })
 
+      it('should toggle via onKeydown Enter/Space when as is not button', async () => {
+        let rootProps: any
+        let activatorAttrs: any
+
+        mount(Popover.Root, {
+          slots: {
+            default: (props: any) => {
+              rootProps = props
+              return h(Popover.Activator, { as: 'div' }, {
+                default: (p: any) => {
+                  activatorAttrs = p.attrs
+                  return 'Click me'
+                },
+              })
+            },
+          },
+        })
+
+        await nextTick()
+        expect(activatorAttrs.role).toBe('button')
+        expect(activatorAttrs.tabindex).toBe(0)
+        expect(activatorAttrs.onKeydown).toBeTypeOf('function')
+        expect(rootProps.isSelected).toBe(false)
+
+        const enter = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+        activatorAttrs.onKeydown(enter)
+        await nextTick()
+        expect(rootProps.isSelected).toBe(true)
+        expect(enter.defaultPrevented).toBe(true)
+
+        const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+        activatorAttrs.onKeydown(space)
+        await nextTick()
+        expect(rootProps.isSelected).toBe(false)
+      })
+
       it('should expose slot props', async () => {
         let anchorProps: any
 
