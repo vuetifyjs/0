@@ -31,7 +31,7 @@ v0 provides machine-readable documentation files following the [llms.txt](https:
 | - | - | - | - |
 | <a href="/llms.txt" target="_blank" class="v0-link">llms.txt↗</a> | {{ llmsStats.llms.sizeFormatted }} | Curated index with links | Quick context, navigation |
 | <a href="/llms-full.txt" target="_blank" class="v0-link whitespace-nowrap">llms-full.txt↗</a> | {{ llmsStats.llmsFull.sizeFormatted }} | Complete documentation | Deep understanding, code generation |
-| <a href="/SKILL.md" target="_blank" class="v0-link">SKILL.md↗</a> | ~5KB | Patterns & anti-patterns | Claude Code, Grok Build, Cursor, Windsurf |
+| <a href="/SKILL.md" target="_blank" class="v0-link">SKILL.md↗</a> | {{ llmsStats.skill.sizeFormatted }} | Patterns & anti-patterns | Claude Code, Grok Build, Cursor, Windsurf |
 
 > [!ASKAI] How do I configure my AI agent to consume llms-full.txt?
 

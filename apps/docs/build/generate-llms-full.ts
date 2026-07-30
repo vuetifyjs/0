@@ -11,6 +11,7 @@ import type { Plugin, ViteDevServer } from 'vite'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
 const BASE_URL = 'https://0.vuetifyjs.com'
+const SKILL_PATH = resolve(__dirname, '../../../skills/vuetify0/SKILL.md')
 
 const VIRTUAL_MODULE_ID = 'virtual:llms-stats'
 const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
@@ -18,6 +19,7 @@ const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
 export interface LlmsStats {
   llms: { size: number, sizeFormatted: string }
   llmsFull: { size: number, sizeFormatted: string }
+  skill: { size: number, sizeFormatted: string }
 }
 
 function formatSize (bytes: number): string {
@@ -299,10 +301,12 @@ export default function generateLlmsFullPlugin (): Plugin {
 
     const llmsSize = new TextEncoder().encode(llmsContent).length
     const llmsFullSize = new TextEncoder().encode(llmsFullContent).length
+    const skillSize = readFileSync(SKILL_PATH).byteLength
 
     statsCache = {
       llms: { size: llmsSize, sizeFormatted: formatSize(llmsSize) },
       llmsFull: { size: llmsFullSize, sizeFormatted: formatSize(llmsFullSize) },
+      skill: { size: skillSize, sizeFormatted: formatSize(skillSize) },
     }
 
     return statsCache
