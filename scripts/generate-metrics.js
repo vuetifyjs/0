@@ -93,7 +93,9 @@ function main () {
     if (benchmarks.env) metrics._env = benchmarks.env
 
     console.log(`  Processed benchmark data for ${Object.keys(metrics).filter(k => metrics[k].benchmarks).length} items`)
-    console.log(`  Measured on ${benchmarks.env?.cpu ?? 'unknown cpu'} / node ${benchmarks.env?.node ?? '?'}`)
+    console.log(benchmarks.env
+      ? `  Benchmarks measured on ${benchmarks.env.cpu ?? 'unknown cpu'} / node ${benchmarks.env.node ?? '?'}`
+      : '  Benchmarks carry no `env` fingerprint (measured before it existed) — regenerate on the reference host to record one')
   } else {
     console.log('No benchmark data found at', BENCHMARKS_PATH)
   }
