@@ -16,28 +16,6 @@
 <template>
   <Select.Activator class="emerald-select__activator" :namespace>
     <slot />
-
-    <!--
-      Named slot so consumers can swap the chevron for a brand icon.
-      Default is decorative (aria-hidden); custom icons should set a11y as needed.
-    -->
-    <span class="emerald-select__icon">
-      <slot name="icon">
-        <svg
-          aria-hidden="true"
-          fill="none"
-          height="16"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          viewBox="0 0 16 16"
-          width="16"
-        >
-          <path d="M4 6l4 4 4-4" />
-        </svg>
-      </slot>
-    </span>
   </Select.Activator>
 </template>
 
