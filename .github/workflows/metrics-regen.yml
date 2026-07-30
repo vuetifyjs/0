@@ -81,6 +81,33 @@ jobs:
           fi
           pnpm metrics:check
 
+      # Benchmarks are owed on the reference host, not here. Surface that in the
+      # PR this job opens so the debt is visible on a page someone already reads,
+      # rather than depending on anyone remembering to check.
+      - name: Check for versions owed a reference-host bench
+        id: owed
+        run: |
+          MISSING=$(node scripts/generate-metrics-history.ts --print-missing || true)
+          if [ -n "$MISSING" ]; then
+            LIST=$(echo "$MISSING" | tr '\n' ' ')
+            echo "Versions owed a bench run: $LIST" >> "$GITHUB_STEP_SUMMARY"
+            # Multi-line values need the delimiter form; a plain assignment
+            # would break GITHUB_OUTPUT parsing at the first newline.
+            {
+              echo "note<<OWED_EOF"
+              echo "> [!NOTE]"
+              echo "> Published without a benchmark snapshot: **$LIST**"
+              echo ">"
+              echo "> History points are measured on the reference workstation, not here."
+              echo "> Run \`pnpm metrics\` and \`pnpm metrics:history\` there, then open a"
+              echo "> \`chore(bench): regenerate metrics\` PR."
+              echo "OWED_EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "Every published version has a benchmark snapshot." >> "$GITHUB_STEP_SUMMARY"
+            echo "note=" >> "$GITHUB_OUTPUT"
+          fi
+
       # create-pull-request will not open a *new* PR if one was closed for this
       # branch — it only updates the branch. Reopen so "Close to discard" is not
       # a one-way trap on the next regen.
@@ -102,6 +129,8 @@ jobs:
           title: "chore: regenerate coverage metrics"
           body: |
             Auto-regenerated after a release. **Coverage only.**
+
+            ${{ steps.owed.outputs.note }}
 
             Benchmark numbers in this diff are the committed reference-host
             measurements, re-emitted unchanged — a shared GitHub runner does not

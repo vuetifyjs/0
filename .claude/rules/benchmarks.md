@@ -424,7 +424,7 @@ Two halves, deliberately split by whether the number cares which CPU produced it
 
 **Coverage — automatic, on CI.** `.github/workflows/metrics-regen.yml` runs `pnpm metrics:coverage` after a release and opens `chore: regenerate coverage metrics`. Coverage is deterministic, so a shared runner is fine. That job re-emits the committed benchmark numbers unchanged and **fails loudly if `benchmarks.json` changes**, because a CI-measured benchmark would silently replace reference-host numbers with whichever CPU the runner drew.
 
-**Benchmarks — manual, on the reference host.** There is no automation for this on purpose: the machine is the apparatus, and no GitHub runner is that machine.
+**Benchmarks — manual, on the reference host.** There is no automation for this on purpose: the machine is the apparatus, and no GitHub runner is that machine. The coverage job does check whether any published version lacks a snapshot (`generate-metrics-history.ts --print-missing`) and says so in the PR it opens, so the debt shows up on a page someone already reads instead of relying on memory.
 
 ```bash
 # On the reference workstation, from a clean checkout of master
