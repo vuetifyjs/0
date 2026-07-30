@@ -339,7 +339,7 @@ Numbers only mean something if the **writer, machine, and flags** are fixed. Hom
 
 | Knob | Canonical value | Why |
 |------|-----------------|-----|
-| Writer | **the reference host only** | Feature PRs must not commit laptop `benchmarks.json` |
+| Writer | **the reference host only** — CI regenerates coverage, never benchmarks | Feature PRs must not commit laptop `benchmarks.json` |
 | Runner | **fixed reference workstation** + Node from `.nvmrc` | A pinned OS image does not pin the CPU — see "Reference host" |
 | Host readiness | <5% busy machine-wide **and** <35% on any single CPU (`scripts/lib/host-guard.ts`) | A fixed host trades runner rotation for desktop contention |
 | Vitest project | `v0:unit` only | `v0:browser` also matches `*.bench.ts` and double-records |
@@ -365,7 +365,7 @@ pnpm metrics:check     # guard: no local paths; PR must not touch metrics artifa
 pnpm metrics:delta --prev old.json --next new.json
 ```
 
-**Do not** commit `apps/docs/public/benchmarks.json` or `apps/docs/src/data/metrics*.json` from a feature branch. `pnpm metrics:check` fails the PR. Override only with `ALLOW_METRICS_ARTIFACT_EDIT=1` and a written reason.
+**Do not** commit `apps/docs/public/benchmarks.json` or `apps/docs/src/data/metrics*.json` from a feature branch. `pnpm metrics:check` fails the PR. Override only with `ALLOW_METRICS_ARTIFACT_EDIT=1` and a written reason. See "Regenerating metrics" below for the sanctioned path.
 
 ## Why there is no host calibration
 
@@ -417,6 +417,36 @@ The clustering in `createNested` and `useDate` is a hint about the benches, not 
 **Read feature aggregates, not individual benches.** 127 of 433 benches report `rme > 5` and swing 6–7% run-to-run (worst 46%), so a single bench moving 10% is usually noise. The same data aggregated per feature moves 2.16%. Tier badges already operate at feature level; regression judgements should too.
 
 **Do not pin the bench to a core subset.** The intuitive hardening step measures worse. Restricting the run to 2 physical cores cost 5–8% throughput on the fast benches and widened the tails; widening to all 18 physical cores restored throughput but not stability. Node's GC and marking threads plus the vitest main process need cores of their own, and taking them away is a cost with no matching benefit. `taskset` is not part of the apparatus.
+
+### Regenerating metrics
+
+Two halves, deliberately split by whether the number cares which CPU produced it.
+
+**Coverage — automatic, on CI.** `.github/workflows/metrics-regen.yml` runs `pnpm metrics:coverage` after a release and opens `chore: regenerate coverage metrics`. Coverage is deterministic, so a shared runner is fine. That job re-emits the committed benchmark numbers unchanged and **fails loudly if `benchmarks.json` changes**, because a CI-measured benchmark would silently replace reference-host numbers with whichever CPU the runner drew.
+
+**Benchmarks — manual, on the reference host.** There is no automation for this on purpose: the machine is the apparatus, and no GitHub runner is that machine.
+
+```bash
+# On the reference workstation, from a clean checkout of master
+git pull && pnpm install --frozen-lockfile
+
+# Coverage + build + bench (median of 3) + metrics.json.
+# Refuses to start if the host is busy — wait rather than passing --allow-contended.
+pnpm metrics
+
+# Only when a newly published version has no snapshot yet
+pnpm metrics:history
+
+# Review before committing: canary table + whole-suite movement
+pnpm metrics:delta --prev <previous benchmarks.json> --next apps/docs/public/benchmarks.json
+pnpm metrics:check
+```
+
+Read the delta with the noise floor in mind. A single bench moving <10% is usually nothing; judge at feature level, where identical code reproduces to ~2%. If `suiteShiftPct` reports the whole suite moving more than ~5% in one direction, suspect the machine before the code — check `env` against the previous artifact and re-run.
+
+Commit as `chore(bench): regenerate metrics` and open a PR. That subject prefix is what `metrics:check` accepts for a human-authored artifact change; anything else fails the PR guard by design, so feature branches cannot quietly ship laptop numbers.
+
+**When the machine itself changes** — new CPU, kernel, Node major, or the box is replaced — the old series is not comparable to the new one and no factor fixes that. Run `pnpm metrics:verify --runs 2` first to confirm the new setup reproduces itself, then re-measure the whole history (`pnpm metrics:history --force`) so every point shares one machine, and say so in the PR.
 
 ### Host readiness guard
 
