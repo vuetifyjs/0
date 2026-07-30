@@ -18,7 +18,6 @@ import {
   assertCiOrRelativePaths,
   type BenchJson,
 } from './lib/bench-stable.ts'
-import { CALIBRATION_FILE } from './lib/calibration.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -87,28 +86,25 @@ function main (): void {
       )
     }
 
-    // Warn, not fail: artifacts committed before the calibration anchors landed
-    // legitimately have no apparatus block, and failing here would block the very
-    // regen run that would add one. Becomes worth promoting to an error once a
-    // baseline is stored and every artifact is expected to carry a scale.
-    const apparatus = raw.apparatus as
-      | { scale?: number, complete?: boolean, baseline?: unknown }
-      | undefined
-    if (!apparatus) {
+    // Warn, not fail: artifacts committed before the fingerprint landed
+    // legitimately have no `env` block, and failing here would block the very
+    // regen run that would add one.
+    //
+    // The fingerprint is what makes two artifacts comparable or not. Absolute
+    // ops/s only mean the same thing when they came off the same machine and
+    // toolchain, and there is no correction factor that fixes it when they did
+    // not — a previous version of this check chased one, and it made numbers
+    // worse. If `cpu` or `node` changed, the answer is to re-measure.
+    const env = raw.env as { cpu?: string | null, node?: string | null } | undefined
+    if (!env) {
       console.warn(
-        '[check-benchmark-artifacts] warning: benchmarks.json has no `apparatus` block, so its '
-        + 'numbers are raw and not comparable to any other run. Regenerate via metrics-regen.',
+        '[check-benchmark-artifacts] warning: benchmarks.json has no `env` block, so there is no '
+        + 'record of which machine produced it. Regenerate via the metrics pipeline.',
       )
-    } else if (apparatus.complete === false) {
+    } else if (!env.cpu || !env.node) {
       console.warn(
-        '[check-benchmark-artifacts] warning: calibration anchors incomplete — host scale forced '
-        + `to 1. Check that ${CALIBRATION_FILE} ran.`,
-      )
-    } else if (!apparatus.baseline) {
-      console.warn(
-        '[check-benchmark-artifacts] warning: no calibration baseline stored yet — numbers are raw. '
-        + 'Capture `apparatus.anchors` into BASELINE_ANCHOR_HZ (scripts/lib/calibration.ts) to enable '
-        + 'host normalization.',
+        '[check-benchmark-artifacts] warning: `env` block is missing cpu/node, so this artifact '
+        + 'cannot be checked for comparability against another.',
       )
     }
   }

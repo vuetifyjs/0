@@ -36,12 +36,11 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { scaleOf } from './lib/bench-stable.ts'
 import { buildItemBenchmarks, extractName, type ItemBenchmarks } from './lib/benchmarks.ts'
 import { config } from './metrics-history.config.ts'
 
 // Types
-import type { Apparatus } from './lib/calibration.ts'
+import type { EnvFingerprint } from './lib/env.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -51,11 +50,12 @@ interface HistoryFile {
   version: string
   generatedAt: string
   /**
-   * How this point was measured. Load-bearing for the trend lines: each version
-   * is benched on whatever runner CI happened to allocate, and hosts differ by
-   * ~1.5x, so without the scale factor a sparkline is mostly host noise.
+   * Which machine and toolchain produced this point. Load-bearing for the trend
+   * lines, but as a comparability check rather than a correction: a sparkline is
+   * only meaningful while every point shares a fingerprint, and when one stops
+   * matching the honest response is to re-measure the series, not to rescale it.
    */
-  apparatus?: Apparatus
+  env?: EnvFingerprint
   items?: Record<string, { benchmarks: ItemBenchmarks }>
   error?: string
 }
@@ -193,7 +193,7 @@ function installVersion (version: string, dir: string): string {
 }
 
 /** Run the current bench suite against `dist`; return the parsed benchmarks JSON. */
-function benchAgainst (dist: string, jsonOut: string): { files?: { filepath: string }[], apparatus?: Apparatus } {
+function benchAgainst (dist: string, jsonOut: string): { files?: { filepath: string }[], env?: EnvFingerprint } {
   // Same stability apparatus as `pnpm metrics:bench` (scripts/run-bench-stable.ts):
   // v0:unit only, maxWorkers=1, no file parallelism, path-normalized output.
   // History uses --runs 1 (full series is already multi-hour); isolation flags
@@ -234,22 +234,21 @@ function processVersion (version: string, force: boolean): void {
     const dist = installVersion(version, dir)
     const raw = benchAgainst(dist, join(dir, 'benchmarks.json'))
 
-    // The anchor suite imports nothing from v0, so it measures identical work
-    // regardless of which version's dist is aliased in. That invariance is the
-    // point: every version in the sweep is scaled by the same ruler, which is
-    // what makes points taken on different runners comparable to each other.
-    const apparatus = raw.apparatus
-    const scale = scaleOf(raw)
+    // Every version in the sweep is measured by the same suite on the same
+    // machine in the same session, which is what makes the points comparable.
+    // The fingerprint records that machine so a future sweep on different
+    // hardware is visibly a different series rather than a silent break.
+    const env = raw.env
 
     const items: Record<string, { benchmarks: ItemBenchmarks }> = {}
     for (const file of raw.files ?? []) {
       const name = extractName(file.filepath)
       if (!name) continue
-      items[name] = { benchmarks: buildItemBenchmarks(file, scale) }
+      items[name] = { benchmarks: buildItemBenchmarks(file) }
     }
 
-    writeOutputFile(version, { apparatus, items })
-    console.log(`[${version}] done — wrote ${Object.keys(items).length} items (host scale ${scale.toFixed(4)})`)
+    writeOutputFile(version, { env, items })
+    console.log(`[${version}] done — wrote ${Object.keys(items).length} items`)
   } catch (error) {
     const message = (error as Error).message
     console.error(`[${version}] FAILED: ${message}`)

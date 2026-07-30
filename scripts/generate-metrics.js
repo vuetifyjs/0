@@ -12,7 +12,6 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { scaleOf } from './lib/bench-stable.ts'
 import { buildItemBenchmarks, extractName } from './lib/benchmarks.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -75,18 +74,15 @@ function main () {
     console.log('Reading benchmark data...')
     const benchmarks = JSON.parse(readFileSync(BENCHMARKS_PATH, 'utf8'))
 
-    // Host calibration factor recorded by run-bench-stable.ts. 1 (no-op) until a
-    // baseline is captured. Applying it here makes every number in metrics.json
-    // host-independent, so tier badges stop flipping when GHA rotates runners.
-    const apparatus = benchmarks.apparatus
-    const scale = scaleOf(benchmarks)
-
+    // Values are raw. Benchmarks come from one fixed workstation, so there is no
+    // host factor to divide out; the fingerprint below is what says whether two
+    // artifacts are comparable at all.
     for (const file of benchmarks.files || []) {
       const name = extractName(file.filepath)
       if (!name) continue
 
       metrics[name] = metrics[name] || {}
-      metrics[name].benchmarks = buildItemBenchmarks(file, scale)
+      metrics[name].benchmarks = buildItemBenchmarks(file)
     }
 
     // Underscore-prefixed so it cannot collide with a feature name, matching the
@@ -94,10 +90,12 @@ function main () {
     // feature name or skip entries without `.benchmarks._groups`, so it is inert
     // to the docs while keeping each artifact self-describing about how it was
     // measured — the provenance whose absence made PR #714 an hour of forensics.
-    if (apparatus) metrics._apparatus = apparatus
+    if (benchmarks.env) metrics._env = benchmarks.env
 
     console.log(`  Processed benchmark data for ${Object.keys(metrics).filter(k => metrics[k].benchmarks).length} items`)
-    console.log(`  Host scale ${scale.toFixed(4)}${scale === 1 ? ' (uncalibrated — raw numbers)' : ''}`)
+    console.log(benchmarks.env
+      ? `  Benchmarks measured on ${benchmarks.env.cpu ?? 'unknown cpu'} / node ${benchmarks.env.node ?? '?'}`
+      : '  Benchmarks carry no `env` fingerprint (measured before it existed) — regenerate on the reference host to record one')
   } else {
     console.log('No benchmark data found at', BENCHMARKS_PATH)
   }

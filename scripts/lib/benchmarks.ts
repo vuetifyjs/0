@@ -171,43 +171,17 @@ function benchSummary (b: RawBench): BenchSummary {
 }
 
 /**
- * Divide the host out of a file's measurements.
- *
- * Applied once here, at the boundary where raw vitest output becomes a consumed
- * artifact, so everything downstream — tiers, labels, fastest/slowest roll-ups,
- * docs, sparklines — is already in baseline units and needs no scale awareness.
- *
- * Raw values are deliberately not duplicated into the output: `apparatus.scale`
- * travels with every artifact, so `rawHz === hz * scale` is always recoverable.
- * Storing both would inflate snapshots that are already the dominant source of
- * diff churn in the metrics-regen PR.
- */
-function rescale (file: RawBenchFile, scale: number): RawBenchFile {
-  if (scale === 1) return file
-  return {
-    ...file,
-    groups: (file.groups ?? []).map(group => ({
-      ...group,
-      benchmarks: (group.benchmarks ?? []).map(b => ({
-        ...b,
-        hz: b.hz / scale,
-        mean: b.mean * scale,
-      })),
-    })),
-  }
-}
-
-/**
  * Reduce a single file entry from vitest bench JSON into the per-item
  * benchmarks shape used by metrics.json and the per-version history files.
  *
- * `scale` is the host calibration factor from `apparatus.scale` (see
- * scripts/lib/calibration.ts). Passing it makes the output host-independent,
- * which is what lets a snapshot measured on one runner sit in the same trend
- * line as one measured on another. Defaults to 1 — an uncalibrated no-op.
+ * Values pass through as measured. There was once a `scale` parameter here that
+ * divided a host-speed factor out of every number, so a snapshot taken on one
+ * GHA runner could sit in the same trend line as one taken on another. It is
+ * gone with the anchors that produced it: benchmarks are measured on one fixed
+ * workstation, and on four full-suite runs of identical code that correction
+ * made results measurably *less* reproducible than leaving them alone.
  */
-export function buildItemBenchmarks (rawFile: RawBenchFile, scale = 1): ItemBenchmarks {
-  const file = rescale(rawFile, scale)
+export function buildItemBenchmarks (file: RawBenchFile): ItemBenchmarks {
   const result: ItemBenchmarks = { _groups: {} }
 
   for (const group of file.groups ?? []) {
