@@ -5,17 +5,18 @@
   export interface EmPaginationItemProps {
     value: number
     disabled?: boolean
+    namespace?: string
   }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmPaginationItem' })
 
-  const { value, disabled = false } = defineProps<EmPaginationItemProps>()
+  const { value, disabled = false, namespace } = defineProps<EmPaginationItemProps>()
 </script>
 
 <template>
-  <Pagination.Item class="emerald-pagination__item" :disabled :value>
+  <Pagination.Item class="emerald-pagination__item" :disabled :namespace :value>
     <slot />
   </Pagination.Item>
 </template>

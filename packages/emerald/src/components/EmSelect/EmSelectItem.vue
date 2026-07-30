@@ -8,6 +8,7 @@
   export interface EmSelectItemProps {
     value: ID
     disabled?: boolean
+    namespace?: string
   }
 </script>
 
@@ -17,11 +18,12 @@
   const {
     value,
     disabled = false,
+    namespace,
   } = defineProps<EmSelectItemProps>()
 </script>
 
 <template>
-  <Select.Item class="emerald-select__item" :disabled :value>
+  <Select.Item class="emerald-select__item" :disabled :namespace :value>
     <slot />
   </Select.Item>
 </template>
@@ -41,7 +43,9 @@
     color: var(--emerald-on-surface, #2b2d2e);
     cursor: pointer;
     user-select: none;
-    transition: background-color 120ms ease, border-color 120ms ease;
+    transition:
+      background-color var(--emerald-motion-duration-fast, 120ms) ease,
+      border-color var(--emerald-motion-duration-fast, 120ms) ease;
   }
 
   .emerald-select__item[data-highlighted],

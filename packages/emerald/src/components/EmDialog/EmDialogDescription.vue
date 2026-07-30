@@ -1,14 +1,20 @@
 <script lang="ts">
   // Framework
   import { Dialog } from '@vuetify/v0'
+
+  export interface EmDialogDescriptionProps {
+    namespace?: string
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmDialogDescription' })
+
+  const { namespace } = defineProps<EmDialogDescriptionProps>()
 </script>
 
 <template>
-  <Dialog.Description class="emerald-dialog__description">
+  <Dialog.Description class="emerald-dialog__description" :namespace>
     <slot />
   </Dialog.Description>
 </template>

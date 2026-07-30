@@ -324,6 +324,7 @@ export const emeraldTheme = {
     alert,
     success,
     info,
+    on,
     background,
     surface,
     border,

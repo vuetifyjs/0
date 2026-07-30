@@ -35,6 +35,7 @@
     display: flex;
     flex-direction: column;
     background: var(--emerald-background, #fefefe);
+    border: var(--emerald-stroke-s, 1px) solid transparent;
     border-radius: var(--emerald-radius-m, 8px);
     overflow: clip;
     font-family: var(--emerald-font-sans, Manrope, system-ui, sans-serif);
@@ -52,7 +53,7 @@
 
   .emerald-card[data-hoverable]:hover {
     box-shadow: var(--emerald-shadow-xl, 0 16px 40px -8px rgba(51, 51, 51, 0.2));
-    border: var(--emerald-stroke-s, 1px) solid var(--emerald-primary-500, #6fb38c);
+    border-color: var(--emerald-primary-500, #6fb38c);
   }
 
   .emerald-card__header {

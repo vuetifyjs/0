@@ -7,24 +7,34 @@
 
   export interface EmTabsPanelProps {
     value: ID
+    namespace?: string
   }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmTabsPanel' })
 
-  const { value } = defineProps<EmTabsPanelProps>()
+  const { value, namespace } = defineProps<EmTabsPanelProps>()
 </script>
 
 <template>
-  <Tabs.Panel class="emerald-tabs__panel" :value>
+  <Tabs.Panel class="emerald-tabs__panel" :namespace :value>
     <slot />
   </Tabs.Panel>
 </template>
 
 <style>
+  .emerald-tabs[data-orientation='horizontal'] .emerald-tabs__panel,
+  .emerald-tabs:not([data-orientation]) .emerald-tabs__panel {
+    margin-block-start: var(--emerald-spacing-m, 16px);
+  }
+
+  .emerald-tabs[data-orientation='vertical'] .emerald-tabs__panel {
+    margin-inline-start: var(--emerald-spacing-m, 16px);
+    margin-block-start: 0;
+  }
+
   .emerald-tabs__panel {
-    margin-top: var(--emerald-spacing-m, 16px);
     font-family: var(--emerald-font-sans, Manrope, system-ui, sans-serif);
     font-size: var(--emerald-text-b1-size, 16px);
     line-height: var(--emerald-text-b1-height, 24px);

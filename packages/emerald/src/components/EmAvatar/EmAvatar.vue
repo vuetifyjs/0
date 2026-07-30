@@ -7,17 +7,18 @@
   export interface EmAvatarProps {
     size?: EmAvatarSize
     value?: unknown
+    namespace?: string
   }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmAvatar' })
 
-  const { size = 'md', value } = defineProps<EmAvatarProps>()
+  const { size = 'md', value, namespace } = defineProps<EmAvatarProps>()
 </script>
 
 <template>
-  <Avatar.Root class="emerald-avatar" :data-size="size" :value>
+  <Avatar.Root class="emerald-avatar" :data-size="size" :namespace :value>
     <slot />
   </Avatar.Root>
 </template>

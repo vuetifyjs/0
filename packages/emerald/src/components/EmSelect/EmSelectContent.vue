@@ -1,14 +1,20 @@
 <script lang="ts">
   // Framework
   import { Select } from '@vuetify/v0'
+
+  export interface EmSelectContentProps {
+    namespace?: string
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmSelectContent' })
+
+  const { namespace } = defineProps<EmSelectContentProps>()
 </script>
 
 <template>
-  <Select.Content class="emerald-select__content">
+  <Select.Content class="emerald-select__content" :namespace>
     <slot />
   </Select.Content>
 </template>
@@ -31,8 +37,8 @@
     opacity: 0;
     transform: translateY(-4px);
     transition-property: opacity, transform, overlay, display;
-    transition-duration: 180ms;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: var(--emerald-motion-duration-base, 180ms);
+    transition-timing-function: var(--emerald-motion-ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
     transition-behavior: allow-discrete;
   }
 

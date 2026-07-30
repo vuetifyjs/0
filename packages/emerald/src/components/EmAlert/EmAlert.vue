@@ -4,15 +4,24 @@
 
   export type EmAlertVariant = 'error' | 'success' | 'info' | 'warning'
 
+  export type EmAlertRole = 'alert' | 'status'
+
   export interface EmAlertProps {
     variant?: EmAlertVariant
+    /** Override live-region role; defaults to `alert` for error, `status` otherwise */
+    role?: EmAlertRole
   }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmAlert' })
 
-  const { variant = 'error' } = defineProps<EmAlertProps>()
+  const {
+    variant = 'error',
+    role: roleProp,
+  } = defineProps<EmAlertProps>()
+
+  const role = roleProp ?? (variant === 'error' ? 'alert' : 'status')
 </script>
 
 <template>
@@ -20,7 +29,7 @@
     as="div"
     class="emerald-alert"
     :data-variant="variant"
-    role="alert"
+    :role
   >
     <slot />
   </Atom>
@@ -29,8 +38,9 @@
 <style>
   .emerald-alert {
     display: flex;
-    align-items: flex-start;
-    gap: var(--emerald-spacing-xs, 8px);
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--emerald-spacing-2xs, 4px);
     padding: var(--emerald-spacing-s, 12px);
     border-radius: var(--emerald-radius-xl, 12px);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-alert-accent, transparent);

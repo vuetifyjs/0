@@ -13,6 +13,8 @@ export interface EmeraldPluginOptions {
   theme?: ThemePluginOptions | false
 }
 
+type ThemeMap = NonNullable<ThemePluginOptions['themes']>
+
 function emeraldThemeDefaults (): ThemePluginOptions {
   return {
     target: 'html',
@@ -24,9 +26,30 @@ function emeraldThemeDefaults (): ThemePluginOptions {
   }
 }
 
+function mergeThemes (defaults: ThemeMap | undefined, overrides: ThemeMap | undefined): ThemeMap {
+  const base: ThemeMap = { ...defaults }
+  if (!overrides) return base
+
+  for (const [id, ticket] of Object.entries(overrides)) {
+    const prev = base[id]
+    base[id] = prev
+      ? {
+          ...prev,
+          ...ticket,
+          colors: { ...prev.colors, ...ticket.colors },
+        }
+      : ticket
+  }
+
+  return base
+}
+
 /**
  * Install Emerald theming (and only theming).
  * Locale / storage / hydration are host app concerns — not auto-installed.
+ *
+ * Hosts that already call `createThemePlugin` should pass `{ theme: false }`
+ * and register `EmeraldStyleSheetAdapter` + `emeraldColors` on their own theme.
  */
 export function createEmeraldPlugin (options: EmeraldPluginOptions = {}): Plugin {
   return {
@@ -38,7 +61,7 @@ export function createEmeraldPlugin (options: EmeraldPluginOptions = {}): Plugin
         ? {
             ...defaults,
             ...options.theme,
-            themes: { ...defaults.themes, ...options.theme.themes },
+            themes: mergeThemes(defaults.themes, options.theme.themes),
             adapter: options.theme.adapter ?? defaults.adapter,
           }
         : defaults
@@ -47,5 +70,3 @@ export function createEmeraldPlugin (options: EmeraldPluginOptions = {}): Plugin
     },
   }
 }
-
-export { emeraldColors } from './colors'

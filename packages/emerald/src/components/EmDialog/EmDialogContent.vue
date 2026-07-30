@@ -53,12 +53,14 @@
     gap: var(--emerald-spacing-xl, 24px);
     width: fit-content;
     max-width: 100%;
+    max-height: calc(100vh - 32px);
     min-width: min(320px, 100%);
     /* Spec-adjacent panel pad — 4xl/5xl (48/56) read oversized for confirm dialogs */
     padding: var(--emerald-spacing-2xl, 32px);
     background: var(--emerald-background, #fefefe);
     border-radius: var(--emerald-radius-m, 8px);
-    overflow: clip;
+    overflow-x: clip;
+    overflow-y: auto;
     box-shadow: var(--emerald-shadow-l, 0 5px 12px -1px rgba(51, 51, 51, 0.2));
     font-family: var(--emerald-font-sans, Manrope, system-ui, sans-serif);
     color: var(--emerald-on-surface, #2b2d2e);

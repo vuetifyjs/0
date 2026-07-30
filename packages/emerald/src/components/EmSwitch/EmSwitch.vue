@@ -9,6 +9,9 @@
     size?: EmSwitchSize
     name?: string
     value?: unknown
+    /** Accessible name when no default-slot label is rendered */
+    label?: string
+    namespace?: string
   }
 </script>
 
@@ -20,6 +23,8 @@
     size = 'md',
     name,
     value,
+    label,
+    namespace,
   } = defineProps<EmSwitchProps>()
 
   const model = defineModel<boolean>()
@@ -31,11 +36,13 @@
       v-model="model"
       class="emerald-switch__root"
       :disabled
+      :label
       :name
+      :namespace
       :value
     >
-      <Switch.Track class="emerald-switch__track">
-        <Switch.Thumb class="emerald-switch__thumb" />
+      <Switch.Track class="emerald-switch__track" :namespace>
+        <Switch.Thumb class="emerald-switch__thumb" :namespace />
       </Switch.Track>
     </Switch.Root>
 
@@ -86,7 +93,7 @@
     content: '';
     position: absolute;
     inset: -1px -2px;
-    border: 1px solid var(--emerald-primary-600, #1fae60);
+    border: var(--emerald-stroke-s, 1px) solid var(--emerald-primary-600, #1fae60);
     border-radius: var(--emerald-radius-full, 999px);
     pointer-events: none;
   }
@@ -98,7 +105,7 @@
     box-sizing: border-box;
     width: var(--emerald-control-switch-track-width-md, 36px);
     height: var(--emerald-control-switch-track-height-md, 20px);
-    border: 1px solid var(--emerald-neutral-400, #aeb6be);
+    border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-400, #aeb6be);
     border-radius: var(--emerald-radius-full, 999px);
     background: var(--emerald-neutral-200, #ebf0f4);
     box-shadow: var(--emerald-shadow-field, 0 1px 2px 0 rgba(5, 0, 18, 0.05));
@@ -175,5 +182,9 @@
     --travel: var(--emerald-control-switch-travel-lg, 10px);
     width: var(--emerald-control-switch-thumb-lg, 20px);
     height: var(--emerald-control-switch-thumb-lg, 20px);
+  }
+
+  .emerald-switch[data-disabled] .emerald-switch__label {
+    color: var(--emerald-neutral-400, #aeb6be);
   }
 </style>

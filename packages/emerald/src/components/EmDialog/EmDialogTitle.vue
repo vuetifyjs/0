@@ -1,14 +1,20 @@
 <script lang="ts">
   // Framework
   import { Dialog } from '@vuetify/v0'
+
+  export interface EmDialogTitleProps {
+    namespace?: string
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmDialogTitle' })
+
+  const { namespace } = defineProps<EmDialogTitleProps>()
 </script>
 
 <template>
-  <Dialog.Title class="emerald-dialog__title">
+  <Dialog.Title class="emerald-dialog__title" :namespace>
     <slot />
   </Dialog.Title>
 </template>

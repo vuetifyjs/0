@@ -14,6 +14,7 @@
     ariaLabel?: string
     /** Form field name — renders a hidden input when set */
     name?: string
+    namespace?: string
   }
 </script>
 
@@ -27,6 +28,7 @@
     variant = 'primary',
     ariaLabel,
     name,
+    namespace,
   } = defineProps<EmButtonProps>()
 </script>
 
@@ -39,6 +41,7 @@
     :disabled
     :loading
     :name
+    :namespace
   >
     <!--
       Button.Loading is a slot-only shell (no DOM node). Own the absolute
@@ -71,22 +74,28 @@
     text-decoration: none;
     cursor: pointer;
     user-select: none;
-    transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+    transition:
+      background-color var(--emerald-motion-duration-fast, 120ms) ease,
+      border-color var(--emerald-motion-duration-fast, 120ms) ease,
+      color var(--emerald-motion-duration-fast, 120ms) ease;
   }
 
   .emerald-button[data-size='sm'] {
+    padding: var(--emerald-spacing-2xs, 4px) var(--emerald-spacing-xs, 8px);
     font-size: var(--emerald-text-b3-size, 12px);
     line-height: var(--emerald-text-b3-height, 18px);
     font-weight: var(--emerald-text-b3-bold-weight, 600);
   }
 
   .emerald-button[data-size='md'] {
+    padding: var(--emerald-spacing-xs, 8px) var(--emerald-spacing-s, 12px);
     font-size: var(--emerald-text-b2-size, 14px);
     line-height: var(--emerald-text-b2-height, 21px);
     font-weight: var(--emerald-text-b2-bold-weight, 600);
   }
 
   .emerald-button[data-size='lg'] {
+    padding: var(--emerald-spacing-s, 12px) var(--emerald-spacing-m, 16px);
     font-size: var(--emerald-text-b1-size, 16px);
     line-height: var(--emerald-text-b1-height, 24px);
     font-weight: var(--emerald-text-b1-bold-weight, 700);
@@ -107,6 +116,7 @@
 
   .emerald-button[data-variant='primary'][data-disabled] {
     background: var(--emerald-neutral-300, #ccd6e7);
+    color: var(--emerald-neutral-500, #a3afbe);
   }
 
   .emerald-button[data-variant='primary']:focus-visible {
@@ -178,6 +188,7 @@
 
   .emerald-button[data-variant='destructive'][data-disabled] {
     background: var(--emerald-neutral-300, #ccd6e7);
+    color: var(--emerald-neutral-500, #a3afbe);
   }
 
   .emerald-button[data-variant='destructive']:focus-visible {

@@ -12,6 +12,17 @@
     step?: number
     orientation?: EmSliderOrientation
     name?: string
+    /** Accessible name for the slider group / default thumb */
+    label?: string
+    ariaLabelledby?: string
+    /** Thumb accessible name when no visible label */
+    ariaLabel?: string
+    inverted?: boolean
+    minStepsBetweenThumbs?: number
+    crossover?: boolean
+    form?: string
+    id?: string
+    namespace?: string
   }
 </script>
 
@@ -26,29 +37,55 @@
     step = 1,
     orientation = 'horizontal',
     name,
+    label,
+    ariaLabelledby,
+    ariaLabel,
+    inverted = false,
+    minStepsBetweenThumbs,
+    crossover = false,
+    form,
+    id,
+    namespace,
   } = defineProps<EmSliderProps>()
 
-  const model = defineModel<number[]>({ default: () => [0] })
+  const model = defineModel<number | number[]>({ default: 0 })
 </script>
 
 <template>
-  <div class="emerald-slider" :data-orientation="orientation">
+  <div
+    class="emerald-slider"
+    :data-disabled="disabled || undefined"
+    :data-orientation="orientation"
+    :data-readonly="isReadonly || undefined"
+  >
     <Slider.Root
+      :id
       v-model="model"
+      :aria-labelledby
+      :crossover
       :disabled
+      :form
+      :inverted
+      :label
       :max
       :min
+      :min-steps-between-thumbs
       :name
+      :namespace
       :orientation
       :readonly="isReadonly"
       :step
     >
       <slot>
-        <Slider.Track class="emerald-slider__track">
-          <Slider.Range class="emerald-slider__range" />
+        <Slider.Track class="emerald-slider__track" :namespace>
+          <Slider.Range class="emerald-slider__range" :namespace />
         </Slider.Track>
 
-        <Slider.Thumb class="emerald-slider__thumb" />
+        <Slider.Thumb
+          :aria-label="ariaLabel || label"
+          class="emerald-slider__thumb"
+          :namespace
+        />
       </slot>
     </Slider.Root>
   </div>
@@ -96,9 +133,15 @@
     height: 100%;
   }
 
+  .emerald-slider[data-disabled] .emerald-slider__track,
   .emerald-slider__track[data-disabled] {
     cursor: not-allowed;
     opacity: 0.6;
+  }
+
+  .emerald-slider[data-readonly] .emerald-slider__track,
+  .emerald-slider__track[data-readonly] {
+    cursor: default;
   }
 
   .emerald-slider__range {
@@ -152,5 +195,10 @@
   .emerald-slider__thumb[data-disabled] {
     cursor: not-allowed;
     opacity: 0.6;
+  }
+
+  .emerald-slider[data-readonly] .emerald-slider__thumb,
+  .emerald-slider__thumb[data-readonly] {
+    cursor: default;
   }
 </style>

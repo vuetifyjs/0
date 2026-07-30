@@ -1,14 +1,20 @@
 <script lang="ts">
   // Framework
   import { Dialog } from '@vuetify/v0'
+
+  export interface EmDialogCloseProps {
+    namespace?: string
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmDialogClose' })
+
+  const { namespace } = defineProps<EmDialogCloseProps>()
 </script>
 
 <template>
-  <Dialog.Close class="emerald-dialog__close">
+  <Dialog.Close class="emerald-dialog__close" :namespace>
     <slot>
       <span aria-hidden="true">×</span>
     </slot>
