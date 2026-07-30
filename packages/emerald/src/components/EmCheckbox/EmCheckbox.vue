@@ -10,6 +10,9 @@
     size?: EmCheckboxSize
     name?: string
     value?: unknown
+    /** Accessible name when no default-slot label is rendered */
+    label?: string
+    namespace?: string
   }
 </script>
 
@@ -22,6 +25,8 @@
     size = 'md',
     name,
     value,
+    label,
+    namespace,
   } = defineProps<EmCheckboxProps>()
 
   const model = defineModel<boolean>()
@@ -34,12 +39,14 @@
       class="emerald-checkbox__root"
       :disabled
       :indeterminate
+      :label
       :name
+      :namespace
       :value
     >
       <span aria-hidden="true" class="emerald-checkbox__box" />
 
-      <Checkbox.Indicator v-slot="{ isMixed }" class="emerald-checkbox__indicator">
+      <Checkbox.Indicator v-slot="{ isMixed }" class="emerald-checkbox__indicator" :namespace>
         <svg
           v-if="isMixed"
           class="emerald-checkbox__glyph"
@@ -155,12 +162,22 @@
     box-shadow: none;
   }
 
+  .emerald-checkbox__root[data-disabled][data-state='checked'] .emerald-checkbox__box,
+  .emerald-checkbox__root[data-disabled][data-state='indeterminate'] .emerald-checkbox__box {
+    background: var(--emerald-neutral-400, #aeb6be);
+    border-color: transparent;
+  }
+
   .emerald-checkbox__indicator {
     position: relative;
     z-index: 1;
     display: inline-flex;
     color: var(--emerald-on-primary, #fefefe);
     line-height: 0;
+  }
+
+  .emerald-checkbox__root[data-disabled] .emerald-checkbox__indicator {
+    color: var(--emerald-neutral-100, #fefefe);
   }
 
   .emerald-checkbox__glyph {
@@ -180,5 +197,9 @@
 
   .emerald-checkbox__label {
     color: inherit;
+  }
+
+  .emerald-checkbox[data-disabled] .emerald-checkbox__label {
+    color: var(--emerald-neutral-400, #aeb6be);
   }
 </style>

@@ -210,7 +210,14 @@
       <h2>Slider</h2>
 
       <div class="stack narrow" style="width: 100%; max-width: 360px;">
-        <EmSlider v-model="slider" :max="100" :min="0" :step="1" />
+        <EmSlider
+          v-model="slider"
+          label="Volume"
+          :max="100"
+          :min="0"
+          :step="1"
+        />
+
         <p class="muted">Value: {{ slider[0] }}</p>
       </div>
     </section>

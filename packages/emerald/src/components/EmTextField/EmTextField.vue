@@ -1,16 +1,15 @@
 <script lang="ts">
   // Framework
   import { Input } from '@vuetify/v0'
-
   // Utilities
-  import { useId } from 'vue'
+  import { useId } from '@vuetify/v0/utilities'
 
   // Types
   import type { FormValidationRule, ID, ValidateOn } from '@vuetify/v0'
 
   export interface EmTextFieldProps {
     id?: ID
-    /** String label — also wires Root `label` / control aria-label */
+    /** Visible label text; associated via `for`/`id` (not Root aria-label) */
     label?: string
     disabled?: boolean
     readonly?: boolean
@@ -24,6 +23,7 @@
     validateOn?: ValidateOn
     error?: boolean
     errorMessages?: string | string[]
+    namespace?: string
   }
 </script>
 
@@ -44,10 +44,12 @@
     validateOn,
     error = false,
     errorMessages,
+    namespace,
   } = defineProps<EmTextFieldProps>()
 
   const model = defineModel<string>({ default: '' })
-  const id = idProp ?? useId()
+  const fallbackId = useId()
+  const id = idProp ?? fallbackId
 </script>
 
 <template>
@@ -55,11 +57,12 @@
     :id
     v-model="model"
     class="emerald-text-field"
+    :data-disabled="disabled || undefined"
     :disabled
     :error
     :error-messages
-    :label
     :name
+    :namespace
     :readonly
     :required
     :rules
@@ -107,6 +110,10 @@
     color: var(--emerald-on-surface, #2b2d2e);
   }
 
+  .emerald-text-field[data-disabled] .emerald-text-field__label {
+    color: var(--emerald-neutral-400, #aeb6be);
+  }
+
   .emerald-text-field__control {
     display: block;
     box-sizing: border-box;
@@ -122,7 +129,9 @@
     line-height: var(--emerald-text-b1-height, 24px);
     color: var(--emerald-neutral-1000, #2b2d2e);
     outline: none;
-    transition: border-color 120ms ease, box-shadow 120ms ease;
+    transition:
+      border-color var(--emerald-motion-duration-fast, 120ms) ease,
+      box-shadow var(--emerald-motion-duration-fast, 120ms) ease;
   }
 
   .emerald-text-field__control::placeholder {
@@ -130,12 +139,13 @@
     opacity: 1;
   }
 
-  .emerald-text-field__control:hover:not([data-disabled]):not([data-focused]) {
+  .emerald-text-field__control:hover:not([data-disabled]):not([data-readonly]):not([data-focused]) {
     border-color: var(--emerald-neutral-600, #939dac);
   }
 
-  .emerald-text-field__control:focus,
+  .emerald-text-field__control:focus-visible,
   .emerald-text-field__control[data-focused] {
+    border-color: var(--emerald-primary-600, #1fae60);
     box-shadow: var(--emerald-shadow-focus, 0 0 0 5px rgba(38, 194, 109, 0.2));
   }
 
@@ -146,9 +156,16 @@
     cursor: not-allowed;
   }
 
+  .emerald-text-field__control[data-readonly]:not([data-disabled]) {
+    background: var(--emerald-neutral-100, #fefefe);
+    color: var(--emerald-neutral-800, #636a70);
+    cursor: default;
+  }
+
   .emerald-text-field__control[data-state='invalid']:not([data-disabled]),
-  .emerald-text-field__control[data-state='invalid']:focus,
+  .emerald-text-field__control[data-state='invalid']:focus-visible,
   .emerald-text-field__control[data-state='invalid'][data-focused] {
+    border-color: var(--emerald-danger-500, #c61424);
     box-shadow: var(--emerald-shadow-danger, 0 0 0 5px rgba(251, 55, 72, 0.2));
   }
 

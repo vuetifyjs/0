@@ -1,6 +1,6 @@
 # @paper/emerald
 
-Emerald design system — Wave 1.
+Emerald design system — Wave 1–2 preview.
 
 Figma-sourced tokens + thin Vue wrappers over `@vuetify/v0` compounds.
 
@@ -9,18 +9,22 @@ Figma-sourced tokens + thin Vue wrappers over `@vuetify/v0` compounds.
 ```ts
 import { createApp } from 'vue'
 import { createEmeraldPlugin, EmButton } from '@paper/emerald'
-import '@paper/emerald/theme.css' // tokens (zero-config; plugin also injects at runtime)
+import '@paper/emerald/theme.css' // tokens (zero-config; baked onto :root + [data-theme=emerald])
 import '@paper/emerald/style.css' // component CSS (required for Em* styling)
 
 const app = createApp(App)
-app.use(createEmeraldPlugin()) // optional if theme.css is imported and data-theme is set
+// Optional for runtime theme switch / CSP nonces when theme.css is already imported.
+// Pass { theme: false } if the host already installs createThemePlugin.
+app.use(createEmeraldPlugin())
 ```
 
-## Wave 1 components
+## Components
 
-`EmButton` · `EmTextField` · `EmCheckbox` · `EmSwitch` · `EmDialog*` · `EmSelect*`
+**Wave 1:** `EmButton` · `EmTextField` · `EmCheckbox` · `EmSwitch` · `EmDialog*` · `EmSelect*`
 
-See [SPEC.md](./SPEC.md).
+**Wave 2:** `EmAlert*` · `EmCard*` · `EmTag` · `EmAvatar*` · `EmTabs*` · `EmPagination*` · `EmSlider`
+
+See [SPEC.md](./SPEC.md). Kitchen sink: `dev` → `/emerald`.
 
 ## Build
 

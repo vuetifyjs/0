@@ -1,14 +1,20 @@
 <script lang="ts">
   // Framework
   import { Pagination } from '@vuetify/v0'
+
+  export interface EmPaginationNextProps {
+    namespace?: string
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmPaginationNext' })
+
+  const { namespace } = defineProps<EmPaginationNextProps>()
 </script>
 
 <template>
-  <Pagination.Next class="emerald-pagination__next">
+  <Pagination.Next class="emerald-pagination__next" :namespace>
     <slot />
   </Pagination.Next>
 </template>
@@ -31,11 +37,11 @@
     transition: background-color var(--emerald-motion-duration-fast, 120ms) ease;
   }
 
-  .emerald-pagination__.over:not([data-disabled]) {
+  .emerald-pagination__next:hover:not([data-disabled]) {
     background: var(--emerald-neutral-200, #ebf0f4);
   }
 
-  .emerald-pagination__ {
+  .emerald-pagination__next[data-disabled] {
     color: var(--emerald-neutral-400, #aeb6be);
     cursor: not-allowed;
   }

@@ -8,17 +8,26 @@
      * trigger (e.g. EmButton) so you do not nest interactive elements.
      */
     renderless?: boolean
+    namespace?: string
   }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmDialogActivator' })
 
-  const { renderless = false } = defineProps<EmDialogActivatorProps>()
+  const {
+    renderless = false,
+    namespace,
+  } = defineProps<EmDialogActivatorProps>()
 </script>
 
 <template>
-  <Dialog.Activator v-slot="slotProps" class="emerald-dialog__activator" :renderless>
+  <Dialog.Activator
+    v-slot="slotProps"
+    class="emerald-dialog__activator"
+    :namespace
+    :renderless
+  >
     <slot v-bind="slotProps" />
   </Dialog.Activator>
 </template>

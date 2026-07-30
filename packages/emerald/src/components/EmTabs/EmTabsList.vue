@@ -1,14 +1,22 @@
 <script lang="ts">
   // Framework
   import { Tabs } from '@vuetify/v0'
+
+  export interface EmTabsListProps {
+    /** Accessible name for the tablist when no visible label is associated */
+    label?: string
+    namespace?: string
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmTabsList' })
+
+  const { label, namespace } = defineProps<EmTabsListProps>()
 </script>
 
 <template>
-  <Tabs.List class="emerald-tabs__list">
+  <Tabs.List class="emerald-tabs__list" :label :namespace>
     <slot />
   </Tabs.List>
 </template>

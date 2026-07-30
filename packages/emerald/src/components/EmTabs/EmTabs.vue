@@ -13,6 +13,7 @@
     circular?: boolean
     orientation?: EmTabsOrientation
     activation?: TabsActivation
+    namespace?: string
   }
 </script>
 
@@ -25,6 +26,7 @@
     circular = true,
     orientation = 'horizontal',
     activation = 'automatic',
+    namespace,
   } = defineProps<EmTabsProps>()
 
   const model = defineModel<T | T[]>()
@@ -33,14 +35,16 @@
 <template>
   <div class="emerald-tabs" :data-disabled="disabled || undefined" :data-orientation="orientation">
     <Tabs.Root
+      v-slot="slotProps"
       v-model="model"
       :activation
       :circular
       :disabled
       :mandatory
+      :namespace
       :orientation
     >
-      <slot />
+      <slot v-bind="slotProps" />
     </Tabs.Root>
   </div>
 </template>

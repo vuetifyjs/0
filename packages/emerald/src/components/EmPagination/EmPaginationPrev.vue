@@ -1,14 +1,20 @@
 <script lang="ts">
   // Framework
   import { Pagination } from '@vuetify/v0'
+
+  export interface EmPaginationPrevProps {
+    namespace?: string
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmPaginationPrev' })
+
+  const { namespace } = defineProps<EmPaginationPrevProps>()
 </script>
 
 <template>
-  <Pagination.Prev class="emerald-pagination__prev">
+  <Pagination.Prev class="emerald-pagination__prev" :namespace>
     <slot />
   </Pagination.Prev>
 </template>
@@ -31,11 +37,11 @@
     transition: background-color var(--emerald-motion-duration-fast, 120ms) ease;
   }
 
-  .emerald-pagination__.over:not([data-disabled]) {
+  .emerald-pagination__prev:hover:not([data-disabled]) {
     background: var(--emerald-neutral-200, #ebf0f4);
   }
 
-  .emerald-pagination__ {
+  .emerald-pagination__prev[data-disabled] {
     color: var(--emerald-neutral-400, #aeb6be);
     cursor: not-allowed;
   }

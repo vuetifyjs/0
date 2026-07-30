@@ -7,6 +7,7 @@
     totalVisible?: number
     itemsPerPage?: number
     ellipsis?: string | false
+    namespace?: string
   }
 </script>
 
@@ -18,6 +19,7 @@
     totalVisible,
     itemsPerPage = 10,
     ellipsis = '…',
+    namespace,
   } = defineProps<EmPaginationProps>()
 
   const page = defineModel<number>({ default: 1 })
@@ -26,14 +28,16 @@
 <template>
   <div class="emerald-pagination">
     <Pagination.Root
+      v-slot="slotProps"
       v-model="page"
       class="emerald-pagination__nav"
       :ellipsis
       :items-per-page
+      :namespace
       :size
       :total-visible
     >
-      <slot />
+      <slot v-bind="slotProps" />
     </Pagination.Root>
   </div>
 </template>

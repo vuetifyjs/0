@@ -26,13 +26,14 @@
 
 <template>
   <Atom
+    :aria-pressed="interactive ? selected : undefined"
     :as="interactive ? 'button' : 'span'"
     class="emerald-tag"
     :data-disabled="disabled || undefined"
     :data-selected="selected || undefined"
     :data-variant="variant"
     :disabled="interactive ? disabled : undefined"
-    type="button"
+    :type="interactive ? 'button' : undefined"
   >
     <slot />
   </Atom>
@@ -45,8 +46,8 @@
     align-items: center;
     justify-content: center;
     gap: var(--emerald-spacing-3xs, 2px);
-    height: var(--emerald-text-b3-height, 18px);
-    padding: 0 var(--emerald-spacing-2xs, 4px);
+    min-height: var(--emerald-text-b3-height, 18px);
+    padding: 1px var(--emerald-spacing-2xs, 4px);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-border, #aeb6be);
     border-radius: var(--emerald-radius-full, 999px);
     background: var(--emerald-background, #fefefe);
@@ -61,6 +62,11 @@
   button.emerald-tag {
     cursor: pointer;
     user-select: none;
+  }
+
+  button.emerald-tag:focus-visible {
+    outline: none;
+    box-shadow: var(--emerald-shadow-focus, 0 0 0 5px rgba(38, 194, 109, 0.2));
   }
 
   .emerald-tag:hover:not([data-disabled]) {

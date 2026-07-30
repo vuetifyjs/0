@@ -1,6 +1,6 @@
 // Framework
 import { V0StyleSheetThemeAdapter } from '@vuetify/v0'
-import { hexToRgb } from '@vuetify/v0/utilities'
+import { hexToRgb, isUndefined } from '@vuetify/v0/utilities'
 
 // Tokens
 import { control, fontFamily, fontSize, icon, motion, radius, shadow, spacing, stroke } from './theme'
@@ -94,7 +94,7 @@ export class EmeraldStyleSheetAdapter extends V0StyleSheetThemeAdapter {
       css += `[data-theme="${theme}"] {\n${lines.join('\n')}\n  color: var(--${this.prefix}-on-background);\n}\n`
     }
 
-    if (isDark !== undefined) {
+    if (!isUndefined(isDark)) {
       css += `:root {\n  color-scheme: ${isDark ? 'dark' : 'light'};\n}\n`
     }
 

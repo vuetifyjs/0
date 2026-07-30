@@ -1,30 +1,43 @@
 <script lang="ts">
   // Framework
   import { Select } from '@vuetify/v0'
+
+  export interface EmSelectActivatorProps {
+    namespace?: string
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmSelectActivator' })
+
+  const { namespace } = defineProps<EmSelectActivatorProps>()
 </script>
 
 <template>
-  <Select.Activator class="emerald-select__activator">
+  <Select.Activator class="emerald-select__activator" :namespace>
     <slot />
 
-    <svg
-      aria-hidden="true"
-      class="emerald-select__icon"
-      fill="none"
-      height="16"
-      stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
-      viewBox="0 0 16 16"
-      width="16"
-    >
-      <path d="M4 6l4 4 4-4" />
-    </svg>
+    <!--
+      Named slot so consumers can swap the chevron for a brand icon.
+      Default is decorative (aria-hidden); custom icons should set a11y as needed.
+    -->
+    <span class="emerald-select__icon">
+      <slot name="icon">
+        <svg
+          aria-hidden="true"
+          fill="none"
+          height="16"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 16 16"
+          width="16"
+        >
+          <path d="M4 6l4 4 4-4" />
+        </svg>
+      </slot>
+    </span>
   </Select.Activator>
 </template>
 
@@ -45,7 +58,13 @@
     line-height: var(--emerald-text-b1-height, 24px);
     color: var(--emerald-on-surface, #2b2d2e);
     cursor: pointer;
-    transition: border-color 120ms ease, box-shadow 120ms ease;
+    transition:
+      border-color var(--emerald-motion-duration-fast, 120ms) ease,
+      box-shadow var(--emerald-motion-duration-fast, 120ms) ease;
+  }
+
+  .emerald-select__activator:hover:not(:disabled):not([data-open]) {
+    border-color: var(--emerald-neutral-600, #939dac);
   }
 
   .emerald-select__activator:focus-visible,
@@ -61,11 +80,11 @@
 
   .emerald-select__icon {
     flex: none;
-    transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform var(--emerald-motion-duration-base, 180ms) var(--emerald-motion-ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
     color: var(--emerald-neutral-700, #757e85);
   }
 
-  .emerald-select__activator[data-disabled],
+  .emerald-select[data-disabled] .emerald-select__activator,
   .emerald-select__activator:disabled {
     opacity: 0.5;
     cursor: not-allowed;
