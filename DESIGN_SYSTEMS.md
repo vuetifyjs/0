@@ -61,6 +61,28 @@ fallbacks or in `theme.ts`.
 Kits skip all of this: consume `--v0-*` variables with literal fallbacks, exactly as
 `@paper/genesis` documents in its SPEC.md.
 
+#### Kit interop — `--v0-*` bridge (design systems)
+
+A design system that hosts a kit (today: Genesis chrome on an Emerald docs page) must
+still provide the `--v0-*` cascade the kit reads. Preferred mechanism: the design
+system's stylesheet adapter **also emits `--v0-*` aliases** for the color roles kits
+consume (`surface`, `on-surface`, `surface-tint`, `on-surface-variant`, `primary`,
+`on-primary`, `pre`, `background`, `on-background`, and the severity tokens kits use for
+admonitions). Kits stay prefix-blind; the DS owns the bridge.
+
+```css
+/* Emitted alongside --emerald-* by the DS adapter (illustrative) */
+[data-theme="emerald"] {
+  --emerald-primary: #26c26d;
+  --v0-primary: var(--emerald-primary);
+  /* …same for surface / on-surface / … */
+}
+```
+
+Alternatives (register a parallel v0 theme; host-only alias stylesheet) are allowed.
+Do **not** teach kits a DS prefix — that reintroduces the dual-cascade failure mode
+Genesis already rejected (Phase 1 → revised).
+
 ### 2. Composition
 
 - **Behavioral components** compose **v0 compound primitives directly** —
@@ -129,6 +151,7 @@ Every `@paper/*` package carries a `SPEC.md` declaring:
 3. its component inventory and any intentional deviations from this contract, with
    reasons.
 
-`packages/genesis/SPEC.md` is the exemplar of the kit *shape*. Genesis itself predates
-this contract (most of its components still use `<style scoped>`, and its SPEC declares
-no class); its alignment is tracked separately and does not weaken the rulings above.
+`packages/genesis/SPEC.md` is the exemplar of the kit *shape*, and declares its class.
+Genesis otherwise predates this contract (most of its components still use
+`<style scoped>`); that alignment is tracked separately and does not weaken the rulings
+above.
