@@ -74,6 +74,7 @@
         features: [...store.selectedPlugins, ...store.selectedComponents],
         resolved: store.resolved.autoIncluded,
         adapters: {},
+        pluginConfig: store.pluginConfig,
       }
       const url = await toPlaygroundUrl(manifest, 'https://v0play.vuetifyjs.com')
       window.open(url, '_blank', 'noopener')
