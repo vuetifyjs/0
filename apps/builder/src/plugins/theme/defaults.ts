@@ -15,6 +15,24 @@ export interface ThemeConfig {
   themes: Record<string, ThemeEntry>
 }
 
+/**
+ * Which theme a config that the user has not saved yet should open on.
+ *
+ * The builder's own light/dark toggle is the most recent answer they have given to that
+ * question, so a fresh config starts there rather than on a fixed 'light'. Saved configs
+ * never come through here — stored values are user data and always win.
+ *
+ * Falls back to the config's own default when the current mode has no matching theme,
+ * since either key can be renamed or removed.
+ */
+export function preferred (config: ThemeConfig, dark: boolean): string {
+  const key = dark ? 'dark' : 'light'
+
+  return key in config.themes ? key : config.default
+}
+
+// Stays a plain static value: the engine's codegen and its tests import it outside any
+// component, where there is no app theme to read.
 export const defaultConfig: ThemeConfig = {
   default: 'light',
   target: 'html',

@@ -1,8 +1,8 @@
 <script setup lang="ts">
   // Framework
-  import { Button } from '@vuetify/v0'
+  import { Button, useTheme } from '@vuetify/v0'
 
-  import { defaultConfig } from '@/plugins/theme/defaults'
+  import { defaultConfig, preferred } from '@/plugins/theme/defaults'
 
   // Stores
   import { useBuilderStore } from '@/stores/builder'
@@ -15,15 +15,23 @@
 
   const store = useBuilderStore()
 
-  const config = toRef(() => {
+  const app = useTheme()
+
+  // Split from `config` so the fallback is distinguishable: a config the user has touched
+  // carries its own default, and only the static one follows the builder's mode.
+  const saved = toRef(() => {
     if (store.draft?.id === 'useTheme') return store.draft.config as ThemeConfig
 
-    return (store.pluginConfig.useTheme as ThemeConfig | undefined) ?? defaultConfig
+    return store.pluginConfig.useTheme as ThemeConfig | undefined
   })
+
+  const config = toRef(() => saved.value ?? defaultConfig)
 
   const keys = toRef(() => Object.keys(config.value.themes ?? {}))
 
-  const selected = shallowRef(config.value.default)
+  const selected = shallowRef(
+    saved.value ? config.value.default : preferred(config.value, app.isDark.value),
+  )
 
   watch(() => config.value.default, value => {
     selected.value = value
