@@ -7,6 +7,7 @@
     ],
     "createCombobox": [
       "createContext",
+      "createFilter",
       "createSelection",
       "createTrinity",
       "toArray",
@@ -18,7 +19,6 @@
       "createContext",
       "createDataTable",
       "createGroup",
-      "createRegistry",
       "createSortable",
       "createTrinity",
       "useLogger",
@@ -45,7 +45,6 @@
       "createContext",
       "createRegistry",
       "createTrinity",
-      "createValidation",
       "toArray"
     ],
     "createGroup": [
@@ -56,11 +55,9 @@
       "useProxyRegistry"
     ],
     "createInput": [
-      "createForm",
       "createRegistry",
       "createValidation",
-      "toArray",
-      "useRules"
+      "toArray"
     ],
     "createKanban": [
       "createRegistry",
@@ -101,8 +98,7 @@
     ],
     "createPlugin": [
       "createContext",
-      "createTrinity",
-      "useStorage"
+      "createTrinity"
     ],
     "createProgress": [
       "createContext",
@@ -140,7 +136,6 @@
     ],
     "createSortable": [
       "createModel",
-      "createRegistry",
       "useLogger"
     ],
     "createStep": [
@@ -198,6 +193,7 @@
     ],
     "useDragDrop": [
       "createRegistry",
+      "useEventListener",
       "useLogger",
       "useMutationObserver",
       "useResizeObserver"
@@ -208,7 +204,6 @@
     "useFeatures": [
       "createGroup",
       "createPlugin",
-      "createRegistry",
       "createTokens"
     ],
     "useHotkey": [
@@ -220,8 +215,7 @@
     ],
     "useImage": [],
     "useIntersectionObserver": [
-      "createObserver",
-      "toElement"
+      "createObserver"
     ],
     "useLazy": [
       "useTimer"
@@ -229,8 +223,7 @@
     "useLocale": [
       "createPlugin",
       "createSingle",
-      "createTokens",
-      "useStorage"
+      "createTokens"
     ],
     "useLogger": [
       "createPlugin"
@@ -239,8 +232,7 @@
       "useHydration"
     ],
     "useMutationObserver": [
-      "createObserver",
-      "toElement"
+      "createObserver"
     ],
     "useNotifications": [
       "createPlugin",
@@ -258,33 +250,25 @@
     ],
     "usePresence": [],
     "useProxyModel": [
-      "createModel",
-      "createSelection",
       "toArray"
     ],
-    "useProxyRegistry": [
-      "createRegistry"
-    ],
+    "useProxyRegistry": [],
     "useRaf": [],
     "useReducedMotion": [
       "createPlugin",
-      "useMediaQuery",
-      "useStorage"
+      "useMediaQuery"
     ],
     "useResizeObserver": [
-      "createObserver",
-      "toElement"
+      "createObserver"
     ],
     "useRovingFocus": [
       "createFocusTraversal",
       "useEventListener"
     ],
     "useRtl": [
-      "createPlugin",
-      "useStorage"
+      "createPlugin"
     ],
     "useRules": [
-      "createForm",
       "createPlugin",
       "useLocale",
       "useLogger"
@@ -303,10 +287,8 @@
     ],
     "useTheme": [
       "createPlugin",
-      "createRegistry",
       "createSingle",
-      "createTokens",
-      "useStorage"
+      "createTokens"
     ],
     "useTimer": [],
     "useToggleScope": [],
@@ -322,7 +304,6 @@
   "components": {
     "AlertDialog": [
       "Atom",
-      "Scrim",
       "createContext",
       "useClickOutside",
       "useLocale",
@@ -398,7 +379,6 @@
     ],
     "Dialog": [
       "Atom",
-      "Scrim",
       "createContext",
       "useClickOutside",
       "useLocale",
@@ -414,8 +394,7 @@
     "Form": [
       "Atom",
       "createContext",
-      "createForm",
-      "createValidation"
+      "createForm"
     ],
     "Group": [
       "createContext",
@@ -433,10 +412,7 @@
     "Input": [
       "Atom",
       "createContext",
-      "createForm",
-      "createInput",
-      "createRegistry",
-      "useRules"
+      "createInput"
     ],
     "Locale": [
       "createContext",
@@ -444,16 +420,11 @@
     ],
     "NumberField": [
       "Atom",
-      "Input",
       "createContext",
-      "createForm",
-      "createInput",
       "createNumberField",
-      "createRegistry",
       "useEventListener",
       "useLocale",
       "useRaf",
-      "useRules",
       "useTimer"
     ],
     "Overflow": [
@@ -538,8 +509,7 @@
       "Portal",
       "createContext",
       "useLocale",
-      "useNotifications",
-      "useStack"
+      "useNotifications"
     ],
     "Splitter": [
       "Atom",

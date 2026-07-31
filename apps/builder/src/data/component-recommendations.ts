@@ -10,7 +10,7 @@
 //
 // An empty list means the plugin has no component-level affinity: feature flags,
 // permissions, and logging apply app-wide rather than to any particular component.
-const PLUGIN_TO_COMPONENTS: Record<string, string[]> = {
+export const PLUGIN_TO_COMPONENTS: Record<string, string[]> = {
   useTheme: [
     'Alert', 'AlertDialog', 'Avatar', 'Button', 'Checkbox', 'Combobox',
     'Dialog', 'ExpansionPanel', 'Form', 'Image', 'Input', 'NumberField',

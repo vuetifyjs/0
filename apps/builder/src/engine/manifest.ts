@@ -90,7 +90,7 @@ export const FACTORY: Record<string, string> = {
 // install time has to be installed first: `persist: true` reads the
 // `v0:storage` context inside provide() (createPlugin's getPersistedStorage,
 // which throws rather than falling back), and createRules reads locale.
-const ORDER = [
+export const ORDER = [
   'useHydration',
   'useStorage',
   'useLogger',
