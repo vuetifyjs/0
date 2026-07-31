@@ -23,7 +23,9 @@
   // the component itself would hold a component instance, which has no focus()/select().
   const field = useTemplateRef<HTMLInputElement>('field')
 
-  const label = toRef(() => store.active?.name ?? 'Build')
+  // Until the first edit there is no build to name — say so rather than inventing one.
+  const label = toRef(() => store.active?.name ?? 'No build yet')
+  const hasActive = toRef(() => store.active !== null)
 
   // A switcher over a single build is just a label — the actions still matter, so it stays,
   // but there is nothing to switch between until a second build exists.
@@ -87,10 +89,10 @@
       class="m-0 p-1.5 w-64 rounded-xl border border-divider bg-surface shadow-xl"
     >
       <div class="px-2 py-1.5">
-        <p class="t-eyebrow text-on-surface-variant">Current build</p>
+        <p class="t-eyebrow text-on-surface-variant">{{ hasActive ? 'Current build' : 'No build yet' }}</p>
       </div>
 
-      <div v-if="renaming" class="px-1.5 pb-1.5 flex items-center gap-1.5">
+      <div v-if="renaming && hasActive" class="px-1.5 pb-1.5 flex items-center gap-1.5">
         <Input.Root v-model="name" class="flex-1" label="Build name">
           <Input.Control v-slot="{ attrs }" renderless>
             <input
@@ -114,7 +116,12 @@
       <div v-else class="px-1.5 pb-1.5 flex items-center gap-1.5">
         <span class="flex-1 min-w-0 font-mono text-[0.8125rem] truncate px-1.5">{{ label }}</span>
 
-        <Button.Root aria-label="Rename this build" class="btn-ghost h-8 w-8 p-0" @click="onRename">
+        <Button.Root
+          v-if="hasActive"
+          aria-label="Rename this build"
+          class="btn-ghost h-8 w-8 p-0"
+          @click="onRename"
+        >
           <Button.Icon>
             <Icon :path="mdiPencil" :size="14" />
           </Button.Icon>
