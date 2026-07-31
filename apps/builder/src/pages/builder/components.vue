@@ -6,6 +6,7 @@
 
   // Components
   import StepBar from '@/components/app/StepBar.vue'
+  import ComponentInfo from '@/components/ComponentInfo.vue'
 
   import { recommendedFor, reasonsFor } from '@/data/component-recommendations'
   import { COMPONENTS } from '@/data/components'
@@ -136,10 +137,12 @@
 
       <p class="t-body text-on-surface-variant max-w-2xl">
         Add the headless components your library needs.
+        <!-- Sorting is the claim that holds at every width; the marker itself only exists
+             from sm up, so it is mentioned there and nowhere else. -->
         <template v-if="recommendedCount > 0">
-          The <span class="chip-on align-middle">rec</span> marker flags the
-          {{ recommendedCount }} that pair with the plugins you already selected; those sort
-          first in each category.
+          The {{ recommendedCount }} that pair with the plugins you already selected sort
+          first in each category<span class="hidden sm:inline">, marked
+            <span class="chip-on align-middle">rec</span></span>.
         </template>
 
         <template v-else>
@@ -158,46 +161,57 @@
         <h4 class="t-eyebrow text-on-surface-variant mb-2.5">{{ group.title }}</h4>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-          <Toggle.Root
+          <!-- The info affordance sits outside the toggle: a button inside a button is
+               invalid, and nesting it would make the whole card announce as "about". -->
+          <div
             v-for="component in group.components"
             :key="component.id"
-            :aria-label="ariaLabel(component)"
-            class="pick h-11 px-3 flex items-center justify-between gap-2"
-            :class="[
-              !component.selectable
-                ? 'pick-disabled'
-                : store.isComponentSelected(component.id)
-                  ? 'pick-on'
-                  : 'pick-off',
-            ]"
-            :disabled="!component.selectable"
-            :model-value="store.isComponentSelected(component.id)"
-            :title="hint(component)"
-            @update:model-value="store.toggleComponent(component.id)"
+            class="group relative"
           >
-            <span class="font-mono text-[0.8125rem] font-medium truncate">{{ component.id }}</span>
+            <Toggle.Root
+              :aria-label="ariaLabel(component)"
+              class="pick h-11 w-full pl-3 pr-9 flex items-center justify-between gap-2"
+              :class="[
+                !component.selectable
+                  ? 'pick-disabled'
+                  : store.isComponentSelected(component.id)
+                    ? 'pick-on'
+                    : 'pick-off',
+              ]"
+              :disabled="!component.selectable"
+              :model-value="store.isComponentSelected(component.id)"
+              :title="hint(component)"
+              @update:model-value="store.toggleComponent(component.id)"
+            >
+              <span class="font-mono text-[0.8125rem] font-medium truncate">{{ component.id }}</span>
 
-            <span v-if="!component.selectable" class="chip-quiet flex-shrink-0">draft</span>
+              <span v-if="!component.selectable" class="chip-quiet flex-shrink-0">draft</span>
 
-            <template v-else>
-              <span
-                v-if="isRecommended(component)"
-                aria-hidden="true"
-                class="chip-on flex-shrink-0 ml-auto"
-              >
-                rec
-              </span>
+              <template v-else>
+                <!-- Hidden on phones: the info affordance takes the width this chip used
+                     to have, and the name matters more than a marker that is already
+                     carried by the sort order and the card's own label. -->
+                <span
+                  v-if="isRecommended(component)"
+                  aria-hidden="true"
+                  class="chip-on flex-shrink-0 ml-auto hidden sm:inline-flex"
+                >
+                  rec
+                </span>
 
-              <span
-                class="pick-mark w-4 h-4"
-                :class="store.isComponentSelected(component.id) ? 'pick-mark-on' : 'pick-mark-off'"
-              >
-                <svg v-if="store.isComponentSelected(component.id)" class="w-3 h-3" viewBox="0 0 24 24">
-                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
-                </svg>
-              </span>
-            </template>
-          </Toggle.Root>
+                <span
+                  class="pick-mark w-4 h-4"
+                  :class="store.isComponentSelected(component.id) ? 'pick-mark-on' : 'pick-mark-off'"
+                >
+                  <svg v-if="store.isComponentSelected(component.id)" class="w-3 h-3" viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
+                  </svg>
+                </span>
+              </template>
+            </Toggle.Root>
+
+            <ComponentInfo :component />
+          </div>
         </div>
       </section>
     </div>
