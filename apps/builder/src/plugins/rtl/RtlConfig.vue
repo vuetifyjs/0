@@ -58,10 +58,14 @@
     </template>
 
     <div class="space-y-6">
-      <label class="flex items-start gap-3 p-4 border border-divider rounded-lg cursor-pointer hover:bg-surface-variant">
+      <!-- The card changed nothing on select, so hover was the strongest state on screen. -->
+      <label
+        class="pick flex items-start gap-3 p-4 cursor-pointer"
+        :class="state.default ? 'pick-on' : 'pick-off'"
+      >
         <Checkbox.Root
           v-model="state.default"
-          class="size-5 mt-1 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+          class="field-check size-5 mt-1"
         >
           <Checkbox.Indicator class="text-on-primary">
             <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>

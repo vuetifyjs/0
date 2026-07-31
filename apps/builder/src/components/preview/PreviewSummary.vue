@@ -93,7 +93,7 @@
           :key="stat.label"
           class="px-2 text-center"
         >
-          <p class="text-2xl font-bold text-on-surface tabular-nums leading-none">{{ stat.value }}</p>
+          <p class="t-stat text-on-surface">{{ stat.value }}</p>
           <p class="t-eyebrow text-on-surface-variant mt-2">{{ stat.label }}</p>
         </div>
       </div>

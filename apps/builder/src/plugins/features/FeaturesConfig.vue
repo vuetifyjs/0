@@ -117,7 +117,7 @@
         </span>
       </label>
 
-      <div v-if="state.adapter !== 'none'" class="inset p-4">
+      <div v-if="state.adapter !== 'none'" class="note">
         <div class="field-label mb-2">Adapter configuration</div>
 
         <p class="text-sm text-on-surface-variant">

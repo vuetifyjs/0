@@ -67,7 +67,7 @@
     </template>
 
     <div class="space-y-6">
-      <div class="inset p-4">
+      <div class="note">
         <div class="field-label mb-2">How aliases are generated</div>
 
         <p class="text-sm text-on-surface-variant">
@@ -117,7 +117,7 @@
           </Input.Root>
 
           <Button.Root
-            class="px-3 py-2 rounded-lg border border-divider text-sm hover:bg-surface-variant inline-flex items-center gap-1"
+            class="btn-outline h-9 px-3 text-[0.8125rem]"
             :disabled="!draft.trim()"
             @click="onAdd"
           >
@@ -137,7 +137,7 @@
           <Button.Root
             v-for="name in suggestions"
             :key="name"
-            class="px-3 py-1.5 rounded-full border border-divider text-sm font-mono hover:bg-surface-variant hover:border-primary/40 transition-colors"
+            class="pick pick-off h-9 px-3 inline-flex items-center font-mono text-[0.8125rem]"
             @click="add(name)"
           >
             + {{ name }}

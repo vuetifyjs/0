@@ -51,14 +51,14 @@
     <header class="sticky top-0 z-30 border-b border-divider bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div class="px-4 sm:px-6 h-16 flex items-center gap-3">
         <Button.Root
-          class="flex items-center gap-2.5 rounded-md px-2 py-1.5 -ml-2 hover:bg-surface-variant transition-colors duration-150"
+          class="flex flex-shrink-0 items-center gap-2.5 rounded-md px-2 py-1.5 -ml-2 hover:bg-surface-variant transition-colors duration-150"
           @click="onHome"
         >
           <span class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-primary text-on-primary font-mono text-[0.6875rem] font-bold">v0</span>
           <span class="hidden sm:inline text-sm font-semibold tracking-[-0.01em]">Framework Builder</span>
         </Button.Root>
 
-        <div class="flex-1" />
+        <div class="flex-1 min-w-0" />
 
         <slot name="actions" />
 
@@ -77,13 +77,16 @@
           <Icon :path="mdiGithub" :size="16" />
         </a>
 
+        <!-- Icon-only on the narrowest screens: with the label, this button's right edge
+             pushed every /builder route 42px past the viewport. -->
         <Button.Root
           v-if="split && isBuilderRoute && mobile"
-          class="btn-outline h-9 px-3 text-[0.8125rem]"
+          aria-label="Open preview"
+          class="btn-outline flex-shrink-0 h-9 w-9 px-0 sm:w-auto sm:px-3 text-[0.8125rem]"
           @click="previewOpen = true"
         >
           <Icon :path="mdiEye" :size="14" />
-          Preview
+          <span class="hidden sm:inline">Preview</span>
         </Button.Root>
       </div>
 
@@ -126,7 +129,7 @@
     <Dialog.Root v-if="mobile" v-model="previewOpen">
       <Dialog.Content
         aria-label="Preview"
-        class="fixed inset-x-0 top-auto bottom-0 z-50 m-0 w-full max-w-none max-h-[85vh] overflow-y-auto rounded-t-xl border-t border-divider bg-background shadow-2xl backdrop:bg-black/50"
+        class="fixed inset-x-0 top-auto bottom-0 z-50 m-0 w-full max-w-none max-h-[85vh] overflow-y-auto rounded-t-xl border-t border-divider bg-background shadow-2xl dark:ring-1 dark:ring-white/12 backdrop:bg-black/60"
       >
         <div class="sticky top-0 z-10 border-b border-divider bg-background">
           <!-- Affordance only: the sheet is dismissed via Close or the backdrop, not a drag. -->

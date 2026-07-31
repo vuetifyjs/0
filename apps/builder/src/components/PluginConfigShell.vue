@@ -108,7 +108,9 @@
         <Button.Content>{{ isFirst ? 'Back to plugin selection' : 'Prev' }}</Button.Content>
       </Button.Root>
 
-      <div class="flex items-center gap-2">
+      <!-- Wraps, because the labels no longer can: nowrap keeps "Skip (use defaults)" whole,
+           so at 390 the pair has to break between buttons rather than mid-phrase. -->
+      <div class="flex flex-wrap items-center justify-end gap-2">
         <Button.Root class="btn-ghost" @click="onSkip">
           <Button.Icon>
             <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>

@@ -67,7 +67,7 @@
         </div>
 
         <div
-          class="rounded-lg border border-divider bg-surface-variant/50 px-3 py-3 space-y-2"
+          class="note p-3 space-y-2"
           :class="reduced ? '' : 'animate-pulse'"
         >
           <span class="block h-2 w-2/3 rounded-full bg-primary/60" />

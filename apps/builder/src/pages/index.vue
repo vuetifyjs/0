@@ -172,7 +172,7 @@ app.mount(<span class="text-primary">'#app'</span>)</pre>
     </section>
 
     <section v-if="store.builds.length > 0" class="border-t border-divider py-12 sm:py-14">
-      <div class="flex items-baseline gap-3 mb-5">
+      <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3 mb-5">
         <h2 class="t-eyebrow text-on-surface">Your builds</h2>
         <p class="t-meta text-on-surface-variant">Saved as you go — pick one up where you left it</p>
       </div>
@@ -181,7 +181,8 @@ app.mount(<span class="text-primary">'#app'</span>)</pre>
         <li v-for="entry in store.builds" :key="entry.id" class="relative">
           <Button.Root
             :aria-label="`Resume ${entry.name}, ${plural(entry.plugins, 'plugin')}, ${plural(entry.components, 'component')}, updated ${updated(entry.updated)}`"
-            class="pick pick-off w-full h-full p-4 pr-11 block"
+            class="pick w-full h-full p-4 pr-11 block"
+            :class="entry.id === store.activeId ? 'pick-on' : 'pick-off'"
             @click="onResume(entry)"
           >
             <Button.Content>
@@ -219,7 +220,7 @@ app.mount(<span class="text-primary">'#app'</span>)</pre>
              explicit choice. Opted in here because the safe outcome (keep the build) is
              what dismissing gives you — a confirm this small shouldn't trap focus. -->
         <AlertDialog.Content
-          class="m-auto p-6 w-[min(26rem,calc(100vw-2rem))] rounded-xl border border-divider bg-surface shadow-2xl backdrop:bg-black/50"
+          class="floating m-auto p-6 w-[min(26rem,calc(100vw-2rem))] rounded-xl backdrop:bg-black/60"
           close-on-escape
         >
           <AlertDialog.Title class="t-section mb-2">
@@ -236,10 +237,7 @@ app.mount(<span class="text-primary">'#app'</span>)</pre>
               Keep it
             </AlertDialog.Cancel>
 
-            <AlertDialog.Action
-              class="btn h-9 px-4 bg-error text-on-primary hover:opacity-90"
-              @action="onConfirmDelete"
-            >
+            <AlertDialog.Action class="btn-danger h-9 px-4" @action="onConfirmDelete">
               Delete build
             </AlertDialog.Action>
           </div>
