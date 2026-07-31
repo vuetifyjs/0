@@ -1,58 +1,144 @@
-// Framework
-import { useStorage } from '@vuetify/v0'
-
 import { isSelectable, keepSelectable } from '@/data/components'
 import dependencyGraph from '@/data/dependencies.json'
 import { resolve } from '@/engine/resolve'
 
+// Stores
+import { EMPTY_BUILD, useBuilds } from '@/stores/persistence'
+
 // Utilities
 import { defineStore } from 'pinia'
-import { shallowRef, toRef, watch } from 'vue'
+import { nextTick, ref, shallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { DependencyGraph } from '@/data/types'
+import type { BuildState, BuildSummary } from '@/stores/persistence'
 
 const graph = dependencyGraph as DependencyGraph
 
-interface PersistedState {
-  selectedPlugins: string[]
-  pluginConfig: Record<string, unknown>
-  selectedComponents: string[]
-  componentConfig: Record<string, unknown>
-}
-
-const STORAGE_KEY = 'builder.v1'
-
-const EMPTY_STATE: PersistedState = {
-  selectedPlugins: [],
-  pluginConfig: {},
-  selectedComponents: [],
-  componentConfig: {},
-}
-
 export const useBuilderStore = defineStore('builder', () => {
-  const storage = useStorage()
-  const persisted = storage.get<PersistedState>(STORAGE_KEY, EMPTY_STATE)
+  const backend = useBuilds()
 
-  const initial = persisted.value ?? EMPTY_STATE
+  const builds = ref<BuildSummary[]>([])
+  const activeId = shallowRef<string | null>(null)
 
-  const selectedPlugins = shallowRef<Set<string>>(new Set(initial.selectedPlugins))
-  const pluginConfig = shallowRef<Record<string, unknown>>({ ...initial.pluginConfig })
-  // Restored state can name components that have since been reclassified as draft (or
-  // removed outright). They are unbuildable, so drop them rather than letting a stale
-  // selection produce a starter that won't compile.
-  const restored = keepSelectable(initial.selectedComponents)
-  const selectedComponents = shallowRef<Set<string>>(new Set(restored))
-  const componentConfig = shallowRef<Record<string, unknown>>({ ...initial.componentConfig })
+  const selectedPlugins = shallowRef<Set<string>>(new Set())
+  const pluginConfig = shallowRef<Record<string, unknown>>({})
+  const selectedComponents = shallowRef<Set<string>>(new Set())
+  const componentConfig = shallowRef<Record<string, unknown>>({})
 
-  // Flush the purge to storage immediately. The persist watcher below only fires on a
-  // subsequent change, so without this the dropped ids would linger in localStorage and
-  // reappear in any other tab reading the same key.
-  if (restored.length !== initial.selectedComponents.length) {
-    persisted.value = { ...initial, selectedComponents: restored }
-  }
+  // Set while state is swapped wholesale (hydrate, switch, delete). The persist watcher
+  // runs on the next tick, so without this the outgoing build's contents would be written
+  // over the incoming build the moment the refs are assigned.
+  const swapping = shallowRef(false)
 
   const draft = shallowRef<{ id: string, config: unknown } | null>(null)
+
+  const active = toRef(() => builds.value.find(entry => entry.id === activeId.value) ?? null)
+
+  function snapshot (): BuildState {
+    return {
+      selectedPlugins: [...selectedPlugins.value],
+      pluginConfig: { ...pluginConfig.value },
+      selectedComponents: [...selectedComponents.value],
+      componentConfig: { ...componentConfig.value },
+    }
+  }
+
+  async function apply (state: BuildState) {
+    swapping.value = true
+
+    selectedPlugins.value = new Set(state.selectedPlugins)
+    pluginConfig.value = { ...state.pluginConfig }
+    // Restored state can name components since reclassified as draft (or removed). They
+    // are unbuildable, so drop them rather than emit a starter that won't compile.
+    selectedComponents.value = new Set(keepSelectable(state.selectedComponents))
+    componentConfig.value = { ...state.componentConfig }
+
+    await nextTick()
+    swapping.value = false
+  }
+
+  async function open (id: string) {
+    const state = await backend.load(id)
+
+    activeId.value = id
+    await backend.setActive(id)
+    await apply(state ?? EMPTY_BUILD)
+
+    // A purge on load has to be flushed explicitly — the persist watcher only fires on a
+    // later edit, so the dropped ids would otherwise linger in storage.
+    if (state && state.selectedComponents.length !== selectedComponents.value.size) {
+      await backend.save(id, snapshot())
+    }
+  }
+
+  async function refresh () {
+    builds.value = await backend.list()
+  }
+
+  async function hydrate () {
+    builds.value = await backend.list()
+
+    if (builds.value.length === 0) {
+      const entry = await backend.create('Build 1')
+      builds.value = [entry]
+    }
+
+    const stored = await backend.activeId()
+    const target = builds.value.some(entry => entry.id === stored) ? stored! : builds.value[0]!.id
+
+    await open(target)
+  }
+
+  // Exposed so the router guard can wait for state before deciding a redirect — a deep
+  // link would otherwise be bounced to /builder because nothing had loaded yet.
+  const ready = hydrate()
+
+  async function switchTo (id: string) {
+    if (id === activeId.value) return
+
+    draft.value = null
+    await open(id)
+    await refresh()
+  }
+
+  async function createBuild () {
+    const entry = await backend.create(`Build ${builds.value.length + 1}`)
+
+    draft.value = null
+    await refresh()
+    await open(entry.id)
+
+    return entry
+  }
+
+  async function renameBuild (id: string, name: string) {
+    const trimmed = name.trim()
+    if (!trimmed) return
+
+    await backend.rename(id, trimmed)
+    await refresh()
+  }
+
+  // Deleting the build you are standing in has to leave you somewhere: the next most
+  // recent build, or a fresh one when that was the last.
+  async function removeBuild (id: string) {
+    await backend.remove(id)
+    await refresh()
+
+    if (id !== activeId.value) return
+
+    draft.value = null
+
+    if (builds.value.length === 0) {
+      const entry = await backend.create('Build 1')
+      await refresh()
+      await open(entry.id)
+      return
+    }
+
+    await open(builds.value[0]!.id)
+  }
 
   function setDraft (id: string, config: unknown) {
     draft.value = { id, config }
@@ -119,36 +205,29 @@ export const useBuilderStore = defineStore('builder', () => {
     return selectedComponents.value.has(id)
   }
 
-  // Clearing goes through the live `persisted` ref, never storage.remove(). remove() stops
-  // the watcher useStorage attached to that ref and drops it from the cache, orphaning it —
-  // every later write would be silently discarded until a reload.
-  function reset () {
-    selectedPlugins.value = new Set()
-    pluginConfig.value = {}
-    selectedComponents.value = new Set()
-    componentConfig.value = {}
-    persisted.value = {
-      selectedPlugins: [],
-      pluginConfig: {},
-      selectedComponents: [],
-      componentConfig: {},
-    }
+  /** Empties the active build. The build itself survives — use removeBuild to delete it. */
+  async function reset () {
+    await apply(EMPTY_BUILD)
+
+    if (activeId.value) await backend.save(activeId.value, snapshot())
   }
 
   watch(
     [selectedPlugins, pluginConfig, selectedComponents, componentConfig],
-    ([plugins, pluginCfg, components, componentCfg]) => {
-      persisted.value = {
-        selectedPlugins: [...plugins],
-        pluginConfig: { ...pluginCfg },
-        selectedComponents: [...components],
-        componentConfig: { ...componentCfg },
-      }
+    async () => {
+      if (swapping.value || !activeId.value) return
+
+      await backend.save(activeId.value, snapshot())
+      await refresh()
     },
     { deep: true },
   )
 
   return {
+    builds,
+    activeId,
+    active,
+    ready,
     selectedPlugins,
     pluginConfig,
     selectedComponents,
@@ -156,6 +235,10 @@ export const useBuilderStore = defineStore('builder', () => {
     allSelected,
     resolved,
     draft,
+    switchTo,
+    createBuild,
+    renameBuild,
+    removeBuild,
     setDraft,
     clearDraft,
     selectPlugin,
