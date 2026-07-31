@@ -6,7 +6,9 @@
 
   // Components
   import StepBar from '@/components/app/StepBar.vue'
+  import PluginInfo from '@/components/PluginInfo.vue'
 
+  import { PLUGINS } from '@/data/plugins'
   import { getCategories } from '@/data/questions'
 
   // Stores
@@ -25,6 +27,10 @@
     ...category,
     picked: category.questions.filter(q => store.isPluginSelected(q.feature)).length,
   })))
+
+  function meta (feature: string) {
+    return PLUGINS.find(p => p.id === feature)
+  }
 
   function onContinue () {
     router.push('/builder/configure')
@@ -72,35 +78,45 @@
         <!-- Selection is an accent rail down the line item rather than a card outline: the
              panel already owns the border, so the row only needs to light up inside it. -->
         <div class="divide-y divide-divider">
-          <Toggle.Root
+          <!-- The info affordance sits outside the toggle: a button inside a button is
+               invalid, and nesting it would make the whole row announce as "about". -->
+          <div
             v-for="question in category.questions"
             :key="question.id"
-            :aria-label="question.title"
-            class="w-full flex items-start gap-3 pl-3 pr-4 py-3 text-left border-l-2 transition-colors duration-150"
-            :class="store.isPluginSelected(question.feature)
-              ? 'border-primary bg-primary/8'
-              : 'border-transparent hover:bg-surface-variant/50'"
-            :model-value="store.isPluginSelected(question.feature)"
-            @update:model-value="store.togglePlugin(question.feature)"
+            class="group relative"
           >
-            <span
-              class="pick-mark w-5 h-5 mt-0.5"
-              :class="store.isPluginSelected(question.feature) ? 'pick-mark-on' : 'pick-mark-off'"
+            <Toggle.Root
+              :aria-label="question.title"
+              class="w-full flex items-center gap-3 pl-3 pr-9 py-2.5 text-left border-l-2 transition-colors duration-150"
+              :class="store.isPluginSelected(question.feature)
+                ? 'border-primary bg-primary/8'
+                : 'border-transparent hover:bg-surface-variant/50'"
+              :model-value="store.isPluginSelected(question.feature)"
+              @update:model-value="store.togglePlugin(question.feature)"
             >
-              <svg v-if="store.isPluginSelected(question.feature)" class="w-3.5 h-3.5" viewBox="0 0 24 24">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
-              </svg>
-            </span>
-
-            <span class="min-w-0 flex-1">
-              <span class="flex items-baseline gap-2 flex-wrap">
-                <span class="t-section">{{ question.title }}</span>
-                <span class="font-mono text-[0.6875rem] text-on-surface-variant/80">{{ question.feature }}</span>
+              <span
+                class="pick-mark w-5 h-5"
+                :class="store.isPluginSelected(question.feature) ? 'pick-mark-on' : 'pick-mark-off'"
+              >
+                <svg v-if="store.isPluginSelected(question.feature)" class="w-3.5 h-3.5" viewBox="0 0 24 24">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
+                </svg>
               </span>
 
-              <span class="block t-meta text-on-surface-variant mt-0.5">{{ question.description }}</span>
-            </span>
-          </Toggle.Root>
+              <span class="min-w-0 flex-1 flex items-baseline gap-2 flex-wrap">
+                <span class="t-section">{{ question.title }}</span>
+                <span class="font-mono text-[0.6875rem] text-on-surface-variant/80">{{ question.feature }}</span>
+                <span v-if="meta(question.feature)?.hasConfig" class="chip-quiet">config</span>
+              </span>
+            </Toggle.Root>
+
+            <PluginInfo
+              :id="question.feature"
+              :description="question.description"
+              :docs="meta(question.feature)?.docs"
+              :title="question.title"
+            />
+          </div>
         </div>
       </section>
     </div>
