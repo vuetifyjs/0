@@ -4,6 +4,9 @@
   // Framework
   import { Button } from '@vuetify/v0'
 
+  // Components
+  import StepBar from '@/components/app/StepBar.vue'
+
   import { getPluginById, PLUGINS } from '@/data/plugins'
 
   // Stores
@@ -61,7 +64,7 @@
 </script>
 
 <template>
-  <div v-if="meta" class="max-w-3xl mx-auto px-6 py-10 sm:py-12">
+  <div v-if="meta" class="max-w-3xl mx-auto px-6 pt-5 sm:pt-6 pb-24">
     <header class="mb-9">
       <div class="flex items-baseline justify-between gap-4 mb-3">
         <p class="t-eyebrow text-primary">Step 2 · Configure</p>
@@ -95,38 +98,52 @@
       </slot>
     </header>
 
-    <div class="mb-10">
-      <slot />
-    </div>
+    <slot />
+  </div>
 
-    <div class="flex flex-wrap items-center justify-between gap-4 border-t border-divider pt-6">
-      <Button.Root class="btn-quiet" @click="goToPrev">
+  <StepBar v-if="meta">
+    <!-- The short label below sm is display:none'd out of the a11y tree, so the full
+         destination stays on the button itself. -->
+    <Button.Root
+      :aria-label="isFirst ? 'Back to plugin selection' : undefined"
+      class="btn-quiet"
+      @click="goToPrev"
+    >
+      <Button.Icon>
+        <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
+      </Button.Icon>
+
+      <!-- Short forms below sm keep the bar one row tall on a phone, where every pixel it
+           takes is a pixel of form the user cannot see. -->
+      <Button.Content>
+        <span v-if="!isFirst">Prev</span>
+
+        <template v-else>
+          <span class="hidden sm:inline">Back to plugin selection</span>
+          <span class="sm:hidden">Back</span>
+        </template>
+      </Button.Content>
+    </Button.Root>
+
+    <div class="flex flex-wrap items-center justify-end gap-2">
+      <Button.Root aria-label="Skip (use defaults)" class="btn-ghost" @click="onSkip">
         <Button.Icon>
-          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
+          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
         </Button.Icon>
 
-        <Button.Content>{{ isFirst ? 'Back to plugin selection' : 'Prev' }}</Button.Content>
+        <Button.Content>
+          <span class="hidden sm:inline">Skip (use defaults)</span>
+          <span class="sm:hidden">Skip</span>
+        </Button.Content>
       </Button.Root>
 
-      <!-- Wraps, because the labels no longer can: nowrap keeps "Skip (use defaults)" whole,
-           so at 390 the pair has to break between buttons rather than mid-phrase. -->
-      <div class="flex flex-wrap items-center justify-end gap-2">
-        <Button.Root class="btn-ghost" @click="onSkip">
-          <Button.Icon>
-            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
-          </Button.Icon>
+      <Button.Root class="btn-primary" @click="onSave">
+        <Button.Content>{{ isLast ? 'Save & continue' : 'Save & next' }}</Button.Content>
 
-          <Button.Content>Skip (use defaults)</Button.Content>
-        </Button.Root>
-
-        <Button.Root class="btn-primary" @click="onSave">
-          <Button.Content>{{ isLast ? 'Save & continue' : 'Save & next' }}</Button.Content>
-
-          <Button.Icon>
-            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowRight" fill="currentColor" /></svg>
-          </Button.Icon>
-        </Button.Root>
-      </div>
+        <Button.Icon>
+          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowRight" fill="currentColor" /></svg>
+        </Button.Icon>
+      </Button.Root>
     </div>
-  </div>
+  </StepBar>
 </template>
