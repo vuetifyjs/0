@@ -11,13 +11,16 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { nextTick, shallowRef, toRef, useTemplateRef } from 'vue'
+  import { nextTick, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   const store = useBuilderStore()
 
   const open = shallowRef(false)
   const renaming = shallowRef(false)
   const name = shallowRef('')
+
+  // Input.Control is rendered `renderless` so this ref lands on the real <input>. A ref on
+  // the component itself would hold a component instance, which has no focus()/select().
   const field = useTemplateRef<HTMLInputElement>('field')
 
   const label = toRef(() => store.active?.name ?? 'Build')
@@ -25,6 +28,11 @@
   // A switcher over a single build is just a label — the actions still matter, so it stays,
   // but there is nothing to switch between until a second build exists.
   const others = toRef(() => store.builds.filter(entry => entry.id !== store.activeId))
+
+  // Closing mid-rename must not leave the form armed for the next open.
+  watch(open, value => {
+    if (!value) renaming.value = false
+  })
 
   async function onRename () {
     name.value = label.value
@@ -41,7 +49,10 @@
     renaming.value = false
   }
 
-  function onCancel () {
+  // Escape cancels the rename and stops there — the popover's own light-dismiss would
+  // otherwise close the whole surface on the same keystroke. A second Escape closes it.
+  function onCancel (event: KeyboardEvent) {
+    event.stopPropagation()
     renaming.value = false
   }
 
@@ -58,7 +69,9 @@
 
 <template>
   <Popover.Root v-model="open">
+    <!-- PopoverActivator supplies aria-expanded and aria-controls but not aria-haspopup. -->
     <Popover.Activator
+      aria-haspopup="menu"
       :aria-label="`Current build: ${label}. Switch or create a build`"
       class="inline-flex items-center gap-1.5 h-9 max-w-[11rem] px-2.5 rounded-md text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors duration-150 cursor-pointer"
     >
@@ -79,13 +92,16 @@
 
       <div v-if="renaming" class="px-1.5 pb-1.5 flex items-center gap-1.5">
         <Input.Root v-model="name" class="flex-1" label="Build name">
-          <Input.Control
-            ref="field"
-            class="field-input h-8"
-            placeholder="Build name"
-            @keydown.enter.prevent="onCommit"
-            @keydown.esc.prevent="onCancel"
-          />
+          <Input.Control v-slot="{ attrs }" renderless>
+            <input
+              ref="field"
+              v-bind="attrs"
+              class="field-input h-8"
+              placeholder="Build name"
+              @keydown.enter.prevent="onCommit"
+              @keydown.esc.prevent="onCancel"
+            >
+          </Input.Control>
         </Input.Root>
 
         <Button.Root aria-label="Save build name" class="btn-ghost h-8 w-8 p-0" @click="onCommit">

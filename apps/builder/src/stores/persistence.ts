@@ -178,6 +178,11 @@ export function useBuilds (): BuildsBackend {
 
     async remove (buildId) {
       writeIndex(readIndex().filter(entry => entry.id !== buildId))
+
+      // Read before removing. `remove` only clears keys this storage instance has already
+      // seen, so deleting a build that was never opened this session would otherwise leave
+      // its contents orphaned in storage forever.
+      storage.get(key(buildId))
       storage.remove(key(buildId))
     },
 
