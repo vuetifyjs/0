@@ -13,6 +13,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AppShell: typeof import('./components/app/AppShell.vue')['default']
     BuildSwitcher: typeof import('./components/app/BuildSwitcher.vue')['default']
+    ComponentInfo: typeof import('./components/ComponentInfo.vue')['default']
     Icon: typeof import('./components/app/Icon.vue')['default']
     MiniFrame: typeof import('./components/preview/MiniFrame.vue')['default']
     PluginConfigShell: typeof import('./components/PluginConfigShell.vue')['default']
