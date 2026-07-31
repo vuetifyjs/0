@@ -36,6 +36,9 @@ app.use(createHydrationPlugin())
 app.use(createBreakpointsPlugin({ mobileBreakpoint: 768 }))
 app.use(createStoragePlugin())
 app.use(createThemePlugin({
+  // Installed after createStoragePlugin so the theme plugin can persist the selected id
+  // and restore it on the next boot; `default` then only applies on a first visit.
+  persist: true,
   default: getSystemTheme(),
   target: 'html',
   themes: {

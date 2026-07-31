@@ -2,7 +2,7 @@
   import { mdiCheck, mdiMinus, mdiPlus } from '@mdi/js'
 
   // Framework
-  import { Checkbox, Input, NumberField } from '@vuetify/v0'
+  import { Checkbox, Input, isNumber, NumberField } from '@vuetify/v0'
 
   import { defaultConfig } from './defaults'
 
@@ -32,11 +32,13 @@
     state.ttl = next ? (state.ttl ?? 60_000) : undefined
   }
 
+  // TTL is omitted rather than set to undefined when off: the config is JSON-serialized
+  // into storage and read back by the generator, and an explicit `ttl: undefined` both
+  // survives as a key through the draft channel and emits a meaningless option.
   function snapshot (): StorageConfig {
-    return {
-      prefix: state.prefix,
-      ttl: ttlEnabled.value ? state.ttl : undefined,
-    }
+    if (!ttlEnabled.value || !isNumber(state.ttl)) return { prefix: state.prefix }
+
+    return { prefix: state.prefix, ttl: state.ttl }
   }
 
   function onSave () {
