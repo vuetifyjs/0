@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { GnDocsExampleCode } from '@paper/genesis'
+
   // Framework
   import { isString } from '@vuetify/v0'
 
@@ -14,7 +16,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   // Types
   import type { LocaleConfig } from '@/plugins/locale/defaults'
@@ -82,6 +84,8 @@
   const source = toRef(() => generateMainTs(store.selectedPlugins, store.pluginConfig))
 
   const lines = toRef(() => source.value.split('\n'))
+
+  const expanded = shallowRef(false)
 </script>
 
 <template>
@@ -112,7 +116,15 @@
         <p class="t-index text-on-surface-variant">{{ lines.length }} lines</p>
       </div>
 
-      <pre class="px-4 py-3 overflow-x-auto font-mono text-[0.6875rem] leading-[1.75] text-on-surface">{{ source }}</pre>
+      <GnDocsExampleCode
+        v-model:expanded="expanded"
+        :code="source"
+        file-name="src/main.ts"
+        hide-filename
+        language="ts"
+        peek
+        :peek-lines="14"
+      />
     </div>
 
     <MiniFrame title="your-app">
