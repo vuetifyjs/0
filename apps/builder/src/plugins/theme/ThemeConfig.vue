@@ -2,9 +2,9 @@
   import { mdiCheck, mdiChevronDown, mdiClose, mdiPlus } from '@mdi/js'
 
   // Framework
-  import { Button, Checkbox, Input, Select } from '@vuetify/v0'
+  import { Button, Checkbox, Input, Select, useTheme } from '@vuetify/v0'
 
-  import { defaultConfig } from './defaults'
+  import { defaultConfig, preferred } from './defaults'
 
   // Stores
   import { useBuilderStore } from '@/stores/builder'
@@ -28,11 +28,18 @@
 
   const store = useBuilderStore()
 
+  // The app's own theme context, not data-theme off the DOM: the header toggle writes
+  // through this and persists it, so it is the value the user actually set. Named `app`
+  // because `theme` is a config row further down this file.
+  const app = useTheme()
+
   const stored = store.pluginConfig.useTheme as ThemeConfig | undefined
   const initial: ThemeConfig = JSON.parse(JSON.stringify(stored ?? defaultConfig))
 
   const state = reactive({
-    default: initial.default,
+    // Read once, on open: following the toggle afterwards would rewrite a choice the user
+    // had already made on this screen.
+    default: stored ? initial.default : preferred(initial, app.isDark.value),
     target: initial.target,
     foreground: !!initial.foreground,
     themes: Object.entries(initial.themes).map<ThemeRow>(([key, entry]) => ({

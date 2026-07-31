@@ -116,12 +116,14 @@
         v-if="!mobile"
         class="flex flex-col w-[420px] xl:w-[480px] border-l border-divider bg-background"
       >
-        <!-- Minus the header, and minus the StepBar when the route has one, so the aside's
-             own scrolling ends above the bar instead of running underneath it. Both bars
-             are a 4rem row plus a 1px border, so each costs 4rem+1px — measured, not
-             assumed: at a plain 8rem the aside ran 2px under the StepBar. -->
+        <!-- The header and the StepBar are each a 4rem row plus a 1px border, so each
+             costs 4rem+1px. The sticky offset has to be that full 65px, not 4rem: at
+             top-16 the aside sat at y=65 in flow and snapped to y=64 the instant sticky
+             engaged, so the preview jumped a border's width on the first pixel of scroll.
+             Same accounting drives the max-height, which is why nothing may sit under
+             either bar. -->
         <div
-          class="sticky top-16 overflow-y-auto"
+          class="sticky top-[calc(4rem+1px)] overflow-y-auto"
           :class="stepped ? 'max-h-[calc(100vh-8rem-2px)]' : 'max-h-[calc(100vh-4rem-1px)]'"
         >
           <div class="sticky top-0 z-10 flex items-center gap-2 px-4 lg:px-5 h-11 border-b border-divider bg-background/90 backdrop-blur">
