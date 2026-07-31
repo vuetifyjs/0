@@ -11,6 +11,8 @@
     id?: ID
     /** Visible label text; associated via `for`/`id` (not Root aria-label) */
     label?: string
+    /** Help text under the control (no named slots — props only) */
+    description?: string
     disabled?: boolean
     readonly?: boolean
     required?: boolean
@@ -33,6 +35,7 @@
   const {
     id: idProp,
     label,
+    description,
     disabled = false,
     readonly = false,
     required = false,
@@ -70,11 +73,11 @@
     :validate-on
   >
     <label
-      v-if="label || $slots.label"
+      v-if="label"
       class="emerald-text-field__label"
       :for="String(id)"
     >
-      <slot name="label">{{ label }}</slot>
+      {{ label }}
     </label>
 
     <Input.Control
@@ -83,8 +86,11 @@
       :placeholder
     />
 
-    <Input.Description v-if="$slots.description" class="emerald-text-field__description">
-      <slot name="description" />
+    <Input.Description
+      v-if="description"
+      class="emerald-text-field__description"
+    >
+      {{ description }}
     </Input.Description>
 
     <Input.Error v-slot="{ errors }" class="emerald-text-field__error">

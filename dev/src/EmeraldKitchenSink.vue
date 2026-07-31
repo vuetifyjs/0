@@ -291,7 +291,7 @@
       <h2>Select</h2>
 
       <div class="stack narrow">
-        <EmSelect v-model="fruit">
+        <EmSelect v-model="fruit" label="Fruit">
           <EmSelectActivator>
             <EmSelectValue />
             <EmSelectPlaceholder>Pick a fruit</EmSelectPlaceholder>

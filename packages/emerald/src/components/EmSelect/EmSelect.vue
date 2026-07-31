@@ -40,11 +40,11 @@
   <!-- Select.Root is renderless — host class on a real element -->
   <div class="emerald-select" :data-disabled="disabled || undefined">
     <label
-      v-if="label || $slots.label"
+      v-if="label"
       class="emerald-select__label"
       :for="`${id}-activator`"
     >
-      <slot name="label">{{ label }}</slot>
+      {{ label }}
     </label>
 
     <Select.Root

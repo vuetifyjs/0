@@ -27,8 +27,11 @@ Token values live in `src/theme.ts`. Flat color map for the adapter: `src/colors
 - **Behavioral** UI composes v0 compounds (`Button.Root`, `Checkbox.Root`, `Dialog.Root`, …).
 - **Never** `@vuetify/paper` / `V0Paper`.
 - **Never** `<style scoped>` (multi-root primitives drop `data-v`).
+- **Never named slots** on Em* — structure is compounds or props + a single default slot (no Vuetify-style `#label` / `#prepend` surface).
 - Class prefix: `emerald-*`. State: `data-*` attributes.
 - Every `var(--emerald-*)` carries a literal fallback.
+- **Shells** (Checkbox, Switch, Button, TextField, Slider): fixed anatomy in one SFC.
+- **Compounds** (Dialog, Select, Tabs, Pagination, Avatar, Card, Alert): one Em* per region.
 
 ## Wave 1 surface (preview)
 
