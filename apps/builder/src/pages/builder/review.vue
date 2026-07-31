@@ -109,7 +109,8 @@
       <Button.Icon>
         <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
       </Button.Icon>
-      Back
+
+      <Button.Content>Back</Button.Content>
     </Button.Root>
 
     <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
@@ -195,7 +196,8 @@
           <Button.Icon>
             <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiOpenInNew" fill="currentColor" /></svg>
           </Button.Icon>
-          Open in Playground
+
+          <Button.Content>Open in Playground</Button.Content>
         </Button.Root>
 
         <Button.Root
@@ -205,7 +207,8 @@
           <Button.Icon>
             <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiDownload" fill="currentColor" /></svg>
           </Button.Icon>
-          Download starter (.zip)
+
+          <Button.Content>Download starter (.zip)</Button.Content>
         </Button.Root>
       </div>
     </div>

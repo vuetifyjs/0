@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { mdiMinus, mdiPlus } from '@mdi/js'
+
   // Framework
   import { NumberField } from '@vuetify/v0'
 
@@ -47,13 +49,13 @@
 
         <NumberField.Root v-model="state.baseZIndex" :min="0">
           <NumberField.Decrement class="mt-1 px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
-            &minus;
+            <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiMinus" fill="currentColor" /></svg>
           </NumberField.Decrement>
 
           <NumberField.Control class="mt-1 w-full text-center border-y border-divider py-2 outline-none bg-surface text-on-surface text-sm font-mono" />
 
           <NumberField.Increment class="mt-1 px-3 py-2 border border-divider rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
-            +
+            <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
           </NumberField.Increment>
         </NumberField.Root>
 
@@ -67,13 +69,13 @@
 
         <NumberField.Root v-model="state.increment" :min="1">
           <NumberField.Decrement class="mt-1 px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
-            &minus;
+            <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiMinus" fill="currentColor" /></svg>
           </NumberField.Decrement>
 
           <NumberField.Control class="mt-1 w-full text-center border-y border-divider py-2 outline-none bg-surface text-on-surface text-sm font-mono" />
 
           <NumberField.Increment class="mt-1 px-3 py-2 border border-divider rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
-            +
+            <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
           </NumberField.Increment>
         </NumberField.Root>
 

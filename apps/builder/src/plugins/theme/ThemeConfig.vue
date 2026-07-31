@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiCheck, mdiClose, mdiPlus } from '@mdi/js'
+  import { mdiCheck, mdiChevronDown, mdiClose, mdiPlus } from '@mdi/js'
 
   // Framework
   import { Button, Checkbox, Input, Select } from '@vuetify/v0'
@@ -23,7 +23,6 @@
   interface ThemeRow {
     key: string
     dark: boolean
-    foreground: boolean
     colors: ColorRow[]
   }
 
@@ -35,10 +34,10 @@
   const state = reactive({
     default: initial.default,
     target: initial.target,
+    foreground: !!initial.foreground,
     themes: Object.entries(initial.themes).map<ThemeRow>(([key, entry]) => ({
       key,
       dark: !!entry.dark,
-      foreground: !!entry.foreground,
       colors: Object.entries(entry.colors).map(([name, value]) => ({ name, value })),
     })),
   })
@@ -57,7 +56,6 @@
     state.themes.push({
       key: `theme-${state.themes.length + 1}`,
       dark: false,
-      foreground: false,
       colors: [],
     })
   }
@@ -76,7 +74,6 @@
       }
       themes[row.key] = {
         dark: row.dark,
-        foreground: row.foreground,
         colors,
       }
     }
@@ -84,6 +81,7 @@
     return {
       default: state.default,
       target: state.target,
+      foreground: state.foreground,
       themes,
     }
   }
@@ -123,8 +121,8 @@
 
               <Select.Placeholder class="text-on-surface-variant">Choose a theme…</Select.Placeholder>
 
-              <Select.Cue v-slot="{ isOpen }" class="text-xs opacity-50">
-                {{ isOpen ? '&#x25B4;' : '&#x25BE;' }}
+              <Select.Cue class="inline-flex opacity-50 transition-transform data-[state=open]:rotate-180">
+                <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiChevronDown" fill="currentColor" /></svg>
               </Select.Cue>
             </Select.Activator>
 
@@ -166,6 +164,22 @@
         </label>
       </div>
 
+      <label class="flex items-center gap-2">
+        <Checkbox.Root
+          v-model="state.foreground"
+          class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+        >
+          <Checkbox.Indicator class="text-on-primary">
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
+          </Checkbox.Indicator>
+        </Checkbox.Root>
+
+        <span class="text-sm text-on-surface">
+          Auto-generate <code class="text-xs px-1 py-0.5 rounded bg-surface-variant">on-*</code> colors
+          <span class="text-on-surface-variant">— applies to every theme</span>
+        </span>
+      </label>
+
       <div class="space-y-4">
         <div
           v-for="(theme, themeIndex) in state.themes"
@@ -173,7 +187,7 @@
           class="border border-divider rounded-lg p-4 space-y-4"
         >
           <div class="flex items-start justify-between gap-3">
-            <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
               <label class="block">
                 <span class="text-xs uppercase tracking-wide text-on-surface-variant">Theme key</span>
 
@@ -197,23 +211,11 @@
 
                 <span class="text-sm text-on-surface">Dark mode</span>
               </label>
-
-              <label class="flex items-center gap-2 mt-5">
-                <Checkbox.Root
-                  v-model="theme.foreground"
-                  class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                >
-                  <Checkbox.Indicator class="text-on-primary">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
-                  </Checkbox.Indicator>
-                </Checkbox.Root>
-
-                <span class="text-sm text-on-surface">Auto-generate on-* colors</span>
-              </label>
             </div>
 
             <Button.Root
               v-if="state.themes.length > 1"
+              :aria-label="`Remove theme ${theme.key}`"
               class="text-on-surface-variant hover:text-error p-1"
               :title="`Remove ${theme.key}`"
               @click="removeTheme(themeIndex)"
@@ -244,6 +246,7 @@
                 <!-- v0 has no color picker; native input is the documented exception -->
                 <input
                   v-model="color.value"
+                  :aria-label="`${color.name || `Token ${colorIndex + 1}`} color picker`"
                   class="w-10 h-9 rounded border border-divider cursor-pointer"
                   type="color"
                 >
@@ -257,6 +260,7 @@
                 </Input.Root>
 
                 <Button.Root
+                  :aria-label="`Remove ${color.name || `token ${colorIndex + 1}`}`"
                   class="text-on-surface-variant hover:text-error p-1"
                   :title="`Remove ${color.name}`"
                   @click="removeColor(theme, colorIndex)"
@@ -275,7 +279,8 @@
               <Button.Icon>
                 <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
               </Button.Icon>
-              Add color token
+
+              <Button.Content>Add color token</Button.Content>
             </Button.Root>
           </div>
         </div>
@@ -287,7 +292,8 @@
           <Button.Icon>
             <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
           </Button.Icon>
-          Add theme
+
+          <Button.Content>Add theme</Button.Content>
         </Button.Root>
       </div>
     </div>

@@ -26,11 +26,11 @@
   const initial: PermissionsConfig = JSON.parse(JSON.stringify(stored ?? defaultConfig))
 
   const state = reactive({
-    roles: Object.entries(initial.roles).map<RoleRow>(([name, rules]) => ({
+    roles: Object.entries(initial.permissions).map<RoleRow>(([name, rules]) => ({
       name,
-      rules: rules.map(rule => ({
-        actions: rule.actions.join(', '),
-        subjects: rule.subjects.join(', '),
+      rules: rules.map(([actions, subjects]) => ({
+        actions: actions.join(', '),
+        subjects: subjects.join(', '),
       })),
     })),
   })
@@ -56,23 +56,18 @@
   }
 
   function onSave () {
-    const roles: Record<string, PermissionRule[]> = {}
+    const permissions: Record<string, PermissionRule[]> = {}
 
     for (const row of state.roles) {
       const name = row.name.trim()
       if (!name) continue
 
-      const rules = row.rules
-        .map(rule => ({
-          actions: parseList(rule.actions),
-          subjects: parseList(rule.subjects),
-        }))
-        .filter(rule => rule.actions.length > 0 && rule.subjects.length > 0)
-
-      roles[name] = rules
+      permissions[name] = row.rules
+        .map<PermissionRule>(rule => [parseList(rule.actions), parseList(rule.subjects)])
+        .filter(([actions, subjects]) => actions.length > 0 && subjects.length > 0)
     }
 
-    const config: PermissionsConfig = { roles }
+    const config: PermissionsConfig = { permissions }
     store.savePluginConfig('usePermissions', config)
   }
 </script>
@@ -82,7 +77,8 @@
     <template #description>
       <p class="text-on-surface-variant mb-8">
         Define role-based access with flat lists of <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">[actions, subjects]</code>
-        tuples per role. No role inheritance — every role is independent.
+        tuples per role, matching the shape <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">createPermissions()</code>
+        expects. No role inheritance — every role is independent.
       </p>
     </template>
 
@@ -106,6 +102,7 @@
             </label>
 
             <Button.Root
+              :aria-label="`Remove role ${role.name || roleIndex + 1}`"
               class="self-end text-on-surface-variant hover:text-error p-2"
               :title="`Remove ${role.name || 'role'}`"
               @click="removeRole(roleIndex)"
@@ -139,6 +136,7 @@
               </Input.Root>
 
               <Button.Root
+                :aria-label="`Remove rule ${ruleIndex + 1} from ${role.name || 'role'}`"
                 class="text-on-surface-variant hover:text-error p-1"
                 title="Remove rule"
                 @click="removeRule(roleIndex, ruleIndex)"
@@ -157,7 +155,8 @@
             <Button.Icon>
               <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
             </Button.Icon>
-            Add rule
+
+            <Button.Content>Add rule</Button.Content>
           </Button.Root>
 
           <p class="mt-2 text-xs text-on-surface-variant">
@@ -173,7 +172,8 @@
         <Button.Icon>
           <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
         </Button.Icon>
-        Add role
+
+        <Button.Content>Add role</Button.Content>
       </Button.Root>
 
       <div class="border border-divider rounded-lg p-4 bg-surface-variant/50">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiCheck } from '@mdi/js'
+  import { mdiCheck, mdiChevronDown, mdiMinus, mdiPlus } from '@mdi/js'
 
   // Framework
   import { Input, NumberField, Select } from '@vuetify/v0'
@@ -57,7 +57,7 @@
         <p class="text-sm text-on-surface-variant">
           Notification positioning, severity styling, and visual rendering are configured
           on the consuming component (e.g.,
-          <code class="text-xs px-1.5 py-0.5 rounded bg-surface">&lt;Toast&gt;</code>
+          <code class="text-xs px-1.5 py-0.5 rounded bg-surface">&lt;Snackbar&gt;</code>
           slot props), not on this plugin.
         </p>
       </div>
@@ -67,13 +67,13 @@
 
         <NumberField.Root v-model="state.timeout" :min="0">
           <NumberField.Decrement class="mt-1 px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
-            &minus;
+            <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiMinus" fill="currentColor" /></svg>
           </NumberField.Decrement>
 
           <NumberField.Control class="mt-1 w-full text-center border-y border-divider py-2 outline-none bg-surface text-on-surface text-sm font-mono" />
 
           <NumberField.Increment class="mt-1 px-3 py-2 border border-divider rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
-            +
+            <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
           </NumberField.Increment>
         </NumberField.Root>
 
@@ -108,8 +108,8 @@
 
             <Select.Placeholder class="text-on-surface-variant">Choose an adapter…</Select.Placeholder>
 
-            <Select.Cue v-slot="{ isOpen }" class="text-xs opacity-50">
-              {{ isOpen ? '&#x25B4;' : '&#x25BE;' }}
+            <Select.Cue class="inline-flex opacity-50 transition-transform data-[state=open]:rotate-180">
+              <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiChevronDown" fill="currentColor" /></svg>
             </Select.Cue>
           </Select.Activator>
 
@@ -134,7 +134,7 @@
         </Select.Root>
 
         <span class="block mt-1 text-xs text-on-surface-variant">
-          Optional external sync target (Knock, Novu). Toasts work without one.
+          Optional external sync target (Knock, Novu). Notifications work without one.
         </span>
       </label>
 

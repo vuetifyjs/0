@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiCheck, mdiClose, mdiPlus } from '@mdi/js'
+  import { mdiCheck, mdiChevronDown, mdiClose, mdiPlus } from '@mdi/js'
 
   // Framework
   import { Button, Checkbox, Input, Select } from '@vuetify/v0'
@@ -77,8 +77,8 @@
 
             <Select.Placeholder class="text-on-surface-variant">Choose an adapter…</Select.Placeholder>
 
-            <Select.Cue v-slot="{ isOpen }" class="text-xs opacity-50">
-              {{ isOpen ? '&#x25B4;' : '&#x25BE;' }}
+            <Select.Cue class="inline-flex opacity-50 transition-transform data-[state=open]:rotate-180">
+              <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiChevronDown" fill="currentColor" /></svg>
             </Select.Cue>
           </Select.Activator>
 
@@ -147,6 +147,7 @@
             </label>
 
             <Button.Root
+              :aria-label="`Remove flag ${flag.key || index + 1}`"
               class="text-on-surface-variant hover:text-error p-1"
               :title="`Remove ${flag.key}`"
               @click="removeFlag(index)"
@@ -165,7 +166,8 @@
           <Button.Icon>
             <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
           </Button.Icon>
-          Add flag
+
+          <Button.Content>Add flag</Button.Content>
         </Button.Root>
       </div>
     </div>

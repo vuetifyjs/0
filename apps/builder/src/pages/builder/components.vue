@@ -114,8 +114,10 @@
         <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
       </Button.Icon>
 
-      <span v-if="lastSelectedPlugin">Prev: {{ lastSelectedPlugin.title }}</span>
-      <span v-else>Back</span>
+      <Button.Content>
+        <span v-if="lastSelectedPlugin">Prev: {{ lastSelectedPlugin.title }}</span>
+        <span v-else>Back</span>
+      </Button.Content>
     </Button.Root>
 
     <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">

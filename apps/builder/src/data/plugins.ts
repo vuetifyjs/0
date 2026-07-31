@@ -16,6 +16,7 @@ export const PLUGINS: PluginMeta[] = [
   // Appearance
   { id: 'useTheme', slug: 'theme', title: 'Theme', category: 'appearance', hasConfig: true, loader: () => import('@/plugins/theme/ThemeConfig.vue') },
   { id: 'useBreakpoints', slug: 'breakpoints', title: 'Breakpoints', category: 'appearance', hasConfig: true, loader: () => import('@/plugins/breakpoints/BreakpointsConfig.vue') },
+  { id: 'useReducedMotion', slug: 'reduced-motion', title: 'Reduced Motion', category: 'appearance', hasConfig: true, loader: () => import('@/plugins/reduced-motion/ReducedMotionConfig.vue') },
   // i18n
   { id: 'useLocale', slug: 'locale', title: 'Locale', category: 'i18n', hasConfig: true, loader: () => import('@/plugins/locale/LocaleConfig.vue') },
   { id: 'useRtl', slug: 'rtl', title: 'Right-to-Left', category: 'i18n', hasConfig: true, loader: () => import('@/plugins/rtl/RtlConfig.vue') },
@@ -24,6 +25,7 @@ export const PLUGINS: PluginMeta[] = [
   { id: 'useHydration', slug: 'hydration', title: 'SSR / SSG', category: 'infrastructure', hasConfig: false, loader: () => import('@/plugins/hydration/HydrationConfig.vue') },
   { id: 'useLogger', slug: 'logger', title: 'Logger', category: 'infrastructure', hasConfig: true, loader: () => import('@/plugins/logger/LoggerConfig.vue') },
   { id: 'useStack', slug: 'stack', title: 'Stack', category: 'infrastructure', hasConfig: true, loader: () => import('@/plugins/stack/StackConfig.vue') },
+  { id: 'useTooltip', slug: 'tooltip', title: 'Tooltip', category: 'infrastructure', hasConfig: true, loader: () => import('@/plugins/tooltip/TooltipConfig.vue') },
   // Access
   { id: 'useFeatures', slug: 'features', title: 'Feature Flags', category: 'access', hasConfig: true, loader: () => import('@/plugins/features/FeaturesConfig.vue') },
   { id: 'usePermissions', slug: 'permissions', title: 'Permissions', category: 'access', hasConfig: true, loader: () => import('@/plugins/permissions/PermissionsConfig.vue') },

@@ -1,25 +1,17 @@
 <script setup lang="ts">
-  import { getPluginBySlug } from '@/data/plugins'
+  // Framework
+  import { toArray } from '@vuetify/v0'
 
-  // Stores
-  import { useBuilderStore } from '@/stores/builder'
+  import { getPluginBySlug } from '@/data/plugins'
 
   // Utilities
   import { defineAsyncComponent, toRef } from 'vue'
-  import { useRoute, useRouter } from 'vue-router'
+  import { useRoute } from 'vue-router'
 
   const route = useRoute('/builder/[plugin]')
-  const router = useRouter()
-  const store = useBuilderStore()
 
-  const meta = toRef(() => {
-    const slug = route.params.plugin
-    return getPluginBySlug(slug)
-  })
-
-  if (!meta.value || !store.isPluginSelected(meta.value.id)) {
-    router.replace('/builder')
-  }
+  // Repeatable params type as string | string[]; this route has exactly one segment.
+  const meta = toRef(() => getPluginBySlug(toArray(route.params.plugin)[0] ?? ''))
 
   const Body = toRef(() => meta.value ? defineAsyncComponent(meta.value.loader) : null)
 </script>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiCheck, mdiClose, mdiPlus } from '@mdi/js'
+  import { mdiCheck, mdiChevronDown, mdiClose, mdiMinus, mdiPlus } from '@mdi/js'
 
   // Framework
   import { Button, Input, NumberField, Select } from '@vuetify/v0'
@@ -86,8 +86,8 @@
 
             <Select.Placeholder class="text-on-surface-variant">Choose an adapter…</Select.Placeholder>
 
-            <Select.Cue v-slot="{ isOpen }" class="text-xs opacity-50">
-              {{ isOpen ? '&#x25B4;' : '&#x25BE;' }}
+            <Select.Cue class="inline-flex opacity-50 transition-transform data-[state=open]:rotate-180">
+              <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiChevronDown" fill="currentColor" /></svg>
             </Select.Cue>
           </Select.Activator>
 
@@ -144,13 +144,13 @@
 
           <NumberField.Root v-model="state.firstDayOfWeek" :max="6" :min="0">
             <NumberField.Decrement class="mt-1 px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
-              &minus;
+              <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiMinus" fill="currentColor" /></svg>
             </NumberField.Decrement>
 
             <NumberField.Control class="mt-1 w-full text-center border-y border-divider py-2 outline-none bg-surface text-on-surface text-sm font-mono" />
 
             <NumberField.Increment class="mt-1 px-3 py-2 border border-divider rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
-              +
+              <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
             </NumberField.Increment>
           </NumberField.Root>
 
@@ -184,6 +184,7 @@
             </Input.Root>
 
             <Button.Root
+              :aria-label="`Remove locale ${row.code || index + 1}`"
               class="text-on-surface-variant hover:text-error p-1"
               title="Remove locale"
               @click="removeLocale(index)"
@@ -202,7 +203,8 @@
           <Button.Icon>
             <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
           </Button.Icon>
-          Add locale
+
+          <Button.Content>Add locale</Button.Content>
         </Button.Root>
       </div>
     </div>
