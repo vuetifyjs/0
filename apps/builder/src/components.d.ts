@@ -34,6 +34,7 @@ declare module 'vue' {
     PreviewTooltip: typeof import('./components/preview/PreviewTooltip.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    StepBar: typeof import('./components/app/StepBar.vue')['default']
     ThemeToggle: typeof import('./components/app/ThemeToggle.vue')['default']
   }
 }

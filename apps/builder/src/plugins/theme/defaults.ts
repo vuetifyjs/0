@@ -18,7 +18,7 @@ export interface ThemeConfig {
 export const defaultConfig: ThemeConfig = {
   default: 'light',
   target: 'html',
-  foreground: false,
+  foreground: true,
   themes: {
     light: {
       dark: false,

@@ -4,6 +4,9 @@
   // Framework
   import { Button, Toggle } from '@vuetify/v0'
 
+  // Components
+  import StepBar from '@/components/app/StepBar.vue'
+
   import { recommendedFor, reasonsFor } from '@/data/component-recommendations'
   import { COMPONENTS } from '@/data/components'
   import { PLUGINS } from '@/data/plugins'
@@ -114,7 +117,7 @@
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto px-6 py-10 sm:py-12">
+  <div class="max-w-4xl mx-auto px-6 pt-5 sm:pt-6 pb-24">
     <Button.Root class="btn-quiet mb-8" @click="onBack">
       <Button.Icon>
         <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
@@ -199,14 +202,21 @@
       </section>
     </div>
 
-    <div class="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-divider pt-6">
-      <p class="t-index text-on-surface-variant">
-        {{ store.selectedComponents.size }} {{ store.selectedComponents.size === 1 ? 'component' : 'components' }} selected
-      </p>
-
-      <Button.Root class="btn-primary" @click="onContinue">
-        Continue to review
-      </Button.Root>
-    </div>
   </div>
+
+  <StepBar>
+    <!-- The noun drops below sm so the count and the action stay on one row; a fixed bar
+         that wraps eats a second row of phone screen for no added meaning. -->
+    <p class="t-index text-on-surface-variant">
+      <span class="sm:hidden">{{ store.selectedComponents.size }} selected</span>
+
+      <span class="hidden sm:inline">
+        {{ store.selectedComponents.size }} {{ store.selectedComponents.size === 1 ? 'component' : 'components' }} selected
+      </span>
+    </p>
+
+    <Button.Root class="btn-primary" @click="onContinue">
+      Continue to review
+    </Button.Root>
+  </StepBar>
 </template>

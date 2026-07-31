@@ -44,6 +44,11 @@
   }
 
   const isBuilderRoute = toRef(() => route.path.startsWith('/builder'))
+
+  // Every builder route is a step in the wizard and carries the fixed StepBar — except
+  // review, which ends in content actions on the build sheet rather than step navigation.
+  // The aside has to stop above that bar, so it needs to know which routes have one.
+  const stepped = toRef(() => isBuilderRoute.value && route.path !== '/builder/review')
 </script>
 
 <template>
@@ -111,7 +116,14 @@
         v-if="!mobile"
         class="flex flex-col w-[420px] xl:w-[480px] border-l border-divider bg-background"
       >
-        <div class="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto">
+        <!-- Minus the header, and minus the StepBar when the route has one, so the aside's
+             own scrolling ends above the bar instead of running underneath it. Both bars
+             are a 4rem row plus a 1px border, so each costs 4rem+1px — measured, not
+             assumed: at a plain 8rem the aside ran 2px under the StepBar. -->
+        <div
+          class="sticky top-16 overflow-y-auto"
+          :class="stepped ? 'max-h-[calc(100vh-8rem-2px)]' : 'max-h-[calc(100vh-4rem-1px)]'"
+        >
           <div class="sticky top-0 z-10 flex items-center gap-2 px-4 lg:px-5 h-11 border-b border-divider bg-background/90 backdrop-blur">
             <span class="w-1.5 h-1.5 rounded-full bg-primary" />
             <p class="t-eyebrow text-on-surface-variant">Live preview</p>

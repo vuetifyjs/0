@@ -4,6 +4,9 @@
   // Framework
   import { Button, Toggle } from '@vuetify/v0'
 
+  // Components
+  import StepBar from '@/components/app/StepBar.vue'
+
   import { getCategories } from '@/data/questions'
 
   // Stores
@@ -28,7 +31,7 @@
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto px-6 py-10 sm:py-12">
+  <div class="max-w-4xl mx-auto px-6 pt-5 sm:pt-6 pb-24">
     <Button.Root class="btn-quiet mb-8" @click="onBack">
       <Button.Icon>
         <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
@@ -84,18 +87,26 @@
       </section>
     </div>
 
-    <div class="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-divider pt-6">
-      <p class="t-index text-on-surface-variant">
-        {{ store.selectedPlugins.size }} {{ store.selectedPlugins.size === 1 ? 'plugin' : 'plugins' }} selected
-      </p>
-
-      <Button.Root
-        class="btn-primary"
-        :disabled="store.selectedPlugins.size === 0"
-        @click="onContinue"
-      >
-        Continue
-      </Button.Root>
-    </div>
   </div>
+
+  <StepBar>
+    <!-- The noun drops below sm so the count and the action stay on one row. Spelled out
+         twice rather than wrapping the noun in a span: Vue condenses the leading space
+         inside the span away, and "5plugins selected" is worse than a duplicated string. -->
+    <p class="t-index text-on-surface-variant">
+      <span class="sm:hidden">{{ store.selectedPlugins.size }} selected</span>
+
+      <span class="hidden sm:inline">
+        {{ store.selectedPlugins.size }} {{ store.selectedPlugins.size === 1 ? 'plugin' : 'plugins' }} selected
+      </span>
+    </p>
+
+    <Button.Root
+      class="btn-primary"
+      :disabled="store.selectedPlugins.size === 0"
+      @click="onContinue"
+    >
+      Continue
+    </Button.Root>
+  </StepBar>
 </template>

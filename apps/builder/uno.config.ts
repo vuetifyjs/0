@@ -90,7 +90,7 @@ export default defineConfig({
     {
       getCSS: () => `
         html {
-          scrollbar-gutter: stable;
+          scrollbar-width: thin;
         }
 
         body {
