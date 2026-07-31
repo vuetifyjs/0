@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { KNOWN_ALIASES } from '@/plugins/rules/defaults'
+
 import {
   collectDependencies,
   generateDateStub,
@@ -251,6 +253,17 @@ describe('generateMainTs', () => {
     expect(source).toContain('bespoke: (v: unknown) => true /* TODO: implement */')
   })
 
+  // The rules form owns the name list; a name added there without a predicate
+  // here would silently downgrade to a stub.
+  it('should emit a real predicate for every name the rules form calls known', () => {
+    const source = generateMainTs(['useRules'], { useRules: { aliases: [...KNOWN_ALIASES] } })
+
+    for (const name of KNOWN_ALIASES) {
+      expect(source).toContain(`${name}: (v: unknown) =>`)
+      expect(source).not.toContain(`${name}: (v: unknown) => true /* TODO: implement */`)
+    }
+  })
+
   it('should emit permissions as tuples and drop the legacy roles key', () => {
     const config = { usePermissions: { permissions: { admin: [[['read'], ['post']]] }, roles: ['admin'] } }
     const source = generateMainTs(['usePermissions'], config)
@@ -270,6 +283,51 @@ describe('generateMainTs', () => {
     expect(source).not.toContain('vue-i18n')
   })
 
+  // persist is on LocalePluginOptions, so it survives the key allowlist.
+  it('should keep the locale persist flag', () => {
+    const source = generateMainTs(['useLocale'], { useLocale: { default: 'en', persist: true } })
+
+    expect(source).toContain('persist: true')
+  })
+
+  it('should emit the reduced-motion plugin', () => {
+    const source = generateMainTs(['useReducedMotion'], { useReducedMotion: { mode: 'always', persist: true } })
+
+    expect(source).toContain('createReducedMotionPlugin')
+    expect(source).toContain(`mode: "always"`)
+    expect(source).toContain('persist: true')
+  })
+
+  it('should emit the tooltip plugin', () => {
+    const config = { useTooltip: { openDelay: 700, closeDelay: 150, skipDelay: 300, disabled: false } }
+    const source = generateMainTs(['useTooltip'], config)
+
+    expect(source).toContain('createTooltipPlugin')
+    expect(source).toContain('openDelay: 700')
+    expect(source).toContain('closeDelay: 150')
+    expect(source).toContain('skipDelay: 300')
+    expect(source).toContain('disabled: false')
+  })
+
+  // Every plugin with a config screen must also have codegen support, or the
+  // user configures something the generated app never installs.
+  it('should emit a factory for every plugin that has a config screen', () => {
+    // Globs the config components, not defaults.ts — an optionless plugin
+    // (hydration) has a screen but no defaults module.
+    const screens = Object.keys(import.meta.glob('../plugins/*/*Config.vue'))
+
+    expect(screens.length).toBeGreaterThanOrEqual(15)
+
+    const missing = screens.filter(path => {
+      const dir = path.split('/').at(-2)!
+      const id = `use${dir.replace(/(^|-)(\w)/g, (_, __, c) => c.toUpperCase())}`
+
+      return !/app\.use\(create\w+Plugin\(/.test(generateMainTs([id], {}))
+    })
+
+    expect(missing).toEqual([])
+  })
+
   it('should emit theme foreground at the top level', () => {
     const config = {
       useTheme: {
@@ -281,6 +339,29 @@ describe('generateMainTs', () => {
     const source = generateMainTs(['useTheme'], config)
 
     expect(source).toMatch(/foreground: true,\n {2}themes:/)
+  })
+
+  // `persist` resolves the v0:storage context inside the plugin's provide(),
+  // so a later storage install throws "Context v0:storage not found" on boot.
+  it('should install storage before any plugin that persists', () => {
+    const config = { useLocale: { default: 'en', persist: true } }
+    const source = generateMainTs(['useLocale', 'useStorage'], config)
+
+    expect(source.indexOf('createStoragePlugin(')).toBeLessThan(source.indexOf('createLocalePlugin('))
+  })
+
+  it('should add the storage plugin when a plugin persists without it', () => {
+    const config = { useReducedMotion: { mode: 'system', persist: true } }
+    const source = generateMainTs(['useReducedMotion'], config)
+
+    expect(source).toContain('app.use(createStoragePlugin())')
+    expect(source.indexOf('createStoragePlugin(')).toBeLessThan(source.indexOf('createReducedMotionPlugin('))
+  })
+
+  it('should not add the storage plugin when nothing persists', () => {
+    const source = generateMainTs(['useReducedMotion'], { useReducedMotion: { mode: 'system', persist: false } })
+
+    expect(source).not.toContain('createStoragePlugin')
   })
 
   it('should not mutate the caller config across repeated generation', () => {
