@@ -1,6 +1,69 @@
+// Data
+import maturity from '#v0/maturity.json'
+
 // Types
 import type { FrameworkManifest } from '@/data/types'
 import type { KnownAlias } from '@/plugins/rules/defaults'
+
+export interface PlaygroundInput extends FrameworkManifest {
+  /** Saved plugin config, so the preview boots the framework the user configured. */
+  pluginConfig?: Record<string, unknown>
+}
+
+// Draft-level features are on the roadmap but are NOT exported from @vuetify/v0
+// yet, so emitting one breaks the starter build with TS2551. The picker gates
+// components via data/components.ts; this is the emission-side gate and also
+// covers the draft composables, which that catalogue does not list.
+const DRAFT: ReadonlySet<string> = new Set(
+  ['components', 'composables'].flatMap(kind => {
+    const entries = (maturity as unknown as Record<string, Record<string, { level: string }>>)[kind]
+    return Object.entries(entries).filter(([, entry]) => entry.level === 'draft').map(([id]) => id)
+  }),
+)
+
+// Theme tokens the generated demos style against, with the fallback baked into
+// the emitted `var()`. useTheme only writes a variable for a token the user's
+// palette actually defines, and an undefined one makes the whole `color-mix()`
+// declaration invalid — borders and text silently collapse to black. The
+// fallback keeps a partial palette rendering.
+const TOKENS: Record<string, string> = {
+  'primary': '#3b82f6',
+  'secondary': '#64748b',
+  'accent': '#6366f1',
+  'error': '#ef4444',
+  'background': '#ffffff',
+  'surface': '#ffffff',
+  'surface-variant': '#f5f5f5',
+  'divider': '#e0e0e0',
+  'on-primary': '#ffffff',
+  'on-surface': '#212121',
+  'on-surface-variant': '#666666',
+}
+
+// Stand-in palette for the playground when the user did not configure theming.
+// The preview would otherwise render unstyled, since every demo classname
+// resolves through a --v0-* variable that only useTheme writes.
+const PREVIEW_THEME = {
+  default: 'light',
+  themes: {
+    light: {
+      dark: false,
+      colors: {
+        'primary': '#3b82f6',
+        'secondary': '#64748b',
+        'accent': '#6366f1',
+        'error': '#ef4444',
+        'background': '#ffffff',
+        'surface': '#ffffff',
+        'surface-variant': '#f5f5f5',
+        'divider': '#e0e0e0',
+        'on-primary': '#ffffff',
+        'on-surface': '#212121',
+        'on-surface-variant': '#666666',
+      },
+    },
+  },
+}
 
 interface PlaygroundHashData {
   files: Record<string, string>
@@ -385,9 +448,15 @@ function formatImports (
   })
 }
 
+// Where the stylesheet comes from. The starter compiles UnoCSS through Vite;
+// the playground has no bundler and runs the preset from a `uno.config.ts`
+// module it supplies itself.
+type Stylesheet = 'virtual:uno.css' | './uno.config.ts'
+
 export function generateMainTs (
   selectedPlugins: Set<string> | string[],
   pluginConfig: Record<string, unknown>,
+  css: Stylesheet = 'virtual:uno.css',
 ): string {
   const selected = toSet(selectedPlugins)
   const ids = selectedPluginIds(selected, pluginConfig)
@@ -415,11 +484,56 @@ export function generateMainTs (
 
 import App from './App.vue'
 
-import 'virtual:uno.css'
+import '${css}'
 
 const app = createApp(App)
 
 ${body}app.mount('#app')
+`
+}
+
+// Every token the emitted uno config has to map: the ones the demos style
+// against, plus anything extra the user defined on their own themes.
+export function collectTokens (pluginConfig: Record<string, unknown>): string[] {
+  const tokens = new Set(Object.keys(TOKENS))
+  const themes = toRecord(toRecord(pluginConfig.useTheme).themes)
+
+  for (const theme of Object.values(themes)) {
+    for (const token of Object.keys(toRecord(toRecord(theme).colors))) {
+      tokens.add(token)
+    }
+  }
+
+  return [...tokens].toSorted()
+}
+
+// A token the user defined themselves is always written by useTheme, so only
+// the standard set needs a fallback.
+function reference (token: string): string {
+  const fallback = TOKENS[token]
+  return fallback ? `var(--v0-${token}, ${fallback})` : `var(--v0-${token})`
+}
+
+// Maps each theme token onto the CSS variable useTheme writes. Without this the
+// utility classes in the demos resolve to nothing and the app renders unstyled.
+export function generateUnoConfig (pluginConfig: Record<string, unknown> = {}): string {
+  const colors = collectTokens(pluginConfig)
+    .map(token => `      '${token}': '${reference(token)}',`)
+    .join('\n')
+
+  return `import { defineConfig, presetWind4 } from 'unocss'
+
+export default defineConfig({
+  presets: [presetWind4()],
+  theme: {
+    colors: {
+${colors}
+    },
+    borderColor: {
+      DEFAULT: '${reference('divider')}',
+    },
+  },
+})
 `
 }
 
@@ -606,7 +720,7 @@ function generateSelectionDemo (features: Set<string>): Demo | null {
     <h2 class="text-lg font-semibold mb-4">Tabs</h2>
 
     <Tabs.Root v-model="selected">
-      <Tabs.List class="flex border-b border-outline-variant" label="Sections">
+      <Tabs.List class="flex border-b border-divider" label="Sections">
         <Tabs.Item
           v-for="tab in tabs"
           :key="tab"
@@ -771,7 +885,7 @@ function generateFormDemo (features: Set<string>): Demo | null {
         <label class="text-sm font-medium" for="email">Email</label>
 
         <Input.Control
-          class="w-full px-3 py-2 rounded border border-outline bg-surface text-on-surface data-[state=invalid]:border-error"
+          class="w-full px-3 py-2 rounded border border-divider bg-surface text-on-surface data-[state=invalid]:border-error"
           placeholder="you@example.com"
         />
 
@@ -893,7 +1007,7 @@ function generateFormDemo (features: Set<string>): Demo | null {
     <h2 class="text-lg font-semibold mb-4">Combobox</h2>
 
     <Combobox.Root v-model="selected">
-      <Combobox.Activator class="flex items-center gap-1 w-full px-3 py-2 rounded border border-outline bg-surface text-on-surface text-sm">
+      <Combobox.Activator class="flex items-center gap-1 w-full px-3 py-2 rounded border border-divider bg-surface text-on-surface text-sm">
         <Combobox.Control
           class="flex-1 bg-transparent outline-none"
           placeholder="Search fruits…"
@@ -903,7 +1017,7 @@ function generateFormDemo (features: Set<string>): Demo | null {
       </Combobox.Activator>
 
       <Combobox.Content
-        class="p-1 rounded border border-outline bg-surface shadow-lg"
+        class="p-1 rounded border border-divider bg-surface shadow-lg"
         :style="{ minWidth: 'anchor-size(width)' }"
       >
         <Combobox.Item
@@ -979,7 +1093,7 @@ function generateDataDemo (features: Set<string>): Demo | null {
   <section class="mb-8">
     <h2 class="text-lg font-semibold mb-4">Data Table</h2>
 
-    <table class="w-full border border-outline rounded">
+    <table class="w-full border border-divider rounded">
       <thead class="bg-surface-variant">
         <tr>
           <th
@@ -997,7 +1111,7 @@ function generateDataDemo (features: Set<string>): Demo | null {
         <tr
           v-for="user in table.items.value"
           :key="user.id"
-          class="border-t border-outline-variant"
+          class="border-t border-divider"
         >
           <td class="px-4 py-2 text-sm">{{ user.name }}</td>
           <td class="px-4 py-2 text-sm">{{ user.role }}</td>
@@ -1049,7 +1163,7 @@ function generateDataDemo (features: Set<string>): Demo | null {
       :items-per-page="perPage"
       :size="items.length"
     >
-      <Pagination.Prev class="size-9 rounded border border-outline flex items-center justify-center data-[disabled]:opacity-40">
+      <Pagination.Prev class="size-9 rounded border border-divider flex items-center justify-center data-[disabled]:opacity-40">
         &#8249;
       </Pagination.Prev>
 
@@ -1061,14 +1175,14 @@ function generateDataDemo (features: Set<string>): Demo | null {
 
         <Pagination.Item
           v-else
-          class="size-9 rounded border border-outline flex items-center justify-center data-[selected]:bg-primary data-[selected]:text-on-primary"
+          class="size-9 rounded border border-divider flex items-center justify-center data-[selected]:bg-primary data-[selected]:text-on-primary"
           :value="ticket.value as number"
         >
           {{ ticket.value }}
         </Pagination.Item>
       </template>
 
-      <Pagination.Next class="size-9 rounded border border-outline flex items-center justify-center data-[disabled]:opacity-40">
+      <Pagination.Next class="size-9 rounded border border-divider flex items-center justify-center data-[disabled]:opacity-40">
         &#8250;
       </Pagination.Next>
     </Pagination.Root>
@@ -1101,7 +1215,7 @@ function generateDataDemo (features: Set<string>): Demo | null {
 
     <Input.Root id="filter" v-model="query" label="Search">
       <Input.Control
-        class="w-full px-3 py-2 mb-4 rounded border border-outline bg-surface text-on-surface"
+        class="w-full px-3 py-2 mb-4 rounded border border-divider bg-surface text-on-surface"
         placeholder="Search pages…"
       />
     </Input.Root>
@@ -1146,7 +1260,7 @@ function generateDataDemo (features: Set<string>): Demo | null {
 
     <div
       ref="element"
-      class="h-64 overflow-y-auto border border-outline rounded"
+      class="h-64 overflow-y-auto border border-divider rounded"
       @scroll="scroll"
     >
       <div :style="{ height: \`\${offset}px\` }" />
@@ -1154,7 +1268,7 @@ function generateDataDemo (features: Set<string>): Demo | null {
       <div
         v-for="item in items"
         :key="item.index"
-        class="h-9 px-3 flex items-center text-sm border-b border-outline-variant"
+        class="h-9 px-3 flex items-center text-sm border-b border-divider"
       >
         {{ item.raw.label }}
       </div>
@@ -1190,7 +1304,7 @@ function generateDisclosureDemo (features: Set<string>): Demo | null {
         Open Popover
       </Popover.Activator>
 
-      <Popover.Content class="p-4 rounded-lg bg-surface border border-outline shadow-lg max-w-xs">
+      <Popover.Content class="p-4 rounded-lg bg-surface border border-divider shadow-lg max-w-xs">
         <p class="text-sm text-on-surface">
           Positioned with the native popover API and CSS anchor positioning.
         </p>
@@ -1217,7 +1331,7 @@ function generateDisclosureDemo (features: Set<string>): Demo | null {
         Open Dialog
       </Dialog.Activator>
 
-      <Dialog.Content class="m-auto p-6 rounded-xl bg-surface border border-outline max-w-md w-full">
+      <Dialog.Content class="m-auto p-6 rounded-xl bg-surface border border-divider max-w-md w-full">
         <Dialog.Title as="h3" class="text-lg font-semibold mb-2">
           Dialog Title
         </Dialog.Title>
@@ -1271,7 +1385,7 @@ function generateObserverDemo (features: Set<string>): Demo | null {
 
     <div
       ref="box"
-      class="p-4 min-h-24 min-w-48 resize overflow-auto rounded border-2 border-dashed border-outline bg-surface-variant"
+      class="p-4 min-h-24 min-w-48 resize overflow-auto rounded border-2 border-dashed border-divider bg-surface-variant"
     >
       <p class="text-sm text-on-surface-variant">
         Drag the corner to resize. Current size: {{ size.width }} &times; {{ size.height }}px
@@ -1307,7 +1421,7 @@ function generateObserverDemo (features: Set<string>): Demo | null {
       Status: <strong :class="visible ? 'text-primary' : 'text-error'">{{ visible ? 'Visible' : 'Hidden' }}</strong>
     </p>
 
-    <div class="h-48 overflow-auto rounded border border-outline p-4">
+    <div class="h-48 overflow-auto rounded border border-divider p-4">
       <div class="h-64 flex items-end">
         <p class="text-sm text-on-surface-variant">Keep scrolling&hellip;</p>
       </div>
@@ -1429,8 +1543,7 @@ ${elements}
 }
 
 export function generateFiles (manifest: FrameworkManifest): Record<string, string> {
-  const all = [...manifest.features, ...manifest.resolved]
-  const features = new Set(all)
+  const features = new Set([...manifest.features, ...manifest.resolved])
   const categories = categorize(features)
 
   const files: Record<string, string> = {}
@@ -1438,9 +1551,9 @@ export function generateFiles (manifest: FrameworkManifest): Record<string, stri
   const symbols = new Set<string>()
 
   // Whatever the user picked belongs in their framework whether or not a demo
-  // happens to exercise it.
+  // happens to exercise it — minus anything v0 has not shipped yet.
   for (const feature of manifest.features) {
-    if (/^[A-Z]/.test(feature)) symbols.add(feature)
+    if (/^[A-Z]/.test(feature) && !DRAFT.has(feature)) symbols.add(feature)
   }
 
   for (const config of DEMO_CONFIGS) {
@@ -1455,14 +1568,29 @@ export function generateFiles (manifest: FrameworkManifest): Record<string, stri
   }
 
   files['src/framework.ts'] = generateFramework(symbols)
-  files['src/App.vue'] = generateAppVue(demos, all.length)
+  // Count what the framework actually re-exports, not what was requested — the
+  // two differ once draft picks and resolved dependencies are accounted for.
+  files['src/App.vue'] = generateAppVue(demos, symbols.size)
 
   return files
 }
 
-export function toHashData (manifest: FrameworkManifest): PlaygroundHashData {
+export function toHashData (input: PlaygroundInput): PlaygroundHashData {
+  const config = input.pluginConfig ?? {}
+  const plugins = input.features.filter(id => id in FACTORY)
+
+  // The playground executes src/main.ts as the sandbox entry, so the preview
+  // boots the same plugin set the starter does. Without a theme the demos have
+  // no palette to resolve against, so preview-only defaults stand in.
+  const themed = plugins.includes('useTheme')
+    ? { plugins, config }
+    : { plugins: [...plugins, 'useTheme'], config: { ...config, useTheme: PREVIEW_THEME } }
+
   return {
-    files: generateFiles(manifest),
+    files: {
+      ...generateFiles(input),
+      'src/main.ts': generateMainTs(themed.plugins, themed.config, './uno.config.ts'),
+    },
     active: 'src/App.vue',
     imports: generateImports(),
   }
@@ -1476,8 +1604,7 @@ async function encodeHash (data: PlaygroundHashData): Promise<string> {
   return btoa(binary)
 }
 
-export async function toPlaygroundUrl (manifest: FrameworkManifest, baseUrl: string): Promise<string> {
-  const data = toHashData(manifest)
-  const hash = await encodeHash(data)
+export async function toPlaygroundUrl (input: PlaygroundInput, baseUrl: string): Promise<string> {
+  const hash = await encodeHash(toHashData(input))
   return `${baseUrl}#${hash}`
 }

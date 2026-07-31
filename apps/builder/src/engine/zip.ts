@@ -7,6 +7,7 @@ import {
   generateDateStub,
   generateFiles,
   generateMainTs,
+  generateUnoConfig,
   needsDateStub,
 } from './manifest'
 
@@ -103,15 +104,6 @@ function generateEnvDts (): string {
 `
 }
 
-function generateUnoConfig (): string {
-  return `import { defineConfig, presetWind4 } from 'unocss'
-
-export default defineConfig({
-  presets: [presetWind4()],
-})
-`
-}
-
 function generateIndexHtml (): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -191,7 +183,7 @@ export function generateZip (m: ZipManifest): Uint8Array {
     'my-v0-app/package.json': strToU8(generatePackageJson(m)),
     'my-v0-app/vite.config.ts': strToU8(generateViteConfig()),
     'my-v0-app/tsconfig.json': strToU8(generateTsconfig()),
-    'my-v0-app/uno.config.ts': strToU8(generateUnoConfig()),
+    'my-v0-app/uno.config.ts': strToU8(generateUnoConfig(m.pluginConfig)),
     'my-v0-app/index.html': strToU8(generateIndexHtml()),
     'my-v0-app/README.md': strToU8(generateReadme(m)),
     'my-v0-app/.gitignore': strToU8(generateGitignore()),
