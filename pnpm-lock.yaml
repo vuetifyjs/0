@@ -351,6 +351,9 @@ importers:
       '@mdi/js':
         specifier: 'catalog:'
         version: mdi-js-es@7.4.47
+      '@paper/genesis':
+        specifier: workspace:*
+        version: link:../../packages/genesis
       '@vuetify/v0':
         specifier: workspace:*
         version: link:../../packages/0
