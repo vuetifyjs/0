@@ -16,6 +16,7 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 import 'virtual:uno.css'
+import '@paper/genesis/style.css'
 
 function getSystemTheme (): 'light' | 'dark' {
   if (!IN_BROWSER) return 'light'

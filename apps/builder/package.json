@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@mdi/js": "catalog:",
+    "@paper/genesis": "workspace:*",
     "@vuetify/v0": "workspace:*",
     "fflate": "catalog:",
     "pinia": "catalog:",
