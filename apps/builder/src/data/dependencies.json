@@ -14,6 +14,17 @@
       "useVirtualFocus"
     ],
     "createContext": [],
+    "createDataGrid": [
+      "createContext",
+      "createDataTable",
+      "createGroup",
+      "createRegistry",
+      "createSortable",
+      "createTrinity",
+      "useLogger",
+      "useProxyRegistry",
+      "useToggleScope"
+    ],
     "createDataTable": [
       "createContext",
       "createFilter",
@@ -21,7 +32,8 @@
       "createPagination",
       "createRegistry",
       "createTrinity",
-      "useLocale"
+      "useLocale",
+      "useProxyRegistry"
     ],
     "createFilter": [
       "createContext",
@@ -190,7 +202,9 @@
       "useMutationObserver",
       "useResizeObserver"
     ],
-    "useEventListener": [],
+    "useEventListener": [
+      "toArray"
+    ],
     "useFeatures": [
       "createGroup",
       "createPlugin",
@@ -239,11 +253,12 @@
       "toArray"
     ],
     "usePopover": [
-      "useEventListener",
-      "useTimer"
+      "useDelay",
+      "useEventListener"
     ],
     "usePresence": [],
     "useProxyModel": [
+      "createModel",
       "createSelection",
       "toArray"
     ],
@@ -251,6 +266,11 @@
       "createRegistry"
     ],
     "useRaf": [],
+    "useReducedMotion": [
+      "createPlugin",
+      "useMediaQuery",
+      "useStorage"
+    ],
     "useResizeObserver": [
       "createObserver",
       "toElement"
@@ -260,7 +280,8 @@
       "useEventListener"
     ],
     "useRtl": [
-      "createPlugin"
+      "createPlugin",
+      "useStorage"
     ],
     "useRules": [
       "createForm",
@@ -272,11 +293,13 @@
       "createContext",
       "createPlugin",
       "createSelection",
-      "createTrinity"
+      "createTrinity",
+      "toElement"
     ],
     "useStorage": [
       "createPlugin",
-      "useEventListener"
+      "useEventListener",
+      "useLogger"
     ],
     "useTheme": [
       "createPlugin",
@@ -287,6 +310,10 @@
     ],
     "useTimer": [],
     "useToggleScope": [],
+    "useTooltip": [
+      "createPlugin",
+      "createRegistry"
+    ],
     "useVirtualFocus": [
       "createFocusTraversal",
       "useEventListener"
@@ -295,6 +322,7 @@
   "components": {
     "AlertDialog": [
       "Atom",
+      "Scrim",
       "createContext",
       "useClickOutside",
       "useLocale",
@@ -308,8 +336,14 @@
     "Avatar": [
       "Atom",
       "createContext",
+      "createOverflow",
+      "createRegistry",
       "createSelection",
-      "useImage"
+      "toElement",
+      "useImage",
+      "useLocale",
+      "useResizeObserver",
+      "useToggleScope"
     ],
     "Breadcrumbs": [
       "Atom",
@@ -359,10 +393,12 @@
       "createContext",
       "useClickOutside",
       "useLazy",
+      "useLocale",
       "useProxyModel"
     ],
     "Dialog": [
       "Atom",
+      "Scrim",
       "createContext",
       "useClickOutside",
       "useLocale",
@@ -512,6 +548,7 @@
       "createSelection",
       "toElement",
       "useEventListener",
+      "useLocale",
       "useRaf",
       "useResizeObserver",
       "useToggleScope"
@@ -546,6 +583,13 @@
       "createSingle",
       "useProxyModel"
     ],
+    "Tooltip": [
+      "Atom",
+      "createContext",
+      "useDelay",
+      "usePopover",
+      "useTooltip"
+    ],
     "Treeview": [
       "Atom",
       "createContext",
@@ -553,6 +597,7 @@
       "toElement",
       "useProxyModel",
       "useRovingFocus"
-    ]
+    ],
+    "fixtures": []
   }
 }
