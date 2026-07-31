@@ -74,14 +74,17 @@
       </Button.Root>
     </div>
 
-    <div class="grid grid-cols-4 gap-2">
-      <div v-for="[name, value] in tokens" :key="name">
+    <!-- Four columns leaves ~60px per cell on a phone, too narrow for a name like
+         "background" to fit; names then break mid-word. Two columns fits every default
+         token on one line down to 320px, and the swatch height is fixed either way. -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div v-for="[name, value] in tokens" :key="name" class="min-w-0 overflow-hidden">
         <div
           class="h-12 rounded-lg border border-divider transition-colors"
           :style="{ background: value }"
         />
 
-        <p class="mt-1 text-[10px] font-mono leading-tight text-on-surface break-words">{{ name }}</p>
+        <p class="mt-1 text-[10px] font-mono leading-tight text-on-surface" :title="name">{{ name }}</p>
         <p class="text-[10px] font-mono leading-tight text-on-surface-variant">{{ value }}</p>
       </div>
     </div>
