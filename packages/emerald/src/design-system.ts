@@ -1,16 +1,18 @@
 /**
- * Emerald Design System — Token Definitions
+ * Emerald design-system token dictionary.
  *
- * Extracted from the canonical Figma spec "Emerald 1.0 Copy"
- * (fileKey mRyzZtj2AmJCKhnj06MXj9), bound-variable values.
- * These tokens feed the UnoCSS theme config and the Emerald
- * theme plugin, which publishes them as `--emerald-*` CSS vars.
+ * Not just color themes — the full Figma-bound surface: color scales,
+ * spacing, radius, stroke, icon sizes, shadows, type, motion, and
+ * control geometry. Consumed by:
+ * - `adapter.ts` → CSS custom properties (`--emerald-*`)
+ * - `colors.ts` → flat map for v0's theme plugin
+ * - optional UnoCSS / tooling via `emeraldDesignSystem`
  *
- * Scale structure follows the spec: brand + neutral families run
- * 100–1000; semantic families (danger/alert/success/info) run
- * 100–600. Each family carries an Alpha 10/20/30 tier built on the
- * family base color, exposed as `alpha-10|20|30` keys. `DEFAULT`
- * aliases point at each family's spec base value (the alpha base).
+ * Source: Figma "Emerald 1.0 Copy" (fileKey mRyzZtj2AmJCKhnj06MXj9).
+ *
+ * Scale structure: brand + neutral 100–1000; semantic families
+ * (danger/alert/success/info) 100–600; alpha-10|20|30; DEFAULT =
+ * family base (alpha base).
  */
 
 // ──────────────────────────────────────────────
@@ -312,10 +314,10 @@ export const control = {
 } as const
 
 // ──────────────────────────────────────────────
-// Full theme export (UnoCSS theme config shape)
+// Aggregated dictionary (UnoCSS / tooling shape)
 // ──────────────────────────────────────────────
 
-export const emeraldTheme = {
+export const emeraldDesignSystem = {
   colors: {
     primary,
     secondary,

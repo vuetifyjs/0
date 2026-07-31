@@ -45,11 +45,14 @@ function mergeThemes (defaults: ThemeMap | undefined, overrides: ThemeMap | unde
 }
 
 /**
- * Install Emerald theming (and only theming).
+ * Install Emerald theming (and only theming). This is the consumer entry:
+ * adapter, default `emerald` theme, and kit `--v0-*` aliases are prewired.
+ *
  * Locale / storage / hydration are host app concerns — not auto-installed.
  *
- * Hosts that already call `createThemePlugin` should pass `{ theme: false }`
- * and register `EmeraldStyleSheetAdapter` + `emeraldColors` on their own theme.
+ * Escape hatch: pass `{ theme: false }` when the host already installs
+ * `createThemePlugin` and will attach `EmeraldStyleSheetAdapter` +
+ * `emeraldColors` itself.
  */
 export function createEmeraldPlugin (options: EmeraldPluginOptions = {}): Plugin {
   return {

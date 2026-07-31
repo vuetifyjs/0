@@ -9,14 +9,14 @@ Figma-sourced tokens + thin Vue wrappers over `@vuetify/v0` compounds.
 ```ts
 import { createApp } from 'vue'
 import { createEmeraldPlugin, EmButton } from '@paper/emerald'
-import '@paper/emerald/theme.css' // tokens (zero-config; baked onto :root + [data-theme=emerald])
-import '@paper/emerald/style.css' // component CSS (required for Em* styling)
+import '@paper/emerald/theme.css' // design tokens (--emerald-*, kit --v0-* aliases)
+import '@paper/emerald/style.css' // Em* component CSS
 
 const app = createApp(App)
-// Optional for runtime theme switch / CSP nonces when theme.css is already imported.
-// Pass { theme: false } if the host already installs createThemePlugin.
-app.use(createEmeraldPlugin())
+app.use(createEmeraldPlugin()) // wires adapter + default emerald theme — no manual adapter setup
 ```
+
+That is the whole install. Do **not** construct `EmeraldStyleSheetAdapter` yourself unless the host already runs `createThemePlugin` and you pass `{ theme: false }` to opt out of Emerald’s install.
 
 ## Components
 

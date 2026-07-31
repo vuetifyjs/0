@@ -15,7 +15,7 @@ import {
   secondary,
   success,
   surface,
-} from './theme'
+} from './design-system'
 
 type Scale = Record<string, string>
 

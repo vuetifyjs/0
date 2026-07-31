@@ -22,7 +22,7 @@ import {
   shadow,
   spacing,
   stroke,
-} from '../src/theme'
+} from '../src/design-system'
 
 const SAFE_IDENT = /^[a-zA-Z0-9_-]+$/
 /** Mirrors v0 ThemeAdapter.UNSAFE_CSS — keep in lockstep with adapter.ts. */

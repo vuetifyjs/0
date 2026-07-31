@@ -2,8 +2,8 @@
 import { V0StyleSheetThemeAdapter } from '@vuetify/v0'
 import { hexToRgb, isUndefined } from '@vuetify/v0/utilities'
 
-// Tokens
-import { control, fontFamily, fontSize, icon, motion, radius, shadow, spacing, stroke } from './theme'
+// Design-system tokens
+import { control, fontFamily, fontSize, icon, motion, radius, shadow, spacing, stroke } from './design-system'
 
 // Types
 import type { Colors } from '@vuetify/v0'
@@ -24,10 +24,7 @@ const SAFE_IDENT = /^[a-zA-Z0-9_-]+$/
 /** Mirrors v0 ThemeAdapter.UNSAFE_CSS — keep in lockstep. */
 const UNSAFE_CSS = /url\s*\(|src\s*\(|image\s*\(|image-set\s*\(|cross-fade\s*\(|@import|expression\s*\(|[;{}<>\\]/i
 
-/**
- * Color keys mirrored onto `--v0-*` for kit interop (Genesis chrome).
- * Severity remaps (warning/error/accent) are handled separately below.
- */
+/** Color keys mirrored onto `--v0-*` for kit interop (Genesis chrome). */
 const V0_ALIAS_KEYS = [
   'primary',
   'on-primary',
@@ -52,6 +49,12 @@ const V0_ALIAS_KEYS = [
   'on-info',
 ] as const
 
+/**
+ * Stylesheet adapter used by `createEmeraldPlugin` — not a consumer install step.
+ * Apps should `app.use(createEmeraldPlugin())` and/or import `theme.css`.
+ * Only hosts that already install `createThemePlugin` need this class when
+ * wiring Emerald as their theme adapter.
+ */
 export class EmeraldStyleSheetAdapter extends V0StyleSheetThemeAdapter {
   readonly v0Aliases: boolean
 

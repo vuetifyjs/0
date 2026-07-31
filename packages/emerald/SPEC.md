@@ -12,15 +12,17 @@ adapter that publishes `--emerald-*` (plus `--v0-*` kit aliases), and Vue compon
 
 Canonical Figma: **Emerald 1.0 Copy** — file key `mRyzZtj2AmJCKhnj06MXj9`.
 
-Token values live in `src/theme.ts`. Flat color map for the adapter: `src/colors.ts`.
+Token dictionary: `src/design-system.ts` (color scales, spacing, type, motion, control geometry — not “theme” alone).
+Flat color map for v0’s theme engine: `src/colors.ts`. Adapter is **package machinery**, not a consumer install step.
 
 ## Pipeline
 
 | Path | How |
 |---|---|
-| **Zero-config** | `import '@paper/emerald/theme.css'` — prebaked by `pnpm bake:theme` |
-| **Full** | `app.use(createEmeraldPlugin())` — runtime `EmeraldStyleSheetAdapter` |
-| **Kit interop** | Adapter emits `--v0-*` aliases for Genesis chrome (DESIGN_SYSTEMS *Kit interop*) |
+| **Happy path** | `import '@paper/emerald/theme.css'` + `import '@paper/emerald/style.css'` + `app.use(createEmeraldPlugin())` |
+| **CSS-only** | Prebaked `theme.css` (no plugin) when you only need static tokens + no runtime switch |
+| **Host already has `createThemePlugin`** | `{ theme: false }` and register `EmeraldStyleSheetAdapter` + `emeraldColors` on that host plugin |
+| **Kit interop** | Adapter (via plugin) emits `--v0-*` aliases for Genesis chrome |
 
 ## Composition rules
 
