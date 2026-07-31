@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
 import maturity from '#v0/maturity.json'
+import { PLUGINS } from '@/data/plugins'
 import { KNOWN_ALIASES } from '@/plugins/rules/defaults'
 
 import {
+  ADAPTER_DEPS,
+  BYOC,
   collectDependencies,
   FACTORY,
   KEYS,
@@ -176,6 +179,32 @@ describe('generated demos', () => {
     const files = build(['createDataTable'])
 
     expect(files['src/DataDemo.vue']).toContain('table.onboard(users.map(value => ({ id: value.id, value })))')
+  })
+
+  // Generic on purpose: a demo that imports a symbol the framework file never
+  // exports is a build error in the user's starter, and hardcoding the expected
+  // names in a test only moves the drift somewhere else.
+  it.each(ALL)('%s should only import symbols framework.ts exports', feature => {
+    const files = build([feature])
+    const exported = new Set(
+      [...files['src/framework.ts'].matchAll(/^export const (\w+) =/gm)].map(([, name]) => name),
+    )
+
+    const imported = new Set<string>()
+
+    for (const [path, code] of Object.entries(files)) {
+      if (!path.endsWith('.vue')) continue
+
+      for (const [, clause] of code.matchAll(/import\s*\{([^}]+)\}\s*from\s*'\.\/framework'/g)) {
+        for (const part of clause.split(',')) {
+          const name = part.trim().split(/\s+as\s+/)[0].trim()
+          if (name) imported.add(name)
+        }
+      }
+    }
+
+    expect(imported.size).toBeGreaterThan(0)
+    expect([...imported].filter(name => !exported.has(name))).toEqual([])
   })
 })
 
@@ -468,6 +497,77 @@ describe('generateDateStub', () => {
     expect(needsDateStub(['useDate'], { useDate: { adapter: 'custom' } })).toBe(true)
     expect(needsDateStub(['useDate'], {})).toBe(false)
     expect(needsDateStub([], { useDate: { adapter: 'custom' } })).toBe(false)
+  })
+})
+
+// The engine and the UI keep parallel registries. Nothing fails loudly when
+// they drift — a plugin just goes missing from one side or the other.
+describe('registry cross-checks', () => {
+  it('should offer every emittable plugin in the picker, and vice versa', () => {
+    expect(PLUGINS.map(plugin => plugin.id).toSorted()).toEqual(Object.keys(FACTORY).toSorted())
+  })
+
+  // Omitting 'persist' from an allowlist does not crash; the option is silently
+  // stripped and the generated app quietly loses persistence.
+  it('should allow persist for every plugin whose form offers it', () => {
+    const defaults = import.meta.glob('../plugins/*/defaults.ts', {
+      query: '?raw',
+      import: 'default',
+      eager: true,
+    }) as Record<string, string>
+
+    const offered: string[] = []
+    const missing: string[] = []
+
+    for (const [path, source] of Object.entries(defaults)) {
+      const dir = path.split('/').at(-2)!
+      const id = `use${dir.replace(/(^|-)(\w)/g, (_, __, c) => c.toUpperCase())}`
+      const config = source.match(/export interface \w*Config \{[^}]*\}/s)?.[0] ?? ''
+
+      if (!/^\s+persist\??:/m.test(config)) continue
+
+      offered.push(id)
+      if (!KEYS[id]?.includes('persist')) missing.push(id)
+    }
+
+    // Guards the glob and the Config-interface match — without this the loop
+    // could silently find nothing and the assertion below would always pass.
+    expect(offered.length).toBeGreaterThan(0)
+    expect(missing).toEqual([])
+  })
+
+  // An adapter whose package is never added produces a starter that imports a
+  // module it did not install.
+  it('should account for the dependencies of every adapter it can emit', () => {
+    // Drive the handlers rather than hardcoding names, so a new adapter is
+    // caught the moment it can be emitted.
+    const candidates = [...Object.keys(BYOC), 'custom', 'V0DateAdapter', 'V0LoggerAdapter', undefined]
+    const referenced = new Set<string>()
+
+    for (const id of Object.keys(FACTORY)) {
+      for (const adapter of candidates) {
+        const source = generateMainTs([id], { [id]: { adapter } })
+        for (const [, name] of source.matchAll(/\bnew (\w*Adapter)\(/g)) referenced.add(name)
+      }
+    }
+
+    expect(referenced.size).toBeGreaterThan(0)
+
+    // Every adapter is either dependency-free or has its package declared.
+    const FREE = new Set(['V0LoggerAdapter'])
+    const unaccounted = [...referenced].filter(
+      name => !FREE.has(name) && !(name in ADAPTER_DEPS) && !(name in BYOC),
+    )
+
+    expect(unaccounted).toEqual([])
+  })
+
+  it('should declare a dependency set for every bring-your-own-client adapter', () => {
+    const undeclared = Object.entries(BYOC)
+      .filter(([, wiring]) => wiring.deps === undefined)
+      .map(([name]) => name)
+
+    expect(undeclared).toEqual([])
   })
 })
 
