@@ -1,6 +1,8 @@
 <script setup lang="ts">
+  import { mdiCheck } from '@mdi/js'
+
   // Framework
-  import { Button, NumberField, Radio, Select } from '@vuetify/v0'
+  import { Button, isNumber, NumberField, Radio, Select } from '@vuetify/v0'
 
   import { BREAKPOINT_NAMES, defaultConfig, PRESETS } from './defaults'
 
@@ -8,7 +10,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { reactive, shallowRef } from 'vue'
+  import { computed, onBeforeUnmount, reactive, shallowRef, watch } from 'vue'
 
   // Types
   import type { BreakpointsConfig } from './defaults'
@@ -27,6 +29,13 @@
     typeof state.mobileBreakpoint === 'number' ? 'pixels' : 'named',
   )
 
+  const pixels = computed<number | null | undefined>({
+    get: () => isNumber(state.mobileBreakpoint) ? state.mobileBreakpoint : 0,
+    set: value => {
+      state.mobileBreakpoint = value ?? 0
+    },
+  })
+
   function applyPreset (name: keyof typeof PRESETS) {
     state.breakpoints = { ...PRESETS[name] }
   }
@@ -40,13 +49,22 @@
     }
   }
 
-  function onSave () {
-    const config: BreakpointsConfig = {
+  function snapshot (): BreakpointsConfig {
+    return {
       mobileBreakpoint: state.mobileBreakpoint,
       breakpoints: { ...state.breakpoints },
     }
-    store.savePluginConfig('useBreakpoints', config)
   }
+
+  function onSave () {
+    store.savePluginConfig('useBreakpoints', snapshot())
+  }
+
+  watch(state, () => {
+    store.setDraft('useBreakpoints', JSON.parse(JSON.stringify(snapshot())))
+  }, { deep: true, immediate: true })
+
+  onBeforeUnmount(() => store.clearDraft('useBreakpoints'))
 </script>
 
 <template>
@@ -156,7 +174,7 @@
                         : 'text-on-surface hover:bg-surface-variant',
                   ]"
                 >
-                  <span class="w-4 text-xs" :class="isSelected ? 'visible' : 'invisible'">&#x2713;</span>
+                  <svg class="w-4 h-4" :class="isSelected ? 'visible' : 'invisible'" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
                   {{ name }}
                 </div>
               </template>
@@ -164,7 +182,7 @@
           </Select.Content>
         </Select.Root>
 
-        <NumberField.Root v-else v-model="state.mobileBreakpoint" :min="0">
+        <NumberField.Root v-else v-model="pixels" :min="0">
           <NumberField.Control class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono" placeholder="1145" />
         </NumberField.Root>
       </div>

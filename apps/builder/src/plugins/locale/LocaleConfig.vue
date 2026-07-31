@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiClose, mdiPlus } from '@mdi/js'
+  import { mdiCheck, mdiClose, mdiPlus } from '@mdi/js'
 
   // Framework
   import { Button, Checkbox, Input, Select } from '@vuetify/v0'
@@ -10,7 +10,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { reactive, shallowRef } from 'vue'
+  import { onBeforeUnmount, reactive, shallowRef, watch } from 'vue'
 
   // Types
   import type { LocaleConfig } from './defaults'
@@ -40,6 +40,17 @@
     state.locales.splice(index, 1)
   }
 
+  function snapshot (messages: Record<string, Record<string, unknown>>): LocaleConfig {
+    return {
+      default: state.default,
+      fallback: state.fallback,
+      locales: state.locales.filter(Boolean),
+      adapter: state.adapter,
+      messages,
+      persist: state.persist,
+    }
+  }
+
   function onSave () {
     let parsed: Record<string, Record<string, unknown>>
     try {
@@ -50,16 +61,21 @@
       return
     }
 
-    const config: LocaleConfig = {
-      default: state.default,
-      fallback: state.fallback,
-      locales: state.locales.filter(Boolean),
-      adapter: state.adapter,
-      messages: parsed,
-      persist: state.persist,
-    }
-    store.savePluginConfig('useLocale', config)
+    store.savePluginConfig('useLocale', snapshot(parsed))
   }
+
+  watch([state, messagesText], () => {
+    let parsed: Record<string, Record<string, unknown>>
+    try {
+      parsed = messagesText.value.trim() ? JSON.parse(messagesText.value) : {}
+    } catch {
+      return
+    }
+
+    store.setDraft('useLocale', JSON.parse(JSON.stringify(snapshot(parsed))))
+  }, { deep: true, immediate: true })
+
+  onBeforeUnmount(() => store.clearDraft('useLocale'))
 </script>
 
 <template>
@@ -169,7 +185,7 @@
                           : 'text-on-surface hover:bg-surface-variant',
                     ]"
                   >
-                    <span class="w-4 text-xs" :class="isSelected ? 'visible' : 'invisible'">&#x2713;</span>
+                    <svg class="w-4 h-4" :class="isSelected ? 'visible' : 'invisible'" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
                     {{ kind }}
                   </div>
                 </template>
@@ -183,7 +199,9 @@
             v-model="state.persist"
             class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
           >
-            <Checkbox.Indicator class="text-on-primary text-sm">✓</Checkbox.Indicator>
+            <Checkbox.Indicator class="text-on-primary">
+              <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
+            </Checkbox.Indicator>
           </Checkbox.Root>
 
           <span class="text-sm text-on-surface">Persist selection to storage</span>

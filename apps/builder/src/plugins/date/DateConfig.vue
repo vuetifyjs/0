@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiClose, mdiPlus } from '@mdi/js'
+  import { mdiCheck, mdiClose, mdiPlus } from '@mdi/js'
 
   // Framework
   import { Button, Input, NumberField, Select } from '@vuetify/v0'
@@ -23,7 +23,7 @@
   const store = useBuilderStore()
 
   const stored = store.pluginConfig.useDate as DateConfig | undefined
-  const initial = JSON.parse(JSON.stringify(stored ?? defaultConfig))
+  const initial: DateConfig = JSON.parse(JSON.stringify(stored ?? defaultConfig))
 
   const state = reactive({
     adapter: initial.adapter,
@@ -81,7 +81,7 @@
         <Select.Root v-model="state.adapter">
           <Select.Activator class="mt-1 flex items-center justify-between w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
             <Select.Value v-slot="{ selectedValue }">
-              {{ adapterLabel(selectedValue) }}
+              {{ adapterLabel(selectedValue as DateAdapterKind) }}
             </Select.Value>
 
             <Select.Placeholder class="text-on-surface-variant">Choose an adapter…</Select.Placeholder>
@@ -103,7 +103,7 @@
                   class="flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm"
                   :class="[isHighlighted ? 'bg-primary text-on-primary' : isSelected ? 'text-primary font-medium' : 'text-on-surface hover:bg-surface-variant']"
                 >
-                  <span class="w-4 text-xs" :class="isSelected ? 'visible' : 'invisible'">&#x2713;</span>
+                  <svg class="w-4 h-4" :class="isSelected ? 'visible' : 'invisible'" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
                   {{ adapterLabel(kind) }}
                 </div>
               </template>

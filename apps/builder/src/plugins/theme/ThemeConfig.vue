@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiClose, mdiPlus } from '@mdi/js'
+  import { mdiCheck, mdiClose, mdiPlus } from '@mdi/js'
 
   // Framework
   import { Button, Checkbox, Input, Select } from '@vuetify/v0'
@@ -10,7 +10,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { computed, reactive } from 'vue'
+  import { onBeforeUnmount, reactive, toRef, watch } from 'vue'
 
   // Types
   import type { ThemeConfig, ThemeEntry } from './defaults'
@@ -30,7 +30,7 @@
   const store = useBuilderStore()
 
   const stored = store.pluginConfig.useTheme as ThemeConfig | undefined
-  const initial = JSON.parse(JSON.stringify(stored ?? defaultConfig))
+  const initial: ThemeConfig = JSON.parse(JSON.stringify(stored ?? defaultConfig))
 
   const state = reactive({
     default: initial.default,
@@ -43,7 +43,7 @@
     })),
   })
 
-  const themeKeys = computed(() => state.themes.map(t => t.key).filter(Boolean))
+  const themeKeys = toRef(() => state.themes.map(t => t.key).filter(Boolean))
 
   function addColor (theme: ThemeRow) {
     theme.colors.push({ name: '', value: '#000000' })
@@ -66,7 +66,7 @@
     state.themes.splice(index, 1)
   }
 
-  function onSave () {
+  function snapshot (): ThemeConfig {
     const themes: Record<string, ThemeEntry> = {}
     for (const row of state.themes) {
       if (!row.key) continue
@@ -81,14 +81,24 @@
       }
     }
 
-    const config: ThemeConfig = {
+    return {
       default: state.default,
       target: state.target,
       themes,
     }
-
-    store.savePluginConfig('useTheme', config)
   }
+
+  function onSave () {
+    store.savePluginConfig('useTheme', snapshot())
+  }
+
+  watch(state, () => {
+    store.setDraft('useTheme', JSON.parse(JSON.stringify(snapshot())))
+  }, { deep: true, immediate: true })
+
+  onBeforeUnmount(() => {
+    store.clearDraft('useTheme')
+  })
 </script>
 
 <template>
@@ -180,7 +190,9 @@
                   v-model="theme.dark"
                   class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                 >
-                  <Checkbox.Indicator class="text-on-primary text-sm">✓</Checkbox.Indicator>
+                  <Checkbox.Indicator class="text-on-primary">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
+                  </Checkbox.Indicator>
                 </Checkbox.Root>
 
                 <span class="text-sm text-on-surface">Dark mode</span>
@@ -191,7 +203,9 @@
                   v-model="theme.foreground"
                   class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                 >
-                  <Checkbox.Indicator class="text-on-primary text-sm">✓</Checkbox.Indicator>
+                  <Checkbox.Indicator class="text-on-primary">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
+                  </Checkbox.Indicator>
                 </Checkbox.Root>
 
                 <span class="text-sm text-on-surface">Auto-generate on-* colors</span>
@@ -221,6 +235,7 @@
               >
                 <Input.Root v-model="color.name" class="flex-1">
                   <Input.Control
+                    :aria-label="`Token ${colorIndex + 1} name`"
                     class="w-full px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono outline-none data-[focused]:border-primary transition-colors"
                     placeholder="primary"
                   />
@@ -235,6 +250,7 @@
 
                 <Input.Root v-model="color.value">
                   <Input.Control
+                    :aria-label="`${color.name || 'color'} hex value`"
                     class="w-28 px-2 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono outline-none data-[focused]:border-primary transition-colors"
                     placeholder="#000000"
                   />

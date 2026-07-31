@@ -39,14 +39,14 @@
     { id: 'semantic', title: 'Semantic' },
   ]
 
-  const components = toRef<ComponentEntry[]>(() => {
+  const components = toRef((): ComponentEntry[] => {
     const raw = maturity.components as unknown as Record<string, { category: string }>
     return Object.entries(raw)
       .map(([id, entry]) => ({ id, category: entry.category }))
       .toSorted((a, b) => a.id.localeCompare(b.id))
   })
 
-  const groups = toRef<CategoryGroup[]>(() => {
+  const groups = toRef((): CategoryGroup[] => {
     const map = new Map<string, ComponentEntry[]>()
     for (const c of components.value) {
       if (!map.has(c.category)) map.set(c.category, [])
@@ -67,7 +67,7 @@
 
   const recommendedIds = toRef(() => recommendedFor(store.selectedPlugins))
 
-  const recommendedList = toRef<ComponentEntry[]>(() => {
+  const recommendedList = toRef((): ComponentEntry[] => {
     const ids = recommendedIds.value
     if (ids.size === 0) return []
     const byId = new Map(components.value.map(c => [c.id, c]))

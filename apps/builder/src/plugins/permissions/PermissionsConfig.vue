@@ -23,7 +23,7 @@
   const store = useBuilderStore()
 
   const stored = store.pluginConfig.usePermissions as PermissionsConfig | undefined
-  const initial = JSON.parse(JSON.stringify(stored ?? defaultConfig))
+  const initial: PermissionsConfig = JSON.parse(JSON.stringify(stored ?? defaultConfig))
 
   const state = reactive({
     roles: Object.entries(initial.roles).map<RoleRow>(([name, rules]) => ({

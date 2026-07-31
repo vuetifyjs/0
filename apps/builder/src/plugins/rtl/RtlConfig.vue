@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { mdiCheck } from '@mdi/js'
+
   // Framework
   import { Checkbox, Input } from '@vuetify/v0'
 
@@ -8,7 +10,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { reactive } from 'vue'
+  import { onBeforeUnmount, reactive, watch } from 'vue'
 
   // Types
   import type { RtlConfig } from './defaults'
@@ -23,13 +25,24 @@
     target: initial.target,
   })
 
-  function onSave () {
-    const config: RtlConfig = {
+  function snapshot (): RtlConfig {
+    return {
       default: state.default,
       target: state.target?.trim() || undefined,
     }
-    store.savePluginConfig('useRtl', config)
   }
+
+  function onSave () {
+    store.savePluginConfig('useRtl', snapshot())
+  }
+
+  watch(state, () => {
+    store.setDraft('useRtl', JSON.parse(JSON.stringify(snapshot())))
+  }, { deep: true, immediate: true })
+
+  onBeforeUnmount(() => {
+    store.clearDraft('useRtl')
+  })
 </script>
 
 <template>
@@ -47,7 +60,9 @@
           v-model="state.default"
           class="size-5 mt-1 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
         >
-          <Checkbox.Indicator class="text-on-primary text-sm">✓</Checkbox.Indicator>
+          <Checkbox.Indicator class="text-on-primary">
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
+          </Checkbox.Indicator>
         </Checkbox.Root>
 
         <div>
