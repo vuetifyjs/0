@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
+// Framework
+import * as v0 from '@vuetify/v0'
+
 import maturity from '#v0/maturity.json'
+import { PLUGIN_TO_COMPONENTS } from '@/data/component-recommendations'
+import { COMPONENTS } from '@/data/components'
 import { PLUGINS } from '@/data/plugins'
+import { getCategories } from '@/data/questions'
 import { KNOWN_ALIASES } from '@/plugins/rules/defaults'
 
 import {
@@ -10,6 +16,7 @@ import {
   collectDependencies,
   FACTORY,
   KEYS,
+  ORDER,
   collectTokens,
   generateDateStub,
   generateFiles,
@@ -505,6 +512,66 @@ describe('generateDateStub', () => {
 describe('registry cross-checks', () => {
   it('should offer every emittable plugin in the picker, and vice versa', () => {
     expect(PLUGINS.map(plugin => plugin.id).toSorted()).toEqual(Object.keys(FACTORY).toSorted())
+  })
+
+  // questions.ts is what the picker actually renders. A plugin present in
+  // PLUGINS and FACTORY but missing here is unreachable in the UI while every
+  // other test stays green.
+  it('should ask a question for every plugin the picker lists', () => {
+    const asked = getCategories().flatMap(category => category.questions).map(question => question.feature)
+
+    expect(asked.toSorted()).toEqual(PLUGINS.map(plugin => plugin.id).toSorted())
+  })
+
+  // The config-screen guard only reaches plugins that have a screen; this
+  // catches an optionless one that never gets an install position.
+  it('should give every emittable plugin a position in the install order', () => {
+    expect(Object.keys(FACTORY).filter(id => !ORDER.includes(id))).toEqual([])
+    expect(ORDER.filter(id => !(id in FACTORY))).toEqual([])
+  })
+
+  // "not draft" is only a proxy for "exported". Assert against the real barrel
+  // so the proxy cannot break silently.
+  it('should only offer components and factories the package actually exports', () => {
+    const selectable = COMPONENTS.filter(component => component.selectable).map(c => c.id)
+
+    expect(selectable.length).toBeGreaterThan(0)
+    expect(selectable.filter(id => !(id in v0))).toEqual([])
+    expect(Object.values(FACTORY).filter(name => !(name in v0))).toEqual([])
+  })
+
+  // An adapter a form offers but the engine cannot emit leaves the user with a
+  // selection that silently does nothing.
+  it('should be able to emit every adapter the forms offer', () => {
+    const defaults = import.meta.glob('../plugins/*/defaults.ts', {
+      query: '?raw',
+      import: 'default',
+      eager: true,
+    }) as Record<string, string>
+
+    const CONCRETE = new Set(['V0DateAdapter', 'V0LoggerAdapter'])
+    const offered: string[] = []
+
+    for (const source of Object.values(defaults)) {
+      for (const [, list] of source.matchAll(/_ADAPTERS[^=]*=\s*\[([^\]]*)\]/g)) {
+        for (const [, name] of list.matchAll(/'([^']+)'/g)) {
+          if (name !== 'none' && name !== 'custom') offered.push(name)
+        }
+      }
+    }
+
+    expect(offered.length).toBeGreaterThan(0)
+    expect(offered.filter(name => !(name in BYOC) && !CONCRETE.has(name))).toEqual([])
+  })
+
+  it('should recommend components for every plugin, and only real ones', () => {
+    const known = new Set(COMPONENTS.map(component => component.id))
+
+    expect(Object.keys(PLUGIN_TO_COMPONENTS).toSorted()).toEqual(PLUGINS.map(p => p.id).toSorted())
+
+    const unknown = Object.values(PLUGIN_TO_COMPONENTS).flat().filter(id => !known.has(id))
+
+    expect(unknown).toEqual([])
   })
 
   // Omitting 'persist' from an allowlist does not crash; the option is silently
