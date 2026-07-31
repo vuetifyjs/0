@@ -5,6 +5,8 @@ import { KNOWN_ALIASES } from '@/plugins/rules/defaults'
 
 import {
   collectDependencies,
+  FACTORY,
+  KEYS,
   collectTokens,
   generateDateStub,
   generateFiles,
@@ -369,6 +371,56 @@ describe('generateMainTs', () => {
     const source = generateMainTs(['useReducedMotion'], { useReducedMotion: { mode: 'system', persist: false } })
 
     expect(source).not.toContain('createStoragePlugin')
+  })
+
+  // A form that renders an optional input leaves the key present with an
+  // undefined value when it is switched off. JSON.stringify(undefined) returns
+  // undefined rather than a string, which used to crash the whole generator.
+  it('should skip config values that are undefined', () => {
+    const source = generateMainTs(['useStorage'], { useStorage: { prefix: 'app', ttl: undefined } })
+
+    expect(source).toContain(`prefix: "app"`)
+    expect(source).not.toContain('ttl')
+    expect(source).not.toContain('undefined')
+  })
+
+  it('should survive an all-undefined config', () => {
+    const source = generateMainTs(['useStorage'], { useStorage: { prefix: undefined, ttl: undefined } })
+
+    expect(source).toContain('app.use(createStoragePlugin())')
+  })
+
+  it.each([
+    ['useLocale', { persist: undefined, default: 'en' }],
+    ['useReducedMotion', { mode: 'system', persist: undefined }],
+    ['useTooltip', { openDelay: 700, closeDelay: undefined }],
+    ['useTheme', { default: 'light', themes: undefined }],
+    ['useStack', { baseZIndex: undefined, increment: 2 }],
+  ])('should emit %s cleanly when a value is undefined', (id, config) => {
+    const source = generateMainTs([id], { [id]: config })
+
+    expect(source).not.toContain('undefined')
+  })
+
+  // Without an entry the config passes through unfiltered, which is how a stale
+  // or undefined key reaches the emitter in the first place.
+  it('should constrain the options of every plugin it can emit', () => {
+    const missing = Object.keys(FACTORY).filter(id => !(id in KEYS))
+
+    expect(missing).toEqual([])
+  })
+
+  // prune runs before the adapter handler reads cfg.adapter, so an allowlist
+  // that omits `adapter` silently drops the user's adapter choice.
+  it.each([
+    ['useDate', 'custom', 'CustomDateAdapter'],
+    ['useLogger', 'ConsolaLoggerAdapter', 'ConsolaLoggerAdapter'],
+    ['useNotifications', 'KnockNotificationsAdapter', 'KnockNotificationsAdapter'],
+    ['useFeatures', 'PostHogFeaturesAdapter', 'PostHogFeaturesAdapter'],
+  ])('should keep the %s adapter through the option allowlist', (id, adapter, expected) => {
+    const source = generateMainTs([id], { [id]: { adapter } })
+
+    expect(source).toContain(expected)
   })
 
   it('should not mutate the caller config across repeated generation', () => {

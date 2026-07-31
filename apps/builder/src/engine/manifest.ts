@@ -78,7 +78,7 @@ const DATE_STUB = './adapters/date'
 
 // Plugin id → factory function name. Used by generateMainTs to emit
 // `app.use(createXPlugin(...))` calls for the user's selected plugins.
-const FACTORY: Record<string, string> = {
+export const FACTORY: Record<string, string> = {
   useTheme: 'createThemePlugin',
   useBreakpoints: 'createBreakpointsPlugin',
   useLocale: 'createLocalePlugin',
@@ -248,13 +248,27 @@ const ADAPTER_HANDLERS: Record<string, AdapterHandler | undefined> = {
   },
 }
 
-// Plugins whose saved config is constrained to a known option contract. Any
-// other key in the store is dropped rather than emitted as an invalid option.
-const KEYS: Record<string, string[]> = {
+// The option contract for every plugin: keys the emitted call may carry. Any
+// other key in the store is stale and would emit an option the plugin does not
+// accept. Every id in FACTORY needs an entry — a missing one means the config
+// passes through unfiltered, which is how a stale key reaches the emitter.
+//
+// `adapter` is listed wherever the form stores one: prune runs before the
+// adapter handler reads it, so omitting it here silently drops the adapter.
+export const KEYS: Record<string, string[]> = {
+  useBreakpoints: ['mobileBreakpoint', 'breakpoints'],
+  useDate: ['adapter', 'locale', 'locales', 'firstDayOfWeek'],
+  useFeatures: ['adapter', 'features'],
+  useHydration: [],
   useLocale: ['default', 'fallback', 'messages', 'persist'],
+  useLogger: ['adapter', 'level', 'prefix', 'enabled'],
+  useNotifications: ['adapter', 'namespace', 'timeout'],
   usePermissions: ['permissions'],
   useReducedMotion: ['mode', 'persist'],
+  useRtl: ['default', 'target'],
   useRules: ['aliases'],
+  useStack: ['baseZIndex', 'increment'],
+  useStorage: ['prefix', 'ttl'],
   useTheme: ['default', 'foreground', 'palette', 'persist', 'rgb', 'target', 'themes'],
   useTooltip: ['openDelay', 'closeDelay', 'skipDelay', 'disabled'],
 }
@@ -315,9 +329,15 @@ function prune (pluginId: string, config: Record<string, unknown>): Record<strin
 
 // Format the leftover (non-adapter) config fields as a list of `key: value`
 // snippets, each line indented to sit inside an outer `{ … }` two spaces in.
+//
+// Undefined is skipped rather than emitted: a form that renders an optional
+// input leaves the key present and the value undefined when it is switched off
+// (storage `ttl`, locale `persist`, …), and JSON.stringify(undefined) returns
+// undefined rather than a string, which used to crash the generator.
 function formatRestFields (rest: Record<string, unknown>): string[] {
   const fields: string[] = []
   for (const [key, value] of Object.entries(rest)) {
+    if (value === undefined) continue
     const json = JSON.stringify(value, null, 2)
     fields.push(`${key}: ${indent(json, 2)}`)
   }
