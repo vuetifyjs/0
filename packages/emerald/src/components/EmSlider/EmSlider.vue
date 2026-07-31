@@ -124,7 +124,7 @@
     width: 100%;
     overflow: hidden;
     border-radius: var(--emerald-radius-full, 999px);
-    background: var(--emerald-neutral-200, #ebf0f4);
+    background: var(--emerald-neutral-200, #f6f8fa);
     cursor: pointer;
   }
 

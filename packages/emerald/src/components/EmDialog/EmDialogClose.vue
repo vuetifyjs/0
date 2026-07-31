@@ -39,7 +39,7 @@
   }
 
   .emerald-dialog__close:hover {
-    background: var(--emerald-neutral-200, #ebf0f4);
+    background: var(--emerald-neutral-200, #f6f8fa);
     color: var(--emerald-on-surface, #2b2d2e);
   }
 

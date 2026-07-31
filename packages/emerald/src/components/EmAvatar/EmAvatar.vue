@@ -31,7 +31,7 @@
     justify-content: center;
     border-radius: var(--emerald-radius-full, 999px);
     box-shadow: var(--emerald-shadow-s, 0 0 2px 0 rgba(51, 51, 51, 0.2));
-    background: var(--emerald-neutral-200, #ebf0f4);
+    background: var(--emerald-neutral-200, #f6f8fa);
     color: var(--emerald-neutral-800, #636a70);
     font-family: var(--emerald-font-sans, Manrope, system-ui, sans-serif);
     user-select: none;

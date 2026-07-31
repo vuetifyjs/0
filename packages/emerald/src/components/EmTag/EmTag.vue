@@ -74,7 +74,7 @@
   }
 
   .emerald-tag[data-variant='neutral'][data-selected] {
-    background: var(--emerald-neutral-200, #ebf0f4);
+    background: var(--emerald-neutral-200, #f6f8fa);
   }
 
   .emerald-tag[data-variant='success'] {

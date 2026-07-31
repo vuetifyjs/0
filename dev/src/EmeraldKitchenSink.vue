@@ -7,6 +7,13 @@
     EmAlertTitle,
     EmAvatar,
     EmAvatarFallback,
+    EmBadge,
+    EmBreadcrumbs,
+    EmBreadcrumbsDivider,
+    EmBreadcrumbsItem,
+    EmBreadcrumbsLink,
+    EmBreadcrumbsList,
+    EmBreadcrumbsPage,
     EmButton,
     EmCard,
     EmCardBody,
@@ -22,10 +29,20 @@
     EmDialogDescription,
     EmDialogFooter,
     EmDialogTitle,
+    EmDivider,
+    EmExpansionPanel,
+    EmExpansionPanelActivator,
+    EmExpansionPanelContent,
+    EmExpansionPanelCue,
+    EmExpansionPanelGroup,
+    EmExpansionPanelHeader,
     EmPagination,
     EmPaginationItem,
     EmPaginationNext,
     EmPaginationPrev,
+    EmProgress,
+    EmRadio,
+    EmRadioGroup,
     EmSelect,
     EmSelectActivator,
     EmSelectContent,
@@ -33,6 +50,13 @@
     EmSelectPlaceholder,
     EmSelectValue,
     EmSlider,
+    EmSnackbar,
+    EmSnackbarClose,
+    EmSnackbarContent,
+    EmSnackbarPortal,
+    EmSpinner,
+    EmStep,
+    EmStepItem,
     EmSwitch,
     EmTabs,
     EmTabsItem,
@@ -40,6 +64,10 @@
     EmTabsPanel,
     EmTag,
     EmTextField,
+    EmTextarea,
+    EmTooltip,
+    EmTooltipActivator,
+    EmTooltipContent,
   } from '@paper/emerald'
 
   // Framework
@@ -62,11 +90,16 @@
   const enabled = shallowRef(true)
   const name = shallowRef('Emerald')
   const email = shallowRef('')
+  const notes = shallowRef('')
   const fruit = shallowRef<string | undefined>()
   const tab = shallowRef('overview')
   const page = shallowRef(2)
   const slider = ref([40])
   const tagOn = shallowRef(true)
+  const plan = shallowRef('pro')
+  const progress = shallowRef(62)
+  const step = shallowRef('account')
+  const toastOpen = shallowRef(true)
 
   function onLoadDemo () {
     loading.value = true
@@ -80,8 +113,32 @@
   <div class="emerald-sink" data-theme="emerald">
     <header class="sink-header">
       <h1>Emerald Kitchen Sink</h1>
-      <p>Wave 1 + Wave 2 surface — visual check for #715.</p>
+      <p>Wave 1–3 surface — Figma-tokened, v0-composed showcase for #715.</p>
     </header>
+
+    <section>
+      <h2>Breadcrumbs</h2>
+
+      <EmBreadcrumbs>
+        <EmBreadcrumbsList>
+          <EmBreadcrumbsItem text="Home">
+            <EmBreadcrumbsLink href="#">Home</EmBreadcrumbsLink>
+          </EmBreadcrumbsItem>
+
+          <EmBreadcrumbsDivider />
+
+          <EmBreadcrumbsItem text="Design systems">
+            <EmBreadcrumbsLink href="#">Design systems</EmBreadcrumbsLink>
+          </EmBreadcrumbsItem>
+
+          <EmBreadcrumbsDivider />
+
+          <EmBreadcrumbsItem text="Emerald">
+            <EmBreadcrumbsPage>Emerald</EmBreadcrumbsPage>
+          </EmBreadcrumbsItem>
+        </EmBreadcrumbsList>
+      </EmBreadcrumbs>
+    </section>
 
     <section>
       <h2>Alert</h2>
@@ -94,7 +151,7 @@
 
         <EmAlert variant="warning">
           <EmAlertTitle>Check tokens</EmAlertTitle>
-          <EmAlertDescription>Figma parity still pending live MCP.</EmAlertDescription>
+          <EmAlertDescription>Canonical Figma: Emerald 1.0 (WaY9z9gHeU6LbkqNgcD9io).</EmAlertDescription>
         </EmAlert>
 
         <EmAlert variant="error">
@@ -106,6 +163,25 @@
           <EmAlertTitle>Tip</EmAlertTitle>
           <EmAlertDescription>Compose on v0, style with Emerald tokens.</EmAlertDescription>
         </EmAlert>
+      </div>
+    </section>
+
+    <section>
+      <h2>Badge · Spinner · Divider</h2>
+
+      <div class="row">
+        <EmBadge :content="3" variant="primary" />
+        <EmBadge :content="120" :max="99" variant="danger" />
+        <EmBadge variant="success">NEW</EmBadge>
+        <EmBadge dot variant="info" />
+        <EmSpinner size="sm" />
+        <EmSpinner size="md" />
+        <EmSpinner size="lg" />
+      </div>
+
+      <div class="stack narrow" style="width: 100%; max-width: 360px; margin-top: 1rem;">
+        <EmDivider />
+        <EmDivider>or continue</EmDivider>
       </div>
     </section>
 
@@ -191,6 +267,18 @@
     </section>
 
     <section>
+      <h2>Step</h2>
+
+      <EmStep v-model="step">
+        <EmStepItem value="account">Account</EmStepItem>
+        <EmStepItem value="profile">Profile</EmStepItem>
+        <EmStepItem value="review">Review</EmStepItem>
+      </EmStep>
+
+      <p class="muted">Step: {{ step }}</p>
+    </section>
+
+    <section>
       <h2>Pagination</h2>
 
       <EmPagination v-model="page" :items-per-page="10" :size="50">
@@ -204,6 +292,16 @@
       </EmPagination>
 
       <p class="muted">Page {{ page }}</p>
+    </section>
+
+    <section>
+      <h2>Progress</h2>
+
+      <div class="stack narrow" style="width: 100%; max-width: 360px;">
+        <EmProgress v-model="progress" label="Upload" show-value />
+        <EmProgress indeterminate label="Syncing…" size="sm" />
+        <input v-model.number="progress" max="100" min="0" type="range">
+      </div>
     </section>
 
     <section>
@@ -223,7 +321,7 @@
     </section>
 
     <section>
-      <h2>Button</h2>
+      <h2>Button · Tooltip</h2>
 
       <div class="row">
         <EmButton size="sm" variant="primary">Small</EmButton>
@@ -244,11 +342,19 @@
         <EmButton :loading @click="onLoadDemo">
           {{ loading ? 'Loading…' : 'Click to load' }}
         </EmButton>
+
+        <EmTooltip>
+          <EmTooltipActivator v-slot="{ attrs }" renderless>
+            <EmButton v-bind="attrs" variant="secondary">Hover for tip</EmButton>
+          </EmTooltipActivator>
+
+          <EmTooltipContent>Emerald paints; v0 owns behavior.</EmTooltipContent>
+        </EmTooltip>
       </div>
     </section>
 
     <section>
-      <h2>TextField</h2>
+      <h2>TextField · Textarea</h2>
 
       <div class="stack narrow">
         <EmTextField v-model="name" label="Name" placeholder="Your name" />
@@ -261,29 +367,78 @@
           type="email"
           validate-on="blur"
         />
+
+        <EmTextarea
+          v-model="notes"
+          description="Props only — no named slots."
+          label="Notes"
+          placeholder="Tell us more…"
+          :rows="4"
+        />
       </div>
     </section>
 
     <section>
-      <h2>Checkbox</h2>
+      <h2>Checkbox · Radio · Switch</h2>
 
-      <div class="stack">
-        <EmCheckbox v-model="checked" size="sm">Small checked</EmCheckbox>
-        <EmCheckbox v-model="checked" size="md">Medium</EmCheckbox>
-        <EmCheckbox v-model="checked" size="lg">Large</EmCheckbox>
-        <EmCheckbox v-model="checked" disabled>Disabled</EmCheckbox>
-        <EmCheckbox v-model="mixed" indeterminate>Indeterminate (mixed)</EmCheckbox>
+      <div class="row" style="align-items: flex-start;">
+        <div class="stack">
+          <EmCheckbox v-model="checked" size="sm">Small checked</EmCheckbox>
+          <EmCheckbox v-model="checked" size="md">Medium</EmCheckbox>
+          <EmCheckbox v-model="checked" size="lg">Large</EmCheckbox>
+          <EmCheckbox v-model="checked" disabled>Disabled</EmCheckbox>
+          <EmCheckbox v-model="mixed" indeterminate>Indeterminate (mixed)</EmCheckbox>
+        </div>
+
+        <EmRadioGroup v-model="plan" mandatory name="plan">
+          <EmRadio value="free">Free</EmRadio>
+          <EmRadio value="pro">Pro</EmRadio>
+          <EmRadio size="lg" value="enterprise">Enterprise</EmRadio>
+          <EmRadio disabled value="legacy">Legacy</EmRadio>
+        </EmRadioGroup>
+
+        <div class="stack">
+          <EmSwitch v-model="enabled" size="sm">Small</EmSwitch>
+          <EmSwitch v-model="enabled" size="md">Medium</EmSwitch>
+          <EmSwitch v-model="enabled" size="lg">Large</EmSwitch>
+          <EmSwitch v-model="enabled" disabled>Disabled</EmSwitch>
+        </div>
       </div>
+
+      <p class="muted">Plan: {{ plan }}</p>
     </section>
 
     <section>
-      <h2>Switch</h2>
+      <h2>Expansion panel</h2>
 
-      <div class="stack">
-        <EmSwitch v-model="enabled" size="sm">Small</EmSwitch>
-        <EmSwitch v-model="enabled" size="md">Medium</EmSwitch>
-        <EmSwitch v-model="enabled" size="lg">Large</EmSwitch>
-        <EmSwitch v-model="enabled" disabled>Disabled</EmSwitch>
+      <div style="max-width: 480px; width: 100%;">
+        <EmExpansionPanelGroup>
+          <EmExpansionPanel>
+            <EmExpansionPanelHeader>
+              <EmExpansionPanelActivator>
+                What is Emerald?
+                <EmExpansionPanelCue />
+              </EmExpansionPanelActivator>
+            </EmExpansionPanelHeader>
+
+            <EmExpansionPanelContent>
+              First commercial Paper design system — a thin skin over v0 that sells the headless stack.
+            </EmExpansionPanelContent>
+          </EmExpansionPanel>
+
+          <EmExpansionPanel>
+            <EmExpansionPanelHeader>
+              <EmExpansionPanelActivator>
+                Install path
+                <EmExpansionPanelCue />
+              </EmExpansionPanelActivator>
+            </EmExpansionPanelHeader>
+
+            <EmExpansionPanelContent>
+              theme.css + style.css + createEmeraldPlugin() — no adapter assembly for consumers.
+            </EmExpansionPanelContent>
+          </EmExpansionPanel>
+        </EmExpansionPanelGroup>
       </div>
     </section>
 
@@ -295,7 +450,7 @@
           <EmSelectActivator>
             <EmSelectValue />
             <EmSelectPlaceholder>Pick a fruit</EmSelectPlaceholder>
-            <!-- Icon is composition, not package chrome — class hooks open rotation -->
+
             <svg
               aria-hidden="true"
               class="emerald-select__icon"
@@ -366,6 +521,27 @@
           </EmDialogContent>
         </EmDialog>
       </div>
+    </section>
+
+    <section>
+      <h2>Snackbar (static)</h2>
+
+      <p class="muted" style="margin-bottom: 0.75rem;">
+        Queue-driven toasts need createNotificationsPlugin; static Root shows paint.
+      </p>
+
+      <div class="row">
+        <EmButton variant="tertiary" @click="toastOpen = !toastOpen">
+          Toggle toast
+        </EmButton>
+      </div>
+
+      <EmSnackbarPortal :teleport="false">
+        <EmSnackbar v-if="toastOpen" variant="success">
+          <EmSnackbarContent>Changes saved to Emerald.</EmSnackbarContent>
+          <EmSnackbarClose @click="toastOpen = false" />
+        </EmSnackbar>
+      </EmSnackbarPortal>
     </section>
   </div>
 </template>

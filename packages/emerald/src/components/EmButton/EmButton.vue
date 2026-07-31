@@ -156,7 +156,7 @@
   }
 
   .emerald-button[data-variant='tertiary']:hover:not([data-disabled]):not(:active) {
-    background: var(--emerald-neutral-200, #ebf0f4);
+    background: var(--emerald-neutral-200, #f6f8fa);
   }
 
   .emerald-button[data-variant='tertiary']:active:not([data-disabled]) {
@@ -168,7 +168,7 @@
   }
 
   .emerald-button[data-variant='tertiary']:focus-visible {
-    background: var(--emerald-neutral-200, #ebf0f4);
+    background: var(--emerald-neutral-200, #f6f8fa);
     box-shadow: inset 0 0 0 var(--emerald-stroke-l, 4px) var(--emerald-neutral-600, #939dac);
     outline: none;
   }

@@ -156,7 +156,7 @@
   }
 
   .emerald-text-field__control[data-disabled] {
-    background: var(--emerald-neutral-200, #ebf0f4);
+    background: var(--emerald-neutral-200, #f6f8fa);
     border-color: var(--emerald-neutral-300, #ccd6e7);
     color: var(--emerald-neutral-400, #aeb6be);
     cursor: not-allowed;

@@ -32,7 +32,8 @@ as a required layer.
 
 ## Token source
 
-Canonical Figma: **Emerald 1.0 Copy** — file key `mRyzZtj2AmJCKhnj06MXj9`.
+Canonical Figma: **[Emerald 1.0](https://www.figma.com/design/WaY9z9gHeU6LbkqNgcD9io/Emerald-1.0)** — file key `WaY9z9gHeU6LbkqNgcD9io`.
+(The “Copy” file `mRyzZtj2AmJCKhnj06MXj9` is reference-only; do not ship against it.)
 
 Token dictionary: `src/design-system.ts` (color scales, spacing, type, motion, control geometry — not “theme” alone).
 Flat color map for v0’s theme engine: `src/colors.ts`. Adapter is **package machinery**, not a consumer install step.
@@ -84,6 +85,22 @@ showcase quality.
 | `EmPagination` (+ Item/Prev/Next) | `Pagination.*` |
 | `EmSlider` | `Slider.Root` + `Track` + `Range` + `Thumb` |
 
+## Wave 3 surface (preview)
+
+| Component | v0 / shell |
+|---|---|
+| `EmRadio` + `EmRadioGroup` | `Radio.Root` + `Indicator` / `Radio.Group` |
+| `EmProgress` | `Progress.Root` + `Track` + `Fill` (+ Label/Value) |
+| `EmSpinner` | `Atom` presentational |
+| `EmBadge` | `Atom` presentational |
+| `EmDivider` | `Atom` presentational |
+| `EmTextarea` | `Input.Root` + `Control as="textarea"` |
+| `EmTooltip` (+ Activator/Content) | `Tooltip.*` |
+| `EmSnackbar` (+ Portal/Queue/Content/Close) | `Snackbar.*` (+ `useNotifications` for queues) |
+| `EmBreadcrumbs` (+ List/Item/Link/Page/Divider/Ellipsis) | `Breadcrumbs.*` |
+| `EmExpansionPanel` (+ Group/Header/Activator/Cue/Content) | `ExpansionPanel.*` |
+| `EmStep` (+ Item) | `Step.*` |
+
 Foundations also export `motion` and `control` (switch/checkbox/avatar geometry) as CSS vars.
 
 Maturity: **preview**. Not published (`private: true` until first release cut). Kitchen sink: `dev` → `/emerald`.
@@ -91,10 +108,10 @@ Maturity: **preview**. Not published (`private: true` until first release cut). 
 ## Non-goals (current)
 
 - Dark theme registration (tokens reserve dark surfaces; not wired)
-- DatePicker / Toast / Upload / DataTable (no finished v0 primitive or deferred)
-- Full 35-component inventory from the prior reference branch
+- DatePicker / Upload / DataTable / Charts / Calendar (no finished v0 primitive or deferred)
+- Pixel-perfect Figma component-set parity for every variant (library pages limited via MCP seat; tokens + Wave 1–3 shells ship first)
 
 ## Reference
 
 The prior Emerald tree under `.claude/worktrees/emerald-*` is a **visual/token reference
-only** — do not merge it. Wave 1 rebuilds under this contract.
+only** — do not merge it. Waves rebuild under this contract.

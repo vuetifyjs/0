@@ -135,7 +135,7 @@
   }
 
   .emerald-checkbox:hover:not([data-disabled]) .emerald-checkbox__root[data-state='unchecked'] .emerald-checkbox__box {
-    background: var(--emerald-neutral-200, #ebf0f4);
+    background: var(--emerald-neutral-200, #f6f8fa);
     border-color: var(--emerald-neutral-600, #939dac);
   }
 
@@ -157,7 +157,7 @@
   }
 
   .emerald-checkbox__root[data-disabled] .emerald-checkbox__box {
-    background: var(--emerald-neutral-200, #ebf0f4);
+    background: var(--emerald-neutral-200, #f6f8fa);
     border-color: var(--emerald-neutral-300, #ccd6e7);
     box-shadow: none;
   }

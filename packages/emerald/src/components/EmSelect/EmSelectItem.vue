@@ -50,7 +50,7 @@
 
   .emerald-select__item[data-highlighted],
   .emerald-select__item:hover {
-    background: var(--emerald-neutral-200, #ebf0f4);
+    background: var(--emerald-neutral-200, #f6f8fa);
     border-left-color: var(--emerald-neutral-600, #939dac);
   }
 

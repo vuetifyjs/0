@@ -8,7 +8,7 @@
  * - `colors.ts` → flat map for v0's theme plugin
  * - optional UnoCSS / tooling via `emeraldDesignSystem`
  *
- * Source: Figma "Emerald 1.0 Copy" (fileKey mRyzZtj2AmJCKhnj06MXj9).
+ * Source: Figma "Emerald 1.0" (fileKey WaY9z9gHeU6LbkqNgcD9io).
  *
  * Scale structure: brand + neutral 100–1000; semantic families
  * (danger/alert/success/info) 100–600; alpha-10|20|30; DEFAULT =
@@ -59,7 +59,8 @@ export const secondary = {
 
 export const neutral = {
   '100': '#FEFEFE',
-  '200': '#EBF0F4',
+  // Canonical Figma Emerald 1.0 (WaY9z9gHeU6LbkqNgcD9io) — not the Copy file
+  '200': '#F6F8FA',
   '300': '#CCD6E7',
   '400': '#AEB6BE',
   '500': '#A3AFBE',

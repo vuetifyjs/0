@@ -39,7 +39,7 @@
     font-weight: var(--emerald-text-b2-weight, 400);
     line-height: var(--emerald-text-b2-height, 21px);
     color: var(--emerald-on-surface, #2b2d2e);
-    background: var(--emerald-neutral-200, #ebf0f4);
+    background: var(--emerald-neutral-200, #f6f8fa);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
     border-radius: 0;
     cursor: pointer;

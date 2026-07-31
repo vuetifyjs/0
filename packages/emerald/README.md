@@ -1,6 +1,6 @@
 # @paper/emerald
 
-Emerald design system — Wave 1–2 preview.
+Emerald design system — Wave 1–3 preview.
 
 The first commercial skin on **@vuetify/v0**: Figma tokens + thin Em* wrappers that
 **compose** v0 compounds. Emerald exists to show that v0 is easy to adopt and still
@@ -43,6 +43,8 @@ unless the host already runs `createThemePlugin` and you pass `{ theme: false }`
 **Wave 1:** `EmButton` · `EmTextField` · `EmCheckbox` · `EmSwitch` · `EmDialog*` · `EmSelect*`
 
 **Wave 2:** `EmAlert*` · `EmCard*` · `EmTag` · `EmAvatar*` · `EmTabs*` · `EmPagination*` · `EmSlider`
+
+**Wave 3:** `EmRadio*` · `EmProgress` · `EmSpinner` · `EmBadge` · `EmDivider` · `EmTextarea` · `EmTooltip*` · `EmSnackbar*` · `EmBreadcrumbs*` · `EmExpansionPanel*` · `EmStep*`
 
 Kitchen sink: `dev` → `/emerald`.
 

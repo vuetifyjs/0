@@ -38,7 +38,7 @@
   }
 
   .emerald-pagination__prev:hover:not([data-disabled]) {
-    background: var(--emerald-neutral-200, #ebf0f4);
+    background: var(--emerald-neutral-200, #f6f8fa);
   }
 
   .emerald-pagination__prev[data-disabled] {

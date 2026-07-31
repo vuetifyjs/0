@@ -107,7 +107,7 @@
     height: var(--emerald-control-switch-track-height-md, 20px);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-400, #aeb6be);
     border-radius: var(--emerald-radius-full, 999px);
-    background: var(--emerald-neutral-200, #ebf0f4);
+    background: var(--emerald-neutral-200, #f6f8fa);
     box-shadow: var(--emerald-shadow-field, 0 1px 2px 0 rgba(5, 0, 18, 0.05));
     transition: background-color var(--emerald-motion-duration-fast, 120ms) ease, border-color var(--emerald-motion-duration-fast, 120ms) ease, box-shadow var(--emerald-motion-duration-fast, 120ms) ease;
     overflow: visible;
