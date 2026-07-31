@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { EmAvatar, EmAvatarFallback, EmBadge, EmSwitch } from '@paper/emerald'
+  import { EmAvatar, EmAvatarFallback, EmSwitch } from '@paper/emerald'
 
   import { installEmeraldTheme } from './emerald-theme'
 
@@ -22,20 +22,20 @@
 
   const active = computed(() => {
     if (route.path.startsWith('/emerald/contact')) return 'contact'
+    if (route.path.startsWith('/emerald/faqs')) return 'faqs'
+    if (route.path.startsWith('/emerald/features')) return 'features'
+    if (route.path.startsWith('/emerald/sign-in')) return 'signin'
     if (route.path.startsWith('/emerald/sink')) return 'sink'
     if (route.path === '/emerald' || route.path === '/emerald/') return 'dashboard'
     return ''
   })
 
   const nav = [
-    { id: 'home', label: 'Home', icon: 'home' as const },
-    { id: 'inbox', label: 'Inbox', icon: 'inbox' as const, badge: 30 },
     { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' as const, to: '/emerald' },
-    { id: 'sales', label: 'Sales', icon: 'list' as const, indent: true },
-    { id: 'website', label: 'Website', icon: 'list' as const, indent: true },
-    { id: 'invoices', label: 'Invoices', icon: 'list' as const },
-    { id: 'team', label: 'Team', icon: 'team' as const },
+    { id: 'features', label: 'Features', icon: 'list' as const, to: '/emerald/features' },
+    { id: 'faqs', label: 'FAQs', icon: 'list' as const, to: '/emerald/faqs' },
     { id: 'contact', label: 'Contact', icon: 'list' as const, to: '/emerald/contact' },
+    { id: 'signin', label: 'Sign in', icon: 'list' as const, to: '/emerald/sign-in' },
   ]
 </script>
 
@@ -159,13 +159,6 @@
           </span>
 
           <span v-if="!collapsed" class="ed-nav__label">{{ item.label }}</span>
-
-          <EmBadge
-            v-if="!collapsed && item.badge"
-            class="ed-nav__badge"
-            :content="item.badge"
-            variant="primary"
-          />
         </component>
       </nav>
 
