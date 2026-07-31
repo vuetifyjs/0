@@ -25,13 +25,18 @@
 
   const state = ref<Record<string, boolean>>({})
 
+  // Last configured default seen per flag. A toggle made here is local until the
+  // configured default itself changes, at which point the switch re-seeds from config.
+  let seeded: Record<string, boolean> = {}
+
   watch(flags, list => {
     const next: Record<string, boolean> = {}
 
     for (const [key, value] of list) {
-      next[key] = state.value[key] ?? !!value
+      next[key] = seeded[key] === !!value ? state.value[key] ?? !!value : !!value
     }
 
+    seeded = Object.fromEntries(list.map(([key, value]) => [key, !!value]))
     state.value = next
   }, { immediate: true })
 

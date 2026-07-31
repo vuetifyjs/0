@@ -90,6 +90,10 @@
         class="flex flex-col w-[420px] xl:w-[480px] border-l border-divider bg-surface/40"
       >
         <div class="sticky top-14 max-h-[calc(100vh-3.5rem)] overflow-y-auto">
+          <div class="sticky top-0 z-10 flex items-center px-4 lg:px-6 h-10 border-b border-divider bg-surface/80 backdrop-blur">
+            <p class="text-xs uppercase tracking-wide text-on-surface-variant">Live preview</p>
+          </div>
+
           <slot name="preview" />
         </div>
       </aside>
@@ -104,13 +108,22 @@
         aria-label="Preview"
         class="fixed inset-x-0 top-auto bottom-0 z-50 m-0 w-full max-w-none max-h-[85vh] overflow-y-auto rounded-t-xl border-t border-divider bg-background shadow-2xl backdrop:bg-black/50"
       >
-        <div class="sticky top-0 z-10 flex items-center justify-end px-4 h-10 border-b border-divider bg-background">
-          <Button.Root
-            class="text-xs text-on-surface-variant hover:text-on-surface px-2 py-1 rounded hover:bg-surface-variant transition-colors"
-            @click="previewOpen = false"
-          >
-            Close
-          </Button.Root>
+        <div class="sticky top-0 z-10 border-b border-divider bg-background">
+          <!-- Affordance only: the sheet is dismissed via Close or the backdrop, not a drag. -->
+          <div class="flex justify-center pt-2 pb-1">
+            <span class="h-1 w-9 rounded-full bg-on-surface/20" />
+          </div>
+
+          <div class="flex items-center justify-between gap-3 px-4 h-9">
+            <p class="text-xs uppercase tracking-wide text-on-surface-variant">Live preview</p>
+
+            <Button.Root
+              class="text-xs text-on-surface-variant hover:text-on-surface px-2 py-1 rounded hover:bg-surface-variant transition-colors"
+              @click="previewOpen = false"
+            >
+              <Button.Content>Close</Button.Content>
+            </Button.Root>
+          </div>
         </div>
 
         <div v-if="previewOpen" class="p-4">

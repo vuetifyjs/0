@@ -91,16 +91,16 @@
       <span class="w-16 text-right font-mono text-xs text-on-surface-variant">{{ px }}px</span>
     </div>
 
-    <div class="relative flex h-10 rounded-lg border border-divider overflow-hidden">
+    <div class="relative flex h-12 rounded-lg border border-divider overflow-hidden">
       <div
         v-for="segment in segments"
         :key="segment.name"
         class="flex flex-col items-center justify-center min-w-0 transition-colors"
-        :class="segment.name === active?.name ? 'bg-primary/15 text-primary' : 'bg-surface text-on-surface-variant'"
+        :class="segment.name === active?.name ? 'bg-primary/15 text-primary' : 'bg-surface text-on-surface'"
         :style="{ width: `${segment.size}%` }"
       >
-        <span class="text-[10px] font-semibold leading-tight truncate">{{ segment.name }}</span>
-        <span class="text-[9px] font-mono leading-tight truncate">{{ segment.value }}</span>
+        <span class="text-xs font-semibold leading-tight truncate">{{ segment.name }}</span>
+        <span class="text-[11px] font-mono font-medium leading-tight truncate">{{ segment.value }}</span>
       </div>
 
       <div class="absolute inset-y-0 w-px bg-primary transition-all" :style="{ left: needle }" />

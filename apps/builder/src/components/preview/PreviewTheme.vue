@@ -74,15 +74,15 @@
       </Button.Root>
     </div>
 
-    <div class="grid grid-cols-4 gap-3">
+    <div class="grid grid-cols-4 gap-2">
       <div v-for="[name, value] in tokens" :key="name">
         <div
-          class="aspect-square rounded-lg border border-divider transition-colors"
+          class="h-12 rounded-lg border border-divider transition-colors"
           :style="{ background: value }"
         />
 
-        <p class="mt-1 text-[10px] font-mono text-on-surface truncate">{{ name }}</p>
-        <p class="text-[10px] font-mono text-on-surface-variant truncate">{{ value }}</p>
+        <p class="mt-1 text-[10px] font-mono leading-tight text-on-surface break-words">{{ name }}</p>
+        <p class="text-[10px] font-mono leading-tight text-on-surface-variant">{{ value }}</p>
       </div>
     </div>
 
