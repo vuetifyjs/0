@@ -187,7 +187,7 @@
         <Button.Content>Add role</Button.Content>
       </Button.Root>
 
-      <div class="inset p-4">
+      <div class="note">
         <div class="field-label mb-2">Conditional rules</div>
 
         <p class="text-sm text-on-surface-variant">

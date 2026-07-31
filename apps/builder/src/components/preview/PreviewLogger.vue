@@ -28,7 +28,7 @@
     trace: 'text-on-surface-variant/70',
     debug: 'text-on-surface-variant',
     info: 'text-primary',
-    warn: 'text-[#b45309]',
+    warn: 'text-warning',
     error: 'text-error',
     fatal: 'text-error font-semibold',
     silent: 'text-on-surface-variant',

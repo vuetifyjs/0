@@ -53,11 +53,13 @@ app.use(createThemePlugin({
         'secondary': '#5b6266',
         'accent': '#6d5ae0',
         'error': '#b3261e',
+        'warning': '#a8500a',
         'background': '#f4f5f4',
         'surface': '#ffffff',
         'surface-variant': '#e9ebec',
         'divider': '#d8dcdd',
         'on-primary': '#ffffff',
+        'on-error': '#ffffff',
         'on-surface': '#16191b',
         'on-surface-variant': '#5b6266',
       },
@@ -68,12 +70,18 @@ app.use(createThemePlugin({
         'primary': '#2dd4bf',
         'secondary': '#9aa3a7',
         'accent': '#a78bfa',
-        'error': '#f87171',
+        // `error` has to work as body text on the dark background AND as a button fill.
+        // A red dark enough to take a white label (#dc2626) drops to 3.95:1 as text, so
+        // this sits between: 4.87:1 as text, 4.82:1 under the near-black on-error, and
+        // dimmer than the old #f87171, which out-shouted the primary action.
+        'error': '#e5484d',
+        'warning': '#fbbf24',
         'background': '#0e1011',
         'surface': '#16191b',
         'surface-variant': '#21262a',
         'divider': '#2e3438',
         'on-primary': '#04211d',
+        'on-error': '#250709',
         'on-surface': '#e6e9ea',
         'on-surface-variant': '#9aa3a7',
       },

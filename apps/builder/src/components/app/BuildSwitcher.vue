@@ -75,7 +75,7 @@
     <Popover.Activator
       aria-haspopup="menu"
       :aria-label="`Current build: ${label}. Switch or create a build`"
-      class="inline-flex items-center gap-1.5 h-9 max-w-[11rem] px-2.5 rounded-md text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors duration-150 cursor-pointer"
+      class="inline-flex min-w-0 items-center gap-1.5 h-9 max-w-[7.5rem] sm:max-w-[11rem] px-2.5 rounded-md text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors duration-150 cursor-pointer"
     >
       <span class="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
 
@@ -86,7 +86,7 @@
 
     <Popover.Content
       aria-label="Builds"
-      class="m-0 p-1.5 w-64 rounded-xl border border-divider bg-surface shadow-xl"
+      class="floating m-0 p-1.5 w-64 rounded-xl"
     >
       <div class="px-2 py-1.5">
         <p class="t-eyebrow text-on-surface-variant">{{ hasActive ? 'Current build' : 'No build yet' }}</p>

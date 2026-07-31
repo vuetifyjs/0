@@ -62,7 +62,7 @@
     </template>
 
     <div class="space-y-6">
-      <div class="inset p-4">
+      <div class="note">
         <div class="field-label mb-2">Heads up</div>
 
         <p class="text-sm text-on-surface-variant">
@@ -77,13 +77,13 @@
         <span class="field-label">Timeout (ms)</span>
 
         <NumberField.Root v-model="state.timeout" class="flex w-full" label="Auto-dismiss timeout in milliseconds" :min="0">
-          <NumberField.Decrement class="mt-1 px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
+          <NumberField.Decrement class="field-stepper-cap mt-1 rounded-l-md">
             <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiMinus" fill="currentColor" /></svg>
           </NumberField.Decrement>
 
           <NumberField.Control class="mt-1 flex-1 min-w-0 text-center border-y border-divider py-2 outline-none bg-surface text-on-surface text-sm font-mono" />
 
-          <NumberField.Increment class="mt-1 px-3 py-2 border border-divider rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
+          <NumberField.Increment class="field-stepper-cap mt-1 rounded-r-md">
             <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
           </NumberField.Increment>
         </NumberField.Root>
@@ -149,7 +149,7 @@
         </span>
       </label>
 
-      <div v-if="state.adapter !== 'none'" class="inset p-4">
+      <div v-if="state.adapter !== 'none'" class="note">
         <div class="field-label mb-2">Adapter configuration</div>
 
         <p class="text-sm text-on-surface-variant">

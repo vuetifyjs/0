@@ -90,7 +90,7 @@
           <Button.Root
             v-for="name in Object.keys(PRESETS)"
             :key="name"
-            class="px-3 py-1.5 rounded-lg border border-divider text-sm hover:bg-surface-variant"
+            class="pick pick-off h-9 px-3 inline-flex items-center text-[0.8125rem] font-medium"
             @click="applyPreset(name as keyof typeof PRESETS)"
           >
             {{ name }}

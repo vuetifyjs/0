@@ -93,7 +93,7 @@
 
     <p
       v-if="greeting.missing && demo && demo !== config.fallback"
-      class="px-3 py-2 rounded-lg border border-divider bg-surface-variant/50 text-xs text-on-surface-variant"
+      class="note p-3 text-xs text-on-surface-variant"
     >
       "{{ demo }}" has no display messages yet — falls back to "{{ config.fallback }}"
     </p>

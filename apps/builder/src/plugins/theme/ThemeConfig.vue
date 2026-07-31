@@ -230,14 +230,16 @@
             <div class="field-label mb-2">Color tokens</div>
 
             <div class="space-y-2">
+              <!-- Wraps below sm: sharing one row left the name too narrow to tell
+                   `on-surface` from `on-surface-variant`, which both truncated the same. -->
               <div
                 v-for="(color, colorIndex) in theme.colors"
                 :key="colorIndex"
-                class="flex items-center gap-2"
+                class="flex flex-wrap items-center gap-2"
               >
                 <Input.Root
                   v-model="color.name"
-                  class="flex-1 min-w-0"
+                  class="w-full sm:flex-1 sm:w-auto min-w-0"
                   :label="`${theme.key || 'theme'} token ${colorIndex + 1} name`"
                 >
                   <Input.Control

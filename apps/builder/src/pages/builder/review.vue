@@ -144,17 +144,17 @@
     <div class="panel overflow-hidden">
       <div class="grid grid-cols-3 divide-x divide-divider border-b border-divider bg-surface-variant/50">
         <div class="px-4 py-4 text-center">
-          <p class="text-2xl font-bold tabular-nums leading-none">{{ totalPlugins }}</p>
+          <p class="t-stat">{{ totalPlugins }}</p>
           <p class="t-eyebrow text-on-surface-variant mt-2">{{ totalPlugins === 1 ? 'Plugin' : 'Plugins' }}</p>
         </div>
 
         <div class="px-4 py-4 text-center">
-          <p class="text-2xl font-bold tabular-nums leading-none">{{ totalComponents }}</p>
+          <p class="t-stat">{{ totalComponents }}</p>
           <p class="t-eyebrow text-on-surface-variant mt-2">{{ totalComponents === 1 ? 'Component' : 'Components' }}</p>
         </div>
 
         <div class="px-4 py-4 text-center">
-          <p class="text-2xl font-bold tabular-nums leading-none">{{ totalAuto }}</p>
+          <p class="t-stat">{{ totalAuto }}</p>
           <p class="t-eyebrow text-on-surface-variant mt-2">Auto-included</p>
         </div>
       </div>

@@ -135,7 +135,7 @@
           <span class="field-label">Messages (JSON)</span>
 
           <Button.Root
-            class="text-xs text-primary hover:opacity-80"
+            class="btn-quiet"
             @click="messagesText = SAMPLE_MESSAGES"
           >
             Load sample

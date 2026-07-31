@@ -171,7 +171,7 @@
         <span class="text-sm text-on-surface">Enabled</span>
       </label>
 
-      <div class="inset p-4">
+      <div class="note">
         <div class="field-label mb-2">Advanced</div>
 
         <p class="text-sm text-on-surface-variant">

@@ -95,7 +95,7 @@
           <div
             v-for="toast in toasts"
             :key="toast.id"
-            class="rounded-lg border border-divider bg-surface-variant/50 px-3 py-2 space-y-1.5"
+            class="note p-3 space-y-1.5"
           >
             <div class="flex items-center gap-2">
               <span class="flex-1 text-xs text-on-surface truncate">{{ toast.value }}</span>

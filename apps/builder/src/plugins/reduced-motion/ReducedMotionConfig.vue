@@ -62,13 +62,16 @@
         <div class="field-label mb-2">Initial mode</div>
 
         <Radio.Group v-model="state.mode" aria-label="Initial reduced-motion mode" class="space-y-2">
+          <!-- A 10px dot was the only thing marking the chosen mode, so hovering any other
+               row out-ranked it. The whole row now carries the selection. -->
           <label
             v-for="mode in MODES"
             :key="mode"
-            class="flex items-start gap-3 p-3 rounded-lg border border-divider bg-surface cursor-pointer hover:border-on-surface-variant/40 transition-colors"
+            class="pick flex items-start gap-3 p-3 cursor-pointer"
+            :class="state.mode === mode ? 'pick-on' : 'pick-off'"
           >
             <Radio.Root
-              class="mt-0.5 size-5 border rounded-full inline-flex flex-shrink-0 items-center justify-center border-divider data-[state=checked]:border-primary"
+              class="mt-0.5 size-5 border rounded-full inline-flex flex-shrink-0 items-center justify-center border-divider bg-background data-[state=checked]:border-primary"
               :value="mode"
             >
               <Radio.Indicator class="size-2.5 rounded-full bg-primary" />
@@ -95,7 +98,7 @@
         <span class="text-sm text-on-surface">Persist the selected mode to storage</span>
       </label>
 
-      <div class="inset p-4">
+      <div class="note">
         <div class="field-label mb-2">Advanced</div>
 
         <p class="text-sm text-on-surface-variant">
