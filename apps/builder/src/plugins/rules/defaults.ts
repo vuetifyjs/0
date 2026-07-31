@@ -9,7 +9,9 @@ export interface RulesConfig {
 }
 
 // Names the generator can emit a working predicate for. Anything else becomes a stub.
-export const KNOWN_ALIASES = ['required', 'email', 'min', 'max', 'pattern', 'url', 'numeric']
+export const KNOWN_ALIASES = ['required', 'email', 'min', 'max', 'pattern', 'url', 'numeric'] as const
+
+export type KnownAlias = typeof KNOWN_ALIASES[number]
 
 export const defaultConfig: RulesConfig = {
   aliases: [],
