@@ -77,21 +77,21 @@
 <template>
   <PluginConfigShell plugin-id="useLocale" @save="onSave">
     <template #description>
-      <p class="text-on-surface-variant mb-8">
+      <p class="t-body text-on-surface-variant">
         Configure translation messages and the default locale. Each top-level key in
         Messages registers a language; additional languages can be lazy-loaded at runtime
-        via <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">locale.register()</code>.
+        via <code class="code-chip">locale.register()</code>.
       </p>
     </template>
 
     <div class="space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <label class="block">
-          <span class="text-xs uppercase tracking-wide text-on-surface-variant">Default locale</span>
+        <label class="field">
+          <span class="field-label">Default locale</span>
 
           <Input.Root v-model="state.default">
             <Input.Control
-              class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+              class="field-input font-mono"
               placeholder="en"
             />
           </Input.Root>
@@ -101,12 +101,12 @@
           </span>
         </label>
 
-        <label class="block">
-          <span class="text-xs uppercase tracking-wide text-on-surface-variant">Fallback locale</span>
+        <label class="field">
+          <span class="field-label">Fallback locale</span>
 
           <Input.Root v-model="state.fallback">
             <Input.Control
-              class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+              class="field-input font-mono"
               placeholder="en"
             />
           </Input.Root>
@@ -120,7 +120,7 @@
       <label class="flex items-center gap-2">
         <Checkbox.Root
           v-model="state.persist"
-          class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+          class="field-check"
         >
           <Checkbox.Indicator class="text-on-primary">
             <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
@@ -132,7 +132,7 @@
 
       <div>
         <div class="flex items-center justify-between mb-2">
-          <span class="text-xs uppercase tracking-wide text-on-surface-variant">Messages (JSON)</span>
+          <span class="field-label">Messages (JSON)</span>
 
           <Button.Root
             class="text-xs text-primary hover:opacity-80"
@@ -146,7 +146,7 @@
         <textarea
           v-model="messagesText"
           aria-label="Locale messages as JSON"
-          class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+          class="field-input font-mono"
           rows="10"
           spellcheck="false"
         />

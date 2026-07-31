@@ -57,13 +57,13 @@
   const STATUS_LABEL: Record<Status, string> = {
     'customized': 'customized',
     'defaults': 'defaults',
-    'no-config': '(no config)',
+    'no-config': 'no config',
   }
 
   const STATUS_CLASS: Record<Status, string> = {
     'customized': 'text-primary',
     'defaults': 'text-on-surface-variant',
-    'no-config': 'text-on-surface-variant italic',
+    'no-config': 'text-on-surface-variant/70',
   }
 
   async function onOpenPlayground () {
@@ -103,11 +103,8 @@
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto px-6 py-12">
-    <Button.Root
-      class="text-sm text-on-surface-variant hover:text-on-surface mb-6 inline-flex items-center gap-1"
-      @click="onBack"
-    >
+  <div class="max-w-3xl mx-auto px-6 py-10 sm:py-12">
+    <Button.Root class="btn-quiet mb-8" @click="onBack">
       <Button.Icon>
         <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
       </Button.Icon>
@@ -115,118 +112,136 @@
       <Button.Content>Back</Button.Content>
     </Button.Root>
 
-    <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
-      Review
-    </p>
+    <header class="mb-8">
+      <p class="t-eyebrow text-primary mb-3">Step 4 · Review</p>
 
-    <h2 class="text-2xl font-bold mb-2">Your framework</h2>
+      <h2 class="t-title mb-3">Your framework</h2>
 
-    <p class="text-on-surface-variant mb-8">
-      {{ totalPlugins }} {{ totalPlugins === 1 ? 'plugin' : 'plugins' }},
-      {{ totalComponents }} {{ totalComponents === 1 ? 'component' : 'components' }},
-      {{ totalAuto }} auto-included {{ totalAuto === 1 ? 'dep' : 'deps' }}.
-    </p>
+      <p class="t-body text-on-surface-variant">
+        Everything below is what the starter will contain. Nothing else ships.
+      </p>
+    </header>
 
-    <div class="rounded-lg border border-divider bg-surface p-6 space-y-6">
+    <!-- The build sheet: what you configured, itemised, before you take delivery of it. -->
+    <div class="panel overflow-hidden">
+      <div class="grid grid-cols-3 divide-x divide-divider border-b border-divider bg-surface-variant/50">
+        <div class="px-4 py-4 text-center">
+          <p class="text-2xl font-bold tabular-nums leading-none">{{ totalPlugins }}</p>
+          <p class="t-eyebrow text-on-surface-variant mt-2">{{ totalPlugins === 1 ? 'Plugin' : 'Plugins' }}</p>
+        </div>
+
+        <div class="px-4 py-4 text-center">
+          <p class="text-2xl font-bold tabular-nums leading-none">{{ totalComponents }}</p>
+          <p class="t-eyebrow text-on-surface-variant mt-2">{{ totalComponents === 1 ? 'Component' : 'Components' }}</p>
+        </div>
+
+        <div class="px-4 py-4 text-center">
+          <p class="text-2xl font-bold tabular-nums leading-none">{{ totalAuto }}</p>
+          <p class="t-eyebrow text-on-surface-variant mt-2">Auto-included</p>
+        </div>
+      </div>
+
       <section>
-        <h3 class="text-sm font-semibold uppercase tracking-wide mb-3">Plugins</h3>
+        <div class="flex items-center min-h-10 py-2 px-5 border-b border-divider bg-surface-variant/50">
+          <h3 class="t-eyebrow text-on-surface">Plugins</h3>
+        </div>
 
-        <ul v-if="pluginRows.length > 0" class="space-y-2">
+        <ul v-if="pluginRows.length > 0" class="divide-y divide-divider">
           <li
             v-for="row in pluginRows"
             :key="row.meta.id"
-            class="flex items-center justify-between gap-3 text-sm"
+            class="flex items-center justify-between gap-3 px-5 py-2.5"
           >
-            <span class="inline-flex items-center gap-2 text-on-surface">
-              <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
-              </svg>
-              {{ row.meta.title }}
+            <span class="inline-flex items-baseline gap-2.5 min-w-0">
+              <span class="text-sm text-on-surface">{{ row.meta.title }}</span>
+              <span class="font-mono text-[0.6875rem] text-on-surface-variant truncate">{{ row.meta.id }}</span>
             </span>
 
-            <span class="text-xs" :class="STATUS_CLASS[row.status]">
+            <span class="t-eyebrow flex-shrink-0" :class="STATUS_CLASS[row.status]">
               {{ STATUS_LABEL[row.status] }}
             </span>
           </li>
         </ul>
 
-        <p v-else class="text-sm text-on-surface-variant italic">
+        <p v-else class="px-5 py-4 t-meta text-on-surface-variant">
           No plugins selected.
         </p>
       </section>
 
-      <section>
-        <h3 class="text-sm font-semibold uppercase tracking-wide mb-3">Components</h3>
+      <section class="border-t border-divider">
+        <div class="flex items-center min-h-10 py-2 px-5 border-b border-divider bg-surface-variant/50">
+          <h3 class="t-eyebrow text-on-surface">Components</h3>
+        </div>
 
-        <p v-if="componentList.length > 0" class="text-sm text-on-surface leading-relaxed">
-          {{ componentList.join(', ') }}
-        </p>
+        <div v-if="componentList.length > 0" class="flex flex-wrap gap-1.5 px-5 py-4">
+          <span v-for="id in componentList" :key="id" class="chip-quiet">{{ id }}</span>
+        </div>
 
-        <p v-else class="text-sm text-on-surface-variant italic">
+        <p v-else class="px-5 py-4 t-meta text-on-surface-variant">
           No components selected.
         </p>
       </section>
 
-      <section v-if="autoIncluded.length > 0">
-        <h3 class="text-sm font-semibold uppercase tracking-wide mb-3">Auto-included</h3>
+      <section v-if="autoIncluded.length > 0" class="border-t border-divider">
+        <div class="flex flex-wrap items-baseline gap-x-3 min-h-10 py-2 px-5 border-b border-divider bg-surface-variant/50">
+          <h3 class="t-eyebrow text-on-surface">Auto-included</h3>
+          <p class="t-meta text-on-surface-variant">Pulled in by your selection</p>
+        </div>
 
-        <p class="text-sm text-on-surface-variant leading-relaxed">
-          {{ autoIncluded.join(', ') }}
-        </p>
+        <div class="flex flex-wrap gap-1.5 px-5 py-4">
+          <span v-for="id in autoIncluded" :key="id" class="chip-quiet">{{ id }}</span>
+        </div>
       </section>
 
-      <section v-if="warnings.length > 0">
-        <h3 class="text-sm font-semibold uppercase tracking-wide mb-3 text-error">Warnings</h3>
+      <section v-if="warnings.length > 0" class="border-t border-divider">
+        <div class="flex items-center min-h-10 py-2 px-5 border-b border-divider bg-surface-variant/50">
+          <h3 class="t-eyebrow text-error">Warnings</h3>
+        </div>
 
-        <ul class="space-y-1">
+        <ul class="divide-y divide-divider">
           <li
             v-for="warning in warnings"
             :key="warning.featureId"
-            class="text-xs text-on-surface-variant"
+            class="px-5 py-2.5 t-meta text-on-surface-variant"
           >
-            <strong class="text-error">{{ warning.featureId }}:</strong> {{ warning.message }}
+            <span class="font-mono text-[0.75rem] text-error">{{ warning.featureId }}</span>
+            — {{ warning.message }}
           </li>
         </ul>
       </section>
-
-      <div class="flex flex-wrap items-center gap-3 pt-2">
-        <Button.Root
-          class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-          :disabled="isBusy"
-          @click="onOpenPlayground"
-        >
-          <Button.Icon>
-            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiOpenInNew" fill="currentColor" /></svg>
-          </Button.Icon>
-
-          <Button.Content>Open in Playground</Button.Content>
-        </Button.Root>
-
-        <Button.Root
-          class="inline-flex items-center gap-2 px-4 py-2.5 border border-divider text-on-surface rounded-lg font-semibold text-sm hover:bg-surface-variant transition-colors"
-          @click="onDownloadZip"
-        >
-          <Button.Icon>
-            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiDownload" fill="currentColor" /></svg>
-          </Button.Icon>
-
-          <Button.Content>Download starter (.zip)</Button.Content>
-        </Button.Root>
-      </div>
     </div>
 
-    <div class="mt-6 flex items-center justify-between">
+    <div class="mt-6 flex flex-wrap items-center gap-3">
       <Button.Root
-        class="text-sm text-on-surface-variant hover:text-error transition-colors"
+        class="btn-primary"
+        :disabled="isBusy"
+        @click="onOpenPlayground"
+      >
+        <Button.Icon>
+          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiOpenInNew" fill="currentColor" /></svg>
+        </Button.Icon>
+
+        <Button.Content>Open in playground</Button.Content>
+      </Button.Root>
+
+      <Button.Root class="btn-outline" @click="onDownloadZip">
+        <Button.Icon>
+          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiDownload" fill="currentColor" /></svg>
+        </Button.Icon>
+
+        <Button.Content>Download starter (.zip)</Button.Content>
+      </Button.Root>
+    </div>
+
+    <div class="mt-8 flex items-center justify-between border-t border-divider pt-5">
+      <Button.Root
+        class="btn-quiet hover:text-error"
         @click="onReset"
       >
         Reset all
       </Button.Root>
 
-      <Button.Root
-        class="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
-        @click="onBack"
-      >
+      <Button.Root class="btn-quiet" @click="onBack">
         Back
       </Button.Root>
     </div>

@@ -52,15 +52,15 @@
 <template>
   <PluginConfigShell plugin-id="useTooltip" @save="onSave">
     <template #description>
-      <p class="text-on-surface-variant mb-8">
+      <p class="t-body text-on-surface-variant">
         Coordinate tooltip timing across a region. Once one tooltip has opened, moving to a
         neighbouring target opens instantly instead of waiting out the open delay again.
       </p>
     </template>
 
     <div class="space-y-6">
-      <label class="block">
-        <span class="text-xs uppercase tracking-wide text-on-surface-variant">Open delay (ms)</span>
+      <label class="field">
+        <span class="field-label">Open delay (ms)</span>
 
         <NumberField.Root
           v-model="state.openDelay"
@@ -85,8 +85,8 @@
         </span>
       </label>
 
-      <label class="block">
-        <span class="text-xs uppercase tracking-wide text-on-surface-variant">Close delay (ms)</span>
+      <label class="field">
+        <span class="field-label">Close delay (ms)</span>
 
         <NumberField.Root
           v-model="state.closeDelay"
@@ -111,8 +111,8 @@
         </span>
       </label>
 
-      <label class="block">
-        <span class="text-xs uppercase tracking-wide text-on-surface-variant">Skip delay (ms)</span>
+      <label class="field">
+        <span class="field-label">Skip delay (ms)</span>
 
         <NumberField.Root
           v-model="state.skipDelay"
@@ -140,7 +140,7 @@
       <label class="flex items-center gap-2">
         <Checkbox.Root
           v-model="state.disabled"
-          class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+          class="field-check"
         >
           <Checkbox.Indicator class="text-on-primary">
             <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
@@ -150,8 +150,8 @@
         <span class="text-sm text-on-surface">Disable all tooltips in this region</span>
       </label>
 
-      <div class="border border-divider rounded-lg p-4 bg-surface-variant/50">
-        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Preview</div>
+      <div class="inset p-4">
+        <div class="field-label mb-2">Preview</div>
 
         <p class="text-sm text-on-surface-variant font-mono">
           hover {{ state.openDelay }}ms to open, {{ state.closeDelay }}ms grace on leave,

@@ -70,21 +70,21 @@
 <template>
   <PluginConfigShell plugin-id="useBreakpoints" @save="onSave">
     <template #description>
-      <p class="text-on-surface-variant mb-8">
+      <p class="t-body text-on-surface-variant">
         Define pixel thresholds for named breakpoints
-        (<code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">xs</code>,
-        <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">sm</code>,
-        <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">md</code>,
-        <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">lg</code>,
-        <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">xl</code>,
-        <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">xxl</code>)
+        (<code class="code-chip">xs</code>,
+        <code class="code-chip">sm</code>,
+        <code class="code-chip">md</code>,
+        <code class="code-chip">lg</code>,
+        <code class="code-chip">xl</code>,
+        <code class="code-chip">xxl</code>)
         and pick the cutoff for mobile layouts.
       </p>
     </template>
 
     <div class="space-y-6">
       <div>
-        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Presets</div>
+        <div class="field-label mb-2">Presets</div>
 
         <div class="flex flex-wrap gap-2">
           <Button.Root
@@ -99,7 +99,7 @@
       </div>
 
       <div>
-        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Breakpoints (px)</div>
+        <div class="field-label mb-2">Breakpoints (px)</div>
 
         <div class="space-y-2">
           <div
@@ -115,14 +115,14 @@
               :label="`${name} breakpoint in pixels`"
               :min="0"
             >
-              <NumberField.Control class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono" />
+              <NumberField.Control class="field-input font-mono" />
             </NumberField.Root>
           </div>
         </div>
       </div>
 
       <div>
-        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Mobile breakpoint</div>
+        <div class="field-label mb-2">Mobile breakpoint</div>
 
         <Radio.Group aria-label="Mobile breakpoint mode" class="flex items-center gap-3 mb-3" :model-value="mode" @update:model-value="onModeChange($event as 'named' | 'pixels')">
           <label class="flex items-center gap-2">
@@ -149,7 +149,7 @@
         </Radio.Group>
 
         <Select.Root v-if="mode === 'named'" v-model="state.mobileBreakpoint">
-          <Select.Activator aria-label="Mobile breakpoint" class="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+          <Select.Activator aria-label="Mobile breakpoint" class="field-activator">
             <Select.Value v-slot="{ selectedValue }">
               {{ selectedValue }}
             </Select.Value>
@@ -161,7 +161,7 @@
             </Select.Cue>
           </Select.Activator>
 
-          <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+          <Select.Content class="field-menu" :style="{ minWidth: 'anchor-size(width)' }">
             <Select.Item
               v-for="name in BREAKPOINT_NAMES"
               :id="name"
@@ -189,7 +189,7 @@
 
         <NumberField.Root v-else v-model="pixels" label="Mobile breakpoint in pixels" :min="0">
           <NumberField.Control
-            class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+            class="field-input font-mono"
             placeholder="1145"
           />
         </NumberField.Root>

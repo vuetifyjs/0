@@ -28,11 +28,8 @@
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto px-6 py-12">
-    <Button.Root
-      class="text-sm text-on-surface-variant hover:text-on-surface mb-6 inline-flex items-center gap-1"
-      @click="onBack"
-    >
+  <div class="max-w-4xl mx-auto px-6 py-10 sm:py-12">
+    <Button.Root class="btn-quiet mb-8" @click="onBack">
       <Button.Icon>
         <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
       </Button.Icon>
@@ -40,22 +37,22 @@
       <Button.Content>Back</Button.Content>
     </Button.Root>
 
-    <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
-      Step 1
-    </p>
+    <header class="mb-10">
+      <p class="t-eyebrow text-primary mb-3">Step 1 · Select</p>
 
-    <h2 class="text-2xl font-bold mb-2">Configure plugins</h2>
+      <h2 class="t-title mb-3">Choose your plugins</h2>
 
-    <p class="text-on-surface-variant mb-8">
-      Plugins are installed at app startup via <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">app.use()</code>.
-      Toggle the ones your library needs.
-    </p>
+      <p class="t-body text-on-surface-variant max-w-2xl">
+        Plugins are installed at app startup via <code class="code-chip">app.use()</code>.
+        Pick the ones your library needs — you will configure each one next.
+      </p>
+    </header>
 
-    <div class="flex flex-col gap-8">
-      <div v-for="category in categories" :key="category.id">
-        <div class="mb-3">
-          <h3 class="text-sm font-semibold uppercase tracking-wide">{{ category.title }}</h3>
-          <p class="text-xs text-on-surface-variant mt-0.5">{{ category.description }}</p>
+    <div class="flex flex-col gap-10">
+      <section v-for="category in categories" :key="category.id">
+        <div class="flex items-baseline gap-3 mb-4 pb-2.5 border-b border-divider">
+          <h3 class="t-eyebrow text-on-surface">{{ category.title }}</h3>
+          <p class="t-meta text-on-surface-variant">{{ category.description }}</p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -63,39 +60,37 @@
             v-for="question in category.questions"
             :key="question.id"
             :aria-label="question.title"
-            class="p-4 rounded-lg border text-left transition-all"
-            :class="store.isPluginSelected(question.feature)
-              ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
-              : 'border-divider bg-surface hover:border-on-surface-variant/40'"
+            class="pick p-4"
+            :class="store.isPluginSelected(question.feature) ? 'pick-on' : 'pick-off'"
             :model-value="store.isPluginSelected(question.feature)"
             @update:model-value="store.togglePlugin(question.feature)"
           >
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <h4 class="font-semibold text-sm">{{ question.title }}</h4>
+            <div class="flex items-start justify-between gap-2.5 mb-2">
+              <h4 class="t-section">{{ question.title }}</h4>
 
-              <div
-                class="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center transition-colors"
-                :class="store.isPluginSelected(question.feature) ? 'bg-primary' : 'border border-divider'"
+              <span
+                class="pick-mark w-5 h-5"
+                :class="store.isPluginSelected(question.feature) ? 'pick-mark-on' : 'pick-mark-off'"
               >
-                <svg v-if="store.isPluginSelected(question.feature)" class="w-3.5 h-3.5 text-on-primary" viewBox="0 0 24 24">
+                <svg v-if="store.isPluginSelected(question.feature)" class="w-3.5 h-3.5" viewBox="0 0 24 24">
                   <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
                 </svg>
-              </div>
+              </span>
             </div>
 
-            <p class="text-xs text-on-surface-variant leading-relaxed">{{ question.description }}</p>
+            <p class="t-meta text-on-surface-variant">{{ question.description }}</p>
           </Toggle.Root>
         </div>
-      </div>
+      </section>
     </div>
 
-    <div class="mt-8 flex items-center justify-between">
-      <span class="text-sm text-on-surface-variant">
+    <div class="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-divider pt-6">
+      <p class="t-index text-on-surface-variant">
         {{ store.selectedPlugins.size }} {{ store.selectedPlugins.size === 1 ? 'plugin' : 'plugins' }} selected
-      </span>
+      </p>
 
       <Button.Root
-        class="px-6 py-2.5 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+        class="btn-primary"
         :disabled="store.selectedPlugins.size === 0"
         @click="onContinue"
       >

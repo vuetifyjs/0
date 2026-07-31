@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { getPluginBySlug } from '@/data/plugins'
+
   // Utilities
   import { defineAsyncComponent, toRef } from 'vue'
   import { useRoute } from 'vue-router'
@@ -25,10 +27,28 @@
   const route = useRoute()
 
   const module = toRef(() => MODULES[route.path] ?? PreviewSummary)
+
+  // Per-plugin modules get a titled frame so all fifteen read as one family. The summary
+  // composes its own panels, so it is left unframed rather than nested inside a second one.
+  const framed = toRef(() => route.path in MODULES)
+
+  const meta = toRef(() => getPluginBySlug(route.path.slice('/builder/'.length)))
 </script>
 
 <template>
-  <div class="p-4 lg:p-6">
-    <component :is="module" />
+  <div class="p-4 lg:p-5">
+    <div v-if="framed" class="panel overflow-hidden">
+      <div class="flex items-center justify-between gap-3 h-10 px-4 border-b border-divider bg-surface-variant/50">
+        <p class="t-eyebrow text-on-surface">{{ meta?.title }}</p>
+
+        <span class="font-mono text-[0.6875rem] text-on-surface-variant">{{ meta?.id }}</span>
+      </div>
+
+      <div class="p-4">
+        <component :is="module" />
+      </div>
+    </div>
+
+    <component :is="module" v-else />
   </div>
 </template>

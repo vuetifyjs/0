@@ -48,18 +48,18 @@
 <template>
   <PluginConfigShell plugin-id="useReducedMotion" @save="onSave">
     <template #description>
-      <p class="text-on-surface-variant mb-8">
+      <p class="t-body text-on-surface-variant">
         Respect — or deliberately override — the operating system's
-        <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">prefers-reduced-motion</code>
+        <code class="code-chip">prefers-reduced-motion</code>
         setting. Components read
-        <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">isReduced</code>
+        <code class="code-chip">isReduced</code>
         to skip or shorten transitions.
       </p>
     </template>
 
     <div class="space-y-6">
       <div>
-        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Initial mode</div>
+        <div class="field-label mb-2">Initial mode</div>
 
         <Radio.Group v-model="state.mode" aria-label="Initial reduced-motion mode" class="space-y-2">
           <label
@@ -85,7 +85,7 @@
       <label class="flex items-center gap-2">
         <Checkbox.Root
           v-model="state.persist"
-          class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+          class="field-check"
         >
           <Checkbox.Indicator class="text-on-primary">
             <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
@@ -95,13 +95,13 @@
         <span class="text-sm text-on-surface">Persist the selected mode to storage</span>
       </label>
 
-      <div class="border border-divider rounded-lg p-4 bg-surface-variant/50">
-        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Advanced</div>
+      <div class="inset p-4">
+        <div class="field-label mb-2">Advanced</div>
 
         <p class="text-sm text-on-surface-variant">
-          A custom <code class="text-xs px-1.5 py-0.5 rounded bg-surface">ReducedMotionAdapter</code>
+          A custom <code class="code-chip">ReducedMotionAdapter</code>
           (for framework-specific side effects) is passed to
-          <code class="text-xs px-1.5 py-0.5 rounded bg-surface">createReducedMotionPlugin()</code>
+          <code class="code-chip">createReducedMotionPlugin()</code>
           in code, not from this form.
         </p>
       </div>

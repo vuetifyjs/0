@@ -78,19 +78,19 @@
 <template>
   <PluginConfigShell plugin-id="useDate" @save="onSave">
     <template #description>
-      <p class="text-on-surface-variant mb-8">
+      <p class="t-body text-on-surface-variant">
         Format and manipulate dates through a pluggable adapter. The bundled
-        <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">V0DateAdapter</code>
+        <code class="code-chip">V0DateAdapter</code>
         uses the Temporal API; custom adapters can wrap date-fns, dayjs, luxon, etc.
       </p>
     </template>
 
     <div class="space-y-6">
-      <label class="block">
-        <span class="text-xs uppercase tracking-wide text-on-surface-variant">Adapter</span>
+      <label class="field">
+        <span class="field-label">Adapter</span>
 
         <Select.Root v-model="state.adapter">
-          <Select.Activator class="mt-1 flex items-center justify-between w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+          <Select.Activator class="field-activator">
             <Select.Value v-slot="{ selectedValue }">
               {{ adapterLabel(selectedValue as DateAdapterKind) }}
             </Select.Value>
@@ -102,7 +102,7 @@
             </Select.Cue>
           </Select.Activator>
 
-          <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+          <Select.Content class="field-menu" :style="{ minWidth: 'anchor-size(width)' }">
             <Select.Item
               v-for="kind in DATE_ADAPTERS"
               :id="kind"
@@ -123,24 +123,24 @@
         </Select.Root>
       </label>
 
-      <div v-if="state.adapter === 'custom'" class="border border-divider rounded-lg p-4 bg-surface-variant/50">
-        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Custom adapter</div>
+      <div v-if="state.adapter === 'custom'" class="inset p-4">
+        <div class="field-label mb-2">Custom adapter</div>
 
         <p class="text-sm text-on-surface-variant">
-          Implement a <code class="text-xs px-1.5 py-0.5 rounded bg-surface">DateAdapter</code>
+          Implement a <code class="code-chip">DateAdapter</code>
           subclass and pass it to
-          <code class="text-xs px-1.5 py-0.5 rounded bg-surface">createDatePlugin()</code>
+          <code class="code-chip">createDatePlugin()</code>
           in code — date-fns / dayjs / luxon adapters are not bundled in v0 today.
         </p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <label class="block">
-          <span class="text-xs uppercase tracking-wide text-on-surface-variant">Active locale</span>
+        <label class="field">
+          <span class="field-label">Active locale</span>
 
           <Input.Root v-model="state.locale">
             <Input.Control
-              class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+              class="field-input font-mono"
               placeholder="en"
             />
           </Input.Root>
@@ -150,8 +150,8 @@
           </span>
         </label>
 
-        <label class="block">
-          <span class="text-xs uppercase tracking-wide text-on-surface-variant">First day of week</span>
+        <label class="field">
+          <span class="field-label">First day of week</span>
 
           <NumberField.Root
             v-model="state.firstDayOfWeek"
@@ -178,7 +178,7 @@
       </div>
 
       <div>
-        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Locales (short → Intl)</div>
+        <div class="field-label mb-2">Locales (short → Intl)</div>
 
         <div class="space-y-2">
           <div
@@ -188,21 +188,21 @@
           >
             <Input.Root v-model="row.code">
               <Input.Control
-                class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+                class="field-input font-mono"
                 placeholder="en"
               />
             </Input.Root>
 
             <Input.Root v-model="row.intl">
               <Input.Control
-                class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+                class="field-input font-mono"
                 placeholder="en-US"
               />
             </Input.Root>
 
             <Button.Root
               :aria-label="`Remove locale ${row.code || index + 1}`"
-              class="text-on-surface-variant hover:text-error p-1"
+              class="inline-flex items-center justify-center w-8 h-8 rounded-md text-on-surface-variant hover:text-error hover:bg-surface-variant transition-colors duration-150"
               title="Remove locale"
               @click="removeLocale(index)"
             >
@@ -214,7 +214,7 @@
         </div>
 
         <Button.Root
-          class="mt-3 text-sm text-primary hover:opacity-80 inline-flex items-center gap-1"
+          class="btn-outline mt-3 h-9 px-3 text-[0.8125rem]"
           @click="addLocale"
         >
           <Button.Icon>
