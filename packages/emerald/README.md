@@ -2,7 +2,20 @@
 
 Emerald design system — Wave 1–2 preview.
 
-Figma-sourced tokens + thin Vue wrappers over `@vuetify/v0` compounds.
+The first commercial skin on **@vuetify/v0**: Figma tokens + thin Em* wrappers that
+**compose** v0 compounds. Emerald exists to show that v0 is easy to adopt and still
+feature-rich — behavior stays headless; Emerald only paints.
+
+## Why Emerald
+
+| | |
+|---|---|
+| **v0** | Headless OS — state, a11y, compounds |
+| **Emerald** | Commercial design system — tokens, CSS, Em* chrome |
+
+If you can ship a polished app with two CSS imports and a plugin, the credit goes to
+the stack under Em*. Full contract: [SPEC.md](./SPEC.md) (*Purpose — Emerald exists
+to sell v0*).
 
 ## Install (workspace)
 
@@ -16,7 +29,14 @@ const app = createApp(App)
 app.use(createEmeraldPlugin()) // wires adapter + default emerald theme — no manual adapter setup
 ```
 
-That is the whole install. Do **not** construct `EmeraldStyleSheetAdapter` yourself unless the host already runs `createThemePlugin` and you pass `{ theme: false }` to opt out of Emerald’s install.
+That is the whole install. Do **not** construct `EmeraldStyleSheetAdapter` yourself
+unless the host already runs `createThemePlugin` and you pass `{ theme: false }`.
+
+## Consumer rules (short)
+
+- No named slots on Em* — props + default slot, or multi-file compounds (Dialog/Select/…)
+- No Paper / `V0Paper` middle layer
+- Shells (Button, Checkbox, TextField, …) for fixed anatomy; compounds for variable trees
 
 ## Components
 
@@ -24,7 +44,7 @@ That is the whole install. Do **not** construct `EmeraldStyleSheetAdapter` yours
 
 **Wave 2:** `EmAlert*` · `EmCard*` · `EmTag` · `EmAvatar*` · `EmTabs*` · `EmPagination*` · `EmSlider`
 
-See [SPEC.md](./SPEC.md). Kitchen sink: `dev` → `/emerald`.
+Kitchen sink: `dev` → `/emerald`.
 
 ## Build
 

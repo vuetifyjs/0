@@ -4,9 +4,31 @@
 
 **Class:** design system (rich). See [DESIGN_SYSTEMS.md](../../DESIGN_SYSTEMS.md).
 
-Emerald is the first commercial Paper design system: Figma-sourced tokens, a themed
-adapter that publishes `--emerald-*` (plus `--v0-*` kit aliases), and Vue components that
-**compose v0 primitives** and style them with unscoped class CSS.
+Emerald is the **first commercial Paper design system** and the **showcase for v0**:
+Figma-sourced tokens, a themed adapter that publishes `--emerald-*` (plus `--v0-*`
+kit aliases), and Vue components that **compose v0 primitives** and style them with
+unscoped class CSS.
+
+### Purpose — Emerald exists to sell v0
+
+v0 is the headless OS. Emerald is a thin commercial skin. If Emerald is hard to
+adopt, people blame the stack; if it is two CSS files + a plugin + Em* that still
+expose real a11y/forms/dialogs, people credit **v0**.
+
+Every Em* API is judged by: **does this make v0 look simpler and more capable, or
+does it hide and complicate it?**
+
+| Promise | Emerald must show |
+|---|---|
+| **Easy** | Happy path only: CSS imports + `createEmeraldPlugin()` + Em* — no adapter assembly, no slot zoo, no Paper middle layer |
+| **Feature-rich via v0** | Behavior, state, and a11y stay on v0 compounds; Emerald paints |
+| **Composable** | Compounds for variable trees; shells for fixed controls — both default-slot / props only |
+| **Interoperable** | Kit `--v0-*` aliases so Genesis chrome inherits brand without dual themes |
+| **Readable source** | `design-system.ts` token dictionary; plugin is the only install story |
+
+**Anti-patterns:** Vuetify-shaped named slots; reimplementing behavior inside Em*;
+install steps that require understanding theme adapters; `@vuetify/paper` / `V0Paper`
+as a required layer.
 
 ## Token source
 
@@ -24,7 +46,10 @@ Flat color map for v0’s theme engine: `src/colors.ts`. Adapter is **package ma
 | **Host already has `createThemePlugin`** | `{ theme: false }` and register `EmeraldStyleSheetAdapter` + `emeraldColors` on that host plugin |
 | **Kit interop** | Adapter (via plugin) emits `--v0-*` aliases for Genesis chrome |
 
-## Composition rules
+## Consumer contract
+
+Rules for every Em* component and for package-level API. Non-negotiable for
+showcase quality.
 
 - **Behavioral** UI composes v0 compounds (`Button.Root`, `Checkbox.Root`, `Dialog.Root`, …).
 - **Never** `@vuetify/paper` / `V0Paper`.
@@ -32,8 +57,9 @@ Flat color map for v0’s theme engine: `src/colors.ts`. Adapter is **package ma
 - **Never named slots** on Em* — structure is compounds or props + a single default slot (no Vuetify-style `#label` / `#prepend` surface).
 - Class prefix: `emerald-*`. State: `data-*` attributes.
 - Every `var(--emerald-*)` carries a literal fallback.
-- **Shells** (Checkbox, Switch, Button, TextField, Slider): fixed anatomy in one SFC.
-- **Compounds** (Dialog, Select, Tabs, Pagination, Avatar, Card, Alert): one Em* per region.
+- **Shells** (Checkbox, Switch, Button, TextField, Slider): fixed anatomy in one SFC; props for simple text (e.g. `label`, `description`).
+- **Compounds** (Dialog, Select, Tabs, Pagination, Avatar, Card, Alert): one Em* per region; consumer builds the tree with default slots only.
+- **Install:** consumers use `createEmeraldPlugin` + CSS; they do not construct the stylesheet adapter unless they already own a theme plugin.
 
 ## Wave 1 surface (preview)
 
