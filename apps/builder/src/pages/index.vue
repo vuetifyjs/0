@@ -2,7 +2,7 @@
   import { mdiArrowRight, mdiTrashCanOutline } from '@mdi/js'
 
   // Framework
-  import { Button } from '@vuetify/v0'
+  import { AlertDialog, Button } from '@vuetify/v0'
 
   import { COMPONENTS } from '@/data/components'
   import { PLUGINS } from '@/data/plugins'
@@ -11,7 +11,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
@@ -48,8 +48,20 @@
     router.push('/builder')
   }
 
-  async function onDelete (entry: BuildSummary) {
-    await store.removeBuild(entry.id)
+  // Deleting a build throws away its whole configuration with no undo, so it asks first.
+  const doomed = shallowRef<BuildSummary | null>(null)
+  const confirming = shallowRef(false)
+
+  function onDelete (entry: BuildSummary) {
+    doomed.value = entry
+    confirming.value = true
+  }
+
+  async function onConfirmDelete () {
+    if (!doomed.value) return
+
+    await store.removeBuild(doomed.value.id)
+    doomed.value = null
   }
 
   async function onNew () {
@@ -187,6 +199,38 @@ app.mount(<span class="text-primary">'#app'</span>)</pre>
           </Button.Root>
         </li>
       </ul>
+
+      <AlertDialog.Root v-model="confirming">
+        <!-- AlertDialogContent defaults closeOnEscape to false so an alert demands an
+             explicit choice. Opted in here because the safe outcome (keep the build) is
+             what dismissing gives you — a confirm this small shouldn't trap focus. -->
+        <AlertDialog.Content
+          class="m-auto p-6 w-[min(26rem,calc(100vw-2rem))] rounded-xl border border-divider bg-surface shadow-2xl backdrop:bg-black/50"
+          close-on-escape
+        >
+          <AlertDialog.Title class="t-section mb-2">
+            Delete {{ doomed?.name }}?
+          </AlertDialog.Title>
+
+          <AlertDialog.Description class="t-meta text-on-surface-variant mb-6">
+            This build's plugins, configuration and component selection are removed. This
+            cannot be undone.
+          </AlertDialog.Description>
+
+          <div class="flex items-center justify-end gap-2">
+            <AlertDialog.Cancel class="btn-ghost h-9 px-4">
+              Keep it
+            </AlertDialog.Cancel>
+
+            <AlertDialog.Action
+              class="btn h-9 px-4 bg-error text-on-primary hover:opacity-90"
+              @action="onConfirmDelete"
+            >
+              Delete build
+            </AlertDialog.Action>
+          </div>
+        </AlertDialog.Content>
+      </AlertDialog.Root>
     </section>
 
     <!-- A real sequence, so it is numbered like one. -->
