@@ -113,7 +113,11 @@
   <div class="emerald-sink" data-theme="emerald">
     <header class="sink-header">
       <h1>Emerald Kitchen Sink</h1>
-      <p>Wave 1–3 surface — Figma-tokened, v0-composed showcase for #715.</p>
+
+      <p>
+        Wave 1–3 component inventory —
+        <a href="/emerald">Dashboard showcase →</a>
+      </p>
     </header>
 
     <section>
@@ -567,6 +571,16 @@
   .sink-header p {
     margin: 0;
     color: var(--emerald-on-surface-variant, #757e85);
+  }
+
+  .sink-header a {
+    color: var(--emerald-primary-700, #027d4c);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .sink-header a:hover {
+    text-decoration: underline;
   }
 
   section {

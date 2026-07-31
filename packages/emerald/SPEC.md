@@ -103,7 +103,11 @@ showcase quality.
 
 Foundations also export `motion` and `control` (switch/checkbox/avatar geometry) as CSS vars.
 
-Maturity: **preview**. Not published (`private: true` until first release cut). Kitchen sink: `dev` → `/emerald`.
+Maturity: **preview**. Not published (`private: true` until first release cut).
+
+Dev showcase:
+- **Dashboard** (Figma product mock, charts as fillers): `dev` → `/emerald`
+- **Kitchen sink** (component inventory): `dev` → `/emerald/sink`
 
 ## Non-goals (current)
 
