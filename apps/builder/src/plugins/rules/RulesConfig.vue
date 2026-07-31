@@ -4,61 +4,44 @@
   // Framework
   import { Button, Input } from '@vuetify/v0'
 
-  import { defaultConfig, SAMPLE_SCHEMA_JSON } from './defaults'
+  import { defaultConfig, KNOWN_ALIASES } from './defaults'
 
   // Stores
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { reactive, shallowRef } from 'vue'
+  import { ref, shallowRef, toRef } from 'vue'
 
   // Types
-  import type { RuleAliasDef, RulesConfig } from './defaults'
+  import type { RulesConfig } from './defaults'
 
   const store = useBuilderStore()
 
   const stored = store.pluginConfig.useRules as RulesConfig | undefined
   const initial: RulesConfig = JSON.parse(JSON.stringify(stored ?? defaultConfig))
 
-  const state = reactive({
-    aliases: initial.aliases.map<RuleAliasDef>(alias => ({ ...alias })),
-  })
+  const aliases = ref<string[]>([...initial.aliases])
+  const draft = shallowRef('')
 
-  const schemaText = shallowRef(initial.customSchemaJson ?? '')
-  const schemaError = shallowRef('')
+  const suggestions = toRef(() => KNOWN_ALIASES.filter(name => !aliases.value.includes(name)))
 
-  function addAlias () {
-    state.aliases.push({ name: '', description: '' })
+  function add (name: string) {
+    const trimmed = name.trim()
+    if (!trimmed || aliases.value.includes(trimmed)) return
+    aliases.value = [...aliases.value, trimmed]
   }
 
-  function removeAlias (index: number) {
-    state.aliases.splice(index, 1)
+  function remove (name: string) {
+    aliases.value = aliases.value.filter(alias => alias !== name)
+  }
+
+  function onAdd () {
+    add(draft.value)
+    draft.value = ''
   }
 
   function onSave () {
-    const trimmed = schemaText.value.trim()
-
-    if (trimmed) {
-      try {
-        JSON.parse(trimmed)
-        schemaError.value = ''
-      } catch (error) {
-        schemaError.value = (error as Error).message
-        return
-      }
-    } else {
-      schemaError.value = ''
-    }
-
-    const aliases = state.aliases
-      .map(alias => ({ name: alias.name.trim(), description: alias.description.trim() }))
-      .filter(alias => alias.name)
-
-    const config: RulesConfig = {
-      aliases,
-      customSchemaJson: trimmed || undefined,
-    }
-    store.savePluginConfig('useRules', config)
+    store.savePluginConfig('useRules', { aliases: [...aliases.value] } satisfies RulesConfig)
   }
 </script>
 
@@ -66,100 +49,91 @@
   <PluginConfigShell plugin-id="useRules" @save="onSave">
     <template #description>
       <p class="text-on-surface-variant mb-8">
-        Register named validation aliases and optional Standard Schema definitions.
-        Predicate functions are wired in code; this form captures the aliases your
-        forms will reference by name.
+        Name the validation aliases your forms will reference, then use them as strings:
+        <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">rules.resolve(['required', 'email'])</code>.
       </p>
     </template>
 
     <div class="space-y-6">
       <div class="border border-divider rounded-lg p-4 bg-surface-variant/50">
-        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">No built-ins</div>
+        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">How aliases are generated</div>
 
         <p class="text-sm text-on-surface-variant">
           v0's <code class="text-xs px-1.5 py-0.5 rounded bg-surface">createRules</code>
-          ships <strong>no built-in rule aliases</strong>. Every alias you want —
-          <code class="text-xs px-1.5 py-0.5 rounded bg-surface">required</code>,
-          <code class="text-xs px-1.5 py-0.5 rounded bg-surface">email</code>,
-          <code class="text-xs px-1.5 py-0.5 rounded bg-surface">min</code>,
-          <code class="text-xs px-1.5 py-0.5 rounded bg-surface">pattern</code>, etc. —
-          must be defined by you. Names you list here become the placeholders the form
-          designer will eventually wire to predicate functions in code.
+          ships <strong>no built-in aliases</strong> — every predicate is supplied by you.
+          The names below are scaffolded into your generated setup: the ones offered as
+          suggestions come out as working predicates, and any other name comes out as a
+          stub for you to fill in.
         </p>
       </div>
 
       <div>
         <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Aliases</div>
 
-        <div class="space-y-2">
-          <div
-            v-for="(alias, index) in state.aliases"
-            :key="index"
-            class="grid grid-cols-[1fr_2fr_auto] gap-2 items-center"
+        <div v-if="aliases.length > 0" class="flex flex-wrap gap-2 mb-3">
+          <span
+            v-for="alias in aliases"
+            :key="alias"
+            class="inline-flex items-center gap-1 pl-3 pr-1 py-1 rounded-full border border-primary/40 bg-primary/5 text-sm font-mono text-on-surface"
           >
-            <Input.Root v-model="alias.name">
-              <Input.Control
-                class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-                placeholder="required"
-              />
-            </Input.Root>
-
-            <Input.Root v-model="alias.description">
-              <Input.Control
-                class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm"
-                placeholder="value must not be empty"
-              />
-            </Input.Root>
+            {{ alias }}
 
             <Button.Root
-              class="text-on-surface-variant hover:text-error p-1"
-              title="Remove alias"
-              @click="removeAlias(index)"
+              :aria-label="`Remove ${alias} alias`"
+              class="text-on-surface-variant hover:text-error p-0.5 rounded-full"
+              @click="remove(alias)"
             >
               <Button.Icon>
-                <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
               </Button.Icon>
             </Button.Root>
-          </div>
+          </span>
         </div>
 
-        <Button.Root
-          class="mt-3 text-sm text-primary hover:opacity-80 inline-flex items-center gap-1"
-          @click="addAlias"
-        >
-          <Button.Icon>
-            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
-          </Button.Icon>
-          Add alias
-        </Button.Root>
-      </div>
+        <p v-else class="text-sm text-on-surface-variant italic mb-3">
+          No aliases yet.
+        </p>
 
-      <div>
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs uppercase tracking-wide text-on-surface-variant">Custom schema (JSON)</span>
+        <div class="flex items-center gap-2">
+          <Input.Root v-model="draft" class="flex-1">
+            <Input.Control
+              aria-label="New alias name"
+              class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono outline-none data-[focused]:border-primary transition-colors"
+              placeholder="phone"
+              @keydown.enter.prevent="onAdd"
+            />
+          </Input.Root>
 
           <Button.Root
-            class="text-xs text-primary hover:opacity-80"
-            @click="schemaText = SAMPLE_SCHEMA_JSON"
+            class="px-3 py-2 rounded-lg border border-divider text-sm hover:bg-surface-variant inline-flex items-center gap-1"
+            :disabled="!draft.trim()"
+            @click="onAdd"
           >
-            Load sample
+            <Button.Icon>
+              <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
+            </Button.Icon>
+
+            <Button.Content>Add</Button.Content>
+          </Button.Root>
+        </div>
+      </div>
+
+      <div v-if="suggestions.length > 0">
+        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Quick add</div>
+
+        <div class="flex flex-wrap gap-2">
+          <Button.Root
+            v-for="name in suggestions"
+            :key="name"
+            class="px-3 py-1.5 rounded-full border border-divider text-sm font-mono hover:bg-surface-variant hover:border-primary/40 transition-colors"
+            @click="add(name)"
+          >
+            + {{ name }}
           </Button.Root>
         </div>
 
-        <!-- v0 has no multi-line input; native textarea is the documented exception -->
-        <textarea
-          v-model="schemaText"
-          class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-          placeholder="{}"
-          rows="10"
-          spellcheck="false"
-        />
-
-        <p v-if="schemaError" class="mt-1 text-xs text-error">{{ schemaError }}</p>
-
-        <p class="mt-1 text-xs text-on-surface-variant">
-          For Standard Schema consumers (Zod, Valibot, ArkType). Parsed only — the actual
-          schema is wired in code.
+        <p class="mt-2 text-xs text-on-surface-variant">
+          These generate working predicates.
         </p>
       </div>
     </div>

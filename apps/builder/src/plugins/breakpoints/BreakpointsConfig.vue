@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiCheck } from '@mdi/js'
+  import { mdiCheck, mdiChevronDown } from '@mdi/js'
 
   // Framework
   import { Button, isNumber, NumberField, Radio, Select } from '@vuetify/v0'
@@ -151,8 +151,8 @@
 
             <Select.Placeholder class="text-on-surface-variant">Choose…</Select.Placeholder>
 
-            <Select.Cue v-slot="{ isOpen }" class="text-xs opacity-50">
-              {{ isOpen ? '&#x25B4;' : '&#x25BE;' }}
+            <Select.Cue class="inline-flex opacity-50 transition-transform data-[state=open]:rotate-180">
+              <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiChevronDown" fill="currentColor" /></svg>
             </Select.Cue>
           </Select.Activator>
 

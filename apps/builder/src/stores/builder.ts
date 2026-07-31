@@ -107,12 +107,20 @@ export const useBuilderStore = defineStore('builder', () => {
     return selectedComponents.value.has(id)
   }
 
+  // Clearing goes through the live `persisted` ref, never storage.remove(). remove() stops
+  // the watcher useStorage attached to that ref and drops it from the cache, orphaning it —
+  // every later write would be silently discarded until a reload.
   function reset () {
     selectedPlugins.value = new Set()
     pluginConfig.value = {}
     selectedComponents.value = new Set()
     componentConfig.value = {}
-    storage.remove(STORAGE_KEY)
+    persisted.value = {
+      selectedPlugins: [],
+      pluginConfig: {},
+      selectedComponents: [],
+      componentConfig: {},
+    }
   }
 
   watch(

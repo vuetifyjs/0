@@ -1,18 +1,17 @@
 // apps/builder/src/plugins/permissions/defaults.ts
 
-export interface PermissionRule {
-  actions: string[] // e.g. ['read', 'write'] or a single ['*']
-  subjects: string[] // e.g. ['Post', 'Comment']
-  // condition omitted — code-only escape hatch
-}
+// Mirrors PermissionOptions['permissions'] in packages/0/src/composables/usePermissions.
+// Each rule is a positional tuple: [actions, subjects, condition?]. The condition slot is
+// omitted here — it is a predicate function, so it can only be supplied in code.
+export type PermissionRule = [string[], string[], boolean?]
 
 export interface PermissionsConfig {
-  roles: Record<string, PermissionRule[]>
+  permissions: Record<string, PermissionRule[]>
 }
 
 export const defaultConfig: PermissionsConfig = {
-  roles: {
-    admin: [{ actions: ['*'], subjects: ['*'] }],
-    user: [{ actions: ['read'], subjects: ['*'] }],
+  permissions: {
+    admin: [[['*'], ['*']]],
+    user: [[['read'], ['*']]],
   },
 }

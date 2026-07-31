@@ -39,7 +39,8 @@
           <path :d="mdiPuzzle" fill="currentColor" />
         </svg>
       </Button.Icon>
-      Start configuring
+
+      <Button.Content>Start configuring</Button.Content>
     </Button.Root>
   </div>
 </template>

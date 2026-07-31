@@ -1,24 +1,27 @@
 // apps/builder/src/plugins/theme/defaults.ts
 
+// ThemeRecord in packages/0/src/composables/useTheme is { dark?, lazy?, colors } — the
+// APCA `foreground` switch lives on ThemeOptions, one level up, so it applies to every
+// theme at once rather than per theme.
 export interface ThemeEntry {
   dark: boolean
-  foreground: boolean
   colors: Record<string, string>
 }
 
 export interface ThemeConfig {
   default: string
   target: string
+  foreground: boolean
   themes: Record<string, ThemeEntry>
 }
 
 export const defaultConfig: ThemeConfig = {
   default: 'light',
   target: 'html',
+  foreground: false,
   themes: {
     light: {
       dark: false,
-      foreground: false,
       colors: {
         'primary': '#3b82f6',
         'secondary': '#64748b',
@@ -35,7 +38,6 @@ export const defaultConfig: ThemeConfig = {
     },
     dark: {
       dark: true,
-      foreground: false,
       colors: {
         'primary': '#c4b5fd',
         'secondary': '#94a3b8',

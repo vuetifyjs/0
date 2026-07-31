@@ -83,7 +83,8 @@
         <Button.Icon>
           <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
         </Button.Icon>
-        {{ isFirst ? 'Back to plugin selection' : 'Prev' }}
+
+        <Button.Content>{{ isFirst ? 'Back to plugin selection' : 'Prev' }}</Button.Content>
       </Button.Root>
 
       <div class="flex items-center gap-3">
@@ -94,14 +95,16 @@
           <Button.Icon>
             <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
           </Button.Icon>
-          Skip (use defaults)
+
+          <Button.Content>Skip (use defaults)</Button.Content>
         </Button.Root>
 
         <Button.Root
           class="px-6 py-2.5 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity inline-flex items-center gap-2"
           @click="onSave"
         >
-          {{ isLast ? 'Save & Continue to Components' : 'Save & Next' }}
+          <Button.Content>{{ isLast ? 'Save & Continue to Components' : 'Save & Next' }}</Button.Content>
+
           <Button.Icon>
             <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowRight" fill="currentColor" /></svg>
           </Button.Icon>

@@ -1,6 +1,3 @@
-// Types
-import type { Intent } from './types'
-
 export interface Question {
   id: string
   title: string
@@ -16,7 +13,7 @@ export interface QuestionCategory {
   questions: Question[]
 }
 
-const COMPONENT_LIBRARY: QuestionCategory[] = [
+const CATEGORIES: QuestionCategory[] = [
   {
     id: 'appearance',
     title: 'Appearance',
@@ -36,6 +33,13 @@ const COMPONENT_LIBRARY: QuestionCategory[] = [
         feature: 'useBreakpoints',
         category: 'appearance',
       },
+      {
+        id: 'reduced-motion',
+        title: 'Reduced Motion',
+        description: 'Respect or override the OS prefers-reduced-motion setting for transitions',
+        feature: 'useReducedMotion',
+        category: 'appearance',
+      },
     ],
   },
   {
@@ -46,7 +50,7 @@ const COMPONENT_LIBRARY: QuestionCategory[] = [
       {
         id: 'locale',
         title: 'Locale',
-        description: 'Translate component labels and messages with vue-i18n or built-in adapter',
+        description: 'Translate component labels and messages with the built-in message registry',
         feature: 'useLocale',
         category: 'i18n',
       },
@@ -88,8 +92,15 @@ const COMPONENT_LIBRARY: QuestionCategory[] = [
       {
         id: 'stack',
         title: 'Stack',
-        description: 'Z-index management for overlays (Dialog, Drawer, Menu, Popover, Tooltip, Toast)',
+        description: 'Z-index management for overlays (Dialog, Popover, Tooltip, Snackbar, Scrim)',
         feature: 'useStack',
+        category: 'infrastructure',
+      },
+      {
+        id: 'tooltip',
+        title: 'Tooltip',
+        description: 'Region-wide tooltip timing so neighbouring targets open without re-waiting',
+        feature: 'useTooltip',
         category: 'infrastructure',
       },
     ],
@@ -123,14 +134,14 @@ const COMPONENT_LIBRARY: QuestionCategory[] = [
       {
         id: 'date',
         title: 'Date',
-        description: 'Date manipulation with adapter support for date-fns, dayjs, or luxon',
+        description: 'Date manipulation via the bundled Temporal-based adapter, or one you write',
         feature: 'useDate',
         category: 'utilities',
       },
       {
         id: 'notifications',
         title: 'Notifications',
-        description: 'Toast and notification system with auto-dismiss and queue management',
+        description: 'Snackbar and notification queue with auto-dismiss and timeout management',
         feature: 'useNotifications',
         category: 'utilities',
       },
@@ -144,7 +155,7 @@ const COMPONENT_LIBRARY: QuestionCategory[] = [
       {
         id: 'rules',
         title: 'Rules',
-        description: 'Reusable validation rules (required, email, min, max, pattern, custom)',
+        description: 'Name the validation aliases your forms reference (required, email, min, ...)',
         feature: 'useRules',
         category: 'forms',
       },
@@ -152,15 +163,9 @@ const COMPONENT_LIBRARY: QuestionCategory[] = [
   },
 ]
 
-const CATEGORIES: Record<Intent, QuestionCategory[]> = {
-  'component-library': COMPONENT_LIBRARY,
-  'spa': [],
-  'design-system': [],
-  'admin-dashboard': [],
-  'content-site': [],
-  'mobile-first': [],
-}
-
-export function getCategories (intent: Intent): QuestionCategory[] {
-  return CATEGORIES[intent] ?? []
+// One catalogue, not one per intent. The wizard has no intent picker, and every intent but
+// `component-library` mapped to an empty list — so keying on intent only ever produced an
+// empty screen. Reintroduce the split when there are real per-intent catalogues to show.
+export function getCategories (): QuestionCategory[] {
+  return CATEGORIES
 }

@@ -1,16 +1,16 @@
 <script setup lang="ts">
-  import { mdiCheck, mdiClose, mdiPlus } from '@mdi/js'
+  import { mdiCheck } from '@mdi/js'
 
   // Framework
-  import { Button, Checkbox, Input, Select } from '@vuetify/v0'
+  import { Button, Checkbox, Input } from '@vuetify/v0'
 
-  import { ADAPTERS, defaultConfig, SAMPLE_MESSAGES } from './defaults'
+  import { defaultConfig, SAMPLE_MESSAGES } from './defaults'
 
   // Stores
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { onBeforeUnmount, reactive, shallowRef, watch } from 'vue'
+  import { onBeforeUnmount, reactive, shallowRef, toRef, watch } from 'vue'
 
   // Types
   import type { LocaleConfig } from './defaults'
@@ -18,61 +18,57 @@
   const store = useBuilderStore()
 
   const stored = store.pluginConfig.useLocale as LocaleConfig | undefined
-  const initial = JSON.parse(JSON.stringify(stored ?? defaultConfig))
+  const initial: LocaleConfig = JSON.parse(JSON.stringify(stored ?? defaultConfig))
 
-  const state = reactive<LocaleConfig>({
+  const state = reactive({
     default: initial.default,
     fallback: initial.fallback,
-    locales: [...initial.locales],
-    adapter: initial.adapter,
-    messages: { ...initial.messages },
     persist: !!initial.persist,
   })
 
-  const messagesText = shallowRef(JSON.stringify(state.messages, null, 2))
+  const messagesText = shallowRef(JSON.stringify(initial.messages, null, 2))
   const messagesError = shallowRef('')
+  const messages = shallowRef<Record<string, Record<string, unknown>>>(initial.messages)
 
-  function addLocale () {
-    state.locales.push('')
+  // The registered languages are the keys of `messages` — createLocale has no separate list.
+  const languages = toRef(() => Object.keys(messages.value))
+
+  function parse (): Record<string, Record<string, unknown>> | null {
+    try {
+      return messagesText.value.trim() ? JSON.parse(messagesText.value) : {}
+    } catch (error) {
+      messagesError.value = (error as Error).message
+      return null
+    }
   }
 
-  function removeLocale (index: number) {
-    state.locales.splice(index, 1)
-  }
-
-  function snapshot (messages: Record<string, Record<string, unknown>>): LocaleConfig {
+  function snapshot (): LocaleConfig {
     return {
       default: state.default,
       fallback: state.fallback,
-      locales: state.locales.filter(Boolean),
-      adapter: state.adapter,
-      messages,
+      messages: messages.value,
       persist: state.persist,
     }
   }
 
   function onSave () {
-    let parsed: Record<string, Record<string, unknown>>
-    try {
-      parsed = messagesText.value.trim() ? JSON.parse(messagesText.value) : {}
-      messagesError.value = ''
-    } catch (error) {
-      messagesError.value = (error as Error).message
-      return
-    }
+    const parsed = parse()
+    if (!parsed) return
 
-    store.savePluginConfig('useLocale', snapshot(parsed))
+    messagesError.value = ''
+    messages.value = parsed
+
+    store.savePluginConfig('useLocale', snapshot())
   }
 
   watch([state, messagesText], () => {
-    let parsed: Record<string, Record<string, unknown>>
-    try {
-      parsed = messagesText.value.trim() ? JSON.parse(messagesText.value) : {}
-    } catch {
-      return
-    }
+    const parsed = parse()
+    if (!parsed) return
 
-    store.setDraft('useLocale', JSON.parse(JSON.stringify(snapshot(parsed))))
+    messagesError.value = ''
+    messages.value = parsed
+
+    store.setDraft('useLocale', JSON.parse(JSON.stringify(snapshot())))
   }, { deep: true, immediate: true })
 
   onBeforeUnmount(() => store.clearDraft('useLocale'))
@@ -82,8 +78,9 @@
   <PluginConfigShell plugin-id="useLocale" @save="onSave">
     <template #description>
       <p class="text-on-surface-variant mb-8">
-        Configure translation messages, default locale, and adapter. Messages can
-        be lazy-loaded at runtime via <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">locale.register()</code>.
+        Configure translation messages and the default locale. Each top-level key in
+        Messages registers a language; additional languages can be lazy-loaded at runtime
+        via <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">locale.register()</code>.
       </p>
     </template>
 
@@ -98,6 +95,10 @@
               placeholder="en"
             />
           </Input.Root>
+
+          <span class="block mt-1 text-xs text-on-surface-variant">
+            Selected on startup. Must match a key in Messages.
+          </span>
         </label>
 
         <label class="block">
@@ -109,104 +110,25 @@
               placeholder="en"
             />
           </Input.Root>
+
+          <span class="block mt-1 text-xs text-on-surface-variant">
+            Used when a key is missing from the active locale.
+          </span>
         </label>
       </div>
 
-      <div>
-        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Supported locales</div>
-
-        <div class="space-y-2">
-          <div
-            v-for="(_, index) in state.locales"
-            :key="index"
-            class="flex items-center gap-2"
-          >
-            <Input.Root v-model="state.locales[index]" class="flex-1">
-              <Input.Control
-                class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-                placeholder="en"
-              />
-            </Input.Root>
-
-            <Button.Root
-              class="text-on-surface-variant hover:text-error p-1"
-              @click="removeLocale(index)"
-            >
-              <Button.Icon>
-                <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
-              </Button.Icon>
-            </Button.Root>
-          </div>
-        </div>
-
-        <Button.Root
-          class="mt-3 text-sm text-primary hover:opacity-80 inline-flex items-center gap-1"
-          @click="addLocale"
+      <label class="flex items-center gap-2">
+        <Checkbox.Root
+          v-model="state.persist"
+          class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
         >
-          <Button.Icon>
-            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
-          </Button.Icon>
-          Add locale
-        </Button.Root>
-      </div>
+          <Checkbox.Indicator class="text-on-primary">
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
+          </Checkbox.Indicator>
+        </Checkbox.Root>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <label class="block">
-          <span class="text-xs uppercase tracking-wide text-on-surface-variant">Adapter</span>
-
-          <Select.Root v-model="state.adapter">
-            <Select.Activator class="mt-1 flex items-center justify-between w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
-              <Select.Value v-slot="{ selectedValue }">
-                {{ selectedValue }}
-              </Select.Value>
-
-              <Select.Placeholder class="text-on-surface-variant">Choose adapter…</Select.Placeholder>
-
-              <Select.Cue v-slot="{ isOpen }" class="text-xs opacity-50">
-                {{ isOpen ? '&#x25B4;' : '&#x25BE;' }}
-              </Select.Cue>
-            </Select.Activator>
-
-            <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
-              <Select.Item
-                v-for="kind in ADAPTERS"
-                :id="kind"
-                :key="kind"
-                :value="kind"
-              >
-                <template #default="{ isSelected, isHighlighted }">
-                  <div
-                    class="flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm"
-                    :class="[
-                      isHighlighted
-                        ? 'bg-primary text-on-primary'
-                        : isSelected
-                          ? 'text-primary font-medium'
-                          : 'text-on-surface hover:bg-surface-variant',
-                    ]"
-                  >
-                    <svg class="w-4 h-4" :class="isSelected ? 'visible' : 'invisible'" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
-                    {{ kind }}
-                  </div>
-                </template>
-              </Select.Item>
-            </Select.Content>
-          </Select.Root>
-        </label>
-
-        <label class="flex items-center gap-2 mt-5">
-          <Checkbox.Root
-            v-model="state.persist"
-            class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-          >
-            <Checkbox.Indicator class="text-on-primary">
-              <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
-            </Checkbox.Indicator>
-          </Checkbox.Root>
-
-          <span class="text-sm text-on-surface">Persist selection to storage</span>
-        </label>
-      </div>
+        <span class="text-sm text-on-surface">Persist selection to storage</span>
+      </label>
 
       <div>
         <div class="flex items-center justify-between mb-2">
@@ -223,12 +145,24 @@
         <!-- v0 has no multi-line text input; native textarea is the documented exception -->
         <textarea
           v-model="messagesText"
+          aria-label="Locale messages as JSON"
           class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
           rows="10"
           spellcheck="false"
         />
 
         <p v-if="messagesError" class="mt-1 text-xs text-error">{{ messagesError }}</p>
+
+        <p v-else class="mt-1 text-xs text-on-surface-variant">
+          <template v-if="languages.length > 0">
+            Registers {{ languages.length }} {{ languages.length === 1 ? 'language' : 'languages' }}:
+            <span class="font-mono">{{ languages.join(', ') }}</span>
+          </template>
+
+          <template v-else>
+            No languages yet — add a top-level key such as <span class="font-mono">en</span>.
+          </template>
+        </p>
       </div>
     </div>
   </PluginConfigShell>

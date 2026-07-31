@@ -14,7 +14,8 @@
     "@vuetify/v0": "workspace:*",
     "fflate": "catalog:",
     "pinia": "catalog:",
-    "vue": "catalog:"
+    "vue": "catalog:",
+    "vue-router": "catalog:"
   },
   "devDependencies": {
     "tsx": "catalog:",
@@ -22,7 +23,6 @@
     "unplugin-vue": "catalog:",
     "unplugin-vue-components": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-vue-layouts-next": "catalog:",
-    "vue-router": "catalog:"
+    "vite-plugin-vue-layouts-next": "catalog:"
   }
 }

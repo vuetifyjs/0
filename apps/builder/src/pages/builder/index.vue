@@ -16,7 +16,7 @@
   const store = useBuilderStore()
   const router = useRouter()
 
-  const categories = toRef(() => getCategories('component-library'))
+  const categories = toRef(() => getCategories())
 
   function onContinue () {
     router.push('/builder/configure')
@@ -36,7 +36,8 @@
       <Button.Icon>
         <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
       </Button.Icon>
-      Back
+
+      <Button.Content>Back</Button.Content>
     </Button.Root>
 
     <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">

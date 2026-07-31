@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiCheck } from '@mdi/js'
+  import { mdiCheck, mdiMinus, mdiPlus } from '@mdi/js'
 
   // Framework
   import { Checkbox, Input, NumberField } from '@vuetify/v0'
@@ -84,7 +84,7 @@
 
         <NumberField.Root v-model="state.ttl" class="flex w-full" :disabled="!ttlEnabled" :min="0">
           <NumberField.Decrement class="px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
-            &minus;
+            <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiMinus" fill="currentColor" /></svg>
           </NumberField.Decrement>
 
           <NumberField.Control
@@ -93,7 +93,7 @@
           />
 
           <NumberField.Increment class="px-3 py-2 border border-divider rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
-            +
+            <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
           </NumberField.Increment>
         </NumberField.Root>
 
