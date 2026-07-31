@@ -1,3 +1,6 @@
+// Plugins
+import { KNOWN_ALIASES } from '@/plugins/rules/defaults'
+
 // Types
 import type { FrameworkManifest } from '@/data/types'
 
@@ -28,9 +31,31 @@ const FACTORY: Record<string, string> = {
   useDate: 'createDatePlugin',
   useNotifications: 'createNotificationsPlugin',
   useRules: 'createRulesPlugin',
+  useReducedMotion: 'createReducedMotionPlugin',
+  useTooltip: 'createTooltipPlugin',
 }
 
-const PLUGIN_IDS = Object.keys(FACTORY)
+// Install order, not declaration order. A plugin that another resolves at
+// install time has to be installed first: `persist: true` reads the
+// `v0:storage` context inside provide() (createPlugin's getPersistedStorage,
+// which throws rather than falling back), and createRules reads locale.
+const ORDER = [
+  'useHydration',
+  'useStorage',
+  'useLogger',
+  'useBreakpoints',
+  'useRtl',
+  'useTheme',
+  'useLocale',
+  'useDate',
+  'useRules',
+  'usePermissions',
+  'useFeatures',
+  'useStack',
+  'useNotifications',
+  'useReducedMotion',
+  'useTooltip',
+]
 
 // Per-plugin adapter handler. The `adapter` slot in saved config is a STRING
 // (e.g. 'V0DateAdapter', 'none', 'KnockNotificationsAdapter'), but the
@@ -165,15 +190,18 @@ const ADAPTER_HANDLERS: Record<string, AdapterHandler | undefined> = {
 // Plugins whose saved config is constrained to a known option contract. Any
 // other key in the store is dropped rather than emitted as an invalid option.
 const KEYS: Record<string, string[]> = {
-  useLocale: ['default', 'fallback', 'messages'],
+  useLocale: ['default', 'fallback', 'messages', 'persist'],
   usePermissions: ['permissions'],
+  useReducedMotion: ['mode', 'persist'],
   useRules: ['aliases'],
-  useTheme: ['default', 'foreground', 'palette', 'rgb', 'target', 'themes'],
+  useTheme: ['default', 'foreground', 'palette', 'persist', 'rgb', 'target', 'themes'],
+  useTooltip: ['openDelay', 'closeDelay', 'skipDelay', 'disabled'],
 }
 
-// Source text for the rule aliases the builder offers. RulesOptions.aliases is
-// a map of name → predicate function, so these cannot be JSON-serialized —
-// each selected alias is emitted as a real implementation.
+// Predicate source for each name in KNOWN_ALIASES. RulesOptions.aliases maps a
+// name to a function, so these cannot be JSON-serialized — every selected alias
+// is emitted as a real implementation. The rules form owns the name list; a
+// name added there without an entry here emits a stub, which the tests catch.
 const ALIASES: Record<string, string> = {
   required: `(v: unknown) => (v !== null && v !== undefined && v !== '') || 'This field is required'`,
   email: String.raw`(v: unknown) => /.+@.+\..+/.test(String(v ?? '')) || 'Must be a valid email'`,
@@ -237,8 +265,8 @@ function formatAliases (names: unknown): string | null {
   const lines = names
     .filter((name): name is string => typeof name === 'string')
     .map(name => {
-      const body = ALIASES[name] ?? `(v: unknown) => true /* TODO: implement */`
-      return `    ${name}: ${body},`
+      const known = KNOWN_ALIASES.includes(name) && ALIASES[name]
+      return `    ${name}: ${known || `(v: unknown) => true /* TODO: implement */`},`
     })
 
   if (lines.length === 0) return null
@@ -305,8 +333,19 @@ function toSet (value: Set<string> | string[]): Set<string> {
   return value instanceof Set ? value : new Set(value)
 }
 
-function selectedPluginIds (selected: Set<string>): string[] {
-  return PLUGIN_IDS.filter(id => selected.has(id))
+function selectedPluginIds (
+  selected: Set<string>,
+  pluginConfig: Record<string, unknown> = {},
+): string[] {
+  const ids = ORDER.filter(id => selected.has(id))
+
+  // Persistence has no fallback storage — without the storage plugin the
+  // generated app throws on boot, so opting into `persist` opts into storage.
+  const persists = ids.some(id => prune(id, toRecord(pluginConfig[id])).persist === true)
+
+  if (!persists || selected.has('useStorage')) return ids
+
+  return ORDER.filter(id => selected.has(id) || id === 'useStorage')
 }
 
 // Group `name` entries by their source module so each module is imported once.
@@ -346,7 +385,7 @@ export function generateMainTs (
   pluginConfig: Record<string, unknown>,
 ): string {
   const selected = toSet(selectedPlugins)
-  const ids = selectedPluginIds(selected)
+  const ids = selectedPluginIds(selected, pluginConfig)
 
   const values: Array<{ name: string, from: string }> = []
   const types: Array<{ name: string, from: string }> = []
@@ -387,7 +426,7 @@ export function collectDependencies (
   const selected = toSet(selectedPlugins)
   const deps: Record<string, string> = {}
 
-  for (const id of selectedPluginIds(selected)) {
+  for (const id of selectedPluginIds(selected, pluginConfig)) {
     for (const name of emitPluginCall(id, FACTORY[id], pluginConfig[id]).adapters) {
       Object.assign(deps, ADAPTER_DEPS[name] ?? {}, BYOC[name]?.deps ?? {})
     }
