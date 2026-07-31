@@ -153,12 +153,18 @@
         <label class="block">
           <span class="text-xs uppercase tracking-wide text-on-surface-variant">First day of week</span>
 
-          <NumberField.Root v-model="state.firstDayOfWeek" :max="6" :min="0">
+          <NumberField.Root
+            v-model="state.firstDayOfWeek"
+            class="flex w-full"
+            label="First day of week, 0 is Sunday"
+            :max="6"
+            :min="0"
+          >
             <NumberField.Decrement class="mt-1 px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
               <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiMinus" fill="currentColor" /></svg>
             </NumberField.Decrement>
 
-            <NumberField.Control class="mt-1 w-full text-center border-y border-divider py-2 outline-none bg-surface text-on-surface text-sm font-mono" />
+            <NumberField.Control class="mt-1 flex-1 min-w-0 text-center border-y border-divider py-2 outline-none bg-surface text-on-surface text-sm font-mono" />
 
             <NumberField.Increment class="mt-1 px-3 py-2 border border-divider rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
               <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>

@@ -2,7 +2,7 @@
   import { mdiArrowLeft } from '@mdi/js'
 
   // Framework
-  import { Button } from '@vuetify/v0'
+  import { Button, Toggle } from '@vuetify/v0'
 
   import { getCategories } from '@/data/questions'
 
@@ -59,15 +59,16 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <Button.Root
+          <Toggle.Root
             v-for="question in category.questions"
             :key="question.id"
+            :aria-label="question.title"
             class="p-4 rounded-lg border text-left transition-all"
             :class="store.isPluginSelected(question.feature)
               ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
               : 'border-divider bg-surface hover:border-on-surface-variant/40'"
-            :data-selected="store.isPluginSelected(question.feature) || undefined"
-            @click="store.togglePlugin(question.feature)"
+            :model-value="store.isPluginSelected(question.feature)"
+            @update:model-value="store.togglePlugin(question.feature)"
           >
             <div class="flex items-start justify-between gap-2 mb-2">
               <h4 class="font-semibold text-sm">{{ question.title }}</h4>
@@ -83,7 +84,7 @@
             </div>
 
             <p class="text-xs text-on-surface-variant leading-relaxed">{{ question.description }}</p>
-          </Button.Root>
+          </Toggle.Root>
         </div>
       </div>
     </div>

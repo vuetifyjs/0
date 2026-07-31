@@ -2,10 +2,10 @@
   import { mdiArrowLeft, mdiStar } from '@mdi/js'
 
   // Framework
-  import { Button } from '@vuetify/v0'
+  import { Button, Toggle } from '@vuetify/v0'
 
-  import maturity from '#v0/maturity.json'
   import { recommendedFor, reasonsFor } from '@/data/component-recommendations'
+  import { COMPONENTS } from '@/data/components'
   import { PLUGINS } from '@/data/plugins'
 
   // Stores
@@ -15,16 +15,18 @@
   import { toRef } from 'vue'
   import { useRouter } from 'vue-router'
 
-  interface ComponentEntry {
-    id: string
-    category: string
-  }
+  // Types
+  import type { ComponentEntry } from '@/data/components'
 
   interface CategoryGroup {
     id: string
     title: string
     components: ComponentEntry[]
   }
+
+  // Above this share of the catalogue the "Recommended" list stops being a shortlist and
+  // just mirrors the full picker below it, so it's hidden instead.
+  const RECOMMENDED_MAX = 10
 
   const store = useBuilderStore()
   const router = useRouter()
@@ -39,12 +41,7 @@
     { id: 'semantic', title: 'Semantic' },
   ]
 
-  const components = toRef((): ComponentEntry[] => {
-    const raw = maturity.components as unknown as Record<string, { category: string }>
-    return Object.entries(raw)
-      .map(([id, entry]) => ({ id, category: entry.category }))
-      .toSorted((a, b) => a.id.localeCompare(b.id))
-  })
+  const components = toRef((): ComponentEntry[] => COMPONENTS)
 
   const groups = toRef((): CategoryGroup[] => {
     const map = new Map<string, ComponentEntry[]>()
@@ -67,21 +64,35 @@
 
   const recommendedIds = toRef(() => recommendedFor(store.selectedPlugins))
 
+  // Ranked by how many of the selected plugins call for the component, so a shortlist
+  // stays a shortlist as more plugins are added. Draft entries can't be selected, so they
+  // never appear here.
   const recommendedList = toRef((): ComponentEntry[] => {
     const ids = recommendedIds.value
     if (ids.size === 0) return []
+
     const byId = new Map(components.value.map(c => [c.id, c]))
-    const out: ComponentEntry[] = []
+    const out: Array<{ entry: ComponentEntry, weight: number }> = []
+
     for (const id of ids) {
-      // Only show recommended entries that actually exist in v0 today
       const entry = byId.get(id)
-      if (entry) out.push(entry)
+      if (!entry?.selectable) continue
+      out.push({ entry, weight: reasonsFor(id, store.selectedPlugins).length })
     }
-    return out.toSorted((a, b) => a.id.localeCompare(b.id))
+
+    return out
+      .toSorted((a, b) => b.weight - a.weight || a.entry.id.localeCompare(b.entry.id))
+      .slice(0, RECOMMENDED_MAX)
+      .map(row => row.entry)
   })
 
-  const showRecommended = toRef(
-    () => store.selectedPlugins.size > 0 && recommendedList.value.length > 0,
+  const selectableCount = toRef(() => components.value.filter(c => c.selectable).length)
+
+  // Hide the section when it would just restate most of the catalogue.
+  const showRecommended = toRef(() =>
+    store.selectedPlugins.size > 0
+    && recommendedList.value.length > 0
+    && recommendedIds.value.size <= selectableCount.value / 2,
   )
 
   const lastSelectedPlugin = toRef(() => {
@@ -141,15 +152,16 @@
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        <Button.Root
+        <Toggle.Root
           v-for="component in recommendedList"
           :key="`rec-${component.id}`"
+          :aria-label="component.id"
           class="p-3 rounded-lg border text-left transition-all"
           :class="store.isComponentSelected(component.id)
             ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
             : 'border-divider bg-surface hover:border-on-surface-variant/40'"
-          :data-selected="store.isComponentSelected(component.id) || undefined"
-          @click="store.toggleComponent(component.id)"
+          :model-value="store.isComponentSelected(component.id)"
+          @update:model-value="store.toggleComponent(component.id)"
         >
           <div class="flex items-start justify-between gap-2">
             <div class="min-w-0">
@@ -169,7 +181,7 @@
               </svg>
             </div>
           </div>
-        </Button.Root>
+        </Toggle.Root>
       </div>
     </div>
 
@@ -183,19 +195,34 @@
         <h4 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">{{ group.title }}</h4>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-          <Button.Root
+          <Toggle.Root
             v-for="component in group.components"
             :key="component.id"
+            :aria-label="component.selectable ? component.id : `${component.id}, draft, not yet available`"
             class="px-3 py-2 rounded-lg border text-left transition-all flex items-center justify-between gap-2"
-            :class="store.isComponentSelected(component.id)
-              ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
-              : 'border-divider bg-surface hover:border-on-surface-variant/40'"
-            :data-selected="store.isComponentSelected(component.id) || undefined"
-            @click="store.toggleComponent(component.id)"
+            :class="[
+              !component.selectable
+                ? 'border-divider bg-surface-variant/40 opacity-60 cursor-not-allowed'
+                : store.isComponentSelected(component.id)
+                  ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                  : 'border-divider bg-surface hover:border-on-surface-variant/40',
+            ]"
+            :disabled="!component.selectable"
+            :model-value="store.isComponentSelected(component.id)"
+            :title="component.selectable ? undefined : `${component.id} is on the roadmap but is not exported from @vuetify/v0 yet`"
+            @update:model-value="store.toggleComponent(component.id)"
           >
             <span class="text-sm font-medium truncate">{{ component.id }}</span>
 
+            <span
+              v-if="!component.selectable"
+              class="px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide border border-divider text-on-surface-variant flex-shrink-0"
+            >
+              draft
+            </span>
+
             <div
+              v-else
               class="w-4 h-4 rounded flex-shrink-0 flex items-center justify-center transition-colors"
               :class="store.isComponentSelected(component.id) ? 'bg-primary' : 'border border-divider'"
             >
@@ -203,7 +230,7 @@
                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
               </svg>
             </div>
-          </Button.Root>
+          </Toggle.Root>
         </div>
       </div>
     </div>
