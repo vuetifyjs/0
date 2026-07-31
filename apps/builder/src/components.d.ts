@@ -17,6 +17,7 @@ declare module 'vue' {
     Icon: typeof import('./components/app/Icon.vue')['default']
     MiniFrame: typeof import('./components/preview/MiniFrame.vue')['default']
     PluginConfigShell: typeof import('./components/PluginConfigShell.vue')['default']
+    PluginInfo: typeof import('./components/PluginInfo.vue')['default']
     PreviewBreakpoints: typeof import('./components/preview/PreviewBreakpoints.vue')['default']
     PreviewDate: typeof import('./components/preview/PreviewDate.vue')['default']
     PreviewFeatures: typeof import('./components/preview/PreviewFeatures.vue')['default']
