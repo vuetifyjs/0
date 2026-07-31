@@ -26,10 +26,26 @@ export const useBuilderStore = defineStore('builder', () => {
   const selectedComponents = shallowRef<Set<string>>(new Set())
   const componentConfig = shallowRef<Record<string, unknown>>({})
 
-  // Set while state is swapped wholesale (hydrate, switch, delete). The persist watcher
-  // runs on the next tick, so without this the outgoing build's contents would be written
-  // over the incoming build the moment the refs are assigned.
-  const swapping = shallowRef(false)
+  // Number of open() calls in flight. The persist watcher runs on the next tick, so
+  // without suppressing it during a swap the outgoing build's contents would be written
+  // over the incoming build the moment the refs are assigned. A counter rather than a
+  // boolean because concurrent opens overlap — the first to finish must not un-suppress
+  // while a later one is still mid-flight.
+  const swapping = shallowRef(0)
+
+  // Monotonic request token. Every open() captures one and re-checks it after each await;
+  // a stale continuation performs no writes at all. Without this, two overlapping switches
+  // interleave and the loser's purge-flush writes the winner's state into the loser's
+  // build — silent cross-build data loss.
+  let token = 0
+  let requested: string | null = null
+
+  const isSaving = shallowRef(false)
+  const saveError = shallowRef<string | null>(null)
+
+  function fail (error: unknown, action: string) {
+    saveError.value = `Could not ${action}: ${error instanceof Error ? error.message : String(error)}`
+  }
 
   const draft = shallowRef<{ id: string, config: unknown } | null>(null)
 
@@ -45,8 +61,6 @@ export const useBuilderStore = defineStore('builder', () => {
   }
 
   async function apply (state: BuildState) {
-    swapping.value = true
-
     selectedPlugins.value = new Set(state.selectedPlugins)
     pluginConfig.value = { ...state.pluginConfig }
     // Restored state can name components since reclassified as draft (or removed). They
@@ -55,47 +69,73 @@ export const useBuilderStore = defineStore('builder', () => {
     componentConfig.value = { ...state.componentConfig }
 
     await nextTick()
-    swapping.value = false
   }
 
   async function open (id: string) {
-    const state = await backend.load(id)
+    const mine = ++token
+    requested = id
+    swapping.value++
 
-    activeId.value = id
-    await backend.setActive(id)
-    await apply(state ?? EMPTY_BUILD)
+    try {
+      const state = await backend.load(id)
+      if (mine !== token) return
 
-    // A purge on load has to be flushed explicitly — the persist watcher only fires on a
-    // later edit, so the dropped ids would otherwise linger in storage.
-    if (state && state.selectedComponents.length !== selectedComponents.value.size) {
-      await backend.save(id, snapshot())
+      activeId.value = id
+      await backend.setActive(id)
+      if (mine !== token) return
+
+      await apply(state ?? EMPTY_BUILD)
+      if (mine !== token) return
+
+      // A purge on load has to be flushed explicitly — the persist watcher only fires on a
+      // later edit, so the dropped ids would otherwise linger in storage. Guarded by the
+      // token: writing here from a superseded request would put the newer build's state
+      // into this older build.
+      if (state && state.selectedComponents.length !== selectedComponents.value.size) {
+        await backend.save(id, snapshot())
+      }
+    } catch (error) {
+      if (mine === token) fail(error, 'open that build')
+    } finally {
+      swapping.value--
     }
   }
 
   async function refresh () {
-    builds.value = await backend.list()
+    try {
+      builds.value = await backend.list()
+    } catch (error) {
+      fail(error, 'list your builds')
+    }
   }
 
   async function hydrate () {
-    builds.value = await backend.list()
+    try {
+      builds.value = await backend.list()
 
-    if (builds.value.length === 0) {
-      const entry = await backend.create('Build 1')
-      builds.value = [entry]
+      if (builds.value.length === 0) {
+        const entry = await backend.create('Build 1')
+        builds.value = [entry]
+      }
+
+      const stored = await backend.activeId()
+      const target = builds.value.some(entry => entry.id === stored) ? stored! : builds.value[0]!.id
+
+      await open(target)
+    } catch (error) {
+      fail(error, 'load your builds')
     }
-
-    const stored = await backend.activeId()
-    const target = builds.value.some(entry => entry.id === stored) ? stored! : builds.value[0]!.id
-
-    await open(target)
   }
 
   // Exposed so the router guard can wait for state before deciding a redirect — a deep
-  // link would otherwise be bounced to /builder because nothing had loaded yet.
+  // link would otherwise be bounced to /builder because nothing had loaded yet. hydrate()
+  // swallows its own failures, so awaiting this can never reject the guard.
   const ready = hydrate()
 
   async function switchTo (id: string) {
-    if (id === activeId.value) return
+    // Compares against the latest *requested* id, not activeId: activeId lags behind an
+    // in-flight open, so a second click would otherwise be dropped as a no-op.
+    if (id === (requested ?? activeId.value)) return
 
     draft.value = null
     await open(id)
@@ -103,41 +143,54 @@ export const useBuilderStore = defineStore('builder', () => {
   }
 
   async function createBuild () {
-    const entry = await backend.create(`Build ${builds.value.length + 1}`)
+    try {
+      const entry = await backend.create(`Build ${builds.value.length + 1}`)
 
-    draft.value = null
-    await refresh()
-    await open(entry.id)
+      draft.value = null
+      await refresh()
+      await open(entry.id)
 
-    return entry
+      return entry
+    } catch (error) {
+      fail(error, 'create a build')
+      return null
+    }
   }
 
   async function renameBuild (id: string, name: string) {
     const trimmed = name.trim()
     if (!trimmed) return
 
-    await backend.rename(id, trimmed)
-    await refresh()
+    try {
+      await backend.rename(id, trimmed)
+      await refresh()
+    } catch (error) {
+      fail(error, 'rename that build')
+    }
   }
 
   // Deleting the build you are standing in has to leave you somewhere: the next most
   // recent build, or a fresh one when that was the last.
   async function removeBuild (id: string) {
-    await backend.remove(id)
-    await refresh()
-
-    if (id !== activeId.value) return
-
-    draft.value = null
-
-    if (builds.value.length === 0) {
-      const entry = await backend.create('Build 1')
+    try {
+      await backend.remove(id)
       await refresh()
-      await open(entry.id)
-      return
-    }
 
-    await open(builds.value[0]!.id)
+      if (id !== activeId.value) return
+
+      draft.value = null
+
+      if (builds.value.length === 0) {
+        const entry = await backend.create('Build 1')
+        await refresh()
+        await open(entry.id)
+        return
+      }
+
+      await open(builds.value[0]!.id)
+    } catch (error) {
+      fail(error, 'delete that build')
+    }
   }
 
   function setDraft (id: string, config: unknown) {
@@ -207,18 +260,38 @@ export const useBuilderStore = defineStore('builder', () => {
 
   /** Empties the active build. The build itself survives — use removeBuild to delete it. */
   async function reset () {
-    await apply(EMPTY_BUILD)
+    swapping.value++
 
-    if (activeId.value) await backend.save(activeId.value, snapshot())
+    try {
+      await apply(EMPTY_BUILD)
+
+      if (activeId.value) await backend.save(activeId.value, snapshot())
+    } catch (error) {
+      fail(error, 'clear that build')
+    } finally {
+      swapping.value--
+    }
   }
 
+  // Autosave. Captures the build id it is writing for so a swap that starts mid-write
+  // cannot redirect the write to the newly opened build.
   watch(
     [selectedPlugins, pluginConfig, selectedComponents, componentConfig],
     async () => {
-      if (swapping.value || !activeId.value) return
+      if (swapping.value > 0 || !activeId.value) return
 
-      await backend.save(activeId.value, snapshot())
-      await refresh()
+      const target = activeId.value
+      isSaving.value = true
+
+      try {
+        await backend.save(target, snapshot())
+        saveError.value = null
+        await refresh()
+      } catch (error) {
+        fail(error, 'save your changes')
+      } finally {
+        isSaving.value = false
+      }
     },
     { deep: true },
   )
@@ -228,6 +301,8 @@ export const useBuilderStore = defineStore('builder', () => {
     activeId,
     active,
     ready,
+    isSaving,
+    saveError,
     selectedPlugins,
     pluginConfig,
     selectedComponents,

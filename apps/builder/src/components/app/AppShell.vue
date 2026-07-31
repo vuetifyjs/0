@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiEye, mdiGithub } from '@mdi/js'
+  import { mdiAlertCircleOutline, mdiEye, mdiGithub } from '@mdi/js'
 
   // Framework
   import { Button, Dialog, useBreakpoints } from '@vuetify/v0'
@@ -8,6 +8,9 @@
   import BuildSwitcher from './BuildSwitcher.vue'
   import Icon from './Icon.vue'
   import ThemeToggle from './ThemeToggle.vue'
+
+  // Stores
+  import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
   import { shallowRef, toRef, watch } from 'vue'
@@ -25,6 +28,7 @@
 
   const router = useRouter()
   const route = useRoute()
+  const store = useBuilderStore()
 
   const breakpoints = useBreakpoints()
   const mobile = toRef(() => breakpoints.width.value < (mobileBreakpoint ?? 1024))
@@ -82,6 +86,17 @@
           Preview
         </Button.Root>
       </div>
+
+      <!-- Autosave is silent by design; it only speaks up when a write fails, so the user
+           knows their work is not being kept before they lose any of it. -->
+      <p
+        v-if="store.saveError"
+        class="flex items-center gap-2 px-4 sm:px-6 py-2 border-t border-divider bg-error/10 text-error t-meta"
+        role="status"
+      >
+        <Icon :path="mdiAlertCircleOutline" :size="14" />
+        {{ store.saveError }}
+      </p>
     </header>
 
     <div v-if="split" class="flex-1 flex flex-col lg:flex-row">
