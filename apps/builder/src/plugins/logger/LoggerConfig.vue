@@ -10,7 +10,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { reactive } from 'vue'
+  import { onBeforeUnmount, reactive, watch } from 'vue'
 
   // Types
   import type { LoggerConfig } from './defaults'
@@ -27,15 +27,26 @@
     enabled: initial.enabled,
   })
 
-  function onSave () {
-    const config: LoggerConfig = {
+  function snapshot (): LoggerConfig {
+    return {
       level: state.level,
       adapter: state.adapter,
       prefix: state.prefix,
       enabled: state.enabled,
     }
-    store.savePluginConfig('useLogger', config)
   }
+
+  function onSave () {
+    store.savePluginConfig('useLogger', snapshot())
+  }
+
+  watch(state, () => {
+    store.setDraft('useLogger', JSON.parse(JSON.stringify(snapshot())))
+  }, { deep: true, immediate: true })
+
+  onBeforeUnmount(() => {
+    store.clearDraft('useLogger')
+  })
 </script>
 
 <template>

@@ -10,7 +10,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { reactive } from 'vue'
+  import { onBeforeUnmount, reactive, watch } from 'vue'
 
   // Types
   import type { NotificationsAdapter, NotificationsConfig } from './defaults'
@@ -30,14 +30,25 @@
     return adapter === 'none' ? 'None (toasts work without an external service)' : adapter
   }
 
-  function onSave () {
-    const config: NotificationsConfig = {
+  function snapshot (): NotificationsConfig {
+    return {
       timeout: state.timeout,
       namespace: state.namespace,
       adapter: state.adapter,
     }
-    store.savePluginConfig('useNotifications', config)
   }
+
+  function onSave () {
+    store.savePluginConfig('useNotifications', snapshot())
+  }
+
+  watch(state, () => {
+    store.setDraft('useNotifications', JSON.parse(JSON.stringify(snapshot())))
+  }, { deep: true, immediate: true })
+
+  onBeforeUnmount(() => {
+    store.clearDraft('useNotifications')
+  })
 </script>
 
 <template>

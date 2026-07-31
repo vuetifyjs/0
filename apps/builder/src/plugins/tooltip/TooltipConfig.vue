@@ -10,7 +10,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { reactive } from 'vue'
+  import { onBeforeUnmount, reactive, watch } from 'vue'
 
   // Types
   import type { TooltipConfig } from './defaults'
@@ -27,14 +27,26 @@
     disabled: !!initial.disabled,
   })
 
-  function onSave () {
-    store.savePluginConfig('useTooltip', {
+  function snapshot (): TooltipConfig {
+    return {
       openDelay: state.openDelay,
       closeDelay: state.closeDelay,
       skipDelay: state.skipDelay,
       disabled: state.disabled,
-    } satisfies TooltipConfig)
+    }
   }
+
+  function onSave () {
+    store.savePluginConfig('useTooltip', snapshot())
+  }
+
+  watch(state, () => {
+    store.setDraft('useTooltip', JSON.parse(JSON.stringify(snapshot())))
+  }, { deep: true, immediate: true })
+
+  onBeforeUnmount(() => {
+    store.clearDraft('useTooltip')
+  })
 </script>
 
 <template>

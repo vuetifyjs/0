@@ -10,7 +10,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { reactive } from 'vue'
+  import { onBeforeUnmount, reactive, watch } from 'vue'
 
   // Types
   import type { PermissionRule, PermissionsConfig } from './defaults'
@@ -55,7 +55,7 @@
     state.roles[roleIndex].rules.splice(ruleIndex, 1)
   }
 
-  function onSave () {
+  function snapshot (): PermissionsConfig {
     const permissions: Record<string, PermissionRule[]> = {}
 
     for (const row of state.roles) {
@@ -67,9 +67,20 @@
         .filter(([actions, subjects]) => actions.length > 0 && subjects.length > 0)
     }
 
-    const config: PermissionsConfig = { permissions }
-    store.savePluginConfig('usePermissions', config)
+    return { permissions }
   }
+
+  function onSave () {
+    store.savePluginConfig('usePermissions', snapshot())
+  }
+
+  watch(state, () => {
+    store.setDraft('usePermissions', JSON.parse(JSON.stringify(snapshot())))
+  }, { deep: true, immediate: true })
+
+  onBeforeUnmount(() => {
+    store.clearDraft('usePermissions')
+  })
 </script>
 
 <template>

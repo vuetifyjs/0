@@ -10,7 +10,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { reactive } from 'vue'
+  import { onBeforeUnmount, reactive, watch } from 'vue'
 
   // Types
   import type { StackConfig } from './defaults'
@@ -25,13 +25,24 @@
     increment: initial.increment,
   })
 
-  function onSave () {
-    const config: StackConfig = {
+  function snapshot (): StackConfig {
+    return {
       baseZIndex: state.baseZIndex,
       increment: state.increment,
     }
-    store.savePluginConfig('useStack', config)
   }
+
+  function onSave () {
+    store.savePluginConfig('useStack', snapshot())
+  }
+
+  watch(state, () => {
+    store.setDraft('useStack', JSON.parse(JSON.stringify(snapshot())))
+  }, { deep: true, immediate: true })
+
+  onBeforeUnmount(() => {
+    store.clearDraft('useStack')
+  })
 </script>
 
 <template>

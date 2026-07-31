@@ -15,7 +15,10 @@
   const { mobileBreakpoint } = defineProps<{
     /** Toggle the split-pane layout. When false the shell renders content full-width. */
     split?: boolean
-    /** Forwarded breakpoint for switching from sidebar to drawer. */
+    /**
+     * Width below which the preview aside collapses into the header-triggered drawer.
+     * Must track the aside's own width, or tablets land in a gap with no way to reach it.
+     */
     mobileBreakpoint?: number
   }>()
 
@@ -23,7 +26,7 @@
   const route = useRoute()
 
   const breakpoints = useBreakpoints()
-  const mobile = toRef(() => breakpoints.width.value < (mobileBreakpoint ?? 768))
+  const mobile = toRef(() => breakpoints.width.value < (mobileBreakpoint ?? 1024))
 
   const previewOpen = shallowRef(false)
 
@@ -84,7 +87,7 @@
 
       <aside
         v-if="!mobile"
-        class="hidden lg:flex flex-col w-[420px] xl:w-[480px] border-l border-divider bg-surface/40"
+        class="flex flex-col w-[420px] xl:w-[480px] border-l border-divider bg-surface/40"
       >
         <div class="sticky top-14 max-h-[calc(100vh-3.5rem)] overflow-y-auto">
           <slot name="preview" />

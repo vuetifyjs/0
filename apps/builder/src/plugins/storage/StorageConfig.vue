@@ -10,7 +10,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { reactive, shallowRef } from 'vue'
+  import { onBeforeUnmount, reactive, shallowRef, watch } from 'vue'
 
   // Types
   import type { StorageConfig } from './defaults'
@@ -32,13 +32,24 @@
     state.ttl = next ? (state.ttl ?? 60_000) : undefined
   }
 
-  function onSave () {
-    const config: StorageConfig = {
+  function snapshot (): StorageConfig {
+    return {
       prefix: state.prefix,
       ttl: ttlEnabled.value ? state.ttl : undefined,
     }
-    store.savePluginConfig('useStorage', config)
   }
+
+  function onSave () {
+    store.savePluginConfig('useStorage', snapshot())
+  }
+
+  watch([state, ttlEnabled], () => {
+    store.setDraft('useStorage', JSON.parse(JSON.stringify(snapshot())))
+  }, { deep: true, immediate: true })
+
+  onBeforeUnmount(() => {
+    store.clearDraft('useStorage')
+  })
 </script>
 
 <template>
