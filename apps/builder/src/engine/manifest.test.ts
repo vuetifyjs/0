@@ -1,14 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
+import maturity from '#v0/maturity.json'
 import { KNOWN_ALIASES } from '@/plugins/rules/defaults'
 
 import {
   collectDependencies,
+  collectTokens,
   generateDateStub,
   generateFiles,
   generateFramework,
   generateImports,
   generateMainTs,
+  generateUnoConfig,
   needsDateStub,
   toHashData,
 } from './manifest'
@@ -67,10 +70,14 @@ describe('generateFiles', () => {
     expect(files['src/App.vue']).toContain('framework.ts')
   })
 
-  it('should show the feature count in App.vue', () => {
+  // The headline used to count everything requested, including resolved
+  // dependencies and draft picks that never reach the framework file.
+  it('should count what framework.ts actually exports', () => {
     const files = build(['createSingle', 'useTheme'], ['createContext', 'createModel'])
+    const exported = files['src/framework.ts'].match(/^export const /gm) ?? []
 
-    expect(files['src/App.vue']).toContain('4 features loaded')
+    expect(exported.length).toBeGreaterThan(0)
+    expect(files['src/App.vue']).toContain(`${exported.length} features loaded`)
   })
 
   it('should generate demos from component selections alone', () => {
@@ -412,11 +419,146 @@ describe('generateDateStub', () => {
   })
 })
 
+describe('draft features', () => {
+  const DRAFT = [
+    'DatePicker', 'DateRangePicker', 'Otp', 'TimePicker', 'Alert',
+    'DataGrid', 'DataTable', 'Kanban', 'Virtualizer', 'Tour',
+  ]
+
+  // These are on the roadmap but not exported from @vuetify/v0, so emitting one
+  // fails the starter build with TS2551.
+  it('should match the draft set in maturity.json', () => {
+    const drafts = Object.entries(maturity.components as Record<string, { level: string }>)
+      .filter(([, entry]) => entry.level === 'draft')
+      .map(([id]) => id)
+
+    expect(drafts.toSorted()).toEqual(DRAFT.toSorted())
+  })
+
+  it.each(DRAFT)('should not export %s from framework.ts', component => {
+    const files = build([component, 'Button'])
+
+    expect(files['src/framework.ts']).not.toContain(`v0.${component}`)
+    expect(files['src/framework.ts']).toContain('export const Button = v0.Button')
+  })
+
+  it('should keep draft picks out of the playground payload too', () => {
+    const data = toHashData({ intent: 'spa', features: ['DataTable', 'Button'], resolved: [], adapters: {} })
+
+    expect(data.files['src/framework.ts']).not.toContain('DataTable')
+  })
+})
+
+describe('generateUnoConfig', () => {
+  it('should map every demo token to its v0 CSS variable', () => {
+    const source = generateUnoConfig()
+
+    for (const token of ['primary', 'surface', 'divider', 'on-primary', 'on-surface-variant']) {
+      expect(source).toContain(`'${token}': 'var(--v0-${token},`)
+    }
+  })
+
+  // useTheme writes no variable for a token the palette omits, and an undefined
+  // one invalidates the whole color-mix() — the element renders black.
+  it('should give standard tokens a fallback so a partial palette still paints', () => {
+    const source = generateUnoConfig({ useTheme: { themes: { light: { colors: { primary: '#3b82f6' } } } } })
+
+    expect(source).toContain(`'divider': 'var(--v0-divider, #e0e0e0)'`)
+    expect(source).toContain(`'on-surface': 'var(--v0-on-surface, #212121)'`)
+  })
+
+  it('should not invent a fallback for a token the user defined', () => {
+    const config = { useTheme: { themes: { light: { colors: { brand: '#ff0000' } } } } }
+
+    expect(generateUnoConfig(config)).toContain(`'brand': 'var(--v0-brand)'`)
+  })
+
+  it('should default the border color so bare border classes resolve', () => {
+    expect(generateUnoConfig()).toContain(`DEFAULT: 'var(--v0-divider, #e0e0e0)'`)
+  })
+
+  // The demos previously styled borders with `outline`, a token the theme screen
+  // never defines, so every border rendered as the browser default.
+  it('should only paint with tokens the theme actually defines', () => {
+    const tokens = new Set(collectTokens({}))
+    // Preset colors, plus the border sides and styles that share the `border-`
+    // prefix without naming a color.
+    const builtin = new Set([
+      'transparent', 'current', 'black', 'white', 'inherit',
+      't', 'r', 'b', 'l', 'x', 'y', 's', 'e',
+      'solid', 'dashed', 'dotted', 'double', 'hidden', 'none',
+    ])
+
+    const demos = Object.values(build([
+      'createForm', 'createPagination', 'createStep', 'createDataTable',
+      'createFilter', 'createVirtual', 'Dialog', 'Tabs', 'useResizeObserver',
+    ])).filter(code => code.includes('<template>'))
+
+    const unknown = new Set<string>()
+
+    for (const code of demos) {
+      // bg- and border- are unambiguously color positions; text- also carries
+      // sizes and alignment, so only its on-* color tokens are checked.
+      for (const [, token] of code.matchAll(/\b(?:bg|border)-([a-z][\w-]*)/g)) {
+        if (tokens.has(token) || builtin.has(token)) continue
+        unknown.add(token)
+      }
+      for (const [, token] of code.matchAll(/\btext-(on-[\w-]+)/g)) {
+        if (!tokens.has(token)) unknown.add(token)
+      }
+    }
+
+    expect([...unknown]).toEqual([])
+  })
+})
+
 describe('toHashData', () => {
   it('should set active to src/App.vue', () => {
     const data = toHashData({ intent: 'spa', features: ['createSingle'], resolved: [], adapters: {} })
 
     expect(data.active).toBe('src/App.vue')
+  })
+
+  // The playground runs src/main.ts as its sandbox entry, so this is what
+  // carries the user's plugin choices into the preview.
+  it('should boot the users configured plugins', () => {
+    const data = toHashData({
+      intent: 'spa',
+      features: ['createSingle', 'useTheme', 'useBreakpoints'],
+      resolved: [],
+      adapters: {},
+      pluginConfig: { useTheme: { default: 'dark', themes: { dark: { dark: true, colors: { primary: '#abcdef' } } } } },
+    })
+
+    expect(data.files['src/main.ts']).toContain('createThemePlugin')
+    expect(data.files['src/main.ts']).toContain('#abcdef')
+    expect(data.files['src/main.ts']).toContain('createBreakpointsPlugin')
+  })
+
+  it('should import the playground stylesheet, not the Vite virtual module', () => {
+    const data = toHashData({ intent: 'spa', features: ['useTheme'], resolved: [], adapters: {} })
+
+    expect(data.files['src/main.ts']).toContain(`import './uno.config.ts'`)
+    expect(data.files['src/main.ts']).not.toContain('virtual:uno.css')
+  })
+
+  it('should fall back to a preview palette when theming was not selected', () => {
+    const data = toHashData({ intent: 'spa', features: ['createSingle'], resolved: [], adapters: {} })
+
+    expect(data.files['src/main.ts']).toContain('createThemePlugin')
+  })
+
+  it('should not override a configured theme with the preview palette', () => {
+    const data = toHashData({
+      intent: 'spa',
+      features: ['useTheme'],
+      resolved: [],
+      adapters: {},
+      pluginConfig: { useTheme: { default: 'midnight', themes: { midnight: { dark: true, colors: { primary: '#123456' } } } } },
+    })
+
+    expect(data.files['src/main.ts']).toContain('#123456')
+    expect(data.files['src/main.ts']).not.toContain('#3b82f6')
   })
 })
 
