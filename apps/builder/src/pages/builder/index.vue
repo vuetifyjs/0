@@ -8,7 +8,7 @@
   import StepBar from '@/components/app/StepBar.vue'
   import PluginInfo from '@/components/PluginInfo.vue'
 
-  import { PLUGINS } from '@/data/plugins'
+  import { getPluginById } from '@/data/plugins'
   import { getCategories } from '@/data/questions'
 
   // Stores
@@ -29,7 +29,7 @@
   })))
 
   function meta (feature: string) {
-    return PLUGINS.find(p => p.id === feature)
+    return getPluginById(feature)
   }
 
   function onContinue () {
