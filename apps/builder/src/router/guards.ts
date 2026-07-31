@@ -8,8 +8,12 @@ import { useBuilderStore } from '@/stores/builder'
 // Types
 import type { NavigationGuardReturn, RouteLocationNormalized } from 'vue-router'
 
-export function builderGuard (to: RouteLocationNormalized): NavigationGuardReturn {
+// Async because the store hydrates its active build asynchronously. Deciding a redirect
+// before that resolves would bounce every deep link to /builder on a cold load.
+export async function builderGuard (to: RouteLocationNormalized): Promise<NavigationGuardReturn> {
   const store = useBuilderStore()
+  await store.ready
+
   const selectedIds = store.selectedPlugins
 
   if (to.path === '/builder/configure') {

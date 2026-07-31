@@ -5,6 +5,7 @@
   import { Button, Dialog, useBreakpoints } from '@vuetify/v0'
 
   // Context
+  import BuildSwitcher from './BuildSwitcher.vue'
   import Icon from './Icon.vue'
   import ThemeToggle from './ThemeToggle.vue'
 
@@ -56,6 +57,9 @@
         <div class="flex-1" />
 
         <slot name="actions" />
+
+        <!-- Redundant on the landing page, which lists the builds in full. -->
+        <BuildSwitcher v-if="isBuilderRoute" />
 
         <ThemeToggle />
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiArrowRight } from '@mdi/js'
+  import { mdiArrowRight, mdiTrashCanOutline } from '@mdi/js'
 
   // Framework
   import { Button } from '@vuetify/v0'
@@ -7,11 +7,55 @@
   import { COMPONENTS } from '@/data/components'
   import { PLUGINS } from '@/data/plugins'
 
+  // Stores
+  import { useBuilderStore } from '@/stores/builder'
+
   // Utilities
   import { toRef } from 'vue'
   import { useRouter } from 'vue-router'
 
+  // Types
+  import type { BuildSummary } from '@/stores/persistence'
+
   const router = useRouter()
+  const store = useBuilderStore()
+
+  const relative = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
+
+  const UNITS: Array<[Intl.RelativeTimeFormatUnit, number]> = [
+    ['day', 86_400_000],
+    ['hour', 3_600_000],
+    ['minute', 60_000],
+  ]
+
+  function updated (at: number): string {
+    const delta = at - Date.now()
+
+    for (const [unit, ms] of UNITS) {
+      const value = Math.round(delta / ms)
+      if (value !== 0) return relative.format(value, unit)
+    }
+
+    return 'just now'
+  }
+
+  function plural (count: number, noun: string): string {
+    return `${count} ${count === 1 ? noun : `${noun}s`}`
+  }
+
+  async function onResume (entry: BuildSummary) {
+    await store.switchTo(entry.id)
+    router.push('/builder')
+  }
+
+  async function onDelete (entry: BuildSummary) {
+    await store.removeBuild(entry.id)
+  }
+
+  async function onNew () {
+    await store.createBuild()
+    router.push('/builder')
+  }
 
   // Read off the catalogue rather than hardcoded, so the pitch can't drift from the app.
   const plugins = toRef(() => PLUGINS.length)
@@ -57,13 +101,17 @@
 
         <div class="flex flex-wrap items-center gap-4">
           <Button.Root class="btn-primary h-12 px-6" @click="onStart">
-            <Button.Content>Start configuring</Button.Content>
+            <Button.Content>{{ store.builds.length > 0 ? 'Resume building' : 'Start configuring' }}</Button.Content>
 
             <Button.Icon>
               <svg class="w-4 h-4" viewBox="0 0 24 24">
                 <path :d="mdiArrowRight" fill="currentColor" />
               </svg>
             </Button.Icon>
+          </Button.Root>
+
+          <Button.Root v-if="store.builds.length > 0" class="btn-outline h-12 px-5" @click="onNew">
+            <Button.Content>Start a new build</Button.Content>
           </Button.Root>
 
           <p class="t-index text-on-surface-variant">
@@ -95,6 +143,50 @@ app.use(<span class="text-primary">createStoragePlugin</span>())
 
 app.mount(<span class="text-primary">'#app'</span>)</pre>
       </div>
+    </section>
+
+    <section v-if="store.builds.length > 0" class="border-t border-divider py-12 sm:py-14">
+      <div class="flex items-baseline gap-3 mb-5">
+        <h2 class="t-eyebrow text-on-surface">Your builds</h2>
+        <p class="t-meta text-on-surface-variant">Saved as you go — pick one up where you left it</p>
+      </div>
+
+      <ul class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <li v-for="entry in store.builds" :key="entry.id" class="relative">
+          <Button.Root
+            :aria-label="`Resume ${entry.name}, ${plural(entry.plugins, 'plugin')}, ${plural(entry.components, 'component')}, updated ${updated(entry.updated)}`"
+            class="pick pick-off w-full h-full p-4 pr-11 block"
+            @click="onResume(entry)"
+          >
+            <Button.Content>
+              <span class="flex items-center gap-2 mb-2.5">
+                <span class="font-mono text-[0.8125rem] font-semibold truncate">{{ entry.name }}</span>
+                <span v-if="entry.id === store.activeId" class="chip-on flex-shrink-0">active</span>
+              </span>
+
+              <span class="block t-index text-on-surface-variant">
+                {{ plural(entry.plugins, 'plugin') }} · {{ plural(entry.components, 'component') }}
+              </span>
+
+              <span class="block t-meta text-on-surface-variant/80 mt-1">
+                Updated {{ updated(entry.updated) }}
+              </span>
+            </Button.Content>
+          </Button.Root>
+
+          <!-- Outside the card button: a button inside a button is invalid, and nesting
+               would make the whole card announce as the delete action. -->
+          <Button.Root
+            :aria-label="`Delete ${entry.name}`"
+            class="absolute top-2.5 right-2.5 h-8 w-8 p-0 rounded-md inline-flex items-center justify-center text-on-surface-variant hover:bg-surface-variant hover:text-error transition-colors duration-150"
+            @click="onDelete(entry)"
+          >
+            <Button.Icon>
+              <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiTrashCanOutline" fill="currentColor" /></svg>
+            </Button.Icon>
+          </Button.Root>
+        </li>
+      </ul>
     </section>
 
     <!-- A real sequence, so it is numbered like one. -->
