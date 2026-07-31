@@ -19,7 +19,12 @@
   const store = useBuilderStore()
   const router = useRouter()
 
-  const categories = toRef(() => getCategories())
+  // Each category is a panel of the machine, opened up: the line items live inside it
+  // rather than floating on the page, so the grouping is a container, not a heading.
+  const categories = toRef(() => getCategories().map(category => ({
+    ...category,
+    picked: category.questions.filter(q => store.isPluginSelected(q.feature)).length,
+  })))
 
   function onContinue () {
     router.push('/builder/configure')
@@ -51,42 +56,54 @@
       </p>
     </header>
 
-    <div class="flex flex-col gap-10">
-      <section v-for="category in categories" :key="category.id">
-        <div class="flex items-baseline gap-3 mb-4 pb-2.5 border-b border-divider">
-          <h3 class="t-eyebrow text-on-surface">{{ category.title }}</h3>
-          <p class="t-meta text-on-surface-variant">{{ category.description }}</p>
+    <div class="flex flex-col gap-4">
+      <section v-for="category in categories" :key="category.id" class="panel overflow-hidden">
+        <div class="flex items-baseline justify-between gap-3 px-4 py-3 border-b border-divider bg-surface-variant/40">
+          <div class="min-w-0">
+            <h3 class="t-section">{{ category.title }}</h3>
+            <p class="t-meta text-on-surface-variant">{{ category.description }}</p>
+          </div>
+
+          <p class="t-index flex-shrink-0" :class="category.picked > 0 ? 'text-primary' : 'text-on-surface-variant/60'">
+            {{ category.picked }}/{{ category.questions.length }}
+          </p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <!-- Selection is an accent rail down the line item rather than a card outline: the
+             panel already owns the border, so the row only needs to light up inside it. -->
+        <div class="divide-y divide-divider">
           <Toggle.Root
             v-for="question in category.questions"
             :key="question.id"
             :aria-label="question.title"
-            class="pick p-4"
-            :class="store.isPluginSelected(question.feature) ? 'pick-on' : 'pick-off'"
+            class="w-full flex items-start gap-3 pl-3 pr-4 py-3 text-left border-l-2 transition-colors duration-150"
+            :class="store.isPluginSelected(question.feature)
+              ? 'border-primary bg-primary/8'
+              : 'border-transparent hover:bg-surface-variant/50'"
             :model-value="store.isPluginSelected(question.feature)"
             @update:model-value="store.togglePlugin(question.feature)"
           >
-            <div class="flex items-start justify-between gap-2.5 mb-2">
-              <h4 class="t-section">{{ question.title }}</h4>
+            <span
+              class="pick-mark w-5 h-5 mt-0.5"
+              :class="store.isPluginSelected(question.feature) ? 'pick-mark-on' : 'pick-mark-off'"
+            >
+              <svg v-if="store.isPluginSelected(question.feature)" class="w-3.5 h-3.5" viewBox="0 0 24 24">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
+              </svg>
+            </span>
 
-              <span
-                class="pick-mark w-5 h-5"
-                :class="store.isPluginSelected(question.feature) ? 'pick-mark-on' : 'pick-mark-off'"
-              >
-                <svg v-if="store.isPluginSelected(question.feature)" class="w-3.5 h-3.5" viewBox="0 0 24 24">
-                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
-                </svg>
+            <span class="min-w-0 flex-1">
+              <span class="flex items-baseline gap-2 flex-wrap">
+                <span class="t-section">{{ question.title }}</span>
+                <span class="font-mono text-[0.6875rem] text-on-surface-variant/80">{{ question.feature }}</span>
               </span>
-            </div>
 
-            <p class="t-meta text-on-surface-variant">{{ question.description }}</p>
+              <span class="block t-meta text-on-surface-variant mt-0.5">{{ question.description }}</span>
+            </span>
           </Toggle.Root>
         </div>
       </section>
     </div>
-
   </div>
 
   <StepBar>
