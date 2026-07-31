@@ -30,11 +30,16 @@ export interface BuildSummary {
 
 /** The wizard state a build owns. Matches what the builder store persists. */
 export interface BuildState {
+  /** Shape version, so a future config migration has something to key on. */
+  version?: number
   selectedPlugins: string[]
   pluginConfig: Record<string, unknown>
   selectedComponents: string[]
   componentConfig: Record<string, unknown>
 }
+
+/** Current BuildState shape. Bump when the stored config shape changes incompatibly. */
+export const BUILD_VERSION = 1
 
 export interface BuildsBackend {
   /** All builds, newest activity first. Runs the legacy migration on first call. */
@@ -57,10 +62,23 @@ const BUILD_KEY = 'builder.build.'
 const LEGACY_KEY = 'builder.v1'
 
 export const EMPTY_BUILD: BuildState = {
+  version: BUILD_VERSION,
   selectedPlugins: [],
   pluginConfig: {},
   selectedComponents: [],
   componentConfig: {},
+}
+
+/**
+ * The index as stored. `rev` is a monotonic counter used to detect a write that landed
+ * between our read and our write — the read-modify-write cycles below are safe within a
+ * tab (synchronous) but not across tabs, which useStorage already syncs via storage
+ * events. This is belt-and-braces only: real conflict handling arrives with the API
+ * backend, which can arbitrate server-side.
+ */
+interface BuildIndex {
+  rev: number
+  builds: BuildSummary[]
 }
 
 // Not `useId` from #v0/utilities: outside a component it falls back to a per-session
@@ -84,12 +102,36 @@ function clone<T> (value: T): T {
 export function useBuilds (): BuildsBackend {
   const storage: StorageContext = useStorage()
 
-  function readIndex (): BuildSummary[] {
-    return storage.get<BuildSummary[]>(INDEX_KEY, []).value ?? []
+  // Tolerates the pre-rev shape (a bare array) so an index written by an older build of
+  // the app still loads.
+  function readEnvelope (): BuildIndex {
+    const raw = storage.get<BuildIndex | BuildSummary[]>(INDEX_KEY, { rev: 0, builds: [] }).value
+
+    if (Array.isArray(raw)) return { rev: 0, builds: raw }
+
+    return { rev: raw?.rev ?? 0, builds: raw?.builds ?? [] }
   }
 
-  function writeIndex (next: BuildSummary[]) {
-    storage.set(INDEX_KEY, next)
+  function readIndex (): BuildSummary[] {
+    return readEnvelope().builds
+  }
+
+  /**
+   * Read-modify-write with a single retry. If another writer bumped `rev` between our read
+   * and our write, the transform is replayed against the fresh list rather than clobbering
+   * it. One retry is enough here: the loser of a genuine race re-reads the winner's state.
+   */
+  function mutate (transform: (builds: BuildSummary[]) => BuildSummary[]) {
+    const before = readEnvelope()
+    const next = transform(before.builds)
+    const current = readEnvelope()
+
+    if (current.rev !== before.rev) {
+      storage.set(INDEX_KEY, { rev: current.rev + 1, builds: transform(current.builds) })
+      return
+    }
+
+    storage.set(INDEX_KEY, { rev: before.rev + 1, builds: next })
   }
 
   function key (buildId: string) {
@@ -120,8 +162,8 @@ export function useBuilds (): BuildsBackend {
       components: legacy.selectedComponents?.length ?? 0,
     }
 
-    storage.set(key(entry.id), clone(legacy))
-    writeIndex([entry])
+    storage.set(key(entry.id), clone({ ...legacy, version: BUILD_VERSION }))
+    mutate(() => [entry])
     storage.set(ACTIVE_KEY, entry.id)
     storage.remove(LEGACY_KEY)
   }
@@ -140,9 +182,9 @@ export function useBuilds (): BuildsBackend {
     async save (buildId, state) {
       if (!readIndex().some(entry => entry.id === buildId)) return
 
-      storage.set(key(buildId), clone(state))
+      storage.set(key(buildId), clone({ ...state, version: BUILD_VERSION }))
 
-      writeIndex(readIndex().map(entry => entry.id === buildId
+      mutate(builds => builds.map(entry => entry.id === buildId
         ? {
             ...entry,
             updated: Date.now(),
@@ -165,19 +207,19 @@ export function useBuilds (): BuildsBackend {
       }
 
       storage.set(key(entry.id), clone(EMPTY_BUILD))
-      writeIndex([...readIndex(), entry])
+      mutate(builds => [...builds, entry])
 
       return entry
     },
 
     async rename (buildId, name) {
-      writeIndex(readIndex().map(entry =>
+      mutate(builds => builds.map(entry =>
         entry.id === buildId ? { ...entry, name, updated: Date.now() } : entry,
       ))
     },
 
     async remove (buildId) {
-      writeIndex(readIndex().filter(entry => entry.id !== buildId))
+      mutate(builds => builds.filter(entry => entry.id !== buildId))
 
       // Read before removing. `remove` only clears keys this storage instance has already
       // seen, so deleting a build that was never opened this session would otherwise leave

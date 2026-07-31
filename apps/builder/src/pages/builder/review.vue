@@ -2,7 +2,7 @@
   import { mdiArrowLeft, mdiDownload, mdiOpenInNew } from '@mdi/js'
 
   // Framework
-  import { Button } from '@vuetify/v0'
+  import { Button, Input } from '@vuetify/v0'
 
   import { PLUGINS } from '@/data/plugins'
   // Engine
@@ -66,8 +66,16 @@
     'no-config': 'text-on-surface-variant/70',
   }
 
+  const outputError = shallowRef('')
+  // Set when the popup was blocked: the URL is fine, the browser just refused the tab, so
+  // it is offered for copying rather than reported as a failure.
+  const blockedUrl = shallowRef('')
+
   async function onOpenPlayground () {
     isBusy.value = true
+    outputError.value = ''
+    blockedUrl.value = ''
+
     try {
       const manifest = {
         intent: 'component-library',
@@ -77,19 +85,29 @@
         pluginConfig: store.pluginConfig,
       }
       const url = await toPlaygroundUrl(manifest, 'https://v0play.vuetifyjs.com')
-      window.open(url, '_blank', 'noopener')
+
+      if (!window.open(url, '_blank', 'noopener')) blockedUrl.value = url
+    } catch (error) {
+      outputError.value = `Could not build the playground link: ${error instanceof Error ? error.message : String(error)}`
     } finally {
       isBusy.value = false
     }
   }
 
   function onDownloadZip () {
-    downloadZip({
-      selectedPlugins: store.selectedPlugins,
-      pluginConfig: store.pluginConfig,
-      selectedComponents: store.selectedComponents,
-      resolved: store.resolved.autoIncluded,
-    })
+    outputError.value = ''
+    blockedUrl.value = ''
+
+    try {
+      downloadZip({
+        selectedPlugins: store.selectedPlugins,
+        pluginConfig: store.pluginConfig,
+        selectedComponents: store.selectedComponents,
+        resolved: store.resolved.autoIncluded,
+      })
+    } catch (error) {
+      outputError.value = `Could not build the starter: ${error instanceof Error ? error.message : String(error)}`
+    }
   }
 
   function onReset () {
@@ -231,6 +249,20 @@
 
         <Button.Content>Download starter (.zip)</Button.Content>
       </Button.Root>
+    </div>
+
+    <p v-if="outputError" class="mt-3 t-meta text-error" role="status">
+      {{ outputError }}
+    </p>
+
+    <div v-else-if="blockedUrl" class="mt-3" role="status">
+      <p class="t-meta text-on-surface-variant mb-1.5">
+        Your browser blocked the new tab. The link is ready — copy it:
+      </p>
+
+      <Input.Root label="Playground link" :model-value="blockedUrl">
+        <Input.Control class="field-input font-mono text-[0.75rem]" readonly />
+      </Input.Root>
     </div>
 
     <div class="mt-8 flex items-center justify-between border-t border-divider pt-5">
