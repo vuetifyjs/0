@@ -87,6 +87,7 @@
       selectedPlugins: store.selectedPlugins,
       pluginConfig: store.pluginConfig,
       selectedComponents: store.selectedComponents,
+      resolved: store.resolved.autoIncluded,
     })
   }
 
