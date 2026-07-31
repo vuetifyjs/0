@@ -10,7 +10,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { reactive } from 'vue'
+  import { onBeforeUnmount, reactive, watch } from 'vue'
 
   // Types
   import type { FeaturesAdapter, FeaturesConfig } from './defaults'
@@ -41,19 +41,29 @@
     state.flags.splice(index, 1)
   }
 
-  function onSave () {
+  function snapshot (): FeaturesConfig {
     const features: Record<string, boolean> = {}
     for (const row of state.flags) {
       if (row.key) features[row.key] = row.default
     }
 
-    const config: FeaturesConfig = {
+    return {
       features,
       adapter: state.adapter,
     }
-
-    store.savePluginConfig('useFeatures', config)
   }
+
+  function onSave () {
+    store.savePluginConfig('useFeatures', snapshot())
+  }
+
+  watch(state, () => {
+    store.setDraft('useFeatures', JSON.parse(JSON.stringify(snapshot())))
+  }, { deep: true, immediate: true })
+
+  onBeforeUnmount(() => {
+    store.clearDraft('useFeatures')
+  })
 </script>
 
 <template>

@@ -10,7 +10,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { reactive } from 'vue'
+  import { onBeforeUnmount, reactive, watch } from 'vue'
 
   // Types
   import type { DateAdapterKind, DateConfig } from './defaults'
@@ -46,7 +46,7 @@
     state.locales.splice(index, 1)
   }
 
-  function onSave () {
+  function snapshot (): DateConfig {
     const locales: Record<string, string> = {}
     for (const row of state.locales) {
       const code = row.code.trim()
@@ -54,14 +54,25 @@
       if (code && intl) locales[code] = intl
     }
 
-    const config: DateConfig = {
+    return {
       adapter: state.adapter,
       locale: state.locale,
       locales,
       firstDayOfWeek: state.firstDayOfWeek,
     }
-    store.savePluginConfig('useDate', config)
   }
+
+  function onSave () {
+    store.savePluginConfig('useDate', snapshot())
+  }
+
+  watch(state, () => {
+    store.setDraft('useDate', JSON.parse(JSON.stringify(snapshot())))
+  }, { deep: true, immediate: true })
+
+  onBeforeUnmount(() => {
+    store.clearDraft('useDate')
+  })
 </script>
 
 <template>

@@ -10,7 +10,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { reactive } from 'vue'
+  import { onBeforeUnmount, reactive, watch } from 'vue'
 
   // Types
   import type { ReducedMotionConfig } from './defaults'
@@ -25,12 +25,24 @@
     persist: !!initial.persist,
   })
 
-  function onSave () {
-    store.savePluginConfig('useReducedMotion', {
+  function snapshot (): ReducedMotionConfig {
+    return {
       mode: state.mode,
       persist: state.persist,
-    } satisfies ReducedMotionConfig)
+    }
   }
+
+  function onSave () {
+    store.savePluginConfig('useReducedMotion', snapshot())
+  }
+
+  watch(state, () => {
+    store.setDraft('useReducedMotion', JSON.parse(JSON.stringify(snapshot())))
+  }, { deep: true, immediate: true })
+
+  onBeforeUnmount(() => {
+    store.clearDraft('useReducedMotion')
+  })
 </script>
 
 <template>

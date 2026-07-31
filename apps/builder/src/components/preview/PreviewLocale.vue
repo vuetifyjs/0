@@ -20,7 +20,8 @@
     return (store.pluginConfig.useLocale as LocaleConfig | undefined) ?? defaultConfig
   })
 
-  const codes = toRef(() => (config.value.locales ?? []).filter(Boolean))
+  // The registered languages are the keys of `messages` — there is no separate locale list.
+  const codes = toRef(() => Object.keys(config.value.messages ?? {}).filter(Boolean))
 
   const demo = shallowRef(config.value.default || codes.value[0] || 'en')
 

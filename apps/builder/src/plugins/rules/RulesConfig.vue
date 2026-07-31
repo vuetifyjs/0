@@ -10,7 +10,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { ref, shallowRef, toRef } from 'vue'
+  import { onBeforeUnmount, ref, shallowRef, toRef, watch } from 'vue'
 
   // Types
   import type { RulesConfig } from './defaults'
@@ -40,9 +40,21 @@
     draft.value = ''
   }
 
-  function onSave () {
-    store.savePluginConfig('useRules', { aliases: [...aliases.value] } satisfies RulesConfig)
+  function snapshot (): RulesConfig {
+    return { aliases: [...aliases.value] }
   }
+
+  function onSave () {
+    store.savePluginConfig('useRules', snapshot())
+  }
+
+  watch(aliases, () => {
+    store.setDraft('useRules', JSON.parse(JSON.stringify(snapshot())))
+  }, { deep: true, immediate: true })
+
+  onBeforeUnmount(() => {
+    store.clearDraft('useRules')
+  })
 </script>
 
 <template>
