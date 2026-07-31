@@ -324,7 +324,10 @@
     display: block;
     min-height: 100vh;
     min-height: 100dvh;
+    max-width: 100%;
+    min-width: 0;
     padding-left: var(--ed-nav-w);
+    overflow-x: clip;
     background: var(--ed-bg);
     color: var(--ed-text);
     font-family: var(--emerald-font-sans, Manrope, system-ui, sans-serif);

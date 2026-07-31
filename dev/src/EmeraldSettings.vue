@@ -136,7 +136,8 @@
 
   .eset-tabs {
     width: 100%;
-    max-width: 960px;
+    max-width: min(960px, 100%);
+    min-width: 0;
   }
 
   .eset-card.emerald-card {
@@ -145,6 +146,9 @@
     border: 1px solid var(--ed-border, #ccd6e7);
     border-radius: 12px;
     padding: 20px 24px;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
   }
 
   .eset-card__title {
@@ -173,6 +177,11 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
+    min-width: 0;
+  }
+
+  .eset-row2 > * {
+    min-width: 0;
   }
 
   .eset-actions {

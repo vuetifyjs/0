@@ -57,8 +57,26 @@ try {
           failed = true
         }
         await page.waitForTimeout(400)
+
+        const metrics = await page.evaluate(() => {
+          const doc = document.documentElement
+          const body = document.body
+          const scrollWidth = Math.max(doc.scrollWidth, body?.scrollWidth ?? 0)
+          return {
+            scrollWidth,
+            clientWidth: doc.clientWidth,
+            innerWidth: window.innerWidth,
+          }
+        })
+
+        if (metrics.scrollWidth > metrics.innerWidth + 1) {
+          failed = true
+          status = `horizontal_overflow scrollWidth=${metrics.scrollWidth} innerWidth=${metrics.innerWidth}`
+        }
+
+        // Viewport clip — fullPage inflates width when content overflows
         const file = join(visualDir, `${route.slug}-${vp.name}.png`)
-        await page.screenshot({ path: file, fullPage: true })
+        await page.screenshot({ path: file, fullPage: false })
       } catch (error) {
         status = `nav_error: ${error}`
         failed = true
@@ -73,7 +91,7 @@ try {
       ]
       if (appErrors.length > 0) {
         failed = true
-        status = 'console_errors'
+        if (status === 'ok') status = 'console_errors'
       }
 
       report.push({

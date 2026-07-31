@@ -48,3 +48,12 @@
     </Tabs.Root>
   </div>
 </template>
+
+<style>
+  .emerald-tabs {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+</style>
