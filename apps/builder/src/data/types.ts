@@ -16,8 +16,6 @@ export interface Warning {
   message: string
 }
 
-export type Intent = 'spa' | 'component-library' | 'design-system' | 'admin-dashboard' | 'content-site' | 'mobile-first'
-
 export interface FrameworkManifest {
   intent?: string
   features: string[]

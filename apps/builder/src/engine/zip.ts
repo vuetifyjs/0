@@ -162,7 +162,7 @@ dist
 
 // The zip and the playground ship the same demo sources — one generator, one
 // set of files to keep correct.
-export function generateSources (m: ZipManifest): Record<string, string> {
+function generateSources (m: ZipManifest): Record<string, string> {
   const files = generateFiles({
     features: [...m.selectedPlugins, ...m.selectedComponents],
     resolved: m.resolved ?? [],
@@ -178,7 +178,7 @@ export function generateSources (m: ZipManifest): Record<string, string> {
   return files
 }
 
-export function generateZip (m: ZipManifest): Uint8Array {
+function generateZip (m: ZipManifest): Uint8Array {
   const files: Record<string, Uint8Array> = {
     'my-v0-app/package.json': strToU8(generatePackageJson(m)),
     'my-v0-app/vite.config.ts': strToU8(generateViteConfig()),
