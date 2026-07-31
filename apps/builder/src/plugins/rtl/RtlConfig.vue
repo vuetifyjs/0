@@ -25,11 +25,14 @@
     target: initial.target,
   })
 
+  // `target` is omitted rather than set to undefined when blank — the config is
+  // JSON-serialized, so an explicit undefined key is both meaningless and misleading.
   function snapshot (): RtlConfig {
-    return {
-      default: state.default,
-      target: state.target?.trim() || undefined,
-    }
+    const target = state.target?.trim()
+
+    if (!target) return { default: state.default }
+
+    return { default: state.default, target }
   }
 
   function onSave () {

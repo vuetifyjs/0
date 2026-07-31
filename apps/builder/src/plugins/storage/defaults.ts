@@ -2,12 +2,12 @@
 
 export interface StorageConfig {
   prefix: string
-  ttl: number | undefined
+  /** Omitted entirely when TTL is off — never emitted as an explicit `undefined`. */
+  ttl?: number
 }
 
 export const defaultConfig: StorageConfig = {
   prefix: 'v0:',
-  ttl: undefined,
   // adapter and serializer are NOT defaultable via the form — they're escape hatches
   // that require runtime values (Storage instance, function pair). v1 form exposes
   // only `prefix` + `ttl` + a hint that adapter/serializer can be customized in code.

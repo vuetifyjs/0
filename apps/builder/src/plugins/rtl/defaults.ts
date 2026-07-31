@@ -2,10 +2,10 @@
 
 export interface RtlConfig {
   default: boolean
-  target: string | undefined
+  /** Omitted entirely when blank — never emitted as an explicit `undefined`. */
+  target?: string
 }
 
 export const defaultConfig: RtlConfig = {
   default: false,
-  target: undefined,
 }
