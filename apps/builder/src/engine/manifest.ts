@@ -42,25 +42,15 @@ const TOKENS: Record<string, string> = {
 
 // Stand-in palette for the playground when the user did not configure theming.
 // The preview would otherwise render unstyled, since every demo classname
-// resolves through a --v0-* variable that only useTheme writes.
+// resolves through a --v0-* variable that only useTheme writes. It is the same
+// palette the uno config falls back to, so the preview and an unthemed starter
+// paint identically.
 const PREVIEW_THEME = {
   default: 'light',
   themes: {
     light: {
       dark: false,
-      colors: {
-        'primary': '#3b82f6',
-        'secondary': '#64748b',
-        'accent': '#6366f1',
-        'error': '#ef4444',
-        'background': '#ffffff',
-        'surface': '#ffffff',
-        'surface-variant': '#f5f5f5',
-        'divider': '#e0e0e0',
-        'on-primary': '#ffffff',
-        'on-surface': '#212121',
-        'on-surface-variant': '#666666',
-      },
+      colors: TOKENS,
     },
   },
 }
@@ -154,7 +144,7 @@ interface Wiring {
   deps: Record<string, string>
 }
 
-const BYOC: Record<string, Wiring> = {
+export const BYOC: Record<string, Wiring> = {
   ConsolaLoggerAdapter: {
     from: V0,
     needs: 'a consola instance',
@@ -203,7 +193,7 @@ const BYOC: Record<string, Wiring> = {
 }
 
 // npm packages an adapter drags in as a hard runtime requirement.
-const ADAPTER_DEPS: Record<string, Record<string, string>> = {
+export const ADAPTER_DEPS: Record<string, Record<string, string>> = {
   // Both the shipped adapter and the generated stub import @vuetify/v0/date,
   // which statically imports the Temporal polyfill.
   V0DateAdapter: { '@js-temporal/polyfill': '^0.5.1' },
