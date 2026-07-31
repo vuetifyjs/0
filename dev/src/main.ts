@@ -3,6 +3,7 @@ import { ViteSSG } from 'vite-ssg'
 // Context
 import App from './App.vue'
 import CreateOverflowDemo from './CreateOverflowDemo.vue'
+import EmeraldContact from './EmeraldContact.vue'
 import EmeraldDashboard from './EmeraldDashboard.vue'
 import EmeraldKitchenSink from './EmeraldKitchenSink.vue'
 import Playground from './Playground.vue'
@@ -18,6 +19,7 @@ export const createApp = ViteSSG(
       { path: '/', component: Playground },
       { path: '/create-overflow', component: CreateOverflowDemo },
       { path: '/emerald', component: EmeraldDashboard },
+      { path: '/emerald/contact', component: EmeraldContact },
       { path: '/emerald/sink', component: EmeraldKitchenSink },
     ],
   },

@@ -46,7 +46,7 @@ unless the host already runs `createThemePlugin` and you pass `{ theme: false }`
 
 **Wave 3:** `EmRadio*` · `EmProgress` · `EmSpinner` · `EmBadge` · `EmDivider` · `EmTextarea` · `EmTooltip*` · `EmSnackbar*` · `EmBreadcrumbs*` · `EmExpansionPanel*` · `EmStep*`
 
-Dev showcase: `dev` → `/emerald` (dashboard) · `/emerald/sink` (component inventory).
+Dev showcase: `dev` → `/emerald` (dashboard) · `/emerald/contact` · `/emerald/sink` (inventory).
 
 ## Build
 
