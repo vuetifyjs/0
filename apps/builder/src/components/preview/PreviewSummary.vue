@@ -25,6 +25,27 @@
 
   const store = useBuilderStore()
 
+  // Saved-with-defaults is not customized: a config only counts as custom when it
+  // differs from the plugin's own defaults, not merely because a screen was saved.
+  const DEFAULTS = Object.fromEntries(
+    Object.entries(import.meta.glob('../../plugins/*/defaults.ts', { eager: true }))
+      .map(([path, mod]) => [
+        path.split('/').at(-2)!,
+        (mod as { defaultConfig?: unknown }).defaultConfig,
+      ]),
+  )
+
+  function customized (id: string): boolean {
+    const saved = store.pluginConfig[id]
+    if (saved === undefined) return false
+
+    const slug = PLUGINS.find(p => p.id === id)?.slug
+    const defaults = slug ? DEFAULTS[slug] : undefined
+    if (defaults === undefined) return true
+
+    return JSON.stringify(saved) !== JSON.stringify(defaults)
+  }
+
   const SLATE: Record<string, string> = {
     'primary': '#64748b',
     'background': '#f1f5f9',
@@ -78,7 +99,7 @@
     .map(p => ({
       id: p.id,
       title: p.title,
-      customized: p.id in store.pluginConfig,
+      customized: customized(p.id),
     })))
 
   const source = toRef(() => generateMainTs(store.selectedPlugins, store.pluginConfig))
