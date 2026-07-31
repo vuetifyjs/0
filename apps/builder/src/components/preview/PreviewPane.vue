@@ -29,10 +29,6 @@
 
 <template>
   <div class="p-4 lg:p-6">
-    <p class="text-xs uppercase tracking-wide text-on-surface-variant mb-3">
-      Live preview
-    </p>
-
     <component :is="module" />
   </div>
 </template>

@@ -21,6 +21,20 @@
   })
 
   const rtl = toRef(() => !!config.value.default)
+
+  // The mirrored frame carries real RTL script — English inside dir="rtl" only mirrors
+  // the layout and reads wrong, which hides the bugs this preview exists to surface.
+  const copy = toRef(() => rtl.value
+    ? {
+      brand: 'أكمي',
+      body: 'يتدفق المحتوى من اليمين إلى اليسار، وتنعكس المحاذاة والمسافات وترتيب القراءة تبعًا للإعداد الافتراضي.',
+      next: 'الخطوة التالية',
+    }
+    : {
+      brand: 'Acme',
+      body: 'Content flows left to right; alignment, spacing, and reading order mirror with the configured default.',
+      next: 'Next step',
+    })
 </script>
 
 <template>
@@ -33,7 +47,7 @@
     <MiniFrame title="direction">
       <div class="space-y-4" :dir="rtl ? 'rtl' : 'ltr'">
         <header class="flex items-center justify-between gap-3 pb-3 border-b border-divider transition-all">
-          <span class="text-sm font-semibold text-on-surface">Acme</span>
+          <span class="text-sm font-semibold text-on-surface">{{ copy.brand }}</span>
 
           <nav class="flex items-center gap-1.5 transition-all">
             <span
@@ -44,17 +58,20 @@
           </nav>
         </header>
 
-        <p class="text-xs leading-relaxed text-on-surface-variant">
-          Content flows {{ rtl ? 'right to left' : 'left to right' }}; alignment, spacing,
-          and reading order mirror with the configured default.
-        </p>
+        <p class="text-xs leading-relaxed text-on-surface-variant">{{ copy.body }}</p>
 
         <div class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg border border-divider transition-all">
-          <span class="text-xs text-on-surface">Next step</span>
+          <span class="text-xs text-on-surface">{{ copy.next }}</span>
 
           <Icon class="text-on-surface-variant" :path="rtl ? mdiChevronLeft : mdiChevronRight" :size="16" />
         </div>
       </div>
     </MiniFrame>
+
+    <p class="text-xs text-on-surface-variant">
+      {{ rtl
+        ? 'Arabic sample copy — the frame mirrors its layout, icons, and reading order.'
+        : 'Turn the default on to mirror the frame and swap in right-to-left sample copy.' }}
+    </p>
   </div>
 </template>

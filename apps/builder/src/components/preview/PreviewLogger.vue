@@ -74,16 +74,16 @@
     </div>
 
     <MiniFrame title="console">
-      <div class="rounded-lg bg-surface-variant/40 p-3 font-mono text-[11px] leading-relaxed min-h-36">
+      <div class="rounded-lg bg-surface-variant/40 p-3 font-mono text-[11px] leading-relaxed min-h-16 space-y-0.5">
         <p
           v-for="(line, index) in visible"
           :key="index"
-          class="truncate"
+          class="flex items-baseline gap-2"
           :class="TONES[line.level]"
         >
-          <span class="text-on-surface-variant/60">[{{ config.prefix || 'v0' }}]</span>
-          <span class="uppercase"> {{ line.level }} </span>
-          <span class="text-on-surface">{{ line.text }}</span>
+          <span class="shrink-0 text-on-surface-variant/60">[{{ config.prefix || 'v0' }}]</span>
+          <span class="shrink-0 w-10 uppercase font-semibold">{{ line.level }}</span>
+          <span class="min-w-0 truncate text-on-surface">{{ line.text }}</span>
         </p>
 
         <p v-if="visible.length === 0" class="italic text-on-surface-variant">
