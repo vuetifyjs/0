@@ -1,10 +1,14 @@
 <script setup lang="ts">
   import { EmAvatar, EmAvatarFallback, EmSwitch } from '@paper/emerald'
 
+  // Framework
+  // Globals
+  import { IN_BROWSER } from '@vuetify/v0'
+
   import { installEmeraldTheme } from './emerald-theme'
 
   // Utilities
-  import { computed, shallowRef } from 'vue'
+  import { computed, onMounted, onBeforeUnmount, shallowRef } from 'vue'
   import { RouterLink, useRoute } from 'vue-router'
 
   installEmeraldTheme()
@@ -18,7 +22,42 @@
 
   const route = useRoute()
   const dark = shallowRef(false)
-  const collapsed = shallowRef(false)
+  function isMobileMq () {
+    return IN_BROWSER && window.matchMedia('(max-width: 720px)').matches
+  }
+
+  const mobile = shallowRef(isMobileMq())
+  /** Desktop: false = expanded. Mobile: true = drawer closed. */
+  const collapsed = shallowRef(mobile.value)
+
+  let mq: MediaQueryList | undefined
+
+  function syncViewport () {
+    if (!mq) return
+    const next = mq.matches
+    mobile.value = next
+    // Entering mobile closes drawer; leaving mobile expands rail
+    collapsed.value = next
+  }
+
+  function onToggleNav () {
+    collapsed.value = !collapsed.value
+  }
+
+  function onCloseNav () {
+    if (mobile.value) collapsed.value = true
+  }
+
+  onMounted(() => {
+    if (!IN_BROWSER) return
+    mq = window.matchMedia('(max-width: 720px)')
+    syncViewport()
+    mq.addEventListener('change', syncViewport)
+  })
+
+  onBeforeUnmount(() => {
+    mq?.removeEventListener('change', syncViewport)
+  })
 
   const active = computed(() => {
     const p = route.path
@@ -53,21 +92,50 @@
     class="ed"
     :data-bare="bare || undefined"
     :data-collapsed="collapsed || undefined"
+    :data-mobile="mobile || undefined"
     :data-mode="dark ? 'dark' : 'light'"
     data-theme="emerald"
   >
+    <button
+      v-if="mobile && collapsed"
+      aria-label="Open navigation"
+      class="ed-menu-fab"
+      type="button"
+      @click="onToggleNav"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="20"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="20"
+      >
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <div
+      v-if="mobile && !collapsed"
+      aria-hidden="true"
+      class="ed-scrim"
+      @click="onCloseNav"
+    />
+
     <aside aria-label="Primary" class="ed-nav">
       <div class="ed-nav__top">
-        <RouterLink class="ed-brand" to="/emerald">
+        <RouterLink class="ed-brand" to="/emerald" @click="onCloseNav">
           <span aria-hidden="true" class="ed-brand__mark" />
-          <span v-if="!collapsed" class="ed-brand__name">Emerald</span>
+          <span v-if="!collapsed || mobile" class="ed-brand__name">Emerald</span>
         </RouterLink>
 
         <button
-          aria-label="Toggle sidebar"
+          :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
           class="ed-icon-btn"
           type="button"
-          @click="collapsed = !collapsed"
+          @click="onToggleNav"
         >
           <svg
             aria-hidden="true"
@@ -94,6 +162,7 @@
           :data-active="active === item.id || undefined"
           :to="item.to"
           :type="item.to ? undefined : 'button'"
+          @click="onCloseNav"
         >
           <span aria-hidden="true" class="ed-nav__glyph">
             <svg
@@ -167,7 +236,7 @@
             </svg>
           </span>
 
-          <span v-if="!collapsed" class="ed-nav__label">{{ item.label }}</span>
+          <span v-if="!collapsed || mobile" class="ed-nav__label">{{ item.label }}</span>
         </component>
       </nav>
 
@@ -188,11 +257,16 @@
             </svg>
           </span>
 
-          <span v-if="!collapsed" class="ed-nav__label">Dark mode</span>
-          <EmSwitch v-if="!collapsed" v-model="dark" class="ed-nav__switch" size="sm" />
+          <span v-if="!collapsed || mobile" class="ed-nav__label">Dark mode</span>
+          <EmSwitch v-if="!collapsed || mobile" v-model="dark" class="ed-nav__switch" size="sm" />
         </div>
 
-        <RouterLink class="ed-nav__item" :data-active="active === 'sink' || undefined" to="/emerald/sink">
+        <RouterLink
+          class="ed-nav__item"
+          :data-active="active === 'sink' || undefined"
+          to="/emerald/sink"
+          @click="onCloseNav"
+        >
           <span aria-hidden="true" class="ed-nav__glyph">
             <svg
               fill="none"
@@ -207,38 +281,19 @@
             </svg>
           </span>
 
-          <span v-if="!collapsed" class="ed-nav__label">Components</span>
+          <span v-if="!collapsed || mobile" class="ed-nav__label">Components</span>
         </RouterLink>
-
-        <button class="ed-nav__item" type="button">
-          <span aria-hidden="true" class="ed-nav__glyph">
-            <svg
-              fill="none"
-              height="18"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="18"
-            >
-              <circle cx="12" cy="12" r="3" /><path d="M4 12h4M16 12h4M12 4v4M12 16v4" />
-            </svg>
-          </span>
-
-          <span v-if="!collapsed" class="ed-nav__label">Settings</span>
-        </button>
 
         <button class="ed-user" type="button">
           <EmAvatar size="sm">
             <EmAvatarFallback>JD</EmAvatarFallback>
           </EmAvatar>
 
-          <span v-if="!collapsed" class="ed-user__meta">
+          <span v-if="!collapsed || mobile" class="ed-user__meta">
             <span class="ed-user__name">John Doe</span>
           </span>
 
-          <span v-if="!collapsed" aria-hidden="true" class="ed-user__chevron">›</span>
+          <span v-if="!collapsed || mobile" aria-hidden="true" class="ed-user__chevron">›</span>
         </button>
       </div>
     </aside>
@@ -300,11 +355,19 @@
     box-sizing: border-box;
   }
 
+  .ed-menu-fab {
+    display: none;
+  }
+
+  .ed-scrim {
+    display: none;
+  }
+
   .ed-nav {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 20;
+    z-index: 30;
     display: flex;
     flex-direction: column;
     gap: var(--emerald-spacing-m, 16px);
@@ -316,6 +379,9 @@
     background: var(--ed-nav);
     border-right: var(--emerald-stroke-s, 1px) solid var(--ed-border);
     overflow: hidden;
+    transition:
+      width var(--emerald-motion-duration-fast, 120ms) ease,
+      transform var(--emerald-motion-duration-fast, 120ms) ease;
   }
 
   .ed-nav__top {
@@ -509,26 +575,66 @@
     gap: 0;
   }
 
+  /* Mobile: drawer overlays content; default closed via data-collapsed */
   @media (max-width: 720px) {
-    .ed {
+    .ed,
+    .ed[data-mobile] {
+      --ed-nav-w: 0px;
       padding-left: 0;
     }
 
+    .ed-menu-fab {
+      display: inline-flex;
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 40;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border: 0;
+      border-radius: var(--emerald-radius-m, 8px);
+      background: var(--ed-surface, var(--emerald-background, #fefefe));
+      color: var(--ed-text);
+      box-shadow: var(--emerald-shadow-m, 0 2px 4px 0 rgba(51, 51, 51, 0.15));
+      cursor: pointer;
+    }
+
+    .ed-scrim {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 25;
+      background: rgba(15, 23, 32, 0.4);
+    }
+
     .ed-nav {
+      --ed-nav-w: min(280px, 86vw);
+      width: var(--ed-nav-w);
+      transform: translateX(0);
       box-shadow: var(--emerald-shadow-l, 0 5px 12px -1px rgba(51, 51, 51, 0.2));
     }
 
-    .ed[data-collapsed] {
-      --ed-nav-w: 0px;
-    }
-
     .ed[data-collapsed] .ed-nav {
-      transform: translateX(-100%);
+      transform: translateX(-105%);
       pointer-events: none;
     }
 
     .ed-main:not(.ed-main--bare) {
-      padding: 1.25rem;
+      padding: 3.5rem 1rem 1.5rem;
+    }
+
+    .ed-main--bare {
+      /* Leave room for FAB over full-bleed pages */
+      padding-top: 0;
+    }
+  }
+
+  /* Desktop collapsed = icon rail */
+  @media (min-width: 721px) {
+    .ed[data-collapsed] {
+      --ed-nav-w: 72px;
     }
   }
 </style>

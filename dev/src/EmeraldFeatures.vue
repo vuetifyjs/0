@@ -152,6 +152,10 @@
   }
 
   @media (max-width: 900px) {
+    .eft {
+      padding-top: calc(3.5rem + env(safe-area-inset-top, 0px));
+    }
+
     .eft-grid {
       grid-template-columns: 1fr;
     }

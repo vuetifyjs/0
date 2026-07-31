@@ -222,6 +222,8 @@
 
     .ec-copy {
       max-width: none;
+      /* Clear fixed mobile menu FAB */
+      padding-top: calc(3.5rem + env(safe-area-inset-top, 0px));
       padding-bottom: 1rem;
     }
 

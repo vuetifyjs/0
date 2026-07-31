@@ -10,6 +10,7 @@
     EmBadge,
     EmBreadcrumbs,
     EmBreadcrumbsDivider,
+    EmBreadcrumbsEllipsis,
     EmBreadcrumbsItem,
     EmBreadcrumbsLink,
     EmBreadcrumbsList,
@@ -54,6 +55,7 @@
     EmSnackbarClose,
     EmSnackbarContent,
     EmSnackbarPortal,
+    EmSnackbarQueue,
     EmSpinner,
     EmStep,
     EmStepItem,
@@ -134,6 +136,10 @@
           <EmBreadcrumbsItem text="Design systems">
             <EmBreadcrumbsLink href="#">Design systems</EmBreadcrumbsLink>
           </EmBreadcrumbsItem>
+
+          <EmBreadcrumbsDivider />
+
+          <EmBreadcrumbsEllipsis />
 
           <EmBreadcrumbsDivider />
 
@@ -541,6 +547,19 @@
       </div>
 
       <EmSnackbarPortal :teleport="false">
+        <!-- Queue is the notifications-driven surface; static Root still paints without plugin -->
+        <EmSnackbarQueue v-slot="{ items }">
+          <EmSnackbar
+            v-for="item in items"
+            :id="item.id"
+            :key="item.id"
+            variant="neutral"
+          >
+            <EmSnackbarContent>{{ item.subject }}</EmSnackbarContent>
+            <EmSnackbarClose />
+          </EmSnackbar>
+        </EmSnackbarQueue>
+
         <EmSnackbar v-if="toastOpen" variant="success">
           <EmSnackbarContent>Changes saved to Emerald.</EmSnackbarContent>
           <EmSnackbarClose @click="toastOpen = false" />
@@ -557,6 +576,17 @@
     font-family: var(--emerald-font-sans, Manrope, system-ui, sans-serif);
     background: var(--emerald-background, #fefefe);
     color: var(--emerald-on-background, #2b2d2e);
+    overflow-x: clip;
+  }
+
+  @media (max-width: 720px) {
+    .emerald-sink {
+      padding: 1.25rem 1rem 3rem;
+    }
+
+    .emerald-sink .row {
+      max-width: 100%;
+    }
   }
 
   .sink-header {

@@ -134,6 +134,7 @@
   @media (max-width: 900px) {
     .ef {
       grid-template-columns: 1fr;
+      padding-top: calc(3.5rem + env(safe-area-inset-top, 0px));
     }
 
     .ef-copy {

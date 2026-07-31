@@ -220,6 +220,10 @@
   }
 
   @media (max-width: 900px) {
+    .ep {
+      padding-top: calc(3.5rem + env(safe-area-inset-top, 0px));
+    }
+
     .ep-grid {
       grid-template-columns: 1fr;
       max-width: 400px;
