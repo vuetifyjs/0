@@ -51,6 +51,18 @@ export const useBuilderStore = defineStore('builder', () => {
 
   const active = toRef(() => builds.value.find(entry => entry.id === activeId.value) ?? null)
 
+  /**
+   * Nothing worth persisting. Guards lazy creation: clearing state is a change like any
+   * other, and without this the clean-up in detach() re-triggers the autosave watcher and
+   * mints a replacement — putting back the build another tab just deleted.
+   */
+  function isBlank (): boolean {
+    return selectedPlugins.value.size === 0
+      && selectedComponents.value.size === 0
+      && Object.keys(pluginConfig.value).length === 0
+      && Object.keys(componentConfig.value).length === 0
+  }
+
   function snapshot (): BuildState {
     return {
       selectedPlugins: [...selectedPlugins.value],
@@ -109,14 +121,66 @@ export const useBuilderStore = defineStore('builder', () => {
     }
   }
 
+  /**
+   * Drops local state. Used when the active build is gone.
+   *
+   * Also clears the stored pointer: leaving it naming a deleted build is how a stale id
+   * survives a reload, and every id that outlives its build is a resurrection waiting to
+   * happen. No build data is touched — the build is already gone.
+   */
+  async function detach () {
+    draft.value = null
+    activeId.value = null
+
+    swapping.value++
+    try {
+      await apply(EMPTY_BUILD)
+      await backend.setActive(null)
+    } catch (error) {
+      fail(error, 'update your builds')
+    } finally {
+      swapping.value--
+    }
+  }
+
+  /**
+   * Re-reads the index and repairs the active pointer if it no longer names a real build.
+   *
+   * `builds` is only ever a cache of the stored index. Another tab (or a storage clear) can
+   * delete the build this tab is standing in, which used to leave a phantom entry in the
+   * list that the next write would resurrect over the real index.
+   *
+   * Never creates. Zero builds is a legitimate state — it is what a first run and a
+   * cleared storage both look like, and minting a replacement here is what made a deleted
+   * build reappear.
+   */
+  async function reconcile () {
+    await refresh()
+
+    if (swapping.value > 0) return
+    if (activeId.value && builds.value.some(entry => entry.id === activeId.value)) return
+    if (!activeId.value) return
+
+    if (builds.value.length === 0) {
+      await detach()
+      return
+    }
+
+    draft.value = null
+    await open(builds.value[0]!.id)
+  }
+
+  /**
+   * Loads the stored builds. Deliberately creates nothing: a first run and a cleared
+   * storage both legitimately have zero builds, and minting one here made the landing page
+   * claim saved work that didn't exist — and made a deleted build appear to come back.
+   * The first build is created lazily, on the first real edit (see the autosave watcher).
+   */
   async function hydrate () {
     try {
       builds.value = await backend.list()
 
-      if (builds.value.length === 0) {
-        const entry = await backend.create('Build 1')
-        builds.value = [entry]
-      }
+      if (builds.value.length === 0) return
 
       const stored = await backend.activeId()
       const target = builds.value.some(entry => entry.id === stored) ? stored! : builds.value[0]!.id
@@ -127,10 +191,65 @@ export const useBuilderStore = defineStore('builder', () => {
     }
   }
 
+  /**
+   * Returns the build to write into, creating one on first use.
+   *
+   * Single-flight: the autosave watcher, the subscription callback and a user action can
+   * all arrive within the same tick, and un-guarded that minted a build per caller. Callers
+   * share one in-flight promise, so exactly one build is ever created.
+   *
+   * Does NOT call open() — that would apply an empty build over the edit that triggered it.
+   */
+  let creating: Promise<string | null> | null = null
+
+  /**
+   * Next default name. Counts up from the highest "Build N" already present rather than
+   * from the list length — after a deletion the length repeats a number that is still in
+   * use, and two builds end up sharing a name.
+   */
+  function nextName (): string {
+    const highest = builds.value.reduce((max, entry) => {
+      const match = /^Build (\d+)$/.exec(entry.name)
+      return match ? Math.max(max, Number(match[1])) : max
+    }, 0)
+
+    return `Build ${highest + 1}`
+  }
+
+  function ensure (): Promise<string | null> {
+    if (activeId.value) return Promise.resolve(activeId.value)
+    if (creating) return creating
+
+    creating = (async () => {
+      try {
+        const entry = await backend.create(nextName())
+
+        activeId.value = entry.id
+        await backend.setActive(entry.id)
+        await refresh()
+
+        return entry.id
+      } catch (error) {
+        fail(error, 'create a build')
+        return null
+      } finally {
+        creating = null
+      }
+    })()
+
+    return creating
+  }
+
   // Exposed so the router guard can wait for state before deciding a redirect — a deep
   // link would otherwise be bounced to /builder because nothing had loaded yet. hydrate()
   // swallows its own failures, so awaiting this can never reject the guard.
   const ready = hydrate()
+
+  // Track the stored index rather than snapshotting it once. Fires for our own writes too,
+  // which is harmless — reconcile only reads, and repairs the active pointer if needed.
+  backend.subscribe(() => {
+    void reconcile()
+  })
 
   async function switchTo (id: string) {
     // Compares against the latest *requested* id, not activeId: activeId lags behind an
@@ -142,9 +261,12 @@ export const useBuilderStore = defineStore('builder', () => {
     await refresh()
   }
 
+  /** Explicit "new build". Waits out any lazy creation so the two can't both mint one. */
   async function createBuild () {
     try {
-      const entry = await backend.create(`Build ${builds.value.length + 1}`)
+      if (creating) await creating
+
+      const entry = await backend.create(nextName())
 
       draft.value = null
       await refresh()
@@ -169,25 +291,18 @@ export const useBuilderStore = defineStore('builder', () => {
     }
   }
 
-  // Deleting the build you are standing in has to leave you somewhere: the next most
-  // recent build, or a fresh one when that was the last.
+  /**
+   * Idempotent: deleting a build that is already gone is success, not a failure. The list
+   * can be a moment stale (another tab, a storage clear), so a delete aimed at an entry
+   * that no longer exists must still resolve and leave the UI consistent rather than hang.
+   *
+   * reconcile() then repairs the active pointer if this removed the build we were standing
+   * in — the next most recent build, or a fresh one when that was the last.
+   */
   async function removeBuild (id: string) {
     try {
       await backend.remove(id)
-      await refresh()
-
-      if (id !== activeId.value) return
-
-      draft.value = null
-
-      if (builds.value.length === 0) {
-        const entry = await backend.create('Build 1')
-        await refresh()
-        await open(entry.id)
-        return
-      }
-
-      await open(builds.value[0]!.id)
+      await reconcile()
     } catch (error) {
       fail(error, 'delete that build')
     }
@@ -273,17 +388,40 @@ export const useBuilderStore = defineStore('builder', () => {
     }
   }
 
-  // Autosave. Captures the build id it is writing for so a swap that starts mid-write
-  // cannot redirect the write to the newly opened build.
+  /**
+   * Autosave, and the only place a build is created implicitly.
+   *
+   * Two things it must not do. It must not write to a build that no longer exists — a tab
+   * holding state in memory would otherwise resurrect a build another tab deleted, which is
+   * what made "clear storage and refresh" bring the build back. And it must not redirect a
+   * write to whichever build happens to be active when it resumes, so the target id is
+   * captured up front and re-verified against the index immediately before writing.
+   */
   watch(
     [selectedPlugins, pluginConfig, selectedComponents, componentConfig],
     async () => {
-      if (swapping.value > 0 || !activeId.value) return
+      if (swapping.value > 0) return
 
-      const target = activeId.value
+      // First real edit with nothing to write into: this is where a build gets born. An
+      // empty state is not a real edit — see isBlank().
+      if (!activeId.value && isBlank()) return
+
+      const target = activeId.value ?? await ensure()
+      if (!target) return
+
       isSaving.value = true
 
       try {
+        const current = await backend.list()
+        builds.value = current
+
+        if (!current.some(entry => entry.id === target)) {
+          // Deleted underneath us. Drop the write and let go of the state rather than
+          // putting the build back.
+          await detach()
+          return
+        }
+
         await backend.save(target, snapshot())
         saveError.value = null
         await refresh()

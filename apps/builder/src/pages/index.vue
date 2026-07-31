@@ -52,16 +52,30 @@
   const doomed = shallowRef<BuildSummary | null>(null)
   const confirming = shallowRef(false)
 
+  // The title reads off this rather than off `doomed`, which is dropped the moment the
+  // choice is made. The dialog element stays mounted while it closes, so a title bound to
+  // the vanished entry renders "Delete ?" — and a build that no longer exists cannot
+  // supply its own name.
+  const name = shallowRef('')
+
   function onDelete (entry: BuildSummary) {
     doomed.value = entry
+    name.value = entry.name
     confirming.value = true
   }
 
+  // Closed before the delete is awaited, not after. The dialog has served its purpose the
+  // instant the choice is made, and holding it open across the write leaves the user in a
+  // modal describing a build that is already gone — or, if the write hangs, in one with no
+  // way forward. A genuine failure surfaces through saveError in the shell instead.
   async function onConfirmDelete () {
-    if (!doomed.value) return
+    const target = doomed.value
+    if (!target) return
 
-    await store.removeBuild(doomed.value.id)
+    confirming.value = false
     doomed.value = null
+
+    await store.removeBuild(target.id)
   }
 
   async function onNew () {
@@ -209,7 +223,7 @@ app.mount(<span class="text-primary">'#app'</span>)</pre>
           close-on-escape
         >
           <AlertDialog.Title class="t-section mb-2">
-            Delete {{ doomed?.name }}?
+            Delete {{ name || 'this build' }}?
           </AlertDialog.Title>
 
           <AlertDialog.Description class="t-meta text-on-surface-variant mb-6">

@@ -11,6 +11,9 @@
 // Framework
 import { useStorage } from '@vuetify/v0'
 
+// Utilities
+import { watch } from 'vue'
+
 // Types
 import type { StorageContext } from '@vuetify/v0'
 
@@ -52,6 +55,15 @@ export interface BuildsBackend {
   remove: (id: string) => Promise<void>
   activeId: () => Promise<string | null>
   setActive: (id: string | null) => Promise<void>
+  /**
+   * Notifies when the index changes underneath us — another tab writing, or a storage
+   * clear. Returns an unsubscribe. Consumers must treat their own copy of the list as a
+   * cache of this, never as the source of truth, or a stale entry survives in the UI and
+   * (worse) gets written back over the real index on the next mutation.
+   *
+   * An API backend implements this with polling or a socket; the shape does not change.
+   */
+  subscribe: (listener: () => void) => () => void
 }
 
 const INDEX_KEY = 'builder.builds'
@@ -234,6 +246,16 @@ export function useBuilds (): BuildsBackend {
 
     async setActive (buildId) {
       storage.set(ACTIVE_KEY, buildId)
+    },
+
+    // useStorage keeps one reactive ref per key and updates it from the window `storage`
+    // event, so watching that ref is what makes another tab's write observable here.
+    subscribe (listener) {
+      return watch(
+        storage.get<BuildIndex | BuildSummary[]>(INDEX_KEY, { rev: 0, builds: [] }),
+        () => listener(),
+        { deep: true },
+      )
     },
   }
 }
