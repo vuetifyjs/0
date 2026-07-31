@@ -80,24 +80,21 @@
 </script>
 
 <template>
-  <div
-    v-if="empty"
-    class="rounded-xl border border-divider bg-surface px-6 py-12 text-center"
-  >
-    <p class="text-sm font-semibold text-on-surface mb-1">Nothing on the lot yet</p>
-    <p class="text-xs text-on-surface-variant">Select plugins on the left to start your build.</p>
+  <div v-if="empty" class="panel px-6 py-12 text-center">
+    <p class="t-section text-on-surface mb-1.5">Nothing selected yet</p>
+    <p class="t-meta text-on-surface-variant">Pick plugins on the left and your build shows up here.</p>
   </div>
 
   <div v-else class="space-y-4">
-    <div class="rounded-xl border border-divider bg-surface p-4">
+    <div class="panel p-4">
       <div class="grid grid-cols-3 divide-x divide-divider">
         <div
           v-for="stat in stats"
           :key="stat.label"
           class="px-2 text-center"
         >
-          <p class="text-2xl font-bold text-on-surface tabular-nums">{{ stat.value }}</p>
-          <p class="text-[10px] uppercase tracking-wider text-on-surface-variant mt-0.5">{{ stat.label }}</p>
+          <p class="text-2xl font-bold text-on-surface tabular-nums leading-none">{{ stat.value }}</p>
+          <p class="t-eyebrow text-on-surface-variant mt-2">{{ stat.label }}</p>
         </div>
       </div>
     </div>
@@ -214,24 +211,23 @@
       </div>
     </MiniFrame>
 
-    <div v-if="rows.length > 0" class="rounded-xl border border-divider bg-surface p-4">
-      <p class="text-[10px] uppercase tracking-wider text-on-surface-variant mb-2.5">Subsystems</p>
+    <div v-if="rows.length > 0" class="panel overflow-hidden">
+      <div class="flex items-center h-10 px-4 border-b border-divider bg-surface-variant/50">
+        <p class="t-eyebrow text-on-surface">Subsystems</p>
+      </div>
 
-      <ul class="space-y-1.5">
+      <ul class="divide-y divide-divider">
         <li
           v-for="row in rows"
           :key="row.id"
-          class="flex items-center justify-between gap-3"
+          class="flex items-center justify-between gap-3 px-4 py-2.5"
         >
-          <span class="inline-flex items-center gap-2 text-xs text-on-surface">
+          <span class="inline-flex items-center gap-2 t-meta text-on-surface">
             <Icon class="text-primary" :path="mdiCheck" :size="14" />
             {{ row.title }}
           </span>
 
-          <span
-            class="text-[10px] uppercase tracking-wide"
-            :class="row.customized ? 'text-primary' : 'text-on-surface-variant'"
-          >
+          <span :class="row.customized ? 'chip-on' : 'chip-quiet'">
             {{ row.customized ? 'customized' : 'stock' }}
           </span>
         </li>

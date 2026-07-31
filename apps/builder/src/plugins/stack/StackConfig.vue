@@ -48,15 +48,15 @@
 <template>
   <PluginConfigShell plugin-id="useStack" @save="onSave">
     <template #description>
-      <p class="text-on-surface-variant mb-8">
+      <p class="t-body text-on-surface-variant">
         Coordinate z-index across overlays (dialogs, menus, snackbars). Each registered
         overlay sits one increment above the one below it.
       </p>
     </template>
 
     <div class="space-y-6">
-      <label class="block">
-        <span class="text-xs uppercase tracking-wide text-on-surface-variant">Base z-index</span>
+      <label class="field">
+        <span class="field-label">Base z-index</span>
 
         <NumberField.Root v-model="state.baseZIndex" class="flex w-full" label="Base z-index" :min="0">
           <NumberField.Decrement class="mt-1 px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
@@ -75,8 +75,8 @@
         </span>
       </label>
 
-      <label class="block">
-        <span class="text-xs uppercase tracking-wide text-on-surface-variant">Increment</span>
+      <label class="field">
+        <span class="field-label">Increment</span>
 
         <NumberField.Root v-model="state.increment" class="flex w-full" label="Z-index increment" :min="1">
           <NumberField.Decrement class="mt-1 px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
@@ -95,8 +95,8 @@
         </span>
       </label>
 
-      <div class="border border-divider rounded-lg p-4 bg-surface-variant/50">
-        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Preview</div>
+      <div class="inset p-4">
+        <div class="field-label mb-2">Preview</div>
 
         <p class="text-sm text-on-surface-variant font-mono">
           first = {{ state.baseZIndex }}, second = {{ state.baseZIndex + state.increment }},

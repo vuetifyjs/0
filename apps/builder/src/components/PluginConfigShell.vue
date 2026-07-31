@@ -31,6 +31,9 @@
   const isFirst = toRef(() => position.value === 0)
   const isLast = toRef(() => position.value === sequence.value.length - 1)
 
+  const total = toRef(() => String(sequence.value.length).padStart(2, '0'))
+  const index = toRef(() => String(position.value + 1).padStart(2, '0'))
+
   function goToPrev () {
     if (isFirst.value) {
       router.push('/builder')
@@ -58,28 +61,46 @@
 </script>
 
 <template>
-  <div v-if="meta" class="max-w-4xl mx-auto px-6 py-12">
-    <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
-      Step 2 · Configuring {{ meta.title }} ({{ position + 1 }} of {{ sequence.length }})
-    </p>
+  <div v-if="meta" class="max-w-3xl mx-auto px-6 py-10 sm:py-12">
+    <header class="mb-9">
+      <div class="flex items-baseline justify-between gap-4 mb-3">
+        <p class="t-eyebrow text-primary">Step 2 · Configure</p>
 
-    <h2 class="text-2xl font-bold mb-2">{{ meta.title }}</h2>
+        <p class="t-index text-on-surface-variant">
+          {{ index }} <span class="text-on-surface-variant/50">/</span> {{ total }}
+        </p>
+      </div>
 
-    <slot name="description">
-      <p class="text-on-surface-variant mb-8">
-        {{ meta.title }} configuration
-      </p>
-    </slot>
+      <!-- Position in the sequence, at a glance. The counter above already states it for
+           assistive tech, so the rail itself is decorative. -->
+      <div aria-hidden="true" class="flex items-center gap-1 mb-7">
+        <span
+          v-for="(step, at) in sequence"
+          :key="step.id"
+          class="flex-1 rounded-full transition-colors duration-150"
+          :class="[
+            at === position ? 'h-1.5 bg-primary' : 'h-1',
+            at < position ? 'bg-primary/45' : '',
+            at > position ? 'bg-divider' : '',
+          ]"
+        />
+      </div>
 
-    <div class="mb-8">
+      <h2 class="t-title mb-3">{{ meta.title }}</h2>
+
+      <slot name="description">
+        <p class="t-body text-on-surface-variant">
+          {{ meta.title }} configuration
+        </p>
+      </slot>
+    </header>
+
+    <div class="mb-10">
       <slot />
     </div>
 
-    <div class="flex items-center justify-between border-t pt-6">
-      <Button.Root
-        class="text-sm text-on-surface-variant hover:text-on-surface inline-flex items-center gap-1"
-        @click="goToPrev"
-      >
+    <div class="flex flex-wrap items-center justify-between gap-4 border-t border-divider pt-6">
+      <Button.Root class="btn-quiet" @click="goToPrev">
         <Button.Icon>
           <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
         </Button.Icon>
@@ -87,11 +108,8 @@
         <Button.Content>{{ isFirst ? 'Back to plugin selection' : 'Prev' }}</Button.Content>
       </Button.Root>
 
-      <div class="flex items-center gap-3">
-        <Button.Root
-          class="text-sm text-on-surface-variant hover:text-on-surface inline-flex items-center gap-1"
-          @click="onSkip"
-        >
+      <div class="flex items-center gap-2">
+        <Button.Root class="btn-ghost" @click="onSkip">
           <Button.Icon>
             <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
           </Button.Icon>
@@ -99,11 +117,8 @@
           <Button.Content>Skip (use defaults)</Button.Content>
         </Button.Root>
 
-        <Button.Root
-          class="px-6 py-2.5 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity inline-flex items-center gap-2"
-          @click="onSave"
-        >
-          <Button.Content>{{ isLast ? 'Save & Continue to Components' : 'Save & Next' }}</Button.Content>
+        <Button.Root class="btn-primary" @click="onSave">
+          <Button.Content>{{ isLast ? 'Save & continue' : 'Save & next' }}</Button.Content>
 
           <Button.Icon>
             <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowRight" fill="currentColor" /></svg>

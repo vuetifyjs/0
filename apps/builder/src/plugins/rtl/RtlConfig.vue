@@ -48,7 +48,7 @@
 <template>
   <PluginConfigShell plugin-id="useRtl" @save="onSave">
     <template #description>
-      <p class="text-on-surface-variant mb-8">
+      <p class="t-body text-on-surface-variant">
         Right-to-left support flips component layouts for Arabic, Hebrew, and other
         RTL scripts. Most apps default to LTR; toggle this if your primary audience reads RTL.
       </p>
@@ -69,25 +69,25 @@
           <div class="text-sm text-on-surface">Default to right-to-left direction</div>
 
           <div class="text-xs text-on-surface-variant mt-1">
-            When enabled, the adapter sets <code class="px-1 rounded bg-surface-variant">dir="rtl"</code>
+            When enabled, the adapter sets <code class="code-chip">dir="rtl"</code>
             on the target element on mount. Leave off for LTR (default).
           </div>
         </div>
       </label>
 
-      <label class="block">
-        <span class="text-xs uppercase tracking-wide text-on-surface-variant">Target (optional)</span>
+      <label class="field">
+        <span class="field-label">Target (optional)</span>
 
         <Input.Root v-model="state.target">
           <Input.Control
-            class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+            class="field-input font-mono"
             placeholder="Leave blank to use document.documentElement"
           />
         </Input.Root>
 
         <span class="block mt-1 text-xs text-on-surface-variant">
           CSS selector for the element that receives the
-          <code class="px-1 rounded bg-surface-variant">dir</code> attribute. Defaults to the document root.
+          <code class="code-chip">dir</code> attribute. Defaults to the document root.
         </span>
       </label>
     </div>

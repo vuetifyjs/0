@@ -43,14 +43,14 @@
 
 <template>
   <div class="min-h-screen bg-background text-on-surface flex flex-col">
-    <header class="sticky top-0 z-30 border-b border-divider bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div class="px-4 sm:px-6 h-14 flex items-center gap-3">
+    <header class="sticky top-0 z-30 border-b border-divider bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+      <div class="px-4 sm:px-6 h-16 flex items-center gap-3">
         <Button.Root
-          class="flex items-center gap-2 font-semibold text-sm tracking-tight rounded-md px-2 py-1 -ml-2 hover:bg-surface-variant transition-colors"
+          class="flex items-center gap-2.5 rounded-md px-2 py-1.5 -ml-2 hover:bg-surface-variant transition-colors duration-150"
           @click="onHome"
         >
-          <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-primary text-on-primary text-xs font-bold">v0</span>
-          <span class="hidden sm:inline">Framework Builder</span>
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-primary text-on-primary font-mono text-[0.6875rem] font-bold">v0</span>
+          <span class="hidden sm:inline text-sm font-semibold tracking-[-0.01em]">Framework Builder</span>
         </Button.Root>
 
         <div class="flex-1" />
@@ -61,7 +61,7 @@
 
         <a
           aria-label="Open GitHub repository"
-          class="hidden sm:inline-flex w-8 h-8 items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors"
+          class="hidden sm:inline-flex w-9 h-9 items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors duration-150"
           href="https://github.com/vuetifyjs/0"
           rel="noopener"
           target="_blank"
@@ -71,7 +71,7 @@
 
         <Button.Root
           v-if="split && isBuilderRoute && mobile"
-          class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md text-xs font-medium border border-divider text-on-surface hover:bg-surface-variant transition-colors"
+          class="btn-outline h-9 px-3 text-[0.8125rem]"
           @click="previewOpen = true"
         >
           <Icon :path="mdiEye" :size="14" />
@@ -87,11 +87,12 @@
 
       <aside
         v-if="!mobile"
-        class="flex flex-col w-[420px] xl:w-[480px] border-l border-divider bg-surface/40"
+        class="flex flex-col w-[420px] xl:w-[480px] border-l border-divider bg-background"
       >
-        <div class="sticky top-14 max-h-[calc(100vh-3.5rem)] overflow-y-auto">
-          <div class="sticky top-0 z-10 flex items-center px-4 lg:px-6 h-10 border-b border-divider bg-surface/80 backdrop-blur">
-            <p class="text-xs uppercase tracking-wide text-on-surface-variant">Live preview</p>
+        <div class="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto">
+          <div class="sticky top-0 z-10 flex items-center gap-2 px-4 lg:px-5 h-11 border-b border-divider bg-background/90 backdrop-blur">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary" />
+            <p class="t-eyebrow text-on-surface-variant">Live preview</p>
           </div>
 
           <slot name="preview" />
@@ -114,13 +115,10 @@
             <span class="h-1 w-9 rounded-full bg-on-surface/20" />
           </div>
 
-          <div class="flex items-center justify-between gap-3 px-4 h-9">
-            <p class="text-xs uppercase tracking-wide text-on-surface-variant">Live preview</p>
+          <div class="flex items-center justify-between gap-3 px-4 h-10">
+            <p class="t-eyebrow text-on-surface-variant">Live preview</p>
 
-            <Button.Root
-              class="text-xs text-on-surface-variant hover:text-on-surface px-2 py-1 rounded hover:bg-surface-variant transition-colors"
-              @click="previewOpen = false"
-            >
+            <Button.Root class="btn-ghost h-8 px-2.5" @click="previewOpen = false">
               <Button.Content>Close</Button.Content>
             </Button.Root>
           </div>

@@ -116,11 +116,8 @@
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto px-6 py-12">
-    <Button.Root
-      class="text-sm text-on-surface-variant hover:text-on-surface mb-6 inline-flex items-center gap-1"
-      @click="onBack"
-    >
+  <div class="max-w-4xl mx-auto px-6 py-10 sm:py-12">
+    <Button.Root class="btn-quiet mb-8" @click="onBack">
       <Button.Icon>
         <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
       </Button.Icon>
@@ -131,24 +128,25 @@
       </Button.Content>
     </Button.Root>
 
-    <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
-      Step 3
-    </p>
+    <header class="mb-10">
+      <p class="t-eyebrow text-primary mb-3">Step 3 · Select</p>
 
-    <h2 class="text-2xl font-bold mb-2">Pick components</h2>
+      <h2 class="t-title mb-3">Pick components</h2>
 
-    <p class="text-on-surface-variant mb-8">
-      Add the headless components your library needs. Recommendations are based on the plugins you selected.
-    </p>
+      <p class="t-body text-on-surface-variant max-w-2xl">
+        Add the headless components your library needs. Recommendations come from the plugins
+        you already selected.
+      </p>
+    </header>
 
-    <div v-if="showRecommended" class="mb-10">
-      <div class="mb-3">
-        <h3 class="text-sm font-semibold uppercase tracking-wide flex items-center gap-1.5">
-          <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24"><path :d="mdiStar" fill="currentColor" /></svg>
+    <section v-if="showRecommended" class="mb-10">
+      <div class="flex items-baseline gap-3 mb-4 pb-2.5 border-b border-divider">
+        <h3 class="t-eyebrow text-on-surface inline-flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-primary" viewBox="0 0 24 24"><path :d="mdiStar" fill="currentColor" /></svg>
           Recommended
         </h3>
 
-        <p class="text-xs text-on-surface-variant mt-0.5">Based on your plugins</p>
+        <p class="t-meta text-on-surface-variant">Based on your plugins</p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -156,95 +154,85 @@
           v-for="component in recommendedList"
           :key="`rec-${component.id}`"
           :aria-label="component.id"
-          class="p-3 rounded-lg border text-left transition-all"
-          :class="store.isComponentSelected(component.id)
-            ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
-            : 'border-divider bg-surface hover:border-on-surface-variant/40'"
+          class="pick p-3.5"
+          :class="store.isComponentSelected(component.id) ? 'pick-on' : 'pick-off'"
           :model-value="store.isComponentSelected(component.id)"
           @update:model-value="store.toggleComponent(component.id)"
         >
           <div class="flex items-start justify-between gap-2">
             <div class="min-w-0">
-              <h4 class="font-semibold text-sm">{{ component.id }}</h4>
+              <h4 class="font-mono text-[0.8125rem] font-semibold">{{ component.id }}</h4>
 
-              <p v-if="reasonsLabel(component.id).length > 0" class="text-xs text-primary mt-1">
-                Recommended for {{ reasonsLabel(component.id).join(', ') }}
+              <p v-if="reasonsLabel(component.id).length > 0" class="t-meta text-primary mt-1.5">
+                For {{ reasonsLabel(component.id).join(', ') }}
               </p>
             </div>
 
-            <div
-              class="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center transition-colors"
-              :class="store.isComponentSelected(component.id) ? 'bg-primary' : 'border border-divider'"
+            <span
+              class="pick-mark w-5 h-5"
+              :class="store.isComponentSelected(component.id) ? 'pick-mark-on' : 'pick-mark-off'"
             >
-              <svg v-if="store.isComponentSelected(component.id)" class="w-3.5 h-3.5 text-on-primary" viewBox="0 0 24 24">
+              <svg v-if="store.isComponentSelected(component.id)" class="w-3.5 h-3.5" viewBox="0 0 24 24">
                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
               </svg>
-            </div>
+            </span>
           </div>
         </Toggle.Root>
       </div>
+    </section>
+
+    <div class="flex items-baseline gap-3 mb-4 pb-2.5 border-b border-divider">
+      <h3 class="t-eyebrow text-on-surface">All components</h3>
+      <p class="t-meta text-on-surface-variant">Grouped by category</p>
     </div>
 
-    <div class="mb-3">
-      <h3 class="text-sm font-semibold uppercase tracking-wide">All components</h3>
-      <p class="text-xs text-on-surface-variant mt-0.5">Grouped by category</p>
-    </div>
-
-    <div class="flex flex-col gap-8">
-      <div v-for="group in groups" :key="group.id">
-        <h4 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">{{ group.title }}</h4>
+    <div class="flex flex-col gap-7">
+      <section v-for="group in groups" :key="group.id">
+        <h4 class="t-eyebrow text-on-surface-variant mb-2.5">{{ group.title }}</h4>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
           <Toggle.Root
             v-for="component in group.components"
             :key="component.id"
             :aria-label="component.selectable ? component.id : `${component.id}, draft, not yet available`"
-            class="px-3 py-2 rounded-lg border text-left transition-all flex items-center justify-between gap-2"
+            class="pick h-11 px-3 flex items-center justify-between gap-2"
             :class="[
               !component.selectable
-                ? 'border-divider bg-surface-variant/40 opacity-60 cursor-not-allowed'
+                ? 'pick-disabled'
                 : store.isComponentSelected(component.id)
-                  ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
-                  : 'border-divider bg-surface hover:border-on-surface-variant/40',
+                  ? 'pick-on'
+                  : 'pick-off',
             ]"
             :disabled="!component.selectable"
             :model-value="store.isComponentSelected(component.id)"
             :title="component.selectable ? undefined : `${component.id} is on the roadmap but is not exported from @vuetify/v0 yet`"
             @update:model-value="store.toggleComponent(component.id)"
           >
-            <span class="text-sm font-medium truncate">{{ component.id }}</span>
+            <span class="font-mono text-[0.8125rem] font-medium truncate">{{ component.id }}</span>
+
+            <span v-if="!component.selectable" class="chip-quiet flex-shrink-0">draft</span>
 
             <span
-              v-if="!component.selectable"
-              class="px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide border border-divider text-on-surface-variant flex-shrink-0"
-            >
-              draft
-            </span>
-
-            <div
               v-else
-              class="w-4 h-4 rounded flex-shrink-0 flex items-center justify-center transition-colors"
-              :class="store.isComponentSelected(component.id) ? 'bg-primary' : 'border border-divider'"
+              class="pick-mark w-4 h-4"
+              :class="store.isComponentSelected(component.id) ? 'pick-mark-on' : 'pick-mark-off'"
             >
-              <svg v-if="store.isComponentSelected(component.id)" class="w-3 h-3 text-on-primary" viewBox="0 0 24 24">
+              <svg v-if="store.isComponentSelected(component.id)" class="w-3 h-3" viewBox="0 0 24 24">
                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
               </svg>
-            </div>
+            </span>
           </Toggle.Root>
         </div>
-      </div>
+      </section>
     </div>
 
-    <div class="mt-8 flex items-center justify-between">
-      <span class="text-sm text-on-surface-variant">
+    <div class="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-divider pt-6">
+      <p class="t-index text-on-surface-variant">
         {{ store.selectedComponents.size }} {{ store.selectedComponents.size === 1 ? 'component' : 'components' }} selected
-      </span>
+      </p>
 
-      <Button.Root
-        class="px-6 py-2.5 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
-        @click="onContinue"
-      >
-        Continue to Review
+      <Button.Root class="btn-primary" @click="onContinue">
+        Continue to review
       </Button.Root>
     </div>
   </div>

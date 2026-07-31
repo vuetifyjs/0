@@ -60,18 +60,18 @@
 <template>
   <PluginConfigShell plugin-id="useRules" @save="onSave">
     <template #description>
-      <p class="text-on-surface-variant mb-8">
+      <p class="t-body text-on-surface-variant">
         Name the validation aliases your forms will reference, then use them as strings:
-        <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">rules.resolve(['required', 'email'])</code>.
+        <code class="code-chip">rules.resolve(['required', 'email'])</code>.
       </p>
     </template>
 
     <div class="space-y-6">
-      <div class="border border-divider rounded-lg p-4 bg-surface-variant/50">
-        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">How aliases are generated</div>
+      <div class="inset p-4">
+        <div class="field-label mb-2">How aliases are generated</div>
 
         <p class="text-sm text-on-surface-variant">
-          v0's <code class="text-xs px-1.5 py-0.5 rounded bg-surface">createRules</code>
+          v0's <code class="code-chip">createRules</code>
           ships <strong>no built-in aliases</strong> — every predicate is supplied by you.
           The names below are scaffolded into your generated setup: the ones offered as
           suggestions come out as working predicates, and any other name comes out as a
@@ -80,7 +80,7 @@
       </div>
 
       <div>
-        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Aliases</div>
+        <div class="field-label mb-2">Aliases</div>
 
         <div v-if="aliases.length > 0" class="flex flex-wrap gap-2 mb-3">
           <span
@@ -110,7 +110,7 @@
           <Input.Root v-model="draft" class="flex-1">
             <Input.Control
               aria-label="New alias name"
-              class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono outline-none data-[focused]:border-primary transition-colors"
+              class="field-input font-mono"
               placeholder="phone"
               @keydown.enter.prevent="onAdd"
             />
@@ -131,7 +131,7 @@
       </div>
 
       <div v-if="suggestions.length > 0">
-        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Quick add</div>
+        <div class="field-label mb-2">Quick add</div>
 
         <div class="flex flex-wrap gap-2">
           <Button.Root

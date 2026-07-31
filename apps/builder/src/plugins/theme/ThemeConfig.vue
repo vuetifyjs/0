@@ -102,19 +102,19 @@
 <template>
   <PluginConfigShell plugin-id="useTheme" @save="onSave">
     <template #description>
-      <p class="text-on-surface-variant mb-8">
+      <p class="t-body text-on-surface-variant">
         Define color tokens for light and/or dark themes. These become CSS custom
-        properties via <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">--v0-&lt;token&gt;</code>.
+        properties via <code class="code-chip">--v0-&lt;token&gt;</code>.
       </p>
     </template>
 
     <div class="space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <label class="block">
-          <span class="text-xs uppercase tracking-wide text-on-surface-variant">Default theme</span>
+        <label class="field">
+          <span class="field-label">Default theme</span>
 
           <Select.Root v-model="state.default">
-            <Select.Activator class="mt-1 flex items-center justify-between w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+            <Select.Activator class="field-activator">
               <Select.Value v-slot="{ selectedValue }">
                 {{ selectedValue }}
               </Select.Value>
@@ -126,7 +126,7 @@
               </Select.Cue>
             </Select.Activator>
 
-            <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+            <Select.Content class="field-menu" :style="{ minWidth: 'anchor-size(width)' }">
               <Select.Item
                 v-for="key in themeKeys"
                 :id="key"
@@ -152,12 +152,12 @@
           </Select.Root>
         </label>
 
-        <label class="block">
-          <span class="text-xs uppercase tracking-wide text-on-surface-variant">Target</span>
+        <label class="field">
+          <span class="field-label">Target</span>
 
           <Input.Root v-model="state.target">
             <Input.Control
-              class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm outline-none data-[focused]:border-primary transition-colors"
+              class="field-input"
               placeholder="html"
             />
           </Input.Root>
@@ -167,7 +167,7 @@
       <label class="flex items-center gap-2">
         <Checkbox.Root
           v-model="state.foreground"
-          class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+          class="field-check"
         >
           <Checkbox.Indicator class="text-on-primary">
             <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
@@ -175,7 +175,7 @@
         </Checkbox.Root>
 
         <span class="text-sm text-on-surface">
-          Auto-generate <code class="text-xs px-1 py-0.5 rounded bg-surface-variant">on-*</code> colors
+          Auto-generate <code class="code-chip">on-*</code> colors
           <span class="text-on-surface-variant">— applies to every theme</span>
         </span>
       </label>
@@ -184,25 +184,25 @@
         <div
           v-for="(theme, themeIndex) in state.themes"
           :key="themeIndex"
-          class="border border-divider rounded-lg p-4 space-y-4"
+          class="panel p-4 space-y-4"
         >
           <div class="flex items-start justify-between gap-3">
             <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-              <label class="block">
-                <span class="text-xs uppercase tracking-wide text-on-surface-variant">Theme key</span>
+              <label class="field">
+                <span class="field-label">Theme key</span>
 
                 <Input.Root v-model="theme.key">
                   <Input.Control
-                    class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm outline-none data-[focused]:border-primary transition-colors"
+                    class="field-input"
                     placeholder="light"
                   />
                 </Input.Root>
               </label>
 
-              <label class="flex items-center gap-2 mt-5">
+              <label class="flex items-center gap-2">
                 <Checkbox.Root
                   v-model="theme.dark"
-                  class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                  class="field-check"
                 >
                   <Checkbox.Indicator class="text-on-primary">
                     <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
@@ -216,7 +216,7 @@
             <Button.Root
               v-if="state.themes.length > 1"
               :aria-label="`Remove theme ${theme.key}`"
-              class="text-on-surface-variant hover:text-error p-1"
+              class="inline-flex items-center justify-center w-8 h-8 rounded-md text-on-surface-variant hover:text-error hover:bg-surface-variant transition-colors duration-150"
               :title="`Remove ${theme.key}`"
               @click="removeTheme(themeIndex)"
             >
@@ -227,7 +227,7 @@
           </div>
 
           <div>
-            <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Color tokens</div>
+            <div class="field-label mb-2">Color tokens</div>
 
             <div class="space-y-2">
               <div
@@ -237,36 +237,41 @@
               >
                 <Input.Root
                   v-model="color.name"
-                  class="flex-1"
+                  class="flex-1 min-w-0"
                   :label="`${theme.key || 'theme'} token ${colorIndex + 1} name`"
                 >
                   <Input.Control
-                    class="w-full px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono outline-none data-[focused]:border-primary transition-colors"
+                    class="field-input font-mono"
                     placeholder="primary"
                   />
                 </Input.Root>
 
-                <!-- v0 has no color picker; native input is the documented exception -->
-                <input
-                  v-model="color.value"
-                  :aria-label="`${color.name || `Token ${colorIndex + 1}`} color picker`"
-                  class="w-10 h-9 rounded border border-divider cursor-pointer"
-                  type="color"
-                >
+                <!-- Swatch and hex are two views of one value, so they share one frame. -->
+                <div class="flex items-center h-10 rounded-md border border-divider bg-surface overflow-hidden transition-colors duration-150 focus-within:border-primary">
+                  <!-- v0 has no color picker; native input is the documented exception.
+                       The swatch keeps a hairline of its own, or a #ffffff token renders
+                       as nothing against the surface behind it. -->
+                  <input
+                    v-model="color.value"
+                    :aria-label="`${color.name || `Token ${colorIndex + 1}`} color picker`"
+                    class="w-9 h-full shrink-0 cursor-pointer border-0 bg-transparent p-0 [&::-webkit-color-swatch-wrapper]:p-1.5 [&::-webkit-color-swatch]:rounded-sm [&::-webkit-color-swatch]:border [&::-webkit-color-swatch]:border-[var(--v0-divider)]"
+                    type="color"
+                  >
 
-                <Input.Root
-                  v-model="color.value"
-                  :label="`${color.name || `token ${colorIndex + 1}`} hex value`"
-                >
-                  <Input.Control
-                    class="w-28 px-2 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono outline-none data-[focused]:border-primary transition-colors"
-                    placeholder="#000000"
-                  />
-                </Input.Root>
+                  <Input.Root
+                    v-model="color.value"
+                    :label="`${color.name || `token ${colorIndex + 1}`} hex value`"
+                  >
+                    <Input.Control
+                      class="w-24 h-10 pr-3 bg-transparent border-0 text-on-surface text-sm font-mono outline-none"
+                      placeholder="#000000"
+                    />
+                  </Input.Root>
+                </div>
 
                 <Button.Root
                   :aria-label="`Remove ${color.name || `token ${colorIndex + 1}`}`"
-                  class="text-on-surface-variant hover:text-error p-1"
+                  class="inline-flex items-center justify-center w-8 h-8 rounded-md text-on-surface-variant hover:text-error hover:bg-surface-variant transition-colors duration-150"
                   :title="`Remove ${color.name}`"
                   @click="removeColor(theme, colorIndex)"
                 >
@@ -278,7 +283,7 @@
             </div>
 
             <Button.Root
-              class="mt-3 text-sm text-primary hover:opacity-80 inline-flex items-center gap-1"
+              class="btn-outline mt-3 h-9 px-3 text-[0.8125rem]"
               @click="addColor(theme)"
             >
               <Button.Icon>
@@ -291,7 +296,7 @@
         </div>
 
         <Button.Root
-          class="text-sm text-primary hover:opacity-80 inline-flex items-center gap-1"
+          class="btn-outline h-9 px-3 text-[0.8125rem]"
           @click="addTheme"
         >
           <Button.Icon>

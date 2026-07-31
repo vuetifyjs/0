@@ -55,20 +55,20 @@
 <template>
   <PluginConfigShell plugin-id="useStorage" @save="onSave">
     <template #description>
-      <p class="text-on-surface-variant mb-8">
+      <p class="t-body text-on-surface-variant">
         Persist values across reloads with a uniform key/value API. Backed by
-        <code class="text-xs px-1.5 py-0.5 rounded bg-surface-variant">window.localStorage</code>
+        <code class="code-chip">window.localStorage</code>
         by default, with optional time-to-live expiry.
       </p>
     </template>
 
     <div class="space-y-6">
-      <label class="block">
-        <span class="text-xs uppercase tracking-wide text-on-surface-variant">Key prefix</span>
+      <label class="field">
+        <span class="field-label">Key prefix</span>
 
         <Input.Root v-model="state.prefix">
           <Input.Control
-            class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+            class="field-input font-mono"
             placeholder="v0:"
           />
         </Input.Root>
@@ -81,7 +81,7 @@
       <div>
         <label class="flex items-center gap-2 mb-2">
           <Checkbox.Root
-            class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+            class="field-check"
             :model-value="ttlEnabled"
             @update:model-value="onTtlToggle(!!$event)"
           >
@@ -119,14 +119,14 @@
         </span>
       </div>
 
-      <div class="border border-divider rounded-lg p-4 bg-surface-variant/50">
-        <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Advanced</div>
+      <div class="inset p-4">
+        <div class="field-label mb-2">Advanced</div>
 
         <p class="text-sm text-on-surface-variant">
           Adapter and serializer are advanced — customize in code by passing a custom
-          <code class="text-xs px-1.5 py-0.5 rounded bg-surface">Storage</code> instance or
-          <code class="text-xs px-1.5 py-0.5 rounded bg-surface">{ read, write }</code> pair to
-          <code class="text-xs px-1.5 py-0.5 rounded bg-surface">createStoragePlugin()</code>.
+          <code class="code-chip">Storage</code> instance or
+          <code class="code-chip">{ read, write }</code> pair to
+          <code class="code-chip">createStoragePlugin()</code>.
         </p>
       </div>
     </div>
