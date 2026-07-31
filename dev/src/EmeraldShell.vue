@@ -21,20 +21,29 @@
   const collapsed = shallowRef(false)
 
   const active = computed(() => {
-    if (route.path.startsWith('/emerald/contact')) return 'contact'
-    if (route.path.startsWith('/emerald/faqs')) return 'faqs'
-    if (route.path.startsWith('/emerald/features')) return 'features'
-    if (route.path.startsWith('/emerald/sign-in')) return 'signin'
-    if (route.path.startsWith('/emerald/sink')) return 'sink'
-    if (route.path === '/emerald' || route.path === '/emerald/') return 'dashboard'
+    const p = route.path
+    if (p.startsWith('/emerald/contact')) return 'contact'
+    if (p.startsWith('/emerald/faqs')) return 'faqs'
+    if (p.startsWith('/emerald/features')) return 'features'
+    if (p.startsWith('/emerald/settings')) return 'settings'
+    if (p.startsWith('/emerald/pricing')) return 'pricing'
+    if (p.startsWith('/emerald/modals')) return 'modals'
+    if (p.startsWith('/emerald/about')) return 'about'
+    if (p.startsWith('/emerald/sign-in')) return 'signin'
+    if (p.startsWith('/emerald/sink')) return 'sink'
+    if (p === '/emerald' || p === '/emerald/') return 'dashboard'
     return ''
   })
 
   const nav = [
     { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' as const, to: '/emerald' },
     { id: 'features', label: 'Features', icon: 'list' as const, to: '/emerald/features' },
+    { id: 'pricing', label: 'Pricing', icon: 'list' as const, to: '/emerald/pricing' },
     { id: 'faqs', label: 'FAQs', icon: 'list' as const, to: '/emerald/faqs' },
+    { id: 'settings', label: 'Settings', icon: 'list' as const, to: '/emerald/settings' },
+    { id: 'modals', label: 'Modals', icon: 'list' as const, to: '/emerald/modals' },
     { id: 'contact', label: 'Contact', icon: 'list' as const, to: '/emerald/contact' },
+    { id: 'about', label: 'About', icon: 'list' as const, to: '/emerald/about' },
     { id: 'signin', label: 'Sign in', icon: 'list' as const, to: '/emerald/sign-in' },
   ]
 </script>

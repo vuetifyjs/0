@@ -11,10 +11,10 @@ File: [`WaY9z9gHeU6LbkqNgcD9io`](https://www.figma.com/design/WaY9z9gHeU6LbkqNgc
 | `13:233` | Sign in | `/emerald/sign-in` | done |
 | `8951:21565` | FAQs | `/emerald/faqs` | done |
 | `8951:21725` | Features | `/emerald/features` | done |
-| `8967:1212` | Settings | `/emerald/settings` | planned |
-| `8967:1215` | Pricing | `/emerald/pricing` | planned |
-| `8951:21337` | Modals | `/emerald/modals` | planned |
-| `9:760` | About | `/emerald/about` | planned |
+| `8967:1212` | Settings | `/emerald/settings` | done |
+| `8967:1215` | Pricing | `/emerald/pricing` | done |
+| `8951:21337` | Modals | `/emerald/modals` | done |
+| `9:760` | About | `/emerald/about` | done |
 | `8952:22369` | Tables | — | deferred (no EmTable yet) |
 | `8967:1209` | Chat | — | deferred (no chat primitive) |
 

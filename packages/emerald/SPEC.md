@@ -106,7 +106,7 @@ Foundations also export `motion` and `control` (switch/checkbox/avatar geometry)
 Maturity: **preview**. Not published (`private: true` until first release cut).
 
 Dev showcase routes (Figma product examples; inventory in [FIGMA_INVENTORY.md](./FIGMA_INVENTORY.md)):
-- `/emerald` Dashboard · `/emerald/contact` · `/emerald/sign-in` · `/emerald/faqs` · `/emerald/features`
+- Product: `/emerald` · `/contact` · `/sign-in` · `/faqs` · `/features` · `/settings` · `/pricing` · `/modals` · `/about` (all under `/emerald/…`)
 - `/emerald/sink` component inventory
 
 ## Non-goals (current)

@@ -3,11 +3,15 @@ import { ViteSSG } from 'vite-ssg'
 // Context
 import App from './App.vue'
 import CreateOverflowDemo from './CreateOverflowDemo.vue'
+import EmeraldAbout from './EmeraldAbout.vue'
 import EmeraldContact from './EmeraldContact.vue'
 import EmeraldDashboard from './EmeraldDashboard.vue'
 import EmeraldFaqs from './EmeraldFaqs.vue'
 import EmeraldFeatures from './EmeraldFeatures.vue'
 import EmeraldKitchenSink from './EmeraldKitchenSink.vue'
+import EmeraldModals from './EmeraldModals.vue'
+import EmeraldPricing from './EmeraldPricing.vue'
+import EmeraldSettings from './EmeraldSettings.vue'
 import EmeraldSignIn from './EmeraldSignIn.vue'
 import Playground from './Playground.vue'
 
@@ -22,10 +26,14 @@ export const createApp = ViteSSG(
       { path: '/', component: Playground },
       { path: '/create-overflow', component: CreateOverflowDemo },
       { path: '/emerald', component: EmeraldDashboard },
+      { path: '/emerald/about', component: EmeraldAbout },
       { path: '/emerald/contact', component: EmeraldContact },
       { path: '/emerald/sign-in', component: EmeraldSignIn },
       { path: '/emerald/faqs', component: EmeraldFaqs },
       { path: '/emerald/features', component: EmeraldFeatures },
+      { path: '/emerald/settings', component: EmeraldSettings },
+      { path: '/emerald/pricing', component: EmeraldPricing },
+      { path: '/emerald/modals', component: EmeraldModals },
       { path: '/emerald/sink', component: EmeraldKitchenSink },
     ],
   },
