@@ -1,6 +1,7 @@
 // Framework
 import { useStorage } from '@vuetify/v0'
 
+import { isSelectable, keepSelectable } from '@/data/components'
 import dependencyGraph from '@/data/dependencies.json'
 import { resolve } from '@/engine/resolve'
 
@@ -37,8 +38,19 @@ export const useBuilderStore = defineStore('builder', () => {
 
   const selectedPlugins = shallowRef<Set<string>>(new Set(initial.selectedPlugins))
   const pluginConfig = shallowRef<Record<string, unknown>>({ ...initial.pluginConfig })
-  const selectedComponents = shallowRef<Set<string>>(new Set(initial.selectedComponents))
+  // Restored state can name components that have since been reclassified as draft (or
+  // removed outright). They are unbuildable, so drop them rather than letting a stale
+  // selection produce a starter that won't compile.
+  const restored = keepSelectable(initial.selectedComponents)
+  const selectedComponents = shallowRef<Set<string>>(new Set(restored))
   const componentConfig = shallowRef<Record<string, unknown>>({ ...initial.componentConfig })
+
+  // Flush the purge to storage immediately. The persist watcher below only fires on a
+  // subsequent change, so without this the dropped ids would linger in localStorage and
+  // reappear in any other tab reading the same key.
+  if (restored.length !== initial.selectedComponents.length) {
+    persisted.value = { ...initial, selectedComponents: restored }
+  }
 
   const draft = shallowRef<{ id: string, config: unknown } | null>(null)
 
@@ -88,7 +100,7 @@ export const useBuilderStore = defineStore('builder', () => {
   }
 
   function selectComponent (id: string) {
-    if (selectedComponents.value.has(id)) return
+    if (!isSelectable(id) || selectedComponents.value.has(id)) return
     selectedComponents.value = new Set([...selectedComponents.value, id])
   }
 

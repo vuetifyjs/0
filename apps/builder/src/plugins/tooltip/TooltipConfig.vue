@@ -62,7 +62,13 @@
       <label class="block">
         <span class="text-xs uppercase tracking-wide text-on-surface-variant">Open delay (ms)</span>
 
-        <NumberField.Root v-model="state.openDelay" class="flex w-full" :min="0" :step="50">
+        <NumberField.Root
+          v-model="state.openDelay"
+          class="flex w-full"
+          label="Open delay in milliseconds"
+          :min="0"
+          :step="50"
+        >
           <NumberField.Decrement class="mt-1 px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
             <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiMinus" fill="currentColor" /></svg>
           </NumberField.Decrement>
@@ -82,7 +88,13 @@
       <label class="block">
         <span class="text-xs uppercase tracking-wide text-on-surface-variant">Close delay (ms)</span>
 
-        <NumberField.Root v-model="state.closeDelay" class="flex w-full" :min="0" :step="50">
+        <NumberField.Root
+          v-model="state.closeDelay"
+          class="flex w-full"
+          label="Close delay in milliseconds"
+          :min="0"
+          :step="50"
+        >
           <NumberField.Decrement class="mt-1 px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
             <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiMinus" fill="currentColor" /></svg>
           </NumberField.Decrement>
@@ -102,7 +114,13 @@
       <label class="block">
         <span class="text-xs uppercase tracking-wide text-on-surface-variant">Skip delay (ms)</span>
 
-        <NumberField.Root v-model="state.skipDelay" class="flex w-full" :min="0" :step="50">
+        <NumberField.Root
+          v-model="state.skipDelay"
+          class="flex w-full"
+          label="Skip delay in milliseconds"
+          :min="0"
+          :step="50"
+        >
           <NumberField.Decrement class="mt-1 px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
             <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiMinus" fill="currentColor" /></svg>
           </NumberField.Decrement>

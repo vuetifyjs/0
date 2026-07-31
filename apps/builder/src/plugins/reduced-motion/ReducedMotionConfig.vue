@@ -61,7 +61,7 @@
       <div>
         <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Initial mode</div>
 
-        <Radio.Group v-model="state.mode" class="space-y-2">
+        <Radio.Group v-model="state.mode" aria-label="Initial reduced-motion mode" class="space-y-2">
           <label
             v-for="mode in MODES"
             :key="mode"

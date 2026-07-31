@@ -109,8 +109,13 @@
           >
             <span class="w-12 font-mono text-sm text-on-surface">{{ name }}</span>
 
-            <NumberField.Root v-model="state.breakpoints[name]" :min="0">
-              <NumberField.Control class="flex-1 px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono" />
+            <NumberField.Root
+              v-model="state.breakpoints[name]"
+              class="flex-1"
+              :label="`${name} breakpoint in pixels`"
+              :min="0"
+            >
+              <NumberField.Control class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono" />
             </NumberField.Root>
           </div>
         </div>
@@ -119,7 +124,7 @@
       <div>
         <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Mobile breakpoint</div>
 
-        <Radio.Group class="flex items-center gap-3 mb-3" :model-value="mode" @update:model-value="onModeChange($event as 'named' | 'pixels')">
+        <Radio.Group aria-label="Mobile breakpoint mode" class="flex items-center gap-3 mb-3" :model-value="mode" @update:model-value="onModeChange($event as 'named' | 'pixels')">
           <label class="flex items-center gap-2">
             <Radio.Root
               class="size-5 border rounded-full inline-flex items-center justify-center border-divider data-[state=checked]:border-primary"
@@ -144,7 +149,7 @@
         </Radio.Group>
 
         <Select.Root v-if="mode === 'named'" v-model="state.mobileBreakpoint">
-          <Select.Activator class="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+          <Select.Activator aria-label="Mobile breakpoint" class="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
             <Select.Value v-slot="{ selectedValue }">
               {{ selectedValue }}
             </Select.Value>
@@ -182,8 +187,11 @@
           </Select.Content>
         </Select.Root>
 
-        <NumberField.Root v-else v-model="pixels" :min="0">
-          <NumberField.Control class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono" placeholder="1145" />
+        <NumberField.Root v-else v-model="pixels" label="Mobile breakpoint in pixels" :min="0">
+          <NumberField.Control
+            class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+            placeholder="1145"
+          />
         </NumberField.Root>
       </div>
     </div>

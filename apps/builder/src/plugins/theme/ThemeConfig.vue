@@ -235,9 +235,12 @@
                 :key="colorIndex"
                 class="flex items-center gap-2"
               >
-                <Input.Root v-model="color.name" class="flex-1">
+                <Input.Root
+                  v-model="color.name"
+                  class="flex-1"
+                  :label="`${theme.key || 'theme'} token ${colorIndex + 1} name`"
+                >
                   <Input.Control
-                    :aria-label="`Token ${colorIndex + 1} name`"
                     class="w-full px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono outline-none data-[focused]:border-primary transition-colors"
                     placeholder="primary"
                   />
@@ -251,9 +254,11 @@
                   type="color"
                 >
 
-                <Input.Root v-model="color.value">
+                <Input.Root
+                  v-model="color.value"
+                  :label="`${color.name || `token ${colorIndex + 1}`} hex value`"
+                >
                   <Input.Control
-                    :aria-label="`${color.name || 'color'} hex value`"
                     class="w-28 px-2 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono outline-none data-[focused]:border-primary transition-colors"
                     placeholder="#000000"
                   />

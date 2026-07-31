@@ -93,7 +93,13 @@
           <span class="text-sm text-on-surface">Enable TTL (auto-expire)</span>
         </label>
 
-        <NumberField.Root v-model="state.ttl" class="flex w-full" :disabled="!ttlEnabled" :min="0">
+        <NumberField.Root
+          v-model="state.ttl"
+          class="flex w-full"
+          :disabled="!ttlEnabled"
+          label="Time to live in milliseconds"
+          :min="0"
+        >
           <NumberField.Decrement class="px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
             <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiMinus" fill="currentColor" /></svg>
           </NumberField.Decrement>
