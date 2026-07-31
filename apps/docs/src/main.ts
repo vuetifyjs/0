@@ -13,6 +13,10 @@ import { useIdleCallback } from './composables/useIdleCallback'
 import { registerPlugins } from './plugins'
 import pinia from './plugins/pinia'
 import routerOptions from './plugins/router'
+
+// Stores
+import { useAuthStore } from '@vuetify/auth'
+
 import './styles/tokens.css'
 import './styles/transitions.css'
 import 'virtual:uno.css'
@@ -39,8 +43,9 @@ export const createApp = ViteSSG(
       pinia.state.value = initialState.pinia || {}
 
     if (!import.meta.env.SSR) {
-      const { useAuthStore } = await import('@vuetify/auth')
-      useAuthStore().verify()
+      const auth = useAuthStore()
+
+      auth.verify()
 
       const logger = useLogger()
 

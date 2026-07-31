@@ -42,6 +42,7 @@
   const {
     as = 'span',
     namespace = 'v0:select',
+    renderless,
   } = defineProps<SelectPlaceholderProps>()
 
   const context = useSelectContext(namespace)
@@ -53,7 +54,7 @@
 </script>
 
 <template>
-  <Atom v-if="!hasValue" :as>
+  <Atom v-if="!hasValue" :as :renderless>
     <slot :has-value />
   </Atom>
 </template>

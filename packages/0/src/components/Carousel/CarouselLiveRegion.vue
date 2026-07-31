@@ -96,10 +96,10 @@
 
     clearTimeout(pending)
     pending = setTimeout(() => {
-      text.value = locale.t(
+      text.value = locale.ti(
         'Carousel.liveRegion',
         { current: index + 1, size: carousel.size },
-      )
+      ) ?? `Slide ${index + 1} of ${carousel.size}`
     }, 100)
   })
 

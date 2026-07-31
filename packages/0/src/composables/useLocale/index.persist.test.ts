@@ -65,4 +65,32 @@ describe('useLocale persist/restore', () => {
 
     expect(stored).toBe('es')
   })
+
+  it('should ignore a tampered non-string/number persisted value', () => {
+    const app = createApp({ render: () => null })
+    app.use(createStoragePlugin())
+
+    // Simulate a hand-edited / schema-drifted storage entry
+    app.runWithContext(() => {
+      const storage = useStorage()
+      storage.set('locale', { evil: true })
+    })
+
+    app.use(createLocalePlugin({
+      persist: true,
+      default: 'en',
+      messages: {
+        en: { hello: 'Hello' },
+        es: { hello: 'Hola' },
+      },
+    }))
+
+    let restored: unknown
+    app.runWithContext(() => {
+      const ctx = useLocale()
+      restored = ctx.selectedId.value
+    })
+
+    expect(restored).toBe('en')
+  })
 })

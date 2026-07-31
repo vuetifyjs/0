@@ -30,7 +30,7 @@ import { createPluginContext } from '#v0/composables/createPlugin'
 import { useWindowEventListener } from '#v0/composables/useEventListener'
 import { useHydration } from '#v0/composables/useHydration'
 
-// Constants
+// Globals
 import { IN_BROWSER, SUPPORTS_MATCH_MEDIA } from '#v0/constants/globals'
 
 // Utilities
@@ -109,7 +109,7 @@ function createDefaultBreakpoints () {
  * ```ts
  * import { createBreakpoints } from '@vuetify/v0'
  *
- * export const [useBreakpoints, provideBreakpoints] = createBreakpoints({
+ * const breakpoints = createBreakpoints({
  *   namespace: 'v0:breakpoints',
  *   mobileBreakpoint: 'md',
  *   breakpoints: {

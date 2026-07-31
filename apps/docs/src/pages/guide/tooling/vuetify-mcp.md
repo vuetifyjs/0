@@ -50,7 +50,7 @@ bunx @vuetify/mcp config --remote
 
 ### Claude Code
 
-[Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) is Anthropic's agentic coding tool. Add the hosted MCP server directly via CLI:
+[Claude Code](https://code.claude.com/docs/en/overview) is Anthropic's agentic coding tool. Add the hosted MCP server directly via CLI:
 
 ```bash
 claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
@@ -58,7 +58,7 @@ claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 
 ### Claude Desktop
 
-[Claude Desktop](https://claude.ai/download) is Anthropic's GUI app. **Direct HTTP transport (`url:`) is not supported in `claude_desktop_config.json`** — Claude Desktop only accepts stdio servers. Use one of the two stdio configurations below.
+[Claude Desktop](https://claude.com/download) is Anthropic's GUI app. **Direct HTTP transport (`url:`) is not supported in `claude_desktop_config.json`** — Claude Desktop only accepts stdio servers. Use one of the two stdio configurations below.
 
 ::: code-group no-filename
 

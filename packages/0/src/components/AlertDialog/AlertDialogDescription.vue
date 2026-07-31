@@ -44,6 +44,7 @@
   const {
     as = 'p',
     namespace = 'v0:alert-dialog',
+    renderless,
   } = defineProps<AlertDialogDescriptionProps>()
 
   const context = useAlertDialogContext(namespace)
@@ -58,6 +59,7 @@
 <template>
   <Atom
     :as
+    :renderless
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />

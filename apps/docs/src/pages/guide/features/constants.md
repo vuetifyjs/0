@@ -103,7 +103,7 @@ The current package version string. Resolves to the build-time version in produc
 ```ts
 import { version } from '@vuetify/v0/constants'
 
-console.log(version)  // e.g. '0.4.2'
+console.log(version)  // e.g. '1.0.0-beta.4'
 ```
 
 ## HTML Elements

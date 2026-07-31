@@ -487,7 +487,9 @@ export function createKanban<
     destination.items.batch(() => {
       const [input] = source.items.offboard([id])
       if (isUndefined(input)) return
-      registered = destination.items.register(input)
+      // offboard strips id/value off value-as-index tickets; re-pin the id so the
+      // ticket keeps its identity across columns (lookup map, caller handle, event).
+      registered = destination.items.register({ ...input, id } as Partial<ItemZ>)
       moved = registered.index === toIndex ? registered : destination.items.move(registered.id, toIndex)
     })
 

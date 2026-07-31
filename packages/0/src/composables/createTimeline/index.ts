@@ -31,6 +31,9 @@ import { useContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
 import { createTrinity } from '#v0/composables/createTrinity'
 
+// Utilities
+import { isNaN } from '#v0/utilities'
+
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -39,7 +42,7 @@ export interface TimelineContext<Z extends TimelineTicket> extends RegistryConte
   /**
    * Removes the last registered ticket and stores it for redo
    *
-   * @return The removed ticket, or undefined if there are no tickets to undo.
+   * @returns The removed ticket, or undefined if there are no tickets to undo.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-timeline
    *
@@ -105,7 +108,7 @@ export interface TimelineContextOptions extends TimelineOptions {
 /**
  * Creates a new timeline instance.
  *
- * @param _options The options for the timeline instance.
+ * @param options The options for the timeline instance.
  * @template Z The type of the timeline ticket.
  * @template E The type of the timeline context.
  * @returns A new timeline instance.
@@ -133,7 +136,13 @@ export function createTimeline<
   Z extends TimelineTicket = TimelineTicket,
   E extends TimelineContext<Z> = TimelineContext<Z>,
 > (_options: TimelineOptions = {}): E {
-  const { size = 10, ...options } = _options
+  const { size: _size = 10, ...options } = _options
+  // Sanitize to an integer >= 1: a non-positive size makes the capacity check
+  // `registry.size < size` skip the early return and `seek('first')!` lie on an
+  // empty registry; a fractional size makes `overflow.length === size` never
+  // match, growing the overflow buffer without bound. NaN survives Math.max,
+  // so it falls back to the default like an omitted option.
+  const size = isNaN(_size) ? 10 : Math.max(1, Math.floor(_size))
   const registry = createRegistry<Z>(options)
 
   const stack: Z[] = []

@@ -25,49 +25,15 @@ A compound component for building accessible hierarchical tree interfaces with e
 
 ## Usage
 
-The Treeview component provides a compound pattern for building accessible tree structures. It uses the `createNested` composable internally for hierarchical state management — tracking parent-child relationships, open/close state, and cascade selection.
+Display hierarchical data as an expandable, selectable tree. Nodes open and close, selection cascades through parents and children, and `v-model` tracks the selected nodes.
 
-::: example
+::: gn-example
 /components/treeview/basic
-
-### Hierarchical Tree
-
-A categorized tree with expand/collapse and multi-select checkboxes.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground no-filename collapse
-<script setup lang="ts">
-  import { Treeview } from '@vuetify/v0'
-</script>
-
-<template>
-  <Treeview.Root>
-    <Treeview.List>
-      <Treeview.Item>
-        <Treeview.Activator>
-          <Treeview.Cue />
-          Label
-        </Treeview.Activator>
-
-        <Treeview.Content>
-          <Treeview.Group>
-            <Treeview.Item>
-              <Treeview.Activator>Leaf</Treeview.Activator>
-            </Treeview.Item>
-          </Treeview.Group>
-        </Treeview.Content>
-      </Treeview.Item>
-    </Treeview.List>
-  </Treeview.Root>
-</template>
-```
-
-For trees with selection, add [Treeview.Checkbox](#treeviewcheckbox) and [Treeview.Indicator](#treeviewindicator):
-
-```vue AnatomyWithSelection playground no-filename collapse
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Treeview } from '@vuetify/v0'
 </script>
@@ -84,11 +50,9 @@ For trees with selection, add [Treeview.Checkbox](#treeviewcheckbox) and [Treevi
           <Treeview.Indicator />
         </Treeview.Checkbox>
 
-        Label
-
         <Treeview.Content>
           <Treeview.Group>
-            <Treeview.Item>Leaf</Treeview.Item>
+            <Treeview.Item />
           </Treeview.Group>
         </Treeview.Content>
       </Treeview.Item>
@@ -97,7 +61,30 @@ For trees with selection, add [Treeview.Checkbox](#treeviewcheckbox) and [Treevi
 </template>
 ```
 
-## Configuration
+## Examples
+
+::: gn-example
+/components/treeview/SettingNode.vue 2
+/components/treeview/settings-panel.vue 1
+
+### Settings Panel
+
+The Settings Panel demonstrates building a real-world tree UI from reactive data — categories with children that can be opened and closed, leaf nodes that activate a detail pane on click, and in-tree functional controls (toggles and selects) that modify the underlying data without leaving the tree.
+
+`SettingNode.vue` handles both categories and leaves in a single recursive component: categories render a `Treeview.Activator` wrapping a chevron, while leaves render a `<button>` that calls `activate()` from the `Item` slot and emits upward. The `--v0-treeview-depth` CSS variable drives `padding-left` on each row, so indentation scales automatically with nesting depth — no manual level counting needed.
+
+The "Experimental" category uses `:disabled` on `Treeview.Item` and is styled via `[data-disabled]` in scoped CSS. The active row is highlighted via `[data-active]` — the `activate` slot method sets this state independently of selection, making it suitable for single-item focus patterns like settings panels, file explorers, and inspector trees.
+
+For trees where the primary interaction is multi-select (not activation), prefer cascade selection with `Treeview.Checkbox` and `Treeview.Indicator` — see the [Cascade Selection recipe](#cascade-selection) below.
+
+| File | Role |
+|------|------|
+| `SettingNode.vue` | Recursive node component rendering categories and leaf settings |
+| `settings-panel.vue` | Root tree with reactive settings data and a detail pane |
+
+:::
+
+## Recipes
 
 ### Expansion Mode
 
@@ -167,27 +154,6 @@ Set `reveal` to automatically open all ancestor nodes when a descendant is opene
 </template>
 ```
 
-## Examples
-
-::: example
-/components/treeview/SettingNode.vue 2
-/components/treeview/settings-panel.vue 1
-
-### Settings Panel
-
-A settings tree with functional controls built from reactive data. Click any setting to activate it and view its description in the detail pane.
-
-- **Activation** — `activate` from the `Item` slot highlights the current item. Style the active row with `[data-active]`.
-- **Functional controls** — toggles and `<select>` dropdowns modify the reactive data directly.
-- **Disabled** — `:disabled` on `Treeview.Item` greys out the "Experimental" category. Style with `[data-disabled]`.
-- **Depth indentation** — `--v0-treeview-depth` CSS variable on each item drives `padding-left`, no manual nesting needed.
-- **Open/closed** — `isOpen` slot prop on `Item` rotates the chevron via a CSS class.
-- **Recursive rendering** — `SettingNode.vue` handles both categories and leaves, recursing through `Treeview.Group` for nested children.
-
-:::
-
-## Recipes
-
 ### Cascade Selection
 
 Add `v-model` to `Treeview.Root` for cascade selection. Use `Treeview.Checkbox` and `Treeview.Indicator` for tri-state checkboxes. Use `Treeview.SelectAll` for a tree-wide toggle.
@@ -235,7 +201,7 @@ Add `v-model` to `Treeview.Root` for cascade selection. Use `Treeview.Checkbox` 
 </template>
 ```
 
-## Styling with Data Attributes
+### Styling with Data Attributes
 
 All sub-components expose data attributes for CSS-driven state styling:
 
@@ -260,5 +226,72 @@ The `--v0-treeview-depth` CSS variable is set on each Item, enabling indentation
   padding-left: calc(var(--v0-treeview-depth) * 1rem);
 }
 ```
+
+## Accessibility
+
+Treeview implements the [WAI-ARIA Tree View pattern](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/). `Treeview.List` establishes roving tabindex, so only one node is in the Tab order at a time and the arrow keys move focus between nodes. The Activator and Checkbox are `tabindex="-1"` and are reached through the tree rather than the page's Tab sequence.
+
+### ARIA Attributes
+
+| Attribute | Value | Element |
+|-----------|-------|---------|
+| `role` | `tree` | List |
+| `aria-multiselectable` | `true` / `false` | List |
+| `aria-label` | Provided `label` | List |
+| `role` | `group` | Group |
+| `role` | `treeitem` | Item |
+| `aria-expanded` | `true` / `false` (only when the node has children) | Item |
+| `aria-selected` | `true` / `false` | Item |
+| `aria-disabled` | `true` / `false` | Item |
+| `aria-level` | Depth (1-based) | Item |
+| `aria-posinset` | Position among siblings | Item |
+| `aria-setsize` | Sibling count | Item |
+| `aria-current` | `true` when active | Item |
+| `role` | `checkbox` | Checkbox, SelectAll |
+| `aria-checked` | `true` / `false` / `mixed` | Checkbox, SelectAll |
+| `aria-hidden` | `true` | Cue, Indicator |
+
+### Keyboard Navigation
+
+| Key | Action |
+|-----|--------|
+| `ArrowUp` | Moves focus to the previous visible node |
+| `ArrowDown` | Moves focus to the next visible node |
+| `ArrowRight` | Expands a collapsed node, or moves focus to its first child |
+| `ArrowLeft` | Collapses an expanded node, or moves focus to its parent |
+| `Home` | Moves focus to the first node |
+| `End` | Moves focus to the last visible node |
+| `Enter` | Toggles expansion (when expandable) and activates the node |
+| `Space` | Toggles selection of the focused node |
+| `*` | Expands all sibling nodes at the current level |
+| `Tab` | Moves focus to focusable controls inside a row, then out to the next node |
+
+In RTL, the `ArrowRight` and `ArrowLeft` directions are swapped. `Treeview.SelectAll` toggles the whole tree with `Enter` or `Space`.
+
+## FAQ
+
+::: faq
+
+??? What's the difference between the cascade, independent, and leaf selection modes?
+
+`cascade` (default) selects all descendants when you select a parent and shows tri-state for partial selection; `independent` selects each node on its own with no propagation; `leaf` lets only leaf nodes land in `v-model`, so selecting a parent selects all its leaf descendants.
+
+??? What's the difference between the active and selection state?
+
+`selection` (via `v-model` and the checkboxes) tracks which nodes are checked. `active` is a separate single-or-multi highlight, independent of selection, for focus patterns like file explorers, inspectors, and settings panels.
+
+??? How do I indent rows by their nesting depth?
+
+Each `Treeview.Item` sets a `--v0-treeview-depth` CSS variable. Multiply it for `padding-left` — e.g. `padding-left: calc(var(--v0-treeview-depth) * 1rem)` — so indentation scales automatically with depth.
+
+??? How do I make the tree behave like an accordion, with only one node open at a time?
+
+The tree defaults to `open="multiple"`. Set `open="single"` on `Treeview.Root` for accordion behavior, or `open-all` to expand every node on mount.
+
+??? How do I auto-expand a deep node's ancestors when it opens?
+
+Set `reveal` on `Treeview.Root`. Opening a descendant then opens its entire ancestor chain — useful for "navigate to item" patterns where a deep node is opened programmatically.
+
+:::
 
 <DocsApi />

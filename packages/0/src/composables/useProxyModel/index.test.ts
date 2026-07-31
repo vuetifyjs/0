@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
 // Composables
+import { createModel } from '#v0/composables/createModel'
 import { createSelection } from '#v0/composables/createSelection'
 
 import { useProxyModel } from './index'
 
 // Utilities
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 
 describe('useProxyModel', () => {
   it('should sync model when selection changes', () => {
@@ -25,6 +26,27 @@ describe('useProxyModel', () => {
     selection.unselect('item-1')
     selection.select('item-2')
     expect(model.value).toBe('value-2')
+  })
+
+  it('should keep a ref-valued ticket syncing across writes (bidirectional store)', () => {
+    const model = createModel({ events: true })
+    const value = shallowRef('original')
+    model.register({ id: 'fruit', value })
+
+    const vmodel = shallowRef()
+    useProxyModel(model, vmodel)
+
+    // Init pass with an empty v-model must not clobber the store ref
+    expect(value.value).toBe('original')
+    expect(model.selected('fruit')).toBe(true)
+
+    vmodel.value = 'banana'
+    expect(vmodel.value).toBe('banana')
+    expect(value.value).toBe('banana')
+
+    vmodel.value = 'cherry'
+    expect(vmodel.value).toBe('cherry')
+    expect(value.value).toBe('cherry')
   })
 
   it('should sync selection when model changes', () => {
@@ -210,6 +232,24 @@ describe('useProxyModel', () => {
     expect(model.value).toBe('value-1')
   })
 
+  it('should keep v-model clean when multiple mandatory apply replaces selection', () => {
+    const selection = createSelection({ events: true, mandatory: true, multiple: true })
+    selection.onboard([
+      { id: 'a', value: 'A' },
+      { id: 'b', value: 'B' },
+    ])
+
+    const model = ref<string[]>(['A'])
+    useProxyModel(selection, model)
+
+    model.value = ['B']
+
+    expect(model.value).toEqual(['B'])
+    expect(selection.selectedIds.has('a')).toBe(false)
+    expect(selection.selectedIds.has('b')).toBe(true)
+    expect(selection.selectedIds.size).toBe(1)
+  })
+
   it('should treat non-array values as not equal in array mode', () => {
     // shallowEqual rejects when one side isn't an array — exercises the
     // `!isArray(a) || !isArray(b)` short-circuit.
@@ -234,12 +274,54 @@ describe('useProxyModel', () => {
 
     selection.onboard([
       { id: 'item-1', value: 'value-1' },
+      { id: 'item-2', value: 'value-2', disabled: true },
     ])
 
-    // Try to assign a longer array — only known value selects; mandatory
-    // rejects clearing, so the actual selection doesn't change. The shallowEqual
-    // length-check forces a reset.
-    model.value = ['value-1', 'unknown']
+    // Try to assign a longer array — the extra value has a registered ticket that
+    // apply refuses because it is disabled, so the rejection is final rather than
+    // deferred. The shallowEqual length-check forces a reset.
+    model.value = ['value-1', 'value-2']
     expect(model.value).toEqual(['value-1'])
+  })
+
+  it('should hold a value whose ticket has not registered instead of reverting it', () => {
+    const selection = createSelection({ events: true, mandatory: true, multiple: true })
+    const model = ref<string[]>(['value-1'])
+    useProxyModel(selection, model, { multiple: true })
+
+    selection.onboard([
+      { id: 'item-1', value: 'value-1' },
+    ])
+
+    // 'value-2' is unregistered, so it is deferred rather than rejected — reverting
+    // here would discard the caller's intent before its ticket can register.
+    model.value = ['value-1', 'value-2']
+    expect(model.value).toEqual(['value-1', 'value-2'])
+
+    selection.onboard([
+      { id: 'item-2', value: 'value-2' },
+    ])
+
+    expect(Array.from(selection.selectedValues.value)).toEqual(['value-1', 'value-2'])
+  })
+
+  it('should not resurrect a stale value the model dropped before its ticket registered', () => {
+    const selection = createSelection({ events: true })
+    const model = shallowRef<string>('a')
+
+    useProxyModel(selection, model)
+
+    // Ticket for 'a' has not registered yet; the model moves on to 'b'.
+    model.value = 'b'
+
+    // 'b' then 'a' register late. Only 'b' — the current model — should select.
+    selection.onboard([
+      { id: 'ticket-b', value: 'b' },
+      { id: 'ticket-a', value: 'a' },
+    ])
+
+    expect(model.value).toBe('b')
+    expect(selection.selected('ticket-b')).toBe(true)
+    expect(selection.selected('ticket-a')).toBe(false)
   })
 })

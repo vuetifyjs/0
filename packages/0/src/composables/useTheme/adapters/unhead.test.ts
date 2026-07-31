@@ -66,6 +66,28 @@ describe('v0UnheadThemeAdapter', () => {
       mockInBrowser.value = true
     })
 
+    it('should include cspNonce in the pushed style entry', () => {
+      mockInBrowser.value = false
+      const head = createMockHead()
+      const app = createMockApp(head)
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter({ cspNonce: 'test-nonce' })
+
+      const scope = effectScope()
+      scope.run(() => adapter.setup(app, context))
+
+      expect(head.push).toHaveBeenCalledWith(
+        expect.objectContaining({
+          style: expect.arrayContaining([
+            expect.objectContaining({ nonce: 'test-nonce' }),
+          ]),
+        }),
+      )
+
+      scope.stop()
+      mockInBrowser.value = true
+    })
+
     it('should fall back to provides.head when usehead is missing', () => {
       mockInBrowser.value = false
       const head = createMockHead()
@@ -371,6 +393,71 @@ describe('v0UnheadThemeAdapter', () => {
       await nextTick()
 
       expect(head.patch).not.toHaveBeenCalled()
+    })
+
+    it('should stop watcher and call entry.dispose when adapter.dispose() is called in browser mode', async () => {
+      const entryDispose = vi.fn()
+      const head = {
+        push: vi.fn(() => ({ patch: vi.fn(), dispose: entryDispose })),
+      }
+      const app = createMockApp(head)
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+
+      const scope = effectScope()
+      scope.run(() => adapter.setup(app, context, null))
+
+      expect(adapter.dispose).toBeDefined()
+      adapter.dispose?.()
+
+      context.selectedId.value = 'dark'
+      await nextTick()
+
+      expect(entryDispose).toHaveBeenCalledTimes(1)
+    })
+
+    it('should call entry.dispose when adapter.dispose() is called in SSR mode', () => {
+      mockInBrowser.value = false
+
+      const entryDispose = vi.fn()
+      const head = {
+        push: vi.fn(() => ({ patch: vi.fn(), dispose: entryDispose })),
+      }
+      const app = {
+        _context: { provides: { usehead: head } },
+        _container: null,
+      } as unknown as App
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+
+      adapter.setup(app, context, null)
+
+      expect(adapter.dispose).toBeDefined()
+      adapter.dispose?.()
+
+      expect(entryDispose).toHaveBeenCalledTimes(1)
+
+      mockInBrowser.value = true
+    })
+
+    it('should tolerate entries without patch or dispose', () => {
+      mockInBrowser.value = false
+      const head = {
+        push: vi.fn(() => ({})),
+      }
+      const app = {
+        _context: { provides: { usehead: head } },
+        _container: null,
+      } as unknown as App
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+
+      adapter.setup(app, context, null)
+
+      expect(() => adapter.update(context.colors.value, context.isDark.value)).not.toThrow()
+      expect(() => adapter.dispose?.()).not.toThrow()
+
+      mockInBrowser.value = true
     })
   })
 

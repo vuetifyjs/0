@@ -30,6 +30,7 @@ import { createPluginContext } from '#v0/composables/createPlugin'
 import { V0RtlAdapter } from '#v0/composables/useRtl/adapters/v0'
 
 // Utilities
+import { isBoolean } from '#v0/utilities'
 import { shallowRef } from 'vue'
 
 // Types
@@ -37,15 +38,21 @@ import type { RtlAdapter } from './adapters'
 import type { Ref } from 'vue'
 
 // Exports
-export { V0RtlAdapter } from '#v0/composables/useRtl/adapters'
+export { RtlAdapter, V0RtlAdapter } from '#v0/composables/useRtl/adapters'
 
-export type { RtlAdapter, RtlAdapterSetupContext } from '#v0/composables/useRtl/adapters'
+export type { RtlAdapterSetupContext } from '#v0/composables/useRtl/adapters'
 
 export interface RtlContext {
   /** Writable ref — true = RTL, false = LTR */
   isRtl: Ref<boolean>
   /** Convenience method to flip direction */
   toggle: () => void
+  /**
+   * Release adapter resources (watch teardown, unhead entry).
+   * Called automatically on `app.unmount` when using the plugin path.
+   * Call manually when using a standalone context (`createRtlContext`).
+   */
+  dispose: () => void
 }
 
 export interface RtlOptions {
@@ -80,13 +87,14 @@ export function createRtl (options: RtlOptions = {}): RtlContext {
     isRtl.value = !isRtl.value
   }
 
-  return { isRtl, toggle }
+  return { isRtl, toggle, dispose: () => {} }
 }
 
 export function createRtlFallback (): RtlContext {
   return {
     isRtl: shallowRef(false),
     toggle: () => {},
+    dispose: () => {},
   }
 }
 
@@ -98,10 +106,11 @@ export const [createRtlContext, createRtlPlugin, useRtl] =
       fallback: () => createRtlFallback(),
       setup: (context, app, { adapter = new V0RtlAdapter(), target }) => {
         adapter.setup(app, context, target)
+        app.onUnmount(() => adapter.dispose?.())
       },
       persist: ctx => ctx.isRtl.value,
       restore: (ctx, saved) => {
-        ctx.isRtl.value = saved as boolean
+        if (isBoolean(saved)) ctx.isRtl.value = saved
       },
     },
   )

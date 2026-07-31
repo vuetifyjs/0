@@ -44,14 +44,14 @@
         <AppIcon icon="paint" size="16" />
         <span>Theme</span>
 
-        <button
+        <AppTooltip
+          aria-label="Copy theme as Vuetify0 config"
           class="ml-auto p-1 rounded hover:bg-surface-tint transition-colors inline-flex items-center justify-center shrink-0"
-          title="Copy theme as Vuetify0 config"
-          type="button"
+          text="Copy theme as Vuetify0 config"
           @click="exportTheme"
         >
           <AppIcon :icon="clipboard.copied.value ? 'check-circle' : 'copy'" size="14" />
-        </button>
+        </AppTooltip>
       </h3>
 
       <!-- Mode -->
@@ -125,6 +125,45 @@
             description="Decorative dots in the corner"
             label="Dot grid pattern"
           />
+
+          <AppSettingsSlider
+            v-if="settings.showDotGrid.value"
+            v-model="settings.dotGridIntensity.value"
+            class="ml-4"
+            description="Connecting-line strength"
+            label="Line intensity"
+            :max="2"
+            :min="0"
+            :step="0.05"
+          >
+            <template #preview>
+              <div class="relative h-20 rounded-md overflow-hidden border bg-background">
+                <div class="absolute inset-0" style="transform: scale(2.2); transform-origin: center">
+                  <AppDotGrid :coverage="0" />
+                </div>
+              </div>
+            </template>
+          </AppSettingsSlider>
+
+          <AppSettingsSlider
+            v-if="settings.showDotGrid.value"
+            v-model="settings.dotGridCoverage.value"
+            class="ml-4"
+            description="Fade distance"
+            label="Dot coverage"
+            :max="60"
+            :min="0"
+            :precision="0"
+            :step="5"
+          >
+            <template #preview>
+              <div class="relative h-20 rounded-md overflow-hidden border bg-background">
+                <!-- GnDotGrid coverage is the transparent gap, so invert to track the
+                     shell grid where a higher setting means more dot coverage. -->
+                <AppDotGrid :coverage="60 - settings.dotGridCoverage.value" />
+              </div>
+            </template>
+          </AppSettingsSlider>
 
           <AppSettingsToggle
             v-model="settings.showMeshGrid.value"

@@ -31,7 +31,7 @@
 // Composables
 import { useWindowEventListener } from '#v0/composables/useEventListener'
 
-// Constants
+// Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
 import { splitKeyCombination, splitKeySequence, MODIFIERS } from './parsing'

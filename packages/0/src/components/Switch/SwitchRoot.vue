@@ -119,7 +119,7 @@
     attrs: {
       'type': 'button' | undefined
       'role': 'switch'
-      'aria-checked': boolean | 'mixed'
+      'aria-checked': boolean
       'aria-disabled': boolean
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
@@ -282,7 +282,7 @@
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
       'role': 'switch',
-      'aria-checked': isMixed.value ? 'mixed' : isChecked.value,
+      'aria-checked': !isMixed.value && isChecked.value,
       'aria-disabled': isDisabled.value,
       'aria-label': label || undefined,
       'aria-labelledby': ariaLabelledby || undefined,

@@ -1,7 +1,7 @@
 ---
 title: Tree-Shaking - Bundle Size Optimization
 features:
-  order: 7
+  order: 9
   level: 2
 meta:
   - name: description
@@ -46,11 +46,11 @@ import { IN_BROWSER } from '@vuetify/v0/constants'
 import type { ID } from '@vuetify/v0/types'
 ```
 
-Subpath imports narrow the module scope, giving bundlers less work to analyze. The size difference is minimal (~0.4 KB) but subpaths can improve build speed on large projects.
+Subpath imports narrow the module scope, giving bundlers less work to analyze. The size difference is negligible (well under 0.1 KB gzip in current builds) but subpaths can improve build speed on large projects.
 
 ### Adapter Subpaths
 
-Composables with optional adapters have dedicated subpaths that isolate their dependencies:
+Composables with optional adapters have dedicated subpaths that isolate their dependencies. Prefer these over root imports when you need a hard boundary around peer-heavy entry points:
 
 ```ts
 import { useDate } from '@vuetify/v0/date'
@@ -60,10 +60,13 @@ import { useTheme } from '@vuetify/v0/theme'
 import { useLocale } from '@vuetify/v0/locale'
 import { useLogger } from '@vuetify/v0/logger'
 import { usePermissions } from '@vuetify/v0/permissions'
+import { useNotifications } from '@vuetify/v0/notifications'
+import { useRules } from '@vuetify/v0/rules'
 import { createDataTable } from '@vuetify/v0/data-table'
+import { material } from '@vuetify/v0/palettes/material/generate'
 ```
 
-These are primarily useful for **framework authors** who want to guarantee that adapter peer dependencies (like `date-fns` or `flagsmith`) don't leak into consumer bundles.
+Nested adapter packages (e.g. `@vuetify/v0/features/adapters/flagsmith`, `@vuetify/v0/locale/adapters/vue-i18n`) hang off these entry points. These subpaths are primarily useful for **framework authors** who want to guarantee that adapter peer dependencies (like `date-fns` or `flagsmith`) don't leak into consumer bundles.
 
 ## Bundle Size
 
@@ -73,17 +76,17 @@ All sizes measured with Vue externalized (v0 code only), minified with esbuild.
 
 | Import | Raw | Gzip |
 | - | - | - |
-| Constants (`IN_BROWSER`, `SUPPORTS_TOUCH`) | <span class="whitespace-nowrap">0.2 KB</span> | <span class="whitespace-nowrap">0.1 KB</span> |
-| Utilities (`isObject`, `mergeDeep`, `clamp`) | <span class="whitespace-nowrap">1.0 KB</span> | <span class="whitespace-nowrap">0.5 KB</span> |
-| Single composable (`createSelection`) | <span class="whitespace-nowrap">10.7 KB</span> | <span class="whitespace-nowrap">4.2 KB</span> |
-| Single composable + component (`SelectionRoot`, `SelectionItem`) | <span class="whitespace-nowrap">13.6 KB</span> | <span class="whitespace-nowrap">5.2 KB</span> |
-| Deep chain (`createStep` → `createSingle` → `createSelection` → `createRegistry`) | <span class="whitespace-nowrap">11.9 KB</span> | <span class="whitespace-nowrap">4.6 KB</span> |
-| 6 composables (`createSelection`, `createSingle`, `createGroup`, `createStep`, `createRegistry`, `useStorage`) | <span class="whitespace-nowrap">16.5 KB</span> | <span class="whitespace-nowrap">6.2 KB</span> |
-| 4 component families (Selection, Dialog, Checkbox, Tabs) | <span class="whitespace-nowrap">29.6 KB</span> | <span class="whitespace-nowrap">10.1 KB</span> |
-| Everything (`import *`) | <span class="whitespace-nowrap">147.4 KB</span> | <span class="whitespace-nowrap">42.4 KB</span> |
+| Constants (`IN_BROWSER`, `SUPPORTS_TOUCH`) | <span class="whitespace-nowrap">0.4 KB</span> | <span class="whitespace-nowrap">0.3 KB</span> |
+| Utilities (`isObject`, `mergeDeep`, `clamp`) | <span class="whitespace-nowrap">0.7 KB</span> | <span class="whitespace-nowrap">0.4 KB</span> |
+| Single composable (`createSelection`) | <span class="whitespace-nowrap">12.1 KB</span> | <span class="whitespace-nowrap">4.9 KB</span> |
+| Single composable + component (`SelectionRoot`, `SelectionItem`) | <span class="whitespace-nowrap">17.3 KB</span> | <span class="whitespace-nowrap">6.8 KB</span> |
+| Deep chain (`createStep` → `createSingle` → `createSelection` → `createRegistry`) | <span class="whitespace-nowrap">14.4 KB</span> | <span class="whitespace-nowrap">5.8 KB</span> |
+| 6 composables (`createSelection`, `createSingle`, `createGroup`, `createStep`, `createRegistry`, `useStorage`) | <span class="whitespace-nowrap">19.0 KB</span> | <span class="whitespace-nowrap">7.4 KB</span> |
+| 4 component families (Selection, Dialog, Checkbox, Tabs) | <span class="whitespace-nowrap">43.5 KB</span> | <span class="whitespace-nowrap">14.4 KB</span> |
+| Everything (`import *`) | <span class="whitespace-nowrap">297.8 KB</span> | <span class="whitespace-nowrap">81.2 KB</span> |
 
 > [!TIP]
-> A single composable is **7%** of the full library. Most apps use a fraction of v0.
+> A single composable is **4%** of the full library. Most apps use a fraction of v0.
 
 ### Composable Sharing
 
@@ -91,17 +94,17 @@ Composables share internal code. Adding more composables doesn't multiply cost l
 
 | Composables | v0 Cost (gzip) | Per-Composable |
 |-------------|----------------|----------------|
-| 1           | 4.2 KB         | 4.2 KB         |
-| 6           | 6.2 KB         | 1.0 KB         |
+| 1           | 4.9 KB         | 4.9 KB         |
+| 6           | 7.4 KB         | 1.2 KB         |
 
 ### Root vs Subpath
 
 | Scenario          | Root   | Subpath | Difference |
 |-------------------|--------|---------|------------|
-| Single composable | 4.4 KB | 4.2 KB  | 0.2 KB     |
-| 6 composables     | 6.4 KB | 6.2 KB  | 0.2 KB     |
+| Single composable | 4.9 KB | 4.9 KB  | 0.0 KB     |
+| 6 composables     | 7.4 KB | 7.4 KB  | 0.0 KB     |
 
-The difference is negligible. Use whichever import style you prefer.
+The difference is negligible — current builds produce byte-identical output regardless of entry point. Use whichever import style you prefer.
 
 ### Dead Code Elimination
 
@@ -137,13 +140,13 @@ Utility functions are annotated with `/*#__NO_SIDE_EFFECTS__*/` so bundlers know
 ```ts
 /*#__NO_SIDE_EFFECTS__*/
 function isObject(value: unknown): value is object {
-  return value !== null && typeof value === 'object'
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 ```
 
 ### 3. Subpath Exports
 
-The `package.json` defines [subpath exports](https://nodejs.org/api/packages.html#subpath-exports) that map to individual entry points:
+The `package.json` defines [subpath exports](https://nodejs.org/api/packages.html#subpath-exports) that map to individual entry points. The block below is a **representative excerpt** — the published map is much larger (adapters, palettes, nested data-table paths, and more). For the isolation-oriented imports that matter day to day, see [Adapter Subpaths](#adapter-subpaths).
 
 ```json
 {
@@ -187,7 +190,7 @@ No. v0 tree-shakes out of the box with Vite, Rollup, and webpack 5. No plugins, 
 
 ??? Should I use root imports or subpath imports?
 
-Either works. Root imports (`from '@vuetify/v0'`) are simpler and recommended for most apps. Subpath imports save ~0.2 KB gzip and can marginally improve build speed. Use subpaths when authoring a library that depends on v0.
+Either works. Root imports (`from '@vuetify/v0'`) are simpler and recommended for most apps. Subpath imports produce virtually identical bundle size in current builds but can marginally improve build speed on large projects. Use subpaths when authoring a library that depends on v0.
 
 ??? Does `sideEffects: false` matter?
 
@@ -195,7 +198,7 @@ v0 functions are already annotated as side-effect-free. Adding `sideEffects: fal
 
 ??? What's the base cost of using v0?
 
-A single composable adds ~4.2 KB gzip. Constants and utilities are even lighter (0.1–0.5 KB gzip). The full library is 42.4 KB gzip, but no app should import everything.
+A single composable adds ~4.9 KB gzip. Constants and utilities are even lighter (0.3–0.4 KB gzip). The full library is 81.2 KB gzip, but no app should import everything.
 
 ??? Why is my bundle larger than expected?
 

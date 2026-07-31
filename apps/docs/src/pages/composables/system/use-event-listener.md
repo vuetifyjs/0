@@ -93,12 +93,34 @@ flowchart LR
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-event-listener/mouse-tracker
 
 ### Mouse Tracker
 
-Tracks real-time mouse coordinates within a bounded element using `useEventListener`, with automatic cleanup on unmount.
+A bounded tracking area that reports real-time cursor coordinates and click count using three separate `useEventListener` calls on the same element. Moving the mouse fires `mousemove` to update `x` and `y` relative to the element's top-left corner; clicking fires `click` to increment the counter; entering and leaving the area fires a combined `['mouseenter', 'mouseleave']` listener — demonstrating that the second argument accepts both a single event name and an array of names.
+
+The crosshair overlay is drawn with two absolutely-positioned lines that follow the `x`/`y` refs, giving immediate visual feedback for the coordinate values. The element border transitions from `border-divider` to `border-primary` on entry, driven purely by the reactive `inside` flag.
+
+Reach for this pattern over a template-level `@mousemove` when the listener target needs to be dynamic (passed as a ref or computed from props), when you want a single call site for setup and automatic teardown, or when attaching to `window` / `document` targets rather than a specific element. For global keyboard shortcuts, prefer [useHotkey](/composables/system/use-hotkey); for outside-click detection, prefer [useClickOutside](/composables/system/use-click-outside) — both are built on `useEventListener` and cover the most common specializations.
+
+:::
+
+## FAQ
+
+::: faq
+
+??? When should I use useEventListener instead of a template `@click` handler?
+
+When the target is dynamic (a ref, getter, or `window`/`document`), when you want one call site for setup and automatic teardown, or when the event name itself is reactive. Native `addEventListener` has no `effectScope` awareness, so its listeners outlive scope disposal; useEventListener wires `onScopeDispose` for you.
+
+??? Is `useWindowEventListener` safe to call during SSR?
+
+Yes — `useWindowEventListener` and `useDocumentEventListener` check `IN_BROWSER` and return a no-op cleanup on the server. Raw `window`/`document` access inside the listener body (e.g. `window.innerWidth`) is not guarded for you; wrap that yourself.
+
+??? Can one call listen for several events at once?
+
+Yes. The second argument accepts an array of event names — `useEventListener(el, ['mouseenter', 'mouseleave'], cb)` — and the same handler runs for each.
 
 :::
 

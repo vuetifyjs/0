@@ -209,6 +209,33 @@ describe('zones.register', () => {
     expect(zone.willAccept.value).toBe(true)
     expect(accept).toHaveBeenCalledTimes(1)
   })
+
+  it('should not leak an effect scope when registering a duplicate zone id', () => {
+    using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const scope = effectScope()
+
+    scope.run(() => {
+      const dnd = useDragDrop({ adapters: [] })
+      const el = shallowRef<HTMLElement | null>(null)
+
+      dnd.zones.register({ id: 'zone', el, accept: ['card'] })
+
+      // The source allocates one non-detached effect scope per zone, attached
+      // as a child of the active scope. Read that live child array.
+      const children = (scope as unknown as { scopes?: unknown[] }).scopes ?? []
+      const before = children.length
+      expect(before).toBeGreaterThan(0)
+
+      // Pre-fix a duplicate id allocated a second scope and overwrote
+      // scopes.set(id) without stopping the original, orphaning it as a
+      // permanent child whose observers leak past teardown.
+      dnd.zones.register({ id: 'zone', el, accept: ['card'] })
+      expect(children.length).toBe(before)
+    })
+
+    scope.stop()
+    expect(warn).toHaveBeenCalled()
+  })
 })
 
 function makeFocusableEl (id: string): HTMLElement {
@@ -655,7 +682,7 @@ describe('cancel chain', () => {
   })
 
   it('should swallow throwing hook and continue via logger.error', () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
     const adapter = new CaptureAdapter()
     const onMove = vi.fn(() => {
       throw new Error('boom')
@@ -670,7 +697,6 @@ describe('cancel chain', () => {
     expect(onMove).toHaveBeenCalledTimes(1)
     expect(globalMove).toHaveBeenCalledTimes(1)
     expect(error).toHaveBeenCalledTimes(1)
-    error.mockRestore()
   })
 })
 
@@ -796,13 +822,12 @@ describe('keyboardAdapter options', () => {
 
   it('should warn and short-circuit when adapter setup is called twice', () => {
     const adapter = new KeyboardAdapter()
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     useDragDrop({ adapters: [adapter] })
     adapter.setup({} as unknown as DragDropAdapterContext<DragType>)
 
     expect(warn).toHaveBeenCalled()
-    warn.mockRestore()
   })
 })
 
@@ -979,7 +1004,7 @@ describe('resolveDropPosition', () => {
 
 describe('safeAccept edge cases', () => {
   it('should reject when accept predicate returns a thenable', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const adapter = new CaptureAdapter()
     const dnd = useDragDrop({ adapters: [adapter] })
     const accept = vi.fn(() => Promise.resolve(true)) as unknown as () => boolean
@@ -992,12 +1017,10 @@ describe('safeAccept edge cases', () => {
     expect(zone.willAccept.value).toBe(false)
     expect(warn).toHaveBeenCalled()
     expect(warn.mock.calls[0]?.join(' ')).toContain('thenable')
-
-    warn.mockRestore()
   })
 
   it('should reject and log when accept predicate throws', () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
     const adapter = new CaptureAdapter()
     const dnd = useDragDrop({ adapters: [adapter] })
     const accept = vi.fn(() => {
@@ -1012,8 +1035,6 @@ describe('safeAccept edge cases', () => {
     expect(zone.willAccept.value).toBe(false)
     expect(error).toHaveBeenCalled()
     expect(error.mock.calls[0]?.join(' ')).toContain('accept predicate threw')
-
-    error.mockRestore()
   })
 
   it('should accept when accept option is undefined', () => {
@@ -1102,7 +1123,7 @@ describe('position()', () => {
 
 describe('onBeforeStart error paths', () => {
   it('should treat draggable.onBeforeStart throwing as veto', () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
     const adapter = new CaptureAdapter()
     const onBeforeStart = vi.fn(() => {
       throw new Error('drag boom')
@@ -1121,8 +1142,6 @@ describe('onBeforeStart error paths', () => {
     expect(dnd.active.value).toBeNull()
     expect(onBeforeStart).toHaveBeenCalledTimes(1)
     expect(error).toHaveBeenCalled()
-
-    error.mockRestore()
   })
 
   it('should veto when global onBeforeStart returns false', () => {
@@ -1139,7 +1158,7 @@ describe('onBeforeStart error paths', () => {
   })
 
   it('should treat global onBeforeStart throwing as veto', () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
     const adapter = new CaptureAdapter()
     const onBeforeStart = vi.fn(() => {
       throw new Error('global boom')
@@ -1152,8 +1171,6 @@ describe('onBeforeStart error paths', () => {
 
     expect(dnd.active.value).toBeNull()
     expect(error).toHaveBeenCalled()
-
-    error.mockRestore()
   })
 })
 
@@ -1183,7 +1200,7 @@ describe('onMove / onDrop early returns', () => {
 
 describe('onBeforeDrop error paths', () => {
   it('should treat zone onBeforeDrop throwing as veto', async () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
     const adapter = new CaptureAdapter()
     const cardEl = makeFocusableEl('bd-throw-1')
     const zoneEl = document.createElement('div')
@@ -1215,11 +1232,10 @@ describe('onBeforeDrop error paths', () => {
 
     cardEl.remove()
     zoneEl.remove()
-    error.mockRestore()
   })
 
   it('should treat options onBeforeDrop throwing as veto', async () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
     const adapter = new CaptureAdapter()
     const cardEl = makeFocusableEl('bd-throw-2')
     const zoneEl = document.createElement('div')
@@ -1250,13 +1266,12 @@ describe('onBeforeDrop error paths', () => {
 
     cardEl.remove()
     zoneEl.remove()
-    error.mockRestore()
   })
 })
 
 describe('adapter setup error paths', () => {
   it('should log error and continue when adapter setup throws', () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     class BadAdapter extends DragDropAdapter {
       setup (): void {
@@ -1267,12 +1282,10 @@ describe('adapter setup error paths', () => {
     expect(() => useDragDrop({ adapters: [new BadAdapter()] })).not.toThrow()
     expect(error).toHaveBeenCalled()
     expect(error.mock.calls.some(call => String(call.join(' ')).includes('adapter setup threw'))).toBe(true)
-
-    error.mockRestore()
   })
 
   it('should log error when both setup and dispose throw', () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     class TerribleAdapter extends DragDropAdapter {
       setup (): void {
@@ -1289,12 +1302,10 @@ describe('adapter setup error paths', () => {
     const calls = error.mock.calls.map(c => String(c.join(' ')))
     expect(calls.some(s => s.includes('adapter setup threw'))).toBe(true)
     expect(calls.some(s => s.includes('adapter dispose threw'))).toBe(true)
-
-    error.mockRestore()
   })
 
   it('should continue installing remaining adapters when one fails', () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     class BadAdapter extends DragDropAdapter {
       setup (): void {
@@ -1309,14 +1320,12 @@ describe('adapter setup error paths', () => {
     expect(typeof capture.emit.start).toBe('function')
     expect(dnd).toBeDefined()
     expect(error).toHaveBeenCalled()
-
-    error.mockRestore()
   })
 })
 
 describe('plugin error paths', () => {
   it('should log error and continue when plugin install throws', () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     expect(() => useDragDrop({
       adapters: [],
@@ -1329,12 +1338,10 @@ describe('plugin error paths', () => {
 
     expect(error).toHaveBeenCalled()
     expect(error.mock.calls.some(c => String(c.join(' ')).includes('plugin install threw'))).toBe(true)
-
-    error.mockRestore()
   })
 
   it('should run later plugins after an earlier plugin throws', () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
     const ran = vi.fn()
 
     useDragDrop({
@@ -1349,8 +1356,6 @@ describe('plugin error paths', () => {
 
     expect(ran).toHaveBeenCalledTimes(1)
     expect(error).toHaveBeenCalled()
-
-    error.mockRestore()
   })
 })
 
@@ -1454,7 +1459,7 @@ describe('unregister handlers', () => {
 
 describe('disposer error paths', () => {
   it('should log error when adapter dispose throws on scope teardown', () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     class BadDispose extends DragDropAdapter {
       setup (): void {}
@@ -1472,12 +1477,10 @@ describe('disposer error paths', () => {
 
     expect(error).toHaveBeenCalled()
     expect(error.mock.calls.some(c => String(c.join(' ')).includes('disposer threw'))).toBe(true)
-
-    error.mockRestore()
   })
 
   it('should log error when plugin disposer throws on scope teardown', () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     const scope = effectScope()
     scope.run(() => {
@@ -1495,7 +1498,5 @@ describe('disposer error paths', () => {
 
     expect(error).toHaveBeenCalled()
     expect(error.mock.calls.some(c => String(c.join(' ')).includes('disposer threw'))).toBe(true)
-
-    error.mockRestore()
   })
 })

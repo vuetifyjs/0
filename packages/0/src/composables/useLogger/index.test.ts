@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createLogger, createLoggerContext, createLoggerPlugin, useLogger } from './index'
+import { createLogger, createLoggerContext, createLoggerPlugin, useLogger, V0LoggerAdapter } from './index'
 
 // Utilities
 import { createApp, defineComponent } from 'vue'
@@ -221,13 +221,13 @@ describe('createLogger', () => {
         expect(logger.error).toBeTypeOf('function')
       })
 
-      it('should return fallback logger with custom namespace', () => {
+      it('should append the scope to fallback output outside a component', () => {
         const logger = useLogger('my:logger')
 
         logger.info('test message')
 
         expect(console.info).toHaveBeenCalledWith(
-          expect.stringContaining('[my:logger info]'),
+          expect.stringContaining('[my:logger] test message'),
         )
       })
 
@@ -277,6 +277,100 @@ describe('createLogger', () => {
 
         expect(logger.current()).toBe('info')
         expect(logger.enabled()).toBe(true)
+      })
+    })
+
+    describe('useLogger scope', () => {
+      function withLogger (
+        scope: string | undefined,
+        run: (logger: ReturnType<typeof useLogger>) => void,
+        options: Record<string, unknown> = {},
+      ) {
+        const plugin = createLoggerPlugin({
+          level: 'debug',
+          adapter: new V0LoggerAdapter({ colors: false, timestamps: false }),
+          ...options,
+        })
+
+        const Comp = defineComponent({
+          setup () {
+            run(useLogger(scope))
+            return () => null
+          },
+        })
+
+        const app = createApp(Comp)
+        app.use(plugin)
+        app.mount(document.createElement('div'))
+        app.unmount()
+      }
+
+      it('should prefix messages with the scope segment after the plugin prefix', () => {
+        withLogger('createKanban', logger => logger.warn('drop rejected'))
+
+        expect(console.warn).toHaveBeenCalledTimes(1)
+        expect(console.warn).toHaveBeenCalledWith('[v0 warn] [createKanban] drop rejected')
+      })
+
+      it('should leave the plugin logger untouched when no scope is passed', () => {
+        withLogger(undefined, logger => logger.info('mounted'))
+
+        expect(console.info).toHaveBeenCalledTimes(1)
+        expect(console.info).toHaveBeenCalledWith('[v0 info] mounted')
+      })
+
+      it('should delegate level gating to the shared plugin logger', () => {
+        withLogger('createKanban', logger => {
+          logger.info('filtered out')
+          logger.warn('passes through')
+        }, { level: 'warn' })
+
+        expect(console.info).not.toHaveBeenCalled()
+        expect(console.warn).toHaveBeenCalledTimes(1)
+        expect(console.warn).toHaveBeenCalledWith('[v0 warn] [createKanban] passes through')
+      })
+
+      it('should prefix every level through the scoped wrapper', () => {
+        withLogger('createKanban', logger => {
+          logger.debug('d')
+          logger.info('i')
+          logger.warn('w')
+          logger.error('e')
+          logger.trace('t')
+          logger.fatal('f')
+        }, { level: 'trace' })
+
+        expect(console.debug).toHaveBeenCalledWith('[v0 debug] [createKanban] d')
+        expect(console.info).toHaveBeenCalledWith('[v0 info] [createKanban] i')
+        expect(console.warn).toHaveBeenCalledWith('[v0 warn] [createKanban] w')
+        expect(console.error).toHaveBeenCalledWith('[v0 error] [createKanban] e')
+        expect(console.trace).toHaveBeenCalledWith('[v0 trace] [createKanban] t')
+        expect(console.error).toHaveBeenCalledWith('[v0 fatal] [createKanban] f')
+      })
+
+      it('should silence scoped output when the shared logger is disabled', () => {
+        withLogger('createKanban', logger => {
+          logger.disable()
+          logger.warn('suppressed')
+        })
+
+        expect(console.warn).not.toHaveBeenCalled()
+      })
+
+      it('should treat a blank scope as no scope', () => {
+        withLogger('', logger => logger.info('mounted'))
+
+        expect(console.info).toHaveBeenCalledWith('[v0 info] mounted')
+      })
+
+      it('should still append the scope when no plugin is installed', () => {
+        const logger = useLogger('createKanban')
+
+        logger.error('boom')
+
+        expect(console.error).toHaveBeenCalledWith(
+          expect.stringContaining('[v0:logger error] [createKanban] boom'),
+        )
       })
     })
 

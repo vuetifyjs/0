@@ -61,7 +61,7 @@
       /** Click handler to toggle panel */
       'onClick': () => void
       /** Keyboard handler for Enter and Space keys */
-      'onKeydown': (e: KeyboardEvent) => void
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 </script>
@@ -81,7 +81,13 @@
 
   const item = useExpansionPanelRoot(namespace)
 
+  function onClick () {
+    if (item.isDisabled.value) return
+    item.ticket.toggle()
+  }
+
   function onKeydown (e: KeyboardEvent) {
+    if (item.isDisabled.value) return
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       item.ticket.toggle()
@@ -103,8 +109,8 @@
       'data-selected': item.ticket.isSelected.value || undefined,
       'disabled': as === 'button' ? item.isDisabled.value : undefined,
       'type': as === 'button' ? 'button' : undefined,
-      'onClick': item.ticket.toggle,
-      onKeydown,
+      'onClick': onClick,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
 </script>

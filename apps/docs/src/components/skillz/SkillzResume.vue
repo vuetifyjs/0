@@ -86,7 +86,7 @@
         v-if="store.pendingTour && !isSkillzPage"
         class="fixed top-14 inset-x-0 mx-auto z-50 w-[300px] bg-surface border border-divider rounded-xl shadow-xl overflow-hidden"
       >
-        <AppDotGrid :coverage="65" :density="14" origin="bottom left" />
+        <AppDotGrid :coverage="65" origin="bottom left" />
 
         <div class="relative p-4">
           <!-- Title row -->

@@ -99,6 +99,11 @@ export function isBoolean (item: unknown): item is boolean {
  * Returns false for null and arrays, even though `typeof null === 'object'`
  * and `typeof [] === 'object'` in JavaScript.
  *
+ * `Record<string, any>` is load-bearing: TypeScript does not grant interfaces
+ * an implicit index signature, so `Record<string, unknown>` destroys known
+ * property types on interface-typed values and fails to subtract
+ * `Record<string, any>` members in the negative branch.
+ *
  * @example
  * ```ts
  * isObject({})        // true
@@ -111,7 +116,8 @@ export function isBoolean (item: unknown): item is boolean {
  * @see {@link isNull} to check for null
  */
 /* #__NO_SIDE_EFFECTS__ */
-export function isObject (item: unknown): item is Record<string, unknown> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- intentional: Record<string, unknown> breaks interface narrowing (#723)
+export function isObject (item: unknown): item is Record<string, any> {
   return typeof item === 'object' && item !== null && !Array.isArray(item)
 }
 
@@ -152,9 +158,30 @@ export function isThenable (item: unknown): item is { then: Function } {
  * isArray([1, 2, 3]) // true
  * isArray('string')  // false
  * ```
+ *
+ * @remarks The guard keeps whichever array constituents the input already had —
+ * element types, tuple arity and `readonly` all survive, and the `else` branch
+ * drops exactly those constituents. Three branches, in order:
+ *
+ * 1. `0 extends (1 & T)` detects an `any` input and yields `T[]` (`any[]`),
+ *    matching `Array.isArray` so callback parameters stay contextually typed.
+ * 2. Nothing array-shaped to extract (an `unknown` value, say) falls back to
+ *    `unknown[]`, reproducing the previous narrowing so mutation and assignment
+ *    to `unknown[]` keep compiling.
+ * 3. Otherwise the array constituents of `T` pass through untouched.
+ *
+ * `NoInfer<T[]>` widens the parameter just enough for TypeScript to accept the
+ * first branch (a predicate must be assignable to its parameter's type) without
+ * letting an array argument capture the inference site.
  */
 /* #__NO_SIDE_EFFECTS__ */
-export function isArray (item: unknown): item is unknown[] {
+export function isArray<T> (
+  item: T | NoInfer<T[]>,
+): item is 0 extends (1 & T)
+  ? T[]
+  : [Extract<T, readonly unknown[]>] extends [never]
+      ? T & unknown[]
+      : Extract<T, readonly unknown[]> {
   return Array.isArray(item)
 }
 
@@ -173,7 +200,7 @@ export function isArray (item: unknown): item is unknown[] {
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function isElement (item: unknown): item is Element {
-  return item instanceof Element
+  return typeof Element !== 'undefined' && item instanceof Element
 }
 
 /**
@@ -308,7 +335,8 @@ export function isNaN (item: unknown): item is number {
 }
 
 // Keys that could lead to prototype pollution
-const UNSAFE_KEYS = /* @__PURE__ */ new Set(['__proto__', 'constructor', 'prototype'])
+// @internal
+export const UNSAFE_KEYS = /* @__PURE__ */ new Set(['__proto__', 'constructor', 'prototype'])
 
 function isPlainObject (value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
@@ -349,7 +377,7 @@ export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<
 
   // Copy all properties from target
   for (const key in target) {
-    if (Object.prototype.hasOwnProperty.call(target, key)) {
+    if (Object.hasOwn(target, key)) {
       out[key] = target[key]
     }
   }
@@ -360,7 +388,7 @@ export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<
     for (const key in source) {
       // Skip prototype pollution vectors and non-own properties
       if (UNSAFE_KEYS.has(key)) continue
-      if (!Object.prototype.hasOwnProperty.call(source, key)) continue
+      if (!Object.hasOwn(source, key)) continue
 
       const sourceValue = (source as Record<string, unknown>)[key]
       if (isUndefined(sourceValue)) continue
@@ -385,6 +413,8 @@ let idCounter = 0
  * - In component setup/lifecycle: Uses Vue's `useId()` for SSR-safe hydration
  * - Outside components: Falls back to sequential counter (`v0-0`, `v0-1`, ...)
  * - Vapor mode compatible
+ * - IDs are sequential and predictable — intended for DOM `id`/ARIA wiring only.
+ *   Never use them as security tokens (CSRF tokens, session ids, capabilities).
  *
  * @example
  * ```ts
@@ -454,20 +484,30 @@ export function range (length: number, start = 0): number[] {
 /**
  * Resolves an iterable of IDs to their items via a getter,
  * filtering out any that return undefined.
+ *
+ * @internal
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function resolveIds<E> (ids: Iterable<ID>, getter: (id: ID) => E | undefined): E[] {
-  return Array.from(ids)
-    .map(id => getter(id))
-    .filter((item): item is E => !isUndefined(item))
+  const result: E[] = []
+  for (const id of ids) {
+    const item = getter(id)
+    if (!isUndefined(item)) result.push(item)
+  }
+  return result
 }
 
 /**
  * Extracts defined index values from an iterable of items.
+ *
+ * @internal
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function resolveIndexes (items: Iterable<{ index?: number }>): number[] {
-  return Array.from(items)
-    .map(item => item?.index)
-    .filter((index): index is number => !isUndefined(index))
+  const result: number[] = []
+  for (const item of items) {
+    const index = item?.index
+    if (!isUndefined(index)) result.push(index)
+  }
+  return result
 }

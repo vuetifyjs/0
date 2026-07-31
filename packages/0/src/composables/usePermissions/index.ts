@@ -34,6 +34,9 @@ import { V0PermissionsAdapter } from '#v0/composables/usePermissions/adapters'
 // Transformers
 import { toArray } from '#v0/composables/toArray'
 
+// Utilities
+import { UNSAFE_KEYS } from '#v0/utilities'
+
 // Types
 import type { TokenContext, TokenOptions, TokenTicket } from '#v0/composables/createTokens'
 import type { PermissionsAdapter } from '#v0/composables/usePermissions/adapters'
@@ -73,8 +76,7 @@ export interface PermissionPluginOptions extends PermissionContextOptions {}
  * ```ts
  * import { createPermissions } from '@vuetify/v0'
  *
- * const [usePermissions, providePermissions] = createPermissions({
- *   namespace: 'v0:permissions',
+ * const permissions = createPermissions({
  *   permissions: {
  *     admin: [['read', 'users']],
  *     editor: [['edit', 'posts']],
@@ -87,10 +89,13 @@ export function createPermissions (_options: PermissionOptions = {}): Permission
 
   const record: Record<string, Record<string, Record<string, boolean | ((context: Record<string, unknown>) => boolean)>>> = {}
   for (const role in permissions) {
+    if (UNSAFE_KEYS.has(role)) continue
     if (!record[role]) record[role] = {}
     for (const [actions, subjects, condition = true] of permissions[role]!) {
       for (const action of toArray(actions)) {
+        if (UNSAFE_KEYS.has(action)) continue
         for (const subject of toArray(subjects)) {
+          if (UNSAFE_KEYS.has(subject)) continue
           if (!record[role][action]) record[role][action] = {}
 
           record[role][action][subject] = condition
@@ -108,6 +113,9 @@ export function createPermissions (_options: PermissionOptions = {}): Permission
   return {
     ...tokens,
     can,
+    get size () {
+      return tokens.size
+    },
   } as PermissionContext
 }
 

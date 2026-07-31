@@ -54,13 +54,14 @@
     /** Attributes to bind to the toggle element */
     attrs: {
       'type': 'button' | undefined
+      'role': 'button' | undefined
       'aria-pressed': boolean
       'aria-disabled': boolean
-      'tabindex': 0 | undefined
+      'tabindex': 0 | -1
       'data-state': 'on' | 'off'
       'data-disabled': true | undefined
       'onClick': () => void
-      'onKeydown': (e: KeyboardEvent) => void
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 
@@ -147,7 +148,7 @@
   }
 
   function onKeydown (e: KeyboardEvent) {
-    if (e.key !== ' ') return
+    if (e.key !== ' ' && e.key !== 'Enter') return
 
     e.preventDefault()
     toggle()
@@ -171,13 +172,14 @@
     toggle,
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
+      'role': as === 'button' ? undefined : 'button',
       'aria-pressed': isPressed.value,
       'aria-disabled': isDisabled.value,
-      'tabindex': isDisabled.value ? undefined : 0,
+      'tabindex': isDisabled.value ? -1 : 0,
       'data-state': isPressed.value ? 'on' : 'off',
       'data-disabled': isDisabled.value ? true : undefined,
       'onClick': onClick,
-      'onKeydown': onKeydown,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
 </script>

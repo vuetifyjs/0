@@ -226,11 +226,23 @@ export function createSelection<
     if (ticket) model.select(ticket.id)
   }
 
-  function unselect (id: ID) {
+  // Wholesale removal for the apply/v-model path. Bypasses the ticket-disabled
+  // gesture guard so disabled ids can always drain, while keeping the
+  // context-disabled and mandatory semantics.
+  function drain (id: ID) {
     if (toValue(model.disabled)) return
     if (toValue(mandatory) && model.selectedIds.size === 1) return
 
     model.selectedIds.delete(id)
+  }
+
+  function unselect (id: ID) {
+    if (toValue(model.disabled)) return
+
+    const item = model.get(id)
+    if (!item || toValue(item.disabled)) return
+
+    drain(id)
   }
 
   function toggle (id: ID) {
@@ -245,24 +257,37 @@ export function createSelection<
     const currentIds = new Set(model.selectedIds)
     const targetIds = new Set<ID>()
 
-    for (const value of values) {
-      const ids = model.browse(toRaw(value))
-      if (ids) {
-        for (const id of ids) targetIds.add(id)
-      }
-    }
-
     if (isMultiple) {
-      for (const id of currentIds.difference(targetIds)) {
-        unselect(id)
+      for (const value of values) {
+        const ids = model.browse(toRaw(value))
+        if (isUndefined(ids)) continue
+
+        for (const id of ids) {
+          const ticket = model.get(id)
+          if (!ticket || toValue(ticket.disabled)) continue
+          targetIds.add(id)
+        }
       }
-      for (const id of targetIds.difference(currentIds)) {
+
+      if (toValue(mandatory) && targetIds.size === 0) return
+
+      for (const id of currentIds) {
+        if (!targetIds.has(id)) model.selectedIds.delete(id)
+      }
+      for (const id of targetIds) {
         model.selectedIds.add(id)
       }
     } else {
+      for (const value of values) {
+        const ids = model.browse(toRaw(value))
+        if (isUndefined(ids)) continue
+
+        for (const id of ids) targetIds.add(id)
+      }
+
       const next = targetIds.values().next().value
       const last = currentIds.values().next().value
-      if (!isUndefined(last)) unselect(last)
+      if (!isUndefined(last)) drain(last)
       if (!isUndefined(next)) model.select(next)
     }
   }
@@ -306,7 +331,7 @@ export function createSelection<
     get size () {
       return model.size
     },
-  } as R
+  } satisfies SelectionContext<Z, E> as R
 }
 
 /**

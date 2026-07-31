@@ -135,3 +135,53 @@ export type Extensible<T extends string> = T | (string & {})
  * ```
  */
 export type Activation = 'automatic' | 'manual'
+
+/**
+ * Discriminated union of structured details attached to every v0-thrown error
+ *
+ * @remarks
+ * Each arm pairs a stable `code` discriminant with the domain context for that
+ * code. Consumed by the `V0Error` constructor in `#v0/utilities` — the union
+ * is the source of truth for both what codes exist and what payload each code
+ * carries.
+ *
+ * Prefer `isV0Error(err, code)` over manual narrowing — see
+ * `V0Error` and `isV0Error` in `#v0/utilities` for the consumer-facing API
+ * and worked examples.
+ *
+ * Inspiration: tRPC's `TRPCError.code`, Node's `error.code` registry.
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/cause
+ * @see https://nodejs.org/api/errors.html#nodejs-error-codes
+ * @see https://trpc.io/docs/server/error-handling
+ *
+ * @example
+ * ```ts
+ * const details: V0ErrorDetails = { code: 'V0_CONTEXT_MISSING', key: 'theme' }
+ * ```
+ */
+export type V0ErrorDetails =
+  | { code: 'V0_CONTEXT_MISSING', key: string | symbol }
+  | { code: 'V0_PLUGIN_MISSING', plugin: string }
+  | { code: 'V0_PALETTE_INVALID_SEED', palette: 'material' | 'leonardo' | 'ant', seed: string }
+  | { code: 'V0_PALETTE_UNKNOWN_VARIANT', palette: 'material', variant: string }
+  | { code: 'V0_ADAPTER_INSTANCE_MISSING', adapter: string }
+  | { code: 'V0_THEME_INVALID_PREFIX', prefix: string }
+
+/**
+ * Union of every error code thrown by v0
+ *
+ * @remarks
+ * Convenience alias for the discriminant field of {@link V0ErrorDetails}.
+ *
+ * @example
+ * ```ts
+ * function describe (code: V0ErrorCode): string {
+ *   switch (code) {
+ *     case 'V0_CONTEXT_MISSING': return 'missing provider'
+ *     case 'V0_PLUGIN_MISSING': return 'plugin not installed'
+ *   }
+ * }
+ * ```
+ */
+export type V0ErrorCode = V0ErrorDetails['code']

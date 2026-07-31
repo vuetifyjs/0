@@ -259,6 +259,24 @@ describe('createGroup', () => {
       expect(group.selectedIds.size).toBe(1)
       expect(group.selectedIds.has('item-2')).toBe(true)
     })
+
+    it('should not unselect disabled items in array operations', () => {
+      const disabled = ref(false)
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2', disabled },
+      ])
+
+      group.select(['item-1', 'item-2'])
+
+      disabled.value = true
+      group.unselect(['item-1', 'item-2'])
+
+      expect(group.selectedIds.has('item-1')).toBe(false)
+      expect(group.selectedIds.has('item-2')).toBe(true)
+    })
   })
 
   describe('mandatory mode', () => {
@@ -984,6 +1002,23 @@ describe('createGroup', () => {
         expect(group.selectedIds.size).toBe(0)
         expect(group.mixedIds.size).toBe(1)
         expect(group.mixedIds.has('item-2')).toBe(true)
+      })
+
+      it('should drain disabled selected ids', () => {
+        const disabled = ref(false)
+        const group = createGroup()
+
+        group.onboard([
+          { id: 'item-1', value: 'value-1' },
+          { id: 'item-2', value: 'value-2', disabled },
+        ])
+
+        group.select(['item-1', 'item-2'])
+
+        disabled.value = true
+        group.unselectAll()
+
+        expect(group.selectedIds.size).toBe(0)
       })
     })
 

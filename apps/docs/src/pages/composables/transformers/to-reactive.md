@@ -63,12 +63,32 @@ flowchart LR
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/to-reactive/settings
 
 ### Reactive Settings Object
 
-Wraps a ref-based config object with `toReactive`, letting templates access properties directly without `.value`.
+A settings panel that wraps a `ref`-based config object with `toReactive` so the template can read and write `settings.theme`, `settings.fontSize`, `settings.language`, and the two boolean toggles without `.value`. The theme selector, font size stepper, notification toggle, and sidebar toggle all mutate the proxy directly (`settings.theme = t`, `settings.fontSize++`), and the debug panel below shows the underlying `config.value` updating in real time — confirming that proxy writes flow back to the source ref. A change history log records each snapshot, making it easy to see that `watch(config, ...)` still fires correctly even though the writes come through the proxy.
+
+Reach for `toReactive` when you have a `ref`-wrapped object and want to eliminate `.value` in templates or in non-Vue code that expects a plain object interface. It is especially useful for composable return values: instead of returning `{ name: ref(''), age: ref(0) }` and having callers write `state.name.value`, return `toReactive(ref({ name: '', age: 0 }))`. The proxy also handles `Map` and `Set` — `get`, `set`, and iteration all unwrap ref values stored as map entries. For the inverse direction — normalizing a single value or array into a consistent array shape — see [toArray](/composables/transformers/to-array).
+
+:::
+
+## FAQ
+
+::: faq
+
+??? Do writes to the proxy update the underlying ref?
+
+Yes. Setting a property on the proxy writes through to the source `ref.value`, so `watch` on the original ref still fires and other consumers see the change.
+
+??? Does toReactive work with Map and Set?
+
+Yes. `get`, `set`, and iteration over `Map` and `Set` (and array index access) all unwrap ref values stored inside them.
+
+??? Why would I use this for a composable's return value?
+
+Returning `toReactive(ref({ name: '', age: 0 }))` lets callers read `state.name` instead of `state.name.value`, keeping the consuming code free of `.value` noise while staying reactive.
 
 :::
 

@@ -110,6 +110,7 @@
       'data-selected': true | undefined
       'data-solo': true | undefined
       'onClick': (() => void) | undefined
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 
@@ -187,6 +188,13 @@
     ticket.toggle()
   }
 
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
   onBeforeUnmount(() => {
     timer.stop()
     ticket?.unregister()
@@ -214,7 +222,7 @@
     'aria-disabled': isDisabled.value || isPassive.value,
     'aria-busy': isLoading.value ? true : undefined,
     'aria-pressed': group ? isSelected.value : undefined,
-    'aria-label': ariaLabel || (isSolo.value ? locale.t('Button.label') : undefined),
+    'aria-label': ariaLabel || (!renderless && isSolo.value ? (locale.ti('Button.label') ?? 'Button') : undefined),
     'tabindex': isDisabled.value ? -1 : 0,
     'data-loading': isLoading.value ? true : undefined,
     'data-passive': isPassive.value ? true : undefined,
@@ -223,6 +231,7 @@
     'data-selected': group && isSelected.value ? true : undefined,
     'data-solo': isSolo.value ? true : undefined,
     'onClick': ticket ? onClick : undefined,
+    'onKeydown': as === 'button' ? undefined : onKeydown,
   }))
 
   const slotProps = toRef((): ButtonRootSlotProps => ({

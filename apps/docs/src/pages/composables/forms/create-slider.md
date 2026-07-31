@@ -51,6 +51,24 @@ slider2.set(0, 30)         // values: [30, 75]
 slider2.set(1, 60)         // values: [30, 60]
 ```
 
+## Architecture
+
+`createSlider` extends `createModel` — which itself extends `createRegistry` — so each thumb is a model ticket holding a `shallowRef<number>`, and `values` is derived from the ordered tickets rather than a standalone ref. It composes `createNumeric` for the pure value math: step snapping, min/max clamping, and value ↔ percentage conversion.
+
+```mermaid "createSlider Architecture"
+flowchart TD
+  Registry["createRegistry"]
+  Model["createModel"]
+  Numeric["createNumeric"]
+  CS["createSlider"]:::primary
+  Context["SliderContext"]
+
+  Registry --> Model
+  Model --> CS
+  Numeric --> CS
+  CS --> Context
+```
+
 ## Reactivity
 
 Slider state is **always reactive**. Values and derived properties update automatically.
@@ -74,7 +92,7 @@ Slider state is **always reactive**. Values and derived properties update automa
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-slider/context.ts 2
 /composables/create-slider/ScrubberProvider.vue 3
 /composables/create-slider/ScrubberConsumer.vue 4
@@ -102,7 +120,7 @@ Every pointer interaction follows the same loop: **pointer → `fromPercent()` �
 Click and drag across the waveform to scrub through the track.
 :::
 
-::: example
+::: gn-example
 /composables/create-slider/useCompare.ts 2
 /composables/create-slider/CompareDisplay.vue 3
 /composables/create-slider/compare.vue 1
@@ -129,6 +147,36 @@ Two identical UI panels are stacked with `position: absolute`. The bottom layer 
 - Same pointer math pattern as the scrubber, proving the composable is reusable across visual metaphors
 
 Drag the divider handle left and right to compare themes.
+:::
+
+## FAQ
+
+::: faq
+
+??? How do I build a range or multi-thumb slider?
+
+Register more than one thumb — call `register({ value })` per thumb, or `onboard([...])` for several at once. Each thumb is addressed by index, e.g. `set(0, 30)` and `set(1, 60)`.
+
+??? What's the difference between `fromValue` and `fromPercent`?
+
+`fromValue` converts a thumb value to a track percentage (for positioning), `fromPercent` converts a percentage back to a snapped value (for pointer input). Together they form the loop `fromPercent → set → fromValue`.
+
+??? Can I use createSlider without rendering an actual slider?
+
+Yes — it's a pure math primitive, not a UI widget. The examples drive a media scrubber and a before/after theme comparison from the same `fromPercent → set → fromValue` loop with no `Slider.*` components.
+
+??? How do I stop range thumbs from crossing each other?
+
+`set` enforces a minimum gap between adjacent thumbs via the `minStepsBetweenThumbs` option, alongside clamping to min/max and snapping to the nearest step.
+
+??? Why does `snap` return `0.3` instead of `0.30000000000000004`?
+
+`snap` runs the result through `toFixed`, deriving the decimal places from `step` and `min`, so it corrects floating-point artifacts — `snap(3 * 0.1)` yields a clean `0.3`.
+
+??? What's the difference between `disabled` and `readonly`?
+
+`disabled` blocks all mutations; `readonly` keeps thumbs focusable but turns `set`, `up`, `down`, `floor`, and `ceil` into no-ops. Both accept a `MaybeRefOrGetter`.
+
 :::
 
 <DocsApi />

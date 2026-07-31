@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { leonardo } from './index'
 
@@ -15,6 +15,22 @@ function expectAllHex (record: Record<string, string>) {
 }
 
 describe('leonardo palette generator', () => {
+  // @adobe/leonardo-contrast-colors@1.1.0 emits a `colorspace` deprecation from
+  // its own internals (Color._generateColorScale) even when callers pass the
+  // current `colorSpace` key. Drop only that third-party noise; let any other
+  // warning through so a real regression still surfaces.
+  beforeEach(() => {
+    const original = console.warn
+    vi.spyOn(console, 'warn').mockImplementation((...args) => {
+      if (typeof args[0] === 'string' && args[0].includes('Leonardo:')) return
+      original(...args)
+    })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   describe('shape', () => {
     it('should return palette and themes keys', () => {
       const result = leonardo('#0ea5e9')

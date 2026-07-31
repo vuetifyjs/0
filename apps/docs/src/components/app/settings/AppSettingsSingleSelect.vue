@@ -29,6 +29,10 @@
   watch(() => single.selectedValue.value, val => {
     if (val) model.value = val as T
   })
+
+  watch(model, val => {
+    if (val !== single.selectedValue.value) single.select(val)
+  })
 </script>
 
 <template>

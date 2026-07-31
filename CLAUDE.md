@@ -6,53 +6,17 @@ Vue 3 headless UI primitives and composables. Unstyled, logic-focused building b
 
 **STOP. Check existing functionality first.**
 
-### Use Built-in Utilities (`#v0/utilities`)
+### Use What Already Ships
 
-| Utility | Purpose |
-|---------|---------|
-| `isFunction`, `isString`, `isNumber`, `isBoolean` | Type guards |
-| `isObject`, `isArray`, `isNull`, `isUndefined` | Type guards |
-| `isNullOrUndefined`, `isPrimitive`, `isSymbol`, `isNaN`, `isElement` | Type guards |
-| `isThenable` | Duck-typed thenable check (any object with a `.then` method) |
-| `mergeDeep(target, ...sources)` | Deep merge with `DeepPartial<T>` |
-| `useId()` | SSR-safe ID (Vue's useId in components, counter fallback) |
-| `clamp(value, min, max)` | Clamp number to range |
-| `range(length, start)` | Create sequential number array |
+Never hand-roll a helper, type, or environment check that the package already exports. Read the barrels before writing:
 
-### Use Built-in Types (`#v0/types`)
+- `#v0/utilities` — type guards (incl. `isThenable`), `mergeDeep`, `useId`, `clamp`, `range`
+- `#v0/types` — `ID`, `Extensible`, `MaybeArray`, `DeepPartial`, `Activation`
+- `#v0/constants/globals` — `IN_BROWSER`, `SUPPORTS_*` (never write `typeof window !== 'undefined'`)
 
-| Type | Purpose |
-|------|---------|
-| `ID` | Identifier type (`string \| number`) for registry tickets |
-| `Extensible<T>` | Preserves string literal autocomplete while allowing arbitrary strings |
-| `MaybeArray<T>` | Union accepting single value or array (`T \| T[]`) |
-| `DeepPartial<T>` | Recursively makes all properties optional |
-| `Activation` | Keyboard activation mode (`'automatic' \| 'manual'`) |
+### Check Existing Composables & Components (`#v0/composables`, `#v0/components`)
 
-### Use Built-in Constants (`#v0/constants/globals`)
-
-| Constant | Purpose |
-|----------|---------|
-| `IN_BROWSER` | SSR-safe `typeof window !== 'undefined'` |
-| `SUPPORTS_TOUCH` | Touch device detection |
-| `SUPPORTS_MATCH_MEDIA` | matchMedia availability |
-| `SUPPORTS_OBSERVER` | ResizeObserver availability |
-| `SUPPORTS_INTERSECTION_OBSERVER` | IntersectionObserver availability |
-| `SUPPORTS_MUTATION_OBSERVER` | MutationObserver availability |
-
-### Check Existing Composables (`#v0/composables`)
-
-**Foundation**: `createContext`, `createTrinity`, `createPlugin`
-**Registry**: `createRegistry`, `useProxyRegistry`
-**Selection**: `createSelection`, `createSingle`, `createGroup`, `createStep`, `createModel`, `createNested`
-**Observers**: `useResizeObserver`, `useIntersectionObserver`, `useMutationObserver`
-**Events**: `useEventListener`, `useHotkey`, `useClickOutside`
-**Reactivity**: `useProxyModel`, `useToggleScope`, `toReactive`, `toArray`, `toElement`
-**Plugins**: `useFeatures`, `usePermissions`, `useTheme`, `useLocale`, `useLogger`, `useNotifications`, `useRtl`, `useStack`, `useRules`
-**Data**: `createFilter`, `createPagination`, `createVirtual`, `useDate`, `createForm`, `createQueue`, `createTimeline`, `createTokens`, `createDataTable`
-**Browser**: `useBreakpoints`, `useMediaQuery`, `useStorage`, `useHydration`, `createOverflow`, `useLazy`, `usePopover`, `usePresence`, `useRaf`, `useTimer`
-**Forms**: `createValidation`, `createCombobox`, `createSlider`, `createInput`, `createNumeric`, `createRating`
-**Focus**: `useVirtualFocus`, `useRovingFocus`, `createFocusTraversal`, `createBreadcrumbs`
+Before building anything, consult the `vuetify0` skill's `SKILL.md` — invoke the **`vuetify0`** skill (Skill tool). Its **"Decision table — reach for these first"** maps each task (selection, validation, registries, virtual scroll, popovers, focus, etc.) to the composable/component to use, and `references/layer-decisions.md` covers the component-vs-composable-vs-both call. Use it to decide **what** to reach for and **when** — don't reinvent a primitive v0 already ships. The skill is the source of truth; this file does not duplicate the inventory.
 
 ## Path Alias
 
@@ -68,45 +32,42 @@ import { createRegistry } from '#v0/composables'
 ## Packages
 
 - **`@vuetify/v0`** (`packages/0/`): Headless components and composables
-- **`@vuetify/paper`** (`packages/paper/`): Styling primitives depending on v0
-
-## Apps
-
-- **Dev** (`dev/`): Dev environment
-- **Playground** (`apps/playground/`): Browser-based editor with live preview
-- **Docs** (`apps/docs/`): VitePress-style documentation
+- **`@vuetify/paper`** (`packages/paper/`): Styling primitives depending on v0 — **not published (dormant)**
 
 ## Commands
 
-```bash collapse
-# Development
-pnpm dev              # Dev environment
-pnpm dev:docs         # Documentation
+Scripts live in the root `package.json` — read it for the full list. The non-obvious ones:
 
-# Build
-pnpm build            # All packages
-pnpm build:0          # @vuetify/v0 only
-pnpm build:paper      # @vuetify/paper only
-pnpm build:apps       # All apps
-pnpm build:all        # Everything
-
-# Quality
-pnpm test             # Watch mode
-pnpm test:run         # CI mode
-pnpm test:bench       # Run benchmarks
-pnpm metrics          # Generate performance metrics
-pnpm typecheck        # All packages
-pnpm lint:fix         # Always use lint:fix, not lint
+```bash
+pnpm lint:fix         # Always use lint:fix, never plain lint
 pnpm validate         # lint + typecheck + test
-
-# Release
-pnpm release:prepare  # Pre-release validation
-pnpm release:patch    # Bump patch
-pnpm release:minor    # Bump minor
-
-# Repo health
+pnpm metrics          # CI metrics-regen only — do not commit artifacts from feature branches; local: pnpm test:bench
 pnpm repo:check       # knip + sherif
+pnpm changeset        # Author a changeset — run once per change, see "Releasing"
 ```
+
+## Releasing
+
+Changesets-driven. Pushing to `master` opens/updates a "Version Packages" PR; merging it publishes to npm (tokenless OIDC) and mints the GitHub releases (`.github/workflows/release.yml`).
+
+### Branch model — where a PR goes by change type
+
+Three long-lived branches; a PR's base is chosen by the semver impact of the change, not by its commit-type label alone:
+
+| Base | Change type | Semver | Examples |
+|------|-------------|--------|----------|
+| `master` | fixes, docs, chore, refactor, tests | patch / none | `fix(...)`, `docs(...)`, `test(...)`, and any app/tooling change that ships no package version |
+| `dev` | new features that add public API | minor | `feat(...)` that adds a component, composable, prop, or option |
+| `next` | breaking changes | major | anything with a `BREAKING CHANGE:` footer |
+
+- **Only `master` publishes.** `dev` and `next` accumulate work and merge **into `master`** at the next minor / major cut — that merge is what triggers the changesets release. Never publish from `dev`/`next` directly.
+- **`feat`/`fix` are still reserved for `packages/*` source.** A `feat(docs)` / `feat(playground)` / app-only change ships no package version, so it targets `master` (patch train) regardless of the `feat` label — prefer `docs`/`chore` for those.
+- **Design systems** (`@paper/*`) version independently; a DS feature still targets `dev` (it's a minor bump for that package).
+- CI (`pr-checks.yml`) and the changeset reminder (`changeset-reminder.yml`) run on PRs into all three branches; `release.yml` triggers on `master` pushes only.
+
+### Authoring a changeset / cutting a release
+
+For the changeset content contract, the two version domains (`@vuetify/v0` vs `@paper/*`), and optional pre/beta channel workflow, invoke the **`releasing`** skill (`.claude/skills/releasing/SKILL.md`).
 
 ## Conventions
 
@@ -125,22 +86,9 @@ pnpm repo:check       # knip + sherif
 - **Never use `ltr:` variant** — it requires an explicit `dir="ltr"` attribute on an ancestor. Use the bare class for default (LTR) behavior, `rtl:` for the override (e.g. `-translate-x-full rtl:translate-x-full`, not `ltr:-translate-x-full rtl:translate-x-full`)
 
 ### Testing
-- Vitest + happy-dom
-- Colocated with source (`*.test.ts`)
+- Vitest, two projects: `v0:unit` (happy-dom, `*.test.ts` — composables/utilities) and `v0:browser` (real Chromium via Playwright, `*.browser.test.ts` — components)
+- Colocated with source (`*.test.ts`, components `*.browser.test.ts`)
 - Focus: edge cases, error conditions, async, SSR safety
-
-## Requirements
-
-- **Node**: >=26
-- **pnpm**: >=10.6
-
-## Build Tooling
-
-- **Build**: tsdown
-- **Dev**: Vite
-- **Test**: Vitest
-- **Lint**: ESLint (vuetify config)
-- **Style**: UnoCSS
 
 ## Worktrees
 
@@ -155,3 +103,4 @@ See `.claude/rules/` for path-scoped documentation:
 - `benchmarks.md` - Standards for `*.bench.ts` files
 - `docs.md` - Architecture for `apps/docs/**`
 - `testing.md` - Standards for `*.test.ts` files
+- `new-feature-checklist.md` - Required files when adding a component or composable (path-scoped)

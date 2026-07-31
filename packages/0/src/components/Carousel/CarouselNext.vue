@@ -41,6 +41,8 @@
     /** Attributes to bind to the button element */
     attrs: {
       'type': 'button' | undefined
+      'role': 'button' | undefined
+      'tabindex': number
       'aria-label': string
       'aria-controls': string
       'aria-disabled': boolean
@@ -48,6 +50,7 @@
       'data-disabled': true | undefined
       'data-edge': true | undefined
       'onClick': () => void
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 </script>
@@ -90,18 +93,28 @@
     }
   }
 
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
   const slotProps = toRef((): CarouselNextSlotProps => ({
     isDisabled: isDisabled.value,
     isAtEdge: isAtEdge.value,
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
-      'aria-label': locale.t('Carousel.next'),
+      'role': as === 'button' ? undefined : 'button',
+      'tabindex': isDisabled.value ? -1 : 0,
+      'aria-label': locale.ti('Carousel.next') ?? 'Next slide',
       'aria-controls': viewportId,
       'aria-disabled': isDisabled.value,
       'disabled': as === 'button' ? isDisabled.value : undefined,
       'data-disabled': isDisabled.value || undefined,
       'data-edge': isAtEdge.value || undefined,
       'onClick': onClick,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
 </script>

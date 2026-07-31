@@ -16,7 +16,6 @@ export type { ComboboxDescriptionProps, ComboboxDescriptionSlotProps } from './C
 export type { ComboboxEmptyProps, ComboboxEmptySlotProps } from './ComboboxEmpty.vue'
 export type { ComboboxErrorProps, ComboboxErrorSlotProps } from './ComboboxError.vue'
 export type { ComboboxItemProps, ComboboxItemSlotProps } from './ComboboxItem.vue'
-export type { ComboboxContext } from '#v0/composables/createCombobox'
 export type { ComboboxRootProps, ComboboxRootSlotProps } from './ComboboxRoot.vue'
 
 // Context

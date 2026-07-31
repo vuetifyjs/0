@@ -46,6 +46,12 @@
     isBlocking: boolean
     /** Dismiss this overlay */
     dismiss: () => void
+    /** Attributes to bind to the scrim element */
+    attrs: {
+      'aria-hidden': 'true'
+      'style': { zIndex: number }
+      'onClick': () => void
+    }
   }
 </script>
 
@@ -57,7 +63,7 @@
   import { useStack } from '#v0/composables/useStack'
 
   // Utilities
-  import { computed, useAttrs } from 'vue'
+  import { computed, mergeProps, useAttrs } from 'vue'
 
   defineOptions({ name: 'Scrim', inheritAttrs: false })
 
@@ -67,6 +73,7 @@
 
   const {
     as = 'div',
+    renderless,
     transition = 'fade',
     teleport = true,
     teleportTo = 'body',
@@ -75,25 +82,27 @@
   const attrs = useAttrs()
   const stack = useStack()
 
-  const tickets = computed(() => Array.from(stack.selectedItems.value))
+  const tickets = computed(() => Array.from(stack.selectedItems.value).filter(ticket => ticket.scrim.value !== false))
 
   function onDismiss (ticket: StackTicket) {
-    if (!ticket.blocking) {
+    if (!ticket.blocking.value) {
       ticket.dismiss()
     }
   }
 
   function getSlotProps (ticket: StackTicket): ScrimSlotProps {
+    const zIndex = ticket.zIndex.value - 1
     return {
       ticket,
-      zIndex: ticket.zIndex.value - 1,
-      isBlocking: ticket.blocking,
+      zIndex,
+      isBlocking: ticket.blocking.value,
       dismiss: () => onDismiss(ticket),
+      attrs: {
+        'aria-hidden': 'true',
+        'style': { zIndex },
+        'onClick': () => onDismiss(ticket),
+      },
     }
-  }
-
-  function getStyle (ticket: StackTicket) {
-    return { zIndex: ticket.zIndex.value - 1 }
   }
 </script>
 
@@ -107,9 +116,8 @@
         v-for="ticket in tickets"
         :key="ticket.id"
         :as
-        :style="getStyle(ticket)"
-        v-bind="attrs"
-        @click="() => onDismiss(ticket)"
+        :renderless
+        v-bind="mergeProps(attrs, getSlotProps(ticket).attrs)"
       >
         <slot v-bind="getSlotProps(ticket)" />
       </Atom>
@@ -124,9 +132,8 @@
       v-for="ticket in tickets"
       :key="ticket.id"
       :as
-      :style="getStyle(ticket)"
-      v-bind="attrs"
-      @click="() => onDismiss(ticket)"
+      :renderless
+      v-bind="mergeProps(attrs, getSlotProps(ticket).attrs)"
     >
       <slot v-bind="getSlotProps(ticket)" />
     </Atom>

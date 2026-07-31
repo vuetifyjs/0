@@ -20,6 +20,8 @@
     disabled?: boolean
     /** Sets all registered fields to readonly */
     readonly?: boolean
+    /** Suppress native constraint validation (default: true) — set false to restore browser validation UI */
+    novalidate?: boolean
   }
 
   export interface FormSlotProps {
@@ -35,6 +37,12 @@
     submit: () => Promise<boolean>
     /** Reset all field validations */
     reset: () => void
+    /** Attributes to bind to the form element */
+    attrs: {
+      novalidate: true | undefined
+      onSubmit: (event: Event) => void
+      onReset: (event: Event) => void
+    }
   }
 </script>
 
@@ -47,7 +55,7 @@
   import { createForm } from '#v0/composables/createForm'
 
   // Utilities
-  import { toRef, toValue, useAttrs, watchEffect } from 'vue'
+  import { mergeProps, toRef, toValue, useAttrs, watchEffect } from 'vue'
 
   // eslint-disable-next-line vue/no-reserved-component-names
   defineOptions({ name: 'Form', inheritAttrs: false })
@@ -67,6 +75,8 @@
     namespace = 'v0:form',
     disabled = false,
     readonly = false,
+    novalidate = true,
+    renderless,
   } = defineProps<FormProps>()
 
   const model = defineModel<boolean | null>({ default: null })
@@ -103,15 +113,19 @@
     isReadonly: toValue(form.readonly),
     submit: form.submit,
     reset: form.reset,
+    attrs: {
+      novalidate: novalidate || undefined,
+      onSubmit,
+      onReset,
+    },
   }))
 </script>
 
 <template>
   <Atom
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
-    v-bind="attrs"
-    @reset="onReset"
-    @submit="onSubmit"
+    :renderless
   >
     <slot v-bind="slotProps" />
   </Atom>

@@ -56,7 +56,7 @@ describe('featuresAdapter', () => {
   describe('dispose', () => {
     it('should clean up subscriptions', () => {
       const adapter = new GenericTestAdapter()
-      const disposeSpy = vi.spyOn(adapter, 'dispose')
+      using disposeSpy = vi.spyOn(adapter, 'dispose')
 
       adapter.dispose()
 

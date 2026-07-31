@@ -19,12 +19,12 @@ Common questions and answers about Vuetify0.
 
 <DocsPageFeatures :frontmatter />
 
-Have a question that isn't answered here? Try [Ask AI](/guide/essentials/using-the-docs#ask-ai) for instant answers, join our [Discord community](https://community.vuetifyjs.com), or open an [issue on GitHub](https://github.com/vuetifyjs/0/issues).
+Have a question that isn't answered here? Try [Ask AI](/guide/essentials/using-the-docs#ask-ai) for instant answers, join our [Discord community](https://discord.gg/vuetify), or open an [issue on GitHub](https://github.com/vuetifyjs/0/issues).
 
 ::: faq
 ??? What is Vuetify0?
 
-Vuetify0 is a collection of headless UI primitives and composables for Vue 3. It provides unstyled, logic-focused building blocks that handle accessibility, keyboard navigation, and state management while giving you complete control over styling. The library includes 35+ composables covering everything from selection patterns to form validation, plus ready-to-use headless components like Dialog, Tabs, and ExpansionPanel. Get started instantly with `pnpm create vuetify0`.
+Vuetify0 is a collection of headless UI primitives and composables for Vue 3. It provides unstyled, logic-focused building blocks that handle accessibility, keyboard navigation, and state management while giving you complete control over styling. The library includes <DocsCount type="composable" /> composables covering everything from selection patterns to form validation, plus ready-to-use headless components like Dialog, Tabs, and ExpansionPanel. Get started instantly with `pnpm create vuetify0`.
 
 ??? How is Vuetify0 different from Vuetify?
 
@@ -84,5 +84,8 @@ See the [Contributing](/introduction/contributing) page for guidelines. The proj
 
 ??? Where can I get help?
 
-[GitHub Issues](https://github.com/vuetifyjs/0/issues) for bug reports and feature requests, or the [Vuetify Discord](https://community.vuetifyjs.com) community for real-time chat and questions.
+[GitHub Issues](https://github.com/vuetifyjs/0/issues) for bug reports and feature requests, or the [Vuetify Discord](https://discord.gg/vuetify) community for real-time chat and questions.
+:::
+
+::: sponsor
 :::

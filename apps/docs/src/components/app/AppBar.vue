@@ -91,7 +91,6 @@
         <button
           aria-label="Search (Ctrl+K)"
           :class="['inline-flex items-center gap-1.5 rounded-full md:border md:border-divider md:pl-1.5 md:pr-1.5 md:py-1.5 hover:border-primary/50 transition-colors', settings.showBgGlass.value ? 'md:bg-glass-surface' : 'md:bg-surface']"
-          title="Search (Ctrl+K)"
           type="button"
           @click="search.focus()"
         >
@@ -110,29 +109,33 @@
 
       <AppThemeToggle v-if="isHomePage || settings.showThemeToggle.value" />
 
-      <a
+      <AppTooltip
         v-if="isHomePage || settings.showSocialLinks.value"
         aria-label="Discord Community (opens in new tab)"
+        as="a"
         class="bg-[#5865F2] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
-        href="https://discord.gg/vK6T89eNP7"
+        href="https://discord.gg/vuetify"
+        position-area="bottom"
         rel="noopener noreferrer"
         target="_blank"
-        title="Discord Community"
+        text="Discord Community"
       >
         <AppIcon class="!opacity-100" icon="discord" />
-      </a>
+      </AppTooltip>
 
-      <a
+      <AppTooltip
         v-if="isHomePage || settings.showSocialLinks.value"
         aria-label="GitHub Repository (opens in new tab)"
+        as="a"
         class="bg-[#24292f] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         href="https://github.com/vuetifyjs/0"
+        position-area="bottom"
         rel="noopener noreferrer"
         target="_blank"
-        title="GitHub Repository"
+        text="GitHub Repository"
       >
         <AppIcon class="!opacity-100" icon="github" />
-      </a>
+      </AppTooltip>
 
       <AppAccount v-if="!isHomePage" />
 

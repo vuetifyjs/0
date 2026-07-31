@@ -1,8 +1,12 @@
 <script setup lang="ts">
   import apiData from 'virtual:api'
 
+  // Context
+  import DocsHeaderAnchor from './DocsHeaderAnchor.vue'
+
   // Utilities
-  import { toKebab } from '@/utilities/strings'
+  import { renderInlineMarkdown } from '@/utilities/markdown'
+  import { toKebab, toTitle } from '@/utilities/strings'
   import { computed } from 'vue'
 
   // Types
@@ -22,8 +26,8 @@
 
   const data = apiData as ApiData
   const maturityRecord = maturity as {
-    components?: Record<string, { category?: string }>
-    composables?: Record<string, { category?: string }>
+    components?: Record<string, { category?: string, description?: string }>
+    composables?: Record<string, { category?: string, description?: string }>
   }
 
   function categoryFor (name: string, kind: 'component' | 'composable'): string {
@@ -40,10 +44,9 @@
       if (seen.has(root)) continue
       seen.add(root)
 
-      const api = data.components[fullName]
       out.push({
         name: root,
-        description: api?.description ?? '',
+        description: maturityRecord.components?.[root]?.description ?? '',
         href: `/api/${toKebab(root)}`,
         kind: 'component',
         category: categoryFor(root, 'component'),
@@ -54,10 +57,10 @@
   })
 
   const composables = computed<IndexEntry[]>(() => {
-    return Object.entries(data.composables)
-      .map(([name, api]) => ({
+    return Object.keys(data.composables)
+      .map(name => ({
         name,
-        description: api?.description ?? '',
+        description: maturityRecord.composables?.[name]?.description ?? '',
         href: `/api/${toKebab(name)}`,
         kind: 'composable' as const,
         category: categoryFor(name, 'composable'),
@@ -82,54 +85,64 @@
 <template>
   <div>
     <template v-if="componentGroups.length > 0">
-      <h2>Components</h2>
+      <DocsHeaderAnchor id="components" class="text-3xl leading-9 mt-8 mb-3" tag="h2">Components</DocsHeaderAnchor>
 
       <p>Detailed API reference for each component including props, events, and slots.</p>
 
       <template v-for="[category, entries] in componentGroups" :key="`c-${category}`">
-        <h3 class="capitalize">{{ category }}</h3>
+        <DocsHeaderAnchor :id="`components-${toKebab(category)}`" class="text-2xl leading-8 mt-6 mb-2" tag="h3">{{ toTitle(category) }}</DocsHeaderAnchor>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Component</th>
-              <th>Description</th>
-            </tr>
-          </thead>
+        <div class="overflow-x-auto mb-4">
+          <table>
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Description</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            <tr v-for="entry in entries" :key="entry.name">
-              <td><router-link :to="entry.href">{{ entry.name }}</router-link></td>
-              <td>{{ entry.description }}</td>
-            </tr>
-          </tbody>
-        </table>
+            <tbody>
+              <tr v-for="entry in entries" :key="entry.name">
+                <td><router-link class="v0-link" :to="entry.href">{{ entry.name }}</router-link></td>
+
+                <td>
+                  <p v-html="renderInlineMarkdown(entry.description)" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </template>
     </template>
 
     <template v-if="composableGroups.length > 0">
-      <h2>Composables</h2>
+      <DocsHeaderAnchor id="composables" class="text-3xl leading-9 mt-8 mb-3" tag="h2">Composables</DocsHeaderAnchor>
 
       <p>Detailed API reference for each composable including options, properties, and methods.</p>
 
       <template v-for="[category, entries] in composableGroups" :key="`e-${category}`">
-        <h3 class="capitalize">{{ category }}</h3>
+        <DocsHeaderAnchor :id="`composables-${toKebab(category)}`" class="text-2xl leading-8 mt-6 mb-2" tag="h3">{{ toTitle(category) }}</DocsHeaderAnchor>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Composable</th>
-              <th>Description</th>
-            </tr>
-          </thead>
+        <div class="overflow-x-auto mb-4">
+          <table>
+            <thead>
+              <tr>
+                <th>Composable</th>
+                <th>Description</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            <tr v-for="entry in entries" :key="entry.name">
-              <td><router-link :to="entry.href">{{ entry.name }}</router-link></td>
-              <td>{{ entry.description }}</td>
-            </tr>
-          </tbody>
-        </table>
+            <tbody>
+              <tr v-for="entry in entries" :key="entry.name">
+                <td><router-link class="v0-link" :to="entry.href">{{ entry.name }}</router-link></td>
+
+                <td>
+                  <p v-html="renderInlineMarkdown(entry.description)" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </template>
     </template>
   </div>

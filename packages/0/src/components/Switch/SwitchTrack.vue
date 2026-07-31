@@ -34,6 +34,7 @@
     isMixed: boolean
     /** Pre-computed data attributes for styling */
     attrs: {
+      'aria-hidden': 'true'
       'data-state': SwitchState
     }
   }
@@ -65,6 +66,7 @@
     isChecked: isChecked.value,
     isMixed: isMixed.value,
     attrs: {
+      'aria-hidden': 'true',
       'data-state': dataState.value,
     },
   }))

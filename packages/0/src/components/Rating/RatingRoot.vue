@@ -79,7 +79,7 @@
       'aria-valuemin': 0
       'aria-valuemax': number
       'aria-valuetext': string
-      'aria-disabled': true | undefined
+      'aria-disabled': boolean
       'aria-readonly': true | undefined
       'data-disabled': true | undefined
       'data-readonly': true | undefined
@@ -116,8 +116,10 @@
 
   const rating = createRating({
     value: model,
-    size,
-    half,
+    // Wrap reactive props as getters — createRating reads size/half via
+    // toValue(), so bare scalar snapshots would freeze them at mount.
+    size: toRef(() => size),
+    half: toRef(() => half),
   })
 
   // Hover tracking — UI concern, not in composable
@@ -181,8 +183,8 @@
       'aria-valuenow': rating.value.value,
       'aria-valuemin': 0,
       'aria-valuemax': rating.size,
-      'aria-valuetext': locale.t('Rating.valueText', { value: rating.value.value, size: rating.size }),
-      'aria-disabled': isDisabled.value ? true : undefined,
+      'aria-valuetext': locale.ti('Rating.valueText', { value: rating.value.value, size: rating.size }) ?? `${rating.value.value} of ${rating.size} stars`,
+      'aria-disabled': isDisabled.value,
       'aria-readonly': isReadonly.value ? true : undefined,
       'data-disabled': isDisabled.value ? true : undefined,
       'data-readonly': isReadonly.value ? true : undefined,

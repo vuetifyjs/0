@@ -4,9 +4,10 @@
  * @see https://0.vuetifyjs.com/components/forms/switch
  *
  * @remarks
- * Sliding knob indicator for switches. Must be used within a
+ * Sliding knob for switches. Must be used within a
  * Switch.Root component which provides the switch state.
- * Renders as a span by default and only displays when checked or indeterminate.
+ * Renders as a span by default and stays visible in every state; consumers
+ * drive its position/color from the `data-state` attribute.
  */
 
 <script lang="ts">
@@ -33,10 +34,10 @@
     isChecked: boolean
     /** Whether the parent switch is in a mixed/indeterminate state */
     isMixed: boolean
-    /** Pre-computed data attributes and visibility style for styling */
+    /** Pre-computed data attributes for styling */
     attrs: {
+      'aria-hidden': 'true'
       'data-state': SwitchState
-      'style': { visibility: 'visible' | 'hidden' }
     }
   }
 </script>
@@ -58,7 +59,6 @@
 
   const isChecked = toRef(() => toValue(root.isChecked))
   const isMixed = toRef(() => toValue(root.isMixed))
-  const isVisible = toRef(() => isChecked.value || isMixed.value)
   const dataState = toRef((): SwitchState => isMixed.value
     ? 'indeterminate'
     : (isChecked.value ? 'checked' : 'unchecked'),
@@ -68,8 +68,8 @@
     isChecked: isChecked.value,
     isMixed: isMixed.value,
     attrs: {
+      'aria-hidden': 'true',
       'data-state': dataState.value,
-      'style': { visibility: isVisible.value ? 'visible' : 'hidden' },
     },
   }))
 </script>

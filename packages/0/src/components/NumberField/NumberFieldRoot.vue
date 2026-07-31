@@ -33,8 +33,10 @@
   export interface NumberFieldRootContext extends NumberFieldContext {
     /** Unique identifier */
     readonly id: ID
-    /** Optional display label */
+    /** Optional display label (used as aria-label on spinbutton) */
     readonly label?: string
+    /** ID of element that labels this spinbutton */
+    readonly ariaLabelledby?: string
     /** Form field name */
     readonly name?: string
     /** Associate with form by ID */
@@ -84,8 +86,10 @@
   export interface NumberFieldRootProps extends AtomProps {
     /** Unique identifier (auto-generated if not provided) */
     id?: ID
-    /** Optional display label */
+    /** Optional display label (rendered as aria-label on the spinbutton) */
     label?: string
+    /** ID of element that labels this spinbutton */
+    ariaLabelledby?: string
     /** Form field name */
     name?: string
     /** Associate with form by ID */
@@ -201,6 +205,7 @@
     renderless,
     id = useId(),
     label,
+    ariaLabelledby,
     name,
     form,
     required,
@@ -252,7 +257,14 @@
     const { event, modifier } = parsed.value
     if (event === 'submit') return false
     if (modifier === 'lazy' && !input.isTouched.value) return false
-    if (modifier === 'eager' && input.isValid.value === false) return true
+    if (modifier === 'eager') {
+      // Eager validates on every keystroke only AFTER the first error. Before
+      // any error, a passing `input` keystroke must not trigger validation —
+      // the first error is seeded by the base trigger (blur/submit).
+      if (input.isValid.value === false) return true
+      if (trigger === 'input') return false
+      return trigger === event
+    }
     return trigger === event
   }
 
@@ -281,6 +293,7 @@
     input,
     id: input.id,
     label,
+    ariaLabelledby,
     name,
     form,
     required,

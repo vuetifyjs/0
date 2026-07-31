@@ -33,8 +33,8 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { clamp, isUndefined, useId } from '#v0/utilities'
-import { shallowReactive } from 'vue'
+import { clamp, isNullOrUndefined, isUndefined, useId } from '#v0/utilities'
+import { shallowReactive, shallowRef } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -62,7 +62,7 @@ export interface RegistryTicket<V = unknown> {
   /**
    * The index of the ticket in the registry.
    *
-   * @remarks Automatically managed by the registry. Updated during reindexing. It's not recommended to manually set this.
+   * @remarks Automatically managed by the registry. Assigned at registration and updated during reindexing; a supplied index is ignored — use `move()` to position a ticket. It's not recommended to manually set this. When a removal defers its reindex — a tail-block removal, or a registry with no index-derived values — a ticket read via `values()`/`entries()` may carry a stale index until the next position-reading call (`register`/`upsert`/`browse`/`lookup`/`move`/`reorder`/`seek`) drains it. A mid-list `unregister`/`offboard` that shifts index-derived survivors reindexes eagerly, so those reads are already current.
    */
   index: number
   /** The value associated with the ticket. If not provided, it defaults to the index. */
@@ -262,7 +262,7 @@ export interface RegistryContext<
    * @param id The ID of the ticket to upsert.
    * @param ticket The partial ticket data to update or insert.
    * @param event Optional custom event name to emit alongside `update:ticket`. The patched ticket is dispatched as the event payload.
-   * @remarks If the ticket exists, it will be updated in place — the ticket reference returned by `register()` remains valid and reactive (when `reactive: true`). If it doesn't exist, a new ticket will be created with the given ID and data. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   * @remarks If the ticket exists, it will be updated in place — the ticket reference returned by `register()` remains valid and reactive (when `reactive: true`), and cached `keys()` / `values()` / `entries()` results stay valid (same refs, membership and order unchanged; iterating effects are not re-notified). If it doesn't exist, a new ticket will be created with the given ID and data, which invalidates the cached results.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -327,7 +327,7 @@ export interface RegistryContext<
    * Register a new ticket
    *
    * @param ticket The partial ticket data to register.
-   * @remarks If no ID is provided, a unique ID will be generated automatically. If no value is provided, it defaults to the ticket's index. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   * @remarks If no ID is provided, a unique ID will be generated automatically. If no value is provided, it defaults to the ticket's index. The index is always assigned by the registry — a supplied index is ignored; use `move()` to position a ticket. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -604,12 +604,13 @@ export interface RegistryContext<
    * @param ids An array of ticket IDs to unregister.
    * @returns An array of `Partial<Z>` — the inputs that were registered, with
    * registry-managed fields (`index`, `valueIsIndex`, `unregister`) stripped.
-   * The `id` is preserved only when `valueIsIndex` was false (i.e. the user
-   * supplied a meaningful value); otherwise the id is stripped so the receiving
-   * registry can assign a fresh one. Order matches the input `ids` array. Missing
-   * ids are silently skipped — the returned array may be shorter than `ids`.
-   * @remarks Unregisters multiple tickets in a single operation with optimized
-   * reindexing. The inverse of `onboard`: onboard takes inputs and returns outputs;
+   * A user-supplied `id` is preserved so identity survives the transfer; an
+   * auto-generated `id` is stripped so the receiving registry can assign a fresh
+   * one. The `value` is stripped only when it was index-derived (`valueIsIndex`).
+   * Order matches the input `ids` array. Missing ids are silently skipped — the
+   * returned array may be shorter than `ids`.
+   * @remarks Unregisters multiple tickets in a single compaction pass, reindexing
+   * eagerly only when index-derived survivors shift. The inverse of `onboard`: onboard takes inputs and returns outputs;
    * offboard takes ids and returns the inputs back. Pair with `onboard` on a
    * different registry to move tickets across registries.
    *
@@ -663,7 +664,7 @@ export interface RegistryContext<
    *
    * @param fn The function containing batch operations.
    * @returns The return value of the batch function.
-   * @remarks Useful for bulk operations like onboard(). Invalidation and events happen once at the end, not after each operation.
+   * @remarks Useful for bulk operations like onboard(). Cache invalidation and events are deferred to the end of the batch instead of running after each operation.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -712,7 +713,7 @@ export interface RegistryOptions {
    * Enable reactive behavior for registry operations
    *
    * @default false
-   * @remarks When enabled, the registry will use Vue's shallowReactive to track changes. This is useful for scenarios where you want to reactively update the registry state in response to changes.
+   * @remarks When enabled, tickets and the backing collection are shallowReactive, and `keys()`, `values()`, and `entries()` register a single version dependency so effects and templates re-evaluate on structural mutation. Iteration results stay cached between mutations — reactive reads cost the same as non-reactive ones.
    *
    * @example
    * ```ts
@@ -769,11 +770,27 @@ export function createRegistry<
   const directory = new Map<number, ID>()
   const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()
   const listeners = new Map<string, Set<InternalEventCallback>>()
+  // Tickets whose `id` the registry generated (none supplied at registration).
+  // Drives `toInput`: a synthesized id is dropped so the reconstructed input matches
+  // what was registered, while a user-supplied id is preserved so identity survives a
+  // transfer. A WeakSet needs no cleanup — entries vanish with the tickets themselves.
+  const minted = new WeakSet<E>()
+  // Canonical position sequence, kept in lockstep with `collection`. Holds
+  // ticket refs so values()/entries()/reindex() read them without a Map lookup.
+  // Deliberately NOT shallowReactive: element-by-element reads of a reactive
+  // array pay a proxy trap per index and, inside an effect, track a dependency
+  // per index. Iteration reactivity comes from `version` instead — one signal
+  // bumped on every structural mutation — so a subscribing effect holds a
+  // single dependency regardless of collection size.
+  const order: E[] = []
+  const version = shallowRef(0)
 
   let indexDependentCount = 0
   let needsReindex = false
   let minDirtyIndex = Infinity
+  let maxDirtyIndex = -Infinity
   let isBatching = false
+  let structural = false
   let batched: Array<{ event: string, data: unknown }> = []
 
   function dispatch (event: string, data: unknown) {
@@ -832,7 +849,7 @@ export function createRegistry<
 
     if (!existing) return register({ ...patch, id } as Partial<Z & RegistryTicket>)
 
-    const hasValue = Object.prototype.hasOwnProperty.call(patch, 'value')
+    const hasValue = Object.hasOwn(patch, 'value')
     let value = existing.value
     let valueIsIndex = existing.valueIsIndex
 
@@ -861,7 +878,10 @@ export function createRegistry<
 
     Object.assign(existing, patch, { id, index: existing.index, value, valueIsIndex })
     collection.set(id, existing)
-    invalidate()
+    // Not invalidate(): no structural change, so version subscribers aren't
+    // notified — but the clear stays; update:ticket consumers re-reading
+    // values() need a fresh array identity or their reactive assignment no-ops.
+    cache.clear()
     emit('update:ticket', existing)
     if (event) emit(event, existing)
 
@@ -902,12 +922,14 @@ export function createRegistry<
   }
 
   function keys (): readonly ID[] {
-    if (reactive) return Array.from(collection.keys())
+    // Touching `version` registers the (single) dependency; effects re-evaluate
+    // when the registry is structurally mutated (register, unregister, move, …).
+    if (reactive) void version.value
 
     const cached = cache.get('keys')
     if (!isUndefined(cached)) return cached as readonly ID[]
 
-    const out = Array.from(collection.keys())
+    const out = order.map(ticket => ticket.id)
 
     cache.set('keys', out)
 
@@ -915,12 +937,12 @@ export function createRegistry<
   }
 
   function values (): readonly E[] {
-    if (reactive) return Array.from(collection.values())
+    if (reactive) void version.value
 
     const cached = cache.get('values')
     if (!isUndefined(cached)) return cached as readonly E[]
 
-    const out = Array.from(collection.values())
+    const out = order.slice()
 
     cache.set('values', out)
 
@@ -928,12 +950,12 @@ export function createRegistry<
   }
 
   function entries (): readonly [ID, E][] {
-    if (reactive) return Array.from(collection.entries())
+    if (reactive) void version.value
 
     const cached = cache.get('entries')
     if (!isUndefined(cached)) return cached as readonly [ID, E][]
 
-    const out = Array.from(collection.entries())
+    const out = order.map(ticket => [ticket.id, ticket] as [ID, E])
 
     cache.set('entries', out)
 
@@ -941,6 +963,7 @@ export function createRegistry<
   }
 
   function clear () {
+    order.length = 0
     collection.clear()
     catalog.clear()
     directory.clear()
@@ -948,76 +971,94 @@ export function createRegistry<
     indexDependentCount = 0
     needsReindex = false
     minDirtyIndex = Infinity
+    maxDirtyIndex = -Infinity
     emit('clear:registry')
   }
 
   function invalidate () {
-    if (isBatching) return
+    // Always drop the cache so a sync effect firing mid-batch rebuilds from the
+    // compacted order, never a pre-batch snapshot. Defer the version bump to the
+    // batch end, and only if a structural mutation ran — a field-only-upsert batch
+    // must not re-notify iteration subscribers (§4.4). Hence the `structural` flag.
     cache.clear()
+    if (isBatching) {
+      structural = true
+      return
+    }
+    version.value++
   }
 
   function batch<R> (fn: () => R): R {
     if (isBatching) return fn()
 
     isBatching = true
+    structural = false
     batched = []
 
     try {
-      const result = fn()
-
-      cache.clear()
-
-      for (const { event, data } of batched) {
-        dispatch(event, data)
-      }
-
-      return result
+      return fn()
     } finally {
       isBatching = false
+      const queue = batched
       batched = []
+      cache.clear()
+
+      try {
+        for (const { event, data } of queue) {
+          dispatch(event, data)
+        }
+      } finally {
+        // Only notify iteration subscribers when the batch actually changed
+        // membership or order; a field-only-upsert batch leaves `structural`
+        // false and must not re-notify (mirrors the non-batched upsert path).
+        if (structural) version.value++
+      }
     }
   }
 
   function reindex () {
-    const startIndex = minDirtyIndex === Infinity ? 0 : minDirtyIndex
-
-    if (startIndex === 0) {
-      catalog.clear()
-      directory.clear()
-    }
+    // The dirty window is [start..end]. `minDirtyIndex === Infinity` means "no
+    // lower bound recorded" (renumber from 0); `maxDirtyIndex === -Infinity`
+    // means "no upper bound recorded" (renumber to the end) — the case for
+    // removals and full reorders, where every trailing index shifts.
+    const size = order.length
+    const start = minDirtyIndex === Infinity ? 0 : minDirtyIndex
+    const end = maxDirtyIndex === -Infinity ? size - 1 : Math.min(maxDirtyIndex, size - 1)
+    const full = start === 0 && end === size - 1
 
     invalidate()
 
-    let index = 0
-
-    for (const ticket of collection.values()) {
-      if (index < startIndex) {
-        index++
-        continue
-      }
-
-      if (startIndex > 0) {
+    if (full) {
+      catalog.clear()
+      directory.clear()
+    } else {
+      // Clear stale window entries before reassigning. Two passes are required
+      // because a single delete-then-set pass would clobber a freshly-set slot
+      // when the dirty window is a non-monotonic permutation (e.g. a mid-list move).
+      for (let i = start; i <= end; i++) {
+        const ticket = order[i]
         directory.delete(ticket.index)
+        if (ticket.valueIsIndex) unassign(ticket.value, ticket.id)
       }
+    }
+
+    for (let i = start; i <= end; i++) {
+      const ticket = order[i]
 
       if (ticket.valueIsIndex) {
-        if (startIndex > 0) {
-          unassign(ticket.value, ticket.id)
-        }
-        ticket.value = index
+        ticket.value = i
         assign(ticket.value, ticket.id)
-      } else if (startIndex === 0) {
+      } else if (full) {
         assign(ticket.value, ticket.id)
       }
 
-      ticket.index = index
-      directory.set(index, ticket.id)
-
-      index++
+      ticket.index = i
+      directory.set(i, ticket.id)
     }
 
     needsReindex = false
     minDirtyIndex = Infinity
+    maxDirtyIndex = -Infinity
     emit('reindex:registry')
   }
 
@@ -1025,6 +1066,7 @@ export function createRegistry<
     if (needsReindex) reindex()
 
     const size = collection.size
+    const auto = isNullOrUndefined(registration.id)
     const id = registration.id ?? useId()
 
     if (has(id)) {
@@ -1034,7 +1076,7 @@ export function createRegistry<
     }
 
     const valueIsUndefined = isUndefined(registration.value)
-    const index = registration.index ?? size
+    const index = size
     const value = valueIsUndefined ? index : registration.value
     const valueIsIndex = registration.valueIsIndex ?? valueIsUndefined
 
@@ -1053,7 +1095,10 @@ export function createRegistry<
 
     const ticket = reactive ? shallowReactive(input) : input
 
+    if (auto) minted.add(ticket)
+
     collection.set(ticket.id, ticket)
+    order.push(ticket)
     directory.set(ticket.index, ticket.id)
 
     assign(ticket.value, ticket.id)
@@ -1071,6 +1116,16 @@ export function createRegistry<
     if (ticket.valueIsIndex) {
       indexDependentCount--
     }
+
+    // Never drain reindex here — unregister deletes by ticket-local data, so it stays
+    // on the lazy contract (see .claude/rules/composables.md). ticket.index is canonical
+    // when no reindex is pending, giving an O(1) splice locate; if a deferred reindex left
+    // it stale, the position check misses and we fall back to the O(n) indexOf scan.
+    let orderPos = ticket.index
+    if (order[orderPos] !== ticket) {
+      orderPos = order.indexOf(ticket)
+    }
+    if (orderPos !== -1) order.splice(orderPos, 1)
 
     collection.delete(ticket.id)
     directory.delete(ticket.index)
@@ -1094,47 +1149,77 @@ export function createRegistry<
   }
 
   // Strip registry-managed fields off an output ticket to produce its input shape.
-  // `id` is preserved only when the user supplied a meaningful value; otherwise
-  // the id was auto-generated and stripping it lets the receiving registry assign
-  // a fresh one.
+  // Two independent provenance checks decide what survives:
+  // - `id` is dropped only when the registry generated it (`minted`), so a
+  //   user-supplied id keeps identity across a transfer even when no value was set.
+  // - `value` is dropped only when it was index-derived (`valueIsIndex`), since a
+  //   positional number is meaningless in the receiving registry.
   function toInput (ticket: E): Partial<Z> {
     const input = { ...ticket } as Record<string, unknown>
     delete input.index
     delete input.valueIsIndex
     delete input.unregister
-    if (ticket.valueIsIndex) {
-      delete input.id
-      delete input.value
-    }
+    if (minted.has(ticket)) delete input.id
+    if (ticket.valueIsIndex) delete input.value
     return input as Partial<Z>
   }
 
   function offboard (ids: ID[]): Partial<Z>[] {
+    // Collect valid tickets before any mutations so we know what to remove.
+    // Dedupe up front: a repeated id must not double-decrement indexDependentCount
+    // or emit `unregister:ticket` twice. The old delete-then-get loop was
+    // incidentally dedupe-safe; reading all tickets first is not.
     const removed: E[] = []
+    const removedIds = new Set<ID>()
+    for (const id of ids) {
+      if (removedIds.has(id)) continue
+      const ticket = collection.get(id)
+      if (ticket) {
+        removed.push(ticket)
+        removedIds.add(id)
+      }
+    }
+
+    if (removed.length === 0) return []
 
     batch(() => {
-      for (const id of ids) {
-        const ticket = collection.get(id)
-        if (!ticket) continue
+      // Compact order FIRST so that Vue sync effects triggered by the subsequent
+      // Map mutations see a consistent snapshot (no dangling IDs in order).
+      let w = 0
+      for (const ticket of order) {
+        if (!removedIds.has(ticket.id)) order[w++] = ticket
+      }
+      order.length = w
 
+      // Drop the stale iteration cache now that `order` is compacted, so a sync
+      // effect firing off the Map deletes below rebuilds keys/values/entries from
+      // the surviving set instead of returning removed ids from a warm cache.
+      invalidate()
+
+      for (const ticket of removed) {
         if (ticket.valueIsIndex) {
           indexDependentCount--
         }
-
         minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
         collection.delete(ticket.id)
         directory.delete(ticket.index)
         unassign(ticket.value, ticket.id)
-        removed.push(ticket)
       }
-
-      if (removed.length === 0) return
 
       for (const ticket of removed) {
         emit('unregister:ticket', ticket)
       }
 
-      needsReindex = true
+      // Mirror unregister: eagerly reindex when index-derived survivors shifted
+      // (index-dependent tickets remain AND the smallest removed index is still
+      // inside the compacted range) so iteration/proxy consumers never read stale
+      // index/value. Otherwise defer — a tail-block removal, or a registry with no
+      // index-derived values whose stale `.index` fields drain lazily.
+      if (indexDependentCount > 0 && minDirtyIndex < collection.size) {
+        reindex()
+      } else {
+        needsReindex = true
+      }
     })
 
     // TODO: this builds an array even when the caller discards the return value.
@@ -1151,22 +1236,18 @@ export function createRegistry<
 
     const size = collection.size
     const target = clamp(toIndex, 0, size - 1)
+    const from = ticket.index
 
-    if (ticket.index === target) return ticket
+    if (from === target) return ticket
 
     return batch(() => {
-      const items = Array.from(collection.entries())
-      const fromIndex = items.findIndex(([key]) => key === id)
-      const [entry] = items.splice(fromIndex, 1)
+      order.splice(from, 1)
+      order.splice(target, 0, ticket)
 
-      items.splice(target, 0, entry!)
-
-      collection.clear()
-      for (const [key, value] of items) {
-        collection.set(key, value)
-      }
-
-      minDirtyIndex = Math.min(ticket.index, target)
+      // Bound the reindex to the [from..target] window: only those indices
+      // changed, so reindex() touches O(distance) tickets instead of the tail.
+      minDirtyIndex = Math.min(from, target)
+      maxDirtyIndex = Math.max(from, target)
       reindex()
       emit('update:ticket', ticket)
 
@@ -1180,21 +1261,21 @@ export function createRegistry<
     if (ids.length !== collection.size) return
 
     const seen = new Set<ID>()
-    const entries: [ID, E][] = []
+    const next: E[] = []
     for (const id of ids) {
       if (seen.has(id)) return
       const ticket = collection.get(id)
       if (!ticket) return
       seen.add(id)
-      entries.push([id, ticket])
+      next.push(ticket)
     }
 
     batch(() => {
-      collection.clear()
-      for (const [id, ticket] of entries) {
-        collection.set(id, ticket)
+      for (const [i, ticket] of next.entries()) {
+        order[i] = ticket
       }
       minDirtyIndex = 0
+      maxDirtyIndex = -Infinity
       reindex()
     })
   }
@@ -1208,25 +1289,26 @@ export function createRegistry<
 
     if (needsReindex) reindex()
 
-    // Fast path: simple first/last without predicate or offset
+    const n = order.length
+
+    // Fast path: simple first/last without predicate or offset. Use order directly
+    // to avoid the values() copy (slice or map) for the common case.
     if (!predicate && isUndefined(from)) {
-      const tickets = values()
-      return direction === 'first' ? tickets[0] : tickets.at(-1)
+      return direction === 'first' ? order[0] : order.at(-1)
     }
 
-    const tickets = values()
-    const index = isUndefined(from) ? undefined : clamp(from, 0, tickets.length - 1)
+    const index = isUndefined(from) ? undefined : clamp(from, 0, n - 1)
 
     if (direction === 'last') {
-      const start = isUndefined(index) ? tickets.length - 1 : index
+      const start = isUndefined(index) ? n - 1 : index
       for (let i = start; i >= 0; i--) {
-        const ticket = tickets[i]!
+        const ticket = order[i]
         if (!predicate || predicate(ticket)) return ticket
       }
     } else {
       const start = isUndefined(index) ? 0 : index
-      for (let i = start; i < tickets.length; i++) {
-        const ticket = tickets[i]!
+      for (let i = start; i < n; i++) {
+        const ticket = order[i]
         if (!predicate || predicate(ticket)) return ticket
       }
     }

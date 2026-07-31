@@ -1,5 +1,8 @@
 import { generate } from '@ant-design/colors'
 
+// Utilities
+import { V0Error } from '#v0/utilities'
+
 // Types
 import type { PaletteDefinition } from '#v0/palettes'
 
@@ -30,7 +33,11 @@ function contrast (hex: string): string {
 /* #__NO_SIDE_EFFECTS__ */
 export function ant (seed: string, options: AntGenerateOptions = {}): PaletteDefinition {
   if (!HEX_RE.test(seed)) {
-    throw new Error(`[@vuetify/v0] Invalid seed color: "${seed}". Expected a hex string (e.g., "#1677ff").`)
+    throw new V0Error(`[@vuetify/v0] Invalid seed color: "${seed}". Expected a hex string (e.g., "#1677ff").`, {
+      code: 'V0_PALETTE_INVALID_SEED',
+      palette: 'ant',
+      seed,
+    })
   }
 
   const { background = '#141414' } = options

@@ -56,6 +56,7 @@ import type { MaybeArray, ID } from '#v0/types'
 import type { ComboboxAdapter } from './adapters'
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
+// Exports
 export { ClientComboboxAdapter, ComboboxAdapter, ServerComboboxAdapter } from './adapters'
 export type { ClientComboboxAdapterOptions, ComboboxAdapterContext, ComboboxAdapterResult } from './adapters'
 
@@ -252,8 +253,12 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   function clear () {
     query.value = ''
     pristine.value = true
+    if (toValue(disabled)) return
+    // Clear is wholesale — drain directly so disabled selected ids still
+    // empty out, preserving the mandatory floor of one.
     for (const id of Array.from(selection.selectedIds)) {
-      selection.unselect(id)
+      if (toValue(mandatory) && selection.selectedIds.size === 1) break
+      selection.selectedIds.delete(id)
     }
   }
 
@@ -316,10 +321,10 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
  * ```
  */
 export function createComboboxContext (
-  options: ComboboxOptions & { namespace?: string } = {},
+  _options: ComboboxOptions & { namespace?: string } = {},
 ): ContextTrinity<ComboboxContext> {
-  const { namespace = 'v0:combobox', ...rest } = options
-  const context = createCombobox(rest)
+  const { namespace = 'v0:combobox', ...options } = _options
+  const context = createCombobox(options)
 
   return createTrinity<ComboboxContext>(namespace, context)
 }

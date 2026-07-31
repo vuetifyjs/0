@@ -70,6 +70,7 @@
   const {
     as = 'div',
     namespace = 'v0:select',
+    renderless,
     id,
     value,
     disabled,
@@ -115,6 +116,7 @@
 <template>
   <Atom
     :as
+    :renderless
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />

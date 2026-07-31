@@ -76,6 +76,10 @@
     name?: string
     /** Associate with form by ID */
     form?: string
+    /** Accessible name for the group */
+    label?: string
+    /** ID of element that labels this group */
+    ariaLabelledby?: string
     /** Namespace for context provision */
     namespace?: string
   }
@@ -113,6 +117,9 @@
     ceil: (index: number) => void
     /** Pre-computed attributes for binding */
     attrs: {
+      'role': 'group'
+      'aria-label': string | undefined
+      'aria-labelledby': string | undefined
       'data-disabled': true | undefined
       'data-readonly': true | undefined
       'data-orientation': 'horizontal' | 'vertical'
@@ -145,13 +152,15 @@
     max = 100,
     step = 1,
     disabled = false,
-    readonly: readonlyProp = false,
+    readonly = false,
     orientation = 'horizontal',
     inverted = false,
     minStepsBetweenThumbs = 0,
     crossover = false,
     name,
     form,
+    label,
+    ariaLabelledby,
     namespace = 'v0:slider:root',
   } = defineProps<SliderRootProps>()
 
@@ -171,7 +180,7 @@
     max,
     step,
     disabled: () => toValue(disabled),
-    readonly: () => toValue(readonlyProp),
+    readonly: () => toValue(readonly),
     orientation: () => toValue(orientation),
     inverted: () => toValue(inverted),
     minStepsBetweenThumbs,
@@ -228,7 +237,7 @@
 
   function onDrag (index: number, event: PointerEvent, thumbEl?: HTMLElement): void {
     if (toValue(disabled)) return
-    if (toValue(readonlyProp)) return
+    if (toValue(readonly)) return
     if (event.button !== 0) return
     event.preventDefault()
 
@@ -261,7 +270,7 @@
   provideSliderRoot(namespace, context)
 
   const isDisabled = toRef(() => toValue(disabled))
-  const isReadonly = toRef(() => toValue(readonlyProp))
+  const isReadonly = toRef(() => toValue(readonly))
 
   const slotProps = toRef((): SliderRootSlotProps => ({
     id,
@@ -280,6 +289,9 @@
     floor: slider.floor,
     ceil: slider.ceil,
     attrs: {
+      'role': 'group',
+      'aria-label': label || undefined,
+      'aria-labelledby': ariaLabelledby || undefined,
       'data-disabled': isDisabled.value ? true : undefined,
       'data-readonly': isReadonly.value ? true : undefined,
       'data-orientation': toValue(slider.orientation),

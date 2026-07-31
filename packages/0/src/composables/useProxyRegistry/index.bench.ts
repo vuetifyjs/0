@@ -3,17 +3,23 @@
  *
  * Structure:
  * - READ-ONLY operations use shared fixtures (safe, isolates operation cost)
- * - MUTATION operations create fresh fixtures per iteration (includes setup cost)
+ * - WARM operations (register, upsert) share a populated registry with the proxy
+ *   ATTACHED across iterations — constructing/disposing the scope + proxy per
+ *   iteration is the pollution, so it is hoisted and only the registry contents
+ *   are reset: register undoes itself with an O(1) tail unregister, upsert
+ *   alternates the value (self-inverting, keeps the catalog reassign firing).
+ *   Times the mutation + event dispatch, never the O(n) onboard.
+ * - FRESH fixtures where the populate IS the op (initialization, bulk
+ *   registration) or where a restore would distort the cost (unregister — see
+ *   its category comment)
  * - Tests both 1,000 and 10,000 item datasets
- * - Categories: initialization, computed access, mutation operations
+ * - Categories: initialization, computed access, mutation operations, bulk registration
  */
 
 import { bench, describe } from 'vitest'
 
-// Composables
-import { createRegistry } from '#v0/composables/createRegistry'
-
-import { useProxyRegistry } from './index'
+// Framework
+import { createRegistry, useProxyRegistry } from '@vuetify/v0/composables'
 
 // Utilities
 import { effectScope } from 'vue'
@@ -141,21 +147,34 @@ describe('useProxyRegistry benchmarks', () => {
   })
 
   // ===========================================================================
-  // MUTATION OPERATIONS - Single item changes that trigger event → proxy update
-  // Fresh fixture per iteration (required - mutations change state)
-  // Measures: event dispatch + update() rebuild cost + reactive assignment
+  // MUTATION OPERATIONS - Single item changes that trigger event → proxy update()
+  // Measures: registry mutation + event dispatch to the attached proxy (update()
+  //   bumps a version; the O(n) snapshot rebuild is lazy and never read here).
+  // WARM (register, upsert): shared registry+proxy per size, proxy stays attached.
+  //   register appends 'new-item' then unregisters it (O(1) tail splice) to restore
+  //   size; upsert alternates the value so the catalog reassign fires every
+  //   iteration and item-500 oscillates back to its original value (no drift).
+  // FRESH (unregister): a restore would have to re-register, which appends at the
+  //   TAIL (fixture values are explicit → indexDependentCount is 0 → no reindex
+  //   cascade), so the removed item lands at the end and subsequent iterations
+  //   measure an O(1) tail splice instead of the O(n) mid-list splice the name
+  //   implies. Keeping it fresh preserves the honest mid-list cost.
   // ===========================================================================
   describe('mutation operations', () => {
+    const warm1k = createFixture(1000)
+    const warm10k = createFixture(10_000)
+
+    let upsertValue1k = 'updated'
+    let upsertValue10k = 'updated'
+
     bench('Register single item (1,000 items)', () => {
-      const { registry, dispose } = createFixture(1000)
-      registry.register({ id: 'new-item', value: 'new' })
-      dispose()
+      warm1k.registry.register({ id: 'new-item', value: 'new' })
+      warm1k.registry.unregister('new-item')
     })
 
     bench('Register single item (10,000 items)', () => {
-      const { registry, dispose } = createFixture(10_000)
-      registry.register({ id: 'new-item', value: 'new' })
-      dispose()
+      warm10k.registry.register({ id: 'new-item', value: 'new' })
+      warm10k.registry.unregister('new-item')
     })
 
     bench('Unregister single item (1,000 items)', () => {
@@ -171,15 +190,58 @@ describe('useProxyRegistry benchmarks', () => {
     })
 
     bench('Upsert single item (1,000 items)', () => {
-      const { registry, dispose } = createFixture(1000)
-      registry.upsert('item-500', { value: 'updated' })
-      dispose()
+      warm1k.registry.upsert('item-500', { value: upsertValue1k })
+      upsertValue1k = upsertValue1k === 'updated' ? 'value-500' : 'updated'
     })
 
     bench('Upsert single item (10,000 items)', () => {
-      const { registry, dispose } = createFixture(10_000)
-      registry.upsert('item-5000', { value: 'updated' })
-      dispose()
+      warm10k.registry.upsert('item-5000', { value: upsertValue10k })
+      upsertValue10k = upsertValue10k === 'updated' ? 'value-5000' : 'updated'
+    })
+  })
+
+  // ===========================================================================
+  // BULK REGISTRATION - load many items while the proxy is ALREADY listening
+  // Fresh fixture per iteration (required - mutations change state)
+  // onboard() is batched: the registry replays events after the collection is
+  //   stable and values() is cached, so even the eager path was O(n). The lazy
+  //   rewrite is a constant-factor win here.
+  // register() one-by-one is unbatched: each call invalidates the cache and
+  //   dispatches immediately, so the eager path rebuilt a growing snapshot per
+  //   call (O(n^2)). The lazy rewrite makes it O(n). This is the regression
+  //   sentinel — a revert to eager rebuilds tanks the 10,000 case by ~300x.
+  // ===========================================================================
+  describe('bulk registration', () => {
+    bench('Onboard 1,000 items (proxy attached)', () => {
+      const scope = effectScope()
+      const registry = createRegistry({ events: true })
+      scope.run(() => useProxyRegistry(registry))
+      registry.onboard(ITEMS_1K)
+      scope.stop()
+    })
+
+    bench('Onboard 10,000 items (proxy attached)', () => {
+      const scope = effectScope()
+      const registry = createRegistry({ events: true })
+      scope.run(() => useProxyRegistry(registry))
+      registry.onboard(ITEMS_10K)
+      scope.stop()
+    })
+
+    bench('Register 1,000 items one-by-one (proxy attached)', () => {
+      const scope = effectScope()
+      const registry = createRegistry({ events: true })
+      scope.run(() => useProxyRegistry(registry))
+      for (const item of ITEMS_1K) registry.register(item)
+      scope.stop()
+    })
+
+    bench('Register 10,000 items one-by-one (proxy attached)', () => {
+      const scope = effectScope()
+      const registry = createRegistry({ events: true })
+      scope.run(() => useProxyRegistry(registry))
+      for (const item of ITEMS_10K) registry.register(item)
+      scope.stop()
     })
   })
 })

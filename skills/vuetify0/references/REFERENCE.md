@@ -463,7 +463,7 @@ import {
 } from '@vuetify/v0/utilities'
 
 if (isObject(value)) {
-  // value is Record<string, unknown>
+  // value is Record<string, any>
 }
 ```
 

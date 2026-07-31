@@ -3,7 +3,7 @@
  * Used by both SSG route generation and nav generation.
  */
 
-import { readdir } from 'node:fs/promises'
+import { readFile, readdir } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -11,6 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '../../..')
 const COMPONENTS_DIR = resolve(ROOT, 'packages/0/src/components')
 const COMPOSABLES_DIR = resolve(ROOT, 'packages/0/src/composables')
+const COMPOSABLES_BARREL = resolve(COMPOSABLES_DIR, 'index.ts')
 
 export interface ApiNameInfo {
   name: string
@@ -74,20 +75,47 @@ async function getComponentNames (): Promise<ApiNameInfo[]> {
 }
 
 /**
+ * Read the public composable surface from the barrel (index.ts).
+ *
+ * Discovery must mirror the public API, not the filesystem. Internal-only
+ * composables (e.g., createFocusTraversal, createObserver) live in their own
+ * directories but are never re-exported, so they must not leak into the SSG
+ * routes or nav — otherwise they mint orphan /api/:name pages with no matching
+ * docs page or API data. The barrel is the single source of truth: every line
+ * is `export * from './<dirName>'`. This mirrors generate-api.ts and
+ * generate-api-whitelist.ts, so a new internal composable is excluded
+ * automatically with no blocklist to maintain.
+ */
+async function getPublicComposableDirs (): Promise<Set<string>> {
+  const content = await readFile(COMPOSABLES_BARREL, 'utf8')
+  const dirs = new Set<string>()
+
+  for (const match of content.matchAll(/export\s+\*\s+from\s+'\.\/([^']+)'/g)) {
+    dirs.add(match[1])
+  }
+
+  return dirs
+}
+
+/**
  * Discover all composable names from the packages/0/src/composables directory.
- * Only includes directories that have an index.ts file.
+ * Only includes directories re-exported from the public barrel that have an
+ * index.ts file.
  */
 async function getComposableNames (): Promise<ApiNameInfo[]> {
   const names: ApiNameInfo[] = []
-  const dirs = await readdir(COMPOSABLES_DIR)
+  const [dirs, publicDirs] = await Promise.all([
+    readdir(COMPOSABLES_DIR),
+    getPublicComposableDirs(),
+  ])
 
   for (const dir of dirs) {
-    // Composable directories start with 'use', 'create', or 'to'
-    if (!dir.startsWith('use') && !dir.startsWith('create') && !dir.startsWith('to')) continue
+    // Only composables re-exported from the public barrel are part of the API.
+    if (!publicDirs.has(dir)) continue
 
     // Only include if the directory has an index.ts file
     const dirPath = resolve(COMPOSABLES_DIR, dir)
-    const entries = await readdir(dirPath).catch(() => [])
+    const entries = await readdir(dirPath).catch(() => [] as string[])
     const hasIndexTs = entries.includes('index.ts')
     if (!hasIndexTs) continue
 

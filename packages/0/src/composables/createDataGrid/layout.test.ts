@@ -1,0 +1,755 @@
+import { describe, expect, it, vi } from 'vitest'
+
+// Composables
+import { createRegistry } from '#v0/composables/createRegistry'
+
+import { createColumnLayout } from './layout'
+
+// Types
+import type { DataGridColumnTicket, DataGridColumnTicketInput } from './index'
+import type { GridColumnDef } from './layout'
+
+// Columns now carry their grid layout config (size, pin, min/max, resizable,
+// reorderable) directly on the registry ticket — `createRegistry` preserves the
+// extra fields via `{ ...registration }`. `createColumnLayout(cols)` reads them
+// straight off the ticket; there is no separate defs array.
+function setup (defs: readonly GridColumnDef[]) {
+  const columns = createRegistry<DataGridColumnTicketInput, DataGridColumnTicket>({
+    events: true,
+    reactive: true,
+  })
+
+  columns.onboard([...defs] as DataGridColumnTicketInput[])
+
+  const layout = createColumnLayout(columns)
+  return { columns, layout }
+}
+
+describe('createColumnLayout', () => {
+  describe('auto-distribute sizes', () => {
+    it('should give 4 equal columns 25% each', () => {
+      const { layout } = setup([
+        { id: 'a' },
+        { id: 'b' },
+        { id: 'c' },
+        { id: 'd' },
+      ])
+
+      const cols = layout.columns.value
+      for (const col of cols) {
+        expect(col.size).toBe(25)
+      }
+    })
+
+    it('should split remainder evenly among unsized columns', () => {
+      // 'a' takes 40, remaining 60 split between b and c
+      const { layout } = setup([
+        { id: 'a', size: 40 },
+        { id: 'b' },
+        { id: 'c' },
+      ])
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBe(40)
+      expect(cols.find(c => c.id === 'b')!.size).toBe(30)
+      expect(cols.find(c => c.id === 'c')!.size).toBe(30)
+    })
+
+    it('should keep explicit sizes when all specified', () => {
+      const { layout } = setup([
+        { id: 'a', size: 60 },
+        { id: 'b', size: 40 },
+      ])
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBe(60)
+      expect(cols.find(c => c.id === 'b')!.size).toBe(40)
+    })
+  })
+
+  describe('offset computation', () => {
+    it('should compute cumulative offsets within scrollable region', () => {
+      const { layout } = setup([
+        { id: 'a', size: 30 },
+        { id: 'b', size: 40 },
+        { id: 'c', size: 30 },
+      ])
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.offset).toBe(0)
+      expect(cols.find(c => c.id === 'b')!.offset).toBe(30)
+      expect(cols.find(c => c.id === 'c')!.offset).toBe(70)
+    })
+  })
+
+  describe('leaf extraction from nested columns', () => {
+    it('should extract leaves from nested defs', () => {
+      const { layout } = setup([
+        { id: 'name', size: 30 },
+        {
+          id: 'contact',
+          children: [
+            { id: 'email', size: 35 },
+            { id: 'phone', size: 35 },
+          ],
+        },
+      ])
+
+      const cols = layout.columns.value
+      expect(cols).toHaveLength(3)
+      expect(cols.map(c => c.id)).toEqual(['name', 'email', 'phone'])
+    })
+
+    it('should auto-distribute remainder across nested leaves', () => {
+      const { layout } = setup([
+        { id: 'name' },
+        {
+          id: 'contact',
+          children: [
+            { id: 'email' },
+            { id: 'phone' },
+          ],
+        },
+      ])
+
+      // 3 leaves, each gets 100/3
+      const cols = layout.columns.value
+      expect(cols).toHaveLength(3)
+      const total = cols.reduce((sum, c) => sum + c.size, 0)
+      expect(total).toBeCloseTo(100)
+    })
+  })
+
+  describe('pinning', () => {
+    it('should split columns into left/scrollable/right regions from ticket config', () => {
+      const { layout } = setup([
+        { id: 'a', size: 20, pinned: 'left' },
+        { id: 'b', size: 60 },
+        { id: 'c', size: 20, pinned: 'right' },
+      ])
+
+      const { left, scrollable, right } = layout.pinned.value
+      expect(left.map(c => c.id)).toEqual(['a'])
+      expect(scrollable.map(c => c.id)).toEqual(['b'])
+      expect(right.map(c => c.id)).toEqual(['c'])
+    })
+
+    it('should move a column to the specified region on pin mutation', () => {
+      const { layout } = setup([
+        { id: 'a', size: 30 },
+        { id: 'b', size: 40 },
+        { id: 'c', size: 30 },
+      ])
+
+      layout.pin('a', 'left')
+
+      const { left, scrollable } = layout.pinned.value
+      expect(left.map(c => c.id)).toEqual(['a'])
+      expect(scrollable.map(c => c.id)).toEqual(['b', 'c'])
+    })
+
+    it('should move column back to scrollable on unpin', () => {
+      const { layout } = setup([
+        { id: 'a', size: 30, pinned: 'left' },
+        { id: 'b', size: 40 },
+        { id: 'c', size: 30 },
+      ])
+
+      layout.pin('a', false)
+
+      const { left, scrollable } = layout.pinned.value
+      expect(left).toHaveLength(0)
+      expect(scrollable.map(c => c.id)).toEqual(['a', 'b', 'c'])
+    })
+
+    it('should pin a nested leaf column at runtime', () => {
+      const { layout } = setup([
+        { id: 'name', size: 30 },
+        {
+          id: 'contact',
+          children: [
+            { id: 'email', size: 35 },
+            { id: 'phone', size: 35 },
+          ],
+        },
+      ])
+
+      // 'email' is a nested leaf — not a top-level registry entry — so the
+      // pin guard must consult the pin group, not the columns registry.
+      layout.pin('email', 'left')
+
+      expect(layout.pinned.value.left.map(c => c.id)).toEqual(['email'])
+    })
+
+    it('should compute offsets independently per region', () => {
+      const { layout } = setup([
+        { id: 'a', size: 20, pinned: 'left' },
+        { id: 'b', size: 20, pinned: 'left' },
+        { id: 'c', size: 30 },
+        { id: 'd', size: 30 },
+      ])
+
+      const { left, scrollable } = layout.pinned.value
+
+      // Left region offsets start at 0
+      expect(left.find(c => c.id === 'a')!.offset).toBe(0)
+      expect(left.find(c => c.id === 'b')!.offset).toBe(20)
+
+      // Scrollable region offsets start at 0 independently
+      expect(scrollable.find(c => c.id === 'c')!.offset).toBe(0)
+      expect(scrollable.find(c => c.id === 'd')!.offset).toBe(30)
+    })
+
+    it('should compute right-region offsets from the right edge', () => {
+      // Right region offsets are measured from the right edge so they can be
+      // applied directly to CSS `right:` for sticky positioning. The rightmost
+      // column gets offset 0; preceding columns accumulate by trailing widths.
+      const { layout } = setup([
+        { id: 'a', size: 40 },
+        { id: 'b', size: 25, pinned: 'right' },
+        { id: 'c', size: 20, pinned: 'right' },
+        { id: 'd', size: 15, pinned: 'right' },
+      ])
+
+      const { right } = layout.pinned.value
+
+      // Display order within right region: b, c, d (registry order)
+      expect(right.map(c => c.id)).toEqual(['b', 'c', 'd'])
+
+      // d is rightmost → 0; c sits at d's width from the right; b at c+d
+      expect(right.find(c => c.id === 'd')!.offset).toBe(0)
+      expect(right.find(c => c.id === 'c')!.offset).toBe(15)
+      expect(right.find(c => c.id === 'b')!.offset).toBe(35)
+    })
+  })
+
+  describe('resize', () => {
+    it('should adjust target and neighbor by delta', () => {
+      const { layout } = setup([
+        { id: 'a', size: 50 },
+        { id: 'b', size: 50 },
+      ])
+
+      layout.resize('a', 10)
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBe(60)
+      expect(cols.find(c => c.id === 'b')!.size).toBe(40)
+    })
+
+    it('should clamp at minSize', () => {
+      const { layout } = setup([
+        { id: 'a', size: 50, minSize: 20 },
+        { id: 'b', size: 50, minSize: 20 },
+      ])
+
+      // Try to shrink 'a' below its min
+      layout.resize('a', -40)
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBe(20)
+      expect(cols.find(c => c.id === 'b')!.size).toBe(80)
+    })
+
+    it('should clamp at maxSize', () => {
+      const { layout } = setup([
+        { id: 'a', size: 50, maxSize: 60 },
+        { id: 'b', size: 50, minSize: 20 },
+      ])
+
+      layout.resize('a', 30)
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBe(60)
+      expect(cols.find(c => c.id === 'b')!.size).toBe(40)
+    })
+
+    it('should no-op on last column in its region', () => {
+      const { layout } = setup([
+        { id: 'a', size: 50 },
+        { id: 'b', size: 50 },
+      ])
+
+      layout.resize('b', 10)
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBe(50)
+      expect(cols.find(c => c.id === 'b')!.size).toBe(50)
+    })
+
+    it('should resize within pin region only', () => {
+      const { layout } = setup([
+        { id: 'a', size: 20, pinned: 'left' },
+        { id: 'b', size: 20, pinned: 'left' },
+        { id: 'c', size: 30 },
+        { id: 'd', size: 30 },
+      ])
+
+      layout.resize('a', 5)
+
+      const cols = layout.columns.value
+      // a grows, b shrinks (left region)
+      expect(cols.find(c => c.id === 'a')!.size).toBe(25)
+      expect(cols.find(c => c.id === 'b')!.size).toBe(15)
+      // scrollable region unchanged
+      expect(cols.find(c => c.id === 'c')!.size).toBe(30)
+      expect(cols.find(c => c.id === 'd')!.size).toBe(30)
+    })
+  })
+
+  describe('reorder', () => {
+    it('should move a column from one position to another', () => {
+      const { layout } = setup([
+        { id: 'a' },
+        { id: 'b' },
+        { id: 'c' },
+      ])
+
+      // Move 'a' (index 0) to index 2
+      layout.reorder(0, 2)
+
+      expect(layout.columns.value.map(c => c.id)).toEqual(['b', 'c', 'a'])
+    })
+
+    it('should no-op for out-of-bounds from index', () => {
+      const { layout } = setup([
+        { id: 'a' },
+        { id: 'b' },
+      ])
+
+      layout.reorder(5, 0)
+
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'b'])
+    })
+
+    it('should move a whole column group when reordering by a nested leaf index', () => {
+      // Leaf display order is [name, email, phone, status]. Indices 1 and 2 are
+      // the leaves of the 'contact' group. Dragging 'phone' (leaf index 2) to
+      // the front must move the whole 'contact' group, not just the leaf.
+      const { layout } = setup([
+        { id: 'name' },
+        {
+          id: 'contact',
+          children: [
+            { id: 'email' },
+            { id: 'phone' },
+          ],
+        },
+        { id: 'status' },
+      ])
+
+      expect(layout.columns.value.map(c => c.id)).toEqual(['name', 'email', 'phone', 'status'])
+
+      layout.reorder(2, 0)
+
+      expect(layout.columns.value.map(c => c.id)).toEqual(['email', 'phone', 'name', 'status'])
+    })
+
+    it('should reorder by visible display index when a column is hidden', () => {
+      // Full leaf order [a, b, c, d]. Hiding 'b' makes the visible display set
+      // [a, c, d]. reorder(0, 1) targets the visible indices, so it moves 'a'
+      // past 'c' (visible index 1) — never touching the hidden 'b'.
+      const { layout } = setup([
+        { id: 'a' },
+        { id: 'b' },
+        { id: 'c' },
+        { id: 'd' },
+      ])
+
+      layout.hide('b')
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'c', 'd'])
+
+      layout.reorder(0, 1)
+
+      expect(layout.columns.value.map(c => c.id)).toEqual(['c', 'a', 'd'])
+      // 'b' was untouched by the move; revealing it restores the full order
+      // with the registry-level move ([a,b,c,d] -> move a to 2 -> [b,c,a,d]).
+      layout.show('b')
+      expect(layout.columns.value.map(c => c.id)).toEqual(['b', 'c', 'a', 'd'])
+    })
+
+    it('should no-op when the moving column is not reorderable', () => {
+      const { layout } = setup([
+        { id: 'a', reorderable: false },
+        { id: 'b' },
+        { id: 'c' },
+      ])
+
+      layout.reorder(0, 2)
+
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'b', 'c'])
+    })
+  })
+
+  describe('reset', () => {
+    it('should restore initial sizes', () => {
+      const { layout } = setup([
+        { id: 'a', size: 60 },
+        { id: 'b', size: 40 },
+      ])
+
+      layout.resize('a', -20)
+      layout.reset()
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBe(60)
+      expect(cols.find(c => c.id === 'b')!.size).toBe(40)
+    })
+
+    it('should restore initial order', () => {
+      const { layout } = setup([
+        { id: 'a' },
+        { id: 'b' },
+        { id: 'c' },
+      ])
+
+      layout.reorder(0, 2)
+      layout.reset()
+
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'b', 'c'])
+    })
+
+    it('should restore initial pins', () => {
+      const { layout } = setup([
+        { id: 'a', size: 30, pinned: 'left' },
+        { id: 'b', size: 40 },
+        { id: 'c', size: 30 },
+      ])
+
+      layout.pin('a', false)
+      layout.reset()
+
+      const { left } = layout.pinned.value
+      expect(left.map(c => c.id)).toEqual(['a'])
+    })
+
+    it('should restore visibility', () => {
+      const { layout } = setup([
+        { id: 'a' },
+        { id: 'b' },
+        { id: 'c' },
+      ])
+
+      layout.hide('b')
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'c'])
+
+      layout.reset()
+
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'b', 'c'])
+    })
+
+    it('should clear a runtime pin on a nested leaf column when reset', () => {
+      // Regression: reset's unselect loop iterated top-level tickets and missed
+      // leaf-keyed pins, so a runtime pin on a nested leaf survived reset.
+      const { layout } = setup([
+        {
+          id: 'contact',
+          children: [
+            { id: 'email', size: 35 },
+            { id: 'phone', size: 35 },
+          ],
+        },
+        { id: 'name', size: 30 },
+      ])
+
+      layout.pin('email', 'left')
+      expect(layout.pinned.value.left.map(c => c.id)).toContain('email')
+
+      layout.reset()
+
+      expect(layout.pinned.value.left.map(c => c.id)).not.toContain('email')
+      // Nested leaves return to the initial unpinned state.
+      expect(layout.pinned.value.left).toHaveLength(0)
+      expect(layout.pinned.value.scrollable.map(c => c.id)).toEqual(['email', 'phone', 'name'])
+    })
+  })
+
+  describe('distribute', () => {
+    it('should set sizes from array and normalize to 100', () => {
+      const { layout } = setup([
+        { id: 'a' },
+        { id: 'b' },
+        { id: 'c' },
+      ])
+
+      layout.distribute([50, 30, 20])
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBe(50)
+      expect(cols.find(c => c.id === 'b')!.size).toBe(30)
+      expect(cols.find(c => c.id === 'c')!.size).toBe(20)
+      const total = cols.reduce((sum, c) => sum + c.size, 0)
+      expect(total).toBeCloseTo(100)
+    })
+
+    it('should warn and no-op when array length mismatches', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const { layout } = setup([
+        { id: 'a', size: 50 },
+        { id: 'b', size: 50 },
+      ])
+
+      layout.distribute([100])
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBe(50)
+      expect(cols.find(c => c.id === 'b')!.size).toBe(50)
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('expected 2 sizes but received 1'))
+      spy.mockRestore()
+    })
+
+    it('should normalize proportionally when values do not sum to 100', () => {
+      const { layout } = setup([
+        { id: 'a' },
+        { id: 'b' },
+      ])
+
+      // Equal inputs that undershoot 100 scale up proportionally to 50/50.
+      layout.distribute([30, 30])
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBeCloseTo(50)
+      expect(cols.find(c => c.id === 'b')!.size).toBeCloseTo(50)
+      const total = cols.reduce((sum, c) => sum + c.size, 0)
+      expect(total).toBeCloseTo(100)
+    })
+
+    it('should redistribute the residual onto columns with room', () => {
+      const { layout } = setup([
+        { id: 'a', maxSize: 30 },
+        { id: 'b' },
+      ])
+
+      // 'a' clamps to its 30 cap; the 20 it could not absorb flows to 'b'.
+      layout.distribute([50, 50])
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBeCloseTo(30)
+      expect(cols.find(c => c.id === 'b')!.size).toBeCloseTo(70)
+      const total = cols.reduce((sum, c) => sum + c.size, 0)
+      expect(total).toBeCloseTo(100)
+    })
+
+    it('should warn and clamp when constraints make 100 unreachable', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const { layout } = setup([
+        { id: 'a', maxSize: 40 },
+        { id: 'b', maxSize: 40 },
+      ])
+
+      // Both columns cap at 40, so the proportional 50/50 target clamps to
+      // 40/40 and the residual 20 cannot be placed anywhere.
+      layout.distribute([40, 40])
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBeCloseTo(40)
+      expect(cols.find(c => c.id === 'b')!.size).toBeCloseTo(40)
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('could not reach 100'))
+      spy.mockRestore()
+    })
+  })
+
+  describe('visibility', () => {
+    it('should remove a hidden column from columns and pinned', () => {
+      const { layout } = setup([
+        { id: 'a', size: 20, pinned: 'left' },
+        { id: 'b', size: 50 },
+        { id: 'c', size: 30 },
+      ])
+
+      layout.hide('a')
+
+      // Hidden column drops out of the render set entirely
+      expect(layout.columns.value.map(c => c.id)).toEqual(['b', 'c'])
+      expect(layout.pinned.value.left.map(c => c.id)).toEqual([])
+      expect(layout.pinned.value.scrollable.map(c => c.id)).toEqual(['b', 'c'])
+    })
+
+    it('should recompute offsets over the visible columns only', () => {
+      const { layout } = setup([
+        { id: 'a', size: 30 },
+        { id: 'b', size: 40 },
+        { id: 'c', size: 30 },
+      ])
+
+      // Hiding the middle column leaves a (offset 0) and c, whose offset now
+      // accumulates only a's width — not a + b — because b is excluded.
+      layout.hide('b')
+
+      const cols = layout.columns.value
+      expect(cols.map(c => c.id)).toEqual(['a', 'c'])
+      expect(cols.find(c => c.id === 'a')!.offset).toBe(0)
+      expect(cols.find(c => c.id === 'c')!.offset).toBe(30)
+    })
+
+    it('should still list a hidden column in all with visible:false', () => {
+      const { layout } = setup([
+        { id: 'a', size: 50 },
+        { id: 'b', size: 50 },
+      ])
+
+      layout.hide('a')
+
+      const all = layout.all.value
+      expect(all.map(c => c.id)).toEqual(['a', 'b'])
+      expect(all.find(c => c.id === 'a')!.visible).toBe(false)
+      expect(all.find(c => c.id === 'b')!.visible).toBe(true)
+
+      // Render-set entries are always visible
+      expect(layout.columns.value.every(c => c.visible)).toBe(true)
+    })
+
+    it('should round-trip a column back into the render set on show', () => {
+      const { layout } = setup([
+        { id: 'a' },
+        { id: 'b' },
+        { id: 'c' },
+      ])
+
+      layout.hide('b')
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'c'])
+
+      layout.show('b')
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'b', 'c'])
+      expect(layout.all.value.find(c => c.id === 'b')!.visible).toBe(true)
+    })
+
+    it('should flip visibility on toggle', () => {
+      const { layout } = setup([
+        { id: 'a' },
+        { id: 'b' },
+      ])
+
+      layout.toggle('a')
+      expect(layout.columns.value.map(c => c.id)).toEqual(['b'])
+      expect(layout.all.value.find(c => c.id === 'a')!.visible).toBe(false)
+
+      layout.toggle('a')
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'b'])
+      expect(layout.all.value.find(c => c.id === 'a')!.visible).toBe(true)
+    })
+
+    it('should hide a nested leaf column without touching its siblings', () => {
+      const { layout } = setup([
+        { id: 'name', size: 40 },
+        {
+          id: 'contact',
+          children: [
+            { id: 'email', size: 30 },
+            { id: 'phone', size: 30 },
+          ],
+        },
+      ])
+
+      layout.hide('email')
+
+      expect(layout.columns.value.map(c => c.id)).toEqual(['name', 'phone'])
+      const all = layout.all.value
+      expect(all.map(c => c.id)).toEqual(['name', 'email', 'phone'])
+      expect(all.find(c => c.id === 'email')!.visible).toBe(false)
+      expect(all.find(c => c.id === 'phone')!.visible).toBe(true)
+    })
+  })
+
+  describe('reconciliation with table.columns', () => {
+    it('should add a column with default extras when register fires', () => {
+      const { columns, layout } = setup([
+        { id: 'a', size: 50 },
+        { id: 'b', size: 50 },
+      ])
+
+      columns.register({ id: 'c' })
+
+      const cols = layout.columns.value
+      expect(cols.map(c => c.id)).toEqual(['a', 'b', 'c'])
+
+      const c = cols.find(col => col.id === 'c')!
+      // Late registrations default to size 0 — distribute() rebalances
+      expect(c.size).toBe(0)
+      expect(c.minSize).toBe(2)
+      expect(c.maxSize).toBe(100)
+      expect(c.resizable).toBe(true)
+      expect(c.reorderable).toBe(true)
+      expect(c.pinned).toBe(false)
+    })
+
+    it('should rebalance all unsized columns as they onboard incrementally', () => {
+      const { columns, layout } = setup([
+        { id: 'a' },
+      ])
+
+      expect(layout.columns.value.find(c => c.id === 'a')!.size).toBe(100)
+
+      columns.register({ id: 'b' })
+      columns.register({ id: 'c' })
+
+      const cols = layout.columns.value
+      expect(cols.map(c => c.id)).toEqual(['a', 'b', 'c'])
+      // Each late unsized column re-splits the remainder, so the visible sizes
+      // sum to 100 instead of starving newcomers at 0.
+      for (const col of cols) expect(col.size).toBeCloseTo(100 / 3)
+      const total = cols.reduce((sum, c) => sum + c.size, 0)
+      expect(total).toBeCloseTo(100)
+    })
+
+    it('should leave explicitly-sized columns untouched while rebalancing newcomers', () => {
+      const { columns, layout } = setup([
+        { id: 'a', size: 40 },
+        { id: 'b' },
+      ])
+
+      // 'b' alone splits the remaining 60.
+      expect(layout.columns.value.find(c => c.id === 'b')!.size).toBe(60)
+
+      columns.register({ id: 'c' })
+
+      const cols = layout.columns.value
+      // 'a' keeps its explicit 40; 'b' and 'c' share the remaining 60.
+      expect(cols.find(c => c.id === 'a')!.size).toBe(40)
+      expect(cols.find(c => c.id === 'b')!.size).toBe(30)
+      expect(cols.find(c => c.id === 'c')!.size).toBe(30)
+    })
+
+    it('should drop pin, size, and visibility state when unregister fires', () => {
+      const { columns, layout } = setup([
+        { id: 'a', size: 30, pinned: 'left' },
+        { id: 'b', size: 70 },
+      ])
+
+      // Sanity: pin is applied
+      expect(layout.pinned.value.left.map(c => c.id)).toEqual(['a'])
+
+      columns.unregister('a')
+
+      const cols = layout.columns.value
+      expect(cols.map(c => c.id)).toEqual(['b'])
+
+      // Re-registering 'a' should not resurrect the previous live pin/size
+      columns.register({ id: 'a' })
+
+      const reseeded = layout.columns.value.find(c => c.id === 'a')!
+      expect(reseeded).toBeDefined()
+      // The prior runtime 'left' pin must not resurrect on re-registration.
+      expect(layout.pinned.value.left.map(c => c.id)).not.toContain('a')
+      expect(reseeded.pinned).toBe(false)
+    })
+
+    it('should empty the layout when clear fires', () => {
+      const { columns, layout } = setup([
+        { id: 'a' },
+        { id: 'b' },
+        { id: 'c' },
+      ])
+
+      columns.clear()
+
+      expect(layout.columns.value).toEqual([])
+      expect(layout.all.value).toEqual([])
+      expect(layout.pinned.value.left).toEqual([])
+      expect(layout.pinned.value.scrollable).toEqual([])
+      expect(layout.pinned.value.right).toEqual([])
+    })
+  })
+})

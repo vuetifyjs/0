@@ -44,6 +44,7 @@
   const {
     as = 'h2',
     namespace = 'v0:dialog',
+    renderless,
   } = defineProps<DialogTitleProps>()
 
   const context = useDialogContext(namespace)
@@ -58,6 +59,7 @@
 <template>
   <Atom
     :as
+    :renderless
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />

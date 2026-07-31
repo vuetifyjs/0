@@ -27,7 +27,7 @@
  */
 
 // Utilities
-import { onScopeDispose, reactive, shallowReactive } from 'vue'
+import { computed, onScopeDispose, reactive, shallowRef } from 'vue'
 
 // Types
 import type { RegistryContext, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
@@ -73,20 +73,14 @@ export function useProxyRegistry<
   registry: RegistryContext<Z, E>,
   options?: ProxyRegistryOptions,
 ): ProxyRegistryContext<E> {
-  const reactivity = options?.deep ? reactive : shallowReactive
+  const version = shallowRef(0)
 
-  const state = reactivity({
-    keys: registry.keys(),
-    values: registry.values(),
-    entries: registry.entries(),
-    size: registry.size,
-  })
+  function wrap<T extends object> (value: T): T {
+    return options?.deep ? reactive(value) as T : value
+  }
 
   function update () {
-    state.keys = registry.keys()
-    state.values = registry.values()
-    state.entries = registry.entries()
-    state.size = registry.size
+    version.value++
   }
 
   registry.on('register:ticket', update)
@@ -103,5 +97,22 @@ export function useProxyRegistry<
     registry.off('reindex:registry', update)
   }, true)
 
-  return state as ProxyRegistryContext<E>
+  return reactive({
+    keys: computed(() => {
+      void version.value
+      return registry.keys()
+    }),
+    values: computed(() => {
+      void version.value
+      return wrap(registry.values())
+    }),
+    entries: computed(() => {
+      void version.value
+      return wrap(registry.entries())
+    }),
+    size: computed(() => {
+      void version.value
+      return registry.size
+    }),
+  }) as ProxyRegistryContext<E>
 }

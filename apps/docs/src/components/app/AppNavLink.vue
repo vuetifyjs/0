@@ -104,35 +104,30 @@
 
   const itemRef = useTemplateRef<HTMLLIElement>('item')
 
-  // Scroll expanded section into view if header is near bottom of visible area
+  // Scroll the expanded section into view when it opens
   function onAfterExpand () {
     // Don't scroll during initial state restoration or in flat mode
     if (!navNested.scrollEnabled.value || navConfig.flatMode.value) return
 
-    const el = itemRef.value
-    if (!el) return
+    // When a route change expanded this category, scroll to the destination leaf —
+    // the link whose href exactly matches the current path — not the category header.
+    // Match by exact attribute, not [aria-current="page"]: ancestor links also carry
+    // aria-current (isActive uses startsWith), so a loose match would land on the
+    // category's own link. Fall back to the section itself for a manual expand of an
+    // unrelated category, where no descendant link matches the route.
+    // block: 'nearest' resolves the .nav-scroll container itself and is a no-op when already visible
+    const links = itemRef.value ? [...itemRef.value.querySelectorAll<HTMLElement>('a[href]')] : []
+    const target = links.find(link => link.getAttribute('href') === route.path) ?? itemRef.value
 
-    // Find the scroll container (AppNav)
-    const scrollContainer = el.closest('[id="main-navigation"]')
-    if (!scrollContainer) return
-
-    const containerRect = scrollContainer.getBoundingClientRect()
-    const itemRect = el.getBoundingClientRect()
-
-    // If the section header is in the bottom third, scroll it up a bit
-    const bottomThird = containerRect.top + (containerRect.height * 2 / 3)
-    if (itemRect.top > bottomThird) {
-      const scrollAmount = itemRect.top - containerRect.top - 100 // Position 100px from top
-      scrollContainer.scrollBy({
-        top: scrollAmount,
-        behavior: settings.prefersReducedMotion.value ? 'instant' : 'smooth',
-      })
-    }
+    target?.scrollIntoView({
+      block: 'nearest',
+      behavior: settings.prefersReducedMotion.value ? 'instant' : 'smooth',
+    })
   }
 </script>
 
 <template>
-  <li ref="item" class="px-3">
+  <li ref="item" class="px-3 scroll-my-[100px]">
     <div class="flex items-center gap-1" :class="isTopLevel && navConfig.flatMode.value && 'pl-1'">
       <!-- Expand/collapse toggle button (only for top-level) -->
       <button
@@ -143,11 +138,7 @@
         type="button"
         @click.stop="onToggle"
       >
-        <AppIcon
-          aria-hidden="true"
-          :icon="isOpen ? 'chevron-down' : 'chevron-right'"
-          size="14"
-        />
+        <AppChevron :open="isOpen" />
 
         <span class="sr-only">
           {{ isOpen ? 'Collapse' : 'Expand' }} {{ name }}
@@ -178,7 +169,7 @@
         v-else-if="to"
         :aria-current="isActive ? 'page' : undefined"
         :as
-        class="font-semibold icon-text flex-1 min-w-0"
+        class="font-semibold icon-text flex-1 min-w-0 scroll-my-[100px]"
         :class="[
           'hover:underline hover:text-primary focus-visible:underline focus-visible:text-primary',
           !isTopLevel && !hasChildren && 'opacity-70 hover:opacity-100 focus-visible:opacity-100',

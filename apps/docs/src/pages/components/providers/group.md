@@ -26,16 +26,25 @@ A headless component for managing multi-selection with batch operations and tri-
 
 The Group component is a specialization of Selection that enforces multi-selection behavior and supports batch operations on arrays of IDs. It always uses array-based v-model binding.
 
-::: example
+::: gn-example
 /components/group/basic
-
-### Multi-Selection Group
-
-Button items in a group with shared multi-selection state — toggling any item updates the shared selection.
-
 :::
 
-## Features
+## Anatomy
+
+```vue Anatomy no-filename
+<script setup lang="ts">
+  import { Group } from '@vuetify/v0'
+</script>
+
+<template>
+  <Group.Root>
+    <Group.Item />
+  </Group.Root>
+</template>
+```
+
+## Recipes
 
 ### Batch Operations
 
@@ -76,18 +85,31 @@ The slot props `isAllSelected`, `isNoneSelected`, and `isMixed` reflect the aggr
 </template>
 ```
 
-## Anatomy
+## Accessibility
 
-```vue Anatomy playground
-<script setup lang="ts">
-  import { Group } from '@vuetify/v0'
-</script>
+Group is a headless **state provider**, not a complete interactive widget. It manages multi-selection with tri-state support and exposes that state on each slot's `attrs`; it ships pointer activation (a click handler) but no keyboard navigation or focus management.
 
-<template>
-  <Group.Root>
-    <Group.Item />
-  </Group.Root>
-</template>
-```
+- `Group.Root` exposes `aria-multiselectable="true"`.
+- `Group.Item` exposes `role="checkbox"`, `aria-checked` (`true`, `false`, or `"mixed"` for the indeterminate state), and `aria-disabled`, plus `data-selected`, `data-disabled`, and `data-mixed` for styling.
+
+This is checkbox-group selection state. For a fully accessible checkbox with a native hidden input, label association, and Space activation, use [Checkbox](/components/forms/checkbox), which composes the same group logic. When you bind `attrs` to your own element, you are responsible for supplying keyboard handlers and any roles the pattern requires beyond what Group emits.
+
+## FAQ
+
+::: faq
+
+??? When should I use Group instead of [Selection](/components/providers/selection)?
+
+Group is a specialization of Selection that always binds an array and enforces multi-selection, adding batch operations (`selectAll`, `unselectAll`, `toggleAll`) and tri-state aggregate state. Reach for Selection when you want the general wrapper; reach for Group for a checkbox group with select-all.
+
+??? How do I drive an indeterminate checkbox from the group's state?
+
+Bind `isAllSelected` to the checkbox's `checked` and `isMixed` to its `indeterminate`, then call `toggleAll` on change — all three are exposed on the default slot.
+
+??? Can I bind a single value instead of an array?
+
+No — Group always uses array-based v-model. For single-choice state use [Single](/components/providers/single) instead.
+
+:::
 
 <DocsApi />

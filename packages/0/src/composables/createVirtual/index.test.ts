@@ -222,7 +222,7 @@ describe('createVirtual', () => {
     expect(virtual.size.value).toBeGreaterThan(0)
   })
 
-  it('should work with dynamic heights (null itemHeight)', async () => {
+  it('should render an initial window with no itemHeight (zero-config bootstrap)', async () => {
     const items = shallowRef(Array.from({ length: 10 }, (_, i) => i))
     const virtual = createVirtual(items, { itemHeight: null })
 
@@ -230,7 +230,31 @@ describe('createVirtual', () => {
 
     await nextTick()
 
-    expect(virtual.items.value).toEqual([])
+    // Estimated offsets render a first window so items can mount and measure —
+    // an unset itemHeight previously dead-ended update() and rendered nothing
+    expect(virtual.items.value.length).toBeGreaterThan(0)
+  })
+
+  it('should preserve measured heights when items are appended', async () => {
+    const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
+    const virtual = createVirtual(items, { itemHeight: 40, height: 500 })
+
+    virtual.element.value = mockContainer
+
+    await nextTick()
+
+    virtual.resize(0, 200)
+
+    await nextTick()
+
+    items.value = [...items.value, 100]
+
+    await nextTick()
+
+    // offsets[1] reflects the measured 200, not itemHeight — appending
+    // previously wiped every measurement back to null
+    virtual.scrollTo(1)
+    expect(mockContainer.scrollTop).toBe(200)
   })
 
   it('should include index in computed items', async () => {
@@ -833,7 +857,7 @@ describe('useVirtual consumer', () => {
   })
 
   it('should throw when context is not provided', () => {
-    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     expect(() => {
       const TestComponent = defineComponent({
@@ -847,7 +871,6 @@ describe('useVirtual consumer', () => {
     }).toThrow()
 
     expect(spy).toHaveBeenCalledTimes(1)
-    spy.mockRestore()
   })
 })
 

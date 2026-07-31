@@ -401,7 +401,7 @@ describe('pointerAdapter', () => {
   describe('setup-twice warning', () => {
     it('should warn and replace previous registration when setup called twice', () => {
       const adapter = new PointerAdapter()
-      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       // First setup via useDragDrop
       useDragDrop({ adapters: [adapter] })
@@ -410,8 +410,6 @@ describe('pointerAdapter', () => {
 
       expect(warn).toHaveBeenCalled()
       expect(warn.mock.calls[0]?.join(' ')).toContain('setup called twice')
-
-      warn.mockRestore()
     })
   })
 })

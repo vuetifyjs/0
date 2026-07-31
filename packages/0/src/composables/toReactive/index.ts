@@ -73,7 +73,7 @@ function createMapProxy<Z extends object> (refObject: Ref<Z>): UnwrapNestedRefs<
   const proxy = new Proxy(new Map(), {
     get (_, p) {
       if (p === 'size') return (refObject.value as Map<unknown, unknown>).size
-      if (Object.prototype.hasOwnProperty.call(mapHandlers, p)) return mapHandlers[p as keyof typeof mapHandlers]
+      if (Object.hasOwn(mapHandlers, p)) return mapHandlers[p as keyof typeof mapHandlers]
 
       const map = refObject.value as Map<unknown, unknown>
       const value = Reflect.get(map, p)
@@ -123,7 +123,7 @@ function createSetProxy<Z extends object> (refObject: Ref<Z>): UnwrapNestedRefs<
   const proxy = new Proxy(new Set(), {
     get (_, p) {
       if (p === 'size') return (refObject.value as Set<unknown>).size
-      if (Object.prototype.hasOwnProperty.call(setHandlers, p)) return setHandlers[p as keyof typeof setHandlers]
+      if (Object.hasOwn(setHandlers, p)) return setHandlers[p as keyof typeof setHandlers]
 
       const set = refObject.value as Set<unknown>
       const value = Reflect.get(set, p)

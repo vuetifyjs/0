@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 
 // Utilities
 import {
@@ -9,6 +9,7 @@ import {
   isObject,
   isThenable,
   isArray,
+  isElement,
   isNull,
   isNullOrUndefined,
   isUndefined,
@@ -135,6 +136,32 @@ describe('helpers', () => {
         expect(isObject(new Map())).toBe(true)
         expect(isObject(/regex/)).toBe(true)
       })
+
+      // Narrowing is the point of the guard, so assert the narrowed types
+      // themselves. These are checked by `pnpm typecheck`, which includes
+      // `src/**/*.ts`; the runtime expectations only keep the branches live.
+      it('should preserve known props on interface-typed unions', () => {
+        interface Opts { tokens: number }
+        const value = { tokens: 3 } as string | Opts
+
+        if (isObject(value)) {
+          expectTypeOf(value.tokens).toEqualTypeOf<number>()
+          expect(value.tokens).toBe(3)
+        } else {
+          expectTypeOf(value).toEqualTypeOf<string>()
+        }
+      })
+
+      it('should subtract Record<string, any> from a union in the negative branch', () => {
+        const value = 'x' as string | boolean | Record<string, any>
+
+        if (isObject(value)) {
+          expectTypeOf(value).toEqualTypeOf<Record<string, any>>()
+        } else {
+          expectTypeOf(value).toEqualTypeOf<string | boolean>()
+          expect(value).toBe('x')
+        }
+      })
     })
 
     describe('isThenable', () => {
@@ -189,6 +216,103 @@ describe('helpers', () => {
         expect(isArray({})).toBe(false)
         expect(isArray('array')).toBe(false)
         expect(isArray({ length: 3 })).toBe(false)
+      })
+
+      // Narrowing is the point of the guard, so assert the narrowed types
+      // themselves. These are checked by `pnpm typecheck`, which includes
+      // `src/**/*.ts`; the runtime expectations only keep the branches live.
+      it('should preserve element types when narrowing a union', () => {
+        const value = ['a'] as string[] | string
+
+        if (isArray(value)) {
+          expectTypeOf(value).toEqualTypeOf<string[]>()
+          expect(value[0]).toBe('a')
+        } else {
+          expectTypeOf(value).toEqualTypeOf<string>()
+        }
+      })
+
+      it('should preserve readonly arrays and drop them from the else branch', () => {
+        const value = 'a' as readonly string[] | string
+
+        if (isArray(value)) {
+          expectTypeOf(value).toEqualTypeOf<readonly string[]>()
+        } else {
+          expectTypeOf(value).toEqualTypeOf<string>()
+          expect(value).toBe('a')
+        }
+      })
+
+      it('should preserve tuple arity', () => {
+        const value = ['a', 1] as [string, number] | string
+
+        if (isArray(value)) {
+          expectTypeOf(value).toEqualTypeOf<[string, number]>()
+          expect(value[1]).toBe(1)
+        }
+      })
+
+      it('should preserve interface element types', () => {
+        interface Rule { name: string }
+        const value = [{ name: 'required' }] as Rule | Rule[]
+
+        if (isArray(value)) {
+          expectTypeOf(value).toEqualTypeOf<Rule[]>()
+          expect(value[0].name).toBe('required')
+        } else {
+          expectTypeOf(value).toEqualTypeOf<Rule>()
+        }
+      })
+
+      it('should keep every array constituent of a multi-array union', () => {
+        const value = [1] as number[] | string[] | boolean
+
+        if (isArray(value)) {
+          expectTypeOf(value).toEqualTypeOf<number[] | string[]>()
+          expect(value[0]).toBe(1)
+        }
+      })
+
+      it('should fall back to unknown[] for an unknown value, keeping it mutable', () => {
+        const value: unknown = ['a']
+
+        if (isArray(value)) {
+          expectTypeOf(value).toEqualTypeOf<unknown[]>()
+
+          const slot: unknown[] = value
+
+          value.push('b')
+
+          expect(slot).toEqual(['a', 'b'])
+        }
+      })
+    })
+
+    describe('isElement', () => {
+      it('should return true for DOM elements', () => {
+        expect(isElement(document.createElement('div'))).toBe(true)
+        expect(isElement(document.body)).toBe(true)
+      })
+
+      it('should return false for non-elements', () => {
+        expect(isElement(null)).toBe(false)
+        expect(isElement(undefined)).toBe(false)
+        expect(isElement({})).toBe(false)
+        expect(isElement('div')).toBe(false)
+      })
+
+      it('should return false instead of throwing when Element is undefined (SSR/SSG)', () => {
+        const ElementCtor = globalThis.Element
+        // Simulate a non-DOM server runtime where `Element` is not a global.
+        // Pre-guard, `item instanceof Element` threw a ReferenceError here,
+        // crashing SSG on every observer-using docs page.
+        Reflect.deleteProperty(globalThis, 'Element')
+        try {
+          expect(() => isElement({})).not.toThrow()
+          expect(isElement({})).toBe(false)
+        } finally {
+          globalThis.Element = ElementCtor
+        }
       })
     })
 

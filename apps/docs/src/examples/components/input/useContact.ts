@@ -1,4 +1,3 @@
-import { createForm } from '@vuetify/v0'
 import { ref, shallowRef } from 'vue'
 
 export interface ContactData {
@@ -8,16 +7,14 @@ export interface ContactData {
 }
 
 export function useContact () {
-  const form = createForm()
   const name = ref('')
   const email = ref('')
   const message = ref('')
   const submitted = shallowRef<ContactData>()
   const serverError = shallowRef<string>()
 
-  async function submit () {
+  function onSubmit (valid: boolean) {
     serverError.value = undefined
-    const valid = await form.submit()
 
     if (!valid) return
 
@@ -35,7 +32,6 @@ export function useContact () {
   }
 
   function reset () {
-    form.reset()
     name.value = ''
     email.value = ''
     message.value = ''
@@ -43,5 +39,5 @@ export function useContact () {
     serverError.value = undefined
   }
 
-  return { form, name, email, message, submitted, serverError, submit, reset }
+  return { name, email, message, submitted, serverError, onSubmit, reset }
 }

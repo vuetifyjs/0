@@ -277,7 +277,7 @@
 
 <template>
   <Dialog.Root v-model="isOpen">
-    <Dialog.Activator class="docs-mermaid flex justify-center w-full my-4 overflow-x-auto cursor-pointer hover:opacity-80 transition-opacity">
+    <Dialog.Activator class="docs-mermaid flex justify-center w-full my-4 overflow-x-auto cursor-pointer">
       <figure class="flex flex-col items-center w-full">
         <div class="flex justify-center w-full" v-html="svg" />
 
@@ -300,52 +300,48 @@
 
         <!-- Zoom controls -->
         <div class="flex items-center gap-1">
-          <button
+          <AppTooltip
             aria-label="Zoom out"
             class="btn-icon"
-            title="Zoom out"
-            type="button"
+            text="Zoom out"
             @click="zoomOut"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
             </svg>
-          </button>
+          </AppTooltip>
 
-          <button
+          <AppTooltip
             aria-label="Zoom in"
             class="btn-icon"
-            title="Zoom in"
-            type="button"
+            text="Zoom in"
             @click="zoomIn"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
             </svg>
-          </button>
+          </AppTooltip>
 
-          <button
+          <AppTooltip
             aria-label="Reset view"
             class="btn-icon"
-            title="Reset view"
-            type="button"
+            text="Reset view"
             @click="resetZoom"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
             </svg>
-          </button>
+          </AppTooltip>
 
           <div class="w-px h-4 bg-divider mx-1" />
         </div>
 
         <!-- Action buttons -->
         <div class="flex items-center gap-1">
-          <button
-            :aria-label="clipboard.copied.value ? 'Copied!' : 'Copy SVG'"
+          <AppTooltip
+            aria-label="Copy SVG"
             class="btn-icon"
-            :title="clipboard.copied.value ? 'Copied!' : 'Copy SVG'"
-            type="button"
+            :text="clipboard.copied.value ? 'Copied!' : 'Copy SVG'"
             @click="copySvg"
           >
             <svg
@@ -367,19 +363,18 @@
             >
               <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
             </svg>
-          </button>
+          </AppTooltip>
 
-          <button
+          <AppTooltip
             aria-label="Download SVG"
             class="btn-icon"
-            title="Download SVG"
-            type="button"
+            text="Download SVG"
             @click="downloadSvg"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
             </svg>
-          </button>
+          </AppTooltip>
 
           <div class="w-px h-4 bg-divider mx-1" />
 
@@ -580,6 +575,74 @@
 
   .docs-mermaid .sequenceNumber {
     fill: var(--v0-on-primary) !important;
+  }
+
+  /* Mindmap styling */
+  .docs-mermaid .mindmap-node > rect,
+  .docs-mermaid .mindmap-node > polygon,
+  .docs-mermaid .mindmap-node > circle,
+  .docs-mermaid .mindmap-node > ellipse,
+  .docs-mermaid .mindmap-node > path {
+    fill: var(--v0-surface) !important;
+    stroke: var(--v0-divider) !important;
+  }
+
+  .docs-mermaid .mindmap-node > rect {
+    rx: 8px;
+    ry: 8px;
+  }
+
+  /* Override mermaid's per-branch color rotation (.section-0, .section-1, ...) */
+  .docs-mermaid g[class*="section-"] > rect,
+  .docs-mermaid g[class*="section-"] > polygon,
+  .docs-mermaid g[class*="section-"] > circle,
+  .docs-mermaid g[class*="section-"] > ellipse,
+  .docs-mermaid g[class*="section-"] > path {
+    fill: var(--v0-surface) !important;
+    stroke: var(--v0-divider) !important;
+  }
+
+  .docs-mermaid g[class*="section-"] > rect {
+    rx: 8px;
+    ry: 8px;
+  }
+
+  /* Mindmap root node — primary-colored hub */
+  .docs-mermaid .mindmap-node.section--1 > circle,
+  .docs-mermaid .mindmap-node:has(> circle) > circle {
+    fill: var(--v0-primary) !important;
+    stroke: var(--v0-primary) !important;
+  }
+
+  /* Mermaid sizes foreignObject for the original label measurement;
+     bold text + browser rendering can push descenders past the right edge */
+  .docs-mermaid .mindmap-node foreignObject,
+  .docs-mermaid .mindmap-node foreignObject > div {
+    overflow: visible !important;
+  }
+
+  .docs-mermaid .mindmap-node.section--1 text,
+  .docs-mermaid .mindmap-node.section--1 .nodeLabel,
+  .docs-mermaid .mindmap-node:has(> circle) text,
+  .docs-mermaid .mindmap-node:has(> circle) .nodeLabel {
+    font-weight: 600 !important;
+    fill: var(--v0-on-primary) !important;
+    color: var(--v0-on-primary) !important;
+  }
+
+  .docs-mermaid .mindmap-node text,
+  .docs-mermaid .mindmap-node .nodeLabel,
+  .docs-mermaid g[class*="section-"] text,
+  .docs-mermaid g[class*="section-"] .nodeLabel {
+    fill: var(--v0-on-surface) !important;
+    color: var(--v0-on-surface) !important;
+  }
+
+  .docs-mermaid .edge,
+  .docs-mermaid path[class*="edge-"] {
+    stroke: var(--v0-primary) !important;
+    stroke-width: 1.5px !important;
+    fill: none !important;
   }
 
   /* Semantic node classes (use with classDef in mermaid) */

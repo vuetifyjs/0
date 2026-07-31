@@ -12,6 +12,9 @@
   import { decodeBase64 } from '@/utilities/decodeBase64'
   import { getCurrentInstance, h, nextTick, onBeforeUnmount, render, toRef, useTemplateRef, watch } from 'vue'
 
+  // Types
+  import type { CalloutType } from './calloutConfig'
+
   const props = defineProps<{
     role: 'user' | 'assistant'
     content: string
@@ -88,7 +91,7 @@
 
   function mountAlertComponents () {
     mountTo('[data-alert]', el => {
-      const type = el.dataset.type as 'tip' | 'info' | 'warning' | 'error'
+      const type = el.dataset.type as CalloutType
       const encoded = el.dataset.content
       if (!type || !encoded) return null
       return h(DocsCallout, { type }, {

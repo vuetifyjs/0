@@ -34,6 +34,7 @@ import { isArray, isFunction } from '#v0/utilities'
 import { onScopeDispose, toValue, watch } from 'vue'
 
 // Types
+import type { ID } from '#v0/types'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 export interface ProxyModelOptions {
@@ -50,6 +51,10 @@ export interface ProxyModelTarget {
   selectedValues: { readonly value: Iterable<unknown> }
   apply: (values: unknown[], options?: { multiple?: boolean }) => void
   select?: (id: string | number) => void
+  // Contexts type browse by their own ticket value — Slider's is a
+  // ShallowRef<number> — so an `unknown` parameter here would reject them under
+  // contravariance. `never` accepts any of them; the call site widens instead.
+  browse?: (value: never) => readonly ID[] | undefined
   multiple?: MaybeRefOrGetter<boolean>
   on?: (event: string, cb: (data: unknown) => void) => void
   off?: (event: string, cb: (data: unknown) => void) => void
@@ -102,18 +107,29 @@ export function useProxyModel (
     ? undefined
     : { multiple: toValue(multiple) as boolean }
 
-  // Initialize: apply current model value, track unresolved values
-  const modelAsArray = transformIn(model)
-  const pending = new Set(modelAsArray)
+  // Values from the model with no registered ticket yet. Rebuilt on every apply
+  // so late registration reflects the CURRENT model, never a stale initial value.
+  const pending = new Set<unknown>()
 
-  context.apply(modelAsArray, applyOptions)
+  // An unselected value is only deferred when nothing has registered under it.
+  // If a ticket exists, the context refused it (disabled, mandatory) and the
+  // rejection is final — deferring would leave the model waiting forever.
+  function deferred (value: unknown) {
+    return !context.browse?.(value as never)?.length
+  }
 
-  const selected = new Set(context.selectedValues.value)
-  for (const value of modelAsArray) {
-    if (selected.has(value)) {
-      pending.delete(value)
+  function reconcile (values: unknown[]) {
+    context.apply(values, applyOptions)
+
+    const selected = new Set(context.selectedValues.value)
+    pending.clear()
+    for (const value of values) {
+      if (!selected.has(value) && deferred(value)) pending.add(value)
     }
   }
+
+  // Initialize: apply current model value, track unresolved values
+  reconcile(transformIn(model))
 
   let syncing = false
 
@@ -126,9 +142,14 @@ export function useProxyModel (
   const contextWatch = watch(context.selectedValues as Ref, val => {
     if (syncing) return
 
+    // Mark the write as internal so the paused modelWatch — which Vue replays on
+    // resume() rather than dropping — bails instead of reconciling pending
+    // against this context-driven value.
+    syncing = true
     modelWatch.pause()
     model.value = transformOut(Array.from(toValue(val)))
     modelWatch.resume()
+    syncing = false
   }, { flush: 'sync' })
 
   const modelWatch = watch(model, val => {
@@ -136,10 +157,15 @@ export function useProxyModel (
 
     syncing = true
     contextWatch.pause()
-    context.apply(transformIn(val), applyOptions)
-    // Sync model back to actual selection state (apply may have rejected due to disabled/mandatory)
-    const actual = transformOut(Array.from(context.selectedValues.value))
-    if (!shallowEqual(val, actual)) model.value = actual
+    reconcile(transformIn(val))
+    // Sync model back to actual selection state (apply may have rejected due to disabled/mandatory).
+    // Pending values are unregistered rather than rejected, so writing back here would discard the
+    // caller's intent before onRegister can resolve it — and for a model backed by a setter, the
+    // write echoes back as a fresh change that clears `pending` outright.
+    if (pending.size === 0) {
+      const actual = transformOut(Array.from(context.selectedValues.value))
+      if (!shallowEqual(val, actual)) model.value = actual
+    }
     contextWatch.resume()
     syncing = false
   }, { flush: 'sync', deep: toValue(multiple) })

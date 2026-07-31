@@ -212,6 +212,22 @@ export default defineConfig({
 
 Use `useStorage` to persist theme selection across page loads. The key is installing the storage plugin first, then reading the stored preference during theme plugin setup:
 
+> [!TIP] Built-in persistence
+> `createThemePlugin` ships `persist`/`restore` wiring out of the box — pass `persist: true` and skip the manual `useStorage` + `watch` code below:
+>
+> ```ts no-filename
+> app.use(createStoragePlugin())
+> app.use(
+>   createThemePlugin({
+>     default: 'light',
+>     themes: { light: { dark: false, colors: { /* ... */ } }, dark: { dark: true, colors: { /* ... */ } } },
+>     persist: true,
+>   }),
+> )
+> ```
+>
+> `createStoragePlugin()` still has to be installed first — the theme plugin reads/writes through it. Reach for the manual approach below when persistence needs custom logic the built-in path doesn't cover — a cookie for SSR, a backend call, or resolving `prefers-color-scheme` before the first paint.
+
 ```ts main.ts collapse
 import { createApp } from 'vue'
 import {

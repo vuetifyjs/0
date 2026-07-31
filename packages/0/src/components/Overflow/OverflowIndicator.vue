@@ -75,8 +75,8 @@
       return
     }
     const style = getComputedStyle(el.value)
-    const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-    root.indicatorWidth.value = (el.value as HTMLElement).offsetWidth + marginX
+    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    root.indicatorWidth.value = ((el.value as HTMLElement).offsetWidth || 0) + marginX
   }
 
   watch(el, () => measure(), { immediate: true })

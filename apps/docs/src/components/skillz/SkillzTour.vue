@@ -16,11 +16,22 @@
   // Allowed keys during guided tours
   const GUIDED_ALLOWED_KEYS = new Set(['Escape', 'Tab', 'ArrowLeft', 'ArrowRight', 'Enter'])
 
+  // Whether the focused element is a control that owns its own Enter/Space
+  // activation (the tour popover's Back/Next/Complete/Exit buttons). Focus is
+  // trapped inside the popover during a guided tour, so any focused button is
+  // one of ours - defer to native activation instead of the tour shortcuts.
+  function isControlFocused () {
+    return !!(document.activeElement as HTMLElement | null)?.closest('button, a[href], [role="button"]')
+  }
+
   // Block keyboard input during guided tours
   useToggleScope(
     () => discovery.isActive.value && discovery.tours.selectedItem.value?.mode === 'guided',
     () => {
       useDocumentEventListener('keydown', (e: KeyboardEvent) => {
+        // Space activates a focused button/link on keyup; let it through so
+        // the popover's own controls work when tabbed to directly.
+        if (e.key === ' ' && isControlFocused()) return
         if (!GUIDED_ALLOWED_KEYS.has(e.key)) {
           e.preventDefault()
           e.stopImmediatePropagation()
@@ -30,7 +41,13 @@
   )
 
   const hotkeys = [
-    useHotkey('enter', () => discovery.next()),
+    // preventDefault is off so a focused button keeps its native Enter click;
+    // the shortcut only advances the tour when focus is on the popover body.
+    useHotkey('enter', e => {
+      if (isControlFocused()) return
+      e.preventDefault()
+      discovery.next()
+    }, { preventDefault: false }),
     useHotkey('right', () => discovery.next()),
     useHotkey('left', () => discovery.prev()),
     useHotkey('escape', () => discovery.stop()),

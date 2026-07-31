@@ -170,12 +170,53 @@ const canEdit = computed(() => permissions.can(user.role, 'edit', 'post'))
 
 ## Examples
 
-::: example
-/composables/use-permissions/role-checker
+::: gn-example
+/composables/use-permissions/context.ts 1
+/composables/use-permissions/AccessProvider.vue 2
+/composables/use-permissions/Sidebar.vue 3
+/composables/use-permissions/Workspace.vue 4
+/composables/use-permissions/access-control.vue 5
 
-### Role Checker
+### Role-Based Workspace
 
-Displays a matrix of resource/action permissions per role, using `can()` inside a `computed` to reactively reflect the active role's access level.
+An RBAC workspace where a single role switcher drives two independent consumers at once. `AccessProvider` builds the permission map with `createPermissionsContext` and provides it under a custom namespace; both `Sidebar` and `Workspace` inject that same context with `usePermissions(NAMESPACE)` and gate their UI through `can()`. Switching roles reflows the navigation (which sections are visible) and the toolbar (which actions are enabled) simultaneously, because each `can()` call lives inside a `toRef` or a method that reads the reactive `role` prop.
+
+The toolbar surfaces the context-aware edge case. An editor is denied `publish` by default, but the permission tuple `['publish', 'documents', context => context.isOwner === true]` re-evaluates dynamically when ownership context is supplied as the fourth argument to `can()`. Toggling the owner switch flips the publish button without touching the role definition — the difference between static role checks (RBAC) and attribute-driven conditions (ABAC).
+
+Reach for this provider/consumer split when several disconnected parts of a screen must honor the same access rules — admin shells, document editors, settings panels. The provider owns the rule set once; every descendant reads it through injection rather than threading permissions down as props. To resolve permissions from a backend instead of static tuples, supply a custom [PermissionsAdapter](#adapters); to drive flag-based UI variations the same way, see [useFeatures](/composables/plugins/use-features).
+
+| File | Role |
+|------|------|
+| `context.ts` | Shared namespace, role list, section and action data, and the permission rule map |
+| `AccessProvider.vue` | Creates the permissions context and provides it to the subtree |
+| `Sidebar.vue` | Consumer that filters navigation sections by `can(role, 'view', …)` |
+| `Workspace.vue` | Consumer that enables document actions, including the owner-gated publish check |
+| `access-control.vue` | Entry point that owns the role state and wraps both consumers in the provider |
+:::
+
+## FAQ
+
+::: faq
+
+??? What's the difference between usePermissions and useFeatures?
+
+usePermissions answers "can this role perform this action on this subject?" — role-based, with optional context conditions. [useFeatures](/composables/plugins/use-features) toggles capabilities on or off regardless of role. Use permissions for access control, flags for rollout and experiments.
+
+??? How do I write a permission that depends on ownership or other context (ABAC)?
+
+Make the condition a function instead of `true`: `['delete', 'post', context => context.isOwner]`. Supply the context as the fourth argument to `can()` — `can('editor', 'delete', 'post', { isOwner: true })` — and it re-evaluates on each check.
+
+??? Why doesn't my UI update when permissions change?
+
+`can()` is a plain lookup, not a reactive property. Wrap it in a `computed` — `computed(() => permissions.can(user.role, 'edit', 'post'))` — so it re-evaluates when its reactive dependencies change.
+
+??? How do I grant several actions or subjects in one rule?
+
+Pass arrays inside the permission tuple — `[['read', 'write'], 'post', true]` grants both actions, and `['delete', ['user', 'post'], true]` covers both subjects. The third element is the grant: `true`, or a context function for ABAC.
+
+??? Can I resolve permissions from my backend instead of static tuples?
+
+Yes. Extend `PermissionsAdapter` and implement `can()` to delegate to your auth system, then pass it as the `adapter` option to `createPermissionsPlugin`. The default `V0PermissionsAdapter` does token-based lookup against the static rule map.
 
 :::
 

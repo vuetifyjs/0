@@ -1,10 +1,10 @@
 ---
 title: AspectRatio - Reserve Layout Space for Vue 3
 meta:
-  - name: description
-    content: Headless Vue 3 primitive that reserves a fixed width-to-height ratio using CSS aspect-ratio. Prevents Cumulative Layout Shift for media, iframes, and responsive containers.
-  - name: keywords
-    content: aspect ratio, aspectRatio, CLS, cumulative layout shift, responsive, Vue 3, headless, primitive, iframe wrapper
+- name: description
+  content: Headless Vue 3 primitive that reserves a fixed width-to-height ratio using CSS aspect-ratio. Prevents Cumulative Layout Shift for media, iframes, and responsive containers.
+- name: keywords
+  content: aspect ratio, aspectRatio, CLS, cumulative layout shift, responsive, Vue 3, headless, primitive, iframe wrapper
 features:
   category: Component
   label: 'C: AspectRatio'
@@ -27,13 +27,13 @@ Reserves a box with a fixed width-to-height ratio using CSS `aspect-ratio`.
 Wrap any content whose height should track its width. The child fills the
 reserved frame — pair with `w-full h-full` or absolute positioning.
 
-::: example
+::: gn-example
 /components/aspect-ratio/basic
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { AspectRatio } from '@vuetify/v0'
 </script>
@@ -45,7 +45,7 @@ reserved frame — pair with `w-full h-full` or absolute positioning.
 
 ## Examples
 
-::: example
+::: gn-example
 /components/aspect-ratio/ResponsiveImage.vue 1
 /components/aspect-ratio/responsive.vue 2
 

@@ -26,16 +26,25 @@ A headless component for navigation through multi-step processes like wizards an
 
 The Step component extends Single with navigation methods for moving through a sequence of items. It provides methods for first, last, next, previous, and step-by-count navigation with automatic disabled item skipping.
 
-::: example
+::: gn-example
 /components/step/basic
-
-### Step Wizard
-
-A 3-step wizard with next/previous navigation buttons and per-step content rendering.
-
 :::
 
-## Features
+## Anatomy
+
+```vue Anatomy no-filename
+<script setup lang="ts">
+  import { Step } from '@vuetify/v0'
+</script>
+
+<template>
+  <Step.Root>
+    <Step.Item />
+  </Step.Root>
+</template>
+```
+
+## Recipes
 
 ### Navigation Methods
 
@@ -76,20 +85,31 @@ Disabled items are automatically skipped by `next`, `prev`, and `step`. Use this
 </template>
 ```
 
-## Anatomy
+## Accessibility
 
-```vue Anatomy playground
-<script setup lang="ts">
-  import { Step } from '@vuetify/v0'
-</script>
+Step is a headless **state provider**, not a complete interactive widget. It tracks the active item and exposes sequential navigation methods (`first`, `last`, `next`, `prev`, `step`) plus per-item state on each slot's `attrs`; it ships pointer activation (a click handler) but no `role`, keyboard navigation, or focus management.
 
-<template>
-  <Step.Root>
-    <Step.Item value="step-1" />
+- `Step.Root` exposes `aria-multiselectable="false"` — single-selection.
+- `Step.Item` exposes `aria-selected` and `aria-disabled`, plus `data-selected` and `data-disabled` for styling.
 
-    <Step.Item value="step-2" />
-  </Step.Root>
-</template>
-```
+This is single-selection navigation state. For a fully accessible tabbed stepper — `role="tablist"` / `role="tab"`, arrow-key navigation, and roving `tabindex` — use [Tabs](/components/disclosure/tabs), which composes the same step logic. When you bind `attrs` to your own element, you are responsible for wiring the navigation methods to keyboard handlers and supplying the roles the pattern requires.
+
+## FAQ
+
+::: faq
+
+??? What's the difference between Step and [Single](/components/providers/single)?
+
+Step extends Single, adding navigation methods (`first`, `last`, `next`, `prev`, `step`) for moving through an ordered sequence. Use Step for wizards and steppers; use Single when you only need single-selection without traversal.
+
+??? How do I skip a step conditionally?
+
+Mark the `Step.Item` as `:disabled` — `next`, `prev`, and `step` automatically skip disabled items, so you can hide steps based on form state.
+
+??? Can I jump more than one step at a time?
+
+Yes. `step(n)` moves by count — `step(2)` advances two steps and `step(-1)` goes back one, skipping any disabled items along the way.
+
+:::
 
 <DocsApi />

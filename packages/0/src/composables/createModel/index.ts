@@ -171,7 +171,9 @@ export interface ModelContext<
    * Unselect a ticket by ID
    *
    * @param id The ID of the ticket to unselect.
-   * @remarks Removes the ID from `selectedIds`. No-op if the model instance is disabled.
+   * @remarks Removes the ID from `selectedIds`.
+   * No-op if the model instance is disabled, the ticket doesn't exist, or the ticket is disabled.
+   * Wholesale operations (`apply`, `reset`, `clear`) bypass this guard so disabled ids can always drain.
    *
    * @example
    * ```ts
@@ -186,7 +188,7 @@ export interface ModelContext<
    *
    * @param id The ID of the ticket to toggle.
    * @remarks Calls `select(id)` if not selected, `unselect(id)` if already selected.
-   * No-op if the model instance is disabled.
+   * No-op if the model instance is disabled or the ticket is disabled.
    *
    * @example
    * ```ts
@@ -214,12 +216,13 @@ export interface ModelContext<
    *
    * @param values Array of values to apply. Only `values[0]` is used (single-value store).
    * @param options Optional. Accepted for interface compatibility with `createSelection`; ignored at this layer.
-   * @remarks Used internally by `useProxyModel` to sync a ref with the model. Executes two steps sequentially:
+   * @remarks Used internally by `useProxyModel` to sync a ref with the model. Two paths:
    * 1. **Ref write**: Writes `values[0]` to any selected ticket whose value is a ref.
-   * 2. **Browse resolution**: Clears `selectedIds`, resolves `values[0]` via `registry.browse()`, and selects the match.
-   *
-   * For ref-valued tickets, browse typically finds no match (the catalog indexes by the ref object,
-   * not the unwrapped value), so `selectedIds` will be empty after apply.
+   *    The write is the application — the selection is kept and browse is skipped
+   *    (the catalog indexes the ref object, not the unwrapped value). An `undefined`
+   *    value leaves the ref untouched.
+   * 2. **Browse resolution**: Otherwise clears `selectedIds`, resolves `values[0]`
+   *    via `registry.browse()`, and selects the match.
    *
    * @see https://0.vuetifyjs.com/composables/selection/create-model
    *
@@ -239,7 +242,7 @@ export interface ModelContext<
   /**
    * Register a new ticket
    *
-   * @param ticket Partial ticket data. ID is auto-generated if not provided. Disabled defaults to `false`.
+   * @param registration Partial ticket data. ID is auto-generated if not provided. Disabled defaults to `false`.
    * @returns The registered ticket with `isSelected` computed ref attached.
    * @remarks Delegates to `registry.register()` after adding model-specific fields (`disabled`, `isSelected`).
    *
@@ -376,9 +379,11 @@ export function createModel<
   const selectedItems = computed(() => new Set(resolveIds(selectedIds, registry.get)))
 
   const selectedValues = computed(() => {
-    return new Set(
-      Array.from(selectedItems.value).map(item => toValue(item.value)),
-    )
+    const out = new Set<unknown>()
+    for (const item of selectedItems.value) {
+      out.add(toValue(item.value))
+    }
+    return out as Set<E['value'] extends Ref<infer U> ? U : E['value']>
   })
 
   function select (id: ID) {
@@ -393,6 +398,9 @@ export function createModel<
 
   function unselect (id: ID) {
     if (toValue(disabled)) return
+
+    const item = registry.get(id)
+    if (!item || toValue(item.disabled)) return
 
     selectedIds.delete(id)
   }
@@ -411,13 +419,18 @@ export function createModel<
   function apply (values: unknown[], _options?: { multiple?: boolean }): void {
     const value = values[0]
 
-    // If the selected ticket's value is a ref, update it directly
+    // Browse indexes the ref object, not the unwrapped value, so a ref write
+    // IS the application — keep the selection. Skip undefined so an empty
+    // v-model init doesn't clobber the store ref.
+    let written = false
     for (const id of selectedIds) {
       const item = registry.get(id)
       if (!item || !isRef(item.value)) continue
 
-      item.value.value = value
+      if (!isUndefined(value)) item.value.value = value
+      written = true
     }
+    if (written) return
 
     // Fallback: browse resolution for static values
     if (!toValue(multiple)) selectedIds.clear()
@@ -425,7 +438,7 @@ export function createModel<
 
     const ids = registry.browse(toRaw(value))
     const id = ids?.values().next().value
-    if (!isUndefined(id)) selectedIds.add(id)
+    if (!isUndefined(id)) select(id)
   }
 
   function register (registration: Partial<Z> = {}): E {
@@ -497,5 +510,5 @@ export function createModel<
     get size () {
       return registry.size
     },
-  } as unknown as R
+  } satisfies ModelContext<Z, E> as unknown as R
 }

@@ -76,7 +76,7 @@
       </span>
     </div>
 
-    <div class="mt-2 text-sm text-on-surface/80">
+    <div class="docs-support-content mt-2 text-sm text-on-surface/80">
       <slot>
         This feature requires modern browser support.
         <RouterLink
@@ -90,3 +90,13 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+  .docs-support-content :deep(> p:first-child) {
+    margin-top: 0;
+  }
+
+  .docs-support-content :deep(> p:last-child) {
+    margin-bottom: 0;
+  }
+</style>

@@ -25,8 +25,12 @@
     /** Attributes to bind to the cancel button element */
     attrs: {
       'type': 'button' | undefined
+      'role': 'button' | undefined
+      'tabindex': number
       'disabled': boolean | undefined
       'data-disabled': '' | undefined
+      'onClick': () => void
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 </script>
@@ -51,6 +55,7 @@
     as = 'button',
     namespace = 'v0:alert-dialog',
     disabled = false,
+    renderless,
   } = defineProps<AlertDialogCancelProps>()
 
   const context = useAlertDialogContext(namespace)
@@ -60,12 +65,23 @@
     context.close()
   }
 
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
   const slotProps = toRef((): AlertDialogCancelSlotProps => ({
     isOpen: context.isOpen.value,
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
-      'disabled': disabled || undefined,
+      'role': as === 'button' ? undefined : 'button',
+      'tabindex': disabled ? -1 : 0,
+      'disabled': as === 'button' ? (disabled || undefined) : undefined,
       'data-disabled': disabled ? '' : undefined,
+      'onClick': onClick,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
 </script>
@@ -73,8 +89,8 @@
 <template>
   <Atom
     :as
+    :renderless
     v-bind="slotProps.attrs"
-    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>

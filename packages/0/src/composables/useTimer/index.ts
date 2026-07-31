@@ -23,7 +23,7 @@
  * ```
  */
 
-// Constants
+// Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities

@@ -61,7 +61,7 @@
       /** Click handler to toggle */
       'onClick': () => void
       /** Keyboard handler for Enter and Space keys */
-      'onKeydown': (e: KeyboardEvent) => void
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 </script>
@@ -104,7 +104,7 @@
       'disabled': as === 'button' ? context.disabled.value : undefined,
       'type': as === 'button' ? 'button' : undefined,
       'onClick': context.toggle,
-      onKeydown,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
 </script>

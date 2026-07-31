@@ -55,7 +55,7 @@
           class="inline-flex items-center border-none bg-transparent p-0 outline-none"
         >
           <Switch.Track class="relative inline-flex items-center w-9 h-5 rounded-full bg-surface-variant transition-colors data-[state=checked]:bg-success">
-            <Switch.Thumb class="![visibility:visible] block size-3.5 rounded-full bg-white shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-5" />
+            <Switch.Thumb class="block size-3.5 rounded-full bg-white shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-5" />
           </Switch.Track>
         </Switch.Root>
         Server snippets

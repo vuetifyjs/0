@@ -1,0 +1,15 @@
+{
+  "extends": "@tsconfig/node24/tsconfig.json",
+  "include": ["**/*.ts"],
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "tsBuildInfoFile": "../node_modules/.tmp/tsconfig.scripts.tsbuildinfo",
+
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "target": "esnext",
+    "lib": ["esnext"]
+  }
+}

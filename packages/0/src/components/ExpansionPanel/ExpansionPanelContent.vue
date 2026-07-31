@@ -34,7 +34,7 @@
     /** Attributes to bind to the content element for accessibility */
     attrs: {
       /** Data attribute for selected state */
-      'data-selected': boolean
+      'data-selected': true | undefined
       /** Unique ID for the content region */
       'id': string
       /** ARIA role for accessibility */
@@ -65,7 +65,7 @@
   const slotProps = toRef((): ExpansionPanelContentSlotProps => ({
     isSelected: item.ticket.isSelected.value,
     attrs: {
-      'data-selected': item.ticket.isSelected.value,
+      'data-selected': item.ticket.isSelected.value || undefined,
       'id': item.contentId.value,
       'role': 'region',
       'aria-labelledby': item.headerId.value,

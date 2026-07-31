@@ -67,45 +67,6 @@ Call `useDragDrop` once per scope and pass the returned context to children that
 </template>
 ```
 
-## Architecture
-
-The factory owns four pieces of state (`draggables`, `zones`, `active`, `isDragging`) plus a public `cancel()` action, and three extension points (adapters, plugins, lifecycle hooks). Pointer and keyboard adapters observe the DOM and emit a four-call lifecycle (`start`, `move`, `drop`, `cancel`); the factory pipes those through per-ticket and global hooks before mutating `active`.
-
-```mermaid "useDragDrop architecture"
-flowchart TD
-  subgraph factory["useDragDrop()"]
-    direction TB
-    draggables[("draggables<br/>(createRegistry)")]
-    zones[("zones<br/>(createRegistry)")]
-    active["active<br/>(ShallowRef)"]
-  end
-
-  subgraph adapters["Adapters (pluggable)"]
-    pointer["PointerAdapter"]
-    keyboard["KeyboardAdapter"]
-  end
-
-  subgraph hooks["Lifecycle hooks"]
-    direction TB
-    onBeforeStart
-    onMove
-    onBeforeDrop
-    onDrop
-    onCancel
-  end
-
-  child1["&lt;Card /&gt;<br/>dnd.draggables.register"] --> draggables
-  child2["&lt;Column /&gt;<br/>dnd.zones.register"] --> zones
-
-  pointer -->|emit| factory
-  keyboard -->|emit| factory
-  factory --> hooks
-  hooks --> active
-
-  active -->|reactive| child1
-  active -->|reactive| child2
-```
-
 ## Adapters
 
 Adapters are pluggable input layers: an adapter observes the DOM (or any other input source) and emits the four lifecycle events the factory consumes. Default adapters are installed automatically.
@@ -191,6 +152,45 @@ class TouchAdapter<Z extends DragType = DragType> extends DragDropAdapter<Z> {
 
 `context.emit` exposes `start(source, origin, via)`, `move(point)`, `drop()`, and `cancel()` — call these as input arrives. Adapters declare their own `via` value (typed as `DragVia`) so consumers reading `active.value.via` can distinguish the input source. `DragVia` is `Extensible<'pointer' | 'keyboard'>` — additional modalities (e.g. `'touch'`, `'gamepad'`) flow through without type-level coordination.
 
+## Architecture
+
+The factory owns four pieces of state (`draggables`, `zones`, `active`, `isDragging`) plus a public `cancel()` action, and three extension points (adapters, plugins, lifecycle hooks). Pointer and keyboard adapters observe the DOM and emit a four-call lifecycle (`start`, `move`, `drop`, `cancel`); the factory pipes those through per-ticket and global hooks before mutating `active`.
+
+```mermaid "useDragDrop architecture"
+flowchart TD
+  subgraph factory["useDragDrop()"]
+    direction TB
+    draggables[("draggables<br/>(createRegistry)")]
+    zones[("zones<br/>(createRegistry)")]
+    active["active<br/>(ShallowRef)"]
+  end
+
+  subgraph adapters["Adapters (pluggable)"]
+    pointer["PointerAdapter"]
+    keyboard["KeyboardAdapter"]
+  end
+
+  subgraph hooks["Lifecycle hooks"]
+    direction TB
+    onBeforeStart
+    onMove
+    onBeforeDrop
+    onDrop
+    onCancel
+  end
+
+  child1["&lt;Card /&gt;<br/>dnd.draggables.register"] --> draggables
+  child2["&lt;Column /&gt;<br/>dnd.zones.register"] --> zones
+
+  pointer -->|emit| factory
+  keyboard -->|emit| factory
+  factory --> hooks
+  hooks --> active
+
+  active -->|reactive| child1
+  active -->|reactive| child2
+```
+
 ## Reactivity
 
 ### Reactive fields
@@ -238,7 +238,7 @@ The composable does not produce attribute objects — consumers wire data attrib
 
 ## Examples
 
-::: example collapse
+::: gn-example collapse
 /composables/use-drag-drop/DragItem.vue 1
 /composables/use-drag-drop/DropList.vue 2
 /composables/use-drag-drop/basic.vue 3

@@ -2,22 +2,24 @@
  * createTokens Performance Benchmarks
  *
  * Structure:
- * - READ-ONLY operations use shared fixtures (safe, isolates operation cost)
- * - MUTATION operations create fresh fixtures per iteration (includes setup cost)
+ * - READ-ONLY operations (lookup, alias/batch resolution, computed access) use
+ *   shared fixtures — resolve() is a cached read, so it isolates cleanly.
+ * - FRESH fixtures only in `initialization`, where building the token graph IS
+ *   the measured op. createTokens has no mutation benches.
  * - Tests both 1,000 and 10,000 token datasets
  * - Categories: initialization, lookup, alias resolution, batch resolution, computed access
  */
 
 import { bench, describe } from 'vitest'
 
+// Framework
+import { createTokens } from '@vuetify/v0/composables'
+
 // Fixtures
 import TOKENS from './fixtures/tokens'
 
-// Composables
-import { createTokens } from './index'
-
 // Types
-import type { TokenContext, TokenTicket } from './index'
+import type { TokenContext, TokenTicket } from '@vuetify/v0/composables'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks

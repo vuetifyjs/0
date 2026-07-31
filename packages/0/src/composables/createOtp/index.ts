@@ -159,7 +159,7 @@ export interface OtpContext {
   accepts: (char: string) => boolean
 }
 
-export function createOtp (options: OtpOptions = {}): OtpContext {
+export function createOtp (_options: OtpOptions = {}): OtpContext {
   const {
     value = shallowRef(''),
     length = 6,
@@ -167,8 +167,8 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     disabled = false,
     readonly: _readonly = false,
     onComplete,
-    ...inputOptions
-  } = options
+    ...options
+  } = _options
 
   const logger = useLogger()
 
@@ -176,7 +176,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
   const errorMessagesRef = shallowRef<string[] | undefined>(undefined)
 
   const input = createInput<string>({
-    ...inputOptions,
+    ...options,
     value,
     disabled,
     readonly: _readonly,

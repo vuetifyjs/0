@@ -1,10 +1,10 @@
 ---
 title: Vuetify0 Components - Headless Vue 3 UI Primitives
 meta:
-  - name: description
-    content: Headless Vue 3 UI components with full accessibility. Selection, pagination, expansion panels, popovers, and more. Unstyled and fully customizable.
-  - name: keywords
-    content: components, headless ui, Vue 3, accessible, customizable, selection, pagination, expansion panel, popover
+- name: description
+  content: Headless Vue 3 UI components with full accessibility. Selection, pagination, expansion panels, popovers, and more. Unstyled and fully customizable.
+- name: keywords
+  content: components, headless ui, Vue 3, accessible, customizable, selection, pagination, expansion panel, popover
 features:
   level: 1
 related:
@@ -14,9 +14,11 @@ related:
 
 # Components
 
-A collection of foundational components designed to be headless, accessible, and highly customizable.
+A collection of <DocsCount type="component" /> foundational components designed to be headless, accessible, and highly customizable.
 
 <DocsPageFeatures :frontmatter />
+
+> [!TOUR] using-examples
 
 ## Primitives
 
@@ -81,7 +83,7 @@ Components with meaningful HTML defaults. Render semantic elements by default bu
 | [Image](/components/semantic/image) | Image with placeholder, error fallback, and lazy loading |
 | [Overflow](/components/semantic/overflow) | Responsive truncation primitive |
 | [Pagination](/components/semantic/pagination) | Page navigation with semantic `<nav>` wrapper |
-| [Progress](/components/semantic/progress/) | Headless progress bar with multi-segment and buffer support |
+| [Progress](/components/semantic/progress) | Headless progress bar with multi-segment and buffer support |
 | [Snackbar](/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](/components/semantic/splitter) | Resizable panel layout with drag handles |
 
@@ -97,5 +99,6 @@ Components for showing/hiding content.
 | [ExpansionPanel](/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
 | [Popover](/components/disclosure/popover) | CSS anchor-positioned popup content |
 | [Tabs](/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
+| [Tooltip](/components/disclosure/tooltip) | Description tooltip with hover/focus triggers and shared delay coordination |
 | [Treeview](/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
 

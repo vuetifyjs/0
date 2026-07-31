@@ -95,6 +95,11 @@
 .bg-accent-20, .hover\:bg-accent-20:hover { background: color-mix(in srgb, var(--v0-accent), transparent 80%); }
 .border-accent-50 { border-color: color-mix(in srgb, var(--v0-accent), transparent 50%); }
 
+/* Secondary */
+.bg-secondary-10 { background: color-mix(in srgb, var(--v0-secondary), transparent 90%); }
+.bg-secondary-20, .hover\:bg-secondary-20:hover { background: color-mix(in srgb, var(--v0-secondary), transparent 80%); }
+.border-secondary-50 { border-color: color-mix(in srgb, var(--v0-secondary), transparent 50%); }
+
 /* Discord */
 .bg-discord-10 { background: color-mix(in srgb, var(--v0-discord), transparent 90%); }
 .bg-discord-20, .hover\:bg-discord-20:hover { background: color-mix(in srgb, var(--v0-discord), transparent 80%); }

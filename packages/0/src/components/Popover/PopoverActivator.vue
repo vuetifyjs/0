@@ -24,7 +24,13 @@
     attrs: {
       'popovertarget': string
       'type': 'button' | undefined
+      'role': 'button' | undefined
+      'tabindex': number
+      'aria-expanded': boolean
+      'aria-controls': string
       'data-open': true | undefined
+      'style': Record<string, string>
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 </script>
@@ -45,7 +51,7 @@
     default: (props: PopoverActivatorSlotProps) => any
   }>()
 
-  const { as = 'button', target } = defineProps<PopoverActivatorProps>()
+  const { as = 'button', renderless, target } = defineProps<PopoverActivatorProps>()
 
   const context = usePopoverContext()
 
@@ -53,17 +59,30 @@
 
   const style = toRef(() => {
     if (target) {
-      return { anchorName: `--${target}` }
+      return { anchorName: `--${String(target).replace(/[^a-zA-Z0-9_-]/g, '')}` }
     }
     return context.anchorStyles.value
   })
+
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      context.toggle()
+    }
+  }
 
   const slotProps = toRef((): PopoverActivatorSlotProps => ({
     isOpen: context.isOpen.value,
     attrs: {
       'popovertarget': toValue(popovertarget),
       'type': as === 'button' ? 'button' : undefined,
+      'role': as === 'button' ? undefined : 'button',
+      'tabindex': 0,
+      'aria-expanded': context.isOpen.value,
+      'aria-controls': toValue(popovertarget),
       'data-open': context.isOpen.value || undefined,
+      'style': style.value,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
 </script>
@@ -71,7 +90,7 @@
 <template>
   <Atom
     :as
-    :style
+    :renderless
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />

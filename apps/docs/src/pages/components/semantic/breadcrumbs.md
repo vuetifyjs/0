@@ -27,20 +27,15 @@ A headless component for creating responsive breadcrumb navigation with proper A
 
 ## Usage
 
-The Breadcrumbs component provides a compound component pattern for building navigation trails. It uses `createBreadcrumbs`, `createGroup`, and `createOverflow` internally.
+Breadcrumbs renders a navigation trail that shows where the current page sits in a hierarchy. When the trail is wider than its container, the middle crumbs automatically collapse behind an ellipsis so the first crumb and the current page stay visible.
 
-::: example
+::: gn-example
 /components/breadcrumbs/basic
-
-### Basic Breadcrumb Trail
-
-A simple breadcrumb with dividers and an ellipsis component for overflow.
-
 :::
 
 ## Anatomy
 
-```vue playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Breadcrumbs } from '@vuetify/v0'
 </script>
@@ -54,7 +49,9 @@ A simple breadcrumb with dividers and an ellipsis component for overflow.
 
       <Breadcrumbs.Divider />
 
-      <Breadcrumbs.Ellipsis />
+      <Breadcrumbs.Ellipsis>
+        <Breadcrumbs.Activator />
+      </Breadcrumbs.Ellipsis>
 
       <Breadcrumbs.Divider />
 
@@ -76,59 +73,39 @@ flowchart TD
   Overflow["createOverflow"]
   Group["createGroup"]
   Root["Breadcrumbs.Root"]:::primary
-  List["Breadcrumbs.List"]
-  Item["Breadcrumbs.Item"]
-  Divider["Breadcrumbs.Divider"]
-  Ellipsis["Breadcrumbs.Ellipsis"]
-  Link["Breadcrumbs.Link"]
-  Page["Breadcrumbs.Page"]
 
   Breadcrumbs --> Root
   Overflow --> Root
   Group --> Root
-  Root --> List
-  List --> Item
-  List --> Divider
-  List --> Ellipsis
-  Item --> Link
-  Item --> Page
 ```
 
-The Root creates three internal composables: `createBreadcrumbs` manages the navigation model, `createGroup` tracks item visibility, and `createOverflow` measures widths to determine how many items fit.
+`createBreadcrumbs` manages the navigation model, `createGroup` tracks which crumbs are visible, and `createOverflow` measures widths to decide how many fit.
 
 ## Examples
 
-::: example
-/components/breadcrumbs/overflow
+::: gn-example
+/components/breadcrumbs/useTrail.ts 1
+/components/breadcrumbs/BreadcrumbTrail.vue 2
+/components/breadcrumbs/breadcrumb-trail.vue 3
 
-### Responsive Overflow
+### Responsive Trail with Overflow Collapse
 
-Breadcrumb trails can easily exceed their container in sidebars, mobile viewports, or resizable panels. Rather than wrapping or clipping, the Root measures each item's width via `createOverflow` and hides items from the beginning when space runs out. The Ellipsis component appears automatically to indicate hidden items.
+A breadcrumb trail can easily outgrow its container in a sidebar, a resizable panel, or a phone viewport. This example builds a reusable `BreadcrumbTrail` from a plain path array and lets the Root collapse leading crumbs behind an ellipsis when space runs out. Use the width buttons to shrink the container and watch the middle crumbs fold away while the root and the current page stay put.
 
-**Key patterns:**
+The Root composes [createOverflow](/composables/semantic/create-overflow) internally: each `Breadcrumbs.Item` and `Breadcrumbs.Divider` self-measures, the Root reserves room for the first crumb plus the ellipsis, then hides items from the start using a reverse measurement so the trailing, most-relevant crumbs survive. Crumbs render as `Breadcrumbs.Link` when they carry an `href` and as `Breadcrumbs.Page` (which applies `aria-current="page"`) when they don't, so the last segment is automatically the current page. The component reads the `isOverflowing` slot prop off the Root to caption whether the trail collapsed.
 
-- Items without an `href` render as `Breadcrumbs.Page` with `aria-current="page"`
-- The Ellipsis is placed after the first item (`v-if="index === 1"`) so the root crumb always stays visible
-- `shrink-0` and `whitespace-nowrap` on items prevent text from wrapping before overflow kicks in
+Reach for this whenever the number of segments is unknown at design time. The tradeoffs to remember: `shrink-0` and `whitespace-nowrap` keep crumbs from wrapping before the overflow math runs, and the Root `gap` prop must match your CSS gap or the capacity calculation drifts. For a trail derived from the live route instead of a static array, see the route-derived example below; the navigation model itself comes from [createBreadcrumbs](/composables/semantic/create-breadcrumbs).
 
-Drag the slider to shrink the container and watch items collapse into the ellipsis.
-
+| File | Role |
+|------|------|
+| `useTrail.ts` | Owns the demo state — the crumb path array, the container-width presets, and the resize handler |
+| `BreadcrumbTrail.vue` | Reusable trail — renders the compound surface, splits Link vs Page on `href`, and reports overflow via the Root slot prop |
+| `breadcrumb-trail.vue` | Entry — wires the composable to the component and adds the width-preset controls |
 :::
 
-::: example
-/components/breadcrumbs/mobile
-
-### Mobile Overflow
-
-On narrow viewports, the breadcrumb trail automatically collapses leading items behind an ellipsis. The Root reserves space for the ellipsis element before computing how many items fit, preventing visual clipping. No configuration is needed — `createOverflow` with `reverse: true` ensures the trailing (most relevant) items stay visible.
-
-The container below is capped at `max-w-sm` to simulate a mobile viewport. On actual mobile devices, the breadcrumbs would fill the full screen width and overflow naturally.
-
-:::
-
-::: example
-/components/breadcrumbs/AppBreadcrumbs.vue
-/components/breadcrumbs/useBreadcrumbItems.ts
+::: gn-example
+/components/breadcrumbs/useBreadcrumbItems.ts 1
+/components/breadcrumbs/AppBreadcrumbs.vue 2
 
 ### Route-Derived Breadcrumbs
 
@@ -227,13 +204,13 @@ Override the ellipsis globally on Root or per-instance:
 </template>
 ```
 
-## Plugins
+### Plugins
 
 Breadcrumbs integrates with v0's plugin system for internationalization.
 
-### Locale
+#### Locale
 
-The Root uses `useLocale` internally for the navigation landmark's `aria-label`. Without any configuration, it defaults to `"Breadcrumb"`.
+The Root renders the navigation landmark's `aria-label` as `ti('Breadcrumbs.label') ?? 'Breadcrumbs'`. When the Locale plugin resolves the `Breadcrumbs.label` key it uses your translation; without any configuration it falls back to the inline English default `"Breadcrumbs"`.
 
 **Override with a prop** — no plugin needed:
 
@@ -267,5 +244,93 @@ app.mount('#app')
 ```
 
 The `label` prop takes priority over locale messages, so you can still override individual instances when needed.
+
+## Accessibility
+
+The Breadcrumbs component renders semantic navigation markup and manages ARIA attributes automatically:
+
+- `Breadcrumbs.Root` renders a `<nav>` landmark whose `aria-label` defaults to `"Breadcrumbs"` (override with the `label` prop or the `Breadcrumbs.label` locale key). When you change the element with `as`, it applies `role="navigation"` instead so the landmark is preserved.
+- `Breadcrumbs.List` renders an ordered list with `role="list"` to expose the trail as a list to screen readers.
+- `Breadcrumbs.Page` marks the current item with `aria-current="page"` so it is announced as the current location. Omitting `href` on the last crumb renders it as a Page automatically.
+- `Breadcrumbs.Link` renders a native `<a>`, so crumbs are focusable and activated with the keyboard like any link — no custom key handling is added.
+- `Breadcrumbs.Divider` renders `aria-hidden="true"`, keeping the visual separators out of the accessibility tree. `Breadcrumbs.Ellipsis` does the same while it is purely decorative, and drops it as soon as it hosts a `Breadcrumbs.Activator`.
+- `Breadcrumbs.Item` marks collapsed crumbs `inert`, which removes them from the accessibility tree *and* from the tab order. `aria-hidden` alone would leave a collapsed crumb's link reachable by keyboard while invisible to assistive technology.
+
+### Revealing collapsed crumbs
+
+By default a truncated trail gives assistive technology no signal that levels were dropped. Place a `Breadcrumbs.Activator` inside the ellipsis to turn the truncation into a disclosure:
+
+```vue
+<template>
+  <Breadcrumbs.Root>
+    <Breadcrumbs.List>
+      <Breadcrumbs.Ellipsis>
+        <Breadcrumbs.Activator />
+      </Breadcrumbs.Ellipsis>
+    </Breadcrumbs.List>
+  </Breadcrumbs.Root>
+</template>
+```
+
+The ellipsis stays the list item and the Activator is the control, so the trail keeps a valid list structure — button semantics on the `<li>` would replace its `listitem` role and break the list's required children. The Activator renders a native `button` by default, carrying `aria-expanded`, a count-aware accessible name, and a `data-state` of `open` or `closed` for styling. Render it as something else with `as` and it picks up `role="button"`, `tabindex`, and Enter/Space handling instead.
+
+The disclosure resets on its own once the container grows enough that nothing is truncated.
+
+#### Locale
+
+The disclosure's accessible name resolves `Breadcrumbs.expand`, falling back to `Show {count} more breadcrumbs`. `{count}` is how many crumbs truncation hides, and it keeps reporting that total while the disclosure is open so the name stays meaningful.
+
+```ts
+app.use(
+  createLocalePlugin({
+    default: 'en',
+    messages: {
+      en: {
+        Breadcrumbs: {
+          expand: 'Show {count} more breadcrumbs',
+        },
+      },
+    },
+  })
+)
+```
+
+For custom implementations, use `renderless` mode and bind the `attrs` slot prop to preserve the landmark role and label:
+
+```vue
+<template>
+  <Breadcrumbs.Root v-slot="{ attrs }" renderless>
+    <nav v-bind="attrs">
+      <!-- Custom breadcrumb trail -->
+    </nav>
+  </Breadcrumbs.Root>
+</template>
+```
+
+## FAQ
+
+::: faq
+
+??? When do I use `Breadcrumbs.Link` vs `Breadcrumbs.Page`?
+
+Use `Breadcrumbs.Link` for navigable crumbs and `Breadcrumbs.Page` for the current item — Page applies `aria-current="page"`. Omitting `href` on the last segment renders it as a Page automatically.
+
+??? Why are my crumbs overflowing or leaving extra space?
+
+The `gap` prop (default `8`) must match your actual CSS gap. If they differ, the overflow capacity calculation drifts — set `:gap` to your pixel gap.
+
+??? How do I render crumbs as Vue Router links?
+
+Pass `:as="RouterLink"` along with `to` on `Breadcrumbs.Link`.
+
+??? How do I change the collapse indicator?
+
+Set the `ellipsis` prop on `Breadcrumbs.Root` (for example `ellipsis="[more]"`) to replace the default overflow indicator, globally or per instance.
+
+??? How do I translate the breadcrumb's `aria-label`?
+
+Pass a `label` prop on `Breadcrumbs.Root`, or configure the `Breadcrumbs.label` key through the [Locale](/composables/plugins/use-locale) plugin for app-wide i18n. The `label` prop takes priority over locale messages.
+
+:::
 
 <DocsApi />

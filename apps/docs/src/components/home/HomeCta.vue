@@ -15,7 +15,7 @@
     {
       title: 'Join Discord',
       description: 'Get help, share ideas, showcase your work.',
-      to: 'https://community.vuetifyjs.com',
+      to: 'https://discord.gg/vuetify',
       icon: 'discord',
     },
   ]
@@ -33,7 +33,7 @@
 
     <!-- Install command -->
     <div class="flex justify-center mb-12">
-      <HomeCopyCommand command="pnpm add @vuetify/v0" />
+      <HomeInstallCommand />
     </div>
 
     <!-- Action cards -->
@@ -48,7 +48,7 @@
         :style="{ '--reveal-index': i }"
         :to="action.to"
       >
-        <AppDotGrid v-if="action.title === 'Open Playground'" :coverage="50" :density="14" origin="bottom right" />
+        <AppDotGrid v-if="action.title === 'Open Playground'" :coverage="50" origin="bottom right" />
 
         <div class="relative w-10 h-10 shrink-0 rounded-lg bg-primary flex items-center justify-center text-on-primary">
           <AppIcon class="!opacity-100" :icon="action.icon" :size="20" />
@@ -65,7 +65,7 @@
     <div class="flex justify-center">
       <a
         class="px-6 py-2.5 bg-surface text-on-surface rounded-xl font-semibold border hover:bg-surface-tint hover:border-primary transition-all duration-150 text-sm inline-flex items-center gap-2"
-        href="https://github.com/vuetifyjs/0"
+        href="https://github.com/vuetifyjs/0/stargazers"
         rel="noopener"
         target="_blank"
       >

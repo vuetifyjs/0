@@ -174,7 +174,7 @@
           'tabindex': isSelected ? 0 : -1,
           'aria-selected': isSelected,
           'aria-controls': `${carousel.rootId}-slide-${i}`,
-          'aria-label': locale.t('Carousel.indicator', { current: i + 1, size }),
+          'aria-label': locale.ti('Carousel.indicator', { current: i + 1, size }) ?? `Go to slide ${i + 1} of ${size}`,
           'data-selected': isSelected || undefined,
           'data-active': isActive || undefined,
           'onClick' () {
@@ -191,7 +191,7 @@
       items,
       attrs: {
         'role': 'tablist',
-        'aria-label': label ?? locale.t('Carousel.indicators'),
+        'aria-label': label ?? locale.ti('Carousel.indicators') ?? 'Carousel indicators',
         'aria-orientation': carousel.orientation.value,
       },
     }

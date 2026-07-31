@@ -63,7 +63,6 @@
   font-family: var(--v0-font-mono);
   font-size: 11px;
   color: var(--v0-on-surface);
-  opacity: 0.7;
   background: var(--v0-surface-variant);
   border-radius: 4px;
   overflow-x: auto;

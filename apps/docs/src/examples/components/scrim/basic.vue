@@ -50,10 +50,10 @@
 
   <div
     v-if="open"
-    class="fixed inset-0 flex items-center justify-center"
+    class="fixed inset-0 flex items-center justify-center pointer-events-none"
     :style="{ zIndex: ticket.zIndex.value }"
   >
-    <div class="rounded-xl bg-surface border border-divider p-6 max-w-sm w-full shadow-lg">
+    <div class="rounded-xl bg-surface border border-divider p-6 max-w-sm w-full shadow-lg pointer-events-auto">
       <h3 class="text-lg font-semibold text-on-surface mb-2">
         Dismissible Overlay
       </h3>
@@ -73,10 +73,10 @@
 
   <div
     v-if="blocking"
-    class="fixed inset-0 flex items-center justify-center"
+    class="fixed inset-0 flex items-center justify-center pointer-events-none"
     :style="{ zIndex: blockingTicket.zIndex.value }"
   >
-    <div class="rounded-xl bg-surface border border-divider p-6 max-w-sm w-full shadow-lg">
+    <div class="rounded-xl bg-surface border border-divider p-6 max-w-sm w-full shadow-lg pointer-events-auto">
       <h3 class="text-lg font-semibold text-on-surface mb-2">
         Blocking Overlay
       </h3>

@@ -51,7 +51,13 @@
 </template>
 
 <style scoped>
+  /* `mounted` is a transient tick before paint — hide so there's no flash */
   .presence-box[data-state="mounted"] {
+    opacity: 0;
+  }
+
+  /* enter animation runs on the persistent `present` state */
+  .presence-box[data-state="present"] {
     animation: fade-in 250ms ease-out;
   }
 

@@ -57,7 +57,7 @@
     default: (props: SnackbarQueueSlotProps) => any
   }>()
 
-  const { as = 'div', namespace = 'v0:notifications' } = defineProps<SnackbarQueueProps>()
+  const { as = 'div', namespace = 'v0:notifications', renderless } = defineProps<SnackbarQueueProps>()
 
   const notifications = useNotifications(namespace)
 
@@ -127,8 +127,9 @@
 <template>
   <Atom
     ref="container"
-    v-bind="slotProps.attrs"
     :as
+    :renderless
+    v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />
   </Atom>

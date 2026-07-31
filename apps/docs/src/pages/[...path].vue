@@ -63,7 +63,7 @@
       </div>
 
       <div class="relative px-4 py-4 overflow-hidden">
-        <AppDotGrid :coverage="60" :density="18" origin="bottom left" />
+        <AppDotGrid :coverage="60" origin="bottom left" />
 
         <p class="text-sm text-on-surface-variant mb-3">
           Maybe you searched for...

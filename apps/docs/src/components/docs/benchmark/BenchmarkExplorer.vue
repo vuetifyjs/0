@@ -7,8 +7,8 @@
 
   const {
     composable,
+    hideFilters,
     hideSummary,
-    collapsed,
   } = defineProps<{
     /** Restrict to a single composable (embed mode) */
     composable?: string
@@ -16,8 +16,6 @@
     hideFilters?: boolean
     /** Hide summary cards */
     hideSummary?: boolean
-    /** Start with groups collapsed */
-    collapsed?: boolean
   }>()
 
   const {
@@ -27,27 +25,20 @@
     summary,
     filter,
     composableSelection,
+    tierSelection,
+    sortBy,
     expandedGroups,
     expandAll,
     collapseAll,
+    clearFilters,
   } = useBenchmarkData({ composable: () => composable })
 
-  // Default expand behavior: expand all when not collapsed
-  const shouldCollapse = toRef(() => collapsed ?? !!composable)
-
-  // Auto-expand groups when search is active
+  // Groups start collapsed; expand on demand or when a search is active
   watch(toRef(() => filter.query.value), query => {
     if (query) {
       expandAll()
     }
   })
-
-  // Auto-expand all groups when not in collapsed mode and data loads
-  watch(filteredGroups, groups => {
-    if (!shouldCollapse.value && groups.length > 0 && expandedGroups.selectedIds.size === 0) {
-      expandAll()
-    }
-  }, { once: true })
 
   const allExpanded = computed(() =>
     filteredGroups.value.length > 0
@@ -70,8 +61,21 @@
     expandedGroups.toggle(id)
   }
 
+  // Tier facet: register tier and toggle
+  function onTierToggle (tier: string) {
+    if (!tierSelection.has(tier)) {
+      tierSelection.register({ id: tier })
+    }
+    tierSelection.toggle(tier)
+  }
+
   // Derive selected composable names from group selectedIds
   const selectedComposableNames = toRef(() => Array.from(composableSelection.selectedIds) as string[])
+
+  // Count benchmarks currently passing all filters (for the "N of M" status)
+  const visibleBenchmarkCount = toRef(() =>
+    filteredGroups.value.reduce((sum, group) => sum + group.benchmarks.length, 0),
+  )
 </script>
 
 <template>
@@ -100,30 +104,22 @@
         <span>{{ summary.composableCount }} composables</span>
       </div>
 
-      <!-- Filters (commented out for now)
+      <!-- Filters -->
       <BenchmarkFilters
         v-if="!hideFilters"
+        :all-expanded
         :search-query="String(filter.query.value)"
         :selected-tiers="tierSelection.selectedIds"
-        :sort-by="sortBy"
+        :show-expand="filteredGroups.length > 1"
+        :sort-by
         :total-all="summary.totalBenchmarks"
         :total-visible="visibleBenchmarkCount"
         @clear-filters="clearFilters"
-        @toggle-tier="handleTierToggle"
+        @toggle-expand="allExpanded ? collapseAll() : expandAll()"
+        @toggle-tier="onTierToggle"
         @update:search-query="filter.query.value = $event"
         @update:sort-by="sortBy = $event"
       />
-      -->
-
-      <!-- Expand/collapse toggle -->
-      <div v-if="filteredGroups.length > 1" class="flex items-center justify-end">
-        <button
-          class="text-xs text-on-surface-variant hover:text-primary transition-colors"
-          @click="allExpanded ? collapseAll() : expandAll()"
-        >
-          {{ allExpanded ? 'Collapse all' : 'Expand all' }}
-        </button>
-      </div>
 
       <!-- Groups -->
       <div class="space-y-2">
@@ -137,12 +133,13 @@
         />
       </div>
 
-      <!-- Empty filter state (commented out with filters)
+      <!-- Empty filter state -->
       <div
         v-if="filteredGroups.length === 0"
         class="py-12 text-center"
       >
         <p class="text-sm text-on-surface-variant">No benchmarks match your filters.</p>
+
         <button
           class="mt-2 text-sm text-primary hover:underline"
           @click="clearFilters"
@@ -150,7 +147,6 @@
           Clear filters
         </button>
       </div>
-      -->
     </template>
   </div>
 </template>

@@ -40,10 +40,14 @@ export const useReleasesStore = defineStore('releases', {
 
   actions: {
     format (release: GitHubRelease): Release {
+      // Substrate releases are `v<major>.x` — show the numeric-box icon for the
+      // major. Design-system releases are `@scope/name@<version>` (no single
+      // leading major to show) and fall back to a generic package icon.
+      const major = /^v(\d)/.exec(release.tag_name)
       return {
         ...release,
         props: {
-          prependIcon: `mdi-numeric-${release.tag_name.slice(1, 2)}-box`,
+          prependIcon: major ? `mdi-numeric-${major[1]}-box` : 'mdi-package-variant',
           title: release.tag_name,
         },
       }
@@ -96,7 +100,10 @@ export const useReleasesStore = defineStore('releases', {
       }
     },
     async find (tag: string): Promise<Release | undefined> {
-      if (!tag.startsWith('v')) tag = `v${tag}`
+      // Bare version numbers ("1.2.3") map to the substrate's `v` tag; scoped
+      // design-system tags ("@paper/genesis@1.2.3") and already-`v`-prefixed tags
+      // pass through unchanged.
+      if (!tag.startsWith('v') && !tag.includes('@')) tag = `v${tag}`
 
       const found = this.releases.find(release => release.tag_name === tag)
 

@@ -8,10 +8,16 @@
       "path": "./packages/paper"
     },
     {
+      "path": "./packages/genesis"
+    },
+    {
       "path": "./apps/docs"
     },
     {
       "path": "./dev"
+    },
+    {
+      "path": "./scripts"
     }
   ],
   "compilerOptions": {

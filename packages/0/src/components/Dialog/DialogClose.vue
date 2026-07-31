@@ -23,7 +23,11 @@
     /** Attributes to bind to the close button element */
     attrs: {
       'type': 'button' | undefined
+      'role': 'button' | undefined
+      'tabindex': number
       'aria-label': string
+      'onClick': () => void
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 </script>
@@ -50,6 +54,7 @@
   const {
     as = 'button',
     namespace = 'v0:dialog',
+    renderless,
   } = defineProps<DialogCloseProps>()
 
   const context = useDialogContext(namespace)
@@ -59,11 +64,22 @@
     context.close()
   }
 
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
   const slotProps = toRef((): DialogCloseSlotProps => ({
     isOpen: context.isOpen.value,
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
-      'aria-label': locale.t('Dialog.close'),
+      'role': as === 'button' ? undefined : 'button',
+      'tabindex': 0,
+      'aria-label': locale.ti('Dialog.close') ?? 'Close',
+      'onClick': onClick,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
 </script>
@@ -71,8 +87,8 @@
 <template>
   <Atom
     :as
+    :renderless
     v-bind="slotProps.attrs"
-    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>

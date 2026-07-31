@@ -69,16 +69,15 @@
         <AppIcon icon="down" :size="14" />
       </button>
 
-      <button
+      <AppTooltip
         v-if="!collapse || expanded"
         :aria-label="`${expanded ? 'Collapse' : 'Expand'} description`"
         class="absolute top-3 right-3 z-10 inline-flex items-center justify-center size-7 text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
-        :title="`${expanded ? 'Collapse' : 'Expand'} description`"
-        type="button"
+        :text="`${expanded ? 'Collapse' : 'Expand'} description`"
         @click="expanded = !expanded"
       >
         <AppIcon :icon="expanded ? 'fullscreen-exit' : 'fullscreen'" :size="16" />
-      </button>
+      </AppTooltip>
     </template>
   </div>
 </template>

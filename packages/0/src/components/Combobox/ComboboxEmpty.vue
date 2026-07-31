@@ -16,6 +16,9 @@
   // Context
   import { useComboboxContext } from './ComboboxRoot.vue'
 
+  // Composables
+  import { useLocale } from '#v0/composables/useLocale'
+
   // Utilities
   import { toRef } from 'vue'
 
@@ -43,9 +46,11 @@
   const {
     as = 'div',
     namespace = 'v0:combobox',
+    renderless,
   } = defineProps<ComboboxEmptyProps>()
 
   const context = useComboboxContext(namespace)
+  const locale = useLocale()
 
   const slotProps = toRef((): ComboboxEmptySlotProps => ({
     query: context.query.value,
@@ -53,7 +58,7 @@
 </script>
 
 <template>
-  <Atom v-if="context.isEmpty.value" :as>
-    <slot v-bind="slotProps">No results</slot>
+  <Atom v-if="context.isEmpty.value" :as :renderless>
+    <slot v-bind="slotProps">{{ locale.ti('Combobox.noResults') ?? 'No results' }}</slot>
   </Atom>
 </template>

@@ -81,7 +81,6 @@ export interface ApiSlot {
 export interface ComponentApi {
   kind: 'component'
   name: string
-  description?: string
   props: ApiProp[]
   events: ApiEvent[]
   slots: ApiSlot[]
@@ -123,7 +122,6 @@ export interface ApiFunction {
 export interface ComposableApi {
   kind: 'composable'
   name: string
-  description?: string
   functions: ApiFunction[]
   options: ApiOption[]
   methods: ApiMethod[]
@@ -638,21 +636,6 @@ function extractComposableApi (filePath: string, composableName: string): Compos
     const proj = getProject()
     const sourceFile = proj.getSourceFile(filePath) ?? proj.addSourceFileAtPath(filePath)
 
-    // Get module description from first JSDoc comment
-    const firstStatement = sourceFile.getStatements()[0]
-    let description: string | undefined
-    if (firstStatement && 'getJsDocs' in firstStatement) {
-      const jsDocs = (firstStatement as JSDocableNode).getJsDocs()
-      if (jsDocs.length > 0) {
-        const moduleTag = jsDocs[0].getTags().find(t => t.getTagName() === 'module')
-        if (moduleTag) {
-          // Get the remarks section
-          const remarksTag = jsDocs[0].getTags().find(t => t.getTagName() === 'remarks')
-          description = remarksTag?.getCommentText()?.trim()
-        }
-      }
-    }
-
     // Build list of possible interface name patterns
     // For useTheme -> Theme, ThemeOptions, ThemeContext
     // For createContext -> CreateContext, Context, Plugin, etc.
@@ -744,7 +727,6 @@ function extractComposableApi (filePath: string, composableName: string): Compos
     return {
       kind: 'composable',
       name: composableName,
-      description,
       functions,
       options,
       methods,
@@ -760,9 +742,14 @@ async function findComposableFiles (): Promise<{ path: string, name: string }[]>
   const files: { path: string, name: string }[] = []
   const dirs = await readdir(COMPOSABLES_DIR)
 
+  // Only composables re-exported from the public barrel are part of the API —
+  // some directories (createFocusTraversal, createObserver) are internal
+  // implementation details shared by other composables and must stay hidden.
+  const barrelSource = readFileSync(resolve(COMPOSABLES_DIR, 'index.ts'), 'utf8')
+  const exported = new Set([...barrelSource.matchAll(/export \* from '\.\/(\w+)'/g)].map(m => m[1]))
+
   for (const dir of dirs) {
-    // Composable directories start with 'use', 'create', or 'to'
-    if (!dir.startsWith('use') && !dir.startsWith('create') && !dir.startsWith('to')) continue
+    if (!exported.has(dir)) continue
 
     const indexPath = resolve(COMPOSABLES_DIR, dir, 'index.ts')
     files.push({ path: indexPath, name: dir })

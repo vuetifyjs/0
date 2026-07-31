@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Input } from '@vuetify/v0'
+  import { Form, Input } from '@vuetify/v0'
 
   const {
     serverError,
@@ -7,7 +7,7 @@
     reset,
   } = defineProps<{
     serverError?: string
-    submit: () => Promise<void>
+    submit: (valid: boolean) => void
     reset: () => void
   }>()
 
@@ -16,12 +16,17 @@
   const message = defineModel<string>('message', { default: '' })
 
   const input = 'w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface placeholder:text-on-surface-variant/50 outline-none data-[focused]:border-primary data-[state=invalid]:border-error transition-colors'
+
+  function onSubmit (payload: { valid: boolean }) {
+    submit(payload.valid)
+  }
 </script>
 
 <template>
-  <form
+  <Form
     class="flex flex-col gap-4"
-    @submit.prevent="submit"
+    @reset="reset"
+    @submit="onSubmit"
   >
     <Input.Root
       v-model="name"
@@ -91,11 +96,10 @@
 
       <button
         class="px-4 py-2 rounded-lg border border-divider text-on-surface text-sm"
-        type="button"
-        @click="reset"
+        type="reset"
       >
         Reset
       </button>
     </div>
-  </form>
+  </Form>
 </template>

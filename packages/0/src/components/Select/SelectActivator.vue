@@ -18,7 +18,7 @@
 
   // Utilities
   import { isUndefined } from '#v0/utilities'
-  import { toRef, useTemplateRef, watchEffect } from 'vue'
+  import { toRef, toValue, useTemplateRef, watchEffect } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -39,7 +39,13 @@
       'aria-expanded': boolean
       'aria-haspopup': 'listbox'
       'aria-controls': string
+      'aria-disabled': boolean
+      'disabled': true | undefined
+      'tabindex': 0 | undefined
       'data-open': true | undefined
+      'style': Record<string, string>
+      'onClick': () => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
   }
 </script>
@@ -54,6 +60,7 @@
   const {
     as = 'button',
     namespace = 'v0:select',
+    renderless,
   } = defineProps<SelectActivatorProps>()
 
   const context = useSelectContext(namespace)
@@ -109,8 +116,6 @@
     }
   }
 
-  const style = toRef(() => context.popover.anchorStyles.value)
-
   const slotProps = toRef((): SelectActivatorSlotProps => ({
     isOpen: context.isOpen.value,
     attrs: {
@@ -120,7 +125,13 @@
       'aria-expanded': context.isOpen.value,
       'aria-haspopup': 'listbox',
       'aria-controls': context.listboxId,
+      'aria-disabled': toValue(context.disabled),
+      'disabled': toValue(context.disabled) || undefined,
+      'tabindex': as === 'button' ? undefined : 0,
       'data-open': context.isOpen.value || undefined,
+      'style': context.popover.anchorStyles.value,
+      onClick,
+      onKeydown,
     },
   }))
 </script>
@@ -129,10 +140,8 @@
   <Atom
     ref="activator"
     :as
-    :style
+    :renderless
     v-bind="slotProps.attrs"
-    @click="onClick"
-    @keydown="onKeydown"
   >
     <slot v-bind="slotProps" />
   </Atom>

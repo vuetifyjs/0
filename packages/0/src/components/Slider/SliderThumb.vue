@@ -54,7 +54,7 @@
       'aria-valuemax': number
       'aria-valuetext': string | undefined
       'aria-orientation': 'horizontal' | 'vertical'
-      'aria-disabled': true | undefined
+      'aria-disabled': boolean
       'aria-readonly': true | undefined
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
@@ -170,7 +170,7 @@
       'aria-valuemax': valueMax.value,
       'aria-valuetext': ariaValuetext || undefined,
       'aria-orientation': toValue(root.orientation),
-      'aria-disabled': isDisabled.value ? true : undefined,
+      'aria-disabled': isDisabled.value,
       'aria-readonly': isReadonly.value ? true : undefined,
       'aria-label': ariaLabel || undefined,
       'aria-labelledby': ariaLabelledby || undefined,

@@ -15,14 +15,21 @@ Scope-specific mechanics for `**/*.test.ts`. Covers coverage requirements, struc
 
 ## Runtime
 
-Vitest + happy-dom. [intent:84] Colocated with source: `foo.ts → foo.test.ts`, `createX/index.test.ts`. [intent:65, intent:85]
+Vitest, split into two projects (root `vitest.config.ts` composes both):
 
-> **Project override.** This project uses `.test.ts`. The personal-rule default `.spec.ts` in `~/.claude/rules/quality.md` does not apply here — do not rename files to `.spec.ts`.
+- **`v0:unit`** — happy-dom (`packages/0/vitest.config.ts`). Runs every `*.test.ts`: all composable and utility tests, plus SSR (`*.ssr.test.ts`). [intent:84] This is the default substrate; reach for the browser project only when a test needs real DOM/layout/native APIs.
+- **`v0:browser`** — real Chromium via Playwright (`packages/0/vitest.browser.config.ts`). Runs every `*.browser.test.ts`: the component tests, which exercise native popover/dialog, focus, pointer, and layout behavior happy-dom can only fake.
+
+Colocated with source: `foo.ts → foo.test.ts`, composable `createX/index.test.ts`, component `Component/index.browser.test.ts`. [intent:65, intent:85]
+
+Commands: `pnpm --filter @vuetify/v0 test:unit`, `test:browser`, `test:open` (headed, bail-on-first). CI installs Chromium (`pnpm exec playwright install --with-deps chromium`) before `pnpm test:run`.
+
+> **Project override.** This project uses `.test.ts` (and `.browser.test.ts` for the browser project). The personal-rule default `.spec.ts` in `~/.claude/rules/quality.md` does not apply here — do not rename files to `.spec.ts`.
 
 ## Coverage Requirements
 
-- Every composable must have `index.test.ts`. [intent:219]
-- Every component must have `index.test.ts`. [intent:220]
+- Every composable must have `index.test.ts` (runs in `v0:unit` / happy-dom). [intent:219]
+- Every component must have `index.browser.test.ts` (runs in `v0:browser` / real Chromium). [intent:220]
 - Focus: edge cases, error conditions, async, SSR safety. [intent:86, intent:221]
 - Only write tests when explicitly asked — never proactively add test files. [intent:19]
 
@@ -137,17 +144,18 @@ afterEach(() => { scope?.stop() })
 
 ### Expected warnings
 
-When a test intentionally triggers a warning (error paths, duplicate registration), capture with `vi.spyOn` and **assert** it was called — never silently swallow. [intent:229]
+When a test intentionally triggers a warning (error paths, duplicate registration), capture with `using` + `vi.spyOn` and **assert** it was called — never silently swallow. The spy auto-restores when the block exits, so no manual `mockRestore()` is needed. [intent:229]
 
 ```ts
-const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
 // ... code that warns ...
 
 expect(spy).toHaveBeenCalledTimes(1)
 expect(spy).toHaveBeenCalledWith(expect.stringContaining('expected message'))
-spy.mockRestore()
 ```
+
+The `using` form relies on Vitest's `Symbol.dispose` integration (Vitest 3+) and TS `target: esnext`. Background: [TC39 Explicit Resource Management proposal](https://github.com/tc39/proposal-explicit-resource-management). Fall back to `const` + `spy.mockRestore()` only when the spy must outlive the enclosing block (e.g., set in `beforeEach`, asserted in `afterEach`).
 
 ### Vue DI mocks — `hasInjectionContext` extension
 
@@ -193,7 +201,7 @@ it('should fire handler after duration', () => {
 Component tests that exercise SSR safety wrap the component in a `defineComponent` and render it through `vue/server-renderer`. Assert against the returned HTML string, not a mounted wrapper.
 
 ```ts
-// packages/0/src/components/Atom/index.test.ts
+// packages/0/src/components/Atom/index.browser.test.ts
 it('should render to string on server without errors', async () => {
   const app = createSSRApp(defineComponent({
     render: () => h(Atom as unknown as Component, { as: 'div' }, () => 'Hello'),
@@ -222,6 +230,8 @@ it('should throw when called outside component in SSR', () => {
 ```
 
 ## Component Test Pattern
+
+Component tests live in `Component/index.browser.test.ts` and run in the `v0:browser` project (real Chromium). Mount with `@vue/test-utils` as below — the browser environment provides native `showPopover`/`showModal`/focus/pointer APIs, so do **not** stub them (the pre-browser happy-dom mocks have been removed). SSR-safety tests still use `renderToString` and stay valid in this project.
 
 ```ts
 interface MountResult {
@@ -316,7 +326,7 @@ Naming: sentence case with comma-formatted numbers: `'Get by id (1,000 items)'`.
 
 ## Checklist
 
-- [ ] File named `index.test.ts` and colocated with source
+- [ ] File named `index.test.ts` (composable/unit) or `index.browser.test.ts` (component), colocated with source
 - [ ] Imports: `beforeEach, describe, expect, it, vi` from vitest
 - [ ] All test names use `it('should ...')` (no new `it('returns ...')` callsites)
 - [ ] Refs unwrapped with `.value` in assertions

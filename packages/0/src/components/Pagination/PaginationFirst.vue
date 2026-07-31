@@ -47,7 +47,9 @@
       'disabled': boolean | undefined
       'tabindex': number
       'type': 'button' | undefined
+      'role': 'button' | undefined
       'onClick': () => void
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 
@@ -88,17 +90,26 @@
     pagination.first()
   }
 
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      first()
+    }
+  }
+
   const slotProps = toRef((): PaginationFirstSlotProps => ({
     isDisabled: isDisabled.value,
     first,
     attrs: {
-      'aria-label': locale.t('Pagination.first'),
+      'aria-label': locale.ti('Pagination.first') ?? 'First page',
       'aria-disabled': isDisabled.value,
       'data-disabled': isDisabled.value || undefined,
       'disabled': as === 'button' ? isDisabled.value : undefined,
       'tabindex': isDisabled.value ? -1 : 0,
       'type': as === 'button' ? 'button' : undefined,
+      'role': as === 'button' ? undefined : 'button',
       'onClick': first,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
 

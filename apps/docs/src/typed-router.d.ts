@@ -20,8 +20,9 @@ import type {
 
 declare module 'vue-router' {
   interface TypesConfig {
-    ParamParsers:
-      | never
+    _ParamParsers: {}
+    RouteNamedMap: import('vue-router/auto-routes').RouteNamedMap
+    _RouteFileInfoMap: import('vue-router/auto-routes')._RouteFileInfoMap
   }
 }
 
@@ -117,6 +118,13 @@ declare module 'vue-router/auto-routes' {
     '/components/disclosure/tabs': RouteRecordInfo<
       '/components/disclosure/tabs',
       '/components/disclosure/tabs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/disclosure/tooltip': RouteRecordInfo<
+      '/components/disclosure/tooltip',
+      '/components/disclosure/tooltip',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -345,6 +353,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/data/create-data-grid': RouteRecordInfo<
+      '/composables/data/create-data-grid',
+      '/composables/data/create-data-grid',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/data/create-data-table': RouteRecordInfo<
       '/composables/data/create-data-table',
       '/composables/data/create-data-table',
@@ -527,6 +542,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/plugins/use-reduced-motion': RouteRecordInfo<
+      '/composables/plugins/use-reduced-motion',
+      '/composables/plugins/use-reduced-motion',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/plugins/use-rtl': RouteRecordInfo<
       '/composables/plugins/use-rtl',
       '/composables/plugins/use-rtl',
@@ -558,6 +580,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-theme': RouteRecordInfo<
       '/composables/plugins/use-theme',
       '/composables/plugins/use-theme',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/plugins/use-tooltip': RouteRecordInfo<
+      '/composables/plugins/use-tooltip',
+      '/composables/plugins/use-tooltip',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -828,6 +857,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/essentials/glossary': RouteRecordInfo<
+      '/guide/essentials/glossary',
+      '/guide/essentials/glossary',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/essentials/using-the-docs': RouteRecordInfo<
       '/guide/essentials/using-the-docs',
       '/guide/essentials/using-the-docs',
@@ -947,6 +983,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/integration/compatibility': RouteRecordInfo<
+      '/guide/integration/compatibility',
+      '/guide/integration/compatibility',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/integration/devkey': RouteRecordInfo<
       '/guide/integration/devkey',
       '/guide/integration/devkey',
@@ -961,9 +1004,23 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/integration/vapor': RouteRecordInfo<
+      '/guide/integration/vapor',
+      '/guide/integration/vapor',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/tooling/ai-tools': RouteRecordInfo<
       '/guide/tooling/ai-tools',
       '/guide/tooling/ai-tools',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guide/tooling/testing': RouteRecordInfo<
+      '/guide/tooling/testing',
+      '/guide/tooling/testing',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1066,6 +1123,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/services': RouteRecordInfo<
+      '/services',
+      '/services',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/skillz/': RouteRecordInfo<
       '/skillz/',
       '/skillz',
@@ -1078,6 +1142,13 @@ declare module 'vue-router/auto-routes' {
       '/skillz/:id',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
+      | never
+    >,
+    '/sponsor': RouteRecordInfo<
+      '/sponsor',
+      '/sponsor',
+      Record<never, never>,
+      Record<never, never>,
       | never
     >,
   }
@@ -1098,17 +1169,23 @@ declare module 'vue-router/auto-routes' {
         | '/'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/[...path].vue': {
       routes:
         | '/[...path]'
       views:
         | never
+      pathParamNames:
+        | 'path'
     }
     'src/pages/api/index.md': {
       routes:
         | '/api/'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/api/[name].vue': {
@@ -1116,11 +1193,15 @@ declare module 'vue-router/auto-routes' {
         | '/api/[name]'
       views:
         | never
+      pathParamNames:
+        | 'name'
     }
     'src/pages/components/index.md': {
       routes:
         | '/components/'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/actions/button.md': {
@@ -1128,11 +1209,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/actions/button'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/actions/toggle.md': {
       routes:
         | '/components/actions/toggle'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/disclosure/alert-dialog.md': {
@@ -1140,11 +1225,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/disclosure/alert-dialog'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/disclosure/collapsible.md': {
       routes:
         | '/components/disclosure/collapsible'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/disclosure/dialog.md': {
@@ -1152,11 +1241,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/disclosure/dialog'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/disclosure/expansion-panel.md': {
       routes:
         | '/components/disclosure/expansion-panel'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/disclosure/popover.md': {
@@ -1164,11 +1257,23 @@ declare module 'vue-router/auto-routes' {
         | '/components/disclosure/popover'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/disclosure/tabs.md': {
       routes:
         | '/components/disclosure/tabs'
       views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/disclosure/tooltip.md': {
+      routes:
+        | '/components/disclosure/tooltip'
+      views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/disclosure/treeview.md': {
@@ -1176,11 +1281,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/disclosure/treeview'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/forms/checkbox.md': {
       routes:
         | '/components/forms/checkbox'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/forms/combobox.md': {
@@ -1188,11 +1297,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/forms/combobox'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/forms/form.md': {
       routes:
         | '/components/forms/form'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/forms/input.md': {
@@ -1200,11 +1313,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/forms/input'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/forms/number-field.md': {
       routes:
         | '/components/forms/number-field'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/forms/radio.md': {
@@ -1212,11 +1329,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/forms/radio'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/forms/rating.md': {
       routes:
         | '/components/forms/rating'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/forms/select.md': {
@@ -1224,11 +1345,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/forms/select'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/forms/slider.md': {
       routes:
         | '/components/forms/slider'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/forms/switch.md': {
@@ -1236,11 +1361,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/forms/switch'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/primitives/aspect-ratio.md': {
       routes:
         | '/components/primitives/aspect-ratio'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/primitives/atom.md': {
@@ -1248,11 +1377,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/primitives/atom'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/primitives/portal.md': {
       routes:
         | '/components/primitives/portal'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/primitives/presence.md': {
@@ -1260,11 +1393,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/primitives/presence'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/providers/group.md': {
       routes:
         | '/components/providers/group'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/providers/locale.md': {
@@ -1272,11 +1409,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/providers/locale'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/providers/scrim.md': {
       routes:
         | '/components/providers/scrim'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/providers/selection.md': {
@@ -1284,11 +1425,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/providers/selection'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/providers/single.md': {
       routes:
         | '/components/providers/single'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/providers/step.md': {
@@ -1296,11 +1441,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/providers/step'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/providers/theme.md': {
       routes:
         | '/components/providers/theme'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/semantic/avatar.md': {
@@ -1308,11 +1457,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/semantic/avatar'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/semantic/breadcrumbs.md': {
       routes:
         | '/components/semantic/breadcrumbs'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/semantic/carousel.md': {
@@ -1320,11 +1473,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/semantic/carousel'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/semantic/image.md': {
       routes:
         | '/components/semantic/image'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/semantic/overflow.md': {
@@ -1332,11 +1489,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/semantic/overflow'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/semantic/pagination.md': {
       routes:
         | '/components/semantic/pagination'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/semantic/progress.md': {
@@ -1344,11 +1505,15 @@ declare module 'vue-router/auto-routes' {
         | '/components/semantic/progress'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/components/semantic/snackbar.md': {
       routes:
         | '/components/semantic/snackbar'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/components/semantic/splitter.md': {
@@ -1356,11 +1521,23 @@ declare module 'vue-router/auto-routes' {
         | '/components/semantic/splitter'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/index.md': {
       routes:
         | '/composables/'
       views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/composables/data/create-data-grid.md': {
+      routes:
+        | '/composables/data/create-data-grid'
+      views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/data/create-data-table.md': {
@@ -1368,11 +1545,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/data/create-data-table'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/data/create-filter.md': {
       routes:
         | '/composables/data/create-filter'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/data/create-kanban.md': {
@@ -1380,11 +1561,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/data/create-kanban'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/data/create-pagination.md': {
       routes:
         | '/composables/data/create-pagination'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/data/create-sortable.md': {
@@ -1392,11 +1577,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/data/create-sortable'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/data/create-virtual.md': {
       routes:
         | '/composables/data/create-virtual'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/forms/create-combobox.md': {
@@ -1404,11 +1593,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/forms/create-combobox'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/forms/create-form.md': {
       routes:
         | '/composables/forms/create-form'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/forms/create-input.md': {
@@ -1416,11 +1609,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/forms/create-input'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/forms/create-number-field.md': {
       routes:
         | '/composables/forms/create-number-field'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/forms/create-numeric.md': {
@@ -1428,11 +1625,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/forms/create-numeric'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/forms/create-otp.md': {
       routes:
         | '/composables/forms/create-otp'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/forms/create-rating.md': {
@@ -1440,11 +1641,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/forms/create-rating'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/forms/create-slider.md': {
       routes:
         | '/composables/forms/create-slider'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/forms/create-validation.md': {
@@ -1452,11 +1657,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/forms/create-validation'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/foundation/create-context.md': {
       routes:
         | '/composables/foundation/create-context'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/foundation/create-plugin.md': {
@@ -1464,11 +1673,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/foundation/create-plugin'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/foundation/create-trinity.md': {
       routes:
         | '/composables/foundation/create-trinity'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/plugins/use-breakpoints.md': {
@@ -1476,11 +1689,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/plugins/use-breakpoints'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/plugins/use-date.md': {
       routes:
         | '/composables/plugins/use-date'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/plugins/use-features.md': {
@@ -1488,11 +1705,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/plugins/use-features'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/plugins/use-hydration.md': {
       routes:
         | '/composables/plugins/use-hydration'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/plugins/use-locale.md': {
@@ -1500,11 +1721,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/plugins/use-locale'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/plugins/use-logger.md': {
       routes:
         | '/composables/plugins/use-logger'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/plugins/use-notifications.md': {
@@ -1512,11 +1737,23 @@ declare module 'vue-router/auto-routes' {
         | '/composables/plugins/use-notifications'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/plugins/use-permissions.md': {
       routes:
         | '/composables/plugins/use-permissions'
       views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/composables/plugins/use-reduced-motion.md': {
+      routes:
+        | '/composables/plugins/use-reduced-motion'
+      views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/plugins/use-rtl.md': {
@@ -1524,11 +1761,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/plugins/use-rtl'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/plugins/use-rules.md': {
       routes:
         | '/composables/plugins/use-rules'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/plugins/use-stack.md': {
@@ -1536,11 +1777,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/plugins/use-stack'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/plugins/use-storage.md': {
       routes:
         | '/composables/plugins/use-storage'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/plugins/use-theme.md': {
@@ -1548,11 +1793,23 @@ declare module 'vue-router/auto-routes' {
         | '/composables/plugins/use-theme'
       views:
         | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/composables/plugins/use-tooltip.md': {
+      routes:
+        | '/composables/plugins/use-tooltip'
+      views:
+        | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/reactivity/use-proxy-model.md': {
       routes:
         | '/composables/reactivity/use-proxy-model'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/reactivity/use-proxy-registry.md': {
@@ -1560,11 +1817,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/reactivity/use-proxy-registry'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/registration/create-queue.md': {
       routes:
         | '/composables/registration/create-queue'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/registration/create-registry.md': {
@@ -1572,11 +1833,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/registration/create-registry'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/registration/create-timeline.md': {
       routes:
         | '/composables/registration/create-timeline'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/registration/create-tokens.md': {
@@ -1584,11 +1849,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/registration/create-tokens'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/selection/create-group.md': {
       routes:
         | '/composables/selection/create-group'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/selection/create-model.md': {
@@ -1596,11 +1865,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/selection/create-model'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/selection/create-nested.md': {
       routes:
         | '/composables/selection/create-nested'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/selection/create-selection.md': {
@@ -1608,11 +1881,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/selection/create-selection'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/selection/create-single.md': {
       routes:
         | '/composables/selection/create-single'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/selection/create-step.md': {
@@ -1620,11 +1897,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/selection/create-step'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/semantic/create-breadcrumbs.md': {
       routes:
         | '/composables/semantic/create-breadcrumbs'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/semantic/create-overflow.md': {
@@ -1632,11 +1913,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/semantic/create-overflow'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/semantic/create-progress.md': {
       routes:
         | '/composables/semantic/create-progress'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/system/use-click-outside.md': {
@@ -1644,11 +1929,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/system/use-click-outside'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/system/use-delay.md': {
       routes:
         | '/composables/system/use-delay'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/system/use-drag-drop.md': {
@@ -1656,11 +1945,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/system/use-drag-drop'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/system/use-event-listener.md': {
       routes:
         | '/composables/system/use-event-listener'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/system/use-hotkey.md': {
@@ -1668,11 +1961,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/system/use-hotkey'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/system/use-image.md': {
       routes:
         | '/composables/system/use-image'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/system/use-intersection-observer.md': {
@@ -1680,11 +1977,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/system/use-intersection-observer'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/system/use-lazy.md': {
       routes:
         | '/composables/system/use-lazy'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/system/use-media-query.md': {
@@ -1692,11 +1993,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/system/use-media-query'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/system/use-mutation-observer.md': {
       routes:
         | '/composables/system/use-mutation-observer'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/system/use-popover.md': {
@@ -1704,11 +2009,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/system/use-popover'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/system/use-presence.md': {
       routes:
         | '/composables/system/use-presence'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/system/use-raf.md': {
@@ -1716,11 +2025,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/system/use-raf'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/system/use-resize-observer.md': {
       routes:
         | '/composables/system/use-resize-observer'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/system/use-roving-focus.md': {
@@ -1728,11 +2041,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/system/use-roving-focus'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/system/use-timer.md': {
       routes:
         | '/composables/system/use-timer'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/system/use-toggle-scope.md': {
@@ -1740,11 +2057,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/system/use-toggle-scope'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/system/use-virtual-focus.md': {
       routes:
         | '/composables/system/use-virtual-focus'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/transformers/to-array.md': {
@@ -1752,11 +2073,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/transformers/to-array'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/transformers/to-element.md': {
       routes:
         | '/composables/transformers/to-element'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/composables/transformers/to-highlight.md': {
@@ -1764,11 +2089,15 @@ declare module 'vue-router/auto-routes' {
         | '/composables/transformers/to-highlight'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/composables/transformers/to-reactive.md': {
       routes:
         | '/composables/transformers/to-reactive'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/guide/index.md': {
@@ -1776,11 +2105,23 @@ declare module 'vue-router/auto-routes' {
         | '/guide/'
       views:
         | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/guide/essentials/glossary.md': {
+      routes:
+        | '/guide/essentials/glossary'
+      views:
+        | never
+      pathParamNames:
+        | never
     }
     'src/pages/guide/essentials/using-the-docs.md': {
       routes:
         | '/guide/essentials/using-the-docs'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/guide/features/accessibility.md': {
@@ -1788,11 +2129,15 @@ declare module 'vue-router/auto-routes' {
         | '/guide/features/accessibility'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/guide/features/constants.md': {
       routes:
         | '/guide/features/constants'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/guide/features/palettes.md': {
@@ -1800,11 +2145,15 @@ declare module 'vue-router/auto-routes' {
         | '/guide/features/palettes'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/guide/features/theming.md': {
       routes:
         | '/guide/features/theming'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/guide/features/types.md': {
@@ -1812,11 +2161,15 @@ declare module 'vue-router/auto-routes' {
         | '/guide/features/types'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/guide/features/utilities.md': {
       routes:
         | '/guide/features/utilities'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/guide/fundamentals/benchmarks.md': {
@@ -1824,11 +2177,15 @@ declare module 'vue-router/auto-routes' {
         | '/guide/fundamentals/benchmarks'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/guide/fundamentals/building-frameworks.md': {
       routes:
         | '/guide/fundamentals/building-frameworks'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/guide/fundamentals/components.md': {
@@ -1836,11 +2193,15 @@ declare module 'vue-router/auto-routes' {
         | '/guide/fundamentals/components'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/guide/fundamentals/composables.md': {
       routes:
         | '/guide/fundamentals/composables'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/guide/fundamentals/core.md': {
@@ -1848,11 +2209,15 @@ declare module 'vue-router/auto-routes' {
         | '/guide/fundamentals/core'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/guide/fundamentals/plugins.md': {
       routes:
         | '/guide/fundamentals/plugins'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/guide/fundamentals/reactivity.md': {
@@ -1860,11 +2225,15 @@ declare module 'vue-router/auto-routes' {
         | '/guide/fundamentals/reactivity'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/guide/fundamentals/styling.md': {
       routes:
         | '/guide/fundamentals/styling'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/guide/fundamentals/tree-shaking.md': {
@@ -1872,11 +2241,23 @@ declare module 'vue-router/auto-routes' {
         | '/guide/fundamentals/tree-shaking'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/guide/integration/building-docs.md': {
       routes:
         | '/guide/integration/building-docs'
       views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/guide/integration/compatibility.md': {
+      routes:
+        | '/guide/integration/compatibility'
+      views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/guide/integration/devkey.md': {
@@ -1884,11 +2265,23 @@ declare module 'vue-router/auto-routes' {
         | '/guide/integration/devkey'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/guide/integration/nuxt.md': {
       routes:
         | '/guide/integration/nuxt'
       views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/guide/integration/vapor.md': {
+      routes:
+        | '/guide/integration/vapor'
+      views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/guide/tooling/ai-tools.md': {
@@ -1896,11 +2289,23 @@ declare module 'vue-router/auto-routes' {
         | '/guide/tooling/ai-tools'
       views:
         | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/guide/tooling/testing.md': {
+      routes:
+        | '/guide/tooling/testing'
+      views:
+        | never
+      pathParamNames:
+        | never
     }
     'src/pages/guide/tooling/vuetify-cli.md': {
       routes:
         | '/guide/tooling/vuetify-cli'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/guide/tooling/vuetify-mcp.md': {
@@ -1908,11 +2313,15 @@ declare module 'vue-router/auto-routes' {
         | '/guide/tooling/vuetify-mcp'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/health.md': {
       routes:
         | '/health'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/introduction/browser-support.md': {
@@ -1920,11 +2329,15 @@ declare module 'vue-router/auto-routes' {
         | '/introduction/browser-support'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/introduction/code-of-conduct.md': {
       routes:
         | '/introduction/code-of-conduct'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/introduction/contributing.md': {
@@ -1932,11 +2345,15 @@ declare module 'vue-router/auto-routes' {
         | '/introduction/contributing'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/introduction/frequently-asked.md': {
       routes:
         | '/introduction/frequently-asked'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/introduction/getting-started.md': {
@@ -1944,11 +2361,15 @@ declare module 'vue-router/auto-routes' {
         | '/introduction/getting-started'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/introduction/license.md': {
       routes:
         | '/introduction/license'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/introduction/security.md': {
@@ -1956,11 +2377,15 @@ declare module 'vue-router/auto-routes' {
         | '/introduction/security'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/introduction/why-vuetify0.md': {
       routes:
         | '/introduction/why-vuetify0'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/playground.vue': {
@@ -1968,11 +2393,15 @@ declare module 'vue-router/auto-routes' {
         | '/playground'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/releases.md': {
       routes:
         | '/releases'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/roadmap.md': {
@@ -1980,17 +2409,39 @@ declare module 'vue-router/auto-routes' {
         | '/roadmap'
       views:
         | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/services.md': {
+      routes:
+        | '/services'
+      views:
+        | never
+      pathParamNames:
+        | never
     }
     'src/pages/skillz/index.md': {
       routes:
         | '/skillz/'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/skillz.[id].vue': {
       routes:
         | '/skillz.[id]'
       views:
+        | never
+      pathParamNames:
+        | 'id'
+    }
+    'src/pages/sponsor.md': {
+      routes:
+        | '/sponsor'
+      views:
+        | never
+      pathParamNames:
         | never
     }
   }

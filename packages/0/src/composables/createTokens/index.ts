@@ -10,10 +10,10 @@
  * - Alias resolution with circular reference detection
  * - Nested token flattening with dot notation
  * - W3C Design Tokens format ($value, $type, $description, $extensions)
- * - Path-based resolution (e.g., {colors}.blue.500)
- * - Resolution caching for performance (~28,590 ops/sec)
+ * - Path-based resolution (e.g., {colors.blue.500} or colors.blue.500)
+ * - Resolution caching for performance
  *
- * Used by useTheme, useLocale, and useFeatures for token-based configuration.
+ * Used by useTheme, useLocale, useFeatures, and usePermissions for token-based configuration.
  *
  * @example
  * ```ts
@@ -33,12 +33,11 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { isObject, isString, isUndefined } from '#v0/utilities'
+import { isObject, isString, isUndefined, UNSAFE_KEYS } from '#v0/utilities'
 
 // Types
 import type { RegistryContext, RegistryContextOptions, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { ID } from '#v0/types'
 
 export interface TokenAlias<T = unknown> {
   [key: string]: unknown
@@ -51,7 +50,7 @@ export interface TokenAlias<T = unknown> {
 
 export type TokenPrimitive = string | number | boolean | null | Function
 
-export type TokenValue = TokenPrimitive | TokenAlias
+export type TokenValue = TokenPrimitive | TokenAlias | TokenCollection
 
 export interface TokenCollection {
   [key: string]: TokenValue | TokenCollection
@@ -110,7 +109,7 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
    * console.log(tokens.resolve('{colors.secondary}')) // '#3b82f6'
    * ```
    */
-  resolve: (token: string | TokenAlias) => unknown | undefined
+  resolve: <T = unknown>(token: string | TokenAlias) => T | undefined
 }
 
 export interface TokenOptions extends RegistryOptions {
@@ -167,9 +166,22 @@ export function createTokens<
   options: TokenOptions = {},
 ): E {
   const logger = useLogger()
-  const registry = createRegistry<Z>(options)
+  const registry = createRegistry<Z>({ ...options, events: true })
 
   const cache = new Map<string, unknown | undefined>()
+
+  // Invalidate the resolution cache on any structural mutation, including a
+  // ticket's own `unregister()` — subscribing covers every path uniformly,
+  // whereas wrapping the context methods misses ticket-level self-removal.
+  function invalidate () {
+    cache.clear()
+  }
+
+  registry.on('register:ticket', invalidate)
+  registry.on('unregister:ticket', invalidate)
+  registry.on('update:ticket', invalidate)
+  registry.on('reindex:registry', invalidate)
+  registry.on('clear:registry', invalidate)
 
   registry.onboard(flatten(tokens, options.prefix, !!options.flat) as Partial<Z>[])
 
@@ -188,6 +200,14 @@ export function createTokens<
 
     const reference: unknown = isTokenAlias(token) ? token.$value : token
     const isAliasReference = isString(reference) && isAlias(reference)
+
+    // A TokenAlias passed directly carries its own value: only a brace-alias
+    // $value needs further resolution — a literal or object $value is the value.
+    if (isTokenAlias(token) && !isAliasReference) {
+      cache.set(cacheKey, reference)
+      return reference
+    }
+
     const clean = isAliasReference ? reference.slice(1, -1) : String(reference)
 
     // Detect circular references
@@ -225,14 +245,13 @@ export function createTokens<
       return undefined
     }
 
-    let result: unknown | undefined
     let current: unknown = found.value
 
     if (segments.length > 0) {
       if (isTokenAlias(current)) current = current.$value
 
       for (const segment of segments) {
-        if (!isObject(current) || !(segment in current)) {
+        if (!isObject(current) || UNSAFE_KEYS.has(segment) || !Object.prototype.hasOwnProperty.call(current, segment)) {
           current = undefined
           break
         }
@@ -247,79 +266,23 @@ export function createTokens<
         cache.set(cacheKey, undefined)
         return undefined
       }
-
-      result = current
-    } else {
-      if (isTokenAlias(current)) {
-        const inner = current.$value
-        if (isString(inner) && isAlias(inner)) return resolve(inner as string, visited)
-        result = inner
-      } else if (isString(current) && isAlias(current)) {
-        return resolve(current, visited)
-      } else {
-        result = current
-      }
+    } else if (isTokenAlias(current)) {
+      current = current.$value
     }
+
+    // A terminal string alias resolves one more hop, whether it came from a
+    // segment walk or a leaf value; anything else is the resolved result.
+    const result: unknown = isString(current) && isAlias(current)
+      ? resolve(current, visited)
+      : current
 
     cache.set(cacheKey, result)
 
     return result
   }
 
-  const {
-    register: _register,
-    upsert: _upsert,
-    unregister: _unregister,
-    onboard: _onboard,
-    offboard: _offboard,
-    move: _move,
-    clear: _clear,
-  } = registry
-
-  function register (registration: Partial<Z>) {
-    cache.clear()
-    return _register(registration)
-  }
-
-  function upsert (id: string, registration: Partial<Z>) {
-    cache.clear()
-    return _upsert(id, registration)
-  }
-
-  function unregister (id: string) {
-    cache.clear()
-    return _unregister(id)
-  }
-
-  function onboard (registrations: Partial<Z>[]) {
-    cache.clear()
-    return _onboard(registrations)
-  }
-
-  function offboard (ids: ID[]) {
-    cache.clear()
-    return _offboard(ids)
-  }
-
-  function move (id: string, index: number) {
-    cache.clear()
-    return _move(id, index)
-  }
-
-  function clear () {
-    cache.clear()
-    return _clear()
-  }
-
   return {
     ...registry,
-    register,
-    upsert,
-    unregister,
-    onboard,
-    offboard,
-    move,
-    clear,
     resolve,
     isAlias,
     get size () {
@@ -331,8 +294,7 @@ export function createTokens<
 /**
  * Creates a new token context.
  *
- * @param namespace The namespace for the token context.
- * @param tokens The tokens to use.
+ * @param options The options for the token context.
  * @template Z The type of the token ticket.
  * @template E The type of the token context.
  * @returns A new token context.
@@ -405,6 +367,7 @@ export function flatten (tokens: TokenCollection, prefix = '', flat = false): Fl
 
     const meta: Record<string, unknown> = {}
     for (const k in currentTokens) {
+      if (!Object.hasOwn(currentTokens, k)) continue
       if (k.startsWith('$')) meta[k] = (currentTokens as Record<string, unknown>)[k]
     }
 
@@ -413,6 +376,11 @@ export function flatten (tokens: TokenCollection, prefix = '', flat = false): Fl
     }
 
     for (const key in currentTokens) {
+      // Skip inherited keys and prototype-pollution sinks so a polluted
+      // Object.prototype (or a caller-supplied `constructor`/`prototype` token)
+      // can't leak in as a registered token id. Mirrors mergeDeep.
+      if (!Object.hasOwn(currentTokens, key)) continue
+      if (UNSAFE_KEYS.has(key)) continue
       if (key.startsWith('$')) continue
 
       const value = (currentTokens as Record<string, unknown>)[key]
@@ -426,12 +394,16 @@ export function flatten (tokens: TokenCollection, prefix = '', flat = false): Fl
       if ('$value' in value) {
         flattened.push({ id, value: value as TokenAlias })
 
-        const inner = value.$value
+        // Pinned to unknown: isObject's index type is `any`, so reading through
+        // it unpinned would make the guards below compile-optional.
+        const inner: unknown = value.$value
         if (isObject(inner) && !flat) {
           for (const innerKey in inner) {
+            if (!Object.hasOwn(inner, innerKey)) continue
+            if (UNSAFE_KEYS.has(innerKey)) continue
             if (innerKey.startsWith('$')) continue
 
-            const child = inner[innerKey]
+            const child: unknown = inner[innerKey]
             const childId = `${id}.${innerKey}`
             if (!isObject(child)) {
               flattened.push({ id: childId, value: child as string | boolean | number })
@@ -446,7 +418,7 @@ export function flatten (tokens: TokenCollection, prefix = '', flat = false): Fl
       }
 
       if (flat) {
-        flattened.push({ id, value: value as unknown as TokenValue })
+        flattened.push({ id, value: value as TokenValue })
         continue
       }
 

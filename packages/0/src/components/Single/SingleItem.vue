@@ -79,6 +79,14 @@
   const ticket = single.register({ id, value, disabled: () => toValue(disabled) ?? false })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(single.disabled))
 
+  // ticket.toggle() routes to unselect for a selected item, which honours only
+  // the group's disabled (not the ticket's) — guard so a disabled item can't be
+  // toggled off via click. Per the enforced components.md handler rule.
+  function onClick () {
+    if (toValue(isDisabled)) return
+    ticket.toggle()
+  }
+
   onBeforeUnmount(() => {
     single.unregister(ticket.id)
   })
@@ -97,7 +105,7 @@
       'aria-disabled': toValue(isDisabled),
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-disabled': toValue(isDisabled) || undefined,
-      'onClick': ticket.toggle,
+      'onClick': onClick,
     },
   }))
 </script>

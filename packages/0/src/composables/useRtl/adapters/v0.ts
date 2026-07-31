@@ -6,11 +6,25 @@ import { RtlAdapter } from './adapter'
 
 // Utilities
 import { isNull, isString } from '#v0/utilities'
-import { onScopeDispose, watch } from 'vue'
+import { watch } from 'vue'
 
 // Types
 import type { RtlAdapterSetupContext } from './adapter'
 import type { App } from 'vue'
+
+// Structural @unhead seam — duck-typed so v0 takes no dependency on @unhead types.
+interface RtlHeadInput {
+  htmlAttrs: { dir: 'ltr' | 'rtl' }
+}
+
+interface HeadEntry {
+  dispose?: () => void
+  patch?: (input: RtlHeadInput) => void
+}
+
+interface Head {
+  push: (input: RtlHeadInput) => HeadEntry
+}
 
 export class V0RtlAdapter extends RtlAdapter {
   setup <T extends RtlAdapterSetupContext>(
@@ -31,20 +45,19 @@ export class V0RtlAdapter extends RtlAdapter {
 
       targetEl.dir = context.isRtl.value ? 'rtl' : 'ltr'
 
-      const stop = watch(context.isRtl, value => {
+      this.dispose = watch(context.isRtl, value => {
         targetEl.dir = value ? 'rtl' : 'ltr'
       })
-
-      onScopeDispose(stop, true)
     } else {
-      const head = app._context?.provides?.usehead ?? app._context?.provides?.head
+      const head = (app._context?.provides?.usehead ?? app._context?.provides?.head) as Head | undefined
 
       if (head?.push) {
-        head.push({
-          htmlAttrs: {
-            dir: context.isRtl.value ? 'rtl' : 'ltr',
-          },
-        })
+        const entry = head.push({ htmlAttrs: { dir: context.isRtl.value ? 'rtl' : 'ltr' } })
+        const stop = watch(context.isRtl, rtl => entry.patch?.({ htmlAttrs: { dir: rtl ? 'rtl' : 'ltr' } }))
+        this.dispose = () => {
+          stop()
+          entry.dispose?.()
+        }
       }
     }
   }

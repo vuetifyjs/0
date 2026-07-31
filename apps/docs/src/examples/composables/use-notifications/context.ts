@@ -1,9 +1,9 @@
 import { createContext, createNotifications } from '@vuetify/v0'
-import type { NotificationsContext, NotificationInput } from '@vuetify/v0'
+import type { NotificationsContext, NotificationTicketInput } from '@vuetify/v0'
 
 export type NotificationType = 'banner' | 'toast' | 'inline' | 'inbox'
 
-export interface AppNotificationInput extends NotificationInput {
+export interface AppNotificationInput extends NotificationTicketInput {
   data?: { [key: string]: unknown, type?: NotificationType }
 }
 

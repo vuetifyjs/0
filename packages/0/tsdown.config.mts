@@ -4,8 +4,8 @@ import Vue from 'unplugin-vue/rolldown'
 
 import pkg from './package.json' with { type: 'json' }
 
-const at = fileURLToPath(new URL('../src', import.meta.url))
-const v0 = fileURLToPath(new URL('../../0/src', import.meta.url))
+const at = fileURLToPath(new URL('src', import.meta.url))
+const v0 = fileURLToPath(new URL('src', import.meta.url))
 const __VERSION__ = JSON.stringify(pkg.version)
 
 export default defineConfig([{
@@ -13,7 +13,9 @@ export default defineConfig([{
     Vue({ isProduction: true }),
   ],
   platform: 'browser',
-  dts: false,
+  dts: {
+    vue: true,
+  },
   define: {
     __DEV__: 'false',
     __VITE_LOGGER_ENABLED__: 'false',
@@ -44,7 +46,7 @@ export default defineConfig([{
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
     __VERSION__,
   },
-  entry: ['./src/*/index.ts', './src/*/adapters/**/index.ts', './src/palettes/**/index.ts', './src/index.ts'],
+  entry: ['./src/*/index.ts', './src/*/adapters/**/index.ts', './src/locale/messages/*/index.ts', './src/palettes/**/index.ts', './src/index.ts'],
   name: 'vuetify/v0',
   exports: {
     devExports: 'development',

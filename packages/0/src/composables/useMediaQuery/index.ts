@@ -29,7 +29,7 @@
 // Composables
 import { useHydration } from '#v0/composables/useHydration'
 
-// Constants
+// Globals
 import { IN_BROWSER, SUPPORTS_MATCH_MEDIA } from '#v0/constants/globals'
 
 // Utilities

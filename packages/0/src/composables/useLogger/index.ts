@@ -34,6 +34,9 @@ import { V0LoggerAdapter } from '#v0/composables/useLogger/adapters'
 // Globals
 import { __LOGGER_ENABLED__, IN_BROWSER } from '#v0/constants/globals'
 
+// Utilities
+import { isUndefined } from '#v0/utilities'
+
 // Types
 import type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
 import type { LogLevel } from '#v0/composables/useLogger/types'
@@ -191,9 +194,11 @@ export function createLogger (options: LoggerOptions = {}): LoggerContext {
   } as LoggerContext
 }
 
+const NAMESPACE = 'v0:logger'
+
 // PHILOSOPHY §9.2 Layer-0 exception: this IS the logger bootstrap —
 // useLogger() here would be infinite recursion.
-function createFallbackLogger (namespace = 'v0:logger'): LoggerContext {
+function createFallbackLogger (namespace = NAMESPACE): LoggerContext {
   function format (message: string, type: string): string {
     return `[${namespace} ${type}] ${message}`
   }
@@ -232,9 +237,9 @@ function createFallbackLogger (namespace = 'v0:logger'): LoggerContext {
  * })
  * ```
  */
-export const [createLoggerContext, createLoggerPlugin, useLogger] =
+const [createLoggerContext, createLoggerPlugin, useLoggerContext] =
   createPluginContext<LoggerContextOptions, LoggerContext>(
-    'v0:logger',
+    NAMESPACE,
     options => createLogger(options),
     {
       fallback: ns => createFallbackLogger(ns),
@@ -245,3 +250,56 @@ export const [createLoggerContext, createLoggerPlugin, useLogger] =
       },
     },
   )
+
+export { createLoggerContext, createLoggerPlugin }
+
+// Wraps a resolved logger so every message carries a `[scope]` segment after the
+// plugin prefix. Level gating, enable/disable, and the adapter are delegated to the
+// shared instance via spread, so a scoped logger never diverges from its parent.
+function createScopedLogger (logger: LoggerContext, scope: string): LoggerContext {
+  const tag = `[${scope}]`
+
+  function wrap (method: (message: string, ...args: unknown[]) => void) {
+    return (message: string, ...args: unknown[]) => method(`${tag} ${message}`, ...args)
+  }
+
+  return {
+    ...logger,
+    debug: wrap(logger.debug),
+    info: wrap(logger.info),
+    warn: wrap(logger.warn),
+    error: wrap(logger.error),
+    trace: wrap(logger.trace),
+    fatal: wrap(logger.fatal),
+  }
+}
+
+/**
+ * Consumes the application logger provided by `createLoggerPlugin`.
+ *
+ * Call with no argument to use the configured logger as-is. Pass a scope key to get a
+ * logger that prefixes every message with a `[scope]` segment after the plugin prefix —
+ * useful for telling apart output from composables that share the app-level logger. A
+ * scoped logger shares the underlying logger's level, enabled state, and adapter; only
+ * the message prefix differs. A blank scope is treated as no scope.
+ *
+ * @param scope Optional per-caller scope key prefixed onto every message.
+ * @returns The application logger, or a scoped wrapper around it.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-logger
+ *
+ * @example
+ * ```ts
+ * import { useLogger } from '@vuetify/v0'
+ *
+ * const logger = useLogger('createKanban')
+ *
+ * logger.warn('drop rejected')
+ * // → [v0 warn] [createKanban] drop rejected
+ * ```
+ */
+export function useLogger (scope?: string): LoggerContext {
+  const logger = useLoggerContext()
+
+  return isUndefined(scope) || !scope.trim() ? logger : createScopedLogger(logger, scope)
+}

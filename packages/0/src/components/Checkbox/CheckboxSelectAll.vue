@@ -61,6 +61,8 @@
       'tabindex': 0 | undefined
       'data-state': CheckboxState
       'data-disabled': true | undefined
+      'onClick': () => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
   }
 </script>
@@ -159,6 +161,8 @@
       'tabindex': isDisabled.value ? undefined : 0,
       'data-state': dataState.value,
       'data-disabled': isDisabled.value ? true : undefined,
+      onClick,
+      onKeydown,
     },
   }))
 </script>
@@ -168,8 +172,6 @@
     v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
-    @click="onClick"
-    @keydown="onKeydown"
   >
     <slot v-bind="slotProps" />
   </Atom>

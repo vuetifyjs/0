@@ -39,7 +39,15 @@
     /** Whether the dropdown is open */
     isOpen: boolean
     /** Attributes to bind to the content element */
-    attrs: Record<string, unknown>
+    attrs: {
+      'id': string
+      'popover': ''
+      'role': 'listbox'
+      'aria-labelledby': string
+      'aria-multiselectable': true | undefined
+      'tabindex': -1
+      'style': Record<string, string>
+    }
   }
 </script>
 
@@ -53,6 +61,7 @@
   const {
     as = 'div',
     namespace = 'v0:select',
+    renderless,
     eager = false,
   } = defineProps<SelectContentProps>()
 
@@ -69,20 +78,20 @@
       ...context.popover.contentAttrs.value,
       'id': context.listboxId,
       'role': 'listbox',
+      'aria-labelledby': context.activatorId,
       'aria-multiselectable': context.multiple || undefined,
       'tabindex': -1,
+      'style': context.popover.contentStyles.value,
     },
   }))
-
-  const style = toRef(() => context.popover.contentStyles.value)
 </script>
 
 <template>
   <Atom
     ref="content"
-    v-bind="slotProps.attrs"
     :as
-    :style
+    :renderless
+    v-bind="slotProps.attrs"
   >
     <slot v-if="hasContent" v-bind="slotProps" />
   </Atom>

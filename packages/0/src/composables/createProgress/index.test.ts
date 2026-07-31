@@ -74,6 +74,14 @@ describe('createProgress', () => {
       const ticket = progress.register()
       expect(ticket.id).toBeDefined()
     })
+
+    it('should track size for segments registered after creation', () => {
+      const progress = setup()
+      progress.register()
+      progress.register()
+      progress.register()
+      expect(progress.size).toBe(3)
+    })
   })
 
   describe('total', () => {
@@ -191,6 +199,15 @@ describe('createProgress', () => {
       const progress = setup({ min: 0, max: 100 })
       expect(progress.fromValue(150)).toBe(100)
       expect(progress.fromValue(-10)).toBe(0)
+    })
+
+    it('should handle custom min/max', () => {
+      const progress = setup({ min: 20, max: 80 })
+      expect(progress.fromValue(20)).toBe(0)
+      expect(progress.fromValue(50)).toBe(50)
+      expect(progress.fromValue(80)).toBe(100)
+      expect(progress.fromValue(10)).toBe(0)
+      expect(progress.fromValue(90)).toBe(100)
     })
 
     it('should return 0 when extent is zero', () => {

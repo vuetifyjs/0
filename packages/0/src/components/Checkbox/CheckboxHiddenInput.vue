@@ -46,19 +46,19 @@
 
   const {
     namespace = 'v0:checkbox:root',
-    name: nameProp,
-    value: valueProp,
-    form: formProp,
+    name: _name,
+    value: _value,
+    form: _form,
   } = defineProps<CheckboxHiddenInputProps>()
 
   const root = useCheckboxRoot(namespace)
 
-  const name = toRef(() => nameProp ?? root.name)
-  const form = toRef(() => formProp ?? root.form)
+  const name = toRef(() => _name ?? root.name)
+  const form = toRef(() => _form ?? root.form)
 
   // Serialize complex values for form submission - objects become JSON strings
   const value = toRef(() => {
-    const v = valueProp ?? root.value ?? 'on'
+    const v = _value ?? root.value ?? 'on'
     if (isNullOrUndefined(v)) return 'on'
     if (isObject(v)) return JSON.stringify(v)
     return String(v)

@@ -44,9 +44,10 @@ import { instanceExists, isFunction } from '#v0/utilities'
 import type { FormValidationRule } from '#v0/composables/createForm'
 import type { StandardSchemaV1 } from './adapters/standard'
 
-export type { FormValidationRule } from '#v0/composables/createForm'
-export type { StandardSchemaV1 } from './adapters/standard'
+// Exports
 export { isStandardSchema } from './adapters/standard'
+
+export type { StandardSchemaV1 } from './adapters/standard'
 
 /** A rule alias: a string name referencing a registered predicate. */
 export type RuleAlias = string

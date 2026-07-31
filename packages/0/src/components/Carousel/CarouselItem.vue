@@ -128,7 +128,7 @@
       'id': `${carousel.rootId}-slide-${ticket.index}`,
       'role': 'group',
       'aria-roledescription': 'slide',
-      'aria-label': locale.t('Carousel.slide', { current: ticket.index + 1, size: carousel.size }),
+      'aria-label': locale.ti('Carousel.slide', { current: ticket.index + 1, size: carousel.size }) ?? `Slide ${ticket.index + 1} of ${carousel.size}`,
       'aria-hidden': isActive.value ? undefined : true,
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-active': isActive.value || undefined,

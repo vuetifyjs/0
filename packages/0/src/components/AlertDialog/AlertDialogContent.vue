@@ -50,6 +50,9 @@
       'aria-modal': 'true'
       'aria-labelledby': string
       'aria-describedby': string
+      'style': { zIndex: number }
+      'onCancel': (e: Event) => void
+      'onClose': (e: Event) => void
     }
   }
 </script>
@@ -81,6 +84,7 @@
     closeOnClickOutside = false,
     closeOnEscape = false,
     blocking = false,
+    renderless,
   } = defineProps<AlertDialogContentProps>()
 
   const emit = defineEmits<AlertDialogContentEmits>()
@@ -93,7 +97,8 @@
   const stack = useStack()
   const ticket = stack.register({
     onDismiss: () => context.close(),
-    blocking,
+    blocking: () => blocking,
+    el: () => contentRef.value?.element,
   })
 
   watch(context.isOpen, isOpen => {
@@ -149,8 +154,6 @@
     emit('close', e)
   }
 
-  const styles = toRef(() => ({ zIndex: ticket.zIndex.value }))
-
   const slotProps = toRef((): AlertDialogContentSlotProps => ({
     isOpen: context.isOpen.value,
     globalTop: ticket.globalTop.value,
@@ -161,6 +164,9 @@
       'aria-modal': 'true',
       'aria-labelledby': context.titleId,
       'aria-describedby': context.descriptionId,
+      'style': { zIndex: ticket.zIndex.value },
+      'onCancel': onCancel,
+      'onClose': onClose,
     },
   }))
 </script>
@@ -169,10 +175,8 @@
   <Atom
     ref="content"
     :as
-    :style="styles"
+    :renderless
     v-bind="slotProps.attrs"
-    @cancel="onCancel"
-    @close="onClose"
   >
     <slot v-bind="slotProps" />
   </Atom>

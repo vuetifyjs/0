@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs'
 import { glob } from 'node:fs/promises'
 import { dirname, join, relative } from 'node:path'
 
@@ -21,17 +21,20 @@ export default function copyMarkdownPlugin (): Plugin {
         copyFileSync(file, destPath)
       }
 
-      // Copy SKILL.md and references from skills/vuetify0 to dist root
+      // Copy SKILL.md and every reference it links from skills/vuetify0 to
+      // dist root — a partial copy ships a skill with dead relative links
       const skillBase = '../../skills/vuetify0'
       const skillSrc = join(skillBase, 'SKILL.md')
-      const refSrc = join(skillBase, 'references/REFERENCE.md')
+      const refsDir = join(skillBase, 'references')
       const skillDest = join(outDir, 'SKILL.md')
-      const refDest = join(outDir, 'references/REFERENCE.md')
       if (existsSync(skillSrc)) {
         copyFileSync(skillSrc, skillDest)
-        if (existsSync(refSrc)) {
+        if (existsSync(refsDir)) {
           mkdirSync(join(outDir, 'references'), { recursive: true })
-          copyFileSync(refSrc, refDest)
+          for (const ref of readdirSync(refsDir)) {
+            if (!ref.endsWith('.md')) continue
+            copyFileSync(join(refsDir, ref), join(outDir, 'references', ref))
+          }
         }
         console.log(`[copy-markdown] Copied ${files.length} markdown files + SKILL.md`)
       } else {

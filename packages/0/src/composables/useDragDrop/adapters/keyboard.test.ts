@@ -406,7 +406,7 @@ describe('keyboardAdapter', () => {
 
   describe('start guards', () => {
     it('should warn and short-circuit when located ticket has null el', () => {
-      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const adapter = new KeyboardAdapter()
       const start = vi.fn()
@@ -441,7 +441,6 @@ describe('keyboardAdapter', () => {
 
       stub.dispose()
       adapter.dispose()
-      warn.mockRestore()
     })
   })
 })

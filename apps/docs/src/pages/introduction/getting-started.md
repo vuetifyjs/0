@@ -129,7 +129,7 @@ bun add @vuetify/v0
 
 Create a plugin file to configure v0:
 
-```ts src/plugins/vuetify0.ts
+```ts src/plugins/vuetify0.ts collapse
 import { createThemePlugin } from '@vuetify/v0'
 import type { App } from 'vue'
 
@@ -167,7 +167,7 @@ vuetify0(app)
 app.mount('#app')
 ```
 
-> [!INFO]
+> [!NOTE]
 > For additional plugins, theming options, and advanced configuration, see the [Guide](/guide).
 
 ## Requirements
@@ -179,7 +179,7 @@ app.mount('#app')
 
 Import and use components directly - no plugin installation required:
 
-```vue QuickStart.vue playground no-filename
+```vue QuickStart.vue playground no-filename collapse
 <script setup lang="ts">
   import { ExpansionPanel } from '@vuetify/v0'
   import { shallowRef } from 'vue'
@@ -451,6 +451,7 @@ The following export paths exist for the Vuetify0 framework:
 | `@vuetify/v0/composables` | Composables only. |
 | `@vuetify/v0/utilities` | Utilities only. |
 | `@vuetify/v0/constants` | Constants only (not included in main entry). |
+| `@vuetify/v0/locale/messages/en` | Optional canonical English aria-string map for component accessible names. Never imported by the runtime. |
 
 ```ts
 // Everything
@@ -482,5 +483,14 @@ Now that v0 is installed, choose your path:
 
 > [!TIP]
 > Use `Cmd+/` on any documentation page to ask AI questions about v0.
+
+> [!TOUR] using-search
+
+## Support v0
+
+v0 is built and maintained in the open. If it's useful to you or your team, sponsoring funds the work and keeps it moving — and need a hand shipping? The [Services](/services) page covers direct support plans and fixed-scope project builds.
+
+::: sponsor
+:::
 
 > [!DISCORD]

@@ -26,6 +26,7 @@
  * ```
  */
 
+// Composables
 import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
@@ -81,9 +82,9 @@ export interface PaginationOptions {
   itemsPerPage?: MaybeRefOrGetter<number>
   /** Total number of items. @default 0 */
   size?: MaybeRefOrGetter<number>
-  /** Maximum visible page buttons. @default 5 */
+  /** Maximum visible page buttons. @default 7 */
   visible?: MaybeRefOrGetter<number>
-  /** Ellipsis character. @default '…' */
+  /** Ellipsis character. @default '...' */
   ellipsis?: string | false
 }
 

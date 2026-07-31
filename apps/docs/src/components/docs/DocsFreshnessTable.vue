@@ -25,17 +25,21 @@
   ]
 
   const table = createDataTable<PageFreshness>({
-    items: pages,
-    columns: [
-      { key: 'path', title: 'Page', sortable: true, filterable: true },
-      { key: 'category', title: 'Category', sortable: true, filterable: true },
-      { key: 'updated', title: 'Last updated', sortable: true },
-      { key: 'ageMs', title: 'Age', sortable: true },
-    ],
-    itemValue: 'path',
     firstSortOrder: 'desc',
     pagination: { itemsPerPage: pageSize.value },
   })
+
+  table.columns.onboard([
+    { id: 'path', title: 'Page', sortable: true, filterable: true },
+    { id: 'category', title: 'Category', sortable: true, filterable: true },
+    { id: 'updated', title: 'Last updated', sortable: true },
+    { id: 'ageMs', title: 'Age', sortable: true },
+  ])
+
+  watch(pages, list => {
+    table.clear()
+    table.onboard(list.map(page => ({ id: page.path, value: page })))
+  }, { immediate: true })
 
   table.sort.toggle('ageMs')
 
@@ -43,10 +47,6 @@
     table.pagination.itemsPerPage = value
     table.pagination.first()
   })
-
-  function onSearch (event: Event) {
-    table.search((event.target as HTMLInputElement).value)
-  }
 
   function formatAge (ms: number): string {
     const days = Math.round(ms / DAY_MS)
@@ -75,13 +75,12 @@
     </header>
 
     <div class="flex items-center gap-2 mb-4">
-      <input
-        class="flex-1 px-4 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm placeholder-on-surface-variant/50 outline-none transition-colors focus:border-primary"
+      <DocsSearchInput
+        class="flex-1"
+        :model-value="table.query.value"
         placeholder="Search by page or category..."
-        type="text"
-        :value="table.query.value"
-        @input="onSearch"
-      >
+        @update:model-value="table.search($event)"
+      />
 
       <Select.Root v-model="pageSize">
         <Select.Activator class="flex items-center gap-2 min-w-[140px] px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
@@ -90,12 +89,7 @@
           </Select.Value>
 
           <Select.Cue v-slot="{ isOpen }" class="inline-flex items-center opacity-60">
-            <AppIcon
-              class="transition-transform"
-              :class="isOpen ? '-rotate-90' : 'rotate-90'"
-              icon="chevron-right"
-              :size="14"
-            />
+            <AppChevron :open="isOpen" :size="14" vertical />
           </Select.Cue>
         </Select.Activator>
 
@@ -131,15 +125,15 @@
           <thead class="bg-surface-variant-50 text-left">
             <tr>
               <th
-                v-for="col in table.columns"
-                :key="col.key"
+                v-for="col in table.leaves.value"
+                :key="col.id"
                 class="px-3 py-2 font-medium text-on-surface-variant cursor-pointer select-none"
-                @click="col.sortable && table.sort.toggle(col.key)"
+                @click="col.sortable && table.sort.toggle(col.id)"
               >
                 <span class="inline-flex items-center gap-1">
                   {{ col.title }}
                   <AppIcon
-                    v-if="table.sort.columns.value[0]?.key === col.key"
+                    v-if="table.sort.columns.value[0]?.key === col.id"
                     aria-hidden="true"
                     class="transition-transform"
                     :class="table.sort.columns.value[0]?.direction === 'asc' ? '-rotate-90' : 'rotate-90'"

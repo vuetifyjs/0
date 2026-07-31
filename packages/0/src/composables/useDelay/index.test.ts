@@ -382,7 +382,7 @@ describe('useDelay', () => {
     })
 
     it('should be readonly at the type boundary', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const delay = useDelay()
       // Runtime guard — shallowReadonly rejects writes (warns in dev, ignores in prod)
@@ -393,7 +393,6 @@ describe('useDelay', () => {
       expect(ref.value).toBe(before)
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('readonly'), expect.anything())
-      spy.mockRestore()
     })
   })
 

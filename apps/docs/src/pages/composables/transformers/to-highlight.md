@@ -1,15 +1,15 @@
 ---
 title: toHighlight - Text Search Highlighting for Vue 3
 meta:
-  - name: description
-    content: Pure Vue 3 transformer that splits text into matched and unmatched chunks given a query string or pre-computed match ranges. No DOM, no state, no reactivity — just a HighlightChunk array. Wrap in computed() for reactive recomputation.
-  - name: keywords
-    content: highlight, text search, mark, query, search terms, Vue 3, headless, transformer, filter, autocomplete, MatchRange
+- name: description
+  content: Pure Vue 3 transformer that splits text into matched and unmatched chunks given a query string or pre-computed match ranges. No DOM, no state, no reactivity — just a HighlightChunk array. Wrap in computed() for reactive recomputation.
+- name: keywords
+  content: highlight, text search, mark, query, search terms, Vue 3, headless, transformer, filter, autocomplete, MatchRange
 features:
   category: Transformer
   label: 'E: toHighlight'
   github: /composables/toHighlight/
-  level: 1
+  level: 2
 related:
   - /composables/data/create-filter
   - /components/forms/combobox
@@ -73,7 +73,7 @@ call in `computed()` (or any reactive scope). The function itself creates no rea
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/to-highlight/messages.ts
 /composables/to-highlight/MessageRow.vue
 /composables/to-highlight/inbox.vue

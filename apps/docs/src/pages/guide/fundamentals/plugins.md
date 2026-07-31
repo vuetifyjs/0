@@ -1,7 +1,7 @@
 ---
 title: Plugins Guide - Extend Vuetify0 Functionality
 features:
-  order: 4
+  order: 5
   level: 3
 meta:
   - name: description
@@ -77,6 +77,8 @@ app.use(
 | `createDatePlugin` | Date utilities with adapter pattern | [useDate](/composables/plugins/use-date) |
 | `createNotificationsPlugin` | Notification lifecycle and toast queue | [useNotifications](/composables/plugins/use-notifications) |
 | `createStackPlugin` | Overlay z-index stacking | [useStack](/composables/plugins/use-stack) |
+| `createReducedMotionPlugin` | Respect or override `prefers-reduced-motion` | [useReducedMotion](/composables/plugins/use-reduced-motion) |
+| `createTooltipPlugin` | Region-scoped tooltip delay coordination | [useTooltip](/composables/plugins/use-tooltip) |
 
 > [!TIP]
 > All plugins are optional. Only install what you need—v0 works without any plugins installed.

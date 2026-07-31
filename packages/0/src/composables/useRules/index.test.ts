@@ -80,7 +80,7 @@ describe('createRules', () => {
     })
 
     it('should skip unknown aliases', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const rules = createRules()
       const resolved = rules.resolve(['nonexistent'])
@@ -88,8 +88,6 @@ describe('createRules', () => {
       expect(resolved).toHaveLength(0)
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('nonexistent'))
-
-      spy.mockRestore()
     })
   })
 
@@ -301,7 +299,7 @@ describe('useRules', () => {
 })
 
 /** Helper to create a mock Standard Schema object */
-function mockSchema (validate: (value: unknown) => { value?: unknown, issues?: ReadonlyArray<{ message: string }> }): StandardSchemaV1 {
+function mockSchema (validate: StandardSchemaV1['~standard']['validate']): StandardSchemaV1 {
   return {
     '~standard': {
       version: 1,
@@ -378,6 +376,15 @@ describe('standard Schema integration', () => {
       const rule = toRule(schema)
 
       expect(await rule('test')).toBe(true)
+    })
+
+    it('should accept issues with spec path segments', async () => {
+      const schema = mockSchema(() => ({
+        issues: [{ message: 'Must be a string', path: ['field', { key: 'nested' }] }],
+      }))
+      const rule = toRule(schema)
+
+      expect(await rule({})).toBe('Must be a string')
     })
 
     it('should return first issue when multiple issues exist', async () => {

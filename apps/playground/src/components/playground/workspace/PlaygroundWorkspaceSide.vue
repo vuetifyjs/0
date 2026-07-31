@@ -11,10 +11,14 @@
   const playground = usePlayground()
   const { isMobile } = useBreakpoints()
 
+  // Drag-to-collapse must flip placement, not just hide the side preview.
+  // side/bottom are mutually exclusive (see onSide/onIntro) — collapsing the
+  // side panel without setting bottom leaves the preview mounted nowhere.
   const collapsed = computed({
     get: () => !playground.side.value,
     set: v => {
       playground.side.value = !v
+      playground.bottom.value = v
     },
   })
 </script>

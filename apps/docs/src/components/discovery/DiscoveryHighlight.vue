@@ -106,7 +106,11 @@
 
     if (el) {
       const styles = getComputedStyle(el)
-      const newRadius = Number.parseFloat(styles.borderRadius) || 0
+      // Floor at 8px: the cutout mirrors the target's own radius so rounded
+      // chrome (pills, cards) keeps its corners, but square content targets
+      // (code panes, code groups) would otherwise draw sharp-cornered
+      // highlights that clash with the rest of the tour.
+      const newRadius = Math.max(Number.parseFloat(styles.borderRadius) || 0, 8)
       if (borderRadius.value !== newRadius) {
         borderRadius.value = newRadius
       }

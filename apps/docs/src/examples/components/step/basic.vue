@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Step } from '@vuetify/v0'
+  import { Button, Step } from '@vuetify/v0'
   import { shallowRef } from 'vue'
 
   const current = shallowRef(1)
@@ -18,8 +18,8 @@
       </Step.Item>
 
       <div class="flex gap-2">
-        <button class="px-4 py-1 border border-divider rounded" @click="prev">Previous</button>
-        <button class="px-4 py-1 rounded bg-primary text-on-primary" @click="next">Next</button>
+        <Button.Root class="px-4 py-1 border border-divider rounded" @click="prev">Previous</Button.Root>
+        <Button.Root class="px-4 py-1 rounded bg-primary text-on-primary" @click="next">Next</Button.Root>
       </div>
     </template>
   </Step.Root>

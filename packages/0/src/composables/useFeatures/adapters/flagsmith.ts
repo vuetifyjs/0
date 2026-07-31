@@ -9,7 +9,7 @@
 import { FeaturesAdapter } from './adapter'
 
 // Utilities
-import { isNullOrUndefined } from '#v0/utilities'
+import { isNullOrUndefined, UNSAFE_KEYS } from '#v0/utilities'
 
 // Types
 import type { FeaturesAdapterFlags } from './adapter'
@@ -32,6 +32,8 @@ export class FlagsmithFeaturesAdapter extends FeaturesAdapter {
 
       if (flags) {
         for (const [key, flag] of Object.entries(flags)) {
+          if (UNSAFE_KEYS.has(key)) continue
+
           const isEnabled = flag.enabled
           const variation = flag.value
 

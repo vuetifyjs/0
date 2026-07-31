@@ -79,11 +79,6 @@ export const tips: Tip[] = [
     link: { to: '/introduction/why-vuetify0', text: 'Why v0?' },
   },
   {
-    id: 'paper-companion',
-    body: '`@vuetify/paper` adds styling primitives on top of v0 without taking away the headless escape hatch. Use them together when you want opinions, independently when you want control.',
-    link: { to: '/guide/fundamentals/plugins', text: 'Plugins guide' },
-  },
-  {
     id: 'logger-adapters',
     body: '`useLogger` ships with Pino and Consola adapters — wire your v0 logs into your existing observability stack in one line.',
     link: { to: '/composables/plugins/use-logger', text: 'useLogger' },

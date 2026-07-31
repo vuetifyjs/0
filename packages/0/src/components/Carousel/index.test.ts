@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+// Composables
+import { createLocalePlugin } from '#v0/composables'
+
 import { useCarouselRoot, Carousel } from './index'
 
 // Utilities
@@ -470,6 +473,59 @@ describe('carousel', () => {
         expect(slide2Props.attrs['aria-label']).toBeDefined()
         expect(slide3Props.attrs['aria-label']).toBeDefined()
       })
+
+      it('should fall back to the inline default slide aria-label when no locale plugin is configured', async () => {
+        let slideProps: any
+
+        mount(Carousel.Root, {
+          slots: {
+            default: () =>
+              h(Carousel.Item as any, { value: 'slide-1' }, {
+                default: (props: any) => {
+                  slideProps = props
+                  return h('div', 'Slide')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        expect(slideProps.attrs['aria-label']).toBe('Slide 1 of 1')
+      })
+
+      it('should use the translated, interpolated slide aria-label when registered', async () => {
+        const plugin = createLocalePlugin({
+          default: 'en',
+          messages: {
+            en: {
+              Carousel: {
+                slide: 'Folie {current} von {size}',
+              },
+            },
+          },
+        })
+
+        let slideProps: any
+
+        mount(Carousel.Root, {
+          global: { plugins: [plugin] },
+          slots: {
+            default: () =>
+              h(Carousel.Item as any, { value: 'slide-1' }, {
+                default: (props: any) => {
+                  slideProps = props
+                  return h('div', 'Slide')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        expect(slideProps.attrs['aria-label']).not.toBe('Slide 1 of 1')
+        expect(slideProps.attrs['aria-label']).toBe('Folie 1 von 1')
+      })
     })
 
     describe('data attributes', () => {
@@ -688,6 +744,7 @@ describe('carousel', () => {
       expect(typeof prevProps.isAtEdge).toBe('boolean')
       expect(prevProps.attrs['aria-label']).toBeDefined()
       expect(prevProps.attrs.type).toBe('button')
+      expect(prevProps.attrs.onKeydown).toBeUndefined()
     })
 
     it('should be disabled at first slide in non-circular mode', async () => {
@@ -835,6 +892,78 @@ describe('carousel', () => {
 
       expect(prevProps.attrs.type).toBeUndefined()
       expect(prevProps.attrs.disabled).toBeUndefined()
+      expect(prevProps.attrs.role).toBe('button')
+      expect(prevProps.attrs.tabindex).toBe(-1) // single item → at edge → disabled
+      expect(typeof prevProps.attrs.onKeydown).toBe('function')
+    })
+
+    it('should navigate with Enter / Space when rendered as non-button', async () => {
+      const selected = ref<string>('b')
+      let prevProps: any
+
+      mount(Carousel.Root, {
+        props: {
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            selected.value = v as string
+          },
+        },
+        slots: {
+          default: () => [
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
+            h(Carousel.Previous as any, { as: 'div' }, {
+              default: (p: any) => {
+                prevProps = p
+                return h('div', 'Prev')
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const enter = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+      prevProps.attrs.onKeydown(enter)
+      await nextTick()
+      expect(selected.value).toBe('a')
+
+      const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      prevProps.attrs.onKeydown(space)
+      await nextTick()
+      expect(selected.value).toBe('a')
+      expect(enter.defaultPrevented).toBe(true)
+      expect(space.defaultPrevented).toBe(true)
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+      prevProps.attrs.onKeydown(tab)
+      expect(tab.defaultPrevented).toBe(false)
+    })
+
+    it('should not report edge when circular even on first slide', async () => {
+      let prevProps: any
+
+      mount(Carousel.Root, {
+        props: { modelValue: 'a', circular: true },
+        slots: {
+          default: () => [
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
+            h(Carousel.Previous as any, { as: 'div' }, {
+              default: (p: any) => {
+                prevProps = p
+                return h('div', 'Prev')
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+      expect(prevProps.isAtEdge).toBe(false)
+      expect(prevProps.isDisabled).toBe(false)
+      expect(prevProps.attrs.tabindex).toBe(0)
     })
   })
 
@@ -862,6 +991,7 @@ describe('carousel', () => {
       expect(typeof nextBtnProps.isAtEdge).toBe('boolean')
       expect(nextBtnProps.attrs['aria-label']).toBeDefined()
       expect(nextBtnProps.attrs.type).toBe('button')
+      expect(nextBtnProps.attrs.onKeydown).toBeUndefined()
     })
 
     it('should be disabled at last slide in non-circular mode', async () => {
@@ -1035,6 +1165,78 @@ describe('carousel', () => {
 
       expect(nextBtnProps.attrs.type).toBeUndefined()
       expect(nextBtnProps.attrs.disabled).toBeUndefined()
+      expect(nextBtnProps.attrs.role).toBe('button')
+      expect(nextBtnProps.attrs.tabindex).toBe(-1) // single item → at edge → disabled
+      expect(typeof nextBtnProps.attrs.onKeydown).toBe('function')
+    })
+
+    it('should navigate with Enter / Space when rendered as non-button', async () => {
+      const selected = ref<string>('a')
+      let nextBtnProps: any
+
+      mount(Carousel.Root, {
+        props: {
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            selected.value = v as string
+          },
+        },
+        slots: {
+          default: () => [
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
+            h(Carousel.Next as any, { as: 'div' }, {
+              default: (p: any) => {
+                nextBtnProps = p
+                return h('div', 'Next')
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const enter = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+      nextBtnProps.attrs.onKeydown(enter)
+      await nextTick()
+      expect(selected.value).toBe('b')
+
+      const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      nextBtnProps.attrs.onKeydown(space)
+      await nextTick()
+      expect(selected.value).toBe('b')
+      expect(enter.defaultPrevented).toBe(true)
+      expect(space.defaultPrevented).toBe(true)
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+      nextBtnProps.attrs.onKeydown(tab)
+      expect(tab.defaultPrevented).toBe(false)
+    })
+
+    it('should not report edge when circular even on last slide', async () => {
+      let nextProps: any
+
+      mount(Carousel.Root, {
+        props: { modelValue: 'b', circular: true },
+        slots: {
+          default: () => [
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
+            h(Carousel.Next as any, { as: 'div' }, {
+              default: (p: any) => {
+                nextProps = p
+                return h('div', 'Next')
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+      expect(nextProps.isAtEdge).toBe(false)
+      expect(nextProps.isDisabled).toBe(false)
+      expect(nextProps.attrs.tabindex).toBe(0)
     })
   })
 
@@ -1769,7 +1971,7 @@ describe('carousel', () => {
 
     it('should clear pending live-region timer on unmount', async () => {
       vi.useFakeTimers()
-      const clearSpy = vi.spyOn(globalThis, 'clearTimeout')
+      using clearSpy = vi.spyOn(globalThis, 'clearTimeout')
 
       let rootProps: any
 
@@ -1795,7 +1997,6 @@ describe('carousel', () => {
 
       expect(clearSpy.mock.calls.length).toBeGreaterThan(before)
 
-      clearSpy.mockRestore()
       vi.useRealTimers()
     })
 
@@ -2765,7 +2966,7 @@ describe('carousel', () => {
       expect(slide1Props.isSelected).toBe(true)
     })
 
-    it.skip('should not advance past maxStart when next() called in non-circular mode with perView', async () => {
+    it('should not advance past maxStart when next() called in non-circular mode with perView', async () => {
       const selected = ref<string>('a')
 
       let rootProps: any
@@ -2870,6 +3071,49 @@ describe('carousel', () => {
       })
 
       expect(rootProps.attrs['aria-label']).toBeDefined()
+    })
+
+    it('should fall back to the inline default label when no locale plugin is configured', async () => {
+      let rootProps: any
+
+      mount(Carousel.Root, {
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h('div', 'Content')
+          },
+        },
+      })
+
+      expect(rootProps.attrs['aria-label']).toBe('Carousel')
+    })
+
+    it('should use the translated locale string for aria-label when one is registered', async () => {
+      const plugin = createLocalePlugin({
+        default: 'en',
+        messages: {
+          en: {
+            Carousel: {
+              label: 'Karussell',
+            },
+          },
+        },
+      })
+
+      let rootProps: any
+
+      mount(Carousel.Root, {
+        global: { plugins: [plugin] },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h('div', 'Content')
+          },
+        },
+      })
+
+      expect(rootProps.attrs['aria-label']).not.toBe('Carousel')
+      expect(rootProps.attrs['aria-label']).toBe('Karussell')
     })
   })
 

@@ -1499,7 +1499,7 @@ describe('useClickOutside', () => {
         y: 100,
         toJSON: () => ({}),
       }
-      const rectSpy = vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(rect)
+      using rectSpy = vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(rect)
 
       useClickOutside(target, handler, { bounds: true })
       await nextTick()
@@ -1536,8 +1536,62 @@ describe('useClickOutside', () => {
       // The buggy version re-evaluated pointerdown coords against the
       // shifted rect, saw "inside", and suppressed the click.
       expect(handler).toHaveBeenCalledTimes(1)
+    })
 
-      rectSpy.mockRestore()
+    // Regression: bounds mode used to fire when a DOM descendant (e.g. a Snackbar
+    // teleported into an open <dialog>) was clicked at coordinates outside the
+    // dialog's bounding box. Because the descendant is INSIDE the DOM, the click
+    // must not close the dialog — only a genuine backdrop click should.
+    it('should not trigger when event target is a DOM descendant positioned outside bounds', async () => {
+      const handler = vi.fn()
+      const child = document.createElement('div')
+      target.append(child)
+
+      vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
+        left: 100,
+        right: 200,
+        top: 100,
+        bottom: 200,
+        width: 100,
+        height: 100,
+        x: 100,
+        y: 100,
+        toJSON: () => ({}),
+      })
+
+      useClickOutside(target, handler, { bounds: true })
+
+      await nextTick()
+
+      // Coords (50, 50) are outside the rect but target is a DOM child — no fire
+      simulatePointerClick(child, { clientX: 50, clientY: 50 })
+      expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('should trigger when event target is the watched element itself outside bounds (backdrop)', async () => {
+      const handler = vi.fn()
+      const child = document.createElement('div')
+      target.append(child)
+
+      vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
+        left: 100,
+        right: 200,
+        top: 100,
+        bottom: 200,
+        width: 100,
+        height: 100,
+        x: 100,
+        y: 100,
+        toJSON: () => ({}),
+      })
+
+      useClickOutside(target, handler, { bounds: true })
+
+      await nextTick()
+
+      // Coords (50, 50) are outside bounds and target is the watched element itself — fires (backdrop)
+      simulatePointerClick(target, { clientX: 50, clientY: 50 })
+      expect(handler).toHaveBeenCalledTimes(1)
     })
   })
 

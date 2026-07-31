@@ -125,7 +125,7 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
 
   function fromValue (value: number): number {
     if (extent === 0) return 0
-    return (clamp(value, 0, extent) / extent) * 100
+    return ((clamp(value, min, max) - min) / extent) * 100
   }
 
   function register (registration: Partial<ProgressTicketInput> = {}): ProgressTicket {
@@ -175,7 +175,10 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
     apply,
     min,
     max,
-  } as ProgressContext
+    get size () {
+      return model.size
+    },
+  } satisfies ProgressContext as ProgressContext
 }
 
 /**

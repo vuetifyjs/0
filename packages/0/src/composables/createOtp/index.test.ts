@@ -81,12 +81,11 @@ describe('createOtp', () => {
 
     it('should warn through useLogger when a RegExp matches multi-character input', () => {
       const otp = setup({ pattern: /^[0-9]+$/ })
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       otp.accepts('1')
       otp.accepts('2')
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('multi-character'))
-      spy.mockRestore()
     })
 
     it('should reject multi-character input', () => {
@@ -326,7 +325,7 @@ describe('createOtp', () => {
     })
 
     it('should clear value and warn when onComplete throws', async () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const otp = setup({ length: 4, onComplete: () => {
         throw new Error('boom')
       } })
@@ -336,7 +335,6 @@ describe('createOtp', () => {
       expect(otp.input.errors.value).toContain('Invalid code')
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy.mock.calls[0][0]).toEqual(expect.stringContaining('onComplete threw'))
-      spy.mockRestore()
     })
 
     it('should leave the value intact when sync onComplete returns undefined', async () => {
@@ -360,7 +358,7 @@ describe('createOtp', () => {
     })
 
     it('should handle onComplete throwing a non-Error value without crashing', async () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const otp = setup({ length: 4, onComplete: () => {
         throw null
       } })
@@ -370,7 +368,6 @@ describe('createOtp', () => {
       expect(otp.input.errors.value).toContain('Invalid code')
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy.mock.calls[0][0]).toEqual(expect.stringContaining('onComplete threw'))
-      spy.mockRestore()
     })
 
     it('should preserve rejection error when fill receives only rejected characters', async () => {
@@ -443,7 +440,7 @@ describe('createOtp', () => {
     })
 
     it('should clear value and warn when onComplete returns a rejected promise', async () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const otp = setup({
         length: 4,
         onComplete: () => Promise.reject(new Error('network error')),
@@ -455,11 +452,10 @@ describe('createOtp', () => {
       expect(otp.input.errors.value).toContain('Invalid code')
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy.mock.calls[0][0]).toEqual(expect.stringContaining('onComplete rejected'))
-      spy.mockRestore()
     })
 
     it('should handle a rejected promise with a non-Error value without crashing', async () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const otp = setup({
         length: 4,
         onComplete: () => Promise.reject(null),
@@ -471,7 +467,6 @@ describe('createOtp', () => {
       expect(otp.input.errors.value).toContain('Invalid code')
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy.mock.calls[0][0]).toEqual(expect.stringContaining('onComplete rejected'))
-      spy.mockRestore()
     })
 
     it('should accept a thenable that is not a native Promise', async () => {

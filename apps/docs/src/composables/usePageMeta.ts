@@ -5,6 +5,7 @@ import { createContext } from '@vuetify/v0'
 import { inject } from 'vue'
 
 // Types
+import type { Level } from '@/constants/maturity'
 import type { Ref } from 'vue'
 
 export interface LevelConfig {
@@ -27,7 +28,7 @@ export interface BenchmarkConfig {
 }
 
 export interface PhaseConfig {
-  level: 'draft' | 'preview' | 'stable' | 'mature' | 'deprecated'
+  level: Level
   since: string | null
   notes?: string
   icon: string

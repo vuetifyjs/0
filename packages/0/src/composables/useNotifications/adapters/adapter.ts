@@ -26,10 +26,10 @@
  */
 
 // Types
-import type { NotificationInput, NotificationsAdapterContext, NotificationTicket } from '../index'
+import type { NotificationTicketInput, NotificationsAdapterContext, NotificationTicket } from '../index'
 
 export abstract class NotificationsAdapter<
-  Z extends NotificationInput = NotificationInput,
+  Z extends NotificationTicketInput = NotificationTicketInput,
   E extends NotificationTicket<Z> = NotificationTicket<Z>,
 > {
   /** Called once when the plugin installs. Wire inbound/outbound sync here. */

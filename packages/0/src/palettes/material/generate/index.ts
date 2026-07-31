@@ -10,6 +10,9 @@ import {
   hexFromArgb,
 } from '@material/material-color-utilities'
 
+// Utilities
+import { V0Error } from '#v0/utilities'
+
 // Types
 import type { PaletteDefinition } from '#v0/palettes'
 import type { TonalPalette } from '@material/material-color-utilities'
@@ -74,7 +77,11 @@ function extractSchemeColors (scheme: InstanceType<typeof SchemeTonalSpot>): Rec
 /* #__NO_SIDE_EFFECTS__ */
 export function material (seed: string, options: MaterialGenerateOptions = {}): PaletteDefinition {
   if (!HEX_RE.test(seed)) {
-    throw new Error(`[@vuetify/v0] Invalid seed color: "${seed}". Expected a hex string (e.g., "#6750A4").`)
+    throw new V0Error(`[@vuetify/v0] Invalid seed color: "${seed}". Expected a hex string (e.g., "#6750A4").`, {
+      code: 'V0_PALETTE_INVALID_SEED',
+      palette: 'material',
+      seed,
+    })
   }
 
   const { variant = 'tonalSpot', contrast = 0 } = options
@@ -83,7 +90,11 @@ export function material (seed: string, options: MaterialGenerateOptions = {}): 
 
   const SchemeClass = VARIANTS[variant]
   if (!SchemeClass) {
-    throw new Error(`[@vuetify/v0] Unknown material variant: "${variant}"`)
+    throw new V0Error(`[@vuetify/v0] Unknown material variant: "${variant}"`, {
+      code: 'V0_PALETTE_UNKNOWN_VARIANT',
+      palette: 'material',
+      variant,
+    })
   }
 
   const light = new SchemeClass(hct, false, contrast)

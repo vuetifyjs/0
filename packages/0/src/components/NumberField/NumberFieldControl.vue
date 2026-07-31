@@ -102,7 +102,7 @@
   function onBlur () {
     const parsed = root.parse(text.value)
     root.value.value = parsed
-    root.commit()
+    root.commit(parsed)
     root.isFocused.value = false
     syncText()
   }
@@ -128,7 +128,7 @@
       Enter: () => {
         const parsed = root.parse(text.value)
         root.value.value = parsed
-        root.commit()
+        root.commit(parsed)
       },
     }
 
@@ -182,7 +182,8 @@
       'aria-valuemin': Number.isFinite(root.numeric.min) ? root.numeric.min : undefined,
       'aria-valuemax': Number.isFinite(root.numeric.max) ? root.numeric.max : undefined,
       'aria-invalid': invalid || undefined,
-      'aria-label': root.label || undefined,
+      'aria-label': root.ariaLabelledby ? undefined : (root.label || undefined),
+      'aria-labelledby': root.ariaLabelledby || undefined,
       'aria-describedby': describedby.value,
       'aria-errormessage': (root.hasError.value && root.errors.value.length > 0) ? root.errorId : undefined,
       'aria-required': root.required || undefined,
