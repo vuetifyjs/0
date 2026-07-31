@@ -40,7 +40,7 @@
     return 'defaults'
   }
 
-  const pluginRows = toRef<PluginRow[]>(() =>
+  const pluginRows = toRef((): PluginRow[] =>
     PLUGINS
       .filter(p => store.selectedPlugins.has(p.id))
       .map(meta => ({ meta, status: statusFor(meta) })),

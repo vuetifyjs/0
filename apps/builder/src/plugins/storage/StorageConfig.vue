@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { mdiCheck } from '@mdi/js'
+
   // Framework
   import { Checkbox, Input, NumberField } from '@vuetify/v0'
 
@@ -70,9 +72,11 @@
           <Checkbox.Root
             class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
             :model-value="ttlEnabled"
-            @update:model-value="onTtlToggle($event)"
+            @update:model-value="onTtlToggle(!!$event)"
           >
-            <Checkbox.Indicator class="text-on-primary text-sm">✓</Checkbox.Indicator>
+            <Checkbox.Indicator class="text-on-primary">
+              <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
+            </Checkbox.Indicator>
           </Checkbox.Root>
 
           <span class="text-sm text-on-surface">Enable TTL (auto-expire)</span>

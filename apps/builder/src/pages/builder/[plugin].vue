@@ -8,12 +8,12 @@
   import { defineAsyncComponent, toRef } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
-  const route = useRoute()
+  const route = useRoute('/builder/[plugin]')
   const router = useRouter()
   const store = useBuilderStore()
 
   const meta = toRef(() => {
-    const slug = route.params.plugin as string
+    const slug = route.params.plugin
     return getPluginBySlug(slug)
   })
 

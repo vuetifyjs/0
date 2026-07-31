@@ -11,8 +11,18 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppShell: typeof import('./components/app/AppShell.vue')['default']
+    Icon: typeof import('./components/app/Icon.vue')['default']
+    MiniFrame: typeof import('./components/preview/MiniFrame.vue')['default']
     PluginConfigShell: typeof import('./components/PluginConfigShell.vue')['default']
+    PreviewBreakpoints: typeof import('./components/preview/PreviewBreakpoints.vue')['default']
+    PreviewLocale: typeof import('./components/preview/PreviewLocale.vue')['default']
+    PreviewPane: typeof import('./components/preview/PreviewPane.vue')['default']
+    PreviewRtl: typeof import('./components/preview/PreviewRtl.vue')['default']
+    PreviewSummary: typeof import('./components/preview/PreviewSummary.vue')['default']
+    PreviewTheme: typeof import('./components/preview/PreviewTheme.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    ThemeToggle: typeof import('./components/app/ThemeToggle.vue')['default']
   }
 }

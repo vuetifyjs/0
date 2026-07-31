@@ -60,7 +60,7 @@
 <template>
   <div v-if="meta" class="max-w-4xl mx-auto px-6 py-12">
     <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
-      Configuring {{ meta.title }} ({{ position + 1 }} of {{ sequence.length }})
+      Step 2 · Configuring {{ meta.title }} ({{ position + 1 }} of {{ sequence.length }})
     </p>
 
     <h2 class="text-2xl font-bold mb-2">{{ meta.title }}</h2>

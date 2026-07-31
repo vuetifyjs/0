@@ -74,6 +74,10 @@
       "toElement",
       "useHydration"
     ],
+    "createOtp": [
+      "createInput",
+      "useLogger"
+    ],
     "createOverflow": [
       "createContext",
       "createTrinity",

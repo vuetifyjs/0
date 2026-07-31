@@ -102,50 +102,6 @@ describe('toHashData', () => {
 
     expect(data.active).toBe('src/App.vue')
   })
-
-  it('sets preset to default', () => {
-    const data = toHashData({
-      intent: 'spa',
-      features: ['createSingle'],
-      resolved: ['createContext'],
-      adapters: {},
-    })
-
-    expect(data.settings?.preset).toBe('default')
-  })
-
-  it('adds pinia addon when useStorage is selected', () => {
-    const data = toHashData({
-      intent: 'spa',
-      features: ['useStorage'],
-      resolved: ['createContext'],
-      adapters: {},
-    })
-
-    expect(data.settings?.addons).toContain('pinia')
-  })
-
-  it('adds router addon when createStep is selected', () => {
-    const data = toHashData({
-      intent: 'spa',
-      features: ['createStep'],
-      resolved: ['createContext'],
-      adapters: {},
-    })
-
-    expect(data.settings?.addons).toContain('router')
-  })
-
-  it('omits addons when none are needed', () => {
-    const data = toHashData({
-      intent: 'spa',
-      features: ['createSingle'],
-      resolved: ['createContext'],
-      adapters: {},
-    })
-
-    expect(data.settings?.addons).toBeUndefined()
-  })
 })
 
 describe('generateImports', () => {

@@ -18,7 +18,7 @@
   const store = useBuilderStore()
 
   const stored = store.pluginConfig.useRules as RulesConfig | undefined
-  const initial = JSON.parse(JSON.stringify(stored ?? defaultConfig))
+  const initial: RulesConfig = JSON.parse(JSON.stringify(stored ?? defaultConfig))
 
   const state = reactive({
     aliases: initial.aliases.map<RuleAliasDef>(alias => ({ ...alias })),

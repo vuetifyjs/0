@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { mdiCheck } from '@mdi/js'
+
   // Framework
   import { Checkbox, Input, Select } from '@vuetify/v0'
 
@@ -75,7 +77,7 @@
                     class="flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm"
                     :class="[isHighlighted ? 'bg-primary text-on-primary' : isSelected ? 'text-primary font-medium' : 'text-on-surface hover:bg-surface-variant']"
                   >
-                    <span class="w-4 text-xs" :class="isSelected ? 'visible' : 'invisible'">&#x2713;</span>
+                    <svg class="w-4 h-4" :class="isSelected ? 'visible' : 'invisible'" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
                     {{ level }}
                   </div>
                 </template>
@@ -116,7 +118,7 @@
                     class="flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm"
                     :class="[isHighlighted ? 'bg-primary text-on-primary' : isSelected ? 'text-primary font-medium' : 'text-on-surface hover:bg-surface-variant']"
                   >
-                    <span class="w-4 text-xs" :class="isSelected ? 'visible' : 'invisible'">&#x2713;</span>
+                    <svg class="w-4 h-4" :class="isSelected ? 'visible' : 'invisible'" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
                     {{ adapter }}
                   </div>
                 </template>
@@ -150,7 +152,9 @@
           v-model="state.enabled"
           class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
         >
-          <Checkbox.Indicator class="text-on-primary text-sm">✓</Checkbox.Indicator>
+          <Checkbox.Indicator class="text-on-primary">
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiCheck" fill="currentColor" /></svg>
+          </Checkbox.Indicator>
         </Checkbox.Root>
 
         <span class="text-sm text-on-surface">Enabled</span>

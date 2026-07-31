@@ -40,6 +40,17 @@ export const useBuilderStore = defineStore('builder', () => {
   const selectedComponents = shallowRef<Set<string>>(new Set(initial.selectedComponents))
   const componentConfig = shallowRef<Record<string, unknown>>({ ...initial.componentConfig })
 
+  const draft = shallowRef<{ id: string, config: unknown } | null>(null)
+
+  function setDraft (id: string, config: unknown) {
+    draft.value = { id, config }
+  }
+
+  function clearDraft (id: string) {
+    if (draft.value?.id !== id) return
+    draft.value = null
+  }
+
   const allSelected = toRef(() => [
     ...selectedPlugins.value,
     ...selectedComponents.value,
@@ -124,6 +135,9 @@ export const useBuilderStore = defineStore('builder', () => {
     componentConfig,
     allSelected,
     resolved,
+    draft,
+    setDraft,
+    clearDraft,
     selectPlugin,
     deselectPlugin,
     togglePlugin,
