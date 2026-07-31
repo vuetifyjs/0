@@ -1,8 +1,6 @@
-// Plugins
-import { KNOWN_ALIASES } from '@/plugins/rules/defaults'
-
 // Types
 import type { FrameworkManifest } from '@/data/types'
+import type { KnownAlias } from '@/plugins/rules/defaults'
 
 interface PlaygroundHashData {
   files: Record<string, string>
@@ -200,9 +198,10 @@ const KEYS: Record<string, string[]> = {
 
 // Predicate source for each name in KNOWN_ALIASES. RulesOptions.aliases maps a
 // name to a function, so these cannot be JSON-serialized — every selected alias
-// is emitted as a real implementation. The rules form owns the name list; a
-// name added there without an entry here emits a stub, which the tests catch.
-const ALIASES: Record<string, string> = {
+// is emitted as a real implementation. Keying on KnownAlias makes the rules form
+// the source of truth: a name added there without a predicate here fails to
+// compile, and a predicate here for a name the form does not offer is rejected.
+const ALIASES: Record<KnownAlias, string> = {
   required: `(v: unknown) => (v !== null && v !== undefined && v !== '') || 'This field is required'`,
   email: String.raw`(v: unknown) => /.+@.+\..+/.test(String(v ?? '')) || 'Must be a valid email'`,
   min: `(v: unknown) => String(v ?? '').length >= 3 || 'Must be at least 3 characters'`,
@@ -210,6 +209,12 @@ const ALIASES: Record<string, string> = {
   pattern: String.raw`(v: unknown) => /^[\w-]+$/.test(String(v ?? '')) || 'Must be letters, numbers, dashes or underscores'`,
   url: `(v: unknown) => URL.canParse(String(v ?? '')) || 'Must be a valid URL'`,
   numeric: `(v: unknown) => (v !== '' && !Number.isNaN(Number(v))) || 'Must be a number'`,
+}
+
+// Own-property, not `in` — `'toString' in ALIASES` is true via the prototype
+// chain, and a user is free to name an alias that.
+function isAlias (name: string): name is KnownAlias {
+  return Object.hasOwn(ALIASES, name)
 }
 
 function isEmpty (value: unknown): boolean {
@@ -265,8 +270,8 @@ function formatAliases (names: unknown): string | null {
   const lines = names
     .filter((name): name is string => typeof name === 'string')
     .map(name => {
-      const known = KNOWN_ALIASES.includes(name) && ALIASES[name]
-      return `    ${name}: ${known || `(v: unknown) => true /* TODO: implement */`},`
+      const body = isAlias(name) ? ALIASES[name] : `(v: unknown) => true /* TODO: implement */`
+      return `    ${name}: ${body},`
     })
 
   if (lines.length === 0) return null
