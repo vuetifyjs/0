@@ -280,6 +280,24 @@ describe('slider', () => {
       expect(thumbProps().attrs['aria-label']).toBe('Volume')
     })
 
+    it('should fall back to a default aria-label when no ariaLabel prop is provided', async () => {
+      const model = ref([50])
+      const { thumbProps, wait } = mountSlider({ model })
+      await wait()
+      expect(thumbProps().attrs['aria-label']).toBe('Slider')
+    })
+
+    it('should suppress the default aria-label when ariaLabelledby is provided', async () => {
+      const model = ref([50])
+      const { thumbProps, wait } = mountSlider({
+        model,
+        thumbProps: [{ ariaLabelledby: 'my-label' }],
+      })
+      await wait()
+      expect(thumbProps().attrs['aria-label']).toBeUndefined()
+      expect(thumbProps().attrs['aria-labelledby']).toBe('my-label')
+    })
+
     it('should set data-state to idle by default', async () => {
       const model = ref([50])
       const { thumbProps, wait } = mountSlider({ model })
