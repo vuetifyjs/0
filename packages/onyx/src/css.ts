@@ -25,6 +25,11 @@ const V0_ALIASES: ReadonlyArray<readonly [v0Key: string, onKey: SemanticKey]> = 
 // mirrors v0 ThemeAdapter's UNSAFE_CSS guard (packages/0/src/composables/useTheme/adapters/adapter.ts)
 const UNSAFE_CSS = /url\s*\(|src\s*\(|image\s*\(|image-set\s*\(|cross-fade\s*\(|@import|expression\s*\(|[;{}<>\\]/i
 
+// mirrors v0 ThemeAdapter's SAFE_IDENT guard (same file) — colors.ts's palette() merges consumer-
+// supplied theme objects (createOnyxPlugin({ themes })), so a caller-controlled key reaches this
+// loop; the base adapter validates both key and value, this loop only validated value until now.
+const SAFE_IDENT = /^[a-zA-Z0-9_-]+$/
+
 function safe (value: string): boolean {
   return !UNSAFE_CSS.test(value)
 }
@@ -66,7 +71,7 @@ export function block (selector: string, colors: Record<string, string>, dark?: 
   const lines: string[] = []
 
   for (const [key, value] of Object.entries(colors)) {
-    if (!safe(value)) continue
+    if (!SAFE_IDENT.test(key) || !safe(value)) continue
     lines.push(`  --${PREFIX}-${key}: ${value};`)
   }
 

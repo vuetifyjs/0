@@ -255,7 +255,12 @@
     border-start-end-radius: var(--onyx-radius-md, 0.375rem);
   }
 
-  .onyx-table__sizes .onyx-button[data-active] {
+  /* The hover variant is repeated at matching specificity — OnButton's own
+     [data-variant='outline']:hover:not([data-disabled]) rule (4 selectors) otherwise
+     beats the bare [data-active] rule above (3 selectors) and the active pill loses
+     its highlight the moment the pointer moves over it. */
+  .onyx-table__sizes .onyx-button[data-active],
+  .onyx-table__sizes .onyx-button[data-active]:hover:not([data-disabled]) {
     background: color-mix(in oklab, var(--onyx-accent, #2f2925) 70%, transparent);
     color: var(--onyx-accent-foreground, #f0ece5);
   }

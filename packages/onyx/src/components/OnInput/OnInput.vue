@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
   // Utilities
-  import { shallowRef, toRef, useId } from 'vue'
+  import { nextTick, shallowRef, toRef, useId, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'OnInput' })
 
@@ -36,15 +36,26 @@
 
   const id = useId()
   const revealed = shallowRef(false)
+  const revealWrap = useTemplateRef<HTMLElement>('revealWrap')
 
   // type is owned by Input.Root, not Input.Control — flipping it here swaps the
-  // rendered <input>'s effective type without Hb ever touching the control itself.
-  // Input.Root's `type` context field is non-reactive (v0 #757), so the :key below
-  // forces a full remount on every toggle as the workaround: https://github.com/vuetifyjs/0/issues/757
+  // rendered <input>'s effective type without the control itself ever touching it.
+  // Input.Root's `type` context field is non-reactive (v0 #757: the context object
+  // is built once in Root's own setup and never rebuilt), so the :key below forces
+  // a full remount on every toggle as the workaround: https://github.com/vuetifyjs/0/issues/757
+  // Keying must stay on Root, not Control — Root's setup is where that frozen
+  // context field lives, so keying Control alone would remount the wrong layer.
   const effectiveType = toRef(() => type === 'password' && revealed.value ? 'text' : type)
 
-  function onReveal () {
+  // The :key remount above destroys and recreates the reveal button along with the
+  // rest of the subtree, dropping focus to <body> on every activation — refocus it
+  // once the new subtree has painted. Button.Root doesn't defineExpose its element,
+  // so this reaches through a display:contents wrapper + querySelector, the same
+  // workaround Buttons.vue's onFocusDemo already uses for the same reason.
+  async function onReveal () {
     revealed.value = !revealed.value
+    await nextTick()
+    revealWrap.value?.querySelector<HTMLElement>('button')?.focus()
   }
 </script>
 
@@ -65,47 +76,48 @@
     <div class="onyx-input__field" :data-password="type === 'password' || undefined">
       <Input.Control class="onyx-input__control" :placeholder />
 
-      <Button.Root
-        v-if="type === 'password'"
-        :aria-label="revealed ? 'Hide password' : 'Show password'"
-        class="onyx-input__reveal"
-        :disabled
-        @click="onReveal"
-      >
-        <svg
-          v-if="revealed"
-          aria-hidden="true"
-          fill="none"
-          height="16"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          width="16"
+      <div v-if="type === 'password'" ref="revealWrap" style="display: contents;">
+        <Button.Root
+          :aria-label="revealed ? 'Hide password' : 'Show password'"
+          class="onyx-input__reveal"
+          :disabled
+          @click="onReveal"
         >
-          <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
-          <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
-          <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />
-          <path d="m2 2 20 20" />
-        </svg>
+          <svg
+            v-if="revealed"
+            aria-hidden="true"
+            fill="none"
+            height="16"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="16"
+          >
+            <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
+            <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
+            <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />
+            <path d="m2 2 20 20" />
+          </svg>
 
-        <svg
-          v-else
-          aria-hidden="true"
-          fill="none"
-          height="16"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          width="16"
-        >
-          <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
-          <circle cx="12" cy="12" r="3" />
-        </svg>
-      </Button.Root>
+          <svg
+            v-else
+            aria-hidden="true"
+            fill="none"
+            height="16"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="16"
+          >
+            <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        </Button.Root>
+      </div>
     </div>
 
     <Input.Description v-if="description" class="onyx-input__description">
