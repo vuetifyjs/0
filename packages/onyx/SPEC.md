@@ -277,8 +277,7 @@ Maturity: **preview**. Docs app: `dev` → `/onyx`.
 - shadcn/ui — token pairing model, density, state aesthetics (referenced from
   training knowledge + public docs; no code copied — all components are v0
   compositions).
-- Original: `github.com/johnleider/onyx`; captures in
-  `.playwright-mcp/onyx/`.
+- Visual evidence: `.playwright-mcp/onyx/`.
 - Full design spec: `.claude/specs/2026-07-31-onyx-design-system.md`.
 - `tsdown.config.mts` omits the `exports: { devExports: 'development' }` option
   (DESIGN_SYSTEMS §4's proposed bullet) — it auto-syncs `package.json`'s exports
