@@ -223,8 +223,8 @@ below for each one's v0 basis.
 | `OnList` (+ Item/Group) | `Atom`; `Collapsible` for groups | |
 | `OnAvatar` (+ Image/Fallback) | `Avatar.*` | |
 
-Deferred: no v0 `DatePicker` primitive exists yet, composable or component
-(v0's own inventory lists it planned, not yet drafted) — revisit wave 2 once
+Deferred: v0's own inventory lists both `createDatePicker` and `DatePicker`
+at `draft` maturity, with no source implementation yet — revisit wave 2 once
 one lands. A layout-only spacer (`margin-left: auto` on a flexbox) covers the
 one need a dedicated component would otherwise exist for — never built as
 its own component, since a utility already handles it without API noise.
