@@ -14,7 +14,7 @@
   import { InputError, isNull, useInputRoot } from '@vuetify/v0'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { toRef, watchEffect } from 'vue'
 
   // Types
   import type { InputRootContext } from '@vuetify/v0'
@@ -55,6 +55,18 @@
 
   const wired = toRef(() => validation && !isNull(root))
   const tone = toRef(() => color ?? (validation ? 'danger' : undefined))
+
+  if (__DEV__) {
+    watchEffect(() => {
+      if (validation && isNull(root)) {
+        console.warn(
+          '[BuHelp] `validation` is set but no ambient Input.Root context was found — errors will never render.',
+          'BuInput creates its own renderless root scoped to its subtree; wrap the field in',
+          '`<InputRoot renderless v-model :rules>` so sibling BuHelp/BuLabel wire up (see BuHelp.browser.test.ts).',
+        )
+      }
+    })
+  }
 </script>
 
 <template>

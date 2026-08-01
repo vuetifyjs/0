@@ -87,6 +87,12 @@ markup against bulma.io's documented fixtures.
 - **validateOn machinery is package-local** (`src/utilities/validate.ts`): v0's
   `parseValidateOn` is internal to `InputRoot.vue`. v0-core follow-up: export it from
   the Input barrel.
+- **`BuHelp validation` requires an ambient `Input.Root`:** BuInput/BuTextarea create
+  their own *renderless* root scoped to their subtree, so a sibling BuHelp inside the
+  same BuField injects nothing and renders an empty `.help` (while the input still
+  shows `is-danger` — deceptively half-wired). Compose validation fields as
+  `<InputRoot renderless v-model :rules>` wrapping the whole field; BuHelp warns in
+  dev when `validation` is set with no ambient root.
 - **A11y improvements over verbatim docs markup:** BuNotification adds
   `aria-label="delete"` (docs ship the delete button unlabeled); BuDropdown emits
   `role="menu"` only when items actually render `role="menuitem"` (the docs' verbatim
