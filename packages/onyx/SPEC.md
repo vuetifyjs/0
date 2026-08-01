@@ -201,32 +201,33 @@ Inherited from DESIGN_SYSTEMS rulings 2–3:
 
 ## Wave 1 surface
 
-20-component inventory mapped from the original Onyx's exported components:
-**15 direct**, **3 folded** (`HdsIconBtn` → `OnButton size="icon"`;
-`HdsCardTitle`/`HdsCardActions` → `OnCard.Title`/`OnCard.Footer`), **1 dropped**
-(`HdsSpacer`), **1 deferred** (`HdsDatePicker`) — 15 + 3 + 1 + 1 = 20.
-`OnPagination` is additive (not in the original; required by `OnTable`'s footer).
+Wave 1 is 16 component families, each a direct v0 composition — see the table
+below for each one's v0 basis.
 
-| On | Original | v0 basis |
+| Component | v0 basis | Notes |
 |---|---|---|
-| `OnButton` | HdsBtn (+ HdsIconBtn folded) | `Button.Root/Content/Loading` |
-| `OnBadge` | HdsInlineBadge | `Atom` |
-| `OnChip` | HdsChip | `Atom` + `Button.Root` close affordance |
-| `OnCard` (+ Header/Title/Description/Content/Footer) | HdsCard (+ HdsCardTitle/HdsCardActions folded) | `Atom` |
-| `OnAlert` (+ Title/Description) | HdsMessage | `Atom` + `role="alert"` |
-| `OnBanner` | HdsBanner | `Atom` |
-| `OnInput` | HdsTextField | `Input.Root/Control/Description/Error` |
-| `OnDialog` (+ Activator/Content/Title/Description/Close/Footer) | HdsDialog | `Dialog.*` |
-| `OnTabs` (+ List/Item/Panel) | HdsTabs | `Tabs.*` |
-| `OnToast` (+ provider wiring) | HdsSnackbar | `Snackbar.*` + `useNotifications` |
-| `OnProgress` | HdsProgress | `Progress.Root/Track/Fill` |
-| `OnBreadcrumbs` (+ List/Item/Link/Page/Ellipsis/Divider) | HdsBreadcrumbs | `Breadcrumbs.*` |
-| `OnTable` | HdsDataTable | `createDataTable` + `createFilter` + own markup |
-| `OnPagination` (+ Item/Prev/Next/First/Last/Ellipsis) | additive (data-table footer) | `Pagination.*` |
-| `OnList` (+ Item/Group) | HdsListItem | `Atom`; `Collapsible` for groups |
-| `OnAvatar` (+ Image/Fallback) | HdsListItemAvatar | `Avatar.*` |
-| — dropped: `HdsSpacer` | flexbox `margin-left: auto` — a component would be API noise |
-| — deferred: `HdsDatePicker` | non-goal wave 1 — no v0 `DatePicker` primitive past draft maturity |
+| `OnButton` | `Button.Root/Content/Loading` | `size="icon"` variant covers icon-only buttons |
+| `OnBadge` | `Atom` | |
+| `OnChip` | `Atom` + `Button.Root` close affordance | |
+| `OnCard` (+ Header/Title/Description/Content/Footer) | `Atom` | |
+| `OnAlert` (+ Title/Description) | `Atom` + `role="alert"` | |
+| `OnBanner` | `Atom` | |
+| `OnInput` | `Input.Root/Control/Description/Error` | |
+| `OnDialog` (+ Activator/Content/Title/Description/Close/Footer) | `Dialog.*` | |
+| `OnTabs` (+ List/Item/Panel) | `Tabs.*` | |
+| `OnToast` (+ provider wiring) | `Snackbar.*` + `useNotifications` | |
+| `OnProgress` | `Progress.Root/Track/Fill` | |
+| `OnBreadcrumbs` (+ List/Item/Link/Page/Ellipsis/Divider) | `Breadcrumbs.*` | |
+| `OnTable` | `createDataTable` + `createFilter` + own markup | |
+| `OnPagination` (+ Item/Prev/Next/First/Last/Ellipsis) | `Pagination.*` | required by `OnTable`'s footer |
+| `OnList` (+ Item/Group) | `Atom`; `Collapsible` for groups | |
+| `OnAvatar` (+ Image/Fallback) | `Avatar.*` | |
+
+Deferred: no v0 `DatePicker` primitive exists yet, composable or component
+(v0's own inventory lists it planned, not yet drafted) — revisit wave 2 once
+one lands. A layout-only spacer (`margin-left: auto` on a flexbox) covers the
+one need a dedicated component would otherwise exist for — never built as
+its own component, since a utility already handles it without API noise.
 
 Icons: no icon dependency in the package — raw inline SVGs (lucide-style 24×24,
 `stroke-width: 2`, `currentColor`).
@@ -236,8 +237,8 @@ Maturity: **preview**. Docs app: `dev` → `/onyx`.
 ## Non-goals (wave 1)
 
 - DatePicker / calendar (blocked on a v0 primitive; documented gap).
-- Checkbox, Switch, Select, Slider, Combobox — not in the original inventory; the
-  DS is scoped to onyx's surface, not shadcn's full catalog.
+- Checkbox, Switch, Select, Slider, Combobox — out of scope for wave 1; the DS
+  covers Onyx's own surface, not shadcn's full catalog.
 - Published npm release (`private: true` until the release cut).
 - Figma library, Code Connect.
 - Unit/browser tests — house rule: tests are written when explicitly requested;
