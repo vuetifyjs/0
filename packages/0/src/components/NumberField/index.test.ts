@@ -785,11 +785,21 @@ describe('numberField', () => {
       expect(controlEl().attributes('aria-labelledby')).toBe('my-label')
     })
 
-    it('should not set aria-label when no label prop is provided', async () => {
+    it('should fall back to a default aria-label when no label prop is provided', async () => {
       const model = ref<number | null>(5)
       const { controlEl, wait } = mountNumberField({ model })
       await wait()
-      expect(controlEl().attributes('aria-label')).toBeUndefined()
+      expect(controlEl().attributes('aria-label')).toBe('Number')
+    })
+
+    it('should prefer the label prop over the default aria-label', async () => {
+      const model = ref<number | null>(5)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { label: 'Quantity' },
+      })
+      await wait()
+      expect(controlEl().attributes('aria-label')).toBe('Quantity')
     })
   })
 
