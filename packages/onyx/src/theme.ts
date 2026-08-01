@@ -87,7 +87,7 @@ export const light: Semantic = {
   'card-foreground': '#1f1915',
   'popover': '#fffefd',
   'popover-foreground': '#1f1915',
-  'primary': champagneDeep,
+  'primary': '#1f1915',
   'primary-foreground': '#f9f6f2',
   'secondary': '#efece7',
   'secondary-foreground': '#1f1915',

@@ -89,7 +89,10 @@
     color: var(--onyx-primary-foreground, #0d0a08);
   }
   .onyx-button[data-variant='default']:hover:not([data-disabled]) {
-    background: var(--onyx-band), color-mix(in oklab, var(--onyx-primary, #dac593) 92%, var(--onyx-foreground, #f0ece5));
+    /* Mixes toward card, not foreground: in light mode primary IS foreground (the fill is the
+       dark stone itself), so mixing toward foreground is a no-op there. card lightens in both
+       themes and stays a subtler touch than the :active mix below. */
+    background: var(--onyx-band), color-mix(in oklab, var(--onyx-primary, #dac593) 95%, var(--onyx-card, #181411));
   }
   .onyx-button[data-variant='default']:active:not([data-disabled]) {
     background: color-mix(in oklab, var(--onyx-primary, #dac593) 88%, var(--onyx-card, #181411));
