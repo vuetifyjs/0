@@ -49,6 +49,12 @@
   // review, which ends in content actions on the build sheet rather than step navigation.
   // The aside has to stop above that bar, so it needs to know which routes have one.
   const stepped = toRef(() => isBuilderRoute.value && route.path !== '/builder/review')
+
+  // Step 1's manifest is the point of the aside, so it fills the sticky pane instead of
+  // sizing to content — every other route just caps growth and lets it be as tall as it
+  // needs. This branch only ever renders on desktop (see the `v-if="!mobile"` below), so
+  // "fixed height, not just capped" is safe here without a separate mobile check.
+  const step1 = toRef(() => route.path === '/builder')
 </script>
 
 <template>
@@ -124,9 +130,9 @@
              either bar. -->
         <div
           class="sticky top-[calc(4rem+1px)] overflow-y-auto"
-          :class="stepped ? 'max-h-[calc(100vh-8rem-2px)]' : 'max-h-[calc(100vh-4rem-1px)]'"
+          :class="step1 ? 'h-[calc(100vh-8rem-2px)] flex flex-col' : (stepped ? 'max-h-[calc(100vh-8rem-2px)]' : 'max-h-[calc(100vh-4rem-1px)]')"
         >
-          <div class="sticky top-0 z-10 flex items-center gap-2 px-4 lg:px-5 h-11 border-b border-divider bg-background/90 backdrop-blur">
+          <div class="sticky top-0 z-10 flex items-center gap-2 px-4 lg:px-5 h-11 border-b border-divider bg-background/90 backdrop-blur flex-shrink-0">
             <span class="w-1.5 h-1.5 rounded-full bg-primary" />
             <p class="t-eyebrow text-on-surface-variant">Live preview</p>
           </div>
