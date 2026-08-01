@@ -102,6 +102,8 @@ ignoredBuiltDependencies:
 minimumReleaseAge: 20160
 
 minimumReleaseAgeExclude:
+  - vue
+  - '@vue/*'
   - '@vuetify/auth'
   - vite
   - brace-expansion
