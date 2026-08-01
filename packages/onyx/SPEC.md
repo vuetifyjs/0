@@ -4,13 +4,14 @@
 
 **Class:** design system (rich). See [DESIGN_SYSTEMS.md](../../DESIGN_SYSTEMS.md).
 
-Onyx recreates the *principles* of the 2020 Onyx Design System
-(johnleider/onyx — Vuetify 2, built for Medecision's Aerial platform) as a
-modern `@paper/*` design system on `@vuetify/v0`, with a **shadcn-centric visual
-language** instead of Material: neutral-first palette, paired semantic tokens, 1px
-borders over elevation, small radii from a single knob, `:focus-visible` rings,
-compact type. Nothing Material survives — no ripples, no floating labels, no
-elevation ramp, no ALL-CAPS buttons.
+Onyx is a `@paper/*` design system built headless from the start on
+`@vuetify/v0`, with a **shadcn-centric visual language** instead of Material:
+neutral-first palette, paired semantic tokens, 1px borders over elevation,
+small radii from a single knob, `:focus-visible` rings, compact type. Nothing
+Material survives — no ripples, no floating labels, no elevation ramp, no
+ALL-CAPS buttons. Its visual language has been redrawn since — a first pass
+shipped a flat graphite palette, replaced by the warm, dark-by-default
+lapidary material system described below.
 
 Component prefix: `On` (`OnButton`). CSS namespace: `onyx-*` classes,
 `--onyx-*` custom properties. `private: true`, `version: 0.0.0` until the
