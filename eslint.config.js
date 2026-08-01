@@ -95,6 +95,13 @@ export default vuetify({
   },
 },
 {
+  // @paper/bulma conformance tests: conform() throws on mismatch — it IS the assertion
+  files: ['packages/bulma/**/*.browser.test.ts'],
+  rules: {
+    'vitest/expect-expect': ['error', { assertFunctionNames: ['expect', 'conform'] }],
+  },
+},
+{
   files: ['**/*.vue'],
   rules: {
     '@typescript-eslint/no-explicit-any': 'off',
