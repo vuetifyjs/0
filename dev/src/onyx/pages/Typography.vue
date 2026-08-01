@@ -49,6 +49,7 @@
       </div>
 
       <span
+        class="onyx-typography__sample"
         :style="{
           fontFamily: isSerif(name) ? fontFamily.serif : fontFamily.sans,
           fontSize: size,
@@ -86,6 +87,16 @@
 
   .onyx-typography__row {
     border-bottom: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #e4e4e7);
+    flex-wrap: wrap;
+  }
+
+  /* At 3xl+ a single word in the sample can be wider than the space left over
+     after the fixed label column — wrap onto its own line and allow a
+     mid-word break as the last resort so the row can never force the page wider
+     than the viewport (the new 5xl step is what first exposed this). */
+  .onyx-typography__sample {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .onyx-typography__row:last-child {
