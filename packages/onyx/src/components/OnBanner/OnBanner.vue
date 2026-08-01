@@ -57,16 +57,19 @@
      v0's own file scope — whose root never receives this file's scoped data-v attribute
      (mirrors the OnButton/OnChip case). -->
 <style>
+  /* No girdle/pool here: a full-width banner attached to a layout edge is a fixture, not an
+     object floating above the ground — same discipline rule as ghost buttons and dividers
+     (direction-a.md §6): if it does not sit above the ground, it does not catch light. */
   .onyx-banner {
     align-items: center;
-    background: var(--onyx-muted, #27272a);
-    border-bottom: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #27272a);
-    color: var(--onyx-foreground, #fafafa);
+    background: var(--onyx-muted, #211c19);
+    border-bottom: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #2f2925);
+    color: var(--onyx-foreground, #f0ece5);
     display: flex;
-    font-size: var(--onyx-text-sm-size, 13px);
+    font-size: var(--onyx-text-sm-size, 13.5px);
     gap: var(--onyx-spacing-md, 16px);
     justify-content: space-between;
-    line-height: var(--onyx-text-sm-height, 18px);
+    line-height: var(--onyx-text-sm-height, 22px);
     padding: var(--onyx-spacing-sm, 12px) var(--onyx-spacing-lg, 24px);
     width: 100%;
   }
@@ -87,7 +90,7 @@
     background: transparent;
     border: none;
     border-radius: 9999px;
-    color: var(--onyx-muted-foreground, #a1a1aa);
+    color: var(--onyx-muted-foreground, #bab3ab);
     cursor: pointer;
     display: inline-flex;
     height: 20px;
@@ -97,7 +100,12 @@
   }
 
   .onyx-banner__dismiss:hover:not([data-disabled]) {
-    background: var(--onyx-accent, #27272a);
-    color: var(--onyx-foreground, #fafafa);
+    background: color-mix(in oklab, var(--onyx-accent, #2f2925) 70%, transparent);
+    color: var(--onyx-foreground, #f0ece5);
+  }
+
+  .onyx-banner__dismiss:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--onyx-ring, #dac593) 85%, transparent);
+    outline-offset: 2px;
   }
 </style>

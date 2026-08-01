@@ -17,10 +17,12 @@
      never reaches its root (mirrors the OnButton/Button.Root case). -->
 <style>
   .onyx-tabs__list {
-    background: var(--onyx-muted, #27272a);
-    border-radius: var(--onyx-radius-md, 0.375rem);
+    background: var(--onyx-band-recess), var(--onyx-intaglio, #090605);
+    border: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #2f2925);
+    border-radius: var(--onyx-radius-lg, 0.5rem);
+    box-shadow: var(--onyx-girdle-recess);
     display: inline-flex;
     gap: var(--onyx-spacing-3xs, 2px);
-    padding: 3px;
+    padding: var(--onyx-spacing-3xs, 2px);
   }
 </style>

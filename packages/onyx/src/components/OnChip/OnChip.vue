@@ -69,15 +69,15 @@
 <style>
   .onyx-chip {
     align-items: center;
-    background: var(--onyx-secondary, #27272a);
+    background: var(--onyx-secondary, #211c19);
     border: none;
     border-radius: 9999px;
-    color: var(--onyx-secondary-foreground, #fafafa);
+    color: var(--onyx-secondary-foreground, #f0ece5);
     display: inline-flex;
     font-size: var(--onyx-text-xs-size, 12px);
-    font-weight: 500;
+    font-weight: 550;
     gap: var(--onyx-spacing-2xs, 4px);
-    line-height: var(--onyx-text-xs-height, 16px);
+    line-height: var(--onyx-text-xs-height, 18px);
     padding: 2px 10px;
   }
 
@@ -86,16 +86,18 @@
   }
 
   .onyx-chip[data-interactive]:hover:not([data-disabled]) {
-    background: var(--onyx-accent, #27272a);
+    background: color-mix(in oklab, var(--onyx-accent, #2f2925) 70%, transparent);
   }
 
   .onyx-chip[data-interactive]:focus-visible {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--onyx-ring, #71717a) 50%, transparent);
-    outline: none;
+    outline: 2px solid color-mix(in oklab, var(--onyx-ring, #dac593) 85%, transparent);
+    outline-offset: 2px;
   }
 
+  /* Explicit disabled colors, never opacity (graft — see OnButton's [data-disabled] comment). */
   .onyx-chip[data-disabled] {
-    opacity: 0.5;
+    background: var(--onyx-card, #181411);
+    color: var(--onyx-muted-foreground, #bab3ab);
     pointer-events: none;
   }
 
@@ -114,6 +116,11 @@
   }
 
   .onyx-chip__dismiss:hover:not([data-disabled]) {
-    color: var(--onyx-destructive, #ef4444);
+    color: var(--onyx-destructive, #cf4b3b);
+  }
+
+  .onyx-chip__dismiss:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--onyx-ring, #dac593) 85%, transparent);
+    outline-offset: 2px;
   }
 </style>

@@ -103,39 +103,45 @@
   }
 
   .onyx-breadcrumbs__link {
-    color: var(--onyx-muted-foreground, #a1a1aa);
-    font-size: var(--onyx-text-sm-size, 13px);
-    line-height: var(--onyx-text-sm-height, 18px);
+    color: var(--onyx-muted-foreground, #bab3ab);
+    font-size: var(--onyx-text-sm-size, 13.5px);
+    line-height: var(--onyx-text-sm-height, 22px);
     text-decoration: none;
-    transition: color var(--onyx-motion-fast, 120ms);
+    transition: color var(--onyx-motion-fast, 120ms) var(--onyx-motion-lamp, cubic-bezier(0.4, 0, 0.2, 1));
   }
 
   .onyx-breadcrumbs__link:hover {
-    color: var(--onyx-foreground, #fafafa);
+    color: var(--onyx-foreground, #f0ece5);
   }
 
+  .onyx-breadcrumbs__link:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--onyx-ring, #dac593) 85%, transparent);
+    outline-offset: 2px;
+  }
+
+  /* Explicit disabled color, never opacity (graft — see OnButton's [data-disabled] comment). */
   .onyx-breadcrumbs__link[aria-disabled] {
+    color: color-mix(in oklab, var(--onyx-muted-foreground, #bab3ab) 55%, var(--onyx-background, #0d0a08));
     cursor: not-allowed;
-    opacity: 0.5;
     pointer-events: none;
   }
 
   .onyx-breadcrumbs__page {
-    color: var(--onyx-foreground, #fafafa);
-    font-size: var(--onyx-text-sm-size, 13px);
-    font-weight: 500;
-    line-height: var(--onyx-text-sm-height, 18px);
+    color: var(--onyx-foreground, #f0ece5);
+    font-size: var(--onyx-text-sm-size, 13.5px);
+    font-weight: 550;
+    line-height: var(--onyx-text-sm-height, 22px);
   }
 
   .onyx-breadcrumbs__divider {
     align-items: center;
-    color: var(--onyx-muted-foreground, #a1a1aa);
+    color: var(--onyx-muted-foreground, #bab3ab);
     display: inline-flex;
   }
 
   .onyx-breadcrumbs__ellipsis {
     align-items: center;
-    color: var(--onyx-muted-foreground, #a1a1aa);
+    color: var(--onyx-muted-foreground, #bab3ab);
     display: inline-flex;
   }
 
@@ -153,7 +159,12 @@
   }
 
   .onyx-breadcrumbs__activator:hover {
-    background: var(--onyx-accent, #27272a);
-    color: var(--onyx-foreground, #fafafa);
+    background: color-mix(in oklab, var(--onyx-accent, #2f2925) 70%, transparent);
+    color: var(--onyx-foreground, #f0ece5);
+  }
+
+  .onyx-breadcrumbs__activator:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--onyx-ring, #dac593) 85%, transparent);
+    outline-offset: 2px;
   }
 </style>

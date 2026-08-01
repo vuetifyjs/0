@@ -3,7 +3,7 @@ import { V0StyleSheetThemeAdapter } from '@vuetify/v0'
 
 // Emitters
 import { themes } from './colors'
-import { block, foundations } from './css'
+import { block, contrastMore, foundations } from './css'
 
 // Types
 import type { Colors } from '@vuetify/v0'
@@ -34,6 +34,8 @@ export class OnyxStyleSheetAdapter extends V0StyleSheetThemeAdapter {
       const dark = (themes as Record<string, { dark?: boolean }>)[name]?.dark ?? name.endsWith('-dark')
       css += block(`[data-theme="${name}"]`, themeColors, dark)
     }
+
+    css += contrastMore()
 
     return css
   }

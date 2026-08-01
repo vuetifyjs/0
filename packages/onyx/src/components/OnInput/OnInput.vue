@@ -129,51 +129,67 @@
   }
 
   .onyx-input__label {
-    color: var(--onyx-foreground, #fafafa);
-    font-size: var(--onyx-text-sm-size, 13px);
-    font-weight: 500;
-    line-height: var(--onyx-text-sm-height, 18px);
+    color: var(--onyx-foreground, #f0ece5);
+    font-size: var(--onyx-text-sm-size, 13.5px);
+    font-weight: 550;
+    line-height: var(--onyx-text-sm-height, 22px);
   }
 
   .onyx-input__field {
     position: relative;
   }
 
+  /* Inputs are cut into the stone, not built on top of it — the intaglio recipe. */
   .onyx-input__control {
-    background: transparent;
-    border: var(--onyx-stroke-s, 1px) solid var(--onyx-input, #27272a);
+    background: var(--onyx-band-recess), var(--onyx-intaglio, #090605);
+    border: var(--onyx-stroke-s, 1px) solid var(--onyx-input, #2f2925);
     border-radius: var(--onyx-radius-md, 0.375rem);
-    color: var(--onyx-foreground, #fafafa);
+    box-shadow: var(--onyx-girdle-recess);
+    color: var(--onyx-foreground, #f0ece5);
     font-family: var(--onyx-font-sans, ui-sans-serif, system-ui, sans-serif);
-    font-size: var(--onyx-text-sm-size, 13px);
+    font-size: var(--onyx-text-base-size, 15px);
     height: var(--onyx-control-md, 36px);
     padding: 0 var(--onyx-spacing-sm, 12px);
-    transition: border-color var(--onyx-motion-fast, 120ms), box-shadow var(--onyx-motion-fast, 120ms);
+    transition: border-color var(--onyx-motion-fast, 120ms) var(--onyx-motion-lamp, cubic-bezier(0.4, 0, 0.2, 1)),
+                box-shadow var(--onyx-motion-fast, 120ms) var(--onyx-motion-lamp, cubic-bezier(0.4, 0, 0.2, 1));
     width: 100%;
   }
 
   .onyx-input__control::placeholder {
-    color: var(--onyx-muted-foreground, #a1a1aa);
+    color: color-mix(in oklab, var(--onyx-muted-foreground, #bab3ab) 62%, transparent);
   }
 
+  .onyx-input__control:hover:not([data-disabled]) {
+    border-color: var(--onyx-hairline-strong, #423c37);
+  }
+
+  /* Focus fills the cut with light rather than ringing the outside of it — but per the Direction
+     B focus graft, that glow is decoration ON TOP of a real outline, never a substitute for one:
+     "never replaced by a box-shadow, never removed." */
   .onyx-input__control:focus,
   .onyx-input__control[data-focused] {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--onyx-ring, #71717a) 50%, transparent);
-    outline: none;
+    border-color: color-mix(in oklab, var(--onyx-champagne, #dac593) 45%, var(--onyx-input, #2f2925));
+    box-shadow: var(--onyx-girdle-recess), 0 0 0 3px color-mix(in oklab, var(--onyx-champagne, #dac593) 20%, transparent);
+    outline: 2px solid color-mix(in oklab, var(--onyx-ring, #dac593) 85%, transparent);
+    outline-offset: 2px;
   }
 
+  /* Explicit disabled colors, never opacity (graft — see OnButton's [data-disabled] comment). */
   .onyx-input__control[data-disabled] {
+    background: var(--onyx-card, #181411);
+    border-color: var(--onyx-border, #2f2925);
+    box-shadow: none;
+    color: var(--onyx-muted-foreground, #bab3ab);
     cursor: not-allowed;
-    opacity: 0.5;
   }
 
   .onyx-input__control[data-state='invalid'] {
-    border-color: var(--onyx-destructive, #ef4444);
+    border-color: color-mix(in oklab, var(--onyx-destructive, #cf4b3b) 60%, var(--onyx-input, #2f2925));
   }
 
   .onyx-input__control[data-state='invalid']:focus,
   .onyx-input__control[data-state='invalid'][data-focused] {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--onyx-destructive, #ef4444) 50%, transparent);
+    box-shadow: var(--onyx-girdle-recess), 0 0 0 3px color-mix(in oklab, var(--onyx-destructive, #cf4b3b) 22%, transparent);
   }
 
   .onyx-input__field[data-password] .onyx-input__control {
@@ -190,7 +206,7 @@
   }
 
   .onyx-input[data-size='lg'] .onyx-input__control {
-    font-size: var(--onyx-text-base-size, 14px);
+    font-size: var(--onyx-text-md-size, 16.5px);
     height: var(--onyx-control-lg, 40px);
   }
 
@@ -199,7 +215,7 @@
     background: transparent;
     border: none;
     border-radius: var(--onyx-radius-sm, 0.25rem);
-    color: var(--onyx-muted-foreground, #a1a1aa);
+    color: var(--onyx-muted-foreground, #bab3ab);
     cursor: pointer;
     display: inline-flex;
     height: 24px;
@@ -213,19 +229,26 @@
   }
 
   .onyx-input__reveal:hover:not([data-disabled]) {
-    color: var(--onyx-foreground, #fafafa);
+    color: var(--onyx-foreground, #f0ece5);
+  }
+
+  .onyx-input__reveal:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--onyx-ring, #dac593) 85%, transparent);
+    outline-offset: 2px;
   }
 
   .onyx-input__description {
-    color: var(--onyx-muted-foreground, #a1a1aa);
-    font-size: var(--onyx-text-sm-size, 13px);
-    line-height: var(--onyx-text-sm-height, 18px);
+    color: var(--onyx-muted-foreground, #bab3ab);
+    font-size: var(--onyx-text-xs-size, 12px);
+    line-height: var(--onyx-text-xs-height, 18px);
   }
 
+  /* Error text uses destructive-fg, not destructive — the fill color reaches only Lc -37.9 on
+     stone (direction-a.md §5.5 note); destructive-fg was raised specifically to carry this text. */
   .onyx-input__error {
-    color: var(--onyx-destructive, #ef4444);
-    font-size: var(--onyx-text-sm-size, 13px);
-    line-height: var(--onyx-text-sm-height, 18px);
+    color: var(--onyx-destructive-fg, #f18a76);
+    font-size: var(--onyx-text-xs-size, 12px);
+    line-height: var(--onyx-text-xs-height, 18px);
   }
 
   .onyx-input__error[data-state='hidden'] {

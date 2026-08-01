@@ -17,9 +17,12 @@
      data-v never reaches its root (mirrors the OnButton/Button.Root case). -->
 <style>
   .onyx-dialog__title {
-    font-size: var(--onyx-text-lg-size, 18px);
-    font-weight: 600;
-    line-height: var(--onyx-text-lg-height, 28px);
+    font-family: var(--onyx-font-serif, "Fraunces Variable", Fraunces, Georgia, serif);
+    font-size: var(--onyx-text-2xl-size, 27px);
+    font-variation-settings: 'opsz' 72, 'SOFT' 0, 'WONK' 1;
+    font-weight: 300;
+    letter-spacing: var(--onyx-text-2xl-tracking, -0.018em);
+    line-height: var(--onyx-text-2xl-height, 34px);
     margin: 0;
   }
 </style>

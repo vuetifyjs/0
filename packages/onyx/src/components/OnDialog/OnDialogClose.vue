@@ -36,7 +36,7 @@
     background: transparent;
     border: none;
     border-radius: var(--onyx-radius-sm, 0.25rem);
-    color: var(--onyx-muted-foreground, #a1a1aa);
+    color: var(--onyx-muted-foreground, #bab3ab);
     cursor: pointer;
     display: inline-flex;
     height: 28px;
@@ -49,12 +49,12 @@
   }
 
   .onyx-dialog__close:hover {
-    background: var(--onyx-accent, #27272a);
-    color: var(--onyx-foreground, #fafafa);
+    background: color-mix(in oklab, var(--onyx-accent, #2f2925) 70%, transparent);
+    color: var(--onyx-foreground, #f0ece5);
   }
 
   .onyx-dialog__close:focus-visible {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--onyx-ring, #71717a) 50%, transparent);
-    outline: none;
+    outline: 2px solid color-mix(in oklab, var(--onyx-ring, #dac593) 85%, transparent);
+    outline-offset: 2px;
   }
 </style>

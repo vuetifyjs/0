@@ -29,15 +29,15 @@
   .onyx-list__item {
     align-items: center;
     border-radius: var(--onyx-radius-md, 0.375rem);
-    color: var(--onyx-foreground, #fafafa);
+    color: var(--onyx-foreground, #f0ece5);
     display: flex;
     gap: var(--onyx-spacing-sm, 12px);
     padding: var(--onyx-spacing-sm, 12px);
   }
 
   .onyx-list__item[data-active] {
-    background: var(--onyx-accent, #27272a);
-    color: var(--onyx-accent-foreground, #fafafa);
+    background: color-mix(in oklab, var(--onyx-accent, #2f2925) 70%, transparent);
+    color: var(--onyx-accent-foreground, #f0ece5);
   }
 
   .onyx-list__item[data-two-line] {

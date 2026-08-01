@@ -33,7 +33,7 @@ function group (name: string, values: Record<string, string>): string[] {
   return Object.entries(values).map(([key, value]) => `  --${PREFIX}-${name}-${key}: ${value};`)
 }
 
-type FontSize = Record<string, readonly [string, { readonly lineHeight: string, readonly weight?: string }]>
+type FontSize = Record<string, readonly [string, { readonly lineHeight: string, readonly weight?: string, readonly letterSpacing?: string }]>
 
 function fontSizeVars (values: FontSize): string[] {
   const lines: string[] = []
@@ -41,6 +41,7 @@ function fontSizeVars (values: FontSize): string[] {
   for (const [key, [size, meta]] of Object.entries(values)) {
     lines.push(`  --${PREFIX}-text-${key}-size: ${size};`, `  --${PREFIX}-text-${key}-height: ${meta.lineHeight};`)
     if (meta.weight) lines.push(`  --${PREFIX}-text-${key}-weight: ${meta.weight};`)
+    if (meta.letterSpacing) lines.push(`  --${PREFIX}-text-${key}-tracking: ${meta.letterSpacing};`)
   }
 
   return lines
@@ -76,4 +77,24 @@ export function block (selector: string, colors: Record<string, string>, dark?: 
   lines.push(`  color-scheme: ${dark ? 'dark' : 'light'};`, `  color: var(--${PREFIX}-foreground);`)
 
   return `${selector} {\n${lines.join('\n')}\n}\n`
+}
+
+// Required deliverable, not optional polish (direction-a.md §9): hairline borders measure only
+// 1.28:1 (dark) / 1.42:1 (light) against their surface, deliberately below the 3:1 non-text floor
+// since this direction demotes borders to decoration everywhere else. Under prefers-contrast:
+// more, --onyx-border is promoted to hairline-strong in both themes, and the dark girdle (whose
+// baseline 0.055 alpha is the whole point of the design, but too faint for this preference) is
+// raised to 0.14. Light mode's girdle is already near-opaque at rest (0.9-1 alpha) — "raising" it
+// further isn't meaningful, so only the border promotion applies there.
+export function contrastMore (): string {
+  return `@media (prefers-contrast: more) {
+  :root, [data-theme="${PREFIX}"] {
+    --${PREFIX}-border: var(--${PREFIX}-hairline-strong);
+    --${PREFIX}-girdle: inset 0 1px 0 0 rgb(247 240 226 / 0.14);
+  }
+  [data-theme="${PREFIX}-light"] {
+    --${PREFIX}-border: var(--${PREFIX}-hairline-strong);
+  }
+}
+`
 }

@@ -74,34 +74,45 @@
   }
 
   .onyx-toast {
-    background: var(--onyx-popover, #18181b);
-    border: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #27272a);
-    border-left-color: var(--onyx-border, #27272a);
-    border-left-width: 4px;
-    border-radius: var(--onyx-radius-md, 0.375rem);
-    box-shadow: var(--onyx-shadow-sm, 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1));
-    color: var(--onyx-popover-foreground, #fafafa);
+    background: var(--onyx-band), var(--onyx-popover, #211c19);
+    border: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #2f2925);
+    border-radius: var(--onyx-radius-lg, 0.5rem);
+    box-shadow: var(--onyx-girdle), var(--onyx-pool-overlay);
+    color: var(--onyx-popover-foreground, #f0ece5);
     display: flex;
     gap: var(--onyx-spacing-sm, 12px);
     max-width: 360px;
-    padding: var(--onyx-spacing-md, 16px);
+    padding: var(--onyx-spacing-md, 16px) var(--onyx-spacing-lg, 24px);
     width: 100%;
   }
 
+  .onyx-toast {
+    animation: onyx-present var(--onyx-motion-base, 200ms) var(--onyx-motion-easing, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+
+  /* Transforms dropped entirely, only opacity remains at 120ms (direction-a.md §7). */
+  @media (prefers-reduced-motion: reduce) {
+    .onyx-toast {
+      animation: onyx-fade var(--onyx-motion-fast, 120ms) linear;
+    }
+  }
+
+  /* Severity lives in the girdle and nowhere else — no tinted backgrounds, no colored borders.
+     A severity toast is a stone object with a colored light on its top edge (direction-a.md §5.8). */
   .onyx-toast[data-severity='info'] {
-    border-left-color: var(--onyx-info, #60a5fa);
+    box-shadow: inset 0 1px 0 0 color-mix(in oklab, var(--onyx-info, #90bce9) 70%, transparent), var(--onyx-pool-overlay);
   }
 
   .onyx-toast[data-severity='success'] {
-    border-left-color: var(--onyx-success, #22c55e);
+    box-shadow: inset 0 1px 0 0 color-mix(in oklab, var(--onyx-success, #93ca9e) 70%, transparent), var(--onyx-pool-overlay);
   }
 
   .onyx-toast[data-severity='warning'] {
-    border-left-color: var(--onyx-warning, #fbbf24);
+    box-shadow: inset 0 1px 0 0 color-mix(in oklab, var(--onyx-warning, #fcb26f) 70%, transparent), var(--onyx-pool-overlay);
   }
 
   .onyx-toast[data-severity='error'] {
-    border-left-color: var(--onyx-destructive, #ef4444);
+    box-shadow: inset 0 1px 0 0 color-mix(in oklab, var(--onyx-destructive, #cf4b3b) 70%, transparent), var(--onyx-pool-overlay);
   }
 
   .onyx-toast__content {
@@ -112,30 +123,36 @@
   }
 
   .onyx-toast__subject {
-    font-size: var(--onyx-text-sm-size, 13px);
-    font-weight: 600;
-    line-height: var(--onyx-text-sm-height, 18px);
+    font-size: var(--onyx-text-base-size, 15px);
+    font-weight: 550;
+    line-height: var(--onyx-text-base-height, 24px);
     margin: 0;
   }
 
   .onyx-toast__body {
-    color: var(--onyx-muted-foreground, #a1a1aa);
-    font-size: var(--onyx-text-sm-size, 13px);
-    line-height: var(--onyx-text-sm-height, 18px);
+    color: var(--onyx-muted-foreground, #bab3ab);
+    font-size: var(--onyx-text-sm-size, 13.5px);
+    line-height: var(--onyx-text-sm-height, 22px);
     margin: 0;
   }
 
   .onyx-toast__action {
     background: transparent;
     border: none;
-    color: var(--onyx-foreground, #fafafa);
+    color: var(--onyx-foreground, #f0ece5);
     cursor: pointer;
     flex-shrink: 0;
-    font-size: var(--onyx-text-sm-size, 13px);
-    font-weight: 600;
+    font-size: var(--onyx-text-sm-size, 13.5px);
+    font-weight: 550;
     padding: 0;
     text-decoration-line: underline;
     text-underline-offset: 4px;
+  }
+
+  .onyx-toast__action:focus-visible,
+  .onyx-toast__close:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--onyx-ring, #dac593) 85%, transparent);
+    outline-offset: 2px;
   }
 
   .onyx-toast__close {
@@ -143,7 +160,7 @@
     background: transparent;
     border: none;
     border-radius: var(--onyx-radius-sm, 0.25rem);
-    color: var(--onyx-muted-foreground, #a1a1aa);
+    color: var(--onyx-muted-foreground, #bab3ab);
     cursor: pointer;
     display: inline-flex;
     flex-shrink: 0;
@@ -154,7 +171,7 @@
   }
 
   .onyx-toast__close:hover {
-    background: var(--onyx-accent, #27272a);
-    color: var(--onyx-foreground, #fafafa);
+    background: color-mix(in oklab, var(--onyx-accent, #2f2925) 70%, transparent);
+    color: var(--onyx-foreground, #f0ece5);
   }
 </style>

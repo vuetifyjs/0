@@ -168,32 +168,34 @@
      (mirrors the OnButton/Button.Root case). -->
 <style>
   .onyx-table {
-    border: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #27272a);
+    background: var(--onyx-band), var(--onyx-card, #181411);
+    border: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #2f2925);
     border-radius: var(--onyx-radius-lg, 0.5rem);
+    box-shadow: var(--onyx-girdle), var(--onyx-pool);
     overflow-x: auto;
   }
 
   .onyx-table__table {
     border-collapse: collapse;
-    font-size: var(--onyx-text-sm-size, 13px);
+    font-size: var(--onyx-text-sm-size, 13.5px);
     width: 100%;
   }
 
   .onyx-table__head {
-    background: var(--onyx-background, #09090b);
+    background: var(--onyx-card, #181411);
     position: sticky;
     top: 0;
   }
 
   .onyx-table__cell {
-    border-bottom: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #27272a);
+    border-bottom: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #2f2925);
     padding: var(--onyx-spacing-sm, 12px) var(--onyx-spacing-md, 16px);
     text-align: left;
   }
 
   .onyx-table__cell--head {
-    color: var(--onyx-muted-foreground, #a1a1aa);
-    font-weight: 500;
+    color: var(--onyx-muted-foreground, #bab3ab);
+    font-weight: 550;
   }
 
   .onyx-table__sort {
@@ -209,13 +211,13 @@
   }
 
   .onyx-table__sort:hover {
-    color: var(--onyx-foreground, #fafafa);
+    color: var(--onyx-foreground, #f0ece5);
   }
 
   .onyx-table__sort:focus-visible {
     border-radius: var(--onyx-radius-sm, 0.25rem);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--onyx-ring, #71717a) 50%, transparent);
-    outline: none;
+    outline: 2px solid color-mix(in oklab, var(--onyx-ring, #dac593) 85%, transparent);
+    outline-offset: 2px;
   }
 
   .onyx-table__sort-icon--idle {
@@ -223,7 +225,7 @@
   }
 
   .onyx-table__row:hover {
-    background: var(--onyx-muted, #27272a);
+    background: color-mix(in oklab, var(--onyx-muted, #211c19) 70%, transparent);
   }
 
   .onyx-table__footer {
@@ -254,7 +256,7 @@
   }
 
   .onyx-table__sizes .onyx-button[data-active] {
-    background: var(--onyx-accent, #27272a);
-    color: var(--onyx-accent-foreground, #fafafa);
+    background: color-mix(in oklab, var(--onyx-accent, #2f2925) 70%, transparent);
+    color: var(--onyx-accent-foreground, #f0ece5);
   }
 </style>

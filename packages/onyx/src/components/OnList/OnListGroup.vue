@@ -50,14 +50,19 @@
     align-items: center;
     background: transparent;
     border: none;
-    color: var(--onyx-foreground, #fafafa);
+    color: var(--onyx-foreground, #f0ece5);
     cursor: pointer;
     display: flex;
-    font-size: var(--onyx-text-sm-size, 13px);
-    font-weight: 500;
+    font-size: var(--onyx-text-sm-size, 13.5px);
+    font-weight: 550;
     justify-content: space-between;
     padding: var(--onyx-spacing-sm, 12px);
     width: 100%;
+  }
+
+  .onyx-list-group__activator:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--onyx-ring, #dac593) 85%, transparent);
+    outline-offset: 2px;
   }
 
   .onyx-list-group__chevron {

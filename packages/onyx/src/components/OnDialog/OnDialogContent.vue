@@ -36,15 +36,45 @@
      data-v never reaches its root (mirrors the OnButton/Button.Root case). -->
 <style>
   .onyx-dialog__content {
-    background: var(--onyx-background, #09090b);
-    border: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #27272a);
-    border-radius: var(--onyx-radius-lg, 0.5rem);
-    box-shadow: var(--onyx-shadow-sm, 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1));
-    color: var(--onyx-foreground, #fafafa);
+    background: var(--onyx-band), var(--onyx-popover, #211c19);
+    border: var(--onyx-stroke-s, 1px) solid var(--onyx-hairline-strong, #423c37);
+    border-radius: var(--onyx-radius-xl, 0.75rem);
+    box-shadow: var(--onyx-girdle-lit), var(--onyx-pool-overlay);
+    color: var(--onyx-popover-foreground, #f0ece5);
     margin: auto;
     max-width: 512px;
-    padding: var(--onyx-spacing-lg, 24px);
+    padding: var(--onyx-spacing-xl, 32px);
     width: 100%;
+  }
+
+  .onyx-dialog__content[open] {
+    animation: onyx-present var(--onyx-motion-slow, 320ms) var(--onyx-motion-easing, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+
+  .onyx-dialog__content[open]::backdrop {
+    animation: onyx-fade var(--onyx-motion-slow, 320ms) var(--onyx-motion-lamp, cubic-bezier(0.4, 0, 0.2, 1));
+  }
+
+  /* Transforms dropped entirely, only opacity remains at 120ms (direction-a.md §7) — the
+     entrance keeps its opacity fade but loses the rise/scale, and moves to the fast duration. */
+  @media (prefers-reduced-motion: reduce) {
+    .onyx-dialog__content[open] {
+      animation: onyx-fade var(--onyx-motion-fast, 120ms) linear;
+    }
+
+    .onyx-dialog__content[open]::backdrop {
+      animation: onyx-fade var(--onyx-motion-fast, 120ms) linear;
+    }
+  }
+
+  @keyframes onyx-present {
+    from { opacity: 0; transform: translateY(8px) scale(0.985); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes onyx-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
   /* No `position` override here: a modal <dialog> is already `position: fixed` via
@@ -63,8 +93,11 @@
     gap: var(--onyx-spacing-md, 16px);
   }
 
+  /* Warm-black scrim with a light desaturation — never rgb(0 0 0 / X); a cool-black backdrop
+     next to the warm ground would read as a rendering bug (direction-a.md §5.6, §3.2). */
   .onyx-dialog__content::backdrop {
-    background: rgb(0 0 0 / 0.5);
+    backdrop-filter: blur(3px) saturate(0.85);
+    background: color-mix(in oklab, var(--onyx-pitch-deep, #080605) 78%, transparent);
   }
 
   .onyx-dialog__content[data-mode='sheet'] {

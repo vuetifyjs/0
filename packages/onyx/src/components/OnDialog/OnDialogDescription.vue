@@ -17,9 +17,9 @@
      data-v never reaches its root (mirrors the OnButton/Button.Root case). -->
 <style>
   .onyx-dialog__description {
-    color: var(--onyx-muted-foreground, #a1a1aa);
-    font-size: var(--onyx-text-sm-size, 13px);
-    line-height: var(--onyx-text-sm-height, 18px);
+    color: var(--onyx-muted-foreground, #bab3ab);
+    font-size: var(--onyx-text-base-size, 15px);
+    line-height: var(--onyx-text-base-height, 24px);
     margin: 0;
   }
 </style>

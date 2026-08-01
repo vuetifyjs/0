@@ -43,12 +43,12 @@
 <style>
   .onyx-avatar {
     align-items: center;
-    background: var(--onyx-muted, #27272a);
+    background: var(--onyx-muted, #211c19);
     border-radius: 9999px;
-    color: var(--onyx-muted-foreground, #a1a1aa);
+    color: var(--onyx-muted-foreground, #bab3ab);
     display: inline-flex;
     flex-shrink: 0;
-    font-weight: 500;
+    font-weight: 550;
     justify-content: center;
     overflow: hidden;
   }
@@ -60,13 +60,13 @@
   }
 
   .onyx-avatar[data-size='md'] {
-    font-size: var(--onyx-text-sm-size, 13px);
+    font-size: var(--onyx-text-sm-size, 13.5px);
     height: 32px;
     width: 32px;
   }
 
   .onyx-avatar[data-size='lg'] {
-    font-size: var(--onyx-text-base-size, 14px);
+    font-size: var(--onyx-text-base-size, 15px);
     height: 40px;
     width: 40px;
   }

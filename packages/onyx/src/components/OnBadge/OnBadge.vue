@@ -30,30 +30,31 @@
     border-radius: 9999px;
     display: inline-flex;
     font-size: var(--onyx-text-xs-size, 12px);
-    font-weight: 600;
-    line-height: var(--onyx-text-xs-height, 16px);
+    font-weight: 550;
+    letter-spacing: var(--onyx-text-xs-tracking, 0.005em);
+    line-height: var(--onyx-text-xs-height, 18px);
     padding: 2px 10px;
     white-space: nowrap;
   }
 
   .onyx-badge[data-variant='default'] {
-    background: var(--onyx-primary, #fafafa);
-    color: var(--onyx-primary-foreground, #18181b);
+    background: var(--onyx-primary, #dac593);
+    color: var(--onyx-primary-foreground, #0d0a08);
   }
 
   .onyx-badge[data-variant='secondary'] {
-    background: var(--onyx-secondary, #27272a);
-    color: var(--onyx-secondary-foreground, #fafafa);
+    background: var(--onyx-secondary, #211c19);
+    color: var(--onyx-secondary-foreground, #f0ece5);
   }
 
   .onyx-badge[data-variant='outline'] {
     background: transparent;
-    border: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #27272a);
-    color: var(--onyx-foreground, #fafafa);
+    border: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #2f2925);
+    color: var(--onyx-foreground, #f0ece5);
   }
 
   .onyx-badge[data-variant='destructive'] {
-    background: var(--onyx-destructive, #ef4444);
-    color: var(--onyx-destructive-foreground, #ffffff);
+    background: var(--onyx-destructive, #cf4b3b);
+    color: var(--onyx-destructive-foreground, #f0ece5);
   }
 </style>

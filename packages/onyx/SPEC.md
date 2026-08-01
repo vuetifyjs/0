@@ -16,28 +16,130 @@ Component prefix: `On` (`OnButton`). CSS namespace: `onyx-*` classes,
 `--onyx-*` custom properties. `private: true`, `version: 0.0.0` until the
 first release cut.
 
+**Visual language: Direction A, "Lapidary / Jewel-Box"** (commissioned design
+elevation, won a 3-way competition — full spec `.superpowers/design/direction-a.md`).
+The shadcn-derived *composition* rules below (token pairing, 1px borders over
+elevation, compact type, zero utility classes) are unchanged; the *palette and
+material system* are Direction A's, replacing the original zinc/Inter treatment
+described in earlier drafts of this file. Real onyx is a warm brown-black
+chalcedony, not blue-black — depth is drawn with a girdle of light on each
+object's top edge plus a dark pool beneath it, not with shadow alone (shadow
+on a near-black ground is arithmetically invisible; see direction-a.md §2).
+
 ## Token source
 
-No Figma file. Tokens are **authored directly in `src/theme.ts`** — a single
-neutral scale (`neutral-50…950`), one brand hue (`brand-*`, graphite), one
-destructive hue (`red-*`), plus three severity singles (`warning`/`success`/`info`)
-consumed directly by `OnAlert`/`OnToast` for severity styling and also feeding
-the kit-interop alias map below. Semantic pairs
-(`background`/`foreground`, `card`/`card-foreground`, `primary`/`primary-foreground`,
-…) live in `light: Semantic` / `dark: Semantic` maps. Flat color map for the
-adapter: `src/colors.ts`. Foundations (`radius`, `spacing`, `stroke`, `shadow`,
-`fontFamily`, `fontSize`, `motion`, `control`) are non-color `as const` objects in
-the same file.
+No Figma file. Tokens are **authored directly in `src/theme.ts`** — nine named
+surface values (`pitch`, `stone`, `stoneRaised`, `intaglio`, `hairline`,
+`hairlineStrong`, `mutedFg`, `bone`, `champagne`, plus `champagneDeep`/
+`carnelian`/`carnelianFg`/`verdite`/`topaz`/`sapphire` for destructive/severity),
+OKLCH hue 56-62°/chroma 0.006-0.012 for the dark ramp — warm stone, never
+blue-black. **`#000000` never appears anywhere in this system — hard rule.**
+Every "black" reference (scrims, recess shadows, pool shadows) is built from
+`pitchDeep` (`#080605`) or a `color-mix()` of it instead of a literal
+`#000`/`rgb(0 0 0 / X)`. The two `shadow-xs`/`shadow-sm` foundation tokens are
+the sole exception — kept verbatim for backward compatibility (unused by any
+component after this direction; see "Material system" below) and explicitly
+exempted from the rule for that reason. A legacy `neutral` 50-950 ramp also
+survives, unused internally, purely so `dev/src/onyx/pages/Color.vue` keeps
+compiling until the docs pass replaces it.
+
+Semantic pairs (`background`/`foreground`, `card`/`card-foreground`,
+`primary`/`primary-foreground`, …) live in `light: Semantic` / `dark: Semantic`
+maps, plus material geometry maps `materialDark`/`materialLight` (band, girdle,
+girdle-lit, girdle-recess, pool, pool-overlay, lamp, surface-raised,
+hairline-strong, champagne — all theme-dependent) and two theme-independent
+values (`bandRecess`, `girdleActive` — the spec's own light-mode override never
+redefines these, so both themes share one value). `colors.ts`'s `palette()`
+merges a theme's semantic map with its material map plus the shared/scrim
+values into the one flat `Record<string,string>` `block()` emits — `--v0-*`
+aliasing and the `UNSAFE_CSS` guard are unaware of the merge, they just iterate
+whatever `palette()` hands them. Foundations (`radius`, `spacing`, `stroke`,
+`shadow`, `fontFamily`, `fontSize`, `motion`, `control`) are non-color
+`as const` objects in the same file; `fontFamily` gained a `serif` face
+(Fraunces), and every `fontSize` step now carries a `letterSpacing` alongside
+size/line-height (direction-a.md §4.2's "buying air" scale).
 
 **Onyx is dark by default.** Two registered themes: `onyx` (the `dark: Semantic`
 map — Dark, default) and `onyx-light` (the `light: Semantic` map — Light,
 variant), both emitted by the adapter and both prebaked. `theme.ts` keeps the
 `light`/`dark` value-map names as-is (they describe the palette, not which one
 ships as default); the *wiring* in `colors.ts` is what flips —
-`themes.onyx` points at `palette(dark)` with `dark: true`, `themes['onyx-light']`
-points at `palette(light)`. `createOnyxPlugin()`'s `default: 'onyx'` and
-`bake-theme.ts`'s `:root` block both resolve to the dark palette; `:root` also
-carries `color-scheme: dark`.
+`themes.onyx` points at `palette(dark, materialDark)` with `dark: true`,
+`themes['onyx-light']` points at `palette(light, materialLight)`.
+`createOnyxPlugin()`'s `default: 'onyx'` and `bake-theme.ts`'s `:root` block
+both resolve to the dark palette; `:root` also carries `color-scheme: dark`.
+
+### Material system — the girdle
+
+Every raised surface is four layers (direction-a.md §5.1): a **band** (a subtle
+top-lightening gradient), a **girdle** (a 1px inset line on the top edge — the
+signature device, brighter = closer to the lamp, champagne-tinted = selected/
+active, colored = severity), a **hairline** border, and a **pool** (a wide
+negative-spread shadow that darkens the ground beneath the object, never a
+visible drop shadow). Recessed surfaces (inputs, tab troughs, progress tracks)
+invert the light direction instead: `band-recess` darkens top-to-bottom,
+`girdle-recess` is a dark inset at the top with a faint lit edge at the bottom.
+Applied to all 16 component families; `OnCard`/`OnDialog`/`OnToast`/`OnTable`
+get the full band+girdle+pool treatment as raised objects, `OnInput`/
+`OnTabs__list`/`OnProgress__track` get the recess treatment, and small inline
+elements (`OnBadge`, `OnChip`, `OnAvatar`, breadcrumb links) intentionally
+**don't** get a girdle at all — per direction-a.md §6's own discipline rule,
+"ghost buttons, plain text, dividers... never get a girdle... if it does not
+sit above the ground, it does not catch light" — a pill-shaped inline label
+isn't an object floating above the page any more than a ghost button is.
+`OnBanner`, spanning full-width and attached to a layout edge, is treated the
+same way (a fixture, not a floating object).
+
+Severity (`OnAlert`, `OnToast`) lives **only** in the girdle — a colored inset
+line on the object's own top edge — never a tinted background or colored
+border, per direction-a.md §5.8's "single rule for severity colour."
+
+### Grafts from Direction B (direction-b.md)
+
+Three deliberate imports, layered onto Direction A's own material system:
+
+- **Explicit disabled colors, never `opacity`.** Every `[data-disabled]` state
+  across all 16 families sets a concrete `color`/`background`/`border-color`
+  (usually `muted-foreground` on a flat, unlit surface, `box-shadow: none`)
+  instead of fading with `opacity: 0.5`-style rules — an opacity fade also
+  dims the focus ring and can drop text below the accessibility floor.
+- **Focus is a real `outline`, never only a `box-shadow`.** Every focusable
+  control in the system (buttons, inputs, tabs, chips, pagination items,
+  breadcrumb links/activator, dialog close, toast action/close, list-group
+  activator) carries `outline: 2px solid color-mix(in oklab, var(--onyx-ring)
+  85%, transparent); outline-offset: 2px`. `OnInput`'s champagne glow
+  (`box-shadow`) is additive decoration on top of that outline, not a
+  replacement for it — direction-a.md §5.5's own worked CSS set `outline:
+  none` on focus, which this graft overrides.
+- **Excavated input lighting** — `OnInput`'s recess (dark top edge via
+  `girdle-recess`, faint lit line at the bottom) already matches direction-a.md
+  §5.1's recess-inversion model; the graft is confirmation, not a change.
+
+### Accessibility floor requirements
+
+`prefers-contrast: more` is a required deliverable (direction-a.md §9, not
+optional polish): hairline borders measure only 1.28:1 (dark) / 1.42:1 (light)
+against their surface — deliberately below the 3:1 non-text floor, since this
+direction demotes borders to decoration everywhere a girdle or fill delta also
+carries the state. Under the media query, `--onyx-border` promotes to
+`--onyx-hairline-strong` in both themes, and the dark theme's girdle (baseline
+0.055 alpha, too faint for this preference) raises to 0.14 — emitted by
+`css.ts`'s `contrastMore()`, called once at the end of both `adapter.ts`'s
+`generate()` and `bake-theme.ts`'s output. `prefers-reduced-motion: reduce`
+stays intact for every existing transition; the two new entrance animations
+(`OnDialog`, `OnToast`) drop their transform/scale under the same query and
+fall back to a 120ms opacity-only fade, per direction-a.md §7.
+
+### Typography
+
+Display face **Fraunces Variable** (serif, weight 300, opsz/WONK variation
+axes) for `3xl` and up; body face **Instrument Sans Variable** below that;
+utility face **IBM Plex Mono** for hallmark labels and tabular data. All three
+carry a graceful system fallback in the token itself
+(`"Fraunces Variable", Fraunces, Georgia, "Times New Roman", serif`, etc.) so a
+failed self-hosted font load degrades to the previous appearance, not to Times.
+This package only wires the token names + fallbacks — **the docs agent installs
+the actual `@fontsource` packages.**
 
 ## Pipeline
 

@@ -13,7 +13,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { themes } from '../src/colors'
-import { block, foundations } from '../src/css'
+import { block, contrastMore, foundations } from '../src/css'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const out = resolve(here, '../dist/theme.css')
@@ -27,6 +27,7 @@ const css = banner
   + block('[data-theme="onyx"]', dark, true)
   + block('[data-theme="onyx-light"]', light)
   + block(':root', dark, true)
+  + contrastMore()
 
 mkdirSync(dirname(out), { recursive: true })
 writeFileSync(out, css)

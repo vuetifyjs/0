@@ -40,9 +40,11 @@
     width: 100%;
   }
 
+  /* A channel cut into the stone — the intaglio recipe at track scale. */
   .onyx-progress__track {
-    background: var(--onyx-muted, #27272a);
+    background: var(--onyx-band-recess), var(--onyx-intaglio, #090605);
     border-radius: 9999px;
+    box-shadow: var(--onyx-girdle-recess);
     height: 8px;
     overflow: hidden;
     position: relative;
@@ -54,7 +56,7 @@
   }
 
   .onyx-progress__fill {
-    background: var(--onyx-primary, #fafafa);
+    background: var(--onyx-primary, #dac593);
     border-radius: 9999px;
     height: 100%;
     transition: width var(--onyx-motion-base, 200ms) var(--onyx-motion-easing, cubic-bezier(0.16, 1, 0.3, 1));
@@ -62,7 +64,7 @@
 
   .onyx-progress__indeterminate {
     animation: onyx-progress-slide 1.5s ease-in-out infinite;
-    background: var(--onyx-primary, #fafafa);
+    background: var(--onyx-primary, #dac593);
     border-radius: 9999px;
     height: 100%;
     left: 0;

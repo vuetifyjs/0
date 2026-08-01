@@ -1,3 +1,5 @@
+export type { OnCardProps } from './OnCard.vue'
+
 export { default as OnCard } from './OnCard.vue'
 export { default as OnCardContent } from './OnCardContent.vue'
 export { default as OnCardDescription } from './OnCardDescription.vue'

@@ -115,41 +115,47 @@
   .onyx-pagination__item {
     align-items: center;
     background: transparent;
-    border: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #27272a);
+    border: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #2f2925);
     border-radius: var(--onyx-radius-md, 0.375rem);
-    color: var(--onyx-foreground, #fafafa);
+    color: var(--onyx-foreground, #f0ece5);
     cursor: pointer;
     display: inline-flex;
-    font-size: var(--onyx-text-sm-size, 13px);
+    font-size: var(--onyx-text-sm-size, 13.5px);
     height: var(--onyx-control-md, 36px);
     justify-content: center;
-    transition: background-color var(--onyx-motion-fast, 120ms), color var(--onyx-motion-fast, 120ms), border-color var(--onyx-motion-fast, 120ms);
+    transition: background-color var(--onyx-motion-fast, 120ms) var(--onyx-motion-lamp, cubic-bezier(0.4, 0, 0.2, 1)),
+                color var(--onyx-motion-fast, 120ms) var(--onyx-motion-lamp, cubic-bezier(0.4, 0, 0.2, 1)),
+                border-color var(--onyx-motion-fast, 120ms) var(--onyx-motion-lamp, cubic-bezier(0.4, 0, 0.2, 1));
     width: var(--onyx-control-md, 36px);
   }
 
   .onyx-pagination__item:hover:not([data-disabled]):not([data-selected]) {
-    background: var(--onyx-accent, #27272a);
+    background: color-mix(in oklab, var(--onyx-accent, #2f2925) 70%, transparent);
+    border-color: var(--onyx-hairline-strong, #423c37);
   }
 
   .onyx-pagination__item[data-selected] {
-    background: var(--onyx-primary, #fafafa);
-    border-color: var(--onyx-primary, #fafafa);
-    color: var(--onyx-primary-foreground, #18181b);
+    background: var(--onyx-primary, #dac593);
+    border-color: var(--onyx-primary, #dac593);
+    color: var(--onyx-primary-foreground, #0d0a08);
   }
 
+  /* Explicit disabled colors, never opacity (graft — see OnButton's [data-disabled] comment). */
   .onyx-pagination__item[data-disabled] {
+    background: var(--onyx-card, #181411);
+    border-color: var(--onyx-border, #2f2925);
+    color: var(--onyx-muted-foreground, #bab3ab);
     cursor: not-allowed;
-    opacity: 0.5;
   }
 
   .onyx-pagination__item:focus-visible {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--onyx-ring, #71717a) 50%, transparent);
-    outline: none;
+    outline: 2px solid color-mix(in oklab, var(--onyx-ring, #dac593) 85%, transparent);
+    outline-offset: 2px;
   }
 
   .onyx-pagination__ellipsis {
     align-items: center;
-    color: var(--onyx-muted-foreground, #a1a1aa);
+    color: var(--onyx-muted-foreground, #bab3ab);
     display: inline-flex;
     height: var(--onyx-control-md, 36px);
     justify-content: center;
