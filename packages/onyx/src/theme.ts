@@ -129,6 +129,7 @@ export const materialDark: Record<string, string> = {
   'lamp': 'radial-gradient(120% 68% at 50% -12%, rgb(255 240 214 / 0.045) 0%, rgb(255 240 214 / 0.012) 38%, transparent 66%)',
   'surface-raised': stoneRaised,
   'hairline-strong': hairlineStrong,
+  intaglio,
   champagne,
 }
 
