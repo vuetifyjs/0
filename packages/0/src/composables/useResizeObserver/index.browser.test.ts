@@ -155,6 +155,20 @@ describe('useResizeObserver box model', () => {
 
     expect(size(immediate.borderBoxSize[0])).toEqual(size(observed.borderBoxSize[0]))
     expect(size(immediate.contentBoxSize[0])).toEqual(size(observed.contentBoxSize[0]))
+    expect(immediate.contentRect).toEqual(observed.contentRect)
+  })
+
+  it('should report the immediate contentRect on the content box, positioned at the padding offset', async () => {
+    const el = element()
+    const { next } = observe(el, { immediate: true })
+
+    const immediate = await next()
+
+    expect(immediate.contentRect.width).toBe(CONTENT.inlineSize)
+    expect(immediate.contentRect.height).toBe(CONTENT.blockSize)
+    // 16px padding on the inline edges, 4px on the block edges (see GEOMETRY)
+    expect(immediate.contentRect.left).toBe(16)
+    expect(immediate.contentRect.top).toBe(4)
   })
 
   it('should swap the logical axes on the immediate entry under a vertical writing mode', async () => {

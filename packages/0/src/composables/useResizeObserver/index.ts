@@ -114,8 +114,9 @@ function pxToNumber (value: string | undefined, fallback = 0): number {
  * The box sizes come from `getComputedStyle` rather than
  * `getBoundingClientRect` because resolved lengths are layout values — like the
  * observer, and unlike a client rect, they are not scaled by CSS transforms.
- * `contentRect` keeps its existing client-rect source so callers reading it see
- * no change.
+ * `contentRect` is derived from the same computed-style values, so it reports
+ * the content box positioned relative to the padding edge on this path too,
+ * matching what the observer's own entries report.
  *
  * Every read is written to tolerate a partial style declaration: an element
  * with no layout box resolves its lengths to `''`, and this runs on whatever
@@ -155,10 +156,10 @@ function measure (el: Element): ResizeObserverEntry {
 
   return {
     contentRect: {
-      width: rect.width,
-      height: rect.height,
-      top: rect.top,
-      left: rect.left,
+      width: width.content,
+      height: height.content,
+      top: pxToNumber(style.paddingTop),
+      left: pxToNumber(style.paddingLeft),
     },
     borderBoxSize: [{ inlineSize: inline.border, blockSize: block.border }],
     contentBoxSize: [{ inlineSize: inline.content, blockSize: block.content }],
