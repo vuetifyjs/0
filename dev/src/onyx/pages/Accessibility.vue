@@ -63,7 +63,7 @@
     <OnAlertTitle>Focus-visible only</OnAlertTitle>
 
     <OnAlertDescription>
-      Every interactive Hb component ships a <code>:focus-visible</code> ring
+      Every interactive On component ships a <code>:focus-visible</code> ring
       (<code>color-mix(in srgb, var(--onyx-ring) 50%, transparent)</code>) and never
       suppresses it — only keyboard and programmatic focus show the ring, never a mouse click.
       Tab through the buttons below to see it.
@@ -109,7 +109,7 @@
 
   <h2 class="onyx-a11y__heading mt-8">Keyboard map</h2>
 
-  <div class="grid gap-4 mt-3" style="grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));">
+  <div class="grid gap-4 mt-3" style="grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr));">
     <OnCard v-for="entry in keyboardMaps" :key="entry.component" class="p-4">
       <OnCardHeader>
         <OnCardTitle>{{ entry.component }}</OnCardTitle>
