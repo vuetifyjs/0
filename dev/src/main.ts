@@ -15,6 +15,7 @@ export const createApp = ViteSSG(
     routes: [
       { path: '/', component: Playground },
       { path: '/create-overflow', component: CreateOverflowDemo },
+      { path: '/onyx/:page?', component: () => import('./onyx/OnyxDocs.vue') },
     ],
   },
   async ({ app }) => {

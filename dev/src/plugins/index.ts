@@ -16,6 +16,10 @@ export function registerPlugins (app: App) {
 
   app.use(createLoggerPlugin())
 
+  app.use(createNotificationsPlugin())
+
+  app.use(createStoragePlugin())
+
   app.use(
     createBreakpointsPlugin({
       //

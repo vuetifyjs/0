@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@paper/genesis": "workspace:*",
+    "@paper/onyx": "workspace:*",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",
     "vue": "catalog:"
