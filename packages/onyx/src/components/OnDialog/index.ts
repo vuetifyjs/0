@@ -1,0 +1,11 @@
+export type { OnDialogActivatorProps } from './OnDialogActivator.vue'
+export type { OnDialogContentMode, OnDialogContentProps } from './OnDialogContent.vue'
+export type { OnDialogProps } from './OnDialog.vue'
+
+export { default as OnDialog } from './OnDialog.vue'
+export { default as OnDialogActivator } from './OnDialogActivator.vue'
+export { default as OnDialogClose } from './OnDialogClose.vue'
+export { default as OnDialogContent } from './OnDialogContent.vue'
+export { default as OnDialogDescription } from './OnDialogDescription.vue'
+export { default as OnDialogFooter } from './OnDialogFooter.vue'
+export { default as OnDialogTitle } from './OnDialogTitle.vue'

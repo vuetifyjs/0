@@ -1,0 +1,6 @@
+export { default as OnCard } from './OnCard.vue'
+export { default as OnCardContent } from './OnCardContent.vue'
+export { default as OnCardDescription } from './OnCardDescription.vue'
+export { default as OnCardFooter } from './OnCardFooter.vue'
+export { default as OnCardHeader } from './OnCardHeader.vue'
+export { default as OnCardTitle } from './OnCardTitle.vue'

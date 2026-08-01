@@ -11,6 +11,9 @@
       "path": "./packages/genesis"
     },
     {
+      "path": "./packages/onyx"
+    },
+    {
       "path": "./apps/docs"
     },
     {
