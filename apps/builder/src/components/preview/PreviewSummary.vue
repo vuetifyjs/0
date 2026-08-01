@@ -4,6 +4,9 @@
   // Framework
   import { isString, isUndefined, useBreakpoints } from '@vuetify/v0'
 
+  // Composables
+  import { useHighlightCode } from '@/composables/useHighlightCode'
+
   import { getPluginById, PLUGINS } from '@/data/plugins'
   // Engine — read only: the aside shows the file the builder actually emits, not a mock-up
   // of one, so what you watch being written is what you download.
@@ -124,6 +127,8 @@
 
   const lines = toRef(() => source.value.split('\n'))
 
+  const { highlightedCode } = useHighlightCode(() => source.value, { lang: 'ts' })
+
   const expanded = shallowRef(false)
 </script>
 
@@ -173,6 +178,7 @@
         </p>
 
         <GnDocsExampleCode
+          v-slot="{ code }"
           v-model:expanded="expanded"
           class="relative [--v0-pre:color-mix(in_srgb,var(--v0-surface)_55%,transparent)]"
           :class="fill ? 'flex-1 min-h-0 flex flex-col' : ''"
@@ -184,7 +190,10 @@
           :max-height="fill ? undefined : '24rem'"
           :peek="!fill"
           :peek-lines="14"
-        />
+        >
+          <div v-if="highlightedCode" v-html="highlightedCode" />
+          <pre v-else><code>{{ code }}</code></pre>
+        </GnDocsExampleCode>
       </div>
     </div>
 

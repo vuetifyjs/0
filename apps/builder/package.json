@@ -12,9 +12,12 @@
   "dependencies": {
     "@mdi/js": "catalog:",
     "@paper/genesis": "workspace:*",
+    "@shikijs/langs": "catalog:",
+    "@shikijs/themes": "catalog:",
     "@vuetify/v0": "workspace:*",
     "fflate": "catalog:",
     "pinia": "catalog:",
+    "shiki": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"
   },

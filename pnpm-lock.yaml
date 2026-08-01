@@ -363,6 +363,12 @@ importers:
       '@paper/genesis':
         specifier: workspace:*
         version: link:../../packages/genesis
+      '@shikijs/langs':
+        specifier: 'catalog:'
+        version: 4.4.3
+      '@shikijs/themes':
+        specifier: 'catalog:'
+        version: 4.4.3
       '@vuetify/v0':
         specifier: workspace:*
         version: link:../../packages/0
@@ -372,6 +378,9 @@ importers:
       pinia:
         specifier: 'catalog:'
         version: 3.0.4(typescript@6.0.3)(vue@3.5.42(typescript@6.0.3))
+      shiki:
+        specifier: 'catalog:'
+        version: 4.4.3
       vue:
         specifier: 'catalog:'
         version: 3.5.42(typescript@6.0.3)
