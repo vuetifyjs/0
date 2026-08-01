@@ -205,9 +205,10 @@ jobs:
           git fetch origin "$GITHUB_BASE_REF" --depth=1
           pnpm metrics:check
 
-  # Vapor parity tests run on a beta Vue (tests/vapor, vue@3.6.0-beta), pinned
-  # separately from the rest of the repo. Non-blocking: a Vapor regression
-  # surfaces as a visible signal without redding the build on a beta hiccup.
+  # Vapor parity tests run on a pre-release Vue (tests/vapor, vue@3.6.0-rc),
+  # pinned separately from the rest of the repo. Non-blocking: a Vapor
+  # regression surfaces as a visible signal without redding the build on a
+  # pre-release hiccup.
   vapor:
     needs: prepare
     runs-on: ubuntu-latest
