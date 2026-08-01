@@ -70,6 +70,8 @@ export interface StorageOptions {
   }
   /** Time-to-live in milliseconds. When set, expired entries return the default value on `get()` and `set()` automatically timestamps entries. */
   ttl?: number
+  /** Called when a write to the underlying storage adapter throws (e.g. quota exceeded, a `SecurityError` in a restricted context). Additive to the internal log — writes remain fire-and-forget, so this is the only way to surface a failed write to the app. */
+  onError?: (error: unknown, key: string) => void
 }
 
 export interface StorageContextOptions extends StorageOptions {
@@ -119,6 +121,7 @@ export function createStorage<
       write: JSON.stringify,
     },
     ttl,
+    onError,
   } = options
 
   const logger = useLogger()
@@ -164,6 +167,7 @@ export function createStorage<
       adapter?.setItem(prefixedKey, serializer.write(wrapped))
     } catch (error) {
       logger.error(`[v0:storage] Failed to write key "${prefixedKey}":`, error)
+      onError?.(error, prefixedKey)
     }
   }
 
