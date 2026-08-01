@@ -121,10 +121,10 @@
     cursor: pointer;
     display: inline-flex;
     font-size: var(--onyx-text-sm-size, 13px);
-    height: 36px;
+    height: var(--onyx-control-md, 36px);
     justify-content: center;
     transition: background-color var(--onyx-motion-fast, 120ms), color var(--onyx-motion-fast, 120ms), border-color var(--onyx-motion-fast, 120ms);
-    width: 36px;
+    width: var(--onyx-control-md, 36px);
   }
 
   .onyx-pagination__item:hover:not([data-disabled]):not([data-selected]) {
@@ -151,8 +151,8 @@
     align-items: center;
     color: var(--onyx-muted-foreground, #a1a1aa);
     display: inline-flex;
-    height: 36px;
+    height: var(--onyx-control-md, 36px);
     justify-content: center;
-    width: 36px;
+    width: var(--onyx-control-md, 36px);
   }
 </style>

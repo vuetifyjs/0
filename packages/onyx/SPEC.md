@@ -19,9 +19,10 @@ first release cut.
 ## Token source
 
 No Figma file. Tokens are **authored directly in `src/theme.ts`** — a single
-neutral scale (`neutral-50…950`), one brand hue (`brand-*`, fuchsia), one
+neutral scale (`neutral-50…950`), one brand hue (`brand-*`, graphite), one
 destructive hue (`red-*`), plus three severity singles (`warning`/`success`/`info`)
-that exist only to feed the kit-interop alias map. Semantic pairs
+consumed directly by `OnAlert`/`OnToast` for severity styling and also feeding
+the kit-interop alias map below. Semantic pairs
 (`background`/`foreground`, `card`/`card-foreground`, `primary`/`primary-foreground`,
 …) live in `light: Semantic` / `dark: Semantic` maps. Flat color map for the
 adapter: `src/colors.ts`. Foundations (`radius`, `spacing`, `stroke`, `shadow`,
@@ -68,6 +69,7 @@ a rendering of the shared emitters, never a re-implementation.
 | `warning` / `success` / `info` / `error` | severity tokens (+ `destructive` for `error`) |
 
 **Reserved (emitted, unused today, labeled as such):** `accent` ← `brand`.
+`brand-foreground` is reserved for the same reason — no component pairs it yet.
 
 ## Composition rules
 
