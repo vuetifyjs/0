@@ -211,6 +211,13 @@ export function createBreakpoints (_options: BreakpointsOptions = {}): Breakpoin
     xlAndDown.value = index <= 4
   }
 
+  // The initial band above is seeded from window.innerWidth, which can
+  // disagree with the matchMedia-based resolution update() uses (see #730 —
+  // fractional zoom and scrollbar width can straddle a threshold). Running
+  // update() once here aligns first paint with every subsequent frame.
+  // The SSR branch is left alone so hydration markup keeps matching.
+  if (IN_BROWSER && !ssr) update()
+
   return {
     breakpoints,
     mobileBreakpoint,

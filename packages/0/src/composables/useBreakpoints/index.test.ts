@@ -121,6 +121,35 @@ describe('createBreakpoints', () => {
         expect(context.xxl.value).toBe(false)
       })
 
+      it('should resolve the initial breakpoint via matchMedia, not innerWidth, when they disagree', () => {
+        // innerWidth says 'lg' (>= 1280), matchMedia says 'md' — simulates
+        // the fractional-zoom / scrollbar-width straddle described in #730.
+        mockWindow.innerWidth = 1280
+        mockWindow.matchMedia = (query: string) => {
+          const match = query.match(/\(min-width:\s*(\d+)px\)/)
+          const threshold = match ? Number(match[1]) : 0
+          return { matches: threshold <= 1024 }
+        }
+
+        const context = createBreakpoints()
+
+        expect(context.name.value).toBe('md')
+        expect(context.lg.value).toBe(false)
+        expect(context.md.value).toBe(true)
+      })
+
+      it('should not resolve the initial breakpoint via matchMedia when ssr dimensions are provided', () => {
+        mockWindow.matchMedia = (query: string) => {
+          const match = query.match(/\(min-width:\s*(\d+)px\)/)
+          const threshold = match ? Number(match[1]) : 0
+          return { matches: threshold <= 1024 }
+        }
+
+        const context = createBreakpoints({ ssr: { clientWidth: 1280 } })
+
+        expect(context.name.value).toBe('lg')
+      })
+
       it('should accept custom breakpoint options', () => {
         const customOptions = {
           namespace: 'v0:breakpoints',
