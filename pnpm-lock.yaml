@@ -24,6 +24,15 @@ catalogs:
     '@flagsmith/flagsmith':
       specifier: ^11.0.0
       version: 11.0.0
+    '@fontsource-variable/fraunces':
+      specifier: ^5.2.9
+      version: 5.2.9
+    '@fontsource-variable/instrument-sans':
+      specifier: ^5.2.8
+      version: 5.2.8
+    '@fontsource/ibm-plex-mono':
+      specifier: ^5.2.7
+      version: 5.2.7
     '@js-temporal/polyfill':
       specifier: 0.5.1
       version: 0.5.1
@@ -579,6 +588,15 @@ importers:
         specifier: 'catalog:'
         version: 3.5.39(typescript@6.0.3)
     devDependencies:
+      '@fontsource-variable/fraunces':
+        specifier: 'catalog:'
+        version: 5.2.9
+      '@fontsource-variable/instrument-sans':
+        specifier: 'catalog:'
+        version: 5.2.8
+      '@fontsource/ibm-plex-mono':
+        specifier: 'catalog:'
+        version: 5.2.7
       sass-embedded:
         specifier: 'catalog:'
         version: 1.100.0
@@ -1886,6 +1904,15 @@ packages:
 
   '@flagsmith/flagsmith@11.0.0':
     resolution: {integrity: sha512-jJB+1O/ctU7TCoIBsV2lgYAUOpShjcSqHkH4nlyqUGeQCGC0ZHto8IvGf+nZwpFAF5Czaphn/anm9MDoZIS3rw==}
+
+  '@fontsource-variable/fraunces@5.2.9':
+    resolution: {integrity: sha512-Y6IjunlN9Ni723np+GIgAaKzCDBrPRrqNi01TZxHs5wtHYROWFM9W6yiT+/gGwSjWIRD18oX17kD/BRWekc/Lw==}
+
+  '@fontsource-variable/instrument-sans@5.2.8':
+    resolution: {integrity: sha512-mTCaukbdIjjoipj2E3Q5XoZM3ZxJWdzyHevf/LG/0PHlfF9Q85pxOM7B7A9MerFyxmRzz5kVlumgIvgDSG4CPg==}
+
+  '@fontsource/ibm-plex-mono@5.2.7':
+    resolution: {integrity: sha512-MKAb8qV+CaiMQn2B0dIi1OV3565NYzp3WN5b4oT6LTkk+F0jR6j0ZN+5BKJiIhffDC3rtBULsYZE65+0018z9w==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -8694,6 +8721,12 @@ snapshots:
   '@exodus/bytes@1.15.0': {}
 
   '@flagsmith/flagsmith@11.0.0': {}
+
+  '@fontsource-variable/fraunces@5.2.9': {}
+
+  '@fontsource-variable/instrument-sans@5.2.8': {}
+
+  '@fontsource/ibm-plex-mono@5.2.7': {}
 
   '@humanfs/core@0.19.1': {}
 

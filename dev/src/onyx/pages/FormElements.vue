@@ -37,42 +37,52 @@
     </OnAlertDescription>
   </OnAlert>
 
-  <div class="grid gap-6 mt-6" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
-    <div class="flex flex-col gap-4">
-      <h2 class="onyx-form__heading">Text</h2>
-      <OnInput v-model="textEmpty" label="Full name" placeholder="Jane Doe" />
-      <OnInput v-model="textFilled" description="As it appears on your ID." label="Full name" placeholder="Jane Doe" />
-      <OnInput v-model="textError" error="This field is required." label="Full name" placeholder="Jane Doe" />
-    </div>
+  <h2 class="onyx-form__heading mt-8">Text, password, email</h2>
 
-    <div class="flex flex-col gap-4">
-      <h2 class="onyx-form__heading">Password</h2>
-      <OnInput v-model="passwordEmpty" label="Password" placeholder="••••••••" type="password" />
-      <OnInput v-model="passwordFilled" description="Click the eye to reveal it." label="Password" type="password" />
-      <OnInput v-model="passwordError" error="Password is too short." label="Password" type="password" />
-    </div>
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">Empty · filled · error</p>
 
-    <div class="flex flex-col gap-4">
-      <h2 class="onyx-form__heading">Email</h2>
-      <OnInput v-model="emailEmpty" label="Email" placeholder="you@example.com" type="email" />
-      <OnInput v-model="emailFilled" description="We'll never share it." label="Email" type="email" />
-      <OnInput v-model="emailError" error="Enter a valid email address." label="Email" type="email" />
+    <div class="grid gap-6" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+      <div class="flex flex-col gap-4">
+        <p class="onyx-hallmark" style="opacity: 0.7;">Text</p>
+        <OnInput v-model="textEmpty" label="Full name" placeholder="Jane Doe" />
+        <OnInput v-model="textFilled" description="As it appears on your ID." label="Full name" placeholder="Jane Doe" />
+        <OnInput v-model="textError" error="This field is required." label="Full name" placeholder="Jane Doe" />
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <p class="onyx-hallmark" style="opacity: 0.7;">Password</p>
+        <OnInput v-model="passwordEmpty" label="Password" placeholder="••••••••" type="password" />
+        <OnInput v-model="passwordFilled" description="Click the eye to reveal it." label="Password" type="password" />
+        <OnInput v-model="passwordError" error="Password is too short." label="Password" type="password" />
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <p class="onyx-hallmark" style="opacity: 0.7;">Email</p>
+        <OnInput v-model="emailEmpty" label="Email" placeholder="you@example.com" type="email" />
+        <OnInput v-model="emailFilled" description="We'll never share it." label="Email" type="email" />
+        <OnInput v-model="emailError" error="Enter a valid email address." label="Email" type="email" />
+      </div>
     </div>
   </div>
 
-  <div class="mt-8">
-    <h2 class="onyx-form__heading">Description &amp; disabled</h2>
+  <h2 class="onyx-form__heading mt-8">Description &amp; disabled</h2>
 
-    <div class="flex flex-col gap-4 mt-3" style="max-width: 320px;">
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">Description · locked</p>
+
+    <div class="flex flex-col gap-4" style="max-width: 320px;">
       <OnInput v-model="withDescription" description="Shown below the field, not as a tooltip." label="Team name" placeholder="Acme Inc." />
       <OnInput v-model="disabledValue" disabled label="Locked field" />
     </div>
   </div>
 
-  <div class="mt-8">
-    <h2 class="onyx-form__heading">Sizes</h2>
+  <h2 class="onyx-form__heading mt-8">Sizes</h2>
 
-    <div class="flex flex-wrap items-end gap-3 mt-3">
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">sm · md · lg</p>
+
+    <div class="flex flex-wrap items-end gap-3">
       <OnInput v-model="sizeSm" label="Small" placeholder="sm" size="sm" />
       <OnInput v-model="sizeMd" label="Medium" placeholder="md" size="md" />
       <OnInput v-model="sizeLg" label="Large" placeholder="lg" size="lg" />

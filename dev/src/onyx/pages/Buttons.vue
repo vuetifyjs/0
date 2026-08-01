@@ -38,33 +38,41 @@
     browser behavior, not simulated screenshots.
   </p>
 
-  <div v-for="variant in variants" :key="variant.name" class="mt-8">
-    <h2 class="onyx-buttons__heading">{{ variant.label }}</h2>
+  <h2 class="onyx-buttons__heading mt-8">Variants</h2>
 
-    <div class="flex flex-wrap items-center gap-3 mt-3">
-      <div :ref="el => setDefaultRef(variant.name, el as HTMLElement | null)" style="display: contents;">
-        <OnButton :variant="variant.name">{{ variant.label }}</OnButton>
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">Default · state · disabled · loading</p>
+
+    <div v-for="(variant, index) in variants" :key="variant.name" :class="{ 'mt-6': index > 0 }">
+      <p class="onyx-hallmark" style="opacity: 0.7;">{{ variant.label }}</p>
+
+      <div class="flex flex-wrap items-center gap-3 mt-2">
+        <div :ref="el => setDefaultRef(variant.name, el as HTMLElement | null)" style="display: contents;">
+          <OnButton :variant="variant.name">{{ variant.label }}</OnButton>
+        </div>
+
+        <OnButton size="sm" variant="outline" @click="onFocusDemo(variant.name)">Focus</OnButton>
+
+        <span style="color: var(--onyx-muted-foreground, #71717a); font-size: 13px;">
+          ← Tab to this button and press Enter to focus the one on the left and see its ring
+          (a mouse click moves focus too, but per the browser's own convention, mouse-triggered
+          focus never shows the ring — that's the policy, not a bug)
+        </span>
       </div>
 
-      <OnButton size="sm" variant="outline" @click="onFocusDemo(variant.name)">Focus</OnButton>
-
-      <span style="color: var(--onyx-muted-foreground, #71717a); font-size: 13px;">
-        ← Tab to this button and press Enter to focus the one on the left and see its ring
-        (a mouse click moves focus too, but per the browser's own convention, mouse-triggered
-        focus never shows the ring — that's the policy, not a bug)
-      </span>
-    </div>
-
-    <div class="flex flex-wrap items-center gap-3 mt-3">
-      <OnButton disabled :variant="variant.name">Disabled</OnButton>
-      <OnButton loading :variant="variant.name">Loading</OnButton>
+      <div class="flex flex-wrap items-center gap-3 mt-2">
+        <OnButton disabled :variant="variant.name">Disabled</OnButton>
+        <OnButton loading :variant="variant.name">Loading</OnButton>
+      </div>
     </div>
   </div>
 
-  <div class="mt-8">
-    <h2 class="onyx-buttons__heading">Sizes</h2>
+  <h2 class="onyx-buttons__heading mt-8">Sizes</h2>
 
-    <div class="flex flex-wrap items-center gap-3 mt-3">
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">sm · md · lg · icon</p>
+
+    <div class="flex flex-wrap items-center gap-3">
       <OnButton v-for="size in sizes" :key="size.name" :size="size.name">{{ size.label }}</OnButton>
 
       <OnButton aria-label="Check" size="icon">
@@ -85,14 +93,16 @@
     </div>
   </div>
 
-  <div class="mt-8">
-    <h2 class="onyx-buttons__heading">Light panel</h2>
+  <h2 class="onyx-buttons__heading mt-8">Light panel</h2>
 
-    <p :style="{ color: 'var(--onyx-muted-foreground, #71717a)', maxWidth: '640px', margin: '4px 0 12px' }">
-      Re-themed via a single <code>data-theme="onyx-light"</code> attribute on this
-      subtree — the adapter emits one CSS block per theme keyed by that attribute, so nesting
-      it anywhere re-scopes every token underneath, independent of the page's own theme.
-    </p>
+  <p :style="{ color: 'var(--onyx-muted-foreground, #71717a)', maxWidth: '640px', margin: '4px 0 12px' }">
+    Re-themed via a single <code>data-theme="onyx-light"</code> attribute on this
+    subtree — the adapter emits one CSS block per theme keyed by that attribute, so nesting
+    it anywhere re-scopes every token underneath, independent of the page's own theme.
+  </p>
+
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">data-theme="onyx-light"</p>
 
     <section class="onyx-buttons__light-panel" data-theme="onyx-light">
       <OnButton v-for="variant in variants" :key="variant.name" :variant="variant.name">{{ variant.label }}</OnButton>

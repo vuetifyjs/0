@@ -43,22 +43,28 @@
 
   <h2 class="onyx-toast-page__heading mt-8">Severity</h2>
 
-  <div class="flex flex-wrap items-center gap-2 mt-3">
-    <OnButton size="sm" variant="outline" @click="fireToast('info')">Info</OnButton>
-    <OnButton size="sm" variant="outline" @click="fireToast('success')">Success</OnButton>
-    <OnButton size="sm" variant="outline" @click="fireToast('warning')">Warning</OnButton>
-    <OnButton size="sm" variant="outline" @click="fireToast('error')">Error</OnButton>
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">Info · success · warning · error</p>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <OnButton size="sm" variant="outline" @click="fireToast('info')">Info</OnButton>
+      <OnButton size="sm" variant="outline" @click="fireToast('success')">Success</OnButton>
+      <OnButton size="sm" variant="outline" @click="fireToast('warning')">Warning</OnButton>
+      <OnButton size="sm" variant="outline" @click="fireToast('error')">Error</OnButton>
+    </div>
   </div>
 
   <h2 class="onyx-toast-page__heading mt-8">With an action (undo)</h2>
 
-  <div class="mt-3">
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">8s timeout, undo action</p>
     <OnButton size="sm" variant="outline" @click="fireActionToast">Delete file</OnButton>
   </div>
 
   <h2 class="onyx-toast-page__heading mt-8">Queue — fire 5 rapidly</h2>
 
-  <div class="mt-3">
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">Burst of 5, same tick</p>
     <OnButton size="sm" variant="outline" @click="fireFive">Fire 5 toasts</OnButton>
   </div>
 </template>

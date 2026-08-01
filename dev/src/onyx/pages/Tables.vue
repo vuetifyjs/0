@@ -49,5 +49,8 @@
     </OnAlertDescription>
   </OnAlert>
 
-  <OnTable class="mt-6" :columns :items :page-sizes="[5, 10, 25]" />
+  <div class="onyx-exhibit mt-6">
+    <p class="onyx-hallmark onyx-exhibit__caption">Sortable · paginated</p>
+    <OnTable :columns :items :page-sizes="[5, 10, 25]" />
+  </div>
 </template>

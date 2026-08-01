@@ -182,7 +182,6 @@ declare module 'vue' {
     SliderRoot: typeof import('./../../packages/0/src/components/Slider/SliderRoot.vue')['default']
     SliderThumb: typeof import('./../../packages/0/src/components/Slider/SliderThumb.vue')['default']
     SliderTrack: typeof import('./../../packages/0/src/components/Slider/SliderTrack.vue')['default']
-    SnackbarAction: typeof import('./../../packages/0/src/components/Snackbar/SnackbarAction.vue')['default']
     SnackbarClose: typeof import('./../../packages/0/src/components/Snackbar/SnackbarClose.vue')['default']
     SnackbarContent: typeof import('./../../packages/0/src/components/Snackbar/SnackbarContent.vue')['default']
     SnackbarPortal: typeof import('./../../packages/0/src/components/Snackbar/SnackbarPortal.vue')['default']

@@ -25,31 +25,39 @@
 
   <h2 class="onyx-tabs-page__heading mt-8">Default</h2>
 
-  <OnTabs v-model="activeTab" class="mt-3" style="max-width: 420px;">
-    <OnTabsList>
-      <OnTabsItem value="account">Account</OnTabsItem>
-      <OnTabsItem value="password">Password</OnTabsItem>
-      <OnTabsItem value="team">Team</OnTabsItem>
-    </OnTabsList>
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">Hugs its content</p>
 
-    <OnTabsPanel value="account">Manage your account details here.</OnTabsPanel>
-    <OnTabsPanel value="password">Update your password here.</OnTabsPanel>
-    <OnTabsPanel value="team">Manage your team members here.</OnTabsPanel>
-  </OnTabs>
+    <OnTabs v-model="activeTab" style="max-width: 420px;">
+      <OnTabsList>
+        <OnTabsItem value="account">Account</OnTabsItem>
+        <OnTabsItem value="password">Password</OnTabsItem>
+        <OnTabsItem value="team">Team</OnTabsItem>
+      </OnTabsList>
+
+      <OnTabsPanel value="account">Manage your account details here.</OnTabsPanel>
+      <OnTabsPanel value="password">Update your password here.</OnTabsPanel>
+      <OnTabsPanel value="team">Manage your team members here.</OnTabsPanel>
+    </OnTabs>
+  </div>
 
   <h2 class="onyx-tabs-page__heading mt-8">Full-width</h2>
 
-  <OnTabs v-model="activeFullWidth" class="onyx-tabs-page__full-width mt-3" style="max-width: 420px;">
-    <OnTabsList>
-      <OnTabsItem value="account">Account</OnTabsItem>
-      <OnTabsItem value="password">Password</OnTabsItem>
-      <OnTabsItem value="team">Team</OnTabsItem>
-    </OnTabsList>
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">Layout only, no separate component</p>
 
-    <OnTabsPanel value="account">Manage your account details here.</OnTabsPanel>
-    <OnTabsPanel value="password">Update your password here.</OnTabsPanel>
-    <OnTabsPanel value="team">Manage your team members here.</OnTabsPanel>
-  </OnTabs>
+    <OnTabs v-model="activeFullWidth" class="onyx-tabs-page__full-width" style="max-width: 420px;">
+      <OnTabsList>
+        <OnTabsItem value="account">Account</OnTabsItem>
+        <OnTabsItem value="password">Password</OnTabsItem>
+        <OnTabsItem value="team">Team</OnTabsItem>
+      </OnTabsList>
+
+      <OnTabsPanel value="account">Manage your account details here.</OnTabsPanel>
+      <OnTabsPanel value="password">Update your password here.</OnTabsPanel>
+      <OnTabsPanel value="team">Manage your team members here.</OnTabsPanel>
+    </OnTabs>
+  </div>
 </template>
 
 <!-- Unscoped: page-local heading + full-width layout override, layout scaffolding only. -->

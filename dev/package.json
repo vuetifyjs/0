@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@fontsource-variable/fraunces": "catalog:",
+    "@fontsource-variable/instrument-sans": "catalog:",
+    "@fontsource/ibm-plex-mono": "catalog:",
     "sass-embedded": "catalog:",
     "typescript": "catalog:",
     "unocss": "catalog:",

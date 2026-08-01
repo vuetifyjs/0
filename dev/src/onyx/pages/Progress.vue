@@ -16,27 +16,39 @@
 
   <h2 class="onyx-progress-page__heading mt-8">Determinate</h2>
 
-  <div class="flex flex-col gap-3 mt-3" style="max-width: 320px;">
-    <OnProgress v-model="stepped" />
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">v-model stepper</p>
 
-    <div class="flex items-center gap-2">
-      <OnButton size="sm" variant="outline" @click="onStep(-10)">−10</OnButton>
-      <OnButton size="sm" variant="outline" @click="onStep(10)">+10</OnButton>
-      <span style="color: var(--onyx-muted-foreground, #71717a); font-size: 13px;">{{ stepped }}%</span>
+    <div class="flex flex-col gap-3" style="max-width: 320px;">
+      <OnProgress v-model="stepped" />
+
+      <div class="flex items-center gap-2">
+        <OnButton size="sm" variant="outline" @click="onStep(-10)">−10</OnButton>
+        <OnButton size="sm" variant="outline" @click="onStep(10)">+10</OnButton>
+        <span style="color: var(--onyx-muted-foreground, #71717a); font-size: 13px;">{{ stepped }}%</span>
+      </div>
     </div>
   </div>
 
   <h2 class="onyx-progress-page__heading mt-8">Indeterminate</h2>
 
-  <div style="max-width: 320px;">
-    <OnProgress class="mt-3" indeterminate />
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">Loading, unknown duration</p>
+
+    <div style="max-width: 320px;">
+      <OnProgress indeterminate />
+    </div>
   </div>
 
   <h2 class="onyx-progress-page__heading mt-8">Sizes</h2>
 
-  <div class="flex flex-col gap-3 mt-3" style="max-width: 320px;">
-    <OnProgress :model-value="60" size="md" />
-    <OnProgress :model-value="60" size="sm" />
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">md · sm</p>
+
+    <div class="flex flex-col gap-3" style="max-width: 320px;">
+      <OnProgress :model-value="60" size="md" />
+      <OnProgress :model-value="60" size="sm" />
+    </div>
   </div>
 </template>
 

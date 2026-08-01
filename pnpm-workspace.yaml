@@ -13,6 +13,9 @@ catalog:
   '@changesets/changelog-github': ^0.7.0
   '@changesets/cli': ^2.31.0
   '@flagsmith/flagsmith': ^11.0.0
+  '@fontsource-variable/fraunces': ^5.2.9
+  '@fontsource-variable/instrument-sans': ^5.2.8
+  '@fontsource/ibm-plex-mono': ^5.2.7
   '@js-temporal/polyfill': 0.5.1
   '@material/material-color-utilities': ^0.4.0
   '@mdi/js': npm:mdi-js-es@7.4.47

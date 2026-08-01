@@ -90,7 +90,7 @@
 </script>
 
 <template>
-  <div class="onyx-docs" :style="{ background: 'var(--onyx-background, #ffffff)', color: 'var(--onyx-foreground, #09090b)', minHeight: '100vh' }">
+  <div class="onyx-docs onyx-app" :style="{ color: 'var(--onyx-foreground, #09090b)', minHeight: '100vh' }">
     <div class="onyx-docs__topbar flex items-center gap-3 p-3">
       <OnButton
         :aria-controls="asideId"
@@ -115,7 +115,7 @@
         </svg>
       </OnButton>
 
-      <span class="onyx-docs__wordmark" :style="{ color: 'var(--onyx-brand, #3f3f46)' }">Onyx</span>
+      <span class="onyx-docs__wordmark">Onyx</span>
     </div>
 
     <aside :id="asideId" class="onyx-docs__aside" :data-open="open || undefined" :style="{ zIndex: open ? ticket.zIndex.value : undefined }">
@@ -133,7 +133,7 @@
           />
         </svg>
 
-        <span class="onyx-docs__wordmark" :style="{ color: 'var(--onyx-brand, #3f3f46)' }">Onyx</span>
+        <span class="onyx-docs__wordmark">Onyx</span>
 
         <OnButton
           aria-label="Close navigation"
@@ -160,7 +160,7 @@
 
       <nav class="flex flex-col gap-4 px-3 pb-4">
         <div v-for="group in groups" :key="group.heading">
-          <p class="onyx-docs__group-label uppercase" :style="{ color: 'var(--onyx-muted-foreground, #71717a)' }">
+          <p class="onyx-hallmark onyx-docs__group-label">
             {{ group.heading }}
           </p>
 
@@ -218,7 +218,7 @@
     <Scrim class="fixed inset-0 bg-black/50" />
 
     <main class="onyx-docs__main p-6">
-      <h1 class="onyx-docs__title">{{ title }}</h1>
+      <h1 v-if="activeSlug !== 'introduction'" class="onyx-docs__title">{{ title }}</h1>
 
       <component :is="component" v-if="component" />
 
@@ -234,15 +234,25 @@
 </template>
 
 <!-- Unscoped: layout scaffolding only (fixed aside positioning, mobile drawer
-     transform, responsive breakpoints) — every visible component is Hb. -->
+     transform, responsive breakpoints) — every visible component is On. `.onyx-hallmark` and
+     `.onyx-exhibit` are docs-app-authored utility classes (direction-a.md §5.9/§8 appendix) —
+     they consume `--onyx-*` variables the package emits but the classes themselves live here,
+     not in packages/onyx, so every page under dev/src/onyx can share one definition. -->
 <style>
   .onyx-docs__topbar {
     display: none;
   }
 
+  /* The case lamp — applied once, at the docs shell root (direction-a.md §5.2/§8). */
+  .onyx-app {
+    background: var(--onyx-lamp, none), var(--onyx-background, #ffffff);
+    background-attachment: fixed;
+  }
+
+  /* The nav rail is the shadowed side of the case — darker than the page, no border; the two
+     surfaces separate by light falloff alone (direction-a.md §8 "Nav drawer"). */
   .onyx-docs__aside {
-    background: var(--onyx-card, #ffffff);
-    border-right: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #e4e4e7);
+    background: var(--onyx-pitch-deep, var(--onyx-card, #ffffff));
     bottom: 0;
     display: flex;
     flex-direction: column;
@@ -251,7 +261,7 @@
     position: fixed;
     top: 0;
     transform: translateX(-100%);
-    transition: transform var(--onyx-motion-base, 200ms) var(--onyx-easing, cubic-bezier(0.16, 1, 0.3, 1));
+    transition: transform var(--onyx-motion-base, 200ms) var(--onyx-motion-easing, cubic-bezier(0.16, 1, 0.3, 1));
     width: 280px;
     z-index: 1;
   }
@@ -265,31 +275,47 @@
   }
 
   .onyx-docs__wordmark {
+    color: var(--onyx-foreground, #09090b);
     font-size: var(--onyx-text-md-size, 16px);
     font-weight: 600;
     letter-spacing: -0.01em;
   }
 
   .onyx-docs__group-label {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    margin: 0 0 4px 8px;
-    opacity: 0.75;
+    margin: 0 0 var(--onyx-spacing-2xs, 4px) 8px;
   }
 
   .onyx-docs__aside .onyx-list__item {
     padding: 7px 10px;
   }
 
+  /* Cancel the package's filled active pill (OnList's [data-active] background) — direction-a.md
+     §8 wants "no fill, no pill", just a champagne bar on the leading edge (the girdle rotated
+     90°, §6 point 5). */
+  .onyx-docs__aside .onyx-list__item[data-active] {
+    background: transparent;
+  }
+
   .onyx-docs__nav-link {
     align-items: center;
-    color: inherit;
+    border-radius: var(--onyx-radius-md, 0.375rem);
+    color: var(--onyx-muted-foreground, inherit);
     display: flex;
     font-size: var(--onyx-text-sm-size, 13px);
     gap: var(--onyx-spacing-sm, 12px);
     text-decoration: none;
+    transition: color var(--onyx-motion-fast, 120ms) var(--onyx-motion-lamp, ease);
     width: 100%;
+  }
+
+  .onyx-docs__nav-link:hover {
+    background: color-mix(in oklab, var(--onyx-accent, #27272a) 45%, transparent);
+    color: var(--onyx-foreground, inherit);
+  }
+
+  .onyx-docs__nav-link[aria-current='page'] {
+    box-shadow: inset 2px 0 0 0 var(--onyx-champagne, var(--onyx-brand, #dac593));
+    color: var(--onyx-foreground, inherit);
   }
 
   .onyx-docs__main {
@@ -298,10 +324,41 @@
   }
 
   .onyx-docs__title {
+    font-family: var(--onyx-font-serif, inherit);
     font-size: var(--onyx-text-3xl-size, 30px);
-    font-weight: 600;
+    font-weight: 300;
     line-height: var(--onyx-text-3xl-height, 36px);
     margin: 0 0 var(--onyx-spacing-lg, 24px);
+  }
+
+  /* The stamped hallmark — exhibit captions, table column groups, section eyebrows, nav group
+     labels (direction-a.md §5.9). The only uppercase in the system. */
+  .onyx-hallmark {
+    color: var(--onyx-muted-foreground, #71717a);
+    font-family: var(--onyx-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  /* The velvet tray — recessed exhibit "bench" for component demo sections (direction-a.md §8
+     "Exhibit sections", grafted per direction-c.md §7: dark lip on top, lit floor at the bottom,
+     generous internal padding so a lone specimen doesn't look lost). */
+  .onyx-exhibit {
+    background: var(--onyx-band-recess, none), var(--onyx-intaglio, var(--onyx-muted, #f4f4f5));
+    border: var(--onyx-stroke-s, 1px) solid var(--onyx-border, #e4e4e7);
+    border-radius: var(--onyx-radius-xl, 0.75rem);
+    box-shadow: var(--onyx-girdle-recess, none);
+    margin-top: var(--onyx-spacing-lg, 24px);
+    padding: var(--onyx-spacing-3xl, 64px) var(--onyx-spacing-xl, 32px) var(--onyx-spacing-xl, 32px);
+    position: relative;
+  }
+
+  .onyx-exhibit__caption {
+    left: var(--onyx-spacing-xl, 32px);
+    position: absolute;
+    top: var(--onyx-spacing-lg, 24px);
   }
 
   @media (max-width: 767px) {

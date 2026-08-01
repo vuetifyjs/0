@@ -34,7 +34,10 @@
 
   <h2 class="onyx-breadcrumbs-page__heading mt-8">Standard</h2>
 
-  <OnBreadcrumbs class="mt-3" :items="standard" />
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">3 crumbs, no collapse needed</p>
+    <OnBreadcrumbs :items="standard" />
+  </div>
 
   <h2 class="onyx-breadcrumbs-page__heading mt-8">Collapsed middle</h2>
 
@@ -42,13 +45,20 @@
     Same 6-item trail, constrained to a 440px container so it has no choice but to collapse.
   </p>
 
-  <div style="max-width: 440px;">
-    <OnBreadcrumbs :items="collapsed" />
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">Width-driven, not count-driven</p>
+
+    <div style="max-width: 440px;">
+      <OnBreadcrumbs :items="collapsed" />
+    </div>
   </div>
 
   <h2 class="onyx-breadcrumbs-page__heading mt-8">Disabled crumb</h2>
 
-  <OnBreadcrumbs class="mt-3" :items="withDisabled" />
+  <div class="onyx-exhibit mt-3">
+    <p class="onyx-hallmark onyx-exhibit__caption">Middle crumb disabled</p>
+    <OnBreadcrumbs :items="withDisabled" />
+  </div>
 </template>
 
 <!-- Unscoped: page-local heading, layout scaffolding only. -->
