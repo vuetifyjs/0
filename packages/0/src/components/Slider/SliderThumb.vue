@@ -16,6 +16,9 @@
   // Context
   import { useSliderRoot } from './SliderRoot.vue'
 
+  // Composables
+  import { useLocale } from '#v0/composables/useLocale'
+
   // Utilities
   import { isUndefined } from '#v0/utilities'
   import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
@@ -87,6 +90,7 @@
   } = defineProps<SliderThumbProps>()
 
   const root = useSliderRoot(namespace)
+  const locale = useLocale()
   const thumbRef = useTemplateRef<{ element: HTMLElement | null }>('thumb')
 
   const ticket = root.register()
@@ -172,7 +176,7 @@
       'aria-orientation': toValue(root.orientation),
       'aria-disabled': isDisabled.value,
       'aria-readonly': isReadonly.value ? true : undefined,
-      'aria-label': ariaLabel || undefined,
+      'aria-label': ariaLabel || (ariaLabelledby ? undefined : locale.ti('Slider.label') ?? 'Slider'),
       'aria-labelledby': ariaLabelledby || undefined,
       'data-state': dataState.value,
       'data-disabled': isDisabled.value ? true : undefined,
