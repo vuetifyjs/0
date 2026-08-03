@@ -82,6 +82,8 @@ Newer toasts collapse into a peeked stack — each card offset, scaled, and fade
 
 Hover intent runs through [useDelay](/composables/system/use-delay): entering the surface expands immediately, leaving collapses after a 150ms grace period so the stack doesn't flicker while the pointer crosses gaps between cards. Auto-dismiss pauses while any item is hovered or focused (WCAG 2.2.1), which you get for free from [useNotifications](/composables/plugins/use-notifications).
 
+The surface owns its notifications instance: `createNotificationsContext` provides a fresh context under a dedicated namespace, and every Snackbar sub-component receives that namespace so the queue stays isolated from the app-level `v0:notifications` instance. Use this pattern whenever a toast surface shouldn't mix with the rest of the app — or, as here, with other examples on the same page.
+
 Reach for this pattern when toasts arrive in bursts and a flat column would push content off screen; for a simple stack with per-item actions, see the undo example above.
 :::
 

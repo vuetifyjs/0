@@ -1,9 +1,19 @@
 <script setup lang="ts">
-  import { shallowRef, toRef } from 'vue'
-  import { Snackbar, useDelay, useNotifications } from '@vuetify/v0'
+  import { onScopeDispose, shallowRef, toRef } from 'vue'
+  import { createNotificationsContext, Snackbar, useDelay } from '@vuetify/v0'
   import type { NotificationSeverity } from '@vuetify/v0'
 
-  const notifications = useNotifications()
+  // Dedicated namespace — this surface owns its own queue instead of
+  // sharing the app-level 'v0:notifications' instance
+  const namespace = 'docs:stacked-toasts'
+  const [, provide, notifications] = createNotificationsContext({ namespace })
+
+  provide()
+
+  onScopeDispose(() => {
+    notifications.dispose()
+    notifications.queue.dispose()
+  })
 
   const severities: NotificationSeverity[] = ['info', 'success', 'warning', 'error']
   const index = shallowRef(0)
@@ -112,11 +122,12 @@
 
   <Snackbar.Portal
     class="absolute bottom-4 right-4 w-72"
+    :namespace
     :teleport="false"
     @mouseenter="onEnter"
     @mouseleave="onLeave"
   >
-    <Snackbar.Queue v-slot="{ items }">
+    <Snackbar.Queue v-slot="{ items }" :namespace>
       <div
         class="relative transition-all duration-300 ease-out"
         :style="{ height: `${height}px` }"
@@ -131,6 +142,7 @@
             :id="item.id"
             class="flex items-center gap-3 px-4 py-2.5 rounded-lg shadow-lg text-sm"
             :class="classes[item.severity ?? 'info']"
+            :namespace
           >
             <Snackbar.Content class="flex-1">
               {{ item.subject }}
@@ -139,6 +151,7 @@
             <Snackbar.Close
               v-show="hovered || i === 0"
               class="p-1 -mr-1 opacity-70 hover:opacity-100 shrink-0"
+              :namespace
             >
               <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24">
                 <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" fill="currentColor" />
