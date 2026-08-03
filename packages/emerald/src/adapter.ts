@@ -1,3 +1,19 @@
+/**
+ * Runtime counterpart of `scripts/bake-theme.ts` — keep `SAFE_IDENT`,
+ * `UNSAFE_CSS`, `V0_ALIAS_KEYS`, `V0_REMAP_KEYS` and `foundations` in lockstep.
+ *
+ * Two intentional differences from the baked stylesheet:
+ * - **Selectors.** Colors land on `[data-theme="<id>"]` only (foundations stay on
+ *   `:root`) — on the plugin path the theme system owns that attribute. The bake
+ *   script additionally duplicates the color block onto `:root`, because the
+ *   zero-config CSS-only path (`import '@paper/emerald/theme.css'`) has no
+ *   plugin to set `data-theme`.
+ * - **Sanitizer response.** Here a `SAFE_IDENT` / `UNSAFE_CSS` hit skips the
+ *   declaration silently: colors are user-supplied at runtime, and v0's own
+ *   adapter drops rather than throws. At bake time the input is first-party
+ *   `colors.ts`, so the script throws instead — see its header.
+ */
+
 // Framework
 import { V0StyleSheetThemeAdapter } from '@vuetify/v0'
 import { hexToRgb, isUndefined } from '@vuetify/v0/utilities'
@@ -6,12 +22,17 @@ import { hexToRgb, isUndefined } from '@vuetify/v0/utilities'
 import { control, fontFamily, fontSize, icon, motion, radius, shadow, spacing, stroke } from './design-system'
 
 // Types
+import type { emeraldColors } from './colors'
 import type { Colors } from '@vuetify/v0'
 
+/**
+ * Deliberately no `prefix`: every Emerald stylesheet hardcodes `var(--emerald-*)`,
+ * so a custom prefix would emit variables nothing reads and unstyle the whole
+ * design system.
+ */
 export interface EmeraldAdapterOptions {
   cspNonce?: string
   stylesheetId?: string
-  prefix?: string
   /**
    * When true (default), also emit `--v0-*` aliases for color roles kits
    * (Genesis) consume so DS chrome inherits brand colors. See DESIGN_SYSTEMS.md
@@ -47,7 +68,22 @@ const V0_ALIAS_KEYS = [
   'on-success',
   'info',
   'on-info',
-] as const
+] as const satisfies readonly (keyof typeof emeraldColors)[]
+
+/**
+ * Kit alias names whose Emerald source token is named differently — severity and
+ * accent roles. Every entry pairs a background with its foreground: emitting one
+ * without the other hands kits a contrast bug.
+ */
+const V0_REMAP_KEYS = {
+  'error': 'danger',
+  'on-error': 'on-danger',
+  'warning': 'alert',
+  'on-warning': 'on-alert',
+  'accent': 'primary',
+  'on-accent': 'on-primary',
+  'surface-variant': 'neutral-200',
+} as const satisfies Record<string, keyof typeof emeraldColors>
 
 /**
  * Stylesheet adapter used by `createEmeraldPlugin` — not a consumer install step.
@@ -59,7 +95,10 @@ export class EmeraldStyleSheetAdapter extends V0StyleSheetThemeAdapter {
   readonly v0Aliases: boolean
 
   constructor (options: EmeraldAdapterOptions = {}) {
-    super({ prefix: 'emerald', stylesheetId: 'emerald-theme-stylesheet', ...options })
+    // Order is load-bearing: `stylesheetId` precedes the spread so callers can
+    // override it, `prefix` follows so they cannot — a cast past
+    // EmeraldAdapterOptions would otherwise unstyle every `var(--emerald-*)`.
+    super({ stylesheetId: 'emerald-theme-stylesheet', ...options, prefix: 'emerald' })
     this.v0Aliases = options.v0Aliases !== false
   }
 
@@ -88,10 +127,11 @@ export class EmeraldStyleSheetAdapter extends V0StyleSheetThemeAdapter {
             lines.push(`  --v0-${key}: var(--${this.prefix}-${key});`)
           }
         }
-        // Severity / accent remaps kits use for callouts (names differ)
-        if ('alert' in themeColors) lines.push(`  --v0-warning: var(--${this.prefix}-alert);`)
-        if ('danger' in themeColors) lines.push(`  --v0-error: var(--${this.prefix}-danger);`)
-        if ('primary' in themeColors) lines.push(`  --v0-accent: var(--${this.prefix}-primary);`)
+        for (const [alias, key] of Object.entries(V0_REMAP_KEYS)) {
+          if (key in themeColors) {
+            lines.push(`  --v0-${alias}: var(--${this.prefix}-${key});`)
+          }
+        }
       }
 
       css += `[data-theme="${theme}"] {\n${lines.join('\n')}\n  color: var(--${this.prefix}-on-background);\n}\n`

@@ -19,15 +19,26 @@ import {
 
 type Scale = Record<string, string>
 
-function scale (name: string, values: Scale): Scale {
+/** `DEFAULT` collapses to the family name; every other key is namespaced under it. */
+type Scaled<N extends string, T extends Scale> = {
+  [K in keyof T & string as K extends 'DEFAULT' ? N : `${N}-${K}`]: string
+}
+
+function scale<N extends string, T extends Scale> (name: N, values: T): Scaled<N, T> {
   const out: Scale = {}
   for (const [key, val] of Object.entries(values)) {
     out[key === 'DEFAULT' ? name : `${name}-${key}`] = val
   }
-  return out
+  return out as Scaled<N, T>
 }
 
-export const emeraldColors: Record<string, string> = {
+/**
+ * `satisfies` (not `: Record<string, string>`) so `keyof typeof emeraldColors`
+ * stays a literal union — the adapter's `--v0-*` alias tables are compile-checked
+ * against it, so a renamed token breaks the build instead of silently dropping
+ * an alias.
+ */
+export const emeraldColors = {
   ...scale('primary', primary),
   ...scale('secondary', secondary),
   ...scale('neutral', neutral),
@@ -52,4 +63,4 @@ export const emeraldColors: Record<string, string> = {
   'status-warning-br': alert[500],
   // Kit-facing pre aliases (docs chrome code panes)
   'pre': neutral[1000],
-}
+} satisfies Record<string, string>

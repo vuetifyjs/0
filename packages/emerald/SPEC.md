@@ -77,7 +77,7 @@ showcase quality.
 
 | Component | v0 / shell |
 |---|---|
-| `EmAlert` (+ Title/Description) | `Atom` + `role="alert"` (no v0 Alert) |
+| `EmAlert` (+ Title/Description) | `Atom` + live region — `role="status"`, `alert` for the error variant, `role` prop overrides (no v0 Alert) |
 | `EmCard` (+ Header/Title/Subtitle/Body/Footer) | `Atom` presentational |
 | `EmTag` | `Atom` presentational / button |
 | `EmAvatar` (+ Image/Fallback) | `Avatar.*` |
@@ -96,7 +96,7 @@ showcase quality.
 | `EmDivider` | `Atom` presentational |
 | `EmTextarea` | `Input.Root` + `Control as="textarea"` |
 | `EmTooltip` (+ Activator/Content) | `Tooltip.*` |
-| `EmSnackbar` (+ Portal/Queue/Content/Close) | `Snackbar.*` (+ `useNotifications` for queues) |
+| `EmSnackbar` (+ Portal/Queue/Content/Close) | `Snackbar.*` (queueing via `Snackbar.Queue`) |
 | `EmBreadcrumbs` (+ List/Item/Link/Page/Divider/Ellipsis) | `Breadcrumbs.*` |
 | `EmExpansionPanel` (+ Group/Header/Activator/Cue/Content) | `ExpansionPanel.*` |
 | `EmStep` (+ Item) | `Step.*` |

@@ -5,7 +5,19 @@
  * Self-contained (no @vuetify/v0 import) so it runs after tsdown without
  * requiring packages/0 dist to be built first.
  *
- * Keep V0_ALIAS_KEYS / UNSAFE_CSS / foundations in lockstep with src/adapter.ts.
+ * Keep SAFE_IDENT / UNSAFE_CSS / V0_ALIAS_KEYS / V0_REMAP_KEYS / foundations in
+ * lockstep with src/adapter.ts.
+ *
+ * Two intentional differences from the runtime adapter:
+ * - **Selectors.** The color block is emitted twice — on `[data-theme="emerald"]`
+ *   *and* on `:root`. The zero-config path is a bare CSS import with no plugin to
+ *   set `data-theme`, so the `:root` copy is what makes it work; the adapter
+ *   emits colors on the attribute block alone because on the plugin path the
+ *   theme system owns that attribute.
+ * - **Sanitizer response.** The adapter silently skips a `SAFE_IDENT` /
+ *   `UNSAFE_CSS` hit because its colors are user-supplied at runtime. Here the
+ *   input is first-party `colors.ts`, so any hit is a bug in our own tokens and
+ *   must fail the build rather than ship a hollow stylesheet.
  */
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
@@ -50,7 +62,17 @@ const V0_ALIAS_KEYS = [
   'on-success',
   'info',
   'on-info',
-] as const
+] as const satisfies readonly (keyof typeof emeraldColors)[]
+
+const V0_REMAP_KEYS = {
+  'error': 'danger',
+  'on-error': 'on-danger',
+  'warning': 'alert',
+  'on-warning': 'on-alert',
+  'accent': 'primary',
+  'on-accent': 'on-primary',
+  'surface-variant': 'neutral-200',
+} as const satisfies Record<string, keyof typeof emeraldColors>
 
 function hexToChannels (hex: string): string | null {
   if (!/^#[0-9a-f]{3,8}$/i.test(hex)) return null
@@ -97,24 +119,45 @@ function foundations (): string {
   return `:root {\n${lines.join('\n')}\n}\n`
 }
 
+function assert (key: string): void {
+  if (!(key in emeraldColors)) {
+    throw new Error(`[bake-theme] alias source "${key}" is missing from emeraldColors`)
+  }
+}
+
 function colorBlock (selector: string): string {
   const lines: string[] = []
 
   for (const [key, val] of Object.entries(emeraldColors)) {
-    if (!SAFE_IDENT.test(key) || UNSAFE_CSS.test(val)) continue
+    // First-party tokens: a sanitizer hit is a bug in colors.ts, not input to filter.
+    if (!SAFE_IDENT.test(key)) {
+      throw new Error(`[bake-theme] token key "${key}" is not a safe CSS identifier`)
+    }
+    if (UNSAFE_CSS.test(val)) {
+      throw new Error(`[bake-theme] token "${key}" has an unsafe CSS value: ${val}`)
+    }
+
     lines.push(`  --emerald-${key}: ${val};`)
     const channels = hexToChannels(val)
     if (channels) lines.push(`  --emerald-${key}-channels: ${channels};`)
   }
 
-  for (const key of V0_ALIAS_KEYS) {
-    if (key in emeraldColors) {
-      lines.push(`  --v0-${key}: var(--emerald-${key});`)
-    }
+  if (lines.length === 0) {
+    throw new Error('[bake-theme] emeraldColors produced no declarations — refusing to write a hollow theme.css')
   }
-  if ('alert' in emeraldColors) lines.push('  --v0-warning: var(--emerald-alert);')
-  if ('danger' in emeraldColors) lines.push('  --v0-error: var(--emerald-danger);')
-  if ('primary' in emeraldColors) lines.push('  --v0-accent: var(--emerald-primary);')
+
+  // `satisfies` above already ties both tables to real color keys, but tsconfig
+  // excludes scripts/** from typecheck — assert at runtime so a renamed token
+  // fails the bake instead of emitting an alias pointing at a dead variable.
+  for (const key of V0_ALIAS_KEYS) {
+    assert(key)
+    lines.push(`  --v0-${key}: var(--emerald-${key});`)
+  }
+
+  for (const [alias, key] of Object.entries(V0_REMAP_KEYS)) {
+    assert(key)
+    lines.push(`  --v0-${alias}: var(--emerald-${key});`)
+  }
 
   lines.push('  color: var(--emerald-on-background);')
 

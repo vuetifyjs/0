@@ -30,13 +30,15 @@
       "default": "./dist/index.mjs"
     },
     "./package.json": "./package.json",
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css",
+    "./theme.css": "./dist/theme.css"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.mjs",
       "./package.json": "./package.json",
-      "./style.css": "./dist/style.css"
+      "./style.css": "./dist/style.css",
+      "./theme.css": "./dist/theme.css"
     }
   },
   "dependencies": {

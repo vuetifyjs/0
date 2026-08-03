@@ -2,6 +2,14 @@
 "@paper/emerald": minor
 ---
 
-feat(emerald): introduce Wave 1–2 design system surface
+feat(emerald): introduce Wave 1–3 design system surface
 
-EmButton, EmTextField, EmCheckbox, EmSwitch, EmDialog, EmSelect, EmAlert, EmCard, EmTag, EmAvatar, EmTabs, EmPagination, and EmSlider composed on v0 (or Atom shells where no primitive exists). Figma-sourced `--emerald-*` tokens, `--v0-*` kit aliases, motion/control foundations, and prebaked `theme.css`.
+Twenty-four component families composed on v0 primitives (or `Atom` shells where no primitive exists yet):
+
+- **Wave 1** — `EmButton`, `EmTextField`, `EmCheckbox`, `EmSwitch`, `EmDialog`, `EmSelect`
+- **Wave 2** — `EmAlert`, `EmCard`, `EmTag`, `EmAvatar`, `EmTabs`, `EmPagination`, `EmSlider`
+- **Wave 3** — `EmRadio`, `EmProgress`, `EmSpinner`, `EmBadge`, `EmDivider`, `EmTextarea`, `EmTooltip`, `EmSnackbar`, `EmBreadcrumbs`, `EmExpansionPanel`, `EmStep`
+
+Compound components (`EmDialog`, `EmSelect`, `EmTabs`, `EmSnackbar`, `EmBreadcrumbs`, …) ship one `Em*` export per region so consumers build the tree with default slots.
+
+Also included: Figma-sourced `--emerald-*` tokens (color scales, spacing, radius, stroke, icon, shadow, type, motion, control geometry), `--v0-*` aliases for kit interop, `createEmeraldPlugin()` for one-line install, and a prebaked `theme.css` for the zero-config CSS-only path.

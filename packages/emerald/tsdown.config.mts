@@ -26,6 +26,12 @@ export default defineConfig({
   name: 'paper/emerald',
   exports: {
     devExports: 'development',
+    // scripts/bake-theme.ts writes dist/theme.css *after* tsdown runs, so tsdown
+    // cannot discover it and prunes the entry from the regenerated exports map.
+    // Declaring it here is the only edit that survives a build.
+    customExports: {
+      './theme.css': './dist/theme.css',
+    },
   },
   alias: {
     '#v0': v0,
