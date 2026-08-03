@@ -50,6 +50,22 @@ Portal is transparent — it adds no DOM elements, ARIA attributes, or keyboard 
 > [!TIP]
 > When teleporting interactive content (modals, menus, notifications), ensure it has proper ARIA roles, keyboard handling, and focus management. Portal handles *where* content renders, not *how* it behaves.
 
+### Landmarks
+
+Teleported content lands outside your app's landmark structure — `body` is not inside `<main>`, so audit tools flag the subtree with the axe [region](https://dequeuniversity.com/rules/axe/4.12/region) rule. Give the teleported subtree its own semantics instead of relying on the surrounding page:
+
+- `role="dialog"` — dialogs are exempt from the landmark rule
+- `role="status"` or `role="alert"` — toast and notification regions
+- `role="region"` plus `aria-label` — arbitrary overlays with no more specific role
+
+```vue
+<template>
+  <Portal>
+    <aside role="region" aria-label="Chat panel">...</aside>
+  </Portal>
+</template>
+```
+
 ## FAQ
 
 ::: faq

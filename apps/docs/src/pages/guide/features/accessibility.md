@@ -82,6 +82,10 @@ v0 does **not** provide focus trapping. Use external solutions:
 
 v0 does **not** provide roving tabindex. This keeps the library headless - implement in your design system layer if needed for arrow key navigation between items.
 
+### Teleported Content and Landmarks
+
+Content teleported by [Portal](/components/primitives/portal) renders into `body`, outside your app's landmarks, so audit tools flag it with the axe [region](https://dequeuniversity.com/rules/axe/4.12/region) rule. v0 is headless — it won't pick a landmark role for you. Give the teleported subtree its own semantics: `role="dialog"` for modals (exempt from the landmark rule), `role="status"` or `role="alert"` for toast regions, or `role="region"` plus `aria-label` for arbitrary overlays. See the [Portal accessibility notes](/components/primitives/portal#landmarks) for an example.
+
 ## Keyboard Navigation
 
 ### What v0 Handles
