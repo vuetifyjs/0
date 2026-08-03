@@ -155,6 +155,8 @@ describe('useResizeObserver box model', () => {
 
     expect(size(immediate.borderBoxSize[0])).toEqual(size(observed.borderBoxSize[0]))
     expect(size(immediate.contentBoxSize[0])).toEqual(size(observed.contentBoxSize[0]))
+    expect(immediate.contentRect).toEqual(observed.contentRect)
+    expect(immediate.contentRect).toEqual({ width: 166, height: 30, top: 4, left: 16 })
   })
 
   it('should swap the logical axes on the immediate entry under a vertical writing mode', async () => {
