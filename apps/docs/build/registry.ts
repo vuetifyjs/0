@@ -84,6 +84,11 @@ export interface RegistryExample {
   dependencies: string[]
   /** Semantic tokens the files use — the CLI's styling preflight reads this. */
   tokens: string[]
+  /**
+   * UnoCSS icon utilities (`i-lucide-*`, `i-mdi-*`, …). create-vuetify0 does not
+   * install an icon preset by default — the CLI surfaces these as soft deps.
+   */
+  icons: string[]
 }
 
 export interface RegistryItem {
@@ -224,6 +229,19 @@ function specifiers (content: string): string[] {
 }
 
 /**
+ * UnoCSS icon utility classes (`i-lucide-mail`, `i-mdi-close`, …).
+ * create-vuetify0 scaffolds do not install icon collections — the CLI reads
+ * this list as soft deps rather than hard-failing the registry build.
+ */
+export function icons (content: string): string[] {
+  const found = new Set<string>()
+  for (const match of content.matchAll(/\bi-(?:lucide|mdi|carbon|ph|heroicons|tabler)-[\w-]+\b/g)) {
+    found.add(match[0])
+  }
+  return [...found].toSorted()
+}
+
+/**
  * Semantic tokens used by a source file.
  *
  * Matches longest-first so `bg-surface-tint` is not read as `bg-surface`, and
@@ -291,6 +309,8 @@ export async function build (): Promise<Registry> {
       const files: RegistryFile[] = []
       const dependencies = new Set(block.imports)
       const used = new Set<string>()
+      const usedIcons = new Set<string>()
+      let incomplete = false
 
       // The last `.vue` in the manifest renders the demo — see .claude/rules/docs.md.
       const last = paths.findLastIndex(p => p.endsWith('.vue'))
@@ -301,11 +321,13 @@ export async function build (): Promise<Registry> {
 
         if (content === null) {
           warnings.push(`[registry] ${file}: missing example file "${relativePath}"`)
+          incomplete = true
           continue
         }
 
         for (const specifier of specifiers(content)) dependencies.add(specifier)
         for (const token of tokens(content, universe)) used.add(token)
+        for (const icon of icons(content)) usedIcons.add(icon)
 
         files.push({
           path: relativePath,
@@ -315,7 +337,23 @@ export async function build (): Promise<Registry> {
         })
       }
 
-      if (files.length === 0) continue
+      // A missing path leaves a half-built payload (`entry` may never be true).
+      // Skip the whole block rather than shipping an incomplete tree to the CLI.
+      if (incomplete || files.length === 0) continue
+
+      const lower = new Map<string, string>()
+      for (const item of files) {
+        const key = item.name.toLowerCase()
+        const prev = lower.get(key)
+        if (prev && prev !== item.name) {
+          warnings.push(
+            `[registry] ${file}: case-colliding basenames "${prev}" and "${item.name}" `
+            + `— the CLI writes flat basenames and will overwrite or fail on `
+            + `case-insensitive filesystems (macOS/Windows). Rename one of them.`,
+          )
+        }
+        lower.set(key, item.name)
+      }
 
       const leaked = [...used].filter(token => unportable.includes(token))
       if (leaked.length > 0) {
@@ -348,6 +386,7 @@ export async function build (): Promise<Registry> {
         files,
         dependencies: [...dependencies].toSorted(),
         tokens: [...used].toSorted(),
+        icons: [...usedIcons].toSorted(),
       })
     }
 

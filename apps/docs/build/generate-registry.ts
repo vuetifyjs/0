@@ -66,6 +66,17 @@ export default function generateRegistryPlugin (): Plugin {
     configureServer (server) {
       dev = true
 
+      // Mirror generate-nav / generate-llms-full: drop the memo when source
+      // pages or examples change so a local CLI against the dev origin sees
+      // fresh bodies without a server restart.
+      server.watcher.on('change', file => {
+        const touched = file.includes('/pages/') || file.includes('/examples/')
+        if (!touched) return
+        if (!file.endsWith('.md') && !file.endsWith('.vue') && !file.endsWith('.ts')) return
+        registry = null
+        pending = null
+      })
+
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split('?')[0]
         if (!url?.startsWith('/registry/') || !url.endsWith('.json')) return next()
