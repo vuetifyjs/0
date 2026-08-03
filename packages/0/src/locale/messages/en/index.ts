@@ -66,6 +66,9 @@ export default {
   Rating: {
     valueText: '{value} of {size} stars',
   },
+  Slider: {
+    label: 'Slider',
+  },
   Snackbar: {
     close: 'Dismiss',
   },
