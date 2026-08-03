@@ -75,9 +75,9 @@
           </p>
         </div>
 
-        <!-- Small cards in a grid, not rows: density is the point, so the panel spends
-             its body on columns rather than a single divided list. -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 p-3">
+        <!-- Portrait cards, not rows: playing-card proportions read as a hand of choices,
+             so the panel spends its body on columns rather than a single divided list. -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 p-3">
           <!-- The info affordance sits outside the toggle: a button inside a button is
                invalid, and nesting it would make the whole card announce as "about". -->
           <div
@@ -87,26 +87,26 @@
           >
             <Toggle.Root
               :aria-label="question.title"
-              class="pick h-16 w-full pl-3 pr-9 flex flex-col justify-center gap-1"
+              class="pick aspect-[5/7] w-full p-3.5 flex flex-col items-start gap-2"
               :class="store.isPluginSelected(question.feature) ? 'pick-on' : 'pick-off'"
               :model-value="store.isPluginSelected(question.feature)"
               @update:model-value="store.togglePlugin(question.feature)"
             >
-              <span class="flex items-center gap-2 min-w-0">
-                <span
-                  class="pick-mark w-4 h-4"
-                  :class="store.isPluginSelected(question.feature) ? 'pick-mark-on' : 'pick-mark-off'"
-                >
-                  <svg v-if="store.isPluginSelected(question.feature)" class="w-3 h-3" viewBox="0 0 24 24">
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
-                  </svg>
-                </span>
-
-                <span class="t-section truncate min-w-0">{{ question.title }}</span>
+              <span
+                class="pick-mark w-5 h-5"
+                :class="store.isPluginSelected(question.feature) ? 'pick-mark-on' : 'pick-mark-off'"
+              >
+                <svg v-if="store.isPluginSelected(question.feature)" class="w-3.5 h-3.5" viewBox="0 0 24 24">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
+                </svg>
               </span>
 
-              <span class="flex items-center gap-1.5 flex-wrap pl-[1.5rem] min-w-0">
-                <span class="font-mono text-[0.6875rem] text-on-surface-variant/80 truncate">{{ question.feature }}</span>
+              <span class="t-section leading-snug">{{ question.title }}</span>
+
+              <span class="flex-1" />
+
+              <span class="flex flex-col items-start gap-1.5 w-full min-w-0">
+                <span class="font-mono text-[0.6875rem] text-on-surface-variant/80 truncate w-full">{{ question.feature }}</span>
                 <span v-if="meta(question.feature)?.hasConfig" class="chip-quiet flex-shrink-0">config</span>
               </span>
             </Toggle.Root>

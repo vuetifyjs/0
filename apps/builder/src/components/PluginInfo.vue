@@ -33,7 +33,7 @@
   <Popover.Root>
     <Popover.Activator
       :aria-label="`About ${title}`"
-      class="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 inline-flex items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors duration-150 cursor-pointer opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 data-[open]:opacity-100"
+      class="absolute right-1.5 top-1.5 h-7 w-7 inline-flex items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors duration-150 cursor-pointer opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 data-[open]:opacity-100"
     >
       <Icon :path="mdiInformationOutline" :size="15" />
     </Popover.Activator>
