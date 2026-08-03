@@ -167,7 +167,7 @@ export const Treeview = {
    *
    * @example
    * ```vue
-   * <Treeview.Cue v-slot="{ attrs }">
+   * <Treeview.Cue v-slot="{ attrs }" renderless>
    *   <span v-bind="attrs">▶</span>
    * </Treeview.Cue>
    * ```
@@ -197,7 +197,7 @@ export const Treeview = {
    *
    * @example
    * ```vue
-   * <Treeview.Checkbox v-slot="{ attrs, isSelected, isMixed }">
+   * <Treeview.Checkbox v-slot="{ attrs, isSelected, isMixed }" renderless>
    *   <span v-bind="attrs">{{ isMixed ? '−' : isSelected ? '✓' : '○' }}</span>
    * </Treeview.Checkbox>
    * ```
@@ -211,7 +211,7 @@ export const Treeview = {
    *
    * @example
    * ```vue
-   * <Treeview.Indicator v-slot="{ attrs }">
+   * <Treeview.Indicator v-slot="{ attrs }" renderless>
    *   <span v-bind="attrs">●</span>
    * </Treeview.Indicator>
    * ```
@@ -228,7 +228,7 @@ export const Treeview = {
    *
    * @example
    * ```vue
-   * <Treeview.SelectAll v-slot="{ attrs, isAllSelected, isMixed }">
+   * <Treeview.SelectAll v-slot="{ attrs, isAllSelected, isMixed }" renderless>
    *   <button v-bind="attrs">
    *     {{ isMixed ? '−' : isAllSelected ? '✓' : '○' }} Select All
    *   </button>
