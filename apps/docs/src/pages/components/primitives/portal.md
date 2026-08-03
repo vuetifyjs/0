@@ -61,7 +61,7 @@ Teleported content lands outside your app's landmark structure — `body` is not
 ```vue
 <template>
   <Portal>
-    <aside role="region" aria-label="Chat panel">...</aside>
+    <div role="region" aria-label="Chat panel">...</div>
   </Portal>
 </template>
 ```
