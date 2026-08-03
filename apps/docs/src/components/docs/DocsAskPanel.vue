@@ -1,6 +1,7 @@
 <script setup lang="ts">
   // Framework
   import { isNull, useBreakpoints } from '@vuetify/v0'
+  import { IN_BROWSER } from '@vuetify/v0/constants'
 
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
@@ -16,7 +17,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { nextTick, toRef, useTemplateRef, watch } from 'vue'
+  import { nextTick, onScopeDispose, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { Message } from '@/composables/useAsk'
@@ -46,6 +47,33 @@
   const formRef = useTemplateRef<{ focus: () => void }>('form')
 
   const isDesktop = toRef(() => !breakpoints.isMobile.value)
+
+  const maximized = toRef(() => isDesktop.value && props.fullscreen === true)
+
+  function unlock () {
+    if (!IN_BROWSER) return
+
+    document.documentElement.style.overflow = ''
+    document.documentElement.style.paddingRight = ''
+  }
+
+  // Contain scrolling to the panel while maximized; the padding replaces
+  // the vanished scrollbar so the page behind doesn't shift
+  watch(maximized, locked => {
+    if (!IN_BROWSER) return
+
+    if (!locked) {
+      unlock()
+      return
+    }
+
+    const root = document.documentElement
+    const gutter = window.innerWidth - root.clientWidth
+    root.style.overflow = 'hidden'
+    root.style.paddingRight = gutter > 0 ? `${gutter}px` : ''
+  }, { immediate: true })
+
+  onScopeDispose(unlock)
 
   // Auto-scroll until response fills the viewport
   let shouldAutoScroll = true
