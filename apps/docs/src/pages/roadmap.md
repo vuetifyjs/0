@@ -93,7 +93,7 @@ Whether you want to explore in the browser, scaffold a project, or integrate wit
 
 ### Get involved
 
-**Report a bug or request a feature** — [Open an issue](https://github.com/vuetifyjs/0/issues) on GitHub.
+**Report a bug or request a feature** — [Open an issue](https://issues.vuetifyjs.com/?repo=vuetify0).
 
 **Ask a question or join the conversation** — Find us on [Discord](https://discord.gg/vuetify).
 
@@ -142,7 +142,7 @@ Yes. All composables and components are SSR-safe. Nuxt integration is documented
 
 ??? How do I report a bug?
 
-[Open an issue](https://github.com/vuetifyjs/0/issues) on GitHub. Include a reproduction if possible — the [playground](https://v0play.vuetifyjs.com) is a good way to create one.
+[Open an issue](https://issues.vuetifyjs.com/?repo=vuetify0&type=bug). Include a reproduction if possible — the [playground](https://v0play.vuetifyjs.com) is a good way to create one.
 
 ??? How can I contribute?
 
