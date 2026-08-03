@@ -1,25 +1,32 @@
 <script setup lang="ts">
-  import { mdiArrowLeft } from '@mdi/js'
+  import { mdiArrowLeft, mdiTuneVariant } from '@mdi/js'
 
   // Framework
   import { Button, Toggle } from '@vuetify/v0'
 
   // Components
+  import Icon from '@/components/app/Icon.vue'
   import StepBar from '@/components/app/StepBar.vue'
   import PluginInfo from '@/components/PluginInfo.vue'
 
+  import dependencyGraph from '@/data/dependencies.json'
   import { getPluginById } from '@/data/plugins'
   import { getCategories } from '@/data/questions'
+  import { resolve } from '@/engine/resolve'
 
   // Stores
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { computed, toRef } from 'vue'
   import { useRouter } from 'vue-router'
+
+  // Types
+  import type { DependencyGraph } from '@/data/types'
 
   const store = useBuilderStore()
   const router = useRouter()
+  const graph = dependencyGraph as DependencyGraph
 
   // Each category is a panel of the machine, opened up: the line items live inside it
   // rather than floating on the page, so the grouping is a container, not a heading.
@@ -27,6 +34,18 @@
     ...category,
     picked: category.questions.filter(q => store.isPluginSelected(q.feature)).length,
   })))
+
+  // Same resolve() call PluginInfo's popover makes, run once for all 15 plugins here
+  // rather than once per card per render.
+  const moduleCounts = computed(() => {
+    const counts: Record<string, number> = {}
+    for (const category of getCategories()) {
+      for (const question of category.questions) {
+        counts[question.feature] = resolve([question.feature], graph).autoIncluded.length
+      }
+    }
+    return counts
+  })
 
   function meta (feature: string) {
     return getPluginById(feature)
@@ -103,11 +122,19 @@
 
               <span class="t-section leading-snug">{{ question.title }}</span>
 
+              <p class="t-meta text-on-surface-variant w-full break-words">{{ question.description }}</p>
+
               <span class="flex-1" />
 
-              <span class="flex flex-col items-start gap-1.5 w-full min-w-0">
-                <span class="font-mono text-[0.6875rem] text-on-surface-variant/80 truncate w-full">{{ question.feature }}</span>
-                <span v-if="meta(question.feature)?.hasConfig" class="chip-quiet flex-shrink-0">config</span>
+              <span class="flex items-center justify-between gap-2 w-full min-w-0">
+                <span class="t-index text-on-surface-variant/70">
+                  {{ moduleCounts[question.feature] }} {{ moduleCounts[question.feature] === 1 ? 'module' : 'modules' }}
+                </span>
+
+                <span v-if="meta(question.feature)?.hasConfig" class="flex-shrink-0 text-on-surface-variant/70">
+                  <Icon :path="mdiTuneVariant" :size="13" />
+                  <span class="sr-only">Configurable</span>
+                </span>
               </span>
             </Toggle.Root>
 
