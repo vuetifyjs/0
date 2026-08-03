@@ -95,7 +95,7 @@
           >
             <Toggle.Root
               :aria-label="question.title"
-              class="pick min-h-56 w-full p-3.5 overflow-hidden"
+              class="pick min-h-56 w-full p-3.5 overflow-hidden flex flex-col"
               :class="store.isPluginSelected(question.feature) ? 'pick-on' : 'pick-off'"
               :model-value="store.isPluginSelected(question.feature)"
               @update:model-value="store.togglePlugin(question.feature)"
@@ -113,7 +113,16 @@
                 origin="bottom right"
               />
 
-              <div class="relative h-full flex flex-col items-start gap-2">
+              <!-- `flex-1` (not `h-full`): Toggle.Root's own height comes from a
+                   `min-height` floor, not an explicit `height`, so percentage heights
+                   on this child never reliably resolve to it — flex-grow does, since it
+                   sizes off the container's actual layout box, not its declared height.
+                   `flex flex-col` on Toggle.Root itself is also required: it renders as
+                   a native <button>, and buttons vertically-center their content by
+                   default in every browser — without an explicit flex context here to
+                   override that, this whole block (and everything in it) would recenter
+                   instead of hugging the top edge. -->
+              <div class="relative flex-1 flex flex-col items-start gap-2">
                 <span
                   class="pick-mark w-7 h-7"
                   :class="store.isPluginSelected(question.feature) ? 'pick-mark-on' : 'pick-mark-off text-on-surface-variant'"
