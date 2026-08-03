@@ -21,7 +21,7 @@
   const plans = toRef(() => [
     {
       name: 'Starter',
-      price: yearly.value ? 0 : 0,
+      price: 0,
       period: yearly.value ? '/yr' : '/mo',
       blurb: 'For individuals exploring Emerald.',
       features: ['Core Em* components', 'Theme tokens', 'Community support'],

@@ -7,13 +7,9 @@
     EmTextField,
   } from '@paper/emerald'
 
-  import { installEmeraldTheme } from './emerald-theme'
-
   // Utilities
   import { shallowRef } from 'vue'
   import { RouterLink } from 'vue-router'
-
-  installEmeraldTheme()
 
   const email = shallowRef('')
   const password = shallowRef('')

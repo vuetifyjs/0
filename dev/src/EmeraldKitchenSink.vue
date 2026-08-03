@@ -1,7 +1,5 @@
 <script setup lang="ts">
   import {
-    EmeraldStyleSheetAdapter,
-    emeraldColors,
     EmAlert,
     EmAlertDescription,
     EmAlertTitle,
@@ -72,18 +70,9 @@
     EmTooltipContent,
   } from '@paper/emerald'
 
-  // Framework
-  import { IN_BROWSER } from '@vuetify/v0'
-
   // Utilities
   import { ref, shallowRef } from 'vue'
-
-  // Inject Emerald tokens without fighting the app-wide createThemePlugin.
-  if (IN_BROWSER) {
-    const adapter = new EmeraldStyleSheetAdapter()
-    adapter.upsert(adapter.generate({ emerald: emeraldColors }, false))
-    document.documentElement.dataset.theme = 'emerald'
-  }
+  import { RouterLink } from 'vue-router'
 
   const dialogOpen = shallowRef(false)
   const loading = shallowRef(false)
@@ -118,7 +107,7 @@
 
       <p>
         Wave 1–3 component inventory —
-        <a href="/emerald">Dashboard showcase →</a>
+        <RouterLink to="/emerald">Dashboard showcase →</RouterLink>
       </p>
     </header>
 
@@ -310,7 +299,14 @@
       <div class="stack narrow" style="width: 100%; max-width: 360px;">
         <EmProgress v-model="progress" label="Upload" show-value />
         <EmProgress indeterminate label="Syncing…" size="sm" />
-        <input v-model.number="progress" max="100" min="0" type="range">
+
+        <EmSlider
+          v-model="progress"
+          label="Upload progress"
+          :max="100"
+          :min="0"
+          :step="1"
+        />
       </div>
     </section>
 
@@ -445,7 +441,10 @@
             </EmExpansionPanelHeader>
 
             <EmExpansionPanelContent>
-              theme.css + style.css + createEmeraldPlugin() — no adapter assembly for consumers.
+              createEmeraldPlugin() wires the adapter and the default emerald theme —
+              consumers never assemble one. This showcase installs exactly that from
+              main.ts; theme.css + style.css are the plugin-less equivalent for hosts
+              that only want the CSS.
             </EmExpansionPanelContent>
           </EmExpansionPanel>
         </EmExpansionPanelGroup>
@@ -613,17 +612,17 @@
     text-decoration: underline;
   }
 
-  section {
+  .emerald-sink section {
     margin-bottom: 2.5rem;
   }
 
-  section h2 {
+  .emerald-sink section h2 {
     margin: 0 0 0.75rem;
     font-size: 1.125rem;
     font-weight: 700;
   }
 
-  .row {
+  .emerald-sink .row {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -631,18 +630,18 @@
     margin-bottom: 0.75rem;
   }
 
-  .stack {
+  .emerald-sink .stack {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
   }
 
-  .stack.narrow {
+  .emerald-sink .stack.narrow {
     max-width: 360px;
   }
 
-  .muted {
+  .emerald-sink .muted {
     margin: 0;
     font-size: 0.875rem;
     color: var(--emerald-on-surface-variant, #757e85);

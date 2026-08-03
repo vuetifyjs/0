@@ -1,17 +1,13 @@
 <script setup lang="ts">
-  import { EmAvatar, EmAvatarFallback, EmSwitch } from '@paper/emerald'
+  import { EmAvatar, EmAvatarFallback, EmButton, EmSwitch } from '@paper/emerald'
 
   // Framework
   // Globals
   import { IN_BROWSER } from '@vuetify/v0'
 
-  import { installEmeraldTheme } from './emerald-theme'
-
   // Utilities
   import { computed, onMounted, onBeforeUnmount, shallowRef } from 'vue'
   import { RouterLink, useRoute } from 'vue-router'
-
-  installEmeraldTheme()
 
   const {
     bare = false,
@@ -96,11 +92,11 @@
     :data-mode="dark ? 'dark' : 'light'"
     data-theme="emerald"
   >
-    <button
+    <EmButton
       v-if="mobile && collapsed"
       aria-label="Open navigation"
       class="ed-menu-fab"
-      type="button"
+      variant="tertiary"
       @click="onToggleNav"
     >
       <svg
@@ -115,7 +111,7 @@
       >
         <path d="M4 6h16M4 12h16M4 18h16" />
       </svg>
-    </button>
+    </EmButton>
 
     <div
       v-if="mobile && !collapsed"
@@ -131,10 +127,11 @@
           <span v-if="!collapsed || mobile" class="ed-brand__name">Emerald</span>
         </RouterLink>
 
-        <button
+        <EmButton
           :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
           class="ed-icon-btn"
-          type="button"
+          size="sm"
+          variant="tertiary"
           @click="onToggleNav"
         >
           <svg
@@ -149,52 +146,21 @@
           >
             <path d="M4 6h16M4 12h10M4 18h16" />
           </svg>
-        </button>
+        </EmButton>
       </div>
 
       <nav class="ed-nav__list">
-        <component
-          :is="item.to ? RouterLink : 'button'"
+        <RouterLink
           v-for="item in nav"
           :key="item.id"
           class="ed-nav__item"
-          :class="{ 'ed-nav__item--indent': item.indent }"
           :data-active="active === item.id || undefined"
           :to="item.to"
-          :type="item.to ? undefined : 'button'"
           @click="onCloseNav"
         >
           <span aria-hidden="true" class="ed-nav__glyph">
             <svg
-              v-if="item.icon === 'home'"
-              fill="none"
-              height="18"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="18"
-            >
-              <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z" />
-            </svg>
-
-            <svg
-              v-else-if="item.icon === 'inbox'"
-              fill="none"
-              height="18"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="18"
-            >
-              <path d="M4 6h16v12H4V6Z" /><path d="M4 12h4l2 3h4l2-3h4" />
-            </svg>
-
-            <svg
-              v-else-if="item.icon === 'dashboard'"
+              v-if="item.icon === 'dashboard'"
               fill="none"
               height="18"
               stroke="currentColor"
@@ -205,20 +171,6 @@
               width="18"
             >
               <path d="M4 4h7v9H4V4Zm9 0h7v5h-7V4ZM4 15h7v5H4v-5Zm9-4h7v9h-7v-9Z" />
-            </svg>
-
-            <svg
-              v-else-if="item.icon === 'team'"
-              fill="none"
-              height="18"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="18"
-            >
-              <circle cx="9" cy="8" r="3" /><circle cx="17" cy="9" r="2.5" /><path d="M3 19c0-3 2.5-5 6-5s6 2 6 5" /><path d="M14 19c.4-1.8 1.8-3 4-3 2 0 3.5 1 4 3" />
             </svg>
 
             <svg
@@ -237,7 +189,7 @@
           </span>
 
           <span v-if="!collapsed || mobile" class="ed-nav__label">{{ item.label }}</span>
-        </component>
+        </RouterLink>
       </nav>
 
       <div class="ed-nav__bottom">
@@ -284,7 +236,12 @@
           <span v-if="!collapsed || mobile" class="ed-nav__label">Components</span>
         </RouterLink>
 
-        <button class="ed-user" type="button">
+        <EmButton
+          aria-label="Account menu"
+          class="ed-user"
+          size="sm"
+          variant="tertiary"
+        >
           <EmAvatar size="sm">
             <EmAvatarFallback>JD</EmAvatarFallback>
           </EmAvatar>
@@ -294,7 +251,7 @@
           </span>
 
           <span v-if="!collapsed || mobile" aria-hidden="true" class="ed-user__chevron">›</span>
-        </button>
+        </EmButton>
       </div>
     </aside>
 
@@ -358,10 +315,6 @@
     box-sizing: border-box;
   }
 
-  .ed-menu-fab {
-    display: none;
-  }
-
   .ed-scrim {
     display: none;
   }
@@ -420,22 +373,15 @@
     white-space: nowrap;
   }
 
+  /*
+   * EmButton owns paint (tertiary) and the reset; box-sizing: border-box above
+   * plus a fixed square means its size padding never expands the hit target,
+   * so these need no specificity fight with `.emerald-button[data-size]`.
+   */
   .ed-icon-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     width: 32px;
     height: 32px;
-    border: 0;
-    border-radius: var(--emerald-radius-s, 6px);
-    background: transparent;
-    color: var(--ed-muted);
-    cursor: pointer;
-  }
-
-  .ed-icon-btn:hover {
-    background: var(--ed-bg);
-    color: var(--ed-text);
+    flex: none;
   }
 
   .ed-nav__list {
@@ -478,13 +424,6 @@
     cursor: pointer;
   }
 
-  .ed-nav__item--indent {
-    padding-left: calc(var(--emerald-spacing-xs, 8px) + 10px);
-    color: var(--ed-muted);
-    font-size: var(--emerald-text-b3-size, 12px);
-    min-height: 28px;
-  }
-
   .ed-nav__item:hover {
     background: var(--ed-bg);
   }
@@ -512,10 +451,6 @@
     text-overflow: ellipsis;
   }
 
-  .ed-nav__badge {
-    margin-left: auto;
-  }
-
   .ed-nav__dark {
     cursor: default;
   }
@@ -525,22 +460,16 @@
   }
 
   .ed-user {
-    display: flex;
-    align-items: center;
-    gap: var(--emerald-spacing-xs, 8px);
     width: 100%;
     margin-top: var(--emerald-spacing-xs, 8px);
-    padding: var(--emerald-spacing-2xs, 4px) var(--emerald-spacing-xs, 8px);
-    border: 0;
-    border-radius: var(--emerald-radius-m, 8px);
-    background: transparent;
-    color: var(--ed-text);
-    font: inherit;
-    cursor: pointer;
   }
 
-  .ed-user:hover {
-    background: var(--ed-bg);
+  /* EmButton wraps the slot in an inline-flex Content shell — stretch it so the
+     avatar / name / chevron still lay out as a full-width row. */
+  .ed-user .emerald-button__content {
+    flex: 1;
+    min-width: 0;
+    gap: var(--emerald-spacing-xs, 8px);
   }
 
   .ed-user__meta {
@@ -587,21 +516,19 @@
     }
 
     .ed-menu-fab {
-      display: inline-flex;
       position: fixed;
       top: 12px;
       left: 12px;
       z-index: 40;
-      align-items: center;
-      justify-content: center;
       width: 44px;
       height: 44px;
-      border: 0;
-      border-radius: var(--emerald-radius-m, 8px);
-      background: var(--ed-surface, var(--emerald-background, #fefefe));
-      color: var(--ed-text);
       box-shadow: var(--emerald-shadow-m, 0 2px 4px 0 rgba(51, 51, 51, 0.15));
-      cursor: pointer;
+    }
+
+    /* Outranks `.emerald-button[data-variant='tertiary']`: a floating button
+       over page content needs an opaque surface, not tertiary's transparent. */
+    .ed .ed-menu-fab.emerald-button {
+      background: var(--ed-surface, var(--emerald-background, #fefefe));
     }
 
     .ed-scrim {

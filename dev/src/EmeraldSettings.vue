@@ -21,6 +21,7 @@
 
   // Utilities
   import { shallowRef } from 'vue'
+  import { RouterLink } from 'vue-router'
 
   const tab = shallowRef('profile')
   const first = shallowRef('Jordan')
@@ -99,7 +100,7 @@
       <EmTabsPanel value="billing">
         <EmCard class="eset-card" variant="simple">
           <EmCardBody>
-            <p class="eset-placeholder">Billing panel — see <a href="/emerald/pricing">Pricing</a>.</p>
+            <p class="eset-placeholder">Billing panel — see <RouterLink to="/emerald/pricing">Pricing</RouterLink>.</p>
           </EmCardBody>
         </EmCard>
       </EmTabsPanel>

@@ -1,9 +1,8 @@
 <script setup lang="ts">
   import { EmDivider } from '@paper/emerald'
 
-  import { installEmeraldTheme } from './emerald-theme'
-
-  installEmeraldTheme()
+  // Utilities
+  import { RouterLink } from 'vue-router'
 </script>
 
 <template>
@@ -49,9 +48,9 @@
       </section>
 
       <p class="ea-foot">
-        <a href="/emerald">← Dashboard showcase</a>
+        <RouterLink to="/emerald">← Dashboard showcase</RouterLink>
         ·
-        <a href="/emerald/sink">Component sink</a>
+        <RouterLink to="/emerald/sink">Component sink</RouterLink>
       </p>
     </article>
   </div>

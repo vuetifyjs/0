@@ -9,6 +9,9 @@
   // Context
   import EmeraldShell from './EmeraldShell.vue'
 
+  // Utilities
+  import { RouterLink } from 'vue-router'
+
   const features = [
     {
       title: 'Composable building blocks',
@@ -44,7 +47,7 @@
             The complete toolkit to build, manage, and scale your online business seamlessly.
           </p>
 
-          <a class="eft-cta" href="/emerald/contact">See all features →</a>
+          <RouterLink class="eft-cta" to="/emerald/contact">See all features →</RouterLink>
         </section>
 
         <EmCard
