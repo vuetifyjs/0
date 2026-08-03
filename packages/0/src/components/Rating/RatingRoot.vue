@@ -54,6 +54,10 @@
     disabled?: MaybeRefOrGetter<boolean>
     /** Show value, prevent changes */
     readonly?: MaybeRefOrGetter<boolean>
+    /** Accessible name for the slider */
+    ariaLabel?: string
+    /** ID of element that labels this slider */
+    ariaLabelledby?: string
     /** Form field name — triggers hidden input */
     name?: string
     /** Namespace for context provision */
@@ -79,6 +83,8 @@
       'aria-valuemin': 0
       'aria-valuemax': number
       'aria-valuetext': string
+      'aria-label': string | undefined
+      'aria-labelledby': string | undefined
       'aria-disabled': boolean
       'aria-readonly': true | undefined
       'data-disabled': true | undefined
@@ -108,6 +114,8 @@
     half = false,
     disabled = false,
     readonly: _readonly = false,
+    ariaLabel,
+    ariaLabelledby,
     name,
     namespace = 'v0:rating:root',
   } = defineProps<RatingRootProps>()
@@ -184,6 +192,8 @@
       'aria-valuemin': 0,
       'aria-valuemax': rating.size,
       'aria-valuetext': locale.ti('Rating.valueText', { value: rating.value.value, size: rating.size }) ?? `${rating.value.value} of ${rating.size} stars`,
+      'aria-label': ariaLabel || (ariaLabelledby ? undefined : locale.ti('Rating.label') ?? 'Rating'),
+      'aria-labelledby': ariaLabelledby || undefined,
       'aria-disabled': isDisabled.value,
       'aria-readonly': isReadonly.value ? true : undefined,
       'data-disabled': isDisabled.value ? true : undefined,

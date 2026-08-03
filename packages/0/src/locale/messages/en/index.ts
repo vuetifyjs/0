@@ -64,6 +64,7 @@ export default {
     status: 'Page {page} of {pages}',
   },
   Rating: {
+    label: 'Rating',
     valueText: '{value} of {size} stars',
   },
   Snackbar: {
