@@ -401,6 +401,32 @@ describe('alertDialog', () => {
       expect(cancelEvent.defaultPrevented).toBe(true)
     })
 
+    it('should close and emit close on native close event', async () => {
+      const isOpen = ref(true)
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: {
+          'modelValue': isOpen.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            isOpen.value = v as boolean
+          },
+        },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => 'Content'),
+        },
+      })
+
+      await nextTick()
+
+      const content = wrapper.findComponent(AlertDialog.Content as any)
+      await content.trigger('close')
+
+      await nextTick()
+
+      expect(isOpen.value).toBe(false)
+      expect(content.emitted('close')).toBeTruthy()
+    })
+
     it('should close on escape when closeOnEscape=true', async () => {
       const isOpen = ref(true)
 
@@ -488,6 +514,85 @@ describe('alertDialog', () => {
       const custom = wrapper.find('[data-testid="custom-content"]')
       expect(custom.element.parentElement?.tagName).not.toBe('DIALOG')
       expect(wrapper.findAll('[role="alertdialog"]')).toHaveLength(1)
+    })
+
+    it('should focus the Cancel element when dialog opens', async () => {
+      const isOpen = ref(false)
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: {
+          'modelValue': isOpen.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            isOpen.value = v as boolean
+          },
+        },
+        attachTo: document.body,
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Cancel, {}, () => 'Cancel'),
+          ]),
+        },
+      })
+
+      await nextTick()
+
+      const cancel = wrapper.findComponent(AlertDialog.Cancel as any)
+      const focusSpy = vi.spyOn(cancel.element as HTMLElement, 'focus')
+
+      await wrapper.setProps({ modelValue: true })
+      await nextTick()
+
+      expect(focusSpy).toHaveBeenCalled()
+      wrapper.unmount()
+    })
+
+    it('should focus the Cancel element when opened with modelValue=true from the start', async () => {
+      const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus')
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { modelValue: true },
+        attachTo: document.body,
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Cancel, {}, () => 'Cancel'),
+          ]),
+        },
+      })
+
+      await nextTick()
+
+      const cancel = wrapper.findComponent(AlertDialog.Cancel as any)
+      expect(focusSpy).toHaveBeenCalledWith()
+      expect(cancel.element.tagName).toBe('BUTTON')
+      wrapper.unmount()
+    })
+
+    it('should not throw when opened without a Cancel element', async () => {
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { modelValue: true },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => 'No cancel here'),
+        },
+      })
+      await nextTick()
+      expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
+      wrapper.unmount()
+    })
+
+    it('should not throw when Cancel is renderless (no element to focus)', async () => {
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { modelValue: true },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Cancel, { renderless: true }, {
+              default: () => h('span', 'Cancel'),
+            }),
+          ]),
+        },
+      })
+      await nextTick()
+      expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
+      wrapper.unmount()
     })
   })
 
