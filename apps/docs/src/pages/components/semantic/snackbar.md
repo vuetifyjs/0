@@ -45,6 +45,8 @@ A single snackbar — render directly when you control the lifecycle yourself.
         <Snackbar.Close />
       </Snackbar.Root>
     </Snackbar.Queue>
+
+    <Snackbar.Announcer />
   </Snackbar.Portal>
 </template>
 ```
@@ -143,7 +145,7 @@ Pass `:teleport="false"` to render the portal inline instead of teleporting to `
 
 | Concern | Implementation |
 |---------|---------------|
-| Live region | `Snackbar.Root` defaults to `role="status"`. Override with `role="alert"` for urgent notifications. No `aria-live` on `Portal` to avoid nesting conflicts. |
+| Live region | `Snackbar.Portal` auto-renders `Snackbar.Announcer` — a visually-hidden polite + assertive pair, mounted empty — and each `Snackbar.Root` mirrors its text into the matching region on mount, so the first message is reliably announced. Pass `:announcer="false"` to place `<Snackbar.Announcer>` yourself. `Snackbar.Root` still defaults to `role="status"` (`role="alert"` when `urgent`) as best-effort without a Portal. |
 | `role="status"` | Implicit `aria-live="polite"` — screen reader waits for idle. Use for confirmations and info. |
 | `role="alert"` | Implicit `aria-live="assertive"` — screen reader interrupts. Use for errors and warnings. |
 | Close button | `Snackbar.Close` renders an inline default `aria-label` of `"Dismiss"`, localizable via the `Snackbar.close` key. |
