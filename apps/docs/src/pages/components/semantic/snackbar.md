@@ -74,6 +74,18 @@ Reach for the queue whenever notifications flow through [useNotifications](/comp
 :::
 
 ::: gn-example
+/components/snackbar/queue
+
+### Stacked toasts
+
+Newer toasts collapse into a peeked stack — each card offset, scaled, and faded by depth — and fan out into a full column while the pointer rests on the surface. The stacking geometry is pure consumer CSS applied per index via `style(i)`; `Snackbar.Queue` stays layout-agnostic and only supplies items newest-first, making index 0 the front card. Container height animates between the collapsed and expanded layouts, so surrounding content never jumps.
+
+Hover intent runs through [useDelay](/composables/system/use-delay): entering the surface expands immediately, leaving collapses after a 150ms grace period so the stack doesn't flicker while the pointer crosses gaps between cards. Auto-dismiss pauses while any item is hovered or focused (WCAG 2.2.1), which you get for free from [useNotifications](/composables/plugins/use-notifications).
+
+Reach for this pattern when toasts arrive in bursts and a flat column would push content off screen; for a simple stack with per-item actions, see the undo example above.
+:::
+
+::: gn-example
 /components/snackbar/in-dialog
 
 ### Snackbar inside a Dialog
