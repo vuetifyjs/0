@@ -87,6 +87,31 @@ describe('input', () => {
     })
   })
 
+  describe('type prop', () => {
+    it('should default the rendered input type to text', () => {
+      const { wrapper } = mountInput()
+
+      expect(wrapper.find('input').attributes('type')).toBe('text')
+    })
+
+    it('should set the rendered input type from the type prop', () => {
+      const { wrapper } = mountInput({ props: { type: 'password' } })
+
+      expect(wrapper.find('input').attributes('type')).toBe('password')
+    })
+
+    it('should react to post-mount changes to the type prop', async () => {
+      const { wrapper, wait } = mountInput({ props: { type: 'password' } })
+
+      expect(wrapper.find('input').attributes('type')).toBe('password')
+
+      await wrapper.setProps({ type: 'text' })
+      await wait()
+
+      expect(wrapper.find('input').attributes('type')).toBe('text')
+    })
+  })
+
   describe('slot props', () => {
     it('should expose id', () => {
       const { props } = mountInput({ props: { id: 'test-input' } })

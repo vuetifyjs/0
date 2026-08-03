@@ -82,6 +82,10 @@ v0 does **not** provide focus trapping. Use external solutions:
 
 v0 does **not** provide roving tabindex. This keeps the library headless - implement in your design system layer if needed for arrow key navigation between items.
 
+### Teleported Content and Landmarks
+
+Content teleported by [Portal](/components/primitives/portal) renders into `body`, outside your app's landmarks, so audit tools flag it with the axe [region](https://dequeuniversity.com/rules/axe/4.12/region) rule. v0 is headless — it won't pick a landmark role for you. Give the teleported subtree its own semantics: `role="dialog"` for modals (exempt from the landmark rule), `role="status"` or `role="alert"` for toast regions, or `role="region"` plus `aria-label` for arbitrary overlays. See the [Portal accessibility notes](/components/primitives/portal#landmarks) for an example.
+
 ## Keyboard Navigation
 
 ### What v0 Handles
@@ -123,6 +127,20 @@ it('passes accessibility audit', async () => {
   expect(await axe(container)).toHaveNoViolations()
 })
 ```
+
+`vitest-axe` is a Node package — it reaches for `node:module` on import, so it works in a jsdom or happy-dom test environment and not in Vitest's browser mode. If your components are tested in a real browser, drop the wrapper and call `axe-core` directly:
+
+```ts MyComponent.browser.test.ts
+import axe from 'axe-core'
+
+it('passes accessibility audit', async () => {
+  const { container } = render(MyComponent)
+  const results = await axe.run(container)
+  expect(results.violations).toEqual([])
+})
+```
+
+Prefer the browser form where you can. Layout-dependent rules — colour contrast, target size, element overlap — need real computed styles, and a simulated DOM either skips them or answers from a layout that does not exist. v0 audits its own components this way; see `packages/0/src/components/a11y.browser.test.ts`.
 
 ### Manual Testing Checklist
 

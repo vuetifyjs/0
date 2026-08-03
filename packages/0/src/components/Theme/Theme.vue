@@ -12,7 +12,6 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  // Foundational
   import { provideContext } from '#v0/composables/createContext'
   import { useTheme } from '#v0/composables/useTheme'
 

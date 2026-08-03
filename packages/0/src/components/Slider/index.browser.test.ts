@@ -280,6 +280,35 @@ describe('slider', () => {
       expect(thumbProps().attrs['aria-label']).toBe('Volume')
     })
 
+    it('should default aria-label via locale when unlabeled', async () => {
+      const model = ref([50])
+      const { thumbProps, wait } = mountSlider({ model })
+      await wait()
+      expect(thumbProps().attrs['aria-label']).toBe('Slider')
+    })
+
+    it('should not emit default aria-label when aria-labelledby is set', async () => {
+      const model = ref([50])
+      const { thumbProps, wait } = mountSlider({
+        model,
+        thumbProps: [{ ariaLabelledby: 'thumb-label' }],
+      })
+      await wait()
+      expect(thumbProps().attrs['aria-label']).toBeUndefined()
+      expect(thumbProps().attrs['aria-labelledby']).toBe('thumb-label')
+    })
+
+    it('should omit aria-label when both ariaLabel and ariaLabelledby are set', async () => {
+      const model = ref([50])
+      const { thumbProps, wait } = mountSlider({
+        model,
+        thumbProps: [{ ariaLabel: 'Volume', ariaLabelledby: 'thumb-label' }],
+      })
+      await wait()
+      expect(thumbProps().attrs['aria-label']).toBeUndefined()
+      expect(thumbProps().attrs['aria-labelledby']).toBe('thumb-label')
+    })
+
     it('should set data-state to idle by default', async () => {
       const model = ref([50])
       const { thumbProps, wait } = mountSlider({ model })

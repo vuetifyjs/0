@@ -38,7 +38,6 @@ import { isObject, isString, isUndefined, UNSAFE_KEYS } from '#v0/utilities'
 // Types
 import type { RegistryContext, RegistryContextOptions, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { ID } from '#v0/types'
 
 export interface TokenAlias<T = unknown> {
   [key: string]: unknown
@@ -110,7 +109,7 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
    * console.log(tokens.resolve('{colors.secondary}')) // '#3b82f6'
    * ```
    */
-  resolve: (token: string | TokenAlias) => unknown | undefined
+  resolve: <T = unknown>(token: string | TokenAlias) => T | undefined
 }
 
 export interface TokenOptions extends RegistryOptions {
@@ -167,9 +166,22 @@ export function createTokens<
   options: TokenOptions = {},
 ): E {
   const logger = useLogger()
-  const registry = createRegistry<Z>(options)
+  const registry = createRegistry<Z>({ ...options, events: true })
 
   const cache = new Map<string, unknown | undefined>()
+
+  // Invalidate the resolution cache on any structural mutation, including a
+  // ticket's own `unregister()` — subscribing covers every path uniformly,
+  // whereas wrapping the context methods misses ticket-level self-removal.
+  function invalidate () {
+    cache.clear()
+  }
+
+  registry.on('register:ticket', invalidate)
+  registry.on('unregister:ticket', invalidate)
+  registry.on('update:ticket', invalidate)
+  registry.on('reindex:registry', invalidate)
+  registry.on('clear:registry', invalidate)
 
   registry.onboard(flatten(tokens, options.prefix, !!options.flat) as Partial<Z>[])
 
@@ -188,6 +200,14 @@ export function createTokens<
 
     const reference: unknown = isTokenAlias(token) ? token.$value : token
     const isAliasReference = isString(reference) && isAlias(reference)
+
+    // A TokenAlias passed directly carries its own value: only a brace-alias
+    // $value needs further resolution — a literal or object $value is the value.
+    if (isTokenAlias(token) && !isAliasReference) {
+      cache.set(cacheKey, reference)
+      return reference
+    }
+
     const clean = isAliasReference ? reference.slice(1, -1) : String(reference)
 
     // Detect circular references
@@ -225,7 +245,6 @@ export function createTokens<
       return undefined
     }
 
-    let result: unknown | undefined
     let current: unknown = found.value
 
     if (segments.length > 0) {
@@ -247,81 +266,23 @@ export function createTokens<
         cache.set(cacheKey, undefined)
         return undefined
       }
-
-      if (isString(current) && isAlias(current)) return resolve(current, visited)
-
-      result = current
-    } else {
-      if (isTokenAlias(current)) {
-        const inner = current.$value
-        if (isString(inner) && isAlias(inner)) return resolve(inner as string, visited)
-        result = inner
-      } else if (isString(current) && isAlias(current)) {
-        return resolve(current, visited)
-      } else {
-        result = current
-      }
+    } else if (isTokenAlias(current)) {
+      current = current.$value
     }
+
+    // A terminal string alias resolves one more hop, whether it came from a
+    // segment walk or a leaf value; anything else is the resolved result.
+    const result: unknown = isString(current) && isAlias(current)
+      ? resolve(current, visited)
+      : current
 
     cache.set(cacheKey, result)
 
     return result
   }
 
-  const {
-    register: _register,
-    upsert: _upsert,
-    unregister: _unregister,
-    onboard: _onboard,
-    offboard: _offboard,
-    move: _move,
-    clear: _clear,
-  } = registry
-
-  function register (registration?: Partial<Z & RegistryTicket>) {
-    cache.clear()
-    return _register(registration)
-  }
-
-  function upsert (id: ID, registration?: Partial<Z>, event?: string) {
-    cache.clear()
-    return _upsert(id, registration, event)
-  }
-
-  function unregister (id: ID) {
-    cache.clear()
-    return _unregister(id)
-  }
-
-  function onboard (registrations: Partial<Z & RegistryTicket>[]) {
-    cache.clear()
-    return _onboard(registrations)
-  }
-
-  function offboard (ids: ID[]) {
-    cache.clear()
-    return _offboard(ids)
-  }
-
-  function move (id: ID, index: number) {
-    cache.clear()
-    return _move(id, index)
-  }
-
-  function clear () {
-    cache.clear()
-    return _clear()
-  }
-
   return {
     ...registry,
-    register,
-    upsert,
-    unregister,
-    onboard,
-    offboard,
-    move,
-    clear,
     resolve,
     isAlias,
     get size () {
@@ -433,14 +394,16 @@ export function flatten (tokens: TokenCollection, prefix = '', flat = false): Fl
       if ('$value' in value) {
         flattened.push({ id, value: value as TokenAlias })
 
-        const inner = value.$value
+        // Pinned to unknown: isObject's index type is `any`, so reading through
+        // it unpinned would make the guards below compile-optional.
+        const inner: unknown = value.$value
         if (isObject(inner) && !flat) {
           for (const innerKey in inner) {
             if (!Object.hasOwn(inner, innerKey)) continue
             if (UNSAFE_KEYS.has(innerKey)) continue
             if (innerKey.startsWith('$')) continue
 
-            const child = inner[innerKey]
+            const child: unknown = inner[innerKey]
             const childId = `${id}.${innerKey}`
             if (!isObject(child)) {
               flattened.push({ id: childId, value: child as string | boolean | number })

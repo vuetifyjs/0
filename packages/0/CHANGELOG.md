@@ -1,5 +1,90 @@
 # @vuetify/v0
 
+## 1.0.2
+
+### Patch Changes
+
+- [#634](https://github.com/vuetifyjs/0/pull/634) [`b8ae3be`](https://github.com/vuetifyjs/0/commit/b8ae3beecafd9bf92b37dd6af924d5faff04e3bf) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(Breadcrumbs): collapsed crumbs no longer strand focusable links in the accessibility tree, and the ellipsis can opt into a disclosure toggle ([#614](https://github.com/vuetifyjs/0/issues/614))
+
+  Truncated crumbs are now marked `inert` rather than relying on `display: none` alone. Renderless consumers who bind `attrs` onto their own markup were shipping links that assistive technology could not see but the keyboard could still reach.
+
+  A new `Breadcrumbs.Activator` reveals the collapsed crumbs. Place one inside `Breadcrumbs.Ellipsis` and the ellipsis becomes a disclosure — the ellipsis stays the list item and the Activator is the control, so the trail keeps a valid list structure. It ships `aria-expanded`, a count-aware label, and a `data-state` hook for styling.
+
+  The default is unchanged — an ellipsis with no Activator stays hidden from assistive technology, so opt in where the collapsed levels matter.
+
+- [#745](https://github.com/vuetifyjs/0/pull/745) [`560c6f5`](https://github.com/vuetifyjs/0/commit/560c6f56bc95160982f73c89da36f01bbd295dec) Thanks [@johnleider](https://github.com/johnleider)! - fix(utilities): `isArray` now preserves element types, tuples and `readonly` when narrowing ([#744](https://github.com/vuetifyjs/0/issues/744))
+
+  `isArray` narrowed everything to `unknown[]`, which erased the element type of arrays whose elements involve `any`, turned `readonly` array unions into an intersection that is not an array of anything, and left the array constituent in place in the `else` branch. Guarding a `readonly string[] | string` gave you neither `readonly string[]` in the `if` nor `string` in the `else`.
+
+  Narrowing is now exact: element types, tuple arity and `readonly` survive the guard, and the `else` branch drops exactly the array constituents. `unknown` and `any` inputs narrow as before (`unknown[]` and `any[]`), so mutation and assignment to `unknown[]` keep compiling.
+
+  Not breaking — runtime is unchanged, and every input either narrows identically or more precisely than before.
+
+- [#746](https://github.com/vuetifyjs/0/pull/746) [`b6a90b6`](https://github.com/vuetifyjs/0/commit/b6a90b6b00a16b8885324d5139c33f0d3d830bcf) Thanks [@johnleider](https://github.com/johnleider)! - fix(utilities): `isObject` narrows to `Record<string, any>` so interfaces and negative branches work ([#723](https://github.com/vuetifyjs/0/issues/723))
+
+  `isObject` previously narrowed to `Record<string, unknown>`. That destroyed known property types on interface-typed values (TypeScript never grants interfaces an implicit index signature) and left `Record<string, any>` members alive in the `else` branch of a union. Both are incorrect narrowing, not a strictness win.
+
+  The predicate is now `Record<string, any>`. Runtime is unchanged. Not breaking — the widened predicate is assignable from the old one for any program that already typechecked.
+
+- [#645](https://github.com/vuetifyjs/0/pull/645) [`1cf1ce3`](https://github.com/vuetifyjs/0/commit/1cf1ce3bf7d4600b78fbe5a9b9073d30d312cd2e) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(Button,Toggle,Pagination): activate non-native `as` elements on Enter/Space ([#645](https://github.com/vuetifyjs/0/issues/645))
+
+  `ButtonRoot`, `ToggleRoot`, and `PaginationItem` expose `role="button"` and `tabindex` when rendered with a non-native `as` element (e.g. `as="div"`), but browsers only synthesize a click from Enter/Space for native `<button>` elements — for everything else those were dead keys. All three now wire an `onKeydown` handler (only when `as !== 'button'`) so keyboard users can activate them.
+
+- [#727](https://github.com/vuetifyjs/0/pull/727) [`adaace9`](https://github.com/vuetifyjs/0/commit/adaace94db03078c650fc7d86acace0c77783b6c) Thanks [@johnleider](https://github.com/johnleider)! - fix(useProxyModel): keep a v-model value whose item has not rendered yet
+
+  Setting a v-model to a value whose item registers later — selecting a tab that is only rendered once it becomes active, or an option in a list that has not mounted — was immediately reverted to the previous selection. `useProxyModel` already defers such values so late-registering items resolve them, but the same tick wrote the old selection back over the model, discarding the value before its item could register. When the model is a writable `computed`, that write ran the setter, so the revert also fired the consumer's own side effects.
+
+  Values with no registered item are now held until their item registers; a value whose item exists but was refused (disabled, or blocked by `mandatory`) still reverts as before.
+
+- [#720](https://github.com/vuetifyjs/0/pull/720) [`6c157ff`](https://github.com/vuetifyjs/0/commit/6c157ff4c321f6941ab9bf8ef8abe3fda4b27f01) Thanks [@johnleider](https://github.com/johnleider)! - fix(v0): accept Vue 3.6 prereleases and surface npm discovery metadata
+
+  `@vuetify/v0` now installs cleanly alongside `vue@3.6.0-rc.x`. The previous `vue` peer range of `>=3.5.0` excluded prereleases per semver, so any project on a 3.6 release candidate hit `ERESOLVE`; the range is now `>=3.5.0 || >=3.6.0-0`. No change for projects on stable Vue.
+
+  The package also publishes `keywords`, `homepage`, and `bugs` for the first time, and the `description` now leads with what the package is — headless, unstyled, accessible Vue 3 primitives and composables.
+
+- [#725](https://github.com/vuetifyjs/0/pull/725) [`6791e7b`](https://github.com/vuetifyjs/0/commit/6791e7ba97756f4844481e4a63562fa66e2f2d49) Thanks [@johnleider](https://github.com/johnleider)! - fix(useResizeObserver): report border-box measurements so the `box` option is no longer a silent no-op ([#724](https://github.com/vuetifyjs/0/issues/724))
+
+  `useResizeObserver` accepted `box: 'border-box'` but every entry it reported was content-box, so any element with padding or a border measured short by exactly that amount — with no type error and no warning. Entries now also carry `borderBoxSize` and `contentBoxSize`, matching the native `ResizeObserverEntry`:
+
+  ```ts
+  useResizeObserver(
+    el,
+    ([entry]) => {
+      entry.contentRect.height; // 30 — content box, as before
+      entry.borderBoxSize[0].blockSize; // 40 — with 4px padding and a 1px border
+    },
+    { box: "border-box" }
+  );
+  ```
+
+  Both arrays are present on every entry regardless of `box`, so you can read the border box without changing any option. Unlike `getBoundingClientRect()`, they are layout values and are not scaled by CSS transforms.
+
+  `contentRect` is unchanged — existing callbacks keep working as-is.
+
+- [#641](https://github.com/vuetifyjs/0/pull/641) [`497b328`](https://github.com/vuetifyjs/0/commit/497b328f9fb074a0b24341789933554a8260cbab) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - test(Collapsible): cover keyboard toggle for non-native activator elements ([#641](https://github.com/vuetifyjs/0/issues/641))
+
+  `CollapsibleActivator` already handles Enter/Space and sets `role="button"` for non-native `as` elements, but no test asserted that a non-native activator actually toggles the collapsible on Enter/Space. Adds two tests covering that gap.
+
+## 1.0.1
+
+### Patch Changes
+
+- [#602](https://github.com/vuetifyjs/0/pull/602) [`e866af7`](https://github.com/vuetifyjs/0/commit/e866af72035f90cad3a05a77df2d08f7430f0580) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(Snackbar): SnackbarPortal creates a stacking context so its z-index takes effect ([#602](https://github.com/vuetifyjs/0/issues/602))
+
+  The teleported snackbar region applied its stack z-index to a `position: static` element, which CSS ignores — a body-fallback snackbar could render behind positioned page chrome regardless of its z-index. `SnackbarPortal` now sets `position: relative` alongside the z-index (visually neutral, no offsets) so the stacking context is established. `Portal`'s `zIndex` slot prop is now documented to require a positioned element.
+
+- [#624](https://github.com/vuetifyjs/0/pull/624) [`64b839c`](https://github.com/vuetifyjs/0/commit/64b839c96ef015269e637477c98c96b87dcb7b49) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(Snackbar): add an `urgent` prop that switches the live region to `role="alert"` ([#624](https://github.com/vuetifyjs/0/issues/624))
+
+  Informational snackbars keep `role="status"` (a polite live region); setting `urgent` switches to `role="alert"` (assertive) so critical notifications interrupt assistive technology instead of waiting for it to go idle (WCAG 4.1.3, Status Messages).
+
+- [#567](https://github.com/vuetifyjs/0/pull/567) [`05526f0`](https://github.com/vuetifyjs/0/commit/05526f079b70e05c9fc4beace4ad158c5c2e6b44) Thanks [@johnleider](https://github.com/johnleider)! - fix(createTokens): a token removed via its own `ticket.unregister()` no longer leaves a stale value in the resolution cache ([#567](https://github.com/vuetifyjs/0/issues/567))
+
+  `resolve()` results were only invalidated through the context-level mutator methods, so removing a token via its ticket's own `unregister()` — which is bound to the underlying registry — left the cache stale and subsequent `resolve()` calls returned the removed value. Cache invalidation now runs off registry mutation events, covering every removal and update path uniformly.
+
+- [#566](https://github.com/vuetifyjs/0/pull/566) [`ff9c430`](https://github.com/vuetifyjs/0/commit/ff9c430f1215e4deb7e6c2ae1571858eada4fb8a) Thanks [@johnleider](https://github.com/johnleider)! - fix(createTokens): resolve aliases reached through a segment path, return directly-passed TokenAlias literals, and cache chained resolutions ([#566](https://github.com/vuetifyjs/0/issues/566))
+
+  `resolve()` now follows a `{alias}` that a dotted-segment lookup lands on — previously it returned the raw `'{alias}'` string (visible under `flat: true`, where nested objects are stored whole and addressed by segment). A `TokenAlias` object passed directly to `resolve()` now returns its `$value` (previously a non-alias `$value` was stringified and looked up as an id, yielding `undefined`), and aliased resolutions cache the outer key rather than only the terminal hop. `resolve<T = unknown>()` also accepts an optional return-type parameter.
+
 ## 1.0.0
 
 ### Minor Changes

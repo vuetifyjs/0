@@ -85,6 +85,28 @@ function main (): void {
         + '(run-bench-stable normalizes to packages/0/src/...).',
       )
     }
+
+    // Warn, not fail: artifacts committed before the fingerprint landed
+    // legitimately have no `env` block, and failing here would block the very
+    // regen run that would add one.
+    //
+    // The fingerprint is what makes two artifacts comparable or not. Absolute
+    // ops/s only mean the same thing when they came off the same machine and
+    // toolchain, and there is no correction factor that fixes it when they did
+    // not — a previous version of this check chased one, and it made numbers
+    // worse. If `cpu` or `node` changed, the answer is to re-measure.
+    const env = raw.env as { cpu?: string | null, node?: string | null } | undefined
+    if (!env) {
+      console.warn(
+        '[check-benchmark-artifacts] warning: benchmarks.json has no `env` block, so there is no '
+        + 'record of which machine produced it. Regenerate via the metrics pipeline.',
+      )
+    } else if (!env.cpu || !env.node) {
+      console.warn(
+        '[check-benchmark-artifacts] warning: `env` block is missing cpu/node, so this artifact '
+        + 'cannot be checked for comparability against another.',
+      )
+    }
   }
 
   const changed = changedMetricsPaths()

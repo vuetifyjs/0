@@ -81,7 +81,7 @@
 
     return {
       'id': root.id,
-      'type': root.type,
+      'type': root.type.value,
       'name': root.name,
       'value': root.value.value,
       'form': root.form,

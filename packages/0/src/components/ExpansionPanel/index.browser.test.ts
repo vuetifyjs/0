@@ -144,7 +144,32 @@ describe('expansionPanel', () => {
         expect(capturedProps.isDisabled.value).toBe(true)
       })
 
-      it('should not preventDefault on keydown for a disabled panel', () => {
+      it('should not preventDefault on keydown for a disabled non-button panel', () => {
+        let activatorProps: any
+
+        mount(ExpansionPanel.Group, {
+          props: { multiple: true },
+          slots: {
+            default: () => h(ExpansionPanel.Root as any, { id: 'item-1', value: 'value-1', disabled: true }, {
+              default: () => h(ExpansionPanel.Activator as any, { as: 'div' }, {
+                default: (ap: any) => {
+                  activatorProps = ap
+                  return 'Header'
+                },
+              }),
+            }),
+          },
+        })
+
+        const event = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+
+        // toggle() already guards ticket-disabled; keydown also returns early.
+        activatorProps.attrs.onKeydown(event)
+
+        expect(event.defaultPrevented).toBe(false)
+      })
+
+      it('should no-op onClick when panel is disabled', () => {
         let activatorProps: any
 
         mount(ExpansionPanel.Group, {
@@ -161,14 +186,9 @@ describe('expansionPanel', () => {
           },
         })
 
-        const event = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
-
-        // toggle() already guards ticket-disabled, so the click path is a no-op
-        // either way. The observable fix is that keydown now returns early on a
-        // disabled panel instead of running preventDefault + toggle.
-        activatorProps.attrs.onKeydown(event)
-
-        expect(event.defaultPrevented).toBe(false)
+        expect(activatorProps.isDisabled).toBe(true)
+        activatorProps.attrs.onClick()
+        expect(activatorProps.isSelected).toBe(false)
       })
     })
 
@@ -459,7 +479,7 @@ describe('expansionPanel', () => {
     })
 
     describe('keyboard handling', () => {
-      it('should toggle on Enter key', async () => {
+      it('should toggle on Enter via native button activation', async () => {
         const selected = ref<string>()
 
         const wrapper = mount(ExpansionPanel.Group, {
@@ -480,13 +500,14 @@ describe('expansionPanel', () => {
         })
 
         const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
-        await activator.trigger('keydown', { key: 'Enter' })
+        // Native buttons activate on Enter; test-utils keydown does not synthesize click.
+        await activator.trigger('click')
         await nextTick()
 
         expect(selected.value).toBe('value-1')
       })
 
-      it('should toggle on Space key', async () => {
+      it('should toggle on Space via native button activation', async () => {
         const selected = ref<string>()
 
         const wrapper = mount(ExpansionPanel.Group, {
@@ -507,10 +528,56 @@ describe('expansionPanel', () => {
         })
 
         const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
-        await activator.trigger('keydown', { key: ' ' })
+        await activator.trigger('click')
         await nextTick()
 
         expect(selected.value).toBe('value-1')
+      })
+
+      it('should toggle via onKeydown Enter/Space/Tab when as is not button', async () => {
+        const selected = ref<string>()
+        let attrs: any
+
+        mount(ExpansionPanel.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string
+            },
+          },
+          slots: {
+            default: () =>
+              h(
+                ExpansionPanel.Root as any,
+                { id: 'item-1', value: 'value-1' },
+                () => h(ExpansionPanel.Activator as any, { as: 'div' }, {
+                  default: (p: any) => {
+                    attrs = p.attrs
+                    return 'Header'
+                  },
+                }),
+              ),
+          },
+        })
+
+        await nextTick()
+        const enter = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+        attrs.onKeydown(enter)
+        await nextTick()
+        expect(selected.value).toBe('value-1')
+        expect(enter.defaultPrevented).toBe(true)
+
+        selected.value = undefined
+        await nextTick()
+        // remount attrs still work on same ticket if still selected - use Space on current
+        const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+        attrs.onKeydown(space)
+        await nextTick()
+        expect(space.defaultPrevented).toBe(true)
+
+        const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+        attrs.onKeydown(tab)
+        expect(tab.defaultPrevented).toBe(false)
       })
     })
 
@@ -581,7 +648,8 @@ describe('expansionPanel', () => {
         expect(slotProps.attrs['aria-controls']).toBe('item-1-content')
         expect(slotProps.attrs['aria-disabled']).toBe(false)
         expect(typeof slotProps.attrs.onClick).toBe('function')
-        expect(typeof slotProps.attrs.onKeydown).toBe('function')
+        // Native button path leaves Enter/Space to the browser
+        expect(slotProps.attrs.onKeydown).toBeUndefined()
       })
     })
 

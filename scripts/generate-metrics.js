@@ -74,6 +74,9 @@ function main () {
     console.log('Reading benchmark data...')
     const benchmarks = JSON.parse(readFileSync(BENCHMARKS_PATH, 'utf8'))
 
+    // Values are raw. Benchmarks come from one fixed workstation, so there is no
+    // host factor to divide out; the fingerprint below is what says whether two
+    // artifacts are comparable at all.
     for (const file of benchmarks.files || []) {
       const name = extractName(file.filepath)
       if (!name) continue
@@ -81,7 +84,18 @@ function main () {
       metrics[name] = metrics[name] || {}
       metrics[name].benchmarks = buildItemBenchmarks(file)
     }
+
+    // Underscore-prefixed so it cannot collide with a feature name, matching the
+    // `_groups`/`_tier` convention one level down. Consumers key into this map by
+    // feature name or skip entries without `.benchmarks._groups`, so it is inert
+    // to the docs while keeping each artifact self-describing about how it was
+    // measured — the provenance whose absence made PR #714 an hour of forensics.
+    if (benchmarks.env) metrics._env = benchmarks.env
+
     console.log(`  Processed benchmark data for ${Object.keys(metrics).filter(k => metrics[k].benchmarks).length} items`)
+    console.log(benchmarks.env
+      ? `  Benchmarks measured on ${benchmarks.env.cpu ?? 'unknown cpu'} / node ${benchmarks.env.node ?? '?'}`
+      : '  Benchmarks carry no `env` fingerprint (measured before it existed) — regenerate on the reference host to record one')
   } else {
     console.log('No benchmark data found at', BENCHMARKS_PATH)
   }
@@ -93,7 +107,7 @@ function main () {
 
   writeFileSync(OUTPUT_PATH, JSON.stringify(metrics, null, 2))
   console.log(`\nWrote metrics to ${OUTPUT_PATH}`)
-  console.log(`  Total items: ${Object.keys(metrics).length}`)
+  console.log(`  Total items: ${Object.keys(metrics).filter(k => !k.startsWith('_')).length}`)
 }
 
 main()
