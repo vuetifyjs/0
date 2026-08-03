@@ -52,6 +52,7 @@ export default {
   NumberField: {
     decrement: 'Decrement',
     increment: 'Increment',
+    label: 'Number',
   },
   Pagination: {
     currentPage: 'Page {page}, current',
