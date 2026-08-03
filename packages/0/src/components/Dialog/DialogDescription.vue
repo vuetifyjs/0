@@ -33,7 +33,7 @@
   import { useDialogContext } from './DialogRoot.vue'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { onMounted, onUnmounted, toRef } from 'vue'
 
   defineOptions({ name: 'DialogDescription' })
 
@@ -48,6 +48,13 @@
   } = defineProps<DialogDescriptionProps>()
 
   const context = useDialogContext(namespace)
+
+  onMounted(() => {
+    context.descriptionPresent.value = true
+  })
+  onUnmounted(() => {
+    context.descriptionPresent.value = false
+  })
 
   const slotProps = toRef((): DialogDescriptionSlotProps => ({
     attrs: {
