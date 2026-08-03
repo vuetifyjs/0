@@ -19,11 +19,17 @@
   import { Atom } from '#v0/components/Atom'
   import { Portal } from '#v0/components/Portal'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Utilities
-  import { mergeProps } from 'vue'
+  import { isNull } from '#v0/utilities'
+  import { mergeProps, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
 
   export interface SnackbarPortalProps extends AtomProps {
     /** Teleport target. `'top-layer'` mounts into the topmost open modal; `false` renders inline. @default 'top-layer' */
@@ -33,9 +39,18 @@
   export interface SnackbarPortalSlotProps {
     /** Calculated z-index from useStack */
     zIndex: number
-    /** Attributes to bind to the portal element */
+    /**
+     * Attributes to bind to the portal element.
+     *
+     * @remarks
+     * The style carries only `zIndex` so consumer positioning (classes or
+     * styles like `absolute` / `fixed`) wins. In renderless mode the wrapper
+     * you render must be positioned (non-`static`) for the z-index to take
+     * effect — the automatic `position: relative` fallback only covers the
+     * element rendered by the non-renderless Atom.
+     */
     attrs: {
-      style: { position: 'relative', zIndex: number }
+      style: { zIndex: number }
     }
   }
 </script>
@@ -57,16 +72,32 @@
     return {
       zIndex,
       attrs: {
-        style: { position: 'relative' as const, zIndex },
+        style: { zIndex },
       },
     }
   }
+
+  const atomRef = useTemplateRef<AtomExpose>('atom')
+  const el = toRef(() => toElement(atomRef.value?.element) ?? null)
+
+  // Preserve the stacking-context guarantee from #602 without an inline
+  // `position` that would override consumer positioning classes: only a
+  // computed `static` wrapper is nudged to `relative`.
+  watch(el, value => {
+    if (!IN_BROWSER || isNull(value)) return
+
+    const element = value as HTMLElement
+
+    if (getComputedStyle(element).position === 'static') {
+      element.style.position = 'relative'
+    }
+  })
 </script>
 
 <template>
   <Portal :disabled="teleport === false" :scrim="false" :to="teleport || 'body'">
     <template #default="{ zIndex }">
-      <Atom :as :renderless v-bind="mergeProps($attrs, getSlotProps(zIndex).attrs)">
+      <Atom ref="atom" :as :renderless v-bind="mergeProps($attrs, getSlotProps(zIndex).attrs)">
         <slot v-bind="getSlotProps(zIndex)" />
       </Atom>
     </template>

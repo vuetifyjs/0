@@ -79,6 +79,64 @@ describe('snackbar', () => {
       // Teleported content is not in wrapper's own DOM tree
       expect(wrapper.find('.teleported').exists()).toBe(false)
     })
+
+    it('should keep consumer positioning classes on the wrapper', async () => {
+      const sheet = document.createElement('style')
+      sheet.textContent = '.snackbar-absolute { position: absolute; }'
+      document.head.append(sheet)
+
+      let slotProps: any
+
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        attachTo: document.body,
+        attrs: { class: 'snackbar-absolute' },
+        props: { teleport: false },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', 'content')
+          },
+        },
+      })
+
+      await nextTick()
+
+      const el = wrapper.find('.snackbar-absolute').element as HTMLElement
+
+      expect(getComputedStyle(el).position).toBe('absolute')
+      // No inline position — the consumer class must win
+      expect(el.style.position).toBe('')
+      expect(el.style.zIndex).toBe(String(slotProps.zIndex))
+
+      sheet.remove()
+      wrapper.unmount()
+    })
+
+    it('should apply position relative when the wrapper is static', async () => {
+      let slotProps: any
+
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        attachTo: document.body,
+        attrs: { class: 'snackbar-static' },
+        props: { teleport: false },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', 'content')
+          },
+        },
+      })
+
+      await nextTick()
+
+      const el = wrapper.find('.snackbar-static').element as HTMLElement
+
+      expect(getComputedStyle(el).position).toBe('relative')
+      expect(el.style.position).toBe('relative')
+      expect(el.style.zIndex).toBe(String(slotProps.zIndex))
+
+      wrapper.unmount()
+    })
   })
 
   describe('root', () => {
