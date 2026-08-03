@@ -1,5 +1,6 @@
 <script setup lang="ts">
-  import { mdiArrowLeft, mdiTuneVariant } from '@mdi/js'
+  import { mdiArrowLeft, mdiCogOutline, mdiTuneVariant } from '@mdi/js'
+  import { GnDotGrid } from '@paper/genesis'
 
   // Framework
   import { Button, Toggle } from '@vuetify/v0'
@@ -49,6 +50,12 @@
 
   function meta (feature: string) {
     return getPluginById(feature)
+  }
+
+  // mdiCogOutline is a defensive fallback only — every question.feature resolves to a
+  // PLUGINS entry, so this never actually renders.
+  function icon (feature: string) {
+    return meta(feature)?.icon ?? mdiCogOutline
   }
 
   function onContinue () {
@@ -106,36 +113,49 @@
           >
             <Toggle.Root
               :aria-label="question.title"
-              class="pick aspect-[5/7] w-full p-3.5 flex flex-col items-start gap-2"
+              class="pick aspect-[5/7] w-full p-3.5 overflow-hidden"
               :class="store.isPluginSelected(question.feature) ? 'pick-on' : 'pick-off'"
               :model-value="store.isPluginSelected(question.feature)"
               @update:model-value="store.togglePlugin(question.feature)"
             >
-              <span
-                class="pick-mark w-5 h-5"
-                :class="store.isPluginSelected(question.feature) ? 'pick-mark-on' : 'pick-mark-off'"
-              >
-                <svg v-if="store.isPluginSelected(question.feature)" class="w-3.5 h-3.5" viewBox="0 0 24 24">
-                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
-                </svg>
-              </span>
+              <!-- Picked = drafted into the blueprint: the same dot-grid treatment the
+                   manifest aside uses, so a selected card visibly joins that world. Sits
+                   behind an inner `relative` wrapper (see PreviewSummary's identical
+                   recipe) so text stacks above it instead of being painted over. -->
+              <GnDotGrid
+                v-if="store.isPluginSelected(question.feature)"
+                aria-hidden="true"
+                class="absolute inset-0 pointer-events-none"
+                :coverage="30"
+                :lines="6"
+                origin="bottom right"
+              />
 
-              <span class="t-section leading-snug">{{ question.title }}</span>
-
-              <p class="t-meta text-on-surface-variant w-full break-words">{{ question.description }}</p>
-
-              <span class="flex-1" />
-
-              <span class="flex items-center justify-between gap-2 w-full min-w-0">
-                <span class="t-index text-on-surface-variant/70">
-                  {{ moduleCounts[question.feature] }} {{ moduleCounts[question.feature] === 1 ? 'module' : 'modules' }}
+              <div class="relative h-full flex flex-col items-start gap-2">
+                <span
+                  class="pick-mark w-7 h-7"
+                  :class="store.isPluginSelected(question.feature) ? 'pick-mark-on' : 'pick-mark-off text-on-surface-variant'"
+                >
+                  <Icon :path="icon(question.feature)" :size="16" />
                 </span>
 
-                <span v-if="meta(question.feature)?.hasConfig" class="flex-shrink-0 text-on-surface-variant/70">
-                  <Icon :path="mdiTuneVariant" :size="13" />
-                  <span class="sr-only">Configurable</span>
+                <span class="t-section leading-snug">{{ question.title }}</span>
+
+                <p class="t-meta text-on-surface-variant w-full break-words">{{ question.description }}</p>
+
+                <span class="flex-1" />
+
+                <span class="flex items-center justify-between gap-2 w-full min-w-0">
+                  <span class="t-index text-on-surface-variant/70">
+                    {{ moduleCounts[question.feature] }} {{ moduleCounts[question.feature] === 1 ? 'module' : 'modules' }}
+                  </span>
+
+                  <span v-if="meta(question.feature)?.hasConfig" class="flex-shrink-0 text-on-surface-variant/70">
+                    <Icon :path="mdiTuneVariant" :size="13" />
+                    <span class="sr-only">Configurable</span>
+                  </span>
                 </span>
-              </span>
+              </div>
             </Toggle.Root>
 
             <PluginInfo
