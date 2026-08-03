@@ -2,6 +2,9 @@
   // Framework
   import { Atom } from '@vuetify/v0'
 
+  // Utilities
+  import { toRef } from 'vue'
+
   export type EmAlertVariant = 'error' | 'success' | 'info' | 'warning'
 
   export type EmAlertRole = 'alert' | 'status'
@@ -18,10 +21,10 @@
 
   const {
     variant = 'error',
-    role: roleProp,
+    role: _role,
   } = defineProps<EmAlertProps>()
 
-  const role = roleProp ?? (variant === 'error' ? 'alert' : 'status')
+  const role = toRef(() => _role ?? (variant === 'error' ? 'alert' : 'status'))
 </script>
 
 <template>

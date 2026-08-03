@@ -16,8 +16,14 @@
 </script>
 
 <template>
-  <Pagination.Item class="emerald-pagination__item" :disabled :namespace :value>
-    <slot />
+  <Pagination.Item
+    v-slot="slotProps"
+    class="emerald-pagination__item"
+    :disabled
+    :namespace
+    :value
+  >
+    <slot v-bind="slotProps">{{ slotProps.page }}</slot>
   </Pagination.Item>
 </template>
 

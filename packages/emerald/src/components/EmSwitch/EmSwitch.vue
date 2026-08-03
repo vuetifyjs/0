@@ -1,6 +1,8 @@
 <script lang="ts">
   // Framework
   import { Switch } from '@vuetify/v0'
+  // Utilities
+  import { useId } from '@vuetify/v0/utilities'
 
   export type EmSwitchSize = 'sm' | 'md' | 'lg'
 
@@ -28,12 +30,16 @@
   } = defineProps<EmSwitchProps>()
 
   const model = defineModel<boolean>()
+  // The label text lives in a sibling span, so the button root is named by reference —
+  // a wrapping <label> does not name a <button>.
+  const id = useId()
 </script>
 
 <template>
   <label class="emerald-switch" :data-disabled="disabled || undefined" :data-size="size">
     <Switch.Root
       v-model="model"
+      :aria-labelledby="$slots.default ? id : undefined"
       class="emerald-switch__root"
       :disabled
       :label
@@ -46,7 +52,7 @@
       </Switch.Track>
     </Switch.Root>
 
-    <span v-if="$slots.default" class="emerald-switch__label">
+    <span v-if="$slots.default" :id class="emerald-switch__label">
       <slot />
     </span>
   </label>

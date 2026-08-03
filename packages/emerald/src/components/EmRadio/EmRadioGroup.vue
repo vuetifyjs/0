@@ -7,6 +7,10 @@
     name?: string
     namespace?: string
     mandatory?: boolean | 'force'
+    /** Accessible name for the radiogroup when no visible label is associated */
+    label?: string
+    /** ID of an existing element that labels the radiogroup */
+    ariaLabelledby?: string
   }
 </script>
 
@@ -18,6 +22,8 @@
     name,
     namespace,
     mandatory = false,
+    label,
+    ariaLabelledby,
   } = defineProps<EmRadioGroupProps>()
 
   const model = defineModel<unknown>()
@@ -26,9 +32,11 @@
 <template>
   <Radio.Group
     v-model="model"
+    :aria-labelledby
     class="emerald-radio-group"
     :data-disabled="disabled || undefined"
     :disabled
+    :label
     :mandatory
     :name
     :namespace

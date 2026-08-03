@@ -33,7 +33,7 @@
   defineOptions({ name: 'EmTextField' })
 
   const {
-    id: idProp,
+    id: _id,
     label,
     description,
     disabled = false,
@@ -52,7 +52,7 @@
 
   const model = defineModel<string>({ default: '' })
   const fallbackId = useId()
-  const id = idProp ?? fallbackId
+  const id = _id ?? fallbackId
 </script>
 
 <template>
@@ -83,17 +83,19 @@
     <Input.Control
       :autocomplete
       class="emerald-text-field__control"
+      :namespace
       :placeholder
     />
 
     <Input.Description
       v-if="description"
       class="emerald-text-field__description"
+      :namespace
     >
       {{ description }}
     </Input.Description>
 
-    <Input.Error v-slot="{ errors }" class="emerald-text-field__error">
+    <Input.Error v-slot="{ errors }" class="emerald-text-field__error" :namespace>
       <span v-for="message in errors" :key="message">{{ message }}</span>
     </Input.Error>
   </Input.Root>

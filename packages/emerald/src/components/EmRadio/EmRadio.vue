@@ -1,6 +1,8 @@
 <script lang="ts">
   // Framework
   import { Radio } from '@vuetify/v0'
+  // Utilities
+  import { useId } from '@vuetify/v0/utilities'
 
   export type EmRadioSize = 'sm' | 'md' | 'lg'
 
@@ -27,11 +29,16 @@
     namespace,
     groupNamespace,
   } = defineProps<EmRadioProps>()
+
+  // The label text lives in a sibling span, so the button root is named by reference —
+  // a wrapping <label> does not name a <button>.
+  const id = useId()
 </script>
 
 <template>
   <label class="emerald-radio" :data-disabled="disabled || undefined" :data-size="size">
     <Radio.Root
+      :aria-labelledby="$slots.default ? id : undefined"
       class="emerald-radio__root"
       :disabled
       :group-namespace
@@ -46,7 +53,7 @@
       </Radio.Indicator>
     </Radio.Root>
 
-    <span v-if="$slots.default" class="emerald-radio__label">
+    <span v-if="$slots.default" :id class="emerald-radio__label">
       <slot />
     </span>
   </label>

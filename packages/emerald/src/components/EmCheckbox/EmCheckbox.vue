@@ -1,6 +1,8 @@
 <script lang="ts">
   // Framework
   import { Checkbox } from '@vuetify/v0'
+  // Utilities
+  import { useId } from '@vuetify/v0/utilities'
 
   export type EmCheckboxSize = 'sm' | 'md' | 'lg'
 
@@ -30,12 +32,16 @@
   } = defineProps<EmCheckboxProps>()
 
   const model = defineModel<boolean>()
+  // The label text lives in a sibling span, so the button root is named by reference —
+  // a wrapping <label> does not name a <button>.
+  const id = useId()
 </script>
 
 <template>
   <label class="emerald-checkbox" :data-disabled="disabled || undefined" :data-size="size">
     <Checkbox.Root
       v-model="model"
+      :aria-labelledby="$slots.default ? id : undefined"
       class="emerald-checkbox__root"
       :disabled
       :indeterminate
@@ -74,7 +80,7 @@
       </Checkbox.Indicator>
     </Checkbox.Root>
 
-    <span v-if="$slots.default" class="emerald-checkbox__label">
+    <span v-if="$slots.default" :id class="emerald-checkbox__label">
       <slot />
     </span>
   </label>

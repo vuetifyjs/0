@@ -18,14 +18,14 @@
 </script>
 
 <template>
+  <!-- No role="separator": it is children-presentational and would strip the label text
+       from the accessibility tree. The label reads as ordinary content instead. -->
   <Atom
     v-if="$slots.default"
-    :aria-orientation="orientation"
     as="div"
     class="emerald-divider"
     data-labeled
     :data-orientation="orientation"
-    role="separator"
   >
     <span aria-hidden="true" class="emerald-divider__line" />
 

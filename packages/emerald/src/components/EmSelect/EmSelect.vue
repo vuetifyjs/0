@@ -17,11 +17,11 @@
   }
 </script>
 
-<script setup lang="ts" generic="T = unknown">
+<script lang="ts" setup generic="T = unknown">
   defineOptions({ name: 'EmSelect' })
 
   const {
-    id: idProp,
+    id: _id,
     name,
     form,
     disabled = false,
@@ -33,7 +33,7 @@
 
   const model = defineModel<T | T[]>()
   const fallbackId = useId()
-  const id = idProp ?? fallbackId
+  const id = _id ?? fallbackId
 </script>
 
 <template>

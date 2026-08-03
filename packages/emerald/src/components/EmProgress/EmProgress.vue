@@ -1,8 +1,10 @@
 <script lang="ts">
   // Framework
   import { Progress } from '@vuetify/v0'
-  // Utilities
   import { isArray } from '@vuetify/v0/utilities'
+
+  // Utilities
+  import { toRef } from 'vue'
 
   export type EmProgressSize = 'sm' | 'md' | 'lg'
 
@@ -14,6 +16,8 @@
     showValue?: boolean
     /** Visible label text (Progress.Label) */
     label?: string
+    /** Accessible name when no visible `label` is rendered */
+    ariaLabel?: string
     name?: string
     namespace?: string
   }
@@ -28,11 +32,16 @@
     size = 'md',
     showValue = false,
     label,
+    ariaLabel: _ariaLabel,
     name,
     namespace,
   } = defineProps<EmProgressProps>()
 
   const model = defineModel<number>()
+
+  // ProgressRoot always emits aria-labelledby="{id}-label"; when no Progress.Label is
+  // rendered that reference dangles and accname falls through to aria-label.
+  const ariaLabel = toRef(() => label ? undefined : _ariaLabel ?? 'Progress')
 
   function onModel (value: number | number[] | undefined) {
     if (indeterminate) return
@@ -42,6 +51,7 @@
 
 <template>
   <Progress.Root
+    :aria-label
     class="emerald-progress"
     :data-indeterminate="indeterminate || undefined"
     :data-size="size"
@@ -55,7 +65,7 @@
       v-if="label || (showValue && !indeterminate)"
       class="emerald-progress__meta"
     >
-      <Progress.Label v-if="label" class="emerald-progress__label" :namespace>
+      <Progress.Label v-if="label" as="span" class="emerald-progress__label" :namespace>
         {{ label }}
       </Progress.Label>
 
