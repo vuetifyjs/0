@@ -192,7 +192,7 @@
       'aria-valuemin': 0,
       'aria-valuemax': rating.size,
       'aria-valuetext': locale.ti('Rating.valueText', { value: rating.value.value, size: rating.size }) ?? `${rating.value.value} of ${rating.size} stars`,
-      'aria-label': ariaLabel || (ariaLabelledby ? undefined : locale.ti('Rating.label') ?? 'Rating'),
+      'aria-label': ariaLabelledby ? undefined : (ariaLabel || (locale.ti('Rating.label') ?? 'Rating')),
       'aria-labelledby': ariaLabelledby || undefined,
       'aria-disabled': isDisabled.value,
       'aria-readonly': isReadonly.value ? true : undefined,

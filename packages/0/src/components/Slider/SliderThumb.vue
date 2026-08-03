@@ -176,7 +176,7 @@
       'aria-orientation': toValue(root.orientation),
       'aria-disabled': isDisabled.value,
       'aria-readonly': isReadonly.value ? true : undefined,
-      'aria-label': ariaLabel || (ariaLabelledby ? undefined : locale.ti('Slider.label') ?? 'Slider'),
+      'aria-label': ariaLabelledby ? undefined : (ariaLabel || (locale.ti('Slider.label') ?? 'Slider')),
       'aria-labelledby': ariaLabelledby || undefined,
       'data-state': dataState.value,
       'data-disabled': isDisabled.value ? true : undefined,
