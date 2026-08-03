@@ -51,7 +51,7 @@
     /** Form field name */
     readonly name?: string
     /** Input type */
-    readonly type: string
+    readonly type: Readonly<Ref<string>>
     /** Associate with form by ID */
     readonly form?: string
     /** Whether this input is required */
@@ -265,7 +265,7 @@
     id: input.id,
     label,
     name,
-    type,
+    type: toRef(() => type),
     form,
     required,
     descriptionId: input.descriptionId,

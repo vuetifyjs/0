@@ -769,6 +769,20 @@ describe('input', () => {
     })
   })
 
+  describe('type prop', () => {
+    it('should update the control type when type changes after mount', async () => {
+      const { wrapper, wait } = mountInput({ props: { type: 'password' } })
+      const control = wrapper.find('input')
+
+      expect(control.attributes('type')).toBe('password')
+
+      await wrapper.setProps({ type: 'text' })
+      await wait()
+
+      expect(control.attributes('type')).toBe('text')
+    })
+  })
+
   describe('input control events', () => {
     it('should update model via native input event', async () => {
       const model = ref('')
