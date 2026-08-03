@@ -61,9 +61,8 @@ import Root from './ComboboxRoot.vue'
  *         :key="item.id"
  *         :id="item.id"
  *         :value="item.label"
- *         v-slot="{ isSelected, attrs }"
  *       >
- *         <div v-bind="attrs">{{ item.label }}</div>
+ *         {{ item.label }}
  *       </Combobox.Item>
  *       <Combobox.Empty>No results found</Combobox.Empty>
  *     </Combobox.Content>
@@ -171,10 +170,13 @@ export const Combobox = {
    *
    * @example
    * ```vue
-   * <Combobox.Item id="apple" value="Apple" v-slot="{ isSelected, isHighlighted, attrs }">
-   *   <div v-bind="attrs" :class="{ highlighted: isHighlighted }">
-   *     Apple {{ isSelected ? '✓' : '' }}
-   *   </div>
+   * <Combobox.Item
+   *   id="apple"
+   *   value="Apple"
+   *   class="data-[highlighted]:bg-primary"
+   *   v-slot="{ isSelected }"
+   * >
+   *   Apple {{ isSelected ? '✓' : '' }}
    * </Combobox.Item>
    * ```
    */
