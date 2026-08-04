@@ -1,13 +1,24 @@
 <script setup lang="ts">
-  import { EmAvatar, EmAvatarFallback, EmButton, EmSwitch } from '@paper/emerald'
+  import {
+    EmAvatar,
+    EmAvatarFallback,
+    EmButton,
+    EmSwitch,
+    EmTooltip,
+    EmTooltipActivator,
+    EmTooltipContent,
+  } from '@paper/emerald'
 
   // Framework
   // Globals
-  import { IN_BROWSER } from '@vuetify/v0'
+  import { IN_BROWSER, Toggle } from '@vuetify/v0'
 
   // Utilities
-  import { computed, onMounted, onBeforeUnmount, shallowRef } from 'vue'
+  import { computed, onMounted, onBeforeUnmount, shallowRef, toRef } from 'vue'
   import { RouterLink, useRoute } from 'vue-router'
+
+  // Types
+  import type { TooltipActivatorSlotProps } from '@vuetify/v0'
 
   const {
     bare = false,
@@ -25,6 +36,8 @@
   const mobile = shallowRef(isMobileMq())
   /** Desktop: false = expanded. Mobile: true = drawer closed. */
   const collapsed = shallowRef(mobile.value)
+  /** Icon rail — desktop only; the mobile drawer always shows labels. */
+  const rail = toRef(() => collapsed.value && !mobile.value)
 
   let mq: MediaQueryList | undefined
 
@@ -42,6 +55,15 @@
 
   function onCloseNav () {
     if (mobile.value) collapsed.value = true
+  }
+
+  /**
+   * Tooltip wiring for a trigger, applied only in rail mode. `styles` carries
+   * the CSS anchor-name and is not part of `attrs`; outside the rail nothing is
+   * bound, so a trigger never inherits the disabled tooltip's own state.
+   */
+  function anchor (tip: TooltipActivatorSlotProps) {
+    return rail.value ? { ...tip.attrs, style: tip.styles } : {}
   }
 
   onMounted(() => {
@@ -70,16 +92,70 @@
     return ''
   })
 
-  const nav = [
-    { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' as const, to: '/emerald' },
-    { id: 'features', label: 'Features', icon: 'list' as const, to: '/emerald/features' },
-    { id: 'pricing', label: 'Pricing', icon: 'list' as const, to: '/emerald/pricing' },
-    { id: 'faqs', label: 'FAQs', icon: 'list' as const, to: '/emerald/faqs' },
-    { id: 'settings', label: 'Settings', icon: 'list' as const, to: '/emerald/settings' },
-    { id: 'modals', label: 'Modals', icon: 'list' as const, to: '/emerald/modals' },
-    { id: 'contact', label: 'Contact', icon: 'list' as const, to: '/emerald/contact' },
-    { id: 'about', label: 'About', icon: 'list' as const, to: '/emerald/about' },
-    { id: 'signin', label: 'Sign in', icon: 'list' as const, to: '/emerald/sign-in' },
+  /** Stroke paths on a 24x24 grid — one entry per glyph, drawn with currentColor. */
+  const icons = {
+    dashboard: ['M4 4h7v9H4V4Zm9 0h7v5h-7V4ZM4 15h7v5H4v-5Zm9-4h7v9h-7v-9Z'],
+    features: ['M12 3l2.3 6.7L21 12l-6.7 2.3L12 21l-2.3-6.7L3 12l6.7-2.3L12 3Z'],
+    pricing: [
+      'M12.6 3.6A2 2 0 0 0 11.2 3H5a2 2 0 0 0-2 2v6.2a2 2 0 0 0 .6 1.4l7.8 7.8a2 2 0 0 0 2.8 0l5.8-5.8a2 2 0 0 0 0-2.8l-7.4-7.2Z',
+      'M7.5 7.5h.01',
+    ],
+    faqs: [
+      'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z',
+      'M9.7 9.3a2.4 2.4 0 0 1 4.6.8c0 1.6-2.3 2.4-2.3 2.4',
+      'M12 17h.01',
+    ],
+    settings: [
+      'M20 7h-9',
+      'M14 17H5',
+      'M17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z',
+      'M7 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z',
+    ],
+    modals: [
+      'M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z',
+      'M3 9.5h18',
+      'M6.5 7.2h.01M9 7.2h.01',
+    ],
+    contact: ['M20 15a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9Z'],
+    about: [
+      'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z',
+      'M12 11v5',
+      'M12 8h.01',
+    ],
+    signin: [
+      'M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3',
+      'M14 12l-4-4M14 12l-4 4',
+      'M14 12H4',
+    ],
+    components: [
+      'M12 3l8 4.5-8 4.5-8-4.5L12 3Z',
+      'M4 12l8 4.5 8-4.5',
+      'M4 16.5 12 21l8-4.5',
+    ],
+    moon: ['M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5Z'],
+    sun: [
+      'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z',
+      'M12 2v2M12 20v2M2 12h2M20 12h2',
+      'M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
+    ],
+  }
+
+  type Item = {
+    id: keyof typeof icons
+    label: string
+    to: string
+  }
+
+  const nav: Item[] = [
+    { id: 'dashboard', label: 'Dashboard', to: '/emerald' },
+    { id: 'features', label: 'Features', to: '/emerald/features' },
+    { id: 'pricing', label: 'Pricing', to: '/emerald/pricing' },
+    { id: 'faqs', label: 'FAQs', to: '/emerald/faqs' },
+    { id: 'settings', label: 'Settings', to: '/emerald/settings' },
+    { id: 'modals', label: 'Modals', to: '/emerald/modals' },
+    { id: 'contact', label: 'Contact', to: '/emerald/contact' },
+    { id: 'about', label: 'About', to: '/emerald/about' },
+    { id: 'signin', label: 'Sign in', to: '/emerald/sign-in' },
   ]
 </script>
 
@@ -122,78 +198,131 @@
 
     <aside aria-label="Primary" class="ed-nav">
       <div class="ed-nav__top">
-        <RouterLink class="ed-brand" to="/emerald" @click="onCloseNav">
-          <span aria-hidden="true" class="ed-brand__mark" />
-          <span v-if="!collapsed || mobile" class="ed-brand__name">Emerald</span>
-        </RouterLink>
-
-        <EmButton
-          :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
-          class="ed-icon-btn"
-          size="sm"
-          variant="tertiary"
-          @click="onToggleNav"
+        <EmTooltip
+          :disabled="!rail"
+          position-area="right"
+          position-try="flip-inline"
         >
-          <svg
-            aria-hidden="true"
-            fill="none"
-            height="18"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-width="1.75"
-            viewBox="0 0 24 24"
-            width="18"
-          >
-            <path d="M4 6h16M4 12h10M4 18h16" />
-          </svg>
-        </EmButton>
+          <EmTooltipActivator v-slot="tip" as="a" renderless>
+            <RouterLink
+              v-bind="anchor(tip)"
+              class="ed-brand"
+              to="/emerald"
+              @click="onCloseNav"
+            >
+              <span aria-hidden="true" class="ed-brand__mark" />
+              <span class="ed-brand__name">Emerald</span>
+            </RouterLink>
+          </EmTooltipActivator>
+
+          <EmTooltipContent class="ed-tip">Emerald home</EmTooltipContent>
+        </EmTooltip>
+
+        <EmTooltip
+          :disabled="!rail"
+          position-area="right"
+          position-try="flip-inline"
+        >
+          <EmTooltipActivator v-slot="tip" renderless>
+            <EmButton
+              v-bind="anchor(tip)"
+              :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+              class="ed-icon-btn"
+              size="sm"
+              variant="tertiary"
+              @click="onToggleNav"
+            >
+              <svg
+                aria-hidden="true"
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-width="1.75"
+                viewBox="0 0 24 24"
+                width="18"
+              >
+                <path d="M4 6h16M4 12h10M4 18h16" />
+              </svg>
+            </EmButton>
+          </EmTooltipActivator>
+
+          <EmTooltipContent class="ed-tip">Expand sidebar</EmTooltipContent>
+        </EmTooltip>
       </div>
 
       <nav class="ed-nav__list">
-        <RouterLink
+        <EmTooltip
           v-for="item in nav"
           :key="item.id"
-          class="ed-nav__item"
-          :data-active="active === item.id || undefined"
-          :to="item.to"
-          @click="onCloseNav"
+          :disabled="!rail"
+          position-area="right"
+          position-try="flip-inline"
         >
-          <span aria-hidden="true" class="ed-nav__glyph">
-            <svg
-              v-if="item.icon === 'dashboard'"
-              fill="none"
-              height="18"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="18"
+          <EmTooltipActivator v-slot="tip" as="a" renderless>
+            <RouterLink
+              v-bind="anchor(tip)"
+              class="ed-nav__item"
+              :data-active="active === item.id || undefined"
+              :to="item.to"
+              @click="onCloseNav"
             >
-              <path d="M4 4h7v9H4V4Zm9 0h7v5h-7V4ZM4 15h7v5H4v-5Zm9-4h7v9h-7v-9Z" />
-            </svg>
+              <span aria-hidden="true" class="ed-nav__glyph">
+                <svg
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.75"
+                  viewBox="0 0 24 24"
+                  width="18"
+                >
+                  <path v-for="d in icons[item.id]" :key="d" :d />
+                </svg>
+              </span>
 
-            <svg
-              v-else
-              fill="none"
-              height="18"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="18"
-            >
-              <path d="M5 7h14M5 12h14M5 17h10" />
-            </svg>
-          </span>
+              <span class="ed-nav__label">{{ item.label }}</span>
+            </RouterLink>
+          </EmTooltipActivator>
 
-          <span v-if="!collapsed || mobile" class="ed-nav__label">{{ item.label }}</span>
-        </RouterLink>
+          <EmTooltipContent class="ed-tip">{{ item.label }}</EmTooltipContent>
+        </EmTooltip>
       </nav>
 
       <div class="ed-nav__bottom">
-        <div class="ed-nav__item ed-nav__dark">
+        <EmTooltip v-if="rail" position-area="right" position-try="flip-inline">
+          <EmTooltipActivator v-slot="tip" renderless>
+            <!-- Toggle.Root, not EmButton: a standalone Button.Root pins
+                 aria-pressed to undefined, and pressed state is the whole
+                 point of the rail's mode switch. -->
+            <Toggle.Root
+              v-bind="anchor(tip)"
+              v-model="dark"
+              :aria-label="dark ? 'Switch to light mode' : 'Switch to dark mode'"
+              class="ed-nav__item"
+            >
+              <span aria-hidden="true" class="ed-nav__glyph">
+                <svg
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.75"
+                  viewBox="0 0 24 24"
+                  width="18"
+                >
+                  <path v-for="d in icons[dark ? 'sun' : 'moon']" :key="d" :d />
+                </svg>
+              </span>
+            </Toggle.Root>
+          </EmTooltipActivator>
+
+          <EmTooltipContent class="ed-tip">{{ dark ? 'Light mode' : 'Dark mode' }}</EmTooltipContent>
+        </EmTooltip>
+
+        <div v-else class="ed-nav__item ed-nav__dark">
           <span aria-hidden="true" class="ed-nav__glyph">
             <svg
               fill="none"
@@ -205,53 +334,76 @@
               viewBox="0 0 24 24"
               width="18"
             >
-              <path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5Z" />
+              <path v-for="d in icons.moon" :key="d" :d />
             </svg>
           </span>
 
-          <span v-if="!collapsed || mobile" class="ed-nav__label">Dark mode</span>
-          <EmSwitch v-if="!collapsed || mobile" v-model="dark" class="ed-nav__switch" size="sm" />
+          <span class="ed-nav__label">Dark mode</span>
+          <EmSwitch v-model="dark" class="ed-nav__switch" label="Dark mode" size="sm" />
         </div>
 
-        <RouterLink
-          class="ed-nav__item"
-          :data-active="active === 'sink' || undefined"
-          to="/emerald/sink"
-          @click="onCloseNav"
+        <EmTooltip
+          :disabled="!rail"
+          position-area="right"
+          position-try="flip-inline"
         >
-          <span aria-hidden="true" class="ed-nav__glyph">
-            <svg
-              fill="none"
-              height="18"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="18"
+          <EmTooltipActivator v-slot="tip" as="a" renderless>
+            <RouterLink
+              v-bind="anchor(tip)"
+              class="ed-nav__item"
+              :data-active="active === 'sink' || undefined"
+              to="/emerald/sink"
+              @click="onCloseNav"
             >
-              <path d="M4 7h16M4 12h16M4 17h10" />
-            </svg>
-          </span>
+              <span aria-hidden="true" class="ed-nav__glyph">
+                <svg
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.75"
+                  viewBox="0 0 24 24"
+                  width="18"
+                >
+                  <path v-for="d in icons.components" :key="d" :d />
+                </svg>
+              </span>
 
-          <span v-if="!collapsed || mobile" class="ed-nav__label">Components</span>
-        </RouterLink>
+              <span class="ed-nav__label">Components</span>
+            </RouterLink>
+          </EmTooltipActivator>
 
-        <EmButton
-          aria-label="Account menu"
-          class="ed-user"
-          size="sm"
-          variant="tertiary"
+          <EmTooltipContent class="ed-tip">Components</EmTooltipContent>
+        </EmTooltip>
+
+        <EmTooltip
+          :disabled="!rail"
+          position-area="right"
+          position-try="flip-inline"
         >
-          <EmAvatar size="sm">
-            <EmAvatarFallback>JD</EmAvatarFallback>
-          </EmAvatar>
+          <EmTooltipActivator v-slot="tip" renderless>
+            <EmButton
+              v-bind="anchor(tip)"
+              aria-label="Account menu"
+              class="ed-user"
+              size="sm"
+              variant="tertiary"
+            >
+              <EmAvatar size="sm">
+                <EmAvatarFallback>JD</EmAvatarFallback>
+              </EmAvatar>
 
-          <span v-if="!collapsed || mobile" class="ed-user__meta">
-            <span class="ed-user__name">John Doe</span>
-          </span>
+              <span class="ed-user__meta">
+                <span class="ed-user__name">John Doe</span>
+              </span>
 
-          <span v-if="!collapsed || mobile" aria-hidden="true" class="ed-user__chevron">›</span>
-        </EmButton>
+              <span aria-hidden="true" class="ed-user__chevron">›</span>
+            </EmButton>
+          </EmTooltipActivator>
+
+          <EmTooltipContent class="ed-tip">John Doe</EmTooltipContent>
+        </EmTooltip>
       </div>
     </aside>
 
@@ -276,6 +428,10 @@
     --ed-delta-down-bg: var(--emerald-danger-100, #ffebee);
     --ed-delta-down: var(--emerald-danger-500, #c61424);
     --ed-nav-w: 180px;
+    --ed-rail-size: 40px;
+    --ed-tip: var(--emerald-neutral-1000, #2b2d2e);
+    --ed-motion: var(--emerald-motion-duration-base, 180ms);
+    --ed-ease: var(--emerald-motion-ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
 
     box-sizing: border-box;
     display: block;
@@ -288,6 +444,7 @@
     background: var(--ed-bg);
     color: var(--ed-text);
     font-family: var(--emerald-font-sans, Manrope, system-ui, sans-serif);
+    transition: padding-left var(--ed-motion) var(--ed-ease);
   }
 
   .ed[data-collapsed] {
@@ -307,6 +464,15 @@
     --ed-delta-up: var(--emerald-primary-300, #baedd0);
     --ed-delta-down-bg: rgba(223, 53, 67, 0.16);
     --ed-delta-down: var(--emerald-danger-300, #f49898);
+    --ed-tip: #2f343d;
+  }
+
+  /* The theme adapter emits `[data-theme='emerald'] { color: … }` at the same
+     specificity as `.ed` but later in the cascade, so the light-mode token wins
+     and everything inheriting `color` (the brand, headings) stays dark on dark.
+     Restating the shell's own text color at a higher specificity settles it. */
+  .ed[data-theme] {
+    color: var(--ed-text);
   }
 
   .ed *,
@@ -336,8 +502,8 @@
     border-right: var(--emerald-stroke-s, 1px) solid var(--ed-border);
     overflow: hidden;
     transition:
-      width var(--emerald-motion-duration-fast, 120ms) ease,
-      transform var(--emerald-motion-duration-fast, 120ms) ease;
+      width var(--ed-motion) var(--ed-ease),
+      transform var(--ed-motion) var(--ed-ease);
   }
 
   .ed-nav__top {
@@ -449,6 +615,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: opacity var(--ed-motion) var(--ed-ease);
   }
 
   .ed-nav__dark {
@@ -489,6 +656,34 @@
 
   .ed-user__chevron {
     color: var(--ed-muted);
+  }
+
+  /*
+   * The anchor is the centered rail square, not the rail itself, and anchor
+   * positioning hardcodes `margin: unset` — so clearing the rail edge means
+   * translating by the gutter the centering left behind, plus a gap. Emerald's
+   * chip is a fixed dark neutral, which sinks into this shell's hand-rolled
+   * dark palette, so the surface is restated here too.
+   */
+  .ed .ed-tip {
+    translate: calc((var(--ed-nav-w) - var(--ed-rail-size)) / 2 + var(--emerald-spacing-xs, 8px)) 0;
+    background: var(--ed-tip);
+  }
+
+  .ed[data-mode='dark'] .ed-tip {
+    box-shadow:
+      0 0 0 var(--emerald-stroke-s, 1px) var(--ed-border),
+      var(--emerald-shadow-m, 0 2px 4px 0 rgba(0, 0, 0, 0.4));
+  }
+
+  /* EmButton's tertiary paint is token-driven; this shell's dark mode is a
+     hand-rolled --ed-* palette, so the nav's icon buttons need it re-stated. */
+  .ed[data-mode='dark'] .ed-nav .emerald-button[data-variant='tertiary'] {
+    color: var(--ed-text);
+  }
+
+  .ed[data-mode='dark'] .ed-nav .emerald-button[data-variant='tertiary']:hover:not([data-disabled]):not(:active) {
+    background: var(--ed-bg);
   }
 
   .ed-main {
@@ -565,6 +760,69 @@
   @media (min-width: 721px) {
     .ed[data-collapsed] {
       --ed-nav-w: 72px;
+    }
+
+    /* Text collapses instead of unmounting: the label keeps naming the link for
+       assistive tech, and nothing reflows or wraps mid-transition. */
+    .ed[data-collapsed] .ed-brand__name,
+    .ed[data-collapsed] .ed-nav__label,
+    .ed[data-collapsed] .ed-user__meta,
+    .ed[data-collapsed] .ed-user__chevron {
+      flex: 0 0 0;
+      width: 0;
+      padding: 0;
+      opacity: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .ed[data-collapsed] .ed-nav__top {
+      flex-direction: column;
+      gap: var(--emerald-spacing-2xs, 4px);
+      padding: 0;
+    }
+
+    .ed[data-collapsed] .ed-brand {
+      justify-content: center;
+      width: var(--ed-rail-size);
+      height: var(--ed-rail-size);
+      border-radius: var(--emerald-radius-m, 8px);
+      gap: 0;
+    }
+
+    .ed[data-collapsed] .ed-brand:hover {
+      background: var(--ed-bg);
+    }
+
+    .ed[data-collapsed] .ed-nav__item,
+    .ed[data-collapsed] .ed-user {
+      width: var(--ed-rail-size);
+      height: var(--ed-rail-size);
+      min-height: var(--ed-rail-size);
+      margin-inline: auto;
+      padding: 0;
+      justify-content: center;
+      gap: 0;
+    }
+
+    .ed[data-collapsed] .ed-user {
+      margin-top: var(--emerald-spacing-xs, 8px);
+    }
+
+    .ed[data-collapsed] .ed-user .emerald-button__content {
+      flex: none;
+      gap: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ed,
+    .ed-nav,
+    .ed-nav__label,
+    .ed-brand__name,
+    .ed-user__meta,
+    .ed-user__chevron {
+      transition: none;
     }
   }
 </style>

@@ -350,8 +350,11 @@
         </EmButton>
 
         <EmTooltip>
-          <EmTooltipActivator v-slot="{ attrs }" renderless>
-            <EmButton v-bind="attrs" variant="secondary">Hover for tip</EmButton>
+          <!-- `styles` carries the CSS anchor-name and is a separate slot prop
+               from `attrs`; without it the content has no anchor and falls back
+               to the UA's default popover position. -->
+          <EmTooltipActivator v-slot="tip" renderless>
+            <EmButton v-bind="tip.attrs" :style="tip.styles" variant="secondary">Hover for tip</EmButton>
           </EmTooltipActivator>
 
           <EmTooltipContent>Emerald paints; v0 owns behavior.</EmTooltipContent>
