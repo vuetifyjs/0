@@ -15,14 +15,19 @@
     name: string
   }>()
 
-  // Breathing room under an absolutely positioned surface, matching `.sandbox`.
-  const PAD = 24
+  // Subpixel slack, so a menu flush with the box edge is not read as escaping it.
+  const SLACK = 1
 
   const root = useTemplateRef<HTMLElement>('root')
 
   // The DOM is the source of truth for overlay state; this only tracks what the
   // parent has already been told.
   let open = false
+
+  // True between asking the parent to promote and the parent confirming it. The
+  // frame is mid-flight then — measuring against it would read a box that is
+  // about to move, and a pointer-driven read could bounce the overlay back off.
+  let pending = false
 
   // Where the inline frame sits in the docs viewport. The parent keeps this
   // fresh so a promotion can pin against it in the same tick it is detected.
@@ -60,40 +65,82 @@
     el.style.width = `${box.width}px`
   }
 
+  type Rect = { top: number, left: number, width: number, height: number }
+
+  function toRect (rect: DOMRect): Rect {
+    return { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
+  }
+
+  // Floating content has to escape the frame, not stretch it: on a real page an
+  // open menu paints over whatever follows it, and growing the example box
+  // instead would reflow the docs around a transient piece of UI.
+  //
+  // Returns the regions the promoted frame is allowed to paint — the example's
+  // own box plus every surface that escapes it. The frame is opaque, so
+  // anything outside these gets clipped away and the docs page shows through.
+  function floats (el: HTMLElement): Rect[] {
+    const box = el.getBoundingClientRect()
+    const rects: Rect[] = []
+
+    for (const node of el.querySelectorAll<HTMLElement>('*')) {
+      if (!node.checkVisibility()) continue
+
+      const position = getComputedStyle(node).position
+
+      if (position !== 'fixed' && position !== 'absolute') continue
+
+      const rect = node.getBoundingClientRect()
+
+      // Laid out against the viewport (a modal backdrop), or out-of-flow and
+      // spilling past the box the example occupies inline. A menu that fits
+      // inside the box needs nothing — it is already painted there.
+      const escapes = position === 'fixed'
+        || rect.top < box.top - SLACK
+        || rect.bottom > box.bottom + SLACK
+        || rect.left < box.left - SLACK
+        || rect.right > box.right + SLACK
+
+      if (escapes) rects.push(toRect(rect))
+    }
+
+    return rects.length > 0 ? [toRect(box), ...rects] : []
+  }
+
   function measure () {
     const el = root.value
 
-    if (!el) return
+    if (!el || pending) return
 
-    const nodes = [...el.querySelectorAll<HTMLElement>('*')].filter(node => node.checkVisibility())
-    const positions = nodes.map(node => [node, getComputedStyle(node).position] as const)
-
-    // A fixed surface is laid out against this document's viewport, so it can
-    // only be seen in full if the parent promotes the whole frame.
-    const overlay = positions.some(([, position]) => position === 'fixed')
+    const rects = floats(el)
+    const overlay = rects.length > 0
 
     if (overlay !== open) {
       open = overlay
+      pending = overlay
 
       document.documentElement.toggleAttribute('data-overlay', overlay)
       pin()
-      send({ type: 'v0:sandbox:overlay', open: overlay })
+      send({ type: 'v0:sandbox:overlay', open: overlay, rects })
+
+      // Never stay gated on a parent that went quiet: a stuck `pending` would
+      // leave an invisible full-viewport frame swallowing the page.
+      if (overlay) setTimeout(() => {
+        pending = false
+      }, 300)
+
+      return
     }
 
-    // While promoted the frame is the viewport — reporting that back would
-    // collapse the placeholder the docs page is holding open in the flow.
-    if (overlay) return
+    // While promoted the frame is the viewport — reporting a height back would
+    // collapse the placeholder the docs page is holding open in the flow. The
+    // regions still have to keep up: a menu resizes under its own content.
+    if (overlay) {
+      send({ type: 'v0:sandbox:rects', rects })
 
-    let height = el.offsetHeight
-
-    // Dropdown menus and popovers overflow the flow by a knowable amount.
-    for (const [node, position] of positions) {
-      if (position !== 'absolute') continue
-
-      height = Math.max(height, Math.ceil(node.getBoundingClientRect().bottom) + PAD)
+      return
     }
 
-    send({ type: 'v0:sandbox:size', height })
+    send({ type: 'v0:sandbox:size', height: el.offsetHeight })
   }
 
   useResizeObserver(root, measure)
@@ -103,9 +150,11 @@
   useMutationObserver(root, measure, { attributes: true, subtree: true })
 
   // A CSS-only reveal (Bulma's `is-hoverable` dropdown) mutates nothing and
-  // resizes nothing, so pointer movement is the only signal that the frame has
-  // to grow around a menu.
-  useEventListener(root, ['pointerover', 'pointerout'], measure)
+  // resizes nothing, so pointer movement is the only signal that a menu opened.
+  // Deferred a frame: moving between the trigger and its menu fires pointerout
+  // before the pointer lands, and reading `:hover` mid-gap would close what the
+  // reader is reaching for.
+  useEventListener(root, ['pointerover', 'pointerout'], () => requestAnimationFrame(measure))
 
   useEventListener(window, 'message', (event: MessageEvent) => {
     if (event.source !== window.parent) return
@@ -115,9 +164,22 @@
         document.documentElement.dataset.theme = event.data.dark ? 'dark' : 'light'
         break
       }
+      // Also the parent's acknowledgement that the frame has settled: re-pin
+      // against the fresh box, then re-read, in case the pointer left while the
+      // promotion was in flight.
       case 'v0:sandbox:box': {
         box = event.data.box
+        pending = false
         pin()
+        measure()
+        break
+      }
+      // The frame is clipped to the reported regions, so a click on the docs
+      // page never reaches this document. Replaying it here lets v0's
+      // click-outside close whatever is open.
+      case 'v0:sandbox:dismiss': {
+        document.documentElement.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+        document.documentElement.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
         break
       }
     }

@@ -67,6 +67,26 @@
   const overlay = shallowRef(false)
   const frame = useTemplateRef<HTMLIFrameElement>('frame')
 
+  // An iframe paints an opaque canvas — a transparent document inside it does
+  // not make the frame see-through. So a promoted frame is clipped to the
+  // regions the sandbox says it is actually painting: the example box and
+  // whatever floats out of it. Everything else is cut away and the docs page
+  // shows through, which is what puts an open menu *over* the page instead of
+  // behind a white sheet.
+  const clip = shallowRef<string | undefined>()
+
+  function shape (rects: { top: number, left: number, width: number, height: number }[]) {
+    if (!rects?.length) {
+      clip.value = undefined
+
+      return
+    }
+
+    clip.value = rects
+      .map(r => `M${r.left} ${r.top}H${r.left + r.width}V${r.top + r.height}H${r.left}Z`)
+      .join('')
+  }
+
   function post (message: Record<string, unknown>) {
     frame.value?.contentWindow?.postMessage(message, window.location.origin)
   }
@@ -145,18 +165,38 @@
         // nothing reflows and the page keeps its scroll position.
         case 'v0:sandbox:overlay': {
           overlay.value = event.data.open
+          shape(event.data.rects)
           lift(event.data.open)
           // Correct any staleness now that the frame has left the flow; the
           // placeholder keeps its geometry either way.
           nextTick(place)
           break
         }
+        // A menu can resize under its own content while it stays open.
+        case 'v0:sandbox:rects': {
+          shape(event.data.rects)
+          break
+        }
       }
     })
 
-    // Scroll is moot — the promoted frame swallows it — but a resize moves the
-    // box the pinned content is sitting on.
+    // Clipped-away regions are not hit-testable, so a click on the docs page
+    // never reaches the sandbox — hand it over, or an open menu would sit there
+    // while the reader clicks around it.
+    useEventListener(document, 'pointerdown', (event: PointerEvent) => {
+      if (!overlay.value || event.target === frame.value) return
+
+      post({ type: 'v0:sandbox:dismiss' })
+    })
+
+    // A resize moves the box the pinned content sits on. So does a scroll: the
+    // clipped frame no longer swallows the page's wheel events, and the page
+    // can scroll itself anyway (hash jumps, scroll-spy), which would leave the
+    // pinned content stranded at the coordinates it was promoted with.
     useEventListener(window, 'resize', place)
+    useEventListener(window, 'scroll', () => {
+      if (overlay.value) place()
+    }, { passive: true })
   }
 </script>
 
@@ -179,6 +219,7 @@
           : 'absolute inset-0 h-full w-full rounded border-0'"
         loading="lazy"
         :src
+        :style="overlay && clip ? { clipPath: `path('${clip}')` } : undefined"
         :title="`${name} example`"
       />
     </div>

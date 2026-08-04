@@ -25,22 +25,11 @@
         overflow-y: auto;
       }
 
-      /* While an overlay is open the parent promotes this frame to the full
-         viewport, so every pixel Bulma is not painting has to let the docs page
-         show through. Beats Bulma's own `html` background on specificity — this
-         block follows the CDN link, so no !important is needed. */
-      html[data-overlay],
-      html[data-overlay] body {
-        background: transparent;
-      }
-
-      /* The example content is pinned back to the box it occupied inline, so it
-         has to carry the surface the document was painting for it — otherwise
-         the docs page would show through where the example box used to be. */
-      html[data-overlay] .sandbox {
-        background: var(--bulma-scheme-main);
-        border-radius: 0.25rem;
-      }
+      /* Nothing here forces transparency while promoted: an iframe paints an
+         opaque canvas whatever its document says, so the parent clips the frame
+         to the regions this example is actually painting instead. Leaving
+         Bulma's own background in place is what makes the clip edge blend —
+         made transparent, the cut showed the white canvas as a bright rim. */
     </style>
   </head>
   <body>
