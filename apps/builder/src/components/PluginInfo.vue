@@ -28,6 +28,12 @@
   const resolved = toRef(() => resolve([id], graph))
   const modules = toRef(() => resolved.value.autoIncluded.length)
 
+  // Positioning falls back to Root's default (below the trigger) unless Content gets its
+  // own id matching Root's — see AppThemeSelector.vue in apps/docs for the same recipe.
+  // A card grid means the trigger can sit anywhere, top row included, so `flip-block` is
+  // load-bearing: it flips back down when there's no room above rather than clipping.
+  const popoverId = toRef(() => `plugin-info-${id}`)
+
   const open = shallowRef(false)
 
   // A card-grid mouse sweep shouldn't strobe every info popover open, so hover
@@ -54,7 +60,7 @@
 </script>
 
 <template>
-  <Popover.Root v-model="open">
+  <Popover.Root :id="popoverId" v-model="open">
     <Popover.Activator
       :aria-label="`About ${title}`"
       class="absolute right-1.5 top-1.5 h-7 w-7 inline-flex items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors duration-150 cursor-pointer opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 data-[open]:opacity-100"
@@ -68,9 +74,12 @@
     <!-- Body is gated on isOpen so 15 rows cost 15 empty popover shells rather than 15
          rendered panels; the shell itself is display:none until the native API shows it. -->
     <Popover.Content
+      :id="popoverId"
       v-slot="{ isOpen }"
       :aria-label="id"
       class="floating m-0 p-4 w-[17.5rem] rounded-xl"
+      position-area="top"
+      position-try="flip-block"
       @pointerenter="delay.stop"
       @pointerleave="onPointerleave"
     >
