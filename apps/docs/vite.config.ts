@@ -140,10 +140,12 @@ export default defineConfig({
       '@vuetify/v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '@vuetify/paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
       '@paper/genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
+      '@paper/bulma': fileURLToPath(new URL('../../packages/bulma/src', import.meta.url)),
       // internal
       '#v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
       '#genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
+      '#bulma': fileURLToPath(new URL('../../packages/bulma/src', import.meta.url)),
     },
   },
   server: {

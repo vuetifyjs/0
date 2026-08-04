@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+
+    <title>Bulma example</title>
+    <link rel="icon" type="image/png" href="/0.png">
+
+    <!--
+      The user's own bulma.css is the styling source — @paper/bulma ships none.
+      This document loads it (and Font Awesome, which Bulma's documented markup
+      uses for icons) exactly the way a zero-config consumer would, and loads
+      nothing from the docs shell: no UnoCSS preflight, no theme tokens.
+    -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+
+    <style>
+      /* Bulma's reset reserves a permanent scrollbar track (`overflow-y: scroll`),
+         which reads as a dead scrollbar inside a frame that is sized to its own
+         content. */
+      html {
+        overflow-y: auto;
+      }
+
+      /* While an overlay is open the parent promotes this frame to the full
+         viewport, so every pixel Bulma is not painting has to let the docs page
+         show through. Beats Bulma's own `html` background on specificity — this
+         block follows the CDN link, so no !important is needed. */
+      html[data-overlay],
+      html[data-overlay] body {
+        background: transparent;
+      }
+
+      /* The example content is pinned back to the box it occupied inline, so it
+         has to carry the surface the document was painting for it — otherwise
+         the docs page would show through where the example box used to be. */
+      html[data-overlay] .sandbox {
+        background: var(--bulma-scheme-main);
+        border-radius: 0.25rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="sandbox"></div>
+    <script type="module" src="/src/sandbox/bulma.ts"></script>
+  </body>
+</html>

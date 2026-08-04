@@ -1151,6 +1151,27 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/bulma/': RouteRecordInfo<
+      '/systems/bulma/',
+      '/systems/bulma',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/dropdown': RouteRecordInfo<
+      '/systems/bulma/dropdown',
+      '/systems/bulma/dropdown',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/modal': RouteRecordInfo<
+      '/systems/bulma/modal',
+      '/systems/bulma/modal',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -2439,6 +2460,30 @@ declare module 'vue-router/auto-routes' {
     'src/pages/sponsor.md': {
       routes:
         | '/sponsor'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/index.md': {
+      routes:
+        | '/systems/bulma/'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/dropdown.md': {
+      routes:
+        | '/systems/bulma/dropdown'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/modal.md': {
+      routes:
+        | '/systems/bulma/modal'
       views:
         | never
       pathParamNames:
