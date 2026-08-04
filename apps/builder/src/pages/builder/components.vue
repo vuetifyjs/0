@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiArrowLeft } from '@mdi/js'
+  import { mdiChevronLeft } from '@mdi/js'
 
   // Framework
   import { Button, Toggle } from '@vuetify/v0'
@@ -7,6 +7,9 @@
   // Components
   import StepBar from '@/components/app/StepBar.vue'
   import ComponentInfo from '@/components/ComponentInfo.vue'
+
+  // Composables
+  import { wizardProgress } from '@/composables/useWizardProgress'
 
   import { recommendedFor, reasonsFor } from '@/data/component-recommendations'
   import { COMPONENTS } from '@/data/components'
@@ -115,24 +118,13 @@
   function onContinue () {
     router.push('/builder/review')
   }
+
+  const progress = toRef(() => wizardProgress(store.selectedPlugins.size, store.selectedPlugins.size + 2))
 </script>
 
 <template>
   <div class="max-w-4xl mx-auto px-6 pt-5 sm:pt-6 pb-24">
-    <Button.Root class="btn-quiet mb-8" @click="onBack">
-      <Button.Icon>
-        <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
-      </Button.Icon>
-
-      <Button.Content>
-        <span v-if="lastSelectedPlugin">Prev: {{ lastSelectedPlugin.title }}</span>
-        <span v-else>Back</span>
-      </Button.Content>
-    </Button.Root>
-
     <header class="mb-10">
-      <p class="t-eyebrow text-primary mb-3">Step 3 · Select</p>
-
       <h2 class="t-title mb-3">Pick components</h2>
 
       <p class="t-body text-on-surface-variant max-w-2xl">
@@ -218,7 +210,7 @@
 
   </div>
 
-  <StepBar>
+  <StepBar :progress="progress.percent" :progress-label="progress.label">
     <!-- The noun drops below sm so the count and the action stay on one row; a fixed bar
          that wraps eats a second row of phone screen for no added meaning. -->
     <p class="t-index text-on-surface-variant">
@@ -229,8 +221,16 @@
       </span>
     </p>
 
-    <Button.Root class="btn-primary" @click="onContinue">
-      Continue to review
-    </Button.Root>
+    <div class="flex items-center gap-2">
+      <Button.Root aria-label="Back" class="btn-quiet h-10 w-10 px-0" @click="onBack">
+        <Button.Icon>
+          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiChevronLeft" fill="currentColor" /></svg>
+        </Button.Icon>
+      </Button.Root>
+
+      <Button.Root class="btn-primary" @click="onContinue">
+        Continue to review
+      </Button.Root>
+    </div>
   </StepBar>
 </template>
