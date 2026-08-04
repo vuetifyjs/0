@@ -39,6 +39,9 @@
     EmPaginationItem,
     EmPaginationNext,
     EmPaginationPrev,
+    EmPopover,
+    EmPopoverActivator,
+    EmPopoverContent,
     EmProgress,
     EmRadio,
     EmRadioGroup,
@@ -91,6 +94,13 @@
   const progress = shallowRef(62)
   const step = shallowRef('account')
   const toastOpen = shallowRef(true)
+  const popoverOpen = shallowRef(false)
+
+  const notifications = [
+    { id: 1, title: 'Emerald 1.0 tokens published', time: '2m' },
+    { id: 2, title: 'Build #482 passed', time: '18m' },
+    { id: 3, title: 'Wave 3 review requested', time: '1h' },
+  ]
 
   function onLoadDemo () {
     loading.value = true
@@ -536,6 +546,46 @@
     </section>
 
     <section>
+      <h2>Popover</h2>
+
+      <div class="row">
+        <EmPopover v-model="popoverOpen">
+          <EmPopoverActivator>
+            Notifications
+          </EmPopoverActivator>
+
+          <EmPopoverContent position-area="block-end span-inline-end">
+            <p class="popover-heading">Notifications</p>
+
+            <ul class="popover-list">
+              <li v-for="item in notifications" :key="item.id">
+                <span class="popover-list__title">{{ item.title }}</span>
+                <span class="popover-list__meta">{{ item.time }}</span>
+              </li>
+            </ul>
+          </EmPopoverContent>
+        </EmPopover>
+
+        <EmPopover>
+          <!-- attrs carry the anchor-name style; binding them alone anchors the panel -->
+          <EmPopoverActivator v-slot="pop" renderless>
+            <EmButton v-bind="pop.attrs" variant="secondary">Renderless + EmButton</EmButton>
+          </EmPopoverActivator>
+
+          <EmPopoverContent>
+            <p class="muted">No nested button — attrs land on EmButton.</p>
+          </EmPopoverContent>
+        </EmPopover>
+
+        <EmButton variant="tertiary" @click="popoverOpen = !popoverOpen">
+          Toggle from outside
+        </EmButton>
+      </div>
+
+      <p class="muted">Panel open: {{ popoverOpen }}</p>
+    </section>
+
+    <section>
       <h2>Snackbar (static)</h2>
 
       <p class="muted" style="margin-bottom: 0.75rem;">
@@ -655,6 +705,49 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
+  }
+
+  .popover-heading {
+    margin: 0 0 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--emerald-on-surface-variant, #757e85);
+  }
+
+  .popover-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 260px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .popover-list li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.375rem 0.5rem;
+    border-radius: var(--emerald-radius-s, 6px);
+  }
+
+  .popover-list li:hover {
+    background: var(--emerald-neutral-200, #f6f8fa);
+  }
+
+  .popover-list__title {
+    font-size: 0.875rem;
+    color: var(--emerald-on-surface, #2b2d2e);
+  }
+
+  .popover-list__meta {
+    flex: none;
+    font-size: 0.75rem;
+    color: var(--emerald-on-surface-variant, #757e85);
   }
 
   .dialog-head .emerald-dialog__title {
