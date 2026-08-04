@@ -55,8 +55,8 @@
     max-width: 100%;
     max-height: calc(100vh - 32px);
     min-width: min(320px, 100%);
-    /* Spec-adjacent panel pad — 4xl/5xl (48/56) read oversized for confirm dialogs */
-    padding: var(--emerald-spacing-2xl, 32px);
+    /* Shares the card surface pad (m/l) so dialogs and cards read as one family */
+    padding: var(--emerald-spacing-m, 16px) var(--emerald-spacing-l, 20px);
     background: var(--emerald-background, #fefefe);
     border-radius: var(--emerald-radius-m, 8px);
     overflow-x: clip;
