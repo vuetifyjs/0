@@ -2,6 +2,7 @@
   import {
     EmAvatar,
     EmAvatarFallback,
+    EmBadge,
     EmButton,
     EmSwitch,
     EmTextField,
@@ -31,6 +32,8 @@
   const route = useRoute()
   const dark = shallowRef(false)
   const search = shallowRef('')
+  /** Demo count for the topbar bell — the panel itself is a follow-up. */
+  const unread = shallowRef(5)
   function isMobileMq () {
     return IN_BROWSER && window.matchMedia('(max-width: 720px)').matches
   }
@@ -140,6 +143,10 @@
       'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z',
       'M12 2v2M12 20v2M2 12h2M20 12h2',
       'M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
+    ],
+    palette: [
+      'M12 3a9 9 0 1 0 0 18 1.8 1.8 0 0 0 1.4-2.9 1.8 1.8 0 0 1 1.4-2.9H17a4 4 0 0 0 4-4c0-4.4-4-8.2-9-8.2Z',
+      'M7.5 12.5h.01M9.8 8.6h.01M14.2 8.6h.01M16.6 11.5h.01',
     ],
   }
 
@@ -470,10 +477,78 @@
       <div class="ed-topbar__actions">
         <EmTooltip position-area="bottom" position-try="flip-block">
           <EmTooltipActivator v-slot="tip" renderless>
+            <!-- Toggle.Root, not EmButton: a standalone Button.Root pins
+                 aria-pressed to undefined, and pressed state is the whole point
+                 of a theme switch. Emerald's own button classes carry the paint
+                 so it stays identical to its neighbours in both modes. -->
+            <Toggle.Root
+              v-bind="tip.attrs"
+              v-model="dark"
+              :aria-label="dark ? 'Switch to light theme' : 'Switch to dark theme'"
+              class="emerald-button ed-topbar__icon"
+              data-size="sm"
+              data-variant="tertiary"
+              :style="tip.styles"
+            >
+              <svg
+                aria-hidden="true"
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.75"
+                viewBox="0 0 24 24"
+                width="18"
+              >
+                <path v-for="d in icons[dark ? 'sun' : 'moon']" :key="d" :d />
+              </svg>
+            </Toggle.Root>
+          </EmTooltipActivator>
+
+          <EmTooltipContent class="ed-tip">
+            {{ dark ? 'Switch to light theme' : 'Switch to dark theme' }}
+          </EmTooltipContent>
+        </EmTooltip>
+
+        <EmTooltip position-area="bottom" position-try="flip-block">
+          <EmTooltipActivator v-slot="tip" renderless>
+            <!-- Inert on purpose: the customizer popover task binds itself to
+                 this trigger via the data-customizer-trigger hook. -->
+            <EmButton
+              v-bind="tip.attrs"
+              aria-label="Customize theme"
+              class="ed-topbar__icon ed-topbar__icon--wide"
+              data-customizer-trigger
+              size="sm"
+              :style="tip.styles"
+              variant="tertiary"
+            >
+              <svg
+                aria-hidden="true"
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.75"
+                viewBox="0 0 24 24"
+                width="18"
+              >
+                <path v-for="d in icons.palette" :key="d" :d />
+              </svg>
+            </EmButton>
+          </EmTooltipActivator>
+
+          <EmTooltipContent class="ed-tip">Customize theme</EmTooltipContent>
+        </EmTooltip>
+
+        <EmTooltip position-area="bottom" position-try="flip-block">
+          <EmTooltipActivator v-slot="tip" renderless>
             <EmButton
               v-bind="tip.attrs"
               aria-label="Activity"
-              class="ed-topbar__icon"
+              class="ed-topbar__icon ed-topbar__icon--wide"
               size="sm"
               :style="tip.styles"
               variant="tertiary"
@@ -500,13 +575,14 @@
           <EmTooltipActivator v-slot="tip" renderless>
             <EmButton
               v-bind="tip.attrs"
-              aria-label="Notifications"
+              :aria-label="`Notifications, ${unread} unread`"
               class="ed-topbar__icon"
               size="sm"
               :style="tip.styles"
               variant="tertiary"
             >
               <svg
+                aria-hidden="true"
                 fill="none"
                 height="18"
                 stroke="currentColor"
@@ -518,11 +594,33 @@
               >
                 <path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 14 6 10Z" /><path d="M10 19a2 2 0 0 0 4 0" />
               </svg>
+
+              <!-- The count already reads out of the button's own label, so the
+                   pill is decoration and stays out of the accessibility tree. -->
+              <EmBadge
+                aria-hidden="true"
+                class="ed-topbar__badge"
+                :content="unread"
+                :max="9"
+                variant="primary"
+              />
             </EmButton>
           </EmTooltipActivator>
 
           <EmTooltipContent class="ed-tip">Notifications</EmTooltipContent>
         </EmTooltip>
+
+        <span aria-hidden="true" class="ed-topbar__rule" />
+
+        <!-- Inert: the account menu is a follow-up, so this stays a plain
+             graphic rather than a button that does nothing. -->
+        <span aria-label="John Doe, online" class="ed-topbar__user" role="img">
+          <EmAvatar size="sm">
+            <EmAvatarFallback>JD</EmAvatarFallback>
+          </EmAvatar>
+
+          <EmBadge aria-hidden="true" class="ed-topbar__status" dot variant="primary" />
+        </span>
       </div>
     </header>
 
@@ -578,12 +676,16 @@
     --ed-muted: #9aa3af;
     --ed-border: #2c313a;
     --ed-nav: #1a1d23;
+    /* emerald-dark inverts each ramp — its `300` is the darkest usable step, not
+       the lightest — so the light theme's tints read as dark-on-dark here. The
+       high steps are the dark theme's tints; keep them for anything painted on
+       one of the translucent fills below. */
     --ed-active: rgba(31, 174, 96, 0.18);
-    --ed-active-text: var(--emerald-primary-300, #baedd0);
+    --ed-active-text: var(--emerald-primary-800, #8ce7b6);
     --ed-delta-up-bg: rgba(31, 174, 96, 0.16);
-    --ed-delta-up: var(--emerald-primary-300, #baedd0);
+    --ed-delta-up: var(--emerald-primary-800, #8ce7b6);
     --ed-delta-down-bg: rgba(223, 53, 67, 0.16);
-    --ed-delta-down: var(--emerald-danger-300, #f49898);
+    --ed-delta-down: var(--emerald-danger-600, #f7a9b0);
     --ed-tip: #2f343d;
   }
 
@@ -899,6 +1001,44 @@
     flex: none;
   }
 
+  /* EmButton is already position: relative, and its Content shell is static —
+     so the badge anchors to the button box, not to the icon row. */
+  .ed-topbar__badge {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    min-width: 14px;
+    min-height: 14px;
+    padding: 0 3px;
+    font-size: 10px;
+    line-height: 14px;
+    box-shadow: 0 0 0 var(--emerald-stroke-m, 2px) var(--ed-surface);
+  }
+
+  .ed-topbar__rule {
+    width: var(--emerald-stroke-s, 1px);
+    height: 20px;
+    margin-inline: var(--emerald-spacing-2xs, 4px);
+    background: var(--ed-border);
+    flex: none;
+  }
+
+  .ed-topbar__user {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+  }
+
+  /* The avatar is a circle, so a corner-pinned dot lands outside it entirely —
+     inset both axes until the dot's centre sits inside the radius and only its
+     ring breaks the rim. */
+  .ed-topbar__status {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    box-shadow: 0 0 0 var(--emerald-stroke-m, 2px) var(--ed-surface);
+  }
+
   /* EmTextField paints from Emerald's light tokens; the shell's dark mode is a
      hand-rolled --ed-* palette, so the search control is re-stated. */
   .ed[data-mode='dark'] .ed-topbar .emerald-text-field__control {
@@ -981,6 +1121,12 @@
     /* The fixed menu FAB overlays the topbar's left edge — clear it. */
     .ed-topbar {
       padding-left: 4rem;
+    }
+
+    /* 390px leaves room for the search field plus three actions; the two
+       secondary ones drop rather than squeezing search to nothing. */
+    .ed-topbar__icon--wide {
+      display: none;
     }
 
     /* The topbar already clears the FAB, so main needs no extra headroom. */
