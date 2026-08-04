@@ -18,13 +18,11 @@
  */
 
 import { readFile, glob } from 'node:fs/promises'
-import { basename, dirname, extname, posix, relative, resolve, sep } from 'node:path'
+import { basename, dirname, extname, isAbsolute, posix, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { parseFrontmatter } from './frontmatter'
 
-import pkg from '../../../packages/0/package.json' with { type: 'json' }
-import maturity from '../../../packages/0/src/maturity.json' with { type: 'json' }
 // Imported from the leaf module rather than the `@vuetify/v0/theme` barrel:
 // this file is pulled into the Vite config, where the package's own aliases do
 // not resolve and the barrel would drag the theme runtime in with it.
@@ -33,6 +31,8 @@ import { SEMANTIC_COLORS } from '../../../packages/0/src/theme/tokens'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
 const EXAMPLES_DIR = resolve(__dirname, '../src/examples')
+const PKG_JSON = resolve(__dirname, '../../../packages/0/package.json')
+const MATURITY_JSON = resolve(__dirname, '../../../packages/0/src/maturity.json')
 
 /** Registry payload version. Bump on any breaking shape change. */
 export const REGISTRY_VERSION = 1
@@ -153,11 +153,6 @@ function index (source: Record<string, unknown>, type: ItemType) {
   return result
 }
 
-const META = new Map([
-  ...index(maturity.components as Record<string, unknown>, 'components'),
-  ...index(maturity.composables as Record<string, unknown>, 'composables'),
-])
-
 interface Block {
   paths: string[]
   imports: string[]
@@ -171,29 +166,42 @@ interface Block {
  * Mirrors the container parsing in `markdown.ts`: lines starting with `/` are
  * file paths (with an optional trailing display order), `@import pkg [url]`
  * declares an external dependency, the first `###` is the title, and the
- * remaining prose is the description.
+ * remaining prose is the description (joined). Fenced code is ignored so a
+ * `/path` shown inside a fence is not treated as a manifest entry.
  */
-export function blocks (body: string): Block[] {
+export function blocks (body: string, warnings?: string[]): Block[] {
   const found: Block[] = []
   const lines = body.split('\n')
 
   let current: Block | null = null
+  let fence = false
 
   for (const line of lines) {
     const trimmed = line.trim()
 
     if (/^:::\s*(gn-)?example\b/.test(trimmed)) {
+      if (current?.paths.length) {
+        warnings?.push('[registry] unclosed example block before a new one — previous block dropped')
+      }
       current = { paths: [], imports: [], title: '', description: '' }
+      fence = false
       continue
     }
 
     if (!current) continue
 
-    if (trimmed === ':::') {
+    if (trimmed === ':::' && !fence) {
       if (current.paths.length > 0) found.push(current)
       current = null
       continue
     }
+
+    // Ignore fence bodies (and the fence markers themselves).
+    if (trimmed.startsWith('```')) {
+      fence = !fence
+      continue
+    }
+    if (fence) continue
 
     if (trimmed.startsWith('/') && trimmed.length > 1) {
       current.paths.push(trimmed.replace(/\s+\d+$/, '').slice(1))
@@ -205,8 +213,14 @@ export function blocks (body: string): Block[] {
     } else if (trimmed.startsWith('###')) {
       current.title ||= trimmed.replace(/^#+\s*/, '')
     } else if (trimmed && !trimmed.startsWith('|') && !trimmed.startsWith('#')) {
-      current.description ||= trimmed
+      current.description = current.description
+        ? `${current.description} ${trimmed}`
+        : trimmed
     }
+  }
+
+  if (current?.paths.length) {
+    warnings?.push('[registry] unclosed example block at end of page — block dropped')
   }
 
   return found
@@ -241,6 +255,28 @@ export function icons (content: string): string[] {
   return [...found].toSorted()
 }
 
+function escapeRegExp (value: string): string {
+  return value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)
+}
+
+/**
+ * Build the token matcher once per `build()` so every file reuses the same
+ * compiled pattern. Names are escaped so a future token with regex metachars
+ * cannot corrupt the pattern.
+ */
+export function tokenPattern (universe: readonly string[]): RegExp {
+  if (universe.length === 0) return /(?!)/g
+
+  const sorted = universe
+    .toSorted((a, b) => b.length - a.length)
+    .map(escapeRegExp)
+
+  return new RegExp(
+    String.raw`\b(?:${COLOR_PREFIXES.join('|')})-(${sorted.join('|')})(?:/\d+)?\b`,
+    'g',
+  )
+}
+
 /**
  * Semantic tokens used by a source file.
  *
@@ -248,15 +284,14 @@ export function icons (content: string): string[] {
  * tolerates an opacity modifier (`bg-accent/15`). Only the known token universe
  * is matched, so ordinary utilities (`text-sm`, `border-b`) never collide.
  */
-export function tokens (content: string, universe: readonly string[]): string[] {
-  const sorted = universe.toSorted((a, b) => b.length - a.length)
-  const pattern = new RegExp(
-    String.raw`\b(?:${COLOR_PREFIXES.join('|')})-(${sorted.join('|')})(?:/\d+)?\b`,
-    'g',
-  )
+export function tokens (content: string, universe: readonly string[] | RegExp): string[] {
+  const pattern = universe instanceof RegExp ? universe : tokenPattern(universe)
+  // `matchAll` advances `lastIndex` on a sticky/global regex — clone via
+  // `new RegExp(pattern)` when the caller reuses a shared compiled pattern.
+  const source = universe instanceof RegExp ? new RegExp(pattern.source, pattern.flags) : pattern
 
   const found = new Set<string>()
-  for (const match of content.matchAll(pattern)) found.add(match[1])
+  for (const match of content.matchAll(source)) found.add(match[1])
 
   return [...found].toSorted()
 }
@@ -274,9 +309,209 @@ function resolveFile (path: string): string {
   return extname(path) ? path : `${path}.vue`
 }
 
+/** True when `absolute` resolves to a path inside `root` (no `..` escape). */
+function isInside (root: string, absolute: string): boolean {
+  const rel = relative(root, absolute)
+  return rel !== '' && rel !== '..' && !rel.startsWith(`..${sep}`) && !isAbsolute(rel)
+}
+
+function titleCase (id: string): string {
+  return id.replace(/(^|-)([a-z])/g, (_, lead, char) => `${lead ? ' ' : ''}${char.toUpperCase()}`)
+}
+
+function warnBasenames (file: string, files: RegistryFile[], warnings: string[]) {
+  const lower = new Map<string, string>()
+  for (const item of files) {
+    const key = item.name.toLowerCase()
+    const prev = lower.get(key)
+    if (prev && prev !== item.name) {
+      warnings.push(
+        `[registry] ${file}: case-colliding basenames "${prev}" and "${item.name}" `
+        + `— the CLI writes flat basenames and will overwrite or fail on `
+        + `case-insensitive filesystems (macOS/Windows). Rename one of them.`,
+      )
+    } else if (prev === item.name) {
+      warnings.push(
+        `[registry] ${file}: duplicate basename "${item.name}" in one example — `
+        + `the CLI will overwrite on write.`,
+      )
+    }
+    lower.set(key, item.name)
+  }
+}
+
+function warnCrossExample (file: string, examples: RegistryExample[], warnings: string[]) {
+  const seen = new Set<string>()
+  for (const example of examples) {
+    if (seen.has(example.id)) {
+      warnings.push(`[registry] ${file}: duplicate example id "${example.id}"`)
+    }
+    seen.add(example.id)
+  }
+
+  // Two examples that share a destination dir cannot write the same basename
+  // even if their source paths differ (CLI flattens to `dir/name`).
+  const byDir = new Map<string, Map<string, string>>()
+  for (const example of examples) {
+    let names = byDir.get(example.dir)
+    if (!names) {
+      names = new Map()
+      byDir.set(example.dir, names)
+    }
+    for (const item of example.files) {
+      const key = item.name.toLowerCase()
+      const prev = names.get(key)
+      if (prev && prev !== `${example.id}:${item.name}`) {
+        warnings.push(
+          `[registry] ${file}: basename "${item.name}" written by examples `
+          + `"${prev.split(':')[0]}" and "${example.id}" into dir "${example.dir}"`,
+        )
+      }
+      names.set(key, `${example.id}:${item.name}`)
+    }
+  }
+}
+
+interface ExampleContext {
+  file: string
+  type: ItemType
+  name: string
+  unportable: string[]
+  matchTokens: RegExp
+  warnings: string[]
+}
+
+async function exampleFrom (
+  block: Block,
+  ctx: ExampleContext,
+): Promise<RegistryExample | undefined> {
+  const { file, type, name, unportable, matchTokens, warnings } = ctx
+  const paths = block.paths.map(resolveFile)
+
+  // Only blocks belonging to this feature's own example folder. Pages
+  // occasionally embed a sibling's example; those belong to that item.
+  // Malformed paths (not under components/ or composables/) are almost
+  // always typos — surface them so production fails loudly.
+  if (!paths.every(p => p.startsWith(`${type}/${name}/`))) {
+    const foreign = paths.filter(p => !p.startsWith(`${type}/${name}/`))
+    const typo = foreign.some(p => !p.startsWith('components/') && !p.startsWith('composables/'))
+    if (typo) {
+      warnings.push(
+        `[registry] ${file}: example path(s) outside ${type}/${name}/ — skipped: `
+        + foreign.join(', '),
+      )
+    }
+    return undefined
+  }
+
+  // The last `.vue` in the manifest renders the demo — see .claude/rules/docs.md.
+  // Display-order numbers only reorder code tabs; entry follows source order
+  // (same contract as `useExamples.resolveMultiple`).
+  const last = paths.findLastIndex(p => p.endsWith('.vue'))
+  if (last === -1) {
+    warnings.push(`[registry] ${file}: example has no .vue entry file — skipped`)
+    return undefined
+  }
+
+  const files: RegistryFile[] = []
+  const dependencies = new Set(block.imports)
+  const used = new Set<string>()
+  const usedIcons = new Set<string>()
+  let incomplete = false
+
+  for (const [order, relativePath] of paths.entries()) {
+    const absolute = resolve(EXAMPLES_DIR, relativePath)
+
+    if (!isInside(EXAMPLES_DIR, absolute)) {
+      warnings.push(`[registry] ${file}: path escapes examples root — "${relativePath}"`)
+      incomplete = true
+      continue
+    }
+
+    const content = await readFile(absolute, 'utf8').catch(() => null)
+
+    if (content === null) {
+      warnings.push(`[registry] ${file}: missing example file "${relativePath}"`)
+      incomplete = true
+      continue
+    }
+
+    for (const specifier of specifiers(content)) dependencies.add(specifier)
+    for (const token of tokens(content, matchTokens)) used.add(token)
+    for (const icon of icons(content)) usedIcons.add(icon)
+
+    files.push({
+      path: relativePath,
+      name: basename(relativePath),
+      entry: order === last,
+      content,
+    })
+  }
+
+  // A missing path leaves a half-built payload (`entry` may never be true).
+  // Skip the whole block rather than shipping an incomplete tree to the CLI.
+  if (incomplete || files.length === 0) return undefined
+
+  const entryFile = files.find(f => f.entry)
+  if (!entryFile) {
+    warnings.push(`[registry] ${file}: entry .vue missing from resolved files — skipped`)
+    return undefined
+  }
+
+  warnBasenames(file, files, warnings)
+
+  const leaked = [...used].filter(token => unportable.includes(token))
+  if (leaked.length > 0) {
+    warnings.push(
+      `[registry] ${relative(EXAMPLES_DIR, resolve(EXAMPLES_DIR, files[0].path))}: `
+      + `uses docs-only token(s) ${leaked.join(', ')} — these have no mapping in a `
+      + `consumer project and will render unstyled. Use a portable token instead.`,
+    )
+  }
+
+  // Mirror the docs layout below the type segment so two examples of the
+  // same feature never collide on a shared filename. Anchor on the entry
+  // file so a trailing helper .ts in another folder cannot skew `dir`.
+  const anchorDir = dirname(entryFile.path)
+  const dir = relative(`${type}/${name}`, anchorDir) === ''
+    ? name
+    : posix.join(name, relative(`${type}/${name}`, anchorDir).split(sep).join('/'))
+
+  const id = dir === name
+    ? basename(entryFile.name, extname(entryFile.name))
+    : basename(dir)
+
+  // Usage blocks render as a bare peek with no `###`, so fall back to the
+  // id rather than leaving the CLI to display a blank label.
+  const title = block.title || titleCase(id)
+
+  return {
+    id,
+    title,
+    description: block.description,
+    dir,
+    files,
+    dependencies: [...dependencies].toSorted(),
+    tokens: [...used].toSorted(),
+    icons: [...usedIcons].toSorted(),
+  }
+}
+
 export async function build (): Promise<Registry> {
+  // Read data files per build so a dev-server invalidate after editing
+  // maturity.json / package.json is not stuck on the module-load snapshot.
+  const pkg = JSON.parse(await readFile(PKG_JSON, 'utf8')) as { version: string }
+  const maturity = JSON.parse(await readFile(MATURITY_JSON, 'utf8')) as {
+    components: Record<string, unknown>
+    composables: Record<string, unknown>
+  }
+  const metaIndex = new Map([
+    ...index(maturity.components, 'components'),
+    ...index(maturity.composables, 'composables'),
+  ])
+
   const unportable = await chrome()
-  const universe = [...PORTABLE_TOKENS, ...unportable]
+  const matchTokens = tokenPattern([...PORTABLE_TOKENS, ...unportable])
   const warnings: string[] = []
   const items = new Map<string, RegistryItem>()
 
@@ -289,7 +524,7 @@ export async function build (): Promise<Registry> {
 
     const type: ItemType = category === 'Component' ? 'components' : 'composables'
     const name = basename(file, '.md')
-    const meta = META.get(name)
+    const meta = metaIndex.get(name)
 
     if (!meta) {
       warnings.push(`[registry] ${file}: no maturity.json entry for "${name}" — skipped`)
@@ -298,99 +533,21 @@ export async function build (): Promise<Registry> {
 
     const docs = `${DOCS_ORIGIN}/${posix.join(...file.split(sep)).replace(/\.md$/, '')}`
     const examples: RegistryExample[] = []
+    const pageWarnings: string[] = []
+    const ctx: ExampleContext = { file, type, name, unportable, matchTokens, warnings }
 
-    for (const block of blocks(body)) {
-      const paths = block.paths.map(resolveFile)
+    for (const block of blocks(body, pageWarnings)) {
+      const example = await exampleFrom(block, ctx)
+      if (example) examples.push(example)
+    }
 
-      // Only blocks belonging to this feature's own example folder. Pages
-      // occasionally embed a sibling's example; those belong to that item.
-      if (!paths.every(p => p.startsWith(`${type}/${name}/`))) continue
-
-      const files: RegistryFile[] = []
-      const dependencies = new Set(block.imports)
-      const used = new Set<string>()
-      const usedIcons = new Set<string>()
-      let incomplete = false
-
-      // The last `.vue` in the manifest renders the demo — see .claude/rules/docs.md.
-      const last = paths.findLastIndex(p => p.endsWith('.vue'))
-
-      for (const [order, relativePath] of paths.entries()) {
-        const absolute = resolve(EXAMPLES_DIR, relativePath)
-        const content = await readFile(absolute, 'utf8').catch(() => null)
-
-        if (content === null) {
-          warnings.push(`[registry] ${file}: missing example file "${relativePath}"`)
-          incomplete = true
-          continue
-        }
-
-        for (const specifier of specifiers(content)) dependencies.add(specifier)
-        for (const token of tokens(content, universe)) used.add(token)
-        for (const icon of icons(content)) usedIcons.add(icon)
-
-        files.push({
-          path: relativePath,
-          name: basename(relativePath),
-          entry: order === last,
-          content,
-        })
-      }
-
-      // A missing path leaves a half-built payload (`entry` may never be true).
-      // Skip the whole block rather than shipping an incomplete tree to the CLI.
-      if (incomplete || files.length === 0) continue
-
-      const lower = new Map<string, string>()
-      for (const item of files) {
-        const key = item.name.toLowerCase()
-        const prev = lower.get(key)
-        if (prev && prev !== item.name) {
-          warnings.push(
-            `[registry] ${file}: case-colliding basenames "${prev}" and "${item.name}" `
-            + `— the CLI writes flat basenames and will overwrite or fail on `
-            + `case-insensitive filesystems (macOS/Windows). Rename one of them.`,
-          )
-        }
-        lower.set(key, item.name)
-      }
-
-      const leaked = [...used].filter(token => unportable.includes(token))
-      if (leaked.length > 0) {
-        warnings.push(
-          `[registry] ${relative(EXAMPLES_DIR, resolve(EXAMPLES_DIR, files[0].path))}: `
-          + `uses docs-only token(s) ${leaked.join(', ')} — these have no mapping in a `
-          + `consumer project and will render unstyled. Use a portable token instead.`,
-        )
-      }
-
-      // Mirror the docs layout below the type segment so two examples of the
-      // same feature never collide on a shared filename.
-      const dir = relative(`${type}/${name}`, dirname(files[0].path)) === ''
-        ? name
-        : posix.join(name, relative(`${type}/${name}`, dirname(files[0].path)).split(sep).join('/'))
-
-      const id = dir === name
-        ? basename(files.at(-1)!.name, extname(files.at(-1)!.name))
-        : basename(dir)
-
-      // Usage blocks render as a bare peek with no `###`, so fall back to the
-      // id rather than leaving the CLI to display a blank label.
-      const title = block.title || id.replace(/(^|-)([a-z])/g, (_, lead, char) => `${lead ? ' ' : ''}${char.toUpperCase()}`)
-
-      examples.push({
-        id,
-        title,
-        description: block.description,
-        dir,
-        files,
-        dependencies: [...dependencies].toSorted(),
-        tokens: [...used].toSorted(),
-        icons: [...usedIcons].toSorted(),
-      })
+    for (const warning of pageWarnings) {
+      warnings.push(`[registry] ${file}: ${warning.replace(/^\[registry\]\s*/, '')}`)
     }
 
     if (examples.length === 0) continue
+
+    warnCrossExample(file, examples, warnings)
 
     items.set(`${type}/${name}`, {
       name,

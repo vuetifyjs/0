@@ -32,7 +32,7 @@ function report (warnings: string[], fatal: boolean) {
   if (fatal) {
     throw new Error(
       `[generate-registry] ${warnings.length} registry problem(s). `
-      + `Examples must be portable — see PORTABLE_TOKENS in build/registry.ts.`,
+      + `See warnings above (missing files, case collisions, docs-only tokens, …).`,
     )
   }
 }
@@ -68,14 +68,24 @@ export default function generateRegistryPlugin (): Plugin {
 
       // Mirror generate-nav / generate-llms-full: drop the memo when source
       // pages or examples change so a local CLI against the dev origin sees
-      // fresh bodies without a server restart.
-      server.watcher.on('change', file => {
-        const touched = file.includes('/pages/') || file.includes('/examples/')
-        if (!touched) return
-        if (!file.endsWith('.md') && !file.endsWith('.vue') && !file.endsWith('.ts')) return
+      // fresh bodies without a server restart. `add`/`unlink` matter when an
+      // author creates or deletes an example file mid-session.
+      function invalidate (file: string) {
+        // Vite may report Windows paths with `\`; normalize before matching.
+        const normalized = file.replaceAll('\\', '/')
+        const data = normalized.endsWith('maturity.json')
+          || normalized.endsWith('package.json')
+          || normalized.endsWith('uno.config.ts')
+        const docs = (normalized.includes('/pages/') || normalized.includes('/examples/'))
+          && (normalized.endsWith('.md') || normalized.endsWith('.vue') || normalized.endsWith('.ts'))
+        if (!data && !docs) return
         registry = null
         pending = null
-      })
+      }
+
+      for (const event of ['change', 'add', 'unlink'] as const) {
+        server.watcher.on(event, invalidate)
+      }
 
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split('?')[0]
