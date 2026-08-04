@@ -40,6 +40,21 @@
     return meta(feature)?.icon ?? mdiCogOutline
   }
 
+  // A uniform dot grid on every selected card reads as stamped, not drafted. Coverage and
+  // corner are derived from the plugin id rather than Math.random — stable across
+  // re-renders and unrelated toggles, and identical between server and client render so
+  // hydration never mismatches. Two different bit slices of the same hash keep coverage
+  // and corner from moving in lockstep for adjacent ids.
+  function blueprint (id: string): { coverage: number, origin: string } {
+    let hash = 0
+    for (const char of id) hash = (hash * 31 + (char.codePointAt(0) ?? 0)) % 999_999_937
+    const corners = ['top left', 'top right', 'bottom left', 'bottom right']
+    return {
+      coverage: 20 + (hash % 26),
+      origin: corners[Math.trunc(hash / 26) % corners.length],
+    }
+  }
+
   function onContinue () {
     router.push('/builder/configure')
   }
@@ -101,16 +116,19 @@
               @update:model-value="store.togglePlugin(question.feature)"
             >
               <!-- Picked = drafted into the blueprint: the same dot-grid treatment the
-                   manifest aside uses, so a selected card visibly joins that world. Sits
-                   behind an inner `relative` wrapper (see PreviewSummary's identical
-                   recipe) so text stacks above it instead of being painted over. -->
+                   manifest aside uses, so a selected card visibly joins that world.
+                   Coverage and corner vary per plugin (see `blueprint`) so a row of
+                   selected cards reads as organic drafting, not one template stamped
+                   across every card. Sits behind an inner `relative` wrapper (see
+                   PreviewSummary's identical recipe) so text stacks above it instead of
+                   being painted over. -->
               <GnDotGrid
                 v-if="store.isPluginSelected(question.feature)"
                 aria-hidden="true"
                 class="absolute inset-0 pointer-events-none"
-                :coverage="30"
+                :coverage="blueprint(question.feature).coverage"
                 :lines="6"
-                origin="bottom right"
+                :origin="blueprint(question.feature).origin"
               />
 
               <!-- `flex-1` (not `h-full`): Toggle.Root's own height comes from a
