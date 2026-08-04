@@ -163,15 +163,22 @@
   // One promoted frame per page. A second example asking to promote displaces
   // the first — it is dismissed and fully restored before this one takes over,
   // so the lift is only ever held by one instance.
-  function claim () {
-    if (owner === token) return
+  //
+  // Only the overlay tier lifts. A modal is meant to cover the page chrome; a
+  // dropdown is page content, so the frame stays inside AppMain's stacking
+  // context and the sticky app bar occludes the menu on scroll, exactly as it
+  // occludes the prose around the example.
+  function claim (tier: string) {
+    if (owner !== token) {
+      for (const [key, dismiss] of releases) {
+        if (key !== token) dismiss()
+      }
 
-    for (const [key, dismiss] of releases) {
-      if (key !== token) dismiss()
+      owner = token
     }
 
-    owner = token
-    raise(frame.value)
+    if (tier === 'overlay') raise(frame.value)
+    else lower()
   }
 
   releases.set(token, () => {
@@ -212,7 +219,7 @@
         // nothing reflows and the page keeps its scroll position.
         case 'v0:sandbox:overlay': {
           if (event.data.open) {
-            claim()
+            claim(event.data.tier)
             overlay.value = true
             shape(event.data.rects)
           } else {
@@ -224,8 +231,10 @@
           nextTick(place)
           break
         }
-        // A menu can resize under its own content while it stays open.
+        // A menu can resize under its own content while it stays open, and a
+        // dropdown opened inside a modal escalates float to overlay.
         case 'v0:sandbox:rects': {
+          claim(event.data.tier)
           shape(event.data.rects)
           break
         }

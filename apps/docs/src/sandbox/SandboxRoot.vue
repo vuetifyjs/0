@@ -83,11 +83,18 @@
   // instead would reflow the docs around a transient piece of UI.
   //
   // Returns the regions the promoted frame is allowed to paint — the example's
-  // own box plus every surface that escapes it. The frame is opaque, so
-  // anything outside these gets clipped away and the docs page shows through.
-  function floats (el: HTMLElement): Rect[] {
+  // own box plus every surface that escapes it — and which tier that is:
+  //
+  //   overlay  a viewport-laid-out surface is up (a modal and its backdrop).
+  //            It is meant to cover everything, page chrome included.
+  //   float    only in-flow content spilled out (a dropdown menu). It belongs
+  //            to the page, so page chrome should occlude it the way a sticky
+  //            navbar occludes a Bulma menu.
+  function floats (el: HTMLElement): { tier: 'overlay' | 'float' | null, rects: Rect[] } {
     const box = el.getBoundingClientRect()
     const rects: Rect[] = []
+
+    let tier: 'overlay' | 'float' | null = null
 
     for (const node of el.querySelectorAll<HTMLElement>('*')) {
       if (!node.checkVisibility()) continue
@@ -107,10 +114,15 @@
         || rect.left < box.left - SLACK
         || rect.right > box.right + SLACK
 
-      if (escapes) rects.push(toRect(rect))
+      if (!escapes) continue
+
+      rects.push(toRect(rect))
+
+      if (position === 'fixed') tier = 'overlay'
+      else tier ??= 'float'
     }
 
-    return rects.length > 0 ? [toRect(box), ...rects] : []
+    return tier ? { tier, rects: [toRect(box), ...rects] } : { tier: null, rects: [] }
   }
 
   // Promotion is only ever entered from a state change the DOM reported —
@@ -127,12 +139,12 @@
 
     if (!el || pending) return
 
-    const rects = floats(el)
+    const { tier, rects } = floats(el)
 
-    if (rects.length === 0) growing = false
+    if (!tier) growing = false
     else if (hover && !open) growing = true
 
-    const overlay = rects.length > 0 && !growing
+    const overlay = !!tier && !growing
 
     if (overlay !== open) {
       open = overlay
@@ -140,7 +152,7 @@
 
       document.documentElement.toggleAttribute('data-overlay', overlay)
       pin()
-      send({ type: 'v0:sandbox:overlay', open: overlay, rects })
+      send({ type: 'v0:sandbox:overlay', open: overlay, tier, rects })
 
       // Never stay gated on a parent that went quiet: a stuck `pending` would
       // leave an invisible full-viewport frame swallowing the page.
@@ -155,7 +167,7 @@
     // collapse the placeholder the docs page is holding open in the flow. The
     // regions still have to keep up: a menu resizes under its own content.
     if (overlay) {
-      send({ type: 'v0:sandbox:rects', rects })
+      send({ type: 'v0:sandbox:rects', tier, rects })
 
       return
     }
@@ -164,7 +176,7 @@
     // — has to be made room for, or the frame clips it.
     let height = el.offsetHeight
 
-    for (const rect of floats(el).slice(1)) {
+    for (const rect of rects.slice(1)) {
       height = Math.max(height, Math.ceil(rect.top + rect.height) + PAD)
     }
 
