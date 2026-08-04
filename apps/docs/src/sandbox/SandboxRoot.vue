@@ -18,6 +18,9 @@
   // Subpixel slack, so a menu flush with the box edge is not read as escaping it.
   const SLACK = 1
 
+  // Breathing room under content the frame has to grow around.
+  const PAD = 24
+
   const root = useTemplateRef<HTMLElement>('root')
 
   // The DOM is the source of truth for overlay state; this only tracks what the
@@ -28,6 +31,10 @@
   // frame is mid-flight then — measuring against it would read a box that is
   // about to move, and a pointer-driven read could bounce the overlay back off.
   let pending = false
+
+  // True while a pointer-revealed surface is showing: the frame grows around it
+  // and never promotes, for as long as it stays open.
+  let growing = false
 
   // Where the inline frame sits in the docs viewport. The parent keeps this
   // fresh so a promotion can pin against it in the same tick it is detected.
@@ -106,13 +113,26 @@
     return rects.length > 0 ? [toRect(box), ...rects] : []
   }
 
-  function measure () {
+  // Promotion is only ever entered from a state change the DOM reported —
+  // never from pointer movement. Bulma's `is-hoverable` dropdown opens in pure
+  // CSS, and promoting on hover fights the pointer: the frame relayouts under
+  // the cursor mid-gesture and the page comes apart. Hover-revealed content
+  // grows the frame instead, which is what it did before promotion existed.
+  //
+  // The mode has to latch for the whole reveal. Growing the frame does not grow
+  // this root, so the surface still reads as escaping it, and the resize this
+  // very growth triggers would promote on the rebound.
+  function measure (hover = false) {
     const el = root.value
 
     if (!el || pending) return
 
     const rects = floats(el)
-    const overlay = rects.length > 0
+
+    if (rects.length === 0) growing = false
+    else if (hover && !open) growing = true
+
+    const overlay = rects.length > 0 && !growing
 
     if (overlay !== open) {
       open = overlay
@@ -140,21 +160,29 @@
       return
     }
 
-    send({ type: 'v0:sandbox:size', height: el.offsetHeight })
+    // Not promoted, so anything hanging out of the flow — a hover-revealed menu
+    // — has to be made room for, or the frame clips it.
+    let height = el.offsetHeight
+
+    for (const rect of floats(el).slice(1)) {
+      height = Math.max(height, Math.ceil(rect.top + rect.height) + PAD)
+    }
+
+    send({ type: 'v0:sandbox:size', height })
   }
 
-  useResizeObserver(root, measure)
+  useResizeObserver(root, () => measure())
 
   // Opening an overlay changes no layout the ResizeObserver can see — the class
   // flip that reveals it is the only signal.
-  useMutationObserver(root, measure, { attributes: true, subtree: true })
+  useMutationObserver(root, () => measure(), { attributes: true, subtree: true })
 
   // A CSS-only reveal (Bulma's `is-hoverable` dropdown) mutates nothing and
   // resizes nothing, so pointer movement is the only signal that a menu opened.
   // Deferred a frame: moving between the trigger and its menu fires pointerout
   // before the pointer lands, and reading `:hover` mid-gap would close what the
   // reader is reaching for.
-  useEventListener(root, ['pointerover', 'pointerout'], () => requestAnimationFrame(measure))
+  useEventListener(root, ['pointerover', 'pointerout'], () => requestAnimationFrame(() => measure(true)))
 
   useEventListener(window, 'message', (event: MessageEvent) => {
     if (event.source !== window.parent) return

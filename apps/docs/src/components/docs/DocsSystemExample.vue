@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts">
   // Framework
   import { IN_BROWSER, useEventListener, useTheme } from '@vuetify/v0'
 
@@ -10,6 +10,40 @@
 
   // Types
   import type { GnDocsExampleFile } from '@paper/genesis'
+
+  // Page-level state. Every example on a page promotes into the same viewport
+  // and lifts the same ancestor stacking contexts, so both have to be owned
+  // once rather than per instance — two instances lifting the same ancestors
+  // would each record the other's `9999` as the value to restore, and the last
+  // one out would leave the page permanently raised.
+  let owner: symbol | null = null
+  let lifted: { el: HTMLElement, z: string }[] = []
+
+  const releases = new Map<symbol, () => void>()
+
+  // The frame sits inside AppMain's `z-0` stacking context, a sibling of the
+  // app bar's `z-1` — so no z-index on the frame itself can paint it over the
+  // chrome. The contexts between it and the body have to be lifted instead.
+  // Moving the frame in the DOM would be the other way out, and is not one:
+  // re-parenting an iframe reloads it, taking the open overlay with it.
+  function raise (el: HTMLElement | null | undefined) {
+    if (lifted.length > 0) return
+
+    for (let node = el?.parentElement; node && node !== document.body; node = node.parentElement) {
+      const style = getComputedStyle(node)
+
+      if (style.position === 'static' || style.zIndex === 'auto') continue
+
+      lifted.push({ el: node, z: node.style.zIndex })
+      node.style.zIndex = '9999'
+    }
+  }
+
+  function lower () {
+    for (const { el, z } of lifted) el.style.zIndex = z
+
+    lifted = []
+  }
 
   export interface DocsSystemExampleProps {
     /** Auto-resolve example by path (extensionless; .vue assumed) */
@@ -27,7 +61,9 @@
     /** Peek mode for single-file */
     peek?: boolean
   }
+</script>
 
+<script setup lang="ts">
   const { filePath, filePaths } = defineProps<DocsSystemExampleProps>()
 
   // Design-system examples cannot share a document with the docs shell: the
@@ -108,34 +144,45 @@
     post({ type: 'v0:sandbox:box', box: { top: rect.top, left: rect.left, width: rect.width } })
   }
 
-  // Ancestors whose z-index was lifted to let the promoted frame out.
-  const lifted: { el: HTMLElement, z: string }[] = []
+  const token = Symbol('docs-system-example')
 
-  // The frame sits inside AppMain's `z-0` stacking context, a sibling of the
-  // app bar's `z-1` — so no z-index on the frame itself can paint it over the
-  // chrome. The contexts between it and the body have to be lifted instead.
-  // Moving the frame in the DOM would be the other way out, and is not one:
-  // re-parenting an iframe reloads it, taking the open overlay with it.
-  function lift (open: boolean) {
-    if (!open) {
-      for (const { el, z } of lifted) el.style.zIndex = z
+  // Give the page back exactly what promotion took: the frame's own geometry,
+  // the clip, and the ancestor z-indexes. Runs on close, on being displaced by
+  // another example, and on teardown — the residue from a half-restore is what
+  // makes examples pile on top of each other.
+  function release () {
+    overlay.value = false
+    clip.value = undefined
 
-      lifted.length = 0
+    if (owner !== token) return
 
-      return
-    }
-
-    for (let el = frame.value?.parentElement; el && el !== document.body; el = el.parentElement) {
-      const style = getComputedStyle(el)
-
-      if (style.position === 'static' || style.zIndex === 'auto') continue
-
-      lifted.push({ el, z: el.style.zIndex })
-      el.style.zIndex = '9999'
-    }
+    owner = null
+    lower()
   }
 
-  onScopeDispose(() => lift(false))
+  // One promoted frame per page. A second example asking to promote displaces
+  // the first — it is dismissed and fully restored before this one takes over,
+  // so the lift is only ever held by one instance.
+  function claim () {
+    if (owner === token) return
+
+    for (const [key, dismiss] of releases) {
+      if (key !== token) dismiss()
+    }
+
+    owner = token
+    raise(frame.value)
+  }
+
+  releases.set(token, () => {
+    post({ type: 'v0:sandbox:dismiss' })
+    release()
+  })
+
+  onScopeDispose(() => {
+    releases.delete(token)
+    release()
+  })
 
   watch(() => theme.isDark.value, sync)
 
@@ -164,9 +211,14 @@
         // document. The placeholder holds the inline box open meanwhile, so
         // nothing reflows and the page keeps its scroll position.
         case 'v0:sandbox:overlay': {
-          overlay.value = event.data.open
-          shape(event.data.rects)
-          lift(event.data.open)
+          if (event.data.open) {
+            claim()
+            overlay.value = true
+            shape(event.data.rects)
+          } else {
+            release()
+          }
+
           // Correct any staleness now that the frame has left the flow; the
           // placeholder keeps its geometry either way.
           nextTick(place)
