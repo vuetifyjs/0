@@ -61,6 +61,24 @@ const COLOR_PREFIXES = [
 
 export type ItemType = 'components' | 'composables'
 
+/**
+ * Docs frontmatter `features.category` → registry bucket.
+ *
+ * Plugins and transformers live under `composables/*` on disk and in maturity.json;
+ * only Components use the `components/` examples tree. API/guide pages are skipped.
+ */
+export function itemType (category: string | undefined): ItemType | undefined {
+  if (category === 'Component') return 'components'
+  if (
+    category === 'Composable'
+    || category === 'Plugin'
+    || category === 'Transformer'
+  ) {
+    return 'composables'
+  }
+  return undefined
+}
+
 export interface RegistryFile {
   /** Path relative to the examples root, e.g. `components/combobox/user-picker.vue`. */
   path: string
@@ -558,10 +576,9 @@ export async function build (): Promise<Registry> {
     const path = resolve(PAGES_DIR, file)
     const { frontmatter, body } = parseFrontmatter(await readFile(path, 'utf8'))
 
-    const category = frontmatter.features?.category
-    if (category !== 'Component' && category !== 'Composable') continue
+    const type = itemType(frontmatter.features?.category)
+    if (!type) continue
 
-    const type: ItemType = category === 'Component' ? 'components' : 'composables'
     const name = basename(file, '.md')
     const meta = metaIndex.get(name)
 
