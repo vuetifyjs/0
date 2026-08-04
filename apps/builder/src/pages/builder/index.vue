@@ -10,9 +10,6 @@
   import StepBar from '@/components/app/StepBar.vue'
   import PluginInfo from '@/components/PluginInfo.vue'
 
-  // Composables
-  import { wizardProgress } from '@/composables/useWizardProgress'
-
   import { getPluginById } from '@/data/plugins'
   import { getCategories } from '@/data/questions'
 
@@ -65,8 +62,6 @@
   function onBack () {
     router.push('/')
   }
-
-  const progress = toRef(() => wizardProgress(store.selectedPlugins.size, 1))
 </script>
 
 <template>
@@ -168,7 +163,7 @@
     </div>
   </div>
 
-  <StepBar :progress="progress.percent" :progress-label="progress.label">
+  <StepBar>
     <!-- The noun drops below sm so the count and the action stay on one row. Spelled out
          twice rather than wrapping the noun in a span: Vue condenses the leading space
          inside the span away, and "5plugins selected" is worse than a duplicated string. -->
