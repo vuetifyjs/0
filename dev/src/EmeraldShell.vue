@@ -87,6 +87,7 @@
     if (p.startsWith('/emerald/modals')) return 'modals'
     if (p.startsWith('/emerald/about')) return 'about'
     if (p.startsWith('/emerald/sign-in')) return 'signin'
+    if (p.startsWith('/emerald/admin')) return 'admin'
     if (p.startsWith('/emerald/sink')) return 'sink'
     if (p === '/emerald' || p === '/emerald/') return 'dashboard'
     return ''
@@ -127,6 +128,7 @@
       'M14 12l-4-4M14 12l-4 4',
       'M14 12H4',
     ],
+    admin: ['M4 4h7v9H4V4Zm9 0h7v5h-7V4ZM4 15h7v5H4v-5Zm9-4h7v9h-7v-9Z'],
     components: [
       'M12 3l8 4.5-8 4.5-8-4.5L12 3Z',
       'M4 12l8 4.5 8-4.5',
@@ -156,6 +158,7 @@
     { id: 'contact', label: 'Contact', to: '/emerald/contact' },
     { id: 'about', label: 'About', to: '/emerald/about' },
     { id: 'signin', label: 'Sign in', to: '/emerald/sign-in' },
+    { id: 'admin', label: 'Admin', to: '/emerald/admin/sales' },
   ]
 </script>
 
