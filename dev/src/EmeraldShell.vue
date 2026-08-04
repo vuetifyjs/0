@@ -919,7 +919,7 @@
     min-width: 0;
     min-height: 100vh;
     min-height: 100dvh;
-    padding: var(--emerald-spacing-2xl, 32px) clamp(1.5rem, 4vw, 5.5rem) 3rem;
+    padding: var(--emerald-spacing-2xl, 32px) clamp(1rem, 2vw, 2.5rem) 3rem;
   }
 
   .ed-main--bare {
