@@ -3,6 +3,13 @@
     EmAvatar,
     EmAvatarFallback,
     EmButton,
+    EmList,
+    EmListItem,
+    EmListItemContent,
+    EmListItemMedia,
+    EmListItemMeta,
+    EmListItemSubtitle,
+    EmListItemTitle,
     EmTag,
     EmTextField,
   } from '@paper/emerald'
@@ -191,20 +198,31 @@
               <em>{{ group.length }}</em>
             </h2>
 
-            <ul class="adm-contact__cards">
-              <li v-for="contact in group" :key="contact.id" class="adm-contact__card">
-                <EmAvatar size="md"><EmAvatarFallback>{{ contact.initials }}</EmAvatarFallback></EmAvatar>
+            <!-- Rows are not selectable and carry their own star control, so the
+                 item host stays a plain element — a button cannot nest one. -->
+            <EmList>
+              <EmListItem
+                v-for="contact in group"
+                :key="contact.id"
+                as="div"
+                class="adm-contact__card"
+                :value="contact.id"
+              >
+                <EmListItemMedia>
+                  <EmAvatar size="md"><EmAvatarFallback>{{ contact.initials }}</EmAvatarFallback></EmAvatar>
+                </EmListItemMedia>
 
-                <span class="adm-contact__card-body">
-                  <span class="adm-contact__card-name">
+                <EmListItemContent>
+                  <!-- Name and handle share a line; the role replaces the email underneath. -->
+                  <EmListItemTitle class="adm-contact__card-name">
                     <strong>{{ contact.name }}</strong>
                     <span class="adm-contact__card-handle">{{ contact.handle }}</span>
-                  </span>
+                  </EmListItemTitle>
 
-                  <span class="adm-contact__card-role">{{ contact.role }}</span>
-                </span>
+                  <EmListItemSubtitle class="adm-contact__card-role">{{ contact.role }}</EmListItemSubtitle>
+                </EmListItemContent>
 
-                <span class="adm-contact__card-region">{{ contact.region }}</span>
+                <EmListItemMeta class="adm-contact__card-region">{{ contact.region }}</EmListItemMeta>
 
                 <span class="adm-contact__card-tags">
                   <EmTag v-for="label in contact.labels" :key="label" variant="neutral">
@@ -233,8 +251,8 @@
                     width="16"
                   ><path d="m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5L2.6 9.8l6.5-.9L12 3Z" /></svg>
                 </button>
-              </li>
-            </ul>
+              </EmListItem>
+            </EmList>
           </div>
         </div>
       </section>
@@ -447,19 +465,12 @@
     letter-spacing: 0;
   }
 
-  .adm-contact__cards {
-    display: flex;
-    flex-direction: column;
+  .adm-contact__directory .emerald-list {
     gap: 4px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
   }
 
   /* Rows are carded and spaced rather than ruled into a continuous table. */
   .adm-contact__card {
-    display: flex;
-    align-items: center;
     gap: var(--emerald-spacing-s, 12px);
     padding: var(--emerald-spacing-xs, 8px) var(--emerald-spacing-s, 12px);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
@@ -471,19 +482,16 @@
     background: var(--emerald-neutral-200, #f6f8fa);
   }
 
-  .adm-contact__card-body {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-width: 0;
+  .adm-contact__card .emerald-list__content {
+    gap: 0;
   }
 
-  /* Name and handle share a line; the role replaces the email underneath. */
   .adm-contact__card-name {
     display: flex;
     align-items: baseline;
     gap: 6px;
     min-width: 0;
+    overflow: visible;
   }
 
   .adm-contact__card-name strong {

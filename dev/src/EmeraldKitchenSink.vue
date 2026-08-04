@@ -35,6 +35,13 @@
     EmExpansionPanelCue,
     EmExpansionPanelGroup,
     EmExpansionPanelHeader,
+    EmList,
+    EmListItem,
+    EmListItemContent,
+    EmListItemMedia,
+    EmListItemMeta,
+    EmListItemSubtitle,
+    EmListItemTitle,
     EmPagination,
     EmPaginationItem,
     EmPaginationNext,
@@ -95,6 +102,15 @@
   const step = shallowRef('account')
   const toastOpen = shallowRef(true)
   const popoverOpen = shallowRef(false)
+
+  const active = shallowRef('r1')
+
+  const rows = [
+    { id: 'r1', initials: 'MV', title: 'v1.2 release train slips one week', subtitle: 'Marisol Vega', time: '08:42', unread: true, disabled: false },
+    { id: 'r2', initials: 'KB', title: 'Emerald tag contrast fails APCA', subtitle: 'Kwame Boateng', time: '10:05', unread: true, disabled: false },
+    { id: 'r3', initials: 'TR', title: 'Composable pages need the chip', subtitle: 'Tobias Renner', time: 'Yesterday', unread: false, disabled: false },
+    { id: 'r4', initials: 'LB', title: 'Northwind Labs renewal', subtitle: 'Lena Brandt', time: 'Mon', unread: false, disabled: true },
+  ]
 
   const notifications = [
     { id: 1, title: 'Emerald 1.0 tokens published', time: '2m' },
@@ -586,6 +602,35 @@
     </section>
 
     <section>
+      <h2>List</h2>
+
+      <div class="sink-list">
+        <EmList v-model="active" mandatory="force">
+          <EmListItem
+            v-for="row in rows"
+            :key="row.id"
+            :data-unread="row.unread || undefined"
+            :disabled="row.disabled"
+            :value="row.id"
+          >
+            <EmListItemMedia>
+              <EmAvatar size="sm"><EmAvatarFallback>{{ row.initials }}</EmAvatarFallback></EmAvatar>
+            </EmListItemMedia>
+
+            <EmListItemContent>
+              <EmListItemTitle>{{ row.title }}</EmListItemTitle>
+              <EmListItemSubtitle>{{ row.subtitle }}</EmListItemSubtitle>
+            </EmListItemContent>
+
+            <EmListItemMeta>{{ row.time }}</EmListItemMeta>
+          </EmListItem>
+        </EmList>
+      </div>
+
+      <p class="muted">Selected: {{ active }} — the last row is disabled, the first two are unread.</p>
+    </section>
+
+    <section>
       <h2>Snackbar (static)</h2>
 
       <p class="muted" style="margin-bottom: 0.75rem;">
@@ -748,6 +793,11 @@
     flex: none;
     font-size: 0.75rem;
     color: var(--emerald-on-surface-variant, #757e85);
+  }
+
+  .sink-list {
+    max-width: 440px;
+    margin-bottom: 0.75rem;
   }
 
   .dialog-head .emerald-dialog__title {

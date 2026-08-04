@@ -8,6 +8,13 @@
     EmDialogContent,
     EmDialogFooter,
     EmDialogTitle,
+    EmList,
+    EmListItem,
+    EmListItemContent,
+    EmListItemMedia,
+    EmListItemMeta,
+    EmListItemSubtitle,
+    EmListItemTitle,
     EmTag,
     EmTextarea,
     EmTextField,
@@ -20,7 +27,7 @@
   import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
-  import { shallowRef, toRef } from 'vue'
+  import { shallowRef, toRef, watch } from 'vue'
 
   type FolderId = 'inbox' | 'triaged' | 'sent' | 'drafts' | 'archive' | 'junk'
 
@@ -94,10 +101,6 @@
   for (const folder of folders) folderNav.register({ id: folder.id, value: folder })
   folderNav.select('inbox')
 
-  const messageNav = createSingle({ mandatory: 'force' })
-  for (const message of messages) messageNav.register({ id: message.id, value: message })
-  messageNav.select(messages[0].id)
-
   const search = shallowRef('')
   const filter = createFilter<Message>({ keys: ['sender', 'subject'], mode: 'some' })
 
@@ -105,9 +108,25 @@
   const scoped = toRef(() => messages.filter(message => folderNav.selected(message.folder)))
   const filtered = toRef(() => filter.apply(search.value, scoped.value).items.value)
 
-  const selected = toRef(() => {
-    const message = messageNav.selectedValue.value as Message | undefined
-    return message && folderNav.selected(message.folder) ? message : undefined
+  const active = shallowRef<string | undefined>(messages[0].id)
+
+  /**
+   * Rows unregister from EmList when a folder or search filters them out, which
+   * clears the selection. Re-point at the first visible row once the DOM has
+   * settled — `mandatory: 'force'` can't do this, it selects whichever ticket
+   * registers first and Vue mounts keyed children in reverse on a wholesale swap.
+   */
+  watch(filtered, rows => {
+    if (rows.some(row => row.id === active.value)) return
+    active.value = rows[0]?.id
+  }, { flush: 'post' })
+
+  /** A search can empty the rows entirely; the reading pane keeps the last one open. */
+  const open = shallowRef<Message | undefined>(messages[0])
+
+  watch(active, id => {
+    const message = messages.find(entry => entry.id === id)
+    if (message) open.value = message
   })
 
   /** Mobile master/detail — desktop shows both panes regardless. */
@@ -117,13 +136,6 @@
     folderNav.select(id)
     search.value = ''
     detail.value = false
-    const first = messages.find(message => message.folder === id)
-    if (first) messageNav.select(first.id)
-  }
-
-  function onMessage (id: string) {
-    messageNav.select(id)
-    detail.value = true
   }
 
   const reply = shallowRef('')
@@ -200,42 +212,40 @@
       </aside>
 
       <section aria-label="Messages" class="adm-mail__list-pane">
-        <ul class="adm-mail__messages">
-          <li v-for="message in filtered" :key="message.id">
-            <button
-              class="adm-mail__message"
-              :data-active="messageNav.selected(message.id) || undefined"
-              :data-unread="message.unread || undefined"
-              type="button"
-              @click="onMessage(message.id)"
-            >
-              <span aria-hidden="true" class="adm-mail__flag" />
-
+        <EmList v-model="active" mandatory>
+          <EmListItem
+            v-for="message in filtered"
+            :key="message.id"
+            class="adm-mail__message"
+            :data-unread="message.unread || undefined"
+            :value="message.id"
+            @click="detail = true"
+          >
+            <EmListItemMedia>
               <EmAvatar size="sm"><EmAvatarFallback>{{ message.initials }}</EmAvatarFallback></EmAvatar>
+            </EmListItemMedia>
 
-              <span class="adm-mail__message-body">
-                <span class="adm-mail__message-top">
-                  <span class="adm-mail__message-subject">{{ message.subject }}</span>
-                  <time>{{ message.time }}</time>
-                </span>
+            <EmListItemContent>
+              <EmListItemTitle>{{ message.subject }}</EmListItemTitle>
 
-                <span class="adm-mail__message-meta">
-                  <span class="adm-mail__message-sender">{{ message.sender }}</span>
-                  <span aria-hidden="true" class="adm-mail__dot" :data-tone="message.tag" />
-                  <span class="adm-mail__message-tag">{{ message.tag }}</span>
-                </span>
+              <EmListItemSubtitle class="adm-mail__message-meta">
+                <span class="adm-mail__message-sender">{{ message.sender }}</span>
+                <span aria-hidden="true" class="adm-mail__dot" :data-tone="message.tag" />
+                <span class="adm-mail__message-tag">{{ message.tag }}</span>
+              </EmListItemSubtitle>
 
-                <span class="adm-mail__message-preview">{{ message.preview }}</span>
-              </span>
-            </button>
-          </li>
+              <span class="adm-mail__message-preview">{{ message.preview }}</span>
+            </EmListItemContent>
 
-          <li v-if="filtered.length === 0" class="adm-mail__empty">No messages match "{{ search }}"</li>
-        </ul>
+            <EmListItemMeta>{{ message.time }}</EmListItemMeta>
+          </EmListItem>
+        </EmList>
+
+        <p v-if="filtered.length === 0" class="adm-mail__empty">No messages match "{{ search }}"</p>
       </section>
 
       <section aria-label="Reading pane" class="adm-mail__reading">
-        <template v-if="selected">
+        <template v-if="open">
           <EmButton class="adm-mail__back" variant="tertiary" @click="detail = false">
             <svg
               aria-hidden="true"
@@ -253,32 +263,32 @@
 
           <header class="adm-mail__reading-head">
             <div class="adm-mail__reading-from">
-              <EmAvatar size="md"><EmAvatarFallback>{{ selected.initials }}</EmAvatarFallback></EmAvatar>
+              <EmAvatar size="md"><EmAvatarFallback>{{ open.initials }}</EmAvatarFallback></EmAvatar>
 
               <span class="adm-mail__reading-who">
-                <strong>{{ selected.sender }}</strong>
-                <span class="adm-mail__reading-handle">{{ selected.handle }}</span>
+                <strong>{{ open.sender }}</strong>
+                <span class="adm-mail__reading-handle">{{ open.handle }}</span>
               </span>
 
-              <time class="adm-mail__reading-time">{{ selected.time }}</time>
+              <time class="adm-mail__reading-time">{{ open.time }}</time>
             </div>
 
-            <h2>{{ selected.subject }}</h2>
+            <h2>{{ open.subject }}</h2>
 
             <div class="adm-mail__reading-chips">
               <EmTag variant="neutral">{{ folder?.label }}</EmTag>
 
               <EmTag variant="neutral">
-                <span aria-hidden="true" class="adm-mail__dot" :data-tone="selected.tag" />
-                {{ selected.tag }}
+                <span aria-hidden="true" class="adm-mail__dot" :data-tone="open.tag" />
+                {{ open.tag }}
               </EmTag>
             </div>
           </header>
 
-          <p class="adm-mail__reading-body">{{ selected.body }}</p>
+          <p class="adm-mail__reading-body">{{ open.body }}</p>
 
           <div class="adm-mail__reply">
-            <EmTextarea v-model="reply" aria-label="Reply" :placeholder="`Reply to ${selected.sender}…`" :rows="2" />
+            <EmTextarea v-model="reply" aria-label="Reply" :placeholder="`Reply to ${open.sender}…`" :rows="2" />
 
             <div class="adm-mail__reply-foot">
               <span class="adm-mail__reply-hint">Replies stay in {{ folder?.label }}</span>
@@ -419,8 +429,7 @@
     background: var(--emerald-neutral-200, #f6f8fa);
   }
 
-  .adm-mail__folder:focus-visible,
-  .adm-mail__message:focus-visible {
+  .adm-mail__folder:focus-visible {
     outline: var(--emerald-stroke-m, 2px) solid var(--emerald-primary-600, #1fae60);
     outline-offset: -2px;
   }
@@ -486,39 +495,23 @@
     padding: var(--emerald-spacing-xs, 8px);
   }
 
-  .adm-mail__messages {
-    display: flex;
-    flex-direction: column;
+  .adm-mail__list-pane .emerald-list {
+    flex: 1;
+    min-height: 0;
     gap: 2px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
     overflow-y: auto;
   }
 
+  /* Three-line rows top-align their avatar against the subject. */
   .adm-mail__message {
-    display: flex;
     align-items: flex-start;
     gap: var(--emerald-spacing-xs, 8px);
-    width: 100%;
     padding: var(--emerald-spacing-s, 12px) var(--emerald-spacing-xs, 8px);
-    border: none;
-    border-radius: var(--emerald-radius-m, 8px);
-    background: transparent;
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .adm-mail__message:hover {
-    background: var(--emerald-neutral-200, #f6f8fa);
-  }
-
-  .adm-mail__message[data-active] {
-    background: var(--emerald-primary-100, #e7fff2);
   }
 
   /* Unread reads as a leading rail rather than a trailing dot. */
-  .adm-mail__flag {
+  .adm-mail__message::before {
+    content: '';
     flex: none;
     align-self: stretch;
     width: 3px;
@@ -526,42 +519,17 @@
     background: transparent;
   }
 
-  .adm-mail__message[data-unread] .adm-mail__flag {
+  .adm-mail__message[data-unread]::before {
     background: var(--emerald-primary-600, #1fae60);
   }
 
-  .adm-mail__message-body {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-width: 0;
+  /* Subject leads the row; the sender drops to the meta line under it. */
+  .adm-mail__message .emerald-list__content {
     gap: 3px;
   }
 
-  .adm-mail__message-top {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--emerald-spacing-xs, 8px);
-  }
-
-  .adm-mail__message-top time {
-    flex: none;
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
-  }
-
-  /* Subject leads the row; the sender drops to the meta line under it. */
-  .adm-mail__message-subject {
-    overflow: hidden;
-    color: var(--emerald-on-surface, #2b2d2e);
-    font-size: var(--emerald-text-b2-size, 14px);
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .adm-mail__message[data-unread] .adm-mail__message-subject {
-    font-weight: 700;
+  .adm-mail__message .emerald-list__meta {
+    align-self: flex-start;
   }
 
   .adm-mail__message-meta {
@@ -569,8 +537,6 @@
     align-items: center;
     gap: 6px;
     min-width: 0;
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
   }
 
   .adm-mail__message-sender {

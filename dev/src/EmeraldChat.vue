@@ -3,6 +3,12 @@
     EmAvatar,
     EmAvatarFallback,
     EmButton,
+    EmList,
+    EmListItem,
+    EmListItemContent,
+    EmListItemMedia,
+    EmListItemSubtitle,
+    EmListItemTitle,
     EmTag,
     EmTextField,
   } from '@paper/emerald'
@@ -118,19 +124,32 @@
 
   const filtered = toRef(() => filter.apply(search.value, scoped.value).items.value)
 
-  /** Split by kind — channels lead, direct messages follow. */
-  const groups = toRef(() => ([
-    ['Channels', filtered.value.filter(conversation => conversation.kind === 'channel')],
-    ['Direct', filtered.value.filter(conversation => conversation.kind === 'direct')],
-  ] as const).filter(([, list]) => list.length > 0))
+  /** Split by kind — channels lead, direct messages follow. Two EmLists, one model. */
+  const channels = toRef(() => filtered.value.filter(conversation => conversation.kind === 'channel'))
+  const direct = toRef(() => filtered.value.filter(conversation => conversation.kind === 'direct'))
 
   const unreadTotal = toRef(() => conversations.reduce((total, conversation) => total + conversation.unread, 0))
 
-  const conversationNav = createSingle({ mandatory: 'force' })
-  for (const conversation of conversations) conversationNav.register({ id: conversation.id, value: conversation })
-  conversationNav.select(conversations[0].id)
+  const active = shallowRef<string | undefined>(conversations[0].id)
 
-  const active = toRef(() => conversationNav.selectedValue.value as Conversation | undefined)
+  /**
+   * A conversation id lives in exactly one of the two lists, so the other list
+   * simply holds no match — correct by construction. What both lists do clear is
+   * the model: clicking the open row toggles it off, and a filter change
+   * unregisters it. Re-point at whichever row should stay open.
+   */
+  watch([active, filtered], ([id, rows], [previous]) => {
+    if (rows.some(row => row.id === id)) return
+    active.value = rows.some(row => row.id === previous) ? previous : rows[0]?.id
+  }, { flush: 'post' })
+
+  /** A filter can empty the rail entirely; the thread pane keeps the last one open. */
+  const open = shallowRef<Conversation | undefined>(conversations[0])
+
+  watch(active, id => {
+    const conversation = conversations.find(entry => entry.id === id)
+    if (conversation) open.value = conversation
+  })
 
   /** Mobile master/detail — desktop shows both panes regardless. */
   const detail = shallowRef(false)
@@ -144,20 +163,15 @@
     if (el) el.scrollTop = el.scrollHeight
   }
 
-  function onConversation (id: string) {
-    conversationNav.select(id)
-    detail.value = true
-  }
-
   function onSend () {
-    const conversation = active.value
+    const conversation = open.value
     if (!conversation || !draft.value.trim()) return
     conversation.messages.push({ id: `m${conversation.messages.length + 1}`, from: 'me', author: 'You', initials: 'ME', text: draft.value.trim(), time: 'Now' })
     draft.value = ''
     bottom()
   }
 
-  watch(active, bottom)
+  watch(open, bottom)
 </script>
 
 <template>
@@ -188,43 +202,48 @@
 
         <EmTextField v-model="search" aria-label="Search conversations" class="adm-chat__search" placeholder="Search channels and people" />
 
-        <ul class="adm-chat__conversations">
-          <template v-for="[heading, list] in groups" :key="heading">
-            <li class="adm-chat__group">{{ heading }}</li>
+        <div class="adm-chat__rail">
+          <template v-for="[heading, list] in [['Channels', channels], ['Direct', direct]] as const" :key="heading">
+            <template v-if="list.length > 0">
+              <p class="adm-chat__group">{{ heading }}</p>
 
-            <li v-for="conversation in list" :key="conversation.id">
-              <button
-                class="adm-chat__conversation"
-                :data-active="conversationNav.selected(conversation.id) || undefined"
-                type="button"
-                @click="onConversation(conversation.id)"
-              >
-                <span class="adm-chat__avatar-wrap" :data-kind="conversation.kind">
-                  <EmAvatar size="sm"><EmAvatarFallback>{{ conversation.initials }}</EmAvatarFallback></EmAvatar>
-                  <span v-if="conversation.online" aria-hidden="true" class="adm-chat__online" />
-                </span>
+              <EmList v-model="active">
+                <EmListItem
+                  v-for="conversation in list"
+                  :key="conversation.id"
+                  class="adm-chat__conversation"
+                  :value="conversation.id"
+                  @click="detail = true"
+                >
+                  <EmListItemMedia class="adm-chat__avatar-wrap" :data-kind="conversation.kind">
+                    <EmAvatar size="sm"><EmAvatarFallback>{{ conversation.initials }}</EmAvatarFallback></EmAvatar>
+                    <span v-if="conversation.online" aria-hidden="true" class="adm-chat__online" />
+                  </EmListItemMedia>
 
-                <span class="adm-chat__conversation-body">
-                  <span class="adm-chat__conversation-top">
-                    <strong>{{ conversation.name }}</strong>
-                    <span v-if="conversation.unread" aria-hidden="true" class="adm-chat__unread-count">{{ conversation.unread }}</span>
-                  </span>
+                  <EmListItemContent>
+                    <EmListItemTitle>
+                      <strong>{{ conversation.name }}</strong>
+                      <span v-if="conversation.unread" aria-hidden="true" class="adm-chat__unread-count">{{ conversation.unread }}</span>
+                    </EmListItemTitle>
 
-                  <span class="adm-chat__conversation-bottom">
-                    <span class="adm-chat__conversation-preview">{{ conversation.preview }}</span>
-                    <time>{{ conversation.time }}</time>
-                  </span>
-                </span>
-              </button>
-            </li>
+                    <!-- Preview and timestamp share the second line; the reference
+                         puts the time up top beside the name. -->
+                    <EmListItemSubtitle>
+                      <span class="adm-chat__conversation-preview">{{ conversation.preview }}</span>
+                      <time>{{ conversation.time }}</time>
+                    </EmListItemSubtitle>
+                  </EmListItemContent>
+                </EmListItem>
+              </EmList>
+            </template>
           </template>
 
-          <li v-if="filtered.length === 0" class="adm-chat__empty">No conversations match.</li>
-        </ul>
+          <p v-if="filtered.length === 0" class="adm-chat__empty">No conversations match.</p>
+        </div>
       </section>
 
       <section aria-label="Conversation" class="adm-chat__thread">
-        <template v-if="active">
+        <template v-if="open">
           <header class="adm-chat__thread-head">
             <button aria-label="Back to conversations" class="adm-chat__back" type="button" @click="detail = false">
               <svg
@@ -240,25 +259,25 @@
               ><path d="M15 18l-6-6 6-6" /></svg>
             </button>
 
-            <span class="adm-chat__avatar-wrap" :data-kind="active.kind">
-              <EmAvatar size="sm"><EmAvatarFallback>{{ active.initials }}</EmAvatarFallback></EmAvatar>
-              <span v-if="active.online" aria-hidden="true" class="adm-chat__online" />
+            <span class="adm-chat__avatar-wrap" :data-kind="open.kind">
+              <EmAvatar size="sm"><EmAvatarFallback>{{ open.initials }}</EmAvatarFallback></EmAvatar>
+              <span v-if="open.online" aria-hidden="true" class="adm-chat__online" />
             </span>
 
             <div class="adm-chat__thread-who">
-              <strong>{{ active.name }}</strong>
-              <span class="adm-chat__thread-topic">{{ active.topic }}</span>
+              <strong>{{ open.name }}</strong>
+              <span class="adm-chat__thread-topic">{{ open.topic }}</span>
             </div>
 
-            <EmTag class="adm-chat__thread-tag" :variant="active.online ? 'success' : 'neutral'">
-              {{ active.online ? 'Active now' : 'Away' }}
+            <EmTag class="adm-chat__thread-tag" :variant="open.online ? 'success' : 'neutral'">
+              {{ open.online ? 'Active now' : 'Away' }}
             </EmTag>
           </header>
 
           <div ref="messages" class="adm-chat__messages">
             <p class="adm-chat__day">Today</p>
 
-            <div v-for="message in active.messages" :key="message.id" class="adm-chat__bubble-row" :data-from="message.from">
+            <div v-for="message in open.messages" :key="message.id" class="adm-chat__bubble-row" :data-from="message.from">
               <EmAvatar v-if="message.from === 'them'" class="adm-chat__bubble-avatar" size="sm">
                 <EmAvatarFallback>{{ message.initials }}</EmAvatarFallback>
               </EmAvatar>
@@ -276,7 +295,7 @@
           </div>
 
           <form class="adm-chat__composer" @submit.prevent="onSend">
-            <EmTextField v-model="draft" aria-label="Message" class="adm-chat__composer-field" :placeholder="`Message ${active.name}`" />
+            <EmTextField v-model="draft" aria-label="Message" class="adm-chat__composer-field" :placeholder="`Message ${open.name}`" />
             <!-- EmButton always renders type='button', so the click has to drive the submit. -->
             <EmButton :disabled="!draft.trim()" variant="primary" @click="onSend">Send</EmButton>
           </form>
@@ -383,13 +402,20 @@
     opacity: 0.7;
   }
 
-  .adm-chat__filter:focus-visible,
-  .adm-chat__conversation:focus-visible {
+  .adm-chat__filter:focus-visible {
     outline: var(--emerald-stroke-m, 2px) solid var(--emerald-primary-600, #1fae60);
     outline-offset: -2px;
   }
 
+  .adm-chat__rail {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
   .adm-chat__group {
+    margin: 0;
     padding: var(--emerald-spacing-xs, 8px) var(--emerald-spacing-xs, 8px) 2px;
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: 11px;
@@ -398,35 +424,12 @@
     letter-spacing: 0.06em;
   }
 
-  .adm-chat__conversations {
-    display: flex;
-    flex-direction: column;
+  .adm-chat__rail .emerald-list {
     gap: 2px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    overflow-y: auto;
   }
 
   .adm-chat__conversation {
-    display: flex;
-    align-items: center;
-    gap: var(--emerald-spacing-xs, 8px);
-    width: 100%;
     padding: var(--emerald-spacing-xs, 8px);
-    border: none;
-    border-radius: var(--emerald-radius-m, 8px);
-    background: transparent;
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .adm-chat__conversation:hover {
-    background: var(--emerald-neutral-200, #f6f8fa);
-  }
-
-  .adm-chat__conversation[data-active] {
-    background: var(--emerald-primary-100, #e7fff2);
   }
 
   .adm-chat__avatar-wrap {
@@ -451,41 +454,33 @@
     background: var(--emerald-primary-600, #1fae60);
   }
 
-  .adm-chat__conversation-body {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-width: 0;
-    gap: 2px;
-  }
-
-  .adm-chat__conversation-top {
+  /* The name shares its line with the unread badge, the preview shares its own
+     with the timestamp — so both leaves become space-between rows and the
+     ellipsis moves onto the text inside them. */
+  .adm-chat__conversation .emerald-list__title {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--emerald-spacing-xs, 8px);
-    font-size: var(--emerald-text-b2-size, 14px);
+    overflow: visible;
   }
 
-  .adm-chat__conversation-top strong {
+  .adm-chat__conversation .emerald-list__title strong {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  /* Preview and timestamp share the second line; the reference puts the time
-     up top beside the name. */
-  .adm-chat__conversation-bottom {
+  .adm-chat__conversation .emerald-list__subtitle {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: var(--emerald-spacing-xs, 8px);
-    min-width: 0;
+    overflow: visible;
   }
 
-  .adm-chat__conversation-bottom time {
+  .adm-chat__conversation .emerald-list__subtitle time {
     flex: none;
-    color: var(--emerald-on-surface-variant, #757e85);
     font-size: 11px;
   }
 
@@ -513,6 +508,7 @@
   }
 
   .adm-chat__empty {
+    margin: 0;
     padding: var(--emerald-spacing-m, 16px);
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b2-size, 14px);
