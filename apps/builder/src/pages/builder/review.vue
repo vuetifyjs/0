@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiArrowLeft, mdiDownload, mdiOpenInNew } from '@mdi/js'
+  import { mdiDownload, mdiOpenInNew } from '@mdi/js'
 
   // Framework
   import { Button, Input } from '@vuetify/v0'
@@ -122,14 +122,6 @@
 
 <template>
   <div class="max-w-3xl mx-auto px-6 py-10 sm:py-12">
-    <Button.Root class="btn-quiet mb-8" @click="onBack">
-      <Button.Icon>
-        <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
-      </Button.Icon>
-
-      <Button.Content>Back</Button.Content>
-    </Button.Root>
-
     <header class="mb-8">
       <p class="t-eyebrow text-primary mb-3">Step 4 · Review</p>
 

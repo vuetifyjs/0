@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiArrowLeft, mdiCogOutline, mdiTuneVariant } from '@mdi/js'
+  import { mdiChevronLeft, mdiCogOutline, mdiTuneVariant } from '@mdi/js'
   import { GnDotGrid } from '@paper/genesis'
 
   // Framework
@@ -9,6 +9,9 @@
   import Icon from '@/components/app/Icon.vue'
   import StepBar from '@/components/app/StepBar.vue'
   import PluginInfo from '@/components/PluginInfo.vue'
+
+  // Composables
+  import { wizardProgress } from '@/composables/useWizardProgress'
 
   import { getPluginById } from '@/data/plugins'
   import { getCategories } from '@/data/questions'
@@ -62,21 +65,13 @@
   function onBack () {
     router.push('/')
   }
+
+  const progress = toRef(() => wizardProgress(store.selectedPlugins.size, 1))
 </script>
 
 <template>
   <div class="max-w-6xl mx-auto px-6 sm:px-8 pt-5 sm:pt-6 pb-24">
-    <Button.Root class="btn-quiet mb-8" @click="onBack">
-      <Button.Icon>
-        <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
-      </Button.Icon>
-
-      <Button.Content>Back</Button.Content>
-    </Button.Root>
-
     <header class="mb-10">
-      <p class="t-eyebrow text-primary mb-3">Step 1 · Select</p>
-
       <h2 class="t-title mb-3">Choose your plugins</h2>
 
       <p class="t-body text-on-surface-variant max-w-2xl">
@@ -173,7 +168,7 @@
     </div>
   </div>
 
-  <StepBar>
+  <StepBar :progress="progress.percent" :progress-label="progress.label">
     <!-- The noun drops below sm so the count and the action stay on one row. Spelled out
          twice rather than wrapping the noun in a span: Vue condenses the leading space
          inside the span away, and "5plugins selected" is worse than a duplicated string. -->
@@ -185,12 +180,20 @@
       </span>
     </p>
 
-    <Button.Root
-      class="btn-primary"
-      :disabled="store.selectedPlugins.size === 0"
-      @click="onContinue"
-    >
-      Continue
-    </Button.Root>
+    <div class="flex items-center gap-2">
+      <Button.Root aria-label="Back" class="btn-quiet h-10 w-10 px-0" @click="onBack">
+        <Button.Icon>
+          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiChevronLeft" fill="currentColor" /></svg>
+        </Button.Icon>
+      </Button.Root>
+
+      <Button.Root
+        class="btn-primary"
+        :disabled="store.selectedPlugins.size === 0"
+        @click="onContinue"
+      >
+        Continue
+      </Button.Root>
+    </div>
   </StepBar>
 </template>
