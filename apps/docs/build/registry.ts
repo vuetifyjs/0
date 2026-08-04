@@ -1,20 +1,22 @@
 /**
- * Registry builder for `vuetify add <feature>`.
+ * Official seed registry for `vuetify add <feature>`.
  *
- * Consumers of @vuetify/v0 can install the package, but a bare import renders
- * nothing — v0 is headless. What they cannot get today is a working, styled,
- * runnable file. This module turns the authored docs examples into a static
- * registry the CLI fetches to write those files into a user's project.
+ * v0 is headless: installing `@vuetify/v0` and importing a primitive does not
+ * yield a rendered UI. This module turns curated docs examples into a static
+ * catalog the CLI seeds into a user's project — the on-ramp for a local
+ * component library they own (track via `vuetify.json`, later publish).
  *
- * The source of truth is the `::: gn-example` / `::: example` directive already
- * present in every feature page. Those blocks declare an ordered file manifest,
- * external dependencies (`@import`), a title, and prose — all hand-authored, so
- * the registry inherits curation instead of guessing from a directory listing.
+ * Source of truth is the `::: gn-example` / `::: example` directive already on
+ * every feature page: ordered file manifest, `@import` deps, title, and prose.
+ * Joined with maturity.json for type/category/level and the page path for docs.
  *
  * Emits three shapes:
  * - `registry/index.json`   slim catalog for listing, fuzzy match, completion
  * - `registry/{type}/{name}.json`  one item with full file contents
  * - `registry/tokens.json`  the semantic token contract + config snippets
+ *
+ * Same item schema is intended for user-built registries later; keep fields
+ * actionable for install (npm deps, token names, icon *collections*).
  */
 
 import { readFile, glob } from 'node:fs/promises'
@@ -85,10 +87,20 @@ export interface RegistryExample {
   /** Semantic tokens the files use — the CLI's styling preflight reads this. */
   tokens: string[]
   /**
-   * UnoCSS icon utilities (`i-lucide-*`, `i-mdi-*`, …). create-vuetify0 does not
-   * install an icon preset by default — the CLI surfaces these as soft deps.
+   * Icon soft-deps. `collections` is what install tooling acts on (`lucide`,
+   * `mdi`); `classes` is the full utility list for audit. create-vuetify0 does
+   * not install an icon preset by default.
    */
-  icons: string[]
+  icons: RegistryIcons
+}
+
+/**
+ * Icons referenced by an example. Collections are the install unit; classes are
+ * optional detail (never substitute for collections in a soft-deps installer).
+ */
+export interface RegistryIcons {
+  collections: string[]
+  classes: string[]
 }
 
 export interface RegistryItem {
@@ -242,17 +254,37 @@ function specifiers (content: string): string[] {
   return [...found].toSorted()
 }
 
+/** Collections we know how to map to Iconify / Uno presets. */
+const ICON_COLLECTIONS = ['lucide', 'mdi', 'carbon', 'ph', 'heroicons', 'tabler'] as const
+
+const ICON_CLASS_SOURCE = String.raw`\bi-(${ICON_COLLECTIONS.join('|')})-[\w-]+\b`
+
 /**
- * UnoCSS icon utility classes (`i-lucide-mail`, `i-mdi-close`, …).
- * create-vuetify0 scaffolds do not install icon collections — the CLI reads
- * this list as soft deps rather than hard-failing the registry build.
+ * Scan source for UnoCSS icon utilities and derive installable collections.
+ *
+ * `i-lucide-mail` → collection `lucide`, class `i-lucide-mail`. Collections are
+ * the soft-dep surface; classes stay available for audit / tree-shake hints.
  */
-export function icons (content: string): string[] {
-  const found = new Set<string>()
-  for (const match of content.matchAll(/\bi-(?:lucide|mdi|carbon|ph|heroicons|tabler)-[\w-]+\b/g)) {
-    found.add(match[0])
+export function scanIcons (content: string): RegistryIcons {
+  const classes = new Set<string>()
+  const collections = new Set<string>()
+  // Fresh global regex per call — shared `g` patterns retain lastIndex across files.
+  const pattern = new RegExp(ICON_CLASS_SOURCE, 'g')
+
+  for (const match of content.matchAll(pattern)) {
+    classes.add(match[0])
+    collections.add(match[1])
   }
-  return [...found].toSorted()
+
+  return {
+    collections: [...collections].toSorted(),
+    classes: [...classes].toSorted(),
+  }
+}
+
+/** @deprecated Prefer `scanIcons` — returns class list only. */
+export function icons (content: string): string[] {
+  return scanIcons(content).classes
 }
 
 function escapeRegExp (value: string): string {
@@ -416,7 +448,8 @@ async function exampleFrom (
   const files: RegistryFile[] = []
   const dependencies = new Set(block.imports)
   const used = new Set<string>()
-  const usedIcons = new Set<string>()
+  const iconClasses = new Set<string>()
+  const iconCollections = new Set<string>()
   let incomplete = false
 
   for (const [order, relativePath] of paths.entries()) {
@@ -438,7 +471,10 @@ async function exampleFrom (
 
     for (const specifier of specifiers(content)) dependencies.add(specifier)
     for (const token of tokens(content, matchTokens)) used.add(token)
-    for (const icon of icons(content)) usedIcons.add(icon)
+
+    const scanned = scanIcons(content)
+    for (const name of scanned.classes) iconClasses.add(name)
+    for (const name of scanned.collections) iconCollections.add(name)
 
     files.push({
       path: relativePath,
@@ -493,7 +529,10 @@ async function exampleFrom (
     files,
     dependencies: [...dependencies].toSorted(),
     tokens: [...used].toSorted(),
-    icons: [...usedIcons].toSorted(),
+    icons: {
+      collections: [...iconCollections].toSorted(),
+      classes: [...iconClasses].toSorted(),
+    },
   }
 }
 

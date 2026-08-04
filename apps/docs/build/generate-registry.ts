@@ -1,16 +1,15 @@
 /**
- * Vite plugin to publish the `vuetify add` registry.
+ * Vite plugin to publish the official seed registry for `vuetify add`.
  *
- * Serves `/registry/*` in dev and emits the same files as build assets, so the
- * CLI reads a plain static origin with no server behind it.
+ * Serves `/registry/*` in dev and emits the same files as build assets so the
+ * CLI can read a plain static origin. This is the first-party catalog of docs
+ * examples — not a user's library (that is `vuetify.json` + optional self-hosted
+ * registries later).
  *
  * Endpoints:
  * - `/registry/index.json`         slim catalog (names, types, example ids)
  * - `/registry/tokens.json`        semantic token contract + config snippets
  * - `/registry/{type}/{name}.json` one item, file contents included
- *
- * The slim index exists so `vuetify add dialog` downloads a few KB to resolve a
- * name instead of the whole corpus.
  */
 
 import { build, contract } from './registry'
