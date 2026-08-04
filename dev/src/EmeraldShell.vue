@@ -4,6 +4,8 @@
     EmAvatarFallback,
     EmBadge,
     EmButton,
+    EmPopover,
+    EmPopoverActivator,
     EmSwitch,
     EmTextField,
     EmTooltip,
@@ -15,12 +17,17 @@
   // Globals
   import { IN_BROWSER, Toggle } from '@vuetify/v0'
 
+  // Context
+  // `dark` is module state in the customizer, not a local ref: every Emerald
+  // page mounts its own shell, so a ref declared here resets on navigation.
+  import EmeraldCustomizer, { dark } from './EmeraldCustomizer.vue'
+
   // Utilities
-  import { computed, onMounted, onBeforeUnmount, shallowRef, toRef } from 'vue'
+  import { computed, mergeProps, onMounted, onBeforeUnmount, shallowRef, toRef } from 'vue'
   import { RouterLink, useRoute } from 'vue-router'
 
   // Types
-  import type { TooltipActivatorSlotProps } from '@vuetify/v0'
+  import type { PopoverActivatorSlotProps, TooltipActivatorSlotProps } from '@vuetify/v0'
 
   const {
     bare = false,
@@ -30,7 +37,8 @@
   }>()
 
   const route = useRoute()
-  const dark = shallowRef(false)
+  /** Theme customizer panel. */
+  const open = shallowRef(false)
   const search = shallowRef('')
   /** Demo count for the topbar bell — the panel itself is a follow-up. */
   const unread = shallowRef(5)
@@ -69,6 +77,18 @@
    */
   function anchor (tip: TooltipActivatorSlotProps) {
     return rail.value ? { ...tip.attrs, style: tip.styles } : {}
+  }
+
+  /**
+   * Tooltip and customizer popover share one trigger, and each publishes its own
+   * `anchor-name` in a separate style bag. `anchor-name` takes a list, so both
+   * names are emitted — letting either overwrite the other lands its panel at
+   * 0,0 with no anchor to resolve against.
+   */
+  function bind (tip: TooltipActivatorSlotProps, pop: PopoverActivatorSlotProps) {
+    const names = [pop.attrs.style.anchorName, tip.styles.anchorName].filter(Boolean)
+
+    return mergeProps(tip.attrs, pop.attrs, { style: { ...tip.styles, anchorName: names.join(', ') } })
   }
 
   onMounted(() => {
@@ -511,37 +531,42 @@
           </EmTooltipContent>
         </EmTooltip>
 
-        <EmTooltip position-area="bottom" position-try="flip-block">
-          <EmTooltipActivator v-slot="tip" renderless>
-            <!-- Inert on purpose: the customizer popover task binds itself to
-                 this trigger via the data-customizer-trigger hook. -->
-            <EmButton
-              v-bind="tip.attrs"
-              aria-label="Customize theme"
-              class="ed-topbar__icon ed-topbar__icon--wide"
-              data-customizer-trigger
-              size="sm"
-              :style="tip.styles"
-              variant="tertiary"
-            >
-              <svg
-                aria-hidden="true"
-                fill="none"
-                height="18"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.75"
-                viewBox="0 0 24 24"
-                width="18"
-              >
-                <path v-for="d in icons.palette" :key="d" :d />
-              </svg>
-            </EmButton>
-          </EmTooltipActivator>
+        <EmPopover v-model="open">
+          <!-- The tooltip stands down while the panel is open: both anchor to
+               the same edge of the same button and would otherwise stack. -->
+          <EmTooltip :disabled="open" position-area="bottom" position-try="flip-block">
+            <EmTooltipActivator v-slot="tip" renderless>
+              <EmPopoverActivator v-slot="pop" renderless>
+                <EmButton
+                  v-bind="bind(tip, pop)"
+                  aria-label="Customize theme"
+                  class="ed-topbar__icon ed-topbar__icon--wide"
+                  data-customizer-trigger
+                  size="sm"
+                  variant="tertiary"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    height="18"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.75"
+                    viewBox="0 0 24 24"
+                    width="18"
+                  >
+                    <path v-for="d in icons.palette" :key="d" :d />
+                  </svg>
+                </EmButton>
+              </EmPopoverActivator>
+            </EmTooltipActivator>
 
-          <EmTooltipContent class="ed-tip">Customize theme</EmTooltipContent>
-        </EmTooltip>
+            <EmTooltipContent class="ed-tip">Customize theme</EmTooltipContent>
+          </EmTooltip>
+
+          <EmeraldCustomizer />
+        </EmPopover>
 
         <EmTooltip position-area="bottom" position-try="flip-block">
           <EmTooltipActivator v-slot="tip" renderless>
@@ -680,7 +705,10 @@
        the lightest — so the light theme's tints read as dark-on-dark here. The
        high steps are the dark theme's tints; keep them for anything painted on
        one of the translucent fills below. */
-    --ed-active: rgba(31, 174, 96, 0.18);
+    /* The brand alpha token, not a literal rgba: the customizer repoints the
+       primary family, and a hardcoded green pill would stay green under a
+       recoloured theme while its own text followed the new accent. */
+    --ed-active: var(--emerald-primary-alpha-20, rgba(46, 204, 119, 0.2));
     --ed-active-text: var(--emerald-primary-800, #8ce7b6);
     --ed-delta-up-bg: rgba(31, 174, 96, 0.16);
     --ed-delta-up: var(--emerald-primary-800, #8ce7b6);
@@ -1123,9 +1151,11 @@
       padding-left: 4rem;
     }
 
-    /* 390px leaves room for the search field plus three actions; the two
-       secondary ones drop rather than squeezing search to nothing. */
-    .ed-topbar__icon--wide {
+    /* 390px leaves room for the search field plus a short action row; the
+       secondary ones drop rather than squeezing search to nothing. The
+       customizer is exempt — it is the showcase's entry point, and dropping it
+       strands the whole panel on mobile. */
+    .ed-topbar__icon--wide:not([data-customizer-trigger]) {
       display: none;
     }
 
