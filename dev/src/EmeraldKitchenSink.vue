@@ -14,6 +14,14 @@
     EmBreadcrumbsList,
     EmBreadcrumbsPage,
     EmButton,
+    EmCalendar,
+    EmCalendarGrid,
+    EmCalendarHeader,
+    EmCalendarMini,
+    EmCalendarNext,
+    EmCalendarPrev,
+    EmCalendarTitle,
+    EmCalendarToday,
     EmCard,
     EmCardBody,
     EmCardFooter,
@@ -84,6 +92,9 @@
   import { ref, shallowRef } from 'vue'
   import { RouterLink } from 'vue-router'
 
+  // Types
+  import type { EmCalendarEvent } from '@paper/emerald'
+
   const dialogOpen = shallowRef(false)
   const loading = shallowRef(false)
   const checked = shallowRef(true)
@@ -110,6 +121,26 @@
     { id: 'r2', initials: 'KB', title: 'Emerald tag contrast fails APCA', subtitle: 'Kwame Boateng', time: '10:05', unread: true, disabled: false },
     { id: 'r3', initials: 'TR', title: 'Composable pages need the chip', subtitle: 'Tobias Renner', time: 'Yesterday', unread: false, disabled: false },
     { id: 'r4', initials: 'LB', title: 'Northwind Labs renewal', subtitle: 'Lena Brandt', time: 'Mon', unread: false, disabled: true },
+  ]
+
+  /** Nth day of the month now on screen, as ISO — keeps the seed populated forever. */
+  function at (day: number) {
+    const date = new Date()
+    date.setDate(day)
+    return date.toLocaleDateString('en-CA')
+  }
+
+  const day = shallowRef(at(new Date().getDate()))
+  const cursor = shallowRef(new Date())
+
+  const agenda: EmCalendarEvent[] = [
+    { date: at(3), title: 'Release cut', allDay: true, tone: 'primary' },
+    { date: at(9), title: 'Design review', time: '15:00', tone: 'secondary' },
+    { date: at(9), title: 'Contributor call', time: '18:00', tone: 'info' },
+    { date: at(9), title: 'Retro', time: '19:30', tone: 'neutral' },
+    { date: at(16), title: 'Docs freeze', allDay: true, tone: 'alert' },
+    { date: at(22), title: 'Incident review', time: '11:00', tone: 'danger' },
+    { date: at(27), title: 'Roadmap workshop', allDay: true, tone: 'neutral' },
   ]
 
   const notifications = [
@@ -631,6 +662,45 @@
     </section>
 
     <section>
+      <h2>Calendar</h2>
+
+      <div class="sink-calendar">
+        <EmCalendar
+          v-model="day"
+          v-model:month="cursor"
+          :events="agenda"
+        >
+          <EmCalendarHeader>
+            <div class="row" style="margin-bottom: 0;">
+              <EmCalendarPrev />
+              <EmCalendarNext />
+              <EmCalendarTitle />
+            </div>
+
+            <EmCalendarToday />
+          </EmCalendarHeader>
+
+          <EmCalendarGrid />
+        </EmCalendar>
+
+        <EmCalendar
+          v-model="day"
+          v-model:month="cursor"
+          class="sink-calendar__mini"
+          :events="agenda"
+        >
+          <EmCalendarMini />
+        </EmCalendar>
+      </div>
+
+      <p class="muted">
+        Selected: {{ day }} — both roots share the page refs, so the mini tracks the grid.
+        In the grid: arrows move a day or a week, Home/End jump to the week edges,
+        PageUp/PageDown change month keeping the day, Enter or Space selects.
+      </p>
+    </section>
+
+    <section>
       <h2>Snackbar (static)</h2>
 
       <p class="muted" style="margin-bottom: 0.75rem;">
@@ -793,6 +863,24 @@
     flex: none;
     font-size: 0.75rem;
     color: var(--emerald-on-surface-variant, #757e85);
+  }
+
+  .sink-calendar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 240px;
+    gap: 1rem;
+    align-items: start;
+    margin-bottom: 0.75rem;
+  }
+
+  @media (max-width: 720px) {
+    .sink-calendar {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sink-calendar__mini {
+      display: none;
+    }
   }
 
   .sink-list {
