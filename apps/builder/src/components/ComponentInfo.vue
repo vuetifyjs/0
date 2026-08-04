@@ -2,7 +2,7 @@
   import { mdiInformationOutline, mdiOpenInNew } from '@mdi/js'
 
   // Framework
-  import { Popover } from '@vuetify/v0'
+  import { Popover, useDelay } from '@vuetify/v0'
 
   // Components
   import Icon from '@/components/app/Icon.vue'
@@ -11,7 +11,7 @@
   import { resolve } from '@/engine/resolve'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   // Types
   import type { ComponentEntry } from '@/data/components'
@@ -42,13 +42,40 @@
     .split('`')
     .map((text, index) => ({ text, code: index % 2 === 1 })),
   )
+
+  const open = shallowRef(false)
+
+  // A card-grid mouse sweep shouldn't strobe every info popover open, so hover
+  // is intent-delayed; keyboard focus and the existing click/tap path stay instant.
+  const delay = useDelay(direction => {
+    open.value = direction
+  }, { openDelay: 200, closeDelay: 100 })
+
+  function onPointerenter (e: PointerEvent) {
+    if (e.pointerType === 'touch') return
+    delay.start(true)
+  }
+
+  function onPointerleave (e: PointerEvent) {
+    if (e.pointerType === 'touch') return
+    delay.start(false)
+  }
+
+  function onFocus (e: FocusEvent) {
+    if (!(e.target as HTMLElement).matches(':focus-visible')) return
+    delay.stop()
+    open.value = true
+  }
 </script>
 
 <template>
-  <Popover.Root>
+  <Popover.Root v-model="open">
     <Popover.Activator
       :aria-label="`About ${component.id}`"
       class="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 inline-flex items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors duration-150 cursor-pointer opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 data-[open]:opacity-100"
+      @focus="onFocus"
+      @pointerenter="onPointerenter"
+      @pointerleave="onPointerleave"
     >
       <Icon :path="mdiInformationOutline" :size="15" />
     </Popover.Activator>
@@ -59,6 +86,8 @@
       v-slot="{ isOpen }"
       :aria-label="component.id"
       class="floating m-0 p-4 w-[17.5rem] rounded-xl"
+      @pointerenter="delay.stop"
+      @pointerleave="onPointerleave"
     >
       <div v-if="isOpen" class="stack-tight text-left">
         <div class="flex items-center gap-2">
