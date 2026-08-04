@@ -3,7 +3,7 @@
   composables directly rather than static markup. createDataTable wires real
   sort / filter / pagination / selection; see GAPS.md's "Data table sort /
   column filter / column visibility" row — v0 has no primitive gap here, this
-  is a real build. AdminCN's source page renders 12 static table variants
+  is a real build. the reference design's source page renders 12 static table variants
   (column visibility, resizable columns, draggable columns, expandable rows,
   progress cells, export buttons, …); this page builds ONE fully-interactive
   table rather than 12 static ones — the GAP_CONTRACT is about placeholder
@@ -36,7 +36,7 @@
   import { createDataTable } from '@vuetify/v0'
 
   // Context
-  import AdminShell from './AdminShell.vue'
+  import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
   import { shallowRef, watch } from 'vue'
@@ -145,7 +145,7 @@
 </script>
 
 <template>
-  <AdminShell>
+  <EmeraldShell>
     <div class="adm-datatable" data-theme="emerald">
       <header class="adm-datatable__head">
         <h1 class="adm-datatable__title">Datatable</h1>
@@ -294,7 +294,7 @@
         </div>
       </EmCard>
     </div>
-  </AdminShell>
+  </EmeraldShell>
 </template>
 
 <style>

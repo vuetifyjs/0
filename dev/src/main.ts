@@ -6,34 +6,32 @@ import { ViteSSG } from 'vite-ssg'
 import { IN_BROWSER } from '@vuetify/v0'
 
 // Context
-import AdminAnalytics from './admin/AdminAnalytics.vue'
-import AdminCalendar from './admin/AdminCalendar.vue'
-import AdminCampaign from './admin/AdminCampaign.vue'
-import AdminChat from './admin/AdminChat.vue'
-import AdminContact from './admin/AdminContact.vue'
-import AdminDatatable from './admin/AdminDatatable.vue'
-import AdminEcommerce from './admin/AdminEcommerce.vue'
-import AdminFaq from './admin/AdminFaq.vue'
-import AdminFinance from './admin/AdminFinance.vue'
-import AdminForms from './admin/AdminForms.vue'
-import AdminKanban from './admin/AdminKanban.vue'
-import AdminLogistics from './admin/AdminLogistics.vue'
-import AdminMail from './admin/AdminMail.vue'
-import AdminOrders from './admin/AdminOrders.vue'
-import AdminPayments from './admin/AdminPayments.vue'
-import AdminPricing from './admin/AdminPricing.vue'
-import AdminProductivity from './admin/AdminProductivity.vue'
-import AdminSales from './admin/AdminSales.vue'
 import App from './App.vue'
 import CreateOverflowDemo from './CreateOverflowDemo.vue'
 import EmeraldAbout from './EmeraldAbout.vue'
+import EmeraldAnalytics from './EmeraldAnalytics.vue'
+import EmeraldCalendar from './EmeraldCalendar.vue'
+import EmeraldCampaign from './EmeraldCampaign.vue'
+import EmeraldChat from './EmeraldChat.vue'
 import EmeraldContact from './EmeraldContact.vue'
+import EmeraldContacts from './EmeraldContacts.vue'
 import EmeraldDashboard from './EmeraldDashboard.vue'
+import EmeraldDatatable from './EmeraldDatatable.vue'
+import EmeraldEcommerce from './EmeraldEcommerce.vue'
 import EmeraldFaqs from './EmeraldFaqs.vue'
 import EmeraldFeatures from './EmeraldFeatures.vue'
+import EmeraldFinance from './EmeraldFinance.vue'
+import EmeraldForms from './EmeraldForms.vue'
+import EmeraldKanban from './EmeraldKanban.vue'
 import EmeraldKitchenSink from './EmeraldKitchenSink.vue'
+import EmeraldLogistics from './EmeraldLogistics.vue'
+import EmeraldMail from './EmeraldMail.vue'
 import EmeraldModals from './EmeraldModals.vue'
+import EmeraldOrders from './EmeraldOrders.vue'
+import EmeraldPayments from './EmeraldPayments.vue'
 import EmeraldPricing from './EmeraldPricing.vue'
+import EmeraldProductivity from './EmeraldProductivity.vue'
+import EmeraldSales from './EmeraldSales.vue'
 import EmeraldSettings from './EmeraldSettings.vue'
 import EmeraldSignIn from './EmeraldSignIn.vue'
 import Playground from './Playground.vue'
@@ -58,24 +56,22 @@ export const createApp = ViteSSG(
       { path: '/emerald/pricing', component: EmeraldPricing },
       { path: '/emerald/modals', component: EmeraldModals },
       { path: '/emerald/sink', component: EmeraldKitchenSink },
-      { path: '/emerald/admin/sales', component: AdminSales },
-      { path: '/emerald/admin/finance', component: AdminFinance },
-      { path: '/emerald/admin/logistics', component: AdminLogistics },
-      { path: '/emerald/admin/productivity', component: AdminProductivity },
-      { path: '/emerald/admin/campaign', component: AdminCampaign },
-      { path: '/emerald/admin/analytics', component: AdminAnalytics },
-      { path: '/emerald/admin/payments', component: AdminPayments },
-      { path: '/emerald/admin/ecommerce', component: AdminEcommerce },
-      { path: '/emerald/admin/orders', component: AdminOrders },
-      { path: '/emerald/admin/mail', component: AdminMail },
-      { path: '/emerald/admin/chat', component: AdminChat },
-      { path: '/emerald/admin/kanban', component: AdminKanban },
-      { path: '/emerald/admin/calendar', component: AdminCalendar },
-      { path: '/emerald/admin/contact', component: AdminContact },
-      { path: '/emerald/admin/datatable', component: AdminDatatable },
-      { path: '/emerald/admin/forms', component: AdminForms },
-      { path: '/emerald/admin/faq', component: AdminFaq },
-      { path: '/emerald/admin/pricing', component: AdminPricing },
+      { path: '/emerald/sales', component: EmeraldSales },
+      { path: '/emerald/finance', component: EmeraldFinance },
+      { path: '/emerald/logistics', component: EmeraldLogistics },
+      { path: '/emerald/productivity', component: EmeraldProductivity },
+      { path: '/emerald/campaign', component: EmeraldCampaign },
+      { path: '/emerald/analytics', component: EmeraldAnalytics },
+      { path: '/emerald/payments', component: EmeraldPayments },
+      { path: '/emerald/ecommerce', component: EmeraldEcommerce },
+      { path: '/emerald/orders', component: EmeraldOrders },
+      { path: '/emerald/mail', component: EmeraldMail },
+      { path: '/emerald/chat', component: EmeraldChat },
+      { path: '/emerald/kanban', component: EmeraldKanban },
+      { path: '/emerald/calendar', component: EmeraldCalendar },
+      { path: '/emerald/contacts', component: EmeraldContacts },
+      { path: '/emerald/datatable', component: EmeraldDatatable },
+      { path: '/emerald/forms', component: EmeraldForms },
     ],
   },
   async ({ app }) => {

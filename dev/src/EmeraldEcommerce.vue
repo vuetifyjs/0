@@ -1,7 +1,7 @@
 <!--
   Earning insights bars and packing progress render as static CSS fills /
   EmProgress (real data, no charting library) — same GAP_CONTRACT precedent
-  as AdminSales. Stock toggles use EmSwitch (real interactive state, no gap).
+  as EmeraldSales. Stock toggles use EmSwitch (real interactive state, no gap).
 -->
 <script setup lang="ts">
   import {
@@ -33,7 +33,7 @@
   } from '@paper/emerald'
 
   // Context
-  import AdminShell from './AdminShell.vue'
+  import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
   import { shallowRef } from 'vue'
@@ -98,7 +98,7 @@
 </script>
 
 <template>
-  <AdminShell>
+  <EmeraldShell>
     <div class="adm-ecommerce" data-theme="emerald">
       <header class="adm-ecommerce__header">
         <h1 class="adm-ecommerce__title">eCommerce</h1>
@@ -331,7 +331,7 @@
         </EmCard>
       </section>
     </div>
-  </AdminShell>
+  </EmeraldShell>
 </template>
 
 <style>

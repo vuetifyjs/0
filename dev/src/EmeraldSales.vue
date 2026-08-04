@@ -30,7 +30,7 @@
   } from '@paper/emerald'
 
   // Context
-  import AdminShell from './AdminShell.vue'
+  import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
   import { shallowRef } from 'vue'
@@ -104,7 +104,7 @@
 </script>
 
 <template>
-  <AdminShell>
+  <EmeraldShell>
     <div class="adm-sales" data-theme="emerald">
       <section aria-label="Key metrics" class="adm-sales__kpis">
         <EmCard v-for="kpi in kpis" :key="kpi.label" class="adm-sales__kpi" variant="simple">
@@ -581,7 +581,7 @@
         </EmCard>
       </section>
     </div>
-  </AdminShell>
+  </EmeraldShell>
 </template>
 
 <style>

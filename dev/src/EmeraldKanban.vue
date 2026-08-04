@@ -10,7 +10,7 @@
   import { createKanban, useDragDrop, useProxyRegistry } from '@vuetify/v0'
 
   // Context
-  import AdminShell from './AdminShell.vue'
+  import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
   import { shallowRef } from 'vue'
@@ -125,7 +125,7 @@
 </script>
 
 <template>
-  <AdminShell>
+  <EmeraldShell>
     <div class="adm-kanban" data-theme="emerald">
       <header class="adm-kanban__header">
         <h1 class="adm-kanban__title">Kanban</h1>
@@ -195,7 +195,7 @@
         </section>
       </div>
     </div>
-  </AdminShell>
+  </EmeraldShell>
 </template>
 
 <style>

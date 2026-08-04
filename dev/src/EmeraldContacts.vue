@@ -11,7 +11,7 @@
   import { createFilter, createSelection, createSingle } from '@vuetify/v0'
 
   // Context
-  import AdminShell from './AdminShell.vue'
+  import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
   import { shallowRef, toRef } from 'vue'
@@ -92,7 +92,7 @@
 </script>
 
 <template>
-  <AdminShell>
+  <EmeraldShell>
     <div class="adm-contact" data-theme="emerald">
       <aside aria-label="Contact folders" class="adm-contact__side">
         <h1 class="adm-contact__title">Contacts</h1>
@@ -171,7 +171,7 @@
         </div>
       </section>
     </div>
-  </AdminShell>
+  </EmeraldShell>
 </template>
 
 <style>

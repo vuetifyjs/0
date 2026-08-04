@@ -38,7 +38,7 @@
   import { Form } from '@vuetify/v0'
 
   // Context
-  import AdminShell from './AdminShell.vue'
+  import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
   import { ref, shallowRef, toRef } from 'vue'
@@ -161,7 +161,7 @@
 </script>
 
 <template>
-  <AdminShell>
+  <EmeraldShell>
     <div class="adm-forms" data-theme="emerald">
       <header class="adm-forms__head">
         <h1 class="adm-forms__title">Form validation</h1>
@@ -447,7 +447,7 @@
         </Form>
       </EmCard>
     </div>
-  </AdminShell>
+  </EmeraldShell>
 </template>
 
 <style>

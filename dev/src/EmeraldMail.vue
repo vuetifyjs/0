@@ -16,7 +16,7 @@
   import { createFilter, createSingle } from '@vuetify/v0'
 
   // Context
-  import AdminShell from './AdminShell.vue'
+  import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
   import { shallowRef, toRef } from 'vue'
@@ -99,7 +99,7 @@
 </script>
 
 <template>
-  <AdminShell>
+  <EmeraldShell>
     <div class="adm-mail" data-theme="emerald">
       <aside aria-label="Mailboxes" class="adm-mail__folders">
         <EmButton class="adm-mail__compose" variant="primary" @click="composeOpen = true">
@@ -223,7 +223,7 @@
         </EmDialogContent>
       </EmDialog>
     </div>
-  </AdminShell>
+  </EmeraldShell>
 </template>
 
 <style>

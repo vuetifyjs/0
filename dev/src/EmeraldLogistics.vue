@@ -1,8 +1,8 @@
 <!--
   Customer ratings trend and progress bars render as static CSS/SVG fills
-  (real data, no charting library), matching the AdminSales precedent — see
+  (real data, no charting library), matching the EmeraldSales precedent — see
   GAPS.md "Charting" row for the gap contract. Condition rings reuse the
-  conic-gradient technique from AdminSales' "User reach" KPI.
+  conic-gradient technique from EmeraldSales' "User reach" KPI.
 -->
 <script setup lang="ts">
   import {
@@ -22,7 +22,7 @@
   } from '@paper/emerald'
 
   // Context
-  import AdminShell from './AdminShell.vue'
+  import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
   import { shallowRef } from 'vue'
@@ -66,7 +66,7 @@
 </script>
 
 <template>
-  <AdminShell>
+  <EmeraldShell>
     <div class="adm-logistics" data-theme="emerald">
       <header class="adm-logistics__header">
         <h1 class="adm-logistics__title">Logistics</h1>
@@ -295,7 +295,7 @@
         </EmCard>
       </section>
     </div>
-  </AdminShell>
+  </EmeraldShell>
 </template>
 
 <style>

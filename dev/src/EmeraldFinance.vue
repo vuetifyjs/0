@@ -1,7 +1,7 @@
 <!--
   Total Profit / Total Revenue / Impression mini charts render as static CSS
   bar/line fills (real data labels, no charting library), matching the
-  AdminSales precedent — see GAPS.md "Charting" row for the gap contract.
+  EmeraldSales precedent — see GAPS.md "Charting" row for the gap contract.
 -->
 <script setup lang="ts">
   import {
@@ -28,7 +28,7 @@
   } from '@paper/emerald'
 
   // Context
-  import AdminShell from './AdminShell.vue'
+  import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
   import { shallowRef } from 'vue'
@@ -87,7 +87,7 @@
 
   const users: Array<{ name: string, email: string, role: string, plan: string, billing: string, status: Status }> = [
     { name: 'Jack Alfredo', email: 'jack.alfredo@shadcnstudio.com', role: 'Maintainer', plan: 'Enterprise', billing: 'Auto debit', status: 'active' },
-    { name: 'Sarah Mitchell', email: 'sarah.mitchell@company.com', role: 'Admin', plan: 'Enterprise', billing: 'Auto debit', status: 'active' },
+    { name: 'Sarah Mitchell', email: 'sarah.mitchell@company.com', role: 'Owner', plan: 'Enterprise', billing: 'Auto debit', status: 'active' },
     { name: 'Robert Chen', email: 'robert.chen@startup.io', role: 'Editor', plan: 'Team', billing: 'Manual - PayPal', status: 'pending' },
     { name: 'Emily Wilson', email: 'emily.wilson@freelance.com', role: 'Author', plan: 'Basic', billing: 'Manual - cash', status: 'inactive' },
     { name: 'David Garcia', email: 'david.garcia@agency.net', role: 'Subscriber', plan: 'Company', billing: 'Auto debit', status: 'active' },
@@ -99,7 +99,7 @@
 </script>
 
 <template>
-  <AdminShell>
+  <EmeraldShell>
     <div class="adm-finance" data-theme="emerald">
       <header class="adm-finance__header">
         <h1 class="adm-finance__title">Finance</h1>
@@ -288,7 +288,7 @@
 
                 <EmSelectContent>
                   <EmSelectItem value="all">All</EmSelectItem>
-                  <EmSelectItem value="admin">Admin</EmSelectItem>
+                  <EmSelectItem value="owner">Owner</EmSelectItem>
                   <EmSelectItem value="editor">Editor</EmSelectItem>
                 </EmSelectContent>
               </EmSelect>
@@ -404,7 +404,7 @@
         </EmCard>
       </section>
     </div>
-  </AdminShell>
+  </EmeraldShell>
 </template>
 
 <style>

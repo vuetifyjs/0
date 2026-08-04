@@ -1,7 +1,7 @@
 <!--
   Total Income area chart, Total earning bars, and Vehicles Condition rings
   render as static CSS/SVG fills (real data, no charting library) — same
-  GAP_CONTRACT precedent as AdminSales.
+  GAP_CONTRACT precedent as EmeraldSales.
 -->
 <script setup lang="ts">
   import {
@@ -17,7 +17,7 @@
   } from '@paper/emerald'
 
   // Context
-  import AdminShell from './AdminShell.vue'
+  import EmeraldShell from './EmeraldShell.vue'
 
   const kpis = [
     { label: 'Total Sales', sub: 'Last 6 months', value: '$13.4k', delta: '+38%', up: true, icon: 'mail' as const },
@@ -70,7 +70,7 @@
 </script>
 
 <template>
-  <AdminShell>
+  <EmeraldShell>
     <div class="adm-campaign" data-theme="emerald">
       <header class="adm-campaign__header">
         <h1 class="adm-campaign__title">Campaign</h1>
@@ -299,7 +299,7 @@
         </EmCard>
       </section>
     </div>
-  </AdminShell>
+  </EmeraldShell>
 </template>
 
 <style>

@@ -4,6 +4,7 @@
     EmAvatarFallback,
     EmButton,
     EmSwitch,
+    EmTextField,
     EmTooltip,
     EmTooltipActivator,
     EmTooltipContent,
@@ -29,6 +30,7 @@
 
   const route = useRoute()
   const dark = shallowRef(false)
+  const search = shallowRef('')
   function isMobileMq () {
     return IN_BROWSER && window.matchMedia('(max-width: 720px)').matches
   }
@@ -77,22 +79,6 @@
     mq?.removeEventListener('change', syncViewport)
   })
 
-  const active = computed(() => {
-    const p = route.path
-    if (p.startsWith('/emerald/contact')) return 'contact'
-    if (p.startsWith('/emerald/faqs')) return 'faqs'
-    if (p.startsWith('/emerald/features')) return 'features'
-    if (p.startsWith('/emerald/settings')) return 'settings'
-    if (p.startsWith('/emerald/pricing')) return 'pricing'
-    if (p.startsWith('/emerald/modals')) return 'modals'
-    if (p.startsWith('/emerald/about')) return 'about'
-    if (p.startsWith('/emerald/sign-in')) return 'signin'
-    if (p.startsWith('/emerald/admin')) return 'admin'
-    if (p.startsWith('/emerald/sink')) return 'sink'
-    if (p === '/emerald' || p === '/emerald/') return 'dashboard'
-    return ''
-  })
-
   /** Stroke paths on a 24x24 grid — one entry per glyph, drawn with currentColor. */
   const icons = {
     dashboard: ['M4 4h7v9H4V4Zm9 0h7v5h-7V4ZM4 15h7v5H4v-5Zm9-4h7v9h-7v-9Z'],
@@ -128,7 +114,22 @@
       'M14 12l-4-4M14 12l-4 4',
       'M14 12H4',
     ],
-    admin: ['M4 4h7v9H4V4Zm9 0h7v5h-7V4ZM4 15h7v5H4v-5Zm9-4h7v9h-7v-9Z'],
+    sales: ['M4 20h16', 'M7 20v-5l4-4 3 3 5-6', 'M15 8h4v4'],
+    finance: ['M3 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z', 'M16 12h2', 'M3 9h18'],
+    logistics: ['M3 7h11v9H3V7Z', 'M14 10h4l3 3v3h-7v-6Z', 'M7 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z', 'M18 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z'],
+    productivity: ['M22 12h-4l-3 8-6-16-3 8H2'],
+    campaign: ['M3 11v2a1 1 0 0 0 1 1h2l4 4V6L6 10H4a1 1 0 0 0-1 1Z', 'M15 8a3 3 0 0 1 0 8', 'M18 5a7 7 0 0 1 0 14'],
+    analytics: ['M4 20h16', 'M8 20v-6M13 20V9M18 20v-11'],
+    payments: ['M3 7h18v10H3V7Z', 'M3 10h18'],
+    ecommerce: ['M4 5h2l2.2 11.2A2 2 0 0 0 10.2 18h7.1a2 2 0 0 0 2-1.6L21 9H6'],
+    orders: ['M12 3l8 4.5-8 4.5-8-4.5L12 3Z', 'M4 12l8 4.5 8-4.5', 'M4 16.5 12 21l8-4.5'],
+    mail: ['M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z', 'M3 6l9 7 9-7'],
+    chat: ['M20 15a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9Z'],
+    kanban: ['M4 4h4v16H4V4Zm6 0h4v10h-4V4Zm6 0h4v13h-4V4Z'],
+    calendar: ['M4 5h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z', 'M3 10h18', 'M8 3v4M16 3v4'],
+    contacts: ['M12 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z', 'M5 20a7 7 0 0 1 14 0'],
+    datatable: ['M3 5h18v14H3V5Z', 'M3 10h18', 'M9 5v14'],
+    forms: ['M6 3h9l5 5v13H6V3Z', 'M15 3v5h5', 'M9 13h6M9 17h6'],
     components: [
       'M12 3l8 4.5-8 4.5-8-4.5L12 3Z',
       'M4 12l8 4.5 8-4.5',
@@ -148,18 +149,69 @@
     to: string
   }
 
-  const nav: Item[] = [
-    { id: 'dashboard', label: 'Dashboard', to: '/emerald' },
-    { id: 'features', label: 'Features', to: '/emerald/features' },
-    { id: 'pricing', label: 'Pricing', to: '/emerald/pricing' },
-    { id: 'faqs', label: 'FAQs', to: '/emerald/faqs' },
-    { id: 'settings', label: 'Settings', to: '/emerald/settings' },
-    { id: 'modals', label: 'Modals', to: '/emerald/modals' },
-    { id: 'contact', label: 'Contact', to: '/emerald/contact' },
-    { id: 'about', label: 'About', to: '/emerald/about' },
-    { id: 'signin', label: 'Sign in', to: '/emerald/sign-in' },
-    { id: 'admin', label: 'Admin', to: '/emerald/admin/sales' },
+  type Group = {
+    label: string
+    items: Item[]
+  }
+
+  const groups: Group[] = [
+    {
+      label: 'General',
+      items: [
+        { id: 'dashboard', label: 'Dashboard', to: '/emerald' },
+        { id: 'features', label: 'Features', to: '/emerald/features' },
+        { id: 'settings', label: 'Settings', to: '/emerald/settings' },
+        { id: 'modals', label: 'Modals', to: '/emerald/modals' },
+        { id: 'about', label: 'About', to: '/emerald/about' },
+        { id: 'signin', label: 'Sign in', to: '/emerald/sign-in' },
+        { id: 'contact', label: 'Contact', to: '/emerald/contact' },
+      ],
+    },
+    {
+      label: 'Dashboards',
+      items: [
+        { id: 'sales', label: 'Sales', to: '/emerald/sales' },
+        { id: 'finance', label: 'Finance', to: '/emerald/finance' },
+        { id: 'logistics', label: 'Logistics', to: '/emerald/logistics' },
+        { id: 'productivity', label: 'Productivity', to: '/emerald/productivity' },
+        { id: 'campaign', label: 'Campaign', to: '/emerald/campaign' },
+        { id: 'analytics', label: 'Analytics', to: '/emerald/analytics' },
+        { id: 'payments', label: 'Payments', to: '/emerald/payments' },
+        { id: 'ecommerce', label: 'eCommerce', to: '/emerald/ecommerce' },
+        { id: 'orders', label: 'Orders', to: '/emerald/orders' },
+      ],
+    },
+    {
+      label: 'Apps',
+      items: [
+        { id: 'mail', label: 'Mail', to: '/emerald/mail' },
+        { id: 'chat', label: 'Chat', to: '/emerald/chat' },
+        { id: 'kanban', label: 'Kanban', to: '/emerald/kanban' },
+        { id: 'calendar', label: 'Calendar', to: '/emerald/calendar' },
+        { id: 'contacts', label: 'Contacts', to: '/emerald/contacts' },
+      ],
+    },
+    {
+      label: 'Pages',
+      items: [
+        { id: 'pricing', label: 'Pricing', to: '/emerald/pricing' },
+        { id: 'faqs', label: 'FAQs', to: '/emerald/faqs' },
+        { id: 'datatable', label: 'Datatable', to: '/emerald/datatable' },
+        { id: 'forms', label: 'Form validation', to: '/emerald/forms' },
+      ],
+    },
   ]
+
+  const active = computed(() => {
+    const p = route.path.length > 1 ? route.path.replace(/\/+$/, '') : route.path
+    if (p === '/emerald') return 'dashboard'
+    if (p === '/emerald/sink') return 'sink'
+    for (const group of groups) {
+      const hit = group.items.find(item => item.to === p)
+      if (hit) return hit.id
+    }
+    return ''
+  })
 </script>
 
 <template>
@@ -255,42 +307,46 @@
       </div>
 
       <nav class="ed-nav__list">
-        <EmTooltip
-          v-for="item in nav"
-          :key="item.id"
-          :disabled="!rail"
-          position-area="right"
-          position-try="flip-inline"
-        >
-          <EmTooltipActivator v-slot="tip" as="a" renderless>
-            <RouterLink
-              v-bind="anchor(tip)"
-              class="ed-nav__item"
-              :data-active="active === item.id || undefined"
-              :to="item.to"
-              @click="onCloseNav"
-            >
-              <span aria-hidden="true" class="ed-nav__glyph">
-                <svg
-                  fill="none"
-                  height="18"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.75"
-                  viewBox="0 0 24 24"
-                  width="18"
-                >
-                  <path v-for="d in icons[item.id]" :key="d" :d />
-                </svg>
-              </span>
+        <div v-for="group in groups" :key="group.label" class="ed-nav__group">
+          <span class="ed-nav__group-label">{{ group.label }}</span>
 
-              <span class="ed-nav__label">{{ item.label }}</span>
-            </RouterLink>
-          </EmTooltipActivator>
+          <EmTooltip
+            v-for="item in group.items"
+            :key="item.id"
+            :disabled="!rail"
+            position-area="right"
+            position-try="flip-inline"
+          >
+            <EmTooltipActivator v-slot="tip" as="a" renderless>
+              <RouterLink
+                v-bind="anchor(tip)"
+                class="ed-nav__item"
+                :data-active="active === item.id || undefined"
+                :to="item.to"
+                @click="onCloseNav"
+              >
+                <span aria-hidden="true" class="ed-nav__glyph">
+                  <svg
+                    fill="none"
+                    height="18"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.75"
+                    viewBox="0 0 24 24"
+                    width="18"
+                  >
+                    <path v-for="d in icons[item.id]" :key="d" :d />
+                  </svg>
+                </span>
 
-          <EmTooltipContent class="ed-tip">{{ item.label }}</EmTooltipContent>
-        </EmTooltip>
+                <span class="ed-nav__label">{{ item.label }}</span>
+              </RouterLink>
+            </EmTooltipActivator>
+
+            <EmTooltipContent class="ed-tip">{{ item.label }}</EmTooltipContent>
+          </EmTooltip>
+        </div>
       </nav>
 
       <div class="ed-nav__bottom">
@@ -410,6 +466,71 @@
       </div>
     </aside>
 
+    <header v-if="!bare" class="ed-topbar">
+      <div class="ed-topbar__search">
+        <EmTextField v-model="search" aria-label="Search" placeholder="Type to search..." />
+        <kbd aria-hidden="true" class="ed-topbar__kbd">⌘K</kbd>
+      </div>
+
+      <div class="ed-topbar__actions">
+        <EmTooltip position-area="bottom" position-try="flip-block">
+          <EmTooltipActivator v-slot="tip" renderless>
+            <EmButton
+              v-bind="tip.attrs"
+              aria-label="Activity"
+              class="ed-topbar__icon"
+              size="sm"
+              :style="tip.styles"
+              variant="tertiary"
+            >
+              <svg
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.75"
+                viewBox="0 0 24 24"
+                width="18"
+              >
+                <path d="M22 12h-4l-3 8-6-16-3 8H2" />
+              </svg>
+            </EmButton>
+          </EmTooltipActivator>
+
+          <EmTooltipContent class="ed-tip">Activity</EmTooltipContent>
+        </EmTooltip>
+
+        <EmTooltip position-area="bottom" position-try="flip-block">
+          <EmTooltipActivator v-slot="tip" renderless>
+            <EmButton
+              v-bind="tip.attrs"
+              aria-label="Notifications"
+              class="ed-topbar__icon"
+              size="sm"
+              :style="tip.styles"
+              variant="tertiary"
+            >
+              <svg
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.75"
+                viewBox="0 0 24 24"
+                width="18"
+              >
+                <path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 14 6 10Z" /><path d="M10 19a2 2 0 0 0 4 0" />
+              </svg>
+            </EmButton>
+          </EmTooltipActivator>
+
+          <EmTooltipContent class="ed-tip">Notifications</EmTooltipContent>
+        </EmTooltip>
+      </div>
+    </header>
+
     <main class="ed-main" :class="{ 'ed-main--bare': bare }">
       <slot />
     </main>
@@ -432,6 +553,7 @@
     --ed-delta-down: var(--emerald-danger-500, #c61424);
     --ed-nav-w: 180px;
     --ed-rail-size: 40px;
+    --ed-topbar-h: 56px;
     --ed-tip: var(--emerald-neutral-1000, #2b2d2e);
     --ed-motion: var(--emerald-motion-duration-base, 180ms);
     --ed-ease: var(--emerald-motion-ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
@@ -554,10 +676,26 @@
   .ed-nav__list {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: var(--emerald-spacing-s, 12px);
     flex: 1;
     min-height: 0;
     overflow: auto;
+  }
+
+  .ed-nav__group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .ed-nav__group-label {
+    padding: var(--emerald-spacing-xs, 8px) var(--emerald-spacing-xs, 8px) var(--emerald-spacing-2xs, 4px);
+    color: var(--ed-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
   }
 
   .ed-nav__bottom {
@@ -659,16 +797,20 @@
     color: var(--ed-muted);
   }
 
-  /*
-   * The anchor is the centered rail square, not the rail itself, and anchor
-   * positioning hardcodes `margin: unset` — so clearing the rail edge means
-   * translating by the gutter the centering left behind, plus a gap. Emerald's
-   * chip is a fixed dark neutral, which sinks into this shell's hand-rolled
-   * dark palette, so the surface is restated here too.
-   */
+  /* Emerald's chip is a fixed dark neutral, which sinks into this shell's
+     hand-rolled dark palette, so the surface is restated. */
   .ed .ed-tip {
-    translate: calc((var(--ed-nav-w) - var(--ed-rail-size)) / 2 + var(--emerald-spacing-xs, 8px)) 0;
     background: var(--ed-tip);
+  }
+
+  /*
+   * Rail tooltips only: the anchor is the centered rail square, not the rail
+   * itself, and anchor positioning hardcodes `margin: unset` — so clearing the
+   * rail edge means translating by the gutter the centering left behind, plus
+   * a gap. The topbar's tooltips sit below their triggers and need no shift.
+   */
+  .ed .ed-nav .ed-tip {
+    translate: calc((var(--ed-nav-w) - var(--ed-rail-size)) / 2 + var(--emerald-spacing-xs, 8px)) 0;
   }
 
   .ed[data-mode='dark'] .ed-tip {
@@ -678,13 +820,96 @@
   }
 
   /* EmButton's tertiary paint is token-driven; this shell's dark mode is a
-     hand-rolled --ed-* palette, so the nav's icon buttons need it re-stated. */
-  .ed[data-mode='dark'] .ed-nav .emerald-button[data-variant='tertiary'] {
+     hand-rolled --ed-* palette, so the chrome's icon buttons need it re-stated. */
+  .ed[data-mode='dark'] .ed-nav .emerald-button[data-variant='tertiary'],
+  .ed[data-mode='dark'] .ed-topbar .emerald-button[data-variant='tertiary'] {
     color: var(--ed-text);
   }
 
-  .ed[data-mode='dark'] .ed-nav .emerald-button[data-variant='tertiary']:hover:not([data-disabled]):not(:active) {
+  .ed[data-mode='dark'] .ed-nav .emerald-button[data-variant='tertiary']:hover:not([data-disabled]):not(:active),
+  .ed[data-mode='dark'] .ed-topbar .emerald-button[data-variant='tertiary']:hover:not([data-disabled]):not(:active) {
     background: var(--ed-bg);
+  }
+
+  .ed-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: var(--emerald-spacing-m, 16px);
+    height: var(--ed-topbar-h);
+    padding: 0 var(--emerald-spacing-l, 20px);
+    background: var(--ed-surface);
+    border-bottom: var(--emerald-stroke-s, 1px) solid var(--ed-border);
+  }
+
+  .ed-topbar__search {
+    position: relative;
+    flex: 1;
+    max-width: 360px;
+    min-width: 0;
+  }
+
+  .ed-topbar__search .emerald-text-field__control {
+    padding-inline-start: 2.25rem;
+    padding-inline-end: 3rem;
+  }
+
+  .ed-topbar__search::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0.7rem;
+    width: 16px;
+    height: 16px;
+    translate: 0 -50%;
+    background: currentColor;
+    color: var(--ed-muted);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") center / contain no-repeat;
+    pointer-events: none;
+  }
+
+  .ed-topbar__kbd {
+    position: absolute;
+    top: 50%;
+    right: 0.6rem;
+    translate: 0 -50%;
+    padding: 1px 6px;
+    border: var(--emerald-stroke-s, 1px) solid var(--ed-border);
+    border-radius: var(--emerald-radius-xs, 4px);
+    background: var(--ed-bg);
+    color: var(--ed-muted);
+    font-size: 11px;
+    font-family: inherit;
+    pointer-events: none;
+  }
+
+  .ed-topbar__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--emerald-spacing-2xs, 4px);
+    margin-left: auto;
+    flex: none;
+  }
+
+  .ed-topbar__icon {
+    width: 34px;
+    height: 34px;
+    flex: none;
+  }
+
+  /* EmTextField paints from Emerald's light tokens; the shell's dark mode is a
+     hand-rolled --ed-* palette, so the search control is re-stated. */
+  .ed[data-mode='dark'] .ed-topbar .emerald-text-field__control {
+    background: var(--ed-bg);
+    border-color: var(--ed-border);
+    color: var(--ed-text);
+  }
+
+  .ed[data-mode='dark'] .ed-topbar .emerald-text-field__control::placeholder {
+    color: var(--ed-muted);
   }
 
   .ed-main {
@@ -701,6 +926,13 @@
   .ed-main--bare {
     padding: 0;
     gap: 0;
+  }
+
+  /* Non-bare pages carry the sticky topbar above main — keep the pair filling
+     one viewport instead of guaranteeing a topbar's worth of scroll. */
+  .ed:not([data-bare]) .ed-main {
+    min-height: calc(100vh - var(--ed-topbar-h));
+    min-height: calc(100dvh - var(--ed-topbar-h));
   }
 
   /* Mobile: drawer overlays content; default closed via data-collapsed */
@@ -747,8 +979,14 @@
       pointer-events: none;
     }
 
+    /* The fixed menu FAB overlays the topbar's left edge — clear it. */
+    .ed-topbar {
+      padding-left: 4rem;
+    }
+
+    /* The topbar already clears the FAB, so main needs no extra headroom. */
     .ed-main:not(.ed-main--bare) {
-      padding: 3.5rem 1rem 1.5rem;
+      padding: 1rem 1rem 1.5rem;
     }
 
     .ed-main--bare {
@@ -767,6 +1005,7 @@
        assistive tech, and nothing reflows or wraps mid-transition. */
     .ed[data-collapsed] .ed-brand__name,
     .ed[data-collapsed] .ed-nav__label,
+    .ed[data-collapsed] .ed-nav__group-label,
     .ed[data-collapsed] .ed-user__meta,
     .ed[data-collapsed] .ed-user__chevron {
       flex: 0 0 0;

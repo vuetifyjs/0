@@ -19,7 +19,7 @@
   import { createGroup, createSingle } from '@vuetify/v0'
 
   // Context
-  import AdminShell from './AdminShell.vue'
+  import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
   import { shallowRef, toRef } from 'vue'
@@ -124,7 +124,7 @@
 </script>
 
 <template>
-  <AdminShell>
+  <EmeraldShell>
     <div class="adm-calendar" data-theme="emerald">
       <aside aria-label="Calendar controls" class="adm-calendar__side">
         <EmButton class="adm-calendar__new" variant="primary" @click="newEventOpen = true">
@@ -267,7 +267,7 @@
         </EmDialogContent>
       </EmDialog>
     </div>
-  </AdminShell>
+  </EmeraldShell>
 </template>
 
 <style>

@@ -2,7 +2,7 @@
   Profit/Revenue bars, Impression trend, Top Services horizontal bars,
   Conversion sparkline, and Earning Report bars render as static CSS/SVG
   fills (real data, no charting library) — same GAP_CONTRACT precedent as
-  AdminSales.
+  EmeraldSales.
 -->
 <script setup lang="ts">
   import {
@@ -22,7 +22,7 @@
   } from '@paper/emerald'
 
   // Context
-  import AdminShell from './AdminShell.vue'
+  import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
   import { shallowRef } from 'vue'
@@ -76,7 +76,7 @@
 </script>
 
 <template>
-  <AdminShell>
+  <EmeraldShell>
     <div class="adm-analytics" data-theme="emerald">
       <header class="adm-analytics__header">
         <h1 class="adm-analytics__title">Analytics</h1>
@@ -273,7 +273,7 @@
         </EmCard>
       </section>
     </div>
-  </AdminShell>
+  </EmeraldShell>
 </template>
 
 <style>

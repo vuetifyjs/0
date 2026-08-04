@@ -1,7 +1,7 @@
 <!--
   Total Earning bars, Revenue goal ring, and Cohort strip render as static
   CSS fills (real data, no charting library) — same GAP_CONTRACT precedent as
-  AdminSales. The ring reuses the conic-gradient technique.
+  EmeraldSales. The ring reuses the conic-gradient technique.
 -->
 <script setup lang="ts">
   import {
@@ -16,7 +16,7 @@
   } from '@paper/emerald'
 
   // Context
-  import AdminShell from './AdminShell.vue'
+  import EmeraldShell from './EmeraldShell.vue'
 
   const stats = [
     { label: 'Shipped Orders', value: '42', delta: '+18.2%', up: true, icon: 'truck' as const },
@@ -52,7 +52,7 @@
 </script>
 
 <template>
-  <AdminShell>
+  <EmeraldShell>
     <div class="adm-orders" data-theme="emerald">
       <header class="adm-orders__header">
         <h1 class="adm-orders__title">Orders</h1>
@@ -243,7 +243,7 @@
         </EmCard>
       </section>
     </div>
-  </AdminShell>
+  </EmeraldShell>
 </template>
 
 <style>

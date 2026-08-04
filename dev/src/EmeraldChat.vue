@@ -10,7 +10,7 @@
   import { createFilter, createSingle } from '@vuetify/v0'
 
   // Context
-  import AdminShell from './AdminShell.vue'
+  import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
   import { shallowRef, toRef } from 'vue'
@@ -115,7 +115,7 @@
 </script>
 
 <template>
-  <AdminShell>
+  <EmeraldShell>
     <div class="adm-chat" data-theme="emerald">
       <section aria-label="Conversations" class="adm-chat__list-pane">
         <header class="adm-chat__list-head">
@@ -201,7 +201,7 @@
         <p v-else class="adm-chat__thread-empty">Select a conversation to start chatting.</p>
       </section>
     </div>
-  </AdminShell>
+  </EmeraldShell>
 </template>
 
 <style>

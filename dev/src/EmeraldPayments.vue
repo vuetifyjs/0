@@ -1,7 +1,7 @@
 <!--
   Total Revenue bars and the Growth donut render as static CSS/SVG fills
   (real data, no charting library) — same GAP_CONTRACT precedent as
-  AdminSales. The donut reuses the conic-gradient ring technique.
+  EmeraldSales. The donut reuses the conic-gradient ring technique.
 -->
 <script setup lang="ts">
   import {
@@ -28,7 +28,7 @@
   } from '@paper/emerald'
 
   // Context
-  import AdminShell from './AdminShell.vue'
+  import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
   import { shallowRef } from 'vue'
@@ -87,7 +87,7 @@
 </script>
 
 <template>
-  <AdminShell>
+  <EmeraldShell>
     <div class="adm-payments" data-theme="emerald">
       <header class="adm-payments__header">
         <h1 class="adm-payments__title">Payments</h1>
@@ -361,7 +361,7 @@
         </EmCard>
       </section>
     </div>
-  </AdminShell>
+  </EmeraldShell>
 </template>
 
 <style>
