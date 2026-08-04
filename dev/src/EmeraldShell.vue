@@ -156,20 +156,9 @@
 
   const groups: Group[] = [
     {
-      label: 'General',
-      items: [
-        { id: 'dashboard', label: 'Dashboard', to: '/emerald' },
-        { id: 'features', label: 'Features', to: '/emerald/features' },
-        { id: 'settings', label: 'Settings', to: '/emerald/settings' },
-        { id: 'modals', label: 'Modals', to: '/emerald/modals' },
-        { id: 'about', label: 'About', to: '/emerald/about' },
-        { id: 'signin', label: 'Sign in', to: '/emerald/sign-in' },
-        { id: 'contact', label: 'Contact', to: '/emerald/contact' },
-      ],
-    },
-    {
       label: 'Dashboards',
       items: [
+        { id: 'dashboard', label: 'Overview', to: '/emerald' },
         { id: 'sales', label: 'Sales', to: '/emerald/sales' },
         { id: 'finance', label: 'Finance', to: '/emerald/finance' },
         { id: 'logistics', label: 'Logistics', to: '/emerald/logistics' },
@@ -189,13 +178,19 @@
         { id: 'kanban', label: 'Kanban', to: '/emerald/kanban' },
         { id: 'calendar', label: 'Calendar', to: '/emerald/calendar' },
         { id: 'contacts', label: 'Contacts', to: '/emerald/contacts' },
+        { id: 'settings', label: 'Settings', to: '/emerald/settings' },
       ],
     },
     {
       label: 'Pages',
       items: [
+        { id: 'features', label: 'Features', to: '/emerald/features' },
         { id: 'pricing', label: 'Pricing', to: '/emerald/pricing' },
         { id: 'faqs', label: 'FAQs', to: '/emerald/faqs' },
+        { id: 'about', label: 'About', to: '/emerald/about' },
+        { id: 'contact', label: 'Contact', to: '/emerald/contact' },
+        { id: 'signin', label: 'Sign in', to: '/emerald/sign-in' },
+        { id: 'modals', label: 'Modals', to: '/emerald/modals' },
         { id: 'datatable', label: 'Datatable', to: '/emerald/datatable' },
         { id: 'forms', label: 'Form validation', to: '/emerald/forms' },
       ],
