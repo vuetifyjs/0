@@ -152,19 +152,23 @@
          with nothing selected — never a blank panel. The dot grid layers only the body below,
          never the toolbar, so "src/main.ts … N lines" stays legible against a flat bar. On the
          desktop step 1 aside (`fill`) this panel owns all remaining sticky-aside height instead
-         of sizing to content, with the code area absorbing the fill and scrolling internally. -->
+         of sizing to content, with the code area absorbing the fill and scrolling internally.
+         Step 1 itself drops the filename bar, hint line, and code block — the manifest is noise
+         a plugin-picking screen doesn't need — but keeps this panel so the blueprint grid still
+         gives the column presence instead of leaving a void; `min-h-48` stands in for the height
+         those children would otherwise have provided when `fill` isn't already sizing it. -->
     <div
       aria-label="Generated src/main.ts preview"
       class="panel overflow-hidden"
       :class="fill ? 'flex-1 min-h-0 flex flex-col' : ''"
       role="region"
     >
-      <div class="flex items-center justify-between gap-3 h-10 px-4 border-b border-divider bg-surface-variant/50 flex-shrink-0">
+      <div v-if="!step1" class="flex items-center justify-between gap-3 h-10 px-4 border-b border-divider bg-surface-variant/50 flex-shrink-0">
         <p class="font-mono text-[0.75rem] text-on-surface-variant">src/main.ts</p>
         <p class="t-index text-on-surface-variant">{{ lines.length }} lines</p>
       </div>
 
-      <div class="relative overflow-hidden" :class="fill ? 'flex-1 min-h-0 flex flex-col' : ''">
+      <div class="relative overflow-hidden" :class="fill ? 'flex-1 min-h-0 flex flex-col' : (step1 ? 'min-h-48' : '')">
         <GnDotGrid
           aria-hidden="true"
           class="absolute inset-0 pointer-events-none"
@@ -173,11 +177,12 @@
           origin="top left"
         />
 
-        <p v-if="store.selectedPlugins.size === 0" class="relative t-meta text-on-surface-variant px-4 pt-3 flex-shrink-0">
+        <p v-if="!step1 && store.selectedPlugins.size === 0" class="relative t-meta text-on-surface-variant px-4 pt-3 flex-shrink-0">
           Nothing installed yet — pick plugins on the left and watch this file get written.
         </p>
 
         <GnDocsExampleCode
+          v-if="!step1"
           v-slot="{ code }"
           v-model:expanded="expanded"
           class="relative [--v0-pre:color-mix(in_srgb,var(--v0-surface)_55%,transparent)]"
