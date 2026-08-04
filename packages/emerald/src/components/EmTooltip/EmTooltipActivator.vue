@@ -2,7 +2,10 @@
   // Framework
   import { Tooltip } from '@vuetify/v0'
 
-  export interface EmTooltipActivatorProps {
+  // Types
+  import type { TooltipActivatorProps } from '@vuetify/v0'
+
+  export interface EmTooltipActivatorProps extends Pick<TooltipActivatorProps, 'as'> {
     /**
      * When true, Activator is a pure slot host — bind `attrs` onto your own
      * trigger (e.g. EmButton) so you do not nest interactive elements.
@@ -16,6 +19,7 @@
   defineOptions({ name: 'EmTooltipActivator' })
 
   const {
+    as,
     renderless = false,
     namespace,
   } = defineProps<EmTooltipActivatorProps>()
@@ -24,6 +28,7 @@
 <template>
   <Tooltip.Activator
     v-slot="slotProps"
+    :as
     class="emerald-tooltip__activator"
     :namespace
     :renderless
