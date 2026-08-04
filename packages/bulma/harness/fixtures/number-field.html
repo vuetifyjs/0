@@ -1,0 +1,154 @@
+<!--
+  Provenance: SELF-AUTHORED composite — composed from the Bulma has-addons
+  documentation. Bulma ships no number input, so there is no upstream page to
+  copy; this is the first fixture in the package that is not verbatim docs
+  markup.
+  Bulma version: 1.0.4
+
+  The harness's value is that it diffs against markup we did not author. For a
+  composite that guarantee is impossible, so the substitute is: every ATOM is
+  upstream-verified and only the ARRANGEMENT is ours — and the arrangement is
+  pinned the moment this file is written, so drift still fails loudly.
+
+  Per-class traceability (every class below is traced to another fixture block
+  or to a bulma.css selector; a class that cannot be traced does not go in):
+
+    .field.has-addons        form-general.html, "addons" block (verbatim docs
+                             markup, fetched 2026-08-01); bulma.css:6247
+    .control (one per item)  same block; bulma.css:6251-6270
+    .control.is-expanded     bulma.css:6300 (flex-grow / flex-shrink)
+    .button                  form-general.html, "addons" block (button.button
+                             is-info as the attached addon); bulma.css:3429
+                             styles .button[disabled]
+    .input                   form-input.html, "basic input" block
+    .input.is-{size}         form-input.html:30-33; .button.is-{size} at
+                             bulma.css:3825 / 3833 / 3837. Bulma has no
+                             .field.is-{size} — sizes are per element. NOT on
+                             .control: .control.is-{size} only sizes the
+                             is-loading spinner (form-input.html:54-74), which
+                             this component never renders.
+    .button.is-{color}       bulma.css:3607 (.button.is-link). Color lands on
+                             the steppers only — the .input color modifier
+                             paints the border and would fight is-danger.
+    .input.is-danger         form-general.html, "validation state" block
+    .is-rounded              bulma.css:5648 (.input.is-rounded), bulma.css:3863
+                             (.button.is-rounded)
+    disabled (attribute)     form-input.html, "state disabled" block;
+                             bulma.css:3429
+
+  Composition rationale:
+  - DOM order is decrement / input / increment because bulma.css:6251-6270 keys
+    the addon corner radii off .control:first-child, :last-child, and
+    :not(:first-child):not(:last-child). Any other order gives the group the
+    wrong radii.
+  - Every direct child of .field.has-addons is a .control: a bare button
+    sibling gets no radius treatment and visually breaks the group. That is why
+    the wrapper belongs to the part, not to userland.
+  - role=spinbutton and inputmode=decimal come from v0's NumberField.Control
+    and are what make the composite a number field rather than a text input
+    with two buttons; they are pinned here rather than tolerated additively.
+-->
+
+<!-- fixture: default -->
+<div class="field has-addons">
+  <div class="control">
+    <button class="button" type="button">&minus;</button>
+  </div>
+  <div class="control">
+    <input class="input" type="text" inputmode="decimal" role="spinbutton" />
+  </div>
+  <div class="control">
+    <button class="button" type="button">+</button>
+  </div>
+</div>
+
+<!-- fixture: expanded (is-expanded on the input's control) -->
+<div class="field has-addons">
+  <div class="control">
+    <button class="button" type="button">&minus;</button>
+  </div>
+  <div class="control is-expanded">
+    <input class="input" type="text" inputmode="decimal" role="spinbutton" />
+  </div>
+  <div class="control">
+    <button class="button" type="button">+</button>
+  </div>
+</div>
+
+<!-- fixture: size small -->
+<div class="field has-addons">
+  <div class="control">
+    <button class="button is-small" type="button">&minus;</button>
+  </div>
+  <div class="control">
+    <input class="input is-small" type="text" inputmode="decimal" role="spinbutton" />
+  </div>
+  <div class="control">
+    <button class="button is-small" type="button">+</button>
+  </div>
+</div>
+
+<!-- fixture: size medium -->
+<div class="field has-addons">
+  <div class="control">
+    <button class="button is-medium" type="button">&minus;</button>
+  </div>
+  <div class="control">
+    <input class="input is-medium" type="text" inputmode="decimal" role="spinbutton" />
+  </div>
+  <div class="control">
+    <button class="button is-medium" type="button">+</button>
+  </div>
+</div>
+
+<!-- fixture: size large -->
+<div class="field has-addons">
+  <div class="control">
+    <button class="button is-large" type="button">&minus;</button>
+  </div>
+  <div class="control">
+    <input class="input is-large" type="text" inputmode="decimal" role="spinbutton" />
+  </div>
+  <div class="control">
+    <button class="button is-large" type="button">+</button>
+  </div>
+</div>
+
+<!-- fixture: color link (steppers only) -->
+<div class="field has-addons">
+  <div class="control">
+    <button class="button is-link" type="button">&minus;</button>
+  </div>
+  <div class="control">
+    <input class="input" type="text" inputmode="decimal" role="spinbutton" />
+  </div>
+  <div class="control">
+    <button class="button is-link" type="button">+</button>
+  </div>
+</div>
+
+<!-- fixture: disabled (native attribute on all three) -->
+<div class="field has-addons">
+  <div class="control">
+    <button class="button" type="button" disabled>&minus;</button>
+  </div>
+  <div class="control">
+    <input class="input" type="text" inputmode="decimal" role="spinbutton" disabled />
+  </div>
+  <div class="control">
+    <button class="button" type="button" disabled>+</button>
+  </div>
+</div>
+
+<!-- fixture: invalid (is-danger on the input, driven by a failing rule) -->
+<div class="field has-addons">
+  <div class="control">
+    <button class="button" type="button">&minus;</button>
+  </div>
+  <div class="control">
+    <input class="input is-danger" type="text" inputmode="decimal" role="spinbutton" />
+  </div>
+  <div class="control">
+    <button class="button" type="button">+</button>
+  </div>
+</div>

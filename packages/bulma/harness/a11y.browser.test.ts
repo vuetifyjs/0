@@ -29,6 +29,10 @@ import { BuNavbar } from '#bulma/components/BuNavbar'
 import { BuNavbarBrand } from '#bulma/components/BuNavbarBrand'
 import { BuNavbarMenu } from '#bulma/components/BuNavbarMenu'
 import { BuNotification } from '#bulma/components/BuNotification'
+import { BuNumberField } from '#bulma/components/BuNumberField'
+import { BuNumberFieldDecrement } from '#bulma/components/BuNumberFieldDecrement'
+import { BuNumberFieldIncrement } from '#bulma/components/BuNumberFieldIncrement'
+import { BuNumberFieldInput } from '#bulma/components/BuNumberFieldInput'
 import { BuPagination } from '#bulma/components/BuPagination'
 import { BuPanel } from '#bulma/components/BuPanel'
 import { BuPanelBlock } from '#bulma/components/BuPanelBlock'
@@ -268,6 +272,33 @@ const SWEEP: Record<string, Subject> = {
   },
   BuNotification: {
     node: () => h(BuNotification, {}, () => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
+  },
+  BuNumberField: {
+    // Mounted LABELLED: the spinbutton is a real <input>, so axe's `label` rule
+    // applies to it like any other input and a bare mount would fail on naming
+    // alone. Two rules that look like they should fire here do not, verified in
+    // axe-core 4.12.1's bundle:
+    // - `aria-required-attr` does not demand aria-valuenow on a null value —
+    //   it reads standards.ariaRoles.spinbutton, whose entry defines
+    //   allowedAttrs only. A second, legacy role table in the same bundle does
+    //   list required: ['aria-valuenow'], but the rule never reads it. Re-check
+    //   on an axe-core major bump: if that ever flips, an empty BuNumberField
+    //   becomes a critical violation and aria-valuenow would have to be emitted
+    //   for null upstream in v0.
+    // - `aria-input-field-name` does not apply — its matcher is
+    //   no-naming-method-matches, which excludes any element whose spec has
+    //   native naming methods, and <input> has one.
+    // tabindex="-1" on the steppers is the APG spinbutton pattern (keyboard
+    // access is via the input), not a violation; button-name is satisfied by
+    // v0's localized aria-label.
+    node: () => h(BuField, null, () => [
+      h(BuLabel, { for: 'a11y-quantity' }, () => 'Quantity'),
+      h(BuNumberField, { id: 'a11y-quantity', min: 0, max: 10 }, () => [
+        h(BuNumberFieldDecrement),
+        h(BuNumberFieldInput, { expanded: true }),
+        h(BuNumberFieldIncrement),
+      ]),
+    ]),
   },
   BuPagination: {
     node: () => h(BuPagination, { pages: 86, modelValue: 46, visible: 7 }),

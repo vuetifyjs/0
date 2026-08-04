@@ -89,6 +89,26 @@ markup against bulma.io's documented fixtures.
   root's control attrs win the merge — v0's `mergeProps` assigns even `undefined`
   keys, so a wrapper cannot force `readonly`; v0-core follow-up: InputControl should
   omit falsy keys). `plaintext` is class-only there.
+- **Ambient `NumberField.Root` owns the whole behavioral surface of
+  BuNumberField:** BuNumberField detects an ambient root on its namespace and
+  renders a plain `.field.has-addons` div instead of creating a second one (a
+  nested root would shadow the outer one for every part). Inside that ambient
+  root, `v-model`, `min`/`max`/`step`/`leap`/`wrap`/`clamp`, `locale`/`format`,
+  `wheel`/`spinDelay`/`spinRate`, `id`, `name`, `form`, `label`, `required`,
+  `disabled`, `readonly`, and all validation props passed to BuNumberField are
+  ignored — the root owns them. Only the presentational modifiers (`color`,
+  `size`, `rounded`, `addons`, and the part's `expanded`) still apply. Same
+  shape as the BuInput/BuTextarea limitation above.
+- **Sibling `BuLabel`/`BuHelp` need `namespace="v0:number-field:root"`:**
+  BuNumberField provides v0's number-field context, not `v0:input:root`, so a
+  BuLabel/BuHelp left on the default namespace injects nothing and renders
+  unwired — the same half-wired trap as BuInput, with a second namespace to get
+  wrong. The shapes are compatible (`InputError` uses only `errors`,
+  `fieldErrors.register`, and `errorId`; `BuLabel` uses only `id`, and all four
+  exist on `NumberFieldRootContext`), so pointing them at the number-field
+  namespace works. Compose validation fields as `<NumberFieldRoot renderless
+  v-model :rules>` wrapping `BuField`, with `namespace="v0:number-field:root"`
+  on the label and help.
 - **validateOn machinery is package-local** (`src/utilities/validate.ts`): v0's
   `parseValidateOn` is internal to `InputRoot.vue`. v0-core follow-up: export it from
   the Input barrel.
