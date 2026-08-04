@@ -25,7 +25,9 @@ Bulma's `.dropdown` with the JavaScript it never shipped: toggle, outside-click 
 
 ## Usage
 
-`BuDropdownTrigger` hands you the attrs to spread on your own button — `aria-haspopup`, `aria-controls`, `aria-expanded` and the click handler. `BuDropdownMenu` renders `.dropdown-menu` and `.dropdown-content`, and hands each item the role it needs.
+Compose three parts: `BuDropdown` renders `.dropdown` and owns the open state, `BuDropdownTrigger` wraps your own button, and `BuDropdownMenu` renders `.dropdown-menu` with its `.dropdown-content`. `v-model` is the single source of truth for open and closed.
+
+Positioning stays Bulma's. The menu is placed by CSS against the trigger, so there is no floating engine to install and nothing measured at runtime — `right` and `up` are the two knobs. What the component adds is the part Bulma leaves to you: the open state, the aria wiring between trigger and menu, click-outside and Escape dismissal.
 
 ::: ds-example
 /systems/bulma/dropdown/basic
@@ -100,59 +102,47 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 
 You write no `is-active` and no `id`/`aria-controls` pair. The component owns the open class and generates a unique id, binding both ends of it for you.
 
-## Recipes
+## Examples
 
-### Modifiers
+::: ds-example
+/systems/bulma/dropdown/hoverable
 
-Bulma's positioning modifiers are props. Each one adds the class of the same name to `.dropdown`.
+### Hover to open
 
-```vue
-<template>
-  <!-- is-right: align the menu to the right edge -->
-  <BuDropdown right>
-    <BuDropdownTrigger />
-    <BuDropdownMenu />
-  </BuDropdown>
+`hoverable` is the one modifier that changes behavior rather than looks. Bulma's `is-hoverable` opens the menu on hover in pure CSS, so the component deliberately steps back: the toggle becomes a no-op, and neither the click-outside listener nor the Escape handler is attached. Nothing about the open state reaches JavaScript, which is exactly why there is no `v-model` in this example.
 
-  <!-- is-up: open upwards -->
-  <BuDropdown up>
-    <BuDropdownTrigger />
-    <BuDropdownMenu />
-  </BuDropdown>
+That trade has an accessibility cost worth knowing before you reach for it. With no JavaScript running, the trigger's `aria-expanded` never flips — a hover menu reads to assistive technology as a collapsed control whose contents happen to be reachable. Use it for the light, decorative case Bulma designed it for, and use the default click mode whenever the menu is a real navigation surface.
+:::
 
-  <!-- is-hoverable: Bulma's CSS-only hover behavior; no JS is wired -->
-  <BuDropdown hoverable>
-    <BuDropdownTrigger />
-    <BuDropdownMenu />
-  </BuDropdown>
-</template>
-```
+::: ds-example
+/systems/bulma/dropdown/alignment
 
-`hoverable` is the one modifier that changes behavior rather than looks. Bulma opens the menu on hover with CSS alone, so the component steps back entirely: the toggle, the outside-click listener and the Escape handler all go inert.
+### Alignment
+
+`right` and `up` add Bulma's `is-right` and `is-up` to `.dropdown`, and that is the whole positioning story. The menu is placed by CSS relative to the trigger — nothing measures the viewport, nothing repositions on scroll, and there is no floating engine to configure. Reach for `right` when the trigger sits near the right edge of its container, and `up` when it sits near the bottom of the page.
+
+Because placement is static, the two modifiers are decisions you make at author time rather than behavior you get for free: a menu that would overflow the viewport stays overflowing. If you need collision-aware placement, that is a different component — [Popover](/components/disclosure/popover) in Vuetify0 does the measuring — and it will not give you Bulma's markup.
+:::
+
+::: ds-example
+/systems/bulma/dropdown/items
+
+### Menu content
+
+The pieces Bulma documents for a menu-shaped dropdown: entries as `a.dropdown-item`, `hr.dropdown-divider` between groups, and `is-active` marking the current one. The active class is yours to drive — the component tracks open and closed, not which entry is selected.
+
+This is also the `menu` mode in practice. Setting the prop puts `role="menu"` on `.dropdown-menu`, and spreading the `item` slot prop on each entry gives it the matching `role="menuitem"`. Take the `close` slot prop too: an entry that navigates or picks something should shut the menu behind it, and nothing closes automatically on click — an inside click is deliberately not a dismissal.
+:::
+
+::: ds-example
+/systems/bulma/dropdown/arbitrary
 
 ### Arbitrary content
 
-Bulma documents a second dropdown shape whose items are `div.dropdown-item` holding anything at all. Leave `menu` off for it — `role="menu"` promises menu items, and a dropdown full of paragraphs fails accessibility checks that take the promise seriously.
+Bulma documents a second dropdown shape whose entries are `div.dropdown-item` holding anything at all — a paragraph, a form, a button. Leave `menu` off for this one. `role="menu"` promises a list of menu items, and a dropdown full of prose fails the accessibility checks that take the promise seriously, which is why the component makes the role opt-in rather than emitting it always.
 
-```vue
-<template>
-  <BuDropdown>
-    <BuDropdownTrigger v-slot="{ attrs }">
-      <button class="button" type="button" v-bind="attrs">Content</button>
-    </BuDropdownTrigger>
-
-    <BuDropdownMenu>
-      <div class="dropdown-item">
-        <p>You can insert <strong>any type of content</strong> within the dropdown menu.</p>
-      </div>
-
-      <hr class="dropdown-divider">
-
-      <a class="dropdown-item" href="#">This is a link</a>
-    </BuDropdownMenu>
-  </BuDropdown>
-</template>
-```
+The `item` slot prop is still handed out in this mode — it is simply an empty object while `menu` is off. Spreading it on entries you might later promote to a real menu means the same template works either way, so switching modes is one prop rather than a rewrite.
+:::
 
 ## Props
 
@@ -173,6 +163,23 @@ Bulma documents a second dropdown shape whose items are `div.dropdown-item` hold
 
 ## Accessibility
 
-`BuDropdownTrigger` hands out `aria-haspopup`, `aria-expanded` and an `aria-controls` that points at the id `BuDropdownMenu` generates. Escape closes the dropdown and stops there — a dropdown opened inside a modal closes without also closing the modal — and a click outside closes it. While the dropdown is closed, neither listener is attached.
+`BuDropdownTrigger` hands out `aria-haspopup`, `aria-expanded` and an `aria-controls` that points at the id `BuDropdownMenu` generates, so the trigger and the menu it controls are wired to each other without you tracking an id.
 
-Spread `item` on each entry when the parent sets `menu`: it applies `role="menuitem"`, which `role="menu"` requires. Without `menu` it is an empty object, so the same template works in both modes.
+### Dismissal
+
+Three ways out, and one deliberate non-way:
+
+| Gesture | Behavior |
+|---------|----------|
+| Click outside | Closes. The listener is attached only while the dropdown is open |
+| Escape | Closes the nearest open dropdown, and stops there |
+| Click inside | Does **not** close — call the `close` slot prop from the entries that should |
+| Hover out (`hoverable`) | Closes, in CSS; no listener is ever attached |
+
+Escape is bound to the dropdown's own subtree rather than the document, and the handler stops propagation once it has closed something. That is what lets a dropdown live inside an open `BuModal`: pressing Escape closes the dropdown and leaves the modal open, and pressing it again closes the modal. A document-level handler would collapse both at once — and would swallow every Escape on the page while the dropdown sat there closed.
+
+### Menu semantics
+
+`role="menu"` is opt-in through the `menu` prop, and it is a promise about the children: every entry must carry `role="menuitem"`, which is what the `item` slot prop applies. Set the prop when the dropdown is a list of actions or links; leave it off when the menu holds arbitrary content, where the role would fail `aria-required-children`.[^dropdown-axe]
+
+[^dropdown-axe]: Bulma's documented arbitrary-content dropdown ships `role="menu"` around `div.dropdown-item` prose, which is the axe failure this policy avoids — one of the declared deviations on the [Bulma overview](/systems/bulma).

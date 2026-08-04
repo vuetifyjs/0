@@ -102,6 +102,11 @@
   // flip that reveals it is the only signal.
   useMutationObserver(root, measure, { attributes: true, subtree: true })
 
+  // A CSS-only reveal (Bulma's `is-hoverable` dropdown) mutates nothing and
+  // resizes nothing, so pointer movement is the only signal that the frame has
+  // to grow around a menu.
+  useEventListener(root, ['pointerover', 'pointerout'], measure)
+
   useEventListener(window, 'message', (event: MessageEvent) => {
     if (event.source !== window.parent) return
 
