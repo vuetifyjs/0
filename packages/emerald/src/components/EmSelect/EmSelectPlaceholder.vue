@@ -21,6 +21,7 @@
 
 <style>
   .emerald-select__placeholder {
-    color: var(--emerald-neutral-500, #a3afbe);
+    /* neutral-700, not 500: 500 reads ~2.2-2.4:1 against surface in both themes */
+    color: var(--emerald-neutral-700, #5a6472);
   }
 </style>
