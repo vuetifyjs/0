@@ -173,6 +173,136 @@ export const border = {
 } as const
 
 // ──────────────────────────────────────────────
+// Dark theme (derived — no dedicated Figma dark page yet).
+//
+// Each family keeps the light family's exact key set (`satisfies` ties them,
+// so a drifted key is a build error) with the lightness ladder inverted and
+// chroma re-tuned rather than naively negated: 100 is the deepest tint (the
+// role light-100 plays as palest), 600/1000 the brightest. `on-*` flips from
+// white-on-color to ink-on-color because the dark DEFAULTs are brighter —
+// white on them fails AA. Anchors: `background.dark` / `surface.dark` above.
+// ──────────────────────────────────────────────
+
+export const primaryDark = {
+  '100': '#0A2E1D',
+  '200': '#0E3B25',
+  '300': '#11532F',
+  '400': '#1A7A46',
+  '500': '#22A45E',
+  '600': '#2ECC77',
+  '700': '#57D993',
+  '800': '#8CE7B6',
+  '900': '#C0F3D9',
+  '1000': '#E3FBEE',
+  'alpha-10': '#2ECC771A',
+  'alpha-20': '#2ECC7733',
+  'alpha-30': '#2ECC774D',
+  'DEFAULT': '#2ECC77',
+} as const satisfies Record<keyof typeof primary, string>
+
+export const secondaryDark = {
+  '100': '#06272F',
+  '200': '#073A46',
+  '300': '#0A4E5E',
+  '400': '#0E6478',
+  '500': '#12839D',
+  '600': '#19B7DC',
+  '700': '#4FD3F2',
+  '800': '#86E2F8',
+  '900': '#BEF0FC',
+  '1000': '#E0F9FE',
+  'alpha-10': '#22BFE31A',
+  'alpha-20': '#22BFE333',
+  'alpha-30': '#22BFE34D',
+  'DEFAULT': '#22BFE3',
+} as const satisfies Record<keyof typeof secondary, string>
+
+export const neutralDark = {
+  '100': '#1A1C1E',
+  '200': '#22252A',
+  '300': '#30343B',
+  '400': '#3F444D',
+  '500': '#4C525C',
+  '600': '#6A7280',
+  '700': '#949DA9',
+  '800': '#B3BAC4',
+  '900': '#D5D9DE',
+  '1000': '#EEF1F4',
+  'alpha-10': '#E4E9F01A',
+  'alpha-20': '#E4E9F033',
+  'alpha-30': '#E4E9F04D',
+  'alpha-gray-20': '#94A3BF33',
+  'DEFAULT': '#E6E9ED',
+} as const satisfies Record<keyof typeof neutral, string>
+
+export const dangerDark = {
+  '100': '#3B1216',
+  '200': '#55181E',
+  '300': '#7A2029',
+  '400': '#E4606C',
+  '500': '#F2828C',
+  '600': '#F7A9B0',
+  'alpha-10': '#FF5C6A1A',
+  'alpha-20': '#FF5C6A33',
+  'alpha-30': '#FF5C6A4D',
+  'DEFAULT': '#FF5C6A',
+} as const satisfies Record<keyof typeof danger, string>
+
+export const alertDark = {
+  '100': '#3A2F0A',
+  '200': '#52430E',
+  '300': '#715C13',
+  '400': '#E8C23A',
+  '500': '#FFD54A',
+  '600': '#FFE071',
+  'alpha-10': '#FFD84D1A',
+  'alpha-20': '#FFD84D33',
+  'alpha-30': '#FFD84D4D',
+  'DEFAULT': '#FFD84D',
+} as const satisfies Record<keyof typeof alert, string>
+
+export const successDark = {
+  '100': '#0D3320',
+  '200': '#124528',
+  '300': '#175A34',
+  '400': '#2FBF74',
+  '500': '#57D191',
+  '600': '#7FDEAC',
+  'alpha-10': '#2FD07C1A',
+  'alpha-20': '#2FD07C33',
+  'alpha-30': '#2FD07C4D',
+  'DEFAULT': '#2FD07C',
+} as const satisfies Record<keyof typeof success, string>
+
+export const infoDark = {
+  '100': '#14213D',
+  '200': '#1B2D54',
+  '300': '#24407A',
+  '400': '#7FA6FF',
+  '500': '#99B8FF',
+  '600': '#B8CDFF',
+  'alpha-10': '#6E9BFF1A',
+  'alpha-20': '#6E9BFF33',
+  'alpha-30': '#6E9BFF4D',
+  'DEFAULT': '#6E9BFF',
+} as const satisfies Record<keyof typeof info, string>
+
+export const onDark = {
+  primary: '#04150C',
+  secondary: '#04252C',
+  danger: '#2B0708',
+  alert: '#211B06',
+  success: '#06281A',
+  info: '#0A1733',
+  background: neutralDark[1000],
+  surface: neutralDark[1000],
+} as const satisfies Record<keyof typeof on, string>
+
+export const borderDark = {
+  DEFAULT: neutralDark[400],
+} as const satisfies Record<keyof typeof border, string>
+
+// ──────────────────────────────────────────────
 // Spacing (Figma ✦/Spacing: 3xs → 5xl)
 // ──────────────────────────────────────────────
 
@@ -254,6 +384,30 @@ export const shadow = {
   'thumb': '0px 1px 3px 0px rgba(5, 0, 18, 0.12), 0px 1px 5px 0px rgba(5, 0, 18, 0.2)',
   'soft': '0px 2px 4px rgba(27, 28, 29, 0.04)',
 } as const
+
+/**
+ * Dark counterparts. The light elevations are near-black at 5–20% alpha —
+ * arithmetically invisible on dark surfaces (dark-on-dark deltas are below
+ * perception). Dark depth is drawn twice: a 1px light rim ring separates the
+ * raised surface from its backdrop, and the umbra alpha is raised ~3x so the
+ * cast still reads against an already-dark page. Rings (focus/danger) swap to
+ * the dark family bases at a slightly higher alpha.
+ */
+export const shadowDark = {
+  's': '0px 0px 0px 1px rgba(255, 255, 255, 0.06), 0px 0px 2px 0px rgba(0, 0, 0, 0.6)',
+  'm': '0px 0px 0px 1px rgba(255, 255, 255, 0.06), 0px 2px 4px 0px rgba(0, 0, 0, 0.55)',
+  'l': '0px 0px 0px 1px rgba(255, 255, 255, 0.07), 0px 5px 12px -1px rgba(0, 0, 0, 0.55)',
+  'xl': '0px 0px 0px 1px rgba(255, 255, 255, 0.07), 0px 16px 40px -8px rgba(0, 0, 0, 0.6)',
+  '2xl': '0px 0px 0px 1px rgba(255, 255, 255, 0.07), 0px 8px 24px 0px rgba(0, 0, 0, 0.6)',
+  'focus': '0px 0px 0px 5px rgba(46, 204, 119, 0.28)',
+  'focus-s': '0px 0px 0px 2px rgba(46, 204, 119, 0.28)',
+  'danger': '0px 0px 0px 5px rgba(255, 92, 106, 0.28)',
+  'field': '0px 1px 2px 0px rgba(0, 0, 0, 0.4)',
+  'field-hover': '0px 1px 2px 0px rgba(0, 0, 0, 0.55)',
+  'badge': '0px 0px 0px 1px rgba(255, 255, 255, 0.08), 0px 3px 8px 0px rgba(0, 0, 0, 0.5), 0px 2px 4px 0px rgba(0, 0, 0, 0.4)',
+  'thumb': '0px 0px 0px 1px rgba(255, 255, 255, 0.1), 0px 1px 3px 0px rgba(0, 0, 0, 0.5), 0px 1px 5px 0px rgba(0, 0, 0, 0.6)',
+  'soft': '0px 0px 0px 1px rgba(255, 255, 255, 0.05), 0px 2px 4px rgba(0, 0, 0, 0.35)',
+} as const satisfies Record<keyof typeof shadow, string>
 
 // ──────────────────────────────────────────────
 // Typography (Figma ✦/Typography: Manrope, uniform 1.5x

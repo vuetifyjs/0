@@ -5,15 +5,26 @@
 
 import {
   alert,
+  alertDark,
   background,
   border,
+  borderDark,
   danger,
+  dangerDark,
   info,
+  infoDark,
   neutral,
+  neutralDark,
   on,
+  onDark,
   primary,
+  primaryDark,
   secondary,
+  secondaryDark,
+  shadow,
+  shadowDark,
   success,
+  successDark,
   surface,
 } from './design-system'
 
@@ -47,6 +58,9 @@ export const emeraldColors = {
   ...scale('success', success),
   ...scale('info', info),
   ...scale('on', on),
+  // Shadows ride the per-theme map (not just `:root` foundations) so the dark
+  // theme can override them — light elevations are invisible on dark surfaces.
+  ...scale('shadow', shadow),
   'background': background.DEFAULT,
   'surface': surface.DEFAULT,
   'surface-tint': primary['alpha-10'],
@@ -64,3 +78,38 @@ export const emeraldColors = {
   // Kit-facing pre aliases (docs chrome code panes)
   'pre': neutral[1000],
 } satisfies Record<string, string>
+
+/**
+ * Dark counterpart of {@link emeraldColors}. `satisfies` pins it to the light
+ * map's exact key set, and every family in `design-system.ts` is pinned to its
+ * light family the same way — a token added or renamed on one side of the
+ * light/dark pair is a compile error, not a silently unthemed surface.
+ */
+export const emeraldDarkColors = {
+  ...scale('primary', primaryDark),
+  ...scale('secondary', secondaryDark),
+  ...scale('neutral', neutralDark),
+  ...scale('danger', dangerDark),
+  ...scale('alert', alertDark),
+  ...scale('success', successDark),
+  ...scale('info', infoDark),
+  ...scale('on', onDark),
+  ...scale('shadow', shadowDark),
+  'background': background.dark,
+  'surface': surface.dark,
+  'surface-tint': primaryDark['alpha-10'],
+  'on-surface-variant': neutralDark[700],
+  'divider': neutralDark[300],
+  'border': borderDark.DEFAULT,
+  'status-danger-bg': dangerDark[100],
+  'status-danger-br': dangerDark[500],
+  'status-success-bg': primaryDark[100],
+  'status-success-br': primaryDark[600],
+  'status-info-bg': infoDark[100],
+  'status-info-br': infoDark[500],
+  'status-warning-bg': alertDark[100],
+  'status-warning-br': alertDark[500],
+  // Code panes are already dark chrome in the light theme; keep them a step
+  // above the dark surface instead of flipping to light.
+  'pre': neutralDark[200],
+} satisfies Record<keyof typeof emeraldColors, string>

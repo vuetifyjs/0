@@ -36,7 +36,20 @@ Canonical Figma: **[Emerald 1.0](https://www.figma.com/design/WaY9z9gHeU6LbkqNgc
 (The “Copy” file `mRyzZtj2AmJCKhnj06MXj9` is reference-only; do not ship against it.)
 
 Token dictionary: `src/design-system.ts` (color scales, spacing, type, motion, control geometry — not “theme” alone).
-Flat color map for v0’s theme engine: `src/colors.ts`. Adapter is **package machinery**, not a consumer install step.
+Flat color maps for v0’s theme engine: `src/colors.ts` (`emeraldColors` + `emeraldDarkColors`). Adapter is **package machinery**, not a consumer install step.
+
+### Dark theme
+
+`createEmeraldPlugin` registers two themes: `emerald` (default) and `emerald-dark`
+(`dark: true`). The dark map is derived, not Figma-paged: each family inverts the
+light family’s lightness ladder with re-tuned chroma (100 = deepest tint, 600/1000 =
+brightest), `on-*` flips to ink-on-color (white fails AA on the brighter dark
+DEFAULTs), surfaces anchor on `background.dark` / `surface.dark`, and shadows swap
+to `shadowDark` (light rim ring + ~3x umbra alpha — the light elevations are
+invisible on dark surfaces). Key parity with the light map is compile-enforced via
+`satisfies` in `colors.ts` and re-asserted at bake time. Baked `theme.css` scopes
+dark under `[data-theme="emerald-dark"]` only (light stays the `:root` default), so
+the CSS-only path opts in per subtree with the attribute.
 
 ## Pipeline
 
@@ -111,7 +124,6 @@ Dev showcase routes (Figma product examples; inventory in [FIGMA_INVENTORY.md](.
 
 ## Non-goals (current)
 
-- Dark theme registration (tokens reserve dark surfaces; not wired)
 - DatePicker / Upload / DataTable / Charts / Calendar (no finished v0 primitive or deferred)
 - Pixel-perfect Figma component-set parity for every variant (library pages limited via MCP seat; tokens + Wave 1–3 shells ship first)
 

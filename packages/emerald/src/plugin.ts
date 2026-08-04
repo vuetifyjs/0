@@ -3,7 +3,7 @@ import { createThemePlugin } from '@vuetify/v0'
 
 // Adapters
 import { EmeraldStyleSheetAdapter } from './adapter'
-import { emeraldColors } from './colors'
+import { emeraldColors, emeraldDarkColors } from './colors'
 
 // Types
 import type { ThemePluginOptions } from '@vuetify/v0'
@@ -21,7 +21,8 @@ function emeraldThemeDefaults (): ThemePluginOptions {
     default: 'emerald',
     adapter: new EmeraldStyleSheetAdapter(),
     themes: {
-      emerald: { colors: emeraldColors },
+      'emerald': { colors: emeraldColors },
+      'emerald-dark': { colors: emeraldDarkColors, dark: true },
     },
   }
 }

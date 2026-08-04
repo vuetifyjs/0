@@ -13,3 +13,5 @@ Twenty-four component families composed on v0 primitives (or `Atom` shells where
 Compound components (`EmDialog`, `EmSelect`, `EmTabs`, `EmSnackbar`, `EmBreadcrumbs`, …) ship one `Em*` export per region so consumers build the tree with default slots.
 
 Also included: Figma-sourced `--emerald-*` tokens (color scales, spacing, radius, stroke, icon, shadow, type, motion, control geometry), `--v0-*` aliases for kit interop, `createEmeraldPlugin()` for one-line install, and a prebaked `theme.css` for the zero-config CSS-only path.
+
+A full `emerald-dark` theme ships alongside the light default — inverted-ladder color scales, ink `on-*` foregrounds, dark-tuned shadows — registered by the plugin and baked into `theme.css` under `[data-theme="emerald-dark"]`.
