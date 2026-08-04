@@ -13,6 +13,7 @@ features:
 related:
   - /systems/bulma/modal
   - /systems/bulma/dropdown
+  - /systems/bulma/number-field
 ---
 
 # Bulma
@@ -95,5 +96,8 @@ Grouped by Bulma's own taxonomy. Each entry is the component you compose against
 | Components | BuBreadcrumb, [BuDropdown](/systems/bulma/dropdown), BuMenu, BuMessage, [BuModal](/systems/bulma/modal), BuNavbar, BuPagination, BuPanel, BuTabs |
 | Elements | BuNotification |
 | Form | BuCheckbox, BuControl, BuField, BuFile, BuHelp, BuInput, BuLabel, BuRadio, BuSelect, BuTextarea |
+| None — composed | [BuNumberField](/systems/bulma/number-field)[^composed] |
+
+[^composed]: Bulma documents no number input. BuNumberField composes one out of the form parts it does document — attached controls, buttons and an input — so its conformance fixture is self-authored rather than captured, and declares the upstream provenance of every class in it.
 
 [^dropdown-menu]: Both additions fix axe failures in the verbatim documentation markup — the docs' arbitrary-content dropdown promises `role="menu"` without menu items, and its delete button ships unlabeled.

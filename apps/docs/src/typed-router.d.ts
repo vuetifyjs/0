@@ -1172,6 +1172,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/bulma/number-field': RouteRecordInfo<
+      '/systems/bulma/number-field',
+      '/systems/bulma/number-field',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -2484,6 +2491,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/systems/bulma/modal.md': {
       routes:
         | '/systems/bulma/modal'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/number-field.md': {
+      routes:
+        | '/systems/bulma/number-field'
       views:
         | never
       pathParamNames:
