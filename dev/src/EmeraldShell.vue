@@ -527,9 +527,7 @@
   .ed-brand__mark {
     width: 22px;
     height: 22px;
-    border-radius: var(--emerald-radius-s, 6px);
-    background:
-      linear-gradient(135deg, var(--emerald-primary-600, #1fae60), var(--emerald-primary-400, #94caab));
+    background: url('/emerald/logo.png') center / contain no-repeat;
     flex: none;
   }
 

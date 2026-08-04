@@ -86,8 +86,7 @@
   .ea-logo {
     width: 64px;
     height: 64px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--emerald-primary-600, #1fae60), var(--emerald-primary-300, #baedd0));
+    background: url('/emerald/logo.png') center / contain no-repeat;
   }
 
   .ea-title {

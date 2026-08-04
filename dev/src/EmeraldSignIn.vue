@@ -112,8 +112,7 @@
   .esi-brand__mark {
     width: 28px;
     height: 28px;
-    border-radius: 6px;
-    background: linear-gradient(135deg, var(--emerald-primary-600, #1fae60), var(--emerald-primary-400, #94caab));
+    background: url('/emerald/logo.png') center / contain no-repeat;
   }
 
   .esi-brand__name {
