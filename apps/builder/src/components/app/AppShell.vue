@@ -50,10 +50,9 @@
   // The aside has to stop above that bar, so it needs to know which routes have one.
   const stepped = toRef(() => isBuilderRoute.value && route.path !== '/builder/review')
 
-  // Step 1's manifest is the point of the aside, so it fills the sticky pane instead of
-  // sizing to content — every other route just caps growth and lets it be as tall as it
-  // needs. This branch only ever renders on desktop (see the `v-if="!mobile"` below), so
-  // "fixed height, not just capped" is safe here without a separate mobile check.
+  // Step 1 is the plugin-picking screen — no preview to show yet, so it gets no aside
+  // (desktop) and no preview sheet or trigger (mobile); content owns the full width.
+  // Every other builder route falls back to this component and keeps the split layout.
   const step1 = toRef(() => route.path === '/builder')
 </script>
 
@@ -89,9 +88,10 @@
         </a>
 
         <!-- Icon-only on the narrowest screens: with the label, this button's right edge
-             pushed every /builder route 42px past the viewport. -->
+             pushed every /builder route 42px past the viewport. Step 1 has nothing to
+             preview yet, so no trigger. -->
         <Button.Root
-          v-if="split && isBuilderRoute && mobile"
+          v-if="split && isBuilderRoute && mobile && !step1"
           aria-label="Open preview"
           class="btn-outline flex-shrink-0 h-9 w-9 px-0 sm:w-auto sm:px-3 text-[0.8125rem]"
           @click="previewOpen = true"
@@ -119,7 +119,7 @@
       </main>
 
       <aside
-        v-if="!mobile"
+        v-if="!mobile && !step1"
         class="flex flex-col w-[420px] xl:w-[480px] border-l border-divider bg-background"
       >
         <!-- The header and the StepBar are each a 4rem row plus a 1px border, so each
@@ -131,7 +131,7 @@
              longer has one, so the slot content starts flush at the top of this pane. -->
         <div
           class="sticky top-[calc(4rem+1px)] overflow-y-auto"
-          :class="step1 ? 'h-[calc(100vh-8rem-2px)] flex flex-col' : (stepped ? 'max-h-[calc(100vh-8rem-2px)]' : 'max-h-[calc(100vh-4rem-1px)]')"
+          :class="stepped ? 'max-h-[calc(100vh-8rem-2px)]' : 'max-h-[calc(100vh-4rem-1px)]'"
         >
           <slot name="preview" />
         </div>
@@ -142,7 +142,7 @@
       <slot />
     </main>
 
-    <Dialog.Root v-if="mobile" v-model="previewOpen">
+    <Dialog.Root v-if="mobile && !step1" v-model="previewOpen">
       <Dialog.Content
         aria-label="Preview"
         class="fixed inset-x-0 top-auto bottom-0 z-50 m-0 w-full max-w-none max-h-[85vh] overflow-y-auto rounded-t-xl border-t border-divider bg-background shadow-2xl dark:ring-1 dark:ring-white/12 backdrop:bg-black/60"
