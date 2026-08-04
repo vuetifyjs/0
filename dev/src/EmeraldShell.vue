@@ -216,7 +216,7 @@
     :data-collapsed="collapsed || undefined"
     :data-mobile="mobile || undefined"
     :data-mode="dark ? 'dark' : 'light'"
-    data-theme="emerald"
+    :data-theme="dark ? 'emerald-dark' : 'emerald'"
   >
     <EmButton
       v-if="mobile && collapsed"

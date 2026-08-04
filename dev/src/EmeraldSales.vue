@@ -156,7 +156,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-sales" data-theme="emerald">
+    <div class="adm-sales">
       <header class="adm-sales__header">
         <h1 class="adm-sales__title">Theme storefront</h1>
         <p class="adm-sales__subtitle">First-party template sales, checkout health and discounting</p>
