@@ -50,7 +50,7 @@
     for (const char of id) hash = (hash * 31 + (char.codePointAt(0) ?? 0)) % 999_999_937
     const corners = ['top left', 'top right', 'bottom left', 'bottom right']
     return {
-      coverage: 20 + (hash % 26),
+      coverage: 40 + (hash % 31),
       origin: corners[Math.trunc(hash / 26) % corners.length],
     }
   }
