@@ -8,6 +8,7 @@
     EmDialogContent,
     EmDialogFooter,
     EmDialogTitle,
+    EmTag,
     EmTextarea,
     EmTextField,
   } from '@paper/emerald'
@@ -21,7 +22,7 @@
   // Utilities
   import { shallowRef, toRef } from 'vue'
 
-  type FolderId = 'inbox' | 'drafts' | 'sent' | 'spam' | 'trash' | 'archive'
+  type FolderId = 'inbox' | 'triaged' | 'sent' | 'drafts' | 'archive' | 'junk'
 
   interface Folder {
     id: FolderId
@@ -30,25 +31,21 @@
 
   const folders: Folder[] = [
     { id: 'inbox', label: 'Inbox' },
-    { id: 'drafts', label: 'Drafts' },
+    { id: 'triaged', label: 'Triaged' },
     { id: 'sent', label: 'Sent' },
-    { id: 'spam', label: 'Spam' },
-    { id: 'trash', label: 'Trash' },
+    { id: 'drafts', label: 'Drafts' },
     { id: 'archive', label: 'Archive' },
+    { id: 'junk', label: 'Junk' },
   ]
 
-  interface MailLabel {
-    id: string
-    label: string
-    count: number
-  }
+  type Tag = 'Releases' | 'Sponsors' | 'Support' | 'RFC' | 'Community'
 
-  const mailLabels: MailLabel[] = [
-    { id: 'social', label: 'Social', count: 3 },
-    { id: 'updates', label: 'Updates', count: 4 },
-    { id: 'forums', label: 'Forums', count: 2 },
-    { id: 'shopping', label: 'Shopping', count: 1 },
-    { id: 'promotions', label: 'Promotions', count: 1 },
+  const tags: { id: Tag, count: number }[] = [
+    { id: 'Releases', count: 4 },
+    { id: 'Sponsors', count: 3 },
+    { id: 'Support', count: 6 },
+    { id: 'RFC', count: 2 },
+    { id: 'Community', count: 5 },
   ]
 
   interface Message {
@@ -56,8 +53,10 @@
     id: string
     folder: FolderId
     sender: string
+    handle: string
     initials: string
     subject: string
+    tag: Tag
     preview: string
     body: string
     time: string
@@ -65,24 +64,30 @@
   }
 
   const messages: Message[] = [
-    { id: 'm1', folder: 'inbox', sender: 'Sarah Johnson', initials: 'SJ', subject: 'Q4 Marketing Campaign Review', preview: 'Thanks for the feedback — I\'ll…', body: 'Thanks for the feedback — I\'ll incorporate your suggestions into the Q1 plan.\n\nLet\'s sync on Monday to finalize the deck.\n\nBest,\nSarah', time: '2 hours ago', unread: true },
-    { id: 'm2', folder: 'inbox', sender: 'Michael Chen', initials: 'MC', subject: 'Project Timeline Update', preview: 'Hello, just a quick update on the…', body: 'Hello, just a quick update on the timeline — we are on track for the Friday review.', time: '5 hours ago', unread: true },
-    { id: 'm3', folder: 'inbox', sender: 'Emma Wilson', initials: 'EW', subject: 'Re: Team Lunch Tomorrow', preview: 'Perfect — see you at 12:30 at the…', body: 'Perfect — see you at 12:30 at the usual spot.', time: 'Yesterday', unread: false },
-    { id: 'm4', folder: 'inbox', sender: 'David Park', initials: 'DP', subject: 'Code Review Request', preview: 'Hi, could you review my PR for the…', body: 'Hi, could you review my PR for the auth module when you get a chance?', time: 'Yesterday', unread: true },
-    { id: 'm5', folder: 'inbox', sender: 'Jessica Martinez', initials: 'JM', subject: 'Budget Approval Request', preview: 'Hi, I need approval for the additional…', body: 'Hi, I need approval for the additional design spend this quarter.', time: 'Aug 1', unread: false },
-    { id: 'm6', folder: 'inbox', sender: 'Rachel Green', initials: 'RG', subject: 'Team Building Event', preview: 'Save the date for our offsite next…', body: 'Save the date for our offsite next month — details to follow.', time: 'Jul 28', unread: false },
-    { id: 'd1', folder: 'drafts', sender: 'Draft', initials: 'DR', subject: 'Re: Hiring plan for Q1', preview: 'Two more engineers on the platform…', body: 'Two more engineers on the platform squad should cover the migration.', time: 'Aug 2', unread: false },
-    { id: 's1', folder: 'sent', sender: 'To: Michael Chen', initials: 'MC', subject: 'Re: Project Timeline Update', preview: 'Thanks — Friday works on our side.', body: 'Thanks — Friday works on our side. I will circulate the agenda Thursday.', time: 'Aug 2', unread: false },
-    { id: 's2', folder: 'sent', sender: 'To: Leadership', initials: 'LD', subject: 'August board pre-read', preview: 'Attaching the pre-read ahead of…', body: 'Attaching the pre-read ahead of next week — highlights are on slide four.', time: 'Aug 1', unread: false },
-    { id: 'x1', folder: 'spam', sender: 'Prize Center', initials: 'PC', subject: 'You have been selected!', preview: 'Claim your reward within 24 hours…', body: 'Claim your reward within 24 hours by confirming your details.', time: 'Aug 3', unread: true },
-    { id: 'x2', folder: 'spam', sender: 'Crypto Daily', initials: 'CD', subject: 'Triple your portfolio', preview: 'Our signals have a 99% accuracy…', body: 'Our signals have a 99% accuracy rate. Subscribe today.', time: 'Jul 30', unread: true },
-    { id: 't1', folder: 'trash', sender: 'Calendar', initials: 'CA', subject: 'Invitation: Sprint retro', preview: 'This event was cancelled by the…', body: 'This event was cancelled by the organiser.', time: 'Jul 29', unread: false },
-    { id: 'a1', folder: 'archive', sender: 'Lisa Nguyen', initials: 'LN', subject: 'Offsite survey results', preview: 'Final numbers are in — 82% prefer…', body: 'Final numbers are in — 82% prefer the two-day format.', time: 'Jul 24', unread: false },
-    { id: 'a2', folder: 'archive', sender: 'Finance', initials: 'FI', subject: 'Q2 expense summary', preview: 'Your Q2 expenses have been approved…', body: 'Your Q2 expenses have been approved and processed.', time: 'Jul 18', unread: false },
+    { id: 'm1', folder: 'inbox', sender: 'Marisol Vega', handle: 'marisol@vuetifyjs.com', initials: 'MV', subject: 'v1.2 release train slips one week', tag: 'Releases', preview: 'Two graduation PRs are still open…', body: 'Two graduation PRs are still open, so the v1.2 train moves from the 11th to the 25th.\n\nThat keeps us on the Tuesday cadence and gives the Combobox stable-promotion room to land with its axe sweep green.\n\nI will refresh the milestone board tonight.\n\n— Marisol', time: '08:42', unread: true },
+    { id: 'm2', folder: 'inbox', sender: 'Kwame Boateng', handle: 'kwame@vuetifyjs.com', initials: 'KB', subject: 'Emerald tag contrast fails APCA at 12px', tag: 'Support', preview: 'Lc 42 against the tinted surface…', body: 'The neutral tag on a tinted surface measures Lc 42, which is under the Lc 60 floor we set for 12px text.\n\nRaising the border one step and dropping the fill to the 100 ramp clears it without touching the type scale.', time: '10:05', unread: true },
+    { id: 'm3', folder: 'inbox', sender: 'Tobias Renner', handle: 'tobias@vuetifyjs.com', initials: 'TR', subject: 'Composable pages need the maturity chip', tag: 'RFC', preview: 'Eleven pages still render the old…', body: 'Eleven composable pages still render the old status line instead of the maturity chip.\n\nI can script the swap, but the preview / stable copy needs a decision first.', time: 'Yesterday', unread: true },
+    { id: 'm4', folder: 'inbox', sender: 'Lena Brandt', handle: 'lena@vuetifyjs.com', initials: 'LB', subject: 'Northwind Labs renewal — 12 months', tag: 'Sponsors', preview: 'They want the ecosystem tier again…', body: 'Northwind wants the ecosystem tier again and asked whether the logo slot moves with the docs redesign.\n\nI said the slot survives; confirm if that is wrong.', time: 'Yesterday', unread: false },
+    { id: 'm5', folder: 'inbox', sender: 'Hana Sato', handle: 'hana@vuetifyjs.com', initials: 'HS', subject: 'Screen-reader pass on the Combobox listbox', tag: 'Support', preview: 'NVDA announces the count twice…', body: 'NVDA announces the option count twice when the listbox re-filters. VoiceOver only announces it once.\n\nA live-region debounce fixes it — patch attached.', time: 'Tue', unread: false },
+    { id: 'm6', folder: 'inbox', sender: 'Diego Fuentes', handle: 'diego@vuetifyjs.com', initials: 'DF', subject: 'Browser suite flaking on the new Chromium', tag: 'Support', preview: 'Four popover specs time out on the…', body: 'Four popover specs time out on the runner but never locally. Anchor positioning resolves a frame later there.\n\nI am pinning the Playwright browser until we can reproduce it.', time: 'Mon', unread: false },
+    { id: 'm7', folder: 'inbox', sender: 'Ines Kowalski', handle: 'ines@vuetifyjs.com', initials: 'IK', subject: 'August community call — agenda draft', tag: 'Community', preview: 'Thirty minutes, three demos, one…', body: 'Thirty minutes: three demos and one open Q&A block.\n\nIf the Emerald preview is ready I would rather lead with it than with the roadmap slides.', time: 'Jul 30', unread: false },
+    { id: 'g1', folder: 'triaged', sender: 'Yuki Tanabe', handle: 'yuki@vuetifyjs.com', initials: 'YT', subject: 'Playground pins TypeScript to 5.x', tag: 'Support', preview: 'The worker loads no libs when TS…', body: 'The REPL worker loads no lib files when TypeScript floats to latest, so every example reds out. Pinning to the 5.x line restores it.', time: 'Jul 29', unread: false },
+    { id: 'g2', folder: 'triaged', sender: 'Omar Haddad', handle: 'omar@vuetifyjs.com', initials: 'OH', subject: 'Nuxt module auto-import collisions', tag: 'RFC', preview: 'Only useId and useHydration overlap…', body: 'Only useId and useHydration overlap with Nuxt built-ins. Prefixing both in the module keeps the bare imports free.', time: 'Jul 27', unread: false },
+    { id: 's1', folder: 'sent', sender: 'To: Marisol Vega', handle: 'marisol@vuetifyjs.com', initials: 'MV', subject: 'Re: v1.2 release train slips one week', tag: 'Releases', preview: 'The 22nd works — I will move the…', body: 'The 25th works. I will move the changeset freeze to the Friday before so the version PR is quiet over the weekend.', time: 'Jul 31', unread: false },
+    { id: 's2', folder: 'sent', sender: 'To: Sponsor list', handle: 'sponsors@vuetifyjs.com', initials: 'SL', subject: 'Q3 impact note', tag: 'Sponsors', preview: 'Downloads, contributors, and where…', body: 'Downloads, contributor count, and where the funding went this quarter. Two charts, no slides.', time: 'Jul 25', unread: false },
+    { id: 'd1', folder: 'drafts', sender: 'Draft', handle: 'not sent', initials: 'DR', subject: 'Re: RFC 0031 — token alias resolution', tag: 'RFC', preview: 'Dot paths should resolve before the…', body: 'Dot paths should resolve before the theme merge, otherwise an alias pointing at an overridden token silently keeps the base value.', time: 'Jul 24', unread: false },
+    { id: 'a1', folder: 'archive', sender: 'Priya Nadar', handle: 'priya@vuetifyjs.com', initials: 'PN', subject: 'Registry version signal — decision recorded', tag: 'RFC', preview: 'Documented as a philosophy exception…', body: 'Recorded as a documented exception in section 4.4 rather than a general pattern. Upsert granularity stays a separate thread.', time: 'Jul 18', unread: false },
+    { id: 'a2', folder: 'archive', sender: 'Ines Kowalski', handle: 'ines@vuetifyjs.com', initials: 'IK', subject: 'July community call recording', tag: 'Community', preview: 'Ninety-one live, four hundred replays…', body: 'Ninety-one people live and just over four hundred replays in the first week. The composable walkthrough drove most of it.', time: 'Jul 11', unread: false },
+    { id: 'j1', folder: 'junk', sender: 'UI Kit Bundle', handle: 'deals@uikit-bundle.example', initials: 'UB', subject: '900 components, today only', tag: 'Support', preview: 'Lifetime access expires at midnight…', body: 'Lifetime access expires at midnight. Act now.', time: 'Aug 2', unread: true },
+    { id: 'j2', folder: 'junk', sender: 'Growth Signals', handle: 'no-reply@growth-signals.example', initials: 'GS', subject: 'Triple your npm downloads', tag: 'Support', preview: 'Our audience network guarantees…', body: 'Our audience network guarantees a 300% lift in weekly installs.', time: 'Jul 28', unread: true },
   ]
 
   function count (id: FolderId) {
     return messages.filter(message => message.folder === id).length
+  }
+
+  function unreadCount (id: FolderId) {
+    return messages.filter(message => message.folder === id && message.unread).length
   }
 
   const folderNav = createSingle({ mandatory: 'force' })
@@ -96,6 +101,7 @@
   const search = shallowRef('')
   const filter = createFilter<Message>({ keys: ['sender', 'subject'], mode: 'some' })
 
+  const folder = toRef(() => folders.find(entry => folderNav.selected(entry.id)))
   const scoped = toRef(() => messages.filter(message => folderNav.selected(message.folder)))
   const filtered = toRef(() => filter.apply(search.value, scoped.value).items.value)
 
@@ -142,7 +148,14 @@
 <template>
   <EmeraldShell>
     <div class="adm-mail" :data-detail="detail || undefined" data-theme="emerald">
-      <aside aria-label="Mailboxes" class="adm-mail__folders">
+      <div class="adm-mail__bar">
+        <div class="adm-mail__bar-title">
+          <h1>{{ folder?.label }}</h1>
+          <span class="adm-mail__count">{{ filtered.length }} shown · {{ unreadCount(folder?.id ?? 'inbox') }} unread</span>
+        </div>
+
+        <EmTextField v-model="search" aria-label="Search mail" class="adm-mail__search" placeholder="Search sender or subject" />
+
         <EmButton class="adm-mail__compose" variant="primary" @click="composeOpen = true">
           <svg
             aria-hidden="true"
@@ -157,63 +170,63 @@
           ><path d="M12 5v14M5 12h14" /></svg>
           Compose
         </EmButton>
+      </div>
 
-        <p class="adm-mail__nav-label">Mailboxes</p>
-
+      <aside aria-label="Mailboxes" class="adm-mail__folders">
         <ul class="adm-mail__list">
-          <li v-for="folder in folders" :key="folder.id">
+          <li v-for="entry in folders" :key="entry.id">
             <button
               class="adm-mail__folder"
-              :data-active="folderNav.selected(folder.id) || undefined"
+              :data-active="folderNav.selected(entry.id) || undefined"
               type="button"
-              @click="onFolder(folder.id)"
+              @click="onFolder(entry.id)"
             >
-              <span>{{ folder.label }}</span>
-              <em>{{ count(folder.id) }}</em>
+              <em v-if="unreadCount(entry.id)" class="adm-mail__folder-badge">{{ unreadCount(entry.id) }}</em>
+              <em v-else class="adm-mail__folder-badge adm-mail__folder-badge--quiet">{{ count(entry.id) }}</em>
+              <span>{{ entry.label }}</span>
             </button>
           </li>
         </ul>
 
-        <p class="adm-mail__nav-label">Labels</p>
+        <p class="adm-mail__nav-label">Threads by tag</p>
 
-        <ul class="adm-mail__list adm-mail__list--labels">
-          <li v-for="label in mailLabels" :key="label.id">
-            <span aria-hidden="true" class="adm-mail__dot" :data-tone="label.id" />
-            <span class="adm-mail__label-name">{{ label.label }}</span>
-            <em>{{ label.count }}</em>
-          </li>
-        </ul>
+        <div class="adm-mail__tags">
+          <EmTag v-for="tag in tags" :key="tag.id" variant="neutral">
+            <span aria-hidden="true" class="adm-mail__dot" :data-tone="tag.id" />
+            {{ tag.id }}
+            <em>{{ tag.count }}</em>
+          </EmTag>
+        </div>
       </aside>
 
       <section aria-label="Messages" class="adm-mail__list-pane">
-        <header class="adm-mail__list-head">
-          <h1 class="adm-mail__title">{{ folders.find(folder => folderNav.selected(folder.id))?.label }}</h1>
-          <span class="adm-mail__count">{{ filtered.length }} of {{ scoped.length }}</span>
-        </header>
-
-        <EmTextField v-model="search" aria-label="Search mail" class="adm-mail__search" placeholder="Search mail" />
-
         <ul class="adm-mail__messages">
           <li v-for="message in filtered" :key="message.id">
             <button
               class="adm-mail__message"
               :data-active="messageNav.selected(message.id) || undefined"
+              :data-unread="message.unread || undefined"
               type="button"
               @click="onMessage(message.id)"
             >
+              <span aria-hidden="true" class="adm-mail__flag" />
+
               <EmAvatar size="sm"><EmAvatarFallback>{{ message.initials }}</EmAvatarFallback></EmAvatar>
 
               <span class="adm-mail__message-body">
                 <span class="adm-mail__message-top">
-                  <strong>{{ message.sender }}</strong>
+                  <span class="adm-mail__message-subject">{{ message.subject }}</span>
                   <time>{{ message.time }}</time>
                 </span>
 
-                <span class="adm-mail__message-subject" :data-unread="message.unread || undefined">{{ message.subject }}</span>
+                <span class="adm-mail__message-meta">
+                  <span class="adm-mail__message-sender">{{ message.sender }}</span>
+                  <span aria-hidden="true" class="adm-mail__dot" :data-tone="message.tag" />
+                  <span class="adm-mail__message-tag">{{ message.tag }}</span>
+                </span>
+
                 <span class="adm-mail__message-preview">{{ message.preview }}</span>
               </span>
-
-              <span v-if="message.unread" aria-hidden="true" class="adm-mail__unread-dot" />
             </button>
           </li>
 
@@ -239,23 +252,38 @@
           </EmButton>
 
           <header class="adm-mail__reading-head">
-            <div>
-              <h2>{{ selected.subject }}</h2>
+            <div class="adm-mail__reading-from">
+              <EmAvatar size="md"><EmAvatarFallback>{{ selected.initials }}</EmAvatarFallback></EmAvatar>
 
-              <p>
+              <span class="adm-mail__reading-who">
                 <strong>{{ selected.sender }}</strong>
-                <span class="adm-mail__reading-time">{{ selected.time }}</span>
-              </p>
+                <span class="adm-mail__reading-handle">{{ selected.handle }}</span>
+              </span>
+
+              <time class="adm-mail__reading-time">{{ selected.time }}</time>
             </div>
 
-            <EmAvatar size="md"><EmAvatarFallback>{{ selected.initials }}</EmAvatarFallback></EmAvatar>
+            <h2>{{ selected.subject }}</h2>
+
+            <div class="adm-mail__reading-chips">
+              <EmTag variant="neutral">{{ folder?.label }}</EmTag>
+
+              <EmTag variant="neutral">
+                <span aria-hidden="true" class="adm-mail__dot" :data-tone="selected.tag" />
+                {{ selected.tag }}
+              </EmTag>
+            </div>
           </header>
 
           <p class="adm-mail__reading-body">{{ selected.body }}</p>
 
           <div class="adm-mail__reply">
-            <EmTextarea v-model="reply" aria-label="Reply" :placeholder="`Reply to ${selected.sender}…`" :rows="3" />
-            <EmButton :disabled="!reply.trim()" variant="primary" @click="onReply">Send</EmButton>
+            <EmTextarea v-model="reply" aria-label="Reply" :placeholder="`Reply to ${selected.sender}…`" :rows="2" />
+
+            <div class="adm-mail__reply-foot">
+              <span class="adm-mail__reply-hint">Replies stay in {{ folder?.label }}</span>
+              <EmButton :disabled="!reply.trim()" variant="primary" @click="onReply">Send reply</EmButton>
+            </div>
           </div>
         </template>
 
@@ -286,11 +314,52 @@
 <style>
   .adm-mail {
     display: grid;
-    grid-template-columns: 200px minmax(0, 360px) minmax(0, 1fr);
+    grid-template-columns: 208px minmax(0, 340px) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
     gap: var(--emerald-spacing-m, 16px);
-    align-items: start;
     height: calc(100vh - 140px);
     min-height: 560px;
+  }
+
+  /* The toolbar spans every pane: the folder heading, the one search that scopes
+     the list, and Compose all read as a single row of chrome. */
+  .adm-mail__bar {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: var(--emerald-spacing-m, 16px);
+    padding: var(--emerald-spacing-s, 12px) var(--emerald-spacing-m, 16px);
+    background: var(--emerald-background, #fefefe);
+    border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
+    border-radius: var(--emerald-radius-xl, 12px);
+    box-shadow: var(--emerald-shadow-s, 0 0 2px 0 rgba(51, 51, 51, 0.08));
+  }
+
+  .adm-mail__bar-title {
+    display: flex;
+    flex-direction: column;
+    min-width: 148px;
+  }
+
+  .adm-mail__bar-title h1 {
+    margin: 0;
+    font-size: var(--emerald-text-h4-size, 20px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .adm-mail__count {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-mail__search {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .adm-mail__compose {
+    flex: none;
   }
 
   .adm-mail__folders,
@@ -298,7 +367,6 @@
   .adm-mail__reading {
     display: flex;
     flex-direction: column;
-    height: 100%;
     min-height: 0;
     background: var(--emerald-background, #fefefe);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
@@ -308,13 +376,8 @@
 
   .adm-mail__folders {
     gap: var(--emerald-spacing-xs, 8px);
-    padding: var(--emerald-spacing-m, 16px);
+    padding: var(--emerald-spacing-s, 12px);
     overflow-y: auto;
-  }
-
-  .adm-mail__compose {
-    width: 100%;
-    justify-content: center;
   }
 
   .adm-mail__nav-label {
@@ -335,12 +398,13 @@
     list-style: none;
   }
 
+  /* Count leads, label follows — the mirror of the reference rail. */
   .adm-mail__folder {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: var(--emerald-spacing-xs, 8px);
     width: 100%;
-    padding: var(--emerald-spacing-xs, 8px) var(--emerald-spacing-s, 12px);
+    padding: var(--emerald-spacing-xs, 8px) var(--emerald-spacing-xs, 8px);
     border: none;
     border-radius: var(--emerald-radius-m, 8px);
     background: transparent;
@@ -367,75 +431,59 @@
     font-weight: 600;
   }
 
-  .adm-mail__folder em {
-    font-style: normal;
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
-  }
-
-  .adm-mail__list--labels {
-    gap: var(--emerald-spacing-xs, 8px);
-  }
-
-  .adm-mail__list--labels li {
-    display: flex;
+  .adm-mail__folder-badge {
+    flex: none;
+    display: inline-flex;
     align-items: center;
-    gap: var(--emerald-spacing-xs, 8px);
-    padding: 4px var(--emerald-spacing-s, 12px);
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-mail__label-name {
-    flex: 1;
-  }
-
-  .adm-mail__list--labels em {
+    justify-content: center;
+    min-width: 22px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: var(--emerald-radius-s, 6px);
+    background: var(--emerald-primary-600, #1fae60);
+    color: var(--emerald-on-primary, #fff);
     font-style: normal;
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
-  }
-
-  .adm-mail__dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--emerald-primary-500, #26c26d);
-  }
-
-  .adm-mail__dot[data-tone='updates'] { background: var(--emerald-secondary-600, #00b4dc); }
-  .adm-mail__dot[data-tone='forums'] { background: var(--emerald-warning-500, #e08b00); }
-  .adm-mail__dot[data-tone='shopping'] { background: var(--emerald-primary-700, #027d4c); }
-  .adm-mail__dot[data-tone='promotions'] { background: var(--emerald-danger-500, #c61424); }
-
-  .adm-mail__list-pane {
-    padding: var(--emerald-spacing-m, 16px);
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-mail__list-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .adm-mail__title {
-    margin: 0;
-    font-size: var(--emerald-text-h4-size, 20px);
+    font-size: 11px;
     font-weight: 700;
   }
 
-  .adm-mail__count {
+  .adm-mail__folder-badge--quiet {
+    background: var(--emerald-neutral-200, #f6f8fa);
     color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
+    font-weight: 600;
   }
 
-  .adm-mail__reading > .adm-mail__back {
-    display: none;
-    align-self: flex-start;
+  .adm-mail__folder[data-active] .adm-mail__folder-badge--quiet {
+    background: var(--emerald-background, #fefefe);
   }
 
-  .adm-mail__search {
-    width: 100%;
+  /* Tags wrap as chips instead of stacking as a second nav list. */
+  .adm-mail__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .adm-mail__tags em {
+    font-style: normal;
+    color: var(--emerald-on-surface-variant, #757e85);
+  }
+
+  .adm-mail__dot {
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  .adm-mail__dot[data-tone='Sponsors'] { background: var(--emerald-secondary-600, #00b4dc); }
+  .adm-mail__dot[data-tone='Support'] { background: var(--emerald-danger-500, #c61424); }
+  .adm-mail__dot[data-tone='RFC'] { background: var(--emerald-info-500, #3a70e2); }
+  .adm-mail__dot[data-tone='Community'] { background: var(--emerald-alert-600, #d9af00); }
+
+  .adm-mail__list-pane {
+    padding: var(--emerald-spacing-xs, 8px);
   }
 
   .adm-mail__messages {
@@ -451,9 +499,9 @@
   .adm-mail__message {
     display: flex;
     align-items: flex-start;
-    gap: var(--emerald-spacing-s, 12px);
+    gap: var(--emerald-spacing-xs, 8px);
     width: 100%;
-    padding: var(--emerald-spacing-s, 12px);
+    padding: var(--emerald-spacing-s, 12px) var(--emerald-spacing-xs, 8px);
     border: none;
     border-radius: var(--emerald-radius-m, 8px);
     background: transparent;
@@ -469,12 +517,25 @@
     background: var(--emerald-primary-100, #e7fff2);
   }
 
+  /* Unread reads as a leading rail rather than a trailing dot. */
+  .adm-mail__flag {
+    flex: none;
+    align-self: stretch;
+    width: 3px;
+    border-radius: 999px;
+    background: transparent;
+  }
+
+  .adm-mail__message[data-unread] .adm-mail__flag {
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
   .adm-mail__message-body {
     display: flex;
     flex: 1;
     flex-direction: column;
     min-width: 0;
-    gap: 2px;
+    gap: 3px;
   }
 
   .adm-mail__message-top {
@@ -490,16 +551,39 @@
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
+  /* Subject leads the row; the sender drops to the meta line under it. */
   .adm-mail__message-subject {
     overflow: hidden;
-    color: var(--emerald-on-surface-variant, #757e85);
+    color: var(--emerald-on-surface, #2b2d2e);
     font-size: var(--emerald-text-b2-size, 14px);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .adm-mail__message-subject[data-unread] {
-    color: var(--emerald-on-surface, #2b2d2e);
+  .adm-mail__message[data-unread] .adm-mail__message-subject {
+    font-weight: 700;
+  }
+
+  .adm-mail__message-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-mail__message-sender {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .adm-mail__message-tag {
+    flex: none;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 10px;
     font-weight: 600;
   }
 
@@ -509,15 +593,6 @@
     font-size: var(--emerald-text-b3-size, 12px);
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-
-  .adm-mail__unread-dot {
-    flex: none;
-    width: 8px;
-    height: 8px;
-    margin-top: 6px;
-    border-radius: 50%;
-    background: var(--emerald-primary-600, #1fae60);
   }
 
   .adm-mail__empty {
@@ -533,50 +608,83 @@
     overflow-y: auto;
   }
 
+  .adm-mail__reading > .adm-mail__back {
+    display: none;
+    align-self: flex-start;
+  }
+
+  /* Sender identity leads, subject sits under it — the reference stacks the
+     subject first with the avatar pushed to the far edge. */
   .adm-mail__reading-head {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: var(--emerald-spacing-s, 12px);
+    padding-bottom: var(--emerald-spacing-m, 16px);
+    border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
+  }
+
+  .adm-mail__reading-from {
+    display: flex;
+    align-items: center;
     gap: var(--emerald-spacing-s, 12px);
   }
 
-  .adm-mail__reading-head h2 {
-    margin: 0 0 4px;
-    font-size: var(--emerald-text-h4-size, 20px);
-  }
-
-  .adm-mail__reading-head p {
-    margin: 0;
+  .adm-mail__reading-who {
     display: flex;
-    align-items: center;
-    gap: var(--emerald-spacing-xs, 8px);
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
     font-size: var(--emerald-text-b2-size, 14px);
   }
 
+  .adm-mail__reading-handle,
   .adm-mail__reading-time {
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-mail__reading-head h2 {
+    margin: 0;
+    font-size: var(--emerald-text-h4-size, 20px);
+    letter-spacing: -0.01em;
+  }
+
+  .adm-mail__reading-chips {
+    display: flex;
+    gap: 6px;
   }
 
   .adm-mail__reading-body {
     margin: 0;
     color: var(--emerald-on-surface, #2b2d2e);
     font-size: var(--emerald-text-b2-size, 14px);
-    line-height: 1.6;
+    line-height: 1.65;
     white-space: pre-line;
   }
 
+  /* Composer is one bordered block with its own footer, not a loose field
+     with a right-aligned button. */
   .adm-mail__reply {
     display: flex;
     flex-direction: column;
-    gap: var(--emerald-spacing-s, 12px);
+    gap: var(--emerald-spacing-xs, 8px);
     margin-top: auto;
-    padding-top: var(--emerald-spacing-m, 16px);
-    border-top: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
+    padding: var(--emerald-spacing-s, 12px);
+    border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
+    border-radius: var(--emerald-radius-l, 10px);
+    background: var(--emerald-neutral-200, #f6f8fa);
   }
 
-  .adm-mail__reply .emerald-button {
-    align-self: flex-end;
+  .adm-mail__reply-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--emerald-spacing-s, 12px);
+  }
+
+  .adm-mail__reply-hint {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
   }
 
   .adm-mail__reading-empty {
@@ -607,6 +715,7 @@
       grid-template-columns: minmax(0, 1fr);
     }
 
+    .adm-mail[data-detail] .adm-mail__bar,
     .adm-mail[data-detail] .adm-mail__folders,
     .adm-mail[data-detail] .adm-mail__list-pane {
       display: none;
@@ -625,26 +734,33 @@
   @media (max-width: 720px) {
     .adm-mail {
       grid-template-columns: minmax(0, 1fr);
-      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .adm-mail__bar {
+      flex-wrap: wrap;
+      gap: var(--emerald-spacing-xs, 8px);
+    }
+
+    .adm-mail__bar-title {
+      flex: 1 0 auto;
+    }
+
+    .adm-mail__search {
+      flex: 1 0 100%;
+      order: 3;
     }
 
     .adm-mail__folders {
       flex-direction: row;
       align-items: center;
       gap: var(--emerald-spacing-xs, 8px);
-      padding: var(--emerald-spacing-s, 12px);
       overflow-x: auto;
       overscroll-behavior-x: contain;
     }
 
     .adm-mail__folders .adm-mail__nav-label,
-    .adm-mail__list--labels {
+    .adm-mail__tags {
       display: none;
-    }
-
-    .adm-mail__compose {
-      flex: none;
-      width: auto;
     }
 
     .adm-mail__list {

@@ -1,14 +1,13 @@
 <!--
-  Project timeline, weekly overview, and conversion sparkline render as static
-  CSS/SVG fills (real data, no charting library) — same GAP_CONTRACT precedent
-  as EmeraldSales. The timeline bars are positioned with CSS grid-column
-  start/span against a Jan–Aug axis, a real (if simplified) Gantt-style render.
+  The triage heatmap, age segments, latency columns and burndown line render as
+  static CSS/SVG fills (no charting library) — same GAP_CONTRACT precedent as
+  EmeraldSales. The heatmap intensity is generated from a fixed wave so the
+  grid is stable across renders while keeping weekends visibly cooler.
 -->
 <script setup lang="ts">
   import {
     EmAvatar,
     EmAvatarFallback,
-    EmButton,
     EmCard,
     EmCardBody,
     EmCardFooter,
@@ -24,9 +23,6 @@
     EmSelectContent,
     EmSelectItem,
     EmSelectValue,
-    EmTabs,
-    EmTabsItem,
-    EmTabsList,
     EmTag,
     EmTextField,
   } from '@paper/emerald'
@@ -40,89 +36,94 @@
   // Utilities
   import { shallowRef, toRef } from 'vue'
 
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug']
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  const span = 18
 
-  const timeline: Array<{ person: string, initials: string, start: number, span: number, tone: 'primary' | 'secondary' | 'info' | 'dark' | 'danger' }> = [
-    { person: 'Caleb', initials: 'CB', start: 2, span: 3, tone: 'primary' },
-    { person: 'Shaw', initials: 'SH', start: 1, span: 1, tone: 'secondary' },
-    { person: 'Jane', initials: 'JN', start: 2, span: 2, tone: 'info' },
-    { person: 'Blake', initials: 'BL', start: 0, span: 2, tone: 'danger' },
-    { person: 'Quinn', initials: 'QN', start: 3, span: 2, tone: 'dark' },
+  const heat = days.map((_, day) => Array.from({ length: span }, (_, week) => {
+    const rest = day > 4
+    const wave = Math.sin((week + day) * 0.8) + 1
+
+    return Math.min(Math.round(wave * (rest ? 0.9 : 2)), 4)
+  }))
+
+  const rotation = [
+    { who: 'Zara Idris', day: 'Monday', queue: 24 },
+    { who: 'Bruno Marchetti', day: 'Tuesday', queue: 31 },
+    { who: 'Nadia Haddad', day: 'Wednesday', queue: 19 },
+    { who: 'Kenji Morrow', day: 'Thursday', queue: 27 },
+    { who: 'Camille Fontaine', day: 'Friday', queue: 22 },
   ]
 
-  const projects = [
-    { name: 'iOS Application', task: '840/2.5K', icon: 'phone' as const },
-    { name: 'Web Application', task: '99/1.42K', icon: 'web' as const },
-    { name: 'Brand Dashboard', task: '58/100', icon: 'card' as const },
-    { name: 'UI Kit Design', task: '120/350', icon: 'kit' as const },
+  const ages = [
+    { label: 'Under a day', count: 42, pct: 12, tone: 'deep' as const },
+    { label: '1–7 days', count: 118, pct: 35, tone: 'mid' as const },
+    { label: '8–30 days', count: 96, pct: 28, tone: 'light' as const },
+    { label: '31–90 days', count: 54, pct: 16, tone: 'pale' as const },
+    { label: 'Over 90 days', count: 31, pct: 9, tone: 'muted' as const },
   ]
 
-  const weekly = [30, 55, 40, 65, 100, 55, 50, 40, 35]
-  const weeklyMax = Math.max(...weekly)
+  const latency = [14, 11, 13, 9, 8, 6, 7, 5]
+  const latencyMax = Math.max(...latency)
 
-  const conversion = [40, 55, 45, 60, 92]
+  const burndown = [96, 88, 79, 74, 61, 52, 44, 38]
+  const burndownMax = Math.max(...burndown)
 
-  const perfTab = shallowRef('new')
-
-  const performers: Record<string, { role: string, name: string, metric: string, value: string, delta: string }> = {
-    new: { role: 'Product Manager', name: 'Angel George', metric: 'Physical product', value: '$78,263', delta: '+14.78%' },
-    online: { role: 'Online Sales Lead', name: 'Priya Raman', metric: 'Digital product', value: '$52,910', delta: '+8.32%' },
-    daily: { role: 'Daily Sales Lead', name: 'Marcus Webb', metric: 'In-store product', value: '$12,485', delta: '+3.05%' },
-  }
-
-  const performer = toRef(() => performers[perfTab.value] ?? performers.new!)
+  const curve = burndown
+    .map((v, index) => `${index * (100 / (burndown.length - 1))},${40 - (v / burndownMax) * 34}`)
+    .join(' ')
 
   const search = shallowRef('')
+  const area = shallowRef('all')
   const role = shallowRef('all')
-  const plan = shallowRef('all')
   const status = shallowRef('all')
   const page = shallowRef(1)
 
-  type Status = 'active' | 'pending' | 'inactive'
-
-  type Member = { name: string, email: string, role: string, plan: string, billing: string, status: Status }
+  type Status = 'active' | 'onleave' | 'inactive'
+  type Member = { name: string, handle: string, area: string, role: string, merged: number, closed: number, status: Status }
 
   const seed: Member[] = [
-    { name: 'Jack Alfredo', email: 'jack.alfredo@shadcnstudio.com', role: 'Maintainer', plan: 'Enterprise', billing: 'Auto debit', status: 'active' },
-    { name: 'Sarah Mitchell', email: 'sarah.mitchell@company.com', role: 'Owner', plan: 'Enterprise', billing: 'Auto debit', status: 'active' },
-    { name: 'Robert Chen', email: 'robert.chen@startup.io', role: 'Editor', plan: 'Team', billing: 'Manual - PayPal', status: 'pending' },
-    { name: 'Emily Wilson', email: 'emily.wilson@freelance.com', role: 'Author', plan: 'Basic', billing: 'Manual - cash', status: 'inactive' },
-    { name: 'David Garcia', email: 'david.garcia@agency.net', role: 'Subscriber', plan: 'Company', billing: 'Auto debit', status: 'active' },
-    { name: 'Nina Alvarez', email: 'nina.alvarez@studio.co', role: 'Editor', plan: 'Team', billing: 'Auto debit', status: 'active' },
-    { name: 'Tom Baker', email: 'tom.baker@labs.dev', role: 'Owner', plan: 'Enterprise', billing: 'Manual - PayPal', status: 'pending' },
-    { name: 'Ava Lindqvist', email: 'ava.l@northmail.se', role: 'Author', plan: 'Basic', billing: 'Manual - cash', status: 'inactive' },
+    { name: 'Camille Fontaine', handle: '@camf', area: 'Composables', role: 'Core', merged: 84, closed: 212, status: 'active' },
+    { name: 'Kenji Morrow', handle: '@kmorrow', area: 'Docs', role: 'Core', merged: 61, closed: 168, status: 'active' },
+    { name: 'Nadia Haddad', handle: '@nhaddad', area: 'Composables', role: 'Reviewer', merged: 47, closed: 143, status: 'active' },
+    { name: 'Bruno Marchetti', handle: '@bmarch', area: 'Design systems', role: 'Core', merged: 52, closed: 96, status: 'active' },
+    { name: 'Zara Idris', handle: '@zidris', area: 'Components', role: 'Triage', merged: 18, closed: 264, status: 'active' },
+    { name: 'Theo Vasquez', handle: '@tvasquez', area: 'Tooling', role: 'Reviewer', merged: 33, closed: 71, status: 'onleave' },
+    { name: 'Sofia Delgado', handle: '@sdelgado', area: 'Components', role: 'Contributor', merged: 24, closed: 38, status: 'active' },
+    { name: 'Marek Dvorak', handle: '@mdvorak', area: 'Tooling', role: 'Contributor', merged: 12, closed: 19, status: 'inactive' },
   ]
 
-  const members: Member[] = Array.from({ length: 25 }, (_, index) => {
+  const members: Member[] = Array.from({ length: 24 }, (_, index) => {
     const base = seed[index % seed.length]!
-    const suffix = Math.floor(index / seed.length)
+    const run = Math.floor(index / seed.length)
 
-    return suffix === 0 ? base : { ...base, email: base.email.replace('@', `${suffix + 1}@`) }
+    return run === 0
+      ? base
+      : { ...base, handle: `${base.handle}${run + 1}`, merged: Math.max(base.merged - run * 9, 3), closed: Math.max(base.closed - run * 21, 6) }
   })
 
   type Option = { value: string, label: string }
 
-  const roles: Option[] = [
-    { value: 'all', label: 'All' },
-    { value: 'Owner', label: 'Owner' },
-    { value: 'Editor', label: 'Editor' },
-    { value: 'Author', label: 'Author' },
-    { value: 'Maintainer', label: 'Maintainer' },
-    { value: 'Subscriber', label: 'Subscriber' },
+  const areaOptions: Option[] = [
+    { value: 'all', label: 'All areas' },
+    { value: 'Composables', label: 'Composables' },
+    { value: 'Components', label: 'Components' },
+    { value: 'Docs', label: 'Docs' },
+    { value: 'Tooling', label: 'Tooling' },
+    { value: 'Design systems', label: 'Design systems' },
   ]
 
-  const plans: Option[] = [
-    { value: 'all', label: 'All' },
-    { value: 'Enterprise', label: 'Enterprise' },
-    { value: 'Team', label: 'Team' },
-    { value: 'Basic', label: 'Basic' },
-    { value: 'Company', label: 'Company' },
+  const roleOptions: Option[] = [
+    { value: 'all', label: 'Any role' },
+    { value: 'Core', label: 'Core' },
+    { value: 'Reviewer', label: 'Reviewer' },
+    { value: 'Triage', label: 'Triage' },
+    { value: 'Contributor', label: 'Contributor' },
   ]
 
-  const states: Option[] = [
-    { value: 'all', label: 'All' },
+  const statusOptions: Option[] = [
+    { value: 'all', label: 'Any state' },
     { value: 'active', label: 'Active' },
-    { value: 'pending', label: 'Pending' },
+    { value: 'onleave', label: 'On leave' },
     { value: 'inactive', label: 'Inactive' },
   ]
 
@@ -130,16 +131,16 @@
     return list.find(option => option.value === value)?.label ?? value
   }
 
-  const filter = createFilter({ keys: ['name', 'email', 'role'] })
+  const filter = createFilter({ keys: ['name', 'handle', 'area'] })
   const found = filter.apply(search, members)
 
   const filtered = toRef(() => found.items.value.filter(member =>
-    (role.value === 'all' || member.role === role.value)
-    && (plan.value === 'all' || member.plan === plan.value)
+    (area.value === 'all' || member.area === area.value)
+    && (role.value === 'all' || member.role === role.value)
     && (status.value === 'all' || member.status === status.value),
   ))
 
-  const pagination = createPagination({ page, size: () => filtered.value.length, itemsPerPage: 5 })
+  const pagination = createPagination({ page, size: () => filtered.value.length, itemsPerPage: 6 })
   const rows = toRef(() => filtered.value.slice(pagination.pageStart.value, pagination.pageStop.value))
 
   function initials (name: string) {
@@ -151,219 +152,182 @@
   <EmeraldShell>
     <div class="adm-productivity" data-theme="emerald">
       <header class="adm-productivity__header">
-        <h1 class="adm-productivity__title">Productivity</h1>
-        <p class="adm-productivity__subtitle">Project timeline and team throughput</p>
+        <h1 class="adm-productivity__title">Maintainer workload</h1>
+        <p class="adm-productivity__subtitle">Triage rhythm, review latency and who is carrying the queue</p>
       </header>
 
-      <section aria-label="Project timeline and list" class="adm-productivity__row1">
-        <EmCard class="adm-productivity__panel adm-productivity__panel--wide" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-productivity__panel-title">Project Timeline</EmCardTitle>
-            <p class="adm-productivity__panel-sub">Total 840 Task Completed</p>
+      <section aria-label="Triage activity" class="adm-productivity__top">
+        <EmCard class="adm-productivity__panel" variant="simple">
+          <EmCardHeader class="adm-productivity__heat-head">
+            <div>
+              <EmCardTitle class="adm-productivity__panel-title">Triage activity</EmCardTitle>
+              <p class="adm-productivity__panel-sub">Every label, close and reply, last 18 weeks</p>
+            </div>
+
+            <div class="adm-productivity__heat-stats">
+              <div><strong>1,284</strong><span>triage actions</span></div>
+              <div><strong>341</strong><span>open issues</span></div>
+              <div><strong>5.2h</strong><span>median first reply</span></div>
+            </div>
           </EmCardHeader>
 
           <EmCardBody>
-            <div aria-label="Project timeline by contributor" class="adm-productivity__gantt" role="img" :style="{ '--months': months.length }">
-              <div aria-hidden="true" class="adm-productivity__gantt-axis">
-                <span v-for="m in months" :key="m">{{ m }}</span>
-              </div>
+            <div aria-label="Triage actions by day and week" class="adm-productivity__heat" role="img">
+              <div v-for="(row, day) in heat" :key="days[day]" class="adm-productivity__heat-row">
+                <span class="adm-productivity__heat-day">{{ days[day] }}</span>
 
-              <div v-for="row in timeline" :key="row.person" class="adm-productivity__gantt-row">
-                <span class="adm-productivity__gantt-name">{{ row.person }}</span>
-
-                <div class="adm-productivity__gantt-track">
-                  <span
-                    class="adm-productivity__gantt-bar"
-                    :data-tone="row.tone"
-                    :style="{ gridColumn: `${row.start + 1} / span ${row.span}` }"
-                  />
+                <div class="adm-productivity__heat-cells">
+                  <span v-for="(level, week) in row" :key="week" class="adm-productivity__cell" :data-level="level" />
                 </div>
               </div>
+            </div>
+
+            <div class="adm-productivity__heat-legend">
+              <span>Quieter</span>
+              <span v-for="level in 5" :key="level" class="adm-productivity__cell" :data-level="level - 1" />
+              <span>Busier</span>
             </div>
           </EmCardBody>
         </EmCard>
 
         <EmCard class="adm-productivity__panel" variant="simple">
           <EmCardHeader>
-            <EmCardTitle class="adm-productivity__panel-title">Project List</EmCardTitle>
-            <p class="adm-productivity__panel-sub">4 ongoing project</p>
+            <EmCardTitle class="adm-productivity__panel-title">Rotation this week</EmCardTitle>
+            <p class="adm-productivity__panel-sub">One owner per weekday</p>
           </EmCardHeader>
 
           <EmCardBody>
-            <ul class="adm-productivity__projects">
-              <li v-for="p in projects" :key="p.name">
-                <span aria-hidden="true" class="adm-productivity__icon">
-                  <svg
-                    fill="none"
-                    height="16"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.75"
-                    viewBox="0 0 24 24"
-                    width="16"
-                  ><rect
-                     height="16"
-                     rx="2"
-                     width="12"
-                     x="6"
-                     y="4"
-                   />
+            <ul class="adm-productivity__rotation">
+              <li v-for="shift in rotation" :key="shift.day">
+                <EmAvatar size="sm"><EmAvatarFallback>{{ initials(shift.who) }}</EmAvatarFallback></EmAvatar>
 
-                    <path d="M9 8h6M9 12h6" /></svg>
+                <span class="adm-productivity__rotation-text">
+                  <strong>{{ shift.who }}</strong>
+                  <span>{{ shift.day }}</span>
                 </span>
 
-                <span class="adm-productivity__project-text">
-                  <strong>{{ p.name }}</strong>
-                  <span>Task {{ p.task }}</span>
-                </span>
+                <EmTag>{{ shift.queue }}</EmTag>
               </li>
             </ul>
           </EmCardBody>
         </EmCard>
       </section>
 
-      <section aria-label="Weekly overview and conversion" class="adm-productivity__row2">
+      <section aria-label="Queue health" class="adm-productivity__trio">
         <EmCard class="adm-productivity__panel" variant="simple">
-          <EmCardHeader class="adm-productivity__panel-head">
-            <EmCardTitle class="adm-productivity__panel-title">Weekly overview</EmCardTitle>
-            <EmButton size="sm" variant="tertiary">Details</EmButton>
+          <EmCardHeader>
+            <EmCardTitle class="adm-productivity__panel-title">Open issues by age</EmCardTitle>
+            <p class="adm-productivity__panel-sub">341 issues waiting on someone</p>
           </EmCardHeader>
 
           <EmCardBody>
-            <div aria-label="Weekly task completion" class="adm-productivity__chart" role="img">
-              <div v-for="(v, index) in weekly" :key="index" class="adm-productivity__chart-col">
-                <span class="adm-productivity__chart-bar" :data-peak="v === weeklyMax || undefined" :style="{ height: (v / weeklyMax) * 100 + '%' }" />
-              </div>
+            <div aria-label="Open issues grouped by age" class="adm-productivity__segbar" role="img">
+              <span
+                v-for="bucket in ages"
+                :key="bucket.label"
+                class="adm-productivity__seg"
+                :data-tone="bucket.tone"
+                :style="{ flexGrow: bucket.pct }"
+              >{{ bucket.count }}</span>
             </div>
 
-            <p class="adm-productivity__note"><strong>80%</strong> Your sales performance is 60% Better compare to Last month</p>
-            <EmButton class="adm-productivity__cta" variant="primary">Details</EmButton>
+            <ul class="adm-productivity__legend">
+              <li v-for="bucket in ages" :key="bucket.label">
+                <span class="adm-productivity__dot" :data-tone="bucket.tone" />
+                <span>{{ bucket.label }}</span>
+                <strong>{{ bucket.pct }}%</strong>
+              </li>
+            </ul>
           </EmCardBody>
         </EmCard>
 
         <EmCard class="adm-productivity__panel" variant="simple">
           <EmCardHeader>
-            <EmCardTitle class="adm-productivity__panel-title">Conversion rate</EmCardTitle>
-            <p class="adm-productivity__panel-sub">Compared to last month</p>
+            <EmCardTitle class="adm-productivity__panel-title">Review latency</EmCardTitle>
+            <p class="adm-productivity__panel-sub">Median hours to first PR review, by week</p>
           </EmCardHeader>
 
           <EmCardBody>
-            <span class="adm-productivity__kpi-value">92.8% <em class="adm-productivity__delta" data-up>6.3%</em></span>
+            <span class="adm-productivity__stat">5h <em class="adm-productivity__delta" data-up>-9h since March</em></span>
 
-            <svg aria-hidden="true" class="adm-productivity__trend" preserveAspectRatio="none" viewBox="0 0 100 40">
+            <div aria-label="Median review latency by week" class="adm-productivity__columns" role="img">
+              <span
+                v-for="(hours, index) in latency"
+                :key="index"
+                class="adm-productivity__column"
+                :data-best="hours === Math.min(...latency) || undefined"
+                :style="{ height: (hours / latencyMax) * 100 + '%' }"
+              />
+            </div>
+          </EmCardBody>
+        </EmCard>
+
+        <EmCard class="adm-productivity__panel" variant="simple">
+          <EmCardHeader>
+            <EmCardTitle class="adm-productivity__panel-title">v1.1 burndown</EmCardTitle>
+            <p class="adm-productivity__panel-sub">Milestone issues left, week by week</p>
+          </EmCardHeader>
+
+          <EmCardBody>
+            <span class="adm-productivity__stat">38 <em class="adm-productivity__delta" data-up>-60% from open</em></span>
+
+            <svg
+              aria-label="Milestone burndown"
+              class="adm-productivity__curve"
+              preserveAspectRatio="none"
+              role="img"
+              viewBox="0 0 100 40"
+            >
               <polyline
                 fill="none"
-                :points="conversion.map((v, index) => `${index * (100 / (conversion.length - 1))},${40 - (v / 100) * 36}`).join(' ')"
+                :points="curve"
                 stroke="var(--emerald-primary-600, #1fae60)"
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="3"
               />
             </svg>
-
-            <ul class="adm-productivity__funnel">
-              <li><span>Impressions</span> <strong>12.2K Visits</strong> <em class="adm-productivity__delta" data-up>20.3%</em></li>
-              <li><span>Added to cart</span> <strong>32 product in cart</strong> <em class="adm-productivity__delta" data-up>6.3%</em></li>
-              <li><span>Checkout</span> <strong>15 Product checkout</strong> <em class="adm-productivity__delta">9.56%</em></li>
-              <li><span>Purchased</span> <strong>12 orders</strong> <em class="adm-productivity__delta" data-up>2.62%</em></li>
-            </ul>
           </EmCardBody>
         </EmCard>
       </section>
 
-      <section aria-label="Performance">
-        <EmCard variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-productivity__panel-title">Performance</EmCardTitle>
-          </EmCardHeader>
-
-          <EmTabs v-model="perfTab">
-            <EmTabsList>
-              <EmTabsItem value="new">New Users</EmTabsItem>
-              <EmTabsItem value="online">Online Sales</EmTabsItem>
-              <EmTabsItem value="daily">Daily Sales</EmTabsItem>
-            </EmTabsList>
-          </EmTabs>
-
-          <EmCardBody class="adm-productivity__perf">
-            <div class="adm-productivity__perf-row">
-              <span class="adm-productivity__perf-person">
-                <EmAvatar size="sm"><EmAvatarFallback>AG</EmAvatarFallback></EmAvatar>
-
-                <span class="adm-productivity__perf-text">
-                  <span>{{ performer.role }}</span>
-                  <strong>{{ performer.name }}</strong>
-                </span>
-              </span>
-            </div>
-
-            <div class="adm-productivity__perf-row">
-              <EmTag>Daily purchase</EmTag>
-              <strong>10 Items</strong>
-            </div>
-
-            <div class="adm-productivity__perf-row">
-              <span class="adm-productivity__perf-text">
-                <span>{{ performer.metric }}</span>
-                <strong>{{ performer.value }}</strong>
-              </span>
-
-              <EmTag variant="success">{{ performer.delta }}</EmTag>
-            </div>
-          </EmCardBody>
-        </EmCard>
-      </section>
-
-      <section aria-label="Team members">
+      <section aria-label="Contributors">
         <EmCard variant="simple">
           <EmCardHeader class="adm-productivity__toolbar">
-            <EmCardTitle class="adm-productivity__panel-title">Team members</EmCardTitle>
+            <EmCardTitle class="adm-productivity__panel-title">Contributors</EmCardTitle>
 
-            <div class="adm-productivity__toolbar-filters">
-              <label class="adm-productivity__field">
-                <span class="adm-productivity__field-label">Select Role</span>
+            <div class="adm-productivity__filters">
+              <EmTextField v-model="search" aria-label="Search contributors" class="adm-productivity__search" placeholder="Search contributor" />
 
-                <EmSelect v-model="role">
-                  <EmSelectActivator>
-                    <EmSelectValue v-slot="{ selectedValue }">{{ label(roles, String(selectedValue)) }}</EmSelectValue>
-                  </EmSelectActivator>
+              <EmSelect v-model="area" class="adm-productivity__select">
+                <EmSelectActivator>
+                  <EmSelectValue v-slot="{ selectedValue }">{{ label(areaOptions, String(selectedValue)) }}</EmSelectValue>
+                </EmSelectActivator>
 
-                  <EmSelectContent>
-                    <EmSelectItem v-for="option in roles" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
-                  </EmSelectContent>
-                </EmSelect>
-              </label>
+                <EmSelectContent>
+                  <EmSelectItem v-for="option in areaOptions" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
+                </EmSelectContent>
+              </EmSelect>
 
-              <label class="adm-productivity__field">
-                <span class="adm-productivity__field-label">Select Plan</span>
+              <EmSelect v-model="role" class="adm-productivity__select">
+                <EmSelectActivator>
+                  <EmSelectValue v-slot="{ selectedValue }">{{ label(roleOptions, String(selectedValue)) }}</EmSelectValue>
+                </EmSelectActivator>
 
-                <EmSelect v-model="plan">
-                  <EmSelectActivator>
-                    <EmSelectValue v-slot="{ selectedValue }">{{ label(plans, String(selectedValue)) }}</EmSelectValue>
-                  </EmSelectActivator>
+                <EmSelectContent>
+                  <EmSelectItem v-for="option in roleOptions" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
+                </EmSelectContent>
+              </EmSelect>
 
-                  <EmSelectContent>
-                    <EmSelectItem v-for="option in plans" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
-                  </EmSelectContent>
-                </EmSelect>
-              </label>
+              <EmSelect v-model="status" class="adm-productivity__select">
+                <EmSelectActivator>
+                  <EmSelectValue v-slot="{ selectedValue }">{{ label(statusOptions, String(selectedValue)) }}</EmSelectValue>
+                </EmSelectActivator>
 
-              <label class="adm-productivity__field">
-                <span class="adm-productivity__field-label">Select Status</span>
-
-                <EmSelect v-model="status">
-                  <EmSelectActivator>
-                    <EmSelectValue v-slot="{ selectedValue }">{{ label(states, String(selectedValue)) }}</EmSelectValue>
-                  </EmSelectActivator>
-
-                  <EmSelectContent>
-                    <EmSelectItem v-for="option in states" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
-                  </EmSelectContent>
-                </EmSelect>
-              </label>
-
-              <EmTextField v-model="search" aria-label="Search team" class="adm-productivity__search" placeholder="Search team" />
+                <EmSelectContent>
+                  <EmSelectItem v-for="option in statusOptions" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
+                </EmSelectContent>
+              </EmSelect>
             </div>
           </EmCardHeader>
 
@@ -372,66 +336,35 @@
               <thead>
                 <tr>
                   <th><EmCheckbox aria-label="Select all" /></th>
-                  <th>User</th>
+                  <th>Contributor</th>
+                  <th>Area</th>
                   <th>Role</th>
-                  <th>Plan</th>
-                  <th>Billing</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th>PRs merged</th>
+                  <th>Issues closed</th>
+                  <th>State</th>
                 </tr>
               </thead>
 
               <tbody>
-                <tr v-for="m in rows" :key="m.email">
-                  <td><EmCheckbox :aria-label="`Select ${m.name}`" /></td>
+                <tr v-for="member in rows" :key="member.handle">
+                  <td><EmCheckbox :aria-label="`Select ${member.name}`" /></td>
 
                   <td>
                     <div class="adm-productivity__client">
-                      <EmAvatar size="sm"><EmAvatarFallback>{{ initials(m.name) }}</EmAvatarFallback></EmAvatar>
-
-                      <span>
-                        <strong>{{ m.name }}</strong>
-                        <span class="adm-productivity__client-email">{{ m.email }}</span>
-                      </span>
+                      <EmAvatar size="sm"><EmAvatarFallback>{{ initials(member.name) }}</EmAvatarFallback></EmAvatar>
+                      <span><strong>{{ member.name }}</strong><span class="adm-productivity__client-sub">{{ member.handle }}</span></span>
                     </div>
                   </td>
 
-                  <td>{{ m.role }}</td>
-                  <td>{{ m.plan }}</td>
-                  <td>{{ m.billing }}</td>
+                  <td>{{ member.area }}</td>
+                  <td>{{ member.role }}</td>
+                  <td>{{ member.merged }}</td>
+                  <td>{{ member.closed }}</td>
 
                   <td>
-                    <EmTag :variant="m.status === 'active' ? 'success' : m.status === 'pending' ? 'info' : 'danger'">
-                      {{ m.status === 'active' ? 'Active' : m.status === 'pending' ? 'Pending' : 'Inactive' }}
+                    <EmTag :variant="member.status === 'active' ? 'success' : member.status === 'onleave' ? 'info' : 'neutral'">
+                      {{ member.status === 'active' ? 'Active' : member.status === 'onleave' ? 'On leave' : 'Inactive' }}
                     </EmTag>
-                  </td>
-
-                  <td>
-                    <div class="adm-productivity__actions">
-                      <EmButton aria-label="Delete" size="sm" variant="tertiary">
-                        <svg
-                          fill="none"
-                          height="15"
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-width="1.75"
-                          viewBox="0 0 24 24"
-                          width="15"
-                        ><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13" /></svg>
-                      </EmButton>
-
-                      <EmButton aria-label="View" size="sm" variant="tertiary">
-                        <svg
-                          fill="none"
-                          height="15"
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-width="1.75"
-                          viewBox="0 0 24 24"
-                          width="15"
-                        ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
-                      </EmButton>
-                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -440,10 +373,10 @@
 
           <EmCardFooter class="adm-productivity__table-foot">
             <span class="adm-productivity__table-count">
-              Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} entries
+              Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} contributors
             </span>
 
-            <EmPagination v-model="page" :items-per-page="5" :size="filtered.length">
+            <EmPagination v-model="page" :items-per-page="6" :size="filtered.length">
               <template #default="{ items }">
                 <EmPaginationPrev>‹ Previous</EmPaginationPrev>
 
@@ -492,18 +425,6 @@
     font-size: var(--emerald-text-b1-size, 16px);
   }
 
-  .adm-productivity__row1 {
-    display: grid;
-    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
-    gap: var(--emerald-spacing-m, 16px);
-  }
-
-  .adm-productivity__row2 {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--emerald-spacing-m, 16px);
-  }
-
   .adm-productivity__panel-title {
     font-size: var(--emerald-text-b1-size, 16px) !important;
     font-weight: 700 !important;
@@ -513,162 +434,6 @@
     margin: 2px 0 0;
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b3-size, 12px);
-  }
-
-  /* .emerald-card__header is flex-direction: column — a title/action row has to
-     opt back into row explicitly. */
-  .adm-productivity__panel-head {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-productivity__gantt {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-productivity__gantt-axis {
-    display: grid;
-    grid-template-columns: repeat(var(--months), 1fr);
-    margin-left: 72px;
-    padding-bottom: var(--emerald-spacing-xs, 8px);
-    border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
-    font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-productivity__gantt-row {
-    display: flex;
-    align-items: center;
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-productivity__gantt-name {
-    width: 60px;
-    flex: none;
-    font-size: var(--emerald-text-b2-size, 14px);
-    font-weight: 600;
-  }
-
-  .adm-productivity__gantt-track {
-    display: grid;
-    flex: 1;
-    grid-template-columns: repeat(var(--months), 1fr);
-    height: 20px;
-  }
-
-  .adm-productivity__gantt-bar {
-    border-radius: var(--emerald-radius-m, 8px);
-    background: var(--emerald-primary-500, #26c26d);
-  }
-
-  .adm-productivity__gantt-bar[data-tone='secondary'] {
-    background: var(--emerald-primary-300, #baedd0);
-  }
-
-  .adm-productivity__gantt-bar[data-tone='info'] {
-    background: var(--emerald-primary-500, #6fb38c);
-  }
-
-  .adm-productivity__gantt-bar[data-tone='dark'] {
-    background: var(--emerald-primary-800, #01603a);
-  }
-
-  .adm-productivity__gantt-bar[data-tone='danger'] {
-    background: var(--emerald-primary-700, #027d4c);
-  }
-
-  .adm-productivity__projects {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-m, 16px);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .adm-productivity__projects li {
-    display: flex;
-    align-items: center;
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-productivity__icon {
-    display: inline-flex;
-    flex: none;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--emerald-radius-m, 8px);
-    background: var(--emerald-primary-100, #e7fff2);
-    color: var(--emerald-primary-700, #027d4c);
-  }
-
-  .adm-productivity__project-text {
-    display: flex;
-    flex-direction: column;
-    font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-productivity__project-text strong {
-    color: var(--emerald-on-surface, #2b2d2e);
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-productivity__chart {
-    display: flex;
-    align-items: flex-end;
-    gap: 6px;
-    height: 140px;
-  }
-
-  /* Percentage bar heights need a definite parent height; align-items: flex-end
-     on the track leaves the column auto-sized, collapsing every bar. */
-  .adm-productivity__chart-col {
-    flex: 1;
-    display: flex;
-    align-items: flex-end;
-    height: 100%;
-  }
-
-  .adm-productivity__chart-bar {
-    width: 100%;
-    min-height: 6px;
-    border-radius: var(--emerald-radius-xs, 4px) var(--emerald-radius-xs, 4px) 0 0;
-    background: var(--emerald-primary-100, #e7fff2);
-  }
-
-  .adm-productivity__chart-bar[data-peak] {
-    background: var(--emerald-primary-600, #1fae60);
-  }
-
-  .adm-productivity__note {
-    margin: var(--emerald-spacing-m, 16px) 0 var(--emerald-spacing-s, 12px);
-    font-size: var(--emerald-text-b2-size, 14px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-productivity__note strong {
-    color: var(--emerald-on-surface, #2b2d2e);
-    font-size: 1.25rem;
-  }
-
-  .adm-productivity__cta {
-    width: 100%;
-  }
-
-  .adm-productivity__kpi-value {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    font-size: 1.75rem;
-    font-weight: 700;
   }
 
   .adm-productivity__delta {
@@ -682,103 +447,284 @@
     color: var(--emerald-primary-700, #027d4c);
   }
 
-  .adm-productivity__trend {
-    width: 100%;
-    height: 60px;
-    margin: var(--emerald-spacing-s, 12px) 0;
-  }
-
-  .adm-productivity__funnel {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-productivity__funnel li {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .adm-productivity__funnel span:first-child {
-    flex: 1;
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-productivity__perf {
-    display: flex;
-    flex-direction: column;
+  .adm-productivity__top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 300px);
     gap: var(--emerald-spacing-m, 16px);
   }
 
-  .adm-productivity__perf-row {
+  /* .emerald-card__header is flex-direction: column — a title/action row has to
+     opt back into row explicitly. */
+  .adm-productivity__heat-head,
+  .adm-productivity__toolbar {
     display: flex;
     flex-direction: row;
     align-items: center;
+    flex-wrap: wrap;
     justify-content: space-between;
     gap: var(--emerald-spacing-s, 12px);
-    padding: var(--emerald-spacing-s, 12px);
-    border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
-    border-radius: var(--emerald-radius-m, 8px);
   }
 
-  .adm-productivity__perf-text {
+  .adm-productivity__heat-stats {
+    display: flex;
+    gap: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-productivity__heat-stats > div {
+    display: flex;
+    flex-direction: column;
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-productivity__heat-stats strong {
+    color: var(--emerald-on-surface, #2b2d2e);
+    font-size: 1.25rem;
+  }
+
+  .adm-productivity__heat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: var(--emerald-spacing-xs, 8px);
+  }
+
+  .adm-productivity__heat-row {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    align-items: center;
+    gap: var(--emerald-spacing-xs, 8px);
+  }
+
+  .adm-productivity__heat-day {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-productivity__heat-cells {
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    gap: 4px;
+  }
+
+  .adm-productivity__cell {
+    height: 26px;
+    border-radius: 3px;
+    background: var(--emerald-neutral-200, #f6f8fa);
+  }
+
+  .adm-productivity__cell[data-level='1'] {
+    background: var(--emerald-primary-100, #e7fff2);
+  }
+
+  .adm-productivity__cell[data-level='2'] {
+    background: var(--emerald-primary-300, #baedd0);
+  }
+
+  .adm-productivity__cell[data-level='3'] {
+    background: var(--emerald-primary-500, #26c26d);
+  }
+
+  .adm-productivity__cell[data-level='4'] {
+    background: var(--emerald-primary-800, #01603a);
+  }
+
+  .adm-productivity__heat-legend {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-top: var(--emerald-spacing-s, 12px);
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-productivity__heat-legend .adm-productivity__cell {
+    width: 18px;
+    height: 18px;
+  }
+
+  .adm-productivity__heat-legend > span:first-child {
+    margin-right: 4px;
+  }
+
+  .adm-productivity__heat-legend > span:last-child {
+    margin-left: 4px;
+  }
+
+  .adm-productivity__rotation {
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-m, 16px);
+    margin: var(--emerald-spacing-xs, 8px) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .adm-productivity__rotation li {
+    display: flex;
+    align-items: center;
+    gap: var(--emerald-spacing-s, 12px);
+  }
+
+  .adm-productivity__rotation-text {
+    flex: 1;
     display: flex;
     flex-direction: column;
     min-width: 0;
-    font-size: var(--emerald-text-b3-size, 12px);
     color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
   }
 
-  .adm-productivity__perf-text strong {
+  .adm-productivity__rotation-text strong {
     color: var(--emerald-on-surface, #2b2d2e);
     font-size: var(--emerald-text-b2-size, 14px);
   }
 
-  .adm-productivity__perf-person {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-productivity__toolbar {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
+  .adm-productivity__trio {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--emerald-spacing-m, 16px);
   }
 
-  .adm-productivity__field {
+  .adm-productivity__trio .emerald-card__body {
     display: flex;
+    flex: 1;
     flex-direction: column;
-    gap: var(--emerald-spacing-2xs, 4px);
-    min-width: 0;
-    font-size: var(--emerald-text-b3-size, 12px);
   }
 
-  .adm-productivity__field-label {
-    color: var(--emerald-on-surface-variant, #757e85);
+  .adm-productivity__segbar {
+    display: flex;
+    height: 40px;
+    margin-top: var(--emerald-spacing-xs, 8px);
+    border-radius: var(--emerald-radius-m, 8px);
+    overflow: hidden;
+    font-size: var(--emerald-text-b3-size, 12px);
     font-weight: 600;
   }
 
-  .adm-productivity__search {
-    grid-column: 1 / -1;
+  .adm-productivity__seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--emerald-primary-800, #01603a);
+    color: var(--emerald-on-primary, #fff);
   }
 
-  .adm-productivity__page-gap {
-    padding: 0 var(--emerald-spacing-2xs, 4px);
+  .adm-productivity__seg[data-tone='mid'] {
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  .adm-productivity__seg[data-tone='light'] {
+    background: var(--emerald-primary-500, #26c26d);
+  }
+
+  .adm-productivity__seg[data-tone='pale'] {
+    background: var(--emerald-primary-300, #baedd0);
+    color: var(--emerald-on-surface, #2b2d2e);
+  }
+
+  .adm-productivity__seg[data-tone='muted'] {
+    background: var(--emerald-neutral-300, #ccd6e7);
+    color: var(--emerald-on-surface, #2b2d2e);
+  }
+
+  .adm-productivity__legend {
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-xs, 8px);
+    margin: var(--emerald-spacing-m, 16px) 0 0;
+    padding: 0;
+    list-style: none;
     color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
   }
 
-  .adm-productivity__toolbar-filters {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--emerald-spacing-s, 12px);
+  .adm-productivity__legend li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .adm-productivity__legend strong {
+    margin-left: auto;
+    color: var(--emerald-on-surface, #2b2d2e);
+  }
+
+  .adm-productivity__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    background: var(--emerald-primary-800, #01603a);
+  }
+
+  .adm-productivity__dot[data-tone='mid'] {
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  .adm-productivity__dot[data-tone='light'] {
+    background: var(--emerald-primary-500, #26c26d);
+  }
+
+  .adm-productivity__dot[data-tone='pale'] {
+    background: var(--emerald-primary-300, #baedd0);
+  }
+
+  .adm-productivity__dot[data-tone='muted'] {
+    background: var(--emerald-neutral-300, #ccd6e7);
+  }
+
+  .adm-productivity__stat {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-top: var(--emerald-spacing-xs, 8px);
+    font-size: 1.75rem;
+    font-weight: 700;
+  }
+
+  .adm-productivity__columns {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 90px;
+    margin-top: auto;
+    padding-top: var(--emerald-spacing-m, 16px);
+  }
+
+  .adm-productivity__column {
+    flex: 1;
+    min-height: 6px;
+    border-radius: var(--emerald-radius-xs, 4px) var(--emerald-radius-xs, 4px) 0 0;
+    background: var(--emerald-primary-300, #baedd0);
+  }
+
+  .adm-productivity__column[data-best] {
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  .adm-productivity__curve {
+    width: 100%;
+    height: 90px;
+    margin-top: auto;
+    padding-top: var(--emerald-spacing-m, 16px);
+  }
+
+  .adm-productivity__filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--emerald-spacing-xs, 8px);
+  }
+
+  .adm-productivity__search {
+    width: 200px;
+  }
+
+  .adm-productivity__select {
+    width: 140px;
   }
 
   .adm-productivity__table-wrap {
@@ -835,24 +781,14 @@
     display: block;
   }
 
-  .adm-productivity__client-email {
+  .adm-productivity__client-sub {
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
-  .adm-productivity__actions {
-    display: flex;
-    gap: 2px;
-  }
-
-  .adm-productivity__actions .emerald-button {
-    width: 30px;
-    height: 30px;
-    padding: 0;
-  }
-
   .adm-productivity__table-foot {
     display: flex;
+    flex-direction: row;
     align-items: center;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -864,16 +800,34 @@
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
+  .adm-productivity__page-gap {
+    padding: 0 var(--emerald-spacing-2xs, 4px);
+    color: var(--emerald-on-surface-variant, #757e85);
+  }
+
   @media (max-width: 1200px) {
-    .adm-productivity__row1,
-    .adm-productivity__row2 {
+    .adm-productivity__top,
+    .adm-productivity__trio {
       grid-template-columns: 1fr;
     }
   }
 
   @media (max-width: 640px) {
-    .adm-productivity__toolbar-filters {
-      grid-template-columns: 1fr;
+    .adm-productivity__search,
+    .adm-productivity__select {
+      width: 100%;
+    }
+
+    .adm-productivity__heat-stats {
+      gap: var(--emerald-spacing-m, 16px);
+    }
+
+    .adm-productivity__cell {
+      height: 12px;
+    }
+
+    .adm-productivity__heat-cells {
+      gap: 2px;
     }
   }
 </style>

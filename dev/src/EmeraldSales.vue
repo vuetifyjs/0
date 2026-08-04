@@ -1,9 +1,7 @@
 <!--
-  Total Transaction / Total sales / Earning Report charts below are rendered
-  as static CSS-only bar/line fills (real data labels, no charting library) —
-  the GAP_CONTRACT calls this an acceptable "likeness" render since v0 ships
-  no charting primitive yet (see GAPS.md). The mini KPI sparkline/ring visuals
-  use the same technique (flex bars, clip-path polygon, conic-gradient).
+  Revenue columns, funnel bars and sparklines render as static CSS/SVG fills
+  (real data, no charting library) — the GAP_CONTRACT calls this an acceptable
+  "likeness" render since v0 ships no charting primitive yet (see GAPS.md).
 -->
 <script setup lang="ts">
   import {
@@ -38,135 +36,109 @@
   // Utilities
   import { shallowRef, toRef } from 'vue'
 
-  type Kpi = {
-    label: string
-    sub: string
-    value: string
-    delta: string
-    up: boolean
-    kind: 'bars' | 'line' | 'ring'
-    bars?: number[]
-    ring?: number
-    ringLabel?: string
-    ringSub?: string
+  // Storefront revenue in thousands; the eight months total the $664K headline.
+  const months = [
+    { label: 'Jan', value: 62 },
+    { label: 'Feb', value: 71 },
+    { label: 'Mar', value: 68 },
+    { label: 'Apr', value: 84 },
+    { label: 'May', value: 91 },
+    { label: 'Jun', value: 88 },
+    { label: 'Jul', value: 103 },
+    { label: 'Aug', value: 97 },
+  ]
+
+  const peak = Math.max(...months.map(month => month.value))
+
+  const lines = [
+    { label: 'Admin templates', amount: '$286K', pct: 100 },
+    { label: 'Component kits', amount: '$198K', pct: 69 },
+    { label: 'Docs themes', amount: '$112K', pct: 39 },
+    { label: 'Icon sets', amount: '$68K', pct: 24 },
+  ]
+
+  const funnel = [
+    { label: 'Viewed pricing', count: '84,200', pct: 100 },
+    { label: 'Started checkout', count: '12,640', pct: 15 },
+    { label: 'Entered payment', count: '9,180', pct: 11 },
+    { label: 'Completed purchase', count: '7,940', pct: 9 },
+  ]
+
+  const refunds = [3.4, 3.1, 2.8, 2.6, 2.2, 2, 1.9, 1.8]
+  const order = [71, 74, 73, 78, 80, 79, 84, 84]
+
+  function spark (series: readonly number[]) {
+    const high = Math.max(...series)
+    const low = Math.min(...series)
+    const range = high - low || 1
+
+    return series.map((v, index) => `${index * (100 / (series.length - 1))},${34 - ((v - low) / range) * 28}`).join(' ')
   }
 
-  const kpis: Kpi[] = [
-    { label: 'Total Profit', sub: '', value: '$88.5k', delta: '-18%', up: false, kind: 'bars', bars: [45, 65, 100, 55, 80, 60] },
-    { label: 'Order', sub: 'Last week', value: '124K', delta: '+12.6%', up: true, kind: 'bars', bars: [30, 55, 90, 70, 100, 60, 80, 40] },
-    { label: 'Profit', sub: 'Last Month', value: '624K', delta: '+12.6%', up: true, kind: 'line' },
-    { label: 'User reach', sub: 'Last week', value: '32K', delta: '+12%', up: true, kind: 'ring', ring: 72, ringLabel: '500', ringSub: 'Visitors' },
+  const promo = shallowRef('')
+
+  const codes = [
+    { code: 'LAUNCH25', cut: '25% off', uses: '1,284', state: 'Active' as const },
+    { code: 'EARLYBIRD', cut: '15% off', uses: '2,106', state: 'Active' as const },
+    { code: 'STUDENT50', cut: '50% off', uses: '738', state: 'Active' as const },
+    { code: 'VUEFES30', cut: '30% off', uses: '412', state: 'Scheduled' as const },
+    { code: 'TEAMPACK', cut: '20% off', uses: '196', state: 'Expired' as const },
   ]
 
-  function top (bars: number[] = []) {
-    return Math.max(...bars)
-  }
+  const codeFilter = createFilter({ keys: ['code', 'cut'] })
+  const codeMatches = codeFilter.apply(promo, codes)
+  const visibleCodes = toRef(() => codeMatches.items.value)
 
-  const money = [
-    { label: 'Total Income', sub: 'Last week', value: '$4,673', delta: '+25.2%', up: true, icon: 'coin' as const },
-    { label: 'Total Expense', sub: 'Last month', value: '$1.28K', delta: '-12.2%', up: false, icon: 'card' as const },
+  const referrers = [
+    { source: 'vuetifyjs.com', pct: 38 },
+    { source: 'GitHub', pct: 24 },
+    { source: 'Search engines', pct: 16 },
+    { source: 'Discord', pct: 14 },
+    { source: 'Newsletter', pct: 8 },
   ]
 
-  const transactions = [
-    { label: 'Jan', value: 38 },
-    { label: 'Feb', value: 52, peak: true },
-    { label: 'Mar', value: 32 },
-    { label: 'Apr', value: 12 },
-    { label: 'May', value: 35 },
-    { label: 'Jun', value: 28 },
-    { label: 'Jul', value: 33 },
-    { label: 'Aug', value: 25 },
-  ]
-  const transactionMax = Math.max(...transactions.map(t => t.value))
-
-  const salesTrend = [30, 45, 40, 60, 55, 75, 65, 90, 80, 95]
-
-  const earning = [
-    { label: 'Net profit', sub: 'Sales', value: '$1,623', delta: '+20.3%', icon: 'pie' as const },
-    { label: 'Total income', sub: 'Sales, Affiliation', value: '$5,600', delta: '+16.2%', icon: 'coin' as const },
-    { label: 'Total expense', sub: 'ADVT, Marketing', value: '$3,200', delta: '+10.5%', icon: 'card' as const },
-  ]
-  const weekly = [
-    { label: 'MO', value: 40 },
-    { label: 'TU', value: 55 },
-    { label: 'WE', value: 60 },
-    { label: 'TH', value: 100, peak: true },
-    { label: 'FR', value: 45 },
-    { label: 'SA', value: 65 },
-    { label: 'SU', value: 35 },
-  ]
-
-  const cards = ['5688 xxxx xxxx 2356', '8562 xxxx xxxx 4563']
-
-  const cardNumber = shallowRef('')
   const search = shallowRef('')
   const show = shallowRef('5')
-  const statusFilter = shallowRef('all')
+  const status = shallowRef('all')
   const page = shallowRef(1)
 
-  type Status = 'paid' | 'pending' | 'sent'
+  type Status = 'settled' | 'refunded' | 'disputed'
+  type Sale = { id: string, buyer: string, org: string, product: string, amount: string, method: string, status: Status }
 
-  type Invoice = {
-    id: string
-    name: string
-    role: string
-    initials: string
-    total: string
-    date: string
-    balance: string
-    balanceNeg: boolean
-    status: Status
-  }
-
-  const people = [
-    { name: 'Jack Alfredo', role: 'UI/UX designer', initials: 'JA' },
-    { name: 'Maria Gonzalez', role: 'Frontend developer', initials: 'MG' },
-    { name: 'John Doe', role: 'Graphic designer', initials: 'JD' },
-    { name: 'Emily Carter', role: 'UI/UX designer', initials: 'EC' },
-    { name: 'David Lee', role: 'Backend developer', initials: 'DL' },
-    { name: 'Sara Chen', role: 'Product manager', initials: 'SC' },
-    { name: 'Noah Patel', role: 'Backend developer', initials: 'NP' },
-    { name: 'Julia Hart', role: 'Motion designer', initials: 'JH' },
+  const seed: Sale[] = [
+    { id: 'TXN-9042', buyer: 'Priya Raghunathan', org: 'Northwind Labs', product: 'Emerald Pro Admin', amount: '$149.00', method: 'Visa · 4417', status: 'settled' },
+    { id: 'TXN-9038', buyer: 'Tomas Lindqvist', org: 'Kestrel Analytics', product: 'Onyx Studio Kit', amount: '$189.00', method: 'Mastercard · 9032', status: 'settled' },
+    { id: 'TXN-9031', buyer: 'Adaeze Okonkwo', org: 'Foundry Nine', product: 'Component kit bundle', amount: '$318.00', method: 'SEPA · 2185', status: 'refunded' },
+    { id: 'TXN-9027', buyer: 'Ravi Menon', org: 'Vellum Press', product: 'Helix Docs Theme', amount: '$79.00', method: 'Visa · 6620', status: 'settled' },
+    { id: 'TXN-9019', buyer: 'Ingrid Solberg', org: 'Palisade Bank', product: 'Emerald Pro Admin', amount: '$149.00', method: 'Invoice', status: 'disputed' },
+    { id: 'TXN-9014', buyer: 'Hugo Bellamy', org: 'Copperline Studio', product: 'Prism Icon Set', amount: '$49.00', method: 'Visa · 1188', status: 'settled' },
+    { id: 'TXN-9008', buyer: 'Mira Kovac', org: 'Ardent Robotics', product: 'Onyx Studio Kit', amount: '$189.00', method: 'Mastercard · 4471', status: 'settled' },
+    { id: 'TXN-9002', buyer: 'Kenji Morrow', org: 'Saltmarsh Digital', product: 'Docs theme bundle', amount: '$138.00', method: 'SEPA · 7730', status: 'refunded' },
   ]
 
-  const months = ['Apr', 'May', 'Jun', 'Jul', 'Aug']
-  const statuses: Status[] = ['sent', 'paid', 'paid', 'pending', 'sent']
+  const sales: Sale[] = Array.from({ length: 25 }, (_, index) => {
+    const base = seed[index % seed.length]!
 
-  const invoices: Invoice[] = Array.from({ length: 25 }, (_, index) => {
-    const person = people[index % people.length]!
-    const status = statuses[index % statuses.length]!
-    const negative = status === 'pending'
-
-    return {
-      id: `#${5099 - index * 37}`,
-      name: person.name,
-      role: person.role,
-      initials: person.initials,
-      total: `$${(1200 + index * 143).toLocaleString('en-US')}.00`,
-      date: `${String((index % 27) + 2).padStart(2, '0')} ${months[index % months.length]} 2025`,
-      balance: negative ? `-$${(40 + index * 7)}.00` : 'Paid',
-      balanceNeg: negative,
-      status,
-    }
+    return index < seed.length ? base : { ...base, id: `TXN-${9042 - index * 7}` }
   })
 
   const options = [
     { value: 'all', label: 'All' },
-    { value: 'paid', label: 'Paid' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'sent', label: 'Sent' },
+    { value: 'settled', label: 'Settled' },
+    { value: 'refunded', label: 'Refunded' },
+    { value: 'disputed', label: 'Disputed' },
   ]
 
   function label (value: string) {
-    return options.find(o => o.value === value)?.label ?? value
+    return options.find(option => option.value === value)?.label ?? value
   }
 
-  const filter = createFilter({ keys: ['id', 'name', 'role'] })
-  const found = filter.apply(search, invoices)
+  const filter = createFilter({ keys: ['id', 'buyer', 'org', 'product'] })
+  const found = filter.apply(search, sales)
 
-  const filtered = toRef(() => statusFilter.value === 'all'
+  const filtered = toRef(() => status.value === 'all'
     ? found.items.value
-    : found.items.value.filter(row => row.status === statusFilter.value),
+    : found.items.value.filter(row => row.status === status.value),
   )
 
   const pagination = createPagination({
@@ -176,350 +148,123 @@
   })
 
   const rows = toRef(() => filtered.value.slice(pagination.pageStart.value, pagination.pageStop.value))
+
+  function initials (name: string) {
+    return name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase()
+  }
 </script>
 
 <template>
   <EmeraldShell>
     <div class="adm-sales" data-theme="emerald">
-      <section aria-label="Key metrics" class="adm-sales__kpis">
-        <EmCard v-for="kpi in kpis" :key="kpi.label" class="adm-sales__kpi" variant="simple">
-          <EmCardBody class="adm-sales__kpi-body">
-            <div class="adm-sales__kpi-text">
-              <span class="adm-sales__kpi-label">{{ kpi.label }}</span>
-              <span v-if="kpi.sub" class="adm-sales__kpi-sub">{{ kpi.sub }}</span>
+      <header class="adm-sales__header">
+        <h1 class="adm-sales__title">Theme storefront</h1>
+        <p class="adm-sales__subtitle">First-party template sales, checkout health and discounting</p>
+      </header>
 
-              <span class="adm-sales__kpi-value">
-                {{ kpi.value }}
-                <em class="adm-sales__delta" :data-up="kpi.up || undefined">{{ kpi.delta }}</em>
-              </span>
+      <section aria-label="Revenue and checkout" class="adm-sales__grid">
+        <EmCard class="adm-sales__card adm-sales__card--revenue" variant="simple">
+          <EmCardHeader class="adm-sales__revenue-head">
+            <div>
+              <EmCardTitle class="adm-sales__panel-title">Storefront revenue</EmCardTitle>
+              <p class="adm-sales__panel-sub">Eight months of first-party template sales</p>
             </div>
 
-            <div v-if="kpi.kind === 'bars'" aria-hidden="true" class="adm-sales__mini-bars">
-              <span
-                v-for="(h, index) in kpi.bars"
-                :key="index"
-                class="adm-sales__mini-bar"
-                :data-peak="h === top(kpi.bars) || undefined"
-                :style="{ height: h + '%' }"
-              />
+            <span class="adm-sales__headline">$664K <em class="adm-sales__delta" data-up>+31.4% YoY</em></span>
+          </EmCardHeader>
+
+          <EmCardBody>
+            <div aria-label="Storefront revenue by month" class="adm-sales__chart" role="img">
+              <div v-for="month in months" :key="month.label" class="adm-sales__column">
+                <span class="adm-sales__bar" :data-peak="month.value === peak || undefined" :style="{ height: (month.value / peak) * 100 + '%' }" />
+                <span class="adm-sales__column-total">${{ month.value }}K</span>
+                <span class="adm-sales__column-label">{{ month.label }}</span>
+              </div>
             </div>
 
-            <svg
-              v-else-if="kpi.kind === 'line'"
-              aria-hidden="true"
-              class="adm-sales__mini-line"
-              preserveAspectRatio="none"
-              viewBox="0 0 100 40"
-            >
+            <ul class="adm-sales__lines">
+              <li v-for="line in lines" :key="line.label">
+                <span class="adm-sales__line-label">{{ line.label }}</span>
+
+                <span class="adm-sales__line-track">
+                  <span class="adm-sales__line-fill" :style="{ width: line.pct + '%' }" />
+                </span>
+
+                <strong>{{ line.amount }}</strong>
+              </li>
+            </ul>
+          </EmCardBody>
+        </EmCard>
+
+        <EmCard class="adm-sales__card adm-sales__card--funnel" variant="simple">
+          <EmCardHeader>
+            <EmCardTitle class="adm-sales__panel-title">Checkout funnel</EmCardTitle>
+            <p class="adm-sales__panel-sub">Pricing page through to a paid licence</p>
+          </EmCardHeader>
+
+          <EmCardBody>
+            <ol aria-label="Checkout funnel stages" class="adm-sales__funnel" role="img">
+              <li v-for="stage in funnel" :key="stage.label">
+                <span class="adm-sales__funnel-label">{{ stage.label }}</span>
+
+                <span class="adm-sales__funnel-track">
+                  <span class="adm-sales__funnel-fill" :style="{ width: stage.pct + '%' }" />
+                </span>
+
+                <span class="adm-sales__funnel-meta">
+                  <strong>{{ stage.count }}</strong>
+                  <span>{{ stage.pct }}%</span>
+                </span>
+              </li>
+            </ol>
+          </EmCardBody>
+        </EmCard>
+
+        <EmCard class="adm-sales__card" variant="simple">
+          <EmCardBody class="adm-sales__stat-body">
+            <span class="adm-sales__stat-label">Refund rate</span>
+            <span class="adm-sales__stat-value">1.8% <em class="adm-sales__delta" data-up>-1.6pt</em></span>
+
+            <svg aria-hidden="true" class="adm-sales__spark" preserveAspectRatio="none" viewBox="0 0 100 34">
               <polyline
                 fill="none"
-                points="0,32 15,26 30,30 45,18 60,22 75,8 100,4"
+                :points="spark(refunds)"
                 stroke="var(--emerald-primary-600, #1fae60)"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                stroke-width="3"
+                stroke-width="2.5"
               />
             </svg>
-
-            <div v-else-if="kpi.kind === 'ring'" aria-hidden="true" class="adm-sales__ring" :style="{ '--pct': kpi.ring }">
-              <span class="adm-sales__ring-value">{{ kpi.ringLabel }}</span>
-              <span class="adm-sales__ring-sub">{{ kpi.ringSub }}</span>
-            </div>
           </EmCardBody>
         </EmCard>
 
-        <EmCard v-for="m in money" :key="m.label" class="adm-sales__kpi adm-sales__kpi--money" variant="simple">
-          <EmCardBody class="adm-sales__money-body">
-            <span aria-hidden="true" class="adm-sales__money-icon" :data-tone="m.icon === 'coin' ? 'primary' : 'danger'">
-              <svg
-                v-if="m.icon === 'coin'"
+        <EmCard class="adm-sales__card" variant="simple">
+          <EmCardBody class="adm-sales__stat-body">
+            <span class="adm-sales__stat-label">Average order value</span>
+            <span class="adm-sales__stat-value">$83.62 <em class="adm-sales__delta" data-up>+$12.40</em></span>
+
+            <svg aria-hidden="true" class="adm-sales__spark" preserveAspectRatio="none" viewBox="0 0 100 34">
+              <polyline
                 fill="none"
-                height="18"
-                stroke="currentColor"
+                :points="spark(order)"
+                stroke="var(--emerald-primary-600, #1fae60)"
                 stroke-linecap="round"
-                stroke-width="1.75"
-                viewBox="0 0 24 24"
-                width="18"
-              >
-                <path d="M12 3v18M17 8c0-2-2-3.5-5-3.5S7 6 7 8s2 3 5 3.5 5 1.5 5 3.5-2 3.5-5 3.5S7 16 7 14" />
-              </svg>
-
-              <svg
-                v-else
-                fill="none"
-                height="18"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-width="1.75"
-                viewBox="0 0 24 24"
-                width="18"
-              >
-                <path d="M3 7h18v10H3V7Z" /><path d="M3 10h18" />
-              </svg>
-            </span>
-
-            <span class="adm-sales__money-label">{{ m.label }}</span>
-            <span class="adm-sales__money-sub">{{ m.sub }}</span>
-            <span class="adm-sales__money-value">{{ m.value }}</span>
-            <EmTag class="adm-sales__money-tag" :variant="m.up ? 'success' : 'danger'">{{ m.delta }}</EmTag>
+                stroke-linejoin="round"
+                stroke-width="2.5"
+              />
+            </svg>
           </EmCardBody>
         </EmCard>
       </section>
 
-      <section aria-label="Transactions and sales" class="adm-sales__row1">
-        <EmCard class="adm-sales__panel adm-sales__panel--wide" variant="simple">
-          <EmCardHeader class="adm-sales__panel-head">
-            <div>
-              <EmCardTitle class="adm-sales__panel-title">Total Transaction</EmCardTitle>
-              <p class="adm-sales__panel-sub">Weekly overview</p>
-            </div>
-          </EmCardHeader>
-
-          <EmCardBody>
-            <div aria-label="Total transaction by month" class="adm-sales__chart" role="img">
-              <div v-for="t in transactions" :key="t.label" class="adm-sales__chart-col">
-                <span class="adm-sales__chart-value">{{ t.value }}K</span>
-                <span class="adm-sales__chart-bar" :data-peak="t.peak || undefined" :style="{ height: (t.value / transactionMax) * 100 + '%' }" />
-                <span class="adm-sales__chart-label">{{ t.label }}</span>
-              </div>
-            </div>
-          </EmCardBody>
-        </EmCard>
-
-        <EmCard class="adm-sales__panel" variant="simple">
-          <EmCardHeader class="adm-sales__panel-head">
-            <EmCardTitle class="adm-sales__panel-title">Report</EmCardTitle>
-          </EmCardHeader>
-
-          <EmCardBody class="adm-sales__report">
-            <p class="adm-sales__report-lead">Last month transactions <strong>$23.4K</strong></p>
-
-            <div class="adm-sales__report-stats">
-              <div class="adm-sales__report-stat">
-                <span aria-hidden="true" class="adm-sales__money-icon" data-tone="primary">
-                  <svg
-                    fill="none"
-                    height="16"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-width="1.75"
-                    viewBox="0 0 24 24"
-                    width="16"
-                  ><path d="M12 3v18M17 8c0-2-2-3.5-5-3.5S7 6 7 8s2 3 5 3.5 5 1.5 5 3.5-2 3.5-5 3.5S7 16 7 14" /></svg>
-                </span>
-
-                <span class="adm-sales__report-stat-label">This week</span>
-                <span class="adm-sales__delta" data-up>+82.46%</span>
-              </div>
-
-              <div class="adm-sales__report-stat">
-                <span aria-hidden="true" class="adm-sales__money-icon" data-tone="danger">
-                  <svg
-                    fill="none"
-                    height="16"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-width="1.75"
-                    viewBox="0 0 24 24"
-                    width="16"
-                  ><path d="M3 7h18v10H3V7Z" /><path d="M3 10h18" /></svg>
-                </span>
-
-                <span class="adm-sales__report-stat-label">This week</span>
-                <span class="adm-sales__delta">-24.8%</span>
-              </div>
-            </div>
-
-            <div class="adm-sales__report-perf">
-              <div>
-                <span class="adm-sales__report-stat-label">Performance</span>
-                <span class="adm-sales__delta" data-up>+94.13%</span>
-              </div>
-
-              <EmButton size="sm" variant="primary">View Report</EmButton>
-            </div>
-          </EmCardBody>
-        </EmCard>
-
-        <EmCard class="adm-sales__panel" variant="simple">
-          <EmCardHeader class="adm-sales__panel-head">
-            <EmCardTitle class="adm-sales__panel-title">Total sales</EmCardTitle>
-            <EmButton size="sm" variant="tertiary">Details</EmButton>
-          </EmCardHeader>
-
-          <EmCardBody>
-            <span class="adm-sales__kpi-value adm-sales__kpi-value--lg">
-              $2,150.00
-              <em class="adm-sales__delta" data-up>+5%</em>
-            </span>
-
-            <ul class="adm-sales__channels">
-              <li><span>Online Store</span> <strong>$20k</strong> <em class="adm-sales__delta" data-up>+12.6%</em></li>
-              <li><span>Offline Store</span> <strong>$20k</strong> <em class="adm-sales__delta">-4.2%</em></li>
-            </ul>
-
-            <div class="adm-sales__trend" role="presentation">
-              <span v-for="(v, index) in salesTrend" :key="index" class="adm-sales__trend-bar" :style="{ height: v + '%' }" />
-            </div>
-          </EmCardBody>
-        </EmCard>
-      </section>
-
-      <section aria-label="Plan, earnings and promo" class="adm-sales__row2">
-        <EmCard class="adm-sales__panel" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-sales__panel-title">Upgrade your plan</EmCardTitle>
-            <p class="adm-sales__panel-sub">To fully enjoy all the amazing features and benefits of our premium plan.</p>
-          </EmCardHeader>
-
-          <EmCardBody class="adm-sales__plan">
-            <div class="adm-sales__plan-price">
-              <span class="adm-sales__plan-price-text">
-                <span class="adm-sales__plan-tier">Platinum</span>
-                <span class="adm-sales__plan-period">Last 6 months</span>
-              </span>
-
-              <strong class="adm-sales__plan-amount">$5,550<span>/Year</span></strong>
-            </div>
-
-            <p class="adm-sales__plan-heading">Payment details</p>
-
-            <ul class="adm-sales__plan-cards">
-              <li v-for="card in cards" :key="card">
-                <span class="adm-sales__plan-card-text">
-                  <span class="adm-sales__plan-card-label">Credit card</span>
-                  <span class="adm-sales__plan-card-num">{{ card }}</span>
-                </span>
-
-                <EmTag>CVC</EmTag>
-              </li>
-            </ul>
-
-            <p class="adm-sales__plan-heading">Add payment method</p>
-            <EmTextField v-model="cardNumber" aria-label="Card number" placeholder="Card Number" />
-          </EmCardBody>
-
-          <EmCardFooter>
-            <EmButton class="adm-sales__plan-pay" variant="primary">Pay now</EmButton>
-          </EmCardFooter>
-        </EmCard>
-
-        <EmCard class="adm-sales__panel" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-sales__panel-title">Earning Report</EmCardTitle>
-            <p class="adm-sales__panel-sub">Weekly Earning overview</p>
-          </EmCardHeader>
-
-          <EmCardBody>
-            <ul class="adm-sales__earning">
-              <li v-for="row in earning" :key="row.label">
-                <span aria-hidden="true" class="adm-sales__money-icon" :data-tone="row.icon === 'pie' ? 'info' : row.icon === 'coin' ? 'primary' : 'danger'">
-                  <svg
-                    v-if="row.icon === 'pie'"
-                    fill="none"
-                    height="16"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-width="1.75"
-                    viewBox="0 0 24 24"
-                    width="16"
-                  ><path d="M12 3a9 9 0 1 0 9 9h-9V3Z" /><path d="M15 3.5A9 9 0 0 1 20.5 9H15V3.5Z" /></svg>
-
-                  <svg
-                    v-else-if="row.icon === 'coin'"
-                    fill="none"
-                    height="16"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-width="1.75"
-                    viewBox="0 0 24 24"
-                    width="16"
-                  ><path d="M12 3v18M17 8c0-2-2-3.5-5-3.5S7 6 7 8s2 3 5 3.5 5 1.5 5 3.5-2 3.5-5 3.5S7 16 7 14" /></svg>
-
-                  <svg
-                    v-else
-                    fill="none"
-                    height="16"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-width="1.75"
-                    viewBox="0 0 24 24"
-                    width="16"
-                  ><path d="M3 7h18v10H3V7Z" /><path d="M3 10h18" /></svg>
-                </span>
-
-                <span class="adm-sales__earning-text">
-                  <strong>{{ row.label }}</strong>
-                  <span>{{ row.sub }}</span>
-                </span>
-
-                <span class="adm-sales__earning-value">
-                  {{ row.value }}
-                  <em class="adm-sales__delta" data-up>{{ row.delta }}</em>
-                </span>
-              </li>
-            </ul>
-
-            <div aria-label="Weekly earning overview" class="adm-sales__week-chart" role="img">
-              <div v-for="w in weekly" :key="w.label" class="adm-sales__chart-col">
-                <span class="adm-sales__chart-bar adm-sales__chart-bar--sm" :data-peak="w.peak || undefined" :style="{ height: w.value + '%' }" />
-                <span class="adm-sales__chart-label">{{ w.label }}</span>
-              </div>
-            </div>
-          </EmCardBody>
-        </EmCard>
-
-        <EmCard class="adm-sales__panel adm-sales__promo" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-sales__panel-title">Design strategy master class</EmCardTitle>
-            <p class="adm-sales__panel-sub">12 Dec at 10:00 PM</p>
-          </EmCardHeader>
-
-          <div class="adm-sales__promo-media" role="img" :style="{ backgroundImage: 'url(/emerald/contact-hero.jpg)' }" />
-
-          <EmCardBody>
-            <p class="adm-sales__promo-copy">How to improve your next design's strategy that works for user and business.</p>
-
-            <div class="adm-sales__promo-tags">
-              <EmTag>Technical</EmTag>
-              <EmTag>User research</EmTag>
-              <EmTag>Analytics</EmTag>
-            </div>
-          </EmCardBody>
-
-          <EmCardFooter class="adm-sales__promo-foot">
-            <div class="adm-sales__promo-avatars">
-              <EmAvatar v-for="index in 3" :key="index" size="sm"><EmAvatarFallback>{{ ['SC', 'JH', 'NP'][index - 1] }}</EmAvatarFallback></EmAvatar>
-            </div>
-
-            <EmButton size="sm" variant="primary">Join now</EmButton>
-          </EmCardFooter>
-        </EmCard>
-      </section>
-
-      <section aria-label="Invoices">
+      <section aria-label="Transactions">
         <EmCard variant="simple">
           <EmCardHeader class="adm-sales__toolbar">
             <div class="adm-sales__toolbar-left">
-              <span class="adm-sales__toolbar-label">Show</span>
+              <EmCardTitle class="adm-sales__panel-title">Transactions</EmCardTitle>
 
               <EmSelect v-model="show" class="adm-sales__show-select">
-                <EmSelectActivator>
-                  <EmSelectValue />
-
-                  <svg
-                    aria-hidden="true"
-                    class="emerald-select__icon"
-                    fill="none"
-                    height="16"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    viewBox="0 0 16 16"
-                    width="16"
-                  ><path d="M4 6l4 4 4-4" /></svg>
-                </EmSelectActivator>
+                <EmSelectActivator><EmSelectValue /></EmSelectActivator>
 
                 <EmSelectContent>
                   <EmSelectItem value="5">5</EmSelectItem>
@@ -527,35 +272,22 @@
                   <EmSelectItem value="25">25</EmSelectItem>
                 </EmSelectContent>
               </EmSelect>
-
-              <EmButton size="sm" variant="primary">Create Invoice</EmButton>
             </div>
 
             <div class="adm-sales__toolbar-right">
-              <EmTextField v-model="search" aria-label="Search client" class="adm-sales__search" placeholder="Search client" />
+              <EmTextField v-model="search" aria-label="Search transactions" class="adm-sales__search" placeholder="Search buyer or product" />
 
-              <EmSelect v-model="statusFilter" class="adm-sales__status-select">
+              <EmSelect v-model="status" class="adm-sales__status-select">
                 <EmSelectActivator>
                   <EmSelectValue v-slot="{ selectedValue }">{{ label(String(selectedValue)) }}</EmSelectValue>
-
-                  <svg
-                    aria-hidden="true"
-                    class="emerald-select__icon"
-                    fill="none"
-                    height="16"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    viewBox="0 0 16 16"
-                    width="16"
-                  ><path d="M4 6l4 4 4-4" /></svg>
                 </EmSelectActivator>
 
                 <EmSelectContent>
                   <EmSelectItem v-for="option in options" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
                 </EmSelectContent>
               </EmSelect>
+
+              <EmButton size="sm" variant="primary">Export</EmButton>
             </div>
           </EmCardHeader>
 
@@ -564,77 +296,35 @@
               <thead>
                 <tr>
                   <th><EmCheckbox aria-label="Select all" /></th>
-                  <th>ID</th>
-                  <th>Status</th>
-                  <th>Client</th>
-                  <th>Total</th>
-                  <th>Issued Date</th>
-                  <th>Balance</th>
-                  <th>Actions</th>
+                  <th>Transaction</th>
+                  <th>Buyer</th>
+                  <th>Product</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>State</th>
                 </tr>
               </thead>
 
               <tbody>
-                <tr v-for="row in rows" :key="row.id">
-                  <td><EmCheckbox :aria-label="`Select ${row.id}`" /></td>
-                  <td>{{ row.id }}</td>
-
-                  <td>
-                    <EmTag :variant="row.status === 'paid' ? 'success' : row.status === 'pending' ? 'info' : 'neutral'">
-                      {{ row.status === 'paid' ? 'Paid' : row.status === 'pending' ? 'Pending' : 'Sent' }}
-                    </EmTag>
-                  </td>
+                <tr v-for="sale in rows" :key="sale.id">
+                  <td><EmCheckbox :aria-label="`Select ${sale.id}`" /></td>
+                  <td class="adm-sales__id">{{ sale.id }}</td>
 
                   <td>
                     <div class="adm-sales__client">
-                      <EmAvatar size="sm"><EmAvatarFallback>{{ row.initials }}</EmAvatarFallback></EmAvatar>
-
-                      <span>
-                        <strong>{{ row.name }}</strong>
-                        <span class="adm-sales__client-role">{{ row.role }}</span>
-                      </span>
+                      <EmAvatar size="sm"><EmAvatarFallback>{{ initials(sale.buyer) }}</EmAvatarFallback></EmAvatar>
+                      <span><strong>{{ sale.buyer }}</strong><span class="adm-sales__client-sub">{{ sale.org }}</span></span>
                     </div>
                   </td>
 
-                  <td>{{ row.total }}</td>
-                  <td>{{ row.date }}</td>
+                  <td>{{ sale.product }}</td>
+                  <td>{{ sale.amount }}</td>
+                  <td>{{ sale.method }}</td>
 
                   <td>
-                    <EmTag :variant="row.balanceNeg ? 'danger' : 'success'">{{ row.balance }}</EmTag>
-                  </td>
-
-                  <td>
-                    <div class="adm-sales__actions">
-                      <EmButton aria-label="Delete" size="sm" variant="tertiary">
-                        <svg
-                          fill="none"
-                          height="15"
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="1.75"
-                          viewBox="0 0 24 24"
-                          width="15"
-                        ><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13" /></svg>
-                      </EmButton>
-
-                      <EmButton aria-label="View" size="sm" variant="tertiary">
-                        <svg
-                          fill="none"
-                          height="15"
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="1.75"
-                          viewBox="0 0 24 24"
-                          width="15"
-                        ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
-                      </EmButton>
-
-                      <EmButton aria-label="More actions" size="sm" variant="tertiary">
-                        <svg fill="currentColor" height="15" viewBox="0 0 24 24" width="15"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
-                      </EmButton>
-                    </div>
+                    <EmTag :variant="sale.status === 'settled' ? 'success' : sale.status === 'refunded' ? 'neutral' : 'danger'">
+                      {{ sale.status === 'settled' ? 'Settled' : sale.status === 'refunded' ? 'Refunded' : 'Disputed' }}
+                    </EmTag>
                   </td>
                 </tr>
               </tbody>
@@ -643,7 +333,7 @@
 
           <EmCardFooter class="adm-sales__table-foot">
             <span class="adm-sales__table-count">
-              Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} entries
+              Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} transactions
             </span>
 
             <EmPagination v-model="page" :items-per-page="Number(show)" :size="filtered.length">
@@ -659,6 +349,55 @@
               </template>
             </EmPagination>
           </EmCardFooter>
+        </EmCard>
+      </section>
+
+      <section aria-label="Discounts and referrers" class="adm-sales__pair">
+        <EmCard class="adm-sales__panel" variant="simple">
+          <EmCardHeader class="adm-sales__codes-head">
+            <EmCardTitle class="adm-sales__panel-title">Discount codes</EmCardTitle>
+            <EmTextField v-model="promo" aria-label="Filter discount codes" class="adm-sales__code-search" placeholder="Filter codes" />
+          </EmCardHeader>
+
+          <EmCardBody>
+            <ul class="adm-sales__codes">
+              <li v-for="entry in visibleCodes" :key="entry.code">
+                <code>{{ entry.code }}</code>
+
+                <span class="adm-sales__code-text">
+                  <strong>{{ entry.cut }}</strong>
+                  <span>{{ entry.uses }} redemptions</span>
+                </span>
+
+                <EmTag :variant="entry.state === 'Active' ? 'success' : entry.state === 'Scheduled' ? 'info' : 'neutral'">
+                  {{ entry.state }}
+                </EmTag>
+              </li>
+            </ul>
+
+            <p v-if="visibleCodes.length === 0" class="adm-sales__empty">No code matches that filter.</p>
+          </EmCardBody>
+        </EmCard>
+
+        <EmCard class="adm-sales__panel" variant="simple">
+          <EmCardHeader>
+            <EmCardTitle class="adm-sales__panel-title">Where buyers come from</EmCardTitle>
+            <p class="adm-sales__panel-sub">Attributed on the last touch before checkout</p>
+          </EmCardHeader>
+
+          <EmCardBody>
+            <ul aria-label="Referrer share" class="adm-sales__referrers" role="img">
+              <li v-for="row in referrers" :key="row.source">
+                <span class="adm-sales__referrer-label">{{ row.source }}</span>
+
+                <span class="adm-sales__line-track">
+                  <span class="adm-sales__line-fill" :style="{ width: row.pct + '%' }" />
+                </span>
+
+                <strong>{{ row.pct }}%</strong>
+              </li>
+            </ul>
+          </EmCardBody>
         </EmCard>
       </section>
     </div>
@@ -682,198 +421,17 @@
     box-shadow: var(--emerald-shadow-s, 0 0 2px 0 rgba(51, 51, 51, 0.08));
   }
 
-  .adm-sales .adm-sales__kpi {
-    padding: var(--emerald-spacing-m, 16px);
-  }
-
-  .adm-sales__kpis {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: var(--emerald-spacing-m, 16px);
-  }
-
-  .adm-sales__kpi-body {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-s, 12px);
-    min-height: 128px;
-  }
-
-  .adm-sales__kpi-text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .adm-sales__kpi-label {
-    font-weight: 700;
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-sales__kpi-sub {
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
-  }
-
-  .adm-sales__kpi-value {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    margin-top: 4px;
-    font-size: 1.375rem;
+  .adm-sales__title {
+    margin: 0;
+    font-size: clamp(1.375rem, 2vw, 1.625rem);
     font-weight: 700;
     letter-spacing: -0.02em;
   }
 
-  .adm-sales__kpi-value--lg {
-    font-size: 1.75rem;
-  }
-
-  .adm-sales__delta {
-    font-style: normal;
-    font-size: var(--emerald-text-b3-size, 12px);
-    font-weight: 600;
-    color: var(--emerald-danger-500, #c61424);
-  }
-
-  .adm-sales__delta[data-up] {
-    color: var(--emerald-primary-700, #027d4c);
-  }
-
-  .adm-sales__mini-bars {
-    display: flex;
-    align-items: flex-end;
-    gap: 4px;
-    height: 48px;
-    margin-top: auto;
-  }
-
-  .adm-sales__mini-bar {
-    flex: 1;
-    min-width: 4px;
-    border-radius: 2px 2px 0 0;
-    background: var(--emerald-primary-300, #baedd0);
-  }
-
-  .adm-sales__mini-bar[data-peak] {
-    background: var(--emerald-primary-600, #1fae60);
-  }
-
-  .adm-sales__mini-line {
-    width: 100%;
-    height: 48px;
-    margin-top: auto;
-  }
-
-  .adm-sales__ring {
-    --pct: 72;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 68px;
-    height: 68px;
-    margin: auto auto 0;
-    border-radius: 50%;
-    background: conic-gradient(var(--emerald-primary-600, #1fae60) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
-  }
-
-  .adm-sales__ring::before {
-    content: '';
-    position: absolute;
-    inset: 6px;
-    border-radius: 50%;
-    background: var(--emerald-background, #fefefe);
-  }
-
-  .adm-sales__ring-value,
-  .adm-sales__ring-sub {
-    position: relative;
-    z-index: 1;
-    line-height: 1.1;
-  }
-
-  .adm-sales__ring-value {
-    font-weight: 700;
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-sales__ring-sub {
-    font-size: 9px;
+  .adm-sales__subtitle {
+    margin: 0.25rem 0 0;
     color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-sales__kpi--money .adm-sales__money-body {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-height: 128px;
-  }
-
-  .adm-sales__money-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--emerald-radius-m, 8px);
-    background: var(--emerald-primary-100, #e7fff2);
-    color: var(--emerald-primary-700, #027d4c);
-  }
-
-  .adm-sales__money-icon[data-tone='danger'] {
-    background: var(--emerald-danger-100, #ffebee);
-    color: var(--emerald-danger-500, #c61424);
-  }
-
-  .adm-sales__money-icon[data-tone='info'] {
-    background: var(--emerald-info-100, #e4f2ff);
-    color: var(--emerald-neutral-800, #636a70);
-  }
-
-  .adm-sales__money-label {
-    margin-top: 4px;
-    font-weight: 700;
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-sales__money-sub {
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
-  }
-
-  .adm-sales__money-value {
-    margin-top: 2px;
-    font-size: 1.25rem;
-    font-weight: 700;
-  }
-
-  .adm-sales__money-tag {
-    width: fit-content;
-    margin-top: 2px;
-  }
-
-  .adm-sales__row1 {
-    display: grid;
-    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
-    gap: var(--emerald-spacing-m, 16px);
-  }
-
-  .adm-sales__row2 {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--emerald-spacing-m, 16px);
-  }
-
-  /* .emerald-card__header is flex-direction: column — a title/action row has to
-     opt back into row explicitly. */
-  .adm-sales__panel-head {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--emerald-spacing-s, 12px);
+    font-size: var(--emerald-text-b1-size, 16px);
   }
 
   .adm-sales__panel-title {
@@ -887,312 +445,45 @@
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
-  .adm-sales__chart {
-    display: flex;
-    align-items: flex-end;
-    gap: var(--emerald-spacing-s, 12px);
-    height: 220px;
-    padding-top: 24px;
-  }
-
-  .adm-sales__chart-col {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
-    height: 100%;
-  }
-
-  .adm-sales__chart-value {
+  .adm-sales__delta {
+    font-style: normal;
     font-size: var(--emerald-text-b3-size, 12px);
     font-weight: 600;
-    color: var(--emerald-on-surface-variant, #757e85);
+    color: var(--emerald-danger-500, #c61424);
   }
 
-  .adm-sales__chart-bar {
-    width: 60%;
-    min-height: 6px;
-    border-radius: var(--emerald-radius-xs, 4px) var(--emerald-radius-xs, 4px) 0 0;
-    background: var(--emerald-primary-100, #e7fff2);
+  .adm-sales__delta[data-up] {
+    color: var(--emerald-primary-700, #027d4c);
   }
 
-  .adm-sales__chart-bar[data-peak] {
-    background: var(--emerald-primary-600, #1fae60);
-  }
-
-  .adm-sales__chart-bar--sm {
-    width: 55%;
-  }
-
-  .adm-sales__chart-label {
-    font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-sales__report {
-    display: flex;
-    flex-direction: column;
+  /* The revenue and funnel cards each claim both rows; the two stat cards fill
+     the remaining single cells in column four. */
+  .adm-sales__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--emerald-spacing-m, 16px);
   }
 
-  .adm-sales__report-lead {
-    margin: 0;
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b2-size, 14px);
+  .adm-sales__card--revenue {
+    grid-column: span 2;
+    grid-row: span 2;
   }
 
-  .adm-sales__report-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--emerald-spacing-s, 12px);
+  .adm-sales__card--funnel {
+    grid-row: span 2;
   }
 
-  .adm-sales__report-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .adm-sales__report-stat-label {
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
-  }
-
-  .adm-sales__report-perf {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--emerald-spacing-s, 12px);
-    padding-top: var(--emerald-spacing-s, 12px);
-    border-top: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
-  }
-
-  .adm-sales__report-perf > div {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .adm-sales__channels {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin: var(--emerald-spacing-s, 12px) 0;
-    padding: 0;
-    list-style: none;
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-sales__channels li {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .adm-sales__channels span {
-    flex: 1;
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-sales__trend {
-    display: flex;
-    align-items: flex-end;
-    gap: 3px;
-    height: 70px;
-    margin-top: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-sales__trend-bar {
-    flex: 1;
-    min-height: 4px;
-    border-radius: 2px 2px 0 0;
-    background: var(--emerald-primary-300, #baedd0);
-  }
-
-  .adm-sales__plan {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-m, 16px);
-  }
-
-  .adm-sales__plan-price {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--emerald-spacing-s, 12px);
-    padding: var(--emerald-spacing-s, 12px);
-    border-radius: var(--emerald-radius-m, 8px);
-    background: var(--emerald-neutral-200, #f6f8fa);
-  }
-
-  .adm-sales__plan-price-text {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-
-  .adm-sales__plan-tier {
-    font-weight: 700;
-  }
-
-  .adm-sales__plan-period {
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
-  }
-
-  .adm-sales__plan-amount {
-    font-size: 1.25rem;
-    white-space: nowrap;
-  }
-
-  .adm-sales__plan-amount span {
-    font-size: var(--emerald-text-b3-size, 12px);
-    font-weight: 400;
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-sales__plan-heading {
-    margin: 0;
-    font-weight: 700;
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-sales__plan-cards {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-xs, 8px);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .adm-sales__plan-cards li {
-    display: flex;
-    align-items: center;
-    gap: var(--emerald-spacing-xs, 8px);
-    padding: var(--emerald-spacing-xs, 8px);
-    border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
-    border-radius: var(--emerald-radius-m, 8px);
-  }
-
-  .adm-sales__plan-card-text {
+  .adm-sales__card .emerald-card__body {
     display: flex;
     flex: 1;
     flex-direction: column;
-    min-width: 0;
   }
 
-  .adm-sales__plan-card-label {
-    font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-sales__plan-card-num {
-    font-size: var(--emerald-text-b2-size, 14px);
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  .adm-sales__plan-pay {
-    width: 100%;
-  }
-
-  .adm-sales__earning {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-s, 12px);
-    margin: 0 0 var(--emerald-spacing-m, 16px);
-    padding: 0;
-    list-style: none;
-  }
-
-  .adm-sales__earning li {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-sales__earning-text {
-    display: flex;
-    flex-direction: column;
-    font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-sales__earning-text strong {
-    color: var(--emerald-on-surface, #2b2d2e);
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-sales__earning-value {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    font-weight: 700;
-  }
-
-  .adm-sales__week-chart {
-    display: flex;
-    align-items: flex-end;
-    gap: 8px;
-    flex: 1;
-    min-height: 120px;
-  }
-
-  .adm-sales__row2 .adm-sales__panel .emerald-card__body {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .adm-sales__promo {
-    overflow: hidden;
-  }
-
-  /* Row 2 cards share a height; let the media and chart absorb the slack so the
-     tallest card (the plan) does not leave the others with dead space. */
-  .adm-sales__promo-media {
-    flex: 1;
-    min-height: 140px;
-    border-radius: var(--emerald-radius-m, 8px);
-    background-position: center;
-    background-size: cover;
-  }
-
-  .adm-sales__promo-copy {
-    margin: 0 0 var(--emerald-spacing-s, 12px);
-    font-size: var(--emerald-text-b2-size, 14px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-sales__promo-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .adm-sales__promo-foot {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .adm-sales__promo-avatars {
-    display: flex;
-  }
-
-  .adm-sales__promo-avatars .emerald-avatar {
-    margin-left: -8px;
-    border: 2px solid var(--emerald-background, #fefefe);
-  }
-
-  .adm-sales__promo-avatars .emerald-avatar:first-child {
-    margin-left: 0;
-  }
-
-  .adm-sales__toolbar {
+  /* .emerald-card__header is flex-direction: column — a title/action row has to
+     opt back into row explicitly. */
+  .adm-sales__revenue-head,
+  .adm-sales__toolbar,
+  .adm-sales__codes-head {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -1201,33 +492,215 @@
     gap: var(--emerald-spacing-s, 12px);
   }
 
-  .adm-sales__toolbar-left,
-  .adm-sales__toolbar-right {
+  .adm-sales__headline {
     display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .adm-sales__chart {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--emerald-spacing-s, 12px);
+    height: 190px;
+    margin-top: var(--emerald-spacing-xs, 8px);
+  }
+
+  .adm-sales__column {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    height: 100%;
+  }
+
+  .adm-sales__bar {
+    width: 58%;
+    min-width: 16px;
+    min-height: 6px;
+    border-radius: var(--emerald-radius-xs, 4px) var(--emerald-radius-xs, 4px) 0 0;
+    background: var(--emerald-primary-300, #baedd0);
+  }
+
+  .adm-sales__bar[data-peak] {
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  .adm-sales__column-total {
+    font-size: var(--emerald-text-b3-size, 12px);
+    font-weight: 600;
+  }
+
+  .adm-sales__column-label {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-sales__lines {
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-s, 12px);
+    margin: auto 0 0;
+    padding-top: var(--emerald-spacing-l, 20px);
+    list-style: none;
+  }
+
+  .adm-sales__lines li,
+  .adm-sales__referrers li {
+    display: grid;
+    grid-template-columns: 138px minmax(0, 1fr) 58px;
     align-items: center;
     gap: var(--emerald-spacing-s, 12px);
   }
 
-  .adm-sales__toolbar-label {
+  .adm-sales__line-label,
+  .adm-sales__referrer-label {
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  .adm-sales__lines strong,
+  .adm-sales__referrers strong {
+    font-size: var(--emerald-text-b2-size, 14px);
+    text-align: right;
+  }
+
+  .adm-sales__line-track {
+    height: 10px;
+    border-radius: 5px;
+    background: var(--emerald-neutral-200, #f6f8fa);
+    overflow: hidden;
+  }
+
+  .adm-sales__line-fill {
+    display: block;
+    height: 100%;
+    border-radius: 5px;
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  .adm-sales__funnel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--emerald-spacing-m, 16px);
+    margin: var(--emerald-spacing-xs, 8px) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .adm-sales__funnel li {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .adm-sales__funnel-label {
+    font-size: var(--emerald-text-b2-size, 14px);
+    font-weight: 600;
+  }
+
+  .adm-sales__funnel-track {
+    height: 12px;
+    border-radius: 6px;
+    background: var(--emerald-neutral-200, #f6f8fa);
+    overflow: hidden;
+  }
+
+  .adm-sales__funnel-fill {
+    display: block;
+    height: 100%;
+    border-radius: 6px;
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  .adm-sales__funnel-meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-sales__funnel-meta strong {
+    color: var(--emerald-on-surface, #2b2d2e);
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  .adm-sales__stat-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-2xs, 4px);
+    min-height: 116px;
+  }
+
+  .adm-sales__stat-label {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  .adm-sales__stat-value {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .adm-sales__spark {
+    width: 100%;
+    height: 34px;
+    margin-top: auto;
+  }
+
+  .adm-sales__toolbar-left,
+  .adm-sales__toolbar-right {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--emerald-spacing-s, 12px);
   }
 
   .adm-sales__show-select {
     width: 76px;
   }
 
-  .adm-sales__search {
-    width: 220px;
+  .adm-sales__status-select {
+    width: 130px;
   }
 
-  .adm-sales__status-select {
-    width: 120px;
+  .adm-sales__search {
+    width: 230px;
   }
 
   .adm-sales__table-wrap {
     overflow-x: auto;
     margin-inline: calc(-1 * var(--emerald-spacing-l, 20px));
+  }
+
+  .adm-sales__table th:first-child,
+  .adm-sales__table td:first-child {
+    padding-left: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-sales__table th:last-child,
+  .adm-sales__table td:last-child {
+    padding-right: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-sales__table tbody tr {
+    transition: background-color 120ms ease;
+  }
+
+  .adm-sales__table tbody tr:hover {
+    background: var(--emerald-neutral-200, #f6f8fa);
   }
 
   .adm-sales__table {
@@ -1251,22 +724,9 @@
     border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
   }
 
-  .adm-sales__table th:first-child,
-  .adm-sales__table td:first-child {
-    padding-left: var(--emerald-spacing-l, 20px);
-  }
-
-  .adm-sales__table th:last-child,
-  .adm-sales__table td:last-child {
-    padding-right: var(--emerald-spacing-l, 20px);
-  }
-
-  .adm-sales__table tbody tr {
-    transition: background-color 120ms ease;
-  }
-
-  .adm-sales__table tbody tr:hover {
-    background: var(--emerald-neutral-200, #f6f8fa);
+  .adm-sales__id {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
   }
 
   .adm-sales__client {
@@ -1279,24 +739,14 @@
     display: block;
   }
 
-  .adm-sales__client-role {
+  .adm-sales__client-sub {
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
-  .adm-sales__actions {
-    display: flex;
-    gap: 2px;
-  }
-
-  .adm-sales__actions .emerald-button {
-    width: 30px;
-    height: 30px;
-    padding: 0;
-  }
-
   .adm-sales__table-foot {
     display: flex;
+    flex-direction: row;
     align-items: center;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -1313,20 +763,116 @@
     color: var(--emerald-on-surface-variant, #757e85);
   }
 
+  .adm-sales__pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--emerald-spacing-m, 16px);
+  }
+
+  .adm-sales__pair .emerald-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .adm-sales__code-search {
+    width: 160px;
+  }
+
+  .adm-sales__codes,
+  .adm-sales__referrers {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--emerald-spacing-s, 12px);
+    margin: var(--emerald-spacing-xs, 8px) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .adm-sales__codes li {
+    display: flex;
+    align-items: center;
+    gap: var(--emerald-spacing-s, 12px);
+  }
+
+  .adm-sales__codes code {
+    min-width: 96px;
+    padding: 4px var(--emerald-spacing-xs, 8px);
+    border-radius: var(--emerald-radius-xs, 4px);
+    background: var(--emerald-neutral-200, #f6f8fa);
+    font-size: var(--emerald-text-b3-size, 12px);
+    font-weight: 600;
+  }
+
+  .adm-sales__code-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-sales__code-text strong {
+    color: var(--emerald-on-surface, #2b2d2e);
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  .adm-sales__empty {
+    margin: var(--emerald-spacing-m, 16px) 0 0;
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
   @media (max-width: 1200px) {
-    .adm-sales__kpis {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .adm-sales__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .adm-sales__row1,
-    .adm-sales__row2 {
+    .adm-sales__card--revenue {
+      grid-column: span 2;
+      grid-row: auto;
+    }
+
+    .adm-sales__card--funnel {
+      grid-column: span 2;
+      grid-row: auto;
+    }
+
+    .adm-sales__pair {
       grid-template-columns: 1fr;
     }
   }
 
   @media (max-width: 640px) {
-    .adm-sales__kpis {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .adm-sales__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .adm-sales__card--revenue,
+    .adm-sales__card--funnel {
+      grid-column: auto;
+    }
+
+    .adm-sales__search,
+    .adm-sales__code-search {
+      width: 100%;
+    }
+
+    .adm-sales__chart {
+      gap: 6px;
+      height: 160px;
+    }
+
+    .adm-sales__column-total {
+      font-size: 10px;
+    }
+
+    .adm-sales__lines li,
+    .adm-sales__referrers li {
+      grid-template-columns: 110px minmax(0, 1fr) 52px;
     }
   }
 </style>

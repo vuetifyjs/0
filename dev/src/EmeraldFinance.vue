@@ -1,7 +1,7 @@
 <!--
-  Total Profit / Total Revenue / Impression mini charts render as static CSS
-  bar/line fills (real data labels, no charting library), matching the
-  EmeraldSales precedent — see GAPS.md "Charting" row for the gap contract.
+  The stacked revenue columns, runway meter and tier bars render as static CSS
+  fills (real data, no charting library) — same GAP_CONTRACT precedent as
+  EmeraldSales.
 -->
 <script setup lang="ts">
   import {
@@ -36,132 +36,104 @@
   // Utilities
   import { shallowRef, toRef } from 'vue'
 
-  type Kpi = {
-    label: string
-    sub: string
-    value: string
-    delta: string
-    up: boolean
-    kind: 'bars' | 'line'
-    bars?: number[]
-  }
-
-  const kpis: Kpi[] = [
-    { label: 'Total Orders', sub: 'Last 4 months', value: '155K', delta: '+22%', up: true, kind: 'bars', bars: [40, 65, 50, 90, 70, 100, 60] },
-    { label: 'Total Profit', sub: 'Last One year', value: '$89.34k', delta: '-16%', up: false, kind: 'bars', bars: [80, 60, 100, 55, 70, 40, 65] },
-    { label: 'Total Revenue', sub: 'This quarter', value: '$42.5k', delta: '-22%', up: false, kind: 'bars', bars: [55, 100, 90, 40, 70] },
-    { label: 'Impression', sub: 'Last year', value: '175K', delta: '+24%', up: true, kind: 'line' },
+  // Monthly funding in thousands, split by where the money comes from.
+  const revenue = [
+    { month: 'Jan', corporate: 18, backers: 6, licenses: 9 },
+    { month: 'Feb', corporate: 21, backers: 6, licenses: 11 },
+    { month: 'Mar', corporate: 22, backers: 7, licenses: 12 },
+    { month: 'Apr', corporate: 24, backers: 7, licenses: 14 },
+    { month: 'May', corporate: 26, backers: 8, licenses: 15 },
+    { month: 'Jun', corporate: 28, backers: 8, licenses: 17 },
+    { month: 'Jul', corporate: 31, backers: 9, licenses: 19 },
   ]
 
-  function top (bars: number[] = []) {
-    return Math.max(...bars)
-  }
+  const peak = Math.max(...revenue.map(month => month.corporate + month.backers + month.licenses))
 
-  const finance = [
-    { label: 'Jan', a: 12, b: 8, c: 10 },
-    { label: 'Feb', a: 18, b: 10, c: 6 },
-    { label: 'Mar', a: 16, b: 6, c: 8 },
-    { label: 'Apr', a: 14, b: 4, c: 4 },
-    { label: 'May', a: 20, b: 12, c: 12 },
-    { label: 'Jun', a: 15, b: 10, c: 5 },
-    { label: 'Jul', a: 22, b: 16, c: 14 },
-  ]
-  const financeMax = Math.max(...finance.map(f => f.a + f.b + f.c))
-
-  const report = [
-    { label: 'Total Profit', value: '$48,568.20', icon: 'coin' as const },
-    { label: 'Total Income', value: '$38,453.25', icon: 'card' as const },
-    { label: 'Total Expense', value: '$2,453.45', icon: 'card' as const },
+  const ytd = [
+    { label: 'Corporate sponsors', value: '$170K', tone: 'deep' as const },
+    { label: 'Individual backers', value: '$51K', tone: 'mid' as const },
+    { label: 'Commercial licenses', value: '$97K', tone: 'pale' as const },
   ]
 
-  const visitors = [
-    { label: 'Desktop', pct: 17, sub: '23.8' },
-    { label: 'Tablet', pct: 65, sub: '13.604' },
-    { label: 'Mobile', pct: 18, sub: '47.146' },
-  ]
-  const visitorMax = Math.max(...visitors.map(v => v.pct))
-
-  const topSales = [
-    { name: 'Samsung galaxy S25', brand: 'Samsung', price: '$32,203' },
-    { name: 'Apple MacBook Pro', brand: 'Apple', price: '$1,299' },
-    { name: 'Sony WH-1000XM4', brand: 'Sony', price: '$348' },
-    { name: 'Dell XPS 13', brand: 'Dell', price: '$999' },
+  const tiers = [
+    { label: 'Platinum', detail: '3 sponsors · $5,000', amount: '$15,000', pct: 100 },
+    { label: 'Gold', detail: '6 sponsors · $1,500', amount: '$9,000', pct: 60 },
+    { label: 'Silver', detail: '12 sponsors · $400', amount: '$4,800', pct: 32 },
+    { label: 'Bronze', detail: '22 sponsors · $100', amount: '$2,200', pct: 15 },
   ]
 
-  const topVolume = [
-    { name: 'Dell XPS 13', brand: 'Dell', volume: '200k', delta: '+5%', up: true },
-    { name: 'Apple iPad', brand: 'Apple', volume: '80k', delta: '+10%', up: true },
-    { name: 'Sony PlayStation 5', brand: 'Sony', volume: '30k', delta: '-20%', up: false },
-    { name: 'iMac pro', brand: 'Apple', volume: '15k', delta: '+12%', up: true },
+  const expenses = [
+    { label: 'Maintainer stipends', amount: '$19,400', pct: 100 },
+    { label: 'Design contracts', amount: '$5,200', pct: 27 },
+    { label: 'Infrastructure & CDN', amount: '$4,900', pct: 25 },
+    { label: 'Events & travel', amount: '$2,800', pct: 14 },
+    { label: 'Legal & accounting', amount: '$1,900', pct: 10 },
   ]
 
   const search = shallowRef('')
-  const role = shallowRef('all')
-  const plan = shallowRef('all')
+  const tier = shallowRef('all')
+  const cadence = shallowRef('all')
   const status = shallowRef('all')
   const page = shallowRef(1)
 
-  type Status = 'active' | 'pending' | 'inactive'
-  type User = { name: string, email: string, role: string, plan: string, billing: string, status: Status }
+  type Status = 'active' | 'pending' | 'lapsed'
+  type Sponsor = { org: string, contact: string, tier: string, cadence: string, monthly: string, since: string, status: Status }
 
-  const seed: User[] = [
-    { name: 'Jack Alfredo', email: 'jack.alfredo@shadcnstudio.com', role: 'Maintainer', plan: 'Enterprise', billing: 'Auto debit', status: 'active' },
-    { name: 'Sarah Mitchell', email: 'sarah.mitchell@company.com', role: 'Owner', plan: 'Enterprise', billing: 'Auto debit', status: 'active' },
-    { name: 'Robert Chen', email: 'robert.chen@startup.io', role: 'Editor', plan: 'Team', billing: 'Manual - PayPal', status: 'pending' },
-    { name: 'Emily Wilson', email: 'emily.wilson@freelance.com', role: 'Author', plan: 'Basic', billing: 'Manual - cash', status: 'inactive' },
-    { name: 'David Garcia', email: 'david.garcia@agency.net', role: 'Subscriber', plan: 'Company', billing: 'Auto debit', status: 'active' },
-    { name: 'Nina Alvarez', email: 'nina.alvarez@studio.co', role: 'Editor', plan: 'Team', billing: 'Auto debit', status: 'active' },
-    { name: 'Tom Baker', email: 'tom.baker@labs.dev', role: 'Owner', plan: 'Enterprise', billing: 'Manual - PayPal', status: 'pending' },
-    { name: 'Ava Lindqvist', email: 'ava.l@northmail.se', role: 'Author', plan: 'Basic', billing: 'Manual - cash', status: 'inactive' },
+  const seed: Sponsor[] = [
+    { org: 'Northwind Labs', contact: 'Priya Raghunathan', tier: 'Platinum', cadence: 'Annual', monthly: '$5,000', since: 'Mar 2024', status: 'active' },
+    { org: 'Palisade Bank', contact: 'Ingrid Solberg', tier: 'Platinum', cadence: 'Annual', monthly: '$5,000', since: 'Jan 2025', status: 'active' },
+    { org: 'Kestrel Analytics', contact: 'Tomas Lindqvist', tier: 'Gold', cadence: 'Monthly', monthly: '$1,500', since: 'Aug 2025', status: 'active' },
+    { org: 'Foundry Nine', contact: 'Adaeze Okonkwo', tier: 'Gold', cadence: 'Annual', monthly: '$1,500', since: 'Nov 2024', status: 'pending' },
+    { org: 'Vellum Press', contact: 'Ravi Menon', tier: 'Silver', cadence: 'Monthly', monthly: '$400', since: 'Feb 2026', status: 'active' },
+    { org: 'Copperline Studio', contact: 'Hugo Bellamy', tier: 'Bronze', cadence: 'Monthly', monthly: '$100', since: 'Apr 2026', status: 'lapsed' },
+    { org: 'Ardent Robotics', contact: 'Mira Kovac', tier: 'Silver', cadence: 'Annual', monthly: '$400', since: 'Jun 2025', status: 'active' },
+    { org: 'Lumen Grid', contact: 'Dmitri Sokolov', tier: 'Bronze', cadence: 'Monthly', monthly: '$100', since: 'Jan 2026', status: 'pending' },
   ]
 
-  const users: User[] = Array.from({ length: 25 }, (_, index) => {
+  const sponsors: Sponsor[] = Array.from({ length: 24 }, (_, index) => {
     const base = seed[index % seed.length]!
-    const suffix = Math.floor(index / seed.length)
+    const run = Math.floor(index / seed.length)
 
-    return suffix === 0 ? base : { ...base, email: base.email.replace('@', `${suffix + 1}@`) }
+    return run === 0 ? base : { ...base, org: `${base.org} ${['', 'EU', 'APAC'][run]}`.trim() }
   })
 
   type Option = { value: string, label: string }
 
-  const roles: Option[] = [
-    { value: 'all', label: 'All' },
-    { value: 'Owner', label: 'Owner' },
-    { value: 'Editor', label: 'Editor' },
-    { value: 'Author', label: 'Author' },
-    { value: 'Maintainer', label: 'Maintainer' },
-    { value: 'Subscriber', label: 'Subscriber' },
+  const tierOptions: Option[] = [
+    { value: 'all', label: 'All tiers' },
+    { value: 'Platinum', label: 'Platinum' },
+    { value: 'Gold', label: 'Gold' },
+    { value: 'Silver', label: 'Silver' },
+    { value: 'Bronze', label: 'Bronze' },
   ]
 
-  const plans: Option[] = [
-    { value: 'all', label: 'All' },
-    { value: 'Enterprise', label: 'Enterprise' },
-    { value: 'Team', label: 'Team' },
-    { value: 'Basic', label: 'Basic' },
-    { value: 'Company', label: 'Company' },
+  const cadenceOptions: Option[] = [
+    { value: 'all', label: 'Any cycle' },
+    { value: 'Monthly', label: 'Monthly' },
+    { value: 'Annual', label: 'Annual' },
   ]
 
-  const states: Option[] = [
-    { value: 'all', label: 'All' },
+  const statusOptions: Option[] = [
+    { value: 'all', label: 'Any state' },
     { value: 'active', label: 'Active' },
     { value: 'pending', label: 'Pending' },
-    { value: 'inactive', label: 'Inactive' },
+    { value: 'lapsed', label: 'Lapsed' },
   ]
 
   function label (list: Option[], value: string) {
     return list.find(option => option.value === value)?.label ?? value
   }
 
-  const filter = createFilter({ keys: ['name', 'email', 'role'] })
-  const found = filter.apply(search, users)
+  const filter = createFilter({ keys: ['org', 'contact', 'tier'] })
+  const found = filter.apply(search, sponsors)
 
-  const filtered = toRef(() => found.items.value.filter(user =>
-    (role.value === 'all' || user.role === role.value)
-    && (plan.value === 'all' || user.plan === plan.value)
-    && (status.value === 'all' || user.status === status.value),
+  const filtered = toRef(() => found.items.value.filter(sponsor =>
+    (tier.value === 'all' || sponsor.tier === tier.value)
+    && (cadence.value === 'all' || sponsor.cadence === cadence.value)
+    && (status.value === 'all' || sponsor.status === status.value),
   ))
 
-  const pagination = createPagination({ page, size: () => filtered.value.length, itemsPerPage: 5 })
+  const pagination = createPagination({ page, size: () => filtered.value.length, itemsPerPage: 6 })
   const rows = toRef(() => filtered.value.slice(pagination.pageStart.value, pagination.pageStop.value))
 
   function initials (name: string) {
@@ -173,334 +145,216 @@
   <EmeraldShell>
     <div class="adm-finance" data-theme="emerald">
       <header class="adm-finance__header">
-        <h1 class="adm-finance__title">Finance</h1>
-        <p class="adm-finance__subtitle">Yearly report overview</p>
+        <h1 class="adm-finance__title">Sponsorships &amp; runway</h1>
+        <p class="adm-finance__subtitle">Who funds the project, and how long the money lasts</p>
       </header>
 
-      <section aria-label="Key metrics" class="adm-finance__kpis">
-        <EmCard v-for="kpi in kpis" :key="kpi.label" class="adm-finance__kpi" variant="simple">
-          <EmCardBody class="adm-finance__kpi-body">
-            <div class="adm-finance__kpi-text">
-              <span class="adm-finance__kpi-label">{{ kpi.label }}</span>
-              <span class="adm-finance__kpi-sub">{{ kpi.sub }}</span>
+      <div class="adm-finance__layout">
+        <div class="adm-finance__main">
+          <EmCard variant="simple">
+            <EmCardHeader class="adm-finance__chart-head">
+              <div>
+                <EmCardTitle class="adm-finance__panel-title">Funding by source</EmCardTitle>
+                <p class="adm-finance__panel-sub">Monthly inflow, year to date</p>
+              </div>
 
-              <span class="adm-finance__kpi-value">
-                {{ kpi.value }}
-                <em class="adm-finance__delta" :data-up="kpi.up || undefined">{{ kpi.delta }}</em>
+              <span class="adm-finance__headline">
+                $59K
+                <em class="adm-finance__delta" data-up>+11.3% MoM</em>
               </span>
-            </div>
+            </EmCardHeader>
 
-            <div v-if="kpi.kind === 'bars'" aria-hidden="true" class="adm-finance__mini-bars">
-              <span
-                v-for="(h, index) in kpi.bars"
-                :key="index"
-                class="adm-finance__mini-bar"
-                :data-peak="h === top(kpi.bars) || undefined"
-                :style="{ height: h + '%' }"
-              />
-            </div>
+            <EmCardBody>
+              <div aria-label="Monthly funding by source" class="adm-finance__chart" role="img">
+                <div v-for="month in revenue" :key="month.month" class="adm-finance__column">
+                  <span class="adm-finance__stack">
+                    <span class="adm-finance__seg" data-tone="pale" :style="{ height: (month.licenses / peak) * 100 + '%' }" />
+                    <span class="adm-finance__seg" data-tone="mid" :style="{ height: (month.backers / peak) * 100 + '%' }" />
+                    <span class="adm-finance__seg" data-tone="deep" :style="{ height: (month.corporate / peak) * 100 + '%' }" />
+                  </span>
 
-            <svg
-              v-else
-              aria-hidden="true"
-              class="adm-finance__mini-line"
-              preserveAspectRatio="none"
-              viewBox="0 0 100 40"
-            >
-              <polyline
-                fill="none"
-                points="0,30 15,22 30,26 45,10 60,18 75,6 100,14"
-                stroke="var(--emerald-primary-600, #1fae60)"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="3"
-              />
-            </svg>
-          </EmCardBody>
-        </EmCard>
-      </section>
-
-      <section aria-label="Yearly report and totals" class="adm-finance__row1">
-        <EmCard class="adm-finance__panel adm-finance__panel--wide" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-finance__panel-title">Finance</EmCardTitle>
-            <p class="adm-finance__panel-sub">Yearly report overview</p>
-          </EmCardHeader>
-
-          <EmCardBody>
-            <div aria-label="Finance by month" class="adm-finance__chart" role="img">
-              <div v-for="f in finance" :key="f.label" class="adm-finance__chart-col">
-                <div class="adm-finance__stack" :style="{ height: ((f.a + f.b + f.c) / financeMax) * 100 + '%' }">
-                  <span class="adm-finance__stack-seg" data-tone="info" :style="{ flexGrow: f.c }" />
-                  <span class="adm-finance__stack-seg" data-tone="secondary" :style="{ flexGrow: f.b }" />
-                  <span class="adm-finance__stack-seg" data-tone="primary" :style="{ flexGrow: f.a }" />
+                  <span class="adm-finance__column-total">${{ month.corporate + month.backers + month.licenses }}K</span>
+                  <span class="adm-finance__column-label">{{ month.month }}</span>
                 </div>
-
-                <span class="adm-finance__chart-label">{{ f.label }}</span>
               </div>
-            </div>
-          </EmCardBody>
-        </EmCard>
 
-        <EmCard class="adm-finance__panel" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-finance__panel-title">Report</EmCardTitle>
-            <p class="adm-finance__panel-sub">Monthly Avg. $45.578k</p>
-          </EmCardHeader>
+              <ul class="adm-finance__ytd">
+                <li v-for="row in ytd" :key="row.label">
+                  <span class="adm-finance__dot" :data-tone="row.tone" />
+                  <span>{{ row.label }}</span>
+                  <strong>{{ row.value }}</strong>
+                </li>
+              </ul>
+            </EmCardBody>
+          </EmCard>
 
-          <EmCardBody>
-            <ul class="adm-finance__report">
-              <li v-for="row in report" :key="row.label">
-                <span aria-hidden="true" class="adm-finance__icon" :data-tone="row.icon === 'coin' ? 'primary' : 'secondary'">
-                  <svg
-                    v-if="row.icon === 'coin'"
-                    fill="none"
-                    height="16"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-width="1.75"
-                    viewBox="0 0 24 24"
-                    width="16"
-                  ><path d="M12 3v18M17 8c0-2-2-3.5-5-3.5S7 6 7 8s2 3 5 3.5 5 1.5 5 3.5-2 3.5-5 3.5S7 16 7 14" /></svg>
+          <EmCard variant="simple">
+            <EmCardHeader class="adm-finance__toolbar">
+              <EmCardTitle class="adm-finance__panel-title">Sponsor ledger</EmCardTitle>
 
-                  <svg
-                    v-else
-                    fill="none"
-                    height="16"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-width="1.75"
-                    viewBox="0 0 24 24"
-                    width="16"
-                  ><path d="M3 7h18v10H3V7Z" /><path d="M3 10h18" /></svg>
-                </span>
+              <div class="adm-finance__filters">
+                <EmTextField v-model="search" aria-label="Search sponsors" class="adm-finance__search" placeholder="Search sponsor" />
 
-                <span class="adm-finance__report-label">{{ row.label }}</span>
-                <strong class="adm-finance__report-value">{{ row.value }}</strong>
-              </li>
-            </ul>
-          </EmCardBody>
+                <EmSelect v-model="tier" class="adm-finance__select">
+                  <EmSelectActivator>
+                    <EmSelectValue v-slot="{ selectedValue }">{{ label(tierOptions, String(selectedValue)) }}</EmSelectValue>
+                  </EmSelectActivator>
 
-          <EmCardFooter>
-            <EmButton class="adm-finance__report-cta" variant="primary">View Report</EmButton>
-          </EmCardFooter>
-        </EmCard>
-      </section>
+                  <EmSelectContent>
+                    <EmSelectItem v-for="option in tierOptions" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
+                  </EmSelectContent>
+                </EmSelect>
 
-      <section aria-label="Visitors and top products" class="adm-finance__row2">
-        <EmCard class="adm-finance__panel" variant="simple">
-          <EmCardHeader class="adm-finance__panel-head">
-            <EmCardTitle class="adm-finance__panel-title">Total visitors</EmCardTitle>
-            <EmButton size="sm" variant="tertiary">Details</EmButton>
-          </EmCardHeader>
+                <EmSelect v-model="cadence" class="adm-finance__select">
+                  <EmSelectActivator>
+                    <EmSelectValue v-slot="{ selectedValue }">{{ label(cadenceOptions, String(selectedValue)) }}</EmSelectValue>
+                  </EmSelectActivator>
 
-          <EmCardBody>
-            <span class="adm-finance__kpi-value adm-finance__kpi-value--lg">23.02K <em class="adm-finance__delta">-6%</em></span>
+                  <EmSelectContent>
+                    <EmSelectItem v-for="option in cadenceOptions" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
+                  </EmSelectContent>
+                </EmSelect>
 
-            <div aria-label="Visitors by device" class="adm-finance__visitors" role="img">
-              <div v-for="v in visitors" :key="v.label" class="adm-finance__visitor-col">
-                <span class="adm-finance__visitor-pct">{{ v.pct }}%</span>
-                <span class="adm-finance__visitor-bar" :data-peak="v.pct === visitorMax || undefined" :style="{ height: (v.pct / visitorMax) * 100 + '%' }" />
-                <span class="adm-finance__visitor-label">{{ v.label }}</span>
-                <span class="adm-finance__visitor-sub">{{ v.sub }}</span>
+                <EmSelect v-model="status" class="adm-finance__select">
+                  <EmSelectActivator>
+                    <EmSelectValue v-slot="{ selectedValue }">{{ label(statusOptions, String(selectedValue)) }}</EmSelectValue>
+                  </EmSelectActivator>
+
+                  <EmSelectContent>
+                    <EmSelectItem v-for="option in statusOptions" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
+                  </EmSelectContent>
+                </EmSelect>
               </div>
-            </div>
-          </EmCardBody>
-        </EmCard>
+            </EmCardHeader>
 
-        <EmCard class="adm-finance__panel" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-finance__panel-title">Top Products by Sales</EmCardTitle>
-          </EmCardHeader>
+            <EmCardBody class="adm-finance__table-wrap">
+              <table class="adm-finance__table">
+                <thead>
+                  <tr>
+                    <th><EmCheckbox aria-label="Select all" /></th>
+                    <th>Sponsor</th>
+                    <th>Tier</th>
+                    <th>Cycle</th>
+                    <th>Monthly</th>
+                    <th>State</th>
+                  </tr>
+                </thead>
 
-          <EmCardBody>
-            <ul class="adm-finance__products">
-              <li v-for="p in topSales" :key="p.name">
-                <EmAvatar size="sm"><EmAvatarFallback>{{ initials(p.name) }}</EmAvatarFallback></EmAvatar>
+                <tbody>
+                  <tr v-for="sponsor in rows" :key="sponsor.org + sponsor.contact">
+                    <td><EmCheckbox :aria-label="`Select ${sponsor.org}`" /></td>
 
-                <span class="adm-finance__product-text">
-                  <strong>{{ p.name }}</strong>
-                  <span>{{ p.brand }}</span>
-                </span>
+                    <td>
+                      <div class="adm-finance__client">
+                        <EmAvatar size="sm"><EmAvatarFallback>{{ initials(sponsor.org) }}</EmAvatarFallback></EmAvatar>
+                        <span><strong>{{ sponsor.org }}</strong><span class="adm-finance__client-sub">{{ sponsor.contact }}</span></span>
+                      </div>
+                    </td>
 
-                <strong class="adm-finance__product-price">{{ p.price }}</strong>
-              </li>
-            </ul>
-          </EmCardBody>
-        </EmCard>
+                    <td>{{ sponsor.tier }}</td>
+                    <td>{{ sponsor.cadence }}</td>
+                    <td>{{ sponsor.monthly }}</td>
 
-        <EmCard class="adm-finance__panel" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-finance__panel-title">Top Products by Volume</EmCardTitle>
-          </EmCardHeader>
+                    <td>
+                      <EmTag :variant="sponsor.status === 'active' ? 'success' : sponsor.status === 'pending' ? 'info' : 'danger'">
+                        {{ sponsor.status === 'active' ? 'Active' : sponsor.status === 'pending' ? 'Pending' : 'Lapsed' }}
+                      </EmTag>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </EmCardBody>
 
-          <EmCardBody>
-            <ul class="adm-finance__products">
-              <li v-for="p in topVolume" :key="p.name">
-                <EmAvatar size="sm"><EmAvatarFallback>{{ initials(p.name) }}</EmAvatarFallback></EmAvatar>
+            <EmCardFooter class="adm-finance__table-foot">
+              <span class="adm-finance__table-count">
+                Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} sponsors
+              </span>
 
-                <span class="adm-finance__product-text">
-                  <strong>{{ p.name }}</strong>
-                  <span>{{ p.brand }}</span>
-                </span>
+              <EmPagination v-model="page" :items-per-page="6" :size="filtered.length">
+                <template #default="{ items }">
+                  <EmPaginationPrev>‹ Previous</EmPaginationPrev>
 
-                <span class="adm-finance__product-volume">
-                  {{ p.volume }}
-                  <em class="adm-finance__delta" :data-up="p.up || undefined">{{ p.delta }}</em>
-                </span>
-              </li>
-            </ul>
-          </EmCardBody>
-        </EmCard>
-      </section>
+                  <template v-for="(item, index) in items" :key="index">
+                    <EmPaginationItem v-if="item.type === 'page'" :value="item.value" />
+                    <span v-else class="adm-finance__page-gap">{{ item.value }}</span>
+                  </template>
 
-      <section aria-label="Users">
-        <EmCard variant="simple">
-          <EmCardHeader class="adm-finance__toolbar">
-            <EmCardTitle class="adm-finance__panel-title">Users</EmCardTitle>
-
-            <div class="adm-finance__toolbar-filters">
-              <label class="adm-finance__field">
-                <span class="adm-finance__field-label">Select Role</span>
-
-                <EmSelect v-model="role">
-                  <EmSelectActivator>
-                    <EmSelectValue v-slot="{ selectedValue }">{{ label(roles, String(selectedValue)) }}</EmSelectValue>
-                  </EmSelectActivator>
-
-                  <EmSelectContent>
-                    <EmSelectItem v-for="option in roles" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
-                  </EmSelectContent>
-                </EmSelect>
-              </label>
-
-              <label class="adm-finance__field">
-                <span class="adm-finance__field-label">Select Plan</span>
-
-                <EmSelect v-model="plan">
-                  <EmSelectActivator>
-                    <EmSelectValue v-slot="{ selectedValue }">{{ label(plans, String(selectedValue)) }}</EmSelectValue>
-                  </EmSelectActivator>
-
-                  <EmSelectContent>
-                    <EmSelectItem v-for="option in plans" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
-                  </EmSelectContent>
-                </EmSelect>
-              </label>
-
-              <label class="adm-finance__field">
-                <span class="adm-finance__field-label">Select Status</span>
-
-                <EmSelect v-model="status">
-                  <EmSelectActivator>
-                    <EmSelectValue v-slot="{ selectedValue }">{{ label(states, String(selectedValue)) }}</EmSelectValue>
-                  </EmSelectActivator>
-
-                  <EmSelectContent>
-                    <EmSelectItem v-for="option in states" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
-                  </EmSelectContent>
-                </EmSelect>
-              </label>
-
-              <EmTextField v-model="search" aria-label="Search users" class="adm-finance__search" placeholder="Search users" />
-            </div>
-          </EmCardHeader>
-
-          <EmCardBody class="adm-finance__table-wrap">
-            <table class="adm-finance__table">
-              <thead>
-                <tr>
-                  <th><EmCheckbox aria-label="Select all" /></th>
-                  <th>User</th>
-                  <th>Role</th>
-                  <th>Plan</th>
-                  <th>Billing</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                <tr v-for="user in rows" :key="user.email">
-                  <td><EmCheckbox :aria-label="`Select ${user.name}`" /></td>
-
-                  <td>
-                    <div class="adm-finance__client">
-                      <EmAvatar size="sm"><EmAvatarFallback>{{ initials(user.name) }}</EmAvatarFallback></EmAvatar>
-
-                      <span>
-                        <strong>{{ user.name }}</strong>
-                        <span class="adm-finance__client-email">{{ user.email }}</span>
-                      </span>
-                    </div>
-                  </td>
-
-                  <td>{{ user.role }}</td>
-                  <td>{{ user.plan }}</td>
-                  <td>{{ user.billing }}</td>
-
-                  <td>
-                    <EmTag :variant="user.status === 'active' ? 'success' : user.status === 'pending' ? 'info' : 'danger'">
-                      {{ user.status === 'active' ? 'Active' : user.status === 'pending' ? 'Pending' : 'Inactive' }}
-                    </EmTag>
-                  </td>
-
-                  <td>
-                    <div class="adm-finance__actions">
-                      <EmButton aria-label="Delete" size="sm" variant="tertiary">
-                        <svg
-                          fill="none"
-                          height="15"
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-width="1.75"
-                          viewBox="0 0 24 24"
-                          width="15"
-                        ><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13" /></svg>
-                      </EmButton>
-
-                      <EmButton aria-label="View" size="sm" variant="tertiary">
-                        <svg
-                          fill="none"
-                          height="15"
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-width="1.75"
-                          viewBox="0 0 24 24"
-                          width="15"
-                        ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
-                      </EmButton>
-
-                      <EmButton aria-label="More actions" size="sm" variant="tertiary">
-                        <svg fill="currentColor" height="15" viewBox="0 0 24 24" width="15"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
-                      </EmButton>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </EmCardBody>
-
-          <EmCardFooter class="adm-finance__table-foot">
-            <span class="adm-finance__table-count">
-              Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} entries
-            </span>
-
-            <EmPagination v-model="page" :items-per-page="5" :size="filtered.length">
-              <template #default="{ items }">
-                <EmPaginationPrev>‹ Previous</EmPaginationPrev>
-
-                <template v-for="(item, index) in items" :key="index">
-                  <EmPaginationItem v-if="item.type === 'page'" :value="item.value" />
-                  <span v-else class="adm-finance__page-gap">{{ item.value }}</span>
+                  <EmPaginationNext>Next ›</EmPaginationNext>
                 </template>
+              </EmPagination>
+            </EmCardFooter>
+          </EmCard>
+        </div>
 
-                <EmPaginationNext>Next ›</EmPaginationNext>
-              </template>
-            </EmPagination>
-          </EmCardFooter>
-        </EmCard>
-      </section>
+        <aside class="adm-finance__rail">
+          <EmCard variant="simple">
+            <EmCardHeader>
+              <EmCardTitle class="adm-finance__panel-title">Runway</EmCardTitle>
+            </EmCardHeader>
+
+            <EmCardBody>
+              <span class="adm-finance__runway">14.2 <small>months</small></span>
+
+              <div aria-label="Runway consumed" class="adm-finance__meter" role="img">
+                <span style="width: 28%" />
+              </div>
+
+              <ul class="adm-finance__runway-facts">
+                <li><span>In the bank</span><strong>$486,000</strong></li>
+                <li><span>Monthly burn</span><strong>$34,200</strong></li>
+                <li><span>Monthly inflow</span><strong>$59,000</strong></li>
+              </ul>
+
+              <EmButton class="adm-finance__cta" size="sm" variant="tertiary">Open forecast</EmButton>
+            </EmCardBody>
+          </EmCard>
+
+          <EmCard variant="simple">
+            <EmCardHeader>
+              <EmCardTitle class="adm-finance__panel-title">Corporate tiers</EmCardTitle>
+              <p class="adm-finance__panel-sub">$31,000 committed each month</p>
+            </EmCardHeader>
+
+            <EmCardBody>
+              <ul class="adm-finance__bars">
+                <li v-for="row in tiers" :key="row.label">
+                  <span class="adm-finance__bar-text">
+                    <strong>{{ row.label }}</strong>
+                    <span>{{ row.detail }}</span>
+                  </span>
+
+                  <span class="adm-finance__bar-value">
+                    {{ row.amount }}
+                    <span class="adm-finance__bar-track"><span :style="{ width: row.pct + '%' }" /></span>
+                  </span>
+                </li>
+              </ul>
+            </EmCardBody>
+          </EmCard>
+
+          <EmCard variant="simple">
+            <EmCardHeader>
+              <EmCardTitle class="adm-finance__panel-title">Where it goes</EmCardTitle>
+              <p class="adm-finance__panel-sub">$34,200 monthly burn</p>
+            </EmCardHeader>
+
+            <EmCardBody>
+              <ul class="adm-finance__bars">
+                <li v-for="row in expenses" :key="row.label">
+                  <span class="adm-finance__bar-text">
+                    <strong>{{ row.label }}</strong>
+                  </span>
+
+                  <span class="adm-finance__bar-value">
+                    {{ row.amount }}
+                    <span class="adm-finance__bar-track"><span :style="{ width: row.pct + '%' }" /></span>
+                  </span>
+                </li>
+              </ul>
+            </EmCardBody>
+          </EmCard>
+        </aside>
+      </div>
     </div>
   </EmeraldShell>
 </template>
@@ -535,48 +389,15 @@
     font-size: var(--emerald-text-b1-size, 16px);
   }
 
-  .adm-finance__kpis {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--emerald-spacing-m, 16px);
+  .adm-finance__panel-title {
+    font-size: var(--emerald-text-b1-size, 16px) !important;
+    font-weight: 700 !important;
   }
 
-  .adm-finance__kpi-body {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-s, 12px);
-    min-height: 128px;
-  }
-
-  .adm-finance__kpi-text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .adm-finance__kpi-label {
-    font-weight: 700;
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-finance__kpi-sub {
+  .adm-finance__panel-sub {
+    margin: 2px 0 0;
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b3-size, 12px);
-  }
-
-  .adm-finance__kpi-value {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    margin-top: 4px;
-    font-size: 1.375rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-  }
-
-  .adm-finance__kpi-value--lg {
-    font-size: 1.75rem;
-    margin-bottom: var(--emerald-spacing-s, 12px);
   }
 
   .adm-finance__delta {
@@ -590,62 +411,40 @@
     color: var(--emerald-primary-700, #027d4c);
   }
 
-  .adm-finance__mini-bars {
+  .adm-finance__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+    align-items: start;
+    gap: var(--emerald-spacing-m, 16px);
+  }
+
+  .adm-finance__main,
+  .adm-finance__rail {
     display: flex;
-    align-items: flex-end;
-    gap: 4px;
-    height: 48px;
-    margin-top: auto;
-  }
-
-  .adm-finance__mini-bar {
-    flex: 1;
-    min-width: 4px;
-    border-radius: 2px 2px 0 0;
-    background: var(--emerald-primary-300, #baedd0);
-  }
-
-  .adm-finance__mini-bar[data-peak] {
-    background: var(--emerald-primary-600, #1fae60);
-  }
-
-  .adm-finance__mini-line {
-    width: 100%;
-    height: 48px;
-    margin-top: auto;
-  }
-
-  .adm-finance__row1 {
-    display: grid;
-    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    flex-direction: column;
     gap: var(--emerald-spacing-m, 16px);
-  }
-
-  .adm-finance__row2 {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--emerald-spacing-m, 16px);
-  }
-
-  .adm-finance__panel-title {
-    font-size: var(--emerald-text-b1-size, 16px) !important;
-    font-weight: 700 !important;
-  }
-
-  .adm-finance__panel-sub {
-    margin: 2px 0 0;
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
+    min-width: 0;
   }
 
   /* .emerald-card__header is flex-direction: column — a title/action row has to
      opt back into row explicitly. */
-  .adm-finance__panel-head {
+  .adm-finance__chart-head,
+  .adm-finance__toolbar {
     display: flex;
     flex-direction: row;
     align-items: center;
+    flex-wrap: wrap;
     justify-content: space-between;
     gap: var(--emerald-spacing-s, 12px);
+  }
+
+  .adm-finance__headline {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
 
   .adm-finance__chart {
@@ -653,101 +452,10 @@
     align-items: flex-end;
     gap: var(--emerald-spacing-s, 12px);
     height: 220px;
+    margin-top: var(--emerald-spacing-xs, 8px);
   }
 
-  .adm-finance__chart-col {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
-    height: 100%;
-  }
-
-  .adm-finance__stack {
-    display: flex;
-    flex-direction: column-reverse;
-    width: 55%;
-    min-height: 6px;
-    border-radius: var(--emerald-radius-xs, 4px) var(--emerald-radius-xs, 4px) 0 0;
-    overflow: hidden;
-  }
-
-  .adm-finance__stack-seg[data-tone='primary'] {
-    background: var(--emerald-primary-700, #027d4c);
-  }
-
-  .adm-finance__stack-seg[data-tone='secondary'] {
-    background: var(--emerald-primary-500, #6fb38c);
-  }
-
-  .adm-finance__stack-seg[data-tone='info'] {
-    background: var(--emerald-primary-300, #baedd0);
-  }
-
-  .adm-finance__chart-label {
-    font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-finance__report {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-m, 16px);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .adm-finance__report li {
-    display: flex;
-    align-items: center;
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-finance__icon {
-    display: inline-flex;
-    flex: none;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--emerald-radius-m, 8px);
-    background: var(--emerald-primary-100, #e7fff2);
-    color: var(--emerald-primary-700, #027d4c);
-  }
-
-  .adm-finance__icon[data-tone='secondary'] {
-    background: var(--emerald-secondary-100, #e4f2ff);
-    color: var(--emerald-neutral-800, #636a70);
-  }
-
-  .adm-finance__report-label {
-    flex: 1;
-    font-weight: 700;
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-finance__report-value {
-    font-size: var(--emerald-text-b1-size, 16px);
-  }
-
-  .adm-finance__report-cta {
-    width: 100%;
-  }
-
-  .adm-finance__visitors {
-    display: flex;
-    align-items: flex-end;
-    gap: var(--emerald-spacing-m, 16px);
-    height: 160px;
-    margin-top: var(--emerald-spacing-m, 16px);
-    padding-top: 24px;
-    border-top: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
-  }
-
-  .adm-finance__visitor-col {
+  .adm-finance__column {
     display: flex;
     flex: 1;
     flex-direction: column;
@@ -755,104 +463,115 @@
     justify-content: flex-end;
     gap: 4px;
     height: 100%;
-    text-align: center;
   }
 
-  .adm-finance__visitor-pct {
-    font-weight: 700;
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-finance__visitor-bar {
+  .adm-finance__stack {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: flex-end;
     width: 60%;
-    min-height: 6px;
+    min-width: 18px;
     border-radius: var(--emerald-radius-xs, 4px);
+    overflow: hidden;
+  }
+
+  .adm-finance__seg {
+    display: block;
+    background: var(--emerald-primary-800, #01603a);
+  }
+
+  .adm-finance__seg[data-tone='mid'] {
+    background: var(--emerald-primary-500, #26c26d);
+  }
+
+  .adm-finance__seg[data-tone='pale'] {
     background: var(--emerald-primary-300, #baedd0);
   }
 
-  .adm-finance__visitor-bar[data-peak] {
-    background: var(--emerald-primary-600, #1fae60);
-  }
-
-  .adm-finance__visitor-label {
+  .adm-finance__column-total {
     font-size: var(--emerald-text-b3-size, 12px);
     font-weight: 600;
   }
 
-  .adm-finance__visitor-sub {
-    font-size: var(--emerald-text-b3-size, 12px);
+  .adm-finance__column-label {
     color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
   }
 
-  .adm-finance__products {
+  .adm-finance__ytd {
     display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-s, 12px);
-    margin: 0;
+    flex-wrap: wrap;
+    gap: var(--emerald-spacing-s, 12px) var(--emerald-spacing-l, 20px);
+    margin: var(--emerald-spacing-m, 16px) 0 0;
     padding: 0;
     list-style: none;
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
   }
 
-  .adm-finance__products li {
+  .adm-finance__ytd li {
     display: flex;
     align-items: center;
-    gap: var(--emerald-spacing-xs, 8px);
+    gap: 6px;
   }
 
-  .adm-finance__product-text {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-finance__product-text strong {
+  .adm-finance__ytd strong {
     color: var(--emerald-on-surface, #2b2d2e);
     font-size: var(--emerald-text-b2-size, 14px);
   }
 
-  .adm-finance__product-price,
-  .adm-finance__product-volume {
+  .adm-finance__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    background: var(--emerald-primary-800, #01603a);
+  }
+
+  .adm-finance__dot[data-tone='mid'] {
+    background: var(--emerald-primary-500, #26c26d);
+  }
+
+  .adm-finance__dot[data-tone='pale'] {
+    background: var(--emerald-primary-300, #baedd0);
+  }
+
+  .adm-finance__filters {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-finance__toolbar {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--emerald-spacing-m, 16px);
-  }
-
-  .adm-finance__toolbar-filters {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-finance__field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-2xs, 4px);
-    min-width: 0;
-    font-size: var(--emerald-text-b3-size, 12px);
-  }
-
-  .adm-finance__field-label {
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-weight: 600;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--emerald-spacing-xs, 8px);
   }
 
   .adm-finance__search {
-    grid-column: 1 / -1;
+    width: 180px;
+  }
+
+  .adm-finance__select {
+    width: 124px;
   }
 
   .adm-finance__table-wrap {
     overflow-x: auto;
     margin-inline: calc(-1 * var(--emerald-spacing-l, 20px));
+  }
+
+  .adm-finance__table th:first-child,
+  .adm-finance__table td:first-child {
+    padding-left: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-finance__table th:last-child,
+  .adm-finance__table td:last-child {
+    padding-right: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-finance__table tbody tr {
+    transition: background-color 120ms ease;
+  }
+
+  .adm-finance__table tbody tr:hover {
+    background: var(--emerald-neutral-200, #f6f8fa);
   }
 
   .adm-finance__table {
@@ -876,29 +595,6 @@
     border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
   }
 
-  .adm-finance__table th:first-child,
-  .adm-finance__table td:first-child {
-    padding-left: var(--emerald-spacing-l, 20px);
-  }
-
-  .adm-finance__table th:last-child,
-  .adm-finance__table td:last-child {
-    padding-right: var(--emerald-spacing-l, 20px);
-  }
-
-  .adm-finance__table tbody tr {
-    transition: background-color 120ms ease;
-  }
-
-  .adm-finance__table tbody tr:hover {
-    background: var(--emerald-neutral-200, #f6f8fa);
-  }
-
-  .adm-finance__page-gap {
-    padding: 0 var(--emerald-spacing-2xs, 4px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
   .adm-finance__client {
     display: flex;
     align-items: center;
@@ -909,24 +605,14 @@
     display: block;
   }
 
-  .adm-finance__client-email {
+  .adm-finance__client-sub {
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
-  .adm-finance__actions {
-    display: flex;
-    gap: 2px;
-  }
-
-  .adm-finance__actions .emerald-button {
-    width: 30px;
-    height: 30px;
-    padding: 0;
-  }
-
   .adm-finance__table-foot {
     display: flex;
+    flex-direction: row;
     align-items: center;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -938,24 +624,139 @@
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
-  @media (max-width: 1200px) {
-    .adm-finance__kpis {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .adm-finance__page-gap {
+    padding: 0 var(--emerald-spacing-2xs, 4px);
+    color: var(--emerald-on-surface-variant, #757e85);
+  }
 
-    .adm-finance__row1,
-    .adm-finance__row2 {
+  .adm-finance__runway {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .adm-finance__runway small {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b2-size, 14px);
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  .adm-finance__meter {
+    height: 12px;
+    margin: var(--emerald-spacing-s, 12px) 0;
+    border-radius: 6px;
+    background: var(--emerald-primary-100, #e7fff2);
+    overflow: hidden;
+  }
+
+  .adm-finance__meter span {
+    display: block;
+    height: 100%;
+    border-radius: 6px;
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  .adm-finance__runway-facts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-xs, 8px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  .adm-finance__runway-facts li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--emerald-spacing-s, 12px);
+  }
+
+  .adm-finance__runway-facts strong {
+    color: var(--emerald-on-surface, #2b2d2e);
+  }
+
+  .adm-finance__cta {
+    width: 100%;
+    margin-top: var(--emerald-spacing-m, 16px);
+  }
+
+  .adm-finance__bars {
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-s, 12px);
+    margin: var(--emerald-spacing-xs, 8px) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .adm-finance__bars li {
+    display: flex;
+    align-items: center;
+    gap: var(--emerald-spacing-s, 12px);
+  }
+
+  .adm-finance__bar-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-finance__bar-text strong {
+    color: var(--emerald-on-surface, #2b2d2e);
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  .adm-finance__bar-value {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    font-size: var(--emerald-text-b3-size, 12px);
+    font-weight: 600;
+  }
+
+  .adm-finance__bar-track {
+    display: block;
+    width: 76px;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--emerald-neutral-200, #f6f8fa);
+    overflow: hidden;
+  }
+
+  .adm-finance__bar-track span {
+    display: block;
+    height: 100%;
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  @media (max-width: 1200px) {
+    .adm-finance__layout {
       grid-template-columns: 1fr;
     }
   }
 
   @media (max-width: 640px) {
-    .adm-finance__toolbar-filters {
-      grid-template-columns: 1fr;
+    .adm-finance__search,
+    .adm-finance__select {
+      width: 100%;
     }
 
-    .adm-finance__kpis {
-      grid-template-columns: 1fr;
+    .adm-finance__chart {
+      gap: 6px;
+      height: 180px;
+    }
+
+    .adm-finance__column-total {
+      font-size: 10px;
     }
   }
 </style>

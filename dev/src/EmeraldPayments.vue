@@ -1,7 +1,7 @@
 <!--
-  Total Revenue bars and the Growth donut render as static CSS/SVG fills
-  (real data, no charting library) — same GAP_CONTRACT precedent as
-  EmeraldSales. The donut reuses the conic-gradient ring technique.
+  The revenue-mix segmented bar and method share bars render as static CSS
+  fills (real data, no charting library) — same GAP_CONTRACT precedent as
+  EmeraldSales.
 -->
 <script setup lang="ts">
   import {
@@ -36,37 +36,40 @@
   // Utilities
   import { shallowRef, toRef } from 'vue'
 
-  const stats = [
-    { label: 'Income this month', value: '$5,280', delta: '+12.2%', up: true, trend: [10, 18, 14, 22, 16, 26] },
-    { label: 'Expense this month', value: '$4,120', delta: '-12.2%', up: false, trend: [8, 14, 10, 20, 12, 18] },
+  const billing = [
+    { label: 'Billed this month', value: '$184,320', delta: '+9.4%', up: true },
+    { label: 'Collected', value: '$171,940', delta: '+11.2%', up: true },
+    { label: 'Outstanding', value: '$12,380', delta: '-6.8%', up: false },
+    { label: 'Failed charges', value: '14', delta: '-3 vs June', up: false },
   ]
 
-  const revenue = [20, 12, 15, 10, 22, 16, 20]
-  const revenueMax = Math.max(...revenue)
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
-
-  const countries = [
-    { name: 'Austria', code: 'AT', value: '$867k', delta: '+20.3%', up: true },
-    { name: 'China', code: 'CN', value: '$1.2M', delta: '+15.7%', up: true },
-    { name: 'Switzerland', code: 'CH', value: '$750k', delta: '-18.2%', up: false },
-    { name: 'India', code: 'IN', value: '$1.5M', delta: '+22.1%', up: true },
-    { name: 'Brazil', code: 'BR', value: '$980k', delta: '-19.6%', up: false },
+  const mix = [
+    { label: 'Seat subscriptions', pct: 58, tone: 'deep' as const },
+    { label: 'Perpetual licenses', pct: 24, tone: 'mid' as const },
+    { label: 'Support contracts', pct: 13, tone: 'light' as const },
+    { label: 'Marketplace fees', pct: 5, tone: 'pale' as const },
   ]
 
-  const history = [
-    { card: '*5688', kind: 'Credit Card', date: '05/Jan', spend: '-$2,820' },
-    { card: '*8562', kind: 'Debit Card', date: '15/Feb', spend: '-$1,450' },
-    { card: '*5238', kind: 'ATM card', date: '20/Mar', spend: '-$500' },
-    { card: '*8562', kind: 'Debit card', date: '10/Mar', spend: '-$750' },
-    { card: '**5688', kind: 'Credit Card', date: '25/May', spend: '-$1,200' },
+  const methods = [
+    { brand: 'Visa', tail: '4417', share: 46, volume: '$84,780' },
+    { brand: 'Mastercard', tail: '9032', share: 27, volume: '$49,760' },
+    { brand: 'SEPA direct debit', tail: '2185', share: 16, volume: '$29,490' },
+    { brand: 'Invoice / wire', tail: '—', share: 11, volume: '$20,290' },
   ]
 
-  const transactions = [
-    { label: 'Credit Card', sub: 'Digital Ocean', value: '-$2820', up: false },
-    { label: 'Bank account', sub: 'Received money', value: '+$1,260', up: true },
-    { label: 'Credit Card', sub: 'Netflix', value: '-$149', up: false },
-    { label: 'Wallet', sub: 'Starbucks', value: '-$49', up: false },
-    { label: 'Bank account', sub: 'Received money', value: '+$268', up: true },
+  const payouts = [
+    { who: 'Camille Fontaine', role: 'Core maintainer', when: '05 Aug', amount: '$4,200' },
+    { who: 'Kenji Morrow', role: 'Docs lead', when: '05 Aug', amount: '$3,100' },
+    { who: 'Nadia Haddad', role: 'Composables', when: '12 Aug', amount: '$2,850' },
+    { who: 'Bruno Marchetti', role: 'Design systems', when: '12 Aug', amount: '$2,400' },
+    { who: 'Zara Idris', role: 'Triage rotation', when: '19 Aug', amount: '$1,650' },
+  ]
+
+  const failures = [
+    { org: 'Copperline Studio', reason: 'Card expired', amount: '$294.00', attempt: 'Retry 2 of 4' },
+    { org: 'Saltmarsh Digital', reason: 'Insufficient funds', amount: '$1,125.00', attempt: 'Retry 1 of 4' },
+    { org: 'Tidewater Freight', reason: 'Bank declined', amount: '$720.00', attempt: 'Retry 3 of 4' },
+    { org: 'Quarry Software', reason: 'Mandate revoked', amount: '$2,480.00', attempt: 'Needs contact' },
   ]
 
   const show = shallowRef('5')
@@ -74,37 +77,38 @@
   const status = shallowRef('all')
   const page = shallowRef(1)
 
-  type Status = 'paid' | 'pending' | 'sent'
+  type Status = 'paid' | 'open' | 'draft'
 
-  type Invoice = { id: string, name: string, role: string, total: string, date: string, balance: string, balanceNeg: boolean, status: Status }
+  type Invoice = { id: string, org: string, contact: string, plan: string, total: string, due: string, balance: string, owing: boolean, status: Status }
 
-  const people = [
-    { name: 'Jack Alfredo', role: 'UI/UX designer' },
-    { name: 'Maria Gonzalez', role: 'Frontend developer' },
-    { name: 'John Doe', role: 'Graphic designer' },
-    { name: 'Emily Carter', role: 'UI/UX designer' },
-    { name: 'David Lee', role: 'Backend developer' },
-    { name: 'Sara Chen', role: 'Product manager' },
-    { name: 'Noah Patel', role: 'Backend developer' },
-    { name: 'Julia Hart', role: 'Motion designer' },
+  const accounts = [
+    { org: 'Northwind Labs', contact: 'Priya Raghunathan', plan: 'Emerald Pro · annual' },
+    { org: 'Kestrel Analytics', contact: 'Tomas Lindqvist', plan: 'Onyx Studio Kit · monthly' },
+    { org: 'Foundry Nine', contact: 'Adaeze Okonkwo', plan: 'v0 Enterprise · annual' },
+    { org: 'Vellum Press', contact: 'Ravi Menon', plan: 'Helix Docs Theme · one-off' },
+    { org: 'Palisade Bank', contact: 'Ingrid Solberg', plan: 'Emerald Pro · annual' },
+    { org: 'Ardent Robotics', contact: 'Mira Kovac', plan: 'Onyx Studio Kit · annual' },
+    { org: 'Lumen Grid', contact: 'Dmitri Sokolov', plan: 'Support contract · quarterly' },
+    { org: 'Basalt Health', contact: 'Yuki Tanabe', plan: 'Emerald Pro · monthly' },
   ]
 
-  const issued = ['Apr', 'May', 'Jun', 'Jul', 'Aug']
-  const states: Status[] = ['sent', 'paid', 'paid', 'pending', 'sent']
+  const cycles = ['Apr', 'May', 'Jun', 'Jul', 'Aug']
+  const states: Status[] = ['paid', 'paid', 'open', 'draft', 'paid']
 
   const invoices: Invoice[] = Array.from({ length: 25 }, (_, index) => {
-    const person = people[index % people.length]!
+    const account = accounts[index % accounts.length]!
     const state = states[index % states.length]!
-    const negative = state === 'pending'
+    const owing = state !== 'paid'
 
     return {
-      id: `#${5099 - index * 37}`,
-      name: person.name,
-      role: person.role,
-      total: `$${(1200 + index * 143).toLocaleString('en-US')}.00`,
-      date: `${String((index % 27) + 2).padStart(2, '0')} ${issued[index % issued.length]} 2025`,
-      balance: negative ? `-$${(40 + index * 7)}.00` : 'Paid',
-      balanceNeg: negative,
+      id: `INV-${4210 + index * 6}`,
+      org: account.org,
+      contact: account.contact,
+      plan: account.plan,
+      total: `$${(980 + index * 217).toLocaleString('en-US')}.00`,
+      due: `${String((index % 27) + 2).padStart(2, '0')} ${cycles[index % cycles.length]} 2026`,
+      balance: owing ? `$${(120 + index * 31).toLocaleString('en-US')}.00` : 'Settled',
+      owing,
       status: state,
     }
   })
@@ -112,15 +116,15 @@
   const options = [
     { value: 'all', label: 'All' },
     { value: 'paid', label: 'Paid' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'sent', label: 'Sent' },
+    { value: 'open', label: 'Open' },
+    { value: 'draft', label: 'Draft' },
   ]
 
   function label (value: string) {
     return options.find(option => option.value === value)?.label ?? value
   }
 
-  const filter = createFilter({ keys: ['id', 'name', 'role'] })
+  const filter = createFilter({ keys: ['id', 'org', 'contact', 'plan'] })
   const found = filter.apply(search, invoices)
 
   const filtered = toRef(() => status.value === 'all'
@@ -145,154 +149,42 @@
   <EmeraldShell>
     <div class="adm-payments" data-theme="emerald">
       <header class="adm-payments__header">
-        <h1 class="adm-payments__title">Payments</h1>
-        <p class="adm-payments__subtitle">Revenue, transactions and invoices</p>
+        <h1 class="adm-payments__title">Billing &amp; payouts</h1>
+        <p class="adm-payments__subtitle">Subscription collection, invoice state and maintainer disbursement</p>
       </header>
 
-      <section aria-label="Income and expense" class="adm-payments__kpis">
-        <EmCard v-for="s in stats" :key="s.label" class="adm-payments__kpi" variant="simple">
-          <EmCardBody class="adm-payments__kpi-body">
-            <span class="adm-payments__kpi-label">{{ s.label }}</span>
-            <span class="adm-payments__kpi-value">{{ s.value }}</span>
-
-            <svg aria-hidden="true" class="adm-payments__mini-line" preserveAspectRatio="none" viewBox="0 0 100 40">
-              <polyline
-                fill="none"
-                :points="s.trend.map((v, index) => `${index * (100 / (s.trend.length - 1))},${40 - (v / 26) * 32}`).join(' ')"
-                :stroke="s.up ? 'var(--emerald-primary-600, #1fae60)' : 'var(--emerald-danger-500, #c61424)'"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2.5"
-              />
-            </svg>
-
-            <EmTag :variant="s.up ? 'success' : 'danger'">{{ s.delta }} vs Last month</EmTag>
-          </EmCardBody>
-        </EmCard>
-
-        <EmCard class="adm-payments__kpi" variant="simple">
-          <EmCardBody class="adm-payments__kpi-body">
-            <span class="adm-payments__kpi-label">Total orders</span>
-            <span class="adm-payments__kpi-value">42.4k <em class="adm-payments__delta" data-up>+10.8%</em></span>
-            <EmTag>Last Week</EmTag>
-          </EmCardBody>
-        </EmCard>
-      </section>
-
-      <section aria-label="Revenue" class="adm-payments__row1">
-        <EmCard class="adm-payments__panel" variant="simple">
+      <section aria-label="Billing summary">
+        <EmCard variant="simple">
           <EmCardHeader>
-            <EmCardTitle class="adm-payments__panel-title">Total Revenue</EmCardTitle>
+            <EmCardTitle class="adm-payments__panel-title">August billing run</EmCardTitle>
+            <p class="adm-payments__panel-sub">Closed 03 Aug · next run opens 01 Sep</p>
           </EmCardHeader>
 
           <EmCardBody>
-            <div aria-label="Total revenue by month" class="adm-payments__chart" role="img">
-              <div v-for="(v, index) in revenue" :key="index" class="adm-payments__chart-col">
-                <span class="adm-payments__chart-bar" :data-peak="v === revenueMax || undefined" :style="{ height: (v / revenueMax) * 100 + '%' }" />
-                <span class="adm-payments__chart-label">{{ months[index] }}</span>
+            <div class="adm-payments__summary">
+              <div v-for="item in billing" :key="item.label">
+                <span class="adm-payments__summary-label">{{ item.label }}</span>
+                <span class="adm-payments__summary-value">{{ item.value }}</span>
+                <em class="adm-payments__delta" :data-up="item.up || undefined">{{ item.delta }}</em>
               </div>
             </div>
-          </EmCardBody>
-        </EmCard>
 
-        <EmCard class="adm-payments__panel" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-payments__panel-title">Growth</EmCardTitle>
-          </EmCardHeader>
-
-          <EmCardBody class="adm-payments__growth">
-            <span aria-hidden="true" class="adm-payments__donut" style="--pct: 78">
-              <span class="adm-payments__donut-value">78%</span>
-              <span class="adm-payments__donut-sub">Growth</span>
-            </span>
-
-            <p class="adm-payments__panel-sub">62% Company Growth</p>
-
-            <div class="adm-payments__growth-stats">
-              <div><strong>2024</strong><span>$32.5K</span></div>
-              <div><strong>2023</strong><span>$41.2K</span></div>
+            <div aria-label="Revenue mix" class="adm-payments__segbar" role="img">
+              <span
+                v-for="segment in mix"
+                :key="segment.label"
+                class="adm-payments__seg"
+                :data-tone="segment.tone"
+                :style="{ flexGrow: segment.pct }"
+              >{{ segment.pct }}%</span>
             </div>
-          </EmCardBody>
-        </EmCard>
-      </section>
 
-      <section aria-label="Payment history and countries" class="adm-payments__row2">
-        <EmCard class="adm-payments__panel" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-payments__panel-title">Payment History</EmCardTitle>
-          </EmCardHeader>
-
-          <EmCardBody class="adm-payments__table-wrap">
-            <table class="adm-payments__mini-table">
-              <thead>
-                <tr><th>Card</th><th>Date</th><th>Spend</th></tr>
-              </thead>
-
-              <tbody>
-                <tr v-for="(h, index) in history" :key="index">
-                  <td><strong>{{ h.card }}</strong><span>{{ h.kind }}</span></td>
-                  <td>{{ h.date }}</td>
-                  <td>{{ h.spend }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </EmCardBody>
-        </EmCard>
-
-        <EmCard class="adm-payments__panel" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-payments__panel-title">Sales by countries</EmCardTitle>
-            <p class="adm-payments__panel-sub">Monthly sales overview</p>
-          </EmCardHeader>
-
-          <EmCardBody>
-            <ul class="adm-payments__countries">
-              <li v-for="c in countries" :key="c.name">
-                <EmAvatar size="sm"><EmAvatarFallback>{{ c.code }}</EmAvatarFallback></EmAvatar>
-                <span class="adm-payments__country-text"><strong>{{ c.value }}</strong><span>{{ c.name }}</span></span>
-                <em class="adm-payments__delta" :data-up="c.up || undefined">{{ c.delta }}</em>
+            <ul class="adm-payments__legend">
+              <li v-for="segment in mix" :key="segment.label">
+                <span class="adm-payments__dot" :data-tone="segment.tone" />
+                <span>{{ segment.label }}</span>
               </li>
             </ul>
-          </EmCardBody>
-        </EmCard>
-      </section>
-
-      <section aria-label="Transactions and earning" class="adm-payments__row2">
-        <EmCard class="adm-payments__panel" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-payments__panel-title">Transactions</EmCardTitle>
-          </EmCardHeader>
-
-          <EmCardBody>
-            <ul class="adm-payments__transactions">
-              <li v-for="(t, index) in transactions" :key="index">
-                <span class="adm-payments__icon" :data-tone="t.up ? 'primary' : 'danger'">
-                  <svg
-                    fill="none"
-                    height="16"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-width="1.75"
-                    viewBox="0 0 24 24"
-                    width="16"
-                  ><path d="M3 7h18v10H3V7Z" /><path d="M3 10h18" /></svg>
-                </span>
-
-                <span class="adm-payments__transaction-text"><strong>{{ t.label }}</strong><span>{{ t.sub }}</span></span>
-                <strong class="adm-payments__delta" :data-up="t.up || undefined">{{ t.value }}</strong>
-              </li>
-            </ul>
-          </EmCardBody>
-        </EmCard>
-
-        <EmCard class="adm-payments__panel" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-payments__panel-title">Total Earning</EmCardTitle>
-          </EmCardHeader>
-
-          <EmCardBody>
-            <span class="adm-payments__kpi-value adm-payments__kpi-value--lg">$24650 <em class="adm-payments__delta" data-up>+10%</em></span>
-            <p class="adm-payments__panel-sub">Compare to last year ($84,325)</p>
           </EmCardBody>
         </EmCard>
       </section>
@@ -313,11 +205,11 @@
                 </EmSelectContent>
               </EmSelect>
 
-              <EmButton size="sm" variant="primary">Create Invoice</EmButton>
+              <EmButton size="sm" variant="primary">New invoice</EmButton>
             </div>
 
             <div class="adm-payments__toolbar-right">
-              <EmTextField v-model="search" aria-label="Search client" class="adm-payments__search" placeholder="Search client" />
+              <EmTextField v-model="search" aria-label="Search invoices" class="adm-payments__search" placeholder="Search invoice or account" />
 
               <EmSelect v-model="status" class="adm-payments__status-select">
                 <EmSelectActivator>
@@ -336,11 +228,12 @@
               <thead>
                 <tr>
                   <th><EmCheckbox aria-label="Select all" /></th>
-                  <th>ID</th>
+                  <th>Invoice</th>
                   <th>Status</th>
-                  <th>Client</th>
+                  <th>Account</th>
+                  <th>Plan</th>
                   <th>Total</th>
-                  <th>Issued Date</th>
+                  <th>Due</th>
                   <th>Balance</th>
                   <th>Actions</th>
                 </tr>
@@ -352,37 +245,39 @@
                   <td>{{ row.id }}</td>
 
                   <td>
-                    <EmTag :variant="row.status === 'paid' ? 'success' : row.status === 'pending' ? 'info' : 'neutral'">
-                      {{ row.status === 'paid' ? 'Paid' : row.status === 'pending' ? 'Pending' : 'Sent' }}
+                    <EmTag :variant="row.status === 'paid' ? 'success' : row.status === 'open' ? 'info' : 'neutral'">
+                      {{ row.status === 'paid' ? 'Paid' : row.status === 'open' ? 'Open' : 'Draft' }}
                     </EmTag>
                   </td>
 
                   <td>
                     <div class="adm-payments__client">
-                      <EmAvatar size="sm"><EmAvatarFallback>{{ initials(row.name) }}</EmAvatarFallback></EmAvatar>
-                      <span><strong>{{ row.name }}</strong><span class="adm-payments__client-role">{{ row.role }}</span></span>
+                      <EmAvatar size="sm"><EmAvatarFallback>{{ initials(row.org) }}</EmAvatarFallback></EmAvatar>
+                      <span><strong>{{ row.org }}</strong><span class="adm-payments__client-role">{{ row.contact }}</span></span>
                     </div>
                   </td>
 
+                  <td>{{ row.plan }}</td>
                   <td>{{ row.total }}</td>
-                  <td>{{ row.date }}</td>
-                  <td><EmTag :variant="row.balanceNeg ? 'danger' : 'success'">{{ row.balance }}</EmTag></td>
+                  <td>{{ row.due }}</td>
+                  <td><EmTag :variant="row.owing ? 'danger' : 'success'">{{ row.balance }}</EmTag></td>
 
                   <td>
                     <div class="adm-payments__actions">
-                      <EmButton aria-label="Delete" size="sm" variant="tertiary">
+                      <EmButton aria-label="Send reminder" size="sm" variant="tertiary">
                         <svg
                           fill="none"
                           height="15"
                           stroke="currentColor"
                           stroke-linecap="round"
+                          stroke-linejoin="round"
                           stroke-width="1.75"
                           viewBox="0 0 24 24"
                           width="15"
-                        ><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13" /></svg>
+                        ><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" /><path d="M3 6l9 7 9-7" /></svg>
                       </EmButton>
 
-                      <EmButton aria-label="View" size="sm" variant="tertiary">
+                      <EmButton aria-label="View invoice" size="sm" variant="tertiary">
                         <svg
                           fill="none"
                           height="15"
@@ -406,7 +301,7 @@
 
           <EmCardFooter class="adm-payments__table-foot">
             <span class="adm-payments__table-count">
-              Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} entries
+              Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} invoices
             </span>
 
             <EmPagination v-model="page" :items-per-page="Number(show)" :size="filtered.length">
@@ -422,6 +317,78 @@
               </template>
             </EmPagination>
           </EmCardFooter>
+        </EmCard>
+      </section>
+
+      <section aria-label="Methods, payouts and failures" class="adm-payments__trio">
+        <EmCard class="adm-payments__panel" variant="simple">
+          <EmCardHeader>
+            <EmCardTitle class="adm-payments__panel-title">How accounts pay</EmCardTitle>
+          </EmCardHeader>
+
+          <EmCardBody>
+            <ul class="adm-payments__methods">
+              <li v-for="method in methods" :key="method.brand">
+                <span class="adm-payments__method-text">
+                  <strong>{{ method.brand }}</strong>
+                  <span>{{ method.tail === '—' ? 'No stored instrument' : `ending ${method.tail}` }}</span>
+                </span>
+
+                <span class="adm-payments__method-value">
+                  {{ method.volume }}
+                  <span class="adm-payments__method-bar"><span :style="{ width: method.share + '%' }" /></span>
+                </span>
+              </li>
+            </ul>
+          </EmCardBody>
+        </EmCard>
+
+        <EmCard class="adm-payments__panel" variant="simple">
+          <EmCardHeader>
+            <EmCardTitle class="adm-payments__panel-title">Maintainer payouts</EmCardTitle>
+            <p class="adm-payments__panel-sub">$14,200 scheduled across three runs</p>
+          </EmCardHeader>
+
+          <EmCardBody>
+            <ul class="adm-payments__payouts">
+              <li v-for="payout in payouts" :key="payout.who">
+                <EmAvatar size="sm"><EmAvatarFallback>{{ initials(payout.who) }}</EmAvatarFallback></EmAvatar>
+
+                <span class="adm-payments__payout-text">
+                  <strong>{{ payout.who }}</strong>
+                  <span>{{ payout.role }}</span>
+                </span>
+
+                <span class="adm-payments__payout-value">
+                  <strong>{{ payout.amount }}</strong>
+                  <span>{{ payout.when }}</span>
+                </span>
+              </li>
+            </ul>
+          </EmCardBody>
+        </EmCard>
+
+        <EmCard class="adm-payments__panel" variant="simple">
+          <EmCardHeader>
+            <EmCardTitle class="adm-payments__panel-title">Charges needing attention</EmCardTitle>
+            <p class="adm-payments__panel-sub">$4,619 stuck in dunning</p>
+          </EmCardHeader>
+
+          <EmCardBody>
+            <ul class="adm-payments__failures">
+              <li v-for="failure in failures" :key="failure.org">
+                <span class="adm-payments__failure-text">
+                  <strong>{{ failure.org }}</strong>
+                  <span>{{ failure.reason }}</span>
+                </span>
+
+                <span class="adm-payments__failure-value">
+                  <strong>{{ failure.amount }}</strong>
+                  <EmTag :variant="failure.attempt === 'Needs contact' ? 'danger' : 'neutral'">{{ failure.attempt }}</EmTag>
+                </span>
+              </li>
+            </ul>
+          </EmCardBody>
         </EmCard>
       </section>
     </div>
@@ -458,34 +425,15 @@
     font-size: var(--emerald-text-b1-size, 16px);
   }
 
-  .adm-payments__kpis {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--emerald-spacing-m, 16px);
+  .adm-payments__panel-title {
+    font-size: var(--emerald-text-b1-size, 16px) !important;
+    font-weight: 700 !important;
   }
 
-  .adm-payments__kpi-body {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-xs, 8px);
-    min-height: 120px;
-  }
-
-  .adm-payments__kpi-label {
+  .adm-payments__panel-sub {
+    margin: 2px 0 0;
     color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-payments__kpi-value {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  .adm-payments__kpi-value--lg {
-    font-size: 1.75rem;
+    font-size: var(--emerald-text-b3-size, 12px);
   }
 
   .adm-payments__delta {
@@ -499,229 +447,103 @@
     color: var(--emerald-primary-700, #027d4c);
   }
 
-  .adm-payments__mini-line {
-    width: 100%;
-    height: 40px;
-    margin-top: auto;
-  }
-
-  .adm-payments__row1 {
+  .adm-payments__summary {
     display: grid;
-    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--emerald-spacing-m, 16px);
+    margin-top: var(--emerald-spacing-xs, 8px);
   }
 
-  .adm-payments__row2 {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--emerald-spacing-m, 16px);
-  }
-
-  .adm-payments__panel-title {
-    font-size: var(--emerald-text-b1-size, 16px) !important;
-    font-weight: 700 !important;
-  }
-
-  .adm-payments__panel-sub {
-    margin: 2px 0 0;
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
-  }
-
-  .adm-payments__chart {
+  .adm-payments__summary > div {
     display: flex;
-    align-items: flex-end;
-    gap: var(--emerald-spacing-s, 12px);
-    height: 200px;
-  }
-
-  .adm-payments__chart-col {
-    display: flex;
-    flex: 1;
     flex-direction: column;
+    gap: 2px;
+    padding-left: var(--emerald-spacing-m, 16px);
+    border-left: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
+  }
+
+  .adm-payments__summary > div:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .adm-payments__summary-label {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  .adm-payments__summary-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .adm-payments__segbar {
+    display: flex;
+    height: 40px;
+    margin-top: var(--emerald-spacing-l, 20px);
+    border-radius: var(--emerald-radius-m, 8px);
+    overflow: hidden;
+    font-size: var(--emerald-text-b3-size, 12px);
+    font-weight: 600;
+  }
+
+  .adm-payments__seg {
+    display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
-    height: 100%;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--emerald-primary-800, #01603a);
+    color: var(--emerald-on-primary, #fff);
   }
 
-  .adm-payments__chart-bar {
-    width: 55%;
-    min-height: 6px;
-    border-radius: var(--emerald-radius-xs, 4px) var(--emerald-radius-xs, 4px) 0 0;
-    background: var(--emerald-primary-300, #baedd0);
-  }
-
-  .adm-payments__chart-bar[data-peak] {
+  .adm-payments__seg[data-tone='mid'] {
     background: var(--emerald-primary-600, #1fae60);
   }
 
-  .adm-payments__chart-label {
-    font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
+  .adm-payments__seg[data-tone='light'] {
+    background: var(--emerald-primary-500, #26c26d);
   }
 
-  .adm-payments__growth {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--emerald-spacing-s, 12px);
-    text-align: center;
-  }
-
-  .adm-payments__donut {
-    --pct: 78;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    background: conic-gradient(var(--emerald-primary-600, #1fae60) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
-  }
-
-  .adm-payments__donut::before {
-    content: '';
-    position: absolute;
-    inset: 14px;
-    border-radius: 50%;
-    background: var(--emerald-background, #fefefe);
-  }
-
-  .adm-payments__donut-value,
-  .adm-payments__donut-sub {
-    position: relative;
-    z-index: 1;
-  }
-
-  .adm-payments__donut-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  .adm-payments__donut-sub {
-    font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-payments__growth-stats {
-    display: flex;
-    gap: var(--emerald-spacing-l, 20px);
-    margin-top: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-payments__growth-stats > div {
-    display: flex;
-    flex-direction: column;
-    font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-payments__growth-stats strong {
+  .adm-payments__seg[data-tone='pale'] {
+    background: var(--emerald-primary-300, #baedd0);
     color: var(--emerald-on-surface, #2b2d2e);
   }
 
-  .adm-payments__mini-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-payments__mini-table th {
-    padding: var(--emerald-spacing-xs, 8px) 0;
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
-    text-align: left;
-    border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
-  }
-
-  .adm-payments__mini-table td {
-    padding: var(--emerald-spacing-s, 12px) 0;
-    border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
-  }
-
-  .adm-payments__mini-table td strong {
-    display: block;
-  }
-
-  .adm-payments__mini-table td span {
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
-  }
-
-  .adm-payments__countries {
+  .adm-payments__legend {
     display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-s, 12px);
-    margin: 0;
+    flex-wrap: wrap;
+    gap: var(--emerald-spacing-s, 12px) var(--emerald-spacing-l, 20px);
+    margin: var(--emerald-spacing-s, 12px) 0 0;
     padding: 0;
     list-style: none;
-  }
-
-  .adm-payments__countries li {
-    display: flex;
-    align-items: center;
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-payments__country-text {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    font-size: var(--emerald-text-b3-size, 12px);
     color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-payments__country-text strong {
-    color: var(--emerald-on-surface, #2b2d2e);
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-payments__transactions {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-s, 12px);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .adm-payments__transactions li {
-    display: flex;
-    align-items: center;
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-payments__icon {
-    display: inline-flex;
-    flex: none;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--emerald-radius-m, 8px);
-    background: var(--emerald-primary-100, #e7fff2);
-    color: var(--emerald-primary-700, #027d4c);
-  }
-
-  .adm-payments__icon[data-tone='danger'] {
-    background: var(--emerald-danger-100, #ffebee);
-    color: var(--emerald-danger-500, #c61424);
-  }
-
-  .adm-payments__transaction-text {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
     font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
   }
 
-  .adm-payments__transaction-text strong {
-    color: var(--emerald-on-surface, #2b2d2e);
-    font-size: var(--emerald-text-b2-size, 14px);
+  .adm-payments__legend li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .adm-payments__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    background: var(--emerald-primary-800, #01603a);
+  }
+
+  .adm-payments__dot[data-tone='mid'] {
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  .adm-payments__dot[data-tone='light'] {
+    background: var(--emerald-primary-500, #26c26d);
+  }
+
+  .adm-payments__dot[data-tone='pale'] {
+    background: var(--emerald-primary-300, #baedd0);
   }
 
   /* .emerald-card__header is flex-direction: column — a title/action row has to
@@ -752,7 +574,7 @@
   }
 
   .adm-payments__search {
-    width: 220px;
+    width: 240px;
   }
 
   .adm-payments__status-select {
@@ -765,20 +587,26 @@
   }
 
   .adm-payments__table th:first-child,
-  .adm-payments__table td:first-child {
+  .adm-payments__table td:first-child,
+  .adm-payments__mini-table th:first-child,
+  .adm-payments__mini-table td:first-child {
     padding-left: var(--emerald-spacing-l, 20px);
   }
 
   .adm-payments__table th:last-child,
-  .adm-payments__table td:last-child {
+  .adm-payments__table td:last-child,
+  .adm-payments__mini-table th:last-child,
+  .adm-payments__mini-table td:last-child {
     padding-right: var(--emerald-spacing-l, 20px);
   }
 
-  .adm-payments__table tbody tr {
+  .adm-payments__table tbody tr,
+  .adm-payments__mini-table tbody tr {
     transition: background-color 120ms ease;
   }
 
-  .adm-payments__table tbody tr:hover {
+  .adm-payments__table tbody tr:hover,
+  .adm-payments__mini-table tbody tr:hover {
     background: var(--emerald-neutral-200, #f6f8fa);
   }
 
@@ -787,14 +615,16 @@
     color: var(--emerald-on-surface-variant, #757e85);
   }
 
-  .adm-payments__table {
+  .adm-payments__table,
+  .adm-payments__mini-table {
     width: 100%;
     border-collapse: collapse;
     font-size: var(--emerald-text-b2-size, 14px);
     white-space: nowrap;
   }
 
-  .adm-payments__table th {
+  .adm-payments__table th,
+  .adm-payments__mini-table th {
     padding: var(--emerald-spacing-xs, 8px) var(--emerald-spacing-s, 12px);
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b3-size, 12px);
@@ -803,9 +633,19 @@
     border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
   }
 
-  .adm-payments__table td {
+  .adm-payments__table td,
+  .adm-payments__mini-table td {
     padding: var(--emerald-spacing-s, 12px);
     border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
+  }
+
+  .adm-payments__mini-table td strong {
+    display: block;
+  }
+
+  .adm-payments__mini-table td span {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
   }
 
   .adm-payments__client {
@@ -847,14 +687,129 @@
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
+  .adm-payments__trio {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--emerald-spacing-m, 16px);
+  }
+
+  .adm-payments__trio .emerald-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .adm-payments__methods,
+  .adm-payments__payouts,
+  .adm-payments__failures {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--emerald-spacing-m, 16px);
+    margin: var(--emerald-spacing-xs, 8px) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .adm-payments__methods li,
+  .adm-payments__payouts li,
+  .adm-payments__failures li {
+    display: flex;
+    align-items: center;
+    gap: var(--emerald-spacing-s, 12px);
+  }
+
+  .adm-payments__method-text,
+  .adm-payments__payout-text,
+  .adm-payments__failure-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-payments__method-text strong,
+  .adm-payments__payout-text strong,
+  .adm-payments__failure-text strong {
+    color: var(--emerald-on-surface, #2b2d2e);
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  .adm-payments__method-value {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    font-size: var(--emerald-text-b3-size, 12px);
+    font-weight: 600;
+  }
+
+  .adm-payments__method-bar {
+    display: block;
+    width: 72px;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--emerald-neutral-200, #f6f8fa);
+    overflow: hidden;
+  }
+
+  .adm-payments__method-bar span {
+    display: block;
+    height: 100%;
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  .adm-payments__payout-value {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-payments__payout-value strong {
+    color: var(--emerald-on-surface, #2b2d2e);
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  .adm-payments__failure-value {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
   @media (max-width: 1200px) {
-    .adm-payments__kpis {
+    .adm-payments__summary {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .adm-payments__summary > div:nth-child(3) {
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .adm-payments__trio {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .adm-payments__summary {
       grid-template-columns: 1fr;
     }
 
-    .adm-payments__row1,
-    .adm-payments__row2 {
-      grid-template-columns: 1fr;
+    .adm-payments__summary > div {
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .adm-payments__search {
+      width: 100%;
     }
   }
 </style>

@@ -5,12 +5,15 @@
   createValidation/createForm — no hand-rolled error state anywhere on this
   page. See GAPS.md: "no gap, this is a real-build page" for Form validation.
 
+  Read top to bottom the page goes real form → when validation fires → the rule
+  catalogue, so the working example leads and the reference material follows it.
+
   Near-miss (recorded in gaps-pages.md): EmSelect / EmCheckbox / EmRadio /
   EmSwitch accept `namespace` for their own compound context but do NOT wrap
   Input.Root, so they don't auto-register with createForm the way EmTextField
-  / EmTextarea do — Country, Preferred language, the topic checkboxes, the
-  notification switches, and the account-type radios carry real local state
-  but sit outside the Registration Form's aggregate `isValid`.
+  / EmTextarea do — the target, region, catalogue checkboxes, alert switches
+  and listing-plan radios carry real local state but sit outside the vendor
+  form's aggregate `isValid`.
 -->
 <script setup lang="ts">
   import {
@@ -20,7 +23,6 @@
     EmCardHeader,
     EmCardTitle,
     EmCheckbox,
-    EmDivider,
     EmRadio,
     EmRadioGroup,
     EmSelect,
@@ -47,141 +49,140 @@
     return (!!v && String(v).trim().length > 0) || 'This field is required'
   }
 
-  function numeric (v: unknown): boolean | string {
-    return !v || /^\d+$/.test(String(v)) || 'Must only consist of numbers'
-  }
-
-  function alphabetic (v: unknown): boolean | string {
-    return !v || /^[A-Za-z]+$/.test(String(v)) || 'Only alphabetic characters'
-  }
-
-  function password (v: unknown): boolean | string {
-    return !v || String(v).length >= 8 || 'Must be at least 8 characters'
-  }
-
   function email (v: unknown): boolean | string {
-    return !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v)) || 'Must be a valid email'
-  }
-
-  function minMaxLength (v: unknown): boolean | string {
-    return !v || (String(v).length >= 5 && String(v).length <= 10) || 'Must be between 5 and 10 characters'
-  }
-
-  function numberRange (v: unknown): boolean | string {
-    return !v || (Number(v) >= 10 && Number(v) <= 20) || 'Enter a number between 10 & 20'
-  }
-
-  function regexPattern (v: unknown): boolean | string {
-    return !v || /^[0-9]+$/.test(String(v)) || 'Must match regular expression: ^([0-9]+)$ — numbers only'
-  }
-
-  function exactLength (v: unknown): boolean | string {
-    return !v || String(v).length === 3 || 'Length must be exactly 3 characters.'
-  }
-
-  function digits (v: unknown): boolean | string {
-    return !v || /^\d{3}$/.test(String(v)) || 'Must be numeric and exactly 3 digits'
-  }
-
-  function alphanumericSymbols (v: unknown): boolean | string {
-    return !v || /^[A-Za-z0-9_-]+$/.test(String(v)) || 'Only letters, numbers, dashes or underscores'
+    return !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v)) || 'Needs one @ and a dotted domain'
   }
 
   function url (v: unknown): boolean | string {
-    return !v || /^https?:\/\/.+/.test(String(v)) || 'Must be a valid url'
+    return !v || /^https?:\/\/.+/.test(String(v)) || 'Start with http:// or https://'
   }
 
-  const typeDemos = [
-    { key: 'required', label: 'Required Field', placeholder: 'This field is required', rules: [required], type: 'text' },
-    { key: 'numeric', label: 'Numeric Only', placeholder: 'Must only consist of numbers', rules: [numeric], type: 'text' },
-    { key: 'alphabetic', label: 'Alphabetic Only', placeholder: 'Only alphabetic characters', rules: [alphabetic], type: 'text' },
-    { key: 'password', label: 'Password', placeholder: 'Password input field', rules: [password], type: 'password' },
-    { key: 'minMax', label: 'Min & Max Length', placeholder: 'Must be between 5 and 10 characters', rules: [minMaxLength], type: 'text' },
-    { key: 'email', label: 'Email', placeholder: 'Must be a valid email', rules: [email], type: 'text' },
-    { key: 'range', label: 'Number Range', placeholder: 'Enter a number between 10 & 20', rules: [numberRange], type: 'text' },
-    { key: 'regex', label: 'Regex Pattern', placeholder: 'Numbers only, matched via regex', rules: [regexPattern], type: 'text' },
-    { key: 'exact', label: 'Exact Length', placeholder: 'Length must be exactly 3 characters', rules: [exactLength], type: 'text' },
-    { key: 'digits', label: 'Digits', placeholder: 'Exactly 3 digits', rules: [digits], type: 'text' },
-    { key: 'symbols', label: 'Alphanumeric & Symbols', placeholder: 'Letters, numbers, dashes or underscores', rules: [alphanumericSymbols], type: 'text' },
-    { key: 'url', label: 'URL', placeholder: 'Must be a valid url', rules: [url], type: 'text' },
+  function slug (v: unknown): boolean | string {
+    return !v || /^[a-z0-9][a-z0-9-]{2,31}$/.test(String(v)) || 'Lowercase letters, numbers and dashes, 3–32 characters'
+  }
+
+  function semver (v: unknown): boolean | string {
+    return !v || /^\d+\.\d+\.\d+(-[\da-z.-]+)?$/i.test(String(v)) || 'Use major.minor.patch, e.g. 2.4.0 or 3.0.0-beta.1'
+  }
+
+  function hex (v: unknown): boolean | string {
+    return !v || /^#?[\da-f]{6}$/i.test(String(v)) || 'Six hex digits, with or without the leading hash'
+  }
+
+  function alpha (v: unknown): boolean | string {
+    return !v || /^[A-Za-z]+$/.test(String(v)) || 'Letters only — no spaces or punctuation'
+  }
+
+  function pattern (v: unknown): boolean | string {
+    return !v || /^[A-Z]{2}-\d{4}$/.test(String(v)) || String.raw`Must match ^[A-Z]{2}-\d{4}$, e.g. VX-2048`
+  }
+
+  function digits (v: unknown): boolean | string {
+    return !v || /^\d{4}$/.test(String(v)) || 'Digits only, exactly four of them'
+  }
+
+  function exact (v: unknown): boolean | string {
+    return !v || String(v).length === 3 || 'Exactly three characters'
+  }
+
+  function between (v: unknown): boolean | string {
+    return !v || (String(v).length >= 5 && String(v).length <= 40) || 'Between 5 and 40 characters'
+  }
+
+  function range (v: unknown): boolean | string {
+    return !v || (Number(v) >= 10 && Number(v) <= 500) || 'A number from 10 to 500'
+  }
+
+  // The rule catalogue: one live field per rule, each with the signature it is
+  // registered under and the constraint stated in prose.
+  const checks = [
+    { key: 'required', sig: 'required', desc: 'Rejects empty strings and whitespace-only input.', placeholder: 'Leave me blank to see it fire', rules: [required] },
+    { key: 'email', sig: 'email', desc: 'One @, a dotted domain, no whitespace anywhere.', placeholder: 'vendor@studio.dev', rules: [email] },
+    { key: 'url', sig: 'url', desc: 'An absolute http or https address.', placeholder: 'https://studio.dev', rules: [url] },
+    { key: 'slug', sig: 'slug()', desc: 'Publisher handles: lowercase letters, numbers and dashes, 3 to 32 characters.', placeholder: 'northwind-labs', rules: [slug] },
+    { key: 'semver', sig: 'semver()', desc: 'A release version — major.minor.patch, optionally with a pre-release tag.', placeholder: '3.0.0-beta.1', rules: [semver] },
+    { key: 'hex', sig: 'hex()', desc: 'A six-digit hex colour for a token override, hash optional.', placeholder: '#1fae60', rules: [hex] },
+    { key: 'alpha', sig: 'alpha', desc: 'Letters and nothing else.', placeholder: 'Emerald', rules: [alpha] },
+    { key: 'pattern', sig: 'pattern(re)', desc: 'Anything you can express as a regular expression.', placeholder: 'VX-2048', rules: [pattern] },
+    { key: 'digits', sig: 'digits(4)', desc: 'Only digits, and exactly the count you asked for.', placeholder: '2048', rules: [digits] },
+    { key: 'exact', sig: 'length(3)', desc: 'A string of exactly this length.', placeholder: 'USD', rules: [exact] },
+    { key: 'between', sig: 'between(5, 40)', desc: 'A length inside an inclusive window.', placeholder: 'A short catalogue title', rules: [between] },
+    { key: 'range', sig: 'range(10, 500)', desc: 'A number inside an inclusive window.', placeholder: '250', rules: [range] },
   ] as const
 
-  const typeValues = ref<Record<string, string>>(Object.fromEntries(typeDemos.map(d => [d.key, ''])))
+  const values = ref<Record<string, string>>(Object.fromEntries(checks.map(check => [check.key, ''])))
 
+  // Same four validateOn values the Input contract ships, read as a timeline.
   const modes = [
-    { key: 'change', title: 'onChange Mode', desc: 'Validates on every keystroke.', hint: 'Error appears instantly as you type.', validateOn: 'input' as const },
-    { key: 'blur', title: 'onBlur Mode', desc: 'Validates when you leave the field.', hint: 'Error appears after you leave the field.', validateOn: 'blur' as const },
-    { key: 'submit', title: 'onSubmit Mode', desc: 'Validates only when you click submit.', hint: 'Error appears only after clicking submit.', validateOn: 'submit' as const },
-    { key: 'touched', title: 'onTouched Mode', desc: 'First validation on blur, then real-time.', hint: 'First validation on blur, then every change.', validateOn: 'blur eager' as const },
+    { key: 'input', sig: 'input', fires: 'On every keystroke.', reach: 'Live feedback where the answer is obvious as you type — handles, slugs, colours.', validateOn: 'input' as const },
+    { key: 'blur', sig: 'blur', fires: 'When focus leaves the field.', reach: 'The quiet default. Nobody is scolded mid-word.', validateOn: 'blur' as const },
+    { key: 'submit', sig: 'submit', fires: 'Only when the form is submitted.', reach: 'Short forms where interrupting costs more than a late error.', validateOn: 'submit' as const },
+    { key: 'eager', sig: 'blur eager', fires: 'First on blur, then on every change after that.', reach: 'Long forms — silent until you have had a go, then live while you fix it.', validateOn: 'blur eager' as const },
   ]
 
-  const modeValues = ref<Record<string, string>>(Object.fromEntries(modes.map(m => [m.key, ''])))
+  const probes = ref<Record<string, string>>(Object.fromEntries(modes.map(mode => [mode.key, ''])))
 
-  const countries = ['United States', 'United Kingdom', 'Canada', 'Germany', 'Japan']
-  const languages = ['English', 'Spanish', 'French', 'German', 'Japanese']
+  const targets = ['Vuetify 4', 'Vuetify 3', 'Vuetify0 (headless)', 'Nuxt module']
+  const regions = ['United States', 'European Union', 'United Kingdom', 'Australia', 'Singapore']
 
-  const fullName = shallowRef('')
-  const regEmail = shallowRef('')
-  const regPassword = shallowRef('')
-  const dob = shallowRef('')
-  const age = shallowRef('')
-  const country = shallowRef<string>()
-  const language = shallowRef<string>()
-  const bio = shallowRef('')
-  const bioCount = toRef(() => bio.value.length)
+  const studio = shallowRef('')
+  const handle = shallowRef('')
+  const contact = shallowRef('')
+  const site = shallowRef('')
+  const hours = shallowRef('')
+  const summary = shallowRef('')
+  const target = shallowRef<string>()
+  const region = shallowRef<string>()
+  const count = toRef(() => summary.value.length)
 
-  const topics = ref({ product: false, news: false, tips: false })
-  const notifications = ref({ email: true, marketing: false, twoFactor: false })
-  const accountType = shallowRef<'personal' | 'business' | 'enterprise'>()
+  const catalogue = ref({ themes: false, components: false, icons: false, starters: false })
+  const alerts = ref({ releases: true, beta: false, approval: false })
+  const plan = shallowRef<'solo' | 'studio' | 'agency'>()
 
-  function dobRule (v: unknown): boolean | string {
-    return !v || /^\d{4}-\d{2}-\d{2}$/.test(String(v)) || 'Use YYYY-MM-DD'
+  function windowRule (v: unknown): boolean | string {
+    return !v || (Number(v) >= 1 && Number(v) <= 72) || 'Between 1 and 72 hours'
   }
 
-  function ageRule (v: unknown): boolean | string {
-    return !v || (Number(v) >= 18 && Number(v) <= 120) || 'You must be at least 18 years old'
+  function summaryRule (v: unknown): boolean | string {
+    return String(v).length <= 400 || 'Keep the summary to 400 characters or fewer'
   }
 
-  function bioRule (v: unknown): boolean | string {
-    return String(v).length <= 500 || 'Bio must be 500 characters or fewer'
-  }
+  const result = shallowRef<'idle' | 'valid' | 'invalid'>('idle')
 
-  const lastResult = shallowRef<'idle' | 'valid' | 'invalid'>('idle')
-
-  async function onRegistrationSubmit (submit: () => Promise<boolean>) {
+  async function onApply (submit: () => Promise<boolean>) {
     const valid = await submit()
-    lastResult.value = valid ? 'valid' : 'invalid'
+    result.value = valid ? 'valid' : 'invalid'
   }
 
   // v0's Form.reset() clears validation state across the registry but does not
   // restore field values — the page owns those models, so it clears them here.
   // Values are cleared first and flushed, so the live `input` validators run
   // before reset() wipes the state they would otherwise repopulate.
-  async function onTypesReset (reset: () => void) {
-    for (const demo of typeDemos) typeValues.value[demo.key] = ''
+  async function onApplyReset (reset: () => void) {
+    studio.value = ''
+    handle.value = ''
+    contact.value = ''
+    site.value = ''
+    hours.value = ''
+    summary.value = ''
+    target.value = undefined
+    region.value = undefined
+    plan.value = undefined
+    catalogue.value = { themes: false, components: false, icons: false, starters: false }
+    alerts.value = { releases: true, beta: false, approval: false }
+    result.value = 'idle'
     await nextTick()
     reset()
   }
 
-  async function onModeReset (reset: () => void, key: string) {
-    modeValues.value[key] = ''
+  async function onProbeReset (reset: () => void, key: string) {
+    probes.value[key] = ''
     await nextTick()
     reset()
   }
 
-  async function onRegistrationReset (reset: () => void) {
-    fullName.value = ''
-    regEmail.value = ''
-    regPassword.value = ''
-    dob.value = ''
-    age.value = ''
-    bio.value = ''
-    country.value = undefined
-    language.value = undefined
-    accountType.value = undefined
-    topics.value = { product: false, news: false, tips: false }
-    notifications.value = { email: true, marketing: false, twoFactor: false }
-    lastResult.value = 'idle'
+  async function onChecksReset (reset: () => void) {
+    for (const check of checks) values.value[check.key] = ''
     await nextTick()
     reset()
   }
@@ -191,34 +192,214 @@
   <EmeraldShell>
     <div class="adm-forms" data-theme="emerald">
       <header class="adm-forms__head">
-        <h1 class="adm-forms__title">Form validation</h1>
-        <p class="adm-forms__sub">Real validation via v0's <code>rules</code> + <code>validateOn</code> on <code>EmTextField</code> / <code>EmTextarea</code>, coordinated by v0's <code>Form</code>.</p>
+        <h1 class="adm-forms__title">Marketplace vendor onboarding</h1>
+        <p class="adm-forms__sub">Every field below validates for real via v0's <code>rules</code> and <code>validateOn</code> on <code>EmTextField</code> / <code>EmTextarea</code>, aggregated by v0's <code>Form</code>.</p>
       </header>
 
       <EmCard variant="simple">
         <EmCardHeader>
-          <EmCardTitle>Validation Types</EmCardTitle>
+          <EmCardTitle>Apply to publish</EmCardTitle>
+          <p class="adm-forms__panel-sub">Tell us who you are, what you intend to list, and how quickly you answer your buyers.</p>
         </EmCardHeader>
 
-        <Form v-slot="{ isValid, submit: submitTypes, reset: resetTypes }">
-          <EmCardBody class="adm-forms__grid">
-            <EmTextField
-              v-for="demo in typeDemos"
-              :key="demo.key"
-              v-model="typeValues[demo.key]"
-              :label="demo.label"
-              :placeholder="demo.placeholder"
-              :rules="[...demo.rules]"
-              :type="demo.type"
-              validate-on="input"
-            />
+        <Form v-slot="{ isValid, submit, reset }">
+          <EmCardBody class="adm-forms__sections">
+            <section class="adm-forms__section">
+              <div class="adm-forms__section-lede">
+                <h3 class="adm-forms__section-title">Studio</h3>
+                <p class="adm-forms__section-sub">Who is behind the listings, and where buyers can look you up.</p>
+              </div>
+
+              <div class="adm-forms__fields">
+                <EmTextField
+                  v-model="studio"
+                  description="Shown on every listing you publish"
+                  label="Studio name"
+                  placeholder="Northwind Labs"
+                  :rules="[required]"
+                  validate-on="blur lazy"
+                />
+
+                <EmTextField
+                  v-model="handle"
+                  description="Becomes your marketplace URL — it cannot be changed later"
+                  label="Publisher handle"
+                  placeholder="northwind-labs"
+                  :rules="[required, slug]"
+                  validate-on="input lazy"
+                />
+
+                <EmTextField
+                  v-model="contact"
+                  description="Where release approvals and buyer escalations are sent"
+                  label="Contact email"
+                  placeholder="team@northwind.dev"
+                  :rules="[required, email]"
+                  validate-on="blur lazy"
+                />
+
+                <EmTextField
+                  v-model="site"
+                  description="A portfolio, repository, or existing storefront"
+                  label="Website"
+                  placeholder="https://northwind.dev"
+                  :rules="[url]"
+                  validate-on="blur lazy"
+                />
+              </div>
+            </section>
+
+            <section class="adm-forms__section">
+              <div class="adm-forms__section-lede">
+                <h3 class="adm-forms__section-title">Catalogue</h3>
+                <p class="adm-forms__section-sub">What you plan to list, and which layer of the stack it targets.</p>
+              </div>
+
+              <div class="adm-forms__fields">
+                <div class="adm-forms__group">
+                  <span class="adm-forms__group-label">Listing types</span>
+                  <p class="adm-forms__group-sub">Pick everything you expect to publish in your first year</p>
+
+                  <div class="adm-forms__checks">
+                    <EmCheckbox v-model="catalogue.themes">Themes</EmCheckbox>
+                    <EmCheckbox v-model="catalogue.components">Component packs</EmCheckbox>
+                    <EmCheckbox v-model="catalogue.icons">Icon sets</EmCheckbox>
+                    <EmCheckbox v-model="catalogue.starters">Starter templates</EmCheckbox>
+                  </div>
+                </div>
+
+                <EmSelect v-model="target" label="Primary target">
+                  <EmSelectActivator>
+                    <EmSelectValue />
+                    <EmSelectPlaceholder>Choose the layer you build against</EmSelectPlaceholder>
+
+                    <svg
+                      aria-hidden="true"
+                      class="emerald-select__icon"
+                      fill="none"
+                      height="16"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 16 16"
+                      width="16"
+                    ><path d="M4 6l4 4 4-4" /></svg>
+                  </EmSelectActivator>
+
+                  <EmSelectContent>
+                    <EmSelectItem v-for="item in targets" :key="item" :value="item">{{ item }}</EmSelectItem>
+                  </EmSelectContent>
+                </EmSelect>
+
+                <EmTextarea
+                  v-model="summary"
+                  :description="`What a buyer sees before they open a listing (${count}/400 characters)`"
+                  label="Catalogue summary"
+                  placeholder="Dense data-heavy screens for logistics teams, built on the headless table primitives…"
+                  :rules="[summaryRule]"
+                  validate-on="input lazy"
+                />
+              </div>
+            </section>
+
+            <section class="adm-forms__section">
+              <div class="adm-forms__section-lede">
+                <h3 class="adm-forms__section-title">Operations</h3>
+                <p class="adm-forms__section-sub">How you get paid, how fast you answer, and how releases leave your hands.</p>
+              </div>
+
+              <div class="adm-forms__fields">
+                <div class="adm-forms__pair">
+                  <EmTextField
+                    v-model="hours"
+                    description="The response time published on your storefront"
+                    label="Support window (hours)"
+                    placeholder="24"
+                    :rules="[required, windowRule]"
+                    type="number"
+                    validate-on="blur lazy"
+                  />
+
+                  <EmSelect v-model="region" label="Payout region">
+                    <EmSelectActivator>
+                      <EmSelectValue />
+                      <EmSelectPlaceholder>Select a region</EmSelectPlaceholder>
+
+                      <svg
+                        aria-hidden="true"
+                        class="emerald-select__icon"
+                        fill="none"
+                        height="16"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        viewBox="0 0 16 16"
+                        width="16"
+                      ><path d="M4 6l4 4 4-4" /></svg>
+                    </EmSelectActivator>
+
+                    <EmSelectContent>
+                      <EmSelectItem v-for="item in regions" :key="item" :value="item">{{ item }}</EmSelectItem>
+                    </EmSelectContent>
+                  </EmSelect>
+                </div>
+
+                <div class="adm-forms__group">
+                  <span class="adm-forms__group-label">Release handling</span>
+                  <p class="adm-forms__group-sub">Applies to every package under this publisher handle</p>
+
+                  <div class="adm-forms__switch-row">
+                    <span>Release announcements<small>Post to the marketplace changelog when you publish</small></span>
+                    <EmSwitch v-model="alerts.releases" aria-label="Release announcements" size="sm" />
+                  </div>
+
+                  <div class="adm-forms__switch-row">
+                    <span>Beta channel access<small>Test against pre-release builds before they ship</small></span>
+                    <EmSwitch v-model="alerts.beta" aria-label="Beta channel access" size="sm" />
+                  </div>
+
+                  <div class="adm-forms__switch-row">
+                    <span>Two-person release approval<small>A second maintainer must sign off before anything publishes</small></span>
+                    <EmSwitch v-model="alerts.approval" aria-label="Two-person release approval" size="sm" />
+                  </div>
+                </div>
+
+                <div class="adm-forms__group">
+                  <span class="adm-forms__group-label">Listing plan</span>
+                  <p class="adm-forms__group-sub">Sets your revenue share and how many listings you may keep live</p>
+
+                  <EmRadioGroup v-model="plan" class="adm-forms__plans" label="Listing plan">
+                    <label class="adm-forms__plan" :data-selected="plan === 'solo' || undefined">
+                      <EmRadio value="solo" />
+                      <span><strong>Solo</strong><small>One maintainer, up to three live listings</small></span>
+                    </label>
+
+                    <label class="adm-forms__plan" :data-selected="plan === 'studio' || undefined">
+                      <EmRadio value="studio" />
+                      <span><strong>Studio</strong><small>Up to eight maintainers, unlimited listings</small></span>
+                    </label>
+
+                    <label class="adm-forms__plan" :data-selected="plan === 'agency' || undefined">
+                      <EmRadio value="agency" />
+                      <span><strong>Agency</strong><small>White-label listings and reseller terms</small></span>
+                    </label>
+                  </EmRadioGroup>
+                </div>
+              </div>
+            </section>
           </EmCardBody>
 
           <div class="adm-forms__actions">
-            <EmButton variant="primary" @click="submitTypes()">Submit</EmButton>
-            <EmButton variant="tertiary" @click="onTypesReset(resetTypes)">Reset</EmButton>
+            <EmButton variant="primary" @click="onApply(submit)">Submit application</EmButton>
+            <EmButton variant="tertiary" @click="onApplyReset(reset)">Reset</EmButton>
 
-            <span class="adm-forms__status" :data-state="isValid === null ? 'idle' : isValid ? 'valid' : 'invalid'">
+            <span v-if="result !== 'idle'" class="adm-forms__status" :data-state="result">
+              {{ result === 'valid' ? 'Application is ready to send' : 'Please fix the highlighted fields' }}
+            </span>
+
+            <span v-else class="adm-forms__status" :data-state="isValid === null ? 'idle' : isValid ? 'valid' : 'invalid'">
               {{ isValid === null ? 'Not yet validated' : isValid ? 'All fields valid' : 'Some fields need attention' }}
             </span>
           </div>
@@ -227,248 +408,70 @@
 
       <EmCard variant="simple">
         <EmCardHeader>
-          <EmCardTitle>Validation Modes Demo</EmCardTitle>
-          <p class="adm-forms__panel-sub">Type in each field to see when validation fires — each card uses a different <code>validate-on</code> value.</p>
+          <EmCardTitle>When validation fires</EmCardTitle>
+          <p class="adm-forms__panel-sub">The four <code>validate-on</code> values, ordered from loudest to most patient. Type in each field to feel the difference.</p>
         </EmCardHeader>
 
-        <EmCardBody class="adm-forms__modes">
-          <Form v-for="mode in modes" :key="mode.key" v-slot="{ submit: submitMode, reset: resetMode }" class="adm-forms__mode">
-            <h3 class="adm-forms__mode-title">{{ mode.title }}</h3>
-            <p class="adm-forms__mode-desc">{{ mode.desc }}</p>
+        <EmCardBody class="adm-forms__timeline">
+          <Form
+            v-for="(mode, index) in modes"
+            :key="mode.key"
+            v-slot="{ submit, reset }"
+            class="adm-forms__stage"
+          >
+            <span aria-hidden="true" class="adm-forms__marker">{{ index + 1 }}</span>
+
+            <code class="adm-forms__stage-sig">{{ mode.sig }}</code>
+            <p class="adm-forms__stage-fires">{{ mode.fires }}</p>
 
             <EmTextField
-              v-model="modeValues[mode.key]"
-              label="Demo Input"
-              placeholder="Type here…"
+              v-model="probes[mode.key]"
+              label="Try it"
+              placeholder="Type, then tab away…"
               :rules="[required]"
               :validate-on="mode.validateOn"
             />
 
-            <p class="adm-forms__mode-hint">{{ mode.hint }}</p>
+            <p class="adm-forms__stage-reach">{{ mode.reach }}</p>
 
             <div class="adm-forms__actions">
-              <EmButton size="sm" variant="primary" @click="submitMode()">Submit</EmButton>
-              <EmButton size="sm" variant="tertiary" @click="onModeReset(resetMode, mode.key)">Reset</EmButton>
+              <EmButton size="sm" variant="primary" @click="submit()">Submit</EmButton>
+              <EmButton size="sm" variant="tertiary" @click="onProbeReset(reset, mode.key)">Reset</EmButton>
             </div>
           </Form>
-        </EmCardBody>
-
-        <EmCardBody class="adm-forms__table-wrap">
-          <table class="adm-forms__table">
-            <thead>
-              <tr><th>Mode</th><th>When Validation Occurs</th><th>Best For</th></tr>
-            </thead>
-
-            <tbody>
-              <tr><td>onChange</td><td>Every keystroke</td><td>Real-time feedback (e.g., password strength)</td></tr>
-              <tr><td>onBlur</td><td>When leaving the field</td><td>Less intrusive validation (recommended for most cases)</td></tr>
-              <tr><td>onSubmit</td><td>When form is submitted</td><td>Simple forms, minimal interruption</td></tr>
-              <tr><td>onTouched</td><td>First blur, then every change</td><td>Balance between UX and feedback</td></tr>
-            </tbody>
-          </table>
         </EmCardBody>
       </EmCard>
 
       <EmCard variant="simple">
         <EmCardHeader>
-          <EmCardTitle>Registration Form</EmCardTitle>
+          <EmCardTitle>Rule catalogue</EmCardTitle>
+          <p class="adm-forms__panel-sub">Every rule the onboarding form draws on, with a live field beside it. All of these validate on <code>input</code> so the failure message is never more than a keystroke away.</p>
         </EmCardHeader>
 
-        <Form v-slot="{ isValid, submit: submitRegistration, reset: resetRegistration }">
-          <EmCardBody class="adm-forms__sections">
-            <section class="adm-forms__section">
-              <h3 class="adm-forms__section-title">Personal Information</h3>
-              <p class="adm-forms__section-sub">Please provide your basic information</p>
-
-              <div class="adm-forms__row">
-                <EmTextField
-                  v-model="fullName"
-                  description="Your full name as it appears on official documents"
-                  label="Full Name"
-                  placeholder="John Doe"
-                  :rules="[required]"
-                  validate-on="blur lazy"
-                />
-
-                <EmTextField
-                  v-model="regEmail"
-                  description="We'll never share your email with anyone else"
-                  label="Email Address"
-                  placeholder="john.doe@example.com"
-                  :rules="[required, email]"
-                  validate-on="blur lazy"
-                />
+        <Form v-slot="{ isValid, submit, reset }">
+          <EmCardBody class="adm-forms__glossary">
+            <div v-for="check in checks" :key="check.key" class="adm-forms__entry">
+              <div class="adm-forms__entry-lede">
+                <code class="adm-forms__entry-sig">{{ check.sig }}</code>
+                <p class="adm-forms__entry-desc">{{ check.desc }}</p>
               </div>
 
               <EmTextField
-                v-model="regPassword"
-                description="Must be at least 8 characters"
-                label="Password"
-                placeholder="••••••••"
-                :rules="[required, password]"
-                type="password"
-                validate-on="blur lazy"
+                v-model="values[check.key]"
+                :aria-label="check.sig"
+                :placeholder="check.placeholder"
+                :rules="[...check.rules]"
+                validate-on="input"
               />
-            </section>
-
-            <EmDivider />
-
-            <section class="adm-forms__section">
-              <h3 class="adm-forms__section-title">Profile Details</h3>
-              <p class="adm-forms__section-sub">Tell us more about yourself</p>
-
-              <div class="adm-forms__row">
-                <EmTextField
-                  v-model="dob"
-                  description="Select your date of birth"
-                  label="Date of Birth"
-                  placeholder="YYYY-MM-DD"
-                  :rules="[dobRule]"
-                  validate-on="blur lazy"
-                />
-
-                <EmTextField
-                  v-model="age"
-                  description="You must be at least 18 years old to register"
-                  label="Age"
-                  placeholder="25"
-                  :rules="[ageRule]"
-                  type="number"
-                  validate-on="blur lazy"
-                />
-              </div>
-
-              <div class="adm-forms__row">
-                <EmSelect v-model="country" label="Country">
-                  <EmSelectActivator>
-                    <EmSelectValue />
-                    <EmSelectPlaceholder>Select your country</EmSelectPlaceholder>
-
-                    <svg
-                      aria-hidden="true"
-                      class="emerald-select__icon"
-                      fill="none"
-                      height="16"
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      viewBox="0 0 16 16"
-                      width="16"
-                    ><path d="M4 6l4 4 4-4" /></svg>
-                  </EmSelectActivator>
-
-                  <EmSelectContent>
-                    <EmSelectItem v-for="c in countries" :key="c" :value="c">{{ c }}</EmSelectItem>
-                  </EmSelectContent>
-                </EmSelect>
-
-                <EmSelect v-model="language" label="Preferred Language (Optional)">
-                  <EmSelectActivator>
-                    <EmSelectValue />
-                    <EmSelectPlaceholder>Select a language</EmSelectPlaceholder>
-
-                    <svg
-                      aria-hidden="true"
-                      class="emerald-select__icon"
-                      fill="none"
-                      height="16"
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      viewBox="0 0 16 16"
-                      width="16"
-                    ><path d="M4 6l4 4 4-4" /></svg>
-                  </EmSelectActivator>
-
-                  <EmSelectContent>
-                    <EmSelectItem v-for="l in languages" :key="l" :value="l">{{ l }}</EmSelectItem>
-                  </EmSelectContent>
-                </EmSelect>
-              </div>
-
-              <EmTextarea
-                v-model="bio"
-                :description="`Brief description about yourself (${bioCount}/500 characters)`"
-                label="Bio"
-                placeholder="Tell us about yourself…"
-                :rules="[bioRule]"
-                validate-on="input lazy"
-              />
-            </section>
-
-            <EmDivider />
-
-            <section class="adm-forms__section">
-              <h3 class="adm-forms__section-title">Preferences</h3>
-              <p class="adm-forms__section-sub">Customize your experience</p>
-
-              <div class="adm-forms__row">
-                <div class="adm-forms__group">
-                  <span class="adm-forms__group-label">Newsletter Topics</span>
-                  <p class="adm-forms__group-sub">Choose the topics you want to receive updates about</p>
-
-                  <EmCheckbox v-model="topics.product">Product Updates</EmCheckbox>
-                  <EmCheckbox v-model="topics.news">Industry News</EmCheckbox>
-                  <EmCheckbox v-model="topics.tips">Tips &amp; Tricks</EmCheckbox>
-                </div>
-
-                <div class="adm-forms__group">
-                  <span class="adm-forms__group-label">Communication Settings</span>
-                  <p class="adm-forms__group-sub">Manage your notification preferences</p>
-
-                  <div class="adm-forms__switch-row">
-                    <span>Email Notifications<small>Receive notifications about your account activity</small></span>
-                    <EmSwitch v-model="notifications.email" aria-label="Email notifications" size="sm" />
-                  </div>
-
-                  <div class="adm-forms__switch-row">
-                    <span>Marketing Emails<small>Receive emails about new products and features</small></span>
-                    <EmSwitch v-model="notifications.marketing" aria-label="Marketing emails" size="sm" />
-                  </div>
-
-                  <div class="adm-forms__switch-row">
-                    <span>Two-Factor Authentication<small>Add an extra layer of security to your account</small></span>
-                    <EmSwitch v-model="notifications.twoFactor" aria-label="Two-factor authentication" size="sm" />
-                  </div>
-                </div>
-              </div>
-
-              <div class="adm-forms__account-type">
-                <span class="adm-forms__group-label">Account Type</span>
-                <p class="adm-forms__group-sub">Choose the plan that best fits your needs</p>
-
-                <EmRadioGroup v-model="accountType" class="adm-forms__account-grid" label="Account type">
-                  <label class="adm-forms__account-card" :data-selected="accountType === 'personal' || undefined">
-                    <EmRadio value="personal" />
-                    <span><strong>Personal</strong><small>For individual use with basic features</small></span>
-                  </label>
-
-                  <label class="adm-forms__account-card" :data-selected="accountType === 'business' || undefined">
-                    <EmRadio value="business" />
-                    <span><strong>Business</strong><small>For small to medium-sized teams</small></span>
-                  </label>
-
-                  <label class="adm-forms__account-card" :data-selected="accountType === 'enterprise' || undefined">
-                    <EmRadio value="enterprise" />
-                    <span><strong>Enterprise</strong><small>For large organizations</small></span>
-                  </label>
-                </EmRadioGroup>
-              </div>
-            </section>
+            </div>
           </EmCardBody>
 
           <div class="adm-forms__actions">
-            <EmButton variant="primary" @click="onRegistrationSubmit(submitRegistration)">Register</EmButton>
-            <EmButton variant="tertiary" @click="onRegistrationReset(resetRegistration)">Reset</EmButton>
+            <EmButton variant="primary" @click="submit()">Validate all</EmButton>
+            <EmButton variant="tertiary" @click="onChecksReset(reset)">Reset</EmButton>
 
-            <span v-if="lastResult !== 'idle'" class="adm-forms__status" :data-state="lastResult">
-              {{ lastResult === 'valid' ? 'Registration form is valid' : 'Please fix the highlighted fields' }}
-            </span>
-
-            <span v-else class="adm-forms__status" :data-state="isValid === null ? 'idle' : isValid ? 'valid' : 'invalid'">
-              {{ isValid === null ? 'Not yet validated' : isValid ? 'All fields valid' : 'Some fields need attention' }}
+            <span class="adm-forms__status" :data-state="isValid === null ? 'idle' : isValid ? 'valid' : 'invalid'">
+              {{ isValid === null ? 'Not yet validated' : isValid ? 'Every rule passes' : 'Some rules are failing' }}
             </span>
           </div>
         </Form>
@@ -506,11 +509,13 @@
 
   .adm-forms__sub {
     margin: 4px 0 0;
+    max-width: 52rem;
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b1-size, 16px);
   }
 
-  .adm-forms__sub code {
+  .adm-forms__sub code,
+  .adm-forms__panel-sub code {
     padding: 1px 5px;
     border-radius: var(--emerald-radius-xs, 4px);
     background: var(--emerald-neutral-200, #f6f8fa);
@@ -519,20 +524,13 @@
 
   .adm-forms__panel-sub {
     margin: 4px 0 0;
+    max-width: 56rem;
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b2-size, 14px);
   }
 
-  .adm-forms__grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
-    gap: var(--emerald-spacing-m, 16px);
-    padding: var(--emerald-spacing-l, 20px);
-  }
-
   /* Reserve the error line on every field so validating a value never reflows
-     the grid around it. */
+     the layout around it. */
   .adm-forms .emerald-text-field__error,
   .adm-forms .emerald-textarea__error {
     min-height: var(--emerald-text-b3-height, 18px);
@@ -567,88 +565,31 @@
     color: var(--emerald-danger-600, #a1000e);
   }
 
-  .adm-forms__modes {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--emerald-spacing-m, 16px);
-    padding: var(--emerald-spacing-l, 20px);
-  }
-
-  .adm-forms__mode {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-xs, 8px);
-    padding: var(--emerald-spacing-m, 16px);
-    border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
-    border-radius: var(--emerald-radius-m, 8px);
-  }
-
-  .adm-forms__mode-title {
-    margin: 0;
-    font-size: var(--emerald-text-b2-size, 14px);
-    font-weight: 700;
-  }
-
-  /* Two reserved lines keeps the four demo inputs on a shared baseline even
-     though the descriptions wrap to different lengths. */
-  .adm-forms__mode-desc {
-    margin: 0;
-    min-height: calc(2 * var(--emerald-text-b3-height, 18px));
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
-  }
-
-  .adm-forms__mode-hint {
-    margin: 0;
-    min-height: calc(2 * var(--emerald-text-b3-height, 18px));
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
-    font-style: italic;
-  }
-
-  .adm-forms__mode .adm-forms__actions {
-    margin-top: auto;
-    padding: 0;
-    border-top: none;
-  }
-
-  .adm-forms__table-wrap {
-    overflow-x: auto;
-    border-top: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
-  }
-
-  .adm-forms__table {
-    width: 100%;
-    min-width: 560px;
-    border-collapse: collapse;
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-forms__table th,
-  .adm-forms__table td {
-    padding: var(--emerald-spacing-s, 12px) var(--emerald-spacing-l, 20px);
-    text-align: left;
-    border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
-  }
-
-  .adm-forms__table th {
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
-    font-weight: 600;
-    background: var(--emerald-neutral-200, #f6f8fa);
-  }
-
   .adm-forms__sections {
     display: flex;
     flex-direction: column;
-    gap: var(--emerald-spacing-l, 20px);
-    padding: var(--emerald-spacing-l, 20px);
+    gap: 0;
+    padding: 0;
   }
 
+  /* Section heading in a left rail, fields in a single column beside it —
+     the form reads as a sequence of labelled bands rather than a field grid. */
   .adm-forms__section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-m, 16px);
+    display: grid;
+    grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+    gap: var(--emerald-spacing-xl, 28px);
+    padding: var(--emerald-spacing-l, 20px);
+    border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
+  }
+
+  .adm-forms__section:last-child {
+    border-bottom: none;
+  }
+
+  .adm-forms__section-lede {
+    position: sticky;
+    top: var(--emerald-spacing-l, 20px);
+    align-self: start;
   }
 
   .adm-forms__section-title {
@@ -658,12 +599,19 @@
   }
 
   .adm-forms__section-sub {
-    margin: -8px 0 0;
+    margin: 4px 0 0;
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
-  .adm-forms__row {
+  .adm-forms__fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-m, 16px);
+    min-width: 0;
+  }
+
+  .adm-forms__pair {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--emerald-spacing-m, 16px);
@@ -687,6 +635,13 @@
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
+  .adm-forms__checks {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--emerald-spacing-xs, 8px);
+    width: 100%;
+  }
+
   .adm-forms__switch-row {
     display: flex;
     align-items: center;
@@ -702,20 +657,14 @@
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
-  .adm-forms__account-type {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-xs, 8px);
-  }
-
-  .adm-forms__account-grid {
+  .adm-forms__plans {
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--emerald-spacing-s, 12px);
     width: 100%;
   }
 
-  .adm-forms__account-card {
+  .adm-forms__plan {
     display: flex;
     align-items: flex-start;
     gap: var(--emerald-spacing-xs, 8px);
@@ -725,33 +674,169 @@
     cursor: pointer;
   }
 
-  .adm-forms__account-card[data-selected] {
+  .adm-forms__plan[data-selected] {
     border-color: var(--emerald-primary-600, #1fae60);
     background: var(--emerald-primary-100, #e7fff2);
   }
 
-  .adm-forms__account-card strong {
+  .adm-forms__plan strong {
     display: block;
     font-size: var(--emerald-text-b2-size, 14px);
   }
 
-  .adm-forms__account-card small {
+  .adm-forms__plan small {
     display: block;
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
+  /* Four numbered stages on one rail — the connector is drawn on the marker
+     row so it survives wrapping at narrow widths. */
+  .adm-forms__timeline {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--emerald-spacing-m, 16px);
+    padding: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-forms__stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-xs, 8px);
+    padding-top: var(--emerald-spacing-m, 16px);
+  }
+
+  /* Runs from this marker's centre to where the next column begins, so the
+     rail is exact at any column count and never overflows the card. */
+  .adm-forms__stage::before {
+    content: '';
+    position: absolute;
+    top: calc(var(--emerald-spacing-m, 16px) + 13px);
+    inset-inline-start: 14px;
+    inset-inline-end: calc(-1 * var(--emerald-spacing-m, 16px));
+    height: 2px;
+    background: var(--emerald-neutral-300, #ccd6e7);
+  }
+
+  .adm-forms__stage:last-child::before {
+    display: none;
+  }
+
+  .adm-forms__marker {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--emerald-radius-full, 999px);
+    background: var(--emerald-primary-100, #e7fff2);
+    color: var(--emerald-primary-700, #027d4c);
+    font-size: var(--emerald-text-b3-size, 12px);
+    font-weight: 800;
+  }
+
+  .adm-forms__stage-sig {
+    padding: 2px 8px;
+    align-self: flex-start;
+    border-radius: var(--emerald-radius-xs, 4px);
+    background: var(--emerald-neutral-200, #f6f8fa);
+    font-size: var(--emerald-text-b3-size, 12px);
+    font-weight: 700;
+  }
+
+  /* Reserved lines keep the four demo inputs on a shared baseline even though
+     the copy above them wraps to different lengths. */
+  .adm-forms__stage-fires {
+    margin: 0;
+    min-height: calc(3 * var(--emerald-text-b3-height, 18px));
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-forms__stage-reach {
+    margin: 0;
+    min-height: calc(3 * var(--emerald-text-b3-height, 18px));
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-forms__stage .adm-forms__actions {
+    margin-top: auto;
+    padding: 0;
+    border-top: none;
+  }
+
+  /* Two columns per entry: the rule on the left, a field proving it on the
+     right, stacked as a reference list rather than a form. */
+  .adm-forms__glossary {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+  }
+
+  .adm-forms__entry {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
+    align-items: start;
+    gap: var(--emerald-spacing-l, 20px);
+    padding: var(--emerald-spacing-m, 16px) var(--emerald-spacing-l, 20px);
+    border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
+  }
+
+  .adm-forms__entry:last-child {
+    border-bottom: none;
+  }
+
+  .adm-forms__entry-sig {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--emerald-radius-xs, 4px);
+    background: var(--emerald-neutral-200, #f6f8fa);
+    font-size: var(--emerald-text-b3-size, 12px);
+    font-weight: 700;
+  }
+
+  .adm-forms__entry-desc {
+    margin: 6px 0 0;
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  /* Two per row means the rail would point at the row below, not the next
+     stage — drop it and let the numbers carry the order. */
+  @media (max-width: 1000px) {
+    .adm-forms__timeline {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .adm-forms__stage::before {
+      display: none;
+    }
+  }
+
   @media (max-width: 900px) {
-    .adm-forms__grid,
-    .adm-forms__modes,
-    .adm-forms__row,
-    .adm-forms__account-grid {
+    .adm-forms__section,
+    .adm-forms__entry,
+    .adm-forms__pair,
+    .adm-forms__checks,
+    .adm-forms__plans {
       grid-template-columns: 1fr;
     }
 
-    /* Stacked cards have nothing to line up against. */
-    .adm-forms__mode-desc,
-    .adm-forms__mode-hint {
+    .adm-forms__section-lede {
+      position: static;
+    }
+
+    .adm-forms__timeline {
+      grid-template-columns: 1fr;
+    }
+
+    /* Stacked stages have nothing to line up against. */
+    .adm-forms__stage-fires,
+    .adm-forms__stage-reach {
       min-height: 0;
     }
   }

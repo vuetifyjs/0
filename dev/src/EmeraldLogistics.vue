@@ -1,14 +1,10 @@
 <!--
-  Customer ratings trend and progress bars render as static CSS/SVG fills
-  (real data, no charting library), matching the EmeraldSales precedent — see
-  GAPS.md "Charting" row for the gap contract. Condition rings reuse the
-  conic-gradient technique from EmeraldSales' "User reach" KPI.
+  The release-train spine, region latency bars and pipeline meters render as
+  static CSS fills (real data, no charting library) — same GAP_CONTRACT
+  precedent as EmeraldSales.
 -->
 <script setup lang="ts">
   import {
-    EmAvatar,
-    EmAvatarFallback,
-    EmButton,
     EmCard,
     EmCardBody,
     EmCardFooter,
@@ -35,252 +31,188 @@
   // Utilities
   import { shallowRef, toRef } from 'vue'
 
-  const fleet = [
-    { label: 'On the way', time: '2hr 10min', pct: 33.3, tone: 'muted' as const },
-    { label: 'Unloading', time: '3hr 15min', pct: 23.5, tone: 'secondary' as const },
-    { label: 'Loading', time: '1hr 24min', pct: 22.1, tone: 'primary' as const },
-    { label: 'Waiting', time: '5hr 19min', pct: 21.1, tone: 'dark' as const },
+  const train = [
+    { version: 'v1.0', date: '22 Jul', note: 'Shipped', state: 'done' as const },
+    { version: 'v1.1', date: '25 Aug', note: 'In QA', state: 'active' as const },
+    { version: 'v1.2', date: '22 Sep', note: 'Scoped', state: 'queued' as const },
+    { version: 'v1.3', date: '20 Oct', note: 'Vue Fes cut', state: 'queued' as const },
+    { version: 'v1.4', date: '17 Nov', note: 'Planned', state: 'queued' as const },
+    { version: 'v1.5', date: '15 Dec', note: 'Planned', state: 'queued' as const },
   ]
 
-  const packingTab = shallowRef('packed')
+  const stats = [
+    { label: 'Packages published', value: '148', note: 'this quarter', delta: '+16 vs Q1', up: true },
+    { label: 'CDN egress', value: '42.7 TB', note: 'last 30 days', delta: '+8.9%', up: true },
+    { label: 'Median install time', value: '6.4s', note: 'cold cache', delta: '-1.2s', up: true },
+    { label: 'Failed publishes', value: '2', note: 'needs a rerun', delta: '-5 vs June', up: true },
+  ]
 
-  const stages: Record<string, Array<{ label: string, value: number, max: number }>> = {
-    packed: [
-      { label: 'Packing Pending', value: 4250, max: 5000 },
-      { label: 'Packing in Progress', value: 2150, max: 5000 },
-      { label: 'Packing Complete', value: 1750, max: 5000 },
+  const regions = [
+    { name: 'Frankfurt', p50: 24, p95: 61, share: 34 },
+    { name: 'Virginia', p50: 31, p95: 78, share: 29 },
+    { name: 'Singapore', p50: 44, p95: 96, share: 18 },
+    { name: 'São Paulo', p50: 58, p95: 124, share: 11 },
+    { name: 'Sydney', p50: 67, p95: 142, share: 8 },
+  ]
+
+  const worst = Math.max(...regions.map(region => region.p95))
+
+  const stage = shallowRef('build')
+
+  const pipeline: Record<string, Array<{ label: string, value: number, max: number }>> = {
+    build: [
+      { label: 'Bundles emitted', value: 42, max: 48 },
+      { label: 'Type declarations', value: 48, max: 48 },
+      { label: 'Source maps', value: 39, max: 48 },
+      { label: 'Vapor variants', value: 31, max: 48 },
     ],
-    shipped: [
-      { label: 'Awaiting Carrier', value: 1820, max: 5000 },
-      { label: 'In Transit', value: 3640, max: 5000 },
-      { label: 'Out for Delivery', value: 920, max: 5000 },
+    test: [
+      { label: 'Unit suites', value: 1840, max: 1920 },
+      { label: 'Browser suites', value: 412, max: 470 },
+      { label: 'Vapor suites', value: 96, max: 120 },
+      { label: 'SSR smoke checks', value: 88, max: 96 },
     ],
-    received: [
-      { label: 'Signed For', value: 4720, max: 5000 },
-      { label: 'Damaged on Arrival', value: 310, max: 5000 },
-      { label: 'Returned to Sender', value: 145, max: 5000 },
+    publish: [
+      { label: 'Registry upload', value: 46, max: 48 },
+      { label: 'CDN warm', value: 44, max: 48 },
+      { label: 'Provenance attestations', value: 46, max: 48 },
+      { label: 'Release notes', value: 12, max: 12 },
     ],
   }
 
-  const packing = toRef(() => stages[packingTab.value] ?? [])
+  const steps = toRef(() => pipeline[stage.value] ?? [])
 
-  const performance = {
-    online: [80, 65, 90, 55, 100, 70, 85],
-    offline: [40, 55, 30, 60, 45, 65, 50],
-  }
+  type Package = { name: string, channel: string, version: string, size: string, state: 'Published' | 'Building' | 'Blocked', progress: number }
 
-  const condition = [
-    { label: 'Excellent', sub: '12% increase', pct: 55, delta: '+25%', tone: 'primary' as const },
-    { label: 'Good', sub: '24 vehicles', pct: 20, delta: '+30%', tone: 'secondary' as const },
-    { label: 'Average', sub: '182 Tasks', pct: 12, delta: '-15%', tone: 'warning' as const },
-    { label: 'Bad', sub: '9 vehicles', pct: 8, delta: '+35%', tone: 'danger' as const },
-    { label: 'Not Working', sub: '3 vehicles', pct: 5, delta: '-2%', tone: 'muted' as const },
+  const catalog: Package[] = [
+    { name: '@vuetify/v0', channel: 'npm latest', version: '1.1.0-beta.4', size: '184 kB', state: 'Building', progress: 68 },
+    { name: '@paper/emerald', channel: 'npm next', version: '0.9.2', size: '96 kB', state: 'Published', progress: 100 },
+    { name: '@paper/onyx', channel: 'npm next', version: '0.3.0', size: '88 kB', state: 'Building', progress: 41 },
+    { name: '@vuetify/nuxt-module', channel: 'npm latest', version: '2.4.1', size: '42 kB', state: 'Published', progress: 100 },
+    { name: '@vuetify/cli', channel: 'npm latest', version: '3.0.7', size: '310 kB', state: 'Blocked', progress: 23 },
+    { name: '@paper/helix', channel: 'npm canary', version: '0.1.4', size: '74 kB', state: 'Building', progress: 55 },
   ]
 
-  const ratingTrend = [30, 45, 35, 55, 90, 60, 40]
+  const shipments: Package[] = Array.from({ length: 24 }, (_, index) => {
+    const base = catalog[index % catalog.length]!
+    const run = Math.floor(index / catalog.length)
 
-  type Vehicle = { id: string, start: string, end: string, warning: string, ok: boolean, progress: number }
-
-  const routes: Vehicle[] = [
-    { id: 'VOL-159145', start: 'Paris 19, France', end: 'Dresdon, Germany', warning: 'No Warning', ok: true, progress: 50 },
-    { id: 'VOL-163825', start: 'Tokyo 23, Japan', end: 'Budapest, Hungary', warning: 'Fuel Problems', ok: false, progress: 75 },
-    { id: 'VOL-182624', start: 'New York City, USA', end: 'Kyoto, Japan', warning: 'Temperature Not Optimal', ok: false, progress: 25 },
-    { id: 'VOL-27568', start: 'Berlin, Germany', end: 'Cape Town, South Africa', warning: 'Ecu Not Responding', ok: false, progress: 50 },
-    { id: 'VOL-300168', start: 'Sydney, Australia', end: 'Buenos Aires, Argentina', warning: 'Oil Leakage', ok: false, progress: 25 },
-  ]
-
-  const fleetOnRoute: Vehicle[] = Array.from({ length: 25 }, (_, index) => {
-    const base = routes[index % routes.length]!
-    const suffix = Math.floor(index / routes.length)
-
-    return suffix === 0 ? base : { ...base, id: `${base.id}-${suffix + 1}`, progress: (base.progress + suffix * 5) % 100 }
+    return run === 0 ? base : { ...base, version: `${base.version}+build.${run + 1}`, progress: (base.progress + run * 9) % 101 }
   })
 
   const page = shallowRef(1)
-  const pagination = createPagination({ page, size: fleetOnRoute.length, itemsPerPage: 5 })
-  const rows = toRef(() => fleetOnRoute.slice(pagination.pageStart.value, pagination.pageStop.value))
+  const pagination = createPagination({ page, size: shipments.length, itemsPerPage: 6 })
+  const rows = toRef(() => shipments.slice(pagination.pageStart.value, pagination.pageStop.value))
 </script>
 
 <template>
   <EmeraldShell>
     <div class="adm-logistics" data-theme="emerald">
       <header class="adm-logistics__header">
-        <h1 class="adm-logistics__title">Logistics</h1>
-        <p class="adm-logistics__subtitle">Fleet and shipment overview</p>
+        <h1 class="adm-logistics__title">Release trains</h1>
+        <p class="adm-logistics__subtitle">Package delivery, edge distribution and the road to v1.5</p>
       </header>
 
-      <section aria-label="Vehicle status" class="adm-logistics__row1">
-        <EmCard class="adm-logistics__panel" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-logistics__panel-title">Vehicle overview</EmCardTitle>
-          </EmCardHeader>
-
-          <EmCardBody>
-            <div aria-label="Fleet status distribution" class="adm-logistics__segbar" role="img">
-              <span
-                v-for="f in fleet"
-                :key="f.label"
-                class="adm-logistics__seg"
-                :data-tone="f.tone"
-                :style="{ flexGrow: f.pct }"
-              >{{ f.pct }}%</span>
-            </div>
-
-            <ul class="adm-logistics__fleet-list">
-              <li v-for="f in fleet" :key="f.label">
-                <span class="adm-logistics__fleet-label">{{ f.label }}</span>
-                <span class="adm-logistics__fleet-time">{{ f.time }}</span>
-                <span class="adm-logistics__fleet-pct">{{ f.pct }}%</span>
-              </li>
-            </ul>
-          </EmCardBody>
-        </EmCard>
-
-        <EmCard class="adm-logistics__panel" variant="simple">
-          <EmCardHeader class="adm-logistics__driver-head">
-            <EmAvatar size="md"><EmAvatarFallback>JW</EmAvatarFallback></EmAvatar>
-
+      <section aria-label="Release train">
+        <EmCard variant="simple">
+          <EmCardHeader class="adm-logistics__train-head">
             <div>
-              <EmCardTitle class="adm-logistics__panel-title">@jackwilliams</EmCardTitle>
-              <p class="adm-logistics__panel-sub">Business</p>
+              <EmCardTitle class="adm-logistics__panel-title">Monthly train, one release per stop</EmCardTitle>
+              <p class="adm-logistics__panel-sub">Cut Tuesdays; v1.3 lands the week before Vue Fes</p>
             </div>
+
+            <EmTag variant="info">v1.1 cuts in 21 days</EmTag>
           </EmCardHeader>
 
           <EmCardBody>
-            <p class="adm-logistics__orders"><strong>4,689</strong> Orders</p>
-
-            <EmTabs v-model="packingTab">
-              <EmTabsList>
-                <EmTabsItem value="packed">Packed</EmTabsItem>
-                <EmTabsItem value="shipped">Shipped</EmTabsItem>
-                <EmTabsItem value="received">Received</EmTabsItem>
-              </EmTabsList>
-            </EmTabs>
-
-            <div class="adm-logistics__packing">
-              <div v-for="row in packing" :key="row.label" class="adm-logistics__packing-row">
-                <div class="adm-logistics__packing-head">
-                  <span>{{ row.label }}</span>
-                  <strong>{{ row.value }}</strong>
-                </div>
-
-                <EmProgress :aria-label="row.label" :max="row.max" :model-value="row.value" size="sm" />
-              </div>
-            </div>
+            <ol aria-label="Release train stops" class="adm-logistics__train" role="img">
+              <li v-for="stop in train" :key="stop.version" :data-state="stop.state">
+                <span aria-hidden="true" class="adm-logistics__stop" />
+                <strong class="adm-logistics__stop-version">{{ stop.version }}</strong>
+                <span class="adm-logistics__stop-date">{{ stop.date }}</span>
+                <span class="adm-logistics__stop-note">{{ stop.note }}</span>
+              </li>
+            </ol>
           </EmCardBody>
         </EmCard>
       </section>
 
-      <section aria-label="Performance and condition" class="adm-logistics__row2">
-        <EmCard class="adm-logistics__panel" variant="simple">
-          <EmCardHeader class="adm-logistics__panel-head">
-            <EmCardTitle class="adm-logistics__panel-title">Sales performance</EmCardTitle>
-            <EmButton size="sm" variant="tertiary">Details</EmButton>
-          </EmCardHeader>
-
-          <EmCardBody>
-            <span class="adm-logistics__kpi-value">68K <em class="adm-logistics__delta">-6%</em></span>
-
-            <div class="adm-logistics__dual">
-              <div class="adm-logistics__dual-col">
-                <span class="adm-logistics__dual-label">Online Store <strong>88</strong></span>
-
-                <div class="adm-logistics__dual-bars">
-                  <span
-                    v-for="(h, index) in performance.online"
-                    :key="index"
-                    class="adm-logistics__dual-bar"
-                    data-tone="secondary"
-                    :style="{ width: h + '%' }"
-                  />
-                </div>
-              </div>
-
-              <div class="adm-logistics__dual-col">
-                <span class="adm-logistics__dual-label">Offline Store <strong>64</strong></span>
-
-                <div class="adm-logistics__dual-bars">
-                  <span
-                    v-for="(h, index) in performance.offline"
-                    :key="index"
-                    class="adm-logistics__dual-bar"
-                    data-tone="primary"
-                    :style="{ width: h + '%' }"
-                  />
-                </div>
-              </div>
-            </div>
+      <section aria-label="Distribution stats" class="adm-logistics__stats">
+        <EmCard v-for="stat in stats" :key="stat.label" variant="simple">
+          <EmCardBody class="adm-logistics__stat-body">
+            <span class="adm-logistics__stat-label">{{ stat.label }}</span>
+            <span class="adm-logistics__stat-value">{{ stat.value }}</span>
+            <span class="adm-logistics__stat-note">{{ stat.note }}</span>
+            <EmTag :variant="stat.up ? 'success' : 'danger'">{{ stat.delta }}</EmTag>
           </EmCardBody>
         </EmCard>
+      </section>
 
+      <section aria-label="Edge regions and pipeline" class="adm-logistics__pair">
         <EmCard class="adm-logistics__panel" variant="simple">
           <EmCardHeader>
-            <EmCardTitle class="adm-logistics__panel-title">Vehicles Condition</EmCardTitle>
+            <EmCardTitle class="adm-logistics__panel-title">Edge region latency</EmCardTitle>
+            <p class="adm-logistics__panel-sub">Time to first byte for CDN asset requests</p>
           </EmCardHeader>
 
           <EmCardBody>
-            <ul class="adm-logistics__condition">
-              <li v-for="c in condition" :key="c.label">
-                <span aria-hidden="true" class="adm-logistics__ring" :data-tone="c.tone" :style="{ '--pct': c.pct }">
-                  <span class="adm-logistics__ring-value">{{ c.pct }}%</span>
+            <ul aria-label="Latency by edge region" class="adm-logistics__regions" role="img">
+              <li v-for="region in regions" :key="region.name">
+                <span class="adm-logistics__region-name">{{ region.name }}</span>
+
+                <span class="adm-logistics__region-bars">
+                  <span class="adm-logistics__region-bar" data-tone="p50" :style="{ width: (region.p50 / worst) * 100 + '%' }" />
+                  <span class="adm-logistics__region-bar" data-tone="p95" :style="{ width: (region.p95 / worst) * 100 + '%' }" />
                 </span>
 
-                <span class="adm-logistics__condition-text">
-                  <strong>{{ c.label }}</strong>
-                  <span>{{ c.sub }}</span>
+                <span class="adm-logistics__region-value">
+                  <strong>{{ region.p50 }}ms</strong>
+                  <span>{{ region.share }}% of traffic</span>
                 </span>
-
-                <EmTag :variant="c.delta.startsWith('+') ? 'success' : 'danger'">{{ c.delta }}</EmTag>
               </li>
             </ul>
+
+            <p class="adm-logistics__legend">
+              <span class="adm-logistics__dot" data-tone="p50" /> p50
+              <span class="adm-logistics__dot" data-tone="p95" /> p95
+            </p>
           </EmCardBody>
         </EmCard>
 
         <EmCard class="adm-logistics__panel" variant="simple">
           <EmCardHeader>
-            <EmCardTitle class="adm-logistics__panel-title">Customer Ratings</EmCardTitle>
+            <EmCardTitle class="adm-logistics__panel-title">v1.1 pipeline</EmCardTitle>
+            <p class="adm-logistics__panel-sub">48 packages moving through the release job</p>
           </EmCardHeader>
 
+          <EmTabs v-model="stage">
+            <EmTabsList>
+              <EmTabsItem value="build">Build</EmTabsItem>
+              <EmTabsItem value="test">Test</EmTabsItem>
+              <EmTabsItem value="publish">Publish</EmTabsItem>
+            </EmTabsList>
+          </EmTabs>
+
           <EmCardBody>
-            <div class="adm-logistics__rating">
-              <strong>4.5</strong>
+            <div class="adm-logistics__pipeline">
+              <div v-for="step in steps" :key="step.label">
+                <div class="adm-logistics__pipeline-head">
+                  <span>{{ step.label }}</span>
+                  <strong>{{ step.value.toLocaleString('en-US') }} / {{ step.max.toLocaleString('en-US') }}</strong>
+                </div>
 
-              <span aria-label="4.5 out of 5 stars" class="adm-logistics__stars" role="img">
-                <svg
-                  v-for="n in 5"
-                  :key="n"
-                  fill="currentColor"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  width="16"
-                >
-                  <path d="M12 3.5 14.6 9l6 .9-4.3 4.2 1 6-5.3-2.8L6.7 20l1-6L3.4 9.9l6-.9L12 3.5Z" :opacity="n <= 4 ? 1 : 0.35" />
-                </svg>
-              </span>
-
-              <EmTag variant="success">+ 5.0</EmTag>
+                <EmProgress :aria-label="step.label" :max="step.max" :model-value="step.value" size="sm" />
+              </div>
             </div>
-
-            <p class="adm-logistics__panel-sub">Points from last month</p>
-
-            <svg aria-hidden="true" class="adm-logistics__trend" preserveAspectRatio="none" viewBox="0 0 100 40">
-              <polyline
-                fill="none"
-                :points="ratingTrend.map((v, index) => `${index * (100 / (ratingTrend.length - 1))},${40 - (v / 100) * 36}`).join(' ')"
-                stroke="var(--emerald-primary-600, #1fae60)"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="3"
-              />
-            </svg>
           </EmCardBody>
         </EmCard>
       </section>
 
-      <section aria-label="On route vehicles">
+      <section aria-label="Packages in flight">
         <EmCard variant="simple">
           <EmCardHeader>
-            <EmCardTitle class="adm-logistics__panel-title">On route vehicle</EmCardTitle>
+            <EmCardTitle class="adm-logistics__panel-title">Packages in flight</EmCardTitle>
+            <p class="adm-logistics__panel-sub">Everything the current job is building or pushing</p>
           </EmCardHeader>
 
           <EmCardBody class="adm-logistics__table-wrap">
@@ -288,43 +220,32 @@
               <thead>
                 <tr>
                   <th><EmCheckbox aria-label="Select all" /></th>
-                  <th>Vehicle</th>
-                  <th>Starting route</th>
-                  <th>Ending route</th>
-                  <th>Warnings</th>
+                  <th>Package</th>
+                  <th>Channel</th>
+                  <th>Version</th>
+                  <th>Bundle</th>
+                  <th>State</th>
                   <th>Progress</th>
                 </tr>
               </thead>
 
               <tbody>
-                <tr v-for="v in rows" :key="v.id">
-                  <td><EmCheckbox :aria-label="`Select ${v.id}`" /></td>
+                <tr v-for="item in rows" :key="item.version + item.name">
+                  <td><EmCheckbox :aria-label="`Select ${item.name}`" /></td>
+                  <td><code class="adm-logistics__pkg">{{ item.name }}</code></td>
+                  <td>{{ item.channel }}</td>
+                  <td>{{ item.version }}</td>
+                  <td>{{ item.size }}</td>
 
                   <td>
-                    <div class="adm-logistics__vehicle">
-                      <span aria-hidden="true" class="adm-logistics__vehicle-icon">
-                        <svg
-                          fill="none"
-                          height="15"
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="1.75"
-                          viewBox="0 0 24 24"
-                          width="15"
-                        ><path d="M3 7h11v9H3V7Z" /><path d="M14 10h4l3 3v3h-7v-6Z" /></svg>
-                      </span>
-                      {{ v.id }}
-                    </div>
+                    <EmTag :variant="item.state === 'Published' ? 'success' : item.state === 'Building' ? 'info' : 'danger'">
+                      {{ item.state }}
+                    </EmTag>
                   </td>
 
-                  <td>{{ v.start }}</td>
-                  <td>{{ v.end }}</td>
-                  <td><EmTag :variant="v.ok ? 'success' : 'info'">{{ v.warning }}</EmTag></td>
-
                   <td class="adm-logistics__progress-cell">
-                    <EmProgress :aria-label="`${v.id} progress`" :model-value="v.progress" size="sm" />
-                    <span>{{ v.progress }}%</span>
+                    <EmProgress :aria-label="`${item.name} progress`" :model-value="item.progress" size="sm" />
+                    <span>{{ item.progress }}%</span>
                   </td>
                 </tr>
               </tbody>
@@ -333,10 +254,10 @@
 
           <EmCardFooter class="adm-logistics__table-foot">
             <span class="adm-logistics__table-count">
-              Showing {{ pagination.pageStart.value + 1 }} to {{ pagination.pageStop.value }} of {{ fleetOnRoute.length }} entries
+              Showing {{ pagination.pageStart.value + 1 }} to {{ pagination.pageStop.value }} of {{ shipments.length }} packages
             </span>
 
-            <EmPagination v-model="page" :items-per-page="5" :size="fleetOnRoute.length">
+            <EmPagination v-model="page" :items-per-page="6" :size="shipments.length">
               <template #default="{ items }">
                 <EmPaginationPrev>‹ Previous</EmPaginationPrev>
 
@@ -385,18 +306,6 @@
     font-size: var(--emerald-text-b1-size, 16px);
   }
 
-  .adm-logistics__row1 {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--emerald-spacing-m, 16px);
-  }
-
-  .adm-logistics__row2 {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--emerald-spacing-m, 16px);
-  }
-
   .adm-logistics__panel-title {
     font-size: var(--emerald-text-b1-size, 16px) !important;
     font-weight: 700 !important;
@@ -410,277 +319,223 @@
 
   /* .emerald-card__header is flex-direction: column — a title/action row has to
      opt back into row explicitly. */
-  .adm-logistics__panel-head {
+  .adm-logistics__train-head {
     display: flex;
     flex-direction: row;
     align-items: center;
+    flex-wrap: wrap;
     justify-content: space-between;
     gap: var(--emerald-spacing-s, 12px);
   }
 
-  .adm-logistics__segbar {
-    display: flex;
-    height: 40px;
-    border-radius: var(--emerald-radius-m, 8px);
-    overflow: hidden;
-    font-size: var(--emerald-text-b3-size, 12px);
-    font-weight: 600;
-  }
-
-  .adm-logistics__seg {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--emerald-on-surface, #2b2d2e);
-    background: var(--emerald-neutral-200, #f6f8fa);
-  }
-
-  .adm-logistics__seg[data-tone='secondary'] {
-    background: var(--emerald-primary-300, #baedd0);
-  }
-
-  .adm-logistics__seg[data-tone='primary'] {
-    background: var(--emerald-primary-600, #1fae60);
-    color: var(--emerald-on-primary, #fff);
-  }
-
-  .adm-logistics__seg[data-tone='dark'] {
-    background: var(--emerald-primary-800, #01603a);
-    color: var(--emerald-on-primary, #fff);
-  }
-
-  .adm-logistics__fleet-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-s, 12px);
+  .adm-logistics__train {
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
     margin: var(--emerald-spacing-m, 16px) 0 0;
     padding: 0;
     list-style: none;
-    font-size: var(--emerald-text-b2-size, 14px);
   }
 
-  .adm-logistics__fleet-list li {
-    display: flex;
-    align-items: center;
-    gap: var(--emerald-spacing-s, 12px);
-    padding-bottom: var(--emerald-spacing-s, 12px);
-    border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
-  }
-
-  .adm-logistics__fleet-list li:last-child {
-    padding-bottom: 0;
-    border-bottom: 0;
-  }
-
-  .adm-logistics__fleet-label {
-    flex: 1;
-    font-weight: 600;
-  }
-
-  .adm-logistics__fleet-time,
-  .adm-logistics__fleet-pct {
-    color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
-  }
-
-  .adm-logistics__driver-head {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-logistics__orders {
-    margin: 0 0 var(--emerald-spacing-m, 16px);
-    font-size: var(--emerald-text-b1-size, 16px);
-  }
-
-  .adm-logistics__orders strong {
-    font-size: 1.5rem;
-  }
-
-  .adm-logistics__packing {
+  .adm-logistics__train li {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: var(--emerald-spacing-m, 16px);
-    margin-top: var(--emerald-spacing-m, 16px);
+    gap: 2px;
+    padding-top: 26px;
   }
 
-  .adm-logistics__packing-head {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 4px;
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-logistics__kpi-value {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    font-size: 1.75rem;
-    font-weight: 700;
-  }
-
-  .adm-logistics__delta {
-    font-style: normal;
-    font-size: var(--emerald-text-b3-size, 12px);
-    font-weight: 600;
-    color: var(--emerald-danger-500, #c61424);
-  }
-
-  .adm-logistics__dual {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--emerald-spacing-m, 16px);
-    margin-top: var(--emerald-spacing-m, 16px);
-  }
-
-  .adm-logistics__dual-label {
-    display: block;
-    margin-bottom: var(--emerald-spacing-xs, 8px);
-    font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-logistics__dual-label strong {
-    color: var(--emerald-on-surface, #2b2d2e);
-  }
-
-  .adm-logistics__dual-bars {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 4px;
-  }
-
-  /* Row 2 cards share a height; let the charts absorb the slack. */
-  .adm-logistics__row2 .emerald-card__body {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .adm-logistics__dual,
-  .adm-logistics__dual-col {
-    flex: 1;
-  }
-
-  .adm-logistics__trend {
-    flex: 1;
-    min-height: 70px;
-  }
-
-  .adm-logistics__dual-bar {
-    height: 6px;
-    min-width: 8%;
-    border-radius: 3px;
+  /* Rail between stops; the final stop terminates the line. */
+  .adm-logistics__train li::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 7px;
+    width: 100%;
+    height: 2px;
     background: var(--emerald-neutral-300, #ccd6e7);
   }
 
-  .adm-logistics__dual-bar[data-tone='primary'] {
+  .adm-logistics__train li:last-child::before {
+    display: none;
+  }
+
+  .adm-logistics__train li[data-state='done']::before {
     background: var(--emerald-primary-600, #1fae60);
   }
 
-  .adm-logistics__dual-bar[data-tone='secondary'] {
-    background: var(--emerald-primary-300, #baedd0);
-  }
-
-  .adm-logistics__condition {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-s, 12px);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .adm-logistics__condition li {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-logistics__ring {
-    --pct: 50;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    font-size: 10px;
-    font-weight: 700;
-    background: conic-gradient(var(--emerald-primary-600, #1fae60) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
-  }
-
-  .adm-logistics__ring::before {
-    content: '';
+  .adm-logistics__stop {
     position: absolute;
-    inset: 4px;
+    top: 0;
+    left: 0;
+    width: 14px;
+    height: 14px;
+    border: 3px solid var(--emerald-neutral-300, #ccd6e7);
     border-radius: 50%;
     background: var(--emerald-background, #fefefe);
   }
 
-  /* The ::before disc paints over bare text, so the value needs its own layer. */
-  .adm-logistics__ring-value {
-    position: relative;
-    z-index: 1;
+  .adm-logistics__train li[data-state='done'] .adm-logistics__stop {
+    border-color: var(--emerald-primary-600, #1fae60);
+    background: var(--emerald-primary-600, #1fae60);
   }
 
-  .adm-logistics__ring[data-tone='secondary'] {
-    background: conic-gradient(var(--emerald-primary-500, #6fb38c) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
+  .adm-logistics__train li[data-state='active'] .adm-logistics__stop {
+    border-color: var(--emerald-primary-600, #1fae60);
+    box-shadow: 0 0 0 4px var(--emerald-primary-100, #e7fff2);
   }
 
-  .adm-logistics__ring[data-tone='warning'] {
-    background: conic-gradient(var(--emerald-primary-300, #baedd0) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
+  .adm-logistics__stop-version {
+    font-size: var(--emerald-text-b1-size, 16px);
   }
 
-  .adm-logistics__ring[data-tone='danger'] {
-    background: conic-gradient(var(--emerald-danger-500, #c61424) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
-  }
-
-  .adm-logistics__ring[data-tone='muted'] {
-    background: conic-gradient(var(--emerald-neutral-500, #a3afbe) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
-  }
-
-  .adm-logistics__ring {
-    z-index: 1;
-  }
-
-  .adm-logistics__condition-text {
-    display: flex;
-    flex-direction: column;
-    font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-logistics__condition-text strong {
+  .adm-logistics__stop-date {
     color: var(--emerald-on-surface, #2b2d2e);
     font-size: var(--emerald-text-b2-size, 14px);
   }
 
-  .adm-logistics__rating {
+  .adm-logistics__stop-note {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-logistics__train li[data-state='active'] .adm-logistics__stop-note {
+    color: var(--emerald-primary-700, #027d4c);
+    font-weight: 600;
+  }
+
+  .adm-logistics__stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--emerald-spacing-m, 16px);
+  }
+
+  .adm-logistics__stat-body {
     display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .adm-logistics__stat-label {
+    font-weight: 600;
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  .adm-logistics__stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .adm-logistics__stat-note {
+    margin-bottom: var(--emerald-spacing-xs, 8px);
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-logistics__pair {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: var(--emerald-spacing-m, 16px);
+  }
+
+  .adm-logistics__pair .emerald-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .adm-logistics__regions {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--emerald-spacing-m, 16px);
+    margin: var(--emerald-spacing-xs, 8px) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .adm-logistics__regions li {
+    display: grid;
+    grid-template-columns: 94px minmax(0, 1fr) 104px;
     align-items: center;
     gap: var(--emerald-spacing-s, 12px);
   }
 
-  .adm-logistics__rating strong {
-    font-size: 1.75rem;
+  .adm-logistics__region-name {
+    font-size: var(--emerald-text-b2-size, 14px);
+    font-weight: 600;
   }
 
-  .adm-logistics__stars {
+  .adm-logistics__region-bars {
     display: flex;
-    gap: 2px;
-    color: var(--emerald-primary-600, #1fae60);
+    flex-direction: column;
+    gap: 4px;
   }
 
-  .adm-logistics__trend {
-    width: 100%;
-    height: 60px;
+  .adm-logistics__region-bar {
+    height: 7px;
+    min-width: 6px;
+    border-radius: 4px;
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  .adm-logistics__region-bar[data-tone='p95'] {
+    background: var(--emerald-primary-300, #baedd0);
+  }
+
+  .adm-logistics__region-value {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-logistics__region-value strong {
+    color: var(--emerald-on-surface, #2b2d2e);
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  .adm-logistics__legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: var(--emerald-spacing-m, 16px) 0 0;
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-logistics__dot {
+    width: 10px;
+    height: 10px;
+    margin-left: var(--emerald-spacing-s, 12px);
+    border-radius: 3px;
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  .adm-logistics__dot:first-child {
+    margin-left: 0;
+  }
+
+  .adm-logistics__dot[data-tone='p95'] {
+    background: var(--emerald-primary-300, #baedd0);
+  }
+
+  .adm-logistics__pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-l, 20px);
     margin-top: var(--emerald-spacing-m, 16px);
+  }
+
+  .adm-logistics__pipeline-head {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: var(--emerald-text-b2-size, 14px);
   }
 
   .adm-logistics__table-wrap {
@@ -725,17 +580,6 @@
     color: var(--emerald-on-surface-variant, #757e85);
   }
 
-  /* Fill the card instead of stranding the list at the top. */
-  .adm-logistics__fleet-list {
-    flex: 1;
-    justify-content: space-between;
-  }
-
-  .adm-logistics__row1 .emerald-card__body {
-    display: flex;
-    flex-direction: column;
-  }
-
   .adm-logistics__table {
     width: 100%;
     border-collapse: collapse;
@@ -757,22 +601,15 @@
     border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
   }
 
-  .adm-logistics__vehicle {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .adm-logistics__vehicle-icon {
-    display: inline-flex;
-    color: var(--emerald-on-surface-variant, #757e85);
+  .adm-logistics__pkg {
+    font-weight: 600;
   }
 
   .adm-logistics__progress-cell {
     display: flex;
     align-items: center;
     gap: var(--emerald-spacing-xs, 8px);
-    min-width: 140px;
+    min-width: 150px;
   }
 
   .adm-logistics__progress-cell .emerald-progress {
@@ -780,9 +617,50 @@
   }
 
   @media (max-width: 1200px) {
-    .adm-logistics__row1,
-    .adm-logistics__row2 {
+    .adm-logistics__stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .adm-logistics__pair {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 860px) {
+    .adm-logistics__train {
+      grid-auto-flow: row;
+      gap: var(--emerald-spacing-s, 12px);
+    }
+
+    .adm-logistics__train li {
+      display: grid;
+      grid-template-columns: 60px 70px minmax(0, 1fr);
+      align-items: center;
+      padding-top: 0;
+      padding-left: 26px;
+    }
+
+    /* Stacked stops swap the rail from horizontal to vertical. */
+    .adm-logistics__train li::before {
+      top: 50%;
+      left: 6px;
+      width: 2px;
+      height: 100%;
+    }
+
+    .adm-logistics__stop {
+      top: 50%;
+      margin-top: -7px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .adm-logistics__stats {
+      grid-template-columns: 1fr;
+    }
+
+    .adm-logistics__regions li {
+      grid-template-columns: 80px minmax(0, 1fr) 92px;
     }
   }
 </style>

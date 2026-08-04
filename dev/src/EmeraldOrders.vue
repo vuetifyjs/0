@@ -1,5 +1,5 @@
 <!--
-  Total Earning bars, Revenue goal ring, and Cohort strip render as static
+  The activation funnel bars, seat-share bars and renewal ring render as static
   CSS fills (real data, no charting library) — same GAP_CONTRACT precedent as
   EmeraldSales. The ring reuses the conic-gradient technique.
 -->
@@ -30,55 +30,69 @@
   // Utilities
   import { shallowRef, toRef } from 'vue'
 
-  const stats = [
-    { label: 'Shipped Orders', value: '42', delta: '+18.2%', up: true, icon: 'truck' as const },
-    { label: 'Damaged Returns', value: '8', delta: '-8.7%', up: false, icon: 'warn' as const },
-    { label: 'Missed Delivery Slots', value: '27', delta: '+4.3%', up: true, icon: 'calendar' as const },
+  type Order = {
+    id: string
+    org: string
+    contact: string
+    product: string
+    seats: number
+    value: string
+    state: 'Delivered' | 'Awaiting key' | 'Provisioning'
+  }
+
+  const catalog = [
+    { org: 'Northwind Labs', contact: 'Priya Raghunathan', product: 'Emerald Pro', seats: 40, value: '$4,800.00', state: 'Delivered' as const },
+    { org: 'Kestrel Analytics', contact: 'Tomas Lindqvist', product: 'Onyx Studio Kit', seats: 12, value: '$1,740.00', state: 'Provisioning' as const },
+    { org: 'Foundry Nine', contact: 'Adaeze Okonkwo', product: 'v0 Enterprise Support', seats: 25, value: '$6,250.00', state: 'Delivered' as const },
+    { org: 'Vellum Press', contact: 'Ravi Menon', product: 'Helix Docs Theme', seats: 8, value: '$640.00', state: 'Awaiting key' as const },
+    { org: 'Palisade Bank', contact: 'Ingrid Solberg', product: 'Emerald Pro', seats: 120, value: '$13,200.00', state: 'Delivered' as const },
+    { org: 'Copperline Studio', contact: 'Hugo Bellamy', product: 'Prism Icon Set', seats: 6, value: '$294.00', state: 'Delivered' as const },
+    { org: 'Ardent Robotics', contact: 'Mira Kovac', product: 'Onyx Studio Kit', seats: 32, value: '$4,640.00', state: 'Provisioning' as const },
+    { org: 'Saltmarsh Digital', contact: 'Kenji Morrow', product: 'Marketplace Blocks', seats: 15, value: '$1,125.00', state: 'Awaiting key' as const },
   ]
 
-  const earning = [
-    { label: 'Zipcar', sub: 'Vuejs & HTML', value: '-$23,569.26', pct: 82 },
-    { label: 'Bitbank', sub: 'Figma & React', value: '-$12,650.31', pct: 44 },
-  ]
+  const orders: Order[] = Array.from({ length: 24 }, (_, index) => {
+    const base = catalog[index % catalog.length]!
+    const run = Math.floor(index / catalog.length)
 
-  const metrics = [
-    { label: 'Sales trend', value: '$11,548' },
-    { label: 'Discount offers', value: '$1,326' },
-    { label: 'Net profit', value: '$17,356' },
-    { label: 'Total orders', value: '248' },
-  ]
-
-  const cohort = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-  type Customer = { name: string, email: string, amount: string, status: 'Paid' | 'Pending' }
-
-  const seed: Customer[] = [
-    { name: 'Jack Alfredo', email: 'jack@shadcnstudio.com', amount: '$316.00', status: 'Paid' },
-    { name: 'Maria Gonzalez', email: 'maria.g@shadcnstudio.com', amount: '$253.40', status: 'Pending' },
-    { name: 'John Doe', email: 'john.doe@shadcnstudio.com', amount: '$852.00', status: 'Paid' },
-    { name: 'Emily Carter', email: 'emily.carter@shadcnstudio.com', amount: '$889.00', status: 'Pending' },
-    { name: 'David Lee', email: 'david.lee@shadcnstudio.com', amount: '$723.16', status: 'Paid' },
-    { name: 'Sara Chen', email: 'sara.chen@shadcnstudio.com', amount: '$412.90', status: 'Paid' },
-    { name: 'Noah Patel', email: 'noah.p@shadcnstudio.com', amount: '$1,204.00', status: 'Pending' },
-    { name: 'Julia Hart', email: 'julia.h@shadcnstudio.com', amount: '$188.25', status: 'Paid' },
-  ]
-
-  const customers: Customer[] = Array.from({ length: 25 }, (_, index) => {
-    const base = seed[index % seed.length]!
-    const suffix = Math.floor(index / seed.length)
-
-    return suffix === 0 ? base : { ...base, email: base.email.replace('@', `${suffix + 1}@`) }
+    return { ...base, id: `LIC-${8140 - index * 13}`, seats: base.seats + run * 4 }
   })
 
   const search = shallowRef('')
   const page = shallowRef(1)
 
-  const filter = createFilter({ keys: ['name', 'email'] })
-  const found = filter.apply(search, customers)
+  const filter = createFilter({ keys: ['id', 'org', 'contact', 'product'] })
+  const found = filter.apply(search, orders)
   const filtered = toRef(() => found.items.value)
 
-  const pagination = createPagination({ page, size: () => filtered.value.length, itemsPerPage: 5 })
+  const pagination = createPagination({ page, size: () => filtered.value.length, itemsPerPage: 6 })
   const rows = toRef(() => filtered.value.slice(pagination.pageStart.value, pagination.pageStop.value))
+
+  const funnel = [
+    { label: 'Orders placed', count: '1,284', pct: 100 },
+    { label: 'Key delivered', count: '1,247', pct: 97 },
+    { label: 'First activation', count: '1,092', pct: 85 },
+    { label: 'Full seat rollout', count: '806', pct: 63 },
+  ]
+
+  const accounts = [
+    { org: 'Palisade Bank', plan: 'Emerald Pro · 120 seats', spend: '$18,400', pct: 100 },
+    { org: 'Foundry Nine', plan: 'v0 Enterprise · 25 seats', spend: '$12,150', pct: 66 },
+    { org: 'Northwind Labs', plan: 'Emerald Pro · 40 seats', spend: '$9,720', pct: 53 },
+    { org: 'Ardent Robotics', plan: 'Onyx Studio Kit · 32 seats', spend: '$6,300', pct: 34 },
+  ]
+
+  const strip = [
+    { label: 'Licenses issued', value: '1,284', delta: '+12.4%', up: true, trend: [22, 28, 25, 33, 30, 38, 44] },
+    { label: 'Seats activated', value: '9,610', delta: '+8.1%', up: true, trend: [30, 34, 31, 36, 40, 42, 47] },
+    { label: 'Keys pending', value: '37', delta: '-14.2%', up: false, trend: [44, 40, 42, 35, 31, 28, 24] },
+    { label: 'Refund requests', value: '6', delta: '-22.5%', up: false, trend: [18, 22, 17, 14, 12, 9, 7] },
+  ]
+
+  function points (trend: readonly number[]) {
+    const max = Math.max(...trend)
+    return trend.map((v, index) => `${index * (100 / (trend.length - 1))},${34 - (v / max) * 30}`).join(' ')
+  }
 
   function initials (name: string) {
     return name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase()
@@ -89,186 +103,54 @@
   <EmeraldShell>
     <div class="adm-orders" data-theme="emerald">
       <header class="adm-orders__header">
-        <h1 class="adm-orders__title">Orders</h1>
-        <p class="adm-orders__subtitle">Fulfilment health and revenue goals</p>
+        <h1 class="adm-orders__title">License orders</h1>
+        <p class="adm-orders__subtitle">Marketplace fulfilment, key delivery and seat rollout</p>
       </header>
 
-      <section aria-label="Fulfilment stats" class="adm-orders__kpis">
-        <EmCard v-for="s in stats" :key="s.label" class="adm-orders__kpi" variant="simple">
-          <EmCardBody class="adm-orders__kpi-body">
-            <span aria-hidden="true" class="adm-orders__icon">
-              <svg
-                v-if="s.icon === 'truck'"
-                fill="none"
-                height="18"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.75"
-                viewBox="0 0 24 24"
-                width="18"
-              ><path d="M3 7h11v9H3V7Z" /><path d="M14 10h4l3 3v3h-7v-6Z" /></svg>
-
-              <svg
-                v-else-if="s.icon === 'warn'"
-                fill="none"
-                height="18"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.75"
-                viewBox="0 0 24 24"
-                width="18"
-              ><path d="M12 9v4M12 17h.01" /><path d="M10.3 3.9 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" /></svg>
-
-              <svg
-                v-else
-                fill="none"
-                height="18"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.75"
-                viewBox="0 0 24 24"
-                width="18"
-              ><path d="M4 5h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" /><path d="M3 10h18" /></svg>
-            </span>
-
-            <span class="adm-orders__kpi-value">{{ s.value }}</span>
-            <span class="adm-orders__kpi-label">{{ s.label }}</span>
-            <span class="adm-orders__delta" :data-up="s.up || undefined">{{ s.delta }} than last week</span>
-          </EmCardBody>
-        </EmCard>
-      </section>
-
-      <section aria-label="Total earning and sales metrics" class="adm-orders__row1">
-        <EmCard class="adm-orders__panel" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-orders__panel-title">Total Earning</EmCardTitle>
-          </EmCardHeader>
-
-          <EmCardBody>
-            <span class="adm-orders__kpi-value adm-orders__kpi-value--lg">$24650 <em class="adm-orders__delta" data-up>10%</em></span>
-            <p class="adm-orders__panel-sub">Compare to last year ($84,325)</p>
-
-            <ul class="adm-orders__earning">
-              <li v-for="e in earning" :key="e.label">
-                <EmAvatar size="sm"><EmAvatarFallback>{{ initials(e.label) }}</EmAvatarFallback></EmAvatar>
-                <span class="adm-orders__earning-text"><strong>{{ e.label }}</strong><span>{{ e.sub }}</span></span>
-
-                <span class="adm-orders__earning-value">
-                  {{ e.value }}
-                  <span class="adm-orders__earning-bar"><span :style="{ width: e.pct + '%' }" /></span>
-                </span>
-              </li>
-            </ul>
-          </EmCardBody>
-        </EmCard>
-
-        <EmCard class="adm-orders__panel" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-orders__panel-title">Sales metrics</EmCardTitle>
-          </EmCardHeader>
-
-          <EmCardBody>
-            <div class="adm-orders__company">
-              <EmAvatar size="md"><EmAvatarFallback>SC</EmAvatarFallback></EmAvatar>
-              <div><strong>Sandy' Company</strong><span>sandy@company.com</span></div>
-            </div>
-
-            <div class="adm-orders__metrics">
-              <div v-for="m in metrics" :key="m.label">
-                <span>{{ m.label }}</span>
-                <strong>{{ m.value }}</strong>
-              </div>
-            </div>
-          </EmCardBody>
-        </EmCard>
-
-        <EmCard class="adm-orders__panel" variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-orders__panel-title">Revenue goal</EmCardTitle>
-          </EmCardHeader>
-
-          <EmCardBody class="adm-orders__goal">
-            <span aria-hidden="true" class="adm-orders__ring" style="--pct: 62">
-              <span class="adm-orders__ring-value">256.24</span>
-              <span class="adm-orders__ring-sub">Total Profit</span>
-            </span>
-
-            <p class="adm-orders__panel-sub">Plan completed <strong>56%</strong></p>
-          </EmCardBody>
-        </EmCard>
-      </section>
-
-      <section aria-label="Cohort analysis">
-        <EmCard variant="simple">
-          <EmCardHeader>
-            <EmCardTitle class="adm-orders__panel-title">Cohort analysis indicators</EmCardTitle>
-          </EmCardHeader>
-
-          <EmCardBody class="adm-orders__cohort">
-            <div class="adm-orders__cohort-stat">
-              <span class="adm-orders__cohort-value">54%</span>
-              <p class="adm-orders__panel-sub">Analyzes the behaviour of a group of users who joined a product/service at the same time, over a certain period.</p>
-            </div>
-
-            <div class="adm-orders__cohort-links">
-              <EmButton size="sm" variant="tertiary">Open Statistics</EmButton>
-              <EmButton size="sm" variant="tertiary">Percentage Change</EmButton>
-            </div>
-
-            <div aria-label="Percentage profit from total sales" class="adm-orders__cohort-strip" role="img">
-              <span v-for="(v, index) in cohort" :key="index" class="adm-orders__cohort-cell" :data-on="v ? '' : undefined" />
-            </div>
-          </EmCardBody>
-        </EmCard>
-      </section>
-
-      <section aria-label="Customers">
+      <section aria-label="Order queue">
         <EmCard variant="simple">
           <EmCardHeader class="adm-orders__table-head">
-            <EmCardTitle class="adm-orders__panel-title">Customers</EmCardTitle>
+            <div>
+              <EmCardTitle class="adm-orders__panel-title">Order queue</EmCardTitle>
+              <p class="adm-orders__panel-sub">Every purchase awaiting or completing key delivery</p>
+            </div>
 
-            <EmTextField v-model="search" aria-label="Search customer" class="adm-orders__search" placeholder="Search customer" />
+            <EmTextField v-model="search" aria-label="Search orders" class="adm-orders__search" placeholder="Search order, org or product" />
           </EmCardHeader>
 
           <EmCardBody class="adm-orders__table-wrap">
             <table class="adm-orders__table">
               <thead>
                 <tr>
-                  <th>Customer</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                  <th>Paid by</th>
+                  <th>Order</th>
+                  <th>Account</th>
+                  <th>Product</th>
+                  <th>Seats</th>
+                  <th>Value</th>
+                  <th>Key status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
 
               <tbody>
-                <tr v-for="c in rows" :key="c.email">
+                <tr v-for="order in rows" :key="order.id">
+                  <td class="adm-orders__id">{{ order.id }}</td>
+
                   <td>
                     <div class="adm-orders__client">
-                      <EmAvatar size="sm"><EmAvatarFallback>{{ initials(c.name) }}</EmAvatarFallback></EmAvatar>
-                      <span><strong>{{ c.name }}</strong><span class="adm-orders__client-email">{{ c.email }}</span></span>
+                      <EmAvatar size="sm"><EmAvatarFallback>{{ initials(order.org) }}</EmAvatarFallback></EmAvatar>
+                      <span><strong>{{ order.org }}</strong><span class="adm-orders__client-sub">{{ order.contact }}</span></span>
                     </div>
                   </td>
 
-                  <td>{{ c.amount }}</td>
-                  <td><EmTag :variant="c.status === 'Paid' ? 'success' : 'info'">{{ c.status }}</EmTag></td>
+                  <td>{{ order.product }}</td>
+                  <td>{{ order.seats }}</td>
+                  <td>{{ order.value }}</td>
 
                   <td>
-                    <span aria-hidden="true" class="adm-orders__card-icon">
-                      <svg
-                        fill="none"
-                        height="16"
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-width="1.75"
-                        viewBox="0 0 24 24"
-                        width="16"
-                      ><path d="M3 7h18v10H3V7Z" /><path d="M3 10h18" /></svg>
-                    </span>
+                    <EmTag :variant="order.state === 'Delivered' ? 'success' : order.state === 'Provisioning' ? 'info' : 'neutral'">
+                      {{ order.state }}
+                    </EmTag>
                   </td>
 
                   <td>
@@ -283,10 +165,10 @@
 
           <EmCardFooter class="adm-orders__table-foot">
             <span class="adm-orders__table-count">
-              Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} entries
+              Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} orders
             </span>
 
-            <EmPagination v-model="page" :items-per-page="5" :size="filtered.length">
+            <EmPagination v-model="page" :items-per-page="6" :size="filtered.length">
               <template #default="{ items }">
                 <EmPaginationPrev>‹ Previous</EmPaginationPrev>
 
@@ -299,6 +181,95 @@
               </template>
             </EmPagination>
           </EmCardFooter>
+        </EmCard>
+      </section>
+
+      <section aria-label="Activation, accounts and renewals" class="adm-orders__split">
+        <EmCard class="adm-orders__panel" variant="simple">
+          <EmCardHeader>
+            <EmCardTitle class="adm-orders__panel-title">Activation funnel</EmCardTitle>
+            <p class="adm-orders__panel-sub">From checkout to every purchased seat in use</p>
+          </EmCardHeader>
+
+          <EmCardBody>
+            <ul aria-label="Activation funnel stages" class="adm-orders__funnel" role="img">
+              <li v-for="stage in funnel" :key="stage.label">
+                <span class="adm-orders__funnel-label">{{ stage.label }}</span>
+
+                <span class="adm-orders__funnel-track">
+                  <span class="adm-orders__funnel-fill" :style="{ width: stage.pct + '%' }">{{ stage.count }}</span>
+                </span>
+
+                <strong class="adm-orders__funnel-pct">{{ stage.pct }}%</strong>
+              </li>
+            </ul>
+          </EmCardBody>
+        </EmCard>
+
+        <EmCard class="adm-orders__panel" variant="simple">
+          <EmCardHeader>
+            <EmCardTitle class="adm-orders__panel-title">Seat spend by account</EmCardTitle>
+            <p class="adm-orders__panel-sub">Top four accounts this quarter</p>
+          </EmCardHeader>
+
+          <EmCardBody>
+            <ul class="adm-orders__accounts">
+              <li v-for="account in accounts" :key="account.org">
+                <EmAvatar size="sm"><EmAvatarFallback>{{ initials(account.org) }}</EmAvatarFallback></EmAvatar>
+
+                <span class="adm-orders__account-text">
+                  <strong>{{ account.org }}</strong>
+                  <span>{{ account.plan }}</span>
+                </span>
+
+                <span class="adm-orders__account-value">
+                  {{ account.spend }}
+                  <span class="adm-orders__account-bar"><span :style="{ width: account.pct + '%' }" /></span>
+                </span>
+              </li>
+            </ul>
+          </EmCardBody>
+        </EmCard>
+
+        <EmCard class="adm-orders__panel" variant="simple">
+          <EmCardHeader>
+            <EmCardTitle class="adm-orders__panel-title">Renewal rate</EmCardTitle>
+          </EmCardHeader>
+
+          <EmCardBody class="adm-orders__goal">
+            <span aria-hidden="true" class="adm-orders__ring" style="--pct: 74">
+              <span class="adm-orders__ring-value">74%</span>
+              <span class="adm-orders__ring-sub">Auto-renewed</span>
+            </span>
+
+            <p class="adm-orders__panel-sub">
+              949 of 1,284 licenses renewed without a support touch. Lapsed seats fall back to the free tier after 30 days.
+            </p>
+          </EmCardBody>
+        </EmCard>
+      </section>
+
+      <section aria-label="Fulfilment indicators" class="adm-orders__strip">
+        <EmCard v-for="item in strip" :key="item.label" variant="simple">
+          <EmCardBody class="adm-orders__strip-body">
+            <span class="adm-orders__strip-label">{{ item.label }}</span>
+
+            <span class="adm-orders__strip-value">
+              {{ item.value }}
+              <em class="adm-orders__delta" :data-up="item.up || undefined">{{ item.delta }}</em>
+            </span>
+
+            <svg aria-hidden="true" class="adm-orders__spark" preserveAspectRatio="none" viewBox="0 0 100 34">
+              <polyline
+                fill="none"
+                :points="points(item.trend)"
+                :stroke="item.up ? 'var(--emerald-primary-600, #1fae60)' : 'var(--emerald-neutral-500, #949ca3)'"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.5"
+              />
+            </svg>
+          </EmCardBody>
         </EmCard>
       </section>
     </div>
@@ -335,64 +306,6 @@
     font-size: var(--emerald-text-b1-size, 16px);
   }
 
-  .adm-orders__kpis {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--emerald-spacing-m, 16px);
-  }
-
-  .adm-orders__kpi-body {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .adm-orders__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    margin-bottom: 4px;
-    border-radius: var(--emerald-radius-m, 8px);
-    background: var(--emerald-neutral-200, #f6f8fa);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-orders__kpi-value {
-    font-size: 1.75rem;
-    font-weight: 700;
-  }
-
-  .adm-orders__kpi-value--lg {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-  }
-
-  .adm-orders__kpi-label {
-    font-weight: 600;
-    font-size: var(--emerald-text-b2-size, 14px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-orders__delta {
-    font-style: normal;
-    font-size: var(--emerald-text-b3-size, 12px);
-    font-weight: 600;
-    color: var(--emerald-danger-500, #c61424);
-  }
-
-  .adm-orders__delta[data-up] {
-    color: var(--emerald-primary-700, #027d4c);
-  }
-
-  .adm-orders__row1 {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--emerald-spacing-m, 16px);
-  }
-
   .adm-orders__panel-title {
     font-size: var(--emerald-text-b1-size, 16px) !important;
     font-weight: 700 !important;
@@ -404,171 +317,15 @@
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
-  .adm-orders__earning {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-m, 16px);
-    margin: var(--emerald-spacing-m, 16px) 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .adm-orders__earning li {
-    display: flex;
-    align-items: center;
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-orders__earning-text {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+  .adm-orders__delta {
+    font-style: normal;
     font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
+    font-weight: 600;
+    color: var(--emerald-danger-500, #c61424);
   }
 
-  .adm-orders__earning-text strong {
-    color: var(--emerald-on-surface, #2b2d2e);
-    font-size: var(--emerald-text-b2-size, 14px);
-  }
-
-  .adm-orders__earning-value {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
-    font-size: var(--emerald-text-b3-size, 12px);
-  }
-
-  .adm-orders__earning-bar {
-    display: block;
-    width: 80px;
-    height: 5px;
-    border-radius: 3px;
-    background: var(--emerald-neutral-200, #f6f8fa);
-    overflow: hidden;
-  }
-
-  .adm-orders__earning-bar span {
-    display: block;
-    height: 100%;
-    background: var(--emerald-primary-600, #1fae60);
-  }
-
-  .adm-orders__company {
-    display: flex;
-    align-items: center;
-    gap: var(--emerald-spacing-s, 12px);
-    margin-bottom: var(--emerald-spacing-m, 16px);
-  }
-
-  .adm-orders__company div {
-    display: flex;
-    flex-direction: column;
-    font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-orders__metrics {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-orders__metrics > div {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: var(--emerald-spacing-s, 12px);
-    border-radius: var(--emerald-radius-m, 8px);
-    background: var(--emerald-neutral-200, #f6f8fa);
-    font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-orders__metrics strong {
-    color: var(--emerald-on-surface, #2b2d2e);
-    font-size: var(--emerald-text-b1-size, 16px);
-  }
-
-  .adm-orders__goal {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--emerald-spacing-s, 12px);
-    text-align: center;
-  }
-
-  .adm-orders__ring {
-    --pct: 62;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    background: conic-gradient(var(--emerald-primary-600, #1fae60) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
-  }
-
-  .adm-orders__ring::before {
-    content: '';
-    position: absolute;
-    inset: 14px;
-    border-radius: 50%;
-    background: var(--emerald-background, #fefefe);
-  }
-
-  .adm-orders__ring-value,
-  .adm-orders__ring-sub {
-    position: relative;
-    z-index: 1;
-  }
-
-  .adm-orders__ring-value {
-    font-size: 1.375rem;
-    font-weight: 700;
-  }
-
-  .adm-orders__ring-sub {
-    font-size: var(--emerald-text-b3-size, 12px);
-    color: var(--emerald-on-surface-variant, #757e85);
-  }
-
-  .adm-orders__cohort {
-    display: grid;
-    grid-template-columns: auto auto 1fr;
-    align-items: center;
-    gap: var(--emerald-spacing-l, 20px);
-  }
-
-  .adm-orders__cohort-value {
-    font-size: 2.5rem;
-    font-weight: 700;
-  }
-
-  .adm-orders__cohort-links {
-    display: flex;
-    flex-direction: column;
-    gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-orders__cohort-strip {
-    display: flex;
-    gap: 3px;
-    grid-column: 1 / -1;
-  }
-
-  .adm-orders__cohort-cell {
-    flex: 1;
-    height: 24px;
-    border-radius: 2px;
-    background: var(--emerald-neutral-200, #f6f8fa);
-  }
-
-  .adm-orders__cohort-cell[data-on] {
-    background: var(--emerald-primary-600, #1fae60);
+  .adm-orders__delta[data-up] {
+    color: var(--emerald-primary-700, #027d4c);
   }
 
   /* .emerald-card__header is flex-direction: column — a title/action row has to
@@ -583,7 +340,7 @@
   }
 
   .adm-orders__search {
-    width: 240px;
+    width: 280px;
   }
 
   .adm-orders__table-foot {
@@ -605,16 +362,27 @@
     color: var(--emerald-on-surface-variant, #757e85);
   }
 
+  .adm-orders__table-wrap {
+    overflow-x: auto;
+    margin-inline: calc(-1 * var(--emerald-spacing-l, 20px));
+  }
+
+  .adm-orders__table th:first-child,
+  .adm-orders__table td:first-child {
+    padding-left: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-orders__table th:last-child,
+  .adm-orders__table td:last-child {
+    padding-right: var(--emerald-spacing-l, 20px);
+  }
+
   .adm-orders__table tbody tr {
     transition: background-color 120ms ease;
   }
 
   .adm-orders__table tbody tr:hover {
     background: var(--emerald-neutral-200, #f6f8fa);
-  }
-
-  .adm-orders__table-wrap {
-    overflow-x: auto;
   }
 
   .adm-orders__table {
@@ -638,6 +406,11 @@
     border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
   }
 
+  .adm-orders__id {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
   .adm-orders__client {
     display: flex;
     align-items: center;
@@ -648,25 +421,224 @@
     display: block;
   }
 
-  .adm-orders__client-email {
+  .adm-orders__client-sub {
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
-  .adm-orders__card-icon {
-    display: inline-flex;
+  .adm-orders__split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.1fr) minmax(0, 0.8fr);
+    gap: var(--emerald-spacing-m, 16px);
+  }
+
+  .adm-orders__split .emerald-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .adm-orders__funnel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--emerald-spacing-m, 16px);
+    margin: var(--emerald-spacing-xs, 8px) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .adm-orders__funnel li {
+    display: grid;
+    grid-template-columns: 118px minmax(0, 1fr) 42px;
+    align-items: center;
+    gap: var(--emerald-spacing-s, 12px);
+  }
+
+  .adm-orders__funnel-label {
+    font-size: var(--emerald-text-b2-size, 14px);
     color: var(--emerald-on-surface-variant, #757e85);
   }
 
+  .adm-orders__funnel-track {
+    height: 26px;
+    border-radius: var(--emerald-radius-xs, 4px);
+    background: var(--emerald-neutral-200, #f6f8fa);
+    overflow: hidden;
+  }
+
+  .adm-orders__funnel-fill {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    padding-right: var(--emerald-spacing-xs, 8px);
+    border-radius: var(--emerald-radius-xs, 4px);
+    background: var(--emerald-primary-600, #1fae60);
+    color: var(--emerald-on-primary, #fff);
+    font-size: var(--emerald-text-b3-size, 12px);
+    font-weight: 600;
+  }
+
+  .adm-orders__funnel-pct {
+    font-size: var(--emerald-text-b3-size, 12px);
+    text-align: right;
+  }
+
+  .adm-orders__accounts {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--emerald-spacing-m, 16px);
+    margin: var(--emerald-spacing-xs, 8px) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .adm-orders__accounts li {
+    display: flex;
+    align-items: center;
+    gap: var(--emerald-spacing-s, 12px);
+  }
+
+  .adm-orders__account-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    font-size: var(--emerald-text-b3-size, 12px);
+    color: var(--emerald-on-surface-variant, #757e85);
+  }
+
+  .adm-orders__account-text strong {
+    color: var(--emerald-on-surface, #2b2d2e);
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  .adm-orders__account-value {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    font-size: var(--emerald-text-b3-size, 12px);
+    font-weight: 600;
+  }
+
+  .adm-orders__account-bar {
+    display: block;
+    width: 80px;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--emerald-neutral-200, #f6f8fa);
+    overflow: hidden;
+  }
+
+  .adm-orders__account-bar span {
+    display: block;
+    height: 100%;
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  .adm-orders__goal {
+    align-items: center;
+    gap: var(--emerald-spacing-s, 12px);
+    text-align: center;
+  }
+
+  .adm-orders__ring {
+    --pct: 74;
+    position: relative;
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 140px;
+    height: 140px;
+    margin-top: var(--emerald-spacing-xs, 8px);
+    border-radius: 50%;
+    background: conic-gradient(var(--emerald-primary-600, #1fae60) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
+  }
+
+  .adm-orders__ring::before {
+    content: '';
+    position: absolute;
+    inset: 14px;
+    border-radius: 50%;
+    background: var(--emerald-background, #fefefe);
+  }
+
+  .adm-orders__ring-value,
+  .adm-orders__ring-sub {
+    position: relative;
+    z-index: 1;
+  }
+
+  .adm-orders__ring-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .adm-orders__ring-sub {
+    font-size: var(--emerald-text-b3-size, 12px);
+    color: var(--emerald-on-surface-variant, #757e85);
+  }
+
+  .adm-orders__strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--emerald-spacing-m, 16px);
+  }
+
+  .adm-orders__strip-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-xs, 8px);
+    min-height: 108px;
+  }
+
+  .adm-orders__strip-label {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  .adm-orders__strip-value {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 1.625rem;
+    font-weight: 700;
+  }
+
+  .adm-orders__spark {
+    width: 100%;
+    height: 34px;
+    margin-top: auto;
+  }
+
   @media (max-width: 1200px) {
-    .adm-orders__kpis,
-    .adm-orders__row1 {
+    .adm-orders__split {
       grid-template-columns: 1fr;
     }
 
-    .adm-orders__cohort {
+    .adm-orders__strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .adm-orders__search {
+      width: 100%;
+    }
+
+    .adm-orders__strip {
       grid-template-columns: 1fr;
-      text-align: center;
+    }
+
+    .adm-orders__funnel li {
+      grid-template-columns: 100px minmax(0, 1fr) 38px;
     }
   }
 </style>

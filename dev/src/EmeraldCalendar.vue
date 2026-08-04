@@ -24,7 +24,7 @@
   // Utilities
   import { shallowRef, toRef } from 'vue'
 
-  type Category = 'Family' | 'Business' | 'Personal' | 'Holiday' | 'Etc'
+  type Category = 'Release' | 'Community' | 'Conference' | 'Internal' | 'Personal'
 
   interface CalendarEvent {
     iso: string
@@ -34,27 +34,37 @@
   }
 
   const events: CalendarEvent[] = [
-    { iso: '2026-07-31', time: '1pm', title: 'Project review', category: 'Business' },
-    { iso: '2026-08-04', time: '10am', title: 'Team sync', category: 'Business' },
-    { iso: '2026-08-05', time: '12pm', title: 'Lunch with Sarah', category: 'Personal' },
-    { iso: '2026-08-07', time: '9am', title: 'Product launch', category: 'Business' },
-    { iso: '2026-08-08', time: '2:30pm', title: 'Sales pitch', category: 'Business' },
-    { iso: '2026-08-09', time: '9am', title: 'Team offsite', category: 'Family' },
-    { iso: '2026-08-10', time: '11am', title: 'Design critique', category: 'Business' },
-    { iso: '2026-08-13', time: '10am', title: 'Marketing review', category: 'Business' },
-    { iso: '2026-08-21', time: '9am', title: 'Annual shareholder call', category: 'Business' },
-    { iso: '2026-08-30', time: '9am', title: 'Product launch retro', category: 'Business' },
-    { iso: '2026-08-14', time: 'All day', title: 'Company holiday', category: 'Holiday' },
-    { iso: '2026-08-16', time: 'All day', title: 'Errands', category: 'Etc' },
+    { iso: '2026-07-30', time: 'All day', title: 'v1.1.2 patch ships', category: 'Release' },
+    { iso: '2026-08-04', time: '09:30', title: 'Core sync', category: 'Internal' },
+    { iso: '2026-08-05', time: '15:00', title: 'Emerald design review', category: 'Internal' },
+    { iso: '2026-08-06', time: 'All day', title: 'Vue Fes CFP closes', category: 'Conference' },
+    { iso: '2026-08-07', time: '11:00', title: 'Northwind renewal call', category: 'Internal' },
+    { iso: '2026-08-11', time: '16:00', title: 'August community call', category: 'Community' },
+    { iso: '2026-08-11', time: 'All day', title: 'Emerald token drop', category: 'Release' },
+    { iso: '2026-08-11', time: '18:00', title: 'Office hours', category: 'Community' },
+    { iso: '2026-08-13', time: '10:00', title: 'Accessibility walkthrough', category: 'Internal' },
+    { iso: '2026-08-14', time: 'All day', title: 'Docs freeze', category: 'Release' },
+    { iso: '2026-08-18', time: '09:00', title: 'Composable API review', category: 'Internal' },
+    { iso: '2026-08-20', time: '13:00', title: 'Contributor office hours', category: 'Community' },
+    { iso: '2026-08-21', time: '17:00', title: 'v1.2 changeset freeze', category: 'Release' },
+    { iso: '2026-08-25', time: 'All day', title: 'v1.2 ships', category: 'Release' },
+    { iso: '2026-08-25', time: '19:00', title: 'Release stream', category: 'Community' },
+    { iso: '2026-08-27', time: 'All day', title: 'Conference travel', category: 'Personal' },
+    { iso: '2026-08-28', time: '14:00', title: 'Train retro', category: 'Internal' },
+    { iso: '2026-09-02', time: 'All day', title: 'Roadmap workshop', category: 'Internal' },
   ]
 
-  const categories: Category[] = ['Family', 'Business', 'Personal', 'Holiday', 'Etc']
+  const categories: Category[] = ['Release', 'Community', 'Conference', 'Internal', 'Personal']
 
   const eventFilter = createGroup()
   for (const category of categories) eventFilter.register({ id: category, value: category })
   eventFilter.selectAll()
 
   const visibleEvents = toRef(() => events.filter(event => eventFilter.selected(event.category)))
+
+  function categoryCount (category: Category) {
+    return events.filter(event => event.category === category).length
+  }
 
   function toIso (date: Date) {
     return date.toISOString().slice(0, 10)
@@ -83,6 +93,21 @@
   function eventsOn (iso: string) {
     return visibleEvents.value.filter(event => event.iso === iso)
   }
+
+  /** Agenda strip: the next handful of visible events from today forward. */
+  const upcoming = toRef(() => visibleEvents.value
+    .filter(event => event.iso >= toIso(today))
+    .toSorted((a, b) => a.iso.localeCompare(b.iso) || a.time.localeCompare(b.time))
+    .slice(0, 5))
+
+  function dayLabel (iso: string) {
+    return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })
+  }
+
+  const monthCount = toRef(() => {
+    const prefix = `${cursor.value.getFullYear()}-${String(cursor.value.getMonth() + 1).padStart(2, '0')}`
+    return visibleEvents.value.filter(event => event.iso.startsWith(prefix)).length
+  })
 
   function onPrevMonth () {
     const date = new Date(cursor.value)
@@ -113,7 +138,7 @@
   const newEventOpen = shallowRef(false)
   const newEventTitle = shallowRef('')
   const newEventDate = shallowRef(toIso(today))
-  const newEventCategory = shallowRef<Category>('Business')
+  const newEventCategory = shallowRef<Category>('Internal')
 
   function onCreateEvent () {
     if (!newEventTitle.value.trim()) return
@@ -126,28 +151,76 @@
 <template>
   <EmeraldShell>
     <div class="adm-calendar" data-theme="emerald">
-      <aside aria-label="Calendar controls" class="adm-calendar__side">
-        <EmButton class="adm-calendar__new" variant="primary" @click="newEventOpen = true">
-          <svg
-            aria-hidden="true"
-            fill="none"
-            height="16"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-            width="16"
-          ><path d="M12 5v14M5 12h14" /></svg>
-          New event
-        </EmButton>
-
-        <div class="adm-calendar__mini">
-          <header class="adm-calendar__mini-head">
+      <section aria-label="Month view" class="adm-calendar__main">
+        <!-- Month label and its arrows lead the header; the actions cluster at
+             the trailing edge instead of straddling the row. -->
+        <header class="adm-calendar__main-head">
+          <div class="adm-calendar__main-nav">
             <button aria-label="Previous month" class="adm-calendar__nav-btn" type="button" @click="onPrevMonth">‹</button>
-            <strong>{{ monthLabel }}</strong>
             <button aria-label="Next month" class="adm-calendar__nav-btn" type="button" @click="onNextMonth">›</button>
-          </header>
+
+            <div class="adm-calendar__main-title">
+              <h1>{{ monthLabel }}</h1>
+              <p>{{ monthCount }} events visible</p>
+            </div>
+          </div>
+
+          <div class="adm-calendar__main-actions">
+            <EmButton variant="tertiary" @click="onToday">Today</EmButton>
+
+            <EmButton variant="primary" @click="newEventOpen = true">
+              <svg
+                aria-hidden="true"
+                fill="none"
+                height="16"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="16"
+              ><path d="M12 5v14M5 12h14" /></svg>
+              New event
+            </EmButton>
+          </div>
+        </header>
+
+        <div class="adm-calendar__weekdays">
+          <span v-for="day in weekdays" :key="day">{{ day }}</span>
+        </div>
+
+        <div class="adm-calendar__grid">
+          <div
+            v-for="cell in cells"
+            :key="cell.iso"
+            class="adm-calendar__cell"
+            :data-out="!cell.inMonth || undefined"
+            :data-selected="dayNav.selected(cell.iso) || undefined"
+            @click="onSelectDay(cell.iso)"
+          >
+            <span class="adm-calendar__cell-date" :data-today="cell.iso === toIso(today) || undefined">{{ cell.date.getDate() }}</span>
+
+            <ul class="adm-calendar__cell-events">
+              <!-- All-day events read as a filled bar; timed ones trail their clock time. -->
+              <li
+                v-for="event in eventsOn(cell.iso).slice(0, 2)"
+                :key="event.title"
+                :data-allday="event.time === 'All day' || undefined"
+                :data-category="event.category"
+              >
+                <span class="adm-calendar__chip-title">{{ event.title }}</span>
+                <span v-if="event.time !== 'All day'" class="adm-calendar__chip-time">{{ event.time }}</span>
+              </li>
+
+              <li v-if="eventsOn(cell.iso).length > 2" class="adm-calendar__cell-more">+{{ eventsOn(cell.iso).length - 2 }} more</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <aside aria-label="Calendar controls" class="adm-calendar__side">
+        <div class="adm-calendar__mini">
+          <p class="adm-calendar__mini-head">{{ monthLabel }}</p>
 
           <div class="adm-calendar__mini-grid">
             <span v-for="day in weekdays" :key="day" class="adm-calendar__mini-weekday">{{ day.slice(0, 2) }}</span>
@@ -177,14 +250,17 @@
         </div>
 
         <div class="adm-calendar__filters">
-          <p class="adm-calendar__filters-title">Event filters</p>
+          <p class="adm-calendar__side-title">Calendars</p>
 
           <EmCheckbox
             :indeterminate="eventFilter.isMixed.value"
             :model-value="eventFilter.isAllSelected.value"
             @update:model-value="eventFilter.toggleAll()"
           >
-            All
+            <span class="adm-calendar__filter-label">
+              <span class="adm-calendar__filter-name">Everything</span>
+              <span class="adm-calendar__filter-count">{{ events.length }}</span>
+            </span>
           </EmCheckbox>
 
           <EmCheckbox
@@ -193,47 +269,32 @@
             :model-value="eventFilter.selected(category)"
             @update:model-value="eventFilter.toggle(category)"
           >
-            {{ category }}
+            <span class="adm-calendar__filter-label">
+              <span aria-hidden="true" class="adm-calendar__dot" :data-category="category" />
+              <span class="adm-calendar__filter-name">{{ category }}</span>
+              <span class="adm-calendar__filter-count">{{ categoryCount(category) }}</span>
+            </span>
           </EmCheckbox>
         </div>
+
+        <!-- Agenda strip: what the month grid cannot show at a glance. -->
+        <div class="adm-calendar__agenda">
+          <p class="adm-calendar__side-title">Up next</p>
+
+          <ul>
+            <li v-for="event in upcoming" :key="`${event.iso}-${event.title}`">
+              <span aria-hidden="true" class="adm-calendar__dot" :data-category="event.category" />
+
+              <span class="adm-calendar__agenda-body">
+                <span class="adm-calendar__agenda-title">{{ event.title }}</span>
+                <span class="adm-calendar__agenda-when">{{ dayLabel(event.iso) }} · {{ event.time }}</span>
+              </span>
+            </li>
+
+            <li v-if="upcoming.length === 0" class="adm-calendar__agenda-empty">Nothing scheduled in the visible calendars.</li>
+          </ul>
+        </div>
       </aside>
-
-      <section aria-label="Month view" class="adm-calendar__main">
-        <header class="adm-calendar__main-head">
-          <EmButton variant="tertiary" @click="onToday">Today</EmButton>
-
-          <div class="adm-calendar__main-nav">
-            <button aria-label="Previous month" class="adm-calendar__nav-btn" type="button" @click="onPrevMonth">‹</button>
-            <h1>{{ monthLabel }}</h1>
-            <button aria-label="Next month" class="adm-calendar__nav-btn" type="button" @click="onNextMonth">›</button>
-          </div>
-        </header>
-
-        <div class="adm-calendar__weekdays">
-          <span v-for="day in weekdays" :key="day">{{ day }}</span>
-        </div>
-
-        <div class="adm-calendar__grid">
-          <div
-            v-for="cell in cells"
-            :key="cell.iso"
-            class="adm-calendar__cell"
-            :data-out="!cell.inMonth || undefined"
-            :data-selected="dayNav.selected(cell.iso) || undefined"
-            @click="onSelectDay(cell.iso)"
-          >
-            <span class="adm-calendar__cell-date" :data-today="cell.iso === toIso(today) || undefined">{{ cell.date.getDate() }}</span>
-
-            <ul class="adm-calendar__cell-events">
-              <li v-for="event in eventsOn(cell.iso).slice(0, 2)" :key="event.title" :data-category="event.category">
-                <strong>{{ event.time }}</strong> {{ event.title }}
-              </li>
-
-              <li v-if="eventsOn(cell.iso).length > 2" class="adm-calendar__cell-more">+{{ eventsOn(cell.iso).length - 2 }} more</li>
-            </ul>
-          </div>
-        </div>
-      </section>
 
       <EmDialog v-model="newEventOpen">
         <EmDialogContent>
@@ -279,9 +340,10 @@
 </template>
 
 <style>
+  /* The rail trails the grid — the reference leads with it. */
   .adm-calendar {
     display: grid;
-    grid-template-columns: 260px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 264px;
     gap: var(--emerald-spacing-m, 16px);
     align-items: start;
   }
@@ -292,13 +354,9 @@
     gap: var(--emerald-spacing-m, 16px);
   }
 
-  .adm-calendar__new {
-    width: 100%;
-    justify-content: center;
-  }
-
   .adm-calendar__mini,
-  .adm-calendar__filters {
+  .adm-calendar__filters,
+  .adm-calendar__agenda {
     padding: var(--emerald-spacing-m, 16px);
     background: var(--emerald-background, #fefefe);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
@@ -306,26 +364,29 @@
     box-shadow: var(--emerald-shadow-s, 0 0 2px 0 rgba(51, 51, 51, 0.08));
   }
 
+  /* Month stepping lives once, in the main header. */
   .adm-calendar__mini-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--emerald-spacing-s, 12px);
-    font-size: var(--emerald-text-b2-size, 14px);
+    margin: 0 0 var(--emerald-spacing-s, 12px);
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
 
   .adm-calendar__nav-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
-    border: none;
+    width: 28px;
+    height: 28px;
+    border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
     border-radius: var(--emerald-radius-m, 8px);
-    background: transparent;
+    background: var(--emerald-background, #fefefe);
     color: var(--emerald-on-surface, #2b2d2e);
     cursor: pointer;
     font-size: 1rem;
+    line-height: 1;
   }
 
   .adm-calendar__nav-btn:hover {
@@ -374,7 +435,7 @@
   }
 
   .adm-calendar__mini-day[data-selected] {
-    background: var(--emerald-neutral-900, #2b2d2e);
+    background: var(--emerald-primary-700, #027d4c);
     color: var(--emerald-on-primary, #fff);
   }
 
@@ -385,17 +446,28 @@
     margin-top: 1px;
   }
 
-  .adm-calendar__mini-dot {
+  .adm-calendar__mini-dot,
+  .adm-calendar__dot {
+    flex: none;
     width: 4px;
     height: 4px;
     border-radius: 50%;
-    background: var(--emerald-info-500, #2f80ed);
+    background: var(--emerald-primary-600, #1fae60);
   }
 
-  .adm-calendar__mini-dot[data-category='Family'] { background: var(--emerald-warning-500, #e08b00); }
-  .adm-calendar__mini-dot[data-category='Personal'] { background: var(--emerald-danger-500, #c61424); }
-  .adm-calendar__mini-dot[data-category='Holiday'] { background: var(--emerald-primary-600, #1fae60); }
-  .adm-calendar__mini-dot[data-category='Etc'] { background: var(--emerald-neutral-600, #8f979d); }
+  .adm-calendar__dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .adm-calendar__mini-dot[data-category='Community'],
+  .adm-calendar__dot[data-category='Community'] { background: var(--emerald-secondary-600, #00b4dc); }
+  .adm-calendar__mini-dot[data-category='Conference'],
+  .adm-calendar__dot[data-category='Conference'] { background: var(--emerald-info-500, #3a70e2); }
+  .adm-calendar__mini-dot[data-category='Internal'],
+  .adm-calendar__dot[data-category='Internal'] { background: var(--emerald-neutral-600, #939dac); }
+  .adm-calendar__mini-dot[data-category='Personal'],
+  .adm-calendar__dot[data-category='Personal'] { background: var(--emerald-alert-600, #d9af00); }
 
   .adm-calendar__mini-day[data-selected] .adm-calendar__mini-dot {
     background: var(--emerald-on-primary, #fff);
@@ -407,10 +479,62 @@
     gap: var(--emerald-spacing-s, 12px);
   }
 
-  .adm-calendar__filters-title {
+  .adm-calendar__side-title {
     margin: 0;
     font-weight: 700;
-    font-size: var(--emerald-text-b1-size, 16px);
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  .adm-calendar__filter-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--emerald-spacing-xs, 8px);
+    width: 100%;
+  }
+
+  .adm-calendar__filter-name {
+    flex: 1;
+  }
+
+  .adm-calendar__filter-count {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-calendar__agenda ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-s, 12px);
+    margin: var(--emerald-spacing-s, 12px) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .adm-calendar__agenda li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--emerald-spacing-xs, 8px);
+  }
+
+  .adm-calendar__agenda .adm-calendar__dot {
+    margin-top: 5px;
+  }
+
+  .adm-calendar__agenda-body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .adm-calendar__agenda-title {
+    font-size: var(--emerald-text-b3-size, 12px);
+    font-weight: 600;
+  }
+
+  .adm-calendar__agenda-when,
+  .adm-calendar__agenda-empty {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: 11px;
   }
 
   .adm-calendar__main {
@@ -427,20 +551,38 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--emerald-spacing-m, 16px);
+    gap: var(--emerald-spacing-m, 16px);
+    padding: var(--emerald-spacing-s, 12px) var(--emerald-spacing-m, 16px);
     border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
   }
 
   .adm-calendar__main-nav {
     display: flex;
     align-items: center;
-    gap: var(--emerald-spacing-s, 12px);
+    gap: var(--emerald-spacing-xs, 8px);
   }
 
-  .adm-calendar__main-nav h1 {
+  .adm-calendar__main-title {
+    margin-left: 4px;
+  }
+
+  .adm-calendar__main-title h1 {
     margin: 0;
-    font-size: var(--emerald-text-b1-size, 16px);
+    font-size: var(--emerald-text-h4-size, 20px);
     font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .adm-calendar__main-title p {
+    margin: 0;
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: 11px;
+  }
+
+  .adm-calendar__main-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--emerald-spacing-xs, 8px);
   }
 
   .adm-calendar__weekdays {
@@ -452,8 +594,10 @@
 
   .adm-calendar__weekdays span {
     color: var(--emerald-on-surface-variant, #757e85);
-    font-size: var(--emerald-text-b3-size, 12px);
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
     text-align: center;
   }
 
@@ -462,7 +606,7 @@
   .adm-calendar__grid {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    grid-auto-rows: minmax(96px, 1fr);
+    grid-auto-rows: minmax(104px, 1fr);
   }
 
   .adm-calendar__cell {
@@ -492,43 +636,70 @@
     justify-content: center;
     min-width: 22px;
     height: 22px;
-    border-radius: 50%;
+    border-radius: var(--emerald-radius-s, 6px);
     font-size: var(--emerald-text-b3-size, 12px);
+    font-weight: 600;
   }
 
   .adm-calendar__cell-date[data-today] {
-    background: var(--emerald-neutral-900, #2b2d2e);
+    background: var(--emerald-primary-700, #027d4c);
     color: var(--emerald-on-primary, #fff);
   }
 
   .adm-calendar__cell-events {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
     margin: 4px 0 0;
     padding: 0;
     list-style: none;
   }
 
+  /* Chips are ruled on the leading edge rather than filled end to end, and the
+     time trails the title instead of leading it. */
   .adm-calendar__cell-events li {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
     overflow: hidden;
     min-width: 0;
     padding: 1px 4px;
-    border-radius: 4px;
-    background: var(--emerald-info-100, #e4f2ff);
+    border-left: 3px solid var(--emerald-primary-600, #1fae60);
+    border-radius: 0 3px 3px 0;
+    background: var(--emerald-neutral-200, #f6f8fa);
     font-size: 10px;
+  }
+
+  .adm-calendar__cell-events li[data-category='Community'] { border-left-color: var(--emerald-secondary-600, #00b4dc); }
+  .adm-calendar__cell-events li[data-category='Conference'] { border-left-color: var(--emerald-info-500, #3a70e2); }
+  .adm-calendar__cell-events li[data-category='Internal'] { border-left-color: var(--emerald-neutral-600, #939dac); }
+  .adm-calendar__cell-events li[data-category='Personal'] { border-left-color: var(--emerald-alert-600, #d9af00); }
+
+  .adm-calendar__cell-events li[data-allday] { background: var(--emerald-primary-100, #e7fff2); }
+  .adm-calendar__cell-events li[data-allday][data-category='Community'] { background: var(--emerald-secondary-100, #dbf8ff); }
+  .adm-calendar__cell-events li[data-allday][data-category='Conference'] { background: var(--emerald-info-100, #e4f2ff); }
+  .adm-calendar__cell-events li[data-allday][data-category='Internal'] { background: var(--emerald-neutral-300, #ccd6e7); }
+  .adm-calendar__cell-events li[data-allday][data-category='Personal'] { background: var(--emerald-alert-100, #fff7e1); }
+
+  .adm-calendar__chip-title {
+    overflow: hidden;
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .adm-calendar__cell-events li[data-category='Family'] { background: var(--emerald-warning-100, #fff4e0); }
-  .adm-calendar__cell-events li[data-category='Personal'] { background: var(--emerald-danger-100, #ffebee); }
-  .adm-calendar__cell-events li[data-category='Holiday'] { background: var(--emerald-primary-100, #e7fff2); }
-  .adm-calendar__cell-events li[data-category='Etc'] { background: var(--emerald-neutral-200, #f6f8fa); }
+  .adm-calendar__chip-time {
+    flex: none;
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: 9px;
+  }
 
   .adm-calendar__cell-more {
-    color: var(--emerald-on-surface-variant, #757e85);
+    border-left-color: transparent !important;
     background: transparent !important;
+    color: var(--emerald-on-surface-variant, #757e85);
   }
 
   .adm-calendar__dialog-head {
@@ -548,7 +719,8 @@
     }
 
     .adm-calendar__mini,
-    .adm-calendar__filters {
+    .adm-calendar__filters,
+    .adm-calendar__agenda {
       flex: 1;
       min-width: 220px;
     }
@@ -568,9 +740,12 @@
       align-items: center;
     }
 
-    .adm-calendar__filters-title {
+    .adm-calendar__filters .adm-calendar__side-title {
       flex: 1 0 100%;
-      font-size: var(--emerald-text-b2-size, 14px);
+    }
+
+    .adm-calendar__filter-count {
+      display: none;
     }
 
     .adm-calendar__main-head {
@@ -579,7 +754,7 @@
     }
 
     .adm-calendar__grid {
-      grid-auto-rows: minmax(72px, 1fr);
+      grid-auto-rows: minmax(76px, 1fr);
     }
 
     .adm-calendar__cell-events li {
@@ -587,7 +762,7 @@
       font-size: 9px;
     }
 
-    .adm-calendar__cell-events li strong {
+    .adm-calendar__chip-time {
       display: none;
     }
   }
