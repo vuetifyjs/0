@@ -1,7 +1,4 @@
 <script setup lang="ts">
-  // Framework
-  import { useBreakpoints } from '@vuetify/v0'
-
   import { getPluginBySlug } from '@/data/plugins'
 
   // Utilities
@@ -36,18 +33,10 @@
   const framed = toRef(() => route.path in MODULES)
 
   const meta = toRef(() => getPluginBySlug(route.path.slice('/builder/'.length)))
-
-  const breakpoints = useBreakpoints()
-
-  // Step 1's manifest flex-fills the sticky aside (AppShell.vue mirrors this route +
-  // breakpoint check). Below the breakpoint the aside becomes a bottom sheet that scrolls
-  // as a whole instead of a fixed-height flex column, so there's no ancestor height to
-  // fill into there — fall back to the unframed component's own natural sizing.
-  const fill = toRef(() => route.path === '/builder' && breakpoints.width.value >= 1024)
 </script>
 
 <template>
-  <div class="p-4 lg:p-5" :class="fill ? 'flex-1 min-h-0 flex flex-col' : ''">
+  <div class="p-4 lg:p-5">
     <div v-if="framed" class="panel overflow-hidden">
       <div class="flex items-center justify-between gap-3 h-10 px-4 border-b border-divider bg-surface-variant/50">
         <p class="t-eyebrow text-on-surface">{{ meta?.title }}</p>
@@ -60,6 +49,6 @@
       </div>
     </div>
 
-    <component :is="module" v-else :class="fill ? 'flex-1 min-h-0 flex flex-col' : ''" />
+    <component :is="module" v-else />
   </div>
 </template>

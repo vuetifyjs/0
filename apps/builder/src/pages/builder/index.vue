@@ -50,7 +50,7 @@
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto px-6 pt-5 sm:pt-6 pb-24">
+  <div class="max-w-6xl mx-auto px-6 sm:px-8 pt-5 sm:pt-6 pb-24">
     <Button.Root class="btn-quiet mb-8" @click="onBack">
       <Button.Icon>
         <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
