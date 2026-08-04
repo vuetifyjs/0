@@ -680,6 +680,10 @@
     flex: 1;
     min-height: 0;
     overflow: auto;
+    /* Scroller spans to the nav's edges so the scrollbar sits flush; the
+       nav's horizontal inset moves onto the list content instead. */
+    margin-inline: calc(var(--emerald-spacing-xs, 8px) * -1);
+    padding-inline: var(--emerald-spacing-xs, 8px);
   }
 
   .ed-nav__group {
