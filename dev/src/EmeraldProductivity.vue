@@ -150,7 +150,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-productivity" data-theme="emerald">
+    <div class="adm-productivity">
       <header class="adm-productivity__header">
         <h1 class="adm-productivity__title">Maintainer workload</h1>
         <p class="adm-productivity__subtitle">Triage rhythm, review latency and who is carrying the queue</p>

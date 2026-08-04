@@ -134,7 +134,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-faq" data-theme="emerald">
+    <div class="adm-faq">
       <header class="adm-faq__hero">
         <div class="adm-faq__intro">
           <span class="adm-faq__eyebrow">Support</span>

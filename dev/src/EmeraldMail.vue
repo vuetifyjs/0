@@ -147,7 +147,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-mail" :data-detail="detail || undefined" data-theme="emerald">
+    <div class="adm-mail" :data-detail="detail || undefined">
       <div class="adm-mail__bar">
         <div class="adm-mail__bar-title">
           <h1>{{ folder?.label }}</h1>

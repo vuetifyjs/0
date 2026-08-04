@@ -146,7 +146,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-kanban" data-theme="emerald">
+    <div class="adm-kanban">
       <header class="adm-kanban__header">
         <div>
           <h1 class="adm-kanban__title">Component board</h1>

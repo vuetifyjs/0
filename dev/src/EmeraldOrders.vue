@@ -101,7 +101,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-orders" data-theme="emerald">
+    <div class="adm-orders">
       <header class="adm-orders__header">
         <h1 class="adm-orders__title">License orders</h1>
         <p class="adm-orders__subtitle">Marketplace fulfilment, key delivery and seat rollout</p>

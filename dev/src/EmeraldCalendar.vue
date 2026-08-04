@@ -150,7 +150,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-calendar" data-theme="emerald">
+    <div class="adm-calendar">
       <section aria-label="Month view" class="adm-calendar__main">
         <!-- Month label and its arrows lead the header; the actions cluster at
              the trailing edge instead of straddling the row. -->

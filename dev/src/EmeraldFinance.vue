@@ -143,7 +143,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-finance" data-theme="emerald">
+    <div class="adm-finance">
       <header class="adm-finance__header">
         <h1 class="adm-finance__title">Sponsorships &amp; runway</h1>
         <p class="adm-finance__subtitle">Who funds the project, and how long the money lasts</p>

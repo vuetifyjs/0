@@ -98,7 +98,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-analytics" data-theme="emerald">
+    <div class="adm-analytics">
       <header class="adm-analytics__header">
         <h1 class="adm-analytics__title">Docs analytics</h1>
         <p class="adm-analytics__subtitle">Reader traffic, search intent and guide completion</p>

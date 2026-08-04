@@ -190,7 +190,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-forms" data-theme="emerald">
+    <div class="adm-forms">
       <header class="adm-forms__head">
         <h1 class="adm-forms__title">Marketplace vendor onboarding</h1>
         <p class="adm-forms__sub">Every field below validates for real via v0's <code>rules</code> and <code>validateOn</code> on <code>EmTextField</code> / <code>EmTextarea</code>, aggregated by v0's <code>Form</code>.</p>

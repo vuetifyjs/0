@@ -125,7 +125,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-plans" data-theme="emerald">
+    <div class="adm-plans">
       <header class="adm-plans__head">
         <div>
           <span class="adm-plans__eyebrow">Plans</span>

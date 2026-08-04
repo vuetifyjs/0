@@ -177,7 +177,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-ecommerce" data-theme="emerald">
+    <div class="adm-ecommerce">
       <header class="adm-ecommerce__header">
         <h1 class="adm-ecommerce__title">Marketplace</h1>
         <p class="adm-ecommerce__subtitle">Third-party kits, themes and blocks sold through the storefront</p>

@@ -147,7 +147,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-payments" data-theme="emerald">
+    <div class="adm-payments">
       <header class="adm-payments__header">
         <h1 class="adm-payments__title">Billing &amp; payouts</h1>
         <p class="adm-payments__subtitle">Subscription collection, invoice state and maintainer disbursement</p>

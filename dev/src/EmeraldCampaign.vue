@@ -80,7 +80,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-campaign" data-theme="emerald">
+    <div class="adm-campaign">
       <header class="adm-campaign__header">
         <h1 class="adm-campaign__title">Release campaigns</h1>
         <p class="adm-campaign__subtitle">How announcement sends convert readers into seats</p>

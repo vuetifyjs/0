@@ -162,7 +162,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-chat" :data-detail="detail || undefined" data-theme="emerald">
+    <div class="adm-chat" :data-detail="detail || undefined">
       <section aria-label="Conversations" class="adm-chat__list-pane">
         <header class="adm-chat__list-head">
           <h1 class="adm-chat__title">Messages</h1>

@@ -173,7 +173,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-ledger" data-theme="emerald">
+    <div class="adm-ledger">
       <header class="adm-ledger__head">
         <div>
           <h1 class="adm-ledger__title">Sponsorship ledger</h1>

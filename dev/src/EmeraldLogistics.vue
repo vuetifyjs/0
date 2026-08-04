@@ -107,7 +107,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-logistics" data-theme="emerald">
+    <div class="adm-logistics">
       <header class="adm-logistics__header">
         <h1 class="adm-logistics__title">Release trains</h1>
         <p class="adm-logistics__subtitle">Package delivery, edge distribution and the road to v1.5</p>

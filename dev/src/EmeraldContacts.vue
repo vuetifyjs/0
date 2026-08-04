@@ -112,7 +112,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-contact" data-theme="emerald">
+    <div class="adm-contact">
       <aside aria-label="Directory scopes" class="adm-contact__side">
         <!-- Rail opens on a summary block; the reference opens on a title. -->
         <div class="adm-contact__summary">
