@@ -13,7 +13,7 @@
   import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   // Types
   import type {
@@ -102,8 +102,10 @@
     })
   }
 
+  const zones = new Map<ID, ReturnType<typeof dnd.zones.register>>()
+
   for (const column of columns) {
-    dnd.zones.register({
+    zones.set(column.id, dnd.zones.register({
       id: column.id,
       el: columnEls.get(column.id)!,
       accept: ['card'],
@@ -111,10 +113,23 @@
       onDrop: (drag, position) => {
         kanban.transfer(drag.id, column.id, position.index ?? column.items.size)
       },
-    })
+    }))
 
     for (const card of column.items.values()) registerCard(card)
   }
+
+  /** Viewport-anchored bar marking the slot the card will land in. */
+  const indicator = toRef(() => {
+    const over = dnd.active.value?.over
+    const mark = over ? zones.get(over)?.indicator.value : null
+    if (!mark) return null
+    const { edge, rect } = mark
+    return {
+      left: `${rect.left}px`,
+      top: `${edge === 'before' ? rect.top : rect.bottom}px`,
+      width: `${rect.width}px`,
+    }
+  })
 
   function onAddCard (column: KanbanColumnTicket<CardTicket, ColumnTicket>) {
     const card = column.items.register({ value: { title: 'New task', priority: 'Medium', assignee: '—', due: 'TBD' } })
@@ -194,6 +209,8 @@
           </div>
         </section>
       </div>
+
+      <span v-if="indicator" aria-hidden="true" class="adm-kanban__indicator" :style="indicator" />
     </div>
   </EmeraldShell>
 </template>
@@ -235,6 +252,10 @@
     flex-direction: column;
     width: 280px;
     min-height: 0;
+    padding: var(--emerald-spacing-s, 12px);
+    background: var(--emerald-neutral-200, #f6f8fa);
+    border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
+    border-radius: var(--emerald-radius-xl, 12px);
   }
 
   .adm-kanban__column-head {
@@ -258,7 +279,8 @@
     height: 20px;
     padding: 0 6px;
     border-radius: 999px;
-    background: var(--emerald-neutral-200, #f6f8fa);
+    background: var(--emerald-background, #fefefe);
+    border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: 11px;
     font-weight: 700;
@@ -267,18 +289,29 @@
   .adm-kanban__cards {
     display: flex;
     flex-direction: column;
-    gap: var(--emerald-spacing-s, 12px);
+    gap: var(--emerald-spacing-xs, 8px);
     flex: 1;
     min-height: 80px;
-    padding: var(--emerald-spacing-xs, 8px);
+    padding: 4px;
     border: 1px dashed transparent;
     border-radius: var(--emerald-radius-m, 8px);
     overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .adm-kanban__cards[data-drop-over] {
     border-color: var(--emerald-primary-500, #26c26d);
     background: var(--emerald-primary-100, #e7fff2);
+  }
+
+  .adm-kanban__indicator {
+    position: fixed;
+    z-index: 2;
+    height: 2px;
+    margin-top: -1px;
+    border-radius: 999px;
+    background: var(--emerald-primary-600, #1fae60);
+    pointer-events: none;
   }
 
   .adm-kanban__card {

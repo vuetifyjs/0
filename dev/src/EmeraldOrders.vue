@@ -10,13 +10,25 @@
     EmButton,
     EmCard,
     EmCardBody,
+    EmCardFooter,
     EmCardHeader,
     EmCardTitle,
+    EmPagination,
+    EmPaginationItem,
+    EmPaginationNext,
+    EmPaginationPrev,
     EmTag,
+    EmTextField,
   } from '@paper/emerald'
+
+  // Framework
+  import { createFilter, createPagination } from '@vuetify/v0'
 
   // Context
   import EmeraldShell from './EmeraldShell.vue'
+
+  // Utilities
+  import { shallowRef, toRef } from 'vue'
 
   const stats = [
     { label: 'Shipped Orders', value: '42', delta: '+18.2%', up: true, icon: 'truck' as const },
@@ -38,13 +50,35 @@
 
   const cohort = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-  const customers: Array<{ name: string, email: string, amount: string, status: 'Paid' | 'Pending' }> = [
+  type Customer = { name: string, email: string, amount: string, status: 'Paid' | 'Pending' }
+
+  const seed: Customer[] = [
     { name: 'Jack Alfredo', email: 'jack@shadcnstudio.com', amount: '$316.00', status: 'Paid' },
     { name: 'Maria Gonzalez', email: 'maria.g@shadcnstudio.com', amount: '$253.40', status: 'Pending' },
     { name: 'John Doe', email: 'john.doe@shadcnstudio.com', amount: '$852.00', status: 'Paid' },
     { name: 'Emily Carter', email: 'emily.carter@shadcnstudio.com', amount: '$889.00', status: 'Pending' },
     { name: 'David Lee', email: 'david.lee@shadcnstudio.com', amount: '$723.16', status: 'Paid' },
+    { name: 'Sara Chen', email: 'sara.chen@shadcnstudio.com', amount: '$412.90', status: 'Paid' },
+    { name: 'Noah Patel', email: 'noah.p@shadcnstudio.com', amount: '$1,204.00', status: 'Pending' },
+    { name: 'Julia Hart', email: 'julia.h@shadcnstudio.com', amount: '$188.25', status: 'Paid' },
   ]
+
+  const customers: Customer[] = Array.from({ length: 25 }, (_, index) => {
+    const base = seed[index % seed.length]!
+    const suffix = Math.floor(index / seed.length)
+
+    return suffix === 0 ? base : { ...base, email: base.email.replace('@', `${suffix + 1}@`) }
+  })
+
+  const search = shallowRef('')
+  const page = shallowRef(1)
+
+  const filter = createFilter({ keys: ['name', 'email'] })
+  const found = filter.apply(search, customers)
+  const filtered = toRef(() => found.items.value)
+
+  const pagination = createPagination({ page, size: () => filtered.value.length, itemsPerPage: 5 })
+  const rows = toRef(() => filtered.value.slice(pagination.pageStart.value, pagination.pageStop.value))
 
   function initials (name: string) {
     return name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase()
@@ -193,6 +227,12 @@
 
       <section aria-label="Customers">
         <EmCard variant="simple">
+          <EmCardHeader class="adm-orders__table-head">
+            <EmCardTitle class="adm-orders__panel-title">Customers</EmCardTitle>
+
+            <EmTextField v-model="search" aria-label="Search customer" class="adm-orders__search" placeholder="Search customer" />
+          </EmCardHeader>
+
           <EmCardBody class="adm-orders__table-wrap">
             <table class="adm-orders__table">
               <thead>
@@ -206,7 +246,7 @@
               </thead>
 
               <tbody>
-                <tr v-for="c in customers" :key="c.email">
+                <tr v-for="c in rows" :key="c.email">
                   <td>
                     <div class="adm-orders__client">
                       <EmAvatar size="sm"><EmAvatarFallback>{{ initials(c.name) }}</EmAvatarFallback></EmAvatar>
@@ -240,6 +280,25 @@
               </tbody>
             </table>
           </EmCardBody>
+
+          <EmCardFooter class="adm-orders__table-foot">
+            <span class="adm-orders__table-count">
+              Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} entries
+            </span>
+
+            <EmPagination v-model="page" :items-per-page="5" :size="filtered.length">
+              <template #default="{ items }">
+                <EmPaginationPrev>‹ Previous</EmPaginationPrev>
+
+                <template v-for="(item, index) in items" :key="index">
+                  <EmPaginationItem v-if="item.type === 'page'" :value="item.value" />
+                  <span v-else class="adm-orders__page-gap">{{ item.value }}</span>
+                </template>
+
+                <EmPaginationNext>Next ›</EmPaginationNext>
+              </template>
+            </EmPagination>
+          </EmCardFooter>
         </EmCard>
       </section>
     </div>
@@ -253,7 +312,10 @@
     gap: var(--emerald-spacing-l, 20px);
   }
 
+  /* EmCard variant="simple" ships 2px padding and its slots add none, so every
+     card needs its own inset — see the EmCard padding gap row. */
   .adm-orders .emerald-card {
+    padding: var(--emerald-spacing-l, 20px);
     background: var(--emerald-background, #fefefe);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
     border-radius: var(--emerald-radius-xl, 12px);
@@ -329,7 +391,6 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--emerald-spacing-m, 16px);
-    align-items: start;
   }
 
   .adm-orders__panel-title {
@@ -391,7 +452,7 @@
   .adm-orders__earning-bar span {
     display: block;
     height: 100%;
-    background: var(--emerald-on-surface, #2b2d2e);
+    background: var(--emerald-primary-600, #1fae60);
   }
 
   .adm-orders__company {
@@ -448,7 +509,7 @@
     width: 140px;
     height: 140px;
     border-radius: 50%;
-    background: conic-gradient(var(--emerald-on-surface, #2b2d2e) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
+    background: conic-gradient(var(--emerald-primary-600, #1fae60) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
   }
 
   .adm-orders__ring::before {
@@ -507,7 +568,49 @@
   }
 
   .adm-orders__cohort-cell[data-on] {
-    background: var(--emerald-on-surface, #2b2d2e);
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  /* .emerald-card__header is flex-direction: column — a title/action row has to
+     opt back into row explicitly. */
+  .adm-orders__table-head {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--emerald-spacing-s, 12px);
+  }
+
+  .adm-orders__search {
+    width: 240px;
+  }
+
+  .adm-orders__table-foot {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--emerald-spacing-s, 12px);
+  }
+
+  .adm-orders__table-count {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-orders__page-gap {
+    padding: 0 var(--emerald-spacing-2xs, 4px);
+    color: var(--emerald-on-surface-variant, #757e85);
+  }
+
+  .adm-orders__table tbody tr {
+    transition: background-color 120ms ease;
+  }
+
+  .adm-orders__table tbody tr:hover {
+    background: var(--emerald-neutral-200, #f6f8fa);
   }
 
   .adm-orders__table-wrap {

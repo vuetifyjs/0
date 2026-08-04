@@ -31,11 +31,14 @@
     EmTextField,
   } from '@paper/emerald'
 
+  // Framework
+  import { createFilter, createPagination } from '@vuetify/v0'
+
   // Context
   import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug']
 
@@ -61,6 +64,14 @@
 
   const perfTab = shallowRef('new')
 
+  const performers: Record<string, { role: string, name: string, metric: string, value: string, delta: string }> = {
+    new: { role: 'Product Manager', name: 'Angel George', metric: 'Physical product', value: '$78,263', delta: '+14.78%' },
+    online: { role: 'Online Sales Lead', name: 'Priya Raman', metric: 'Digital product', value: '$52,910', delta: '+8.32%' },
+    daily: { role: 'Daily Sales Lead', name: 'Marcus Webb', metric: 'In-store product', value: '$12,485', delta: '+3.05%' },
+  }
+
+  const performer = toRef(() => performers[perfTab.value] ?? performers.new!)
+
   const search = shallowRef('')
   const role = shallowRef('all')
   const plan = shallowRef('all')
@@ -69,13 +80,67 @@
 
   type Status = 'active' | 'pending' | 'inactive'
 
-  const members: Array<{ name: string, email: string, role: string, plan: string, billing: string, status: Status }> = [
+  type Member = { name: string, email: string, role: string, plan: string, billing: string, status: Status }
+
+  const seed: Member[] = [
     { name: 'Jack Alfredo', email: 'jack.alfredo@shadcnstudio.com', role: 'Maintainer', plan: 'Enterprise', billing: 'Auto debit', status: 'active' },
     { name: 'Sarah Mitchell', email: 'sarah.mitchell@company.com', role: 'Owner', plan: 'Enterprise', billing: 'Auto debit', status: 'active' },
     { name: 'Robert Chen', email: 'robert.chen@startup.io', role: 'Editor', plan: 'Team', billing: 'Manual - PayPal', status: 'pending' },
     { name: 'Emily Wilson', email: 'emily.wilson@freelance.com', role: 'Author', plan: 'Basic', billing: 'Manual - cash', status: 'inactive' },
     { name: 'David Garcia', email: 'david.garcia@agency.net', role: 'Subscriber', plan: 'Company', billing: 'Auto debit', status: 'active' },
+    { name: 'Nina Alvarez', email: 'nina.alvarez@studio.co', role: 'Editor', plan: 'Team', billing: 'Auto debit', status: 'active' },
+    { name: 'Tom Baker', email: 'tom.baker@labs.dev', role: 'Owner', plan: 'Enterprise', billing: 'Manual - PayPal', status: 'pending' },
+    { name: 'Ava Lindqvist', email: 'ava.l@northmail.se', role: 'Author', plan: 'Basic', billing: 'Manual - cash', status: 'inactive' },
   ]
+
+  const members: Member[] = Array.from({ length: 25 }, (_, index) => {
+    const base = seed[index % seed.length]!
+    const suffix = Math.floor(index / seed.length)
+
+    return suffix === 0 ? base : { ...base, email: base.email.replace('@', `${suffix + 1}@`) }
+  })
+
+  type Option = { value: string, label: string }
+
+  const roles: Option[] = [
+    { value: 'all', label: 'All' },
+    { value: 'Owner', label: 'Owner' },
+    { value: 'Editor', label: 'Editor' },
+    { value: 'Author', label: 'Author' },
+    { value: 'Maintainer', label: 'Maintainer' },
+    { value: 'Subscriber', label: 'Subscriber' },
+  ]
+
+  const plans: Option[] = [
+    { value: 'all', label: 'All' },
+    { value: 'Enterprise', label: 'Enterprise' },
+    { value: 'Team', label: 'Team' },
+    { value: 'Basic', label: 'Basic' },
+    { value: 'Company', label: 'Company' },
+  ]
+
+  const states: Option[] = [
+    { value: 'all', label: 'All' },
+    { value: 'active', label: 'Active' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'inactive', label: 'Inactive' },
+  ]
+
+  function label (list: Option[], value: string) {
+    return list.find(option => option.value === value)?.label ?? value
+  }
+
+  const filter = createFilter({ keys: ['name', 'email', 'role'] })
+  const found = filter.apply(search, members)
+
+  const filtered = toRef(() => found.items.value.filter(member =>
+    (role.value === 'all' || member.role === role.value)
+    && (plan.value === 'all' || member.plan === plan.value)
+    && (status.value === 'all' || member.status === status.value),
+  ))
+
+  const pagination = createPagination({ page, size: () => filtered.value.length, itemsPerPage: 5 })
+  const rows = toRef(() => filtered.value.slice(pagination.pageStart.value, pagination.pageStop.value))
 
   function initials (name: string) {
     return name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase()
@@ -223,11 +288,13 @@
 
           <EmCardBody class="adm-productivity__perf">
             <div class="adm-productivity__perf-row">
-              <EmAvatar size="sm"><EmAvatarFallback>AG</EmAvatarFallback></EmAvatar>
+              <span class="adm-productivity__perf-person">
+                <EmAvatar size="sm"><EmAvatarFallback>AG</EmAvatarFallback></EmAvatar>
 
-              <span>
-                <strong>Angel George</strong>
-                <span>Product Manager</span>
+                <span class="adm-productivity__perf-text">
+                  <span>{{ performer.role }}</span>
+                  <strong>{{ performer.name }}</strong>
+                </span>
               </span>
             </div>
 
@@ -237,12 +304,12 @@
             </div>
 
             <div class="adm-productivity__perf-row">
-              <span>
-                <strong>$78,263</strong>
-                <span>Physical product</span>
+              <span class="adm-productivity__perf-text">
+                <span>{{ performer.metric }}</span>
+                <strong>{{ performer.value }}</strong>
               </span>
 
-              <EmTag variant="success">+14.78%</EmTag>
+              <EmTag variant="success">{{ performer.delta }}</EmTag>
             </div>
           </EmCardBody>
         </EmCard>
@@ -254,37 +321,49 @@
             <EmCardTitle class="adm-productivity__panel-title">Team members</EmCardTitle>
 
             <div class="adm-productivity__toolbar-filters">
-              <EmSelect v-model="role" class="adm-productivity__filter">
-                <EmSelectActivator><EmSelectValue placeholder="Select Role" /></EmSelectActivator>
+              <label class="adm-productivity__field">
+                <span class="adm-productivity__field-label">Select Role</span>
 
-                <EmSelectContent>
-                  <EmSelectItem value="all">All</EmSelectItem>
-                  <EmSelectItem value="owner">Owner</EmSelectItem>
-                  <EmSelectItem value="editor">Editor</EmSelectItem>
-                </EmSelectContent>
-              </EmSelect>
+                <EmSelect v-model="role">
+                  <EmSelectActivator>
+                    <EmSelectValue v-slot="{ selectedValue }">{{ label(roles, String(selectedValue)) }}</EmSelectValue>
+                  </EmSelectActivator>
 
-              <EmSelect v-model="plan" class="adm-productivity__filter">
-                <EmSelectActivator><EmSelectValue placeholder="Select Plan" /></EmSelectActivator>
+                  <EmSelectContent>
+                    <EmSelectItem v-for="option in roles" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
+                  </EmSelectContent>
+                </EmSelect>
+              </label>
 
-                <EmSelectContent>
-                  <EmSelectItem value="all">All</EmSelectItem>
-                  <EmSelectItem value="enterprise">Enterprise</EmSelectItem>
-                  <EmSelectItem value="team">Team</EmSelectItem>
-                </EmSelectContent>
-              </EmSelect>
+              <label class="adm-productivity__field">
+                <span class="adm-productivity__field-label">Select Plan</span>
 
-              <EmSelect v-model="status" class="adm-productivity__filter">
-                <EmSelectActivator><EmSelectValue placeholder="Select Status" /></EmSelectActivator>
+                <EmSelect v-model="plan">
+                  <EmSelectActivator>
+                    <EmSelectValue v-slot="{ selectedValue }">{{ label(plans, String(selectedValue)) }}</EmSelectValue>
+                  </EmSelectActivator>
 
-                <EmSelectContent>
-                  <EmSelectItem value="all">All</EmSelectItem>
-                  <EmSelectItem value="active">Active</EmSelectItem>
-                  <EmSelectItem value="pending">Pending</EmSelectItem>
-                </EmSelectContent>
-              </EmSelect>
+                  <EmSelectContent>
+                    <EmSelectItem v-for="option in plans" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
+                  </EmSelectContent>
+                </EmSelect>
+              </label>
 
-              <EmTextField v-model="search" aria-label="Search team" placeholder="Search team" />
+              <label class="adm-productivity__field">
+                <span class="adm-productivity__field-label">Select Status</span>
+
+                <EmSelect v-model="status">
+                  <EmSelectActivator>
+                    <EmSelectValue v-slot="{ selectedValue }">{{ label(states, String(selectedValue)) }}</EmSelectValue>
+                  </EmSelectActivator>
+
+                  <EmSelectContent>
+                    <EmSelectItem v-for="option in states" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
+                  </EmSelectContent>
+                </EmSelect>
+              </label>
+
+              <EmTextField v-model="search" aria-label="Search team" class="adm-productivity__search" placeholder="Search team" />
             </div>
           </EmCardHeader>
 
@@ -303,7 +382,7 @@
               </thead>
 
               <tbody>
-                <tr v-for="m in members" :key="m.email">
+                <tr v-for="m in rows" :key="m.email">
                   <td><EmCheckbox :aria-label="`Select ${m.name}`" /></td>
 
                   <td>
@@ -360,12 +439,21 @@
           </EmCardBody>
 
           <EmCardFooter class="adm-productivity__table-foot">
-            <span class="adm-productivity__table-count">Showing 1 to 5 of 25 entries</span>
+            <span class="adm-productivity__table-count">
+              Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} entries
+            </span>
 
-            <EmPagination v-model="page" :size="5">
-              <EmPaginationPrev>‹ Previous</EmPaginationPrev>
-              <EmPaginationItem v-for="n in 5" :key="n" :value="n" />
-              <EmPaginationNext>Next ›</EmPaginationNext>
+            <EmPagination v-model="page" :items-per-page="5" :size="filtered.length">
+              <template #default="{ items }">
+                <EmPaginationPrev>‹ Previous</EmPaginationPrev>
+
+                <template v-for="(item, index) in items" :key="index">
+                  <EmPaginationItem v-if="item.type === 'page'" :value="item.value" />
+                  <span v-else class="adm-productivity__page-gap">{{ item.value }}</span>
+                </template>
+
+                <EmPaginationNext>Next ›</EmPaginationNext>
+              </template>
             </EmPagination>
           </EmCardFooter>
         </EmCard>
@@ -381,7 +469,10 @@
     gap: var(--emerald-spacing-l, 20px);
   }
 
+  /* EmCard variant="simple" ships 2px padding and its slots add none, so every
+     card needs its own inset — see the EmCard padding gap row. */
   .adm-productivity .emerald-card {
+    padding: var(--emerald-spacing-l, 20px);
     background: var(--emerald-background, #fefefe);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
     border-radius: var(--emerald-radius-xl, 12px);
@@ -411,7 +502,6 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--emerald-spacing-m, 16px);
-    align-items: start;
   }
 
   .adm-productivity__panel-title {
@@ -425,9 +515,12 @@
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
+  /* .emerald-card__header is flex-direction: column — a title/action row has to
+     opt back into row explicitly. */
   .adm-productivity__panel-head {
     display: flex;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
     justify-content: space-between;
     gap: var(--emerald-spacing-s, 12px);
   }
@@ -474,19 +567,19 @@
   }
 
   .adm-productivity__gantt-bar[data-tone='secondary'] {
-    background: var(--emerald-secondary-500, #00b4dc);
+    background: var(--emerald-primary-300, #baedd0);
   }
 
   .adm-productivity__gantt-bar[data-tone='info'] {
-    background: var(--emerald-neutral-800, #636a70);
+    background: var(--emerald-primary-500, #6fb38c);
   }
 
   .adm-productivity__gantt-bar[data-tone='dark'] {
-    background: var(--emerald-on-surface, #2b2d2e);
+    background: var(--emerald-primary-800, #01603a);
   }
 
   .adm-productivity__gantt-bar[data-tone='danger'] {
-    background: var(--emerald-warning-500, #f5a623);
+    background: var(--emerald-primary-700, #027d4c);
   }
 
   .adm-productivity__projects {
@@ -535,10 +628,13 @@
     height: 140px;
   }
 
+  /* Percentage bar heights need a definite parent height; align-items: flex-end
+     on the track leaves the column auto-sized, collapsing every bar. */
   .adm-productivity__chart-col {
     flex: 1;
     display: flex;
     align-items: flex-end;
+    height: 100%;
   }
 
   .adm-productivity__chart-bar {
@@ -621,44 +717,91 @@
 
   .adm-productivity__perf-row {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     gap: var(--emerald-spacing-s, 12px);
+    padding: var(--emerald-spacing-s, 12px);
+    border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
+    border-radius: var(--emerald-radius-m, 8px);
   }
 
-  .adm-productivity__perf-row > span:first-child {
+  .adm-productivity__perf-text {
     display: flex;
     flex-direction: column;
+    min-width: 0;
     font-size: var(--emerald-text-b3-size, 12px);
     color: var(--emerald-on-surface-variant, #757e85);
   }
 
-  .adm-productivity__perf-row > span:first-child strong {
+  .adm-productivity__perf-text strong {
     color: var(--emerald-on-surface, #2b2d2e);
     font-size: var(--emerald-text-b2-size, 14px);
   }
 
+  .adm-productivity__perf-person {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--emerald-spacing-s, 12px);
+  }
+
   .adm-productivity__toolbar {
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--emerald-spacing-s, 12px);
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--emerald-spacing-m, 16px);
+  }
+
+  .adm-productivity__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-2xs, 4px);
+    min-width: 0;
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-productivity__field-label {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-weight: 600;
+  }
+
+  .adm-productivity__search {
+    grid-column: 1 / -1;
+  }
+
+  .adm-productivity__page-gap {
+    padding: 0 var(--emerald-spacing-2xs, 4px);
+    color: var(--emerald-on-surface-variant, #757e85);
   }
 
   .adm-productivity__toolbar-filters {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--emerald-spacing-s, 12px);
-  }
-
-  .adm-productivity__filter {
-    width: 140px;
   }
 
   .adm-productivity__table-wrap {
     overflow-x: auto;
+    margin-inline: calc(-1 * var(--emerald-spacing-l, 20px));
+  }
+
+  .adm-productivity__table th:first-child,
+  .adm-productivity__table td:first-child {
+    padding-left: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-productivity__table th:last-child,
+  .adm-productivity__table td:last-child {
+    padding-right: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-productivity__table tbody tr {
+    transition: background-color 120ms ease;
+  }
+
+  .adm-productivity__table tbody tr:hover {
+    background: var(--emerald-neutral-200, #f6f8fa);
   }
 
   .adm-productivity__table {
@@ -724,6 +867,12 @@
   @media (max-width: 1200px) {
     .adm-productivity__row1,
     .adm-productivity__row2 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .adm-productivity__toolbar-filters {
       grid-template-columns: 1fr;
     }
   }

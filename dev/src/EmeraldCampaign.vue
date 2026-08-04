@@ -19,6 +19,9 @@
   // Context
   import EmeraldShell from './EmeraldShell.vue'
 
+  // Utilities
+  import { ref, toRef } from 'vue'
+
   const kpis = [
     { label: 'Total Sales', sub: 'Last 6 months', value: '$13.4k', delta: '+38%', up: true, icon: 'mail' as const },
     { label: 'Total Orders', sub: 'Last 4 months', value: '155K', delta: '+22%', up: true, icon: 'cart' as const },
@@ -46,6 +49,27 @@
   ]
 
   const earning = [40, 60, 55, 65, 45, 75, 50]
+  const earningMax = Math.max(...earning)
+
+  const plans = [
+    { label: 'Branding', price: '$60', amount: 60 },
+    { label: 'Marketing', price: '$120', amount: 120 },
+    { label: 'Web Development', price: '$250', amount: 250 },
+    { label: 'App Development', price: '$320', amount: 320 },
+  ]
+
+  const picked = ref<string[]>(['Marketing'])
+
+  const total = toRef(() => plans
+    .filter(option => picked.value.includes(option.label))
+    .reduce((sum, option) => sum + option.amount, 32),
+  )
+
+  function onPick (label: string) {
+    picked.value = picked.value.includes(label)
+      ? picked.value.filter(item => item !== label)
+      : [...picked.value, label]
+  }
 
   const condition = [
     { label: 'Excellent', sub: '12% increase', pct: 55, delta: '+25%', tone: 'primary' as const },
@@ -203,7 +227,13 @@
             <span class="adm-campaign__kpi-value adm-campaign__kpi-value--lg">87% <em class="adm-campaign__delta" data-up>+38%</em></span>
 
             <div aria-label="Total earning trend" class="adm-campaign__bars" role="img">
-              <span v-for="(v, index) in earning" :key="index" class="adm-campaign__bar" :style="{ height: v + '%' }" />
+              <span
+                v-for="(v, index) in earning"
+                :key="index"
+                class="adm-campaign__bar"
+                :data-peak="v === earningMax || undefined"
+                :style="{ height: v + '%' }"
+              />
             </div>
 
             <div class="adm-campaign__earning-rows">
@@ -219,9 +249,24 @@
             <p class="adm-campaign__panel-sub">A range of items and features used without them</p>
           </EmCardHeader>
 
-          <EmCardBody>
+          <EmCardBody class="adm-campaign__plan">
+            <p class="adm-campaign__plan-heading">Choose a plan to get started</p>
+
+            <ul class="adm-campaign__plans">
+              <li v-for="option in plans" :key="option.label" :data-selected="picked.includes(option.label) || undefined">
+                <EmCheckbox
+                  :aria-label="option.label"
+                  :model-value="picked.includes(option.label)"
+                  @update:model-value="onPick(option.label)"
+                />
+
+                <span class="adm-campaign__plan-label">{{ option.label }}</span>
+                <EmTag>{{ option.price }}</EmTag>
+              </li>
+            </ul>
+
             <span class="adm-campaign__report-label">Taxes <strong class="adm-campaign__amount">$32</strong></span>
-            <span class="adm-campaign__report-label">Total amount <strong class="adm-campaign__amount">$152</strong></span>
+            <span class="adm-campaign__report-label">Total amount <strong class="adm-campaign__amount">${{ total }}</strong></span>
             <EmButton class="adm-campaign__cta" variant="primary">Pay now</EmButton>
           </EmCardBody>
         </EmCard>
@@ -234,7 +279,9 @@
           <EmCardBody>
             <ul class="adm-campaign__condition">
               <li v-for="c in condition" :key="c.label">
-                <span aria-hidden="true" class="adm-campaign__ring" :data-tone="c.tone" :style="{ '--pct': c.pct }">{{ c.pct }}%</span>
+                <span aria-hidden="true" class="adm-campaign__ring" :data-tone="c.tone" :style="{ '--pct': c.pct }">
+                  <span class="adm-campaign__ring-value">{{ c.pct }}%</span>
+                </span>
 
                 <span class="adm-campaign__condition-text">
                   <strong>{{ c.label }}</strong>
@@ -309,7 +356,10 @@
     gap: var(--emerald-spacing-l, 20px);
   }
 
+  /* EmCard variant="simple" ships 2px padding and its slots add none, so every
+     card needs its own inset — see the EmCard padding gap row. */
   .adm-campaign .emerald-card {
+    padding: var(--emerald-spacing-l, 20px);
     background: var(--emerald-background, #fefefe);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
     border-radius: var(--emerald-radius-xl, 12px);
@@ -418,7 +468,6 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--emerald-spacing-m, 16px);
-    align-items: start;
   }
 
   .adm-campaign__panel-title {
@@ -515,7 +564,61 @@
     flex: 1;
     min-height: 6px;
     border-radius: 2px 2px 0 0;
-    background: var(--emerald-secondary-500, #00b4dc);
+    background: var(--emerald-primary-300, #baedd0);
+  }
+
+  .adm-campaign__bar[data-peak] {
+    background: var(--emerald-primary-600, #1fae60);
+  }
+
+  .adm-campaign__plan {
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-s, 12px);
+  }
+
+  .adm-campaign__plan-heading {
+    margin: 0;
+    font-weight: 700;
+    font-size: var(--emerald-text-b2-size, 14px);
+  }
+
+  .adm-campaign__plans {
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-xs, 8px);
+    margin: 0 0 var(--emerald-spacing-xs, 8px);
+    padding: 0;
+    list-style: none;
+  }
+
+  .adm-campaign__plans li {
+    display: flex;
+    align-items: center;
+    gap: var(--emerald-spacing-s, 12px);
+    padding: var(--emerald-spacing-xs, 8px) var(--emerald-spacing-s, 12px);
+    border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
+    border-radius: var(--emerald-radius-m, 8px);
+    transition: border-color 120ms ease, background-color 120ms ease;
+  }
+
+  .adm-campaign__plans li:hover {
+    border-color: var(--emerald-primary-500, #6fb38c);
+  }
+
+  .adm-campaign__plans li[data-selected] {
+    border-color: var(--emerald-primary-600, #1fae60);
+    background: var(--emerald-primary-100, #e7fff2);
+  }
+
+  .adm-campaign__plan-label {
+    flex: 1;
+    font-size: var(--emerald-text-b2-size, 14px);
+    font-weight: 600;
+  }
+
+  .adm-campaign__cta {
+    margin-top: auto;
   }
 
   .adm-campaign__earning-rows {
@@ -568,6 +671,12 @@
     background: conic-gradient(var(--emerald-primary-600, #1fae60) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
   }
 
+  /* The ::before disc paints over bare text, so the value needs its own layer. */
+  .adm-campaign__ring-value {
+    position: relative;
+    z-index: 1;
+  }
+
   .adm-campaign__ring::before {
     content: '';
     position: absolute;
@@ -578,11 +687,11 @@
   }
 
   .adm-campaign__ring[data-tone='secondary'] {
-    background: conic-gradient(var(--emerald-secondary-500, #00b4dc) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
+    background: conic-gradient(var(--emerald-primary-500, #6fb38c) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
   }
 
   .adm-campaign__ring[data-tone='warning'] {
-    background: conic-gradient(var(--emerald-warning-500, #f5a623) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
+    background: conic-gradient(var(--emerald-primary-300, #baedd0) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
   }
 
   .adm-campaign__ring[data-tone='danger'] {

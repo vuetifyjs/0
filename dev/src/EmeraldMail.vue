@@ -21,19 +21,20 @@
   // Utilities
   import { shallowRef, toRef } from 'vue'
 
+  type FolderId = 'inbox' | 'drafts' | 'sent' | 'spam' | 'trash' | 'archive'
+
   interface Folder {
-    id: string
+    id: FolderId
     label: string
-    count: number
   }
 
   const folders: Folder[] = [
-    { id: 'inbox', label: 'Inbox', count: 10 },
-    { id: 'drafts', label: 'Drafts', count: 1 },
-    { id: 'sent', label: 'Sent', count: 2 },
-    { id: 'spam', label: 'Spam', count: 2 },
-    { id: 'trash', label: 'Trash', count: 1 },
-    { id: 'archive', label: 'Archive', count: 2 },
+    { id: 'inbox', label: 'Inbox' },
+    { id: 'drafts', label: 'Drafts' },
+    { id: 'sent', label: 'Sent' },
+    { id: 'spam', label: 'Spam' },
+    { id: 'trash', label: 'Trash' },
+    { id: 'archive', label: 'Archive' },
   ]
 
   interface MailLabel {
@@ -53,6 +54,7 @@
   interface Message {
     [key: string]: unknown
     id: string
+    folder: FolderId
     sender: string
     initials: string
     subject: string
@@ -63,13 +65,25 @@
   }
 
   const messages: Message[] = [
-    { id: 'm1', sender: 'Sarah Johnson', initials: 'SJ', subject: 'Q4 Marketing Campaign Review', preview: 'Thanks for the feedback — I\'ll…', body: 'Thanks for the feedback — I\'ll incorporate your suggestions into the Q1 plan.\n\nLet\'s sync on Monday to finalize the deck.\n\nBest,\nSarah', time: '2 hours ago', unread: true },
-    { id: 'm2', sender: 'Michael Chen', initials: 'MC', subject: 'Project Timeline Update', preview: 'Hello, just a quick update on the…', body: 'Hello, just a quick update on the timeline — we are on track for the Friday review.', time: '5 hours ago', unread: true },
-    { id: 'm3', sender: 'Emma Wilson', initials: 'EW', subject: 'Re: Team Lunch Tomorrow', preview: 'Perfect — see you at 12:30 at the…', body: 'Perfect — see you at 12:30 at the usual spot.', time: 'Yesterday', unread: false },
-    { id: 'm4', sender: 'David Park', initials: 'DP', subject: 'Code Review Request', preview: 'Hi, could you review my PR for the…', body: 'Hi, could you review my PR for the auth module when you get a chance?', time: 'Yesterday', unread: true },
-    { id: 'm5', sender: 'Jessica Martinez', initials: 'JM', subject: 'Budget Approval Request', preview: 'Hi, I need approval for the additional…', body: 'Hi, I need approval for the additional design spend this quarter.', time: 'Aug 1', unread: false },
-    { id: 'm6', sender: 'Rachel Green', initials: 'RG', subject: 'Team Building Event', preview: 'Save the date for our offsite next…', body: 'Save the date for our offsite next month — details to follow.', time: 'Jul 28', unread: false },
+    { id: 'm1', folder: 'inbox', sender: 'Sarah Johnson', initials: 'SJ', subject: 'Q4 Marketing Campaign Review', preview: 'Thanks for the feedback — I\'ll…', body: 'Thanks for the feedback — I\'ll incorporate your suggestions into the Q1 plan.\n\nLet\'s sync on Monday to finalize the deck.\n\nBest,\nSarah', time: '2 hours ago', unread: true },
+    { id: 'm2', folder: 'inbox', sender: 'Michael Chen', initials: 'MC', subject: 'Project Timeline Update', preview: 'Hello, just a quick update on the…', body: 'Hello, just a quick update on the timeline — we are on track for the Friday review.', time: '5 hours ago', unread: true },
+    { id: 'm3', folder: 'inbox', sender: 'Emma Wilson', initials: 'EW', subject: 'Re: Team Lunch Tomorrow', preview: 'Perfect — see you at 12:30 at the…', body: 'Perfect — see you at 12:30 at the usual spot.', time: 'Yesterday', unread: false },
+    { id: 'm4', folder: 'inbox', sender: 'David Park', initials: 'DP', subject: 'Code Review Request', preview: 'Hi, could you review my PR for the…', body: 'Hi, could you review my PR for the auth module when you get a chance?', time: 'Yesterday', unread: true },
+    { id: 'm5', folder: 'inbox', sender: 'Jessica Martinez', initials: 'JM', subject: 'Budget Approval Request', preview: 'Hi, I need approval for the additional…', body: 'Hi, I need approval for the additional design spend this quarter.', time: 'Aug 1', unread: false },
+    { id: 'm6', folder: 'inbox', sender: 'Rachel Green', initials: 'RG', subject: 'Team Building Event', preview: 'Save the date for our offsite next…', body: 'Save the date for our offsite next month — details to follow.', time: 'Jul 28', unread: false },
+    { id: 'd1', folder: 'drafts', sender: 'Draft', initials: 'DR', subject: 'Re: Hiring plan for Q1', preview: 'Two more engineers on the platform…', body: 'Two more engineers on the platform squad should cover the migration.', time: 'Aug 2', unread: false },
+    { id: 's1', folder: 'sent', sender: 'To: Michael Chen', initials: 'MC', subject: 'Re: Project Timeline Update', preview: 'Thanks — Friday works on our side.', body: 'Thanks — Friday works on our side. I will circulate the agenda Thursday.', time: 'Aug 2', unread: false },
+    { id: 's2', folder: 'sent', sender: 'To: Leadership', initials: 'LD', subject: 'August board pre-read', preview: 'Attaching the pre-read ahead of…', body: 'Attaching the pre-read ahead of next week — highlights are on slide four.', time: 'Aug 1', unread: false },
+    { id: 'x1', folder: 'spam', sender: 'Prize Center', initials: 'PC', subject: 'You have been selected!', preview: 'Claim your reward within 24 hours…', body: 'Claim your reward within 24 hours by confirming your details.', time: 'Aug 3', unread: true },
+    { id: 'x2', folder: 'spam', sender: 'Crypto Daily', initials: 'CD', subject: 'Triple your portfolio', preview: 'Our signals have a 99% accuracy…', body: 'Our signals have a 99% accuracy rate. Subscribe today.', time: 'Jul 30', unread: true },
+    { id: 't1', folder: 'trash', sender: 'Calendar', initials: 'CA', subject: 'Invitation: Sprint retro', preview: 'This event was cancelled by the…', body: 'This event was cancelled by the organiser.', time: 'Jul 29', unread: false },
+    { id: 'a1', folder: 'archive', sender: 'Lisa Nguyen', initials: 'LN', subject: 'Offsite survey results', preview: 'Final numbers are in — 82% prefer…', body: 'Final numbers are in — 82% prefer the two-day format.', time: 'Jul 24', unread: false },
+    { id: 'a2', folder: 'archive', sender: 'Finance', initials: 'FI', subject: 'Q2 expense summary', preview: 'Your Q2 expenses have been approved…', body: 'Your Q2 expenses have been approved and processed.', time: 'Jul 18', unread: false },
   ]
+
+  function count (id: FolderId) {
+    return messages.filter(message => message.folder === id).length
+  }
 
   const folderNav = createSingle({ mandatory: 'force' })
   for (const folder of folders) folderNav.register({ id: folder.id, value: folder })
@@ -81,9 +95,36 @@
 
   const search = shallowRef('')
   const filter = createFilter<Message>({ keys: ['sender', 'subject'], mode: 'some' })
-  const filtered = toRef(() => filter.apply(search.value, messages).items.value)
 
-  const selected = toRef(() => messageNav.selectedValue.value as Message | undefined)
+  const scoped = toRef(() => messages.filter(message => folderNav.selected(message.folder)))
+  const filtered = toRef(() => filter.apply(search.value, scoped.value).items.value)
+
+  const selected = toRef(() => {
+    const message = messageNav.selectedValue.value as Message | undefined
+    return message && folderNav.selected(message.folder) ? message : undefined
+  })
+
+  /** Mobile master/detail — desktop shows both panes regardless. */
+  const detail = shallowRef(false)
+
+  function onFolder (id: FolderId) {
+    folderNav.select(id)
+    search.value = ''
+    detail.value = false
+    const first = messages.find(message => message.folder === id)
+    if (first) messageNav.select(first.id)
+  }
+
+  function onMessage (id: string) {
+    messageNav.select(id)
+    detail.value = true
+  }
+
+  const reply = shallowRef('')
+
+  function onReply () {
+    reply.value = ''
+  }
 
   const composeOpen = shallowRef(false)
   const composeTo = shallowRef('')
@@ -100,7 +141,7 @@
 
 <template>
   <EmeraldShell>
-    <div class="adm-mail" data-theme="emerald">
+    <div class="adm-mail" :data-detail="detail || undefined" data-theme="emerald">
       <aside aria-label="Mailboxes" class="adm-mail__folders">
         <EmButton class="adm-mail__compose" variant="primary" @click="composeOpen = true">
           <svg
@@ -125,10 +166,10 @@
               class="adm-mail__folder"
               :data-active="folderNav.selected(folder.id) || undefined"
               type="button"
-              @click="folderNav.select(folder.id)"
+              @click="onFolder(folder.id)"
             >
               <span>{{ folder.label }}</span>
-              <em>{{ folder.count }}</em>
+              <em>{{ count(folder.id) }}</em>
             </button>
           </li>
         </ul>
@@ -146,7 +187,8 @@
 
       <section aria-label="Messages" class="adm-mail__list-pane">
         <header class="adm-mail__list-head">
-          <h1 class="adm-mail__title">{{ folders.find(f => folderNav.selected(f.id))?.label }}</h1>
+          <h1 class="adm-mail__title">{{ folders.find(folder => folderNav.selected(folder.id))?.label }}</h1>
+          <span class="adm-mail__count">{{ filtered.length }} of {{ scoped.length }}</span>
         </header>
 
         <EmTextField v-model="search" aria-label="Search mail" class="adm-mail__search" placeholder="Search mail" />
@@ -157,7 +199,7 @@
               class="adm-mail__message"
               :data-active="messageNav.selected(message.id) || undefined"
               type="button"
-              @click="messageNav.select(message.id)"
+              @click="onMessage(message.id)"
             >
               <EmAvatar size="sm"><EmAvatarFallback>{{ message.initials }}</EmAvatarFallback></EmAvatar>
 
@@ -181,6 +223,21 @@
 
       <section aria-label="Reading pane" class="adm-mail__reading">
         <template v-if="selected">
+          <EmButton class="adm-mail__back" variant="tertiary" @click="detail = false">
+            <svg
+              aria-hidden="true"
+              fill="none"
+              height="16"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="16"
+            ><path d="M15 18l-6-6 6-6" /></svg>
+            Back
+          </EmButton>
+
           <header class="adm-mail__reading-head">
             <div>
               <h2>{{ selected.subject }}</h2>
@@ -197,8 +254,8 @@
           <p class="adm-mail__reading-body">{{ selected.body }}</p>
 
           <div class="adm-mail__reply">
-            <EmTextarea aria-label="Reply" :placeholder="`Reply to ${selected.sender}…`" :rows="3" />
-            <EmButton variant="primary">Send</EmButton>
+            <EmTextarea v-model="reply" aria-label="Reply" :placeholder="`Reply to ${selected.sender}…`" :rows="3" />
+            <EmButton :disabled="!reply.trim()" variant="primary" @click="onReply">Send</EmButton>
           </div>
         </template>
 
@@ -298,6 +355,12 @@
     background: var(--emerald-neutral-200, #f6f8fa);
   }
 
+  .adm-mail__folder:focus-visible,
+  .adm-mail__message:focus-visible {
+    outline: var(--emerald-stroke-m, 2px) solid var(--emerald-primary-600, #1fae60);
+    outline-offset: -2px;
+  }
+
   .adm-mail__folder[data-active] {
     background: var(--emerald-primary-100, #e7fff2);
     color: var(--emerald-primary-700, #027d4c);
@@ -359,6 +422,16 @@
     margin: 0;
     font-size: var(--emerald-text-h4-size, 20px);
     font-weight: 700;
+  }
+
+  .adm-mail__count {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-mail__reading > .adm-mail__back {
+    display: none;
+    align-self: flex-start;
   }
 
   .adm-mail__search {
@@ -518,6 +591,8 @@
     justify-content: space-between;
   }
 
+  /* Below the three-pane breakpoint the reading pane becomes a detail view the
+     message list pushes onto, so a tap always leads somewhere. */
   @media (max-width: 1100px) {
     .adm-mail {
       grid-template-columns: 180px minmax(0, 1fr);
@@ -527,15 +602,60 @@
     .adm-mail__reading {
       display: none;
     }
+
+    .adm-mail[data-detail] {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .adm-mail[data-detail] .adm-mail__folders,
+    .adm-mail[data-detail] .adm-mail__list-pane {
+      display: none;
+    }
+
+    .adm-mail[data-detail] .adm-mail__reading {
+      display: flex;
+      min-height: 60vh;
+    }
+
+    .adm-mail[data-detail] .adm-mail__reading > .adm-mail__back {
+      display: inline-flex;
+    }
   }
 
   @media (max-width: 720px) {
     .adm-mail {
       grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr);
     }
 
     .adm-mail__folders {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--emerald-spacing-xs, 8px);
+      padding: var(--emerald-spacing-s, 12px);
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+    }
+
+    .adm-mail__folders .adm-mail__nav-label,
+    .adm-mail__list--labels {
       display: none;
+    }
+
+    .adm-mail__compose {
+      flex: none;
+      width: auto;
+    }
+
+    .adm-mail__list {
+      flex-direction: row;
+      gap: 4px;
+    }
+
+    .adm-mail__folder {
+      width: auto;
+      gap: 6px;
+      white-space: nowrap;
     }
   }
 </style>

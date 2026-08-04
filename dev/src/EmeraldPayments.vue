@@ -27,11 +27,14 @@
     EmTextField,
   } from '@paper/emerald'
 
+  // Framework
+  import { createFilter, createPagination } from '@vuetify/v0'
+
   // Context
   import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   const stats = [
     { label: 'Income this month', value: '$5,280', delta: '+12.2%', up: true, trend: [10, 18, 14, 22, 16, 26] },
@@ -73,13 +76,65 @@
 
   type Status = 'paid' | 'pending' | 'sent'
 
-  const invoices: Array<{ id: string, name: string, role: string, total: string, date: string, balance: string, balanceNeg: boolean, status: Status }> = [
-    { id: '#5099', name: 'Jack Alfredo', role: 'UI/UX designer', total: '$3,120.00', date: '02 Apr 2025', balance: 'Paid', balanceNeg: false, status: 'sent' },
-    { id: '#5008', name: 'Maria Gonzalez', role: 'Frontend developer', total: '$1,450.00', date: '11 May 2025', balance: 'Paid', balanceNeg: false, status: 'paid' },
-    { id: '#5101', name: 'John Doe', role: 'Graphic designer', total: '$1,200.00', date: '25 Jun 2025', balance: 'Paid', balanceNeg: false, status: 'paid' },
-    { id: '#4586', name: 'Emily Carter', role: 'UI/UX designer', total: '$2,680.00', date: '04 Jul 2025', balance: '-$78.00', balanceNeg: true, status: 'pending' },
-    { id: '#4360', name: 'David Lee', role: 'Backend developer', total: '$3,120.00', date: '06 Aug 2025', balance: 'Paid', balanceNeg: false, status: 'sent' },
+  type Invoice = { id: string, name: string, role: string, total: string, date: string, balance: string, balanceNeg: boolean, status: Status }
+
+  const people = [
+    { name: 'Jack Alfredo', role: 'UI/UX designer' },
+    { name: 'Maria Gonzalez', role: 'Frontend developer' },
+    { name: 'John Doe', role: 'Graphic designer' },
+    { name: 'Emily Carter', role: 'UI/UX designer' },
+    { name: 'David Lee', role: 'Backend developer' },
+    { name: 'Sara Chen', role: 'Product manager' },
+    { name: 'Noah Patel', role: 'Backend developer' },
+    { name: 'Julia Hart', role: 'Motion designer' },
   ]
+
+  const issued = ['Apr', 'May', 'Jun', 'Jul', 'Aug']
+  const states: Status[] = ['sent', 'paid', 'paid', 'pending', 'sent']
+
+  const invoices: Invoice[] = Array.from({ length: 25 }, (_, index) => {
+    const person = people[index % people.length]!
+    const state = states[index % states.length]!
+    const negative = state === 'pending'
+
+    return {
+      id: `#${5099 - index * 37}`,
+      name: person.name,
+      role: person.role,
+      total: `$${(1200 + index * 143).toLocaleString('en-US')}.00`,
+      date: `${String((index % 27) + 2).padStart(2, '0')} ${issued[index % issued.length]} 2025`,
+      balance: negative ? `-$${(40 + index * 7)}.00` : 'Paid',
+      balanceNeg: negative,
+      status: state,
+    }
+  })
+
+  const options = [
+    { value: 'all', label: 'All' },
+    { value: 'paid', label: 'Paid' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'sent', label: 'Sent' },
+  ]
+
+  function label (value: string) {
+    return options.find(option => option.value === value)?.label ?? value
+  }
+
+  const filter = createFilter({ keys: ['id', 'name', 'role'] })
+  const found = filter.apply(search, invoices)
+
+  const filtered = toRef(() => status.value === 'all'
+    ? found.items.value
+    : found.items.value.filter(row => row.status === status.value),
+  )
+
+  const pagination = createPagination({
+    page,
+    size: () => filtered.value.length,
+    itemsPerPage: () => Number(show.value),
+  })
+
+  const rows = toRef(() => filtered.value.slice(pagination.pageStart.value, pagination.pageStop.value))
 
   function initials (name: string) {
     return name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase()
@@ -133,7 +188,7 @@
           <EmCardBody>
             <div aria-label="Total revenue by month" class="adm-payments__chart" role="img">
               <div v-for="(v, index) in revenue" :key="index" class="adm-payments__chart-col">
-                <span class="adm-payments__chart-bar" :style="{ height: (v / revenueMax) * 100 + '%' }" />
+                <span class="adm-payments__chart-bar" :data-peak="v === revenueMax || undefined" :style="{ height: (v / revenueMax) * 100 + '%' }" />
                 <span class="adm-payments__chart-label">{{ months[index] }}</span>
               </div>
             </div>
@@ -265,12 +320,12 @@
               <EmTextField v-model="search" aria-label="Search client" class="adm-payments__search" placeholder="Search client" />
 
               <EmSelect v-model="status" class="adm-payments__status-select">
-                <EmSelectActivator><EmSelectValue /></EmSelectActivator>
+                <EmSelectActivator>
+                  <EmSelectValue v-slot="{ selectedValue }">{{ label(String(selectedValue)) }}</EmSelectValue>
+                </EmSelectActivator>
 
                 <EmSelectContent>
-                  <EmSelectItem value="all">All</EmSelectItem>
-                  <EmSelectItem value="paid">Paid</EmSelectItem>
-                  <EmSelectItem value="pending">Pending</EmSelectItem>
+                  <EmSelectItem v-for="option in options" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
                 </EmSelectContent>
               </EmSelect>
             </div>
@@ -292,7 +347,7 @@
               </thead>
 
               <tbody>
-                <tr v-for="row in invoices" :key="row.id">
+                <tr v-for="row in rows" :key="row.id">
                   <td><EmCheckbox :aria-label="`Select ${row.id}`" /></td>
                   <td>{{ row.id }}</td>
 
@@ -350,12 +405,21 @@
           </EmCardBody>
 
           <EmCardFooter class="adm-payments__table-foot">
-            <span class="adm-payments__table-count">Showing 1 to 5 of 25 entries</span>
+            <span class="adm-payments__table-count">
+              Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} entries
+            </span>
 
-            <EmPagination v-model="page" :size="5">
-              <EmPaginationPrev>‹ Previous</EmPaginationPrev>
-              <EmPaginationItem v-for="n in 5" :key="n" :value="n" />
-              <EmPaginationNext>Next ›</EmPaginationNext>
+            <EmPagination v-model="page" :items-per-page="Number(show)" :size="filtered.length">
+              <template #default="{ items }">
+                <EmPaginationPrev>‹ Previous</EmPaginationPrev>
+
+                <template v-for="(item, index) in items" :key="index">
+                  <EmPaginationItem v-if="item.type === 'page'" :value="item.value" />
+                  <span v-else class="adm-payments__page-gap">{{ item.value }}</span>
+                </template>
+
+                <EmPaginationNext>Next ›</EmPaginationNext>
+              </template>
             </EmPagination>
           </EmCardFooter>
         </EmCard>
@@ -371,7 +435,10 @@
     gap: var(--emerald-spacing-l, 20px);
   }
 
+  /* EmCard variant="simple" ships 2px padding and its slots add none, so every
+     card needs its own inset — see the EmCard padding gap row. */
   .adm-payments .emerald-card {
+    padding: var(--emerald-spacing-l, 20px);
     background: var(--emerald-background, #fefefe);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
     border-radius: var(--emerald-radius-xl, 12px);
@@ -448,7 +515,6 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--emerald-spacing-m, 16px);
-    align-items: start;
   }
 
   .adm-payments__panel-title {
@@ -483,7 +549,11 @@
     width: 55%;
     min-height: 6px;
     border-radius: var(--emerald-radius-xs, 4px) var(--emerald-radius-xs, 4px) 0 0;
-    background: var(--emerald-on-surface, #2b2d2e);
+    background: var(--emerald-primary-300, #baedd0);
+  }
+
+  .adm-payments__chart-bar[data-peak] {
+    background: var(--emerald-primary-600, #1fae60);
   }
 
   .adm-payments__chart-label {
@@ -509,7 +579,7 @@
     width: 140px;
     height: 140px;
     border-radius: 50%;
-    background: conic-gradient(var(--emerald-on-surface, #2b2d2e) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
+    background: conic-gradient(var(--emerald-primary-600, #1fae60) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
   }
 
   .adm-payments__donut::before {
@@ -654,8 +724,11 @@
     font-size: var(--emerald-text-b2-size, 14px);
   }
 
+  /* .emerald-card__header is flex-direction: column — a title/action row has to
+     opt back into row explicitly. */
   .adm-payments__toolbar {
     display: flex;
+    flex-direction: row;
     align-items: center;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -688,6 +761,30 @@
 
   .adm-payments__table-wrap {
     overflow-x: auto;
+    margin-inline: calc(-1 * var(--emerald-spacing-l, 20px));
+  }
+
+  .adm-payments__table th:first-child,
+  .adm-payments__table td:first-child {
+    padding-left: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-payments__table th:last-child,
+  .adm-payments__table td:last-child {
+    padding-right: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-payments__table tbody tr {
+    transition: background-color 120ms ease;
+  }
+
+  .adm-payments__table tbody tr:hover {
+    background: var(--emerald-neutral-200, #f6f8fa);
+  }
+
+  .adm-payments__page-gap {
+    padding: 0 var(--emerald-spacing-2xs, 4px);
+    color: var(--emerald-on-surface-variant, #757e85);
   }
 
   .adm-payments__table {

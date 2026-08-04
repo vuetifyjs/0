@@ -41,7 +41,7 @@
   import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
-  import { ref, shallowRef, toRef } from 'vue'
+  import { nextTick, ref, shallowRef, toRef } from 'vue'
 
   function required (v: unknown): boolean | string {
     return (!!v && String(v).trim().length > 0) || 'This field is required'
@@ -153,10 +153,37 @@
     lastResult.value = valid ? 'valid' : 'invalid'
   }
 
-  function onRegistrationReset (reset: () => void) {
+  // v0's Form.reset() clears validation state across the registry but does not
+  // restore field values — the page owns those models, so it clears them here.
+  // Values are cleared first and flushed, so the live `input` validators run
+  // before reset() wipes the state they would otherwise repopulate.
+  async function onTypesReset (reset: () => void) {
+    for (const demo of typeDemos) typeValues.value[demo.key] = ''
+    await nextTick()
     reset()
+  }
+
+  async function onModeReset (reset: () => void, key: string) {
+    modeValues.value[key] = ''
+    await nextTick()
+    reset()
+  }
+
+  async function onRegistrationReset (reset: () => void) {
+    fullName.value = ''
+    regEmail.value = ''
+    regPassword.value = ''
+    dob.value = ''
+    age.value = ''
+    bio.value = ''
+    country.value = undefined
+    language.value = undefined
     accountType.value = undefined
+    topics.value = { product: false, news: false, tips: false }
+    notifications.value = { email: true, marketing: false, twoFactor: false }
     lastResult.value = 'idle'
+    await nextTick()
+    reset()
   }
 </script>
 
@@ -183,13 +210,13 @@
               :placeholder="demo.placeholder"
               :rules="[...demo.rules]"
               :type="demo.type"
-              validate-on="input lazy"
+              validate-on="input"
             />
           </EmCardBody>
 
           <div class="adm-forms__actions">
             <EmButton variant="primary" @click="submitTypes()">Submit</EmButton>
-            <EmButton variant="tertiary" @click="resetTypes()">Reset</EmButton>
+            <EmButton variant="tertiary" @click="onTypesReset(resetTypes)">Reset</EmButton>
 
             <span class="adm-forms__status" :data-state="isValid === null ? 'idle' : isValid ? 'valid' : 'invalid'">
               {{ isValid === null ? 'Not yet validated' : isValid ? 'All fields valid' : 'Some fields need attention' }}
@@ -221,7 +248,7 @@
 
             <div class="adm-forms__actions">
               <EmButton size="sm" variant="primary" @click="submitMode()">Submit</EmButton>
-              <EmButton size="sm" variant="tertiary" @click="resetMode()">Reset</EmButton>
+              <EmButton size="sm" variant="tertiary" @click="onModeReset(resetMode, mode.key)">Reset</EmButton>
             </div>
           </Form>
         </EmCardBody>
@@ -457,6 +484,11 @@
     gap: var(--emerald-spacing-l, 20px);
   }
 
+  /* variant="simple" ships a 2px card inset; these pages need real gutters. */
+  .adm-forms .emerald-card__header {
+    padding: var(--emerald-spacing-l, 20px) var(--emerald-spacing-l, 20px) 0;
+  }
+
   .adm-forms .emerald-card {
     background: var(--emerald-background, #fefefe);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
@@ -494,7 +526,22 @@
   .adm-forms__grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
     gap: var(--emerald-spacing-m, 16px);
+    padding: var(--emerald-spacing-l, 20px);
+  }
+
+  /* Reserve the error line on every field so validating a value never reflows
+     the grid around it. */
+  .adm-forms .emerald-text-field__error,
+  .adm-forms .emerald-textarea__error {
+    min-height: var(--emerald-text-b3-height, 18px);
+  }
+
+  .adm-forms .emerald-text-field__error[data-state='hidden'],
+  .adm-forms .emerald-textarea__error[data-state='hidden'] {
+    display: block;
+    visibility: hidden;
   }
 
   .adm-forms__actions {
@@ -502,7 +549,7 @@
     align-items: center;
     flex-wrap: wrap;
     gap: var(--emerald-spacing-s, 12px);
-    padding: var(--emerald-spacing-m, 16px);
+    padding: var(--emerald-spacing-l, 20px);
     border-top: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
   }
 
@@ -524,6 +571,7 @@
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--emerald-spacing-m, 16px);
+    padding: var(--emerald-spacing-l, 20px);
   }
 
   .adm-forms__mode {
@@ -541,17 +589,27 @@
     font-weight: 700;
   }
 
+  /* Two reserved lines keeps the four demo inputs on a shared baseline even
+     though the descriptions wrap to different lengths. */
   .adm-forms__mode-desc {
     margin: 0;
+    min-height: calc(2 * var(--emerald-text-b3-height, 18px));
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
   .adm-forms__mode-hint {
     margin: 0;
+    min-height: calc(2 * var(--emerald-text-b3-height, 18px));
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b3-size, 12px);
     font-style: italic;
+  }
+
+  .adm-forms__mode .adm-forms__actions {
+    margin-top: auto;
+    padding: 0;
+    border-top: none;
   }
 
   .adm-forms__table-wrap {
@@ -561,13 +619,14 @@
 
   .adm-forms__table {
     width: 100%;
+    min-width: 560px;
     border-collapse: collapse;
     font-size: var(--emerald-text-b2-size, 14px);
   }
 
   .adm-forms__table th,
   .adm-forms__table td {
-    padding: var(--emerald-spacing-xs, 8px) var(--emerald-spacing-s, 12px);
+    padding: var(--emerald-spacing-s, 12px) var(--emerald-spacing-l, 20px);
     text-align: left;
     border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
   }
@@ -583,6 +642,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--emerald-spacing-l, 20px);
+    padding: var(--emerald-spacing-l, 20px);
   }
 
   .adm-forms__section {
@@ -687,6 +747,12 @@
     .adm-forms__row,
     .adm-forms__account-grid {
       grid-template-columns: 1fr;
+    }
+
+    /* Stacked cards have nothing to line up against. */
+    .adm-forms__mode-desc,
+    .adm-forms__mode-hint {
+      min-height: 0;
     }
   }
 </style>

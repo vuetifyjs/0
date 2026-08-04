@@ -163,7 +163,15 @@
               @click="onSelectDay(cell.iso)"
             >
               {{ cell.date.getDate() }}
-              <span v-if="eventsOn(cell.iso).length > 0" aria-hidden="true" class="adm-calendar__mini-dot" />
+
+              <span aria-hidden="true" class="adm-calendar__mini-dots">
+                <span
+                  v-for="event in eventsOn(cell.iso).slice(0, 3)"
+                  :key="event.title"
+                  class="adm-calendar__mini-dot"
+                  :data-category="event.category"
+                />
+              </span>
             </button>
           </div>
         </div>
@@ -370,13 +378,24 @@
     color: var(--emerald-on-primary, #fff);
   }
 
+  .adm-calendar__mini-dots {
+    display: flex;
+    gap: 2px;
+    height: 4px;
+    margin-top: 1px;
+  }
+
   .adm-calendar__mini-dot {
     width: 4px;
     height: 4px;
-    margin-top: 1px;
     border-radius: 50%;
-    background: var(--emerald-primary-600, #1fae60);
+    background: var(--emerald-info-500, #2f80ed);
   }
+
+  .adm-calendar__mini-dot[data-category='Family'] { background: var(--emerald-warning-500, #e08b00); }
+  .adm-calendar__mini-dot[data-category='Personal'] { background: var(--emerald-danger-500, #c61424); }
+  .adm-calendar__mini-dot[data-category='Holiday'] { background: var(--emerald-primary-600, #1fae60); }
+  .adm-calendar__mini-dot[data-category='Etc'] { background: var(--emerald-neutral-600, #8f979d); }
 
   .adm-calendar__mini-day[data-selected] .adm-calendar__mini-dot {
     background: var(--emerald-on-primary, #fff);
@@ -426,7 +445,7 @@
 
   .adm-calendar__weekdays {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     padding: var(--emerald-spacing-xs, 8px) 0;
     border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
   }
@@ -438,13 +457,16 @@
     text-align: center;
   }
 
+  /* minmax(0, 1fr): plain 1fr floors at min-content, and the nowrap event chips
+     would push the columns past the card and out of step with the day header. */
   .adm-calendar__grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     grid-auto-rows: minmax(96px, 1fr);
   }
 
   .adm-calendar__cell {
+    min-width: 0;
     padding: 6px;
     border-right: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
     border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
@@ -490,6 +512,7 @@
 
   .adm-calendar__cell-events li {
     overflow: hidden;
+    min-width: 0;
     padding: 1px 4px;
     border-radius: 4px;
     background: var(--emerald-info-100, #e4f2ff);
@@ -531,8 +554,40 @@
     }
   }
 
+  /* The month grid is the mini calendar's superset, so drop the duplicate and
+     let the grid (with its events) sit near the top of the viewport. */
   @media (max-width: 640px) {
-    .adm-calendar__cell-events {
+    .adm-calendar__mini {
+      display: none;
+    }
+
+    .adm-calendar__filters {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: var(--emerald-spacing-xs, 8px) var(--emerald-spacing-m, 16px);
+      align-items: center;
+    }
+
+    .adm-calendar__filters-title {
+      flex: 1 0 100%;
+      font-size: var(--emerald-text-b2-size, 14px);
+    }
+
+    .adm-calendar__main-head {
+      flex-wrap: wrap;
+      gap: var(--emerald-spacing-xs, 8px);
+    }
+
+    .adm-calendar__grid {
+      grid-auto-rows: minmax(72px, 1fr);
+    }
+
+    .adm-calendar__cell-events li {
+      padding: 1px 2px;
+      font-size: 9px;
+    }
+
+    .adm-calendar__cell-events li strong {
       display: none;
     }
   }

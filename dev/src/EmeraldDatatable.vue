@@ -125,11 +125,20 @@
 
   table.onboard(invoices.map(value => ({ id: value.id, value })))
 
-  watch(search, value => table.search(value))
-
   const { items, leaves, selection, sort, total } = table
   const { isAllSelected, isMixed } = selection
   const { page, pageStart, pageStop } = table.pagination
+
+  // Narrowing the result set or resizing the page can strand the viewer on a
+  // page index that no longer exists — send them back to the first page.
+  watch(search, value => {
+    table.search(value)
+    page.value = 1
+  })
+
+  watch(itemsPerPage, () => {
+    page.value = 1
+  })
 
   const statusVariant: Record<Status, 'success' | 'info' | 'danger'> = {
     paid: 'success',
@@ -274,7 +283,7 @@
               </tr>
 
               <tr v-if="items.length === 0">
-                <td class="adm-datatable__empty" :colspan="leaves.length + 2">No invoices match "{{ search }}".</td>
+                <td class="adm-datatable__empty" :colspan="leaves.length + 1">No invoices match "{{ search }}".</td>
               </tr>
             </tbody>
           </table>
@@ -334,10 +343,14 @@
 
   .adm-datatable__toolbar {
     display: flex;
+    flex-direction: row;
     align-items: center;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: var(--emerald-spacing-s, 12px);
+    margin-bottom: 0;
+    padding: var(--emerald-spacing-m, 16px);
+    border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
   }
 
   .adm-datatable__toolbar-left,
@@ -381,8 +394,18 @@
   }
 
   .adm-datatable__table td {
-    padding: var(--emerald-spacing-s, 12px);
+    padding: var(--emerald-spacing-xs, 8px) var(--emerald-spacing-s, 12px);
+    line-height: 20px;
+    vertical-align: middle;
     border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
+  }
+
+  .adm-datatable__table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .adm-datatable__table tbody tr:hover td {
+    background: var(--emerald-neutral-200, #f6f8fa);
   }
 
   .adm-datatable__sort {
@@ -424,11 +447,14 @@
 
   .adm-datatable__client strong {
     display: block;
+    line-height: 20px;
   }
 
   .adm-datatable__client-role {
+    display: block;
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b3-size, 12px);
+    line-height: 16px;
   }
 
   .adm-datatable__actions {
@@ -461,5 +487,21 @@
   .adm-datatable__count {
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-datatable__foot .emerald-pagination__prev,
+  .adm-datatable__foot .emerald-pagination__next {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .adm-datatable__toolbar-right,
+    .adm-datatable__search {
+      width: 100%;
+    }
+
+    .adm-datatable__foot {
+      justify-content: center;
+    }
   }
 </style>

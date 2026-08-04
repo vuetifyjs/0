@@ -29,18 +29,38 @@
     EmTextField,
   } from '@paper/emerald'
 
+  // Framework
+  import { createFilter, createPagination } from '@vuetify/v0'
+
   // Context
   import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
-  const kpis = [
-    { label: 'Total Profit', sub: '', value: '$88.5k', delta: '-18%', up: false, kind: 'bars' as const, bars: [45, 65, 100, 55, 80, 60] },
-    { label: 'Order', sub: 'Last week', value: '124K', delta: '+12.6%', up: true, kind: 'bars' as const, bars: [30, 55, 90, 70, 100, 60, 80, 40] },
-    { label: 'Profit', sub: 'Last Month', value: '624K', delta: '+12.6%', up: true, kind: 'line' as const },
-    { label: 'User reach', sub: 'Last week', value: '32K', delta: '+12%', up: true, kind: 'ring' as const, ring: 72, ringLabel: '500', ringSub: 'Visitors' },
-  ] as const
+  type Kpi = {
+    label: string
+    sub: string
+    value: string
+    delta: string
+    up: boolean
+    kind: 'bars' | 'line' | 'ring'
+    bars?: number[]
+    ring?: number
+    ringLabel?: string
+    ringSub?: string
+  }
+
+  const kpis: Kpi[] = [
+    { label: 'Total Profit', sub: '', value: '$88.5k', delta: '-18%', up: false, kind: 'bars', bars: [45, 65, 100, 55, 80, 60] },
+    { label: 'Order', sub: 'Last week', value: '124K', delta: '+12.6%', up: true, kind: 'bars', bars: [30, 55, 90, 70, 100, 60, 80, 40] },
+    { label: 'Profit', sub: 'Last Month', value: '624K', delta: '+12.6%', up: true, kind: 'line' },
+    { label: 'User reach', sub: 'Last week', value: '32K', delta: '+12%', up: true, kind: 'ring', ring: 72, ringLabel: '500', ringSub: 'Visitors' },
+  ]
+
+  function top (bars: number[] = []) {
+    return Math.max(...bars)
+  }
 
   const money = [
     { label: 'Total Income', sub: 'Last week', value: '$4,673', delta: '+25.2%', up: true, icon: 'coin' as const },
@@ -76,6 +96,8 @@
     { label: 'SU', value: 35 },
   ]
 
+  const cards = ['5688 xxxx xxxx 2356', '8562 xxxx xxxx 4563']
+
   const cardNumber = shallowRef('')
   const search = shallowRef('')
   const show = shallowRef('5')
@@ -84,7 +106,7 @@
 
   type Status = 'paid' | 'pending' | 'sent'
 
-  const invoices: Array<{
+  type Invoice = {
     id: string
     name: string
     role: string
@@ -94,13 +116,66 @@
     balance: string
     balanceNeg: boolean
     status: Status
-  }> = [
-    { id: '#5099', name: 'Jack Alfredo', role: 'UI/UX designer', initials: 'JA', total: '$3,120.00', date: '02 Apr 2025', balance: 'Paid', balanceNeg: false, status: 'sent' },
-    { id: '#5008', name: 'Maria Gonzalez', role: 'Frontend developer', initials: 'MG', total: '$1,450.00', date: '11 May 2025', balance: 'Paid', balanceNeg: false, status: 'paid' },
-    { id: '#5101', name: 'John Doe', role: 'Graphic designer', initials: 'JD', total: '$1,200.00', date: '25 Jun 2025', balance: 'Paid', balanceNeg: false, status: 'paid' },
-    { id: '#4586', name: 'Emily Carter', role: 'UI/UX designer', initials: 'EC', total: '$2,680.00', date: '04 Jul 2025', balance: '-$78.00', balanceNeg: true, status: 'pending' },
-    { id: '#4360', name: 'David Lee', role: 'Backend developer', initials: 'DL', total: '$3,120.00', date: '06 Aug 2025', balance: 'Paid', balanceNeg: false, status: 'sent' },
+  }
+
+  const people = [
+    { name: 'Jack Alfredo', role: 'UI/UX designer', initials: 'JA' },
+    { name: 'Maria Gonzalez', role: 'Frontend developer', initials: 'MG' },
+    { name: 'John Doe', role: 'Graphic designer', initials: 'JD' },
+    { name: 'Emily Carter', role: 'UI/UX designer', initials: 'EC' },
+    { name: 'David Lee', role: 'Backend developer', initials: 'DL' },
+    { name: 'Sara Chen', role: 'Product manager', initials: 'SC' },
+    { name: 'Noah Patel', role: 'Backend developer', initials: 'NP' },
+    { name: 'Julia Hart', role: 'Motion designer', initials: 'JH' },
   ]
+
+  const months = ['Apr', 'May', 'Jun', 'Jul', 'Aug']
+  const statuses: Status[] = ['sent', 'paid', 'paid', 'pending', 'sent']
+
+  const invoices: Invoice[] = Array.from({ length: 25 }, (_, index) => {
+    const person = people[index % people.length]!
+    const status = statuses[index % statuses.length]!
+    const negative = status === 'pending'
+
+    return {
+      id: `#${5099 - index * 37}`,
+      name: person.name,
+      role: person.role,
+      initials: person.initials,
+      total: `$${(1200 + index * 143).toLocaleString('en-US')}.00`,
+      date: `${String((index % 27) + 2).padStart(2, '0')} ${months[index % months.length]} 2025`,
+      balance: negative ? `-$${(40 + index * 7)}.00` : 'Paid',
+      balanceNeg: negative,
+      status,
+    }
+  })
+
+  const options = [
+    { value: 'all', label: 'All' },
+    { value: 'paid', label: 'Paid' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'sent', label: 'Sent' },
+  ]
+
+  function label (value: string) {
+    return options.find(o => o.value === value)?.label ?? value
+  }
+
+  const filter = createFilter({ keys: ['id', 'name', 'role'] })
+  const found = filter.apply(search, invoices)
+
+  const filtered = toRef(() => statusFilter.value === 'all'
+    ? found.items.value
+    : found.items.value.filter(row => row.status === statusFilter.value),
+  )
+
+  const pagination = createPagination({
+    page,
+    size: () => filtered.value.length,
+    itemsPerPage: () => Number(show.value),
+  })
+
+  const rows = toRef(() => filtered.value.slice(pagination.pageStart.value, pagination.pageStop.value))
 </script>
 
 <template>
@@ -124,7 +199,7 @@
                 v-for="(h, index) in kpi.bars"
                 :key="index"
                 class="adm-sales__mini-bar"
-                :data-tone="index % 3 === 0 ? 'primary' : index % 3 === 1 ? 'secondary' : 'info'"
+                :data-peak="h === top(kpi.bars) || undefined"
                 :style="{ height: h + '%' }"
               />
             </div>
@@ -299,23 +374,23 @@
 
           <EmCardBody class="adm-sales__plan">
             <div class="adm-sales__plan-price">
-              <span class="adm-sales__plan-tier">Platinum</span>
-              <span class="adm-sales__plan-period">Last 6 months</span>
+              <span class="adm-sales__plan-price-text">
+                <span class="adm-sales__plan-tier">Platinum</span>
+                <span class="adm-sales__plan-period">Last 6 months</span>
+              </span>
+
               <strong class="adm-sales__plan-amount">$5,550<span>/Year</span></strong>
             </div>
 
             <p class="adm-sales__plan-heading">Payment details</p>
 
             <ul class="adm-sales__plan-cards">
-              <li>
-                <span class="adm-sales__plan-card-label">Credit card</span>
-                <span class="adm-sales__plan-card-num">5688 xxxx xxxx 2356</span>
-                <EmTag>CVC</EmTag>
-              </li>
+              <li v-for="card in cards" :key="card">
+                <span class="adm-sales__plan-card-text">
+                  <span class="adm-sales__plan-card-label">Credit card</span>
+                  <span class="adm-sales__plan-card-num">{{ card }}</span>
+                </span>
 
-              <li>
-                <span class="adm-sales__plan-card-label">Credit card</span>
-                <span class="adm-sales__plan-card-num">8562 xxxx xxxx 4563</span>
                 <EmTag>CVC</EmTag>
               </li>
             </ul>
@@ -461,7 +536,7 @@
 
               <EmSelect v-model="statusFilter" class="adm-sales__status-select">
                 <EmSelectActivator>
-                  <EmSelectValue />
+                  <EmSelectValue v-slot="{ selectedValue }">{{ label(String(selectedValue)) }}</EmSelectValue>
 
                   <svg
                     aria-hidden="true"
@@ -478,10 +553,7 @@
                 </EmSelectActivator>
 
                 <EmSelectContent>
-                  <EmSelectItem value="all">All</EmSelectItem>
-                  <EmSelectItem value="paid">Paid</EmSelectItem>
-                  <EmSelectItem value="pending">Pending</EmSelectItem>
-                  <EmSelectItem value="sent">Sent</EmSelectItem>
+                  <EmSelectItem v-for="option in options" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
                 </EmSelectContent>
               </EmSelect>
             </div>
@@ -503,7 +575,7 @@
               </thead>
 
               <tbody>
-                <tr v-for="row in invoices" :key="row.id">
+                <tr v-for="row in rows" :key="row.id">
                   <td><EmCheckbox :aria-label="`Select ${row.id}`" /></td>
                   <td>{{ row.id }}</td>
 
@@ -570,12 +642,21 @@
           </EmCardBody>
 
           <EmCardFooter class="adm-sales__table-foot">
-            <span class="adm-sales__table-count">Showing 1 to 5 of 25 entries</span>
+            <span class="adm-sales__table-count">
+              Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} entries
+            </span>
 
-            <EmPagination v-model="page" :size="5">
-              <EmPaginationPrev>‹ Previous</EmPaginationPrev>
-              <EmPaginationItem v-for="n in 5" :key="n" :value="n" />
-              <EmPaginationNext>Next ›</EmPaginationNext>
+            <EmPagination v-model="page" :items-per-page="Number(show)" :size="filtered.length">
+              <template #default="{ items }">
+                <EmPaginationPrev>‹ Previous</EmPaginationPrev>
+
+                <template v-for="(item, index) in items" :key="index">
+                  <EmPaginationItem v-if="item.type === 'page'" :value="item.value" />
+                  <span v-else class="adm-sales__page-gap">{{ item.value }}</span>
+                </template>
+
+                <EmPaginationNext>Next ›</EmPaginationNext>
+              </template>
             </EmPagination>
           </EmCardFooter>
         </EmCard>
@@ -591,11 +672,18 @@
     gap: var(--emerald-spacing-l, 20px);
   }
 
+  /* EmCard variant="simple" ships 2px padding and its slots add none, so every
+     card needs its own inset — see the EmCard padding gap row. */
   .adm-sales .emerald-card {
+    padding: var(--emerald-spacing-l, 20px);
     background: var(--emerald-background, #fefefe);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
     border-radius: var(--emerald-radius-xl, 12px);
     box-shadow: var(--emerald-shadow-s, 0 0 2px 0 rgba(51, 51, 51, 0.08));
+  }
+
+  .adm-sales .adm-sales__kpi {
+    padding: var(--emerald-spacing-m, 16px);
   }
 
   .adm-sales__kpis {
@@ -664,15 +752,11 @@
     flex: 1;
     min-width: 4px;
     border-radius: 2px 2px 0 0;
-    background: var(--emerald-primary-500, #26c26d);
+    background: var(--emerald-primary-300, #baedd0);
   }
 
-  .adm-sales__mini-bar[data-tone='secondary'] {
-    background: var(--emerald-secondary-600, #00b4dc);
-  }
-
-  .adm-sales__mini-bar[data-tone='info'] {
-    background: var(--emerald-neutral-400, #aeb6be);
+  .adm-sales__mini-bar[data-peak] {
+    background: var(--emerald-primary-600, #1fae60);
   }
 
   .adm-sales__mini-line {
@@ -780,12 +864,14 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--emerald-spacing-m, 16px);
-    align-items: start;
   }
 
+  /* .emerald-card__header is flex-direction: column — a title/action row has to
+     opt back into row explicitly. */
   .adm-sales__panel-head {
     display: flex;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
     justify-content: space-between;
     gap: var(--emerald-spacing-s, 12px);
   }
@@ -933,12 +1019,18 @@
 
   .adm-sales__plan-price {
     display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 4px 8px;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--emerald-spacing-s, 12px);
     padding: var(--emerald-spacing-s, 12px);
     border-radius: var(--emerald-radius-m, 8px);
     background: var(--emerald-neutral-200, #f6f8fa);
+  }
+
+  .adm-sales__plan-price-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
   }
 
   .adm-sales__plan-tier {
@@ -951,8 +1043,8 @@
   }
 
   .adm-sales__plan-amount {
-    margin-left: auto;
     font-size: 1.25rem;
+    white-space: nowrap;
   }
 
   .adm-sales__plan-amount span {
@@ -985,15 +1077,22 @@
     border-radius: var(--emerald-radius-m, 8px);
   }
 
+  .adm-sales__plan-card-text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+  }
+
   .adm-sales__plan-card-label {
     font-size: var(--emerald-text-b3-size, 12px);
     color: var(--emerald-on-surface-variant, #757e85);
   }
 
   .adm-sales__plan-card-num {
-    flex: 1;
     font-size: var(--emerald-text-b2-size, 14px);
     font-weight: 600;
+    white-space: nowrap;
   }
 
   .adm-sales__plan-pay {
@@ -1039,16 +1138,24 @@
     display: flex;
     align-items: flex-end;
     gap: 8px;
-    height: 120px;
+    flex: 1;
+    min-height: 120px;
+  }
+
+  .adm-sales__row2 .adm-sales__panel .emerald-card__body {
+    display: flex;
+    flex-direction: column;
   }
 
   .adm-sales__promo {
     overflow: hidden;
   }
 
+  /* Row 2 cards share a height; let the media and chart absorb the slack so the
+     tallest card (the plan) does not leave the others with dead space. */
   .adm-sales__promo-media {
-    height: 140px;
-    margin: 0 var(--emerald-spacing-m, 16px);
+    flex: 1;
+    min-height: 140px;
     border-radius: var(--emerald-radius-m, 8px);
     background-position: center;
     background-size: cover;
@@ -1087,6 +1194,7 @@
 
   .adm-sales__toolbar {
     display: flex;
+    flex-direction: row;
     align-items: center;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -1119,6 +1227,7 @@
 
   .adm-sales__table-wrap {
     overflow-x: auto;
+    margin-inline: calc(-1 * var(--emerald-spacing-l, 20px));
   }
 
   .adm-sales__table {
@@ -1140,6 +1249,24 @@
   .adm-sales__table td {
     padding: var(--emerald-spacing-s, 12px);
     border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
+  }
+
+  .adm-sales__table th:first-child,
+  .adm-sales__table td:first-child {
+    padding-left: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-sales__table th:last-child,
+  .adm-sales__table td:last-child {
+    padding-right: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-sales__table tbody tr {
+    transition: background-color 120ms ease;
+  }
+
+  .adm-sales__table tbody tr:hover {
+    background: var(--emerald-neutral-200, #f6f8fa);
   }
 
   .adm-sales__client {
@@ -1179,6 +1306,11 @@
   .adm-sales__table-count {
     color: var(--emerald-on-surface-variant, #757e85);
     font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-sales__page-gap {
+    padding: 0 var(--emerald-spacing-2xs, 4px);
+    color: var(--emerald-on-surface-variant, #757e85);
   }
 
   @media (max-width: 1200px) {

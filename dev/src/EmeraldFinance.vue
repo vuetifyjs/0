@@ -27,18 +27,35 @@
     EmTextField,
   } from '@paper/emerald'
 
+  // Framework
+  import { createFilter, createPagination } from '@vuetify/v0'
+
   // Context
   import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
-  const kpis = [
-    { label: 'Total Orders', sub: 'Last 4 months', value: '155K', delta: '+22%', up: true, kind: 'bars' as const, bars: [40, 65, 50, 90, 70, 100, 60] },
-    { label: 'Total Profit', sub: 'Last One year', value: '$89.34k', delta: '-16%', up: false, kind: 'bars' as const, bars: [80, 60, 100, 55, 70, 40, 65] },
-    { label: 'Total Revenue', sub: 'This quarter', value: '$42.5k', delta: '-22%', up: false, kind: 'bars' as const, bars: [55, 100, 90, 40, 70] },
-    { label: 'Impression', sub: 'Last year', value: '175K', delta: '+24%', up: true, kind: 'line' as const },
-  ] as const
+  type Kpi = {
+    label: string
+    sub: string
+    value: string
+    delta: string
+    up: boolean
+    kind: 'bars' | 'line'
+    bars?: number[]
+  }
+
+  const kpis: Kpi[] = [
+    { label: 'Total Orders', sub: 'Last 4 months', value: '155K', delta: '+22%', up: true, kind: 'bars', bars: [40, 65, 50, 90, 70, 100, 60] },
+    { label: 'Total Profit', sub: 'Last One year', value: '$89.34k', delta: '-16%', up: false, kind: 'bars', bars: [80, 60, 100, 55, 70, 40, 65] },
+    { label: 'Total Revenue', sub: 'This quarter', value: '$42.5k', delta: '-22%', up: false, kind: 'bars', bars: [55, 100, 90, 40, 70] },
+    { label: 'Impression', sub: 'Last year', value: '175K', delta: '+24%', up: true, kind: 'line' },
+  ]
+
+  function top (bars: number[] = []) {
+    return Math.max(...bars)
+  }
 
   const finance = [
     { label: 'Jan', a: 12, b: 8, c: 10 },
@@ -58,10 +75,11 @@
   ]
 
   const visitors = [
-    { label: 'Desktop', pct: 17, sub: '23.8', tone: 'primary' as const },
-    { label: 'Tablet', pct: 65, sub: '13.604', tone: 'danger' as const },
-    { label: 'Mobile', pct: 18, sub: '47.146', tone: 'secondary' as const },
+    { label: 'Desktop', pct: 17, sub: '23.8' },
+    { label: 'Tablet', pct: 65, sub: '13.604' },
+    { label: 'Mobile', pct: 18, sub: '47.146' },
   ]
+  const visitorMax = Math.max(...visitors.map(v => v.pct))
 
   const topSales = [
     { name: 'Samsung galaxy S25', brand: 'Samsung', price: '$32,203' },
@@ -84,14 +102,67 @@
   const page = shallowRef(1)
 
   type Status = 'active' | 'pending' | 'inactive'
+  type User = { name: string, email: string, role: string, plan: string, billing: string, status: Status }
 
-  const users: Array<{ name: string, email: string, role: string, plan: string, billing: string, status: Status }> = [
+  const seed: User[] = [
     { name: 'Jack Alfredo', email: 'jack.alfredo@shadcnstudio.com', role: 'Maintainer', plan: 'Enterprise', billing: 'Auto debit', status: 'active' },
     { name: 'Sarah Mitchell', email: 'sarah.mitchell@company.com', role: 'Owner', plan: 'Enterprise', billing: 'Auto debit', status: 'active' },
     { name: 'Robert Chen', email: 'robert.chen@startup.io', role: 'Editor', plan: 'Team', billing: 'Manual - PayPal', status: 'pending' },
     { name: 'Emily Wilson', email: 'emily.wilson@freelance.com', role: 'Author', plan: 'Basic', billing: 'Manual - cash', status: 'inactive' },
     { name: 'David Garcia', email: 'david.garcia@agency.net', role: 'Subscriber', plan: 'Company', billing: 'Auto debit', status: 'active' },
+    { name: 'Nina Alvarez', email: 'nina.alvarez@studio.co', role: 'Editor', plan: 'Team', billing: 'Auto debit', status: 'active' },
+    { name: 'Tom Baker', email: 'tom.baker@labs.dev', role: 'Owner', plan: 'Enterprise', billing: 'Manual - PayPal', status: 'pending' },
+    { name: 'Ava Lindqvist', email: 'ava.l@northmail.se', role: 'Author', plan: 'Basic', billing: 'Manual - cash', status: 'inactive' },
   ]
+
+  const users: User[] = Array.from({ length: 25 }, (_, index) => {
+    const base = seed[index % seed.length]!
+    const suffix = Math.floor(index / seed.length)
+
+    return suffix === 0 ? base : { ...base, email: base.email.replace('@', `${suffix + 1}@`) }
+  })
+
+  type Option = { value: string, label: string }
+
+  const roles: Option[] = [
+    { value: 'all', label: 'All' },
+    { value: 'Owner', label: 'Owner' },
+    { value: 'Editor', label: 'Editor' },
+    { value: 'Author', label: 'Author' },
+    { value: 'Maintainer', label: 'Maintainer' },
+    { value: 'Subscriber', label: 'Subscriber' },
+  ]
+
+  const plans: Option[] = [
+    { value: 'all', label: 'All' },
+    { value: 'Enterprise', label: 'Enterprise' },
+    { value: 'Team', label: 'Team' },
+    { value: 'Basic', label: 'Basic' },
+    { value: 'Company', label: 'Company' },
+  ]
+
+  const states: Option[] = [
+    { value: 'all', label: 'All' },
+    { value: 'active', label: 'Active' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'inactive', label: 'Inactive' },
+  ]
+
+  function label (list: Option[], value: string) {
+    return list.find(option => option.value === value)?.label ?? value
+  }
+
+  const filter = createFilter({ keys: ['name', 'email', 'role'] })
+  const found = filter.apply(search, users)
+
+  const filtered = toRef(() => found.items.value.filter(user =>
+    (role.value === 'all' || user.role === role.value)
+    && (plan.value === 'all' || user.plan === plan.value)
+    && (status.value === 'all' || user.status === status.value),
+  ))
+
+  const pagination = createPagination({ page, size: () => filtered.value.length, itemsPerPage: 5 })
+  const rows = toRef(() => filtered.value.slice(pagination.pageStart.value, pagination.pageStop.value))
 
   function initials (name: string) {
     return name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase()
@@ -120,7 +191,13 @@
             </div>
 
             <div v-if="kpi.kind === 'bars'" aria-hidden="true" class="adm-finance__mini-bars">
-              <span v-for="(h, index) in kpi.bars" :key="index" class="adm-finance__mini-bar" :style="{ height: h + '%' }" />
+              <span
+                v-for="(h, index) in kpi.bars"
+                :key="index"
+                class="adm-finance__mini-bar"
+                :data-peak="h === top(kpi.bars) || undefined"
+                :style="{ height: h + '%' }"
+              />
             </div>
 
             <svg
@@ -223,7 +300,7 @@
             <div aria-label="Visitors by device" class="adm-finance__visitors" role="img">
               <div v-for="v in visitors" :key="v.label" class="adm-finance__visitor-col">
                 <span class="adm-finance__visitor-pct">{{ v.pct }}%</span>
-                <span class="adm-finance__visitor-bar" :data-tone="v.tone" :style="{ height: (v.pct / 65) * 100 + '%' }" />
+                <span class="adm-finance__visitor-bar" :data-peak="v.pct === visitorMax || undefined" :style="{ height: (v.pct / visitorMax) * 100 + '%' }" />
                 <span class="adm-finance__visitor-label">{{ v.label }}</span>
                 <span class="adm-finance__visitor-sub">{{ v.sub }}</span>
               </div>
@@ -283,37 +360,49 @@
             <EmCardTitle class="adm-finance__panel-title">Users</EmCardTitle>
 
             <div class="adm-finance__toolbar-filters">
-              <EmSelect v-model="role" class="adm-finance__filter">
-                <EmSelectActivator><EmSelectValue placeholder="Select Role" /></EmSelectActivator>
+              <label class="adm-finance__field">
+                <span class="adm-finance__field-label">Select Role</span>
 
-                <EmSelectContent>
-                  <EmSelectItem value="all">All</EmSelectItem>
-                  <EmSelectItem value="owner">Owner</EmSelectItem>
-                  <EmSelectItem value="editor">Editor</EmSelectItem>
-                </EmSelectContent>
-              </EmSelect>
+                <EmSelect v-model="role">
+                  <EmSelectActivator>
+                    <EmSelectValue v-slot="{ selectedValue }">{{ label(roles, String(selectedValue)) }}</EmSelectValue>
+                  </EmSelectActivator>
 
-              <EmSelect v-model="plan" class="adm-finance__filter">
-                <EmSelectActivator><EmSelectValue placeholder="Select Plan" /></EmSelectActivator>
+                  <EmSelectContent>
+                    <EmSelectItem v-for="option in roles" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
+                  </EmSelectContent>
+                </EmSelect>
+              </label>
 
-                <EmSelectContent>
-                  <EmSelectItem value="all">All</EmSelectItem>
-                  <EmSelectItem value="enterprise">Enterprise</EmSelectItem>
-                  <EmSelectItem value="team">Team</EmSelectItem>
-                </EmSelectContent>
-              </EmSelect>
+              <label class="adm-finance__field">
+                <span class="adm-finance__field-label">Select Plan</span>
 
-              <EmSelect v-model="status" class="adm-finance__filter">
-                <EmSelectActivator><EmSelectValue placeholder="Select Status" /></EmSelectActivator>
+                <EmSelect v-model="plan">
+                  <EmSelectActivator>
+                    <EmSelectValue v-slot="{ selectedValue }">{{ label(plans, String(selectedValue)) }}</EmSelectValue>
+                  </EmSelectActivator>
 
-                <EmSelectContent>
-                  <EmSelectItem value="all">All</EmSelectItem>
-                  <EmSelectItem value="active">Active</EmSelectItem>
-                  <EmSelectItem value="pending">Pending</EmSelectItem>
-                </EmSelectContent>
-              </EmSelect>
+                  <EmSelectContent>
+                    <EmSelectItem v-for="option in plans" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
+                  </EmSelectContent>
+                </EmSelect>
+              </label>
 
-              <EmTextField v-model="search" aria-label="Search users" placeholder="Search users" />
+              <label class="adm-finance__field">
+                <span class="adm-finance__field-label">Select Status</span>
+
+                <EmSelect v-model="status">
+                  <EmSelectActivator>
+                    <EmSelectValue v-slot="{ selectedValue }">{{ label(states, String(selectedValue)) }}</EmSelectValue>
+                  </EmSelectActivator>
+
+                  <EmSelectContent>
+                    <EmSelectItem v-for="option in states" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
+                  </EmSelectContent>
+                </EmSelect>
+              </label>
+
+              <EmTextField v-model="search" aria-label="Search users" class="adm-finance__search" placeholder="Search users" />
             </div>
           </EmCardHeader>
 
@@ -332,7 +421,7 @@
               </thead>
 
               <tbody>
-                <tr v-for="user in users" :key="user.email">
+                <tr v-for="user in rows" :key="user.email">
                   <td><EmCheckbox :aria-label="`Select ${user.name}`" /></td>
 
                   <td>
@@ -393,12 +482,21 @@
           </EmCardBody>
 
           <EmCardFooter class="adm-finance__table-foot">
-            <span class="adm-finance__table-count">Showing 1 to 5 of 25 entries</span>
+            <span class="adm-finance__table-count">
+              Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} entries
+            </span>
 
-            <EmPagination v-model="page" :size="5">
-              <EmPaginationPrev>‹ Previous</EmPaginationPrev>
-              <EmPaginationItem v-for="n in 5" :key="n" :value="n" />
-              <EmPaginationNext>Next ›</EmPaginationNext>
+            <EmPagination v-model="page" :items-per-page="5" :size="filtered.length">
+              <template #default="{ items }">
+                <EmPaginationPrev>‹ Previous</EmPaginationPrev>
+
+                <template v-for="(item, index) in items" :key="index">
+                  <EmPaginationItem v-if="item.type === 'page'" :value="item.value" />
+                  <span v-else class="adm-finance__page-gap">{{ item.value }}</span>
+                </template>
+
+                <EmPaginationNext>Next ›</EmPaginationNext>
+              </template>
             </EmPagination>
           </EmCardFooter>
         </EmCard>
@@ -414,7 +512,10 @@
     gap: var(--emerald-spacing-l, 20px);
   }
 
+  /* EmCard variant="simple" ships 2px padding and its slots add none, so every
+     card needs its own inset — see the EmCard padding gap row. */
   .adm-finance .emerald-card {
+    padding: var(--emerald-spacing-l, 20px);
     background: var(--emerald-background, #fefefe);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
     border-radius: var(--emerald-radius-xl, 12px);
@@ -501,7 +602,11 @@
     flex: 1;
     min-width: 4px;
     border-radius: 2px 2px 0 0;
-    background: var(--emerald-primary-500, #26c26d);
+    background: var(--emerald-primary-300, #baedd0);
+  }
+
+  .adm-finance__mini-bar[data-peak] {
+    background: var(--emerald-primary-600, #1fae60);
   }
 
   .adm-finance__mini-line {
@@ -520,7 +625,6 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--emerald-spacing-m, 16px);
-    align-items: start;
   }
 
   .adm-finance__panel-title {
@@ -534,9 +638,12 @@
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
+  /* .emerald-card__header is flex-direction: column — a title/action row has to
+     opt back into row explicitly. */
   .adm-finance__panel-head {
     display: flex;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
     justify-content: space-between;
     gap: var(--emerald-spacing-s, 12px);
   }
@@ -568,15 +675,15 @@
   }
 
   .adm-finance__stack-seg[data-tone='primary'] {
-    background: var(--emerald-primary-600, #1fae60);
+    background: var(--emerald-primary-700, #027d4c);
   }
 
   .adm-finance__stack-seg[data-tone='secondary'] {
-    background: var(--emerald-secondary-600, #00b4dc);
+    background: var(--emerald-primary-500, #6fb38c);
   }
 
   .adm-finance__stack-seg[data-tone='info'] {
-    background: var(--emerald-neutral-400, #aeb6be);
+    background: var(--emerald-primary-300, #baedd0);
   }
 
   .adm-finance__chart-label {
@@ -660,15 +767,11 @@
     width: 60%;
     min-height: 6px;
     border-radius: var(--emerald-radius-xs, 4px);
-    background: var(--emerald-primary-400, #7fdfab);
+    background: var(--emerald-primary-300, #baedd0);
   }
 
-  .adm-finance__visitor-bar[data-tone='danger'] {
-    background: var(--emerald-danger-300, #ffb4bb);
-  }
-
-  .adm-finance__visitor-bar[data-tone='secondary'] {
-    background: var(--emerald-secondary-400, #7fdaf0);
+  .adm-finance__visitor-bar[data-peak] {
+    background: var(--emerald-primary-600, #1fae60);
   }
 
   .adm-finance__visitor-label {
@@ -719,25 +822,37 @@
 
   .adm-finance__toolbar {
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--emerald-spacing-s, 12px);
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--emerald-spacing-m, 16px);
   }
 
   .adm-finance__toolbar-filters {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--emerald-spacing-s, 12px);
   }
 
-  .adm-finance__filter {
-    width: 140px;
+  .adm-finance__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-2xs, 4px);
+    min-width: 0;
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-finance__field-label {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-weight: 600;
+  }
+
+  .adm-finance__search {
+    grid-column: 1 / -1;
   }
 
   .adm-finance__table-wrap {
     overflow-x: auto;
+    margin-inline: calc(-1 * var(--emerald-spacing-l, 20px));
   }
 
   .adm-finance__table {
@@ -759,6 +874,29 @@
   .adm-finance__table td {
     padding: var(--emerald-spacing-s, 12px);
     border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
+  }
+
+  .adm-finance__table th:first-child,
+  .adm-finance__table td:first-child {
+    padding-left: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-finance__table th:last-child,
+  .adm-finance__table td:last-child {
+    padding-right: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-finance__table tbody tr {
+    transition: background-color 120ms ease;
+  }
+
+  .adm-finance__table tbody tr:hover {
+    background: var(--emerald-neutral-200, #f6f8fa);
+  }
+
+  .adm-finance__page-gap {
+    padding: 0 var(--emerald-spacing-2xs, 4px);
+    color: var(--emerald-on-surface-variant, #757e85);
   }
 
   .adm-finance__client {
@@ -812,6 +950,10 @@
   }
 
   @media (max-width: 640px) {
+    .adm-finance__toolbar-filters {
+      grid-template-columns: 1fr;
+    }
+
     .adm-finance__kpis {
       grid-template-columns: 1fr;
     }

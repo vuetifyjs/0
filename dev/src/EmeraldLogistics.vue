@@ -11,9 +11,14 @@
     EmButton,
     EmCard,
     EmCardBody,
+    EmCardFooter,
     EmCardHeader,
     EmCardTitle,
     EmCheckbox,
+    EmPagination,
+    EmPaginationItem,
+    EmPaginationNext,
+    EmPaginationPrev,
     EmProgress,
     EmTabs,
     EmTabsItem,
@@ -21,11 +26,14 @@
     EmTag,
   } from '@paper/emerald'
 
+  // Framework
+  import { createPagination } from '@vuetify/v0'
+
   // Context
   import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   const fleet = [
     { label: 'On the way', time: '2hr 10min', pct: 33.3, tone: 'muted' as const },
@@ -35,11 +43,26 @@
   ]
 
   const packingTab = shallowRef('packed')
-  const packing = [
-    { label: 'Packing Pending', value: 4250, max: 5000 },
-    { label: 'Packing in Progress', value: 2150, max: 5000 },
-    { label: 'Packing Complete', value: 1750, max: 5000 },
-  ]
+
+  const stages: Record<string, Array<{ label: string, value: number, max: number }>> = {
+    packed: [
+      { label: 'Packing Pending', value: 4250, max: 5000 },
+      { label: 'Packing in Progress', value: 2150, max: 5000 },
+      { label: 'Packing Complete', value: 1750, max: 5000 },
+    ],
+    shipped: [
+      { label: 'Awaiting Carrier', value: 1820, max: 5000 },
+      { label: 'In Transit', value: 3640, max: 5000 },
+      { label: 'Out for Delivery', value: 920, max: 5000 },
+    ],
+    received: [
+      { label: 'Signed For', value: 4720, max: 5000 },
+      { label: 'Damaged on Arrival', value: 310, max: 5000 },
+      { label: 'Returned to Sender', value: 145, max: 5000 },
+    ],
+  }
+
+  const packing = toRef(() => stages[packingTab.value] ?? [])
 
   const performance = {
     online: [80, 65, 90, 55, 100, 70, 85],
@@ -56,13 +79,26 @@
 
   const ratingTrend = [30, 45, 35, 55, 90, 60, 40]
 
-  const fleetOnRoute: Array<{ id: string, start: string, end: string, warning: string, ok: boolean, progress: number }> = [
+  type Vehicle = { id: string, start: string, end: string, warning: string, ok: boolean, progress: number }
+
+  const routes: Vehicle[] = [
     { id: 'VOL-159145', start: 'Paris 19, France', end: 'Dresdon, Germany', warning: 'No Warning', ok: true, progress: 50 },
     { id: 'VOL-163825', start: 'Tokyo 23, Japan', end: 'Budapest, Hungary', warning: 'Fuel Problems', ok: false, progress: 75 },
     { id: 'VOL-182624', start: 'New York City, USA', end: 'Kyoto, Japan', warning: 'Temperature Not Optimal', ok: false, progress: 25 },
     { id: 'VOL-27568', start: 'Berlin, Germany', end: 'Cape Town, South Africa', warning: 'Ecu Not Responding', ok: false, progress: 50 },
     { id: 'VOL-300168', start: 'Sydney, Australia', end: 'Buenos Aires, Argentina', warning: 'Oil Leakage', ok: false, progress: 25 },
   ]
+
+  const fleetOnRoute: Vehicle[] = Array.from({ length: 25 }, (_, index) => {
+    const base = routes[index % routes.length]!
+    const suffix = Math.floor(index / routes.length)
+
+    return suffix === 0 ? base : { ...base, id: `${base.id}-${suffix + 1}`, progress: (base.progress + suffix * 5) % 100 }
+  })
+
+  const page = shallowRef(1)
+  const pagination = createPagination({ page, size: fleetOnRoute.length, itemsPerPage: 5 })
+  const rows = toRef(() => fleetOnRoute.slice(pagination.pageStart.value, pagination.pageStop.value))
 </script>
 
 <template>
@@ -185,7 +221,9 @@
           <EmCardBody>
             <ul class="adm-logistics__condition">
               <li v-for="c in condition" :key="c.label">
-                <span aria-hidden="true" class="adm-logistics__ring" :data-tone="c.tone" :style="{ '--pct': c.pct }">{{ c.pct }}%</span>
+                <span aria-hidden="true" class="adm-logistics__ring" :data-tone="c.tone" :style="{ '--pct': c.pct }">
+                  <span class="adm-logistics__ring-value">{{ c.pct }}%</span>
+                </span>
 
                 <span class="adm-logistics__condition-text">
                   <strong>{{ c.label }}</strong>
@@ -259,7 +297,7 @@
               </thead>
 
               <tbody>
-                <tr v-for="v in fleetOnRoute" :key="v.id">
+                <tr v-for="v in rows" :key="v.id">
                   <td><EmCheckbox :aria-label="`Select ${v.id}`" /></td>
 
                   <td>
@@ -292,6 +330,25 @@
               </tbody>
             </table>
           </EmCardBody>
+
+          <EmCardFooter class="adm-logistics__table-foot">
+            <span class="adm-logistics__table-count">
+              Showing {{ pagination.pageStart.value + 1 }} to {{ pagination.pageStop.value }} of {{ fleetOnRoute.length }} entries
+            </span>
+
+            <EmPagination v-model="page" :items-per-page="5" :size="fleetOnRoute.length">
+              <template #default="{ items }">
+                <EmPaginationPrev>‹ Previous</EmPaginationPrev>
+
+                <template v-for="(item, index) in items" :key="index">
+                  <EmPaginationItem v-if="item.type === 'page'" :value="item.value" />
+                  <span v-else class="adm-logistics__page-gap">{{ item.value }}</span>
+                </template>
+
+                <EmPaginationNext>Next ›</EmPaginationNext>
+              </template>
+            </EmPagination>
+          </EmCardFooter>
         </EmCard>
       </section>
     </div>
@@ -305,7 +362,10 @@
     gap: var(--emerald-spacing-l, 20px);
   }
 
+  /* EmCard variant="simple" ships 2px padding and its slots add none, so every
+     card needs its own inset — see the EmCard padding gap row. */
   .adm-logistics .emerald-card {
+    padding: var(--emerald-spacing-l, 20px);
     background: var(--emerald-background, #fefefe);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
     border-radius: var(--emerald-radius-xl, 12px);
@@ -335,7 +395,6 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--emerald-spacing-m, 16px);
-    align-items: start;
   }
 
   .adm-logistics__panel-title {
@@ -349,9 +408,12 @@
     font-size: var(--emerald-text-b3-size, 12px);
   }
 
+  /* .emerald-card__header is flex-direction: column — a title/action row has to
+     opt back into row explicitly. */
   .adm-logistics__panel-head {
     display: flex;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
     justify-content: space-between;
     gap: var(--emerald-spacing-s, 12px);
   }
@@ -374,16 +436,16 @@
   }
 
   .adm-logistics__seg[data-tone='secondary'] {
-    background: var(--emerald-secondary-400, #7fdaf0);
+    background: var(--emerald-primary-300, #baedd0);
   }
 
   .adm-logistics__seg[data-tone='primary'] {
-    background: var(--emerald-primary-500, #26c26d);
+    background: var(--emerald-primary-600, #1fae60);
     color: var(--emerald-on-primary, #fff);
   }
 
   .adm-logistics__seg[data-tone='dark'] {
-    background: var(--emerald-neutral-800, #636a70);
+    background: var(--emerald-primary-800, #01603a);
     color: var(--emerald-on-primary, #fff);
   }
 
@@ -401,6 +463,13 @@
     display: flex;
     align-items: center;
     gap: var(--emerald-spacing-s, 12px);
+    padding-bottom: var(--emerald-spacing-s, 12px);
+    border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
+  }
+
+  .adm-logistics__fleet-list li:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
   }
 
   .adm-logistics__fleet-label {
@@ -416,6 +485,7 @@
 
   .adm-logistics__driver-head {
     display: flex;
+    flex-direction: row;
     align-items: center;
     gap: var(--emerald-spacing-s, 12px);
   }
@@ -478,8 +548,26 @@
 
   .adm-logistics__dual-bars {
     display: flex;
+    flex: 1;
     flex-direction: column;
+    justify-content: space-between;
     gap: 4px;
+  }
+
+  /* Row 2 cards share a height; let the charts absorb the slack. */
+  .adm-logistics__row2 .emerald-card__body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .adm-logistics__dual,
+  .adm-logistics__dual-col {
+    flex: 1;
+  }
+
+  .adm-logistics__trend {
+    flex: 1;
+    min-height: 70px;
   }
 
   .adm-logistics__dual-bar {
@@ -490,11 +578,11 @@
   }
 
   .adm-logistics__dual-bar[data-tone='primary'] {
-    background: var(--emerald-primary-500, #26c26d);
+    background: var(--emerald-primary-600, #1fae60);
   }
 
   .adm-logistics__dual-bar[data-tone='secondary'] {
-    background: var(--emerald-secondary-500, #00b4dc);
+    background: var(--emerald-primary-300, #baedd0);
   }
 
   .adm-logistics__condition {
@@ -533,19 +621,20 @@
     inset: 4px;
     border-radius: 50%;
     background: var(--emerald-background, #fefefe);
-    z-index: 0;
   }
 
-  .adm-logistics__ring {
+  /* The ::before disc paints over bare text, so the value needs its own layer. */
+  .adm-logistics__ring-value {
+    position: relative;
     z-index: 1;
   }
 
   .adm-logistics__ring[data-tone='secondary'] {
-    background: conic-gradient(var(--emerald-secondary-500, #00b4dc) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
+    background: conic-gradient(var(--emerald-primary-500, #6fb38c) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
   }
 
   .adm-logistics__ring[data-tone='warning'] {
-    background: conic-gradient(var(--emerald-warning-500, #f5a623) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
+    background: conic-gradient(var(--emerald-primary-300, #baedd0) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
   }
 
   .adm-logistics__ring[data-tone='danger'] {
@@ -553,7 +642,11 @@
   }
 
   .adm-logistics__ring[data-tone='muted'] {
-    background: conic-gradient(var(--emerald-neutral-500, #949ca3) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
+    background: conic-gradient(var(--emerald-neutral-500, #a3afbe) calc(var(--pct) * 1%), var(--emerald-neutral-200, #f6f8fa) 0);
+  }
+
+  .adm-logistics__ring {
+    z-index: 1;
   }
 
   .adm-logistics__condition-text {
@@ -581,7 +674,7 @@
   .adm-logistics__stars {
     display: flex;
     gap: 2px;
-    color: var(--emerald-warning-500, #f5a623);
+    color: var(--emerald-primary-600, #1fae60);
   }
 
   .adm-logistics__trend {
@@ -592,6 +685,55 @@
 
   .adm-logistics__table-wrap {
     overflow-x: auto;
+    margin-inline: calc(-1 * var(--emerald-spacing-l, 20px));
+  }
+
+  .adm-logistics__table th:first-child,
+  .adm-logistics__table td:first-child {
+    padding-left: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-logistics__table th:last-child,
+  .adm-logistics__table td:last-child {
+    padding-right: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-logistics__table tbody tr {
+    transition: background-color 120ms ease;
+  }
+
+  .adm-logistics__table tbody tr:hover {
+    background: var(--emerald-neutral-200, #f6f8fa);
+  }
+
+  .adm-logistics__table-foot {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--emerald-spacing-s, 12px);
+  }
+
+  .adm-logistics__table-count {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-logistics__page-gap {
+    padding: 0 var(--emerald-spacing-2xs, 4px);
+    color: var(--emerald-on-surface-variant, #757e85);
+  }
+
+  /* Fill the card instead of stranding the list at the top. */
+  .adm-logistics__fleet-list {
+    flex: 1;
+    justify-content: space-between;
+  }
+
+  .adm-logistics__row1 .emerald-card__body {
+    display: flex;
+    flex-direction: column;
   }
 
   .adm-logistics__table {

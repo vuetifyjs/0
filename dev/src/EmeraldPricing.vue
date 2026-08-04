@@ -209,6 +209,10 @@
     gap: var(--emerald-spacing-l, 20px);
   }
 
+  .adm-pricing .emerald-card__header {
+    padding: var(--emerald-spacing-l, 20px) var(--emerald-spacing-l, 20px) 0;
+  }
+
   .adm-pricing .emerald-card {
     background: var(--emerald-background, #fefefe);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
@@ -257,16 +261,16 @@
     gap: var(--emerald-spacing-m, 16px);
   }
 
-  .adm-pricing__promo-card {
-    display: flex;
+  .adm-pricing .adm-pricing__promo-card {
     border-style: dashed;
   }
 
-  .adm-pricing__promo-card .emerald-card-body {
+  .adm-pricing__promo-card .emerald-card__body {
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 4px;
+    padding: var(--emerald-spacing-l, 20px);
   }
 
   .adm-pricing__promo-label {
@@ -297,17 +301,18 @@
     display: flex;
     flex-direction: column;
     gap: var(--emerald-spacing-s, 12px);
+    padding: var(--emerald-spacing-l, 20px);
   }
 
-  .adm-pricing__tier--trending .emerald-card-body,
-  .adm-pricing__tier--trending {
+  .adm-pricing .adm-pricing__tier--trending {
     border-color: var(--emerald-primary-600, #1fae60);
+    box-shadow: var(--emerald-shadow-m, 0 2px 8px 0 rgba(51, 51, 51, 0.12));
   }
 
   .adm-pricing__trending {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: var(--emerald-spacing-l, 20px);
+    right: var(--emerald-spacing-l, 20px);
   }
 
   .adm-pricing__tier-name {
@@ -337,13 +342,12 @@
     width: 100%;
   }
 
-  .adm-pricing__section-head {
+  .adm-pricing .adm-pricing__section-head {
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: var(--emerald-spacing-xs, 8px);
     margin-bottom: 0;
-    padding-bottom: 0;
   }
 
   .adm-pricing__section-icon {
@@ -370,13 +374,23 @@
 
   .adm-pricing__table {
     width: 100%;
+    min-width: 520px;
     border-collapse: collapse;
     font-size: var(--emerald-text-b2-size, 14px);
   }
 
+  .adm-pricing__table thead th,
+  .adm-pricing__table td {
+    white-space: nowrap;
+  }
+
+  .adm-pricing__table tbody th {
+    min-width: 200px;
+  }
+
   .adm-pricing__table th,
   .adm-pricing__table td {
-    padding: var(--emerald-spacing-s, 12px);
+    padding: var(--emerald-spacing-s, 12px) var(--emerald-spacing-l, 20px);
     text-align: center;
     border-bottom: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-200, #f6f8fa);
   }

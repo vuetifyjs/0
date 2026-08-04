@@ -32,11 +32,14 @@
     EmTextField,
   } from '@paper/emerald'
 
+  // Framework
+  import { createFilter, createPagination } from '@vuetify/v0'
+
   // Context
   import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   const stats = [
     { label: 'Total Sales', sub: 'Last 6 months', value: '$13.4k', delta: '+38%', up: true },
@@ -62,10 +65,23 @@
   ]
 
   const ordersTab = shallowRef('new')
-  const orders = [
-    { role: 'Sender', name: 'Mytrle Ullrich', address: '101 Boulder, California(CA), 959595' },
-    { role: 'Receiver', name: 'Barry Schowalter', address: '939 orange, California(CA), 92118' },
-  ]
+
+  const shipments: Record<string, Array<{ role: string, name: string, address: string }>> = {
+    new: [
+      { role: 'Sender', name: 'Mytrle Ullrich', address: '101 Boulder, California(CA), 959595' },
+      { role: 'Receiver', name: 'Barry Schowalter', address: '939 orange, California(CA), 92118' },
+    ],
+    pending: [
+      { role: 'Sender', name: 'Dana Kirlin', address: '77 Larkspur, Oregon(OR), 97035' },
+      { role: 'Receiver', name: 'Omar Feeney', address: '412 Alder Way, Nevada(NV), 89104' },
+    ],
+    shipping: [
+      { role: 'Sender', name: 'Rosa Bergnaum', address: '18 Maple Court, Texas(TX), 75201' },
+      { role: 'Receiver', name: 'Ines Kuhlman', address: '256 Cedar Loop, Florida(FL), 33101' },
+    ],
+  }
+
+  const orders = toRef(() => shipments[ordersTab.value] ?? [])
 
   const popular = [
     { name: 'Nike Vision Low Shoes', price: '$5,600', visits: '10.6K' },
@@ -84,13 +100,70 @@
 
   type Status = 'publish' | 'inactive'
 
-  const products: Array<{ name: string, brand: string, category: string, price: string, qty: number, status: Status, inStock: boolean }> = [
+  type Product = { name: string, brand: string, category: string, price: string, qty: number, status: Status, inStock: boolean }
+
+  const catalog: Product[] = [
     { name: 'Samsung galaxy s35', brand: 'Samsung', category: 'Smartphone', price: '$312', qty: 45, status: 'publish', inStock: true },
     { name: 'Apple MacBook Pro', brand: 'Apple', category: 'Laptop', price: '$890', qty: 634, status: 'publish', inStock: false },
     { name: 'Sony WH-1000XM4', brand: 'Sony', category: 'Headphone', price: '$120', qty: 456, status: 'inactive', inStock: true },
     { name: 'Dell XPS 13', brand: 'Dell', category: 'Laptop', price: '$112', qty: 4, status: 'publish', inStock: false },
     { name: 'Smart band 4', brand: 'Xiaomi', category: 'Smartwatch', price: '$150', qty: 45, status: 'inactive', inStock: false },
+    { name: 'Logitech MX Master', brand: 'Logitech', category: 'Accessory', price: '$99', qty: 210, status: 'publish', inStock: true },
+    { name: 'iPad Air 11', brand: 'Apple', category: 'Tablet', price: '$599', qty: 88, status: 'publish', inStock: true },
+    { name: 'Bose QC Ultra', brand: 'Bose', category: 'Headphone', price: '$429', qty: 32, status: 'inactive', inStock: false },
   ]
+
+  const products: Product[] = Array.from({ length: 25 }, (_, index) => {
+    const base = catalog[index % catalog.length]!
+    const suffix = Math.floor(index / catalog.length)
+
+    return suffix === 0 ? base : { ...base, name: `${base.name} (v${suffix + 1})`, qty: base.qty + suffix * 7 }
+  })
+
+  type Option = { value: string, label: string }
+
+  const categories: Option[] = [
+    { value: 'all', label: 'All' },
+    { value: 'Smartphone', label: 'Smartphone' },
+    { value: 'Laptop', label: 'Laptop' },
+    { value: 'Headphone', label: 'Headphone' },
+    { value: 'Smartwatch', label: 'Smartwatch' },
+    { value: 'Tablet', label: 'Tablet' },
+    { value: 'Accessory', label: 'Accessory' },
+  ]
+
+  const stocks: Option[] = [
+    { value: 'all', label: 'All' },
+    { value: 'in', label: 'In stock' },
+    { value: 'out', label: 'Out of stock' },
+  ]
+
+  const states: Option[] = [
+    { value: 'all', label: 'All' },
+    { value: 'publish', label: 'Publish' },
+    { value: 'inactive', label: 'Inactive' },
+  ]
+
+  function label (list: Option[], value: string) {
+    return list.find(option => option.value === value)?.label ?? value
+  }
+
+  const filter = createFilter({ keys: ['name', 'brand', 'category'] })
+  const found = filter.apply(search, products)
+
+  const filtered = toRef(() => found.items.value.filter(product =>
+    (category.value === 'all' || product.category === category.value)
+    && (stock.value === 'all' || (stock.value === 'in' ? product.inStock : !product.inStock))
+    && (status.value === 'all' || product.status === status.value),
+  ))
+
+  const pagination = createPagination({
+    page,
+    size: () => filtered.value.length,
+    itemsPerPage: () => Number(show.value),
+  })
+
+  const rows = toRef(() => filtered.value.slice(pagination.pageStart.value, pagination.pageStop.value))
 
   function initials (name: string) {
     return name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase()
@@ -226,35 +299,47 @@
         <EmCard variant="simple">
           <EmCardHeader class="adm-ecommerce__toolbar">
             <div class="adm-ecommerce__toolbar-filters">
-              <EmSelect v-model="category" class="adm-ecommerce__filter">
-                <EmSelectActivator><EmSelectValue placeholder="Select Category" /></EmSelectActivator>
+              <label class="adm-ecommerce__field">
+                <span class="adm-ecommerce__field-label">Select Category</span>
 
-                <EmSelectContent>
-                  <EmSelectItem value="all">All</EmSelectItem>
-                  <EmSelectItem value="phone">Smartphone</EmSelectItem>
-                  <EmSelectItem value="laptop">Laptop</EmSelectItem>
-                </EmSelectContent>
-              </EmSelect>
+                <EmSelect v-model="category">
+                  <EmSelectActivator>
+                    <EmSelectValue v-slot="{ selectedValue }">{{ label(categories, String(selectedValue)) }}</EmSelectValue>
+                  </EmSelectActivator>
 
-              <EmSelect v-model="stock" class="adm-ecommerce__filter">
-                <EmSelectActivator><EmSelectValue placeholder="Select Stock" /></EmSelectActivator>
+                  <EmSelectContent>
+                    <EmSelectItem v-for="option in categories" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
+                  </EmSelectContent>
+                </EmSelect>
+              </label>
 
-                <EmSelectContent>
-                  <EmSelectItem value="all">All</EmSelectItem>
-                  <EmSelectItem value="in">In stock</EmSelectItem>
-                  <EmSelectItem value="out">Out of stock</EmSelectItem>
-                </EmSelectContent>
-              </EmSelect>
+              <label class="adm-ecommerce__field">
+                <span class="adm-ecommerce__field-label">Select Stock</span>
 
-              <EmSelect v-model="status" class="adm-ecommerce__filter">
-                <EmSelectActivator><EmSelectValue placeholder="Select Status" /></EmSelectActivator>
+                <EmSelect v-model="stock">
+                  <EmSelectActivator>
+                    <EmSelectValue v-slot="{ selectedValue }">{{ label(stocks, String(selectedValue)) }}</EmSelectValue>
+                  </EmSelectActivator>
 
-                <EmSelectContent>
-                  <EmSelectItem value="all">All</EmSelectItem>
-                  <EmSelectItem value="publish">Publish</EmSelectItem>
-                  <EmSelectItem value="inactive">Inactive</EmSelectItem>
-                </EmSelectContent>
-              </EmSelect>
+                  <EmSelectContent>
+                    <EmSelectItem v-for="option in stocks" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
+                  </EmSelectContent>
+                </EmSelect>
+              </label>
+
+              <label class="adm-ecommerce__field">
+                <span class="adm-ecommerce__field-label">Select Status</span>
+
+                <EmSelect v-model="status">
+                  <EmSelectActivator>
+                    <EmSelectValue v-slot="{ selectedValue }">{{ label(states, String(selectedValue)) }}</EmSelectValue>
+                  </EmSelectActivator>
+
+                  <EmSelectContent>
+                    <EmSelectItem v-for="option in states" :key="option.value" :value="option.value">{{ option.label }}</EmSelectItem>
+                  </EmSelectContent>
+                </EmSelect>
+              </label>
             </div>
 
             <div class="adm-ecommerce__toolbar-right">
@@ -290,7 +375,7 @@
               </thead>
 
               <tbody>
-                <tr v-for="p in products" :key="p.name">
+                <tr v-for="p in rows" :key="p.name">
                   <td><EmCheckbox :aria-label="`Select ${p.name}`" /></td>
 
                   <td>
@@ -320,12 +405,21 @@
           </EmCardBody>
 
           <EmCardFooter class="adm-ecommerce__table-foot">
-            <span class="adm-ecommerce__table-count">Showing 1 to 5 of 25 entries</span>
+            <span class="adm-ecommerce__table-count">
+              Showing {{ filtered.length > 0 ? pagination.pageStart.value + 1 : 0 }} to {{ pagination.pageStop.value }} of {{ filtered.length }} entries
+            </span>
 
-            <EmPagination v-model="page" :size="5">
-              <EmPaginationPrev>‹ Previous</EmPaginationPrev>
-              <EmPaginationItem v-for="n in 5" :key="n" :value="n" />
-              <EmPaginationNext>Next ›</EmPaginationNext>
+            <EmPagination v-model="page" :items-per-page="Number(show)" :size="filtered.length">
+              <template #default="{ items }">
+                <EmPaginationPrev>‹ Previous</EmPaginationPrev>
+
+                <template v-for="(item, index) in items" :key="index">
+                  <EmPaginationItem v-if="item.type === 'page'" :value="item.value" />
+                  <span v-else class="adm-ecommerce__page-gap">{{ item.value }}</span>
+                </template>
+
+                <EmPaginationNext>Next ›</EmPaginationNext>
+              </template>
             </EmPagination>
           </EmCardFooter>
         </EmCard>
@@ -341,7 +435,10 @@
     gap: var(--emerald-spacing-l, 20px);
   }
 
+  /* EmCard variant="simple" ships 2px padding and its slots add none, so every
+     card needs its own inset — see the EmCard padding gap row. */
   .adm-ecommerce .emerald-card {
+    padding: var(--emerald-spacing-l, 20px);
     background: var(--emerald-background, #fefefe);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
     border-radius: var(--emerald-radius-xl, 12px);
@@ -452,11 +549,11 @@
     width: 55%;
     min-height: 6px;
     border-radius: var(--emerald-radius-xs, 4px) var(--emerald-radius-xs, 4px) 0 0;
-    background: var(--emerald-neutral-300, #ccd6e7);
+    background: var(--emerald-primary-300, #baedd0);
   }
 
   .adm-ecommerce__chart-bar[data-peak] {
-    background: var(--emerald-on-surface, #2b2d2e);
+    background: var(--emerald-primary-600, #1fae60);
   }
 
   .adm-ecommerce__chart-label {
@@ -490,11 +587,11 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--emerald-spacing-m, 16px);
-    align-items: start;
   }
 
   .adm-ecommerce__driver-head {
     display: flex;
+    flex-direction: row;
     align-items: center;
     gap: var(--emerald-spacing-s, 12px);
   }
@@ -587,18 +684,47 @@
 
   .adm-ecommerce__toolbar {
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--emerald-spacing-s, 12px);
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--emerald-spacing-m, 16px);
+  }
+
+  .adm-ecommerce__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-2xs, 4px);
+    min-width: 0;
+    font-size: var(--emerald-text-b3-size, 12px);
+  }
+
+  .adm-ecommerce__field-label {
+    color: var(--emerald-on-surface-variant, #757e85);
+    font-weight: 600;
+  }
+
+  .adm-ecommerce__page-gap {
+    padding: 0 var(--emerald-spacing-2xs, 4px);
+    color: var(--emerald-on-surface-variant, #757e85);
   }
 
   .adm-ecommerce__toolbar-filters,
+  .adm-ecommerce__toolbar-filters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--emerald-spacing-s, 12px);
+  }
+
   .adm-ecommerce__toolbar-right {
     display: flex;
+    flex-direction: row;
     align-items: center;
     flex-wrap: wrap;
     gap: var(--emerald-spacing-s, 12px);
+  }
+
+  .adm-ecommerce__toolbar-right .adm-ecommerce__search {
+    flex: 1;
+    min-width: 180px;
   }
 
   .adm-ecommerce__filter {
@@ -615,6 +741,25 @@
 
   .adm-ecommerce__table-wrap {
     overflow-x: auto;
+    margin-inline: calc(-1 * var(--emerald-spacing-l, 20px));
+  }
+
+  .adm-ecommerce__table th:first-child,
+  .adm-ecommerce__table td:first-child {
+    padding-left: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-ecommerce__table th:last-child,
+  .adm-ecommerce__table td:last-child {
+    padding-right: var(--emerald-spacing-l, 20px);
+  }
+
+  .adm-ecommerce__table tbody tr {
+    transition: background-color 120ms ease;
+  }
+
+  .adm-ecommerce__table tbody tr:hover {
+    background: var(--emerald-neutral-200, #f6f8fa);
   }
 
   .adm-ecommerce__table {
@@ -673,6 +818,12 @@
 
     .adm-ecommerce__insights,
     .adm-ecommerce__row2 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .adm-ecommerce__toolbar-filters {
       grid-template-columns: 1fr;
     }
   }

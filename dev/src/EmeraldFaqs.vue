@@ -291,8 +291,12 @@
     text-transform: uppercase;
   }
 
+  /* The base pill is neutral-200 on a white card; on the page background that
+     is the same value, so this one carries the card colour instead. */
   .adm-faq__eyebrow--center {
     margin: 0 auto;
+    background: var(--emerald-background, #fefefe);
+    border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
   }
 
   .adm-faq__title {
@@ -486,6 +490,12 @@
     .adm-faq__nav {
       flex-direction: row;
       flex-wrap: wrap;
+    }
+
+    /* Wrapped into a row, bare text items read as stray labels — outline them
+       all so the row reads as chips; the selected one still leads on fill. */
+    .adm-faq__nav-item {
+      border-color: var(--emerald-neutral-300, #ccd6e7);
     }
 
     .adm-faq__help-grid {

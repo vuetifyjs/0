@@ -21,11 +21,14 @@
     EmTextField,
   } from '@paper/emerald'
 
+  // Framework
+  import { createFilter } from '@vuetify/v0'
+
   // Context
   import EmeraldShell from './EmeraldShell.vue'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   const kpis = [
     { label: 'Total Profit', sub: '', value: '$88.5k', delta: '-18%', up: false, kind: 'bars' as const, bars: [45, 65, 100, 55, 80, 60] },
@@ -52,6 +55,14 @@
 
   const perfTab = shallowRef('new')
 
+  const performers: Record<string, { role: string, name: string, metric: string, value: string, delta: string }> = {
+    new: { role: 'Product Manager', name: 'Angel George', metric: 'Physical product', value: '$78,263', delta: '+14.78%' },
+    online: { role: 'Online Sales Lead', name: 'Priya Raman', metric: 'Digital product', value: '$52,910', delta: '+8.32%' },
+    daily: { role: 'Daily Sales Lead', name: 'Marcus Webb', metric: 'In-store product', value: '$12,485', delta: '+3.05%' },
+  }
+
+  const performer = toRef(() => performers[perfTab.value] ?? performers.new!)
+
   const earning = [
     { label: 'Net profit', sub: 'Sales', value: '$1,623', delta: '+20.3%' },
     { label: 'Total income', sub: 'Sales, Affiliation', value: '$5,600', delta: '+16.2%' },
@@ -69,6 +80,10 @@
     { name: 'Graphic design', tutor: 'Emily Chen', time: '22h 12m', progress: 26, of: 50 },
     { name: 'Data analysis', tutor: 'Mark Robinson', time: '23h 45m', progress: 76, of: 100 },
   ]
+
+  const filter = createFilter({ keys: ['name', 'tutor'] })
+  const found = filter.apply(search, courses)
+  const rows = toRef(() => found.items.value)
 
   function initials (name: string) {
     return name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase()
@@ -189,13 +204,23 @@
 
           <EmCardBody class="adm-analytics__perf">
             <div class="adm-analytics__perf-row">
-              <EmAvatar size="sm"><EmAvatarFallback>AG</EmAvatarFallback></EmAvatar>
-              <span><strong>Angel George</strong><span>Product Manager</span></span>
+              <span class="adm-analytics__perf-person">
+                <EmAvatar size="sm"><EmAvatarFallback>AG</EmAvatarFallback></EmAvatar>
+
+                <span class="adm-analytics__perf-text">
+                  <span>{{ performer.role }}</span>
+                  <strong>{{ performer.name }}</strong>
+                </span>
+              </span>
             </div>
 
             <div class="adm-analytics__perf-row">
-              <span><strong>$78,263</strong><span>Physical product</span></span>
-              <EmTag variant="success">+14.78%</EmTag>
+              <span class="adm-analytics__perf-text">
+                <span>{{ performer.metric }}</span>
+                <strong>{{ performer.value }}</strong>
+              </span>
+
+              <EmTag variant="success">{{ performer.delta }}</EmTag>
             </div>
           </EmCardBody>
         </EmCard>
@@ -250,7 +275,7 @@
               </thead>
 
               <tbody>
-                <tr v-for="c in courses" :key="c.name">
+                <tr v-for="c in rows" :key="c.name">
                   <td><EmCheckbox :aria-label="`Select ${c.name}`" /></td>
 
                   <td>
@@ -283,7 +308,10 @@
     gap: var(--emerald-spacing-l, 20px);
   }
 
+  /* EmCard variant="simple" ships 2px padding and its slots add none, so every
+     card needs its own inset — see the EmCard padding gap row. */
   .adm-analytics .emerald-card {
+    padding: var(--emerald-spacing-l, 20px);
     background: var(--emerald-background, #fefefe);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
     border-radius: var(--emerald-radius-xl, 12px);
@@ -417,19 +445,19 @@
   }
 
   .adm-analytics__hbar-fill[data-tone='secondary'] {
-    background: var(--emerald-secondary-500, #00b4dc);
+    background: var(--emerald-primary-500, #6fb38c);
   }
 
   .adm-analytics__hbar-fill[data-tone='info'] {
-    background: var(--emerald-neutral-800, #636a70);
+    background: var(--emerald-primary-400, #94cbab);
   }
 
   .adm-analytics__hbar-fill[data-tone='warning'] {
-    background: var(--emerald-warning-500, #f5a623);
+    background: var(--emerald-primary-300, #baedd0);
   }
 
   .adm-analytics__hbar-fill[data-tone='dark'] {
-    background: var(--emerald-on-surface, #2b2d2e);
+    background: var(--emerald-primary-800, #01603a);
   }
 
   .adm-analytics__row2,
@@ -437,7 +465,6 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--emerald-spacing-m, 16px);
-    align-items: start;
   }
 
   .adm-analytics__trend {
@@ -454,16 +481,28 @@
 
   .adm-analytics__perf-row {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     gap: var(--emerald-spacing-s, 12px);
+    padding: var(--emerald-spacing-s, 12px);
+    border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);
+    border-radius: var(--emerald-radius-m, 8px);
   }
 
-  .adm-analytics__perf-row > span:first-child {
+  .adm-analytics__perf-text {
     display: flex;
     flex-direction: column;
+    min-width: 0;
     font-size: var(--emerald-text-b3-size, 12px);
     color: var(--emerald-on-surface-variant, #757e85);
+  }
+
+  .adm-analytics__perf-person {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--emerald-spacing-s, 12px);
   }
 
   .adm-analytics__perf-row > span:first-child strong {
@@ -539,8 +578,11 @@
     color: var(--emerald-on-surface-variant, #757e85);
   }
 
+  /* .emerald-card__header is flex-direction: column — a title/action row has to
+     opt back into row explicitly. */
   .adm-analytics__panel--wide .emerald-card__header {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     gap: var(--emerald-spacing-s, 12px);
