@@ -127,16 +127,12 @@
              top-16 the aside sat at y=65 in flow and snapped to y=64 the instant sticky
              engaged, so the preview jumped a border's width on the first pixel of scroll.
              Same accounting drives the max-height, which is why nothing may sit under
-             either bar. -->
+             either bar. Neither term accounts for a toolbar of our own — the aside no
+             longer has one, so the slot content starts flush at the top of this pane. -->
         <div
           class="sticky top-[calc(4rem+1px)] overflow-y-auto"
           :class="step1 ? 'h-[calc(100vh-8rem-2px)] flex flex-col' : (stepped ? 'max-h-[calc(100vh-8rem-2px)]' : 'max-h-[calc(100vh-4rem-1px)]')"
         >
-          <div class="sticky top-0 z-10 flex items-center gap-2 px-4 lg:px-5 h-11 border-b border-divider bg-background/90 backdrop-blur flex-shrink-0">
-            <span class="w-1.5 h-1.5 rounded-full bg-primary" />
-            <p class="t-eyebrow text-on-surface-variant">Live preview</p>
-          </div>
-
           <slot name="preview" />
         </div>
       </aside>

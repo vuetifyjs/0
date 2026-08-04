@@ -170,7 +170,7 @@
           class="absolute inset-0 pointer-events-none"
           :coverage="30"
           :lines="6"
-          origin="bottom left"
+          origin="top left"
         />
 
         <p v-if="store.selectedPlugins.size === 0" class="relative t-meta text-on-surface-variant px-4 pt-3 flex-shrink-0">
