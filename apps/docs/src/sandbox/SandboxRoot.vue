@@ -139,26 +139,51 @@
 
     if (!el || pending) return
 
-    const { tier, rects } = floats(el)
+    const found = floats(el)
+    const tier = found.tier
 
     if (!tier) growing = false
     else if (hover && !open) growing = true
 
-    const overlay = !!tier && !growing
+    // Never ask to be promoted from an unpinned state: without a box to pin
+    // against, the content would land at the frame's corner the moment the
+    // frame becomes the viewport.
+    const overlay = !!tier && !growing && (open || !!box)
 
     if (overlay !== open) {
       open = overlay
       pending = overlay
 
       document.documentElement.toggleAttribute('data-overlay', overlay)
-      pin()
-      send({ type: 'v0:sandbox:overlay', open: overlay, tier, rects })
 
-      // Never stay gated on a parent that went quiet: a stuck `pending` would
-      // leave an invisible full-viewport frame swallowing the page.
-      if (overlay) setTimeout(() => {
-        pending = false
-      }, 300)
+      // Order matters in both directions, and it is not symmetric.
+      //
+      // Opening: pin BEFORE telling the parent, and re-read the regions AFTER
+      // pinning. The pin moves this root from the frame's own origin to page
+      // coordinates, and those numbers are what the parent clips the promoted
+      // frame to — send the pre-pin ones and the clip lands at the viewport
+      // corner for a frame or two, which is the flash.
+      //
+      // Closing: stay pinned. Unpinning here would put the content back at the
+      // frame's origin while the frame is still the viewport — the same flash
+      // mirrored. The parent's box message, posted once it has demoted the
+      // frame, is the ack that it is safe to let go.
+      if (overlay) {
+        pin()
+
+        send({ type: 'v0:sandbox:overlay', open: true, tier, rects: floats(el).rects })
+
+        // Never stay gated on a parent that went quiet: a stuck `pending` would
+        // leave an invisible full-viewport frame swallowing the page.
+        setTimeout(() => {
+          pending = false
+        }, 300)
+      } else {
+        send({ type: 'v0:sandbox:overlay', open: false, tier, rects: [] })
+
+        // …and never stay pinned on one either.
+        setTimeout(pin, 300)
+      }
 
       return
     }
@@ -167,7 +192,7 @@
     // collapse the placeholder the docs page is holding open in the flow. The
     // regions still have to keep up: a menu resizes under its own content.
     if (overlay) {
-      send({ type: 'v0:sandbox:rects', tier, rects })
+      send({ type: 'v0:sandbox:rects', tier, rects: found.rects })
 
       return
     }
@@ -176,7 +201,7 @@
     // — has to be made room for, or the frame clips it.
     let height = el.offsetHeight
 
-    for (const rect of rects.slice(1)) {
+    for (const rect of found.rects.slice(1)) {
       height = Math.max(height, Math.ceil(rect.top + rect.height) + PAD)
     }
 
