@@ -114,6 +114,15 @@ showcase quality.
 | `EmExpansionPanel` (+ Group/Header/Activator/Cue/Content) | `ExpansionPanel.*` |
 | `EmStep` (+ Item) | `Step.*` |
 
+## Wave 4 surface (preview) — graduated from showcase patterns
+
+| Component | v0 / shell |
+|---|---|
+| `EmPopover` (+ Activator/Content) | `Popover.*` (Content injects the root id via `usePopoverContext` so position props are honored) |
+| `EmList` (+ Item/Media/Content/Title/Subtitle/Meta) | `Single.Root` + `Single.Item` — ul/li/button anatomy, `aria-current` selection (no `role=option` outside a real listbox) |
+| `EmKanban` (+ Column/Card) | `createKanban` + `useDragDrop` internalized — per-card real refs, drop indicator, keyboard drag + `role=status` announcer |
+| `EmCalendar` (+ Header/Title/Prev/Next/Today/Grid/Mini) | own context; APG grid keyboard pattern; v0 `DateAdapter` slots in via optional injection, plain `Date` otherwise |
+
 Foundations also export `motion` and `control` (switch/checkbox/avatar geometry) as CSS vars.
 
 Maturity: **preview**. Not published (`private: true` until first release cut).
