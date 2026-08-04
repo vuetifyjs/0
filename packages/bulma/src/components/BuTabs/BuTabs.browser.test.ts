@@ -8,6 +8,7 @@ import { createApp, h, nextTick, shallowRef } from 'vue'
 import { conform } from '../../../harness/conform'
 // Components
 import { BuTab } from '../BuTab'
+import { BuTabList } from '../BuTabList'
 import { BuTabPanel } from '../BuTabPanel'
 
 function mount (component: Parameters<typeof createApp>[0]) {
@@ -38,12 +39,12 @@ function icon (classes: string, label: string) {
 describe('buTabs', () => {
   it('should conform to the basic tabs fixture', async () => {
     const { el, unmount } = mount({
-      render: () => h(BuTabs as any, () => [
+      render: () => h(BuTabs as any, () => h(BuTabList, null, () => [
         tab('pictures', 'Pictures'),
         tab('music', 'Music'),
         tab('videos', 'Videos'),
         tab('documents', 'Documents'),
-      ]),
+      ])),
     })
 
     await nextTick()
@@ -55,12 +56,12 @@ describe('buTabs', () => {
 
   it('should conform to the centered icon tabs fixture', async () => {
     const { el, unmount } = mount({
-      render: () => h(BuTabs as any, { centered: true }, () => [
+      render: () => h(BuTabs as any, () => h(BuTabList, { centered: true }, () => [
         icon('fas fa-image', 'Pictures'),
         icon('fas fa-music', 'Music'),
         icon('fas fa-film', 'Videos'),
         icon('far fa-file-alt', 'Documents'),
-      ]),
+      ])),
     })
 
     await nextTick()
@@ -79,13 +80,11 @@ describe('buTabs', () => {
         'onUpdate:modelValue': (value: unknown) => {
           model.value = value as string
         },
-      }, {
-        default: () => [tab('a', 'Alpha'), tab('b', 'Beta')],
-        panels: () => [
-          h(BuTabPanel as any, { value: 'a' }, () => 'Alpha panel'),
-          h(BuTabPanel as any, { value: 'b' }, () => 'Beta panel'),
-        ],
-      }),
+      }, () => [
+        h(BuTabList, null, () => [tab('a', 'Alpha'), tab('b', 'Beta')]),
+        h(BuTabPanel as any, { value: 'a' }, () => 'Alpha panel'),
+        h(BuTabPanel as any, { value: 'b' }, () => 'Beta panel'),
+      ]),
     })
 
     await nextTick()

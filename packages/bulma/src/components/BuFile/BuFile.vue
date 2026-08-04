@@ -32,6 +32,8 @@
     form?: string
     /** Renders `is-fullwidth`. */
     fullwidth?: boolean
+    /** Icon font classes for the `.file-icon` glyph (e.g. `fas fa-upload`). */
+    icon?: string
     /** Unique identifier for the native input (auto-generated if omitted). Snapshotted at setup. */
     id?: ID
     /** Form field name. Snapshotted at setup (createInput takes a plain value). */
@@ -84,7 +86,6 @@
 
   defineSlots<{
     default: (props: BuFileSlotProps) => any
-    icon: () => any
   }>()
 
   const emit = defineEmits<{
@@ -101,6 +102,7 @@
     filename = false,
     form,
     fullwidth = false,
+    icon = 'fas fa-upload',
     id,
     name,
     placeholder = 'No file uploaded',
@@ -193,9 +195,7 @@
 
       <span class="file-cta">
         <span class="file-icon">
-          <slot name="icon">
-            <i class="fas fa-upload" />
-          </slot>
+          <i :class="icon" />
         </span>
 
         <span class="file-label">

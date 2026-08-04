@@ -1,9 +1,9 @@
 <script lang="ts">
   // Framework
-  import { useClickOutside, useId, useToggleScope } from '@vuetify/v0'
+  import { createContext, useClickOutside, useId, useToggleScope } from '@vuetify/v0'
 
   // Utilities
-  import { toRef, useTemplateRef } from 'vue'
+  import { useTemplateRef } from 'vue'
 
   export interface BuDropdownProps {
     /** Show the menu on hover via Bulma CSS only (`is-hoverable`) — no JS wiring when set. */
@@ -20,36 +20,32 @@
     menu?: boolean
   }
 
-  export interface BuDropdownTriggerSlotProps {
+  export interface BuDropdownContext {
+    /** Id of `.dropdown-menu` — mirrored on the trigger's `aria-controls`. */
+    id: string
     /** Whether the dropdown is open. */
-    isOpen: boolean
+    isOpen: () => boolean
+    /** Whether items should be announced as menu items. */
+    isMenu: () => boolean
     /** Toggle the dropdown (no-op when `hoverable`). */
     toggle: () => void
-    /** Attributes to bind to the trigger element. */
-    attrs: {
-      'aria-haspopup': 'true'
-      'aria-controls': string
-      'aria-expanded': 'true' | 'false'
-      'onClick': () => void
-    }
-  }
-
-  export interface BuDropdownSlotProps {
-    /** Whether the dropdown is open. */
-    isOpen: boolean
     /** Close the dropdown. */
     close: () => void
-    /** Attrs to bind to each actionable item when `menu` is set; empty otherwise. */
-    item: { role?: 'menuitem' }
   }
+
+  // Only the parent provides, so the provider stays module-local; parts import
+  // the hook.
+  const [useBuDropdown, provideBuDropdown] = createContext<BuDropdownContext | null>('bulma:dropdown', null)
+
+  export { useBuDropdown }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'BuDropdown' })
 
   defineSlots<{
-    trigger: (props: BuDropdownTriggerSlotProps) => any
-    default: (props: BuDropdownSlotProps) => any
+    /** `.dropdown` children — BuDropdownTrigger and BuDropdownMenu. */
+    default?: () => any
   }>()
 
   defineEmits<{
@@ -72,10 +68,18 @@
     model.value = false
   }
 
-  function onToggle () {
+  function toggle () {
     if (hoverable) return
     model.value = !model.value
   }
+
+  provideBuDropdown({
+    id,
+    isOpen: () => model.value,
+    isMenu: () => menu,
+    toggle,
+    close,
+  })
 
   // Dismissal listeners engage only while open (and never for the pure-CSS
   // hoverable mode) so closed dropdowns are fully inert — a document-level
@@ -92,23 +96,6 @@
     event.stopPropagation()
     close()
   }
-
-  const trigger = toRef((): BuDropdownTriggerSlotProps => ({
-    isOpen: model.value,
-    toggle: onToggle,
-    attrs: {
-      'aria-haspopup': 'true',
-      'aria-controls': id,
-      'aria-expanded': model.value ? 'true' : 'false',
-      'onClick': onToggle,
-    },
-  }))
-
-  const slotProps = toRef((): BuDropdownSlotProps => ({
-    isOpen: model.value,
-    close,
-    item: menu ? { role: 'menuitem' } : {},
-  }))
 </script>
 
 <template>
@@ -123,18 +110,6 @@
     }"
     @keydown="onKeydown"
   >
-    <div class="dropdown-trigger">
-      <slot name="trigger" v-bind="trigger" />
-    </div>
-
-    <div
-      :id
-      class="dropdown-menu"
-      :role="menu ? 'menu' : undefined"
-    >
-      <div class="dropdown-content">
-        <slot v-bind="slotProps" />
-      </div>
-    </div>
+    <slot />
   </div>
 </template>

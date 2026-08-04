@@ -8,6 +8,8 @@ import { BuBreadcrumb } from '#bulma/components/BuBreadcrumb'
 import { BuCheckbox } from '#bulma/components/BuCheckbox'
 import { BuControl } from '#bulma/components/BuControl'
 import { BuDropdown } from '#bulma/components/BuDropdown'
+import { BuDropdownMenu } from '#bulma/components/BuDropdownMenu'
+import { BuDropdownTrigger } from '#bulma/components/BuDropdownTrigger'
 import { BuField } from '#bulma/components/BuField'
 import { BuFile } from '#bulma/components/BuFile'
 import { BuHelp } from '#bulma/components/BuHelp'
@@ -15,14 +17,29 @@ import { BuInput } from '#bulma/components/BuInput'
 import { BuLabel } from '#bulma/components/BuLabel'
 import { BuMenu } from '#bulma/components/BuMenu'
 import { BuMessage } from '#bulma/components/BuMessage'
+import { BuMessageBody } from '#bulma/components/BuMessageBody'
+import { BuMessageHeader } from '#bulma/components/BuMessageHeader'
 import { BuModal } from '#bulma/components/BuModal'
+import { BuModalBody } from '#bulma/components/BuModalBody'
+import { BuModalCard } from '#bulma/components/BuModalCard'
+import { BuModalFoot } from '#bulma/components/BuModalFoot'
+import { BuModalHead } from '#bulma/components/BuModalHead'
+import { BuModalTitle } from '#bulma/components/BuModalTitle'
 import { BuNavbar } from '#bulma/components/BuNavbar'
+import { BuNavbarBrand } from '#bulma/components/BuNavbarBrand'
+import { BuNavbarMenu } from '#bulma/components/BuNavbarMenu'
 import { BuNotification } from '#bulma/components/BuNotification'
 import { BuPagination } from '#bulma/components/BuPagination'
 import { BuPanel } from '#bulma/components/BuPanel'
+import { BuPanelBlock } from '#bulma/components/BuPanelBlock'
+import { BuPanelHeading } from '#bulma/components/BuPanelHeading'
+import { BuPanelIcon } from '#bulma/components/BuPanelIcon'
+import { BuPanelTab } from '#bulma/components/BuPanelTab'
+import { BuPanelTabs } from '#bulma/components/BuPanelTabs'
 import { BuRadio } from '#bulma/components/BuRadio'
 import { BuSelect } from '#bulma/components/BuSelect'
 import { BuTab } from '#bulma/components/BuTab'
+import { BuTabList } from '#bulma/components/BuTabList'
 import { BuTabPanel } from '#bulma/components/BuTabPanel'
 import { BuTabs } from '#bulma/components/BuTabs'
 import { BuTextarea } from '#bulma/components/BuTextarea'
@@ -36,9 +53,9 @@ import { audit, REPORT_END, REPORT_START, summarize } from '#v0/components/fixtu
 import { createApp, h, nextTick } from 'vue'
 
 // Types
-import type { BuDropdownSlotProps, BuDropdownTriggerSlotProps } from '#bulma/components/BuDropdown'
+import type { BuDropdownMenuSlotProps } from '#bulma/components/BuDropdownMenu'
+import type { BuDropdownTriggerSlotProps } from '#bulma/components/BuDropdownTrigger'
 import type { BuMenuSection } from '#bulma/components/BuMenu'
-import type { BuPanelItem } from '#bulma/components/BuPanel'
 import type { AxeViolation } from '#v0/components/fixtures/audit'
 import type { Plugin } from 'vue'
 
@@ -93,7 +110,7 @@ function icon (side: string, glyph: string) {
   return h('span', { class: `icon is-small is-${side}` }, h('i', { 'class': `fas fa-${glyph}`, 'aria-hidden': 'true' }))
 }
 
-function trigger (props: BuDropdownTriggerSlotProps) {
+function button (props: BuDropdownTriggerSlotProps) {
   return h('button', { class: 'button', ...props.attrs }, [
     h('span', 'Dropdown button'),
     h('span', { class: 'icon is-small' }, [
@@ -102,7 +119,7 @@ function trigger (props: BuDropdownTriggerSlotProps) {
   ])
 }
 
-function items (props: BuDropdownSlotProps) {
+function items (props: BuDropdownMenuSlotProps) {
   return [
     h('a', { class: 'dropdown-item', href: '#', ...props.item }, ' Dropdown item '),
     h('a', { class: 'dropdown-item is-active', href: '#', ...props.item }, ' Active dropdown item '),
@@ -130,7 +147,7 @@ const sections: BuMenuSection<string>[] = [
   },
 ]
 
-const repos: BuPanelItem<string>[] = [
+const repos = [
   { label: 'bulma', icon: 'fas fa-book' },
   { label: 'marksheet', icon: 'fas fa-book' },
   { label: 'mojs', icon: 'fas fa-code-branch' },
@@ -184,7 +201,10 @@ const SWEEP: Record<string, Subject> = {
     ])),
   },
   BuDropdown: {
-    node: () => h(BuDropdown, { modelValue: true, menu: true }, { trigger, default: items }),
+    node: () => h(BuDropdown, { modelValue: true, menu: true }, () => [
+      h(BuDropdownTrigger, null, { default: button }),
+      h(BuDropdownMenu, null, { default: items }),
+    ]),
   },
   BuField: {
     node: () => h(BuField, null, () => [
@@ -221,30 +241,30 @@ const SWEEP: Record<string, Subject> = {
     node: () => h(BuMenu as any, { items: sections, modelValue: 'Manage Your Team' }),
   },
   BuMessage: {
-    node: () => h(BuMessage, {}, {
-      header: () => h('p', 'Hello World'),
-      default: () => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    }),
+    node: () => h(BuMessage, {}, () => [
+      h(BuMessageHeader, null, () => h('p', 'Hello World')),
+      h(BuMessageBody, null, () => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
+    ]),
   },
   BuModal: {
     plugins: [createStackPlugin()],
-    node: () => h(BuModal, { card: true, modelValue: true }, {
-      header: () => 'Modal title',
-      default: () => 'Modal body content',
-      footer: () => h('div', { class: 'buttons' }, [
+    node: () => h(BuModal, { modelValue: true }, () => h(BuModalCard, null, () => [
+      h(BuModalHead, null, () => h(BuModalTitle, null, () => 'Modal title')),
+      h(BuModalBody, null, () => 'Modal body content'),
+      h(BuModalFoot, null, () => h('div', { class: 'buttons' }, [
         h('button', { class: 'button is-success' }, 'Save changes'),
         h('button', { class: 'button' }, 'Cancel'),
-      ]),
-    }),
+      ])),
+    ])),
   },
   BuNavbar: {
     // Open state: burger expanded, menu shown.
-    node: () => h(BuNavbar, { id: 'navbarBasicExample', modelValue: true }, {
-      brand: () => h('a', { class: 'navbar-item', href: 'https://bulma.io' }, [
+    node: () => h(BuNavbar, { id: 'navbarBasicExample', modelValue: true }, () => [
+      h(BuNavbarBrand, null, () => h('a', { class: 'navbar-item', href: 'https://bulma.io' }, [
         h('img', { src: 'logo.png', alt: 'Logo' }),
-      ]),
-      default: () => navbarMenu(),
-    }),
+      ])),
+      h(BuNavbarMenu, null, () => navbarMenu()),
+    ]),
   },
   BuNotification: {
     node: () => h(BuNotification, {}, () => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
@@ -253,13 +273,9 @@ const SWEEP: Record<string, Subject> = {
     node: () => h(BuPagination, { pages: 86, modelValue: 46, visible: 7 }),
   },
   BuPanel: {
-    node: () => h(BuPanel as any, {
-      heading: 'Repositories',
-      tabs: ['All', 'Public', 'Private'],
-      items: repos,
-      modelValue: 'bulma',
-    }, {
-      start: () => h('div', { class: 'panel-block' }, [
+    node: () => h(BuPanel as any, { modelValue: 'bulma' }, () => [
+      h(BuPanelHeading, null, () => 'Repositories'),
+      h('div', { class: 'panel-block' }, [
         h('p', { class: 'control has-icons-left' }, [
           h('input', { 'class': 'input', 'type': 'text', 'placeholder': 'Search', 'aria-label': 'Search' }),
           h('span', { class: 'icon is-left' }, [
@@ -267,13 +283,18 @@ const SWEEP: Record<string, Subject> = {
           ]),
         ]),
       ]),
-      default: () => [
-        h('label', { class: 'panel-block' }, [h('input', { type: 'checkbox' }), ' remember me ']),
-        h('div', { class: 'panel-block' }, [
-          h('button', { class: 'button is-link is-outlined is-fullwidth' }, ' Reset all filters '),
-        ]),
-      ],
-    }),
+      h(BuPanelTabs as any, null, () => ['All', 'Public', 'Private'].map(label =>
+        h(BuPanelTab as any, { key: label, value: label }, () => label),
+      )),
+      repos.map(repo => h(BuPanelBlock as any, { key: repo.label, value: repo.label }, () => [
+        h(BuPanelIcon, { icon: repo.icon }),
+        repo.label,
+      ])),
+      h('label', { class: 'panel-block' }, [h('input', { type: 'checkbox' }), ' remember me ']),
+      h('div', { class: 'panel-block' }, [
+        h('button', { class: 'button is-link is-outlined is-fullwidth' }, ' Reset all filters '),
+      ]),
+    ]),
   },
   BuRadio: {
     node: () => h('div', { class: 'control' }, [
@@ -296,16 +317,14 @@ const SWEEP: Record<string, Subject> = {
     ]),
   },
   BuTabs: {
-    node: () => h(BuTabs as any, null, {
-      default: () => [
+    node: () => h(BuTabs as any, null, () => [
+      h(BuTabList, null, () => [
         h(BuTab as any, { value: 'pictures' }, () => 'Pictures'),
         h(BuTab as any, { value: 'music' }, () => 'Music'),
-      ],
-      panels: () => [
-        h(BuTabPanel as any, { value: 'pictures' }, () => 'Pictures panel'),
-        h(BuTabPanel as any, { value: 'music' }, () => 'Music panel'),
-      ],
-    }),
+      ]),
+      h(BuTabPanel as any, { value: 'pictures' }, () => 'Pictures panel'),
+      h(BuTabPanel as any, { value: 'music' }, () => 'Music panel'),
+    ]),
   },
   BuTextarea: {
     node: () => h(BuControl, null, () => h(BuTextarea, { placeholder: 'e.g. Hello world' })),

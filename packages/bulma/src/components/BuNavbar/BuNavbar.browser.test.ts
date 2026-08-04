@@ -7,6 +7,8 @@ import { BuNavbar } from './index'
 import { createApp, h, nextTick } from 'vue'
 
 import { conform } from '../../../harness/conform'
+import { BuNavbarBrand } from '../BuNavbarBrand'
+import { BuNavbarMenu } from '../BuNavbarMenu'
 
 function mount (component: Parameters<typeof createApp>[0]) {
   const host = document.createElement('div')
@@ -51,12 +53,12 @@ function menu () {
 describe('buNavbar', () => {
   it('should conform to the full navbar fixture', async () => {
     const { el, unmount } = mount({
-      render: () => h(BuNavbar, { id: 'navbarBasicExample' }, {
-        brand: () => h('a', { class: 'navbar-item', href: 'https://bulma.io' }, [
+      render: () => h(BuNavbar, { id: 'navbarBasicExample' }, () => [
+        h(BuNavbarBrand, null, () => h('a', { class: 'navbar-item', href: 'https://bulma.io' }, [
           h('img', { src: 'logo.png', alt: 'Logo' }),
-        ]),
-        default: () => menu(),
-      }),
+        ])),
+        h(BuNavbarMenu, null, menu),
+      ]),
     })
 
     await nextTick()
@@ -68,11 +70,12 @@ describe('buNavbar', () => {
 
   it('should toggle is-active on both burger and menu and conform to the open fixture', async () => {
     const { el, unmount } = mount({
-      render: () => h(BuNavbar, { id: 'navbarOpenExample' }, {
-        default: () => h('div', { class: 'navbar-start' }, [
+      render: () => h(BuNavbar, { id: 'navbarOpenExample' }, () => [
+        h(BuNavbarBrand),
+        h(BuNavbarMenu, null, () => h('div', { class: 'navbar-start' }, [
           h('a', { class: 'navbar-item' }, 'Home'),
-        ]),
-      }),
+        ])),
+      ]),
     })
 
     await nextTick()

@@ -1,16 +1,27 @@
 <script lang="ts">
   // Framework
-  import { Dialog, IN_BROWSER } from '@vuetify/v0'
+  import { createContext, Dialog, IN_BROWSER } from '@vuetify/v0'
 
   // Utilities
-  import { mergeProps, nextTick, onScopeDispose, useAttrs, useTemplateRef, watch } from 'vue'
+  import { mergeProps, nextTick, onScopeDispose, shallowRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   export interface BuModalProps {
-    /** Render the `.modal-card` variant with header and footer regions. */
-    card?: boolean
     /** Prevent background clicks from closing the modal. */
     blocking?: boolean
   }
+
+  export interface BuModalContext {
+    /** Register the panel element (`.modal-card` / `.modal-content`) with the focus trap. */
+    panel: (el: HTMLElement | null) => void
+    /** Close the modal. */
+    close: () => void
+  }
+
+  // Only the parent provides, so the provider stays module-local; parts import
+  // the hook.
+  const [useBuModal, provideBuModal] = createContext<BuModalContext | null>('bulma:modal', null)
+
+  export { useBuModal }
 
   const FOCUSABLE = [
     'a[href]',
@@ -27,28 +38,21 @@
   defineOptions({ name: 'BuModal', inheritAttrs: false })
 
   defineSlots<{
-    /** Modal content: `.modal-content` body, or `.modal-card-body` in card mode. */
+    /** `.modal` children — BuModalCard (head/body/foot parts) or BuModalContent. */
     default?: () => any
-    /** Card variant title, rendered inside `p.modal-card-title`. */
-    header?: () => any
-    /** Card variant footer, rendered inside `footer.modal-card-foot`. */
-    footer?: () => any
   }>()
 
   defineEmits<{
     'update:model-value': [value: boolean]
   }>()
 
-  const {
-    card = false,
-    blocking = false,
-  } = defineProps<BuModalProps>()
+  const { blocking = false } = defineProps<BuModalProps>()
 
   const model = defineModel<boolean>({ default: false })
 
   const attrs = useAttrs()
   const root = useTemplateRef<HTMLElement>('root')
-  const panel = useTemplateRef<HTMLElement>('panel')
+  const panel = shallowRef<HTMLElement | null>(null)
 
   let restore: HTMLElement | null = null
 
@@ -63,6 +67,15 @@
   function onBackground () {
     if (!blocking) close()
   }
+
+  // The panel is composed in userland now, so the trap learns about it through
+  // registration rather than a local template ref.
+  provideBuModal({
+    panel: el => {
+      panel.value = el
+    },
+    close,
+  })
 
   // Hand-rolled focus trap: v0 ships no focus-trap composable and a non-native
   // <dialog> host gets no top-layer trapping (v0-core follow-up candidate).
@@ -124,7 +137,7 @@
 <template>
   <Dialog.Root v-model="model">
     <Dialog.Content
-      v-slot="{ isOpen, globalTop, zIndex, attrs: content }"
+      v-slot="{ isOpen, globalTop, zIndex }"
       :blocking
       :close-on-click-outside="false"
       renderless
@@ -148,53 +161,7 @@
           @pointerdown.prevent
         />
 
-        <div
-          v-if="card"
-          :id="content.id"
-          ref="panel"
-          :aria-labelledby="content['aria-labelledby']"
-          :aria-modal="content['aria-modal']"
-          class="modal-card"
-          :role="content.role"
-          tabindex="-1"
-        >
-          <header class="modal-card-head">
-            <Dialog.Title
-              as="p"
-              class="modal-card-title"
-            >
-              <slot name="header" />
-            </Dialog.Title>
-
-            <Dialog.Close class="delete" />
-          </header>
-
-          <section class="modal-card-body">
-            <slot />
-          </section>
-
-          <footer
-            v-if="$slots.footer"
-            class="modal-card-foot"
-          >
-            <slot name="footer" />
-          </footer>
-        </div>
-
-        <template v-else>
-          <div
-            :id="content.id"
-            ref="panel"
-            :aria-modal="content['aria-modal']"
-            class="modal-content"
-            :role="content.role"
-            tabindex="-1"
-          >
-            <slot />
-          </div>
-
-          <Dialog.Close class="modal-close is-large" />
-        </template>
+        <slot />
       </div>
     </Dialog.Content>
   </Dialog.Root>

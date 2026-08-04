@@ -14,6 +14,8 @@ import { createApp, h } from 'vue'
 import { conform } from '../../../harness/conform'
 import { BuControl } from '../BuControl'
 import { BuField } from '../BuField'
+import { BuFieldBody } from '../BuFieldBody'
+import { BuFieldLabel } from '../BuFieldLabel'
 import { BuInput } from '../BuInput'
 
 const cleanups: (() => void)[] = []
@@ -36,12 +38,12 @@ afterEach(() => {
 
 describe('buLabel', () => {
   it('conforms to the horizontal is-static fixture', () => {
-    const host = mount(() => h(BuField, { horizontal: true, size: 'normal' }, {
-      label: () => h(BuLabel, null, () => 'From'),
-      default: () => h(BuField, null, () => h(BuControl, { as: 'p' }, () => (
+    const host = mount(() => h(BuField, { horizontal: true }, () => [
+      h(BuFieldLabel, { size: 'normal' }, () => h(BuLabel, null, () => 'From')),
+      h(BuFieldBody, null, () => h(BuField, null, () => h(BuControl, { as: 'p' }, () => (
         h(BuInput, { plaintext: true, type: 'email', modelValue: 'me@example.com' })
-      ))),
-    }))
+      )))),
+    ]))
 
     // `value` lands as a DOM property, not an attribute — skip it on both sides
     conform(host.firstElementChild!, 'form-input:static', { ignoreAttrs: ['value'] })

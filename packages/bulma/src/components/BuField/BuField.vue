@@ -4,6 +4,8 @@
  * @remarks
  * Bulma `.field` wrapper — pure markup, no v0 state. Supports addons,
  * grouped, and horizontal layouts per bulma.io/documentation/form/general.
+ * The horizontal layout's two columns are the BuFieldLabel and BuFieldBody
+ * parts, composed in userland exactly as Bulma nests them.
  */
 
 <script lang="ts">
@@ -13,17 +15,13 @@
   // Utilities
   import { toRef } from 'vue'
 
-  export type BuFieldSize = 'small' | 'normal' | 'medium' | 'large'
-
   export interface BuFieldProps {
     /** Attached controls: `has-addons` (+ `has-addons-centered` / `has-addons-right`) */
     addons?: boolean | 'centered' | 'right'
     /** Grouped controls: `is-grouped` (+ `is-grouped-centered` / `is-grouped-right` / `is-grouped-multiline`) */
     grouped?: boolean | 'centered' | 'right' | 'multiline'
-    /** Horizontal layout: `is-horizontal` with `.field-label` + `.field-body` */
+    /** Horizontal layout: `is-horizontal`, composed from BuFieldLabel + BuFieldBody */
     horizontal?: boolean
-    /** Size class on `.field-label` when horizontal: `is-{size}` */
-    size?: BuFieldSize
   }
 </script>
 
@@ -32,14 +30,12 @@
 
   defineSlots<{
     default: () => any
-    label?: () => any
   }>()
 
   const {
     addons = false,
     grouped = false,
     horizontal = false,
-    size,
   } = defineProps<BuFieldProps>()
 
   const classes = toRef(() => [
@@ -53,19 +49,6 @@
 
 <template>
   <div class="field" :class="classes">
-    <template v-if="horizontal">
-      <div class="field-label" :class="size && `is-${size}`">
-        <slot name="label" />
-      </div>
-
-      <div class="field-body">
-        <slot />
-      </div>
-    </template>
-
-    <template v-else>
-      <slot name="label" />
-      <slot />
-    </template>
+    <slot />
   </div>
 </template>

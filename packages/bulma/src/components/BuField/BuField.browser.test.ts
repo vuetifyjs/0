@@ -9,6 +9,8 @@ import { createApp, h } from 'vue'
 
 import { conform } from '../../../harness/conform'
 import { BuControl } from '../BuControl'
+import { BuFieldBody } from '../BuFieldBody'
+import { BuFieldLabel } from '../BuFieldLabel'
 import { BuHelp } from '../BuHelp'
 import { BuInput } from '../BuInput'
 import { BuLabel } from '../BuLabel'
@@ -65,13 +67,13 @@ describe('buField', () => {
   })
 
   it('conforms to the horizontal fixture', () => {
-    const host = mount(() => h(BuField, { horizontal: true, size: 'normal' }, {
-      label: () => h(BuLabel, null, () => 'Subject'),
-      default: () => h(BuField, null, () => [
+    const host = mount(() => h(BuField, { horizontal: true }, () => [
+      h(BuFieldLabel, { size: 'normal' }, () => h(BuLabel, null, () => 'Subject')),
+      h(BuFieldBody, null, () => h(BuField, null, () => [
         h(BuControl, null, () => h(BuInput, { color: 'danger', placeholder: 'e.g. Partnership opportunity' })),
         h(BuHelp, { color: 'danger' }, () => 'This field is required'),
-      ]),
-    }))
+      ])),
+    ]))
 
     conform(host.firstElementChild!, 'form-general:horizontal form', VALUE)
   })

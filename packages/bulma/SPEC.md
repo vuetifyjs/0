@@ -61,6 +61,11 @@ markup against bulma.io's documented fixtures.
   attribute on the wrapping `<label>` and its CSS selects on it; the components reproduce
   it (alongside the input's real `disabled`). Expect axe/validator discussion — deliberate
   markup fidelity.
+- **BuModalCard's `aria-labelledby` needs BuModalTitle:** v0's dialog context mints a
+  `titleId` whether or not a title is mounted, and BuModalCard binds it unconditionally, so
+  a card composed without BuModalTitle points `aria-labelledby` at an element that does not
+  exist. Bulma's own card markup always ships a `.modal-card-title`; compose one (or drop
+  BuModalHead entirely and label the panel yourself).
 - **Esc closes a `blocking` BuModal:** matches v0 Dialog semantics (`blocking` gates
   scrim-click dismissal only, mirroring native `<dialog>` cancel). Revisit if the DS wants
   `blocking` to gate keyboard dismissal too.
@@ -93,6 +98,12 @@ markup against bulma.io's documented fixtures.
   shows `is-danger` — deceptively half-wired). Compose validation fields as
   `<InputRoot renderless v-model :rules>` wrapping the whole field; BuHelp warns in
   dev when `validation` is set with no ambient root.
+- **Part components are composed, not enforced:** region parts (BuModalHead, BuMessageBody,
+  BuDropdownMenu, BuNavbarBrand, …) read their parent's state through an optional context
+  and warn in dev when it is missing, so a part rendered outside its parent still emits
+  Bulma markup with inert behavior rather than throwing. Parts backed by a v0 context
+  (BuPanelBlock, BuPanelTab, BuTab, BuModalTitle) inherit v0's stricter contract instead
+  and throw `V0_CONTEXT_MISSING`.
 - **A11y improvements over verbatim docs markup:** BuNotification adds
   `aria-label="delete"` (docs ship the delete button unlabeled); BuDropdown emits
   `role="menu"` only when items actually render `role="menuitem"` (the docs' verbatim

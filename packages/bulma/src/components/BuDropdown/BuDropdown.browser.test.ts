@@ -6,11 +6,15 @@ import { BuDropdown } from './index'
 import { createApp, h, nextTick, shallowRef } from 'vue'
 
 // Types
-import type { BuDropdownSlotProps, BuDropdownTriggerSlotProps } from './index'
+import type { BuDropdownMenuSlotProps } from '../BuDropdownMenu'
+import type { BuDropdownTriggerSlotProps } from '../BuDropdownTrigger'
 
 import { conform } from '../../../harness/conform'
+// Components
+import { BuDropdownMenu } from '../BuDropdownMenu'
+import { BuDropdownTrigger } from '../BuDropdownTrigger'
 
-function trigger (props: BuDropdownTriggerSlotProps) {
+function button (props: BuDropdownTriggerSlotProps) {
   return h('button', { class: 'button', ...props.attrs }, [
     h('span', 'Dropdown button'),
     h('span', { class: 'icon is-small' }, [
@@ -19,7 +23,7 @@ function trigger (props: BuDropdownTriggerSlotProps) {
   ])
 }
 
-function content (props: BuDropdownSlotProps) {
+function items (props: BuDropdownMenuSlotProps) {
   return [
     h('a', { class: 'dropdown-item', href: '#', ...props.item }, ' Dropdown item '),
     h('a', { class: 'dropdown-item', ...props.item }, ' Other dropdown item '),
@@ -27,6 +31,13 @@ function content (props: BuDropdownSlotProps) {
     h('a', { class: 'dropdown-item', href: '#', ...props.item }, ' Other dropdown item '),
     h('hr', { class: 'dropdown-divider' }),
     h('a', { class: 'dropdown-item', href: '#', ...props.item }, ' With a divider '),
+  ]
+}
+
+function parts () {
+  return [
+    h(BuDropdownTrigger, null, { default: button }),
+    h(BuDropdownMenu, null, { default: items }),
   ]
 }
 
@@ -52,7 +63,7 @@ function click (target: Element | Document) {
 describe('buDropdown', () => {
   it('conforms to the dropdown fixture when open', () => {
     const { el, unmount } = mount({
-      render: () => h(BuDropdown, { modelValue: true, menu: true }, { trigger, default: content }),
+      render: () => h(BuDropdown, { modelValue: true, menu: true }, parts),
     })
     // id / aria-controls: fixture hardcodes "dropdown-menu", ours is a useId value.
     conform(el, 'dropdown', { ignoreAttrs: ['id', 'aria-controls'] })
@@ -63,7 +74,7 @@ describe('buDropdown', () => {
 
   it('omits role="menu" in arbitrary-content mode', () => {
     const { el, unmount } = mount({
-      render: () => h(BuDropdown, { modelValue: true }, { trigger, default: content }),
+      render: () => h(BuDropdown, { modelValue: true }, parts),
     })
     expect(el.querySelector('.dropdown-menu')!.hasAttribute('role')).toBe(false)
     unmount()
@@ -78,7 +89,7 @@ describe('buDropdown', () => {
           'onUpdate:modelValue': (value: boolean) => {
             open.value = value
           },
-        }, { trigger, default: content })
+        }, parts)
       },
     })
 
@@ -110,7 +121,7 @@ describe('buDropdown', () => {
           'onUpdate:modelValue': (value: boolean) => {
             open.value = value
           },
-        }, { trigger, default: content })
+        }, parts)
       },
     })
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { Presence } from '@vuetify/v0'
+  import { createContext, Presence } from '@vuetify/v0'
 
   // Utilities
   import { toRef, useAttrs } from 'vue'
@@ -11,16 +11,25 @@
     /** Bulma size modifier, rendered as `is-{size}`. */
     size?: 'small' | 'normal' | 'medium' | 'large'
   }
+
+  export interface BuMessageContext {
+    /** Dismiss the message — drives the delete button in BuMessageHeader. */
+    close: () => void
+  }
+
+  // Only the parent provides, so the provider stays module-local; parts import
+  // the hook.
+  const [useBuMessage, provideBuMessage] = createContext<BuMessageContext | null>('bulma:message', null)
+
+  export { useBuMessage }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'BuMessage', inheritAttrs: false })
 
   defineSlots<{
-    /** Message body content. */
+    /** `article.message` children — BuMessageHeader and BuMessageBody. */
     default?: () => any
-    /** Header content; when present renders `.message-header` with a delete button. */
-    header?: () => any
   }>()
 
   defineEmits<{
@@ -41,9 +50,11 @@
     size && `is-${size}`,
   ])
 
-  function onDelete () {
-    model.value = false
-  }
+  provideBuMessage({
+    close: () => {
+      model.value = false
+    },
+  })
 </script>
 
 <template>
@@ -57,23 +68,7 @@
       :data-state="state['data-state']"
       v-bind="attrs"
     >
-      <div
-        v-if="$slots.header"
-        class="message-header"
-      >
-        <slot name="header" />
-
-        <button
-          aria-label="delete"
-          class="delete"
-          type="button"
-          @click="onDelete"
-        />
-      </div>
-
-      <div class="message-body">
-        <slot />
-      </div>
+      <slot />
     </article>
   </Presence>
 </template>

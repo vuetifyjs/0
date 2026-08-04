@@ -6,6 +6,9 @@ import { BuMessage } from './index'
 import { createApp, h, nextTick, shallowRef } from 'vue'
 
 import { conform } from '../../../harness/conform'
+// Components
+import { BuMessageBody } from '../BuMessageBody'
+import { BuMessageHeader } from '../BuMessageHeader'
 
 let teardown: (() => void) | undefined
 
@@ -38,17 +41,17 @@ function body () {
 
 describe('buMessage', () => {
   it('should conform to the header and delete fixture', () => {
-    const host = mount(() => h(BuMessage, {}, {
-      header: () => h('p', 'Hello World'),
-      default: body,
-    }))
+    const host = mount(() => h(BuMessage, {}, () => [
+      h(BuMessageHeader, null, () => h('p', 'Hello World')),
+      h(BuMessageBody, null, body),
+    ]))
 
     // v0's delete button correctly carries type="button"; the docs fixture omits it.
     conform(host.firstElementChild!, 'message', { ignoreAttrs: ['type'] })
   })
 
   it('should conform to the body-only fixture', () => {
-    const host = mount(() => h(BuMessage, {}, { default: body }))
+    const host = mount(() => h(BuMessage, {}, () => h(BuMessageBody, null, body)))
 
     conform(host.firstElementChild!, 'message:body only')
   })
@@ -60,10 +63,10 @@ describe('buMessage', () => {
       'onUpdate:modelValue': (value: boolean) => {
         open.value = value
       },
-    }, {
-      header: () => h('p', 'Hello World'),
-      default: () => 'content',
-    }))
+    }, () => [
+      h(BuMessageHeader, null, () => h('p', 'Hello World')),
+      h(BuMessageBody, null, () => 'content'),
+    ]))
 
     host.querySelector<HTMLButtonElement>('.delete')!.click()
     await nextTick()

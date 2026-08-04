@@ -5,14 +5,17 @@ import { BuPanel } from './index'
 // Utilities
 import { createApp, h, nextTick, shallowRef } from 'vue'
 
-// Types
-import type { BuPanelItem } from './index'
-
 import { conform } from '../../../harness/conform'
+// Components
+import { BuPanelBlock } from '../BuPanelBlock'
+import { BuPanelHeading } from '../BuPanelHeading'
+import { BuPanelIcon } from '../BuPanelIcon'
+import { BuPanelTab } from '../BuPanelTab'
+import { BuPanelTabs } from '../BuPanelTabs'
 
-const tabs = ['All', 'Public', 'Private', 'Sources', 'Forks']
+const labels = ['All', 'Public', 'Private', 'Sources', 'Forks']
 
-const repos: BuPanelItem<string>[] = [
+const repos = [
   { label: 'bulma', icon: 'fas fa-book' },
   { label: 'marksheet', icon: 'fas fa-book' },
   { label: 'minireset.css', icon: 'fas fa-book' },
@@ -21,16 +24,32 @@ const repos: BuPanelItem<string>[] = [
   { label: 'mojs', icon: 'fas fa-code-branch' },
 ]
 
-const slots = {
-  start: () => h('div', { class: 'panel-block' }, [
+function search () {
+  return h('div', { class: 'panel-block' }, [
     h('p', { class: 'control has-icons-left' }, [
       h('input', { class: 'input', type: 'text', placeholder: 'Search' }),
       h('span', { class: 'icon is-left' }, [
         h('i', { 'class': 'fas fa-search', 'aria-hidden': 'true' }),
       ]),
     ]),
-  ]),
-  default: () => [
+  ])
+}
+
+function tabs (props: Record<string, unknown> = {}) {
+  return h(BuPanelTabs as any, props, () => labels.map(label =>
+    h(BuPanelTab as any, { key: label, value: label }, () => label),
+  ))
+}
+
+function blocks () {
+  return repos.map(repo => h(BuPanelBlock as any, { key: repo.label, value: repo.label }, () => [
+    h(BuPanelIcon, { icon: repo.icon }),
+    repo.label,
+  ]))
+}
+
+function footer () {
+  return [
     h('label', { class: 'panel-block' }, [
       h('input', { type: 'checkbox' }),
       ' remember me ',
@@ -38,7 +57,7 @@ const slots = {
     h('div', { class: 'panel-block' }, [
       h('button', { class: 'button is-link is-outlined is-fullwidth' }, ' Reset all filters '),
     ]),
-  ],
+  ]
 }
 
 function mount (component: Parameters<typeof createApp>[0]) {
@@ -57,12 +76,13 @@ function mount (component: Parameters<typeof createApp>[0]) {
 describe('buPanel', () => {
   it('conforms to the panel fixture', () => {
     const { el, unmount } = mount({
-      render: () => h(BuPanel as any, {
-        heading: 'Repositories',
-        tabs,
-        items: repos,
-        modelValue: 'bulma',
-      }, slots),
+      render: () => h(BuPanel as any, { modelValue: 'bulma' }, () => [
+        h(BuPanelHeading, null, () => 'Repositories'),
+        search(),
+        tabs(),
+        blocks(),
+        footer(),
+      ]),
     })
     conform(el, 'panel')
     unmount()
@@ -74,17 +94,22 @@ describe('buPanel', () => {
     const { el, unmount } = mount({
       setup () {
         return () => h(BuPanel as any, {
-          'heading': 'Repositories',
-          tabs,
-          'items': repos,
           'modelValue': selected.value,
           'onUpdate:modelValue': (value: string | string[]) => {
             selected.value = value
           },
-          'onTab': (value: string) => {
-            tabbed.value = value
-          },
-        }, slots)
+        }, () => [
+          h(BuPanelHeading, null, () => 'Repositories'),
+          search(),
+          tabs({
+            'modelValue': tabbed.value,
+            'onUpdate:modelValue': (value: string) => {
+              tabbed.value = value
+            },
+          }),
+          blocks(),
+          footer(),
+        ])
       },
     })
 
@@ -102,12 +127,12 @@ describe('buPanel', () => {
     expect(el.querySelector('a.panel-block.is-active')!.textContent!.trim()).toBe('bulma')
 
     // Selecting another block moves the single block selection.
-    const blocks = [...el.querySelectorAll('a.panel-block')]
-    ;(blocks[1] as HTMLElement).click()
+    const rows = [...el.querySelectorAll('a.panel-block')]
+    ;(rows[1] as HTMLElement).click()
     await nextTick()
     expect(selected.value).toBe('marksheet')
-    expect(blocks[0].classList.contains('is-active')).toBe(false)
-    expect(blocks[1].classList.contains('is-active')).toBe(true)
+    expect(rows[0].classList.contains('is-active')).toBe(false)
+    expect(rows[1].classList.contains('is-active')).toBe(true)
 
     unmount()
   })
@@ -117,22 +142,21 @@ describe('buPanel', () => {
     const { el, unmount } = mount({
       setup () {
         return () => h(BuPanel as any, {
-          'items': repos,
           'multiple': true,
           'modelValue': selected.value,
           'onUpdate:modelValue': (value: string | string[]) => {
             selected.value = value as string[]
           },
-        })
+        }, blocks)
       },
     })
 
-    const blocks = [...el.querySelectorAll('a.panel-block')]
-    ;(blocks[1] as HTMLElement).click()
+    const rows = [...el.querySelectorAll('a.panel-block')]
+    ;(rows[1] as HTMLElement).click()
     await nextTick()
     expect(selected.value).toEqual(['bulma', 'marksheet'])
-    expect(blocks[0].classList.contains('is-active')).toBe(true)
-    expect(blocks[1].classList.contains('is-active')).toBe(true)
+    expect(rows[0].classList.contains('is-active')).toBe(true)
+    expect(rows[1].classList.contains('is-active')).toBe(true)
 
     unmount()
   })

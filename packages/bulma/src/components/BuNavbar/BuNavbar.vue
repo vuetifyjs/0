@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { Toggle, useId } from '@vuetify/v0'
+  import { createContext, useId } from '@vuetify/v0'
 
   // Utilities
   import { toRef } from 'vue'
@@ -12,8 +12,17 @@
     label?: string
     /** Color modifier applied to `.navbar` */
     color?: 'primary' | 'link' | 'info' | 'success' | 'warning' | 'danger'
-    /** Renders the `.navbar-burger` toggle */
-    burger?: boolean
+  }
+
+  export interface BuNavbarContext {
+    /** Id shared by `.navbar-menu` and the burger's `data-target`. */
+    id: () => string
+    /** Whether the mobile menu is open. */
+    isOpen: () => boolean
+    /** Toggle the mobile menu. */
+    toggle: () => void
+    /** Close the mobile menu. */
+    close: () => void
   }
 
   export interface BuNavbarSlotProps {
@@ -24,16 +33,20 @@
     /** Close the mobile menu */
     close: () => void
   }
+
+  // Only the parent provides, so the provider stays module-local; parts import
+  // the hook.
+  const [useBuNavbar, provideBuNavbar] = createContext<BuNavbarContext | null>('bulma:navbar', null)
+
+  export { useBuNavbar }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'BuNavbar' })
 
   defineSlots<{
-    /** Menu content — rendered inside `.navbar-menu` (`.navbar-start` / `.navbar-end` markup is userland) */
+    /** `nav.navbar` children — BuNavbarBrand and BuNavbarMenu. */
     default: (props: BuNavbarSlotProps) => any
-    /** Brand content — rendered inside `.navbar-brand`, before the burger */
-    brand?: (props: BuNavbarSlotProps) => any
   }>()
 
   defineEmits<{
@@ -44,7 +57,6 @@
     id,
     label = 'main navigation',
     color,
-    burger = true,
   } = defineProps<BuNavbarProps>()
 
   const model = defineModel<boolean>({ default: false })
@@ -62,6 +74,13 @@
     model.value = false
   }
 
+  provideBuNavbar({
+    id: () => menu.value,
+    isOpen: () => model.value,
+    toggle,
+    close,
+  })
+
   const slotProps = toRef((): BuNavbarSlotProps => ({
     isOpen: model.value,
     toggle,
@@ -76,35 +95,6 @@
     :class="color && `is-${color}`"
     role="navigation"
   >
-    <div class="navbar-brand">
-      <slot
-        name="brand"
-        v-bind="slotProps"
-      />
-
-      <Toggle.Root
-        v-if="burger"
-        v-model="model"
-        :aria-expanded="model ? 'true' : 'false'"
-        aria-label="menu"
-        as="a"
-        class="navbar-burger"
-        :class="{ 'is-active': model }"
-        :data-target="menu"
-      >
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-      </Toggle.Root>
-    </div>
-
-    <div
-      :id="menu"
-      class="navbar-menu"
-      :class="{ 'is-active': model }"
-    >
-      <slot v-bind="slotProps" />
-    </div>
+    <slot v-bind="slotProps" />
   </nav>
 </template>

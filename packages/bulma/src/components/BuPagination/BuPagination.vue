@@ -8,6 +8,10 @@
   export interface BuPaginationProps {
     /** Total page count (maps to v0 size with one item per page) */
     pages?: number
+    /** `.pagination-previous` label */
+    previous?: string
+    /** `.pagination-next` label */
+    next?: string
     /** Number of visible page buttons; omit for v0's responsive auto-measure */
     visible?: number
     /** Ellipsis character rendered between page ranges */
@@ -26,13 +30,6 @@
 <script setup lang="ts">
   defineOptions({ name: 'BuPagination' })
 
-  defineSlots<{
-    /** Previous button content */
-    prev?: () => any
-    /** Next button content */
-    next?: () => any
-  }>()
-
   defineEmits<{
     /** Emitted when the current page changes */
     'update:model-value': [value: number]
@@ -40,6 +37,8 @@
 
   const {
     pages = 1,
+    previous = 'Previous',
+    next = 'Next page',
     visible,
     ellipsis = '…',
     size,
@@ -85,7 +84,7 @@
         class="pagination-previous"
         :class="{ 'is-disabled': isFirst }"
       >
-        <slot name="prev">Previous</slot>
+        {{ previous }}
       </Pagination.Prev>
 
       <Pagination.Next
@@ -93,7 +92,7 @@
         class="pagination-next"
         :class="{ 'is-disabled': isLast }"
       >
-        <slot name="next">Next page</slot>
+        {{ next }}
       </Pagination.Next>
 
       <ul class="pagination-list">
