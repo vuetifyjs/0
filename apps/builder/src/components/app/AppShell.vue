@@ -64,7 +64,15 @@
           class="flex flex-shrink-0 items-center gap-2.5 rounded-md px-2 py-1.5 -ml-2 hover:bg-surface-variant transition-colors duration-150"
           @click="onHome"
         >
-          <span class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-primary text-on-primary font-mono text-[0.6875rem] font-bold">v0</span>
+          <img
+            alt="Vuetify0"
+            class="w-7 h-7 object-contain flex-shrink-0"
+            decoding="async"
+            height="28"
+            src="https://cdn.vuetifyjs.com/docs/images/one/logos/vzero.svg"
+            width="28"
+          >
+
           <span class="hidden sm:inline text-sm font-semibold tracking-[-0.01em]">Framework Builder</span>
         </Button.Root>
 
