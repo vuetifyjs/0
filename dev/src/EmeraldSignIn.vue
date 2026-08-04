@@ -80,7 +80,7 @@
   .esi-hero {
     background:
       linear-gradient(145deg, rgba(1, 96, 58, 0.35), rgba(0, 0, 0, 0.15)),
-      url('/emerald/signin-hero.jpg') center / cover no-repeat;
+      url('/emerald/contact-hero.jpg') top / cover no-repeat;
   }
 
   .esi-panel {
