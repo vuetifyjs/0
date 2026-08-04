@@ -29,12 +29,8 @@
 
   // True between asking the parent to promote and the parent confirming it. The
   // frame is mid-flight then — measuring against it would read a box that is
-  // about to move, and a pointer-driven read could bounce the overlay back off.
+  // about to move.
   let pending = false
-
-  // True while a pointer-revealed surface is showing: the frame grows around it
-  // and never promotes, for as long as it stays open.
-  let growing = false
 
   // Where the inline frame sits in the docs viewport. The parent keeps this
   // fresh so a promotion can pin against it in the same tick it is detected.
@@ -78,21 +74,25 @@
     return { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
   }
 
-  // Floating content has to escape the frame, not stretch it: on a real page an
-  // open menu paints over whatever follows it, and growing the example box
-  // instead would reflow the docs around a transient piece of UI.
+  // Classification contract — a DOM fact, read fresh on every measurement, so
+  // the same layout always classifies the same way whichever observer noticed
+  // it. Nothing here consults events or prior state.
   //
-  // Returns the regions the promoted frame is allowed to paint — the example's
-  // own box plus every surface that escapes it — and which tier that is:
+  //   overlay  something is laid out against the viewport (a modal and its
+  //            backdrop). Meant to cover everything, page chrome included.
+  //   float    out-of-flow content spilled past the example's box AND is owned
+  //            by component state — Bulma marks that with `is-active`, which
+  //            only this package's JS sets. It belongs to the page, so page
+  //            chrome occludes it.
+  //   grow     everything else, including a pure-CSS `:hover` reveal
+  //            (`is-hoverable`), which carries no `is-active` anywhere. The
+  //            frame makes room for it instead of being promoted.
   //
-  //   overlay  a viewport-laid-out surface is up (a modal and its backdrop).
-  //            It is meant to cover everything, page chrome included.
-  //   float    only in-flow content spilled out (a dropdown menu). It belongs
-  //            to the page, so page chrome should occlude it the way a sticky
-  //            navbar occludes a Bulma menu.
-  function floats (el: HTMLElement): { tier: 'overlay' | 'float' | null, rects: Rect[] } {
+  // `escaping` is reported either way: promotion clips to it, growth sizes
+  // around it.
+  function floats (el: HTMLElement): { tier: 'overlay' | 'float' | null, rects: Rect[], escaping: Rect[] } {
     const box = el.getBoundingClientRect()
-    const rects: Rect[] = []
+    const escaping: Rect[] = []
 
     let tier: 'overlay' | 'float' | null = null
 
@@ -116,25 +116,20 @@
 
       if (!escapes) continue
 
-      rects.push(toRect(rect))
+      escaping.push(toRect(rect))
 
       if (position === 'fixed') tier = 'overlay'
-      else tier ??= 'float'
+      else if (node.closest('.is-active')) tier ??= 'float'
     }
 
-    return tier ? { tier, rects: [toRect(box), ...rects] } : { tier: null, rects: [] }
+    return {
+      tier,
+      rects: tier ? [toRect(box), ...escaping] : [],
+      escaping,
+    }
   }
 
-  // Promotion is only ever entered from a state change the DOM reported —
-  // never from pointer movement. Bulma's `is-hoverable` dropdown opens in pure
-  // CSS, and promoting on hover fights the pointer: the frame relayouts under
-  // the cursor mid-gesture and the page comes apart. Hover-revealed content
-  // grows the frame instead, which is what it did before promotion existed.
-  //
-  // The mode has to latch for the whole reveal. Growing the frame does not grow
-  // this root, so the surface still reads as escaping it, and the resize this
-  // very growth triggers would promote on the rebound.
-  function measure (hover = false) {
+  function measure () {
     const el = root.value
 
     if (!el || pending) return
@@ -142,13 +137,10 @@
     const found = floats(el)
     const tier = found.tier
 
-    if (!tier) growing = false
-    else if (hover && !open) growing = true
-
     // Never ask to be promoted from an unpinned state: without a box to pin
     // against, the content would land at the frame's corner the moment the
     // frame becomes the viewport.
-    const overlay = !!tier && !growing && (open || !!box)
+    const overlay = !!tier && (open || !!box)
 
     if (overlay !== open) {
       open = overlay
@@ -201,7 +193,7 @@
     // — has to be made room for, or the frame clips it.
     let height = el.offsetHeight
 
-    for (const rect of found.rects.slice(1)) {
+    for (const rect of found.escaping) {
       height = Math.max(height, Math.ceil(rect.top + rect.height) + PAD)
     }
 
@@ -215,11 +207,12 @@
   useMutationObserver(root, () => measure(), { attributes: true, subtree: true })
 
   // A CSS-only reveal (Bulma's `is-hoverable` dropdown) mutates nothing and
-  // resizes nothing, so pointer movement is the only signal that a menu opened.
-  // Deferred a frame: moving between the trigger and its menu fires pointerout
-  // before the pointer lands, and reading `:hover` mid-gap would close what the
-  // reader is reaching for.
-  useEventListener(root, ['pointerover', 'pointerout'], () => requestAnimationFrame(() => measure(true)))
+  // resizes nothing, so pointer movement is the only signal that it happened.
+  // Detection only — the classification above never asks how a measurement was
+  // triggered. Deferred a frame because moving from the trigger onto its menu
+  // fires pointerout before the pointer lands, and measuring mid-gap would size
+  // the frame around a menu that is about to still be there.
+  useEventListener(root, ['pointerover', 'pointerout'], () => requestAnimationFrame(() => measure()))
 
   useEventListener(window, 'message', (event: MessageEvent) => {
     if (event.source !== window.parent) return
