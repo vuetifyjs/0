@@ -848,4 +848,172 @@ describe('useVirtualFocus', () => {
       expect(control.hasAttribute('aria-activedescendant')).toBe(false)
     })
   })
+
+  describe('typeahead', () => {
+    function createTextElement (id: string, text: string): HTMLElement {
+      const el = document.createElement('div')
+      el.setAttribute('id', id)
+      el.textContent = text
+      el.scrollIntoView = vi.fn()
+      return el
+    }
+
+    it('should highlight the first item whose text starts with the given char', () => {
+      const appleEl = createTextElement('apple', 'Apple')
+      const bananaEl = createTextElement('banana', 'Banana')
+      const cherryEl = createTextElement('cherry', 'Cherry')
+
+      const textItems: VirtualFocusItem[] = [
+        { id: 'apple', el: appleEl },
+        { id: 'banana', el: bananaEl },
+        { id: 'cherry', el: cherryEl },
+      ]
+
+      let result: ReturnType<typeof useVirtualFocus>
+
+      scope.run(() => {
+        result = useVirtualFocus(() => textItems, { control })
+      })
+
+      result!.typeahead('b')
+
+      expect(result!.highlightedId.value).toBe('banana')
+    })
+
+    it('should match case-insensitively', () => {
+      const appleEl = createTextElement('apple', 'Apple')
+
+      const textItems: VirtualFocusItem[] = [
+        { id: 'apple', el: appleEl },
+      ]
+
+      let result: ReturnType<typeof useVirtualFocus>
+
+      scope.run(() => {
+        result = useVirtualFocus(() => textItems, { control })
+      })
+
+      result!.typeahead('A')
+
+      expect(result!.highlightedId.value).toBe('apple')
+    })
+
+    it('should search from after the current highlighted position', () => {
+      const appleEl = createTextElement('apple', 'Apple')
+      const avocadoEl = createTextElement('avocado', 'Avocado')
+
+      const textItems: VirtualFocusItem[] = [
+        { id: 'apple', el: appleEl },
+        { id: 'avocado', el: avocadoEl },
+      ]
+
+      let result: ReturnType<typeof useVirtualFocus>
+
+      scope.run(() => {
+        result = useVirtualFocus(() => textItems, { control })
+      })
+
+      result!.highlight('apple')
+      result!.typeahead('a')
+
+      expect(result!.highlightedId.value).toBe('avocado')
+    })
+
+    it('should wrap around to the beginning when searching from the end', () => {
+      const avocadoEl = createTextElement('avocado', 'Avocado')
+      const bananaEl = createTextElement('banana', 'Banana')
+
+      const textItems: VirtualFocusItem[] = [
+        { id: 'avocado', el: avocadoEl },
+        { id: 'banana', el: bananaEl },
+      ]
+
+      let result: ReturnType<typeof useVirtualFocus>
+
+      scope.run(() => {
+        result = useVirtualFocus(() => textItems, { control })
+      })
+
+      result!.highlight('banana')
+      result!.typeahead('a')
+
+      expect(result!.highlightedId.value).toBe('avocado')
+    })
+
+    it('should skip disabled items', () => {
+      const appleEl = createTextElement('apple', 'Apple')
+      const avocadoEl = createTextElement('avocado', 'Avocado')
+
+      const textItems: VirtualFocusItem[] = [
+        { id: 'apple', el: appleEl, disabled: true },
+        { id: 'avocado', el: avocadoEl },
+      ]
+
+      let result: ReturnType<typeof useVirtualFocus>
+
+      scope.run(() => {
+        result = useVirtualFocus(() => textItems, { control })
+      })
+
+      result!.typeahead('a')
+
+      expect(result!.highlightedId.value).toBe('avocado')
+    })
+
+    it('should do nothing when no item text matches', () => {
+      const appleEl = createTextElement('apple', 'Apple')
+
+      const textItems: VirtualFocusItem[] = [
+        { id: 'apple', el: appleEl },
+      ]
+
+      let result: ReturnType<typeof useVirtualFocus>
+
+      scope.run(() => {
+        result = useVirtualFocus(() => textItems, { control })
+      })
+
+      result!.typeahead('z')
+
+      expect(result!.highlightedId.value).toBeUndefined()
+    })
+
+    it('should return early and do nothing when all items are disabled', () => {
+      const appleEl = createTextElement('apple', 'Apple')
+
+      const textItems: VirtualFocusItem[] = [
+        { id: 'apple', el: appleEl, disabled: true },
+      ]
+
+      let result: ReturnType<typeof useVirtualFocus>
+
+      scope.run(() => {
+        result = useVirtualFocus(() => textItems, { control })
+      })
+
+      result!.typeahead('a')
+
+      expect(result!.highlightedId.value).toBeUndefined()
+    })
+
+    it('should treat item with no el as empty text (not matching)', () => {
+      const noElItem: VirtualFocusItem = { id: 'no-el' }
+      const bananaEl = createTextElement('banana', 'Banana')
+
+      const textItems: VirtualFocusItem[] = [
+        noElItem,
+        { id: 'banana', el: bananaEl },
+      ]
+
+      let result: ReturnType<typeof useVirtualFocus>
+
+      scope.run(() => {
+        result = useVirtualFocus(() => textItems, { control })
+      })
+
+      result!.typeahead('b')
+
+      expect(result!.highlightedId.value).toBe('banana')
+    })
+  })
 })

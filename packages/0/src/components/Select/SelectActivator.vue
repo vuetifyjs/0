@@ -26,6 +26,8 @@
   export interface SelectActivatorProps extends AtomProps {
     /** Namespace for dependency injection */
     namespace?: string
+    /** Accessible label for the activator when no visible label is present */
+    label?: string
   }
 
   export interface SelectActivatorSlotProps {
@@ -39,6 +41,7 @@
       'aria-expanded': boolean
       'aria-haspopup': 'listbox'
       'aria-controls': string
+      'aria-label': string | undefined
       'aria-disabled': boolean
       'disabled': true | undefined
       'tabindex': 0 | undefined
@@ -61,6 +64,7 @@
     as = 'button',
     namespace = 'v0:select',
     renderless,
+    label,
   } = defineProps<SelectActivatorProps>()
 
   const context = useSelectContext(namespace)
@@ -101,6 +105,11 @@
           context.virtualFocus.onKeydown(e)
           break
         }
+        default: {
+          if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            context.virtualFocus.typeahead(e.key)
+          }
+        }
       }
     } else {
       switch (e.key) {
@@ -125,6 +134,7 @@
       'aria-expanded': context.isOpen.value,
       'aria-haspopup': 'listbox',
       'aria-controls': context.listboxId,
+      'aria-label': label || undefined,
       'aria-disabled': toValue(context.disabled),
       'disabled': toValue(context.disabled) || undefined,
       'tabindex': as === 'button' ? undefined : 0,
