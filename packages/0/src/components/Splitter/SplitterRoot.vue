@@ -34,9 +34,17 @@
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { RegistryContext } from '#v0/composables/createRegistry'
   import type { SelectionContext, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
+  import type { ID } from '#v0/types'
   import type { Ref } from 'vue'
 
   export type SplitterOrientation = 'horizontal' | 'vertical'
+
+  export type SplitterIntentMode = 'collapse' | 'expand'
+
+  export interface SplitterPendingIntent {
+    id: ID
+    mode: SplitterIntentMode
+  }
 
   export interface SplitterPanelInput extends SelectionTicketInput {
     size: number
@@ -56,6 +64,7 @@
     handles: RegistryContext
     dragging: Readonly<Ref<boolean>>
     draggingHandle: Readonly<Ref<number | null>>
+    pending: Readonly<Ref<SplitterPendingIntent | null>>
     rootEl: Readonly<Ref<Element | null>>
     panel: (index: number) => SplitterPanelTicket | undefined
     resize: (index: number, delta: number, options?: { emit?: boolean }) => void
@@ -116,8 +125,27 @@
   const rootEl = toRef(() => toElement(rootAtom.value?.element) ?? null)
   const draggingHandle = shallowRef<number | null>(null)
   const dragging = toRef(() => !isNull(draggingHandle.value))
-  const expandAccum = new Map<string | number, number>()
+
+  // Keyboard / programmatic resize keeps the legacy instant collapse + accumulate-to-expand behavior.
+  const expandAccum = new Map<ID, number>()
   const EXPAND_THRESHOLD = 10
+
+  // Pointer drag instead arms an intent at the min/collapsed boundary and only commits on release,
+  // so the panel resists going smaller and the user can back out before letting go.
+  const intentAccum = new Map<ID, number>()
+  const pending = shallowRef<SplitterPendingIntent | null>(null)
+  const INTENT_THRESHOLD = 5
+
+  function arm (id: ID, mode: SplitterIntentMode, delta: number) {
+    const accum = (intentAccum.get(id) ?? 0) + Math.abs(delta)
+    intentAccum.set(id, accum)
+    if (accum >= INTENT_THRESHOLD) pending.value = { id, mode }
+  }
+
+  function disarm (id: ID) {
+    intentAccum.delete(id)
+    if (pending.value?.id === id) pending.value = null
+  }
 
   const panels = createSelection<SplitterPanelInput>({
     multiple: true,
@@ -173,40 +201,68 @@
 
     let size = clamp(before.size + delta, lower, upper)
 
-    // Collapse snap: dragging a collapsible panel below minSize snaps to collapsedSize
     const beforeCollapsed = !toValue(before.isSelected)
+    const drag = dragging.value
+
+    // Collapse boundary for the leading panel. While dragging, pin at minSize and arm an intent
+    // instead of collapsing outright; keyboard/programmatic resize keeps the legacy instant snap.
     if (before.collapsible && !beforeCollapsed && size <= before.minSize && delta < 0) {
-      size = before.collapsedSize
-      before.unselect()
-      expandAccum.set(before.id, 0)
-    } else if (before.collapsible && beforeCollapsed && delta > 0) {
-      const accum = (expandAccum.get(before.id) ?? 0) + delta
-      expandAccum.set(before.id, accum)
-      if (accum >= EXPAND_THRESHOLD) {
-        size = clamp(accum, before.collapsedSize, before.maxSize)
-        before.select()
-        expandAccum.delete(before.id)
+      if (drag) {
+        size = before.minSize
+        arm(before.id, 'collapse', delta)
       } else {
         size = before.collapsedSize
+        before.unselect()
+        expandAccum.set(before.id, 0)
       }
+    } else if (before.collapsible && beforeCollapsed && delta > 0) {
+      // Expand boundary for the leading panel. While dragging, hold at collapsedSize and arm intent.
+      if (drag) {
+        size = before.collapsedSize
+        arm(before.id, 'expand', delta)
+      } else {
+        const accum = (expandAccum.get(before.id) ?? 0) + delta
+        expandAccum.set(before.id, accum)
+        if (accum >= EXPAND_THRESHOLD) {
+          size = clamp(accum, before.collapsedSize, before.maxSize)
+          before.select()
+          expandAccum.delete(before.id)
+        } else {
+          size = before.collapsedSize
+        }
+      }
+    } else if (drag) {
+      disarm(before.id)
     }
 
     const afterSize = total - size
     const afterCollapsed = !toValue(after.isSelected)
     if (after.collapsible && !afterCollapsed && afterSize <= after.minSize && delta > 0) {
-      size = total - after.collapsedSize
-      after.unselect()
-      expandAccum.set(after.id, 0)
-    } else if (after.collapsible && afterCollapsed && delta < 0) {
-      const accum = (expandAccum.get(after.id) ?? 0) + Math.abs(delta)
-      expandAccum.set(after.id, accum)
-      if (accum >= EXPAND_THRESHOLD) {
-        size = total - clamp(accum, after.collapsedSize, after.maxSize)
-        after.select()
-        expandAccum.delete(after.id)
+      if (drag) {
+        size = total - after.minSize
+        arm(after.id, 'collapse', delta)
       } else {
         size = total - after.collapsedSize
+        after.unselect()
+        expandAccum.set(after.id, 0)
       }
+    } else if (after.collapsible && afterCollapsed && delta < 0) {
+      if (drag) {
+        size = total - after.collapsedSize
+        arm(after.id, 'expand', delta)
+      } else {
+        const accum = (expandAccum.get(after.id) ?? 0) + Math.abs(delta)
+        expandAccum.set(after.id, accum)
+        if (accum >= EXPAND_THRESHOLD) {
+          size = total - clamp(accum, after.collapsedSize, after.maxSize)
+          after.select()
+          expandAccum.delete(after.id)
+        } else {
+          size = total - after.collapsedSize
+        }
+      }
+    } else if (drag) {
+      disarm(after.id)
     }
 
     before.size = size
@@ -323,8 +379,24 @@
 
   function onEndDrag () {
     if (isNull(draggingHandle.value)) return
+
+    const handleIndex = draggingHandle.value
+    const intent = pending.value
     draggingHandle.value = null
+    pending.value = null
     expandAccum.clear()
+    intentAccum.clear()
+
+    if (intent) {
+      const ticket = panels.get(intent.id)
+      if (ticket) {
+        const neighborIndex = ticket.index === handleIndex ? handleIndex + 1 : handleIndex
+        if (intent.mode === 'collapse') collapse(ticket.index, neighborIndex)
+        else expand(ticket.index, neighborIndex)
+        return
+      }
+    }
+
     emitLayout()
   }
 
@@ -339,6 +411,7 @@
     handles,
     dragging,
     draggingHandle,
+    pending,
     rootEl,
     panel,
     resize,
