@@ -10,7 +10,11 @@
   import { useCodeHighlighter } from '@/composables/useCodeHighlighter'
   import { useExamples } from '@/composables/useExamples'
   import { useIdleCallback } from '@/composables/useIdleCallback'
-  import { usePlayground } from '@/composables/usePlayground'
+  import {
+    playgroundRegistryUrl,
+    registryRefFromExamplePath,
+    usePlayground,
+  } from '@/composables/usePlayground'
 
   // Utilities
   import { toKebab } from '@/utilities/strings'
@@ -206,6 +210,18 @@
 
   async function openAllInPlayground () {
     if (!displayFiles.value?.length) return
+    // Hash by default; short registry URLs only when VITE_PLAYGROUND_REGISTRY=1
+    // (needs live /registry/*). Entry = last .vue, matching the registry builder.
+    if (import.meta.env.VITE_PLAYGROUND_REGISTRY === '1' && !imports) {
+      const path = filePath
+        ?? [...(filePaths ?? [])].toReversed().find(p => p.endsWith('.vue'))
+        ?? filePaths?.[0]
+      const ref = path ? registryRefFromExamplePath(path) : null
+      if (ref) {
+        window.open(playgroundRegistryUrl(ref), '_blank')
+        return
+      }
+    }
     const files = displayFiles.value.map(f => ({ name: f.name, code: f.code }))
     const url = await usePlayground(files, undefined, imports)
     window.open(url, '_blank')

@@ -8,6 +8,7 @@ import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 // Data
 import { createMainTs, REPL_BUILTIN_FILES, REPL_TSCONFIG, REPL_TYPESCRIPT_VERSION, UNO_CONFIG_TS } from '@/data/playground-defaults'
 import { ADDONS, DEFAULT_APP, PRESETS } from '@/data/presets'
+import { parseRegistryQuery, resolveRegistryExample } from '@/data/registry'
 
 // Utilities
 import { compileFile, useStore } from '@vue/repl/core'
@@ -15,6 +16,7 @@ import { computed, onMounted, shallowRef, watch, watchEffect } from 'vue'
 
 // Types
 import type { PlaygroundHashData } from '@/composables/usePlayground'
+import type { RegistryExampleRef } from '@/data/registry'
 
 export function usePlaygroundFiles () {
   const theme = useTheme()
@@ -41,6 +43,8 @@ export function usePlaygroundFiles () {
 
   const isReady = shallowRef(false)
   const filesVersion = shallowRef(0)
+  /** Set when a registry deep-link or browser open fails. */
+  const loadError = shallowRef<string>()
 
   const aliasMap = shallowRef(new Map<string, string>())
   const extraImports = shallowRef<Record<string, string>>()
@@ -78,6 +82,11 @@ export function usePlaygroundFiles () {
   onMounted(async () => {
     const hash = window.location.hash.slice(1)
     const decoded = hash ? await decodePlaygroundHash(hash) : null
+    // Hash wins when present (share links are self-contained). Short registry
+    // deep-links use `?example=` / `?item=` with an empty hash.
+    const registryRef = decoded
+      ? null
+      : parseRegistryQuery(new URLSearchParams(window.location.search))
 
     if (decoded) {
       if (decoded.settings?.preset) activePreset.value = decoded.settings.preset
@@ -111,25 +120,39 @@ export function usePlaygroundFiles () {
         extraImports.value = decoded.imports
       }
       rebuildImportMap()
+    } else if (registryRef) {
+      try {
+        await openRegistryExample(registryRef, { clearSearch: true })
+      } catch (error) {
+        loadError.value = error instanceof Error ? error.message : String(error)
+        // Drop ?example= so a later hash rewrite / reload does not re-hit a
+        // broken deep-link, and so hash-only shares stay the share surface.
+        clearRegistrySearch()
+        await seedDefault()
+      }
     } else {
-      const theme_ = theme.isDark.value ? 'dark' : 'light'
-      await store.setFiles(
-        {
-          'src/main.ts': createMainTs(theme_),
-          'src/uno.config.ts': UNO_CONFIG_TS,
-          'src/App.vue': DEFAULT_APP,
-          'tsconfig.json': REPL_TSCONFIG,
-        },
-        'src/main.ts',
-      )
-      store.files['src/main.ts']!.hidden = true
-      store.files['src/uno.config.ts']!.hidden = true
-      store.files['tsconfig.json']!.hidden = true
-      store.setActive('src/App.vue')
+      await seedDefault()
     }
 
     isReady.value = true
   })
+
+  async function seedDefault () {
+    const theme_ = theme.isDark.value ? 'dark' : 'light'
+    await store.setFiles(
+      {
+        'src/main.ts': createMainTs(theme_),
+        'src/uno.config.ts': UNO_CONFIG_TS,
+        'src/App.vue': DEFAULT_APP,
+        'tsconfig.json': REPL_TSCONFIG,
+      },
+      'src/main.ts',
+    )
+    store.files['src/main.ts']!.hidden = true
+    store.files['src/uno.config.ts']!.hidden = true
+    store.files['tsconfig.json']!.hidden = true
+    store.setActive('src/App.vue')
+  }
 
   async function loadExample (files: Record<string, string>, activeFile?: string) {
     const aliases: Record<string, string> = {}
@@ -339,6 +362,7 @@ export function usePlaygroundFiles () {
       activeAddons.value = []
       extraImports.value = Object.keys(imports).length > 0 ? imports : undefined
       aliasMap.value = new Map()
+      loadError.value = undefined
 
       if (vue) vueVersion.value = vue
 
@@ -348,5 +372,56 @@ export function usePlaygroundFiles () {
     } catch { /* ignore malformed content */ }
   }
 
-  return { store, isReady, filesVersion, loadExample, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions, activePreset, applyPreset, activeAddons, toggleAddon, openPlayground }
+  function clearRegistrySearch () {
+    if (typeof window === 'undefined') return
+    const url = new URL(window.location.href)
+    url.searchParams.delete('example')
+    url.searchParams.delete('item')
+    url.searchParams.delete('registry')
+    history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
+  }
+
+  /**
+   * Load a docs registry example into the REPL.
+   * Optionally strip `?example=` / `?item=` from the URL so the subsequent
+   * hash write is the share surface (self-contained, no registry dependency).
+   */
+  async function openRegistryExample (
+    ref: RegistryExampleRef,
+    options: { clearSearch?: boolean } = {},
+  ) {
+    loadError.value = undefined
+    const resolved = await resolveRegistryExample(ref)
+
+    activePreset.value = 'default'
+    activeAddons.value = []
+    extraImports.value = resolved.imports
+    aliasMap.value = new Map()
+
+    await loadExample(resolved.files, resolved.active)
+    rebuildImportMap()
+    filesVersion.value++
+
+    if (options.clearSearch) clearRegistrySearch()
+  }
+
+  return {
+    store,
+    isReady,
+    filesVersion,
+    loadError,
+    loadExample,
+    vueVersion,
+    v0Version,
+    vueVersions,
+    v0Versions,
+    fetching,
+    fetchVersions,
+    activePreset,
+    applyPreset,
+    activeAddons,
+    toggleAddon,
+    openPlayground,
+    openRegistryExample,
+  }
 }
