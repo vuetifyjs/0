@@ -305,6 +305,13 @@
     border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
   }
 
+  /* Peek mode drops the toggle bar, and with it the border-top that separates
+     the preview from the code pane. Restore the divider on the pane itself so
+     peek and non-peek examples read the same. */
+  .genesis-docs-example[data-peek] .genesis-docs-example__code {
+    border-top: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
+  }
+
   .genesis-docs-example > *:first-child:not(.genesis-peek) {
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
