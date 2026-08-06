@@ -90,6 +90,17 @@ export default function generateRegistryPlugin (): Plugin {
         const url = req.url?.split('?')[0]
         if (!url?.startsWith('/registry/') || !url.endsWith('.json')) return next()
 
+        // Playground (v0play / localhost) fetches this origin cross-site.
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+
+        if (req.method === 'OPTIONS') {
+          res.statusCode = 204
+          res.end()
+          return
+        }
+
         try {
           const data = await get()
           const path = url.slice('/registry/'.length, -'.json'.length)

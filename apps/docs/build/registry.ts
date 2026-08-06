@@ -121,6 +121,17 @@ export interface RegistryIcons {
   classes: string[]
 }
 
+/**
+ * App-level install recipe for plugins. CLI wires `factory` into the consumer
+ * app (`src/plugins/<file>`, `app.use(...)`). Derived from the registry item
+ * name (`use-theme` → `createThemePlugin` / `theme.ts`); label is the docs surface.
+ */
+export interface RegistryInstall {
+  factory: string
+  label: string
+  file: string
+}
+
 export interface RegistryItem {
   name: string
   type: ItemType
@@ -130,6 +141,8 @@ export interface RegistryItem {
   description: string
   docs: string
   examples: RegistryExample[]
+  /** Present when `category === 'plugins'`. */
+  install?: RegistryInstall
 }
 
 export interface RegistryIndexEntry {
@@ -154,6 +167,25 @@ export interface Registry {
   index: RegistryIndex
   items: RegistryItem[]
   warnings: string[]
+}
+
+/**
+ * `use-theme` → `{ factory: 'createThemePlugin', label: 'useTheme', file: 'theme.ts' }`.
+ * Label prefers the page title (pre-emdash segment); falls back to camelCase of name.
+ */
+export function pluginInstall (name: string, title?: string): RegistryInstall {
+  const bare = name.replace(/^use-/, '')
+  const pascal = bare
+    .split('-')
+    .filter(Boolean)
+    .map(part => part[0]!.toUpperCase() + part.slice(1))
+    .join('')
+  const label = title?.split(/\s*[-–—]\s*/)[0]?.trim() || `use${pascal}`
+  return {
+    factory: `create${pascal}Plugin`,
+    label,
+    file: `${bare}.ts`,
+  }
 }
 
 function kebab (value: string): string {
@@ -601,19 +633,29 @@ export async function build (): Promise<Registry> {
       warnings.push(`[registry] ${file}: ${warning.replace(/^\[registry\]\s*/, '')}`)
     }
 
-    if (examples.length === 0) continue
+    const title = frontmatter.title?.split(' - ')[0] ?? name
+    const install = meta.category === 'plugins'
+      ? pluginInstall(name, title)
+      : undefined
 
-    warnCrossExample(file, examples, warnings)
+    // Plugins ship install-first even with zero docs examples; everything else
+    // needs at least one portable example to be useful as a seed.
+    if (examples.length === 0 && !install) continue
+
+    if (examples.length > 0) {
+      warnCrossExample(file, examples, warnings)
+    }
 
     items.set(`${type}/${name}`, {
       name,
       type,
       category: meta.category,
       level: meta.level,
-      title: frontmatter.title?.split(' - ')[0] ?? name,
+      title,
       description: meta.description || frontmatter.description || '',
       docs,
       examples,
+      ...(install ? { install } : {}),
     })
   }
 
