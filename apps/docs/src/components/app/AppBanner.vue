@@ -55,7 +55,7 @@
   <Atom
     v-if="visible"
     :as
-    class="flex items-center justify-center h-[24px] fixed inset-x-0 top-0 px-3 text-xs gap-2 text-on-primary z-1 bg-glass-primary"
+    class="flex items-center justify-center h-[24px] fixed inset-x-0 top-0 px-3 text-xs gap-2 text-on-primary z-1 bg-primary"
   >
     <AppIcon class="shrink-0" icon="vuetify-0" :size="14" />
 
