@@ -291,6 +291,8 @@
     border-radius: 0.5rem;
     background: var(--v0-surface, #fff);
     color: var(--v0-on-surface, #1a1c1e);
+    /* The bottom hairline is drawn by the last child instead — see below. */
+    border-bottom-color: transparent;
   }
 
   .genesis-docs-example__toggle-bar {
@@ -317,7 +319,17 @@
     border-top-right-radius: 8px;
   }
 
+  /* Draw the card's bottom hairline on the last child rather than on the card.
+     Consumers put a backdrop-filter on these bars (the docs glass treatment),
+     which composites the child into its own layer; that layer pixel-snaps
+     outward and paints over the card's own border-bottom whenever the card's
+     bottom edge lands below a half-pixel. A border on the child paints above
+     its own filter, so it survives at any sub-pixel offset. The negative
+     margin keeps it on the same row the card's border occupied, so the card's
+     height and the corner radii are unchanged. */
   .genesis-docs-example > *:nth-last-child(1 of :not(.genesis-peek)) {
+    border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
+    margin-bottom: -1px;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
   }
