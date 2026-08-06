@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+
+    <title>Bulma example</title>
+    <link rel="icon" type="image/png" href="/0.png">
+
+    <script>
+      // Blocking, and first: an iframe composites an opaque canvas as soon as
+      // it is attached, so anything that decides the scheme later — the CDN
+      // stylesheet, the app bundle — decides it after the reader has already
+      // seen a white frame. This runs before either exists.
+      document.documentElement.dataset.theme =
+        new URLSearchParams(location.search).get('theme') === 'dark' ? 'dark' : 'light'
+    </script>
+
+    <style>
+      /* Bulma's own `--bulma-scheme-main` and `--bulma-text`, resolved and
+         inlined so the document paints the right surface while the CDN request
+         is still in flight. Zero specificity via `:where()`, so Bulma takes
+         these back the moment it lands and stays the source of truth. */
+      :where(html[data-theme="dark"]) {
+        background-color: #14161a;
+        color: #abb1bf;
+        color-scheme: dark;
+      }
+
+      :where(html[data-theme="light"]) {
+        background-color: #fff;
+        color: #404654;
+        color-scheme: light;
+      }
+    </style>
+
+    <!--
+      The user's own bulma.css is the styling source — @paper/bulma ships none.
+      This document loads it (and Font Awesome, which Bulma's documented markup
+      uses for icons) exactly the way a zero-config consumer would, and loads
+      nothing from the docs shell: no UnoCSS preflight, no theme tokens.
+    -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+
+    <style>
+      /* Bulma's reset reserves a permanent scrollbar track (`overflow-y: scroll`),
+         which reads as a dead scrollbar inside a frame that is sized to its own
+         content. */
+      html {
+        overflow-y: auto;
+      }
+
+      /* Nothing here forces transparency while promoted: an iframe paints an
+         opaque canvas whatever its document says, so the parent clips the frame
+         to the regions this example is actually painting instead. Leaving
+         Bulma's own background in place is what makes the clip edge blend —
+         made transparent, the cut showed the white canvas as a bright rim. */
+    </style>
+  </head>
+  <body>
+    <div id="sandbox"></div>
+    <script type="module" src="/src/sandbox/bulma.ts"></script>
+  </body>
+</html>

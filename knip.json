@@ -22,7 +22,8 @@
         "src/pages/**/*.{vue,md}",
         "build/**/*.ts",
         "vite.config.*",
-        "src/examples/**/*.vue"
+        "src/examples/**/*.vue",
+        "src/sandbox/*.ts"
       ],
       "ignore": [
         "src/typed-router.d.ts",
@@ -46,6 +47,12 @@
         ],
         "#paper": [
           "../../packages/paper/src"
+        ],
+        "@paper/bulma": [
+          "../../packages/bulma/src"
+        ],
+        "#bulma": [
+          "../../packages/bulma/src"
         ]
       }
     },
@@ -63,7 +70,6 @@
       "ignore": [
         "src/**/*.bench.ts"
       ],
-
       "paths": {
         "#v0/*": [
           "src/*"

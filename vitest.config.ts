@@ -6,6 +6,7 @@ export default defineConfig({
       'packages/0',
       'packages/0/vitest.browser.config.ts',
       'packages/paper',
+      'packages/bulma/vitest.browser.config.ts',
       'apps/docs',
     ],
     globals: true,

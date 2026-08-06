@@ -62,3 +62,4 @@ apps/docs/build/generated/
 # Vitest failure artifacts
 packages/0/.vitest-attachments/
 **/__screenshots__/
+.vitest-attachments/

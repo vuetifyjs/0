@@ -16,7 +16,7 @@
   import { useAppStore } from '@/stores/app'
 
   // Utilities
-  import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
+  import { computed, nextTick, onMounted, shallowRef, toRef, useTemplateRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -82,6 +82,23 @@
   const hasNavContent = computed(() =>
     visibleNav.value.some(item => !('divider' in item)),
   )
+
+  // Link-less sections are keyed by the synthetic id createNested assigns them,
+  // which counts categories only — dividers and links don't advance it. Keying
+  // off the render index instead leaves every category after the first with no
+  // registered children, and so no expand toggle.
+  const categories = toRef(() => {
+    const ids = new Map<number, string>()
+    let index = 0
+
+    for (const [i, item] of visibleNav.value.entries()) {
+      if ('divider' in item || 'to' in item) continue
+
+      ids.set(i, `category-root-${index++}`)
+    }
+
+    return ids
+  })
   const navRef = useTemplateRef<HTMLElement>('nav')
 
   // Match Tailwind's md breakpoint (768px) for nav visibility
@@ -217,7 +234,7 @@
 
           <AppNavLink
             v-else
-            :id="`category-root-${i}`"
+            :id="categories.get(i)!"
             class="px-4"
             :name="nav.name"
           />
