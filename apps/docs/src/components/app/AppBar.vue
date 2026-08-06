@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Atom, useBreakpoints, useFeatures, useStorage, useTheme } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useTheme } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -14,7 +14,7 @@
   import { useAuthStore } from '@vuetify/auth'
 
   // Utilities
-  import { toRef, watch } from 'vue'
+  import { toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -24,22 +24,14 @@
 
   const auth = useAuthStore()
   const navigation = useNavigation()
-  const storage = useStorage()
   const route = useRoute()
 
   const isHomePage = toRef(() => route.path === '/')
 
   const breakpoints = useBreakpoints()
-  const features = useFeatures()
   const search = useSearch()
   const settings = useSettings()
   const theme = useTheme()
-
-  const devmode = features.get('devmode')!
-
-  watch(() => devmode.isSelected.value, isSelected => {
-    storage.set('devmode', isSelected)
-  })
 
   const darkLogo = 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.svg'
   const lightLogo = 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.svg'
