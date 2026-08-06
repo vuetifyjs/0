@@ -19,7 +19,7 @@
  * actionable for install (npm deps, token names, icon *collections*).
  */
 
-import { readFile, glob } from 'node:fs/promises'
+import { readFile, realpath, glob } from 'node:fs/promises'
 import { basename, dirname, extname, isAbsolute, posix, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -169,23 +169,39 @@ export interface Registry {
   warnings: string[]
 }
 
+/** Feature / page stem: kebab-case only (basename of the docs page). */
+export const RE_SAFE_NAME = /^[a-z][a-z0-9-]*$/
+
+/** Generated create*Plugin factory identifiers only. */
+export const RE_SAFE_FACTORY = /^create[A-Z][A-Za-z0-9]*Plugin$/
+
+/** Plugin module basenames written under src/plugins/. */
+export const RE_SAFE_PLUGIN_FILE = /^[a-z][a-z0-9-]*\.ts$/
+
 /**
  * `use-theme` → `{ factory: 'createThemePlugin', label: 'useTheme', file: 'theme.ts' }`.
  * Label prefers the page title (pre-emdash segment); falls back to camelCase of name.
+ * Returns `null` when the name would not produce a safe factory/file (never emit).
  */
-export function pluginInstall (name: string, title?: string): RegistryInstall {
+export function pluginInstall (name: string, title?: string): RegistryInstall | null {
+  if (!RE_SAFE_NAME.test(name)) return null
+
   const bare = name.replace(/^use-/, '')
+  // File stem must itself be a safe kebab name (blocks empty / odd stems).
+  if (!RE_SAFE_NAME.test(bare)) return null
+
   const pascal = bare
     .split('-')
     .filter(Boolean)
     .map(part => part[0]!.toUpperCase() + part.slice(1))
     .join('')
   const label = title?.split(/\s*[-–—]\s*/)[0]?.trim() || `use${pascal}`
-  return {
-    factory: `create${pascal}Plugin`,
-    label,
-    file: `${bare}.ts`,
-  }
+  const factory = `create${pascal}Plugin`
+  const file = `${bare}.ts`
+
+  if (!RE_SAFE_FACTORY.test(factory) || !RE_SAFE_PLUGIN_FILE.test(file)) return null
+
+  return { factory, label, file }
 }
 
 function kebab (value: string): string {
@@ -391,10 +407,49 @@ function resolveFile (path: string): string {
   return extname(path) ? path : `${path}.vue`
 }
 
-/** True when `absolute` resolves to a path inside `root` (no `..` escape). */
-function isInside (root: string, absolute: string): boolean {
+/**
+ * True when a manifest relative path has `..`, empty, or `.` segments, or is
+ * absolute / NUL-bearing. These never need to reach the filesystem.
+ */
+export function hasUnsafeSegments (relativePath: string): boolean {
+  if (!relativePath || relativePath.includes('\0') || isAbsolute(relativePath)) {
+    return true
+  }
+  // Both separators — markdown is POSIX, but a Windows-authored path should not slip through.
+  return relativePath.split(/[/\\]/).some(part => part === '' || part === '.' || part === '..')
+}
+
+/** True when `absolute` is lexically inside `root` (no `..` escape). Does not follow symlinks. */
+export function isInside (root: string, absolute: string): boolean {
   const rel = relative(root, absolute)
   return rel !== '' && rel !== '..' && !rel.startsWith(`..${sep}`) && !isAbsolute(rel)
+}
+
+/**
+ * Resolve a path under the examples root for reading.
+ *
+ * Layers: reject unsafe segments → lexical isInside → realpath both roots and
+ * target so a git symlink under `examples/` cannot smuggle host files into the
+ * registry payload.
+ */
+export async function resolveExamplePath (
+  relativePath: string,
+  examplesDir: string,
+  examplesReal: string,
+): Promise<string | null> {
+  if (hasUnsafeSegments(relativePath)) return null
+
+  const absolute = resolve(examplesDir, relativePath)
+  if (!isInside(examplesDir, absolute)) return null
+
+  try {
+    const real = await realpath(absolute)
+    if (!isInside(examplesReal, real)) return null
+    return real
+  } catch {
+    // Missing file or broken symlink — caller treats as incomplete example.
+    return null
+  }
 }
 
 function titleCase (id: string): string {
@@ -461,6 +516,8 @@ interface ExampleContext {
   unportable: string[]
   matchTokens: RegExp
   warnings: string[]
+  /** realpath(EXAMPLES_DIR) — symlink-safe confinement. */
+  examplesReal: string
 }
 
 async function exampleFrom (
@@ -501,17 +558,29 @@ async function exampleFrom (
   const iconClasses = new Set<string>()
   const iconCollections = new Set<string>()
   let incomplete = false
+  const { examplesReal } = ctx
 
   for (const [order, relativePath] of paths.entries()) {
-    const absolute = resolve(EXAMPLES_DIR, relativePath)
-
-    if (!isInside(EXAMPLES_DIR, absolute)) {
-      warnings.push(`[registry] ${file}: path escapes examples root — "${relativePath}"`)
+    if (hasUnsafeSegments(relativePath)) {
+      warnings.push(`[registry] ${file}: unsafe path segment in "${relativePath}" — skipped`)
       incomplete = true
       continue
     }
 
-    const content = await readFile(absolute, 'utf8').catch(() => null)
+    const confined = await resolveExamplePath(relativePath, EXAMPLES_DIR, examplesReal)
+    if (!confined) {
+      // Distinguishes escape / symlink vs missing when the lexical path is under examples.
+      const absolute = resolve(EXAMPLES_DIR, relativePath)
+      if (isInside(EXAMPLES_DIR, absolute)) {
+        warnings.push(`[registry] ${file}: missing or non-confined example file "${relativePath}"`)
+      } else {
+        warnings.push(`[registry] ${file}: path escapes examples root — "${relativePath}"`)
+      }
+      incomplete = true
+      continue
+    }
+
+    const content = await readFile(confined, 'utf8').catch(() => null)
 
     if (content === null) {
       warnings.push(`[registry] ${file}: missing example file "${relativePath}"`)
@@ -523,8 +592,8 @@ async function exampleFrom (
     for (const token of tokens(content, matchTokens)) used.add(token)
 
     const scanned = scanIcons(content)
-    for (const name of scanned.classes) iconClasses.add(name)
-    for (const name of scanned.collections) iconCollections.add(name)
+    for (const iconName of scanned.classes) iconClasses.add(iconName)
+    for (const collection of scanned.collections) iconCollections.add(collection)
 
     files.push({
       path: relativePath,
@@ -603,6 +672,8 @@ export async function build (): Promise<Registry> {
   const matchTokens = tokenPattern([...PORTABLE_TOKENS, ...unportable])
   const warnings: string[] = []
   const items = new Map<string, RegistryItem>()
+  // Resolve once so every example path is checked against the same real root.
+  const examplesReal = await realpath(EXAMPLES_DIR)
 
   for await (const file of glob('**/*.md', { cwd: PAGES_DIR })) {
     const path = resolve(PAGES_DIR, file)
@@ -612,6 +683,11 @@ export async function build (): Promise<Registry> {
     if (!type) continue
 
     const name = basename(file, '.md')
+    if (!RE_SAFE_NAME.test(name)) {
+      warnings.push(`[registry] ${file}: unsafe feature name "${name}" — skipped`)
+      continue
+    }
+
     const meta = metaIndex.get(name)
 
     if (!meta) {
@@ -622,7 +698,15 @@ export async function build (): Promise<Registry> {
     const docs = `${DOCS_ORIGIN}/${posix.join(...file.split(sep)).replace(/\.md$/, '')}`
     const examples: RegistryExample[] = []
     const pageWarnings: string[] = []
-    const ctx: ExampleContext = { file, type, name, unportable, matchTokens, warnings }
+    const ctx: ExampleContext = {
+      file,
+      type,
+      name,
+      unportable,
+      matchTokens,
+      warnings,
+      examplesReal,
+    }
 
     for (const block of blocks(body, pageWarnings)) {
       const example = await exampleFrom(block, ctx)
@@ -634,9 +718,15 @@ export async function build (): Promise<Registry> {
     }
 
     const title = frontmatter.title?.split(' - ')[0] ?? name
-    const install = meta.category === 'plugins'
-      ? pluginInstall(name, title)
-      : undefined
+    let install: RegistryInstall | undefined
+    if (meta.category === 'plugins') {
+      const recipe = pluginInstall(name, title)
+      if (recipe) {
+        install = recipe
+      } else {
+        warnings.push(`[registry] ${file}: could not derive a safe install recipe for "${name}"`)
+      }
+    }
 
     // Plugins ship install-first even with zero docs examples; everything else
     // needs at least one portable example to be useful as a seed.

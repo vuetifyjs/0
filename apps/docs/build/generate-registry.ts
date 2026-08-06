@@ -94,6 +94,7 @@ export default function generateRegistryPlugin (): Plugin {
         res.setHeader('Access-Control-Allow-Origin', '*')
         res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+        res.setHeader('Allow', 'GET, OPTIONS')
 
         if (req.method === 'OPTIONS') {
           res.statusCode = 204
@@ -101,9 +102,16 @@ export default function generateRegistryPlugin (): Plugin {
           return
         }
 
+        if (req.method !== 'GET') {
+          res.statusCode = 405
+          res.end('Method Not Allowed')
+          return
+        }
+
         try {
           const data = await get()
-          const path = url.slice('/registry/'.length, -'.json'.length)
+          // Cap reflected path length in 404 bodies (URL noise / log abuse).
+          const path = url.slice('/registry/'.length, -'.json'.length).slice(0, 256)
 
           const body = path === 'index'
             ? data.index
@@ -113,11 +121,11 @@ export default function generateRegistryPlugin (): Plugin {
 
           if (!body) {
             res.statusCode = 404
-            res.end(`Unknown registry item: ${path}`)
+            res.end('Unknown registry item')
             return
           }
 
-          res.setHeader('Content-Type', 'application/json')
+          res.setHeader('Content-Type', 'application/json; charset=utf-8')
           res.end(JSON.stringify(body))
         } catch (error) {
           console.error('[generate-registry] Error:', error)
