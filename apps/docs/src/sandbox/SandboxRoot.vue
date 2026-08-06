@@ -27,6 +27,13 @@
   // parent has already been told.
   let open = false
 
+  // Observers attach before the first paint and fire on their own initial tick,
+  // so without this the first thing the parent hears is the height of a
+  // document that has rendered nothing — frame padding and no example — and it
+  // holds the box open at that until the real content arrives. Nothing is
+  // measurable until mount.
+  let ready = false
+
   // True between asking the parent to promote and the parent confirming it. The
   // frame is mid-flight then — measuring against it would read a box that is
   // about to move.
@@ -132,7 +139,7 @@
   function measure () {
     const el = root.value
 
-    if (!el || pending) return
+    if (!el || !ready || pending) return
 
     const found = floats(el)
     const tier = found.tier
@@ -197,7 +204,10 @@
       height = Math.max(height, Math.ceil(rect.top + rect.height) + PAD)
     }
 
-    send({ type: 'v0:sandbox:size', height })
+    // `grown` marks a height that only exists because something is spilling out
+    // of the box right now. The docs page still applies it — the frame has to
+    // make room — but it must not remember it as what this example rests at.
+    send({ type: 'v0:sandbox:size', height, grown: found.escaping.length > 0 })
   }
 
   useResizeObserver(root, () => measure())
@@ -244,8 +254,16 @@
   })
 
   // The frame loads lazily, so the theme carried on the URL can be stale by the
-  // time it does — ask the parent for the current one.
-  onMounted(() => send({ type: 'v0:sandbox:ready' }))
+  // time it does — ask the parent for the current one. The example is resolved
+  // before the app mounts, so this is also the first moment there is a real
+  // height to report: measure once here rather than wait for an observer, which
+  // would otherwise only fire again if the example happened to change size.
+  onMounted(() => {
+    ready = true
+
+    send({ type: 'v0:sandbox:ready' })
+    measure()
+  })
 </script>
 
 <template>

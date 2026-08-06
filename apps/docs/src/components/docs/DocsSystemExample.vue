@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { IN_BROWSER, useEventListener, useTheme } from '@vuetify/v0'
+  import { createStorage, IN_BROWSER, useEventListener, useTheme } from '@vuetify/v0'
 
   // Composables
   import { useExamples } from '@/composables/useExamples'
@@ -10,6 +10,31 @@
 
   // Types
   import type { GnDocsExampleFile } from '@paper/genesis'
+  import type { StorageContext } from '@vuetify/v0'
+  import type { Ref } from 'vue'
+
+  // Frame padding (2 × 1.5rem) plus one Bulma control — the resting height of
+  // the shortest example that exists. A first-ever visit reserves this and grows
+  // once; reserving more would mean the box shrinking on arrival, which reads
+  // far worse than growing.
+  const RESERVE = 88
+
+  let store: StorageContext | null = null
+
+  // Where an example comes to rest is a property of the example, not of the
+  // visit — but it can only be learned by loading it once. Remembering it for
+  // the session means every load after the first reserves the right box and
+  // nothing moves. Session, not local: an example's height changes when its
+  // source does, and a stale reserve should not outlive the tab.
+  function reserve (entry: string): Ref<number> {
+    if (!IN_BROWSER) return shallowRef(RESERVE)
+
+    store ??= createStorage({ adapter: window.sessionStorage })
+
+    // Bucketed by width: the same example wraps differently across viewports,
+    // and a height learned at one width is not a promise at another.
+    return store.get(`sandbox:${entry}:${Math.round(window.innerWidth / 160)}`, RESERVE)
+  }
 
   // Page-level state. Every example on a page promotes into the same viewport
   // and lifts the same ancestor stacking contexts, so both have to be owned
@@ -91,6 +116,17 @@
   // buys a correct first paint; live changes ride the message channel below.
   const scheme = theme.isDark.value ? 'dark' : 'light'
 
+  // What the box looks like before the frame's document exists. A frame's
+  // canvas is opaque from the moment it is attached and the UA colors it from
+  // the embedder's `color-scheme`, so that is declared here rather than left to
+  // inherit whatever the docs root happens to carry. The matching background
+  // makes the gap before load read as the surface the example settles on
+  // instead of the page behind it. Bulma's own values, mirroring the critical
+  // style in `sandbox/bulma.html`.
+  const surface = toRef(() => (theme.isDark.value
+    ? { colorScheme: 'dark', backgroundColor: '#14161a' }
+    : { colorScheme: 'light', backgroundColor: '#fff' }))
+
   // `/systems/bulma/modal/basic` -> system `bulma`, example `modal/basic`
   const segments = toRef(() => entry.value.replace(/^\//, '').split('/'))
   const src = toRef(() => {
@@ -99,8 +135,17 @@
     return `/sandbox/${system}.html?e=${rest.join('/')}&theme=${scheme}`
   })
 
-  const height = shallowRef(200)
+  // Two different questions. `height` is what the box is right now and follows
+  // every measurement the sandbox sends, up or down. `saved` is what the
+  // example is worth reserving for next time, and only the first settled
+  // measurement answers that — everything after it is the reader interacting (a
+  // hover menu, a validation message), and reserving one of those would open
+  // the box too tall on the next load and shrink.
+  const saved = reserve(entry.value)
+  const height = shallowRef(saved.value)
   const overlay = shallowRef(false)
+
+  let rested = false
   const frame = useTemplateRef<HTMLIFrameElement>('frame')
 
   // An iframe paints an opaque canvas — a transparent document inside it does
@@ -207,6 +252,15 @@
         }
         case 'v0:sandbox:size': {
           height.value = event.data.height
+
+          // The example as it comes up, with nothing spilling out of it: that
+          // is the box worth reserving next time. Once taken, it is not
+          // revisited — later measurements are the reader, not the example.
+          if (!rested && !event.data.grown) {
+            rested = true
+            saved.value = event.data.height
+          }
+
           // The box the sandbox pins to is the one this height produces.
           nextTick(place)
           break
@@ -272,7 +326,7 @@
     :peek
     :title
   >
-    <div class="relative w-full" :style="{ height: `${height}px` }">
+    <div class="relative w-full rounded" :style="[surface, { height: `${height}px` }]">
       <iframe
         ref="frame"
         :class="overlay
@@ -280,7 +334,7 @@
           : 'absolute inset-0 h-full w-full rounded border-0'"
         loading="lazy"
         :src
-        :style="overlay && clip ? { clipPath: `path('${clip}')` } : undefined"
+        :style="[surface, overlay && clip ? { clipPath: `path('${clip}')` } : undefined]"
         :title="`${name} example`"
       />
     </div>

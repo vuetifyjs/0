@@ -8,6 +8,33 @@
     <title>Bulma example</title>
     <link rel="icon" type="image/png" href="/0.png">
 
+    <script>
+      // Blocking, and first: an iframe composites an opaque canvas as soon as
+      // it is attached, so anything that decides the scheme later — the CDN
+      // stylesheet, the app bundle — decides it after the reader has already
+      // seen a white frame. This runs before either exists.
+      document.documentElement.dataset.theme =
+        new URLSearchParams(location.search).get('theme') === 'dark' ? 'dark' : 'light'
+    </script>
+
+    <style>
+      /* Bulma's own `--bulma-scheme-main` and `--bulma-text`, resolved and
+         inlined so the document paints the right surface while the CDN request
+         is still in flight. Zero specificity via `:where()`, so Bulma takes
+         these back the moment it lands and stays the source of truth. */
+      :where(html[data-theme="dark"]) {
+        background-color: #14161a;
+        color: #abb1bf;
+        color-scheme: dark;
+      }
+
+      :where(html[data-theme="light"]) {
+        background-color: #fff;
+        color: #404654;
+        color-scheme: light;
+      }
+    </style>
+
     <!--
       The user's own bulma.css is the styling source — @paper/bulma ships none.
       This document loads it (and Font Awesome, which Bulma's documented markup
