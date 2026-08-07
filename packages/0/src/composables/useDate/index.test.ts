@@ -469,6 +469,35 @@ describe('createDate', () => {
         }
       })
 
+      it('should pad to 6 weeks with fixedWeeks', () => {
+        // Feb 2026 starts on a Sunday and has 28 days - exactly 4 natural rows
+        const february = adapter.date('2026-02-15T12:00:00')!
+        expect(adapter.getWeekArray(february)).toHaveLength(4)
+
+        const fixed = adapter.getWeekArray(february, true)
+        expect(fixed).toHaveLength(6)
+        for (const week of fixed) {
+          expect(week).toHaveLength(7)
+        }
+        // Padding continues day-by-day into the next month
+        expect(fixed[4]![0]!.month).toBe(3)
+        expect(fixed[4]![0]!.day).toBe(1)
+        expect(fixed[5]![6]!.day).toBe(14)
+
+        // A natural 5-row month pads by one week
+        const june = adapter.date('2026-06-15T12:00:00')!
+        expect(adapter.getWeekArray(june)).toHaveLength(5)
+        expect(adapter.getWeekArray(june, true)).toHaveLength(6)
+      })
+
+      it('should leave natural 6-week months unchanged with fixedWeeks', () => {
+        // Aug 2026 (Sunday start) spans 6 rows naturally
+        const august = adapter.date('2026-08-15T12:00:00')!
+        const natural = adapter.getWeekArray(august)
+        expect(natural).toHaveLength(6)
+        expect(adapter.getWeekArray(august, true)).toEqual(natural)
+      })
+
       it.each([
         ['2025-01-07T23:30:00', '2025-01-07T10:00:00', 0],
         ['2025-01-08T09:30:00', '2025-01-07T10:00:00', 0],
