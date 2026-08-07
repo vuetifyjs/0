@@ -195,7 +195,12 @@ export function pluginInstall (name: string, title?: string): RegistryInstall | 
     .filter(Boolean)
     .map(part => part[0]!.toUpperCase() + part.slice(1))
     .join('')
-  const label = title?.split(/\s*[-–—]\s*/)[0]?.trim() || `use${pascal}`
+  // Prefer docs title only when it is a plain identifier (display / CLI copy).
+  // Never emit free-form frontmatter into a field consumers might treat as code.
+  const fromTitle = title?.split(/\s*[-–—]\s*/)[0]?.trim()
+  const label = fromTitle && /^[A-Za-z][A-Za-z0-9]*$/.test(fromTitle)
+    ? fromTitle
+    : `use${pascal}`
   const factory = `create${pascal}Plugin`
   const file = `${bare}.ts`
 
@@ -736,7 +741,12 @@ export async function build (): Promise<Registry> {
       warnCrossExample(file, examples, warnings)
     }
 
-    items.set(`${type}/${name}`, {
+    const key = `${type}/${name}`
+    if (items.has(key)) {
+      warnings.push(`[registry] ${file}: duplicate registry key "${key}" — overwriting previous item`)
+    }
+
+    items.set(key, {
       name,
       type,
       category: meta.category,

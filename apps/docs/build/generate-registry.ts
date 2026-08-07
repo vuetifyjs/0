@@ -110,8 +110,7 @@ export default function generateRegistryPlugin (): Plugin {
 
         try {
           const data = await get()
-          // Cap reflected path length in 404 bodies (URL noise / log abuse).
-          const path = url.slice('/registry/'.length, -'.json'.length).slice(0, 256)
+          const path = url.slice('/registry/'.length, -'.json'.length)
 
           const body = path === 'index'
             ? data.index
