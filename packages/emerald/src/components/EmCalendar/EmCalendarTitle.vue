@@ -18,7 +18,14 @@
 </script>
 
 <template>
-  <component :is="as" :id="context.title" class="emerald-calendar__title">
+  <!-- The grid names itself after this element, and a month change is otherwise
+       a silent update for anyone not watching the cells. -->
+  <component
+    :is="as"
+    :id="context.title"
+    aria-live="polite"
+    class="emerald-calendar__title"
+  >
     <slot>{{ context.label.value }}</slot>
   </component>
 </template>
