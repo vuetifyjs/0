@@ -440,17 +440,56 @@ describe('createCalendar', () => {
   })
 
   describe('controlled month', () => {
-    it('should follow a ref the caller owns', async () => {
+    it('should follow a ref the caller owns, carrying focus across', async () => {
       const month = shallowRef('2026-08')
       const calendar = make({ month })
 
       expect(calendar.anchor.value).toBe('2026-08')
+      expect(calendar.focused.value).toBe('2026-08-04')
 
       month.value = '2026-11'
       await nextTick()
 
+      // An external anchor move is a page, so the day of month comes along.
       expect(calendar.anchor.value).toBe('2026-11')
-      expect(calendar.focused.value).toBe('2026-11-01')
+      expect(calendar.focused.value).toBe('2026-11-04')
+    })
+
+    it('should re-snap focus rather than stranding it outside the grid', async () => {
+      const month = shallowRef('2026-08')
+      const calendar = make({ month })
+
+      calendar.goto('2026-08-22')
+      expect(calendar.focused.value).toBe('2026-08-22')
+
+      month.value = '2027-02'
+      await nextTick()
+
+      expect(calendar.focused.value).toBe('2027-02-22')
+      expect(flat(calendar).some(cell => cell.iso === calendar.focused.value)).toBe(true)
+    })
+
+    it('should clamp the carried day to a shorter target month', async () => {
+      const month = shallowRef('2026-01')
+      const calendar = make({ month })
+
+      calendar.goto('2026-01-31')
+
+      month.value = '2026-02'
+      await nextTick()
+
+      expect(calendar.focused.value).toBe('2026-02-28')
+    })
+
+    it('should not double-snap on an internal page', () => {
+      const calendar = make({ month: shallowRef('2026-08') })
+
+      calendar.goto('2026-08-22')
+      calendar.next()
+
+      // One carry, not a carry followed by an invariant re-snap to the entry day.
+      expect(calendar.anchor.value).toBe('2026-09')
+      expect(calendar.focused.value).toBe('2026-09-22')
     })
 
     it('should accept a getter and clamp it to the walls', async () => {
@@ -461,6 +500,21 @@ describe('createCalendar', () => {
       await nextTick()
 
       expect(calendar.anchor.value).toBe('2026-09')
+    })
+  })
+
+  describe('scope safety', () => {
+    it('should construct outside an effect scope without warning', () => {
+      using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const month = shallowRef('2026-08')
+      // Deliberately unscoped: no component, no effectScope.
+      const calendar = createCalendar({ month })
+
+      calendar.next()
+
+      expect(calendar.anchor.value).toBe('2026-09')
+      expect(warn).not.toHaveBeenCalled()
     })
   })
 

@@ -253,6 +253,31 @@ describe('emCalendar', () => {
       expect(host.querySelector('.emerald-calendar__title')!.textContent).toBe('August 2027')
     })
 
+    it('should carry focus across an external month write', async () => {
+      const month = shallowRef(TODAY)
+      const host = mount({
+        get month () {
+          return month.value
+        },
+      })
+
+      at(host, '2026-08-22').dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
+      )
+      await nextTick()
+
+      expect(at(host, '2026-08-29').tabIndex).toBe(0)
+
+      // The page moves the cursor itself — focus must follow into the new grid
+      // rather than pointing at a day that is no longer rendered.
+      month.value = new Date(2026, 10, 1)
+      await nextTick()
+
+      expect(host.querySelector('.emerald-calendar__title')!.textContent).toBe('November 2026')
+      expect(at(host, '2026-11-29').tabIndex).toBe(0)
+      expect(cells(host).filter(cell => cell.tabIndex === 0)).toHaveLength(1)
+    })
+
     it('should page when an arrow walks off the month edge', async () => {
       const host = mount()
 

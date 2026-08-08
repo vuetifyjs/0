@@ -181,25 +181,48 @@ export function createCalendar (options: CalendarOptions = {}): CalendarContext 
 
   const focused = shallowRef(entry(anchor.value))
 
-  function goto (value: string) {
-    const target = wall(value.slice(0, 7))
+  /**
+   * Lands the focused day in `value`, keeping its day of month — `date.months`
+   * already clamps that to the target's length (Jan 31 → Feb 28) — then pulling
+   * it inside the walls. Falls back to the entry rule when the carried day
+   * cannot live there at all.
+   */
+  function carry (value: string) {
+    const delta = ordinal(value) - ordinal(focused.value.slice(0, 7))
+    const shifted = date.iso(date.months(date.parse(focused.value), delta))
 
-    anchor.value = target
-    focused.value = value.length > 7 && within(value, target) ? bound(value) : entry(target)
+    return within(shifted, value) ? bound(shifted) : entry(value)
   }
 
   /**
-   * Paging carries the day of month across, clamped to the target month's
-   * length — `date.months` already does that clamp (Jan 31 → Feb 28). When a
-   * wall pulls the anchor somewhere else entirely, the entry rule takes over.
+   * The anchor and the focused date correct each other, so focus is settled
+   * *before* the anchor moves — that leaves nothing for the invariant watcher
+   * below to re-snap, which is what keeps an internal page from snapping twice.
    */
+  function goto (value: string) {
+    const target = wall(value.slice(0, 7))
+
+    focused.value = value.length > 7 && within(value, target) ? bound(value) : entry(target)
+    anchor.value = target
+  }
+
   function step (count: number) {
     const target = wall(key(ordinal(anchor.value) + count))
-    const shifted = date.iso(date.months(date.parse(focused.value), count))
 
+    focused.value = carry(target)
     anchor.value = target
-    focused.value = within(shifted, target) ? bound(shifted) : entry(target)
   }
+
+  /**
+   * Whoever moves the anchor — a controlled `month` source, or a consumer
+   * writing through the model — is paging, so focus follows rather than
+   * stranding on a day the visible grid no longer renders.
+   */
+  watch(anchor, value => {
+    if (within(focused.value, value)) return
+
+    focused.value = carry(value)
+  }, { flush: 'sync' })
 
   function move (unit: CalendarUnit, amount: number) {
     const from = date.parse(focused.value)
@@ -238,7 +261,10 @@ export function createCalendar (options: CalendarOptions = {}): CalendarContext 
 
   if (!isUndefined(month)) {
     watch(() => toValue(month), value => {
-      if (isString(value) && value !== anchor.value) goto(value)
+      if (!isString(value)) return
+
+      // Only the anchor moves; the watcher above carries focus across with it.
+      anchor.value = wall(value.slice(0, 7))
     })
   }
 
