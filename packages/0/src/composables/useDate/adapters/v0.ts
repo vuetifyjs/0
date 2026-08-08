@@ -648,7 +648,7 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
     return weekdays
   }
 
-  getWeekArray (date: PlainDateTime): PlainDateTime[][] {
+  getWeekArray (date: PlainDateTime, fixedWeeks = false): PlainDateTime[][] {
     const weeks: PlainDateTime[][] = []
     const monthStart = this.startOfMonth(date)
     const monthEnd = this.endOfMonth(date)
@@ -656,7 +656,10 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
     let current = this.startOfWeek(monthStart)
     const end = this.endOfWeek(monthEnd)
 
-    while (Temporal.PlainDateTime.compare(current, end) <= 0) {
+    while (
+      Temporal.PlainDateTime.compare(current, end) <= 0 ||
+      (fixedWeeks && weeks.length < 6)
+    ) {
       const week: PlainDateTime[] = []
 
       for (let i = 0; i < 7; i++) {
