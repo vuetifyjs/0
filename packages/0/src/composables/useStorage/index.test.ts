@@ -479,6 +479,41 @@ describe('createStorage', () => {
       )
     })
 
+    it('should call onError when writeStored fails', async () => {
+      const failAdapter = {
+        getItem: vi.fn(() => null),
+        setItem: vi.fn(() => {
+          throw new Error('Storage full')
+        }),
+        removeItem: vi.fn(),
+      }
+      using consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const onError = vi.fn()
+      const storage = createStorage({ adapter: failAdapter as unknown as StorageAdapter, prefix: 'test:', onError })
+      const val = storage.get('key', 'default')
+      val.value = 'new-value'
+      await nextTick()
+
+      expect(onError).toHaveBeenCalledTimes(1)
+      expect(onError).toHaveBeenCalledWith(expect.any(Error), 'test:key')
+      expect(consoleSpy).toHaveBeenCalled()
+    })
+
+    it('should not call onError when a write succeeds', async () => {
+      const adapter = {
+        getItem: vi.fn(() => null),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+      }
+      const onError = vi.fn()
+      const storage = createStorage({ adapter: adapter as unknown as StorageAdapter, prefix: 'test:', onError })
+      const val = storage.get('key', 'default')
+      val.value = 'new-value'
+      await nextTick()
+
+      expect(onError).not.toHaveBeenCalled()
+    })
+
     it('should no-op when removing a key that was never created', () => {
       const noopAdapter = {
         getItem: vi.fn(() => null),
