@@ -174,7 +174,7 @@ pnpm dlx @vuetify/cli add dialog
 pnpm dlx @vuetify/cli add use-theme
 
 # Pick a specific example when a feature ships more than one
-pnpm dlx @vuetify/cli add data-table --example gallery
+pnpm dlx @vuetify/cli add create-data-table --example features
 
 # Non-interactive (CI / scripts)
 pnpm dlx @vuetify/cli add dialog --yes
@@ -184,7 +184,7 @@ pnpm dlx @vuetify/cli add dialog --yes
 npx @vuetify/cli add
 npx @vuetify/cli add dialog
 npx @vuetify/cli add use-theme
-npx @vuetify/cli add data-table --example gallery
+npx @vuetify/cli add create-data-table --example features
 npx @vuetify/cli add dialog --yes
 ```
 
@@ -192,7 +192,7 @@ npx @vuetify/cli add dialog --yes
 yarn dlx @vuetify/cli add
 yarn dlx @vuetify/cli add dialog
 yarn dlx @vuetify/cli add use-theme
-yarn dlx @vuetify/cli add data-table --example gallery
+yarn dlx @vuetify/cli add create-data-table --example features
 yarn dlx @vuetify/cli add dialog --yes
 ```
 
@@ -200,7 +200,7 @@ yarn dlx @vuetify/cli add dialog --yes
 bunx @vuetify/cli add
 bunx @vuetify/cli add dialog
 bunx @vuetify/cli add use-theme
-bunx @vuetify/cli add data-table --example gallery
+bunx @vuetify/cli add create-data-table --example features
 bunx @vuetify/cli add dialog --yes
 ```
 
@@ -262,6 +262,7 @@ vuetify generate MyCard
 vuetify generate my-button --dir src/components/ui
 ```
 
+`--dir` is one-shot for that file. It does not change the project components alias used by later `add` / `refresh` calls.
 ### diff and refresh
 
 When a feature came from the registry, compare or re-pull it:
