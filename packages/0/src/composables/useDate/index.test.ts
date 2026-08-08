@@ -771,6 +771,11 @@ describe('createDate', () => {
           expect(deriveWeekInfo('ja-JP').firstDay).toBe(0)
           expect(deriveWeekInfo('ar-EG').firstDay).toBe(6)
           expect(deriveWeekInfo('dv-MV').firstDay).toBe(5)
+          // Post-2022 CLDR: AE, AR, AU, CN are Monday-start; IS is Sunday
+          expect(deriveWeekInfo('ar-AE').firstDay).toBe(1)
+          expect(deriveWeekInfo('en-AU').firstDay).toBe(1)
+          expect(deriveWeekInfo('zh-CN').firstDay).toBe(1)
+          expect(deriveWeekInfo('is-IS').firstDay).toBe(0)
           // Bare language tags resolve their likely region via maximize()
           expect(deriveWeekInfo('de').firstDay).toBe(1)
           expect(deriveWeekInfo('ja').firstDay).toBe(0)

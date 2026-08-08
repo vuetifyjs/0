@@ -30,11 +30,13 @@ export interface WeekInfo {
   minimalDays: number
 }
 
-// CLDR supplemental week data (firstDay), keyed by region.
+// CLDR supplemental week data (firstDay), keyed by region — generated from
+// ICU getWeekInfo output (Node 22 / CLDR 46) so runtimes with and without
+// Intl week info agree; includes ICU's deprecated region aliases (BU, RH, …).
 // Regions not listed use the world default, Monday.
 const FRI_REGIONS = 'MV'
-const SAT_REGIONS = 'AE AF BH DJ DZ EG IQ IR JO KW LY OM QA SD SY'
-const SUN_REGIONS = 'AG AR AS AU BD BR BS BT BW BZ CA CN CO DM DO ET GT GU HK HN ID IL IN JM JP KE KH KR LA MH MM MO MT MX MZ NI NP PA PE PH PK PR PT PY SA SG SV TH TT TW UM US VE VI WS YE ZA ZW'
+const SAT_REGIONS = 'AF BH DJ DZ EG IQ IR JO KW LY OM QA SD SY'
+const SUN_REGIONS = 'AG AS BD BR BS BT BU BW BZ CA CO DM DO ET GT GU HK HN ID IL IN IS JM JP JT KE KH KR LA MH MI MM MO MT MX MZ NI NP NT PA PE PH PK PR PT PU PY PZ RH SA SG SV TH TT TW UM US VE VI WK WS YD YE ZA ZW'
 
 // ISO 8601 regions using minimalDays=4 (first week must contain Thursday)
 const MD4_REGIONS = 'AD AN AT AX BE BG CH CZ DE DK EE ES FI FJ FO FR GB GF GP GR HU IE IS IT LI LT LU MC MQ NL NO PL PT RE RU SE SK SM VA'
