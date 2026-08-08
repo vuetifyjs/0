@@ -490,6 +490,22 @@ describe('createDate', () => {
         expect(adapter.getWeekArray(june, true)).toHaveLength(6)
       })
 
+      it('should pad to 6 weeks with fixedWeeks under a Monday week start', () => {
+        const a = new V0DateAdapter()
+        a.firstDayOfWeek = 1
+        // Feb 2026 spans 5 rows Monday-start (vs 4 Sunday-start)
+        const february = a.date('2026-02-15T12:00:00')!
+        expect(a.getWeekArray(february)).toHaveLength(5)
+
+        const fixed = a.getWeekArray(february, true)
+        expect(fixed).toHaveLength(6)
+        // Continuity: padding continues day-by-day from the last natural cell
+        const flat = fixed.flat()
+        for (let index = 1; index < flat.length; index++) {
+          expect(a.getDiff(flat[index]!, flat[index - 1]!, 'days')).toBe(1)
+        }
+      })
+
       it('should leave natural 6-week months unchanged with fixedWeeks', () => {
         // Aug 2026 (Sunday start) spans 6 rows naturally
         const august = adapter.date('2026-08-15T12:00:00')!
