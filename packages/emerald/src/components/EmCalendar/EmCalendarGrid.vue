@@ -1,11 +1,15 @@
 <script lang="ts">
+  // Framework
+  import { useRtl } from '@vuetify/v0'
+
   // Context
   import { EM_CALENDAR_NAMESPACE, useEmCalendarContext } from './context'
 
   // Utilities
-  import { nextTick, shallowRef, toRef, useTemplateRef } from 'vue'
+  import { nextTick, toRef, useTemplateRef } from 'vue'
 
   // Types
+  import type { CalendarUnit } from './calendar'
   import type { EmCalendarCell } from './context'
 
   export interface EmCalendarGridProps {
@@ -24,21 +28,20 @@
   } = defineProps<EmCalendarGridProps>()
 
   const context = useEmCalendarContext(namespace)
+  const rtl = useRtl()
 
   const root = useTemplateRef<HTMLElement>('root')
-  /** Day the keyboard last walked to; null until the user drives the grid. */
-  const active = shallowRef<string | null>(null)
 
   const weeks = toRef(() => Array.from(
     { length: 6 },
     (_, index) => context.cells.value.slice(index * 7, index * 7 + 7),
   ))
 
-  // Exactly one cell holds tabindex 0 — the walked day while it stays visible,
+  // Exactly one cell holds tabindex 0 — the focused day while it stays visible,
   // then the selected day, today, and finally the first day of the month.
   const tab = toRef(() => {
     const cells = context.cells.value
-    const walked = cells.find(cell => cell.iso === active.value && cell.inMonth)
+    const walked = cells.find(cell => cell.iso === context.focused.value && cell.inMonth)
 
     if (walked) return walked.iso
 
@@ -65,31 +68,36 @@
   }
 
   /**
-   * Walks to `target`, pulling the cursor along when it lands outside the
-   * visible month. The cell is re-keyed by that re-render, so focus is re-taken
-   * once the new matrix is in the DOM.
+   * Walks from `cell`, letting the core pull the cursor along when focus lands
+   * outside the visible month. The cell is re-keyed by that re-render, so focus
+   * is re-taken once the new matrix is in the DOM.
    */
-  function go (target: Date) {
-    const cursor = context.cursor.value
-    const delta = (target.getFullYear() - cursor.getFullYear()) * 12 + (target.getMonth() - cursor.getMonth())
-    const iso = context.date.iso(target)
+  function walk (cell: EmCalendarCell, unit: CalendarUnit, amount: number) {
+    context.focused.value = cell.iso
 
-    active.value = iso
+    context.move(unit, amount)
 
-    if (delta === 0) {
-      focus(iso)
-      return
-    }
+    nextTick(() => focus(context.focused.value))
+  }
 
-    context.step(delta)
+  /** Home/End stay inside the rendered row, which is the week (APG). */
+  function edge (cell: EmCalendarCell, offset: number) {
+    const cells = context.cells.value
+    const index = cells.findIndex(entry => entry.iso === cell.iso)
 
-    nextTick(() => focus(iso))
+    if (index === -1) return
+
+    const { iso } = cells[Math.floor(index / 7) * 7 + offset]
+
+    context.focused.value = iso
+
+    focus(iso)
   }
 
   function onSelect (cell: EmCalendarCell) {
     if (!cell.inMonth || context.disabled.value) return
 
-    active.value = cell.iso
+    context.focused.value = cell.iso
 
     context.select(cell.iso)
   }
@@ -97,42 +105,37 @@
   function onKeydown (event: KeyboardEvent, cell: EmCalendarCell) {
     if (context.disabled.value) return
 
-    const { date } = context
-    let target: Date | undefined
+    // Arrows follow reading order, so the horizontal pair swaps under RTL.
+    const dir = rtl.isRtl.value ? -1 : 1
 
     switch (event.key) {
       case 'ArrowLeft': {
-        target = date.days(cell.date, -1)
+        walk(cell, 'day', -dir)
         break
       }
       case 'ArrowRight': {
-        target = date.days(cell.date, 1)
+        walk(cell, 'day', dir)
         break
       }
       case 'ArrowUp': {
-        target = date.days(cell.date, -7)
+        walk(cell, 'week', -1)
         break
       }
       case 'ArrowDown': {
-        target = date.days(cell.date, 7)
+        walk(cell, 'week', 1)
         break
       }
       case 'Home':
       case 'End': {
-        const cells = context.cells.value
-        const index = cells.findIndex(entry => entry.iso === cell.iso)
-
-        if (index === -1) return
-
-        target = cells[Math.floor(index / 7) * 7 + (event.key === 'Home' ? 0 : 6)].date
+        edge(cell, event.key === 'Home' ? 0 : 6)
         break
       }
       case 'PageUp': {
-        target = date.months(cell.date, -1)
+        walk(cell, event.shiftKey ? 'year' : 'month', -1)
         break
       }
       case 'PageDown': {
-        target = date.months(cell.date, 1)
+        walk(cell, event.shiftKey ? 'year' : 'month', 1)
         break
       }
       default: { return
@@ -140,8 +143,6 @@
     }
 
     event.preventDefault()
-
-    go(target)
   }
 </script>
 

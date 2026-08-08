@@ -1,4 +1,5 @@
 export type {
+  CalendarUnit,
   EmCalendarCell,
   EmCalendarContext,
   EmCalendarEvent,

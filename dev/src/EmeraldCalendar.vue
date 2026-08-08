@@ -183,7 +183,14 @@
           class="adm-calendar__mini"
           :events="visible"
         >
-          <EmCalendarTitle as="p" class="adm-calendar__mini-head" />
+          <!-- The main header's title already announces the month; both roots
+               share one cursor, so a live region here would double it up. -->
+          <EmCalendarTitle
+            as="p"
+            class="adm-calendar__mini-head"
+            :live="false"
+          />
+
           <EmCalendarMini />
         </EmCalendar>
 

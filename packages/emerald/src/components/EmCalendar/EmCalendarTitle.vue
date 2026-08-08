@@ -6,19 +6,32 @@
     namespace?: string
     /** Heading level for the month label. */
     as?: string
+    /** Announce month changes. Turn off on a second title over the same state. */
+    live?: boolean
   }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmCalendarTitle' })
 
-  const { namespace = EM_CALENDAR_NAMESPACE, as = 'h2' } = defineProps<EmCalendarTitleProps>()
+  const {
+    namespace = EM_CALENDAR_NAMESPACE,
+    as = 'h2',
+    live = true,
+  } = defineProps<EmCalendarTitleProps>()
 
   const context = useEmCalendarContext(namespace)
 </script>
 
 <template>
-  <component :is="as" :id="context.title" class="emerald-calendar__title">
+  <!-- The grid names itself after this element, and a month change is otherwise
+       a silent update for anyone not watching the cells. -->
+  <component
+    :is="as"
+    :id="context.title"
+    :aria-live="live ? 'polite' : undefined"
+    class="emerald-calendar__title"
+  >
     <slot>{{ context.label.value }}</slot>
   </component>
 </template>
