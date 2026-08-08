@@ -11,6 +11,9 @@
       "path": "./packages/genesis"
     },
     {
+      "path": "./packages/emerald"
+    },
+    {
       "path": "./apps/docs"
     },
     {

@@ -18,6 +18,7 @@ export default defineConfig({
       dirs: [
         '../packages/paper/src/components/',
         '../packages/0/src/components/',
+        '../packages/emerald/src/components/',
       ],
       dts: 'src/components.d.ts',
     }),
@@ -53,9 +54,11 @@ export default defineConfig({
       '@': fileURLToPath(new URL('src', import.meta.url)),
       '@vuetify/v0': fileURLToPath(new URL('../packages/0/src', import.meta.url)),
       '@vuetify/paper': fileURLToPath(new URL('../packages/paper/src', import.meta.url)),
+      '@paper/emerald': fileURLToPath(new URL('../packages/emerald/src', import.meta.url)),
       // internal
       '#v0': fileURLToPath(new URL('../packages/0/src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../packages/paper/src', import.meta.url)),
+      '#emerald': fileURLToPath(new URL('../packages/emerald/src', import.meta.url)),
     },
   },
   build: {
