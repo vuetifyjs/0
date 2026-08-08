@@ -9,6 +9,7 @@
   import { nextTick, onMounted, shallowRef, watch } from 'vue'
 
   // Types
+  import type { RegistryExampleRef } from '@/data/registry'
   import type { ReplStore } from '@vue/repl'
   import type { Ref, ShallowRef } from 'vue'
 
@@ -31,7 +32,9 @@
     activeAddons: ShallowRef<string[]>
     toggleAddon: (id: string) => Promise<void>
     filesVersion: ShallowRef<number>
+    loadError: ShallowRef<string | undefined>
     openPlayground: (content: string) => Promise<void>
+    openRegistryExample: (ref: RegistryExampleRef, options?: { clearSearch?: boolean }) => Promise<void>
     showConfig: ShallowRef<boolean>
   }
 
@@ -39,7 +42,24 @@
 </script>
 
 <script setup lang="ts">
-  const { store, isReady, filesVersion, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions, activePreset, applyPreset, activeAddons, toggleAddon, openPlayground } = usePlaygroundFiles()
+  const {
+    store,
+    isReady,
+    filesVersion,
+    loadError,
+    vueVersion,
+    v0Version,
+    vueVersions,
+    v0Versions,
+    fetching,
+    fetchVersions,
+    activePreset,
+    applyPreset,
+    activeAddons,
+    toggleAddon,
+    openPlayground,
+    openRegistryExample,
+  } = usePlaygroundFiles()
   const storage = useStorage()
   const { isMobile } = useBreakpoints()
 
@@ -90,7 +110,9 @@
     activeAddons,
     toggleAddon,
     filesVersion,
+    loadError,
     openPlayground,
+    openRegistryExample,
     showConfig,
   })
 
@@ -130,6 +152,22 @@
     class="h-screen flex flex-col overflow-hidden bg-background transition-opacity duration-150"
     :class="settled ? 'opacity-100' : 'opacity-0'"
   >
+    <div
+      v-if="loadError"
+      class="flex items-center justify-between gap-3 px-3 py-2 text-xs bg-error/10 text-error border-b border-error/20 shrink-0"
+      role="alert"
+    >
+      <span class="min-w-0 truncate">{{ loadError }}</span>
+
+      <button
+        class="shrink-0 underline opacity-80 hover:opacity-100"
+        type="button"
+        @click="loadError = undefined"
+      >
+        Dismiss
+      </button>
+    </div>
+
     <slot />
   </div>
 </template>

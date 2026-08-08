@@ -122,7 +122,7 @@
             type="button"
             @click="onOpen"
           >
-            Open...
+            Open example…
           </button>
 
           <div class="border-t border-divider my-1" />

@@ -79,7 +79,7 @@ export function generateAppWrapper (entryPath: string): string {
  * Build the src/-prefixed file record that loadExample expects.
  * When dir is provided, files are nested: src/{dir}/{name}
  */
-function buildPlaygroundFiles (inputFiles: PlaygroundFile[], dir?: string): Record<string, string> {
+export function buildPlaygroundFiles (inputFiles: PlaygroundFile[], dir?: string): Record<string, string> {
   const files: Record<string, string> = {}
   const prefix = dir ? `src/${dir}` : 'src'
 
