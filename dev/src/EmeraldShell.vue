@@ -805,10 +805,56 @@
     flex: 1;
     min-height: 0;
     overflow: auto;
+    scrollbar-width: none;
     /* Scroller spans to the nav's edges so the scrollbar sits flush; the
        nav's horizontal inset moves onto the list content instead. */
     margin-inline: calc(var(--emerald-spacing-xs, 8px) * -1);
     padding-inline: var(--emerald-spacing-xs, 8px);
+    /* Edge fades appear only when content remains in that direction: the
+       fade sizes ride the list's own scroll timeline, and when nothing
+       overflows the timeline is inactive so both stay at 0. */
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 var(--ed-nav-fade-top),
+      #000 calc(100% - var(--ed-nav-fade-bottom)),
+      transparent 100%
+    );
+    animation: ed-nav-fade linear both;
+    animation-timeline: scroll(self y);
+  }
+
+  @property --ed-nav-fade-top {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+  }
+
+  @property --ed-nav-fade-bottom {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+  }
+
+  @keyframes ed-nav-fade {
+    0% {
+      --ed-nav-fade-top: 0px;
+      --ed-nav-fade-bottom: 28px;
+    }
+    10% {
+      --ed-nav-fade-top: 28px;
+    }
+    90% {
+      --ed-nav-fade-bottom: 28px;
+    }
+    100% {
+      --ed-nav-fade-top: 28px;
+      --ed-nav-fade-bottom: 0px;
+    }
+  }
+
+  .ed-nav__list::-webkit-scrollbar {
+    display: none;
   }
 
   .ed-nav__group {
