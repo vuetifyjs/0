@@ -1,5 +1,17 @@
 # @vuetify/v0
 
+## 1.0.4
+
+### Patch Changes
+
+- [#797](https://github.com/vuetifyjs/0/pull/797) [`5a9a388`](https://github.com/vuetifyjs/0/commit/5a9a388ef42a5bd96d5a398e28cb046da78e59a3) Thanks [@johnleider](https://github.com/johnleider)! - fix(useDate): add a fixedWeeks mode to getWeekArray
+
+  `getWeekArray(date, fixedWeeks?)` can now pad the month matrix to a constant 6 rows (42 cells), so calendar grids keep a stable height across months instead of jumping between 4, 5, and 6 rows. Padding continues day-by-day into the next month; months that naturally span 6 rows are unchanged. Default behavior without the flag is identical to before.
+
+- [#796](https://github.com/vuetifyjs/0/pull/796) [`4a19d6c`](https://github.com/vuetifyjs/0/commit/4a19d6c0375e565851d1f1a2cd7125fac5e46ea4) Thanks [@johnleider](https://github.com/johnleider)! - fix(useDate): correct the first day of the week on Firefox and make week data consistent across browsers
+
+  Calendars rendered a Sunday-start week for every locale on Firefox — `de-DE`, `fr-FR`, and `en-GB` all laid out incorrectly — and could disagree between server and client when Node and browser ICU versions differ. Week start and `minimalDays` now come from CLDR 48 data on every runtime, so the same locale always produces the same week layout in Chromium, Firefox, Safari, and Node. An explicit `-u-fw-` keyword on the locale (e.g. `en-US-u-fw-mon`) is honored everywhere, and `minimalDays` for bare language tags is now the correct value for the locale's likely region (affects week numbers for e.g. `sv` and `pt`).
+
 ## 1.0.3
 
 ### Patch Changes
