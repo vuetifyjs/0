@@ -6,7 +6,7 @@
   import { EM_CALENDAR_NAMESPACE, useEmCalendarContext } from './context'
 
   // Utilities
-  import { nextTick, shallowRef, toRef, useTemplateRef } from 'vue'
+  import { nextTick, toRef, useTemplateRef } from 'vue'
 
   // Types
   import type { CalendarUnit } from './calendar'
@@ -31,19 +31,17 @@
   const rtl = useRtl()
 
   const root = useTemplateRef<HTMLElement>('root')
-  /** Day the keyboard last walked to; null until the user drives the grid. */
-  const active = shallowRef<string | null>(null)
 
   const weeks = toRef(() => Array.from(
     { length: 6 },
     (_, index) => context.cells.value.slice(index * 7, index * 7 + 7),
   ))
 
-  // Exactly one cell holds tabindex 0 — the walked day while it stays visible,
+  // Exactly one cell holds tabindex 0 — the focused day while it stays visible,
   // then the selected day, today, and finally the first day of the month.
   const tab = toRef(() => {
     const cells = context.cells.value
-    const walked = cells.find(cell => cell.iso === active.value && cell.inMonth)
+    const walked = cells.find(cell => cell.iso === context.focused.value && cell.inMonth)
 
     if (walked) return walked.iso
 
@@ -79,11 +77,7 @@
 
     context.move(unit, amount)
 
-    const iso = context.focused.value
-
-    active.value = iso
-
-    nextTick(() => focus(iso))
+    nextTick(() => focus(context.focused.value))
   }
 
   /** Home/End stay inside the rendered row, which is the week (APG). */
@@ -96,7 +90,6 @@
     const { iso } = cells[Math.floor(index / 7) * 7 + offset]
 
     context.focused.value = iso
-    active.value = iso
 
     focus(iso)
   }
@@ -104,7 +97,6 @@
   function onSelect (cell: EmCalendarCell) {
     if (!cell.inMonth || context.disabled.value) return
 
-    active.value = cell.iso
     context.focused.value = cell.iso
 
     context.select(cell.iso)

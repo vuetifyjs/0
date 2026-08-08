@@ -148,6 +148,72 @@ describe('emCalendar', () => {
     })
   })
 
+  describe('roving tabindex', () => {
+    it('should give exactly one in-month cell the tab stop', () => {
+      const host = mount({ modelValue: '2026-08-11' })
+
+      const stops = cells(host).filter(cell => cell.tabIndex === 0)
+
+      expect(stops).toHaveLength(1)
+      expect(stops[0].dataset.out).toBeUndefined()
+    })
+
+    it('should park the tab stop on a visible selected day', () => {
+      const host = mount({ modelValue: '2026-08-11' })
+
+      expect(at(host, '2026-08-11').tabIndex).toBe(0)
+      expect(at(host, '2026-08-04').tabIndex).toBe(-1)
+    })
+
+    it('should fall back to today when the selection is off-month', () => {
+      const host = mount({ modelValue: '2027-03-11' })
+
+      expect(at(host, '2026-08-04').tabIndex).toBe(0)
+    })
+
+    it('should let the roving cursor outrank the selection once it moves', async () => {
+      const host = mount({ modelValue: '2026-08-11' })
+
+      at(host, '2026-08-11').dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
+      )
+      await nextTick()
+
+      expect(at(host, '2026-08-18').tabIndex).toBe(0)
+      expect(at(host, '2026-08-11').tabIndex).toBe(-1)
+
+      // Paging away and back is governed by the entry rule — the day of month
+      // carries across — not by re-seeding from the selection.
+      at(host, '2026-08-18').dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'PageDown', bubbles: true }),
+      )
+      await nextTick()
+
+      expect(at(host, '2026-09-18').tabIndex).toBe(0)
+
+      at(host, '2026-09-18').dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'PageUp', bubbles: true }),
+      )
+      await nextTick()
+
+      expect(at(host, '2026-08-18').tabIndex).toBe(0)
+      expect(at(host, '2026-08-11').tabIndex).toBe(-1)
+    })
+
+    it('should follow the keyboard rather than a stale local copy', async () => {
+      const host = mount()
+
+      at(host, '2026-08-04').dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
+      )
+      await nextTick()
+
+      expect(at(host, '2026-08-11').tabIndex).toBe(0)
+      expect(at(host, '2026-08-04').tabIndex).toBe(-1)
+      expect(cells(host).filter(cell => cell.tabIndex === 0)).toHaveLength(1)
+    })
+  })
+
   describe('navigation', () => {
     it('should page the month model without touching the selection', async () => {
       const month = shallowRef(TODAY)

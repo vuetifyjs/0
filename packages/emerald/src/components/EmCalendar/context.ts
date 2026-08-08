@@ -6,6 +6,9 @@ import type { CalendarUnit } from './calendar'
 import type { EmCalendarDate, EmCalendarWeekday } from './date'
 import type { Ref } from 'vue'
 
+/** Re-exported so `EmCalendarContext['move']` is nameable without the core. */
+export type { CalendarUnit } from './calendar'
+
 export type EmCalendarTone = 'neutral' | 'primary' | 'secondary' | 'info' | 'alert' | 'danger'
 
 export interface EmCalendarEvent {

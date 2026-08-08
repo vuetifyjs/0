@@ -152,10 +152,11 @@ export function createCalendar (options: CalendarOptions = {}): CalendarContext 
   /** Today, re-read on a midnight tick rather than snapshotted at setup. */
   const now = shallowRef(date.iso(date.now()))
 
+  // `repeat` re-resolves the duration after each fire, so every cycle measures
+  // afresh to the next local midnight — DST-safe, and `isActive` stays true.
   const timer = useTimer(() => {
     now.value = date.iso(date.now())
-    timer.start()
-  }, { duration: () => date.midnight() })
+  }, { duration: () => date.midnight(), repeat: true })
 
   if (IN_BROWSER) timer.start()
 
@@ -165,9 +166,17 @@ export function createCalendar (options: CalendarOptions = {}): CalendarContext 
 
   const anchor = shallowRef(wall(toValue(month) ?? now.value.slice(0, 7)))
 
+  /** Focus never rests on a walled-off day. */
+  function bound (iso: string) {
+    if (isString(min) && iso < min) return min
+    if (isString(max) && iso > max) return max
+
+    return iso
+  }
+
   /** The day to land on when the anchor moves: today when visible, else the 1st. */
   function entry (value: string) {
-    return within(now.value, value) ? now.value : `${value}-01`
+    return bound(within(now.value, value) ? now.value : `${value}-01`)
   }
 
   const focused = shallowRef(entry(anchor.value))
@@ -176,11 +185,20 @@ export function createCalendar (options: CalendarOptions = {}): CalendarContext 
     const target = wall(value.slice(0, 7))
 
     anchor.value = target
-    focused.value = value.length > 7 && within(value, target) ? value : entry(target)
+    focused.value = value.length > 7 && within(value, target) ? bound(value) : entry(target)
   }
 
+  /**
+   * Paging carries the day of month across, clamped to the target month's
+   * length — `date.months` already does that clamp (Jan 31 → Feb 28). When a
+   * wall pulls the anchor somewhere else entirely, the entry rule takes over.
+   */
   function step (count: number) {
-    goto(key(ordinal(anchor.value) + count))
+    const target = wall(key(ordinal(anchor.value) + count))
+    const shifted = date.iso(date.months(date.parse(focused.value), count))
+
+    anchor.value = target
+    focused.value = within(shifted, target) ? bound(shifted) : entry(target)
   }
 
   function move (unit: CalendarUnit, amount: number) {

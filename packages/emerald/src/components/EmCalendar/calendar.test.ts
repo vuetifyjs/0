@@ -114,6 +114,73 @@ describe('createCalendar', () => {
       expect(calendar.anchor.value).toBe('2026-12')
     })
 
+    it('should never leave focus on a walled-off day', () => {
+      const calendar = make({ min: '2026-01-15', max: '2026-12-05' })
+
+      // The 1st of the min month is disabled, so the wall day takes focus.
+      calendar.first()
+      expect(calendar.focused.value).toBe('2026-01-15')
+
+      calendar.last()
+      expect(calendar.focused.value).toBe('2026-12-01')
+
+      calendar.step(-20)
+      expect(calendar.anchor.value).toBe('2026-01')
+      expect(calendar.focused.value).toBe('2026-01-15')
+    })
+
+    it('should pull focus back to the max wall when today overshoots it', () => {
+      const calendar = make({ max: '2026-08-02' })
+
+      calendar.last()
+
+      expect(calendar.anchor.value).toBe('2026-08')
+      expect(calendar.focused.value).toBe('2026-08-02')
+    })
+
+    it('should keep every focus landing selectable', () => {
+      const calendar = make({ min: '2026-01-15', max: '2026-12-05' })
+
+      for (const run of [() => calendar.first(), () => calendar.last(), () => calendar.step(-40)]) {
+        run()
+
+        const cell = flat(calendar).find(entry => entry.iso === calendar.focused.value)
+
+        expect(cell?.disabled).toBe(false)
+      }
+    })
+
+    it('should carry the day of month across a page', () => {
+      const calendar = make()
+
+      calendar.goto('2026-08-15')
+      calendar.next()
+
+      expect(calendar.anchor.value).toBe('2026-09')
+      expect(calendar.focused.value).toBe('2026-09-15')
+    })
+
+    it('should clamp the carried day to the target month length', () => {
+      const calendar = make()
+
+      calendar.goto('2026-01-31')
+      calendar.next()
+
+      expect(calendar.anchor.value).toBe('2026-02')
+      expect(calendar.focused.value).toBe('2026-02-28')
+    })
+
+    it('should round-trip focus when both months hold the day', () => {
+      const calendar = make()
+
+      calendar.goto('2026-08-15')
+      calendar.next()
+      calendar.prev()
+
+      expect(calendar.anchor.value).toBe('2026-08')
+      expect(calendar.focused.value).toBe('2026-08-15')
+    })
+
     it('should no-op first and last when unbounded', () => {
       const calendar = make()
 
@@ -349,6 +416,18 @@ describe('createCalendar', () => {
     })
   })
 
+  describe('early years', () => {
+    it('should not fold a two-digit year into the 1900s', () => {
+      const calendar = make()
+
+      calendar.goto('0099-03')
+
+      expect(calendar.anchor.value).toBe('0099-03')
+      expect(calendar.focused.value).toBe('0099-03-01')
+      expect(flat(calendar).some(cell => cell.iso.startsWith('1999'))).toBe(false)
+    })
+  })
+
   describe('label', () => {
     it('should localize the anchor month', () => {
       const calendar = make()
@@ -392,11 +471,16 @@ describe('createCalendar', () => {
       expect(flat(calendar).find(cell => cell.today)!.iso).toBe('2026-08-04')
 
       // The timer is armed for the next local midnight; advancing the fake
-      // clock past it re-reads the date and re-arms.
+      // clock past it re-reads the date, and `repeat` re-arms for the one after.
       await vi.advanceTimersByTimeAsync(24 * 60 * 60 * 1000 + 1000)
       await nextTick()
 
       expect(flat(calendar).find(cell => cell.today)!.iso).toBe('2026-08-05')
+
+      await vi.advanceTimersByTimeAsync(24 * 60 * 60 * 1000)
+      await nextTick()
+
+      expect(flat(calendar).find(cell => cell.today)!.iso).toBe('2026-08-06')
     })
   })
 })

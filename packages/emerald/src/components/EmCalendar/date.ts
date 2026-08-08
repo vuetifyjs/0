@@ -54,25 +54,38 @@ function iso (value: Date) {
   return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`
 }
 
+/**
+ * Every `Date` in this module is built from parts here, because the two-digit
+ * year constructor folds 0-99 into the 1900s. Shifting after the fact keeps any
+ * month/day rollover the constructor already resolved.
+ */
+function build (year: number, index: number, day: number) {
+  const result = new Date(year, index, day)
+
+  if (year >= 0 && year <= 99) result.setFullYear(result.getFullYear() - 1900)
+
+  return result
+}
+
 /** Local parts, never `new Date(iso)` — that reads `YYYY-MM-DD` as UTC midnight. */
 function parse (value: string) {
   const [year, index, day] = value.split('-').map(Number)
 
-  return new Date(year, index - 1, day ?? 1)
+  return build(year, index - 1, day ?? 1)
 }
 
 function month (value: Date) {
-  return new Date(value.getFullYear(), value.getMonth(), 1)
+  return build(value.getFullYear(), value.getMonth(), 1)
 }
 
 function days (value: Date, amount: number) {
-  return new Date(value.getFullYear(), value.getMonth(), value.getDate() + amount)
+  return build(value.getFullYear(), value.getMonth(), value.getDate() + amount)
 }
 
 function months (value: Date, amount: number) {
-  const target = new Date(value.getFullYear(), value.getMonth() + amount, 1)
+  const target = build(value.getFullYear(), value.getMonth() + amount, 1)
   // Day 0 of the next month is the last day of the target one — clamps Jan 31 → Feb 28.
-  const last = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate()
+  const last = build(target.getFullYear(), target.getMonth() + 1, 0).getDate()
 
   target.setDate(Math.min(value.getDate(), last))
 
@@ -142,7 +155,7 @@ function weeks (value: Date, first: number, fixed: boolean): Date[][] {
   const anchor = month(value)
   const lead = (anchor.getDay() - first + 7) % 7
   // Day 0 of the next month is the last day of this one.
-  const length = new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0).getDate()
+  const length = build(anchor.getFullYear(), anchor.getMonth() + 1, 0).getDate()
 
   return matrix(days(anchor, -lead), fixed ? 6 : Math.ceil((lead + length) / 7))
 }

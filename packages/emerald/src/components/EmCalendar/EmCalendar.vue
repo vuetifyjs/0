@@ -63,9 +63,11 @@
 
   const cursor = toRef(() => date.parse(calendar.anchor.value))
 
+  const matrix = computed(() => calendar.months.value[0].weeks.flat())
+
   // The core's cells carry geometry only; the DS shape adds the `Date` its
   // sub-components format from, and reads the spill as `inMonth`.
-  const cells = computed(() => calendar.months.value[0].weeks.flat().map(
+  const cells = computed(() => matrix.value.map(
     (cell): EmCalendarCell => ({
       date: date.parse(cell.iso),
       iso: cell.iso,
@@ -74,6 +76,15 @@
       today: cell.today,
     }),
   ))
+
+  // APG entry order is last-focused, then selected, then today — so a visible
+  // selection owns the first tab stop. Mount-time only: once the user pages or
+  // walks, the roving cursor rightly outranks the selection.
+  const initial = matrix.value.find(
+    cell => cell.iso === selected.value && !cell.outside && !cell.disabled,
+  )
+
+  if (initial) calendar.focused.value = initial.iso
 
   const schedule = computed(() => {
     const map = new Map<string, EmCalendarEvent[]>()
@@ -98,7 +109,7 @@
   function select (iso: string) {
     if (disabled) return
 
-    const cell = calendar.months.value[0].weeks.flat().find(entry => entry.iso === iso)
+    const cell = matrix.value.find(entry => entry.iso === iso)
 
     if (cell?.disabled) return
 
