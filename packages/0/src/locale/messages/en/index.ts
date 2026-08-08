@@ -54,6 +54,10 @@ export default {
     increment: 'Increment',
     label: 'Number',
   },
+  Otp: {
+    itemLabel: 'Digit {index} of {length}',
+    label: 'Verification code',
+  },
   Pagination: {
     currentPage: 'Page {page}, current',
     first: 'First page',
