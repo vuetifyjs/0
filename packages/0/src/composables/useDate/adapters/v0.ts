@@ -28,7 +28,7 @@ import { DateAdapter } from './adapter'
 // Utilities
 import { isNull, isNullOrUndefined, isNumber, isString } from '#v0/utilities'
 
-// Composables
+// Week info
 import { deriveWeekInfo } from '../weekinfo'
 
 /** Resolved Temporal implementation — native when the runtime provides it, polyfill otherwise. */

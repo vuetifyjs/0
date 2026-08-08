@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 // Adapters
 import { Temporal, V0DateAdapter } from './adapters/v0'
@@ -752,90 +752,109 @@ describe('createDate', () => {
     })
 
     describe('week info derivation', () => {
-      it('should derive locale week start via Intl.Locale.getWeekInfo', () => {
+      // Table-authoritative: CLDR data baked into weekinfo.ts decides on every
+      // runtime, so these cases hold identically on Chromium, Firefox, and Node.
+      it('should derive the week start from CLDR data for region-bearing tags', () => {
+        expect(deriveWeekInfo('de-DE').firstDay).toBe(1)
+        expect(deriveWeekInfo('en-GB').firstDay).toBe(1)
+        expect(deriveWeekInfo('en-US').firstDay).toBe(0)
+        expect(deriveWeekInfo('ja-JP').firstDay).toBe(0)
+        expect(deriveWeekInfo('ar-EG').firstDay).toBe(6)
+        expect(deriveWeekInfo('dv-MV').firstDay).toBe(5)
+        // Post-2022 CLDR: AE, AR, AU, CN are Monday-start; IS is Sunday
+        expect(deriveWeekInfo('ar-AE').firstDay).toBe(1)
+        expect(deriveWeekInfo('en-AU').firstDay).toBe(1)
+        expect(deriveWeekInfo('zh-CN').firstDay).toBe(1)
+        expect(deriveWeekInfo('is-IS').firstDay).toBe(0)
+      })
+
+      it('should resolve bare and partial tags to their likely region', () => {
+        expect(deriveWeekInfo('de').firstDay).toBe(1)
+        expect(deriveWeekInfo('ja').firstDay).toBe(0)
+        expect(deriveWeekInfo('ar').firstDay).toBe(6) // ICU likely region: EG
+        expect(deriveWeekInfo('pt').firstDay).toBe(0) // BR
+        expect(deriveWeekInfo('zh-Hant').firstDay).toBe(0) // TW
+        // World region and no-likely-region languages use the Monday default
+        expect(deriveWeekInfo('en-001').firstDay).toBe(1)
+        expect(deriveWeekInfo('eo').firstDay).toBe(1)
+        // Language tails are never misread as regions ('custom' must not hit OM)
+        expect(deriveWeekInfo('custom').firstDay).toBe(1)
+      })
+
+      it('should honor an explicit -u-fw- keyword over the region table', () => {
+        expect(deriveWeekInfo('en-US-u-fw-mon').firstDay).toBe(1)
+        expect(deriveWeekInfo('de-DE-u-fw-sun').firstDay).toBe(0)
+        expect(deriveWeekInfo('en-US-u-fw-wed').firstDay).toBe(3)
+        expect(deriveWeekInfo('en-US-u-fw-sat-ca-gregory').firstDay).toBe(6)
+      })
+
+      it('should use the Monday world default for unparseable locales', () => {
+        // 'root' and '' both throw in the Intl.Locale constructor
+        expect(deriveWeekInfo('root')).toEqual({ firstDay: 1, minimalDays: 1 })
+        expect(deriveWeekInfo('')).toEqual({ firstDay: 1, minimalDays: 1 })
+      })
+
+      it('should parse the region from the tag when Intl.Locale is unavailable', () => {
+        const { Locale } = Intl
+        vi.stubGlobal('Intl', {
+          ...Intl,
+          Locale: class {
+            constructor () {
+              throw new TypeError('Intl.Locale is not a constructor')
+            }
+          },
+        })
+        try {
+          expect(deriveWeekInfo('de-DE').firstDay).toBe(1)
+          expect(deriveWeekInfo('en-US').firstDay).toBe(0)
+          expect(deriveWeekInfo('zh-Hant-TW')).toEqual({ firstDay: 0, minimalDays: 1 })
+          expect(deriveWeekInfo('en-001').firstDay).toBe(1)
+          // Bare tags cannot maximize without Intl - world default applies
+          expect(deriveWeekInfo('de').firstDay).toBe(1)
+        } finally {
+          vi.unstubAllGlobals()
+        }
+        expect(Intl.Locale).toBe(Locale)
+      })
+
+      it('should derive minimalDays from CLDR data', () => {
+        expect(deriveWeekInfo('de-DE').minimalDays).toBe(4)
+        expect(deriveWeekInfo('en-US').minimalDays).toBe(1)
+        expect(deriveWeekInfo('sv').minimalDays).toBe(4) // SE via likely region
+        // ISO 8601 crown dependencies restored in the CLDR 48 regeneration
+        expect(deriveWeekInfo('en-GG').minimalDays).toBe(4)
+        expect(deriveWeekInfo('en-IM').minimalDays).toBe(4)
+        expect(deriveWeekInfo('en-JE').minimalDays).toBe(4)
+      })
+
+      it('should flow the derived week start through the adapter', () => {
         expect(new V0DateAdapter('de-DE').firstDayOfWeek).toBe(1)
         expect(new V0DateAdapter('en-US').firstDayOfWeek).toBe(0)
         expect(new V0DateAdapter('ar-EG').firstDayOfWeek).toBe(6)
       })
 
-      it('should fall back to CLDR week data when getWeekInfo is unavailable (Firefox)', () => {
-        // Firefox ships neither getWeekInfo nor weekInfo (bugzil.la/1810936);
-        // before the CLDR fallback every locale there rendered Sunday-start.
-        const proto = Intl.Locale.prototype as { getWeekInfo?: () => unknown }
-        const original = proto.getWeekInfo
-        delete proto.getWeekInfo
-        try {
-          expect(deriveWeekInfo('de-DE').firstDay).toBe(1)
-          expect(deriveWeekInfo('en-GB').firstDay).toBe(1)
-          expect(deriveWeekInfo('en-US').firstDay).toBe(0)
-          expect(deriveWeekInfo('ja-JP').firstDay).toBe(0)
-          expect(deriveWeekInfo('ar-EG').firstDay).toBe(6)
-          expect(deriveWeekInfo('dv-MV').firstDay).toBe(5)
-          // Post-2022 CLDR: AE, AR, AU, CN are Monday-start; IS is Sunday
-          expect(deriveWeekInfo('ar-AE').firstDay).toBe(1)
-          expect(deriveWeekInfo('en-AU').firstDay).toBe(1)
-          expect(deriveWeekInfo('zh-CN').firstDay).toBe(1)
-          expect(deriveWeekInfo('is-IS').firstDay).toBe(0)
-          // Bare language tags resolve their likely region via maximize()
-          expect(deriveWeekInfo('de').firstDay).toBe(1)
-          expect(deriveWeekInfo('ja').firstDay).toBe(0)
-          // Unknown regions use the CLDR world default (Monday)
-          expect(deriveWeekInfo('eo').firstDay).toBe(1)
-
-          expect(new V0DateAdapter('de-DE').firstDayOfWeek).toBe(1)
-          expect(new V0DateAdapter('en-US').firstDayOfWeek).toBe(0)
-        } finally {
-          proto.getWeekInfo = original
+      // ICU freshness tripwire: the tables are authoritative at runtime, but
+      // when CLDR itself moves (Iceland flipped between ICU 77 and 78) this
+      // sweep fails in CI so the tables get regenerated instead of drifting.
+      // Gated to Node >= 26 - older LTS ICUs intentionally disagree (that
+      // divergence is the reason the tables are authoritative).
+      it.runIf(
+        Number(process.versions.node.split('.')[0]) >= 26 &&
+        'getWeekInfo' in Intl.Locale.prototype,
+      )('should match the running ICU for every region (freshness check)', () => {
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        const mismatches: string[] = []
+        for (const a of letters) {
+          for (const b of letters) {
+            const region = a + b
+            const icu = (new Intl.Locale(`und-${region}`) as Intl.Locale & {
+              getWeekInfo: () => { firstDay: number }
+            }).getWeekInfo().firstDay % 7
+            const table = deriveWeekInfo(`und-${region}`).firstDay
+            if (icu !== table) mismatches.push(`${region}: icu=${icu} table=${table}`)
+          }
         }
-      })
-
-      it('should return the Sunday fallback for unparseable locales', () => {
-        // 'root' and '' both throw in the Intl.Locale constructor
-        expect(deriveWeekInfo('root')).toEqual({ firstDay: 0, minimalDays: 1 })
-        expect(deriveWeekInfo('')).toEqual({ firstDay: 0, minimalDays: 1 })
-      })
-
-      it('should read the legacy weekInfo accessor when getWeekInfo is absent', () => {
-        const proto = Intl.Locale.prototype as { getWeekInfo?: () => unknown, weekInfo?: unknown }
-        const original = proto.getWeekInfo
-        delete proto.getWeekInfo
-        Object.defineProperty(proto, 'weekInfo', {
-          configurable: true,
-          get: () => ({ firstDay: 3, minimalDays: 4 }),
-        })
-        try {
-          expect(deriveWeekInfo('en-US')).toEqual({ firstDay: 3, minimalDays: 4 })
-        } finally {
-          delete proto.weekInfo
-          proto.getWeekInfo = original
-        }
-      })
-
-      it('should fall back to trailing-region parsing when maximize is unavailable', () => {
-        const proto = Intl.Locale.prototype as { getWeekInfo?: () => unknown, maximize?: () => unknown }
-        const originalWeekInfo = proto.getWeekInfo
-        const originalMaximize = proto.maximize
-        delete proto.getWeekInfo
-        delete proto.maximize
-        try {
-          expect(deriveWeekInfo('de-DE').firstDay).toBe(1)
-          expect(deriveWeekInfo('en-US').firstDay).toBe(0)
-        } finally {
-          proto.getWeekInfo = originalWeekInfo
-          proto.maximize = originalMaximize
-        }
-      })
-
-      it('should fall back to minimalDays from CLDR when getWeekInfo is unavailable', () => {
-        const proto = Intl.Locale.prototype as { getWeekInfo?: () => unknown }
-        const original = proto.getWeekInfo
-        delete proto.getWeekInfo
-        try {
-          expect(deriveWeekInfo('de-DE').minimalDays).toBe(4)
-          expect(deriveWeekInfo('en-US').minimalDays).toBe(1)
-        } finally {
-          proto.getWeekInfo = original
-        }
+        expect(mismatches).toEqual([])
       })
     })
 
@@ -1970,9 +1989,10 @@ describe('createDate', () => {
       expect(a.firstDayOfWeek).toBe(6)
     })
 
-    it('should fall back to 0 for unparseable locale', () => {
+    it('should fall back to 0 for an empty locale', () => {
       const a = new V0DateAdapter()
-      // Empty string throws in Intl.Locale, triggering the catch fallback
+      // The falsy-locale guard in the firstDayOfWeek computed returns 0
+      // before any derivation runs - deriveWeekInfo is never consulted
       const { firstDayOfWeek } = createDate({ adapter: a, locale: '' })
       expect(firstDayOfWeek.value).toBe(0)
     })

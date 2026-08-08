@@ -44,6 +44,7 @@ import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useLocale } from '#v0/composables/useLocale'
 
+// Week info
 import { deriveWeekInfo } from './weekinfo'
 
 // Utilities
@@ -115,14 +116,6 @@ const defaultLocales: Record<string, string> = {
 }
 
 /**
- * Derive firstDayOfWeek from an Intl locale string.
- * Returns 0-6 (0=Sun), CLDR-table fallback when Intl week info is unavailable.
- */
-function deriveFirstDayOfWeek (locale: string): number {
-  return deriveWeekInfo(locale).firstDay
-}
-
-/**
  * Creates a new date context.
  *
  * @param options Adapter and locale configuration.
@@ -185,7 +178,7 @@ export function createDate<
   const firstDayOfWeek = computed(() => {
     if (!isUndefined(explicitFirstDay)) return explicitFirstDay
     const loc = locale.value
-    return loc ? deriveFirstDayOfWeek(loc) : 0
+    return loc ? deriveWeekInfo(loc).firstDay : 0
   })
 
   // Keep adapter locale in sync (only when in component scope)
