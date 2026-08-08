@@ -87,10 +87,10 @@
 <template>
   <Popover.Root v-model="menu">
     <Popover.Activator
+      aria-label="Menu"
       class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
       :class="menu ? 'opacity-80' : 'opacity-50'"
       target="playground-menu"
-      title="Menu"
     >
       <AppIcon icon="menu" />
     </Popover.Activator>
