@@ -789,6 +789,43 @@ describe('createDate', () => {
         }
       })
 
+      it('should return the Sunday fallback for unparseable locales', () => {
+        // 'root' and '' both throw in the Intl.Locale constructor
+        expect(deriveWeekInfo('root')).toEqual({ firstDay: 0, minimalDays: 1 })
+        expect(deriveWeekInfo('')).toEqual({ firstDay: 0, minimalDays: 1 })
+      })
+
+      it('should read the legacy weekInfo accessor when getWeekInfo is absent', () => {
+        const proto = Intl.Locale.prototype as { getWeekInfo?: () => unknown, weekInfo?: unknown }
+        const original = proto.getWeekInfo
+        delete proto.getWeekInfo
+        Object.defineProperty(proto, 'weekInfo', {
+          configurable: true,
+          get: () => ({ firstDay: 3, minimalDays: 4 }),
+        })
+        try {
+          expect(deriveWeekInfo('en-US')).toEqual({ firstDay: 3, minimalDays: 4 })
+        } finally {
+          delete proto.weekInfo
+          proto.getWeekInfo = original
+        }
+      })
+
+      it('should fall back to trailing-region parsing when maximize is unavailable', () => {
+        const proto = Intl.Locale.prototype as { getWeekInfo?: () => unknown, maximize?: () => unknown }
+        const originalWeekInfo = proto.getWeekInfo
+        const originalMaximize = proto.maximize
+        delete proto.getWeekInfo
+        delete proto.maximize
+        try {
+          expect(deriveWeekInfo('de-DE').firstDay).toBe(1)
+          expect(deriveWeekInfo('en-US').firstDay).toBe(0)
+        } finally {
+          proto.getWeekInfo = originalWeekInfo
+          proto.maximize = originalMaximize
+        }
+      })
+
       it('should fall back to minimalDays from CLDR when getWeekInfo is unavailable', () => {
         const proto = Intl.Locale.prototype as { getWeekInfo?: () => unknown }
         const original = proto.getWeekInfo
