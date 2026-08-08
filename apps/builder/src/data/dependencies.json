@@ -1,0 +1,573 @@
+{
+  "composables": {
+    "createBreadcrumbs": [
+      "createContext",
+      "createSingle",
+      "createTrinity"
+    ],
+    "createCombobox": [
+      "createContext",
+      "createFilter",
+      "createSelection",
+      "createTrinity",
+      "toArray",
+      "usePopover",
+      "useVirtualFocus"
+    ],
+    "createContext": [],
+    "createDataGrid": [
+      "createContext",
+      "createDataTable",
+      "createGroup",
+      "createSortable",
+      "createTrinity",
+      "useLogger",
+      "useProxyRegistry",
+      "useToggleScope"
+    ],
+    "createDataTable": [
+      "createContext",
+      "createFilter",
+      "createGroup",
+      "createPagination",
+      "createRegistry",
+      "createTrinity",
+      "useLocale",
+      "useProxyRegistry"
+    ],
+    "createFilter": [
+      "createContext",
+      "createTrinity",
+      "toArray"
+    ],
+    "createFocusTraversal": [],
+    "createForm": [
+      "createContext",
+      "createRegistry",
+      "createTrinity",
+      "toArray"
+    ],
+    "createGroup": [
+      "createContext",
+      "createSelection",
+      "createTrinity",
+      "toArray",
+      "useProxyRegistry"
+    ],
+    "createInput": [
+      "createRegistry",
+      "createValidation",
+      "toArray"
+    ],
+    "createKanban": [
+      "createRegistry",
+      "createSortable",
+      "useLogger"
+    ],
+    "createModel": [
+      "createRegistry"
+    ],
+    "createNested": [
+      "createContext",
+      "createGroup",
+      "createTrinity",
+      "toArray",
+      "useLogger"
+    ],
+    "createNumberField": [
+      "createInput",
+      "createNumeric"
+    ],
+    "createNumeric": [],
+    "createObserver": [
+      "toElement",
+      "useHydration"
+    ],
+    "createOtp": [
+      "createInput",
+      "useLogger"
+    ],
+    "createOverflow": [
+      "createContext",
+      "createTrinity",
+      "useResizeObserver"
+    ],
+    "createPagination": [
+      "createContext",
+      "createTrinity"
+    ],
+    "createPlugin": [
+      "createContext",
+      "createTrinity"
+    ],
+    "createProgress": [
+      "createContext",
+      "createModel",
+      "createTrinity"
+    ],
+    "createQueue": [
+      "createContext",
+      "createRegistry",
+      "createTrinity",
+      "useTimer"
+    ],
+    "createRating": [
+      "createContext",
+      "createTrinity"
+    ],
+    "createRegistry": [
+      "createContext",
+      "createTrinity",
+      "useLogger"
+    ],
+    "createSelection": [
+      "createContext",
+      "createModel",
+      "createTrinity"
+    ],
+    "createSingle": [
+      "createContext",
+      "createSelection",
+      "createTrinity"
+    ],
+    "createSlider": [
+      "createModel",
+      "createNumeric"
+    ],
+    "createSortable": [
+      "createModel",
+      "useLogger"
+    ],
+    "createStep": [
+      "createContext",
+      "createSingle",
+      "createTrinity"
+    ],
+    "createTimeline": [
+      "createContext",
+      "createRegistry",
+      "createTrinity"
+    ],
+    "createTokens": [
+      "createContext",
+      "createRegistry",
+      "createTrinity",
+      "useLogger"
+    ],
+    "createTrinity": [
+      "createContext"
+    ],
+    "createValidation": [
+      "createForm",
+      "createGroup",
+      "useRules"
+    ],
+    "createVirtual": [
+      "createContext",
+      "createTrinity",
+      "useResizeObserver"
+    ],
+    "toArray": [],
+    "toElement": [],
+    "toHighlight": [
+      "toArray"
+    ],
+    "toReactive": [],
+    "useBreakpoints": [
+      "createPlugin",
+      "useEventListener",
+      "useHydration"
+    ],
+    "useClickOutside": [
+      "toArray",
+      "useEventListener"
+    ],
+    "useDate": [
+      "createContext",
+      "createPlugin",
+      "createTrinity",
+      "useLocale"
+    ],
+    "useDelay": [
+      "useTimer"
+    ],
+    "useDragDrop": [
+      "createRegistry",
+      "useEventListener",
+      "useLogger",
+      "useMutationObserver",
+      "useResizeObserver"
+    ],
+    "useEventListener": [
+      "toArray"
+    ],
+    "useFeatures": [
+      "createGroup",
+      "createPlugin",
+      "createTokens"
+    ],
+    "useHotkey": [
+      "useEventListener",
+      "useLogger"
+    ],
+    "useHydration": [
+      "createPlugin"
+    ],
+    "useImage": [],
+    "useIntersectionObserver": [
+      "createObserver"
+    ],
+    "useLazy": [
+      "useTimer"
+    ],
+    "useLocale": [
+      "createPlugin",
+      "createSingle",
+      "createTokens"
+    ],
+    "useLogger": [
+      "createPlugin"
+    ],
+    "useMediaQuery": [
+      "useHydration"
+    ],
+    "useMutationObserver": [
+      "createObserver"
+    ],
+    "useNotifications": [
+      "createPlugin",
+      "createQueue",
+      "createRegistry"
+    ],
+    "usePermissions": [
+      "createPlugin",
+      "createTokens",
+      "toArray"
+    ],
+    "usePopover": [
+      "useDelay",
+      "useEventListener"
+    ],
+    "usePresence": [],
+    "useProxyModel": [
+      "toArray"
+    ],
+    "useProxyRegistry": [],
+    "useRaf": [],
+    "useReducedMotion": [
+      "createPlugin",
+      "useMediaQuery"
+    ],
+    "useResizeObserver": [
+      "createObserver"
+    ],
+    "useRovingFocus": [
+      "createFocusTraversal",
+      "useEventListener"
+    ],
+    "useRtl": [
+      "createPlugin"
+    ],
+    "useRules": [
+      "createPlugin",
+      "useLocale",
+      "useLogger"
+    ],
+    "useStack": [
+      "createContext",
+      "createPlugin",
+      "createSelection",
+      "createTrinity",
+      "toElement"
+    ],
+    "useStorage": [
+      "createPlugin",
+      "useEventListener",
+      "useLogger"
+    ],
+    "useTheme": [
+      "createPlugin",
+      "createSingle",
+      "createTokens"
+    ],
+    "useTimer": [],
+    "useToggleScope": [],
+    "useTooltip": [
+      "createPlugin",
+      "createRegistry"
+    ],
+    "useVirtualFocus": [
+      "createFocusTraversal",
+      "useEventListener"
+    ]
+  },
+  "components": {
+    "AlertDialog": [
+      "Atom",
+      "createContext",
+      "useClickOutside",
+      "useLocale",
+      "useStack",
+      "useToggleScope"
+    ],
+    "AspectRatio": [
+      "Atom"
+    ],
+    "Atom": [],
+    "Avatar": [
+      "Atom",
+      "createContext",
+      "createOverflow",
+      "createRegistry",
+      "createSelection",
+      "toElement",
+      "useImage",
+      "useLocale",
+      "useResizeObserver",
+      "useToggleScope"
+    ],
+    "Breadcrumbs": [
+      "Atom",
+      "createBreadcrumbs",
+      "createContext",
+      "createGroup",
+      "createOverflow",
+      "useLocale"
+    ],
+    "Button": [
+      "Atom",
+      "createContext",
+      "createSelection",
+      "createSingle",
+      "useLocale",
+      "useProxyModel",
+      "useTimer"
+    ],
+    "Carousel": [
+      "Atom",
+      "createContext",
+      "createRegistry",
+      "createStep",
+      "toElement",
+      "useEventListener",
+      "useLocale",
+      "useProxyModel",
+      "useResizeObserver",
+      "useTimer",
+      "useToggleScope"
+    ],
+    "Checkbox": [
+      "Atom",
+      "createContext",
+      "createGroup",
+      "useProxyModel"
+    ],
+    "Collapsible": [
+      "Atom",
+      "createContext",
+      "createSingle",
+      "useProxyModel"
+    ],
+    "Combobox": [
+      "Atom",
+      "createCombobox",
+      "createContext",
+      "useClickOutside",
+      "useLazy",
+      "useLocale",
+      "useProxyModel"
+    ],
+    "Dialog": [
+      "Atom",
+      "createContext",
+      "useClickOutside",
+      "useLocale",
+      "useStack",
+      "useToggleScope"
+    ],
+    "ExpansionPanel": [
+      "Atom",
+      "createContext",
+      "createSelection",
+      "useProxyModel"
+    ],
+    "Form": [
+      "Atom",
+      "createContext",
+      "createForm"
+    ],
+    "Group": [
+      "createContext",
+      "createGroup",
+      "useProxyModel"
+    ],
+    "Image": [
+      "Atom",
+      "createContext",
+      "toElement",
+      "useImage",
+      "useIntersectionObserver",
+      "useLogger"
+    ],
+    "Input": [
+      "Atom",
+      "createContext",
+      "createInput"
+    ],
+    "Locale": [
+      "createContext",
+      "useLocale"
+    ],
+    "NumberField": [
+      "Atom",
+      "createContext",
+      "createNumberField",
+      "useEventListener",
+      "useLocale",
+      "useRaf",
+      "useTimer"
+    ],
+    "Overflow": [
+      "Atom",
+      "createContext",
+      "createOverflow",
+      "createRegistry",
+      "toElement",
+      "useResizeObserver"
+    ],
+    "Pagination": [
+      "Atom",
+      "createContext",
+      "createOverflow",
+      "createPagination",
+      "createRegistry",
+      "useLocale"
+    ],
+    "Popover": [
+      "Atom",
+      "createContext",
+      "usePopover"
+    ],
+    "Portal": [
+      "useStack"
+    ],
+    "Presence": [
+      "usePresence"
+    ],
+    "Progress": [
+      "Atom",
+      "createContext",
+      "createProgress",
+      "useProxyModel"
+    ],
+    "Radio": [
+      "Atom",
+      "createContext",
+      "createSingle",
+      "toElement",
+      "useProxyModel"
+    ],
+    "Rating": [
+      "Atom",
+      "createContext",
+      "createRating",
+      "useLocale"
+    ],
+    "Scrim": [
+      "Atom",
+      "useStack"
+    ],
+    "Select": [
+      "Atom",
+      "createContext",
+      "createSelection",
+      "useLazy",
+      "usePopover",
+      "useProxyModel",
+      "useVirtualFocus"
+    ],
+    "Selection": [
+      "createContext",
+      "createSelection",
+      "useProxyModel"
+    ],
+    "Single": [
+      "createContext",
+      "createSingle",
+      "useProxyModel"
+    ],
+    "Slider": [
+      "Atom",
+      "createContext",
+      "createSlider",
+      "useEventListener",
+      "useProxyModel",
+      "useToggleScope"
+    ],
+    "Snackbar": [
+      "Atom",
+      "Portal",
+      "createContext",
+      "useLocale",
+      "useNotifications"
+    ],
+    "Splitter": [
+      "Atom",
+      "createContext",
+      "createRegistry",
+      "createSelection",
+      "toElement",
+      "useEventListener",
+      "useLocale",
+      "useRaf",
+      "useResizeObserver",
+      "useToggleScope"
+    ],
+    "Step": [
+      "createContext",
+      "createStep",
+      "useProxyModel"
+    ],
+    "Switch": [
+      "Atom",
+      "createContext",
+      "createGroup",
+      "useProxyModel"
+    ],
+    "Tabs": [
+      "Atom",
+      "createContext",
+      "createStep",
+      "toElement",
+      "useProxyModel"
+    ],
+    "Theme": [
+      "Atom",
+      "createContext",
+      "useTheme"
+    ],
+    "Toggle": [
+      "Atom",
+      "createContext",
+      "createGroup",
+      "createSingle",
+      "useProxyModel"
+    ],
+    "Tooltip": [
+      "Atom",
+      "createContext",
+      "useDelay",
+      "usePopover",
+      "useTooltip"
+    ],
+    "Treeview": [
+      "Atom",
+      "createContext",
+      "createNested",
+      "toElement",
+      "useProxyModel",
+      "useRovingFocus"
+    ],
+    "fixtures": []
+  }
+}

@@ -80,6 +80,32 @@
         "src/**/helpers.ts"
       ]
     },
+    "apps/builder": {
+      "entry": [
+        "src/App.vue",
+        "src/components/**/*.vue",
+        "src/pages/**/*.vue",
+        "src/plugins/**/*.vue",
+        "src/router/*.ts",
+        "src/stores/*.ts",
+        "build/**/*.ts",
+        "vite.config.*"
+      ],
+      "ignore": [
+        "src/typed-router.d.ts"
+      ],
+      "paths": {
+        "@/*": [
+          "src/*"
+        ],
+        "@vuetify/v0": [
+          "../../packages/0/src"
+        ],
+        "#v0": [
+          "../../packages/0/src"
+        ]
+      }
+    },
     "apps/playground": {
       "entry": [
         "src/App.vue",

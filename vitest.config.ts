@@ -7,6 +7,7 @@ export default defineConfig({
       'packages/0/vitest.browser.config.ts',
       'packages/paper',
       'apps/docs',
+      'apps/builder',
     ],
     globals: true,
     include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
