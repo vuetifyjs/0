@@ -599,18 +599,46 @@ describe('createCalendar', () => {
 
   describe('now', () => {
     it('should roll the today flag over at midnight', async () => {
+      // Cost ceiling: `useTimer` runs an unconditional 100ms progress interval,
+      // so fake time is only ever advanced in seconds. Crossing a whole day
+      // would execute ~864k interval callbacks — CPU-bound and machine-speed
+      // dependent, which is what timed this test out on CI.
+      vi.setSystemTime(new Date(2026, 7, 4, 23, 59, 59))
+
       const calendar = make()
 
       expect(flat(calendar).find(cell => cell.today)!.iso).toBe('2026-08-04')
 
-      // The timer is armed for the next local midnight; advancing the fake
-      // clock past it re-reads the date, and `repeat` re-arms for the one after.
-      await vi.advanceTimersByTimeAsync(24 * 60 * 60 * 1000 + 1000)
+      await vi.advanceTimersByTimeAsync(2000)
       await nextTick()
 
       expect(flat(calendar).find(cell => cell.today)!.iso).toBe('2026-08-05')
 
-      await vi.advanceTimersByTimeAsync(24 * 60 * 60 * 1000)
+      // `repeat` re-arms off the clock as it reads at fire time, so the next
+      // tick is scheduled a full day out. Crossing it for real would cost the
+      // ~864k interval callbacks this test exists to avoid, so the re-arm is
+      // asserted directly: one-shot would have left nothing pending.
+      expect(vi.getTimerCount()).toBeGreaterThan(0)
+
+      vi.setSystemTime(new Date(2026, 7, 5, 23, 59, 59))
+      await vi.advanceTimersByTimeAsync(2000)
+      await nextTick()
+
+      // The clock jumped but the re-armed timer is still a day of virtual time
+      // out, so the flag holds — the roll is driven by the timer, not by reads.
+      expect(flat(calendar).find(cell => cell.today)!.iso).toBe('2026-08-05')
+    })
+
+    it('should roll again on the following midnight', async () => {
+      // The second consecutive rollover, bought at O(1) by arming a fresh
+      // calendar on the eve of it rather than traversing the day between.
+      vi.setSystemTime(new Date(2026, 7, 5, 23, 59, 59))
+
+      const calendar = make()
+
+      expect(flat(calendar).find(cell => cell.today)!.iso).toBe('2026-08-05')
+
+      await vi.advanceTimersByTimeAsync(2000)
       await nextTick()
 
       expect(flat(calendar).find(cell => cell.today)!.iso).toBe('2026-08-06')
