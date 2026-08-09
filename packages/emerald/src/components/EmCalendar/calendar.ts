@@ -128,6 +128,16 @@ function within (iso: string, anchor: string) {
 }
 
 /**
+ * `YYYY-MM` or `YYYY-MM-DD`. A structural check, not validation — it exists so
+ * an unparseable string no-ops instead of turning the anchor into `NaN`.
+ */
+const SHAPE = /^\d{4}-\d{2}(-\d{2})?$/
+
+function shaped (value: unknown): value is string {
+  return isString(value) && SHAPE.test(value)
+}
+
+/**
  * Creates the geometry and navigation state for a month calendar.
  *
  * @param options Bounds, anchor, and matrix shape.
@@ -146,8 +156,8 @@ export function createCalendar (options: CalendarOptions = {}): CalendarContext 
 
   const date = useEmCalendarDate()
 
-  const floor = isString(min) ? ordinal(min.slice(0, 7)) : Number.NEGATIVE_INFINITY
-  const ceiling = isString(max) ? ordinal(max.slice(0, 7)) : Number.POSITIVE_INFINITY
+  const floor = shaped(min) ? ordinal(min.slice(0, 7)) : Number.NEGATIVE_INFINITY
+  const ceiling = shaped(max) ? ordinal(max.slice(0, 7)) : Number.POSITIVE_INFINITY
 
   /** Today, re-read on a midnight tick rather than snapshotted at setup. */
   const now = shallowRef(date.iso(date.now()))
@@ -164,12 +174,14 @@ export function createCalendar (options: CalendarOptions = {}): CalendarContext 
     return key(clamp(ordinal(value), floor, ceiling))
   }
 
-  const anchor = shallowRef(wall(toValue(month) ?? now.value.slice(0, 7)))
+  const opening = toValue(month)
+
+  const anchor = shallowRef(wall(shaped(opening) ? opening.slice(0, 7) : now.value.slice(0, 7)))
 
   /** Focus never rests on a walled-off day. */
   function bound (iso: string) {
-    if (isString(min) && iso < min) return min
-    if (isString(max) && iso > max) return max
+    if (shaped(min) && iso < min) return min
+    if (shaped(max) && iso > max) return max
 
     return iso
   }
@@ -200,6 +212,8 @@ export function createCalendar (options: CalendarOptions = {}): CalendarContext 
    * below to re-snap, which is what keeps an internal page from snapping twice.
    */
   function goto (value: string) {
+    if (!shaped(value)) return
+
     const target = wall(value.slice(0, 7))
 
     focused.value = value.length > 7 && within(value, target) ? bound(value) : entry(target)
@@ -249,8 +263,8 @@ export function createCalendar (options: CalendarOptions = {}): CalendarContext 
     const iso = date.iso(to)
 
     // A walk that overshoots a wall lands on it rather than stopping dead.
-    if (isString(min) && iso < min) return goto(min)
-    if (isString(max) && iso > max) return goto(max)
+    if (shaped(min) && iso < min) return goto(min)
+    if (shaped(max) && iso > max) return goto(max)
 
     focused.value = iso
 
@@ -261,7 +275,7 @@ export function createCalendar (options: CalendarOptions = {}): CalendarContext 
 
   if (!isUndefined(month)) {
     watch(() => toValue(month), value => {
-      if (!isString(value)) return
+      if (!shaped(value)) return
 
       // Only the anchor moves; the watcher above carries focus across with it.
       anchor.value = wall(value.slice(0, 7))
@@ -277,7 +291,7 @@ export function createCalendar (options: CalendarOptions = {}): CalendarContext 
   }
 
   function walled (iso: string) {
-    return (isString(min) && iso < min) || (isString(max) && iso > max)
+    return (shaped(min) && iso < min) || (shaped(max) && iso > max)
   }
 
   const start = toRef(() => toValue(firstDayOfWeek) ?? date.first())
@@ -317,10 +331,10 @@ export function createCalendar (options: CalendarOptions = {}): CalendarContext 
     isFirst: toRef(() => ordinal(anchor.value) <= floor),
     isLast: toRef(() => ordinal(anchor.value) >= ceiling),
     first: () => {
-      if (isString(min)) goto(min.slice(0, 7))
+      if (shaped(min)) goto(min.slice(0, 7))
     },
     last: () => {
-      if (isString(max)) goto(max.slice(0, 7))
+      if (shaped(max)) goto(max.slice(0, 7))
     },
     next: () => step(1),
     prev: () => step(-1),

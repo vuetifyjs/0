@@ -426,6 +426,34 @@ describe('createCalendar', () => {
       expect(calendar.focused.value).toBe('0099-03-01')
       expect(flat(calendar).some(cell => cell.iso.startsWith('1999'))).toBe(false)
     })
+
+    it('should zero-pad the year in cell ISO strings', () => {
+      const calendar = make()
+
+      calendar.goto('0999-04')
+
+      // Unpadded years break every lexicographic compare downstream — bounds,
+      // the in-month test, and the selected-day comparison in the DS.
+      expect(flat(calendar).every(cell => /^\d{4}-\d{2}-\d{2}$/.test(cell.iso))).toBe(true)
+      expect(flat(calendar).some(cell => cell.iso === '0999-04-28')).toBe(true)
+      expect(flat(calendar).filter(cell => !cell.outside)).toHaveLength(30)
+    })
+
+    it('should keep bounds comparable for a sub-1000 year', () => {
+      const calendar = make({ min: '0999-04-10', max: '0999-04-20' })
+
+      const cells = flat(calendar)
+
+      function at (iso: string) {
+        return cells.find(cell => cell.iso === iso)!
+      }
+
+      expect(calendar.anchor.value).toBe('0999-04')
+      expect(at('0999-04-09').disabled).toBe(true)
+      expect(at('0999-04-10').disabled).toBe(false)
+      expect(at('0999-04-20').disabled).toBe(false)
+      expect(at('0999-04-21').disabled).toBe(true)
+    })
   })
 
   describe('label', () => {
@@ -500,6 +528,57 @@ describe('createCalendar', () => {
       await nextTick()
 
       expect(calendar.anchor.value).toBe('2026-09')
+    })
+  })
+
+  describe('opening inside the walls', () => {
+    it('should open on the min month when today is before the window', () => {
+      // The booking-window default: min in the future, no month given.
+      const calendar = make({ min: '2026-10-12' })
+
+      expect(calendar.anchor.value).toBe('2026-10')
+      expect(calendar.isFirst.value).toBe(true)
+      expect(calendar.focused.value).toBe('2026-10-12')
+      expect(flat(calendar).some(cell => !cell.disabled)).toBe(true)
+    })
+
+    it('should open on the max month when today is past the window', () => {
+      const calendar = make({ max: '2026-03-09' })
+
+      expect(calendar.anchor.value).toBe('2026-03')
+      expect(calendar.isLast.value).toBe(true)
+      expect(flat(calendar).some(cell => !cell.disabled)).toBe(true)
+    })
+
+    it('should clamp an out-of-range month option at construction', () => {
+      const calendar = make({ month: '2027-05', max: '2026-09-30' })
+
+      expect(calendar.anchor.value).toBe('2026-09')
+      expect(calendar.focused.value).toBe('2026-09-01')
+    })
+  })
+
+  describe('malformed input', () => {
+    it('should ignore a goto it cannot parse', () => {
+      const calendar = make()
+
+      for (const value of ['nonsense', '', '2026', 'not-a-date', '20260804']) {
+        calendar.goto(value)
+
+        expect(calendar.anchor.value).toBe('2026-08')
+        expect(calendar.focused.value).toBe('2026-08-04')
+      }
+    })
+
+    it('should ignore a malformed controlled month', async () => {
+      const month = shallowRef('2026-08')
+      const calendar = make({ month })
+
+      month.value = 'garbage'
+      await nextTick()
+
+      expect(calendar.anchor.value).toBe('2026-08')
+      expect(flat(calendar)).toHaveLength(42)
     })
   })
 

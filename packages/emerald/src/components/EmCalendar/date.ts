@@ -49,9 +49,15 @@ function pad (value: number) {
   return String(value).padStart(2, '0')
 }
 
-/** Local parts, not `toISOString()` — UTC lands on the previous day west of Greenwich. */
+/**
+ * Local parts, not `toISOString()` — UTC lands on the previous day west of
+ * Greenwich. The year pads to four digits because every comparison downstream
+ * is lexicographic: unpadded, `'999-04-28'` sorts above `'1000-01-01'`.
+ */
 function iso (value: Date) {
-  return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`
+  const year = String(value.getFullYear()).padStart(4, '0')
+
+  return `${year}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`
 }
 
 /**
