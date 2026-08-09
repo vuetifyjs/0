@@ -2,14 +2,25 @@
   // Components
   import AppCloseButton from '@/components/app/AppCloseButton.vue'
   import AppIcon from '@/components/app/AppIcon.vue'
-  import AppSkeleton from '@/components/app/AppSkeleton.vue'
+  import { usePlayground } from '@/components/playground/app/PlaygroundApp.vue'
 
   // Context
-  import { usePlayground } from './PlaygroundApp.vue'
+  import PlaygroundOpenExamples from './PlaygroundOpenExamples.vue'
+  import PlaygroundOpenGallery from './PlaygroundOpenGallery.vue'
+  import PlaygroundOpenSaved from './PlaygroundOpenSaved.vue'
 
   // Data
   import { resolveFeatureAccent, resolveFeatureIcon } from '@/data/feature-icons'
   import { DEFAULT_REGISTRY, getRegistryIndex, getRegistryItem } from '@/data/registry'
+
+  // Local
+  import {
+    bucketOf,
+    exampleLabel,
+    type OpenRail,
+    type OpenRailItem,
+    type VuetifyPlayground,
+  } from './types'
 
   // Utilities
   import { computed, nextTick, onMounted, ref, shallowRef, useTemplateRef } from 'vue'
@@ -17,25 +28,10 @@
   // Types
   import type { RegistryExample, RegistryIndexEntry, RegistryItem } from '@/data/registry'
 
-  interface VuetifyPlayground {
-    id: string
-    title: string
-    content?: string
-    createdAt: string
-    updatedAt: string
-  }
-
-  type Rail = 'components' | 'composables' | 'plugins' | 'saved'
-
-  interface RailItem {
-    id: Rail
-    label: string
-  }
-
   const emit = defineEmits<{ close: [] }>()
 
   const playground = usePlayground()
-  const rail = shallowRef<Rail>('components')
+  const rail = shallowRef<OpenRail>('components')
 
   // ── Saved playgrounds (API) ──────────────────────────────────────────
   const saved = ref<VuetifyPlayground[]>([])
@@ -57,17 +53,11 @@
   const itemLoading = shallowRef(false)
   const itemError = shallowRef<string>()
 
-  const rails: RailItem[] = [
+  const rails: OpenRailItem[] = [
     { id: 'components', label: 'Components' },
     { id: 'composables', label: 'Composables' },
     { id: 'plugins', label: 'Plugins' },
   ]
-
-  function bucketOf (entry: RegistryIndexEntry): Exclude<Rail, 'saved'> {
-    if (entry.category === 'plugins') return 'plugins'
-    if (entry.type === 'composables') return 'composables'
-    return 'components'
-  }
 
   const counts = computed(() => {
     const next = { components: 0, composables: 0, plugins: 0 }
@@ -130,6 +120,16 @@
     return n === 1 ? '1 feature with examples' : `${n} features with examples`
   })
 
+  const selectedIcon = computed(() => {
+    if (!selected.value) return undefined
+    return resolveFeatureIcon(selected.value.name, selected.value.category)
+  })
+
+  const selectedAccent = computed(() => {
+    if (!selected.value) return undefined
+    return resolveFeatureAccent(selected.value.type, selected.value.category)
+  })
+
   onMounted(async () => {
     await loadExamples()
     nextTick(() => input.value?.focus())
@@ -178,7 +178,7 @@
     }
   }
 
-  async function onRail (next: Rail) {
+  async function onRail (next: OpenRail) {
     if (rail.value === next && !selected.value) return
     rail.value = next
     selected.value = undefined
@@ -254,35 +254,9 @@
     }
   }
 
-  function formatDate (iso: string) {
-    return new Date(iso).toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
-  }
-
-  function exampleLabel (count: number) {
-    return count === 1 ? '1 example' : `${count} examples`
-  }
-
   function onClearQuery () {
     query.value = ''
     nextTick(() => input.value?.focus())
-  }
-
-  function blurb (text: string, max = 96) {
-    const cleaned = text.replace(/\s+/g, ' ').trim()
-    if (cleaned.length <= max) return cleaned
-    return `${cleaned.slice(0, max - 1).trimEnd()}…`
-  }
-
-  function featureIcon (entry: RegistryIndexEntry) {
-    return resolveFeatureIcon(entry.name, entry.category)
-  }
-
-  function featureAccent (entry: RegistryIndexEntry) {
-    return resolveFeatureAccent(entry.type, entry.category)
   }
 
   async function openSaved (item: VuetifyPlayground) {
@@ -369,14 +343,14 @@
           <div class="flex items-start justify-between gap-3 px-4 py-3 border-b border-divider shrink-0">
             <div class="min-w-0 flex items-start gap-3">
               <div
-                v-if="selected"
+                v-if="selected && selectedAccent"
                 class="w-9 h-9 rounded-md border border-divider/60 shrink-0 flex items-center justify-center"
-                :style="{ background: featureAccent(selected).bg }"
+                :style="{ background: selectedAccent.bg }"
               >
                 <AppIcon
-                  :icon="featureIcon(selected)"
+                  :icon="selectedIcon!"
                   :size="20"
-                  :style="{ color: featureAccent(selected).fg, opacity: 1 }"
+                  :style="{ color: selectedAccent.fg, opacity: 1 }"
                 />
               </div>
 
@@ -444,186 +418,37 @@
           </div>
 
           <div class="flex-1 overflow-y-auto min-h-0">
-            <!-- ── Feature drill-in (examples) ───────────────────────── -->
-            <template v-if="selected">
-              <div v-if="itemLoading" class="p-4">
-                <AppSkeleton height="h-14" :lines="3" />
-              </div>
+            <PlaygroundOpenExamples
+              v-if="selected"
+              :error="itemError"
+              :item="selectedItem"
+              :loading="itemLoading"
+              :opening
+              @open="openExample"
+              @retry="onRetryFeature"
+            />
 
-              <div
-                v-else-if="itemError"
-                class="p-8 text-center flex flex-col gap-2 items-center"
-              >
-                <p class="text-sm text-on-surface-variant">{{ itemError }}</p>
+            <PlaygroundOpenSaved
+              v-else-if="rail === 'saved'"
+              :error="savedError"
+              :items="filteredSaved"
+              :loading="savedLoading"
+              :query
+              :total="saved.length"
+              @open="openSaved"
+            />
 
-                <button
-                  class="text-xs font-medium text-primary hover:underline"
-                  type="button"
-                  @click="onRetryFeature"
-                >
-                  Retry
-                </button>
-              </div>
-
-              <div v-else-if="selectedItem" class="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <button
-                  v-for="example in selectedItem.examples"
-                  :key="example.id"
-                  class="text-left rounded-lg border border-divider bg-surface hover:border-primary/50 hover:bg-surface-tint/50 transition-colors p-3 disabled:opacity-50"
-                  :class="opening ? 'cursor-wait' : ''"
-                  :disabled="opening"
-                  type="button"
-                  @click="openExample(example)"
-                >
-                  <div class="h-12 rounded-md border border-divider bg-surface-tint/50 mb-2.5 flex items-center justify-center">
-                    <span class="text-[10px] text-on-surface-variant/70 font-mono">
-                      {{ example.id }}
-                    </span>
-                  </div>
-
-                  <div class="text-sm font-medium text-on-surface truncate">
-                    {{ example.title || example.id }}
-                  </div>
-
-                  <div class="text-[11px] text-on-surface-variant mt-0.5">
-                    {{ example.files.length }} file{{ example.files.length === 1 ? '' : 's' }}
-                  </div>
-                </button>
-              </div>
-            </template>
-
-            <!-- ── Saved list ────────────────────────────────────────── -->
-            <template v-else-if="rail === 'saved'">
-              <div v-if="savedLoading" class="p-4">
-                <AppSkeleton height="h-12" :lines="4" />
-              </div>
-
-              <div
-                v-else-if="savedError"
-                class="p-8 text-center flex items-center justify-center h-full"
-              >
-                <p class="text-sm text-on-surface-variant">{{ savedError }}</p>
-              </div>
-
-              <div
-                v-else-if="saved.length === 0"
-                class="p-8 text-center flex items-center justify-center h-full"
-              >
-                <p class="text-sm text-on-surface-variant">No saved playgrounds</p>
-              </div>
-
-              <div
-                v-else-if="filteredSaved.length === 0"
-                class="p-8 text-center flex items-center justify-center h-full"
-              >
-                <p class="text-sm text-on-surface-variant">No matches for “{{ query }}”</p>
-              </div>
-
-              <div v-else class="p-2">
-                <button
-                  v-for="item in filteredSaved"
-                  :key="item.id"
-                  class="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left rounded-md hover:bg-surface-tint transition-colors"
-                  type="button"
-                  @click="openSaved(item)"
-                >
-                  <span class="text-sm text-on-surface truncate">{{ item.title || 'Untitled' }}</span>
-
-                  <span class="text-xs text-on-surface-variant shrink-0">
-                    {{ formatDate(item.updatedAt || item.createdAt) }}
-                  </span>
-                </button>
-              </div>
-            </template>
-
-            <!-- ── Category gallery ──────────────────────────────────── -->
-            <template v-else>
-              <div v-if="examplesLoading" class="p-4">
-                <div class="grid grid-cols-2 gap-2">
-                  <div
-                    v-for="i in 6"
-                    :key="i"
-                    class="h-28 rounded-lg bg-surface-tint animate-pulse"
-                  />
-                </div>
-              </div>
-
-              <div
-                v-else-if="examplesError"
-                class="p-8 text-center flex flex-col gap-2 items-center justify-center h-full"
-              >
-                <p class="text-sm text-on-surface-variant">{{ examplesError }}</p>
-
-                <p class="text-xs text-on-surface-variant/70">
-                  Origin: {{ DEFAULT_REGISTRY }}/registry
-                </p>
-
-                <button
-                  class="text-xs font-medium text-primary hover:underline mt-1"
-                  type="button"
-                  @click="loadExamples"
-                >
-                  Retry
-                </button>
-              </div>
-
-              <div
-                v-else-if="railItems.length === 0"
-                class="p-8 text-center flex items-center justify-center h-full"
-              >
-                <p class="text-sm text-on-surface-variant">
-                  No {{ railLabel.toLowerCase() }} with examples
-                </p>
-              </div>
-
-              <div
-                v-else-if="filtered.length === 0"
-                class="p-8 text-center flex items-center justify-center h-full"
-              >
-                <p class="text-sm text-on-surface-variant">No matches for “{{ query }}”</p>
-              </div>
-
-              <div v-else class="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <button
-                  v-for="entry in filtered"
-                  :key="`${entry.type}/${entry.name}`"
-                  class="text-left rounded-lg border border-divider bg-surface hover:border-primary/50 hover:bg-surface-tint/40 transition-colors px-3 py-2.5 group"
-                  type="button"
-                  @click="onSelectFeature(entry)"
-                >
-                  <div class="flex items-start gap-2.5">
-                    <div
-                      class="w-8 h-8 rounded-md border border-divider/50 shrink-0 flex items-center justify-center mt-0.5"
-                      :style="{ background: featureAccent(entry).bg }"
-                    >
-                      <AppIcon
-                        :icon="featureIcon(entry)"
-                        :size="16"
-                        :style="{ color: featureAccent(entry).fg, opacity: 1 }"
-                      />
-                    </div>
-
-                    <div class="min-w-0 flex-1">
-                      <div class="text-sm font-medium text-on-surface truncate group-hover:text-primary transition-colors">
-                        {{ entry.title || entry.name }}
-                      </div>
-
-                      <div
-                        v-if="entry.description"
-                        class="text-[11px] text-on-surface-variant mt-0.5 line-clamp-2 leading-snug"
-                      >
-                        {{ blurb(entry.description) }}
-                      </div>
-
-                      <div class="flex items-center justify-between gap-2 mt-1.5 text-[10px] text-on-surface-variant">
-                        <span class="tabular-nums">{{ exampleLabel(entry.examples.length) }}</span>
-                        <span class="truncate capitalize">{{ entry.category }}</span>
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              </div>
-            </template>
+            <PlaygroundOpenGallery
+              v-else
+              :error="examplesError"
+              :items="filtered"
+              :loading="examplesLoading"
+              :query
+              :rail-label
+              :total="railItems.length"
+              @retry="loadExamples"
+              @select="onSelectFeature"
+            />
           </div>
         </div>
       </div>
