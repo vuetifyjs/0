@@ -4,10 +4,10 @@
 
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
+  import PlaygroundOpenDialog from '@/components/playground/open/PlaygroundOpenDialog.vue'
 
   // Context
   import { usePlayground } from './PlaygroundApp.vue'
-  import PlaygroundOpenDialog from './PlaygroundOpenDialog.vue'
 
   // Utilities
   import { onBeforeUnmount, shallowRef, watch } from 'vue'
