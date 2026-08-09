@@ -9,26 +9,31 @@ import EmCalendarTitle from './EmCalendarTitle.vue'
 import { createApp, h, nextTick, shallowRef } from 'vue'
 
 // Types
-import type { App } from 'vue'
+import type { EmCalendarTitleProps } from './EmCalendarTitle.vue'
+import type { App, VNode } from 'vue'
 
 /** 2026-08-04 — a Tuesday; August 2026 spills to six rows naturally. */
 const TODAY = new Date(2026, 7, 4)
 
 const apps: App[] = []
 
-function mount (props: Record<string, unknown> = {}) {
+function mountWith (title: VNode, props: Record<string, unknown> = {}) {
   const host = document.createElement('div')
 
   document.body.append(host)
 
   const app = createApp({
-    render: () => h(EmCalendar, props, () => [h(EmCalendarTitle), h(EmCalendarGrid)]),
+    render: () => h(EmCalendar, props, () => [title, h(EmCalendarGrid)]),
   })
 
   apps.push(app)
   app.mount(host)
 
   return host
+}
+
+function mount (props: Record<string, unknown> = {}) {
+  return mountWith(h(EmCalendarTitle), props)
 }
 
 function cells (host: HTMLElement) {
@@ -69,6 +74,35 @@ describe('emCalendar', () => {
       expect(at(host, '2026-07-26').dataset.out).toBe('true')
       expect(at(host, '2026-08-04').dataset.out).toBeUndefined()
       expect(at(host, '2026-08-04').getAttribute('aria-current')).toBe('date')
+    })
+
+    it('should render the title as a level-two heading by default', () => {
+      const host = mount()
+      const title = host.querySelector('.emerald-calendar__title')!
+
+      expect(title.tagName).toBe('H2')
+      expect(title.id).toBeTruthy()
+      expect(title.getAttribute('aria-live')).toBe('polite')
+      expect(title.textContent).toBe('August 2026')
+    })
+
+    it('should render the title as the requested element', () => {
+      const host = mountWith(h(EmCalendarTitle, { as: 'p', live: false }))
+      const title = host.querySelector('.emerald-calendar__title')!
+
+      expect(title.tagName).toBe('P')
+      expect(title.id).toBeTruthy()
+      expect(title.getAttribute('aria-live')).toBeNull()
+      expect(title.textContent).toBe('August 2026')
+    })
+
+    it('should reject a renderless title at the type level', () => {
+      // Renderless would drop the id the grid's aria-labelledby points at, so
+      // `as` is non-nullable even though Atom itself accepts null.
+      // @ts-expect-error — null is not assignable to EmCalendarTitleProps['as']
+      const as: EmCalendarTitleProps['as'] = null
+
+      expect(as).toBeNull()
     })
 
     it('should name the grid after the title', () => {
