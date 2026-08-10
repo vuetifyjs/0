@@ -254,19 +254,6 @@
           <EmSelect v-model="newEventCategory">
             <EmSelectActivator>
               <EmSelectValue />
-
-              <svg
-                aria-hidden="true"
-                class="emerald-select__icon"
-                fill="none"
-                height="16"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                viewBox="0 0 16 16"
-                width="16"
-              ><path d="M4 6l4 4 4-4" /></svg>
             </EmSelectActivator>
 
             <EmSelectContent>
