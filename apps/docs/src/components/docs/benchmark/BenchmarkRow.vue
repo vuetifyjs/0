@@ -4,6 +4,7 @@
 
   // Composables
   import { TIER_BG, formatHz, type NormalizedBenchmark } from '@/composables/useBenchmarkData'
+  import { significant } from '@/composables/useBenchmarkHistory'
 
   // Utilities
   import { toRef } from 'vue'
@@ -20,10 +21,11 @@
 
   const barColor = toRef(() => TIER_BG[props.benchmark.tier])
 
+  // Colored only when the delta clears this bench's own error bars, so a row
+  // reads the same way the group header counted it.
   function deltaClass (delta: number): string {
-    if (delta > 5) return 'text-success'
-    if (delta < -5) return 'text-error'
-    return 'text-on-surface-variant'
+    if (!significant(delta, props.benchmark.rme)) return 'text-on-surface-variant'
+    return delta > 0 ? 'text-success' : 'text-error'
   }
 
   function deltaLabel (delta: number): string {

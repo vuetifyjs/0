@@ -13,6 +13,30 @@ import type { TierState } from './useBenchmarkData'
 
 const CURRENT_LABEL = 'current' as const
 
+/**
+ * Smallest delta worth reporting, regardless of how tight a bench's error bars
+ * are. `rme` measures spread *within* one run and is tiny for most benches
+ * (median 0.36% across the current set), so it never catches the real source of
+ * cross-version drift: snapshots are recorded on rotating hosts. Measured
+ * against that set, |delta| runs p50 3.3% / p75 6.7% / p90 17.4% — a 10% floor
+ * sits above the drift band and leaves roughly a quarter of groups flagged.
+ */
+export const NOISE_FLOOR = 10
+
+/**
+ * The band a delta has to clear to count as signal. `rme` is the 95% confidence
+ * interval on a *single* run — comparing two runs stacks two of them, which
+ * widens the band by √2.
+ */
+export function noise (rme: number): number {
+  return Math.max(rme * Math.SQRT2, NOISE_FLOOR)
+}
+
+/** True when a trend delta outranks measurement variance. */
+export function significant (delta: number, rme: number): boolean {
+  return Math.abs(delta) > noise(rme)
+}
+
 export interface HistoryPoint {
   version: string
   hz: number
