@@ -5,9 +5,10 @@
   // Components
   import EmIcon from '../EmIcon/EmIcon.vue'
 
-  export interface EmExpansionPanelCueProps {
-    namespace?: string
-  }
+  // Types
+  import type { ExpansionPanelCueProps } from '@vuetify/v0'
+
+  export interface EmExpansionPanelCueProps extends Omit<ExpansionPanelCueProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

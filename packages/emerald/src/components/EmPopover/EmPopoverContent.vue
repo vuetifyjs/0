@@ -2,12 +2,13 @@
   // Framework
   import { Popover, usePopoverContext } from '@vuetify/v0'
 
-  export interface EmPopoverContentProps {
-    /** CSS position-area value @default 'bottom' */
-    positionArea?: string
-    /** CSS position-try-fallbacks value @default 'most-width bottom' */
-    positionTry?: string
-  }
+  // Types
+  import type { PopoverContentProps } from '@vuetify/v0'
+
+  export interface EmPopoverContentProps extends Pick<
+    PopoverContentProps,
+    'positionArea' | 'positionTry'
+  > {}
 </script>
 
 <script setup lang="ts">
