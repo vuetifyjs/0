@@ -2,9 +2,10 @@
   // Framework
   import { Pagination } from '@vuetify/v0'
 
-  export interface EmPaginationPrevProps {
-    namespace?: string
-  }
+  // Types
+  import type { PaginationPrevProps } from '@vuetify/v0'
+
+  export interface EmPaginationPrevProps extends Pick<PaginationPrevProps, 'namespace'> {}
 </script>
 
 <script setup lang="ts">

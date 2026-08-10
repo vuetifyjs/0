@@ -3,11 +3,10 @@
   import { Tabs } from '@vuetify/v0'
 
   // Types
-  import type { ID } from '@vuetify/v0'
+  import type { ID, TabsPanelProps } from '@vuetify/v0'
 
-  export interface EmTabsPanelProps {
+  export interface EmTabsPanelProps extends Pick<TabsPanelProps, 'namespace'> {
     value: ID
-    namespace?: string
   }
 </script>
 

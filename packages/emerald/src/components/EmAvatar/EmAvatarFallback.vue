@@ -2,9 +2,10 @@
   // Framework
   import { Avatar } from '@vuetify/v0'
 
-  export interface EmAvatarFallbackProps {
-    namespace?: string
-  }
+  // Types
+  import type { AvatarFallbackProps } from '@vuetify/v0'
+
+  export interface EmAvatarFallbackProps extends Omit<AvatarFallbackProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">
