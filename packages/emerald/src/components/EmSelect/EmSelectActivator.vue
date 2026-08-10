@@ -2,6 +2,9 @@
   // Framework
   import { Select } from '@vuetify/v0'
 
+  // Components
+  import EmIcon from '../EmIcon/EmIcon.vue'
+
   export interface EmSelectActivatorProps {
     namespace?: string
   }
@@ -16,6 +19,10 @@
 <template>
   <Select.Activator class="emerald-select__activator" :namespace>
     <slot />
+
+    <!-- The caret belongs to the control, not the consumer: the open-state
+         rotation below has no target unless the activator draws it. -->
+    <EmIcon class="emerald-select__icon" name="chevron-down" />
   </Select.Activator>
 </template>
 
@@ -58,6 +65,10 @@
 
   .emerald-select__icon {
     flex: none;
+    /* Matches the 16px caret the showcase drew by hand; the token steps bracket
+       it at 18px and 20px, both of which crowd the field's 8px padding. */
+    --emerald-icon-size: 16px;
+    --emerald-icon-stroke: 2;
     transition: transform var(--emerald-motion-duration-base, 180ms) var(--emerald-motion-ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
     color: var(--emerald-neutral-700, #757e85);
   }

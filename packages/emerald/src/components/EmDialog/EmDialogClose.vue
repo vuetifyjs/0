@@ -2,6 +2,9 @@
   // Framework
   import { Dialog } from '@vuetify/v0'
 
+  // Components
+  import EmIcon from '../EmIcon/EmIcon.vue'
+
   export interface EmDialogCloseProps {
     namespace?: string
   }
@@ -16,7 +19,7 @@
 <template>
   <Dialog.Close class="emerald-dialog__close" :namespace>
     <slot>
-      <span aria-hidden="true">×</span>
+      <EmIcon name="close" size="s" />
     </slot>
   </Dialog.Close>
 </template>

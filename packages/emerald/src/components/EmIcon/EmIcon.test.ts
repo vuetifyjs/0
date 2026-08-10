@@ -8,6 +8,7 @@ import { createApp, h } from 'vue'
 
 // Types
 import type { EmeraldPluginOptions } from '../../plugin'
+import type { EmIconProps } from './EmIcon.vue'
 import type { App } from 'vue'
 
 // Icons
@@ -17,7 +18,7 @@ import { createEmeraldPlugin } from '../../plugin'
 
 const apps: App[] = []
 
-function mount (props: Record<string, unknown>, options?: EmeraldPluginOptions) {
+function mount (props: EmIconProps, options?: EmeraldPluginOptions) {
   const host = document.createElement('div')
 
   document.body.append(host)

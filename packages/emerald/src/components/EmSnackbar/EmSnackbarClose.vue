@@ -2,6 +2,9 @@
   // Framework
   import { Snackbar } from '@vuetify/v0'
 
+  // Components
+  import EmIcon from '../EmIcon/EmIcon.vue'
+
   export interface EmSnackbarCloseProps {
     namespace?: string
   }
@@ -16,7 +19,7 @@
 <template>
   <Snackbar.Close class="emerald-snackbar__close" :namespace>
     <slot>
-      <span aria-hidden="true">×</span>
+      <EmIcon name="close" size="s" />
     </slot>
   </Snackbar.Close>
 </template>

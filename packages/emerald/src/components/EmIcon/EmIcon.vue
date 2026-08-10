@@ -71,29 +71,38 @@
 </template>
 
 <style>
+  /*
+   * Size and stroke both route through custom properties rather than being set
+   * directly, so a host class can retune a glyph it embeds — the control sizes
+   * an icon sits inside do not all land on the token scale.
+   */
   .emerald-icon {
     display: inline-block;
     flex-shrink: 0;
-    width: var(--emerald-icon-m, 20px);
-    height: var(--emerald-icon-m, 20px);
-    /* Set in CSS, not as an attribute, so a host class can restroke a glyph
-       without the component growing a prop for it. */
+    width: var(--emerald-icon-size, var(--emerald-icon-m, 20px));
+    height: var(--emerald-icon-size, var(--emerald-icon-m, 20px));
     stroke-width: var(--emerald-icon-stroke, 1.75);
     vertical-align: middle;
   }
 
-  .emerald-icon[data-size='s'] {
-    width: var(--emerald-icon-s, 18px);
-    height: var(--emerald-icon-s, 18px);
+  /*
+   * Wrapped in :where() to strip these to zero specificity: the `size` prop is
+   * the default, and a single-class host rule outranks it without needing
+   * !important or a contrived selector.
+   */
+  :where(.emerald-icon[data-size='s']) {
+    --emerald-icon-size: var(--emerald-icon-s, 18px);
   }
 
-  .emerald-icon[data-size='l'] {
-    width: var(--emerald-icon-l, 24px);
-    height: var(--emerald-icon-l, 24px);
+  :where(.emerald-icon[data-size='m']) {
+    --emerald-icon-size: var(--emerald-icon-m, 20px);
   }
 
-  .emerald-icon[data-size='xl'] {
-    width: var(--emerald-icon-xl, 32px);
-    height: var(--emerald-icon-xl, 32px);
+  :where(.emerald-icon[data-size='l']) {
+    --emerald-icon-size: var(--emerald-icon-l, 24px);
+  }
+
+  :where(.emerald-icon[data-size='xl']) {
+    --emerald-icon-size: var(--emerald-icon-xl, 32px);
   }
 </style>
