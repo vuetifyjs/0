@@ -3,13 +3,11 @@
   import { Snackbar } from '@vuetify/v0'
 
   // Types
-  import type { ID } from '@vuetify/v0'
+  import type { SnackbarRootProps } from '@vuetify/v0'
 
   export type EmSnackbarVariant = 'success' | 'error' | 'info' | 'warning' | 'neutral'
 
-  export interface EmSnackbarProps {
-    id?: ID
-    namespace?: string
+  export interface EmSnackbarProps extends Pick<SnackbarRootProps, 'id' | 'namespace'> {
     variant?: EmSnackbarVariant
   }
 </script>

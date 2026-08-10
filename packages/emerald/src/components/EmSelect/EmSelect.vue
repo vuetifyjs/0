@@ -4,14 +4,10 @@
   // Utilities
   import { useId } from '@vuetify/v0/utilities'
 
-  export interface EmSelectProps {
-    id?: string
-    name?: string
-    form?: string
-    disabled?: boolean
-    multiple?: boolean
-    mandatory?: boolean | 'force'
-    namespace?: string
+  // Types
+  import type { SelectRootProps } from '@vuetify/v0'
+
+  export interface EmSelectProps extends Omit<SelectRootProps, 'as' | 'renderless'> {
     /** Visible field label associated with the activator */
     label?: string
   }

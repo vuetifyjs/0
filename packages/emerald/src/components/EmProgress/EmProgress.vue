@@ -6,20 +6,22 @@
   // Utilities
   import { toRef } from 'vue'
 
+  // Types
+  import type { ProgressRootProps } from '@vuetify/v0'
+
   export type EmProgressSize = 'sm' | 'md' | 'lg'
 
-  export interface EmProgressProps {
-    max?: number
+  export interface EmProgressProps extends Pick<
+    ProgressRootProps,
+    'max' | 'ariaLabel' | 'name' | 'namespace'
+  > {
+    /** Emerald-owned: v0 infers the indeterminate state from an absent model value */
     indeterminate?: boolean
     size?: EmProgressSize
     /** Show percentage text via Progress.Value */
     showValue?: boolean
     /** Visible label text (Progress.Label) */
     label?: string
-    /** Accessible name when no visible `label` is rendered */
-    ariaLabel?: string
-    name?: string
-    namespace?: string
   }
 </script>
 
