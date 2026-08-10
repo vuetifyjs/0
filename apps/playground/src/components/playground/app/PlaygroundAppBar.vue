@@ -16,20 +16,26 @@
   import { shallowRef } from 'vue'
 
   const open = shallowRef(false)
-  const copied = shallowRef(false)
+  const shared = shallowRef(false)
   const exporting = shallowRef(false)
   const exported = shallowRef(false)
+  const copying = shallowRef(false)
+  const projectCopied = shallowRef(false)
 
   const theme = useTheme()
   const playground = usePlayground()
-  const { downloadProject } = useExport()
+  const { copyProject, downloadProject } = useExport()
 
-  const { start: startCopied } = useTimer(() => {
-    copied.value = false
+  const { start: startShared } = useTimer(() => {
+    shared.value = false
   }, { duration: 2000 })
 
   const { start: startExported } = useTimer(() => {
     exported.value = false
+  }, { duration: 2000 })
+
+  const { start: startProjectCopied } = useTimer(() => {
+    projectCopied.value = false
   }, { duration: 2000 })
 
   useHotkey('ctrl+b', () => {
@@ -42,8 +48,8 @@
 
   function onShare () {
     navigator.clipboard.writeText(window.location.href).then(() => {
-      copied.value = true
-      startCopied()
+      shared.value = true
+      startShared()
     }).catch(() => {})
   }
 
@@ -58,6 +64,20 @@
       // Zip generation failed; leave button idle
     } finally {
       exporting.value = false
+    }
+  }
+
+  async function onCopyProject () {
+    if (copying.value) return
+    copying.value = true
+    try {
+      await copyProject()
+      projectCopied.value = true
+      startProjectCopied()
+    } catch {
+      // Clipboard may be denied; ignore
+    } finally {
+      copying.value = false
     }
   }
 </script>
@@ -91,12 +111,25 @@
       <AppTooltip
         aria-label="Copy share link"
         class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
-        :class="copied ? 'opacity-80' : 'opacity-50'"
+        :class="shared ? 'opacity-80' : 'opacity-50'"
         position-area="bottom"
-        :text="copied ? 'Link copied!' : 'Copy share link'"
+        :text="shared ? 'Link copied!' : 'Copy share link'"
         @click="onShare"
       >
-        <AppIcon :icon="copied ? 'check' : 'link'" />
+        <AppIcon :icon="shared ? 'check' : 'link'" />
+      </AppTooltip>
+
+      <AppTooltip
+        :aria-busy="copying || undefined"
+        aria-label="Copy project to clipboard"
+        class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
+        :class="projectCopied || copying ? 'opacity-80' : 'opacity-50'"
+        :disabled="copying"
+        position-area="bottom"
+        :text="copying ? 'Copying…' : projectCopied ? 'Project copied!' : 'Copy project'"
+        @click="onCopyProject"
+      >
+        <AppIcon :icon="projectCopied ? 'check' : 'copy'" />
       </AppTooltip>
 
       <AppTooltip
