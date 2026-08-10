@@ -9,6 +9,7 @@ import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 import { createMainTs, REPL_BUILTIN_FILES, REPL_TSCONFIG, REPL_TYPESCRIPT_VERSION, UNO_CONFIG_TS } from '@/data/playground-defaults'
 import { ADDONS, DEFAULT_APP, PRESETS } from '@/data/presets'
 import { parseRegistryQuery, resolveRegistryExample } from '@/data/registry'
+import { parseVuetifyExampleQuery, resolveVuetifyExample } from '@/data/vuetify-examples'
 
 // Utilities
 import { compileFile, useStore } from '@vue/repl/core'
@@ -17,6 +18,7 @@ import { computed, onMounted, shallowRef, watch, watchEffect } from 'vue'
 // Types
 import type { PlaygroundHashData } from '@/composables/usePlayground'
 import type { RegistryExampleRef } from '@/data/registry'
+import type { VuetifyExampleRef } from '@/data/vuetify-examples'
 
 export function usePlaygroundFiles () {
   const theme = useTheme()
@@ -82,11 +84,12 @@ export function usePlaygroundFiles () {
   onMounted(async () => {
     const hash = window.location.hash.slice(1)
     const decoded = hash ? await decodePlaygroundHash(hash) : null
-    // Hash wins when present (share links are self-contained). Short registry
-    // deep-links use `?example=` / `?item=` with an empty hash.
-    const registryRef = decoded
-      ? null
-      : parseRegistryQuery(new URLSearchParams(window.location.search))
+    // Hash wins when present (share links are self-contained). Short deep-links
+    // use query params with an empty hash: v0 registry (`?example=`) or Vuetify
+    // docs examples (`?vuetify=` / `?source=vuetify&example=`).
+    const search = decoded ? null : new URLSearchParams(window.location.search)
+    const vuetifyRef = search ? parseVuetifyExampleQuery(search) : null
+    const registryRef = search && !vuetifyRef ? parseRegistryQuery(search) : null
 
     if (decoded) {
       if (decoded.settings?.preset) activePreset.value = decoded.settings.preset
@@ -120,6 +123,14 @@ export function usePlaygroundFiles () {
         extraImports.value = decoded.imports
       }
       rebuildImportMap()
+    } else if (vuetifyRef) {
+      try {
+        await openVuetifyExample(vuetifyRef, { clearSearch: true })
+      } catch (error) {
+        loadError.value = error instanceof Error ? error.message : String(error)
+        clearRegistrySearch()
+        await seedDefault()
+      }
     } else if (registryRef) {
       try {
         await openRegistryExample(registryRef, { clearSearch: true })
@@ -378,6 +389,8 @@ export function usePlaygroundFiles () {
     url.searchParams.delete('example')
     url.searchParams.delete('item')
     url.searchParams.delete('registry')
+    url.searchParams.delete('vuetify')
+    url.searchParams.delete('source')
     history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
   }
 
@@ -405,6 +418,30 @@ export function usePlaygroundFiles () {
     if (options.clearSearch) clearRegistrySearch()
   }
 
+  /**
+   * Load a public Vuetify 4 docs example (raw git) into the REPL with the
+   * Vuetify preset. Share hash is rewritten by the existing scheduleHash path.
+   */
+  async function openVuetifyExample (
+    ref: VuetifyExampleRef,
+    options: { clearSearch?: boolean } = {},
+  ) {
+    loadError.value = undefined
+    const resolved = await resolveVuetifyExample(ref)
+
+    const preset = PRESETS.find(p => p.id === 'vuetify')
+    activePreset.value = 'vuetify'
+    activeAddons.value = []
+    extraImports.value = preset?.imports ?? undefined
+    aliasMap.value = new Map()
+
+    await loadExample(resolved.files, resolved.active)
+    rebuildImportMap()
+    filesVersion.value++
+
+    if (options.clearSearch) clearRegistrySearch()
+  }
+
   return {
     store,
     isReady,
@@ -423,5 +460,6 @@ export function usePlaygroundFiles () {
     toggleAddon,
     openPlayground,
     openRegistryExample,
+    openVuetifyExample,
   }
 }

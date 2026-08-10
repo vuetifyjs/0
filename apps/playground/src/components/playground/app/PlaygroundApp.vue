@@ -10,6 +10,7 @@
 
   // Types
   import type { RegistryExampleRef } from '@/data/registry'
+  import type { VuetifyExampleRef } from '@/data/vuetify-examples'
   import type { ReplStore } from '@vue/repl'
   import type { Ref, ShallowRef } from 'vue'
 
@@ -35,6 +36,7 @@
     loadError: ShallowRef<string | undefined>
     openPlayground: (content: string) => Promise<void>
     openRegistryExample: (ref: RegistryExampleRef, options?: { clearSearch?: boolean }) => Promise<void>
+    openVuetifyExample: (ref: VuetifyExampleRef, options?: { clearSearch?: boolean }) => Promise<void>
     showConfig: ShallowRef<boolean>
   }
 
@@ -59,6 +61,7 @@
     toggleAddon,
     openPlayground,
     openRegistryExample,
+    openVuetifyExample,
   } = usePlaygroundFiles()
   const storage = useStorage()
   const { isMobile } = useBreakpoints()
@@ -113,6 +116,7 @@
     loadError,
     openPlayground,
     openRegistryExample,
+    openVuetifyExample,
     showConfig,
   })
 

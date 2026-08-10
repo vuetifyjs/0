@@ -1,0 +1,5675 @@
+{
+  "version": 1,
+  "repo": "vuetifyjs/vuetify",
+  "ref": "master",
+  "basePath": "packages/docs/src/examples",
+  "generatedAt": "2026-08-10T23:46:43.702Z",
+  "skipped": 82,
+  "components": [
+    {
+      "name": "accessibility",
+      "title": "Accessibility",
+      "examples": [
+        {
+          "id": "list-item-group",
+          "path": "accessibility/list-item-group.vue",
+          "title": "List item group"
+        },
+        {
+          "id": "menu",
+          "path": "accessibility/menu.vue",
+          "title": "Menu"
+        },
+        {
+          "id": "select-list-item",
+          "path": "accessibility/select-list-item.vue",
+          "title": "Select list item"
+        }
+      ]
+    },
+    {
+      "name": "application",
+      "title": "Application",
+      "examples": [
+        {
+          "id": "app-bar-drawer",
+          "path": "application/app-bar-drawer.vue",
+          "title": "App bar drawer"
+        },
+        {
+          "id": "drawer-app-bar",
+          "path": "application/drawer-app-bar.vue",
+          "title": "Drawer app bar"
+        },
+        {
+          "id": "theme",
+          "path": "application/theme.vue",
+          "title": "Theme"
+        }
+      ]
+    },
+    {
+      "name": "application-layout",
+      "title": "Application Layout",
+      "examples": [
+        {
+          "id": "app-bar-first",
+          "path": "application-layout/app-bar-first.vue",
+          "title": "App bar first"
+        },
+        {
+          "id": "discord",
+          "path": "application-layout/discord.vue",
+          "title": "Discord"
+        },
+        {
+          "id": "dynamic",
+          "path": "application-layout/dynamic.vue",
+          "title": "Dynamic"
+        },
+        {
+          "id": "layout-information-composable",
+          "path": "application-layout/layout-information-composable.vue",
+          "title": "Layout information composable"
+        },
+        {
+          "id": "layout-information-ref",
+          "path": "application-layout/layout-information-ref.vue",
+          "title": "Layout information ref"
+        },
+        {
+          "id": "location",
+          "path": "application-layout/location.vue",
+          "title": "Location"
+        },
+        {
+          "id": "nav-drawer-first",
+          "path": "application-layout/nav-drawer-first.vue",
+          "title": "Nav drawer first"
+        }
+      ]
+    },
+    {
+      "name": "blueprints",
+      "title": "Blueprints",
+      "examples": [
+        {
+          "id": "md1",
+          "path": "blueprints/md1.vue",
+          "title": "Md1"
+        },
+        {
+          "id": "md2",
+          "path": "blueprints/md2.vue",
+          "title": "Md2"
+        },
+        {
+          "id": "md3",
+          "path": "blueprints/md3.vue",
+          "title": "Md3"
+        }
+      ]
+    },
+    {
+      "name": "border",
+      "title": "Border",
+      "examples": [
+        {
+          "id": "all",
+          "path": "border/all.vue",
+          "title": "All"
+        },
+        {
+          "id": "card",
+          "path": "border/card.vue",
+          "title": "Card"
+        },
+        {
+          "id": "colors",
+          "path": "border/colors.vue",
+          "title": "Colors"
+        },
+        {
+          "id": "sides",
+          "path": "border/sides.vue",
+          "title": "Sides"
+        },
+        {
+          "id": "styles",
+          "path": "border/styles.vue",
+          "title": "Styles"
+        }
+      ]
+    },
+    {
+      "name": "border-radius",
+      "title": "Border Radius",
+      "examples": [
+        {
+          "id": "misc-components",
+          "path": "border-radius/misc-components.vue",
+          "title": "Misc components"
+        },
+        {
+          "id": "misc-pill-and-circle",
+          "path": "border-radius/misc-pill-and-circle.vue",
+          "title": "Misc pill and circle"
+        },
+        {
+          "id": "misc-removing-border-radius",
+          "path": "border-radius/misc-removing-border-radius.vue",
+          "title": "Misc removing border radius"
+        },
+        {
+          "id": "misc-rounded-corners",
+          "path": "border-radius/misc-rounded-corners.vue",
+          "title": "Misc rounded corners"
+        },
+        {
+          "id": "misc-rounding-by-corner",
+          "path": "border-radius/misc-rounding-by-corner.vue",
+          "title": "Misc rounding by corner"
+        },
+        {
+          "id": "misc-rounding-by-side",
+          "path": "border-radius/misc-rounding-by-side.vue",
+          "title": "Misc rounding by side"
+        }
+      ]
+    },
+    {
+      "name": "color",
+      "title": "Color",
+      "examples": [
+        {
+          "id": "classes",
+          "path": "color/classes.vue",
+          "title": "Classes"
+        },
+        {
+          "id": "text-classes",
+          "path": "color/text-classes.vue",
+          "title": "Text classes"
+        }
+      ]
+    },
+    {
+      "name": "concepts",
+      "title": "Concepts",
+      "examples": [
+        {
+          "id": "density",
+          "path": "concepts/density.vue",
+          "title": "Density"
+        },
+        {
+          "id": "density-and-size",
+          "path": "concepts/density-and-size.vue",
+          "title": "Density and size"
+        },
+        {
+          "id": "size",
+          "path": "concepts/size.vue",
+          "title": "Size"
+        }
+      ]
+    },
+    {
+      "name": "cursor",
+      "title": "Cursor",
+      "examples": [
+        {
+          "id": "usage",
+          "path": "cursor/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "display",
+      "title": "Display",
+      "examples": [
+        {
+          "id": "display-block",
+          "path": "display/display-block.vue",
+          "title": "Display block"
+        },
+        {
+          "id": "display-inline",
+          "path": "display/display-inline.vue",
+          "title": "Display inline"
+        },
+        {
+          "id": "hidden-elements",
+          "path": "display/hidden-elements.vue",
+          "title": "Hidden elements"
+        },
+        {
+          "id": "print",
+          "path": "display/print.vue",
+          "title": "Print"
+        },
+        {
+          "id": "visibility",
+          "path": "display/visibility.vue",
+          "title": "Visibility"
+        }
+      ]
+    },
+    {
+      "name": "elevation",
+      "title": "Elevation",
+      "examples": [
+        {
+          "id": "misc-css-custom-properties",
+          "path": "elevation/misc-css-custom-properties.vue",
+          "title": "Misc css custom properties"
+        },
+        {
+          "id": "misc-elevation-overlay",
+          "path": "elevation/misc-elevation-overlay.vue",
+          "title": "Misc elevation overlay"
+        },
+        {
+          "id": "prop-dynamic",
+          "path": "elevation/prop-dynamic.vue",
+          "title": "Prop dynamic"
+        },
+        {
+          "id": "usage",
+          "path": "elevation/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "flex",
+      "title": "Flex",
+      "examples": [
+        {
+          "id": "flex-align",
+          "path": "flex/flex-align.vue",
+          "title": "Flex align"
+        },
+        {
+          "id": "flex-align-content",
+          "path": "flex/flex-align-content.vue",
+          "title": "Flex align content"
+        },
+        {
+          "id": "flex-align-self",
+          "path": "flex/flex-align-self.vue",
+          "title": "Flex align self"
+        },
+        {
+          "id": "flex-column",
+          "path": "flex/flex-column.vue",
+          "title": "Flex column"
+        },
+        {
+          "id": "flex-direction",
+          "path": "flex/flex-direction.vue",
+          "title": "Flex direction"
+        },
+        {
+          "id": "flex-flex",
+          "path": "flex/flex-flex.vue",
+          "title": "Flex flex"
+        },
+        {
+          "id": "flex-justify",
+          "path": "flex/flex-justify.vue",
+          "title": "Flex justify"
+        },
+        {
+          "id": "flex-nowrap",
+          "path": "flex/flex-nowrap.vue",
+          "title": "Flex nowrap"
+        },
+        {
+          "id": "flex-order",
+          "path": "flex/flex-order.vue",
+          "title": "Flex order"
+        },
+        {
+          "id": "flex-wrap",
+          "path": "flex/flex-wrap.vue",
+          "title": "Flex wrap"
+        },
+        {
+          "id": "flex-wrap-reverse",
+          "path": "flex/flex-wrap-reverse.vue",
+          "title": "Flex wrap reverse"
+        },
+        {
+          "id": "flexbox",
+          "path": "flex/flexbox.vue",
+          "title": "Flexbox"
+        },
+        {
+          "id": "flexbox-inline",
+          "path": "flex/flexbox-inline.vue",
+          "title": "Flexbox inline"
+        },
+        {
+          "id": "grow-shrink",
+          "path": "flex/grow-shrink.vue",
+          "title": "Grow shrink"
+        },
+        {
+          "id": "margins",
+          "path": "flex/margins.vue",
+          "title": "Margins"
+        },
+        {
+          "id": "margins-align-items",
+          "path": "flex/margins-align-items.vue",
+          "title": "Margins align items"
+        }
+      ]
+    },
+    {
+      "name": "float",
+      "title": "Float",
+      "examples": [
+        {
+          "id": "classes",
+          "path": "float/classes.vue",
+          "title": "Classes"
+        },
+        {
+          "id": "responsive",
+          "path": "float/responsive.vue",
+          "title": "Responsive"
+        }
+      ]
+    },
+    {
+      "name": "grid",
+      "title": "Grid",
+      "examples": [
+        {
+          "id": "misc-column-wrapping",
+          "path": "grid/misc-column-wrapping.vue",
+          "title": "Misc column wrapping"
+        },
+        {
+          "id": "misc-equal-width-columns",
+          "path": "grid/misc-equal-width-columns.vue",
+          "title": "Misc equal width columns"
+        },
+        {
+          "id": "misc-grow-and-shrink",
+          "path": "grid/misc-grow-and-shrink.vue",
+          "title": "Misc grow and shrink"
+        },
+        {
+          "id": "misc-margin-helpers",
+          "path": "grid/misc-margin-helpers.vue",
+          "title": "Misc margin helpers"
+        },
+        {
+          "id": "misc-nested-grid",
+          "path": "grid/misc-nested-grid.vue",
+          "title": "Misc nested grid"
+        },
+        {
+          "id": "misc-one-column-width",
+          "path": "grid/misc-one-column-width.vue",
+          "title": "Misc one column width"
+        },
+        {
+          "id": "misc-row-and-column-breakpoints",
+          "path": "grid/misc-row-and-column-breakpoints.vue",
+          "title": "Misc row and column breakpoints"
+        },
+        {
+          "id": "misc-size-overrides",
+          "path": "grid/misc-size-overrides.vue",
+          "title": "Misc size overrides"
+        },
+        {
+          "id": "misc-spacer",
+          "path": "grid/misc-spacer.vue",
+          "title": "Misc spacer"
+        },
+        {
+          "id": "misc-unique-layouts",
+          "path": "grid/misc-unique-layouts.vue",
+          "title": "Misc unique layouts"
+        },
+        {
+          "id": "misc-variable-content",
+          "path": "grid/misc-variable-content.vue",
+          "title": "Misc variable content"
+        },
+        {
+          "id": "prop-align",
+          "path": "grid/prop-align.vue",
+          "title": "Prop align"
+        },
+        {
+          "id": "prop-breakpoint-sizing",
+          "path": "grid/prop-breakpoint-sizing.vue",
+          "title": "Prop breakpoint sizing"
+        },
+        {
+          "id": "prop-density-compact",
+          "path": "grid/prop-density-compact.vue",
+          "title": "Prop density compact"
+        },
+        {
+          "id": "prop-justify",
+          "path": "grid/prop-justify.vue",
+          "title": "Prop justify"
+        },
+        {
+          "id": "prop-offset",
+          "path": "grid/prop-offset.vue",
+          "title": "Prop offset"
+        },
+        {
+          "id": "prop-offset-breakpoint",
+          "path": "grid/prop-offset-breakpoint.vue",
+          "title": "Prop offset breakpoint"
+        },
+        {
+          "id": "prop-order",
+          "path": "grid/prop-order.vue",
+          "title": "Prop order"
+        },
+        {
+          "id": "prop-order-first-and-last",
+          "path": "grid/prop-order-first-and-last.vue",
+          "title": "Prop order first and last"
+        },
+        {
+          "id": "prop-size",
+          "path": "grid/prop-size.vue",
+          "title": "Prop size"
+        },
+        {
+          "id": "usage",
+          "path": "grid/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "hotkey",
+      "title": "Hotkey",
+      "examples": [
+        {
+          "id": "basic",
+          "path": "hotkey/basic.vue",
+          "title": "Basic"
+        },
+        {
+          "id": "options",
+          "path": "hotkey/options.vue",
+          "title": "Options"
+        },
+        {
+          "id": "platform",
+          "path": "hotkey/platform.vue",
+          "title": "Platform"
+        },
+        {
+          "id": "reactive",
+          "path": "hotkey/reactive.vue",
+          "title": "Reactive"
+        },
+        {
+          "id": "sequences",
+          "path": "hotkey/sequences.vue",
+          "title": "Sequences"
+        }
+      ]
+    },
+    {
+      "name": "opacity",
+      "title": "Opacity",
+      "examples": [
+        {
+          "id": "misc-hover",
+          "path": "opacity/misc-hover.vue",
+          "title": "Misc hover"
+        },
+        {
+          "id": "misc-opacity",
+          "path": "opacity/misc-opacity.vue",
+          "title": "Misc opacity"
+        }
+      ]
+    },
+    {
+      "name": "overflow",
+      "title": "Overflow",
+      "examples": [
+        {
+          "id": "overflow",
+          "path": "overflow/overflow.vue",
+          "title": "Overflow"
+        },
+        {
+          "id": "overflow-x",
+          "path": "overflow/overflow-x.vue",
+          "title": "Overflow x"
+        }
+      ]
+    },
+    {
+      "name": "position",
+      "title": "Position",
+      "examples": [
+        {
+          "id": "absolute",
+          "path": "position/absolute.vue",
+          "title": "Absolute"
+        },
+        {
+          "id": "fixed",
+          "path": "position/fixed.vue",
+          "title": "Fixed"
+        },
+        {
+          "id": "relative",
+          "path": "position/relative.vue",
+          "title": "Relative"
+        },
+        {
+          "id": "static",
+          "path": "position/static.vue",
+          "title": "Static"
+        },
+        {
+          "id": "sticky",
+          "path": "position/sticky.vue",
+          "title": "Sticky"
+        }
+      ]
+    },
+    {
+      "name": "scroll",
+      "title": "Scroll",
+      "examples": [
+        {
+          "id": "usage",
+          "path": "scroll/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "sizing",
+      "title": "Sizing",
+      "examples": [
+        {
+          "id": "height",
+          "path": "sizing/height.vue",
+          "title": "Height"
+        },
+        {
+          "id": "width",
+          "path": "sizing/width.vue",
+          "title": "Width"
+        }
+      ]
+    },
+    {
+      "name": "spacing",
+      "title": "Spacing",
+      "examples": [
+        {
+          "id": "breakpoints",
+          "path": "spacing/breakpoints.vue",
+          "title": "Breakpoints"
+        },
+        {
+          "id": "gap",
+          "path": "spacing/gap.vue",
+          "title": "Gap"
+        },
+        {
+          "id": "horizontal",
+          "path": "spacing/horizontal.vue",
+          "title": "Horizontal"
+        },
+        {
+          "id": "negative-margin",
+          "path": "spacing/negative-margin.vue",
+          "title": "Negative margin"
+        },
+        {
+          "id": "usage",
+          "path": "spacing/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "text-and-typography",
+      "title": "Text And Typography",
+      "examples": [
+        {
+          "id": "font-emphasis",
+          "path": "text-and-typography/font-emphasis.vue",
+          "title": "Font emphasis"
+        },
+        {
+          "id": "text-alignment",
+          "path": "text-and-typography/text-alignment.vue",
+          "title": "Text alignment"
+        },
+        {
+          "id": "text-alignment-responsive",
+          "path": "text-and-typography/text-alignment-responsive.vue",
+          "title": "Text alignment responsive"
+        },
+        {
+          "id": "text-break",
+          "path": "text-and-typography/text-break.vue",
+          "title": "Text break"
+        },
+        {
+          "id": "text-decoration",
+          "path": "text-and-typography/text-decoration.vue",
+          "title": "Text decoration"
+        },
+        {
+          "id": "text-no-wrap",
+          "path": "text-and-typography/text-no-wrap.vue",
+          "title": "Text no wrap"
+        },
+        {
+          "id": "text-opacity",
+          "path": "text-and-typography/text-opacity.vue",
+          "title": "Text opacity"
+        },
+        {
+          "id": "text-rtl",
+          "path": "text-and-typography/text-rtl.vue",
+          "title": "Text rtl"
+        },
+        {
+          "id": "text-transform",
+          "path": "text-and-typography/text-transform.vue",
+          "title": "Text transform"
+        },
+        {
+          "id": "text-truncate",
+          "path": "text-and-typography/text-truncate.vue",
+          "title": "Text truncate"
+        },
+        {
+          "id": "typography",
+          "path": "text-and-typography/typography.vue",
+          "title": "Typography"
+        },
+        {
+          "id": "typography-breakpoints",
+          "path": "text-and-typography/typography-breakpoints.vue",
+          "title": "Typography breakpoints"
+        }
+      ]
+    },
+    {
+      "name": "transitions",
+      "title": "Transitions",
+      "examples": [
+        {
+          "id": "create-css-transition-component",
+          "path": "transitions/create-css-transition-component.vue",
+          "title": "Create css transition component"
+        },
+        {
+          "id": "create-css-transition-prop",
+          "path": "transitions/create-css-transition-prop.vue",
+          "title": "Create css transition prop"
+        },
+        {
+          "id": "misc-expand-x",
+          "path": "transitions/misc-expand-x.vue",
+          "title": "Misc expand x"
+        },
+        {
+          "id": "misc-expand-x-padding",
+          "path": "transitions/misc-expand-x-padding.vue",
+          "title": "Misc expand x padding"
+        },
+        {
+          "id": "misc-fab",
+          "path": "transitions/misc-fab.vue",
+          "title": "Misc fab"
+        },
+        {
+          "id": "misc-fade",
+          "path": "transitions/misc-fade.vue",
+          "title": "Misc fade"
+        },
+        {
+          "id": "misc-scale",
+          "path": "transitions/misc-scale.vue",
+          "title": "Misc scale"
+        },
+        {
+          "id": "misc-scroll-x",
+          "path": "transitions/misc-scroll-x.vue",
+          "title": "Misc scroll x"
+        },
+        {
+          "id": "misc-scroll-y",
+          "path": "transitions/misc-scroll-y.vue",
+          "title": "Misc scroll y"
+        },
+        {
+          "id": "misc-slide-x",
+          "path": "transitions/misc-slide-x.vue",
+          "title": "Misc slide x"
+        },
+        {
+          "id": "misc-slide-y",
+          "path": "transitions/misc-slide-y.vue",
+          "title": "Misc slide y"
+        },
+        {
+          "id": "misc-todo",
+          "path": "transitions/misc-todo.vue",
+          "title": "Misc todo"
+        },
+        {
+          "id": "prop-custom-origin",
+          "path": "transitions/prop-custom-origin.vue",
+          "title": "Prop custom origin"
+        },
+        {
+          "id": "usage",
+          "path": "transitions/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-alert",
+      "title": "V Alert",
+      "examples": [
+        {
+          "id": "prop-border",
+          "path": "v-alert/prop-border.vue",
+          "title": "Prop border"
+        },
+        {
+          "id": "prop-border-color",
+          "path": "v-alert/prop-border-color.vue",
+          "title": "Prop border color"
+        },
+        {
+          "id": "prop-closable",
+          "path": "v-alert/prop-closable.vue",
+          "title": "Prop closable"
+        },
+        {
+          "id": "prop-content",
+          "path": "v-alert/prop-content.vue",
+          "title": "Prop content"
+        },
+        {
+          "id": "prop-density",
+          "path": "v-alert/prop-density.vue",
+          "title": "Prop density"
+        },
+        {
+          "id": "prop-icon",
+          "path": "v-alert/prop-icon.vue",
+          "title": "Prop icon"
+        },
+        {
+          "id": "prop-outlined",
+          "path": "v-alert/prop-outlined.vue",
+          "title": "Prop outlined"
+        },
+        {
+          "id": "prop-prominent",
+          "path": "v-alert/prop-prominent.vue",
+          "title": "Prop prominent"
+        },
+        {
+          "id": "prop-rounded",
+          "path": "v-alert/prop-rounded.vue",
+          "title": "Prop rounded"
+        },
+        {
+          "id": "prop-type",
+          "path": "v-alert/prop-type.vue",
+          "title": "Prop type"
+        },
+        {
+          "id": "prop-variant",
+          "path": "v-alert/prop-variant.vue",
+          "title": "Prop variant"
+        }
+      ]
+    },
+    {
+      "name": "v-app-bar",
+      "title": "V App Bar",
+      "examples": [
+        {
+          "id": "misc-app-bar-nav",
+          "path": "v-app-bar/misc-app-bar-nav.vue",
+          "title": "Misc app bar nav"
+        },
+        {
+          "id": "misc-menu",
+          "path": "v-app-bar/misc-menu.vue",
+          "title": "Misc menu"
+        },
+        {
+          "id": "prop-dense",
+          "path": "v-app-bar/prop-dense.vue",
+          "title": "Prop dense"
+        },
+        {
+          "id": "prop-density",
+          "path": "v-app-bar/prop-density.vue",
+          "title": "Prop density"
+        },
+        {
+          "id": "prop-image",
+          "path": "v-app-bar/prop-image.vue",
+          "title": "Prop image"
+        },
+        {
+          "id": "prop-prominent",
+          "path": "v-app-bar/prop-prominent.vue",
+          "title": "Prop prominent"
+        }
+      ]
+    },
+    {
+      "name": "v-autocomplete",
+      "title": "V Autocomplete",
+      "examples": [
+        {
+          "id": "misc-asynchronous-items",
+          "path": "v-autocomplete/misc-asynchronous-items.vue",
+          "title": "Misc asynchronous items"
+        },
+        {
+          "id": "misc-new-tab",
+          "path": "v-autocomplete/misc-new-tab.vue",
+          "title": "Misc new tab"
+        },
+        {
+          "id": "misc-state-selector",
+          "path": "v-autocomplete/misc-state-selector.vue",
+          "title": "Misc state selector"
+        },
+        {
+          "id": "prop-density",
+          "path": "v-autocomplete/prop-density.vue",
+          "title": "Prop density"
+        },
+        {
+          "id": "prop-filter",
+          "path": "v-autocomplete/prop-filter.vue",
+          "title": "Prop filter"
+        },
+        {
+          "id": "prop-filter-keys",
+          "path": "v-autocomplete/prop-filter-keys.vue",
+          "title": "Prop filter keys"
+        },
+        {
+          "id": "prop-items",
+          "path": "v-autocomplete/prop-items.vue",
+          "title": "Prop items"
+        },
+        {
+          "id": "slot-item-and-selection",
+          "path": "v-autocomplete/slot-item-and-selection.vue",
+          "title": "Slot item and selection"
+        },
+        {
+          "id": "slot-item-and-vbind-props",
+          "path": "v-autocomplete/slot-item-and-vbind-props.vue",
+          "title": "Slot item and vbind props"
+        },
+        {
+          "id": "slot-menu-footer",
+          "path": "v-autocomplete/slot-menu-footer.vue",
+          "title": "Slot menu footer"
+        }
+      ]
+    },
+    {
+      "name": "v-avatar",
+      "title": "V Avatar",
+      "examples": [
+        {
+          "id": "misc-advanced",
+          "path": "v-avatar/misc-advanced.vue",
+          "title": "Misc advanced"
+        },
+        {
+          "id": "misc-avatar-menu",
+          "path": "v-avatar/misc-avatar-menu.vue",
+          "title": "Misc avatar menu"
+        },
+        {
+          "id": "misc-profile-card",
+          "path": "v-avatar/misc-profile-card.vue",
+          "title": "Misc profile card"
+        },
+        {
+          "id": "prop-badge",
+          "path": "v-avatar/prop-badge.vue",
+          "title": "Prop badge"
+        },
+        {
+          "id": "prop-size",
+          "path": "v-avatar/prop-size.vue",
+          "title": "Prop size"
+        },
+        {
+          "id": "prop-tile",
+          "path": "v-avatar/prop-tile.vue",
+          "title": "Prop tile"
+        },
+        {
+          "id": "slot-default",
+          "path": "v-avatar/slot-default.vue",
+          "title": "Slot default"
+        }
+      ]
+    },
+    {
+      "name": "v-avatar-group",
+      "title": "V Avatar Group",
+      "examples": [
+        {
+          "id": "misc-hoverable",
+          "path": "v-avatar-group/misc-hoverable.vue",
+          "title": "Misc hoverable"
+        },
+        {
+          "id": "prop-items",
+          "path": "v-avatar-group/prop-items.vue",
+          "title": "Prop items"
+        },
+        {
+          "id": "prop-reverse",
+          "path": "v-avatar-group/prop-reverse.vue",
+          "title": "Prop reverse"
+        },
+        {
+          "id": "prop-size",
+          "path": "v-avatar-group/prop-size.vue",
+          "title": "Prop size"
+        },
+        {
+          "id": "prop-vertical",
+          "path": "v-avatar-group/prop-vertical.vue",
+          "title": "Prop vertical"
+        },
+        {
+          "id": "slot-overflow",
+          "path": "v-avatar-group/slot-overflow.vue",
+          "title": "Slot overflow"
+        }
+      ]
+    },
+    {
+      "name": "v-badge",
+      "title": "V Badge",
+      "examples": [
+        {
+          "id": "misc-customization",
+          "path": "v-badge/misc-customization.vue",
+          "title": "Misc customization"
+        },
+        {
+          "id": "misc-dynamic",
+          "path": "v-badge/misc-dynamic.vue",
+          "title": "Misc dynamic"
+        },
+        {
+          "id": "misc-hover",
+          "path": "v-badge/misc-hover.vue",
+          "title": "Misc hover"
+        },
+        {
+          "id": "misc-tabs",
+          "path": "v-badge/misc-tabs.vue",
+          "title": "Misc tabs"
+        },
+        {
+          "id": "prop-content",
+          "path": "v-badge/prop-content.vue",
+          "title": "Prop content"
+        },
+        {
+          "id": "prop-dot",
+          "path": "v-badge/prop-dot.vue",
+          "title": "Prop dot"
+        },
+        {
+          "id": "prop-inline",
+          "path": "v-badge/prop-inline.vue",
+          "title": "Prop inline"
+        }
+      ]
+    },
+    {
+      "name": "v-banner",
+      "title": "V Banner",
+      "examples": [
+        {
+          "id": "prop-lines",
+          "path": "v-banner/prop-lines.vue",
+          "title": "Prop lines"
+        },
+        {
+          "id": "prop-sticky",
+          "path": "v-banner/prop-sticky.vue",
+          "title": "Prop sticky"
+        },
+        {
+          "id": "slot-actions",
+          "path": "v-banner/slot-actions.vue",
+          "title": "Slot actions"
+        },
+        {
+          "id": "slot-icon",
+          "path": "v-banner/slot-icon.vue",
+          "title": "Slot icon"
+        },
+        {
+          "id": "slot-prepend",
+          "path": "v-banner/slot-prepend.vue",
+          "title": "Slot prepend"
+        }
+      ]
+    },
+    {
+      "name": "v-bottom-navigation",
+      "title": "V Bottom Navigation",
+      "examples": [
+        {
+          "id": "prop-color",
+          "path": "v-bottom-navigation/prop-color.vue",
+          "title": "Prop color"
+        },
+        {
+          "id": "prop-grow",
+          "path": "v-bottom-navigation/prop-grow.vue",
+          "title": "Prop grow"
+        },
+        {
+          "id": "prop-hide-on-scroll",
+          "path": "v-bottom-navigation/prop-hide-on-scroll.vue",
+          "title": "Prop hide on scroll"
+        },
+        {
+          "id": "prop-horizontal",
+          "path": "v-bottom-navigation/prop-horizontal.vue",
+          "title": "Prop horizontal"
+        },
+        {
+          "id": "prop-scroll-threshold",
+          "path": "v-bottom-navigation/prop-scroll-threshold.vue",
+          "title": "Prop scroll threshold"
+        },
+        {
+          "id": "prop-shift",
+          "path": "v-bottom-navigation/prop-shift.vue",
+          "title": "Prop shift"
+        },
+        {
+          "id": "prop-toggle",
+          "path": "v-bottom-navigation/prop-toggle.vue",
+          "title": "Prop toggle"
+        }
+      ]
+    },
+    {
+      "name": "v-bottom-sheet",
+      "title": "V Bottom Sheet",
+      "examples": [
+        {
+          "id": "misc-open-in-list",
+          "path": "v-bottom-sheet/misc-open-in-list.vue",
+          "title": "Misc open in list"
+        },
+        {
+          "id": "misc-player",
+          "path": "v-bottom-sheet/misc-player.vue",
+          "title": "Misc player"
+        },
+        {
+          "id": "prop-inset",
+          "path": "v-bottom-sheet/prop-inset.vue",
+          "title": "Prop inset"
+        },
+        {
+          "id": "prop-model",
+          "path": "v-bottom-sheet/prop-model.vue",
+          "title": "Prop model"
+        }
+      ]
+    },
+    {
+      "name": "v-breadcrumbs",
+      "title": "V Breadcrumbs",
+      "examples": [
+        {
+          "id": "prop-divider",
+          "path": "v-breadcrumbs/prop-divider.vue",
+          "title": "Prop divider"
+        },
+        {
+          "id": "slot-icon-dividers",
+          "path": "v-breadcrumbs/slot-icon-dividers.vue",
+          "title": "Slot icon dividers"
+        },
+        {
+          "id": "slot-prepend",
+          "path": "v-breadcrumbs/slot-prepend.vue",
+          "title": "Slot prepend"
+        },
+        {
+          "id": "slot-title",
+          "path": "v-breadcrumbs/slot-title.vue",
+          "title": "Slot title"
+        }
+      ]
+    },
+    {
+      "name": "v-btn",
+      "title": "V Btn",
+      "examples": [
+        {
+          "id": "defaults-banner-actions",
+          "path": "v-btn/defaults-banner-actions.vue",
+          "title": "Defaults banner actions"
+        },
+        {
+          "id": "defaults-bottom-navigation",
+          "path": "v-btn/defaults-bottom-navigation.vue",
+          "title": "Defaults bottom navigation"
+        },
+        {
+          "id": "defaults-btn-group",
+          "path": "v-btn/defaults-btn-group.vue",
+          "title": "Defaults btn group"
+        },
+        {
+          "id": "defaults-btn-group-size",
+          "path": "v-btn/defaults-btn-group-size.vue",
+          "title": "Defaults btn group size"
+        },
+        {
+          "id": "defaults-card-actions",
+          "path": "v-btn/defaults-card-actions.vue",
+          "title": "Defaults card actions"
+        },
+        {
+          "id": "defaults-snackbar",
+          "path": "v-btn/defaults-snackbar.vue",
+          "title": "Defaults snackbar"
+        },
+        {
+          "id": "defaults-toolbar",
+          "path": "v-btn/defaults-toolbar.vue",
+          "title": "Defaults toolbar"
+        },
+        {
+          "id": "misc-cookie-settings",
+          "path": "v-btn/misc-cookie-settings.vue",
+          "title": "Misc cookie settings"
+        },
+        {
+          "id": "misc-dialog-action",
+          "path": "v-btn/misc-dialog-action.vue",
+          "title": "Misc dialog action"
+        },
+        {
+          "id": "misc-discord-event",
+          "path": "v-btn/misc-discord-event.vue",
+          "title": "Misc discord event"
+        },
+        {
+          "id": "misc-group-survey",
+          "path": "v-btn/misc-group-survey.vue",
+          "title": "Misc group survey"
+        },
+        {
+          "id": "misc-raised",
+          "path": "v-btn/misc-raised.vue",
+          "title": "Misc raised"
+        },
+        {
+          "id": "misc-readonly",
+          "path": "v-btn/misc-readonly.vue",
+          "title": "Misc readonly"
+        },
+        {
+          "id": "misc-tax-form",
+          "path": "v-btn/misc-tax-form.vue",
+          "title": "Misc tax form"
+        },
+        {
+          "id": "misc-toolbar",
+          "path": "v-btn/misc-toolbar.vue",
+          "title": "Misc toolbar"
+        },
+        {
+          "id": "prop-block",
+          "path": "v-btn/prop-block.vue",
+          "title": "Prop block"
+        },
+        {
+          "id": "prop-density",
+          "path": "v-btn/prop-density.vue",
+          "title": "Prop density"
+        },
+        {
+          "id": "prop-elevation",
+          "path": "v-btn/prop-elevation.vue",
+          "title": "Prop elevation"
+        },
+        {
+          "id": "prop-flat",
+          "path": "v-btn/prop-flat.vue",
+          "title": "Prop flat"
+        },
+        {
+          "id": "prop-floating",
+          "path": "v-btn/prop-floating.vue",
+          "title": "Prop floating"
+        },
+        {
+          "id": "prop-icon",
+          "path": "v-btn/prop-icon.vue",
+          "title": "Prop icon"
+        },
+        {
+          "id": "prop-loaders",
+          "path": "v-btn/prop-loaders.vue",
+          "title": "Prop loaders"
+        },
+        {
+          "id": "prop-outlined",
+          "path": "v-btn/prop-outlined.vue",
+          "title": "Prop outlined"
+        },
+        {
+          "id": "prop-plain",
+          "path": "v-btn/prop-plain.vue",
+          "title": "Prop plain"
+        },
+        {
+          "id": "prop-ripple",
+          "path": "v-btn/prop-ripple.vue",
+          "title": "Prop ripple"
+        },
+        {
+          "id": "prop-rounded",
+          "path": "v-btn/prop-rounded.vue",
+          "title": "Prop rounded"
+        },
+        {
+          "id": "prop-size",
+          "path": "v-btn/prop-size.vue",
+          "title": "Prop size"
+        },
+        {
+          "id": "prop-spaced",
+          "path": "v-btn/prop-spaced.vue",
+          "title": "Prop spaced"
+        },
+        {
+          "id": "prop-tile",
+          "path": "v-btn/prop-tile.vue",
+          "title": "Prop tile"
+        },
+        {
+          "id": "prop-variant",
+          "path": "v-btn/prop-variant.vue",
+          "title": "Prop variant"
+        },
+        {
+          "id": "slot-loader",
+          "path": "v-btn/slot-loader.vue",
+          "title": "Slot loader"
+        },
+        {
+          "id": "slot-prepend-append",
+          "path": "v-btn/slot-prepend-append.vue",
+          "title": "Slot prepend append"
+        }
+      ]
+    },
+    {
+      "name": "v-btn-toggle",
+      "title": "V Btn Toggle",
+      "examples": [
+        {
+          "id": "misc-toolbar",
+          "path": "v-btn-toggle/misc-toolbar.vue",
+          "title": "Misc toolbar"
+        },
+        {
+          "id": "misc-wysiwyg",
+          "path": "v-btn-toggle/misc-wysiwyg.vue",
+          "title": "Misc wysiwyg"
+        },
+        {
+          "id": "prop-divided",
+          "path": "v-btn-toggle/prop-divided.vue",
+          "title": "Prop divided"
+        },
+        {
+          "id": "prop-mandatory",
+          "path": "v-btn-toggle/prop-mandatory.vue",
+          "title": "Prop mandatory"
+        },
+        {
+          "id": "prop-multiple",
+          "path": "v-btn-toggle/prop-multiple.vue",
+          "title": "Prop multiple"
+        },
+        {
+          "id": "prop-rounded",
+          "path": "v-btn-toggle/prop-rounded.vue",
+          "title": "Prop rounded"
+        },
+        {
+          "id": "prop-variant",
+          "path": "v-btn-toggle/prop-variant.vue",
+          "title": "Prop variant"
+        },
+        {
+          "id": "usage",
+          "path": "v-btn-toggle/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-calendar",
+      "title": "V Calendar",
+      "examples": [
+        {
+          "id": "event-click",
+          "path": "v-calendar/event-click.vue",
+          "title": "Event click"
+        },
+        {
+          "id": "misc-drag-and-drop",
+          "path": "v-calendar/misc-drag-and-drop.vue",
+          "title": "Misc drag and drop"
+        },
+        {
+          "id": "prop-hour24",
+          "path": "v-calendar/prop-hour24.vue",
+          "title": "Prop hour24"
+        },
+        {
+          "id": "prop-type-category",
+          "path": "v-calendar/prop-type-category.vue",
+          "title": "Prop type category"
+        },
+        {
+          "id": "prop-type-day",
+          "path": "v-calendar/prop-type-day.vue",
+          "title": "Prop type day"
+        },
+        {
+          "id": "prop-type-week",
+          "path": "v-calendar/prop-type-week.vue",
+          "title": "Prop type week"
+        },
+        {
+          "id": "slot-day",
+          "path": "v-calendar/slot-day.vue",
+          "title": "Slot day"
+        },
+        {
+          "id": "slot-day-body",
+          "path": "v-calendar/slot-day-body.vue",
+          "title": "Slot day body"
+        },
+        {
+          "id": "usage",
+          "path": "v-calendar/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-card",
+      "title": "V Card",
+      "examples": [
+        {
+          "id": "basics-combine",
+          "path": "v-card/basics-combine.vue",
+          "title": "Basics combine"
+        },
+        {
+          "id": "basics-content",
+          "path": "v-card/basics-content.vue",
+          "title": "Basics content"
+        },
+        {
+          "id": "misc-card-reveal",
+          "path": "v-card/misc-card-reveal.vue",
+          "title": "Misc card reveal"
+        },
+        {
+          "id": "misc-content-wrapping",
+          "path": "v-card/misc-content-wrapping.vue",
+          "title": "Misc content wrapping"
+        },
+        {
+          "id": "misc-custom-actions",
+          "path": "v-card/misc-custom-actions.vue",
+          "title": "Misc custom actions"
+        },
+        {
+          "id": "misc-earnings-goal",
+          "path": "v-card/misc-earnings-goal.vue",
+          "title": "Misc earnings goal"
+        },
+        {
+          "id": "misc-grids",
+          "path": "v-card/misc-grids.vue",
+          "title": "Misc grids"
+        },
+        {
+          "id": "misc-horizontal-cards",
+          "path": "v-card/misc-horizontal-cards.vue",
+          "title": "Misc horizontal cards"
+        },
+        {
+          "id": "misc-information-card",
+          "path": "v-card/misc-information-card.vue",
+          "title": "Misc information card"
+        },
+        {
+          "id": "misc-intermediate",
+          "path": "v-card/misc-intermediate.vue",
+          "title": "Misc intermediate"
+        },
+        {
+          "id": "misc-media-with-text",
+          "path": "v-card/misc-media-with-text.vue",
+          "title": "Misc media with text"
+        },
+        {
+          "id": "misc-shopify-funding",
+          "path": "v-card/misc-shopify-funding.vue",
+          "title": "Misc shopify funding"
+        },
+        {
+          "id": "misc-twitter-card",
+          "path": "v-card/misc-twitter-card.vue",
+          "title": "Misc twitter card"
+        },
+        {
+          "id": "misc-weather-card",
+          "path": "v-card/misc-weather-card.vue",
+          "title": "Misc weather card"
+        },
+        {
+          "id": "prop-color",
+          "path": "v-card/prop-color.vue",
+          "title": "Prop color"
+        },
+        {
+          "id": "prop-disabled",
+          "path": "v-card/prop-disabled.vue",
+          "title": "Prop disabled"
+        },
+        {
+          "id": "prop-elevated",
+          "path": "v-card/prop-elevated.vue",
+          "title": "Prop elevated"
+        },
+        {
+          "id": "prop-elevation",
+          "path": "v-card/prop-elevation.vue",
+          "title": "Prop elevation"
+        },
+        {
+          "id": "prop-hover",
+          "path": "v-card/prop-hover.vue",
+          "title": "Prop hover"
+        },
+        {
+          "id": "prop-href",
+          "path": "v-card/prop-href.vue",
+          "title": "Prop href"
+        },
+        {
+          "id": "prop-image",
+          "path": "v-card/prop-image.vue",
+          "title": "Prop image"
+        },
+        {
+          "id": "prop-link",
+          "path": "v-card/prop-link.vue",
+          "title": "Prop link"
+        },
+        {
+          "id": "prop-loading",
+          "path": "v-card/prop-loading.vue",
+          "title": "Prop loading"
+        },
+        {
+          "id": "prop-outlined",
+          "path": "v-card/prop-outlined.vue",
+          "title": "Prop outlined"
+        },
+        {
+          "id": "prop-variant",
+          "path": "v-card/prop-variant.vue",
+          "title": "Prop variant"
+        },
+        {
+          "id": "slot-prepend-append",
+          "path": "v-card/slot-prepend-append.vue",
+          "title": "Slot prepend append"
+        }
+      ]
+    },
+    {
+      "name": "v-carousel",
+      "title": "V Carousel",
+      "examples": [
+        {
+          "id": "misc-vertical",
+          "path": "v-carousel/misc-vertical.vue",
+          "title": "Misc vertical"
+        },
+        {
+          "id": "prop-custom-icons",
+          "path": "v-carousel/prop-custom-icons.vue",
+          "title": "Prop custom icons"
+        },
+        {
+          "id": "prop-custom-transition",
+          "path": "v-carousel/prop-custom-transition.vue",
+          "title": "Prop custom transition"
+        },
+        {
+          "id": "prop-cycle",
+          "path": "v-carousel/prop-cycle.vue",
+          "title": "Prop cycle"
+        },
+        {
+          "id": "prop-hide-controls",
+          "path": "v-carousel/prop-hide-controls.vue",
+          "title": "Prop hide controls"
+        },
+        {
+          "id": "prop-hide-delimiters",
+          "path": "v-carousel/prop-hide-delimiters.vue",
+          "title": "Prop hide delimiters"
+        },
+        {
+          "id": "prop-model",
+          "path": "v-carousel/prop-model.vue",
+          "title": "Prop model"
+        },
+        {
+          "id": "prop-progress",
+          "path": "v-carousel/prop-progress.vue",
+          "title": "Prop progress"
+        },
+        {
+          "id": "slots-next-prev",
+          "path": "v-carousel/slots-next-prev.vue",
+          "title": "Slots next prev"
+        }
+      ]
+    },
+    {
+      "name": "v-checkbox",
+      "title": "V Checkbox",
+      "examples": [
+        {
+          "id": "misc-inline-textfield",
+          "path": "v-checkbox/misc-inline-textfield.vue",
+          "title": "Misc inline textfield"
+        },
+        {
+          "id": "prop-colors",
+          "path": "v-checkbox/prop-colors.vue",
+          "title": "Prop colors"
+        },
+        {
+          "id": "prop-model-as-array",
+          "path": "v-checkbox/prop-model-as-array.vue",
+          "title": "Prop model as array"
+        },
+        {
+          "id": "prop-model-as-boolean",
+          "path": "v-checkbox/prop-model-as-boolean.vue",
+          "title": "Prop model as boolean"
+        },
+        {
+          "id": "prop-states",
+          "path": "v-checkbox/prop-states.vue",
+          "title": "Prop states"
+        },
+        {
+          "id": "slot-label",
+          "path": "v-checkbox/slot-label.vue",
+          "title": "Slot label"
+        }
+      ]
+    },
+    {
+      "name": "v-chip",
+      "title": "V Chip",
+      "examples": [
+        {
+          "id": "event-action-chips",
+          "path": "v-chip/event-action-chips.vue",
+          "title": "Event action chips"
+        },
+        {
+          "id": "misc-custom-list",
+          "path": "v-chip/misc-custom-list.vue",
+          "title": "Misc custom list"
+        },
+        {
+          "id": "misc-expandable",
+          "path": "v-chip/misc-expandable.vue",
+          "title": "Misc expandable"
+        },
+        {
+          "id": "misc-filtering",
+          "path": "v-chip/misc-filtering.vue",
+          "title": "Misc filtering"
+        },
+        {
+          "id": "misc-in-selects",
+          "path": "v-chip/misc-in-selects.vue",
+          "title": "Misc in selects"
+        },
+        {
+          "id": "prop-closable",
+          "path": "v-chip/prop-closable.vue",
+          "title": "Prop closable"
+        },
+        {
+          "id": "prop-colored",
+          "path": "v-chip/prop-colored.vue",
+          "title": "Prop colored"
+        },
+        {
+          "id": "prop-draggable",
+          "path": "v-chip/prop-draggable.vue",
+          "title": "Prop draggable"
+        },
+        {
+          "id": "prop-filter",
+          "path": "v-chip/prop-filter.vue",
+          "title": "Prop filter"
+        },
+        {
+          "id": "prop-label",
+          "path": "v-chip/prop-label.vue",
+          "title": "Prop label"
+        },
+        {
+          "id": "prop-no-ripple",
+          "path": "v-chip/prop-no-ripple.vue",
+          "title": "Prop no ripple"
+        },
+        {
+          "id": "prop-outlined",
+          "path": "v-chip/prop-outlined.vue",
+          "title": "Prop outlined"
+        },
+        {
+          "id": "prop-sizes",
+          "path": "v-chip/prop-sizes.vue",
+          "title": "Prop sizes"
+        },
+        {
+          "id": "slot-icon",
+          "path": "v-chip/slot-icon.vue",
+          "title": "Slot icon"
+        }
+      ]
+    },
+    {
+      "name": "v-chip-group",
+      "title": "V Chip Group",
+      "examples": [
+        {
+          "id": "misc-product-card",
+          "path": "v-chip-group/misc-product-card.vue",
+          "title": "Misc product card"
+        },
+        {
+          "id": "misc-reddit-categories",
+          "path": "v-chip-group/misc-reddit-categories.vue",
+          "title": "Misc reddit categories"
+        },
+        {
+          "id": "misc-toothbrush-card",
+          "path": "v-chip-group/misc-toothbrush-card.vue",
+          "title": "Misc toothbrush card"
+        },
+        {
+          "id": "prop-column",
+          "path": "v-chip-group/prop-column.vue",
+          "title": "Prop column"
+        },
+        {
+          "id": "prop-filter",
+          "path": "v-chip-group/prop-filter.vue",
+          "title": "Prop filter"
+        },
+        {
+          "id": "prop-mandatory",
+          "path": "v-chip-group/prop-mandatory.vue",
+          "title": "Prop mandatory"
+        },
+        {
+          "id": "prop-multiple",
+          "path": "v-chip-group/prop-multiple.vue",
+          "title": "Prop multiple"
+        }
+      ]
+    },
+    {
+      "name": "v-click-outside",
+      "title": "V Click Outside",
+      "examples": [
+        {
+          "id": "option-close-on-outside-click",
+          "path": "v-click-outside/option-close-on-outside-click.vue",
+          "title": "Option close on outside click"
+        },
+        {
+          "id": "option-include",
+          "path": "v-click-outside/option-include.vue",
+          "title": "Option include"
+        },
+        {
+          "id": "usage",
+          "path": "v-click-outside/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-color-input",
+      "title": "V Color Input",
+      "examples": [
+        {
+          "id": "prop-color-pip",
+          "path": "v-color-input/prop-color-pip.vue",
+          "title": "Prop color pip"
+        },
+        {
+          "id": "prop-model",
+          "path": "v-color-input/prop-model.vue",
+          "title": "Prop model"
+        },
+        {
+          "id": "prop-pip-location",
+          "path": "v-color-input/prop-pip-location.vue",
+          "title": "Prop pip location"
+        },
+        {
+          "id": "prop-pip-variant",
+          "path": "v-color-input/prop-pip-variant.vue",
+          "title": "Prop pip variant"
+        }
+      ]
+    },
+    {
+      "name": "v-color-picker",
+      "title": "V Color Picker",
+      "examples": [
+        {
+          "id": "prop-canvas",
+          "path": "v-color-picker/prop-canvas.vue",
+          "title": "Prop canvas"
+        },
+        {
+          "id": "prop-elevation",
+          "path": "v-color-picker/prop-elevation.vue",
+          "title": "Prop elevation"
+        },
+        {
+          "id": "prop-mode",
+          "path": "v-color-picker/prop-mode.vue",
+          "title": "Prop mode"
+        },
+        {
+          "id": "prop-model",
+          "path": "v-color-picker/prop-model.vue",
+          "title": "Prop model"
+        },
+        {
+          "id": "prop-swatches",
+          "path": "v-color-picker/prop-swatches.vue",
+          "title": "Prop swatches"
+        }
+      ]
+    },
+    {
+      "name": "v-combobox",
+      "title": "V Combobox",
+      "examples": [
+        {
+          "id": "misc-advanced",
+          "path": "v-combobox/misc-advanced.vue",
+          "title": "Misc advanced"
+        },
+        {
+          "id": "prop-density",
+          "path": "v-combobox/prop-density.vue",
+          "title": "Prop density"
+        },
+        {
+          "id": "prop-multiple",
+          "path": "v-combobox/prop-multiple.vue",
+          "title": "Prop multiple"
+        },
+        {
+          "id": "prop-placeholder",
+          "path": "v-combobox/prop-placeholder.vue",
+          "title": "Prop placeholder"
+        },
+        {
+          "id": "slot-custom-chip",
+          "path": "v-combobox/slot-custom-chip.vue",
+          "title": "Slot custom chip"
+        },
+        {
+          "id": "slot-menu-header",
+          "path": "v-combobox/slot-menu-header.vue",
+          "title": "Slot menu header"
+        },
+        {
+          "id": "slot-no-data",
+          "path": "v-combobox/slot-no-data.vue",
+          "title": "Slot no data"
+        }
+      ]
+    },
+    {
+      "name": "v-command-palette",
+      "title": "V Command Palette",
+      "examples": [
+        {
+          "id": "prop-close-on-select",
+          "path": "v-command-palette/prop-close-on-select.vue",
+          "title": "Prop close on select"
+        },
+        {
+          "id": "prop-hotkey",
+          "path": "v-command-palette/prop-hotkey.vue",
+          "title": "Prop hotkey"
+        },
+        {
+          "id": "prop-items",
+          "path": "v-command-palette/prop-items.vue",
+          "title": "Prop items"
+        },
+        {
+          "id": "slot-item-append",
+          "path": "v-command-palette/slot-item-append.vue",
+          "title": "Slot item append"
+        },
+        {
+          "id": "slot-item-prepend",
+          "path": "v-command-palette/slot-item-prepend.vue",
+          "title": "Slot item prepend"
+        }
+      ]
+    },
+    {
+      "name": "v-confirm-edit",
+      "title": "V Confirm Edit",
+      "examples": [
+        {
+          "id": "misc-date-picker",
+          "path": "v-confirm-edit/misc-date-picker.vue",
+          "title": "Misc date picker"
+        },
+        {
+          "id": "misc-disable-actions",
+          "path": "v-confirm-edit/misc-disable-actions.vue",
+          "title": "Misc disable actions"
+        }
+      ]
+    },
+    {
+      "name": "v-data-iterator",
+      "title": "V Data Iterator",
+      "examples": [
+        {
+          "id": "misc-filter",
+          "path": "v-data-iterator/misc-filter.vue",
+          "title": "Misc filter"
+        },
+        {
+          "id": "prop-grouping",
+          "path": "v-data-iterator/prop-grouping.vue",
+          "title": "Prop grouping"
+        },
+        {
+          "id": "slot-default",
+          "path": "v-data-iterator/slot-default.vue",
+          "title": "Slot default"
+        },
+        {
+          "id": "slot-header-and-footer",
+          "path": "v-data-iterator/slot-header-and-footer.vue",
+          "title": "Slot header and footer"
+        },
+        {
+          "id": "slot-loader",
+          "path": "v-data-iterator/slot-loader.vue",
+          "title": "Slot loader"
+        }
+      ]
+    },
+    {
+      "name": "v-data-table",
+      "title": "V Data Table",
+      "examples": [
+        {
+          "id": "headers-multiple",
+          "path": "v-data-table/headers-multiple.vue",
+          "title": "Headers multiple"
+        },
+        {
+          "id": "misc-crud",
+          "path": "v-data-table/misc-crud.vue",
+          "title": "Misc crud"
+        },
+        {
+          "id": "misc-edit-dialog",
+          "path": "v-data-table/misc-edit-dialog.vue",
+          "title": "Misc edit dialog"
+        },
+        {
+          "id": "misc-expand",
+          "path": "v-data-table/misc-expand.vue",
+          "title": "Misc expand"
+        },
+        {
+          "id": "misc-external-paginate",
+          "path": "v-data-table/misc-external-paginate.vue",
+          "title": "Misc external paginate"
+        },
+        {
+          "id": "misc-external-sort",
+          "path": "v-data-table/misc-external-sort.vue",
+          "title": "Misc external sort"
+        },
+        {
+          "id": "misc-select-all",
+          "path": "v-data-table/misc-select-all.vue",
+          "title": "Misc select all"
+        },
+        {
+          "id": "misc-server-side-paginate-and-sort",
+          "path": "v-data-table/misc-server-side-paginate-and-sort.vue",
+          "title": "Misc server side paginate and sort"
+        },
+        {
+          "id": "prop-custom-filter",
+          "path": "v-data-table/prop-custom-filter.vue",
+          "title": "Prop custom filter"
+        },
+        {
+          "id": "prop-dense",
+          "path": "v-data-table/prop-dense.vue",
+          "title": "Prop dense"
+        },
+        {
+          "id": "prop-filter-keys",
+          "path": "v-data-table/prop-filter-keys.vue",
+          "title": "Prop filter keys"
+        },
+        {
+          "id": "prop-fixed-footer",
+          "path": "v-data-table/prop-fixed-footer.vue",
+          "title": "Prop fixed footer"
+        },
+        {
+          "id": "prop-footer-props",
+          "path": "v-data-table/prop-footer-props.vue",
+          "title": "Prop footer props"
+        },
+        {
+          "id": "prop-grouping",
+          "path": "v-data-table/prop-grouping.vue",
+          "title": "Prop grouping"
+        },
+        {
+          "id": "prop-headers-sort-raw",
+          "path": "v-data-table/prop-headers-sort-raw.vue",
+          "title": "Prop headers sort raw"
+        },
+        {
+          "id": "prop-hide-header-footer",
+          "path": "v-data-table/prop-hide-header-footer.vue",
+          "title": "Prop hide header footer"
+        },
+        {
+          "id": "prop-item-selectable",
+          "path": "v-data-table/prop-item-selectable.vue",
+          "title": "Prop item selectable"
+        },
+        {
+          "id": "prop-item-value",
+          "path": "v-data-table/prop-item-value.vue",
+          "title": "Prop item value"
+        },
+        {
+          "id": "prop-loading",
+          "path": "v-data-table/prop-loading.vue",
+          "title": "Prop loading"
+        },
+        {
+          "id": "prop-multi-sort",
+          "path": "v-data-table/prop-multi-sort.vue",
+          "title": "Prop multi sort"
+        },
+        {
+          "id": "prop-return-object",
+          "path": "v-data-table/prop-return-object.vue",
+          "title": "Prop return object"
+        },
+        {
+          "id": "prop-row-selection",
+          "path": "v-data-table/prop-row-selection.vue",
+          "title": "Prop row selection"
+        },
+        {
+          "id": "prop-search",
+          "path": "v-data-table/prop-search.vue",
+          "title": "Prop search"
+        },
+        {
+          "id": "prop-select-strategy",
+          "path": "v-data-table/prop-select-strategy.vue",
+          "title": "Prop select strategy"
+        },
+        {
+          "id": "prop-sort-by",
+          "path": "v-data-table/prop-sort-by.vue",
+          "title": "Prop sort by"
+        },
+        {
+          "id": "prop-sort-icon",
+          "path": "v-data-table/prop-sort-icon.vue",
+          "title": "Prop sort icon"
+        },
+        {
+          "id": "server",
+          "path": "v-data-table/server.vue",
+          "title": "Server"
+        },
+        {
+          "id": "server-search",
+          "path": "v-data-table/server-search.vue",
+          "title": "Server search"
+        },
+        {
+          "id": "slot-expanded",
+          "path": "v-data-table/slot-expanded.vue",
+          "title": "Slot expanded"
+        },
+        {
+          "id": "slot-group-header",
+          "path": "v-data-table/slot-group-header.vue",
+          "title": "Slot group header"
+        },
+        {
+          "id": "slot-group-summary",
+          "path": "v-data-table/slot-group-summary.vue",
+          "title": "Slot group summary"
+        },
+        {
+          "id": "slot-header",
+          "path": "v-data-table/slot-header.vue",
+          "title": "Slot header"
+        },
+        {
+          "id": "slot-headers",
+          "path": "v-data-table/slot-headers.vue",
+          "title": "Slot headers"
+        },
+        {
+          "id": "slot-item",
+          "path": "v-data-table/slot-item.vue",
+          "title": "Slot item"
+        },
+        {
+          "id": "slot-item-data-table-select",
+          "path": "v-data-table/slot-item-data-table-select.vue",
+          "title": "Slot item data table select"
+        },
+        {
+          "id": "slot-item-key",
+          "path": "v-data-table/slot-item-key.vue",
+          "title": "Slot item key"
+        },
+        {
+          "id": "slot-loading",
+          "path": "v-data-table/slot-loading.vue",
+          "title": "Slot loading"
+        },
+        {
+          "id": "slot-main",
+          "path": "v-data-table/slot-main.vue",
+          "title": "Slot main"
+        },
+        {
+          "id": "slot-simple-checkbox",
+          "path": "v-data-table/slot-simple-checkbox.vue",
+          "title": "Slot simple checkbox"
+        },
+        {
+          "id": "virtual",
+          "path": "v-data-table/virtual.vue",
+          "title": "Virtual"
+        },
+        {
+          "id": "virtual-custom",
+          "path": "v-data-table/virtual-custom.vue",
+          "title": "Virtual custom"
+        },
+        {
+          "id": "virtualized",
+          "path": "v-data-table/virtualized.vue",
+          "title": "Virtualized"
+        }
+      ]
+    },
+    {
+      "name": "v-date-input",
+      "title": "V Date Input",
+      "examples": [
+        {
+          "id": "misc-passenger",
+          "path": "v-date-input/misc-passenger.vue",
+          "title": "Misc passenger"
+        },
+        {
+          "id": "prop-input-format",
+          "path": "v-date-input/prop-input-format.vue",
+          "title": "Prop input format"
+        },
+        {
+          "id": "prop-model",
+          "path": "v-date-input/prop-model.vue",
+          "title": "Prop model"
+        },
+        {
+          "id": "prop-multiple",
+          "path": "v-date-input/prop-multiple.vue",
+          "title": "Prop multiple"
+        },
+        {
+          "id": "prop-multiple-range",
+          "path": "v-date-input/prop-multiple-range.vue",
+          "title": "Prop multiple range"
+        },
+        {
+          "id": "prop-prepend-icon",
+          "path": "v-date-input/prop-prepend-icon.vue",
+          "title": "Prop prepend icon"
+        }
+      ]
+    },
+    {
+      "name": "v-date-picker",
+      "title": "V Date Picker",
+      "examples": [
+        {
+          "id": "event-button-events",
+          "path": "v-date-picker/event-button-events.vue",
+          "title": "Event button events"
+        },
+        {
+          "id": "guide-locale",
+          "path": "v-date-picker/guide-locale.vue",
+          "title": "Guide locale"
+        },
+        {
+          "id": "misc-birthday",
+          "path": "v-date-picker/misc-birthday.vue",
+          "title": "Misc birthday"
+        },
+        {
+          "id": "misc-dialog-and-menu",
+          "path": "v-date-picker/misc-dialog-and-menu.vue",
+          "title": "Misc dialog and menu"
+        },
+        {
+          "id": "misc-formatting",
+          "path": "v-date-picker/misc-formatting.vue",
+          "title": "Misc formatting"
+        },
+        {
+          "id": "misc-formatting-external-libraries",
+          "path": "v-date-picker/misc-formatting-external-libraries.vue",
+          "title": "Misc formatting external libraries"
+        },
+        {
+          "id": "misc-internationalization",
+          "path": "v-date-picker/misc-internationalization.vue",
+          "title": "Misc internationalization"
+        },
+        {
+          "id": "misc-orientation",
+          "path": "v-date-picker/misc-orientation.vue",
+          "title": "Misc orientation"
+        },
+        {
+          "id": "prop-allowed-dates",
+          "path": "v-date-picker/prop-allowed-dates.vue",
+          "title": "Prop allowed dates"
+        },
+        {
+          "id": "prop-colors",
+          "path": "v-date-picker/prop-colors.vue",
+          "title": "Prop colors"
+        },
+        {
+          "id": "prop-elevation",
+          "path": "v-date-picker/prop-elevation.vue",
+          "title": "Prop elevation"
+        },
+        {
+          "id": "prop-events",
+          "path": "v-date-picker/prop-events.vue",
+          "title": "Prop events"
+        },
+        {
+          "id": "prop-icons",
+          "path": "v-date-picker/prop-icons.vue",
+          "title": "Prop icons"
+        },
+        {
+          "id": "prop-landscape",
+          "path": "v-date-picker/prop-landscape.vue",
+          "title": "Prop landscape"
+        },
+        {
+          "id": "prop-multiple",
+          "path": "v-date-picker/prop-multiple.vue",
+          "title": "Prop multiple"
+        },
+        {
+          "id": "prop-range",
+          "path": "v-date-picker/prop-range.vue",
+          "title": "Prop range"
+        },
+        {
+          "id": "prop-readonly",
+          "path": "v-date-picker/prop-readonly.vue",
+          "title": "Prop readonly"
+        },
+        {
+          "id": "prop-show-adjacent-months",
+          "path": "v-date-picker/prop-show-adjacent-months.vue",
+          "title": "Prop show adjacent months"
+        },
+        {
+          "id": "prop-show-current",
+          "path": "v-date-picker/prop-show-current.vue",
+          "title": "Prop show current"
+        },
+        {
+          "id": "prop-width",
+          "path": "v-date-picker/prop-width.vue",
+          "title": "Prop width"
+        },
+        {
+          "id": "slots-controls",
+          "path": "v-date-picker/slots-controls.vue",
+          "title": "Slots controls"
+        }
+      ]
+    },
+    {
+      "name": "v-date-picker-month",
+      "title": "V Date Picker Month",
+      "examples": [
+        {
+          "id": "misc-dialog-and-menu",
+          "path": "v-date-picker-month/misc-dialog-and-menu.vue",
+          "title": "Misc dialog and menu"
+        },
+        {
+          "id": "misc-internationalization",
+          "path": "v-date-picker-month/misc-internationalization.vue",
+          "title": "Misc internationalization"
+        },
+        {
+          "id": "misc-orientation",
+          "path": "v-date-picker-month/misc-orientation.vue",
+          "title": "Misc orientation"
+        },
+        {
+          "id": "prop-allowed-months",
+          "path": "v-date-picker-month/prop-allowed-months.vue",
+          "title": "Prop allowed months"
+        },
+        {
+          "id": "prop-colors",
+          "path": "v-date-picker-month/prop-colors.vue",
+          "title": "Prop colors"
+        },
+        {
+          "id": "prop-icons",
+          "path": "v-date-picker-month/prop-icons.vue",
+          "title": "Prop icons"
+        },
+        {
+          "id": "prop-multiple",
+          "path": "v-date-picker-month/prop-multiple.vue",
+          "title": "Prop multiple"
+        },
+        {
+          "id": "prop-readonly",
+          "path": "v-date-picker-month/prop-readonly.vue",
+          "title": "Prop readonly"
+        },
+        {
+          "id": "prop-show-current",
+          "path": "v-date-picker-month/prop-show-current.vue",
+          "title": "Prop show current"
+        },
+        {
+          "id": "prop-width",
+          "path": "v-date-picker-month/prop-width.vue",
+          "title": "Prop width"
+        },
+        {
+          "id": "usage",
+          "path": "v-date-picker-month/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-date-range-picker",
+      "title": "V Date Range Picker",
+      "examples": [
+        {
+          "id": "misc-full-layout",
+          "path": "v-date-range-picker/misc-full-layout.vue",
+          "title": "Misc full layout"
+        },
+        {
+          "id": "misc-presets",
+          "path": "v-date-range-picker/misc-presets.vue",
+          "title": "Misc presets"
+        }
+      ]
+    },
+    {
+      "name": "v-defaults-provider",
+      "title": "V Defaults Provider",
+      "examples": [
+        {
+          "id": "prop-defaults",
+          "path": "v-defaults-provider/prop-defaults.vue",
+          "title": "Prop defaults"
+        }
+      ]
+    },
+    {
+      "name": "v-dialog",
+      "title": "V Dialog",
+      "examples": [
+        {
+          "id": "misc-data-table",
+          "path": "v-dialog/misc-data-table.vue",
+          "title": "Misc data table"
+        },
+        {
+          "id": "misc-form",
+          "path": "v-dialog/misc-form.vue",
+          "title": "Misc form"
+        },
+        {
+          "id": "misc-invite-dialog",
+          "path": "v-dialog/misc-invite-dialog.vue",
+          "title": "Misc invite dialog"
+        },
+        {
+          "id": "misc-loader",
+          "path": "v-dialog/misc-loader.vue",
+          "title": "Misc loader"
+        },
+        {
+          "id": "misc-nesting",
+          "path": "v-dialog/misc-nesting.vue",
+          "title": "Misc nesting"
+        },
+        {
+          "id": "misc-overflowed",
+          "path": "v-dialog/misc-overflowed.vue",
+          "title": "Misc overflowed"
+        },
+        {
+          "id": "misc-without-activator",
+          "path": "v-dialog/misc-without-activator.vue",
+          "title": "Misc without activator"
+        },
+        {
+          "id": "prop-activator",
+          "path": "v-dialog/prop-activator.vue",
+          "title": "Prop activator"
+        },
+        {
+          "id": "prop-fullscreen",
+          "path": "v-dialog/prop-fullscreen.vue",
+          "title": "Prop fullscreen"
+        },
+        {
+          "id": "prop-model",
+          "path": "v-dialog/prop-model.vue",
+          "title": "Prop model"
+        },
+        {
+          "id": "prop-persistent",
+          "path": "v-dialog/prop-persistent.vue",
+          "title": "Prop persistent"
+        },
+        {
+          "id": "prop-scrollable",
+          "path": "v-dialog/prop-scrollable.vue",
+          "title": "Prop scrollable"
+        },
+        {
+          "id": "prop-transitions",
+          "path": "v-dialog/prop-transitions.vue",
+          "title": "Prop transitions"
+        },
+        {
+          "id": "slot-default",
+          "path": "v-dialog/slot-default.vue",
+          "title": "Slot default"
+        }
+      ]
+    },
+    {
+      "name": "v-divider",
+      "title": "V Divider",
+      "examples": [
+        {
+          "id": "misc-portrait-view",
+          "path": "v-divider/misc-portrait-view.vue",
+          "title": "Misc portrait view"
+        },
+        {
+          "id": "misc-subheaders",
+          "path": "v-divider/misc-subheaders.vue",
+          "title": "Misc subheaders"
+        },
+        {
+          "id": "prop-gradient",
+          "path": "v-divider/prop-gradient.vue",
+          "title": "Prop gradient"
+        },
+        {
+          "id": "prop-inset",
+          "path": "v-divider/prop-inset.vue",
+          "title": "Prop inset"
+        },
+        {
+          "id": "prop-vertical",
+          "path": "v-divider/prop-vertical.vue",
+          "title": "Prop vertical"
+        },
+        {
+          "id": "slot-default",
+          "path": "v-divider/slot-default.vue",
+          "title": "Slot default"
+        }
+      ]
+    },
+    {
+      "name": "v-empty-state",
+      "title": "V Empty State",
+      "examples": [
+        {
+          "id": "misc-astro-cat",
+          "path": "v-empty-state/misc-astro-cat.vue",
+          "title": "Misc astro cat"
+        },
+        {
+          "id": "misc-astro-dog",
+          "path": "v-empty-state/misc-astro-dog.vue",
+          "title": "Misc astro dog"
+        },
+        {
+          "id": "prop-actions",
+          "path": "v-empty-state/prop-actions.vue",
+          "title": "Prop actions"
+        },
+        {
+          "id": "prop-content",
+          "path": "v-empty-state/prop-content.vue",
+          "title": "Prop content"
+        },
+        {
+          "id": "prop-media",
+          "path": "v-empty-state/prop-media.vue",
+          "title": "Prop media"
+        },
+        {
+          "id": "slot-actions",
+          "path": "v-empty-state/slot-actions.vue",
+          "title": "Slot actions"
+        },
+        {
+          "id": "slot-default",
+          "path": "v-empty-state/slot-default.vue",
+          "title": "Slot default"
+        },
+        {
+          "id": "slot-title",
+          "path": "v-empty-state/slot-title.vue",
+          "title": "Slot title"
+        }
+      ]
+    },
+    {
+      "name": "v-expansion-panels",
+      "title": "V Expansion Panels",
+      "examples": [
+        {
+          "id": "misc-advanced",
+          "path": "v-expansion-panels/misc-advanced.vue",
+          "title": "Misc advanced"
+        },
+        {
+          "id": "misc-custom-icons",
+          "path": "v-expansion-panels/misc-custom-icons.vue",
+          "title": "Misc custom icons"
+        },
+        {
+          "id": "prop-disabled",
+          "path": "v-expansion-panels/prop-disabled.vue",
+          "title": "Prop disabled"
+        },
+        {
+          "id": "prop-model",
+          "path": "v-expansion-panels/prop-model.vue",
+          "title": "Prop model"
+        },
+        {
+          "id": "prop-readonly",
+          "path": "v-expansion-panels/prop-readonly.vue",
+          "title": "Prop readonly"
+        },
+        {
+          "id": "prop-rounded-gap",
+          "path": "v-expansion-panels/prop-rounded-gap.vue",
+          "title": "Prop rounded gap"
+        },
+        {
+          "id": "prop-variant",
+          "path": "v-expansion-panels/prop-variant.vue",
+          "title": "Prop variant"
+        }
+      ]
+    },
+    {
+      "name": "v-fab",
+      "title": "V Fab",
+      "examples": [
+        {
+          "id": "misc-display-animation",
+          "path": "v-fab/misc-display-animation.vue",
+          "title": "Misc display animation"
+        },
+        {
+          "id": "misc-lateral-screens",
+          "path": "v-fab/misc-lateral-screens.vue",
+          "title": "Misc lateral screens"
+        },
+        {
+          "id": "misc-small",
+          "path": "v-fab/misc-small.vue",
+          "title": "Misc small"
+        },
+        {
+          "id": "misc-speed-dial",
+          "path": "v-fab/misc-speed-dial.vue",
+          "title": "Misc speed dial"
+        }
+      ]
+    },
+    {
+      "name": "v-file-input",
+      "title": "V File Input",
+      "examples": [
+        {
+          "id": "misc-complex-selection",
+          "path": "v-file-input/misc-complex-selection.vue",
+          "title": "Misc complex selection"
+        },
+        {
+          "id": "prop-accept",
+          "path": "v-file-input/prop-accept.vue",
+          "title": "Prop accept"
+        },
+        {
+          "id": "prop-chips",
+          "path": "v-file-input/prop-chips.vue",
+          "title": "Prop chips"
+        },
+        {
+          "id": "prop-counter",
+          "path": "v-file-input/prop-counter.vue",
+          "title": "Prop counter"
+        },
+        {
+          "id": "prop-dense",
+          "path": "v-file-input/prop-dense.vue",
+          "title": "Prop dense"
+        },
+        {
+          "id": "prop-multiple",
+          "path": "v-file-input/prop-multiple.vue",
+          "title": "Prop multiple"
+        },
+        {
+          "id": "prop-prepend-icon",
+          "path": "v-file-input/prop-prepend-icon.vue",
+          "title": "Prop prepend icon"
+        },
+        {
+          "id": "prop-show-size",
+          "path": "v-file-input/prop-show-size.vue",
+          "title": "Prop show size"
+        },
+        {
+          "id": "prop-validation",
+          "path": "v-file-input/prop-validation.vue",
+          "title": "Prop validation"
+        },
+        {
+          "id": "slot-selection",
+          "path": "v-file-input/slot-selection.vue",
+          "title": "Slot selection"
+        }
+      ]
+    },
+    {
+      "name": "v-file-upload",
+      "title": "V File Upload",
+      "examples": [
+        {
+          "id": "misc-list",
+          "path": "v-file-upload/misc-list.vue",
+          "title": "Misc list"
+        },
+        {
+          "id": "prop-content",
+          "path": "v-file-upload/prop-content.vue",
+          "title": "Prop content"
+        },
+        {
+          "id": "prop-inset-file-list",
+          "path": "v-file-upload/prop-inset-file-list.vue",
+          "title": "Prop inset file list"
+        },
+        {
+          "id": "prop-loading",
+          "path": "v-file-upload/prop-loading.vue",
+          "title": "Prop loading"
+        },
+        {
+          "id": "prop-scrim",
+          "path": "v-file-upload/prop-scrim.vue",
+          "title": "Prop scrim"
+        },
+        {
+          "id": "slot-item",
+          "path": "v-file-upload/slot-item.vue",
+          "title": "Slot item"
+        }
+      ]
+    },
+    {
+      "name": "v-footer",
+      "title": "V Footer",
+      "examples": [
+        {
+          "id": "misc-company-footer",
+          "path": "v-footer/misc-company-footer.vue",
+          "title": "Misc company footer"
+        },
+        {
+          "id": "misc-indigo-footer",
+          "path": "v-footer/misc-indigo-footer.vue",
+          "title": "Misc indigo footer"
+        },
+        {
+          "id": "misc-teal-footer",
+          "path": "v-footer/misc-teal-footer.vue",
+          "title": "Misc teal footer"
+        }
+      ]
+    },
+    {
+      "name": "v-form",
+      "title": "V Form",
+      "examples": [
+        {
+          "id": "misc-exposed",
+          "path": "v-form/misc-exposed.vue",
+          "title": "Misc exposed"
+        },
+        {
+          "id": "misc-vee-validate",
+          "path": "v-form/misc-vee-validate.vue",
+          "title": "Misc vee validate"
+        },
+        {
+          "id": "misc-vuelidate",
+          "path": "v-form/misc-vuelidate.vue",
+          "title": "Misc vuelidate"
+        },
+        {
+          "id": "prop-disabled",
+          "path": "v-form/prop-disabled.vue",
+          "title": "Prop disabled"
+        },
+        {
+          "id": "prop-fast-fail",
+          "path": "v-form/prop-fast-fail.vue",
+          "title": "Prop fast fail"
+        },
+        {
+          "id": "rules-async",
+          "path": "v-form/rules-async.vue",
+          "title": "Rules async"
+        },
+        {
+          "id": "rules-required",
+          "path": "v-form/rules-required.vue",
+          "title": "Rules required"
+        },
+        {
+          "id": "usage",
+          "path": "v-form/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-heatmap",
+      "title": "V Heatmap",
+      "examples": [
+        {
+          "id": "misc-calendar",
+          "path": "v-heatmap/misc-calendar.vue",
+          "title": "Misc calendar"
+        },
+        {
+          "id": "prop-axes",
+          "path": "v-heatmap/prop-axes.vue",
+          "title": "Prop axes"
+        },
+        {
+          "id": "prop-cell-size",
+          "path": "v-heatmap/prop-cell-size.vue",
+          "title": "Prop cell size"
+        },
+        {
+          "id": "prop-grouping",
+          "path": "v-heatmap/prop-grouping.vue",
+          "title": "Prop grouping"
+        },
+        {
+          "id": "prop-thresholds",
+          "path": "v-heatmap/prop-thresholds.vue",
+          "title": "Prop thresholds"
+        },
+        {
+          "id": "prop-thresholds-linear",
+          "path": "v-heatmap/prop-thresholds-linear.vue",
+          "title": "Prop thresholds linear"
+        },
+        {
+          "id": "slot-cell",
+          "path": "v-heatmap/slot-cell.vue",
+          "title": "Slot cell"
+        },
+        {
+          "id": "slot-legend",
+          "path": "v-heatmap/slot-legend.vue",
+          "title": "Slot legend"
+        }
+      ]
+    },
+    {
+      "name": "v-highlight",
+      "title": "V Highlight",
+      "examples": [
+        {
+          "id": "misc-css-variables",
+          "path": "v-highlight/misc-css-variables.vue",
+          "title": "Misc css variables"
+        },
+        {
+          "id": "misc-selection-match",
+          "path": "v-highlight/misc-selection-match.vue",
+          "title": "Misc selection match"
+        },
+        {
+          "id": "prop-matches",
+          "path": "v-highlight/prop-matches.vue",
+          "title": "Prop matches"
+        },
+        {
+          "id": "prop-query",
+          "path": "v-highlight/prop-query.vue",
+          "title": "Prop query"
+        },
+        {
+          "id": "props-mark-class",
+          "path": "v-highlight/props-mark-class.vue",
+          "title": "Props mark class"
+        }
+      ]
+    },
+    {
+      "name": "v-hotkey",
+      "title": "V Hotkey",
+      "examples": [
+        {
+          "id": "prop-display-mode",
+          "path": "v-hotkey/prop-display-mode.vue",
+          "title": "Prop display mode"
+        },
+        {
+          "id": "prop-inline",
+          "path": "v-hotkey/prop-inline.vue",
+          "title": "Prop inline"
+        },
+        {
+          "id": "prop-key-map",
+          "path": "v-hotkey/prop-key-map.vue",
+          "title": "Prop key map"
+        },
+        {
+          "id": "prop-keys",
+          "path": "v-hotkey/prop-keys.vue",
+          "title": "Prop keys"
+        },
+        {
+          "id": "prop-platform-aware",
+          "path": "v-hotkey/prop-platform-aware.vue",
+          "title": "Prop platform aware"
+        }
+      ]
+    },
+    {
+      "name": "v-hover",
+      "title": "V Hover",
+      "examples": [
+        {
+          "id": "misc-hover-list",
+          "path": "v-hover/misc-hover-list.vue",
+          "title": "Misc hover list"
+        },
+        {
+          "id": "misc-transition",
+          "path": "v-hover/misc-transition.vue",
+          "title": "Misc transition"
+        },
+        {
+          "id": "prop-disabled",
+          "path": "v-hover/prop-disabled.vue",
+          "title": "Prop disabled"
+        },
+        {
+          "id": "prop-open-and-close-delay",
+          "path": "v-hover/prop-open-and-close-delay.vue",
+          "title": "Prop open and close delay"
+        }
+      ]
+    },
+    {
+      "name": "v-icon",
+      "title": "V Icon",
+      "examples": [
+        {
+          "id": "event-click",
+          "path": "v-icon/event-click.vue",
+          "title": "Event click"
+        },
+        {
+          "id": "misc-buttons",
+          "path": "v-icon/misc-buttons.vue",
+          "title": "Misc buttons"
+        },
+        {
+          "id": "misc-font-awesome",
+          "path": "v-icon/misc-font-awesome.vue",
+          "title": "Misc font awesome"
+        },
+        {
+          "id": "misc-md",
+          "path": "v-icon/misc-md.vue",
+          "title": "Misc md"
+        },
+        {
+          "id": "misc-mdi-svg",
+          "path": "v-icon/misc-mdi-svg.vue",
+          "title": "Misc mdi svg"
+        },
+        {
+          "id": "prop-color",
+          "path": "v-icon/prop-color.vue",
+          "title": "Prop color"
+        }
+      ]
+    },
+    {
+      "name": "v-icon-btn",
+      "title": "V Icon Btn",
+      "examples": [
+        {
+          "id": "misc-dialog",
+          "path": "v-icon-btn/misc-dialog.vue",
+          "title": "Misc dialog"
+        },
+        {
+          "id": "misc-markdown-editor",
+          "path": "v-icon-btn/misc-markdown-editor.vue",
+          "title": "Misc markdown editor"
+        },
+        {
+          "id": "misc-table-actions",
+          "path": "v-icon-btn/misc-table-actions.vue",
+          "title": "Misc table actions"
+        },
+        {
+          "id": "misc-video-controls",
+          "path": "v-icon-btn/misc-video-controls.vue",
+          "title": "Misc video controls"
+        },
+        {
+          "id": "prop-active",
+          "path": "v-icon-btn/prop-active.vue",
+          "title": "Prop active"
+        },
+        {
+          "id": "prop-opacity",
+          "path": "v-icon-btn/prop-opacity.vue",
+          "title": "Prop opacity"
+        },
+        {
+          "id": "prop-rotate",
+          "path": "v-icon-btn/prop-rotate.vue",
+          "title": "Prop rotate"
+        }
+      ]
+    },
+    {
+      "name": "v-img",
+      "title": "V Img",
+      "examples": [
+        {
+          "id": "complex-grid",
+          "path": "v-img/complex-grid.vue",
+          "title": "Complex grid"
+        },
+        {
+          "id": "misc-grid",
+          "path": "v-img/misc-grid.vue",
+          "title": "Misc grid"
+        },
+        {
+          "id": "prop-contain",
+          "path": "v-img/prop-contain.vue",
+          "title": "Prop contain"
+        },
+        {
+          "id": "prop-cover",
+          "path": "v-img/prop-cover.vue",
+          "title": "Prop cover"
+        },
+        {
+          "id": "prop-gradient",
+          "path": "v-img/prop-gradient.vue",
+          "title": "Prop gradient"
+        },
+        {
+          "id": "prop-image-class",
+          "path": "v-img/prop-image-class.vue",
+          "title": "Prop image class"
+        },
+        {
+          "id": "prop-max-height",
+          "path": "v-img/prop-max-height.vue",
+          "title": "Prop max height"
+        },
+        {
+          "id": "prop-rounded",
+          "path": "v-img/prop-rounded.vue",
+          "title": "Prop rounded"
+        },
+        {
+          "id": "slot-error",
+          "path": "v-img/slot-error.vue",
+          "title": "Slot error"
+        },
+        {
+          "id": "slot-placeholder",
+          "path": "v-img/slot-placeholder.vue",
+          "title": "Slot placeholder"
+        }
+      ]
+    },
+    {
+      "name": "v-infinite-scroll",
+      "title": "V Infinite Scroll",
+      "examples": [
+        {
+          "id": "misc-reset",
+          "path": "v-infinite-scroll/misc-reset.vue",
+          "title": "Misc reset"
+        },
+        {
+          "id": "misc-virtual",
+          "path": "v-infinite-scroll/misc-virtual.vue",
+          "title": "Misc virtual"
+        },
+        {
+          "id": "prop-color",
+          "path": "v-infinite-scroll/prop-color.vue",
+          "title": "Prop color"
+        },
+        {
+          "id": "prop-direction",
+          "path": "v-infinite-scroll/prop-direction.vue",
+          "title": "Prop direction"
+        },
+        {
+          "id": "prop-mode",
+          "path": "v-infinite-scroll/prop-mode.vue",
+          "title": "Prop mode"
+        },
+        {
+          "id": "prop-side-both",
+          "path": "v-infinite-scroll/prop-side-both.vue",
+          "title": "Prop side both"
+        },
+        {
+          "id": "prop-side-start",
+          "path": "v-infinite-scroll/prop-side-start.vue",
+          "title": "Prop side start"
+        },
+        {
+          "id": "slot-empty",
+          "path": "v-infinite-scroll/slot-empty.vue",
+          "title": "Slot empty"
+        },
+        {
+          "id": "slot-error",
+          "path": "v-infinite-scroll/slot-error.vue",
+          "title": "Slot error"
+        },
+        {
+          "id": "slot-load-more",
+          "path": "v-infinite-scroll/slot-load-more.vue",
+          "title": "Slot load more"
+        },
+        {
+          "id": "slot-loading",
+          "path": "v-infinite-scroll/slot-loading.vue",
+          "title": "Slot loading"
+        }
+      ]
+    },
+    {
+      "name": "v-input",
+      "title": "V Input",
+      "examples": [
+        {
+          "id": "event-slot-clicks",
+          "path": "v-input/event-slot-clicks.vue",
+          "title": "Event slot clicks"
+        },
+        {
+          "id": "prop-error",
+          "path": "v-input/prop-error.vue",
+          "title": "Prop error"
+        },
+        {
+          "id": "prop-error-count",
+          "path": "v-input/prop-error-count.vue",
+          "title": "Prop error count"
+        },
+        {
+          "id": "prop-hide-details",
+          "path": "v-input/prop-hide-details.vue",
+          "title": "Prop hide details"
+        },
+        {
+          "id": "prop-hint",
+          "path": "v-input/prop-hint.vue",
+          "title": "Prop hint"
+        },
+        {
+          "id": "prop-loading",
+          "path": "v-input/prop-loading.vue",
+          "title": "Prop loading"
+        },
+        {
+          "id": "prop-rules",
+          "path": "v-input/prop-rules.vue",
+          "title": "Prop rules"
+        },
+        {
+          "id": "slot-append-and-prepend",
+          "path": "v-input/slot-append-and-prepend.vue",
+          "title": "Slot append and prepend"
+        },
+        {
+          "id": "usage",
+          "path": "v-input/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-intersect",
+      "title": "V Intersect",
+      "examples": [
+        {
+          "id": "prop-options",
+          "path": "v-intersect/prop-options.vue",
+          "title": "Prop options"
+        },
+        {
+          "id": "usage",
+          "path": "v-intersect/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-item-group",
+      "title": "V Item Group",
+      "examples": [
+        {
+          "id": "misc-selection",
+          "path": "v-item-group/misc-selection.vue",
+          "title": "Misc selection"
+        },
+        {
+          "id": "prop-mandatory",
+          "path": "v-item-group/prop-mandatory.vue",
+          "title": "Prop mandatory"
+        },
+        {
+          "id": "prop-multiple",
+          "path": "v-item-group/prop-multiple.vue",
+          "title": "Prop multiple"
+        },
+        {
+          "id": "prop-selected-class",
+          "path": "v-item-group/prop-selected-class.vue",
+          "title": "Prop selected class"
+        },
+        {
+          "id": "usage",
+          "path": "v-item-group/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-list",
+      "title": "V List",
+      "examples": [
+        {
+          "id": "misc-action-stack",
+          "path": "v-list/misc-action-stack.vue",
+          "title": "Misc action stack"
+        },
+        {
+          "id": "misc-actions",
+          "path": "v-list/misc-actions.vue",
+          "title": "Misc actions"
+        },
+        {
+          "id": "misc-card-list",
+          "path": "v-list/misc-card-list.vue",
+          "title": "Misc card list"
+        },
+        {
+          "id": "misc-simple-avatar-list",
+          "path": "v-list/misc-simple-avatar-list.vue",
+          "title": "Misc simple avatar list"
+        },
+        {
+          "id": "misc-single-line-list",
+          "path": "v-list/misc-single-line-list.vue",
+          "title": "Misc single line list"
+        },
+        {
+          "id": "misc-subheadings-and-dividers",
+          "path": "v-list/misc-subheadings-and-dividers.vue",
+          "title": "Misc subheadings and dividers"
+        },
+        {
+          "id": "prop-density",
+          "path": "v-list/prop-density.vue",
+          "title": "Prop density"
+        },
+        {
+          "id": "prop-disabled",
+          "path": "v-list/prop-disabled.vue",
+          "title": "Prop disabled"
+        },
+        {
+          "id": "prop-items",
+          "path": "v-list/prop-items.vue",
+          "title": "Prop items"
+        },
+        {
+          "id": "prop-items-custom",
+          "path": "v-list/prop-items-custom.vue",
+          "title": "Prop items custom"
+        },
+        {
+          "id": "prop-items-prop",
+          "path": "v-list/prop-items-prop.vue",
+          "title": "Prop items prop"
+        },
+        {
+          "id": "prop-items-type",
+          "path": "v-list/prop-items-type.vue",
+          "title": "Prop items type"
+        },
+        {
+          "id": "prop-nav",
+          "path": "v-list/prop-nav.vue",
+          "title": "Prop nav"
+        },
+        {
+          "id": "prop-rounded",
+          "path": "v-list/prop-rounded.vue",
+          "title": "Prop rounded"
+        },
+        {
+          "id": "prop-shaped",
+          "path": "v-list/prop-shaped.vue",
+          "title": "Prop shaped"
+        },
+        {
+          "id": "prop-sub-group",
+          "path": "v-list/prop-sub-group.vue",
+          "title": "Prop sub group"
+        },
+        {
+          "id": "prop-three-line",
+          "path": "v-list/prop-three-line.vue",
+          "title": "Prop three line"
+        },
+        {
+          "id": "prop-two-line-and-subheader",
+          "path": "v-list/prop-two-line-and-subheader.vue",
+          "title": "Prop two line and subheader"
+        },
+        {
+          "id": "prop-variant",
+          "path": "v-list/prop-variant.vue",
+          "title": "Prop variant"
+        },
+        {
+          "id": "slot-expansion-lists",
+          "path": "v-list/slot-expansion-lists.vue",
+          "title": "Slot expansion lists"
+        }
+      ]
+    },
+    {
+      "name": "v-mask-input",
+      "title": "V Mask Input",
+      "examples": [
+        {
+          "id": "credit-card-form",
+          "path": "v-mask-input/credit-card-form.vue",
+          "title": "Credit card form"
+        },
+        {
+          "id": "custom-mask",
+          "path": "v-mask-input/custom-mask.vue",
+          "title": "Custom mask"
+        },
+        {
+          "id": "custom-token",
+          "path": "v-mask-input/custom-token.vue",
+          "title": "Custom token"
+        },
+        {
+          "id": "ip-address",
+          "path": "v-mask-input/ip-address.vue",
+          "title": "Ip address"
+        },
+        {
+          "id": "phone",
+          "path": "v-mask-input/phone.vue",
+          "title": "Phone"
+        }
+      ]
+    },
+    {
+      "name": "v-menu",
+      "title": "V Menu",
+      "examples": [
+        {
+          "id": "misc-file-context",
+          "path": "v-menu/misc-file-context.vue",
+          "title": "Misc file context"
+        },
+        {
+          "id": "misc-gliding-nav",
+          "path": "v-menu/misc-gliding-nav.vue",
+          "title": "Misc gliding nav"
+        },
+        {
+          "id": "misc-popover",
+          "path": "v-menu/misc-popover.vue",
+          "title": "Misc popover"
+        },
+        {
+          "id": "misc-transition",
+          "path": "v-menu/misc-transition.vue",
+          "title": "Misc transition"
+        },
+        {
+          "id": "misc-use-in-text-field",
+          "path": "v-menu/misc-use-in-text-field.vue",
+          "title": "Misc use in text field"
+        },
+        {
+          "id": "prop-absolute",
+          "path": "v-menu/prop-absolute.vue",
+          "title": "Prop absolute"
+        },
+        {
+          "id": "prop-absolute-without-activator",
+          "path": "v-menu/prop-absolute-without-activator.vue",
+          "title": "Prop absolute without activator"
+        },
+        {
+          "id": "prop-close-on-click",
+          "path": "v-menu/prop-close-on-click.vue",
+          "title": "Prop close on click"
+        },
+        {
+          "id": "prop-close-on-content-click",
+          "path": "v-menu/prop-close-on-content-click.vue",
+          "title": "Prop close on content click"
+        },
+        {
+          "id": "prop-disabled",
+          "path": "v-menu/prop-disabled.vue",
+          "title": "Prop disabled"
+        },
+        {
+          "id": "prop-location",
+          "path": "v-menu/prop-location.vue",
+          "title": "Prop location"
+        },
+        {
+          "id": "prop-open-on-hover",
+          "path": "v-menu/prop-open-on-hover.vue",
+          "title": "Prop open on hover"
+        },
+        {
+          "id": "prop-positioningmenu",
+          "path": "v-menu/prop-positioningmenu.vue",
+          "title": "Prop positioningmenu"
+        },
+        {
+          "id": "prop-rounded",
+          "path": "v-menu/prop-rounded.vue",
+          "title": "Prop rounded"
+        },
+        {
+          "id": "prop-submenu",
+          "path": "v-menu/prop-submenu.vue",
+          "title": "Prop submenu"
+        },
+        {
+          "id": "slot-activator-and-tooltip",
+          "path": "v-menu/slot-activator-and-tooltip.vue",
+          "title": "Slot activator and tooltip"
+        },
+        {
+          "id": "usage",
+          "path": "v-menu/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-month-picker",
+      "title": "V Month Picker",
+      "examples": [
+        {
+          "id": "misc-dialog-and-menu",
+          "path": "v-month-picker/misc-dialog-and-menu.vue",
+          "title": "Misc dialog and menu"
+        },
+        {
+          "id": "prop-allowed-months",
+          "path": "v-month-picker/prop-allowed-months.vue",
+          "title": "Prop allowed months"
+        },
+        {
+          "id": "prop-min-max",
+          "path": "v-month-picker/prop-min-max.vue",
+          "title": "Prop min max"
+        },
+        {
+          "id": "prop-multiple-range",
+          "path": "v-month-picker/prop-multiple-range.vue",
+          "title": "Prop multiple range"
+        }
+      ]
+    },
+    {
+      "name": "v-mutate",
+      "title": "V Mutate",
+      "examples": [
+        {
+          "id": "option-modifiers",
+          "path": "v-mutate/option-modifiers.vue",
+          "title": "Option modifiers"
+        },
+        {
+          "id": "usage",
+          "path": "v-mutate/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-navigation-drawer",
+      "title": "V Navigation Drawer",
+      "examples": [
+        {
+          "id": "misc-colored",
+          "path": "v-navigation-drawer/misc-colored.vue",
+          "title": "Misc colored"
+        },
+        {
+          "id": "misc-combined",
+          "path": "v-navigation-drawer/misc-combined.vue",
+          "title": "Misc combined"
+        },
+        {
+          "id": "prop-bottom-drawer",
+          "path": "v-navigation-drawer/prop-bottom-drawer.vue",
+          "title": "Prop bottom drawer"
+        },
+        {
+          "id": "prop-expand-on-hover",
+          "path": "v-navigation-drawer/prop-expand-on-hover.vue",
+          "title": "Prop expand on hover"
+        },
+        {
+          "id": "prop-images",
+          "path": "v-navigation-drawer/prop-images.vue",
+          "title": "Prop images"
+        },
+        {
+          "id": "prop-permanent-and-floating",
+          "path": "v-navigation-drawer/prop-permanent-and-floating.vue",
+          "title": "Prop permanent and floating"
+        },
+        {
+          "id": "prop-rail-variant",
+          "path": "v-navigation-drawer/prop-rail-variant.vue",
+          "title": "Prop rail variant"
+        },
+        {
+          "id": "prop-right",
+          "path": "v-navigation-drawer/prop-right.vue",
+          "title": "Prop right"
+        },
+        {
+          "id": "prop-temporary",
+          "path": "v-navigation-drawer/prop-temporary.vue",
+          "title": "Prop temporary"
+        }
+      ]
+    },
+    {
+      "name": "v-number-input",
+      "title": "V Number Input",
+      "examples": [
+        {
+          "id": "prop-control-variant",
+          "path": "v-number-input/prop-control-variant.vue",
+          "title": "Prop control variant"
+        },
+        {
+          "id": "prop-grouping",
+          "path": "v-number-input/prop-grouping.vue",
+          "title": "Prop grouping"
+        },
+        {
+          "id": "prop-hide-input",
+          "path": "v-number-input/prop-hide-input.vue",
+          "title": "Prop hide input"
+        },
+        {
+          "id": "prop-inset",
+          "path": "v-number-input/prop-inset.vue",
+          "title": "Prop inset"
+        },
+        {
+          "id": "prop-min-max",
+          "path": "v-number-input/prop-min-max.vue",
+          "title": "Prop min max"
+        },
+        {
+          "id": "prop-precision",
+          "path": "v-number-input/prop-precision.vue",
+          "title": "Prop precision"
+        },
+        {
+          "id": "prop-reverse",
+          "path": "v-number-input/prop-reverse.vue",
+          "title": "Prop reverse"
+        },
+        {
+          "id": "prop-step",
+          "path": "v-number-input/prop-step.vue",
+          "title": "Prop step"
+        }
+      ]
+    },
+    {
+      "name": "v-otp-input",
+      "title": "V Otp Input",
+      "examples": [
+        {
+          "id": "misc-card",
+          "path": "v-otp-input/misc-card.vue",
+          "title": "Misc card"
+        },
+        {
+          "id": "misc-custom-layout",
+          "path": "v-otp-input/misc-custom-layout.vue",
+          "title": "Misc custom layout"
+        },
+        {
+          "id": "misc-mobile",
+          "path": "v-otp-input/misc-mobile.vue",
+          "title": "Misc mobile"
+        },
+        {
+          "id": "misc-verify",
+          "path": "v-otp-input/misc-verify.vue",
+          "title": "Misc verify"
+        },
+        {
+          "id": "prop-divider",
+          "path": "v-otp-input/prop-divider.vue",
+          "title": "Prop divider"
+        },
+        {
+          "id": "prop-error",
+          "path": "v-otp-input/prop-error.vue",
+          "title": "Prop error"
+        },
+        {
+          "id": "prop-focus-all",
+          "path": "v-otp-input/prop-focus-all.vue",
+          "title": "Prop focus all"
+        },
+        {
+          "id": "prop-length",
+          "path": "v-otp-input/prop-length.vue",
+          "title": "Prop length"
+        },
+        {
+          "id": "prop-loader",
+          "path": "v-otp-input/prop-loader.vue",
+          "title": "Prop loader"
+        },
+        {
+          "id": "prop-masked",
+          "path": "v-otp-input/prop-masked.vue",
+          "title": "Prop masked"
+        },
+        {
+          "id": "prop-merged",
+          "path": "v-otp-input/prop-merged.vue",
+          "title": "Prop merged"
+        },
+        {
+          "id": "prop-pattern",
+          "path": "v-otp-input/prop-pattern.vue",
+          "title": "Prop pattern"
+        },
+        {
+          "id": "prop-variant",
+          "path": "v-otp-input/prop-variant.vue",
+          "title": "Prop variant"
+        },
+        {
+          "id": "slot-divider",
+          "path": "v-otp-input/slot-divider.vue",
+          "title": "Slot divider"
+        }
+      ]
+    },
+    {
+      "name": "v-overlay",
+      "title": "V Overlay",
+      "examples": [
+        {
+          "id": "connected-playground",
+          "path": "v-overlay/connected-playground.vue",
+          "title": "Connected playground"
+        },
+        {
+          "id": "misc-advanced",
+          "path": "v-overlay/misc-advanced.vue",
+          "title": "Misc advanced"
+        },
+        {
+          "id": "misc-loader",
+          "path": "v-overlay/misc-loader.vue",
+          "title": "Misc loader"
+        },
+        {
+          "id": "prop-contained",
+          "path": "v-overlay/prop-contained.vue",
+          "title": "Prop contained"
+        },
+        {
+          "id": "scroll-block",
+          "path": "v-overlay/scroll-block.vue",
+          "title": "Scroll block"
+        },
+        {
+          "id": "scroll-close",
+          "path": "v-overlay/scroll-close.vue",
+          "title": "Scroll close"
+        },
+        {
+          "id": "scroll-none",
+          "path": "v-overlay/scroll-none.vue",
+          "title": "Scroll none"
+        },
+        {
+          "id": "scroll-reposition",
+          "path": "v-overlay/scroll-reposition.vue",
+          "title": "Scroll reposition"
+        },
+        {
+          "id": "usage",
+          "path": "v-overlay/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-pagination",
+      "title": "V Pagination",
+      "examples": [
+        {
+          "id": "prop-disabled",
+          "path": "v-pagination/prop-disabled.vue",
+          "title": "Prop disabled"
+        },
+        {
+          "id": "prop-icons",
+          "path": "v-pagination/prop-icons.vue",
+          "title": "Prop icons"
+        },
+        {
+          "id": "prop-length",
+          "path": "v-pagination/prop-length.vue",
+          "title": "Prop length"
+        },
+        {
+          "id": "prop-rounded",
+          "path": "v-pagination/prop-rounded.vue",
+          "title": "Prop rounded"
+        },
+        {
+          "id": "prop-total-visible",
+          "path": "v-pagination/prop-total-visible.vue",
+          "title": "Prop total visible"
+        }
+      ]
+    },
+    {
+      "name": "v-parallax",
+      "title": "V Parallax",
+      "examples": [
+        {
+          "id": "misc-content",
+          "path": "v-parallax/misc-content.vue",
+          "title": "Misc content"
+        },
+        {
+          "id": "misc-custom-height",
+          "path": "v-parallax/misc-custom-height.vue",
+          "title": "Misc custom height"
+        },
+        {
+          "id": "misc-welcome",
+          "path": "v-parallax/misc-welcome.vue",
+          "title": "Misc welcome"
+        },
+        {
+          "id": "usage",
+          "path": "v-parallax/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-pie",
+      "title": "V Pie",
+      "examples": [
+        {
+          "id": "misc-custom-legend",
+          "path": "v-pie/misc-custom-legend.vue",
+          "title": "Misc custom legend"
+        },
+        {
+          "id": "misc-patterns",
+          "path": "v-pie/misc-patterns.vue",
+          "title": "Misc patterns"
+        },
+        {
+          "id": "prop-formats",
+          "path": "v-pie/prop-formats.vue",
+          "title": "Prop formats"
+        },
+        {
+          "id": "prop-legend",
+          "path": "v-pie/prop-legend.vue",
+          "title": "Prop legend"
+        },
+        {
+          "id": "prop-palette",
+          "path": "v-pie/prop-palette.vue",
+          "title": "Prop palette"
+        },
+        {
+          "id": "prop-size",
+          "path": "v-pie/prop-size.vue",
+          "title": "Prop size"
+        }
+      ]
+    },
+    {
+      "name": "v-progress",
+      "title": "V Progress",
+      "examples": [
+        {
+          "id": "misc-card-loader",
+          "path": "v-progress/misc-card-loader.vue",
+          "title": "Misc card loader"
+        },
+        {
+          "id": "prop-label",
+          "path": "v-progress/prop-label.vue",
+          "title": "Prop label"
+        },
+        {
+          "id": "prop-value-format",
+          "path": "v-progress/prop-value-format.vue",
+          "title": "Prop value format"
+        },
+        {
+          "id": "slot-label-and-value",
+          "path": "v-progress/slot-label-and-value.vue",
+          "title": "Slot label and value"
+        }
+      ]
+    },
+    {
+      "name": "v-progress-circular",
+      "title": "V Progress Circular",
+      "examples": [
+        {
+          "id": "prop-color",
+          "path": "v-progress-circular/prop-color.vue",
+          "title": "Prop color"
+        },
+        {
+          "id": "prop-indeterminate",
+          "path": "v-progress-circular/prop-indeterminate.vue",
+          "title": "Prop indeterminate"
+        },
+        {
+          "id": "prop-reveal",
+          "path": "v-progress-circular/prop-reveal.vue",
+          "title": "Prop reveal"
+        },
+        {
+          "id": "prop-rotate",
+          "path": "v-progress-circular/prop-rotate.vue",
+          "title": "Prop rotate"
+        },
+        {
+          "id": "prop-size-and-width",
+          "path": "v-progress-circular/prop-size-and-width.vue",
+          "title": "Prop size and width"
+        },
+        {
+          "id": "prop-slot-default",
+          "path": "v-progress-circular/prop-slot-default.vue",
+          "title": "Prop slot default"
+        }
+      ]
+    },
+    {
+      "name": "v-progress-linear",
+      "title": "V Progress Linear",
+      "examples": [
+        {
+          "id": "misc-buffer-color",
+          "path": "v-progress-linear/misc-buffer-color.vue",
+          "title": "Misc buffer color"
+        },
+        {
+          "id": "misc-determinate",
+          "path": "v-progress-linear/misc-determinate.vue",
+          "title": "Misc determinate"
+        },
+        {
+          "id": "misc-file-loader",
+          "path": "v-progress-linear/misc-file-loader.vue",
+          "title": "Misc file loader"
+        },
+        {
+          "id": "misc-toolbar-loader",
+          "path": "v-progress-linear/misc-toolbar-loader.vue",
+          "title": "Misc toolbar loader"
+        },
+        {
+          "id": "prop-buffer-value",
+          "path": "v-progress-linear/prop-buffer-value.vue",
+          "title": "Prop buffer value"
+        },
+        {
+          "id": "prop-chunks",
+          "path": "v-progress-linear/prop-chunks.vue",
+          "title": "Prop chunks"
+        },
+        {
+          "id": "prop-colors",
+          "path": "v-progress-linear/prop-colors.vue",
+          "title": "Prop colors"
+        },
+        {
+          "id": "prop-indeterminate",
+          "path": "v-progress-linear/prop-indeterminate.vue",
+          "title": "Prop indeterminate"
+        },
+        {
+          "id": "prop-query",
+          "path": "v-progress-linear/prop-query.vue",
+          "title": "Prop query"
+        },
+        {
+          "id": "prop-reverse",
+          "path": "v-progress-linear/prop-reverse.vue",
+          "title": "Prop reverse"
+        },
+        {
+          "id": "prop-rounded",
+          "path": "v-progress-linear/prop-rounded.vue",
+          "title": "Prop rounded"
+        },
+        {
+          "id": "prop-stream",
+          "path": "v-progress-linear/prop-stream.vue",
+          "title": "Prop stream"
+        },
+        {
+          "id": "prop-striped",
+          "path": "v-progress-linear/prop-striped.vue",
+          "title": "Prop striped"
+        },
+        {
+          "id": "slot-default",
+          "path": "v-progress-linear/slot-default.vue",
+          "title": "Slot default"
+        }
+      ]
+    },
+    {
+      "name": "v-pull-to-refresh",
+      "title": "V Pull To Refresh",
+      "examples": [
+        {
+          "id": "usage",
+          "path": "v-pull-to-refresh/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-radio-group",
+      "title": "V Radio Group",
+      "examples": [
+        {
+          "id": "prop-colors",
+          "path": "v-radio-group/prop-colors.vue",
+          "title": "Prop colors"
+        },
+        {
+          "id": "prop-direction",
+          "path": "v-radio-group/prop-direction.vue",
+          "title": "Prop direction"
+        },
+        {
+          "id": "prop-model-group",
+          "path": "v-radio-group/prop-model-group.vue",
+          "title": "Prop model group"
+        },
+        {
+          "id": "prop-model-radio",
+          "path": "v-radio-group/prop-model-radio.vue",
+          "title": "Prop model radio"
+        },
+        {
+          "id": "slot-label",
+          "path": "v-radio-group/slot-label.vue",
+          "title": "Slot label"
+        }
+      ]
+    },
+    {
+      "name": "v-range-slider",
+      "title": "V Range Slider",
+      "examples": [
+        {
+          "id": "prop-disabled",
+          "path": "v-range-slider/prop-disabled.vue",
+          "title": "Prop disabled"
+        },
+        {
+          "id": "prop-min-and-max",
+          "path": "v-range-slider/prop-min-and-max.vue",
+          "title": "Prop min and max"
+        },
+        {
+          "id": "prop-step",
+          "path": "v-range-slider/prop-step.vue",
+          "title": "Prop step"
+        },
+        {
+          "id": "prop-strict",
+          "path": "v-range-slider/prop-strict.vue",
+          "title": "Prop strict"
+        },
+        {
+          "id": "prop-vertical",
+          "path": "v-range-slider/prop-vertical.vue",
+          "title": "Prop vertical"
+        },
+        {
+          "id": "slot-thumb-label",
+          "path": "v-range-slider/slot-thumb-label.vue",
+          "title": "Slot thumb label"
+        }
+      ]
+    },
+    {
+      "name": "v-rating",
+      "title": "V Rating",
+      "examples": [
+        {
+          "id": "misc-advanced",
+          "path": "v-rating/misc-advanced.vue",
+          "title": "Misc advanced"
+        },
+        {
+          "id": "misc-card",
+          "path": "v-rating/misc-card.vue",
+          "title": "Misc card"
+        },
+        {
+          "id": "misc-card-overview",
+          "path": "v-rating/misc-card-overview.vue",
+          "title": "Misc card overview"
+        },
+        {
+          "id": "prop-clearable",
+          "path": "v-rating/prop-clearable.vue",
+          "title": "Prop clearable"
+        },
+        {
+          "id": "prop-color",
+          "path": "v-rating/prop-color.vue",
+          "title": "Prop color"
+        },
+        {
+          "id": "prop-density",
+          "path": "v-rating/prop-density.vue",
+          "title": "Prop density"
+        },
+        {
+          "id": "prop-half-increments",
+          "path": "v-rating/prop-half-increments.vue",
+          "title": "Prop half increments"
+        },
+        {
+          "id": "prop-hover",
+          "path": "v-rating/prop-hover.vue",
+          "title": "Prop hover"
+        },
+        {
+          "id": "prop-icon-label",
+          "path": "v-rating/prop-icon-label.vue",
+          "title": "Prop icon label"
+        },
+        {
+          "id": "prop-icons",
+          "path": "v-rating/prop-icons.vue",
+          "title": "Prop icons"
+        },
+        {
+          "id": "prop-item-labels",
+          "path": "v-rating/prop-item-labels.vue",
+          "title": "Prop item labels"
+        },
+        {
+          "id": "prop-length",
+          "path": "v-rating/prop-length.vue",
+          "title": "Prop length"
+        },
+        {
+          "id": "prop-readonly",
+          "path": "v-rating/prop-readonly.vue",
+          "title": "Prop readonly"
+        },
+        {
+          "id": "prop-size",
+          "path": "v-rating/prop-size.vue",
+          "title": "Prop size"
+        },
+        {
+          "id": "slot-item",
+          "path": "v-rating/slot-item.vue",
+          "title": "Slot item"
+        },
+        {
+          "id": "slot-item-label",
+          "path": "v-rating/slot-item-label.vue",
+          "title": "Slot item label"
+        }
+      ]
+    },
+    {
+      "name": "v-resize",
+      "title": "V Resize",
+      "examples": [
+        {
+          "id": "usage",
+          "path": "v-resize/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-ripple",
+      "title": "V Ripple",
+      "examples": [
+        {
+          "id": "misc-custom-color",
+          "path": "v-ripple/misc-custom-color.vue",
+          "title": "Misc custom color"
+        },
+        {
+          "id": "misc-ripple-in-components",
+          "path": "v-ripple/misc-ripple-in-components.vue",
+          "title": "Misc ripple in components"
+        },
+        {
+          "id": "option-center",
+          "path": "v-ripple/option-center.vue",
+          "title": "Option center"
+        },
+        {
+          "id": "stop",
+          "path": "v-ripple/stop.vue",
+          "title": "Stop"
+        },
+        {
+          "id": "usage",
+          "path": "v-ripple/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-scroll",
+      "title": "V Scroll",
+      "examples": [
+        {
+          "id": "option-self",
+          "path": "v-scroll/option-self.vue",
+          "title": "Option self"
+        },
+        {
+          "id": "option-target",
+          "path": "v-scroll/option-target.vue",
+          "title": "Option target"
+        },
+        {
+          "id": "usage",
+          "path": "v-scroll/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-select",
+      "title": "V Select",
+      "examples": [
+        {
+          "id": "prop-avoid-duplicate-text",
+          "path": "v-select/prop-avoid-duplicate-text.vue",
+          "title": "Prop avoid duplicate text"
+        },
+        {
+          "id": "prop-chips",
+          "path": "v-select/prop-chips.vue",
+          "title": "Prop chips"
+        },
+        {
+          "id": "prop-custom-title-and-value",
+          "path": "v-select/prop-custom-title-and-value.vue",
+          "title": "Prop custom title and value"
+        },
+        {
+          "id": "prop-dense",
+          "path": "v-select/prop-dense.vue",
+          "title": "Prop dense"
+        },
+        {
+          "id": "prop-disabled",
+          "path": "v-select/prop-disabled.vue",
+          "title": "Prop disabled"
+        },
+        {
+          "id": "prop-item-props",
+          "path": "v-select/prop-item-props.vue",
+          "title": "Prop item props"
+        },
+        {
+          "id": "prop-list-props",
+          "path": "v-select/prop-list-props.vue",
+          "title": "Prop list props"
+        },
+        {
+          "id": "prop-menu-props",
+          "path": "v-select/prop-menu-props.vue",
+          "title": "Prop menu props"
+        },
+        {
+          "id": "prop-multiple",
+          "path": "v-select/prop-multiple.vue",
+          "title": "Prop multiple"
+        },
+        {
+          "id": "prop-readonly",
+          "path": "v-select/prop-readonly.vue",
+          "title": "Prop readonly"
+        },
+        {
+          "id": "slot-append-and-prepend-item",
+          "path": "v-select/slot-append-and-prepend-item.vue",
+          "title": "Slot append and prepend item"
+        },
+        {
+          "id": "slot-item",
+          "path": "v-select/slot-item.vue",
+          "title": "Slot item"
+        },
+        {
+          "id": "slot-menu-header-and-footer",
+          "path": "v-select/slot-menu-header-and-footer.vue",
+          "title": "Slot menu header and footer"
+        },
+        {
+          "id": "slot-selection",
+          "path": "v-select/slot-selection.vue",
+          "title": "Slot selection"
+        }
+      ]
+    },
+    {
+      "name": "v-sheet",
+      "title": "V Sheet",
+      "examples": [
+        {
+          "id": "misc-congratulations",
+          "path": "v-sheet/misc-congratulations.vue",
+          "title": "Misc congratulations"
+        },
+        {
+          "id": "misc-privacy-policy",
+          "path": "v-sheet/misc-privacy-policy.vue",
+          "title": "Misc privacy policy"
+        },
+        {
+          "id": "misc-reconcile",
+          "path": "v-sheet/misc-reconcile.vue",
+          "title": "Misc reconcile"
+        },
+        {
+          "id": "misc-referral-program",
+          "path": "v-sheet/misc-referral-program.vue",
+          "title": "Misc referral program"
+        },
+        {
+          "id": "prop-color",
+          "path": "v-sheet/prop-color.vue",
+          "title": "Prop color"
+        },
+        {
+          "id": "prop-elevation",
+          "path": "v-sheet/prop-elevation.vue",
+          "title": "Prop elevation"
+        },
+        {
+          "id": "prop-rounded",
+          "path": "v-sheet/prop-rounded.vue",
+          "title": "Prop rounded"
+        }
+      ]
+    },
+    {
+      "name": "v-skeleton-loader",
+      "title": "V Skeleton Loader",
+      "examples": [
+        {
+          "id": "misc-ice-cream",
+          "path": "v-skeleton-loader/misc-ice-cream.vue",
+          "title": "Misc ice cream"
+        },
+        {
+          "id": "prop-boilerplate",
+          "path": "v-skeleton-loader/prop-boilerplate.vue",
+          "title": "Prop boilerplate"
+        },
+        {
+          "id": "prop-elevation",
+          "path": "v-skeleton-loader/prop-elevation.vue",
+          "title": "Prop elevation"
+        },
+        {
+          "id": "prop-loading",
+          "path": "v-skeleton-loader/prop-loading.vue",
+          "title": "Prop loading"
+        },
+        {
+          "id": "prop-type",
+          "path": "v-skeleton-loader/prop-type.vue",
+          "title": "Prop type"
+        },
+        {
+          "id": "prop-types",
+          "path": "v-skeleton-loader/prop-types.vue",
+          "title": "Prop types"
+        },
+        {
+          "id": "prop-types-table",
+          "path": "v-skeleton-loader/prop-types-table.vue",
+          "title": "Prop types table"
+        }
+      ]
+    },
+    {
+      "name": "v-slide-group",
+      "title": "V Slide Group",
+      "examples": [
+        {
+          "id": "misc-pseudo-carousel",
+          "path": "v-slide-group/misc-pseudo-carousel.vue",
+          "title": "Misc pseudo carousel"
+        },
+        {
+          "id": "prop-active-class",
+          "path": "v-slide-group/prop-active-class.vue",
+          "title": "Prop active class"
+        },
+        {
+          "id": "prop-center-active",
+          "path": "v-slide-group/prop-center-active.vue",
+          "title": "Prop center active"
+        },
+        {
+          "id": "prop-custom-icons",
+          "path": "v-slide-group/prop-custom-icons.vue",
+          "title": "Prop custom icons"
+        },
+        {
+          "id": "prop-mandatory",
+          "path": "v-slide-group/prop-mandatory.vue",
+          "title": "Prop mandatory"
+        },
+        {
+          "id": "prop-multiple",
+          "path": "v-slide-group/prop-multiple.vue",
+          "title": "Prop multiple"
+        },
+        {
+          "id": "usage",
+          "path": "v-slide-group/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-slider",
+      "title": "V Slider",
+      "examples": [
+        {
+          "id": "prop-colors",
+          "path": "v-slider/prop-colors.vue",
+          "title": "Prop colors"
+        },
+        {
+          "id": "prop-disabled",
+          "path": "v-slider/prop-disabled.vue",
+          "title": "Prop disabled"
+        },
+        {
+          "id": "prop-icons",
+          "path": "v-slider/prop-icons.vue",
+          "title": "Prop icons"
+        },
+        {
+          "id": "prop-min-and-max",
+          "path": "v-slider/prop-min-and-max.vue",
+          "title": "Prop min and max"
+        },
+        {
+          "id": "prop-readonly",
+          "path": "v-slider/prop-readonly.vue",
+          "title": "Prop readonly"
+        },
+        {
+          "id": "prop-step",
+          "path": "v-slider/prop-step.vue",
+          "title": "Prop step"
+        },
+        {
+          "id": "prop-thumb",
+          "path": "v-slider/prop-thumb.vue",
+          "title": "Prop thumb"
+        },
+        {
+          "id": "prop-ticks",
+          "path": "v-slider/prop-ticks.vue",
+          "title": "Prop ticks"
+        },
+        {
+          "id": "prop-validation",
+          "path": "v-slider/prop-validation.vue",
+          "title": "Prop validation"
+        },
+        {
+          "id": "prop-vertical",
+          "path": "v-slider/prop-vertical.vue",
+          "title": "Prop vertical"
+        },
+        {
+          "id": "slot-append-and-prepend",
+          "path": "v-slider/slot-append-and-prepend.vue",
+          "title": "Slot append and prepend"
+        },
+        {
+          "id": "slot-append-text-field",
+          "path": "v-slider/slot-append-text-field.vue",
+          "title": "Slot append text field"
+        }
+      ]
+    },
+    {
+      "name": "v-snackbar",
+      "title": "V Snackbar",
+      "examples": [
+        {
+          "id": "prop-loading",
+          "path": "v-snackbar/prop-loading.vue",
+          "title": "Prop loading"
+        },
+        {
+          "id": "prop-prepend-avatar",
+          "path": "v-snackbar/prop-prepend-avatar.vue",
+          "title": "Prop prepend avatar"
+        },
+        {
+          "id": "prop-prepend-icon",
+          "path": "v-snackbar/prop-prepend-icon.vue",
+          "title": "Prop prepend icon"
+        },
+        {
+          "id": "prop-timeout",
+          "path": "v-snackbar/prop-timeout.vue",
+          "title": "Prop timeout"
+        },
+        {
+          "id": "prop-timer-position",
+          "path": "v-snackbar/prop-timer-position.vue",
+          "title": "Prop timer position"
+        },
+        {
+          "id": "prop-variants",
+          "path": "v-snackbar/prop-variants.vue",
+          "title": "Prop variants"
+        },
+        {
+          "id": "prop-vertical",
+          "path": "v-snackbar/prop-vertical.vue",
+          "title": "Prop vertical"
+        },
+        {
+          "id": "slot-header",
+          "path": "v-snackbar/slot-header.vue",
+          "title": "Slot header"
+        },
+        {
+          "id": "slot-prepend",
+          "path": "v-snackbar/slot-prepend.vue",
+          "title": "Slot prepend"
+        },
+        {
+          "id": "usage",
+          "path": "v-snackbar/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-snackbar-queue",
+      "title": "V Snackbar Queue",
+      "examples": [
+        {
+          "id": "misc-promise",
+          "path": "v-snackbar-queue/misc-promise.vue",
+          "title": "Misc promise"
+        },
+        {
+          "id": "prop-total-visible",
+          "path": "v-snackbar-queue/prop-total-visible.vue",
+          "title": "Prop total visible"
+        },
+        {
+          "id": "prop-transition",
+          "path": "v-snackbar-queue/prop-transition.vue",
+          "title": "Prop transition"
+        }
+      ]
+    },
+    {
+      "name": "v-sparkline",
+      "title": "V Sparkline",
+      "examples": [
+        {
+          "id": "misc-custom-labels",
+          "path": "v-sparkline/misc-custom-labels.vue",
+          "title": "Misc custom labels"
+        },
+        {
+          "id": "misc-dashboard-card",
+          "path": "v-sparkline/misc-dashboard-card.vue",
+          "title": "Misc dashboard card"
+        },
+        {
+          "id": "misc-heart-rate",
+          "path": "v-sparkline/misc-heart-rate.vue",
+          "title": "Misc heart rate"
+        },
+        {
+          "id": "misc-interactive",
+          "path": "v-sparkline/misc-interactive.vue",
+          "title": "Misc interactive"
+        },
+        {
+          "id": "prop-animation",
+          "path": "v-sparkline/prop-animation.vue",
+          "title": "Prop animation"
+        },
+        {
+          "id": "prop-fill",
+          "path": "v-sparkline/prop-fill.vue",
+          "title": "Prop fill"
+        },
+        {
+          "id": "prop-inset",
+          "path": "v-sparkline/prop-inset.vue",
+          "title": "Prop inset"
+        },
+        {
+          "id": "prop-smooth-mode",
+          "path": "v-sparkline/prop-smooth-mode.vue",
+          "title": "Prop smooth mode"
+        }
+      ]
+    },
+    {
+      "name": "v-stepper",
+      "title": "V Stepper",
+      "examples": [
+        {
+          "id": "misc-alternate-error",
+          "path": "v-stepper/misc-alternate-error.vue",
+          "title": "Misc alternate error"
+        },
+        {
+          "id": "misc-dynamic",
+          "path": "v-stepper/misc-dynamic.vue",
+          "title": "Misc dynamic"
+        },
+        {
+          "id": "misc-editable",
+          "path": "v-stepper/misc-editable.vue",
+          "title": "Misc editable"
+        },
+        {
+          "id": "misc-error",
+          "path": "v-stepper/misc-error.vue",
+          "title": "Misc error"
+        },
+        {
+          "id": "misc-horizontal",
+          "path": "v-stepper/misc-horizontal.vue",
+          "title": "Misc horizontal"
+        },
+        {
+          "id": "misc-linear",
+          "path": "v-stepper/misc-linear.vue",
+          "title": "Misc linear"
+        },
+        {
+          "id": "misc-non-editable",
+          "path": "v-stepper/misc-non-editable.vue",
+          "title": "Misc non editable"
+        },
+        {
+          "id": "misc-optional",
+          "path": "v-stepper/misc-optional.vue",
+          "title": "Misc optional"
+        },
+        {
+          "id": "misc-vertical-error",
+          "path": "v-stepper/misc-vertical-error.vue",
+          "title": "Misc vertical error"
+        },
+        {
+          "id": "prop-alternate-label",
+          "path": "v-stepper/prop-alternate-label.vue",
+          "title": "Prop alternate label"
+        },
+        {
+          "id": "prop-mobile",
+          "path": "v-stepper/prop-mobile.vue",
+          "title": "Prop mobile"
+        },
+        {
+          "id": "prop-non-linear",
+          "path": "v-stepper/prop-non-linear.vue",
+          "title": "Prop non linear"
+        },
+        {
+          "id": "prop-vertical",
+          "path": "v-stepper/prop-vertical.vue",
+          "title": "Prop vertical"
+        }
+      ]
+    },
+    {
+      "name": "v-stepper-vertical",
+      "title": "V Stepper Vertical",
+      "examples": [
+        {
+          "id": "prop-non-linear",
+          "path": "v-stepper-vertical/prop-non-linear.vue",
+          "title": "Prop non linear"
+        },
+        {
+          "id": "slot-actions",
+          "path": "v-stepper-vertical/slot-actions.vue",
+          "title": "Slot actions"
+        }
+      ]
+    },
+    {
+      "name": "v-switch",
+      "title": "V Switch",
+      "examples": [
+        {
+          "id": "prop-colors",
+          "path": "v-switch/prop-colors.vue",
+          "title": "Prop colors"
+        },
+        {
+          "id": "prop-custom-values",
+          "path": "v-switch/prop-custom-values.vue",
+          "title": "Prop custom values"
+        },
+        {
+          "id": "prop-model-as-array",
+          "path": "v-switch/prop-model-as-array.vue",
+          "title": "Prop model as array"
+        },
+        {
+          "id": "prop-states",
+          "path": "v-switch/prop-states.vue",
+          "title": "Prop states"
+        },
+        {
+          "id": "slot-label",
+          "path": "v-switch/slot-label.vue",
+          "title": "Slot label"
+        }
+      ]
+    },
+    {
+      "name": "v-system-bar",
+      "title": "V System Bar",
+      "examples": [
+        {
+          "id": "prop-color",
+          "path": "v-system-bar/prop-color.vue",
+          "title": "Prop color"
+        },
+        {
+          "id": "prop-window",
+          "path": "v-system-bar/prop-window.vue",
+          "title": "Prop window"
+        }
+      ]
+    },
+    {
+      "name": "v-table",
+      "title": "V Table",
+      "examples": [
+        {
+          "id": "prop-dark",
+          "path": "v-table/prop-dark.vue",
+          "title": "Prop dark"
+        },
+        {
+          "id": "prop-dense",
+          "path": "v-table/prop-dense.vue",
+          "title": "Prop dense"
+        },
+        {
+          "id": "prop-fixed-header",
+          "path": "v-table/prop-fixed-header.vue",
+          "title": "Prop fixed header"
+        },
+        {
+          "id": "prop-height",
+          "path": "v-table/prop-height.vue",
+          "title": "Prop height"
+        },
+        {
+          "id": "prop-striped",
+          "path": "v-table/prop-striped.vue",
+          "title": "Prop striped"
+        },
+        {
+          "id": "usage",
+          "path": "v-table/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-tabs",
+      "title": "V Tabs",
+      "examples": [
+        {
+          "id": "misc-content",
+          "path": "v-tabs/misc-content.vue",
+          "title": "Misc content"
+        },
+        {
+          "id": "misc-dynamic",
+          "path": "v-tabs/misc-dynamic.vue",
+          "title": "Misc dynamic"
+        },
+        {
+          "id": "misc-dynamic-height",
+          "path": "v-tabs/misc-dynamic-height.vue",
+          "title": "Misc dynamic height"
+        },
+        {
+          "id": "misc-mobile",
+          "path": "v-tabs/misc-mobile.vue",
+          "title": "Misc mobile"
+        },
+        {
+          "id": "misc-overflow-to-menu",
+          "path": "v-tabs/misc-overflow-to-menu.vue",
+          "title": "Misc overflow to menu"
+        },
+        {
+          "id": "misc-pagination",
+          "path": "v-tabs/misc-pagination.vue",
+          "title": "Misc pagination"
+        },
+        {
+          "id": "misc-tab-items",
+          "path": "v-tabs/misc-tab-items.vue",
+          "title": "Misc tab items"
+        },
+        {
+          "id": "prop-align-tabs-center",
+          "path": "v-tabs/prop-align-tabs-center.vue",
+          "title": "Prop align tabs center"
+        },
+        {
+          "id": "prop-align-tabs-end",
+          "path": "v-tabs/prop-align-tabs-end.vue",
+          "title": "Prop align tabs end"
+        },
+        {
+          "id": "prop-align-tabs-title",
+          "path": "v-tabs/prop-align-tabs-title.vue",
+          "title": "Prop align tabs title"
+        },
+        {
+          "id": "prop-center-active",
+          "path": "v-tabs/prop-center-active.vue",
+          "title": "Prop center active"
+        },
+        {
+          "id": "prop-direction",
+          "path": "v-tabs/prop-direction.vue",
+          "title": "Prop direction"
+        },
+        {
+          "id": "prop-fixed-tabs",
+          "path": "v-tabs/prop-fixed-tabs.vue",
+          "title": "Prop fixed tabs"
+        },
+        {
+          "id": "prop-grow",
+          "path": "v-tabs/prop-grow.vue",
+          "title": "Prop grow"
+        },
+        {
+          "id": "prop-icons",
+          "path": "v-tabs/prop-icons.vue",
+          "title": "Prop icons"
+        },
+        {
+          "id": "prop-slider-transition",
+          "path": "v-tabs/prop-slider-transition.vue",
+          "title": "Prop slider transition"
+        },
+        {
+          "id": "prop-spaced",
+          "path": "v-tabs/prop-spaced.vue",
+          "title": "Prop spaced"
+        },
+        {
+          "id": "prop-stacked",
+          "path": "v-tabs/prop-stacked.vue",
+          "title": "Prop stacked"
+        },
+        {
+          "id": "slot-tabs",
+          "path": "v-tabs/slot-tabs.vue",
+          "title": "Slot tabs"
+        }
+      ]
+    },
+    {
+      "name": "v-text-field",
+      "title": "V Text Field",
+      "examples": [
+        {
+          "id": "event-icons",
+          "path": "v-text-field/event-icons.vue",
+          "title": "Event icons"
+        },
+        {
+          "id": "misc-custom-validation",
+          "path": "v-text-field/misc-custom-validation.vue",
+          "title": "Misc custom validation"
+        },
+        {
+          "id": "misc-full-width-with-counter",
+          "path": "v-text-field/misc-full-width-with-counter.vue",
+          "title": "Misc full width with counter"
+        },
+        {
+          "id": "misc-guide",
+          "path": "v-text-field/misc-guide.vue",
+          "title": "Misc guide"
+        },
+        {
+          "id": "misc-login-form",
+          "path": "v-text-field/misc-login-form.vue",
+          "title": "Misc login form"
+        },
+        {
+          "id": "misc-password",
+          "path": "v-text-field/misc-password.vue",
+          "title": "Misc password"
+        },
+        {
+          "id": "prop-clearable",
+          "path": "v-text-field/prop-clearable.vue",
+          "title": "Prop clearable"
+        },
+        {
+          "id": "prop-contained",
+          "path": "v-text-field/prop-contained.vue",
+          "title": "Prop contained"
+        },
+        {
+          "id": "prop-counter",
+          "path": "v-text-field/prop-counter.vue",
+          "title": "Prop counter"
+        },
+        {
+          "id": "prop-custom-colors",
+          "path": "v-text-field/prop-custom-colors.vue",
+          "title": "Prop custom colors"
+        },
+        {
+          "id": "prop-dense",
+          "path": "v-text-field/prop-dense.vue",
+          "title": "Prop dense"
+        },
+        {
+          "id": "prop-disabled-and-readonly",
+          "path": "v-text-field/prop-disabled-and-readonly.vue",
+          "title": "Prop disabled and readonly"
+        },
+        {
+          "id": "prop-filled",
+          "path": "v-text-field/prop-filled.vue",
+          "title": "Prop filled"
+        },
+        {
+          "id": "prop-focused",
+          "path": "v-text-field/prop-focused.vue",
+          "title": "Prop focused"
+        },
+        {
+          "id": "prop-hide-details",
+          "path": "v-text-field/prop-hide-details.vue",
+          "title": "Prop hide details"
+        },
+        {
+          "id": "prop-hint",
+          "path": "v-text-field/prop-hint.vue",
+          "title": "Prop hint"
+        },
+        {
+          "id": "prop-icon",
+          "path": "v-text-field/prop-icon.vue",
+          "title": "Prop icon"
+        },
+        {
+          "id": "prop-label",
+          "path": "v-text-field/prop-label.vue",
+          "title": "Prop label"
+        },
+        {
+          "id": "prop-messages",
+          "path": "v-text-field/prop-messages.vue",
+          "title": "Prop messages"
+        },
+        {
+          "id": "prop-outlined",
+          "path": "v-text-field/prop-outlined.vue",
+          "title": "Prop outlined"
+        },
+        {
+          "id": "prop-placeholder",
+          "path": "v-text-field/prop-placeholder.vue",
+          "title": "Prop placeholder"
+        },
+        {
+          "id": "prop-prefixes-and-suffixes",
+          "path": "v-text-field/prop-prefixes-and-suffixes.vue",
+          "title": "Prop prefixes and suffixes"
+        },
+        {
+          "id": "prop-rules",
+          "path": "v-text-field/prop-rules.vue",
+          "title": "Prop rules"
+        },
+        {
+          "id": "prop-single-line",
+          "path": "v-text-field/prop-single-line.vue",
+          "title": "Prop single line"
+        },
+        {
+          "id": "prop-validation",
+          "path": "v-text-field/prop-validation.vue",
+          "title": "Prop validation"
+        },
+        {
+          "id": "prop-variant",
+          "path": "v-text-field/prop-variant.vue",
+          "title": "Prop variant"
+        },
+        {
+          "id": "slot-icons",
+          "path": "v-text-field/slot-icons.vue",
+          "title": "Slot icons"
+        },
+        {
+          "id": "slot-label",
+          "path": "v-text-field/slot-label.vue",
+          "title": "Slot label"
+        },
+        {
+          "id": "slot-progress",
+          "path": "v-text-field/slot-progress.vue",
+          "title": "Slot progress"
+        }
+      ]
+    },
+    {
+      "name": "v-textarea",
+      "title": "V Textarea",
+      "examples": [
+        {
+          "id": "misc-signup-form",
+          "path": "v-textarea/misc-signup-form.vue",
+          "title": "Misc signup form"
+        },
+        {
+          "id": "prop-auto-grow",
+          "path": "v-textarea/prop-auto-grow.vue",
+          "title": "Prop auto grow"
+        },
+        {
+          "id": "prop-background-color",
+          "path": "v-textarea/prop-background-color.vue",
+          "title": "Prop background color"
+        },
+        {
+          "id": "prop-browser-autocomplete",
+          "path": "v-textarea/prop-browser-autocomplete.vue",
+          "title": "Prop browser autocomplete"
+        },
+        {
+          "id": "prop-clearable",
+          "path": "v-textarea/prop-clearable.vue",
+          "title": "Prop clearable"
+        },
+        {
+          "id": "prop-counter",
+          "path": "v-textarea/prop-counter.vue",
+          "title": "Prop counter"
+        },
+        {
+          "id": "prop-icons",
+          "path": "v-textarea/prop-icons.vue",
+          "title": "Prop icons"
+        },
+        {
+          "id": "prop-no-resize",
+          "path": "v-textarea/prop-no-resize.vue",
+          "title": "Prop no resize"
+        },
+        {
+          "id": "prop-rows",
+          "path": "v-textarea/prop-rows.vue",
+          "title": "Prop rows"
+        }
+      ]
+    },
+    {
+      "name": "v-theme-provider",
+      "title": "V Theme Provider",
+      "examples": [
+        {
+          "id": "prop-with-background",
+          "path": "v-theme-provider/prop-with-background.vue",
+          "title": "Prop with background"
+        }
+      ]
+    },
+    {
+      "name": "v-time-picker",
+      "title": "V Time Picker",
+      "examples": [
+        {
+          "id": "misc-dialog-and-menu",
+          "path": "v-time-picker/misc-dialog-and-menu.vue",
+          "title": "Misc dialog and menu"
+        },
+        {
+          "id": "prop-allowed-times",
+          "path": "v-time-picker/prop-allowed-times.vue",
+          "title": "Prop allowed times"
+        },
+        {
+          "id": "prop-ampm-in-title",
+          "path": "v-time-picker/prop-ampm-in-title.vue",
+          "title": "Prop ampm in title"
+        },
+        {
+          "id": "prop-color",
+          "path": "v-time-picker/prop-color.vue",
+          "title": "Prop color"
+        },
+        {
+          "id": "prop-disabled",
+          "path": "v-time-picker/prop-disabled.vue",
+          "title": "Prop disabled"
+        },
+        {
+          "id": "prop-elevation",
+          "path": "v-time-picker/prop-elevation.vue",
+          "title": "Prop elevation"
+        },
+        {
+          "id": "prop-format",
+          "path": "v-time-picker/prop-format.vue",
+          "title": "Prop format"
+        },
+        {
+          "id": "prop-hide-header",
+          "path": "v-time-picker/prop-hide-header.vue",
+          "title": "Prop hide header"
+        },
+        {
+          "id": "prop-range",
+          "path": "v-time-picker/prop-range.vue",
+          "title": "Prop range"
+        },
+        {
+          "id": "prop-readonly",
+          "path": "v-time-picker/prop-readonly.vue",
+          "title": "Prop readonly"
+        },
+        {
+          "id": "prop-scrollable",
+          "path": "v-time-picker/prop-scrollable.vue",
+          "title": "Prop scrollable"
+        },
+        {
+          "id": "prop-use-seconds",
+          "path": "v-time-picker/prop-use-seconds.vue",
+          "title": "Prop use seconds"
+        }
+      ]
+    },
+    {
+      "name": "v-timeline",
+      "title": "V Timeline",
+      "examples": [
+        {
+          "id": "misc-advanced",
+          "path": "v-timeline/misc-advanced.vue",
+          "title": "Misc advanced"
+        },
+        {
+          "id": "prop-align",
+          "path": "v-timeline/prop-align.vue",
+          "title": "Prop align"
+        },
+        {
+          "id": "prop-color",
+          "path": "v-timeline/prop-color.vue",
+          "title": "Prop color"
+        },
+        {
+          "id": "prop-direction",
+          "path": "v-timeline/prop-direction.vue",
+          "title": "Prop direction"
+        },
+        {
+          "id": "prop-icon-dots",
+          "path": "v-timeline/prop-icon-dots.vue",
+          "title": "Prop icon dots"
+        },
+        {
+          "id": "prop-line-inset",
+          "path": "v-timeline/prop-line-inset.vue",
+          "title": "Prop line inset"
+        },
+        {
+          "id": "prop-mirror",
+          "path": "v-timeline/prop-mirror.vue",
+          "title": "Prop mirror"
+        },
+        {
+          "id": "prop-single-side",
+          "path": "v-timeline/prop-single-side.vue",
+          "title": "Prop single side"
+        },
+        {
+          "id": "prop-size",
+          "path": "v-timeline/prop-size.vue",
+          "title": "Prop size"
+        },
+        {
+          "id": "prop-truncate-line",
+          "path": "v-timeline/prop-truncate-line.vue",
+          "title": "Prop truncate line"
+        },
+        {
+          "id": "slot-icon",
+          "path": "v-timeline/slot-icon.vue",
+          "title": "Slot icon"
+        },
+        {
+          "id": "slot-opposite",
+          "path": "v-timeline/slot-opposite.vue",
+          "title": "Slot opposite"
+        },
+        {
+          "id": "usage",
+          "path": "v-timeline/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-toolbar",
+      "title": "V Toolbar",
+      "examples": [
+        {
+          "id": "misc-contextual-action-bar",
+          "path": "v-toolbar/misc-contextual-action-bar.vue",
+          "title": "Misc contextual action bar"
+        },
+        {
+          "id": "misc-flexible-and-card",
+          "path": "v-toolbar/misc-flexible-and-card.vue",
+          "title": "Misc flexible and card"
+        },
+        {
+          "id": "misc-tooltips-and-speed-dial",
+          "path": "v-toolbar/misc-tooltips-and-speed-dial.vue",
+          "title": "Misc tooltips and speed dial"
+        },
+        {
+          "id": "prop-background",
+          "path": "v-toolbar/prop-background.vue",
+          "title": "Prop background"
+        },
+        {
+          "id": "prop-collapse",
+          "path": "v-toolbar/prop-collapse.vue",
+          "title": "Prop collapse"
+        },
+        {
+          "id": "prop-dense",
+          "path": "v-toolbar/prop-dense.vue",
+          "title": "Prop dense"
+        },
+        {
+          "id": "prop-extended",
+          "path": "v-toolbar/prop-extended.vue",
+          "title": "Prop extended"
+        },
+        {
+          "id": "prop-extension-height",
+          "path": "v-toolbar/prop-extension-height.vue",
+          "title": "Prop extension height"
+        },
+        {
+          "id": "prop-floating-with-search",
+          "path": "v-toolbar/prop-floating-with-search.vue",
+          "title": "Prop floating with search"
+        },
+        {
+          "id": "prop-location",
+          "path": "v-toolbar/prop-location.vue",
+          "title": "Prop location"
+        },
+        {
+          "id": "slot-extension",
+          "path": "v-toolbar/slot-extension.vue",
+          "title": "Slot extension"
+        }
+      ]
+    },
+    {
+      "name": "v-tooltip",
+      "title": "V Tooltip",
+      "examples": [
+        {
+          "id": "misc-at-cursor",
+          "path": "v-tooltip/misc-at-cursor.vue",
+          "title": "Misc at cursor"
+        },
+        {
+          "id": "prop-color",
+          "path": "v-tooltip/prop-color.vue",
+          "title": "Prop color"
+        },
+        {
+          "id": "prop-interactive",
+          "path": "v-tooltip/prop-interactive.vue",
+          "title": "Prop interactive"
+        },
+        {
+          "id": "prop-location",
+          "path": "v-tooltip/prop-location.vue",
+          "title": "Prop location"
+        },
+        {
+          "id": "prop-open-on-click",
+          "path": "v-tooltip/prop-open-on-click.vue",
+          "title": "Prop open on click"
+        },
+        {
+          "id": "prop-visibility",
+          "path": "v-tooltip/prop-visibility.vue",
+          "title": "Prop visibility"
+        }
+      ]
+    },
+    {
+      "name": "v-tooltip-directive",
+      "title": "V Tooltip Directive",
+      "examples": [
+        {
+          "id": "args",
+          "path": "v-tooltip-directive/args.vue",
+          "title": "Args"
+        },
+        {
+          "id": "object-literals",
+          "path": "v-tooltip-directive/object-literals.vue",
+          "title": "Object literals"
+        },
+        {
+          "id": "text",
+          "path": "v-tooltip-directive/text.vue",
+          "title": "Text"
+        }
+      ]
+    },
+    {
+      "name": "v-touch",
+      "title": "V Touch",
+      "examples": [
+        {
+          "id": "misc-directions",
+          "path": "v-touch/misc-directions.vue",
+          "title": "Misc directions"
+        },
+        {
+          "id": "misc-reactive",
+          "path": "v-touch/misc-reactive.vue",
+          "title": "Misc reactive"
+        },
+        {
+          "id": "misc-rtl",
+          "path": "v-touch/misc-rtl.vue",
+          "title": "Misc rtl"
+        },
+        {
+          "id": "misc-tracking",
+          "path": "v-touch/misc-tracking.vue",
+          "title": "Misc tracking"
+        },
+        {
+          "id": "option-once",
+          "path": "v-touch/option-once.vue",
+          "title": "Option once"
+        },
+        {
+          "id": "usage",
+          "path": "v-touch/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "v-treeview",
+      "title": "V Treeview",
+      "examples": [
+        {
+          "id": "misc-search-and-filter",
+          "path": "v-treeview/misc-search-and-filter.vue",
+          "title": "Misc search and filter"
+        },
+        {
+          "id": "misc-selectable-icons",
+          "path": "v-treeview/misc-selectable-icons.vue",
+          "title": "Misc selectable icons"
+        },
+        {
+          "id": "playground",
+          "path": "v-treeview/playground.vue",
+          "title": "Playground"
+        },
+        {
+          "id": "prop-activatable",
+          "path": "v-treeview/prop-activatable.vue",
+          "title": "Prop activatable"
+        },
+        {
+          "id": "prop-hoverable",
+          "path": "v-treeview/prop-hoverable.vue",
+          "title": "Prop hoverable"
+        },
+        {
+          "id": "prop-item-props",
+          "path": "v-treeview/prop-item-props.vue",
+          "title": "Prop item props"
+        },
+        {
+          "id": "prop-items-registration",
+          "path": "v-treeview/prop-items-registration.vue",
+          "title": "Prop items registration"
+        },
+        {
+          "id": "prop-load-children",
+          "path": "v-treeview/prop-load-children.vue",
+          "title": "Prop load children"
+        },
+        {
+          "id": "prop-open-all",
+          "path": "v-treeview/prop-open-all.vue",
+          "title": "Prop open all"
+        },
+        {
+          "id": "prop-rounded",
+          "path": "v-treeview/prop-rounded.vue",
+          "title": "Prop rounded"
+        },
+        {
+          "id": "prop-selected-color",
+          "path": "v-treeview/prop-selected-color.vue",
+          "title": "Prop selected color"
+        },
+        {
+          "id": "prop-selection-type",
+          "path": "v-treeview/prop-selection-type.vue",
+          "title": "Prop selection type"
+        },
+        {
+          "id": "slot-append-and-label",
+          "path": "v-treeview/slot-append-and-label.vue",
+          "title": "Slot append and label"
+        },
+        {
+          "id": "slot-append-and-prepend-item",
+          "path": "v-treeview/slot-append-and-prepend-item.vue",
+          "title": "Slot append and prepend item"
+        },
+        {
+          "id": "slot-footer",
+          "path": "v-treeview/slot-footer.vue",
+          "title": "Slot footer"
+        },
+        {
+          "id": "slot-no-data",
+          "path": "v-treeview/slot-no-data.vue",
+          "title": "Slot no data"
+        },
+        {
+          "id": "slot-title",
+          "path": "v-treeview/slot-title.vue",
+          "title": "Slot title"
+        },
+        {
+          "id": "slot-toggle",
+          "path": "v-treeview/slot-toggle.vue",
+          "title": "Slot toggle"
+        }
+      ]
+    },
+    {
+      "name": "v-video",
+      "title": "V Video",
+      "examples": [
+        {
+          "id": "misc-in-card",
+          "path": "v-video/misc-in-card.vue",
+          "title": "Misc in card"
+        },
+        {
+          "id": "misc-mini",
+          "path": "v-video/misc-mini.vue",
+          "title": "Misc mini"
+        },
+        {
+          "id": "misc-tube",
+          "path": "v-video/misc-tube.vue",
+          "title": "Misc tube"
+        },
+        {
+          "id": "prop-color",
+          "path": "v-video/prop-color.vue",
+          "title": "Prop color"
+        },
+        {
+          "id": "prop-density",
+          "path": "v-video/prop-density.vue",
+          "title": "Prop density"
+        },
+        {
+          "id": "prop-image",
+          "path": "v-video/prop-image.vue",
+          "title": "Prop image"
+        },
+        {
+          "id": "prop-rounded",
+          "path": "v-video/prop-rounded.vue",
+          "title": "Prop rounded"
+        },
+        {
+          "id": "prop-start-at",
+          "path": "v-video/prop-start-at.vue",
+          "title": "Prop start at"
+        },
+        {
+          "id": "slot-append-and-prepend",
+          "path": "v-video/slot-append-and-prepend.vue",
+          "title": "Slot append and prepend"
+        },
+        {
+          "id": "slot-controls",
+          "path": "v-video/slot-controls.vue",
+          "title": "Slot controls"
+        },
+        {
+          "id": "slot-error",
+          "path": "v-video/slot-error.vue",
+          "title": "Slot error"
+        },
+        {
+          "id": "slot-header",
+          "path": "v-video/slot-header.vue",
+          "title": "Slot header"
+        }
+      ]
+    },
+    {
+      "name": "v-virtual-scroll",
+      "title": "V Virtual Scroll",
+      "examples": [
+        {
+          "id": "misc-user-directory",
+          "path": "v-virtual-scroll/misc-user-directory.vue",
+          "title": "Misc user directory"
+        },
+        {
+          "id": "prop-dynamic-item-height",
+          "path": "v-virtual-scroll/prop-dynamic-item-height.vue",
+          "title": "Prop dynamic item height"
+        },
+        {
+          "id": "prop-height",
+          "path": "v-virtual-scroll/prop-height.vue",
+          "title": "Prop height"
+        },
+        {
+          "id": "prop-height-parent",
+          "path": "v-virtual-scroll/prop-height-parent.vue",
+          "title": "Prop height parent"
+        },
+        {
+          "id": "prop-item-height",
+          "path": "v-virtual-scroll/prop-item-height.vue",
+          "title": "Prop item height"
+        },
+        {
+          "id": "prop-renderless",
+          "path": "v-virtual-scroll/prop-renderless.vue",
+          "title": "Prop renderless"
+        }
+      ]
+    },
+    {
+      "name": "v-window",
+      "title": "V Window",
+      "examples": [
+        {
+          "id": "misc-account-creation",
+          "path": "v-window/misc-account-creation.vue",
+          "title": "Misc account creation"
+        },
+        {
+          "id": "misc-onboarding",
+          "path": "v-window/misc-onboarding.vue",
+          "title": "Misc onboarding"
+        },
+        {
+          "id": "prop-direction",
+          "path": "v-window/prop-direction.vue",
+          "title": "Prop direction"
+        },
+        {
+          "id": "prop-reverse",
+          "path": "v-window/prop-reverse.vue",
+          "title": "Prop reverse"
+        },
+        {
+          "id": "prop-show-arrows",
+          "path": "v-window/prop-show-arrows.vue",
+          "title": "Prop show arrows"
+        },
+        {
+          "id": "slots-next-prev",
+          "path": "v-window/slots-next-prev.vue",
+          "title": "Slots next prev"
+        },
+        {
+          "id": "usage",
+          "path": "v-window/usage.vue",
+          "title": "Usage"
+        }
+      ]
+    },
+    {
+      "name": "why-vuetify",
+      "title": "Why Vuetify",
+      "examples": [
+        {
+          "id": "card-components",
+          "path": "why-vuetify/card-components.vue",
+          "title": "Card components"
+        },
+        {
+          "id": "card-props",
+          "path": "why-vuetify/card-props.vue",
+          "title": "Card props"
+        },
+        {
+          "id": "card-slots",
+          "path": "why-vuetify/card-slots.vue",
+          "title": "Card slots"
+        }
+      ]
+    },
+    {
+      "name": "wireframes",
+      "title": "Wireframes",
+      "examples": [
+        {
+          "id": "baseline",
+          "path": "wireframes/baseline.vue",
+          "title": "Baseline"
+        },
+        {
+          "id": "constrained",
+          "path": "wireframes/constrained.vue",
+          "title": "Constrained"
+        },
+        {
+          "id": "discord",
+          "path": "wireframes/discord.vue",
+          "title": "Discord"
+        },
+        {
+          "id": "extended-toolbar",
+          "path": "wireframes/extended-toolbar.vue",
+          "title": "Extended toolbar"
+        },
+        {
+          "id": "inbox",
+          "path": "wireframes/inbox.vue",
+          "title": "Inbox"
+        },
+        {
+          "id": "side-navigation",
+          "path": "wireframes/side-navigation.vue",
+          "title": "Side navigation"
+        },
+        {
+          "id": "steam",
+          "path": "wireframes/steam.vue",
+          "title": "Steam"
+        },
+        {
+          "id": "system-bar",
+          "path": "wireframes/system-bar.vue",
+          "title": "System bar"
+        },
+        {
+          "id": "three-column",
+          "path": "wireframes/three-column.vue",
+          "title": "Three column"
+        }
+      ]
+    }
+  ]
+}

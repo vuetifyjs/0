@@ -1,9 +1,9 @@
 // Types
 import type { RegistryIndexEntry } from '@/data/registry'
 
-export type OpenRail = 'components' | 'composables' | 'plugins' | 'saved'
+export type OpenRail = 'components' | 'composables' | 'plugins' | 'vuetify' | 'saved'
 
-export type OpenRailDocs = Exclude<OpenRail, 'saved'>
+export type OpenRailDocs = Exclude<OpenRail, 'saved' | 'vuetify'>
 
 export interface OpenRailItem {
   id: OpenRailDocs

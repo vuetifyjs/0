@@ -12,6 +12,7 @@
   // Data
   import { resolveFeatureAccent, resolveFeatureIcon } from '@/data/feature-icons'
   import { DEFAULT_REGISTRY, getRegistryIndex, getRegistryItem } from '@/data/registry'
+  import { getVuetifyComponents, VUETIFY_EXAMPLES } from '@/data/vuetify-examples'
 
   // Local
   import {
@@ -27,6 +28,7 @@
 
   // Types
   import type { RegistryExample, RegistryIndexEntry, RegistryItem } from '@/data/registry'
+  import type { VuetifyComponentEntry, VuetifyExampleMeta } from '@/data/vuetify-examples'
 
   const emit = defineEmits<{ close: [] }>()
 
@@ -39,7 +41,7 @@
   const savedError = shallowRef<string>()
   const savedLoaded = shallowRef(false)
 
-  // ── Docs registry examples ───────────────────────────────────────────
+  // ── Docs registry examples (v0) ──────────────────────────────────────
   const items = ref<RegistryIndexEntry[]>([])
   const examplesLoading = shallowRef(true)
   const examplesError = shallowRef<string>()
@@ -47,9 +49,13 @@
   const input = useTemplateRef<HTMLInputElement>('input')
   const opening = shallowRef(false)
 
+  // ── Vuetify 4 docs examples (path manifest + raw git) ───────────────
+  const vuetifyItems = getVuetifyComponents()
+
   // Feature drill-in (example picker)
   const selected = shallowRef<RegistryIndexEntry>()
   const selectedItem = shallowRef<RegistryItem>()
+  const selectedVuetify = shallowRef<VuetifyComponentEntry>()
   const itemLoading = shallowRef(false)
   const itemError = shallowRef<string>()
 
@@ -69,11 +75,12 @@
 
   const railLabel = computed(() => {
     if (rail.value === 'saved') return 'Saved'
+    if (rail.value === 'vuetify') return 'Vuetify 4'
     return rails.find(r => r.id === rail.value)?.label ?? 'Examples'
   })
 
   const railItems = computed(() => {
-    if (rail.value === 'saved') return []
+    if (rail.value === 'saved' || rail.value === 'vuetify') return []
     return items.value.filter(item => bucketOf(item) === rail.value)
   })
 
@@ -89,6 +96,41 @@
     )
   })
 
+  const filteredVuetify = computed(() => {
+    const q = query.value.toLowerCase().trim()
+    if (!q) return vuetifyItems
+    return vuetifyItems.filter(item =>
+      item.name.includes(q)
+      || item.title.toLowerCase().includes(q)
+      || item.examples.some(e => e.id.includes(q) || e.title.toLowerCase().includes(q)),
+    )
+  })
+
+  /** Registry-shaped view of the selected Vuetify component for the examples pane. */
+  const selectedVuetifyAsItem = computed((): RegistryItem | undefined => {
+    const entry = selectedVuetify.value
+    if (!entry) return undefined
+    return {
+      name: entry.name,
+      type: 'components',
+      category: 'Component',
+      level: 'stable',
+      title: entry.title,
+      description: `Vuetify 4 docs examples for ${entry.name}`,
+      docs: '',
+      examples: entry.examples.map(example => ({
+        id: example.id,
+        title: example.title,
+        description: example.path,
+        dir: entry.name,
+        files: [{ path: example.path, name: `${example.id}.vue`, entry: true, content: '' }],
+        dependencies: ['vuetify'],
+        tokens: [],
+        icons: { collections: [], classes: [] },
+      })),
+    }
+  })
+
   const filteredSaved = computed(() => {
     const q = query.value.toLowerCase().trim()
     if (!q) return saved.value
@@ -96,10 +138,11 @@
   })
 
   const showSearch = computed(() => {
-    if (selected.value) return false
+    if (selected.value || selectedVuetify.value) return false
     if (rail.value === 'saved') {
       return !savedLoading.value && !savedError.value && saved.value.length > 0
     }
+    if (rail.value === 'vuetify') return vuetifyItems.length > 0
     return !examplesLoading.value && !examplesError.value && railItems.value.length > 0
   })
 
@@ -109,6 +152,15 @@
       if (savedError.value) return 'Could not load'
       const n = filteredSaved.value.length
       return n === 1 ? '1 playground' : `${n} playgrounds`
+    }
+    if (rail.value === 'vuetify') {
+      const n = filteredVuetify.value.length
+      const total = vuetifyItems.length
+      const examples = filteredVuetify.value.reduce((sum, c) => sum + c.examples.length, 0)
+      if (query.value.trim() && n !== total) {
+        return `${n} of ${total} components · ${examples} examples`
+      }
+      return `${total} components · ${examples} examples · raw git`
     }
     if (examplesLoading.value) return 'Loading…'
     if (examplesError.value) return 'Could not load registry'
@@ -121,11 +173,13 @@
   })
 
   const selectedIcon = computed(() => {
+    if (selectedVuetify.value) return 'vuetify'
     if (!selected.value) return undefined
     return resolveFeatureIcon(selected.value.name, selected.value.category)
   })
 
   const selectedAccent = computed(() => {
+    if (selectedVuetify.value) return resolveFeatureAccent('components', 'Component')
     if (!selected.value) return undefined
     return resolveFeatureAccent(selected.value.type, selected.value.category)
   })
@@ -179,10 +233,11 @@
   }
 
   async function onRail (next: OpenRail) {
-    if (rail.value === next && !selected.value) return
+    if (rail.value === next && !selected.value && !selectedVuetify.value) return
     rail.value = next
     selected.value = undefined
     selectedItem.value = undefined
+    selectedVuetify.value = undefined
     itemError.value = undefined
     query.value = ''
     if (next === 'saved') await loadSaved()
@@ -192,6 +247,7 @@
   function onBack () {
     selected.value = undefined
     selectedItem.value = undefined
+    selectedVuetify.value = undefined
     itemError.value = undefined
     nextTick(() => input.value?.focus())
   }
@@ -238,7 +294,17 @@
   }
 
   async function openExample (example: RegistryExample) {
-    if (!selected.value || opening.value) return
+    if (opening.value) return
+
+    // Vuetify 4 path: content is not in the registry item — fetch raw git.
+    if (selectedVuetify.value) {
+      const meta = selectedVuetify.value.examples.find(e => e.id === example.id)
+      if (!meta) return
+      await openVuetifyMeta(meta)
+      return
+    }
+
+    if (!selected.value) return
     opening.value = true
     try {
       await playground.openRegistryExample({
@@ -254,9 +320,59 @@
     }
   }
 
+  async function onSelectVuetify (entry: VuetifyComponentEntry) {
+    if (entry.examples.length === 1) {
+      selectedVuetify.value = entry
+      const only = entry.examples[0]
+      if (only) await openVuetifyMeta(only)
+      return
+    }
+    selectedVuetify.value = entry
+    selected.value = undefined
+    selectedItem.value = undefined
+    itemError.value = undefined
+  }
+
+  async function openVuetifyMeta (meta: VuetifyExampleMeta) {
+    if (opening.value) return
+    opening.value = true
+    itemError.value = undefined
+    try {
+      await playground.openVuetifyExample({ path: meta.path })
+      emit('close')
+    } catch (error) {
+      itemError.value = error instanceof Error ? error.message : String(error)
+    } finally {
+      opening.value = false
+    }
+  }
+
   function onClearQuery () {
     query.value = ''
     nextTick(() => input.value?.focus())
+  }
+
+  /** Map Vuetify components into registry gallery cards (reuse PlaygroundOpenGallery). */
+  const vuetifyAsRegistry = computed((): RegistryIndexEntry[] => {
+    return filteredVuetify.value.map(entry => ({
+      name: entry.name,
+      type: 'components' as const,
+      category: 'Component',
+      level: 'stable',
+      title: entry.title,
+      description: `${entry.examples.length} docs example${entry.examples.length === 1 ? '' : 's'}`,
+      docs: '',
+      examples: entry.examples.map(e => e.id),
+    }))
+  })
+
+  function onSelectGallery (entry: RegistryIndexEntry) {
+    if (rail.value === 'vuetify') {
+      const hit = vuetifyItems.find(c => c.name === entry.name)
+      if (hit) void onSelectVuetify(hit)
+      return
+    }
+    void onSelectFeature(entry)
   }
 
   async function openSaved (item: VuetifyPlayground) {
@@ -280,7 +396,7 @@
     <div
       class="fixed inset-0 z-50 flex items-center justify-center"
       tabindex="-1"
-      @keydown.esc="selected ? onBack() : $emit('close')"
+      @keydown.esc="selected || selectedVuetify ? onBack() : $emit('close')"
     >
       <div
         class="absolute inset-0 bg-black/50"
@@ -299,9 +415,9 @@
             v-for="item in rails"
             :key="item.id"
             class="mx-1.5 flex items-center justify-between gap-2 px-2.5 py-2 text-xs text-left rounded-md transition-colors"
-            :class="rail === item.id && !selected
+            :class="rail === item.id && !selected && !selectedVuetify
               ? 'bg-surface-tint text-on-surface font-medium'
-              : rail === item.id && selected
+              : rail === item.id && (selected || selectedVuetify)
                 ? 'bg-surface-tint/60 text-on-surface font-medium'
                 : 'text-on-surface-variant hover:bg-surface-tint/60 hover:text-on-surface'"
             type="button"
@@ -318,6 +434,23 @@
           </button>
 
           <div class="mx-3 my-2 border-t border-divider" />
+
+          <button
+            class="mx-1.5 flex items-center justify-between gap-2 px-2.5 py-2 text-xs text-left rounded-md transition-colors"
+            :class="rail === 'vuetify' && !selectedVuetify
+              ? 'bg-surface-tint text-on-surface font-medium'
+              : rail === 'vuetify' && selectedVuetify
+                ? 'bg-surface-tint/60 text-on-surface font-medium'
+                : 'text-on-surface-variant hover:bg-surface-tint/60 hover:text-on-surface'"
+            type="button"
+            @click="onRail('vuetify')"
+          >
+            <span class="truncate">Vuetify 4</span>
+
+            <span class="tabular-nums text-[10px] text-on-surface-variant shrink-0">
+              {{ vuetifyItems.length }}
+            </span>
+          </button>
 
           <button
             class="mx-1.5 flex items-center justify-between gap-2 px-2.5 py-2 text-xs text-left rounded-md transition-colors"
@@ -343,7 +476,7 @@
           <div class="flex items-start justify-between gap-3 px-4 py-3 border-b border-divider shrink-0">
             <div class="min-w-0 flex items-start gap-3">
               <div
-                v-if="selected && selectedAccent"
+                v-if="(selected || selectedVuetify) && selectedAccent"
                 class="w-9 h-9 rounded-md border border-divider/60 shrink-0 flex items-center justify-center"
                 :style="{ background: selectedAccent.bg }"
               >
@@ -355,7 +488,7 @@
               </div>
 
               <div class="min-w-0">
-                <div v-if="selected" class="flex items-center gap-1.5 mb-0.5">
+                <div v-if="selected || selectedVuetify" class="flex items-center gap-1.5 mb-0.5">
                   <button
                     class="text-[11px] text-on-surface-variant hover:text-primary transition-colors"
                     type="button"
@@ -367,16 +500,26 @@
                   <span class="text-[11px] text-on-surface-variant/50">/</span>
 
                   <span class="text-[11px] text-on-surface-variant truncate">
-                    {{ selected.title || selected.name }}
+                    {{ selectedVuetify?.title || selectedVuetify?.name || selected?.title || selected?.name }}
                   </span>
                 </div>
 
                 <h2 id="open-title" class="text-sm font-medium truncate">
-                  {{ selected ? (selected.title || selected.name) : railLabel }}
+                  {{ selectedVuetify
+                    ? (selectedVuetify.title || selectedVuetify.name)
+                    : selected
+                      ? (selected.title || selected.name)
+                      : railLabel }}
                 </h2>
 
                 <p class="text-[11px] text-on-surface-variant mt-0.5 truncate">
-                  <template v-if="selected">
+                  <template v-if="selectedVuetify">
+                    {{ selectedVuetify.name }}
+                    · {{ exampleLabel(selectedVuetify.examples.length) }}
+                    · {{ VUETIFY_EXAMPLES.repo }}@{{ VUETIFY_EXAMPLES.ref }}
+                  </template>
+
+                  <template v-else-if="selected">
                     {{ selected.type }}/{{ selected.name }}
                     <template v-if="selectedItem">
                       · {{ exampleLabel(selectedItem.examples.length) }}
@@ -419,7 +562,17 @@
 
           <div class="flex-1 overflow-y-auto min-h-0">
             <PlaygroundOpenExamples
-              v-if="selected"
+              v-if="selectedVuetify"
+              :error="itemError"
+              :item="selectedVuetifyAsItem"
+              :loading="false"
+              :opening
+              @open="openExample"
+              @retry="() => {}"
+            />
+
+            <PlaygroundOpenExamples
+              v-else-if="selected"
               :error="itemError"
               :item="selectedItem"
               :loading="itemLoading"
@@ -439,6 +592,18 @@
             />
 
             <PlaygroundOpenGallery
+              v-else-if="rail === 'vuetify'"
+              :error="undefined"
+              :items="vuetifyAsRegistry"
+              :loading="false"
+              :query
+              :rail-label
+              :total="vuetifyItems.length"
+              @retry="() => {}"
+              @select="onSelectGallery"
+            />
+
+            <PlaygroundOpenGallery
               v-else
               :error="examplesError"
               :items="filtered"
@@ -447,7 +612,7 @@
               :rail-label
               :total="railItems.length"
               @retry="loadExamples"
-              @select="onSelectFeature"
+              @select="onSelectGallery"
             />
           </div>
         </div>
