@@ -14,6 +14,7 @@
     EmButton,
     EmCard,
     EmCardBody,
+    EmIcon,
     EmTabs,
     EmTabsItem,
     EmTabsList,
@@ -164,17 +165,7 @@
 
               <ul class="adm-plans__highlights">
                 <li v-for="point in plan.highlights" :key="point">
-                  <svg
-                    aria-hidden="true"
-                    fill="none"
-                    height="14"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2.5"
-                    viewBox="0 0 16 16"
-                    width="14"
-                  ><path d="M3 8.5 6.5 12 13 4.5" /></svg>
+                  <EmIcon class="adm-plans__tick" name="check" />
                   {{ point }}
                 </li>
               </ul>
@@ -223,20 +214,16 @@
                   :key="index"
                   :data-featured="tiers[index]?.featured || undefined"
                 >
-                  <span v-if="value === true" aria-label="Included" class="adm-plans__check">
-                    <svg
-                      fill="none"
-                      height="14"
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2.5"
-                      viewBox="0 0 16 16"
-                      width="14"
-                    ><path d="M3 8.5 6.5 12 13 4.5" /></svg>
+                  <span v-if="value === true" class="adm-plans__check">
+                    <EmIcon label="Included" name="check" />
                   </span>
 
-                  <span v-else-if="value === false" aria-label="Not included" class="adm-plans__dash">&ndash;</span>
+                  <EmIcon
+                    v-else-if="value === false"
+                    class="adm-plans__dash"
+                    label="Not included"
+                    name="minus"
+                  />
 
                   <span v-else>{{ value }}</span>
                 </td>
@@ -485,8 +472,21 @@
     background: var(--emerald-background, #fefefe);
   }
 
+  .adm-plans__check .emerald-icon {
+    --emerald-icon-size: 14px;
+    --emerald-icon-stroke: 3.75;
+  }
+
   .adm-plans__dash {
+    --emerald-icon-size: 14px;
     color: var(--emerald-neutral-400, #aeb6be);
+  }
+
+  /* Bullet mark in the tier highlight list; colour and flow come from the
+     .adm-plans__highlights svg rule above. */
+  .adm-plans__tick {
+    --emerald-icon-size: 14px;
+    --emerald-icon-stroke: 3.75;
   }
 
   .adm-plans__terms {

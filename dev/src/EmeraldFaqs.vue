@@ -17,6 +17,7 @@
     EmExpansionPanelCue,
     EmExpansionPanelGroup,
     EmExpansionPanelHeader,
+    EmIcon,
     EmTabs,
     EmTabsItem,
     EmTabsList,
@@ -113,21 +114,21 @@
       title: 'Open a support ticket',
       copy: 'Defects, integration failures, and anything blocking a release. Include a reproduction and it goes straight to the maintainer who owns that package.',
       cta: 'File a ticket',
-      icon: ['M20 15a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9Z'],
+      icon: 'speech-bubble',
     },
     {
       id: 'office',
       title: 'Book office hours',
       copy: 'Thirty minutes with someone who has read the source. Best spent on architecture calls — how to model your data table, when a composable beats a component.',
       cta: 'Reserve a slot',
-      icon: ['M8 2v4M16 2v4M3 9h18', 'M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z'],
+      icon: 'calendar',
     },
     {
       id: 'docs',
       title: 'Read the source of truth',
       copy: 'Every composable ships with its own guide, a decision table for picking between them, and the type signatures the docs are generated from.',
       cta: 'Open documentation',
-      icon: ['M4 19.5A2.5 2.5 0 0 1 6.5 17H20', 'M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z'],
+      icon: 'book',
     },
   ]
 </script>
@@ -200,16 +201,7 @@
 
         <ul class="adm-faq__channels">
           <li v-for="channel in channels" :key="channel.id" class="adm-faq__channel">
-            <span aria-hidden="true" class="adm-faq__channel-icon"><svg
-              fill="none"
-              height="20"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.5"
-              viewBox="0 0 24 24"
-              width="20"
-            ><path v-for="(d, index) in channel.icon" :key="index" :d /></svg></span>
+            <span class="adm-faq__channel-icon"><EmIcon :name="channel.icon" /></span>
 
             <div class="adm-faq__channel-text">
               <h3>{{ channel.title }}</h3>

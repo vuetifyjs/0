@@ -2,6 +2,9 @@
   // Context
   import { EM_CALENDAR_NAMESPACE, useEmCalendarContext } from './context'
 
+  // Components
+  import EmIcon from '../EmIcon/EmIcon.vue'
+
   export interface EmCalendarPrevProps {
     namespace?: string
     label?: string
@@ -29,6 +32,8 @@
     type="button"
     @click="context.prev()"
   >
-    <slot>&lsaquo;</slot>
+    <slot>
+      <EmIcon name="chevron-left" size="s" />
+    </slot>
   </button>
 </template>

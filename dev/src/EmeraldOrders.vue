@@ -13,6 +13,7 @@
     EmCardFooter,
     EmCardHeader,
     EmCardTitle,
+    EmIcon,
     EmPagination,
     EmPaginationItem,
     EmPaginationNext,
@@ -155,7 +156,7 @@
 
                   <td>
                     <EmButton aria-label="More actions" size="sm" variant="tertiary">
-                      <svg fill="currentColor" height="15" viewBox="0 0 24 24" width="15"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
+                      <EmIcon name="kebab" size="s" />
                     </EmButton>
                   </td>
                 </tr>
@@ -170,14 +171,14 @@
 
             <EmPagination v-model="page" :items-per-page="6" :size="filtered.length">
               <template #default="{ items }">
-                <EmPaginationPrev>‹ Previous</EmPaginationPrev>
+                <EmPaginationPrev><EmIcon name="chevron-left" size="s" /> Previous</EmPaginationPrev>
 
                 <template v-for="(item, index) in items" :key="index">
                   <EmPaginationItem v-if="item.type === 'page'" :value="item.value" />
                   <span v-else class="adm-orders__page-gap">{{ item.value }}</span>
                 </template>
 
-                <EmPaginationNext>Next ›</EmPaginationNext>
+                <EmPaginationNext>Next <EmIcon name="chevron-right" size="s" /></EmPaginationNext>
               </template>
             </EmPagination>
           </EmCardFooter>

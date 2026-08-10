@@ -4,6 +4,9 @@
   // Utilities
   import { useId } from '@vuetify/v0/utilities'
 
+  // Components
+  import EmIcon from '../EmIcon/EmIcon.vue'
+
   export type EmCheckboxSize = 'sm' | 'md' | 'lg'
 
   export interface EmCheckboxProps {
@@ -53,30 +56,7 @@
       <span aria-hidden="true" class="emerald-checkbox__box" />
 
       <Checkbox.Indicator v-slot="{ isMixed }" class="emerald-checkbox__indicator" :namespace>
-        <svg
-          v-if="isMixed"
-          class="emerald-checkbox__glyph"
-          fill="none"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-width="2.5"
-          viewBox="0 0 16 16"
-        >
-          <path d="M3.5 8h9" />
-        </svg>
-
-        <svg
-          v-else
-          class="emerald-checkbox__glyph"
-          fill="none"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2.5"
-          viewBox="0 0 16 16"
-        >
-          <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
-        </svg>
+        <EmIcon class="emerald-checkbox__glyph" :name="isMixed ? 'minus' : 'check'" />
       </Checkbox.Indicator>
     </Checkbox.Root>
 
@@ -187,18 +167,19 @@
   }
 
   .emerald-checkbox__glyph {
-    width: 16px;
-    height: 16px;
+    /* The mark scales with the box, which follows the control geometry rather
+       than the icon scale. Stroke is 2.5 against a 16-unit grid, restated for
+       the icon set's 24-unit one so the mark keeps its weight. */
+    --emerald-icon-size: 16px;
+    --emerald-icon-stroke: 3.75;
   }
 
   .emerald-checkbox[data-size='sm'] .emerald-checkbox__glyph {
-    width: 12px;
-    height: 12px;
+    --emerald-icon-size: 12px;
   }
 
   .emerald-checkbox[data-size='lg'] .emerald-checkbox__glyph {
-    width: 18px;
-    height: 18px;
+    --emerald-icon-size: 18px;
   }
 
   .emerald-checkbox__label {

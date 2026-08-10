@@ -2,6 +2,9 @@
   // Framework
   import { Dialog } from '@vuetify/v0'
 
+  // Components
+  import EmIcon from '../EmIcon/EmIcon.vue'
+
   export interface EmDialogCloseProps {
     namespace?: string
   }
@@ -16,7 +19,7 @@
 <template>
   <Dialog.Close class="emerald-dialog__close" :namespace>
     <slot>
-      <span aria-hidden="true">×</span>
+      <EmIcon name="close" size="s" />
     </slot>
   </Dialog.Close>
 </template>
@@ -26,15 +29,14 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: var(--emerald-icon-xl, 32px);
-    height: var(--emerald-icon-xl, 32px);
+    /* Hit area, not glyph scale — --emerald-icon-* sizes the mark inside. */
+    width: 32px;
+    height: 32px;
     padding: 0;
     border: 0;
     border-radius: var(--emerald-radius-m, 8px);
     background: transparent;
     color: var(--emerald-neutral-700, #757e85);
-    font-size: 1.25rem;
-    line-height: 1;
     cursor: pointer;
   }
 

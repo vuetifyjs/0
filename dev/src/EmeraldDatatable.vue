@@ -16,6 +16,7 @@
     EmCardBody,
     EmCardHeader,
     EmCheckbox,
+    EmIcon,
     EmPagination,
     EmPaginationItem,
     EmPaginationNext,
@@ -216,19 +217,6 @@
               <EmSelect v-model="itemsPerPage" class="adm-ledger__rows-select">
                 <EmSelectActivator>
                   <EmSelectValue />
-
-                  <svg
-                    aria-hidden="true"
-                    class="emerald-select__icon"
-                    fill="none"
-                    height="16"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    viewBox="0 0 16 16"
-                    width="16"
-                  ><path d="M4 6l4 4 4-4" /></svg>
                 </EmSelectActivator>
 
                 <EmSelectContent>
@@ -255,19 +243,11 @@
                     @click="sort.toggle(String(col.id))"
                   >
                     {{ col.title }}
-                    <svg
-                      aria-hidden="true"
+                    <EmIcon
                       class="adm-ledger__sort-icon"
                       :data-direction="sort.direction(String(col.id))"
-                      fill="none"
-                      height="12"
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      viewBox="0 0 12 12"
-                      width="12"
-                    ><path d="M3 4.5 6 1.5 9 4.5M3 7.5 6 10.5 9 7.5" /></svg>
+                      name="sort"
+                    />
                   </button>
 
                   <template v-else>{{ col.title }}</template>
@@ -323,9 +303,9 @@
 
         <div class="adm-ledger__foot">
           <EmPagination v-model="page" :items-per-page :size="total">
-            <EmPaginationPrev>&lsaquo; Previous</EmPaginationPrev>
+            <EmPaginationPrev><EmIcon name="chevron-left" size="s" /> Previous</EmPaginationPrev>
             <EmPaginationItem v-for="n in table.pagination.pages" :key="n" :value="n" />
-            <EmPaginationNext>Next &rsaquo;</EmPaginationNext>
+            <EmPaginationNext>Next <EmIcon name="chevron-right" size="s" /></EmPaginationNext>
           </EmPagination>
 
           <span class="adm-ledger__count">
@@ -520,7 +500,10 @@
     color: var(--emerald-on-surface, #2b2d2e);
   }
 
+  /* Compact enough to sit inside the header text; below the icon scale. */
   .adm-ledger__sort-icon {
+    --emerald-icon-size: 12px;
+    --emerald-icon-stroke: 2;
     opacity: 0.4;
   }
 

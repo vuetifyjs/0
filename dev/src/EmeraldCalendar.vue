@@ -15,6 +15,7 @@
     EmDialogContent,
     EmDialogFooter,
     EmDialogTitle,
+    EmIcon,
     EmSelect,
     EmSelectActivator,
     EmSelectContent,
@@ -155,17 +156,7 @@
             <EmCalendarToday />
 
             <EmButton variant="primary" @click="newEventOpen = true">
-              <svg
-                aria-hidden="true"
-                fill="none"
-                height="16"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                viewBox="0 0 24 24"
-                width="16"
-              ><path d="M12 5v14M5 12h14" /></svg>
+              <EmIcon name="plus" size="s" />
               New event
             </EmButton>
           </div>
@@ -254,19 +245,6 @@
           <EmSelect v-model="newEventCategory">
             <EmSelectActivator>
               <EmSelectValue />
-
-              <svg
-                aria-hidden="true"
-                class="emerald-select__icon"
-                fill="none"
-                height="16"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                viewBox="0 0 16 16"
-                width="16"
-              ><path d="M4 6l4 4 4-4" /></svg>
             </EmSelectActivator>
 
             <EmSelectContent>

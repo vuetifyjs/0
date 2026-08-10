@@ -4,6 +4,7 @@
     EmAvatarFallback,
     EmBadge,
     EmButton,
+    EmIcon,
     EmPopover,
     EmPopoverActivator,
     EmSwitch,
@@ -27,6 +28,7 @@
   import { RouterLink, useRoute } from 'vue-router'
 
   // Types
+  import type { EmIconName } from '@paper/emerald'
   import type { PopoverActivatorSlotProps, TooltipActivatorSlotProps } from '@vuetify/v0'
 
   const {
@@ -102,78 +104,16 @@
     mq?.removeEventListener('change', syncViewport)
   })
 
-  /** Stroke paths on a 24x24 grid — one entry per glyph, drawn with currentColor. */
-  const icons = {
-    dashboard: ['M4 4h7v9H4V4Zm9 0h7v5h-7V4ZM4 15h7v5H4v-5Zm9-4h7v9h-7v-9Z'],
-    features: ['M12 3l2.3 6.7L21 12l-6.7 2.3L12 21l-2.3-6.7L3 12l6.7-2.3L12 3Z'],
-    pricing: [
-      'M12.6 3.6A2 2 0 0 0 11.2 3H5a2 2 0 0 0-2 2v6.2a2 2 0 0 0 .6 1.4l7.8 7.8a2 2 0 0 0 2.8 0l5.8-5.8a2 2 0 0 0 0-2.8l-7.4-7.2Z',
-      'M7.5 7.5h.01',
-    ],
-    faqs: [
-      'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z',
-      'M9.7 9.3a2.4 2.4 0 0 1 4.6.8c0 1.6-2.3 2.4-2.3 2.4',
-      'M12 17h.01',
-    ],
-    settings: [
-      'M20 7h-9',
-      'M14 17H5',
-      'M17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z',
-      'M7 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z',
-    ],
-    modals: [
-      'M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z',
-      'M3 9.5h18',
-      'M6.5 7.2h.01M9 7.2h.01',
-    ],
-    contact: ['M20 15a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9Z'],
-    about: [
-      'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z',
-      'M12 11v5',
-      'M12 8h.01',
-    ],
-    signin: [
-      'M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3',
-      'M14 12l-4-4M14 12l-4 4',
-      'M14 12H4',
-    ],
-    sales: ['M4 20h16', 'M7 20v-5l4-4 3 3 5-6', 'M15 8h4v4'],
-    finance: ['M3 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z', 'M16 12h2', 'M3 9h18'],
-    logistics: ['M3 7h11v9H3V7Z', 'M14 10h4l3 3v3h-7v-6Z', 'M7 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z', 'M18 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z'],
-    productivity: ['M22 12h-4l-3 8-6-16-3 8H2'],
-    campaign: ['M3 11v2a1 1 0 0 0 1 1h2l4 4V6L6 10H4a1 1 0 0 0-1 1Z', 'M15 8a3 3 0 0 1 0 8', 'M18 5a7 7 0 0 1 0 14'],
-    analytics: ['M4 20h16', 'M8 20v-6M13 20V9M18 20v-11'],
-    payments: ['M3 7h18v10H3V7Z', 'M3 10h18'],
-    ecommerce: ['M4 5h2l2.2 11.2A2 2 0 0 0 10.2 18h7.1a2 2 0 0 0 2-1.6L21 9H6'],
-    orders: ['M12 3l8 4.5-8 4.5-8-4.5L12 3Z', 'M4 12l8 4.5 8-4.5', 'M4 16.5 12 21l8-4.5'],
-    mail: ['M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z', 'M3 6l9 7 9-7'],
-    chat: ['M20 15a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9Z'],
-    kanban: ['M4 4h4v16H4V4Zm6 0h4v10h-4V4Zm6 0h4v13h-4V4Z'],
-    calendar: ['M4 5h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z', 'M3 10h18', 'M8 3v4M16 3v4'],
-    contacts: ['M12 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z', 'M5 20a7 7 0 0 1 14 0'],
-    datatable: ['M3 5h18v14H3V5Z', 'M3 10h18', 'M9 5v14'],
-    forms: ['M6 3h9l5 5v13H6V3Z', 'M15 3v5h5', 'M9 13h6M9 17h6'],
-    components: [
-      'M12 3l8 4.5-8 4.5-8-4.5L12 3Z',
-      'M4 12l8 4.5 8-4.5',
-      'M4 16.5 12 21l8-4.5',
-    ],
-    moon: ['M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5Z'],
-    sun: [
-      'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z',
-      'M12 2v2M12 20v2M2 12h2M20 12h2',
-      'M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
-    ],
-    palette: [
-      'M12 3a9 9 0 1 0 0 18 1.8 1.8 0 0 0 1.4-2.9 1.8 1.8 0 0 1 1.4-2.9H17a4 4 0 0 0 4-4c0-4.4-4-8.2-9-8.2Z',
-      'M7.5 12.5h.01M9.8 8.6h.01M14.2 8.6h.01M16.6 11.5h.01',
-    ],
-  }
-
   type Item = {
-    id: keyof typeof icons
+    /** Route key, matched against the active path. */
+    id: string
     label: string
     to: string
+    /**
+     * Canonical icon role, kept separate from `id`: the rail draws artwork, and
+     * what a route is called is not what its glyph depicts.
+     */
+    icon: EmIconName
   }
 
   type Group = {
@@ -185,41 +125,41 @@
     {
       label: 'Dashboards',
       items: [
-        { id: 'dashboard', label: 'Overview', to: '/emerald' },
-        { id: 'sales', label: 'Sales', to: '/emerald/sales' },
-        { id: 'finance', label: 'Finance', to: '/emerald/finance' },
-        { id: 'logistics', label: 'Logistics', to: '/emerald/logistics' },
-        { id: 'productivity', label: 'Productivity', to: '/emerald/productivity' },
-        { id: 'campaign', label: 'Campaign', to: '/emerald/campaign' },
-        { id: 'analytics', label: 'Analytics', to: '/emerald/analytics' },
-        { id: 'payments', label: 'Payments', to: '/emerald/payments' },
-        { id: 'ecommerce', label: 'eCommerce', to: '/emerald/ecommerce' },
-        { id: 'orders', label: 'Orders', to: '/emerald/orders' },
+        { id: 'dashboard', label: 'Overview', to: '/emerald', icon: 'layout' },
+        { id: 'sales', label: 'Sales', to: '/emerald/sales', icon: 'chart-line' },
+        { id: 'finance', label: 'Finance', to: '/emerald/finance', icon: 'card' },
+        { id: 'logistics', label: 'Logistics', to: '/emerald/logistics', icon: 'truck' },
+        { id: 'productivity', label: 'Productivity', to: '/emerald/productivity', icon: 'activity' },
+        { id: 'campaign', label: 'Campaign', to: '/emerald/campaign', icon: 'megaphone' },
+        { id: 'analytics', label: 'Analytics', to: '/emerald/analytics', icon: 'chart-bar' },
+        { id: 'payments', label: 'Payments', to: '/emerald/payments', icon: 'card' },
+        { id: 'ecommerce', label: 'eCommerce', to: '/emerald/ecommerce', icon: 'cart' },
+        { id: 'orders', label: 'Orders', to: '/emerald/orders', icon: 'layers' },
       ],
     },
     {
       label: 'Apps',
       items: [
-        { id: 'mail', label: 'Mail', to: '/emerald/mail' },
-        { id: 'chat', label: 'Chat', to: '/emerald/chat' },
-        { id: 'kanban', label: 'Kanban', to: '/emerald/kanban' },
-        { id: 'calendar', label: 'Calendar', to: '/emerald/calendar' },
-        { id: 'contacts', label: 'Contacts', to: '/emerald/contacts' },
-        { id: 'settings', label: 'Settings', to: '/emerald/settings' },
+        { id: 'mail', label: 'Mail', to: '/emerald/mail', icon: 'envelope' },
+        { id: 'chat', label: 'Chat', to: '/emerald/chat', icon: 'speech-bubble' },
+        { id: 'kanban', label: 'Kanban', to: '/emerald/kanban', icon: 'kanban' },
+        { id: 'calendar', label: 'Calendar', to: '/emerald/calendar', icon: 'calendar' },
+        { id: 'contacts', label: 'Contacts', to: '/emerald/contacts', icon: 'user' },
+        { id: 'settings', label: 'Settings', to: '/emerald/settings', icon: 'sliders' },
       ],
     },
     {
       label: 'Pages',
       items: [
-        { id: 'features', label: 'Features', to: '/emerald/features' },
-        { id: 'pricing', label: 'Pricing', to: '/emerald/pricing' },
-        { id: 'faqs', label: 'FAQs', to: '/emerald/faqs' },
-        { id: 'about', label: 'About', to: '/emerald/about' },
-        { id: 'contact', label: 'Contact', to: '/emerald/contact' },
-        { id: 'signin', label: 'Sign in', to: '/emerald/sign-in' },
-        { id: 'modals', label: 'Modals', to: '/emerald/modals' },
-        { id: 'datatable', label: 'Datatable', to: '/emerald/datatable' },
-        { id: 'forms', label: 'Form validation', to: '/emerald/forms' },
+        { id: 'features', label: 'Features', to: '/emerald/features', icon: 'sparkle' },
+        { id: 'pricing', label: 'Pricing', to: '/emerald/pricing', icon: 'tag' },
+        { id: 'faqs', label: 'FAQs', to: '/emerald/faqs', icon: 'help' },
+        { id: 'about', label: 'About', to: '/emerald/about', icon: 'info' },
+        { id: 'contact', label: 'Contact', to: '/emerald/contact', icon: 'speech-bubble' },
+        { id: 'signin', label: 'Sign in', to: '/emerald/sign-in', icon: 'login' },
+        { id: 'modals', label: 'Modals', to: '/emerald/modals', icon: 'window' },
+        { id: 'datatable', label: 'Datatable', to: '/emerald/datatable', icon: 'table' },
+        { id: 'forms', label: 'Form validation', to: '/emerald/forms', icon: 'document' },
       ],
     },
   ]
@@ -252,18 +192,7 @@
       variant="tertiary"
       @click="onToggleNav"
     >
-      <svg
-        aria-hidden="true"
-        fill="none"
-        height="20"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-width="2"
-        viewBox="0 0 24 24"
-        width="20"
-      >
-        <path d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
+      <EmIcon name="menu" />
     </EmButton>
 
     <div
@@ -309,18 +238,7 @@
               variant="tertiary"
               @click="onToggleNav"
             >
-              <svg
-                aria-hidden="true"
-                fill="none"
-                height="18"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-width="1.75"
-                viewBox="0 0 24 24"
-                width="18"
-              >
-                <path d="M4 6h16M4 12h10M4 18h16" />
-              </svg>
+              <EmIcon name="sidebar" size="s" />
             </EmButton>
           </EmTooltipActivator>
 
@@ -348,18 +266,7 @@
                 @click="onCloseNav"
               >
                 <span aria-hidden="true" class="ed-nav__glyph">
-                  <svg
-                    fill="none"
-                    height="18"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.75"
-                    viewBox="0 0 24 24"
-                    width="18"
-                  >
-                    <path v-for="d in icons[item.id]" :key="d" :d />
-                  </svg>
+                  <EmIcon :name="item.icon" />
                 </span>
 
                 <span class="ed-nav__label">{{ item.label }}</span>
@@ -384,18 +291,7 @@
               class="ed-nav__item"
             >
               <span aria-hidden="true" class="ed-nav__glyph">
-                <svg
-                  fill="none"
-                  height="18"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.75"
-                  viewBox="0 0 24 24"
-                  width="18"
-                >
-                  <path v-for="d in icons[dark ? 'sun' : 'moon']" :key="d" :d />
-                </svg>
+                <EmIcon :name="dark ? 'sun' : 'moon'" />
               </span>
             </Toggle.Root>
           </EmTooltipActivator>
@@ -405,18 +301,7 @@
 
         <div v-else class="ed-nav__item ed-nav__dark">
           <span aria-hidden="true" class="ed-nav__glyph">
-            <svg
-              fill="none"
-              height="18"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="18"
-            >
-              <path v-for="d in icons.moon" :key="d" :d />
-            </svg>
+            <EmIcon name="moon" />
           </span>
 
           <span class="ed-nav__label">Dark mode</span>
@@ -437,18 +322,7 @@
               @click="onCloseNav"
             >
               <span aria-hidden="true" class="ed-nav__glyph">
-                <svg
-                  fill="none"
-                  height="18"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.75"
-                  viewBox="0 0 24 24"
-                  width="18"
-                >
-                  <path v-for="d in icons.components" :key="d" :d />
-                </svg>
+                <EmIcon name="layers" />
               </span>
 
               <span class="ed-nav__label">Components</span>
@@ -479,7 +353,7 @@
                 <span class="ed-user__name">John Doe</span>
               </span>
 
-              <span aria-hidden="true" class="ed-user__chevron">›</span>
+              <EmIcon class="ed-user__chevron" name="chevron-right" />
             </EmButton>
           </EmTooltipActivator>
 
@@ -510,19 +384,7 @@
               data-variant="tertiary"
               :style="tip.styles"
             >
-              <svg
-                aria-hidden="true"
-                fill="none"
-                height="18"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.75"
-                viewBox="0 0 24 24"
-                width="18"
-              >
-                <path v-for="d in icons[dark ? 'sun' : 'moon']" :key="d" :d />
-              </svg>
+              <EmIcon :name="dark ? 'sun' : 'moon'" size="s" />
             </Toggle.Root>
           </EmTooltipActivator>
 
@@ -545,19 +407,7 @@
                   size="sm"
                   variant="tertiary"
                 >
-                  <svg
-                    aria-hidden="true"
-                    fill="none"
-                    height="18"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.75"
-                    viewBox="0 0 24 24"
-                    width="18"
-                  >
-                    <path v-for="d in icons.palette" :key="d" :d />
-                  </svg>
+                  <EmIcon name="palette" size="s" />
                 </EmButton>
               </EmPopoverActivator>
             </EmTooltipActivator>
@@ -578,18 +428,7 @@
               :style="tip.styles"
               variant="tertiary"
             >
-              <svg
-                fill="none"
-                height="18"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.75"
-                viewBox="0 0 24 24"
-                width="18"
-              >
-                <path d="M22 12h-4l-3 8-6-16-3 8H2" />
-              </svg>
+              <EmIcon name="activity" size="s" />
             </EmButton>
           </EmTooltipActivator>
 
@@ -606,19 +445,7 @@
               :style="tip.styles"
               variant="tertiary"
             >
-              <svg
-                aria-hidden="true"
-                fill="none"
-                height="18"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.75"
-                viewBox="0 0 24 24"
-                width="18"
-              >
-                <path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 14 6 10Z" /><path d="M10 19a2 2 0 0 0 4 0" />
-              </svg>
+              <EmIcon name="bell" size="s" />
 
               <!-- The count already reads out of the button's own label, so the
                    pill is decoration and stays out of the accessibility tree. -->
@@ -969,6 +796,7 @@
   }
 
   .ed-user__chevron {
+    --emerald-icon-size: 16px;
     color: var(--ed-muted);
   }
 
@@ -1031,6 +859,11 @@
     padding-inline-end: 3rem;
   }
 
+  /*
+   * The one icon that stays inline. It paints a pseudo-element, and CSS cannot
+   * read the `search` role out of the icon module — keep this copy in step with
+   * `search` in packages/emerald/src/icons.ts by hand.
+   */
   .ed-topbar__search::before {
     content: '';
     position: absolute;

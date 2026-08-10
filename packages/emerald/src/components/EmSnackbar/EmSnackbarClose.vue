@@ -2,6 +2,9 @@
   // Framework
   import { Snackbar } from '@vuetify/v0'
 
+  // Components
+  import EmIcon from '../EmIcon/EmIcon.vue'
+
   export interface EmSnackbarCloseProps {
     namespace?: string
   }
@@ -16,7 +19,7 @@
 <template>
   <Snackbar.Close class="emerald-snackbar__close" :namespace>
     <slot>
-      <span aria-hidden="true">×</span>
+      <EmIcon name="close" size="s" />
     </slot>
   </Snackbar.Close>
 </template>
@@ -27,16 +30,15 @@
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    width: var(--emerald-icon-l, 24px);
-    height: var(--emerald-icon-l, 24px);
+    /* Hit area, not glyph scale — --emerald-icon-* sizes the mark inside. */
+    width: 24px;
+    height: 24px;
     margin: calc(var(--emerald-spacing-3xs, 2px) * -1) calc(var(--emerald-spacing-3xs, 2px) * -1) 0 0;
     padding: 0;
     border: 0;
     border-radius: var(--emerald-radius-s, 6px);
     background: transparent;
     color: var(--emerald-neutral-700, #757e85);
-    font-size: 1.125rem;
-    line-height: 1;
     cursor: pointer;
   }
 

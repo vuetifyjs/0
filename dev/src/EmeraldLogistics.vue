@@ -11,6 +11,7 @@
     EmCardHeader,
     EmCardTitle,
     EmCheckbox,
+    EmIcon,
     EmPagination,
     EmPaginationItem,
     EmPaginationNext,
@@ -259,14 +260,14 @@
 
             <EmPagination v-model="page" :items-per-page="6" :size="shipments.length">
               <template #default="{ items }">
-                <EmPaginationPrev>‹ Previous</EmPaginationPrev>
+                <EmPaginationPrev><EmIcon name="chevron-left" size="s" /> Previous</EmPaginationPrev>
 
                 <template v-for="(item, index) in items" :key="index">
                   <EmPaginationItem v-if="item.type === 'page'" :value="item.value" />
                   <span v-else class="adm-logistics__page-gap">{{ item.value }}</span>
                 </template>
 
-                <EmPaginationNext>Next ›</EmPaginationNext>
+                <EmPaginationNext>Next <EmIcon name="chevron-right" size="s" /></EmPaginationNext>
               </template>
             </EmPagination>
           </EmCardFooter>

@@ -2,6 +2,9 @@
   // Context
   import { EM_CALENDAR_NAMESPACE, useEmCalendarContext } from './context'
 
+  // Components
+  import EmIcon from '../EmIcon/EmIcon.vue'
+
   export interface EmCalendarNextProps {
     namespace?: string
     label?: string
@@ -29,6 +32,8 @@
     type="button"
     @click="context.next()"
   >
-    <slot>&rsaquo;</slot>
+    <slot>
+      <EmIcon name="chevron-right" size="s" />
+    </slot>
   </button>
 </template>
