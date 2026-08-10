@@ -2,9 +2,10 @@
   // Framework
   import { Select } from '@vuetify/v0'
 
-  export interface EmSelectContentProps {
-    namespace?: string
-  }
+  // Types
+  import type { SelectContentProps } from '@vuetify/v0'
+
+  export interface EmSelectContentProps extends Pick<SelectContentProps, 'namespace'> {}
 </script>
 
 <script setup lang="ts">

@@ -5,9 +5,10 @@
   // Components
   import EmIcon from '../EmIcon/EmIcon.vue'
 
-  export interface EmSnackbarCloseProps {
-    namespace?: string
-  }
+  // Types
+  import type { SnackbarCloseProps } from '@vuetify/v0'
+
+  export interface EmSnackbarCloseProps extends Omit<SnackbarCloseProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">
