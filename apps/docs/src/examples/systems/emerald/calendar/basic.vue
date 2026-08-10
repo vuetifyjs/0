@@ -38,7 +38,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--emerald-spacing-m, 16px);
-    max-width: 360px;
   }
 
   .emerald-docs-note {

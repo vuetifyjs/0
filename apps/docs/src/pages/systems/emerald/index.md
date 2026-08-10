@@ -115,16 +115,39 @@ Icons are decorative by default and hidden from assistive technology; passing `l
 
 ## Components
 
-The pages below are the documented pilot. The package ships considerably more than this — alerts, cards, tabs, tooltips, snackbars, kanban boards and the rest — and those pages are being written; the components themselves are already exported from `@paper/emerald`.
+This is the full component inventory — every family below is exported from `@paper/emerald` today. Six have documented pages so far; the rest are being written, and the two conventions after the table remove most of the guesswork in the meantime.
 
 | Component | What it wraps | Page |
 |-----------|---------------|------|
+| `EmAlert` | v0 `Atom` | In progress |
+| `EmAvatar` | v0 `Avatar` | In progress |
+| `EmBadge` | v0 `Atom` | In progress |
+| `EmBreadcrumbs` | v0 `Breadcrumbs` | In progress |
 | `EmButton` | v0 `Button` | [Button](/systems/emerald/button) |
-| `EmTextField` | v0 `Input` | [TextField](/systems/emerald/text-field) |
-| `EmSelect` | v0 `Select` | [Select](/systems/emerald/select) |
-| `EmDialog` | v0 `Dialog` | [Dialog](/systems/emerald/dialog) |
 | `EmCalendar` | an incubating v0 calendar core | [Calendar](/systems/emerald/calendar) |
+| `EmCard` | v0 `Atom` | In progress |
+| `EmCheckbox` | v0 `Checkbox` | In progress |
+| `EmDialog` | v0 `Dialog` | [Dialog](/systems/emerald/dialog) |
+| `EmDivider` | v0 `Atom` | In progress |
+| `EmExpansionPanel` | v0 `ExpansionPanel` | In progress |
 | `EmIcon` | v0 `createTokens` | [Icon](/systems/emerald/icon) |
+| `EmKanban` | v0 `createKanban` + `useDragDrop` | In progress |
+| `EmList` | v0 `Single` | In progress |
+| `EmPagination` | v0 `Pagination` | In progress |
+| `EmPopover` | v0 `Popover` | In progress |
+| `EmProgress` | v0 `Progress` | In progress |
+| `EmRadio` | v0 `Radio` | In progress |
+| `EmSelect` | v0 `Select` | [Select](/systems/emerald/select) |
+| `EmSlider` | v0 `Slider` | In progress |
+| `EmSnackbar` | v0 `Snackbar` | In progress |
+| `EmSpinner` | v0 `Atom` | In progress |
+| `EmStep` | v0 `Step` | In progress |
+| `EmSwitch` | v0 `Switch` | In progress |
+| `EmTabs` | v0 `Tabs` | In progress |
+| `EmTag` | v0 `Atom` | In progress |
+| `EmTextField` | v0 `Input` | [TextField](/systems/emerald/text-field) |
+| `EmTextarea` | v0 `Input` | In progress |
+| `EmTooltip` | v0 `Tooltip` | In progress |
 
 Two conventions hold across all of them, and knowing them removes most of the guesswork about an undocumented component:
 
