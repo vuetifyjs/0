@@ -5,14 +5,31 @@
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
 
+  // Composables
+  import { useCodeHighlighter } from '@/composables/useCodeHighlighter'
+
+  // Globals
+  import { IN_BROWSER } from '#v0/constants/globals'
   // Data
   import { ICON_COLLECTIONS, iconifyPreviewUrl } from '@/data/icon-sets'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { onMounted, shallowRef } from 'vue'
+
+  const EXAMPLE = '<span class="i-lucide-home text-xl" />'
 
   const copied = shallowRef<string | null>(null)
+  const exampleHtml = shallowRef('')
   let copyTimer = 0
+
+  const highlighter = useCodeHighlighter()
+
+  if (IN_BROWSER) {
+    onMounted(async () => {
+      const result = await highlighter.highlight({ code: EXAMPLE, language: 'vue' })
+      exampleHtml.value = result.html
+    })
+  }
 
   async function onCopy (text: string) {
     try {
@@ -61,7 +78,16 @@
             collections load from the CDN on first use.
           </p>
 
-          <pre class="text-[11px] font-mono leading-relaxed bg-surface-tint/60 border border-divider rounded-md px-2.5 py-2 text-on-surface mb-2 overflow-x-auto">{{ '<span class="i-lucide-home text-xl" />' }}</pre>
+          <div
+            v-if="exampleHtml"
+            class="icons-howto-code text-[11px] mb-2 overflow-x-auto"
+            v-html="exampleHtml"
+          />
+
+          <pre
+            v-else
+            class="text-[11px] font-mono leading-relaxed bg-surface-tint/60 border border-divider rounded-md px-2.5 py-2 text-on-surface mb-2 overflow-x-auto"
+          >{{ EXAMPLE }}</pre>
 
           <p class="text-[11px] text-on-surface-variant leading-relaxed mb-2">
             Pattern:
@@ -108,3 +134,19 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+  /* Compact Shiki block inside the How-to tooltip (global .shiki is sized for MD) */
+  .icons-howto-code :deep(pre.shiki) {
+    margin: 0;
+    border-radius: 0.375rem;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .icons-howto-code :deep(pre.shiki code) {
+    display: block;
+    overflow-x: auto;
+    padding: 0.5rem 0.625rem;
+  }
+</style>

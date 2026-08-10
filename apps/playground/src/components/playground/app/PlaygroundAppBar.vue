@@ -9,16 +9,27 @@
   import { usePlayground } from './PlaygroundApp.vue'
   import PlaygroundMenuBar from './PlaygroundMenuBar.vue'
 
+  // Composables
+  import { useExport } from '@/composables/useExport'
+
   // Utilities
   import { shallowRef } from 'vue'
 
   const open = shallowRef(false)
   const copied = shallowRef(false)
+  const exporting = shallowRef(false)
+  const exported = shallowRef(false)
 
   const theme = useTheme()
   const playground = usePlayground()
-  const { start } = useTimer(() => {
+  const { downloadProject } = useExport()
+
+  const { start: startCopied } = useTimer(() => {
     copied.value = false
+  }, { duration: 2000 })
+
+  const { start: startExported } = useTimer(() => {
+    exported.value = false
   }, { duration: 2000 })
 
   useHotkey('ctrl+b', () => {
@@ -32,10 +43,23 @@
   function onShare () {
     navigator.clipboard.writeText(window.location.href).then(() => {
       copied.value = true
-      start()
+      startCopied()
     }).catch(() => {})
   }
 
+  async function onExport () {
+    if (exporting.value) return
+    exporting.value = true
+    try {
+      await downloadProject()
+      exported.value = true
+      startExported()
+    } catch {
+      // Zip generation failed; leave button idle
+    } finally {
+      exporting.value = false
+    }
+  }
 </script>
 
 <template>
@@ -73,6 +97,19 @@
         @click="onShare"
       >
         <AppIcon :icon="copied ? 'check' : 'link'" />
+      </AppTooltip>
+
+      <AppTooltip
+        :aria-busy="exporting || undefined"
+        aria-label="Export project ZIP"
+        class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
+        :class="exported || exporting ? 'opacity-80' : 'opacity-50'"
+        :disabled="exporting"
+        position-area="bottom"
+        :text="exporting ? 'Exporting…' : exported ? 'Downloaded!' : 'Export ZIP'"
+        @click="onExport"
+      >
+        <AppIcon :icon="exported ? 'check' : 'download'" />
       </AppTooltip>
 
       <AppTooltip
