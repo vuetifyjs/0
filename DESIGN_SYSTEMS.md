@@ -142,6 +142,37 @@ A design system component ships only when:
 
 Kits gate only on their purpose's spec.
 
+### 6. Icons
+
+Every design system ships its **own** icon set. There is no shared artwork and no
+bundled icon library — a design system's glyphs are as much a part of its visual
+language as its type scale, and Onyx's chevron is not Emerald's.
+
+What *is* shared is the **role vocabulary** and the resolution mechanism:
+
+- A design system maps **role names to glyphs** — `close`, `check`, `chevron-down`,
+  `search`, `menu` — and registers them through v0's `createTokens`
+  ([#107](https://github.com/vuetifyjs/0/issues/107)). Alias resolution is the reason
+  `createTokens` is the right primitive: `{envelope: '{mail}'}` costs one entry, and
+  overriding `mail` moves both names at once.
+- Roles are named for **what the glyph is**, not the one screen that first needed it —
+  `receipt`, not `orders`. Two features drawing the same mark get one role and an
+  alias, never two copies of the path data.
+- Registration goes through the design system's plugin, and consumers extend or replace
+  roles there. Overriding a role must restyle the system's own chrome, which means
+  **components may not inline their own artwork** — an Em*/On* component that hardcodes
+  an SVG is a component a consumer cannot rebrand.
+- Whatever a design system's glyphs are (path data, sprite ids, icon-font classnames,
+  UnoCSS `i-*` classes), the *role* layer is the same; the renderer is the design
+  system's own component (`EmIcon`, and its Onyx counterpart).
+
+Emerald is the first implementation — `packages/emerald/src/icons.ts` plus `EmIcon`,
+drawing 24x24 stroke-grid path data. Whether the role vocabulary, the collect/alias
+plumbing, or the renderer itself is worth extracting into a shared package is **to be
+evaluated against the second implementation**: one consumer is not a pattern. Decision
+deferred, not made — until then, a second design system copies the approach, not the
+code.
+
 ## Per-package SPEC.md
 
 Every `@paper/*` package carries a `SPEC.md` declaring:
