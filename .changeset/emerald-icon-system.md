@@ -4,7 +4,7 @@
 
 feat(emerald): add EmIcon and a role-based icon system
 
-Emerald now ships its own icons. `EmIcon` draws a named role — `<EmIcon name="chevron-down" />` — from a set of 48 glyphs covering navigation, domain marks, direction, and controls, plus 4 aliases. Sizes map to the `--emerald-icon-*` scale (`s`/`m`/`l`/`xl`), and icons are hidden from assistive tech unless you give them a `label`, which promotes them to a named image.
+Emerald now ships its own icons. `EmIcon` draws a named role — `<EmIcon name="chevron-down" />` — from a set of 49 glyphs covering navigation, domain marks, direction, and controls, plus 4 aliases. Sizes map to the `--emerald-icon-*` scale (`s`/`m`/`l`/`xl`), and icons are hidden from assistive tech unless you give them a `label`, which promotes them to a named image.
 
 Roles resolve through v0's `createTokens`, so the set is yours to reshape from the plugin:
 
