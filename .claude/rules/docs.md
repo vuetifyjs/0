@@ -201,6 +201,38 @@ Prose inside `::: gn-example` blocks under `## Examples` should be lengthened �
 
 The same depth rule does **not** apply to `## Usage` or `## Recipes` blocks — those are deliberately terse. [intent:276]
 
+### Design-system examples — `::: ds-example`
+
+Pages under `pages/systems/**` use `::: ds-example`, which emits `<DocsSystemExample>`. The authoring syntax is identical to `gn-example` — same path/ordering/collapse rules, same prose-depth expectations — and the difference is entirely in where the example runs.
+
+A design system owns global CSS. Bulma resets `button` and `input`; Emerald ships its own tokens and a component stylesheet. UnoCSS's preflight fights both directions, so a system's example cannot share a document with the docs shell. `DocsSystemExample` therefore renders the example in an **iframe** against `apps/docs/sandbox/<system>.html`, and reads the source only for the code pane, playground and bin actions.
+
+Consequences for authoring:
+
+- **Examples live at `src/examples/systems/<system>/<component>/*.vue`.** The system segment is what selects the frame — the container derives it from the example path, so `/systems/emerald/dialog/basic` loads `sandbox/emerald.html?e=dialog/basic`. A new system needs its own `sandbox/<system>.html` plus a `src/sandbox/<system>.ts` entry.
+- **No UnoCSS.** The frame deliberately loads none, so utility classes do nothing there. Style with the system's own classes and tokens; keep any example-local CSS to structural layout.
+- **Import from the design system**, not `@vuetify/v0` — `@paper/emerald`, `@paper/bulma`. Reach for v0 only for utilities a system does not re-export.
+- **Add the sandbox document as a build input.** Vite's default input is the root `index.html` alone; `apps/docs/vite.config.ts` reads `sandbox/*.html` from disk so a new frame needs no config edit, but a frame added outside that directory will be served in dev and missing from `dist`.
+
+#### The sandbox contract
+
+The frame and the page talk over `postMessage`, and the protocol is what keeps an overlay from being clipped by the box the example sits in.
+
+| Message | Direction | Purpose |
+|---------|-----------|---------|
+| `v0:sandbox:ready` | frame → page | Frame mounted; page replies with theme and box |
+| `v0:sandbox:size` | frame → page | Measured height. `grown: true` marks a height caused by something currently spilling out, which the page applies but does not remember |
+| `v0:sandbox:overlay` | frame → page | Something is laid out against the viewport. Promotes the frame to `position: fixed` and clips it to the reported regions |
+| `v0:sandbox:rects` | frame → page | The promoted regions changed — a menu resized under its own content |
+| `v0:sandbox:theme` | page → frame | Current scheme, as a `dark` boolean |
+| `v0:sandbox:box` | page → frame | Where the inline box sits, so promoted content pins back to it |
+| `v0:sandbox:dismiss` | page → frame | A click landed on a clipped-away region; replay it so click-outside fires |
+
+Two things follow that are easy to get wrong:
+
+- **Height is reserved, not guessed.** The first settled measurement is remembered per example per viewport bucket in `sessionStorage`, so a second visit opens at the right height. Later measurements are treated as the reader interacting, never as the example's resting height.
+- **Theme is an attribute the frame owns.** The page sends a scheme; the frame writes `data-theme`. A system whose theme ids are not `light`/`dark` passes a name map to `SandboxRoot` (Emerald maps to `emerald` / `emerald-dark`). Never install a theme plugin that also writes `data-theme` in a sandbox entry — two writers fight and the reader's toggle loses.
+
 ### Example file conventions
 
 - Use UnoCSS utility classes, no custom CSS. [intent:203]
@@ -281,6 +313,7 @@ Real worked examples on master:
 | Syntax | Purpose |
 |--------|---------|
 | `::: gn-example` | Live interactive example (canonical for feature pages; emits `<DocsGenesisExample>`) |
+| `::: ds-example` | Design-system example, rendered in an isolated frame (`<DocsSystemExample>`) — `pages/systems/**` only |
 | `::: example` | Legacy live example (`<DocsExample>`) — guides/index pages only |
 | `::: code-group` | Tabbed code blocks |
 | `::: faq` | FAQ section with `???` questions |
