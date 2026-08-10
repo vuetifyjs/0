@@ -5,9 +5,10 @@
   // Components
   import EmIcon from '../EmIcon/EmIcon.vue'
 
-  export interface EmDialogCloseProps {
-    namespace?: string
-  }
+  // Types
+  import type { DialogCloseProps } from '@vuetify/v0'
+
+  export interface EmDialogCloseProps extends Omit<DialogCloseProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">
