@@ -9,21 +9,10 @@
   // Types
   import type { InputRootProps } from '@vuetify/v0'
 
-  export interface EmTextFieldProps extends Pick<
-    InputRootProps,
-    | 'id'
-      | 'label'
-      | 'disabled'
-      | 'readonly'
-      | 'required'
-      | 'name'
-      | 'type'
-      | 'rules'
-      | 'validateOn'
-      | 'error'
-      | 'errorMessages'
-      | 'namespace'
-  > {
+  /** Emerald withholds `form` from v0's input surface; everything else tracks it. */
+  type EmTextFieldKeys = 'id' | 'label' | 'disabled' | 'readonly' | 'required' | 'name' | 'type' | 'rules' | 'validateOn' | 'error' | 'errorMessages' | 'namespace'
+
+  export interface EmTextFieldProps extends Pick<InputRootProps, EmTextFieldKeys> {
     /** Help text under the control (no named slots — props only) */
     description?: string
     placeholder?: string
