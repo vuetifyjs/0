@@ -1,23 +1,24 @@
 <script lang="ts">
   // Framework
   import { Checkbox } from '@vuetify/v0'
-  // Utilities
   import { useId } from '@vuetify/v0/utilities'
 
   // Components
   import EmIcon from '../EmIcon/EmIcon.vue'
 
+  // Utilities
+  import { toValue } from 'vue'
+
+  // Types
+  import type { CheckboxRootProps } from '@vuetify/v0'
+
   export type EmCheckboxSize = 'sm' | 'md' | 'lg'
 
-  export interface EmCheckboxProps {
-    disabled?: boolean
-    indeterminate?: boolean
+  export interface EmCheckboxProps extends Pick<
+    CheckboxRootProps,
+    'disabled' | 'indeterminate' | 'name' | 'value' | 'label' | 'namespace'
+  > {
     size?: EmCheckboxSize
-    name?: string
-    value?: unknown
-    /** Accessible name when no default-slot label is rendered */
-    label?: string
-    namespace?: string
   }
 </script>
 
@@ -41,7 +42,7 @@
 </script>
 
 <template>
-  <label class="emerald-checkbox" :data-disabled="disabled || undefined" :data-size="size">
+  <label class="emerald-checkbox" :data-disabled="toValue(disabled) || undefined" :data-size="size">
     <Checkbox.Root
       v-model="model"
       :aria-labelledby="$slots.default ? id : undefined"

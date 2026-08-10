@@ -2,19 +2,18 @@
   // Framework
   import { Button } from '@vuetify/v0'
 
+  // Types
+  import type { ButtonRootProps } from '@vuetify/v0'
+
   export type EmButtonSize = 'sm' | 'md' | 'lg'
   export type EmButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'destructive'
 
-  export interface EmButtonProps {
-    disabled?: boolean
-    loading?: boolean
+  export interface EmButtonProps extends Pick<
+    ButtonRootProps,
+    'disabled' | 'loading' | 'ariaLabel' | 'name' | 'namespace'
+  > {
     size?: EmButtonSize
     variant?: EmButtonVariant
-    /** Accessible label for icon-only buttons */
-    ariaLabel?: string
-    /** Form field name — renders a hidden input when set */
-    name?: string
-    namespace?: string
   }
 </script>
 
