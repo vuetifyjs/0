@@ -3,6 +3,7 @@
     EmAvatar,
     EmAvatarFallback,
     EmButton,
+    EmIcon,
     EmList,
     EmListItem,
     EmListItemContent,
@@ -143,17 +144,7 @@
         </ul>
 
         <EmButton class="adm-contact__new" variant="primary">
-          <svg
-            aria-hidden="true"
-            fill="none"
-            height="16"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-            width="16"
-          ><path d="M12 5v14M5 12h14" /></svg>
+          <EmIcon name="plus" size="s" />
           Add person
         </EmButton>
       </aside>
@@ -239,17 +230,7 @@
                   type="button"
                   @click="onFavourite(contact)"
                 >
-                  <svg
-                    aria-hidden="true"
-                    :fill="contact.favourite ? 'currentColor' : 'none'"
-                    height="16"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    viewBox="0 0 24 24"
-                    width="16"
-                  ><path d="m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5L2.6 9.8l6.5-.9L12 3Z" /></svg>
+                  <EmIcon name="star" size="s" />
                 </button>
               </EmListItem>
             </EmList>
@@ -547,6 +528,11 @@
 
   .adm-contact__star[data-active] {
     color: var(--emerald-alert-600, #d9af00);
+  }
+
+  /* Solid once starred. EmIcon draws strokes, so the fill is the caller's. */
+  .adm-contact__star[data-active] .emerald-icon {
+    fill: currentColor;
   }
 
   .adm-contact__star:focus-visible,

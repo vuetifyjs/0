@@ -3,6 +3,7 @@
     EmAvatar,
     EmAvatarFallback,
     EmButton,
+    EmIcon,
     EmKanban,
     EmKanbanColumn,
     EmTag,
@@ -126,17 +127,7 @@
             variant="tertiary"
             @click="onAdd"
           >
-            <svg
-              aria-hidden="true"
-              fill="none"
-              height="16"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-              width="16"
-            ><path d="M12 5v14M5 12h14" /></svg>
+            <EmIcon name="plus" size="s" />
             Add card
           </EmButton>
         </div>
@@ -158,17 +149,7 @@
             <span class="adm-kanban__card-ref">{{ card.value?.ref }}</span>
 
             <span class="adm-kanban__card-due">
-              <svg
-                aria-hidden="true"
-                fill="none"
-                height="12"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                viewBox="0 0 24 24"
-                width="12"
-              ><path d="M4 5h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>
+              <EmIcon name="calendar" size="s" />
               {{ card.value?.due }}
             </span>
           </div>

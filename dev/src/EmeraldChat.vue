@@ -3,6 +3,7 @@
     EmAvatar,
     EmAvatarFallback,
     EmButton,
+    EmIcon,
     EmList,
     EmListItem,
     EmListItemContent,
@@ -246,17 +247,7 @@
         <template v-if="open">
           <header class="adm-chat__thread-head">
             <button aria-label="Back to conversations" class="adm-chat__back" type="button" @click="detail = false">
-              <svg
-                aria-hidden="true"
-                fill="none"
-                height="16"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                viewBox="0 0 24 24"
-                width="16"
-              ><path d="M15 18l-6-6 6-6" /></svg>
+              <EmIcon name="chevron-left" size="s" />
             </button>
 
             <span class="adm-chat__avatar-wrap" :data-kind="open.kind">
