@@ -85,6 +85,7 @@ catalog:
   vite-plugin-vue-layouts-next: ^2.1.0
   vite-ssg: ^28.3.0
   vite-ssg-sitemap: ^0.10.0
+  '@vitejs/plugin-vue': ^6.0.8
   vitest: ^4.1.10
 
   vue: 3.5.39

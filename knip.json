@@ -49,6 +49,21 @@
         ]
       }
     },
+    "tests/vapor": {
+      "entry": [
+        "vitest.spike.config.ts",
+        "spike/**/*.spike.test.ts",
+        "test/**/*.test.ts"
+      ],
+      "paths": {
+        "@vuetify/v0": [
+          "../../packages/0/src"
+        ],
+        "#v0": [
+          "../../packages/0/src"
+        ]
+      }
+    },
     "packages/0": {
       "entry": [
         "src/*/adapters/**/*.ts",

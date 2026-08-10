@@ -12,7 +12,7 @@
     "@vuetify/v0": "workspace:*"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^6.0.7",
+    "@vitejs/plugin-vue": "catalog:",
     "@vue/runtime-vapor": "3.6.0-rc.2",
     "happy-dom": "catalog:",
     "vite": "catalog:",
