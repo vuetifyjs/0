@@ -2,15 +2,10 @@
   // Framework
   import { Tooltip } from '@vuetify/v0'
 
-  export interface EmTooltipProps {
-    namespace?: string
-    openDelay?: number
-    closeDelay?: number
-    disabled?: boolean
-    interactive?: boolean
-    positionArea?: string
-    positionTry?: string
-  }
+  // Types
+  import type { TooltipRootProps } from '@vuetify/v0'
+
+  export interface EmTooltipProps extends Omit<TooltipRootProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

@@ -2,27 +2,17 @@
   // Framework
   import { Slider } from '@vuetify/v0'
 
-  export type EmSliderOrientation = 'horizontal' | 'vertical'
+  // Utilities
+  import { toValue } from 'vue'
 
-  export interface EmSliderProps {
-    disabled?: boolean
-    readonly?: boolean
-    min?: number
-    max?: number
-    step?: number
-    orientation?: EmSliderOrientation
-    name?: string
-    /** Accessible name for the slider group / default thumb */
-    label?: string
-    ariaLabelledby?: string
+  // Types
+  import type { SliderRootProps } from '@vuetify/v0'
+
+  export type EmSliderOrientation = NonNullable<SliderRootProps['orientation']>
+
+  export interface EmSliderProps extends Omit<SliderRootProps, 'as' | 'renderless'> {
     /** Thumb accessible name when no visible label */
     ariaLabel?: string
-    inverted?: boolean
-    minStepsBetweenThumbs?: number
-    crossover?: boolean
-    form?: string
-    id?: string
-    namespace?: string
   }
 </script>
 
@@ -54,9 +44,9 @@
 <template>
   <div
     class="emerald-slider"
-    :data-disabled="disabled || undefined"
+    :data-disabled="toValue(disabled) || undefined"
     :data-orientation="orientation"
-    :data-readonly="isReadonly || undefined"
+    :data-readonly="toValue(isReadonly) || undefined"
   >
     <Slider.Root
       :id
