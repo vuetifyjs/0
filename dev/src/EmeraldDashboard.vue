@@ -7,6 +7,7 @@
     EmCardHeader,
     EmCardSubtitle,
     EmCardTitle,
+    EmIcon,
     EmTag,
   } from '@paper/emerald'
 
@@ -33,14 +34,14 @@
       value: '3,294',
       delta: '2.7 %',
       up: false,
-      icon: 'orders',
+      icon: 'receipt',
     },
     {
       label: 'Conversion',
       value: '4.28%',
       delta: '1.3 %',
       up: true,
-      icon: 'trend',
+      icon: 'trend-up',
     },
   ] as const
 
@@ -114,58 +115,7 @@
             </span>
           </div>
 
-          <span aria-hidden="true" class="ed-kpi__icon">
-            <svg
-              v-if="kpi.icon === 'currency'"
-              fill="none"
-              height="16"
-              stroke="currentColor"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="16"
-            >
-              <path d="M12 3v18M17 8c0-2-2-3.5-5-3.5S7 6 7 8s2 3 5 3.5 5 1.5 5 3.5-2 3.5-5 3.5S7 16 7 14" stroke-linecap="round" />
-            </svg>
-
-            <svg
-              v-else-if="kpi.icon === 'users'"
-              fill="none"
-              height="16"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="16"
-            >
-              <circle cx="9" cy="8" r="3" /><path d="M3 19c0-3 2.5-5 6-5s6 2 6 5" /><circle cx="17" cy="9" r="2.5" />
-            </svg>
-
-            <svg
-              v-else-if="kpi.icon === 'orders'"
-              fill="none"
-              height="16"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="16"
-            >
-              <path d="M5 6h14v12H5V6Z" /><path d="M9 10h6M9 14h4" />
-            </svg>
-
-            <svg
-              v-else
-              fill="none"
-              height="16"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-width="1.75"
-              viewBox="0 0 24 24"
-              width="16"
-            >
-              <path d="M5 16 12 7l7 9" /><path d="M14 7h5v5" />
-            </svg>
-          </span>
+          <span class="ed-kpi__icon"><EmIcon :name="kpi.icon" size="s" /></span>
         </EmCardBody>
       </EmCard>
     </section>
