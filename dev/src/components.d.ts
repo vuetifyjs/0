@@ -126,6 +126,7 @@ declare module 'vue' {
     EmExpansionPanelCue: typeof import('./../../packages/emerald/src/components/EmExpansionPanel/EmExpansionPanelCue.vue')['default']
     EmExpansionPanelGroup: typeof import('./../../packages/emerald/src/components/EmExpansionPanel/EmExpansionPanelGroup.vue')['default']
     EmExpansionPanelHeader: typeof import('./../../packages/emerald/src/components/EmExpansionPanel/EmExpansionPanelHeader.vue')['default']
+    EmIcon: typeof import('./../../packages/emerald/src/components/EmIcon/EmIcon.vue')['default']
     EmKanban: typeof import('./../../packages/emerald/src/components/EmKanban/EmKanban.vue')['default']
     EmKanbanCard: typeof import('./../../packages/emerald/src/components/EmKanban/EmKanbanCard.vue')['default']
     EmKanbanColumn: typeof import('./../../packages/emerald/src/components/EmKanban/EmKanbanColumn.vue')['default']

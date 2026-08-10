@@ -482,11 +482,11 @@
     color: var(--emerald-neutral-400, #aeb6be);
   }
 
-  /* Bullet mark in the tier highlight list. */
+  /* Bullet mark in the tier highlight list; colour and flow come from the
+     .adm-plans__highlights svg rule above. */
   .adm-plans__tick {
     --emerald-icon-size: 14px;
     --emerald-icon-stroke: 3.75;
-    color: var(--emerald-primary-600, #1fae60);
   }
 
   .adm-plans__terms {
