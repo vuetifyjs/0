@@ -7,7 +7,7 @@
   import { toRef } from 'vue'
 
   // Types
-  import type { EmIconGlyph } from '../../icons'
+  import type { EmIconGlyph, EmIconName } from '../../icons'
 
   // Icons
   import { useEmIcons } from '../../icons'
@@ -16,7 +16,7 @@
 
   export interface EmIconProps {
     /** Role to draw — resolved through the icon registry, aliases included. */
-    name: string
+    name: EmIconName
     /**
      * Accessible name. Set it only when the icon is the whole message; an icon
      * sitting next to its own label, or inside a labelled button, wants the
@@ -25,6 +25,10 @@
     label?: string
     /** Maps to the `--emerald-icon-*` scale. */
     size?: EmIconSize
+    /**
+     * Registry to resolve against. Only needed when a subtree was given its own
+     * set via `provideEmIcons` under a non-default namespace.
+     */
     namespace?: string
   }
 </script>

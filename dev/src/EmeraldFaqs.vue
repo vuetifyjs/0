@@ -114,7 +114,7 @@
       title: 'Open a support ticket',
       copy: 'Defects, integration failures, and anything blocking a release. Include a reproduction and it goes straight to the maintainer who owns that package.',
       cta: 'File a ticket',
-      icon: 'chat',
+      icon: 'speech-bubble',
     },
     {
       id: 'office',

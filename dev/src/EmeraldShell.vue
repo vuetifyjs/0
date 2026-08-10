@@ -28,6 +28,7 @@
   import { RouterLink, useRoute } from 'vue-router'
 
   // Types
+  import type { EmIconName } from '@paper/emerald'
   import type { PopoverActivatorSlotProps, TooltipActivatorSlotProps } from '@vuetify/v0'
 
   const {
@@ -104,10 +105,15 @@
   })
 
   type Item = {
-    /** Doubles as the active-route key and the icon role drawn in the rail. */
+    /** Route key, matched against the active path. */
     id: string
     label: string
     to: string
+    /**
+     * Canonical icon role, kept separate from `id`: the rail draws artwork, and
+     * what a route is called is not what its glyph depicts.
+     */
+    icon: EmIconName
   }
 
   type Group = {
@@ -119,41 +125,41 @@
     {
       label: 'Dashboards',
       items: [
-        { id: 'dashboard', label: 'Overview', to: '/emerald' },
-        { id: 'sales', label: 'Sales', to: '/emerald/sales' },
-        { id: 'finance', label: 'Finance', to: '/emerald/finance' },
-        { id: 'logistics', label: 'Logistics', to: '/emerald/logistics' },
-        { id: 'productivity', label: 'Productivity', to: '/emerald/productivity' },
-        { id: 'campaign', label: 'Campaign', to: '/emerald/campaign' },
-        { id: 'analytics', label: 'Analytics', to: '/emerald/analytics' },
-        { id: 'payments', label: 'Payments', to: '/emerald/payments' },
-        { id: 'ecommerce', label: 'eCommerce', to: '/emerald/ecommerce' },
-        { id: 'orders', label: 'Orders', to: '/emerald/orders' },
+        { id: 'dashboard', label: 'Overview', to: '/emerald', icon: 'layout' },
+        { id: 'sales', label: 'Sales', to: '/emerald/sales', icon: 'chart-line' },
+        { id: 'finance', label: 'Finance', to: '/emerald/finance', icon: 'card' },
+        { id: 'logistics', label: 'Logistics', to: '/emerald/logistics', icon: 'truck' },
+        { id: 'productivity', label: 'Productivity', to: '/emerald/productivity', icon: 'activity' },
+        { id: 'campaign', label: 'Campaign', to: '/emerald/campaign', icon: 'megaphone' },
+        { id: 'analytics', label: 'Analytics', to: '/emerald/analytics', icon: 'chart-bar' },
+        { id: 'payments', label: 'Payments', to: '/emerald/payments', icon: 'card' },
+        { id: 'ecommerce', label: 'eCommerce', to: '/emerald/ecommerce', icon: 'cart' },
+        { id: 'orders', label: 'Orders', to: '/emerald/orders', icon: 'layers' },
       ],
     },
     {
       label: 'Apps',
       items: [
-        { id: 'mail', label: 'Mail', to: '/emerald/mail' },
-        { id: 'chat', label: 'Chat', to: '/emerald/chat' },
-        { id: 'kanban', label: 'Kanban', to: '/emerald/kanban' },
-        { id: 'calendar', label: 'Calendar', to: '/emerald/calendar' },
-        { id: 'contacts', label: 'Contacts', to: '/emerald/contacts' },
-        { id: 'settings', label: 'Settings', to: '/emerald/settings' },
+        { id: 'mail', label: 'Mail', to: '/emerald/mail', icon: 'envelope' },
+        { id: 'chat', label: 'Chat', to: '/emerald/chat', icon: 'speech-bubble' },
+        { id: 'kanban', label: 'Kanban', to: '/emerald/kanban', icon: 'kanban' },
+        { id: 'calendar', label: 'Calendar', to: '/emerald/calendar', icon: 'calendar' },
+        { id: 'contacts', label: 'Contacts', to: '/emerald/contacts', icon: 'user' },
+        { id: 'settings', label: 'Settings', to: '/emerald/settings', icon: 'sliders' },
       ],
     },
     {
       label: 'Pages',
       items: [
-        { id: 'features', label: 'Features', to: '/emerald/features' },
-        { id: 'pricing', label: 'Pricing', to: '/emerald/pricing' },
-        { id: 'faqs', label: 'FAQs', to: '/emerald/faqs' },
-        { id: 'about', label: 'About', to: '/emerald/about' },
-        { id: 'contact', label: 'Contact', to: '/emerald/contact' },
-        { id: 'signin', label: 'Sign in', to: '/emerald/sign-in' },
-        { id: 'modals', label: 'Modals', to: '/emerald/modals' },
-        { id: 'datatable', label: 'Datatable', to: '/emerald/datatable' },
-        { id: 'forms', label: 'Form validation', to: '/emerald/forms' },
+        { id: 'features', label: 'Features', to: '/emerald/features', icon: 'sparkle' },
+        { id: 'pricing', label: 'Pricing', to: '/emerald/pricing', icon: 'tag' },
+        { id: 'faqs', label: 'FAQs', to: '/emerald/faqs', icon: 'help' },
+        { id: 'about', label: 'About', to: '/emerald/about', icon: 'info' },
+        { id: 'contact', label: 'Contact', to: '/emerald/contact', icon: 'speech-bubble' },
+        { id: 'signin', label: 'Sign in', to: '/emerald/sign-in', icon: 'login' },
+        { id: 'modals', label: 'Modals', to: '/emerald/modals', icon: 'window' },
+        { id: 'datatable', label: 'Datatable', to: '/emerald/datatable', icon: 'table' },
+        { id: 'forms', label: 'Form validation', to: '/emerald/forms', icon: 'document' },
       ],
     },
   ]
@@ -260,7 +266,7 @@
                 @click="onCloseNav"
               >
                 <span aria-hidden="true" class="ed-nav__glyph">
-                  <EmIcon :name="item.id" />
+                  <EmIcon :name="item.icon" />
                 </span>
 
                 <span class="ed-nav__label">{{ item.label }}</span>
@@ -316,7 +322,7 @@
               @click="onCloseNav"
             >
               <span aria-hidden="true" class="ed-nav__glyph">
-                <EmIcon name="components" />
+                <EmIcon name="layers" />
               </span>
 
               <span class="ed-nav__label">Components</span>
