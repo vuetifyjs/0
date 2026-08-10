@@ -128,7 +128,7 @@ Every part except `EmDialogFooter` takes an optional `namespace`.
 | `EmDialogTitle` | — | Names the dialog via `aria-labelledby` |
 | `EmDialogDescription` | — | Describes it via `aria-describedby` |
 | `EmDialogFooter` | `variant`: `'buttons' \| 'pagination' \| 'one-button'`, default `'buttons'` | Layout only; no `namespace` |
-| `EmDialogClose` | — | Falls back to a close glyph when given no content |
+| `EmDialogClose` | — | Falls back to a close glyph when given no content. Always named from the locale key `Dialog.close` |
 
 `EmDialogActivator` slot props: `isOpen`, and an `attrs` object carrying `type`, `role`, `tabindex`, `aria-haspopup`, `aria-expanded`, `data-open`, `onClick` and `onKeydown`.
 
@@ -146,7 +146,9 @@ That restoration depends on the activator still existing. If the trigger is insi
 
 `EmDialogTitle` becomes the dialog's accessible name through `aria-labelledby`, and `EmDialogDescription` its description through `aria-describedby`. Include a title on every dialog: without one, the dialog is announced only as "dialog", giving a screen-reader user no idea what just interrupted them.
 
-`EmDialogClose` renders a close glyph when you give it no content. The glyph is decorative, so the button carries its own accessible name — pass text or an `aria-label` when you replace the default content with something unlabelled.
+`EmDialogClose` names itself. `Dialog.Close` always sets `aria-label` from the locale key `Dialog.close`, falling back to "Close" — unconditionally, whatever you put in the slot. So the default glyph button is already labelled, and replacing the content with a different icon does not leave it anonymous.
+
+The flip side is that the label is not yours to override from the slot: putting the word "Cancel" inside `EmDialogClose` produces a button that still announces as "Close". When the affordance needs a different name, install a locale message for `Dialog.close`, or use a plain `EmButton` bound to the model instead of the close part.
 
 ### Dismissal
 

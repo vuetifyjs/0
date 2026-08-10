@@ -26,7 +26,7 @@
       required
       :rules="[required, shaped]"
       type="email"
-      validate-on="blur"
+      validate-on="blur lazy"
     />
   </div>
 </template>

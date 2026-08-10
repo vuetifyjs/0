@@ -49,9 +49,9 @@ Everything around the input is a prop. `label` renders the visible label and wir
 
 `EmTextField` renders v0's [Input](/components/forms/input) compound: `Input.Root` owns the field, `Input.Control` is the element you type into, and `Input.Description` and `Input.Error` are the two message regions.
 
-Everything that is hard about a text field lives in that compound, not in Emerald. `Input.Root` generates the id and holds the `for`/`id` pair together, points `aria-describedby` at whichever message region is currently showing, and runs the validation pipeline — which is v0's `createValidation` under the hood, so the rule contract and the `validateOn` timing are the same ones documented on the Input page.
+Everything that is hard about a text field lives in that compound, not in Emerald. `Input.Root` generates the id and holds the `for`/`id` pair together, wires each message region to the control by its own attribute, and runs the validation pipeline — which is v0's `createValidation` under the hood, so the rule contract and the `validateOn` timing are the same ones documented on the Input page.
 
-Emerald supplies the CSS and one structural decision: `Input.Error` is always rendered rather than conditionally mounted, so the message region reserves its own height. A field that grows by a line when it becomes invalid shoves the rest of the form down at the exact moment the reader is trying to read it.
+Emerald supplies the CSS and one structural decision: `Input.Error` is always rendered rather than conditionally mounted. That matters for announcements rather than for layout — the region carries `aria-live="polite"`, and a live region has to already be in the document when its content arrives, or the insertion is not announced at all.
 
 The state attributes the stylesheet keys on — `data-focused`, `data-disabled`, `data-readonly`, `data-state="invalid"` — are all emitted by v0. Emerald writes no state class of its own.
 
@@ -64,9 +64,11 @@ The state attributes the stylesheet keys on — `data-focused`, `data-disabled`,
 
 `rules` is an array of functions taking the value and returning `true` when it passes, or a string to show when it does not. They may return a promise, so an async check — a username lookup, a server-side uniqueness test — is the same shape as a synchronous one. Rules run in order and the first failure is what gets shown.
 
-`validateOn` decides *when*, and it is the prop that most changes how the field feels. `blur` waits until the reader leaves the field, which is usually right: validating on every keystroke means telling someone their email is invalid while they are still on the second character. `input` validates as they type, worth it for a field with live feedback like a password strength meter. `submit` defers everything to the form.
+`validateOn` decides *when*, and it is the prop that most changes how the field feels. It defaults to `blur`, which waits until the reader leaves the field — usually right, because validating on every keystroke means telling someone their email is invalid while they are still on the second character. `input` validates as they type, worth it for a field with live feedback like a password strength meter. `submit` defers everything to the form.
 
-Each of those combines with `lazy` or `eager`. `lazy` holds off until the field has been touched at least once, so a pristine form does not open covered in errors; `eager` validates immediately and keeps validating. `blur lazy` is the combination most forms want.
+Each of those combines with `lazy` or `eager`, and the two are not opposites. `lazy` suppresses validation until the field has been touched, so a form the reader has typed into elsewhere does not light up fields they have not reached yet. `eager` is about escalation: before the first failure it validates only on the base trigger, and once the field has failed it re-validates on every keystroke — so the error clears the moment the reader fixes it rather than making them leave the field again.
+
+`blur lazy`, as in this example, is the combination most forms want. Reach for `blur eager` when the correction itself is fiddly enough that per-keystroke feedback earns its keep.
 
 Note that `required` is a separate prop from a required *rule*. The prop sets the aria state and the visual marker; the rule is what actually rejects an empty value. Both, as in this example — the prop is the promise, the rule is the enforcement.
 :::
@@ -105,7 +107,7 @@ Three states that all stop normal editing and mean entirely different things.
 | `disabled` | `boolean` | `false` | Field unavailable and not submitted |
 | `readonly` | `boolean` | `false` | Value shown but not editable; still focusable and submitted |
 | `rules` | `FormValidationRule[]` | — | Validators — `(value) => true \| string`, optionally async |
-| `validateOn` | `ValidateOn` | — | When rules run: `blur`, `input` or `submit`, each combinable with `lazy` or `eager` |
+| `validateOn` | `ValidateOn` | `'blur'` | When rules run: `blur`, `input` or `submit`, each combinable with `lazy` or `eager` |
 | `error` | `boolean` | `false` | Force the invalid state from outside the rule pipeline |
 | `errorMessages` | `string \| string[]` | — | Messages to show while `error` is set |
 | `namespace` | `string` | — | Which v0 `Input` instance to bind to. Only needed when nesting |
@@ -124,9 +126,18 @@ A `placeholder` is not a label. It disappears the moment someone types, it is no
 
 ### Descriptions and errors
 
-The field points `aria-describedby` at whichever region is currently showing, so help text is announced along with the field, and an error message replaces it rather than stacking with it. That is why the error region is always in the DOM: a message that appears in a region a screen reader was never told about does not get announced.
+The two regions are wired to the control by **different attributes**, and they coexist rather than replacing one another.
 
-Because the two regions swap, do not put information a reader needs *in order to fill in the field* in `description` alone — it disappears exactly when they have got it wrong and need it most. Format requirements belong in the label or in the error text itself.
+| Region | Attribute on the control | Present when |
+|--------|--------------------------|--------------|
+| `Input.Description` | `aria-describedby` | A `description` is set — regardless of validity |
+| `Input.Error` | `aria-errormessage` | The field is invalid and has at least one message |
+
+So a field that is both described and invalid exposes both: the help text stays associated the whole time, and the error arrives on its own channel alongside it. The control also gets `aria-invalid` while it is failing, which is what flips a screen reader into reporting the error at all — `aria-errormessage` is ignored without it.
+
+`Input.Error` additionally carries `aria-live="polite"`, so a message that appears while the reader is already past the field is announced without stealing focus. This is the reason the region is always mounted: a live region has to be in the document before its content changes, or the browser has nothing to observe and the first message is silently missed.
+
+The practical consequence is the opposite of what a swap would imply — help text does not disappear when validation fails, so `description` is a safe place for the format requirement rather than a risky one.
 
 ### Required
 

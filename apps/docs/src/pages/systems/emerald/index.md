@@ -32,6 +32,9 @@ The practical consequence for you: everything you learn about a v0 compound appl
 
 ## Installation
 
+> [!IMPORTANT]
+> `@paper/emerald` is not published yet. The commands and imports below are the shape the install will take when it ships — they will not resolve from npm today. Emerald currently builds inside the [vuetifyjs/0](https://github.com/vuetifyjs/0) monorepo.
+
 ```bash
 pnpm add @paper/emerald
 ```
@@ -88,7 +91,7 @@ Every visual decision is a CSS custom property under `--emerald-*`, generated fr
 
 Colors are emitted twice: as the hex value and as space-separated RGB channels, so `--emerald-primary-600-channels` can be dropped into an `rgb(… / 0.4)` for a translucent overlay without a second token.
 
-### The `--v0-*` bridge
+### The v0 bridge
 
 Alongside its own namespace, Emerald mirrors its color roles onto the `--v0-*` names that v0 kits read. Anything built against the generic kit vocabulary picks up Emerald's brand colors with no adapter of its own.
 
@@ -127,7 +130,7 @@ Two conventions hold across all of them, and knowing them removes most of the gu
 
 **No named slots.** A component with fixed anatomy — `EmButton`, `EmTextField`, `EmCheckbox` — takes props and one default slot. A component with a variable tree ships as a compound of express parts instead: `EmDialogTitle`, `EmSelectItem`, `EmCalendarHeader`. If you are looking for a `#label` slot, the answer is either a prop or a part.
 
-**Every part takes `namespace`.** It selects which instance a part talks to, and you only need it when two of the same compound are nested. Otherwise leave it alone.
+**Nearly every part takes `namespace`.** It selects which instance a part talks to, and you only need it when two of the same compound are nested. Otherwise leave it alone. The exceptions are the parts that hold no state of their own — `EmDialogFooter` is pure layout and takes no `namespace` at all.
 
 > [!NOTE]
 > Emerald is in preview. Component APIs may change between minor versions, and the prop tables on these pages are hand-authored ahead of generated API reference.

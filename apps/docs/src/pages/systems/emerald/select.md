@@ -2,7 +2,7 @@
 title: EmSelect - Emerald Select for Vue
 meta:
 - name: description
-  content: Emerald's select — a compound of express parts over Vuetify0's headless Select, with listbox keyboard navigation, typeahead and popover placement supplied by v0.
+  content: Emerald's select — a compound of express parts over Vuetify0's headless Select, with listbox keyboard navigation, virtual focus and popover placement supplied by v0.
 - name: keywords
   content: emerald select, vue select, listbox vue, multiple select, design system select, vuetify0 select
 features:
@@ -68,7 +68,9 @@ Unlike `EmButton` and `EmTextField`, `EmSelect` has a variable tree — you deci
 
 Every part maps one-to-one onto v0's [Select](/components/forms/select) compound — `Select.Root`, `Select.Activator`, `Select.Value`, `Select.Placeholder`, `Select.Content`, `Select.Item`. Emerald adds CSS and a caret; v0 supplies everything else.
 
-"Everything else" is most of what a select is. `Select.Root` is built on v0's selection primitives, so `multiple` and `mandatory` are `createSelection` behaviors rather than props Emerald implements. The listbox roles, the roving `aria-activedescendant`, typeahead, and the keyboard map are v0's. `Select.Content` renders through the native popover API, which is why the menu escapes overflow and stacking contexts without a floating library or a z-index to manage.
+"Everything else" is most of what a select is. `Select.Root` is built on v0's selection primitives, so `multiple` and `mandatory` are `createSelection` behaviors rather than props Emerald implements. The listbox roles, the roving `aria-activedescendant`, and the keyboard map are v0's. `Select.Content` renders through the native popover API, which is why the menu escapes overflow and stacking contexts without a floating library or a z-index to manage.
+
+`Select` is a picker over a fixed set of options — it has no text entry and no type-to-filter. When you need the reader to type, either to filter a long list or to enter a value that is not in it, reach for [Combobox](/components/forms/combobox) instead; that is where v0 puts filtering and typeahead. Emerald does not wrap it yet.
 
 One structural note: `Select.Root` is renderless, so the element you see is a plain `<div class="emerald-select">` that Emerald renders itself, with the `<label>` beside it pointing at the activator. That is why `label` is a prop on the root — there is a real element there to own it.
 
@@ -81,7 +83,9 @@ One structural note: `Select.Root` is renderless, so the element you see is a pl
 
 ### Multiple selection
 
-`multiple` turns the model into an array and lets items accumulate. The type follows: `v-model` is `T` for a single select and `T[]` here, so bind a `ref([])` rather than a `shallowRef` — the array is mutated in place as items are toggled.
+`multiple` turns the model into an array and lets items accumulate. The type follows: `v-model` is `T` for a single select and `T[]` here, so bind a `ref([])`, matching the house rule that arrays and objects get `ref` and primitives get `shallowRef`.
+
+Nothing about the binding forces that choice — each toggle assigns a **fresh array** rather than mutating the one you passed, so a `shallowRef` would track it too. Prefer `ref` for the array you own and read elsewhere, and reach for `shallowRef` only when you have measured a reason to.
 
 The part that needs a decision from you is the trigger. `EmSelectValue`'s default content is the single `selectedValue`, which is not meaningful once there are several, so take its slot props instead. The slot hands out `selectedValue` and `selectedValues`, `selectedItem` and `selectedItems`, and a `hasValue` boolean — enough to render a comma list, a count, or a row of tags without tracking the selection separately.
 
@@ -126,7 +130,7 @@ Keep the option's text as its accessible name. Icons inside items should stay de
 
 ### Parts
 
-Every part takes an optional `namespace`; only `EmSelectItem` adds props of its own.
+Every part takes an optional `namespace`; only `EmSelectItem` adds props of its own. Its `value` is v0's `ID` — `string | number` — not the root's generic `T`, so an option keyed by an object needs an id here and the lookup back to the object stays yours.
 
 | Part | Renders | Props | Slot props |
 |------|---------|-------|-----------|
@@ -134,7 +138,7 @@ Every part takes an optional `namespace`; only `EmSelectItem` adds props of its 
 | `EmSelectValue` | The current selection | — | `selectedItem`, `selectedItems`, `selectedValue`, `selectedValues`, `hasValue`, `attrs` |
 | `EmSelectPlaceholder` | Shown while nothing is selected | — | — |
 | `EmSelectContent` | The popover listbox | — | — |
-| `EmSelectItem` | One option | `value` (required), `disabled` | — |
+| `EmSelectItem` | One option | `value`: `ID` (required), `disabled`: `boolean` | — |
 
 ## Accessibility
 
@@ -144,16 +148,17 @@ The listbox semantics, the focus model and the keyboard map all come from v0's `
 
 | Key | Behavior |
 |-----|----------|
-| Enter, Space | Open the listbox; select the active option when open |
-| Arrow Down, Arrow Up | Open the listbox; move the active option when open |
-| Home, End | Jump to the first or last option |
-| Printable characters | Typeahead — jump to the option starting with what you typed |
+| Enter, Space | Open the listbox; select the highlighted option when open |
+| Arrow Down, Arrow Up | Open the listbox; move the highlight when open |
+| Home, End | Jump to the first or last option. Only while open |
 | Escape | Close without changing the selection |
 | Tab | Close and move on, keeping the current selection |
 
+There is no type-to-select. Typing a letter does nothing — `Select` handles only the keys above, and filtering by text is [Combobox](/components/forms/combobox)'s job.
+
 ### Focus model
 
-Focus stays on the activator the whole time. The active option is tracked with `aria-activedescendant` rather than by moving DOM focus into the list — a virtual cursor. This is what keeps typeahead and Escape working predictably, and it means the reader's focus never gets stranded inside a list that has closed underneath them.
+Focus stays on the activator the whole time. The highlighted option is tracked with `aria-activedescendant` rather than by moving DOM focus into the list — a virtual cursor. That is what keeps Escape and Tab predictable, and it means the reader's focus is never stranded inside a list that has closed underneath them.
 
 ### Naming
 

@@ -70,13 +70,15 @@ Pick by density rather than by importance. `md` is the default and the right ans
 
 ### Loading and disabled
 
-Both props make the button unclickable, and they mean different things to a screen reader, so they are not interchangeable.
+The two props look similar and behave nothing alike. Only one of them actually stops a click.
 
-`loading` says the button's action is already running. `Button.Root` puts `data-loading` on the element and swaps the cursor to `progress`, while the label stays laid out underneath the spinner so the control holds its width. This is the state for the gap between a click and its response — a form submitting, a record saving.
+`loading` says the button's action is already running. `Button.Root` sets `aria-busy` and `data-loading`, Emerald swaps the cursor to `progress`, and the label stays laid out underneath the spinner so the control holds its width. This is the state for the gap between a click and its response — a form submitting, a record saving.
 
-`disabled` says the action is not available at all. It sets `data-disabled`, drops the button to Emerald's neutral tokens, and removes it from pointer interaction entirely. Use it when a precondition has not been met, and prefer explaining the precondition nearby: a disabled button with no visible reason is one of the most common accessibility complaints about design systems, and no amount of styling fixes it.
+**`loading` does not block activation.** It sets no `disabled` attribute and removes no pointer events, so the button stays focusable, stays in the tab order, and your `@click` handler fires again on every further click. That is deliberate — the button is busy, not unavailable — but it means a double-click submits twice unless you do something about it. Either guard the handler (return early while the request is in flight) or pass `disabled` alongside `loading` when a second activation would be harmful.
 
-Setting both is not an error, but it is redundant — `loading` already blocks the interaction.
+`disabled` is the one that stops the click. It sets the native `disabled` attribute, drops the button to Emerald's neutral tokens, removes it from pointer interaction and from the tab order. Use it when a precondition has not been met, and prefer explaining the precondition nearby: a disabled button with no visible reason is one of the most common accessibility complaints about design systems, and no amount of styling fixes it.
+
+Setting both is not redundant — it is the combination you want whenever re-submitting would do damage.
 :::
 
 ::: ds-example
@@ -101,8 +103,8 @@ The icon-only button is the case that needs care. There is no text to read, so t
 |------|------|---------|-------------|
 | `variant` | `'primary' \| 'secondary' \| 'tertiary' \| 'destructive'` | `'primary'` | Visual role in the action hierarchy |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Type and padding step |
-| `disabled` | `boolean` | `false` | Action unavailable; sets `data-disabled` and removes pointer interaction |
-| `loading` | `boolean` | `false` | Action in flight; sets `data-loading` and covers the label with a spinner |
+| `disabled` | `boolean` | `false` | Action unavailable. Sets the native `disabled` attribute — blocks activation and removes the button from the tab order |
+| `loading` | `boolean` | `false` | Action in flight. Sets `aria-busy` and `data-loading` and covers the label with a spinner. Does **not** block activation |
 | `ariaLabel` | `string` | — | Accessible name. Required for icon-only buttons |
 | `name` | `string` | — | Form field name; renders a hidden input when set |
 | `namespace` | `string` | — | Which v0 `Button` instance to bind to. Only needed when nesting |
@@ -119,16 +121,18 @@ The accessible name is the default slot's text. When there is no text — an ico
 
 ### Disabled and loading
 
-The two states are announced differently and that difference is deliberate:
+The two states are announced differently, and only one of them takes the control out of play:
 
-| State | What assistive tech reports | When to use |
-|-------|-----------------------------|-------------|
-| `disabled` | Disabled — the control is present but unavailable | A precondition is unmet |
-| `loading` | Nothing extra by default — the name and role are unchanged | The action is already running |
+| State | Attributes set | Focusable | Activation | Announced as |
+|-------|----------------|-----------|------------|--------------|
+| `disabled` | `disabled`, `aria-disabled`, `data-disabled` | No | Blocked | Disabled — present but unavailable |
+| `loading` | `aria-busy`, `data-loading` | Yes | **Still fires** | Busy, with the name and role unchanged |
 
-`loading` blocks pointer and keyboard activation, but it does not by itself tell a screen reader that anything is happening. If the wait is more than momentary, announce it — put the outcome in an `aria-live` region, or move focus to the result once it arrives. A spinner is a visual signal only.
+`aria-busy` is what tells assistive technology the control is working, and `Button.Root` sets it as soon as `loading` goes true. What it does *not* do is announce the outcome. If the wait is more than momentary, say what happened when it ends — put the result in an `aria-live` region, or move focus to it. A spinner and a busy flag both describe the wait, not the answer.
 
-A disabled button is also unfocusable, which means a keyboard user tabbing through the form never encounters it and gets no explanation for why the action is missing. When the reason matters, prefer leaving the button enabled and reporting the problem on activation.
+Because `loading` leaves the button operable, a screen-reader or keyboard user can activate it again mid-request exactly as a mouse user can. Guard the handler, or add `disabled`.
+
+A disabled button is unfocusable, which means a keyboard user tabbing through the form never encounters it and gets no explanation for why the action is missing. When the reason matters, prefer leaving the button enabled and reporting the problem on activation.
 
 ### Focus
 

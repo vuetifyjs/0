@@ -126,6 +126,8 @@ Providers that require plugin setup (`locale`, `scrim`) prepend an optional **In
 | **Usage** | `::: gn-example` with `basic` (no extension, peek — strip inline heading/description) **or** code fence + prose when the page needs explanatory text before the demo [intent:302] | `` ```ts collapse `` `` code fence [intent:302] |
 | **Anatomy** | `` ```vue Anatomy no-filename `` `` — `<script setup>` import + bare compound skeleton (Root + one of each named child, no props). Separate every pair of adjacent same-level siblings with one blank line for visual scanning; an only-child gets none [intent:345] | — |
 | **Examples** | `::: gn-example` with 2+ files [intent:304] | `::: gn-example` with 2+ files [intent:304] |
+
+**Systems exception.** `::: ds-example` blocks under `pages/systems/**` are single-file by design — the sandbox entry resolves exactly one component from the `e` query param, so a multi-file block has no second file to mount. The 2+-files rule does not apply there.
 | **Recipes** | Code fence or single-file `::: gn-example` [intent:303] | Code fence or single-file `::: gn-example` [intent:303] |
 
 ## Composable Page Structure [intent:201]
@@ -209,6 +211,7 @@ A design system owns global CSS. Bulma resets `button` and `input`; Emerald ship
 
 Consequences for authoring:
 
+- **Systems pages use their own section skeleton**, not the canonical component-page list above: H1 → `<DocsPageFeatures>` → intro → **Usage** → **Anatomy** → **Composed on v0** → **Examples** → **Props** → **Accessibility**. "Composed on v0" names the compound the component wraps and links to its page; "Props" is hand-authored while `<DocsApi />` does not cover `@paper/*`. The 11-section order in "Component Page Structure" does not apply to `pages/systems/**`.
 - **Examples live at `src/examples/systems/<system>/<component>/*.vue`.** The system segment is what selects the frame — the container derives it from the example path, so `/systems/emerald/dialog/basic` loads `sandbox/emerald.html?e=dialog/basic`. A new system needs its own `sandbox/<system>.html` plus a `src/sandbox/<system>.ts` entry.
 - **No UnoCSS.** The frame deliberately loads none, so utility classes do nothing there. Style with the system's own classes and tokens; keep any example-local CSS to structural layout.
 - **Import from the design system**, not `@vuetify/v0` — `@paper/emerald`, `@paper/bulma`. Reach for v0 only for utilities a system does not re-export.
@@ -235,8 +238,8 @@ Two things follow that are easy to get wrong:
 
 ### Example file conventions
 
-- Use UnoCSS utility classes, no custom CSS. [intent:203]
-- Import from `@vuetify/v0`. [intent:204]
+- Use UnoCSS utility classes, no custom CSS. [intent:203] **Systems examples are the exception: no UnoCSS — the sandbox document has none, so utility classes are inert. Use the design system's own classes and tokens, and keep any local CSS to structural layout.**
+- Import from `@vuetify/v0`. [intent:204] Systems examples import from their design system (`@paper/emerald`) instead.
 - Keep examples minimal and focused — one concept per file. [intent:205]
 - Example folders use kebab-case; supporting Vue components use PascalCase; supporting utilities use camelCase. [intent:307]
 - No `index.vue` pattern. [intent:308]

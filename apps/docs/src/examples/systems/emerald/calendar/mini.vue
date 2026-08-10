@@ -22,7 +22,7 @@
   const events: EmCalendarEvent[] = [
     { date: on(6), title: 'Standup', tone: 'primary' },
     { date: on(6), title: 'Sync', tone: 'info' },
-    { date: on(14), title: 'Release', tone: 'success' },
+    { date: on(14), title: 'Release', tone: 'primary' },
     { date: on(21), title: 'Renewal', tone: 'alert' },
   ]
 </script>

@@ -147,19 +147,21 @@ Dots are capped at three per day by the `dots` prop, and titles and times are no
 
 ### Parts
 
-Every part takes `namespace`, defaulting to `'emerald:calendar'`.
+Every part takes `namespace`, defaulting to `'emerald:calendar'` — except `EmCalendarHeader`, which accepts the prop for symmetry but reads no context and does nothing with it.
 
 | Part | Props | Notes |
 |------|-------|-------|
 | `EmCalendarGrid` | `overflow` (`number`, default `2`) | The APG date grid. Chips per cell before `+N more` |
 | `EmCalendarMini` | `dots` (`number`, default `3`) | Compact month; `role="group"`, no roving focus |
-| `EmCalendarHeader` | — | Layout only |
+| `EmCalendarHeader` | — | Layout only. Takes `namespace` but ignores it |
 | `EmCalendarTitle` | `as` (default `'h2'`), `live` (`boolean`, default `true`) | Labels the grid; announces month changes |
 | `EmCalendarPrev` | `label` (default `'Previous month'`) | |
 | `EmCalendarNext` | `label` (default `'Next month'`) | |
 | `EmCalendarToday` | — | Returns to this month **and** selects today |
 
-The root exposes its internal calendar context via `defineExpose`, giving imperative `goto`, `first`, `last` and the `isFirst` / `isLast` signals through a template ref. Treat that as provisional — it is the incubating core's surface, not a stable API.
+The root exposes its internal calendar context via `defineExpose({ calendar })`, giving imperative `goto`, `first`, `last` and the `isFirst` / `isLast` signals through a template ref. Note the extra hop — the context is exposed *under* a `calendar` key, so it is `ref.value.calendar.goto(…)`, not `ref.value.goto(…)`.
+
+Treat all of it as provisional: that is the incubating core's surface, not a stable API, and it is the part most likely to change when the composable graduates to v0.
 
 ## Accessibility
 
