@@ -12,8 +12,10 @@ import VueRouter from 'vue-router/vite'
 import { getApiSlugs } from './build/api-names'
 import copyMarkdownPlugin from './build/copy-markdown'
 import generateApiPlugin from './build/generate-api'
+import generateApiMarkdownPlugin from './build/generate-api-markdown'
 import generateApiWhitelistPlugin from './build/generate-api-whitelist'
 import generateExamplesPlugin from './build/generate-examples'
+import generateFaqsPlugin from './build/generate-faqs'
 import generateLlmsFullPlugin from './build/generate-llms-full'
 import generateNavPlugin from './build/generate-nav'
 import { generateOgImages } from './build/generate-og-images'
@@ -23,6 +25,7 @@ import generateSearchIndexPlugin from './build/generate-search-index'
 import generateTestCountPlugin from './build/generate-test-count'
 import generateTipsPlugin from './build/generate-tips'
 import Markdown from './build/markdown'
+import mdRoutesPlugin from './build/md-routes'
 import { getSkillzSlugs } from './build/skillz-tours'
 import pkg from './package.json' with { type: 'json' }
 
@@ -54,7 +57,10 @@ export default defineConfig({
         getApiSlugs(),
         getSkillzSlugs(),
       ])
-      const filtered = paths.filter(p => !p.includes(':path'))
+      // Drop every dynamic route, not just ':path'. Concrete routes are appended
+      // below from the discovered slugs; any surviving placeholder (e.g.
+      // '/api/:name') prerenders as an empty shell and lands in the sitemap.
+      const filtered = paths.filter(p => !p.includes(':'))
       const apiRoutes = apiSlugs.map(slug => `/api/${slug}`)
       const skillzRoutes = skillzSlugs.map(slug => `/skillz/${slug}`)
       return [...filtered, ...apiRoutes, ...skillzRoutes, '/404']
@@ -90,6 +96,9 @@ export default defineConfig({
     Layouts(),
     copyMarkdownPlugin(),
     generateApiPlugin(),
+    generateApiMarkdownPlugin(),
+    mdRoutesPlugin(),
+    generateFaqsPlugin(),
     generateExamplesPlugin(),
     generateLlmsFullPlugin(),
     generateSearchIndexPlugin(),
