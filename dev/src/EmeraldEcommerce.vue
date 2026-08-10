@@ -14,6 +14,7 @@
     EmCardFooter,
     EmCardHeader,
     EmCardTitle,
+    EmIcon,
     EmPagination,
     EmPaginationItem,
     EmPaginationNext,
@@ -196,7 +197,7 @@
 
               <span class="adm-ecommerce__tile-meta">
                 <span :aria-label="`Rated ${item.rating} out of 5`" class="adm-ecommerce__star" role="img">
-                  <svg fill="currentColor" height="13" viewBox="0 0 24 24" width="13"><path d="M12 3.5 14.6 9l6 .9-4.3 4.2 1 6-5.3-2.8L6.7 20l1-6L3.4 9.9l6-.9L12 3.5Z" /></svg>
+                  <EmIcon name="star" />
                   {{ item.rating }}
                 </span>
 
@@ -505,6 +506,12 @@
     gap: 3px;
     color: var(--emerald-primary-600, #1fae60);
     font-weight: 600;
+  }
+
+  /* Ratings read as solid; the shared role draws an outline. */
+  .adm-ecommerce__star .emerald-icon {
+    --emerald-icon-size: 13px;
+    fill: currentColor;
   }
 
   .adm-ecommerce__split {

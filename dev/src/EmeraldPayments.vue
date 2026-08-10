@@ -14,6 +14,7 @@
     EmCardHeader,
     EmCardTitle,
     EmCheckbox,
+    EmIcon,
     EmPagination,
     EmPaginationItem,
     EmPaginationNext,
@@ -265,32 +266,15 @@
                   <td>
                     <div class="adm-payments__actions">
                       <EmButton aria-label="Send reminder" size="sm" variant="tertiary">
-                        <svg
-                          fill="none"
-                          height="15"
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="1.75"
-                          viewBox="0 0 24 24"
-                          width="15"
-                        ><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" /><path d="M3 6l9 7 9-7" /></svg>
+                        <EmIcon name="envelope" size="s" />
                       </EmButton>
 
                       <EmButton aria-label="View invoice" size="sm" variant="tertiary">
-                        <svg
-                          fill="none"
-                          height="15"
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-width="1.75"
-                          viewBox="0 0 24 24"
-                          width="15"
-                        ><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                        <EmIcon name="eye" size="s" />
                       </EmButton>
 
                       <EmButton aria-label="More actions" size="sm" variant="tertiary">
-                        <svg fill="currentColor" height="15" viewBox="0 0 24 24" width="15"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
+                        <EmIcon name="kebab" size="s" />
                       </EmButton>
                     </div>
                   </td>

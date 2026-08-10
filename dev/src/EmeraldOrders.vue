@@ -13,6 +13,7 @@
     EmCardFooter,
     EmCardHeader,
     EmCardTitle,
+    EmIcon,
     EmPagination,
     EmPaginationItem,
     EmPaginationNext,
@@ -155,7 +156,7 @@
 
                   <td>
                     <EmButton aria-label="More actions" size="sm" variant="tertiary">
-                      <svg fill="currentColor" height="15" viewBox="0 0 24 24" width="15"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
+                      <EmIcon name="kebab" size="s" />
                     </EmButton>
                   </td>
                 </tr>

@@ -16,6 +16,7 @@
     EmCardBody,
     EmCardHeader,
     EmCheckbox,
+    EmIcon,
     EmPagination,
     EmPaginationItem,
     EmPaginationNext,
@@ -242,19 +243,11 @@
                     @click="sort.toggle(String(col.id))"
                   >
                     {{ col.title }}
-                    <svg
-                      aria-hidden="true"
+                    <EmIcon
                       class="adm-ledger__sort-icon"
                       :data-direction="sort.direction(String(col.id))"
-                      fill="none"
-                      height="12"
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      viewBox="0 0 12 12"
-                      width="12"
-                    ><path d="M3 4.5 6 1.5 9 4.5M3 7.5 6 10.5 9 7.5" /></svg>
+                      name="sort"
+                    />
                   </button>
 
                   <template v-else>{{ col.title }}</template>
@@ -507,7 +500,10 @@
     color: var(--emerald-on-surface, #2b2d2e);
   }
 
+  /* Compact enough to sit inside the header text; below the icon scale. */
   .adm-ledger__sort-icon {
+    --emerald-icon-size: 12px;
+    --emerald-icon-stroke: 2;
     opacity: 0.4;
   }
 
