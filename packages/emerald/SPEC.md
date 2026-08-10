@@ -123,7 +123,12 @@ showcase quality.
 | `EmKanban` (+ Column/Card) | `createKanban` + `useDragDrop` internalized — per-card real refs, drop indicator, keyboard drag + `role=status` announcer |
 | `EmCalendar` (+ Header/Title/Prev/Next/Today/Grid/Mini) | own context; APG grid keyboard pattern; v0 `DateAdapter` slots in via optional injection, plain `Date` otherwise |
 
-Foundations also export `motion` and `control` (switch/checkbox/avatar geometry) as CSS vars.
+Foundations also export `motion` and `control` (switch/checkbox/avatar geometry) as CSS vars,
+and an **icon set** — `src/icons.ts` maps role names to 24x24 stroke-grid path data, resolved
+through v0's `createTokens` so consumers override roles and add aliases via
+`createEmeraldPlugin({ icons })`. `EmIcon` renders it against the `--emerald-icon-*` scale;
+every Em* glyph draws through it, so one override restyles the system's chrome. See
+[DESIGN_SYSTEMS.md](../../DESIGN_SYSTEMS.md) "Icons".
 
 Maturity: **preview**. Not published (`private: true` until first release cut).
 
