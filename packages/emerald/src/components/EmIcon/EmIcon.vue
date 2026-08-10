@@ -27,7 +27,8 @@
     size?: EmIconSize
     /**
      * Registry to resolve against. Only needed when a subtree was given its own
-     * set via `provideEmIcons` under a non-default namespace.
+     * set under a non-default namespace, via `createEmeraldIconsPlugin` or
+     * `createEmeraldIconsContext`.
      */
     namespace?: string
   }

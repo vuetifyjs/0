@@ -21,14 +21,6 @@
  * @see https://github.com/vuetifyjs/0/issues/107
  */
 
-// Framework
-import { createContext, createTokens } from '@vuetify/v0'
-import { isString } from '@vuetify/v0/utilities'
-
-// Types
-import type { TokenCollection, TokenContext, TokenTicket } from '@vuetify/v0'
-import type { App } from 'vue'
-
 /** A glyph is the ordered `d` strings that draw it. */
 export type EmIconGlyph = readonly string[]
 
@@ -37,7 +29,7 @@ export type EmIconGlyph = readonly string[]
  * the consumer-facing channel is `EmeraldIconsOptions['icons']`, which takes
  * glyphs only — aliases go through `aliases` so both forms cannot disagree.
  */
-type EmIconCollection = Record<string, EmIconGlyph | string>
+export type EmIconCollection = Record<string, EmIconGlyph | string>
 
 /**
  * The distinct artwork. Anything an Em* component draws for itself is in here,
@@ -223,92 +215,3 @@ export type EmIconName =
   | keyof typeof emeraldIcons
   | keyof typeof emeraldIconAliases
   | (string & {})
-
-export type EmIconsContext = TokenContext<TokenTicket>
-
-export interface EmeraldIconsOptions {
-  /**
-   * Glyphs merged over the built-in set. A key that already exists replaces its
-   * artwork; a new key extends the vocabulary. Pointing one name at another is
-   * `aliases`' job, not this one.
-   */
-  icons?: Record<string, EmIconGlyph>
-  /**
-   * Extra `role -> target` references. Bare role names are accepted and wrapped,
-   * so `{ expand: 'chevron-down' }` and `{ expand: '{chevron-down}' }` mean the
-   * same thing.
-   */
-  aliases?: Record<string, string>
-}
-
-/**
- * `createTokens` stores each glyph behind `$value` rather than as a bare array:
- * `TokenValue` admits primitives, and an array is neither that nor a nested
- * collection. Wrapping keeps the map assignable without a cast, and `resolve`
- * unwraps `$value` on the way out — so callers still get `string[]`.
- */
-function collect (icons: EmIconCollection): TokenCollection {
-  const tokens: TokenCollection = {}
-
-  for (const [role, glyph] of Object.entries(icons)) {
-    tokens[role] = isString(glyph) ? glyph : { $value: glyph }
-  }
-
-  return tokens
-}
-
-/** Bare `chevron-down` and `{chevron-down}` both mean "point at that role". */
-function brace (target: string): string {
-  return target.startsWith('{') ? target : `{${target}}`
-}
-
-/**
- * Build an icon registry. Called for you by `createEmeraldPlugin`; call it
- * directly only to provide a set to a subtree.
- */
-export function createEmIcons (options: EmeraldIconsOptions = {}): EmIconsContext {
-  const aliases: EmIconCollection = {}
-
-  for (const [role, target] of Object.entries(options.aliases ?? {})) {
-    aliases[role] = brace(target)
-  }
-
-  return createTokens({
-    ...collect(emeraldIcons),
-    ...collect(emeraldIconAliases),
-    ...collect(options.icons ?? {}),
-    ...collect(aliases),
-  })
-}
-
-export const EM_ICONS_NAMESPACE = 'emerald:icons'
-
-const [useIconsContext, provideIconsContext] = createContext<EmIconsContext | null>()
-
-/**
- * Built on first use by an `EmIcon` that found no provider, then shared by every
- * later one. Sharing is deliberate: the default set is immutable, so a second
- * registry would cost memory to hold identical data.
- */
-let fallback: EmIconsContext | undefined
-
-/**
- * Resolve the icon registry, falling back to the built-in set when nothing was
- * provided — an `EmIcon` works in an app that never installed the plugin.
- *
- * `null` is the injection default rather than the fallback itself so the set is
- * only ever built when it is actually needed.
- */
-export function useEmIcons (namespace = EM_ICONS_NAMESPACE): EmIconsContext {
-  return useIconsContext(namespace, null) ?? (fallback ??= createEmIcons())
-}
-
-export function provideEmIcons (
-  context: EmIconsContext,
-  app?: App,
-  namespace = EM_ICONS_NAMESPACE,
-): EmIconsContext {
-  provideIconsContext(namespace, context, app)
-
-  return context
-}

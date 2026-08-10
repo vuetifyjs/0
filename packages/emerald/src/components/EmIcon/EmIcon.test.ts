@@ -12,7 +12,7 @@ import type { EmIconProps } from './EmIcon.vue'
 import type { App } from 'vue'
 
 // Icons
-import { createEmIcons, emeraldIconAliases, emeraldIcons, provideEmIcons } from '../../icons'
+import { createEmIcons, createEmeraldIconsContext, createEmeraldIconsPlugin, emeraldIconAliases, emeraldIcons } from '../../icons'
 // Plugin
 import { createEmeraldPlugin } from '../../plugin'
 
@@ -125,19 +125,84 @@ describe('emIcon', () => {
       expect(paths(host)).toEqual(emeraldIcons.sun)
     })
 
-    it('should read a set provided to a subtree', () => {
+    it('should read a context provided to an app', () => {
+      const host = document.createElement('div')
+
+      document.body.append(host)
+
+      const app = createApp({ render: () => h(EmIcon, { name: 'star' }) })
+      const [, provide, context] = createEmeraldIconsContext({ icons: { star: ['M2 2h2'] } })
+
+      provide(context, app)
+
+      apps.push(app)
+      app.mount(host)
+
+      expect(paths(host)).toEqual(['M2 2h2'])
+    })
+  })
+
+  describe('installation', () => {
+    it('should resolve through the icons plugin installed on its own', () => {
       const host = document.createElement('div')
 
       document.body.append(host)
 
       const app = createApp({ render: () => h(EmIcon, { name: 'star' }) })
 
-      provideEmIcons(createEmIcons({ icons: { star: ['M2 2h2'] } }), app)
+      app.use(createEmeraldIconsPlugin({ icons: { star: ['M3 3h3'] } }))
 
       apps.push(app)
       app.mount(host)
 
-      expect(paths(host)).toEqual(['M2 2h2'])
+      expect(paths(host)).toEqual(['M3 3h3'])
+    })
+
+    it('should resolve through the composed emerald plugin', () => {
+      const host = mount({ name: 'star' }, { icons: { icons: { star: ['M4 4h4'] } } })
+
+      expect(paths(host)).toEqual(['M4 4h4'])
+    })
+
+    it('should honour a non-default namespace', () => {
+      const host = document.createElement('div')
+
+      document.body.append(host)
+
+      const app = createApp({
+        render: () => h(EmIcon, { name: 'star', namespace: 'emerald:icons-alt' }),
+      })
+
+      app.use(createEmeraldIconsPlugin({
+        namespace: 'emerald:icons-alt',
+        icons: { star: ['M5 5h5'] },
+      }))
+
+      apps.push(app)
+      app.mount(host)
+
+      expect(paths(host)).toEqual(['M5 5h5'])
+    })
+
+    it('should fall back to the built-in set with no plugin installed', () => {
+      const host = mount({ name: 'star' })
+
+      expect(paths(host)).toEqual(emeraldIcons.star)
+    })
+
+    it('should share one fallback registry across uninstalled icons', () => {
+      const host = document.createElement('div')
+
+      document.body.append(host)
+
+      const app = createApp({
+        render: () => h('div', [h(EmIcon, { name: 'sun' }), h(EmIcon, { name: 'moon' })]),
+      })
+
+      apps.push(app)
+      app.mount(host)
+
+      expect(host.querySelectorAll('svg')).toHaveLength(2)
     })
   })
 

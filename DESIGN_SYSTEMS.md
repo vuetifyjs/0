@@ -158,10 +158,18 @@ What *is* shared is the **role vocabulary** and the resolution mechanism:
 - Roles are named for **what the glyph is**, not the one screen that first needed it —
   `receipt`, not `orders`. Two features drawing the same mark get one role and an
   alias, never two copies of the path data.
-- Registration goes through the design system's plugin, and consumers extend or replace
-  roles there. Overriding a role must restyle the system's own chrome, which means
-  **components may not inline their own artwork** — an Em*/On* component that hardcodes
-  an SVG is a component a consumer cannot rebrand.
+- Icons are their **own plugin**, built with v0's `createPluginContext` and carrying a
+  lazy fallback so the renderer still draws with nothing installed. The design system's
+  main plugin composes it; consumers extend or replace roles through its options.
+  Overriding a role must restyle the system's own chrome, which means **components may
+  not inline their own artwork** — an Em*/On* component that hardcodes an SVG is a
+  component a consumer cannot rebrand.
+- Do not promise the glyph map is tree-shakeable. Measured against Emerald's build
+  (rollup and esbuild, `dist/index.mjs`): a module-scope trinity —
+  `const [a, b, c] = createXContext()` — survives tree-shaking even annotated
+  `/* @__PURE__ */`, so the map is retained by any import from the package. Skipping the
+  plugin install is a registration switch, not a bundle switch. A separate entry point is
+  the only mechanism that would actually drop it, and no design system has needed one yet.
 - Whatever a design system's glyphs are (path data, sprite ids, icon-font classnames,
   UnoCSS `i-*` classes), the *role* layer is the same; the renderer is the design
   system's own component (`EmIcon`, and its Onyx counterpart).
