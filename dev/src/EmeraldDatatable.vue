@@ -303,9 +303,9 @@
 
         <div class="adm-ledger__foot">
           <EmPagination v-model="page" :items-per-page :size="total">
-            <EmPaginationPrev>&lsaquo; Previous</EmPaginationPrev>
+            <EmPaginationPrev><EmIcon name="chevron-left" size="s" /> Previous</EmPaginationPrev>
             <EmPaginationItem v-for="n in table.pagination.pages" :key="n" :value="n" />
-            <EmPaginationNext>Next &rsaquo;</EmPaginationNext>
+            <EmPaginationNext>Next <EmIcon name="chevron-right" size="s" /></EmPaginationNext>
           </EmPagination>
 
           <span class="adm-ledger__count">

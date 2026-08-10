@@ -171,14 +171,14 @@
 
             <EmPagination v-model="page" :items-per-page="6" :size="filtered.length">
               <template #default="{ items }">
-                <EmPaginationPrev>‹ Previous</EmPaginationPrev>
+                <EmPaginationPrev><EmIcon name="chevron-left" size="s" /> Previous</EmPaginationPrev>
 
                 <template v-for="(item, index) in items" :key="index">
                   <EmPaginationItem v-if="item.type === 'page'" :value="item.value" />
                   <span v-else class="adm-orders__page-gap">{{ item.value }}</span>
                 </template>
 
-                <EmPaginationNext>Next ›</EmPaginationNext>
+                <EmPaginationNext>Next <EmIcon name="chevron-right" size="s" /></EmPaginationNext>
               </template>
             </EmPagination>
           </EmCardFooter>

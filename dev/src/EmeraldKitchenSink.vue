@@ -43,6 +43,7 @@
     EmExpansionPanelCue,
     EmExpansionPanelGroup,
     EmExpansionPanelHeader,
+    EmIcon,
     EmList,
     EmListItem,
     EmListItemContent,
@@ -338,13 +339,13 @@
       <h2>Pagination</h2>
 
       <EmPagination v-model="page" :items-per-page="10" :size="50">
-        <EmPaginationPrev>‹</EmPaginationPrev>
+        <EmPaginationPrev><EmIcon name="chevron-left" size="s" /></EmPaginationPrev>
         <EmPaginationItem :value="1">1</EmPaginationItem>
         <EmPaginationItem :value="2">2</EmPaginationItem>
         <EmPaginationItem :value="3">3</EmPaginationItem>
         <EmPaginationItem :value="4">4</EmPaginationItem>
         <EmPaginationItem :value="5">5</EmPaginationItem>
-        <EmPaginationNext>›</EmPaginationNext>
+        <EmPaginationNext><EmIcon name="chevron-right" size="s" /></EmPaginationNext>
       </EmPagination>
 
       <p class="muted">Page {{ page }}</p>
