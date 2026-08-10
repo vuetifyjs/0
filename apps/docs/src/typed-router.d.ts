@@ -1151,6 +1151,55 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/emerald/': RouteRecordInfo<
+      '/systems/emerald/',
+      '/systems/emerald',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/button': RouteRecordInfo<
+      '/systems/emerald/button',
+      '/systems/emerald/button',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/calendar': RouteRecordInfo<
+      '/systems/emerald/calendar',
+      '/systems/emerald/calendar',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/dialog': RouteRecordInfo<
+      '/systems/emerald/dialog',
+      '/systems/emerald/dialog',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/icon': RouteRecordInfo<
+      '/systems/emerald/icon',
+      '/systems/emerald/icon',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/select': RouteRecordInfo<
+      '/systems/emerald/select',
+      '/systems/emerald/select',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/text-field': RouteRecordInfo<
+      '/systems/emerald/text-field',
+      '/systems/emerald/text-field',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -2439,6 +2488,62 @@ declare module 'vue-router/auto-routes' {
     'src/pages/sponsor.md': {
       routes:
         | '/sponsor'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/index.md': {
+      routes:
+        | '/systems/emerald/'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/button.md': {
+      routes:
+        | '/systems/emerald/button'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/calendar.md': {
+      routes:
+        | '/systems/emerald/calendar'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/dialog.md': {
+      routes:
+        | '/systems/emerald/dialog'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/icon.md': {
+      routes:
+        | '/systems/emerald/icon'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/select.md': {
+      routes:
+        | '/systems/emerald/select'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/text-field.md': {
+      routes:
+        | '/systems/emerald/text-field'
       views:
         | never
       pathParamNames:
