@@ -1,7 +1,9 @@
 <script lang="ts">
   // Framework
-  import { createSingle, isString } from '@vuetify/v0'
+  import { isString } from '@vuetify/v0'
 
+  // Composables
+  import { createCalendar } from './calendar'
   // Context
   import { EM_CALENDAR_NAMESPACE, provideEmCalendarContext } from './context'
   import { useEmCalendarDate } from './date'
@@ -10,6 +12,7 @@
   import { computed, toRef, useId, watch } from 'vue'
 
   // Types
+  import type { CalendarUnit } from './calendar'
   import type { EmCalendarCell, EmCalendarContext, EmCalendarEvent } from './context'
 
   export interface EmCalendarProps {
@@ -39,32 +42,49 @@
   const month = defineModel<Date>('month')
 
   const date = useEmCalendarDate()
-  const now = date.now()
   const title = useId()
 
-  const first = toRef(() => firstDayOfWeek ?? date.first())
-  const cursor = computed(() => date.month(month.value ?? now))
-  const label = toRef(() => date.label(cursor.value))
-  const weekdays = toRef(() => date.weekdays(first.value))
-
-  const calendar = computed(() => {
-    const start = date.days(cursor.value, -((cursor.value.getDay() - first.value + 7) % 7))
-    const anchor = cursor.value.getMonth()
-    const today = date.iso(now)
-
-    return Array.from({ length: 42 }, (_, index): EmCalendarCell => {
-      const value = date.days(start, index)
-      const iso = date.iso(value)
-
-      return {
-        date: value,
-        iso,
-        day: value.getDate(),
-        inMonth: value.getMonth() === anchor,
-        today: iso === today,
-      }
-    })
+  /**
+   * The core speaks `YYYY-MM`; the model stays a `Date` for compatibility, so
+   * the anchor is bridged in both directions — the getter feeds the core, the
+   * watch writes navigation back out.
+   */
+  const calendar = createCalendar({
+    month: () => date.iso(month.value ?? date.now()).slice(0, 7),
+    firstDayOfWeek: () => firstDayOfWeek ?? date.first(),
+    disabled: () => disabled,
+    // Emerald holds a constant card height, so the matrix never reflows.
+    fixedWeeks: true,
   })
+
+  watch(calendar.anchor, value => {
+    month.value = date.parse(value)
+  })
+
+  const cursor = toRef(() => date.parse(calendar.anchor.value))
+
+  const matrix = computed(() => calendar.months.value[0].weeks.flat())
+
+  // The core's cells carry geometry only; the DS shape adds the `Date` its
+  // sub-components format from, and reads the spill as `inMonth`.
+  const cells = computed(() => matrix.value.map(
+    (cell): EmCalendarCell => ({
+      date: date.parse(cell.iso),
+      iso: cell.iso,
+      day: cell.day,
+      inMonth: !cell.outside,
+      today: cell.today,
+    }),
+  ))
+
+  // APG entry order is last-focused, then selected, then today — so a visible
+  // selection owns the first tab stop. Mount-time only: once the user pages or
+  // walks, the roving cursor rightly outranks the selection.
+  const initial = matrix.value.find(
+    cell => cell.iso === selected.value && !cell.outside && !cell.disabled,
+  )
+
+  if (initial) calendar.focused.value = initial.iso
 
   const schedule = computed(() => {
     const map = new Map<string, EmCalendarEvent[]>()
@@ -80,31 +100,26 @@
     return map
   })
 
-  // Days enroll on first touch rather than 42 at a time — the matrix re-slices
-  // every month, and stale tickets would outnumber live ones within a year.
-  const day = createSingle({ mandatory: 'force' })
-
-  function enroll (iso: string) {
-    if (!day.has(iso)) day.register({ id: iso, value: iso })
-  }
-
-  const initial = selected.value ?? date.iso(now)
-
-  enroll(initial)
-  day.select(initial)
-
+  /**
+   * Selection is a plain guarded write, not a registry: days are an unbounded
+   * collection, so ticketing them only ever accumulated. Nothing is selected
+   * until the model or the user says so, and the paint is one comparison — so
+   * clearing the model clears the highlight.
+   */
   function select (iso: string) {
     if (disabled) return
 
-    enroll(iso)
-    day.select(iso)
+    const cell = matrix.value.find(entry => entry.iso === iso)
+
+    if (cell?.disabled) return
+
     selected.value = iso
   }
 
   function step (amount: number) {
     if (disabled) return
 
-    month.value = date.months(cursor.value, amount)
+    calendar.step(amount)
   }
 
   function prev () {
@@ -118,37 +133,39 @@
   function today () {
     if (disabled) return
 
-    month.value = date.month(now)
-    select(date.iso(now))
+    calendar.today()
+
+    select(date.iso(date.now()))
   }
 
-  watch(selected, iso => {
-    if (!iso || day.selected(iso)) return
+  function move (unit: CalendarUnit, amount: number) {
+    if (disabled) return
 
-    enroll(iso)
-    day.select(iso)
-  })
+    calendar.move(unit, amount)
+  }
 
   const context: EmCalendarContext = {
     cursor,
-    cells: calendar,
-    weekdays,
-    label,
+    cells,
+    weekdays: calendar.weekdays,
+    label: calendar.label,
     disabled: toRef(() => disabled),
     title,
     date,
     events: iso => schedule.value.get(iso) ?? [],
-    selected: iso => day.selected(iso),
+    selected: iso => selected.value === iso,
     select,
     prev,
     next,
     today,
     step,
+    focused: calendar.focused,
+    move,
   }
 
   provideEmCalendarContext(namespace, context)
 
-  defineExpose({ day })
+  defineExpose({ calendar })
 </script>
 
 <template>

@@ -2,8 +2,12 @@
 import { createContext } from '@vuetify/v0'
 
 // Types
+import type { CalendarUnit } from './calendar'
 import type { EmCalendarDate, EmCalendarWeekday } from './date'
 import type { Ref } from 'vue'
+
+/** Re-exported so `EmCalendarContext['move']` is nameable without the core. */
+export type { CalendarUnit } from './calendar'
 
 export type EmCalendarTone = 'neutral' | 'primary' | 'secondary' | 'info' | 'alert' | 'danger'
 
@@ -45,6 +49,10 @@ export interface EmCalendarContext {
   today: () => void
   /** Move the cursor by whole months. */
   step: (amount: number) => void
+  /** The day keyboard navigation walks; drives the grid's roving tabindex. */
+  focused: Ref<string>
+  /** Walk `focused`, paging the cursor when it leaves the visible month. */
+  move: (unit: CalendarUnit, amount: number) => void
 }
 
 export const EM_CALENDAR_NAMESPACE = 'emerald:calendar'
