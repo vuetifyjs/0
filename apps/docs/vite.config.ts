@@ -1,3 +1,4 @@
+import { readdirSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 
 import UnocssVitePlugin from 'unocss/vite'
@@ -37,6 +38,23 @@ export default defineConfig({
   },
   build: {
     sourcemap: true,
+    rollupOptions: {
+      // Vite's default input is the root `index.html` alone, so the design-system
+      // example frames — separate documents by design, since a system's global
+      // CSS cannot share one with the docs shell — are served in dev and then
+      // missing from `dist`. Naming them here is what makes the built site's
+      // `<iframe src="/sandbox/…">` resolve. Read from disk rather than listed,
+      // so adding a system is one HTML file and no config edit.
+      input: Object.fromEntries([
+        ['index', fileURLToPath(new URL('index.html', import.meta.url))],
+        ...readdirSync(fileURLToPath(new URL('sandbox', import.meta.url)))
+          .filter(file => file.endsWith('.html'))
+          .map(file => [
+            `sandbox/${file.replace(/\.html$/, '')}`,
+            fileURLToPath(new URL(`sandbox/${file}`, import.meta.url)),
+          ]),
+      ]),
+    },
   },
   css: {
     transformer: 'postcss', // Use postcss instead of lightningcss to preserve color-mix syntax
@@ -140,10 +158,12 @@ export default defineConfig({
       '@vuetify/v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '@vuetify/paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
       '@paper/genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
+      '@paper/emerald': fileURLToPath(new URL('../../packages/emerald/src', import.meta.url)),
       // internal
       '#v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
       '#genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
+      '#emerald': fileURLToPath(new URL('../../packages/emerald/src', import.meta.url)),
     },
   },
   server: {

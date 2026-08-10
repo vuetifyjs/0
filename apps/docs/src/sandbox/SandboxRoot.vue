@@ -8,11 +8,26 @@
   // Types
   import type { Component } from 'vue'
 
-  const { is, name } = defineProps<{
+  const {
+    is,
+    name,
+    themes = { light: 'light', dark: 'dark' },
+  } = defineProps<{
     /** Resolved example component, or undefined when the query names nothing. */
     is?: Component
     /** Example path from the query string, shown when resolution fails. */
     name: string
+    /**
+     * What each scheme is called in `data-theme`. The docs page only ever speaks
+     * in light and dark; a design system is free to name its themes something
+     * else, and Emerald does (`emerald` / `emerald-dark`) because those are the
+     * ids its stylesheet keys on. Defaulting to the scheme names themselves
+     * keeps every system that agrees with the docs — Bulma — untouched.
+     *
+     * Upstream candidate: this is the one piece of the sandbox that is not
+     * system-agnostic, and it belongs next to the entry that owns the frame.
+     */
+    themes?: Record<'light' | 'dark', string>
   }>()
 
   // Subpixel slack, so a menu flush with the box edge is not read as escaping it.
@@ -229,7 +244,7 @@
 
     switch (event.data?.type) {
       case 'v0:sandbox:theme': {
-        document.documentElement.dataset.theme = event.data.dark ? 'dark' : 'light'
+        document.documentElement.dataset.theme = event.data.dark ? themes.dark : themes.light
         break
       }
       // Also the parent's acknowledgement that the frame has settled: re-pin
