@@ -11,6 +11,8 @@
   export type EmSliderOrientation = NonNullable<SliderRootProps['orientation']>
 
   export interface EmSliderProps extends Omit<SliderRootProps, 'as' | 'renderless'> {
+    /** Accessible name for the slider group / default thumb */
+    label?: SliderRootProps['label']
     /** Thumb accessible name when no visible label */
     ariaLabel?: string
   }

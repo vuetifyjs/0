@@ -5,14 +5,16 @@
   // Types
   import type { TooltipActivatorProps } from '@vuetify/v0'
 
-  /**
-   * `renderless` makes Activator a pure slot host — bind `attrs` onto your own
-   * trigger (e.g. EmButton) so you do not nest interactive elements.
-   */
   export interface EmTooltipActivatorProps extends Pick<
     TooltipActivatorProps,
     'as' | 'renderless' | 'namespace'
-  > {}
+  > {
+    /**
+     * When true, Activator is a pure slot host — bind `attrs` onto your own
+     * trigger (e.g. EmButton) so you do not nest interactive elements.
+     */
+    renderless?: TooltipActivatorProps['renderless']
+  }
 </script>
 
 <script setup lang="ts">

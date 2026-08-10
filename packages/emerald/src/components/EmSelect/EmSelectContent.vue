@@ -5,6 +5,7 @@
   // Types
   import type { SelectContentProps } from '@vuetify/v0'
 
+  /** Emerald withholds `eager` — the menu stays lazy so long option lists cost nothing until opened. */
   export interface EmSelectContentProps extends Pick<SelectContentProps, 'namespace'> {}
 </script>
 

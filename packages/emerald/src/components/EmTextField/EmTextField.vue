@@ -13,6 +13,10 @@
   type EmTextFieldKeys = 'id' | 'label' | 'disabled' | 'readonly' | 'required' | 'name' | 'type' | 'rules' | 'validateOn' | 'error' | 'errorMessages' | 'namespace'
 
   export interface EmTextFieldProps extends Pick<InputRootProps, EmTextFieldKeys> {
+    /** Visible label text; associated via `for`/`id` (not Root aria-label) */
+    label?: InputRootProps['label']
+    /** Native input type — owned by Input.Root, not Control */
+    type?: InputRootProps['type']
     /** Help text under the control (no named slots — props only) */
     description?: string
     placeholder?: string

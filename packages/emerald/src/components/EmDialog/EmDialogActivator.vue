@@ -5,11 +5,13 @@
   // Types
   import type { DialogActivatorProps } from '@vuetify/v0'
 
-  /**
-   * `renderless` makes Activator a pure slot host — bind `attrs` onto your own
-   * trigger (e.g. EmButton) so you do not nest interactive elements.
-   */
-  export interface EmDialogActivatorProps extends Omit<DialogActivatorProps, 'as'> {}
+  export interface EmDialogActivatorProps extends Omit<DialogActivatorProps, 'as'> {
+    /**
+     * When true, Activator is a pure slot host — bind `attrs` onto your own
+     * trigger (e.g. EmButton) so you do not nest interactive elements.
+     */
+    renderless?: DialogActivatorProps['renderless']
+  }
 </script>
 
 <script setup lang="ts">

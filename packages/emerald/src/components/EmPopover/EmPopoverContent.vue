@@ -8,7 +8,12 @@
   export interface EmPopoverContentProps extends Pick<
     PopoverContentProps,
     'positionArea' | 'positionTry'
-  > {}
+  > {
+    /** CSS position-area value @default 'bottom' */
+    positionArea?: PopoverContentProps['positionArea']
+    /** CSS position-try-fallbacks value @default 'most-width bottom' */
+    positionTry?: PopoverContentProps['positionTry']
+  }
 </script>
 
 <script setup lang="ts">

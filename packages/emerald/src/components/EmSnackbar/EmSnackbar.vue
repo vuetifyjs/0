@@ -7,6 +7,11 @@
 
   export type EmSnackbarVariant = 'success' | 'error' | 'info' | 'warning' | 'neutral'
 
+  /**
+   * Emerald withholds `urgent`, so every snackbar is `role="status"`. `variant` is
+   * purely visual (`data-variant`) and does not raise politeness — a `variant="error"`
+   * snackbar is still announced politely.
+   */
   export interface EmSnackbarProps extends Pick<SnackbarRootProps, 'id' | 'namespace'> {
     variant?: EmSnackbarVariant
   }

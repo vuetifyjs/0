@@ -15,6 +15,8 @@
     ProgressRootProps,
     'max' | 'ariaLabel' | 'name' | 'namespace'
   > {
+    /** Accessible name when no visible `label` is rendered */
+    ariaLabel?: ProgressRootProps['ariaLabel']
     /** Emerald-owned: v0 infers the indeterminate state from an absent model value */
     indeterminate?: boolean
     size?: EmProgressSize

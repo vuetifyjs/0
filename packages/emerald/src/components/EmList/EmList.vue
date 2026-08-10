@@ -9,6 +9,8 @@
     SingleRootProps,
     'namespace' | 'disabled' | 'mandatory'
   > {
+    /** Forwarded to Single.Root — master-detail lists want `'force'`. */
+    mandatory?: SingleRootProps['mandatory']
     /** Stamped on the host `<ul>`, not forwarded to Single.Root. */
     id?: string
   }

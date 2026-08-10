@@ -5,7 +5,7 @@
   // Types
   import type { StepRootProps } from '@vuetify/v0'
 
-  export interface EmStepProps extends StepRootProps {}
+  export interface EmStepProps extends Omit<StepRootProps, 'as' | 'renderless'> {}
 </script>
 
 <script lang="ts" setup generic="T = unknown">

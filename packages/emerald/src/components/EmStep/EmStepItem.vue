@@ -5,7 +5,7 @@
   // Types
   import type { StepItemProps } from '@vuetify/v0'
 
-  export interface EmStepItemProps extends StepItemProps {}
+  export interface EmStepItemProps extends Omit<StepItemProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">
