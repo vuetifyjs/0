@@ -106,10 +106,9 @@ export interface DropIndicator {
 
 /**
  * Position passed to drop hooks. `index` is populated for oriented zones;
- * unoriented zones receive only the pointer location. `indicator` rides along
- * except when no slot was proposed: an empty zone resolves `index` to `0`,
- * and a drop on one of the slots flanking the dragged element's own position
- * in its home zone resolves `index` to that position — a stay, not a move.
+ * unoriented zones receive only the pointer location. `indicator` is absent
+ * when no slot was proposed: an empty zone resolves `index` to `0`, a drop on
+ * a slot flanking the drag's own position resolves to that position (a stay).
  *
  * @example
  * ```ts
@@ -388,11 +387,9 @@ export interface DragDropContext<Z extends DragType = DragType> {
  * Internal — consumers rely on the `position.index` / `position.indicator`
  * fields delivered to `onDrop`.
  *
- * Assumes rects ascend along the orientation axis, which is what reading a
- * zone's children in DOM order yields for a normal flow. A reversed layout
- * (`column-reverse`, a horizontal zone under RTL) violates that and resolves
- * arbitrary slots — it always has; the slot index must stay the child's DOM
- * index for consumers to splice by, so sorting here is not the fix.
+ * Assumes rects ascend along the axis (DOM order in normal flow). Reversed
+ * layouts resolve arbitrary slots — always have — and sorting is not the fix:
+ * the slot must stay the child's DOM index for consumers to splice by.
  */
 function resolveDropPosition (
   point: { x: number, y: number },
@@ -407,10 +404,8 @@ function resolveDropPosition (
 
   const coord = point[axis]
 
-  // The slot: before the first rect whose midpoint the pointer has not yet
-  // crossed. Gaps need no case of their own — a coordinate in the gap after
-  // rect `i` is past `i`'s midpoint and short of `i + 1`'s, so it lands in
-  // slot `i + 1`.
+  // The slot before the first uncrossed midpoint; a gap coordinate is already
+  // past the previous rect's midpoint, so gaps need no case of their own.
   let index = rects.length
 
   for (const [at, rect] of rects.entries()) {
@@ -420,11 +415,8 @@ function resolveDropPosition (
     }
   }
 
-  // The anchor is a function of the slot alone: an interior boundary always
-  // renders at the end edge of the rect above it. Deriving it from the pointer
-  // instead — the rect above when approached from one side, the rect below
-  // from the other — draws the same slot at two different anchors, and the
-  // indicator visibly twitches across the gap as the pointer crosses it.
+  // Anchored by slot, not by approach — otherwise the same slot draws at two
+  // anchors and the indicator twitches across the gap.
   return index === 0
     ? { index, edge: 'before', rect: rects[0] }
     : { index, edge: 'after', rect: rects[index - 1] }
@@ -582,11 +574,8 @@ export function useDragDrop<Z extends DragType = DragType> (
 
         if (!resolved) return null
 
-        // A drag over its own zone: the two slots flanking the element's
-        // current position are not moves — dropping in either puts it straight
-        // back where it sits. No indicator for them; grabbing the first card
-        // and nudging the pointer above it must not draw a line over its own
-        // head as if that were somewhere it could go.
+        // The slots flanking a same-zone drag's own position are stays, not
+        // moves — no indicator for them.
         const from = home(el.value, active.value.id)
 
         if (from !== -1 && (resolved.index === from || resolved.index === from + 1)) return null
@@ -621,18 +610,14 @@ export function useDragDrop<Z extends DragType = DragType> (
     return null
   }
 
-  // The dragged element's slot among a zone's children, -1 when the drag did
-  // not start in this zone. The slots flanking that position drop the element
-  // right back where it sits, so the indicator and the drop resolution both
-  // treat them as "stay put" rather than as moves.
+  // The dragged element's slot among a zone's children, -1 when the zone is
+  // not its home. Home means the nearest registered zone — a board zone
+  // wrapping column zones contains every card but is home to none of them.
   function home (zoneEl: HTMLElement | null | undefined, id: ID): number {
     const source = toValue(_draggables.get(id)?.el)
 
     if (!zoneEl || !source) return -1
 
-    // Ownership means the *nearest* registered zone, not any enclosing one —
-    // a board zone wrapping column zones contains every card but is home to
-    // none of them, and claiming one would suppress two of its column slots.
     for (let el = source.parentElement; el; el = el.parentElement) {
       if (!nodes.has(el)) continue
       if (el !== zoneEl) return -1
@@ -651,10 +636,8 @@ export function useDragDrop<Z extends DragType = DragType> (
         out.index = resolved.index
         out.indicator = resolved
       } else {
-        // No slot proposed: either the zone is empty — index 0 lets consumers
-        // splice without a fallback — or the pointer sits on the dragged
-        // element's own flanked slots, which resolve to its current position
-        // so the drop is a stay, not a move to the top.
+        // No slot proposed: a suppressed same-zone drop resolves to its own
+        // position (a stay, not a move to the top); an empty zone splices at 0.
         const from = home(toValue(zone.el), drag.id)
         out.index = from === -1 ? 0 : from
       }

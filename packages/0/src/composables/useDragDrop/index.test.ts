@@ -991,10 +991,8 @@ describe('resolveDropPosition', () => {
     const realFromPoint = document.elementFromPoint.bind(document)
     document.elementFromPoint = () => zoneEl
 
-    // Slot 1 is one place however the pointer arrives: a's bottom half, the
-    // gap on either side of its midpoint, and b's upper half all anchor the
-    // indicator to a's end edge. An indicator that flips its anchor to b.top
-    // as the pointer crosses the gap draws the same slot at two positions.
+    // Slot 1 anchors to a's end edge from every approach: a's bottom half,
+    // both sides of the gap, and b's upper half.
     for (const y of [30, 60, 90, 120]) {
       adapter.emit.move({ x: 50, y })
       expect(zone.indicator.value?.edge).toBe('after')
@@ -1022,8 +1020,7 @@ describe('resolveDropPosition', () => {
 })
 
 describe('no-op slot suppression', () => {
-  // A zone whose children a/b carry stacked rects, with the draggable element
-  // living inside one of them — the same-zone drag shape EmKanban produces.
+  // Stacked children a/b with the draggable inside one of them.
   function board (host: 'a' | 'b' | null) {
     const zoneEl = document.createElement('div')
     const a = document.createElement('div')
@@ -1054,8 +1051,7 @@ describe('no-op slot suppression', () => {
     const realFromPoint = document.elementFromPoint.bind(document)
     document.elementFromPoint = () => zoneEl
 
-    // Slot 0 (above the dragged first child) and slot 1 (right below it) both
-    // drop the element back where it sits — no indicator anywhere from above
+    // Slots 0 and 1 flank the dragged first child — no indicator from above
     // the zone through b's upper half.
     for (const y of [-10, 20, 60, 90, 120]) {
       adapter.emit.move({ x: 50, y })
@@ -1086,7 +1082,7 @@ describe('no-op slot suppression', () => {
     const realFromPoint = document.elementFromPoint.bind(document)
     document.elementFromPoint = () => zoneEl
 
-    // Below the dragged last child: slot 2 flanks its own position.
+    // Slot 2 flanks the dragged last child.
     adapter.emit.move({ x: 50, y: 200 })
     expect(zone.indicator.value).toBeNull()
 
@@ -1130,9 +1126,8 @@ describe('no-op slot suppression', () => {
 
   it('should not suppress in an enclosing zone that is not the element\'s home', async () => {
     const adapter = new CaptureAdapter()
-    // A board zone whose single child wraps a column zone, with the card
-    // registered inside the column — the board contains the card but is not
-    // its home, so none of the board's slots may be suppressed.
+    // The board zone contains the card but the column zone is its home —
+    // none of the board's slots may be suppressed.
     const boardEl = document.createElement('div')
     const wrapper = document.createElement('div')
     const columnEl = document.createElement('div')
@@ -1181,8 +1176,7 @@ describe('no-op slot suppression', () => {
     const realFromPoint = document.elementFromPoint.bind(document)
     document.elementFromPoint = () => zoneEl
 
-    // Drop just below the dragged last child — the suppressed slot. Resolving
-    // it to 0 would teleport the element to the top of its own list.
+    // A drop on the suppressed slot must stay, not resolve to index 0.
     adapter.emit.move({ x: 50, y: 160 })
     adapter.emit.drop()
     document.elementFromPoint = realFromPoint
