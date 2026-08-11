@@ -502,7 +502,7 @@
         role="dialog"
       >
         <!-- Left rail -->
-        <nav class="w-36 shrink-0 border-r border-divider flex flex-col py-2 bg-surface">
+        <nav class="w-36 shrink-0 border-r border-divider flex flex-col gap-1 py-2 bg-surface">
           <button
             v-for="item in rails"
             :key="item.id"
