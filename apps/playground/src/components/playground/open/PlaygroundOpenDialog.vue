@@ -15,6 +15,7 @@
   import { getVuetifyComponents, VUETIFY_EXAMPLES } from '@/data/vuetify-examples'
 
   // Local
+  import { readOpenSession, touchOpenSession, writeOpenSession } from './open-session'
   import {
     bucketOf,
     exampleLabel,
@@ -24,7 +25,7 @@
   } from './types'
 
   // Utilities
-  import { computed, nextTick, onMounted, ref, shallowRef, useTemplateRef } from 'vue'
+  import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue'
 
   // Types
   import type { RegistryExample, RegistryIndexEntry, RegistryItem } from '@/data/registry'
@@ -33,7 +34,10 @@
   const emit = defineEmits<{ close: [] }>()
 
   const playground = usePlayground()
-  const rail = shallowRef<OpenRail>('components')
+  const restored = readOpenSession()
+  const rail = shallowRef<OpenRail>(restored?.rail ?? 'components')
+  const query = shallowRef(restored?.query ?? '')
+  const pendingScroll = shallowRef(restored?.scrollTop ?? 0)
 
   // ── Saved playgrounds (API) ──────────────────────────────────────────
   const saved = ref<VuetifyPlayground[]>([])
@@ -45,9 +49,11 @@
   const items = ref<RegistryIndexEntry[]>([])
   const examplesLoading = shallowRef(true)
   const examplesError = shallowRef<string>()
-  const query = shallowRef('')
   const input = useTemplateRef<HTMLInputElement>('input')
+  const pane = useTemplateRef<HTMLElement>('pane')
   const opening = shallowRef(false)
+  let scrollTimer = 0
+  let touchTimer = 0
 
   // ── Vuetify 4 docs examples (path manifest + raw git) ───────────────
   const vuetifyItems = getVuetifyComponents()
@@ -185,9 +191,55 @@
   })
 
   onMounted(async () => {
+    // Warm saved list when restoring that rail so the pane isn't empty flash.
+    if (rail.value === 'saved') await loadSaved()
     await loadExamples()
-    nextTick(() => input.value?.focus())
+    await nextTick()
+    restoreScroll()
+    input.value?.focus()
+    // Keep the 2-minute window alive while the dialog stays open.
+    touchTimer = window.setInterval(() => touchOpenSession(), 30_000)
   })
+
+  onBeforeUnmount(() => {
+    window.clearTimeout(scrollTimer)
+    window.clearInterval(touchTimer)
+    persistSession()
+  })
+
+  function persistSession () {
+    writeOpenSession({
+      rail: rail.value,
+      scrollTop: pane.value?.scrollTop ?? pendingScroll.value,
+      query: query.value,
+    })
+  }
+
+  function restoreScroll () {
+    const top = pendingScroll.value
+    if (!pane.value || top <= 0) return
+    pane.value.scrollTop = top
+    // Gallery may still be loading skeletons → retry once content height exists.
+    if (pane.value.scrollTop < top - 1 && (examplesLoading.value || (rail.value === 'saved' && savedLoading.value))) {
+      function apply () {
+        if (!pane.value) return
+        pane.value.scrollTop = top
+      }
+      window.setTimeout(apply, 50)
+      window.setTimeout(apply, 200)
+    }
+  }
+
+  function onPaneScroll () {
+    // Only remember gallery/list scroll — drill-in example lists use the same
+    // pane and shouldn't overwrite the tab's list position.
+    if (selected.value || selectedVuetify.value) return
+    window.clearTimeout(scrollTimer)
+    scrollTimer = window.setTimeout(() => {
+      pendingScroll.value = pane.value?.scrollTop ?? 0
+      persistSession()
+    }, 100)
+  }
 
   async function loadExamples () {
     examplesLoading.value = true
@@ -240,6 +292,9 @@
     selectedVuetify.value = undefined
     itemError.value = undefined
     query.value = ''
+    pendingScroll.value = 0
+    if (pane.value) pane.value.scrollTop = 0
+    persistSession()
     if (next === 'saved') await loadSaved()
     nextTick(() => input.value?.focus())
   }
@@ -249,7 +304,10 @@
     selectedItem.value = undefined
     selectedVuetify.value = undefined
     itemError.value = undefined
-    nextTick(() => input.value?.focus())
+    nextTick(() => {
+      restoreScroll()
+      input.value?.focus()
+    })
   }
 
   async function loadFeature (entry: RegistryIndexEntry) {
@@ -349,6 +407,7 @@
 
   function onClearQuery () {
     query.value = ''
+    persistSession()
     nextTick(() => input.value?.focus())
   }
 
@@ -560,7 +619,11 @@
             </div>
           </div>
 
-          <div class="flex-1 overflow-y-auto min-h-0">
+          <div
+            ref="pane"
+            class="flex-1 overflow-y-auto min-h-0"
+            @scroll.passive="onPaneScroll"
+          >
             <PlaygroundOpenExamples
               v-if="selectedVuetify"
               :error="itemError"
