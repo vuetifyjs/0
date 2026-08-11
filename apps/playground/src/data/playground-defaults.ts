@@ -63,15 +63,20 @@ export interface MainOptions {
  * Kept as a real file so layout examples that `import { useLayout } from 'vuetify'`
  * share the same install path as `app.use(vuetify)`, and so the bootstrap is
  * visible in the file tree — not only inlined inside main.ts.
+ *
+ * `defaultTheme` tracks the playground host theme so preview chrome and sandbox
+ * Vuetify theme stay in sync when the user toggles light/dark.
  */
-export const VUETIFY_TS = `import { createVuetify } from 'vuetify'
+export function createVuetifyTs (defaultTheme: 'light' | 'dark' = 'light'): string {
+  return `import { createVuetify } from 'vuetify'
 
 export const vuetify = createVuetify({
   theme: {
-    defaultTheme: 'light',
+    defaultTheme: '${defaultTheme}',
   },
 })
 `
+}
 
 export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?: MainOptions): string {
   const useV0 = options?.v0 !== false

@@ -6,7 +6,7 @@ import { decodePlaygroundHash, encodePlaygroundHash, parseVuetifyPlayTuple } fro
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
 // Data
-import { createMainTs, REPL_BUILTIN_FILES, REPL_TSCONFIG, REPL_TYPESCRIPT_VERSION, UNO_CONFIG_TS, VUETIFY_TS } from '@/data/playground-defaults'
+import { createMainTs, createVuetifyTs, REPL_BUILTIN_FILES, REPL_TSCONFIG, REPL_TYPESCRIPT_VERSION, UNO_CONFIG_TS } from '@/data/playground-defaults'
 import { ADDONS, DEFAULT_APP, PRESETS } from '@/data/presets'
 import { parseRegistryQuery, resolveRegistryExample } from '@/data/registry'
 import { parseVuetifyExampleQuery, resolveVuetifyExample } from '@/data/vuetify-examples'
@@ -204,7 +204,7 @@ export function usePlaygroundFiles () {
         'src/main.ts': createMainTs(theme_, options),
         'src/uno.config.ts': UNO_CONFIG_TS,
         'tsconfig.json': REPL_TSCONFIG,
-        ...(options.vuetify ? { 'src/vuetify.ts': VUETIFY_TS } : {}),
+        ...(options.vuetify ? { 'src/vuetify.ts': createVuetifyTs(theme_) } : {}),
         ...files,
         ...aliases,
       },
@@ -264,10 +264,17 @@ export function usePlaygroundFiles () {
 
   watch(theme.isDark, isDark => {
     if (!isReady.value) return
-    const file = store.files['src/main.ts']
-    if (file) {
-      file.code = createMainTs(isDark ? 'dark' : 'light', mergedMainOptions())
-      compileFile(store, file)
+    const mode = isDark ? 'dark' : 'light'
+    const main = store.files['src/main.ts']
+    if (main) {
+      main.code = createMainTs(mode, mergedMainOptions())
+      compileFile(store, main)
+    }
+    // Keep sandbox Vuetify theme aligned with the host chrome toggle.
+    const vuetify = store.files['src/vuetify.ts']
+    if (vuetify) {
+      vuetify.code = createVuetifyTs(mode)
+      compileFile(store, vuetify)
     }
   })
 
@@ -299,7 +306,7 @@ export function usePlaygroundFiles () {
         'src/main.ts': createMainTs(theme_, options),
         'src/uno.config.ts': UNO_CONFIG_TS,
         'tsconfig.json': REPL_TSCONFIG,
-        ...(options?.vuetify ? { 'src/vuetify.ts': VUETIFY_TS } : {}),
+        ...(options?.vuetify ? { 'src/vuetify.ts': createVuetifyTs(theme_) } : {}),
         ...preset.files,
       },
       'src/main.ts', // must be main.ts so the sandbox runs it (installs plugins)
