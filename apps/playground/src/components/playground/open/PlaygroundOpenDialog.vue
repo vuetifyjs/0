@@ -12,6 +12,9 @@
   import PlaygroundOpenGallery from './PlaygroundOpenGallery.vue'
   import PlaygroundOpenSaved from './PlaygroundOpenSaved.vue'
 
+  // Composables
+  import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
+
   // Data
   import { resolveFeatureAccent, resolveFeatureIcon } from '@/data/feature-icons'
   import { DEFAULT_REGISTRY, getRegistryIndex, getRegistryItem } from '@/data/registry'
@@ -39,6 +42,7 @@
   const emit = defineEmits<{ close: [] }>()
 
   const playground = usePlayground()
+  const one = useOnePlaygrounds()
   const restored = readOpenSession()
   const rail = shallowRef<OpenRail>(normalizeOpenRail(restored?.rail))
   const query = shallowRef(restored?.query ?? '')
@@ -686,6 +690,12 @@
       content = data.content ?? data.playground?.content
     }
     if (!content) return
+    one.setCurrent(item.id, item.title || 'Untitled', {
+      favorite: item.favorite ?? false,
+      pinned: item.pinned ?? false,
+      locked: item.locked ?? false,
+      visibility: item.visibility ?? 'public',
+    })
     emit('close')
     await playground.openPlayground(content)
   }

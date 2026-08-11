@@ -1,8 +1,9 @@
 // Framework
-import { IN_BROWSER, isArray, useTheme, useTimer } from '@vuetify/v0'
+import { IN_BROWSER, isArray, isObject, useTheme, useTimer } from '@vuetify/v0'
 
 // Composables
-import { decodePlaygroundHash, encodePlaygroundHash, parseVuetifyPlayTuple } from '@/composables/usePlayground'
+import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
+import { decodePlaygroundHash, encodePlaygroundHash, isFileRecord, parseVuetifyPlayTuple } from '@/composables/usePlayground'
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
 // Data
@@ -28,6 +29,7 @@ export type ActiveExample =
 
 export function usePlaygroundFiles () {
   const theme = useTheme()
+  const one = useOnePlaygrounds()
 
   const { importMap, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions } = usePlaygroundSettings()
 
@@ -175,6 +177,7 @@ export function usePlaygroundFiles () {
 
   /** Clear preset/import state then seed the default v0 playground. */
   async function resetToDefault () {
+    one.clearCurrent()
     activeExample.value = undefined
     activePreset.value = 'default'
     activeAddons.value = []
@@ -243,25 +246,41 @@ export function usePlaygroundFiles () {
     store.setActive(userFile)
   }
 
-  const { start: scheduleHash } = useTimer(async () => {
+  /**
+   * Share / One save payload — same shape as the URL hash body (pre-compress).
+   * Skips alias flats and REPL builtins so re-open re-seeds infrastructure.
+   */
+  function buildShareData (): PlaygroundHashData | null {
     const aliases = new Set(aliasMap.value.values())
     const files: Record<string, string> = {}
     for (const [path, file] of Object.entries(store.files)) {
-      // Skip aliases and repl builtins (tsconfig.json / import-map.json) — the
-      // builtins are re-seeded on load, so baking them into the share hash only
-      // bloats the URL.
       if (aliases.has(path) || REPL_BUILTIN_FILES.includes(path as typeof REPL_BUILTIN_FILES[number])) continue
       files[path] = file.code
     }
-    if (Object.keys(files).length === 0) return
+    if (Object.keys(files).length === 0) return null
+
     const active = store.activeFile?.filename
     const settings: PlaygroundHashData['settings'] = {}
     if (vueVersion.value) settings.vue = vueVersion.value
     if (v0Version.value !== 'latest') settings.v0 = v0Version.value
     if (activePreset.value !== 'default') settings.preset = activePreset.value
     if (activeAddons.value.length > 0) settings.addons = activeAddons.value.join(',')
+
     const data: PlaygroundHashData = { files, active, imports: extraImports.value }
     if (Object.keys(settings).length > 0) data.settings = settings
+    return data
+  }
+
+  /** JSON content for Vuetify One `playground.content`. */
+  function snapshotContent (): string {
+    const data = buildShareData()
+    if (!data) throw new Error('Nothing to save')
+    return JSON.stringify(data)
+  }
+
+  const { start: scheduleHash } = useTimer(async () => {
+    const data = buildShareData()
+    if (!data) return
     const hash = await encodePlaygroundHash(data)
     history.replaceState(null, '', `#${hash}`)
   }, { duration: 500 })
@@ -310,6 +329,7 @@ export function usePlaygroundFiles () {
     const preset = PRESETS.find(p => p.id === id)
     if (!preset) return
 
+    one.clearCurrent()
     activeExample.value = undefined
     activePreset.value = id
     activeAddons.value = []
@@ -397,30 +417,71 @@ export function usePlaygroundFiles () {
     filesVersion.value++
   }
 
+  /**
+   * Load a Vuetify One `content` blob (or any saved JSON payload).
+   * Supports v0play share objects, Vuetify Play tuples, and legacy file maps.
+   */
   async function openPlayground (content: string) {
     try {
-      const parsed = JSON.parse(content)
-      if (!isArray(parsed)) return
-
-      const result = parseVuetifyPlayTuple(parsed)
-      if (!result) return
-
-      const { files, imports, active, vue, preset } = result
-
-      // Preset comes from parseVuetifyPlayTuple (the single source of the
-      // tuple→preset mapping), shared with decodePlaygroundHash's Format 4 branch.
-      activeExample.value = undefined
-      activePreset.value = preset
-      activeAddons.value = []
-      extraImports.value = Object.keys(imports).length > 0 ? imports : undefined
-      aliasMap.value = new Map()
       loadError.value = undefined
+      const parsed: unknown = JSON.parse(content)
 
-      if (vue) vueVersion.value = vue
+      // v0play native: { files, active?, imports?, settings? }
+      if (
+        isObject(parsed)
+        && 'files' in parsed
+        && isFileRecord((parsed as { files: unknown }).files)
+      ) {
+        const data = parsed as PlaygroundHashData
+        activeExample.value = undefined
+        activePreset.value = data.settings?.preset ?? 'default'
+        activeAddons.value = data.settings?.addons
+          ? data.settings.addons.split(',').filter(Boolean)
+          : []
+        extraImports.value = data.imports
+        aliasMap.value = new Map()
+        if (data.settings?.vue) vueVersion.value = data.settings.vue
+        if (data.settings?.v0) v0Version.value = data.settings.v0
 
-      await loadExample(files, active)
-      rebuildImportMap()
-      filesVersion.value++
+        await loadExample(data.files, data.active)
+        rebuildImportMap()
+        filesVersion.value++
+        return
+      }
+
+      // Vuetify Play tuple
+      if (isArray(parsed)) {
+        const result = parseVuetifyPlayTuple(parsed)
+        if (!result) return
+
+        const { files, imports, active, vue, preset } = result
+
+        // Preset from parseVuetifyPlayTuple — single source for tuple→preset.
+        activeExample.value = undefined
+        activePreset.value = preset
+        activeAddons.value = []
+        extraImports.value = Object.keys(imports).length > 0 ? imports : undefined
+        aliasMap.value = new Map()
+
+        if (vue) vueVersion.value = vue
+
+        await loadExample(files, active)
+        rebuildImportMap()
+        filesVersion.value++
+        return
+      }
+
+      // Legacy plain file map
+      if (isFileRecord(parsed)) {
+        activeExample.value = undefined
+        activePreset.value = 'default'
+        activeAddons.value = []
+        extraImports.value = undefined
+        aliasMap.value = new Map()
+        await loadExample(parsed)
+        rebuildImportMap()
+        filesVersion.value++
+      }
     } catch { /* ignore malformed content */ }
   }
 
@@ -447,6 +508,7 @@ export function usePlaygroundFiles () {
     loadError.value = undefined
     const resolved = await resolveRegistryExample(ref)
 
+    one.clearCurrent()
     activePreset.value = 'default'
     activeAddons.value = []
     extraImports.value = resolved.imports
@@ -479,6 +541,7 @@ export function usePlaygroundFiles () {
     // preset with default (or half-loaded) files.
     const resolved = await resolveVuetifyExample(ref)
 
+    one.clearCurrent()
     const preset = PRESETS.find(p => p.id === 'vuetify')
     activePreset.value = 'vuetify'
     activeAddons.value = []
@@ -521,5 +584,6 @@ export function usePlaygroundFiles () {
     openRegistryExample,
     openVuetifyExample,
     activeExample,
+    snapshotContent,
   }
 }

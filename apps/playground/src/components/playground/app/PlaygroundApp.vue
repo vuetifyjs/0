@@ -40,6 +40,8 @@
     openVuetifyExample: (ref: VuetifyExampleRef, options?: { clearSearch?: boolean }) => Promise<void>
     /** Last Open-gallery example loaded into the editor (for highlight). */
     activeExample: ShallowRef<ActiveExample | undefined>
+    /** JSON payload for Vuetify One `playground.content`. */
+    snapshotContent: () => string
     showConfig: ShallowRef<boolean>
   }
 
@@ -66,6 +68,7 @@
     openRegistryExample,
     openVuetifyExample,
     activeExample,
+    snapshotContent,
   } = usePlaygroundFiles()
   const storage = useStorage()
   const { isMobile } = useBreakpoints()
@@ -122,6 +125,7 @@
     openRegistryExample,
     openVuetifyExample,
     activeExample,
+    snapshotContent,
     showConfig,
   })
 

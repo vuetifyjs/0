@@ -4,6 +4,8 @@
 
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
+  import PlaygroundAuthDialog from '@/components/playground/app/PlaygroundAuthDialog.vue'
+  import PlaygroundSaveDialog from '@/components/playground/app/PlaygroundSaveDialog.vue'
   import PlaygroundOpenDialog from '@/components/playground/open/PlaygroundOpenDialog.vue'
 
   // Context
@@ -22,6 +24,8 @@
   const view = shallowRef(false)
   const confirming = shallowRef(false)
   const dialog = shallowRef(false)
+  const saveOpen = shallowRef(false)
+  const saveAs = shallowRef(false)
   let confirmTimer = 0
 
   onBeforeUnmount(() => clearTimeout(confirmTimer))
@@ -41,6 +45,13 @@
   function onOpen () {
     menu.value = false
     dialog.value = true
+  }
+
+  function onSave (asNew = false) {
+    menu.value = false
+    file.value = false
+    saveAs.value = asNew
+    saveOpen.value = true
   }
 
   function onReset () {
@@ -128,6 +139,24 @@
           <div class="border-t border-divider my-1" />
 
           <button
+            class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
+            type="button"
+            @click="onSave(false)"
+          >
+            Save to Vuetify One…
+          </button>
+
+          <button
+            class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
+            type="button"
+            @click="onSave(true)"
+          >
+            Save as…
+          </button>
+
+          <div class="border-t border-divider my-1" />
+
+          <button
             class="w-full flex items-center justify-between px-3 py-1.5 text-xs transition-colors text-left"
             :class="confirming ? 'text-error bg-error/10' : 'text-on-surface hover:bg-surface-tint'"
             type="button"
@@ -194,4 +223,11 @@
     v-if="dialog"
     @close="dialog = false"
   />
+
+  <PlaygroundSaveDialog
+    v-model="saveOpen"
+    :as-new="saveAs"
+  />
+
+  <PlaygroundAuthDialog />
 </template>

@@ -3,6 +3,7 @@
   import { useHotkey, useTheme, useTimer } from '@vuetify/v0'
 
   // Components
+  import PlaygroundSaveDialog from '@/components/playground/app/PlaygroundSaveDialog.vue'
   import PlaygroundSettings from '@/components/playground/settings/PlaygroundSettings.vue'
 
   // Context
@@ -11,16 +12,20 @@
 
   // Composables
   import { useExport } from '@/composables/useExport'
+  import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
   // Utilities
   import { shallowRef } from 'vue'
 
   const open = shallowRef(false)
+  const saveOpen = shallowRef(false)
   const shared = shallowRef(false)
   const exporting = shallowRef(false)
   const exported = shallowRef(false)
   const copying = shallowRef(false)
   const projectCopied = shallowRef(false)
+
+  const { currentId: oneId, currentTitle: oneTitle, saving: oneSaving } = useOnePlaygrounds()
 
   const theme = useTheme()
   const playground = usePlayground()
@@ -120,6 +125,23 @@
       </AppTooltip>
 
       <AppTooltip
+        :aria-busy="oneSaving || undefined"
+        aria-label="Save to Vuetify One"
+        class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
+        :class="oneSaving || oneId ? 'opacity-80' : 'opacity-50'"
+        :disabled="oneSaving"
+        position-area="bottom"
+        :text="oneSaving
+          ? 'Saving…'
+          : oneId
+            ? `Save to One (${oneTitle})`
+            : 'Save to Vuetify One'"
+        @click="saveOpen = true"
+      >
+        <AppIcon icon="save" />
+      </AppTooltip>
+
+      <AppTooltip
         :aria-busy="copying || undefined"
         aria-label="Copy for agent"
         class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
@@ -161,5 +183,7 @@
     </div>
 
     <PlaygroundSettings v-if="open" @close="open = false" />
+
+    <PlaygroundSaveDialog v-model="saveOpen" />
   </header>
 </template>
