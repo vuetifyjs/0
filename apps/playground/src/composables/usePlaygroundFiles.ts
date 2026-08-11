@@ -1,5 +1,5 @@
 // Framework
-import { isArray, useTheme, useTimer } from '@vuetify/v0'
+import { IN_BROWSER, isArray, useTheme, useTimer } from '@vuetify/v0'
 
 // Composables
 import { decodePlaygroundHash, encodePlaygroundHash, parseVuetifyPlayTuple } from '@/composables/usePlayground'
@@ -129,7 +129,7 @@ export function usePlaygroundFiles () {
       } catch (error) {
         loadError.value = error instanceof Error ? error.message : String(error)
         clearRegistrySearch()
-        await seedDefault()
+        await resetToDefault()
       }
     } else if (registryRef) {
       try {
@@ -139,7 +139,7 @@ export function usePlaygroundFiles () {
         // Drop ?example= so a later hash rewrite / reload does not re-hit a
         // broken deep-link, and so hash-only shares stay the share surface.
         clearRegistrySearch()
-        await seedDefault()
+        await resetToDefault()
       }
     } else {
       await seedDefault()
@@ -163,6 +163,17 @@ export function usePlaygroundFiles () {
     store.files['src/uno.config.ts']!.hidden = true
     store.files['tsconfig.json']!.hidden = true
     store.setActive('src/App.vue')
+  }
+
+  /** Clear preset/import state then seed the default v0 playground. */
+  async function resetToDefault () {
+    activePreset.value = 'default'
+    activeAddons.value = []
+    extraImports.value = undefined
+    aliasMap.value = new Map()
+    rebuildImportMap()
+    await seedDefault()
+    filesVersion.value++
   }
 
   async function loadExample (files: Record<string, string>, activeFile?: string) {
@@ -403,7 +414,7 @@ export function usePlaygroundFiles () {
   }
 
   function clearRegistrySearch () {
-    if (typeof window === 'undefined') return
+    if (!IN_BROWSER) return
     const url = new URL(window.location.href)
     url.searchParams.delete('example')
     url.searchParams.delete('item')
@@ -446,6 +457,8 @@ export function usePlaygroundFiles () {
     options: { clearSearch?: boolean } = {},
   ) {
     loadError.value = undefined
+    // Fetch first so a network/path failure never leaves the UI on the Vuetify
+    // preset with default (or half-loaded) files.
     const resolved = await resolveVuetifyExample(ref)
 
     const preset = PRESETS.find(p => p.id === 'vuetify')
@@ -454,11 +467,16 @@ export function usePlaygroundFiles () {
     extraImports.value = preset?.imports ?? undefined
     aliasMap.value = new Map()
 
-    // Map first (bare `vuetify` → labs CDN), then compile main + vuetify.ts + App.
-    rebuildImportMap()
-    await loadExample(resolved.files, resolved.active)
-    rebuildImportMap()
-    filesVersion.value++
+    try {
+      // Map first (bare `vuetify` → labs CDN), then compile main + vuetify.ts + App.
+      rebuildImportMap()
+      await loadExample(resolved.files, resolved.active)
+      rebuildImportMap()
+      filesVersion.value++
+    } catch (error) {
+      await resetToDefault()
+      throw error
+    }
 
     if (options.clearSearch) clearRegistrySearch()
   }

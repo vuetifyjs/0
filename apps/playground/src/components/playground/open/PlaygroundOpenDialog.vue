@@ -65,6 +65,8 @@
   const selected = shallowRef<RegistryIndexEntry>()
   const selectedItem = shallowRef<RegistryItem>()
   const selectedVuetify = shallowRef<VuetifyComponentEntry>()
+  /** Last Vuetify example open attempt — Retry re-runs this. */
+  const lastVuetifyMeta = shallowRef<VuetifyExampleMeta>()
   const itemLoading = shallowRef(false)
   const itemError = shallowRef<string>()
 
@@ -441,6 +443,7 @@
   async function openVuetifyMeta (meta: VuetifyExampleMeta) {
     if (opening.value) return
     opening.value = true
+    lastVuetifyMeta.value = meta
     itemError.value = undefined
     try {
       await playground.openVuetifyExample({ path: meta.path })
@@ -450,6 +453,17 @@
     } finally {
       opening.value = false
     }
+  }
+
+  async function onRetryVuetify () {
+    const meta = lastVuetifyMeta.value
+    if (meta) {
+      await openVuetifyMeta(meta)
+      return
+    }
+    // Single-example drill-in with no prior meta: back to gallery.
+    selectedVuetify.value = undefined
+    itemError.value = undefined
   }
 
   function onClearQuery () {
@@ -674,7 +688,7 @@
               :loading="false"
               :opening
               @open="openExample"
-              @retry="() => {}"
+              @retry="onRetryVuetify"
             />
 
             <PlaygroundOpenExamples

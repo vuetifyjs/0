@@ -48,13 +48,23 @@ export interface ResolvedVuetifyExample {
   }
 }
 
-const RE_SAFE_PATH = /^[a-z0-9][a-z0-9._/-]*\.vue$/i
-const RE_SAFE_REF = /^[A-Za-z0-9._/-]+$/
+// Single segment: alnum start, no `..` mid-path. Ref: branch/tag/sha only.
+const RE_SAFE_PATH = /^[a-z0-9][a-z0-9._-]*(?:\/[a-z0-9][a-z0-9._-]*)*\.vue$/i
+const RE_SAFE_REF = /^[A-Za-z0-9._-]+(?:\/[A-Za-z0-9._-]+)*$/
 
 export const VUETIFY_EXAMPLES = manifest as VuetifyExamplesManifest
 
 export function getVuetifyComponents (): VuetifyComponentEntry[] {
   return VUETIFY_EXAMPLES.components
+}
+
+/** Lookup by path or id (`v-btn/prop-density` / `v-btn/prop-density.vue`). */
+function findManifestExample (raw: string): VuetifyExampleMeta | undefined {
+  const path = raw.replace(/^\//, '')
+  const withVue = path.endsWith('.vue') ? path : `${path}.vue`
+  return VUETIFY_EXAMPLES.components
+    .flatMap(c => c.examples)
+    .find(e => e.path === withVue || e.path === path || e.path === raw)
 }
 
 /**
@@ -65,14 +75,22 @@ export function vuetifyDocsUrl (name: string): string {
   return `https://vuetifyjs.com/en/api/${name}/`
 }
 
-/** Build a raw.githubusercontent.com URL for a docs example SFC. */
-function vuetifyExampleRawUrl (path: string, ref = VUETIFY_EXAMPLES.ref): string {
-  if (!RE_SAFE_PATH.test(path)) {
+function assertSafePath (path: string) {
+  if (path.includes('..') || !RE_SAFE_PATH.test(path)) {
     throw new Error(`Unsafe example path: ${path}`)
   }
-  if (!RE_SAFE_REF.test(ref)) {
+}
+
+function assertSafeRef (ref: string) {
+  if (ref.includes('..') || !RE_SAFE_REF.test(ref)) {
     throw new Error(`Unsafe git ref: ${ref}`)
   }
+}
+
+/** Build a raw.githubusercontent.com URL for a docs example SFC. */
+function vuetifyExampleRawUrl (path: string, ref = VUETIFY_EXAMPLES.ref): string {
+  assertSafePath(path)
+  assertSafeRef(ref)
   const { repo, basePath } = VUETIFY_EXAMPLES
   return `https://raw.githubusercontent.com/${repo}/${ref}/${basePath}/${path}`
 }
@@ -80,11 +98,16 @@ function vuetifyExampleRawUrl (path: string, ref = VUETIFY_EXAMPLES.ref): string
 /**
  * Fetch a single-file Vuetify docs example and map it into playground files.
  * Callers must switch to the `vuetify` preset before/after load.
+ * Paths must be catalog entries (manifest) — free-form deep-links are rejected.
  */
 export async function resolveVuetifyExample (
   ref: VuetifyExampleRef,
 ): Promise<ResolvedVuetifyExample> {
-  const path = ref.path.replace(/^\//, '')
+  const hit = findManifestExample(ref.path)
+  if (!hit) {
+    throw new Error(`Unknown Vuetify example: ${ref.path}`)
+  }
+  const path = hit.path
   const gitRef = ref.ref ?? VUETIFY_EXAMPLES.ref
   const url = vuetifyExampleRawUrl(path, gitRef)
 
@@ -128,21 +151,12 @@ export function parseVuetifyExampleQuery (params: URLSearchParams): VuetifyExamp
   const source = params.get('source')
   const vuetify = params.get('vuetify')
   const example = params.get('example')
+  const raw = vuetify
+    ?? (source === 'vuetify' ? example : null)
 
-  let raw: string | null = null
-  if (vuetify) raw = vuetify
-  else if (source === 'vuetify' && example) raw = example
-  else return null
+  if (!raw) return null
 
-  let path = raw.replace(/^\//, '')
-  if (!path.endsWith('.vue')) path = `${path}.vue`
-
-  // Validate against manifest when possible (typos fail fast with a clear list)
-  const hit = VUETIFY_EXAMPLES.components
-    .flatMap(c => c.examples)
-    .find(e => e.path === path || e.path === raw)
-  if (hit) return { path: hit.path }
-
-  if (!RE_SAFE_PATH.test(path)) return null
-  return { path }
+  // Manifest-only: never free-form path → raw.githubusercontent (avoids `..` escapes).
+  const hit = findManifestExample(raw)
+  return hit ? { path: hit.path } : null
 }
