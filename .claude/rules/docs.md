@@ -217,6 +217,7 @@ Consequences for authoring:
 - **Import from the design system**, not `@vuetify/v0` — `@paper/emerald`, `@paper/bulma`. Reach for v0 only for utilities a system does not re-export.
 - **Add the sandbox document as a build input.** Vite's default input is the root `index.html` alone; `apps/docs/vite.config.ts` reads `sandbox/*.html` from disk so a new frame needs no config edit, but a frame added outside that directory will be served in dev and missing from `dist`.
 - **The frame document must supply the host reset the system assumes.** A design system styles components, not the page — every real host provides `box-sizing: border-box` (UnoCSS preflight) and a zeroed body margin, and the sandbox loads neither. Without the reset, any `width: 100%` component with padding or borders overflows the frame horizontally. Inline both in the sandbox HTML's critical style (see `sandbox/emerald.html`); Bulma brings its own reset, so `bulma.html` doesn't need it — a new system should assume it does.
+- **The frame document never scrolls — `html { overflow: clip }`.** The parent owns the frame's height and grows it to every measurement the sandbox reports, so a root scrollbar is only ever the resize gap made visible: dragging the example narrower reflows content taller than the held height, and the UA paints a scrollbar for the few frames until the `size` round-trip lands. `clip`, not `hidden`, so no scroll container exists and nothing can strand the document at a stale offset. This applies to every system's frame, resets or no resets.
 
 #### The sandbox contract
 

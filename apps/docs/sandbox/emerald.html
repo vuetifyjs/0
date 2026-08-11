@@ -88,6 +88,17 @@
         font-family: var(--emerald-font-sans, Manrope, system-ui, -apple-system, sans-serif);
       }
 
+      /* The parent owns this frame's height — every measurement the sandbox
+         reports grows the box to fit — so the document never legitimately
+         scrolls. But the round-trip is not instant: dragging the example
+         narrower reflows content taller than the frame's held height, and for
+         those few frames the UA would paint a root scrollbar. `clip` (not
+         `hidden`) so no scroll container exists at all — nothing can leave the
+         document sitting at a stale offset. */
+      html {
+        overflow: clip;
+      }
+
       /* Nothing here forces transparency while promoted: an iframe paints an
          opaque canvas whatever its document says, so the parent clips the frame
          to the regions this example is actually painting instead. Leaving the
