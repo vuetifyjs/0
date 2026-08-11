@@ -1014,6 +1014,143 @@ describe('resolveDropPosition', () => {
   })
 })
 
+describe('no-op slot suppression', () => {
+  // A zone whose children a/b carry stacked rects, with the draggable element
+  // living inside one of them — the same-zone drag shape EmKanban produces.
+  function board (host: 'a' | 'b' | null) {
+    const zoneEl = document.createElement('div')
+    const a = document.createElement('div')
+    const b = document.createElement('div')
+    const cardEl = makeFocusableEl('noop-card')
+    zoneEl.append(a, b)
+    if (host) (host === 'a' ? a : b).append(cardEl)
+    else document.body.append(cardEl)
+    document.body.append(zoneEl)
+
+    a.getBoundingClientRect = () => makeRect(0, 0, 100, 50)
+    b.getBoundingClientRect = () => makeRect(0, 100, 100, 50)
+
+    return { zoneEl, a, b, cardEl }
+  }
+
+  it('should not propose the slots flanking the dragged element in its own zone', async () => {
+    const adapter = new CaptureAdapter()
+    const { zoneEl, cardEl } = board('a')
+
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    const zone = dnd.zones.register({ el: shallowRef(zoneEl), orientation: 'vertical' })
+
+    await nextTick()
+
+    adapter.emit.start(ticket, { x: 50, y: 20 }, 'pointer')
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+
+    // Slot 0 (above the dragged first child) and slot 1 (right below it) both
+    // drop the element back where it sits — no indicator anywhere from above
+    // the zone through b's upper half.
+    for (const y of [-10, 20, 60, 90, 120]) {
+      adapter.emit.move({ x: 50, y })
+      expect(zone.indicator.value).toBeNull()
+    }
+
+    // Past b's midpoint the drop is a real move: slot 2, anchored after b.
+    adapter.emit.move({ x: 50, y: 130 })
+    expect(zone.indicator.value?.index).toBe(2)
+    expect(zone.indicator.value?.edge).toBe('after')
+
+    document.elementFromPoint = realFromPoint
+    cardEl.remove()
+    zoneEl.remove()
+  })
+
+  it('should not propose the slot below the dragged last child', async () => {
+    const adapter = new CaptureAdapter()
+    const { zoneEl, cardEl } = board('b')
+
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    const zone = dnd.zones.register({ el: shallowRef(zoneEl), orientation: 'vertical' })
+
+    await nextTick()
+
+    adapter.emit.start(ticket, { x: 50, y: 120 }, 'pointer')
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+
+    // Below the dragged last child: slot 2 flanks its own position.
+    adapter.emit.move({ x: 50, y: 200 })
+    expect(zone.indicator.value).toBeNull()
+
+    // Above a's midpoint the drop is a real move: slot 0.
+    adapter.emit.move({ x: 50, y: 10 })
+    expect(zone.indicator.value?.index).toBe(0)
+    expect(zone.indicator.value?.edge).toBe('before')
+
+    document.elementFromPoint = realFromPoint
+    cardEl.remove()
+    zoneEl.remove()
+  })
+
+  it('should propose every slot for a drag that started in another zone', async () => {
+    const adapter = new CaptureAdapter()
+    const { zoneEl, cardEl } = board(null)
+
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    const zone = dnd.zones.register({ el: shallowRef(zoneEl), orientation: 'vertical' })
+
+    await nextTick()
+
+    adapter.emit.start(ticket, { x: 50, y: 20 }, 'pointer')
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+
+    adapter.emit.move({ x: 50, y: 10 })
+    expect(zone.indicator.value?.index).toBe(0)
+
+    adapter.emit.move({ x: 50, y: 60 })
+    expect(zone.indicator.value?.index).toBe(1)
+
+    adapter.emit.move({ x: 50, y: 200 })
+    expect(zone.indicator.value?.index).toBe(2)
+
+    document.elementFromPoint = realFromPoint
+    cardEl.remove()
+    zoneEl.remove()
+  })
+
+  it('should resolve a suppressed drop to the element\'s own slot, not zero', async () => {
+    const adapter = new CaptureAdapter()
+    const { zoneEl, cardEl } = board('b')
+
+    const onDrop = vi.fn()
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    dnd.zones.register({ el: shallowRef(zoneEl), orientation: 'vertical', onDrop })
+
+    await nextTick()
+
+    adapter.emit.start(ticket, { x: 50, y: 120 }, 'pointer')
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+
+    // Drop just below the dragged last child — the suppressed slot. Resolving
+    // it to 0 would teleport the element to the top of its own list.
+    adapter.emit.move({ x: 50, y: 160 })
+    adapter.emit.drop()
+    document.elementFromPoint = realFromPoint
+
+    expect(onDrop).toHaveBeenCalledTimes(1)
+    expect(onDrop.mock.calls[0][1].index).toBe(1)
+    expect(onDrop.mock.calls[0][1].indicator).toBeUndefined()
+
+    cardEl.remove()
+    zoneEl.remove()
+  })
+})
+
 describe('safeAccept edge cases', () => {
   it('should reject when accept predicate returns a thenable', () => {
     using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})

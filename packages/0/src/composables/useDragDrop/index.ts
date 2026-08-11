@@ -568,7 +568,21 @@ export function useDragDrop<Z extends DragType = DragType> (
 
       const indicator = computed<DropIndicator | null>(() => {
         if (!registration.orientation || !isOver.value || !active.value) return null
-        return resolveDropPosition(active.value.current, rects.value, registration.orientation)
+
+        const resolved = resolveDropPosition(active.value.current, rects.value, registration.orientation)
+
+        if (!resolved) return null
+
+        // A drag over its own zone: the two slots flanking the element's
+        // current position are not moves — dropping in either puts it straight
+        // back where it sits. No indicator for them; grabbing the first card
+        // and nudging the pointer above it must not draw a line over its own
+        // head as if that were somewhere it could go.
+        const from = home(el.value, active.value.id)
+
+        if (from !== -1 && (resolved.index === from || resolved.index === from + 1)) return null
+
+        return resolved
       })
 
       const input = {
@@ -598,6 +612,18 @@ export function useDragDrop<Z extends DragType = DragType> (
     return null
   }
 
+  // The dragged element's slot among a zone's children, -1 when the drag did
+  // not start in this zone. The slots flanking that position drop the element
+  // right back where it sits, so the indicator and the drop resolution both
+  // treat them as "stay put" rather than as moves.
+  function home (zoneEl: HTMLElement | null | undefined, id: ID): number {
+    const source = toValue(_draggables.get(id)?.el)
+
+    if (!zoneEl || !source) return -1
+
+    return Array.from(zoneEl.children).findIndex(child => child.contains(source))
+  }
+
   function position (zoneId: ID, drag: ActiveDrag<Z>): DropPosition {
     const zone = _zones.get(zoneId)
     const out: DropPosition = { pointer: drag.current }
@@ -607,8 +633,12 @@ export function useDragDrop<Z extends DragType = DragType> (
         out.index = resolved.index
         out.indicator = resolved
       } else {
-        // Empty zone — index 0 lets consumers splice without a fallback.
-        out.index = 0
+        // No slot proposed: either the zone is empty — index 0 lets consumers
+        // splice without a fallback — or the pointer sits on the dragged
+        // element's own flanked slots, which resolve to its current position
+        // so the drop is a stay, not a move to the top.
+        const from = home(toValue(zone.el), drag.id)
+        out.index = from === -1 ? 0 : from
       }
     }
     return out
