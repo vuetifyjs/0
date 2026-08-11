@@ -5,6 +5,7 @@
 
   // Context
   import PlaygroundSettingsExport from './PlaygroundSettingsExport.vue'
+  import PlaygroundSettingsIcons from './PlaygroundSettingsIcons.vue'
   import PlaygroundSettingsPresets from './PlaygroundSettingsPresets.vue'
   import PlaygroundSettingsVersions from './PlaygroundSettingsVersions.vue'
 
@@ -26,6 +27,7 @@
   const sections: Section[] = [
     { id: 'versions', label: 'Versions', icon: 'tags', component: PlaygroundSettingsVersions, available: true },
     { id: 'presets', label: 'Presets', icon: 'layers', component: PlaygroundSettingsPresets, available: true },
+    { id: 'icons', label: 'Icons', icon: 'feat-theme', component: PlaygroundSettingsIcons, available: true },
     { id: 'export', label: 'Export', icon: 'download', component: PlaygroundSettingsExport, available: true },
   ]
 

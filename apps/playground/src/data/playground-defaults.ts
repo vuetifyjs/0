@@ -180,10 +180,19 @@ ${pluginBlock}app.mount('#app')
 `
 }
 
+/**
+ * REPL UnoCSS runtime config.
+ *
+ * Icons: `@unocss/preset-icons/browser` with `cdn: 'https://esm.sh/'` loads any
+ * Iconify collection on demand as `i-{collection}-{name}` (e.g. i-lucide-home).
+ * No per-set enable step — authors pick a collection by class name.
+ */
 export const UNO_CONFIG_TS = `// @ts-expect-error - esm.sh import
-import defineConfig from 'https://esm.sh/@unocss/runtime'
+import defineConfig from 'https://esm.sh/@unocss/runtime@66.7.5'
 // @ts-expect-error - esm.sh import
-import presetWind4 from 'https://esm.sh/@unocss/preset-wind4'
+import presetWind4 from 'https://esm.sh/@unocss/preset-wind4@66.7.5'
+// @ts-expect-error - esm.sh import
+import presetIcons from 'https://esm.sh/@unocss/preset-icons@66.7.5/browser'
 
 // Each recompile creates a fresh module instance with an empty internal style Map,
 // so the previous runtime's <style> elements are abandoned in the DOM. Remove them
@@ -192,7 +201,18 @@ document.querySelectorAll('[data-unocss-runtime-layer]').forEach(el => el.remove
 
 defineConfig({
   defaults: {
-    presets: [presetWind4()],
+    presets: [
+      presetWind4(),
+      presetIcons({
+        // Fetch @iconify-json/{collection} from esm.sh when a class is first used.
+        cdn: 'https://esm.sh/',
+        scale: 1.2,
+        extraProperties: {
+          'display': 'inline-block',
+          'vertical-align': 'middle',
+        },
+      }),
+    ],
     theme: {
       colors: {
         'primary': 'var(--v0-primary)',

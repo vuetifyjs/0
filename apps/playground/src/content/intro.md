@@ -29,7 +29,17 @@ Theme colors work two ways: CSS custom properties (`var(--v0-primary)`) and UnoC
 
 ## Getting started
 
-Open the **examples** menu in the toolbar and load any demo — you'll get a complete, working project with files, imports, and a live preview that updates as you type. Or skip that entirely: open `App.vue` in the editor and start writing a component from scratch. The preview hot-reloads on every keystroke, so you'll see the result before you finish the thought. Either way, you're writing real Vue 3 code against the full v0 API — no stubs, no simulations.
+Use **☰ → File → Open example…** to browse every docs demo from the official registry (same catalog as `vuetify add`). Pick a feature, then an example, and the workspace loads with files and a live preview. Or skip that entirely: open `App.vue` and start from scratch — the preview hot-reloads on every keystroke.
+
+Short links also work:
+
+```
+/?example=dialog
+/?example=dialog/basic
+/?example=components/dialog/basic
+```
+
+Point `?registry=` at a custom origin when testing a local docs build.
 
 ## Tips
 

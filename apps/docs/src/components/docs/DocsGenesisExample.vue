@@ -10,7 +10,11 @@
   import { useExamples } from '@/composables/useExamples'
   import { prehighlight } from '@/composables/useHighlightCode'
   import { useIdleCallback } from '@/composables/useIdleCallback'
-  import { usePlayground } from '@/composables/usePlayground'
+  import {
+    playgroundRegistryUrl,
+    registryRefFromExamplePath,
+    usePlayground,
+  } from '@/composables/usePlayground'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
 
@@ -91,6 +95,20 @@
   })
 
   async function onPlayground (list: GnDocsExampleFile[]) {
+    // Embed source in the hash by default — works without a live /registry/*
+    // (PR #721). Opt into short registry URLs with VITE_PLAYGROUND_REGISTRY=1
+    // once the seed is deployed; entry file is the last .vue (registry contract).
+    if (import.meta.env.VITE_PLAYGROUND_REGISTRY === '1' && !props.imports) {
+      const path = props.filePath
+        ?? [...(props.filePaths ?? [])].toReversed().find(p => p.endsWith('.vue'))
+        ?? props.filePaths?.[0]
+      const ref = path ? registryRefFromExamplePath(path) : null
+      if (ref) {
+        window.open(playgroundRegistryUrl(ref), '_blank')
+        return
+      }
+    }
+
     const files = list.map(f => ({ name: f.name, code: f.code }))
     const url = await usePlayground(files, undefined, props.imports)
     window.open(url, '_blank')

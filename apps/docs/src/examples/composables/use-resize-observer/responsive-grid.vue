@@ -26,7 +26,7 @@
     { title: 'Revenue', icon: 'i-lucide-dollar-sign', color: 'bg-success' },
     { title: 'Orders', icon: 'i-lucide-shopping-cart', color: 'bg-warning' },
     { title: 'Messages', icon: 'i-lucide-mail', color: 'bg-info' },
-    { title: 'Settings', icon: 'i-lucide-settings', color: 'bg-accent' },
+    { title: 'Settings', icon: 'i-lucide-settings', color: 'bg-error' },
   ]
 </script>
 

@@ -291,6 +291,8 @@
     border-radius: 0.5rem;
     background: var(--v0-surface, #fff);
     color: var(--v0-on-surface, #1a1c1e);
+    /* The bottom hairline is drawn by the last child instead — see below. */
+    border-bottom-color: transparent;
   }
 
   .genesis-docs-example__toggle-bar {
@@ -305,12 +307,29 @@
     border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
   }
 
+  /* Peek mode drops the toggle bar, and with it the border-top that separates
+     the preview from the code pane. Restore the divider on the pane itself so
+     peek and non-peek examples read the same. */
+  .genesis-docs-example[data-peek] .genesis-docs-example__code {
+    border-top: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
+  }
+
   .genesis-docs-example > *:first-child:not(.genesis-peek) {
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
   }
 
+  /* Draw the card's bottom hairline on the last child rather than on the card.
+     Consumers put a backdrop-filter on these bars (the docs glass treatment),
+     which composites the child into its own layer; that layer pixel-snaps
+     outward and paints over the card's own border-bottom whenever the card's
+     bottom edge lands below a half-pixel. A border on the child paints above
+     its own filter, so it survives at any sub-pixel offset. The negative
+     margin keeps it on the same row the card's border occupied, so the card's
+     height and the corner radii are unchanged. */
   .genesis-docs-example > *:nth-last-child(1 of :not(.genesis-peek)) {
+    border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
+    margin-bottom: -1px;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
   }
