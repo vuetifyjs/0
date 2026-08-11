@@ -33,11 +33,12 @@ function titleFromId (id) {
     .join(' ')
 }
 
+/** Folder name → component display: `v-bottom-navigation` → `VBottomNavigation`. */
 function componentTitle (name) {
   return name
     .split('-')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
+    .join('')
 }
 
 const files = walk(ROOT)

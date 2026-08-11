@@ -3,7 +3,7 @@
   "repo": "vuetifyjs/vuetify",
   "ref": "master",
   "basePath": "packages/docs/src/examples",
-  "generatedAt": "2026-08-10T23:46:43.702Z",
+  "generatedAt": "2026-08-11T00:06:53.350Z",
   "skipped": 82,
   "components": [
     {
@@ -50,7 +50,7 @@
     },
     {
       "name": "application-layout",
-      "title": "Application Layout",
+      "title": "ApplicationLayout",
       "examples": [
         {
           "id": "app-bar-first",
@@ -143,7 +143,7 @@
     },
     {
       "name": "border-radius",
-      "title": "Border Radius",
+      "title": "BorderRadius",
       "examples": [
         {
           "id": "misc-components",
@@ -649,7 +649,7 @@
     },
     {
       "name": "text-and-typography",
-      "title": "Text And Typography",
+      "title": "TextAndTypography",
       "examples": [
         {
           "id": "font-emphasis",
@@ -791,7 +791,7 @@
     },
     {
       "name": "v-alert",
-      "title": "V Alert",
+      "title": "VAlert",
       "examples": [
         {
           "id": "prop-border",
@@ -852,7 +852,7 @@
     },
     {
       "name": "v-app-bar",
-      "title": "V App Bar",
+      "title": "VAppBar",
       "examples": [
         {
           "id": "misc-app-bar-nav",
@@ -888,7 +888,7 @@
     },
     {
       "name": "v-autocomplete",
-      "title": "V Autocomplete",
+      "title": "VAutocomplete",
       "examples": [
         {
           "id": "misc-asynchronous-items",
@@ -944,7 +944,7 @@
     },
     {
       "name": "v-avatar",
-      "title": "V Avatar",
+      "title": "VAvatar",
       "examples": [
         {
           "id": "misc-advanced",
@@ -985,7 +985,7 @@
     },
     {
       "name": "v-avatar-group",
-      "title": "V Avatar Group",
+      "title": "VAvatarGroup",
       "examples": [
         {
           "id": "misc-hoverable",
@@ -1021,7 +1021,7 @@
     },
     {
       "name": "v-badge",
-      "title": "V Badge",
+      "title": "VBadge",
       "examples": [
         {
           "id": "misc-customization",
@@ -1062,7 +1062,7 @@
     },
     {
       "name": "v-banner",
-      "title": "V Banner",
+      "title": "VBanner",
       "examples": [
         {
           "id": "prop-lines",
@@ -1093,7 +1093,7 @@
     },
     {
       "name": "v-bottom-navigation",
-      "title": "V Bottom Navigation",
+      "title": "VBottomNavigation",
       "examples": [
         {
           "id": "prop-color",
@@ -1134,7 +1134,7 @@
     },
     {
       "name": "v-bottom-sheet",
-      "title": "V Bottom Sheet",
+      "title": "VBottomSheet",
       "examples": [
         {
           "id": "misc-open-in-list",
@@ -1160,7 +1160,7 @@
     },
     {
       "name": "v-breadcrumbs",
-      "title": "V Breadcrumbs",
+      "title": "VBreadcrumbs",
       "examples": [
         {
           "id": "prop-divider",
@@ -1186,7 +1186,7 @@
     },
     {
       "name": "v-btn",
-      "title": "V Btn",
+      "title": "VBtn",
       "examples": [
         {
           "id": "defaults-banner-actions",
@@ -1352,7 +1352,7 @@
     },
     {
       "name": "v-btn-toggle",
-      "title": "V Btn Toggle",
+      "title": "VBtnToggle",
       "examples": [
         {
           "id": "misc-toolbar",
@@ -1398,7 +1398,7 @@
     },
     {
       "name": "v-calendar",
-      "title": "V Calendar",
+      "title": "VCalendar",
       "examples": [
         {
           "id": "event-click",
@@ -1449,7 +1449,7 @@
     },
     {
       "name": "v-card",
-      "title": "V Card",
+      "title": "VCard",
       "examples": [
         {
           "id": "basics-combine",
@@ -1585,7 +1585,7 @@
     },
     {
       "name": "v-carousel",
-      "title": "V Carousel",
+      "title": "VCarousel",
       "examples": [
         {
           "id": "misc-vertical",
@@ -1636,7 +1636,7 @@
     },
     {
       "name": "v-checkbox",
-      "title": "V Checkbox",
+      "title": "VCheckbox",
       "examples": [
         {
           "id": "misc-inline-textfield",
@@ -1672,7 +1672,7 @@
     },
     {
       "name": "v-chip",
-      "title": "V Chip",
+      "title": "VChip",
       "examples": [
         {
           "id": "event-action-chips",
@@ -1748,7 +1748,7 @@
     },
     {
       "name": "v-chip-group",
-      "title": "V Chip Group",
+      "title": "VChipGroup",
       "examples": [
         {
           "id": "misc-product-card",
@@ -1789,7 +1789,7 @@
     },
     {
       "name": "v-click-outside",
-      "title": "V Click Outside",
+      "title": "VClickOutside",
       "examples": [
         {
           "id": "option-close-on-outside-click",
@@ -1810,7 +1810,7 @@
     },
     {
       "name": "v-color-input",
-      "title": "V Color Input",
+      "title": "VColorInput",
       "examples": [
         {
           "id": "prop-color-pip",
@@ -1836,7 +1836,7 @@
     },
     {
       "name": "v-color-picker",
-      "title": "V Color Picker",
+      "title": "VColorPicker",
       "examples": [
         {
           "id": "prop-canvas",
@@ -1867,7 +1867,7 @@
     },
     {
       "name": "v-combobox",
-      "title": "V Combobox",
+      "title": "VCombobox",
       "examples": [
         {
           "id": "misc-advanced",
@@ -1908,7 +1908,7 @@
     },
     {
       "name": "v-command-palette",
-      "title": "V Command Palette",
+      "title": "VCommandPalette",
       "examples": [
         {
           "id": "prop-close-on-select",
@@ -1939,7 +1939,7 @@
     },
     {
       "name": "v-confirm-edit",
-      "title": "V Confirm Edit",
+      "title": "VConfirmEdit",
       "examples": [
         {
           "id": "misc-date-picker",
@@ -1955,7 +1955,7 @@
     },
     {
       "name": "v-data-iterator",
-      "title": "V Data Iterator",
+      "title": "VDataIterator",
       "examples": [
         {
           "id": "misc-filter",
@@ -1986,7 +1986,7 @@
     },
     {
       "name": "v-data-table",
-      "title": "V Data Table",
+      "title": "VDataTable",
       "examples": [
         {
           "id": "headers-multiple",
@@ -2202,7 +2202,7 @@
     },
     {
       "name": "v-date-input",
-      "title": "V Date Input",
+      "title": "VDateInput",
       "examples": [
         {
           "id": "misc-passenger",
@@ -2238,7 +2238,7 @@
     },
     {
       "name": "v-date-picker",
-      "title": "V Date Picker",
+      "title": "VDatePicker",
       "examples": [
         {
           "id": "event-button-events",
@@ -2349,7 +2349,7 @@
     },
     {
       "name": "v-date-picker-month",
-      "title": "V Date Picker Month",
+      "title": "VDatePickerMonth",
       "examples": [
         {
           "id": "misc-dialog-and-menu",
@@ -2410,7 +2410,7 @@
     },
     {
       "name": "v-date-range-picker",
-      "title": "V Date Range Picker",
+      "title": "VDateRangePicker",
       "examples": [
         {
           "id": "misc-full-layout",
@@ -2426,7 +2426,7 @@
     },
     {
       "name": "v-defaults-provider",
-      "title": "V Defaults Provider",
+      "title": "VDefaultsProvider",
       "examples": [
         {
           "id": "prop-defaults",
@@ -2437,7 +2437,7 @@
     },
     {
       "name": "v-dialog",
-      "title": "V Dialog",
+      "title": "VDialog",
       "examples": [
         {
           "id": "misc-data-table",
@@ -2513,7 +2513,7 @@
     },
     {
       "name": "v-divider",
-      "title": "V Divider",
+      "title": "VDivider",
       "examples": [
         {
           "id": "misc-portrait-view",
@@ -2549,7 +2549,7 @@
     },
     {
       "name": "v-empty-state",
-      "title": "V Empty State",
+      "title": "VEmptyState",
       "examples": [
         {
           "id": "misc-astro-cat",
@@ -2595,7 +2595,7 @@
     },
     {
       "name": "v-expansion-panels",
-      "title": "V Expansion Panels",
+      "title": "VExpansionPanels",
       "examples": [
         {
           "id": "misc-advanced",
@@ -2636,7 +2636,7 @@
     },
     {
       "name": "v-fab",
-      "title": "V Fab",
+      "title": "VFab",
       "examples": [
         {
           "id": "misc-display-animation",
@@ -2662,7 +2662,7 @@
     },
     {
       "name": "v-file-input",
-      "title": "V File Input",
+      "title": "VFileInput",
       "examples": [
         {
           "id": "misc-complex-selection",
@@ -2718,7 +2718,7 @@
     },
     {
       "name": "v-file-upload",
-      "title": "V File Upload",
+      "title": "VFileUpload",
       "examples": [
         {
           "id": "misc-list",
@@ -2754,7 +2754,7 @@
     },
     {
       "name": "v-footer",
-      "title": "V Footer",
+      "title": "VFooter",
       "examples": [
         {
           "id": "misc-company-footer",
@@ -2775,7 +2775,7 @@
     },
     {
       "name": "v-form",
-      "title": "V Form",
+      "title": "VForm",
       "examples": [
         {
           "id": "misc-exposed",
@@ -2821,7 +2821,7 @@
     },
     {
       "name": "v-heatmap",
-      "title": "V Heatmap",
+      "title": "VHeatmap",
       "examples": [
         {
           "id": "misc-calendar",
@@ -2867,7 +2867,7 @@
     },
     {
       "name": "v-highlight",
-      "title": "V Highlight",
+      "title": "VHighlight",
       "examples": [
         {
           "id": "misc-css-variables",
@@ -2898,7 +2898,7 @@
     },
     {
       "name": "v-hotkey",
-      "title": "V Hotkey",
+      "title": "VHotkey",
       "examples": [
         {
           "id": "prop-display-mode",
@@ -2929,7 +2929,7 @@
     },
     {
       "name": "v-hover",
-      "title": "V Hover",
+      "title": "VHover",
       "examples": [
         {
           "id": "misc-hover-list",
@@ -2955,7 +2955,7 @@
     },
     {
       "name": "v-icon",
-      "title": "V Icon",
+      "title": "VIcon",
       "examples": [
         {
           "id": "event-click",
@@ -2991,7 +2991,7 @@
     },
     {
       "name": "v-icon-btn",
-      "title": "V Icon Btn",
+      "title": "VIconBtn",
       "examples": [
         {
           "id": "misc-dialog",
@@ -3032,7 +3032,7 @@
     },
     {
       "name": "v-img",
-      "title": "V Img",
+      "title": "VImg",
       "examples": [
         {
           "id": "complex-grid",
@@ -3088,7 +3088,7 @@
     },
     {
       "name": "v-infinite-scroll",
-      "title": "V Infinite Scroll",
+      "title": "VInfiniteScroll",
       "examples": [
         {
           "id": "misc-reset",
@@ -3149,7 +3149,7 @@
     },
     {
       "name": "v-input",
-      "title": "V Input",
+      "title": "VInput",
       "examples": [
         {
           "id": "event-slot-clicks",
@@ -3200,7 +3200,7 @@
     },
     {
       "name": "v-intersect",
-      "title": "V Intersect",
+      "title": "VIntersect",
       "examples": [
         {
           "id": "prop-options",
@@ -3216,7 +3216,7 @@
     },
     {
       "name": "v-item-group",
-      "title": "V Item Group",
+      "title": "VItemGroup",
       "examples": [
         {
           "id": "misc-selection",
@@ -3247,7 +3247,7 @@
     },
     {
       "name": "v-list",
-      "title": "V List",
+      "title": "VList",
       "examples": [
         {
           "id": "misc-action-stack",
@@ -3353,7 +3353,7 @@
     },
     {
       "name": "v-mask-input",
-      "title": "V Mask Input",
+      "title": "VMaskInput",
       "examples": [
         {
           "id": "credit-card-form",
@@ -3384,7 +3384,7 @@
     },
     {
       "name": "v-menu",
-      "title": "V Menu",
+      "title": "VMenu",
       "examples": [
         {
           "id": "misc-file-context",
@@ -3475,7 +3475,7 @@
     },
     {
       "name": "v-month-picker",
-      "title": "V Month Picker",
+      "title": "VMonthPicker",
       "examples": [
         {
           "id": "misc-dialog-and-menu",
@@ -3501,7 +3501,7 @@
     },
     {
       "name": "v-mutate",
-      "title": "V Mutate",
+      "title": "VMutate",
       "examples": [
         {
           "id": "option-modifiers",
@@ -3517,7 +3517,7 @@
     },
     {
       "name": "v-navigation-drawer",
-      "title": "V Navigation Drawer",
+      "title": "VNavigationDrawer",
       "examples": [
         {
           "id": "misc-colored",
@@ -3568,7 +3568,7 @@
     },
     {
       "name": "v-number-input",
-      "title": "V Number Input",
+      "title": "VNumberInput",
       "examples": [
         {
           "id": "prop-control-variant",
@@ -3614,7 +3614,7 @@
     },
     {
       "name": "v-otp-input",
-      "title": "V Otp Input",
+      "title": "VOtpInput",
       "examples": [
         {
           "id": "misc-card",
@@ -3690,7 +3690,7 @@
     },
     {
       "name": "v-overlay",
-      "title": "V Overlay",
+      "title": "VOverlay",
       "examples": [
         {
           "id": "connected-playground",
@@ -3741,7 +3741,7 @@
     },
     {
       "name": "v-pagination",
-      "title": "V Pagination",
+      "title": "VPagination",
       "examples": [
         {
           "id": "prop-disabled",
@@ -3772,7 +3772,7 @@
     },
     {
       "name": "v-parallax",
-      "title": "V Parallax",
+      "title": "VParallax",
       "examples": [
         {
           "id": "misc-content",
@@ -3798,7 +3798,7 @@
     },
     {
       "name": "v-pie",
-      "title": "V Pie",
+      "title": "VPie",
       "examples": [
         {
           "id": "misc-custom-legend",
@@ -3834,7 +3834,7 @@
     },
     {
       "name": "v-progress",
-      "title": "V Progress",
+      "title": "VProgress",
       "examples": [
         {
           "id": "misc-card-loader",
@@ -3860,7 +3860,7 @@
     },
     {
       "name": "v-progress-circular",
-      "title": "V Progress Circular",
+      "title": "VProgressCircular",
       "examples": [
         {
           "id": "prop-color",
@@ -3896,7 +3896,7 @@
     },
     {
       "name": "v-progress-linear",
-      "title": "V Progress Linear",
+      "title": "VProgressLinear",
       "examples": [
         {
           "id": "misc-buffer-color",
@@ -3972,7 +3972,7 @@
     },
     {
       "name": "v-pull-to-refresh",
-      "title": "V Pull To Refresh",
+      "title": "VPullToRefresh",
       "examples": [
         {
           "id": "usage",
@@ -3983,7 +3983,7 @@
     },
     {
       "name": "v-radio-group",
-      "title": "V Radio Group",
+      "title": "VRadioGroup",
       "examples": [
         {
           "id": "prop-colors",
@@ -4014,7 +4014,7 @@
     },
     {
       "name": "v-range-slider",
-      "title": "V Range Slider",
+      "title": "VRangeSlider",
       "examples": [
         {
           "id": "prop-disabled",
@@ -4050,7 +4050,7 @@
     },
     {
       "name": "v-rating",
-      "title": "V Rating",
+      "title": "VRating",
       "examples": [
         {
           "id": "misc-advanced",
@@ -4136,7 +4136,7 @@
     },
     {
       "name": "v-resize",
-      "title": "V Resize",
+      "title": "VResize",
       "examples": [
         {
           "id": "usage",
@@ -4147,7 +4147,7 @@
     },
     {
       "name": "v-ripple",
-      "title": "V Ripple",
+      "title": "VRipple",
       "examples": [
         {
           "id": "misc-custom-color",
@@ -4178,7 +4178,7 @@
     },
     {
       "name": "v-scroll",
-      "title": "V Scroll",
+      "title": "VScroll",
       "examples": [
         {
           "id": "option-self",
@@ -4199,7 +4199,7 @@
     },
     {
       "name": "v-select",
-      "title": "V Select",
+      "title": "VSelect",
       "examples": [
         {
           "id": "prop-avoid-duplicate-text",
@@ -4275,7 +4275,7 @@
     },
     {
       "name": "v-sheet",
-      "title": "V Sheet",
+      "title": "VSheet",
       "examples": [
         {
           "id": "misc-congratulations",
@@ -4316,7 +4316,7 @@
     },
     {
       "name": "v-skeleton-loader",
-      "title": "V Skeleton Loader",
+      "title": "VSkeletonLoader",
       "examples": [
         {
           "id": "misc-ice-cream",
@@ -4357,7 +4357,7 @@
     },
     {
       "name": "v-slide-group",
-      "title": "V Slide Group",
+      "title": "VSlideGroup",
       "examples": [
         {
           "id": "misc-pseudo-carousel",
@@ -4398,7 +4398,7 @@
     },
     {
       "name": "v-slider",
-      "title": "V Slider",
+      "title": "VSlider",
       "examples": [
         {
           "id": "prop-colors",
@@ -4464,7 +4464,7 @@
     },
     {
       "name": "v-snackbar",
-      "title": "V Snackbar",
+      "title": "VSnackbar",
       "examples": [
         {
           "id": "prop-loading",
@@ -4520,7 +4520,7 @@
     },
     {
       "name": "v-snackbar-queue",
-      "title": "V Snackbar Queue",
+      "title": "VSnackbarQueue",
       "examples": [
         {
           "id": "misc-promise",
@@ -4541,7 +4541,7 @@
     },
     {
       "name": "v-sparkline",
-      "title": "V Sparkline",
+      "title": "VSparkline",
       "examples": [
         {
           "id": "misc-custom-labels",
@@ -4587,7 +4587,7 @@
     },
     {
       "name": "v-stepper",
-      "title": "V Stepper",
+      "title": "VStepper",
       "examples": [
         {
           "id": "misc-alternate-error",
@@ -4658,7 +4658,7 @@
     },
     {
       "name": "v-stepper-vertical",
-      "title": "V Stepper Vertical",
+      "title": "VStepperVertical",
       "examples": [
         {
           "id": "prop-non-linear",
@@ -4674,7 +4674,7 @@
     },
     {
       "name": "v-switch",
-      "title": "V Switch",
+      "title": "VSwitch",
       "examples": [
         {
           "id": "prop-colors",
@@ -4705,7 +4705,7 @@
     },
     {
       "name": "v-system-bar",
-      "title": "V System Bar",
+      "title": "VSystemBar",
       "examples": [
         {
           "id": "prop-color",
@@ -4721,7 +4721,7 @@
     },
     {
       "name": "v-table",
-      "title": "V Table",
+      "title": "VTable",
       "examples": [
         {
           "id": "prop-dark",
@@ -4757,7 +4757,7 @@
     },
     {
       "name": "v-tabs",
-      "title": "V Tabs",
+      "title": "VTabs",
       "examples": [
         {
           "id": "misc-content",
@@ -4858,7 +4858,7 @@
     },
     {
       "name": "v-text-field",
-      "title": "V Text Field",
+      "title": "VTextField",
       "examples": [
         {
           "id": "event-icons",
@@ -5009,7 +5009,7 @@
     },
     {
       "name": "v-textarea",
-      "title": "V Textarea",
+      "title": "VTextarea",
       "examples": [
         {
           "id": "misc-signup-form",
@@ -5060,7 +5060,7 @@
     },
     {
       "name": "v-theme-provider",
-      "title": "V Theme Provider",
+      "title": "VThemeProvider",
       "examples": [
         {
           "id": "prop-with-background",
@@ -5071,7 +5071,7 @@
     },
     {
       "name": "v-time-picker",
-      "title": "V Time Picker",
+      "title": "VTimePicker",
       "examples": [
         {
           "id": "misc-dialog-and-menu",
@@ -5137,7 +5137,7 @@
     },
     {
       "name": "v-timeline",
-      "title": "V Timeline",
+      "title": "VTimeline",
       "examples": [
         {
           "id": "misc-advanced",
@@ -5208,7 +5208,7 @@
     },
     {
       "name": "v-toolbar",
-      "title": "V Toolbar",
+      "title": "VToolbar",
       "examples": [
         {
           "id": "misc-contextual-action-bar",
@@ -5269,7 +5269,7 @@
     },
     {
       "name": "v-tooltip",
-      "title": "V Tooltip",
+      "title": "VTooltip",
       "examples": [
         {
           "id": "misc-at-cursor",
@@ -5305,7 +5305,7 @@
     },
     {
       "name": "v-tooltip-directive",
-      "title": "V Tooltip Directive",
+      "title": "VTooltipDirective",
       "examples": [
         {
           "id": "args",
@@ -5326,7 +5326,7 @@
     },
     {
       "name": "v-touch",
-      "title": "V Touch",
+      "title": "VTouch",
       "examples": [
         {
           "id": "misc-directions",
@@ -5362,7 +5362,7 @@
     },
     {
       "name": "v-treeview",
-      "title": "V Treeview",
+      "title": "VTreeview",
       "examples": [
         {
           "id": "misc-search-and-filter",
@@ -5458,7 +5458,7 @@
     },
     {
       "name": "v-video",
-      "title": "V Video",
+      "title": "VVideo",
       "examples": [
         {
           "id": "misc-in-card",
@@ -5524,7 +5524,7 @@
     },
     {
       "name": "v-virtual-scroll",
-      "title": "V Virtual Scroll",
+      "title": "VVirtualScroll",
       "examples": [
         {
           "id": "misc-user-directory",
@@ -5560,7 +5560,7 @@
     },
     {
       "name": "v-window",
-      "title": "V Window",
+      "title": "VWindow",
       "examples": [
         {
           "id": "misc-account-creation",
@@ -5601,7 +5601,7 @@
     },
     {
       "name": "why-vuetify",
-      "title": "Why Vuetify",
+      "title": "WhyVuetify",
       "examples": [
         {
           "id": "card-components",
