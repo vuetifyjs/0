@@ -103,11 +103,20 @@
   // frame mid-drag, which reads as the board jumping out of its box. The
   // subtree check is what keeps a snackbar portal promoting: the portal itself
   // is `pointer-events: none`, but the snackbars inside it are interactive.
-  function inert (el: HTMLElement): boolean {
-    if (getComputedStyle(el).pointerEvents !== 'none') return false
+  //
+  // "Accepts pointer input" needs area as well as the property — a snackbar
+  // queue keeps an empty zero-height wrapper mounted inside the portal, and
+  // its `pointer-events: auto` alone would hold the frame promoted forever
+  // after the last snackbar leaves.
+  function inert (el: HTMLElement, style: CSSStyleDeclaration): boolean {
+    if (style.pointerEvents !== 'none') return false
 
     for (const node of el.querySelectorAll<HTMLElement>('*')) {
-      if (getComputedStyle(node).pointerEvents !== 'none') return false
+      if (getComputedStyle(node).pointerEvents === 'none') continue
+
+      const rect = node.getBoundingClientRect()
+
+      if (rect.width > 0 && rect.height > 0) return false
     }
 
     return true
@@ -138,11 +147,12 @@
     for (const node of el.querySelectorAll<HTMLElement>('*')) {
       if (!node.checkVisibility()) continue
 
-      const position = getComputedStyle(node).position
+      const style = getComputedStyle(node)
+      const position = style.position
 
       if (position !== 'fixed' && position !== 'absolute') continue
 
-      if (position === 'fixed' && inert(node)) continue
+      if (position === 'fixed' && inert(node, style)) continue
 
       const rect = node.getBoundingClientRect()
 
@@ -246,9 +256,13 @@
 
   useResizeObserver(root, () => measure())
 
-  // Opening an overlay changes no layout the ResizeObserver can see — the class
-  // flip that reveals it is the only signal.
-  useMutationObserver(root, () => measure(), { attributes: true, subtree: true })
+  // Opening an overlay changes no layout the ResizeObserver can see — the
+  // attribute flip that reveals it, or the `v-if` mount that inserts it, is
+  // the only signal. Both matter: an Emerald snackbar arrives as a childList
+  // insertion into a portal that never changes size, and without `childList`
+  // its promotion would ride whatever incidental attribute mutation happens
+  // to follow the mount.
+  useMutationObserver(root, () => measure(), { attributes: true, childList: true, subtree: true })
 
   // A CSS-only reveal (Bulma's `is-hoverable` dropdown) mutates nothing and
   // resizes nothing, so pointer movement is the only signal that it happened.

@@ -286,9 +286,14 @@
           break
         }
         // A menu can resize under its own content while it stays open, and a
-        // dropdown opened inside a modal escalates float to overlay.
+        // dropdown opened inside a modal escalates float to overlay. Only a
+        // frame that believes it is promoted sends this, so it also heals a
+        // dropped or interleaved overlay edge: without re-asserting the
+        // promotion here, a desynced frame keeps reporting regions forever
+        // while the parent holds it inline — clipped to nothing.
         case 'v0:sandbox:rects': {
           claim(event.data.tier)
+          overlay.value = true
           shape(event.data.rects)
           break
         }
