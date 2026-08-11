@@ -58,6 +58,21 @@ export interface MainOptions {
   v0?: boolean
 }
 
+/**
+ * Plugin module for the Vuetify preset (mirrors play.vuetifyjs.com's src/vuetify.ts).
+ * Kept as a real file so layout examples that `import { useLayout } from 'vuetify'`
+ * share the same install path as `app.use(vuetify)`, and so the bootstrap is
+ * visible in the file tree — not only inlined inside main.ts.
+ */
+export const VUETIFY_TS = `import { createVuetify } from 'vuetify'
+
+export const vuetify = createVuetify({
+  theme: {
+    defaultTheme: 'light',
+  },
+})
+`
+
 export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?: MainOptions): string {
   const useV0 = options?.v0 !== false
   const extraImports: string[] = []
@@ -73,7 +88,12 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
     extraPlugins.push(`app.use(createPinia())`)
   }
   if (options?.vuetify) {
-    extraImports.push(`import { createVuetify } from 'vuetify'`)
+    // Import the plugin instance from ./vuetify (not createVuetify inline) so the
+    // sandbox always loads the vuetify package through a dedicated module — the
+    // same shape as Vuetify Play. Inlining createVuetify() in main.ts made it
+    // easy for setFiles/import-map rebuild races to leave main compiled against
+    // a map that didn't yet include the `vuetify` bare specifier.
+    extraImports.push(`import { vuetify } from './vuetify'`)
     extraSetup.push(
       // Pre-declare Vuetify's cascade-layer order before any other styles can.
       // The vuetify-labs.css <link> below loads async — meanwhile createVuetify()
@@ -87,13 +107,14 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
       `for (const href of [`,
       `  'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css',`,
       `  'https://cdn.jsdelivr.net/npm/@mdi/font@7.x/css/materialdesignicons.min.css',`,
+      `  'https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900',`,
       `]) {`,
       `  const link = Object.assign(document.createElement('link'), { rel: 'stylesheet', href })`,
       `  link.dataset.presetCss = 'vuetify'`,
       `  document.head.appendChild(link)`,
       `}`,
     )
-    extraPlugins.push(`app.use(createVuetify())`)
+    extraPlugins.push(`app.use(vuetify)`)
   }
 
   const importBlock = extraImports.length > 0 ? '\n' + extraImports.join('\n') : ''
@@ -105,6 +126,7 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
 import App from './App.vue'${importBlock}
 ${setupBlock}
 const app = createApp(App)
+app.config.errorHandler = e => console.error(e)
 ${pluginBlock}app.mount('#app')
 `
   }

@@ -6,7 +6,7 @@ import { decodePlaygroundHash, encodePlaygroundHash, parseVuetifyPlayTuple } fro
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
 // Data
-import { createMainTs, REPL_BUILTIN_FILES, REPL_TSCONFIG, REPL_TYPESCRIPT_VERSION, UNO_CONFIG_TS } from '@/data/playground-defaults'
+import { createMainTs, REPL_BUILTIN_FILES, REPL_TSCONFIG, REPL_TYPESCRIPT_VERSION, UNO_CONFIG_TS, VUETIFY_TS } from '@/data/playground-defaults'
 import { ADDONS, DEFAULT_APP, PRESETS } from '@/data/presets'
 import { parseRegistryQuery, resolveRegistryExample } from '@/data/registry'
 import { parseVuetifyExampleQuery, resolveVuetifyExample } from '@/data/vuetify-examples'
@@ -194,11 +194,17 @@ export function usePlaygroundFiles () {
     aliasMap.value = nextAliasMap
 
     const theme_ = theme.isDark.value ? 'dark' : 'light'
+    const options = mergedMainOptions()
+    // Ensure bare-specifier imports (vuetify, pinia, …) are on the map before
+    // compile. setFiles calls applyBuiltinImportMap which can drop them, so
+    // callers still rebuildImportMap() after loadExample — and we seed here too.
+    rebuildImportMap()
     await store.setFiles(
       {
-        'src/main.ts': createMainTs(theme_, mergedMainOptions()),
+        'src/main.ts': createMainTs(theme_, options),
         'src/uno.config.ts': UNO_CONFIG_TS,
         'tsconfig.json': REPL_TSCONFIG,
+        ...(options.vuetify ? { 'src/vuetify.ts': VUETIFY_TS } : {}),
         ...files,
         ...aliases,
       },
@@ -282,12 +288,18 @@ export function usePlaygroundFiles () {
     extraImports.value = preset.imports ?? undefined
     aliasMap.value = new Map() // presets use direct paths, no aliases
 
+    // Import map must include bare `vuetify` *before* setFiles compiles main/vuetify.ts.
+    // setFiles re-applies builtins, so rebuild again after to keep preset imports.
+    rebuildImportMap()
+
     const theme_ = theme.isDark.value ? 'dark' : 'light'
+    const options = preset.mainOptions
     await store.setFiles(
       {
-        'src/main.ts': createMainTs(theme_, preset.mainOptions),
+        'src/main.ts': createMainTs(theme_, options),
         'src/uno.config.ts': UNO_CONFIG_TS,
         'tsconfig.json': REPL_TSCONFIG,
+        ...(options?.vuetify ? { 'src/vuetify.ts': VUETIFY_TS } : {}),
         ...preset.files,
       },
       'src/main.ts', // must be main.ts so the sandbox runs it (installs plugins)
@@ -435,6 +447,8 @@ export function usePlaygroundFiles () {
     extraImports.value = preset?.imports ?? undefined
     aliasMap.value = new Map()
 
+    // Map first (bare `vuetify` → labs CDN), then compile main + vuetify.ts + App.
+    rebuildImportMap()
     await loadExample(resolved.files, resolved.active)
     rebuildImportMap()
     filesVersion.value++
