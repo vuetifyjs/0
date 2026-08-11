@@ -215,19 +215,27 @@
     })
   }
 
+  /**
+   * Re-apply pendingScroll after layout paints. Gallery content often arrives
+   * after first mount (registry fetch), so a single assignment is not enough.
+   */
   function restoreScroll () {
     const top = pendingScroll.value
     if (!pane.value || top <= 0) return
-    pane.value.scrollTop = top
-    // Gallery may still be loading skeletons → retry once content height exists.
-    if (pane.value.scrollTop < top - 1 && (examplesLoading.value || (rail.value === 'saved' && savedLoading.value))) {
-      function apply () {
-        if (!pane.value) return
-        pane.value.scrollTop = top
-      }
-      window.setTimeout(apply, 50)
-      window.setTimeout(apply, 200)
+
+    function apply () {
+      if (!pane.value) return
+      pane.value.scrollTop = top
     }
+
+    apply()
+    requestAnimationFrame(() => {
+      apply()
+      requestAnimationFrame(apply)
+    })
+    window.setTimeout(apply, 50)
+    window.setTimeout(apply, 150)
+    window.setTimeout(apply, 400)
   }
 
   function onPaneScroll () {
@@ -255,6 +263,8 @@
         : `Failed to load registry from ${DEFAULT_REGISTRY}`
     } finally {
       examplesLoading.value = false
+      await nextTick()
+      restoreScroll()
     }
   }
 
@@ -281,6 +291,8 @@
       savedError.value = 'Failed to load playgrounds'
     } finally {
       savedLoading.value = false
+      await nextTick()
+      restoreScroll()
     }
   }
 
