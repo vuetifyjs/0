@@ -174,7 +174,7 @@
 
   const searchPlaceholder = computed(() => {
     if (rail.value === 'saved') return 'Search saved…'
-    if (rail.value === 'vuetify') return 'Vuetify 4 Search'
+    if (rail.value === 'vuetify') return 'Filter Vuetify 4…'
     return `Filter ${railLabel.value.toLowerCase()}…`
   })
 
@@ -201,7 +201,7 @@
       if (query.value.trim() && n !== total) {
         return `${n} of ${total} components · ${examples} examples`
       }
-      return `${total} components · ${examples} examples · raw git`
+      return `${total} components · ${examples} examples`
     }
     if (examplesLoading.value) return 'Loading…'
     if (examplesError.value) return 'Could not load registry'
