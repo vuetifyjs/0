@@ -235,6 +235,7 @@ The frame and the page talk over `postMessage`, and the protocol is what keeps a
 
 Two things follow that are easy to get wrong:
 
+- **Not every fixed element is an overlay.** A `position: fixed` element whose whole subtree is `pointer-events: none` is a decoration riding the viewport — a drag-and-drop drop indicator — and `SandboxRoot` ignores it: inline, the frame's viewport is the example box, so it already paints where it belongs, and promoting for it would pin and clip the frame mid-drag (the kanban board visibly jumping out of its box). The subtree check is the boundary — a snackbar portal is itself `pointer-events: none` but holds interactive snackbars, so it still promotes.
 - **Height is reserved, not guessed.** The first settled measurement is remembered per example per viewport bucket in `sessionStorage`, so a second visit opens at the right height. Later measurements are treated as the reader interacting, never as the example's resting height.
 - **Theme is an attribute the frame owns.** The page sends a scheme; the frame writes `data-theme`. A system whose theme ids are not `light`/`dark` passes a name map to `SandboxRoot` (Emerald maps to `emerald` / `emerald-dark`). Never install a theme plugin that also writes `data-theme` in a sandbox entry — two writers fight and the reader's toggle loses.
 

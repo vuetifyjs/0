@@ -96,6 +96,23 @@
     return { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
   }
 
+  // A fixed element that accepts no pointer input anywhere in its subtree is a
+  // decoration riding the viewport — a drop indicator tracking a drag — not an
+  // overlay. Inline, the frame's viewport IS the example box, so it already
+  // paints exactly where it belongs; promoting for it would pin and clip the
+  // frame mid-drag, which reads as the board jumping out of its box. The
+  // subtree check is what keeps a snackbar portal promoting: the portal itself
+  // is `pointer-events: none`, but the snackbars inside it are interactive.
+  function inert (el: HTMLElement): boolean {
+    if (getComputedStyle(el).pointerEvents !== 'none') return false
+
+    for (const node of el.querySelectorAll<HTMLElement>('*')) {
+      if (getComputedStyle(node).pointerEvents !== 'none') return false
+    }
+
+    return true
+  }
+
   // Classification contract — a DOM fact, read fresh on every measurement, so
   // the same layout always classifies the same way whichever observer noticed
   // it. Nothing here consults events or prior state.
@@ -124,6 +141,8 @@
       const position = getComputedStyle(node).position
 
       if (position !== 'fixed' && position !== 'absolute') continue
+
+      if (position === 'fixed' && inert(node)) continue
 
       const rect = node.getBoundingClientRect()
 
