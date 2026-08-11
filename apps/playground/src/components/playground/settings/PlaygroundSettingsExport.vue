@@ -49,8 +49,9 @@
 <template>
   <div class="flex flex-col gap-4">
     <p class="text-sm text-on-surface-variant">
-      Download or copy your playground as a runnable Vite project. The package includes
-      a scaffold (<code>package.json</code>, <code>vite.config.ts</code>,
+      Download a runnable Vite project, or copy the same files for pasting into an
+      agent / LLM chat. Both include a scaffold
+      (<code>package.json</code>, <code>vite.config.ts</code>,
       <code>index.html</code>, <code>src/uno.config.ts</code>, <code>README.md</code>)
       plus your editor files.
     </p>
@@ -71,13 +72,13 @@
         type="button"
         @click="onCopy"
       >
-        {{ busy === 'copy' ? 'Copying…' : done === 'copy' ? 'Copied!' : 'Copy to clipboard' }}
+        {{ busy === 'copy' ? 'Copying…' : done === 'copy' ? 'Copied for agent!' : 'Copy for Agent' }}
       </button>
     </div>
 
     <p class="text-[11px] text-on-surface-variant leading-relaxed">
-      Clipboard format is a multi-file dump (<code>===== path =====</code> headers) —
-      the same contents as the ZIP, ready to paste into a chat or editor.
+      Agent copy is a multi-file text dump (<code>===== path =====</code> headers) —
+      same contents as the ZIP, ready to paste into Claude, ChatGPT, Cursor, etc.
     </p>
   </div>
 </template>

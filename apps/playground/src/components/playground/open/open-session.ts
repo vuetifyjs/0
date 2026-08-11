@@ -13,9 +13,15 @@ const RAILS: OpenRail[] = ['components', 'composables', 'plugins', 'vuetify', 's
 
 export interface OpenSessionState {
   rail: OpenRail
-  /** Main list pane scroll (gallery / examples / saved). */
+  /** Main list pane scroll (gallery / saved only — never examples drill-in). */
   scrollTop: number
   query: string
+  /**
+   * Feature name last opened on a gallery rail (wayfinding after back / reopen).
+   * Scoped by lastFeatureRail so v0 and Vuetify names don't collide.
+   */
+  lastFeature?: string
+  lastFeatureRail?: OpenRail
 }
 
 interface OpenSession extends OpenSessionState {
@@ -39,15 +45,21 @@ export function readOpenSession (): OpenSessionState | null {
     rail: session.rail,
     scrollTop: session.scrollTop,
     query: session.query,
+    lastFeature: session.lastFeature,
+    lastFeatureRail: session.lastFeatureRail,
   }
 }
 
-/** Persist rail / scroll / filter and refresh the TTL. */
+/** Persist rail / scroll / filter / last feature and refresh the TTL. */
 export function writeOpenSession (state: OpenSessionState) {
   session = {
     rail: isRail(state.rail) ? state.rail : 'components',
     scrollTop: Math.max(0, state.scrollTop || 0),
     query: state.query ?? '',
+    lastFeature: state.lastFeature,
+    lastFeatureRail: state.lastFeatureRail && isRail(state.lastFeatureRail)
+      ? state.lastFeatureRail
+      : undefined,
     expiresAt: Date.now() + TTL_MS,
   }
 }

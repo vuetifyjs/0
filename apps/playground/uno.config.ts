@@ -19,6 +19,9 @@ export default defineConfig({
   },
   preflights: [
     {
+      // Inline code chips — same recipe as apps/docs/uno.config.ts
+      // (`renderInlineMarkdown` / API descriptions). Shiki is for fences +
+      // signature chips (`shiki-inline`), not prose backticks.
       getCSS: () => `
         button:not(:disabled),
         [role="button"]:not(:disabled) {
@@ -28,6 +31,14 @@ export default defineConfig({
         *:focus-visible {
           outline: 2px solid var(--v0-primary);
           outline-offset: 2px;
+        }
+
+        :not(pre) > code {
+          background: var(--v0-surface-tint);
+          color: var(--v0-on-surface-variant);
+          padding: 0.125rem 0.375rem;
+          border-radius: 0.25rem;
+          font-size: 0.875em;
         }
 
         @media (prefers-reduced-motion: reduce) {

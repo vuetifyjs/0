@@ -38,7 +38,8 @@ export function useExport () {
 
   /**
    * Copy the full exportable project (same file set as the ZIP, including
-   * README + scaffold) to the clipboard as a multi-file text dump.
+   * README + scaffold) to the clipboard as a multi-file text dump —
+   * intended for pasting into an agent / LLM chat ("Copy for Agent").
    */
   async function copyProject () {
     const exportFiles = collectProjectFiles()

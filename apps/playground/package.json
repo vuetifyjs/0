@@ -15,6 +15,7 @@
     "@vuetify/v0": "workspace:*",
     "client-zip": "catalog:",
     "fflate": "catalog:",
+    "marked": "catalog:",
     "pinia": "catalog:",
     "vue": "catalog:"
   },

@@ -41,6 +41,9 @@
   const rail = shallowRef<OpenRail>(restored?.rail ?? 'components')
   const query = shallowRef(restored?.query ?? '')
   const pendingScroll = shallowRef(restored?.scrollTop ?? 0)
+  /** Gallery wayfinding — name last opened on its rail (2 min session). */
+  const lastFeature = shallowRef(restored?.lastFeature)
+  const lastFeatureRail = shallowRef<OpenRail | undefined>(restored?.lastFeatureRail)
 
   // ── Saved playgrounds (API) ──────────────────────────────────────────
   const saved = ref<VuetifyPlayground[]>([])
@@ -245,12 +248,36 @@
   })
 
   function persistSession () {
+    // Never read pane.scrollTop while drilled into examples — that pane is a
+    // different list and would overwrite the gallery position with ~0.
+    const drilled = Boolean(selected.value || selectedVuetify.value)
     writeOpenSession({
       rail: rail.value,
-      scrollTop: pane.value?.scrollTop ?? pendingScroll.value,
+      scrollTop: drilled
+        ? pendingScroll.value
+        : (pane.value?.scrollTop ?? pendingScroll.value),
       query: query.value,
+      lastFeature: lastFeature.value,
+      lastFeatureRail: lastFeatureRail.value,
     })
   }
+
+  /** Snapshot gallery scroll before content swaps (cancel pending debounce). */
+  function captureGalleryScroll () {
+    window.clearTimeout(scrollTimer)
+    if (selected.value || selectedVuetify.value) return
+    if (pane.value) pendingScroll.value = pane.value.scrollTop
+  }
+
+  function markLastFeature (name: string) {
+    lastFeature.value = name
+    lastFeatureRail.value = rail.value
+  }
+
+  /** Last-opened mark for the active gallery rail only. */
+  const galleryLastFeature = computed(() =>
+    lastFeatureRail.value === rail.value ? lastFeature.value : undefined,
+  )
 
   /**
    * Re-apply pendingScroll after layout paints. Gallery content often arrives
@@ -281,6 +308,9 @@
     if (selected.value || selectedVuetify.value) return
     window.clearTimeout(scrollTimer)
     scrollTimer = window.setTimeout(() => {
+      // Re-check: captureGalleryScroll cancels this timer, but if a scroll
+      // event was already scheduled, never write examples-pane scrollTop (~0).
+      if (selected.value || selectedVuetify.value) return
       pendingScroll.value = pane.value?.scrollTop ?? 0
       persistSession()
     }, 100)
@@ -360,10 +390,13 @@
   }
 
   async function loadFeature (entry: RegistryIndexEntry) {
+    captureGalleryScroll()
+    markLastFeature(entry.name)
     selected.value = entry
     selectedItem.value = undefined
     itemError.value = undefined
     itemLoading.value = true
+    persistSession()
     try {
       selectedItem.value = await getRegistryItem(entry)
     } catch (error) {
@@ -376,9 +409,12 @@
   async function onSelectFeature (entry: RegistryIndexEntry) {
     // Single example → open immediately (card click is deliberate)
     if (entry.examples.length === 1) {
+      captureGalleryScroll()
+      markLastFeature(entry.name)
       selected.value = entry
       itemLoading.value = true
       itemError.value = undefined
+      persistSession()
       try {
         const item = await getRegistryItem(entry)
         selectedItem.value = item
@@ -428,6 +464,9 @@
   }
 
   async function onSelectVuetify (entry: VuetifyComponentEntry) {
+    captureGalleryScroll()
+    markLastFeature(entry.name)
+    persistSession()
     if (entry.examples.length === 1) {
       selectedVuetify.value = entry
       const only = entry.examples[0]
@@ -714,7 +753,9 @@
             <PlaygroundOpenGallery
               v-else-if="rail === 'vuetify'"
               :error="undefined"
+              icon-override="vuetify"
               :items="filteredVuetifyEntries"
+              :last-feature="galleryLastFeature"
               :loading="false"
               :query
               :rail-label
@@ -727,6 +768,7 @@
               v-else
               :error="examplesError"
               :items="filtered"
+              :last-feature="galleryLastFeature"
               :loading="examplesLoading"
               :query
               :rail-label

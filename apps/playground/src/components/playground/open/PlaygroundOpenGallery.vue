@@ -9,6 +9,9 @@
   // Local
   import { blurb, exampleLabel } from './types'
 
+  // Utilities
+  import { renderInlineMarkdown } from '@/utilities/markdown'
+
   // Types
   import type { RegistryIndexEntry } from '@/data/registry'
 
@@ -19,6 +22,8 @@
     query = '',
     railLabel = 'features',
     total = 0,
+    iconOverride,
+    lastFeature,
   } = defineProps<{
     items: RegistryIndexEntry[]
     loading?: boolean
@@ -27,6 +32,10 @@
     railLabel?: string
     /** Unfiltered count for empty-rail vs empty-filter copy. */
     total?: number
+    /** Force every card to this AppIcon token (e.g. `vuetify` for V4 rail). */
+    iconOverride?: string
+    /** Feature name last opened — wayfinding highlight. */
+    lastFeature?: string
   }>()
 
   const emit = defineEmits<{
@@ -35,7 +44,7 @@
   }>()
 
   function featureIcon (entry: RegistryIndexEntry) {
-    return resolveFeatureIcon(entry.name, entry.category)
+    return iconOverride || resolveFeatureIcon(entry.name, entry.category)
   }
 
   function featureAccent (entry: RegistryIndexEntry) {
@@ -45,6 +54,10 @@
   function docsHref (entry: RegistryIndexEntry) {
     const docs = entry.docs?.trim()
     return docs || undefined
+  }
+
+  function isLast (entry: RegistryIndexEntry) {
+    return Boolean(lastFeature && entry.name === lastFeature)
   }
 </script>
 
@@ -98,7 +111,10 @@
     <button
       v-for="entry in items"
       :key="`${entry.type}/${entry.name}`"
-      class="text-left rounded-lg border border-divider bg-surface hover:border-primary/50 hover:bg-surface-tint/40 transition-colors px-3 py-2.5 group"
+      class="text-left rounded-lg border bg-surface hover:border-primary/50 hover:bg-surface-tint/40 transition-colors px-3 py-2.5 group"
+      :class="isLast(entry)
+        ? 'border-primary/70 bg-primary/5 ring-1 ring-primary/25'
+        : 'border-divider'"
       type="button"
       @click="emit('select', entry)"
     >
@@ -115,16 +131,24 @@
         </div>
 
         <div class="min-w-0 flex-1">
-          <div class="text-sm font-medium text-on-surface truncate group-hover:text-primary transition-colors">
-            {{ entry.title || entry.name }}
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="text-sm font-medium text-on-surface truncate group-hover:text-primary transition-colors">
+              {{ entry.title || entry.name }}
+            </div>
+
+            <span
+              v-if="isLast(entry)"
+              class="shrink-0 text-[9px] font-medium uppercase tracking-wide text-primary px-1.5 py-0.5 rounded bg-primary/10"
+            >
+              Last
+            </span>
           </div>
 
           <div
             v-if="entry.description"
             class="text-[11px] text-on-surface-variant mt-0.5 line-clamp-2 leading-snug"
-          >
-            {{ blurb(entry.description) }}
-          </div>
+            v-html="renderInlineMarkdown(blurb(entry.description))"
+          />
 
           <div class="flex items-center justify-between gap-2 mt-1.5 text-[10px] text-on-surface-variant">
             <span class="tabular-nums">{{ exampleLabel(entry.examples.length) }}</span>

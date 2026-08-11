@@ -121,12 +121,12 @@
 
       <AppTooltip
         :aria-busy="copying || undefined"
-        aria-label="Copy project to clipboard"
+        aria-label="Copy for agent"
         class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
         :class="projectCopied || copying ? 'opacity-80' : 'opacity-50'"
         :disabled="copying"
         position-area="bottom"
-        :text="copying ? 'Copying…' : projectCopied ? 'Project copied!' : 'Copy project'"
+        :text="copying ? 'Copying…' : projectCopied ? 'Copied for agent!' : 'Copy for Agent'"
         @click="onCopyProject"
       >
         <AppIcon :icon="projectCopied ? 'check' : 'copy'" />
