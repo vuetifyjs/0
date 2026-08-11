@@ -97,7 +97,7 @@ createApp(App)
 
 Every classic component instantiated directly from a Vapor-compiled template is its own interop crossing, and the plugin's overhead scales with the **number of crossings** — not with what the components do. Compound components multiply crossings: each `Checkbox.Root` and `Checkbox.Indicator` written inline in a Vapor `v-for` crosses separately, so a list of 200 checkboxes is roughly 400 crossings.
 
-Put the Vapor↔vdom boundary **above** the repeated region, never inside it. One classic wrapper component turns N crossings into one:
+Put the Vapor↔vdom boundary **above** the repeated region, never inside it — this is Vue's own interop guidance[^vapor-regions]. One classic wrapper component turns N crossings into one:
 
 ```vue Costly.vue
 <script setup vapor lang="ts">
@@ -136,6 +136,8 @@ Measured on Vue `3.6.0-rc.2` with the repository's gated interop bench (200 comp
 > Inline composition is the natural way to author this, and nothing warns you when the boundary sits inside the loop — the subtree just mounts slower. Audit Vapor templates for v0 components inside `v-for` blocks.
 
 The wrapper is a parity workaround, not a win: everything inside the boundary still renders classic, so it never sees Vapor's cheaper updates. Vapor-native v0 builds are the actual fix; until then, keep regions in one rendering mode.
+
+[^vapor-regions]: Vue's [3.6 release notes](https://github.com/vuejs/core/releases/tag/v3.6.0-rc.1) recommend "having distinct regions in an app where one rendering mode or the other is used, and avoiding mixed nesting as much as possible." The crossing-count math above is why: the recommendation is a performance boundary, not just a compatibility hedge. See the [Vue Vapor mode notes](https://github.com/vuejs/core/releases/tag/v3.6.0-beta.1) for the full interop contract.
 
 ## Current limitations
 
