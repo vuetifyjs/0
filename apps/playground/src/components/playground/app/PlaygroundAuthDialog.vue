@@ -13,10 +13,10 @@
 
   const auth = useAuthStore()
 
-  const providers: { name: string, provider: AuthProvider, bg: string, icon?: string }[] = [
+  const providers: { name: string, provider: AuthProvider, bg: string, icon: string }[] = [
     { name: 'GitHub', provider: 'github', bg: '#24292f', icon: 'github' },
-    { name: 'Discord', provider: 'discord', bg: '#5865F2' },
-    { name: 'Google', provider: 'google', bg: '#4285F4' },
+    { name: 'Discord', provider: 'discord', bg: '#5865F2', icon: 'discord' },
+    { name: 'Google', provider: 'google', bg: '#4285F4', icon: 'google' },
   ]
 </script>
 
@@ -60,7 +60,6 @@
             @click="auth.login(p.provider)"
           >
             <AppIcon
-              v-if="p.icon"
               class="!opacity-100"
               :icon="p.icon"
               :size="18"
