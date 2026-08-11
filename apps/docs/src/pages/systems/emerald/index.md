@@ -113,6 +113,13 @@ Emerald's icon set is addressed by **role**, not by drawing. You ask for `calend
 
 Icons are decorative by default and hidden from assistive technology; passing `label` is what promotes one to a labelled image. The full role list, the alias table, and the accessibility contract are on the [EmIcon page](/systems/emerald/icon).
 
+## Live demo
+
+The canonical Emerald showcase — a full dashboard application exercising every component family, including the calendar, kanban board, and data table pages — ships with this site at [/demo/emerald/](/demo/emerald/){target="_blank"}. It is the same app the Emerald team develops against, built and deployed alongside these docs.
+
+> [!NOTE]
+> The demo is part of the production build only — it is not served by the docs dev server.
+
 ## Components
 
 This is the full component inventory — every family below is exported from `@paper/emerald` today. Six have documented pages so far; the rest are being written, and the two conventions after the table remove most of the guesswork in the meantime.
