@@ -122,39 +122,39 @@ The canonical Emerald showcase — a full dashboard application exercising every
 
 ## Components
 
-This is the full component inventory — every family below is exported from `@paper/emerald` today. Six have documented pages so far; the rest are being written, and the two conventions after the table remove most of the guesswork in the meantime.
+This is the full component inventory — every family below is exported from `@paper/emerald` today, and every one has a documented page. The two conventions after the table hold across all of them.
 
 | Component | What it wraps | Page |
 |-----------|---------------|------|
-| `EmAlert` | v0 `Atom` | In progress |
-| `EmAvatar` | v0 `Avatar` | In progress |
-| `EmBadge` | v0 `Atom` | In progress |
-| `EmBreadcrumbs` | v0 `Breadcrumbs` | In progress |
+| `EmAlert` | v0 `Atom` | [Alert](/systems/emerald/alert) |
+| `EmAvatar` | v0 `Avatar` | [Avatar](/systems/emerald/avatar) |
+| `EmBadge` | v0 `Atom` | [Badge](/systems/emerald/badge) |
+| `EmBreadcrumbs` | v0 `Breadcrumbs` | [Breadcrumbs](/systems/emerald/breadcrumbs) |
 | `EmButton` | v0 `Button` | [Button](/systems/emerald/button) |
 | `EmCalendar` | an incubating v0 calendar core | [Calendar](/systems/emerald/calendar) |
-| `EmCard` | v0 `Atom` | In progress |
-| `EmCheckbox` | v0 `Checkbox` | In progress |
+| `EmCard` | v0 `Atom` | [Card](/systems/emerald/card) |
+| `EmCheckbox` | v0 `Checkbox` | [Checkbox](/systems/emerald/checkbox) |
 | `EmDialog` | v0 `Dialog` | [Dialog](/systems/emerald/dialog) |
-| `EmDivider` | v0 `Atom` | In progress |
-| `EmExpansionPanel` | v0 `ExpansionPanel` | In progress |
+| `EmDivider` | v0 `Atom` | [Divider](/systems/emerald/divider) |
+| `EmExpansionPanel` | v0 `ExpansionPanel` | [ExpansionPanel](/systems/emerald/expansion-panel) |
 | `EmIcon` | v0 `createTokens` | [Icon](/systems/emerald/icon) |
-| `EmKanban` | v0 `createKanban` + `useDragDrop` | In progress |
-| `EmList` | v0 `Single` | In progress |
-| `EmPagination` | v0 `Pagination` | In progress |
-| `EmPopover` | v0 `Popover` | In progress |
-| `EmProgress` | v0 `Progress` | In progress |
-| `EmRadio` | v0 `Radio` | In progress |
+| `EmKanban` | v0 `createKanban` + `useDragDrop` | [Kanban](/systems/emerald/kanban) |
+| `EmList` | v0 `Single` | [List](/systems/emerald/list) |
+| `EmPagination` | v0 `Pagination` | [Pagination](/systems/emerald/pagination) |
+| `EmPopover` | v0 `Popover` | [Popover](/systems/emerald/popover) |
+| `EmProgress` | v0 `Progress` | [Progress](/systems/emerald/progress) |
+| `EmRadio` | v0 `Radio` | [Radio](/systems/emerald/radio) |
 | `EmSelect` | v0 `Select` | [Select](/systems/emerald/select) |
-| `EmSlider` | v0 `Slider` | In progress |
-| `EmSnackbar` | v0 `Snackbar` | In progress |
-| `EmSpinner` | v0 `Atom` | In progress |
-| `EmStep` | v0 `Step` | In progress |
-| `EmSwitch` | v0 `Switch` | In progress |
-| `EmTabs` | v0 `Tabs` | In progress |
-| `EmTag` | v0 `Atom` | In progress |
+| `EmSlider` | v0 `Slider` | [Slider](/systems/emerald/slider) |
+| `EmSnackbar` | v0 `Snackbar` | [Snackbar](/systems/emerald/snackbar) |
+| `EmSpinner` | v0 `Atom` | [Spinner](/systems/emerald/spinner) |
+| `EmStep` | v0 `Step` | [Step](/systems/emerald/step) |
+| `EmSwitch` | v0 `Switch` | [Switch](/systems/emerald/switch) |
+| `EmTabs` | v0 `Tabs` | [Tabs](/systems/emerald/tabs) |
+| `EmTag` | v0 `Atom` | [Tag](/systems/emerald/tag) |
 | `EmTextField` | v0 `Input` | [TextField](/systems/emerald/text-field) |
-| `EmTextarea` | v0 `Input` | In progress |
-| `EmTooltip` | v0 `Tooltip` | In progress |
+| `EmTextarea` | v0 `Input` | [Textarea](/systems/emerald/textarea) |
+| `EmTooltip` | v0 `Tooltip` | [Tooltip](/systems/emerald/tooltip) |
 
 Two conventions hold across all of them, and knowing them removes most of the guesswork about an undocumented component:
 

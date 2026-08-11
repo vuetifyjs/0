@@ -1158,6 +1158,34 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/emerald/alert': RouteRecordInfo<
+      '/systems/emerald/alert',
+      '/systems/emerald/alert',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/avatar': RouteRecordInfo<
+      '/systems/emerald/avatar',
+      '/systems/emerald/avatar',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/badge': RouteRecordInfo<
+      '/systems/emerald/badge',
+      '/systems/emerald/badge',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/breadcrumbs': RouteRecordInfo<
+      '/systems/emerald/breadcrumbs',
+      '/systems/emerald/breadcrumbs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/systems/emerald/button': RouteRecordInfo<
       '/systems/emerald/button',
       '/systems/emerald/button',
@@ -1172,9 +1200,37 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/emerald/card': RouteRecordInfo<
+      '/systems/emerald/card',
+      '/systems/emerald/card',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/checkbox': RouteRecordInfo<
+      '/systems/emerald/checkbox',
+      '/systems/emerald/checkbox',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/systems/emerald/dialog': RouteRecordInfo<
       '/systems/emerald/dialog',
       '/systems/emerald/dialog',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/divider': RouteRecordInfo<
+      '/systems/emerald/divider',
+      '/systems/emerald/divider',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/expansion-panel': RouteRecordInfo<
+      '/systems/emerald/expansion-panel',
+      '/systems/emerald/expansion-panel',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1186,6 +1242,48 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/emerald/kanban': RouteRecordInfo<
+      '/systems/emerald/kanban',
+      '/systems/emerald/kanban',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/list': RouteRecordInfo<
+      '/systems/emerald/list',
+      '/systems/emerald/list',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/pagination': RouteRecordInfo<
+      '/systems/emerald/pagination',
+      '/systems/emerald/pagination',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/popover': RouteRecordInfo<
+      '/systems/emerald/popover',
+      '/systems/emerald/popover',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/progress': RouteRecordInfo<
+      '/systems/emerald/progress',
+      '/systems/emerald/progress',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/radio': RouteRecordInfo<
+      '/systems/emerald/radio',
+      '/systems/emerald/radio',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/systems/emerald/select': RouteRecordInfo<
       '/systems/emerald/select',
       '/systems/emerald/select',
@@ -1193,9 +1291,72 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/emerald/slider': RouteRecordInfo<
+      '/systems/emerald/slider',
+      '/systems/emerald/slider',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/snackbar': RouteRecordInfo<
+      '/systems/emerald/snackbar',
+      '/systems/emerald/snackbar',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/spinner': RouteRecordInfo<
+      '/systems/emerald/spinner',
+      '/systems/emerald/spinner',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/step': RouteRecordInfo<
+      '/systems/emerald/step',
+      '/systems/emerald/step',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/switch': RouteRecordInfo<
+      '/systems/emerald/switch',
+      '/systems/emerald/switch',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/tabs': RouteRecordInfo<
+      '/systems/emerald/tabs',
+      '/systems/emerald/tabs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/tag': RouteRecordInfo<
+      '/systems/emerald/tag',
+      '/systems/emerald/tag',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/systems/emerald/text-field': RouteRecordInfo<
       '/systems/emerald/text-field',
       '/systems/emerald/text-field',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/textarea': RouteRecordInfo<
+      '/systems/emerald/textarea',
+      '/systems/emerald/textarea',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/tooltip': RouteRecordInfo<
+      '/systems/emerald/tooltip',
+      '/systems/emerald/tooltip',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -2501,6 +2662,38 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/systems/emerald/alert.md': {
+      routes:
+        | '/systems/emerald/alert'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/avatar.md': {
+      routes:
+        | '/systems/emerald/avatar'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/badge.md': {
+      routes:
+        | '/systems/emerald/badge'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/breadcrumbs.md': {
+      routes:
+        | '/systems/emerald/breadcrumbs'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/systems/emerald/button.md': {
       routes:
         | '/systems/emerald/button'
@@ -2517,9 +2710,41 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/systems/emerald/card.md': {
+      routes:
+        | '/systems/emerald/card'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/checkbox.md': {
+      routes:
+        | '/systems/emerald/checkbox'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/systems/emerald/dialog.md': {
       routes:
         | '/systems/emerald/dialog'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/divider.md': {
+      routes:
+        | '/systems/emerald/divider'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/expansion-panel.md': {
+      routes:
+        | '/systems/emerald/expansion-panel'
       views:
         | never
       pathParamNames:
@@ -2533,6 +2758,54 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/systems/emerald/kanban.md': {
+      routes:
+        | '/systems/emerald/kanban'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/list.md': {
+      routes:
+        | '/systems/emerald/list'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/pagination.md': {
+      routes:
+        | '/systems/emerald/pagination'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/popover.md': {
+      routes:
+        | '/systems/emerald/popover'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/progress.md': {
+      routes:
+        | '/systems/emerald/progress'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/radio.md': {
+      routes:
+        | '/systems/emerald/radio'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/systems/emerald/select.md': {
       routes:
         | '/systems/emerald/select'
@@ -2541,9 +2814,81 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/systems/emerald/slider.md': {
+      routes:
+        | '/systems/emerald/slider'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/snackbar.md': {
+      routes:
+        | '/systems/emerald/snackbar'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/spinner.md': {
+      routes:
+        | '/systems/emerald/spinner'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/step.md': {
+      routes:
+        | '/systems/emerald/step'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/switch.md': {
+      routes:
+        | '/systems/emerald/switch'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/tabs.md': {
+      routes:
+        | '/systems/emerald/tabs'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/tag.md': {
+      routes:
+        | '/systems/emerald/tag'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/systems/emerald/text-field.md': {
       routes:
         | '/systems/emerald/text-field'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/textarea.md': {
+      routes:
+        | '/systems/emerald/textarea'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/tooltip.md': {
+      routes:
+        | '/systems/emerald/tooltip'
       views:
         | never
       pathParamNames:
