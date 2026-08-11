@@ -216,6 +216,7 @@ Consequences for authoring:
 - **No UnoCSS.** The frame deliberately loads none, so utility classes do nothing there. Style with the system's own classes and tokens; keep any example-local CSS to structural layout.
 - **Import from the design system**, not `@vuetify/v0` — `@paper/emerald`, `@paper/bulma`. Reach for v0 only for utilities a system does not re-export.
 - **Add the sandbox document as a build input.** Vite's default input is the root `index.html` alone; `apps/docs/vite.config.ts` reads `sandbox/*.html` from disk so a new frame needs no config edit, but a frame added outside that directory will be served in dev and missing from `dist`.
+- **The frame document must supply the host reset the system assumes.** A design system styles components, not the page — every real host provides `box-sizing: border-box` (UnoCSS preflight) and a zeroed body margin, and the sandbox loads neither. Without the reset, any `width: 100%` component with padding or borders overflows the frame horizontally. Inline both in the sandbox HTML's critical style (see `sandbox/emerald.html`); Bulma brings its own reset, so `bulma.html` doesn't need it — a new system should assume it does.
 
 #### The sandbox contract
 

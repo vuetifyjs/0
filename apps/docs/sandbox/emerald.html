@@ -70,6 +70,16 @@
       UnoCSS preflight, no docs theme tokens.
     -->
     <style>
+      /* Every real Emerald host provides border-box sizing (UnoCSS preflight
+         in the dev app and docs shell); the sandbox loads no UnoCSS, and
+         Emerald ships no page reset, so width:100% components with padding
+         or borders overflow the frame without this. */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
       /* Emerald styles components, not the page, so the UA's own body margin
          would otherwise sit under the sandbox padding and inflate every height
          this frame reports back. */
