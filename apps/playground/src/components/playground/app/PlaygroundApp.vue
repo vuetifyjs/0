@@ -9,6 +9,7 @@
   import { nextTick, onMounted, shallowRef, watch } from 'vue'
 
   // Types
+  import type { ActiveExample } from '@/composables/usePlaygroundFiles'
   import type { RegistryExampleRef } from '@/data/registry'
   import type { VuetifyExampleRef } from '@/data/vuetify-examples'
   import type { ReplStore } from '@vue/repl'
@@ -37,6 +38,8 @@
     openPlayground: (content: string) => Promise<void>
     openRegistryExample: (ref: RegistryExampleRef, options?: { clearSearch?: boolean }) => Promise<void>
     openVuetifyExample: (ref: VuetifyExampleRef, options?: { clearSearch?: boolean }) => Promise<void>
+    /** Last Open-gallery example loaded into the editor (for highlight). */
+    activeExample: ShallowRef<ActiveExample | undefined>
     showConfig: ShallowRef<boolean>
   }
 
@@ -62,6 +65,7 @@
     openPlayground,
     openRegistryExample,
     openVuetifyExample,
+    activeExample,
   } = usePlaygroundFiles()
   const storage = useStorage()
   const { isMobile } = useBreakpoints()
@@ -117,6 +121,7 @@
     openPlayground,
     openRegistryExample,
     openVuetifyExample,
+    activeExample,
     showConfig,
   })
 

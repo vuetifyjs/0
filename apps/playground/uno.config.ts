@@ -19,9 +19,7 @@ export default defineConfig({
   },
   preflights: [
     {
-      // Inline code chips — same recipe as apps/docs/uno.config.ts
-      // (`renderInlineMarkdown` / API descriptions). Shiki is for fences +
-      // signature chips (`shiki-inline`), not prose backticks.
+      // Inline <code> chips (settings copy, export help). Shiki is for fences.
       getCSS: () => `
         button:not(:disabled),
         [role="button"]:not(:disabled) {

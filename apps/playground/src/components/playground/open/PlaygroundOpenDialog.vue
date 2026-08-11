@@ -20,8 +20,10 @@
   // Local
   import { readOpenSession, touchOpenSession, writeOpenSession } from './open-session'
   import {
-    bucketOf,
     exampleLabel,
+    featureBucket,
+    normalizeOpenRail,
+    type OpenKind,
     type OpenRail,
     type OpenRailItem,
     type VuetifyPlayground,
@@ -38,12 +40,19 @@
 
   const playground = usePlayground()
   const restored = readOpenSession()
-  const rail = shallowRef<OpenRail>(restored?.rail ?? 'components')
+  const rail = shallowRef<OpenRail>(normalizeOpenRail(restored?.rail))
   const query = shallowRef(restored?.query ?? '')
+  /** Vuetify0 kind chip — Components / Composables / Plugins (or all). */
+  const kind = shallowRef<OpenKind | 'all'>(restored?.kind ?? 'all')
   const pendingScroll = shallowRef(restored?.scrollTop ?? 0)
+  const pendingExamplesScroll = shallowRef(restored?.examplesScrollTop ?? 0)
   /** Gallery wayfinding — name last opened on its rail (2 min session). */
   const lastFeature = shallowRef(restored?.lastFeature)
-  const lastFeatureRail = shallowRef<OpenRail | undefined>(restored?.lastFeatureRail)
+  const lastFeatureRail = shallowRef<OpenRail | undefined>(
+    restored?.lastFeatureRail ? normalizeOpenRail(restored.lastFeatureRail) : undefined,
+  )
+  /** Restore examples drill-in after close → reopen (same 2 min window). */
+  const pendingSelectedName = shallowRef(restored?.selectedName)
 
   // ── Saved playgrounds (API) ──────────────────────────────────────────
   const saved = ref<VuetifyPlayground[]>([])
@@ -74,33 +83,38 @@
   const itemError = shallowRef<string>()
 
   const rails: OpenRailItem[] = [
-    { id: 'components', label: 'Components' },
-    { id: 'composables', label: 'Composables' },
-    { id: 'plugins', label: 'Plugins' },
+    { id: 'v0', label: 'Vuetify0' },
+    { id: 'vuetify', label: 'Vuetify 4' },
+    { id: 'saved', label: 'Vuetify One' },
   ]
 
-  const counts = computed(() => {
+  const railLabel = computed(() =>
+    rails.find(r => r.id === rail.value)?.label ?? 'Examples',
+  )
+
+  const kindCounts = computed(() => {
     const next = { components: 0, composables: 0, plugins: 0 }
     for (const item of items.value) {
-      next[bucketOf(item)]++
+      next[featureBucket(item)]++
     }
     return next
   })
 
-  const railLabel = computed(() => {
-    if (rail.value === 'saved') return 'Saved'
-    if (rail.value === 'vuetify') return 'Vuetify 4'
-    return rails.find(r => r.id === rail.value)?.label ?? 'Examples'
-  })
+  const kindChips = computed(() => [
+    { id: 'all' as const, label: 'All', count: items.value.length },
+    { id: 'components' as const, label: 'Components', count: kindCounts.value.components },
+    { id: 'composables' as const, label: 'Composables', count: kindCounts.value.composables },
+    { id: 'plugins' as const, label: 'Plugins', count: kindCounts.value.plugins },
+  ].filter(chip => chip.id === 'all' || chip.count > 0))
 
-  const railItems = computed(() => {
-    if (rail.value === 'saved' || rail.value === 'vuetify') return []
-    return items.value.filter(item => bucketOf(item) === rail.value)
+  const kindItems = computed(() => {
+    if (kind.value === 'all') return items.value
+    return items.value.filter(item => featureBucket(item) === kind.value)
   })
 
   // Flatten searchable text so createFilter can match example ids without a custom fn.
   const filterableV0 = computed(() =>
-    railItems.value.map(item => ({
+    kindItems.value.map(item => ({
       ...item,
       exampleSearch: item.examples.join(' '),
     })),
@@ -178,9 +192,9 @@
   })
 
   const searchPlaceholder = computed(() => {
-    if (rail.value === 'saved') return 'Search saved…'
+    if (rail.value === 'saved') return 'Filter Vuetify One…'
     if (rail.value === 'vuetify') return 'Filter Vuetify 4…'
-    return `Filter ${railLabel.value.toLowerCase()}…`
+    return 'Filter Vuetify0…'
   })
 
   const showSearch = computed(() => {
@@ -189,8 +203,17 @@
       return !savedLoading.value && !savedError.value && saved.value.length > 0
     }
     if (rail.value === 'vuetify') return vuetifyItems.length > 0
-    return !examplesLoading.value && !examplesError.value && railItems.value.length > 0
+    return !examplesLoading.value && !examplesError.value && items.value.length > 0
   })
+
+  const showKindChips = computed(() =>
+    rail.value === 'v0'
+    && !selected.value
+    && !selectedVuetify.value
+    && !examplesLoading.value
+    && !examplesError.value
+    && items.value.length > 0,
+  )
 
   const subtitle = computed(() => {
     if (rail.value === 'saved') {
@@ -211,11 +234,17 @@
     if (examplesLoading.value) return 'Loading…'
     if (examplesError.value) return 'Could not load registry'
     const n = filtered.value.length
-    const total = railItems.value.length
-    if (query.value.trim() && n !== total) {
-      return `${n} of ${total} with examples`
+    const pool = kindItems.value.length
+    const total = items.value.length
+    const examples = filtered.value.reduce((sum, item) => sum + item.examples.length, 0)
+    const narrowed = kind.value !== 'all' || Boolean(query.value.trim())
+    if (narrowed && n !== total) {
+      return `${n} of ${total} features · ${examples} examples`
     }
-    return n === 1 ? '1 feature with examples' : `${n} features with examples`
+    if (kind.value !== 'all' && n === pool) {
+      return `${pool} features · ${examples} examples`
+    }
+    return `${total} features · ${examples} examples`
   })
 
   const selectedIcon = computed(() => {
@@ -230,13 +259,52 @@
     return resolveFeatureAccent(selected.value.type, selected.value.category)
   })
 
+  /**
+   * Example id to highlight as currently loaded in the editor, when the
+   * drilled-in feature matches `activeExample`.
+   */
+  const activeExampleId = computed(() => {
+    const active = playground.activeExample.value
+    if (!active) return undefined
+
+    if (active.source === 'v0' && selected.value) {
+      if (active.item === selected.value.name && active.type === selected.value.type) {
+        return active.example
+      }
+      // Registry deep-links sometimes omit type; name match is enough.
+      if (active.item === selected.value.name) return active.example
+      return undefined
+    }
+
+    if (active.source === 'vuetify' && selectedVuetify.value) {
+      const hit = selectedVuetify.value.examples.find(
+        e => e.id === active.id
+          || e.path === active.path
+          || e.path.endsWith(`/${active.id}.vue`)
+          || e.path.endsWith(`/${active.id}`),
+      )
+      return hit?.id ?? (selectedVuetify.value.name === active.path.split('/')[0] ? active.id : undefined)
+    }
+
+    return undefined
+  })
+
   onMounted(async () => {
     // Warm saved list when restoring that rail so the pane isn't empty flash.
     if (rail.value === 'saved') await loadSaved()
     await loadExamples()
-    await nextTick()
-    restoreScroll()
-    input.value?.focus()
+    // Re-enter the examples pane if the user closed while drilled in.
+    if (pendingSelectedName.value && rail.value !== 'saved') {
+      const ok = await restoreDrillIn(pendingSelectedName.value)
+      pendingSelectedName.value = undefined
+      await nextTick()
+      if (ok) restoreExamplesScroll()
+      else restoreScroll()
+    } else {
+      await nextTick()
+      restoreScroll()
+    }
+    if (!selected.value && !selectedVuetify.value) input.value?.focus()
     // Keep the 2-minute window alive while the dialog stays open.
     touchTimer = window.setInterval(() => touchOpenSession(), 30_000)
   })
@@ -248,17 +316,24 @@
   })
 
   function persistSession () {
-    // Never read pane.scrollTop while drilled into examples — that pane is a
-    // different list and would overwrite the gallery position with ~0.
+    // Gallery scroll and examples scroll are separate: the shared pane element
+    // switches content, so never write one over the other.
     const drilled = Boolean(selected.value || selectedVuetify.value)
+    if (drilled && pane.value) {
+      pendingExamplesScroll.value = pane.value.scrollTop
+    } else if (!drilled && pane.value) {
+      pendingScroll.value = pane.value.scrollTop
+    }
+
     writeOpenSession({
       rail: rail.value,
-      scrollTop: drilled
-        ? pendingScroll.value
-        : (pane.value?.scrollTop ?? pendingScroll.value),
+      scrollTop: pendingScroll.value,
+      examplesScrollTop: drilled ? pendingExamplesScroll.value : 0,
       query: query.value,
+      kind: kind.value,
       lastFeature: lastFeature.value,
       lastFeatureRail: lastFeatureRail.value,
+      selectedName: selected.value?.name ?? selectedVuetify.value?.name,
     })
   }
 
@@ -280,11 +355,11 @@
   )
 
   /**
-   * Re-apply pendingScroll after layout paints. Gallery content often arrives
-   * after first mount (registry fetch), so a single assignment is not enough.
+   * Re-apply a scroll position after layout paints. Gallery content often
+   * arrives after first mount (registry fetch), so a single assignment is not
+   * enough.
    */
-  function restoreScroll () {
-    const top = pendingScroll.value
+  function restoreScrollTo (top: number) {
     if (!pane.value || top <= 0) return
 
     function apply () {
@@ -302,18 +377,59 @@
     window.setTimeout(apply, 400)
   }
 
+  function restoreScroll () {
+    restoreScrollTo(pendingScroll.value)
+  }
+
+  function restoreExamplesScroll () {
+    restoreScrollTo(pendingExamplesScroll.value)
+  }
+
   function onPaneScroll () {
-    // Only remember gallery/list scroll — drill-in example lists use the same
-    // pane and shouldn't overwrite the tab's list position.
-    if (selected.value || selectedVuetify.value) return
     window.clearTimeout(scrollTimer)
     scrollTimer = window.setTimeout(() => {
-      // Re-check: captureGalleryScroll cancels this timer, but if a scroll
-      // event was already scheduled, never write examples-pane scrollTop (~0).
-      if (selected.value || selectedVuetify.value) return
-      pendingScroll.value = pane.value?.scrollTop ?? 0
+      if (!pane.value) return
+      if (selected.value || selectedVuetify.value) {
+        pendingExamplesScroll.value = pane.value.scrollTop
+      } else {
+        pendingScroll.value = pane.value.scrollTop
+      }
       persistSession()
     }, 100)
+  }
+
+  /**
+   * Re-open the examples pane for a feature name (session restore).
+   * @returns false if the feature is gone — caller should restore gallery scroll.
+   */
+  async function restoreDrillIn (name: string): Promise<boolean> {
+    if (rail.value === 'vuetify') {
+      const hit = vuetifyItems.find(c => c.name === name)
+      if (!hit) return false
+      markLastFeature(hit.name)
+      selectedVuetify.value = hit
+      selected.value = undefined
+      selectedItem.value = undefined
+      itemError.value = undefined
+      return true
+    }
+
+    const entry = items.value.find(i => i.name === name)
+    if (!entry) return false
+    // Skip gallery capture — pendingScroll already holds the list position.
+    markLastFeature(entry.name)
+    selected.value = entry
+    selectedItem.value = undefined
+    itemError.value = undefined
+    itemLoading.value = true
+    try {
+      selectedItem.value = await getRegistryItem(entry)
+    } catch (error) {
+      itemError.value = error instanceof Error ? error.message : String(error)
+    } finally {
+      itemLoading.value = false
+    }
+    return true
   }
 
   async function loadExamples () {
@@ -331,7 +447,10 @@
     } finally {
       examplesLoading.value = false
       await nextTick()
-      restoreScroll()
+      // Don't clobber the examples list when already drilled in (or about to restore).
+      if (!selected.value && !selectedVuetify.value && !pendingSelectedName.value) {
+        restoreScroll()
+      }
     }
   }
 
@@ -371,18 +490,35 @@
     selectedVuetify.value = undefined
     itemError.value = undefined
     query.value = ''
+    kind.value = 'all'
     pendingScroll.value = 0
+    pendingExamplesScroll.value = 0
     if (pane.value) pane.value.scrollTop = 0
     persistSession()
     if (next === 'saved') await loadSaved()
     nextTick(() => input.value?.focus())
   }
 
+  function onKind (next: OpenKind | 'all') {
+    if (kind.value === next) {
+      // Second click on an active kind chip clears back to All
+      if (next !== 'all') kind.value = 'all'
+      return
+    }
+    kind.value = next
+    pendingScroll.value = 0
+    if (pane.value) pane.value.scrollTop = 0
+    persistSession()
+  }
+
   function onBack () {
+    // Capture examples scroll before unmounting the list (optional for next drill).
+    if (pane.value) pendingExamplesScroll.value = pane.value.scrollTop
     selected.value = undefined
     selectedItem.value = undefined
     selectedVuetify.value = undefined
     itemError.value = undefined
+    persistSession()
     nextTick(() => {
       restoreScroll()
       input.value?.focus()
@@ -393,9 +529,11 @@
     captureGalleryScroll()
     markLastFeature(entry.name)
     selected.value = entry
+    selectedVuetify.value = undefined
     selectedItem.value = undefined
     itemError.value = undefined
     itemLoading.value = true
+    pendingExamplesScroll.value = 0
     persistSession()
     try {
       selectedItem.value = await getRegistryItem(entry)
@@ -466,17 +604,16 @@
   async function onSelectVuetify (entry: VuetifyComponentEntry) {
     captureGalleryScroll()
     markLastFeature(entry.name)
-    persistSession()
-    if (entry.examples.length === 1) {
-      selectedVuetify.value = entry
-      const only = entry.examples[0]
-      if (only) await openVuetifyMeta(only)
-      return
-    }
+    pendingExamplesScroll.value = 0
     selectedVuetify.value = entry
     selected.value = undefined
     selectedItem.value = undefined
     itemError.value = undefined
+    persistSession()
+    if (entry.examples.length === 1) {
+      const only = entry.examples[0]
+      if (only) await openVuetifyMeta(only)
+    }
   }
 
   async function openVuetifyMeta (meta: VuetifyExampleMeta) {
@@ -520,6 +657,24 @@
     void onSelectFeature(entry)
   }
 
+  function railActiveClass (id: OpenRail) {
+    const active = rail.value === id
+    const drilled = Boolean(selected.value || selectedVuetify.value)
+    if (active && !drilled) return 'bg-surface-tint text-on-surface font-medium'
+    if (active && drilled) return 'bg-surface-tint/60 text-on-surface font-medium'
+    return 'text-on-surface-variant hover:bg-surface-tint/60 hover:text-on-surface'
+  }
+
+  function railCount (id: OpenRail): number | undefined {
+    if (id === 'v0') {
+      if (examplesLoading.value || examplesError.value) return undefined
+      return items.value.length
+    }
+    if (id === 'vuetify') return vuetifyItems.length
+    if (id === 'saved' && savedLoaded.value) return saved.value.length
+    return undefined
+  }
+
   async function openSaved (item: VuetifyPlayground) {
     let content = item.content
     if (!content) {
@@ -554,66 +709,30 @@
         class="relative bg-surface border border-divider rounded-lg shadow-xl w-[900px] max-w-[calc(100vw-2rem)] h-[640px] max-h-[calc(100vh-2rem)] flex overflow-hidden"
         role="dialog"
       >
-        <!-- Left rail -->
+        <!-- Left rail: product stacks (same search model) + Vuetify One -->
         <nav class="w-36 shrink-0 border-r border-divider flex flex-col gap-1 py-2 bg-surface">
-          <button
-            v-for="item in rails"
-            :key="item.id"
-            class="mx-1.5 flex items-center justify-between gap-2 px-2.5 py-2 text-xs text-left rounded-md transition-colors"
-            :class="rail === item.id && !selected && !selectedVuetify
-              ? 'bg-surface-tint text-on-surface font-medium'
-              : rail === item.id && (selected || selectedVuetify)
-                ? 'bg-surface-tint/60 text-on-surface font-medium'
-                : 'text-on-surface-variant hover:bg-surface-tint/60 hover:text-on-surface'"
-            type="button"
-            @click="onRail(item.id)"
-          >
-            <span class="truncate">{{ item.label }}</span>
+          <template v-for="item in rails" :key="item.id">
+            <div
+              v-if="item.id === 'saved'"
+              class="mx-3 my-2 border-t border-divider"
+            />
 
-            <span
-              v-if="!examplesLoading && !examplesError"
-              class="tabular-nums text-[10px] text-on-surface-variant shrink-0"
+            <button
+              class="mx-1.5 flex items-center justify-between gap-2 px-2.5 py-2 text-xs text-left rounded-md transition-colors"
+              :class="railActiveClass(item.id)"
+              type="button"
+              @click="onRail(item.id)"
             >
-              {{ counts[item.id] }}
-            </span>
-          </button>
+              <span class="truncate">{{ item.label }}</span>
 
-          <div class="mx-3 my-2 border-t border-divider" />
-
-          <button
-            class="mx-1.5 flex items-center justify-between gap-2 px-2.5 py-2 text-xs text-left rounded-md transition-colors"
-            :class="rail === 'vuetify' && !selectedVuetify
-              ? 'bg-surface-tint text-on-surface font-medium'
-              : rail === 'vuetify' && selectedVuetify
-                ? 'bg-surface-tint/60 text-on-surface font-medium'
-                : 'text-on-surface-variant hover:bg-surface-tint/60 hover:text-on-surface'"
-            type="button"
-            @click="onRail('vuetify')"
-          >
-            <span class="truncate">Vuetify 4</span>
-
-            <span class="tabular-nums text-[10px] text-on-surface-variant shrink-0">
-              {{ vuetifyItems.length }}
-            </span>
-          </button>
-
-          <button
-            class="mx-1.5 flex items-center justify-between gap-2 px-2.5 py-2 text-xs text-left rounded-md transition-colors"
-            :class="rail === 'saved'
-              ? 'bg-surface-tint text-on-surface font-medium'
-              : 'text-on-surface-variant hover:bg-surface-tint/60 hover:text-on-surface'"
-            type="button"
-            @click="onRail('saved')"
-          >
-            <span>Saved</span>
-
-            <span
-              v-if="savedLoaded"
-              class="tabular-nums text-[10px] text-on-surface-variant shrink-0"
-            >
-              {{ saved.length }}
-            </span>
-          </button>
+              <span
+                v-if="railCount(item.id) !== undefined"
+                class="tabular-nums text-[10px] text-on-surface-variant shrink-0"
+              >
+                {{ railCount(item.id) }}
+              </span>
+            </button>
+          </template>
         </nav>
 
         <!-- Main pane -->
@@ -692,10 +811,13 @@
           </div>
 
           <div
-            v-if="showSearch"
-            class="px-4 py-2.5 border-b border-divider shrink-0"
+            v-if="showSearch || showKindChips"
+            class="px-4 py-2.5 border-b border-divider shrink-0 flex flex-col gap-2"
           >
-            <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-md border border-divider bg-surface-tint/40 focus-within:border-primary/50 transition-colors">
+            <div
+              v-if="showSearch"
+              class="flex items-center gap-2 px-2.5 py-1.5 rounded-md border border-divider bg-surface-tint/40 focus-within:border-primary/50 transition-colors"
+            >
               <AppIcon class="shrink-0 text-on-surface-variant" icon="search" :size="16" />
 
               <input
@@ -713,6 +835,28 @@
                 @click="onClearQuery"
               />
             </div>
+
+            <div
+              v-if="showKindChips"
+              aria-label="Filter by kind"
+              class="flex flex-wrap gap-1.5"
+              role="group"
+            >
+              <button
+                v-for="chip in kindChips"
+                :key="chip.id"
+                :aria-pressed="kind === chip.id"
+                class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[11px] transition-colors border"
+                :class="kind === chip.id
+                  ? 'border-primary bg-primary/10 text-primary font-medium'
+                  : 'border-divider text-on-surface-variant hover:border-primary/40 hover:text-on-surface'"
+                type="button"
+                @click="onKind(chip.id)"
+              >
+                <span>{{ chip.label }}</span>
+                <span class="tabular-nums opacity-70">{{ chip.count }}</span>
+              </button>
+            </div>
           </div>
 
           <div
@@ -722,6 +866,7 @@
           >
             <PlaygroundOpenExamples
               v-if="selectedVuetify"
+              :active-id="activeExampleId"
               :error="itemError"
               :item="selectedVuetifyAsItem"
               :loading="false"
@@ -732,6 +877,7 @@
 
             <PlaygroundOpenExamples
               v-else-if="selected"
+              :active-id="activeExampleId"
               :error="itemError"
               :item="selectedItem"
               :loading="itemLoading"
@@ -772,7 +918,7 @@
               :loading="examplesLoading"
               :query
               :rail-label
-              :total="railItems.length"
+              :total="kindItems.length"
               @retry="loadExamples"
               @select="onSelectGallery"
             />

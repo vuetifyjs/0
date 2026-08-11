@@ -19,6 +19,12 @@ import { computed, onMounted, shallowRef, watch, watchEffect } from 'vue'
 import type { PlaygroundHashData } from '@/composables/usePlayground'
 import type { RegistryExampleRef } from '@/data/registry'
 import type { VuetifyExampleRef } from '@/data/vuetify-examples'
+import type { ShallowRef } from 'vue'
+
+/** Last docs/Vuetify example loaded into the REPL — Open dialog highlights it. */
+export type ActiveExample =
+  | { source: 'v0', item: string, type: string, example: string }
+  | { source: 'vuetify', path: string, id: string }
 
 export function usePlaygroundFiles () {
   const theme = useTheme()
@@ -47,6 +53,8 @@ export function usePlaygroundFiles () {
   const filesVersion = shallowRef(0)
   /** Set when a registry deep-link or browser open fails. */
   const loadError = shallowRef<string>()
+  /** Which Open-gallery example is currently in the editor (if any). */
+  const activeExample: ShallowRef<ActiveExample | undefined> = shallowRef()
 
   const aliasMap = shallowRef(new Map<string, string>())
   const extraImports = shallowRef<Record<string, string>>()
@@ -167,6 +175,7 @@ export function usePlaygroundFiles () {
 
   /** Clear preset/import state then seed the default v0 playground. */
   async function resetToDefault () {
+    activeExample.value = undefined
     activePreset.value = 'default'
     activeAddons.value = []
     extraImports.value = undefined
@@ -301,6 +310,7 @@ export function usePlaygroundFiles () {
     const preset = PRESETS.find(p => p.id === id)
     if (!preset) return
 
+    activeExample.value = undefined
     activePreset.value = id
     activeAddons.value = []
     extraImports.value = preset.imports ?? undefined
@@ -399,6 +409,7 @@ export function usePlaygroundFiles () {
 
       // Preset comes from parseVuetifyPlayTuple (the single source of the
       // tuple→preset mapping), shared with decodePlaygroundHash's Format 4 branch.
+      activeExample.value = undefined
       activePreset.value = preset
       activeAddons.value = []
       extraImports.value = Object.keys(imports).length > 0 ? imports : undefined
@@ -445,6 +456,13 @@ export function usePlaygroundFiles () {
     rebuildImportMap()
     filesVersion.value++
 
+    activeExample.value = {
+      source: 'v0',
+      item: resolved.meta.item.name,
+      type: resolved.meta.item.type,
+      example: resolved.meta.example.id,
+    }
+
     if (options.clearSearch) clearRegistrySearch()
   }
 
@@ -473,6 +491,8 @@ export function usePlaygroundFiles () {
       await loadExample(resolved.files, resolved.active)
       rebuildImportMap()
       filesVersion.value++
+      const id = ref.path.replace(/\.vue$/i, '').split('/').pop() ?? ref.path
+      activeExample.value = { source: 'vuetify', path: ref.path, id }
     } catch (error) {
       await resetToDefault()
       throw error
@@ -500,5 +520,6 @@ export function usePlaygroundFiles () {
     openPlayground,
     openRegistryExample,
     openVuetifyExample,
+    activeExample,
   }
 }

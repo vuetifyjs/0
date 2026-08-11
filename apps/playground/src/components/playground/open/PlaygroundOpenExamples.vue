@@ -10,17 +10,27 @@
     loading = false,
     error,
     opening = false,
+    activeId,
   } = defineProps<{
     item?: RegistryItem
     loading?: boolean
     error?: string
     opening?: boolean
+    /** Example id currently loaded in the editor. */
+    activeId?: string
   }>()
 
   const emit = defineEmits<{
     open: [example: RegistryExample]
     retry: []
   }>()
+
+  function isActive (example: RegistryExample) {
+    if (!activeId) return false
+    return example.id === activeId
+      || example.id === activeId.replace(/\.vue$/i, '')
+      || `${example.id}.vue` === activeId
+  }
 </script>
 
 <template>
@@ -52,15 +62,32 @@
       :key="example.id"
     >
       <button
-        class="w-full flex items-center gap-3 text-left rounded-md border border-transparent px-3 py-2 hover:border-primary/40 hover:bg-surface-tint/50 transition-colors disabled:opacity-50"
-        :class="opening ? 'cursor-wait' : 'cursor-pointer'"
-        :disabled="opening"
+        :aria-current="isActive(example) ? 'true' : undefined"
+        class="w-full flex items-center gap-3 text-left rounded-md border px-3 py-2 transition-colors disabled:opacity-50"
+        :class="isActive(example)
+          ? 'border-primary/70 bg-primary/5 ring-1 ring-primary/25 cursor-default'
+          : opening
+            ? 'border-transparent cursor-wait'
+            : 'border-transparent hover:border-primary/40 hover:bg-surface-tint/50 cursor-pointer'"
+        :disabled="opening || isActive(example)"
         type="button"
         @click="emit('open', example)"
       >
         <span class="min-w-0 flex-1">
-          <span class="block text-sm font-medium text-on-surface truncate">
-            {{ example.title || example.id }}
+          <span class="flex items-center gap-2 min-w-0">
+            <span
+              class="text-sm font-medium truncate"
+              :class="isActive(example) ? 'text-primary' : 'text-on-surface'"
+            >
+              {{ example.title || example.id }}
+            </span>
+
+            <span
+              v-if="isActive(example)"
+              class="shrink-0 text-[9px] font-medium uppercase tracking-wide text-primary px-1.5 py-0.5 rounded bg-primary/10"
+            >
+              Active
+            </span>
           </span>
 
           <span class="block text-[11px] font-mono text-on-surface-variant/80 truncate mt-0.5">

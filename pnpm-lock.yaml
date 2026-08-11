@@ -517,9 +517,6 @@ importers:
       fflate:
         specifier: 'catalog:'
         version: 0.8.3
-      marked:
-        specifier: 'catalog:'
-        version: 18.0.5
       pinia:
         specifier: 'catalog:'
         version: 3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3))

@@ -44,7 +44,7 @@
     v-else-if="total === 0"
     class="p-8 text-center flex items-center justify-center h-full"
   >
-    <p class="text-sm text-on-surface-variant">No saved playgrounds</p>
+    <p class="text-sm text-on-surface-variant">No Vuetify One playgrounds</p>
   </div>
 
   <div

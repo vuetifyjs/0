@@ -7,10 +7,7 @@
   import { DEFAULT_REGISTRY } from '@/data/registry'
 
   // Local
-  import { blurb, exampleLabel } from './types'
-
-  // Utilities
-  import { renderInlineMarkdown } from '@/utilities/markdown'
+  import { blurb, exampleLabel, featureBucket, featureKindLabel } from './types'
 
   // Types
   import type { RegistryIndexEntry } from '@/data/registry'
@@ -59,6 +56,10 @@
   function isLast (entry: RegistryIndexEntry) {
     return Boolean(lastFeature && entry.name === lastFeature)
   }
+
+  function kindLabel (entry: RegistryIndexEntry) {
+    return featureKindLabel(featureBucket(entry))
+  }
 </script>
 
 <template>
@@ -104,7 +105,9 @@
     v-else-if="items.length === 0"
     class="p-8 text-center flex items-center justify-center h-full"
   >
-    <p class="text-sm text-on-surface-variant">No matches for “{{ query }}”</p>
+    <p class="text-sm text-on-surface-variant">
+      No matches{{ query ? ` for “${query}”` : '' }}
+    </p>
   </div>
 
   <div v-else class="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -147,14 +150,15 @@
           <div
             v-if="entry.description"
             class="text-[11px] text-on-surface-variant mt-0.5 line-clamp-2 leading-snug"
-            v-html="renderInlineMarkdown(blurb(entry.description))"
-          />
+          >
+            {{ blurb(entry.description) }}
+          </div>
 
           <div class="flex items-center justify-between gap-2 mt-1.5 text-[10px] text-on-surface-variant">
             <span class="tabular-nums">{{ exampleLabel(entry.examples.length) }}</span>
 
             <span class="flex items-center gap-2 min-w-0">
-              <span class="truncate capitalize">{{ entry.category }}</span>
+              <span class="truncate">{{ kindLabel(entry) }}</span>
 
               <a
                 v-if="docsHref(entry)"
