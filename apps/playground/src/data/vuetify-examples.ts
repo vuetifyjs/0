@@ -57,6 +57,14 @@ export function getVuetifyComponents (): VuetifyComponentEntry[] {
   return VUETIFY_EXAMPLES.components
 }
 
+/**
+ * Stable docs URL for a catalog entry (API page — always present for v-* and
+ * application/* features on vuetifyjs.com).
+ */
+export function vuetifyDocsUrl (name: string): string {
+  return `https://vuetifyjs.com/en/api/${name}/`
+}
+
 /** Build a raw.githubusercontent.com URL for a docs example SFC. */
 function vuetifyExampleRawUrl (path: string, ref = VUETIFY_EXAMPLES.ref): string {
   if (!RE_SAFE_PATH.test(path)) {

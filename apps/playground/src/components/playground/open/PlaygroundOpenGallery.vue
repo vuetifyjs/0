@@ -41,6 +41,11 @@
   function featureAccent (entry: RegistryIndexEntry) {
     return resolveFeatureAccent(entry.type, entry.category)
   }
+
+  function docsHref (entry: RegistryIndexEntry) {
+    const docs = entry.docs?.trim()
+    return docs || undefined
+  }
 </script>
 
 <template>
@@ -124,7 +129,20 @@
           <div class="flex items-center justify-between gap-2 mt-1.5 text-[10px] text-on-surface-variant">
             <span class="tabular-nums">{{ exampleLabel(entry.examples.length) }}</span>
 
-            <span class="truncate capitalize">{{ entry.category }}</span>
+            <span class="flex items-center gap-2 min-w-0">
+              <span class="truncate capitalize">{{ entry.category }}</span>
+
+              <a
+                v-if="docsHref(entry)"
+                class="shrink-0 text-primary hover:underline"
+                :href="docsHref(entry)"
+                rel="noopener noreferrer"
+                target="_blank"
+                @click.stop
+              >
+                Docs ↗
+              </a>
+            </span>
           </div>
         </div>
       </div>

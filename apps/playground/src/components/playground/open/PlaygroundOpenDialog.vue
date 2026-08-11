@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { createFilter } from '@vuetify/v0'
+
   // Components
   import AppCloseButton from '@/components/app/AppCloseButton.vue'
   import AppIcon from '@/components/app/AppIcon.vue'
@@ -12,7 +15,7 @@
   // Data
   import { resolveFeatureAccent, resolveFeatureIcon } from '@/data/feature-icons'
   import { DEFAULT_REGISTRY, getRegistryIndex, getRegistryItem } from '@/data/registry'
-  import { getVuetifyComponents, VUETIFY_EXAMPLES } from '@/data/vuetify-examples'
+  import { getVuetifyComponents, VUETIFY_EXAMPLES, vuetifyDocsUrl } from '@/data/vuetify-examples'
 
   // Local
   import { readOpenSession, touchOpenSession, writeOpenSession } from './open-session'
@@ -90,26 +93,52 @@
     return items.value.filter(item => bucketOf(item) === rail.value)
   })
 
-  const filtered = computed(() => {
-    const q = query.value.toLowerCase().trim()
-    if (!q) return railItems.value
-    return railItems.value.filter(item =>
-      item.name.includes(q)
-      || item.title.toLowerCase().includes(q)
-      || item.category.toLowerCase().includes(q)
-      || item.description.toLowerCase().includes(q)
-      || item.examples.some(id => id.includes(q)),
-    )
+  // Flatten searchable text so createFilter can match example ids without a custom fn.
+  const filterableV0 = computed(() =>
+    railItems.value.map(item => ({
+      ...item,
+      exampleSearch: item.examples.join(' '),
+    })),
+  )
+
+  const filterableVuetify = computed(() =>
+    vuetifyItems.map(item => ({
+      ...item,
+      exampleSearch: item.examples.map(e => `${e.id} ${e.title}`).join(' '),
+      docs: vuetifyDocsUrl(item.name),
+      category: 'Component',
+      type: 'components' as const,
+      level: 'stable',
+      description: `${item.examples.length} docs example${item.examples.length === 1 ? '' : 's'}`,
+      examples: item.examples.map(e => e.id),
+    })),
+  )
+
+  const filterableSaved = computed(() =>
+    saved.value.map(item => ({
+      ...item,
+      title: item.title || '',
+    })),
+  )
+
+  const galleryFilter = createFilter({
+    keys: ['name', 'title', 'description', 'category', 'exampleSearch'],
+    mode: 'some',
   })
 
+  const savedFilter = createFilter({
+    keys: ['title', 'id'],
+    mode: 'some',
+  })
+
+  const { items: filtered } = galleryFilter.apply(() => query.value, filterableV0)
+  const { items: filteredVuetifyEntries } = galleryFilter.apply(() => query.value, filterableVuetify)
+  const { items: filteredSaved } = savedFilter.apply(() => query.value, filterableSaved)
+
+  /** Full Vuetify component entries after search (keeps example meta for drill-in). */
   const filteredVuetify = computed(() => {
-    const q = query.value.toLowerCase().trim()
-    if (!q) return vuetifyItems
-    return vuetifyItems.filter(item =>
-      item.name.includes(q)
-      || item.title.toLowerCase().includes(q)
-      || item.examples.some(e => e.id.includes(q) || e.title.toLowerCase().includes(q)),
-    )
+    const names = new Set(filteredVuetifyEntries.value.map(e => e.name))
+    return vuetifyItems.filter(c => names.has(c.name))
   })
 
   /** Registry-shaped view of the selected Vuetify component for the examples pane. */
@@ -123,7 +152,7 @@
       level: 'stable',
       title: entry.title,
       description: `Vuetify 4 docs examples for ${entry.name}`,
-      docs: '',
+      docs: vuetifyDocsUrl(entry.name),
       examples: entry.examples.map(example => ({
         id: example.id,
         title: example.title,
@@ -137,10 +166,16 @@
     }
   })
 
-  const filteredSaved = computed(() => {
-    const q = query.value.toLowerCase().trim()
-    if (!q) return saved.value
-    return saved.value.filter(item => (item.title || '').toLowerCase().includes(q))
+  const selectedDocsHref = computed(() => {
+    if (selectedVuetify.value) return vuetifyDocsUrl(selectedVuetify.value.name)
+    const docs = selected.value?.docs?.trim() || selectedItem.value?.docs?.trim()
+    return docs || undefined
+  })
+
+  const searchPlaceholder = computed(() => {
+    if (rail.value === 'saved') return 'Search saved…'
+    if (rail.value === 'vuetify') return 'Vuetify 4 Search'
+    return `Filter ${railLabel.value.toLowerCase()}…`
   })
 
   const showSearch = computed(() => {
@@ -423,20 +458,6 @@
     nextTick(() => input.value?.focus())
   }
 
-  /** Map Vuetify components into registry gallery cards (reuse PlaygroundOpenGallery). */
-  const vuetifyAsRegistry = computed((): RegistryIndexEntry[] => {
-    return filteredVuetify.value.map(entry => ({
-      name: entry.name,
-      type: 'components' as const,
-      category: 'Component',
-      level: 'stable',
-      title: entry.title,
-      description: `${entry.examples.length} docs example${entry.examples.length === 1 ? '' : 's'}`,
-      docs: '',
-      examples: entry.examples.map(e => e.id),
-    }))
-  })
-
   function onSelectGallery (entry: RegistryIndexEntry) {
     if (rail.value === 'vuetify') {
       const hit = vuetifyItems.find(c => c.name === entry.name)
@@ -601,6 +622,16 @@
                     {{ subtitle }}
                   </template>
                 </p>
+
+                <a
+                  v-if="selectedDocsHref"
+                  class="inline-flex items-center gap-1 text-[11px] text-primary hover:underline mt-1"
+                  :href="selectedDocsHref"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  View docs ↗
+                </a>
               </div>
             </div>
 
@@ -618,7 +649,7 @@
                 ref="input"
                 v-model="query"
                 class="flex-1 min-w-0 bg-transparent text-sm text-on-surface outline-none placeholder-on-surface-variant/50"
-                :placeholder="rail === 'saved' ? 'Search saved…' : `Filter ${railLabel.toLowerCase()}…`"
+                :placeholder="searchPlaceholder"
                 type="search"
               >
 
@@ -669,7 +700,7 @@
             <PlaygroundOpenGallery
               v-else-if="rail === 'vuetify'"
               :error="undefined"
-              :items="vuetifyAsRegistry"
+              :items="filteredVuetifyEntries"
               :loading="false"
               :query
               :rail-label
