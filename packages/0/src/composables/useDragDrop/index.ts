@@ -398,36 +398,27 @@ function resolveDropPosition (
 
   const coord = point[axis]
 
-  if (coord < rects[0][start]) {
-    return { index: 0, edge: 'before', rect: rects[0] }
-  }
+  // The slot: before the first rect whose midpoint the pointer has not yet
+  // crossed. Gaps need no case of their own — a coordinate in the gap after
+  // rect `i` is past `i`'s midpoint and short of `i + 1`'s, so it lands in
+  // slot `i + 1`.
+  let index = rects.length
 
-  const last = rects.at(-1)!
-  if (coord > last[end]) {
-    return { index: rects.length, edge: 'after', rect: last }
-  }
-
-  for (const [index, rect] of rects.entries()) {
-    if (coord >= rect[start] && coord <= rect[end]) {
-      const mid = rect[start] + (rect[end] - rect[start]) / 2
-      if (coord < mid) {
-        return { index, edge: 'before', rect }
-      }
-      return { index: index + 1, edge: 'after', rect }
+  for (const [at, rect] of rects.entries()) {
+    if (coord < rect[start] + (rect[end] - rect[start]) / 2) {
+      index = at
+      break
     }
   }
 
-  for (let index = 0; index < rects.length - 1; index++) {
-    const a = rects[index]
-    const b = rects[index + 1]
-    if (coord > a[end] && coord < b[start]) {
-      const mid = (a[end] + b[start]) / 2
-      if (coord <= mid) return { index: index + 1, edge: 'after', rect: a }
-      return { index: index + 1, edge: 'before', rect: b }
-    }
-  }
-
-  return { index: rects.length, edge: 'after', rect: last }
+  // The anchor is a function of the slot alone: an interior boundary always
+  // renders at the end edge of the rect above it. Deriving it from the pointer
+  // instead — the rect above when approached from one side, the rect below
+  // from the other — draws the same slot at two different anchors, and the
+  // indicator visibly twitches across the gap as the pointer crosses it.
+  return index === 0
+    ? { index, edge: 'before', rect: rects[0] }
+    : { index, edge: 'after', rect: rects[index - 1] }
 }
 
 /**

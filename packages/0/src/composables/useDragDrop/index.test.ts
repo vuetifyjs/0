@@ -937,7 +937,7 @@ describe('resolveDropPosition', () => {
     zoneEl.remove()
   })
 
-  it('should resolve gap-after when coord lies in gap closer to a.end', async () => {
+  it('should resolve a gap coordinate into the slot after the rect above', async () => {
     const adapter = new CaptureAdapter()
     const cardEl = makeFocusableEl('rdp-gap-1')
     const zoneEl = document.createElement('div')
@@ -959,7 +959,7 @@ describe('resolveDropPosition', () => {
     const realFromPoint = document.elementFromPoint.bind(document)
     document.elementFromPoint = () => zoneEl
 
-    // y=60 lies in gap (50,100), closer to a.end=50; mid=75, 60 < 75 → 'after a'
+    // y=60 lies in the gap (50,100): past a's midpoint, short of b's → slot 1, anchored after a
     adapter.emit.move({ x: 50, y: 60 })
     expect(zone.indicator.value?.edge).toBe('after')
     expect(zone.indicator.value?.index).toBe(1)
@@ -969,7 +969,7 @@ describe('resolveDropPosition', () => {
     zoneEl.remove()
   })
 
-  it('should resolve gap-before when coord lies in gap closer to b.start', async () => {
+  it('should keep an interior slot anchored to the rect above it from either approach', async () => {
     const adapter = new CaptureAdapter()
     const cardEl = makeFocusableEl('rdp-gap-2')
     const zoneEl = document.createElement('div')
@@ -991,10 +991,22 @@ describe('resolveDropPosition', () => {
     const realFromPoint = document.elementFromPoint.bind(document)
     document.elementFromPoint = () => zoneEl
 
-    // y=90 lies in gap (50,100), mid=75, 90 > 75 → 'before b'
-    adapter.emit.move({ x: 50, y: 90 })
-    expect(zone.indicator.value?.edge).toBe('before')
-    expect(zone.indicator.value?.index).toBe(1)
+    // Slot 1 is one place however the pointer arrives: a's bottom half, the
+    // gap on either side of its midpoint, and b's upper half all anchor the
+    // indicator to a's end edge. An indicator that flips its anchor to b.top
+    // as the pointer crosses the gap draws the same slot at two positions.
+    for (const y of [30, 60, 90, 120]) {
+      adapter.emit.move({ x: 50, y })
+      expect(zone.indicator.value?.edge).toBe('after')
+      expect(zone.indicator.value?.index).toBe(1)
+      expect(zone.indicator.value?.rect.bottom).toBe(50)
+    }
+
+    // Past b's midpoint the slot is 2, anchored to b's end edge.
+    adapter.emit.move({ x: 50, y: 130 })
+    expect(zone.indicator.value?.edge).toBe('after')
+    expect(zone.indicator.value?.index).toBe(2)
+    expect(zone.indicator.value?.rect.bottom).toBe(150)
 
     document.elementFromPoint = realFromPoint
     cardEl.remove()
