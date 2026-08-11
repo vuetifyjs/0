@@ -105,8 +105,11 @@ export interface DropIndicator {
 }
 
 /**
- * Position passed to drop hooks. `index` and `indicator` are populated for
- * oriented zones; unoriented zones receive only the pointer location.
+ * Position passed to drop hooks. `index` is populated for oriented zones;
+ * unoriented zones receive only the pointer location. `indicator` rides along
+ * except when no slot was proposed: an empty zone resolves `index` to `0`,
+ * and a drop on one of the slots flanking the dragged element's own position
+ * in its home zone resolves `index` to that position — a stay, not a move.
  *
  * @example
  * ```ts
@@ -384,6 +387,12 @@ export interface DragDropContext<Z extends DragType = DragType> {
  * Pure math for resolving where in an oriented zone a pointer would drop.
  * Internal — consumers rely on the `position.index` / `position.indicator`
  * fields delivered to `onDrop`.
+ *
+ * Assumes rects ascend along the orientation axis, which is what reading a
+ * zone's children in DOM order yields for a normal flow. A reversed layout
+ * (`column-reverse`, a horizontal zone under RTL) violates that and resolves
+ * arbitrary slots — it always has; the slot index must stay the child's DOM
+ * index for consumers to splice by, so sorting here is not the fix.
  */
 function resolveDropPosition (
   point: { x: number, y: number },
@@ -620,6 +629,15 @@ export function useDragDrop<Z extends DragType = DragType> (
     const source = toValue(_draggables.get(id)?.el)
 
     if (!zoneEl || !source) return -1
+
+    // Ownership means the *nearest* registered zone, not any enclosing one —
+    // a board zone wrapping column zones contains every card but is home to
+    // none of them, and claiming one would suppress two of its column slots.
+    for (let el = source.parentElement; el; el = el.parentElement) {
+      if (!nodes.has(el)) continue
+      if (el !== zoneEl) return -1
+      break
+    }
 
     return Array.from(zoneEl.children).findIndex(child => child.contains(source))
   }

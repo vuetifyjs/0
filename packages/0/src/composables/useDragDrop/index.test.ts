@@ -1008,6 +1008,13 @@ describe('resolveDropPosition', () => {
     expect(zone.indicator.value?.index).toBe(2)
     expect(zone.indicator.value?.rect.bottom).toBe(150)
 
+    // Exactly on a midpoint counts as past it — a's mid is 25, b's is 125.
+    adapter.emit.move({ x: 50, y: 25 })
+    expect(zone.indicator.value?.index).toBe(1)
+
+    adapter.emit.move({ x: 50, y: 125 })
+    expect(zone.indicator.value?.index).toBe(2)
+
     document.elementFromPoint = realFromPoint
     cardEl.remove()
     zoneEl.remove()
@@ -1119,6 +1126,44 @@ describe('no-op slot suppression', () => {
     document.elementFromPoint = realFromPoint
     cardEl.remove()
     zoneEl.remove()
+  })
+
+  it('should not suppress in an enclosing zone that is not the element\'s home', async () => {
+    const adapter = new CaptureAdapter()
+    // A board zone whose single child wraps a column zone, with the card
+    // registered inside the column — the board contains the card but is not
+    // its home, so none of the board's slots may be suppressed.
+    const boardEl = document.createElement('div')
+    const wrapper = document.createElement('div')
+    const columnEl = document.createElement('div')
+    const cardEl = makeFocusableEl('noop-nested-card')
+    columnEl.append(cardEl)
+    wrapper.append(columnEl)
+    boardEl.append(wrapper)
+    document.body.append(boardEl)
+
+    wrapper.getBoundingClientRect = () => makeRect(0, 0, 100, 50)
+
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    const board = dnd.zones.register({ el: shallowRef(boardEl), orientation: 'vertical' })
+    dnd.zones.register({ el: shallowRef(columnEl), orientation: 'vertical' })
+
+    await nextTick()
+
+    adapter.emit.start(ticket, { x: 50, y: 20 }, 'pointer')
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => boardEl
+
+    adapter.emit.move({ x: 50, y: 10 })
+    expect(board.indicator.value?.index).toBe(0)
+
+    adapter.emit.move({ x: 50, y: 40 })
+    expect(board.indicator.value?.index).toBe(1)
+
+    document.elementFromPoint = realFromPoint
+    cardEl.remove()
+    boardEl.remove()
   })
 
   it('should resolve a suppressed drop to the element\'s own slot, not zero', async () => {
