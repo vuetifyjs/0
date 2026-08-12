@@ -28,7 +28,12 @@ const examples = import.meta.glob('../examples/systems/emerald/**/*.vue')
 const query = new URLSearchParams(window.location.search)
 
 const name = query.get('e') ?? ''
-const load = examples[`../examples/systems/emerald/${name}.vue`] as (() => Promise<{ default: Component }>) | undefined
+const exampleKey = `../examples/systems/emerald/${name}.vue`
+// Allowlist: only invoke loaders whose keys come from import.meta.glob.
+// Reject unknown ?e= values before the dynamic call (CodeQL js/unsafe-dynamic-method-call).
+const load = Object.hasOwn(examples, exampleKey)
+  ? examples[exampleKey] as () => Promise<{ default: Component }>
+  : undefined
 
 // The `theme` param is read by the blocking script in `sandbox/emerald.html`,
 // not here — by the time this module runs the frame has already painted once.

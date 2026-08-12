@@ -43,6 +43,10 @@ import { registerPlugins } from './plugins'
 export const createApp = ViteSSG(
   App,
   {
+    // Vite asset URLs honor `base` from vite.config; Vue Router does not unless
+    // we pass it here. Without this, DEMO_BASE=/demo/emerald/ prerenders
+    // RouterLink hrefs as /emerald/... and lychee fails offline file checks.
+    base: import.meta.env.BASE_URL,
     routes: [
       { path: '/', component: Playground },
       { path: '/create-overflow', component: CreateOverflowDemo },
