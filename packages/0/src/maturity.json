@@ -705,8 +705,10 @@
       "description": "A compound component for building accessible hierarchical tree interfaces with expand/collapse and selection support."
     },
     "DataGrid": {
-      "level": "draft",
-      "category": "data"
+      "level": "preview",
+      "since": null,
+      "category": "data",
+      "description": "Headless data grid compound with column layout, cell editing, row ordering, and row spanning. Built on createDataGrid."
     },
     "DataTable": {
       "level": "draft",
