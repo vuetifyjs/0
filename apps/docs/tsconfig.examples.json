@@ -1,0 +1,54 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "customConditions": ["development"],
+    "moduleResolution": "bundler",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@vuetify/v0": ["../../packages/0/src"],
+      "@vuetify/v0/*": ["../../packages/0/src/*"],
+      "#v0": ["../../packages/0/src"],
+      "#v0/*": ["../../packages/0/src/*"]
+    },
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "verbatimModuleSyntax": true,
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "target": "esnext"
+  },
+  "include": [
+    "src/examples/**/*.ts",
+    "src/examples/**/*.vue",
+    "../../packages/0/src/**/*.ts",
+    "../../packages/0/src/**/*.vue"
+  ],
+  "exclude": [
+    "../../packages/0/src/**/__tests__/*",
+    "src/examples/composables/create-data-table/**",
+    "src/examples/composables/create-data-grid/**",
+    "src/examples/composables/create-queue/**",
+    "src/examples/composables/create-progress/**",
+    "src/examples/composables/create-timeline/**",
+    "src/examples/composables/create-registry/**",
+    "src/examples/composables/create-slider/**",
+    "src/examples/composables/create-group/**",
+    "src/examples/composables/create-model/**",
+    "src/examples/composables/create-number-field/**",
+    "src/examples/composables/use-notifications/**",
+    "src/examples/composables/use-reduced-motion/**",
+    "src/examples/composables/use-rules/**",
+    "src/examples/components/image/**",
+    "src/examples/components/slider/**",
+    "src/examples/guide/building-frameworks/**"
+  ]
+}

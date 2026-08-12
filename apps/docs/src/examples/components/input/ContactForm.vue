@@ -31,7 +31,7 @@
     <Input.Root
       v-model="name"
       label="Name"
-      :rules="[(v: string) => !!v || 'Name is required']"
+      :rules="[v => !!v || 'Name is required']"
       validate-on="blur lazy"
     >
       <Input.Control
@@ -50,8 +50,8 @@
       :error-messages="serverError"
       label="Email"
       :rules="[
-        (v: string) => !!v || 'Email is required',
-        (v: string) => /.+@.+\..+/.test(v) || 'Must be a valid email',
+        v => !!v || 'Email is required',
+        v => /.+@.+\..+/.test(v as string) || 'Must be a valid email',
       ]"
       type="email"
       validate-on="blur lazy"
@@ -70,8 +70,8 @@
       v-model="message"
       label="Message"
       :rules="[
-        (v: string) => !!v || 'Message is required',
-        (v: string) => v.length >= 10 || 'At least 10 characters',
+        v => !!v || 'Message is required',
+        v => (v as string).length >= 10 || 'At least 10 characters',
       ]"
       validate-on="blur lazy"
     >

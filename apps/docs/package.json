@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --port 8000",
     "build": "vite-ssg build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.examples.json"
   },
   "devDependencies": {
     "@octokit/openapi-types": "catalog:",
@@ -28,6 +29,7 @@
     "shiki": "catalog:",
     "ts-morph": "catalog:",
     "tsx": "catalog:",
+    "typescript": "catalog:",
     "unocss": "catalog:",
     "unplugin-vue": "catalog:",
     "unplugin-vue-components": "catalog:",
@@ -38,7 +40,8 @@
     "vite-ssg": "catalog:",
     "vite-ssg-sitemap": "catalog:",
     "vue-component-meta": "catalog:",
-    "vue-router": "catalog:"
+    "vue-router": "catalog:",
+    "vue-tsc": "catalog:"
   },
   "dependencies": {
     "@js-temporal/polyfill": "catalog:",

@@ -81,8 +81,8 @@
       v-model="comment"
       label="Review"
       :rules="[
-        (v: string) => !!v || 'A short review is required',
-        (v: string) => v.length >= 10 || 'At least 10 characters',
+        v => !!v || 'A short review is required',
+        v => (v as string).length >= 10 || 'At least 10 characters',
       ]"
       validate-on="blur lazy"
     >
