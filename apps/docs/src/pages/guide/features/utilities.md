@@ -477,6 +477,33 @@ range(5, 10)  // [10, 11, 12, 13, 14]
 range(0)      // []
 ```
 
+### pxToNumber
+
+Parse a CSS pixel length into a number. Built for reading `getComputedStyle` output, where a length that does not apply resolves to `''` or `'auto'` rather than to a number:
+
+```ts
+import { pxToNumber } from '@vuetify/v0'
+
+const style = getComputedStyle(el)
+
+pxToNumber(style.marginLeft)   // 16
+pxToNumber(style.marginRight)  // 0   (resolved '0px')
+pxToNumber(style.width)        // 0   ('auto' does not parse)
+pxToNumber(undefined)          // 0
+```
+
+The second argument is the value returned when the length does not parse — it defaults to `0`:
+
+```ts
+// A parsed 0 and an unparseable length are different answers
+pxToNumber('0px', rect.width)  // 0
+pxToNumber('auto', rect.width) // rect.width
+```
+
+That distinction is the reason to reach for this over `Number.parseFloat(value) || 0`, which collapses both cases onto `0` and so is only correct when the fallback is itself `0`.
+
+Only the leading number is read, matching `Number.parseFloat`, so any unit suffix is ignored. Values `getComputedStyle` never returns — percentages, `calc()` expressions, multi-value shorthands — are out of scope.
+
 ### mergeDeep
 
 Deep-merge objects without mutating inputs. Arrays are replaced, not concatenated:
