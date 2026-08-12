@@ -60,16 +60,16 @@
   } = defineProps<DataGridCellProps>()
 
   const context = useDataGridRoot(namespace)
-  const row = useDataGridRow(namespace, undefined)
+  const row = useDataGridRow(namespace, null)
 
   const isEditing = toRef(() => {
-    if (!column || !row) return false
+    if (!column || !row?.id) return false
     const active = context.editing.active.value
     return active?.row === row.id && active?.column === column
   })
 
   const rowSpan = toRef(() => {
-    if (!column || !row) return 1
+    if (!column || !row?.id) return 1
     const spanMap = context.spans.value.get(row.id)
     if (!spanMap) return 1
     const entry = spanMap.get(column)
@@ -77,7 +77,7 @@
   })
 
   const isHidden = toRef(() => {
-    if (!column || !row) return false
+    if (!column || !row?.id) return false
     const spanMap = context.spans.value.get(row.id)
     if (!spanMap) return false
     const entry = spanMap.get(column)
