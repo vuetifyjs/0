@@ -647,8 +647,10 @@
       "description": "Description tooltip with hover and focus triggers, configurable open/close delays, and an optional interactive-content mode."
     },
     "Alert": {
-      "level": "draft",
-      "category": "semantic"
+      "level": "preview",
+      "since": null,
+      "category": "semantic",
+      "description": "Inline status message with ARIA live-region semantics. Use role=alert for urgent messages, role=status for informational."
     },
     "Avatar": {
       "level": "preview",
