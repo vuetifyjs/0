@@ -1,13 +1,15 @@
 <script setup lang="ts">
   import { useHead } from '@unhead/vue'
-  import { computed } from 'vue'
-  import { useRoute } from 'vue-router'
 
   // Composables
   import { providePlaygroundRoute } from '@/composables/useOnePlaygrounds'
 
   // Content
   import IntroPanel from '@/content/intro.md'
+
+  // Utilities
+  import { computed } from 'vue'
+  import { useRoute } from 'vue-router'
 
   const route = useRoute()
   const playgroundId = computed(() => (route.params as { id: string }).id)
