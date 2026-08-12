@@ -681,6 +681,10 @@ export async function build (): Promise<Registry> {
   const examplesReal = await realpath(EXAMPLES_DIR)
 
   for await (const file of glob('**/*.md', { cwd: PAGES_DIR })) {
+    // Design-system pages (@paper/*) are not v0 CLI seeds — maturity and
+    // examples live outside packages/0. Skip before category/maturity gates.
+    if (file.split(/[/\\]/)[0] === 'systems') continue
+
     const path = resolve(PAGES_DIR, file)
     const { frontmatter, body } = parseFrontmatter(await readFile(path, 'utf8'))
 
