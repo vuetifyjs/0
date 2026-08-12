@@ -22,6 +22,8 @@ export interface VuetifyPlayground {
   visibility?: 'private' | 'public'
   createdAt: string
   updatedAt: string
+  /** Owner from API response (publicUserResponse shape). */
+  owner?: { id: string }
 }
 
 /** Map legacy session rails (components/composables/plugins) → `v0`. */

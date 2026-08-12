@@ -46,8 +46,8 @@ export interface OnePlayground {
   visibility: 'private' | 'public'
   createdAt: string
   updatedAt: string
-  /** Owner user ID from API response. */
-  userId?: string
+  /** Owner from API response (publicUserResponse shape). */
+  owner?: { id: string }
 }
 
 export type OnePlaygroundMeta = Pick<OnePlayground, 'favorite' | 'pinned' | 'locked' | 'visibility'>
@@ -222,7 +222,7 @@ export function useOnePlaygrounds () {
       pinned: playground.pinned,
       locked: playground.locked,
       visibility: playground.visibility,
-    }, { owner: playground.userId })
+    }, { owner: playground.owner?.id })
   }
 
   async function fetchById (id: string): Promise<OnePlayground | null> {

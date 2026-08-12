@@ -681,13 +681,16 @@
 
   async function openSaved (item: VuetifyPlayground) {
     let content = item.content
+    let owner = item.owner?.id
     if (!content) {
       const res = await fetch(`${ONE_API}/one/playgrounds/${item.id}`, {
         credentials: 'include',
       })
       if (!res.ok) return
       const data = await res.json()
-      content = data.content ?? data.playground?.content
+      const playground_ = data.playground ?? data
+      content = playground_.content
+      owner = playground_.owner?.id ?? owner
     }
     if (!content) return
     // Pause autosave while REPL loads so we don't POST the previous editor state.
@@ -699,7 +702,7 @@
         pinned: item.pinned ?? false,
         locked: item.locked ?? false,
         visibility: item.visibility ?? 'public',
-      }, { skipUrlSync: true })
+      }, { skipUrlSync: true, owner })
       one.markSynced(content)
       emit('close')
       await playground.openPlayground(content)
