@@ -87,6 +87,14 @@ Components with meaningful HTML defaults. Render semantic elements by default bu
 | [Snackbar](/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](/components/semantic/splitter) | Resizable panel layout with drag handles |
 
+## Data
+
+Components for displaying and interacting with data collections.
+
+| Name | Description |
+| - | - |
+| [DataTable](/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
+
 ## Disclosure
 
 Components for showing/hiding content.

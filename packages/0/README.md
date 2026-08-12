@@ -152,6 +152,12 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Snackbar](https://0.vuetifyjs.com/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](https://0.vuetifyjs.com/components/semantic/splitter) | Resizable panel layout with drag handles |
 
+#### Data
+
+| Component | Description |
+|-----------|-------------|
+| [DataTable](https://0.vuetifyjs.com/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
+
 ### Composables
 
 #### Foundation

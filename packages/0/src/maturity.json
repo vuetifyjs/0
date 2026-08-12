@@ -709,8 +709,10 @@
       "category": "data"
     },
     "DataTable": {
-      "level": "draft",
-      "category": "data"
+      "level": "preview",
+      "since": null,
+      "category": "data",
+      "description": "Headless compound component for rendering tabular data with sorting, pagination, selection, and expansion support."
     },
     "Kanban": {
       "level": "draft",
