@@ -11,8 +11,6 @@
   },
   "devDependencies": {
     "@octokit/openapi-types": "catalog:",
-    "vue-tsc": "catalog:",
-    "typescript": "catalog:",
     "@resvg/resvg-js": "catalog:",
     "@shikijs/langs": "catalog:",
     "@shikijs/markdown-it": "catalog:",
@@ -31,6 +29,7 @@
     "shiki": "catalog:",
     "ts-morph": "catalog:",
     "tsx": "catalog:",
+    "typescript": "catalog:",
     "unocss": "catalog:",
     "unplugin-vue": "catalog:",
     "unplugin-vue-components": "catalog:",
@@ -41,7 +40,8 @@
     "vite-ssg": "catalog:",
     "vite-ssg-sitemap": "catalog:",
     "vue-component-meta": "catalog:",
-    "vue-router": "catalog:"
+    "vue-router": "catalog:",
+    "vue-tsc": "catalog:"
   },
   "dependencies": {
     "@js-temporal/polyfill": "catalog:",
