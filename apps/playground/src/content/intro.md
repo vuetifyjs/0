@@ -41,6 +41,8 @@ Short links also work:
 
 Point `?registry=` at a custom origin when testing a local docs build.
 
+Saved playgrounds use `?playground=<id>` as the canonical URL. Legacy bookmarks from play.vuetifyjs.com (`/playgrounds/:id`) redirect automatically.
+
 ## Tips
 
 - `Ctrl+B` toggles the file tree sidebar — or drag the panel edge to close it

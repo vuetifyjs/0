@@ -13,9 +13,25 @@ import pinia from './plugins/pinia'
 
 import 'virtual:uno.css'
 
+// Types
+import type { RouteRecordRaw } from 'vue-router'
+
+/**
+ * Redirect legacy `/playgrounds/:id` (play.vuetifyjs.com bookmark format)
+ * to the canonical `/?playground=<id>`, preserving any URL hash.
+ */
+const legacyPlaygroundRedirect: RouteRecordRaw = {
+  path: '/playgrounds/:id',
+  redirect: to => ({
+    path: '/',
+    query: { playground: Array.isArray(to.params.id) ? to.params.id[0] : to.params.id },
+    hash: to.hash,
+  }),
+}
+
 export const createApp = ViteSSG(
   App,
-  { routes: setupLayouts(routes) },
+  { routes: setupLayouts([...routes, legacyPlaygroundRedirect]) },
   async ({ app, initialState }) => {
     app.use(pinia)
     app.use(createIconPlugin())
