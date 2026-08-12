@@ -158,8 +158,9 @@
         @click="onOneClick"
       >
         <AppIcon
+          :class="oneId && !autosaveEnabled && !oneSaving ? 'opacity-50' : ''"
           :icon="oneId
-            ? (oneSaving ? 'cloud-sync' : autosaveEnabled ? 'cloud-check' : 'save')
+            ? (oneSaving ? 'cloud-sync' : 'cloud-check')
             : 'save'"
         />
       </AppTooltip>
