@@ -15,16 +15,25 @@
   // Composables
   import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
-  // Utilities
-  import { onBeforeUnmount, shallowRef, watch } from 'vue'
+  // Stores
+  import { useAuthStore } from '@vuetify/auth'
 
+  // Utilities
+  import { onBeforeUnmount, shallowRef, toRef, watch } from 'vue'
+
+  const auth = useAuthStore()
   const playground = usePlayground()
   const {
     currentId: oneId,
     currentTitle: oneTitle,
+    currentMeta,
+    isOwner,
     saving: oneSaving,
     autosaveEnabled,
     setAutosave,
+    patchMeta,
+    destroy,
+    fork,
   } = useOnePlaygrounds()
   const breakpoints = useBreakpoints()
   const storage = useStorage()
@@ -34,17 +43,27 @@
   const file = shallowRef(false)
   const view = shallowRef(false)
   const confirming = shallowRef(false)
+  const confirmDelete = shallowRef(false)
   const dialog = shallowRef(false)
   const saveOpen = shallowRef(false)
   const saveAs = shallowRef(false)
+  const lifecycleStatus = shallowRef<'idle' | 'busy'>('idle')
   let confirmTimer = 0
+  let deleteTimer = 0
 
-  onBeforeUnmount(() => clearTimeout(confirmTimer))
+  const canDelete = toRef(() => !currentMeta.value.favorite && !currentMeta.value.locked)
+
+  onBeforeUnmount(() => {
+    clearTimeout(confirmTimer)
+    clearTimeout(deleteTimer)
+  })
 
   watch(menu, open => {
     if (!open) {
       clearTimeout(confirmTimer)
+      clearTimeout(deleteTimer)
       confirming.value = false
+      confirmDelete.value = false
     }
   })
 
@@ -106,6 +125,119 @@
     } else if (!open && !breakpoints.isMobile.value && sidePref.value && !playground.side.value) {
       playground.side.value = true
       playground.bottom.value = false
+    }
+  }
+
+  async function ensureAuth (): Promise<boolean> {
+    if (auth.user) return true
+    await auth.verify()
+    if (auth.user) return true
+
+    auth.dialog = true
+    return new Promise(resolve => {
+      const stop = auth.$subscribe(() => {
+        if (auth.user) {
+          auth.dialog = false
+          stop()
+          resolve(true)
+          return
+        }
+        if (!auth.dialog) {
+          stop()
+          resolve(false)
+        }
+      })
+    })
+  }
+
+  async function onToggleFavorite () {
+    if (lifecycleStatus.value === 'busy') return
+    lifecycleStatus.value = 'busy'
+    try {
+      await patchMeta({ favorite: !currentMeta.value.favorite })
+    } catch {
+      // Ignore — user can retry
+    } finally {
+      lifecycleStatus.value = 'idle'
+    }
+  }
+
+  async function onTogglePinned () {
+    if (lifecycleStatus.value === 'busy') return
+    lifecycleStatus.value = 'busy'
+    try {
+      await patchMeta({ pinned: !currentMeta.value.pinned })
+    } catch {
+      // Ignore
+    } finally {
+      lifecycleStatus.value = 'idle'
+    }
+  }
+
+  async function onToggleLocked () {
+    if (lifecycleStatus.value === 'busy') return
+    lifecycleStatus.value = 'busy'
+    try {
+      await patchMeta({ locked: !currentMeta.value.locked })
+    } catch {
+      // Ignore
+    } finally {
+      lifecycleStatus.value = 'idle'
+    }
+  }
+
+  async function onToggleVisibility () {
+    if (lifecycleStatus.value === 'busy') return
+    lifecycleStatus.value = 'busy'
+    try {
+      const newVisibility = currentMeta.value.visibility === 'public' ? 'private' : 'public'
+      await patchMeta({ visibility: newVisibility })
+    } catch {
+      // Ignore
+    } finally {
+      lifecycleStatus.value = 'idle'
+    }
+  }
+
+  async function onDelete () {
+    if (!canDelete.value) return
+
+    if (confirmDelete.value) {
+      clearTimeout(deleteTimer)
+      confirmDelete.value = false
+      lifecycleStatus.value = 'busy'
+      try {
+        await destroy()
+        menu.value = false
+        file.value = false
+      } catch {
+        // Ignore
+      } finally {
+        lifecycleStatus.value = 'idle'
+      }
+    } else {
+      confirmDelete.value = true
+      deleteTimer = window.setTimeout(() => {
+        confirmDelete.value = false
+      }, 3000)
+    }
+  }
+
+  async function onFork () {
+    if (lifecycleStatus.value === 'busy') return
+
+    const ok = await ensureAuth()
+    if (!ok) return
+
+    lifecycleStatus.value = 'busy'
+    try {
+      await fork(() => playground.snapshotContent())
+      menu.value = false
+      file.value = false
+    } catch {
+      // Ignore
+    } finally {
+      lifecycleStatus.value = 'idle'
     }
   }
 </script>
@@ -227,6 +359,103 @@
           >
             Save as new
           </button>
+
+          <!-- Lifecycle actions for linked playgrounds -->
+          <template v-if="oneId">
+            <div class="border-t border-divider my-1" />
+
+            <!-- Owner actions -->
+            <template v-if="isOwner">
+              <button
+                class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left disabled:opacity-50"
+                :disabled="lifecycleStatus === 'busy'"
+                type="button"
+                @click="onToggleVisibility"
+              >
+                <AppIcon
+                  :icon="currentMeta.visibility === 'public' ? 'visibility-public' : 'visibility-private'"
+                  :size="14"
+                />
+
+                <span class="flex-1">{{ currentMeta.visibility === 'public' ? 'Make Private' : 'Make Public' }}</span>
+              </button>
+
+              <button
+                class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left disabled:opacity-50"
+                :disabled="lifecycleStatus === 'busy'"
+                type="button"
+                @click="onToggleFavorite"
+              >
+                <AppIcon
+                  :icon="currentMeta.favorite ? 'star' : 'star-outline'"
+                  :size="14"
+                />
+
+                <span class="flex-1">{{ currentMeta.favorite ? 'Unfavorite' : 'Favorite' }}</span>
+              </button>
+
+              <button
+                class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left disabled:opacity-50"
+                :disabled="lifecycleStatus === 'busy'"
+                type="button"
+                @click="onTogglePinned"
+              >
+                <AppIcon
+                  :icon="currentMeta.pinned ? 'pin' : 'pin-outline'"
+                  :size="14"
+                />
+
+                <span class="flex-1">{{ currentMeta.pinned ? 'Unpin' : 'Pin' }}</span>
+              </button>
+
+              <button
+                class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left disabled:opacity-50"
+                :disabled="lifecycleStatus === 'busy'"
+                type="button"
+                @click="onToggleLocked"
+              >
+                <AppIcon
+                  :icon="currentMeta.locked ? 'lock' : 'lock-open'"
+                  :size="14"
+                />
+
+                <span class="flex-1">{{ currentMeta.locked ? 'Unlock' : 'Lock' }}</span>
+              </button>
+
+              <div class="border-t border-divider my-1" />
+
+              <AppTooltip
+                as="button"
+                class="w-full flex items-center gap-2 px-3 py-1.5 text-xs transition-colors text-left"
+                :class="confirmDelete
+                  ? 'text-error bg-error/10'
+                  : canDelete
+                    ? 'text-on-surface hover:bg-surface-tint'
+                    : 'text-on-surface/40 cursor-not-allowed'"
+                :disabled="!canDelete || lifecycleStatus === 'busy'"
+                :open-delay="canDelete ? undefined : 0"
+                position-area="right"
+                :text="canDelete ? undefined : 'Remove favorite and unlock first'"
+                type="button"
+                @click="onDelete"
+              >
+                <AppIcon icon="delete" :size="14" />
+                <span class="flex-1">{{ confirmDelete ? 'Click to confirm' : 'Delete' }}</span>
+              </AppTooltip>
+            </template>
+
+            <!-- Non-owner: Fork action -->
+            <button
+              v-else
+              class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left disabled:opacity-50"
+              :disabled="lifecycleStatus === 'busy'"
+              type="button"
+              @click="onFork"
+            >
+              <AppIcon icon="fork" :size="14" />
+              <span class="flex-1">Fork</span>
+            </button>
+          </template>
 
           <div class="border-t border-divider my-1" />
 
