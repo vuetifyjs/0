@@ -13,7 +13,7 @@
   import PlaygroundOpenSaved from './PlaygroundOpenSaved.vue'
 
   // Composables
-  import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
+  import { ONE_API, useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
   // Data
   import { resolveFeatureAccent, resolveFeatureIcon } from '@/data/feature-icons'
@@ -463,7 +463,7 @@
     savedLoading.value = true
     savedError.value = undefined
     try {
-      const res = await fetch('https://api.vuetifyjs.com/one/playgrounds', {
+      const res = await fetch(`${ONE_API}/one/playgrounds`, {
         credentials: 'include',
       })
 
@@ -682,7 +682,7 @@
   async function openSaved (item: VuetifyPlayground) {
     let content = item.content
     if (!content) {
-      const res = await fetch(`https://api.vuetifyjs.com/one/playgrounds/${item.id}`, {
+      const res = await fetch(`${ONE_API}/one/playgrounds/${item.id}`, {
         credentials: 'include',
       })
       if (!res.ok) return
@@ -690,14 +690,21 @@
       content = data.content ?? data.playground?.content
     }
     if (!content) return
-    one.setCurrent(item.id, item.title || 'Untitled', {
-      favorite: item.favorite ?? false,
-      pinned: item.pinned ?? false,
-      locked: item.locked ?? false,
-      visibility: item.visibility ?? 'public',
-    })
-    emit('close')
-    await playground.openPlayground(content)
+    // Pause autosave while REPL loads so we don't POST the previous editor state.
+    one.pauseAutosave()
+    try {
+      one.setCurrent(item.id, item.title || 'Untitled', {
+        favorite: item.favorite ?? false,
+        pinned: item.pinned ?? false,
+        locked: item.locked ?? false,
+        visibility: item.visibility ?? 'public',
+      })
+      one.markSynced(content)
+      emit('close')
+      await playground.openPlayground(content)
+    } finally {
+      one.resumeAutosave()
+    }
   }
 </script>
 
@@ -747,8 +754,10 @@
 
         <!-- Main pane -->
         <div class="flex-1 flex flex-col min-w-0 min-h-0">
-          <div class="flex items-start justify-between gap-3 px-4 py-3 border-b border-divider shrink-0">
-            <div class="min-w-0 flex items-start gap-3">
+          <div class="relative overflow-hidden flex items-start justify-between gap-3 px-4 py-3 border-b border-divider shrink-0">
+            <AppDotGrid :coverage="55" origin="bottom right" />
+
+            <div class="relative z-10 min-w-0 flex items-start gap-3">
               <div
                 v-if="(selected || selectedVuetify) && selectedAccent"
                 class="w-9 h-9 rounded-md border border-divider/60 shrink-0 flex items-center justify-center"
@@ -817,7 +826,7 @@
               </div>
             </div>
 
-            <AppCloseButton @click="$emit('close')" />
+            <AppCloseButton class="relative z-10" @click="$emit('close')" />
           </div>
 
           <div
@@ -888,6 +897,7 @@
             <PlaygroundOpenExamples
               v-else-if="selected"
               :active-id="activeExampleId"
+              cli
               :error="itemError"
               :item="selectedItem"
               :loading="itemLoading"

@@ -12,6 +12,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppCloseButton: typeof import('./components/app/AppCloseButton.vue')['default']
+    AppDotGrid: typeof import('./components/app/AppDotGrid.vue')['default']
     AppIcon: typeof import('./components/app/AppIcon.vue')['default']
     AppIconButton: typeof import('./components/app/AppIconButton.vue')['default']
     AppLoaderIcon: typeof import('./components/app/AppLoaderIcon.vue')['default']

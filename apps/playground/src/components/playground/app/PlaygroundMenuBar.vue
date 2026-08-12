@@ -4,6 +4,7 @@
 
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
+  import AppTooltip from '@/components/app/AppTooltip.vue'
   import PlaygroundAuthDialog from '@/components/playground/app/PlaygroundAuthDialog.vue'
   import PlaygroundSaveDialog from '@/components/playground/app/PlaygroundSaveDialog.vue'
   import PlaygroundOpenDialog from '@/components/playground/open/PlaygroundOpenDialog.vue'
@@ -11,10 +12,21 @@
   // Context
   import { usePlayground } from './PlaygroundApp.vue'
 
+  // Composables
+  import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
+
   // Utilities
   import { onBeforeUnmount, shallowRef, watch } from 'vue'
 
   const playground = usePlayground()
+  const {
+    currentId: oneId,
+    currentTitle: oneTitle,
+    saving: oneSaving,
+    autosaveEnabled,
+    setAutosave,
+    save: saveOne,
+  } = useOnePlaygrounds()
   const breakpoints = useBreakpoints()
   const storage = useStorage()
   const sidePref = storage.get('playground-preview-right', false)
@@ -26,6 +38,7 @@
   const dialog = shallowRef(false)
   const saveOpen = shallowRef(false)
   const saveAs = shallowRef(false)
+  const saveBusy = shallowRef(false)
   let confirmTimer = 0
 
   onBeforeUnmount(() => clearTimeout(confirmTimer))
@@ -52,6 +65,25 @@
     file.value = false
     saveAs.value = asNew
     saveOpen.value = true
+  }
+
+  /** Manual push for a linked playground (works with auto-save on or off). */
+  async function onSaveNow () {
+    if (!oneId.value || saveBusy.value) return
+    saveBusy.value = true
+    try {
+      await saveOne(playground.snapshotContent())
+      menu.value = false
+      file.value = false
+    } catch {
+      // error stays on one.error
+    } finally {
+      saveBusy.value = false
+    }
+  }
+
+  function onAutosaveToggle () {
+    setAutosave(!autosaveEnabled.value)
   }
 
   function onReset () {
@@ -133,25 +165,111 @@
             type="button"
             @click="onOpen"
           >
-            Open example…
+            Open
           </button>
 
           <div class="border-t border-divider my-1" />
 
+          <!--
+            Linked + auto-save on: dimmed One# identity + switch (no Save).
+            Linked + auto-save off: Save action + switch (no One#).
+            Unlinked: Save to Vuetify One only.
+          -->
+          <div
+            v-if="oneId && autosaveEnabled"
+            class="w-full flex items-center justify-between gap-2 px-3 py-1.5 text-xs"
+          >
+            <span class="min-w-0 flex-1 truncate tabular-nums text-on-surface-variant">
+              One#{{ oneId }}
+            </span>
+
+            <AppTooltip
+              as="span"
+              class="inline-flex shrink-0 text-on-surface-variant opacity-80"
+              :open-delay="200"
+              position-area="top"
+              :text="oneSaving || saveBusy
+                ? 'Syncing…'
+                : `Auto-saving to Vuetify One (${oneTitle})`"
+            >
+              <AppIcon
+                :icon="oneSaving || saveBusy ? 'cloud-sync' : 'cloud-check'"
+                :size="14"
+              />
+            </AppTooltip>
+
+            <button
+              :aria-checked="true"
+              aria-label="Auto-save"
+              class="relative shrink-0 h-4 w-7 rounded-full bg-primary transition-colors cursor-pointer border-0 p-0"
+              role="switch"
+              type="button"
+              @click="onAutosaveToggle"
+            >
+              <span class="absolute top-0.5 left-3.5 size-3 rounded-full bg-on-primary" />
+            </button>
+          </div>
+
+          <div
+            v-else-if="oneId"
+            class="w-full flex items-center justify-between gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint"
+          >
+            <button
+              class="min-w-0 flex-1 text-left bg-transparent border-0 p-0 text-xs text-on-surface cursor-pointer disabled:opacity-50"
+              :disabled="saveBusy"
+              type="button"
+              @click="onSaveNow"
+            >
+              {{ saveBusy ? 'Saving…' : 'Save' }}
+            </button>
+
+            <AppTooltip
+              as="span"
+              class="inline-flex shrink-0 opacity-70"
+              :open-delay="200"
+              position-area="top"
+              text="Auto-save off"
+            >
+              <AppIcon icon="save" :size="14" />
+            </AppTooltip>
+
+            <button
+              :aria-checked="false"
+              aria-label="Auto-save"
+              class="relative shrink-0 h-4 w-7 rounded-full bg-surface-variant transition-colors cursor-pointer border-0 p-0"
+              role="switch"
+              type="button"
+              @click="onAutosaveToggle"
+            >
+              <span class="absolute top-0.5 left-0.5 size-3 rounded-full bg-on-surface-variant" />
+            </button>
+          </div>
+
           <button
+            v-else
             class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
             type="button"
             @click="onSave(false)"
           >
-            Save to Vuetify One…
+            Save to Vuetify One
           </button>
 
           <button
+            v-if="oneId"
+            class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
+            type="button"
+            @click="onSave(false)"
+          >
+            Rename
+          </button>
+
+          <button
+            v-if="oneId"
             class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
             type="button"
             @click="onSave(true)"
           >
-            Save as…
+            Save as new
           </button>
 
           <div class="border-t border-divider my-1" />

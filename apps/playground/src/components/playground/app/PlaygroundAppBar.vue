@@ -25,11 +25,22 @@
   const copying = shallowRef(false)
   const projectCopied = shallowRef(false)
 
-  const { currentId: oneId, currentTitle: oneTitle, saving: oneSaving } = useOnePlaygrounds()
+  const {
+    currentId: oneId,
+    currentTitle: oneTitle,
+    saving: oneSaving,
+    autosaveEnabled,
+  } = useOnePlaygrounds()
 
   const theme = useTheme()
   const playground = usePlayground()
   const { copyProject, downloadProject } = useExport()
+
+  /** First save only — linked playgrounds auto-save; bar control is status + rename. */
+  function onOneClick () {
+    if (oneSaving.value) return
+    saveOpen.value = true
+  }
 
   const { start: startShared } = useTimer(() => {
     shared.value = false
@@ -126,19 +137,31 @@
 
       <AppTooltip
         :aria-busy="oneSaving || undefined"
-        aria-label="Save to Vuetify One"
+        :aria-label="oneId
+          ? (oneSaving
+            ? 'Syncing to Vuetify One'
+            : autosaveEnabled
+              ? `Auto-saving to One: ${oneTitle}`
+              : `Linked to One (auto-save off): ${oneTitle}`)
+          : 'Save to Vuetify One'"
         class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
         :class="oneSaving || oneId ? 'opacity-80' : 'opacity-50'"
         :disabled="oneSaving"
         position-area="bottom"
         :text="oneSaving
-          ? 'Saving…'
+          ? 'Syncing…'
           : oneId
-            ? `Save to One (${oneTitle})`
+            ? (autosaveEnabled
+              ? `Auto-save on · ${oneTitle}`
+              : `Auto-save off · ${oneTitle}`)
             : 'Save to Vuetify One'"
-        @click="saveOpen = true"
+        @click="onOneClick"
       >
-        <AppIcon icon="save" />
+        <AppIcon
+          :icon="oneId
+            ? (oneSaving ? 'cloud-sync' : autosaveEnabled ? 'cloud-check' : 'save')
+            : 'save'"
+        />
       </AppTooltip>
 
       <AppTooltip

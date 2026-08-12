@@ -17,6 +17,7 @@
     { name: 'GitHub', provider: 'github', bg: '#24292f', icon: 'github' },
     { name: 'Discord', provider: 'discord', bg: '#5865F2', icon: 'discord' },
     { name: 'Google', provider: 'google', bg: '#4285F4', icon: 'google' },
+    { name: 'Open Collective', provider: 'opencollective', bg: '#7FADF2', icon: 'opencollective' },
   ]
 </script>
 
@@ -46,7 +47,7 @@
         </Dialog.Title>
 
         <Dialog.Description class="text-sm text-on-surface-variant mb-6 text-center px-6">
-          Save playgrounds to your Vuetify One account and open them later from File → Open.
+          Save playgrounds to your account.
         </Dialog.Description>
 
         <div class="flex flex-col gap-2">

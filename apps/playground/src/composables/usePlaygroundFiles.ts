@@ -2,7 +2,7 @@
 import { IN_BROWSER, isArray, isObject, useTheme, useTimer } from '@vuetify/v0'
 
 // Composables
-import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
+import { readPlaygroundIdFromUrl, useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 import { decodePlaygroundHash, encodePlaygroundHash, isFileRecord, parseVuetifyPlayTuple } from '@/composables/usePlayground'
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
@@ -94,45 +94,41 @@ export function usePlaygroundFiles () {
   onMounted(async () => {
     const hash = window.location.hash.slice(1)
     const decoded = hash ? await decodePlaygroundHash(hash) : null
-    // Hash wins when present (share links are self-contained). Short deep-links
-    // use query params with an empty hash: v0 registry (`?example=`) or Vuetify
-    // docs examples (`?vuetify=` / `?source=vuetify&example=`).
-    const search = decoded ? null : new URLSearchParams(window.location.search)
+    // `?playground=<id>` is the durable One association (play’s /playgrounds/:id).
+    // It wins over a bare hash so reload rebinds autosave; content comes from the API.
+    const oneId = readPlaygroundIdFromUrl()
+    // Hash-only share links are self-contained. Short deep-links use query params
+    // with an empty hash: v0 registry (`?example=`) or Vuetify docs (`?vuetify=`).
+    const search = (!oneId && !decoded) ? new URLSearchParams(window.location.search) : null
     const vuetifyRef = search ? parseVuetifyExampleQuery(search) : null
     const registryRef = search && !vuetifyRef ? parseRegistryQuery(search) : null
 
-    if (decoded) {
-      if (decoded.settings?.preset) activePreset.value = decoded.settings.preset
-      if (decoded.settings?.vue) vueVersion.value = decoded.settings.vue
-      if (decoded.settings?.v0) v0Version.value = decoded.settings.v0
-      if (decoded.settings?.addons) activeAddons.value = decoded.settings.addons.split(',').filter(Boolean)
-
-      // Vuetify Play hashes (Format 4 and re-encoded Format 2/3) include infrastructure
-      // files the v0 playground doesn't process. When the vuetify preset is active and
-      // setup.ts has a loadStylesheet helper, inject Vuetify CSS loading into it.
-      if (activePreset.value === 'vuetify') {
-        const setup = decoded.files['src/setup.ts']
-        if (setup && setup.includes('loadStylesheet') && !setup.includes('vuetify-labs.css')) {
-          decoded.files['src/setup.ts'] = `${setup}\nloadStylesheet('https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css')\n`
+    if (oneId) {
+      one.pauseAutosave()
+      try {
+        const playground = await one.fetchById(oneId)
+        if (playground?.content) {
+          one.setCurrent(playground.id, playground.title || 'Untitled', {
+            favorite: playground.favorite ?? false,
+            pinned: playground.pinned ?? false,
+            locked: playground.locked ?? false,
+            visibility: playground.visibility ?? 'public',
+          })
+          one.markSynced(playground.content)
+          await openPlayground(playground.content)
+        } else {
+          // Stale / private / missing — drop the param and fall back.
+          one.clearCurrent()
+          await (decoded ? loadFromDecoded(decoded) : seedDefault())
         }
-        delete decoded.files['src/links.json']
-        delete decoded.files['src/import-map.json']
+      } catch {
+        one.clearCurrent()
+        await (decoded ? loadFromDecoded(decoded) : seedDefault())
+      } finally {
+        one.resumeAutosave()
       }
-
-      // Pre-declare Vuetify's cascade-layer order so it is established before any
-      // other style enters the cascade. createVuetify() synchronously injects
-      // <style>@layer vuetify-utilities{…}</style>, while the vuetify-labs.css
-      // <link> is appended async — without this preamble vuetify-utilities ends
-      // up declared before vuetify-components and components beat helpers.
-      if (decoded.files['src/setup.ts']?.includes('vuetify-labs.css')) {
-        decoded.files['src/setup.ts'] = `document.head.insertAdjacentHTML('afterbegin', '<style>@layer vuetify-core,vuetify-components,vuetify-overrides,vuetify-utilities,vuetify-final;</style>')\n${decoded.files['src/setup.ts']}`
-      }
-
-      await loadExample(decoded.files, decoded.active)
-      if (decoded.imports && Object.keys(decoded.imports).length > 0) {
-        extraImports.value = decoded.imports
-      }
-      rebuildImportMap()
+    } else if (decoded) {
+      await loadFromDecoded(decoded)
     } else if (vuetifyRef) {
       try {
         await openVuetifyExample(vuetifyRef, { clearSearch: true })
@@ -157,6 +153,40 @@ export function usePlaygroundFiles () {
 
     isReady.value = true
   })
+
+  async function loadFromDecoded (decoded: PlaygroundHashData) {
+    if (decoded.settings?.preset) activePreset.value = decoded.settings.preset
+    if (decoded.settings?.vue) vueVersion.value = decoded.settings.vue
+    if (decoded.settings?.v0) v0Version.value = decoded.settings.v0
+    if (decoded.settings?.addons) activeAddons.value = decoded.settings.addons.split(',').filter(Boolean)
+
+    // Vuetify Play hashes (Format 4 and re-encoded Format 2/3) include infrastructure
+    // files the v0 playground doesn't process. When the vuetify preset is active and
+    // setup.ts has a loadStylesheet helper, inject Vuetify CSS loading into it.
+    if (activePreset.value === 'vuetify') {
+      const setup = decoded.files['src/setup.ts']
+      if (setup && setup.includes('loadStylesheet') && !setup.includes('vuetify-labs.css')) {
+        decoded.files['src/setup.ts'] = `${setup}\nloadStylesheet('https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css')\n`
+      }
+      delete decoded.files['src/links.json']
+      delete decoded.files['src/import-map.json']
+    }
+
+    // Pre-declare Vuetify's cascade-layer order so it is established before any
+    // other style enters the cascade. createVuetify() synchronously injects
+    // <style>@layer vuetify-utilities{…}</style>, while the vuetify-labs.css
+    // <link> is appended async — without this preamble vuetify-utilities ends
+    // up declared before vuetify-components and components beat helpers.
+    if (decoded.files['src/setup.ts']?.includes('vuetify-labs.css')) {
+      decoded.files['src/setup.ts'] = `document.head.insertAdjacentHTML('afterbegin', '<style>@layer vuetify-core,vuetify-components,vuetify-overrides,vuetify-utilities,vuetify-final;</style>')\n${decoded.files['src/setup.ts']}`
+    }
+
+    await loadExample(decoded.files, decoded.active)
+    if (decoded.imports && Object.keys(decoded.imports).length > 0) {
+      extraImports.value = decoded.imports
+    }
+    rebuildImportMap()
+  }
 
   async function seedDefault () {
     const theme_ = theme.isDark.value ? 'dark' : 'light'
@@ -282,7 +312,9 @@ export function usePlaygroundFiles () {
     const data = buildShareData()
     if (!data) return
     const hash = await encodePlaygroundHash(data)
-    history.replaceState(null, '', `#${hash}`)
+    // Keep path + query (`?playground=`) — only rewrite the content hash.
+    const url = new URL(window.location.href)
+    history.replaceState(null, '', `${url.pathname}${url.search}#${hash}`)
   }, { duration: 500 })
 
   watch(isReady, ready => {
@@ -298,6 +330,10 @@ export function usePlaygroundFiles () {
       }
       store.activeFile?.filename // eslint-disable-line @typescript-eslint/no-unused-expressions
       scheduleHash()
+      // Once saved / opened from One, keep the remote snapshot in sync (play-style).
+      one.currentId.value // eslint-disable-line @typescript-eslint/no-unused-expressions
+      const data = buildShareData()
+      one.scheduleAutosave(data ? JSON.stringify(data) : undefined)
     })
   }, { once: true })
 

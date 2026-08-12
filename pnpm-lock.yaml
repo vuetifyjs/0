@@ -502,6 +502,9 @@ importers:
       '@mdi/js':
         specifier: 'catalog:'
         version: mdi-js-es@7.4.47
+      '@paper/genesis':
+        specifier: workspace:*
+        version: link:../../packages/genesis
       '@vue/repl':
         specifier: 'catalog:'
         version: 4.7.1(patch_hash=fc29a8ded97d1a89f3c3a420fabdefb4950b13833ca6b61fbd67bca26f408d33)
