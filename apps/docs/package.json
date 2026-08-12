@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "vite --port 8000",
     "build": "vite-ssg build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.examples.json"
   },
   "devDependencies": {
     "@octokit/openapi-types": "catalog:",
+    "vue-tsc": "catalog:",
+    "typescript": "catalog:",
     "@resvg/resvg-js": "catalog:",
     "@shikijs/langs": "catalog:",
     "@shikijs/markdown-it": "catalog:",

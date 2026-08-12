@@ -32,7 +32,7 @@
     "metrics:verify": "node scripts/verify-bench-stability.ts",
     "metrics:delta": "node scripts/report-benchmark-delta.ts",
     "skill": "node scripts/generate-skill.ts",
-    "typecheck": "pnpm --filter=\"./packages/*\" typecheck",
+    "typecheck": "pnpm --filter=\"./packages/*\" --filter=docs typecheck",
     "typecheck:0": "pnpm --filter=\"./packages/0\" typecheck",
     "typecheck:paper": "pnpm --filter=\"./packages/paper\" typecheck",
     "lint": "eslint --concurrency auto",
