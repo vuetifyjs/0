@@ -27,10 +27,10 @@
   import type { ID } from '#v0/types'
 
   export interface DataGridRowContext {
-    id: ID
+    id: ID | undefined
   }
 
-  export const [useDataGridRow, provideDataGridRow] = createContext<DataGridRowContext>({ suffix: 'row' })
+  export const [useDataGridRow, provideDataGridRow] = createContext<DataGridRowContext | null>({ suffix: 'row' })
 
   export interface DataGridRowProps extends AtomProps {
     /** Namespace for dependency injection. @default 'v0:data-grid' */
@@ -66,9 +66,8 @@
   // Verify context exists (throws if missing)
   useDataGridRoot(namespace)
 
-  if (id) {
-    provideDataGridRow(namespace, { id })
-  }
+  // Always provide row context so cells can access it
+  provideDataGridRow(namespace, { id })
 
   const slotProps = toRef((): DataGridRowSlotProps => ({
     id,
