@@ -13,13 +13,13 @@
 </script>
 
 <template>
-  <DataTable.Root v-slot="{ context }" aria-label="Users table">
+  <DataTable.Root v-slot="{ context }">
     <div v-once>
       {{ void context.columns.onboard(columns) }}
       {{ void context.onboard(users.map(u => ({ id: u.id, value: u }))) }}
     </div>
 
-    <DataTable.Table>
+    <DataTable.Table aria-label="Users table">
       <DataTable.Head>
         <DataTable.HeaderRow>
           <DataTable.HeaderCell
