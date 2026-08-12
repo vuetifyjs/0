@@ -557,8 +557,8 @@ describe('data-table', () => {
 
         await nextTick()
 
-        const empty = wrapper.findComponent(DataTable.Empty as any)
-        expect(empty.exists()).toBe(false)
+        // Component instance exists but renders nothing when items exist
+        expect(wrapper.text()).not.toContain('No data')
       })
 
       it('should expose isLoading in slot props', () => {
