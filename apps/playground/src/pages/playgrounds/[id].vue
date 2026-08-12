@@ -1,28 +1,20 @@
 <script setup lang="ts">
   import { useHead } from '@unhead/vue'
 
-  // Framework
-  import { IN_BROWSER } from '@vuetify/v0'
-
   // Composables
-  import { ONE_PLAYGROUND_PARAM } from '@/composables/useOnePlaygrounds'
+  import { providePlaygroundRoute } from '@/composables/useOnePlaygrounds'
 
   // Content
   import IntroPanel from '@/content/intro.md'
 
   // Utilities
-  import { useRouter } from 'vue-router'
+  import { computed } from 'vue'
+  import { useRoute } from 'vue-router'
 
-  const router = useRouter()
+  const route = useRoute()
+  const playgroundId = computed(() => (route.params as { id: string }).id)
 
-  // Redirect legacy `/?playground=<id>` to canonical `/playgrounds/<id>` (preserve hash)
-  if (IN_BROWSER) {
-    const url = new URL(window.location.href)
-    const legacyId = url.searchParams.get(ONE_PLAYGROUND_PARAM)
-    if (legacyId) {
-      router.replace({ path: `/playgrounds/${legacyId}`, hash: url.hash })
-    }
-  }
+  providePlaygroundRoute(playgroundId)
 
   useHead({
     title: 'Vuetify0 Play',

@@ -11,7 +11,27 @@
 import { IN_BROWSER } from '@vuetify/v0'
 
 // Utilities
-import { shallowRef } from 'vue'
+import { computed, type ComputedRef, type InjectionKey, inject, provide, shallowRef } from 'vue'
+import { useRouter } from 'vue-router'
+
+/** Injection key for route-provided playground ID (from `/playgrounds/:id`). */
+const ROUTE_ID_KEY: InjectionKey<ComputedRef<string | undefined>> = Symbol('v0play:routeId')
+
+/**
+ * Provide a reactive route-based playground ID from `/playgrounds/:id`.
+ * Called by the `[id].vue` page to inject the ID for usePlaygroundFiles.
+ */
+export function providePlaygroundRoute (id: ComputedRef<string | undefined>) {
+  provide(ROUTE_ID_KEY, id)
+}
+
+/**
+ * Inject the route-provided playground ID (if any).
+ * Returns undefined when on the root `/` route.
+ */
+export function usePlaygroundRouteId (): ComputedRef<string | undefined> {
+  return inject(ROUTE_ID_KEY, computed(() => undefined))
+}
 
 export interface OnePlayground {
   id: string
@@ -81,32 +101,59 @@ function resumeAutosave () {
   pauseDepth = Math.max(0, pauseDepth - 1)
 }
 
-/** Keep `?playground=<id>` in the address bar without clobbering hash/content. */
-function syncUrl (id: string | undefined) {
-  if (!IN_BROWSER) return
+/** Router instance set by useOnePlaygrounds for URL sync. */
+let _router: ReturnType<typeof useRouter> | undefined
 
-  const url = new URL(window.location.href)
+/**
+ * Navigate to `/playgrounds/:id` (or back to `/`) while preserving the hash.
+ * Uses vue-router for proper SPA navigation.
+ */
+function syncUrl (id: string | undefined) {
+  if (!IN_BROWSER || !_router) return
+
+  const hash = window.location.hash
+  const currentPath = window.location.pathname
+
   if (id) {
-    if (url.searchParams.get(ONE_PLAYGROUND_PARAM) === id) return
-    url.searchParams.set(ONE_PLAYGROUND_PARAM, id)
+    const targetPath = `/playgrounds/${id}`
+    if (currentPath === targetPath) return
+    _router.replace({ path: targetPath, hash })
   } else {
-    if (!url.searchParams.has(ONE_PLAYGROUND_PARAM)) return
-    url.searchParams.delete(ONE_PLAYGROUND_PARAM)
+    if (currentPath === '/') return
+    _router.replace({ path: '/', hash })
   }
-  history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
 }
 
+/**
+ * Read playground ID from route params (canonical `/playgrounds/:id`) or
+ * legacy query param (`?playground=<id>`). Route params take precedence.
+ */
 export function readPlaygroundIdFromUrl (): string | undefined {
   if (!IN_BROWSER) return undefined
-  const id = new URL(window.location.href).searchParams.get(ONE_PLAYGROUND_PARAM)
-  return id || undefined
+  const url = new URL(window.location.href)
+
+  // Check route path first (canonical form)
+  const pathMatch = url.pathname.match(/^\/playgrounds\/([^/]+)$/)
+  if (pathMatch?.[1]) return pathMatch[1]
+
+  // Fallback to query param (backwards compat)
+  const queryId = url.searchParams.get(ONE_PLAYGROUND_PARAM)
+  return queryId || undefined
 }
 
 export function useOnePlaygrounds () {
+  // Initialize router for syncUrl navigation (only if called in component context)
+  try {
+    _router = useRouter()
+  } catch {
+    // Not in component context — syncUrl will no-op
+  }
+
   function setCurrent (
     id: string | undefined,
     title?: string,
     meta?: Partial<Pick<OnePlayground, 'favorite' | 'pinned' | 'locked' | 'visibility'>>,
+    options?: { skipUrlSync?: boolean },
   ) {
     currentId.value = id
     if (title !== undefined) currentTitle.value = title || 'Untitled'
@@ -118,7 +165,9 @@ export function useOnePlaygrounds () {
         visibility: meta.visibility ?? 'public',
       }
     }
-    syncUrl(id)
+    if (!options?.skipUrlSync) {
+      syncUrl(id)
+    }
   }
 
   function clearCurrent () {
@@ -261,7 +310,7 @@ export function useOnePlaygrounds () {
   /**
    * Create or update. Pass `asNew: true` to always create (Save as).
    * Pass `title` to set/rename; otherwise reuses `currentTitle`.
-   * Writes `?playground=<id>`; autosave stays on for subsequent edits unless toggled off.
+   * Navigates to `/playgrounds/<id>`; autosave stays on for subsequent edits unless toggled off.
    */
   async function save (
     content: string,
@@ -297,6 +346,28 @@ export function useOnePlaygrounds () {
     }
   }
 
+  /**
+   * Navigate to the canonical playground URL `/playgrounds/:id`, preserving hash.
+   * Use this for explicit navigation (e.g., opening from the gallery).
+   */
+  function navigateToPlayground (id: string) {
+    if (!IN_BROWSER || !_router) return
+    const hash = window.location.hash
+    _router.push({ path: `/playgrounds/${id}`, hash })
+  }
+
+  /**
+   * Navigate back to the root `/` when clearing a playground association.
+   */
+  function navigateToRoot () {
+    if (!IN_BROWSER || !_router) return
+    const hash = window.location.hash
+    const currentPath = window.location.pathname
+    if (currentPath !== '/') {
+      _router.push({ path: '/', hash })
+    }
+  }
+
   return {
     currentId,
     currentTitle,
@@ -314,5 +385,7 @@ export function useOnePlaygrounds () {
     pauseAutosave,
     resumeAutosave,
     markSynced,
+    navigateToPlayground,
+    navigateToRoot,
   }
 }
