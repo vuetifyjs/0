@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it } from 'vitest'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 
 // Utilities
 import {
@@ -16,6 +16,7 @@ import {
   isPrimitive,
   isSymbol,
   isNaN,
+  getActiveElement,
   mergeDeep,
   clamp,
   range,
@@ -438,6 +439,49 @@ describe('helpers', () => {
         expect(isNaN({})).toBe(false)
         expect(isNaN(null)).toBe(false)
       })
+    })
+  })
+
+  describe('getActiveElement', () => {
+    it('should return document.activeElement in light DOM', () => {
+      const input = document.createElement('input')
+      document.body.append(input)
+      try {
+        input.focus()
+        expect(getActiveElement()).toBe(input)
+      } finally {
+        input.remove()
+      }
+    })
+
+    it('should return document.body when nothing is focused', () => {
+      const result = getActiveElement()
+      expect(result).toBe(document.body)
+    })
+
+    it('should return null when document is undefined (SSR)', () => {
+      const originalDocument = globalThis.document
+      vi.stubGlobal('document', undefined)
+      try {
+        expect(getActiveElement()).toBeNull()
+      } finally {
+        vi.stubGlobal('document', originalDocument)
+      }
+    })
+
+    it('should pierce open shadow roots to find the deepest focused element', () => {
+      const host = document.createElement('div')
+      const shadow = host.attachShadow({ mode: 'open' })
+      const input = document.createElement('input')
+      shadow.append(input)
+      document.body.append(host)
+      try {
+        input.focus()
+        expect(getActiveElement()).toBe(input)
+        expect(document.activeElement).toBe(host)
+      } finally {
+        host.remove()
+      }
     })
   })
 
