@@ -3,6 +3,7 @@
   import { useHotkey, useTheme, useTimer } from '@vuetify/v0'
 
   // Components
+  import PlaygroundSaveDialog from '@/components/playground/app/PlaygroundSaveDialog.vue'
   import PlaygroundSettings from '@/components/playground/settings/PlaygroundSettings.vue'
 
   // Context
@@ -11,25 +12,46 @@
 
   // Composables
   import { useExport } from '@/composables/useExport'
+  import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
   // Utilities
   import { shallowRef } from 'vue'
 
   const open = shallowRef(false)
-  const copied = shallowRef(false)
+  const saveOpen = shallowRef(false)
+  const shared = shallowRef(false)
   const exporting = shallowRef(false)
   const exported = shallowRef(false)
+  const copying = shallowRef(false)
+  const projectCopied = shallowRef(false)
+
+  const {
+    currentId: oneId,
+    currentTitle: oneTitle,
+    saving: oneSaving,
+    autosaveEnabled,
+  } = useOnePlaygrounds()
 
   const theme = useTheme()
   const playground = usePlayground()
-  const { downloadProject } = useExport()
+  const { copyProject, downloadProject } = useExport()
 
-  const { start: startCopied } = useTimer(() => {
-    copied.value = false
+  /** First save only — linked playgrounds auto-save; bar control is status + rename. */
+  function onOneClick () {
+    if (oneSaving.value) return
+    saveOpen.value = true
+  }
+
+  const { start: startShared } = useTimer(() => {
+    shared.value = false
   }, { duration: 2000 })
 
   const { start: startExported } = useTimer(() => {
     exported.value = false
+  }, { duration: 2000 })
+
+  const { start: startProjectCopied } = useTimer(() => {
+    projectCopied.value = false
   }, { duration: 2000 })
 
   useHotkey('ctrl+b', () => {
@@ -42,8 +64,8 @@
 
   function onShare () {
     navigator.clipboard.writeText(window.location.href).then(() => {
-      copied.value = true
-      startCopied()
+      shared.value = true
+      startShared()
     }).catch(() => {})
   }
 
@@ -58,6 +80,20 @@
       // Zip generation failed; leave button idle
     } finally {
       exporting.value = false
+    }
+  }
+
+  async function onCopyProject () {
+    if (copying.value) return
+    copying.value = true
+    try {
+      await copyProject()
+      projectCopied.value = true
+      startProjectCopied()
+    } catch {
+      // Clipboard may be denied; ignore
+    } finally {
+      copying.value = false
     }
   }
 </script>
@@ -91,12 +127,55 @@
       <AppTooltip
         aria-label="Copy share link"
         class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
-        :class="copied ? 'opacity-80' : 'opacity-50'"
+        :class="shared ? 'opacity-80' : 'opacity-50'"
         position-area="bottom"
-        :text="copied ? 'Link copied!' : 'Copy share link'"
+        :text="shared ? 'Link copied!' : 'Copy share link'"
         @click="onShare"
       >
-        <AppIcon :icon="copied ? 'check' : 'link'" />
+        <AppIcon :icon="shared ? 'check' : 'link'" />
+      </AppTooltip>
+
+      <AppTooltip
+        :aria-busy="oneSaving || undefined"
+        :aria-label="oneId
+          ? (oneSaving
+            ? 'Syncing to Vuetify One'
+            : autosaveEnabled
+              ? `Auto-saving to One: ${oneTitle}`
+              : `Linked to One (auto-save off): ${oneTitle}`)
+          : 'Save to Vuetify One'"
+        class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
+        :class="oneSaving || oneId ? 'opacity-80' : 'opacity-50'"
+        :disabled="oneSaving"
+        position-area="bottom"
+        :text="oneSaving
+          ? 'Syncing…'
+          : oneId
+            ? (autosaveEnabled
+              ? `Auto-save on · ${oneTitle}`
+              : `Auto-save off · ${oneTitle}`)
+            : 'Save to Vuetify One'"
+        @click="onOneClick"
+      >
+        <AppIcon
+          :class="oneId && !autosaveEnabled && !oneSaving ? 'opacity-50' : ''"
+          :icon="oneId
+            ? (oneSaving ? 'cloud-sync' : 'cloud-check')
+            : 'save'"
+        />
+      </AppTooltip>
+
+      <AppTooltip
+        :aria-busy="copying || undefined"
+        aria-label="Copy for agent"
+        class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
+        :class="projectCopied || copying ? 'opacity-80' : 'opacity-50'"
+        :disabled="copying"
+        position-area="bottom"
+        :text="copying ? 'Copying…' : projectCopied ? 'Copied for agent!' : 'Copy for Agent'"
+        @click="onCopyProject"
+      >
+        <AppIcon :icon="projectCopied ? 'check' : 'copy'" />
       </AppTooltip>
 
       <AppTooltip
@@ -128,5 +207,7 @@
     </div>
 
     <PlaygroundSettings v-if="open" @close="open = false" />
+
+    <PlaygroundSaveDialog v-model="saveOpen" />
   </header>
 </template>

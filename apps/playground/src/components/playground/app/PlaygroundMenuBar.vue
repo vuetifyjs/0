@@ -4,15 +4,28 @@
 
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
+  import AppTooltip from '@/components/app/AppTooltip.vue'
+  import PlaygroundAuthDialog from '@/components/playground/app/PlaygroundAuthDialog.vue'
+  import PlaygroundSaveDialog from '@/components/playground/app/PlaygroundSaveDialog.vue'
   import PlaygroundOpenDialog from '@/components/playground/open/PlaygroundOpenDialog.vue'
 
   // Context
   import { usePlayground } from './PlaygroundApp.vue'
 
+  // Composables
+  import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
+
   // Utilities
   import { onBeforeUnmount, shallowRef, watch } from 'vue'
 
   const playground = usePlayground()
+  const {
+    currentId: oneId,
+    currentTitle: oneTitle,
+    saving: oneSaving,
+    autosaveEnabled,
+    setAutosave,
+  } = useOnePlaygrounds()
   const breakpoints = useBreakpoints()
   const storage = useStorage()
   const sidePref = storage.get('playground-preview-right', false)
@@ -22,6 +35,8 @@
   const view = shallowRef(false)
   const confirming = shallowRef(false)
   const dialog = shallowRef(false)
+  const saveOpen = shallowRef(false)
+  const saveAs = shallowRef(false)
   let confirmTimer = 0
 
   onBeforeUnmount(() => clearTimeout(confirmTimer))
@@ -41,6 +56,17 @@
   function onOpen () {
     menu.value = false
     dialog.value = true
+  }
+
+  function onSave (asNew = false) {
+    menu.value = false
+    file.value = false
+    saveAs.value = asNew
+    saveOpen.value = true
+  }
+
+  function onAutosaveToggle () {
+    setAutosave(!autosaveEnabled.value)
   }
 
   function onReset () {
@@ -122,7 +148,84 @@
             type="button"
             @click="onOpen"
           >
-            Open example…
+            Open
+          </button>
+
+          <div class="border-t border-divider my-1" />
+
+          <!--
+            Linked: always One# identity + autosave switch (toggle only gates API writes).
+            Unlinked: Save to Vuetify One.
+          -->
+          <div
+            v-if="oneId"
+            class="w-full flex items-center justify-between gap-2 px-3 py-1.5 text-xs"
+          >
+            <span class="min-w-0 flex-1 truncate tabular-nums text-on-surface-variant">
+              One#{{ oneId }}
+            </span>
+
+            <AppTooltip
+              as="span"
+              class="inline-flex shrink-0 text-on-surface-variant opacity-80"
+              :open-delay="200"
+              position-area="top"
+              :text="oneSaving
+                ? 'Syncing…'
+                : autosaveEnabled
+                  ? `Auto-saving to Vuetify One (${oneTitle})`
+                  : 'Auto-save off'"
+            >
+              <AppIcon
+                :class="!autosaveEnabled && !oneSaving ? 'opacity-40' : ''"
+                :icon="oneSaving ? 'cloud-sync' : 'cloud-check'"
+                :size="14"
+              />
+            </AppTooltip>
+
+            <button
+              :aria-checked="autosaveEnabled"
+              aria-label="Auto-save"
+              class="relative shrink-0 h-4 w-7 rounded-full transition-colors cursor-pointer border-0 p-0"
+              :class="autosaveEnabled ? 'bg-primary' : 'bg-surface-variant'"
+              role="switch"
+              type="button"
+              @click="onAutosaveToggle"
+            >
+              <span
+                class="absolute top-0.5 size-3 rounded-full transition-[left] duration-150"
+                :class="autosaveEnabled
+                  ? 'left-3.5 bg-on-primary'
+                  : 'left-0.5 bg-on-surface-variant'"
+              />
+            </button>
+          </div>
+
+          <button
+            v-else
+            class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
+            type="button"
+            @click="onSave(false)"
+          >
+            Save to Vuetify One
+          </button>
+
+          <button
+            v-if="oneId"
+            class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
+            type="button"
+            @click="onSave(false)"
+          >
+            Rename
+          </button>
+
+          <button
+            v-if="oneId"
+            class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
+            type="button"
+            @click="onSave(true)"
+          >
+            Save as new
           </button>
 
           <div class="border-t border-divider my-1" />
@@ -194,4 +297,11 @@
     v-if="dialog"
     @close="dialog = false"
   />
+
+  <PlaygroundSaveDialog
+    v-model="saveOpen"
+    :as-new="saveAs"
+  />
+
+  <PlaygroundAuthDialog />
 </template>
