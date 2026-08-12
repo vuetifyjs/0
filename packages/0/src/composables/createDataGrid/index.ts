@@ -123,12 +123,6 @@ export type DataGridColumnTicket<T extends Record<string, unknown> = Record<stri
   = DataTableColumnTicket<T> & DataGridColumnTicketInput<T>
 
 /**
- * @deprecated Use {@link DataGridColumnTicketInput}. Columns are now onboarded
- * via `grid.columns.onboard([...])` rather than passed as a factory option.
- */
-export type DataGridColumn<T extends Record<string, unknown> = Record<string, unknown>> = DataGridColumnTicketInput<T>
-
-/**
  * Factory options for {@link createDataGrid}. Extends {@link DataTableOptions}
  * with cell-editing, row-spanning, and row-order-preservation config.
  *
