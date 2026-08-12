@@ -12,6 +12,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppCloseButton: typeof import('./components/app/AppCloseButton.vue')['default']
+    AppDotGrid: typeof import('./components/app/AppDotGrid.vue')['default']
     AppIcon: typeof import('./components/app/AppIcon.vue')['default']
     AppIconButton: typeof import('./components/app/AppIconButton.vue')['default']
     AppLoaderIcon: typeof import('./components/app/AppLoaderIcon.vue')['default']
@@ -24,6 +25,7 @@ declare module 'vue' {
     PlaygroundAppContent: typeof import('./components/playground/app/PlaygroundAppContent.vue')['default']
     PlaygroundAppLeft: typeof import('./components/playground/app/PlaygroundAppLeft.vue')['default']
     PlaygroundAppRight: typeof import('./components/playground/app/PlaygroundAppRight.vue')['default']
+    PlaygroundAuthDialog: typeof import('./components/playground/app/PlaygroundAuthDialog.vue')['default']
     PlaygroundEditor: typeof import('./components/playground/editor/PlaygroundEditor.vue')['default']
     PlaygroundEditorBreadcrumbs: typeof import('./components/playground/editor/PlaygroundEditorBreadcrumbs.vue')['default']
     PlaygroundEditorFileTree: typeof import('./components/playground/editor/PlaygroundEditorFileTree.vue')['default']
@@ -38,6 +40,7 @@ declare module 'vue' {
     PlaygroundOpenGallery: typeof import('./components/playground/open/PlaygroundOpenGallery.vue')['default']
     PlaygroundOpenSaved: typeof import('./components/playground/open/PlaygroundOpenSaved.vue')['default']
     PlaygroundPreviewError: typeof import('./components/playground/editor/PlaygroundPreviewError.vue')['default']
+    PlaygroundSaveDialog: typeof import('./components/playground/app/PlaygroundSaveDialog.vue')['default']
     PlaygroundSettings: typeof import('./components/playground/settings/PlaygroundSettings.vue')['default']
     PlaygroundSettingsExport: typeof import('./components/playground/settings/PlaygroundSettingsExport.vue')['default']
     PlaygroundSettingsIcons: typeof import('./components/playground/settings/PlaygroundSettingsIcons.vue')['default']

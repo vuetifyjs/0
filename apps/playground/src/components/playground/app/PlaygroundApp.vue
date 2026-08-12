@@ -9,7 +9,9 @@
   import { nextTick, onMounted, shallowRef, watch } from 'vue'
 
   // Types
+  import type { ActiveExample } from '@/composables/usePlaygroundFiles'
   import type { RegistryExampleRef } from '@/data/registry'
+  import type { VuetifyExampleRef } from '@/data/vuetify-examples'
   import type { ReplStore } from '@vue/repl'
   import type { Ref, ShallowRef } from 'vue'
 
@@ -35,6 +37,11 @@
     loadError: ShallowRef<string | undefined>
     openPlayground: (content: string) => Promise<void>
     openRegistryExample: (ref: RegistryExampleRef, options?: { clearSearch?: boolean }) => Promise<void>
+    openVuetifyExample: (ref: VuetifyExampleRef, options?: { clearSearch?: boolean }) => Promise<void>
+    /** Last Open-gallery example loaded into the editor (for highlight). */
+    activeExample: ShallowRef<ActiveExample | undefined>
+    /** JSON payload for Vuetify One `playground.content`. */
+    snapshotContent: () => string
     showConfig: ShallowRef<boolean>
   }
 
@@ -59,6 +66,9 @@
     toggleAddon,
     openPlayground,
     openRegistryExample,
+    openVuetifyExample,
+    activeExample,
+    snapshotContent,
   } = usePlaygroundFiles()
   const storage = useStorage()
   const { isMobile } = useBreakpoints()
@@ -113,6 +123,9 @@
     loadError,
     openPlayground,
     openRegistryExample,
+    openVuetifyExample,
+    activeExample,
+    snapshotContent,
     showConfig,
   })
 
