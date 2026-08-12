@@ -25,7 +25,6 @@
     saving: oneSaving,
     autosaveEnabled,
     setAutosave,
-    save: saveOne,
   } = useOnePlaygrounds()
   const breakpoints = useBreakpoints()
   const storage = useStorage()
@@ -38,7 +37,6 @@
   const dialog = shallowRef(false)
   const saveOpen = shallowRef(false)
   const saveAs = shallowRef(false)
-  const saveBusy = shallowRef(false)
   let confirmTimer = 0
 
   onBeforeUnmount(() => clearTimeout(confirmTimer))
@@ -65,21 +63,6 @@
     file.value = false
     saveAs.value = asNew
     saveOpen.value = true
-  }
-
-  /** Manual push for a linked playground (works with auto-save on or off). */
-  async function onSaveNow () {
-    if (!oneId.value || saveBusy.value) return
-    saveBusy.value = true
-    try {
-      await saveOne(playground.snapshotContent())
-      menu.value = false
-      file.value = false
-    } catch {
-      // error stays on one.error
-    } finally {
-      saveBusy.value = false
-    }
   }
 
   function onAutosaveToggle () {
@@ -171,12 +154,11 @@
           <div class="border-t border-divider my-1" />
 
           <!--
-            Linked + auto-save on: dimmed One# identity + switch (no Save).
-            Linked + auto-save off: Save action + switch (no One#).
-            Unlinked: Save to Vuetify One only.
+            Linked: always One# identity + autosave switch (toggle only gates API writes).
+            Unlinked: Save to Vuetify One.
           -->
           <div
-            v-if="oneId && autosaveEnabled"
+            v-if="oneId"
             class="w-full flex items-center justify-between gap-2 px-3 py-1.5 text-xs"
           >
             <span class="min-w-0 flex-1 truncate tabular-nums text-on-surface-variant">
@@ -188,60 +170,34 @@
               class="inline-flex shrink-0 text-on-surface-variant opacity-80"
               :open-delay="200"
               position-area="top"
-              :text="oneSaving || saveBusy
+              :text="oneSaving
                 ? 'Syncing…'
-                : `Auto-saving to Vuetify One (${oneTitle})`"
+                : autosaveEnabled
+                  ? `Auto-saving to Vuetify One (${oneTitle})`
+                  : 'Auto-save off'"
             >
               <AppIcon
-                :icon="oneSaving || saveBusy ? 'cloud-sync' : 'cloud-check'"
+                :class="!autosaveEnabled && !oneSaving ? 'opacity-40' : ''"
+                :icon="oneSaving ? 'cloud-sync' : 'cloud-check'"
                 :size="14"
               />
             </AppTooltip>
 
             <button
-              :aria-checked="true"
+              :aria-checked="autosaveEnabled"
               aria-label="Auto-save"
-              class="relative shrink-0 h-4 w-7 rounded-full bg-primary transition-colors cursor-pointer border-0 p-0"
+              class="relative shrink-0 h-4 w-7 rounded-full transition-colors cursor-pointer border-0 p-0"
+              :class="autosaveEnabled ? 'bg-primary' : 'bg-surface-variant'"
               role="switch"
               type="button"
               @click="onAutosaveToggle"
             >
-              <span class="absolute top-0.5 left-3.5 size-3 rounded-full bg-on-primary" />
-            </button>
-          </div>
-
-          <div
-            v-else-if="oneId"
-            class="w-full flex items-center justify-between gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint"
-          >
-            <button
-              class="min-w-0 flex-1 text-left bg-transparent border-0 p-0 text-xs text-on-surface cursor-pointer disabled:opacity-50"
-              :disabled="saveBusy"
-              type="button"
-              @click="onSaveNow"
-            >
-              {{ saveBusy ? 'Saving…' : 'Save' }}
-            </button>
-
-            <AppTooltip
-              as="span"
-              class="inline-flex shrink-0 opacity-70"
-              :open-delay="200"
-              position-area="top"
-              text="Auto-save off"
-            >
-              <AppIcon icon="save" :size="14" />
-            </AppTooltip>
-
-            <button
-              :aria-checked="false"
-              aria-label="Auto-save"
-              class="relative shrink-0 h-4 w-7 rounded-full bg-surface-variant transition-colors cursor-pointer border-0 p-0"
-              role="switch"
-              type="button"
-              @click="onAutosaveToggle"
-            >
-              <span class="absolute top-0.5 left-0.5 size-3 rounded-full bg-on-surface-variant" />
+              <span
+                class="absolute top-0.5 size-3 rounded-full transition-[left] duration-150"
+                :class="autosaveEnabled
+                  ? 'left-3.5 bg-on-primary'
+                  : 'left-0.5 bg-on-surface-variant'"
+              />
             </button>
           </div>
 
