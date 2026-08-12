@@ -2,7 +2,7 @@
 import { IN_BROWSER, isArray, isObject, useTheme, useTimer } from '@vuetify/v0'
 
 // Composables
-import { readPlaygroundIdFromUrl, useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
+import { readPlaygroundIdFromUrl, useOnePlaygrounds, usePlaygroundRouteId } from '@/composables/useOnePlaygrounds'
 import { decodePlaygroundHash, encodePlaygroundHash, isFileRecord, parseVuetifyPlayTuple } from '@/composables/usePlayground'
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
@@ -30,6 +30,7 @@ export type ActiveExample =
 export function usePlaygroundFiles () {
   const theme = useTheme()
   const one = useOnePlaygrounds()
+  const routeId = usePlaygroundRouteId()
 
   const { importMap, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions } = usePlaygroundSettings()
 
@@ -94,9 +95,9 @@ export function usePlaygroundFiles () {
   onMounted(async () => {
     const hash = window.location.hash.slice(1)
     const decoded = hash ? await decodePlaygroundHash(hash) : null
-    // `?playground=<id>` is the durable One association (play’s /playgrounds/:id).
-    // It wins over a bare hash so reload rebinds autosave; content comes from the API.
-    const oneId = readPlaygroundIdFromUrl()
+    // Canonical `/playgrounds/:id` (via route) or legacy `?playground=<id>` (via URL).
+    // Route-provided ID takes precedence; both win over bare hash so reload rebinds autosave.
+    const oneId = routeId.value || readPlaygroundIdFromUrl()
     // Hash-only share links are self-contained. Short deep-links use query params
     // with an empty hash: v0 registry (`?example=`) or Vuetify docs (`?vuetify=`).
     const search = (!oneId && !decoded) ? new URLSearchParams(window.location.search) : null

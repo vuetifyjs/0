@@ -693,15 +693,18 @@
     // Pause autosave while REPL loads so we don't POST the previous editor state.
     one.pauseAutosave()
     try {
+      // Skip URL sync here — we'll use navigateToPlayground for explicit push navigation
       one.setCurrent(item.id, item.title || 'Untitled', {
         favorite: item.favorite ?? false,
         pinned: item.pinned ?? false,
         locked: item.locked ?? false,
         visibility: item.visibility ?? 'public',
-      })
+      }, { skipUrlSync: true })
       one.markSynced(content)
       emit('close')
       await playground.openPlayground(content)
+      // Navigate to the canonical playground URL (uses router.push for history)
+      one.navigateToPlayground(item.id)
     } finally {
       one.resumeAutosave()
     }
