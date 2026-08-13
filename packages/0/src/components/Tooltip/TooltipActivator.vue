@@ -21,7 +21,7 @@
   import { useTooltipRoot } from './TooltipRoot.vue'
 
   // Utilities
-  import { mergeProps, toRef, useAttrs } from 'vue'
+  import { mergeProps, toRef, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -68,6 +68,10 @@
   } = defineProps<TooltipActivatorProps>()
 
   const root = useTooltipRoot(namespace)
+
+  const atomRef = useTemplateRef('atom')
+
+  root.attachAnchor(() => atomRef.value?.element)
 
   function onPointerenter (e: PointerEvent) {
     if (e.pointerType === 'touch') return
@@ -123,6 +127,7 @@
 
 <template>
   <Atom
+    ref="atom"
     :as
     :renderless
     :style="root.anchorStyles.value"

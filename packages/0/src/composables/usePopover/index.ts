@@ -11,7 +11,8 @@
  *
  * Key features:
  * - Native popover API (showPopover/hidePopover)
- * - CSS anchor positioning (position-area, position-try-fallbacks)
+ * - CSS anchor positioning (position-area, position-try-fallbacks) by default,
+ *   via a pluggable `PopoverAdapter` seam for JS positioning engines
  * - Reactive open/close delays via `useDelay`
  * - Toggle event sync for native state changes
  * - SSR-safe (no DOM ops outside browser)
@@ -25,17 +26,44 @@
  * popover.open()
  * popover.toggle()
  * ```
+ *
+ * @example Bring your own positioning engine
+ * ```ts
+ * import { PopoverAdapter, usePopover } from '@vuetify/v0'
+ *
+ * class MyAdapter extends PopoverAdapter {
+ *   setup (context) {
+ *     // read context.anchorEl / context.contentEl / context.isOpen /
+ *     // context.placement, return a Ref<Record<string, string>> of styles
+ *   }
+ * }
+ *
+ * const popover = usePopover({ adapter: new MyAdapter() })
+ * ```
  */
 
 // Composables
 import { useDelay } from '#v0/composables/useDelay'
 import { useEventListener } from '#v0/composables/useEventListener'
 
+// Adapters
+import { V0PopoverAdapter, derivePlacement } from '#v0/composables/usePopover/adapters'
+
 // Utilities
 import { useId } from '#v0/utilities'
-import { onMounted, shallowRef, toRef, toValue, watch } from 'vue'
+import { onMounted, onScopeDispose, shallowRef, toRef, toValue, watch } from 'vue'
+
+// Exports
+export { derivePlacement, PopoverAdapter, V0PopoverAdapter } from '#v0/composables/usePopover/adapters'
+export type {
+  PopoverAdapterContext,
+  PopoverAlign,
+  PopoverPlacement,
+  PopoverSide,
+} from '#v0/composables/usePopover/adapters'
 
 // Types
+import type { PopoverAdapter } from '#v0/composables/usePopover/adapters'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 export interface PopoverOptions {
@@ -51,6 +79,12 @@ export interface PopoverOptions {
   openDelay?: MaybeRefOrGetter<number>
   /** Delay in ms before closing the popover. @default 0 */
   closeDelay?: MaybeRefOrGetter<number>
+  /**
+   * Positioning engine. @default `new V0PopoverAdapter()` — CSS anchor
+   * positioning, zero runtime dependency. Pass a custom `PopoverAdapter` to
+   * bring your own engine (floating-ui, Popper, etc.) — v0 ships none.
+   */
+  adapter?: PopoverAdapter
 }
 
 export interface PopoverReturn {
@@ -70,10 +104,12 @@ export interface PopoverReturn {
   anchorStyles: Readonly<Ref<Record<string, string>>>
   /** Attrs to spread on the content element (id, popover) */
   contentAttrs: Readonly<Ref<{ id: string, popover: '' }>>
-  /** Styles to spread on the content element (positioning) */
+  /** Styles to spread on the content element — adapter-owned positioning */
   contentStyles: Readonly<Ref<Record<string, string>>>
   /** Attach to a content element — wires show/hide watch + toggle event sync */
   attach: (el: MaybeRefOrGetter<HTMLElement | null | undefined>) => void
+  /** Register the activator/reference element with the positioning adapter */
+  attachAnchor: (el: MaybeRefOrGetter<HTMLElement | null | undefined>) => void
 }
 
 export function usePopover (options: PopoverOptions = {}): PopoverReturn {
@@ -83,6 +119,7 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
     positionTry = 'most-width bottom',
     openDelay,
     closeDelay,
+    adapter = new V0PopoverAdapter(),
   } = options
 
   const id = _id ?? useId()
@@ -122,17 +159,39 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
     popover: '',
   }))
 
-  const contentStyles = toRef(() => ({
-    'position': 'fixed',
-    'margin': 'unset',
-    'inset-area': positionArea,
-    'position-area': positionArea,
-    'position-anchor': anchor,
-    'position-try-fallbacks': positionTry,
-  }))
+  const anchorEl = shallowRef<HTMLElement | null | undefined>()
+  const contentEl = shallowRef<HTMLElement | null | undefined>()
+  const placement = toRef(() => derivePlacement(positionArea))
+
+  const contentStyles = adapter.setup({
+    anchorName: anchor,
+    anchorEl,
+    contentEl,
+    isOpen,
+    placement,
+    positionTry,
+  })
+
+  // failSilently: usePopover() is regularly called outside an active effect
+  // scope (e.g. directly in tests), which would otherwise warn.
+  onScopeDispose(() => adapter.dispose?.(), true)
+
+  function attachAnchor (el: MaybeRefOrGetter<HTMLElement | null | undefined>) {
+    watch(() => toValue(el), value => {
+      anchorEl.value = value
+    }, { immediate: true })
+  }
+
+  function attach (el: MaybeRefOrGetter<HTMLElement | null | undefined>) {
+    watch(() => toValue(el), value => {
+      contentEl.value = value
+    }, { immediate: true })
+
+    attachContentEvents(el)
+  }
 
   /* v8 ignore start -- browser popover API */
-  function attach (el: MaybeRefOrGetter<HTMLElement | null | undefined>) {
+  function attachContentEvents (el: MaybeRefOrGetter<HTMLElement | null | undefined>) {
     onMounted(() => {
       const element = toValue(el)
       if (isOpen.value) {
@@ -175,5 +234,6 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
     contentAttrs,
     contentStyles,
     attach,
+    attachAnchor,
   }
 }

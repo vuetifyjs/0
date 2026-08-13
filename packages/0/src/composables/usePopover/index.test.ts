@@ -1,9 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { usePopover } from './index'
+import { PopoverAdapter, usePopover } from './index'
 
 // Utilities
-import { effectScope, shallowRef } from 'vue'
+import { effectScope, shallowRef, toRef } from 'vue'
+
+// Types
+import type { PopoverAdapterContext } from './index'
+import type { Ref } from 'vue'
 
 describe('usePopover', () => {
   beforeEach(() => {
@@ -194,6 +198,93 @@ describe('usePopover', () => {
 
       expect(popover.contentStyles.value['position-area']).toBe('top')
       expect(popover.contentStyles.value['position-try-fallbacks']).toBe('most-height top')
+    })
+  })
+
+  describe('adapter seam', () => {
+    class RecordingAdapter extends PopoverAdapter {
+      context?: PopoverAdapterContext
+      disposed = false
+
+      setup (context: PopoverAdapterContext): Readonly<Ref<Record<string, string>>> {
+        this.context = context
+        this.dispose = () => {
+          this.disposed = true
+        }
+        return toRef(() => ({ 'custom-style': context.placement.value.side }))
+      }
+    }
+
+    it('should use the default V0PopoverAdapter output when no adapter is given', () => {
+      const popover = usePopover({ id: 'test' })
+
+      expect(popover.contentStyles.value).toEqual({
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset-area': 'bottom',
+        'position-area': 'bottom',
+        'position-anchor': '--test',
+        'position-try-fallbacks': 'most-width bottom',
+      })
+    })
+
+    it('should defer contentStyles entirely to a custom adapter', () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ id: 'test', positionArea: 'top', adapter })
+
+      expect(popover.contentStyles.value).toEqual({ 'custom-style': 'top' })
+    })
+
+    it('should pass anchorName, positionTry, and isOpen through to the adapter context', () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ id: 'test', positionTry: 'most-height top', adapter })
+
+      expect(adapter.context!.anchorName).toBe('--test')
+      expect(adapter.context!.positionTry).toBe('most-height top')
+      expect(adapter.context!.isOpen).toBe(popover.isOpen)
+    })
+
+    it('should populate contentEl in the adapter context via attach()', () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ adapter })
+
+      expect(adapter.context!.contentEl.value).toBeUndefined()
+
+      const el = document.createElement('div')
+      const scope = effectScope()
+      scope.run(() => {
+        popover.attach(shallowRef(el))
+      })
+      scope.stop()
+
+      expect(adapter.context!.contentEl.value).toBe(el)
+    })
+
+    it('should populate anchorEl in the adapter context via attachAnchor()', () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ adapter })
+
+      const el = document.createElement('div')
+      const scope = effectScope()
+      scope.run(() => {
+        popover.attachAnchor(shallowRef(el))
+      })
+      scope.stop()
+
+      expect(adapter.context!.anchorEl.value).toBe(el)
+    })
+
+    it('should call the adapter dispose hook on scope disposal', () => {
+      const adapter = new RecordingAdapter()
+      const scope = effectScope()
+
+      scope.run(() => {
+        usePopover({ adapter })
+      })
+
+      expect(adapter.disposed).toBe(false)
+      scope.stop()
+      expect(adapter.disposed).toBe(true)
     })
   })
 

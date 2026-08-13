@@ -43,7 +43,7 @@
   import { usePopoverContext } from './PopoverRoot.vue'
 
   // Utilities
-  import { toRef, toValue } from 'vue'
+  import { toRef, toValue, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'PopoverActivator' })
 
@@ -54,6 +54,15 @@
   const { as = 'button', renderless, target } = defineProps<PopoverActivatorProps>()
 
   const context = usePopoverContext()
+
+  const ref = useTemplateRef('ref')
+
+  // Only the default target (the parent PopoverRoot's own popover) has a
+  // positioning-adapter context to register with - a custom `target` points
+  // at a different, unrelated popover instance's context.
+  if (!target) {
+    context.attachAnchor(() => ref.value?.element)
+  }
 
   const popovertarget = toRef(() => target ?? context.id)
 
@@ -89,6 +98,7 @@
 
 <template>
   <Atom
+    ref="ref"
     :as
     :renderless
     v-bind="slotProps.attrs"
