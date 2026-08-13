@@ -470,6 +470,25 @@ Pick whichever fits your setup:
 
 3. **Server timezone:** Set `TZ=UTC` environment variable on your server for consistent baseline.
 
+??? Is it safe to share one date plugin instance across every request in SSR?
+
+No — construct the adapter (and the plugin) fresh per request instead of at module scope:
+
+```ts
+// ❌ Don't: one adapter instance shared by every request for the server's lifetime
+export const datePlugin = createDatePlugin({ adapter: new V0DateAdapter() })
+```
+
+```ts
+// ✅ Do: a fresh adapter per request
+export function createRequestPlugins () {
+  return [createDatePlugin({ adapter: new V0DateAdapter() })]
+}
+// per request: for (const plugin of createRequestPlugins()) app.use(plugin)
+```
+
+`adapter.locale` and `adapter.firstDayOfWeek` are mutable state kept in sync with `useLocale`'s selection (see [Locale Integration](#locale-integration)). A shared module-scope adapter means every concurrent request's locale sync writes to the *same* adapter instance — one request's locale can leak into another's rendered output, affecting not just formatting but calendar layout (which column a week starts in, week numbers). `createDatePlugin` itself is safe to install on multiple `app` instances — each install gets its own locale/`firstDayOfWeek` context — but that isolation doesn't extend to an `adapter` object you construct once and pass to every install.
+
 ??? Do I need to install the Temporal polyfill?
 
 Only if a runtime you target lacks native Temporal. `V0DateAdapter` prefers the runtime's native implementation and falls back to [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) when it's missing — once every target ships native Temporal, the polyfill is no longer required.

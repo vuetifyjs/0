@@ -46,7 +46,7 @@ import { useLocale } from '#v0/composables/useLocale'
 
 // Utilities
 import { instanceExists, isNullOrUndefined, isUndefined, V0Error } from '#v0/utilities'
-import { computed, watchEffect, onScopeDispose } from 'vue'
+import { computed, hasInjectionContext, watchEffect, onScopeDispose } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -162,11 +162,14 @@ export function createDate<
     firstDayOfWeek: explicitFirstDay,
   } = options
 
-  // Try to get selected locale from useLocale if available
+  // Try to get selected locale from useLocale if available. `inject()` (which
+  // useLocale relies on) works inside a component's setup() AND inside a
+  // plugin's app.runWithContext() callback — instanceExists() only covers the
+  // former, which is why the plugin install path never picked up useLocale.
   let selectedId: Ref<ID | undefined> | undefined
 
   try {
-    if (instanceExists()) {
+    if (hasInjectionContext()) {
       selectedId = useLocale().selectedId
     }
   } catch {
@@ -193,8 +196,11 @@ export function createDate<
     return loc ? deriveFirstDayOfWeek(loc) : 0
   })
 
-  // Keep adapter locale in sync (only when in component scope)
-  if (instanceExists()) {
+  // Keep adapter locale in sync reactively whenever inject() is usable -
+  // component setup() and a plugin's app.runWithContext() callback both
+  // qualify. onScopeDispose's failSilently arg avoids a spurious warning when
+  // this runs at plugin-install time, outside any component effect scope.
+  if (hasInjectionContext()) {
     const stop = watchEffect(() => {
       const loc = locale.value
 
@@ -207,7 +213,7 @@ export function createDate<
         adapter.firstDayOfWeek = fdow
       }
     })
-    onScopeDispose(stop)
+    onScopeDispose(stop, true)
   } else {
     // Outside component: sync once, no reactive watch
     const loc = locale.value
@@ -282,11 +288,17 @@ export function createDatePlugin<
   E extends DateContext<Z> = DateContext<Z>,
 > (_options: DatePluginOptions<Z>) {
   const { namespace = 'v0:date', ...options } = _options
-  const [, provideDateContext, context] = createDateContext<Z, E>({ namespace, ...options })
 
   return createPlugin({
     namespace,
+    // Constructed lazily, inside app.runWithContext(), rather than eagerly at
+    // createDatePlugin() call time: useLocale() needs an active injection
+    // context to resolve, which only exists once app.use() actually runs.
+    // This also means installing the same plugin definition on multiple apps
+    // (e.g. one per SSR request) gives each app its own locale/firstDayOfWeek
+    // context instead of sharing one computed across every install.
     provide: (app: App) => {
+      const [, provideDateContext, context] = createDateContext<Z, E>({ namespace, ...options })
       provideDateContext(context, app)
     },
   })
