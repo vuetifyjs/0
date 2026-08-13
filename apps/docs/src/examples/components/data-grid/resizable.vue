@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { DataGrid } from '@vuetify/v0'
+  import { DataGrid, Splitter } from '@vuetify/v0'
 
   interface User {
     id: number
@@ -23,52 +23,67 @@
 
 <template>
   <DataGrid.Root v-slot="{ context }">
-    <DataGrid.Table
-      class="w-full border-collapse"
+    <div
+      aria-label="Users"
+      class="w-full border border-divider rounded-lg overflow-hidden"
+      role="grid"
       @vue:mounted="context.columns.onboard(columns)"
     >
-      <DataGrid.Header>
-        <DataGrid.Row class="bg-surface-tint">
-          <template v-for="(col, idx) in columns" :key="col.id">
-            <DataGrid.Column
-              v-slot="{ size }"
-              class="p-3 text-start font-semibold border-b border-divider relative"
-              :column="col.id"
-              :style="{ width: `${size}%` }"
-            >
-              {{ col.id.charAt(0).toUpperCase() + col.id.slice(1) }}
-            </DataGrid.Column>
-
-            <DataGrid.ResizeHandle
-              v-if="idx < columns.length - 1"
-              v-slot="{ isDragging, state }"
-              class="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-primary/50 z-10"
-              :class="{ 'bg-primary': isDragging }"
-              :column="col.id"
-              :data-state="state"
-            />
-          </template>
-        </DataGrid.Row>
-      </DataGrid.Header>
-
-      <DataGrid.Body @vue:mounted="context.onboard(users.map(u => ({ id: u.id, value: u })))">
-        <DataGrid.Row
-          v-for="item in context.items.value"
-          :id="item.id"
-          :key="item.id"
-          class="hover:bg-surface-tint/50"
+      <!-- Resizable header using Splitter composition -->
+      <div class="bg-surface-tint" role="rowgroup">
+        <Splitter.Root
+          class="flex"
+          orientation="horizontal"
+          role="row"
+          @layout="(sizes: number[]) => context.layout.distribute(sizes)"
         >
-          <DataGrid.Cell
+          <Splitter.Panel
+            v-for="(col, idx) in columns"
+            :key="col.id"
+            class="p-3 text-start font-semibold relative"
+            :default-size="col.size"
+            :min-size="col.minSize"
+            role="columnheader"
+          >
+            <span class="block truncate">
+              {{ col.id.charAt(0).toUpperCase() + col.id.slice(1) }}
+            </span>
+
+            <Splitter.Handle
+              v-if="idx < columns.length - 1"
+              class="absolute right-0 top-0 h-full w-1 cursor-col-resize bg-transparent hover:bg-primary/50 data-[state=drag]:bg-primary z-10"
+              :label="`Resize ${col.id} column`"
+            />
+          </Splitter.Panel>
+        </Splitter.Root>
+      </div>
+
+      <!-- Body rows with widths synced from layout -->
+      <div
+        role="rowgroup"
+        @vue:mounted="context.onboard(users.map(u => ({ id: u.id, value: u })))"
+      >
+        <div
+          v-for="item in context.items.value"
+          :key="item.id"
+          class="flex hover:bg-surface-tint/50 border-t border-divider"
+          role="row"
+        >
+          <div
             v-for="col in columns"
             :key="col.id"
-            class="p-3 border-b border-divider"
-            :column="col.id"
-            :style="{ width: `${context.layout.columns.value.find(c => c.id === col.id)?.size ?? 0}%` }"
+            class="p-3 truncate"
+            role="gridcell"
+            :style="{
+              flexBasis: `${context.layout.columns.value.find((c: any) => c.id === col.id)?.size ?? 0}%`,
+              flexGrow: 0,
+              flexShrink: 0,
+            }"
           >
             {{ (item as any)[col.id] }}
-          </DataGrid.Cell>
-        </DataGrid.Row>
-      </DataGrid.Body>
-    </DataGrid.Table>
+          </div>
+        </div>
+      </div>
+    </div>
   </DataGrid.Root>
 </template>
