@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createProgress, createProgressContext, useProgress } from './index'
 
 // Utilities
-import { inject, provide, shallowRef, toValue } from 'vue'
+import { computed, inject, provide, shallowRef, toValue } from 'vue'
 
 // Types
 import type { ProgressOptions } from './index'
@@ -250,6 +250,22 @@ describe('createProgress', () => {
       progress.apply([30, 20])
       expect(toValue(val1)).toBe(30)
       expect(toValue(val2)).toBe(20)
+    })
+
+    it('should reset a segment without a matching incoming entry to min', () => {
+      const progress = setup({ min: 0, max: 100 })
+      const val1 = shallowRef(60)
+      progress.register({ value: val1 })
+      progress.apply([])
+      expect(toValue(val1)).toBe(0)
+    })
+
+    it('should skip readonly segments', () => {
+      const progress = setup({ min: 0, max: 100 })
+      const readonlyVal = computed(() => 50)
+      progress.register({ value: readonlyVal })
+      progress.apply([80])
+      expect(toValue(readonlyVal)).toBe(50)
     })
   })
 
