@@ -1,6 +1,6 @@
 ---
 name: vuetify0
-description: Use when building Vue 3 UI that needs headless logic — selection state (single, multi, grouped, nested, stepped), form validation, registries, context providers, virtual scrolling, pagination, data tables, focus traversal, keyboard shortcuts, resize/intersection/mutation observers, popovers, snackbars, SSR-safe browser checks, theming, RTL, breakpoints, or WAI-ARIA compound components. Triggers on @vuetify/v0, vuetify0, v0, createX composables, or import paths starting with #v0.
+description: "Use when building Vue 3 UI in this repo or any v0 consumer — and when about to write a native <button>, a homemade setTimeout timer, or a homemade overlay/dialog. Those are Button, useTimer, and Dialog/Popover/useStack; do not roll them. Also selection, forms, registries, virtual scroll, popovers, focus, snackbars, SSR checks, theme, RTL, breakpoints, or WAI-ARIA compounds. Triggers on @vuetify/v0, vuetify0, v0, #v0, native button, homemade timer, homemade overlay, setTimeout UI, custom modal, or hand-rolled selection/form/focus."
 ---
 
 # Vuetify0

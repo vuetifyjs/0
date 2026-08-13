@@ -37,49 +37,14 @@ when violated, not a stylistic preference.
   registries, virtual scroll, popovers, focus, breakpoints, theming) must be extended or
   composed, not reimplemented. Flag reinvention.
 
-## Decision table — reach for these first
+## Decision table
 
-Check this table **before writing custom logic**. Match by problem, not by keyword.
+If a v0 primitive already covers it, use that. If you are about to write native
+HTML (`<button>`) or homemade logic (a `setTimeout` timer, an overlay/dialog),
+stop and use the v0 equivalent instead.
 
-| Problem | Use | Category |
-|---|---|---|
-| Single-choice state (tabs, theme picker) | `createSingle` | selection |
-| Multi-choice state (filters, tag pickers) | `createSelection` | selection |
-| Select-all with tri-state | `createGroup` | selection |
-| Tree / nested selection (treeview, menus) | `createNested` | selection |
-| Wizard / carousel step tracking | `createStep` | selection |
-| Id-based value store (shared across sub-components) | `createModel` | selection |
-| Form with async validation + dirty tracking | `createForm` + `createValidation` | forms |
-| Slider / range / knob state | `createSlider` | forms |
-| Autocomplete / combobox | `createCombobox` | forms |
-| Spin-button numeric input | `createNumberField` / `createNumeric` | forms |
-| One-time-password / verification-code value | `createOtp` | forms |
-| Paginated or virtualized list | `createPagination`, `createVirtual` | data |
-| Sortable / filterable table | `createDataTable`, `createFilter` | data |
-| Breadcrumb trail derived from route | `createBreadcrumbs` | utilities |
-| Overflow / responsive menu (hides overflowing items) | `createOverflow` | utilities |
-| Type-safe provide/inject | `createContext` | foundation |
-| Reactive registry of ids → values | `createRegistry` | registration |
-| Auto-dismissing queue (snackbars, toasts) | `createQueue` | registration |
-| Scheduled events over time (timeline, animation) | `createTimeline` | registration |
-| Design-token graph (theme, spacing scales) | `createTokens` | registration |
-| Floating UI positioning (popover, tooltip, menu) | `usePopover` | system |
-| Enter/leave animation orchestration | `usePresence` | system |
-| Roving tabindex (list, menubar) | `useRovingFocus` | system |
-| Virtual focus (combobox listbox) | `useVirtualFocus` | system |
-| Click outside / keyboard shortcut / event listener | `useClickOutside`, `useHotkey`, `useEventListener` | system |
-| ResizeObserver / IntersectionObserver / MutationObserver | `useResizeObserver`, etc. | system |
-| rAF loop or setTimeout with pause/resume | `useRaf`, `useTimer` | system |
-| Responsive breakpoints | `useBreakpoints`, `useMediaQuery` | plugins |
-| Localized strings + date/number format | `useLocale`, `useDate` | plugins |
-| Theme (light/dark/custom palette) | `useTheme` | plugins |
-| RTL direction awareness | `useRtl` | plugins |
-| z-index stacking for overlays | `useStack` | plugins |
-| Notifications / snackbar queue plugin | `useNotifications` | plugins |
-| Feature flags / permission checks | `useFeatures`, `usePermissions` | plugins |
-| Persisted state (localStorage / sessionStorage) | `useStorage` | plugins |
-| Structured logging with adapters | `useLogger` | plugins |
-| SSR-safe mount detection | `useHydration` | plugins |
+Full inventory: `skills/vuetify0/SKILL.md`. Architecture:
+`packages/0/PHILOSOPHY.md`. Path-scoped rules: `.claude/rules/`.
 
 ## PHILOSOPHY section map
 
