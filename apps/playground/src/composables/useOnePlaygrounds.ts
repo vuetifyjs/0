@@ -14,6 +14,7 @@ import { IN_BROWSER } from '@vuetify/v0'
 import { useAuthStore } from '@vuetify/auth'
 
 // Utilities
+import { isNullOrUndefined, isUndefined } from '#v0/utilities'
 import { computed, type ComputedRef, type InjectionKey, inject, provide, shallowRef, toRef } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -86,7 +87,7 @@ let pauseDepth = 0
 let queuedContent: string | undefined
 
 function cancelAutosaveTimer () {
-  if (autosaveTimer !== undefined) {
+  if (!isUndefined(autosaveTimer)) {
     clearTimeout(autosaveTimer)
     autosaveTimer = undefined
   }
@@ -178,7 +179,7 @@ export function useOnePlaygrounds () {
     options?: { skipUrlSync?: boolean, owner?: string },
   ) {
     currentId.value = id
-    if (title !== undefined) currentTitle.value = title || 'Untitled'
+    if (!isUndefined(title)) currentTitle.value = title || 'Untitled'
     if (meta) {
       currentMeta.value = {
         favorite: meta.favorite ?? false,
@@ -187,8 +188,9 @@ export function useOnePlaygrounds () {
         visibility: meta.visibility ?? 'public',
       }
     }
-    if (options?.owner !== undefined) {
-      currentOwner.value = options.owner
+    const owner = options?.owner
+    if (!isUndefined(owner)) {
+      currentOwner.value = owner
     }
     if (!options?.skipUrlSync) {
       syncUrl(id)
@@ -328,12 +330,13 @@ export function useOnePlaygrounds () {
    */
   function scheduleAutosave (content: string | null | undefined) {
     if (!IN_BROWSER || !currentId.value || !autosaveEnabled.value || pauseDepth > 0) return
-    if (content == null || content === lastSynced) return
+    if (isNullOrUndefined(content) || content === lastSynced) return
 
+    const next = content ?? ''
     cancelAutosaveTimer()
     autosaveTimer = setTimeout(() => {
       autosaveTimer = undefined
-      void flushAutosave(content)
+      void flushAutosave(next)
     }, AUTOSAVE_MS)
   }
 
@@ -401,7 +404,7 @@ export function useOnePlaygrounds () {
     const data = await res.json()
     const playground = (data.playground ?? data) as OnePlayground
 
-    if (patch.title !== undefined) currentTitle.value = playground.title
+    if (!isUndefined(patch.title)) currentTitle.value = playground.title
     currentMeta.value = {
       favorite: playground.favorite,
       pinned: playground.pinned,

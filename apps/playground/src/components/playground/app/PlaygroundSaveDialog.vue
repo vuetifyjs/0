@@ -172,39 +172,44 @@
         <div v-if="isCreate" class="flex items-center justify-between gap-2">
           <span class="text-[11px] text-on-surface-variant">Visibility</span>
 
-          <div class="flex items-center gap-1">
+          <Button.Group
+            v-model="visibility"
+            class="flex items-center gap-1"
+            label="Visibility"
+            mandatory
+          >
             <AppTooltip
-              as="button"
-              class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors cursor-pointer border-0"
-              :class="visibility === 'public'
-                ? 'bg-primary/15 text-primary'
-                : 'bg-surface-tint text-on-surface-variant hover:bg-surface-variant'"
-              :disabled="isSaving"
+              as="span"
+              class="inline-flex"
               position-area="top"
               text="Anyone with the link can view"
-              type="button"
-              @click="visibility = 'public'"
             >
-              <AppIcon icon="visibility-public" :size="14" />
-              <span>Public</span>
+              <Button.Root
+                class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors border-0 bg-surface-tint text-on-surface-variant hover:bg-surface-variant data-[selected]:bg-primary/15 data-[selected]:text-primary data-[disabled]:opacity-50"
+                :disabled="isSaving"
+                value="public"
+              >
+                <AppIcon icon="visibility-public" :size="14" />
+                <span>Public</span>
+              </Button.Root>
             </AppTooltip>
 
             <AppTooltip
-              as="button"
-              class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors cursor-pointer border-0"
-              :class="visibility === 'private'
-                ? 'bg-primary/15 text-primary'
-                : 'bg-surface-tint text-on-surface-variant hover:bg-surface-variant'"
-              :disabled="isSaving"
+              as="span"
+              class="inline-flex"
               position-area="top"
               text="Only you can view"
-              type="button"
-              @click="visibility = 'private'"
             >
-              <AppIcon icon="visibility-private" :size="14" />
-              <span>Private</span>
+              <Button.Root
+                class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors border-0 bg-surface-tint text-on-surface-variant hover:bg-surface-variant data-[selected]:bg-primary/15 data-[selected]:text-primary data-[disabled]:opacity-50"
+                :disabled="isSaving"
+                value="private"
+              >
+                <AppIcon icon="visibility-private" :size="14" />
+                <span>Private</span>
+              </Button.Root>
             </AppTooltip>
-          </div>
+          </Button.Group>
         </div>
 
         <!-- Fixed-height slot so errors never grow the dialog -->

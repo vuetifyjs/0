@@ -1,11 +1,12 @@
 <script setup lang="ts">
   // Framework
-  import { Popover, useBreakpoints, useStorage } from '@vuetify/v0'
+  import { Popover, Switch, useBreakpoints, useStorage, useTimer } from '@vuetify/v0'
 
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
   import AppTooltip from '@/components/app/AppTooltip.vue'
   import PlaygroundAuthDialog from '@/components/playground/app/PlaygroundAuthDialog.vue'
+  import PlaygroundMenuItem from '@/components/playground/app/PlaygroundMenuItem.vue'
   import PlaygroundSaveDialog from '@/components/playground/app/PlaygroundSaveDialog.vue'
   import PlaygroundOpenDialog from '@/components/playground/open/PlaygroundOpenDialog.vue'
 
@@ -19,7 +20,7 @@
   import { useAuthStore } from '@vuetify/auth'
 
   // Utilities
-  import { onBeforeUnmount, shallowRef, toRef, watch } from 'vue'
+  import { shallowRef, toRef, watch } from 'vue'
 
   const auth = useAuthStore()
   const playground = usePlayground()
@@ -48,20 +49,21 @@
   const saveOpen = shallowRef(false)
   const saveAs = shallowRef(false)
   const lifecycleStatus = shallowRef<'idle' | 'busy'>('idle')
-  let confirmTimer = 0
-  let deleteTimer = 0
 
   const canDelete = toRef(() => !currentMeta.value.favorite && !currentMeta.value.locked)
 
-  onBeforeUnmount(() => {
-    clearTimeout(confirmTimer)
-    clearTimeout(deleteTimer)
-  })
+  const resetTimer = useTimer(() => {
+    confirming.value = false
+  }, { duration: 3000 })
+
+  const deleteTimer = useTimer(() => {
+    confirmDelete.value = false
+  }, { duration: 3000 })
 
   watch(menu, open => {
     if (!open) {
-      clearTimeout(confirmTimer)
-      clearTimeout(deleteTimer)
+      resetTimer.stop()
+      deleteTimer.stop()
       confirming.value = false
       confirmDelete.value = false
     }
@@ -84,21 +86,15 @@
     saveOpen.value = true
   }
 
-  function onAutosaveToggle () {
-    setAutosave(!autosaveEnabled.value)
-  }
-
   function onReset () {
     if (confirming.value) {
-      clearTimeout(confirmTimer)
+      resetTimer.stop()
       confirming.value = false
       menu.value = false
       playground.applyPreset(playground.activePreset.value)
     } else {
       confirming.value = true
-      confirmTimer = window.setTimeout(() => {
-        confirming.value = false
-      }, 3000)
+      resetTimer.start()
     }
   }
 
@@ -203,7 +199,7 @@
     if (!canDelete.value) return
 
     if (confirmDelete.value) {
-      clearTimeout(deleteTimer)
+      deleteTimer.stop()
       confirmDelete.value = false
       lifecycleStatus.value = 'busy'
       try {
@@ -217,9 +213,7 @@
       }
     } else {
       confirmDelete.value = true
-      deleteTimer = window.setTimeout(() => {
-        confirmDelete.value = false
-      }, 3000)
+      deleteTimer.start()
     }
   }
 
@@ -275,13 +269,9 @@
           class="bg-surface border border-divider rounded-md shadow-lg py-1 min-w-48"
           style="position-area: unset; inset-area: unset; top: anchor(top); left: anchor(right); position-try-fallbacks: flip-block;"
         >
-          <button
-            class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
-            type="button"
-            @click="onOpen"
-          >
+          <PlaygroundMenuItem @click="onOpen">
             Open
-          </button>
+          </PlaygroundMenuItem>
 
           <div class="border-t border-divider my-1" />
 
@@ -315,50 +305,38 @@
               />
             </AppTooltip>
 
-            <button
-              :aria-checked="autosaveEnabled"
+            <Switch.Root
               aria-label="Auto-save"
-              class="relative shrink-0 h-4 w-7 rounded-full transition-colors cursor-pointer border-0 p-0"
-              :class="autosaveEnabled ? 'bg-primary' : 'bg-surface-variant'"
-              role="switch"
-              type="button"
-              @click="onAutosaveToggle"
+              class="shrink-0 inline-flex items-center border-none bg-transparent p-0 outline-none"
+              :model-value="autosaveEnabled"
+              @update:model-value="setAutosave"
             >
-              <span
-                class="absolute top-0.5 size-3 rounded-full transition-[left] duration-150"
-                :class="autosaveEnabled
-                  ? 'left-3.5 bg-on-primary'
-                  : 'left-0.5 bg-on-surface-variant'"
-              />
-            </button>
+              <Switch.Track class="relative inline-flex items-center rounded-full transition-colors h-4 w-7 bg-surface-variant data-[state=checked]:bg-primary">
+                <Switch.Thumb class="block size-3 rounded-full bg-on-surface-variant shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-3.5 data-[state=checked]:bg-on-primary" />
+              </Switch.Track>
+            </Switch.Root>
           </div>
 
-          <button
+          <PlaygroundMenuItem
             v-else
-            class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
-            type="button"
             @click="onSave(false)"
           >
             Save to Vuetify One
-          </button>
+          </PlaygroundMenuItem>
 
-          <button
+          <PlaygroundMenuItem
             v-if="oneId"
-            class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
-            type="button"
             @click="onSave(false)"
           >
             Rename
-          </button>
+          </PlaygroundMenuItem>
 
-          <button
+          <PlaygroundMenuItem
             v-if="oneId"
-            class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
-            type="button"
             @click="onSave(true)"
           >
             Save as new
-          </button>
+          </PlaygroundMenuItem>
 
           <!-- Lifecycle actions for linked playgrounds -->
           <template v-if="oneId">
@@ -366,10 +344,8 @@
 
             <!-- Owner actions -->
             <template v-if="isOwner">
-              <button
-                class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left disabled:opacity-50"
+              <PlaygroundMenuItem
                 :disabled="lifecycleStatus === 'busy'"
-                type="button"
                 @click="onToggleVisibility"
               >
                 <AppIcon
@@ -378,12 +354,10 @@
                 />
 
                 <span class="flex-1">{{ currentMeta.visibility === 'public' ? 'Make Private' : 'Make Public' }}</span>
-              </button>
+              </PlaygroundMenuItem>
 
-              <button
-                class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left disabled:opacity-50"
+              <PlaygroundMenuItem
                 :disabled="lifecycleStatus === 'busy'"
-                type="button"
                 @click="onToggleFavorite"
               >
                 <AppIcon
@@ -392,12 +366,10 @@
                 />
 
                 <span class="flex-1">{{ currentMeta.favorite ? 'Unfavorite' : 'Favorite' }}</span>
-              </button>
+              </PlaygroundMenuItem>
 
-              <button
-                class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left disabled:opacity-50"
+              <PlaygroundMenuItem
                 :disabled="lifecycleStatus === 'busy'"
-                type="button"
                 @click="onTogglePinned"
               >
                 <AppIcon
@@ -406,12 +378,10 @@
                 />
 
                 <span class="flex-1">{{ currentMeta.pinned ? 'Unpin' : 'Pin' }}</span>
-              </button>
+              </PlaygroundMenuItem>
 
-              <button
-                class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left disabled:opacity-50"
+              <PlaygroundMenuItem
                 :disabled="lifecycleStatus === 'busy'"
-                type="button"
                 @click="onToggleLocked"
               >
                 <AppIcon
@@ -420,53 +390,47 @@
                 />
 
                 <span class="flex-1">{{ currentMeta.locked ? 'Unlock' : 'Lock' }}</span>
-              </button>
+              </PlaygroundMenuItem>
 
               <div class="border-t border-divider my-1" />
 
               <AppTooltip
-                as="button"
-                class="w-full flex items-center gap-2 px-3 py-1.5 text-xs transition-colors text-left"
-                :class="confirmDelete
-                  ? 'text-error bg-error/10'
-                  : canDelete
-                    ? 'text-on-surface hover:bg-surface-tint'
-                    : 'text-on-surface/40 cursor-not-allowed'"
-                :disabled="!canDelete || lifecycleStatus === 'busy'"
+                as="span"
+                class="block w-full"
                 :open-delay="canDelete ? undefined : 0"
                 position-area="right"
                 :text="canDelete ? undefined : 'Remove favorite and unlock first'"
-                type="button"
-                @click="onDelete"
               >
-                <AppIcon icon="delete" :size="14" />
-                <span class="flex-1">{{ confirmDelete ? 'Click to confirm' : 'Delete' }}</span>
+                <PlaygroundMenuItem
+                  :confirm="confirmDelete"
+                  :disabled="!canDelete || lifecycleStatus === 'busy'"
+                  @click="onDelete"
+                >
+                  <AppIcon icon="delete" :size="14" />
+                  <span class="flex-1">{{ confirmDelete ? 'Click to confirm' : 'Delete' }}</span>
+                </PlaygroundMenuItem>
               </AppTooltip>
             </template>
 
             <!-- Non-owner: Fork action -->
-            <button
+            <PlaygroundMenuItem
               v-else
-              class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left disabled:opacity-50"
               :disabled="lifecycleStatus === 'busy'"
-              type="button"
               @click="onFork"
             >
               <AppIcon icon="fork" :size="14" />
               <span class="flex-1">Fork</span>
-            </button>
+            </PlaygroundMenuItem>
           </template>
 
           <div class="border-t border-divider my-1" />
 
-          <button
-            class="w-full flex items-center justify-between px-3 py-1.5 text-xs transition-colors text-left"
-            :class="confirming ? 'text-error bg-error/10' : 'text-on-surface hover:bg-surface-tint'"
-            type="button"
+          <PlaygroundMenuItem
+            :confirm="confirming"
             @click="onReset"
           >
             {{ confirming ? 'Click to confirm' : 'Reset Playground' }}
-          </button>
+          </PlaygroundMenuItem>
         </Popover.Content>
       </Popover.Root>
 
