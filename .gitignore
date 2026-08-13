@@ -49,8 +49,9 @@ apps/docs/build/generated/
 .claude/specs/
 .claude/scheduled_tasks.lock
 
-# Grok
-.grok
+# Grok — keep local state ignored; ship project skills so Grok auto-loads them
+.grok/*
+!.grok/skills/
 .playwright-mcp/
 .superpowers/
 .worktrees/
