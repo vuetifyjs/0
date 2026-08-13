@@ -38,9 +38,20 @@
     isPinned: boolean
     /** Pin position: 'left', 'right', or false */
     pinPosition: 'left' | 'right' | false
+    /** Whether this column is resizable */
+    isResizable: boolean
+    /** Current column size as a percentage */
+    size: number
+    /** Minimum size as a percentage */
+    minSize: number
+    /** Maximum size as a percentage */
+    maxSize: number
+    /** Offset from the pinning edge (for sticky positioning) */
+    offset: number
     attrs: {
       'role': string
       'aria-sort': 'ascending' | 'descending' | 'none' | undefined
+      'style'?: Record<string, string>
     }
   }
 </script>
@@ -90,6 +101,21 @@
     return false
   })
 
+  const resolvedColumn = toRef(() => {
+    if (!column) return undefined
+    return context.layout.columns.value.find(c => c.id === column)
+  })
+
+  const isResizable = toRef(() => resolvedColumn.value?.resizable ?? true)
+
+  const size = toRef(() => resolvedColumn.value?.size ?? 0)
+
+  const minSize = toRef(() => resolvedColumn.value?.minSize ?? 2)
+
+  const maxSize = toRef(() => resolvedColumn.value?.maxSize ?? 100)
+
+  const offset = toRef(() => resolvedColumn.value?.offset ?? 0)
+
   const ariaSort = toRef((): 'ascending' | 'descending' | 'none' | undefined => {
     if (!column) return undefined
     const dir = sortDirection.value
@@ -103,9 +129,15 @@
     sortDirection: sortDirection.value,
     isPinned: isPinned.value,
     pinPosition: pinPosition.value,
+    isResizable: isResizable.value,
+    size: size.value,
+    minSize: minSize.value,
+    maxSize: maxSize.value,
+    offset: offset.value,
     attrs: {
       'role': 'columnheader',
       'aria-sort': ariaSort.value,
+      'style': size.value > 0 ? { width: `${size.value}%` } : undefined,
     },
   }))
 </script>
