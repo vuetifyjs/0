@@ -33,11 +33,36 @@ DataGrid provides a structural shell over the `createDataGrid` composable. It ex
 
 ## Resizable Columns
 
-Add `DataGrid.ResizeHandle` between header columns to enable column resizing. The handle uses the same pointer drag interaction as `Splitter.Handle` and maps resize deltas to the grid's layout.
+For resizable columns, compose `Splitter` primitives with DataGrid. The Splitter provides the drag interaction while DataGrid's `layout` manages column sizes.
 
 ::: gn-example
 /components/data-grid/resizable
 :::
+
+### Splitter Composition Pattern
+
+Column resize composes the shipped `Splitter` primitives rather than reimplementing drag mechanics:
+
+- `Splitter.Root` wraps the resizable header row with `orientation="horizontal"`
+- `Splitter.Panel` for each column header — handles flex-basis sizing
+- `Splitter.Handle` between panels — provides the drag interaction with WAI-ARIA `role="separator"`
+- `@layout` event syncs Splitter sizes to `context.layout.distribute(sizes)`
+- Body cells read widths from `context.layout.columns`
+
+```vue Splitter Composition no-filename
+<Splitter.Root
+  orientation="horizontal"
+  @layout="sizes => context.layout.distribute(sizes)"
+>
+  <Splitter.Panel :default-size="50" :min-size="20">
+    <!-- Column header content -->
+  </Splitter.Panel>
+  <Splitter.Handle />
+  <Splitter.Panel :default-size="50" :min-size="20">
+    <!-- Column header content -->
+  </Splitter.Panel>
+</Splitter.Root>
+```
 
 ## Anatomy
 
@@ -52,7 +77,6 @@ Add `DataGrid.ResizeHandle` between header columns to enable column resizing. Th
       <DataGrid.Header>
         <DataGrid.Row>
           <DataGrid.Column column="name">Name</DataGrid.Column>
-          <DataGrid.ResizeHandle column="name" />
           <DataGrid.Column column="email">Email</DataGrid.Column>
         </DataGrid.Row>
       </DataGrid.Header>
@@ -77,14 +101,13 @@ DataGrid extends DataTable with four additional capabilities:
 - **Editing** — Cell editing state via `context.editing`
 - **Spans** — Row spanning via `context.spans`
 
-### Resize Handle
+### Layout API
 
-`DataGrid.ResizeHandle` composes the same drag interaction as `Splitter.Handle`:
+The `context.layout` API provides column sizing primitives:
 
-- Pointer drag translates to `context.layout.resize(column, delta)`
-- Keyboard support: Arrow keys (1% step), Page Up/Down (10% step), Home/End (min/max)
-- Respects column `resizable`, `minSize`, and `maxSize` from the column registration
-- WAI-ARIA `role="separator"` with `aria-valuenow/min/max` for screen readers
+- `layout.resize(columnId, delta)` — Resize a column by a percentage delta
+- `layout.distribute(sizes)` — Set all column sizes at once (used by Splitter composition)
+- `layout.columns` — Reactive array of column layout state including `size`, `minSize`, `maxSize`
 
 ```mermaid "DataGrid Context"
 flowchart TD
@@ -112,10 +135,6 @@ flowchart TD
     ColRole["role=columnheader"]
   end
 
-  subgraph ResizeHandle["DataGrid.ResizeHandle"]
-    HandleRole["role=separator"]
-  end
-
   subgraph Cell["DataGrid.Cell"]
     CellRole["role=gridcell"]
   end
@@ -126,7 +145,6 @@ flowchart TD
   Header --> Row
   Body --> Row
   Row --> Column
-  Row --> ResizeHandle
   Row --> Cell
 ```
 
@@ -139,10 +157,8 @@ DataGrid implements the [WAI-ARIA Grid pattern](https://www.w3.org/WAI/ARIA/apg/
 - `DataGrid.Row` renders with `role="row"`
 - `DataGrid.Column` renders with `role="columnheader"` and `aria-sort` for sorted columns
 - `DataGrid.Cell` renders with `role="gridcell"` and appropriate `rowspan` for spanned cells
-- `DataGrid.ResizeHandle` renders with `role="separator"` following the [Window Splitter pattern](https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/):
-  - `aria-valuenow`, `aria-valuemin`, `aria-valuemax` for the current column size
-  - `aria-orientation="vertical"` (separator is visually vertical, columns are horizontal)
-  - Keyboard navigation: Arrow keys, Page Up/Down, Home/End
+
+When composing with `Splitter` for resizable columns, `Splitter.Handle` provides the [Window Splitter pattern](https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/) accessibility automatically.
 
 ## FAQ
 
@@ -166,7 +182,7 @@ Use `context.layout.pin(columnId, 'left' | 'right')` to pin columns, or set `pin
 
 ??? How do I enable column resizing?
 
-Place `DataGrid.ResizeHandle` between `DataGrid.Column` elements in the header row. Register columns with `resizable: true` (the default). The handle calls `context.layout.resize(columnId, delta)` on drag, respecting `minSize` and `maxSize` constraints.
+Compose `Splitter` primitives with your header row. Use `Splitter.Root` with `orientation="horizontal"`, `Splitter.Panel` for each column, and `Splitter.Handle` between panels. Connect via `@layout` to `context.layout.distribute(sizes)`. See the [Resizable Columns](#resizable-columns) example.
 
 :::
 

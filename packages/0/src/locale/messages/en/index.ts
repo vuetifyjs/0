@@ -46,9 +46,6 @@ export default {
   Combobox: {
     noResults: 'No results',
   },
-  DataGrid: {
-    resizeHandle: 'Resize column',
-  },
   Dialog: {
     close: 'Close',
   },

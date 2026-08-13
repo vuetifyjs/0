@@ -11,7 +11,6 @@
 export { default as DataGridBody } from './DataGridBody.vue'
 export { default as DataGridCell } from './DataGridCell.vue'
 export { default as DataGridHeader } from './DataGridHeader.vue'
-export { default as DataGridResizeHandle } from './DataGridResizeHandle.vue'
 export { provideDataGridRow, useDataGridRow } from './DataGridRow.vue'
 export { default as DataGridRow } from './DataGridRow.vue'
 export { provideDataGridRoot, useDataGridRoot } from './DataGridRoot.vue'
@@ -21,7 +20,6 @@ export { default as DataGridTable } from './DataGridTable.vue'
 export type { DataGridBodyProps, DataGridBodySlotProps } from './DataGridBody.vue'
 export type { DataGridCellProps, DataGridCellSlotProps } from './DataGridCell.vue'
 export type { DataGridHeaderProps, DataGridHeaderSlotProps } from './DataGridHeader.vue'
-export type { DataGridResizeHandleProps, DataGridResizeHandleSlotProps, DataGridResizeHandleState } from './DataGridResizeHandle.vue'
 export type { DataGridRowContext, DataGridRowProps, DataGridRowSlotProps } from './DataGridRow.vue'
 export type { DataGridRootProps, DataGridRootSlotProps } from './DataGridRoot.vue'
 export type { DataGridTableProps, DataGridTableSlotProps } from './DataGridTable.vue'
@@ -35,7 +33,6 @@ import Body from './DataGridBody.vue'
 import Cell from './DataGridCell.vue'
 import Column from './DataGridColumn.vue'
 import Header from './DataGridHeader.vue'
-import ResizeHandle from './DataGridResizeHandle.vue'
 import Root from './DataGridRoot.vue'
 import Row from './DataGridRow.vue'
 import Table from './DataGridTable.vue'
@@ -127,20 +124,4 @@ export const DataGrid = {
    * @see https://0.vuetifyjs.com/components/data/data-grid
    */
   Cell,
-  /**
-   * Draggable resize handle for column width adjustment.
-   * Place between adjacent Column elements in the header row.
-   *
-   * @see https://0.vuetifyjs.com/components/data/data-grid
-   *
-   * @example
-   * ```vue
-   * <DataGrid.Row>
-   *   <DataGrid.Column column="name">Name</DataGrid.Column>
-   *   <DataGrid.ResizeHandle column="name" />
-   *   <DataGrid.Column column="email">Email</DataGrid.Column>
-   * </DataGrid.Row>
-   * ```
-   */
-  ResizeHandle,
 }
