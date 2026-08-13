@@ -25,9 +25,9 @@ describe('derivePlacement', () => {
     expect(derivePlacement('block-end').side).toBe('bottom')
   })
 
-  it('should map logical inline-start/inline-end to top/bottom', () => {
-    expect(derivePlacement('inline-start').side).toBe('top')
-    expect(derivePlacement('inline-end').side).toBe('bottom')
+  it('should map logical inline-start/inline-end to left/right, not top/bottom', () => {
+    expect(derivePlacement('inline-start').side).toBe('left')
+    expect(derivePlacement('inline-end').side).toBe('right')
   })
 
   it('should fall back to bottom/center for an unrecognized value', () => {
