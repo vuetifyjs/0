@@ -303,238 +303,131 @@ describe('dataGrid', () => {
     })
   })
 
-  describe('resizeHandle', () => {
-    describe('rendering', () => {
-      it('should render as div by default', async () => {
+  describe('layout', () => {
+    describe('resize API', () => {
+      it('should resize column via layout.resize', async () => {
         let context: any
-
-        const wrapper = mount(DataGrid.Root, {
-          slots: {
-            default: (props: any) => {
-              context = props.context
-              return h(DataGrid.Table, {}, () =>
-                h(DataGrid.Header, {}, () =>
-                  h(DataGrid.Row, {}, () => [
-                    h(DataGrid.Column, { column: 'name' }, () => 'Name'),
-                    h(DataGrid.ResizeHandle, { column: 'name' }),
-                    h(DataGrid.Column, { column: 'email' }, () => 'Email'),
-                  ]),
-                ),
-              )
-            },
-          },
-        })
-
-        context.columns.onboard([
-          { id: 'name', size: 50, resizable: true },
-          { id: 'email', size: 50, resizable: true },
-        ])
-
-        await nextTick()
-
-        const handle = wrapper.findComponent(DataGrid.ResizeHandle as any)
-        expect(handle.exists()).toBe(true)
-        expect(handle.element.tagName).toBe('DIV')
-      })
-
-      it('should set role=separator attribute', async () => {
-        let context: any
-
-        const wrapper = mount(DataGrid.Root, {
-          slots: {
-            default: (props: any) => {
-              context = props.context
-              return h(DataGrid.Table, {}, () =>
-                h(DataGrid.Header, {}, () =>
-                  h(DataGrid.Row, {}, () => [
-                    h(DataGrid.Column, { column: 'name' }, () => 'Name'),
-                    h(DataGrid.ResizeHandle, { column: 'name' }),
-                    h(DataGrid.Column, { column: 'email' }, () => 'Email'),
-                  ]),
-                ),
-              )
-            },
-          },
-        })
-
-        context.columns.onboard([
-          { id: 'name', size: 50, resizable: true },
-          { id: 'email', size: 50, resizable: true },
-        ])
-
-        await nextTick()
-
-        const handle = wrapper.findComponent(DataGrid.ResizeHandle as any)
-        expect(handle.attributes('role')).toBe('separator')
-      })
-
-      it('should not render content when column is not resizable', async () => {
-        let context: any
-
-        const wrapper = mount(DataGrid.Root, {
-          slots: {
-            default: (props: any) => {
-              context = props.context
-              return h(DataGrid.Table, {}, () =>
-                h(DataGrid.Header, {}, () =>
-                  h(DataGrid.Row, {}, () => [
-                    h(DataGrid.Column, { column: 'name' }, () => 'Name'),
-                    h(DataGrid.ResizeHandle, { column: 'name' }),
-                    h(DataGrid.Column, { column: 'email' }, () => 'Email'),
-                  ]),
-                ),
-              )
-            },
-          },
-        })
-
-        context.columns.onboard([
-          { id: 'name', size: 50, resizable: false },
-          { id: 'email', size: 50, resizable: true },
-        ])
-
-        await nextTick()
-
-        const handles = wrapper.findAll('[role="separator"]')
-        expect(handles).toHaveLength(0)
-      })
-    })
-
-    describe('accessibility', () => {
-      it('should have aria-orientation set to vertical', async () => {
-        let context: any
-
-        const wrapper = mount(DataGrid.Root, {
-          slots: {
-            default: (props: any) => {
-              context = props.context
-              return h(DataGrid.Table, {}, () =>
-                h(DataGrid.Header, {}, () =>
-                  h(DataGrid.Row, {}, () => [
-                    h(DataGrid.Column, { column: 'name' }, () => 'Name'),
-                    h(DataGrid.ResizeHandle, { column: 'name' }),
-                    h(DataGrid.Column, { column: 'email' }, () => 'Email'),
-                  ]),
-                ),
-              )
-            },
-          },
-        })
-
-        context.columns.onboard([
-          { id: 'name', size: 50, resizable: true },
-          { id: 'email', size: 50, resizable: true },
-        ])
-
-        await nextTick()
-
-        const handle = wrapper.findComponent(DataGrid.ResizeHandle as any)
-        expect(handle.attributes('aria-orientation')).toBe('vertical')
-      })
-
-      it('should have aria-valuenow reflecting column size', async () => {
-        let context: any
-
-        const wrapper = mount(DataGrid.Root, {
-          slots: {
-            default: (props: any) => {
-              context = props.context
-              return h(DataGrid.Table, {}, () =>
-                h(DataGrid.Header, {}, () =>
-                  h(DataGrid.Row, {}, () => [
-                    h(DataGrid.Column, { column: 'name' }, () => 'Name'),
-                    h(DataGrid.ResizeHandle, { column: 'name' }),
-                    h(DataGrid.Column, { column: 'email' }, () => 'Email'),
-                  ]),
-                ),
-              )
-            },
-          },
-        })
-
-        context.columns.onboard([
-          { id: 'name', size: 60, resizable: true },
-          { id: 'email', size: 40, resizable: true },
-        ])
-
-        await nextTick()
-
-        const handle = wrapper.findComponent(DataGrid.ResizeHandle as any)
-        expect(handle.attributes('aria-valuenow')).toBe('60')
-      })
-
-      it('should have aria-disabled when disabled prop is true', async () => {
-        let context: any
-
-        const wrapper = mount(DataGrid.Root, {
-          slots: {
-            default: (props: any) => {
-              context = props.context
-              return h(DataGrid.Table, {}, () =>
-                h(DataGrid.Header, {}, () =>
-                  h(DataGrid.Row, {}, () => [
-                    h(DataGrid.Column, { column: 'name' }, () => 'Name'),
-                    h(DataGrid.ResizeHandle, { column: 'name', disabled: true }),
-                    h(DataGrid.Column, { column: 'email' }, () => 'Email'),
-                  ]),
-                ),
-              )
-            },
-          },
-        })
-
-        context.columns.onboard([
-          { id: 'name', size: 50, resizable: true },
-          { id: 'email', size: 50, resizable: true },
-        ])
-
-        await nextTick()
-
-        const handle = wrapper.findComponent(DataGrid.ResizeHandle as any)
-        expect(handle.attributes('aria-disabled')).toBe('true')
-      })
-    })
-
-    describe('slot props', () => {
-      it('should expose isDragging, isResizable, state, size, minSize, maxSize', async () => {
-        let context: any
-        let slotProps: any
 
         mount(DataGrid.Root, {
           slots: {
             default: (props: any) => {
               context = props.context
+              return h(DataGrid.Table)
+            },
+          },
+        })
+
+        context.columns.onboard([
+          { id: 'name', size: 50, minSize: 10, maxSize: 90, resizable: true },
+          { id: 'email', size: 50, minSize: 10, maxSize: 90, resizable: true },
+        ])
+
+        await nextTick()
+
+        const nameBefore = context.layout.columns.value.find((c: any) => c.id === 'name')
+        const emailBefore = context.layout.columns.value.find((c: any) => c.id === 'email')
+
+        expect(nameBefore.size).toBe(50)
+        expect(emailBefore.size).toBe(50)
+
+        context.layout.resize('name', 10)
+        await nextTick()
+
+        const nameAfter = context.layout.columns.value.find((c: any) => c.id === 'name')
+        const emailAfter = context.layout.columns.value.find((c: any) => c.id === 'email')
+
+        expect(nameAfter.size).toBe(60)
+        expect(emailAfter.size).toBe(40)
+      })
+
+      it('should distribute sizes via layout.distribute', async () => {
+        let context: any
+
+        mount(DataGrid.Root, {
+          slots: {
+            default: (props: any) => {
+              context = props.context
+              return h(DataGrid.Table)
+            },
+          },
+        })
+
+        context.columns.onboard([
+          { id: 'name', size: 50, minSize: 10, maxSize: 90, resizable: true },
+          { id: 'email', size: 50, minSize: 10, maxSize: 90, resizable: true },
+        ])
+
+        await nextTick()
+
+        context.layout.distribute([70, 30])
+        await nextTick()
+
+        const nameCol = context.layout.columns.value.find((c: any) => c.id === 'name')
+        const emailCol = context.layout.columns.value.find((c: any) => c.id === 'email')
+
+        expect(nameCol.size).toBe(70)
+        expect(emailCol.size).toBe(30)
+      })
+
+      it('should respect minSize and maxSize constraints', async () => {
+        let context: any
+
+        mount(DataGrid.Root, {
+          slots: {
+            default: (props: any) => {
+              context = props.context
+              return h(DataGrid.Table)
+            },
+          },
+        })
+
+        context.columns.onboard([
+          { id: 'name', size: 50, minSize: 30, maxSize: 70, resizable: true },
+          { id: 'email', size: 50, minSize: 30, maxSize: 70, resizable: true },
+        ])
+
+        await nextTick()
+
+        context.layout.resize('name', 50)
+        await nextTick()
+
+        const nameCol = context.layout.columns.value.find((c: any) => c.id === 'name')
+        expect(nameCol.size).toBeLessThanOrEqual(70)
+      })
+    })
+
+    describe('column slot props', () => {
+      it('should expose size from layout', async () => {
+        let slotProps: any
+
+        mount(DataGrid.Root, {
+          slots: {
+            default: (props: any) => {
+              props.context.columns.onboard([
+                { id: 'name', size: 60, resizable: true },
+                { id: 'email', size: 40, resizable: true },
+              ])
               return h(DataGrid.Table, {}, () =>
                 h(DataGrid.Header, {}, () =>
-                  h(DataGrid.Row, {}, () => [
-                    h(DataGrid.Column, { column: 'name' }, () => 'Name'),
-                    h(DataGrid.ResizeHandle, { column: 'name' }, {
-                      default: (props: any) => {
-                        slotProps = props
-                        return 'handle'
+                  h(DataGrid.Row, {}, () =>
+                    h(DataGrid.Column, { column: 'name' }, {
+                      default: (p: any) => {
+                        slotProps = p
+                        return 'Name'
                       },
                     }),
-                    h(DataGrid.Column, { column: 'email' }, () => 'Email'),
-                  ]),
+                  ),
                 ),
               )
             },
           },
         })
 
-        context.columns.onboard([
-          { id: 'name', size: 60, minSize: 10, maxSize: 90, resizable: true },
-          { id: 'email', size: 40, minSize: 10, maxSize: 90, resizable: true },
-        ])
-
         await nextTick()
 
         expect(slotProps).toBeDefined()
-        expect(slotProps.isDragging).toBe(false)
-        expect(slotProps.isResizable).toBe(true)
-        expect(slotProps.state).toBe('inactive')
         expect(slotProps.size).toBe(60)
-        expect(slotProps.minSize).toBe(10)
+        expect(slotProps.isResizable).toBe(true)
       })
     })
   })
@@ -611,7 +504,6 @@ describe('dataGrid', () => {
               h(DataGrid.Header, {}, () =>
                 h(DataGrid.Row, {}, () => [
                   h(DataGrid.Column, { column: 'name' }, () => 'Name'),
-                  h(DataGrid.ResizeHandle, { column: 'name' }),
                   h(DataGrid.Column, { column: 'email' }, () => 'Email'),
                 ]),
               ),
