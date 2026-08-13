@@ -33,6 +33,8 @@
     filesVersion: ShallowRef<number>
     openPlayground: (content: string) => Promise<void>
     showConfig: ShallowRef<boolean>
+    wordWrap: Ref<boolean>
+    showErrors: Ref<boolean>
   }
 
   export const [usePlayground, providePlayground] = createContext<PlaygroundContext>('v0:playground')
@@ -71,6 +73,10 @@
   // before a click can race the mandatory Tabs.Root selection.
   const showConfig = shallowRef(false)
 
+  // Editor preferences, persisted per-browser (not synced to a user account).
+  const wordWrap = storage.get('playground-editor-word-wrap', false)
+  const showErrors = storage.get('playground-editor-show-errors', true)
+
   providePlayground({
     store,
     isReady,
@@ -92,6 +98,8 @@
     filesVersion,
     openPlayground,
     showConfig,
+    wordWrap,
+    showErrors,
   })
 
   // Restore panel state on runtime breakpoint changes

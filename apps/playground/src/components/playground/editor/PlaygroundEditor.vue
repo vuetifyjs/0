@@ -3,7 +3,7 @@
   import { useTheme } from '@vuetify/v0'
 
   // Utilities
-  import { defineAsyncComponent } from 'vue'
+  import { defineAsyncComponent, toRef, watch } from 'vue'
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
@@ -17,16 +17,44 @@
   const Monaco = defineAsyncComponent(() =>
     import('@vue/repl/monaco-editor'),
   )
+
+  const editorOptions = toRef(() => ({
+    monacoOptions: {
+      padding: { top: 16 },
+      wordWrap: playground.wordWrap.value ? 'on' as const : 'off' as const,
+    },
+  }))
+
+  // @vue/repl/monaco-editor's Monaco wrapper only reads
+  // editorOptions.monacoOptions once, at editor creation time inside
+  // onMounted() - toggling wordWrap afterward never reaches the
+  // already-created editor instance through the prop, so it's also pushed
+  // directly via editor.updateOptions(). This needs globalThis.monaco, set as
+  // a side effect of the dynamic import below, but only once
+  // MonacoEnvironment.globalAPI is set - see main.ts, which sets it before
+  // this module can ever be imported.
+  watch(() => playground.wordWrap.value, async wordWrapOn => {
+    await import('@vue/repl/monaco-editor')
+    const monaco = (globalThis as { monaco?: any }).monaco
+    if (!monaco) return
+
+    for (const editor of monaco.editor.getEditors()) {
+      editor.updateOptions({ wordWrap: wordWrapOn ? 'on' : 'off' })
+    }
+  }, { immediate: true })
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 min-h-0 min-w-0 bg-surface playground-repl">
+  <div
+    class="flex flex-col flex-1 min-h-0 min-w-0 bg-surface playground-repl"
+    :class="{ 'playground-repl--hide-errors': !playground.showErrors.value }"
+  >
     <template v-if="playground.isReady.value">
       <Repl
         class="flex-1 min-h-0"
         :clear-console="true"
         :editor="Monaco"
-        :editor-options="{ monacoOptions: { padding: { top: 16 } } }"
+        :editor-options
         layout="horizontal"
         :show-compile-output="false"
         :show-import-map="false"
@@ -98,5 +126,17 @@
   .playground-repl :deep(.editor-container) {
     height: 100% !important;
     width: 100% !important;
+  }
+
+  /* "Show errors" preference off: hide Monaco's inline squiggle decorations.
+     Diagnostics computation (hover docs, autocomplete) is untouched - only the
+     visual markers are suppressed, which is instant and doesn't depend on the
+     async worker-based language service re-validating already-open models. */
+  .playground-repl--hide-errors :deep(.squiggly-error),
+  .playground-repl--hide-errors :deep(.squiggly-warning),
+  .playground-repl--hide-errors :deep(.squiggly-info),
+  .playground-repl--hide-errors :deep(.squiggly-hint),
+  .playground-repl--hide-errors :deep(.squiggly-unnecessary) {
+    background: none !important;
   }
 </style>
