@@ -1,5 +1,7 @@
 <script setup lang="ts">
-  import { DataTable } from '@vuetify/v0'
+  import { defineComponent, onMounted } from 'vue'
+
+  import { DataTable, useDataTableRoot } from '@vuetify/v0'
 
   interface User {
     id: number
@@ -21,14 +23,24 @@
     { id: 'email', title: 'Email', sortable: true, filterable: true },
     { id: 'role', title: 'Role', sortable: true },
   ]
+
+  // One-shot initialization component
+  const DataTableInit = defineComponent({
+    name: 'DataTableInit',
+    setup () {
+      const context = useDataTableRoot('v0:data-table')
+      onMounted(() => {
+        context.columns.onboard(columns)
+        context.onboard(users.map(u => ({ id: u.id, value: u })))
+      })
+      return () => null
+    },
+  })
 </script>
 
 <template>
   <DataTable.Root v-slot="{ context }">
-    <div v-once>
-      {{ void context.columns.onboard(columns) }}
-      {{ void context.onboard(users.map(u => ({ id: u.id, value: u }))) }}
-    </div>
+    <DataTableInit />
 
     <div class="mb-4">
       <input
