@@ -8,7 +8,7 @@ meta:
   - name: description
     content: Connect Claude, Cursor, and other AI assistants to Vuetify 3/4 and v0 APIs, install and upgrade docs, plus Vuetify One bins, playgrounds, and links.
   - name: keywords
-    content: MCP, Model Context Protocol, Claude, AI assistant, Vuetify API, Vuetify One, OAuth, bins, playgrounds, developer tools
+    content: MCP, Model Context Protocol, Claude, Cursor, Grok, Codex, Kimi, AI assistant, Vuetify API, Vuetify One, OAuth, bins, playgrounds, developer tools
 related:
   - /guide/tooling/ai-tools
   - /guide/tooling/vuetify-cli
@@ -50,6 +50,22 @@ bunx @vuetify/mcp config --remote
 
 :::
 
+### Cursor
+
+[Cursor](https://cursor.com/docs/mcp.md) is an AI IDE. Add the hosted server from **Customize → MCPs** in the sidebar, or write it to `.cursor/mcp.json` (project) or `~/.cursor/mcp.json` (global):
+
+```json
+{
+  "mcpServers": {
+    "vuetify-mcp": {
+      "url": "https://mcp.vuetifyjs.com/mcp"
+    }
+  }
+}
+```
+
+You can also load the plugin from [vuetifyjs/mcp](https://github.com/vuetifyjs/mcp).
+
 ### Claude Code
 
 [Claude Code](https://code.claude.com/docs/en/overview) is Anthropic's agentic coding tool. Add the hosted MCP server directly via CLI:
@@ -57,6 +73,58 @@ bunx @vuetify/mcp config --remote
 ```bash
 claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 ```
+
+### Grok Bot
+
+[Grok](https://docs.x.ai/grok/connectors) users add a BYO Custom connector. There is no official Grok catalog listing.
+
+1. Go to [https://grok.com/connectors](https://grok.com/connectors)
+2. Click **New Connector**, then select **Custom**
+3. Enter the MCP server URL `https://mcp.vuetifyjs.com/mcp` (streamable HTTP) and complete any required authentication
+
+Documentation and API tools are public; bins, playgrounds, and links prompt Vuetify One OAuth on demand. Do not paste an API key.
+
+Grok Build / CLI:
+
+```bash
+grok mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
+```
+
+Or edit `~/.grok/config.toml` (user) or `.grok/config.toml` (project):
+
+```toml
+[mcp_servers.vuetify-mcp]
+url = "https://mcp.vuetifyjs.com/mcp"
+```
+
+### Codex
+
+[OpenAI Codex](https://developers.openai.com/codex/mcp) CLI, ChatGPT desktop, and the IDE extension share `~/.codex/config.toml` (project: `.codex/config.toml`, trusted projects only):
+
+```toml
+[mcp_servers.vuetify-mcp]
+url = "https://mcp.vuetifyjs.com/mcp"
+```
+
+Or in ChatGPT / the IDE: **Settings → MCP servers → Add server → Streamable HTTP** and the URL above.
+
+Documentation and API tools need no login. When One tools are used, Codex can prompt `codex mcp login vuetify-mcp`.
+
+### Kimi CLI
+
+[Kimi Code](https://www.kimi.com/code/docs/en/kimi-code-cli/customization/mcp.html) reads `~/.kimi-code/mcp.json` (or `$KIMI_CODE_HOME/mcp.json`) and `.kimi-code/mcp.json` (project):
+
+```json
+{
+  "mcpServers": {
+    "vuetify-mcp": {
+      "url": "https://mcp.vuetifyjs.com/mcp"
+    }
+  }
+}
+```
+
+Or run `/mcp-config` in the Kimi TUI to add the server interactively. `/mcp-config login vuetify-mcp` if One OAuth is needed.
 
 ### Claude Desktop
 
