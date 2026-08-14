@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { DataGrid } from '@vuetify/v0'
+  import { onMounted, ref } from 'vue'
 
   interface User {
     id: number
@@ -13,25 +14,40 @@
     { id: 2, name: 'Bob Smith', email: 'bob@example.com', role: 'Editor' },
     { id: 3, name: 'Carol White', email: 'carol@example.com', role: 'Viewer' },
   ]
+
+  const columns = [
+    { id: 'name' },
+    { id: 'email' },
+    { id: 'role' },
+  ]
+
+  const gridRef = ref<{ context: any } | null>(null)
+
+  onMounted(() => {
+    if (gridRef.value?.context) {
+      gridRef.value.context.columns.onboard(columns)
+      gridRef.value.context.onboard(users.map(u => ({ id: u.id, value: u })))
+    }
+  })
 </script>
 
 <template>
-  <DataGrid.Root v-slot="{ context }">
+  <DataGrid.Root ref="gridRef" v-slot="{ context }">
     <DataGrid.Table class="w-full border-collapse">
       <DataGrid.Header>
         <DataGrid.Row class="bg-surface-tint">
           <DataGrid.Column
-            v-for="col in ['name', 'email', 'role']"
-            :key="col"
+            v-for="col in columns"
+            :key="col.id"
             class="p-3 text-start font-semibold border-b border-divider"
-            :column="col"
+            :column="col.id"
           >
-            {{ col.charAt(0).toUpperCase() + col.slice(1) }}
+            {{ col.id.charAt(0).toUpperCase() + col.id.slice(1) }}
           </DataGrid.Column>
         </DataGrid.Row>
       </DataGrid.Header>
 
-      <DataGrid.Body @vue:mounted="context.onboard(users.map(u => ({ id: u.id, value: u })))">
+      <DataGrid.Body>
         <DataGrid.Row
           v-for="item in context.items.value"
           :id="item.id"

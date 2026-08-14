@@ -430,6 +430,97 @@ describe('dataGrid', () => {
         expect(slotProps.isResizable).toBe(true)
       })
     })
+
+    describe('splitter composition', () => {
+      it('should render resizable row as Splitter.Root', async () => {
+        let context: any
+
+        const wrapper = mount(DataGrid.Root, {
+          slots: {
+            default: (props: any) => {
+              context = props.context
+              return h(DataGrid.Table, { as: 'div' }, () =>
+                h(DataGrid.Header, { as: 'div' }, () =>
+                  h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
+                    h(DataGrid.Column, { column: 'name' }, () => 'Name'),
+                    h(DataGrid.Handle),
+                    h(DataGrid.Column, { column: 'email' }, () => 'Email'),
+                  ]),
+                ),
+              )
+            },
+          },
+        })
+
+        context.columns.onboard([
+          { id: 'name', size: 50, minSize: 20, resizable: true },
+          { id: 'email', size: 50, minSize: 20, resizable: true },
+        ])
+
+        await nextTick()
+
+        // The resizable row should have data-orientation="horizontal" from Splitter.Root
+        const row = wrapper.find('[role="row"]')
+        expect(row.attributes('data-orientation')).toBe('horizontal')
+      })
+
+      it('should render Handle with role=separator', async () => {
+        let context: any
+
+        const wrapper = mount(DataGrid.Root, {
+          slots: {
+            default: (props: any) => {
+              context = props.context
+              return h(DataGrid.Table, { as: 'div' }, () =>
+                h(DataGrid.Header, { as: 'div' }, () =>
+                  h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
+                    h(DataGrid.Column, { column: 'name' }, () => 'Name'),
+                    h(DataGrid.Handle),
+                    h(DataGrid.Column, { column: 'email' }, () => 'Email'),
+                  ]),
+                ),
+              )
+            },
+          },
+        })
+
+        context.columns.onboard([
+          { id: 'name', size: 50, minSize: 20, resizable: true },
+          { id: 'email', size: 50, minSize: 20, resizable: true },
+        ])
+
+        await nextTick()
+
+        const handle = wrapper.find('[role="separator"]')
+        expect(handle.exists()).toBe(true)
+        expect(handle.attributes('aria-orientation')).toBe('vertical')
+      })
+
+      it('should expose isResizable in row slot props', async () => {
+        let rowSlotProps: any
+
+        mount(DataGrid.Root, {
+          slots: {
+            default: () =>
+              h(DataGrid.Table, { as: 'div' }, () =>
+                h(DataGrid.Header, { as: 'div' }, () =>
+                  h(DataGrid.Row, { resizable: true }, {
+                    default: (p: any) => {
+                      rowSlotProps = p
+                      return 'Row Content'
+                    },
+                  }),
+                ),
+              ),
+          },
+        })
+
+        await nextTick()
+
+        expect(rowSlotProps).toBeDefined()
+        expect(rowSlotProps.isResizable).toBe(true)
+      })
+    })
   })
 
   describe('integration', () => {
