@@ -37,12 +37,22 @@ export interface Faq {
  * FAQPage answers are plain text; leaving markdown or component tags in place
  * puts syntax into the snippet a search engine quotes.
  */
+function stripTags (value: string): string {
+  let current = value
+  let previous = ''
+  while (current !== previous) {
+    previous = current
+    current = current.replace(/<[^>]*>/g, '')
+  }
+  return current
+}
+
 function plain (markdown: string): string {
-  return markdown
-    // Fenced code blocks carry no answer prose and wreck the snippet.
-    .replaceAll(/```[\s\S]*?```/g, '')
-    // Inline components (<DocsCount ... />) render as values we cannot resolve here.
-    .replaceAll(/<[^>]+>/g, '')
+  return stripTags(
+    markdown
+      // Fenced code blocks carry no answer prose and wreck the snippet.
+      .replaceAll(/```[\s\S]*?```/g, ''),
+  )
     // Links -> their text.
     .replaceAll(/\[([^\]]+)]\([^)]*\)/g, '$1')
     .replaceAll(/[*_`]/g, '')
