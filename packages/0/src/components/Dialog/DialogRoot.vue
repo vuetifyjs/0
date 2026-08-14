@@ -21,6 +21,8 @@
     id: string
     titleId: string
     descriptionId: string
+    titlePresent: ShallowRef<boolean>
+    descriptionPresent: ShallowRef<boolean>
     open: () => void
     close: () => void
   }
@@ -52,7 +54,7 @@
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { toRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   defineOptions({ name: 'DialogRoot' })
 
@@ -75,6 +77,8 @@
   const id = _id ?? useId()
   const titleId = `${id}-title`
   const descriptionId = `${id}-description`
+  const titlePresent = shallowRef(false)
+  const descriptionPresent = shallowRef(false)
 
   function open () {
     isOpen.value = true
@@ -89,6 +93,8 @@
     id,
     titleId,
     descriptionId,
+    titlePresent,
+    descriptionPresent,
     open,
     close,
   })
