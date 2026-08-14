@@ -14,27 +14,21 @@ import type { TierState } from './useBenchmarkData'
 const CURRENT_LABEL = 'current' as const
 
 /**
- * Smallest delta worth reporting, regardless of how tight a bench's error bars
- * are. `rme` measures spread *within* one run and is tiny for most benches
- * (median 0.36% across the current set), so it never catches the real source of
- * cross-version drift: snapshots are recorded on rotating hosts. Measured
- * against that set, |delta| runs p50 3.3% / p75 6.7% / p90 17.4% — a 10% floor
- * sits above the drift band and leaves roughly a quarter of groups flagged.
+ * The band a trend delta has to clear before it counts as a real change.
+ *
+ * Flat on purpose. `rme` is within-run dispersion and does not predict
+ * between-run spread — the two correlate at 0.413 — so gating on it was
+ * measured and rejected when host calibration was removed (#749). That same
+ * work measured what identical code does across runs on the fixed reference
+ * host: 42 of 433 benches spread over 10%, 9 over 20%. A 20% band is where
+ * most of what surfaces is movement rather than apparatus; it flags 16 of 95
+ * groups on the current data, against 30 at 10%.
  */
-export const NOISE_FLOOR = 10
+export const NOISE_BAND = 20
 
-/**
- * The band a delta has to clear to count as signal. `rme` is the 95% confidence
- * interval on a *single* run — comparing two runs stacks two of them, which
- * widens the band by √2.
- */
-export function noise (rme: number): number {
-  return Math.max(rme * Math.SQRT2, NOISE_FLOOR)
-}
-
-/** True when a trend delta outranks measurement variance. */
-export function significant (delta: number, rme: number): boolean {
-  return Math.abs(delta) > noise(rme)
+/** True when a trend delta is large enough to outrank run-to-run noise. */
+export function significant (delta: number): boolean {
+  return Math.abs(delta) > NOISE_BAND
 }
 
 export interface HistoryPoint {
