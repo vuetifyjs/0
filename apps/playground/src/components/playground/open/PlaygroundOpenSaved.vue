@@ -62,7 +62,7 @@
 
   <div v-else>
     <div
-      v-if="pinned.length"
+      v-if="pinned.length > 0"
       class="flex flex-wrap gap-1 px-3 pt-2"
     >
       <span
@@ -93,7 +93,7 @@
     <div
       v-if="items.length === 0"
       class="p-8 text-center flex items-center justify-center"
-      :class="pinned.length ? 'py-6' : 'h-full'"
+      :class="pinned.length > 0 ? 'py-6' : 'h-full'"
     >
       <p class="text-sm text-on-surface-variant">
         {{ query ? `No matches for “${query}”` : 'No playgrounds' }}
@@ -112,23 +112,25 @@
 
         <span class="flex items-center gap-2 shrink-0">
           <span
-            class="inline-flex items-center gap-1 text-on-surface-variant"
             :aria-label="[
               visibilityLabel(item),
               item.favorite ? 'Favorite' : null,
               item.locked ? 'Locked' : null,
             ].filter(Boolean).join(', ')"
+            class="inline-flex items-center gap-1 text-on-surface-variant"
           >
             <AppIcon
               v-if="item.favorite"
               icon="star"
               :size="14"
             />
+
             <AppIcon
               v-if="item.locked"
               icon="lock"
               :size="14"
             />
+
             <AppIcon
               :icon="visibilityIcon(item)"
               :size="14"
