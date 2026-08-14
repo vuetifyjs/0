@@ -45,9 +45,9 @@
   })
 
   /**
-   * Benchmarks whose trend clears their own error bars, split by direction.
-   * Null when nothing in the group moved — a badge that renders "0 changes" is
-   * noise, and the collapsed header should stay quiet when there is no news.
+   * Benchmarks whose trend clears the noise band, split by direction. Null when
+   * nothing in the group moved — a badge that renders "0 changes" is noise, and
+   * the collapsed header should stay quiet when there is no news.
    */
   const changes = computed(() => {
     const map = historyByBench.value
@@ -58,7 +58,7 @@
 
     for (const bench of props.group.benchmarks) {
       const delta = map.get(bench.name)?.delta
-      if (isUndefined(delta) || !significant(delta, bench.rme)) continue
+      if (isUndefined(delta) || !significant(delta)) continue
       if (delta > 0) up++
       else down++
     }
@@ -74,7 +74,7 @@
     const parts: string[] = []
     if (c.up) parts.push(`${c.up} faster`)
     if (c.down) parts.push(`${c.down} slower`)
-    return `${parts.join(', ')} beyond measurement variance since ${since.value ?? 'the first recorded run'}`
+    return `${parts.join(', ')} beyond run-to-run noise since ${since.value ?? 'the first recorded run'}`
   })
 </script>
 

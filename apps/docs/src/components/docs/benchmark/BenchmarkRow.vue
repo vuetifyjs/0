@@ -21,10 +21,10 @@
 
   const barColor = toRef(() => TIER_BG[props.benchmark.tier])
 
-  // Colored only when the delta clears this bench's own error bars, so a row
-  // reads the same way the group header counted it.
+  // Colored only when the delta clears the noise band, so a row reads the same
+  // way the group header counted it.
   function deltaClass (delta: number): string {
-    if (!significant(delta, props.benchmark.rme)) return 'text-on-surface-variant'
+    if (!significant(delta)) return 'text-on-surface-variant'
     return delta > 0 ? 'text-success' : 'text-error'
   }
 
