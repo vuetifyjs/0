@@ -6,7 +6,7 @@
   import { usePlaygroundFiles } from '@/composables/usePlaygroundFiles'
 
   // Utilities
-  import { nextTick, onMounted, shallowRef, watch } from 'vue'
+  import { nextTick, onMounted, shallowRef, toRef, watch } from 'vue'
 
   // Types
   import type { ActiveExample } from '@/composables/usePlaygroundFiles'
@@ -25,8 +25,12 @@
     editor: { value: boolean }
     vueVersion: Ref<string | null>
     v0Version: Ref<string>
+    vuetifyVersion: Ref<string>
+    vuetifyNightly: Ref<boolean>
     vueVersions: Ref<string[]>
     v0Versions: Ref<string[]>
+    vuetifyVersions: Ref<string[]>
+    vuetifyNightlyVersions: Ref<string[]>
     fetching: Ref<boolean>
     fetchVersions: () => Promise<void>
     activePreset: ShallowRef<string>
@@ -43,12 +47,19 @@
     /** JSON payload for Vuetify One `playground.content`. */
     snapshotContent: () => string
     showConfig: ShallowRef<boolean>
+    /** Current playground locked state from Vuetify One. */
+    isLocked: Ref<boolean>
   }
 
   export const [usePlayground, providePlayground] = createContext<PlaygroundContext>('v0:playground')
 </script>
 
 <script setup lang="ts">
+  // Composables
+  import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
+
+  const one = useOnePlaygrounds()
+
   const {
     store,
     isReady,
@@ -56,8 +67,12 @@
     loadError,
     vueVersion,
     v0Version,
+    vuetifyVersion,
+    vuetifyNightly,
     vueVersions,
     v0Versions,
+    vuetifyVersions,
+    vuetifyNightlyVersions,
     fetching,
     fetchVersions,
     activePreset,
@@ -70,6 +85,8 @@
     activeExample,
     snapshotContent,
   } = usePlaygroundFiles()
+
+  const isLocked = toRef(() => one.currentMeta?.value.locked ?? false)
   const storage = useStorage()
   const { isMobile } = useBreakpoints()
 
@@ -111,8 +128,12 @@
     editor,
     vueVersion,
     v0Version,
+    vuetifyVersion,
+    vuetifyNightly,
     vueVersions,
     v0Versions,
+    vuetifyVersions,
+    vuetifyNightlyVersions,
     fetching,
     fetchVersions,
     activePreset,
@@ -127,6 +148,7 @@
     activeExample,
     snapshotContent,
     showConfig,
+    isLocked,
   })
 
   // Restore panel state on runtime breakpoint changes

@@ -7,7 +7,7 @@ import { decodePlaygroundHash, encodePlaygroundHash, isFileRecord, parseVuetifyP
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
 // Data
-import { createMainTs, createVuetifyTs, REPL_BUILTIN_FILES, REPL_TSCONFIG, REPL_TYPESCRIPT_VERSION, UNO_CONFIG_TS } from '@/data/playground-defaults'
+import { createMainTs, createVuetifyTs, REPL_BUILTIN_FILES, REPL_TSCONFIG, REPL_TYPESCRIPT_VERSION, UNO_CONFIG_TS, vuetifyEsmUrl } from '@/data/playground-defaults'
 import { ADDONS, DEFAULT_APP, PRESETS } from '@/data/presets'
 import { parseRegistryQuery, resolveRegistryExample } from '@/data/registry'
 import { parseVuetifyExampleQuery, resolveVuetifyExample } from '@/data/vuetify-examples'
@@ -32,7 +32,19 @@ export function usePlaygroundFiles () {
   const one = useOnePlaygrounds()
   const routeId = usePlaygroundRouteId()
 
-  const { importMap, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions } = usePlaygroundSettings()
+  const {
+    importMap,
+    vueVersion,
+    v0Version,
+    vuetifyVersion,
+    vuetifyNightly,
+    vueVersions,
+    v0Versions,
+    vuetifyVersions,
+    vuetifyNightlyVersions,
+    fetching,
+    fetchVersions,
+  } = usePlaygroundSettings()
 
   const builtinImportMap = computed(() => ({
     imports: {
@@ -77,13 +89,18 @@ export function usePlaygroundFiles () {
   function rebuildMain () {
     const file = store.files['src/main.ts']
     if (!file) return
-    file.code = createMainTs(theme.isDark.value ? 'dark' : 'light', mergedMainOptions())
+    file.code = createMainTs(theme.isDark.value ? 'dark' : 'light', mergedMainOptions(), vuetifyVersion.value, vuetifyNightly.value)
     compileFile(store, file)
   }
 
   function rebuildImportMap () {
     const preset = PRESETS.find(p => p.id === activePreset.value)
     const imports: Record<string, string> = { ...preset?.imports }
+    // Override vuetify import with versioned URL when vuetify preset is active
+    // Use @vuetify/nightly package when nightly mode is enabled
+    if (activePreset.value === 'vuetify') {
+      imports.vuetify = vuetifyEsmUrl(vuetifyVersion.value, vuetifyNightly.value)
+    }
     for (const id of activeAddons.value) {
       const addon = ADDONS.find(a => a.id === id)
       if (addon?.imports) Object.assign(imports, addon.imports)
@@ -159,6 +176,8 @@ export function usePlaygroundFiles () {
     if (decoded.settings?.preset) activePreset.value = decoded.settings.preset
     if (decoded.settings?.vue) vueVersion.value = decoded.settings.vue
     if (decoded.settings?.v0) v0Version.value = decoded.settings.v0
+    if (decoded.settings?.vuetify) vuetifyVersion.value = decoded.settings.vuetify
+    if (decoded.settings?.vuetifyNightly) vuetifyNightly.value = decoded.settings.vuetifyNightly
     if (decoded.settings?.addons) activeAddons.value = decoded.settings.addons.split(',').filter(Boolean)
 
     // Vuetify Play hashes (Format 4 and re-encoded Format 2/3) include infrastructure
@@ -255,7 +274,7 @@ export function usePlaygroundFiles () {
     rebuildImportMap()
     await store.setFiles(
       {
-        'src/main.ts': createMainTs(theme_, options),
+        'src/main.ts': createMainTs(theme_, options, vuetifyVersion.value, vuetifyNightly.value),
         'src/uno.config.ts': UNO_CONFIG_TS,
         'tsconfig.json': REPL_TSCONFIG,
         ...(options.vuetify ? { 'src/vuetify.ts': createVuetifyTs(theme_) } : {}),
@@ -294,6 +313,8 @@ export function usePlaygroundFiles () {
     const settings: PlaygroundHashData['settings'] = {}
     if (vueVersion.value) settings.vue = vueVersion.value
     if (v0Version.value !== 'latest') settings.v0 = v0Version.value
+    if (vuetifyVersion.value !== 'latest') settings.vuetify = vuetifyVersion.value
+    if (vuetifyNightly.value) settings.vuetifyNightly = true
     if (activePreset.value !== 'default') settings.preset = activePreset.value
     if (activeAddons.value.length > 0) settings.addons = activeAddons.value.join(',')
 
@@ -324,6 +345,8 @@ export function usePlaygroundFiles () {
       // Track version/preset/addon refs so hash updates when they change
       vueVersion.value // eslint-disable-line @typescript-eslint/no-unused-expressions
       v0Version.value // eslint-disable-line @typescript-eslint/no-unused-expressions
+      vuetifyVersion.value // eslint-disable-line @typescript-eslint/no-unused-expressions
+      vuetifyNightly.value // eslint-disable-line @typescript-eslint/no-unused-expressions
       activePreset.value // eslint-disable-line @typescript-eslint/no-unused-expressions
       activeAddons.value // eslint-disable-line @typescript-eslint/no-unused-expressions
       for (const file of Object.values(store.files)) {
@@ -343,7 +366,7 @@ export function usePlaygroundFiles () {
     const mode = isDark ? 'dark' : 'light'
     const main = store.files['src/main.ts']
     if (main) {
-      main.code = createMainTs(mode, mergedMainOptions())
+      main.code = createMainTs(mode, mergedMainOptions(), vuetifyVersion.value, vuetifyNightly.value)
       compileFile(store, main)
     }
     // Keep sandbox Vuetify theme aligned with the host chrome toggle.
@@ -352,6 +375,13 @@ export function usePlaygroundFiles () {
       vuetify.code = createVuetifyTs(mode)
       compileFile(store, vuetify)
     }
+  })
+
+  // Rebuild main and import map when Vuetify version changes (nightly toggle or version select)
+  watch([vuetifyVersion, vuetifyNightly], () => {
+    if (!isReady.value || activePreset.value !== 'vuetify') return
+    rebuildMain()
+    rebuildImportMap()
   })
 
   watch(() => store.activeFile?.code, code => {
@@ -381,7 +411,7 @@ export function usePlaygroundFiles () {
     const options = preset.mainOptions
     await store.setFiles(
       {
-        'src/main.ts': createMainTs(theme_, options),
+        'src/main.ts': createMainTs(theme_, options, vuetifyVersion.value, vuetifyNightly.value),
         'src/uno.config.ts': UNO_CONFIG_TS,
         'tsconfig.json': REPL_TSCONFIG,
         ...(options?.vuetify ? { 'src/vuetify.ts': createVuetifyTs(theme_) } : {}),
@@ -479,6 +509,8 @@ export function usePlaygroundFiles () {
         aliasMap.value = new Map()
         if (data.settings?.vue) vueVersion.value = data.settings.vue
         if (data.settings?.v0) v0Version.value = data.settings.v0
+        if (data.settings?.vuetify) vuetifyVersion.value = data.settings.vuetify
+        if (data.settings?.vuetifyNightly) vuetifyNightly.value = data.settings.vuetifyNightly
 
         await loadExample(data.files, data.active)
         rebuildImportMap()
@@ -609,8 +641,12 @@ export function usePlaygroundFiles () {
     loadExample,
     vueVersion,
     v0Version,
+    vuetifyVersion,
+    vuetifyNightly,
     vueVersions,
     v0Versions,
+    vuetifyVersions,
+    vuetifyNightlyVersions,
     fetching,
     fetchVersions,
     activePreset,

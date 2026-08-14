@@ -78,7 +78,27 @@ export const vuetify = createVuetify({
 `
 }
 
-export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?: MainOptions): string {
+/**
+ * Generate a versioned Vuetify CDN URL for ESM JS.
+ * @param version - Version string or 'latest'
+ * @param nightly - If true, use @vuetify/nightly package instead of vuetify
+ */
+export function vuetifyEsmUrl (version = 'latest', nightly = false): string {
+  const pkg = nightly ? '@vuetify/nightly' : 'vuetify'
+  return `https://cdn.jsdelivr.net/npm/${pkg}@${version}/dist/vuetify-labs.esm.js`
+}
+
+/**
+ * Generate a versioned Vuetify CDN URL for CSS.
+ * @param version - Version string or 'latest'
+ * @param nightly - If true, use @vuetify/nightly package instead of vuetify
+ */
+function vuetifyCssUrl (version = 'latest', nightly = false): string {
+  const pkg = nightly ? '@vuetify/nightly' : 'vuetify'
+  return `https://cdn.jsdelivr.net/npm/${pkg}@${version}/dist/vuetify-labs.css`
+}
+
+export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?: MainOptions, vuetifyVersion = 'latest', vuetifyNightly = false): string {
   const useV0 = options?.v0 !== false
   const extraImports: string[] = []
   const extraPlugins: string[] = []
@@ -110,7 +130,7 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
       // vuetify-labs.css doesn't bundle, so without it every mdi-* icon renders
       // as tofu. Add further icon-set stylesheets here as list entries.
       `for (const href of [`,
-      `  'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css',`,
+      `  '${vuetifyCssUrl(vuetifyVersion, vuetifyNightly)}',`,
       `  'https://cdn.jsdelivr.net/npm/@mdi/font@7.x/css/materialdesignicons.min.css',`,
       `  'https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900',`,
       `]) {`,
