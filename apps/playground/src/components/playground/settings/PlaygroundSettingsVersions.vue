@@ -105,13 +105,13 @@
 <template>
   <div class="flex flex-col gap-5">
     <!-- Vue version -->
-    <div class="dep-row">
-      <div class="dep-header">
-        <AppIcon class="dep-icon text-[#42b883]" icon="lang-vue" :size="18" />
-        <label class="field-label">Vue</label>
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center gap-2">
+        <AppIcon class="shrink-0 opacity-90 text-[#42b883]" icon="lang-vue" :size="18" />
+        <label class="flex-1 text-xs font-semibold text-on-surface-variant uppercase tracking-wide opacity-70">Vue</label>
 
         <button
-          class="release-btn"
+          class="flex items-center justify-center size-5 rounded text-on-surface-variant opacity-60 transition-opacity hover:opacity-100 hover:bg-surface-tint"
           title="Release notes"
           type="button"
           @click="openVueReleaseNotes"
@@ -120,7 +120,7 @@
         </button>
       </div>
 
-      <div v-if="playground.fetching.value" class="select-skeleton" />
+      <div v-if="playground.fetching.value" class="h-8 rounded-md bg-surface-variant border border-outline-variant opacity-50 animate-pulse" />
 
       <AppSelect
         v-else
@@ -132,13 +132,13 @@
     </div>
 
     <!-- Vuetify version (only shown with vuetify preset) -->
-    <div v-if="isVuetifyPreset" class="dep-row">
-      <div class="dep-header">
-        <AppIcon class="dep-icon text-[#1867c0]" icon="vuetify" :size="18" />
-        <label class="field-label">Vuetify</label>
+    <div v-if="isVuetifyPreset" class="flex flex-col gap-2">
+      <div class="flex items-center gap-2">
+        <AppIcon class="shrink-0 opacity-90 text-[#1867c0]" icon="vuetify" :size="18" />
+        <label class="flex-1 text-xs font-semibold text-on-surface-variant uppercase tracking-wide opacity-70">Vuetify</label>
 
         <button
-          class="release-btn"
+          class="flex items-center justify-center size-5 rounded text-on-surface-variant opacity-60 transition-opacity hover:opacity-100 hover:bg-surface-tint"
           title="Release notes"
           type="button"
           @click="openVuetifyReleaseNotes"
@@ -147,7 +147,7 @@
         </button>
       </div>
 
-      <div v-if="playground.fetching.value" class="select-skeleton" />
+      <div v-if="playground.fetching.value" class="h-8 rounded-md bg-surface-variant border border-outline-variant opacity-50 animate-pulse" />
 
       <AppSelect
         v-else
@@ -158,30 +158,30 @@
       />
 
       <!-- Nightly toggle -->
-      <div class="nightly-row">
-        <span class="nightly-label">Nightly</span>
+      <div class="flex items-center justify-between py-1.5">
+        <span class="text-xs text-on-surface-variant">Nightly</span>
 
         <Switch.Root
           v-model="vuetifyNightly"
           aria-label="Use nightly builds"
-          class="switch-root shrink-0 inline-flex items-center border-none bg-transparent p-0 outline-none"
+          class="shrink-0 inline-flex items-center border-none bg-transparent p-0 outline-none data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed"
           :disabled="isLocked"
         >
-          <Switch.Track class="switch-track">
-            <Switch.Thumb class="switch-thumb" />
+          <Switch.Track class="relative inline-flex items-center rounded-full transition-colors w-9 h-5 bg-on-surface/20 data-[state=checked]:bg-primary">
+            <Switch.Thumb class="![visibility:visible] block size-3.5 rounded-full bg-white shadow-sm transition-transform translate-x-0.75 data-[state=checked]:translate-x-4.75" />
           </Switch.Track>
         </Switch.Root>
       </div>
     </div>
 
     <!-- v0 version (only shown when NOT using vuetify preset) -->
-    <div v-if="!isVuetifyPreset" class="dep-row">
-      <div class="dep-header">
-        <AppIcon class="dep-icon text-primary" icon="vuetify-0" :size="18" />
-        <label class="field-label">@vuetify/v0</label>
+    <div v-if="!isVuetifyPreset" class="flex flex-col gap-2">
+      <div class="flex items-center gap-2">
+        <AppIcon class="shrink-0 opacity-90 text-primary" icon="vuetify-0" :size="18" />
+        <label class="flex-1 text-xs font-semibold text-on-surface-variant uppercase tracking-wide opacity-70">@vuetify/v0</label>
 
         <button
-          class="release-btn"
+          class="flex items-center justify-center size-5 rounded text-on-surface-variant opacity-60 transition-opacity hover:opacity-100 hover:bg-surface-tint"
           title="Release notes"
           type="button"
           @click="openV0ReleaseNotes"
@@ -190,7 +190,7 @@
         </button>
       </div>
 
-      <div v-if="playground.fetching.value" class="select-skeleton" />
+      <div v-if="playground.fetching.value" class="h-8 rounded-md bg-surface-variant border border-outline-variant opacity-50 animate-pulse" />
 
       <AppSelect
         v-else
@@ -203,150 +203,13 @@
 
     <!-- Add Dependency (disabled, Coming Soon parity with play) -->
     <button
-      class="add-dep-btn"
+      class="flex items-center gap-2 px-3 py-2 border border-dashed border-outline-variant rounded-md text-xs text-on-surface-variant opacity-50 cursor-not-allowed"
       disabled
       type="button"
     >
       <AppIcon icon="file-plus" :size="14" />
       <span>Add Dependency</span>
-      <span class="coming-soon">soon</span>
+      <span class="ml-auto text-[10px] border border-current rounded-sm px-1 opacity-60">soon</span>
     </button>
   </div>
 </template>
-
-<style scoped>
-.dep-row {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.dep-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.dep-icon {
-  flex-shrink: 0;
-  opacity: 0.9;
-}
-
-.field-label {
-  flex: 1;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--v0-on-surface-variant);
-  opacity: 0.7;
-}
-
-.release-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  color: var(--v0-on-surface-variant);
-  opacity: 0.6;
-  transition: opacity 0.15s, background 0.15s;
-}
-
-.release-btn:hover {
-  opacity: 1;
-  background: var(--v0-surface-tint);
-}
-
-.nightly-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 0;
-}
-
-.nightly-label {
-  font-size: 12px;
-  color: var(--v0-on-surface-variant);
-}
-
-.select-skeleton {
-  background: var(--v0-surface-variant);
-  border: 1px solid var(--v0-outline-variant, var(--v0-outline));
-  border-radius: 6px;
-  height: 32px;
-  opacity: 0.5;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-.add-dep-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border: 1px dashed var(--v0-outline-variant, var(--v0-outline));
-  border-radius: 6px;
-  color: var(--v0-on-surface-variant);
-  font-size: 12px;
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.coming-soon {
-  margin-left: auto;
-  font-size: 10px;
-  border: 1px solid currentColor;
-  border-radius: 3px;
-  padding: 1px 4px;
-  opacity: 0.6;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 0.25; }
-}
-
-/* Switch styling via data attributes */
-.switch-root[data-disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.switch-track {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  width: 32px;
-  height: 16px;
-  border-radius: 9999px;
-  transition: background-color 0.15s;
-}
-
-.switch-track[data-state="checked"] {
-  background: var(--v0-primary);
-}
-
-.switch-track[data-state="unchecked"] {
-  background: color-mix(in srgb, var(--v0-on-surface, #666) 20%, transparent);
-}
-
-.switch-thumb {
-  display: block;
-  width: 12px;
-  height: 12px;
-  border-radius: 9999px;
-  background: white;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  transition: transform 0.15s;
-  visibility: visible !important;
-}
-
-.switch-thumb[data-state="checked"] {
-  transform: translateX(16px);
-}
-
-.switch-thumb[data-state="unchecked"] {
-  transform: translateX(2px);
-}
-</style>
