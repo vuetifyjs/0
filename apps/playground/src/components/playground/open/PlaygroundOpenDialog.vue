@@ -1018,6 +1018,7 @@
                   @click="onSavedSort(chip.id)"
                 >
                   <span>{{ chip.label }}</span>
+
                   <span
                     v-if="savedSort === chip.id"
                     class="opacity-70"
