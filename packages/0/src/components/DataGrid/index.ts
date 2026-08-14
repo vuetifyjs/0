@@ -10,6 +10,7 @@
 
 export { default as DataGridBody } from './DataGridBody.vue'
 export { default as DataGridCell } from './DataGridCell.vue'
+export { default as DataGridHandle } from './DataGridHandle.vue'
 export { default as DataGridHeader } from './DataGridHeader.vue'
 export { provideDataGridRow, useDataGridRow } from './DataGridRow.vue'
 export { default as DataGridRow } from './DataGridRow.vue'
@@ -24,6 +25,13 @@ export type { DataGridRowContext, DataGridRowProps, DataGridRowSlotProps } from 
 export type { DataGridRootProps, DataGridRootSlotProps } from './DataGridRoot.vue'
 export type { DataGridTableProps, DataGridTableSlotProps } from './DataGridTable.vue'
 
+// Re-export Handle types separately (workaround for vue-tsc module resolution)
+export type {
+  DataGridHandleProps,
+  DataGridHandleSlotProps,
+  DataGridHandleState,
+} from './DataGridHandle.vue'
+
 // Note: DataGridColumn and DataGridColumnProps/DataGridColumnSlotProps are NOT
 // exported as named exports to avoid collision with the deprecated DataGridColumn
 // type from createDataGrid composable. Access them via DataGrid.Column instead.
@@ -32,6 +40,7 @@ export type { DataGridTableProps, DataGridTableSlotProps } from './DataGridTable
 import Body from './DataGridBody.vue'
 import Cell from './DataGridCell.vue'
 import Column from './DataGridColumn.vue'
+import Handle from './DataGridHandle.vue'
 import Header from './DataGridHeader.vue'
 import Root from './DataGridRoot.vue'
 import Row from './DataGridRow.vue'
@@ -114,6 +123,7 @@ export const DataGrid = {
   Row,
   /**
    * Header cell with `role="columnheader"` and sorting state.
+   * Composes `Splitter.Panel` when inside a resizable `DataGridRow`.
    *
    * @see https://0.vuetifyjs.com/components/data/data-grid
    */
@@ -124,4 +134,20 @@ export const DataGrid = {
    * @see https://0.vuetifyjs.com/components/data/data-grid
    */
   Cell,
+  /**
+   * Column resize handle. Wraps `Splitter.Handle` for drag interaction.
+   * Place between adjacent `DataGridColumn` components in a resizable row.
+   *
+   * @see https://0.vuetifyjs.com/components/data/data-grid
+   *
+   * @example
+   * ```vue
+   * <DataGrid.Row resizable>
+   *   <DataGrid.Column column="name">Name</DataGrid.Column>
+   *   <DataGrid.Handle />
+   *   <DataGrid.Column column="email">Email</DataGrid.Column>
+   * </DataGrid.Row>
+   * ```
+   */
+  Handle,
 }

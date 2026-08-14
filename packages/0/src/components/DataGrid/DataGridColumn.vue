@@ -7,14 +7,20 @@
  * Header cell component for the data grid. Renders as th by default
  * with role="columnheader" for ARIA grid semantics. Exposes sorting
  * state and column layout information from the grid context.
+ *
+ * When inside a resizable `DataGridRow`, this component automatically
+ * composes `Splitter.Panel` to participate in column resizing. The
+ * panel's size, minSize, and maxSize come from the column registration.
  */
 
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+  import { SplitterPanel } from '#v0/components/Splitter'
 
   // Context
   import { useDataGridRoot } from './DataGridRoot.vue'
+  import { useDataGridRow } from './DataGridRow.vue'
 
   // Utilities
   import { mergeProps, toRef, useAttrs } from 'vue'
@@ -73,6 +79,10 @@
   } = defineProps<DataGridColumnProps>()
 
   const context = useDataGridRoot(namespace)
+  const rowContext = useDataGridRow(namespace, null)
+
+  // Check if we're inside a resizable row (which provides Splitter context)
+  const inResizableRow = toRef(() => rowContext?.resizable ?? false)
 
   const isSorted = toRef(() => {
     if (!column) return false
@@ -124,6 +134,12 @@
     return 'none'
   })
 
+  // Element type: use div instead of th in resizable rows (for flex layout)
+  const resolvedAs = toRef(() => {
+    if (inResizableRow.value && as === 'th') return 'div'
+    return as
+  })
+
   const slotProps = toRef((): DataGridColumnSlotProps => ({
     isSorted: isSorted.value,
     sortDirection: sortDirection.value,
@@ -143,11 +159,12 @@
 </script>
 
 <template>
-  <Atom
-    :as
-    :renderless
-    v-bind="mergeProps(attrs, slotProps.attrs)"
+  <component
+    :is="inResizableRow ? SplitterPanel : Atom"
+    v-bind="inResizableRow
+      ? mergeProps(attrs, slotProps.attrs, { as: resolvedAs, defaultSize: size || 100, minSize, maxSize, renderless })
+      : mergeProps(attrs, slotProps.attrs, { as, renderless })"
   >
     <slot v-bind="slotProps" />
-  </Atom>
+  </component>
 </template>
