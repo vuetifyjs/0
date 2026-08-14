@@ -31,6 +31,9 @@ Check this table **before writing custom logic**. Match by problem, not by keywo
 
 | Problem | Use | Category |
 |---|---|---|
+| Native `<button>` (click, submit, toggle) | `Button` | actions |
+| Homemade overlay / dialog / modal | `Dialog` | disclosure |
+| Homemade popover / anchored overlay | `Popover` | disclosure |
 | Single-choice state (tabs, theme picker) | `createSingle` | selection |
 | Multi-choice state (filters, tag pickers) | `createSelection` | selection |
 | Select-all with tri-state | `createGroup` | selection |
