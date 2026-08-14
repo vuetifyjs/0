@@ -38,6 +38,7 @@ export async function createHighlighter (): Promise<DocsHighlighter> {
       import('@shikijs/langs/vue'),
       import('@shikijs/langs/html'),
       import('@shikijs/langs/markdown'),
+      import('@shikijs/langs/toml'),
     ],
     engine: createJavaScriptRegexEngine(),
   })
