@@ -164,18 +164,11 @@
         <Switch.Root
           v-model="vuetifyNightly"
           aria-label="Use nightly builds"
-          class="shrink-0 inline-flex items-center border-none bg-transparent p-0 outline-none"
+          class="switch-root shrink-0 inline-flex items-center border-none bg-transparent p-0 outline-none"
           :disabled="isLocked"
         >
-          <Switch.Track
-            class="relative inline-flex items-center rounded-full transition-colors w-8 h-4"
-            :class="isLocked ? 'opacity-50 cursor-not-allowed' : ''"
-            :style="{ background: vuetifyNightly ? 'var(--v0-primary)' : 'var(--v0-on-surface, #666)/20%' }"
-          >
-            <Switch.Thumb
-              class="![visibility:visible] block size-3 rounded-full bg-white shadow-sm transition-transform"
-              :style="{ transform: vuetifyNightly ? 'translateX(16px)' : 'translateX(2px)' }"
-            />
+          <Switch.Track class="switch-track">
+            <Switch.Thumb class="switch-thumb" />
           </Switch.Track>
         </Switch.Root>
       </div>
@@ -312,5 +305,48 @@
 @keyframes pulse {
   0%, 100% { opacity: 0.5; }
   50% { opacity: 0.25; }
+}
+
+/* Switch styling via data attributes */
+.switch-root[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.switch-track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 32px;
+  height: 16px;
+  border-radius: 9999px;
+  transition: background-color 0.15s;
+}
+
+.switch-track[data-state="checked"] {
+  background: var(--v0-primary);
+}
+
+.switch-track[data-state="unchecked"] {
+  background: color-mix(in srgb, var(--v0-on-surface, #666) 20%, transparent);
+}
+
+.switch-thumb {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: transform 0.15s;
+  visibility: visible !important;
+}
+
+.switch-thumb[data-state="checked"] {
+  transform: translateX(16px);
+}
+
+.switch-thumb[data-state="unchecked"] {
+  transform: translateX(2px);
 }
 </style>
