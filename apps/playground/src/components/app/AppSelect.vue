@@ -19,10 +19,12 @@
   const {
     items,
     mandatory,
+    disabled,
     placeholder = 'Select...',
   } = defineProps<{
     items: AppSelectItem[]
     mandatory?: boolean
+    disabled?: boolean
     placeholder?: string
   }>()
 
@@ -35,8 +37,8 @@
 </script>
 
 <template>
-  <Select.Root v-model="model" :mandatory>
-    <Select.Activator class="trigger">
+  <Select.Root v-model="model" :disabled :mandatory>
+    <Select.Activator class="trigger" :class="{ 'trigger--disabled': disabled }">
       <span>{{ selectedLabel }}</span>
 
       <Select.Cue class="cue">
@@ -90,8 +92,13 @@
   transition: border-color 0.15s, background 0.15s;
 }
 
-.trigger:hover {
+.trigger:hover:not(.trigger--disabled) {
   border-color: var(--v0-outline);
+}
+
+.trigger--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .trigger:focus-visible {
