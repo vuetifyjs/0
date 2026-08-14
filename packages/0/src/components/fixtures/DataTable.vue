@@ -1,5 +1,8 @@
 <script setup lang="ts">
-  import { DataTable } from '../DataTable/index'
+  // Utilities
+  import { defineComponent, onMounted } from 'vue'
+
+  import { DataTable, useDataTableRoot } from '../DataTable/index'
 
   const users = [
     { id: 1, name: 'Alice', email: 'alice@example.com' },
@@ -10,14 +13,23 @@
     { id: 'name', title: 'Name', sortable: true },
     { id: 'email', title: 'Email', sortable: true },
   ]
+
+  const DataTableInit = defineComponent({
+    name: 'DataTableInit',
+    setup () {
+      const context = useDataTableRoot('v0:data-table')
+      onMounted(() => {
+        context.columns.onboard(columns)
+        context.onboard(users.map(u => ({ id: u.id, value: u })))
+      })
+      return () => null
+    },
+  })
 </script>
 
 <template>
-  <DataTable.Root v-slot="{ context }">
-    <div v-once>
-      {{ void context.columns.onboard(columns) }}
-      {{ void context.onboard(users.map(u => ({ id: u.id, value: u }))) }}
-    </div>
+  <DataTable.Root>
+    <DataTableInit />
 
     <DataTable.Table aria-label="Users table">
       <DataTable.Head>

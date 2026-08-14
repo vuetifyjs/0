@@ -98,21 +98,38 @@ flowchart TD
 
 ### Data Loading
 
-Register columns and rows via the context exposed in the Root's slot:
+Register columns and rows once via the `useDataTableRoot` composable in a child component:
 
 ```vue
-<DataTable.Root v-slot="{ context }">
-  <!-- Register columns once -->
-  <div v-once>
-    {{ void context.columns.onboard([
-      { id: 'name', title: 'Name', sortable: true },
-      { id: 'email', title: 'Email', filterable: true },
-    ]) }}
-    {{ void context.onboard(users.map(u => ({ id: u.id, value: u }))) }}
-  </div>
+<script setup lang="ts">
+  import { defineComponent, onMounted } from 'vue'
+  import { DataTable, useDataTableRoot } from '@vuetify/v0'
 
-  <!-- Table structure -->
-</DataTable.Root>
+  const columns = [
+    { id: 'name', title: 'Name', sortable: true },
+    { id: 'email', title: 'Email', filterable: true },
+  ]
+  const users = [/* your data */]
+
+  // One-shot initialization component
+  const DataTableInit = defineComponent({
+    setup () {
+      const context = useDataTableRoot('v0:data-table')
+      onMounted(() => {
+        context.columns.onboard(columns)
+        context.onboard(users.map(u => ({ id: u.id, value: u })))
+      })
+      return () => null
+    },
+  })
+</script>
+
+<template>
+  <DataTable.Root>
+    <DataTableInit />
+    <!-- Table structure -->
+  </DataTable.Root>
+</template>
 ```
 
 > [!TIP]
