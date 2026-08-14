@@ -385,11 +385,13 @@ export function useOnePlaygrounds () {
    */
   async function patchMeta (
     patch: Partial<Pick<OnePlaygroundMeta, 'favorite' | 'pinned' | 'locked' | 'visibility'> & { title?: string }>,
+    id?: string,
   ): Promise<OnePlayground> {
     if (!IN_BROWSER) throw new Error('patchMeta is only available in the browser')
-    if (!currentId.value) throw new Error('No playground linked')
+    const target = id ?? currentId.value
+    if (!target) throw new Error('No playground linked')
 
-    const res = await fetch(`${ONE_API}/one/playgrounds/${currentId.value}`, {
+    const res = await fetch(`${ONE_API}/one/playgrounds/${target}`, {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
@@ -404,12 +406,14 @@ export function useOnePlaygrounds () {
     const data = await res.json()
     const playground = (data.playground ?? data) as OnePlayground
 
-    if (!isUndefined(patch.title)) currentTitle.value = playground.title
-    currentMeta.value = {
-      favorite: playground.favorite,
-      pinned: playground.pinned,
-      locked: playground.locked,
-      visibility: playground.visibility,
+    if (currentId.value === target) {
+      if (!isUndefined(patch.title)) currentTitle.value = playground.title
+      currentMeta.value = {
+        favorite: playground.favorite,
+        pinned: playground.pinned,
+        locked: playground.locked,
+        visibility: playground.visibility,
+      }
     }
 
     return playground

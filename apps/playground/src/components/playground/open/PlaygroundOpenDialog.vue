@@ -26,9 +26,12 @@
     exampleLabel,
     featureBucket,
     normalizeOpenRail,
+    sortPlaygrounds,
     type OpenKind,
     type OpenRail,
     type OpenRailItem,
+    type OpenSavedChip,
+    type OpenSavedSort,
     type VuetifyPlayground,
   } from './types'
 
@@ -48,6 +51,9 @@
   const query = shallowRef(restored?.query ?? '')
   /** Vuetify0 kind chip — Components / Composables / Plugins (or all). */
   const kind = shallowRef<OpenKind | 'all'>(restored?.kind ?? 'all')
+  const savedChip = shallowRef<OpenSavedChip>(restored?.savedChip ?? 'all')
+  const savedSort = shallowRef<OpenSavedSort>(restored?.savedSort ?? 'updated')
+  const savedSortDir = shallowRef<'asc' | 'desc'>(restored?.savedSortDir ?? 'desc')
   const pendingScroll = shallowRef(restored?.scrollTop ?? 0)
   const pendingExamplesScroll = shallowRef(restored?.examplesScrollTop ?? 0)
   /** Gallery wayfinding — name last opened on its rail (2 min session). */
@@ -116,6 +122,32 @@
     return items.value.filter(item => featureBucket(item) === kind.value)
   })
 
+  const savedCounts = computed(() => ({
+    favorite: saved.value.filter(item => item.favorite).length,
+    pinned: saved.value.filter(item => item.pinned).length,
+  }))
+
+  const savedChips = computed(() => [
+    { id: 'all' as const, label: 'All', count: saved.value.length },
+    { id: 'favorite' as const, label: 'Favorites', count: savedCounts.value.favorite },
+  ].filter(chip => chip.id === 'all' || chip.count > 0))
+
+  const pinnedItems = computed(() =>
+    sortPlaygrounds(
+      saved.value.filter(item => item.pinned),
+      savedSort.value,
+      savedSortDir.value,
+    ),
+  )
+
+  const savedPool = computed(() => {
+    const unpinned = saved.value.filter(item => !item.pinned)
+    const pool = savedChip.value === 'favorite'
+      ? unpinned.filter(item => item.favorite)
+      : unpinned
+    return sortPlaygrounds(pool, savedSort.value, savedSortDir.value)
+  })
+
   // Flatten searchable text so createFilter can match example ids without a custom fn.
   const filterableV0 = computed(() =>
     kindItems.value.map(item => ({
@@ -138,7 +170,7 @@
   )
 
   const filterableSaved = computed(() =>
-    saved.value.map(item => ({
+    savedPool.value.map(item => ({
       ...item,
       title: item.title || '',
     })),
@@ -218,6 +250,27 @@
     && !examplesError.value
     && items.value.length > 0,
   )
+
+  const showSavedChips = computed(() =>
+    rail.value === 'saved'
+    && !savedLoading.value
+    && !savedError.value
+    && saved.value.length > 0
+    && savedChips.value.length > 1,
+  )
+
+  const showSavedSort = computed(() =>
+    rail.value === 'saved'
+    && !savedLoading.value
+    && !savedError.value
+    && saved.value.length > 0,
+  )
+
+  const savedSortChips = [
+    { id: 'name' as const, label: 'Name' },
+    { id: 'created' as const, label: 'Created' },
+    { id: 'updated' as const, label: 'Updated' },
+  ]
 
   const subtitle = computed(() => {
     if (rail.value === 'saved') {
@@ -335,6 +388,9 @@
       examplesScrollTop: drilled ? pendingExamplesScroll.value : 0,
       query: query.value,
       kind: kind.value,
+      savedChip: savedChip.value,
+      savedSort: savedSort.value,
+      savedSortDir: savedSortDir.value,
       lastFeature: lastFeature.value,
       lastFeatureRail: lastFeatureRail.value,
       selectedName: selected.value?.name ?? selectedVuetify.value?.name,
@@ -495,6 +551,7 @@
     itemError.value = undefined
     query.value = ''
     kind.value = 'all'
+    savedChip.value = 'all'
     pendingScroll.value = 0
     pendingExamplesScroll.value = 0
     if (pane.value) pane.value.scrollTop = 0
@@ -513,6 +570,40 @@
     pendingScroll.value = 0
     if (pane.value) pane.value.scrollTop = 0
     persistSession()
+  }
+
+  function onSavedChip (next: OpenSavedChip) {
+    if (savedChip.value === next) {
+      if (next !== 'all') savedChip.value = 'all'
+      return
+    }
+    savedChip.value = next
+    pendingScroll.value = 0
+    if (pane.value) pane.value.scrollTop = 0
+    persistSession()
+  }
+
+  function onSavedSort (next: OpenSavedSort) {
+    if (savedSort.value === next) {
+      savedSortDir.value = savedSortDir.value === 'asc' ? 'desc' : 'asc'
+    } else {
+      savedSort.value = next
+      savedSortDir.value = next === 'name' ? 'asc' : 'desc'
+    }
+    pendingScroll.value = 0
+    if (pane.value) pane.value.scrollTop = 0
+    persistSession()
+  }
+
+  async function onUnpin (item: VuetifyPlayground) {
+    try {
+      await one.patchMeta({ pinned: false }, item.id)
+      saved.value = saved.value.map(entry => (
+        entry.id === item.id ? { ...entry, pinned: false } : entry
+      ))
+    } catch {
+      // leave the row pinned if the API rejects
+    }
   }
 
   function onBack () {
@@ -836,7 +927,7 @@
           </div>
 
           <div
-            v-if="showSearch || showKindChips"
+            v-if="showSearch || showKindChips || showSavedChips || showSavedSort"
             class="px-4 py-2.5 border-b border-divider shrink-0 flex flex-col gap-2"
           >
             <div
@@ -882,6 +973,58 @@
                 <span class="tabular-nums opacity-70">{{ chip.count }}</span>
               </button>
             </div>
+
+            <div
+              v-if="showSavedChips || showSavedSort"
+              class="flex flex-wrap items-center justify-between gap-2"
+            >
+              <div
+                v-if="showSavedChips"
+                aria-label="Filter Vuetify One"
+                class="flex flex-wrap gap-1.5"
+                role="group"
+              >
+                <button
+                  v-for="chip in savedChips"
+                  :key="chip.id"
+                  :aria-pressed="savedChip === chip.id"
+                  class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[11px] transition-colors border"
+                  :class="savedChip === chip.id
+                    ? 'border-primary bg-primary/10 text-primary font-medium'
+                    : 'border-divider text-on-surface-variant hover:border-primary/40 hover:text-on-surface'"
+                  type="button"
+                  @click="onSavedChip(chip.id)"
+                >
+                  <span>{{ chip.label }}</span>
+                  <span class="tabular-nums opacity-70">{{ chip.count }}</span>
+                </button>
+              </div>
+
+              <div
+                v-if="showSavedSort"
+                aria-label="Sort Vuetify One"
+                class="flex flex-wrap gap-1.5"
+                role="group"
+              >
+                <button
+                  v-for="chip in savedSortChips"
+                  :key="chip.id"
+                  :aria-pressed="savedSort === chip.id"
+                  class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] transition-colors border"
+                  :class="savedSort === chip.id
+                    ? 'border-primary bg-primary/10 text-primary font-medium'
+                    : 'border-divider text-on-surface-variant hover:border-primary/40 hover:text-on-surface'"
+                  type="button"
+                  @click="onSavedSort(chip.id)"
+                >
+                  <span>{{ chip.label }}</span>
+                  <span
+                    v-if="savedSort === chip.id"
+                    class="opacity-70"
+                  >{{ savedSortDir === 'asc' ? '↑' : '↓' }}</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <div
@@ -917,9 +1060,11 @@
               :error="savedError"
               :items="filteredSaved"
               :loading="savedLoading"
+              :pinned="pinnedItems"
               :query
               :total="saved.length"
               @open="openSaved"
+              @unpin="onUnpin"
             />
 
             <PlaygroundOpenGallery
