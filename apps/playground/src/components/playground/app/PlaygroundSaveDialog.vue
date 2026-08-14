@@ -4,6 +4,8 @@
 
   // Components
   import AppCloseButton from '@/components/app/AppCloseButton.vue'
+  import AppIcon from '@/components/app/AppIcon.vue'
+  import AppTooltip from '@/components/app/AppTooltip.vue'
   import { usePlayground } from '@/components/playground/app/PlaygroundApp.vue'
 
   // Composables
@@ -40,6 +42,7 @@
   } = useOnePlaygrounds()
 
   const title = shallowRef(currentTitle.value)
+  const visibility = shallowRef<'public' | 'private'>('public')
   const status = shallowRef<'idle' | 'saving' | 'error'>('idle')
   const message = shallowRef('')
   const input = useTemplateRef<HTMLInputElement>('input')
@@ -55,6 +58,7 @@
       return
     }
     title.value = currentTitle.value || 'Untitled'
+    visibility.value = 'public'
     await nextTick()
     input.value?.focus()
     input.value?.select()
@@ -112,6 +116,7 @@
         save(content, {
           title: title.value.trim() || 'Untitled',
           asNew: isCreate.value,
+          visibility: isCreate.value ? visibility.value : undefined,
         }),
         delay(MIN_LOADING_MS),
       ])
@@ -163,6 +168,49 @@
             type="text"
           >
         </label>
+
+        <div v-if="isCreate" class="flex items-center justify-between gap-2">
+          <span class="text-[11px] text-on-surface-variant">Visibility</span>
+
+          <Button.Group
+            v-model="visibility"
+            class="flex items-center gap-1"
+            label="Visibility"
+            mandatory
+          >
+            <AppTooltip
+              as="span"
+              class="inline-flex"
+              position-area="top"
+              text="Anyone with the link can view"
+            >
+              <Button.Root
+                class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors border-0 bg-surface-tint text-on-surface-variant hover:bg-surface-variant data-[selected]:bg-primary/15 data-[selected]:text-primary data-[disabled]:opacity-50"
+                :disabled="isSaving"
+                value="public"
+              >
+                <AppIcon icon="visibility-public" :size="14" />
+                <span>Public</span>
+              </Button.Root>
+            </AppTooltip>
+
+            <AppTooltip
+              as="span"
+              class="inline-flex"
+              position-area="top"
+              text="Only you can view"
+            >
+              <Button.Root
+                class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors border-0 bg-surface-tint text-on-surface-variant hover:bg-surface-variant data-[selected]:bg-primary/15 data-[selected]:text-primary data-[disabled]:opacity-50"
+                :disabled="isSaving"
+                value="private"
+              >
+                <AppIcon icon="visibility-private" :size="14" />
+                <span>Private</span>
+              </Button.Root>
+            </AppTooltip>
+          </Button.Group>
+        </div>
 
         <!-- Fixed-height slot so errors never grow the dialog -->
         <p

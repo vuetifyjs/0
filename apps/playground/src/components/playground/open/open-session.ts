@@ -5,12 +5,14 @@
 
 // Local
 // Types
-import { normalizeOpenRail, type OpenKind, type OpenRail } from './types'
+import { normalizeOpenRail, type OpenKind, type OpenRail, type OpenSavedChip, type OpenSavedSort } from './types'
 
 const TTL_MS = 2 * 60 * 1000
 
 const RAILS: OpenRail[] = ['v0', 'vuetify', 'saved']
 const KINDS: Array<OpenKind | 'all'> = ['all', 'components', 'composables', 'plugins']
+const SAVED_CHIPS: OpenSavedChip[] = ['all', 'favorite']
+const SAVED_SORTS: OpenSavedSort[] = ['name', 'created', 'updated']
 
 export interface OpenSessionState {
   rail: OpenRail
@@ -21,6 +23,10 @@ export interface OpenSessionState {
   query: string
   /** Vuetify0 kind chip. */
   kind: OpenKind | 'all'
+  /** Vuetify One lifecycle chip. */
+  savedChip: OpenSavedChip
+  savedSort: OpenSavedSort
+  savedSortDir: 'asc' | 'desc'
   /**
    * Feature name last opened on a gallery rail (wayfinding chip).
    * Scoped by lastFeatureRail so v0 and Vuetify names don't collide.
@@ -49,6 +55,20 @@ function normalizeKind (value: string | undefined): OpenKind | 'all' {
   return 'all'
 }
 
+function normalizeSavedChip (value: string | undefined): OpenSavedChip {
+  if (value && (SAVED_CHIPS as string[]).includes(value)) return value as OpenSavedChip
+  return 'all'
+}
+
+function normalizeSavedSort (value: string | undefined): OpenSavedSort {
+  if (value && (SAVED_SORTS as string[]).includes(value)) return value as OpenSavedSort
+  return 'updated'
+}
+
+function normalizeSavedSortDir (value: string | undefined): 'asc' | 'desc' {
+  return value === 'asc' ? 'asc' : 'desc'
+}
+
 /** Read session if still within the 2-minute window; otherwise clear and return null. */
 export function readOpenSession (): OpenSessionState | null {
   if (!session) return null
@@ -62,6 +82,9 @@ export function readOpenSession (): OpenSessionState | null {
     examplesScrollTop: session.examplesScrollTop ?? 0,
     query: session.query,
     kind: normalizeKind(session.kind),
+    savedChip: normalizeSavedChip(session.savedChip),
+    savedSort: normalizeSavedSort(session.savedSort),
+    savedSortDir: normalizeSavedSortDir(session.savedSortDir),
     lastFeature: session.lastFeature,
     lastFeatureRail: session.lastFeatureRail
       ? normalizeOpenRail(session.lastFeatureRail)
@@ -79,6 +102,9 @@ export function writeOpenSession (state: OpenSessionState) {
     examplesScrollTop: Math.max(0, state.examplesScrollTop || 0),
     query: state.query ?? '',
     kind: normalizeKind(state.kind),
+    savedChip: normalizeSavedChip(state.savedChip),
+    savedSort: normalizeSavedSort(state.savedSort),
+    savedSortDir: normalizeSavedSortDir(state.savedSortDir),
     lastFeature: state.lastFeature,
     lastFeatureRail: state.lastFeatureRail
       ? normalizeOpenRail(state.lastFeatureRail)

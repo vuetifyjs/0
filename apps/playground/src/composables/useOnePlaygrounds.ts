@@ -10,8 +10,12 @@
 // Framework
 import { IN_BROWSER } from '@vuetify/v0'
 
+// Stores
+import { useAuthStore } from '@vuetify/auth'
+
 // Utilities
-import { computed, type ComputedRef, type InjectionKey, inject, provide, shallowRef } from 'vue'
+import { isNullOrUndefined, isUndefined } from '#v0/utilities'
+import { computed, type ComputedRef, type InjectionKey, inject, provide, shallowRef, toRef } from 'vue'
 import { useRouter } from 'vue-router'
 
 /** Injection key for route-provided playground ID (from `/playgrounds/:id`). */
@@ -43,7 +47,11 @@ export interface OnePlayground {
   visibility: 'private' | 'public'
   createdAt: string
   updatedAt: string
+  /** Owner from API response (publicUserResponse shape). */
+  owner?: { id: string }
 }
+
+export type OnePlaygroundMeta = Pick<OnePlayground, 'favorite' | 'pinned' | 'locked' | 'visibility'>
 
 /** Resolved One API origin — always use this; never hardcode production. */
 export const ONE_API = import.meta.env.VITE_API_SERVER_URL || 'https://api.vuetifyjs.com'
@@ -57,12 +65,14 @@ const AUTOSAVE_MS = 500
 /** Module-level so Open dialog + Save share the same "current" association. */
 const currentId = shallowRef<string>()
 const currentTitle = shallowRef('Untitled')
-const currentMeta = shallowRef<Pick<OnePlayground, 'favorite' | 'pinned' | 'locked' | 'visibility'>>({
+const currentMeta = shallowRef<OnePlaygroundMeta>({
   favorite: false,
   pinned: false,
   locked: false,
   visibility: 'public',
 })
+/** Owner user ID of current playground (undefined if not linked). */
+const currentOwner = shallowRef<string>()
 const saving = shallowRef(false)
 const error = shallowRef<string>()
 /** User toggle — when false, edits do not POST until manual Save. Default on once linked. */
@@ -77,7 +87,7 @@ let pauseDepth = 0
 let queuedContent: string | undefined
 
 function cancelAutosaveTimer () {
-  if (autosaveTimer !== undefined) {
+  if (!isUndefined(autosaveTimer)) {
     clearTimeout(autosaveTimer)
     autosaveTimer = undefined
   }
@@ -149,14 +159,27 @@ export function useOnePlaygrounds () {
     // Not in component context — syncUrl will no-op
   }
 
+  // Auth store for ownership checks — safe to call during setup
+  let _auth: ReturnType<typeof useAuthStore> | undefined
+  try {
+    _auth = useAuthStore()
+  } catch {
+    // SSR or outside component context
+  }
+
+  const isOwner = toRef(() => {
+    if (!currentId.value || !currentOwner.value) return false
+    return _auth?.user?.id === currentOwner.value
+  })
+
   function setCurrent (
     id: string | undefined,
     title?: string,
-    meta?: Partial<Pick<OnePlayground, 'favorite' | 'pinned' | 'locked' | 'visibility'>>,
-    options?: { skipUrlSync?: boolean },
+    meta?: Partial<OnePlaygroundMeta>,
+    options?: { skipUrlSync?: boolean, owner?: string },
   ) {
     currentId.value = id
-    if (title !== undefined) currentTitle.value = title || 'Untitled'
+    if (!isUndefined(title)) currentTitle.value = title || 'Untitled'
     if (meta) {
       currentMeta.value = {
         favorite: meta.favorite ?? false,
@@ -164,6 +187,10 @@ export function useOnePlaygrounds () {
         locked: meta.locked ?? false,
         visibility: meta.visibility ?? 'public',
       }
+    }
+    const owner = options?.owner
+    if (!isUndefined(owner)) {
+      currentOwner.value = owner
     }
     if (!options?.skipUrlSync) {
       syncUrl(id)
@@ -182,6 +209,7 @@ export function useOnePlaygrounds () {
       locked: false,
       visibility: 'public',
     }
+    currentOwner.value = undefined
     syncUrl(undefined)
   }
 
@@ -196,7 +224,7 @@ export function useOnePlaygrounds () {
       pinned: playground.pinned,
       locked: playground.locked,
       visibility: playground.visibility,
-    })
+    }, { owner: playground.owner?.id })
   }
 
   async function fetchById (id: string): Promise<OnePlayground | null> {
@@ -208,7 +236,11 @@ export function useOnePlaygrounds () {
     return (data.playground ?? data) as OnePlayground
   }
 
-  async function create (title: string, content: string): Promise<OnePlayground> {
+  async function create (
+    title: string,
+    content: string,
+    options?: { visibility?: 'private' | 'public' },
+  ): Promise<OnePlayground> {
     const res = await fetch(`${ONE_API}/one/playgrounds`, {
       method: 'POST',
       credentials: 'include',
@@ -220,7 +252,7 @@ export function useOnePlaygrounds () {
           favorite: false,
           pinned: false,
           locked: false,
-          visibility: 'public',
+          visibility: options?.visibility ?? 'public',
         },
       }),
     })
@@ -298,12 +330,13 @@ export function useOnePlaygrounds () {
    */
   function scheduleAutosave (content: string | null | undefined) {
     if (!IN_BROWSER || !currentId.value || !autosaveEnabled.value || pauseDepth > 0) return
-    if (content == null || content === lastSynced) return
+    if (isNullOrUndefined(content) || content === lastSynced) return
 
+    const next = content ?? ''
     cancelAutosaveTimer()
     autosaveTimer = setTimeout(() => {
       autosaveTimer = undefined
-      void flushAutosave(content)
+      void flushAutosave(next)
     }, AUTOSAVE_MS)
   }
 
@@ -314,7 +347,7 @@ export function useOnePlaygrounds () {
    */
   async function save (
     content: string,
-    options: { title?: string, asNew?: boolean } = {},
+    options: { title?: string, asNew?: boolean, visibility?: 'private' | 'public' } = {},
   ): Promise<OnePlayground> {
     if (!IN_BROWSER) throw new Error('Save is only available in the browser')
 
@@ -326,7 +359,7 @@ export function useOnePlaygrounds () {
     try {
       const title = options.title ?? currentTitle.value
       if (options.asNew || !currentId.value) {
-        return await create(title, content)
+        return await create(title, content, { visibility: options.visibility })
       }
       return await update(currentId.value, title, content)
     } catch (error_) {
@@ -344,6 +377,109 @@ export function useOnePlaygrounds () {
         queuedContent = undefined
       }
     }
+  }
+
+  /**
+   * Partial update for meta fields only — does not touch content.
+   * Keeps meta and content autosave on separate paths to avoid races.
+   */
+  async function patchMeta (
+    patch: Partial<Pick<OnePlaygroundMeta, 'favorite' | 'pinned' | 'locked' | 'visibility'> & { title?: string }>,
+    id?: string,
+  ): Promise<OnePlayground> {
+    if (!IN_BROWSER) throw new Error('patchMeta is only available in the browser')
+    const target = id ?? currentId.value
+    if (!target) throw new Error('No playground linked')
+
+    const res = await fetch(`${ONE_API}/one/playgrounds/${target}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playground: patch }),
+    })
+
+    if (res.status === 401) throw new Error('Sign in required')
+    if (res.status === 403) throw new Error('You do not own this playground')
+    if (res.status === 404) throw new Error('Playground not found')
+    if (!res.ok) throw new Error(`Update failed (${res.status})`)
+
+    const data = await res.json()
+    const playground = (data.playground ?? data) as OnePlayground
+
+    if (currentId.value === target) {
+      if (!isUndefined(patch.title)) currentTitle.value = playground.title
+      currentMeta.value = {
+        favorite: playground.favorite,
+        pinned: playground.pinned,
+        locked: playground.locked,
+        visibility: playground.visibility,
+      }
+    }
+
+    return playground
+  }
+
+  /**
+   * Delete the current playground and clear the association.
+   * Throws if favorite or locked — caller must clear those first.
+   */
+  async function destroy (): Promise<void> {
+    if (!IN_BROWSER) throw new Error('destroy is only available in the browser')
+    if (!currentId.value) throw new Error('No playground linked')
+    if (currentMeta.value.favorite) throw new Error('Cannot delete a favorited playground')
+    if (currentMeta.value.locked) throw new Error('Cannot delete a locked playground')
+
+    const res = await fetch(`${ONE_API}/one/playgrounds/${currentId.value}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    })
+
+    if (res.status === 401) throw new Error('Sign in required')
+    if (res.status === 403) throw new Error('You do not own this playground')
+    if (res.status === 404) throw new Error('Playground not found')
+    if (!res.ok) throw new Error(`Delete failed (${res.status})`)
+
+    clearCurrent()
+    navigateToRoot()
+  }
+
+  /**
+   * Create a copy of the current playground as an owned playground.
+   * Sets defaults: favorite/pinned/locked false, visibility public.
+   * Navigates to the new playground.
+   */
+  async function fork (getContent: () => string): Promise<OnePlayground> {
+    if (!IN_BROWSER) throw new Error('fork is only available in the browser')
+    if (!currentId.value) throw new Error('No playground linked')
+
+    const content = getContent()
+    const title = `${currentTitle.value} (fork)`
+
+    const res = await fetch(`${ONE_API}/one/playgrounds`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        playground: {
+          title,
+          content,
+          favorite: false,
+          pinned: false,
+          locked: false,
+          visibility: 'public',
+        },
+      }),
+    })
+
+    if (res.status === 401) throw new Error('Sign in required')
+    if (!res.ok) throw new Error(`Fork failed (${res.status})`)
+
+    const data = await res.json()
+    const playground = (data.playground ?? data) as OnePlayground
+    remember(playground)
+    markSynced(content)
+    navigateToPlayground(playground.id)
+    return playground
   }
 
   /**
@@ -371,6 +507,9 @@ export function useOnePlaygrounds () {
   return {
     currentId,
     currentTitle,
+    currentMeta,
+    currentOwner,
+    isOwner,
     saving,
     error,
     autosaveEnabled,
@@ -380,6 +519,9 @@ export function useOnePlaygrounds () {
     create,
     update,
     save,
+    patchMeta,
+    destroy,
+    fork,
     fetchById,
     scheduleAutosave,
     pauseAutosave,

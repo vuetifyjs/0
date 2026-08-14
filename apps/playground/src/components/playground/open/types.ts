@@ -7,6 +7,12 @@ export type OpenRail = 'v0' | 'vuetify' | 'saved'
 /** Vuetify0 gallery kind chips (replaces the old per-kind rails). */
 export type OpenKind = 'components' | 'composables' | 'plugins'
 
+/** Vuetify One list chips. */
+export type OpenSavedChip = 'all' | 'favorite'
+
+/** Vuetify One list sort. */
+export type OpenSavedSort = 'name' | 'created' | 'updated'
+
 export interface OpenRailItem {
   id: OpenRail
   label: string
@@ -22,6 +28,8 @@ export interface VuetifyPlayground {
   visibility?: 'private' | 'public'
   createdAt: string
   updatedAt: string
+  /** Owner from API response (publicUserResponse shape). */
+  owner?: { id: string }
 }
 
 /** Map legacy session rails (components/composables/plugins) → `v0`. */
@@ -71,5 +79,21 @@ export function formatDate (iso: string) {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+  })
+}
+
+export function sortPlaygrounds (
+  items: VuetifyPlayground[],
+  sort: OpenSavedSort,
+  dir: 'asc' | 'desc' = sort === 'name' ? 'asc' : 'desc',
+) {
+  const sign = dir === 'asc' ? 1 : -1
+  return items.toSorted((a, b) => {
+    if (sort === 'name') {
+      return sign * (a.title || 'Untitled').localeCompare(b.title || 'Untitled')
+    }
+    const left = sort === 'created' ? a.createdAt : a.updatedAt
+    const right = sort === 'created' ? b.createdAt : b.updatedAt
+    return sign * (Date.parse(left) - Date.parse(right))
   })
 }
