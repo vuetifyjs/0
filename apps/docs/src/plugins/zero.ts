@@ -22,7 +22,7 @@ export default function zero (app: App) {
   app.use(createBreakpointsPlugin({ mobileBreakpoint: 768 }))
   app.use(createStoragePlugin())
   app.use(createStackPlugin())
-  app.use(createTooltipPlugin())
+  app.use(createTooltipPlugin({ openDelay: 500, closeDelay: 200 }))
   app.use(createDiscoveryPlugin())
 
   app.use(
