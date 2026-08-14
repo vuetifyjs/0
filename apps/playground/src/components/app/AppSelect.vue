@@ -38,7 +38,7 @@
 
 <template>
   <Select.Root v-model="model" :disabled :mandatory>
-    <Select.Activator class="trigger" :class="{ 'trigger--disabled': disabled }">
+    <Select.Activator class="trigger">
       <span>{{ selectedLabel }}</span>
 
       <Select.Cue class="cue">
@@ -92,11 +92,11 @@
   transition: border-color 0.15s, background 0.15s;
 }
 
-.trigger:hover:not(.trigger--disabled) {
+.trigger:hover:not([data-disabled]) {
   border-color: var(--v0-outline);
 }
 
-.trigger--disabled {
+.trigger[data-disabled] {
   opacity: 0.6;
   cursor: not-allowed;
 }
