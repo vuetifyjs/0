@@ -36,6 +36,7 @@ declare module 'vue' {
     PlaygroundOpenDialog: typeof import('./components/playground/app/PlaygroundOpenDialog.vue')['default']
     PlaygroundPreviewError: typeof import('./components/playground/editor/PlaygroundPreviewError.vue')['default']
     PlaygroundSettings: typeof import('./components/playground/settings/PlaygroundSettings.vue')['default']
+    PlaygroundSettingsEditor: typeof import('./components/playground/settings/PlaygroundSettingsEditor.vue')['default']
     PlaygroundSettingsExport: typeof import('./components/playground/settings/PlaygroundSettingsExport.vue')['default']
     PlaygroundSettingsPresets: typeof import('./components/playground/settings/PlaygroundSettingsPresets.vue')['default']
     PlaygroundSettingsVersions: typeof import('./components/playground/settings/PlaygroundSettingsVersions.vue')['default']
