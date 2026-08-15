@@ -3,14 +3,14 @@
   import { Checkbox } from '@vuetify/v0'
   import { useId } from '@vuetify/v0/utilities'
 
-  // Components
-  import EmIcon from '../EmIcon/EmIcon.vue'
-
   // Utilities
   import { toValue } from 'vue'
 
   // Types
   import type { CheckboxRootProps } from '@vuetify/v0'
+
+  // Components
+  import EmIcon from '../EmIcon/EmIcon.vue'
 
   export type EmCheckboxSize = 'sm' | 'md' | 'lg'
 

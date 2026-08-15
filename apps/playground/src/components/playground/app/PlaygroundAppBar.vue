@@ -1,8 +1,9 @@
 <script setup lang="ts">
   // Framework
-  import { useHotkey, useTheme, useTimer } from '@vuetify/v0'
+  import { IN_BROWSER, useEventListener, useHotkey, useTheme, useTimer } from '@vuetify/v0'
 
   // Components
+  import PlaygroundCheatsheet from '@/components/playground/app/PlaygroundCheatsheet.vue'
   import PlaygroundSaveDialog from '@/components/playground/app/PlaygroundSaveDialog.vue'
   import PlaygroundSettings from '@/components/playground/settings/PlaygroundSettings.vue'
 
@@ -11,6 +12,7 @@
   import PlaygroundMenuBar from './PlaygroundMenuBar.vue'
 
   // Composables
+  import { formatActiveFile } from '@/composables/formatActiveFile'
   import { useExport } from '@/composables/useExport'
   import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
@@ -57,6 +59,19 @@
   useHotkey('ctrl+b', () => {
     playground.tree.value = !playground.tree.value
   }, { inputs: true })
+
+  // Capture: @vue/repl registers an empty Monaco Ctrl/Cmd+S command that
+  // swallows the event before a bubble-phase useHotkey can format.
+  const isMac = IN_BROWSER && /mac|iphone|ipad|ipod/i.test(navigator.userAgent)
+
+  function onFormatSave (e: KeyboardEvent) {
+    if (e.key.toLowerCase() !== 's' || e.altKey) return
+    if (isMac ? !e.metaKey || e.ctrlKey : !e.ctrlKey || e.metaKey) return
+    e.preventDefault()
+    void formatActiveFile()
+  }
+
+  useEventListener(() => IN_BROWSER ? window : undefined, 'keydown', onFormatSave, { capture: true })
 
   function onView () {
     playground.editor.value = !playground.editor.value
@@ -192,6 +207,18 @@
       </AppTooltip>
 
       <AppTooltip
+        aria-label="Keyboard shortcuts"
+        :aria-pressed="playground.cheatsheet.value"
+        class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
+        :class="playground.cheatsheet.value ? 'opacity-80' : 'opacity-50'"
+        position-area="bottom"
+        text="Keyboard shortcuts"
+        @click="playground.cheatsheet.value = true"
+      >
+        <AppIcon icon="keyboard" />
+      </AppTooltip>
+
+      <AppTooltip
         aria-label="Settings"
         :aria-pressed="open"
         class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
@@ -209,5 +236,7 @@
     <PlaygroundSettings v-if="open" @close="open = false" />
 
     <PlaygroundSaveDialog v-model="saveOpen" />
+
+    <PlaygroundCheatsheet />
   </header>
 </template>

@@ -2,11 +2,11 @@
   // Framework
   import { Dialog } from '@vuetify/v0'
 
-  // Components
-  import EmIcon from '../EmIcon/EmIcon.vue'
-
   // Types
   import type { DialogCloseProps } from '@vuetify/v0'
+
+  // Components
+  import EmIcon from '../EmIcon/EmIcon.vue'
 
   export interface EmDialogCloseProps extends Omit<DialogCloseProps, 'as' | 'renderless'> {}
 </script>

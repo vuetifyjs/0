@@ -14,9 +14,14 @@
   const Repl = defineAsyncComponent(() =>
     import('@vue/repl').then(m => m.Repl),
   )
-  const Monaco = defineAsyncComponent(() =>
-    import('@vue/repl/monaco-editor'),
-  )
+  const Monaco = defineAsyncComponent(() => {
+    const g = globalThis as typeof globalThis & {
+      MonacoEnvironment?: { globalAPI?: boolean }
+    }
+    g.MonacoEnvironment ??= {}
+    g.MonacoEnvironment.globalAPI = true
+    return import('@vue/repl/monaco-editor')
+  })
 </script>
 
 <template>

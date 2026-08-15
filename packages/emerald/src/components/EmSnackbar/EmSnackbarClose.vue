@@ -2,11 +2,11 @@
   // Framework
   import { Snackbar } from '@vuetify/v0'
 
-  // Components
-  import EmIcon from '../EmIcon/EmIcon.vue'
-
   // Types
   import type { SnackbarCloseProps } from '@vuetify/v0'
+
+  // Components
+  import EmIcon from '../EmIcon/EmIcon.vue'
 
   export interface EmSnackbarCloseProps extends Omit<SnackbarCloseProps, 'as' | 'renderless'> {}
 </script>

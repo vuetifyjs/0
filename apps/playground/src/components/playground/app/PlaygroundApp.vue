@@ -49,6 +49,8 @@
     showConfig: ShallowRef<boolean>
     /** Current playground locked state from Vuetify One. */
     isLocked: Ref<boolean>
+    /** Keyboard shortcuts dialog. */
+    cheatsheet: ShallowRef<boolean>
   }
 
   export const [usePlayground, providePlayground] = createContext<PlaygroundContext>('v0:playground')
@@ -117,6 +119,7 @@
   // Shared with the tabs strip so config files are enrolled as tabbable
   // before a click can race the mandatory Tabs.Root selection.
   const showConfig = shallowRef(false)
+  const cheatsheet = shallowRef(false)
 
   providePlayground({
     store,
@@ -149,6 +152,7 @@
     snapshotContent,
     showConfig,
     isLocked,
+    cheatsheet,
   })
 
   // Restore panel state on runtime breakpoint changes

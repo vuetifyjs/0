@@ -14,6 +14,7 @@
   import { usePlayground } from './PlaygroundApp.vue'
 
   // Composables
+  import { formatActiveFile } from '@/composables/formatActiveFile'
   import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
   // Stores
@@ -101,6 +102,18 @@
   function onTree () {
     menu.value = false
     playground.tree.value = !playground.tree.value
+  }
+
+  function onFormat () {
+    menu.value = false
+    file.value = false
+    void formatActiveFile()
+  }
+
+  function onCheatsheet () {
+    menu.value = false
+    view.value = false
+    playground.cheatsheet.value = true
   }
 
   function onSide () {
@@ -425,6 +438,13 @@
 
           <div class="border-t border-divider my-1" />
 
+          <PlaygroundMenuItem @click="onFormat">
+            <span class="flex-1">Format</span>
+            <span class="text-on-surface/40 text-2.5">Ctrl+S</span>
+          </PlaygroundMenuItem>
+
+          <div class="border-t border-divider my-1" />
+
           <PlaygroundMenuItem
             :confirm="confirming"
             @click="onReset"
@@ -480,6 +500,18 @@
           >
             <AppIcon :icon="playground.left.value ? 'book-open' : 'book-closed'" :size="14" />
             Intro Panel
+          </button>
+
+          <div class="border-t border-divider my-1" />
+
+          <button
+            class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
+            type="button"
+            @click="onCheatsheet"
+          >
+            <AppIcon icon="keyboard" :size="14" />
+            <span class="flex-1">Keyboard shortcuts</span>
+            <span class="text-on-surface/40 text-2.5">?</span>
           </button>
         </Popover.Content>
       </Popover.Root>
