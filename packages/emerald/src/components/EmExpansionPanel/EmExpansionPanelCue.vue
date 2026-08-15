@@ -2,11 +2,11 @@
   // Framework
   import { ExpansionPanel } from '@vuetify/v0'
 
-  // Components
-  import EmIcon from '../EmIcon/EmIcon.vue'
-
   // Types
   import type { ExpansionPanelCueProps } from '@vuetify/v0'
+
+  // Components
+  import EmIcon from '../EmIcon/EmIcon.vue'
 
   export interface EmExpansionPanelCueProps extends Omit<ExpansionPanelCueProps, 'as' | 'renderless'> {}
 </script>
