@@ -2,9 +2,10 @@
   // Framework
   import { Snackbar } from '@vuetify/v0'
 
-  export interface EmSnackbarQueueProps {
-    namespace?: string
-  }
+  // Types
+  import type { SnackbarQueueProps } from '@vuetify/v0'
+
+  export interface EmSnackbarQueueProps extends Omit<SnackbarQueueProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

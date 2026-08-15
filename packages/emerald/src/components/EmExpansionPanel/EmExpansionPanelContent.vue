@@ -2,9 +2,10 @@
   // Framework
   import { ExpansionPanel } from '@vuetify/v0'
 
-  export interface EmExpansionPanelContentProps {
-    namespace?: string
-  }
+  // Types
+  import type { ExpansionPanelContentProps } from '@vuetify/v0'
+
+  export interface EmExpansionPanelContentProps extends Omit<ExpansionPanelContentProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

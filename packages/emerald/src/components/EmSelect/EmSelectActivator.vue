@@ -5,9 +5,10 @@
   // Components
   import EmIcon from '../EmIcon/EmIcon.vue'
 
-  export interface EmSelectActivatorProps {
-    namespace?: string
-  }
+  // Types
+  import type { SelectActivatorProps } from '@vuetify/v0'
+
+  export interface EmSelectActivatorProps extends Omit<SelectActivatorProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

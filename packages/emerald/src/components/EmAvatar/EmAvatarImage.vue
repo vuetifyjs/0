@@ -2,10 +2,12 @@
   // Framework
   import { Avatar } from '@vuetify/v0'
 
-  export interface EmAvatarImageProps {
+  // Types
+  import type { AvatarImageProps } from '@vuetify/v0'
+
+  export interface EmAvatarImageProps extends Pick<AvatarImageProps, 'alt' | 'namespace'> {
+    /** Required here, unlike v0 — an Emerald avatar image always has a source. */
     src: string
-    alt?: string
-    namespace?: string
   }
 </script>
 
