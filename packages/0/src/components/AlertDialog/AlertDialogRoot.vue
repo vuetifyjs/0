@@ -22,6 +22,10 @@
     id: string
     titleId: string
     descriptionId: string
+    /** Whether an AlertDialog.Title child is currently mounted */
+    hasTitle: ShallowRef<boolean>
+    /** Whether an AlertDialog.Description child is currently mounted */
+    hasDescription: ShallowRef<boolean>
     isPending: ShallowRef<boolean>
     cancelEl: ShallowRef<HTMLElement | null>
     open: () => void
@@ -83,6 +87,8 @@
 
   const titleId = `${id}-title`
   const descriptionId = `${id}-description`
+  const hasTitle = shallowRef(false)
+  const hasDescription = shallowRef(false)
 
   function open () {
     isOpen.value = true
@@ -98,6 +104,8 @@
     id,
     titleId,
     descriptionId,
+    hasTitle,
+    hasDescription,
     isPending,
     cancelEl,
     open,
