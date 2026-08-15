@@ -357,6 +357,9 @@ importers:
       '@octokit/core':
         specifier: 'catalog:'
         version: 7.0.6
+      '@paper/emerald':
+        specifier: workspace:*
+        version: link:../../packages/emerald
       '@paper/genesis':
         specifier: workspace:*
         version: link:../../packages/genesis
