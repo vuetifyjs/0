@@ -229,7 +229,7 @@ Manual configuration for each IDE. Use the interactive setup above for automatic
 | Claude Code | `~/.claude.json` or `.mcp.json` | `~/.claude.json` or `.mcp.json` |
 | Claude Desktop[^cd] | N/A | `~/Library/Application Support/Claude/claude_desktop_config.json` |
 | VS Code | `~/.config/Code/User/mcp.json` | `~/Library/Application Support/Code/User/mcp.json` |
-| Cursor | `~/.config/Cursor/User/mcp.json` | `~/Library/Application Support/Cursor/User/mcp.json` |
+| Cursor | `.cursor/mcp.json` or `~/.cursor/mcp.json` | `.cursor/mcp.json` or `~/.cursor/mcp.json` |
 | Windsurf | `~/.config/Windsurf/User/mcp.json` | `~/Library/Application Support/Windsurf/User/mcp.json` |
 | Trae | `~/.config/Trae/User/mcp.json` | `~/Library/Application Support/Trae/User/mcp.json` |
 
