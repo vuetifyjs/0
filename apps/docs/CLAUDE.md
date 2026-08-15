@@ -92,6 +92,8 @@ features:
 
 Feature pages (components/composables): use `::: gn-example` — full authoring rules in `.claude/rules/docs.md`. Do not hand-roll `<DocsExample>` imports on those pages.
 
+Design-system pages (`pages/systems/**`): use `::: ds-example`. Same authoring syntax; the example runs in an iframe against `sandbox/<system>.html` because a design system's global CSS cannot share a document with the docs shell. Examples live in `src/examples/systems/<system>/<component>/`, import from the design system rather than `@vuetify/v0`, and have **no UnoCSS** available. The frame and the page exchange size, overlay and theme messages so an overlay can escape the example box — protocol and gotchas in `.claude/rules/docs.md`.
+
 `.vue` pages that still mount examples directly:
 
 **1. Create the example file** in `src/examples/`:
@@ -130,7 +132,7 @@ import BasicExampleRaw from '@/examples/components/tabs/basic.vue?raw'
 - **Always prefer @vuetify/v0 composables** over raw browser APIs or custom implementations. Check `mcp__vuetify-mcp__get_vuetify0_composable_list` before writing event listeners, observers, or state management.
 - UnoCSS utilities for all styling
 - Prefer markdown for documentation pages
-- **Examples**: `::: gn-example` on feature pages (see `.claude/rules/docs.md`); `<DocsExample>` only in `.vue` pages; legacy `::: example` for guides/index only
+- **Examples**: `::: gn-example` on feature pages (see `.claude/rules/docs.md`); `::: ds-example` on design-system pages; `<DocsExample>` only in `.vue` pages; legacy `::: example` for guides/index only
 - **Callouts**: Use `> [!TIP]`, `> [!NOTE]`, `> [!WARNING]`, `> [!CAUTION]`, `> [!IMPORTANT]` for alerts (GitHub-aligned). Use `> [!ASKAI] question` to prompt Ask AI—phrase as a question the user would ask (e.g., "How do I add validation?"), not a question to the user. Use `> [!TOUR] tour-id` to embed a clickable tour callout—the tour name and description are pulled from the discovery registry automatically.
 
 The skill-level placement quiz is **not** a callout directive: it is the `AppSkillQuiz` component (rendered under the Skill Levels section of `guide/essentials/using-the-docs.md`), which drives `DocsQuestion` off the central bank in `apps/docs/src/skillz/questions/{track}.json`. Each attempt samples a level-spread subset and builds each question's options from its `answers` + a fresh draw from its own `distractors` pool; completing it suggests a skill level the reader can apply to the docs filter.

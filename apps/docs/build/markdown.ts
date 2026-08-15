@@ -152,6 +152,9 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
 
   registerExampleContainer('example', 'DocsExample')
   registerExampleContainer('gn-example', 'DocsGenesisExample')
+  // Design-system examples render in an isolated iframe (the system's own CSS
+  // cannot share a document with the docs shell) — same authoring syntax.
+  registerExampleContainer('ds-example', 'DocsSystemExample')
 
   // Sponsor container: ::: sponsor ... :::
   // Renders the $2,000/mo Primary Sponsor teaser (full pitch lives at /sponsor)
