@@ -47,6 +47,7 @@
     "@js-temporal/polyfill": "catalog:",
     "@mdi/js": "catalog:",
     "@octokit/core": "catalog:",
+    "@paper/emerald": "workspace:*",
     "@paper/genesis": "workspace:*",
     "@vue/repl": "catalog:",
     "@vuetify/auth": "catalog:",
