@@ -136,6 +136,8 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'lang-vue': mdiVuejs,
     'lang-json': mdiCodeJson,
     'reset': mdiRefresh,
+    'keyboard': mdiKeyboardOutline,
+    'format': mdiCodeBraces,
     'theme-light': mdiWeatherSunny,
     'theme-dark': mdiWeatherNight,
     'layers': mdiLayersOutline,
