@@ -591,7 +591,7 @@ And an explicit **anti-gating position**, verbatim from
 `apps/docs/src/pages/sponsor.md` reinforces it: *"It isn't ad inventory; Vuetify0 doesn't
 run ads, and there are no plans to."*
 
-### 2.8 The store is a fifth, disconnected rail
+### 2.8 The store is a disconnected rail — now deliberately so
 
 `live:store.vuetifyjs.com/products.json` returns **41 products** (Shopify). Shape of the
 catalogue, from that response:
@@ -1347,10 +1347,12 @@ second tier ID, so the `/sponsor` page currently renders an empty flagship place
 
 ### 8.3 Properties that exist only as a name
 
-`ots.vuetifyjs.com` and `try.vuetifyjs.com` do not resolve, and no readable repo or
-bundle references them. Either they were retired or they were never hosts. Per the
-research rules, they are recorded here as **unsourced beyond the request itself** rather
-than as properties.
+`ots.vuetifyjs.com` and `try.vuetifyjs.com` are both NXDOMAIN, and an org-wide
+`gh search code --owner vuetifyjs` for each hostname — plus for the string `TryVuetify0` —
+returns **zero results**. There is no repo, no bundle reference, and no ecosystem-table
+entry for either. They are recorded here as **unsourced beyond the request itself** rather
+than as properties. The nearest real thing is `vuetify.new` (`gh:vuetifyjs/tryvuetify`), a
+one-page package-manager picker whose deployed artefact is 15 months old.
 
 ---
 
@@ -1425,7 +1427,7 @@ carrying those gates into the host app rather than dropping them.
 | **Issues** | Overlaps only in that it *reads* `/one/bins` and `/one/playgrounds` for reproductions — consumer, not producer. |
 | **Studio** | Not "keep separate" so much as **decide**: a 6.5-month-old deploy of a substantial Monaco editor, alone on Nuxt, with its own paid cloud-projects tier (§2.5) and its stated job (visual theme builder) claimed by both the Builder's theme step and One's premium themes. |
 
-### 9.3 The four cross-cutting concerns a combined app has to answer
+### 9.3 The six cross-cutting concerns a combined app has to answer
 
 1. **Auth — and this is a hard technical constraint, not a preference.** Two clients exist:
    `@vuetify/auth` (v0play, v0 docs) and `@vuetify/one` (everything else), the latter built
