@@ -38,7 +38,7 @@ export interface UseCustomThemesReturn {
   }
 }
 
-const STORAGE_KEY = 'v0:custom-themes'
+const STORAGE_KEY = 'custom-themes'
 
 // Shared singleton state
 const customThemes = shallowRef<CustomTheme[]>([])
@@ -82,6 +82,10 @@ export function useCustomThemes (): UseCustomThemesReturn {
         value: custom.colors,
         dark: custom.dark,
       })
+    }
+
+    if (customThemes.value.some(t => t.id === toggle.preference.value)) {
+      theme.select(toggle.preference.value)
     }
   }
 

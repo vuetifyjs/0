@@ -3,24 +3,20 @@
   import { useClipboard } from '@/composables/useClipboard'
   import { useCustomThemes } from '@/composables/useCustomThemes'
   import { useSettings } from '@/composables/useSettings'
-  import { useThemeToggle } from '@/composables/useThemeToggle'
 
   // Themes
-  import { exportThemeAsVuetifyConfig, type ThemeId } from '@/themes'
+  import { exportThemeAsVuetifyConfig, themes } from '@/themes'
 
   // Utilities
   import { computed } from 'vue'
 
-  const toggle = useThemeToggle()
   const customThemes = useCustomThemes()
   const clipboard = useClipboard()
   const settings = useSettings()
 
-  // Current active theme (resolves 'system' to actual theme)
-  const currentThemeId = computed<ThemeId>(() => toggle.theme.selectedId.value as ThemeId)
-
   function exportTheme () {
-    const config = exportThemeAsVuetifyConfig(currentThemeId.value)
+    const theme = customThemes.current() ?? themes.light
+    const config = exportThemeAsVuetifyConfig(theme)
     clipboard.copy(config)
   }
 

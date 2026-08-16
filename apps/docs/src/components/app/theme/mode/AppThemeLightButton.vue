@@ -7,7 +7,7 @@
 
   const toggle = useThemeToggle()
   const active = toRef(() =>
-    !toggle.isAccessibilityActive.value && toggle.mode.value === 'light',
+    !toggle.isOverrideActive.value && toggle.mode.value === 'light',
   )
 </script>
 

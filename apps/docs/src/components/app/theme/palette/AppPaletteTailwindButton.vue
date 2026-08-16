@@ -7,7 +7,7 @@
 
   const toggle = useThemeToggle()
   const active = toRef(() =>
-    !toggle.isAccessibilityActive.value && toggle.palette.value === 'tailwind',
+    !toggle.isOverrideActive.value && toggle.palette.value === 'tailwind',
   )
 </script>
 

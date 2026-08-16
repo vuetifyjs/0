@@ -64,7 +64,7 @@ export interface UseThemeToggleReturn {
   mode: ShallowRef<ModePreference>
   palette: ShallowRef<Palette>
   preference: ShallowRef<ThemePreference>
-  isAccessibilityActive: Ref<boolean>
+  isOverrideActive: Ref<boolean>
   icon: Ref<string>
   title: Ref<string>
   toggle: () => void
@@ -85,6 +85,14 @@ function isValidPalette (value: string | undefined): value is Palette {
 
 function isAccessibilityTheme (value: string): value is AccessibilityTheme {
   return (ACCESSIBILITY_THEMES as readonly string[]).includes(value)
+}
+
+function isCustomTheme (value: string): boolean {
+  return value.startsWith('custom-')
+}
+
+function isOverride (value: string): boolean {
+  return isAccessibilityTheme(value) || isCustomTheme(value)
 }
 
 let initialized = false
@@ -130,9 +138,9 @@ export function useThemeToggle (): UseThemeToggleReturn {
       }
     }
 
-    // Sync preference from mode (for accessibility overrides)
-    const storedAccessibility = storage.get<string>('theme-accessibility')
-    preference.value = storedAccessibility.value && isAccessibilityTheme(storedAccessibility.value) ? storedAccessibility.value : mode.value
+    // Sync preference from mode (for accessibility / custom overrides)
+    const storedOverride = storage.get<string>('theme-accessibility')
+    preference.value = storedOverride.value && isOverride(storedOverride.value) ? storedOverride.value : mode.value
 
     watch(
       [mode, palette, prefersDark],
@@ -140,8 +148,8 @@ export function useThemeToggle (): UseThemeToggleReturn {
         storage.set('theme-mode', m)
         storage.set('theme-palette', p)
 
-        // If preference is an accessibility theme, use it directly
-        if (isAccessibilityTheme(preference.value)) {
+        // If preference is a direct override, use it as-is
+        if (isOverride(preference.value)) {
           storage.set('theme-accessibility', preference.value)
           storage.set('theme', preference.value)
           theme.select(preference.value as ThemeId)
@@ -160,9 +168,9 @@ export function useThemeToggle (): UseThemeToggleReturn {
       { immediate: true },
     )
 
-    // Also watch preference for accessibility toggle
+    // Also watch preference for override selection
     watch(preference, pref => {
-      if (isAccessibilityTheme(pref)) {
+      if (isOverride(pref)) {
         storage.set('theme-accessibility', pref)
         storage.set('theme', pref)
         theme.select(pref as ThemeId)
@@ -178,11 +186,14 @@ export function useThemeToggle (): UseThemeToggleReturn {
     })
   }
 
-  const isAccessibilityActive = toRef(() => isAccessibilityTheme(preference.value))
+  const isOverrideActive = toRef(() => isOverride(preference.value))
 
   const icon = toRef(() => {
     if (isAccessibilityTheme(preference.value)) {
       return `theme-${preference.value}`
+    }
+    if (isCustomTheme(preference.value)) {
+      return 'theme-custom'
     }
     return PALETTE_ICONS[palette.value] ?? 'theme-custom'
   })
@@ -190,6 +201,9 @@ export function useThemeToggle (): UseThemeToggleReturn {
   const title = toRef(() => {
     if (isAccessibilityTheme(preference.value)) {
       return `Theme: ${preference.value}`
+    }
+    if (isCustomTheme(preference.value)) {
+      return 'Theme: Custom'
     }
     return `Theme: ${PALETTE_LABELS[palette.value] ?? 'Custom'}`
   })
@@ -202,7 +216,7 @@ export function useThemeToggle (): UseThemeToggleReturn {
   }
 
   function setPreference (pref: ThemePreference) {
-    if (isAccessibilityTheme(pref)) {
+    if (isOverride(pref)) {
       preference.value = pref
     } else if (['system', 'light', 'dark'].includes(pref)) {
       mode.value = pref as ModePreference
@@ -220,8 +234,8 @@ export function useThemeToggle (): UseThemeToggleReturn {
 
   function setPalette (p: Palette) {
     palette.value = p
-    // Clear accessibility override when picking a palette
-    if (isAccessibilityTheme(preference.value)) {
+    // Clear the direct override when picking a palette
+    if (isOverride(preference.value)) {
       preference.value = mode.value
     }
   }
@@ -232,7 +246,7 @@ export function useThemeToggle (): UseThemeToggleReturn {
     mode,
     palette,
     preference,
-    isAccessibilityActive,
+    isOverrideActive,
     icon,
     title,
     toggle,

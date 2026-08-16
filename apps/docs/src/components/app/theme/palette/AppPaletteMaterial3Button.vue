@@ -7,7 +7,7 @@
 
   const toggle = useThemeToggle()
   const active = toRef(() =>
-    !toggle.isAccessibilityActive.value && toggle.palette.value === 'material-3',
+    !toggle.isOverrideActive.value && toggle.palette.value === 'material-3',
   )
 </script>
 

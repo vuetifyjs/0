@@ -7,7 +7,7 @@
 
   const toggle = useThemeToggle()
   const active = toRef(() =>
-    !toggle.isAccessibilityActive.value && toggle.palette.value === 'vuetify0',
+    !toggle.isOverrideActive.value && toggle.palette.value === 'vuetify0',
   )
 </script>
 
