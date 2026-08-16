@@ -19,6 +19,8 @@ Each is sourced in the section named.
 | 4 | **v0play contains no subscriber check at all.** `rg 'isSubscriber\|sponsorship'` across `apps/playground` and `apps/docs` returns nothing; cloud save fails only on `401`. The newest playground gives away what the one it replaces sells. | §2.5 |
 | 5 | **Vuetify One costs `$2.99`/mo or `$29.99`/yr solo, `$29.99`/mo or `$299.99`/yr team** — hardcoded in the docs pricing card. Two of the advertised features are flagged `soon`, including playground embeds. | §2.4 |
 | 6 | **A `$3`/month GitHub Sponsors tier grants "Vuetify One Access"**, and `@vuetify/auth` models GitHub, Discord, Open Collective and Stripe sponsorships as one `sponsorships[]` entitlement array — while the One FAQ tells users sponsoring is *not* an entitlement path. | §2.2, §5.2 |
+| 6b | **`@vuetify/one` peers on `vuetify ^4.0.0` and never references `@vuetify/v0`.** That is the technical reason v0play uses bare `@vuetify/auth`, and therefore has no subscriber gate, no product chrome, and a site id (`vzero`) the One content system cannot target. | §5.3 |
+| 6c | **Nine money rails on six billing systems**, including two nobody listed: Discord subscriber tiers (`$2.99`/`$19.99`/`$99.99` per month) and PayPal one-time. Four separate sponsorship ladders describe overlapping inventory. | §2, §2.3 |
 | 7 | **GitHub Sponsors points at a personal account** (`github: [johnleider]`), and the $250/$500/$1,500 rungs are duplicated on Open Collective with different impression claims (600k/10m vs 200k/3m). | §2.1, §2.3 |
 | 8 | **Snips is still paid**, not free/PWYW: prices hardcoded at 74/74/74, all-access 149, team 399, with a 50%-off sale active and two live Stripe links. | §2.6 |
 | 9 | **The Builder is branch-only** — draft PR #241, 108 commits ahead / 64 behind `master`, last touched 2026-08-04 — and already emits a v0play URL as one of its two outputs. | §4 |
@@ -84,14 +86,34 @@ Vuetify One / sponsorship.
 
 ### Hosts that resolve but were not in the original list
 
-`support.vuetifyjs.com`, `community.vuetifyjs.com`, `cdn.vuetifyjs.com`,
-`swetrix-api.vuetifyjs.com`, `swetrix.vuetifyjs.com`, `mcp.vuetifyjs.com`,
-`next.vuetifyjs.com` and `dev.vuetifyjs.com` all resolve (`live:` 2026-08-16).
-`next.vuetifyjs.com` and `dev.vuetifyjs.com` both return the same title as production
-(`Vuetify — A Vue Component Framework`); what they actually serve is **UNKNOWN**.
+Fourteen more first-party hosts are live (`live:` all 2026-08-16). Most were found by
+grepping the core docs and `@vuetify/one` for `*.vuetifyjs.com` and then probing.
 
-`links.vuetifyjs.com` (plural) does **not** resolve; the live host is the singular
-`link.vuetifyjs.com`.
+| Host | What it is | State |
+|---|---|---|
+| `support.vuetifyjs.com` | 302 → `vuetifyjs.com/en/introduction/enterprise-support/` | Redirect |
+| `community.vuetifyjs.com` | 302 → `discord.gg/vuetify` | Redirect |
+| `discussions.vuetifyjs.com` | 301 → `github.com/vuetifyjs/vuetify/discussions` | Redirect |
+| `figma.vuetifyjs.com` | 302 → `figma.com/community/file/1266515419060480209` | Redirect |
+| **`vtfy.link`** | 301 → `link.vuetifyjs.com/` — a vanity apex domain for the shortener | Redirect |
+| `cdn.vuetifyjs.com` | Asset CDN (logos, theme thumbnails, suit backgrounds, 14 avatars) | Live, 404 at root |
+| `mcp.vuetifyjs.com` | Hosted MCP server, `0.9.1` | Live (§7.3) |
+| `status.vuetifyjs.com` | Status page — "No problems detected. \| Vuetify Documentation Status" | Live |
+| `glitchtip.vuetifyjs.com` | Self-hosted GlitchTip (Sentry-compatible) error tracking; the docs' `@sentry/vue` target | Live |
+| `swetrix-api.vuetifyjs.com`, `swetrix.vuetifyjs.com` | Self-hosted Swetrix analytics | Live |
+| `v3.vuetifyjs.com` | Vuetify 3 docs archive | Live, last deploy **2026-08-07** |
+| `v2.vuetifyjs.com` | Vuetify 2 docs archive (HeroDevs EOL) | Live, last deploy **2025-08-08** |
+| `v15.vuetifyjs.com` | Vuetify 1.5 docs archive | Live, last deploy **2025-03-12** |
+| `next.vuetifyjs.com`, `dev.vuetifyjs.com` | Both return the production docs title; what they serve is **UNKNOWN** | Live |
+
+Not live: `links.vuetifyjs.com` (plural — the host is the singular `link.`),
+`issues-next.vuetifyjs.com` (referenced in a core-docs blog post), `ots.vuetifyjs.com`,
+`try.vuetifyjs.com`, `builder.`/`create.`/`new.vuetifyjs.com`, and
+`emerald.`/`genesis.`/`paper.`/`onyx.vuetifyjs.com`.
+
+So the true property count is higher than the brief assumed: **19 live first-party
+web properties plus 5 redirect hosts plus 3 versioned docs archives**, on top of the
+npm packages.
 
 ### Everything is one deployment platform
 
@@ -105,7 +127,7 @@ with Cloudflare in front. `store.vuetifyjs.com` answers `powered-by: Shopify`.
 
 ## 2. Subscriber / monetization surfaces
 
-There are **seven** distinct places money can enter, on five different billing systems.
+There are **nine** distinct places money can enter, on six different billing systems.
 
 | Rail | Billing system | Where it is asked for | Evidence |
 |---|---|---|---|
@@ -115,7 +137,10 @@ There are **seven** distinct places money can enter, on five different billing s
 | Vuetify One subscription | Stripe, via `api.vuetifyjs.com/one/subscribe` | `vuetifyjs.com/one`, One dashboard, every property's user menu | `gh:vuetifyjs/vuetify packages/docs/src/components/one/SubscribeCard.vue` |
 | Snips all-access (one-time) | Stripe payment links | `snips.vuetifyjs.com/all-access` | `bundle:snips.vuetifyjs.com` |
 | Store / Services | Shopify (store) and Stripe payment links (v0 services) | `store.vuetifyjs.com`; `0.vuetifyjs.com/services` | `live:store.vuetifyjs.com/products.json`; `apps/docs/src/constants/services.ts:2` |
-| Third-party ads (indirect) | Carbon Ads | `vuetifyjs.com` docs pages | `gh:vuetifyjs/vuetify packages/docs/src/components/promoted/Carbon.vue` — `//cdn.carbonads.com/carbon.js?serve=CWYDC27W&placement=v3vuetifyjscom` |
+| Third-party ads (indirect) | Carbon Ads / BuySellAds | `vuetifyjs.com` docs pages | `gh:vuetifyjs/vuetify packages/docs/src/components/promoted/Carbon.vue` — `//cdn.carbonads.com/carbon.js?serve=CWYDC27W&placement=v3vuetifyjscom`; `packages/docs/public/ads.txt` is a full BuySellAds authorized-sellers file ending `OWNERDOMAIN=vuetifyjs.com` |
+| **Discord subscriber tiers** | Discord server subscriptions | `vuetifyjs.com/en/introduction/enterprise-support/` | `gh:vuetifyjs/vuetify packages/docs/src/components/introduction/DiscordDeck.vue` — Wood `$2.99/mo`, Gold `$19.99/mo`, Planetary `$99.99/mo`, all → `discord.com/invite/jZq4rzazEr` |
+| **PayPal one-time** | PayPal | `vuetifyjs.com/en/introduction/sponsors-and-backers/` | `packages/docs/src/pages/en/introduction/sponsors-and-backers.md:27` — "One-time donations can be made through [PayPal](https://paypal.me/vuetify)" |
+| Enterprise sponsorship (custom-priced) | Invoice / bespoke | `vuetifyjs.com/en/sponsor/` | `packages/docs/src/components/sponsor/FAQ.vue:38` — "Pricing is custom. Email sponsor@vuetifyjs.com" |
 
 ### 2.1 `FUNDING.yml` — verbatim
 
@@ -178,6 +203,31 @@ Sponsors equivalent, and no Open Collective tier mentions Vuetify One access.
 
 Public, sourced counts from that page (not revenue): `BackersStatsType` reports
 `all: 250`, `users: 163`, `organizations: 86`; fiscal host is Open Source Collective.
+
+And a **third** ladder is published in the core docs with different names and a different
+bottom rung — `gh:vuetifyjs/vuetify packages/docs/src/pages/en/introduction/sponsors-and-backers.md`:
+Diamond "pledged $1,500 per month" (line 50), Platinum "$500 per month" (58), Gold
+"$250 per month" (66), Silver "$150 per month" (74), plus Special / Service / Affiliate
+tiers, PayPal one-time, GitHub Sponsors, Open Collective and Tidelift. So the same
+$150–$1,500 inventory is described three times, under three naming schemes, with two
+different impression claims.
+
+A **fourth**, separate ladder sells Discord access rather than logo placement
+(`packages/docs/src/components/introduction/DiscordDeck.vue`, rendered on
+`pages/en/introduction/enterprise-support.md:22`): Wood `$2.99/mo` ("Start free trial",
+perks `#subscribers` / `#subscriber-help`), Gold `$19.99/mo` (adds `🔥dev-stream`),
+Planetary `$99.99/mo` (adds a private channel with the core team). These names are why
+`cdn.vuetifyjs.com` serves `wood-subscriber.png`, `gold-subscriber.png` and
+`planetary-subscriber.png` avatars (§2.5) — the Discord tiers have their own identity
+inside One.
+
+**Dead commercial code in the core docs.** `packages/docs/src/components/introduction/SlaDeck.vue`
+carries three live Stripe payment links — Galaxy `$250/mo`, Cosmic `$500/mo`, Multiverse
+`$1,000/mo` — but no page imports `IntroductionSlaDeck`. The same is true of
+`EnterpriseDeck.vue` (Calendly links), `EnterpriseForm.vue` (an EmailJS lead form) and
+`DirectSupport.vue`. Those are the *same three tier names and prices* the v0 docs sell
+live at `0.vuetifyjs.com/services` (§2.7) — with **different** Stripe links. Whether the
+core-docs versions render in production is **UNKNOWN**; they are unreferenced in source.
 
 ### 2.4 Vuetify One — the advertised product
 
@@ -552,10 +602,35 @@ all `200` unauthenticated):
 | `/one/banners` | **1** | "Vuetify0 v1.0 is here" (created 2026-07-22) |
 | `/one/spots` | **1** | "Vuetify0 v1 Release" (created 2026-07-21) |
 
-Content is CMS-backed (`cdn.cosmicjs.com` appears in every property bundle) and edited
-through `admin.vuetifyjs.com`, whose route table is exactly
-`/sponsors`, `/promotions`, `/spots`, `/banners`, `/notifications`, `/users`, `/logs`,
-`/docs-ask`, `/login`, `/401` (`bundle:admin.vuetifyjs.com`).
+Content is CMS-backed and edited through `admin.vuetifyjs.com`, whose route table is
+exactly `/sponsors`, `/promotions`, `/spots`, `/banners`, `/notifications`, `/users`,
+`/logs`, `/docs-ask`, `/login`, `/401` (`bundle:admin.vuetifyjs.com`). Worth noting:
+`vuetifyjs/one` PR #26 was titled "refactor: remove all admin usage" (merged 2025-04-27)
+and the word `admin.vuetifyjs.com` appears nowhere in that repo — yet the host is live and
+was redeployed 2026-07-27. Which codebase builds it is **UNKNOWN**.
+
+The CMS is **Cosmic JS**, and it is read twice over. The core docs hit Cosmic directly —
+`packages/docs/src/composables/cosmic.ts` with `VITE_COSMIC_2_BUCKET_*`, backing
+`stores/ads.ts`, `stores/promotions.ts`, `stores/spot.ts`, `stores/sponsors.ts` and
+`stores/shopify.ts` (the theme-vendor listings). `@vuetify/one` reads the *same*
+collections through `api.vuetifyjs.com/one/{sponsors,promotions,spots,banners,notifications}`.
+So sponsor and ad inventory has two independent client paths.
+
+Ad density on the core docs is high: `<PromotedEntry />` is embedded in **199 of 228**
+markdown pages under `packages/docs/src/pages`, with a second slot in the right-hand table
+of contents (`components/app/Toc.vue:105-117`). Outbound ad links are UTM-tagged
+`utm_source=vuetifyads` (`composables/ad.ts:49`) and labelled `ADS VIA VUETIFY`
+(`components/promotions/PromotionCard.vue:34`). The service worker deliberately bypasses
+`srv.carbonads.net`, `cdn4.buysellads.net`, `pixel.adsafeprotected.com`,
+`ad.doubleclick.net` and `tag.researchnow.com` (`packages/docs/src/service-worker.js:65`).
+
+There is also a **sponsor nag with an explicit trigger formula**
+(`packages/docs/src/components/sponsor/SnackbarPopup.vue:62`): it fires only when
+`!one.isSubscriber && Math.random() > 0.5 && userSessions >= 5 && !localStorage.sponsorPopupDismissed`,
+offering GitHub Sponsors, Open Collective and the Discord sponsor channel, and reporting
+`sponsorPopupShown` / `sponsorPopupClick` / `sponsorPopupDismissed` to Swetrix. When no
+sponsors have loaded, the TOC renders a "Your Logo Here" button pointing at
+`github.com/sponsors/johnleider` (`components/app/Toc.vue:89-103`).
 
 Because `isSubscriber` also gates the banner/notification preference panel (§2.5),
 "subscribe to control what we show you" is part of the One value proposition.
@@ -730,12 +805,21 @@ from the shipped bundles of every property and from `@vuetify/auth`'s published 
 | Commerce delivery | `/one/sendowl/downloads` (`401` unauthenticated) | `bundle:studio.vuetifyjs.com`; `live:` |
 | Public CMS content | `/one/sponsors`, `/one/banners`, `/one/spots`, `/one/promotions`, `/one/notifications` | `live:` — all `200` unauthenticated |
 | API keys / MCP tokens | `/one/mcp/getToken`, `/one/mcp/{slug}` | `@vuetify/auth` dist |
-| Docs AI | `/docs/ask` (rate-limited; client throws "Rate limit exceeded" on 429) | `apps/docs/src/composables/useAsk.ts:90,372,387` |
+| Docs AI + feedback | `/docs/ask` (rate-limited; client throws "Rate limit exceeded" on 429), `/docs/feedback` | `apps/docs/src/composables/useAsk.ts:90,387`; `apps/docs/src/components/docs/DocsFeedback.vue:23` |
+| GitHub proxy | `/github/commits`, `/github/releases?page=`, `/github/releases/find?tag=` | `gh:vuetifyjs/vuetify packages/docs/src/stores/commits.ts:24`, `releases.ts:36,64` |
 | Realtime | socket.io / `engine.io` transport | `bundle:bin.vuetifyjs.com` (`Wo("https://api.vuetifyjs.com")`, `path:"/engine.io"`) |
 
 `GET /auth/verify` returns `{"user":null,"access":[]}` unauthenticated (`live:`), which
 matches the `AuthVerifyResponse` type below. `/one/playgrounds`, `/one/bins` and
 `/one/links` return `401 Unauthorized` (`live:`) — user content is properly closed.
+
+The host is **never named in the core-docs or `vuetifyjs/one` source**. Both inject it as
+`VITE_API_SERVER_URL`, described in `packages/docs/.env.example` as the
+"# Private authentication API" and supplied in CI from `secrets.API_SERVER_URL`. It is
+hardcoded in `vuetifyjs/one`'s CI (`VITE_API_SERVER_URL: https://api.vuetifyjs.com`) and as
+a literal fallback in this repo (`apps/playground/src/composables/useOnePlaygrounds.ts:57`);
+notably the playground deploy workflow does **not** set the variable, so production v0play
+uses that fallback.
 
 ### 5.2 The identity model
 
@@ -772,18 +856,62 @@ Four things worth flagging:
    literal strings `one` and `one/team`, and Snips checks `snips/team`
    (`bundle:one.vuetifyjs.com`).
 4. **Login is a popup, not a redirect**: `window.open(`${http.url}/auth/${provider}/redirect`,
-   "vuetify:authorize:popup", …)` then `postMessage({type:"auth-request"}, http.url)`
-   (`@vuetify/auth` dist). One's own login additionally honours a `redirect_uri` query
-   param but **only** when it starts with `https://api.vuetifyjs.com/`
-   (`bundle:one.vuetifyjs.com`).
+   "vuetify:authorize:popup", …)` then `postMessage({type:"auth-request"}, http.url)`,
+   origin-validated, with a hard 120-second timeout; the session cookie is named **`sx`**
+   and `verify()` short-circuits when it is absent
+   (`gh:vuetifyjs/one packages/auth/src/stores/auth.ts`). One's own login additionally
+   honours a `redirect_uri` query param but **only** when it starts with
+   `https://api.vuetifyjs.com/` (`packages/one/src/stores/auth.ts`).
+5. **A `shopify` provider was removed, and it took the store integration with it.**
+   `vuetifyjs/one` PR #53 (merged 2026-06-08, the `4.0.0` breaking release) deleted the
+   Shopify provider *and* "the Sendowl-backed **Downloads** feature", with the PR body
+   noting Shopify "was only an auth/identity provider plus a product-catalog fetch — never
+   part of the payment flow (Stripe handles all billing)". `AuthProvider` in the published
+   `0.1.8` tarball still lists `'shopify'` because that build predates the removal — which
+   also explains why Studio, running the pre-4.0 One, is the only property still showing the
+   SendOwl downloads table (§3). **The store and One are now fully decoupled.**
+
+**Cloud settings sync is the real integration mechanism, and it is not paywalled.**
+`gh:vuetifyjs/one CLAUDE.md` states user settings have "two sources of truth" —
+`localStorage['vuetify@user']` and the server's `user.settings` — reconciled by a 500 ms
+debounced `POST /user/settings` plus a pull-on-change guarded by an `externalUpdate` flag
+(`packages/one/src/stores/auth.ts`). The synced blob is namespaced per property:
+`ecosystem.{bin,play,studio,link,docs,mcp}` plus a cross-property `one.*`. `sync` defaults
+to `true` for any signed-in user and is toggleable from the user menu — **no `isSubscriber`
+check**. A seven-step migration chain lives in `packages/one/src/stores/migrations.ts`.
+
+This is what "the ecosystem" concretely means: Play, Bin, Studio, Link, Docs and MCP each
+keep their per-user editor preferences inside One's synced blob, so settings follow a user
+across properties. v0play does not participate — there is no `ecosystem.v0play` namespace.
 
 ### 5.3 Shared clients
 
+`gh:vuetifyjs/one` is a two-package pnpm monorepo (root `@vuetify/one-monorepo`,
+`private: true`), and both packages are published:
+
 | Package | Version | Used by | Note |
 |---|---|---|---|
-| `@vuetify/auth` | `0.1.8` (npm) | this repo's `apps/playground` and `apps/docs` (`package.json`, `catalog:` → `0.1.8` in `pnpm-lock.yaml:102`) | Low-level: `useAuthStore`, `useHttpStore`, `useDeviceStore`, `useApiKeyStore`, `createAuth`, `createAuthPlugin` |
-| `@vuetify/one` | `4.1.0` (npm) | Play, Bin, Link, Snips, Issues, Admin, One | Adds product chrome, settings sync, subscription store, ecosystem menu, ad/banner/notification rendering, premium themes & suits |
-| `@vuetify/playgrounds` | — | — | **Not found.** No such npm package resolved, no reference in this repo, no reference in any inspected bundle. If it is planned, it exists only as an intention — **UNKNOWN** |
+| `@vuetify/auth` | `0.1.8` (npm, modified 2026-02-25) | this repo's `apps/playground` and `apps/docs` (`catalog:` → `0.1.8`, `pnpm-lock.yaml:102`) | Extracted from One in PR #48 (2026-02-04). Peers on `pinia` + `vue` only — **no `vuetify` dependency**. Exports `useAuthStore`, `useHttpStore`, `useDeviceStore`, `useApiKeyStore`, `createAuth`, `createAuthPlugin`. Its npm build predates PRs #53/#54, so **the published tarball is behind `master`** |
+| `@vuetify/one` | `4.1.0` (npm, modified 2026-08-13) | core docs (pinned `^4.0.0`), Play, Bin, Link, Snips, Issues, Admin, Studio, and the One SPA itself | 66 declared components, 12 installed globally by `createOne()`; peers on **`vuetify ^4.0.0`**. Also *is* the `one.vuetifyjs.com` SPA (its own `Dockerfile` → nginx → Coolify image `one`) |
+| `@vuetify/playgrounds` | — | — | **Not found.** No such npm package, no reference in this repo, in `vuetifyjs/one`, in the core docs, or in any inspected bundle. If planned, it exists only as an intention — **UNKNOWN** |
+
+**`@vuetify/one` has no dependency on `@vuetify/v0` at all** — a grep of every file in
+`vuetifyjs/one` returns zero occurrences. It is a Vuetify 4 library. The only trace of v0
+in the entire repo is an orphaned `'vuetify-0'` icon alias in
+`packages/one/src/icons/index.ts` with no `ECOSYSTEM_ACTIONS` entry and no usage anywhere.
+That is the structural reason v0play cannot simply adopt One: doing so would pull Vuetify 4
+into a headless-v0 app.
+
+**Site identifiers are a typed union that does not include v0play.** Declared identically
+in `packages/one/src/stores/banners.ts` and `spots.ts`:
+
+```ts
+site: ('*' | 'dev' | 'vbin' | 'vplay' | 'docs' | 'home' | 'server' | 'v3')[]
+```
+
+The core docs register as `['docs', 'home']` (`packages/docs/src/plugins/pinia.ts:17-22`).
+v0play registers itself as **`'vzero'`** (`apps/playground/src/plugins/pinia.ts:30-35`) — an
+id absent from that union, so no banner, notification or ad spot can target it.
 
 Every property registers itself with a site ID against the same API. Verbatim from each
 bundle: One `use(…(["*"], "https://api.vuetifyjs.com"))`, Play `["vplay","*"]`,
@@ -823,6 +951,26 @@ origin to `https://0.vuetifyjs.com`, and `?example=` deep-links resolve against 
 
 Two documentation sites, one storefront, and two theme distributions.
 
+### 6.0 Core framework context
+
+Not a property, but it sets the frame for everything else
+(`gh:vuetifyjs/vuetify`, verified at `master`):
+
+| Fact | Value |
+|---|---|
+| Current version | **`4.1.9`** (`packages/vuetify/package.json`, `lerna.json:16`) |
+| Cadence | a patch roughly every 1–2 weeks: v4.1.0 2026-06-02 → v4.1.9 2026-08-13, ten releases in ten weeks |
+| Parallel maintenance line | 3.x still shipping (v3.13.1 on 2026-08-07); LTS table marks 3.x "🔧 Maintained", EOL 2026-07-27, end of LTS 2027-07-27 |
+| Branches | 77 total; the three trains `master` / `dev` / `next` — with **`next` stale at `4.0.4`** — plus `v1-stable`, `v2-stable`, `v2-dev`, `v3-stable` |
+| v5 | **Nothing on the roadmap.** `pages/en/introduction/roadmap.md:24-29` plans v4.0 Q1 2026, v4.1 Q2, v4.2 Q3, v4.3 TBD |
+| v0 adoption in core | visible as unmerged branches `refactor/zero`, `feat/v0-date-integration`, `feat/v0-locale-integration`, `feat/v0-theme-integration` |
+| Scale | 41,031 stars, 7,136 forks, 410 open issues, created 2016-09-12 |
+
+Note the tension with this repo's own copy: `apps/docs/src/pages/sponsor.md` states
+"Vuetify 4 depends on Vuetify0 directly from 4.2.0 onward, and Vuetify0 is the foundation
+for the Paper design system family and **for Vuetify 5**", while the core repo's roadmap
+mentions no v5 and the v0 integration work sits on unmerged branches.
+
 ### 6.1 `vuetifyjs.com` — core docs and the commercial front door
 
 | Aspect | Finding | Evidence |
@@ -836,6 +984,31 @@ Two documentation sites, one storefront, and two theme distributions.
 | Sponsor surfaces | `components/sponsor/*` — CTA, Card, FAQ, Hero, Included, Link, **SnackbarPopup** (an interstitial sponsor prompt) | `packages/docs/src/components/sponsor/` |
 | Third-party services in the page head | `api.cosmicjs.com` (CMS), `cdn.carbonads.com` + `srv.carbonads.net` (ads), `www.google-analytics.com` + `googletagmanager.com` (analytics), `cdnjs.cloudflare.com` (polyfills) | `live:vuetifyjs.com` preconnect/dns-prefetch tags |
 | Enterprise support | `support.vuetifyjs.com` 302s to `/en/introduction/enterprise-support/` | `live:` |
+| Search | **Algolia DocSearch**, app id and key hardcoded (`NHT6C0IV19`) | `packages/docs/src/components/app/search/SearchDialog.vue:130-133` |
+| Component API data | Generated at build time by `packages/api-generator`, read from disk via a virtual module — not fetched | `packages/docs/build/api-plugin.ts` |
+| Error tracking | `@sentry/vue` pointed at self-hosted `glitchtip.vuetifyjs.com` | `packages/docs/src/main.ts:67` |
+| Content volume | 228 markdown pages, ~20 monthly blog posts, Crowdin-backed i18n | `crowdin.yml`, `.github/workflows/crowdin-uploads.yml` |
+| Deploy | Coolify image `docs`, artefact baked into `caddy:2.10.2-alpine` with `packages/docs/build/Caddyfile` | `.github/workflows/ci.yml` |
+
+**The docs' playground handoff is anonymous, and it is split between two properties.**
+`packages/docs/src/composables/playground.ts:26-42` builds a `[files, vueVersion,
+vuetifyVersion, true]` tuple, zlib-compresses and base64s it, and returns
+`https://play.vuetifyjs.com#<hash>` — carrying the docs' live Vue and Vuetify versions.
+Every example's "Edit in playground" button uses it (`components/examples/Example.vue:242-253`),
+as does the usage/props explorer (`UsageExample.vue:49`). But `components/app/Markup.vue:154-160`
+routes by payload shape: **array code → Play, plain string → Vuetify Bin**
+(`https://bin.vuetifyjs.com?code=<hash>&lang=<lang>`, `composables/bin.ts:47`). So Bin's real
+job is "share a single snippet from the docs", which is exactly the niche a combined
+playground would have to keep (§9).
+
+There is **no "save to One" or "my playgrounds" path in the docs app** — it only produces
+anonymous hash URLs; saved playgrounds live on `play.vuetifyjs.com` itself. And
+`v0play.vuetifyjs.com` appears in the core docs **only in blog prose** (seven hits across
+monthly-update posts) — never in nav, app code, or an example button.
+
+The core docs' own dashboard route is a stub:
+`packages/docs/src/pages/en/user/dashboard.md` renders text reading "This page will soon be
+home to the Vuetify One Dashboard."
 
 The core docs are therefore the only property carrying **three** revenue mechanisms at
 once: third-party ads, house promotions, and the One subscription that removes the first
@@ -1022,6 +1195,11 @@ analyzes was not read. **UNKNOWN.**
 | 11 | **Two scaffolding tools** — `create-vuetify` inside `gh:vuetifyjs/cli` and the standalone `gh:vuetifyjs/create` repo (78★) | `gh:vuetifyjs/cli README.md` |
 | 12 | **v0play is invisible to One at three layers** — absent from the ecosystem product menu, absent from the `ecosystem.*` settings namespaces (`bin`, `play`, `studio`, `link`, `docs`, `mcp`), and absent from the `/one` page's "Premium Across the Ecosystem" list | `bundle:bin.vuetifyjs.com`; `packages/docs/src/components/one/Properties.vue` |
 | 13 | **Two theme distributions** — Shopify products vs. a dozen stale GitHub theme repos, several deployed to Vercel outside the fleet | §6.4 |
+| 15 | **Four parallel sponsorship ladders** — GitHub Sponsors, Open Collective, the core-docs Diamond/Platinum/Gold/Silver page, and the Discord Wood/Gold/Planetary tiers | §2.2, §2.3 |
+| 16 | **Two clients for one CMS** — the core docs read Cosmic JS directly (`composables/cosmic.ts`) while `@vuetify/one` reads the same collections through `api.vuetifyjs.com/one/*` | §2.9 |
+| 17 | **Dead commercial code shipping the same tiers twice** — `SlaDeck.vue`'s Galaxy/Cosmic/Multiverse Stripe links are unreferenced in the core docs while the v0 docs sell the same three names and prices live, with different Stripe links | §2.3, §2.7 |
+| 18 | **v0play is unaddressable by the One content system** — it registers site id `'vzero'`, which is not in `@vuetify/one`'s `site` union (`'*' \| 'dev' \| 'vbin' \| 'vplay' \| 'docs' \| 'home' \| 'server' \| 'v3'`), so no banner, notification or ad spot can target it | §5.3 |
+| 19 | **Three versioned docs archives still deployed** — `v3.` (2026-08-07), `v2.` (2025-08-08), `v15.` (2025-03-12) | §1 |
 | 14 | **Advertised-but-unshipped One features** — "Share live updates on Bins and Playgrounds" and "Embed playgrounds in your own documentation" carry `soon` flags on the live pricing card; Bin already ships `/embed/:id` | `packages/docs/src/components/one/SubscribeCard.vue`; `bundle:bin.vuetifyjs.com` |
 
 ### 8.2 Zombie candidates — live but not maintained
@@ -1090,11 +1268,21 @@ carries the same Save paywall as `play` (§2.5), so the pricing question above a
 here too.
 
 **Builder → a mode, or at minimum a first-class producer.** It is already designed to
-hand off: its documented output is "a playground URL carrying the full plugin
-configuration", and it duplicates v0play's zip export and dependency substrate
-(§4). Its `stores/persistence.ts` is explicitly an "API-swappable seam", i.e. it is
-waiting for `/one/*` storage. Keeping it separate means a third save implementation
-ships.
+hand off: `review.vue` builds the manifest and calls
+`toPlaygroundUrl(manifest, 'https://v0play.vuetifyjs.com')`, which is
+`` `${baseUrl}#${encodeHash(toHashData(input))}` `` — **the same zlib+base64 hash format
+v0play already decodes** (`apps/builder/src/engine/manifest.ts:1617-1620` on
+`origin/feat/builder`). Note the host is hardcoded there rather than env-configurable as it
+is in the docs. It duplicates v0play's zip export (`engine/zip.ts` vs `useExport.ts`, both
+on `fflate`) and its dependency substrate. Its `stores/persistence.ts` opens with a comment
+saying the swap is deliberate:
+
+> "The ONLY module that knows where builds live. … Swapping localStorage for the Vuetify
+> API is meant to be a rewrite of this file and nothing else — which is why every method is
+> async even though the current implementation is synchronous."
+
+Keeping it separate means a fourth save implementation ships (keys `builder.builds`,
+`builder.active`, `builder.build.<id>`) with no auth and no One integration at all.
 
 **Link → a feature, not a property.** A URL shortener over `/one/links` with a
 768 KB bundle and its own Swetrix project is a large surface for one POST. Every
@@ -1117,14 +1305,17 @@ carrying those gates into the host app rather than dropping them.
 
 ### 9.3 The four cross-cutting concerns a combined app has to answer
 
-1. **Auth.** Two clients exist: `@vuetify/auth` (v0play, v0 docs) and `@vuetify/one`
-   (everything else), the latter built on the former. A combined app has to choose, and
-   the choice is not neutral — `@vuetify/one` is what supplies `isSubscriber`, the product
-   menu, settings sync and ad/banner rendering. Every subscriber gate in the ecosystem is
-   written against it (§2.5). `@vuetify/auth` exposes `user.sponsorships` and the verify
-   response's `access[]`, so a subscriber check is *derivable* without `@vuetify/one` — but
-   no app does that today, and adopting `@vuetify/auth` alone is what makes v0play
-   gate-free.
+1. **Auth — and this is a hard technical constraint, not a preference.** Two clients exist:
+   `@vuetify/auth` (v0play, v0 docs) and `@vuetify/one` (everything else), the latter built
+   on the former. `@vuetify/one` supplies `isSubscriber`, the product menu, the per-property
+   settings sync and all ad/banner rendering; every subscriber gate in the ecosystem is
+   written against it. But `@vuetify/one` **peers on `vuetify ^4.0.0` and has no dependency
+   on `@vuetify/v0`** (§5.3), so adopting it in a v0-native app means pulling Vuetify 4 in.
+   That is why v0play uses `@vuetify/auth` alone, and why it is gate-free and unaddressable
+   by the content system. The resolvable path is that `@vuetify/auth` already exposes
+   `user.sponsorships` and `access[]`, so `isSubscriber` is *derivable* without
+   `@vuetify/one` — no app does that today. Any combined app has to pick: take Vuetify 4 as
+   a dependency, or re-implement the subscriber/settings/chrome layer on `@vuetify/auth`.
 2. **URL scheme.** Today: `/playgrounds/:id` (twice, on two hosts), Bin `/bins` +
    `/embed/:id`, plus v0play's query deep-links `?playground=`, `?example=`, `?vuetify=`
    and a self-contained hash. Combining means one host owns all of these plus redirects
@@ -1187,13 +1378,22 @@ document comes from live hosts and production bundles. Specifically unresolved:
   figure of any kind should be read out of this document.
 - **Whether One + Snips are moving to free/PWYW.** As deployed, One is `$2.99`/`$29.99`
   solo and `$29.99`/`$299.99` team, and Snips is a paid one-time product with a live
-  50%-off sale. No pivot artefact found in code, hosts, or open PRs.
+  50%-off sale. No pivot artefact exists in code, hosts, or open PRs. A grep of every file
+  in `vuetifyjs/one` for `pwyw`, `pay what`, `donat`, `patreon` and `free` returns only the
+  MIT licence's "free of charge". The most recent *attempted* Snips pricing change went the
+  other way: closed PR #50 "feat: Snips addon" (opened 2026-04-06, closed unmerged
+  2026-05-22) would have made Snips a **paid add-on to the One subscription** at
+  `snips: { solo: '19.99', team: '49.99' }` per month, monthly-only, with copy "Access to
+  all premium code snippets". Its companion redesign, PR #52, was also closed unmerged.
+  Neither landed — `master`'s `one.ts` has no `hasSnips` and no `addons`.
 - **Server-side enforcement of "private playgrounds / bins / links".** Advertised as a
   subscriber feature; no client-side gate exists; `api.vuetifyjs.com` is not readable.
 - **Marketing claims with no code behind them (as far as this pass could see)** —
   Play "Version history", Link "QR codes", Studio "Export code" (§2.4).
-- **What a `shopify` identity grants** in One. `AuthProvider` includes it; the storefront
-  shows no One integration.
+- ~~What a `shopify` identity grants in One.~~ **Resolved:** it granted nothing beyond
+  identity plus a product-catalog fetch, and it was deleted in `vuetifyjs/one` PR #53
+  (2026-06-08) along with the SendOwl downloads feature. The published `@vuetify/auth@0.1.8`
+  tarball still lists `'shopify'` only because that build predates the removal (§5.2).
 - **`@vuetify/playgrounds`** — no such package or reference found anywhere. If planned,
   it exists only as intent.
 - **What `next.vuetifyjs.com` and `dev.vuetifyjs.com` serve.** Both resolve and return
