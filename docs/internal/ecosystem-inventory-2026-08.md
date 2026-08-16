@@ -48,7 +48,7 @@ Vuetify One / sponsorship.
 | Vuetify Link | `link.vuetifyjs.com` | **UNKNOWN** | Short-URL generator (`VLink`) | Team / community | **Live, aging** (deploy 2026-06-08) | **Yes** — custom slug, expiry, password, timer and click analytics are all subscriber-only (§2.5) |
 | Vuetify Snips | `snips.vuetifyjs.com` | **UNKNOWN** | Catalogue of copy-paste Vuetify UI snippets in Application UI / Marketing / Ecommerce categories | Designers & app builders | **Live, active** (deploy 2026-08-10) | **Yes — paid, one-time "all-access"** (§2) |
 | Vuetify Admin | `admin.vuetifyjs.com` | **UNKNOWN** | Internal console: `/sponsors`, `/promotions`, `/spots`, `/banners`, `/notifications`, `/users`, `/logs`, `/docs-ask` | Core team only | **Live** (deploy 2026-07-27) | Internal; `/401` route implies role gating |
-| Vuetify Studio | `studio.vuetifyjs.com` | **UNKNOWN** | Billed as a "visual theme builder"; the shipped app is a Monaco-based project editor with cloud projects at `/projects/:id` | Vuetify users | **Live but stale — zombie candidate** (Nuxt build id 2026-01-29 17:20 UTC, ~6.5 months; only Nuxt property) | Ships One chrome and a `/401` route; also the only surviving front-end for SendOwl purchase downloads |
+| Vuetify Studio | `studio.vuetifyjs.com` | **UNKNOWN** | Billed as a "visual theme builder"; the shipped app is a Monaco-based project editor with cloud projects at `/projects/:id` | Vuetify users | **Live but stale — zombie candidate** (Nuxt build id 2026-01-29 17:20 UTC, ~6.5 months; only Nuxt property) | **Yes — cloud projects are subscriber-only** (§2.5); also the only surviving front-end for SendOwl purchase downloads |
 | Vuetify Issues | `issues.vuetifyjs.com` | **UNKNOWN** | Bug tracker / feature-request browser | Community + maintainers | **Live** (deploy 2026-07-02) | Sign-in; reads `/one/bins` and `/one/playgrounds` for reproductions |
 | Vuetify Store | `store.vuetifyjs.com` | **UNKNOWN** (Shopify-hosted) | Shopify storefront selling themes, templates, Figma UI kits and support packages | Teams buying artefacts | **Live, actively merchandised** (41 products, newest published 2026-03-04) | Separate commerce rail; no One integration observed in the storefront |
 | Vuetify API | `api.vuetifyjs.com` | **UNKNOWN** | The backend for every property: OAuth 2.1 server, One subscriptions, playgrounds/bins/links storage, ad & sponsor content, docs Ask-AI | All properties | **Live, central** (root `404`, endpoints respond) | It *is* the entitlement authority |
@@ -318,6 +318,21 @@ if (!R.isSubscriber) { z.showError('Analytics requires a Vuetify One subscriptio
 That page otherwise shows Total Visits, Unique Visitors, Countries, Device, Referrer,
 Recent Visits and Last Visit — i.e. the "Click analytics" claim in §2.4 is real and paid.
 
+**`studio.vuetifyjs.com` — cloud projects are gated, with the same resume flow.** From
+`live:studio.vuetifyjs.com/_nuxt/Bpx2eRwK.js`, the projects dashboard's empty state when
+`!isSubscriber` is, verbatim: title `"Start Saving Your Projects"`, body
+`"Subscribe to Vuetify One to store and organize your studio projects in the cloud."`,
+action `"Subscribe to Vuetify One"`, `to: "?one=subscribe"`. And the same
+park-then-resume mechanic:
+
+```js
+if (t.value = false, o.pendingSave) {
+  const d = a.isSubscriber ? { save: 'continue' } : { one: 'subscribe' }
+  e.push({ path: '/', query: d })
+}
+// snackbar text: "Proceed back to save your project" / action "Continue Saving"
+```
+
 **`v0play.vuetifyjs.com` — nothing is gated.** A grep of the entire `apps/playground` and
 `apps/docs` source trees for `isSubscriber`, `sponsorship` or any subscription check
 returns **no hits** (`rg -n 'isSubscriber|sponsorship' apps/playground/src apps/docs/src`).
@@ -325,9 +340,11 @@ Cloud save is authentication-only: the sole failure path is
 `if (res.status === 401) throw new Error('Sign in required')`
 (`apps/playground/src/composables/useOnePlaygrounds.ts:260,287`).
 
-**This is the sharpest fact in the inventory.** The newest, most actively shipped
-playground gives away for free the exact capability the property it replaces charges a
-subscription for.
+**This is the sharpest fact in the inventory.** All four legacy creation properties —
+Play, Bin, Link and Studio — gate cloud persistence behind a Vuetify One subscription,
+using the same park-the-payload-and-resume funnel. The newest and most actively shipped
+creation property gives that same capability away for free with an account, and contains
+no subscriber check of any kind.
 
 #### The ad-free gate
 
@@ -381,7 +398,7 @@ complete perks list in that bundle is exactly three: `disable-ads`, `rail-drawer
 | `link.vuetifyjs.com` | custom slug, scoping, expiry, password, timer, **analytics** | creating a default short link |
 | `snips.vuetifyjs.com` | per-category and team snippet access (one-time purchase, separate from One) | browsing |
 | `vuetifyjs.com` | ad-free, rail drawer, page pins, Copy Page as Markdown | all documentation content |
-| `studio.vuetifyjs.com` | **UNKNOWN** (has a `/401` route) | **UNKNOWN** |
+| `studio.vuetifyjs.com` | **cloud projects** | using the editor |
 | `0.vuetifyjs.com` | nothing, by stated policy | everything |
 | `v0play.vuetifyjs.com` | **nothing** | edit, run, share, export, **cloud save**, fork, private/public |
 | MCP (`mcp.vuetifyjs.com`, CLI) | the One API key that exposes your One data to agents | the docs/component tools themselves |
@@ -552,8 +569,8 @@ densest.
 | Share w/o account | URL hash (zlib+btoa, self-contained) | URL hash | `/embed/:id` returns `200` unauthenticated | the short link | public pages | **UNKNOWN** | emits a v0play URL |
 | Embed | **not found** | **not found** | **yes** — `/embed/:id` | n/a | n/a | **not found** | n/a |
 | Auth | own dialog on `@vuetify/auth` | `@vuetify/one` | `@vuetify/one` | `@vuetify/one` | `@vuetify/one` | `@vuetify/one` (has a `/401` route) | none |
-| Save needs a **subscription**? | **no** | **yes** | **yes** | default link free, everything else paid | purchase-based | **UNKNOWN** | n/a |
-| Cloud sync | debounced autosave, 500 ms | autosave (per v0play's own note: "play uses 100ms after store mutate") | socket.io to `api.vuetifyjs.com` | n/a | n/a | project CRUD, mechanism **UNKNOWN** | **UNKNOWN** |
+| Save needs a **subscription**? | **no** | **yes** | **yes** | default link free, everything else paid | purchase-based | **yes** | n/a |
+| Cloud sync | debounced autosave, 500 ms | autosave (per v0play's own note: "play uses 100ms after store mutate") | socket.io to `api.vuetifyjs.com` | n/a | n/a | project CRUD with a `pendingSave` resume queue | **UNKNOWN** |
 | Analytics ID | (docs/PostHog + Swetrix) | Swetrix `AEQUL1ms1WiI` | Swetrix `iOskPeVuHJ4t` | Swetrix `sl0mkdcMc32W` | Swetrix (own ID) | Swetrix `sKqap3dKP9df` | n/a |
 
 **Studio is more than a theme builder.** Its Nuxt route table is `/`, `/401`,
@@ -1079,7 +1096,7 @@ carrying those gates into the host app rather than dropping them.
 | **Admin** | Internal-only, role-gated (`/401`), and manages the *other* properties' content. |
 | **`api.vuetifyjs.com`** | Already the single backend; it is what makes consolidation of the front-ends cheap. |
 | **Issues** | Overlaps only in that it *reads* `/one/bins` and `/one/playgrounds` for reproductions — consumer, not producer. |
-| **Studio** | Not "keep separate" so much as **decide**: 6.5-month-old deploy, alone on Nuxt, and its stated job (visual theme builder) is claimed by both the Builder's theme step and One's premium themes. |
+| **Studio** | Not "keep separate" so much as **decide**: a 6.5-month-old deploy of a substantial Monaco editor, alone on Nuxt, with its own paid cloud-projects tier (§2.5) and its stated job (visual theme builder) claimed by both the Builder's theme step and One's premium themes. |
 
 ### 9.3 The four cross-cutting concerns a combined app has to answer
 
@@ -1112,10 +1129,9 @@ carrying those gates into the host app rather than dropping them.
    page's "Premium Across the Ecosystem" list, which still advertises `play.vuetifyjs.com`
    for "Private playgrounds, Cloud sync, Version history". Whatever gets combined, the
    funnel and the newest surface are currently disjoint.
-6. **The paid capability is on the properties being retired.** Cloud Save is
-   subscriber-only on `play.vuetifyjs.com` and `bin.vuetifyjs.com`, and most of
-   `link.vuetifyjs.com` (custom slug, expiry, password, timer, click analytics) is
-   subscriber-only. Cloud Save on `v0play.vuetifyjs.com` is free with an account, and
+6. **The paid capability is on the properties being retired.** Cloud persistence is
+   subscriber-only on all four legacy creation properties — `play`, `bin`, `studio`, and
+   (beyond a default short link) `link`. Cloud Save on `v0play.vuetifyjs.com` is free with an account, and
    nothing in `apps/playground` or `apps/docs` checks `isSubscriber` at all (§2.5). So the
    consolidation question is not only "which app survives" — it is **which pricing model
    survives**, because the two candidates currently disagree about whether saving your
@@ -1140,8 +1156,13 @@ document comes from live hosts and production bundles. Specifically unresolved:
   a shared build, but that is inference, not evidence).
 - Whether a `discord-bot` repo exists. The only public candidate is
   `gh:vuetifyjs/community-bot`, last pushed 2018-07-21.
-- Studio's actual capabilities: save, share, export, One integration — all **UNKNOWN**
-  beyond "Visual theme builder" in One's product list.
+- Studio's **share** and **export** behaviour. Its routes, Monaco editor, paid cloud
+  projects and SendOwl downloads table are all sourced above; whether it can share or
+  export a project is **UNKNOWN**.
+- Whether `/studios` was an earlier route name — the Nuxt build manifest carries a
+  wildcard redirect `"/studios": {"redirect": "/"}`
+  (`live:studio.vuetifyjs.com/_nuxt/builds/meta/<id>.json`), suggesting a renamed
+  collection path, but the history is not readable.
 
 ### Blocked by lack of a public source
 
