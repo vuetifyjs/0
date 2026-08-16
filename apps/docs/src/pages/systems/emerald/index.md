@@ -22,6 +22,23 @@ related:
 
 Emerald is a design system built on [Vuetify0](/): tokens, CSS, and a set of `Em*` components that wrap v0's headless compounds. v0 supplies the behavior and the accessibility; Emerald decides what it looks like.
 
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-6">
+  <DocsCard href="https://store.vuetifyjs.com" hoverable disabled>
+    <div class="flex items-center gap-3 mb-2">
+      <img src="https://cdn.vuetifyjs.com/docs/images/one/logos/emerald.png" alt="" class="w-8 h-8">
+      <div class="text-lg font-semibold">Emerald UI Kit — coming soon</div>
+    </div>
+    <div class="text-sm text-on-surface-variant">The Figma UI Kit will be on the Vuetify Store. The design system, components, and dashboard are MIT.</div>
+  </DocsCard>
+  <DocsCard href="/demo/emerald/" hoverable>
+    <div class="flex items-center gap-3 mb-2">
+      <img src="https://cdn.vuetifyjs.com/docs/images/one/logos/emerald.png" alt="" class="w-8 h-8">
+      <div class="text-lg font-semibold">Dashboard</div>
+    </div>
+    <div class="text-sm text-on-surface-variant">The MIT showcase app — calendar, kanban, and the rest of the inventory, built on these components.</div>
+  </DocsCard>
+</div>
+
 ## What Emerald is
 
 A design system here is a **complete framework**, not a theme. Emerald does not restyle someone else's components — it brings its own tokens, its own icon set, and its own component vocabulary, and it reaches down to v0 for every piece of logic underneath. Selection, focus management, popover positioning, validation, keyboard interaction: none of that is reimplemented, and none of it is Emerald's to get wrong.
@@ -33,7 +50,7 @@ The practical consequence for you: everything you learn about a v0 compound appl
 ## Installation
 
 > [!IMPORTANT]
-> `@paper/emerald` is not published yet. The commands and imports below are the shape the install will take when it ships — they will not resolve from npm today. Emerald currently builds inside the [vuetifyjs/0](https://github.com/vuetifyjs/0) monorepo.
+> `@paper/emerald` is MIT — the package, the components, and the dashboard. It is not on npm yet; the install below is the shape that will resolve when it publishes. The Figma UI Kit is a separate Store listing.
 
 ```bash
 pnpm add @paper/emerald
@@ -112,13 +129,6 @@ Emerald's icon set is addressed by **role**, not by drawing. You ask for `calend
 ```
 
 Icons are decorative by default and hidden from assistive technology; passing `label` is what promotes one to a labelled image. The full role list, the alias table, and the accessibility contract are on the [EmIcon page](/systems/emerald/icon).
-
-## Live demo
-
-The canonical Emerald showcase — a full dashboard application exercising every component family, including the calendar, kanban board, and data table pages — ships with this site at [/demo/emerald/](/demo/emerald/){target="_blank"}. It is the same app the Emerald team develops against, built and deployed alongside these docs.
-
-> [!NOTE]
-> The demo is part of the production build only — it is not served by the docs dev server.
 
 ## Components
 

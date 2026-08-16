@@ -181,5 +181,15 @@ export default defineConfig({
     fs: {
       allow: ['../../packages/*', '../../node_modules', '.'],
     },
+    // Production copies `dev/dist` to /demo/emerald/ (see root `build:demo`).
+    // Vite's SPA fallback would otherwise render the docs 404. Proxy the
+    // subpath so the Dashboard card works in `pnpm dev` the same as on nginx.
+    proxy: {
+      '/demo/emerald': {
+        target: process.env.VITE_EMERALD_DEMO ?? 'https://0.vuetifyjs.com',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
 })

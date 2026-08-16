@@ -13,7 +13,7 @@
 
       <EmTooltipContent>
         Deploys the current build to production.
-        <a class="emerald-docs-link" href="#">Read the checklist</a>
+        <a class="emerald-docs-link" href="#" @click.prevent>Read the checklist</a>
       </EmTooltipContent>
     </EmTooltip>
   </div>

@@ -92,7 +92,7 @@ features:
 
 Feature pages (components/composables): use `::: gn-example` — full authoring rules in `.claude/rules/docs.md`. Do not hand-roll `<DocsExample>` imports on those pages.
 
-Design-system pages (`pages/systems/**`): use `::: ds-example`. Same authoring syntax; the example runs in an iframe against `sandbox/<system>.html` because a design system's global CSS cannot share a document with the docs shell. Examples live in `src/examples/systems/<system>/<component>/`, import from the design system rather than `@vuetify/v0`, and have **no UnoCSS** available. The frame and the page exchange size, overlay and theme messages so an overlay can escape the example box — protocol and gotchas in `.claude/rules/docs.md`.
+Design-system pages (`pages/systems/**`): use `::: ds-example`. Same authoring syntax. Emerald examples render inline under `[data-theme="emerald"]` / `emerald-dark` via the adapter token sheet (do not import baked `theme.css`). Iframe remains the rule for systems that reset elements (Bulma) — those run against `sandbox/<system>.html`. Examples live in `src/examples/systems/<system>/<component>/`, import from the design system rather than `@vuetify/v0`, and have **no UnoCSS**. Iframe protocol and gotchas in `.claude/rules/docs.md`.
 
 `.vue` pages that still mount examples directly:
 

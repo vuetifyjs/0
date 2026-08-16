@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import {
+    EmButton,
     EmTooltip,
     EmTooltipActivator,
     EmTooltipContent,
@@ -9,7 +10,11 @@
 <template>
   <div class="emerald-docs-center">
     <EmTooltip>
-      <EmTooltipActivator>Save draft</EmTooltipActivator>
+      <EmTooltipActivator v-slot="{ attrs, styles }" renderless>
+        <EmButton v-bind="attrs" :style="styles">
+          Save draft
+        </EmButton>
+      </EmTooltipActivator>
 
       <EmTooltipContent>Saves your changes without publishing them</EmTooltipContent>
     </EmTooltip>

@@ -25,7 +25,7 @@ A single-line text input with its label, help text and error messages attached �
 
 ## Usage
 
-Everything around the input is a prop. `label` renders the visible label and wires it to the control, `description` is the help text below it, and `errorMessages` is what replaces that help text when validation fails. There are **no named slots** — this is a shell component with fixed anatomy, which is the convention across every Emerald control whose shape does not vary.
+Everything around the input is a prop. `label` renders the visible label and wires it to the control, `description` is the help text below it, and `errorMessages` is the error region that appears alongside it — the two coexist (`aria-describedby` + `aria-errormessage`), they do not replace one another. There are **no named slots** — this is a shell component with fixed anatomy, which is the convention across every Emerald control whose shape does not vary.
 
 `v-model` is a `string` and defaults to `''`. It stays a string for every `type`, including `number` — the DOM gives you a string, and quietly coercing it is how forms end up with `NaN` in a payload.
 
@@ -64,7 +64,7 @@ The state attributes the stylesheet keys on — `data-focused`, `data-disabled`,
 
 ### Rules and timing
 
-`rules` is an array of functions taking the value and returning `true` when it passes, or a string to show when it does not. They may return a promise, so an async check — a username lookup, a server-side uniqueness test — is the same shape as a synchronous one. Rules run in order and the first failure is what gets shown.
+`rules` is an array of functions taking the value and returning `true` when it passes, or a string to show when it does not. They may return a promise, every active rule runs against the value, and every failure's message is shown — the same contract as every Emerald field, because the pipeline is v0's `createValidation` underneath.
 
 `validateOn` decides *when*, and it is the prop that most changes how the field feels. It defaults to `blur`, which waits until the reader leaves the field — usually right, because validating on every keystroke means telling someone their email is invalid while they are still on the second character. `input` validates as they type, worth it for a field with live feedback like a password strength meter. `submit` defers everything to the form.
 
@@ -86,7 +86,7 @@ Three states that all stop normal editing and mean entirely different things.
 
 `disabled` takes the field out of play — unfocusable, greyed to the neutral tokens, and not submitted. Reach for it when a field is irrelevant given other answers, and prefer removing it entirely when it will never become relevant. As with buttons, a disabled control with no visible explanation is a frequent accessibility complaint; put the reason where a keyboard user will find it, because they will never land on the field itself.
 
-`error` and `errorMessages` are the manual override for validation state you compute elsewhere — a server rejection, a cross-field constraint that no single field's rules can see. Setting `error` flips the field to `data-state="invalid"` and swaps the description region for the messages. When the field's own `rules` can express the constraint, use those instead; these two props are for the cases they cannot reach.
+`error` and `errorMessages` are the manual override for validation state you compute elsewhere — a server rejection, a cross-field constraint that no single field's rules can see. Setting `error` flips the field to `data-state="invalid"` and shows the messages in the error region — the description stays put. When the field's own `rules` can express the constraint, use those instead; these two props are for the cases they cannot reach.
 :::
 
 ## Props
@@ -151,4 +151,4 @@ The practical consequence is the opposite of what a swap would imply — help te
 |-------|-----------|-----------|--------------|
 | `readonly` | Yes | Yes | Read-only |
 | `disabled` | No | No | Disabled |
-| `error` | Yes | Yes | Invalid, with the message as its description |
+| `error` | Yes | Yes | Invalid, with the message on `aria-errormessage` |

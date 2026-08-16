@@ -1,3 +1,5 @@
+import { createEmeraldIconsPlugin } from '@paper/emerald'
+
 // Framework
 import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createRtlPlugin, createStackPlugin, createStoragePlugin, createThemePlugin, createTooltipPlugin, IN_BROWSER, useFeatures, V0UnheadThemeAdapter } from '@vuetify/v0'
 import { V0DateAdapter } from '@vuetify/v0/date'
@@ -17,6 +19,7 @@ import type { App } from 'vue'
 
 export default function zero (app: App) {
   app.use(createIconPlugin())
+  app.use(createEmeraldIconsPlugin())
   app.use(createLoggerPlugin())
   app.use(createHydrationPlugin())
   app.use(createBreakpointsPlugin({ mobileBreakpoint: 768 }))

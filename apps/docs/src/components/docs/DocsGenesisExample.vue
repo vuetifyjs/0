@@ -49,6 +49,8 @@
     peek?: boolean
     /** Visible peek lines (default 6) */
     peekLines?: number
+    /** Scope preview to a named theme (`data-theme` on the panel) */
+    theme?: string
   }
 
   const props = defineProps<DocsGenesisExampleProps>()
@@ -137,6 +139,7 @@
     show-bin
     show-playground
     :style="{ '--gn-docs-example-sticky-top': 'calc(48px + var(--app-banner-h, 0px))' }"
+    :theme
     :title
     @bin="onBin"
     @playground="onPlayground"

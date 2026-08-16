@@ -4,15 +4,15 @@
 
 <template>
   <div class="emerald-docs-row">
-    <span>Draft</span>
+    <span class="emerald-docs-caption">Draft</span>
 
     <EmDivider orientation="vertical" />
 
-    <span>Edited 2 minutes ago</span>
+    <span class="emerald-docs-caption">Edited 2 minutes ago</span>
 
     <EmDivider orientation="vertical" />
 
-    <span>v1.4</span>
+    <span class="emerald-docs-caption">v1.4</span>
   </div>
 </template>
 
@@ -23,7 +23,7 @@
     gap: var(--emerald-spacing-s, 12px);
   }
 
-  .emerald-docs-row span {
+  .emerald-docs-caption {
     font-size: var(--emerald-text-b3-size, 12px);
     line-height: var(--emerald-text-b3-height, 18px);
     color: var(--emerald-on-surface-variant);

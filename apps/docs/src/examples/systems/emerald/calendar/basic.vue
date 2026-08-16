@@ -27,8 +27,8 @@
       <EmCalendarGrid />
     </EmCalendar>
 
-    <p class="emerald-docs-note">
-      Selected: <code>{{ day || 'nothing yet' }}</code>
+    <p v-if="day" class="emerald-docs-note">
+      Selected: <code>{{ day }}</code>
     </p>
   </div>
 </template>

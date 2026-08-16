@@ -141,8 +141,10 @@ Dev showcase routes (Figma product examples; inventory in [FIGMA_INVENTORY.md](.
 
 ## Non-goals (current)
 
-- DatePicker / Upload / DataTable / Charts / Calendar (no finished v0 primitive or deferred)
-- Pixel-perfect Figma component-set parity for every variant (library pages limited via MCP seat; tokens + Wave 1–3 shells ship first)
+- DatePicker / Upload / DataTable / Charts (no finished v0 primitive or deferred)
+- Pixel-perfect Figma component-set parity for every variant (library pages limited via MCP seat; tokens + Wave 1–4 shells ship first)
+
+`EmCalendar` ships in Wave 4 as **temporary DS-owned headless** (behavior lives in `EmCalendar` today). Extract a headless Calendar into `@vuetify/v0` when that primitive exists; until then Calendar is not a Non-goal.
 
 ## Reference
 

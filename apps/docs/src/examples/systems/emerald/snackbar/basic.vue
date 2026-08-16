@@ -28,9 +28,14 @@
 
 <style>
   .emerald-docs-toast-demo {
+    position: relative;
     display: flex;
     align-items: flex-start;
     width: 100%;
     min-height: 140px;
+  }
+
+  .emerald-docs-toast-demo .emerald-snackbar-portal {
+    position: absolute;
   }
 </style>

@@ -5,22 +5,22 @@
     {
       title: 'Todo',
       cards: [
-        { value: 'Draft the launch note' },
-        { value: 'Collect the screenshots' },
-        { value: 'Pick a release date' },
+        { value: 'Invoice #1842' },
+        { value: 'Design review' },
+        { value: 'Launch checklist' },
       ],
     },
     {
       title: 'Doing',
       cards: [
-        { value: 'Write the changelog' },
+        { value: 'Onboarding emails' },
       ],
     },
     {
       title: 'Done',
       cards: [
-        { value: 'Tag the release' },
-        { value: 'Close the milestone' },
+        { value: 'Pricing page' },
+        { value: 'Brand refresh' },
       ],
     },
   ]

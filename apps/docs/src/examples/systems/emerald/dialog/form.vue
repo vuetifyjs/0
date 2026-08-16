@@ -13,11 +13,13 @@
   import { shallowRef } from 'vue'
 
   const open = shallowRef(false)
-  const name = shallowRef('')
+  const name = shallowRef('Acme Design')
   const saved = shallowRef('')
 
   function onSave () {
-    saved.value = name.value
+    const next = name.value.trim()
+    if (!next) return
+    saved.value = next
     open.value = false
   }
 </script>
@@ -40,7 +42,7 @@
         />
 
         <EmDialogFooter variant="one-button">
-          <EmButton @click="onSave">Save</EmButton>
+          <EmButton :disabled="!name.trim()" @click="onSave">Save</EmButton>
         </EmDialogFooter>
 
         <EmDialogClose />

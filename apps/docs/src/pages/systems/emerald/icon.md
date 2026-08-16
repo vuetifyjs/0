@@ -91,9 +91,8 @@ Every canonical role in the set, drawn from `emeraldIcons` — the same map the 
 Note what this list is not. These are the 48 canonical roles only; the 24 aliases resolve into this set and are listed in the table below rather than drawn again here, because a gallery that showed `mail` and `envelope` as separate tiles would imply two drawings where there is one.
 
 If a name does not resolve, `EmIcon` renders nothing at all and logs the unknown role in development. That is deliberate — a placeholder box would ship to production looking like a considered design choice, while an empty space reads as the bug it is.
-:::
 
-## Roles
+### Roles
 
 The canonical set, grouped the way the source groups it.
 
@@ -139,6 +138,7 @@ app.use(createEmeraldIconsPlugin({
 ```
 
 A glyph is an array of SVG path `d` strings, drawn into a 24×24 viewBox with `fill="none"` and `stroke="currentColor"`. Artwork that assumes a fill will not look right in this set.
+:::
 
 ## Props
 
