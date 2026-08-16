@@ -64,7 +64,7 @@
 
 <template>
   <div v-if="loading" class="p-4">
-    <div class="grid grid-cols-2 gap-2">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
       <div
         v-for="i in 6"
         :key="i"
