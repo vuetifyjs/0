@@ -101,9 +101,8 @@
   <component
     :is="resizable ? SplitterRoot : Atom"
     v-bind="resizable
-      ? mergeProps(attrs, slotProps.attrs, { orientation: 'horizontal', as: as === 'tr' ? 'div' : as, renderless })
+      ? mergeProps(attrs, slotProps.attrs, { orientation: 'horizontal', as: as === 'tr' ? 'div' : as, renderless, onLayout: onSplitterLayout })
       : mergeProps(attrs, slotProps.attrs, { as, renderless })"
-    @layout="resizable ? onSplitterLayout : undefined"
   >
     <slot v-bind="slotProps" />
   </component>
