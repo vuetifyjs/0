@@ -363,7 +363,7 @@ apps/docs/
 ├── src/
 │   ├── components/
 │   │   ├── app/           # Shell (AppNav, AppBar)
-│   │   ├── docs/          # Doc UI (DocsExample, DocsApi)
+│   │   ├── docs/          # Doc UI (DocsGenesisExample, DocsApi)
 │   │   └── home/          # Homepage sections
 │   ├── composables/       # App-specific composables
 │   ├── examples/          # Live code examples
