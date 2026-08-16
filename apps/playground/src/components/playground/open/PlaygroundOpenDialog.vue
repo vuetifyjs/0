@@ -820,19 +820,23 @@
       <div
         aria-labelledby="open-title"
         aria-modal="true"
-        class="relative bg-surface border border-divider rounded-lg shadow-xl w-[900px] max-w-[calc(100vw-2rem)] h-[640px] max-h-[calc(100vh-2rem)] flex overflow-hidden"
+        class="relative bg-surface border border-divider rounded-lg shadow-xl w-[900px] max-w-[calc(100vw-2rem)] h-[640px] max-h-[calc(100vh-2rem)] flex flex-col sm:flex-row overflow-hidden"
         role="dialog"
       >
         <!-- Left rail: product stacks (same search model) + Vuetify One -->
-        <nav class="w-36 shrink-0 border-r border-divider flex flex-col gap-1 py-2 bg-surface">
+        <nav
+          aria-label="Open source"
+          class="flex flex-row flex-wrap sm:flex-nowrap sm:flex-col w-full sm:w-36 shrink-0 border-b sm:border-b-0 sm:border-r border-divider gap-1 p-2 bg-surface"
+        >
           <template v-for="item in rails" :key="item.id">
             <div
               v-if="item.id === 'saved'"
-              class="mx-3 my-2 border-t border-divider"
+              class="hidden sm:block mx-3 my-2 border-t border-divider"
             />
 
             <button
-              class="mx-1.5 flex items-center justify-between gap-2 px-2.5 py-2 text-xs text-left rounded-md transition-colors"
+              :aria-pressed="rail === item.id"
+              class="flex-1 sm:flex-none min-w-0 mx-0 sm:mx-1.5 flex items-center justify-center sm:justify-between gap-2 px-2.5 py-1.5 sm:py-2 text-xs text-center sm:text-left rounded-md transition-colors"
               :class="railActiveClass(item.id)"
               type="button"
               @click="onRail(item.id)"
