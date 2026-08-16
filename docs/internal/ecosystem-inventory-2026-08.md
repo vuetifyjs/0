@@ -278,12 +278,28 @@ Defaults are `ads: { enabled: !e.disableAds, house: e.showHouseAds || false }`
 is set. A non-subscriber has no UI to set it. House ads (Vuetify's own promotions) remain
 available as the opt-in alternative.
 
-**Beyond ad-free, no functional capability was found behind `isSubscriber` in
-client code.** Save, share, embed and cloud-sync across Play, Bin, Link and v0play
-require *authentication*, not a *subscription* (§3). The advertised "Private
-playgrounds / bins / links" gate is plausibly enforced server-side inside
-`api.vuetifyjs.com` — v0play, for instance, sends `visibility: 'private' | 'public'`
-with no local subscriber check
+**The docs site adds three more real gates.** These live in `vuetifyjs.com`'s own bundle,
+not in `@vuetify/one`, which is why they are invisible from the satellite properties.
+From `bundle:vuetifyjs.com` (`/assets/index-BsKjhE3E.js`, 18 `isSubscriber` sites):
+
+| Docs feature | Gate | i18n key |
+|---|---|---|
+| Disable Ads | `disabled: !isSubscriber, readonly: !isSubscriber` | `dashboard.perks.disable-ads` |
+| Rail drawer | `disabled: !isSubscriber` | `dashboard.perks.rail-drawer` |
+| Page pins (marked **NEW**) | `disabled: !isSubscriber`; the per-page "Pin" action requires `isSubscriber && ecosystem.docs.pins.enabled` | `dashboard.perks.enable-pins` |
+| **Copy Page as Markdown** | `disabled: !isSubscriber` | `copy-as-markdown` |
+
+Two of those render an explicit upsell tooltip, verbatim:
+`{ disabled: isSubscriber, text: "Subscribe to Vuetify One for access" }`. The i18n
+namespace is literally `dashboard.perks.*` — the docs treat these as One "perks", and the
+complete perks list in that bundle is exactly three: `disable-ads`, `rail-drawer`,
+`enable-pins`.
+
+**What is still not gated anywhere in client code: creating, saving, sharing and
+embedding.** Save, share, embed and cloud-sync across Play, Bin, Link and v0play require
+*authentication*, not a *subscription* (§3). The advertised "Private playgrounds / bins /
+links" gate is plausibly enforced server-side inside `api.vuetifyjs.com` — v0play, for
+instance, sends `visibility: 'private' | 'public'` with no local subscriber check
 (`apps/playground/src/composables/useOnePlaygrounds.ts:239-268`) — but that enforcement
 is **UNVERIFIABLE** from here.
 
@@ -297,9 +313,7 @@ v0play. Verbatim default (`bundle:bin.vuetifyjs.com`):
 ```
 
 `ecosystem.docs` carries `api`, `composition`, `pins: {enabled, pinned}`, `mixedTheme`,
-`favorites`, `slashSearch`, `railDrawer` — the storage behind the advertised "pinned nav,
-rail menu" premium docs features. Whether those specific toggles are subscriber-gated
-lives in the docs app, not in `@vuetify/one`, and was **not verified**.
+`favorites`, `slashSearch`, `railDrawer` — the storage behind the docs perks above.
 
 ### 2.6 Vuetify Snips — a real, priced, one-time product
 
@@ -979,11 +993,13 @@ create/share surface wants short links; none of them need a separate SPA and hos
    page's "Premium Across the Ecosystem" list, which still advertises `play.vuetifyjs.com`
    for "Private playgrounds, Cloud sync, Version history". Whatever gets combined, the
    funnel and the newest surface are currently disjoint.
-6. **Where the paid value actually is.** The only verified functional subscriber gates in
-   the whole ecosystem are **ad-free docs** (§2.5) and the **MCP API key** (§7.3).
-   Everything else verified is cosmetic (themes, suits, avatars, badges). Any
-   consolidation that moves users off `vuetifyjs.com` — the one property that serves ads
-   — moves them away from the surface that makes half of that gate meaningful.
+6. **Where the paid value actually sits today.** Every verified functional subscriber
+   gate is on `vuetifyjs.com` or in tooling — ad-free, rail drawer, page pins, Copy Page
+   as Markdown (§2.5) and the MCP API key (§7.3). On the creation properties themselves
+   the only verified gates are cosmetic: themes, suits, avatars, badges. So consolidating
+   the creation surfaces does not, on current evidence, move any *existing* paid
+   capability; it moves the surface where the two `soon`-flagged ones (live-update
+   sharing, playground embeds) would have to land.
 
 ---
 
@@ -1014,11 +1030,6 @@ document comes from live hosts and production bundles. Specifically unresolved:
   50%-off sale. No pivot artefact found in code, hosts, or open PRs.
 - **Server-side enforcement of "private playgrounds / bins / links".** Advertised as a
   subscriber feature; no client-side gate exists; `api.vuetifyjs.com` is not readable.
-- **Whether the advertised docs premium features (pinned nav, rail menu, copy page as
-  markdown) are actually subscriber-gated.** The settings *storage* is in
-  `@vuetify/one` (`ecosystem.docs.pins`, `.railDrawer`); the *gate* would be in
-  `packages/docs`, which was not fully read. A `gh search code` pass for `isSubscriber`
-  in `vuetifyjs/vuetify` was rate-limited (HTTP 429) and not retried to completion.
 - **Marketing claims with no code behind them (as far as this pass could see)** —
   Play "Version history", Link "QR codes", Studio "Export code" (§2.4).
 - **What a `shopify` identity grants** in One. `AuthProvider` includes it; the storefront
