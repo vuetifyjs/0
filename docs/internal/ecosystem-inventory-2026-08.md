@@ -48,7 +48,7 @@ Vuetify One / sponsorship.
 | Vuetify Link | `link.vuetifyjs.com` | **UNKNOWN** | Short-URL generator (`VLink`) | Team / community | **Live, aging** (deploy 2026-06-08) | Sign-in to create links |
 | Vuetify Snips | `snips.vuetifyjs.com` | **UNKNOWN** | Catalogue of copy-paste Vuetify UI snippets in Application UI / Marketing / Ecommerce categories | Designers & app builders | **Live, active** (deploy 2026-08-10) | **Yes — paid, one-time "all-access"** (§2) |
 | Vuetify Admin | `admin.vuetifyjs.com` | **UNKNOWN** | Internal console: `/sponsors`, `/promotions`, `/spots`, `/banners`, `/notifications`, `/users`, `/logs`, `/docs-ask` | Core team only | **Live** (deploy 2026-07-27) | Internal; `/401` route implies role gating |
-| Vuetify Studio | `studio.vuetifyjs.com` | **UNKNOWN** | Visual theme builder (per `@vuetify/one`'s own product list) | Vuetify users | **Live but stale — zombie candidate** (deploy 2026-01-29, ~6.5 months; only Nuxt-built property) | Ships the One footer/product chrome; no gate observed |
+| Vuetify Studio | `studio.vuetifyjs.com` | **UNKNOWN** | Billed as a "visual theme builder"; the shipped app is a Monaco-based project editor with cloud projects at `/projects/:id` | Vuetify users | **Live but stale — zombie candidate** (Nuxt build id 2026-01-29 17:20 UTC, ~6.5 months; only Nuxt property) | Ships One chrome and a `/401` route; also the only surviving front-end for SendOwl purchase downloads |
 | Vuetify Issues | `issues.vuetifyjs.com` | **UNKNOWN** | Bug tracker / feature-request browser | Community + maintainers | **Live** (deploy 2026-07-02) | Sign-in; reads `/one/bins` and `/one/playgrounds` for reproductions |
 | Vuetify Store | `store.vuetifyjs.com` | **UNKNOWN** (Shopify-hosted) | Shopify storefront selling themes, templates, Figma UI kits and support packages | Teams buying artefacts | **Live, actively merchandised** (41 products, newest published 2026-03-04) | Separate commerce rail; no One integration observed in the storefront |
 | Vuetify API | `api.vuetifyjs.com` | **UNKNOWN** | The backend for every property: OAuth 2.1 server, One subscriptions, playgrounds/bins/links storage, ad & sponsor content, docs Ask-AI | All properties | **Live, central** (root `404`, endpoints respond) | It *is* the entitlement authority |
@@ -457,14 +457,32 @@ densest.
 | | v0play | Play (legacy) | Bin | Link | Snips | Studio | Builder |
 |---|---|---|---|---|---|---|---|
 | Host | `v0play.vuetifyjs.com` | `play.vuetifyjs.com` | `bin.vuetifyjs.com` | `link.vuetifyjs.com` | `snips.vuetifyjs.com` | `studio.vuetifyjs.com` | none |
-| Create | Multi-file REPL (`@vue/repl`) | Multi-file REPL | Paste a snippet | Paste a URL | Browse a catalogue | Theme editor | Wizard |
-| Save (server) | `POST /one/playgrounds` | `/playgrounds/:id` route | `/one/bins` | `/one/links` | `/one/snips/activate` (entitlement) | **UNKNOWN** | localStorage seam (§4) |
-| Canonical URL | `/playgrounds/:id` | `/playgrounds/:id` | `/bins`, `/embed/:id` | short code | category path | **UNKNOWN** | n/a |
-| Share w/o account | URL hash (zlib+btoa, self-contained) | URL hash | **UNKNOWN** | the short link | public pages | **UNKNOWN** | emits a v0play URL |
-| Embed | **not found** | **not found** | **yes** — `/embed/:id` | n/a | n/a | n/a | n/a |
-| Auth | own dialog on `@vuetify/auth` | `@vuetify/one` | `@vuetify/one` | `@vuetify/one` | `@vuetify/one` | One chrome only | none |
-| Cloud sync | debounced autosave, 500 ms | autosave (per v0play's own note: "play uses 100ms after store mutate") | socket.io to `api.vuetifyjs.com` | n/a | n/a | **UNKNOWN** | **UNKNOWN** |
+| Create | Multi-file REPL (`@vue/repl`) | Multi-file REPL | Paste a snippet | Paste a URL | Browse a catalogue | Monaco-based project editor | Wizard |
+| Save (server) | `POST /one/playgrounds` | `/playgrounds/:id` route | `/one/bins` | `/one/links` | `/one/snips/activate` (entitlement) | `/one/studio/projects` | localStorage seam (§4) |
+| Canonical URL | `/playgrounds/:id` | `/playgrounds/:id` | `/bins`, `/embed/:id` | short code | category path | `/projects/:id` | n/a |
+| Share w/o account | URL hash (zlib+btoa, self-contained) | URL hash | `/embed/:id` returns `200` unauthenticated | the short link | public pages | **UNKNOWN** | emits a v0play URL |
+| Embed | **not found** | **not found** | **yes** — `/embed/:id` | n/a | n/a | **not found** | n/a |
+| Auth | own dialog on `@vuetify/auth` | `@vuetify/one` | `@vuetify/one` | `@vuetify/one` | `@vuetify/one` | `@vuetify/one` (has a `/401` route) | none |
+| Cloud sync | debounced autosave, 500 ms | autosave (per v0play's own note: "play uses 100ms after store mutate") | socket.io to `api.vuetifyjs.com` | n/a | n/a | project CRUD, mechanism **UNKNOWN** | **UNKNOWN** |
 | Analytics ID | (docs/PostHog + Swetrix) | Swetrix `AEQUL1ms1WiI` | Swetrix `iOskPeVuHJ4t` | Swetrix `sl0mkdcMc32W` | Swetrix (own ID) | Swetrix `sKqap3dKP9df` | n/a |
+
+**Studio is more than a theme builder.** Its Nuxt route table is `/`, `/401`,
+`/projects/:id`, `/user/dashboard`, its editor chunk is Monaco (3.3 MB, VS Code codicons
+and workbench internals), and it persists to `/one/studio/projects` and
+`/one/studio/projects/:id` (`bundle:studio.vuetifyjs.com`). One's own product list
+describes it as "Visual theme builder" and the `/one` page credits it with "Visual
+editor, Component library, Export code" — the shipped app is a project editor with cloud
+projects. Its Nuxt build id timestamps at **2026-01-29 17:20:26 UTC**
+(`live:studio.vuetifyjs.com/_nuxt/builds/latest.json`), so this is a ~6.5-month-old
+build of a substantial app.
+
+Studio is also the **only** property still shipping a purchase-downloads UI: a
+`VoDownloadsTable` with "Order ID" / "Items" columns reading `/one/sendowl/downloads`
+(`bundle:studio.vuetifyjs.com`). That endpoint is still live (`401` unauthenticated,
+`live:api.vuetifyjs.com`), but the newer `@vuetify/one` builds shipped to Bin, Link,
+Snips, Issues, Admin and the core docs contain **no** downloads UI at all. SendOwl is
+therefore a live delivery vendor whose only remaining front-end is the stalest property
+in the fleet.
 
 Sources: `bundle:<host>` for each live property; `apps/playground/src/**` for v0play;
 `git show origin/feat/builder:apps/builder/**` for Builder.
@@ -584,7 +602,8 @@ from the shipped bundles of every property and from `@vuetify/auth`'s published 
 | OAuth 2.1 authorization server | `/oauth/authorize`, `/oauth/token`, `/register`, `/oauth/consent`, `/auth/{provider}/redirect`, `/auth/verify`, `/auth/logout`, `/auth/{identity}/logout` | `live:mcp.vuetifyjs.com/.well-known/oauth-authorization-server`; `bundle:one.vuetifyjs.com`; `@vuetify/auth` dist |
 | Device flow (for CLI / MCP) | `/auth/device/{code}/status`, `/auth/device/{code}/authorize` | `@vuetify/auth` dist `stores-ZTrOJ6e2.mjs` |
 | One subscription & team | `/one/info`, `/one/subscribe`, `/one/activate`, `/one/modify`, `/one/cancel`, `/one/manage`, `/one/activity`, `/one/team/{id}`, `/one/team/join|leave|remove` | `bundle:one.vuetifyjs.com` |
-| User content | `/one/playgrounds`, `/one/playgrounds/{id}`, `/one/bins`, `/one/links`, `/one/snips/activate`, `/user`, `/user/settings` | `bundle:*`; `apps/playground/src/composables/useOnePlaygrounds.ts:231-478` |
+| User content | `/one/playgrounds`, `/one/playgrounds/{id}`, `/one/bins`, `/one/links`, `/one/studio/projects`, `/one/studio/projects/{id}`, `/one/snips/activate`, `/user`, `/user/settings` | `bundle:*`; `apps/playground/src/composables/useOnePlaygrounds.ts:231-478` |
+| Commerce delivery | `/one/sendowl/downloads` (`401` unauthenticated) | `bundle:studio.vuetifyjs.com`; `live:` |
 | Public CMS content | `/one/sponsors`, `/one/banners`, `/one/spots`, `/one/promotions`, `/one/notifications` | `live:` — all `200` unauthenticated |
 | API keys / MCP tokens | `/one/mcp/getToken`, `/one/mcp/{slug}` | `@vuetify/auth` dist |
 | Docs AI | `/docs/ask` (rate-limited; client throws "Rate limit exceeded" on 429) | `apps/docs/src/composables/useAsk.ts:90,372,387` |
@@ -868,8 +887,9 @@ analyzes was not read. **UNKNOWN.**
 | 1 | **Two live playgrounds** writing to one `/one/playgrounds` collection, each with its own `/playgrounds/:id` route | `bundle:play.vuetifyjs.com` route table; `apps/playground/src/composables/useOnePlaygrounds.ts:118-135` |
 | 2 | **Two save-to-One client stacks** — `@vuetify/one@4.1.0` vs raw `@vuetify/auth@0.1.8` + hand-rolled fetch | `bundle:*` vs `useOnePlaygrounds.ts:231-478` |
 | 3 | **Three code-artefact share mechanisms** — hash URL (v0play/Play), Bin `/embed/:id`, Link short codes | route tables in each bundle |
-| 4 | **Three "save my work" implementations** — One playgrounds API, One bins API, Builder's `stores/persistence.ts` localStorage seam | PR #241 comment, 2026-07-31 |
-| 5 | **Two theme-configuration surfaces** — Studio ("Visual theme builder") and Builder's per-plugin theme step | One product list (`bundle:bin`); `apps/builder/src/plugins/theme/` on `origin/feat/builder` |
+| 4 | **Four "save my work" namespaces on one API** — `/one/playgrounds` (used by *two* front-ends), `/one/bins`, `/one/studio/projects`, plus Builder's `stores/persistence.ts` localStorage seam | `bundle:*`; PR #241 comment, 2026-07-31 |
+| 5 | **Three project-editing surfaces** — v0play (`@vue/repl`), Studio (Monaco, `/projects/:id`), Builder's wizard + preview | `bundle:studio.vuetifyjs.com`; `apps/playground`; `apps/builder` on `origin/feat/builder` |
+| 5b | **Two theme-configuration surfaces** — Studio ("Visual theme builder") and Builder's per-plugin theme step, against One's own premium-themes feature as a third | One product list (`bundle:bin`); `apps/builder/src/plugins/theme/` on `origin/feat/builder` |
 | 6 | **Two zip-export implementations** — v0play `useExport.ts` and Builder `engine/zip.ts` | both use `fflate`; separate code paths |
 | 7 | **Two sponsorship storefronts with divergent copy** — GitHub Sponsors and Open Collective share the $250/$500/$1,500 rungs but quote different impressions (600k/10m vs 200k/3m) | §2.2, §2.3 |
 | 8 | **Two commercial support channels for the same tier name** — "Galaxy" at `$250/mo` on `0.vuetifyjs.com/services` and `$3,299/yr` on the Shopify store, with `support.vuetifyjs.com` redirecting to a third enterprise-support page | §2.7, §2.8 |
