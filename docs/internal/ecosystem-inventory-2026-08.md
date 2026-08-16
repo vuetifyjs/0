@@ -41,11 +41,11 @@ Vuetify One / sponsorship.
 |---|---|---|---|---|---|---|
 | Vuetify (core) | `vuetifyjs.com` | `gh:vuetifyjs/vuetify` (public, 41k★) | Vue 3 Material component framework + the docs/marketing site | All Vue developers | **Live**, actively developed (repo pushed 2026-08-16; docs deploy 2026-08-16 12:09 UTC) | Yes — One sign-in and sponsor placement live in the docs shell (§2) |
 | Vuetify0 (v0) | `0.vuetifyjs.com` | `gh:vuetifyjs/0` (public, 759★) — this repo | Headless composable UI engine + its docs site | Design-system / framework builders | **Live**, actively developed (docs deploy 2026-08-16 04:43) | No feature gating — docs state "No pro tier, no paywalled features, no plans for either" (`apps/docs/src/pages/introduction/why-vuetify0.md:237`); it does sell sponsorship and services (§2) |
-| Vuetify0 Play (v0play) | `v0play.vuetifyjs.com` | this repo, `apps/playground` | In-browser REPL for v0 / Vuetify 4, with One cloud save, export, share links | v0 + Vuetify users, docs readers | **Live, newest** (deploy 2026-08-16 00:42) | Sign-in required for cloud save; no paid gate found |
-| Vuetify Play (legacy) | `play.vuetifyjs.com` | **UNKNOWN** (no readable repo) | The original Vuetify playground; `@vuetify/one`-integrated, `/playgrounds/:id` cloud save | Vuetify users | **Live but being replaced** (deploy 2026-07-22) | Sign-in for cloud save; One theme/cosmetic gating via `@vuetify/one` (§2) |
-| Vuetify Bin | `bin.vuetifyjs.com` | **UNKNOWN** | Pastebin for Vuetify snippets; `/bins`, `/embed/:id`, socket.io live channel to `api.vuetifyjs.com` | Support / issue triage / sharing | **Live, aging** (deploy 2026-06-08) | Sign-in for saved bins; One cosmetic gating |
+| Vuetify0 Play (v0play) | `v0play.vuetifyjs.com` | this repo, `apps/playground` | In-browser REPL for v0 / Vuetify 4, with One cloud save, export, share links | v0 + Vuetify users, docs readers | **Live, newest** (deploy 2026-08-16 00:42) | Sign-in only — **no subscriber gate anywhere in its source** |
+| Vuetify Play (legacy) | `play.vuetifyjs.com` | **UNKNOWN** (no readable repo) | The original Vuetify playground; `@vuetify/one`-integrated, `/playgrounds/:id` cloud save | Vuetify users | **Live but being replaced** (deploy 2026-07-22) | **Yes — cloud Save is subscriber-only** (§2.5), plus One cosmetic gating |
+| Vuetify Bin | `bin.vuetifyjs.com` | **UNKNOWN** | Pastebin for Vuetify snippets; `/bins`, `/embed/:id`, socket.io live channel to `api.vuetifyjs.com` | Support / issue triage / sharing | **Live, aging** (deploy 2026-06-08) | **Yes — cloud Save is subscriber-only** (§2.5) |
 | Vuetify One | `one.vuetifyjs.com` | `gh:vuetifyjs/one` (public) — app itself **UNKNOWN** | Account, subscription, team and OAuth-consent surface for the whole ecosystem | Subscribers / all signed-in users | **Live, freshest of the satellites** (deploy 2026-08-13) | **This is the subscriber surface** |
-| Vuetify Link | `link.vuetifyjs.com` | **UNKNOWN** | Short-URL generator (`VLink`) | Team / community | **Live, aging** (deploy 2026-06-08) | Sign-in to create links |
+| Vuetify Link | `link.vuetifyjs.com` | **UNKNOWN** | Short-URL generator (`VLink`) | Team / community | **Live, aging** (deploy 2026-06-08) | **Yes** — custom slug, expiry, password, timer and click analytics are all subscriber-only (§2.5) |
 | Vuetify Snips | `snips.vuetifyjs.com` | **UNKNOWN** | Catalogue of copy-paste Vuetify UI snippets in Application UI / Marketing / Ecommerce categories | Designers & app builders | **Live, active** (deploy 2026-08-10) | **Yes — paid, one-time "all-access"** (§2) |
 | Vuetify Admin | `admin.vuetifyjs.com` | **UNKNOWN** | Internal console: `/sponsors`, `/promotions`, `/spots`, `/banners`, `/notifications`, `/users`, `/logs`, `/docs-ask` | Core team only | **Live** (deploy 2026-07-27) | Internal; `/401` route implies role gating |
 | Vuetify Studio | `studio.vuetifyjs.com` | **UNKNOWN** | Billed as a "visual theme builder"; the shipped app is a Monaco-based project editor with cloud projects at `/projects/:id` | Vuetify users | **Live but stale — zombie candidate** (Nuxt build id 2026-01-29 17:20 UTC, ~6.5 months; only Nuxt property) | Ships One chrome and a `/401` route; also the only surviving front-end for SendOwl purchase downloads |
@@ -244,8 +244,12 @@ Read in order: **no API URL configured → treated as a subscriber**; or admin; 
 active `sub_*` Stripe sponsorship; or the verify response's `access[]` array contains
 `one` or `one/team`.
 
-The gated features found in the shipped bundle are all **cosmetic / convenience**, not
-functional:
+`access[]` is the ecosystem-wide capability list. The strings observed in shipped code
+are `one`, `one/team`, `snips/app-ui`, `snips/marketing`, `snips/ecommerce`, `snips/team`
+— with `hasAllAccess = hasAppUI && hasMarketing && hasEcommerce`
+(`bundle:snips.vuetifyjs.com`). One entitlement and Snips entitlements share one array.
+
+#### Cosmetic gates in the shared `@vuetify/one` chrome
 
 | Gated thing | Code evidence (`bundle:snips.vuetifyjs.com`, `@vuetify/one` chunk) |
 |---|---|
@@ -256,7 +260,78 @@ functional:
 | Banner / notification preference controls | rendered under `A(t).isSubscriber ? … : Pe("",!0)` |
 | User badges | `n.github \|\| n.discord \|\| n.isSubscriber \|\| t.user?.isAdmin` |
 
-Plus **one genuinely functional gate — ad-free.** The "Disable Ads" switch is rendered
+#### Functional gates on the creation properties — including Save itself
+
+These are **not** in `@vuetify/one`; they live in each app's own lazily-loaded route
+chunks, which is why they are invisible from a property's main bundle.
+
+**`play.vuetifyjs.com` — cloud Save is subscriber-only.** From
+`PlaygroundSaveAction` in `live:play.vuetifyjs.com/assets/default-CNVf6ojt.js`:
+
+```js
+async function u () {                       // the Save button's click handler
+  try {
+    if (s.user || await v(), !r.isSubscriber) { d(); return }   // r = one store
+    _()                                     // _ = the actual playgrounds.store() call
+  } catch {}
+}
+function d () {                             // not a subscriber → divert to checkout
+  e.push({ query: { ...o.value, one: 'subscribe' } })
+  Q.set(n.data)                             // park the unsaved payload
+}
+// on mount: resume after returning from checkout
+onMounted(async () => {
+  const m = Q.get()
+  if (m && r.isSubscriber && o.value.save === 'continue') { Q.clear(); _(m) }
+})
+```
+
+So on the legacy playground, pressing Save signs the user in, and then — if they are not
+a subscriber — routes them to `?one=subscribe`, stashes their work, and completes the save
+only after the subscription exists. That is a paywall with a resume path, not an
+authentication prompt.
+
+**`bin.vuetifyjs.com` — same pattern, same shape.** From
+`live:bin.vuetifyjs.com/assets/default-DYiEVt7i.js`:
+
+```js
+if (!u.isSubscriber) {
+  a.push({ query: { ...t.value, one: 'subscribe' } })
+  localStorage.setItem('vuetify@one-bin-save',
+    JSON.stringify({ code: n.code, encoded: n.encoded, lang: n.language }))
+  return
+}
+```
+
+**`link.vuetifyjs.com` — most of the product is gated.** From
+`live:link.vuetifyjs.com/assets/LinkForm-B6Sxhjpt.js`, every one of these fields carries
+`disabled: !isSubscriber`: custom slug ("Custom Link" / "Your Creepy Link"), the
+scoped-vs-global toggle, "Expiration Date (Optional)", password protection and its
+password field, and the redirect "Timer (seconds)". The form renders a `Subscribe` button
+pointing at `https://vuetifyjs.com/one`. And the per-link analytics route hard-blocks,
+verbatim from `live:link.vuetifyjs.com/assets/_id_.analytics-C92en7kM.js`:
+
+```js
+if (!R.isSubscriber) { z.showError('Analytics requires a Vuetify One subscription'); H.value = false; return }
+```
+
+That page otherwise shows Total Visits, Unique Visitors, Countries, Device, Referrer,
+Recent Visits and Last Visit — i.e. the "Click analytics" claim in §2.4 is real and paid.
+
+**`v0play.vuetifyjs.com` — nothing is gated.** A grep of the entire `apps/playground` and
+`apps/docs` source trees for `isSubscriber`, `sponsorship` or any subscription check
+returns **no hits** (`rg -n 'isSubscriber|sponsorship' apps/playground/src apps/docs/src`).
+Cloud save is authentication-only: the sole failure path is
+`if (res.status === 401) throw new Error('Sign in required')`
+(`apps/playground/src/composables/useOnePlaygrounds.ts:260,287`).
+
+**This is the sharpest fact in the inventory.** The newest, most actively shipped
+playground gives away for free the exact capability the property it replaces charges a
+subscription for.
+
+#### The ad-free gate
+
+The "Disable Ads" switch is rendered
 only for subscribers, and the docs read the resulting user setting to decide whether to
 mount Carbon Ads:
 
@@ -278,7 +353,9 @@ Defaults are `ads: { enabled: !e.disableAds, house: e.showHouseAds || false }`
 is set. A non-subscriber has no UI to set it. House ads (Vuetify's own promotions) remain
 available as the opt-in alternative.
 
-**The docs site adds three more real gates.** These live in `vuetifyjs.com`'s own bundle,
+#### Docs gates
+
+**The docs site adds four more.** These live in `vuetifyjs.com`'s own bundle,
 not in `@vuetify/one`, which is why they are invisible from the satellite properties.
 From `bundle:vuetifyjs.com` (`/assets/index-BsKjhE3E.js`, 18 `isSubscriber` sites):
 
@@ -295,13 +372,25 @@ namespace is literally `dashboard.perks.*` — the docs treat these as One "perk
 complete perks list in that bundle is exactly three: `disable-ads`, `rail-drawer`,
 `enable-pins`.
 
-**What is still not gated anywhere in client code: creating, saving, sharing and
-embedding.** Save, share, embed and cloud-sync across Play, Bin, Link and v0play require
-*authentication*, not a *subscription* (§3). The advertised "Private playgrounds / bins /
-links" gate is plausibly enforced server-side inside `api.vuetifyjs.com` — v0play, for
-instance, sends `visibility: 'private' | 'public'` with no local subscriber check
-(`apps/playground/src/composables/useOnePlaygrounds.ts:239-268`) — but that enforcement
-is **UNVERIFIABLE** from here.
+#### Summary of verified gates
+
+| Property | Subscriber-gated | Free with an account |
+|---|---|---|
+| `play.vuetifyjs.com` | **cloud Save**, premium themes, suits, avatars | edit, run, share via URL hash |
+| `bin.vuetifyjs.com` | **cloud Save**, cosmetics | edit, `/embed/:id` viewing (`200` unauthenticated) |
+| `link.vuetifyjs.com` | custom slug, scoping, expiry, password, timer, **analytics** | creating a default short link |
+| `snips.vuetifyjs.com` | per-category and team snippet access (one-time purchase, separate from One) | browsing |
+| `vuetifyjs.com` | ad-free, rail drawer, page pins, Copy Page as Markdown | all documentation content |
+| `studio.vuetifyjs.com` | **UNKNOWN** (has a `/401` route) | **UNKNOWN** |
+| `0.vuetifyjs.com` | nothing, by stated policy | everything |
+| `v0play.vuetifyjs.com` | **nothing** | edit, run, share, export, **cloud save**, fork, private/public |
+| MCP (`mcp.vuetifyjs.com`, CLI) | the One API key that exposes your One data to agents | the docs/component tools themselves |
+
+The advertised "Private playgrounds / bins / links" *visibility* flag is a separate
+question from Save: v0play sends `visibility: 'private' | 'public'` with no local
+subscriber check
+(`apps/playground/src/composables/useOnePlaygrounds.ts:239-268`), so whether the API
+enforces private-for-subscribers-only is **UNVERIFIABLE** from here.
 
 The One settings schema is versioned and namespaced per property — and again omits
 v0play. Verbatim default (`bundle:bin.vuetifyjs.com`):
@@ -463,6 +552,7 @@ densest.
 | Share w/o account | URL hash (zlib+btoa, self-contained) | URL hash | `/embed/:id` returns `200` unauthenticated | the short link | public pages | **UNKNOWN** | emits a v0play URL |
 | Embed | **not found** | **not found** | **yes** — `/embed/:id` | n/a | n/a | **not found** | n/a |
 | Auth | own dialog on `@vuetify/auth` | `@vuetify/one` | `@vuetify/one` | `@vuetify/one` | `@vuetify/one` | `@vuetify/one` (has a `/401` route) | none |
+| Save needs a **subscription**? | **no** | **yes** | **yes** | default link free, everything else paid | purchase-based | **UNKNOWN** | n/a |
 | Cloud sync | debounced autosave, 500 ms | autosave (per v0play's own note: "play uses 100ms after store mutate") | socket.io to `api.vuetifyjs.com` | n/a | n/a | project CRUD, mechanism **UNKNOWN** | **UNKNOWN** |
 | Analytics ID | (docs/PostHog + Swetrix) | Swetrix `AEQUL1ms1WiI` | Swetrix `iOskPeVuHJ4t` | Swetrix `sl0mkdcMc32W` | Swetrix (own ID) | Swetrix `sKqap3dKP9df` | n/a |
 
@@ -884,7 +974,7 @@ analyzes was not read. **UNKNOWN.**
 
 | # | Duplication | Evidence |
 |---|---|---|
-| 1 | **Two live playgrounds** writing to one `/one/playgrounds` collection, each with its own `/playgrounds/:id` route | `bundle:play.vuetifyjs.com` route table; `apps/playground/src/composables/useOnePlaygrounds.ts:118-135` |
+| 1 | **Two live playgrounds** writing to one `/one/playgrounds` collection, each with its own `/playgrounds/:id` route — **and charging differently for the same action**: cloud Save is subscriber-only on `play`, free-with-account on v0play | `live:play.vuetifyjs.com/assets/default-CNVf6ojt.js`; `apps/playground/src/composables/useOnePlaygrounds.ts:260` |
 | 2 | **Two save-to-One client stacks** — `@vuetify/one@4.1.0` vs raw `@vuetify/auth@0.1.8` + hand-rolled fetch | `bundle:*` vs `useOnePlaygrounds.ts:231-478` |
 | 3 | **Three code-artefact share mechanisms** — hash URL (v0play/Play), Bin `/embed/:id`, Link short codes | route tables in each bundle |
 | 4 | **Four "save my work" namespaces on one API** — `/one/playgrounds` (used by *two* front-ends), `/one/bins`, `/one/studio/projects`, plus Builder's `stores/persistence.ts` localStorage seam | `bundle:*`; PR #241 comment, 2026-07-31 |
@@ -949,7 +1039,8 @@ Strictly a reading of the evidence above — not a strategy.
   Vuetify 4 docs catalogue behind `?vuetify=` (PR #806).
 - Cost of *not* combining is a split user history across two editors and, because the
   `@vuetify/one` product menu still points at Play (`bundle:bin.vuetifyjs.com`), every
-  other property funnels users to the one being retired.
+  other property funnels users to the one being retired — the one that still charges for
+  Save (§2.5).
 - Gap to close: v0play has **no embed mode**, which Play also lacks but Bin has — and
   "Embed playgrounds in your own documentation" is already advertised on the live One
   pricing card with a `soon` flag (`packages/docs/src/components/one/SubscribeCard.vue`).
@@ -957,10 +1048,12 @@ Strictly a reading of the evidence above — not a strategy.
 
 **Bin → a mode of the combined playground.** Bin is a single-artefact, embeddable
 paste surface over the same API (`/one/bins`, `/embed/:id`). Its distinctive assets are
-(a) `/embed/:id`, which neither playground has, and (b) a socket.io channel to
-`api.vuetifyjs.com`. Folding it in means the combined app needs an embed route and an
-"unauthenticated quick-paste" path; in exchange the ecosystem stops maintaining a
-separate editor whose deploy is already 2+ months behind.
+(a) `/embed/:id`, which neither playground has and which serves `200` unauthenticated,
+and (b) a socket.io channel to `api.vuetifyjs.com`. Folding it in means the combined app
+needs an embed route and an "unauthenticated quick-paste" path; in exchange the ecosystem
+stops maintaining a separate editor whose deploy is already 2+ months behind. Note it
+carries the same Save paywall as `play` (§2.5), so the pricing question above applies
+here too.
 
 **Builder → a mode, or at minimum a first-class producer.** It is already designed to
 hand off: its documented output is "a playground URL carrying the full plugin
@@ -972,6 +1065,9 @@ ships.
 **Link → a feature, not a property.** A URL shortener over `/one/links` with a
 768 KB bundle and its own Swetrix project is a large surface for one POST. Every
 create/share surface wants short links; none of them need a separate SPA and host.
+The caveat is that Link is the ecosystem's most thoroughly monetized creation surface
+(§2.5) — slug, expiry, password, timer and analytics are all paid — so absorbing it means
+carrying those gates into the host app rather than dropping them.
 
 ### 9.2 What the evidence says should stay separate
 
@@ -989,9 +1085,12 @@ create/share surface wants short links; none of them need a separate SPA and hos
 
 1. **Auth.** Two clients exist: `@vuetify/auth` (v0play, v0 docs) and `@vuetify/one`
    (everything else), the latter built on the former. A combined app has to choose, and
-   the choice is not neutral — `@vuetify/one` is what carries the product menu,
-   settings sync, ad/banner rendering and *all* subscriber-visible gating (§2.5). Adopt
-   `@vuetify/auth` alone and the combined app has no subscriber-visible surface at all.
+   the choice is not neutral — `@vuetify/one` is what supplies `isSubscriber`, the product
+   menu, settings sync and ad/banner rendering. Every subscriber gate in the ecosystem is
+   written against it (§2.5). `@vuetify/auth` exposes `user.sponsorships` and the verify
+   response's `access[]`, so a subscriber check is *derivable* without `@vuetify/one` — but
+   no app does that today, and adopting `@vuetify/auth` alone is what makes v0play
+   gate-free.
 2. **URL scheme.** Today: `/playgrounds/:id` (twice, on two hosts), Bin `/bins` +
    `/embed/:id`, plus v0play's query deep-links `?playground=`, `?example=`, `?vuetify=`
    and a self-contained hash. Combining means one host owns all of these plus redirects
@@ -1013,13 +1112,16 @@ create/share surface wants short links; none of them need a separate SPA and hos
    page's "Premium Across the Ecosystem" list, which still advertises `play.vuetifyjs.com`
    for "Private playgrounds, Cloud sync, Version history". Whatever gets combined, the
    funnel and the newest surface are currently disjoint.
-6. **Where the paid value actually sits today.** Every verified functional subscriber
-   gate is on `vuetifyjs.com` or in tooling — ad-free, rail drawer, page pins, Copy Page
-   as Markdown (§2.5) and the MCP API key (§7.3). On the creation properties themselves
-   the only verified gates are cosmetic: themes, suits, avatars, badges. So consolidating
-   the creation surfaces does not, on current evidence, move any *existing* paid
-   capability; it moves the surface where the two `soon`-flagged ones (live-update
-   sharing, playground embeds) would have to land.
+6. **The paid capability is on the properties being retired.** Cloud Save is
+   subscriber-only on `play.vuetifyjs.com` and `bin.vuetifyjs.com`, and most of
+   `link.vuetifyjs.com` (custom slug, expiry, password, timer, click analytics) is
+   subscriber-only. Cloud Save on `v0play.vuetifyjs.com` is free with an account, and
+   nothing in `apps/playground` or `apps/docs` checks `isSubscriber` at all (§2.5). So the
+   consolidation question is not only "which app survives" — it is **which pricing model
+   survives**, because the two candidates currently disagree about whether saving your
+   work is a paid feature. Any combination has to resolve that, and today's trajectory
+   (v0play shipping weekly, `play` frozen since 2026-07-22) resolves it toward free by
+   default rather than by decision.
 
 ---
 
