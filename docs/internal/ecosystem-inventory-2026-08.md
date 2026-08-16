@@ -7,7 +7,7 @@
 
 **Compiled:** 2026-08-16 · **Repo HEAD at time of writing:** `5d686fc2` (`vuetifyjs/0`, `master`)
 
-## Ten facts worth knowing before the tables
+## Thirteen facts worth knowing before the tables
 
 Each is sourced in the section named.
 
@@ -25,6 +25,9 @@ Each is sourced in the section named.
 | 8 | **Snips is still paid**, not free/PWYW: prices hardcoded at 74/74/74, all-access 149, team 399, with a 50%-off sale active and two live Stripe links. | §2.6 |
 | 9 | **The Builder is branch-only** — draft PR #241, 108 commits ahead / 64 behind `master`, last touched 2026-08-04 — and already emits a v0play URL as one of its two outputs. | §4 |
 | 10 | **Studio is the clearest zombie**: a 3.3 MB Monaco project editor with its own paid cloud-projects tier, last built 2026-01-29, and the only remaining front-end for the still-live SendOwl purchase-downloads endpoint. | §3, §8.2 |
+| 11 | **`gh:vuetifyjs/ecosystem` is the org's only first-party property registry**, and it names the six private properties outright: Play, Bin, Studio, Snips, Link, Issues — with One handled separately as the account layer. | "How claims are sourced" |
+| 12 | **The MCP server proves One is enforced server-side**: 10 of its 31 tools are gated, and a valid key without entitlement gets `403 Invalid Access` from `api.vuetifyjs.com` → "This tool requires a Vuetify One subscription." | §7.3 |
+| 13 | **`cli` (208 commits in 2026) and `nuxt-module` (159) are the real tooling investment.** The 12 theme repos have zero substantive 2026 commits, none are published to npm, and one paid product's demo URL points at the defunct `now.sh`. | §7.4, §6.4 |
 
 ## How claims are sourced
 
@@ -39,11 +42,23 @@ Each is sourced in the section named.
 Two access limits shaped this inventory, and both are load-bearing when reading it:
 
 1. **Private repos are not readable from this environment.** `gh api repos/vuetifyjs/<name>`
-   returns `404 Not Found` for `bin`, `play`, `snips`, `studio`, `issues`, `api`, `admin`,
-   `ots`, `link`, `links`, `store`, `discord-bot`, `paper`, `emerald`, `genesis`, `onyx`,
-   `builder`. A 404 from this token cannot distinguish "private" from "does not exist",
-   so for those properties the evidence below is the **live host and its production
+   returns a byte-identical `404 Not Found` for `bin`, `play`, `snips`, `studio`, `issues`,
+   `api`, `admin`, `ots`, `link`, `links`, `store`, `discord-bot`, `paper`, `emerald`,
+   `genesis`, `onyx`, `builder`. GitHub returns the same 404 for "private" and "does not
+   exist", so for those properties the evidence below is the **live host and its production
    bundle**, not source.
+
+   **One first-party document settles most of that ambiguity.** `gh:vuetifyjs/ecosystem`
+   `README.md` is titled "Vuetify Ecosystem Feedback" and opens: *"Central hub for
+   collecting feedback on **private** Vuetify ecosystem projects."* Its scope table names
+   exactly six, with hosts — Play, Bin, Studio, Snips, Link, Issues — and its "Not Covered
+   Here" section routes the framework to `vuetifyjs/vuetify`, v0 to `vuetifyjs/0`, and
+   **Vuetify One to its own support channel at `one.vuetifyjs.com`**. So those six are
+   confirmed private-by-design and grouped as one product surface, with One deliberately
+   handled separately as the account layer. `api` and `admin` are not in that table; both
+   are demonstrably running services with no public repo, so "private" is inference.
+   `ots` is NXDOMAIN with zero code references anywhere in the org — it is the one name
+   that looks like it simply does not exist.
 2. **No revenue or usage data is available.** Nothing in this document is a metric unless
    it is a public count from a public API, and it is labelled as such.
 
@@ -154,10 +169,21 @@ tidelift: npm/vuetify
 custom: # Replace with a single custom sponsorship URL
 ```
 
-Source: `gh:vuetifyjs/vuetify .github/FUNDING.yml`. Two things follow. GitHub Sponsors
-points at a **personal** account (`johnleider`), not an org account. And
-`gh:vuetifyjs/0` has **no** `FUNDING.yml` at `.github/FUNDING.yml` (404), so the v0 repo
-raises no GitHub "Sponsor" button of its own.
+That exact file appears **twice**: at `gh:vuetifyjs/vuetify .github/FUNDING.yml` and,
+byte-identical, at `gh:vuetifyjs/.github .github/FUNDING.yml` — the latter being the
+org-wide default that applies to every repo without its own. So the org default is set,
+and `gh:vuetifyjs/0` inherits it despite having no `FUNDING.yml` of its own.
+
+Three things follow. GitHub Sponsors points at a **personal** account (`johnleider`), not
+an org account, for the whole organisation. `ko_fi` and `custom` are unfilled template
+stubs. And `tidelift: npm/vuetify` is wired at the org level even though no first-party
+page markets it — the only Tidelift call-to-action in the org is in individual repo
+READMEs (`create`, `eslint-config-vuetify`, `eslint-plugin-vuetify`: *"Becoming a
+subscriber on Tidelift"*).
+
+`gh:vuetifyjs/.github profile/README.md` — the org landing page — funnels to only four
+properties: `vuetify.new`, `play.vuetifyjs.com`, `issues.vuetifyjs.com` and
+`community.vuetifyjs.com`. Neither One nor the store nor v0play is on it.
 
 ### 2.2 The sponsor tier that grants One — the single most important coupling
 
@@ -1050,12 +1076,28 @@ Notable: the catalogue already carries **Vuetify 4** SKUs (`Velora - Vuetify 4`,
 | Distribution | Where | Status |
 |---|---|---|
 | Shopify products | `store.vuetifyjs.com` | Actively merchandised; free tiers at `0.00` alongside paid |
-| Loose GitHub repos | `gh:vuetifyjs/{theme-vite-free, landing-theme, landing-theme-free, launcher-theme, flairo-theme, dashboard-widgets-theme, crypto-theme, portfolio-dark-theme, material-kit-theme, nebula-ui-kit, photography-theme, theme-freelancer, templates}` | **Stale.** Twelve of thirteen last pushed 2026-06-16 (a single batch touch); `material-kit-theme` 2024-03-19, `nebula-ui-kit` 2024-03-16, `photography-theme` 2023-12-18, `theme-freelancer` 2022-10-04 |
+| Loose GitHub repos | 12 repos: `theme-vite-free`, `landing-theme`, `landing-theme-free`, `launcher-theme`, `flairo-theme`, `dashboard-widgets-theme`, `crypto-theme`, `portfolio-dark-theme`, `material-kit-theme`, `nebula-ui-kit`, `photography-theme`, `theme-freelancer` | **All abandoned, and none published to npm** (every package name 404s on the registry) |
 
-Several of these repos point their GitHub homepage at Vercel deployments
-(`landing-theme-free.vercel.app`, `crypto-theme-vuetifyjs1.vercel.app`,
-`flairo-theme.zeroskillz.now.sh`, `nebula-ui-kit.vercel.app`), i.e. outside the
-Coolify fleet and outside `vuetifyjs.com` DNS entirely.
+The GitHub repos need spelling out because the `pushedAt` dates are misleading. Eight of
+them share a `2026-06-16` timestamp from a single org-wide sweep
+(`docs: update Discord invite link to discord.gg/vuetify`); the last *substantive* work was
+an August 2025 dependency-bump pass. The rest have not been touched in years:
+`nebula-ui-kit` 2023-12-07, `theme-freelancer` 2022-10-04 (its only commit is the initial
+one), `material-kit-theme` 2020-11-27, `photography-theme` 2020-04-26.
+
+Only three READMEs identify themselves as paid: `flairo-theme`
+(`# [Flairo Theme PRO](https://store.vuetifyjs.com/products/flairo-theme-pro)`, package
+`flairo-theme-pro`), `nebula-ui-kit` (whose heading link contains a **typo** —
+`products/nebula-ui-ki`), and `material-kit-theme` ("Thank you for purchasing the Theme").
+Two are explicitly free by name (`theme-vite-free`, `landing-theme-free`). The remaining
+five ship the generic scaffold README with a boilerplate store link and state nothing;
+their `material-kit-*` package names and the existence of a sibling `landing-theme-free`
+imply they are the paid variants, but **nothing says so** — UNKNOWN.
+
+Live demos sit outside the fleet: `theme-vite-free.vercel.app`,
+`landing-theme-free.vercel.app`, `crypto-theme-vuetifyjs1.vercel.app`,
+`portfolio-dark-theme-orcin.vercel.app` on Vercel, and `flairo-theme.zeroskillz.now.sh` on
+the **defunct `now.sh`** — a paid product whose demo URL points at a dead host.
 
 ### 6.5 Design systems (`@paper/*`) — in this repo, not yet a public property
 
@@ -1102,9 +1144,25 @@ The tree also contains an unlisted `packages/mcp-cli`. Commands live in
 `presets`, `refresh`, `registry`, `releaseNotes`, `status`, `update`, `upgrade`, plus
 top-level `analyze`, `init`, `release-notes` in `packages/cli/src/commands/`.
 
-This makes the separate `gh:vuetifyjs/create` repo (78★, last pushed 2026-07-01)
-**redundant with `create-vuetify`** — two scaffolding paths for the same job. Which one
-`vuetify.new` / `npm create vuetify` resolves to is **UNKNOWN**.
+Plus an unlisted `packages/mcp-cli` (published as `@vuetify/mcp-cli` `1.2.1`) and an
+unpublished `@vuetify/cli-shared`. This is the **most active tooling repo in the org: 208
+commits in 2026**, last commit 2026-08-13.
+
+`create-vuetify` publishes as **`3.2.1`** despite the in-repo manifest reading `1.2.1` —
+`.github/scripts/patch-create-version.mjs` rewrites the major at release to preserve
+continuity with the legacy `create` repo's version line. So the standalone
+`gh:vuetifyjs/create` repo (78★) is **not accidental duplication; it is an explicitly
+retired redirect**, and its README says so in a GitHub warning callout:
+
+> **[!WARNING]**
+> The development was moved to https://github.com/vuetifyjs/cli/ repository - please raise
+> new issues, discussions and pull requests there 🙏
+
+Corroborated by its commit `chore: redirect development to vuetifyjs/cli repository`
+(2026-03-15); every 2026 commit there is a README or badge chore. Scaffolding templates
+resolve to `gh:vuetifyjs/cli/templates/<name>#v<version>` — the `templates/` directory
+**inside the `cli` repo** (245 tracked paths) — which likewise supersedes the standalone
+`gh:vuetifyjs/templates` repo.
 
 ### 7.2 `vuetify add` — the registry is served by the v0 docs site
 
@@ -1139,36 +1197,92 @@ The CLI's `mcp` command treats `VUETIFY_API_KEY` as a secret
 (`SENSITIVE_ENV_KEYS = ['VUETIFY_API_KEY']`) and sends it as
 `Authorization: Bearer ${value}`. That key is the One access token
 (`VOneAccessToken.apiKey` / `/one/mcp/getToken`, §5.2). So the chain is:
-**One subscription → API key → MCP access to your own One data from any IDE.** This is
-the only place in the ecosystem where a paid subscription unlocks a *developer-workflow*
-capability rather than a cosmetic or ad-related one.
+**One subscription → API key → MCP access to your own One data from any IDE.**
+
+**The MCP server is where server-side entitlement enforcement is visible in source.** Of
+its 31 tools, exactly 10 are gated — the Bin (4), Link (2) and Playground (4) tools,
+enumerated as `ONE_TOOL_NAMES` in `gh:vuetifyjs/mcp src/tools/one/names.ts` and used by
+`src/transports/http.ts:355` to decide which calls require auth. Each carries the
+description string *"Use of this tool requires a vuetify one subscription"*, and the
+helper distinguishes two failure modes verbatim:
+
+```ts
+const key = extra.authInfo?.token || process.env.VUETIFY_API_KEY || ''
+if (!key) { throw new Error('Please re-authenticate with Vuetify One to use this tool.') }
+…
+if (response.status === 403 && text.trim() === 'Invalid Access') {
+  throw new Error('This tool requires a Vuetify One subscription.')
+}
+```
+
+A valid key with no entitlement gets `403 Invalid Access` **from `api.vuetifyjs.com`**.
+That is direct evidence the API enforces One entitlement server-side, which makes the
+"private playgrounds/bins/links" claim in §2.5 plausible even though no client-side gate
+exists for it. The 17 documentation and 3 API tools need no key at all.
+
+The server is distributed four ways: `npx -y @vuetify/mcp` (stdio), the hosted HTTP
+endpoint, an **Agent Plugins 1.0.0 package** (`plugin.json` + `mcp.json`) whose author
+field reads "Vuetify LLC / hello@vuetifyjs.com", and self-hosting via its Dockerfile.
+It has a published privacy policy at `vuetifyjs.com/en/legal/mcp-privacy`.
 
 ### 7.4 The rest of the tooling estate
 
-| Repo | npm / purpose | Stars | Last push | Maturity read |
+"2026 commits" is an exact paginated count, which separates real activity from the
+org-wide chore sweeps that touched almost every repo in June 2026.
+
+| Repo | npm package / purpose | Version | 2026 commits | Maturity read |
 |---|---|---|---|---|
-| `nuxt-module` | "Zero-config Nuxt Module for Vuetify", docs at `nuxt.vuetifyjs.com` | 284 | 2026-08-02 | Live, maintained |
-| `vuetify-loader` | "Webpack and Vite plugins for treeshaking" | 511 | 2026-07-01 | Maintenance |
-| `eslint-config-vuetify` | "Opinionated eslint config for the Vuetify ecosystem" | 42 | 2026-07-31 | Maintained |
-| `eslint-plugin-vuetify` | "Version upgrade automation eslint plugin" | 132 | 2026-07-01 | Maintenance |
-| `unocss-preset-vuetify` | "unocss preset for generating Vuetify CSS utility classes" | 12 | 2026-08-14 | Active |
-| `vuetify-codemods` | Upgrade codemods, linked from the upgrade guide | 5 | 2026-04-28 | Maintenance |
-| `vuetify-vscode` | VS Code extension | 24 | 2026-02-17 | Aging |
-| `vue-repl` | Fork of `@vue/repl` (upstream attribution **UNVERIFIED**) | 3 | 2026-03-17 | Aging; note this repo's apps depend on upstream `@vue/repl`, not the fork |
-| `pkg-diff` | Client-side npm version differ (Rust→Wasm), `pkg-diff.vuetifyjs.com` | 1 | 2026-08-08 | Active, niche |
-| `devkey` | Explicit demo: "Not a real product" | 7 | 2026-07-22 | Reference implementation |
-| `tryvuetify` | `vuetify.new` — "Try the latest version of Vuetify with Yarn, Npm, or Pnpm" | 4 | 2026-06-01 | **Deployed artefact is 15 months old** |
-| `indexer` | Purpose **UNKNOWN** | 0 | 2025-06-02 | Stale |
-| `awesome` | Awesome-list | 1,746 | 2025-07-01 | Stale (13 months) — the second-most-starred asset in the org |
-| `community-bot` | Only Discord-bot candidate found | 3 | **2018-07-21** | Abandoned |
-| `swetrix-selfhosting` | Self-hosted analytics for the fleet | 0 | 2025-11-19 | Infra, quiet |
-| `ecosystem` | "Report issues regarding Vuetify Ecosystem Sites" — contains only `README.md` + `CONTRIBUTING.md`, **no issue templates and no property list** | 0 | 2026-07-01 | Vestigial |
-| GitHub Actions | `close-action`, `triage-action`, `setup-action`, `coolify-action` — the last is what deploys this repo's sites | 0–1 | 2026-06-25 | Infra |
-| `pkg` misc | `dom-testing-library`, `babel-plugin-jsx`, `vite-ssg`, `renovate-config`, `conventional-changelog-*`, `templates` | — | 2023–2026 | Forks / infra |
+| `cli` | `@vuetify/cli` + `create-vuetify` + `create-vuetify0` + `@vuetify/mcp-cli` | `1.2.1` / `3.2.1` / `1.2.1` / `1.2.1` | **208** | **The strategic centre of tooling** |
+| `nuxt-module` | `vuetify-nuxt-module`, docs at `nuxt.vuetifyjs.com` | `1.0.0-rc.4` | **159** | **Actively developed** — still pre-1.0 |
+| `mcp` | `@vuetify/mcp` | `0.9.1` | **48** | Actively developed (§7.3) |
+| `pkg-diff` | Client-side npm differ (Rust→Wasm) at `pkg-diff.vuetifyjs.com`; has an explicit "CLI (for agents)" mode and is linked from `vuetify release-notes` | `1.0.1`, `private: true`, **unpublished** | 43 | Active, niche |
+| `vuetify-codemods` | `vuetify-codemods` — vue-metamorph migration codemods | `1.0.6` | 33 | Maintenance, migration-cycle-driven |
+| `eslint-config-vuetify` | `eslint-config-vuetify` | `4.7.2` | 31 | Actively developed |
+| `eslint-plugin-vuetify` | `eslint-plugin-vuetify` — upgrade automation | `2.7.2` | 25 | Maintenance |
+| `devkey` | Explicit demo — "DevKey is **not a real product**" | `0.0.0`, `private: true`, unpublished | 24 | Maintained reference implementation |
+| `unocss-preset-vuetify` | `unocss-preset-vuetify` | `0.3.0` | 18 | Maintenance |
+| `create` | `create-vuetify` — **retired redirect to `cli`** | repo `2.8.0`; npm name now published from `cli` | 10 (all chore/docs) | **Deprecated** |
+| `templates` | Scaffold sources (`nuxt/base`, `vue/base`, `v0`) | — | 10 | **Superseded** by `cli/templates/` |
+| `vuetify-loader` | `vite-plugin-vuetify` `2.1.3`, `webpack-plugin-vuetify` `3.1.3`, `@vuetify/loader-shared` `2.1.2` | see left | 7 (all chore/docs) | **Maintenance** — last code release 2026-01-19 |
+| `vue-repl` | `@vuetify/vue-repl` — a **confirmed fork of `vuejs/repl`**, pinned at `2.6.0` while upstream is 4.x | `2.6.0` | 6 | **Orphaned.** No public consumer; v0play uses patched upstream `@vue/repl@4.7.1`. Plausible consumer is the private `play` codebase — inference only |
+| `ecosystem` | Feedback hub for the six private properties — **the org's only first-party property registry** | — | 6 | Small but load-bearing |
+| `vuetify-vscode` | `vuetify-vscode` (VS Code Marketplace, publisher `vuetifyjs`) | `0.2.0` | 1 (README only) | **Stale — last code commit 2020-04-27, a six-year gap** |
+| `tryvuetify` | `vuetify.new` — a one-page package-manager picker (`pnpm/yarn/npm/bun/deno create vuetify`) | `0.0.0`, `private: true` | **0** | **Stale but in production** (deploy 2025-05-18) |
+| `awesome` | Curated link list — **1,746★, the org's second-most-starred asset** | — | **0** | **Stale** (13 months) |
+| `indexer` | Description promises "extract, embed, and index Vue component snippets"; the package is actually named `github-cloner` and the README describes a repo-cloning script | `1.0.0` | **0** | **Abandoned prototype**, possibly an early Snips experiment (inference) |
+| `swetrix-selfhosting` | Fork of Swetrix's self-hosting compose config; vendor Docker/ClickHouse only | — | **0** | Dormant infra |
+| `community-bot` | `vuetifybot`, a fork of `An-Idiots-Guide/guidebot`; deploy docs reference the defunct Zeit `now` | `1.0.0` | **0** | **Dead since 2018-07-21.** Whatever serves the live Discord is not this |
+| `.github` | Org metadata; hosts the org-wide `FUNDING.yml` and `profile/README.md` | — | 1 | Metadata |
+| GitHub Actions | `setup-action`, `close-action`, `triage-action`, `coolify-action` | — | 1 each (Node 24 bump, 2026-06-25) | Infra — see below |
+| `pkg` misc | `dom-testing-library`, `babel-plugin-jsx`, `vite-ssg`, `renovate-config`, `conventional-changelog-*` | — | — | Forks / infra |
 | Archived | `vue-cli-plugins` (424★), `nuxt` (299★), `vuex`, `docs-next`, `legacy-docs`, `vue-cli-preset-vuetify`, `vue-cli-plugin-vuetify-*`, `cz-changelog-vuetify`, `vuex-cognito-example`, `vuetify-helper-json` | — | — | Correctly archived |
 
-`gh:vuetifyjs/.github` has **no** `FUNDING.yml` (404), so the org-wide funding default is
-unset and each repo relies on its own — which only `vuetifyjs/vuetify` has (§2.1).
+Note `pkg-diff` and `devkey` are both `private: true` and unpublished; the `pkg-diff` and
+`devkey` names on npm are **unrelated third-party packages** (last modified 2022 and 2024),
+not Vuetify releases.
+
+**`coolify-action` is the deployment substrate for the whole fleet.** It builds and pushes
+a Docker image to `ghcr.io/vuetifyjs/<imageName>` and then fires a Coolify deploy webhook,
+asserting on `.deployments[0].message | contains("deployment queued")`. Confirmed consumers
+span repos: `mcp` (`imageName: mcp`), `tryvuetify`, `vuetifyjs/one` (`imageName: one`), the
+core docs (`imageName: docs`), and this repo's `v0-docs` / `v0-playground`. Coolify is
+self-hosted, which matches the `via: 1.1 Caddy` fingerprint on every first-party host (§1).
+
+**`triage-action` makes sponsorship confer issue-triage priority** — a monetization-adjacent
+surface not visible from any product UI:
+
+```js
+const sponsors = YAML.parse(await fs.readFile(sponsorsFile, 'utf8'))
+const issueAuthor = context.payload.issue.user.login
+for (const { label, members } of sponsors) {
+  if (members && ~members.findIndex(v => v.toLowerCase() === issueAuthor.toLowerCase())) {
+    labelsToAdd.add(label); break
+  }
+}
+```
+
+`gh:vuetifyjs/vuetify .github/sponsors.yml` declares the label vocabulary — `P: sponsor`
+and `P: elite sponsor` — with empty `members` lists in the public file.
 
 **`analyze`** exists as a CLI command (`packages/cli/src/commands/analyze.ts`); what it
 analyzes was not read. **UNKNOWN.**
@@ -1192,7 +1306,7 @@ analyzes was not read. **UNKNOWN.**
 | 8 | **Two commercial support channels for the same tier name** — "Galaxy" at `$250/mo` on `0.vuetifyjs.com/services` and `$3,299/yr` on the Shopify store, with `support.vuetifyjs.com` redirecting to a third enterprise-support page | §2.7, §2.8 |
 | 9 | **Two analytics stacks in one app** — `apps/docs` depends on both `posthog-js` and `swetrix`; `vuetifyjs.com` separately loads Google Analytics + GTM | `apps/docs/package.json`; `live:vuetifyjs.com` head |
 | 10 | **A stale product menu** shipped into seven properties, listing the legacy playground and omitting v0play and the v0 docs entirely | `bundle:bin.vuetifyjs.com` |
-| 11 | **Two scaffolding tools** — `create-vuetify` inside `gh:vuetifyjs/cli` and the standalone `gh:vuetifyjs/create` repo (78★) | `gh:vuetifyjs/cli README.md` |
+| 11 | ~~Two scaffolding tools~~ — **not duplication.** `gh:vuetifyjs/create` carries an explicit "development was moved to vuetifyjs/cli" warning and the npm name was handed over; the standalone `gh:vuetifyjs/templates` repo is likewise superseded by `cli/templates/` | `gh:vuetifyjs/create README.md`; `gh:vuetifyjs/cli packages/shared/.../getTemplateSource.ts` |
 | 12 | **v0play is invisible to One at three layers** — absent from the ecosystem product menu, absent from the `ecosystem.*` settings namespaces (`bin`, `play`, `studio`, `link`, `docs`, `mcp`), and absent from the `/one` page's "Premium Across the Ecosystem" list | `bundle:bin.vuetifyjs.com`; `packages/docs/src/components/one/Properties.vue` |
 | 13 | **Two theme distributions** — Shopify products vs. a dozen stale GitHub theme repos, several deployed to Vercel outside the fleet | §6.4 |
 | 15 | **Four parallel sponsorship ladders** — GitHub Sponsors, Open Collective, the core-docs Diamond/Platinum/Gold/Silver page, and the Discord Wood/Gold/Planetary tiers | §2.2, §2.3 |
@@ -1214,6 +1328,14 @@ Ordered by staleness of the deployed `index.html` (`live:`, 2026-08-16):
 | `link.vuetifyjs.com` | 2026-06-08 | identical deploy timestamp to Bin — likely last shipped together |
 | `issues.vuetifyjs.com` | 2026-07-02 | — |
 | `play.vuetifyjs.com` | 2026-07-22 | explicitly being replaced by v0play |
+
+Beyond hosts, four **repo-level** zombies matter because each still fronts something live
+or valuable (§7.4): `awesome` (1,746★, zero 2026 commits), `vuetify-vscode` (a shipped
+Marketplace extension whose last code commit was 2020-04-27), `community-bot` (dead since
+2018, deploy docs reference the defunct Zeit `now`, while the live Discord is served by
+something with no public repo), and `vue-repl` (a fork pinned at 2.x against an upstream on
+4.x, with no identifiable consumer). Plus the 12 theme repos and the three versioned docs
+archives.
 
 For contrast, the actively-shipped end: `vuetifyjs.com` 2026-08-16, `0.vuetifyjs.com`
 2026-08-16, `v0play.vuetifyjs.com` 2026-08-16, `one.vuetifyjs.com` 2026-08-13,
@@ -1362,8 +1484,18 @@ document comes from live hosts and production bundles. Specifically unresolved:
   `admin`, and the `api.vuetifyjs.com` service. Whether any of them are a monorepo
   together (Admin and Issues ship byte-identical MDI font asset hashes, which *suggests*
   a shared build, but that is inference, not evidence).
-- Whether a `discord-bot` repo exists. The only public candidate is
-  `gh:vuetifyjs/community-bot`, last pushed 2018-07-21.
+- **What `admin.vuetifyjs.com` is.** It is live, titled "Vuetify Admin", was redeployed
+  2026-07-27, and has **zero references in any public repo in the org** — an org-wide
+  `gh search code` for the hostname returns no results. It is also absent from the
+  `ecosystem` scope table. It is the least-documented live property.
+- Whether a `discord-bot` repo exists. `gh api repos/vuetifyjs/discord-bot` 404s, and the
+  only public candidate, `gh:vuetifyjs/community-bot`, has been dead since 2018-07-21 with
+  deploy instructions for the defunct Zeit `now`. Something serves guild
+  `1513968811047522396`; what, is unknown.
+- What consumes `@vuetify/vue-repl`. The fork is pinned at `2.6.0` against an upstream on
+  4.x and still received a 2026 feature commit, but no public repo depends on it — v0play
+  uses patched upstream `@vue/repl@4.7.1`. The plausible consumer is the private `play`
+  codebase; that is inference.
 - Studio's **share** and **export** behaviour. Its routes, Monaco editor, paid cloud
   projects and SendOwl downloads table are all sourced above; whether it can share or
   export a project is **UNKNOWN**.
@@ -1399,11 +1531,17 @@ document comes from live hosts and production bundles. Specifically unresolved:
 - **What `next.vuetifyjs.com` and `dev.vuetifyjs.com` serve.** Both resolve and return
   the production docs title.
 - **Whether `ots` and `try` were ever live.** Both NXDOMAIN, no references found.
-- **What `vuetifyjs/indexer` is for**, and what `vuetify analyze` analyzes.
-- **Which scaffolding path `vuetify.new` / `npm create vuetify` resolves to** —
-  `create-vuetify` in the CLI monorepo, or the standalone `create` repo.
-- **What `gh:vuetifyjs/vue-repl` forks and whether anything still uses it.** This repo's
-  apps depend on upstream `@vue/repl` (`apps/playground/package.json:14`).
+- **What `vuetify analyze` analyzes.** (`gh:vuetifyjs/indexer` is now partly explained: its
+  package is named `github-cloner` and its README describes a repo-cloning script, despite a
+  description promising snippet embedding and indexing. An abandoned Snips prototype is a
+  plausible reading but is inference.)
+- **Free-vs-paid status of five theme repos** — `landing-theme`, `launcher-theme`,
+  `dashboard-widgets-theme`, `crypto-theme`, `portfolio-dark-theme` carry no product link
+  and state nothing (§6.4).
+- **Whether `store.vuetifyjs.com` is backed by any repo at all**, or is purely a hosted
+  Shopify storefront. No `store` repo is visible and no deploy config references it.
+- **What `swetrix-selfhosting` instruments.** The fork contains only vendor compose config
+  with no Vuetify-specific configuration committed.
 
 ### Deliberately not answered
 
