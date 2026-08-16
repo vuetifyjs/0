@@ -7,6 +7,23 @@
 
 **Compiled:** 2026-08-16 · **Repo HEAD at time of writing:** `5d686fc2` (`vuetifyjs/0`, `master`)
 
+## Ten facts worth knowing before the tables
+
+Each is sourced in the section named.
+
+| # | Fact | Where |
+|---|---|---|
+| 1 | **19 first-party hosts resolve.** All but the Shopify store run on one Coolify + Caddy + Cloudflare fleet. `try.vuetifyjs.com` and `ots.vuetifyjs.com` do not resolve at all. | §1 |
+| 2 | **`api.vuetifyjs.com` is the whole platform** — an OAuth 2.1 authorization server plus subscription, team, playground, bin, link, studio-project, ad-content and docs-AI endpoints. Every property is a client of it. | §5.1 |
+| 3 | **All four legacy creation properties paywall cloud persistence.** Play, Bin, Studio and (past a default link) Link gate Save behind Vuetify One, with an identical park-the-payload-then-resume funnel. | §2.5 |
+| 4 | **v0play contains no subscriber check at all.** `rg 'isSubscriber\|sponsorship'` across `apps/playground` and `apps/docs` returns nothing; cloud save fails only on `401`. The newest playground gives away what the one it replaces sells. | §2.5 |
+| 5 | **Vuetify One costs `$2.99`/mo or `$29.99`/yr solo, `$29.99`/mo or `$299.99`/yr team** — hardcoded in the docs pricing card. Two of the advertised features are flagged `soon`, including playground embeds. | §2.4 |
+| 6 | **A `$3`/month GitHub Sponsors tier grants "Vuetify One Access"**, and `@vuetify/auth` models GitHub, Discord, Open Collective and Stripe sponsorships as one `sponsorships[]` entitlement array — while the One FAQ tells users sponsoring is *not* an entitlement path. | §2.2, §5.2 |
+| 7 | **GitHub Sponsors points at a personal account** (`github: [johnleider]`), and the $250/$500/$1,500 rungs are duplicated on Open Collective with different impression claims (600k/10m vs 200k/3m). | §2.1, §2.3 |
+| 8 | **Snips is still paid**, not free/PWYW: prices hardcoded at 74/74/74, all-access 149, team 399, with a 50%-off sale active and two live Stripe links. | §2.6 |
+| 9 | **The Builder is branch-only** — draft PR #241, 108 commits ahead / 64 behind `master`, last touched 2026-08-04 — and already emits a v0play URL as one of its two outputs. | §4 |
+| 10 | **Studio is the clearest zombie**: a 3.3 MB Monaco project editor with its own paid cloud-projects tier, last built 2026-01-29, and the only remaining front-end for the still-live SendOwl purchase-downloads endpoint. | §3, §8.2 |
+
 ## How claims are sourced
 
 | Marker | Meaning |
