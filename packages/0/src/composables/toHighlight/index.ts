@@ -22,9 +22,11 @@
 import { toArray } from '#v0/composables/toArray'
 
 // Utilities
+import { findMatchRanges } from '#v0/utilities'
 import { toValue } from 'vue'
 
 // Types
+import type { IgnoreAccents } from '#v0/utilities'
 import type { MaybeRefOrGetter } from 'vue'
 
 /**
@@ -83,6 +85,11 @@ export interface ToHighlightOptions {
   matchAll?: MaybeRefOrGetter<boolean>
   /** Case-insensitive matching. Default `false`. */
   ignoreCase?: MaybeRefOrGetter<boolean>
+  /**
+   * Folds accents before matching. `'query'` normalizes only the search term,
+   * `'target'` only the text, `true` both sides. Default `false`.
+   */
+  ignoreAccents?: MaybeRefOrGetter<IgnoreAccents | undefined>
 }
 
 function merge (ranges: readonly MatchRange[]): MatchRange[] {
@@ -115,25 +122,17 @@ function chunk (text: string, ranges: readonly MatchRange[]): HighlightChunk[] {
   return chunks
 }
 
-function find (text: string, query: string | string[], matchAll: boolean, ignoreCase: boolean): MatchRange[] {
-  const terms = toArray(query).filter(Boolean)
-  const haystack = ignoreCase ? text.toLocaleLowerCase() : text
+function find (
+  text: string,
+  query: string | string[],
+  matchAll: boolean,
+  ignoreCase: boolean,
+  ignoreAccents: IgnoreAccents,
+): MatchRange[] {
   const spans: [number, number][] = []
 
-  for (const term of terms) {
-    const needle = ignoreCase ? term.toLocaleLowerCase() : term
-    let index = haystack.indexOf(needle)
-
-    if (index !== -1) {
-      spans.push([index, index + term.length])
-      if (matchAll) {
-        index = haystack.indexOf(needle, index + term.length)
-        while (index !== -1) {
-          spans.push([index, index + term.length])
-          index = haystack.indexOf(needle, index + term.length)
-        }
-      }
-    }
+  for (const term of toArray(query).filter(Boolean)) {
+    spans.push(...findMatchRanges(text, term, { ignoreCase, ignoreAccents, matchAll }))
   }
 
   return merge(spans)
@@ -149,7 +148,7 @@ function find (text: string, query: string | string[], matchAll: boolean, ignore
  *
  * @param text The source string to split.
  * @param query One or more search terms. Empty strings are ignored. Case sensitivity controlled by `options.ignoreCase`.
- * @param options Optional `matches`, `matchAll`, `ignoreCase`.
+ * @param options Optional `matches`, `matchAll`, `ignoreCase`, `ignoreAccents`.
  * @returns A `HighlightChunk[]` array.
  *
  * @see https://0.vuetifyjs.com/composables/transformers/to-highlight
@@ -177,11 +176,12 @@ export function toHighlight (
   const _matches = toValue(options.matches)
   const matchAll = toValue(options.matchAll) ?? false
   const ignoreCase = toValue(options.ignoreCase) ?? false
+  const ignoreAccents = toValue(options.ignoreAccents) ?? false
 
   if (_matches?.length) return chunk(_text, merge(_matches))
 
   if (_query) {
-    const ranges = find(_text, _query, matchAll, ignoreCase)
+    const ranges = find(_text, _query, matchAll, ignoreCase, ignoreAccents)
     return ranges.length > 0 ? chunk(_text, ranges) : [{ text: _text, match: false }]
   }
 

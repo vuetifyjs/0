@@ -130,6 +130,22 @@ before chunking, so unordered or overlapping input is normalized for you.
 
 :::
 
+## Recipes
+
+### Accent-insensitive search
+
+`ignoreAccents` folds diacritics before matching, then maps the ranges back onto the source
+string — the rendered chunks keep their original characters. It is directional: `'target'` folds
+only the text so a plain `zurich` reaches *Zürich*, `'query'` folds only the search term so a
+pasted `Trø` reaches plain `Tromso`, and `true` folds both sides.
+
+Letters that NFD leaves untouched are folded as well (`ł → l`, `ø → o`, `ß → ss`, `æ → ae`), and a
+fold that changes length still reports ranges into the original text.
+
+::: gn-example
+/composables/to-highlight/accents
+:::
+
 ## Accessibility
 
 Wrap matched chunks in the native `<mark>` element. It carries the implicit ARIA role
@@ -153,6 +169,13 @@ Yes. The source `text` string is sliced at match boundaries, so the original cha
 
 Yes. The `matches` option accepts `MatchRange[]` — `[start, end]` pairs. Once
 `createFilter` exposes positional data, pass the result directly and skip the query path.
+
+??? Does accent folding change the highlighted text?
+
+No. Folding happens on a working copy; the returned chunks are always slices of the source
+`text`, so `Zürich` renders with its umlaut even when the query was `zurich`. A fold that changes
+length — `ß → ss`, or a decomposed `e` + combining acute — is mapped back to the characters it
+came from.
 
 ??? How does it handle overlapping multi-term matches?
 

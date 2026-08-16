@@ -736,6 +736,12 @@
       "since": "0.0.15",
       "category": "utilities"
     },
+    "findMatchRanges": {
+      "level": "preview",
+      "since": null,
+      "category": "utilities",
+      "description": "Finds match ranges of a query in a string, optionally folding accents on either side."
+    },
     "foreground": {
       "level": "preview",
       "since": "0.1.11",

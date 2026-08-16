@@ -132,6 +132,55 @@ describe('toHighlight', () => {
     })
   })
 
+  describe('accent folding', () => {
+    function matched (chunks: { text: string, match: boolean }[]) {
+      return chunks.filter(chunk => chunk.match).map(chunk => chunk.text)
+    }
+
+    it('should not fold accents by default', () => {
+      expect(toHighlight('café', 'cafe')).toStrictEqual([{ text: 'café', match: false }])
+    })
+
+    it('should fold both sides when ignoreAccents is true', () => {
+      expect(matched(toHighlight('a café here', 'cafe', { ignoreAccents: true }))).toStrictEqual(['café'])
+    })
+
+    it('should preserve the original text when the source is decomposed', () => {
+      const decomposed = 'cafe\u0301'
+
+      expect(matched(toHighlight(`a ${decomposed} here`, 'cafe', { ignoreAccents: true })))
+        .toStrictEqual([decomposed])
+    })
+
+    it('should fold only the text when target', () => {
+      expect(matched(toHighlight('café', 'cafe', { ignoreAccents: 'target' }))).toStrictEqual(['café'])
+      expect(toHighlight('cafe', 'café', { ignoreAccents: 'target' }))
+        .toStrictEqual([{ text: 'cafe', match: false }])
+    })
+
+    it('should fold only the query when query', () => {
+      expect(matched(toHighlight('cafe', 'café', { ignoreAccents: 'query' }))).toStrictEqual(['cafe'])
+    })
+
+    it('should combine with ignoreCase and matchAll', () => {
+      expect(matched(toHighlight('Zürich, zurich', 'zurich', {
+        ignoreAccents: true,
+        ignoreCase: true,
+        matchAll: true,
+      }))).toStrictEqual(['Zürich', 'zurich'])
+    })
+
+    it('should accept a getter for ignoreAccents', () => {
+      const ignoreAccents = shallowRef<'target' | false>(false)
+      const chunks = computed(() => toHighlight('Tromsø', 'tromso', { ignoreCase: true, ignoreAccents }))
+
+      expect(matched(chunks.value)).toStrictEqual([])
+
+      ignoreAccents.value = 'target'
+      expect(matched(chunks.value)).toStrictEqual(['Tromsø'])
+    })
+  })
+
   describe('priority and fallthrough', () => {
     it('should use pre-computed matches over query when both are provided', () => {
       expect(toHighlight('hello', 'hello', { matches: [[1, 3]] })).toStrictEqual([
