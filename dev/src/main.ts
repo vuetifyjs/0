@@ -48,7 +48,8 @@ export const createApp = ViteSSG(
     // RouterLink hrefs as /emerald/... and lychee fails offline file checks.
     base: import.meta.env.BASE_URL,
     routes: [
-      { path: '/', component: Playground },
+      // Demo deploy (`BASE_URL=/demo/emerald/`) serves the dashboard at `/`.
+      { path: '/', component: import.meta.env.BASE_URL.includes('/demo/') ? EmeraldDashboard : Playground },
       { path: '/create-overflow', component: CreateOverflowDemo },
       { path: '/emerald', component: EmeraldDashboard },
       { path: '/emerald/about', component: EmeraldAbout },
