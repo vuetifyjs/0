@@ -1018,6 +1018,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/tooling/grok-bot': RouteRecordInfo<
+      '/guide/tooling/grok-bot',
+      '/guide/tooling/grok-bot',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/tooling/testing': RouteRecordInfo<
       '/guide/tooling/testing',
       '/guide/tooling/testing',
@@ -2497,6 +2504,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/tooling/ai-tools.md': {
       routes:
         | '/guide/tooling/ai-tools'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/guide/tooling/grok-bot.md': {
+      routes:
+        | '/guide/tooling/grok-bot'
       views:
         | never
       pathParamNames:
