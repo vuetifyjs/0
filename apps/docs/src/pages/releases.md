@@ -12,7 +12,7 @@ related:
   - /introduction/contributing
 ---
 
-<script setup>
+<script setup lang="ts">
   import DocsReleases from '@/components/docs/DocsReleases.vue'
 </script>
 

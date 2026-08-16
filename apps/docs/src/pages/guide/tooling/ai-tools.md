@@ -16,7 +16,7 @@ related:
   - /introduction/getting-started
 ---
 
-<script setup>
+<script setup lang="ts">
   import llmsStats from 'virtual:llms-stats'
 </script>
 
