@@ -1,6 +1,6 @@
 <script lang="ts">
   /**
-   * @module DataTableHead
+   * @module DataTableHeader
    *
    * @see https://0.vuetifyjs.com/components/data/data-table
    *
@@ -22,12 +22,12 @@
   import type { AtomProps } from '#v0/components/Atom'
   import type { InternalHeader } from '#v0/composables/createDataTable'
 
-  export interface DataTableHeadProps extends AtomProps {
+  export interface DataTableHeaderProps extends AtomProps {
     /** Namespace for dependency injection. @default 'v0:data-table' */
     namespace?: string
   }
 
-  export interface DataTableHeadSlotProps {
+  export interface DataTableHeaderSlotProps {
     /** 2D header grid for rendering multi-level headers */
     headers: readonly InternalHeader[][]
     attrs: Record<string, unknown>
@@ -35,22 +35,22 @@
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'DataTableHead', inheritAttrs: false })
+  defineOptions({ name: 'DataTableHeader', inheritAttrs: false })
 
   defineSlots<{
-    default: (props: DataTableHeadSlotProps) => unknown
+    default: (props: DataTableHeaderSlotProps) => unknown
   }>()
 
   const {
     as = 'thead',
     namespace = 'v0:data-table',
     renderless,
-  } = defineProps<DataTableHeadProps>()
+  } = defineProps<DataTableHeaderProps>()
 
   const attrs = useAttrs()
   const context = useDataTableRoot(namespace)
 
-  const slotProps = toRef((): DataTableHeadSlotProps => ({
+  const slotProps = toRef((): DataTableHeaderSlotProps => ({
     headers: context.headers.value,
     attrs: {},
   }))

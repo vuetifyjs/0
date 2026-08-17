@@ -1,6 +1,6 @@
 <script lang="ts">
   /**
-   * @module DataTableHeaderCell
+   * @module DataTableColumn
    *
    * @see https://0.vuetifyjs.com/components/data/data-table
    *
@@ -22,18 +22,18 @@
   import type { AtomProps } from '#v0/components/Atom'
   import type { SortDirection } from '#v0/composables/createDataTable'
 
-  export interface DataTableHeaderCellProps extends AtomProps {
+  export interface DataTableColumnProps extends AtomProps {
     /** Namespace for dependency injection. @default 'v0:data-table' */
     namespace?: string
     /** Column id for sort binding */
-    columnId?: string
+    id?: string
     /** Number of columns this cell spans */
     colspan?: number
     /** Number of rows this cell spans */
     rowspan?: number
   }
 
-  export interface DataTableHeaderCellSlotProps {
+  export interface DataTableColumnSlotProps {
     /** Whether this column is sortable */
     isSortable: boolean
     /** Current sort direction: 'asc' | 'desc' | 'none' */
@@ -54,42 +54,42 @@
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'DataTableHeaderCell', inheritAttrs: false })
+  defineOptions({ name: 'DataTableColumn', inheritAttrs: false })
 
   defineSlots<{
-    default: (props: DataTableHeaderCellSlotProps) => unknown
+    default: (props: DataTableColumnSlotProps) => unknown
   }>()
 
   const {
     as = 'th',
     namespace = 'v0:data-table',
-    columnId,
+    id,
     colspan,
     rowspan,
     renderless,
-  } = defineProps<DataTableHeaderCellProps>()
+  } = defineProps<DataTableColumnProps>()
 
   const attrs = useAttrs()
   const context = useDataTableRoot(namespace)
 
   const isSortable = toRef(() => {
-    if (!columnId) return false
-    return context.leaves.value.some(col => col.id === columnId && col.sortable)
+    if (!id) return false
+    return context.leaves.value.some(col => col.id === id && col.sortable)
   })
 
   const sortDirection = toRef((): SortDirection => {
-    if (!columnId) return 'none'
-    return context.sort.direction(columnId)
+    if (!id) return 'none'
+    return context.sort.direction(id)
   })
 
   const sortPriority = toRef(() => {
-    if (!columnId) return -1
-    return context.sort.priority(columnId)
+    if (!id) return -1
+    return context.sort.priority(id)
   })
 
   function toggleSort () {
-    if (columnId && isSortable.value) {
-      context.sort.toggle(columnId)
+    if (id && isSortable.value) {
+      context.sort.toggle(id)
     }
   }
 
@@ -101,7 +101,7 @@
     return 'none'
   })
 
-  const slotProps = toRef((): DataTableHeaderCellSlotProps => ({
+  const slotProps = toRef((): DataTableColumnSlotProps => ({
     isSortable: isSortable.value,
     sortDirection: sortDirection.value,
     sortPriority: sortPriority.value,

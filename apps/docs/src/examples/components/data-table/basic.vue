@@ -50,14 +50,14 @@
     </div>
 
     <DataTable.Table class="w-full border-collapse">
-      <DataTable.Head>
+      <DataTable.Header>
         <DataTable.HeaderRow class="border-b">
-          <DataTable.HeaderCell
+          <DataTable.Column
             v-for="col in columns"
+            :id="col.id"
             :key="col.id"
             v-slot="{ isSortable, toggleSort }"
             class="text-left p-3 font-semibold"
-            :column-id="col.id"
           >
             <button
               v-if="isSortable"
@@ -68,16 +68,16 @@
             </button>
 
             <span v-else>{{ col.title }}</span>
-          </DataTable.HeaderCell>
+          </DataTable.Column>
         </DataTable.HeaderRow>
-      </DataTable.Head>
+      </DataTable.Header>
 
       <DataTable.Body v-slot="{ items }">
         <DataTable.Row
           v-for="item in items"
+          :id="(item as User).id"
           :key="(item as User).id"
           class="border-b hover:bg-surface-variant"
-          :row-id="(item as User).id"
         >
           <DataTable.Cell class="p-3">{{ (item as User).name }}</DataTable.Cell>
           <DataTable.Cell class="p-3">{{ (item as User).email }}</DataTable.Cell>

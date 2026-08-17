@@ -40,11 +40,11 @@ The DataTable component provides a semantic table structure that wraps the `crea
 <template>
   <DataTable.Root>
     <DataTable.Table>
-      <DataTable.Head>
+      <DataTable.Header>
         <DataTable.HeaderRow>
-          <DataTable.HeaderCell />
+          <DataTable.Column />
         </DataTable.HeaderRow>
-      </DataTable.Head>
+      </DataTable.Header>
 
       <DataTable.Body>
         <DataTable.Row>
@@ -75,10 +75,10 @@ flowchart TD
     TableEl["<table>"]
   end
 
-  subgraph Head["DataTable.Head"]
+  subgraph Header["DataTable.Header"]
     Headers["headers 2D grid"]
     HeaderRow["DataTable.HeaderRow"]
-    HeaderCell["DataTable.HeaderCell"]
+    Column["DataTable.Column"]
   end
 
   subgraph Body["DataTable.Body"]
@@ -88,9 +88,9 @@ flowchart TD
   end
 
   Root --> Table
-  Table --> Head
+  Table --> Header
   Table --> Body
-  Head --> HeaderRow --> HeaderCell
+  Header --> HeaderRow --> Column
   Body --> Row --> Cell
 ```
 
@@ -135,7 +135,7 @@ Register columns and rows once via the `useDataTableRoot` composable in a child 
 
 ### Sorting
 
-`DataTable.HeaderCell` exposes sort state when given a `column-id`:
+`DataTable.Column` exposes sort state when given an `id`:
 
 | Slot prop | Type | Description |
 |-----------|------|-------------|
@@ -146,7 +146,7 @@ Register columns and rows once via the `useDataTableRoot` composable in a child 
 
 ### Selection
 
-`DataTable.Row` exposes selection state when given a `row-id`:
+`DataTable.Row` exposes selection state when given an `id`:
 
 | Slot prop | Type | Description |
 |-----------|------|-------------|
@@ -168,7 +168,7 @@ Register columns and rows once via the `useDataTableRoot` composable in a child 
 DataTable renders semantic table markup with ARIA attributes:
 
 - `DataTable.Table` renders `<table role="table">` with `aria-rowcount`
-- `DataTable.HeaderCell` renders `<th role="columnheader">` with `aria-sort` for sortable columns
+- `DataTable.Column` renders `<th role="columnheader">` with `aria-sort` for sortable columns
 - `DataTable.Row` renders `<tr role="row">` with `aria-selected` when selection is enabled
 - `DataTable.Cell` renders `<td role="cell">`
 
@@ -176,15 +176,15 @@ Use `renderless` mode to customize the underlying elements while preserving the 
 
 ```vue
 <template>
-  <DataTable.HeaderCell
-    column-id="name"
+  <DataTable.Column
+    id="name"
     v-slot="{ attrs, toggleSort }"
     renderless
   >
     <th v-bind="attrs" @click="toggleSort">
       Name
     </th>
-  </DataTable.HeaderCell>
+  </DataTable.Column>
 </template>
 ```
 

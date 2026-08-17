@@ -27,7 +27,7 @@
     /** Namespace for dependency injection. @default 'v0:data-table' */
     namespace?: string
     /** Row identifier for selection/expansion binding */
-    rowId?: ID
+    id?: ID
   }
 
   export interface DataTableRowSlotProps {
@@ -60,7 +60,7 @@
   const {
     as = 'tr',
     namespace = 'v0:data-table',
-    rowId,
+    id,
     renderless,
   } = defineProps<DataTableRowProps>()
 
@@ -68,29 +68,29 @@
   const context = useDataTableRoot(namespace)
 
   const isSelected = toRef(() => {
-    if (isUndefined(rowId)) return false
-    return context.selection.isSelected(rowId)
+    if (isUndefined(id)) return false
+    return context.selection.isSelected(id)
   })
 
   const isSelectable = toRef(() => {
-    if (isUndefined(rowId)) return false
-    return context.selection.isSelectable(rowId)
+    if (isUndefined(id)) return false
+    return context.selection.isSelectable(id)
   })
 
   const isExpanded = toRef(() => {
-    if (isUndefined(rowId)) return false
-    return context.expansion.isExpanded(rowId)
+    if (isUndefined(id)) return false
+    return context.expansion.isExpanded(id)
   })
 
   function toggleSelection () {
-    if (!isUndefined(rowId)) {
-      context.selection.toggle(rowId)
+    if (!isUndefined(id)) {
+      context.selection.toggle(id)
     }
   }
 
   function toggleExpansion () {
-    if (!isUndefined(rowId)) {
-      context.expansion.toggle(rowId)
+    if (!isUndefined(id)) {
+      context.expansion.toggle(id)
     }
   }
 
@@ -102,7 +102,7 @@
     toggleExpansion,
     attrs: {
       'role': 'row',
-      'aria-selected': isUndefined(rowId) ? undefined : isSelected.value,
+      'aria-selected': isUndefined(id) ? undefined : isSelected.value,
       'data-selected': isSelected.value || undefined,
       'data-expanded': isExpanded.value || undefined,
     },
