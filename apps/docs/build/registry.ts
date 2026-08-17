@@ -6,7 +6,7 @@
  * catalog the CLI seeds into a user's project — the on-ramp for a local
  * component library they own (track via `vuetify.json`, later publish).
  *
- * Source of truth is the `::: gn-example` / `::: example` directive already on
+ * Source of truth is the `::: gn-example` directive already on
  * every feature page: ordered file manifest, `@import` deps, title, and prose.
  * Joined with maturity.json for type/category/level and the page path for docs.
  *

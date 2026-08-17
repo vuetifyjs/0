@@ -10,6 +10,7 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.typecheck.json"
   },
   "devDependencies": {
+    "@unhead/vue": "catalog:",
     "sass-embedded": "catalog:",
     "typescript": "catalog:",
     "unocss": "catalog:",

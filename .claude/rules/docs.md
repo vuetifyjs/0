@@ -154,7 +154,7 @@ Section order is canonical: pages omit sections they don't need but never reorde
 
 Example files live in `apps/docs/src/examples/{type}/{name}/`. [intent:202]
 
-`::: gn-example` (emits `<DocsGenesisExample>`) is the canonical directive for component and composable feature pages. The legacy `::: example` (emits `<DocsExample>`) still exists for other page types (guides, index pages) but new feature-page work uses `gn-example`. Both share identical path/ordering/collapse syntax.
+`::: gn-example` (emits `<DocsGenesisExample>`) is the canonical directive for component and composable feature pages.
 
 ### Single file (no extension in path)
 
@@ -323,7 +323,6 @@ Real worked examples on master:
 |--------|---------|
 | `::: gn-example` | Live interactive example (canonical for feature pages; emits `<DocsGenesisExample>`) |
 | `::: ds-example` | Design-system example, rendered in an isolated frame (`<DocsSystemExample>`) — `pages/systems/**` only |
-| `::: example` | Legacy live example (`<DocsExample>`) — guides/index pages only |
 | `::: code-group` | Tabbed code blocks |
 | `::: faq` | FAQ section with `???` questions |
 | `> [!TIP]` | Informational callout (empty tip surfaces a random tip from curated pool) [intent:340, intent:341] |
@@ -426,7 +425,7 @@ When auditing docs or specs, read the rules file **line-by-line** and build a pe
 
 ## Playground — the interactive browser editor
 
-v0 ships a standalone playground at `apps/playground/` that lets consumers edit a Vue file and see the result live. Docs pages can deep-link into the playground: every `::: gn-example` / `DocsExample` code pane exposes a "Open in Playground" action via `DocsCodeActions`, and every ``` ```vue playground ``` fence renders with the same action. The action calls `usePlayground(files)` (see `apps/docs/src/composables/usePlayground.ts`), which encodes the files into a URL and navigates to the deployed playground. [intent:344]
+v0 ships a standalone playground at `apps/playground/` that lets consumers edit a Vue file and see the result live. Docs pages can deep-link into the playground: every `::: gn-example` code pane exposes a "Open in Playground" action via `DocsCodeActions`, and every ``` ```vue playground ``` fence renders with the same action. The action calls `usePlayground(files)` (see `apps/docs/src/composables/usePlayground.ts`), which encodes the files into a URL and navigates to the deployed playground. [intent:344]
 
 > **Note.** The `## Anatomy` fence is `` ```vue Anatomy no-filename `` `` and is **not** playground-linked — it's a static structural map. The runnable, playground-enabled preview is the `basic` `::: gn-example` under Usage.
 
@@ -462,7 +461,7 @@ Write examples so they are *immediately* runnable when dropped into the playgrou
 
 The monorepo uses **knip** (see `knip.json`) to detect unreferenced files, exports, and dependencies across workspaces. The `apps/docs` workspace explicitly lists `src/examples/**/*.vue` as entry points, which means every file in that directory tree must either:
 
-1. Be imported by a markdown page via `::: gn-example` / `::: example` / `<DocsExample>`, or
+1. Be imported by a markdown page via `::: gn-example` / `::: ds-example`, or
 2. Be listed in `knip.json`'s `ignore` array (only for multi-file example sub-files that aren't the entry), or
 3. Be removed.
 
@@ -493,7 +492,7 @@ Docs pages render Mermaid charts via ``` ```mermaid ``` code fences. VitePress +
 
 - Small prose-level callouts — a two-sentence description beats a three-node diagram.
 - Tables — if the information is a matrix of options, use a markdown table.
-- Screenshots of UI — use `<DocsExample>` with a live example; Mermaid is for relationships, not screenshots.
+- Screenshots of UI — use a `::: gn-example` live example; Mermaid is for relationships, not screenshots.
 
 ### Syntax notes
 

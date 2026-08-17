@@ -604,27 +604,6 @@
     word-break: break-word;
   }
 
-  /* DocsExample code block styling */
-  .docs-example-code .shiki {
-    border: none;
-    border-radius: 0;
-    margin-bottom: 0;
-  }
-
-  .docs-example-code .shiki code {
-    padding-right: 5rem;
-    line-height: 1.625;
-  }
-
-  .docs-example-code--expanded .shiki {
-    padding-top: 2rem;
-  }
-
-  .docs-example-code--wrap .shiki code {
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-
   /* DocsCodeGroup code block styling */
   .docs-code-group .shiki {
     border-top: none;

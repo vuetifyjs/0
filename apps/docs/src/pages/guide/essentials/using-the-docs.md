@@ -14,7 +14,7 @@ related:
   - /introduction/getting-started
 ---
 
-<script setup>
+<script setup lang="ts">
 import { useRtl } from '@vuetify/v0'
 import { useSettings } from '@/composables/useSettings'
 
