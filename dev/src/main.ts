@@ -82,7 +82,7 @@ export const createApp = ViteSSG(
     // system:
     // - `IN_BROWSER` — `target` is honoured only on the client. The SSR branch
     //   of V0StyleSheetThemeAdapter.setup pushes `htmlAttrs: { data-theme }`
-    //   unconditionally, which stamped `data-theme="emerald"` onto every
+    //   unconditionally, which stamped `data-theme="emerald-light"` onto every
     //   prerendered page, non-Emerald routes included. Skipping install during
     //   prerender is the only dev-side fix. Cost: Emerald routes ship no theme
     //   CSS in their static HTML and paint on hydration — which is exactly what
@@ -93,7 +93,7 @@ export const createApp = ViteSSG(
     //   `namespace:key` shape is required; a bare key trips createContext's
     //   separator warning.
     // - `target: null` — every Emerald route already carries
-    //   `data-theme="emerald"` on its own root, so the attribute stays
+    //   `data-theme="emerald-light"` on its own root, so the attribute stays
     //   markup-owned and non-Emerald routes keep the app theme.
     if (IN_BROWSER) {
       app.use(createEmeraldPlugin({ theme: { namespace: 'emerald:theme', target: null } }))

@@ -29,10 +29,11 @@ type ThemeMap = NonNullable<ThemePluginOptions['themes']>
 function emeraldThemeDefaults (): ThemePluginOptions {
   return {
     target: 'html',
-    default: 'emerald',
+    default: 'emerald-light',
+    system: { light: 'emerald-light', dark: 'emerald-dark' },
     adapter: new EmeraldStyleSheetAdapter(),
     themes: {
-      'emerald': { colors: emeraldColors },
+      'emerald-light': { colors: emeraldColors },
       'emerald-dark': { colors: emeraldDarkColors, dark: true },
     },
   }
@@ -58,7 +59,7 @@ function mergeThemes (defaults: ThemeMap | undefined, overrides: ThemeMap | unde
 
 /**
  * Install Emerald theming and its icon set. This is the consumer entry:
- * adapter, default `emerald` theme, kit `--v0-*` aliases, and the icon roles
+ * adapter, default `emerald-light` / `emerald-dark` pair, kit `--v0-*` aliases, and the icon roles
  * every Em* component draws from are prewired.
  *
  * Locale / storage / hydration are host app concerns — not auto-installed.

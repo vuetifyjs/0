@@ -40,8 +40,9 @@ Flat color maps for v0’s theme engine: `src/colors.ts` (`emeraldColors` + `eme
 
 ### Dark theme
 
-`createEmeraldPlugin` registers two themes: `emerald` (default) and `emerald-dark`
-(`dark: true`). The dark map is derived, not Figma-paged: each family inverts the
+`createEmeraldPlugin` registers two themes: `emerald-light` (default) and `emerald-dark`
+(`dark: true`). It follows the OS via `system: { light: 'emerald-light', dark: 'emerald-dark' }`
+until `useTheme().select`. The dark map is derived, not Figma-paged: each family inverts the
 light family’s lightness ladder with re-tuned chroma (100 = deepest tint, 600/1000 =
 brightest), `on-*` flips to ink-on-color (white fails AA on the brighter dark
 DEFAULTs), surfaces anchor on `background.dark` / `surface.dark`, and shadows swap
