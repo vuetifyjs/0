@@ -216,9 +216,7 @@ Use `useStorage` to persist theme selection across page loads. The key is instal
 > `createThemePlugin` ships `persist`/`restore` wiring out of the box — pass `persist: true` and skip the manual `useStorage` + `watch` code below:
 >
 > ```ts no-filename
-> app.use(
->   createStoragePlugin(),
-> )
+> app.use(createStoragePlugin())
 > app.use(
 >   createThemePlugin({
 >     default: 'light',
@@ -237,9 +235,7 @@ import App from './App.vue'
 
 const app = createApp(App)
 
-app.use(
-  createStoragePlugin(),
-)
+app.use(createStoragePlugin())
 app.use(
   createThemePlugin({
     default: 'light',

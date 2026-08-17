@@ -163,9 +163,7 @@ Reach for `useTheme` when you need to read the active theme's colors in script (
 Pass a `system` pair of **already registered** theme ids. The plugin follows `prefers-color-scheme` until the user calls `select`. With `persist: true`, a system-applied theme is not stored — the next load still asks the OS. An explicit `select` is stored; `reset()` returns to the pair.
 
 ```ts collapse
-app.use(
-  createStoragePlugin(),
-)
+app.use(createStoragePlugin())
 app.use(
   createThemePlugin({
     default: 'light',
