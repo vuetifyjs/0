@@ -147,10 +147,10 @@ export const DataTable = {
    * ```vue
    * <DataTable.HeaderCell
    *   column-id="name"
-   *   v-slot="{ isSortable, sortDirection, toggleSort }"
+   *   v-slot="{ isSortable, toggleSort }"
    * >
    *   <button v-if="isSortable" @click="toggleSort">
-   *     Name {{ sortDirection === 'asc' ? '▲' : sortDirection === 'desc' ? '▼' : '' }}
+   *     Name
    *   </button>
    *   <span v-else>Name</span>
    * </DataTable.HeaderCell>

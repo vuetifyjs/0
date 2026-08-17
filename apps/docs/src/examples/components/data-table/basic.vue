@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { defineComponent, onMounted } from 'vue'
+  import { defineComponent } from 'vue'
 
   import { DataTable, useDataTableRoot } from '@vuetify/v0'
 
@@ -29,10 +29,8 @@
     name: 'DataTableInit',
     setup () {
       const context = useDataTableRoot('v0:data-table')
-      onMounted(() => {
-        context.columns.onboard(columns)
-        context.onboard(users.map(u => ({ id: u.id, value: u })))
-      })
+      context.columns.onboard(columns)
+      context.onboard(users.map(u => ({ id: u.id, value: u })))
       return () => null
     },
   })
@@ -57,7 +55,7 @@
           <DataTable.HeaderCell
             v-for="col in columns"
             :key="col.id"
-            v-slot="{ isSortable, sortDirection, toggleSort }"
+            v-slot="{ isSortable, toggleSort }"
             class="text-left p-3 font-semibold"
             :column-id="col.id"
           >
@@ -67,9 +65,6 @@
               @click="toggleSort"
             >
               {{ col.title }}
-              <span v-if="sortDirection === 'asc'">▲</span>
-              <span v-else-if="sortDirection === 'desc'">▼</span>
-              <span v-else class="opacity-30">⇅</span>
             </button>
 
             <span v-else>{{ col.title }}</span>

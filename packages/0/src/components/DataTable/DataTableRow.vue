@@ -16,6 +16,7 @@
   import { useDataTableRoot } from './DataTableRoot.vue'
 
   // Utilities
+  import { isUndefined } from '#v0/utilities'
   import { mergeProps, toRef, useAttrs } from 'vue'
 
   // Types
@@ -67,28 +68,28 @@
   const context = useDataTableRoot(namespace)
 
   const isSelected = toRef(() => {
-    if (rowId === undefined) return false
+    if (isUndefined(rowId)) return false
     return context.selection.isSelected(rowId)
   })
 
   const isSelectable = toRef(() => {
-    if (rowId === undefined) return false
+    if (isUndefined(rowId)) return false
     return context.selection.isSelectable(rowId)
   })
 
   const isExpanded = toRef(() => {
-    if (rowId === undefined) return false
+    if (isUndefined(rowId)) return false
     return context.expansion.isExpanded(rowId)
   })
 
   function toggleSelection () {
-    if (rowId !== undefined) {
+    if (!isUndefined(rowId)) {
       context.selection.toggle(rowId)
     }
   }
 
   function toggleExpansion () {
-    if (rowId !== undefined) {
+    if (!isUndefined(rowId)) {
       context.expansion.toggle(rowId)
     }
   }
@@ -101,7 +102,7 @@
     toggleExpansion,
     attrs: {
       'role': 'row',
-      'aria-selected': rowId === undefined ? undefined : isSelected.value,
+      'aria-selected': isUndefined(rowId) ? undefined : isSelected.value,
       'data-selected': isSelected.value || undefined,
       'data-expanded': isExpanded.value || undefined,
     },
