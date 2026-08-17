@@ -68,12 +68,12 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     },
   })
 
-  // Example containers: ::: example, ::: example collapse, ::: gn-example.
+  // Example containers: ::: gn-example, ::: ds-example (+ "collapse" modifier).
   // Lines starting with / are file paths, rest is markdown description.
   // Single file without description: renders with peek, no description slot.
   // Multiple files or with description: renders with description slot.
   // "collapse" modifier: adds collapse prop for inline expand/collapse button.
-  // `gn-example` emits <DocsGenesisExample>; `example` emits <DocsExample>.
+  // `gn-example` emits <DocsGenesisExample>; `ds-example` emits <DocsSystemExample>.
   function renderExampleOpenWithDescription (env: Record<string, unknown>): string {
     const paths = env._exampleFilePaths as string[]
     const orders = env._exampleFileOrders as (number | undefined)[]
@@ -84,7 +84,7 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     const importsAttr = Object.keys(imports).length > 0
       ? ` :imports="${JSON.stringify(imports).replace(/"/g, '\'')}"`
       : ''
-    const exampleTag = (env._exampleTag as string) || 'DocsExample'
+    const exampleTag = env._exampleTag as string
 
     if (paths.length === 1) {
       return `<${exampleTag} file-path="${paths[0]}"${collapseAttr}${importsAttr}>\n<template #description>\n`
@@ -150,7 +150,6 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     })
   }
 
-  registerExampleContainer('example', 'DocsExample')
   registerExampleContainer('gn-example', 'DocsGenesisExample')
   // Design-system examples render in an isolated iframe (the system's own CSS
   // cannot share a document with the docs shell) — same authoring syntax.
@@ -210,7 +209,7 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
         ? defaultHeadingOpen(tokens, index, options, env, self)
         : self.renderToken(tokens, index, options)
 
-      const exampleTag = (env._exampleTag as string) || 'DocsExample'
+      const exampleTag = env._exampleTag as string
 
       if (paths.length === 1) {
         return `<${exampleTag} file-path="${paths[0]}"${collapseAttr}${importsAttr}>\n<template #description>\n${defaultRender}`
