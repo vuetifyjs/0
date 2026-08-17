@@ -122,8 +122,9 @@ interface GnDocsExampleProps {
 ```
 
 Docs hosts the app-bar theme menu (`DocsExampleThemeMenu` → `AppThemeMenu`) on
-`preview-actions`, driven by a local controller so a reader can try another
-registered theme without changing the page.
+`preview-actions`. The example root calls `createExampleTheme` (spreads the page
+toggle, overrides writes) and provides it via `createContext`, so a reader can
+try another registered theme without changing the page.
 
 `GnDocsExample` forwards `theme` to `GnDocsExamplePreview`, which sets `data-theme="<name>"`
 on the preview panel, scoping the v0 cascade for that subtree. Theme names come from v0's

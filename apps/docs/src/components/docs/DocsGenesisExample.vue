@@ -11,10 +11,10 @@
 
   // Composables
   import { getMultiFileBinUrl } from '@/composables/bin'
+  import { createExampleTheme } from '@/composables/createExampleTheme'
   import { useExamples } from '@/composables/useExamples'
   import { prehighlight } from '@/composables/useHighlightCode'
   import { useIdleCallback } from '@/composables/useIdleCallback'
-  import { useLocalThemeToggle } from '@/composables/useLocalThemeToggle'
   import {
     playgroundRegistryUrl,
     registryRefFromExamplePath,
@@ -22,6 +22,7 @@
   } from '@/composables/usePlayground'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
+  import { provideThemeToggle } from '@/composables/useThemeToggle'
 
   // Utilities
   import { computed, onMounted, toRef } from 'vue'
@@ -61,7 +62,8 @@
 
   const props = defineProps<DocsGenesisExampleProps>()
 
-  const localTheme = useLocalThemeToggle({ palette: props.palette })
+  const example = createExampleTheme({ palette: props.palette })
+  provideThemeToggle(example)
 
   const examples = useExamples()
 
@@ -147,12 +149,12 @@
     show-bin
     show-playground
     :style="{ '--gn-docs-example-sticky-top': 'calc(48px + var(--app-banner-h, 0px))' }"
-    :theme="localTheme.currentThemeId.value"
+    :theme="example.currentThemeId.value"
     :title
     @bin="onBin"
     @playground="onPlayground"
   >
-    <Theme :theme="localTheme.currentThemeId.value">
+    <Theme :theme="example.currentThemeId.value">
       <component :is="resolvedComponent" v-if="resolvedComponent" />
       <slot v-else />
     </Theme>
@@ -162,7 +164,7 @@
     </template>
 
     <template #preview-actions>
-      <DocsExampleThemeMenu :controller="localTheme" />
+      <DocsExampleThemeMenu />
     </template>
 
     <template v-if="$slots.description" #description>

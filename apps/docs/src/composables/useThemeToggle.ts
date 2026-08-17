@@ -74,6 +74,12 @@ export interface UseThemeToggleReturn {
   isDark: UseThemeReturn['isDark']
 }
 
+export interface ThemeToggleContext extends UseThemeToggleReturn {
+  currentThemeId?: Ref<string>
+  isOverridden?: Ref<boolean>
+  reset?: () => void
+}
+
 // Shared singleton state
 const mode = shallowRef<ModePreference>('system')
 const palette = shallowRef<Palette>('vuetify0')
@@ -102,14 +108,14 @@ export function resolveThemeId (
   return dark ? mapping.dark : mapping.light
 }
 
-const [useThemeToggleContext, provideThemeToggle] = createContext<UseThemeToggleReturn | null>(
+const [useThemeToggleContext, provideThemeToggle] = createContext<ThemeToggleContext | null>(
   'docs:theme-toggle',
   null,
 )
 
 export { provideThemeToggle }
 
-export function useThemeToggleController (): UseThemeToggleReturn {
+export function useThemeToggleController (): ThemeToggleContext {
   return useThemeToggleContext() ?? useThemeToggle()
 }
 
