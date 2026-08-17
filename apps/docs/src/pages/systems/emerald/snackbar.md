@@ -92,7 +92,7 @@ Auto-dismiss is FIFO with a per-instance default timeout (3000 ms unless you rai
 
 The queue pauses while the reader is engaged with it: hovering any part of the stack or moving focus into it stops the clock, and it resumes only when both hover and focus have left. That is what makes an auto-dismissing toast defensible under WCAG's timing rules — the reader mousing toward a Close button never races the timeout.
 
-In an app you would install `createNotificationsPlugin()` once and call `useNotifications()` anywhere; the example provides its own instance locally because the docs sandbox installs no notifications plugin. Without either, the queue renders nothing — `useNotifications` falls back to an inert stub, so `send` is a no-op.
+In an app you would install `createNotificationsPlugin()` once and call `useNotifications()` anywhere; the example provides a local `useNotifications` instance because this page does not install the plugin. Without either, the queue renders nothing — `useNotifications` falls back to an inert stub, so `send` is a no-op.
 :::
 
 ## Props

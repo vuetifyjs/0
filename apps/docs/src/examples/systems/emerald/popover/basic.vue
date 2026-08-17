@@ -12,10 +12,22 @@
       <EmPopoverActivator>Details</EmPopoverActivator>
 
       <EmPopoverContent>
-        <p class="emerald-docs-note">
-          Anchored to its trigger, rendered in the top layer, and dismissed by
-          clicking outside or pressing Escape.
-        </p>
+        <dl class="emerald-docs-snippet">
+          <div>
+            <dt>Plan</dt>
+            <dd>Studio</dd>
+          </div>
+
+          <div>
+            <dt>Owner</dt>
+            <dd>Sarah Chen</dd>
+          </div>
+
+          <div>
+            <dt>Last invoice</dt>
+            <dd>Mar 4</dd>
+          </div>
+        </dl>
       </EmPopoverContent>
     </EmPopover>
   </div>
@@ -28,10 +40,27 @@
     padding: var(--emerald-spacing-l, 24px) 0;
   }
 
-  .emerald-docs-note {
+  .emerald-docs-snippet {
     margin: 0;
-    max-width: 280px;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--emerald-spacing-xs, 8px);
     font-size: var(--emerald-text-b2-size, 14px);
     line-height: var(--emerald-text-b2-height, 20px);
+  }
+
+  .emerald-docs-snippet div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--emerald-spacing-m, 16px);
+  }
+
+  .emerald-docs-snippet dt {
+    color: var(--emerald-on-surface-variant);
+  }
+
+  .emerald-docs-snippet dd {
+    margin: 0;
   }
 </style>

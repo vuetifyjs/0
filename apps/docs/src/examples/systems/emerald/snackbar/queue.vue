@@ -76,10 +76,15 @@
 
 <style>
   .emerald-docs-queue-demo {
+    position: relative;
     display: flex;
     align-items: flex-start;
     width: 100%;
     min-height: 220px;
+  }
+
+  .emerald-docs-queue-demo .emerald-snackbar-portal {
+    position: absolute;
   }
 
   .emerald-docs-queue-actions {

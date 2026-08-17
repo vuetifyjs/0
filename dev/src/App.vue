@@ -14,8 +14,8 @@
   const demo = import.meta.env.BASE_URL.includes('/demo/')
   const emerald = computed(() => demo || route.path === '/emerald' || route.path.startsWith('/emerald/'))
 
-  /** Full-bleed product shells (no app chrome padding) */
-  const bare = computed(() => route.path === '/emerald' || route.path.startsWith('/emerald/'))
+  /** Full-bleed product shells (no playground chrome padding); the demo deploy is always bare. */
+  const bare = computed(() => demo || route.path === '/emerald' || route.path.startsWith('/emerald/'))
 
   useHead({
     title: toRef(() => emerald.value ? TITLE : 'Vuetify0'),
@@ -32,10 +32,14 @@
       ]
     }),
   })
+
 </script>
 
 <template>
+  <RouterView v-if="demo" />
+
   <div
+    v-else
     class="min-h-screen bg-background text-on-background"
     :class="bare ? undefined : 'p-4'"
   >

@@ -9,8 +9,8 @@
       note: 'Needs an owner',
       tone: 'alert',
       cards: [
-        { value: 'Tooltip forwards the wrong element type' },
-        { value: 'Tokens drop dot-path aliases' },
+        { value: 'Invoice #1842' },
+        { value: 'Renewal reminder' },
       ],
     },
     {
@@ -18,7 +18,7 @@
       note: 'In the branch',
       tone: 'info',
       cards: [
-        { value: 'Dark elevation rim replaces the shadow' },
+        { value: 'Launch checklist' },
       ],
     },
     {
@@ -26,7 +26,7 @@
       note: 'Waiting on a pass',
       tone: 'secondary',
       cards: [
-        { value: 'Drop indicator uses zone geometry' },
+        { value: 'Design review' },
       ],
     },
     {
@@ -34,8 +34,8 @@
       note: 'Merged to master',
       tone: 'primary',
       cards: [
-        { value: 'Vapor harness runs in CI' },
-        { value: 'Registry version signal documented' },
+        { value: 'Pricing page' },
+        { value: 'Welcome emails' },
       ],
     },
   ]

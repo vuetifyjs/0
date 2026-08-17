@@ -22,9 +22,9 @@
 
   const events: EmCalendarEvent[] = [
     { date: on(4), title: 'Design review', time: '10:00', tone: 'primary' },
-    { date: on(4), title: 'Retro', time: '16:30', tone: 'neutral' },
-    { date: on(4), title: 'Deploy window', time: '18:00', tone: 'info' },
+    { date: on(7), title: 'Retro', time: '16:30', tone: 'neutral' },
     { date: on(11), title: 'Offsite', allDay: true, tone: 'secondary' },
+    { date: on(15), title: 'Deploy window', time: '18:00', tone: 'info' },
     { date: on(18), title: 'Invoice due', time: '09:00', tone: 'alert' },
     { date: on(23), title: 'Contract expires', allDay: true, tone: 'danger' },
   ]

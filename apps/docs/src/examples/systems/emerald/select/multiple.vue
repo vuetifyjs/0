@@ -12,7 +12,16 @@
 
   const scopes = ref<string[]>(['read'])
 
-  const items = ['read', 'write', 'deploy', 'billing']
+  const items = [
+    { value: 'read', label: 'Read' },
+    { value: 'write', label: 'Write' },
+    { value: 'deploy', label: 'Deploy' },
+    { value: 'billing', label: 'Billing' },
+  ]
+
+  function find (value: unknown) {
+    return items.find(item => item.value === value)
+  }
 </script>
 
 <template>
@@ -20,15 +29,15 @@
     <EmSelect v-model="scopes" label="Access scopes" multiple>
       <EmSelectActivator>
         <EmSelectValue v-slot="{ selectedValues }">
-          {{ selectedValues.join(', ') }}
+          {{ selectedValues.map(value => find(value)?.label ?? value).join(', ') }}
         </EmSelectValue>
 
         <EmSelectPlaceholder>No access</EmSelectPlaceholder>
       </EmSelectActivator>
 
       <EmSelectContent>
-        <EmSelectItem v-for="item in items" :key="item" :value="item">
-          {{ item }}
+        <EmSelectItem v-for="item in items" :key="item.value" :value="item.value">
+          {{ item.label }}
         </EmSelectItem>
       </EmSelectContent>
     </EmSelect>

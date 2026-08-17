@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  // Baked theme.css must not be imported here — it paints `--v0-*` on `:root`.
+  import { EmeraldStyleSheetAdapter, emeraldColors, emeraldDarkColors } from '@paper/emerald'
   import { useHead } from '@unhead/vue'
   import faqs from 'virtual:faqs'
   import mdRoutes from 'virtual:md-routes'
@@ -26,6 +28,11 @@
   // Utilities
   import { defineAsyncComponent, toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
+
+  const emeraldAdapter = new EmeraldStyleSheetAdapter({
+    v0Aliases: true,
+    stylesheetId: 'emerald-docs-tokens',
+  })
 
   const AppSettingsSheet = defineAsyncComponent(() => import('@/components/app/AppSettingsSheet.vue'))
   const DocsSearch = defineAsyncComponent(() => import('@/components/docs/DocsSearch.vue'))
@@ -186,6 +193,14 @@
       { key: 'twitter:card', name: 'twitter:card', content: 'summary_large_image' },
       { key: 'twitter:site', name: 'twitter:site', content: '@VuetifyJS' },
     ],
+    style: [{
+      key: 'emerald-docs-tokens',
+      id: 'emerald-docs-tokens',
+      innerHTML: emeraldAdapter.generate({
+        'emerald': emeraldColors,
+        'emerald-dark': emeraldDarkColors,
+      }),
+    }],
     script: toRef(() => [
       {
         key: 'website-schema',

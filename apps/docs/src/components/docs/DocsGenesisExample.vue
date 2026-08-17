@@ -55,6 +55,8 @@
     peek?: boolean
     /** Visible peek lines (default 6) */
     peekLines?: number
+    /** Force a named theme on the preview (`data-theme`); bypasses the example theme toggle (systems pages) */
+    theme?: string
     /** Default palette while following the page. Omit to track the page palette. */
     palette?: Palette
   }
@@ -148,12 +150,12 @@
     show-bin
     show-playground
     :style="{ '--gn-docs-example-sticky-top': 'calc(48px + var(--app-banner-h, 0px))' }"
-    :theme="example.currentThemeId.value"
+    :theme="theme ?? example.currentThemeId.value"
     :title
     @bin="onBin"
     @playground="onPlayground"
   >
-    <Theme :theme="example.currentThemeId.value">
+    <Theme :theme="theme ?? example.currentThemeId.value">
       <component :is="resolvedComponent" v-if="resolvedComponent" />
       <slot v-else />
     </Theme>
@@ -162,7 +164,7 @@
       <AppDotGrid :coverage="60" />
     </template>
 
-    <template #preview-actions>
+    <template v-if="!theme" #preview-actions>
       <DocsExampleThemeMenu />
     </template>
 

@@ -207,21 +207,24 @@ The same depth rule does **not** apply to `## Usage` or `## Recipes` blocks — 
 
 Pages under `pages/systems/**` use `::: ds-example`, which emits `<DocsSystemExample>`. The authoring syntax is identical to `gn-example` — same path/ordering/collapse rules, same prose-depth expectations — and the difference is entirely in where the example runs.
 
-A design system owns global CSS. Bulma resets `button` and `input`; Emerald ships its own tokens and a component stylesheet. UnoCSS's preflight fights both directions, so a system's example cannot share a document with the docs shell. `DocsSystemExample` therefore renders the example in an **iframe** against `apps/docs/sandbox/<system>.html`, and reads the source only for the code pane, playground and bin actions.
+Emerald examples render **inline** under `[data-theme="emerald"]` / `[data-theme="emerald-dark"]` on the Genesis preview panel. `DocsSystemExample` is a thin wrapper around `DocsGenesisExample`; an adapter-generated token sheet (`EmeraldStyleSheetAdapter.generate`, injected via unhead) scopes colors to those selectors and leaves foundations on `:root`. Do not import baked `theme.css` or `style.css` — they paint `--v0-*` on `:root` and would turn Genesis chrome Emerald-green. Do not `app.use(createEmeraldPlugin())` — it writes `data-theme="emerald"` on `<html>` and fights `V0UnheadThemeAdapter`. Icons go through `createEmeraldIconsPlugin()` only.
+
+The iframe remains the rule for any system that resets elements (Bulma resets `button` and `input`). UnoCSS's preflight fights those resets, so those examples cannot share a document with the docs shell. They run in an iframe against `apps/docs/sandbox/<system>.html`; the sandbox files stay as a rollback surface.
 
 Consequences for authoring:
 
 - **Systems pages use their own section skeleton**, not the canonical component-page list above: H1 → `<DocsPageFeatures>` → intro → **Usage** → **Anatomy** → **Composed on v0** → **Examples** → **Props** → **Accessibility**. "Composed on v0" names the compound the component wraps and links to its page; "Props" is hand-authored while `<DocsApi />` does not cover `@paper/*`. The 11-section order in "Component Page Structure" does not apply to `pages/systems/**`.
-- **Examples live at `src/examples/systems/<system>/<component>/*.vue`.** The system segment is what selects the frame — the container derives it from the example path, so `/systems/emerald/dialog/basic` loads `sandbox/emerald.html?e=dialog/basic`. A new system needs its own `sandbox/<system>.html` plus a `src/sandbox/<system>.ts` entry.
-- **No UnoCSS.** The frame deliberately loads none, so utility classes do nothing there. Style with the system's own classes and tokens; keep any example-local CSS to structural layout.
+- **Examples live at `src/examples/systems/<system>/<component>/*.vue`.** Emerald paths mount inline (`/systems/emerald/dialog/basic` is the preview component). For iframe systems the path still selects the frame — `/systems/bulma/modal/basic` loads `sandbox/bulma.html?e=modal/basic`. A new iframe system needs its own `sandbox/<system>.html` plus a `src/sandbox/<system>.ts` entry.
+- **No UnoCSS.** Style with the system's own classes and tokens; keep any example-local CSS to structural layout. Utility classes in an iframe system do nothing because the frame loads none.
+- **No element descendants on shared layout classes.** Emerald example CSS is document-global (`useExamples` eager-globs every `.vue`, and `<style>` is unscoped). `.emerald-docs-row span` paints every `Button.Content` span on every page. Put the color/type on a dedicated class (`.emerald-docs-caption`), not `span` / `p` under `.emerald-docs-row` or `.emerald-docs-stack`.
 - **Import from the design system**, not `@vuetify/v0` — `@paper/emerald`, `@paper/bulma`. Reach for v0 only for utilities a system does not re-export.
 - **Add the sandbox document as a build input.** Vite's default input is the root `index.html` alone; `apps/docs/vite.config.ts` reads `sandbox/*.html` from disk so a new frame needs no config edit, but a frame added outside that directory will be served in dev and missing from `dist`.
 - **The frame document must supply the host reset the system assumes.** A design system styles components, not the page — every real host provides `box-sizing: border-box` (UnoCSS preflight) and a zeroed body margin, and the sandbox loads neither. Without the reset, any `width: 100%` component with padding or borders overflows the frame horizontally. Inline both in the sandbox HTML's critical style (see `sandbox/emerald.html`); Bulma brings its own reset, so `bulma.html` doesn't need it — a new system should assume it does.
 - **The frame document never scrolls — `html { overflow: clip }`.** The parent owns the frame's height and grows it to every measurement the sandbox reports, so a root scrollbar is only ever the resize gap made visible: dragging the example narrower reflows content taller than the held height, and the UA paints a scrollbar for the few frames until the `size` round-trip lands. `clip`, not `hidden`, so no scroll container exists and nothing can strand the document at a stale offset. This applies to every system's frame, resets or no resets.
 
-#### The sandbox contract
+#### The sandbox contract (iframe systems)
 
-The frame and the page talk over `postMessage`, and the protocol is what keeps an overlay from being clipped by the box the example sits in.
+This is the iframe contract, not the Emerald contract. The frame and the page talk over `postMessage`, and the protocol is what keeps an overlay from being clipped by the box the example sits in.
 
 | Message | Direction | Purpose |
 |---------|-----------|---------|
@@ -241,7 +244,7 @@ Three things follow that are easy to get wrong:
 
 ### Example file conventions
 
-- Use UnoCSS utility classes, no custom CSS. [intent:203] **Systems examples are the exception: no UnoCSS — the sandbox document has none, so utility classes are inert. Use the design system's own classes and tokens, and keep any local CSS to structural layout.**
+- Use UnoCSS utility classes, no custom CSS. [intent:203] **Systems examples are the exception: no UnoCSS. Use the design system's own classes and tokens, and keep any local CSS to structural layout. Utility classes in an iframe system are inert (the frame loads none).**
 - Import from `@vuetify/v0`. [intent:204] Systems examples import from their design system (`@paper/emerald`) instead.
 - Keep examples minimal and focused — one concept per file. [intent:205]
 - Example folders use kebab-case; supporting Vue components use PascalCase; supporting utilities use camelCase. [intent:307]

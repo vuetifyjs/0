@@ -13,6 +13,13 @@
 </template>
 
 <style>
+  .emerald-docs-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--emerald-spacing-m, 16px);
+  }
+
   .emerald-docs-muted {
     color: var(--emerald-on-surface-variant);
   }
