@@ -5,7 +5,7 @@
    * @see https://0.vuetifyjs.com/components/data/data-table
    *
    * @remarks
-   * A `<tr>` element for header rows. Use inside DataTable.Head to render
+   * A `<tr>` element for header rows. Use inside DataTable.Header to render
    * one or more header rows from the 2D header grid.
    */
 

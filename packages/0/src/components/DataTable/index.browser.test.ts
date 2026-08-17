@@ -192,17 +192,17 @@ describe('data-table', () => {
     })
   })
 
-  describe('head', () => {
+  describe('header', () => {
     describe('rendering', () => {
       it('should render as thead by default', () => {
         const wrapper = mount(DataTable.Root, {
           slots: {
-            default: () => h(DataTable.Table, {}, () => h(DataTable.Head)),
+            default: () => h(DataTable.Table, {}, () => h(DataTable.Header)),
           },
         })
 
-        const head = wrapper.findComponent(DataTable.Head as any)
-        expect(head.element.tagName).toBe('THEAD')
+        const header = wrapper.findComponent(DataTable.Header as any)
+        expect(header.element.tagName).toBe('THEAD')
       })
 
       it('should expose headers in slot props', () => {
@@ -211,7 +211,7 @@ describe('data-table', () => {
         mount(DataTable.Root, {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
-              h(DataTable.Head, {}, {
+              h(DataTable.Header, {}, {
                 default: (props: any) => {
                   slotProps = props
                   return h('tr')
@@ -228,19 +228,19 @@ describe('data-table', () => {
       it('should render as custom element when as prop is provided', () => {
         const wrapper = mount(DataTable.Root, {
           slots: {
-            default: () => h(DataTable.Table, {}, () => h(DataTable.Head, { as: 'div' })),
+            default: () => h(DataTable.Table, {}, () => h(DataTable.Header, { as: 'div' })),
           },
         })
 
-        const head = wrapper.findComponent(DataTable.Head as any)
-        expect(head.element.tagName).toBe('DIV')
+        const header = wrapper.findComponent(DataTable.Header as any)
+        expect(header.element.tagName).toBe('DIV')
       })
 
       it('should support renderless mode', () => {
         const wrapper = mount(DataTable.Root, {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
-              h(DataTable.Head, { renderless: true }, () =>
+              h(DataTable.Header, { renderless: true }, () =>
                 h('tr', { class: 'custom-head' }),
               ),
             ),
@@ -258,7 +258,7 @@ describe('data-table', () => {
           props: { namespace: 'v0:custom-table' },
           slots: {
             default: () => h(DataTable.Table, { namespace: 'v0:custom-table' }, () =>
-              h(DataTable.Head, { namespace: 'v0:custom-table' }, {
+              h(DataTable.Header, { namespace: 'v0:custom-table' }, {
                 default: (props: any) => {
                   slotProps = props
                   return h('tr')
@@ -279,7 +279,7 @@ describe('data-table', () => {
         const wrapper = mount(DataTable.Root, {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
-              h(DataTable.Head, {}, () => h(DataTable.HeaderRow)),
+              h(DataTable.Header, {}, () => h(DataTable.HeaderRow)),
             ),
           },
         })
@@ -292,7 +292,7 @@ describe('data-table', () => {
         const wrapper = mount(DataTable.Root, {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
-              h(DataTable.Head, {}, () => h(DataTable.HeaderRow, { as: 'div' })),
+              h(DataTable.Header, {}, () => h(DataTable.HeaderRow, { as: 'div' })),
             ),
           },
         })
@@ -305,7 +305,7 @@ describe('data-table', () => {
         const wrapper = mount(DataTable.Root, {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
-              h(DataTable.Head, {}, () =>
+              h(DataTable.Header, {}, () =>
                 h(DataTable.HeaderRow, { renderless: true }, () =>
                   h('div', { class: 'custom-header-row' }),
                 ),
@@ -319,40 +319,40 @@ describe('data-table', () => {
     })
   })
 
-  describe('header-cell', () => {
+  describe('column', () => {
     describe('rendering', () => {
       it('should render as th by default', () => {
         const wrapper = mount(DataTable.Root, {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
-              h(DataTable.Head, {}, () =>
-                h(DataTable.HeaderRow, {}, () => h(DataTable.HeaderCell)),
+              h(DataTable.Header, {}, () =>
+                h(DataTable.HeaderRow, {}, () => h(DataTable.Column)),
               ),
             ),
           },
         })
 
-        const headerCell = wrapper.findComponent(DataTable.HeaderCell as any)
-        expect(headerCell.element.tagName).toBe('TH')
+        const column = wrapper.findComponent(DataTable.Column as any)
+        expect(column.element.tagName).toBe('TH')
       })
 
       it('should have role="columnheader" attribute', () => {
         const wrapper = mount(DataTable.Root, {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
-              h(DataTable.Head, {}, () =>
-                h(DataTable.HeaderRow, {}, () => h(DataTable.HeaderCell)),
+              h(DataTable.Header, {}, () =>
+                h(DataTable.HeaderRow, {}, () => h(DataTable.Column)),
               ),
             ),
           },
         })
 
-        const headerCell = wrapper.findComponent(DataTable.HeaderCell as any)
-        expect(headerCell.attributes('role')).toBe('columnheader')
-        expect(headerCell.attributes('scope')).toBe('col')
+        const column = wrapper.findComponent(DataTable.Column as any)
+        expect(column.attributes('role')).toBe('columnheader')
+        expect(column.attributes('scope')).toBe('col')
       })
 
-      it('should expose sort state when column-id is provided', async () => {
+      it('should expose sort state when id is provided', async () => {
         let slotProps: any
 
         mount(DataTable.Root, {
@@ -360,9 +360,9 @@ describe('data-table', () => {
             default: ({ context }: any) => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
-                h(DataTable.Head, {}, () =>
+                h(DataTable.Header, {}, () =>
                   h(DataTable.HeaderRow, {}, () =>
-                    h(DataTable.HeaderCell, { columnId: 'name' }, {
+                    h(DataTable.Column, { id: 'name' }, {
                       default: (props: any) => {
                         slotProps = props
                         return h('span', 'Name')
@@ -392,9 +392,9 @@ describe('data-table', () => {
             default: ({ context }: any) => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
-                h(DataTable.Head, {}, () =>
+                h(DataTable.Header, {}, () =>
                   h(DataTable.HeaderRow, {}, () =>
-                    h(DataTable.HeaderCell, { columnId: 'name' }, {
+                    h(DataTable.Column, { id: 'name' }, {
                       default: (props: any) => {
                         slotProps = props
                         return h('span', 'Name')
@@ -425,9 +425,9 @@ describe('data-table', () => {
             default: ({ context }: any) => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
-                h(DataTable.Head, {}, () =>
+                h(DataTable.Header, {}, () =>
                   h(DataTable.HeaderRow, {}, () =>
-                    h(DataTable.HeaderCell, { columnId: 'name' }, () => 'Name'),
+                    h(DataTable.Column, { id: 'name' }, () => 'Name'),
                   ),
                 ),
               )
@@ -437,32 +437,32 @@ describe('data-table', () => {
 
         await nextTick()
 
-        const headerCell = wrapper.findComponent(DataTable.HeaderCell as any)
-        expect(headerCell.attributes('aria-sort')).toBe('none')
+        const column = wrapper.findComponent(DataTable.Column as any)
+        expect(column.attributes('aria-sort')).toBe('none')
       })
 
       it('should render as custom element when as prop is provided', () => {
         const wrapper = mount(DataTable.Root, {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
-              h(DataTable.Head, {}, () =>
-                h(DataTable.HeaderRow, {}, () => h(DataTable.HeaderCell, { as: 'div' })),
+              h(DataTable.Header, {}, () =>
+                h(DataTable.HeaderRow, {}, () => h(DataTable.Column, { as: 'div' })),
               ),
             ),
           },
         })
 
-        const headerCell = wrapper.findComponent(DataTable.HeaderCell as any)
-        expect(headerCell.element.tagName).toBe('DIV')
+        const column = wrapper.findComponent(DataTable.Column as any)
+        expect(column.element.tagName).toBe('DIV')
       })
 
       it('should support renderless mode', () => {
         const wrapper = mount(DataTable.Root, {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
-              h(DataTable.Head, {}, () =>
+              h(DataTable.Header, {}, () =>
                 h(DataTable.HeaderRow, {}, () =>
-                  h(DataTable.HeaderCell, { renderless: true }, () =>
+                  h(DataTable.Column, { renderless: true }, () =>
                     h('div', { class: 'custom-header-cell' }, 'Name'),
                   ),
                 ),
@@ -474,15 +474,15 @@ describe('data-table', () => {
         expect(wrapper.find('.custom-header-cell').exists()).toBe(true)
       })
 
-      it('should expose inert sort state when column-id is omitted', () => {
+      it('should expose inert sort state when id is omitted', () => {
         let slotProps: any
 
         mount(DataTable.Root, {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
-              h(DataTable.Head, {}, () =>
+              h(DataTable.Header, {}, () =>
                 h(DataTable.HeaderRow, {}, () =>
-                  h(DataTable.HeaderCell, {}, {
+                  h(DataTable.Column, {}, {
                     default: (props: any) => {
                       slotProps = props
                       return h('span', 'Name')
@@ -510,9 +510,9 @@ describe('data-table', () => {
             default: ({ context }: any) => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
-                h(DataTable.Head, {}, () =>
+                h(DataTable.Header, {}, () =>
                   h(DataTable.HeaderRow, {}, () =>
-                    h(DataTable.HeaderCell, { columnId: 'email' }, {
+                    h(DataTable.Column, { id: 'email' }, {
                       default: (props: any) => {
                         slotProps = props
                         return h('span', 'Email')
@@ -528,7 +528,7 @@ describe('data-table', () => {
         await nextTick()
 
         expect(slotProps.isSortable).toBe(false)
-        expect(wrapper.findComponent(DataTable.HeaderCell as any).attributes('aria-sort')).toBeUndefined()
+        expect(wrapper.findComponent(DataTable.Column as any).attributes('aria-sort')).toBeUndefined()
 
         slotProps.toggleSort()
         await nextTick()
@@ -543,9 +543,9 @@ describe('data-table', () => {
             default: ({ context }: any) => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
-                h(DataTable.Head, {}, () =>
+                h(DataTable.Header, {}, () =>
                   h(DataTable.HeaderRow, {}, () =>
-                    h(DataTable.HeaderCell, { columnId: 'name' }, {
+                    h(DataTable.Column, { id: 'name' }, {
                       default: (props: any) => {
                         slotProps = props
                         return h('span', 'Name')
@@ -560,34 +560,34 @@ describe('data-table', () => {
 
         await nextTick()
 
-        const headerCell = wrapper.findComponent(DataTable.HeaderCell as any)
-        expect(headerCell.attributes('aria-sort')).toBe('none')
+        const column = wrapper.findComponent(DataTable.Column as any)
+        expect(column.attributes('aria-sort')).toBe('none')
 
         slotProps.toggleSort()
         await nextTick()
-        expect(headerCell.attributes('aria-sort')).toBe('ascending')
+        expect(column.attributes('aria-sort')).toBe('ascending')
 
         slotProps.toggleSort()
         await nextTick()
-        expect(headerCell.attributes('aria-sort')).toBe('descending')
+        expect(column.attributes('aria-sort')).toBe('descending')
       })
 
       it('should support colspan and rowspan attributes', () => {
         const wrapper = mount(DataTable.Root, {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
-              h(DataTable.Head, {}, () =>
+              h(DataTable.Header, {}, () =>
                 h(DataTable.HeaderRow, {}, () =>
-                  h(DataTable.HeaderCell, { colspan: 2, rowspan: 3 }, () => 'Name'),
+                  h(DataTable.Column, { colspan: 2, rowspan: 3 }, () => 'Name'),
                 ),
               ),
             ),
           },
         })
 
-        const headerCell = wrapper.findComponent(DataTable.HeaderCell as any)
-        expect(headerCell.attributes('colspan')).toBe('2')
-        expect(headerCell.attributes('rowspan')).toBe('3')
+        const column = wrapper.findComponent(DataTable.Column as any)
+        expect(column.attributes('colspan')).toBe('2')
+        expect(column.attributes('rowspan')).toBe('3')
       })
 
       it('should resolve sort state with custom namespace', async () => {
@@ -599,9 +599,9 @@ describe('data-table', () => {
             default: ({ context }: any) => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, { namespace: 'v0:custom-table' }, () =>
-                h(DataTable.Head, { namespace: 'v0:custom-table' }, () =>
+                h(DataTable.Header, { namespace: 'v0:custom-table' }, () =>
                   h(DataTable.HeaderRow, {}, () =>
-                    h(DataTable.HeaderCell, { namespace: 'v0:custom-table', columnId: 'name' }, {
+                    h(DataTable.Column, { namespace: 'v0:custom-table', id: 'name' }, {
                       default: (props: any) => {
                         slotProps = props
                         return h('span', 'Name')
@@ -763,7 +763,7 @@ describe('data-table', () => {
         expect(row.attributes('role')).toBe('row')
       })
 
-      it('should expose selection state when row-id is provided', async () => {
+      it('should expose selection state when id is provided', async () => {
         let slotProps: any
 
         mount(DataTable.Root, {
@@ -772,7 +772,7 @@ describe('data-table', () => {
               context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Body, {}, () =>
-                  h(DataTable.Row, { rowId: 1 }, {
+                  h(DataTable.Row, { id: 1 }, {
                     default: (props: any) => {
                       slotProps = props
                       return h('td')
@@ -803,7 +803,7 @@ describe('data-table', () => {
               context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Body, {}, () =>
-                  h(DataTable.Row, { rowId: 1 }, {
+                  h(DataTable.Row, { id: 1 }, {
                     default: (props: any) => {
                       slotProps = props
                       return h('td')
@@ -827,14 +827,14 @@ describe('data-table', () => {
         expect(slotProps.isSelected).toBe(false)
       })
 
-      it('should have aria-selected attribute when row-id is provided', async () => {
+      it('should have aria-selected attribute when id is provided', async () => {
         const wrapper = mount(DataTable.Root, {
           slots: {
             default: ({ context }: any) => {
               context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Body, {}, () =>
-                  h(DataTable.Row, { rowId: 1 }),
+                  h(DataTable.Row, { id: 1 }),
                 ),
               )
             },
@@ -876,7 +876,7 @@ describe('data-table', () => {
         expect(wrapper.find('.custom-row').exists()).toBe(true)
       })
 
-      it('should expose inert selection state when row-id is omitted', () => {
+      it('should expose inert selection state when id is omitted', () => {
         let slotProps: any
 
         const wrapper = mount(DataTable.Root, {
@@ -914,7 +914,7 @@ describe('data-table', () => {
               context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Body, {}, () =>
-                  h(DataTable.Row, { rowId: 1 }, {
+                  h(DataTable.Row, { id: 1 }, {
                     default: (props: any) => {
                       slotProps = props
                       return h('td')
@@ -949,7 +949,7 @@ describe('data-table', () => {
               context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Body, {}, () =>
-                  h(DataTable.Row, { rowId: 1 }, {
+                  h(DataTable.Row, { id: 1 }, {
                     default: (props: any) => {
                       slotProps = props
                       return h('td')
@@ -983,7 +983,7 @@ describe('data-table', () => {
               context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
               return h(DataTable.Table, { namespace: 'v0:custom-table' }, () =>
                 h(DataTable.Body, { namespace: 'v0:custom-table' }, () =>
-                  h(DataTable.Row, { namespace: 'v0:custom-table', rowId: 1 }, {
+                  h(DataTable.Row, { namespace: 'v0:custom-table', id: 1 }, {
                     default: (props: any) => {
                       slotProps = props
                       return h('td')
@@ -1205,17 +1205,17 @@ describe('data-table', () => {
             context.columns.onboard(testColumns)
             context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
             return h(DataTable.Table, {}, () => [
-              h(DataTable.Head, {}, () =>
+              h(DataTable.Header, {}, () =>
                 h(DataTable.HeaderRow, {}, () =>
                   testColumns.map(col =>
-                    h(DataTable.HeaderCell, { key: col.id, columnId: col.id }, () => col.title),
+                    h(DataTable.Column, { key: col.id, id: col.id }, () => col.title),
                   ),
                 ),
               ),
               h(DataTable.Body, {}, {
                 default: ({ items }: any) =>
                   items.map((item: User) =>
-                    h(DataTable.Row, { key: item.id, rowId: item.id }, () => [
+                    h(DataTable.Row, { key: item.id, id: item.id }, () => [
                       h(DataTable.Cell, { key: 'name' }, () => item.name),
                       h(DataTable.Cell, { key: 'email' }, () => item.email),
                     ]),
@@ -1229,7 +1229,7 @@ describe('data-table', () => {
       await nextTick()
 
       expect(wrapper.findComponent(DataTable.Table as any).exists()).toBe(true)
-      expect(wrapper.findComponent(DataTable.Head as any).exists()).toBe(true)
+      expect(wrapper.findComponent(DataTable.Header as any).exists()).toBe(true)
       expect(wrapper.findComponent(DataTable.Body as any).exists()).toBe(true)
 
       const rows = wrapper.findAllComponents(DataTable.Row as any)
@@ -1247,9 +1247,9 @@ describe('data-table', () => {
         render: () =>
           h(DataTable.Root as any, {}, () =>
             h(DataTable.Table as any, {}, () => [
-              h(DataTable.Head as any, {}, () =>
+              h(DataTable.Header as any, {}, () =>
                 h(DataTable.HeaderRow as any, {}, () =>
-                  h(DataTable.HeaderCell as any, {}, () => 'Name'),
+                  h(DataTable.Column as any, {}, () => 'Name'),
                 ),
               ),
               h(DataTable.Body as any, {}, () =>

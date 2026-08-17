@@ -30,23 +30,23 @@
     <DataTableInit />
 
     <DataTable.Table aria-label="Users table">
-      <DataTable.Head>
+      <DataTable.Header>
         <DataTable.HeaderRow>
-          <DataTable.HeaderCell
+          <DataTable.Column
             v-for="col in columns"
+            :id="col.id"
             :key="col.id"
-            :column-id="col.id"
           >
             {{ col.title }}
-          </DataTable.HeaderCell>
+          </DataTable.Column>
         </DataTable.HeaderRow>
-      </DataTable.Head>
+      </DataTable.Header>
 
       <DataTable.Body v-slot="{ items }">
         <DataTable.Row
           v-for="item in items"
+          :id="(item as any).id"
           :key="(item as any).id"
-          :row-id="(item as any).id"
         >
           <DataTable.Cell>{{ (item as any).name }}</DataTable.Cell>
           <DataTable.Cell>{{ (item as any).email }}</DataTable.Cell>
