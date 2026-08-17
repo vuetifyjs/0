@@ -85,6 +85,7 @@
   provideDataGridRow(namespace, { id, resizable })
 
   function onSplitterLayout (sizes: number[]) {
+    if (context.layout.columns.value.length === 0) return
     context.layout.distribute(sizes)
   }
 

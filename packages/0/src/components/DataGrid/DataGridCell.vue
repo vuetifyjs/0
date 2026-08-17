@@ -37,8 +37,9 @@
     /** Row span for this cell (from rowSpanning config) */
     rowSpan: number
     attrs: {
-      role: string
-      rowspan: number | undefined
+      'role': string
+      'rowspan': number | undefined
+      'data-state': 'editing' | undefined
     }
   }
 </script>
@@ -88,8 +89,9 @@
     isEditing: isEditing.value,
     rowSpan: rowSpan.value,
     attrs: {
-      role: 'gridcell',
-      rowspan: rowSpan.value > 1 ? rowSpan.value : undefined,
+      'role': 'gridcell',
+      'rowspan': rowSpan.value > 1 ? rowSpan.value : undefined,
+      'data-state': isEditing.value ? 'editing' : undefined,
     },
   }))
 </script>
