@@ -59,9 +59,7 @@ export type AccessibilityTheme = typeof ACCESSIBILITY_THEMES[number]
 export type ThemePreference = ModePreference | AccessibilityTheme | Palette | (string & {})
 
 export interface ThemeToggleOptions {
-  /** Persist to storage and select the page theme. Off for a subtree (example). */
-  persist?: boolean
-  /** Palette to keep while following the page. Persist instances ignore this after restore. */
+  /** Palette to keep while following the page. */
   palette?: Palette
 }
 
@@ -131,29 +129,39 @@ export function useThemeToggleController (): ThemeToggleContext {
 let page: ThemeToggleContext | undefined
 
 export function useThemeToggle (): ThemeToggleContext {
-  page ??= createThemeToggle({ persist: true })
+  page ??= createThemeToggleState({ bindPage: true })
   return page
 }
 
 /**
- * Mode / palette / a11y controller. Persist writes storage and selects the
- * page theme; `{ persist: false }` is a subtree that follows the page until
- * the user overrides.
+ * Local mode / palette / a11y controller. Follows the page toggle until the
+ * user overrides. Persistence is a plugin concern (`createThemePlugin({ persist })`).
  */
 export function createThemeToggle (options: ThemeToggleOptions = {}): ThemeToggleContext {
-  const persist = options.persist ?? false
+  return createThemeToggleState({
+    palette: options.palette,
+    follow: useThemeToggle(),
+  })
+}
+
+function createThemeToggleState (options: {
+  palette?: Palette
+  follow?: ThemeToggleContext
+  bindPage?: boolean
+}): ThemeToggleContext {
   const home = options.palette
+  const follow = options.follow
+  const bindPage = options.bindPage === true
   const theme = useTheme()
   const storage = useStorage()
   const { matches: prefersDark } = usePrefersDark()
-  const follow = persist ? undefined : useThemeToggle()
 
   const mode = shallowRef<ModePreference>(follow?.mode.value ?? 'system')
   const palette = shallowRef<Palette>(home ?? follow?.palette.value ?? 'vuetify0')
   const preference = shallowRef<ThemePreference>(follow?.preference.value ?? 'system')
   const override = shallowRef(false)
 
-  if (persist) {
+  if (bindPage) {
     restore(storage, mode, palette, preference)
   } else if (follow) {
     watch(
@@ -171,7 +179,7 @@ export function createThemeToggle (options: ThemeToggleOptions = {}): ThemeToggl
     resolveThemeId(mode.value, palette.value, preference.value, prefersDark.value),
   )
 
-  if (persist) {
+  if (bindPage) {
     watch(
       [mode, palette, preference, prefersDark],
       () => {
@@ -190,7 +198,7 @@ export function createThemeToggle (options: ThemeToggleOptions = {}): ThemeToggl
   }
 
   function lock () {
-    if (!persist) override.value = true
+    if (!bindPage) override.value = true
   }
 
   function setMode (next: ModePreference) {
@@ -225,7 +233,7 @@ export function createThemeToggle (options: ThemeToggleOptions = {}): ThemeToggl
   }
 
   function reset () {
-    if (persist || !follow) {
+    if (bindPage || !follow) {
       mode.value = 'system'
       palette.value = home ?? 'vuetify0'
       preference.value = 'system'
@@ -259,7 +267,7 @@ export function createThemeToggle (options: ThemeToggleOptions = {}): ThemeToggl
       }
       return `Theme: ${PALETTE_LABELS[palette.value] ?? 'Custom'}`
     }),
-    isDark: persist
+    isDark: bindPage
       ? theme.isDark
       : toRef(() => {
           if (isAccessibilityTheme(String(preference.value))) {

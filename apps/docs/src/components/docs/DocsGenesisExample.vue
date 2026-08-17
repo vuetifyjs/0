@@ -61,7 +61,7 @@
 
   const props = defineProps<DocsGenesisExampleProps>()
 
-  const example = createThemeToggle({ persist: false, palette: props.palette })
+  const example = createThemeToggle({ palette: props.palette })
   provideThemeToggle(example)
 
   const examples = useExamples()

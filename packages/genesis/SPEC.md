@@ -122,9 +122,9 @@ interface GnDocsExampleProps {
 ```
 
 Docs hosts the app-bar theme menu (`DocsExampleThemeMenu` → `AppThemeMenu`) on
-`preview-actions`. The example root calls `createThemeToggle({ persist: false })`
-and provides it via `createContext` — same factory as the page toggle
-(`{ persist: true }`).
+`preview-actions`. The example root calls `createThemeToggle()` (follows the
+page until override) and provides it via `createContext`. Persistence stays on
+the v0 plugin: `createThemePlugin({ persist: true })`.
 
 `GnDocsExample` forwards `theme` to `GnDocsExamplePreview`, which sets `data-theme="<name>"`
 on the preview panel, scoping the v0 cascade for that subtree. Theme names come from v0's
