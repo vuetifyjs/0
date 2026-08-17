@@ -6,7 +6,7 @@
   import { provideThemeToggle } from '@/composables/useThemeToggle'
 
   // Utilities
-  import { shallowRef, toRef } from 'vue'
+  import { shallowRef, toRef, useId } from 'vue'
 
   // Types
   import type { UseLocalThemeToggleReturn } from '@/composables/useLocalThemeToggle'
@@ -19,6 +19,7 @@
 
   provideThemeToggle(props.controller)
 
+  const uid = useId()
   const open = shallowRef(false)
   const icon = toRef(() => props.controller.icon.value)
   const title = toRef(() => props.controller.title.value)
@@ -26,25 +27,26 @@
 </script>
 
 <template>
-  <Popover.Root v-model="open">
+  <Popover.Root :id="uid" v-model="open">
     <AppTooltip
       as="span"
-      class="inline-flex"
+      class="mt-[8px] me-[8px] inline-flex"
       position-area="bottom"
       :text="title"
     >
       <Popover.Activator
         aria-label="Example theme"
-        class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
+        class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded-none rounded-bl-[0.375rem] rounded-tr-[0.375rem] hover:bg-surface-variant transition-all cursor-pointer"
       >
         <AppIcon :icon />
       </Popover.Activator>
     </AppTooltip>
 
     <Popover.Content
-      class="p-3 rounded-lg bg-surface border border-divider shadow-xl min-w-56 !mt-1"
+      :id="uid"
+      class="p-3 rounded-lg bg-surface border border-divider shadow-xl min-w-56 justify-self-end self-start"
       position-area="bottom span-left"
-      position-try="bottom span-left, bottom span-right, top span-left, top span-right"
+      position-try="bottom span-left, top span-left, bottom span-right, top span-right"
     >
       <div class="flex items-center justify-between mb-3 ps-1">
         <span class="text-xs font-semibold text-on-surface">Theme</span>

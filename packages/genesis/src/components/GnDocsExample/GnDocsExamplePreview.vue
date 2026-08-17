@@ -122,8 +122,8 @@
 <style scoped>
   .genesis-docs-example-preview__actions {
     position: absolute;
-    top: 0.125rem;
-    inset-inline-end: 0.125rem;
+    top: 0;
+    inset-inline-end: 0;
     z-index: 4;
   }
 
@@ -201,7 +201,7 @@
 
   .genesis-docs-example-preview__indicator {
     position: absolute;
-    top: 0.5rem;
+    bottom: 0.5rem;
     inset-inline-end: 0.5rem;
     z-index: 2;
     padding: 0.125rem 0.375rem;
