@@ -74,7 +74,8 @@ export default function zero (app: App) {
     createThemePlugin({
       adapter: new V0UnheadThemeAdapter(),
       persist: true,
-      default: 'dark',
+      default: 'light',
+      system: { light: 'light', dark: 'dark' },
       target: 'html',
       palette: {
         brand: {

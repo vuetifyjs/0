@@ -9,7 +9,23 @@ import { V0StyleSheetThemeAdapter } from './adapters/v0'
 import { createTheme, createThemePlugin, useTheme } from './index'
 
 // Utilities
-import { createApp, nextTick } from 'vue'
+import { createApp, nextTick, shallowRef } from 'vue'
+
+const prefersDark = shallowRef(false)
+const stopPrefersDark = vi.fn()
+
+vi.mock('#v0/composables/useMediaQuery', async () => {
+  const actual = await vi.importActual('#v0/composables/useMediaQuery')
+  return {
+    ...actual,
+    usePrefersDark: () => ({
+      matches: prefersDark,
+      query: shallowRef('(prefers-color-scheme: dark)'),
+      mediaQueryList: shallowRef(null),
+      stop: stopPrefersDark,
+    }),
+  }
+})
 
 // Types
 import type { ThemeContext } from './index'
@@ -19,6 +35,11 @@ vi.mock('#v0/constants/globals', () => ({
 }))
 
 describe('createTheme', () => {
+  beforeEach(() => {
+    prefersDark.value = false
+    stopPrefersDark.mockClear()
+  })
+
   describe('basic functionality', () => {
     it('should create a theme context with default values', () => {
       const context = createTheme({})
@@ -763,6 +784,87 @@ describe('createTheme', () => {
 
         expect(theme!.selectedId.value).toBe('light')
       })
+
+      it('should not persist a system-applied theme and restore an explicit select', async () => {
+        const app = createApp({ render: () => null })
+        app.use(createStoragePlugin())
+        prefersDark.value = true
+
+        app.use(
+          createThemePlugin({
+            namespace: 'v0:theme-system-persist',
+            persist: true,
+            default: 'light',
+            system: { light: 'light', dark: 'dark' },
+            themes: {
+              light: { dark: false, colors: { primary: '#1976d2' } },
+              dark: { dark: true, colors: { primary: '#90caf9' } },
+            },
+          }),
+        )
+
+        let theme: ThemeContext | undefined
+        app.runWithContext(() => {
+          theme = useTheme('v0:theme-system-persist')
+        })
+
+        expect(theme!.isSystem.value).toBe(true)
+        expect(theme!.selectedId.value).toBe('dark')
+
+        let stored: unknown
+        app.runWithContext(() => {
+          stored = useStorage().get('theme-system-persist').value
+        })
+        expect(stored).toBeUndefined()
+
+        theme!.select('light')
+        await nextTick()
+
+        app.runWithContext(() => {
+          stored = useStorage().get('theme-system-persist').value
+        })
+        expect(stored).toBe('light')
+        expect(theme!.isSystem.value).toBe(false)
+
+        theme!.reset()
+        await nextTick()
+
+        app.runWithContext(() => {
+          stored = useStorage().get('theme-system-persist').value
+        })
+        expect(stored).toBeNull()
+        expect(theme!.isSystem.value).toBe(true)
+        expect(theme!.selectedId.value).toBe('dark')
+      })
+
+      it('should restore an explicit select on a new plugin install', () => {
+        const app1 = createApp({ render: () => null })
+        app1.use(createStoragePlugin())
+        app1.runWithContext(() => {
+          useStorage().set('theme-system-restore', 'dark')
+        })
+
+        app1.use(
+          createThemePlugin({
+            namespace: 'v0:theme-system-restore',
+            persist: true,
+            default: 'light',
+            system: { light: 'light', dark: 'dark' },
+            themes: {
+              light: { dark: false, colors: { primary: '#1976d2' } },
+              dark: { dark: true, colors: { primary: '#90caf9' } },
+            },
+          }),
+        )
+
+        let theme: ThemeContext | undefined
+        app1.runWithContext(() => {
+          theme = useTheme('v0:theme-system-restore')
+        })
+
+        expect(theme!.isSystem.value).toBe(false)
+        expect(theme!.selectedId.value).toBe('dark')
+      })
     })
   })
 
@@ -785,7 +887,9 @@ describe('createTheme', () => {
       expect(theme!.isDark.value).toBe(false)
       expect(theme!.size).toBe(0)
       expect(theme!.colors.value).toEqual({})
+      expect(theme!.isSystem.value).toBe(false)
       theme!.cycle() // no-op, should not throw
+      theme!.reset() // no-op, should not throw
 
       app.unmount()
     })
@@ -1158,6 +1262,142 @@ describe('createTheme', () => {
       expect(theme.size).toBe(before)
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('light'))
+    })
+  })
+
+  describe('system pair', () => {
+    const pair = {
+      default: 'light' as const,
+      system: { light: 'light', dark: 'dark' },
+      themes: {
+        light: { dark: false, colors: { primary: '#fff' } },
+        dark: { dark: true, colors: { primary: '#000' } },
+      },
+    }
+
+    it('should select the light id when the OS prefers light', () => {
+      const theme = createTheme(pair)
+
+      expect(theme.isSystem.value).toBe(true)
+      expect(theme.selectedId.value).toBe('light')
+    })
+
+    it('should select the dark id when the OS prefers dark', () => {
+      prefersDark.value = true
+      const theme = createTheme(pair)
+
+      expect(theme.isSystem.value).toBe(true)
+      expect(theme.selectedId.value).toBe('dark')
+    })
+
+    it('should follow OS changes while isSystem', async () => {
+      const theme = createTheme(pair)
+      expect(theme.selectedId.value).toBe('light')
+
+      prefersDark.value = true
+      await nextTick()
+
+      expect(theme.isSystem.value).toBe(true)
+      expect(theme.selectedId.value).toBe('dark')
+    })
+
+    it('should stop following the OS after select', async () => {
+      const theme = createTheme(pair)
+      theme.select('light')
+
+      prefersDark.value = true
+      await nextTick()
+
+      expect(theme.isSystem.value).toBe(false)
+      expect(theme.selectedId.value).toBe('light')
+    })
+
+    it('should follow the OS again after reset', async () => {
+      prefersDark.value = true
+      const theme = createTheme(pair)
+      theme.select('light')
+      theme.reset()
+
+      expect(theme.isSystem.value).toBe(true)
+      expect(theme.selectedId.value).toBe('dark')
+    })
+
+    it('should warn and use default when a system id is missing', () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const theme = createTheme({
+        default: 'light',
+        system: { light: 'light', dark: 'missing' },
+        themes: {
+          light: { dark: false, colors: { primary: '#fff' } },
+        },
+      })
+
+      expect(theme.isSystem.value).toBe(false)
+      expect(theme.selectedId.value).toBe('light')
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('system.dark'))
+    })
+
+    it('should warn when the dark id is not a dark theme', () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      createTheme({
+        system: { light: 'light', dark: 'also-light' },
+        themes: {
+          'light': { dark: false, colors: { primary: '#fff' } },
+          'also-light': { dark: false, colors: { primary: '#eee' } },
+        },
+      })
+
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('dark: true'))
+    })
+
+    it('should warn and use default when the light id is missing', () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const theme = createTheme({
+        default: 'dark',
+        system: { light: 'missing', dark: 'dark' },
+        themes: {
+          dark: { dark: true, colors: { primary: '#000' } },
+        },
+      })
+
+      expect(theme.isSystem.value).toBe(false)
+      expect(theme.selectedId.value).toBe('dark')
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('system.light'))
+    })
+
+    it('should stop following the OS after cycle', () => {
+      const theme = createTheme(pair)
+
+      theme.cycle(['light', 'dark'])
+
+      expect(theme.isSystem.value).toBe(false)
+    })
+
+    it('should re-select default on reset when system is not configured', () => {
+      const theme = createTheme({
+        default: 'dark',
+        themes: {
+          light: { dark: false, colors: { primary: '#fff' } },
+          dark: { dark: true, colors: { primary: '#000' } },
+        },
+      })
+
+      theme.select('light')
+      theme.reset()
+
+      expect(theme.isSystem.value).toBe(false)
+      expect(theme.selectedId.value).toBe('dark')
+    })
+
+    it('should stop the media query on dispose', () => {
+      const theme = createTheme(pair)
+
+      theme.dispose()
+
+      expect(stopPrefersDark).toHaveBeenCalledTimes(1)
     })
   })
 
