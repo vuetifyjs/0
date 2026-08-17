@@ -22,6 +22,8 @@ describe('alert', () => {
       })
 
       expect(wrapper.attributes('role')).toBe('alert')
+      expect(wrapper.attributes('aria-live')).toBe('assertive')
+      expect(wrapper.attributes('aria-atomic')).toBe('true')
     })
 
     it('should set role="status" when role prop is status', () => {
@@ -31,9 +33,11 @@ describe('alert', () => {
       })
 
       expect(wrapper.attributes('role')).toBe('status')
+      expect(wrapper.attributes('aria-live')).toBe('polite')
+      expect(wrapper.attributes('aria-atomic')).toBe('true')
     })
 
-    it('should expose role in slot attrs', async () => {
+    it('should expose role, aria-live, and aria-atomic in slot attrs', async () => {
       let slotProps: any
 
       mount(Alert.Root, {
@@ -49,6 +53,28 @@ describe('alert', () => {
 
       expect(slotProps).toBeDefined()
       expect(slotProps.attrs.role).toBe('alert')
+      expect(slotProps.attrs['aria-live']).toBe('assertive')
+      expect(slotProps.attrs['aria-atomic']).toBe(true)
+    })
+
+    it('should expose polite live-region attrs when role is status', async () => {
+      let slotProps: any
+
+      mount(Alert.Root, {
+        props: { role: 'status' },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('span', 'Message')
+          },
+        },
+      })
+
+      await nextTick()
+
+      expect(slotProps.attrs.role).toBe('status')
+      expect(slotProps.attrs['aria-live']).toBe('polite')
+      expect(slotProps.attrs['aria-atomic']).toBe(true)
     })
 
     it('should render as custom element via as prop', () => {
@@ -74,6 +100,8 @@ describe('alert', () => {
       })
 
       expect(slotProps.attrs.role).toBe('alert')
+      expect(slotProps.attrs['aria-live']).toBe('assertive')
+      expect(slotProps.attrs['aria-atomic']).toBe(true)
     })
   })
 
@@ -135,12 +163,14 @@ describe('alert', () => {
       })
 
       expect(wrapper.attributes('role')).toBe('alert')
+      expect(wrapper.attributes('aria-live')).toBe('assertive')
+      expect(wrapper.attributes('aria-atomic')).toBe('true')
       expect(wrapper.find('strong').text()).toBe('Session expiring')
       expect(wrapper.find('p').text()).toBe('You will be signed out in 5 minutes.')
     })
   })
 
-  describe('sSR', () => {
+  describe('ssr', () => {
     it('should render to string on server without errors', async () => {
       const { renderToString } = await import('vue/server-renderer')
       const { createSSRApp, h } = await import('vue')
@@ -159,6 +189,8 @@ describe('alert', () => {
       const html = await renderToString(app)
 
       expect(html).toContain('role="alert"')
+      expect(html).toContain('aria-live="assertive"')
+      expect(html).toContain('aria-atomic="true"')
       expect(html).toContain('Alert')
       expect(html).toContain('A status message.')
     })

@@ -1,5 +1,5 @@
 export type { AlertDescriptionProps, AlertDescriptionSlotProps } from './AlertDescription.vue'
-export type { AlertRootProps, AlertRootSlotProps } from './AlertRoot.vue'
+export type { AlertRootProps, AlertRootSlotAttrs, AlertRootSlotProps } from './AlertRoot.vue'
 export type { AlertTitleProps, AlertTitleSlotProps } from './AlertTitle.vue'
 
 export { default as AlertDescription } from './AlertDescription.vue'
@@ -41,18 +41,54 @@ export const Alert = {
    * Set `role="status"` for polite, non-urgent messages.
    *
    * @see https://0.vuetifyjs.com/components/semantic/alert
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { Alert } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Alert.Root>
+   *     <Alert.Title>Session expiring</Alert.Title>
+   *     <Alert.Description>You will be signed out in 5 minutes.</Alert.Description>
+   *   </Alert.Root>
+   * </template>
+   * ```
    */
   Root,
   /**
    * Title for the alert. Renders as `<p>` by default.
    *
    * @see https://0.vuetifyjs.com/components/semantic/alert
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { Alert } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Alert.Title>Session expiring</Alert.Title>
+   * </template>
+   * ```
    */
   Title,
   /**
    * Description body for the alert. Renders as `<p>` by default.
    *
    * @see https://0.vuetifyjs.com/components/semantic/alert
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { Alert } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Alert.Description>You will be signed out in 5 minutes.</Alert.Description>
+   * </template>
+   * ```
    */
   Description,
 }

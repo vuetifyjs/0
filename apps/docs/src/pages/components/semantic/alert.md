@@ -11,6 +11,10 @@ features:
   github: /components/Alert/
   renderless: false
   level: 2
+related:
+  - /components/semantic/snackbar
+  - /components/disclosure/alert-dialog
+  - /composables/plugins/use-notifications
 ---
 
 # Alert
@@ -35,34 +39,23 @@ Headless compound component for inline status messages. Renders a live region th
 <template>
   <Alert.Root>
     <Alert.Title />
+
     <Alert.Description />
   </Alert.Root>
 </template>
 ```
 
-## API
+## Accessibility
 
-### Alert.Root
+`Alert.Root` is a live region. It emits `role`, `aria-live`, and `aria-atomic="true"` so assistive tech announces the whole message when the region is inserted or updated.
 
-The root live-region container. Defaults to `role="alert"` (assertive — AT reads it immediately). Use `role="status"` for polite, non-urgent messages.
+| Role | `aria-live` | When |
+| --- | --- | --- |
+| `alert` (default) | `assertive` | Errors, session expiry — interrupts immediately |
+| `status` | `polite` | Confirmations and info — waits for idle |
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `role` | `'alert' \| 'status'` | `'alert'` | ARIA live-region role |
-| `as` | `string \| Component` | `'div'` | Root element |
+Mount `Alert.Root` when the message appears (`v-if`). Do not leave an empty region in the tree and flip it with `v-show` — live regions announce on insertion; `v-show` only toggles `display` and often produces no announcement.
 
-### Alert.Title
+Do not statically mount `role="alert"` as page chrome. An assertive region present at load interrupts the screen reader's first pass of the page. A polite `role="status"` may stay mounted as chrome; insert assertive alerts on demand.
 
-Title element for the alert. Renders as `<p>` by default to avoid disrupting document heading hierarchy.
-
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `as` | `string \| Component` | `'p'` | Element to render |
-
-### Alert.Description
-
-Description paragraph for the alert. Renders as `<p>` by default.
-
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `as` | `string \| Component` | `'p'` | Element to render |
+<DocsApi />

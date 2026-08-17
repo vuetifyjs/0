@@ -7,7 +7,8 @@
  * Root component for inline status messages. Renders with `role="alert"` by
  * default (assertive live region — AT reads it immediately on update).
  * Use `role="status"` for non-urgent informational messages (polite live
- * region). Pair with AlertTitle and AlertDescription for structured content.
+ * region). Emits explicit `aria-live` and `aria-atomic="true"` alongside
+ * `role`. Pair with AlertTitle and AlertDescription for structured content.
  */
 
 <script lang="ts">
@@ -30,11 +31,15 @@
     role?: 'alert' | 'status'
   }
 
+  export interface AlertRootSlotAttrs {
+    'aria-atomic': true
+    'aria-live': 'assertive' | 'polite'
+    'role': 'alert' | 'status'
+  }
+
   export interface AlertRootSlotProps {
     /** Attributes to bind to the alert element */
-    attrs: {
-      role: 'alert' | 'status'
-    }
+    attrs: AlertRootSlotAttrs
   }
 </script>
 
@@ -52,7 +57,11 @@
   } = defineProps<AlertRootProps>()
 
   const slotProps = toRef((): AlertRootSlotProps => ({
-    attrs: { role },
+    attrs: {
+      'aria-atomic': true,
+      'aria-live': role === 'alert' ? 'assertive' : 'polite',
+      role,
+    },
   }))
 </script>
 
