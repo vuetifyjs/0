@@ -12,7 +12,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Utilities
-  import { mergeProps, useAttrs } from 'vue'
+  import { mergeProps, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -45,12 +45,12 @@
 
   const attrs = useAttrs()
 
-  const slotProps: DataTableCellSlotProps = {
+  const slotProps = toRef((): DataTableCellSlotProps => ({
     attrs: {
       role: 'cell',
-      colspan: colspan,
+      colspan,
     },
-  }
+  }))
 </script>
 
 <template>

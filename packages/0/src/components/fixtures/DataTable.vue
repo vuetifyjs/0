@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Utilities
-  import { defineComponent, onMounted } from 'vue'
+  import { defineComponent } from 'vue'
 
   import { DataTable, useDataTableRoot } from '../DataTable/index'
 
@@ -18,10 +18,8 @@
     name: 'DataTableInit',
     setup () {
       const context = useDataTableRoot('v0:data-table')
-      onMounted(() => {
-        context.columns.onboard(columns)
-        context.onboard(users.map(u => ({ id: u.id, value: u })))
-      })
+      context.columns.onboard(columns)
+      context.onboard(users.map(u => ({ id: u.id, value: u })))
       return () => null
     },
   })

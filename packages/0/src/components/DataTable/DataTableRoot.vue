@@ -14,6 +14,9 @@
   import { createContext } from '#v0/composables/createContext'
   import { createDataTable } from '#v0/composables/createDataTable'
 
+  // Utilities
+  import { toRef } from 'vue'
+
   // Types
   import type { DataTableContext, DataTableOptions } from '#v0/composables/createDataTable'
 
@@ -70,8 +73,10 @@
   })
 
   provideDataTableRoot(namespace, context as DataTableContext<Record<string, unknown>>)
+
+  const slotProps = toRef((): DataTableRootSlotProps<T> => ({ context }))
 </script>
 
 <template>
-  <slot :context />
+  <slot v-bind="slotProps" />
 </template>

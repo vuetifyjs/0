@@ -46,6 +46,7 @@
       'role': 'columnheader'
       'scope': 'col'
       'aria-sort': 'ascending' | 'descending' | 'none' | undefined
+      'data-direction': 'asc' | 'desc' | undefined
       'colspan': number | undefined
       'rowspan': number | undefined
     }
@@ -109,6 +110,9 @@
       'role': 'columnheader',
       'scope': 'col',
       'aria-sort': ariaSort.value,
+      'data-direction': isSortable.value && (sortDirection.value === 'asc' || sortDirection.value === 'desc')
+        ? sortDirection.value
+        : undefined,
       'colspan': colspan,
       'rowspan': rowspan,
     },

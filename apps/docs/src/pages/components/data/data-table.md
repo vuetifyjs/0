@@ -38,23 +38,21 @@ The DataTable component provides a semantic table structure that wraps the `crea
 </script>
 
 <template>
-  <DataTable.Root v-slot="{ context }">
+  <DataTable.Root>
     <DataTable.Table>
-      <DataTable.Head v-slot="{ headers }">
+      <DataTable.Head>
         <DataTable.HeaderRow>
-          <DataTable.HeaderCell column-id="name">Name</DataTable.HeaderCell>
-          <DataTable.HeaderCell column-id="email">Email</DataTable.HeaderCell>
+          <DataTable.HeaderCell />
         </DataTable.HeaderRow>
       </DataTable.Head>
 
-      <DataTable.Body v-slot="{ items }">
-        <DataTable.Row v-for="item in items" :key="item.id" :row-id="item.id">
-          <DataTable.Cell>{{ item.name }}</DataTable.Cell>
-          <DataTable.Cell>{{ item.email }}</DataTable.Cell>
+      <DataTable.Body>
+        <DataTable.Row>
+          <DataTable.Cell />
         </DataTable.Row>
 
         <DataTable.Empty>
-          <DataTable.Cell :colspan="2">No data available</DataTable.Cell>
+          <DataTable.Cell />
         </DataTable.Empty>
       </DataTable.Body>
     </DataTable.Table>
@@ -102,7 +100,7 @@ Register columns and rows once via the `useDataTableRoot` composable in a child 
 
 ```vue
 <script setup lang="ts">
-  import { defineComponent, onMounted } from 'vue'
+  import { defineComponent } from 'vue'
   import { DataTable, useDataTableRoot } from '@vuetify/v0'
 
   const columns = [
@@ -115,10 +113,8 @@ Register columns and rows once via the `useDataTableRoot` composable in a child 
   const DataTableInit = defineComponent({
     setup () {
       const context = useDataTableRoot('v0:data-table')
-      onMounted(() => {
-        context.columns.onboard(columns)
-        context.onboard(users.map(u => ({ id: u.id, value: u })))
-      })
+      context.columns.onboard(columns)
+      context.onboard(users.map(u => ({ id: u.id, value: u })))
       return () => null
     },
   })
@@ -135,7 +131,7 @@ Register columns and rows once via the `useDataTableRoot` composable in a child 
 > [!TIP]
 > For full control over the data pipeline without the component layer, use [createDataTable](/composables/data/create-data-table) directly.
 
-## Features
+## Recipes
 
 ### Sorting
 
@@ -179,15 +175,17 @@ DataTable renders semantic table markup with ARIA attributes:
 Use `renderless` mode to customize the underlying elements while preserving the ARIA attributes via slot props:
 
 ```vue
-<DataTable.HeaderCell
-  column-id="name"
-  v-slot="{ attrs, toggleSort }"
-  renderless
->
-  <th v-bind="attrs" @click="toggleSort">
-    Name
-  </th>
-</DataTable.HeaderCell>
+<template>
+  <DataTable.HeaderCell
+    column-id="name"
+    v-slot="{ attrs, toggleSort }"
+    renderless
+  >
+    <th v-bind="attrs" @click="toggleSort">
+      Name
+    </th>
+  </DataTable.HeaderCell>
+</template>
 ```
 
 ## FAQ
@@ -203,7 +201,9 @@ Use DataTable when you want a semantic table structure with built-in ARIA. Use `
 Pass `sort-multiple` to the Root:
 
 ```vue
-<DataTable.Root :sort-multiple="true">
+<template>
+  <DataTable.Root :sort-multiple="true" />
+</template>
 ```
 
 ??? How do I handle server-side data?
@@ -211,7 +211,9 @@ Pass `sort-multiple` to the Root:
 Pass a `ServerDataTableAdapter` to the Root:
 
 ```vue
-<DataTable.Root :adapter="new ServerDataTableAdapter({ fetch: fetchData })">
+<template>
+  <DataTable.Root :adapter="new ServerDataTableAdapter({ fetch: fetchData })" />
+</template>
 ```
 
 :::
