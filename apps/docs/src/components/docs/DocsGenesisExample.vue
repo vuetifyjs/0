@@ -1,8 +1,12 @@
 <script setup lang="ts">
   import { GnDocsExample } from '@paper/genesis'
 
+  // Framework
+  import { Theme } from '@vuetify/v0'
+
   // Context
   import DocsCodeActions from './DocsCodeActions.vue'
+  import DocsExampleThemeMenu from './DocsExampleThemeMenu.vue'
   import DocsGenesisShikiBlock from './DocsGenesisShikiBlock.vue'
 
   // Composables
@@ -10,6 +14,7 @@
   import { useExamples } from '@/composables/useExamples'
   import { prehighlight } from '@/composables/useHighlightCode'
   import { useIdleCallback } from '@/composables/useIdleCallback'
+  import { useLocalThemeToggle } from '@/composables/useLocalThemeToggle'
   import {
     playgroundRegistryUrl,
     registryRefFromExamplePath,
@@ -22,6 +27,7 @@
   import { computed, onMounted, toRef } from 'vue'
 
   // Types
+  import type { Palette } from '@/composables/useThemeToggle'
   import type { GnDocsExampleFile } from '@paper/genesis'
 
   export interface DocsGenesisExampleProps {
@@ -49,9 +55,13 @@
     peek?: boolean
     /** Visible peek lines (default 6) */
     peekLines?: number
+    /** Default palette while following the page. Omit to track the page palette. */
+    palette?: Palette
   }
 
   const props = defineProps<DocsGenesisExampleProps>()
+
+  const localTheme = useLocalThemeToggle({ palette: props.palette })
 
   const examples = useExamples()
 
@@ -137,15 +147,22 @@
     show-bin
     show-playground
     :style="{ '--gn-docs-example-sticky-top': 'calc(48px + var(--app-banner-h, 0px))' }"
+    :theme="localTheme.currentThemeId.value"
     :title
     @bin="onBin"
     @playground="onPlayground"
   >
-    <component :is="resolvedComponent" v-if="resolvedComponent" />
-    <slot v-else />
+    <Theme :theme="localTheme.currentThemeId.value">
+      <component :is="resolvedComponent" v-if="resolvedComponent" />
+      <slot v-else />
+    </Theme>
 
     <template #decoration>
       <AppDotGrid :coverage="60" />
+    </template>
+
+    <template #preview-actions>
+      <DocsExampleThemeMenu :controller="localTheme" />
     </template>
 
     <template v-if="$slots.description" #description>

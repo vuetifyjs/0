@@ -5,7 +5,7 @@ import { usePrefersDark, useStorage, useTheme } from '@vuetify/v0'
 import { themes, type ThemeId } from '@/themes'
 
 // Utilities
-import { type Ref, shallowRef, type ShallowRef, toRef, watch } from 'vue'
+import { type InjectionKey, type Ref, inject, provide, shallowRef, type ShallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { UseThemeReturn } from '@vuetify/v0'
@@ -20,7 +20,7 @@ export type Palette =
   | 'ant-design'
 
 // Maps palette ID → [dark ThemeId, light ThemeId]
-const PALETTE_THEMES: Record<Palette, { dark: ThemeId, light: ThemeId }> = {
+export const PALETTE_THEMES: Record<Palette, { dark: ThemeId, light: ThemeId }> = {
   'vuetify0': { dark: 'dark', light: 'light' },
   'tailwind': { dark: 'tailwind', light: 'tailwind-light' },
   'material-3': { dark: 'material-3', light: 'material-3-light' },
@@ -79,12 +79,37 @@ const mode = shallowRef<ModePreference>('system')
 const palette = shallowRef<Palette>('vuetify0')
 const preference = shallowRef<ThemePreference>('system')
 
-function isValidPalette (value: string | undefined): value is Palette {
+export function isValidPalette (value: string | undefined): value is Palette {
   return !!value && value in PALETTE_THEMES
 }
 
-function isAccessibilityTheme (value: string): value is AccessibilityTheme {
+export function isAccessibilityTheme (value: string): value is AccessibilityTheme {
   return (ACCESSIBILITY_THEMES as readonly string[]).includes(value)
+}
+
+export function resolveThemeId (
+  mode: ModePreference,
+  palette: Palette,
+  preference: ThemePreference,
+  prefersDark: boolean,
+): ThemeId {
+  if (isAccessibilityTheme(String(preference))) {
+    return preference as ThemeId
+  }
+
+  const dark = mode === 'system' ? prefersDark : mode === 'dark'
+  const mapping = PALETTE_THEMES[palette]
+  return dark ? mapping.dark : mapping.light
+}
+
+const THEME_TOGGLE_KEY: InjectionKey<UseThemeToggleReturn> = Symbol('docs:theme-toggle')
+
+export function provideThemeToggle (controller: UseThemeToggleReturn) {
+  provide(THEME_TOGGLE_KEY, controller)
+}
+
+export function useThemeToggleController (): UseThemeToggleReturn {
+  return inject(THEME_TOGGLE_KEY, null) ?? useThemeToggle()
 }
 
 let initialized = false

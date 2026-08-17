@@ -65,49 +65,17 @@
         <AppCloseButton size="sm" @click="isOpen = false" />
       </div>
 
-      <!-- Mode -->
-      <div class="mb-3">
-        <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Mode</div>
-
-        <div class="grid grid-cols-3 gap-2">
-          <AppThemeSystemButton />
-          <AppThemeLightButton />
-          <AppThemeDarkButton />
-        </div>
-      </div>
-
-      <!-- Palettes -->
-      <div class="mb-3">
-        <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Palettes</div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <AppPaletteVuetify0Button />
-          <AppPaletteTailwindButton />
-          <AppPaletteMaterial3Button />
-          <AppPaletteRadixButton />
-          <AppPaletteAntDesignButton />
-        </div>
-
-        <button
-          class="w-full text-xs text-primary border border-primary rounded py-1.5 transition-colors hover:bg-primary/15 text-center mt-2"
-          type="button"
-          @click="onBrowse"
-        >
-          Browse Palettes
-        </button>
-      </div>
-
-      <!-- Accessibility -->
-      <div>
-        <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Accessibility</div>
-
-        <div class="flex gap-2">
-          <AppThemeHighContrastButton class="flex-1" />
-          <AppThemeProtanopiaButton />
-          <AppThemeDeuteranopiaButton />
-          <AppThemeTritanopiaButton />
-        </div>
-      </div>
+      <AppThemeMenu>
+        <template #palettes-footer>
+          <button
+            class="w-full text-xs text-primary border border-primary rounded py-1.5 transition-colors hover:bg-primary/15 text-center mt-2"
+            type="button"
+            @click="onBrowse"
+          >
+            Browse Palettes
+          </button>
+        </template>
+      </AppThemeMenu>
 
       <!-- Create Theme -->
       <button

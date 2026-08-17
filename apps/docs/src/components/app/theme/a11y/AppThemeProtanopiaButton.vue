@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Composables
-  import { useThemeToggle } from '@/composables/useThemeToggle'
+  import { useThemeToggleController } from '@/composables/useThemeToggle'
 
   // Themes
   import { themes } from '@/themes'
@@ -8,7 +8,7 @@
   // Utilities
   import { toRef } from 'vue'
 
-  const toggle = useThemeToggle()
+  const toggle = useThemeToggleController()
   const active = toRef(() => toggle.preference.value === 'protanopia')
 </script>
 

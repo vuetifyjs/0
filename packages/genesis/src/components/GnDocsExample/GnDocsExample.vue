@@ -140,6 +140,10 @@
       <template v-if="$slots.decoration" #decoration>
         <slot name="decoration" />
       </template>
+
+      <template v-if="$slots['preview-actions']" #actions>
+        <slot name="preview-actions" />
+      </template>
     </GnDocsExamplePreview>
 
     <div v-if="hasCode && !peek" class="genesis-docs-example__toggle-bar">
