@@ -1,18 +1,19 @@
+/**
+ * @module DataGridHandle
+ *
+ * @see https://0.vuetifyjs.com/components/data/data-grid
+ *
+ * @remarks
+ * Column resize handle for the data grid. This is a thin wrapper around
+ * Splitter.Handle that provides the drag interaction for column resizing.
+ *
+ * Place between adjacent DataGridColumn components inside a resizable
+ * DataGridRow. The handle inherits all Splitter.Handle functionality
+ * including pointer drag and keyboard support (Arrow keys, Page Up/Down,
+ * Home/End).
+ */
+
 <script lang="ts">
-  /**
-   * @module DataGridHandle
-   *
-   * @see https://0.vuetifyjs.com/components/data/data-grid
-   *
-   * @remarks
-   * Column resize handle for the data grid. This is a thin wrapper around
-   * Splitter.Handle that provides the drag interaction for column resizing.
-   *
-   * Place between adjacent DataGridColumn components inside a resizable
-   * DataGridRow. The handle inherits all Splitter.Handle functionality
-   * including pointer drag and keyboard support (Arrow keys, Page Up/Down,
-   * Home/End).
-   */
   // Components
   import { SplitterHandle } from '#v0/components/Splitter'
 
@@ -53,7 +54,7 @@
   const attrs = useAttrs()
 
   defineSlots<{
-    default: (props: DataGridHandleSlotProps) => any
+    default: (props: DataGridHandleSlotProps) => unknown
   }>()
 
   const {

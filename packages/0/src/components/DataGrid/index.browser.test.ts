@@ -449,6 +449,8 @@ describe('dataGrid', () => {
         expect(wrapper.find('th').exists()).toBe(false)
         expect(wrapper.find('.custom-column').attributes('role')).toBe('columnheader')
         expect(slotProps.attrs.role).toBe('columnheader')
+        expect(slotProps.attrs.scope).toBe('col')
+        expect(slotProps.isSortable).toBe(false)
         expect(slotProps.isSorted).toBe(false)
         expect(slotProps.sortDirection).toBeUndefined()
         expect(slotProps.isPinned).toBe(false)
@@ -497,9 +499,11 @@ describe('dataGrid', () => {
         ])
         await nextTick()
 
+        expect(slotProps.isSortable).toBe(true)
         expect(slotProps.isSorted).toBe(false)
         expect(slotProps.sortDirection).toBeUndefined()
         expect(slotProps.attrs['aria-sort']).toBe('none')
+        expect(typeof slotProps.toggleSort).toBe('function')
 
         context.sort.toggle('name')
         await nextTick()

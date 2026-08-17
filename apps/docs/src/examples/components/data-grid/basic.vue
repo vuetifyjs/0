@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  import { DataGrid } from '@vuetify/v0'
-  import { onMounted, ref } from 'vue'
+  import { DataGrid, useDataGridRoot } from '@vuetify/v0'
+  import { defineComponent } from 'vue'
 
   interface User {
     id: number
@@ -21,18 +21,23 @@
     { id: 'role' },
   ]
 
-  const gridRef = ref<{ context: any } | null>(null)
-
-  onMounted(() => {
-    if (gridRef.value?.context) {
-      gridRef.value.context.columns.onboard(columns)
-      gridRef.value.context.onboard(users.map(u => ({ id: u.id, value: u })))
-    }
+  const DataGridInit = defineComponent({
+    name: 'DataGridInit',
+    setup () {
+      const context = useDataGridRoot('v0:data-grid')
+      if (context.columns.size === 0) {
+        context.columns.onboard(columns)
+        context.onboard(users.map(u => ({ id: u.id, value: u })))
+      }
+      return () => null
+    },
   })
 </script>
 
 <template>
-  <DataGrid.Root ref="gridRef" v-slot="{ context }">
+  <DataGrid.Root v-slot="{ context }">
+    <DataGridInit />
+
     <DataGrid.Table class="w-full border-collapse">
       <DataGrid.Header>
         <DataGrid.Row class="bg-surface-tint">

@@ -101,24 +101,57 @@ export const DataGrid = {
    * Table container with `role="grid"` ARIA semantics.
    *
    * @see https://0.vuetifyjs.com/components/data/data-grid
+   *
+   * @example
+   * ```vue
+   * <DataGrid.Table>
+   *   <DataGrid.Header />
+   *   <DataGrid.Body />
+   * </DataGrid.Table>
+   * ```
    */
   Table,
   /**
    * Header section container with `role="rowgroup"` ARIA semantics.
    *
    * @see https://0.vuetifyjs.com/components/data/data-grid
+   *
+   * @example
+   * ```vue
+   * <DataGrid.Header>
+   *   <DataGrid.Row>
+   *     <DataGrid.Column column="name">Name</DataGrid.Column>
+   *   </DataGrid.Row>
+   * </DataGrid.Header>
+   * ```
    */
   Header,
   /**
    * Body section container with `role="rowgroup"` ARIA semantics.
    *
    * @see https://0.vuetifyjs.com/components/data/data-grid
+   *
+   * @example
+   * ```vue
+   * <DataGrid.Body>
+   *   <DataGrid.Row :id="item.id">
+   *     <DataGrid.Cell column="name">{{ item.name }}</DataGrid.Cell>
+   *   </DataGrid.Row>
+   * </DataGrid.Body>
+   * ```
    */
   Body,
   /**
    * Row container with `role="row"` ARIA semantics.
    *
    * @see https://0.vuetifyjs.com/components/data/data-grid
+   *
+   * @example
+   * ```vue
+   * <DataGrid.Row :id="item.id">
+   *   <DataGrid.Cell column="name">{{ item.name }}</DataGrid.Cell>
+   * </DataGrid.Row>
+   * ```
    */
   Row,
   /**
@@ -126,12 +159,26 @@ export const DataGrid = {
    * Composes `Splitter.Panel` when inside a resizable `DataGridRow`.
    *
    * @see https://0.vuetifyjs.com/components/data/data-grid
+   *
+   * @example
+   * ```vue
+   * <DataGrid.Column v-slot="{ isSortable, toggleSort }" column="name">
+   *   <button v-if="isSortable" @click="toggleSort">Name</button>
+   * </DataGrid.Column>
+   * ```
    */
   Column,
   /**
    * Data cell with `role="gridcell"`, editing state, and row spanning.
    *
    * @see https://0.vuetifyjs.com/components/data/data-grid
+   *
+   * @example
+   * ```vue
+   * <DataGrid.Cell v-slot="{ isEditing }" column="name">
+   *   {{ isEditing ? 'editing' : item.name }}
+   * </DataGrid.Cell>
+   * ```
    */
   Cell,
   /**
