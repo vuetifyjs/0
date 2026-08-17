@@ -1,8 +1,25 @@
 <script setup lang="ts">
   /**
-   * Shared mode / palette / a11y grid used by the app-bar selector and the
-   * per-example theme popover. Buttons read `useThemeToggleController()`.
+   * Shared mode / palette / a11y / custom grid used by the app-bar selector and
+   * the per-example theme popover. Buttons read `useThemeToggleController()`.
    */
+
+  // Composables
+  import { useCustomThemes } from '@/composables/useCustomThemes'
+
+  const { editable = false } = defineProps<{
+    editable?: boolean
+  }>()
+
+  const emit = defineEmits<{
+    edit: [id: string]
+  }>()
+
+  const { customThemes } = useCustomThemes()
+
+  function onEdit (id: string) {
+    emit('edit', id)
+  }
 </script>
 
 <template>
@@ -39,6 +56,20 @@
         <AppThemeProtanopiaButton />
         <AppThemeDeuteranopiaButton />
         <AppThemeTritanopiaButton />
+      </div>
+    </div>
+
+    <div v-if="customThemes.length > 0" class="mt-3">
+      <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Custom</div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <AppThemeCustomButton
+          v-for="custom in customThemes"
+          :key="custom.id"
+          :editable
+          :theme-id="custom.id"
+          @edit="onEdit"
+        />
       </div>
     </div>
   </div>

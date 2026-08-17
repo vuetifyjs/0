@@ -7,7 +7,7 @@
 
   const toggle = useThemeToggleController()
   const active = toRef(() =>
-    !toggle.isAccessibilityActive.value && toggle.palette.value === 'radix',
+    !toggle.isOverrideActive.value && toggle.palette.value === 'radix',
   )
 </script>
 
