@@ -32,7 +32,7 @@ app.use(createEmeraldPlugin()) // wires adapter + default emerald theme — no m
 That is the whole install. Do **not** construct `EmeraldStyleSheetAdapter` yourself
 unless the host already runs `createThemePlugin` and you pass `{ theme: false }`.
 
-Two themes ship: `emerald` (default) and `emerald-dark`. Switch via the theme
+Two themes ship: `emerald-light` (default) and `emerald-dark`. Switch via the theme
 plugin (`useTheme().select('emerald-dark')`) or, on the CSS-only path, set
 `data-theme="emerald-dark"` on any subtree — every `--emerald-*` color and shadow
 flips; light stays the `:root` default.
