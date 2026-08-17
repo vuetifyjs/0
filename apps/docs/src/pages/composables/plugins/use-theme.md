@@ -126,7 +126,9 @@ Theme selection and computed colors are reactive. Switching themes automatically
 | `selectedIndex` | <AppSuccessIcon /> | Index in registry |
 | `colors` | <AppSuccessIcon /> | Resolved colors for all registered themes (keyed by theme ID) |
 | `isDark` | <AppSuccessIcon /> | Current theme is dark |
-| `select(id)` | — | Switch to a specific theme by ID |
+| `isSystem` | <AppSuccessIcon /> | OS pair is driving selection |
+| `select(id)` | — | Switch to a specific theme by ID. Stops following `system`. |
+| `reset()` | — | Follow the `system` pair again, or re-select `default` |
 | `cycle(ids?)` | — | Advance to the next theme. Pass an array to restrict which themes to cycle |
 
 ## Examples
@@ -154,6 +156,37 @@ Reach for `useTheme` when you need to read the active theme's colors in script (
 
 :::
 
+## Recipes
+
+### Follow the operating system
+
+Pass a `system` pair of **already registered** theme ids. The plugin follows `prefers-color-scheme` until the user calls `select`. With `persist: true`, a system-applied theme is not stored — the next load still asks the OS. An explicit `select` is stored; `reset()` returns to the pair.
+
+```ts collapse
+app.use(
+  createStoragePlugin(),
+)
+app.use(
+  createThemePlugin({
+    default: 'light',
+    system: { light: 'light', dark: 'dark' },
+    persist: true,
+    themes: {
+      light: { dark: false, colors: { primary: '#3b82f6' } },
+      dark: { dark: true, colors: { primary: '#675496' } },
+    },
+  }),
+)
+```
+
+On the server there is no media query; `default` is used until the client takes over. Pair with `V0UnheadThemeAdapter` if a flash on hydration matters.
+
+::: gn-example
+/composables/use-theme/system
+
+Flip the OS or browser color scheme while `isSystem` is true. Light/Dark calls `select` (stops following). Reset follows the OS again.
+:::
+
 ## FAQ
 
 ::: faq
@@ -169,6 +202,10 @@ Yes — `theme.register({ id, dark, colors })` adds a theme after install (e.g. 
 ??? When should I use useTheme vs the Theme provider?
 
 useTheme manages the app-wide theme. Reach for the [Theme](/components/providers/theme) provider when a subtree needs its own independent theme isolated from the rest of the app.
+
+??? How do I default to the operating system light/dark preference?
+
+Pass `system: { light, dark }` with two registered theme ids. The plugin follows `prefers-color-scheme` until `select`. With `persist: true`, only an explicit `select` is stored. Call `reset()` to follow the OS again. See [Follow the operating system](/composables/plugins/use-theme#follow-the-operating-system).
 
 ??? How do I toggle between two themes when more are registered?
 

@@ -134,48 +134,29 @@ export function useThemeToggle (): UseThemeToggleReturn {
     const storedAccessibility = storage.get<string>('theme-accessibility')
     preference.value = storedAccessibility.value && isAccessibilityTheme(storedAccessibility.value) ? storedAccessibility.value : mode.value
 
-    watch(
-      [mode, palette, prefersDark],
-      ([m, p, isDark]) => {
-        storage.set('theme-mode', m)
-        storage.set('theme-palette', p)
+    function apply () {
+      storage.set('theme-mode', mode.value)
+      storage.set('theme-palette', palette.value)
 
-        // If preference is an accessibility theme, use it directly
-        if (isAccessibilityTheme(preference.value)) {
-          storage.set('theme-accessibility', preference.value)
-          storage.set('theme', preference.value)
-          theme.select(preference.value as ThemeId)
-          return
-        }
-
-        storage.set('theme-accessibility', null)
-
-        // Resolve mode
-        const dark = m === 'system' ? isDark : m === 'dark'
-        const mapping = PALETTE_THEMES[p]
-        const actual = dark ? mapping.dark : mapping.light
-        storage.set('theme', actual)
-        theme.select(actual)
-      },
-      { immediate: true },
-    )
-
-    // Also watch preference for accessibility toggle
-    watch(preference, pref => {
-      if (isAccessibilityTheme(pref)) {
-        storage.set('theme-accessibility', pref)
-        storage.set('theme', pref)
-        theme.select(pref as ThemeId)
-      } else {
-        storage.set('theme-accessibility', null)
-        // Re-resolve from mode + palette
-        const dark = mode.value === 'system' ? prefersDark.value : mode.value === 'dark'
-        const mapping = PALETTE_THEMES[palette.value]
-        const actual = dark ? mapping.dark : mapping.light
-        storage.set('theme', actual)
-        theme.select(actual)
+      if (isAccessibilityTheme(preference.value)) {
+        storage.set('theme-accessibility', preference.value)
+        theme.select(preference.value as ThemeId)
+        return
       }
-    })
+
+      storage.set('theme-accessibility', null)
+
+      if (mode.value === 'system' && palette.value === 'vuetify0') {
+        theme.reset()
+        return
+      }
+
+      const dark = mode.value === 'system' ? prefersDark.value : mode.value === 'dark'
+      const mapping = PALETTE_THEMES[palette.value]
+      theme.select(dark ? mapping.dark : mapping.light)
+    }
+
+    watch([mode, palette, prefersDark, preference], apply, { immediate: true })
   }
 
   const isAccessibilityActive = toRef(() => isAccessibilityTheme(preference.value))
