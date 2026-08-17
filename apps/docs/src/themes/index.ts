@@ -686,8 +686,7 @@ export function getAllThemeConfigs (): Record<ThemeId, { dark: boolean, colors: 
  * Export theme as Vuetify config format.
  * Ready to paste into createVuetify() themes option.
  */
-export function exportThemeAsVuetifyConfig (id: ThemeId): string {
-  const theme = themes[id]
+export function exportThemeAsVuetifyConfig (theme: Pick<ThemeDefinition, 'colors' | 'dark'>): string {
   const config = {
     dark: theme.dark,
     colors: { ...theme.colors },

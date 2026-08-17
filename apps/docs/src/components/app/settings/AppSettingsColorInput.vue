@@ -17,8 +17,8 @@
     const target = event.target as HTMLInputElement
     let value = target.value.trim()
 
-    // Auto-add # prefix if missing
-    if (value && !value.startsWith('#')) {
+    // Auto-add # prefix for bare hex, but leave rgb()/hsl()/named colors alone
+    if (/^[\da-f]{3,8}$/i.test(value)) {
       value = `#${value}`
     }
 

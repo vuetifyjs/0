@@ -14,7 +14,7 @@
   const router = useRouter()
 
   const toggle = useThemeToggle()
-  const { customThemes: themes, editor } = useCustomThemes()
+  const { editor } = useCustomThemes()
   const settings = useSettings()
 
   const isOpen = shallowRef(false)
@@ -65,7 +65,7 @@
         <AppCloseButton size="sm" @click="isOpen = false" />
       </div>
 
-      <AppThemeMenu>
+      <AppThemeMenu editable @edit="onEdit">
         <template #palettes-footer>
           <button
             class="w-full text-xs text-primary border border-primary rounded py-1.5 transition-colors hover:bg-primary/15 text-center mt-2"
@@ -86,21 +86,6 @@
         <AppIcon icon="plus" size="16" />
         <span>Create Theme</span>
       </button>
-
-      <!-- Custom Themes -->
-      <div v-if="themes.length > 0" class="mt-3">
-        <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Custom Themes</div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <AppThemeCustomButton
-            v-for="theme in themes"
-            :key="theme.id"
-            editable
-            :theme-id="theme.id"
-            @edit="onEdit"
-          />
-        </div>
-      </div>
     </Popover.Content>
   </Popover.Root>
 </template>

@@ -54,6 +54,9 @@ const ACCESSIBILITY_THEMES = [
 
 const MODES: ModePreference[] = ['system', 'light', 'dark']
 
+/** Id prefix minted by `useCustomThemes`. */
+const CUSTOM = 'custom-'
+
 export type AccessibilityTheme = typeof ACCESSIBILITY_THEMES[number]
 
 export type ThemePreference = ModePreference | AccessibilityTheme | Palette | (string & {})
@@ -71,7 +74,7 @@ export interface ThemeToggleContext {
   preference: ShallowRef<ThemePreference>
   currentThemeId: Ref<string>
   isOverridden: Ref<boolean>
-  isAccessibilityActive: Ref<boolean>
+  isOverrideActive: Ref<boolean>
   icon: Ref<string>
   title: Ref<string>
   isDark: Ref<boolean>
@@ -96,6 +99,18 @@ export function isModePreference (value: string): value is ModePreference {
   return (MODES as readonly string[]).includes(value)
 }
 
+export function isCustomTheme (value: string): boolean {
+  return value.startsWith(CUSTOM)
+}
+
+/**
+ * A preference that names a theme outright instead of resolving through
+ * mode + palette. Accessibility themes and user-created themes both qualify.
+ */
+export function isOverrideTheme (value: string): boolean {
+  return isAccessibilityTheme(value) || isCustomTheme(value)
+}
+
 export function resolveThemeId (
   mode: ModePreference,
   palette: Palette,
@@ -103,7 +118,7 @@ export function resolveThemeId (
   prefersDark: boolean,
 ): string {
   const pref = String(preference)
-  if (isAccessibilityTheme(pref)) {
+  if (isOverrideTheme(pref)) {
     return pref
   }
   if (!isModePreference(pref) && !isValidPalette(pref)) {
@@ -186,9 +201,10 @@ function createThemeToggleState (options: {
         const id = currentThemeId.value
         storage.set('theme-mode', mode.value)
         storage.set('theme-palette', palette.value)
+        // Legacy key name; holds any override id (accessibility or custom).
         storage.set(
           'theme-accessibility',
-          isAccessibilityTheme(String(preference.value)) ? preference.value : null,
+          isOverrideTheme(String(preference.value)) ? preference.value : null,
         )
         storage.set('theme', id)
         theme.select(id as ThemeId)
@@ -210,14 +226,14 @@ function createThemeToggleState (options: {
   function setPalette (next: Palette) {
     lock()
     palette.value = next
-    if (isAccessibilityTheme(String(preference.value))) {
+    if (isOverrideTheme(String(preference.value))) {
       preference.value = mode.value
     }
   }
 
   function setPreference (pref: ThemePreference) {
     lock()
-    if (isAccessibilityTheme(String(pref)) || isModePreference(pref)) {
+    if (isOverrideTheme(String(pref)) || isModePreference(pref)) {
       if (isModePreference(pref)) mode.value = pref
       preference.value = pref
     } else if (isValidPalette(pref)) {
@@ -254,14 +270,20 @@ function createThemeToggleState (options: {
     preference,
     currentThemeId,
     isOverridden: toRef(() => override.value),
-    isAccessibilityActive: toRef(() => isAccessibilityTheme(String(preference.value))),
+    isOverrideActive: toRef(() => isOverrideTheme(String(preference.value))),
     icon: toRef(() => {
+      if (isCustomTheme(String(preference.value))) {
+        return 'theme-custom'
+      }
       if (isAccessibilityTheme(String(preference.value))) {
         return `theme-${preference.value}`
       }
       return PALETTE_ICONS[palette.value] ?? 'theme-custom'
     }),
     title: toRef(() => {
+      if (isCustomTheme(String(preference.value))) {
+        return 'Theme: Custom'
+      }
       if (isAccessibilityTheme(String(preference.value))) {
         return `Theme: ${preference.value}`
       }
@@ -270,7 +292,7 @@ function createThemeToggleState (options: {
     isDark: bindPage
       ? theme.isDark
       : toRef(() => {
-          if (isAccessibilityTheme(String(preference.value))) {
+          if (isOverrideTheme(String(preference.value))) {
             return theme.get(preference.value)?.dark ?? theme.isDark.value
           }
           return mode.value === 'system' ? prefersDark.value : mode.value === 'dark'
@@ -320,8 +342,8 @@ function restore (
     }
   }
 
-  const storedAccessibility = storage.get<string>('theme-accessibility')
-  preference.value = storedAccessibility.value && isAccessibilityTheme(storedAccessibility.value)
-    ? storedAccessibility.value
+  const stored = storage.get<string>('theme-accessibility')
+  preference.value = stored.value && isOverrideTheme(stored.value)
+    ? stored.value
     : mode.value
 }
