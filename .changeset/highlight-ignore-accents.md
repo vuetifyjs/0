@@ -4,6 +4,6 @@
 
 feat(toHighlight): add `ignoreAccents` so a plain query matches accented text
 
-`toHighlight(text, query, { ignoreAccents })` folds diacritics before matching and maps the ranges back onto the source, so `zurich` highlights *Zürich* with its umlaut intact. It is directional — `'target'` folds only the text, `'query'` only the search term, `true` both sides — and covers the letters NFD leaves alone (`ł`, `ø`, `ß`, `æ`, …).
+`toHighlight(text, query, { ignoreCase: true, ignoreAccents: true })` folds diacritics before matching and maps the ranges back onto the source, so `zurich` highlights *Zürich* with its umlaut intact. It is directional — `'target'` folds only the text, `'query'` only the search term, `true` both sides — and covers the letters NFD leaves alone (`ł`, `ø`, `ß`, `æ`, …).
 
 The matcher behind it ships as `findMatchRanges(text, query, { ignoreCase, ignoreAccents, matchAll })` for filters that need the same ranges without the chunking.

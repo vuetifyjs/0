@@ -488,14 +488,14 @@ findMatchRanges('Zürich', 'zurich', { ignoreCase: true, ignoreAccents: true }) 
 findMatchRanges('Zürich', 'zurich', { ignoreCase: true })                       // []
 ```
 
-`ignoreAccents` is directional. `'target'` folds only the text, so a plain query reaches accented entries; `'query'` folds only the search term, so a pasted `Tromsø` reaches plain `Tromso`; `true` folds both sides.
+`ignoreAccents` is directional. `'target'` folds only the text, so a plain query reaches accented entries; `'query'` folds only the search term, so a pasted `café` reaches plain `cafe`; `true` folds both sides.
 
 ```ts
 findMatchRanges('Łódź', 'Lo', { ignoreAccents: 'target' })   // [[0, 2]]
 findMatchRanges('cafe', 'café', { ignoreAccents: 'query' })  // [[0, 4]]
 ```
 
-Folding covers combining marks plus the letters NFD leaves alone (`ł`, `ø`, `đ`, `ß`, `æ`, `œ`, …). Returned indices always address the original string, even when folding changed its length — `ß` folds to `ss` and the range still spans one source character. Pass `matchAll: true` for every occurrence instead of the first.
+Folding strips Combining Diacritical Marks (U+0300–036F) after NFD, then the letters NFD leaves alone (`ł`, `ø`, `đ`, `ß`, `æ`, `œ`, …). When the text is folded or case-converted, ranges are mapped back onto the source — `ß` → `ss` still spans one source character, and `İ` still spans one. Pass `matchAll: true` for every occurrence instead of the first.
 
 ### pxToNumber
 

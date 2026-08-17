@@ -8,25 +8,37 @@
  */
 
 /**
+ * A `[start, end]` index pair where `end` is exclusive (matches
+ * `String.prototype.slice` convention).
+ *
+ * @example
+ * ```ts
+ * import type { MatchRange } from '@vuetify/v0'
+ *
+ * const ranges: MatchRange[] = [[0, 5], [12, 17]]
+ * ```
+ */
+export type MatchRange = readonly [number, number]
+
+/**
  * Which side of a comparison has its accents folded before matching.
  *
  * - `'query'` — only the query, so typing `café` finds plain `cafe`
  * - `'target'` — only the text, so typing `cafe` finds accented `café`
  * - `true` — both sides
  * - `false` — neither
- *
- * @example
- * ```ts
- * import type { IgnoreAccents } from '@vuetify/v0'
- *
- * const ignoreAccents: IgnoreAccents = 'target'
- * ```
  */
 export type IgnoreAccents = boolean | 'query' | 'target'
 
+export interface FindMatchRangesOptions {
+  ignoreCase?: boolean
+  ignoreAccents?: IgnoreAccents
+  matchAll?: boolean
+}
+
 const COMBINING_MARKS = /[\u0300-\u036F]/g
 
-// Letters that carry no combining mark, so NFD leaves them untouched.
+// No canonical NFD decomposition, so they need a manual map.
 const SPECIAL_LETTERS: Record<string, string> = {
   ł: 'l',
   ø: 'o',
@@ -62,22 +74,22 @@ function fold (str: string): string {
     .replace(SPECIAL_LETTER, char => SPECIAL_LETTERS[char]!)
 }
 
-// Folds per code point and records the source index each output unit came from,
-// so ranges found in the folded string can be mapped back onto the original.
-// Both decomposition and lowercasing change length, so a straight indexOf on the
-// folded string would otherwise report misaligned indices.
-function foldWithMap (str: string, ignoreCase: boolean) {
+// Records the source index each output unit came from, so ranges found in the
+// transformed string can be mapped back onto the original. Mark-stripping,
+// special-letter expansion (ß→ss), and toLocaleLowerCase (İ→i̇) all change length.
+function foldWithMap (str: string, ignoreCase: boolean, foldAccents: boolean) {
   let folded = ''
   const map: number[] = []
   let index = 0
 
   for (const char of str) {
-    const chunk = fold(ignoreCase ? char.toLocaleLowerCase() : char)
+    const raw = ignoreCase ? char.toLocaleLowerCase() : char
+    const chunk = foldAccents ? fold(raw) : raw
 
     folded += chunk
 
-    // One entry per code unit, not per code point — an astral char folds to
-    // itself and still occupies two positions in `folded`.
+    // Map per UTF-16 unit — emoji stay two units; some astral CJK compat
+    // ideographs NFD to one BMP unit.
     for (let unit = 0; unit < chunk.length; unit++) map.push(index)
 
     index += char.length
@@ -103,10 +115,42 @@ function collect (haystack: string, needle: string, matchAll: boolean): [number,
   return ranges
 }
 
+// Exclusive end in source space is the start of the next source character
+// after the last consumed folded unit. Ending mid-expansion (s vs ß→ss)
+// therefore spans the whole source character instead of emitting [i, i].
+function remap (map: number[], start: number, end: number): MatchRange {
+  const sourceStart = map[start]!
+  let sourceEnd = map[end]!
+
+  if (end > 0 && map[end] === map[end - 1]) {
+    let index = end
+    const current = map[end]!
+
+    while (index < map.length && map[index] === current) index++
+
+    sourceEnd = map[index]!
+  }
+
+  return [sourceStart, sourceEnd]
+}
+
+function project (ranges: readonly [number, number][], map: number[]): MatchRange[] {
+  const projected: MatchRange[] = []
+
+  for (const [start, end] of ranges) {
+    const span = remap(map, start, end)
+    const last = projected.at(-1)
+
+    if (!last || last[0] !== span[0] || last[1] !== span[1]) projected.push(span)
+  }
+
+  return projected
+}
+
 /**
  * Finds `[start, end]` index pairs where `query` occurs in `text`, optionally
  * folding accents on either side. Returned indices always address the original
- * `text`, even when folding changed its length.
+ * `text`, even when folding or case-conversion changed its length.
  *
  * @param text The string to search.
  * @param query The term to look for. An empty query yields no ranges.
@@ -128,12 +172,8 @@ function collect (haystack: string, needle: string, matchAll: boolean): [number,
 export function findMatchRanges (
   text: string,
   query: string,
-  options: {
-    ignoreCase?: boolean
-    ignoreAccents?: IgnoreAccents
-    matchAll?: boolean
-  } = {},
-): [number, number][] {
+  options: FindMatchRangesOptions = {},
+): MatchRange[] {
   const {
     ignoreCase = false,
     ignoreAccents = false,
@@ -143,24 +183,18 @@ export function findMatchRanges (
   const foldQuery = ignoreAccents === true || ignoreAccents === 'query'
   const foldTarget = ignoreAccents === true || ignoreAccents === 'target'
 
-  let needle = foldQuery ? fold(query) : query
-
-  if (ignoreCase) {
-    needle = needle.toLocaleLowerCase()
-  }
+  const folded = foldQuery ? fold(query) : query
+  const needle = ignoreCase ? folded.toLocaleLowerCase() : folded
 
   if (needle.length === 0) {
     return []
   }
 
-  if (!foldTarget) {
-    const haystack = ignoreCase ? text.toLocaleLowerCase() : text
-
-    return collect(haystack, needle, matchAll)
+  if (!foldTarget && !ignoreCase) {
+    return collect(text, needle, matchAll)
   }
 
-  const { folded, map } = foldWithMap(text, ignoreCase)
+  const { folded: haystack, map } = foldWithMap(text, ignoreCase, foldTarget)
 
-  return collect(folded, needle, matchAll)
-    .map(([start, end]) => [map[start]!, map[end]!])
+  return project(collect(haystack, needle, matchAll), map)
 }

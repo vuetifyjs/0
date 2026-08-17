@@ -14,6 +14,11 @@ describe('diacritics', () => {
       expect(findMatchRanges('café', '', { ignoreAccents: true })).toStrictEqual([])
     })
 
+    it('should return no ranges when the query folds to empty', () => {
+      expect(findMatchRanges('café', '\u0301', { ignoreAccents: true })).toStrictEqual([])
+      expect(findMatchRanges('café', '\u0301', { ignoreAccents: true, matchAll: true })).toStrictEqual([])
+    })
+
     it('should fold both sides when true', () => {
       expect(findMatchRanges('café', 'cafe', { ignoreAccents: true })).toStrictEqual([[0, 4]])
     })
@@ -56,8 +61,19 @@ describe('diacritics', () => {
     })
 
     it('should map ranges back across multi-character folds', () => {
-      // 'ß' folds to 'ss', so the match spans a single source character
       expect(findMatchRanges('straße', 'strasse', { ignoreAccents: true })).toStrictEqual([[0, 6]])
+    })
+
+    it('should expand a half-fold hit to the whole source character', () => {
+      expect(findMatchRanges('ß', 's', { ignoreAccents: true })).toStrictEqual([[0, 1]])
+      expect(findMatchRanges('straße', 's', { ignoreAccents: true, matchAll: true }))
+        .toStrictEqual([[0, 1], [4, 5]])
+      expect(findMatchRanges('straße', 'stras', { ignoreAccents: true })).toStrictEqual([[0, 5]])
+    })
+
+    it('should map case-expansion back onto the original character', () => {
+      expect(findMatchRanges('İstanbul', 'İ', { ignoreCase: true })).toStrictEqual([[0, 1]])
+      expect(findMatchRanges('İstanbul', 'stan', { ignoreCase: true })).toStrictEqual([[1, 5]])
     })
 
     describe('astral characters (surrogate pairs)', () => {

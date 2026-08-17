@@ -135,9 +135,10 @@ before chunking, so unordered or overlapping input is normalized for you.
 ### Accent-insensitive search
 
 `ignoreAccents` folds diacritics before matching, then maps the ranges back onto the source
-string — the rendered chunks keep their original characters. It is directional: `'target'` folds
-only the text so a plain `zurich` reaches *Zürich*, `'query'` folds only the search term so a
-pasted `Trø` reaches plain `Tromso`, and `true` folds both sides.
+string — the rendered chunks keep their original characters. Pair it with `ignoreCase` when
+the query and text may differ in case: `'target'` folds only the text so `zurich` reaches
+*Zürich*, `'query'` folds only the search term so a pasted `café` reaches plain `cafe`, and
+`true` folds both sides.
 
 Letters that NFD leaves untouched are folded as well (`ł → l`, `ø → o`, `ß → ss`, `æ → ae`), and a
 fold that changes length still reports ranges into the original text.

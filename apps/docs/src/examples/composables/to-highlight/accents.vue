@@ -1,19 +1,19 @@
 <script setup lang="ts">
   import { Input, Single, toHighlight } from '@vuetify/v0'
-  import { computed, shallowRef } from 'vue'
+  import { computed, shallowRef, toRef } from 'vue'
   import type { IgnoreAccents } from '@vuetify/v0'
 
   const query = shallowRef('zurich')
   const mode = shallowRef<'off' | 'target' | 'query' | 'both'>('target')
 
   const hints = {
-    off: 'The query must match the exact characters.',
+    off: 'Diacritics must match; case is still ignored.',
     target: 'Accents in the text are folded — type “zurich” or “krakow”.',
-    query: 'Accents in the query are folded — copy “Trø” to match plain text.',
+    query: 'Accents in the query are folded — paste “café” to match “cafe”.',
     both: 'Either side may carry accents.',
   }
 
-  const ignoreAccents = computed<IgnoreAccents>(() => {
+  const ignoreAccents = toRef((): IgnoreAccents => {
     if (mode.value === 'off') return false
     if (mode.value === 'both') return true
 
@@ -27,6 +27,7 @@
     'Málaga',
     'Bogotá',
     'Tromsø',
+    'cafe',
     'Montreal',
     'Reykjavík',
   ]

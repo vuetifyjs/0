@@ -170,6 +170,22 @@ describe('toHighlight', () => {
       }))).toStrictEqual(['Zürich', 'zurich'])
     })
 
+    it('should map ignoreCase expansion back onto the original character', () => {
+      expect(toHighlight('İstanbul', 'İ', { ignoreCase: true })).toStrictEqual([
+        { text: 'İ', match: true },
+        { text: 'stanbul', match: false },
+      ])
+    })
+
+    it('should expand a half-fold hit to the whole source character', () => {
+      expect(toHighlight('straße', 's', { ignoreAccents: true, matchAll: true })).toStrictEqual([
+        { text: 's', match: true },
+        { text: 'tra', match: false },
+        { text: 'ß', match: true },
+        { text: 'e', match: false },
+      ])
+    })
+
     it('should accept a getter for ignoreAccents', () => {
       const ignoreAccents = shallowRef<'target' | false>(false)
       const chunks = computed(() => toHighlight('Tromsø', 'tromso', { ignoreCase: true, ignoreAccents }))
