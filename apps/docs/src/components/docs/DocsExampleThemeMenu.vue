@@ -41,9 +41,9 @@
         <span class="text-xs font-semibold text-on-surface">Theme</span>
 
         <Button.Root
-          v-if="toggle.isOverridden?.value"
+          v-if="toggle.isOverridden.value"
           class="text-xs font-medium text-primary cursor-pointer"
-          @click="toggle.reset?.()"
+          @click="toggle.reset()"
         >
           Follow page
         </Button.Root>

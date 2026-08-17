@@ -11,7 +11,6 @@
 
   // Composables
   import { getMultiFileBinUrl } from '@/composables/bin'
-  import { createExampleTheme } from '@/composables/createExampleTheme'
   import { useExamples } from '@/composables/useExamples'
   import { prehighlight } from '@/composables/useHighlightCode'
   import { useIdleCallback } from '@/composables/useIdleCallback'
@@ -22,7 +21,7 @@
   } from '@/composables/usePlayground'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
-  import { provideThemeToggle } from '@/composables/useThemeToggle'
+  import { createThemeToggle, provideThemeToggle } from '@/composables/useThemeToggle'
 
   // Utilities
   import { computed, onMounted, toRef } from 'vue'
@@ -62,7 +61,7 @@
 
   const props = defineProps<DocsGenesisExampleProps>()
 
-  const example = createExampleTheme({ palette: props.palette })
+  const example = createThemeToggle({ persist: false, palette: props.palette })
   provideThemeToggle(example)
 
   const examples = useExamples()
