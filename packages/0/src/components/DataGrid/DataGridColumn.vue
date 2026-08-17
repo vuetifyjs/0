@@ -36,10 +36,14 @@
   }
 
   export interface DataGridColumnSlotProps {
+    /** Whether this column is sortable */
+    isSortable: boolean
     /** Whether this column is currently sorted */
     isSorted: boolean
     /** Sort direction: 'asc', 'desc', or undefined */
     sortDirection: 'asc' | 'desc' | undefined
+    /** Toggle sort for this column */
+    toggleSort: () => void
     /** Whether this column is pinned */
     isPinned: boolean
     /** Pin position: 'left', 'right', or false */
@@ -56,6 +60,7 @@
     offset: number
     attrs: {
       'role': string
+      'scope': 'col'
       'aria-sort': 'ascending' | 'descending' | 'none' | undefined
       'style'?: Record<string, string>
     }
@@ -84,6 +89,11 @@
   // Check if we're inside a resizable row (which provides Splitter context)
   const inResizableRow = toRef(() => rowContext?.resizable ?? false)
 
+  const isSortable = toRef(() => {
+    if (!column) return false
+    return context.columns.get(column)?.sortable === true
+  })
+
   const isSorted = toRef(() => {
     if (!column) return false
     return context.sort.columns.value.some(c => c.key === column && c.direction !== 'none')
@@ -95,6 +105,12 @@
     if (!sortCol || sortCol.direction === 'none') return undefined
     return sortCol.direction
   })
+
+  function toggleSort () {
+    if (column && isSortable.value) {
+      context.sort.toggle(column)
+    }
+  }
 
   const isPinned = toRef(() => {
     if (!column) return false
@@ -127,7 +143,7 @@
   const offset = toRef(() => resolvedColumn.value?.offset ?? 0)
 
   const ariaSort = toRef((): 'ascending' | 'descending' | 'none' | undefined => {
-    if (!column) return undefined
+    if (!isSortable.value) return undefined
     const dir = sortDirection.value
     if (dir === 'asc') return 'ascending'
     if (dir === 'desc') return 'descending'
@@ -141,8 +157,10 @@
   })
 
   const slotProps = toRef((): DataGridColumnSlotProps => ({
+    isSortable: isSortable.value,
     isSorted: isSorted.value,
     sortDirection: sortDirection.value,
+    toggleSort,
     isPinned: isPinned.value,
     pinPosition: pinPosition.value,
     isResizable: isResizable.value,
@@ -152,6 +170,7 @@
     offset: offset.value,
     attrs: {
       'role': 'columnheader',
+      'scope': 'col',
       'aria-sort': ariaSort.value,
       'style': size.value > 0 ? { width: `${size.value}%` } : undefined,
     },
@@ -161,8 +180,9 @@
 <template>
   <component
     :is="inResizableRow ? SplitterPanel : Atom"
+    v-if="!inResizableRow || resolvedColumn"
     v-bind="inResizableRow
-      ? mergeProps(attrs, slotProps.attrs, { as: resolvedAs, defaultSize: size || 100, minSize, maxSize, renderless })
+      ? mergeProps(attrs, slotProps.attrs, { as: resolvedAs, defaultSize: size, minSize, maxSize, renderless })
       : mergeProps(attrs, slotProps.attrs, { as, renderless })"
   >
     <slot v-bind="slotProps" />

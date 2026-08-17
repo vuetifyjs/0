@@ -5,7 +5,7 @@
  *
  * @remarks
  * Root provider for the DataGrid compound. Creates a data grid context via
- * createDataGridContext and provides it to descendant components. The context
+ * createDataGrid and provides it to descendant components. The context
  * exposes layout, rows (ordering), editing, and spans on top of the inherited
  * DataTable pipeline.
  *
@@ -34,10 +34,10 @@
     context: DataGridContext<T>
   }
 
-  export const [useDataGridRoot, provideDataGridRoot] = createContext<DataGridContext<any>>()
+  export const [useDataGridRoot, provideDataGridRoot] = createContext<DataGridContext<Record<string, unknown>>>()
 </script>
 
-<script setup lang="ts" generic="T extends Record<string, unknown> = Record<string, unknown>">
+<script lang="ts" setup generic="T extends Record<string, unknown> = Record<string, unknown>">
   defineOptions({ name: 'DataGridRoot' })
 
   defineSlots<{
@@ -59,7 +59,7 @@
     ...options,
   })
 
-  provideDataGridRoot(namespace, context)
+  provideDataGridRoot(namespace, context as DataGridContext<Record<string, unknown>>)
 
   const slotProps = toRef((): DataGridRootSlotProps<T> => ({
     context,

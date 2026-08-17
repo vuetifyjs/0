@@ -28,7 +28,8 @@
 
   export interface DataGridTableSlotProps {
     attrs: {
-      role: string
+      'role': string
+      'aria-rowcount': number
     }
   }
 </script>
@@ -48,12 +49,12 @@
     namespace = 'v0:data-grid',
   } = defineProps<DataGridTableProps>()
 
-  // Verify context exists (throws if missing)
-  useDataGridRoot(namespace)
+  const context = useDataGridRoot(namespace)
 
   const slotProps = toRef((): DataGridTableSlotProps => ({
     attrs: {
-      role: 'grid',
+      'role': 'grid',
+      'aria-rowcount': context.total.value,
     },
   }))
 </script>
