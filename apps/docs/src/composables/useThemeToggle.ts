@@ -1,5 +1,5 @@
 // Framework
-import { usePrefersDark, useStorage, useTheme } from '@vuetify/v0'
+import { createContext, usePrefersDark, useStorage, useTheme } from '@vuetify/v0'
 
 // Themes
 import { themes, type ThemeId } from '@/themes'
@@ -19,8 +19,7 @@ export type Palette =
   | 'radix'
   | 'ant-design'
 
-// Maps palette ID → [dark ThemeId, light ThemeId]
-const PALETTE_THEMES: Record<Palette, { dark: ThemeId, light: ThemeId }> = {
+export const PALETTE_THEMES: Record<Palette, { dark: ThemeId, light: ThemeId }> = {
   'vuetify0': { dark: 'dark', light: 'light' },
   'tailwind': { dark: 'tailwind', light: 'tailwind-light' },
   'material-3': { dark: 'material-3', light: 'material-3-light' },
@@ -46,7 +45,6 @@ export const PALETTE_LABELS: Record<Palette, string> = {
   'ant-design': 'Ant Design',
 }
 
-// Accessibility themes bypass palette — direct theme selection
 const ACCESSIBILITY_THEMES = [
   'high-contrast',
   'protanopia',
@@ -54,176 +52,198 @@ const ACCESSIBILITY_THEMES = [
   'tritanopia',
 ] as const
 
+const MODES: ModePreference[] = ['system', 'light', 'dark']
+
 export type AccessibilityTheme = typeof ACCESSIBILITY_THEMES[number]
 
 export type ThemePreference = ModePreference | AccessibilityTheme | Palette | (string & {})
 
-export interface UseThemeToggleReturn {
+export interface ThemeToggleOptions {
+  /** Palette to keep while following the page. */
+  palette?: Palette
+}
+
+export interface ThemeToggleContext {
   theme: UseThemeReturn
   themes: typeof themes
   mode: ShallowRef<ModePreference>
   palette: ShallowRef<Palette>
   preference: ShallowRef<ThemePreference>
+  currentThemeId: Ref<string>
+  isOverridden: Ref<boolean>
   isAccessibilityActive: Ref<boolean>
   icon: Ref<string>
   title: Ref<string>
+  isDark: Ref<boolean>
   toggle: () => void
   setPreference: (pref: ThemePreference) => void
   setMode: (mode: ModePreference) => void
   setPalette: (palette: Palette) => void
-  isDark: UseThemeReturn['isDark']
+  reset: () => void
 }
 
-// Shared singleton state
-const mode = shallowRef<ModePreference>('system')
-const palette = shallowRef<Palette>('vuetify0')
-const preference = shallowRef<ThemePreference>('system')
+export type UseThemeToggleReturn = ThemeToggleContext
 
-function isValidPalette (value: string | undefined): value is Palette {
+export function isValidPalette (value: string | undefined): value is Palette {
   return !!value && value in PALETTE_THEMES
 }
 
-function isAccessibilityTheme (value: string): value is AccessibilityTheme {
+export function isAccessibilityTheme (value: string): value is AccessibilityTheme {
   return (ACCESSIBILITY_THEMES as readonly string[]).includes(value)
 }
 
-let initialized = false
+export function isModePreference (value: string): value is ModePreference {
+  return (MODES as readonly string[]).includes(value)
+}
 
-export function useThemeToggle (): UseThemeToggleReturn {
+export function resolveThemeId (
+  mode: ModePreference,
+  palette: Palette,
+  preference: ThemePreference,
+  prefersDark: boolean,
+): string {
+  const pref = String(preference)
+  if (isAccessibilityTheme(pref)) {
+    return pref
+  }
+  if (!isModePreference(pref) && !isValidPalette(pref)) {
+    return pref
+  }
+
+  const dark = mode === 'system' ? prefersDark : mode === 'dark'
+  const mapping = PALETTE_THEMES[palette]
+  return dark ? mapping.dark : mapping.light
+}
+
+const [useThemeToggleContext, provideThemeToggle] = createContext<ThemeToggleContext | null>(
+  'docs:theme-toggle',
+  null,
+)
+
+export { provideThemeToggle }
+
+export function useThemeToggleController (): ThemeToggleContext {
+  return useThemeToggleContext() ?? useThemeToggle()
+}
+
+let page: ThemeToggleContext | undefined
+
+export function useThemeToggle (): ThemeToggleContext {
+  page ??= createThemeToggleState({ bindPage: true })
+  return page
+}
+
+/**
+ * Local mode / palette / a11y controller. Follows the page toggle until the
+ * user overrides. Persistence is a plugin concern (`createThemePlugin({ persist })`).
+ */
+export function createThemeToggle (options: ThemeToggleOptions = {}): ThemeToggleContext {
+  return createThemeToggleState({
+    palette: options.palette,
+    follow: useThemeToggle(),
+  })
+}
+
+function createThemeToggleState (options: {
+  palette?: Palette
+  follow?: ThemeToggleContext
+  bindPage?: boolean
+}): ThemeToggleContext {
+  const home = options.palette
+  const follow = options.follow
+  const bindPage = options.bindPage === true
   const theme = useTheme()
   const storage = useStorage()
   const { matches: prefersDark } = usePrefersDark()
 
-  if (!initialized) {
-    initialized = true
+  const mode = shallowRef<ModePreference>(follow?.mode.value ?? 'system')
+  const palette = shallowRef<Palette>(home ?? follow?.palette.value ?? 'vuetify0')
+  const preference = shallowRef<ThemePreference>(follow?.preference.value ?? 'system')
+  const override = shallowRef(false)
 
-    const storedMode = storage.get<string>('theme-mode')
-    const storedPalette = storage.get<string>('theme-palette')
-
-    // Migrate from old single-preference storage
-    const legacy = storage.get<string>('theme')
-    if (legacy.value && !storedMode.value) {
-      if (['system', 'light', 'dark'].includes(legacy.value)) {
-        mode.value = legacy.value as ModePreference
-      } else if (isAccessibilityTheme(legacy.value)) {
-        mode.value = 'system'
-        preference.value = legacy.value
-      } else if (isValidPalette(legacy.value)) {
-        palette.value = legacy.value
-        mode.value = 'dark'
-      } else if (legacy.value in themes) {
-        // Old design system theme selected directly
-        for (const [key, mapping] of Object.entries(PALETTE_THEMES)) {
-          if (mapping.dark === legacy.value || mapping.light === legacy.value) {
-            palette.value = key as Palette
-            mode.value = mapping.dark === legacy.value ? 'dark' : 'light'
-            break
-          }
-        }
-      }
-    } else {
-      if (storedMode.value && ['system', 'light', 'dark'].includes(storedMode.value)) {
-        mode.value = storedMode.value as ModePreference
-      }
-      if (isValidPalette(storedPalette.value)) {
-        palette.value = storedPalette.value
-      }
-    }
-
-    // Sync preference from mode (for accessibility overrides)
-    const storedAccessibility = storage.get<string>('theme-accessibility')
-    preference.value = storedAccessibility.value && isAccessibilityTheme(storedAccessibility.value) ? storedAccessibility.value : mode.value
-
+  if (bindPage) {
+    restore(storage, mode, palette, preference)
+  } else if (follow) {
     watch(
-      [mode, palette, prefersDark],
-      ([m, p, isDark]) => {
-        storage.set('theme-mode', m)
-        storage.set('theme-palette', p)
+      [follow.mode, follow.palette, follow.preference],
+      ([nextMode, nextPalette, nextPreference]) => {
+        if (override.value) return
+        mode.value = nextMode
+        palette.value = home ?? nextPalette
+        preference.value = nextPreference
+      },
+    )
+  }
 
-        // If preference is an accessibility theme, use it directly
-        if (isAccessibilityTheme(preference.value)) {
-          storage.set('theme-accessibility', preference.value)
-          storage.set('theme', preference.value)
-          theme.select(preference.value as ThemeId)
-          return
-        }
+  const currentThemeId = toRef(() =>
+    resolveThemeId(mode.value, palette.value, preference.value, prefersDark.value),
+  )
 
-        storage.set('theme-accessibility', null)
-
-        // Resolve mode
-        const dark = m === 'system' ? isDark : m === 'dark'
-        const mapping = PALETTE_THEMES[p]
-        const actual = dark ? mapping.dark : mapping.light
-        storage.set('theme', actual)
-        theme.select(actual)
+  if (bindPage) {
+    watch(
+      [mode, palette, preference, prefersDark],
+      () => {
+        const id = currentThemeId.value
+        storage.set('theme-mode', mode.value)
+        storage.set('theme-palette', palette.value)
+        storage.set(
+          'theme-accessibility',
+          isAccessibilityTheme(String(preference.value)) ? preference.value : null,
+        )
+        storage.set('theme', id)
+        theme.select(id as ThemeId)
       },
       { immediate: true },
     )
-
-    // Also watch preference for accessibility toggle
-    watch(preference, pref => {
-      if (isAccessibilityTheme(pref)) {
-        storage.set('theme-accessibility', pref)
-        storage.set('theme', pref)
-        theme.select(pref as ThemeId)
-      } else {
-        storage.set('theme-accessibility', null)
-        // Re-resolve from mode + palette
-        const dark = mode.value === 'system' ? prefersDark.value : mode.value === 'dark'
-        const mapping = PALETTE_THEMES[palette.value]
-        const actual = dark ? mapping.dark : mapping.light
-        storage.set('theme', actual)
-        theme.select(actual)
-      }
-    })
   }
 
-  const isAccessibilityActive = toRef(() => isAccessibilityTheme(preference.value))
+  function lock () {
+    if (!bindPage) override.value = true
+  }
 
-  const icon = toRef(() => {
-    if (isAccessibilityTheme(preference.value)) {
-      return `theme-${preference.value}`
+  function setMode (next: ModePreference) {
+    lock()
+    mode.value = next
+    preference.value = next
+  }
+
+  function setPalette (next: Palette) {
+    lock()
+    palette.value = next
+    if (isAccessibilityTheme(String(preference.value))) {
+      preference.value = mode.value
     }
-    return PALETTE_ICONS[palette.value] ?? 'theme-custom'
-  })
-
-  const title = toRef(() => {
-    if (isAccessibilityTheme(preference.value)) {
-      return `Theme: ${preference.value}`
-    }
-    return `Theme: ${PALETTE_LABELS[palette.value] ?? 'Custom'}`
-  })
-
-  function toggle () {
-    const modes: ModePreference[] = ['system', 'light', 'dark']
-    const index = modes.indexOf(mode.value)
-    mode.value = modes[(index + 1) % modes.length]
-    preference.value = mode.value
   }
 
   function setPreference (pref: ThemePreference) {
-    if (isAccessibilityTheme(pref)) {
-      preference.value = pref
-    } else if (['system', 'light', 'dark'].includes(pref)) {
-      mode.value = pref as ModePreference
+    lock()
+    if (isAccessibilityTheme(String(pref)) || isModePreference(pref)) {
+      if (isModePreference(pref)) mode.value = pref
       preference.value = pref
     } else if (isValidPalette(pref)) {
       palette.value = pref
       preference.value = mode.value
+    } else {
+      preference.value = pref
     }
   }
 
-  function setMode (m: ModePreference) {
-    mode.value = m
-    preference.value = m
+  function toggle () {
+    setMode(MODES[(MODES.indexOf(mode.value) + 1) % MODES.length])
   }
 
-  function setPalette (p: Palette) {
-    palette.value = p
-    // Clear accessibility override when picking a palette
-    if (isAccessibilityTheme(preference.value)) {
-      preference.value = mode.value
+  function reset () {
+    if (bindPage || !follow) {
+      mode.value = 'system'
+      palette.value = home ?? 'vuetify0'
+      preference.value = 'system'
+      return
     }
+
+    override.value = false
+    mode.value = follow.mode.value
+    palette.value = home ?? follow.palette.value
+    preference.value = follow.preference.value
   }
 
   return {
@@ -232,13 +252,76 @@ export function useThemeToggle (): UseThemeToggleReturn {
     mode,
     palette,
     preference,
-    isAccessibilityActive,
-    icon,
-    title,
+    currentThemeId,
+    isOverridden: toRef(() => override.value),
+    isAccessibilityActive: toRef(() => isAccessibilityTheme(String(preference.value))),
+    icon: toRef(() => {
+      if (isAccessibilityTheme(String(preference.value))) {
+        return `theme-${preference.value}`
+      }
+      return PALETTE_ICONS[palette.value] ?? 'theme-custom'
+    }),
+    title: toRef(() => {
+      if (isAccessibilityTheme(String(preference.value))) {
+        return `Theme: ${preference.value}`
+      }
+      return `Theme: ${PALETTE_LABELS[palette.value] ?? 'Custom'}`
+    }),
+    isDark: bindPage
+      ? theme.isDark
+      : toRef(() => {
+          if (isAccessibilityTheme(String(preference.value))) {
+            return theme.get(preference.value)?.dark ?? theme.isDark.value
+          }
+          return mode.value === 'system' ? prefersDark.value : mode.value === 'dark'
+        }),
     toggle,
     setPreference,
     setMode,
     setPalette,
-    isDark: theme.isDark,
+    reset,
   }
+}
+
+function restore (
+  storage: ReturnType<typeof useStorage>,
+  mode: ShallowRef<ModePreference>,
+  palette: ShallowRef<Palette>,
+  preference: ShallowRef<ThemePreference>,
+) {
+  const storedMode = storage.get<string>('theme-mode')
+  const storedPalette = storage.get<string>('theme-palette')
+  const legacy = storage.get<string>('theme')
+
+  if (legacy.value && !storedMode.value) {
+    if (isModePreference(legacy.value)) {
+      mode.value = legacy.value
+    } else if (isAccessibilityTheme(legacy.value)) {
+      mode.value = 'system'
+      preference.value = legacy.value
+    } else if (isValidPalette(legacy.value)) {
+      palette.value = legacy.value
+      mode.value = 'dark'
+    } else if (legacy.value in themes) {
+      for (const [key, mapping] of Object.entries(PALETTE_THEMES)) {
+        if (mapping.dark === legacy.value || mapping.light === legacy.value) {
+          palette.value = key as Palette
+          mode.value = mapping.dark === legacy.value ? 'dark' : 'light'
+          break
+        }
+      }
+    }
+  } else {
+    if (storedMode.value && isModePreference(storedMode.value)) {
+      mode.value = storedMode.value
+    }
+    if (isValidPalette(storedPalette.value)) {
+      palette.value = storedPalette.value
+    }
+  }
+
+  const storedAccessibility = storage.get<string>('theme-accessibility')
+  preference.value = storedAccessibility.value && isAccessibilityTheme(storedAccessibility.value)
+    ? storedAccessibility.value
+    : mode.value
 }

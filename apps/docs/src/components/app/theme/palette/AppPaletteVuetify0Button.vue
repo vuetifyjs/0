@@ -1,11 +1,11 @@
 <script setup lang="ts">
   // Composables
-  import { useThemeToggle } from '@/composables/useThemeToggle'
+  import { useThemeToggleController } from '@/composables/useThemeToggle'
 
   // Utilities
   import { toRef } from 'vue'
 
-  const toggle = useThemeToggle()
+  const toggle = useThemeToggleController()
   const active = toRef(() =>
     !toggle.isAccessibilityActive.value && toggle.palette.value === 'vuetify0',
   )

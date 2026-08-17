@@ -1,8 +1,12 @@
 <script setup lang="ts">
   import { GnDocsExample } from '@paper/genesis'
 
+  // Framework
+  import { Theme } from '@vuetify/v0'
+
   // Context
   import DocsCodeActions from './DocsCodeActions.vue'
+  import DocsExampleThemeMenu from './DocsExampleThemeMenu.vue'
   import DocsGenesisShikiBlock from './DocsGenesisShikiBlock.vue'
 
   // Composables
@@ -17,11 +21,13 @@
   } from '@/composables/usePlayground'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
+  import { createThemeToggle, provideThemeToggle } from '@/composables/useThemeToggle'
 
   // Utilities
   import { computed, onMounted, toRef } from 'vue'
 
   // Types
+  import type { Palette } from '@/composables/useThemeToggle'
   import type { GnDocsExampleFile } from '@paper/genesis'
 
   export interface DocsGenesisExampleProps {
@@ -49,9 +55,14 @@
     peek?: boolean
     /** Visible peek lines (default 6) */
     peekLines?: number
+    /** Default palette while following the page. Omit to track the page palette. */
+    palette?: Palette
   }
 
   const props = defineProps<DocsGenesisExampleProps>()
+
+  const example = createThemeToggle({ palette: props.palette })
+  provideThemeToggle(example)
 
   const examples = useExamples()
 
@@ -137,15 +148,22 @@
     show-bin
     show-playground
     :style="{ '--gn-docs-example-sticky-top': 'calc(48px + var(--app-banner-h, 0px))' }"
+    :theme="example.currentThemeId.value"
     :title
     @bin="onBin"
     @playground="onPlayground"
   >
-    <component :is="resolvedComponent" v-if="resolvedComponent" />
-    <slot v-else />
+    <Theme :theme="example.currentThemeId.value">
+      <component :is="resolvedComponent" v-if="resolvedComponent" />
+      <slot v-else />
+    </Theme>
 
     <template #decoration>
       <AppDotGrid :coverage="60" />
+    </template>
+
+    <template #preview-actions>
+      <DocsExampleThemeMenu />
     </template>
 
     <template v-if="$slots.description" #description>
