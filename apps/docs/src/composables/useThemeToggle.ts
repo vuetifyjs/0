@@ -1,11 +1,11 @@
 // Framework
-import { usePrefersDark, useStorage, useTheme } from '@vuetify/v0'
+import { createContext, usePrefersDark, useStorage, useTheme } from '@vuetify/v0'
 
 // Themes
 import { themes, type ThemeId } from '@/themes'
 
 // Utilities
-import { type InjectionKey, type Ref, inject, provide, shallowRef, type ShallowRef, toRef, watch } from 'vue'
+import { type Ref, shallowRef, type ShallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { UseThemeReturn } from '@vuetify/v0'
@@ -102,14 +102,15 @@ export function resolveThemeId (
   return dark ? mapping.dark : mapping.light
 }
 
-const THEME_TOGGLE_KEY: InjectionKey<UseThemeToggleReturn> = Symbol('docs:theme-toggle')
+const [useThemeToggleContext, provideThemeToggle] = createContext<UseThemeToggleReturn | null>(
+  'docs:theme-toggle',
+  null,
+)
 
-export function provideThemeToggle (controller: UseThemeToggleReturn) {
-  provide(THEME_TOGGLE_KEY, controller)
-}
+export { provideThemeToggle }
 
 export function useThemeToggleController (): UseThemeToggleReturn {
-  return inject(THEME_TOGGLE_KEY, null) ?? useThemeToggle()
+  return useThemeToggleContext() ?? useThemeToggle()
 }
 
 let initialized = false
