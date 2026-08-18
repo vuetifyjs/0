@@ -33,7 +33,7 @@ import { createPluginContext } from '#v0/composables/createPlugin'
 import { createTokens } from '#v0/composables/createTokens'
 
 // Utilities
-import { isArray, isBoolean, isFunction, isObject } from '#v0/utilities'
+import { isArray, isBoolean, isFunction, isNumber, isObject, isString } from '#v0/utilities'
 
 // Types
 import type { GroupContext, GroupTicket, GroupTicketInput } from '#v0/composables/createGroup'
@@ -104,9 +104,10 @@ export interface FeaturePluginOptions extends FeatureContextOptions {
   /**
    * Persist enabled feature flags to storage and restore them on load.
    *
-   * @remarks Persists the set of selected flag ids, keyed by the plugin
-   * namespace. On load the selection is reconciled against the registered
-   * flags, so a user's toggles survive a page reload.
+   * @remarks Persists the set of selected flag ids. The storage key is the
+   * plugin namespace with the `v0:` prefix stripped (`features`). On load the
+   * selection is reconciled against the registered flags, so a user's toggles
+   * survive a page reload.
    *
    * @default false
    */
@@ -232,7 +233,7 @@ export const [createFeaturesContext, createFeaturesPlugin, useFeatures] =
       restore: (context, saved) => {
         if (!isArray(saved)) return
 
-        const wanted = new Set(saved)
+        const wanted = new Set(saved.filter(id => isString(id) || isNumber(id)))
         for (const ticket of context.values()) {
           if (wanted.has(ticket.id)) context.select(ticket.id)
           else context.unselect(ticket.id)
