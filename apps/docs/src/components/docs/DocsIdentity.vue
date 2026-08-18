@@ -148,11 +148,13 @@
     <button
       v-if="dense && !open"
       :aria-expanded="false"
-      class="w-full m-0 px-3 pb-2 bg-transparent border-none text-left text-sm leading-relaxed opacity-60 line-clamp-2 cursor-pointer hover:bg-surface-tint/50 focus-visible:bg-surface-tint focus-visible:outline-none"
+      class="w-full m-0 px-3 pb-2 bg-transparent border-none text-left cursor-pointer hover:bg-surface-tint/50 focus-visible:bg-surface-tint focus-visible:outline-none"
       type="button"
       @click="open = true"
     >
-      {{ description }}
+      <p class="m-0 p-0 line-clamp-2 text-sm leading-relaxed opacity-60">
+        {{ description }}
+      </p>
     </button>
 
     <div v-if="!dense || open" class="px-4 py-3 border-t border-divider">
