@@ -16,11 +16,12 @@
   import { useAppStore } from '@/stores/app'
 
   // Utilities
+  import { findLink } from '@/utilities/nav'
   import { computed, nextTick, onMounted, shallowRef, toRef, useTemplateRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
-  import type { NavItem, NavItemLink } from '@/stores/app'
+  import type { NavItem } from '@/stores/app'
 
   const settings = useSettings()
   const devmode = useFeatures().get('devmode')!
@@ -50,21 +51,9 @@
   const { provide: provideNavNested, scrollEnabled } = createNavNested(visibleNav)
   provideNavNested()
 
-  // Find a page by path in nav tree
-  function findPage (items: NavItem[], path: string): NavItemLink | null {
-    for (const item of items) {
-      if ('to' in item && item.to === path) return item
-      if ('children' in item && item.children) {
-        const found = findPage(item.children, path)
-        if (found) return found
-      }
-    }
-    return null
-  }
-
   // Check if page exists in nav tree
   function hasPage (items: NavItem[], path: string): boolean {
-    return findPage(items, path) !== null
+    return findLink(items, path) !== null
   }
 
   // Current page info when it's filtered out (by skill level OR feature filter)
@@ -75,7 +64,7 @@
     const path = route.path
     // Check against configuredNav which is filtered by both skill level and features
     if (hasPage(navConfig.configuredNav.value, path)) return null
-    return findPage(app.nav, path)
+    return findLink(app.nav, path)
   })
 
   // Check if nav has real content (not just dividers)
@@ -162,7 +151,7 @@
     as="nav"
     :class="[
       'flex flex-col fixed w-[230px] top-0 md:top-[calc(48px+var(--app-banner-h,24px))] bottom-0 start-0 ltr:-translate-x-full rtl:translate-x-full md:ltr:translate-x-0 md:rtl:translate-x-0 border-e border-solid border-divider',
-      settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface',
+      settings.surface.value,
       navigation.isOpen.value && '!translate-x-0',
       !settings.prefersReducedMotion.value && 'transition-transform duration-200 ease-in-out',
     ]"
