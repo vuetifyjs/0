@@ -76,6 +76,13 @@ describe('diacritics', () => {
       expect(findMatchRanges('İstanbul', 'stan', { ignoreCase: true })).toStrictEqual([[1, 5]])
     })
 
+    it('should treat Greek final sigma as sigma when ignoreCase is set', () => {
+      expect(findMatchRanges('ΣΟΦΟΣ', 'σοφος', { ignoreCase: true })).toStrictEqual([[0, 5]])
+      expect(findMatchRanges('σοφος', 'ΣΟΦΟΣ', { ignoreCase: true })).toStrictEqual([[0, 5]])
+      expect(findMatchRanges('ΣΟΦΟΣ', 'σοφος', { ignoreCase: true, ignoreAccents: true })).toStrictEqual([[0, 5]])
+      expect(findMatchRanges('ΣΟΦΟΣ', 'σοφος')).toStrictEqual([])
+    })
+
     describe('astral characters (surrogate pairs)', () => {
       // 3 capital Adlam letters (U+1E900..) case-fold to their lowercase forms.
       const adlam = String.fromCodePoint(0x1_E9_00, 0x1_E9_01, 0x1_E9_02)

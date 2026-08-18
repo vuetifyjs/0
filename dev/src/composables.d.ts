@@ -182,6 +182,7 @@ declare global {
   const defineComponent: typeof import('vue').defineComponent
   const effectScope: typeof import('vue').effectScope
   const extractLeaves: typeof import('../../packages/0/src/composables/createDataTable/index').extractLeaves
+  const findMatchRanges: typeof import('../../packages/0/src/utilities/diacritics').findMatchRanges
   const flatten: typeof import('../../packages/0/src/composables/createTokens/index').flatten
   const foreground: typeof import('../../packages/0/src/utilities/apca').foreground
   const genId: typeof import('../../packages/0/src/utilities/helpers').genId
@@ -473,7 +474,7 @@ declare global {
   export type { MaybeElementRef } from '../../packages/0/src/composables/toElement/index'
   import('../../packages/0/src/composables/toElement/index')
   // @ts-ignore
-  export type { MatchRange, HighlightChunk, ToHighlightOptions } from '../../packages/0/src/composables/toHighlight/index'
+  export type { HighlightChunk, ToHighlightOptions } from '../../packages/0/src/composables/toHighlight/index'
   import('../../packages/0/src/composables/toHighlight/index')
   // @ts-ignore
   export type { BreakpointName, BreakpointsContext, BreakpointsOptions, BreakpointsPluginOptions, BreakpointsContextOptions } from '../../packages/0/src/composables/useBreakpoints/index'
@@ -586,6 +587,9 @@ declare global {
   // @ts-ignore
   export type { RGB } from '../../packages/0/src/utilities/color'
   import('../../packages/0/src/utilities/color')
+  // @ts-ignore
+  export type { MatchRange, IgnoreAccents, FindMatchRangesOptions } from '../../packages/0/src/utilities/diacritics'
+  import('../../packages/0/src/utilities/diacritics')
   // @ts-ignore
   export type { V0Error, V0Error } from '../../packages/0/src/utilities/errors'
   import('../../packages/0/src/utilities/errors')
@@ -753,6 +757,7 @@ declare module 'vue' {
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly extractLeaves: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['extractLeaves']>
+    readonly findMatchRanges: UnwrapRef<typeof import('../../packages/0/src/utilities/diacritics')['findMatchRanges']>
     readonly flatten: UnwrapRef<typeof import('../../packages/0/src/composables/createTokens/index')['flatten']>
     readonly foreground: UnwrapRef<typeof import('../../packages/0/src/utilities/apca')['foreground']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>

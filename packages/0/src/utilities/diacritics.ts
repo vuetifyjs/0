@@ -37,6 +37,13 @@ export interface FindMatchRangesOptions {
 }
 
 const COMBINING_MARKS = /[\u0300-\u036F]/g
+const FINAL_SIGMA = /ς/g
+
+// ς is σ when used at the end of a word - both uppercase to Σ
+// a per-character loop with casing change cannot see it
+function lower (str: string): string {
+  return str.toLowerCase().replace(FINAL_SIGMA, 'σ')
+}
 
 // No canonical NFD decomposition, so they need a manual map.
 const SPECIAL_LETTERS: Record<string, string> = {
@@ -83,7 +90,7 @@ function foldWithMap (str: string, ignoreCase: boolean, foldAccents: boolean) {
   let index = 0
 
   for (const char of str) {
-    const raw = ignoreCase ? char.toLowerCase() : char
+    const raw = ignoreCase ? lower(char) : char
     const chunk = foldAccents ? fold(raw) : raw
 
     folded += chunk
@@ -184,14 +191,21 @@ export function findMatchRanges (
   const foldTarget = ignoreAccents === true || ignoreAccents === 'target'
 
   const folded = foldQuery ? fold(query) : query
-  const needle = ignoreCase ? folded.toLowerCase() : folded
+  const needle = ignoreCase ? lower(folded) : folded
 
   if (needle.length === 0) {
     return []
   }
 
-  if (!foldTarget && !ignoreCase) {
-    return collect(text, needle, matchAll)
+  if (!foldTarget) {
+    if (!ignoreCase) {
+      return collect(text, needle, matchAll)
+    }
+
+    const lowered = lower(text)
+    if (lowered.length === text.length) {
+      return collect(lowered, needle, matchAll)
+    }
   }
 
   const { folded: haystack, map } = foldWithMap(text, ignoreCase, foldTarget)
