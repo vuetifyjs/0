@@ -1,5 +1,23 @@
 # @vuetify/v0
 
+## 1.0.5
+
+### Patch Changes
+
+- [#857](https://github.com/vuetifyjs/0/pull/857) [`41d90cc`](https://github.com/vuetifyjs/0/commit/41d90cc965ffaacf0f01ecbf51c9575eff57052a) Thanks [@johnleider](https://github.com/johnleider)! - fix(Dialog,AlertDialog): omit aria-labelledby/describedby when Title/Description absent ([#608](https://github.com/vuetifyjs/0/issues/608))
+
+  Dialog.Content and AlertDialog.Content now presence-track their Title and
+  Description sub-components. The `aria-labelledby` and `aria-describedby`
+  attributes are only emitted when the corresponding element is actually mounted,
+  avoiding dangling IDREF warnings from assistive technologies. Follows the same
+  pattern as Progress (`hasLabel`) and Combobox (`hasDescription`).
+
+- [#878](https://github.com/vuetifyjs/0/pull/878) [`bd8988b`](https://github.com/vuetifyjs/0/commit/bd8988b00d62b54468ff13767ff502ff5f1f82c5) Thanks [@johnleider](https://github.com/johnleider)! - fix(usePopover): closed popovers no longer leave a visible ghost node — attached elements are force-hidden on close, unmount, and scope dispose
+
+- [#875](https://github.com/vuetifyjs/0/pull/875) [`6cdd09c`](https://github.com/vuetifyjs/0/commit/6cdd09c538c1c68db601b8ff5c8310d938aee8fa) Thanks [@johnleider](https://github.com/johnleider)! - fix(SplitterPanel): panels no longer clip overflowing content (popovers, focus rings) — flex shrink now comes from min-size: 0 instead of overflow: hidden
+
+- [#836](https://github.com/vuetifyjs/0/pull/836) [`a25ea53`](https://github.com/vuetifyjs/0/commit/a25ea53ae53865d595355be8ab883a84f1a3ccaa) Thanks [@johnleider](https://github.com/johnleider)! - fix(Select): Add `data-disabled` attribute to SelectActivator for styling hooks ([#836](https://github.com/vuetifyjs/0/issues/836))
+
 ## 1.0.4
 
 ### Patch Changes
