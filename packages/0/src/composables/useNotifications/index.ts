@@ -623,7 +623,7 @@ function toDate (value: unknown): Date | null {
   return isNaN(date.getTime()) ? null : date
 }
 
-function applyPersisted (context: NotificationsContext, saved: unknown) {
+function replay (context: NotificationsContext, saved: unknown) {
   if (!isArray(saved)) return
 
   for (const entry of saved) {
@@ -775,7 +775,7 @@ export const [createNotificationsContext, createNotificationsPlugin, useNotifica
       persist: context => context.values().map(toPersisted),
       restore: (context, saved) => {
         restored.set(context, saved)
-        applyPersisted(context, saved)
+        replay(context, saved)
       },
       setup: (context, app, options) => {
         app.onUnmount(() => {
@@ -798,7 +798,7 @@ export const [createNotificationsContext, createNotificationsPlugin, useNotifica
         // Adapter setup writes after restore. Re-apply so persist wins the
         // first snapshot; later adapter updates still overlay live remote state.
         const saved = restored.get(context)
-        if (!isUndefined(saved)) applyPersisted(context, saved)
+        if (!isUndefined(saved)) replay(context, saved)
       },
     },
   )
