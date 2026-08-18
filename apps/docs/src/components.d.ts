@@ -164,6 +164,7 @@ declare module 'vue' {
     DocsSkillToggle: typeof import('./components/docs/meta/DocsSkillToggle.vue')['default']
     DocsSponsor: typeof import('./components/docs/DocsSponsor.vue')['default']
     DocsSponsorSlot: typeof import('./components/docs/DocsSponsorSlot.vue')['default']
+    DocsSystemActivator: typeof import('./components/docs/DocsSystemActivator.vue')['default']
     DocsSystemExample: typeof import('./components/docs/DocsSystemExample.vue')['default']
     DocsTimeline: typeof import('./components/docs/DocsTimeline.vue')['default']
     DocsToc: typeof import('./components/docs/DocsToc.vue')['default']

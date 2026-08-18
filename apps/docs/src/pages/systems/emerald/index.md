@@ -39,6 +39,8 @@ Emerald is a design system built on [Vuetify0](/): tokens, CSS, and a set of `Em
   </DocsCard>
 </div>
 
+<DocsSystemActivator />
+
 ## What Emerald is
 
 A design system here is a **complete framework**, not a theme. Emerald does not restyle someone else's components — it brings its own tokens, its own icon set, and its own component vocabulary, and it reaches down to v0 for every piece of logic underneath. Selection, focus management, popover positioning, validation, keyboard interaction: none of that is reimplemented, and none of it is Emerald's to get wrong.

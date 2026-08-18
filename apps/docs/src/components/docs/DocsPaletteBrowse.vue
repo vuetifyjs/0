@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Design systems
+  import { alert, danger, info, neutral, primary, secondary, success } from '@paper/emerald'
+
   // Framework
   import { Select } from '@vuetify/v0'
   import { ant } from '@vuetify/v0/palettes/ant'
@@ -18,6 +21,19 @@
     label: string
     data: Record<string, Record<string, string>>
     namespace: string
+    /** Overrides the default `@vuetify/v0/palettes/*` import in the exported snippet. */
+    importLine?: string
+    /** Expression placed in `palette: { <namespace>: <value> }` in the exported snippet. */
+    value?: string
+  }
+
+  /** Numeric shade keys only — DEFAULT and alpha entries don't belong on the grid. */
+  function ladder (family: Record<string, string>): Record<string, string> {
+    const out: Record<string, string> = {}
+    for (const [key, hex] of Object.entries(family)) {
+      if (/^\d+$/.test(key)) out[key] = hex
+    }
+    return out
   }
 
   const PALETTES: Record<string, PaletteEntry> = {
@@ -27,6 +43,13 @@
     material: { label: 'Material 3', data: material as Record<string, Record<string, string>>, namespace: 'md' },
     radix: { label: 'Radix', data: radix as Record<string, Record<string, string>>, namespace: 'radix' },
     ant: { label: 'Ant Design', data: ant as Record<string, Record<string, string>>, namespace: 'ant' },
+    emerald: {
+      label: 'Emerald',
+      data: { primary: ladder(primary), secondary: ladder(secondary), neutral: ladder(neutral), danger: ladder(danger), alert: ladder(alert), success: ladder(success), info: ladder(info) },
+      namespace: 'em',
+      importLine: 'import { alert, danger, info, neutral, primary, secondary, success } from \'@paper/emerald\'',
+      value: '{ alert, danger, info, neutral, primary, secondary, success }',
+    },
   }
 
   const ROLES = ['primary', 'secondary', 'accent', 'error', 'info', 'success', 'warning']
@@ -117,8 +140,8 @@
       }
     }
 
-    let code = `import { ${name} } from '@vuetify/v0/palettes/${name}'\n\n`
-    code += `app.use(\n  createThemePlugin({\n    palette: { ${ns}: ${name} },\n`
+    let code = `${palette.value.importLine ?? `import { ${name} } from '@vuetify/v0/palettes/${name}'`}\n\n`
+    code += `app.use(\n  createThemePlugin({\n    palette: { ${ns}: ${palette.value.value ?? name} },\n`
     code += `    themes: {\n      light: {\n        colors: {\n`
     code += `${lines.join('\n')}\n`
     code += `        },\n      },\n    },\n  })\n)`
