@@ -37,30 +37,22 @@ The parts inside a row are free-form. `EmListItemMedia`, `EmListItemContent` wit
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import {
-    EmList,
-    EmListItem,
-    EmListItemContent,
-    EmListItemMedia,
-    EmListItemMeta,
-    EmListItemSubtitle,
-    EmListItemTitle,
-  } from '@paper/emerald'
+  import { EmList } from '@paper/emerald'
 </script>
 
 <template>
   <EmList>
-    <EmListItem>
-      <EmListItemMedia />
+    <EmList.Item>
+      <EmList.ItemMedia />
 
-      <EmListItemContent>
-        <EmListItemTitle />
+      <EmList.ItemContent>
+        <EmList.ItemTitle />
 
-        <EmListItemSubtitle />
-      </EmListItemContent>
+        <EmList.ItemSubtitle />
+      </EmList.ItemContent>
 
-      <EmListItemMeta />
-    </EmListItem>
+      <EmList.ItemMeta />
+    </EmList.Item>
   </EmList>
 </template>
 ```

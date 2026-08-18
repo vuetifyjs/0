@@ -37,14 +37,14 @@ The fallback also stands alone. An avatar with no image at all — initials on t
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { EmAvatar, EmAvatarFallback, EmAvatarImage } from '@paper/emerald'
+  import { EmAvatar } from '@paper/emerald'
 </script>
 
 <template>
   <EmAvatar>
-    <EmAvatarImage />
+    <EmAvatar.Image />
 
-    <EmAvatarFallback />
+    <EmAvatar.Fallback />
   </EmAvatar>
 </template>
 ```

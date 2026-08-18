@@ -37,27 +37,20 @@ A surface for grouping related content — header, title, subtitle, body and foo
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import {
-    EmCard,
-    EmCardBody,
-    EmCardFooter,
-    EmCardHeader,
-    EmCardSubtitle,
-    EmCardTitle,
-  } from '@paper/emerald'
+  import { EmCard } from '@paper/emerald'
 </script>
 
 <template>
   <EmCard>
-    <EmCardHeader>
-      <EmCardTitle />
+    <EmCard.Header>
+      <EmCard.Title />
 
-      <EmCardSubtitle />
-    </EmCardHeader>
+      <EmCard.Subtitle />
+    </EmCard.Header>
 
-    <EmCardBody />
+    <EmCard.Body />
 
-    <EmCardFooter />
+    <EmCard.Footer />
   </EmCard>
 </template>
 ```

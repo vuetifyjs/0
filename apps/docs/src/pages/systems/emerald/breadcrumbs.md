@@ -37,34 +37,26 @@ The split between Link and Page is the one to get right. Every crumb except the 
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import {
-    EmBreadcrumbs,
-    EmBreadcrumbsDivider,
-    EmBreadcrumbsEllipsis,
-    EmBreadcrumbsItem,
-    EmBreadcrumbsLink,
-    EmBreadcrumbsList,
-    EmBreadcrumbsPage,
-  } from '@paper/emerald'
+  import { EmBreadcrumbs } from '@paper/emerald'
 </script>
 
 <template>
   <EmBreadcrumbs>
-    <EmBreadcrumbsList>
-      <EmBreadcrumbsItem>
-        <EmBreadcrumbsLink />
-      </EmBreadcrumbsItem>
+    <EmBreadcrumbs.List>
+      <EmBreadcrumbs.Item>
+        <EmBreadcrumbs.Link />
+      </EmBreadcrumbs.Item>
 
-      <EmBreadcrumbsDivider />
+      <EmBreadcrumbs.Divider />
 
-      <EmBreadcrumbsEllipsis />
+      <EmBreadcrumbs.Ellipsis />
 
-      <EmBreadcrumbsDivider />
+      <EmBreadcrumbs.Divider />
 
-      <EmBreadcrumbsItem>
-        <EmBreadcrumbsPage />
-      </EmBreadcrumbsItem>
-    </EmBreadcrumbsList>
+      <EmBreadcrumbs.Item>
+        <EmBreadcrumbs.Page />
+      </EmBreadcrumbs.Item>
+    </EmBreadcrumbs.List>
   </EmBreadcrumbs>
 </template>
 ```

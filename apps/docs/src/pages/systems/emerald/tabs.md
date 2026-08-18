@@ -39,16 +39,16 @@ The strip renders as a segmented control: adjacent tabs share their borders, onl
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { EmTabs, EmTabsItem, EmTabsList, EmTabsPanel } from '@paper/emerald'
+  import { EmTabs } from '@paper/emerald'
 </script>
 
 <template>
   <EmTabs>
-    <EmTabsList>
-      <EmTabsItem />
-    </EmTabsList>
+    <EmTabs.List>
+      <EmTabs.Item />
+    </EmTabs.List>
 
-    <EmTabsPanel />
+    <EmTabs.Panel />
   </EmTabs>
 </template>
 ```
