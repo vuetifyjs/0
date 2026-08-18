@@ -157,7 +157,7 @@
       </p>
     </button>
 
-    <div v-if="!dense || open" class="px-4 py-3 border-t border-divider">
+    <div v-if="!dense || open" class="px-4 pt-1 pb-3 border-t border-divider">
       <button
         :aria-label="descriptionCopied ? 'Copied description' : 'Copy description'"
         class="inline-flex items-center gap-1.5 bg-transparent border-none p-0 font-inherit text-xs font-medium tracking-wide uppercase opacity-60 text-inherit cursor-pointer hover:opacity-100 hover:text-primary focus-visible:opacity-100 focus-visible:text-primary focus-visible:outline-none"
