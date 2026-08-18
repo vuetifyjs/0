@@ -76,14 +76,14 @@ function fold (str: string): string {
 
 // Records the source index each output unit came from, so ranges found in the
 // transformed string can be mapped back onto the original. Mark-stripping,
-// special-letter expansion (ß→ss), and toLocaleLowerCase (İ→i̇) all change length.
+// special-letter expansion (ß→ss), and toLowerCase (İ→i̇) all change length.
 function foldWithMap (str: string, ignoreCase: boolean, foldAccents: boolean) {
   let folded = ''
   const map: number[] = []
   let index = 0
 
   for (const char of str) {
-    const raw = ignoreCase ? char.toLocaleLowerCase() : char
+    const raw = ignoreCase ? char.toLowerCase() : char
     const chunk = foldAccents ? fold(raw) : raw
 
     folded += chunk
@@ -184,7 +184,7 @@ export function findMatchRanges (
   const foldTarget = ignoreAccents === true || ignoreAccents === 'target'
 
   const folded = foldQuery ? fold(query) : query
-  const needle = ignoreCase ? folded.toLocaleLowerCase() : folded
+  const needle = ignoreCase ? folded.toLowerCase() : folded
 
   if (needle.length === 0) {
     return []
