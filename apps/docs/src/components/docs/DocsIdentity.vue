@@ -13,11 +13,12 @@
     title: string
     description: string
     src?: string
+    dense?: boolean
   }
 
   defineOptions({ name: 'DocsIdentity' })
 
-  const { name, title, description, src } = defineProps<DocsIdentityProps>()
+  const { name, title, description, src, dense = false } = defineProps<DocsIdentityProps>()
 
   const nameClip = useClipboard()
   const titleClip = useClipboard()
@@ -61,7 +62,10 @@
 
 <template>
   <div class="not-prose my-4 border border-divider rounded-lg bg-surface overflow-hidden">
-    <div class="relative flex items-center justify-between gap-4 px-4 py-3 overflow-hidden">
+    <div
+      class="relative flex items-center justify-between gap-4 overflow-hidden"
+      :class="dense ? 'px-3 py-2' : 'px-4 py-3'"
+    >
       <AppDotGrid :coverage="55" origin="bottom left" />
 
       <div class="relative z-10 flex flex-wrap items-baseline gap-x-8 gap-y-3 min-w-0">
@@ -109,7 +113,7 @@
       </button>
     </div>
 
-    <div class="px-4 py-3 border-t border-divider">
+    <div v-if="!dense" class="px-4 py-3 border-t border-divider">
       <button
         :aria-label="descriptionCopied ? 'Copied description' : 'Copy description'"
         class="inline-flex items-center gap-1.5 bg-transparent border-none p-0 font-inherit text-xs font-medium tracking-wide uppercase opacity-60 text-inherit cursor-pointer hover:opacity-100 hover:text-primary focus-visible:opacity-100 focus-visible:text-primary focus-visible:outline-none"

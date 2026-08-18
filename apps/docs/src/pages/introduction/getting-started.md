@@ -16,6 +16,10 @@ related:
   - /components
 ---
 
+<script setup lang="ts">
+  import { john } from '@/constants/identities'
+</script>
+
 # Get started with Vuetify0
 
 Vuetify0 provides headless UI primitives and composables for Vue 3. Components are unstyled and logic-focused, giving you complete control over styling while handling accessibility, keyboard navigation, and state management.
@@ -471,6 +475,12 @@ import { isObject, isString } from '@vuetify/v0/utilities'
 // Constants only
 import { IN_BROWSER } from '@vuetify/v0/constants'
 ```
+
+## Agents
+
+Click the portrait to copy John's identity into [Grok Bot](https://x.ai/bot). Setup prompts and Jacek live on [Agents](/guide/tooling/agents).
+
+<DocsIdentity v-bind="john" dense />
 
 ## Next Steps
 
