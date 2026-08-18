@@ -85,12 +85,17 @@
   })
 
   // Scrollbar styling is opt-in per theme, derived from key presence — the
-  // stored model stays colors-only, no flag.
-  const styled = shallowRef(!!draft.colors['scrollbar-thumb'])
+  // stored model stays colors-only, no flag. New themes seed from a palette
+  // whose colors now carry `scrollbar-thumb`, so the seed is remembered as
+  // the switch-on prefill and stripped from the draft: only a theme the
+  // user saved with the key starts with the switch on.
+  const seed = shallowRef(draft.colors['scrollbar-thumb'])
+  const styled = shallowRef(isEditingExisting.value && !!draft.colors['scrollbar-thumb'])
+  if (!styled.value) delete draft.colors['scrollbar-thumb']
 
   watch(styled, value => {
     if (value) {
-      draft.colors['scrollbar-thumb'] ||= draft.dark ? '#505050' : '#b0b0b0'
+      draft.colors['scrollbar-thumb'] ||= seed.value ?? (draft.dark ? '#505050' : '#b0b0b0')
     } else {
       delete draft.colors['scrollbar-thumb']
     }
@@ -138,8 +143,10 @@
     const baseId = draft.dark ? 'dark' : 'light'
     const resolvedColors = themeSystem.colors.value[baseId]
     draft.colors = { ...(resolvedColors ?? themes[baseId].colors) }
-    // The reseed wiped the scrollbar value; keep the switch honest
-    if (styled.value) draft.colors['scrollbar-thumb'] = draft.dark ? '#505050' : '#b0b0b0'
+    // The reseed carries the base theme's scrollbar value; it becomes the
+    // new prefill, and stays in the draft only while the switch is on
+    seed.value = draft.colors['scrollbar-thumb']
+    if (!styled.value) delete draft.colors['scrollbar-thumb']
   }
 </script>
 

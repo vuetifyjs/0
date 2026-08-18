@@ -44,6 +44,7 @@ export const themes = {
       'on-surface': '#212121',
       'on-surface-variant': '#666666',
       'glass-surface': 'rgba(255, 255, 255, 0.85)',
+      'scrollbar-thumb': '#b0b0b0',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
@@ -80,6 +81,7 @@ export const themes = {
       'on-surface': '#e0e0e0',
       'on-surface-variant': '#a0a0a0',
       'glass-surface': 'rgba(26, 26, 26, 0.7)',
+      'scrollbar-thumb': '#505050',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
@@ -116,6 +118,7 @@ export const themes = {
       'on-surface': '#ffffff',
       'on-surface-variant': '#ffffff',
       'glass-surface': 'rgba(0, 0, 0, 0.85)',
+      'scrollbar-thumb': '#ffffff',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
@@ -152,6 +155,7 @@ export const themes = {
       'on-surface': '#e8e8e8',
       'on-surface-variant': '#a0a8b8',
       'glass-surface': 'rgba(22, 33, 62, 0.8)',
+      'scrollbar-thumb': 'rgba(86, 180, 233, 0.4)',
     },
   },
   'deuteranopia': {
@@ -184,6 +188,7 @@ export const themes = {
       'on-surface': '#e8e8f0',
       'on-surface-variant': '#a0a0b8',
       'glass-surface': 'rgba(31, 31, 58, 0.8)',
+      'scrollbar-thumb': 'rgba(100, 143, 255, 0.4)',
     },
   },
   'tritanopia': {
@@ -216,6 +221,7 @@ export const themes = {
       'on-surface': '#f0f0f0',
       'on-surface-variant': '#b0b0b0',
       'glass-surface': 'rgba(45, 45, 45, 0.8)',
+      'scrollbar-thumb': 'rgba(255, 107, 107, 0.4)',
     },
   },
   'blackguard': {
@@ -248,6 +254,7 @@ export const themes = {
       'on-surface': '#e8e0f0',
       'on-surface-variant': '#a0a0b0',
       'glass-surface': 'rgba(26, 22, 64, 0.7)',
+      'scrollbar-thumb': 'rgba(167, 139, 250, 0.4)',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
@@ -284,6 +291,7 @@ export const themes = {
       'on-surface': '#fafaf9',
       'on-surface-variant': '#a8a29e',
       'glass-surface': 'rgba(28, 25, 23, 0.7)',
+      'scrollbar-thumb': 'rgba(249, 115, 22, 0.4)',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
@@ -320,6 +328,7 @@ export const themes = {
       'on-surface': '#e2e8f0',
       'on-surface-variant': '#94a3b8',
       'glass-surface': 'rgba(30, 41, 59, 0.7)',
+      'scrollbar-thumb': 'rgba(96, 165, 250, 0.4)',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
@@ -356,6 +365,7 @@ export const themes = {
       'on-surface': '#1C1B1A',
       'on-surface-variant': '#57534e',
       'glass-surface': 'rgba(250, 249, 246, 0.85)',
+      'scrollbar-thumb': '#a8a29e',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
@@ -392,6 +402,7 @@ export const themes = {
       'on-surface': '#e2e8f0',
       'on-surface-variant': '#94a3b8',
       'glass-surface': 'rgba(30, 41, 59, 0.7)',
+      'scrollbar-thumb': 'rgba(56, 189, 248, 0.4)',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
@@ -428,6 +439,7 @@ export const themes = {
       'on-surface': '#0f172a',
       'on-surface-variant': '#64748b',
       'glass-surface': 'rgba(255, 255, 255, 0.85)',
+      'scrollbar-thumb': 'rgba(14, 165, 233, 0.4)',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
@@ -464,6 +476,7 @@ export const themes = {
       'on-surface': '#e6e1e5',
       'on-surface-variant': '#cac4d0',
       'glass-surface': 'rgba(43, 41, 48, 0.7)',
+      'scrollbar-thumb': 'rgba(208, 188, 255, 0.4)',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
@@ -500,6 +513,7 @@ export const themes = {
       'on-surface': '#1C1B1F',
       'on-surface-variant': '#49454F',
       'glass-surface': 'rgba(255, 251, 254, 0.85)',
+      'scrollbar-thumb': 'rgba(103, 80, 164, 0.4)',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
@@ -536,6 +550,7 @@ export const themes = {
       'on-surface': '#e8e8e8',
       'on-surface-variant': '#8c8c8c',
       'glass-surface': 'rgba(31, 31, 31, 0.7)',
+      'scrollbar-thumb': 'rgba(22, 119, 255, 0.4)',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
@@ -572,6 +587,7 @@ export const themes = {
       'on-surface': '#141414',
       'on-surface-variant': '#8c8c8c',
       'glass-surface': 'rgba(255, 255, 255, 0.85)',
+      'scrollbar-thumb': 'rgba(22, 119, 255, 0.4)',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
@@ -608,6 +624,7 @@ export const themes = {
       'on-surface': '#eeeef0',
       'on-surface-variant': '#6f6f78',
       'glass-surface': 'rgba(24, 25, 27, 0.7)',
+      'scrollbar-thumb': 'rgba(91, 91, 214, 0.4)',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
@@ -644,6 +661,7 @@ export const themes = {
       'on-surface': '#111113',
       'on-surface-variant': '#6f6f78',
       'glass-surface': 'rgba(255, 255, 255, 0.85)',
+      'scrollbar-thumb': 'rgba(91, 91, 214, 0.4)',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
@@ -651,29 +669,6 @@ export const themes = {
     },
   },
 } as const satisfies Record<string, ThemeDefinition>
-
-/**
- * Neutral scrollbar thumbs for the global "Styled scrollbars" setting. Theme
- * entries stay token-free — these are docs-chrome values, not theme colors.
- * Only themes where the flat dark gray misreads are listed: deep or tinted
- * dark backgrounds get a step lighter, and high-contrast keeps maximal
- * contrast. Everything else — custom themes included — falls to the
- * dark-flag default.
- */
-const NEUTRALS: Record<string, string> = {
-  'high-contrast': '#ffffff',
-  'protanopia': '#606060',
-  'deuteranopia': '#606060',
-  'blackguard': '#606060',
-  'polaris': '#606060',
-  'nebula': '#606060',
-  'tailwind': '#606060',
-}
-
-/** Neutral scrollbar thumb for a theme — see NEUTRALS. */
-export function neutral (id: string, dark: boolean): string {
-  return NEUTRALS[id] ?? (dark ? '#505050' : '#b0b0b0')
-}
 
 /**
  * Get all theme configs for createThemePlugin.

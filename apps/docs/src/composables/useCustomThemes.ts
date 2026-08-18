@@ -6,7 +6,7 @@ import { useSettings } from '@/composables/useSettings'
 import { type ThemePreference, useThemeToggle } from '@/composables/useThemeToggle'
 
 // Themes
-import { neutral, themes, type ThemeDefinition, type ThemeId } from '@/themes'
+import { themes, type ThemeDefinition, type ThemeId } from '@/themes'
 
 // Utilities
 import { computed, shallowRef, watch } from 'vue'
@@ -71,11 +71,12 @@ export function useCustomThemes (): UseCustomThemesReturn {
   /**
    * Scrollbar styling is opt-in, resolved in order: a custom theme carrying
    * `scrollbar-thumb` always uses its own color; otherwise the global
-   * "Styled scrollbars" setting tints with a neutral matched to the theme;
-   * otherwise native. Static CSS can't express color-if-set-else-native
-   * (an unset var() inside a scrollbar rule invalidates the whole
-   * declaration instead of yielding native), so the color is applied as an
-   * inline `scrollbar-color` on the root, keyed to the page-level selection.
+   * "Styled scrollbars" setting applies the selected theme's own
+   * `scrollbar-thumb` when it defines one; otherwise native. Static CSS
+   * can't express color-if-set-else-native (an unset var() inside a
+   * scrollbar rule invalidates the whole declaration instead of yielding
+   * native), so the color is applied as an inline `scrollbar-color` on the
+   * root, keyed to the page-level selection.
    */
   function scrollbar (): void {
     if (!IN_BROWSER) return
@@ -84,7 +85,7 @@ export function useCustomThemes (): UseCustomThemesReturn {
     const custom = customThemes.value.find(t => t.id === id)
     const thumb = custom?.colors['scrollbar-thumb']
       ?? (settings.styledScrollbars.value
-        ? neutral(String(id), theme.get(String(id))?.dark ?? theme.isDark.value)
+        ? theme.colors.value[String(id)]?.['scrollbar-thumb']
         : undefined)
     const track = theme.colors.value[String(id)]?.background ?? custom?.colors.background
     if (thumb && track) {
