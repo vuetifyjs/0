@@ -66,6 +66,28 @@ export function useCustomThemes (): UseCustomThemesReturn {
   const theme = useTheme()
   const toggle = useThemeToggle()
 
+  /**
+   * Built-in palettes ride native scrollbars; a custom theme that defines
+   * `scrollbar-thumb` opts into a colored one. Static CSS can't express that
+   * fallback (an unset var() inside a scrollbar rule invalidates the whole
+   * declaration instead of yielding native), so the color is applied as an
+   * inline `scrollbar-color` on the root — set when the page-level selection
+   * is a custom theme carrying the key, cleared for everything else.
+   */
+  function scrollbar (): void {
+    if (!IN_BROWSER) return
+    const root = document.documentElement
+    const id = theme.selectedId.value
+    const custom = customThemes.value.find(t => t.id === id)
+    const thumb = custom?.colors['scrollbar-thumb']
+    const track = theme.colors.value[String(id)]?.background ?? custom?.colors.background
+    if (thumb && track) {
+      root.style.setProperty('scrollbar-color', `${thumb} ${track}`)
+    } else {
+      root.style.removeProperty('scrollbar-color')
+    }
+  }
+
   // Initialize once on first use
   if (!initialized) {
     initialized = true
@@ -97,6 +119,11 @@ export function useCustomThemes (): UseCustomThemesReturn {
     if (customThemes.value.some(t => t.id === toggle.preference.value)) {
       theme.select(toggle.preference.value)
     }
+
+    // Track every page-level selection and any edit to a custom theme's
+    // colors. Per-example theme controllers never call the page-level
+    // `theme.select`, so example pickers cannot recolor the root scrollbars.
+    watch([theme.selectedId, customThemes], scrollbar, { immediate: true })
   }
 
   // Merge preset themes with custom themes
@@ -207,6 +234,13 @@ export function useCustomThemes (): UseCustomThemesReturn {
     }
     // Update color-scheme for proper browser behavior
     root.style.colorScheme = dark ? 'dark' : 'light'
+    // Live scrollbar feedback: an empty draft value means native
+    const thumb = colors['scrollbar-thumb']
+    if (thumb && colors.background) {
+      root.style.setProperty('scrollbar-color', `${thumb} ${colors.background}`)
+    } else {
+      root.style.removeProperty('scrollbar-color')
+    }
   }
 
   /**
@@ -223,6 +257,9 @@ export function useCustomThemes (): UseCustomThemesReturn {
         root.style.removeProperty(prop)
       }
     }
+    // The preview may have written or cleared the root scrollbar color;
+    // restore whatever the current selection calls for.
+    scrollbar()
   }
 
   function open () {

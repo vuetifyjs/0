@@ -1,6 +1,7 @@
 <script setup lang="ts">
   defineProps<{
-    modelValue: string
+    /** Undefined renders the row empty — the color has no value yet. */
+    modelValue?: string
     label: string
   }>()
 

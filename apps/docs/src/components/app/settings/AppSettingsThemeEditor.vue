@@ -96,12 +96,16 @@
   customThemes.preview(draft.colors, draft.dark)
 
   function onSave () {
+    const colors = { ...draft.colors }
+    // Scrollbar is opt-in: an empty row means native scrollbars, so an
+    // unset value must not persist as a key.
+    if (!colors['scrollbar-thumb']) delete colors['scrollbar-thumb']
     const theme: CustomTheme = {
       id: props.theme?.id ?? '',
       label: draft.label,
       icon: 'theme-custom',
       dark: draft.dark,
-      colors: { ...draft.colors },
+      colors,
       custom: true,
     }
     emit('save', theme)
