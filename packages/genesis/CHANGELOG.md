@@ -1,5 +1,14 @@
 # @paper/genesis
 
+## 1.0.2
+
+### Patch Changes
+
+- [#871](https://github.com/vuetifyjs/0/pull/871) [`761c629`](https://github.com/vuetifyjs/0/commit/761c6292bb1eb4f9cc71979f6588796816da8e85) Thanks [@johnleider](https://github.com/johnleider)! - feat(GnDocsExample): expose a `preview-actions` slot on the live-example preview chrome
+
+- Updated dependencies [[`41d90cc`](https://github.com/vuetifyjs/0/commit/41d90cc965ffaacf0f01ecbf51c9575eff57052a), [`bd8988b`](https://github.com/vuetifyjs/0/commit/bd8988b00d62b54468ff13767ff502ff5f1f82c5), [`6cdd09c`](https://github.com/vuetifyjs/0/commit/6cdd09c538c1c68db601b8ff5c8310d938aee8fa), [`a25ea53`](https://github.com/vuetifyjs/0/commit/a25ea53ae53865d595355be8ab883a84f1a3ccaa)]:
+  - @vuetify/v0@1.0.5
+
 ## 1.0.1
 
 ### Patch Changes
