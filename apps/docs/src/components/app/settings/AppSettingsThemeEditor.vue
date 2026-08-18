@@ -8,7 +8,7 @@
   import { themes, type ThemeDefinition } from '@/themes'
 
   // Utilities
-  import { reactive, toRef, watch } from 'vue'
+  import { reactive, shallowRef, toRef, watch } from 'vue'
 
   const props = defineProps<{
     theme?: ThemeDefinition | null
@@ -36,7 +36,7 @@
     },
     surfaces: {
       label: 'Surfaces',
-      colors: ['background', 'surface', 'surface-tint', 'surface-variant', 'divider', 'pre', 'scrollbar-thumb'],
+      colors: ['background', 'surface', 'surface-tint', 'surface-variant', 'divider', 'pre'],
     },
     text: {
       label: 'Text / Contrast',
@@ -63,7 +63,6 @@
     'surface-variant': 'Surface Variant',
     'divider': 'Divider',
     'pre': 'Code Block',
-    'scrollbar-thumb': 'Scrollbar',
     'on-primary': 'On Primary',
     'on-secondary': 'On Secondary',
     'on-accent': 'On Accent',
@@ -85,6 +84,18 @@
     colors: { ...(props.theme?.colors ?? themes.light.colors) } as Record<string, string>,
   })
 
+  // Scrollbar styling is opt-in per theme, derived from key presence — the
+  // stored model stays colors-only, no flag.
+  const styled = shallowRef(!!draft.colors['scrollbar-thumb'])
+
+  watch(styled, value => {
+    if (value) {
+      draft.colors['scrollbar-thumb'] ||= draft.dark ? '#505050' : '#b0b0b0'
+    } else {
+      delete draft.colors['scrollbar-thumb']
+    }
+  })
+
   // Real-time preview - watch draft changes and apply them
   watch(
     () => ({ colors: { ...draft.colors }, dark: draft.dark }),
@@ -97,9 +108,9 @@
 
   function onSave () {
     const colors = { ...draft.colors }
-    // Scrollbar is opt-in: an empty row means native scrollbars, so an
-    // unset value must not persist as a key.
-    if (!colors['scrollbar-thumb']) delete colors['scrollbar-thumb']
+    // Scrollbar is opt-in: with the switch off or the value empty the key
+    // must not persist, even if a color lingers in editor state.
+    if (!styled.value || !colors['scrollbar-thumb']) delete colors['scrollbar-thumb']
     const theme: CustomTheme = {
       id: props.theme?.id ?? '',
       label: draft.label,
@@ -127,6 +138,8 @@
     const baseId = draft.dark ? 'dark' : 'light'
     const resolvedColors = themeSystem.colors.value[baseId]
     draft.colors = { ...(resolvedColors ?? themes[baseId].colors) }
+    // The reseed wiped the scrollbar value; keep the switch honest
+    if (styled.value) draft.colors['scrollbar-thumb'] = draft.dark ? '#505050' : '#b0b0b0'
   }
 </script>
 
@@ -203,6 +216,21 @@
           :label="COLOR_LABELS[colorKey]"
         />
       </div>
+    </div>
+
+    <!-- Scrollbar -->
+    <div class="space-y-2">
+      <AppSettingsToggle
+        v-model="styled"
+        description="Off uses the browser's native scrollbar"
+        label="Style scrollbar"
+      />
+
+      <AppSettingsColorInput
+        v-if="styled"
+        v-model="draft.colors['scrollbar-thumb']"
+        label="Scrollbar"
+      />
     </div>
 
     <!-- Actions -->
