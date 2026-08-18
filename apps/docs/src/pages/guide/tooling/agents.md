@@ -6,7 +6,7 @@ features:
   level: 1
 meta:
 - name: description
-  content: Paste-ready agent setup prompts that connect GitHub, dry-run a v0 task, and save a Vuetify0 or Vuetify Engineer — plus identity fields for Claude and Cursor.
+  content: Paste-ready agent setup prompts that connect GitHub, dry-run a v0 task, and save a Vuetify0 Engineer — plus identity fields for Claude and Cursor.
 - name: keywords
   content: Agents, Grok Bot, AI agent, Vuetify0, setup prompt, Cursor, Claude, SKILL.md, MCP
 related:
@@ -17,14 +17,14 @@ related:
 ---
 
 <script setup lang="ts">
-  import { jacek, john } from '@/constants/identities'
+  import { john } from '@/constants/identities'
 </script>
 
 # Agents
 
 <DocsPageFeatures :frontmatter />
 
-Paste a prompt into [Grok Bot](https://x.ai/bot). It walks GitHub, dry-runs one task, and saves itself. Use John for v0, Jacek for Vuetify 3/4.
+Paste a prompt into [Grok Bot](https://x.ai/bot). It walks GitHub, dry-runs one task, and saves itself.
 
 ## Usage
 
@@ -38,11 +38,9 @@ After the dry run, paste the matching identity below onto the saved bot so later
 
 ## Identity
 
-What the create-bot form asks for. John defaults to v0. Jacek defaults to Vuetify 3/4.
+What the create-bot form asks for. John defaults to v0.
 
 <DocsIdentity v-bind="john" />
-
-<DocsIdentity v-bind="jacek" />
 
 ## Recipes
 

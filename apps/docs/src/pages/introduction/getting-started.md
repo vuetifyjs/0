@@ -478,7 +478,7 @@ import { IN_BROWSER } from '@vuetify/v0/constants'
 
 ## Agents
 
-Click the portrait to copy John's identity into [Grok Bot](https://x.ai/bot). Setup prompts and Jacek live on [Agents](/guide/tooling/agents).
+Click the portrait to copy John's identity into [Grok Bot](https://x.ai/bot). Setup prompts live on [Agents](/guide/tooling/agents).
 
 <DocsIdentity v-bind="john" dense />
 
