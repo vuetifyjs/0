@@ -152,7 +152,7 @@
       type="button"
       @click="open = true"
     >
-      <p class="m-0 p-0 line-clamp-2 text-sm leading-relaxed opacity-60">
+      <p class="m-0 !mb-0 p-0 line-clamp-2 text-sm leading-relaxed opacity-60">
         {{ description }}
       </p>
     </button>
