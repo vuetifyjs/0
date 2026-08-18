@@ -155,7 +155,7 @@
       role="dialog"
       :style="{ zIndex: ticket.zIndex.value }"
     >
-      <div :class="['rounded-lg shadow-xl border border-divider overflow-hidden', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']">
+      <div :class="['rounded-lg shadow-xl border border-divider overflow-hidden', settings.surface.value]">
         <Discovery.Activator
           class="flex-1 bg-transparent flex border-b border-divider outline-none text-on-surface rounded-lg rounded-b-0 items-center gap-3 px-4 py-3"
           step="search-input"

@@ -77,7 +77,7 @@
     ref="sheet"
     aria-labelledby="settings-title"
     aria-modal="true"
-    :class="['fixed inset-y-0 end-0 flex flex-col w-[320px] max-w-full shadow-xl outline-none', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
+    :class="['fixed inset-y-0 end-0 flex flex-col w-[320px] max-w-full shadow-xl outline-none', settings.surface.value]"
     role="dialog"
     :style="{ zIndex: ticket.zIndex.value }"
     tabindex="-1"

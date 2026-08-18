@@ -1,8 +1,8 @@
 // Vuetify0
-import maturityData from '#v0/maturity.json'
+import { MATURITY as data } from '@/constants/maturity'
 
 // Types
-import type { Level, MaturityData } from '@/constants/maturity'
+import type { Level } from '@/constants/maturity'
 
 export type FeatureType = 'composable' | 'component' | 'utility'
 
@@ -110,8 +110,6 @@ export interface ResolvedRelease {
 function kebab (name: string): string {
   return name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
 }
-
-const data = maturityData as MaturityData
 
 // Flatten maturity.json into a name -> feature lookup once at module load.
 const index = new Map<string, ResolvedFeature>()

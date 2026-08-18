@@ -10,7 +10,7 @@
 <template>
   <AppTooltip
     aria-label="Search (Ctrl+K)"
-    :class="['inline-flex items-center gap-1.5 rounded-full border border-divider pl-1.5 pr-1.5 py-1.5 hover:border-primary/50 focus-visible:border-primary focus-visible:outline-none transition-colors', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
+    :class="['inline-flex items-center gap-1.5 rounded-full border border-divider pl-1.5 pr-1.5 py-1.5 hover:border-primary/50 focus-visible:border-primary focus-visible:outline-none transition-colors', settings.surface.value]"
     position-area="bottom"
     text="Search (Ctrl+K)"
     @click="search.open"
