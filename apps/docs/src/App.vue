@@ -269,24 +269,6 @@
     scroll-padding-top: calc(48px + var(--app-banner-h, 0px) + 0.5rem);
   }
 
-  /* Scrollbar styling */
-  ::-webkit-scrollbar-track {
-    background: var(--v0-background);
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: var(--v0-scrollbar-thumb);
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in srgb, var(--v0-primary) 50%, var(--v0-scrollbar-thumb));
-  }
-
-  /* Firefox */
-  * {
-    scrollbar-color: var(--v0-scrollbar-thumb) var(--v0-background);
-  }
-
   #app > .app-shell {
     position: relative;
     background: color-mix(in srgb, var(--v0-background) 85%, transparent);
