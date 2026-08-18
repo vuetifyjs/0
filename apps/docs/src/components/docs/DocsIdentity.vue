@@ -148,7 +148,7 @@
     <button
       v-if="dense && !open"
       :aria-expanded="false"
-      class="w-full m-0 px-3 pb-2 bg-transparent border-none text-left cursor-pointer hover:bg-surface-tint/50 focus-visible:bg-surface-tint focus-visible:outline-none"
+      class="w-full m-0 px-3 pt-2 pb-2 bg-transparent border-none border-t border-divider text-left cursor-pointer hover:bg-surface-tint/50 focus-visible:bg-surface-tint focus-visible:outline-none"
       type="button"
       @click="open = true"
     >
