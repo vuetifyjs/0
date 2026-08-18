@@ -68,7 +68,7 @@
       class="relative flex items-center justify-between gap-4 overflow-hidden"
       :class="dense ? 'px-3 py-2' : 'px-4 py-3'"
     >
-      <AppDotGrid :coverage="55" origin="bottom left" />
+      <AppDotGrid :coverage="65" origin="bottom left" />
 
       <div
         v-if="dense"
