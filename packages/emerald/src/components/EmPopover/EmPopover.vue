@@ -2,9 +2,10 @@
   // Framework
   import { Popover } from '@vuetify/v0'
 
-  export interface EmPopoverProps {
-    id?: string
-  }
+  // Types
+  import type { PopoverRootProps } from '@vuetify/v0'
+
+  export interface EmPopoverProps extends Omit<PopoverRootProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

@@ -43,8 +43,13 @@ import { registerPlugins } from './plugins'
 export const createApp = ViteSSG(
   App,
   {
+    // Vite asset URLs honor `base` from vite.config; Vue Router does not unless
+    // we pass it here. Without this, DEMO_BASE=/demo/emerald/ prerenders
+    // RouterLink hrefs as /emerald/... and lychee fails offline file checks.
+    base: import.meta.env.BASE_URL,
     routes: [
-      { path: '/', component: Playground },
+      // Demo deploy (`BASE_URL=/demo/emerald/`) serves the dashboard at `/`.
+      { path: '/', component: import.meta.env.BASE_URL.includes('/demo/') ? EmeraldDashboard : Playground },
       { path: '/create-overflow', component: CreateOverflowDemo },
       { path: '/emerald', component: EmeraldDashboard },
       { path: '/emerald/about', component: EmeraldAbout },
@@ -75,26 +80,21 @@ export const createApp = ViteSSG(
     ],
   },
   async ({ app }) => {
-    registerPlugins(app)
+    const demo = import.meta.env.BASE_URL.includes('/demo/')
 
-    // Emerald's documented install, browser-only. Three deviations from a plain
-    // `createEmeraldPlugin()`, all forced by dev hosting more than one design
-    // system:
-    // - `IN_BROWSER` — `target` is honoured only on the client. The SSR branch
-    //   of V0StyleSheetThemeAdapter.setup pushes `htmlAttrs: { data-theme }`
-    //   unconditionally, which stamped `data-theme="emerald-light"` onto every
-    //   prerendered page, non-Emerald routes included. Skipping install during
-    //   prerender is the only dev-side fix. Cost: Emerald routes ship no theme
-    //   CSS in their static HTML and paint on hydration — which is exactly what
-    //   the hand-rolled installer this replaced did.
-    // - `namespace` — registerPlugins already claims the default `v0:theme`
-    //   for the palette demos, and createPlugin silently skips a duplicate
-    //   namespace. Without this, whichever ran second would vanish. The
-    //   `namespace:key` shape is required; a bare key trips createContext's
-    //   separator warning.
-    // - `target: null` — every Emerald route already carries
-    //   `data-theme="emerald-light"` on its own root, so the attribute stays
-    //   markup-owned and non-Emerald routes keep the app theme.
+    registerPlugins(app, { playgroundTheme: !demo })
+
+    // Demo deploy is Emerald-only — documented install, html owns the theme.
+    // Local `dev` still hosts the playground palettes on `v0:theme`, so Emerald
+    // takes a side namespace and leaves `data-theme` to each product root.
+    if (demo) {
+      app.use(createEmeraldPlugin())
+      return
+    }
+
+    // Browser-only: the SSR branch of V0StyleSheetThemeAdapter.setup pushes
+    // `htmlAttrs: { data-theme }` unconditionally, which would stamp
+    // `data-theme="emerald"` onto every prerendered playground page.
     if (IN_BROWSER) {
       app.use(createEmeraldPlugin({ theme: { namespace: 'emerald:theme', target: null } }))
     }

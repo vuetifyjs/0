@@ -27,8 +27,8 @@
       v-model="email"
       label="Email"
       :rules="[
-        (v: string) => !!v || 'Email is required',
-        (v: string) => /.+@.+\..+/.test(v) || 'Must be a valid email',
+        v => !!v || 'Email is required',
+        v => /.+@.+\..+/.test(v as string) || 'Must be a valid email',
       ]"
       type="email"
     >
@@ -49,8 +49,8 @@
       v-model="password"
       label="Password"
       :rules="[
-        (v: string) => !!v || 'Password is required',
-        (v: string) => v.length >= 8 || 'Must be at least 8 characters',
+        v => !!v || 'Password is required',
+        v => (v as string).length >= 8 || 'Must be at least 8 characters',
       ]"
       type="password"
     >

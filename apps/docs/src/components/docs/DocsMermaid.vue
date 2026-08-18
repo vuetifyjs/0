@@ -287,7 +287,7 @@
       </figure>
     </Dialog.Activator>
 
-    <Dialog.Content :class="['docs-mermaid-dialog m-auto rounded-xl border border-divider', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface', settings.prefersReducedMotion.value && 'reduce-motion']">
+    <Dialog.Content :class="['docs-mermaid-dialog m-auto rounded-xl border border-divider', settings.surface.value, settings.prefersReducedMotion.value && 'reduce-motion']">
       <!-- Header toolbar -->
       <div class="flex items-center justify-between gap-2 p-2 border-b border-divider">
         <Dialog.Title as="span" class="sr-only">

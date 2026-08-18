@@ -1,5 +1,10 @@
 <script setup lang="ts">
+  // Baked theme.css must not be imported here — it paints `--v0-*` on `:root`.
+  import { EmeraldStyleSheetAdapter, emeraldColors, emeraldDarkColors } from '@paper/emerald'
   import { useHead } from '@unhead/vue'
+  import faqs from 'virtual:faqs'
+  import mdRoutes from 'virtual:md-routes'
+  import pageDates from 'virtual:page-dates'
 
   // Framework
   import { IN_BROWSER, Scrim, useBreakpoints, useStack } from '@vuetify/v0'
@@ -23,6 +28,11 @@
   // Utilities
   import { defineAsyncComponent, toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
+
+  const emeraldAdapter = new EmeraldStyleSheetAdapter({
+    v0Aliases: true,
+    stylesheetId: 'emerald-docs-tokens',
+  })
 
   const AppSettingsSheet = defineAsyncComponent(() => import('@/components/app/AppSettingsSheet.vue'))
   const DocsSearch = defineAsyncComponent(() => import('@/components/docs/DocsSearch.vue'))
@@ -67,6 +77,21 @@
   const url = toRef(() => `https://0.vuetifyjs.com${route.path}`)
   const breadcrumbs = useBreadcrumbItems()
 
+  // Advertise the page's markdown twin so agent fetchers and AI crawlers can
+  // retrieve source markdown instead of scraping rendered HTML. Only emitted for
+  // routes that actually have a twin — see build/md-routes.ts.
+  const markdown = toRef(() => {
+    const twin = mdRoutes[route.path] ?? mdRoutes[route.path.replace(/\/$/, '')]
+    if (!twin) return []
+
+    return [{
+      key: 'alternate-markdown',
+      rel: 'alternate',
+      type: 'text/markdown',
+      href: `https://0.vuetifyjs.com${twin}`,
+    }]
+  })
+
   const breadcrumbScript = toRef(() => {
     if (route.path === '/') return []
 
@@ -94,15 +119,70 @@
     }]
   })
 
+  // Documentation pages are TechArticle, not bare WebSite nodes — it carries the
+  // headline and dateModified that AI answer engines use to judge freshness.
+  // `dateModified` is the page's last git commit, already collected for the
+  // freshness badge.
+  const articleScript = toRef(() => {
+    const items = breadcrumbs.value
+    if (items.length <= 1) return []
+
+    const headline = items.at(-1)?.text
+    if (!headline) return []
+
+    const dates = pageDates[route.path]
+
+    return [{
+      key: 'article-schema',
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        headline,
+        'url': url.value,
+        'isPartOf': { '@type': 'WebSite', 'name': 'Vuetify0', 'url': 'https://0.vuetifyjs.com' },
+        'about': { '@type': 'SoftwareSourceCode', 'name': '@vuetify/v0', 'programmingLanguage': 'TypeScript' },
+        'publisher': { '@type': 'Organization', 'name': 'Vuetify', 'url': 'https://vuetifyjs.com' },
+        ...dates?.updated ? { dateModified: dates.updated } : {},
+      }),
+    }]
+  })
+
+  // FAQPage markup must mirror content the reader can see, so these come from
+  // the same `::: faq` blocks the page renders — see build/generate-faqs.ts.
+  const faqScript = toRef(() => {
+    const items = faqs[route.path] ?? faqs[route.path.replace(/\/$/, '')]
+    if (!items?.length) return []
+
+    return [{
+      key: 'faq-schema',
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': items.map(item => ({
+          '@type': 'Question',
+          'name': item.question,
+          'acceptedAnswer': { '@type': 'Answer', 'text': item.answer },
+        })),
+      }),
+    }]
+  })
+
   useHead({
     title: 'Vuetify0',
     titleTemplate: '%s — Vuetify0',
-    link: [
+    link: toRef(() => [
       { rel: 'preconnect', href: 'https://api.github.com' },
       { rel: 'preconnect', href: 'https://cdn.vuetifyjs.com' },
       { rel: 'dns-prefetch', href: 'https://api.npmjs.org' },
-      { key: 'canonical', rel: 'canonical', href: url },
-    ],
+      { key: 'canonical', rel: 'canonical', href: url.value },
+      // Site-wide LLM context bundles. Documented for humans on
+      // /guide/tooling/ai-tools; these make them machine-discoverable.
+      { key: 'llms', rel: 'alternate', type: 'text/plain', href: 'https://0.vuetifyjs.com/llms.txt', title: 'llms.txt' },
+      { key: 'llms-full', rel: 'alternate', type: 'text/plain', href: 'https://0.vuetifyjs.com/llms-full.txt', title: 'llms-full.txt' },
+      ...markdown.value,
+    ]),
     meta: [
       { key: 'description', name: 'description', content: 'Headless components and composables for building modern applications and design systems' },
       { key: 'og:type', property: 'og:type', content: 'website' },
@@ -113,6 +193,14 @@
       { key: 'twitter:card', name: 'twitter:card', content: 'summary_large_image' },
       { key: 'twitter:site', name: 'twitter:site', content: '@VuetifyJS' },
     ],
+    style: [{
+      key: 'emerald-docs-tokens',
+      id: 'emerald-docs-tokens',
+      innerHTML: emeraldAdapter.generate({
+        'emerald': emeraldColors,
+        'emerald-dark': emeraldDarkColors,
+      }),
+    }],
     script: toRef(() => [
       {
         key: 'website-schema',
@@ -132,6 +220,8 @@
         }),
       },
       ...breadcrumbScript.value,
+      ...articleScript.value,
+      ...faqScript.value,
     ]),
   })
 </script>
@@ -510,27 +600,6 @@
   }
 
   .docs-markup--wrap .shiki code {
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-
-  /* DocsExample code block styling */
-  .docs-example-code .shiki {
-    border: none;
-    border-radius: 0;
-    margin-bottom: 0;
-  }
-
-  .docs-example-code .shiki code {
-    padding-right: 5rem;
-    line-height: 1.625;
-  }
-
-  .docs-example-code--expanded .shiki {
-    padding-top: 2rem;
-  }
-
-  .docs-example-code--wrap .shiki code {
     white-space: pre-wrap;
     word-break: break-word;
   }

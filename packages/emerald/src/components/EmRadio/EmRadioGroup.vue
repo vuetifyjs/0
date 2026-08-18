@@ -2,16 +2,13 @@
   // Framework
   import { Radio } from '@vuetify/v0'
 
-  export interface EmRadioGroupProps {
-    disabled?: boolean
-    name?: string
-    namespace?: string
-    mandatory?: boolean | 'force'
-    /** Accessible name for the radiogroup when no visible label is associated */
-    label?: string
-    /** ID of an existing element that labels the radiogroup */
-    ariaLabelledby?: string
-  }
+  // Types
+  import type { RadioGroupProps } from '@vuetify/v0'
+
+  export interface EmRadioGroupProps extends Pick<
+    RadioGroupProps,
+    'disabled' | 'name' | 'namespace' | 'mandatory' | 'label' | 'ariaLabelledby'
+  > {}
 </script>
 
 <script setup lang="ts">

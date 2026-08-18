@@ -1,19 +1,21 @@
 <script lang="ts">
   // Framework
   import { Switch } from '@vuetify/v0'
-  // Utilities
   import { useId } from '@vuetify/v0/utilities'
+
+  // Utilities
+  import { toValue } from 'vue'
+
+  // Types
+  import type { SwitchRootProps } from '@vuetify/v0'
 
   export type EmSwitchSize = 'sm' | 'md' | 'lg'
 
-  export interface EmSwitchProps {
-    disabled?: boolean
+  export interface EmSwitchProps extends Pick<
+    SwitchRootProps,
+    'disabled' | 'name' | 'value' | 'label' | 'namespace'
+  > {
     size?: EmSwitchSize
-    name?: string
-    value?: unknown
-    /** Accessible name when no default-slot label is rendered */
-    label?: string
-    namespace?: string
   }
 </script>
 
@@ -36,7 +38,7 @@
 </script>
 
 <template>
-  <label class="emerald-switch" :data-disabled="disabled || undefined" :data-size="size">
+  <label class="emerald-switch" :data-disabled="toValue(disabled) || undefined" :data-size="size">
     <Switch.Root
       v-model="model"
       :aria-labelledby="$slots.default ? id : undefined"

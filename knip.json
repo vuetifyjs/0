@@ -22,7 +22,8 @@
         "src/pages/**/*.{vue,md}",
         "build/**/*.ts",
         "vite.config.*",
-        "src/examples/**/*.vue"
+        "src/examples/**/*.vue",
+        "src/sandbox/*.ts"
       ],
       "ignore": [
         "src/typed-router.d.ts",

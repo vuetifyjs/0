@@ -2,10 +2,10 @@
   // Framework
   import { Snackbar } from '@vuetify/v0'
 
-  export interface EmSnackbarPortalProps {
-    /** Teleport target. `'top-layer'` mounts into the topmost open modal; `false` renders inline. */
-    teleport?: 'top-layer' | (string & {}) | false
-  }
+  // Types
+  import type { SnackbarPortalProps } from '@vuetify/v0'
+
+  export interface EmSnackbarPortalProps extends Pick<SnackbarPortalProps, 'teleport'> {}
 </script>
 
 <script setup lang="ts">

@@ -7,6 +7,8 @@
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useParams } from '@/composables/useRoute'
 
+  import { MATURITY } from '@/constants/maturity'
+
   // Utilities
   import { renderInlineMarkdown } from '@/utilities/markdown'
   import { toCamel, toPascal } from '@/utilities/strings'
@@ -15,16 +17,9 @@
   // Types
   import type { ApiData, ComponentApi, ComposableApi } from '@build/generate-api'
 
-  // Maturity (relative path; #v0 alias also works)
-  import maturity from '../../../../../packages/0/src/maturity.json'
-
   const params = useParams<{ name: string }>()
   const data = apiData as ApiData
   const helpers = useApiHelpers()
-  const maturityRecord = maturity as {
-    components?: Record<string, { description?: string }>
-    composables?: Record<string, { description?: string }>
-  }
 
   const itemName = computed(() => {
     const slug = params.value.name
@@ -87,8 +82,8 @@
 
   const groupDescription = toRef(() => {
     if (!itemName.value) return undefined
-    if (isComponent.value) return maturityRecord.components?.[itemName.value]?.description || undefined
-    if (isComposable.value) return maturityRecord.composables?.[itemName.value]?.description || undefined
+    if (isComponent.value) return MATURITY.components?.[itemName.value]?.description || undefined
+    if (isComposable.value) return MATURITY.composables?.[itemName.value]?.description || undefined
     return undefined
   })
 

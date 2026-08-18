@@ -2,11 +2,10 @@
   // Framework
   import { Tabs } from '@vuetify/v0'
 
-  export interface EmTabsListProps {
-    /** Accessible name for the tablist when no visible label is associated */
-    label?: string
-    namespace?: string
-  }
+  // Types
+  import type { TabsListProps } from '@vuetify/v0'
+
+  export interface EmTabsListProps extends Omit<TabsListProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

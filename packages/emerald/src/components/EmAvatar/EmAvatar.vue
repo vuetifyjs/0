@@ -2,12 +2,13 @@
   // Framework
   import { Avatar } from '@vuetify/v0'
 
+  // Types
+  import type { AvatarRootProps } from '@vuetify/v0'
+
   export type EmAvatarSize = 'sm' | 'md' | 'lg'
 
-  export interface EmAvatarProps {
+  export interface EmAvatarProps extends Pick<AvatarRootProps, 'value' | 'namespace'> {
     size?: EmAvatarSize
-    value?: unknown
-    namespace?: string
   }
 </script>
 

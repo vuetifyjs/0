@@ -3,12 +3,11 @@
   import { Tabs } from '@vuetify/v0'
 
   // Types
-  import type { ID } from '@vuetify/v0'
+  import type { ID, TabsItemProps } from '@vuetify/v0'
 
-  export interface EmTabsItemProps {
+  export interface EmTabsItemProps extends Pick<TabsItemProps, 'disabled' | 'namespace'> {
+    /** Required here, unlike v0 — an Emerald tab is always addressable. */
     value: ID
-    disabled?: boolean
-    namespace?: string
   }
 </script>
 

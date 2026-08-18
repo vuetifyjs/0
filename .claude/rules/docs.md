@@ -126,6 +126,8 @@ Providers that require plugin setup (`locale`, `scrim`) prepend an optional **In
 | **Usage** | `::: gn-example` with `basic` (no extension, peek — strip inline heading/description) **or** code fence + prose when the page needs explanatory text before the demo [intent:302] | `` ```ts collapse `` `` code fence [intent:302] |
 | **Anatomy** | `` ```vue Anatomy no-filename `` `` — `<script setup>` import + bare compound skeleton (Root + one of each named child, no props). Separate every pair of adjacent same-level siblings with one blank line for visual scanning; an only-child gets none [intent:345] | — |
 | **Examples** | `::: gn-example` with 2+ files [intent:304] | `::: gn-example` with 2+ files [intent:304] |
+
+**Systems exception.** `::: ds-example` blocks under `pages/systems/**` are single-file by design — the sandbox entry resolves exactly one component from the `e` query param, so a multi-file block has no second file to mount. The 2+-files rule does not apply there.
 | **Recipes** | Code fence or single-file `::: gn-example` [intent:303] | Code fence or single-file `::: gn-example` [intent:303] |
 
 ## Composable Page Structure [intent:201]
@@ -152,7 +154,7 @@ Section order is canonical: pages omit sections they don't need but never reorde
 
 Example files live in `apps/docs/src/examples/{type}/{name}/`. [intent:202]
 
-`::: gn-example` (emits `<DocsGenesisExample>`) is the canonical directive for component and composable feature pages. The legacy `::: example` (emits `<DocsExample>`) still exists for other page types (guides, index pages) but new feature-page work uses `gn-example`. Both share identical path/ordering/collapse syntax.
+`::: gn-example` (emits `<DocsGenesisExample>`) is the canonical directive for component and composable feature pages.
 
 ### Single file (no extension in path)
 
@@ -201,10 +203,49 @@ Prose inside `::: gn-example` blocks under `## Examples` should be lengthened �
 
 The same depth rule does **not** apply to `## Usage` or `## Recipes` blocks — those are deliberately terse. [intent:276]
 
+### Design-system examples — `::: ds-example`
+
+Pages under `pages/systems/**` use `::: ds-example`, which emits `<DocsSystemExample>`. The authoring syntax is identical to `gn-example` — same path/ordering/collapse rules, same prose-depth expectations — and the difference is entirely in where the example runs.
+
+Emerald examples render **inline** under `[data-theme="emerald"]` / `[data-theme="emerald-dark"]` on the Genesis preview panel. `DocsSystemExample` is a thin wrapper around `DocsGenesisExample`; an adapter-generated token sheet (`EmeraldStyleSheetAdapter.generate`, injected via unhead) scopes colors to those selectors and leaves foundations on `:root`. Do not import baked `theme.css` or `style.css` — they paint `--v0-*` on `:root` and would turn Genesis chrome Emerald-green. Do not `app.use(createEmeraldPlugin())` — it writes `data-theme="emerald"` on `<html>` and fights `V0UnheadThemeAdapter`. Icons go through `createEmeraldIconsPlugin()` only.
+
+The iframe remains the rule for any system that resets elements (Bulma resets `button` and `input`). UnoCSS's preflight fights those resets, so those examples cannot share a document with the docs shell. They run in an iframe against `apps/docs/sandbox/<system>.html`; the sandbox files stay as a rollback surface.
+
+Consequences for authoring:
+
+- **Systems pages use their own section skeleton**, not the canonical component-page list above: H1 → `<DocsPageFeatures>` → intro → **Usage** → **Anatomy** → **Composed on v0** → **Examples** → **Props** → **Accessibility**. "Composed on v0" names the compound the component wraps and links to its page; "Props" is hand-authored while `<DocsApi />` does not cover `@paper/*`. The 11-section order in "Component Page Structure" does not apply to `pages/systems/**`.
+- **Examples live at `src/examples/systems/<system>/<component>/*.vue`.** Emerald paths mount inline (`/systems/emerald/dialog/basic` is the preview component). For iframe systems the path still selects the frame — `/systems/bulma/modal/basic` loads `sandbox/bulma.html?e=modal/basic`. A new iframe system needs its own `sandbox/<system>.html` plus a `src/sandbox/<system>.ts` entry.
+- **No UnoCSS.** Style with the system's own classes and tokens; keep any example-local CSS to structural layout. Utility classes in an iframe system do nothing because the frame loads none.
+- **No element descendants on shared layout classes.** Emerald example CSS is document-global (`useExamples` eager-globs every `.vue`, and `<style>` is unscoped). `.emerald-docs-row span` paints every `Button.Content` span on every page. Put the color/type on a dedicated class (`.emerald-docs-caption`), not `span` / `p` under `.emerald-docs-row` or `.emerald-docs-stack`.
+- **Import from the design system**, not `@vuetify/v0` — `@paper/emerald`, `@paper/bulma`. Reach for v0 only for utilities a system does not re-export.
+- **Add the sandbox document as a build input.** Vite's default input is the root `index.html` alone; `apps/docs/vite.config.ts` reads `sandbox/*.html` from disk so a new frame needs no config edit, but a frame added outside that directory will be served in dev and missing from `dist`.
+- **The frame document must supply the host reset the system assumes.** A design system styles components, not the page — every real host provides `box-sizing: border-box` (UnoCSS preflight) and a zeroed body margin, and the sandbox loads neither. Without the reset, any `width: 100%` component with padding or borders overflows the frame horizontally. Inline both in the sandbox HTML's critical style (see `sandbox/emerald.html`); Bulma brings its own reset, so `bulma.html` doesn't need it — a new system should assume it does.
+- **The frame document never scrolls — `html { overflow: clip }`.** The parent owns the frame's height and grows it to every measurement the sandbox reports, so a root scrollbar is only ever the resize gap made visible: dragging the example narrower reflows content taller than the held height, and the UA paints a scrollbar for the few frames until the `size` round-trip lands. `clip`, not `hidden`, so no scroll container exists and nothing can strand the document at a stale offset. This applies to every system's frame, resets or no resets.
+
+#### The sandbox contract (iframe systems)
+
+This is the iframe contract, not the Emerald contract. The frame and the page talk over `postMessage`, and the protocol is what keeps an overlay from being clipped by the box the example sits in.
+
+| Message | Direction | Purpose |
+|---------|-----------|---------|
+| `v0:sandbox:ready` | frame → page | Frame mounted; page replies with theme and box |
+| `v0:sandbox:size` | frame → page | Measured height. `grown: true` marks a height caused by something currently spilling out, which the page applies but does not remember |
+| `v0:sandbox:overlay` | frame → page | Something is laid out against the viewport. Promotes the frame to `position: fixed` and clips it to the reported regions |
+| `v0:sandbox:rects` | frame → page | The promoted regions changed — a menu resized under its own content |
+| `v0:sandbox:theme` | page → frame | Current scheme, as a `dark` boolean |
+| `v0:sandbox:box` | page → frame | Where the inline box sits, so promoted content pins back to it |
+| `v0:sandbox:dismiss` | page → frame | A click landed on a clipped-away region; replay it so click-outside fires |
+
+Three things follow that are easy to get wrong:
+
+- **Not every fixed element is an overlay.** A `position: fixed` element with no hit-testable pointer-accepting descendant — the whole subtree is `pointer-events: none`, or what accepts pointer events has zero area, like an empty snackbar-queue wrapper — is a decoration riding the viewport (a drag-and-drop drop indicator), and `SandboxRoot` ignores it entirely: no promotion, and no contribution to the grown height either. Inline, the frame's viewport is the example box, so it already paints where it belongs; promoting for it would pin and clip the frame mid-drag (the kanban board visibly jumping out of its box). The subtree check is the boundary — a snackbar portal is itself `pointer-events: none` but holds interactive snackbars, so it still promotes. Known limit: classification re-derives per measure, and measures fire on resize, mutation, and pointer ticks — a subtree whose `pointer-events` changes through pure CSS (a transition, a keyframe) mutates nothing and is never re-read.
+- **Height is reserved, not guessed.** The first settled measurement is remembered per example per viewport bucket in `sessionStorage`, so a second visit opens at the right height. Later measurements are treated as the reader interacting, never as the example's resting height.
+- **Theme is an attribute the frame owns.** The page sends a scheme; the frame writes `data-theme`. A system whose theme ids are not `light`/`dark` passes a name map to `SandboxRoot` (Emerald maps to `emerald` / `emerald-dark`). Never install a theme plugin that also writes `data-theme` in a sandbox entry — two writers fight and the reader's toggle loses.
+
 ### Example file conventions
 
-- Use UnoCSS utility classes, no custom CSS. [intent:203]
-- Import from `@vuetify/v0`. [intent:204]
+- Use UnoCSS utility classes, no custom CSS. [intent:203] **Systems examples are the exception: no UnoCSS. Use the design system's own classes and tokens, and keep any local CSS to structural layout. Utility classes in an iframe system are inert (the frame loads none).**
+- Import from `@vuetify/v0`. [intent:204] Systems examples import from their design system (`@paper/emerald`) instead.
 - Keep examples minimal and focused — one concept per file. [intent:205]
 - Example folders use kebab-case; supporting Vue components use PascalCase; supporting utilities use camelCase. [intent:307]
 - No `index.vue` pattern. [intent:308]
@@ -281,7 +322,7 @@ Real worked examples on master:
 | Syntax | Purpose |
 |--------|---------|
 | `::: gn-example` | Live interactive example (canonical for feature pages; emits `<DocsGenesisExample>`) |
-| `::: example` | Legacy live example (`<DocsExample>`) — guides/index pages only |
+| `::: ds-example` | Design-system example, rendered in an isolated frame (`<DocsSystemExample>`) — `pages/systems/**` only |
 | `::: code-group` | Tabbed code blocks |
 | `::: faq` | FAQ section with `???` questions |
 | `> [!TIP]` | Informational callout (empty tip surfaces a random tip from curated pool) [intent:340, intent:341] |
@@ -384,7 +425,7 @@ When auditing docs or specs, read the rules file **line-by-line** and build a pe
 
 ## Playground — the interactive browser editor
 
-v0 ships a standalone playground at `apps/playground/` that lets consumers edit a Vue file and see the result live. Docs pages can deep-link into the playground: every `::: gn-example` / `DocsExample` code pane exposes a "Open in Playground" action via `DocsCodeActions`, and every ``` ```vue playground ``` fence renders with the same action. The action calls `usePlayground(files)` (see `apps/docs/src/composables/usePlayground.ts`), which encodes the files into a URL and navigates to the deployed playground. [intent:344]
+v0 ships a standalone playground at `apps/playground/` that lets consumers edit a Vue file and see the result live. Docs pages can deep-link into the playground: every `::: gn-example` code pane exposes a "Open in Playground" action via `DocsCodeActions`, and every ``` ```vue playground ``` fence renders with the same action. The action calls `usePlayground(files)` (see `apps/docs/src/composables/usePlayground.ts`), which encodes the files into a URL and navigates to the deployed playground. [intent:344]
 
 > **Note.** The `## Anatomy` fence is `` ```vue Anatomy no-filename `` `` and is **not** playground-linked — it's a static structural map. The runnable, playground-enabled preview is the `basic` `::: gn-example` under Usage.
 
@@ -420,7 +461,7 @@ Write examples so they are *immediately* runnable when dropped into the playgrou
 
 The monorepo uses **knip** (see `knip.json`) to detect unreferenced files, exports, and dependencies across workspaces. The `apps/docs` workspace explicitly lists `src/examples/**/*.vue` as entry points, which means every file in that directory tree must either:
 
-1. Be imported by a markdown page via `::: gn-example` / `::: example` / `<DocsExample>`, or
+1. Be imported by a markdown page via `::: gn-example` / `::: ds-example`, or
 2. Be listed in `knip.json`'s `ignore` array (only for multi-file example sub-files that aren't the entry), or
 3. Be removed.
 
@@ -451,7 +492,7 @@ Docs pages render Mermaid charts via ``` ```mermaid ``` code fences. VitePress +
 
 - Small prose-level callouts — a two-sentence description beats a three-node diagram.
 - Tables — if the information is a matrix of options, use a markdown table.
-- Screenshots of UI — use `<DocsExample>` with a live example; Mermaid is for relationships, not screenshots.
+- Screenshots of UI — use a `::: gn-example` live example; Mermaid is for relationships, not screenshots.
 
 ### Syntax notes
 

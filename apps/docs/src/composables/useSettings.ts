@@ -58,6 +58,8 @@ export interface SettingsContext {
   showMeshGrid: ShallowRef<boolean>
   showMeshTransition: ShallowRef<boolean>
   showBgGlass: ShallowRef<boolean>
+  /** Surface background class tracking the glass setting — bind it instead of re-deriving the ternary. */
+  surface: Ref<string>
   hasChanges: ShallowRef<boolean>
   open: () => void
   close: () => void
@@ -180,6 +182,8 @@ export function createSettingsContext (): SettingsContext {
     return userPrefersReducedMotion.value
   })
 
+  const surface = toRef(() => showBgGlass.value ? 'bg-glass-surface' : 'bg-surface')
+
   // Check if any setting differs from defaults
   const hasChanges = toRef(() => (
     lineWrap.value !== DEFAULTS.lineWrap ||
@@ -263,6 +267,7 @@ export function createSettingsContext (): SettingsContext {
     showMeshGrid,
     showMeshTransition,
     showBgGlass,
+    surface,
     hasChanges,
     open,
     close,

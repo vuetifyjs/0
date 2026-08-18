@@ -1,31 +1,26 @@
 <script lang="ts">
   // Framework
   import { Input } from '@vuetify/v0'
-  // Utilities
   import { useId } from '@vuetify/v0/utilities'
 
-  // Types
-  import type { FormValidationRule, ID, ValidateOn } from '@vuetify/v0'
+  // Utilities
+  import { toValue } from 'vue'
 
-  export interface EmTextFieldProps {
-    id?: ID
+  // Types
+  import type { InputRootProps } from '@vuetify/v0'
+
+  /** Emerald withholds `form` from v0's input surface; everything else tracks it. */
+  type EmTextFieldKeys = 'id' | 'label' | 'disabled' | 'readonly' | 'required' | 'name' | 'type' | 'rules' | 'validateOn' | 'error' | 'errorMessages' | 'namespace'
+
+  export interface EmTextFieldProps extends Pick<InputRootProps, EmTextFieldKeys> {
     /** Visible label text; associated via `for`/`id` (not Root aria-label) */
-    label?: string
+    label?: InputRootProps['label']
+    /** Native input type — owned by Input.Root, not Control */
+    type?: InputRootProps['type']
     /** Help text under the control (no named slots — props only) */
     description?: string
-    disabled?: boolean
-    readonly?: boolean
-    required?: boolean
-    name?: string
-    /** Native input type — owned by Input.Root, not Control */
-    type?: string
     placeholder?: string
     autocomplete?: string
-    rules?: FormValidationRule[]
-    validateOn?: ValidateOn
-    error?: boolean
-    errorMessages?: string | string[]
-    namespace?: string
   }
 </script>
 
@@ -60,7 +55,7 @@
     :id
     v-model="model"
     class="emerald-text-field"
-    :data-disabled="disabled || undefined"
+    :data-disabled="toValue(disabled) || undefined"
     :disabled
     :error
     :error-messages
