@@ -1011,6 +1011,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/tooling/agents': RouteRecordInfo<
+      '/guide/tooling/agents',
+      '/guide/tooling/agents',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/tooling/ai-tools': RouteRecordInfo<
       '/guide/tooling/ai-tools',
       '/guide/tooling/ai-tools',
@@ -2496,6 +2503,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/integration/vapor.md': {
       routes:
         | '/guide/integration/vapor'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/guide/tooling/agents.md': {
+      routes:
+        | '/guide/tooling/agents'
       views:
         | never
       pathParamNames:

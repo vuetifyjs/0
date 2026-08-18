@@ -135,6 +135,7 @@ declare module 'vue' {
     DocsGraduation: typeof import('./components/docs/DocsGraduation.vue')['default']
     DocsHeaderAnchor: typeof import('./components/docs/DocsHeaderAnchor.vue')['default']
     DocsHighlight: typeof import('./components/docs/DocsHighlight.vue')['default']
+    DocsIdentity: typeof import('./components/docs/DocsIdentity.vue')['default']
     DocsKbd: typeof import('./components/docs/DocsKbd.vue')['default']
     DocsMarkup: typeof import('./components/docs/DocsMarkup.vue')['default']
     DocsMaturity: typeof import('./components/docs/DocsMaturity.vue')['default']
