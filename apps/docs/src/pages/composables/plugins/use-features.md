@@ -46,6 +46,27 @@ app.use(
 app.mount('#app')
 ```
 
+### Persistence
+
+Pass `persist: true` to remember enabled flags across reloads. Requires [useStorage](/composables/plugins/use-storage) to be installed first. Selected flag ids are stored under the key `features` (the plugin namespace with the `v0:` prefix stripped).
+
+```ts main.ts
+import { createStoragePlugin, createFeaturesPlugin } from '@vuetify/v0'
+
+app.use(createStoragePlugin())
+app.use(
+  createFeaturesPlugin({
+    persist: true,
+    features: {
+      analytics: true,
+      debug_mode: false,
+    },
+  })
+)
+```
+
+Unknown or malformed stored ids are ignored, so a rename or removed flag cannot resurrect itself.
+
 ## Usage
 
 Once the plugin is installed, access feature flags and variations in any component:
@@ -356,6 +377,10 @@ Give the feature a `$variation` payload — `search: { $value: true, $variation:
 ??? Can I pull flags from more than one provider at once?
 
 Yes. Pass an array of adapters to `createFeaturesPlugin`; they initialize in order and their flags merge, with the last adapter winning on conflicting keys.
+
+??? How do I persist a user's flag toggles across reloads?
+
+Pass `persist: true` to `createFeaturesPlugin`, and install `createStoragePlugin` first. The saved value is the list of enabled flag ids; on load it is reconciled against the registered flags, and wins over an adapter's first snapshot. Later adapter `onUpdate` calls still overlay live remote state.
 
 ??? Can I toggle or add a flag at runtime?
 

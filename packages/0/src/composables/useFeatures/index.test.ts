@@ -1,9 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { createStoragePlugin, MemoryStorageAdapter, useStorage } from '#v0/composables/useStorage'
+
 import { createFeatures, createFeaturesPlugin, useFeatures } from './index'
 
 // Utilities
-import { createApp, watchEffect } from 'vue'
+import { createApp, nextTick, watchEffect } from 'vue'
 
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapter } from './adapters'
@@ -384,6 +387,23 @@ describe('createFeatures', () => {
       expect(context.variation('obj-feature')).toBe('blue')
     })
 
+    it('should leave selection alone when sync has only $variation', () => {
+      const context = createFeatures({
+        features: {
+          search: { $value: true, $variation: 'v1' },
+        },
+      })
+
+      expect(context.selectedIds.has('search')).toBe(true)
+
+      context.sync({
+        search: { $variation: 'v2' },
+      })
+
+      expect(context.selectedIds.has('search')).toBe(true)
+      expect(context.variation('search')).toBe('v2')
+    })
+
     it('should unselect object features with $value: false', () => {
       const context = createFeatures({
         features: {
@@ -724,6 +744,259 @@ describe('createFeaturesPlugin', () => {
 
       expect(dispose1).toHaveBeenCalled()
       expect(dispose2).toHaveBeenCalled()
+    })
+  })
+
+  describe('persist/restore', () => {
+    it('should restore persisted flag ids before setup', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        const storage = useStorage()
+        storage.set('features', ['feature-b'])
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+            'feature-b': false,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-b')).toBe(true)
+      expect(context.selectedIds.has('feature-a')).toBe(false)
+    })
+
+    it('should auto-save selected flag ids when the selection changes', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      app.runWithContext(() => {
+        const context = useFeatures()
+        context.select('feature-a')
+      })
+
+      await nextTick()
+
+      const stored = app.runWithContext(() => useStorage().get('features').value)
+
+      expect(stored).toEqual(['feature-a'])
+
+      app.unmount()
+    })
+
+    it('should ignore a non-array persisted value', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        const storage = useStorage()
+        storage.set('features', 'garbage')
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+    })
+
+    it('should ignore persisted ids that are not registered', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        const storage = useStorage()
+        storage.set('features', ['ghost', 'feature-a'])
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('ghost')).toBe(false)
+    })
+
+    it('should keep only string or number ids from a mixed persisted array', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        const storage = useStorage()
+        storage.set('features', ['feature-a', 42, { evil: true }, null])
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has(42)).toBe(false)
+    })
+
+    it('should persist an empty selection when the last flag is cleared', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      app.runWithContext(() => {
+        useFeatures().unselect('feature-a')
+      })
+
+      await nextTick()
+
+      const stored = app.runWithContext(() => useStorage().get('features').value)
+
+      expect(stored).toEqual([])
+
+      app.unmount()
+    })
+
+    it('should keep restored selection after the first adapter sync', () => {
+      const mockAdapter: FeaturesAdapter = {
+        setup: () => ({
+          'feature-a': false,
+          'feature-b': true,
+        }),
+      }
+
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', ['feature-a'])
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+            'feature-b': false,
+          },
+          persist: true,
+          adapter: mockAdapter,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('feature-b')).toBe(false)
+    })
+
+    it('should not restore when persist is off', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', ['feature-b'])
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+            'feature-b': false,
+          },
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('feature-b')).toBe(false)
+    })
+
+    it('should restore an empty selection', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', [])
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(false)
+    })
+
+    it('should not write to storage when persist is off', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+          },
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      app.runWithContext(() => {
+        useFeatures().select('feature-a')
+      })
+
+      await nextTick()
+
+      const stored = app.runWithContext(() => useStorage().get('features').value)
+
+      expect(stored).toBeUndefined()
+
+      app.unmount()
     })
   })
 })
