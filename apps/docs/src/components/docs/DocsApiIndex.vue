@@ -4,6 +4,8 @@
   // Context
   import DocsHeaderAnchor from './DocsHeaderAnchor.vue'
 
+  import { MATURITY } from '@/constants/maturity'
+
   // Utilities
   import { renderInlineMarkdown } from '@/utilities/markdown'
   import { toKebab, toTitle } from '@/utilities/strings'
@@ -11,9 +13,6 @@
 
   // Types
   import type { ApiData } from '@build/generate-api'
-
-  // Maturity (relative path; #v0 alias also works)
-  import maturity from '../../../../../packages/0/src/maturity.json'
 
   type IndexEntry = {
     [key: string]: unknown
@@ -25,13 +24,9 @@
   }
 
   const data = apiData as ApiData
-  const maturityRecord = maturity as {
-    components?: Record<string, { category?: string, description?: string }>
-    composables?: Record<string, { category?: string, description?: string }>
-  }
 
   function categoryFor (name: string, kind: 'component' | 'composable'): string {
-    const bucket = kind === 'component' ? maturityRecord.components : maturityRecord.composables
+    const bucket = kind === 'component' ? MATURITY.components : MATURITY.composables
     return bucket?.[name]?.category ?? 'other'
   }
 
@@ -46,7 +41,7 @@
 
       out.push({
         name: root,
-        description: maturityRecord.components?.[root]?.description ?? '',
+        description: MATURITY.components?.[root]?.description ?? '',
         href: `/api/${toKebab(root)}`,
         kind: 'component',
         category: categoryFor(root, 'component'),
@@ -60,7 +55,7 @@
     return Object.keys(data.composables)
       .map(name => ({
         name,
-        description: maturityRecord.composables?.[name]?.description ?? '',
+        description: MATURITY.composables?.[name]?.description ?? '',
         href: `/api/${toKebab(name)}`,
         kind: 'composable' as const,
         category: categoryFor(name, 'composable'),
