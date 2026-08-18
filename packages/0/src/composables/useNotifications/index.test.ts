@@ -1,9 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { createStoragePlugin, MemoryStorageAdapter, useStorage } from '#v0/composables/useStorage'
+
 import { createNotifications, createNotificationsPlugin, useNotifications } from './index'
 
 // Utilities
-import { createApp, effectScope } from 'vue'
+import { createApp, effectScope, nextTick } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
@@ -1047,6 +1050,175 @@ describe('createNotifications', () => {
 
       // Should not throw on unmount when adapter has no dispose
       expect(() => app.unmount()).not.toThrow()
+    })
+
+    describe('persist/restore', () => {
+      function persisted (id: string, extra: Record<string, unknown> = {}) {
+        return {
+          id,
+          subject: 'Hello',
+          createdAt: '2026-01-01T00:00:00.000Z',
+          readAt: null,
+          seenAt: null,
+          archivedAt: null,
+          snoozedUntil: null,
+          ...extra,
+        }
+      }
+
+      it('should restore persisted tickets including snoozedUntil', () => {
+        const until = '2026-12-01T00:00:00.000Z'
+        const app = createApp({ render: () => null })
+        app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+        app.runWithContext(() => {
+          useStorage().set('notifications', [persisted('banner', { snoozedUntil: until })])
+        })
+
+        app.use(createNotificationsPlugin({ persist: true }))
+
+        const context = app.runWithContext(() => useNotifications())
+        const ticket = context.get('banner')
+
+        expect(ticket?.subject).toBe('Hello')
+        expect(ticket?.snoozedUntil?.toISOString()).toBe(until)
+        expect(ticket?.createdAt.toISOString()).toBe('2026-01-01T00:00:00.000Z')
+      })
+
+      it('should persist snooze to storage', async () => {
+        const app = createApp({ render: () => null })
+        app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+        app.use(createNotificationsPlugin({ persist: true }))
+        app.mount(document.createElement('div'))
+
+        const until = new Date('2026-12-01T00:00:00.000Z')
+
+        app.runWithContext(() => {
+          const context = useNotifications()
+          context.register({ id: 'banner', subject: 'Hello' })
+          context.snooze('banner', until)
+        })
+
+        await nextTick()
+
+        const stored = app.runWithContext(() => useStorage().get('notifications').value) as Array<{ id: string, snoozedUntil: string }>
+
+        expect(stored).toHaveLength(1)
+        expect(stored[0]!.id).toBe('banner')
+        expect(stored[0]!.snoozedUntil).toBe(until.toISOString())
+
+        app.unmount()
+      })
+
+      it('should ignore a non-array persisted value', () => {
+        const app = createApp({ render: () => null })
+        app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+        app.runWithContext(() => {
+          useStorage().set('notifications', 'garbage')
+        })
+
+        app.use(createNotificationsPlugin({ persist: true }))
+
+        const context = app.runWithContext(() => useNotifications())
+
+        expect(context.size).toBe(0)
+      })
+
+      it('should keep only object entries with a string or number id', () => {
+        const app = createApp({ render: () => null })
+        app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+        app.runWithContext(() => {
+          useStorage().set('notifications', [
+            persisted('ok'),
+            { evil: true },
+            null,
+            'x',
+            { id: { nested: true } },
+          ])
+        })
+
+        app.use(createNotificationsPlugin({ persist: true }))
+
+        const context = app.runWithContext(() => useNotifications())
+
+        expect(context.size).toBe(1)
+        expect(context.has('ok')).toBe(true)
+      })
+
+      it('should treat an invalid date string as null', () => {
+        const app = createApp({ render: () => null })
+        app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+        app.runWithContext(() => {
+          useStorage().set('notifications', [persisted('banner', { snoozedUntil: 'not-a-date' })])
+        })
+
+        app.use(createNotificationsPlugin({ persist: true }))
+
+        const context = app.runWithContext(() => useNotifications())
+
+        expect(context.get('banner')?.snoozedUntil).toBeNull()
+      })
+
+      it('should keep restored snooze after the first adapter register', () => {
+        const until = '2026-12-01T00:00:00.000Z'
+        const adapter = {
+          setup: (ctx: { register: (input: { id: string, subject: string }) => unknown }) => {
+            ctx.register({ id: 'banner', subject: 'from-adapter' })
+          },
+        }
+
+        const app = createApp({ render: () => null })
+        app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+        app.runWithContext(() => {
+          useStorage().set('notifications', [persisted('banner', { subject: 'from-persist', snoozedUntil: until })])
+        })
+
+        app.use(createNotificationsPlugin({ persist: true, adapter }))
+
+        const context = app.runWithContext(() => useNotifications())
+        const ticket = context.get('banner')
+
+        expect(ticket?.subject).toBe('from-persist')
+        expect(ticket?.snoozedUntil?.toISOString()).toBe(until)
+      })
+
+      it('should not restore when persist is off', () => {
+        const app = createApp({ render: () => null })
+        app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+        app.runWithContext(() => {
+          useStorage().set('notifications', [persisted('banner')])
+        })
+
+        app.use(createNotificationsPlugin())
+
+        const context = app.runWithContext(() => useNotifications())
+
+        expect(context.has('banner')).toBe(false)
+      })
+
+      it('should not write to storage when persist is off', async () => {
+        const app = createApp({ render: () => null })
+        app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+        app.use(createNotificationsPlugin())
+        app.mount(document.createElement('div'))
+
+        app.runWithContext(() => {
+          useNotifications().register({ id: 'banner', subject: 'Hello' })
+        })
+
+        await nextTick()
+
+        const stored = app.runWithContext(() => useStorage().get('notifications').value)
+
+        expect(stored).toBeUndefined()
+
+        app.unmount()
+      })
     })
   })
 })

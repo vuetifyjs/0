@@ -259,7 +259,7 @@ function createFeaturesFallback (): FeatureContext {
   } as unknown as FeatureContext
 }
 
-function applyPersisted (context: FeatureContext, saved: unknown) {
+function replay (context: FeatureContext, saved: unknown) {
   if (!isArray(saved)) return
 
   const wanted = new Set<ID>(saved.filter((id): id is ID => isString(id) || isNumber(id)))
@@ -281,7 +281,7 @@ export const [createFeaturesContext, createFeaturesPlugin, useFeatures] =
       persist: context => [...context.selectedIds],
       restore: (context, saved) => {
         restored.set(context, saved)
-        applyPersisted(context, saved)
+        replay(context, saved)
       },
       setup: (context, app, { adapter }) => {
         if (!adapter) return
@@ -294,7 +294,7 @@ export const [createFeaturesContext, createFeaturesPlugin, useFeatures] =
         // Adapter setup writes after restore. Re-apply so persist wins the
         // first snapshot; later onUpdate calls still overlay live remote state.
         const saved = restored.get(context)
-        if (!isUndefined(saved)) applyPersisted(context, saved)
+        if (!isUndefined(saved)) replay(context, saved)
       },
     },
   )
