@@ -470,6 +470,48 @@ describe('createTheme', () => {
       app.unmount()
     })
 
+    it('should emit CSS variables for palette alias chains', async () => {
+      let sheets: CSSStyleSheet[] = []
+      using spy = vi.spyOn(document, 'adoptedStyleSheets', 'get').mockImplementation(() => sheets)
+      using setSpy = vi.spyOn(document, 'adoptedStyleSheets', 'set').mockImplementation(value => {
+        sheets = value as CSSStyleSheet[]
+      })
+
+      const app = createApp({
+        template: '<div>Test</div>',
+      })
+
+      app.use(
+        createThemePlugin({
+          default: 'light',
+          palette: {
+            blue: '#0000FF',
+            primary: '{palette.blue}',
+          },
+          themes: {
+            light: {
+              colors: {
+                primary: '{palette.primary}',
+              },
+            },
+          },
+        }),
+      )
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      await nextTick()
+
+      const css = sheets[0]!.cssRules?.[0]?.cssText || ''
+      expect(css).toContain('--v0-primary: #0000FF')
+      expect(css).not.toContain('{palette.blue}')
+      expect(spy).toHaveBeenCalled()
+      expect(setSpy).toHaveBeenCalled()
+
+      app.unmount()
+    })
+
     it('should apply theme class to target element', async () => {
       const app = createApp({
         template: '<div>Test</div>',
