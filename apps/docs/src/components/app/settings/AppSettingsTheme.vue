@@ -112,6 +112,17 @@
         </div>
       </div>
 
+      <!-- Scrollbars -->
+      <div>
+        <div class="text-xs font-medium text-on-surface-variant mb-2">Scrollbars</div>
+
+        <AppSettingsToggle
+          v-model="settings.styledScrollbars.value"
+          description="Tint scrollbars to match the theme"
+          label="Styled scrollbars"
+        />
+      </div>
+
       <!-- Background Effects -->
       <div>
         <div class="text-xs font-medium text-on-surface-variant mb-2">Background Effects</div>

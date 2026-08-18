@@ -653,6 +653,29 @@ export const themes = {
 } as const satisfies Record<string, ThemeDefinition>
 
 /**
+ * Neutral scrollbar thumbs for the global "Styled scrollbars" setting. Theme
+ * entries stay token-free — these are docs-chrome values, not theme colors.
+ * Only themes where the flat dark gray misreads are listed: deep or tinted
+ * dark backgrounds get a step lighter, and high-contrast keeps maximal
+ * contrast. Everything else — custom themes included — falls to the
+ * dark-flag default.
+ */
+const NEUTRALS: Record<string, string> = {
+  'high-contrast': '#ffffff',
+  'protanopia': '#606060',
+  'deuteranopia': '#606060',
+  'blackguard': '#606060',
+  'polaris': '#606060',
+  'nebula': '#606060',
+  'tailwind': '#606060',
+}
+
+/** Neutral scrollbar thumb for a theme — see NEUTRALS. */
+export function neutral (id: string, dark: boolean): string {
+  return NEUTRALS[id] ?? (dark ? '#505050' : '#b0b0b0')
+}
+
+/**
  * Get all theme configs for createThemePlugin.
  */
 export function getAllThemeConfigs (): Record<ThemeId, { dark: boolean, colors: Record<string, string> }> {

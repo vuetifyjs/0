@@ -2,10 +2,11 @@
 import { IN_BROWSER, useStorage, useTheme } from '@vuetify/v0'
 
 // Composables
+import { useSettings } from '@/composables/useSettings'
 import { type ThemePreference, useThemeToggle } from '@/composables/useThemeToggle'
 
 // Themes
-import { themes, type ThemeDefinition, type ThemeId } from '@/themes'
+import { neutral, themes, type ThemeDefinition, type ThemeId } from '@/themes'
 
 // Utilities
 import { computed, shallowRef, watch } from 'vue'
@@ -65,14 +66,16 @@ export function useCustomThemes (): UseCustomThemesReturn {
   const storage = useStorage()
   const theme = useTheme()
   const toggle = useThemeToggle()
+  const settings = useSettings()
 
   /**
-   * Built-in palettes ride native scrollbars; a custom theme that defines
-   * `scrollbar-thumb` opts into a colored one. Static CSS can't express that
-   * fallback (an unset var() inside a scrollbar rule invalidates the whole
+   * Scrollbar styling is opt-in, resolved in order: a custom theme carrying
+   * `scrollbar-thumb` always uses its own color; otherwise the global
+   * "Styled scrollbars" setting tints with a neutral matched to the theme;
+   * otherwise native. Static CSS can't express color-if-set-else-native
+   * (an unset var() inside a scrollbar rule invalidates the whole
    * declaration instead of yielding native), so the color is applied as an
-   * inline `scrollbar-color` on the root — set when the page-level selection
-   * is a custom theme carrying the key, cleared for everything else.
+   * inline `scrollbar-color` on the root, keyed to the page-level selection.
    */
   function scrollbar (): void {
     if (!IN_BROWSER) return
@@ -80,6 +83,9 @@ export function useCustomThemes (): UseCustomThemesReturn {
     const id = theme.selectedId.value
     const custom = customThemes.value.find(t => t.id === id)
     const thumb = custom?.colors['scrollbar-thumb']
+      ?? (settings.styledScrollbars.value
+        ? neutral(String(id), theme.get(String(id))?.dark ?? theme.isDark.value)
+        : undefined)
     const track = theme.colors.value[String(id)]?.background ?? custom?.colors.background
     if (thumb && track) {
       root.style.setProperty('scrollbar-color', `${thumb} ${track}`)
@@ -120,10 +126,11 @@ export function useCustomThemes (): UseCustomThemesReturn {
       theme.select(toggle.preference.value)
     }
 
-    // Track every page-level selection and any edit to a custom theme's
-    // colors. Per-example theme controllers never call the page-level
-    // `theme.select`, so example pickers cannot recolor the root scrollbars.
-    watch([theme.selectedId, customThemes], scrollbar, { immediate: true })
+    // Track every page-level selection, any edit to a custom theme's colors,
+    // and the global styled-scrollbars setting. Per-example theme controllers
+    // never call the page-level `theme.select`, so example pickers cannot
+    // recolor the root scrollbars.
+    watch([theme.selectedId, customThemes, settings.styledScrollbars], scrollbar, { immediate: true })
   }
 
   // Merge preset themes with custom themes
