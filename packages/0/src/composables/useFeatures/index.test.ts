@@ -829,6 +829,81 @@ describe('createFeaturesPlugin', () => {
       expect(context.selectedIds.has('feature-a')).toBe(true)
       expect(context.selectedIds.has('ghost')).toBe(false)
     })
+
+    it('should keep only string or number ids from a mixed persisted array', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        const storage = useStorage()
+        storage.set('features', ['feature-a', 42, { evil: true }, null])
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has(42)).toBe(false)
+    })
+
+    it('should persist an empty selection when the last flag is cleared', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      app.runWithContext(() => {
+        useFeatures().unselect('feature-a')
+      })
+
+      await nextTick()
+
+      const stored = app.runWithContext(() => useStorage().get('features').value)
+
+      expect(stored).toEqual([])
+
+      app.unmount()
+    })
+
+    it('should not write to storage when persist is off', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+          },
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      app.runWithContext(() => {
+        useFeatures().select('feature-a')
+      })
+
+      await nextTick()
+
+      const stored = app.runWithContext(() => useStorage().get('features').value)
+
+      expect(stored).toBeUndefined()
+
+      app.unmount()
+    })
   })
 })
 
