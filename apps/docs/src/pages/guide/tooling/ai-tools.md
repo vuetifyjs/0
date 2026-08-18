@@ -51,7 +51,7 @@ v0 provides machine-readable documentation files following the [llms.txt](https:
 
 ## Usage
 
-Need a ready-made agent persona? Copy the [Grok Bot / AI agent setup](/guide/tooling/grok-bot) profile into [Grok Bot](https://x.ai/bot) (or adapt it for Claude Code / Cursor).
+Need a ready-made Grok Bot? Paste the [setup prompt](/guide/tooling/grok-bot) into [Grok Bot](https://x.ai/bot) — it walks connections and saves itself. Identity fields on that page also work for Claude Code and Cursor.
 
 Install SKILL.md via [skills.sh](https://www.skills.sh) — works with Claude Code, Codex, Cursor, Grok Build, Windsurf, and [35+ agents](https://github.com/vercel-labs/skills#supported-agents):
 

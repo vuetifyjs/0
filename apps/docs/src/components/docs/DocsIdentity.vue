@@ -1,0 +1,103 @@
+<script setup lang="ts">
+  // Framework
+  import { Avatar } from '@vuetify/v0'
+
+  // Composables
+  import { useClipboard } from '@/composables/useClipboard'
+
+  // Utilities
+  import { toRef } from 'vue'
+
+  export interface DocsIdentityProps {
+    name: string
+    title: string
+    description: string
+    src?: string
+  }
+
+  defineOptions({ name: 'DocsIdentity' })
+
+  const { name, title, description, src } = defineProps<DocsIdentityProps>()
+
+  const nameClip = useClipboard()
+  const titleClip = useClipboard()
+  const { copied: descriptionCopied, copy: copyDescription } = useClipboard()
+
+  const initial = toRef(() => name.charAt(0).toUpperCase() || '?')
+
+  const singles = toRef(() => [
+    {
+      key: 'name',
+      label: 'Name',
+      value: name,
+      copied: nameClip.copied.value,
+      copy: () => nameClip.copy(name),
+    },
+    {
+      key: 'title',
+      label: 'Title',
+      value: title,
+      copied: titleClip.copied.value,
+      copy: () => titleClip.copy(title),
+    },
+  ])
+</script>
+
+<template>
+  <div class="not-prose my-4 border border-divider rounded-lg bg-surface overflow-hidden">
+    <div class="relative flex items-center justify-between gap-4 px-4 py-3 overflow-hidden">
+      <AppDotGrid :coverage="55" origin="bottom left" />
+
+      <div class="relative z-10 flex flex-wrap items-baseline gap-x-8 gap-y-3 min-w-0">
+        <div
+          v-for="field in singles"
+          :key="field.key"
+          class="min-w-0"
+        >
+          <p class="text-xs font-medium tracking-wide uppercase opacity-60 my-0">
+            {{ field.label }}
+          </p>
+
+          <button
+            :aria-label="field.copied ? `Copied ${field.label.toLowerCase()}` : `Copy ${field.label.toLowerCase()}`"
+            class="mt-1 inline-flex items-center gap-1.5 bg-transparent border-none p-0 font-inherit text-sm font-medium text-inherit cursor-pointer hover:text-primary focus-visible:text-primary focus-visible:outline-none"
+            :class="field.copied && 'text-success'"
+            type="button"
+            @click="field.copy()"
+          >
+            {{ field.value }}
+            <AppIcon class="opacity-50" :icon="field.copied ? 'check' : 'copy'" :size="14" />
+          </button>
+        </div>
+      </div>
+
+      <Avatar.Root class="relative z-10 size-10 rounded-full overflow-hidden shrink-0">
+        <Avatar.Image
+          v-if="src"
+          :alt="name"
+          class="size-10 rounded-full object-cover"
+          :src
+        />
+
+        <Avatar.Fallback class="size-10 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-medium">
+          {{ initial }}
+        </Avatar.Fallback>
+      </Avatar.Root>
+    </div>
+
+    <div class="px-4 py-3 border-t border-divider">
+      <button
+        :aria-label="descriptionCopied ? 'Copied description' : 'Copy description'"
+        class="inline-flex items-center gap-1.5 bg-transparent border-none p-0 font-inherit text-xs font-medium tracking-wide uppercase opacity-60 text-inherit cursor-pointer hover:opacity-100 hover:text-primary focus-visible:opacity-100 focus-visible:text-primary focus-visible:outline-none"
+        :class="descriptionCopied && 'text-success opacity-100'"
+        type="button"
+        @click="copyDescription(description)"
+      >
+        Description
+        <AppIcon :icon="descriptionCopied ? 'check' : 'copy'" :size="12" />
+      </button>
+
+      <pre class="mt-2 mb-0 p-3 max-h-80 overflow-auto rounded bg-surface-tint text-sm leading-relaxed whitespace-pre-wrap break-words font-sans">{{ description }}</pre>
+    </div>
+  </div>
+</template>
