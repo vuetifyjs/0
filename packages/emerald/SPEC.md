@@ -76,6 +76,33 @@ showcase quality.
 - **Compounds** (Dialog, Select, Tabs, Pagination, Avatar, Card, Alert): one Em* per region; consumer builds the tree with default slots only.
 - **Install:** consumers use `createEmeraldPlugin` + CSS; they do not construct the stylesheet adapter unless they already own a theme plugin.
 
+## Compound access
+
+Every compound attaches its sub-components to the root, so one import reaches
+the whole tree. The sub-key drops the parent prefix — `EmCalendarGrid` is
+`EmCalendar.Grid`, `EmListItemTitle` is `EmList.ItemTitle`.
+
+```vue
+<script setup lang="ts">
+  import { EmCalendar } from '@paper/emerald'
+</script>
+
+<template>
+  <EmCalendar>
+    <EmCalendar.Header>
+      <EmCalendar.Prev />
+    </EmCalendar.Header>
+
+    <EmCalendar.Grid />
+  </EmCalendar>
+</template>
+```
+
+- The flat names stay exported and stay valid — the dot path and `EmCalendarGrid` are the same component object, so mixing the two styles is safe.
+- The root is the compound: Emerald has no `.Root` key, unlike v0's `Splitter.Root`.
+- A key that reads as a parent in the markup (`EmExpansionPanel.Group`, `EmSnackbar.Portal`, `EmRadio.Group`) is still reached through the root — the dot path is an access path, not a nesting claim.
+- Single-SFC shells (`EmButton`, `EmIcon`, `EmTextField`, …) attach nothing.
+
 ## Wave 1 surface (preview)
 
 | Component | v0 primitive |
