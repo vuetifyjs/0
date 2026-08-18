@@ -39,6 +39,7 @@ declare module 'vue' {
     AppNavFooter: typeof import('./components/app/AppNavFooter.vue')['default']
     AppNavLink: typeof import('./components/app/AppNavLink.vue')['default']
     AppPaletteAntDesignButton: typeof import('./components/app/theme/palette/AppPaletteAntDesignButton.vue')['default']
+    AppPaletteEmeraldButton: typeof import('./components/app/theme/palette/AppPaletteEmeraldButton.vue')['default']
     AppPaletteMaterial3Button: typeof import('./components/app/theme/palette/AppPaletteMaterial3Button.vue')['default']
     AppPaletteRadixButton: typeof import('./components/app/theme/palette/AppPaletteRadixButton.vue')['default']
     AppPaletteTailwindButton: typeof import('./components/app/theme/palette/AppPaletteTailwindButton.vue')['default']

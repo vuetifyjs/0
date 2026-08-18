@@ -18,6 +18,7 @@ export type Palette =
   | 'material-3'
   | 'radix'
   | 'ant-design'
+  | 'emerald'
 
 export const PALETTE_THEMES: Record<Palette, { dark: ThemeId, light: ThemeId }> = {
   'vuetify0': { dark: 'dark', light: 'light' },
@@ -25,6 +26,7 @@ export const PALETTE_THEMES: Record<Palette, { dark: ThemeId, light: ThemeId }> 
   'material-3': { dark: 'material-3', light: 'material-3-light' },
   'radix': { dark: 'radix', light: 'radix-light' },
   'ant-design': { dark: 'ant-design', light: 'ant-design-light' },
+  'emerald': { dark: 'emerald-dark', light: 'emerald-light' },
 }
 
 export const PALETTES = Object.keys(PALETTE_THEMES) as Palette[]
@@ -35,6 +37,7 @@ export const PALETTE_ICONS: Record<Palette, string> = {
   'material-3': 'theme-material-3',
   'radix': 'theme-radix',
   'ant-design': 'theme-ant-design',
+  'emerald': 'theme-emerald',
 }
 
 export const PALETTE_LABELS: Record<Palette, string> = {
@@ -43,6 +46,7 @@ export const PALETTE_LABELS: Record<Palette, string> = {
   'material-3': 'Material',
   'radix': 'Radix',
   'ant-design': 'Ant Design',
+  'emerald': 'Emerald',
 }
 
 const ACCESSIBILITY_THEMES = [

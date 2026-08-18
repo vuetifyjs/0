@@ -336,7 +336,7 @@
       );
     }
 
-    [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]) &.dot-grid::before {
+    [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]):not([data-theme="emerald-light"]) &.dot-grid::before {
       --dot-opacity: 10%;
     }
 
