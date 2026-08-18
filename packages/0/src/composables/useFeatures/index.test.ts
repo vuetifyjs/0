@@ -387,6 +387,23 @@ describe('createFeatures', () => {
       expect(context.variation('obj-feature')).toBe('blue')
     })
 
+    it('should leave selection alone when sync has only $variation', () => {
+      const context = createFeatures({
+        features: {
+          search: { $value: true, $variation: 'v1' },
+        },
+      })
+
+      expect(context.selectedIds.has('search')).toBe(true)
+
+      context.sync({
+        search: { $variation: 'v2' },
+      })
+
+      expect(context.selectedIds.has('search')).toBe(true)
+      expect(context.variation('search')).toBe('v2')
+    })
+
     it('should unselect object features with $value: false', () => {
       const context = createFeatures({
         features: {
@@ -878,6 +895,83 @@ describe('createFeaturesPlugin', () => {
       expect(stored).toEqual([])
 
       app.unmount()
+    })
+
+    it('should keep restored selection after the first adapter sync', () => {
+      const mockAdapter: FeaturesAdapter = {
+        setup: () => ({
+          'feature-a': false,
+          'feature-b': true,
+        }),
+      }
+
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', ['feature-a'])
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+            'feature-b': false,
+          },
+          persist: true,
+          adapter: mockAdapter,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('feature-b')).toBe(false)
+    })
+
+    it('should not restore when persist is off', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', ['feature-b'])
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+            'feature-b': false,
+          },
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('feature-b')).toBe(false)
+    })
+
+    it('should restore an empty selection', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', [])
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(false)
     })
 
     it('should not write to storage when persist is off', async () => {

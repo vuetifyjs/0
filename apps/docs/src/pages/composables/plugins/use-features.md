@@ -380,7 +380,7 @@ Yes. Pass an array of adapters to `createFeaturesPlugin`; they initialize in ord
 
 ??? How do I persist a user's flag toggles across reloads?
 
-Pass `persist: true` to `createFeaturesPlugin`, and install `createStoragePlugin` first. The saved value is the list of enabled flag ids; on load it is reconciled against the registered flags.
+Pass `persist: true` to `createFeaturesPlugin`, and install `createStoragePlugin` first. The saved value is the list of enabled flag ids; on load it is reconciled against the registered flags, and wins over an adapter's first snapshot. Later adapter `onUpdate` calls still overlay live remote state.
 
 ??? Can I toggle or add a flag at runtime?
 

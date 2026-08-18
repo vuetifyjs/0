@@ -33,7 +33,7 @@ import { createPluginContext } from '#v0/composables/createPlugin'
 import { createTokens } from '#v0/composables/createTokens'
 
 // Utilities
-import { isArray, isBoolean, isFunction, isNumber, isObject, isString } from '#v0/utilities'
+import { isArray, isBoolean, isNumber, isObject, isString, isUndefined } from '#v0/utilities'
 
 // Types
 import type { GroupContext, GroupTicket, GroupTicketInput } from '#v0/composables/createGroup'
@@ -66,6 +66,12 @@ export interface FeatureContext<
    *
    * @param id The feature ID.
    * @param fallback The fallback value if the feature has no variation.
+   *
+   * @example
+   * ```ts
+   * const features = useFeatures()
+   * features.variation('search', 'v1') // 'v2' or the fallback
+   * ```
    */
   variation: (id: ID, fallback?: unknown) => unknown
   /**
@@ -75,11 +81,36 @@ export interface FeatureContext<
    *
    * @remarks This updates existing flags and registers new ones.
    * Use this when adapter flags change to update the registry.
+   *
+   * @example
+   * ```ts
+   * features.sync({
+   *   checkout: true,
+   *   search: { $value: true, $variation: 'v2' },
+   * })
+   * ```
    */
   sync: (flags: FeaturesAdapterFlags) => void
-  /** Register a feature (accepts input type, returns output type) */
+  /**
+   * Register a feature (accepts input type, returns output type).
+   *
+   * @example
+   * ```ts
+   * features.register({ id: 'beta', value: false })
+   * ```
+   */
   register: (registration?: Partial<Z>) => E
-  /** Bulk-register multiple features in a single batch. */
+  /**
+   * Bulk-register multiple features in a single batch.
+   *
+   * @example
+   * ```ts
+   * features.onboard([
+   *   { id: 'beta', value: false },
+   *   { id: 'search', value: { $value: true, $variation: 'v2' } },
+   * ])
+   * ```
+   */
   onboard: (registrations: Partial<Z>[]) => E[]
 }
 
@@ -106,12 +137,20 @@ export interface FeaturePluginOptions extends FeatureContextOptions {
    *
    * @remarks Persists the set of selected flag ids. The storage key is the
    * plugin namespace with the `v0:` prefix stripped (`features`). On load the
-   * selection is reconciled against the registered flags, so a user's toggles
-   * survive a page reload.
+   * selection is reconciled against the registered flags and wins over an
+   * adapter's first snapshot. Later adapter updates still overlay live remote
+   * state.
    *
    * @default false
    */
   persist?: boolean
+}
+
+function isEnabled (value: unknown): boolean | undefined {
+  if (isBoolean(value)) return value
+  if (isObject(value) && isBoolean(value.$value)) return value.$value
+
+  return undefined
 }
 
 /**
@@ -160,14 +199,7 @@ export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
 
     const ticket = registry.register(item as Partial<FeatureTicketInput>)
 
-    if (
-      (isBoolean(ticket.value) && ticket.value === true) || (
-        isObject(ticket.value) && (
-          isBoolean(ticket.value.$value) &&
-          ticket.value.$value === true
-        )
-      )
-    ) {
+    if (isEnabled(ticket.value) === true) {
       registry.select(ticket.id)
     }
 
@@ -179,17 +211,14 @@ export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
       const existing = registry.get(id)
 
       if (existing) {
-        const shouldSelect = isBoolean(value)
-          ? value === true
-          : isObject(value) && isBoolean(value.$value) && value.$value === true
+        const enabled = isEnabled(value)
 
         registry.upsert(id, { value } as Partial<FeatureTicket>)
 
-        if (shouldSelect) {
+        if (enabled === true) {
           registry.select(id)
-        } else {
-          // Adapter sync is wholesale — drain directly so a disabled flag
-          // ticket still turns off when the external source says so.
+        } else if (enabled === false) {
+          // Explicit off — drain so a disabled ticket still turns off.
           registry.selectedIds.delete(id)
         }
       } else {
@@ -220,8 +249,28 @@ function createFeaturesFallback (): FeatureContext {
     variation: (_id: ID, fallback: unknown = null) => fallback,
     sync: () => {},
     onboard: () => [],
+    register: () => undefined as unknown as FeatureTicket,
+    select: () => {},
+    unselect: () => {},
+    get: () => undefined,
+    has: () => false,
+    selectedIds: new Set<ID>(),
+    values: () => [],
   } as unknown as FeatureContext
 }
+
+function applyPersisted (context: FeatureContext, saved: unknown) {
+  if (!isArray(saved)) return
+
+  const wanted = new Set<ID>(saved.filter((id): id is ID => isString(id) || isNumber(id)))
+
+  for (const ticket of context.values()) {
+    if (wanted.has(ticket.id)) context.select(ticket.id)
+    else context.unselect(ticket.id)
+  }
+}
+
+const restored = new WeakMap<FeatureContext, unknown>()
 
 export const [createFeaturesContext, createFeaturesPlugin, useFeatures] =
   createPluginContext<FeaturePluginOptions, FeatureContext>(
@@ -231,24 +280,21 @@ export const [createFeaturesContext, createFeaturesPlugin, useFeatures] =
       fallback: () => createFeaturesFallback(),
       persist: context => [...context.selectedIds],
       restore: (context, saved) => {
-        if (!isArray(saved)) return
-
-        const wanted = new Set(saved.filter(id => isString(id) || isNumber(id)))
-        for (const ticket of context.values()) {
-          if (wanted.has(ticket.id)) context.select(ticket.id)
-          else context.unselect(ticket.id)
-        }
+        restored.set(context, saved)
+        applyPersisted(context, saved)
       },
       setup: (context, app, { adapter }) => {
         if (!adapter) return
 
         for (const a of isArray(adapter) ? adapter : [adapter]) {
           context.sync(a.setup(flags => context.sync(flags)))
-
-          if (isFunction(a.dispose)) {
-            app.onUnmount(() => a.dispose!())
-          }
+          app.onUnmount(() => a.dispose?.())
         }
+
+        // Adapter setup writes after restore. Re-apply so persist wins the
+        // first snapshot; later onUpdate calls still overlay live remote state.
+        const saved = restored.get(context)
+        if (!isUndefined(saved)) applyPersisted(context, saved)
       },
     },
   )
