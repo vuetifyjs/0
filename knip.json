@@ -22,13 +22,12 @@
         "src/pages/**/*.{vue,md}",
         "build/**/*.ts",
         "vite.config.*",
-        "src/examples/**/*.vue"
+        "src/examples/**/*.vue",
+        "src/examples/**/*.ts"
       ],
       "ignore": [
         "src/typed-router.d.ts",
-        "src/examples/guide/building-frameworks/my-ui/src/**/*.ts",
         "src/examples/guide/building-frameworks/my-ui/vite.config.ts",
-        "src/examples/composables/create-trinity/toasts.ts",
         "src/skillz/tours/**/index.ts"
       ],
       "paths": {
