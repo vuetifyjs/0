@@ -6,7 +6,7 @@
   import { useClipboard } from '@/composables/useClipboard'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   export interface DocsIdentityProps {
     name: string
@@ -19,6 +19,8 @@
   defineOptions({ name: 'DocsIdentity' })
 
   const { name, title, description, src, dense = false } = defineProps<DocsIdentityProps>()
+
+  const open = shallowRef(false)
 
   const nameClip = useClipboard()
   const titleClip = useClipboard()
@@ -68,7 +70,37 @@
     >
       <AppDotGrid :coverage="55" origin="bottom left" />
 
-      <div class="relative z-10 flex flex-wrap items-baseline gap-x-8 gap-y-3 min-w-0">
+      <div
+        v-if="dense"
+        class="relative z-10 min-w-0 flex-1 flex flex-col items-start gap-0.5"
+      >
+        <button
+          :aria-label="nameClip.copied.value ? 'Copied name' : 'Copy name'"
+          class="inline-flex items-center gap-1.5 bg-transparent border-none p-0 font-inherit text-sm font-medium text-inherit cursor-pointer hover:text-primary focus-visible:text-primary focus-visible:outline-none"
+          :class="nameClip.copied.value && 'text-success'"
+          type="button"
+          @click="nameClip.copy(name)"
+        >
+          {{ name }}
+          <AppIcon class="opacity-50" :icon="nameClip.copied.value ? 'check' : 'copy'" :size="14" />
+        </button>
+
+        <button
+          :aria-label="titleClip.copied.value ? 'Copied title' : 'Copy title'"
+          class="inline-flex items-center gap-1.5 bg-transparent border-none p-0 font-inherit text-xs opacity-70 text-inherit cursor-pointer hover:text-primary hover:opacity-100 focus-visible:text-primary focus-visible:outline-none"
+          :class="titleClip.copied.value && 'text-success opacity-100'"
+          type="button"
+          @click="titleClip.copy(title)"
+        >
+          {{ title }}
+          <AppIcon class="opacity-50" :icon="titleClip.copied.value ? 'check' : 'copy'" :size="12" />
+        </button>
+      </div>
+
+      <div
+        v-else
+        class="relative z-10 flex flex-wrap items-baseline gap-x-8 gap-y-3 min-w-0"
+      >
         <div
           v-for="field in singles"
           :key="field.key"
@@ -113,7 +145,19 @@
       </button>
     </div>
 
-    <div v-if="!dense" class="px-4 py-3 border-t border-divider">
+    <button
+      v-if="dense && !open"
+      :aria-expanded="false"
+      class="w-full px-3 pb-2 bg-transparent border-none text-left cursor-pointer hover:bg-surface-tint/50 focus-visible:bg-surface-tint focus-visible:outline-none"
+      type="button"
+      @click="open = true"
+    >
+      <p class="line-clamp-2 text-sm leading-relaxed opacity-60 my-0">
+        {{ description }}
+      </p>
+    </button>
+
+    <div v-if="!dense || open" class="px-4 py-3 border-t border-divider">
       <button
         :aria-label="descriptionCopied ? 'Copied description' : 'Copy description'"
         class="inline-flex items-center gap-1.5 bg-transparent border-none p-0 font-inherit text-xs font-medium tracking-wide uppercase opacity-60 text-inherit cursor-pointer hover:opacity-100 hover:text-primary focus-visible:opacity-100 focus-visible:text-primary focus-visible:outline-none"
