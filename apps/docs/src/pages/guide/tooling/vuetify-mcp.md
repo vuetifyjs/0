@@ -76,7 +76,7 @@ claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 
 ### Grok / Grok Build
 
-[Grok](https://docs.x.ai/grok/connectors) users add a BYO Custom connector. There is no official Grok catalog listing. This is grok.com + the Grok Build CLI, not [Grok Bot](/guide/tooling/grok-bot).
+[Grok](https://docs.x.ai/grok/connectors) users add a BYO Custom connector. There is no official Grok catalog listing. This is grok.com + the Grok Build CLI, not [Grok Bot](/guide/tooling/agents).
 
 1. Go to [https://grok.com/connectors](https://grok.com/connectors)
 2. Click **New Connector**, then select **Custom**

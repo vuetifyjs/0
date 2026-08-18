@@ -11,7 +11,7 @@ features:
 related:
   - /guide/essentials/using-the-docs
   - /guide/tooling/ai-tools
-  - /guide/tooling/grok-bot
+  - /guide/tooling/agents
   - /composables
   - /components
 ---
@@ -481,7 +481,7 @@ Now that v0 is installed, choose your path:
 | Understand the architecture | [Components](/guide/fundamentals/components) → [Composables](/guide/fundamentals/composables) → [Core](/guide/fundamentals/core) |
 | Build production UIs now | [Theming](/guide/features/theming) → [Accessibility](/guide/features/accessibility) |
 | Build a component library | [Building Frameworks](/guide/fundamentals/building-frameworks) |
-| Set up an AI agent | [Grok Bot / AI agent setup](/guide/tooling/grok-bot) → [AI Tools](/guide/tooling/ai-tools) |
+| Set up an AI agent | [Agents](/guide/tooling/agents) → [AI Tools](/guide/tooling/ai-tools) |
 | Explore interactively | [Playground](/playground) |
 
 > [!TIP]

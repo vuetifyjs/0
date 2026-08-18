@@ -22,6 +22,22 @@
   const nameClip = useClipboard()
   const titleClip = useClipboard()
   const { copied: descriptionCopied, copy: copyDescription } = useClipboard()
+  const { copied: allCopied, copy: copyAll } = useClipboard()
+
+  const bundle = toRef(() => {
+    const lines = [
+      `Name\n${name}`,
+      `Title\n${title}`,
+    ]
+
+    if (src) {
+      lines.push(`Avatar\n${src}`)
+    }
+
+    lines.push(`Description\n${description}`)
+
+    return lines.join('\n\n')
+  })
 
   const initial = toRef(() => name.charAt(0).toUpperCase() || '?')
 
@@ -71,18 +87,26 @@
         </div>
       </div>
 
-      <Avatar.Root class="relative z-10 size-10 rounded-full overflow-hidden shrink-0">
-        <Avatar.Image
-          v-if="src"
-          :alt="name"
-          class="size-10 rounded-full object-cover"
-          :src
-        />
+      <button
+        :aria-label="allCopied ? 'Copied identity' : 'Copy identity'"
+        class="relative z-10 size-10 rounded-full p-0 border-0 bg-transparent cursor-pointer overflow-hidden hover:ring-2 hover:ring-primary/50 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+        :class="allCopied && 'ring-2 ring-success'"
+        type="button"
+        @click="copyAll(bundle)"
+      >
+        <Avatar.Root class="size-10 rounded-full overflow-hidden">
+          <Avatar.Image
+            v-if="src"
+            :alt="name"
+            class="size-10 rounded-full object-cover"
+            :src
+          />
 
-        <Avatar.Fallback class="size-10 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-medium">
-          {{ initial }}
-        </Avatar.Fallback>
-      </Avatar.Root>
+          <Avatar.Fallback class="size-10 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-medium">
+            {{ initial }}
+          </Avatar.Fallback>
+        </Avatar.Root>
+      </button>
     </div>
 
     <div class="px-4 py-3 border-t border-divider">
