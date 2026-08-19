@@ -8,6 +8,7 @@ export default defineConfig({
       'packages/paper',
       'packages/emerald',
       'apps/docs',
+      'apps/builder',
     ],
     globals: true,
     include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],

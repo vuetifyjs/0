@@ -109,6 +109,13 @@ export default vuetify({
   },
 },
 {
+  // structuredClone throws DataCloneError on Pinia-proxied config values; JSON clone is intentional
+  files: ['apps/builder/src/**/*.vue', 'apps/builder/src/**/*.ts'],
+  rules: {
+    'unicorn/prefer-structured-clone': 'off',
+  },
+},
+{
   name: 'pnpm/pnpm-workspace-yaml',
   files: ['pnpm-workspace.yaml'],
   rules: {
