@@ -55,7 +55,7 @@ const load = Object.hasOwn(examples, exampleKey)
 const adapter = new EmeraldStyleSheetAdapter()
 
 adapter.upsert(adapter.generate({
-  'emerald': emeraldColors,
+  'emerald-light': emeraldColors,
   'emerald-dark': emeraldDarkColors,
 }))
 
@@ -70,9 +70,9 @@ async function start () {
   createApp(SandboxRoot, {
     is: module?.default,
     name,
-    // Emerald's themes are registered as `emerald` / `emerald-dark`; the docs
-    // page speaks in schemes. See the prop's own docs in SandboxRoot.
-    themes: { light: 'emerald', dark: 'emerald-dark' },
+    // Emerald's themes are registered as `emerald-light` / `emerald-dark`; the
+    // docs page speaks in schemes. See the prop's own docs in SandboxRoot.
+    themes: { light: 'emerald-light', dark: 'emerald-dark' },
   })
     // Only the icons. Theme install is deliberately skipped — see above.
     .use(createEmeraldIconsPlugin())

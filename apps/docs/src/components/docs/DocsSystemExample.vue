@@ -40,7 +40,7 @@
   } = defineProps<DocsSystemExampleProps>()
 
   const theme = useTheme()
-  const scheme = toRef(() => theme.isDark.value ? 'emerald-dark' : 'emerald')
+  const scheme = toRef(() => theme.isDark.value ? 'emerald-dark' : 'emerald-light')
 </script>
 
 <template>

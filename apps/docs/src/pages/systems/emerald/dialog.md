@@ -37,30 +37,22 @@ The activator has one prop worth knowing before you write your first dialog. By 
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import {
-    EmDialog,
-    EmDialogActivator,
-    EmDialogClose,
-    EmDialogContent,
-    EmDialogDescription,
-    EmDialogFooter,
-    EmDialogTitle,
-  } from '@paper/emerald'
+  import { EmDialog } from '@paper/emerald'
 </script>
 
 <template>
   <EmDialog>
-    <EmDialogActivator />
+    <EmDialog.Activator />
 
-    <EmDialogContent>
-      <EmDialogTitle />
+    <EmDialog.Content>
+      <EmDialog.Title />
 
-      <EmDialogDescription />
+      <EmDialog.Description />
 
-      <EmDialogFooter />
+      <EmDialog.Footer />
 
-      <EmDialogClose />
-    </EmDialogContent>
+      <EmDialog.Close />
+    </EmDialog.Content>
   </EmDialog>
 </template>
 ```

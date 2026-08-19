@@ -37,18 +37,14 @@ Hovering the trigger opens the bubble after an open delay â€” 700ms by default â
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import {
-    EmTooltip,
-    EmTooltipActivator,
-    EmTooltipContent,
-  } from '@paper/emerald'
+  import { EmTooltip } from '@paper/emerald'
 </script>
 
 <template>
   <EmTooltip>
-    <EmTooltipActivator />
+    <EmTooltip.Activator />
 
-    <EmTooltipContent />
+    <EmTooltip.Content />
   </EmTooltip>
 </template>
 ```

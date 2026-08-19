@@ -37,18 +37,14 @@ There is nothing to position in JavaScript and nothing to teleport. The panel es
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import {
-    EmPopover,
-    EmPopoverActivator,
-    EmPopoverContent,
-  } from '@paper/emerald'
+  import { EmPopover } from '@paper/emerald'
 </script>
 
 <template>
   <EmPopover>
-    <EmPopoverActivator />
+    <EmPopover.Activator />
 
-    <EmPopoverContent />
+    <EmPopover.Content />
   </EmPopover>
 </template>
 ```

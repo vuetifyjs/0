@@ -94,7 +94,7 @@ export const createApp = ViteSSG(
 
     // Browser-only: the SSR branch of V0StyleSheetThemeAdapter.setup pushes
     // `htmlAttrs: { data-theme }` unconditionally, which would stamp
-    // `data-theme="emerald"` onto every prerendered playground page.
+    // `data-theme="emerald-light"` onto every prerendered playground page.
     if (IN_BROWSER) {
       app.use(createEmeraldPlugin({ theme: { namespace: 'emerald:theme', target: null } }))
     }

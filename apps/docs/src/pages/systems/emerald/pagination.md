@@ -39,21 +39,16 @@ The prop worth reading twice is `size`. It is the total number of **items**, not
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import {
-    EmPagination,
-    EmPaginationItem,
-    EmPaginationNext,
-    EmPaginationPrev,
-  } from '@paper/emerald'
+  import { EmPagination } from '@paper/emerald'
 </script>
 
 <template>
   <EmPagination>
-    <EmPaginationPrev />
+    <EmPagination.Prev />
 
-    <EmPaginationItem />
+    <EmPagination.Item />
 
-    <EmPaginationNext />
+    <EmPagination.Next />
   </EmPagination>
 </template>
 ```

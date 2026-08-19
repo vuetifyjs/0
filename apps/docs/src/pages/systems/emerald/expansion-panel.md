@@ -37,28 +37,21 @@ Give every panel an explicit `value`. A panel without one falls back to its regi
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import {
-    EmExpansionPanel,
-    EmExpansionPanelActivator,
-    EmExpansionPanelContent,
-    EmExpansionPanelCue,
-    EmExpansionPanelGroup,
-    EmExpansionPanelHeader,
-  } from '@paper/emerald'
+  import { EmExpansionPanel } from '@paper/emerald'
 </script>
 
 <template>
-  <EmExpansionPanelGroup>
+  <EmExpansionPanel.Group>
     <EmExpansionPanel>
-      <EmExpansionPanelHeader>
-        <EmExpansionPanelActivator>
-          <EmExpansionPanelCue />
-        </EmExpansionPanelActivator>
-      </EmExpansionPanelHeader>
+      <EmExpansionPanel.Header>
+        <EmExpansionPanel.Activator>
+          <EmExpansionPanel.Cue />
+        </EmExpansionPanel.Activator>
+      </EmExpansionPanel.Header>
 
-      <EmExpansionPanelContent />
+      <EmExpansionPanel.Content />
     </EmExpansionPanel>
-  </EmExpansionPanelGroup>
+  </EmExpansionPanel.Group>
 </template>
 ```
 

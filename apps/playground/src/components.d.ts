@@ -26,6 +26,7 @@ declare module 'vue' {
     PlaygroundAppLeft: typeof import('./components/playground/app/PlaygroundAppLeft.vue')['default']
     PlaygroundAppRight: typeof import('./components/playground/app/PlaygroundAppRight.vue')['default']
     PlaygroundAuthDialog: typeof import('./components/playground/app/PlaygroundAuthDialog.vue')['default']
+    PlaygroundCheatsheet: typeof import('./components/playground/app/PlaygroundCheatsheet.vue')['default']
     PlaygroundEditor: typeof import('./components/playground/editor/PlaygroundEditor.vue')['default']
     PlaygroundEditorBreadcrumbs: typeof import('./components/playground/editor/PlaygroundEditorBreadcrumbs.vue')['default']
     PlaygroundEditorFileTree: typeof import('./components/playground/editor/PlaygroundEditorFileTree.vue')['default']
