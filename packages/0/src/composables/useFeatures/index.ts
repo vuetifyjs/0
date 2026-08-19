@@ -154,8 +154,10 @@ export interface FeaturePluginOptions extends FeatureContextOptions {
    * state.
    *
    * User intent is recorded through the context's `select` / `unselect` /
-   * `toggle` methods; ticket self-methods (`ticket.toggle()`) bypass intent
-   * tracking and are not persisted.
+   * `toggle` methods; ticket self-methods (`ticket.toggle()`) and the bulk
+   * `selectAll` / `unselectAll` / `toggleAll` operations bypass intent
+   * tracking — their changes are not persisted and revert to defaults on
+   * reload. Toggles on disabled flags no-op and record nothing.
    *
    * @default false
    */
@@ -287,7 +289,10 @@ export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
       registry.select(ticket.id)
     }
 
-    defaults.set(ticket.id, isEnabled(ticket.value) === true)
+    // Baseline is the state the flag actually boots with — for a disabled
+    // ticket the auto-select no-ops, so isEnabled would record a state the
+    // registry never reached and a later no-op toggle would fake a delta.
+    defaults.set(ticket.id, registry.selectedIds.has(ticket.id))
 
     // A late registration picks up its saved override unless the user
     // already toggled the flag this session.

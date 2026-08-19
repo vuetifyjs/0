@@ -1152,6 +1152,307 @@ describe('createFeaturesPlugin', () => {
 
       app.unmount()
     })
+
+    it('should not persist changes made through ticket self-methods', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+            'feature-b': true,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.get('feature-a')!.toggle()
+      context.get('feature-b')!.unselect()
+
+      // The state changes take effect in-session…
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('feature-b')).toBe(false)
+
+      await nextTick()
+
+      // …but record no intent, so a reload reverts to defaults.
+      const stored = app.runWithContext(() => useStorage().get('features').value)
+
+      expect(stored).toBeUndefined()
+
+      app.unmount()
+    })
+
+    it('should not persist selectAll', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+            'feature-b': false,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.selectAll()
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('feature-b')).toBe(true)
+
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value)).toBeUndefined()
+
+      app.unmount()
+    })
+
+    it('should not persist unselectAll', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+            'feature-b': true,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.unselectAll()
+
+      expect(context.selectedIds.size).toBe(0)
+
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value)).toBeUndefined()
+
+      app.unmount()
+    })
+
+    it('should not persist toggleAll', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+            'feature-b': false,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.toggleAll()
+
+      expect(context.selectedIds.has('feature-b')).toBe(true)
+
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value)).toBeUndefined()
+
+      app.unmount()
+    })
+
+    it('should clear intent and storage on reset, restoring defaults on the next boot', async () => {
+      const adapter = new MemoryStorageAdapter()
+
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', { enabled: ['feature-b'] })
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+            'feature-b': false,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-b')).toBe(true)
+
+      context.reset()
+
+      await nextTick()
+
+      // Intent and storage are cleared; the in-session selection empties out.
+      expect(app.runWithContext(() => useStorage().get('features').value)).toBeNull()
+      expect(context.selectedIds.size).toBe(0)
+
+      app.unmount()
+
+      // A fresh boot on the same storage falls back to registration defaults.
+      const next = createApp({ render: () => null })
+      next.use(createStoragePlugin({ adapter }))
+      next.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+            'feature-b': false,
+          },
+          persist: true,
+        }),
+      )
+
+      const rebooted = next.runWithContext(() => useFeatures())
+
+      expect(rebooted.selectedIds.has('feature-a')).toBe(true)
+      expect(rebooted.selectedIds.has('feature-b')).toBe(false)
+    })
+
+    it('should let a later adapter update overlay a restored override', async () => {
+      let push!: (flags: Record<string, boolean>) => void
+      const adapter: FeaturesAdapter = {
+        setup: update => {
+          push = update
+          return { 'feature-a': true }
+        },
+      }
+
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', { disabled: ['feature-a'] })
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+          },
+          persist: true,
+          adapter,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      // Restored override wins the first snapshot…
+      expect(context.selectedIds.has('feature-a')).toBe(false)
+
+      push({ 'feature-a': true })
+
+      // …but a live remote update overlays it, and the state-based delta
+      // then matches the default again, emptying storage.
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value)).toBeNull()
+
+      app.unmount()
+    })
+
+    it('should drop delta entries independently as flags return to default', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+            'feature-b': false,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.select('feature-a')
+      context.select('feature-b')
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value))
+        .toEqual({ enabled: ['feature-a', 'feature-b'], disabled: [] })
+
+      context.unselect('feature-a')
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value))
+        .toEqual({ enabled: ['feature-b'], disabled: [] })
+
+      app.unmount()
+    })
+
+    it('should record no intent for toggles on a disabled flag', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(createFeaturesPlugin({ persist: true }))
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.register({ id: 'locked', value: false, disabled: true })
+      // A disabled default-enabled flag never auto-selects — its baseline is
+      // the state it actually boots with.
+      context.register({ id: 'sealed', value: true, disabled: true })
+
+      expect(context.selectedIds.has('sealed')).toBe(false)
+
+      context.select('locked')
+      context.toggle('sealed')
+      context.unselect('sealed')
+
+      expect(context.selectedIds.has('locked')).toBe(false)
+      expect(context.selectedIds.has('sealed')).toBe(false)
+
+      await nextTick()
+
+      // No phantom delta entries for ops that no-oped at the model layer.
+      expect(app.runWithContext(() => useStorage().get('features').value)).toBeUndefined()
+
+      app.unmount()
+    })
+
+    it('should round-trip a numeric flag id through the delta', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', { enabled: [42] })
+      })
+
+      app.use(createFeaturesPlugin({ persist: true }))
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.register({ id: 42, value: false })
+
+      expect(context.selectedIds.has(42)).toBe(true)
+
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value))
+        .toEqual({ enabled: [42], disabled: [] })
+
+      app.unmount()
+    })
   })
 })
 
