@@ -64,17 +64,11 @@ kanban.on('transfer:ticket', ({ ticket, from, to, fromIndex, toIndex }) => {
 `createKanban` orchestrates two tiers of `createSortable`. Column order and item order are independent sortables; `transfer` is the only cross-column primitive. An internal `lookup` registry maps each item id to its owning column id so `transfer` can resolve the source column without the caller providing it.
 
 ```mermaid "Kanban Architecture"
-flowchart TD
+flowchart LR
   createKanban:::primary --> columns["columns (createSortable)"]
-  columns --> col1["column ticket"]
-  col1 --> items1["column.items (createSortable)"]
-  createKanban --> transfer["transfer(id, toColumnId, toIndex)"]
-  transfer -- "same-column collapse" --> items1
-  transfer -- "cross-column: emits" --> transferEvent["transfer:ticket"]
-  transfer -- "gates on" --> disabled["disabled (root / column / ticket)"]
-  transfer -- "checks" --> accept["column.accept predicate"]
-  createKanban -. "internal" .-> lookup["lookup registry (id → columnId)"]
-  createKanban -. "internal" .-> bus["bus registry (transfer:ticket)"]
+  columns --> items["column.items (createSortable)"]
+  createKanban --> transfer
+  transfer -->|same-column| items
 ```
 
 The composable adds the following on top of two `createSortable` instances:
@@ -100,7 +94,7 @@ The composable adds the following on top of two `createSortable` instances:
 | `column.accept` (per-column-ticket option) | - | Synchronous predicate `(ticket, from, toIndex) => boolean`. Called before each cross-column transfer into this column. Async predicates log a warning and are treated as reject. |
 | `transfer:ticket` event | <AppSuccessIcon /> | Fires after a successful cross-column move. Payload: `{ ticket, from, to, fromIndex, toIndex }`. Does not fire for same-column moves. |
 | `move:ticket` on `kanban.columns` | <AppSuccessIcon /> | Fires when a column is reordered via `kanban.columns.move`, `swap`, or `reorder`. Subscribe via `kanban.columns.on('move:ticket', ...)` — not `kanban.on(...)`. |
-| `move:ticket` on `column.items` | <AppSuccessIcon /> | Fires when an item is reordered within a column. Subscribe via `column.items.on('move:ticket', ...)`. Not fired for cross-column transfers — those emit `transfer:ticket` instead. |
+| `move:ticket` on `column.items` | <AppSuccessIcon /> | Fires on intra-column `move` / `swap` / `reorder`, and on the destination column when a transfer needs a positional correction to `toIndex`. Append-position transfers emit none. Subscribe via `column.items.on('move:ticket', ...)`. |
 
 ## Examples
 
@@ -233,7 +227,7 @@ Note that `column.items` itself is not reactive at the column level. If a new co
 
 ### Listening to column and item reorder
 
-Cross-column moves fire `transfer:ticket` on the kanban bus. Intra-column moves fire `move:ticket` on the relevant sortable's own bus.
+Intra-column reorders fire `move:ticket` on that column's items bus. Cross-column transfers fire `transfer:ticket` on the kanban bus last; the destination also emits `move:ticket` when the ticket needs a positional correction after landing.
 
 ```ts
 // Column reorder — fires when kanban.columns.move / swap / reorder is called
@@ -247,7 +241,19 @@ todo.items.on('move:ticket', ({ ticket, from, to }) => {
 })
 ```
 
-Cross-column transfers do NOT fire `move:ticket` on either column's items bus. They fire `transfer:ticket` on the kanban bus after the batch closes. If you need to observe every positional change regardless of whether it crossed a column boundary, subscribe to both event types.
+Cross-column `kanban.transfer` emits on three buses:
+
+```mermaid "Cross-column transfer events"
+flowchart TD
+  start["kanban.transfer(id, toColumnId, toIndex)"] --> unreg["source.items: unregister:ticket"]
+  unreg --> reg["dest.items: register:ticket"]
+  reg --> q{"already at toIndex?"}
+  q -->|correction| move["dest.items: move:ticket"]
+  q -->|append| xfer
+  move --> xfer["kanban: transfer:ticket"]
+```
+
+`transfer:ticket` is the user-level cross-column event — its listeners see the ticket already in the destination. Dest `move:ticket` during a transfer is the landing correction, not a second move; do not persist it as a separate reorder. Intra-column reorders stay on `column.items.on('move:ticket')`.
 
 ## FAQ
 
@@ -258,7 +264,7 @@ Cross-column transfers do NOT fire `move:ticket` on either column's items bus. T
 
 ??? Why doesn't `transfer:ticket` fire on a same-column move?
 
-Same-column `kanban.transfer(id, fromColumnId, toIndex)` collapses to `column.items.move(id, toIndex)`. The intra-column reorder fires `move:ticket` on that column's items bus instead. Subscribe to both `kanban.on('transfer:ticket', ...)` and `column.items.on('move:ticket', ...)` if you need to observe every positional change.
+Same-column `kanban.transfer(id, fromColumnId, toIndex)` collapses to `column.items.move(id, toIndex)`. The intra-column reorder fires `move:ticket` on that column's items bus instead. User-level: `transfer:ticket` for cross-column, `column.items.on('move:ticket')` for intra-column. A transfer that lands mid-column also emits dest `move:ticket` as the landing correction — do not persist that as a separate reorder.
 
 ??? Why doesn't my `column.accept` predicate run on same-column reorders?
 
