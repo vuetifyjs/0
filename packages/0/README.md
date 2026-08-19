@@ -152,6 +152,12 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Snackbar](https://0.vuetifyjs.com/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](https://0.vuetifyjs.com/components/semantic/splitter) | Resizable panel layout with drag handles |
 
+#### Data
+
+| Component | Description |
+|-----------|-------------|
+| [DataGrid](https://0.vuetifyjs.com/components/data/data-grid) | Headless data grid with column layout, cell editing, row ordering, and row spanning |
+
 ### Composables
 
 #### Foundation
