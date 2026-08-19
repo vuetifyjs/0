@@ -48,7 +48,7 @@ app.mount('#app')
 
 ### Persistence
 
-Pass `persist: true` to remember enabled flags across reloads. Requires [useStorage](/composables/plugins/use-storage) to be installed first. Selected flag ids are stored under the key `features` (the plugin namespace with the `v0:` prefix stripped).
+Pass `persist: true` to remember the user's flag toggles across reloads. Requires [useStorage](/composables/plugins/use-storage) to be installed first. Only flags the user toggled away from their registered default are stored — as `{ enabled, disabled }` id lists under the key `features` (the plugin namespace with the `v0:` prefix stripped). Untouched flags keep following whatever defaults the code or an adapter ships, even when those change between releases.
 
 ```ts main.ts
 import { createStoragePlugin, createFeaturesPlugin } from '@vuetify/v0'
@@ -65,7 +65,7 @@ app.use(
 )
 ```
 
-Unknown or malformed stored ids are ignored, so a rename or removed flag cannot resurrect itself.
+Toggling a flag back to its default drops it from storage, and overrides for flags that no longer exist are skipped and pruned on the next write — a rename or removed flag cannot resurrect itself. Overrides apply to late-registered flags too (adapter or runtime registrations) at the moment they register. Calling `reset()` restores every flag to its registration default immediately and clears the stored overrides.
 
 ## Usage
 
@@ -380,7 +380,7 @@ Yes. Pass an array of adapters to `createFeaturesPlugin`; they initialize in ord
 
 ??? How do I persist a user's flag toggles across reloads?
 
-Pass `persist: true` to `createFeaturesPlugin`, and install `createStoragePlugin` first. The saved value is the list of enabled flag ids; on load it is reconciled against the registered flags, and wins over an adapter's first snapshot. Later adapter `onUpdate` calls still overlay live remote state.
+Pass `persist: true` to `createFeaturesPlugin`, and install `createStoragePlugin` first. The saved value is a delta of the flags the user toggled away from their defaults (`{ enabled, disabled }`); on load only those overrides are applied, and they win over an adapter's first snapshot. Untouched flags keep their registered defaults, and later adapter `onUpdate` calls still overlay live remote state.
 
 ??? Can I toggle or add a flag at runtime?
 
