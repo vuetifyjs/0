@@ -247,7 +247,7 @@ todo.items.on('move:ticket', ({ ticket, from, to }) => {
 })
 ```
 
-Cross-column transfers do NOT fire `move:ticket` on either column's items bus. They fire `transfer:ticket` on the kanban bus after the batch closes. If you need to observe every positional change regardless of whether it crossed a column boundary, subscribe to both event types.
+A cross-column transfer emits on three buses, in order: `unregister:ticket` on the source column's items bus, then `register:ticket` on the destination column's items bus — followed by `move:ticket` on that same bus when the ticket needs a positional correction to reach `toIndex` — and finally `transfer:ticket` on the kanban bus after the internal batch closes. A transfer whose `toIndex` is the destination's append position registers directly into place, so it emits no `move:ticket`. If you need to observe every positional change regardless of whether it crossed a column boundary, subscribe to `transfer:ticket` on the kanban bus plus `move:ticket` on each column's items bus.
 
 ## FAQ
 
