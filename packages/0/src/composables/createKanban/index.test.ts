@@ -567,4 +567,105 @@ describe('createKanban', () => {
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('unknown ticket id'))
     })
   })
+
+  describe('emission sequence', () => {
+    function record () {
+      const kanban = createKanban<CardInput, ColumnInput>()
+      const todo = kanban.columns.register({ value: { title: 'Todo' } })
+      const done = kanban.columns.register({ value: { title: 'Done' } })
+      const a = todo.items.register({ value: { title: 'a' } })
+
+      const events: string[] = []
+
+      function listen () {
+        todo.items.on('unregister:ticket', () => events.push('unregister'))
+        done.items.on('register:ticket', () => events.push('register'))
+        done.items.on('move:ticket', () => events.push('move'))
+        kanban.on('transfer:ticket', () => events.push('transfer'))
+      }
+
+      return { kanban, todo, done, a, events, listen }
+    }
+
+    it('should emit unregister → register → transfer for an append-position transfer (no move:ticket)', () => {
+      const { kanban, done, a, events, listen } = record()
+      listen()
+
+      // Empty destination: index 0 is the natural landing spot, so the
+      // register lands in place and no move-correction (or move:ticket) fires.
+      kanban.transfer(a.id, done.id, 0)
+
+      expect(events).toEqual(['unregister', 'register', 'transfer'])
+    })
+
+    it('should emit unregister → register → move → transfer for a mid-position transfer', () => {
+      const { kanban, done, a, events, listen } = record()
+
+      done.items.register({ value: { title: 'x' } })
+      done.items.register({ value: { title: 'y' } })
+      listen()
+
+      kanban.transfer(a.id, done.id, 1)
+
+      expect(events).toEqual(['unregister', 'register', 'move', 'transfer'])
+    })
+  })
+
+  describe('dispose', () => {
+    it('should tear down inner sortables and empty the lookup', () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const kanban = createKanban<CardInput, ColumnInput>()
+      const todo = kanban.columns.register({ value: { title: 'Todo' } })
+      const done = kanban.columns.register({ value: { title: 'Done' } })
+      const a = todo.items.register({ value: { title: 'a' } })
+
+      const registerHandler = vi.fn()
+      todo.items.on('register:ticket', registerHandler)
+      todo.items.register({ value: { title: 'b' } })
+      expect(registerHandler).toHaveBeenCalledTimes(1)
+
+      kanban.dispose()
+
+      // Columns registry cleared.
+      expect(kanban.columns.size).toBe(0)
+
+      // Inner sortable disposed: prior listeners no longer fire.
+      todo.items.register({ value: { title: 'c' } })
+      expect(registerHandler).toHaveBeenCalledTimes(1)
+
+      // Lookup emptied: transfer of a previously-known ticket warns as unknown.
+      expect(kanban.transfer(a.id, done.id, 0)).toBeUndefined()
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('unknown ticket id'))
+    })
+
+    it('should silence the kanban transfer:ticket bus after dispose', () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const kanban = createKanban<CardInput, ColumnInput>()
+      const todo = kanban.columns.register({ value: { title: 'Todo' } })
+      const done = kanban.columns.register({ value: { title: 'Done' } })
+      const a = todo.items.register({ value: { title: 'a' } })
+
+      const handler = vi.fn()
+      kanban.on('transfer:ticket', handler)
+
+      kanban.dispose()
+
+      expect(kanban.transfer(a.id, done.id, 0)).toBeUndefined()
+      expect(handler).not.toHaveBeenCalled()
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
+
+    it('should be idempotent', () => {
+      const kanban = createKanban<CardInput, ColumnInput>()
+      const todo = kanban.columns.register({ value: { title: 'Todo' } })
+      todo.items.register({ value: { title: 'a' } })
+
+      kanban.dispose()
+      expect(() => kanban.dispose()).not.toThrow()
+      expect(kanban.columns.size).toBe(0)
+    })
+  })
 })

@@ -324,6 +324,28 @@ export interface KanbanContext<
    * ```
    */
   off: KanbanEventListener<ItemZ>
+  /**
+   * Tear down the entire board: every column's inner `items` sortable, the
+   * internal id → column lookup, the `transfer:ticket` event bus, and the
+   * columns registry itself. Idempotent — subsequent calls no-op.
+   *
+   * @remarks
+   * `columns.dispose()` alone is not enough: registry disposal clears
+   * listeners before clearing tickets, so the kanban's per-column
+   * `unregister:ticket` cleanup never runs and each column's inner sortable
+   * would stay alive. Use this method to release a board.
+   *
+   * @example
+   * ```ts
+   * import { createKanban } from '@vuetify/v0'
+   *
+   * const kanban = createKanban()
+   * kanban.columns.register({ value: { title: 'Todo' } })
+   * // later
+   * kanban.dispose()
+   * ```
+   */
+  dispose: () => void
 }
 
 /**
@@ -509,10 +531,24 @@ export function createKanban<
     return final
   }
 
+  let disposed = false
+
+  function dispose (): void {
+    if (disposed) return
+    disposed = true
+    // Inner sortables first — registry disposal clears listeners before
+    // tickets, so the unregister-driven per-column cleanup never fires here.
+    for (const column of _columns.values()) column.items.dispose()
+    lookup.dispose()
+    bus.dispose()
+    _columns.dispose()
+  }
+
   return {
     columns,
     transfer,
     on,
     off,
+    dispose,
   }
 }
