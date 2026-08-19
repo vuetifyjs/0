@@ -463,7 +463,7 @@ describe('dataGrid', () => {
           slots: {
             default: () =>
               h(DataGrid.Table, { as: 'div' }, () =>
-                h(DataGrid.Column, { column: 'name' }, () => 'Name'),
+                h(DataGrid.Column, { id: 'name' }, () => 'Name'),
               ),
           },
         })
@@ -482,7 +482,7 @@ describe('dataGrid', () => {
           h(DataGrid.Table, {}, () =>
             h(DataGrid.Header, {}, () =>
               h(DataGrid.Row, {}, () =>
-                h(DataGrid.Column, { column: 'name' }, {
+                h(DataGrid.Column, { id: 'name' }, {
                   default: (props: any) => {
                     slotProps = props
                     return 'Name'
@@ -534,13 +534,13 @@ describe('dataGrid', () => {
           h(DataGrid.Table, {}, () =>
             h(DataGrid.Header, {}, () =>
               h(DataGrid.Row, {}, () => [
-                h(DataGrid.Column, { column: 'name' }, {
+                h(DataGrid.Column, { id: 'name' }, {
                   default: (props: any) => {
                     nameProps = props
                     return 'Name'
                   },
                 }),
-                h(DataGrid.Column, { column: 'email' }, {
+                h(DataGrid.Column, { id: 'email' }, {
                   default: (props: any) => {
                     emailProps = props
                     return 'Email'
@@ -847,7 +847,7 @@ describe('dataGrid', () => {
               return h(DataGrid.Table, {}, () =>
                 h(DataGrid.Header, {}, () =>
                   h(DataGrid.Row, {}, () =>
-                    h(DataGrid.Column, { column: 'name' }, {
+                    h(DataGrid.Column, { id: 'name' }, {
                       default: (p: any) => {
                         slotProps = p
                         return 'Name'
@@ -874,9 +874,9 @@ describe('dataGrid', () => {
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
               h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
-                h(DataGrid.Column, { column: 'name' }, () => 'Name'),
+                h(DataGrid.Column, { id: 'name' }, () => 'Name'),
                 h(DataGrid.Handle),
-                h(DataGrid.Column, { column: 'email' }, () => 'Email'),
+                h(DataGrid.Column, { id: 'email' }, () => 'Email'),
               ]),
             ),
           ),
@@ -896,9 +896,9 @@ describe('dataGrid', () => {
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
               h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
-                h(DataGrid.Column, { column: 'name' }, () => 'Name'),
+                h(DataGrid.Column, { id: 'name' }, () => 'Name'),
                 h(DataGrid.Handle),
-                h(DataGrid.Column, { column: 'email' }, () => 'Email'),
+                h(DataGrid.Column, { id: 'email' }, () => 'Email'),
               ]),
             ),
           ),
@@ -943,9 +943,9 @@ describe('dataGrid', () => {
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
               h(DataGrid.Row, { resizable: true, as: 'section', class: 'flex' }, () => [
-                h(DataGrid.Column, { column: 'name' }, () => 'Name'),
+                h(DataGrid.Column, { id: 'name' }, () => 'Name'),
                 h(DataGrid.Handle),
-                h(DataGrid.Column, { column: 'email' }, () => 'Email'),
+                h(DataGrid.Column, { id: 'email' }, () => 'Email'),
               ]),
             ),
           ),
@@ -966,14 +966,14 @@ describe('dataGrid', () => {
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
               h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
-                h(DataGrid.Column, { column: 'name', as: 'span' }, {
+                h(DataGrid.Column, { id: 'name', as: 'span' }, {
                   default: (props: any) => {
                     slotProps = props
                     return 'Name'
                   },
                 }),
                 h(DataGrid.Handle),
-                h(DataGrid.Column, { column: 'email' }, () => 'Email'),
+                h(DataGrid.Column, { id: 'email' }, () => 'Email'),
               ]),
             ),
           ),
@@ -1001,9 +1001,9 @@ describe('dataGrid', () => {
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
               h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
-                h(DataGrid.Column, { column: 'name' }, () => 'Name'),
+                h(DataGrid.Column, { id: 'name' }, () => 'Name'),
                 h(DataGrid.Handle),
-                h(DataGrid.Column, { column: 'email' }, () => 'Email'),
+                h(DataGrid.Column, { id: 'email' }, () => 'Email'),
               ]),
             ),
           ),
@@ -1032,9 +1032,9 @@ describe('dataGrid', () => {
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
               h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
-                h(DataGrid.Column, { column: 'name' }, () => 'Name'),
+                h(DataGrid.Column, { id: 'name' }, () => 'Name'),
                 h(DataGrid.Handle),
-                h(DataGrid.Column, { column: 'email' }, () => 'Email'),
+                h(DataGrid.Column, { id: 'email' }, () => 'Email'),
               ]),
             ),
           ),
@@ -1062,14 +1062,14 @@ describe('dataGrid', () => {
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
               h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
-                h(DataGrid.Column, { column: 'name' }, () => 'Name'),
+                h(DataGrid.Column, { id: 'name' }, () => 'Name'),
                 h(DataGrid.Handle, { label: 'Resize name', disabled: true }, {
                   default: (props: any) => {
                     handleProps = props
                     return h('div', { class: 'custom-handle', ...props.attrs })
                   },
                 }),
-                h(DataGrid.Column, { column: 'email' }, () => 'Email'),
+                h(DataGrid.Column, { id: 'email' }, () => 'Email'),
               ]),
             ),
           ),
@@ -1095,14 +1095,14 @@ describe('dataGrid', () => {
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
               h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
-                h(DataGrid.Column, { column: 'name' }, () => 'Name'),
+                h(DataGrid.Column, { id: 'name' }, () => 'Name'),
                 h(DataGrid.Handle, { renderless: true, label: 'Resize name' }, {
                   default: (props: any) => {
                     handleProps = props
                     return h('button', { class: 'custom-handle', ...props.attrs }, '|')
                   },
                 }),
-                h(DataGrid.Column, { column: 'email' }, () => 'Email'),
+                h(DataGrid.Column, { id: 'email' }, () => 'Email'),
               ]),
             ),
           ),
@@ -1125,9 +1125,9 @@ describe('dataGrid', () => {
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
               h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
-                h(DataGrid.Column, { column: 'name' }, () => 'Name'),
+                h(DataGrid.Column, { id: 'name' }, () => 'Name'),
                 h(DataGrid.Handle),
-                h(DataGrid.Column, { column: 'email' }, () => 'Email'),
+                h(DataGrid.Column, { id: 'email' }, () => 'Email'),
               ]),
             ),
           ),
@@ -1151,8 +1151,8 @@ describe('dataGrid', () => {
             h(DataGrid.Table, {}, () => [
               h(DataGrid.Header, {}, () =>
                 h(DataGrid.Row, {}, () => [
-                  h(DataGrid.Column, { column: 'name' }, () => 'Name'),
-                  h(DataGrid.Column, { column: 'email' }, () => 'Email'),
+                  h(DataGrid.Column, { id: 'name' }, () => 'Name'),
+                  h(DataGrid.Column, { id: 'email' }, () => 'Email'),
                 ]),
               ),
               h(DataGrid.Body, {}, () =>
@@ -1214,8 +1214,8 @@ describe('dataGrid', () => {
             return h(DataGrid.Table, {}, () =>
               h(DataGrid.Header, {}, () =>
                 h(DataGrid.Row, {}, () => [
-                  h(DataGrid.Column, { column: 'name' }, () => 'Name'),
-                  h(DataGrid.Column, { column: 'email' }, () => 'Email'),
+                  h(DataGrid.Column, { id: 'name' }, () => 'Name'),
+                  h(DataGrid.Column, { id: 'email' }, () => 'Email'),
                 ]),
               ),
             )
