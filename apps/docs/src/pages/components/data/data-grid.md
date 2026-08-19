@@ -129,9 +129,9 @@ Set `resizable` on `DataGrid.Row` and place `DataGrid.Handle` between adjacent `
 ```vue
 <template>
   <DataGrid.Row resizable>
-    <DataGrid.Column column="name">Name</DataGrid.Column>
+    <DataGrid.Column id="name">Name</DataGrid.Column>
     <DataGrid.Handle />
-    <DataGrid.Column column="email">Email</DataGrid.Column>
+    <DataGrid.Column id="email">Email</DataGrid.Column>
   </DataGrid.Row>
 </template>
 ```
@@ -175,9 +175,9 @@ Set `resizable` on `DataGrid.Row` and place `DataGrid.Handle` between `DataGrid.
 ```vue
 <template>
   <DataGrid.Row resizable>
-    <DataGrid.Column column="name">Name</DataGrid.Column>
+    <DataGrid.Column id="name">Name</DataGrid.Column>
     <DataGrid.Handle />
-    <DataGrid.Column column="email">Email</DataGrid.Column>
+    <DataGrid.Column id="email">Email</DataGrid.Column>
   </DataGrid.Row>
 </template>
 ```

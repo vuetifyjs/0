@@ -32,7 +32,7 @@
     /** Namespace for dependency injection. @default 'v0:data-grid' */
     namespace?: string
     /** Column identifier for sorting and layout */
-    column?: string
+    id?: string
   }
 
   export interface DataGridColumnSlotProps {
@@ -80,7 +80,7 @@
     as = 'th',
     renderless,
     namespace = 'v0:data-grid',
-    column,
+    id,
   } = defineProps<DataGridColumnProps>()
 
   const context = useDataGridRoot(namespace)
@@ -90,37 +90,37 @@
   const inResizableRow = toRef(() => rowContext?.resizable ?? false)
 
   const isSortable = toRef(() => {
-    if (!column) return false
-    return context.columns.get(column)?.sortable === true
+    if (!id) return false
+    return context.columns.get(id)?.sortable === true
   })
 
   const isSorted = toRef(() => {
-    if (!column) return false
-    return context.sort.columns.value.some(c => c.key === column && c.direction !== 'none')
+    if (!id) return false
+    return context.sort.columns.value.some(c => c.key === id && c.direction !== 'none')
   })
 
   const sortDirection = toRef((): 'asc' | 'desc' | undefined => {
-    if (!column) return undefined
-    const sortCol = context.sort.columns.value.find(c => c.key === column)
+    if (!id) return undefined
+    const sortCol = context.sort.columns.value.find(c => c.key === id)
     if (!sortCol || sortCol.direction === 'none') return undefined
     return sortCol.direction
   })
 
   function toggleSort () {
-    if (column && isSortable.value) {
-      context.sort.toggle(column)
+    if (id && isSortable.value) {
+      context.sort.toggle(id)
     }
   }
 
   const isPinned = toRef(() => {
-    if (!column) return false
-    const colTicket = context.columns.get(column)
+    if (!id) return false
+    const colTicket = context.columns.get(id)
     return colTicket?.pinned === 'left' || colTicket?.pinned === 'right'
   })
 
   const pinPosition = toRef((): 'left' | 'right' | false => {
-    if (!column) return false
-    const colTicket = context.columns.get(column)
+    if (!id) return false
+    const colTicket = context.columns.get(id)
     if (colTicket?.pinned === 'left' || colTicket?.pinned === 'right') {
       return colTicket.pinned
     }
@@ -128,8 +128,8 @@
   })
 
   const resolvedColumn = toRef(() => {
-    if (!column) return undefined
-    return context.layout.columns.value.find(c => c.id === column)
+    if (!id) return undefined
+    return context.layout.columns.value.find(c => c.id === id)
   })
 
   const isResizable = toRef(() => resolvedColumn.value?.resizable ?? true)

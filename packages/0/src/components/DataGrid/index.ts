@@ -68,8 +68,8 @@ import Table from './DataGridTable.vue'
  *     <DataGrid.Table>
  *       <DataGrid.Header>
  *         <DataGrid.Row>
- *           <DataGrid.Column column="name">Name</DataGrid.Column>
- *           <DataGrid.Column column="email">Email</DataGrid.Column>
+ *           <DataGrid.Column id="name">Name</DataGrid.Column>
+ *           <DataGrid.Column id="email">Email</DataGrid.Column>
  *         </DataGrid.Row>
  *       </DataGrid.Header>
  *       <DataGrid.Body>
@@ -120,7 +120,7 @@ export const DataGrid = {
    * ```vue
    * <DataGrid.Header>
    *   <DataGrid.Row>
-   *     <DataGrid.Column column="name">Name</DataGrid.Column>
+   *     <DataGrid.Column id="name">Name</DataGrid.Column>
    *   </DataGrid.Row>
    * </DataGrid.Header>
    * ```
@@ -162,7 +162,7 @@ export const DataGrid = {
    *
    * @example
    * ```vue
-   * <DataGrid.Column v-slot="{ isSortable, toggleSort }" column="name">
+   * <DataGrid.Column v-slot="{ isSortable, toggleSort }" id="name">
    *   <button v-if="isSortable" @click="toggleSort">Name</button>
    * </DataGrid.Column>
    * ```
@@ -190,9 +190,9 @@ export const DataGrid = {
    * @example
    * ```vue
    * <DataGrid.Row resizable>
-   *   <DataGrid.Column column="name">Name</DataGrid.Column>
+   *   <DataGrid.Column id="name">Name</DataGrid.Column>
    *   <DataGrid.Handle />
-   *   <DataGrid.Column column="email">Email</DataGrid.Column>
+   *   <DataGrid.Column id="email">Email</DataGrid.Column>
    * </DataGrid.Row>
    * ```
    */

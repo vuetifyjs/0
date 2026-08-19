@@ -43,9 +43,9 @@
         <DataGrid.Row class="bg-surface-tint">
           <DataGrid.Column
             v-for="col in columns"
+            :id="col.id"
             :key="col.id"
             class="p-3 text-start font-semibold border-b border-divider"
-            :column="col.id"
           >
             {{ col.id.charAt(0).toUpperCase() + col.id.slice(1) }}
           </DataGrid.Column>
