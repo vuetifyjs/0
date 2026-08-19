@@ -48,8 +48,8 @@
         <DataGrid.Row class="flex" resizable>
           <template v-for="(col, idx) in columns" :key="col.id">
             <DataGrid.Column
+              :id="col.id"
               class="p-3 text-start font-semibold relative"
-              :column="col.id"
             >
               <span class="block truncate">
                 {{ col.id.charAt(0).toUpperCase() + col.id.slice(1) }}

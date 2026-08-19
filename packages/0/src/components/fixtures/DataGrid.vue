@@ -7,8 +7,8 @@
     <DataGrid.Table aria-label="Users">
       <DataGrid.Header>
         <DataGrid.Row>
-          <DataGrid.Column column="name">Name</DataGrid.Column>
-          <DataGrid.Column column="email">Email</DataGrid.Column>
+          <DataGrid.Column id="name">Name</DataGrid.Column>
+          <DataGrid.Column id="email">Email</DataGrid.Column>
         </DataGrid.Row>
       </DataGrid.Header>
 
