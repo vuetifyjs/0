@@ -4,6 +4,5 @@
 
 fix(EmKanban): announce rejected drops instead of leaving the live region stale
 
-A drop gated by `disabled`, `accept`, or an unknown id used to bail silently,
-so keyboard and screen-reader users still heard the pickup message. The board
-now announces "Move not allowed, the card stayed where it was."
+Rejected drops now announce "Move not allowed, the card stayed where it was."
+instead of leaving the pickup line in the live region with no new feedback.

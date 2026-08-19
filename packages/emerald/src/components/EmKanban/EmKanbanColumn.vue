@@ -68,8 +68,7 @@
     const target = from?.column === column.id && from.index < to ? to - 1 : to
     const moved = kanban.transfer(card, column.id, target)
 
-    // A gated transfer returns undefined with no event — without an
-    // announcement the live region keeps the stale pickup message.
+    // Without an announcement the live region keeps the stale pickup message.
     if (!moved) {
       context.announce('Move not allowed, the card stayed where it was.')
       return
