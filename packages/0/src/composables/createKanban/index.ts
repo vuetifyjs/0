@@ -240,6 +240,9 @@ export interface KanbanContext<
    * `unregister:ticket` handlers, so you cannot rescue items from inside that
    * callback. To preserve items, move them before calling `unregister`.
    *
+   * `columns.dispose` is the board cascade — the same function as
+   * `kanban.dispose()` — not a columns-only wipe.
+   *
    * @example
    * ```ts
    * import { createKanban } from '@vuetify/v0'
@@ -327,13 +330,16 @@ export interface KanbanContext<
   /**
    * Tear down the entire board: every column's inner `items` sortable, the
    * internal id → column lookup, the `transfer:ticket` event bus, and the
-   * columns registry itself. Idempotent — subsequent calls no-op.
+   * columns registry itself. `kanban.columns.dispose` is the same function.
+   * Repeatable — a later call after `columns.register` tears down the rebuilt
+   * board the same way.
    *
    * @remarks
-   * `columns.dispose()` alone is not enough: registry disposal clears
-   * listeners before clearing tickets, so the kanban's per-column
-   * `unregister:ticket` cleanup never runs and each column's inner sortable
-   * would stay alive. Use this method to release a board.
+   * Registry `dispose()` clears listeners then `clear()`, and `clear()` never
+   * emits `unregister:ticket`, so the per-column cleanup subscribed on that
+   * event would not run. This method walks current columns and disposes each
+   * inner sortable first, then re-binds that cleanup so a rebuilt board still
+   * cascades on column unregister.
    *
    * @example
    * ```ts
@@ -433,6 +439,27 @@ export function createKanban<
     },
   }
 
+  function onColumnUnregister (column: KanbanColumnTicket<ItemZ, ColZ>) {
+    column.items.dispose()
+    for (const t of lookup.values()) {
+      if (t.value === column.id) t.unregister()
+    }
+  }
+
+  function dispose (): void {
+    // Walk inners first. Registry dispose() clears listeners then clear(),
+    // and clear() never emits unregister:ticket, so the per-column cleanup
+    // subscribed on that event would not run.
+    for (const column of _columns.values()) column.items.dispose()
+    lookup.dispose()
+    bus.dispose()
+    _columns.dispose()
+    columns.on('unregister:ticket', onColumnUnregister)
+  }
+
+  columns.dispose = dispose
+  columns.on('unregister:ticket', onColumnUnregister)
+
   function isAccepted (
     accept: ColZ['accept'],
     ticket: SortableTicket<ItemZ>,
@@ -452,13 +479,6 @@ export function createKanban<
       return false
     }
   }
-
-  columns.on('unregister:ticket', column => {
-    column.items.dispose()
-    for (const t of lookup.values()) {
-      if (t.value === column.id) t.unregister()
-    }
-  })
 
   function transfer (id: ID, toColumnId: ID, toIndex: number): SortableTicket<ItemZ> | undefined {
     const fromColumnId = lookup.get(id)?.value
@@ -529,19 +549,6 @@ export function createKanban<
     }
 
     return final
-  }
-
-  let disposed = false
-
-  function dispose (): void {
-    if (disposed) return
-    disposed = true
-    // Inner sortables first — registry disposal clears listeners before
-    // tickets, so the unregister-driven per-column cleanup never fires here.
-    for (const column of _columns.values()) column.items.dispose()
-    lookup.dispose()
-    bus.dispose()
-    _columns.dispose()
   }
 
   return {
