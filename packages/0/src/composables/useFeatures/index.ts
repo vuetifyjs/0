@@ -37,7 +37,7 @@ import { toArray } from '#v0/composables/toArray'
 
 // Utilities
 import { isArray, isBoolean, isNumber, isObject, isString } from '#v0/utilities'
-import { shallowReactive } from 'vue'
+import { shallowReactive, shallowRef } from 'vue'
 
 // Types
 import type { GroupContext, GroupTicket, GroupTicketInput } from '#v0/composables/createGroup'
@@ -116,6 +116,21 @@ export interface FeatureContext<
    * ```
    */
   onboard: (registrations: Partial<Z>[]) => E[]
+  /**
+   * Restore every registered flag to its registration default and clear all
+   * recorded user intent (with `persist`, the stored overrides are cleared).
+   *
+   * @remarks Flags disabled after boot stay unselected until re-enabled —
+   * selection ops are guarded on disabled tickets.
+   *
+   * @example
+   * ```ts
+   * const features = useFeatures()
+   * features.toggle('beta')
+   * features.reset() // 'beta' back to its registered default
+   * ```
+   */
+  reset: () => void
 }
 
 export interface FeatureOptions extends RegistryOptions {
@@ -157,7 +172,8 @@ export interface FeaturePluginOptions extends FeatureContextOptions {
    * `toggle` methods; ticket self-methods (`ticket.toggle()`) and the bulk
    * `selectAll` / `unselectAll` / `toggleAll` operations bypass intent
    * tracking — their changes are not persisted and revert to defaults on
-   * reload. Toggles on disabled flags no-op and record nothing.
+   * reload. Toggles on disabled flags no-op and record nothing. `reset()`
+   * restores registration defaults in-session and clears the stored delta.
    *
    * @default false
    */
@@ -180,7 +196,7 @@ interface FeatureDelta {
 }
 
 interface FeatureSeam {
-  delta: () => FeatureDelta | null
+  delta: () => FeatureDelta
   restore: (saved: unknown) => void
   replay: () => void
 }
@@ -237,7 +253,9 @@ export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
   // Reactive so the persist watch tracks user intent even while empty.
   const touched = shallowReactive(new Set<ID>())
   const defaults = new Map<ID, boolean>()
-  let pending: Map<ID, boolean> | null = null
+  // Ref so the persist watch also tracks restore-map changes — a reset that
+  // only drops un-applied entries must still write its clearing to storage.
+  const pending = shallowRef<Map<ID, boolean> | null>(null)
 
   for (const [id, { value }] of tokens.entries()) {
     register({ id, value } as Partial<FeatureTicketInput>)
@@ -266,7 +284,18 @@ export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
 
   function reset () {
     touched.clear()
+    // Drop any un-applied restore entries too — a late registration after a
+    // reset must not resurrect a pre-reset persisted override.
+    pending.value = null
     registry.reset()
+
+    // Replay the registration baselines so defaults return in-session, not
+    // just on the next boot. Selection is empty after registry.reset(), so
+    // only baseline-enabled flags need action; the guarded select no-ops for
+    // flags disabled after boot — those stay unselected until re-enabled.
+    for (const [id, enabled] of defaults) {
+      if (enabled) registry.select(id)
+    }
   }
 
   function variation (id: ID, fallback: unknown = null) {
@@ -296,9 +325,9 @@ export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
 
     // A late registration picks up its saved override unless the user
     // already toggled the flag this session.
-    if (pending?.has(ticket.id) && !touched.has(ticket.id)) {
+    if (pending.value?.has(ticket.id) && !touched.has(ticket.id)) {
       touched.add(ticket.id)
-      if (pending.get(ticket.id)) registry.select(ticket.id)
+      if (pending.value.get(ticket.id)) registry.select(ticket.id)
       else registry.unselect(ticket.id)
     }
 
@@ -331,9 +360,9 @@ export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
   }
 
   function replay (force = false) {
-    if (!pending) return
+    if (!pending.value) return
 
-    for (const [id, enabled] of pending) {
+    for (const [id, enabled] of pending.value) {
       if (!registry.has(id)) continue
       if (!force && touched.has(id)) continue
 
@@ -344,7 +373,11 @@ export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
     }
   }
 
-  function delta (): FeatureDelta | null {
+  function delta (): FeatureDelta {
+    // Tracked so a reset that only drops un-applied restore entries still
+    // triggers a persist write of the cleared state.
+    void pending.value
+
     const enabled: ID[] = []
     const disabled: ID[] = []
 
@@ -359,7 +392,9 @@ export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
       else disabled.push(id)
     }
 
-    return enabled.length > 0 || disabled.length > 0 ? { enabled, disabled } : null
+    // Always a fresh object — the persist watch writes on reference change,
+    // so an empty delta still overwrites a stale stored value after a reset.
+    return { enabled, disabled }
   }
 
   const context = {
@@ -380,7 +415,7 @@ export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
   seams.set(context, {
     delta,
     restore: saved => {
-      pending = coerce(saved)
+      pending.value = coerce(saved)
       replay()
     },
     replay: () => replay(true),

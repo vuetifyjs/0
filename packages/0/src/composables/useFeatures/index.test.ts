@@ -853,7 +853,7 @@ describe('createFeaturesPlugin', () => {
       context.unselect('feature-a')
       await nextTick()
 
-      expect(app.runWithContext(() => useStorage().get('features').value)).toBeNull()
+      expect(app.runWithContext(() => useStorage().get('features').value)).toEqual({ enabled: [], disabled: [] })
 
       app.unmount()
     })
@@ -1268,7 +1268,7 @@ describe('createFeaturesPlugin', () => {
       app.unmount()
     })
 
-    it('should clear intent and storage on reset, restoring defaults on the next boot', async () => {
+    it('should restore registration defaults in-session and clear storage on reset', async () => {
       const adapter = new MemoryStorageAdapter()
 
       const app = createApp({ render: () => null })
@@ -1297,13 +1297,14 @@ describe('createFeaturesPlugin', () => {
 
       await nextTick()
 
-      // Intent and storage are cleared; the in-session selection empties out.
-      expect(app.runWithContext(() => useStorage().get('features').value)).toBeNull()
-      expect(context.selectedIds.size).toBe(0)
+      // Intent and storage are cleared; defaults return immediately.
+      expect(app.runWithContext(() => useStorage().get('features').value)).toEqual({ enabled: [], disabled: [] })
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('feature-b')).toBe(false)
 
       app.unmount()
 
-      // A fresh boot on the same storage falls back to registration defaults.
+      // A fresh boot on the same storage agrees with the in-session state.
       const next = createApp({ render: () => null })
       next.use(createStoragePlugin({ adapter }))
       next.use(
@@ -1320,6 +1321,58 @@ describe('createFeaturesPlugin', () => {
 
       expect(rebooted.selectedIds.has('feature-a')).toBe(true)
       expect(rebooted.selectedIds.has('feature-b')).toBe(false)
+    })
+
+    it('should not resurrect a persisted override registered after a reset', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', { enabled: ['late'] })
+      })
+
+      app.use(createFeaturesPlugin({ persist: true }))
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.reset()
+      context.register({ id: 'late', value: false })
+
+      expect(context.selectedIds.has('late')).toBe(false)
+
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value)).toEqual({ enabled: [], disabled: [] })
+
+      app.unmount()
+    })
+
+    it('should leave a flag disabled after boot unselected on reset', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+
+      context.upsert('feature-a', { disabled: true })
+      context.reset()
+
+      // Selection ops are guarded on disabled tickets, so the baseline replay
+      // no-ops — the flag stays unselected until re-enabled.
+      expect(context.selectedIds.has('feature-a')).toBe(false)
+
+      app.unmount()
     })
 
     it('should let a later adapter update overlay a restored override', async () => {
@@ -1362,7 +1415,7 @@ describe('createFeaturesPlugin', () => {
 
       await nextTick()
 
-      expect(app.runWithContext(() => useStorage().get('features').value)).toBeNull()
+      expect(app.runWithContext(() => useStorage().get('features').value)).toEqual({ enabled: [], disabled: [] })
 
       app.unmount()
     })
@@ -1424,7 +1477,8 @@ describe('createFeaturesPlugin', () => {
       await nextTick()
 
       // No phantom delta entries for ops that no-oped at the model layer.
-      expect(app.runWithContext(() => useStorage().get('features').value)).toBeUndefined()
+      expect(app.runWithContext(() => useStorage().get('features').value))
+        .toEqual({ enabled: [], disabled: [] })
 
       app.unmount()
     })

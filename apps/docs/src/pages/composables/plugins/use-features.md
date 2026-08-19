@@ -65,7 +65,7 @@ app.use(
 )
 ```
 
-Toggling a flag back to its default drops it from storage, and overrides for flags that no longer exist are skipped and pruned on the next write — a rename or removed flag cannot resurrect itself. Overrides apply to late-registered flags too (adapter or runtime registrations) at the moment they register.
+Toggling a flag back to its default drops it from storage, and overrides for flags that no longer exist are skipped and pruned on the next write — a rename or removed flag cannot resurrect itself. Overrides apply to late-registered flags too (adapter or runtime registrations) at the moment they register. Calling `reset()` restores every flag to its registration default immediately and clears the stored overrides.
 
 ## Usage
 
