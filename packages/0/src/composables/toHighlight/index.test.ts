@@ -143,6 +143,7 @@ describe('toHighlight', () => {
 
     it('should fold both sides when ignoreAccents is true', () => {
       expect(matched(toHighlight('a café here', 'cafe', { ignoreAccents: true }))).toStrictEqual(['café'])
+      expect(matched(toHighlight('a cafe here', 'café', { ignoreAccents: true }))).toStrictEqual(['cafe'])
     })
 
     it('should preserve the original text when the source is decomposed', () => {
@@ -172,6 +173,10 @@ describe('toHighlight', () => {
 
     it('should map ignoreCase expansion back onto the original character', () => {
       expect(toHighlight('İstanbul', 'İ', { ignoreCase: true })).toStrictEqual([
+        { text: 'İ', match: true },
+        { text: 'stanbul', match: false },
+      ])
+      expect(toHighlight('İstanbul', 'i', { ignoreCase: true })).toStrictEqual([
         { text: 'İ', match: true },
         { text: 'stanbul', match: false },
       ])

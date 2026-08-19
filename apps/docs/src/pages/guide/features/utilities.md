@@ -495,7 +495,7 @@ findMatchRanges('Łódź', 'Lo', { ignoreAccents: 'target' })   // [[0, 2]]
 findMatchRanges('cafe', 'café', { ignoreAccents: 'query' })  // [[0, 4]]
 ```
 
-Folding strips Combining Diacritical Marks (U+0300–036F) after NFD, then the letters NFD leaves alone (`ł`, `ø`, `đ`, `ß`, `æ`, `œ`, …). When the text is folded or case-converted, ranges are mapped back onto the source — `ß` → `ss` still spans one source character, and `İ` still spans one. Pass `matchAll: true` for every occurrence instead of the first.
+Folding strips Combining Diacritical Marks (U+0300–036F) after NFD, then common letters NFD leaves alone (`ł`, `ø`, `đ`, `ß`, `æ`, `œ`, …). When the text is folded or case-converted, ranges are mapped back onto the source — `ß` → `ss` still spans one source character, and `İ` still spans one. Pass `matchAll: true` for every occurrence instead of the first.
 
 ### pxToNumber
 

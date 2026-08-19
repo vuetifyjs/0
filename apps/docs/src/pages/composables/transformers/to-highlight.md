@@ -140,7 +140,7 @@ the query and text may differ in case: `'target'` folds only the text so `zurich
 *Zürich*, `'query'` folds only the search term so a pasted `café` reaches plain `cafe`, and
 `true` folds both sides.
 
-Letters that NFD leaves untouched are folded as well (`ł → l`, `ø → o`, `ß → ss`, `æ → ae`), and a
+Common letters that NFD leaves untouched are folded as well (`ł → l`, `ø → o`, `ß → ss`, `æ → ae`), and a
 fold that changes length still reports ranges into the original text.
 
 ::: gn-example
@@ -170,6 +170,9 @@ Yes. The source `text` string is sliced at match boundaries, so the original cha
 
 Yes. The `matches` option accepts `MatchRange[]` — `[start, end]` pairs. Once
 `createFilter` exposes positional data, pass the result directly and skip the query path.
+`createFilter` does not fold accents; `toHighlight(..., { ignoreAccents: true })` will
+mark rows the filter still drops. Use [findMatchRanges](/guide/features/utilities#findmatchranges)
+on the filter path if both sides must agree.
 
 ??? Does accent folding change the highlighted text?
 

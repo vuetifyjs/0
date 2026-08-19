@@ -21,6 +21,11 @@ describe('diacritics', () => {
 
     it('should fold both sides when true', () => {
       expect(findMatchRanges('café', 'cafe', { ignoreAccents: true })).toStrictEqual([[0, 4]])
+      expect(findMatchRanges('cafe', 'café', { ignoreAccents: true })).toStrictEqual([[0, 4]])
+      expect(findMatchRanges('café', 'cafe\u0301', { ignoreAccents: true })).toStrictEqual([[0, 4]])
+      expect(findMatchRanges('café', 'cafè', { ignoreAccents: true })).toStrictEqual([[0, 4]])
+      expect(findMatchRanges('café', 'cafè', { ignoreAccents: 'target' })).toStrictEqual([])
+      expect(findMatchRanges('café', 'cafè', { ignoreAccents: 'query' })).toStrictEqual([])
     })
 
     it('should map ranges back onto a decomposed source', () => {
@@ -73,6 +78,7 @@ describe('diacritics', () => {
 
     it('should map case-expansion back onto the original character', () => {
       expect(findMatchRanges('İstanbul', 'İ', { ignoreCase: true })).toStrictEqual([[0, 1]])
+      expect(findMatchRanges('İstanbul', 'i', { ignoreCase: true })).toStrictEqual([[0, 1]])
       expect(findMatchRanges('İstanbul', 'stan', { ignoreCase: true })).toStrictEqual([[1, 5]])
     })
 
