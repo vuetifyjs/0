@@ -44,7 +44,7 @@
           "../../packages/0/src"
         ],
         "@vuetify/play": [
-          "../../packages/play/src/index.ts"
+          "../../packages/play/src"
         ],
         "@vuetify/paper": [
           "../../packages/paper/src"
@@ -116,7 +116,7 @@
           "../../packages/0/src"
         ],
         "@vuetify/play": [
-          "../../packages/play/src/index.ts"
+          "../../packages/play/src"
         ],
         "#v0": [
           "../../packages/0/src"

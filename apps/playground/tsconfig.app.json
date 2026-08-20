@@ -8,7 +8,7 @@
     "moduleResolution": "bundler",
     "paths": {
       "@/*": ["./src/*"],
-      "@vuetify/play": ["../../packages/play/src/index.ts"],
+      "@vuetify/play": ["../../packages/play/src"],
       "#v0": ["../../packages/0/src"],
       "#v0/*": ["../../packages/0/src/*"]
     },
