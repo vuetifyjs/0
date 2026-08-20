@@ -20,11 +20,14 @@
   // Composables
   import { useResizeObserver } from '#v0/composables/useResizeObserver'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
   import { mergeProps, toRef, useAttrs, useTemplateRef } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
 
   export interface VirtualizerItemProps extends AtomProps {
     /** The item's index within the full (unvirtualized) list */
@@ -52,10 +55,10 @@
 
   const root = useVirtualizerRoot(namespace)
 
-  const itemRef = useTemplateRef<{ element: HTMLElement | null }>('item')
-  const itemEl = toRef(() => (itemRef.value?.element as HTMLElement | null) ?? undefined)
+  const itemRef = useTemplateRef<AtomExpose>('item')
+  const el = toRef(() => toElement(itemRef.value?.element) ?? null)
 
-  useResizeObserver(itemEl, entries => {
+  useResizeObserver(el, entries => {
     const entry = entries[0]
     if (!entry) return
     root.resize(index, entry.contentRect.height)
