@@ -142,8 +142,9 @@ export class FloatingUIPopoverAdapter extends PopoverAdapter {
       const content = context.contentEl.value
       if (!anchor || !content) return
 
+      const { side, align } = context.placement.value
       const { x, y } = await computePosition(anchor, content, {
-        placement: `${context.placement.value.side}-${context.placement.value.align === 'center' ? undefined : context.placement.value.align}` as never,
+        placement: align === 'center' ? side : `${side}-${align}`,
         middleware: [offset(8), flip(), shift({ padding: 8 })],
       })
 
