@@ -24,7 +24,7 @@
     >
       <Popover.Activator
         aria-label="Example theme"
-        class="bg-surface-tint text-on-surface-tint hover:bg-surface-tint data-[state=open]:bg-surface-tint pa-1 inline-flex rounded-none rounded-bl-[0.375rem] rounded-tr-[0.375rem] cursor-pointer"
+        class="bg-surface-tint text-on-surface-tint hover:bg-surface-tint data-[state=open]:bg-surface-tint pa-1 inline-flex rounded-none rounded-bl-[0.375rem] cursor-pointer"
         :data-state="open ? 'open' : undefined"
       >
         <AppIcon :icon="toggle.icon.value" />
