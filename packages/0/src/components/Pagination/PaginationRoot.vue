@@ -36,7 +36,7 @@
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
-  import { isNullOrUndefined } from '#v0/utilities'
+  import { isNullOrUndefined, pxToNumber } from '#v0/utilities'
   import { computed, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -151,8 +151,8 @@
     requestAnimationFrame(() => {
       const rootStyle = getComputedStyle(root)
       const style = getComputedStyle(el)
-      const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
-      const gapX = Number.parseFloat(rootStyle.gap) || 0
+      const marginX = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
+      const gapX = pxToNumber(rootStyle.gap)
 
       itemWidth.value = (el.offsetWidth || 0) + marginX
       itemGap.value = gapX

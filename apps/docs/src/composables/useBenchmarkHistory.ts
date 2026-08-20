@@ -13,6 +13,24 @@ import type { TierState } from './useBenchmarkData'
 
 const CURRENT_LABEL = 'current' as const
 
+/**
+ * The band a trend delta has to clear before it counts as a real change.
+ *
+ * Flat on purpose. `rme` is within-run dispersion and does not predict
+ * between-run spread — the two correlate at 0.413 — so gating on it was
+ * measured and rejected when host calibration was removed (#749). That same
+ * work measured what identical code does across runs on the fixed reference
+ * host: 42 of 433 benches spread over 10%, 9 over 20%. A 20% band is where
+ * most of what surfaces is movement rather than apparatus; it flags 16 of 95
+ * groups on the current data, against 30 at 10%.
+ */
+export const NOISE_BAND = 20
+
+/** True when a trend delta is large enough to outrank run-to-run noise. */
+export function significant (delta: number): boolean {
+  return Math.abs(delta) > NOISE_BAND
+}
+
 export interface HistoryPoint {
   version: string
   hz: number

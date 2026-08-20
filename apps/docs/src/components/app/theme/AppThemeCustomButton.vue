@@ -1,7 +1,7 @@
 <script setup lang="ts">
   // Composables
   import { useCustomThemes } from '@/composables/useCustomThemes'
-  import { useThemeToggle, type ThemePreference } from '@/composables/useThemeToggle'
+  import { type ThemePreference, useThemeToggleController } from '@/composables/useThemeToggle'
 
   // Utilities
   import { toRef } from 'vue'
@@ -15,7 +15,7 @@
     edit: [id: string]
   }>()
 
-  const toggle = useThemeToggle()
+  const toggle = useThemeToggleController()
   const themes = useCustomThemes()
   const theme = toRef(() => themes.customThemes.value.find(t => t.id === themeId))
   const active = toRef(() => toggle.preference.value === themeId)

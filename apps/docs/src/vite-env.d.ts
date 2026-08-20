@@ -30,6 +30,20 @@ declare module 'virtual:page-dates' {
   export default data
 }
 
+declare module 'virtual:faqs' {
+  // Types
+  import type { Faq } from '@build/generate-faqs'
+  /** Route path -> FAQ entries extracted from `::: faq` blocks. */
+  const faqs: Record<string, Faq[]>
+  export default faqs
+}
+
+declare module 'virtual:md-routes' {
+  /** Route path -> markdown twin URL, for `rel="alternate"` links. */
+  const routes: Record<string, string>
+  export default routes
+}
+
 declare module 'virtual:llms-stats' {
   // Types
   import type { LlmsStats } from '@build/generate-llms-full'

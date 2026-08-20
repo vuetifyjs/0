@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite-ssg build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.typecheck.json"
   },
   "devDependencies": {
+    "@unhead/vue": "catalog:",
     "sass-embedded": "catalog:",
     "typescript": "catalog:",
     "unocss": "catalog:",
@@ -20,6 +22,7 @@
     "vue-router": "catalog:"
   },
   "dependencies": {
+    "@paper/emerald": "workspace:*",
     "@paper/genesis": "workspace:*",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",

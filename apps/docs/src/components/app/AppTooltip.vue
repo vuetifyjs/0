@@ -10,12 +10,14 @@
   // openDelay/closeDelay/positionArea/disabled forward to Tooltip.Root; their
   // types come from TooltipRootProps so this wrapper can't drift. `disabled` is
   // a declared prop (not a fall-through attr) so a caller's `:disabled` is not
-  // clobbered by Tooltip.Activator's mergeProps.
+  // clobbered by Tooltip.Activator's mergeProps. openDelay/closeDelay carry no
+  // defaults on purpose — undefined lets Tooltip.Root fall back to the region
+  // delays from createTooltipPlugin, so timing is configured in one place.
   const {
     text,
     as = 'button',
-    openDelay = 500,
-    closeDelay = 200,
+    openDelay,
+    closeDelay,
     positionArea = 'top',
     disabled = false,
   } = defineProps<{

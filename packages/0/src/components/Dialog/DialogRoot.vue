@@ -21,6 +21,10 @@
     id: string
     titleId: string
     descriptionId: string
+    /** Whether a Dialog.Title child is currently mounted */
+    hasTitle: ShallowRef<boolean>
+    /** Whether a Dialog.Description child is currently mounted */
+    hasDescription: ShallowRef<boolean>
     open: () => void
     close: () => void
   }
@@ -52,7 +56,7 @@
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { toRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   defineOptions({ name: 'DialogRoot' })
 
@@ -75,6 +79,8 @@
   const id = _id ?? useId()
   const titleId = `${id}-title`
   const descriptionId = `${id}-description`
+  const hasTitle = shallowRef(false)
+  const hasDescription = shallowRef(false)
 
   function open () {
     isOpen.value = true
@@ -89,6 +95,8 @@
     id,
     titleId,
     descriptionId,
+    hasTitle,
+    hasDescription,
     open,
     close,
   })

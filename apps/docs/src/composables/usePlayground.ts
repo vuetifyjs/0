@@ -100,6 +100,10 @@ function buildPlaygroundFiles (inputFiles: PlaygroundFile[], dir?: string): Reco
   return files
 }
 
+function playgroundBase () {
+  return import.meta.env.VITE_PLAYGROUND_URL ?? 'https://v0play.vuetifyjs.com'
+}
+
 /**
  * Get editor URL for multiple files.
  * When dir is provided, files are nested under src/{dir}/.
@@ -113,8 +117,72 @@ export async function usePlayground (
   const data: PlaygroundHashData = { files }
   if (imports && Object.keys(imports).length > 0) data.imports = imports
   const hash = await encodePlaygroundHash(data)
-  const base = import.meta.env.VITE_PLAYGROUND_URL ?? 'https://v0play.vuetifyjs.com'
-  return `${base}/#${hash}`
+  return `${playgroundBase()}/#${hash}`
+}
+
+export interface PlaygroundRegistryRef {
+  /** Feature name, e.g. `dialog`. */
+  item: string
+  /** Example id, e.g. `basic`. */
+  example?: string
+  /** `components` | `composables` when known. */
+  type?: 'components' | 'composables'
+  /** Override docs registry origin. */
+  registry?: string
+}
+
+/**
+ * Short playground URL that resolves against the docs registry catalog.
+ * Smaller than a hash payload and always pulls current seed source — but
+ * requires a live `/registry/*` (docs PR #721) **and** CORS on that origin.
+ * Docs "Open in Playground" stays hash-based unless `VITE_PLAYGROUND_REGISTRY=1`.
+ *
+ * @example
+ * ```ts
+ * playgroundRegistryUrl({ item: 'dialog', example: 'basic' })
+ * // → https://v0play.vuetifyjs.com/?example=dialog/basic
+ * ```
+ */
+export function playgroundRegistryUrl (ref: PlaygroundRegistryRef): string {
+  const params = new URLSearchParams()
+  if (ref.type) {
+    params.set(
+      'example',
+      ref.example
+        ? `${ref.type}/${ref.item}/${ref.example}`
+        : `${ref.type}/${ref.item}`,
+    )
+  } else if (ref.example) {
+    params.set('example', `${ref.item}/${ref.example}`)
+  } else {
+    params.set('example', ref.item)
+  }
+  if (ref.registry) params.set('registry', ref.registry)
+  return `${playgroundBase()}/?${params}`
+}
+
+/**
+ * Map a docs example path (`/components/dialog/basic`, `composables/use-theme/…`)
+ * to a registry ref for short playground URLs.
+ */
+export function registryRefFromExamplePath (path: string): PlaygroundRegistryRef | null {
+  const clean = path.replace(/^\//, '').replace(/\.\w+$/, '')
+  const parts = clean.split('/').filter(Boolean)
+  if (parts.length < 2) return null
+  if (parts[0] !== 'components' && parts[0] !== 'composables') return null
+
+  const type = parts[0] as 'components' | 'composables'
+  const item = parts[1]!
+  if (parts.length === 2) {
+    return { type, item }
+  }
+  // Registry id: entry basename when files sit at `{type}/{name}/`, else the
+  // first subdirectory name (`components/dialog/gallery/App.vue` → `gallery`).
+  return {
+    type,
+    item,
+    example: parts[2],
+  }
 }
 
 function isFileRecord (v: unknown): v is Record<string, string> {

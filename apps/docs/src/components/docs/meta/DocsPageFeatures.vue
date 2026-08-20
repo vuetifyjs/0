@@ -12,10 +12,9 @@
   import { providePageMeta } from '@/composables/usePageMeta'
 
   // Data
-  import maturityData from '#v0/maturity.json'
   import { MATURITY_MATRIX_HREF, SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
   // Constants
-  import { MATURITY_LEVELS } from '@/constants/maturity'
+  import { MATURITY, MATURITY_LEVELS } from '@/constants/maturity'
 
   // Utilities
   import { useScrollToAnchor } from '@/utilities/scroll'
@@ -24,7 +23,6 @@
 
   // Types
   import type { PhaseConfig } from '@/composables/usePageMeta'
-  import type { MaturityData } from '@/constants/maturity'
 
   const scroll = useScrollToAnchor()
   const logger = useLogger()
@@ -220,7 +218,7 @@
     const name = itemName.value
     if (!type || !name) return null
 
-    const bucket = (maturityData as MaturityData)[type]
+    const bucket = MATURITY[type]
     const entry = bucket?.[name]
     if (!entry) return null
 
@@ -272,7 +270,7 @@
     const name = itemName.value
     if (!type || !name) return MATURITY_MATRIX_HREF
 
-    const bucket = (maturityData as MaturityData)[type]
+    const bucket = MATURITY[type]
     const category = bucket?.[name]?.category
     if (!category) return MATURITY_MATRIX_HREF
 
