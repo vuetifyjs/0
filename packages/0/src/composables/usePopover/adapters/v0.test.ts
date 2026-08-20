@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { derivePlacement } from './placement'
+import { toPlacement } from './placement'
 import { V0PopoverAdapter } from './v0'
 
 // Utilities
@@ -15,7 +15,7 @@ function makeContext (overrides: Partial<PopoverAdapterContext> = {}): PopoverAd
     anchorEl: shallowRef(),
     contentEl: shallowRef(),
     isOpen: shallowRef(false),
-    placement: toRef(() => derivePlacement('bottom')),
+    placement: toRef(() => toPlacement('bottom')),
     positionTry: 'most-width bottom',
     ...overrides,
   }
@@ -39,7 +39,7 @@ describe('v0PopoverAdapter', () => {
   it('should render the raw position-area value, not the normalized side/align', () => {
     const adapter = new V0PopoverAdapter()
     const styles = adapter.setup(makeContext({
-      placement: toRef(() => derivePlacement('top span-right')),
+      placement: toRef(() => toPlacement('top span-right')),
     }))
 
     expect(styles.value['position-area']).toBe('top span-right')
@@ -61,7 +61,7 @@ describe('v0PopoverAdapter', () => {
     const placementSource = shallowRef('bottom')
     const adapter = new V0PopoverAdapter()
     const styles = adapter.setup(makeContext({
-      placement: toRef(() => derivePlacement(placementSource.value)),
+      placement: toRef(() => toPlacement(placementSource.value)),
     }))
 
     expect(styles.value['position-area']).toBe('bottom')

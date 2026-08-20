@@ -25,7 +25,7 @@ const SIDE_KEYWORDS: Record<string, PopoverSide> = {
  * value verbatim, so no expressiveness is lost even when the normalization
  * doesn't recognize it.
  */
-export function derivePlacement (positionArea: string): PopoverPlacement {
+export function toPlacement (positionArea: string): PopoverPlacement {
   const tokens = positionArea.trim().split(/\s+/)
   /* v8 ignore next -- defensive: split() on a string always yields at least one element */
   const first = tokens[0] ?? 'bottom'

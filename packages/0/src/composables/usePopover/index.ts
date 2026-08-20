@@ -47,7 +47,7 @@ import { useDelay } from '#v0/composables/useDelay'
 import { useEventListener } from '#v0/composables/useEventListener'
 
 // Adapters
-import { V0PopoverAdapter, derivePlacement } from '#v0/composables/usePopover/adapters'
+import { V0PopoverAdapter, toPlacement } from '#v0/composables/usePopover/adapters'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
@@ -57,7 +57,7 @@ import { isNullOrUndefined, useId } from '#v0/utilities'
 import { onScopeDispose, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Exports
-export { derivePlacement, PopoverAdapter, V0PopoverAdapter } from '#v0/composables/usePopover/adapters'
+export { PopoverAdapter, toPlacement, V0PopoverAdapter } from '#v0/composables/usePopover/adapters'
 export type {
   PopoverAdapterContext,
   PopoverAlign,
@@ -164,7 +164,7 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
 
   const anchorEl = shallowRef<Element | null | undefined>()
   const contentEl = shallowRef<HTMLElement | null | undefined>()
-  const placement = toRef(() => derivePlacement(positionArea))
+  const placement = toRef(() => toPlacement(positionArea))
 
   const contentStyles = adapter.setup({
     anchorName: anchor,
