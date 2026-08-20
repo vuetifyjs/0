@@ -20,11 +20,14 @@
   // Composables
   import { useLocale } from '#v0/composables/useLocale'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
   import { mergeProps, onBeforeUnmount, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
 
   export type OtpItemState = 'filled' | 'empty'
 
@@ -84,10 +87,11 @@
   const root = useOtpRoot(namespace)
   const locale = useLocale()
 
-  const itemRef = useTemplateRef<{ element: HTMLElement | null }>('item')
+  const atomRef = useTemplateRef<AtomExpose>('item')
+  const el = toRef(() => toElement(atomRef.value?.element) ?? null)
 
-  watch(() => itemRef.value?.element, el => {
-    root.registerItemEl(index, (el as HTMLElement | null) ?? null)
+  watch(el, next => {
+    root.registerItemEl(index, next)
   })
 
   onBeforeUnmount(() => {
@@ -105,6 +109,12 @@
 
   function onInput (e: Event) {
     const target = e.target as HTMLInputElement
+
+    if (root.isDisabled.value || root.isReadonly.value || root.isValidating.value) {
+      target.value = charValue.value
+      return
+    }
+
     const text = target.value
 
     if (text === '') {
@@ -113,7 +123,14 @@
     }
 
     const char = text.at(-1)!
-    if (!root.accepts(char)) return
+
+    if (!root.accepts(char)) {
+      // A rejected write leaves the model untouched, so Vue skips the patch
+      // and the stale keystroke would linger in the DOM.
+      target.value = charValue.value
+      return
+    }
+
     root.write(index, char)
     root.focusItem(index + 1)
   }
@@ -148,7 +165,11 @@
     e.preventDefault()
     const text = e.clipboardData?.getData('text') ?? ''
     const written = root.distribute(text, index)
-    if (written > 0) root.focusItem(index + written)
+    // distribute splices at min(value.length, index), so the next empty box
+    // sits at that start plus the written count — `index + written` would
+    // overshoot when the paste lands before `index` on a shorter value.
+    // Computed from the pre-write value: the model ref may update async.
+    if (written > 0) root.focusItem(Math.min(root.value.value.length, index) + written)
   }
 
   const slotProps = toRef((): OtpItemSlotProps => ({
@@ -158,7 +179,7 @@
     isReadonly: root.isReadonly.value,
     attrs: {
       'type': 'text',
-      'inputmode': root.pattern === 'numeric' ? 'numeric' : 'text',
+      'inputmode': root.pattern.value === 'numeric' ? 'numeric' : 'text',
       'autocomplete': 'one-time-code',
       'maxlength': 1,
       'value': charValue.value,

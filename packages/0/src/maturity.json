@@ -562,7 +562,7 @@
     },
     "Otp": {
       "level": "preview",
-      "since": "1.3.0",
+      "since": null,
       "category": "forms",
       "description": "Headless one-time-password / verification-code input with auto-advance, backspace-back navigation, and paste distribution across boxes."
     },

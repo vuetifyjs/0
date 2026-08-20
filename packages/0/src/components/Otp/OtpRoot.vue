@@ -35,13 +35,13 @@
     /** Form field name */
     readonly name?: string
     /** Resolved per-character pattern */
-    readonly pattern: OtpPattern
+    pattern: Readonly<Ref<OtpPattern>>
     /** Whether interaction is disabled */
     isDisabled: Readonly<Ref<boolean>>
     /** Whether the field is readonly */
     isReadonly: Readonly<Ref<boolean>>
     /** Register an Item's focusable element for focus movement between boxes */
-    registerItemEl: (index: number, el: HTMLElement | null) => void
+    registerItemEl: (index: number, el: Element | null) => void
     /** Move focus to the item at `index`, clamped to [0, length). No-op if unregistered. */
     focusItem: (index: number) => void
   }
@@ -90,7 +90,7 @@
       'role': 'group'
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
-      'aria-disabled': true | undefined
+      'aria-disabled': boolean
       'aria-busy': true | undefined
       'data-disabled': true | undefined
       'data-readonly': true | undefined
@@ -128,16 +128,18 @@
 
   const otp = createOtp({
     value: model,
-    length,
-    pattern,
+    // Wrap reactive props as getters — createOtp reads length/pattern via
+    // toValue(), so bare scalar snapshots would freeze them at mount.
+    length: toRef(() => length),
+    pattern: toRef(() => pattern),
     disabled: () => toValue(disabled),
     readonly: () => toValue(_readonly),
     onComplete,
   })
 
-  const itemEls = new Map<number, HTMLElement>()
+  const itemEls = new Map<number, Element>()
 
-  function registerItemEl (index: number, el: HTMLElement | null) {
+  function registerItemEl (index: number, el: Element | null) {
     if (el) itemEls.set(index, el)
     else itemEls.delete(index)
   }
@@ -145,7 +147,8 @@
   function focusItem (index: number) {
     const max = toValue(otp.length) - 1
     const clamped = Math.min(Math.max(index, 0), max)
-    itemEls.get(clamped)?.focus()
+    const el = itemEls.get(clamped) as HTMLElement | undefined
+    el?.focus()
   }
 
   const isDisabled = toRef(() => toValue(disabled))
@@ -154,7 +157,7 @@
   const context: OtpRootContext = {
     ...otp,
     name,
-    pattern,
+    pattern: toRef(() => pattern),
     isDisabled,
     isReadonly,
     registerItemEl,
@@ -176,7 +179,7 @@
       'role': 'group',
       'aria-label': ariaLabelledby ? undefined : (ariaLabel || (locale.ti('Otp.label') ?? 'Verification code')),
       'aria-labelledby': ariaLabelledby || undefined,
-      'aria-disabled': isDisabled.value ? true : undefined,
+      'aria-disabled': isDisabled.value,
       'aria-busy': otp.isValidating.value ? true : undefined,
       'data-disabled': isDisabled.value ? true : undefined,
       'data-readonly': isReadonly.value ? true : undefined,
