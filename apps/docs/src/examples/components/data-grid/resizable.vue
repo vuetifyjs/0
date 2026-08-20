@@ -29,7 +29,7 @@
       const context = useDataGridRoot('v0:data-grid')
       if (context.columns.size === 0) {
         context.columns.onboard(columns)
-        context.onboard(users.map(u => ({ id: u.id, value: u })))
+        context.onboard(users.map(u => ({ id: u.id, value: u as Record<string, unknown> })))
       }
       return () => null
     },
@@ -58,9 +58,7 @@
 
             <DataGrid.Handle
               v-if="idx < columns.length - 1"
-              v-slot="{ state }"
-              class="w-1 cursor-col-resize bg-transparent hover:bg-primary/50 z-10"
-              :class="{ 'bg-primary': state === 'drag' }"
+              class="w-1 cursor-col-resize bg-transparent hover:bg-primary/50 z-10 data-[state=drag]:bg-primary"
             />
           </template>
         </DataGrid.Row>
@@ -69,8 +67,8 @@
       <DataGrid.Body as="div">
         <DataGrid.Row
           v-for="item in context.items.value"
-          :id="item.id"
-          :key="item.id"
+          :id="(item as User).id"
+          :key="(item as User).id"
           class="flex hover:bg-surface-tint/50 border-t border-divider"
         >
           <DataGrid.Cell
@@ -85,7 +83,7 @@
               flexShrink: 0,
             }"
           >
-            {{ item[col.id] }}
+            {{ (item as User)[col.id] }}
           </DataGrid.Cell>
         </DataGrid.Row>
       </DataGrid.Body>

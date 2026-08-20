@@ -27,7 +27,7 @@
       const context = useDataGridRoot('v0:data-grid')
       if (context.columns.size === 0) {
         context.columns.onboard(columns)
-        context.onboard(users.map(u => ({ id: u.id, value: u })))
+        context.onboard(users.map(u => ({ id: u.id, value: u as Record<string, unknown> })))
       }
       return () => null
     },
@@ -55,20 +55,20 @@
       <DataGrid.Body>
         <DataGrid.Row
           v-for="item in context.items.value"
-          :id="item.id"
-          :key="item.id"
+          :id="(item as User).id"
+          :key="(item as User).id"
           class="hover:bg-surface-tint/50"
         >
           <DataGrid.Cell class="p-3 border-b border-divider" column="name">
-            {{ item.name }}
+            {{ (item as User).name }}
           </DataGrid.Cell>
 
           <DataGrid.Cell class="p-3 border-b border-divider" column="email">
-            {{ item.email }}
+            {{ (item as User).email }}
           </DataGrid.Cell>
 
           <DataGrid.Cell class="p-3 border-b border-divider" column="role">
-            {{ item.role }}
+            {{ (item as User).role }}
           </DataGrid.Cell>
         </DataGrid.Row>
       </DataGrid.Body>
