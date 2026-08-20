@@ -53,4 +53,23 @@ describe('createMainTs', () => {
     expect(source).toContain('default: \'light\'')
     expect(source).not.toContain('alert(1)')
   })
+
+  it('should drop constructor keys, url() values, and css comments', () => {
+    const source = createMainTs('ok-theme', undefined, 'latest', false, {
+      'constructor': { dark: true, colors: { primary: '#111111' } },
+      'ok-theme': {
+        dark: false,
+        colors: {
+          primary: 'url(javascript:alert(1))',
+          secondary: 'red /*',
+          accent: '#00ff00',
+        },
+      },
+    })
+    expect(source).toContain('default: \'ok-theme\'')
+    expect(source).not.toContain('constructor')
+    expect(source).not.toContain('javascript:alert')
+    expect(source).not.toContain('red /*')
+    expect(source).toContain('#00ff00')
+  })
 })

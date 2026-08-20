@@ -7,7 +7,7 @@ import { decodePlaygroundHash, encodePlaygroundHash, isFileRecord, parseVuetifyP
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
 // Data
-import { createMainTs, createVuetifyTs, REPL_BUILTIN_FILES, REPL_TSCONFIG, REPL_TYPESCRIPT_VERSION, UNO_CONFIG_TS, vuetifyEsmUrl } from '@/data/playground-defaults'
+import { createMainTs, createVuetifyTs, REPL_BUILTIN_FILES, REPL_TSCONFIG, REPL_TYPESCRIPT_VERSION, sanitizePlaygroundThemes, UNO_CONFIG_TS, vuetifyEsmUrl } from '@/data/playground-defaults'
 import { ADDONS, DEFAULT_APP, PRESETS } from '@/data/presets'
 import { parseRegistryQuery, resolveRegistryExample } from '@/data/registry'
 import { parseVuetifyExampleQuery, resolveVuetifyExample } from '@/data/vuetify-examples'
@@ -90,9 +90,13 @@ export function usePlaygroundFiles () {
 
   function applyIncomingTheme (data?: Pick<PlaygroundHashData, 'theme' | 'themes' | 'settings'>) {
     const raw = data?.theme ?? (data?.settings as { theme?: string } | undefined)?.theme
-    const id = raw && SAFE_THEME_ID.test(raw) ? raw : undefined
+    const id = raw && SAFE_THEME_ID.test(raw) && raw !== 'constructor' && raw !== 'prototype'
+      ? raw
+      : undefined
     extraDefault.value = id
-    extraThemes.value = data?.themes ?? (data?.settings as { themes?: Record<string, PlaygroundThemeDefinition> } | undefined)?.themes
+    extraThemes.value = sanitizePlaygroundThemes(
+      data?.themes ?? (data?.settings as { themes?: Record<string, PlaygroundThemeDefinition> } | undefined)?.themes,
+    )
   }
 
   function clearIncomingTheme () {

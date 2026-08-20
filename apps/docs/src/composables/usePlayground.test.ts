@@ -70,17 +70,20 @@ describe('toPlaygroundThemes', () => {
 
   it('should drop unsafe ids and css values', () => {
     const result = toPlaygroundThemes('ok-theme', {
+      'constructor': { dark: true, colors: { primary: '#111' } },
       'ok-theme': {
         dark: false,
         colors: {
           'primary': '#fff',
           'evil': 'url(https://x)',
+          'comment': 'red /*',
           'bad;key': '#000',
         },
       },
     })
 
     expect(result?.theme).toBe('ok-theme')
+    expect(Object.hasOwn(result?.themes ?? {}, 'constructor')).toBe(false)
     expect(result?.themes?.['ok-theme']?.colors).toEqual({ primary: '#fff' })
   })
 

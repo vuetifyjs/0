@@ -271,16 +271,32 @@ export interface PlaygroundHashData {
 export const SAFE_THEME_ID = /^[a-zA-Z][\w-]*$/
 
 const SAFE_COLOR_KEY = /^[a-zA-Z0-9_-]+$/
-const UNSAFE_CSS = /url\s*\(|src\s*\(|image\s*\(|image-set\s*\(|cross-fade\s*\(|@import|expression\s*\(|[;{}<>\\]/i
+const UNSAFE_CSS = /url\s*\(|src\s*\(|image\s*\(|image-set\s*\(|cross-fade\s*\(|@import|expression\s*\(|[;{}<>\\]|\/\*/i
+const UNSAFE_OBJECT_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+const MAX_THEME_ID = 64
+const MAX_THEMES = 32
+const MAX_COLORS = 64
+const MAX_COLOR_VALUE = 128
 
 function sanitizeThemeId (id: string): string | undefined {
-  return SAFE_THEME_ID.test(id) ? id : undefined
+  return id.length <= MAX_THEME_ID && SAFE_THEME_ID.test(id) && !UNSAFE_OBJECT_KEYS.has(id)
+    ? id
+    : undefined
 }
 
 function sanitizeColors (colors: Record<string, unknown>): Record<string, string> {
   const out: Record<string, string> = {}
   for (const [key, value] of Object.entries(colors)) {
-    if (!SAFE_COLOR_KEY.test(key) || !isString(value) || UNSAFE_CSS.test(value)) continue
+    if (Object.keys(out).length >= MAX_COLORS) break
+    if (
+      key.length > MAX_THEME_ID
+      || !SAFE_COLOR_KEY.test(key)
+      || UNSAFE_OBJECT_KEYS.has(key)
+      || !isString(value)
+      || value.length === 0
+      || value.length > MAX_COLOR_VALUE
+      || UNSAFE_CSS.test(value)
+    ) continue
     out[key] = value
   }
   return out
@@ -308,6 +324,7 @@ export function toPlaygroundThemes (
 
   const themes: Record<string, PlaygroundThemeDefinition> = {}
   for (const [id, def] of Object.entries(records)) {
+    if (Object.keys(themes).length >= MAX_THEMES) break
     const safeId = sanitizeThemeId(id)
     if (!safeId || !def.colors) continue
     const colors = sanitizeColors(def.colors)

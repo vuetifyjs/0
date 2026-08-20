@@ -105,7 +105,46 @@ interface SandboxTheme {
 
 const SAFE_THEME_ID = /^[a-zA-Z][\w-]*$/
 const SAFE_COLOR_KEY = /^[a-zA-Z0-9_-]+$/
-const UNSAFE_CSS = /url\s*\(|src\s*\(|image\s*\(|image-set\s*\(|cross-fade\s*\(|@import|expression\s*\(|[;{}<>\\]/i
+const UNSAFE_CSS = /url\s*\(|src\s*\(|image\s*\(|image-set\s*\(|cross-fade\s*\(|@import|expression\s*\(|[;{}<>\\]|\/\*/i
+const UNSAFE_OBJECT_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+const MAX_THEME_ID = 64
+const MAX_THEMES = 32
+const MAX_COLORS = 64
+const MAX_COLOR_VALUE = 128
+
+function isSafeThemeId (id: string): boolean {
+  return id.length <= MAX_THEME_ID && SAFE_THEME_ID.test(id) && !UNSAFE_OBJECT_KEYS.has(id)
+}
+
+function isSafeColorKey (key: string): boolean {
+  return key.length <= MAX_THEME_ID && SAFE_COLOR_KEY.test(key) && !UNSAFE_OBJECT_KEYS.has(key)
+}
+
+function isSafeColorValue (value: string): boolean {
+  return value.length > 0 && value.length <= MAX_COLOR_VALUE && !UNSAFE_CSS.test(value)
+}
+
+/** Strip attacker-controlled theme records down to ids/colors the sandbox will emit. */
+export function sanitizePlaygroundThemes (
+  extra?: Record<string, SandboxTheme>,
+): Record<string, SandboxTheme> | undefined {
+  if (!extra) return undefined
+
+  const out: Record<string, SandboxTheme> = {}
+  for (const [id, def] of Object.entries(extra)) {
+    if (!isSafeThemeId(id) || !def?.colors || Object.keys(out).length >= MAX_THEMES) continue
+    const colors: Record<string, string> = {}
+    for (const [key, value] of Object.entries(def.colors)) {
+      if (!isSafeColorKey(key) || typeof value !== 'string' || !isSafeColorValue(value)) continue
+      if (Object.keys(colors).length >= MAX_COLORS) break
+      colors[key] = value
+    }
+    if (Object.keys(colors).length === 0) continue
+    out[id] = { dark: def.dark === true, colors }
+  }
+
+  return Object.keys(out).length > 0 ? out : undefined
+}
 
 const DEFAULT_SANDBOX_THEMES: { light: SandboxTheme, dark: SandboxTheme } = {
   light: {
@@ -167,22 +206,11 @@ const DEFAULT_SANDBOX_THEMES: { light: SandboxTheme, dark: SandboxTheme } = {
 function mergeSandboxThemes (
   extra?: Record<string, SandboxTheme>,
 ): Record<string, SandboxTheme> {
-  const merged: Record<string, SandboxTheme> = {
+  return {
     light: { dark: false, colors: { ...DEFAULT_SANDBOX_THEMES.light.colors } },
     dark: { dark: true, colors: { ...DEFAULT_SANDBOX_THEMES.dark.colors } },
+    ...sanitizePlaygroundThemes(extra),
   }
-  if (!extra) return merged
-
-  for (const [id, def] of Object.entries(extra)) {
-    if (!SAFE_THEME_ID.test(id)) continue
-    const colors: Record<string, string> = {}
-    for (const [key, value] of Object.entries(def.colors)) {
-      if (!SAFE_COLOR_KEY.test(key) || typeof value !== 'string' || UNSAFE_CSS.test(value)) continue
-      colors[key] = value
-    }
-    merged[id] = { dark: def.dark === true, colors }
-  }
-  return merged
 }
 
 export function createMainTs (defaultTheme = 'light', options?: MainOptions, vuetifyVersion = 'latest', vuetifyNightly = false, extraThemes?: Record<string, SandboxTheme>): string {
@@ -233,7 +261,7 @@ export function createMainTs (defaultTheme = 'light', options?: MainOptions, vue
   const setupBlock = extraSetup.length > 0 ? '\n' + extraSetup.join('\n') + '\n' : ''
   const pluginBlock = extraPlugins.length > 0 ? extraPlugins.join('\n') + '\n' : ''
   const mergedThemes = mergeSandboxThemes(extraThemes)
-  const safeDefault = SAFE_THEME_ID.test(defaultTheme) && defaultTheme in mergedThemes
+  const safeDefault = isSafeThemeId(defaultTheme) && Object.hasOwn(mergedThemes, defaultTheme)
     ? defaultTheme
     : 'light'
   const themesJson = JSON.stringify(mergedThemes, null, 2).split('\n').join('\n  ')
