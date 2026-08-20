@@ -18,3 +18,9 @@ values, resetting any segment without a corresponding entry back to `min`. A
 progress bar transitioning to indeterminate now correctly reports
 `data-state="indeterminate"`, clears `aria-valuenow`/`aria-valuetext`, and sets
 `aria-busy`.
+
+Also fixes the related pin in `isIndeterminate`: an instance created with an
+initial `value` (`createProgress({ value })`) returned `false` permanently, even
+after segments registered and were cleared back to `min`. The initial value now
+only backs the zero-segment state — mirroring `total`'s fallback — so segments
+become the sole source of truth once registered.

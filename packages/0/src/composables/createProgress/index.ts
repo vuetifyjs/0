@@ -114,9 +114,10 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
   })
 
   const isIndeterminate = toRef(() => {
-    if (_hasInitialValue) return false
     const segs = segments.value
-    if (segs.length === 0) return true
+    // The initial value only backs the zero-segment state (mirroring total's
+    // fallback); once segments register they are the sole source of truth.
+    if (segs.length === 0) return !_hasInitialValue
     for (const seg of segs) {
       if ((toValue(seg.value) ?? 0) > 0) return false
     }

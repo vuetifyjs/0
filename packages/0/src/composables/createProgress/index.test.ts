@@ -187,6 +187,19 @@ describe('createProgress', () => {
       val.value = 5
       expect(progress.isIndeterminate.value).toBe(false)
     })
+
+    it('should not stay pinned determinate on a value-initialized instance once segments clear', () => {
+      const progress = setup({ value: 60 })
+      expect(progress.isIndeterminate.value).toBe(false)
+
+      const val = shallowRef(60)
+      progress.register({ value: val })
+      expect(progress.isIndeterminate.value).toBe(false)
+
+      progress.apply([])
+      expect(toValue(val)).toBe(0)
+      expect(progress.isIndeterminate.value).toBe(true)
+    })
   })
 
   describe('fromValue', () => {
