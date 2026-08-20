@@ -13,8 +13,10 @@ export interface ThemeAdapterSetupContext {
 }
 
 export abstract class ThemeAdapter {
-  private static UNSAFE_CSS = /url\s*\(|src\s*\(|image\s*\(|image-set\s*\(|cross-fade\s*\(|@import|expression\s*\(|[;{}<>\\]/i
-  private static SAFE_IDENT = /^[a-zA-Z0-9_-]+$/
+  /** CSS ident for theme ids, color keys, and the adapter prefix. */
+  static readonly SAFE_IDENT = /^[a-zA-Z0-9_-]+$/
+  /** Rejected inside theme color values before they are written to a stylesheet. */
+  static readonly UNSAFE_CSS = /url\s*\(|src\s*\(|image\s*\(|image-set\s*\(|cross-fade\s*\(|@import|expression\s*\(|[;{}<>\\]|\/\*/i
 
   public stylesheetId = 'v0-theme-stylesheet'
   public prefix: string

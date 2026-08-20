@@ -8,6 +8,7 @@
       "@/*": ["./src/*"],
       "@vuetify/v0": ["../../packages/0/src"],
       "@vuetify/v0/*": ["../../packages/0/src/*"],
+      "@vuetify/play": ["../../packages/play/src/index.ts"],
       "#v0": ["../../packages/0/src"],
       "#v0/*": ["../../packages/0/src/*"],
       "@paper/emerald": ["../../packages/emerald/src"],

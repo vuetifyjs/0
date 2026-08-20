@@ -434,6 +434,18 @@ describe('v0StyleSheetThemeAdapter', () => {
       expect(css).toContain('color-scheme: dark')
     })
 
+    it('should omit color values that contain css comments', () => {
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      const css = adapter.generate(
+        { light: { primary: '#1976d2', inject: 'red /*' } },
+        false,
+      )
+
+      expect(css).toContain('--v0-primary: #1976d2')
+      expect(css).not.toContain('red /*')
+    })
+
     it('should use custom prefix in CSS variables', () => {
       const adapter = new V0StyleSheetThemeAdapter({ prefix: 'custom' })
 
