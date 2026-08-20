@@ -7,6 +7,7 @@ export default defineConfig({
       'packages/0/vitest.browser.config.ts',
       'packages/paper',
       'packages/emerald',
+      'packages/play',
       'apps/docs',
       'apps/playground',
     ],

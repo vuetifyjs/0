@@ -43,6 +43,9 @@
         "@vuetify/v0": [
           "../../packages/0/src"
         ],
+        "@vuetify/play": [
+          "../../packages/play/src"
+        ],
         "@vuetify/paper": [
           "../../packages/paper/src"
         ],
@@ -75,6 +78,12 @@
         ]
       }
     },
+    "packages/play": {
+      "project": [
+        "src/**/*.ts",
+        "!src/**/*.test.ts"
+      ]
+    },
     "packages/paper": {
       "project": [
         "src/**/*.{ts,vue}",
@@ -105,6 +114,9 @@
         ],
         "@vuetify/v0": [
           "../../packages/0/src"
+        ],
+        "@vuetify/play": [
+          "../../packages/play/src"
         ],
         "#v0": [
           "../../packages/0/src"

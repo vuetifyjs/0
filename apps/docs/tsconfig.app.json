@@ -9,6 +9,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@build/*": ["./build/*"],
+      "@vuetify/play": ["../../packages/play/src"],
       "#v0": ["../../packages/0/src"],
       "#v0/*": ["../../packages/0/src/*"]
     },

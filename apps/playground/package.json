@@ -13,9 +13,9 @@
     "@paper/genesis": "workspace:*",
     "@vue/repl": "catalog:",
     "@vuetify/auth": "catalog:",
+    "@vuetify/play": "workspace:*",
     "@vuetify/v0": "workspace:*",
     "client-zip": "catalog:",
-    "fflate": "catalog:",
     "pinia": "catalog:",
     "swetrix": "catalog:",
     "vue": "catalog:"
