@@ -72,6 +72,7 @@
           <AppPaletteMaterial3Button />
           <AppPaletteRadixButton />
           <AppPaletteAntDesignButton />
+          <AppPaletteEmeraldButton />
         </div>
       </div>
 
