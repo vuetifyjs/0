@@ -435,8 +435,8 @@ describe('select', () => {
     })
 
     it('should typeahead-highlight a matching item when a printable char is pressed while open', async () => {
-      // typeahead calls document.querySelector inside useVirtualFocus; the
-      // component must be attached to the live document for the query to resolve.
+      // typeahead reads textContent off registered item elements, so the
+      // component must be attached to the live document.
       const container = document.createElement('div')
       document.body.append(container)
 
