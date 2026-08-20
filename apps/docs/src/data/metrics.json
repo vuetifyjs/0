@@ -1,10 +1,10 @@
 {
   "AlertDialog": {
     "coverage": {
-      "statements": 7.1,
+      "statements": 5.9,
       "functions": 0,
       "branches": 0,
-      "overall": 3.6
+      "overall": 3
     }
   },
   "AspectRatio": {
@@ -249,10 +249,10 @@
   },
   "Snackbar": {
     "coverage": {
-      "statements": 9.1,
+      "statements": 16.7,
       "functions": 0,
       "branches": 0,
-      "overall": 4.6
+      "overall": 8.4
     }
   },
   "Splitter": {
@@ -9297,10 +9297,10 @@
   },
   "useBreakpoints": {
     "coverage": {
-      "statements": 98.9,
+      "statements": 98.8,
       "functions": 100,
       "branches": 100,
-      "overall": 99.5
+      "overall": 99.4
     }
   },
   "useClickOutside": {
@@ -9313,10 +9313,10 @@
   },
   "useDate": {
     "coverage": {
-      "statements": 95.7,
+      "statements": 97.7,
       "functions": 100,
       "branches": 100,
-      "overall": 97.9
+      "overall": 98.9
     },
     "benchmarks": {
       "_groups": {
@@ -9879,10 +9879,10 @@
   },
   "useDragDrop": {
     "coverage": {
-      "statements": 97.8,
+      "statements": 97.9,
       "functions": 100,
       "branches": 100,
-      "overall": 98.9
+      "overall": 99
     }
   },
   "useEventListener": {

@@ -72,7 +72,7 @@ admonitions). Kits stay prefix-blind; the DS owns the bridge.
 
 ```css
 /* Emitted alongside --emerald-* by the DS adapter (illustrative) */
-[data-theme="emerald"] {
+[data-theme="emerald-light"] {
   --emerald-primary: #26c26d;
   --v0-primary: var(--emerald-primary);
   /* …same for surface / on-surface / … */
@@ -141,6 +141,45 @@ A design system component ships only when:
   or a component hardcoding a value a token exists for, fails review.
 
 Kits gate only on their purpose's spec.
+
+### 6. Icons
+
+Every design system ships its **own** icon set. There is no shared artwork and no
+bundled icon library — a design system's glyphs are as much a part of its visual
+language as its type scale, and Onyx's chevron is not Emerald's.
+
+What *is* shared is the **role vocabulary** and the resolution mechanism:
+
+- A design system maps **role names to glyphs** — `close`, `check`, `chevron-down`,
+  `search`, `menu` — and registers them through v0's `createTokens`
+  ([#107](https://github.com/vuetifyjs/0/issues/107)). Alias resolution is the reason
+  `createTokens` is the right primitive: `{envelope: '{mail}'}` costs one entry, and
+  overriding `mail` moves both names at once.
+- Roles are named for **what the glyph is**, not the one screen that first needed it —
+  `receipt`, not `orders`. Two features drawing the same mark get one role and an
+  alias, never two copies of the path data.
+- Icons are their **own plugin**, built with v0's `createPluginContext` and carrying a
+  lazy fallback so the renderer still draws with nothing installed. The design system's
+  main plugin composes it; consumers extend or replace roles through its options.
+  Overriding a role must restyle the system's own chrome, which means **components may
+  not inline their own artwork** — an Em*/On* component that hardcodes an SVG is a
+  component a consumer cannot rebrand.
+- Do not promise the glyph map is tree-shakeable. Measured against Emerald's build
+  (rollup and esbuild, `dist/index.mjs`): a module-scope trinity —
+  `const [a, b, c] = createXContext()` — survives tree-shaking even annotated
+  `/* @__PURE__ */`, so the map is retained by any import from the package. Skipping the
+  plugin install is a registration switch, not a bundle switch. A separate entry point is
+  the only mechanism that would actually drop it, and no design system has needed one yet.
+- Whatever a design system's glyphs are (path data, sprite ids, icon-font classnames,
+  UnoCSS `i-*` classes), the *role* layer is the same; the renderer is the design
+  system's own component (`EmIcon`, and its Onyx counterpart).
+
+Emerald is the first implementation — `packages/emerald/src/icons.ts` plus `EmIcon`,
+drawing 24x24 stroke-grid path data. Whether the role vocabulary, the collect/alias
+plumbing, or the renderer itself is worth extracting into a shared package is **to be
+evaluated against the second implementation**: one consumer is not a pattern. Decision
+deferred, not made — until then, a second design system copies the approach, not the
+code.
 
 ## Per-package SPEC.md
 

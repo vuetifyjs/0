@@ -1,5 +1,113 @@
 # @vuetify/v0
 
+## 1.0.5
+
+### Patch Changes
+
+- [#857](https://github.com/vuetifyjs/0/pull/857) [`41d90cc`](https://github.com/vuetifyjs/0/commit/41d90cc965ffaacf0f01ecbf51c9575eff57052a) Thanks [@johnleider](https://github.com/johnleider)! - fix(Dialog,AlertDialog): omit aria-labelledby/describedby when Title/Description absent ([#608](https://github.com/vuetifyjs/0/issues/608))
+
+  Dialog.Content and AlertDialog.Content now presence-track their Title and
+  Description sub-components. The `aria-labelledby` and `aria-describedby`
+  attributes are only emitted when the corresponding element is actually mounted,
+  avoiding dangling IDREF warnings from assistive technologies. Follows the same
+  pattern as Progress (`hasLabel`) and Combobox (`hasDescription`).
+
+- [#878](https://github.com/vuetifyjs/0/pull/878) [`bd8988b`](https://github.com/vuetifyjs/0/commit/bd8988b00d62b54468ff13767ff502ff5f1f82c5) Thanks [@johnleider](https://github.com/johnleider)! - fix(usePopover): closed popovers no longer leave a visible ghost node — attached elements are force-hidden on close, unmount, and scope dispose
+
+- [#875](https://github.com/vuetifyjs/0/pull/875) [`6cdd09c`](https://github.com/vuetifyjs/0/commit/6cdd09c538c1c68db601b8ff5c8310d938aee8fa) Thanks [@johnleider](https://github.com/johnleider)! - fix(SplitterPanel): panels no longer clip overflowing content (popovers, focus rings) — flex shrink now comes from min-size: 0 instead of overflow: hidden
+
+- [#836](https://github.com/vuetifyjs/0/pull/836) [`a25ea53`](https://github.com/vuetifyjs/0/commit/a25ea53ae53865d595355be8ab883a84f1a3ccaa) Thanks [@johnleider](https://github.com/johnleider)! - fix(Select): Add `data-disabled` attribute to SelectActivator for styling hooks ([#836](https://github.com/vuetifyjs/0/issues/836))
+
+## 1.0.4
+
+### Patch Changes
+
+- [#797](https://github.com/vuetifyjs/0/pull/797) [`5a9a388`](https://github.com/vuetifyjs/0/commit/5a9a388ef42a5bd96d5a398e28cb046da78e59a3) Thanks [@johnleider](https://github.com/johnleider)! - fix(useDate): add a fixedWeeks mode to getWeekArray
+
+  `getWeekArray(date, fixedWeeks?)` can now pad the month matrix to a constant 6 rows (42 cells), so calendar grids keep a stable height across months instead of jumping between 4, 5, and 6 rows. Padding continues day-by-day into the next month; months that naturally span 6 rows are unchanged. Default behavior without the flag is identical to before.
+
+- [#818](https://github.com/vuetifyjs/0/pull/818) [`a7334f8`](https://github.com/vuetifyjs/0/commit/a7334f84e475da9be0f6ab3d880ef474eeec8406) Thanks [@johnleider](https://github.com/johnleider)! - fix(useDragDrop): anchor the drop indicator to the slot and suppress no-op slots
+
+  An interior drop slot now always renders against the end edge of the rect above it. Previously the same slot anchored to the rect above or the rect below depending on which side the pointer approached from, so the indicator visibly jumped across the gap mid-drag — dragging a card down a column drew the line at the top of the next card instead of walking edge to edge.
+
+  A drag over its own zone also no longer proposes the two slots flanking the dragged element's current position: dropping in either puts it straight back where it sits, so the indicator stays hidden there — grabbing the first card and nudging the pointer above it no longer draws a line over its own head — and a drop on a suppressed slot resolves `position.index` to the element's current slot instead of `0`.
+
+- [#796](https://github.com/vuetifyjs/0/pull/796) [`4a19d6c`](https://github.com/vuetifyjs/0/commit/4a19d6c0375e565851d1f1a2cd7125fac5e46ea4) Thanks [@johnleider](https://github.com/johnleider)! - fix(useDate): correct the first day of the week on Firefox and make week data consistent across browsers
+
+  Calendars rendered a Sunday-start week for every locale on Firefox — `de-DE`, `fr-FR`, and `en-GB` all laid out incorrectly — and could disagree between server and client when Node and browser ICU versions differ. Week start and `minimalDays` now come from CLDR 48 data on every runtime, so the same locale always produces the same week layout in Chromium, Firefox, Safari, and Node. An explicit `-u-fw-` keyword on the locale (e.g. `en-US-u-fw-mon`) is honored everywhere, and `minimalDays` for bare language tags is now the correct value for the locale's likely region (affects week numbers for e.g. `sv` and `pt`).
+
+## 1.0.3
+
+### Patch Changes
+
+- [#784](https://github.com/vuetifyjs/0/pull/784) [`e697bab`](https://github.com/vuetifyjs/0/commit/e697bab5ce82eac250ca8f99f71ea4a1e19fc233) Thanks [@johnleider](https://github.com/johnleider)! - fix(Slider,Rating): omit aria-label when ariaLabelledby is provided
+
+  When both `ariaLabel` and `ariaLabelledby` are provided, `aria-labelledby` now consistently wins across Slider, Rating, and NumberField — `aria-label` is omitted from the DOM. Assistive technology output is unchanged (the ARIA accessible-name algorithm already prefers `aria-labelledby`); only the emitted attributes are now consistent.
+
+- [#751](https://github.com/vuetifyjs/0/pull/751) [`f6b8698`](https://github.com/vuetifyjs/0/commit/f6b86980951d4224446ea52b67b1cdfcd776c830) Thanks [@johnleider](https://github.com/johnleider)! - fix(a11y): complete non-button host polyfill for default-button controls
+
+  Controls that default to `as="button"` now apply a consistent host contract when the element is not a native button: `role="button"`, `tabindex` 0/−1, and Enter/Space activation (gated so native buttons keep browser handling only). Covers Carousel Next/Previous, Dialog and AlertDialog activators/actions/close, Pagination First/Prev/Next/Last, Popover Activator, Snackbar Close, plus gating on Collapsible/ExpansionPanel activators and Toggle.
+
+- [#630](https://github.com/vuetifyjs/0/pull/630) [`9bd0517`](https://github.com/vuetifyjs/0/commit/9bd0517b376174752bd7596db4b0147d52a63679) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(AlertDialog): focus the Cancel element on open per the APG alertdialog pattern ([#630](https://github.com/vuetifyjs/0/issues/630))
+
+  The WAI-ARIA Authoring Practices alertdialog pattern calls for initial focus to land on the least-destructive action, and the docs already stated this — but `AlertDialogContent` never actually called `.focus()` on the Cancel element, so focus landed wherever the browser defaulted. `AlertDialogCancel` now registers its DOM element on the shared context, and `AlertDialogContent` focuses it immediately after opening.
+
+- [#770](https://github.com/vuetifyjs/0/pull/770) [`b9f69ed`](https://github.com/vuetifyjs/0/commit/b9f69ed78880c31c57ba51292644ffd2a9ad8458) Thanks [@johnleider](https://github.com/johnleider)! - fix(useBreakpoints): resolve initial state through matchMedia like update() ([#730](https://github.com/vuetifyjs/0/issues/730))
+
+  `createBreakpoints()` previously derived its initial breakpoint name, band flags, and `isMobile` from an `innerWidth` comparison, while `update()` used `matchMedia`. At fractional zoom or with classic scrollbars the two can disagree, so bare `createBreakpoints()` consumers could get a wrong first paint that silently flipped band on the first resize. Initial state now resolves through the same matchMedia-based logic as `update()`. SSR and no-matchMedia environments keep the width-comparison fallback.
+
+- [#766](https://github.com/vuetifyjs/0/pull/766) [`2a91437`](https://github.com/vuetifyjs/0/commit/2a914378bb38198f632c80347b77ff302c145e58) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(Input): make the `type` prop reactive ([#757](https://github.com/vuetifyjs/0/issues/757))
+
+  `Input.Root`'s `type` prop was destructured once at setup and assigned as a plain
+  value onto `InputRootContext` — every sibling field on the context is a ref or
+  getter, but `type` was not. `Input.Control` read that frozen value, so changing
+  `:type` on `Input.Root` after mount (the classic password reveal-toggle pattern)
+  never reached the rendered `<input>`'s DOM `type` attribute.
+
+  `type` is now placed on the context as `toRef(() => type)`, and `Input.Control`
+  reads `root.type.value`, matching how every other reactive context field is
+  consumed.
+
+- [#772](https://github.com/vuetifyjs/0/pull/772) [`000304c`](https://github.com/vuetifyjs/0/commit/000304c4de2a10576a6b4af3981cd4c4019ad60b) Thanks [@johnleider](https://github.com/johnleider)! - fix(NumberField): default accessible name on the spinbutton ([#772](https://github.com/vuetifyjs/0/issues/772))
+
+  `NumberField.Control` rendered no accessible name unless a `label` or `ariaLabelledby` prop was set, failing the axe `label` rule in the documented default shape. The spinbutton now falls back to the locale-driven `NumberField.label` message (default: "Number"), matching the increment/decrement buttons. Providing `label` or `ariaLabelledby` overrides the default as before.
+
+- [#640](https://github.com/vuetifyjs/0/pull/640) [`a75e37f`](https://github.com/vuetifyjs/0/commit/a75e37ff5eec5dfa31724622b8e5f52faceca9e4) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(NumberField): add `ariaLabelledby` prop for `aria-labelledby` on the spinbutton ([#640](https://github.com/vuetifyjs/0/issues/640))
+
+  `NumberField.Control` previously only supported accessible naming via the `label` string prop, rendered as `aria-label`. Consumers who render a visible `<label>` element outside the component had no way to wire it to the spinbutton. `ariaLabelledby` now flows through `NumberField.Root`'s context and renders as `aria-labelledby` on the spinbutton, suppressing `aria-label` when both are set to avoid a conflicting accessible name.
+
+- [#638](https://github.com/vuetifyjs/0/pull/638) [`7ead8a0`](https://github.com/vuetifyjs/0/commit/7ead8a036b2897bf101aabfe7205e595fe1e64bc) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(Progress): only emit `aria-labelledby` when `Progress.Label` is mounted ([#638](https://github.com/vuetifyjs/0/issues/638))
+
+  `Progress.Root` unconditionally emitted `aria-labelledby` pointing to a label id even when no `Progress.Label` child was mounted, creating a dangling IDREF that assistive technology could misreport. `aria-labelledby` is now conditional on a label actually being present, and a new `ariaLabel` prop covers the case where no visible label exists but an accessible name is still needed.
+
+- [#769](https://github.com/vuetifyjs/0/pull/769) [`5457353`](https://github.com/vuetifyjs/0/commit/54573531313765a2c475fdc2629b7e750b63e2e6) Thanks [@johnleider](https://github.com/johnleider)! - fix(useResizeObserver): report the content box from `immediate` entries ([#729](https://github.com/vuetifyjs/0/issues/729))
+
+  With `immediate: true`, the first synthesized entry's `contentRect` carried border-box dimensions in viewport coordinates, scaled by CSS transforms — every later entry from the observer reports the content box with padding offsets. The immediate entry now matches native semantics: `width`/`height` are the content box and `top`/`left` are the computed padding offsets, so `useElementSize` reports content-box dimensions from mount instead of jumping on the first resize.
+
+- [#771](https://github.com/vuetifyjs/0/pull/771) [`a9b7da7`](https://github.com/vuetifyjs/0/commit/a9b7da77ea484fa50b3276140d157d16f47f85cf) Thanks [@johnleider](https://github.com/johnleider)! - fix(Slider): default accessible name via locale when unlabeled ([#771](https://github.com/vuetifyjs/0/issues/771))
+
+  `Slider.Thumb` rendered `role="slider"` with no accessible name unless `ariaLabel` or `ariaLabelledby` was passed, failing axe's `aria-input-field-name` rule (serious) out of the box. The thumb now defaults its `aria-label` to the localized `Slider.label` message, falling back to "Slider", and skips the default when `ariaLabelledby` is provided so the referenced label wins.
+
+- [#781](https://github.com/vuetifyjs/0/pull/781) [`9bf5b4c`](https://github.com/vuetifyjs/0/commit/9bf5b4c6541b4ee21a3a4e91a7429d8d2a342eaf) Thanks [@johnleider](https://github.com/johnleider)! - fix(Snackbar): stop inline position:relative from overriding portal positioning ([#781](https://github.com/vuetifyjs/0/issues/781))
+
+  Your positioning classes on `Snackbar.Portal` (`absolute`, `fixed`, …) work again — the slot style now carries only `zIndex`. A wrapper that is still `position: static` after mount gets `position: relative` applied automatically, so the stacking-context guarantee from [#602](https://github.com/vuetifyjs/0/issues/602) is preserved. In renderless mode, make sure the wrapper you render is positioned for the z-index to take effect.
+
+- [#633](https://github.com/vuetifyjs/0/pull/633) [`cd59970`](https://github.com/vuetifyjs/0/commit/cd5997070e349ae1e00a31eedac798f452db2cf4) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(Group,Selection,Single,Step): complete the provider Item ARIA contract ([#613](https://github.com/vuetifyjs/0/issues/613))
+
+  `aria-selected` is only valid on roles like `option` and `tab`, so the state the provider Items emitted was ignored by assistive technology. SelectionItem and SingleItem now emit `role="option"`, StepItem emits `role="tab"`, and all four Item families (including GroupItem's existing `role="checkbox"`) ship `tabindex` plus Enter/Space (Space for checkbox) keyboard activation so the bound element is operable without consumer completion.
+
+- [#773](https://github.com/vuetifyjs/0/pull/773) [`47342cf`](https://github.com/vuetifyjs/0/commit/47342cf22f819052246125893032f1b1b5bba151) Thanks [@johnleider](https://github.com/johnleider)! - fix(Rating): name the slider and drop focusable stars from examples ([#773](https://github.com/vuetifyjs/0/issues/773))
+
+  `Rating.Root` now exposes `ariaLabel` and `ariaLabelledby` props and always emits an accessible name on the `role="slider"` element — a locale-driven "Rating" default applies when neither is set. Documented examples no longer render `Rating.Item` as `<button>`, so the slider contains no focusable descendants; items stay non-focusable spans and click-to-select is unchanged.
+
+- [#775](https://github.com/vuetifyjs/0/pull/775) [`8191795`](https://github.com/vuetifyjs/0/commit/8191795fa4303dc3cece185137daad2581d924b7) Thanks [@johnleider](https://github.com/johnleider)! - docs(Select): fix double role=option in Item examples ([#775](https://github.com/vuetifyjs/0/issues/775))
+
+  The documented `Select.Item` and `Combobox.Item` usage spread the slot `attrs` onto an inner element inside a non-renderless Item, so following it produced a nested duplicate `role="option"` (axe `aria-required-parent`, critical) and click handlers that fired twice. The Treeview `Cue`/`Checkbox`/`Indicator`/`SelectAll` and Radio `Root`/`Group` examples had the same shape. If you copied any of these, remove the inner `v-bind="attrs"` spread and put your content directly in the slot — or add `renderless` so your element is the only one rendered.
+
+- [#774](https://github.com/vuetifyjs/0/pull/774) [`77f1f59`](https://github.com/vuetifyjs/0/commit/77f1f593f130940e5cefce02895a8c452293afbe) Thanks [@johnleider](https://github.com/johnleider)! - fix(Snackbar): announce toasts via persistent portal live regions
+
+  `Snackbar.Portal` now auto-renders a new `Snackbar.Announcer` — a visually-hidden polite + assertive live-region pair, empty from app start — and each `Snackbar.Root` mirrors its rendered text into the matching region on mount (`urgent` routes to the assertive/alert region), so screen readers reliably announce the first toast, including on NVDA where JS-injected `role="status"` regions are not announced. Toast content renders immediately with no delay; identical consecutive messages re-announce. Pass `:announcer="false"` on the Portal to omit the pair or place `<Snackbar.Announcer>` yourself; a bare `Snackbar.Root` without a Portal keeps its role attributes as best-effort.
+
 ## 1.0.2
 
 ### Patch Changes

@@ -41,6 +41,19 @@ app.use(createNotificationsPlugin())
 app.mount('#app')
 ```
 
+### Persistence
+
+Pass `persist: true` to remember the notification registry across reloads. Requires [useStorage](/composables/plugins/use-storage) to be installed first. Tickets are stored under the key `notifications` (the plugin namespace with the `v0:` prefix stripped).
+
+```ts main.ts
+import { createStoragePlugin, createNotificationsPlugin } from '@vuetify/v0'
+
+app.use(createStoragePlugin())
+app.use(createNotificationsPlugin({ persist: true }))
+```
+
+Give tickets a stable `id` — generated ids accumulate on every reload. Unknown or malformed stored entries are ignored. On load, persisted tickets win over an adapter's first snapshot; later adapter updates still overlay live remote state.
+
 ## Usage
 
 Once the plugin is installed, use the `useNotifications` composable in any component:
@@ -388,6 +401,10 @@ The `severity` field categorizes notifications by urgency. It maps to ARIA live 
 ??? What's the difference between `send()` and `register()`?
 
 `send()` registers a notification and enqueues it for toast display — use it for real-time, in-the-moment events. `register()` adds it to the registry only, with no toast, which is what you want when loading historical or initial notifications.
+
+??? How do I persist notifications across reloads?
+
+Pass `persist: true` to `createNotificationsPlugin`, and install `createStoragePlugin` first. The saved value is the list of identified tickets (including `snoozedUntil`). On load it is reconciled against the registry and wins over an adapter's first snapshot.
 
 ??? How do I keep a notification from auto-dismissing?
 

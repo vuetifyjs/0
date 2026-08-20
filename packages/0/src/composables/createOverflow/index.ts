@@ -51,7 +51,7 @@ import { useElementSize } from '#v0/composables/useResizeObserver'
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { isUndefined } from '#v0/utilities'
+import { isUndefined, pxToNumber } from '#v0/utilities'
 import { computed, shallowRef, toRef, toValue } from 'vue'
 
 // Types
@@ -183,7 +183,7 @@ export function createOverflow<
     if (!IN_BROWSER) return
 
     const style = getComputedStyle(el)
-    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    const marginX = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
     const w = ((el as HTMLElement).offsetWidth || 0) + marginX
 
     if (widths.value.get(index) !== w) {

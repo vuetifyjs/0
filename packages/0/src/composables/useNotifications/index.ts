@@ -30,7 +30,7 @@ import { createQueue } from '#v0/composables/createQueue'
 import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
-import { isFunction, isNull, isUndefined, useId } from '#v0/utilities'
+import { isArray, isNaN, isNull, isNumber, isObject, isString, isUndefined, useId } from '#v0/utilities'
 
 // Types
 import type { QueueContext } from '#v0/composables/createQueue'
@@ -568,7 +568,96 @@ export function createNotifications (
 export interface NotificationsPluginOptions extends NotificationsOptions {
   namespace?: string
   adapter?: NotificationsAdapter
+  /**
+   * Persist the notification registry to storage and restore it on load.
+   *
+   * @remarks Serializes each ticket's durable fields (ids, copy, timestamps).
+   * The storage key is the plugin namespace with the `v0:` prefix stripped
+   * (`notifications`). On load, persisted tickets win over an adapter's first
+   * snapshot. Later adapter updates still overlay live remote state.
+   *
+   * Intended for registries of identified notifications. Tickets sent without
+   * a stable `id` will accumulate across reloads.
+   *
+   * @default false
+   */
+  persist?: boolean
 }
+
+/** Serializable snapshot of a notification's durable state. */
+interface PersistedNotification {
+  id: ID
+  subject?: string
+  body?: string
+  severity?: NotificationSeverity
+  data?: Record<string, unknown>
+  timeout?: number
+  createdAt: string | null
+  readAt: string | null
+  seenAt: string | null
+  archivedAt: string | null
+  snoozedUntil: string | null
+}
+
+function toPersisted (ticket: NotificationTicket): PersistedNotification {
+  return {
+    id: ticket.id,
+    subject: ticket.subject,
+    body: ticket.body,
+    severity: ticket.severity,
+    data: ticket.data,
+    timeout: ticket.timeout,
+    createdAt: ticket.createdAt?.toISOString() ?? null,
+    readAt: ticket.readAt?.toISOString() ?? null,
+    seenAt: ticket.seenAt?.toISOString() ?? null,
+    archivedAt: ticket.archivedAt?.toISOString() ?? null,
+    snoozedUntil: ticket.snoozedUntil?.toISOString() ?? null,
+  }
+}
+
+function toDate (value: unknown): Date | null {
+  if (!isString(value)) return null
+
+  const date = new Date(value)
+
+  return isNaN(date.getTime()) ? null : date
+}
+
+function replay (context: NotificationsContext, saved: unknown) {
+  if (!isArray(saved)) return
+
+  for (const entry of saved) {
+    if (!isObject(entry)) continue
+    if (!isString(entry.id) && !isNumber(entry.id)) continue
+
+    const persisted = entry as unknown as PersistedNotification
+    const ticket = context.has(persisted.id)
+      ? context.get(persisted.id)!
+      : context.register({
+          id: persisted.id,
+          subject: persisted.subject,
+          body: persisted.body,
+          severity: persisted.severity,
+          data: persisted.data,
+          timeout: persisted.timeout,
+        })
+
+    context.upsert(ticket.id, {
+      subject: persisted.subject,
+      body: persisted.body,
+      severity: persisted.severity,
+      data: persisted.data,
+      timeout: persisted.timeout,
+      createdAt: toDate(persisted.createdAt) ?? ticket.createdAt,
+      readAt: toDate(persisted.readAt),
+      seenAt: toDate(persisted.seenAt),
+      archivedAt: toDate(persisted.archivedAt),
+      snoozedUntil: toDate(persisted.snoozedUntil),
+    } as Partial<NotificationTicket>)
+  }
+}
+
+const restored = new WeakMap<NotificationsContext, unknown>()
 
 // Fallback
 function noop () {}
@@ -683,6 +772,11 @@ export const [createNotificationsContext, createNotificationsPlugin, useNotifica
     options => createNotifications(options),
     {
       fallback: () => createNotificationsFallback(),
+      persist: context => context.values().map(toPersisted),
+      restore: (context, saved) => {
+        restored.set(context, saved)
+        replay(context, saved)
+      },
       setup: (context, app, options) => {
         app.onUnmount(() => {
           context.dispose()
@@ -699,9 +793,12 @@ export const [createNotificationsContext, createNotificationsPlugin, useNotifica
           off: context.off,
         })
 
-        if (isFunction(adapter.dispose)) {
-          app.onUnmount(() => adapter.dispose!())
-        }
+        app.onUnmount(() => adapter.dispose?.())
+
+        // Adapter setup writes after restore. Re-apply so persist wins the
+        // first snapshot; later adapter updates still overlay live remote state.
+        const saved = restored.get(context)
+        if (!isUndefined(saved)) replay(context, saved)
       },
     },
   )

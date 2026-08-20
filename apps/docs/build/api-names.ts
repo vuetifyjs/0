@@ -10,8 +10,28 @@ import { fileURLToPath } from 'node:url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '../../..')
 const COMPONENTS_DIR = resolve(ROOT, 'packages/0/src/components')
+const COMPONENTS_BARREL = resolve(COMPONENTS_DIR, 'index.ts')
 const COMPOSABLES_DIR = resolve(ROOT, 'packages/0/src/composables')
 const COMPOSABLES_BARREL = resolve(COMPOSABLES_DIR, 'index.ts')
+
+/**
+ * Read the public surface from a barrel (index.ts).
+ *
+ * Discovery must mirror the public API, not the filesystem. Every barrel line is
+ * `export * from './<dirName>'`, so this is the single source of truth for what
+ * is public — a new internal directory is excluded automatically with no
+ * blocklist to maintain.
+ */
+async function getPublicDirs (barrel: string): Promise<Set<string>> {
+  const content = await readFile(barrel, 'utf8')
+  const dirs = new Set<string>()
+
+  for (const match of content.matchAll(/export\s+\*\s+from\s+'\.\/([^']+)'/g)) {
+    dirs.add(match[1])
+  }
+
+  return dirs
+}
 
 export interface ApiNameInfo {
   name: string
@@ -53,9 +73,17 @@ export function toCamel (str: string): string {
  */
 async function getComponentNames (): Promise<ApiNameInfo[]> {
   const names: ApiNameInfo[] = []
-  const dirs = await readdir(COMPONENTS_DIR)
+  const [dirs, publicDirs] = await Promise.all([
+    readdir(COMPONENTS_DIR),
+    getPublicDirs(COMPONENTS_BARREL),
+  ])
 
   for (const dir of dirs) {
+    // Only components re-exported from the public barrel are part of the API.
+    // `components/fixtures/` holds .vue test fixtures, not components — without
+    // this it mints an orphan /api/fixtures page with no API data.
+    if (!publicDirs.has(dir)) continue
+
     const dirPath = resolve(COMPONENTS_DIR, dir)
     const entries = await readdir(dirPath).catch(() => [])
 
@@ -75,29 +103,6 @@ async function getComponentNames (): Promise<ApiNameInfo[]> {
 }
 
 /**
- * Read the public composable surface from the barrel (index.ts).
- *
- * Discovery must mirror the public API, not the filesystem. Internal-only
- * composables (e.g., createFocusTraversal, createObserver) live in their own
- * directories but are never re-exported, so they must not leak into the SSG
- * routes or nav — otherwise they mint orphan /api/:name pages with no matching
- * docs page or API data. The barrel is the single source of truth: every line
- * is `export * from './<dirName>'`. This mirrors generate-api.ts and
- * generate-api-whitelist.ts, so a new internal composable is excluded
- * automatically with no blocklist to maintain.
- */
-async function getPublicComposableDirs (): Promise<Set<string>> {
-  const content = await readFile(COMPOSABLES_BARREL, 'utf8')
-  const dirs = new Set<string>()
-
-  for (const match of content.matchAll(/export\s+\*\s+from\s+'\.\/([^']+)'/g)) {
-    dirs.add(match[1])
-  }
-
-  return dirs
-}
-
-/**
  * Discover all composable names from the packages/0/src/composables directory.
  * Only includes directories re-exported from the public barrel that have an
  * index.ts file.
@@ -106,7 +111,7 @@ async function getComposableNames (): Promise<ApiNameInfo[]> {
   const names: ApiNameInfo[] = []
   const [dirs, publicDirs] = await Promise.all([
     readdir(COMPOSABLES_DIR),
-    getPublicComposableDirs(),
+    getPublicDirs(COMPOSABLES_BARREL),
   ])
 
   for (const dir of dirs) {

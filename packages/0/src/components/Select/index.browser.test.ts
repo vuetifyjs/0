@@ -514,6 +514,20 @@ describe('select', () => {
       expect(activator.attributes('data-open')).toBe('true')
     })
 
+    it('should set data-disabled on activator when disabled', async () => {
+      const { wrapper } = await createSelect({ id: 'a11y-disabled-test', disabled: true })
+
+      const activator = wrapper.findComponent(Select.Activator as any)
+      expect(activator.attributes('data-disabled')).toBe('true')
+    })
+
+    it('should not set data-disabled on activator when not disabled', async () => {
+      const { wrapper } = await createSelect({ id: 'a11y-enabled-test' })
+
+      const activator = wrapper.findComponent(Select.Activator as any)
+      expect(activator.attributes('data-disabled')).toBeUndefined()
+    })
+
     it('should have role=option on items', async () => {
       const { itemSlotProps } = await createSelect()
 

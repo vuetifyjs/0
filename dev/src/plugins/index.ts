@@ -3,7 +3,7 @@ import { materialPalette, tailwindPalette } from './palettes'
 // Types
 import type { App } from 'vue'
 
-export function registerPlugins (app: App) {
+export function registerPlugins (app: App, options: { playgroundTheme?: boolean } = {}) {
   app.use(
     createFeaturesPlugin({
       features: {
@@ -48,6 +48,8 @@ export function registerPlugins (app: App) {
       },
     }),
   )
+
+  if (options.playgroundTheme === false) return
 
   app.use(
     createThemePlugin({
