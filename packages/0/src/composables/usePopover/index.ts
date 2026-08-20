@@ -112,7 +112,7 @@ export interface PopoverReturn {
   /** Attach to a content element — wires show/hide watch + toggle event sync */
   attach: (el: MaybeRefOrGetter<HTMLElement | null | undefined>) => void
   /** Register the activator/reference element with the positioning adapter */
-  attachAnchor: (el: MaybeRefOrGetter<HTMLElement | null | undefined>) => void
+  attachAnchor: (el: MaybeRefOrGetter<Element | null | undefined>) => void
 }
 
 export function usePopover (options: PopoverOptions = {}): PopoverReturn {
@@ -162,7 +162,7 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
     popover: '',
   }))
 
-  const anchorEl = shallowRef<HTMLElement | null | undefined>()
+  const anchorEl = shallowRef<Element | null | undefined>()
   const contentEl = shallowRef<HTMLElement | null | undefined>()
   const placement = toRef(() => derivePlacement(positionArea))
 
@@ -179,7 +179,7 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
   // scope (e.g. directly in tests), which would otherwise warn.
   onScopeDispose(() => adapter.dispose?.(), true)
 
-  function attachAnchor (el: MaybeRefOrGetter<HTMLElement | null | undefined>) {
+  function attachAnchor (el: MaybeRefOrGetter<Element | null | undefined>) {
     watch(() => toValue(el), value => {
       anchorEl.value = value
     }, { immediate: true })

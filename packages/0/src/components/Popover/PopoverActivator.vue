@@ -9,8 +9,20 @@
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
+  // Context
+  import { usePopoverContext } from './PopoverRoot.vue'
+
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
+  // Utilities
+  import { toRef, toValue, useTemplateRef } from 'vue'
+
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
 
   export interface PopoverActivatorProps extends AtomProps {
     /** Target popover ID (defaults to parent PopoverRoot id) */
@@ -36,15 +48,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Context
-  import { usePopoverContext } from './PopoverRoot.vue'
-
-  // Utilities
-  import { toRef, toValue, useTemplateRef } from 'vue'
-
   defineOptions({ name: 'PopoverActivator' })
 
   defineSlots<{
@@ -55,13 +58,13 @@
 
   const context = usePopoverContext()
 
-  const ref = useTemplateRef('ref')
+  const atomRef = useTemplateRef<AtomExpose>('atom')
 
   // Only the default target (the parent PopoverRoot's own popover) has a
   // positioning-adapter context to register with - a custom `target` points
   // at a different, unrelated popover instance's context.
   if (!target) {
-    context.attachAnchor(() => ref.value?.element)
+    context.attachAnchor(() => toElement(atomRef.value?.element) ?? null)
   }
 
   const popovertarget = toRef(() => target ?? context.id)
@@ -98,7 +101,7 @@
 
 <template>
   <Atom
-    ref="ref"
+    ref="atom"
     :as
     :renderless
     v-bind="slotProps.attrs"

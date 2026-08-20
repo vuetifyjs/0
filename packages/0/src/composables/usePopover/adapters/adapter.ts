@@ -23,7 +23,7 @@ export interface PopoverAdapterContext {
   /** CSS anchor-name custom ident (e.g. `--popover-abc123`). */
   anchorName: string
   /** The activator/reference element, once registered via `attachAnchor()`. */
-  anchorEl: Readonly<Ref<HTMLElement | null | undefined>>
+  anchorEl: Readonly<Ref<Element | null | undefined>>
   /** The content/floating element, once registered via `attach()`. */
   contentEl: Readonly<Ref<HTMLElement | null | undefined>>
   /** Whether the popover is currently open. */
