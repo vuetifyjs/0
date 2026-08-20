@@ -6,7 +6,7 @@
  * Prevents full page reloads for same-origin navigation in markdown content.
  *
  * Key features:
- * - Skips external links, file downloads, and new-tab links
+ * - Skips external links, same-origin demo apps, file downloads, and new-tab links
  * - Handles paths with query strings and hash fragments
  * - Smooth scrolls to hash anchors (respects reduced motion preference)
  * - Automatically cleaned up on component unmount
@@ -50,9 +50,10 @@ export function useRouterLinks (
     const href = anchor.getAttribute('href')
     if (!href) return
 
-    // Skip: external links, file downloads, new tab links
+    // Skip: external links, same-origin demo apps, file downloads, new tab links
     if (
       /^https?:\/\//i.test(href) ||
+      href.startsWith('/demo/') ||
       DOWNLOAD_EXTENSIONS.test(href) ||
       anchor.hasAttribute('target')
     ) return
