@@ -113,7 +113,6 @@ describe('virtualizer', () => {
     const wrapper = mount({
       setup () {
         provideVirtualizerRoot('v0:virtualizer:root', {
-          itemsLength: { value: 10 } as any,
           resize,
         } as any)
         return () => h(Virtualizer.Item as any, { index: 3 }, () => 'content')
@@ -124,6 +123,32 @@ describe('virtualizer', () => {
     expect(resize).toHaveBeenCalledWith(3, 88)
     wrapper.unmount()
     restore()
+  })
+
+  it('should ignore resize callbacks with no entries', async () => {
+    const real = globalThis.ResizeObserver
+    globalThis.ResizeObserver = vi.fn(function (this: unknown, callback: ResizeObserverCallback) {
+      return {
+        observe: () => callback([], this as ResizeObserver),
+        unobserve: () => {},
+        disconnect: () => {},
+      }
+    }) as unknown as typeof ResizeObserver
+    const resize = vi.fn()
+
+    const wrapper = mount({
+      setup () {
+        provideVirtualizerRoot('v0:virtualizer:root', {
+          resize,
+        } as any)
+        return () => h(Virtualizer.Item as any, { index: 0 }, () => 'content')
+      },
+    })
+    await nextTick()
+
+    expect(resize).not.toHaveBeenCalled()
+    wrapper.unmount()
+    globalThis.ResizeObserver = real
   })
 
   it('should expose scrollTo and reset via the default slot', () => {
@@ -141,6 +166,62 @@ describe('virtualizer', () => {
 
     expect(typeof captured?.scrollTo).toBe('function')
     expect(typeof captured?.reset).toBe('function')
+  })
+
+  it('should size the scroll container from the height prop', () => {
+    const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
+
+    const px = mount(Virtualizer.Root, { props: { items, itemHeight: 40, height: 500 } })
+    expect((px.element as HTMLElement).style.height).toBe('500px')
+    expect((px.element as HTMLElement).style.overflowY).toBe('auto')
+
+    const rem = mount(Virtualizer.Root, { props: { items, itemHeight: 40, height: '20rem' } })
+    expect((rem.element as HTMLElement).style.height).toBe('20rem')
+
+    const bare = mount(Virtualizer.Root, { props: { items, itemHeight: 40 } })
+    expect((bare.element as HTMLElement).style.height).toBe('')
+    expect((bare.element as HTMLElement).style.overflowY).toBe('auto')
+  })
+
+  it('should shift the rendered window when the container is scrolled', async () => {
+    const items = Array.from({ length: 1000 }, (_, i) => ({ id: i }))
+    let visible: readonly { index: number }[] = []
+    const wrapper = mount(Virtualizer.Root, {
+      props: { items, itemHeight: 40, height: 500 },
+      slots: {
+        default: (props: { items: readonly { index: number }[] }) => {
+          visible = props.items
+          return []
+        },
+      },
+    })
+    await nextTick()
+
+    expect(visible[0]!.index).toBe(0)
+
+    wrapper.element.scrollTop = 4000
+    await wrapper.trigger('scroll')
+    // scroll() defers its window recalculation to requestAnimationFrame
+    await new Promise(resolve => requestAnimationFrame(resolve))
+    await nextTick()
+
+    expect(visible[0]!.index).toBeGreaterThan(0)
+    expect(wrapper.find('[data-virtualizer-spacer="start"]').attributes('style')).not.toContain('height: 0px')
+  })
+
+  it('should pair Root and Item through a custom namespace', async () => {
+    const items = Array.from({ length: 30 }, (_, i) => ({ id: i }))
+    const namespace = 'v0:virtualizer:custom'
+    const wrapper = mount(Virtualizer.Root, {
+      props: { items, itemHeight: 40, height: 500, namespace },
+      slots: {
+        default: (props: { items: readonly { index: number }[] }) =>
+          props.items.map(item => h(Virtualizer.Item as any, { key: item.index, index: item.index, namespace }, () => String(item.index))),
+      },
+    })
+    await nextTick()
+
+    expect(wrapper.find('[data-virtualizer-index="0"]').exists()).toBe(true)
   })
 
   it('should react to items changing', async () => {
