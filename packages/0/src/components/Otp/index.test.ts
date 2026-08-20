@@ -587,4 +587,121 @@ describe('otp', () => {
       expect(document.activeElement).toBe(itemEls()[2]!.element)
     })
   })
+
+  describe('guards', () => {
+    it('should skip beforeinput handling while disabled or readonly', async () => {
+      for (const prop of ['disabled', 'readonly'] as const) {
+        const { itemEls, wait } = mountOtp({ length: 2, props: { [prop]: true } })
+        await wait()
+
+        const input = itemEls()[0]!.element as HTMLInputElement
+        const event = new Event('beforeinput', { cancelable: true }) as InputEvent
+        Object.defineProperty(event, 'data', { value: 'x' })
+        Object.defineProperty(event, 'target', { value: input })
+        input.dispatchEvent(event)
+
+        expect(event.defaultPrevented).toBe(false)
+      }
+    })
+
+    it('should ignore arrow keys while disabled or readonly', async () => {
+      for (const prop of ['disabled', 'readonly'] as const) {
+        const { itemEls, wait } = mountOtp({ length: 2, props: { [prop]: true } })
+        await wait()
+
+        await itemEls()[0]!.trigger('keydown', { key: 'ArrowRight' })
+        await wait()
+
+        expect(document.activeElement).not.toBe(itemEls()[1]!.element)
+      }
+    })
+
+    it('should leave backspace on a filled box to the native input', async () => {
+      const model = ref('12')
+      const { itemEls, wait } = mountOtp({ model, length: 3 })
+      await wait()
+
+      const input = itemEls()[1]!.element as HTMLInputElement
+      const event = new KeyboardEvent('keydown', { key: 'Backspace', cancelable: true })
+      input.dispatchEvent(event)
+      await wait()
+
+      expect(event.defaultPrevented).toBe(false)
+      expect(model.value).toBe('12')
+    })
+
+    it('should ignore unrelated keys', async () => {
+      const model = ref('1')
+      const { itemEls, wait } = mountOtp({ model, length: 3 })
+      await wait()
+
+      const first = itemEls()[0]!.element as HTMLInputElement
+      first.focus()
+      await itemEls()[0]!.trigger('keydown', { key: 'Tab' })
+      await wait()
+
+      expect(model.value).toBe('1')
+      expect(document.activeElement).toBe(first)
+    })
+
+    it('should not distribute while readonly', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, props: { readonly: true } })
+      await wait()
+
+      const dataTransfer = { getData: () => '1234' }
+      await itemEls()[0]!.trigger('paste', { clipboardData: dataTransfer })
+      await wait()
+
+      expect(model.value).toBe('')
+    })
+
+    it('should treat a paste without clipboard data as empty', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 3 })
+      await wait()
+
+      await itemEls()[0]!.trigger('paste')
+      await wait()
+
+      expect(model.value).toBe('')
+    })
+  })
+
+  describe('renderless', () => {
+    it('should drive a consumer-rendered input through slot attrs', async () => {
+      const model = ref('')
+
+      const wrapper: VueWrapper = mount(Otp.Root, {
+        props: {
+          'length': 2,
+          'modelValue': model.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            model.value = v as string
+            wrapper.setProps({ modelValue: v })
+          },
+        },
+        slots: {
+          default: () => Array.from({ length: 2 }, (_, i) =>
+            h(Otp.Item as any, { key: i, index: i, renderless: true }, {
+              default: (props: { attrs: Record<string, unknown>, state: string }) =>
+                h('input', { ...props.attrs, 'data-custom': props.state }),
+            }),
+          ),
+        },
+        attachTo: document.body,
+      })
+      await nextTick()
+
+      const inputs = wrapper.findAll('input')
+      expect(inputs).toHaveLength(2)
+      expect(inputs[0]!.attributes('data-custom')).toBe('empty')
+
+      await inputs[0]!.setValue('4')
+      await nextTick()
+
+      expect(model.value).toBe('4')
+      expect(inputs[0]!.attributes('data-custom')).toBe('filled')
+    })
+  })
 })
