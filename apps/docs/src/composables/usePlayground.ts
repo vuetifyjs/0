@@ -1,5 +1,5 @@
 // Framework
-import { isObject, isString } from '@vuetify/v0'
+import { isBoolean, isObject, isString, isUndefined } from '@vuetify/v0'
 
 // Utilities
 import { toPascal } from '@/utilities/strings'
@@ -104,18 +104,53 @@ function playgroundBase () {
   return import.meta.env.VITE_PLAYGROUND_URL ?? 'https://v0play.vuetifyjs.com'
 }
 
+export interface UsePlaygroundOptions {
+  dir?: string
+  imports?: Record<string, string>
+  settings?: PlaygroundHashSettings
+  /** Selected sandbox theme id. */
+  theme?: string
+  /** Theme records merged into the sandbox `createThemePlugin`. */
+  themes?: Record<string, PlaygroundThemeDefinition>
+}
+
 /**
- * Get editor URL for multiple files.
- * When dir is provided, files are nested under src/{dir}/.
+ * Build a v0play URL for the given files.
+ *
+ * Pass `theme` + `themes` to install any theme in the sandbox — docs
+ * palettes, a builder export, or a one-off custom record. `dir` still
+ * accepted as a positional string for older callers.
+ *
+ * @example
+ * ```ts
+ * const url = await usePlayground(files, {
+ *   ...toPlaygroundThemes('brand-light', {
+ *     'brand-light': { dark: false, colors: { primary: '#7453ec', background: '#fff' } },
+ *     'brand-dark': { dark: true, colors: { primary: '#c4b5fd', background: '#121212' } },
+ *   }),
+ * })
+ * ```
  */
 export async function usePlayground (
   inputFiles: PlaygroundFile[],
-  dir?: string,
+  dirOrOptions?: string | UsePlaygroundOptions,
   imports?: Record<string, string>,
 ): Promise<string> {
-  const files = buildPlaygroundFiles(inputFiles, dir)
+  let options: UsePlaygroundOptions
+  if (isString(dirOrOptions)) {
+    options = { dir: dirOrOptions, imports }
+  } else if (isObject(dirOrOptions)) {
+    options = dirOrOptions
+  } else {
+    options = { imports }
+  }
+
+  const files = buildPlaygroundFiles(inputFiles, options.dir)
   const data: PlaygroundHashData = { files }
-  if (imports && Object.keys(imports).length > 0) data.imports = imports
+  if (options.imports && Object.keys(options.imports).length > 0) data.imports = options.imports
+  if (options.settings && Object.keys(options.settings).length > 0) data.settings = options.settings
+  if (options.theme) data.theme = options.theme
+  if (options.themes && Object.keys(options.themes).length > 0) data.themes = options.themes
   const hash = await encodePlaygroundHash(data)
   return `${playgroundBase()}/#${hash}`
 }
@@ -129,6 +164,8 @@ export interface PlaygroundRegistryRef {
   type?: 'components' | 'composables'
   /** Override docs registry origin. */
   registry?: string
+  /** Sandbox default theme id (`light` / `dark` / palette id). */
+  theme?: string
 }
 
 /**
@@ -158,6 +195,7 @@ export function playgroundRegistryUrl (ref: PlaygroundRegistryRef): string {
     params.set('example', ref.item)
   }
   if (ref.registry) params.set('registry', ref.registry)
+  if (ref.theme) params.set('theme', ref.theme)
   return `${playgroundBase()}/?${params}`
 }
 
@@ -189,10 +227,96 @@ function isFileRecord (v: unknown): v is Record<string, string> {
   return isObject(v) && Object.values(v).every(x => isString(x))
 }
 
+export interface PlaygroundThemeDefinition {
+  dark: boolean
+  colors: Record<string, string>
+}
+
+export interface PlaygroundHashSettings {
+  vue?: string
+  v0?: string
+  vuetify?: string
+  vuetifyNightly?: boolean
+  preset?: string
+  addons?: string
+}
+
 export interface PlaygroundHashData {
   files: Record<string, string>
   active?: string
   imports?: Record<string, string>
+  settings?: PlaygroundHashSettings
+  /** Selected sandbox theme id. */
+  theme?: string
+  /** Theme records merged into the sandbox `createThemePlugin`. */
+  themes?: Record<string, PlaygroundThemeDefinition>
+}
+
+const SAFE_THEME_ID = /^[a-zA-Z][\w-]*$/
+const SAFE_COLOR_KEY = /^[a-zA-Z0-9_-]+$/
+const UNSAFE_CSS = /url\s*\(|src\s*\(|image\s*\(|image-set\s*\(|cross-fade\s*\(|@import|expression\s*\(|[;{}<>\\]|\/\*/i
+const UNSAFE_OBJECT_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+const MAX_THEME_ID = 64
+const MAX_THEMES = 32
+const MAX_COLORS = 64
+const MAX_COLOR_VALUE = 128
+
+export function sanitizeThemeId (id: string): string | undefined {
+  return id.length <= MAX_THEME_ID && SAFE_THEME_ID.test(id) && !UNSAFE_OBJECT_KEYS.has(id)
+    ? id
+    : undefined
+}
+
+function sanitizeColors (colors: Record<string, unknown>): Record<string, string> {
+  const out: Record<string, string> = {}
+  for (const [key, value] of Object.entries(colors)) {
+    if (Object.keys(out).length >= MAX_COLORS) break
+    if (
+      key.length > MAX_THEME_ID
+      || !SAFE_COLOR_KEY.test(key)
+      || UNSAFE_OBJECT_KEYS.has(key)
+      || !isString(value)
+      || value.length === 0
+      || value.length > MAX_COLOR_VALUE
+      || UNSAFE_CSS.test(value)
+    ) continue
+    out[key] = value
+  }
+  return out
+}
+
+/**
+ * Pack any theme records for a v0play hash. Docs, the builder, or a host
+ * app can call this — v0play merges `themes` into the sandbox plugin and
+ * selects `theme`. Color aliases must already be resolved.
+ *
+ * @example
+ * ```ts
+ * toPlaygroundThemes('brand-light', {
+ *   'brand-light': { dark: false, colors: { primary: '#7453ec', background: '#ffffff' } },
+ *   'brand-dark': { dark: true, colors: { primary: '#c4b5fd', background: '#121212' } },
+ * })
+ * ```
+ */
+export function toPlaygroundThemes (
+  selected: string,
+  records: Record<string, { dark?: boolean, colors?: Record<string, unknown> }>,
+): Pick<PlaygroundHashData, 'theme' | 'themes'> | undefined {
+  const theme = sanitizeThemeId(selected)
+  if (!theme) return undefined
+
+  const themes: Record<string, PlaygroundThemeDefinition> = {}
+  for (const [id, def] of Object.entries(records)) {
+    if (Object.keys(themes).length >= MAX_THEMES) break
+    const safeId = sanitizeThemeId(id)
+    if (!safeId || !def.colors) continue
+    const colors = sanitizeColors(def.colors)
+    if (Object.keys(colors).length === 0) continue
+    themes[safeId] = { dark: def.dark === true, colors }
+  }
+
+  if (Object.keys(themes).length === 0) return { theme }
+  return { theme, themes }
 }
 
 /**
@@ -202,9 +326,45 @@ export async function encodePlaygroundHash (data: PlaygroundHashData): Promise<s
   return utoa(JSON.stringify(data))
 }
 
+function isPlaygroundTheme (v: unknown): v is PlaygroundThemeDefinition {
+  if (!isObject(v)) return false
+  const theme = v as Record<string, unknown>
+  if (!isBoolean(theme.dark) || !isObject(theme.colors)) return false
+  const colors = theme.colors as Record<string, unknown>
+  return Object.values(colors).every(x => isString(x))
+}
+
+function isThemeRecord (v: unknown): v is Record<string, PlaygroundThemeDefinition> {
+  return isObject(v) && Object.values(v as Record<string, unknown>).every(isPlaygroundTheme)
+}
+
+function isValidSettings (v: unknown): v is PlaygroundHashSettings {
+  if (!isObject(v)) return false
+  const settings = v as Record<string, unknown>
+  if (!(isUndefined(settings.vue) || isString(settings.vue))) return false
+  if (!(isUndefined(settings.v0) || isString(settings.v0))) return false
+  if (!(isUndefined(settings.vuetify) || isString(settings.vuetify))) return false
+  if (!(isUndefined(settings.vuetifyNightly) || isBoolean(settings.vuetifyNightly))) return false
+  if (!(isUndefined(settings.preset) || isString(settings.preset))) return false
+  if (!(isUndefined(settings.addons) || isString(settings.addons))) return false
+  return true
+}
+
+function readPlaygroundThemes (parsed: Record<string, unknown>): Pick<PlaygroundHashData, 'theme' | 'themes'> {
+  const settings = isObject(parsed.settings) ? parsed.settings as Record<string, unknown> : undefined
+  const theme = isString(parsed.theme)
+    ? parsed.theme
+    : (isString(settings?.theme) ? settings.theme : undefined)
+  const themesRaw = parsed.themes ?? settings?.themes
+  return {
+    theme,
+    themes: isThemeRecord(themesRaw) ? themesRaw : undefined,
+  }
+}
+
 /**
  * Decode an editor hash back to editor state.
- * Handles both the current { files, active } format and the legacy plain Record<string, string> format.
+ * Handles both the current { files, active, settings? } format and the legacy plain Record<string, string> format.
  */
 export async function decodePlaygroundHash (hash: string): Promise<PlaygroundHashData | null> {
   try {
@@ -218,11 +378,16 @@ export async function decodePlaygroundHash (hash: string): Promise<PlaygroundHas
       && 'files' in parsed
       && isFileRecord((parsed as { files: unknown }).files)
     ) {
-      const { files, active, imports } = parsed as { files: Record<string, string>, active?: unknown, imports?: unknown }
+      const record = parsed as Record<string, unknown>
+      const { files, active, imports, settings } = record
+      const packed = readPlaygroundThemes(record)
       return {
-        files,
+        files: files as Record<string, string>,
         active: isString(active) ? active : undefined,
         imports: isFileRecord(imports) ? imports : undefined,
+        settings: isValidSettings(settings) ? settings : undefined,
+        theme: packed.theme,
+        themes: packed.themes,
       }
     }
     return null

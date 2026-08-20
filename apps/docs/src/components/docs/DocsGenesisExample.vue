@@ -17,16 +17,18 @@
   import {
     playgroundRegistryUrl,
     registryRefFromExamplePath,
+    toPlaygroundThemes,
     usePlayground,
   } from '@/composables/usePlayground'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
-  import { createThemeToggle, provideThemeToggle } from '@/composables/useThemeToggle'
+  import { PALETTE_THEMES, createThemeToggle, provideThemeToggle } from '@/composables/useThemeToggle'
 
   // Utilities
   import { computed, onMounted, toRef } from 'vue'
 
   // Types
+  import type { PlaygroundHashData } from '@/composables/usePlayground'
   import type { Palette } from '@/composables/useThemeToggle'
   import type { GnDocsExampleFile } from '@paper/genesis'
 
@@ -107,23 +109,45 @@
     useIdleCallback(warm)
   })
 
+  function playgroundThemes (): Pick<PlaygroundHashData, 'theme' | 'themes'> | undefined {
+    const id = props.theme ?? example.currentThemeId.value
+    const records: Record<string, { dark?: boolean, colors: Record<string, unknown> }> = {}
+
+    function add (themeId: string) {
+      const colors = example.theme.colors.value[themeId]
+      if (colors) records[themeId] = { dark: example.theme.get(themeId)?.dark, colors }
+    }
+
+    add(id)
+    const mapping = PALETTE_THEMES[example.palette.value]
+    if (mapping && (id === mapping.light || id === mapping.dark)) {
+      add(mapping.light)
+      add(mapping.dark)
+    }
+
+    return toPlaygroundThemes(id, records)
+  }
+
   async function onPlayground (list: GnDocsExampleFile[]) {
+    const packed = playgroundThemes()
     // Embed source in the hash by default — works without a live /registry/*
     // (PR #721). Opt into short registry URLs with VITE_PLAYGROUND_REGISTRY=1
     // once the seed is deployed; entry file is the last .vue (registry contract).
-    if (import.meta.env.VITE_PLAYGROUND_REGISTRY === '1' && !props.imports) {
+    // Theme tokens only travel in the hash payload.
+    const hasThemes = packed?.themes && Object.keys(packed.themes).length > 0
+    if (import.meta.env.VITE_PLAYGROUND_REGISTRY === '1' && !props.imports && !hasThemes) {
       const path = props.filePath
         ?? [...(props.filePaths ?? [])].toReversed().find(p => p.endsWith('.vue'))
         ?? props.filePaths?.[0]
       const ref = path ? registryRefFromExamplePath(path) : null
       if (ref) {
-        window.open(playgroundRegistryUrl(ref), '_blank')
+        window.open(playgroundRegistryUrl({ ...ref, theme: packed?.theme }), '_blank')
         return
       }
     }
 
     const files = list.map(f => ({ name: f.name, code: f.code }))
-    const url = await usePlayground(files, undefined, props.imports)
+    const url = await usePlayground(files, { imports: props.imports, ...packed })
     window.open(url, '_blank')
   }
 
@@ -212,6 +236,7 @@
             :code="paneCode ?? ''"
             :language="paneLanguage"
             :playground="!paneFile"
+            :playground-themes="playgroundThemes()"
             show-copy
             show-size
             show-wrap
