@@ -996,6 +996,25 @@ describe('useVirtualFocus', () => {
       expect(result!.highlightedId.value).toBeUndefined()
     })
 
+    it('should treat an el that resolves to null as empty text (not matching)', () => {
+      const bananaEl = createTextElement('banana', 'Banana')
+
+      const textItems: VirtualFocusItem[] = [
+        { id: 'null-el', el: () => null },
+        { id: 'banana', el: bananaEl },
+      ]
+
+      let result: ReturnType<typeof useVirtualFocus>
+
+      scope.run(() => {
+        result = useVirtualFocus(() => textItems, { control })
+      })
+
+      result!.typeahead('b')
+
+      expect(result!.highlightedId.value).toBe('banana')
+    })
+
     it('should treat item with no el as empty text (not matching)', () => {
       const noElItem: VirtualFocusItem = { id: 'no-el' }
       const bananaEl = createTextElement('banana', 'Banana')

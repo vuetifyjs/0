@@ -512,6 +512,22 @@ describe('select', () => {
 
       expect(itemSlotProps.value.Banana.isHighlighted).toBe(false)
     })
+
+    it('should ignore typeahead for modified or non-printable keys', async () => {
+      const { wrapper, rootSlotProps, itemSlotProps } = await createSelect({ id: 'ta-mod-test' })
+
+      rootSlotProps.open()
+      await nextTick()
+
+      const activator = wrapper.findComponent(Select.Activator as any)
+      await activator.trigger('keydown', { key: 'b', ctrlKey: true })
+      await activator.trigger('keydown', { key: 'b', metaKey: true })
+      await activator.trigger('keydown', { key: 'b', altKey: true })
+      await activator.trigger('keydown', { key: 'F1' })
+      await nextTick()
+
+      expect(itemSlotProps.value.Banana.isHighlighted).toBe(false)
+    })
   })
 
   describe('accessibility', () => {
