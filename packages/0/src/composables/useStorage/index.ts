@@ -11,6 +11,7 @@
  * - localStorage, sessionStorage, and memory adapters
  * - TTL (time-to-live) for time-based cache expiration
  * - Custom serialization support
+ * - Optional onError hook for failed reads, writes, and removes
  * - SSR fallback to memory adapter
  * - Automatic cleanup on remove/clear
  *
@@ -70,7 +71,7 @@ export interface StorageOptions {
   }
   /** Time-to-live in milliseconds. When set, expired entries return the default value on `get()` and `set()` automatically timestamps entries. */
   ttl?: number
-  /** Called when a write to the underlying storage adapter throws (e.g. quota exceeded, a `SecurityError` in a restricted context). Additive to the internal log — writes remain fire-and-forget, so this is the only way to surface a failed write to the app. */
+  /** Called when a read, write, or remove on the underlying storage adapter throws (e.g. quota exceeded, a `SecurityError` in a restricted context, corrupt stored JSON). Additive to the internal log — storage operations are fire-and-forget side effects, so this is the only way to surface a failed operation to the app. */
   onError?: (error: unknown, key: string) => void
 }
 
@@ -135,10 +136,10 @@ export function createStorage<
   }
 
   function readStored (prefixedKey: string) {
-    const raw = adapter?.getItem(prefixedKey)
-    if (isNullOrUndefined(raw)) return undefined
-
     try {
+      const raw = adapter?.getItem(prefixedKey)
+      if (isNullOrUndefined(raw)) return undefined
+
       const parsed = serializer.read(raw)
 
       // Always unwrap v0's own envelope (identified by the __v0 discriminator)
@@ -147,7 +148,7 @@ export function createStorage<
       if (isObject(parsed) && '__v0' in parsed && '__v' in parsed) {
         const envelope = parsed as { __v0: number, __v: unknown, __t: number }
         if (ttl && Date.now() - envelope.__t > ttl) {
-          adapter?.removeItem(prefixedKey)
+          removeStored(prefixedKey)
           return undefined
         }
         return envelope.__v
@@ -155,7 +156,8 @@ export function createStorage<
 
       return parsed
     } catch (error) {
-      logger.error(`[v0:storage] Failed to parse stored value for key "${prefixedKey}":`, error)
+      logger.error(`[v0:storage] Failed to read key "${prefixedKey}":`, error)
+      onError?.(error, prefixedKey)
       return undefined
     }
   }
@@ -167,6 +169,15 @@ export function createStorage<
       adapter?.setItem(prefixedKey, serializer.write(wrapped))
     } catch (error) {
       logger.error(`[v0:storage] Failed to write key "${prefixedKey}":`, error)
+      onError?.(error, prefixedKey)
+    }
+  }
+
+  function removeStored (prefixedKey: string) {
+    try {
+      adapter?.removeItem(prefixedKey)
+    } catch (error) {
+      logger.error(`[v0:storage] Failed to remove key "${prefixedKey}":`, error)
       onError?.(error, prefixedKey)
     }
   }
@@ -186,7 +197,7 @@ export function createStorage<
 
     const stop = watch(valueRef, newValue => {
       if (isNullOrUndefined(newValue)) {
-        adapter?.removeItem(prefixedKey)
+        removeStored(prefixedKey)
       } else {
         writeStored(prefixedKey, newValue)
       }
@@ -211,7 +222,7 @@ export function createStorage<
 
     stop()
     watchers.delete(prefixedKey)
-    adapter?.removeItem(prefixedKey)
+    removeStored(prefixedKey)
     cache.delete(prefixedKey)
   }
 
@@ -225,7 +236,7 @@ export function createStorage<
 
     if (cache.size > 0) {
       for (const key of cache.keys()) {
-        adapter?.removeItem(key)
+        removeStored(key)
       }
       cache.clear()
     }
@@ -244,7 +255,7 @@ export function createStorage<
 
       const stop = watch(valueRef, newValue => {
         if (isNullOrUndefined(newValue)) {
-          adapter?.removeItem(e.key!)
+          removeStored(e.key!)
         } else {
           writeStored(e.key!, newValue)
         }

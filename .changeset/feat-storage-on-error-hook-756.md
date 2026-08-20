@@ -2,16 +2,18 @@
 "@vuetify/v0": minor
 ---
 
-feat(useStorage): add an `onError` hook for failed writes (#756)
+feat(useStorage): add an `onError` hook for failed storage operations (#756)
 
-`createStorage`'s deep-watcher write path caught adapter errors (quota exceeded,
-a `SecurityError` in a restricted context, an adapter-level failure) and routed
-them only to the internal logger, without rethrowing — writes are fire-and-forget
-deep-watcher side effects, so there was no programmatic way for a consumer to
-learn a write failed. `storage.set` cannot reject, and no error state was exposed,
-so an app could believe a user's change was persisted when it silently was not.
+`createStorage`'s adapter calls are fire-and-forget side effects: a failed
+write (quota exceeded, a `SecurityError` in a restricted context) was routed
+only to the internal logger, a failed or corrupt read silently fell back to
+the default value, and removes had no error handling at all — so consumers
+had no programmatic way to learn that persistence failed. `storage.set`
+cannot reject, and no error state was exposed, so an app could believe a
+user's change was persisted when it silently was not.
 
-`createStorage()` / `createStoragePlugin()` now accept an opt-in `onError` option:
+`createStorage()` / `createStoragePlugin()` now accept an opt-in `onError`
+option:
 
 ```ts
 createStoragePlugin({
@@ -19,5 +21,7 @@ createStoragePlugin({
 })
 ```
 
-Called with the underlying error and the prefixed storage key whenever a write
-throws. The existing internal log is unchanged and still fires alongside it.
+Called with the underlying error and the prefixed storage key whenever a
+read, write, or remove on the underlying adapter throws (including
+unparseable stored JSON). The existing internal log is unchanged and still
+fires alongside it.

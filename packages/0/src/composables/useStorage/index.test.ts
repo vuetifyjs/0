@@ -514,6 +514,68 @@ describe('createStorage', () => {
       expect(onError).not.toHaveBeenCalled()
     })
 
+    it('should call onError when a read fails', () => {
+      const failAdapter = {
+        getItem: vi.fn(() => {
+          throw new Error('Access denied')
+        }),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+      }
+      using consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const onError = vi.fn()
+      const storage = createStorage({ adapter: failAdapter as unknown as StorageAdapter, prefix: 'test:', onError })
+      const val = storage.get('key', 'default')
+
+      expect(val.value).toBe('default')
+      expect(onError).toHaveBeenCalledTimes(1)
+      expect(onError).toHaveBeenCalledWith(expect.any(Error), 'test:key')
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[v0:storage] Failed to read key'),
+        expect.any(Error),
+      )
+    })
+
+    it('should call onError when a stored value fails to parse', () => {
+      const adapter = {
+        getItem: vi.fn(() => 'invalid-json{'),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+      }
+      using consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const onError = vi.fn()
+      const storage = createStorage({ adapter: adapter as unknown as StorageAdapter, prefix: 'test:', onError })
+      const val = storage.get('key', 'default')
+
+      expect(val.value).toBe('default')
+      expect(onError).toHaveBeenCalledTimes(1)
+      expect(onError).toHaveBeenCalledWith(expect.any(SyntaxError), 'test:key')
+      expect(consoleSpy).toHaveBeenCalled()
+    })
+
+    it('should call onError when a remove fails', () => {
+      const failAdapter = {
+        getItem: vi.fn(() => null),
+        setItem: vi.fn(),
+        removeItem: vi.fn(() => {
+          throw new Error('Access denied')
+        }),
+      }
+      using consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const onError = vi.fn()
+      const storage = createStorage({ adapter: failAdapter as unknown as StorageAdapter, prefix: 'test:', onError })
+      storage.get('key', 'default')
+      storage.remove('key')
+
+      expect(onError).toHaveBeenCalledTimes(1)
+      expect(onError).toHaveBeenCalledWith(expect.any(Error), 'test:key')
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[v0:storage] Failed to remove key'),
+        expect.any(Error),
+      )
+      expect(storage.has('key')).toBe(false)
+    })
+
     it('should no-op when removing a key that was never created', () => {
       const noopAdapter = {
         getItem: vi.fn(() => null),

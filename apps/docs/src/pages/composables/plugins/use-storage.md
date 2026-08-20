@@ -164,6 +164,21 @@ const users = cache.get('users', [])
 > [!TIP] How TTL works
 > When `ttl` is set, values are internally wrapped as `{ __ttl, __v, __t }` with a timestamp. On `get()`, if the entry is older than the TTL, it is treated as absent and removed from storage. Non-TTL entries stored previously are read normally.
 
+#### Error Handling
+
+Storage operations are fire-and-forget — a failed adapter call is logged internally but never thrown, so by default your app has no way to know a value was not persisted. Pass an `onError` hook to surface failures (a full quota, a `SecurityError` in a restricted context, corrupt stored JSON) to application state. It is called with the underlying error and the prefixed storage key whenever a read, write, or remove on the adapter throws. The same option is accepted by `createStoragePlugin`.
+
+```ts collapse no-filename onError
+import { createStorage } from '@vuetify/v0'
+
+const storage = createStorage({
+  prefix: 'myapp:',
+  onError: (error, key) => {
+    console.warn(`Failed to persist "${key}"`, error)
+  },
+})
+```
+
 ## FAQ
 
 ::: faq
