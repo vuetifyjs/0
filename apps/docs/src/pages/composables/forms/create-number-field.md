@@ -97,6 +97,8 @@ flowchart TD
 | `formatValue(v)` | `(value: number) => string` | -- | Format a number |
 | `parse(text)` | `(text: string) => number \| null` | -- | Parse text to number |
 | `commit(next?)` | `(next?: number \| null) => void` | -- | Snap and optionally clamp |
+| `commitOn` | `'input' \| 'change'` | No | When typed input is written into `value` |
+| `commitDraft(text)` | `(text: string) => void` | -- | Parse and write without clamping or snapping |
 
 ## Examples
 
