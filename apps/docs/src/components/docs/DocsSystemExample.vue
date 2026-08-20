@@ -89,13 +89,15 @@
 </script>
 
 <script setup lang="ts">
+  defineOptions({ name: 'DocsSystemExample' })
+
   const { filePath, filePaths } = defineProps<DocsSystemExampleProps>()
 
-  // Design-system examples cannot share a document with the docs shell: the
-  // system owns global CSS (Bulma resets `button`, `input`, `.title`, …) and
-  // UnoCSS's preflight fights it in both directions. The example therefore runs
-  // in an iframe against `sandbox/<system>.html`, and only its source is read
-  // here — for the code pane, playground and bin actions.
+  // Emerald mounts inline under `[data-theme="emerald-light"]` — its tokens
+  // do not reset host elements, so it can share the docs document. Systems
+  // that reset `button`/`input` (Bulma) cannot; those run in an iframe
+  // against `sandbox/<system>.html`. Source is still resolved here for the
+  // code pane, playground, and bin actions on the iframe path.
   const examples = useExamples()
 
   const paths = toRef(() => filePaths ?? (filePath ? [filePath] : []))
@@ -110,6 +112,10 @@
   const name = toRef(() => `${entry.value.split('/').pop()}.vue`)
 
   const theme = useTheme()
+
+  const segments = toRef(() => entry.value.replace(/^\//, '').split('/'))
+  const framed = toRef(() => segments.value[1] !== 'emerald')
+  const inlineTheme = toRef(() => theme.isDark.value ? 'emerald-dark' : 'emerald-light')
 
   // Snapshot, not a binding: folding the theme into a reactive `src` would
   // reload the frame — dropping any open overlay — on every toggle. It only
@@ -128,7 +134,6 @@
     : { colorScheme: 'light', backgroundColor: '#fff' }))
 
   // `/systems/bulma/modal/basic` -> system `bulma`, example `modal/basic`
-  const segments = toRef(() => entry.value.replace(/^\//, '').split('/'))
   const src = toRef(() => {
     const [, system, ...rest] = segments.value
 
@@ -238,7 +243,7 @@
 
   watch(() => theme.isDark.value, sync)
 
-  if (IN_BROWSER) {
+  if (IN_BROWSER && framed.value) {
     useEventListener(window, 'message', (event: MessageEvent) => {
       if (event.source !== frame.value?.contentWindow) return
 
@@ -317,6 +322,23 @@
 
 <template>
   <DocsGenesisExample
+    v-if="!framed"
+    :id
+    :collapse
+    :file-orders
+    :file-path
+    :file-paths
+    :peek
+    :theme="inlineTheme"
+    :title
+  >
+    <template v-if="$slots.description" #description>
+      <slot name="description" />
+    </template>
+  </DocsGenesisExample>
+
+  <DocsGenesisExample
+    v-else
     :id
     :code
     :collapse

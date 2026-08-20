@@ -8,11 +8,26 @@
   // Types
   import type { Component } from 'vue'
 
-  const { is, name } = defineProps<{
+  const {
+    is,
+    name,
+    themes = { light: 'light', dark: 'dark' },
+  } = defineProps<{
     /** Resolved example component, or undefined when the query names nothing. */
     is?: Component
     /** Example path from the query string, shown when resolution fails. */
     name: string
+    /**
+     * What each scheme is called in `data-theme`. The docs page only ever speaks
+     * in light and dark; a design system is free to name its themes something
+     * else, and Emerald does (`emerald-light` / `emerald-dark`) because those are the
+     * ids its stylesheet keys on. Defaulting to the scheme names themselves
+     * keeps every system that agrees with the docs — Bulma — untouched.
+     *
+     * Upstream candidate: this is the one piece of the sandbox that is not
+     * system-agnostic, and it belongs next to the entry that owns the frame.
+     */
+    themes?: Record<'light' | 'dark', string>
   }>()
 
   // Subpixel slack, so a menu flush with the box edge is not read as escaping it.
@@ -81,6 +96,32 @@
     return { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
   }
 
+  // A fixed element that accepts no pointer input anywhere in its subtree is a
+  // decoration riding the viewport — a drop indicator tracking a drag — not an
+  // overlay. Inline, the frame's viewport IS the example box, so it already
+  // paints exactly where it belongs; promoting for it would pin and clip the
+  // frame mid-drag, which reads as the board jumping out of its box. The
+  // subtree check is what keeps a snackbar portal promoting: the portal itself
+  // is `pointer-events: none`, but the snackbars inside it are interactive.
+  //
+  // "Accepts pointer input" needs area as well as the property — a snackbar
+  // queue keeps an empty zero-height wrapper mounted inside the portal, and
+  // its `pointer-events: auto` alone would hold the frame promoted forever
+  // after the last snackbar leaves.
+  function inert (el: HTMLElement, style: CSSStyleDeclaration): boolean {
+    if (style.pointerEvents !== 'none') return false
+
+    for (const node of el.querySelectorAll<HTMLElement>('*')) {
+      if (getComputedStyle(node).pointerEvents === 'none') continue
+
+      const rect = node.getBoundingClientRect()
+
+      if (rect.width > 0 && rect.height > 0) return false
+    }
+
+    return true
+  }
+
   // Classification contract — a DOM fact, read fresh on every measurement, so
   // the same layout always classifies the same way whichever observer noticed
   // it. Nothing here consults events or prior state.
@@ -106,9 +147,12 @@
     for (const node of el.querySelectorAll<HTMLElement>('*')) {
       if (!node.checkVisibility()) continue
 
-      const position = getComputedStyle(node).position
+      const style = getComputedStyle(node)
+      const position = style.position
 
       if (position !== 'fixed' && position !== 'absolute') continue
+
+      if (position === 'fixed' && inert(node, style)) continue
 
       const rect = node.getBoundingClientRect()
 
@@ -212,9 +256,13 @@
 
   useResizeObserver(root, () => measure())
 
-  // Opening an overlay changes no layout the ResizeObserver can see — the class
-  // flip that reveals it is the only signal.
-  useMutationObserver(root, () => measure(), { attributes: true, subtree: true })
+  // Opening an overlay changes no layout the ResizeObserver can see — the
+  // attribute flip that reveals it, or the `v-if` mount that inserts it, is
+  // the only signal. Both matter: an Emerald snackbar arrives as a childList
+  // insertion into a portal that never changes size, and without `childList`
+  // its promotion would ride whatever incidental attribute mutation happens
+  // to follow the mount.
+  useMutationObserver(root, () => measure(), { attributes: true, childList: true, subtree: true })
 
   // A CSS-only reveal (Bulma's `is-hoverable` dropdown) mutates nothing and
   // resizes nothing, so pointer movement is the only signal that it happened.
@@ -229,7 +277,7 @@
 
     switch (event.data?.type) {
       case 'v0:sandbox:theme': {
-        document.documentElement.dataset.theme = event.data.dark ? 'dark' : 'light'
+        document.documentElement.dataset.theme = event.data.dark ? themes.dark : themes.light
         break
       }
       // Also the parent's acknowledgement that the frame has settled: re-pin

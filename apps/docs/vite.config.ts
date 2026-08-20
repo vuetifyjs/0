@@ -1,3 +1,4 @@
+import { readdirSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 
 import UnocssVitePlugin from 'unocss/vite'
@@ -12,16 +13,20 @@ import VueRouter from 'vue-router/vite'
 import { getApiSlugs } from './build/api-names'
 import copyMarkdownPlugin from './build/copy-markdown'
 import generateApiPlugin from './build/generate-api'
+import generateApiMarkdownPlugin from './build/generate-api-markdown'
 import generateApiWhitelistPlugin from './build/generate-api-whitelist'
 import generateExamplesPlugin from './build/generate-examples'
+import generateFaqsPlugin from './build/generate-faqs'
 import generateLlmsFullPlugin from './build/generate-llms-full'
 import generateNavPlugin from './build/generate-nav'
 import { generateOgImages } from './build/generate-og-images'
 import generatePageDatesPlugin from './build/generate-page-dates'
+import generateRegistryPlugin from './build/generate-registry'
 import generateSearchIndexPlugin from './build/generate-search-index'
 import generateTestCountPlugin from './build/generate-test-count'
 import generateTipsPlugin from './build/generate-tips'
 import Markdown from './build/markdown'
+import mdRoutesPlugin from './build/md-routes'
 import { getSkillzSlugs } from './build/skillz-tours'
 import pkg from './package.json' with { type: 'json' }
 
@@ -37,6 +42,23 @@ export default defineConfig({
   },
   build: {
     sourcemap: true,
+    rollupOptions: {
+      // Vite's default input is the root `index.html` alone, so the design-system
+      // example frames — separate documents by design, since a system's global
+      // CSS cannot share one with the docs shell — are served in dev and then
+      // missing from `dist`. Naming them here is what makes the built site's
+      // `<iframe src="/sandbox/…">` resolve. Read from disk rather than listed,
+      // so adding a system is one HTML file and no config edit.
+      input: Object.fromEntries([
+        ['index', fileURLToPath(new URL('index.html', import.meta.url))],
+        ...readdirSync(fileURLToPath(new URL('sandbox', import.meta.url)))
+          .filter(file => file.endsWith('.html'))
+          .map(file => [
+            `sandbox/${file.replace(/\.html$/, '')}`,
+            fileURLToPath(new URL(`sandbox/${file}`, import.meta.url)),
+          ]),
+      ]),
+    },
   },
   css: {
     transformer: 'postcss', // Use postcss instead of lightningcss to preserve color-mix syntax
@@ -53,7 +75,10 @@ export default defineConfig({
         getApiSlugs(),
         getSkillzSlugs(),
       ])
-      const filtered = paths.filter(p => !p.includes(':path'))
+      // Drop every dynamic route, not just ':path'. Concrete routes are appended
+      // below from the discovered slugs; any surviving placeholder (e.g.
+      // '/api/:name') prerenders as an empty shell and lands in the sitemap.
+      const filtered = paths.filter(p => !p.includes(':'))
       const apiRoutes = apiSlugs.map(slug => `/api/${slug}`)
       const skillzRoutes = skillzSlugs.map(slug => `/skillz/${slug}`)
       return [...filtered, ...apiRoutes, ...skillzRoutes, '/404']
@@ -89,6 +114,9 @@ export default defineConfig({
     Layouts(),
     copyMarkdownPlugin(),
     generateApiPlugin(),
+    generateApiMarkdownPlugin(),
+    mdRoutesPlugin(),
+    generateFaqsPlugin(),
     generateExamplesPlugin(),
     generateLlmsFullPlugin(),
     generateSearchIndexPlugin(),
@@ -96,6 +124,7 @@ export default defineConfig({
     generateTipsPlugin(),
     generateNavPlugin(),
     generatePageDatesPlugin(),
+    generateRegistryPlugin(),
     VitePWA({
       injectRegister: 'script-defer',
       registerType: 'autoUpdate',
@@ -141,16 +170,28 @@ export default defineConfig({
       '@vuetify/paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
       '@paper/genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
       '@paper/bulma': fileURLToPath(new URL('../../packages/bulma/src', import.meta.url)),
+      '@paper/emerald': fileURLToPath(new URL('../../packages/emerald/src', import.meta.url)),
       // internal
       '#v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
       '#genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
       '#bulma': fileURLToPath(new URL('../../packages/bulma/src', import.meta.url)),
+      '#emerald': fileURLToPath(new URL('../../packages/emerald/src', import.meta.url)),
     },
   },
   server: {
     fs: {
       allow: ['../../packages/*', '../../node_modules', '.'],
+    },
+    // Production copies `dev/dist` to /demo/emerald/ (see root `build:demo`).
+    // Vite's SPA fallback would otherwise render the docs 404. Proxy the
+    // subpath so the Dashboard card works in `pnpm dev` the same as on nginx.
+    proxy: {
+      '/demo/emerald': {
+        target: process.env.VITE_EMERALD_DEMO ?? 'https://0.vuetifyjs.com',
+        changeOrigin: true,
+        secure: true,
+      },
     },
   },
 })

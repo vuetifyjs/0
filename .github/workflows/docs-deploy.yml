@@ -7,8 +7,10 @@ on:
     # after a positive match wins, so a test-only src commit is excluded.
     paths:
       - 'apps/docs/**'
+      - 'dev/**'
       - 'packages/0/src/**'
       - 'packages/0/package.json'
+      - 'packages/emerald/**'
       - 'packages/genesis/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'

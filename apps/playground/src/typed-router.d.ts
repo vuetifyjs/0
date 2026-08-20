@@ -38,6 +38,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/playgrounds/[id]': RouteRecordInfo<
+      '/playgrounds/[id]',
+      '/playgrounds/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
+      | never
+    >,
   }
 
   /**
@@ -58,6 +65,14 @@ declare module 'vue-router/auto-routes' {
         | never
       pathParamNames:
         | never
+    }
+    'src/pages/playgrounds/[id].vue': {
+      routes:
+        | '/playgrounds/[id]'
+      views:
+        | never
+      pathParamNames:
+        | 'id'
     }
   }
 

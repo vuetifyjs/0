@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { ref } from 'vue'
-  import ColorPicker from './ColorPicker.vue'
+  import HslColorPicker from './HslColorPicker.vue'
 
   const presets = [
     { name: 'Ocean', hue: 200, saturation: 80, lightness: 50 },
@@ -23,7 +23,7 @@
 
 <template>
   <div class="flex flex-col gap-6">
-    <ColorPicker
+    <HslColorPicker
       v-model:hue="hue"
       v-model:lightness="lightness"
       v-model:saturation="saturation"

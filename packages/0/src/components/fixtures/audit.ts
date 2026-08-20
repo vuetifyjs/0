@@ -51,6 +51,22 @@ const PAGE_LEVEL_RULES = new Set([
 ])
 
 /**
+ * Findings that are inherent to a component's design, not defects — keyed
+ * `subject:rule`. The rule still runs and still reports (it stays a real
+ * finding for every other component); the note only keeps the summary from
+ * presenting an expected hit as unexplained.
+ *
+ * Portal teleports content to `<body>` — outside every landmark — by design.
+ * v0 is headless, so the teleported subtree's semantics (`role="dialog"`,
+ * `role="status"`, `role="region"` + name) are the consumer's decision,
+ * documented on the Portal docs page.
+ * https://github.com/vuetifyjs/0/issues/742
+ */
+const EXPECTED = new Map([
+  ['Portal:region', 'teleports outside landmarks by design — consumer supplies the subtree role, see the Portal docs Accessibility section'],
+])
+
+/**
  * Run axe-core over `element` and flatten the result.
  *
  * Deliberately passes no `rules` / `runOnly` option — an auditor configured
@@ -122,7 +138,9 @@ export function summarize (violations: readonly AxeViolation[]): string {
     const counted = [...new Set(hits.map(hit => hit.rule))]
       .map(rule => {
         const count = hits.filter(hit => hit.rule === rule).flatMap(hit => hit.nodes).length
-        return count > 1 ? `${rule} x${count}` : rule
+        const label = count > 1 ? `${rule} x${count}` : rule
+        const note = EXPECTED.get(`${subject}:${rule}`)
+        return note ? `${label} [expected — ${note}]` : label
       })
       .toSorted()
 

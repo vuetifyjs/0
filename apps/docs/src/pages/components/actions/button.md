@@ -59,7 +59,7 @@ The Button component renders as a native `<button>` by default (or an anchor, ro
 
 ### Loading with Grace Period
 
-The loading state has a built-in 1-second grace period before showing loading UI. This prevents flicker for fast operations — if the async work completes within 1 second, the loading indicator never appears.
+The loading state can delay its visual indicator through the `grace` prop — a millisecond window that prevents flicker for fast operations: if the async work completes within it, the loading indicator never appears. The default is `0`, so the indicator shows immediately unless you opt in.
 
 Use `Button.Loading` and `Button.Content` to swap between loading and default content:
 
@@ -67,7 +67,7 @@ Use `Button.Loading` and `Button.Content` to swap between loading and default co
 /components/button/loading
 :::
 
-`Button.Loading` and `Button.Content` conditionally render based on the loading state. Only one is visible at a time — `Content` by default, `Loading` after the grace period elapses.
+`Button.Loading` and `Button.Content` conditionally render based on the loading state. Only one is visible at a time — `Content` by default, `Loading` once any configured `grace` window elapses (immediately with the default `grace: 0`).
 
 ### Toggle Groups
 
@@ -203,7 +203,7 @@ Both block clicks, but `disabled` applies the native `disabled` attribute and dr
 
 ??? Why doesn't the loading indicator appear right away?
 
-`Button.Loading` has a built-in 1-second grace period. If the async work finishes within that window the indicator never shows, preventing flicker on fast operations.
+Set the `grace` prop (milliseconds, default `0`) to delay the indicator. If the async work finishes within that window the indicator never shows, preventing flicker on fast operations.
 
 ??? How do I submit a toggle group's value with a native form?
 

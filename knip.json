@@ -53,6 +53,12 @@
         ],
         "#bulma": [
           "../../packages/bulma/src"
+        ],
+        "@paper/emerald": [
+          "../../packages/emerald/src"
+        ],
+        "#emerald": [
+          "../../packages/emerald/src"
         ]
       }
     },

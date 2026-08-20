@@ -1276,6 +1276,47 @@ describe('createTokens', () => {
           expect(result).toBe('#1976d2')
         }
       })
+
+      it('should resolve flat path-walked alias chains', () => {
+        const tokens: TokenCollection = {
+          palette: {
+            blue: '#0000FF',
+            primary: '{palette.blue}',
+          },
+        }
+
+        const context = createTokens(tokens, { flat: true })
+
+        expect(context.resolve('{palette.primary}')).toBe('#0000FF')
+      })
+
+      it('should resolve flat path-walked token alias object chains', () => {
+        const tokens: TokenCollection = {
+          palette: {
+            blue: { $value: '#0000FF' },
+            primary: { $value: '{palette.blue}' },
+          },
+        }
+
+        const context = createTokens(tokens, { flat: true })
+
+        expect(context.resolve('{palette.primary}')).toBe('#0000FF')
+      })
+
+      it('should prevent flat path-walked alias cycles', () => {
+        const tokens: TokenCollection = {
+          palette: {
+            primary: '{palette.secondary}',
+            secondary: { $value: '{palette.primary}' },
+          },
+        }
+
+        const context = createTokens(tokens, { flat: true })
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+        expect(context.resolve('{palette.primary}')).toBeUndefined()
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Circular alias detected'))
+      })
     })
 
     describe('segment-path terminal alias (#566)', () => {

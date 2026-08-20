@@ -15,13 +15,16 @@ export { default as SnackbarRoot } from './SnackbarRoot.vue'
 export { provideSnackbarRootContext, useSnackbarRootContext } from './SnackbarRoot.vue'
 export { default as SnackbarContent } from './SnackbarContent.vue'
 export { default as SnackbarClose } from './SnackbarClose.vue'
-export type { SnackbarPortalProps, SnackbarPortalSlotProps } from './SnackbarPortal.vue'
+export { default as SnackbarAnnouncer } from './SnackbarAnnouncer.vue'
+export type { SnackbarAnnouncerProps } from './SnackbarAnnouncer.vue'
+export type { SnackbarPortalContext, SnackbarPortalProps, SnackbarPortalSlotProps } from './SnackbarPortal.vue'
 export type { SnackbarQueueContext, SnackbarQueueProps, SnackbarQueueSlotProps } from './SnackbarQueue.vue'
 export type { SnackbarRootContext, SnackbarRootProps, SnackbarRootSlotProps } from './SnackbarRoot.vue'
 export type { SnackbarContentProps } from './SnackbarContent.vue'
 export type { SnackbarCloseProps, SnackbarCloseSlotProps } from './SnackbarClose.vue'
 
 // Context
+import Announcer from './SnackbarAnnouncer.vue'
 import Close from './SnackbarClose.vue'
 import Content from './SnackbarContent.vue'
 import Portal from './SnackbarPortal.vue'
@@ -161,4 +164,30 @@ export const Snackbar = {
    * ```
    */
   Close,
+  /**
+   * Visually-hidden polite + assertive live-region pair that announces
+   * snackbar messages. Auto-rendered by Snackbar.Portal — place explicitly
+   * with `:announcer="false"` on the Portal to control position or markup
+   * order.
+   *
+   * @see https://0.vuetifyjs.com/components/semantic/snackbar
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { Snackbar } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Snackbar.Portal :announcer="false">
+   *     <Snackbar.Announcer />
+   *     <Snackbar.Root>
+   *       <Snackbar.Content>Saved</Snackbar.Content>
+   *       <Snackbar.Close />
+   *     </Snackbar.Root>
+   *   </Snackbar.Portal>
+   * </template>
+   * ```
+   */
+  Announcer,
 }

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Isolated Vue 3.6 Vapor-mode parity tests for @vuetify/v0. Runs on a beta Vue, deliberately kept out of the default test run.",
+  "description": "Isolated Vue 3.6 Vapor-mode parity tests for @vuetify/v0. Runs on a pre-release Vue, deliberately kept out of the default test run.",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest"
@@ -13,10 +13,10 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.7",
-    "@vue/runtime-vapor": "3.6.0-beta.15",
+    "@vue/runtime-vapor": "3.6.0-rc.2",
     "happy-dom": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
-    "vue": "3.6.0-beta.15"
+    "vue": "3.6.0-rc.2"
   }
 }

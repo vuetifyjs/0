@@ -162,7 +162,7 @@
      * @example
      * ```vue
      * <template>
-     *   <Radio.Group v-slot="{ isNoneSelected, attrs }">
+     *   <Radio.Group v-slot="{ isNoneSelected, attrs }" renderless>
      *     <div v-bind="attrs">
      *       <p v-if="isNoneSelected">Please select an option</p>
      *       <Radio.Root value="a">Option A</Radio.Root>

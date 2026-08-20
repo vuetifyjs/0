@@ -52,6 +52,7 @@ export default {
   NumberField: {
     decrement: 'Decrement',
     increment: 'Increment',
+    label: 'Number',
   },
   Pagination: {
     currentPage: 'Page {page}, current',
@@ -64,7 +65,11 @@ export default {
     status: 'Page {page} of {pages}',
   },
   Rating: {
+    label: 'Rating',
     valueText: '{value} of {size} stars',
+  },
+  Slider: {
+    label: 'Slider',
   },
   Snackbar: {
     close: 'Dismiss',

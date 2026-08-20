@@ -656,6 +656,17 @@ describe('useResizeObserver box model synthesis', () => {
     expect(entry.contentBoxSize).toEqual([{ inlineSize: 166, blockSize: 30 }])
   })
 
+  it('should report the content box and padding offsets on the immediate contentRect', async () => {
+    const entry = await synthesize({
+      ...PADDED,
+      boxSizing: 'border-box',
+      width: '200px',
+      height: '40px',
+    })
+
+    expect(entry.contentRect).toEqual({ width: 166, height: 30, top: 4, left: 16 })
+  })
+
   it('should derive the border box by adding padding and border under content-box', async () => {
     const entry = await synthesize({
       ...PADDED,

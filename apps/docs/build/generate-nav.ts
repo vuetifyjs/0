@@ -79,7 +79,7 @@ const SUBCATEGORY_ORDER: Record<string, string[]> = {
   guide: ['essentials', 'fundamentals', 'features', 'integration', 'tooling'],
   components: ['primitives', 'providers', 'actions', 'disclosure', 'forms', 'semantic'],
   composables: ['foundation', 'registration', 'selection', 'forms', 'data', 'semantic', 'reactivity', 'system', 'plugins', 'transformers'],
-  systems: ['bulma'],
+  systems: ['bulma', 'emerald'],
 }
 
 // Standalone pages that appear between sections

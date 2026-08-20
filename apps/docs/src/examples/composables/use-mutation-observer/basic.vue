@@ -100,7 +100,7 @@
       </button>
 
       <button
-        class="px-3 py-1.5 bg-accent text-on-accent rounded-md text-sm font-medium"
+        class="px-3 py-1.5 bg-info text-on-info rounded-md text-sm font-medium"
         @click="onToggleAttribute"
       >
         Toggle Attribute
@@ -149,7 +149,7 @@
           class="px-2 py-0.5 rounded text-xs font-mono"
           :class="{
             'bg-primary/15 text-primary': entry.type === 'childList',
-            'bg-accent/15 text-accent': entry.type === 'attributes',
+            'bg-info/15 text-info': entry.type === 'attributes',
             'bg-warning/15 text-warning': entry.type === 'characterData',
           }"
         >

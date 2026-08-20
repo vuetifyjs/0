@@ -45,6 +45,8 @@ A single snackbar — render directly when you control the lifecycle yourself.
         <Snackbar.Close />
       </Snackbar.Root>
     </Snackbar.Queue>
+
+    <Snackbar.Announcer />
   </Snackbar.Portal>
 </template>
 ```
@@ -69,6 +71,20 @@ Reach for the queue whenever notifications flow through [useNotifications](/comp
 | `useToasts.ts` | Owns the notifications instance and the deletable file list; exposes notify, remove, and the undo restore closure |
 | `ToastHost.vue` | Renders the Snackbar.Queue surface — a stacked column of severity-styled toasts, each with a Close and a conditional Undo button |
 | `toast-host.vue` | Demo entry — action buttons and a file list wired to the composable, plus the mounted ToastHost |
+:::
+
+::: gn-example
+/components/snackbar/queue
+
+### Stacked toasts
+
+Newer toasts collapse into a peeked stack — each card offset, scaled, and faded by depth — and fan out into a full column while the pointer rests on the surface. The stacking geometry is pure consumer CSS applied per index via `style(i)`; `Snackbar.Queue` stays layout-agnostic and only supplies items newest-first, making index 0 the front card. Container height animates between the collapsed and expanded layouts, so surrounding content never jumps.
+
+Hover intent runs through [useDelay](/composables/system/use-delay): entering the surface expands immediately, leaving collapses after a 150ms grace period so the stack doesn't flicker while the pointer crosses gaps between cards. Auto-dismiss pauses while any item is hovered or focused (WCAG 2.2.1), which you get for free from [useNotifications](/composables/plugins/use-notifications).
+
+The surface owns its notifications instance: `createNotificationsContext` provides a fresh context under a dedicated namespace, and every Snackbar sub-component receives that namespace so the queue stays isolated from the app-level `v0:notifications` instance. Use this pattern whenever a toast surface shouldn't mix with the rest of the app — or, as here, with other examples on the same page.
+
+Reach for this pattern when toasts arrive in bursts and a flat column would push content off screen; for a simple stack with per-item actions, see the undo example above.
 :::
 
 ::: gn-example
@@ -143,7 +159,7 @@ Pass `:teleport="false"` to render the portal inline instead of teleporting to `
 
 | Concern | Implementation |
 |---------|---------------|
-| Live region | `Snackbar.Root` defaults to `role="status"`. Override with `role="alert"` for urgent notifications. No `aria-live` on `Portal` to avoid nesting conflicts. |
+| Live region | `Snackbar.Portal` auto-renders `Snackbar.Announcer` — a visually-hidden polite + assertive pair, mounted empty — and each `Snackbar.Root` mirrors its text into the matching region on mount, so the first message is reliably announced. Pass `:announcer="false"` to place `<Snackbar.Announcer>` yourself. `Snackbar.Root` still defaults to `role="status"` (`role="alert"` when `urgent`) as best-effort without a Portal. |
 | `role="status"` | Implicit `aria-live="polite"` — screen reader waits for idle. Use for confirmations and info. |
 | `role="alert"` | Implicit `aria-live="assertive"` — screen reader interrupts. Use for errors and warnings. |
 | Close button | `Snackbar.Close` renders an inline default `aria-label` of `"Dismiss"`, localizable via the `Snackbar.close` key. |
