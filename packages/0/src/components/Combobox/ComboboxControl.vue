@@ -97,7 +97,9 @@
         case 'Enter': {
           e.preventDefault()
           const highlighted = context.cursor.highlightedId.value
-          if (!isUndefined(highlighted)) {
+          if (isUndefined(highlighted)) {
+            context.commit()
+          } else {
             context.select(highlighted)
           }
           break
@@ -108,6 +110,15 @@
           break
         }
         case 'Tab': {
+          const highlighted = context.cursor.highlightedId.value
+          if (isUndefined(highlighted)) {
+            context.commit()
+          } else {
+            context.select(highlighted)
+          }
+          // Multiple-select commit/select keeps the menu open; close it here so the
+          // listbox doesn't float over the next control (useClickOutside dismisses on
+          // pointer events, not on focus leaving via Tab).
           context.close()
           break
         }

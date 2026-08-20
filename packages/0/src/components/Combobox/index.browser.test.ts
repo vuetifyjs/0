@@ -918,6 +918,215 @@ describe('combobox', () => {
     })
   })
 
+  describe('free-text commit', () => {
+    it('should commit unmatched free text on Enter when not strict', async () => {
+      const selected = ref<string>()
+      const { wrapper, open, isOpen, query } = await createCombobox({
+        'strict': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('Durian')
+      await input.trigger('input')
+      await nextTick()
+      await input.trigger('keydown', { key: 'Enter' })
+      await nextTick()
+
+      expect(selected.value).toBe('Durian')
+      expect(isOpen()).toBe(false)
+      expect(query()).toBe('Durian')
+    })
+
+    it('should discard unmatched free text on Enter when strict', async () => {
+      const selected = ref<string>()
+      const { wrapper, open, isOpen, query } = await createCombobox({
+        'strict': true,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('Durian')
+      await input.trigger('input')
+      await nextTick()
+      await input.trigger('keydown', { key: 'Enter' })
+      await nextTick()
+
+      expect(selected.value).toBeUndefined()
+      expect(isOpen()).toBe(false)
+      expect(query()).toBe('')
+    })
+
+    it('should select an exact match on Enter without minting a free-text value', async () => {
+      const selected = ref<string>()
+      const { wrapper, open } = await createCombobox({
+        'strict': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('Banana')
+      await input.trigger('input')
+      await nextTick()
+      await input.trigger('keydown', { key: 'Enter' })
+      await nextTick()
+
+      expect(selected.value).toBe('Banana')
+    })
+
+    it('should commit free text on Tab when nothing is highlighted', async () => {
+      const selected = ref<string>()
+      const { wrapper, open, isOpen } = await createCombobox({
+        'strict': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('Fig')
+      await input.trigger('input')
+      await nextTick()
+
+      const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+      input.element.dispatchEvent(event)
+      await nextTick()
+
+      expect(selected.value).toBe('Fig')
+      expect(isOpen()).toBe(false)
+      expect(event.defaultPrevented).toBe(false)
+    })
+
+    it('should select the highlighted option on Tab instead of free text', async () => {
+      const selected = ref<string>()
+      const { wrapper, open, isOpen } = await createCombobox({
+        'strict': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.trigger('keydown', { key: 'Home' })
+      await nextTick()
+      await input.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+      input.element.dispatchEvent(event)
+      await nextTick()
+
+      expect(selected.value).toBe('Banana')
+      expect(isOpen()).toBe(false)
+    })
+
+    it('should not commit free text on Escape', async () => {
+      const selected = ref<string>()
+      const { wrapper, open, isOpen, query } = await createCombobox({
+        'strict': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('Guava')
+      await input.trigger('input')
+      await nextTick()
+      await input.trigger('keydown', { key: 'Escape' })
+      await nextTick()
+
+      expect(selected.value).toBeUndefined()
+      expect(isOpen()).toBe(false)
+      expect(query()).toBe('')
+    })
+
+    it('should prefer the highlighted option over free text on Enter', async () => {
+      const selected = ref<string>()
+      const { wrapper, open } = await createCombobox({
+        'strict': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      // Partial query keeps Apple and Banana filtered in; highlight Banana.
+      await input.setValue('a')
+      await input.trigger('input')
+      await nextTick()
+      await input.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+      await input.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+      await input.trigger('keydown', { key: 'Enter' })
+      await nextTick()
+
+      expect(selected.value).toBe('Banana')
+    })
+
+    it('should close the menu on Tab in multiple-select mode after free-text commit', async () => {
+      const selected = ref<string[]>([])
+      const { wrapper, open, isOpen } = await createCombobox({
+        'multiple': true,
+        'strict': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string[]
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('tag')
+      await input.trigger('input')
+      await nextTick()
+
+      const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+      input.element.dispatchEvent(event)
+      await nextTick()
+
+      expect(selected.value).toEqual(['tag'])
+      expect(isOpen()).toBe(false)
+    })
+  })
+
   describe('accessibility', () => {
     it('should give input role=combobox', async () => {
       const { wrapper } = await createCombobox()
