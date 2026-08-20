@@ -5,3 +5,9 @@
 exclude = ["/dist/documents", "/dist/https:", "^https?://(www\\.)?github\\.com", "^https?://discord\\.gg", "^https?://community\\.vuetifyjs\\.com", "invalid.jpg", "^https://mcp\\.vuetifyjs\\.com/mcp", "^https?://([^/]*\\.)?vuejs\\.org", "^https?://(www\\.)?npmjs\\.com", "^https?://(www\\.)?vite\\.dev"]
 
 root_dir = "./apps/docs/dist"
+
+# vite-ssg demo pages ship as flat *.html (emerald/about.html). Production and
+# docs pretty-URLs omit the extension; tell lychee to try .html when the bare
+# path is missing so DEMO_BASE RouterLinks resolve offline.
+fallback_extensions = ["html"]
+

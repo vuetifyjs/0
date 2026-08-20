@@ -9,7 +9,7 @@ features:
   level: 1
 ---
 
-<script setup>
+<script setup lang="ts">
   import { useSkillzStore } from '@/stores/skillz'
   import SkillCardDeck from '@/components/skillz/SkillCardDeck.vue'
 

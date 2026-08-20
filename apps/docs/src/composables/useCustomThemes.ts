@@ -38,7 +38,10 @@ export interface UseCustomThemesReturn {
   }
 }
 
-const STORAGE_KEY = 'v0:custom-themes'
+const STORAGE_KEY = 'custom-themes'
+// `useStorage` prefixes every key with `v0:`, so the original key wrote to
+// `v0:v0:custom-themes`. Read it once so existing themes survive the rename.
+const LEGACY_STORAGE_KEY = 'v0:custom-themes'
 
 // Shared singleton state
 const customThemes = shallowRef<CustomTheme[]>([])
@@ -69,8 +72,13 @@ export function useCustomThemes (): UseCustomThemesReturn {
 
     // Load stored custom themes
     const stored = storage.get<CustomTheme[]>(STORAGE_KEY)
+    const legacy = storage.get<CustomTheme[]>(LEGACY_STORAGE_KEY)
+
     if (Array.isArray(stored.value)) {
       customThemes.value = stored.value
+    } else if (Array.isArray(legacy.value)) {
+      customThemes.value = legacy.value
+      storage.set(STORAGE_KEY, legacy.value)
     }
 
     // Persist changes to storage
@@ -82,6 +90,12 @@ export function useCustomThemes (): UseCustomThemesReturn {
         value: custom.colors,
         dark: custom.dark,
       })
+    }
+
+    // The page toggle resolves its stored preference before this module has
+    // registered anything, so a custom preference needs re-selecting here.
+    if (customThemes.value.some(t => t.id === toggle.preference.value)) {
+      theme.select(toggle.preference.value)
     }
   }
 

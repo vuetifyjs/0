@@ -1,4 +1,3 @@
-// Data
 // Utilities
 import { fetchNpmVersions } from '@/utilities/npm'
 import { useVueImportMap } from '@vue/repl/core'
@@ -12,9 +11,13 @@ export function usePlaygroundSettings () {
   })
 
   const v0Version = shallowRef('latest')
+  const vuetifyVersion = shallowRef('latest')
+  const vuetifyNightly = shallowRef(false)
 
   const vueVersions = shallowRef<string[]>([])
   const v0Versions = shallowRef<string[]>([])
+  const vuetifyVersions = shallowRef<string[]>([])
+  const vuetifyNightlyVersions = shallowRef<string[]>([])
 
   const fetching = shallowRef(false)
   let fetched = false
@@ -24,14 +27,20 @@ export function usePlaygroundSettings () {
     fetched = true
     fetching.value = true
     try {
-      const [vue, v0] = await Promise.all([
+      const [vue, v0, vuetify, vuetifyNightly_] = await Promise.all([
         // Floor at 3.5.0: @vuetify/v0 requires vue >=3.5.0 (uses useId), and
         // Vuetify 4 needs 3.5+ too — offering older Vue breaks both presets.
         fetchNpmVersions('vue', '3.5.0', false),
         fetchNpmVersions('@vuetify/v0', '0.1.0', true),
+        // Vuetify 4.x stable versions only (floor at 4.0.0)
+        fetchNpmVersions('vuetify', '4.0.0', false),
+        // Vuetify nightly builds from @vuetify/nightly package (not vuetify prereleases)
+        fetchNpmVersions('@vuetify/nightly', '0.0.0', true),
       ])
       vueVersions.value = vue
       v0Versions.value = v0
+      vuetifyVersions.value = vuetify
+      vuetifyNightlyVersions.value = vuetifyNightly_
     } catch {
       fetched = false
     } finally {
@@ -39,5 +48,17 @@ export function usePlaygroundSettings () {
     }
   }
 
-  return { importMap, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions }
+  return {
+    importMap,
+    vueVersion,
+    v0Version,
+    vuetifyVersion,
+    vuetifyNightly,
+    vueVersions,
+    v0Versions,
+    vuetifyVersions,
+    vuetifyNightlyVersions,
+    fetching,
+    fetchVersions,
+  }
 }

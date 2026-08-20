@@ -1,0 +1,19 @@
+{
+  // `customConditions: ["development"]` already resolves @vuetify/v0 and
+  // @paper/emerald to their TypeScript sources, so tsconfig.app.json's project
+  // references would demand built .d.ts output that never exists (TS6305).
+  // Drop them — and composite with them — for the standalone typecheck run.
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "composite": false,
+    "incremental": false
+  },
+  // tsconfig.app.json's include is src-only, which leaves vite-env.d.ts — the
+  // ambient home of `virtual:uno.css` and the vite `define` constants — out.
+  "include": [
+    "vite-env.d.ts",
+    "src/**/*.ts",
+    "src/**/*.vue"
+  ],
+  "references": []
+}

@@ -647,8 +647,10 @@
       "description": "Description tooltip with hover and focus triggers, configurable open/close delays, and an optional interactive-content mode."
     },
     "Alert": {
-      "level": "draft",
-      "category": "semantic"
+      "level": "preview",
+      "since": null,
+      "category": "semantic",
+      "description": "Inline status message with ARIA live-region semantics. Use role=alert for urgent messages, role=status for informational."
     },
     "Avatar": {
       "level": "preview",
@@ -741,6 +743,11 @@
       "since": "0.1.11",
       "category": "utilities"
     },
+    "getActiveElement": {
+      "level": "preview",
+      "since": null,
+      "category": "utilities"
+    },
     "hexToRgb": {
       "level": "preview",
       "since": "0.1.11",
@@ -825,6 +832,12 @@
       "level": "stable",
       "since": "0.0.1",
       "category": "utilities"
+    },
+    "pxToNumber": {
+      "level": "preview",
+      "since": null,
+      "category": "utilities",
+      "description": "Parses a CSS pixel length into a number, returning a caller-supplied fallback when the length does not parse."
     },
     "range": {
       "level": "stable",

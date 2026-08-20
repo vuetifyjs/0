@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { shallowRef } from 'vue'
-  import Grid from './Grid.vue'
+  import SwatchGrid from './SwatchGrid.vue'
 
   const palette = [
     { id: 'red-300', hex: '#e57373', label: 'Red 300' },
@@ -34,6 +34,6 @@
 
 <template>
   <div class="flex justify-center">
-    <Grid v-model="selected" :columns="6" :swatches="palette" />
+    <SwatchGrid v-model="selected" :columns="6" :swatches="palette" />
   </div>
 </template>

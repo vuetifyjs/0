@@ -20,7 +20,7 @@ export const themes = {
     icon: 'theme-light',
     dark: false,
     colors: {
-      'primary': '#7c5cf6',
+      'primary': '#7453ec',
       'secondary': '#64748b',
       'accent': '#6366f1',
       'error': '#ef4444',
@@ -686,8 +686,7 @@ export function getAllThemeConfigs (): Record<ThemeId, { dark: boolean, colors: 
  * Export theme as Vuetify config format.
  * Ready to paste into createVuetify() themes option.
  */
-export function exportThemeAsVuetifyConfig (id: ThemeId): string {
-  const theme = themes[id]
+export function exportThemeAsVuetifyConfig (theme: Pick<ThemeDefinition, 'colors' | 'dark'>): string {
   const config = {
     dark: theme.dark,
     colors: { ...theme.colors },

@@ -287,7 +287,7 @@ describe('alertDialog', () => {
       expect(content.attributes('aria-modal')).toBe('true')
     })
 
-    it('should have aria-labelledby pointing to title', () => {
+    it('should have aria-labelledby pointing to title when Title is mounted', async () => {
       const wrapper = mountWithStack(AlertDialog.Root, {
         props: { id: 'test-alert' },
         slots: {
@@ -297,11 +297,12 @@ describe('alertDialog', () => {
         },
       })
 
+      await nextTick()
       const content = wrapper.findComponent(AlertDialog.Content as any)
       expect(content.attributes('aria-labelledby')).toBe('test-alert-title')
     })
 
-    it('should have aria-describedby pointing to description', () => {
+    it('should have aria-describedby pointing to description when Description is mounted', async () => {
       const wrapper = mountWithStack(AlertDialog.Root, {
         props: { id: 'test-alert' },
         slots: {
@@ -311,6 +312,7 @@ describe('alertDialog', () => {
         },
       })
 
+      await nextTick()
       const content = wrapper.findComponent(AlertDialog.Content as any)
       expect(content.attributes('aria-describedby')).toBe('test-alert-description')
     })
@@ -1514,6 +1516,41 @@ describe('alertDialog', () => {
 
       expect(isOpen.value).toBe(false)
       expect(spy).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('edge cases', () => {
+    it('should omit aria-labelledby/describedby when Title/Description are absent', () => {
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { id: 'no-title-alert' },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => 'Just content'),
+        },
+      })
+
+      const content = wrapper.findComponent(AlertDialog.Content as any)
+      // aria-labelledby/describedby should be omitted when Title/Description not mounted
+      expect(content.attributes('aria-labelledby')).toBeUndefined()
+      expect(content.attributes('aria-describedby')).toBeUndefined()
+    })
+
+    it('should emit aria-labelledby/describedby when Title/Description are present', async () => {
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { id: 'with-title-alert' },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Title, {}, () => 'Title'),
+            h(AlertDialog.Description, {}, () => 'Description'),
+            'Content',
+          ]),
+        },
+      })
+
+      await nextTick()
+      const content = wrapper.findComponent(AlertDialog.Content as any)
+      // aria-labelledby/describedby should be present when Title/Description are mounted
+      expect(content.attributes('aria-labelledby')).toBe('with-title-alert-title')
+      expect(content.attributes('aria-describedby')).toBe('with-title-alert-description')
     })
   })
 

@@ -165,7 +165,7 @@
 
         <div
           class="border border-divider rounded-xl p-4 md:p-6"
-          :class="settings.showBgGlass ? 'bg-glass-surface' : 'bg-surface'"
+          :class="settings.surface.value"
         >
           <div class="flex items-center gap-2 mb-3">
             <SkillLevelBadge :level="tour.level" />

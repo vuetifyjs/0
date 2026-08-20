@@ -2,6 +2,7 @@
 import { createContext, createGroup, useStorage } from '@vuetify/v0'
 
 // Utilities
+import { filterNav } from '@/utilities/nav'
 import { computed, onMounted, toRef, toValue, watch } from 'vue'
 
 // Types
@@ -41,7 +42,8 @@ export function createLevelFilter (nav: MaybeRefOrGetter<NavItem[]>) {
   const filteredNav = computed(() => {
     const items = toValue(nav)
     if (group.selectedIds.size === 0) return items
-    return filterNavByLevel(items, group.selectedIds as Set<number>)
+    const levels = group.selectedIds as Set<number>
+    return filterNav(items, item => !!item.level && levels.has(item.level))
   })
 
   const hasChanges = toRef(() => group.selectedIds.size > 0)
@@ -64,33 +66,4 @@ export function createLevelFilter (nav: MaybeRefOrGetter<NavItem[]>) {
     ...context,
     provide: () => provideLevelFilterContext(context),
   }
-}
-
-function filterNavByLevel (items: NavItem[], levels: Set<number>): NavItem[] {
-  const filtered = items
-    .map(item => {
-      if ('divider' in item) return item
-      if ('children' in item && item.children) {
-        const childFiltered = filterNavByLevel(item.children, levels)
-        if (childFiltered.length === 0) return null
-        return { ...item, children: childFiltered }
-      }
-      if ('to' in item) {
-        // Pages without level hidden when filtering
-        if (!item.level) return null
-        if (!levels.has(item.level)) return null
-      }
-      return item
-    })
-    .filter((item): item is NavItem => item !== null)
-
-  // Remove orphaned dividers (leading, trailing, consecutive)
-  return filtered.filter((item, i, arr) => {
-    if (!('divider' in item)) return true
-    const prev = arr[i - 1]
-    const next = arr[i + 1]
-    if (!prev || !next) return false
-    if ('divider' in prev || 'divider' in next) return false
-    return true
-  })
 }
