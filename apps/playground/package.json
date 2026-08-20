@@ -17,6 +17,7 @@
     "client-zip": "catalog:",
     "fflate": "catalog:",
     "pinia": "catalog:",
+    "swetrix": "catalog:",
     "vue": "catalog:"
   },
   "devDependencies": {
