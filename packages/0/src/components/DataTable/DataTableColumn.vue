@@ -6,7 +6,7 @@
    *
    * @remarks
    * A `<th>` element for header cells. Exposes sort state and controls
-   * for sortable columns. Use inside DataTable.HeaderRow.
+   * for sortable columns. Use inside DataTable.Row.
    */
 
   // Components

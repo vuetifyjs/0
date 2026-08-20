@@ -5,8 +5,9 @@
    * @see https://0.vuetifyjs.com/components/data/data-table
    *
    * @remarks
-   * A `<tr>` element for data rows. Exposes selection and expansion state
-   * when bound to a row item. Use inside DataTable.Body.
+   * A `<tr>` element. Use inside DataTable.Header (with Column) or
+   * DataTable.Body (with Cell). Exposes selection and expansion state
+   * when bound to a row item.
    */
 
   // Components

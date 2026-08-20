@@ -41,9 +41,9 @@ The DataTable component provides a semantic table structure that wraps the `crea
   <DataTable.Root>
     <DataTable.Table>
       <DataTable.Header>
-        <DataTable.HeaderRow>
+        <DataTable.Row>
           <DataTable.Column />
-        </DataTable.HeaderRow>
+        </DataTable.Row>
       </DataTable.Header>
 
       <DataTable.Body>
@@ -77,7 +77,6 @@ flowchart TD
 
   subgraph Header["DataTable.Header"]
     Headers["headers 2D grid"]
-    HeaderRow["DataTable.HeaderRow"]
     Column["DataTable.Column"]
   end
 
@@ -90,7 +89,7 @@ flowchart TD
   Root --> Table
   Table --> Header
   Table --> Body
-  Header --> HeaderRow --> Column
+  Header --> Row --> Column
   Body --> Row --> Cell
 ```
 

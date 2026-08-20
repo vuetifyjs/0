@@ -273,52 +273,6 @@ describe('data-table', () => {
     })
   })
 
-  describe('header-row', () => {
-    describe('rendering', () => {
-      it('should render as tr by default', () => {
-        const wrapper = mount(DataTable.Root, {
-          slots: {
-            default: () => h(DataTable.Table, {}, () =>
-              h(DataTable.Header, {}, () => h(DataTable.HeaderRow)),
-            ),
-          },
-        })
-
-        const headerRow = wrapper.findComponent(DataTable.HeaderRow as any)
-        expect(headerRow.element.tagName).toBe('TR')
-      })
-
-      it('should render as custom element when as prop is provided', () => {
-        const wrapper = mount(DataTable.Root, {
-          slots: {
-            default: () => h(DataTable.Table, {}, () =>
-              h(DataTable.Header, {}, () => h(DataTable.HeaderRow, { as: 'div' })),
-            ),
-          },
-        })
-
-        const headerRow = wrapper.findComponent(DataTable.HeaderRow as any)
-        expect(headerRow.element.tagName).toBe('DIV')
-      })
-
-      it('should support renderless mode', () => {
-        const wrapper = mount(DataTable.Root, {
-          slots: {
-            default: () => h(DataTable.Table, {}, () =>
-              h(DataTable.Header, {}, () =>
-                h(DataTable.HeaderRow, { renderless: true }, () =>
-                  h('div', { class: 'custom-header-row' }),
-                ),
-              ),
-            ),
-          },
-        })
-
-        expect(wrapper.find('.custom-header-row').exists()).toBe(true)
-      })
-    })
-  })
-
   describe('column', () => {
     describe('rendering', () => {
       it('should render as th by default', () => {
@@ -326,7 +280,7 @@ describe('data-table', () => {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Header, {}, () =>
-                h(DataTable.HeaderRow, {}, () => h(DataTable.Column)),
+                h(DataTable.Row, {}, () => h(DataTable.Column)),
               ),
             ),
           },
@@ -341,7 +295,7 @@ describe('data-table', () => {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Header, {}, () =>
-                h(DataTable.HeaderRow, {}, () => h(DataTable.Column)),
+                h(DataTable.Row, {}, () => h(DataTable.Column)),
               ),
             ),
           },
@@ -361,7 +315,7 @@ describe('data-table', () => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Header, {}, () =>
-                  h(DataTable.HeaderRow, {}, () =>
+                  h(DataTable.Row, {}, () =>
                     h(DataTable.Column, { id: 'name' }, {
                       default: (props: any) => {
                         slotProps = props
@@ -393,7 +347,7 @@ describe('data-table', () => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Header, {}, () =>
-                  h(DataTable.HeaderRow, {}, () =>
+                  h(DataTable.Row, {}, () =>
                     h(DataTable.Column, { id: 'name' }, {
                       default: (props: any) => {
                         slotProps = props
@@ -426,7 +380,7 @@ describe('data-table', () => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Header, {}, () =>
-                  h(DataTable.HeaderRow, {}, () =>
+                  h(DataTable.Row, {}, () =>
                     h(DataTable.Column, { id: 'name' }, () => 'Name'),
                   ),
                 ),
@@ -446,7 +400,7 @@ describe('data-table', () => {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Header, {}, () =>
-                h(DataTable.HeaderRow, {}, () => h(DataTable.Column, { as: 'div' })),
+                h(DataTable.Row, {}, () => h(DataTable.Column, { as: 'div' })),
               ),
             ),
           },
@@ -461,7 +415,7 @@ describe('data-table', () => {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Header, {}, () =>
-                h(DataTable.HeaderRow, {}, () =>
+                h(DataTable.Row, {}, () =>
                   h(DataTable.Column, { renderless: true }, () =>
                     h('div', { class: 'custom-header-cell' }, 'Name'),
                   ),
@@ -481,7 +435,7 @@ describe('data-table', () => {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Header, {}, () =>
-                h(DataTable.HeaderRow, {}, () =>
+                h(DataTable.Row, {}, () =>
                   h(DataTable.Column, {}, {
                     default: (props: any) => {
                       slotProps = props
@@ -511,7 +465,7 @@ describe('data-table', () => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Header, {}, () =>
-                  h(DataTable.HeaderRow, {}, () =>
+                  h(DataTable.Row, {}, () =>
                     h(DataTable.Column, { id: 'email' }, {
                       default: (props: any) => {
                         slotProps = props
@@ -544,7 +498,7 @@ describe('data-table', () => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Header, {}, () =>
-                  h(DataTable.HeaderRow, {}, () =>
+                  h(DataTable.Row, {}, () =>
                     h(DataTable.Column, { id: 'name' }, {
                       default: (props: any) => {
                         slotProps = props
@@ -577,7 +531,7 @@ describe('data-table', () => {
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Header, {}, () =>
-                h(DataTable.HeaderRow, {}, () =>
+                h(DataTable.Row, {}, () =>
                   h(DataTable.Column, { colspan: 2, rowspan: 3 }, () => 'Name'),
                 ),
               ),
@@ -600,7 +554,7 @@ describe('data-table', () => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, { namespace: 'v0:custom-table' }, () =>
                 h(DataTable.Header, { namespace: 'v0:custom-table' }, () =>
-                  h(DataTable.HeaderRow, {}, () =>
+                  h(DataTable.Row, { namespace: 'v0:custom-table' }, () =>
                     h(DataTable.Column, { namespace: 'v0:custom-table', id: 'name' }, {
                       default: (props: any) => {
                         slotProps = props
@@ -1206,7 +1160,7 @@ describe('data-table', () => {
             context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
             return h(DataTable.Table, {}, () => [
               h(DataTable.Header, {}, () =>
-                h(DataTable.HeaderRow, {}, () =>
+                h(DataTable.Row, {}, () =>
                   testColumns.map(col =>
                     h(DataTable.Column, { key: col.id, id: col.id }, () => col.title),
                   ),
@@ -1233,7 +1187,7 @@ describe('data-table', () => {
       expect(wrapper.findComponent(DataTable.Body as any).exists()).toBe(true)
 
       const rows = wrapper.findAllComponents(DataTable.Row as any)
-      expect(rows).toHaveLength(3)
+      expect(rows).toHaveLength(4)
 
       const cells = wrapper.findAllComponents(DataTable.Cell as any)
       expect(cells.length).toBeGreaterThan(0)
@@ -1248,7 +1202,7 @@ describe('data-table', () => {
           h(DataTable.Root as any, {}, () =>
             h(DataTable.Table as any, {}, () => [
               h(DataTable.Header as any, {}, () =>
-                h(DataTable.HeaderRow as any, {}, () =>
+                h(DataTable.Row as any, {}, () =>
                   h(DataTable.Column as any, {}, () => 'Name'),
                 ),
               ),

@@ -51,7 +51,7 @@
 
     <DataTable.Table class="w-full border-collapse">
       <DataTable.Header>
-        <DataTable.HeaderRow class="border-b">
+        <DataTable.Row class="border-b">
           <DataTable.Column
             v-for="col in columns"
             :id="col.id"
@@ -69,7 +69,7 @@
 
             <span v-else>{{ col.title }}</span>
           </DataTable.Column>
-        </DataTable.HeaderRow>
+        </DataTable.Row>
       </DataTable.Header>
 
       <DataTable.Body v-slot="{ items }">

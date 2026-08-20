@@ -14,7 +14,6 @@ export { default as DataTableCell } from './DataTableCell.vue'
 export { default as DataTableColumn } from './DataTableColumn.vue'
 export { default as DataTableEmpty } from './DataTableEmpty.vue'
 export { default as DataTableHeader } from './DataTableHeader.vue'
-export { default as DataTableHeaderRow } from './DataTableHeaderRow.vue'
 export { provideDataTableRoot, useDataTableRoot } from './DataTableRoot.vue'
 export { default as DataTableRoot } from './DataTableRoot.vue'
 export { default as DataTableRow } from './DataTableRow.vue'
@@ -25,7 +24,6 @@ export type { DataTableCellProps, DataTableCellSlotProps } from './DataTableCell
 export type { DataTableColumnProps, DataTableColumnSlotProps } from './DataTableColumn.vue'
 export type { DataTableEmptyProps, DataTableEmptySlotProps } from './DataTableEmpty.vue'
 export type { DataTableHeaderProps, DataTableHeaderSlotProps } from './DataTableHeader.vue'
-export type { DataTableHeaderRowProps, DataTableHeaderRowSlotProps } from './DataTableHeaderRow.vue'
 export type { DataTableRootProps, DataTableRootSlotProps } from './DataTableRoot.vue'
 export type { DataTableRowProps, DataTableRowSlotProps } from './DataTableRow.vue'
 export type { DataTableTableProps, DataTableTableSlotProps } from './DataTableTable.vue'
@@ -36,7 +34,6 @@ import Cell from './DataTableCell.vue'
 import Column from './DataTableColumn.vue'
 import Empty from './DataTableEmpty.vue'
 import Header from './DataTableHeader.vue'
-import HeaderRow from './DataTableHeaderRow.vue'
 import Root from './DataTableRoot.vue'
 import Row from './DataTableRow.vue'
 import Table from './DataTableTable.vue'
@@ -61,10 +58,10 @@ import Table from './DataTableTable.vue'
  *   <DataTable.Root v-slot="{ context }">
  *     <DataTable.Table>
  *       <DataTable.Header>
- *         <DataTable.HeaderRow>
+ *         <DataTable.Row>
  *           <DataTable.Column id="name">Name</DataTable.Column>
  *           <DataTable.Column id="email">Email</DataTable.Column>
- *         </DataTable.HeaderRow>
+ *         </DataTable.Row>
  *       </DataTable.Header>
  *
  *       <DataTable.Body v-slot="{ items }">
@@ -119,7 +116,7 @@ export const DataTable = {
    * @example
    * ```vue
    * <DataTable.Header v-slot="{ headers }">
-   *   <DataTable.HeaderRow v-for="(row, i) in headers" :key="i">
+   *   <DataTable.Row v-for="(row, i) in headers" :key="i">
    *     <DataTable.Column
    *       v-for="header in row"
    *       :key="header.id"
@@ -127,17 +124,11 @@ export const DataTable = {
    *     >
    *       {{ header.title }}
    *     </DataTable.Column>
-   *   </DataTable.HeaderRow>
+   *   </DataTable.Row>
    * </DataTable.Header>
    * ```
    */
   Header,
-  /**
-   * A `<tr>` element for header rows.
-   *
-   * @see https://0.vuetifyjs.com/components/data/data-table
-   */
-  HeaderRow,
   /**
    * A `<th>` element for header cells with sort state and controls.
    *

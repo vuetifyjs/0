@@ -31,7 +31,7 @@
 
     <DataTable.Table aria-label="Users table">
       <DataTable.Header>
-        <DataTable.HeaderRow>
+        <DataTable.Row>
           <DataTable.Column
             v-for="col in columns"
             :id="col.id"
@@ -39,7 +39,7 @@
           >
             {{ col.title }}
           </DataTable.Column>
-        </DataTable.HeaderRow>
+        </DataTable.Row>
       </DataTable.Header>
 
       <DataTable.Body v-slot="{ items }">
