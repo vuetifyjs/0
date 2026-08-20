@@ -99,6 +99,7 @@ export const createApp = ViteSSG(
       pinia.state.value = initialState.pinia || {}
 
     if (!import.meta.env.SSR) {
+      await import('./plugins/analytics')
       const { useAuthStore } = await import('@vuetify/auth')
       useAuthStore().verify()
     }
