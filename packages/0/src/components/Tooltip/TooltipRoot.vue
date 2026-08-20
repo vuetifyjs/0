@@ -25,7 +25,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { PopoverReturn } from '#v0/composables/usePopover'
+  import type { PopoverAdapter, PopoverReturn } from '#v0/composables/usePopover'
   import type { Ref, ShallowRef } from 'vue'
 
   export type TooltipState = 'closed' | 'delayed-open' | 'instant-open'
@@ -45,6 +45,8 @@
     positionTry?: string
     /** Dependency-injection namespace (default `v0:tooltip`) */
     namespace?: string
+    /** Positioning engine. @default CSS anchor positioning (`V0PopoverAdapter`) */
+    adapter?: PopoverAdapter
   }
 
   export interface TooltipRootSlotProps {
@@ -87,6 +89,8 @@
     anchorStyles: PopoverReturn['anchorStyles']
     /** Attach the anchor element to the popover */
     attach: PopoverReturn['attach']
+    /** Register the activator/reference element with the positioning adapter */
+    attachAnchor: PopoverReturn['attachAnchor']
   }
 
   export const [useTooltipRoot, provideTooltipRoot] = createContext<TooltipRootContext>({ suffix: 'root' })
@@ -112,6 +116,7 @@
     positionArea = 'top',
     positionTry = 'most-height top',
     namespace = 'v0:tooltip',
+    adapter,
   } = defineProps<TooltipRootProps>()
 
   const isOpen = defineModel<boolean>({ default: false })
@@ -120,7 +125,7 @@
 
   const isDisabled = toRef(() => disabled || region.disabled.value)
 
-  const popover = usePopover({ isOpen, positionArea, positionTry })
+  const popover = usePopover({ isOpen, positionArea, positionTry, adapter })
 
   const skipped = shallowRef(false)
 
@@ -184,6 +189,7 @@
     contentStyles: popover.contentStyles,
     anchorStyles: popover.anchorStyles,
     attach: popover.attach,
+    attachAnchor: popover.attachAnchor,
   }
 
   provideTooltipRoot(namespace, context)

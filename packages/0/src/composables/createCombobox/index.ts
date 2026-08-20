@@ -50,7 +50,7 @@ import { computed, shallowRef, toRef, toValue, watch } from 'vue'
 // Types
 import type { SelectionContext } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { PopoverReturn } from '#v0/composables/usePopover'
+import type { PopoverAdapter, PopoverReturn } from '#v0/composables/usePopover'
 import type { VirtualFocusReturn } from '#v0/composables/useVirtualFocus'
 import type { MaybeArray, ID } from '#v0/types'
 import type { ComboboxAdapter } from './adapters'
@@ -68,6 +68,8 @@ export interface ComboboxOptions {
   error?: MaybeRefOrGetter<boolean>
   errorMessages?: MaybeRefOrGetter<MaybeArray<string> | undefined>
   adapter?: ComboboxAdapter
+  /** Positioning engine for the dropdown. @default CSS anchor positioning (`V0PopoverAdapter`) */
+  positionAdapter?: PopoverAdapter
   displayValue?: (value: unknown) => string
   id?: string
   name?: string
@@ -138,6 +140,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     error = false,
     errorMessages,
     adapter,
+    positionAdapter,
     displayValue = v => String(v ?? ''),
     id: _id,
     name,
@@ -191,7 +194,8 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   // Setup adapter (defaults to ClientComboboxAdapter for local filtering)
   const { filtered, isLoading, isEmpty } = (adapter ?? new ClientComboboxAdapter()).setup({ query, items })
 
-  const popover = usePopover({ id })
+  const popover = usePopover({ id, adapter: positionAdapter })
+  popover.attachAnchor(inputEl)
   const isOpen = popover.isOpen
 
   const cursor = useVirtualFocus(
