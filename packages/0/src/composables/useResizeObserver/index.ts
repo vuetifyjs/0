@@ -38,7 +38,7 @@ import { createObserver } from '#v0/composables/createObserver'
 import { SUPPORTS_OBSERVER } from '#v0/constants/globals'
 
 // Utilities
-import { isNaN, isString } from '#v0/utilities'
+import { isString, pxToNumber } from '#v0/utilities'
 import { shallowReadonly, shallowRef } from 'vue'
 
 // Types
@@ -98,24 +98,17 @@ export interface ResizeObserverOptions {
 
 export interface UseResizeObserverReturn extends ObserverReturn {}
 
-/* #__NO_SIDE_EFFECTS__ */
-function pxToNumber (value: string | undefined, fallback = 0): number {
-  if (!isString(value)) return fallback
-
-  const parsed = Number.parseFloat(value)
-
-  return isNaN(parsed) ? fallback : parsed
-}
-
 /**
  * Synthesize the entry the observer would report for `el`, for the `immediate`
  * callback that fires before the observer's own first delivery.
  *
- * The box sizes come from `getComputedStyle` rather than
+ * Every measurement comes from `getComputedStyle` rather than
  * `getBoundingClientRect` because resolved lengths are layout values — like the
  * observer, and unlike a client rect, they are not scaled by CSS transforms.
- * `contentRect` keeps its existing client-rect source so callers reading it see
- * no change.
+ * `contentRect` mirrors the native entry: width/height are the content box and
+ * top/left are the padding offsets, so the immediate entry matches what the
+ * observer reports next. The client rect only remains as the fallback when a
+ * resolved length is not numeric (e.g. a detached element).
  *
  * Every read is written to tolerate a partial style declaration: an element
  * with no layout box resolves its lengths to `''`, and this runs on whatever
@@ -126,8 +119,14 @@ function measure (el: Element): ResizeObserverEntry {
   const rect = el.getBoundingClientRect()
   const style = getComputedStyle(el)
 
-  const paddingX = pxToNumber(style.paddingLeft) + pxToNumber(style.paddingRight)
-  const paddingY = pxToNumber(style.paddingTop) + pxToNumber(style.paddingBottom)
+  const padding = {
+    top: pxToNumber(style.paddingTop),
+    left: pxToNumber(style.paddingLeft),
+    right: pxToNumber(style.paddingRight),
+    bottom: pxToNumber(style.paddingBottom),
+  }
+  const paddingX = padding.left + padding.right
+  const paddingY = padding.top + padding.bottom
   const borderX = pxToNumber(style.borderLeftWidth) + pxToNumber(style.borderRightWidth)
   const borderY = pxToNumber(style.borderTopWidth) + pxToNumber(style.borderBottomWidth)
 
@@ -155,10 +154,10 @@ function measure (el: Element): ResizeObserverEntry {
 
   return {
     contentRect: {
-      width: rect.width,
-      height: rect.height,
-      top: rect.top,
-      left: rect.left,
+      width: width.content,
+      height: height.content,
+      top: padding.top,
+      left: padding.left,
     },
     borderBoxSize: [{ inlineSize: inline.border, blockSize: block.border }],
     contentBoxSize: [{ inlineSize: inline.content, blockSize: block.content }],

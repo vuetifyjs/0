@@ -297,6 +297,8 @@ expect(slotProps.attrs['aria-label']).toBeDefined()
 expect(slotProps.attrs['aria-label']).toBe('Close dialog')
 ```
 
+Carve-out: default-fallback strings MAY be pinned to their literal when the test environment installs no locale plugin — the hardcoded `?? 'X'` fallback is then deterministic (NumberField's `'Number'` pin is the standing precedent). `toBeDefined()` remains the rule whenever a locale plugin could resolve the key.
+
 ## Benchmark Pattern
 
 Benchmarks are colocated as `index.bench.ts`, only for performance-critical composables. See `.claude/rules/benchmarks.md` for full conventions. [intent:233]

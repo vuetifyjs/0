@@ -90,47 +90,23 @@ features:
 
 ## Live Examples
 
-Feature pages (components/composables): use `::: gn-example` — full authoring rules in `.claude/rules/docs.md`. Do not hand-roll `<DocsExample>` imports on those pages.
+Feature pages (components/composables): use `::: gn-example` — full authoring rules in `.claude/rules/docs.md`. Do not hand-roll example mounts on those pages.
 
-`.vue` pages that still mount examples directly:
+Design-system pages (`pages/systems/**`): use `::: ds-example`. Same authoring syntax. Emerald examples render inline under `[data-theme="emerald-light"]` / `emerald-dark` via the adapter token sheet (do not import baked `theme.css`). Iframe remains the rule for systems that reset elements (Bulma) — those run against `sandbox/<system>.html`. Examples live in `src/examples/systems/<system>/<component>/`, import from the design system rather than `@vuetify/v0`, and have **no UnoCSS**. Iframe protocol and gotchas in `.claude/rules/docs.md`.
 
-**1. Create the example file** in `src/examples/`:
+Example files live in `src/examples/`:
 ```
 src/examples/components/{component}/basic.vue
 src/examples/composables/{composable}/basic.vue
 src/examples/guide/{guide-name}/example.vue
 ```
 
-**2. Import** using `<script setup>`:
-```vue
-<script setup>
-import BasicExample from '@/examples/components/tabs/basic.vue'
-import BasicExampleRaw from '@/examples/components/tabs/basic.vue?raw'
-</script>
-```
-
-**3. Mount DocsExample** with the component as slot and raw code as prop:
-```vue
-<DocsExample file="basic.vue" :code="BasicExampleRaw">
-  <BasicExample />
-</DocsExample>
-```
-
-| Prop | Purpose |
-|------|---------|
-| `file` | Filename shown in UI (e.g., `basic.vue`) |
-| `:code` | Raw source string for syntax highlighting |
-| slot | The actual Vue component to render |
-
-> [!WARNING]
-> Do NOT use just `<DocsExample file="path/to/example" />`. This won't render the component or show code. Always import both the component and its `?raw` version.
-
 ## Conventions
 
 - **Always prefer @vuetify/v0 composables** over raw browser APIs or custom implementations. Check `mcp__vuetify-mcp__get_vuetify0_composable_list` before writing event listeners, observers, or state management.
 - UnoCSS utilities for all styling
 - Prefer markdown for documentation pages
-- **Examples**: `::: gn-example` on feature pages (see `.claude/rules/docs.md`); `<DocsExample>` only in `.vue` pages; legacy `::: example` for guides/index only
+- **Examples**: `::: gn-example` on feature pages (see `.claude/rules/docs.md`); `::: ds-example` on design-system pages
 - **Callouts**: Use `> [!TIP]`, `> [!NOTE]`, `> [!WARNING]`, `> [!CAUTION]`, `> [!IMPORTANT]` for alerts (GitHub-aligned). Use `> [!ASKAI] question` to prompt Ask AI—phrase as a question the user would ask (e.g., "How do I add validation?"), not a question to the user. Use `> [!TOUR] tour-id` to embed a clickable tour callout—the tour name and description are pulled from the discovery registry automatically.
 
 The skill-level placement quiz is **not** a callout directive: it is the `AppSkillQuiz` component (rendered under the Skill Levels section of `guide/essentials/using-the-docs.md`), which drives `DocsQuestion` off the central bank in `apps/docs/src/skillz/questions/{track}.json`. Each attempt samples a level-spread subset and builds each question's options from its `answers` + a fresh draw from its own `distractors` pool; completing it suggests a skill level the reader can apply to the docs filter.

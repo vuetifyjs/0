@@ -52,10 +52,8 @@
             <Rating.Item
               v-for="i in 5"
               :key="i"
-              as="button"
-              class="relative size-8 text-2xl cursor-pointer focus:outline-none"
+              class="relative size-8 inline-flex items-center justify-center text-2xl cursor-pointer select-none"
               :index="i"
-              type="button"
             >
               <template #default="{ state }">
                 <span v-if="state === 'half'" class="relative inline-flex">
@@ -83,8 +81,8 @@
       v-model="comment"
       label="Review"
       :rules="[
-        (v: string) => !!v || 'A short review is required',
-        (v: string) => v.length >= 10 || 'At least 10 characters',
+        v => !!v || 'A short review is required',
+        v => (v as string).length >= 10 || 'At least 10 characters',
       ]"
       validate-on="blur lazy"
     >

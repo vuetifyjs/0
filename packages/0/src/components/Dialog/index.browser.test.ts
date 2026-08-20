@@ -478,7 +478,7 @@ describe('dialog', () => {
         expect(content.attributes('aria-modal')).toBe('true')
       })
 
-      it('should have aria-labelledby pointing to title', () => {
+      it('should have aria-labelledby pointing to title when Title is mounted', async () => {
         const wrapper = mountWithStack(Dialog.Root, {
           props: { id: 'test-dialog' },
           slots: {
@@ -488,11 +488,12 @@ describe('dialog', () => {
           },
         })
 
+        await nextTick()
         const content = wrapper.findComponent(Dialog.Content as any)
         expect(content.attributes('aria-labelledby')).toBe('test-dialog-title')
       })
 
-      it('should have aria-describedby pointing to description', () => {
+      it('should have aria-describedby pointing to description when Description is mounted', async () => {
         const wrapper = mountWithStack(Dialog.Root, {
           props: { id: 'test-dialog' },
           slots: {
@@ -502,6 +503,7 @@ describe('dialog', () => {
           },
         })
 
+        await nextTick()
         const content = wrapper.findComponent(Dialog.Content as any)
         expect(content.attributes('aria-describedby')).toBe('test-dialog-description')
       })
@@ -1143,7 +1145,7 @@ describe('dialog', () => {
       expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
     })
 
-    it('should handle missing title and description', () => {
+    it('should omit aria-labelledby/describedby when Title/Description are absent', () => {
       const wrapper = mountWithStack(Dialog.Root, {
         props: { id: 'no-title-dialog' },
         slots: {
@@ -1152,9 +1154,28 @@ describe('dialog', () => {
       })
 
       const content = wrapper.findComponent(Dialog.Content as any)
-      // Should still have aria attributes pointing to potentially missing elements
-      expect(content.attributes('aria-labelledby')).toBe('no-title-dialog-title')
-      expect(content.attributes('aria-describedby')).toBe('no-title-dialog-description')
+      // aria-labelledby/describedby should be omitted when Title/Description not mounted
+      expect(content.attributes('aria-labelledby')).toBeUndefined()
+      expect(content.attributes('aria-describedby')).toBeUndefined()
+    })
+
+    it('should emit aria-labelledby/describedby when Title/Description are present', async () => {
+      const wrapper = mountWithStack(Dialog.Root, {
+        props: { id: 'with-title-dialog' },
+        slots: {
+          default: () => h(Dialog.Content, {}, () => [
+            h(Dialog.Title, {}, () => 'Title'),
+            h(Dialog.Description, {}, () => 'Description'),
+            'Content',
+          ]),
+        },
+      })
+
+      await nextTick()
+      const content = wrapper.findComponent(Dialog.Content as any)
+      // aria-labelledby/describedby should be present when Title/Description are mounted
+      expect(content.attributes('aria-labelledby')).toBe('with-title-dialog-title')
+      expect(content.attributes('aria-describedby')).toBe('with-title-dialog-description')
     })
 
     it('should handle dialog without trigger (controlled)', async () => {

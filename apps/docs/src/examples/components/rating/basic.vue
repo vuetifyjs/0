@@ -12,8 +12,7 @@
         <Rating.Item
           v-for="i in 5"
           :key="i"
-          as="button"
-          class="size-8 text-xl cursor-pointer focus:outline-none [&[data-state=full]]:text-amber-500 [&[data-state=empty]]:text-on-surface-variant/40"
+          class="size-8 inline-flex items-center justify-center text-xl cursor-pointer select-none [&[data-state=full]]:text-amber-500 [&[data-state=empty]]:text-on-surface-variant/40"
           :index="i"
         >
           <template #default="{ state }">

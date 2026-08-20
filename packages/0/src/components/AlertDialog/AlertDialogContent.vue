@@ -48,8 +48,8 @@
       'id': string
       'role': 'alertdialog'
       'aria-modal': 'true'
-      'aria-labelledby': string
-      'aria-describedby': string
+      'aria-labelledby': string | undefined
+      'aria-describedby': string | undefined
       'style': { zIndex: number }
       'onCancel': (e: Event) => void
       'onClose': (e: Event) => void
@@ -109,6 +109,10 @@
     }
   }, { immediate: true })
 
+  function focusCancel () {
+    context.cancelEl.value?.focus()
+  }
+
   watch(context.isOpen, isOpen => {
     const element = contentRef.value?.element as HTMLDialogElement | undefined
     /* v8 ignore next -- defensive guard, element is always present after mount */
@@ -116,6 +120,7 @@
 
     if (isOpen) {
       element.showModal?.()
+      focusCancel()
     } else {
       element.close?.()
     }
@@ -124,6 +129,7 @@
   onMounted(() => {
     if (context.isOpen.value) {
       (contentRef.value?.element as HTMLDialogElement | undefined)?.showModal()
+      focusCancel()
     }
   })
 
@@ -162,8 +168,8 @@
       'id': context.id,
       'role': 'alertdialog',
       'aria-modal': 'true',
-      'aria-labelledby': context.titleId,
-      'aria-describedby': context.descriptionId,
+      'aria-labelledby': context.hasTitle.value ? context.titleId : undefined,
+      'aria-describedby': context.hasDescription.value ? context.descriptionId : undefined,
       'style': { zIndex: ticket.zIndex.value },
       'onCancel': onCancel,
       'onClose': onClose,

@@ -13,7 +13,6 @@
       v-for="i in 5"
       :key="i"
       v-slot="{ state }"
-      as="button"
       :index="i"
     >
       {{ state === 'full' ? '&#9733;' : '&#9734;' }}
