@@ -183,7 +183,7 @@
     :data-collapsed="collapsed || undefined"
     :data-mobile="mobile || undefined"
     :data-mode="dark ? 'dark' : 'light'"
-    :data-theme="dark ? 'emerald-dark' : 'emerald'"
+    :data-theme="dark ? 'emerald-dark' : 'emerald-light'"
   >
     <EmButton
       v-if="mobile && collapsed"
@@ -544,7 +544,7 @@
     --ed-tip: #2f343d;
   }
 
-  /* The theme adapter emits `[data-theme='emerald'] { color: … }` at the same
+  /* The theme adapter emits `[data-theme='emerald-light'] { color: … }` at the same
      specificity as `.ed` but later in the cascade, so the light-mode token wins
      and everything inheriting `color` (the brand, headings) stays dark on dark.
      Restating the shell's own text color at a higher specificity settles it. */

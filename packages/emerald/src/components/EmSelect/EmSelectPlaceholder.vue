@@ -2,9 +2,10 @@
   // Framework
   import { Select } from '@vuetify/v0'
 
-  export interface EmSelectPlaceholderProps {
-    namespace?: string
-  }
+  // Types
+  import type { SelectPlaceholderProps } from '@vuetify/v0'
+
+  export interface EmSelectPlaceholderProps extends Omit<SelectPlaceholderProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

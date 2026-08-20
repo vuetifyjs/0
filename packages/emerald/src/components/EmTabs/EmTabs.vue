@@ -3,18 +3,14 @@
   import { Tabs } from '@vuetify/v0'
 
   // Types
-  import type { TabsActivation } from '@vuetify/v0'
+  import type { TabsOrientation, TabsRootProps } from '@vuetify/v0'
 
-  export type EmTabsOrientation = 'horizontal' | 'vertical'
+  export type EmTabsOrientation = TabsOrientation
 
-  export interface EmTabsProps {
-    disabled?: boolean
-    mandatory?: boolean | 'force'
-    circular?: boolean
-    orientation?: EmTabsOrientation
-    activation?: TabsActivation
-    namespace?: string
-  }
+  export interface EmTabsProps extends Pick<
+    TabsRootProps,
+    'disabled' | 'mandatory' | 'circular' | 'orientation' | 'activation' | 'namespace'
+  > {}
 </script>
 
 <script lang="ts" setup generic="T">

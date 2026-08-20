@@ -2,13 +2,10 @@
   // Framework
   import { ExpansionPanel } from '@vuetify/v0'
 
-  export interface EmExpansionPanelGroupProps {
-    disabled?: boolean
-    enroll?: boolean
-    mandatory?: boolean | 'force'
-    multiple?: boolean
-    namespace?: string
-  }
+  // Types
+  import type { ExpansionPanelGroupProps } from '@vuetify/v0'
+
+  export interface EmExpansionPanelGroupProps extends Omit<ExpansionPanelGroupProps, 'as' | 'renderless'> {}
 </script>
 
 <script lang="ts" setup generic="T = unknown">

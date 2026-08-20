@@ -2,9 +2,10 @@
   // Framework
   import { Select } from '@vuetify/v0'
 
-  export interface EmSelectValueProps {
-    namespace?: string
-  }
+  // Types
+  import type { SelectValueProps } from '@vuetify/v0'
+
+  export interface EmSelectValueProps extends Omit<SelectValueProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

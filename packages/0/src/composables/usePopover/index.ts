@@ -49,9 +49,12 @@ import { useEventListener } from '#v0/composables/useEventListener'
 // Adapters
 import { V0PopoverAdapter, derivePlacement } from '#v0/composables/usePopover/adapters'
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
-import { useId } from '#v0/utilities'
-import { onMounted, onScopeDispose, shallowRef, toRef, toValue, watch } from 'vue'
+import { isNullOrUndefined, useId } from '#v0/utilities'
+import { onScopeDispose, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Exports
 export { derivePlacement, PopoverAdapter, V0PopoverAdapter } from '#v0/composables/usePopover/adapters'
@@ -190,26 +193,49 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
     attachContentEvents(el)
   }
 
-  /* v8 ignore start -- browser popover API */
   function attachContentEvents (el: MaybeRefOrGetter<HTMLElement | null | undefined>) {
-    onMounted(() => {
-      const element = toValue(el)
-      if (isOpen.value) {
-        element?.showPopover?.()
-      }
-    })
+    let current: HTMLElement | undefined
 
-    watch(isOpen, value => {
-      const element = toValue(el)
-      if (!element?.isConnected) return
-      if (value === element.matches?.(':popover-open')) return
+    function hide (element?: HTMLElement | null) {
+      if (!IN_BROWSER || isNullOrUndefined(element)) return
 
-      if (value) {
-        element.showPopover?.()
-      } else {
+      try {
+        if (element.matches?.(':popover-open') === false) return
         element.hidePopover?.()
+      } catch {
+        // hidePopover throws if the node is not a popover or is already hidden
       }
-    })
+    }
+
+    function sync () {
+      if (!IN_BROWSER) return
+
+      const element = toValue(el)
+
+      if (!isNullOrUndefined(current) && current !== element) {
+        hide(current)
+      }
+
+      current = isNullOrUndefined(element) ? undefined : element
+
+      if (isNullOrUndefined(element)) return
+
+      if (!isOpen.value) {
+        hide(element)
+        return
+      }
+
+      if (!element.isConnected) return
+      if (element.matches?.(':popover-open')) return
+
+      element.showPopover?.()
+    }
+
+    watch([isOpen, () => toValue(el)], sync, { immediate: true, flush: 'post' })
+
+    onScopeDispose(() => {
+      hide(toValue(el) ?? current)
+    }, true)
 
     useEventListener<ToggleEvent>(
       el,
@@ -221,7 +247,6 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
       },
     )
   }
-  /* v8 ignore stop */
 
   return {
     isOpen,

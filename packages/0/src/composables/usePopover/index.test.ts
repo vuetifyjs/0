@@ -3,11 +3,41 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { PopoverAdapter, usePopover } from './index'
 
 // Utilities
-import { effectScope, shallowRef, toRef } from 'vue'
+import { effectScope, nextTick, shallowRef, toRef } from 'vue'
 
 // Types
 import type { PopoverAdapterContext } from './index'
 import type { Ref } from 'vue'
+
+function createPopoverElement (options: { open?: boolean, connected?: boolean } = {}) {
+  const state = {
+    open: options.open ?? false,
+    connected: options.connected ?? true,
+  }
+
+  const showPopover = vi.fn(() => {
+    state.open = true
+  })
+  const hidePopover = vi.fn(() => {
+    state.open = false
+  })
+
+  const element = {
+    get isConnected () {
+      return state.connected
+    },
+    set isConnected (value: boolean) {
+      state.connected = value
+    },
+    showPopover,
+    hidePopover,
+    matches: vi.fn((selector: string) => selector === ':popover-open' && state.open),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  } as unknown as HTMLElement
+
+  return { element, showPopover, hidePopover }
+}
 
 describe('usePopover', () => {
   beforeEach(() => {
@@ -303,6 +333,116 @@ describe('usePopover', () => {
 
       vi.advanceTimersByTime(500)
       expect(popover!.isOpen.value).toBe(false)
+    })
+  })
+
+  describe('attach', () => {
+    it('should hide when the same still-open node reappears after close while the getter is null', async () => {
+      const scope = effectScope()
+      const { element, showPopover, hidePopover } = createPopoverElement()
+      const target = shallowRef<HTMLElement | null>(element)
+
+      const popover = scope.run(() => {
+        const instance = usePopover()
+        instance.attach(() => target.value)
+        return instance
+      })!
+
+      popover.isOpen.value = true
+      await nextTick()
+      expect(showPopover).toHaveBeenCalledTimes(1)
+
+      target.value = null
+      popover.isOpen.value = false
+      await nextTick()
+
+      target.value = element
+      await nextTick()
+
+      expect(hidePopover).toHaveBeenCalled()
+      scope.stop()
+    })
+
+    it('should hide when isOpen becomes false while the element is disconnected', async () => {
+      const scope = effectScope()
+      const { element, showPopover, hidePopover } = createPopoverElement()
+      const target = shallowRef<HTMLElement | null>(element)
+
+      const popover = scope.run(() => {
+        const instance = usePopover()
+        instance.attach(() => target.value)
+        return instance
+      })!
+
+      popover.isOpen.value = true
+      await nextTick()
+      expect(showPopover).toHaveBeenCalledTimes(1)
+
+      Object.defineProperty(element, 'isConnected', { value: false, configurable: true })
+      popover.isOpen.value = false
+      await nextTick()
+
+      expect(hidePopover).toHaveBeenCalled()
+      scope.stop()
+    })
+
+    it('should hide the previous node when the getter swaps away from a still-open popover', async () => {
+      const scope = effectScope()
+      const previous = createPopoverElement()
+      const next = createPopoverElement()
+      const target = shallowRef<HTMLElement | null>(previous.element)
+
+      const popover = scope.run(() => {
+        const instance = usePopover()
+        instance.attach(() => target.value)
+        return instance
+      })!
+
+      popover.isOpen.value = true
+      await nextTick()
+      expect(previous.showPopover).toHaveBeenCalledTimes(1)
+
+      target.value = next.element
+      await nextTick()
+
+      expect(previous.hidePopover).toHaveBeenCalled()
+      scope.stop()
+    })
+
+    it('should show when attach is called while isOpen is already true', async () => {
+      const scope = effectScope()
+      const isOpen = shallowRef(true)
+      const { element, showPopover } = createPopoverElement()
+      const target = shallowRef<HTMLElement | null>(element)
+
+      scope.run(() => {
+        const instance = usePopover({ isOpen })
+        instance.attach(() => target.value)
+      })
+
+      await nextTick()
+      expect(showPopover).toHaveBeenCalledTimes(1)
+      scope.stop()
+    })
+
+    it('should hide a still-open node on scope dispose', async () => {
+      const scope = effectScope()
+      const { element, showPopover, hidePopover } = createPopoverElement()
+      const target = shallowRef<HTMLElement | null>(element)
+
+      const popover = scope.run(() => {
+        const instance = usePopover()
+        instance.attach(() => target.value)
+        return instance
+      })!
+
+      popover.isOpen.value = true
+      await nextTick()
+      expect(showPopover).toHaveBeenCalledTimes(1)
+
+      scope.stop()
+
+      expect(hidePopover).toHaveBeenCalled()
     })
   })
 })

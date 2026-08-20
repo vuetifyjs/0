@@ -37,22 +37,56 @@ export { default as EmCalendarToday } from './EmCalendarToday.vue'
 
 export type { EmCalendarProps } from './EmCalendar.vue'
 
+// Context
+import Root from './EmCalendar.vue'
+import Grid from './EmCalendarGrid.vue'
+import Header from './EmCalendarHeader.vue'
+import Mini from './EmCalendarMini.vue'
+import Next from './EmCalendarNext.vue'
+import Prev from './EmCalendarPrev.vue'
+import Title from './EmCalendarTitle.vue'
+import Today from './EmCalendarToday.vue'
+
 /**
  * Month calendar. Owns the visible-month cursor, day selection, and events;
  * provides the `emerald:calendar` context its children read.
  *
+ * Sub-components are attached to the root, so one import reaches the whole
+ * compound. The flat names (`EmCalendarGrid`) remain exported and valid.
+ *
  * @example
  * ```vue
- * <EmCalendar v-model="selected" v-model:month="month" :events>
- *   <EmCalendarHeader>
- *     <EmCalendarPrev />
- *     <EmCalendarNext />
- *     <EmCalendarTitle />
- *     <EmCalendarToday />
- *   </EmCalendarHeader>
+ * <script lang="ts" setup>
+ *   import { EmCalendar } from '@paper/emerald'
+ * </script>
  *
- *   <EmCalendarGrid />
- * </EmCalendar>
+ * <template>
+ *   <EmCalendar v-model="selected" v-model:month="month" :events>
+ *     <EmCalendar.Header>
+ *       <EmCalendar.Prev />
+ *       <EmCalendar.Next />
+ *       <EmCalendar.Title />
+ *       <EmCalendar.Today />
+ *     </EmCalendar.Header>
+ *
+ *     <EmCalendar.Grid />
+ *   </EmCalendar>
+ * </template>
  * ```
  */
-export { default as EmCalendar } from './EmCalendar.vue'
+export const EmCalendar = Object.assign(Root, {
+  /** The month grid — weekday header plus 42 day cells, wired to the APG grid pattern. */
+  Grid,
+  /** Toolbar row above the grid; holds the nav and title controls. */
+  Header,
+  /** Compact month with tone dots — a nav widget, deliberately not a grid. */
+  Mini,
+  /** Advances the visible month. */
+  Next,
+  /** Rewinds the visible month. */
+  Prev,
+  /** Live label for the visible month, and the grid's accessible name. */
+  Title,
+  /** Jumps the cursor back to the current month. */
+  Today,
+})

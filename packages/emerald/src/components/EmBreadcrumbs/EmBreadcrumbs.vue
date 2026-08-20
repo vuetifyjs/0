@@ -2,13 +2,10 @@
   // Framework
   import { Breadcrumbs } from '@vuetify/v0'
 
-  export interface EmBreadcrumbsProps {
-    divider?: string
-    ellipsis?: string
-    gap?: number
-    label?: string
-    namespace?: string
-  }
+  // Types
+  import type { BreadcrumbsRootProps } from '@vuetify/v0'
+
+  export interface EmBreadcrumbsProps extends Omit<BreadcrumbsRootProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

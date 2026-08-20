@@ -1,8 +1,12 @@
 <script setup lang="ts">
   import { GnDocsExample } from '@paper/genesis'
 
+  // Framework
+  import { Theme } from '@vuetify/v0'
+
   // Context
   import DocsCodeActions from './DocsCodeActions.vue'
+  import DocsExampleThemeMenu from './DocsExampleThemeMenu.vue'
   import DocsGenesisShikiBlock from './DocsGenesisShikiBlock.vue'
 
   // Composables
@@ -10,14 +14,20 @@
   import { useExamples } from '@/composables/useExamples'
   import { prehighlight } from '@/composables/useHighlightCode'
   import { useIdleCallback } from '@/composables/useIdleCallback'
-  import { usePlayground } from '@/composables/usePlayground'
+  import {
+    playgroundRegistryUrl,
+    registryRefFromExamplePath,
+    usePlayground,
+  } from '@/composables/usePlayground'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
+  import { createThemeToggle, provideThemeToggle } from '@/composables/useThemeToggle'
 
   // Utilities
   import { computed, onMounted, toRef } from 'vue'
 
   // Types
+  import type { Palette } from '@/composables/useThemeToggle'
   import type { GnDocsExampleFile } from '@paper/genesis'
 
   export interface DocsGenesisExampleProps {
@@ -45,9 +55,16 @@
     peek?: boolean
     /** Visible peek lines (default 6) */
     peekLines?: number
+    /** Force a named theme on the preview (`data-theme`); bypasses the example theme toggle (systems pages) */
+    theme?: string
+    /** Default palette while following the page. Omit to track the page palette. */
+    palette?: Palette
   }
 
   const props = defineProps<DocsGenesisExampleProps>()
+
+  const example = createThemeToggle({ palette: props.palette })
+  provideThemeToggle(example)
 
   const examples = useExamples()
 
@@ -91,6 +108,20 @@
   })
 
   async function onPlayground (list: GnDocsExampleFile[]) {
+    // Embed source in the hash by default — works without a live /registry/*
+    // (PR #721). Opt into short registry URLs with VITE_PLAYGROUND_REGISTRY=1
+    // once the seed is deployed; entry file is the last .vue (registry contract).
+    if (import.meta.env.VITE_PLAYGROUND_REGISTRY === '1' && !props.imports) {
+      const path = props.filePath
+        ?? [...(props.filePaths ?? [])].toReversed().find(p => p.endsWith('.vue'))
+        ?? props.filePaths?.[0]
+      const ref = path ? registryRefFromExamplePath(path) : null
+      if (ref) {
+        window.open(playgroundRegistryUrl(ref), '_blank')
+        return
+      }
+    }
+
     const files = list.map(f => ({ name: f.name, code: f.code }))
     const url = await usePlayground(files, undefined, props.imports)
     window.open(url, '_blank')
@@ -119,15 +150,22 @@
     show-bin
     show-playground
     :style="{ '--gn-docs-example-sticky-top': 'calc(48px + var(--app-banner-h, 0px))' }"
+    :theme="theme ?? example.currentThemeId.value"
     :title
     @bin="onBin"
     @playground="onPlayground"
   >
-    <component :is="resolvedComponent" v-if="resolvedComponent" />
-    <slot v-else />
+    <Theme :theme="theme ?? example.currentThemeId.value">
+      <component :is="resolvedComponent" v-if="resolvedComponent" />
+      <slot v-else />
+    </Theme>
 
     <template #decoration>
       <AppDotGrid :coverage="60" />
+    </template>
+
+    <template v-if="!theme" #preview-actions>
+      <DocsExampleThemeMenu />
     </template>
 
     <template v-if="$slots.description" #description>

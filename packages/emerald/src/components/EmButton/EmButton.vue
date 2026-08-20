@@ -2,19 +2,23 @@
   // Framework
   import { Button } from '@vuetify/v0'
 
+  // Types
+  import type { ButtonRootProps } from '@vuetify/v0'
+
   export type EmButtonSize = 'sm' | 'md' | 'lg'
   export type EmButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'destructive'
 
-  export interface EmButtonProps {
-    disabled?: boolean
-    loading?: boolean
+  /**
+   * Emerald withholds six of v0's button props: `readonly`, `passive`, `grace`, `value`,
+   * `groupNamespace` and `form`. Button.Group composition and form association are not
+   * part of the DS surface, and `loading` uses v0's default grace period.
+   */
+  export interface EmButtonProps extends Pick<
+    ButtonRootProps,
+    'disabled' | 'loading' | 'ariaLabel' | 'name' | 'namespace'
+  > {
     size?: EmButtonSize
     variant?: EmButtonVariant
-    /** Accessible label for icon-only buttons */
-    ariaLabel?: string
-    /** Form field name — renders a hidden input when set */
-    name?: string
-    namespace?: string
   }
 </script>
 

@@ -1,5 +1,41 @@
 # @vuetify/v0
 
+## 1.0.5
+
+### Patch Changes
+
+- [#857](https://github.com/vuetifyjs/0/pull/857) [`41d90cc`](https://github.com/vuetifyjs/0/commit/41d90cc965ffaacf0f01ecbf51c9575eff57052a) Thanks [@johnleider](https://github.com/johnleider)! - fix(Dialog,AlertDialog): omit aria-labelledby/describedby when Title/Description absent ([#608](https://github.com/vuetifyjs/0/issues/608))
+
+  Dialog.Content and AlertDialog.Content now presence-track their Title and
+  Description sub-components. The `aria-labelledby` and `aria-describedby`
+  attributes are only emitted when the corresponding element is actually mounted,
+  avoiding dangling IDREF warnings from assistive technologies. Follows the same
+  pattern as Progress (`hasLabel`) and Combobox (`hasDescription`).
+
+- [#878](https://github.com/vuetifyjs/0/pull/878) [`bd8988b`](https://github.com/vuetifyjs/0/commit/bd8988b00d62b54468ff13767ff502ff5f1f82c5) Thanks [@johnleider](https://github.com/johnleider)! - fix(usePopover): closed popovers no longer leave a visible ghost node — attached elements are force-hidden on close, unmount, and scope dispose
+
+- [#875](https://github.com/vuetifyjs/0/pull/875) [`6cdd09c`](https://github.com/vuetifyjs/0/commit/6cdd09c538c1c68db601b8ff5c8310d938aee8fa) Thanks [@johnleider](https://github.com/johnleider)! - fix(SplitterPanel): panels no longer clip overflowing content (popovers, focus rings) — flex shrink now comes from min-size: 0 instead of overflow: hidden
+
+- [#836](https://github.com/vuetifyjs/0/pull/836) [`a25ea53`](https://github.com/vuetifyjs/0/commit/a25ea53ae53865d595355be8ab883a84f1a3ccaa) Thanks [@johnleider](https://github.com/johnleider)! - fix(Select): Add `data-disabled` attribute to SelectActivator for styling hooks ([#836](https://github.com/vuetifyjs/0/issues/836))
+
+## 1.0.4
+
+### Patch Changes
+
+- [#797](https://github.com/vuetifyjs/0/pull/797) [`5a9a388`](https://github.com/vuetifyjs/0/commit/5a9a388ef42a5bd96d5a398e28cb046da78e59a3) Thanks [@johnleider](https://github.com/johnleider)! - fix(useDate): add a fixedWeeks mode to getWeekArray
+
+  `getWeekArray(date, fixedWeeks?)` can now pad the month matrix to a constant 6 rows (42 cells), so calendar grids keep a stable height across months instead of jumping between 4, 5, and 6 rows. Padding continues day-by-day into the next month; months that naturally span 6 rows are unchanged. Default behavior without the flag is identical to before.
+
+- [#818](https://github.com/vuetifyjs/0/pull/818) [`a7334f8`](https://github.com/vuetifyjs/0/commit/a7334f84e475da9be0f6ab3d880ef474eeec8406) Thanks [@johnleider](https://github.com/johnleider)! - fix(useDragDrop): anchor the drop indicator to the slot and suppress no-op slots
+
+  An interior drop slot now always renders against the end edge of the rect above it. Previously the same slot anchored to the rect above or the rect below depending on which side the pointer approached from, so the indicator visibly jumped across the gap mid-drag — dragging a card down a column drew the line at the top of the next card instead of walking edge to edge.
+
+  A drag over its own zone also no longer proposes the two slots flanking the dragged element's current position: dropping in either puts it straight back where it sits, so the indicator stays hidden there — grabbing the first card and nudging the pointer above it no longer draws a line over its own head — and a drop on a suppressed slot resolves `position.index` to the element's current slot instead of `0`.
+
+- [#796](https://github.com/vuetifyjs/0/pull/796) [`4a19d6c`](https://github.com/vuetifyjs/0/commit/4a19d6c0375e565851d1f1a2cd7125fac5e46ea4) Thanks [@johnleider](https://github.com/johnleider)! - fix(useDate): correct the first day of the week on Firefox and make week data consistent across browsers
+
+  Calendars rendered a Sunday-start week for every locale on Firefox — `de-DE`, `fr-FR`, and `en-GB` all laid out incorrectly — and could disagree between server and client when Node and browser ICU versions differ. Week start and `minimalDays` now come from CLDR 48 data on every runtime, so the same locale always produces the same week layout in Chromium, Firefox, Safari, and Node. An explicit `-u-fw-` keyword on the locale (e.g. `en-US-u-fw-mon`) is honored everywhere, and `minimalDays` for bare language tags is now the correct value for the locale's likely region (affects week numbers for e.g. `sv` and `pt`).
+
 ## 1.0.3
 
 ### Patch Changes

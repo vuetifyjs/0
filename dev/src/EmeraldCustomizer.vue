@@ -346,7 +346,7 @@
   /* The Emerald chip cannot read `--emerald-primary`: that is the token this
      picker rewrites, so the chip would preview whatever is currently selected
      instead of the brand it offers. Both brand DEFAULTs are restated by theme. */
-  .ed[data-theme='emerald'] .ed-customizer__swatch[data-hue='primary'] {
+  .ed[data-theme='emerald-light'] .ed-customizer__swatch[data-hue='primary'] {
     --ed-swatch: #26c26d;
   }
 

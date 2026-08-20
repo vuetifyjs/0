@@ -123,6 +123,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('src', import.meta.url)),
       '@vuetify/v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '#v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
+      '@paper/genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
     },
   },
   server: {

@@ -2,9 +2,10 @@
   // Framework
   import { Dialog } from '@vuetify/v0'
 
-  export interface EmDialogTitleProps {
-    namespace?: string
-  }
+  // Types
+  import type { DialogTitleProps } from '@vuetify/v0'
+
+  export interface EmDialogTitleProps extends Omit<DialogTitleProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

@@ -2,13 +2,10 @@
   // Framework
   import { Pagination } from '@vuetify/v0'
 
-  export interface EmPaginationProps {
-    size?: number
-    totalVisible?: number
-    itemsPerPage?: number
-    ellipsis?: string | false
-    namespace?: string
-  }
+  // Types
+  import type { PaginationRootProps } from '@vuetify/v0'
+
+  export interface EmPaginationProps extends Omit<PaginationRootProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

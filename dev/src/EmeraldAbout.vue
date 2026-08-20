@@ -6,7 +6,7 @@
 </script>
 
 <template>
-  <div class="ea" data-theme="emerald">
+  <div class="ea" data-theme="emerald-light">
     <article class="ea-doc">
       <header class="ea-header">
         <span aria-hidden="true" class="ea-logo" />

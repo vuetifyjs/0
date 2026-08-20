@@ -3,13 +3,15 @@
   import { Snackbar } from '@vuetify/v0'
 
   // Types
-  import type { ID } from '@vuetify/v0'
+  import type { SnackbarRootProps } from '@vuetify/v0'
 
   export type EmSnackbarVariant = 'success' | 'error' | 'info' | 'warning' | 'neutral'
 
-  export interface EmSnackbarProps {
-    id?: ID
-    namespace?: string
+  /**
+   * `urgent` defaults to true for `variant="error"` and false otherwise;
+   * pass it explicitly to override the variant-derived default.
+   */
+  export interface EmSnackbarProps extends Pick<SnackbarRootProps, 'id' | 'namespace' | 'urgent'> {
     variant?: EmSnackbarVariant
   }
 </script>
@@ -21,6 +23,10 @@
     id,
     namespace,
     variant = 'neutral',
+    // `= undefined` isn't a no-op here: without it, Vue's Boolean-prop casting
+    // resolves an absent `urgent` to `false` rather than `undefined`, which
+    // would permanently short-circuit the `??` fallback below.
+    urgent = undefined,
   } = defineProps<EmSnackbarProps>()
 </script>
 
@@ -30,6 +36,7 @@
     class="emerald-snackbar"
     :data-variant="variant"
     :namespace
+    :urgent="urgent ?? variant === 'error'"
   >
     <slot />
   </Snackbar.Root>

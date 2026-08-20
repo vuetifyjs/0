@@ -2,8 +2,7 @@
   // Framework
   import { createDataTable, createGroup, createSingle, isString, Tooltip, toHighlight } from '@vuetify/v0'
 
-  import maturityData from '#v0/maturity.json'
-  import { LEVEL_KEYS as levelKeys, MATURITY_LEVELS as levels } from '@/constants/maturity'
+  import { LEVEL_KEYS as levelKeys, MATURITY as data, MATURITY_LEVELS as levels } from '@/constants/maturity'
   import { releaseAlias } from '@/constants/releases'
 
   // Utilities
@@ -11,7 +10,7 @@
   import { RouterLink, useRoute } from 'vue-router'
 
   // Types
-  import type { Level, MaturityData } from '@/constants/maturity'
+  import type { Level } from '@/constants/maturity'
 
   type ItemType = 'composable' | 'component' | 'utility'
 
@@ -30,8 +29,6 @@
   function kebab (name: string): string {
     return name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
   }
-
-  const data = maturityData as MaturityData
 
   // Flatten JSON into MaturityItem[]
   function flatten (): MaturityItem[] {
