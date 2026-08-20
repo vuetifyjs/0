@@ -10,6 +10,8 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.examples.json"
   },
   "devDependencies": {
+    "@iconify-json/lucide": "catalog:",
+    "@iconify-json/mdi": "catalog:",
     "@octokit/openapi-types": "catalog:",
     "@resvg/resvg-js": "catalog:",
     "@shikijs/langs": "catalog:",
