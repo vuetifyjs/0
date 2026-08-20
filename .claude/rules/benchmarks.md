@@ -1,5 +1,5 @@
 ---
-paths: ['packages/0/src/**/*.bench.ts']
+paths: ['packages/0/src/**/*.bench.ts', 'packages/0/bench/**/*.bench.ts']
 ---
 
 # Benchmark Standards
@@ -313,24 +313,173 @@ Don't mock pure logic — let it run. Mocking too aggressively defeats the purpo
 ## Running Benchmarks
 
 ```bash
-# All benchmarks (canonical, used by CI)
+# Dev: all benches (source, isolated workers, single pass)
 pnpm test:bench
 
-# All benchmarks, JSON output to apps/docs/public/benchmarks.json
+# Dev: JSON dump — do not commit from a laptop
 pnpm test:bench:json
 
 # Watch mode while iterating on a bench file
 pnpm bench
 
-# Generate metrics.json (runs coverage + bench:json + scripts/generate-metrics.js)
+# Canonical metrics (coverage + dist median-of-3 + metrics.json) — reference host only
 pnpm metrics
+pnpm metrics:check
+
+# Prove the apparatus still reproduces itself (run after any change to the machine)
+pnpm metrics:verify --runs 3
+pnpm metrics:verify --from a.json b.json    # compare artifacts you already have
 ```
 
 To narrow to a single file, append the path: `pnpm test:bench packages/0/src/composables/createRegistry/index.bench.ts`.
 
+## Apparatus contract (stability — non-negotiable)
+
+Numbers only mean something if the **writer, machine, and flags** are fixed. Homepage peak, tier badges, and history sparklines all read the same artifacts.
+
+| Knob | Canonical value | Why |
+|------|-----------------|-----|
+| Writer | **the reference host only** — CI regenerates coverage, never benchmarks | Feature PRs must not commit laptop `benchmarks.json` |
+| Runner | **fixed reference workstation** + Node from `.nvmrc` | A pinned OS image does not pin the CPU — see "Reference host" |
+| Host readiness | <5% busy machine-wide **and** <35% on any single CPU (`scripts/lib/host-guard.ts`) | A fixed host trades runner rotation for desktop contention |
+| Vitest project | `v0:unit` only | `v0:browser` also matches `*.bench.ts` and double-records |
+| Parallelism | `--maxWorkers=1 --no-file-parallelism` | File/worker interleaving adds jitter |
+| Library under test | `V0_BENCH_TARGET=dist` (current) or npm dist path (history) | Source vs dist is a different apparatus |
+| Aggregation | **median of 3 runs** (`pnpm metrics:bench`) | Single GHA run is ~10–20% noisy |
+| Paths in JSON | repo-relative `packages/0/src/...` | Absolute `/home/john/...` vs `/home/runner/...` confuses audits |
+| Host identity | `env` fingerprint in every artifact; **no** correction factor | Two artifacts are comparable only if cpu/node match — see below |
+
+**Acceptable deviation:** canary benches (see `scripts/lib/bench-stable.ts` `CANARY_BENCHES`) may move **±20%** run-to-run on shared GHA with no code change — *but only once numbers are host-normalized*. On raw ops/s the real spread is far wider: PR #714 re-benched the byte-identical 1.0.0 npm dist and moved **+50.9% median across 623 benches**, with 582 of them outside ±20% and 35 tier badges flipped. Never read a raw cross-run delta as signal.
+
+**Commands:**
+
+```bash
+# Dev iteration (source, single run, still isolated workers)
+pnpm test:bench
+pnpm test:bench:json   # ad-hoc JSON — do NOT commit from a laptop
+
+# Canonical metrics (dist, median of 3) — CI metrics-regen only for commits
+pnpm metrics           # coverage + build:0 + metrics:bench + generate-metrics.js
+pnpm metrics:bench     # node scripts/run-bench-stable.ts --runs 3
+pnpm metrics:check     # guard: no local paths; PR must not touch metrics artifacts casually
+pnpm metrics:delta --prev old.json --next new.json
+```
+
+**Do not** commit `apps/docs/public/benchmarks.json` or `apps/docs/src/data/metrics*.json` from a feature branch. `pnpm metrics:check` fails the PR. Override only with `ALLOW_METRICS_ARTIFACT_EDIT=1` and a written reason. See "Regenerating metrics" below for the sanctioned path.
+
+## Why there is no host calibration
+
+There used to be. It is worth knowing why it is gone, because the reasoning that produced it is seductive and will otherwise be reinvented.
+
+`runs-on: ubuntu-24.04` pins the **OS image, not the CPU**. GHA rotates hosts across generations differing ~1.5x in single-thread throughput, so identical code benched on two runners yields two different sets of absolute ops/s — that is what produced #714's phantom 50% "improvement". The fix built for it was a frozen 13-anchor microbenchmark suite that imported nothing from v0, whose trimmed geometric mean against a stored baseline gave a per-run `scale` that every consumer divided by.
+
+**It was deleted because it made the numbers worse.** Measured across four full-suite runs of identical code on the fixed workstation:
+
+| method | per-bench median | per-feature median | per-feature worst |
+|--------|-----------------:|-------------------:|------------------:|
+| raw ops/s | **1.81%** | **2.16%** | **4.96%** |
+| anchor-normalized | 3.53% | 6.23% | 9.50% |
+
+Dividing by the scale roughly tripled the disagreement between measurements of identical code. The cause: on one of the four runs the anchors moved −4.6% at the median (allocation-heavy ones −38% and −27%) while the 433 real benches moved +1.4%. The probe did not track the workload it was correcting, so its "correction" was injected error. No trim setting rescues that: recomputing the scale at trim 0/1/2/3 gives 0.9140 / 0.9393 / 0.9586 / 0.9606 — the contaminated block was too broad to reject, and the anchors' central tendency was wrong, not merely their tails. The single least reproducible file in the whole suite was `calibration.bench.ts` itself, at 9.42% against a worst real feature of 4.96%.
+
+Two further facts settled it. **Every committed artifact had `scale: 1`** — the apparatus was inert for its entire life, so deleting it changed no published number and required no migration. And a survey of ~35 comparable projects (V8, JetStream, Speedometer, Node core, TypeScript `ts-perf`, rustc-perf, LNT, SPEC, JMH, Go `benchstat`, criterion.rs, Vue core, React, Deno, Bun, esbuild, Biome, tinybench, mitata, CodSpeed, BenchmarkDotNet, MongoDB, Mozilla) found **zero** that derive a host scale from a synthetic probe and divide by it. Benchmark.js shipped exactly this mechanism and removed it, for exactly this reason. SPEC's reference-machine ratio looks like precedent but is not: it normalizes each benchmark against *its own* reference time, a unit conversion that provably cancels.
+
+The deeper reason no probe could have worked: decomposing the pairwise variance, a run-wide common shift accounts for only **0.1–13%** of it, while 87–99.9% is per-bench noise that no single scalar can touch. There is roughly 1% of host drift available to correct against a ~4% noise floor, so even a perfect probe buys almost nothing — and an imperfect one costs 4%.
+
+**What replaces it:** nothing corrects the host. Instead the host is *fixed*, its identity is *recorded* (`env`), and whole-suite movement is *reported* (`suiteShiftPct` in the delta report). If every bench moves together, that is visible in one line and a human draws the obvious conclusion — rather than the shift being silently folded into every figure. If two artifacts' `env.cpu` or `env.node` differ, their absolute numbers are not comparable and the answer is to re-measure the series, not to rescale it.
+
+**Do not reintroduce a calibration probe.** If cross-machine comparison becomes genuinely necessary, the options with real precedent are: re-measure history on the new machine (what `metrics:history` already does), switch the gated metric to something deterministic such as instruction counts (rustc-perf's answer, ±0.2%), or bench both versions in one interleaved run and publish only the ratio (Node core's answer). A synthetic probe disjoint from the workload is not on that list.
+
+## Reference host
+
+Benchmarks are measured on a **fixed workstation**, not a CI runner. This is the entire mechanism — fixing the host removes host rotation rather than compensating for it, which is why nothing downstream needs a correction factor.
+
+Measured on the reference box (i9-7980XE, 18C/36T), four full-suite runs of identical code: **per-feature spread 2.16% median, 4.96% worst; per-bench 1.81% median, 8.51% at p95** — against the +50.9% median that host rotation produced on GHA. Run `pnpm metrics:verify` to reproduce those figures on demand; it is the standing proof that the setup still deserves trust.
+
+### Nine benches are unreliable, and no pipeline change fixes them
+
+These nine spread **>20% on identical code** across four runs and are the *entire* >20% tail — they are the only benches capable of tripping a ±20% canary band without a code change. 42 of 433 spread >10%.
+
+| spread | bench |
+|-------:|-------|
+| 46.5% | `createNested` :: Unregister root with cascade (1,000 tree items) |
+| 34.3% | `createNested` :: Onboard 1,000 flat items |
+| 32.0% | `createSortable` :: Create empty sortable |
+| 28.1% | `useDate` :: compare 1000 pairs |
+| 28.0% | `createNested` :: Onboard ~10,000 tree items (depth 4) |
+| 27.3% | `createRegistry` :: Reorder reverse (1,000 items) |
+| 24.7% | `useDate` :: isSameDay |
+| 24.3% | `useDate` :: addMonths |
+| 24.2% | `createNested` :: Get depth (1,000 tree items) |
+
+The clustering in `createNested` and `useDate` is a hint about the benches, not the machine — check them against "Fixture Isolation" above before blaming the host. Note `rme` does not predict this: correlation between `log(rme)` and `log(cross-run spread)` is only 0.413, so a low in-run `rme` is no evidence of between-run stability (`useDate :: format shortDate` reports `rme` 0.27 and still swings 14.6%). Gate on a flat band, not an rme-derived one.
+
+**Read feature aggregates, not individual benches.** 127 of 433 benches report `rme > 5` and swing 6–7% run-to-run (worst 46%), so a single bench moving 10% is usually noise. The same data aggregated per feature moves 2.16%. Tier badges already operate at feature level; regression judgements should too.
+
+**Do not pin the bench to a core subset.** The intuitive hardening step measures worse. Restricting the run to 2 physical cores cost 5–8% throughput on the fast benches and widened the tails; widening to all 18 physical cores restored throughput but not stability. Node's GC and marking threads plus the vitest main process need cores of their own, and taking them away is a cost with no matching benefit. `taskset` is not part of the apparatus.
+
+### Regenerating metrics
+
+Two halves, deliberately split by whether the number cares which CPU produced it.
+
+**Coverage — automatic, on CI.** `.github/workflows/metrics-regen.yml` runs `pnpm metrics:coverage` after a release and opens `chore: regenerate coverage metrics`. Coverage is deterministic, so a shared runner is fine. That job re-emits the committed benchmark numbers unchanged and **fails loudly if `benchmarks.json` changes**, because a CI-measured benchmark would silently replace reference-host numbers with whichever CPU the runner drew.
+
+**Benchmarks — manual, on the reference host.** There is no automation for this on purpose: the machine is the apparatus, and no GitHub runner is that machine. The coverage job does check whether any published version lacks a snapshot (`generate-metrics-history.ts --print-missing`) and says so in the PR it opens, so the debt shows up on a page someone already reads instead of relying on memory.
+
+```bash
+# On the reference workstation, from a clean checkout of master
+git pull && pnpm install --frozen-lockfile
+
+# Coverage + build + bench (median of 3) + metrics.json.
+# Refuses to start if the host is busy — wait rather than passing --allow-contended.
+pnpm metrics
+
+# Only when a newly published version has no snapshot yet
+pnpm metrics:history
+
+# Review before committing: canary table + whole-suite movement
+pnpm metrics:delta --prev <previous benchmarks.json> --next apps/docs/public/benchmarks.json
+pnpm metrics:check
+```
+
+Read the delta with the noise floor in mind. A single bench moving <10% is usually nothing; judge at feature level, where identical code reproduces to ~2%. If `suiteShiftPct` reports the whole suite moving more than ~5% in one direction, suspect the machine before the code — check `env` against the previous artifact and re-run.
+
+Commit as `chore(bench): regenerate metrics` and open a PR. That subject prefix is what `metrics:check` accepts for a human-authored artifact change; anything else fails the PR guard by design, so feature branches cannot quietly ship laptop numbers.
+
+**When the machine itself changes** — new CPU, kernel, Node major, or the box is replaced — the old series is not comparable to the new one and no factor fixes that. Run `pnpm metrics:verify --runs 2` first to confirm the new setup reproduces itself, then re-measure the whole history (`pnpm metrics:history --force`) so every point shares one machine, and say so in the PR.
+
+### Host readiness guard
+
+A fixed host trades CI's rotation problem for one CI never had: the machine is a real desktop that other people use. A run overlapping a game or a build is not a slow measurement, it is a wrong one, and no downstream consumer can tell afterwards. `scripts/run-bench-stable.ts` therefore refuses to start when the host is busy, and records `busy` / `governor` into `apparatus.env` so any suspect snapshot is attributable without a forensic dig.
+
+The signal is non-idle CPU sampled from `/proc/stat` over 1s — both machine-wide and per logical CPU — and deliberately not load average, not "is anyone logged in":
+
+- **Login presence is the wrong rule.** An idle desktop session is not contention, so a guard keyed on it is red permanently and gets switched off. Other logins are reported as context when the guard trips, never as the reason.
+- **Load average is the wrong rule.** It is exponentially damped and lags in both directions. Measured on the reference box: under synthetic load, `busy` read 16.7% while the 1-minute load average still read 0.09; twelve seconds after the load stopped, `busy` had cleared to 0.1% while load had climbed to 0.92. Keyed on load, the guard would have admitted the contended run and then blocked the clean one.
+- **The machine-wide figure alone is not enough, and this is the subtle one.** One fully saturated core on a 36-thread host is 2.8% of total CPU — under any sane whole-machine threshold — yet a single competing CPU-bound process is the likeliest contention there is. Measured: one busy thread read 2.8% aggregate and passed a 5%-total-only guard; with the per-CPU check it reads 100% on its core and blocks. The per-core limit is 35%, set from the gap between the measured idle floor (0–1% on the busiest core) and a real workload (100%).
+- **`iowait` counts as busy, not idle.** The CPU is stalled during it, but a disk-bound neighbour still moves memory bandwidth, evicts page cache and raises interrupt load, all of which land on the benchmark. Measured: a `dd` loop read 2.9% aggregate — invisible whole-machine — and 38.4% on one core, which blocks.
+
+Enforcement is skipped only on an **ephemeral** CI runner, read as `CI` set *and* the governor helper absent. `CI` alone is the wrong test: the reference workstation driven by automation also sets `CI`, and that is exactly where the readiness contract must still hold — keying on `CI` alone disables the guard on the one machine it was written for. The host is always *inspected* regardless, so `apparatus.env` records `busy` / `peak` / `governor` behind every artifact even where nothing would have been stopped. A non-`performance` scaling governor warns rather than blocks: clock drift widens dispersion without inventing a result. Escape hatch for a deliberately contended run: `--allow-contended` / `V0_BENCH_ALLOW_CONTENDED=1`, which measures anyway and says so in the log.
+
+### Scaling governor
+
+`run-bench-stable.ts` sets `performance` for the duration of the suite and restores the previous governor. The reference host carries a sudoers rule scoped to a single root-owned helper (`/usr/local/sbin/v0-governor`) that accepts only `performance` or `powersave`; everywhere else the toggle no-ops, so this is not a prerequisite for running benches.
+
+**The hold declines rather than half-works.** It changes nothing when the helper is absent, when the governor is already `performance`, or — importantly — when the original value is one the helper cannot set back (`schedutil`, `ondemand`, the `mixed(...)` marker for CPUs that disagree). Flipping to `performance` from an unrestorable governor would strand somebody's desktop at max clocks permanently, which is worse than benching at whatever was already in force.
+
+**Restore is wired to signals, and that required the child to be async.** `finally` does not run on Ctrl-C, so release is also bound to SIGINT/SIGTERM. That alone was not enough: signal handlers only run when the event loop turns, and the original `execFileSync` blocked it for the whole suite. Verified before the change — SIGINT to the parent left vitest still benching and the box pinned to `performance`, with the interrupt queued behind the very run it was meant to abort. `runOnce` now spawns asynchronously and the handler kills the child, so an interrupt aborts the run and hands the machine back.
+
+**The measured benefit is small, and the honest number matters more than the intuition here.** A first sequential comparison — five `powersave` runs, then five `performance` runs — showed `performance` looking dramatically *worse*. That result did not survive an interleaved re-test. Alternating the governors across four paired runs, which cancels time-ordered drift, reversed it: median CV **1.79% on `performance` against 1.98% on `powersave`**, with a median speed delta of **+0.06%**. The sequential comparison was measuring the passage of time, not the governor.
+
+Two things follow. The toggle stays, because it removes a variable for roughly nothing and the mechanism already exists — but it is not what makes these numbers trustworthy, and nobody should expect it to rescue a noisy suite. And any future governor/apparatus comparison must be **interleaved**, never run as one block after another; on this host a sequential A/B produced a confident result with the wrong sign.
+
+The governor is restored afterwards rather than left on `performance`, because the reference host is a desktop somebody else uses; pinning 18 cores to max clocks permanently is a round-the-clock cost for a benefit that exists only during a run.
+
+**A note on what the fixed host does not fix.** About 6% of benches are host-*shape*-sensitive rather than merely host-speed-sensitive: on the #714 pair, `createTokens` alias resolution moved ~2.5x while the suite moved 1.47x. On a fixed host this stops mattering day to day, but it is the reason a future machine migration cannot be papered over with any single factor — the honest migration is to re-measure the series on the new host.
+
 ## Apparatus & imports (benchmark-history harness)
 
-The benchmark-history trend (`apps/docs/src/data/metrics/<version>.json`) is produced by running the **current** bench suite against each version's npm-installed dist — one fixed apparatus, only the library varies (see `scripts/generate-metrics-history.ts`). Two rules follow:
+The benchmark-history trend (`apps/docs/src/data/metrics/<version>.json`) is produced by running the **current** bench suite against each version's npm-installed dist — one fixed apparatus, only the library varies (see `scripts/generate-metrics-history.ts` → `run-bench-stable.ts`). Two rules follow:
 
 - **Import the library from the public package, never relative source.** Benches import the composable and its types from `@vuetify/v0/composables` (or `@vuetify/v0/date`, `@vuetify/v0` for utilities) — *not* `from './index'`. The harness aliases `@vuetify/v0` to an installed version's dist via `V0_BENCH_TARGET`; a `./index` import would silently measure current source for every version instead. Keep the bench's own fixtures (`./fixtures/...`) relative.
 - **The metrics pipeline benches the built dist; dev benches source.** `V0_BENCH_TARGET` (read in `packages/0/vitest.config.ts`): unset → source (`pnpm bench`/`test:bench`); `dist` → this package's build (`pnpm metrics`); a path → an installed version (the history harness). So `pnpm metrics` runs `build:0` first.

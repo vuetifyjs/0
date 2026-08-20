@@ -9,6 +9,45 @@ export const REPL_BUILTIN_FILES = ['import-map.json', 'tsconfig.json'] as const
 /** Infrastructure files revealed by the file tree's "Toggle config files" button */
 export const CONFIG_FILE_IDS = new Set(['src/main.ts', 'src/uno.config.ts', 'import-map.json'])
 
+// ── REPL TypeScript version ─────────────────────────────────────────────────
+//
+// @vue/repl's Monaco worker fetches TypeScript's lib .d.ts files (lib.dom.d.ts,
+// lib.esnext.d.ts, …) from the `typescript@<version>` package on the CDN. Left
+// unpinned, the store defaults to `typescript@latest`, which now resolves to the
+// 7.0.x native/Go port — a package layout the bundled Volar tools can't read, so
+// the worker loads NO libs at all and every global (document, window, console,
+// even Array.map/Promise/Symbol) reports "Cannot find name". Pinning to the last
+// 5.x keeps the worker's type environment intact until @vue/repl supports TS 7.
+export const REPL_TYPESCRIPT_VERSION = '5.9.3'
+
+// ── REPL tsconfig ──────────────────────────────────────────────────────────
+//
+// @vue/repl auto-injects a default tsconfig once during store init, but only
+// if none exists. Every store.setFiles() call rebuilds the file map from
+// scratch and drops it, and the injection is a one-time `if` — not a watcher —
+// so it never comes back. With no tsconfig, store.getTsConfig() throws and the
+// Monaco worker falls back to empty compilerOptions — notably no
+// `allowImportingTsExtensions`, so the sandbox `import './uno.config.ts'`
+// reports TS5097. Seeding this alongside the other builtins keeps the worker's
+// compiler options stable across setFiles() calls. (DOM/ESNext globals like
+// `document` are provided by the worker's lib .d.ts files, not this `lib`
+// array — see REPL_TYPESCRIPT_VERSION for why those must stay on TS 5.x.)
+export const REPL_TSCONFIG = JSON.stringify({
+  compilerOptions: {
+    allowJs: true,
+    checkJs: true,
+    jsx: 'Preserve',
+    target: 'ESNext',
+    module: 'ESNext',
+    moduleResolution: 'Bundler',
+    allowImportingTsExtensions: true,
+    lib: ['ESNext', 'DOM', 'DOM.Iterable'],
+  },
+  vueCompilerOptions: {
+    target: 3.5,
+  },
+}, undefined, 2)
+
 // ── Template files (matching Vuetify Play's v0 template) ────────────────
 
 export interface MainOptions {
@@ -19,7 +58,47 @@ export interface MainOptions {
   v0?: boolean
 }
 
-export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?: MainOptions): string {
+/**
+ * Plugin module for the Vuetify preset (mirrors play.vuetifyjs.com's src/vuetify.ts).
+ * Kept as a real file so layout examples that `import { useLayout } from 'vuetify'`
+ * share the same install path as `app.use(vuetify)`, and so the bootstrap is
+ * visible in the file tree — not only inlined inside main.ts.
+ *
+ * `defaultTheme` tracks the playground host theme so preview chrome and sandbox
+ * Vuetify theme stay in sync when the user toggles light/dark.
+ */
+export function createVuetifyTs (defaultTheme: 'light' | 'dark' = 'light'): string {
+  return `import { createVuetify } from 'vuetify'
+
+export const vuetify = createVuetify({
+  theme: {
+    defaultTheme: '${defaultTheme}',
+  },
+})
+`
+}
+
+/**
+ * Generate a versioned Vuetify CDN URL for ESM JS.
+ * @param version - Version string or 'latest'
+ * @param nightly - If true, use @vuetify/nightly package instead of vuetify
+ */
+export function vuetifyEsmUrl (version = 'latest', nightly = false): string {
+  const pkg = nightly ? '@vuetify/nightly' : 'vuetify'
+  return `https://cdn.jsdelivr.net/npm/${pkg}@${version}/dist/vuetify-labs.esm.js`
+}
+
+/**
+ * Generate a versioned Vuetify CDN URL for CSS.
+ * @param version - Version string or 'latest'
+ * @param nightly - If true, use @vuetify/nightly package instead of vuetify
+ */
+function vuetifyCssUrl (version = 'latest', nightly = false): string {
+  const pkg = nightly ? '@vuetify/nightly' : 'vuetify'
+  return `https://cdn.jsdelivr.net/npm/${pkg}@${version}/dist/vuetify-labs.css`
+}
+
+export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?: MainOptions, vuetifyVersion = 'latest', vuetifyNightly = false): string {
   const useV0 = options?.v0 !== false
   const extraImports: string[] = []
   const extraPlugins: string[] = []
@@ -34,7 +113,12 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
     extraPlugins.push(`app.use(createPinia())`)
   }
   if (options?.vuetify) {
-    extraImports.push(`import { createVuetify } from 'vuetify'`)
+    // Import the plugin instance from ./vuetify (not createVuetify inline) so the
+    // sandbox always loads the vuetify package through a dedicated module — the
+    // same shape as Vuetify Play. Inlining createVuetify() in main.ts made it
+    // easy for setFiles/import-map rebuild races to leave main compiled against
+    // a map that didn't yet include the `vuetify` bare specifier.
+    extraImports.push(`import { vuetify } from './vuetify'`)
     extraSetup.push(
       // Pre-declare Vuetify's cascade-layer order before any other styles can.
       // The vuetify-labs.css <link> below loads async — meanwhile createVuetify()
@@ -42,13 +126,20 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
       // this preamble, vuetify-utilities ends up declared before vuetify-components
       // and components beat helpers in the cascade.
       `document.head.insertAdjacentHTML('afterbegin', '<style>@layer vuetify-core,vuetify-components,vuetify-overrides,vuetify-utilities,vuetify-final;</style>')`,
-      `const link = document.createElement('link')`,
-      `link.rel = 'stylesheet'`,
-      `link.setAttribute('data-preset-css', 'vuetify')`,
-      `link.href = 'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css'`,
-      `document.head.appendChild(link)`,
+      // Vuetify's CSS plus the MDI webfont — its default icon set, which
+      // vuetify-labs.css doesn't bundle, so without it every mdi-* icon renders
+      // as tofu. Add further icon-set stylesheets here as list entries.
+      `for (const href of [`,
+      `  '${vuetifyCssUrl(vuetifyVersion, vuetifyNightly)}',`,
+      `  'https://cdn.jsdelivr.net/npm/@mdi/font@7.x/css/materialdesignicons.min.css',`,
+      `  'https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900',`,
+      `]) {`,
+      `  const link = Object.assign(document.createElement('link'), { rel: 'stylesheet', href })`,
+      `  link.dataset.presetCss = 'vuetify'`,
+      `  document.head.appendChild(link)`,
+      `}`,
     )
-    extraPlugins.push(`app.use(createVuetify())`)
+    extraPlugins.push(`app.use(vuetify)`)
   }
 
   const importBlock = extraImports.length > 0 ? '\n' + extraImports.join('\n') : ''
@@ -60,6 +151,7 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
 import App from './App.vue'${importBlock}
 ${setupBlock}
 const app = createApp(App)
+app.config.errorHandler = e => console.error(e)
 ${pluginBlock}app.mount('#app')
 `
   }
@@ -135,10 +227,19 @@ ${pluginBlock}app.mount('#app')
 `
 }
 
+/**
+ * REPL UnoCSS runtime config.
+ *
+ * Icons: `@unocss/preset-icons/browser` with `cdn: 'https://esm.sh/'` loads any
+ * Iconify collection on demand as `i-{collection}-{name}` (e.g. i-lucide-home).
+ * No per-set enable step — authors pick a collection by class name.
+ */
 export const UNO_CONFIG_TS = `// @ts-expect-error - esm.sh import
-import defineConfig from 'https://esm.sh/@unocss/runtime'
+import defineConfig from 'https://esm.sh/@unocss/runtime@66.7.5'
 // @ts-expect-error - esm.sh import
-import presetWind4 from 'https://esm.sh/@unocss/preset-wind4'
+import presetWind4 from 'https://esm.sh/@unocss/preset-wind4@66.7.5'
+// @ts-expect-error - esm.sh import
+import presetIcons from 'https://esm.sh/@unocss/preset-icons@66.7.5/browser'
 
 // Each recompile creates a fresh module instance with an empty internal style Map,
 // so the previous runtime's <style> elements are abandoned in the DOM. Remove them
@@ -147,7 +248,18 @@ document.querySelectorAll('[data-unocss-runtime-layer]').forEach(el => el.remove
 
 defineConfig({
   defaults: {
-    presets: [presetWind4()],
+    presets: [
+      presetWind4(),
+      presetIcons({
+        // Fetch @iconify-json/{collection} from esm.sh when a class is first used.
+        cdn: 'https://esm.sh/',
+        scale: 1.2,
+        extraProperties: {
+          'display': 'inline-block',
+          'vertical-align': 'middle',
+        },
+      }),
+    ],
     theme: {
       colors: {
         'primary': 'var(--v0-primary)',

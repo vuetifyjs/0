@@ -12,6 +12,8 @@ export interface UseCountUpOptions {
   duration?: number
   /** Start value. Default: 0 */
   from?: number
+  /** Decimal places to keep while animating. Default: 0 (integers). */
+  decimals?: number
 }
 
 /**
@@ -23,10 +25,11 @@ export function useCountUp (
   to: MaybeRefOrGetter<number>,
   options: UseCountUpOptions = {},
 ) {
-  const { duration = 1200, from = 0 } = options
+  const { duration = 1200, from = 0, decimals = 0 } = options
   const current = shallowRef(from)
   let started = false
   const visible = shallowRef(false)
+  const factor = 10 ** decimals
 
   function animate (end: number) {
     if (!IN_BROWSER) return
@@ -38,7 +41,10 @@ export function useCountUp (
       const progress = Math.min(elapsed / duration, 1)
       // Ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3)
-      current.value = Math.round(from + (end - from) * eased)
+      const raw = from + (end - from) * eased
+      current.value = decimals > 0
+        ? Math.round(raw * factor) / factor
+        : Math.round(raw)
 
       if (progress < 1) {
         requestAnimationFrame(step)

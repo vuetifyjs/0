@@ -51,6 +51,24 @@ slider2.set(0, 30)         // values: [30, 75]
 slider2.set(1, 60)         // values: [30, 60]
 ```
 
+## Architecture
+
+`createSlider` extends `createModel` — which itself extends `createRegistry` — so each thumb is a model ticket holding a `shallowRef<number>`, and `values` is derived from the ordered tickets rather than a standalone ref. It composes `createNumeric` for the pure value math: step snapping, min/max clamping, and value ↔ percentage conversion.
+
+```mermaid "createSlider Architecture"
+flowchart TD
+  Registry["createRegistry"]
+  Model["createModel"]
+  Numeric["createNumeric"]
+  CS["createSlider"]:::primary
+  Context["SliderContext"]
+
+  Registry --> Model
+  Model --> CS
+  Numeric --> CS
+  CS --> Context
+```
+
 ## Reactivity
 
 Slider state is **always reactive**. Values and derived properties update automatically.

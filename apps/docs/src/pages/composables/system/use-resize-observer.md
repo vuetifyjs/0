@@ -71,7 +71,30 @@ flowchart TD
 | - | - | - | - |
 | `immediate` | `boolean` | `false` | Fire the callback immediately on mount before any resize |
 | `once` | `boolean` | `false` | Stop observing after the first callback fires |
-| `box` | `'content-box' \| 'border-box'` | `'content-box'` | Which box model to observe |
+| `box` | `'content-box' \| 'border-box'` | `'content-box'` | Which box model a change is measured against when deciding to fire |
+
+## Entry
+
+Each reported entry carries both box models, whichever `box` you observe:
+
+| Property | Type | Notes |
+| - | - | - |
+| `contentRect` | `{ width, height, top, left }` | The content box — excludes padding and border |
+| `contentBoxSize` | `readonly ResizeObserverSize[]` | The content box on the logical axes (`inlineSize` / `blockSize`) |
+| `borderBoxSize` | `readonly ResizeObserverSize[]` | The border box — content plus padding plus border |
+| `target` | `Element` | The observed element |
+
+Both size arrays mirror the native API: one entry per box fragment, so a normal single-fragment element is `borderBoxSize[0]`.
+
+```ts
+useResizeObserver(el, ([entry]) => {
+  entry.contentRect.height          // 30 — content box
+  entry.borderBoxSize[0].blockSize  // 40 — with 4px padding and a 1px border
+}, { box: 'border-box' })
+```
+
+> [!TIP] `inlineSize` vs `width`
+> `inlineSize` and `blockSize` follow the writing mode. Under the default `horizontal-tb` they map to width and height; under any `vertical-*` mode they swap. Unlike `getBoundingClientRect()`, neither is scaled by CSS transforms — which is what makes them the right choice for measuring an animated element.
 
 ## Reactivity
 
@@ -126,7 +149,13 @@ Yes. `useElementSize` builds on `useResizeObserver` and exposes reactive `width`
 
 ??? How do I measure the border-box instead of the content-box?
 
-Pass `box: 'border-box'`. The default `'content-box'` excludes padding and borders; `'border-box'` includes them.
+Read `entry.borderBoxSize[0]` — it includes padding and border, where `contentRect` excludes them. Both are on every entry, so you can read the border box without changing any option.
+
+`box: 'border-box'` is a separate choice: it controls which box model has to change before the observer fires. Set it when you only care about the outer size — an element whose padding grows while its border box stays fixed then won't wake your callback.
+
+??? Should I use `borderBoxSize` or `getBoundingClientRect()`?
+
+`borderBoxSize` measures the same box but is a layout value, so CSS transforms don't scale it. If the element is animated with `transform`, `getBoundingClientRect()` reports the visually scaled size while `borderBoxSize` reports the laid-out size — usually what sizing logic wants.
 
 :::
 

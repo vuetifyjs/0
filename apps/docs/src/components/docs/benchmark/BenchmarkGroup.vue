@@ -1,7 +1,10 @@
 <script setup lang="ts">
+  // Framework
+  import { isUndefined } from '@vuetify/v0'
+
   // Composables
   import { GROUP_DESCRIPTIONS, TIER_CONFIG, type NormalizedGroup, type TierState } from '@/composables/useBenchmarkData'
-  import { useBenchmarkHistory } from '@/composables/useBenchmarkHistory'
+  import { significant, useBenchmarkHistory } from '@/composables/useBenchmarkHistory'
 
   // Utilities
   import { computed, toRef } from 'vue'
@@ -40,6 +43,39 @@
     }
     return map
   })
+
+  /**
+   * Benchmarks whose trend clears the noise band, split by direction. Null when
+   * nothing in the group moved — a badge that renders "0 changes" is noise, and
+   * the collapsed header should stay quiet when there is no news.
+   */
+  const changes = computed(() => {
+    const map = historyByBench.value
+    if (!map) return null
+
+    let up = 0
+    let down = 0
+
+    for (const bench of props.group.benchmarks) {
+      const delta = map.get(bench.name)?.delta
+      if (isUndefined(delta) || !significant(delta)) continue
+      if (delta > 0) up++
+      else down++
+    }
+
+    return up || down ? { up, down } : null
+  })
+
+  const since = toRef(() => history.value?.versionsSpanned[0])
+
+  const label = toRef(() => {
+    const c = changes.value
+    if (!c) return undefined
+    const parts: string[] = []
+    if (c.up) parts.push(`${c.up} faster`)
+    if (c.down) parts.push(`${c.down} slower`)
+    return `${parts.join(', ')} beyond run-to-run noise since ${since.value ?? 'the first recorded run'}`
+  })
 </script>
 
 <template>
@@ -62,6 +98,22 @@
         <span class="font-medium text-sm text-on-surface">{{ group.name }}</span>
         <span class="ml-2 text-xs text-on-surface-variant">{{ group.benchmarks.length }}</span>
       </div>
+
+      <span
+        v-if="changes"
+        :aria-label="label"
+        class="flex items-center gap-1.5 shrink-0"
+        role="img"
+        :title="label"
+      >
+        <span v-if="changes.up" class="inline-flex items-center gap-0.5 text-xs text-success">
+          <AppIcon icon="trending-up" :size="14" />{{ changes.up }}
+        </span>
+
+        <span v-if="changes.down" class="inline-flex items-center gap-0.5 text-xs text-error">
+          <AppIcon icon="trending-down" :size="14" />{{ changes.down }}
+        </span>
+      </span>
 
       <code class="text-xs text-on-surface-variant shrink-0 hidden sm:inline">
         {{ group.fastest.hzLabel }}

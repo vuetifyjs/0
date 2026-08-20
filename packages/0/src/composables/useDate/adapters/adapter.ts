@@ -137,7 +137,12 @@ export abstract class DateAdapter<T = Temporal.PlainDateTime> {
   // ============================================
 
   abstract getWeekdays (weekdayFormat?: 'long' | 'short' | 'narrow'): string[]
-  abstract getWeekArray (date: T): T[][]
+  /**
+   * Weeks-of-7 matrix for the month containing `date`, spilling into adjacent
+   * months at the edges. With `fixedWeeks`, trailing weeks pad the matrix to a
+   * constant 6 rows (42 cells) so calendar grids keep a stable height.
+   */
+  abstract getWeekArray (date: T, fixedWeeks?: boolean): T[][]
   /** Get array of months in a year (12 dates, one for each month) */
   abstract getMonthArray (date: T): T[]
   /** Get array of years between start and end dates */

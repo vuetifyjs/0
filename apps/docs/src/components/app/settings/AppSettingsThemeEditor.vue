@@ -36,7 +36,7 @@
     },
     surfaces: {
       label: 'Surfaces',
-      colors: ['background', 'surface', 'surface-tint', 'surface-variant', 'divider', 'pre'],
+      colors: ['background', 'surface', 'surface-tint', 'surface-variant', 'divider', 'pre', 'scrollbar-thumb'],
     },
     text: {
       label: 'Text / Contrast',
@@ -63,6 +63,7 @@
     'surface-variant': 'Surface Variant',
     'divider': 'Divider',
     'pre': 'Code Block',
+    'scrollbar-thumb': 'Scrollbar',
     'on-primary': 'On Primary',
     'on-secondary': 'On Secondary',
     'on-accent': 'On Accent',

@@ -22,15 +22,16 @@
 
   const { composables, summary } = useBenchmarkData({ trigger: visible })
 
+  // One decimal million (6.9) — Math.floor made 6.87 look like 6 and exaggerated CI noise.
   const peakOps = computed(() => {
     let max = 0
     for (const c of composables.value) {
       if (c.fastest.hz > max) max = c.fastest.hz
     }
-    return Math.floor(max / 1_000_000)
+    return Math.round(max / 100_000) / 10
   })
 
-  const { current: opsCount } = useCountUp(sectionRef, peakOps, { duration: 1500 })
+  const { current: opsCount } = useCountUp(sectionRef, peakOps, { duration: 1500, decimals: 1 })
   const { current: benchmarkCount } = useCountUp(sectionRef, () => summary.value.totalBenchmarks, { duration: 1800 })
   const flooredTestCount = Math.floor(testCountData.tests / 100) * 100
   const { current: testCount } = useCountUp(sectionRef, flooredTestCount, { duration: 2000 })
@@ -71,7 +72,7 @@
       >
         <AppDotGrid :coverage="60" origin="top left" />
 
-        <div class="relative stat-number">{{ opsCount }}M+</div>
+        <div class="relative stat-number">{{ opsCount.toFixed(1) }}M+</div>
         <div class="relative stat-label">ops/s peak</div>
       </div>
 

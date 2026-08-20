@@ -12,6 +12,7 @@
  * - Lazy theme loading (compute colors only when selected)
  * - CSS variable generation via adapter pattern
  * - `isDark` reactive flag on the theme context
+ * - Optional `system` pair that follows `prefers-color-scheme` until an explicit `select`
  * - SSR support with head integration
  * - Theme cycling
  *
@@ -31,13 +32,18 @@
 import { createPluginContext } from '#v0/composables/createPlugin'
 import { createSingle } from '#v0/composables/createSingle'
 import { createTokens, flatten } from '#v0/composables/createTokens'
+import { useLogger } from '#v0/composables/useLogger'
+import { usePrefersDark } from '#v0/composables/useMediaQuery'
 
 // Adapters
 import { V0StyleSheetThemeAdapter } from '#v0/composables/useTheme/adapters'
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { foreground as foregroundFn, isNumber, isString } from '#v0/utilities'
-import { computed, shallowRef, toRef } from 'vue'
+import { computed, shallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { RegistryOptions } from '#v0/composables/createRegistry'
@@ -176,6 +182,28 @@ export interface ThemeContext<
    */
   cycle: (themes?: ID[]) => void
   /**
+   * `true` while the configured `system` pair is driving selection.
+   * Becomes `false` after an explicit `select`.
+   *
+   * @example
+   * ```ts
+   * const theme = useTheme()
+   * console.log(theme.isSystem.value)
+   * ```
+   */
+  isSystem: Readonly<Ref<boolean>>
+  /**
+   * Return to following the `system` pair. Without `system`, re-selects `default`.
+   *
+   * @example
+   * ```ts
+   * const theme = useTheme()
+   * theme.select('dark')
+   * theme.reset()
+   * ```
+   */
+  reset: () => void
+  /**
    * Register a theme with optional colors.
    *
    * When `colors` is provided, onboards them as flat tokens for
@@ -201,6 +229,11 @@ export interface ThemeContext<
   dispose: () => void
 }
 
+export interface ThemeSystemPair {
+  light: ID
+  dark: ID
+}
+
 export interface ThemeOptions<Z extends ThemeRecord = ThemeRecord> extends RegistryOptions {
   /**
    * The theme adapter to use.
@@ -210,8 +243,29 @@ export interface ThemeOptions<Z extends ThemeRecord = ThemeRecord> extends Regis
   adapter?: ThemeAdapter
   /**
    * The default theme ID to select on initialization.
+   *
+   * @remarks Used on the server and when `system` is omitted or invalid.
    */
   default?: ID
+  /**
+   * Follow `prefers-color-scheme` using these registered theme ids until
+   * the user calls `select`. Both ids must already be in `themes`.
+   *
+   * @example
+   * ```ts
+   * app.use(
+   *   createThemePlugin({
+   *     system: { light: 'light', dark: 'dark' },
+   *     persist: true,
+   *     themes: {
+   *       light: { colors: { primary: '#3b82f6' } },
+   *       dark: { dark: true, colors: { primary: '#675496' } },
+   *     },
+   *   }),
+   * )
+   * ```
+   */
+  system?: ThemeSystemPair
   /**
    * Automatically generate `on-*` foreground colors for each theme color
    * using APCA contrast analysis.
@@ -283,18 +337,22 @@ export interface ThemePluginOptions extends ThemeContextOptions {
  */
 
 export function createTheme (_options: ThemeOptions = {}): ThemeContext {
-  const { themes = {}, palette = {}, foreground: genForeground, ...options } = _options
+  const { themes = {}, palette = {}, foreground: genForeground, system, ...options } = _options
   const tokens = createTokens({ palette, ...themes }, { flat: true })
   const registry = createSingle<SingleTicketInput<ThemeColors>, SingleTicket<SingleTicketInput<ThemeColors>>>({ ...options, reactive: true })
+  const logger = useLogger()
 
   for (const id in themes) {
     const { colors: value, ...theme } = themes[id]!
 
     register({ id, value, ...theme } as Partial<ThemeTicketInput>)
+  }
 
-    if (id === options.default && !registry.selectedId.value) {
-      registry.select(id as ID)
-    }
+  const pair = resolveSystemPair(system, registry, logger)
+  const following = shallowRef(Boolean(pair))
+
+  if (!pair && options.default && !registry.selectedId.value) {
+    registry.select(options.default)
   }
 
   type InternalTicket = SingleTicket<SingleTicketInput<ThemeColors>> & { dark: boolean, lazy: boolean }
@@ -324,12 +382,48 @@ export function createTheme (_options: ThemeOptions = {}): ThemeContext {
   })
 
   const isDark = toRef(() => (registry.selectedItem.value as InternalTicket | undefined)?.dark ?? false)
+  const isSystem = toRef(() => following.value)
+
+  const media = pair ? usePrefersDark() : undefined
+
+  function follow () {
+    if (!pair || !media) return
+    const id = media.matches.value ? pair.dark : pair.light
+    if (registry.has(id)) registry.select(id)
+  }
+
+  if (pair) {
+    if (IN_BROWSER) {
+      follow()
+    } else if (options.default && !registry.selectedId.value) {
+      registry.select(options.default)
+    }
+
+    watch(() => media!.matches.value, () => {
+      if (following.value) follow()
+    })
+  }
+
+  function select (id: ID) {
+    following.value = false
+    registry.select(id)
+  }
+
+  function reset () {
+    if (pair) {
+      following.value = true
+      follow()
+      return
+    }
+
+    if (options.default) registry.select(options.default)
+  }
 
   function cycle (themes: readonly ID[] = names.value) {
     const current = themes.indexOf(registry.selectedId.value ?? '')
     const next = current === -1 ? 0 : (current + 1) % themes.length
 
-    registry.select(themes[next]!)
+    select(themes[next]!)
   }
 
   function resolve (colors: Colors): Colors {
@@ -366,14 +460,46 @@ export function createTheme (_options: ThemeOptions = {}): ThemeContext {
     ...registry,
     colors,
     isDark,
+    isSystem,
+    select,
+    reset,
     register,
     onboard,
     cycle,
-    dispose: () => {},
+    dispose: () => {
+      media?.stop()
+    },
     get size () {
       return registry.size
     },
   } as ThemeContext
+}
+
+function resolveSystemPair (
+  system: ThemeSystemPair | undefined,
+  registry: { get: (id: ID) => unknown },
+  logger: { warn: (message: string) => void },
+): ThemeSystemPair | undefined {
+  if (!system) return undefined
+
+  const light = registry.get(system.light)
+  const dark = registry.get(system.dark) as { dark?: boolean } | undefined
+
+  if (!light) {
+    logger.warn(`[v0:theme] system.light "${String(system.light)}" is not registered`)
+    return undefined
+  }
+
+  if (!dark) {
+    logger.warn(`[v0:theme] system.dark "${String(system.dark)}" is not registered`)
+    return undefined
+  }
+
+  if (!dark.dark) {
+    logger.warn(`[v0:theme] system.dark "${String(system.dark)}" should have dark: true`)
+  }
+
+  return system
 }
 
 function createThemeFallback (): ThemeContext {
@@ -381,7 +507,9 @@ function createThemeFallback (): ThemeContext {
     size: 0,
     colors: computed(() => ({})),
     isDark: shallowRef(false),
+    isSystem: shallowRef(false),
     cycle: () => {},
+    reset: () => {},
     onboard: () => [],
     dispose: () => {},
   } as unknown as ThemeContext
@@ -398,7 +526,7 @@ export const [createThemeContext, createThemePlugin, useTheme] =
         adapter.setup(app, context, target)
         app.onUnmount(() => adapter.dispose?.())
       },
-      persist: ctx => ctx.selectedId.value,
+      persist: ctx => ctx.isSystem.value ? null : ctx.selectedId.value,
       restore: (ctx, saved) => {
         if (isString(saved) || isNumber(saved)) ctx.select(saved)
       },

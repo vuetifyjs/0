@@ -65,7 +65,7 @@
 
   const attrs = useAttrs()
 
-  const collapsed = defineModel<boolean>('collapsed', { default: undefined })
+  const collapsed = defineModel<boolean>('collapsed')
 
   const emit = defineEmits<{
     'update:collapsed': [value: boolean]
@@ -200,7 +200,8 @@
       flexGrow: 0,
       flexShrink: 0,
       flexBasis: `${size}%`,
-      overflow: 'hidden',
+      minWidth: 0,
+      minHeight: 0,
     }]"
   >
     <slot v-bind="slotProps" />

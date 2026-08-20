@@ -13,7 +13,7 @@ v0 is a **headless meta-framework for building UI libraries** — a set of Vue 3
 ### What v0 is
 
 - A layer of Vue 3 composables (~73) and compound components (~40) that encode interaction patterns, selection state, registries, accessibility contracts, keyboard navigation, focus management, SSR safety, and adapter-backed plugin state.
-- The bottom of a four-layer stack: **v0 → Paper → Design Systems → Vuetify**. v0 handles logic *and the headless token substrate* — theme state (`useTheme`), design tokens (`createTokens`), palettes-as-data (`src/palettes/`), and color/contrast math (`apca`); Paper consumes that substrate and handles styling *application* (`useColor`, `useContrast`); design systems (Emerald, Helix, etc.) compose Paper into complete frameworks; Vuetify 4 is one such consumer. [intent:295, intent:296, intent:297, intent:298]
+- The bottom of a four-layer stack: **v0 → Paper → Design Systems → Vuetify**. v0 handles logic *and the headless token substrate* — theme state (`useTheme`), design tokens (`createTokens`), palettes-as-data (`src/palettes/`), and color/contrast math (`apca`); Paper consumes that substrate and handles styling *application* (`useColor`, `useContrast`); design systems (Emerald, Onyx, etc.) compose Paper into complete frameworks; Vuetify 4 is one such consumer, and from 4.2.0 it also depends on v0 directly — the utility layer first, with deeper adoption through subsequent 4.x minors. [intent:295, intent:296, intent:297, intent:298]
 - Zero runtime dependencies on UI styling. No Tailwind, no UnoCSS, no Vuetify classes inside `packages/0/src/`. [intent:82, intent:278]
 - WAI-ARIA correct by default. Every interactive component ships `role`, `aria-*`, keyboard handlers, and `aria-disabled` semantics. [intent:174, intent:178]
 - Headless in the operational sense: consumers can replicate every visible behavior by writing CSS against the data attributes v0 exposes. [intent:281]
@@ -81,7 +81,10 @@ Non-negotiable. Each axiom carries a statement, a rationale, and a concrete anti
 
 **Why.** `any` silently disables type-checking downstream. A single `as any` in a composable propagates into every consumer that spreads it. `unknown` forces the consumer to narrow, which is the correct contract.
 
-**Current state.** Zero `as any` casts in source. The one place reaching into a foreign private shape — `packages/0/src/components/Locale/Locale.vue:69`, accessing `vue-i18n`'s `_rootT`/`_rootN` — declares those fields on a local `ScopedLocale` interface and uses a typed intersection cast (`parent as typeof parent & ScopedLocale`), so the shape is documented rather than erased. No `: any`, `as any`, or `<any>` in `packages/0/src/` — with one sanctioned exception: the slot-return type in `defineSlots<{ default: (props: SlotProps) => any }>()`, which Volar requires for correct slot inference (see §8.8). That `=> any` types the slot's *return*, never a value or argument, so it disables no downstream checking.
+**Current state.** Zero `as any` casts in source. The one place reaching into a foreign private shape — `packages/0/src/components/Locale/Locale.vue:69`, accessing `vue-i18n`'s `_rootT`/`_rootN` — declares those fields on a local `ScopedLocale` interface and uses a typed intersection cast (`parent as typeof parent & ScopedLocale`), so the shape is documented rather than erased. No `: any`, `as any`, or `<any>` in `packages/0/src/` — with two sanctioned exceptions:
+
+1. **Slot returns** — `defineSlots<{ default: (props: SlotProps) => any }>()`, which Volar requires for correct slot inference (see §8.8). That `=> any` types the slot's *return*, never a value or argument, so it disables no downstream checking.
+2. **`isObject` predicate** — `item is Record<string, any>` in `packages/0/src/utilities/helpers.ts`. `Record<string, unknown>` is *incorrect* as a type predicate: TypeScript never grants interfaces an implicit index signature, so the guard destroys known property types and fails to subtract `Record<string, any>` members in the `else` branch (issue #723). The `any` is only the *index* type of the predicate; it is not a value typed `any`, and it is not a license for `as any` elsewhere. Call sites that walk untyped trees and need checked property access must pin the read: `const inner: unknown = value.$value`. The private `isPlainObject` helper used by `mergeDeep` stays on `Record<string, unknown>` deliberately — it is not a public predicate and must keep index reads as `unknown`.
 
 **Anti-example (do not do this).**
 ```ts
@@ -859,6 +862,8 @@ See §2.2.
 ### 8.2 `unknown` over `any`
 
 When a type is genuinely indeterminate (e.g., ticket `value`), it is `unknown`. Narrowing happens at the point of use through `isObject`, `isString`, etc. [intent:79]
+
+**`isObject` caveat.** Guarding an `unknown` (or other indeterminate) value with `isObject` narrows to `Record<string, any>`, so property reads are `any` — not a further-checked type. That is intentional (see §2.2 exception 2): the alternative predicate collapses interface-typed unions. Prefer typed inputs (`interface` / object type in a union) when you need known properties after the guard; when walking untyped trees, pin intermediate reads to `unknown` before re-guarding.
 
 ### 8.3 `Readonly<Ref<T>>` return contract
 

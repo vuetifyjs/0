@@ -34,6 +34,11 @@ export default defineConfig({
     __DEV__: 'process.env.NODE_ENV !== \'production\'',
     __VITE_LOGGER_ENABLED__: 'process.env.VITE_LOGGER_ENABLED',
     __VERSION__: '"0.0.1"',
+    // Vue esm-bundler feature flags — silence the "not explicitly defined"
+    // warning on app creation. Matches apps/docs and the browser config.
+    __VUE_OPTIONS_API__: 'true',
+    __VUE_PROD_DEVTOOLS__: 'false',
+    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
   },
   test: {
     name: 'v0:unit',
@@ -45,16 +50,11 @@ export default defineConfig({
     exclude: ['**/*.browser.test.{ts,tsx}'],
     setupFiles: ['./vitest.setup.ts'],
     testTimeout: 20_000,
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json-summary'],
-      reportsDirectory: 'packages/0/coverage',
-      include: ['packages/0/src/**/*.{ts,vue}'],
-      exclude: [
-        '**/*.{test,spec,bench}.?(c|m)[jt]s',
-        '**/index.ts',
-        'packages/0/src/maturity.json',
-      ],
-    },
+    // No `coverage` block here on purpose. Vitest resolves coverage from the
+    // root config only; a project-level block is silently inert. The one that
+    // used to live here excluded `**/index.ts`, which is where every composable
+    // implementation lives (composables/<name>/index.ts) — had it ever been
+    // honoured it would have zeroed the bulk of the report. Coverage include /
+    // exclude belongs in the root vitest.config.ts.
   },
 })

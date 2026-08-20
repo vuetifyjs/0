@@ -43,9 +43,9 @@ A checkbox for boolean state or multi-selection groups with tri-state support.
 
     <Checkbox.Root>
       <Checkbox.Indicator />
-    </Checkbox.Root>
 
-    <Checkbox.HiddenInput />
+      <Checkbox.HiddenInput />
+    </Checkbox.Root>
   </Checkbox.Group>
 </template>
 ```

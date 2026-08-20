@@ -142,59 +142,50 @@ export function createBreakpoints (_options: BreakpointsOptions = {}): Breakpoin
     ? (ssr.clientHeight ?? 0)
     : (IN_BROWSER ? window.innerHeight : 0)
 
-  let initialName: BreakpointName = 'xs'
-  for (let i = sorted.length - 1; i >= 0; i--) {
-    if (initialWidth >= sorted[i]![1]) {
-      initialName = sorted[i]![0]
-      break
-    }
-  }
-  const initialIndex = names.indexOf(initialName)
-
-  const name = shallowRef<BreakpointName>(initialName)
+  const name = shallowRef<BreakpointName>('xs')
   const width = shallowRef(initialWidth)
   const height = shallowRef(initialHeight)
-  const isMobile = shallowRef(initialWidth < mb!)
-  const xs = shallowRef(initialIndex === 0)
-  const sm = shallowRef(initialIndex === 1)
-  const md = shallowRef(initialIndex === 2)
-  const lg = shallowRef(initialIndex === 3)
-  const xl = shallowRef(initialIndex === 4)
-  const xxl = shallowRef(initialIndex === 5)
-  const smAndUp = shallowRef(initialIndex >= 1)
-  const mdAndUp = shallowRef(initialIndex >= 2)
-  const lgAndUp = shallowRef(initialIndex >= 3)
-  const xlAndUp = shallowRef(initialIndex >= 4)
-  const smAndDown = shallowRef(initialIndex <= 1)
-  const mdAndDown = shallowRef(initialIndex <= 2)
-  const lgAndDown = shallowRef(initialIndex <= 3)
-  const xlAndDown = shallowRef(initialIndex <= 4)
+  const isMobile = shallowRef(false)
+  const xs = shallowRef(false)
+  const sm = shallowRef(false)
+  const md = shallowRef(false)
+  const lg = shallowRef(false)
+  const xl = shallowRef(false)
+  const xxl = shallowRef(false)
+  const smAndUp = shallowRef(false)
+  const mdAndUp = shallowRef(false)
+  const lgAndUp = shallowRef(false)
+  const xlAndUp = shallowRef(false)
+  const smAndDown = shallowRef(false)
+  const mdAndDown = shallowRef(false)
+  const lgAndDown = shallowRef(false)
+  const xlAndDown = shallowRef(false)
 
-  function update () {
-    if (!IN_BROWSER) return
-
-    width.value = window.innerWidth
-    height.value = window.innerHeight
-
-    // Use matchMedia for breakpoint detection to guarantee
-    // alignment with CSS media queries at any zoom level.
-    // Falls back to innerWidth comparison when matchMedia is unavailable.
+  // Use matchMedia for breakpoint detection to guarantee
+  // alignment with CSS media queries at any zoom level.
+  // Falls back to a width comparison when matchMedia is unavailable.
+  function resolve (value: number, media: boolean) {
     let current: BreakpointName = 'xs'
     for (let i = sorted.length - 1; i >= 0; i--) {
       const px = sorted[i]![1]
-      if (SUPPORTS_MATCH_MEDIA ? window.matchMedia(`(min-width: ${px}px)`).matches : width.value >= px) {
+      if (media ? window.matchMedia(`(min-width: ${px}px)`).matches : value >= px) {
         current = sorted[i]![0]
         break
       }
     }
 
-    name.value = current
-
     const index = names.indexOf(current)
-
-    isMobile.value = isNumber(mb)
-      ? (SUPPORTS_MATCH_MEDIA ? !window.matchMedia(`(min-width: ${mb}px)`).matches : width.value < mb)
+    /* v8 ignore next 3 -- alternate arm is defensive: mb always resolves to a number via `?? breakpoints.md` */
+    const mobile = isNumber(mb)
+      ? (media ? !window.matchMedia(`(min-width: ${mb}px)`).matches : value < mb)
       : index < names.indexOf(mobileBreakpoint as BreakpointName)
+
+    return { current, index, mobile }
+  }
+
+  function apply ({ current, index, mobile }: ReturnType<typeof resolve>) {
+    name.value = current
+    isMobile.value = mobile
     xs.value = index === 0
     sm.value = index === 1
     md.value = index === 2
@@ -209,6 +200,21 @@ export function createBreakpoints (_options: BreakpointsOptions = {}): Breakpoin
     mdAndDown.value = index <= 2
     lgAndDown.value = index <= 3
     xlAndDown.value = index <= 4
+  }
+
+  // Initial state resolves through the same matchMedia-based logic as
+  // update() so a bare createBreakpoints() matches CSS media queries on
+  // first paint. SSR keeps the configured width comparison so server and
+  // client markup match; no-matchMedia environments keep the width comparison.
+  apply(resolve(initialWidth, !ssr && IN_BROWSER && SUPPORTS_MATCH_MEDIA))
+
+  function update () {
+    if (!IN_BROWSER) return
+
+    width.value = window.innerWidth
+    height.value = window.innerHeight
+
+    apply(resolve(width.value, SUPPORTS_MATCH_MEDIA))
   }
 
   return {

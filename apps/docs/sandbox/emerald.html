@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="emerald-light">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+
+    <title>Emerald example</title>
+    <link rel="icon" type="image/png" href="/0.png">
+
+    <script>
+      // Blocking, and first: an iframe composites an opaque canvas as soon as
+      // it is attached, so anything that decides the scheme later — the theme
+      // stylesheet, the app bundle — decides it after the reader has already
+      // seen a white frame. This runs before either exists.
+      //
+      // Emerald's theme vocabulary is `emerald-light` / `emerald-dark`, not
+      // `light` / `dark`: those are the ids its colors are registered under, and
+      // the attribute selector its stylesheet keys on. The docs page speaks in
+      // schemes, so the query param is translated here.
+      document.documentElement.dataset.theme =
+        new URLSearchParams(location.search).get('theme') === 'dark' ? 'emerald-dark' : 'emerald-light'
+    </script>
+
+    <style>
+      /* Emerald's own `background` / `surface` / `on-*` roles, resolved from
+         `packages/emerald/src/colors.ts` and inlined so the document paints the
+         right surface while the theme stylesheet is still being generated.
+
+         Zero specificity via `:where()`, so the adapter's `[data-theme="…"]`
+         block takes these back the moment it lands and stays the source of
+         truth. Declaring the custom properties *and* consuming them in the same
+         block is what makes that handover seamless: `background-color` reads
+         whichever definition currently wins, so it needs no second rule.
+
+         Unlike Bulma, Emerald ships no page-level reset — nothing in the design
+         system colors `html`, so these blocks are not merely a first-paint
+         stand-in, they are what gives the frame its surface for good. */
+      :where(html[data-theme="emerald-light"]) {
+        --emerald-background: #FEFEFE;
+        --emerald-surface: #FFFFFF;
+        --emerald-on-surface: #2B2D2E;
+        --emerald-on-background: #2B2D2E;
+
+        background-color: var(--emerald-background);
+        color: var(--emerald-on-background);
+        color-scheme: light;
+      }
+
+      :where(html[data-theme="emerald-dark"]) {
+        --emerald-background: #1A1C1E;
+        --emerald-surface: #1E1C28;
+        --emerald-on-background: #EEF1F4;
+        --emerald-on-surface: #EEF1F4;
+
+        background-color: var(--emerald-background);
+        color: var(--emerald-on-background);
+        color-scheme: dark;
+      }
+    </style>
+
+    <!--
+      No stylesheet link, and nothing from a CDN. @paper/emerald *does* ship
+      styling — `theme.css` for the tokens, `style.css` for the components — but
+      both are build artifacts under `dist/`, and this app resolves the package
+      to its source through the `@paper/emerald` alias. So the two halves arrive
+      the way source resolution delivers them: component CSS rides along with the
+      SFCs Vite compiles, and the token layer is generated at runtime by
+      `src/sandbox/emerald.ts`. Nothing from the docs shell is loaded here: no
+      UnoCSS preflight, no docs theme tokens.
+    -->
+    <style>
+      /* Every real Emerald host provides border-box sizing (UnoCSS preflight
+         in the dev app and docs shell); the sandbox loads no UnoCSS, and
+         Emerald ships no page reset, so width:100% components with padding
+         or borders overflow the frame without this. */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      /* Emerald styles components, not the page, so the UA's own body margin
+         would otherwise sit under the sandbox padding and inflate every height
+         this frame reports back. */
+      body {
+        margin: 0;
+        font-family: var(--emerald-font-sans, Manrope, system-ui, -apple-system, sans-serif);
+      }
+
+      /* The parent owns this frame's height — every measurement the sandbox
+         reports grows the box to fit — so the document never legitimately
+         scrolls. But the round-trip is not instant: dragging the example
+         narrower reflows content taller than the frame's held height, and for
+         those few frames the UA would paint a root scrollbar. `clip` (not
+         `hidden`) so no scroll container exists at all — nothing can leave the
+         document sitting at a stale offset. */
+      html {
+        overflow: clip;
+      }
+
+      /* Nothing here forces transparency while promoted: an iframe paints an
+         opaque canvas whatever its document says, so the parent clips the frame
+         to the regions this example is actually painting instead. Leaving the
+         theme background in place is what makes the clip edge blend — made
+         transparent, the cut shows the white canvas as a bright rim. */
+    </style>
+  </head>
+  <body>
+    <div id="sandbox"></div>
+    <script type="module" src="/src/sandbox/emerald.ts"></script>
+  </body>
+</html>

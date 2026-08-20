@@ -39,6 +39,9 @@ import { fileURLToPath } from 'node:url'
 import { buildItemBenchmarks, extractName, type ItemBenchmarks } from './lib/benchmarks.ts'
 import { config } from './metrics-history.config.ts'
 
+// Types
+import type { EnvFingerprint } from './lib/env.ts'
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
 const OUTPUT_DIR = resolve(ROOT, 'apps/docs/src/data/metrics')
@@ -46,6 +49,13 @@ const OUTPUT_DIR = resolve(ROOT, 'apps/docs/src/data/metrics')
 interface HistoryFile {
   version: string
   generatedAt: string
+  /**
+   * Which machine and toolchain produced this point. Load-bearing for the trend
+   * lines, but as a comparability check rather than a correction: a sparkline is
+   * only meaningful while every point shares a fingerprint, and when one stops
+   * matching the honest response is to re-measure the series, not to rescale it.
+   */
+  env?: EnvFingerprint
   items?: Record<string, { benchmarks: ItemBenchmarks }>
   error?: string
 }
@@ -183,13 +193,20 @@ function installVersion (version: string, dir: string): string {
 }
 
 /** Run the current bench suite against `dist`; return the parsed benchmarks JSON. */
-function benchAgainst (dist: string, jsonOut: string): { files?: { filepath: string }[] } {
-  // Mirror `test:bench:json`, but target a temp output and a specific dist via the
-  // V0_BENCH_TARGET alias (read in packages/0/vitest.config.ts). Vitest may exit
-  // non-zero if a bench references a symbol absent in this version — that's fine;
-  // we read whatever results were written.
+function benchAgainst (dist: string, jsonOut: string): { files?: { filepath: string }[], env?: EnvFingerprint } {
+  // Same stability apparatus as `pnpm metrics:bench` (scripts/run-bench-stable.ts):
+  // v0:unit only, maxWorkers=1, no file parallelism, path-normalized output.
+  // History uses --runs 1 (full series is already multi-hour); isolation flags
+  // still match current metrics so version points are comparable.
+  // V0_BENCH_TARGET aliases @vuetify/v0 to the installed dist.
   try {
-    execFileSync('pnpm', ['exec', 'vitest', 'bench', '--run', '--outputJson', jsonOut], {
+    execFileSync('node', [
+      resolve(ROOT, 'scripts/run-bench-stable.ts'),
+      '--runs',
+      '1',
+      '--out',
+      jsonOut,
+    ], {
       cwd: ROOT,
       stdio: 'inherit',
       env: { ...process.env, V0_BENCH_TARGET: dist },
@@ -217,6 +234,12 @@ function processVersion (version: string, force: boolean): void {
     const dist = installVersion(version, dir)
     const raw = benchAgainst(dist, join(dir, 'benchmarks.json'))
 
+    // Every version in the sweep is measured by the same suite on the same
+    // machine in the same session, which is what makes the points comparable.
+    // The fingerprint records that machine so a future sweep on different
+    // hardware is visibly a different series rather than a silent break.
+    const env = raw.env
+
     const items: Record<string, { benchmarks: ItemBenchmarks }> = {}
     for (const file of raw.files ?? []) {
       const name = extractName(file.filepath)
@@ -224,7 +247,7 @@ function processVersion (version: string, force: boolean): void {
       items[name] = { benchmarks: buildItemBenchmarks(file) }
     }
 
-    writeOutputFile(version, { items })
+    writeOutputFile(version, { env, items })
     console.log(`[${version}] done — wrote ${Object.keys(items).length} items`)
   } catch (error) {
     const message = (error as Error).message

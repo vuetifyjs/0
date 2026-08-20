@@ -76,12 +76,16 @@
     // The last step has no activator, so no element carries the anchor-name.
     // position-area: center silently no-ops without a resolvable anchor and the
     // inset collapses the box to the top-left corner, so center on the viewport.
+    // Center via inset + margin auto rather than translate(-50%, -50%): the enter
+    // animation scales through the `scale` property, and a positioning translate
+    // shares its transform-origin, pinning the scale's fixed point to the box's
+    // own center - which sits at the visual bottom-right, so the box grew from
+    // there instead of its center. No transform here leaves scale about center.
     if (currentPlacement === 'center') {
       return {
         position: 'fixed' as const,
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
+        inset: '0',
+        margin: 'auto',
         width: 'max-content',
         height: 'max-content',
         maxWidth: `min(20rem, calc(100vw - ${offset * 2}px))`,

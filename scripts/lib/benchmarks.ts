@@ -173,6 +173,13 @@ function benchSummary (b: RawBench): BenchSummary {
 /**
  * Reduce a single file entry from vitest bench JSON into the per-item
  * benchmarks shape used by metrics.json and the per-version history files.
+ *
+ * Values pass through as measured. There was once a `scale` parameter here that
+ * divided a host-speed factor out of every number, so a snapshot taken on one
+ * GHA runner could sit in the same trend line as one taken on another. It is
+ * gone with the anchors that produced it: benchmarks are measured on one fixed
+ * workstation, and on four full-suite runs of identical code that correction
+ * made results measurably *less* reproducible than leaving them alone.
  */
 export function buildItemBenchmarks (file: RawBenchFile): ItemBenchmarks {
   const result: ItemBenchmarks = { _groups: {} }
@@ -233,5 +240,10 @@ export function extractName (filePath: string): string | null {
   if (composableMatch) return composableMatch[1]
   const componentMatch = filePath.match(/\/components\/([^/]+)\//)
   if (componentMatch) return componentMatch[1]
+  // Utilities are flat files (utilities/helpers.ts, utilities/helpers.bench.ts),
+  // not a dir/index pair — without this, a utilities bench (e.g. helpers) never
+  // gets a metrics.json entry and its docs card falls back to "Unmeasured".
+  const utilityMatch = filePath.match(/\/utilities\/([^/]+?)(?:\.(?:bench|test))?\.ts$/)
+  if (utilityMatch && utilityMatch[1] !== 'index') return utilityMatch[1]
   return null
 }

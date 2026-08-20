@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Adapters
 import { ClientComboboxAdapter } from '#v0/composables/createCombobox/adapters/client'
@@ -1587,6 +1587,20 @@ describe('combobox', () => {
   })
 
   describe('renderless', () => {
+    // Renderless sub-components apply their directive (Combobox.Item's mandated
+    // v-show — PHILOSOPHY §10.11) to a renderless Atom, whose root is the slot
+    // rather than an element, so Vue warns about a runtime directive on a
+    // non-element root. The warning is benign and expected here; capture and
+    // assert it rather than letting it leak to stderr (testing.md).
+    let warn: ReturnType<typeof vi.spyOn>
+    beforeEach(() => {
+      warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    })
+    afterEach(() => {
+      expect(warn).toHaveBeenCalled()
+      warn.mockRestore()
+    })
+
     async function createRenderless (options: {
       'modelValue'?: unknown
       'onUpdate:modelValue'?: (v: unknown) => void

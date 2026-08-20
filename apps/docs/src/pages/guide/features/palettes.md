@@ -14,7 +14,7 @@ related:
   - /composables/registration/create-tokens
 ---
 
-<script setup>
+<script setup lang="ts">
   import DocsPaletteExplorer from '@/components/docs/DocsPaletteExplorer.vue'
 </script>
 
@@ -23,6 +23,12 @@ related:
 v0 ships pre-built color data from popular design systems and generator adapters that create complete themes from a single brand color.
 
 <DocsPageFeatures :frontmatter />
+
+Palettes come in two forms. **Static palettes** are raw color data — a map of hues to shades — that you namespace under the `palette` option and reference from your themes. **Generator adapters** take a single seed color and hand back a ready-made `{ palette, themes }` pair by wrapping a third-party color algorithm.
+
+Colors are wired up with token references: the `'{palette.tw.blue.500}'` string in the examples below points at a value in the `palette` map instead of hardcoding a hex, so one palette can back many theme roles. See [Theming](/guide/features/theming) for how references resolve.
+
+Use the explorer to browse the static palettes. Click any swatch to copy its token path, then **Copy Config** for a ready-to-paste `createThemePlugin` setup seeded with the swatches you clicked. Palettes with far more shades than hues, like Material, render with their axes flipped so the grid stays readable.
 
 <DocsPaletteExplorer />
 

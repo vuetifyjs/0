@@ -293,15 +293,14 @@
           Apply {{ verdict?.label }} to filter
         </button>
 
-        <button
+        <AppTooltip
           class="inline-flex items-center gap-2 rounded-md border border-divider px-3 py-1.5 text-sm text-on-surface transition-colors hover:bg-surface-variant"
-          title="Try again"
-          type="button"
+          text="Try again"
           @click="onStart"
         >
           <AppIcon icon="restart" :size="16" />
           Try again
-        </button>
+        </AppTooltip>
       </div>
     </div>
 
@@ -317,14 +316,15 @@
           Question {{ index + 1 }} of {{ total }}
         </span>
 
-        <span
+        <AppTooltip
+          as="span"
           class="skillz-badge ml-auto inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-bold uppercase tracking-wide"
           :style="currentLevelMeta ? { '--level-color': currentLevelMeta.color } : undefined"
-          :title="currentLevelMeta ? `${currentLevelMeta.label} level` : undefined"
+          :text="currentLevelMeta ? `${currentLevelMeta.label} level` : undefined"
         >
           SKILLZ
           <AppIcon v-if="currentLevelMeta" :icon="currentLevelMeta.icon" :size="14" />
-        </span>
+        </AppTooltip>
       </div>
 
       <Question.Root
@@ -407,26 +407,24 @@
         </Question.Feedback>
 
         <div class="mt-4 flex items-center gap-2">
-          <button
+          <AppTooltip
             aria-label="Restart quiz"
             class="inline-flex size-9 items-center justify-center rounded-md border border-divider text-on-surface-variant transition-colors hover:bg-surface-variant"
-            title="Restart quiz"
-            type="button"
+            text="Restart quiz"
             @click="begin"
           >
             <AppIcon icon="restart" :size="16" />
-          </button>
+          </AppTooltip>
 
-          <button
+          <AppTooltip
             aria-label="Previous question"
             class="inline-flex size-9 items-center justify-center rounded-md border border-divider text-on-surface transition-colors hover:bg-surface-variant disabled:opacity-40"
             :disabled="index === 0"
-            title="Back"
-            type="button"
+            text="Back"
             @click="onPrev"
           >
             <AppIcon icon="left" :size="16" />
-          </button>
+          </AppTooltip>
 
           <div class="flex flex-1 flex-wrap items-center justify-center gap-1.5">
             <button
@@ -446,16 +444,15 @@
           </div>
 
           <template v-if="!isSubmitted">
-            <button
+            <AppTooltip
               v-if="!isLast"
               aria-label="Skip question"
               class="inline-flex size-9 items-center justify-center rounded-md border border-divider text-on-surface transition-colors hover:bg-surface-variant"
-              title="Skip"
-              type="button"
+              text="Skip"
               @click="onSkip"
             >
               <AppIcon icon="right" :size="16" />
-            </button>
+            </AppTooltip>
 
             <button
               v-else
@@ -490,7 +487,11 @@
   </div>
 </template>
 
-<style scoped>
+<!-- Unscoped: AppTooltip renders a multi-root fragment (activator + popover
+     content), so the parent scope-id is not forwarded to the .skillz-badge
+     activator element — a scoped rule would no longer match. See
+     scoped-css-multiroot-child (#359). -->
+<style>
   .skillz-badge {
     background: color-mix(in srgb, var(--level-color, var(--v0-primary)) 15%, transparent);
     color: var(--level-color, var(--v0-primary));

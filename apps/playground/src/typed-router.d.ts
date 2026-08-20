@@ -20,8 +20,9 @@ import type {
 
 declare module 'vue-router' {
   interface TypesConfig {
-    ParamParsers:
-      | never
+    _ParamParsers: {}
+    RouteNamedMap: import('vue-router/auto-routes').RouteNamedMap
+    _RouteFileInfoMap: import('vue-router/auto-routes')._RouteFileInfoMap
   }
 }
 
@@ -35,6 +36,13 @@ declare module 'vue-router/auto-routes' {
       '/',
       Record<never, never>,
       Record<never, never>,
+      | never
+    >,
+    '/playgrounds/[id]': RouteRecordInfo<
+      '/playgrounds/[id]',
+      '/playgrounds/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
       | never
     >,
   }
@@ -55,6 +63,16 @@ declare module 'vue-router/auto-routes' {
         | '/'
       views:
         | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/playgrounds/[id].vue': {
+      routes:
+        | '/playgrounds/[id]'
+      views:
+        | never
+      pathParamNames:
+        | 'id'
     }
   }
 

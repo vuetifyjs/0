@@ -3,24 +3,21 @@
   import { useClipboard } from '@/composables/useClipboard'
   import { useCustomThemes } from '@/composables/useCustomThemes'
   import { useSettings } from '@/composables/useSettings'
-  import { useThemeToggle } from '@/composables/useThemeToggle'
 
   // Themes
-  import { exportThemeAsVuetifyConfig, type ThemeId } from '@/themes'
+  import { exportThemeAsVuetifyConfig, themes } from '@/themes'
 
   // Utilities
   import { computed } from 'vue'
 
-  const toggle = useThemeToggle()
   const customThemes = useCustomThemes()
   const clipboard = useClipboard()
   const settings = useSettings()
 
-  // Current active theme (resolves 'system' to actual theme)
-  const currentThemeId = computed<ThemeId>(() => toggle.theme.selectedId.value as ThemeId)
-
   function exportTheme () {
-    const config = exportThemeAsVuetifyConfig(currentThemeId.value)
+    // `current()` resolves token aliases and covers user-created themes, which
+    // the preset map does not contain.
+    const config = exportThemeAsVuetifyConfig(customThemes.current() ?? themes.light)
     clipboard.copy(config)
   }
 
@@ -44,14 +41,14 @@
         <AppIcon icon="paint" size="16" />
         <span>Theme</span>
 
-        <button
+        <AppTooltip
+          aria-label="Copy theme as Vuetify0 config"
           class="ml-auto p-1 rounded hover:bg-surface-tint transition-colors inline-flex items-center justify-center shrink-0"
-          title="Copy theme as Vuetify0 config"
-          type="button"
+          text="Copy theme as Vuetify0 config"
           @click="exportTheme"
         >
           <AppIcon :icon="clipboard.copied.value ? 'check-circle' : 'copy'" size="14" />
-        </button>
+        </AppTooltip>
       </h3>
 
       <!-- Mode -->

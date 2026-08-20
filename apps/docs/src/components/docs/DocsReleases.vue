@@ -278,45 +278,45 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <button
+          <AppTooltip
             aria-label="Copy markdown"
             class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
-            :title="markdownClipboard.copied.value ? 'Copied!' : 'Copy markdown'"
-            type="button"
+            :text="markdownClipboard.copied.value ? 'Copied!' : 'Copy markdown'"
             @click="copyReleaseMarkdown"
           >
             <AppIcon :icon="markdownClipboard.copied.value ? 'success' : 'copy'" :size="18" />
-          </button>
+          </AppTooltip>
 
-          <button
+          <AppTooltip
             aria-label="Copy link"
             class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
-            :title="linkClipboard.copied.value ? 'Copied!' : 'Copy link'"
-            type="button"
+            :text="linkClipboard.copied.value ? 'Copied!' : 'Copy link'"
             @click="copyReleaseLink"
           >
             <AppIcon :icon="linkClipboard.copied.value ? 'success' : 'share'" :size="18" />
-          </button>
+          </AppTooltip>
 
-          <a
+          <AppTooltip
+            as="a"
             class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
             href="https://discord.gg/vuetify"
             rel="noopener"
             target="_blank"
-            title="Discuss on Discord"
+            text="Discuss on Discord"
           >
             <AppIcon icon="discord" :size="18" />
-          </a>
+          </AppTooltip>
 
-          <a
+          <AppTooltip
+            as="a"
             class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
             :href="model.html_url"
             rel="noopener"
             target="_blank"
-            title="View on GitHub"
+            text="View on GitHub"
           >
             <AppIcon icon="github" :size="18" />
-          </a>
+          </AppTooltip>
         </div>
       </div>
 

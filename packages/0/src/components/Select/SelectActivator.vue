@@ -45,6 +45,7 @@
       'aria-disabled': boolean
       'disabled': true | undefined
       'tabindex': 0 | undefined
+      'data-disabled': true | undefined
       'data-open': true | undefined
       'style': Record<string, string>
       'onClick': () => void
@@ -138,6 +139,7 @@
       'aria-disabled': toValue(context.disabled),
       'disabled': toValue(context.disabled) || undefined,
       'tabindex': as === 'button' ? undefined : 0,
+      'data-disabled': toValue(context.disabled) || undefined,
       'data-open': context.isOpen.value || undefined,
       'style': context.popover.anchorStyles.value,
       onClick,

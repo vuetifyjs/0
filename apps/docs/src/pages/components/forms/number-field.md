@@ -1,10 +1,10 @@
 ---
 title: NumberField - Numeric Input with Formatting
 meta:
-  - name: description
-    content: Headless numeric input with increment/decrement controls, locale-aware formatting, drag-to-scrub, and WAI-ARIA spinbutton compliance.
-  - name: keywords
-    content: number field, number input, stepper, spinbutton, increment, decrement, scrub, currency, vuetify, headless
+- name: description
+  content: Headless numeric input with increment/decrement controls, locale-aware formatting, drag-to-scrub, and WAI-ARIA spinbutton compliance.
+- name: keywords
+  content: number field, number input, stepper, spinbutton, increment, decrement, scrub, currency, vuetify, headless
 features:
   category: Component
   label: 'C: NumberField'

@@ -47,14 +47,15 @@
     :title="command"
   >
     <Popover.Root v-model="isOpen">
-      <Popover.Activator
-        aria-label="Change package manager"
-        class="inline-flex items-center gap-1 pl-2.5 pr-2 py-1 rounded-full text-primary hover:bg-surface-tint transition-colors cursor-pointer"
-        title="Change package manager"
-      >
-        <span>{{ settings.packageManager.value }}</span>
-        <AppChevron :open="isOpen" :size="12" vertical />
-      </Popover.Activator>
+      <AppTooltip as="span" class="inline-flex" text="Change package manager">
+        <Popover.Activator
+          aria-label="Change package manager"
+          class="inline-flex items-center gap-1 pl-2.5 pr-2 py-1 rounded-full text-primary hover:bg-surface-tint transition-colors cursor-pointer"
+        >
+          <span>{{ settings.packageManager.value }}</span>
+          <AppChevron :open="isOpen" :size="12" vertical />
+        </Popover.Activator>
+      </AppTooltip>
 
       <Popover.Content
         class="p-1.5 rounded-lg bg-surface border border-divider shadow-lg min-w-[140px] !mt-[9px]"

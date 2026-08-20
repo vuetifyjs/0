@@ -2,9 +2,9 @@ name: PR Checks
 
 on:
   pull_request:
-    branches: [master]
+    branches: [master, dev, next]
   push:
-    branches: [master]
+    branches: [master, dev, next]
 
 permissions:
   contents: read
@@ -40,18 +40,26 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      # Coverage is scoped to .ts (composables/utilities/plugins); component
-      # .vue coverage comes from the browser job below and Codecov merges the
-      # two flagged uploads into one project total.
+      # No --coverage.include override: both jobs report the full source set
+      # from the root vitest.config.ts and Codecov unions the two flagged
+      # uploads per line. Scoping this job to .ts hid every .vue belonging to a
+      # component tested in v0:unit rather than v0:browser (36 files across 8
+      # components had an SF: entry in neither report). The v8 provider only
+      # emits records for files a run actually loaded, so a wide include costs
+      # this job nothing — it does not backfill untouched files at 0%.
       - name: Run unit tests with coverage
-        run: pnpm test:run --coverage --project '!v0:browser' --coverage.include='packages/0/src/**/*.ts'
+        run: pnpm test:run --coverage --project '!v0:browser'
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/coverage-final.json
+          files: ./coverage/lcov.info
+          disable_search: true
           flags: unit
-          fail_ci_if_error: false
+          name: unit
+          slug: vuetifyjs/0
+          fail_ci_if_error: true
+          verbose: true
 
   # Component tests run in a real browser (Playwright/Chromium) and are kept in
   # their own job so a render/timing flake can't red the unit + coverage signal.
@@ -76,32 +84,131 @@ jobs:
         run: pnpm exec playwright install chromium
       - name: Install Playwright system dependencies
         run: pnpm exec playwright install-deps chromium
-      # Coverage scoped to component .vue; composable .ts coverage comes from the
-      # unit job. Uploaded under the `browser` flag so Codecov merges the two.
+      # Uploaded under the `browser` flag so Codecov merges it with the unit
+      # flag. Scoping this job to component .vue threw away every .ts line a
+      # *.browser.test.ts was the only test to exercise, which is what forced
+      # PR #725 to duplicate its browser assertions as unit tests to recover
+      # codecov/patch (70.83% -> 100%). Keep the include wide.
       - name: Run component tests with coverage
-        run: pnpm exec vitest run --project v0:browser --coverage --coverage.include='packages/0/src/components/**/*.vue'
+        run: pnpm exec vitest run --project v0:browser --coverage
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/coverage-final.json
+          files: ./coverage/lcov.info
+          disable_search: true
           flags: browser
-          fail_ci_if_error: false
+          name: browser
+          slug: vuetifyjs/0
+          fail_ci_if_error: true
+          verbose: true
+
+  # Automated accessibility audit: axe-core over every component, mounted in the
+  # shape its own @example JSDoc documents, in the same real Chromium the
+  # browser job uses. Advisory on purpose — see the header comment in
+  # packages/0/src/components/a11y.browser.test.ts.
+  #
+  # Gate (two edits, not one): assert on `violations` in the sweep file, then
+  # drop `continue-on-error` below once the count reaches zero. Manifest and
+  # render smoke still fail hard via the `browser` job (same `*.browser.test.ts`).
+  #
+  # Its own job rather than a step on `browser` so the breakdown gets its own
+  # step summary instead of being buried under the coverage upload. Same cache
+  # key as `browser`, so Chromium restores rather than re-downloads.
+  a11y:
+    needs: prepare
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+      - name: Cache Playwright browser
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-1.61.0-${{ runner.os }}
+      - name: Install Playwright browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install chromium
+      - name: Install Playwright system dependencies
+        run: pnpm exec playwright install-deps chromium
+      # --reporter=verbose because the default reporter swallows console output
+      # from browser tests, and the report the sweep prints is the deliverable.
+      - name: Run accessibility sweep
+        run: |
+          set -o pipefail
+          pnpm exec vitest run --project v0:browser --reporter=verbose \
+            packages/0/src/components/a11y.browser.test.ts 2>&1 | tee a11y.log
+      - name: Publish violation breakdown
+        if: always()
+        run: |
+          set -uo pipefail
+          {
+            echo '## Accessibility audit (advisory)'
+            echo
+            echo '```'
+            awk '/--- v0 a11y report ---/{flag=1; next} /--- end v0 a11y report ---/{flag=0} flag' a11y.log \
+              || echo 'No report in the run log — the sweep failed before afterAll ran.'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Upload success ≠ processed report. Codecov queues OK then sometimes leaves
+  # commit state/totals null (badge graph → "unknown"). Surface that here so we
+  # don't ship a green CI over a dark coverage signal. Non-blocking: processing
+  # can lag; the annotation is the loud signal until reports complete again.
+  codecov-health:
+    needs: [test, browser]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    steps:
+      - name: Poll Codecov commit report
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          url="https://api.codecov.io/api/v2/github/vuetifyjs/repos/0/commits/${SHA}"
+          echo "Polling $url"
+          state=""
+          coverage=""
+          for attempt in 1 2 3 4 5 6; do
+            body=$(curl -fsS "$url" || true)
+            state=$(printf '%s' "$body" | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("state") or "")' 2>/dev/null || true)
+            coverage=$(printf '%s' "$body" | python3 -c 'import sys,json; d=json.load(sys.stdin); t=d.get("totals") or {}; print(t.get("coverage") if isinstance(t, dict) else "")' 2>/dev/null || true)
+            echo "attempt=$attempt state=${state:-null} coverage=${coverage:-null}"
+            if [ -n "$state" ] && [ "$state" != "null" ] && [ -n "$coverage" ]; then
+              echo "Codecov report complete: state=$state coverage=$coverage"
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "::warning::Codecov upload queued but commit ${SHA} still has state/totals null after ~2m. Repo totals badge may be stale; check https://app.codecov.io/github/vuetifyjs/0/commit/${SHA}"
+          exit 0
 
   repo-integrity:
     needs: prepare
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # need base...HEAD for metrics artifact guard
       - uses: ./.github/actions/setup
       - name: Run knip check
         run: pnpm repo:knip
       - name: Run sherif check
         run: pnpm repo:sherif
+      - name: Guard benchmark artifacts
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch origin "$GITHUB_BASE_REF" --depth=1
+          pnpm metrics:check
 
-  # Vapor parity tests run on a beta Vue (tests/vapor, vue@3.6.0-beta), pinned
-  # separately from the rest of the repo. Non-blocking: a Vapor regression
-  # surfaces as a visible signal without redding the build on a beta hiccup.
+  # Vapor parity tests run on a pre-release Vue (tests/vapor, vue@3.6.0-rc),
+  # pinned separately from the rest of the repo. Non-blocking: a Vapor
+  # regression surfaces as a visible signal without redding the build on a
+  # pre-release hiccup.
   vapor:
     needs: prepare
     runs-on: ubuntu-latest

@@ -48,6 +48,9 @@ apps/docs/build/generated/
 .claude/plans/
 .claude/specs/
 .claude/scheduled_tasks.lock
+
+# Grok
+.grok
 .playwright-mcp/
 .superpowers/
 .worktrees/
@@ -55,3 +58,7 @@ apps/docs/build/generated/
 
 # Grok
 .grok/worktrees/
+
+# Vitest failure artifacts
+packages/0/.vitest-attachments/
+**/__screenshots__/

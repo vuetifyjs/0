@@ -1,7 +1,7 @@
 <script setup lang="ts">
   // Composables
   import { useCustomThemes } from '@/composables/useCustomThemes'
-  import { useThemeToggle, type ThemePreference } from '@/composables/useThemeToggle'
+  import { type ThemePreference, useThemeToggleController } from '@/composables/useThemeToggle'
 
   // Utilities
   import { toRef } from 'vue'
@@ -15,7 +15,7 @@
     edit: [id: string]
   }>()
 
-  const toggle = useThemeToggle()
+  const toggle = useThemeToggleController()
   const themes = useCustomThemes()
   const theme = toRef(() => themes.customThemes.value.find(t => t.id === themeId))
   const active = toRef(() => toggle.preference.value === themeId)
@@ -43,15 +43,15 @@
       <AppIcon :icon="theme.icon" size="16" />
       <span class="font-medium truncate">{{ theme.label }}</span>
 
-      <button
+      <AppTooltip
         v-if="editable"
+        aria-label="Edit theme"
         class="ml-auto opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-surface-tint transition-all"
-        title="Edit theme"
-        type="button"
+        text="Edit theme"
         @click="onEdit"
       >
         <AppIcon icon="edit" size="12" />
-      </button>
+      </AppTooltip>
     </div>
 
     <AppThemePreview :theme="themeId" />

@@ -66,68 +66,36 @@ Each benchmark file covers multiple operation types:
 
 ## Performance Tiers
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
-  <div class="border border-divider rounded-lg p-4 bg-surface">
-    <div class="flex items-center gap-2 mb-3">
-      <AppIcon icon="benchmark-blazing" class="text-error" :size="20" />
-      <span class="font-semibold text-error">Blazing</span>
-    </div>
-    <div class="text-sm text-on-surface-variant space-y-1">
-      <div>O(1): ≥100,000 ops/s</div>
-      <div>O(n): ≥10,000 ops/s</div>
-      <div>O(n²): ≥1,000 ops/s</div>
-    </div>
-  </div>
-  <div class="border border-divider rounded-lg p-4 bg-surface">
-    <div class="flex items-center gap-2 mb-3">
-      <AppIcon icon="benchmark-fast" class="text-warning" :size="20" />
-      <span class="font-semibold text-warning">Fast</span>
-    </div>
-    <div class="text-sm text-on-surface-variant space-y-1">
-      <div>O(1): ≥10,000 ops/s</div>
-      <div>O(n): ≥1,000 ops/s</div>
-      <div>O(n²): ≥100 ops/s</div>
-    </div>
-  </div>
-  <div class="border border-divider rounded-lg p-4 bg-surface">
-    <div class="flex items-center gap-2 mb-3">
-      <AppIcon icon="benchmark-good" class="text-info" :size="20" />
-      <span class="font-semibold text-info">Good</span>
-    </div>
-    <div class="text-sm text-on-surface-variant space-y-1">
-      <div>O(1): ≥1,000 ops/s</div>
-      <div>O(n): ≥100 ops/s</div>
-      <div>O(n²): ≥10 ops/s</div>
-    </div>
-  </div>
-  <div class="border border-divider rounded-lg p-4 bg-surface">
-    <div class="flex items-center gap-2 mb-3">
-      <AppIcon icon="benchmark-slow" class="text-on-surface-variant" :size="20" />
-      <span class="font-semibold text-on-surface-variant">Slow</span>
-    </div>
-    <div class="text-sm text-on-surface-variant space-y-1">
-      <div>O(1): &lt;1,000 ops/s</div>
-      <div>O(n): &lt;100 ops/s</div>
-      <div>O(n²): &lt;10 ops/s</div>
-    </div>
-  </div>
-</div>
+Tiers grade **cost**, not raw throughput. Raw ops/s mostly measures how much work a benchmark was given: an operation over 10,000 items at 17 ops/s is 5.9µs per item, which is better engineering than a single-item call at 200,000 ops/s and 5µs per item. Grading on ops/s would rank the second one higher.
 
-Each benchmark is assigned a tier based on its throughput and detected complexity. Group tiers are the average of their individual benchmark tiers.
+Which budget applies depends on whether the benchmark has a workload to amortize.
 
-### Complexity Detection
+**Collection operations** — anything measured over N items — are graded on two axes, and the worse of the two wins:
 
-Tiers adjust based on detected algorithmic complexity. Detection checks the benchmark name against patterns **in order** and uses the first match—so the check order matters as much as the patterns themselves:
+| Tier | Per-item cost | Single-operation latency |
+|------|---------------|--------------------------|
+| Blazing | < 1µs per item | < 16.7ms — one frame at 60fps |
+| Fast | < 10µs | < 33.4ms — two frames |
+| Good | < 100µs | < 100ms — the perceptibility threshold |
+| Slow | ≥ 100µs | ≥ 100ms |
 
-| Order | Pattern in Benchmark Name | Complexity |
-| - | - | - |
-| 1 | "nested", "recursive", or "all ... all" | O(n²) |
-| 2 | Number + items/objects/entries/elements | O(n) |
-| 3 | "all items" or "all keys" | O(n) |
-| 4 | "single" or "one item/query/key" | O(1) |
-| 5 | No pattern matched | O(n) — conservative fallback |
+The second axis exists so honest per-item cost cannot hide a slow operation: a 10,000-row sort taking 160ms has respectable per-item cost, but a user waits a tenth of a second for it, so it does not get to badge "fast".
 
-"Nested"/"recursive" checks run first so a benchmark like "recursive lookup (single item)" is classified O(n²), not O(1)—the more expensive complexity wins on ambiguous names.
+**One-shot operations** — constructors and single utility calls, where there is no workload to spread — are graded on call latency alone. Grading them per-item would be a category error, since the item count is one:
+
+| Tier | Per call |
+|------|----------|
+| Blazing | < 10µs |
+| Fast | < 100µs |
+| Good | < 16.7ms — within one frame |
+| Slow | ≥ 16.7ms |
+
+The latency thresholds are the only ones anchored to something outside the library: 16.7ms is a frame at 60fps, and 100ms is the long-standing threshold below which an interface feels instantaneous. The per-item and per-call budgets are engineering conventions.
+
+**A feature's badge is its worst group, and a group's badge is its worst benchmark.** Averaging would let one flattering microbenchmark mask a genuinely slow path, which is the opposite of what these badges are for.
+
+> [!NOTE]
+> Numbers are measured on a single fixed reference machine so they stay comparable between releases, and are published as measured with no host correction applied. That machine is deliberately not the fastest available — a benchmark host should err pessimistic. Absolute figures will differ on your hardware; the tiers and the trends are the parts that carry meaning.
 
 ### Reading Results
 
@@ -163,10 +131,9 @@ pnpm test:bench
 
 # Run specific file
 pnpm vitest bench packages/0/src/composables/createRegistry/index.bench.ts
-
-# Generate metrics report
-pnpm metrics
 ```
+
+Numbers from your own machine are useful for spotting a regression you just introduced, and are not comparable to the published figures — different CPU, different results. The artifacts behind this site are regenerated only on the project's reference machine, so please don't commit locally generated ones; CI rejects them.
 
 ## Interpreting for Your Use Case
 

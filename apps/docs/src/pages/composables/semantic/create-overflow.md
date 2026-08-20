@@ -91,6 +91,14 @@ flowchart LR
   capacity --> isOverflowing
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `gap` | `MaybeRefOrGetter<number>` | `0` | Gap between items in pixels |
+| `reserved` | `MaybeRefOrGetter<number>` | `0` | Reserved space in pixels (nav buttons, ellipsis, etc.) |
+| `itemWidth` | `MaybeRefOrGetter<number>` | — | Uniform item width; enables uniform mode |
+
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
@@ -100,9 +108,6 @@ flowchart LR
 | `capacity` | <AppSuccessIcon /> | Computed from width and measurements |
 | `total` | <AppSuccessIcon /> | Computed, sum of all item widths |
 | `isOverflowing` | <AppSuccessIcon /> | Computed from total vs available width |
-| `gap` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter |
-| `reserved` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter |
-| `itemWidth` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter (uniform mode) |
 
 ## Examples
 

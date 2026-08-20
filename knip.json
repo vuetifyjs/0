@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "$schema": "https://unpkg.com/knip@6/schema.json",
   "workspaces": {
     ".": {
       "entry": [
@@ -22,7 +22,8 @@
         "src/pages/**/*.{vue,md}",
         "build/**/*.ts",
         "vite.config.*",
-        "src/examples/**/*.vue"
+        "src/examples/**/*.vue",
+        "src/sandbox/*.ts"
       ],
       "ignore": [
         "src/typed-router.d.ts",
@@ -145,6 +146,9 @@
     "@js-temporal/polyfill",
     "@vue/repl",
     "@vuetify/paper"
+  ],
+  "ignoreBinaries": [
+    "gh"
   ],
   "ignoreExportsUsedInFile": {
     "interface": true,

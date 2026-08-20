@@ -79,7 +79,7 @@ export function generateAppWrapper (entryPath: string): string {
  * Build the src/-prefixed file record that loadExample expects.
  * When dir is provided, files are nested: src/{dir}/{name}
  */
-function buildPlaygroundFiles (inputFiles: PlaygroundFile[], dir?: string): Record<string, string> {
+export function buildPlaygroundFiles (inputFiles: PlaygroundFile[], dir?: string): Record<string, string> {
   const files: Record<string, string> = {}
   const prefix = dir ? `src/${dir}` : 'src'
 
@@ -123,8 +123,14 @@ export function isFileRecord (v: unknown): v is Record<string, string> {
 /**
  * Parse a Vuetify Play tuple format: [files, vueVersion, vuetifyVersion, appendJson, activeFile, ...]
  * Shared between decodePlaygroundHash and openPlayground.
+ *
+ * The tuple format is exclusive to Vuetify Play exports, so `preset` is always
+ * 'vuetify'. This is the single source of that mapping — both callers consume it
+ * rather than each deciding the preset themselves, which is how a v0/vuetify
+ * feature-sniff once drifted into openPlayground and mis-detected single-file
+ * Vuetify Play playgrounds as v0 (see #666).
  */
-export function parseVuetifyPlayTuple (parsed: unknown[]): { files: Record<string, string>, imports: Record<string, string>, active?: string, vue?: string } | null {
+export function parseVuetifyPlayTuple (parsed: unknown[]): { files: Record<string, string>, imports: Record<string, string>, active?: string, vue?: string, preset: 'vuetify' } | null {
   const [rawFiles, vueVer, , , rawActive] = parsed as [
     unknown, unknown, unknown, unknown, unknown,
   ]
@@ -199,6 +205,7 @@ export function parseVuetifyPlayTuple (parsed: unknown[]): { files: Record<strin
     imports,
     active,
     vue: isString(vueVer) ? vueVer : undefined,
+    preset: 'vuetify',
   }
 }
 
@@ -206,7 +213,14 @@ export interface PlaygroundHashData {
   files: Record<string, string>
   active?: string
   imports?: Record<string, string>
-  settings?: { vue?: string, v0?: string, preset?: string, addons?: string }
+  settings?: {
+    vue?: string
+    v0?: string
+    vuetify?: string
+    vuetifyNightly?: boolean
+    preset?: string
+    addons?: string
+  }
 }
 
 /**
@@ -216,11 +230,13 @@ export async function encodePlaygroundHash (data: PlaygroundHashData): Promise<s
   return utoa(JSON.stringify(data))
 }
 
-function isValidSettings (v: unknown): v is { vue?: string, v0?: string, preset?: string, addons?: string } {
+function isValidSettings (v: unknown): v is PlaygroundHashData['settings'] {
   if (!isObject(v)) return false
   const s = v as Record<string, unknown>
   return (isUndefined(s.vue) || isString(s.vue))
     && (isUndefined(s.v0) || isString(s.v0))
+    && (isUndefined(s.vuetify) || isString(s.vuetify))
+    && (isUndefined(s.vuetifyNightly) || typeof s.vuetifyNightly === 'boolean')
     && (isUndefined(s.preset) || isString(s.preset))
     && (isUndefined(s.addons) || isString(s.addons))
 }
@@ -246,7 +262,7 @@ export async function decodePlaygroundHash (hash: string): Promise<PlaygroundHas
       const result = parseVuetifyPlayTuple(parsed)
       if (!result) return null
 
-      const settings: PlaygroundHashData['settings'] = { preset: 'vuetify' }
+      const settings: PlaygroundHashData['settings'] = { preset: result.preset }
       if (result.vue) settings.vue = result.vue
       const imports = Object.keys(result.imports).length > 0 ? result.imports : undefined
       return { files: result.files, active: result.active, imports, settings }

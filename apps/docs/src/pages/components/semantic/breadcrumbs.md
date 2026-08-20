@@ -27,7 +27,7 @@ A headless component for creating responsive breadcrumb navigation with proper A
 
 ## Usage
 
-The Breadcrumbs component provides a compound component pattern for building navigation trails. It uses `createBreadcrumbs`, `createGroup`, and `createOverflow` internally.
+Breadcrumbs renders a navigation trail that shows where the current page sits in a hierarchy. When the trail is wider than its container, the middle crumbs automatically collapse behind an ellipsis so the first crumb and the current page stay visible.
 
 ::: gn-example
 /components/breadcrumbs/basic
@@ -49,7 +49,9 @@ The Breadcrumbs component provides a compound component pattern for building nav
 
       <Breadcrumbs.Divider />
 
-      <Breadcrumbs.Ellipsis />
+      <Breadcrumbs.Ellipsis>
+        <Breadcrumbs.Activator />
+      </Breadcrumbs.Ellipsis>
 
       <Breadcrumbs.Divider />
 
@@ -71,25 +73,13 @@ flowchart TD
   Overflow["createOverflow"]
   Group["createGroup"]
   Root["Breadcrumbs.Root"]:::primary
-  List["Breadcrumbs.List"]
-  Item["Breadcrumbs.Item"]
-  Divider["Breadcrumbs.Divider"]
-  Ellipsis["Breadcrumbs.Ellipsis"]
-  Link["Breadcrumbs.Link"]
-  Page["Breadcrumbs.Page"]
 
   Breadcrumbs --> Root
   Overflow --> Root
   Group --> Root
-  Root --> List
-  List --> Item
-  List --> Divider
-  List --> Ellipsis
-  Item --> Link
-  Item --> Page
 ```
 
-The Root creates three internal composables: `createBreadcrumbs` manages the navigation model, `createGroup` tracks item visibility, and `createOverflow` measures widths to determine how many items fit.
+`createBreadcrumbs` manages the navigation model, `createGroup` tracks which crumbs are visible, and `createOverflow` measures widths to decide how many fit.
 
 ## Examples
 
@@ -254,6 +244,68 @@ app.mount('#app')
 ```
 
 The `label` prop takes priority over locale messages, so you can still override individual instances when needed.
+
+## Accessibility
+
+The Breadcrumbs component renders semantic navigation markup and manages ARIA attributes automatically:
+
+- `Breadcrumbs.Root` renders a `<nav>` landmark whose `aria-label` defaults to `"Breadcrumbs"` (override with the `label` prop or the `Breadcrumbs.label` locale key). When you change the element with `as`, it applies `role="navigation"` instead so the landmark is preserved.
+- `Breadcrumbs.List` renders an ordered list with `role="list"` to expose the trail as a list to screen readers.
+- `Breadcrumbs.Page` marks the current item with `aria-current="page"` so it is announced as the current location. Omitting `href` on the last crumb renders it as a Page automatically.
+- `Breadcrumbs.Link` renders a native `<a>`, so crumbs are focusable and activated with the keyboard like any link — no custom key handling is added.
+- `Breadcrumbs.Divider` renders `aria-hidden="true"`, keeping the visual separators out of the accessibility tree. `Breadcrumbs.Ellipsis` does the same while it is purely decorative, and drops it as soon as it hosts a `Breadcrumbs.Activator`.
+- `Breadcrumbs.Item` marks collapsed crumbs `inert`, which removes them from the accessibility tree *and* from the tab order. `aria-hidden` alone would leave a collapsed crumb's link reachable by keyboard while invisible to assistive technology.
+
+### Revealing collapsed crumbs
+
+By default a truncated trail gives assistive technology no signal that levels were dropped. Place a `Breadcrumbs.Activator` inside the ellipsis to turn the truncation into a disclosure:
+
+```vue
+<template>
+  <Breadcrumbs.Root>
+    <Breadcrumbs.List>
+      <Breadcrumbs.Ellipsis>
+        <Breadcrumbs.Activator />
+      </Breadcrumbs.Ellipsis>
+    </Breadcrumbs.List>
+  </Breadcrumbs.Root>
+</template>
+```
+
+The ellipsis stays the list item and the Activator is the control, so the trail keeps a valid list structure — button semantics on the `<li>` would replace its `listitem` role and break the list's required children. The Activator renders a native `button` by default, carrying `aria-expanded`, a count-aware accessible name, and a `data-state` of `open` or `closed` for styling. Render it as something else with `as` and it picks up `role="button"`, `tabindex`, and Enter/Space handling instead.
+
+The disclosure resets on its own once the container grows enough that nothing is truncated.
+
+#### Locale
+
+The disclosure's accessible name resolves `Breadcrumbs.expand`, falling back to `Show {count} more breadcrumbs`. `{count}` is how many crumbs truncation hides, and it keeps reporting that total while the disclosure is open so the name stays meaningful.
+
+```ts
+app.use(
+  createLocalePlugin({
+    default: 'en',
+    messages: {
+      en: {
+        Breadcrumbs: {
+          expand: 'Show {count} more breadcrumbs',
+        },
+      },
+    },
+  })
+)
+```
+
+For custom implementations, use `renderless` mode and bind the `attrs` slot prop to preserve the landmark role and label:
+
+```vue
+<template>
+  <Breadcrumbs.Root v-slot="{ attrs }" renderless>
+    <nav v-bind="attrs">
+      <!-- Custom breadcrumb trail -->
+    </nav>
+  </Breadcrumbs.Root>
+</template>
+```
 
 ## FAQ
 

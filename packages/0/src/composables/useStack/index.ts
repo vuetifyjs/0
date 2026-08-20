@@ -42,6 +42,7 @@ import { onScopeDispose, toRef, toValue } from 'vue'
 // Types
 import type { SelectionContext, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { Extensible } from '#v0/types'
 import type { App, ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
 /**
@@ -161,6 +162,11 @@ export interface StackContext<
    */
   isBlocking: Readonly<Ref<boolean>>
   /**
+   * App-wide default teleport target, as set via `createStackPlugin({ default: … })`.
+   * Portal reads this when no per-component `to` prop is given.
+   */
+  default: Readonly<Ref<Extensible<'top-layer'> | HTMLElement | undefined>>
+  /**
    * Element of the topmost selected modal overlay that has a resolvable DOM
    * element (a top-layer `<dialog>`), or `null`.
    *
@@ -210,6 +216,20 @@ export interface StackOptions extends SelectionOptions {
    * overlay-internal elements (dropdowns, tooltips within dialogs).
    */
   increment?: number
+  /**
+   * App-wide default teleport target for all Portals.
+   *
+   * @remarks When set, every Portal that has no explicit `to` prop inherits
+   * this target. A per-component `to` prop always takes precedence.
+   * `'top-layer'` resolves to the topmost open modal element (a `<dialog>`),
+   * falling back to `'body'` when no modal is active.
+   *
+   * @example
+   * ```ts
+   * app.use(createStackPlugin({ default: 'top-layer' }))
+   * ```
+   */
+  default?: Extensible<'top-layer'> | HTMLElement
 }
 
 export interface StackContextOptions extends StackOptions {
@@ -247,6 +267,7 @@ export function createStack (_options: StackOptions = {}): StackContext {
   const {
     baseZIndex = 2000,
     increment = 10,
+    default: defaultTeleport,
     ...options
   } = _options
 
@@ -333,6 +354,8 @@ export function createStack (_options: StackOptions = {}): StackContext {
     return ticket as StackTicket
   }
 
+  const defaultRef = toRef(() => defaultTeleport)
+
   return {
     ...selection,
     register,
@@ -341,6 +364,7 @@ export function createStack (_options: StackOptions = {}): StackContext {
     scrimZIndex,
     isBlocking,
     topElement,
+    default: defaultRef,
     get size () {
       return selection.size
     },

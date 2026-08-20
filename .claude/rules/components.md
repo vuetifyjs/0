@@ -260,6 +260,31 @@ function onKeydown (event: KeyboardEvent) {
 
 [intent:181]
 
+### Default-button host polyfill (100% for click-to-activate controls)
+
+Controls that default to `as = 'button'` and activate on click must keep native button behavior on the default path and **polyfill** when the host is not a native button (PaginationItem is the reference):
+
+```ts
+function onKeydown (e: KeyboardEvent) {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault()
+    onClick()
+  }
+}
+
+attrs: {
+  'type': as === 'button' ? 'button' : undefined,
+  'role': as === 'button' ? undefined : 'button',
+  'tabindex': isDisabled.value ? -1 : 0,
+  'onClick': onClick,
+  'onKeydown': as === 'button' ? undefined : onKeydown,
+}
+```
+
+- **Do not** attach Enter/Space `onKeydown` when `as === 'button'` (avoids double-activation).
+- Specialized roles (`checkbox`, `radio`, `switch`, `tab`, `combobox`) keep their own APG — do not force `role="button"`.
+- Spinbutton steppers that intentionally use `tabindex: -1` (NumberField ±) are out of this contract.
+
 ## Model Bridging Pattern
 
 ```ts

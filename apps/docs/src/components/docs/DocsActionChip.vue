@@ -18,22 +18,22 @@
 </script>
 
 <template>
-  <a
+  <AppTooltip
     v-if="href"
+    as="a"
     :href
     :rel="isExternal ? 'noopener noreferrer' : undefined"
     :target="isExternal ? '_blank' : undefined"
-    :title
+    :text="title"
   >
     <AppChip :color :icon :text />
-  </a>
+  </AppTooltip>
 
   <AppChip
     v-else
     :color
     :icon
     :text
-    :title
     @click="emit('click', $event)"
   />
 </template>
