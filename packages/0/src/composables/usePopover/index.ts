@@ -179,18 +179,55 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
   // scope (e.g. directly in tests), which would otherwise warn.
   onScopeDispose(() => adapter.dispose?.(), true)
 
+  // Last attachment wins: re-attaching stops the previous watchers first, and
+  // scope-dispose cleanup only resets state it still owns, so a stale scope
+  // disposing after a re-attach cannot clobber the live attachment.
+  let stopAnchor: (() => void) | undefined
+  let stopContent: (() => void) | undefined
+
   function attachAnchor (el: MaybeRefOrGetter<Element | null | undefined>) {
-    watch(() => toValue(el), value => {
+    stopAnchor?.()
+
+    const handle = watch(() => toValue(el), value => {
       anchorEl.value = value
     }, { immediate: true })
+
+    function stop () {
+      handle()
+
+      if (stopAnchor !== stop) return
+
+      stopAnchor = undefined
+      anchorEl.value = null
+    }
+
+    stopAnchor = stop
+
+    onScopeDispose(stop, true)
   }
 
   function attach (el: MaybeRefOrGetter<HTMLElement | null | undefined>) {
-    watch(() => toValue(el), value => {
+    stopContent?.()
+
+    const handle = watch(() => toValue(el), value => {
       contentEl.value = value
     }, { immediate: true })
 
-    attachContentEvents(el)
+    const events = attachContentEvents(el)
+
+    function stop () {
+      handle()
+      events()
+
+      if (stopContent !== stop) return
+
+      stopContent = undefined
+      contentEl.value = null
+    }
+
+    stopContent = stop
+
+    onScopeDispose(stop, true)
   }
 
   function attachContentEvents (el: MaybeRefOrGetter<HTMLElement | null | undefined>) {
@@ -231,13 +268,9 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
       element.showPopover?.()
     }
 
-    watch([isOpen, () => toValue(el)], sync, { immediate: true, flush: 'post' })
+    const handle = watch([isOpen, () => toValue(el)], sync, { immediate: true, flush: 'post' })
 
-    onScopeDispose(() => {
-      hide(toValue(el) ?? current)
-    }, true)
-
-    useEventListener<ToggleEvent>(
+    const listener = useEventListener<ToggleEvent>(
       el,
       'toggle',
       (e: ToggleEvent) => {
@@ -246,6 +279,14 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
         isOpen.value = e.newState === 'open'
       },
     )
+
+    function stop () {
+      handle()
+      listener()
+      hide(toValue(el) ?? current)
+    }
+
+    return stop
   }
 
   return {
