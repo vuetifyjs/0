@@ -38,8 +38,7 @@ export interface PopoverAdapterContext {
  * Positioning engine seam for `usePopover`. `V0PopoverAdapter` (the default)
  * emits CSS anchor positioning and needs nothing installed. A consumer who
  * wants a JS positioning library (floating-ui, Popper, or their own) extends
- * this class and passes an instance via the `adapter` option - v0 ships no
- * such adapter itself, by design.
+ * this class and passes an instance via the `adapter` option.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-popover
  */

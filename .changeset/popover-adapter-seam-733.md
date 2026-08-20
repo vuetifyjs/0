@@ -19,8 +19,7 @@ following the same abstract-class adapter pattern already used by
 `useLogger`, `useLocale`, and `useStorage`. `V0PopoverAdapter` (the
 default) reproduces today's CSS anchor-positioning output byte-for-byte
 - no consumer's build changes, no bundle-size delta, no new dependency.
-`@vuetify/v0` ships no JS-engine adapter itself: the deliverable is the
-contract, not an implementation of it.
+This change ships the contract only — no bundled JS-engine adapter.
 
 The adapter's `setup()` context now also carries the previously-missing
 activator element - a new `attachAnchor()` (companion to the existing
@@ -35,4 +34,4 @@ call (`positionAdapter` on `createCombobox`, since it already has its
 own `adapter` option for query filtering).
 
 See the "Bring your own positioning engine" section on the `usePopover`
-docs page for a worked (not shipped) floating-ui adapter example.
+docs page for a worked floating-ui adapter example.

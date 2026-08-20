@@ -85,7 +85,7 @@ export interface PopoverOptions {
   /**
    * Positioning engine. @default `new V0PopoverAdapter()` — CSS anchor
    * positioning, zero runtime dependency. Pass a custom `PopoverAdapter` to
-   * bring your own engine (floating-ui, Popper, etc.) — v0 ships none.
+   * bring your own engine (floating-ui, Popper, etc.).
    */
   adapter?: PopoverAdapter
 }

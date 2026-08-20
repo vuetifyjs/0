@@ -123,7 +123,7 @@ The example exercises the full three-part spread that `usePopover` returns. `anc
 
 ## Bring your own positioning engine
 
-`usePopover` positions content with CSS anchor positioning by default (`V0PopoverAdapter`) — no JavaScript measurement, no runtime dependency. That default is unavailable in Firefox ESR and Safari before version 26; if you need to support those, swap in a JS positioning library via the `adapter` option. `@vuetify/v0` ships no such adapter itself — the seam is the deliverable, not a bundled implementation — so this example is one you write in your own app, not an import from the package.
+`usePopover` positions content with CSS anchor positioning by default (`V0PopoverAdapter`) — no JavaScript measurement, no runtime dependency. That default is unavailable in Firefox ESR and Safari before version 26; if you need to support those, swap in a JS positioning library via the `adapter` option. `@vuetify/v0` doesn't bundle one today, so this example is one you write in your own app rather than an import from the package.
 
 ```ts collapse no-filename floating-ui-popover-adapter.ts
 import { PopoverAdapter } from '@vuetify/v0'
@@ -206,7 +206,7 @@ Set `positionArea` (e.g. `'bottom'`) for the primary placement and `positionTry`
 
 ??? Does v0 ship a floating-ui adapter?
 
-No, and it doesn't ship any runtime dependency for positioning. The `adapter` option is a contract (`PopoverAdapter`), not a bundled implementation — see [Bring your own positioning engine](#bring-your-own-positioning-engine) for a worked example you can adapt in your own app. The CSS anchor-positioning default (`V0PopoverAdapter`) stays zero-dependency either way.
+Not yet — a first-party floating-ui adapter is planned. Until then, see [Bring your own positioning engine](#bring-your-own-positioning-engine) for a worked example you can adapt in your own app. The CSS anchor-positioning default (`V0PopoverAdapter`) stays zero-dependency either way.
 
 :::
 
