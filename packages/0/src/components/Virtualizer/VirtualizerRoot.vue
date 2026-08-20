@@ -18,11 +18,14 @@
   import { createContext } from '#v0/composables/createContext'
   import { createVirtual } from '#v0/composables/createVirtual'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
   import { mergeProps, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type {
     ScrollToOptions,
     VirtualAnchor,
@@ -31,12 +34,8 @@
     VirtualItem,
     VirtualState,
   } from '#v0/composables/createVirtual'
-  import type { Ref } from 'vue'
 
-  export interface VirtualizerRootContext extends VirtualContext {
-    /** Total item count across the full (unvirtualized) list — for aria-setsize */
-    itemsLength: Readonly<Ref<number>>
-  }
+  export type VirtualizerRootContext = VirtualContext
 
   export interface VirtualizerRootProps extends AtomProps {
     /** The items to virtualize */
@@ -135,20 +134,13 @@
     elastic,
   })
 
-  const containerRef = useTemplateRef<{ element: HTMLElement | null }>('container')
+  const containerRef = useTemplateRef<AtomExpose>('container')
 
-  watch(() => containerRef.value?.element, el => {
-    virtual.element.value = (el as HTMLElement | null) ?? undefined
+  watch(() => toElement(containerRef.value?.element), el => {
+    virtual.element.value = el as HTMLElement | undefined
   })
 
-  const itemsLength = toRef(() => itemsRef.value.length)
-
-  const context: VirtualizerRootContext = {
-    ...virtual,
-    itemsLength,
-  }
-
-  provideVirtualizerRoot(namespace, context)
+  provideVirtualizerRoot(namespace, virtual)
 
   const containerHeight = toRef(() => {
     if (height === undefined) return undefined
