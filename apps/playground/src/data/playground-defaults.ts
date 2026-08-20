@@ -98,7 +98,94 @@ function vuetifyCssUrl (version = 'latest', nightly = false): string {
   return `https://cdn.jsdelivr.net/npm/${pkg}@${version}/dist/vuetify-labs.css`
 }
 
-export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?: MainOptions, vuetifyVersion = 'latest', vuetifyNightly = false): string {
+interface SandboxTheme {
+  dark: boolean
+  colors: Record<string, string>
+}
+
+const SAFE_THEME_ID = /^[a-zA-Z][\w-]*$/
+const SAFE_COLOR_KEY = /^[a-zA-Z0-9_-]+$/
+const UNSAFE_CSS = /url\s*\(|src\s*\(|image\s*\(|image-set\s*\(|cross-fade\s*\(|@import|expression\s*\(|[;{}<>\\]/i
+
+const DEFAULT_SANDBOX_THEMES: { light: SandboxTheme, dark: SandboxTheme } = {
+  light: {
+    dark: false,
+    colors: {
+      'primary': '#3b82f6',
+      'secondary': '#64748b',
+      'accent': '#6366f1',
+      'error': '#ef4444',
+      'info': '#1867c0',
+      'success': '#22c55e',
+      'warning': '#f59e0b',
+      'background': '#ffffff',
+      'surface': '#ffffff',
+      'surface-tint': '#f5f5f5',
+      'surface-variant': '#e8e8e8',
+      'divider': '#e0e0e0',
+      'on-primary': '#ffffff',
+      'on-secondary': '#ffffff',
+      'on-accent': '#1a1a1a',
+      'on-error': '#ffffff',
+      'on-info': '#ffffff',
+      'on-success': '#1a1a1a',
+      'on-warning': '#1a1a1a',
+      'on-background': '#212121',
+      'on-surface': '#212121',
+      'on-surface-variant': '#666666',
+    },
+  },
+  dark: {
+    dark: true,
+    colors: {
+      'primary': '#c4b5fd',
+      'secondary': '#94a3b8',
+      'accent': '#c084fc',
+      'error': '#f87171',
+      'info': '#38bdf8',
+      'success': '#4ade80',
+      'warning': '#fb923c',
+      'background': '#121212',
+      'surface': '#1a1a1a',
+      'surface-tint': '#2a2a2a',
+      'surface-variant': '#1e1e1e',
+      'divider': '#404040',
+      'on-primary': '#1a1a1a',
+      'on-secondary': '#ffffff',
+      'on-accent': '#ffffff',
+      'on-error': '#1a1a1a',
+      'on-info': '#1a1a1a',
+      'on-success': '#1a1a1a',
+      'on-warning': '#1a1a1a',
+      'on-background': '#e0e0e0',
+      'on-surface': '#e0e0e0',
+      'on-surface-variant': '#a0a0a0',
+    },
+  },
+}
+
+function mergeSandboxThemes (
+  extra?: Record<string, SandboxTheme>,
+): Record<string, SandboxTheme> {
+  const merged: Record<string, SandboxTheme> = {
+    light: { dark: false, colors: { ...DEFAULT_SANDBOX_THEMES.light.colors } },
+    dark: { dark: true, colors: { ...DEFAULT_SANDBOX_THEMES.dark.colors } },
+  }
+  if (!extra) return merged
+
+  for (const [id, def] of Object.entries(extra)) {
+    if (!SAFE_THEME_ID.test(id)) continue
+    const colors: Record<string, string> = {}
+    for (const [key, value] of Object.entries(def.colors)) {
+      if (!SAFE_COLOR_KEY.test(key) || typeof value !== 'string' || UNSAFE_CSS.test(value)) continue
+      colors[key] = value
+    }
+    merged[id] = { dark: def.dark === true, colors }
+  }
+  return merged
+}
+
+export function createMainTs (defaultTheme = 'light', options?: MainOptions, vuetifyVersion = 'latest', vuetifyNightly = false, extraThemes?: Record<string, SandboxTheme>): string {
   const useV0 = options?.v0 !== false
   const extraImports: string[] = []
   const extraPlugins: string[] = []
@@ -145,6 +232,11 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
   const importBlock = extraImports.length > 0 ? '\n' + extraImports.join('\n') : ''
   const setupBlock = extraSetup.length > 0 ? '\n' + extraSetup.join('\n') + '\n' : ''
   const pluginBlock = extraPlugins.length > 0 ? extraPlugins.join('\n') + '\n' : ''
+  const mergedThemes = mergeSandboxThemes(extraThemes)
+  const safeDefault = SAFE_THEME_ID.test(defaultTheme) && defaultTheme in mergedThemes
+    ? defaultTheme
+    : 'light'
+  const themesJson = JSON.stringify(mergedThemes, null, 2).split('\n').join('\n  ')
 
   if (!useV0) {
     return `import { createApp } from 'vue'
@@ -162,63 +254,8 @@ import { createThemePlugin } from '@vuetify/v0'
 import './uno.config.ts'${importBlock}
 ${setupBlock}
 const theme = createThemePlugin({
-  default: '${defaultTheme}',
-  themes: {
-    light: {
-      dark: false,
-      colors: {
-        'primary': '#3b82f6',
-        'secondary': '#64748b',
-        'accent': '#6366f1',
-        'error': '#ef4444',
-        'info': '#1867c0',
-        'success': '#22c55e',
-        'warning': '#f59e0b',
-        'background': '#ffffff',
-        'surface': '#ffffff',
-        'surface-tint': '#f5f5f5',
-        'surface-variant': '#e8e8e8',
-        'divider': '#e0e0e0',
-        'on-primary': '#ffffff',
-        'on-secondary': '#ffffff',
-        'on-accent': '#1a1a1a',
-        'on-error': '#ffffff',
-        'on-info': '#ffffff',
-        'on-success': '#1a1a1a',
-        'on-warning': '#1a1a1a',
-        'on-background': '#212121',
-        'on-surface': '#212121',
-        'on-surface-variant': '#666666',
-      },
-    },
-    dark: {
-      dark: true,
-      colors: {
-        'primary': '#c4b5fd',
-        'secondary': '#94a3b8',
-        'accent': '#c084fc',
-        'error': '#f87171',
-        'info': '#38bdf8',
-        'success': '#4ade80',
-        'warning': '#fb923c',
-        'background': '#121212',
-        'surface': '#1a1a1a',
-        'surface-tint': '#2a2a2a',
-        'surface-variant': '#1e1e1e',
-        'divider': '#404040',
-        'on-primary': '#1a1a1a',
-        'on-secondary': '#ffffff',
-        'on-accent': '#ffffff',
-        'on-error': '#1a1a1a',
-        'on-info': '#1a1a1a',
-        'on-success': '#1a1a1a',
-        'on-warning': '#1a1a1a',
-        'on-background': '#e0e0e0',
-        'on-surface': '#e0e0e0',
-        'on-surface-variant': '#a0a0a0',
-      },
-    },
-  },
+  default: '${safeDefault}',
+  themes: ${themesJson},
 })
 
 const app = createApp(App)
