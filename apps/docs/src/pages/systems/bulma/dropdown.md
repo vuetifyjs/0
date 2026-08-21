@@ -23,6 +23,9 @@ Bulma's `.dropdown` with the JavaScript it never shipped: toggle, outside-click 
 
 <DocsPageFeatures :frontmatter />
 
+> [!NOTE]
+> Reference: [Dropdown on bulma.io](https://bulma.io/documentation/components/dropdown/) — classes and visual variants. This page is the JavaScript.
+
 ## Usage
 
 Compose three parts: `BuDropdown` renders `.dropdown` and owns the open state, `BuDropdownTrigger` wraps your own button, and `BuDropdownMenu` renders `.dropdown-menu` with its `.dropdown-content`. `v-model` is the single source of truth for open and closed.
@@ -49,13 +52,21 @@ Positioning stays Bulma's. The menu is placed by CSS against the trigger, so the
 </template>
 ```
 
+## Composed on v0
+
+Skips v0's [Popover](/components/disclosure/popover) entirely. `Popover.Content` hardwires `popover=""`, which promotes the menu to the top layer and sets UA `margin: unset` — both fight Bulma's in-flow `.dropdown-menu { position: absolute }`. Open state is a boolean `v-model` plus `useClickOutside` and a local Escape handler bound to the dropdown subtree, not the document: a dropdown inside `BuModal` must not close the modal on the first Escape.
+
+Trigger aria is hand-bound (`aria-haspopup`, `aria-expanded`, `aria-controls`) because v0's Toggle only emits `aria-pressed`. `hoverable` is CSS-only — `is-hoverable` on `.dropdown`, no JS listeners.
+
+Collision-aware placement is [Popover](/components/disclosure/popover), and it will not give you Bulma's markup.
+
 ## The markup you know
 
 The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentation/components/dropdown/), captured verbatim in the conformance fixture. The Vue tab is the component that renders it. The conformance suite diffs the two on every test run — the generated `id` and its matching `aria-controls` are the only tolerated difference.
 
 ::: code-group no-filename
 
-```html Bulma
+```html Bulma collapse
 <div class="dropdown is-active">
   <div class="dropdown-trigger">
     <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
@@ -76,7 +87,7 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 </div>
 ```
 
-```vue Vue
+```vue Vue collapse
 <template>
   <BuDropdown menu>
     <BuDropdownTrigger v-slot="{ attrs }">

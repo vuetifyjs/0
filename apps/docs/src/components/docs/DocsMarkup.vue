@@ -3,12 +3,13 @@
   import { GnPeek } from '@paper/genesis'
 
   // Composables
+  import { useCodeGroupExpand } from '@/composables/useCodeGroupExpand'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
   import { decodeBase64 } from '@/utilities/decodeBase64'
-  import { ref, toRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   const {
     code,
@@ -36,8 +37,7 @@
 
   const decodedCode = toRef(() => decodeBase64(code))
 
-  // Collapse state
-  const expanded = ref(false)
+  const expanded = useCodeGroupExpand() ?? shallowRef(false)
   const lineCount = toRef(() => decodedCode.value.split('\n').length)
   const shouldCollapse = toRef(() => collapse && lineCount.value > collapseLines)
   const collapsedHeight = toRef(() => `${collapseLines * 1.5 + 2.5}rem`)

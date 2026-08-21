@@ -23,6 +23,9 @@ Bulma's `.modal` with the JavaScript it never shipped: open state, backdrop dism
 
 <DocsPageFeatures :frontmatter />
 
+> [!NOTE]
+> Reference: [Modal on bulma.io](https://bulma.io/documentation/components/modal/) — classes and visual variants. This page is the JavaScript.
+
 ## Usage
 
 `v-model` owns the open state. The panel is whichever part you compose inside: `BuModalContent` for the plain variant, `BuModalCard` for the head/body/foot one. Everything inside the panel is Bulma's.
@@ -35,7 +38,7 @@ Bulma's `.modal` with the JavaScript it never shipped: open state, backdrop dism
 
 Both panels are shown here for completeness — a modal composes one or the other, never both.
 
-```vue Anatomy no-filename
+```vue Anatomy no-filename collapse
 <script setup lang="ts">
   import {
     BuModal,
@@ -68,13 +71,23 @@ Both panels are shown here for completeness — a modal composes one or the othe
 </template>
 ```
 
+## Composed on v0
+
+Wraps v0's [Dialog](/components/disclosure/dialog). `Dialog.Root` owns `v-model`. `Dialog.Content` is renderless so the host can stay a `<div class="modal">` — the fixture demands that, never a native `<dialog>`. `BuModalContent` and `BuModalCard` take the identity Dialog would have bound (`id`, `role`, `aria-modal`, and on the card `aria-labelledby`) off the dialog context; the stack `z-index` lands on `.modal`.
+
+Two things v0 ships that this wrapper skips. `Scrim` is global per stack ticket — mounting it behind a modal that already paints `.modal-background` would double the backdrop, so the backdrop is hand-rolled. And v0 has no `useFocusTrap`: Tab and Shift+Tab wrap inside `.modal`, and focus returns to the trigger on close, including when the modal unmounts while open.
+
+The parts that do map through: `BuModalTitle` is `Dialog.Title as="p"`. `BuModalClose` is `Dialog.Close`. `BuModalHead` also renders the documented `.delete` close through `Dialog.Close`.
+
+`blocking` is Dialog's `blocking` — backdrop clicks only. Escape still closes.
+
 ## The markup you know
 
 The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentation/components/modal/), captured verbatim in the conformance fixture. The Vue tab is the component that renders it. The conformance suite diffs the two on every test run — element for element, class for class.
 
 ::: code-group no-filename
 
-```html Bulma
+```html Bulma collapse
 <div class="modal is-active">
   <div class="modal-background"></div>
   <div class="modal-card">
@@ -95,7 +108,7 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 </div>
 ```
 
-```vue Vue
+```vue Vue collapse
 <template>
   <BuModal v-model="open">
     <BuModalCard>

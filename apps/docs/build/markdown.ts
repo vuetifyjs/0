@@ -80,6 +80,7 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     const hasOrders = orders?.some(o => o !== undefined)
     const collapse = env._exampleCollapse
     const collapseAttr = collapse ? ' collapse' : ''
+    const noResizeAttr = env._exampleNoResize ? ' disable-resize' : ''
     const imports = env._exampleImports as Record<string, string>
     const importsAttr = Object.keys(imports).length > 0
       ? ` :imports="${JSON.stringify(imports).replace(/"/g, '\'')}"`
@@ -87,11 +88,11 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     const exampleTag = env._exampleTag as string
 
     if (paths.length === 1) {
-      return `<${exampleTag} file-path="${paths[0]}"${collapseAttr}${importsAttr}>\n<template #description>\n`
+      return `<${exampleTag} file-path="${paths[0]}"${collapseAttr}${noResizeAttr}${importsAttr}>\n<template #description>\n`
     }
     const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
     const ordersAttr = hasOrders ? ` :file-orders="${JSON.stringify(orders)}"` : ''
-    return `<${exampleTag} :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${importsAttr}>\n<template #description>\n`
+    return `<${exampleTag} :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${noResizeAttr}${importsAttr}>\n<template #description>\n`
   }
 
   function renderExampleClose (env: Record<string, unknown>, fallbackTag: string): string {
@@ -100,6 +101,7 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     const orders = env._exampleFileOrders as (number | undefined)[]
     const hasOrders = orders?.some(o => o !== undefined)
     const collapse = env._exampleCollapse
+    const noResize = env._exampleNoResize
     const imports = env._exampleImports as Record<string, string>
     const exampleTag = (env._exampleTag as string) || fallbackTag
 
@@ -111,8 +113,10 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     delete env._exampleOpened
     delete env._examplePathPara
     delete env._exampleCollapse
+    delete env._exampleNoResize
 
     const collapseAttr = collapse ? ' collapse' : ''
+    const noResizeAttr = noResize ? ' disable-resize' : ''
     const importsAttr = Object.keys(imports).length > 0
       ? ` :imports="${JSON.stringify(imports).replace(/"/g, '\'')}"`
       : ''
@@ -120,12 +124,12 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     if (wasOpened) return `</template>\n</${exampleTag}>\n`
 
     if (paths?.length === 1) {
-      return `<${exampleTag} file-path="${paths[0]}"${collapse ? collapseAttr : ' peek'}${importsAttr} />\n`
+      return `<${exampleTag} file-path="${paths[0]}"${collapse ? collapseAttr : ' peek'}${noResizeAttr}${importsAttr} />\n`
     }
     if (paths?.length > 1) {
       const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
       const ordersAttr = hasOrders ? ` :file-orders="${JSON.stringify(orders)}"` : ''
-      return `<${exampleTag} :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${importsAttr} />\n`
+      return `<${exampleTag} :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${noResizeAttr}${importsAttr} />\n`
     }
 
     return ''
@@ -142,6 +146,7 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
           env._exampleFileOrders = [] as (number | undefined)[]
           env._exampleImports = {} as Record<string, string>
           env._exampleCollapse = info.includes('collapse')
+          env._exampleNoResize = info.includes('no-resize')
           return ''
         }
 

@@ -1,12 +1,13 @@
 <script lang="ts">
   // Framework
-  import { createStorage, IN_BROWSER, useEventListener, useTheme } from '@vuetify/v0'
+  import { createStorage, IN_BROWSER, useEventListener } from '@vuetify/v0'
 
   // Composables
   import { useExamples } from '@/composables/useExamples'
+  import { createThemeToggle, provideThemeToggle } from '@/composables/useThemeToggle'
 
   // Utilities
-  import { nextTick, onScopeDispose, shallowRef, toRef, useTemplateRef, watch } from 'vue'
+  import { nextTick, onMounted, onScopeDispose, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { GnDocsExampleFile } from '@paper/genesis'
@@ -26,14 +27,17 @@
   // the session means every load after the first reserves the right box and
   // nothing moves. Session, not local: an example's height changes when its
   // source does, and a stale reserve should not outlive the tab.
-  function reserve (entry: string): Ref<number> {
-    if (!IN_BROWSER) return shallowRef(RESERVE)
+  function reserve (entry: string): { saved: Ref<number>, known: boolean } {
+    if (!IN_BROWSER) return { saved: shallowRef(RESERVE), known: false }
 
     store ??= createStorage({ adapter: window.sessionStorage })
 
     // Bucketed by width: the same example wraps differently across viewports,
     // and a height learned at one width is not a promise at another.
-    return store.get(`sandbox:${entry}:${Math.round(window.innerWidth / 160)}`, RESERVE)
+    const key = `sandbox:${entry}:${Math.round(window.innerWidth / 160)}`
+    const known = store.has(key)
+
+    return { saved: store.get(key, RESERVE), known }
   }
 
   // Page-level state. Every example on a page promotes into the same viewport
@@ -85,6 +89,8 @@
     collapse?: boolean
     /** Peek mode for single-file */
     peek?: boolean
+    /** Skip the preview splitter */
+    disableResize?: boolean
   }
 </script>
 
@@ -111,16 +117,17 @@
   const files = toRef<GnDocsExampleFile[] | undefined>(() => multi.value?.files)
   const name = toRef(() => `${entry.value.split('/').pop()}.vue`)
 
-  const theme = useTheme()
+  const local = createThemeToggle({ palette: 'vuetify0' })
+  provideThemeToggle(local)
 
   const segments = toRef(() => entry.value.replace(/^\//, '').split('/'))
   const framed = toRef(() => segments.value[1] !== 'emerald')
-  const inlineTheme = toRef(() => theme.isDark.value ? 'emerald-dark' : 'emerald-light')
+  const inlineTheme = toRef(() => local.isDark.value ? 'emerald-dark' : 'emerald-light')
 
   // Snapshot, not a binding: folding the theme into a reactive `src` would
   // reload the frame — dropping any open overlay — on every toggle. It only
   // buys a correct first paint; live changes ride the message channel below.
-  const scheme = theme.isDark.value ? 'dark' : 'light'
+  const scheme = local.isDark.value ? 'dark' : 'light'
 
   // What the box looks like before the frame's document exists. A frame's
   // canvas is opaque from the moment it is attached and the UA colors it from
@@ -129,7 +136,7 @@
   // makes the gap before load read as the surface the example settles on
   // instead of the page behind it. Bulma's own values, mirroring the critical
   // style in `sandbox/bulma.html`.
-  const surface = toRef(() => (theme.isDark.value
+  const surface = toRef(() => (local.isDark.value
     ? { colorScheme: 'dark', backgroundColor: '#14161a' }
     : { colorScheme: 'light', backgroundColor: '#fff' }))
 
@@ -146,9 +153,17 @@
   // measurement answers that — everything after it is the reader interacting (a
   // hover menu, a validation message), and reserving one of those would open
   // the box too tall on the next load and shrink.
-  const saved = reserve(entry.value)
+  const { saved, known } = reserve(entry.value)
   const height = shallowRef(saved.value)
   const overlay = shallowRef(false)
+  // Pulse only a first visit: a reserved session height already looks like
+  // the example, and a loader on it is a second flash. Set on mount so SSR
+  // and the hydrated tree agree (sessionStorage is client-only).
+  const pending = shallowRef(false)
+
+  onMounted(() => {
+    if (framed.value && !known) pending.value = true
+  })
 
   let rested = false
   const frame = useTemplateRef<HTMLIFrameElement>('frame')
@@ -178,7 +193,7 @@
   }
 
   function sync () {
-    post({ type: 'v0:sandbox:theme', dark: theme.isDark.value })
+    post({ type: 'v0:sandbox:theme', dark: local.isDark.value })
   }
 
   // The placeholder holds the inline box open whether or not the frame has been
@@ -241,7 +256,7 @@
     release()
   })
 
-  watch(() => theme.isDark.value, sync)
+  watch(() => local.isDark.value, sync)
 
   if (IN_BROWSER && framed.value) {
     useEventListener(window, 'message', (event: MessageEvent) => {
@@ -251,6 +266,7 @@
         // Sent on mount. The frame is lazy, so it can come up long after the
         // reader last touched the theme toggle.
         case 'v0:sandbox:ready': {
+          pending.value = false
           sync()
           place()
           break
@@ -325,9 +341,11 @@
     v-if="!framed"
     :id
     :collapse
+    :disable-resize
     :file-orders
     :file-path
     :file-paths
+    modes-only
     :peek
     :theme="inlineTheme"
     :title
@@ -342,22 +360,34 @@
     :id
     :code
     :collapse
+    :disable-resize
     :file="name"
     :file-orders
     :files
+    modes-only
     :peek
     :title
   >
-    <div class="relative w-full rounded" :style="[surface, { height: `${height}px` }]">
+    <div
+      :aria-busy="pending || undefined"
+      class="relative w-full overflow-hidden rounded-2xl"
+      :style="[surface, { height: `${height}px` }]"
+    >
       <iframe
         ref="frame"
         :class="overlay
           ? 'fixed inset-0 z-[9999] h-full w-full border-0'
-          : 'absolute inset-0 h-full w-full rounded border-0'"
+          : 'absolute inset-0 h-full w-full rounded-2xl border-0'"
         loading="lazy"
         :src
         :style="[surface, overlay && clip ? { clipPath: `path('${clip}')` } : undefined]"
         :title="`${name} example`"
+      />
+
+      <div
+        v-if="pending"
+        aria-hidden="true"
+        class="docs-sandbox-pulse"
       />
     </div>
 
@@ -366,3 +396,27 @@
     </template>
   </DocsGenesisExample>
 </template>
+
+<style scoped>
+  /* Animate background, never opacity/filter/transform: those create a
+     stacking context that kills `backdrop-filter` on the fixed app bar
+     (same `.app-shell-content` context). */
+  .docs-sandbox-pulse {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: color-mix(in srgb, CanvasText 6%, transparent);
+    animation: docs-sandbox-pulse 1.1s ease-in-out infinite;
+  }
+
+  @keyframes docs-sandbox-pulse {
+    50% { background: color-mix(in srgb, CanvasText 14%, transparent); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .docs-sandbox-pulse {
+      animation: none;
+    }
+  }
+</style>

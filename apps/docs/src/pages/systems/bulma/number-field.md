@@ -23,6 +23,9 @@ A number field Bulma never documented, built entirely from parts it did: stepper
 
 <DocsPageFeatures :frontmatter />
 
+> [!NOTE]
+> Reference: Bulma has no number field. The layout is [form addons on bulma.io](https://bulma.io/documentation/form/general/#form-addons).
+
 ## Usage
 
 `v-model` holds the value — a number, or `null` while the field is empty. `min`, `max` and `step` bound it, and each stepper goes inert the moment the value reaches its bound. Compose the three parts in order: decrement, input, increment.
@@ -35,7 +38,7 @@ Give the input the leftover width with `expanded`. Without it the input sizes to
 
 ## Anatomy
 
-```vue Anatomy no-filename
+```vue Anatomy no-filename collapse
 <script setup lang="ts">
   import {
     BuNumberField,
@@ -55,6 +58,14 @@ Give the input the leftover width with `expanded`. Without it the input sizes to
   </BuNumberField>
 </template>
 ```
+
+## Composed on v0
+
+Composes v0's [NumberField](/components/forms/number-field). `BuNumberField` creates a `NumberField.Root` unless an ambient one already exists; `Decrement`, `Control`, and `Increment` live inside each part's own `.control`.
+
+v0 owns the spinbutton: the math, the bounds, formatting, validation, keyboard, hold-to-repeat. Bulma owns `.field.has-addons` radii — each part wraps `.control` because first- and last-child selectors are how the group gets its corners.
+
+An ambient `NumberField.Root` swallows every behavioral prop on `BuNumberField` — `v-model`, bounds, format, validation. Only presentational modifiers still apply. Point `BuLabel` and `BuHelp` at `namespace="v0:number-field:root"` or they inject nothing.
 
 ## The markup it composes
 

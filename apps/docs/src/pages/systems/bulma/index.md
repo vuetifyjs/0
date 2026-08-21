@@ -11,9 +11,24 @@ features:
   level: 2
   order: 0
 related:
-  - /systems/bulma/modal
+  - /systems/bulma/breadcrumb
+  - /systems/bulma/checkbox
   - /systems/bulma/dropdown
+  - /systems/bulma/field
+  - /systems/bulma/file
+  - /systems/bulma/input
+  - /systems/bulma/menu
+  - /systems/bulma/message
+  - /systems/bulma/modal
+  - /systems/bulma/navbar
+  - /systems/bulma/notification
   - /systems/bulma/number-field
+  - /systems/bulma/pagination
+  - /systems/bulma/panel
+  - /systems/bulma/radio
+  - /systems/bulma/select
+  - /systems/bulma/tabs
+  - /systems/bulma/textarea
 ---
 
 # Bulma
@@ -25,6 +40,13 @@ Bulma tells you to bring your own JavaScript. This package is that JavaScript.
 Bulma is a CSS framework — it ships the `.modal`, `.dropdown` and `.navbar` styles and stops there, leaving every open, close, dismiss and keyboard interaction to you. `@paper/bulma` fills that gap: each component renders the markup Bulma documents, against the `bulma.css` you already load, with [Vuetify0](/) supplying behavior, focus management and accessibility.
 
 Nothing about your stylesheet changes. There is no theme to adopt, no class prefix to learn, and no CSS in the package.
+
+> [!NOTE]
+> Reference: [Bulma documentation](https://bulma.io/documentation/) — the class catalog this package implements.
+
+::: ds-example no-resize
+/systems/bulma/overview
+:::
 
 ## Installation
 
@@ -45,7 +67,7 @@ createApp(App).mount('#app')
 
 There is no plugin to install and no provider to mount. Import a component and use it:
 
-```vue
+```vue collapse
 <script setup lang="ts">
   import { BuModal, BuModalClose, BuModalContent } from '@paper/bulma'
 
@@ -93,9 +115,9 @@ Grouped by Bulma's own taxonomy. Each entry is the component you compose against
 
 | Bulma section | Components |
 |---------------|------------|
-| Components | BuBreadcrumb, [BuDropdown](/systems/bulma/dropdown), BuMenu, BuMessage, [BuModal](/systems/bulma/modal), BuNavbar, BuPagination, BuPanel, BuTabs |
-| Elements | BuNotification |
-| Form | BuCheckbox, BuControl, BuField, BuFile, BuHelp, BuInput, BuLabel, BuRadio, BuSelect, BuTextarea |
+| Components | [BuBreadcrumb](/systems/bulma/breadcrumb), [BuDropdown](/systems/bulma/dropdown), [BuMenu](/systems/bulma/menu), [BuMessage](/systems/bulma/message), [BuModal](/systems/bulma/modal), [BuNavbar](/systems/bulma/navbar), [BuPagination](/systems/bulma/pagination), [BuPanel](/systems/bulma/panel), [BuTabs](/systems/bulma/tabs) |
+| Elements | [BuNotification](/systems/bulma/notification) |
+| Form | [BuCheckbox](/systems/bulma/checkbox), [BuControl](/systems/bulma/field), [BuField](/systems/bulma/field), [BuFile](/systems/bulma/file), [BuHelp](/systems/bulma/field), [BuInput](/systems/bulma/input), [BuLabel](/systems/bulma/field), [BuRadio](/systems/bulma/radio), [BuSelect](/systems/bulma/select), [BuTextarea](/systems/bulma/textarea) |
 | None — composed | [BuNumberField](/systems/bulma/number-field)[^composed] |
 
 [^composed]: Bulma documents no number input. BuNumberField composes one out of the form parts it does document — attached controls, buttons and an input — so its conformance fixture is self-authored rather than captured, and declares the upstream provenance of every class in it.
