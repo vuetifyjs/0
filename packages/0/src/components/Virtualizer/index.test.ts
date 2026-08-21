@@ -1,13 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Context
-import { provideVirtualizerRoot } from './VirtualizerRoot.vue'
+import { provideVirtualizerRoot, useVirtualizerRoot } from './VirtualizerRoot.vue'
 
 import { Virtualizer } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
+
+// Types
+import type { VirtualizerRootContext } from './VirtualizerRoot.vue'
 
 // A ResizeObserver stub that synchronously reports a fixed contentRect for
 // whatever element it observes — happy-dom implements the ResizeObserver
@@ -222,6 +225,32 @@ describe('virtualizer', () => {
     await nextTick()
 
     expect(wrapper.find('[data-index="0"]').exists()).toBe(true)
+  })
+
+  it('should clear the tracked element when the root turns renderless', async () => {
+    // Atom renders no element in renderless mode, so the root must drop its
+    // reference rather than keep measuring a detached node.
+    const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
+    let context: VirtualizerRootContext | undefined
+    const wrapper = mount(Virtualizer.Root, {
+      props: { items, itemHeight: 40, height: 500 },
+      slots: {
+        default: () => h({
+          setup () {
+            context = useVirtualizerRoot('v0:virtualizer:root')
+            return () => null
+          },
+        }),
+      },
+    })
+    await nextTick()
+
+    expect(context?.element.value).toBeDefined()
+
+    await wrapper.setProps({ renderless: true })
+    await nextTick()
+
+    expect(context?.element.value).toBeUndefined()
   })
 
   it('should react to items changing', async () => {
