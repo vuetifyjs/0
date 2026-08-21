@@ -98,6 +98,11 @@
     }
   }
 
+  export interface OtpRootExpose {
+    /** Move focus to the item at `index`, clamped to [0, length). */
+    focusItem: (index: number) => void
+  }
+
   export const [useOtpRoot, provideOtpRoot] = createContext<OtpRootContext>()
 </script>
 
@@ -125,6 +130,10 @@
   } = defineProps<OtpRootProps>()
 
   const model = defineModel<string>({ default: '' })
+
+  defineEmits<{
+    'update:model-value': [value: string]
+  }>()
 
   const otp = createOtp({
     value: model,
@@ -187,10 +196,7 @@
     },
   }))
 
-  defineExpose({
-    /** Move focus to the item at `index`, clamped to [0, length). */
-    focusItem,
-  })
+  defineExpose<OtpRootExpose>({ focusItem })
 </script>
 
 <template>

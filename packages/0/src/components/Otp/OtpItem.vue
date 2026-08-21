@@ -98,8 +98,8 @@
     root.registerItemEl(index, null)
   })
 
-  const charValue = toRef(() => root.value.value[index] ?? '')
-  const state = toRef((): OtpItemState => charValue.value === '' ? 'empty' : 'filled')
+  const char = toRef(() => root.value.value[index] ?? '')
+  const state = toRef((): OtpItemState => char.value === '' ? 'empty' : 'filled')
 
   function onBeforeinput (e: InputEvent) {
     if (root.isDisabled.value || root.isReadonly.value) return
@@ -111,7 +111,7 @@
     const target = e.target as HTMLInputElement
 
     if (root.isDisabled.value || root.isReadonly.value || root.isValidating.value) {
-      target.value = charValue.value
+      target.value = char.value
       return
     }
 
@@ -122,16 +122,16 @@
       return
     }
 
-    const char = text.at(-1)!
+    const entered = text.at(-1)!
 
-    if (!root.accepts(char)) {
+    if (!root.accepts(entered)) {
       // A rejected write leaves the model untouched, so Vue skips the patch
       // and the stale keystroke would linger in the DOM.
-      target.value = charValue.value
+      target.value = char.value
       return
     }
 
-    root.write(index, char)
+    root.write(index, entered)
     root.focusItem(index + 1)
   }
 
@@ -173,7 +173,7 @@
   }
 
   const slotProps = toRef((): OtpItemSlotProps => ({
-    value: charValue.value,
+    value: char.value,
     state: state.value,
     isDisabled: root.isDisabled.value,
     isReadonly: root.isReadonly.value,
@@ -182,7 +182,7 @@
       'inputmode': root.pattern.value === 'numeric' ? 'numeric' : 'text',
       'autocomplete': 'one-time-code',
       'maxlength': 1,
-      'value': charValue.value,
+      'value': char.value,
       'disabled': root.isDisabled.value || undefined,
       'readonly': root.isReadonly.value || undefined,
       'aria-label': locale.ti('Otp.itemLabel', { index: index + 1, length: root.length.value }) ?? `Digit ${index + 1} of ${root.length.value}`,
