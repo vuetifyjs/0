@@ -45,6 +45,15 @@ export interface NumberFieldOptions extends NumericOptions {
    * keystroke via `commitDraft()`, without clamping or snapping — clamping
    * mid-type would jump a value like `1` to `min` before the user finishes
    * typing `15`. Clamping/snapping still happens on the next `commit()`.
+   *
+   * @default 'change'
+   *
+   * @example
+   * ```ts
+   * const field = createNumberField({ min: 10, max: 100, commitOn: 'input' })
+   * field.commitDraft('1')
+   * field.value.value // 1 — no jump to min while typing
+   * ```
    */
   commitOn?: 'input' | 'change'
   /** Disabled state. */
@@ -94,7 +103,18 @@ export interface NumberFieldContext {
   commit: (next?: number | null) => void
   /** When typed input is written into `value` — see {@link NumberFieldOptions.commitOn}. */
   readonly commitOn: 'input' | 'change'
-  /** Parse `text` and write it straight into `value`, without clamping or snapping. Used by `commitOn: 'input'` consumers to get per-keystroke updates without the min/max jump `commit()` would cause mid-type. */
+  /**
+   * Parse `text` and write it straight into `value`, without clamping or
+   * snapping. Used by `commitOn: 'input'` consumers to get per-keystroke
+   * updates without the min/max jump `commit()` would cause mid-type.
+   *
+   * @example
+   * ```ts
+   * const field = createNumberField({ min: 10, max: 100 })
+   * field.commitDraft('1')
+   * field.value.value // 1 — clamped only on the next commit()
+   * ```
+   */
   commitDraft: (text: string) => void
 }
 

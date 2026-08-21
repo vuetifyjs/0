@@ -19,5 +19,5 @@ Also fixes a real bug found while adding coverage for the above: `NumberFieldRoo
 `clamp` prop is optional and boolean-typed with no explicit default, so when unset,
 Vue's boolean-prop casting resolved it to `false` rather than `undefined` — silently
 disabling the documented default-`true` clamping behavior for every consumer who
-didn't explicitly pass `clamp={true}`. A component-level default now matches the
+didn't explicitly pass `:clamp="true"`. A component-level default now matches the
 composable's own `clamp: shouldClamp = true` default.
