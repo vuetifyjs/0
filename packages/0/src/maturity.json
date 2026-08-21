@@ -719,8 +719,10 @@
       "category": "data"
     },
     "Virtualizer": {
-      "level": "draft",
-      "category": "data"
+      "level": "preview",
+      "since": null,
+      "category": "data",
+      "description": "Headless virtualized list that renders only the items within (and slightly beyond) the visible viewport."
     },
     "Tour": {
       "level": "draft",
