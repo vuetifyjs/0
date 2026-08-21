@@ -14,7 +14,7 @@
     v-model="query"
     label="Search fruits"
     :rules="[
-      (v: string) => v.length === 0 || v.length >= 2 || 'Type at least 2 characters',
+      v => (v as string).length === 0 || (v as string).length >= 2 || 'Type at least 2 characters',
     ]"
     validate-on="input"
   >

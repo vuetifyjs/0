@@ -2,9 +2,10 @@
   // Framework
   import { ExpansionPanel } from '@vuetify/v0'
 
-  export interface EmExpansionPanelHeaderProps {
-    namespace?: string
-  }
+  // Types
+  import type { ExpansionPanelHeaderProps } from '@vuetify/v0'
+
+  export interface EmExpansionPanelHeaderProps extends Omit<ExpansionPanelHeaderProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

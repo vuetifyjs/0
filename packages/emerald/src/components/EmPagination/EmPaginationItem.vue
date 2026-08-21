@@ -2,11 +2,13 @@
   // Framework
   import { Pagination } from '@vuetify/v0'
 
-  export interface EmPaginationItemProps {
-    value: number
-    disabled?: boolean
-    namespace?: string
-  }
+  // Types
+  import type { PaginationItemProps } from '@vuetify/v0'
+
+  export interface EmPaginationItemProps extends Pick<
+    PaginationItemProps,
+    'value' | 'disabled' | 'namespace'
+  > {}
 </script>
 
 <script setup lang="ts">

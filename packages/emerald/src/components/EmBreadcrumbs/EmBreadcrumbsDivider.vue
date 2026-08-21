@@ -3,13 +3,9 @@
   import { Breadcrumbs } from '@vuetify/v0'
 
   // Types
-  import type { ID } from '@vuetify/v0'
+  import type { BreadcrumbsDividerProps } from '@vuetify/v0'
 
-  export interface EmBreadcrumbsDividerProps {
-    id?: ID
-    divider?: string
-    namespace?: string
-  }
+  export interface EmBreadcrumbsDividerProps extends Omit<BreadcrumbsDividerProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

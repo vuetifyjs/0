@@ -17,7 +17,7 @@
 </script>
 
 <template>
-  <div class="esi" data-theme="emerald">
+  <div class="esi" data-theme="emerald-light">
     <div aria-hidden="true" class="esi-hero" />
 
     <div class="esi-panel">

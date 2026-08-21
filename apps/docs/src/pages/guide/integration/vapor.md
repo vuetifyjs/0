@@ -93,11 +93,57 @@ createApp(App)
   .mount('#app')
 ```
 
+### The interop boundary rule
+
+Every classic component instantiated directly from a Vapor-compiled template is its own interop crossing, and the plugin's overhead scales with the **number of crossings** — not with what the components do. Compound components multiply crossings: each `Checkbox.Root` and `Checkbox.Indicator` written inline in a Vapor `v-for` crosses separately, so a list of 200 checkboxes is roughly 400 crossings.
+
+Put the Vapor↔vdom boundary **above** the repeated region, never inside it — this is Vue's own interop guidance[^vapor-regions]. One classic wrapper component turns N crossings into one:
+
+```vue Costly.vue
+<script setup vapor lang="ts">
+  // Every Root and Indicator in the loop is its own crossing
+  import { Checkbox } from '@vuetify/v0'
+
+  const { items } = defineProps<{ items: { id: string, label: string }[] }>()
+</script>
+
+<template>
+  <label v-for="item in items" :key="item.id">
+    <Checkbox.Root>
+      <Checkbox.Indicator>✓</Checkbox.Indicator>
+    </Checkbox.Root>
+    {{ item.label }}
+  </label>
+</template>
+```
+
+```vue Cheap.vue
+<script setup vapor lang="ts">
+  // One crossing: the classic (vdom) wrapper owns the loop
+  import Checklist from './Checklist.vue'
+
+  const { items } = defineProps<{ items: { id: string, label: string }[] }>()
+</script>
+
+<template>
+  <Checklist :items="items" />
+</template>
+```
+
+Measured on Vue `3.6.0-rc.2` with the repository's gated interop bench (200 compound checkboxes): inline composition costs +44% mount time and +12% retained heap over a classic root; the same tree behind a single classic wrapper is within noise. A production Vue SPA (11k tests) independently measured the same shape in real Chromium at 1x and 4x CPU throttle: +66–78% mount and +49% heap inline, all collapsing to noise — update operations and heap included — with one wrapper.
+
+> [!WARNING]
+> Inline composition is the natural way to author this, and nothing warns you when the boundary sits inside the loop — the subtree just mounts slower. Audit Vapor templates for v0 components inside `v-for` blocks.
+
+The wrapper is a parity workaround, not a win: everything inside the boundary still renders classic, so it never sees Vapor's cheaper updates. Vapor-native v0 builds are the actual fix; until then, keep regions in one rendering mode.
+
+[^vapor-regions]: Vue's [3.6 release notes](https://github.com/vuejs/core/releases/tag/v3.6.0-rc.1) recommend "having distinct regions in an app where one rendering mode or the other is used, and avoiding mixed nesting as much as possible." The crossing-count math above is why: the recommendation is a performance boundary, not just a compatibility hedge. See the [Vue Vapor mode notes](https://github.com/vuejs/core/releases/tag/v3.6.0-beta.1) for the full interop contract.
+
 ## Current limitations
 
 - **Vue 3.6 is a release candidate.** Vapor is feature-complete as of rc.1; APIs are unlikely to shift, but nothing is guaranteed until 3.6.0 ships.
 - **Coverage is representative, not exhaustive.** The suite proves the instance-context substrate, a registry composable, and component interop. It does not yet mount every component under Vapor.
-- **Interop has rough edges.** Vapor↔vdom interop still has edge cases, so keep a given region in one rendering mode where you can.
+- **Interop has rough edges.** Vapor↔vdom interop still has edge cases, so keep a given region in one rendering mode where you can — and mind the [boundary rule](#the-interop-boundary-rule) when mixing.
 
 ## Verifying it yourself
 

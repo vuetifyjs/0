@@ -14,7 +14,7 @@ related:
   - /composables/registration/create-tokens
 ---
 
-<script setup>
+<script setup lang="ts">
   import DocsPaletteExplorer from '@/components/docs/DocsPaletteExplorer.vue'
 </script>
 

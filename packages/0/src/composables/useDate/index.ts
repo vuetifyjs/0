@@ -44,6 +44,9 @@ import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useLocale } from '#v0/composables/useLocale'
 
+// Week info
+import { deriveWeekInfo } from './weekinfo'
+
 // Utilities
 import { instanceExists, isNullOrUndefined, isUndefined, V0Error } from '#v0/utilities'
 import { computed, hasInjectionContext, watchEffect, onScopeDispose } from 'vue'
@@ -113,21 +116,6 @@ const defaultLocales: Record<string, string> = {
 }
 
 /**
- * Derive firstDayOfWeek from an Intl locale string.
- * Returns 0-6 (0=Sun) or 0 as fallback.
- */
-function deriveFirstDayOfWeek (locale: string): number {
-  try {
-    const loc = new Intl.Locale(locale) as Intl.Locale & { getWeekInfo?: () => { firstDay: number } }
-    const info = loc.getWeekInfo?.()
-    /* v8 ignore next -- defensive: getWeekInfo always returns info in Node 22+ */
-    return info ? info.firstDay % 7 : 0 // ISO 1-7 → v0 0-6
-  } catch {
-    return 0
-  }
-}
-
-/**
  * Creates a new date context.
  *
  * @param options Adapter and locale configuration.
@@ -192,7 +180,7 @@ export function createDate<
   const firstDayOfWeek = computed(() => {
     if (!isUndefined(explicitFirstDay)) return explicitFirstDay
     const loc = locale.value
-    return loc ? deriveFirstDayOfWeek(loc) : 0
+    return loc ? deriveWeekInfo(loc).firstDay : 0
   })
 
   // Keep adapter locale in sync reactively whenever inject() is usable.

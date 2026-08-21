@@ -2,13 +2,10 @@
   // Framework
   import { Step } from '@vuetify/v0'
 
-  export interface EmStepItemProps {
-    id?: string
-    label?: string
-    value?: unknown
-    disabled?: boolean
-    namespace?: string
-  }
+  // Types
+  import type { StepItemProps } from '@vuetify/v0'
+
+  export interface EmStepItemProps extends Omit<StepItemProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

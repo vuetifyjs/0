@@ -8,6 +8,9 @@ import { defineConfig } from 'vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // Set when the app is built as the docs-site demo (see root build:demo);
+  // ViteSSG feeds BASE_URL to the router, so routes follow the subpath.
+  base: process.env.DEMO_BASE ?? '/',
   experimental: {
     enableNativePlugin: true,
   },

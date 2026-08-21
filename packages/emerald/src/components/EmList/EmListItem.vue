@@ -6,12 +6,11 @@
   import { toRef } from 'vue'
 
   // Types
-  import type { ID } from '@vuetify/v0'
+  import type { ID, SingleItemProps } from '@vuetify/v0'
 
-  export interface EmListItemProps {
+  export interface EmListItemProps extends Pick<SingleItemProps, 'disabled' | 'namespace'> {
+    /** Required here, unlike v0 — an Emerald row is always addressable. */
     value: ID
-    disabled?: boolean
-    namespace?: string
     /**
      * Host element for the row. The default `button` is the selectable row;
      * pass a non-interactive host for rows that carry their own controls

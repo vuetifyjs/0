@@ -206,7 +206,7 @@ Every consumer-facing state field is a reactive ref <AppSuccessIcon />. Reads in
 | `ticket.el` | `Readonly<Ref<HTMLElement \| null>>` | Mounts / unmounts (registry element-ref pattern) |
 | `zone.isOver` | `Readonly<Ref<boolean>>` | The active drag's `over` field equals this zone's id |
 | `zone.willAccept` | `Readonly<Ref<boolean>>` | An active drag matches this zone's `accept` policy |
-| `zone.indicator` | `Readonly<Ref<DropIndicator \| null>>` | While over an oriented zone, computes the index/edge/rect of the resolved drop position |
+| `zone.indicator` | `Readonly<Ref<DropIndicator \| null>>` | While over an oriented zone, computes the index/edge/rect of the resolved drop slot. `null` over an unoriented or empty zone — and over the two slots flanking the dragged element's own position in its home zone, which are stays, not moves |
 | `zone.el` | `Readonly<Ref<HTMLElement \| null>>` | Mounts / unmounts (registry element-ref pattern) |
 
 [^drag-via-usage]: Read this to branch keyboard-only behaviors like focus restoration.
@@ -336,7 +336,7 @@ Native HTML5 DnD has terrible mobile support, an ugly default ghost element you 
 
 ??? When does `position.index` get set?
 
-Only when the over-zone declares `orientation`. Without orientation, the zone is opaque — drops fire with `position.pointer` only. With orientation, the composable measures child rects and resolves an index. Empty oriented zones default `index` to `0` (the only sensible drop position when there's nothing to splice between).
+Only when the over-zone declares `orientation`. Without orientation, the zone is opaque — drops fire with `position.pointer` only. With orientation, the composable measures child rects and resolves an index. Empty oriented zones default `index` to `0` (the only sensible drop position when there's nothing to splice between). The indicator is also `null` over the two slots flanking the dragged element's own position in its home zone — dropping there changes nothing, so no slot is proposed and the drop resolves `index` to the element's current position.
 
 ??? How do I pick the right `Z` parameter?
 

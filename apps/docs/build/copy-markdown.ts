@@ -21,8 +21,9 @@ export default function copyMarkdownPlugin (): Plugin {
         copyFileSync(file, destPath)
       }
 
-      // Copy SKILL.md and every reference it links from skills/vuetify0 to
-      // dist root — a partial copy ships a skill with dead relative links
+      // Copy SKILL.md and every reference it links from skills/vuetify0.
+      // REFERENCE.md is also aliased at dist root so /REFERENCE.md matches /SKILL.md.
+      // A partial copy ships a skill with dead relative links.
       const skillBase = '../../skills/vuetify0'
       const skillSrc = join(skillBase, 'SKILL.md')
       const refsDir = join(skillBase, 'references')
@@ -34,9 +35,13 @@ export default function copyMarkdownPlugin (): Plugin {
           for (const ref of readdirSync(refsDir)) {
             if (!ref.endsWith('.md')) continue
             copyFileSync(join(refsDir, ref), join(outDir, 'references', ref))
+            // Agents fetch /REFERENCE.md as a sibling of /SKILL.md
+            if (ref === 'REFERENCE.md') {
+              copyFileSync(join(refsDir, ref), join(outDir, 'REFERENCE.md'))
+            }
           }
         }
-        console.log(`[copy-markdown] Copied ${files.length} markdown files + SKILL.md`)
+        console.log(`[copy-markdown] Copied ${files.length} markdown files + SKILL.md + REFERENCE.md`)
       } else {
         console.log(`[copy-markdown] Copied ${files.length} markdown files (SKILL.md not found)`)
       }

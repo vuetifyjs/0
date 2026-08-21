@@ -3,13 +3,9 @@
   import { Breadcrumbs } from '@vuetify/v0'
 
   // Types
-  import type { ID } from '@vuetify/v0'
+  import type { BreadcrumbsEllipsisProps } from '@vuetify/v0'
 
-  export interface EmBreadcrumbsEllipsisProps {
-    id?: ID
-    ellipsis?: string
-    namespace?: string
-  }
+  export interface EmBreadcrumbsEllipsisProps extends Omit<BreadcrumbsEllipsisProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

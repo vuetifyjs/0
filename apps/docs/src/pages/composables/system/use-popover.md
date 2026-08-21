@@ -82,6 +82,7 @@ flowchart TD
 | `isOpen` | `Ref<boolean>` | — | External ref for bidirectional open state (e.g., from `defineModel`) |
 | `openDelay` | `MaybeRefOrGetter<number>` | `0` | Milliseconds to wait before opening the popover |
 | `closeDelay` | `MaybeRefOrGetter<number>` | `0` | Milliseconds to wait before closing the popover |
+| `adapter` | `PopoverAdapter` | `new V0PopoverAdapter()` | Positioning engine. The default emits CSS anchor positioning with zero runtime dependency — see [Bring your own positioning engine](#bring-your-own-positioning-engine) |
 
 ## Reactivity
 
@@ -93,6 +94,7 @@ flowchart TD
 | `toggle()` | - | Toggle open/close |
 | `cancel()` | - | Cancel any pending open or close transition |
 | `attach(el)` | - | Wire native show/hide watch + toggle event sync to a content element |
+| `attachAnchor(el)` | - | Register the activator/reference element with the positioning adapter |
 | `anchorStyles` | <AppSuccessIcon /> | Readonly Ref, CSS `anchor-name` for the activator element |
 | `contentAttrs` | <AppSuccessIcon /> | Readonly Ref, `id` and `popover` attribute for the content element |
 | `contentStyles` | <AppSuccessIcon /> | Readonly Ref, CSS anchor positioning styles for the content element |
@@ -119,6 +121,65 @@ The example exercises the full three-part spread that `usePopover` returns. `anc
 | `menu-button.vue` | Wires the composable to the component and shows the chosen action |
 :::
 
+## Bring your own positioning engine
+
+`usePopover` positions content with CSS anchor positioning by default (`V0PopoverAdapter`) — no JavaScript measurement, no runtime dependency. That default is unavailable in Firefox ESR and Safari before version 26; if you need to support those, swap in a JS positioning library via the `adapter` option. `@vuetify/v0` doesn't bundle one today, so this example is one you write in your own app rather than an import from the package.
+
+```ts collapse no-filename floating-ui-popover-adapter.ts
+import { PopoverAdapter } from '@vuetify/v0'
+import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom'
+import { shallowRef, watch } from 'vue'
+
+import type { PopoverAdapterContext } from '@vuetify/v0'
+
+export class FloatingUIPopoverAdapter extends PopoverAdapter {
+  setup (context: PopoverAdapterContext) {
+    const styles = shallowRef<Record<string, string>>({ position: 'fixed', top: '0px', left: '0px' })
+    let stopAutoUpdate: (() => void) | undefined
+
+    async function reposition () {
+      const anchor = context.anchorEl.value
+      const content = context.contentEl.value
+      if (!anchor || !content) return
+
+      const { side, align } = context.placement.value
+      const { x, y } = await computePosition(anchor, content, {
+        placement: align === 'center' ? side : `${side}-${align}`,
+        middleware: [offset(8), flip(), shift({ padding: 8 })],
+      })
+
+      styles.value = { position: 'fixed', top: `${y}px`, left: `${x}px` }
+    }
+
+    watch(
+      () => [context.anchorEl.value, context.contentEl.value, context.isOpen.value] as const,
+      ([anchor, content, isOpen]) => {
+        stopAutoUpdate?.()
+        stopAutoUpdate = undefined
+        if (!anchor || !content || !isOpen) return
+        stopAutoUpdate = autoUpdate(anchor, content, reposition)
+      },
+      { immediate: true },
+    )
+
+    this.dispose = () => stopAutoUpdate?.()
+
+    return styles
+  }
+}
+```
+
+```ts no-filename usage
+import { usePopover } from '@vuetify/v0'
+import { FloatingUIPopoverAdapter } from './floating-ui-popover-adapter'
+
+const popover = usePopover({ adapter: new FloatingUIPopoverAdapter() })
+```
+
+Everything else is unchanged — `attach()`, `attachAnchor()`, `contentAttrs`, and `anchorStyles` all work the same way regardless of which adapter is active. `contentStyles` becomes whatever the adapter's `setup()` returns instead of the CSS anchor-positioning declarations, so a floating-ui adapter can hand back computed `top`/`left`/`position` the way the sketch above does.
+
+The [Popover](/components/disclosure/popover) component and the [Select](/components/forms/select), [Tooltip](/components/disclosure/tooltip), and `createCombobox` built on top of `usePopover` all accept the same `adapter` option (`positionAdapter` on `createCombobox`, since it already has its own filtering `adapter`) and forward it through, so swapping the positioning engine for one of those doesn't require dropping down to `usePopover` directly.
+
 ## FAQ
 
 ::: faq
@@ -142,6 +203,10 @@ Pass `openDelay` and `closeDelay` (ms) in the options. Call `cancel()` to abort 
 ??? How do I control where the popover appears relative to its trigger?
 
 Set `positionArea` (e.g. `'bottom'`) for the primary placement and `positionTry` for the fallback positions the browser flips to when that area overflows — CSS anchor positioning handles it with no JavaScript layout math.
+
+??? Does v0 ship a floating-ui adapter?
+
+Not yet — a first-party floating-ui adapter is planned. Until then, see [Bring your own positioning engine](#bring-your-own-positioning-engine) for a worked example you can adapt in your own app. The CSS anchor-positioning default (`V0PopoverAdapter`) stays zero-dependency either way.
 
 :::
 

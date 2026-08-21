@@ -61,7 +61,7 @@ The Carousel provides slide navigation with native drag/swipe via CSS scroll-sna
 
 ::: gn-example
 /components/carousel/useGallery.ts 1
-/components/carousel/Gallery.vue 2
+/components/carousel/CarouselGallery.vue 2
 /components/carousel/gallery.vue 3
 
 ### Image Gallery
@@ -75,7 +75,7 @@ Reach for this layout when a single carousel needs to be discoverable through se
 | File | Role |
 |------|------|
 | `useGallery.ts` | Owns the photo data, the autoplay interval, and the derived active photo plus position |
-| `Gallery.vue` | Renders the carousel compound — peek viewport, overlay arrows, autoplay toggle, progress bar, and indicator dots |
+| `CarouselGallery.vue` | Renders the carousel compound — peek viewport, overlay arrows, autoplay toggle, progress bar, and indicator dots |
 | `gallery.vue` | Wires the composable to the gallery and shows a caption panel reflecting the selected slide |
 :::
 

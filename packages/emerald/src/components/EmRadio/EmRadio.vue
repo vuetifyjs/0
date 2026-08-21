@@ -1,20 +1,23 @@
 <script lang="ts">
   // Framework
   import { Radio } from '@vuetify/v0'
-  // Utilities
   import { useId } from '@vuetify/v0/utilities'
+
+  // Utilities
+  import { toValue } from 'vue'
+
+  // Types
+  import type { RadioRootProps } from '@vuetify/v0'
 
   export type EmRadioSize = 'sm' | 'md' | 'lg'
 
-  export interface EmRadioProps {
-    /** Value associated with this radio (required for group selection) */
+  export interface EmRadioProps extends Pick<
+    RadioRootProps,
+    'disabled' | 'label' | 'namespace' | 'groupNamespace'
+  > {
+    /** Value associated with this radio (required here, unlike v0 — group selection needs it) */
     value: unknown
-    disabled?: boolean
     size?: EmRadioSize
-    /** Accessible name when no default-slot label is rendered */
-    label?: string
-    namespace?: string
-    groupNamespace?: string
   }
 </script>
 
@@ -36,7 +39,7 @@
 </script>
 
 <template>
-  <label class="emerald-radio" :data-disabled="disabled || undefined" :data-size="size">
+  <label class="emerald-radio" :data-disabled="toValue(disabled) || undefined" :data-size="size">
     <Radio.Root
       :aria-labelledby="$slots.default ? id : undefined"
       class="emerald-radio__root"

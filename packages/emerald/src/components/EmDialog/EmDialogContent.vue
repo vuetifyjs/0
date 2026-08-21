@@ -2,11 +2,10 @@
   // Framework
   import { Dialog } from '@vuetify/v0'
 
-  export interface EmDialogContentProps {
-    closeOnClickOutside?: boolean
-    blocking?: boolean
-    namespace?: string
-  }
+  // Types
+  import type { DialogContentProps } from '@vuetify/v0'
+
+  export interface EmDialogContentProps extends Omit<DialogContentProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

@@ -2,12 +2,10 @@
   // Framework
   import { Step } from '@vuetify/v0'
 
-  export interface EmStepProps {
-    disabled?: boolean
-    enroll?: boolean
-    mandatory?: boolean | 'force'
-    namespace?: string
-  }
+  // Types
+  import type { StepRootProps } from '@vuetify/v0'
+
+  export interface EmStepProps extends Omit<StepRootProps, 'as' | 'renderless'> {}
 </script>
 
 <script lang="ts" setup generic="T = unknown">

@@ -2,12 +2,17 @@
   // Framework
   import { Single } from '@vuetify/v0'
 
-  export interface EmListProps {
-    id?: string
-    namespace?: string
-    disabled?: boolean
+  // Types
+  import type { SingleRootProps } from '@vuetify/v0'
+
+  export interface EmListProps extends Pick<
+    SingleRootProps,
+    'namespace' | 'disabled' | 'mandatory'
+  > {
     /** Forwarded to Single.Root — master-detail lists want `'force'`. */
-    mandatory?: boolean | 'force'
+    mandatory?: SingleRootProps['mandatory']
+    /** Stamped on the host `<ul>`, not forwarded to Single.Root. */
+    id?: string
   }
 </script>
 
