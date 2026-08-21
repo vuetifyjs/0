@@ -14,6 +14,7 @@
  * - Automatic disabled item skipping
  * - Optional circular navigation
  * - Home/End key support (row-scoped in grid mode)
+ * - Single-character typeahead over item text content
  * - Auto-attaches keydown listener when target is provided
  * - Sets aria-activedescendant and data-highlighted attributes
  *
@@ -72,6 +73,18 @@ export interface VirtualFocusReturn {
   first: () => void
   last: () => void
   onKeydown: (e: KeyboardEvent) => void
+  /**
+   * Move the highlight to the next enabled item whose text content starts
+   * with the given character, searching forward from the current highlight
+   * with wrap-around. Matching is case-insensitive; repeating the same
+   * character cycles through successive matches.
+   *
+   * @example
+   * ```ts
+   * const cursor = useVirtualFocus(items, { control })
+   * cursor.typeahead('b') // highlights the first item starting with "b"
+   * ```
+   */
   typeahead: (char: string) => void
 }
 
@@ -153,15 +166,15 @@ export function useVirtualFocus (
   }
 
   function typeahead (char: string) {
-    const all = items().filter(i => !toValue(i.disabled))
-    if (all.length === 0) return
+    const enabled = items().filter(i => !toValue(i.disabled))
+    if (enabled.length === 0) return
 
-    const currentIndex = all.findIndex(i => i.id === traversal.activeId.value)
-    const start = currentIndex === -1 ? 0 : (currentIndex + 1) % all.length
+    const index = enabled.findIndex(i => i.id === traversal.activeId.value)
+    const start = index === -1 ? 0 : (index + 1) % enabled.length
 
-    for (let offset = 0; offset < all.length; offset++) {
-      const item = all[(start + offset) % all.length]
-      const text = item.el ? (toValue(item.el)?.textContent?.trim() ?? '') : ''
+    for (let offset = 0; offset < enabled.length; offset++) {
+      const item = enabled[(start + offset) % enabled.length]
+      const text = toValue(item.el)?.textContent?.trim() ?? ''
       if (text.toLowerCase().startsWith(char.toLowerCase())) {
         highlight(item.id)
         return
