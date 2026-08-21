@@ -54,6 +54,7 @@
 
     <div class="flex items-center gap-2">
       <AppTooltip
+        :aria-label="playground.editor.value ? 'Switch to preview' : 'Switch to editor'"
         :aria-pressed="!playground.editor.value"
         class="md:hidden pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
         :class="!playground.editor.value ? 'opacity-80' : 'opacity-50'"

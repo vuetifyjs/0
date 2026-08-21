@@ -46,7 +46,7 @@
 
 <!-- Unscoped: AppTooltip renders a multi-root fragment, so the parent scope-id
      is not forwarded to its rendered <button>; a scoped .close-button selector
-     would not match. See scoped-css-multiroot-child (#359). -->
+     would not match. See https://github.com/vuetifyjs/0/issues/359 -->
 <style>
 .close-button {
   display: flex;
