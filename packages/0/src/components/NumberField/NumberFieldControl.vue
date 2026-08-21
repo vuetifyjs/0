@@ -20,7 +20,7 @@
 
   // Utilities
   import { isNull } from '#v0/utilities'
-  import { mergeProps, onMounted, shallowRef, toRef, useAttrs, watch } from 'vue'
+  import { mergeProps, nextTick, onMounted, shallowRef, toRef, useAttrs, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -72,7 +72,20 @@
 
   onMounted(syncText)
 
-  watch(() => root.value.value, syncText)
+  // commitOn: 'input' writes to root.value on every keystroke via
+  // commitDraft(), which would otherwise trigger this same watcher and
+  // clobber in-progress text (e.g. a trailing "." lost to String(12.)).
+  // isEagerWrite marks writes that originated from the control's own input
+  // so the resulting sync is skipped — text.value already reflects them.
+  let isEagerWrite = false
+
+  watch(() => root.value.value, () => {
+    if (isEagerWrite) {
+      isEagerWrite = false
+      return
+    }
+    syncText()
+  })
 
   const displayValue = toRef(() => {
     return root.isFocused.value ? text.value : root.display.value
@@ -96,6 +109,16 @@
   function onInput (e: Event) {
     const target = e.target as HTMLInputElement
     text.value = target.value
+
+    if (root.commitOn === 'input') {
+      isEagerWrite = true
+      root.commitDraft(text.value)
+      // Safety net for when commitDraft's write is a no-op (parsed value
+      // unchanged) and the watcher above never fires to consume the flag.
+      nextTick(() => {
+        isEagerWrite = false
+      })
+    }
   }
 
   function onFocus () {
