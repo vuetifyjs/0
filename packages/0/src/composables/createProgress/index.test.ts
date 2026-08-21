@@ -267,18 +267,18 @@ describe('createProgress', () => {
 
     it('should reset a segment without a matching incoming entry to min', () => {
       const progress = setup({ min: 0, max: 100 })
-      const val1 = shallowRef(60)
-      progress.register({ value: val1 })
+      const val = shallowRef(60)
+      progress.register({ value: val })
       progress.apply([])
-      expect(toValue(val1)).toBe(0)
+      expect(toValue(val)).toBe(0)
     })
 
     it('should skip readonly segments', () => {
       const progress = setup({ min: 0, max: 100 })
-      const readonlyVal = computed(() => 50)
-      progress.register({ value: readonlyVal })
+      const val = computed(() => 50)
+      progress.register({ value: val })
       progress.apply([80])
-      expect(toValue(readonlyVal)).toBe(50)
+      expect(toValue(val)).toBe(50)
     })
   })
 

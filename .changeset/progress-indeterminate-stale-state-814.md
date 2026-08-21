@@ -1,6 +1,6 @@
 ---
-'@vuetify/v0': patch
-'@paper/emerald': patch
+"@vuetify/v0": patch
+"@paper/emerald": patch
 ---
 
 fix(createProgress): clear stale segment values when the model becomes indeterminate
