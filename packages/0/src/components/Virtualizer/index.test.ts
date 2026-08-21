@@ -57,8 +57,8 @@ describe('virtualizer', () => {
       props: { items, itemHeight: 40, height: 500 },
     })
 
-    expect(wrapper.find('[data-virtualizer-spacer="start"]').exists()).toBe(true)
-    expect(wrapper.find('[data-virtualizer-spacer="end"]').exists()).toBe(true)
+    expect(wrapper.find('[data-spacer="start"]').exists()).toBe(true)
+    expect(wrapper.find('[data-spacer="end"]').exists()).toBe(true)
   })
 
   it('should render only the visible items via the default slot', async () => {
@@ -73,7 +73,7 @@ describe('virtualizer', () => {
     await nextTick()
     await nextTick()
 
-    const rendered = wrapper.findAll('[data-virtualizer-index]')
+    const rendered = wrapper.findAll('[data-index]')
     expect(rendered.length).toBeGreaterThan(0)
     expect(rendered.length).toBeLessThan(1000)
   })
@@ -100,7 +100,7 @@ describe('virtualizer', () => {
     await nextTick()
     await nextTick()
 
-    const first = wrapper.find('[data-virtualizer-index="0"]')
+    const first = wrapper.find('[data-index="0"]')
     expect(first.attributes('role')).toBe('option')
     expect(first.attributes('aria-posinset')).toBe('1')
     expect(first.attributes('aria-setsize')).toBe('50')
@@ -206,7 +206,7 @@ describe('virtualizer', () => {
     await nextTick()
 
     expect(visible[0]!.index).toBeGreaterThan(0)
-    expect(wrapper.find('[data-virtualizer-spacer="start"]').attributes('style')).not.toContain('height: 0px')
+    expect(wrapper.find('[data-spacer="start"]').attributes('style')).not.toContain('height: 0px')
   })
 
   it('should pair Root and Item through a custom namespace', async () => {
@@ -221,7 +221,7 @@ describe('virtualizer', () => {
     })
     await nextTick()
 
-    expect(wrapper.find('[data-virtualizer-index="0"]').exists()).toBe(true)
+    expect(wrapper.find('[data-index="0"]').exists()).toBe(true)
   })
 
   it('should react to items changing', async () => {
@@ -235,6 +235,6 @@ describe('virtualizer', () => {
     await nextTick()
 
     // No throw, spacer elements still present after the item count changes.
-    expect(wrapper.find('[data-virtualizer-spacer="start"]').exists()).toBe(true)
+    expect(wrapper.find('[data-spacer="start"]').exists()).toBe(true)
   })
 })

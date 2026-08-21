@@ -65,7 +65,7 @@
   })
 
   const itemAttrs = toRef(() => ({
-    'data-virtualizer-index': index,
+    'data-index': index,
   }))
 </script>
 

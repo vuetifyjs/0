@@ -22,6 +22,7 @@
   import { toElement } from '#v0/composables/toElement'
 
   // Utilities
+  import { isNumber, isUndefined } from '#v0/utilities'
   import { mergeProps, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -103,7 +104,7 @@
     renderless,
     items = [],
     itemHeight,
-    height,
+    height: _height,
     overscan = 5,
     direction = 'forward',
     anchor = 'auto',
@@ -117,11 +118,11 @@
     namespace = 'v0:virtualizer:root',
   } = defineProps<VirtualizerRootProps>()
 
-  const itemsRef = toRef(() => items)
+  const _items = toRef(() => items)
 
-  const virtual = createVirtual(itemsRef, {
+  const virtual = createVirtual(_items, {
     itemHeight,
-    height,
+    height: _height,
     overscan,
     direction,
     anchor,
@@ -135,16 +136,17 @@
   })
 
   const containerRef = useTemplateRef<AtomExpose>('container')
+  const el = toRef(() => toElement(containerRef.value?.element) ?? null)
 
-  watch(() => toElement(containerRef.value?.element), el => {
-    virtual.element.value = el as HTMLElement | undefined
+  watch(el, element => {
+    virtual.element.value = (element ?? undefined) as HTMLElement | undefined
   })
 
   provideVirtualizerRoot(namespace, virtual)
 
-  const containerHeight = toRef(() => {
-    if (height === undefined) return undefined
-    return typeof height === 'number' ? `${height}px` : height
+  const height = toRef(() => {
+    if (isUndefined(_height)) return undefined
+    return isNumber(_height) ? `${_height}px` : _height
   })
 
   const slotProps = toRef((): VirtualizerRootSlotProps => ({
@@ -154,7 +156,7 @@
     reset: virtual.reset,
     attrs: {
       tabindex: 0,
-      style: { overflowY: 'auto', height: containerHeight.value },
+      style: { overflowY: 'auto', height: height.value },
       onScroll: virtual.scroll,
       onScrollend: virtual.scrollend,
     },
@@ -168,10 +170,10 @@
     :as
     :renderless
   >
-    <div data-virtualizer-spacer="start" :style="{ height: `${virtual.offset.value}px` }" />
+    <div data-spacer="start" :style="{ height: `${virtual.offset.value}px` }" />
 
     <slot v-bind="slotProps" />
 
-    <div data-virtualizer-spacer="end" :style="{ height: `${virtual.size.value}px` }" />
+    <div data-spacer="end" :style="{ height: `${virtual.size.value}px` }" />
   </Atom>
 </template>
