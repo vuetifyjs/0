@@ -2,31 +2,6 @@
 '@vuetify/v0': patch
 ---
 
-fix(useDate): arm the useLocale sync through the plugin install path
+fix(useDate): sync with the active locale when installed via createDatePlugin (#845)
 
-`createDatePlugin` constructed its date context eagerly, at
-`createDatePlugin()` call time - before `app.use()` runs and before any
-component exists. At that point `instanceExists()` is false, so the
-`useLocale` lookup and the reactive locale-sync `watchEffect` never
-armed; only a one-shot, non-reactive sync ran once. The documented
-"integration with useLocale for automatic locale sync" never actually
-worked through the plugin path, only when `createDate()` was called
-directly inside a component's `setup()`.
-
-`createDate` now checks `hasInjectionContext()` instead of
-`instanceExists()` - `inject()` (which `useLocale` relies on) works
-both inside a component's `setup()` and inside a plugin's
-`app.runWithContext()` callback, so this correctly arms the reactive
-sync in both cases. `createDatePlugin` now constructs its context
-lazily, inside `provide()`, so it actually runs within that
-`runWithContext()` call instead of outside any Vue context - this also
-means installing the same plugin definition on multiple `app`
-instances (e.g. one per SSR request) gives each app its own
-locale/`firstDayOfWeek` context instead of sharing one across every
-install.
-
-Also documents (use-date FAQ) that the *adapter* instance itself should
-still be constructed fresh per request under SSR rather than shared at
-module scope - `adapter.locale`/`adapter.firstDayOfWeek` are mutable
-state the sync writes into, and per-install context isolation doesn't
-extend to an adapter object passed to every install.
+The documented `useLocale` integration never worked through the plugin path: dates formatted with the plugin's `locale` option (or the adapter default), and switching locales did nothing unless `createDate()` was called directly inside a component's `setup()`. Installed after `createLocalePlugin`, the date plugin now resolves the selected locale and derived `firstDayOfWeek` reactively, and each `app.use()` gets its own date context instead of sharing one across apps — one SSR request's locale no longer bleeds into another's render. That isolation does not extend to a shared `adapter` instance: `adapter.locale` / `adapter.firstDayOfWeek` are mutable state the sync writes into, so construct the adapter fresh per request under SSR (see the use-date FAQ).

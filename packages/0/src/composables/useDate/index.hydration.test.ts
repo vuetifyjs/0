@@ -31,7 +31,7 @@ function DateGrid () {
 }
 
 describe('useDate SSR hydration', () => {
-  it('hydrates a plugin-installed date context with matching locale/firstDayOfWeek and zero mismatches', async () => {
+  it('should hydrate a plugin-installed date context with matching locale/firstDayOfWeek and zero mismatches', async () => {
     const adapter = new V0DateAdapter()
     const datePlugin = createDatePlugin({ adapter, locale: 'de-DE' })
 
@@ -44,7 +44,7 @@ describe('useDate SSR hydration', () => {
     expect(mismatches).toEqual([])
   })
 
-  it('hydrates useLocale + createDatePlugin together with zero mismatches', async () => {
+  it('should hydrate useLocale + createDatePlugin together with zero mismatches', async () => {
     const localePlugin = createLocalePlugin({
       default: 'en',
       messages: { en: {}, de: {} },

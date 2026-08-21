@@ -162,10 +162,9 @@ export function createDate<
     firstDayOfWeek: explicitFirstDay,
   } = options
 
-  // Try to get selected locale from useLocale if available. `inject()` (which
-  // useLocale relies on) works inside a component's setup() AND inside a
-  // plugin's app.runWithContext() callback — instanceExists() only covers the
-  // former, which is why the plugin install path never picked up useLocale.
+  // Try to get selected locale from useLocale if available — inject() (which
+  // useLocale relies on) resolves inside a component's setup() and inside a
+  // plugin's app.runWithContext() callback.
   let selectedId: Ref<ID | undefined> | undefined
 
   try {
@@ -196,10 +195,9 @@ export function createDate<
     return loc ? deriveFirstDayOfWeek(loc) : 0
   })
 
-  // Keep adapter locale in sync reactively whenever inject() is usable -
-  // component setup() and a plugin's app.runWithContext() callback both
-  // qualify. onScopeDispose's failSilently arg avoids a spurious warning when
-  // this runs at plugin-install time, outside any component effect scope.
+  // Keep adapter locale in sync reactively whenever inject() is usable.
+  // failSilently on onScopeDispose avoids a spurious warning at plugin-install
+  // time, where no component effect scope exists.
   if (hasInjectionContext()) {
     const stop = watchEffect(() => {
       const loc = locale.value
@@ -291,12 +289,10 @@ export function createDatePlugin<
 
   return createPlugin({
     namespace,
-    // Constructed lazily, inside app.runWithContext(), rather than eagerly at
-    // createDatePlugin() call time: useLocale() needs an active injection
-    // context to resolve, which only exists once app.use() actually runs.
-    // This also means installing the same plugin definition on multiple apps
-    // (e.g. one per SSR request) gives each app its own locale/firstDayOfWeek
-    // context instead of sharing one computed across every install.
+    // Created lazily inside provide (install time) so useLocale() resolves
+    // through app.runWithContext(), and each app.use() gets its own context
+    // instead of sharing one across installs.
+    // https://github.com/vuetifyjs/0/issues/798
     provide: (app: App) => {
       const [, provideDateContext, context] = createDateContext<Z, E>({ namespace, ...options })
       provideDateContext(context, app)

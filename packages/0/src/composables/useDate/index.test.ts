@@ -1871,23 +1871,23 @@ describe('createDate', () => {
       })
 
       const adapter = new V0DateAdapter()
-      // Installed via app.use(), the documented usage pattern - not
+      // Installed via app.use(), the documented usage pattern — not
       // createDate() called directly inside a component's setup().
       const datePlugin = createDatePlugin({
         adapter,
         locales: { en: 'en-US', de: 'de-DE' },
       })
 
-      let selectLocaleFn: ((id: string) => void) | null = null
+      let select: ((id: string) => void) | undefined
 
       const TestComponent = defineComponent({
         setup () {
-          const localeContext = useLocale()
-          const dateContext = useDate()
-          selectLocaleFn = localeContext.select
+          const locale = useLocale()
+          const date = useDate()
+          select = locale.select
           return {
-            dateLocale: dateContext.locale,
-            adapterLocale: () => dateContext.adapter.locale,
+            dateLocale: date.locale,
+            adapterLocale: () => date.adapter.locale,
           }
         },
         template: '<div>{{ dateLocale }} - {{ adapterLocale() }}</div>',
@@ -1902,7 +1902,7 @@ describe('createDate', () => {
       // Plugin-installed context should resolve useLocale's initial selection.
       expect(wrapper.text()).toContain('en-US')
 
-      selectLocaleFn!('de')
+      select!('de')
       await nextTick()
 
       // The reactive sync must arm through the plugin path too, not just
