@@ -31,6 +31,7 @@ import ImageFixture from './fixtures/Image.vue'
 import InputFixture from './fixtures/Input.vue'
 import LocaleFixture from './fixtures/Locale.vue'
 import NumberFieldFixture from './fixtures/NumberField.vue'
+import OtpFixture from './fixtures/Otp.vue'
 import OverflowFixture from './fixtures/Overflow.vue'
 import PaginationFixture from './fixtures/Pagination.vue'
 import PopoverFixture from './fixtures/Popover.vue'
@@ -136,6 +137,7 @@ const FIXTURES = {
   Input: InputFixture,
   Locale: LocaleFixture,
   NumberField: NumberFieldFixture,
+  Otp: OtpFixture,
   Overflow: OverflowFixture,
   Pagination: PaginationFixture,
   Popover: PopoverFixture,
