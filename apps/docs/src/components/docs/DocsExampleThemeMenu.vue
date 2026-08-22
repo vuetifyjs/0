@@ -6,28 +6,65 @@
   import { useThemeToggleController } from '@/composables/useThemeToggle'
 
   // Utilities
-  import { shallowRef, useId } from 'vue'
+  import { shallowRef, toRef, useId } from 'vue'
+
+  const { modesOnly = false } = defineProps<{
+    /** Light / dark only — no palettes, a11y themes, or custom themes. */
+    modesOnly?: boolean
+  }>()
 
   const toggle = useThemeToggleController()
+  const icon = toRef(() => (
+    modesOnly
+      ? (toggle.isDark.value ? 'theme-dark' : 'theme-light')
+      : toggle.icon.value
+  ))
+  const title = toRef(() => (
+    modesOnly
+      ? (toggle.isDark.value ? 'Switch to light' : 'Switch to dark')
+      : toggle.title.value
+  ))
 
   const uid = useId()
   const open = shallowRef(false)
+
+  const chip = 'bg-surface-tint text-on-surface-tint hover:bg-surface-tint pa-1 inline-flex rounded-none rounded-bl-[0.375rem] rounded-tr-[0.375rem] cursor-pointer'
+
+  function onFlip () {
+    toggle.setMode(toggle.isDark.value ? 'light' : 'dark')
+  }
 </script>
 
 <template>
-  <Popover.Root :id="uid" v-model="open">
+  <AppTooltip
+    v-if="modesOnly"
+    as="span"
+    class="mt-[8px] me-[8px] inline-flex"
+    position-area="bottom"
+    :text="title"
+  >
+    <Button.Root
+      :aria-label="title"
+      :class="chip"
+      @click="onFlip"
+    >
+      <AppIcon :icon />
+    </Button.Root>
+  </AppTooltip>
+
+  <Popover.Root v-else :id="uid" v-model="open">
     <AppTooltip
       as="span"
       class="mt-[8px] me-[8px] inline-flex"
       position-area="bottom"
-      :text="toggle.title.value"
+      :text="title"
     >
       <Popover.Activator
         aria-label="Example theme"
-        class="bg-surface-tint text-on-surface-tint hover:bg-surface-tint data-[state=open]:bg-surface-tint pa-1 inline-flex rounded-none rounded-bl-[0.375rem] rounded-tr-[0.375rem] cursor-pointer"
+        :class="[chip, 'data-[state=open]:bg-surface-tint']"
         :data-state="open ? 'open' : undefined"
       >
-        <AppIcon :icon="toggle.icon.value" />
+        <AppIcon :icon />
       </Popover.Activator>
     </AppTooltip>
 

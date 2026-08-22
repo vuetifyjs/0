@@ -21,7 +21,7 @@
   } from '@/composables/usePlayground'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
-  import { createThemeToggle, provideThemeToggle } from '@/composables/useThemeToggle'
+  import { createThemeToggle, provideThemeToggle, useThemeToggleContext } from '@/composables/useThemeToggle'
 
   // Utilities
   import { computed, onMounted, toRef } from 'vue'
@@ -55,16 +55,21 @@
     peek?: boolean
     /** Visible peek lines (default 6) */
     peekLines?: number
-    /** Force a named theme on the preview (`data-theme`); bypasses the example theme toggle (systems pages) */
+    /** Force a named theme on the preview (`data-theme`); hides the palette picker unless `modesOnly` */
     theme?: string
     /** Default palette while following the page. Omit to track the page palette. */
     palette?: Palette
+    /** Light / dark toggle only — used by design-system examples that own their palette */
+    modesOnly?: boolean
+    /** Skip the preview splitter */
+    disableResize?: boolean
   }
 
   const props = defineProps<DocsGenesisExampleProps>()
 
-  const example = createThemeToggle({ palette: props.palette })
-  provideThemeToggle(example)
+  const inherited = useThemeToggleContext()
+  const example = inherited ?? createThemeToggle({ palette: props.palette })
+  if (!inherited) provideThemeToggle(example)
 
   const examples = useExamples()
 
@@ -141,6 +146,7 @@
     :code="resolvedCode"
     :collapse
     data-tour="example"
+    :disable-resize
     :file-name
     :file-orders
     :files="resolvedFiles"
@@ -164,8 +170,8 @@
       <AppDotGrid :coverage="60" />
     </template>
 
-    <template v-if="!theme" #preview-actions>
-      <DocsExampleThemeMenu />
+    <template v-if="!theme || modesOnly" #preview-actions>
+      <DocsExampleThemeMenu :modes-only />
     </template>
 
     <template v-if="$slots.description" #description>

@@ -47,6 +47,18 @@
         ],
         "#paper": [
           "../../packages/paper/src"
+        ],
+        "@paper/bulma": [
+          "../../packages/bulma/src"
+        ],
+        "#bulma": [
+          "../../packages/bulma/src"
+        ],
+        "@paper/emerald": [
+          "../../packages/emerald/src"
+        ],
+        "#emerald": [
+          "../../packages/emerald/src"
         ]
       }
     },
@@ -64,7 +76,6 @@
       "ignore": [
         "src/**/*.bench.ts"
       ],
-
       "paths": {
         "#v0/*": [
           "src/*"

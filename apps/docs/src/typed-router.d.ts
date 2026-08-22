@@ -283,6 +283,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/semantic/alert': RouteRecordInfo<
+      '/components/semantic/alert',
+      '/components/semantic/alert',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/semantic/avatar': RouteRecordInfo<
       '/components/semantic/avatar',
       '/components/semantic/avatar',
@@ -1158,6 +1165,139 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/bulma/': RouteRecordInfo<
+      '/systems/bulma/',
+      '/systems/bulma',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/breadcrumb': RouteRecordInfo<
+      '/systems/bulma/breadcrumb',
+      '/systems/bulma/breadcrumb',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/checkbox': RouteRecordInfo<
+      '/systems/bulma/checkbox',
+      '/systems/bulma/checkbox',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/dropdown': RouteRecordInfo<
+      '/systems/bulma/dropdown',
+      '/systems/bulma/dropdown',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/field': RouteRecordInfo<
+      '/systems/bulma/field',
+      '/systems/bulma/field',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/file': RouteRecordInfo<
+      '/systems/bulma/file',
+      '/systems/bulma/file',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/input': RouteRecordInfo<
+      '/systems/bulma/input',
+      '/systems/bulma/input',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/menu': RouteRecordInfo<
+      '/systems/bulma/menu',
+      '/systems/bulma/menu',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/message': RouteRecordInfo<
+      '/systems/bulma/message',
+      '/systems/bulma/message',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/modal': RouteRecordInfo<
+      '/systems/bulma/modal',
+      '/systems/bulma/modal',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/navbar': RouteRecordInfo<
+      '/systems/bulma/navbar',
+      '/systems/bulma/navbar',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/notification': RouteRecordInfo<
+      '/systems/bulma/notification',
+      '/systems/bulma/notification',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/number-field': RouteRecordInfo<
+      '/systems/bulma/number-field',
+      '/systems/bulma/number-field',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/pagination': RouteRecordInfo<
+      '/systems/bulma/pagination',
+      '/systems/bulma/pagination',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/panel': RouteRecordInfo<
+      '/systems/bulma/panel',
+      '/systems/bulma/panel',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/radio': RouteRecordInfo<
+      '/systems/bulma/radio',
+      '/systems/bulma/radio',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/select': RouteRecordInfo<
+      '/systems/bulma/select',
+      '/systems/bulma/select',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/tabs': RouteRecordInfo<
+      '/systems/bulma/tabs',
+      '/systems/bulma/tabs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/textarea': RouteRecordInfo<
+      '/systems/bulma/textarea',
+      '/systems/bulma/textarea',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/systems/emerald/': RouteRecordInfo<
       '/systems/emerald/',
       '/systems/emerald',
@@ -1664,6 +1804,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/providers/theme.md': {
       routes:
         | '/components/providers/theme'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/semantic/alert.md': {
+      routes:
+        | '/components/semantic/alert'
       views:
         | never
       pathParamNames:
@@ -2664,6 +2812,158 @@ declare module 'vue-router/auto-routes' {
     'src/pages/sponsor.md': {
       routes:
         | '/sponsor'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/index.md': {
+      routes:
+        | '/systems/bulma/'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/breadcrumb.md': {
+      routes:
+        | '/systems/bulma/breadcrumb'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/checkbox.md': {
+      routes:
+        | '/systems/bulma/checkbox'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/dropdown.md': {
+      routes:
+        | '/systems/bulma/dropdown'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/field.md': {
+      routes:
+        | '/systems/bulma/field'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/file.md': {
+      routes:
+        | '/systems/bulma/file'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/input.md': {
+      routes:
+        | '/systems/bulma/input'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/menu.md': {
+      routes:
+        | '/systems/bulma/menu'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/message.md': {
+      routes:
+        | '/systems/bulma/message'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/modal.md': {
+      routes:
+        | '/systems/bulma/modal'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/navbar.md': {
+      routes:
+        | '/systems/bulma/navbar'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/notification.md': {
+      routes:
+        | '/systems/bulma/notification'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/number-field.md': {
+      routes:
+        | '/systems/bulma/number-field'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/pagination.md': {
+      routes:
+        | '/systems/bulma/pagination'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/panel.md': {
+      routes:
+        | '/systems/bulma/panel'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/radio.md': {
+      routes:
+        | '/systems/bulma/radio'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/select.md': {
+      routes:
+        | '/systems/bulma/select'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/tabs.md': {
+      routes:
+        | '/systems/bulma/tabs'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/textarea.md': {
+      routes:
+        | '/systems/bulma/textarea'
       views:
         | never
       pathParamNames:
