@@ -11,6 +11,8 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Alert: typeof import('./../../packages/0/src/components/fixtures/Alert.vue')['default']
+    AlertDescription: typeof import('./../../packages/0/src/components/Alert/AlertDescription.vue')['default']
     AlertDialog: typeof import('./../../packages/0/src/components/fixtures/AlertDialog.vue')['default']
     AlertDialogAction: typeof import('./../../packages/0/src/components/AlertDialog/AlertDialogAction.vue')['default']
     AlertDialogActivator: typeof import('./../../packages/0/src/components/AlertDialog/AlertDialogActivator.vue')['default']
@@ -20,6 +22,8 @@ declare module 'vue' {
     AlertDialogDescription: typeof import('./../../packages/0/src/components/AlertDialog/AlertDialogDescription.vue')['default']
     AlertDialogRoot: typeof import('./../../packages/0/src/components/AlertDialog/AlertDialogRoot.vue')['default']
     AlertDialogTitle: typeof import('./../../packages/0/src/components/AlertDialog/AlertDialogTitle.vue')['default']
+    AlertRoot: typeof import('./../../packages/0/src/components/Alert/AlertRoot.vue')['default']
+    AlertTitle: typeof import('./../../packages/0/src/components/Alert/AlertTitle.vue')['default']
     AspectRatio: typeof import('./../../packages/0/src/components/AspectRatio/AspectRatio.vue')['default']
     Atom: typeof import('./../../packages/0/src/components/Atom/Atom.vue')['default']
     Avatar: typeof import('./../../packages/0/src/components/fixtures/Avatar.vue')['default']
