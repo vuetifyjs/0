@@ -2,7 +2,7 @@
 title: BuFile - Bulma File Upload for Vue
 meta:
 - name: description
-  content: Bulma's file upload for Vue — the .file CTA with boxed, named and colored variants, selected files on a change event, and Vuetify0 validation.
+  content: Bulma's file upload for Vue — composed Cta/Icon/Name parts, boxed, named and colored variants, selected files on a change event, and Vuetify0 validation.
 - name: keywords
   content: bulma file, vue file upload, file-cta, has-name, is-boxed, bulma vue, paper bulma
 features:
@@ -28,7 +28,9 @@ Bulma's `.file` call-to-action. The native file input is visually hidden by Bulm
 
 ## Usage
 
-The default slot is the CTA text, defaulting to `Choose a file…`. `icon` is the Font Awesome class string on `.file-icon`, defaulting to `fas fa-upload`. `filename` reveals the `.file-name` span and switches the root to `has-name`; until a file is picked it shows `placeholder` (`No file uploaded`).
+Compose `BuFileCta`, `BuFileIcon`, and optionally `BuFileName`. Root owns the native input and the `has-name` modifier (`filename`). The default slot is the CTA/name tree, not the CTA text.
+
+`filename` is the class switch; `BuFileName` is the span. Compose Name without `filename` and the CSS is wrong — Root does not infer `has-name` from Name's presence. Until a file is picked, Name shows `placeholder` (`No file uploaded`).
 
 Boxed, centered, right, fullwidth, color and size all land on the root `.file`. Native attributes (`multiple`, `accept`, `capture`) fall through to the hidden input.
 
@@ -40,19 +42,25 @@ Boxed, centered, right, fullwidth, color and size all land on the root `.file`. 
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { BuFile } from '@paper/bulma'
+  import { BuFile, BuFileCta, BuFileIcon, BuFileName } from '@paper/bulma'
 </script>
 
 <template>
-  <BuFile />
+  <BuFile>
+    <BuFileCta>
+      <BuFileIcon />
+    </BuFileCta>
+
+    <BuFileName />
+  </BuFile>
 </template>
 ```
 
 ## Composed on v0
 
-`BuFile` calls [createInput](/composables/forms/create-input) for validation, form registration, the generated id and `aria-invalid`. The value is a `FileList | null`, dirtied once at least one file is selected. The element is a native `<input type="file">` inside the documented `.file` / `.file-label` / `.file-cta` tree.
+`BuFile` calls [createInput](/composables/forms/create-input) for validation, form registration, the generated id and `aria-invalid`. The value is a `FileList | null`, dirtied once at least one file is selected. The element is a native `<input type="file">` inside the documented `.file` / `.file-label` tree; Cta, Icon, and Name are composed parts.
 
-It does **not** wrap a v0 file compound — v0 does not ship one — and it does not wrap Input.Control either. Bulma's file CSS is written for this exact tree, including the class collision it ships: `.file-label` is both the outer `<label>` and the inner CTA `<span>`. A restyled text input would not produce that markup.
+It does **not** wrap a v0 file compound — v0 does not ship one — and it does not wrap Input.Control either. Bulma's file CSS is written for this exact tree, including the class collision it ships: `.file-label` is both the outer `<label>` and the inner CTA `<span>`. Compose that inner span as markup inside `BuFileCta`. A restyled text input would not produce that markup.
 
 Fallthrough is split. `class` and `style` merge onto `div.file`; every other attribute lands on the native input.
 
@@ -78,13 +86,20 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 
 ```vue Vue
 <template>
-  <BuFile name="resume">Choose a file…</BuFile>
+  <BuFile name="resume">
+    <BuFileCta>
+      <BuFileIcon>
+        <i class="fas fa-upload" />
+      </BuFileIcon>
+      <span class="file-label">Choose a file…</span>
+    </BuFileCta>
+  </BuFile>
 </template>
 ```
 
 :::
 
-Bulma's docs hook a script on this markup to copy the chosen filename into `.file-name`. `filename` is that script: the span updates from the selected `FileList`, and `clear()` resets both the v0 value and the native input.
+Bulma's docs hook a script on this markup to copy the chosen filename into `.file-name`. `BuFileName` is that script: the span updates from the selected `FileList` via the `bulma:file` context, and `clear()` resets both the v0 value and the native input.
 
 ## Examples
 
@@ -93,9 +108,9 @@ Bulma's docs hook a script on this markup to copy the chosen filename into `.fil
 
 ### File name
 
-`filename` adds `has-name` and the `.file-name` span. The text in that span is not the slot — the slot is still the CTA. The span shows `placeholder` until a selection exists, then the selected file names joined with `', '`.
+`filename` adds `has-name` on Root. `BuFileName` is the `.file-name` span — a sibling of Cta, not the slot. The span shows `placeholder` until a selection exists, then the selected file names joined with `', '`.
 
-`icon` is called out here because it is easy to assume the glyph is a slot. It is a class string, passed straight to `<i :class="icon">`, and the sandbox already loads Font Awesome. Pass `fas fa-upload` (the default) or any other FA class your page provides.
+The glyph is the Icon slot, not a class string. Pass an `i` (the sandbox already loads Font Awesome) or any other element.
 
 Listen for `change` if the rest of the form needs the `FileList`. The same list is on the exposed `files` ref. Call `clear()` to empty both the model and the native control — assigning `null` to a ref you do not have is not enough, because `<input type="file">` does not accept a programmatic value other than `''`.
 
@@ -116,10 +131,9 @@ Listen for `change` if the rest of the form needs the `FileList`. The same list 
 | `disabled` | `boolean` | `false` | Disables the native file input |
 | `error` | `boolean` | `false` | Force the invalid state — paints `is-danger` on the root |
 | `error-messages` | `string \| string[]` | — | Manual errors, merged with rule errors |
-| `filename` | `boolean` | `false` | `has-name` plus the `.file-name` span |
+| `filename` | `boolean` | `false` | `has-name` on the root. Compose `BuFileName` for the span |
 | `form` | `string` | — | Id of the form to associate with. Snapshotted at setup |
 | `fullwidth` | `boolean` | `false` | `is-fullwidth` |
-| `icon` | `string` | `'fas fa-upload'` | Font Awesome classes for `.file-icon` |
 | `id` | `string \| number` | auto | Input id; generated when omitted. Snapshotted at setup |
 | `name` | `string` | — | Form field name. Snapshotted at setup |
 | `placeholder` | `string` | `'No file uploaded'` | Text in `.file-name` before a file is selected |
@@ -129,7 +143,17 @@ Listen for `change` if the rest of the form needs the `FileList`. The same list 
 | `size` | `'small' \| 'normal' \| 'medium' \| 'large'` | — | `is-{size}` on the root — omitted until passed |
 | `validate-on` | `ValidateOn` | `'blur'` | When validation runs |
 
-The default slot is the CTA label, defaulting to `Choose a file…`. Slot props: `files`, `label`, `errors`, `isValid`, `isFocused`.
+The default slot is Cta/Name, not the CTA text. Slot props: `files`, `errors`, `isValid`, `isFocused`.
+
+### Parts
+
+| Part | Props | Notes |
+|------|-------|-------|
+| `BuFileCta` | — | `span.file-cta`. Slot is Icon plus the inner `span.file-label` |
+| `BuFileIcon` | — | `span.file-icon`. Slot is the `i` |
+| `BuFileName` | — | `span.file-name`. Text from `bulma:file` context; slot overrides |
+
+`filename` on Root is independent of `BuFileName`. Both are required for the named layout.
 
 | Event | Payload | Description |
 |-------|---------|-------------|
@@ -144,11 +168,11 @@ There is no `v-model`. `id`, `name`, `form`, `required` and `rules` are snapshot
 
 ## Accessibility
 
-The native input is visually hidden. The `<label class="file-label">` is the hit target and the accessible name comes from the CTA text in the slot, which the label wraps. The hidden input is still in the tab order — Bulma hides it with CSS, it is not `inert` — so a keyboard user lands on "Choose a file…" and the file picker opens on activation.
+The native input is visually hidden. The `<label class="file-label">` is the hit target and the accessible name comes from the CTA text inside the label. The hidden input is still in the tab order — Bulma hides it with CSS, it is not `inert` — so a keyboard user lands on "Choose a file…" and the file picker opens on activation.
 
 ### Naming
 
-The slot is the name. `placeholder` names the empty `.file-name` span, not the control. An empty slot falls back to `Choose a file…`, which is a name, just a generic one — pass something that says what file you want (`Upload resume`, `Choose image`).
+The inner `span.file-label` is the name. `placeholder` names the empty `.file-name` span, not the control. Pass CTA text that says what file you want (`Upload resume`, `Choose image`).
 
 ### Hidden input
 

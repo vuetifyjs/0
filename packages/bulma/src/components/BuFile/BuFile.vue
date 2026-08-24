@@ -1,6 +1,15 @@
+/**
+ * @module BuFile
+ *
+ * @remarks
+ * Bulma `div.file` slot host. Owns the native file input and the `has-name`
+ * modifier (`filename` boolean). Compose BuFileCta / BuFileIcon / BuFileName
+ * — the CTA tree is not generated. `has-name` is not inferred from Name.
+ */
+
 <script lang="ts">
   // Framework
-  import { createInput, isNull } from '@vuetify/v0'
+  import { createContext, createInput, isNull } from '@vuetify/v0'
 
   // Utilities
   import { createValidateOn } from '../../utilities/validate'
@@ -26,14 +35,12 @@
     error?: boolean
     /** Manual error messages — merged with rule-based errors. */
     errorMessages?: string | string[]
-    /** Renders `has-name` plus the `.file-name` span showing the selected file(s). */
+    /** Renders `has-name`. Compose `BuFileName` for the span — not inferred. */
     filename?: boolean
     /** Associate with a form by id. Snapshotted at setup (createInput takes a plain value). */
     form?: string
     /** Renders `is-fullwidth`. */
     fullwidth?: boolean
-    /** Icon font classes for the `.file-icon` glyph (e.g. `fas fa-upload`). */
-    icon?: string
     /** Unique identifier for the native input (auto-generated if omitted). Snapshotted at setup. */
     id?: ID
     /** Form field name. Snapshotted at setup (createInput takes a plain value). */
@@ -61,8 +68,6 @@
     isFocused: boolean
     /** Whether the field is valid. */
     isValid: boolean | null
-    /** Text currently shown in `.file-name`. */
-    label: string
   }
 
   export interface BuFileExpose {
@@ -71,6 +76,17 @@
     /** Clear the selection — resets both the v0 value and the native input. */
     clear: () => void
   }
+
+  export interface BuFileContext {
+    /** Selected-file label currently shown in BuFileName. */
+    filename: () => string
+  }
+
+  // Only the parent provides, so the provider stays module-local; parts import
+  // the hook.
+  const [useBuFile, provideBuFile] = createContext<BuFileContext | null>('bulma:file', null)
+
+  export { useBuFile }
 </script>
 
 <script setup lang="ts">
@@ -102,7 +118,6 @@
     filename = false,
     form,
     fullwidth = false,
-    icon = 'fas fa-upload',
     id,
     name,
     placeholder = 'No file uploaded',
@@ -135,6 +150,10 @@
     return Array.from(list, file => file.name).join(', ')
   })
 
+  provideBuFile({
+    filename: () => label.value,
+  })
+
   const classes = toRef(() => [
     'file',
     {
@@ -154,7 +173,6 @@
     files: files.value,
     isFocused: input.isFocused.value,
     isValid: input.isValid.value,
-    label: label.value,
   }))
 
   const { should, onFocus, onBlur } = createValidateOn(input, () => validateOn)
@@ -193,17 +211,7 @@
         @focus="onFocus"
       >
 
-      <span class="file-cta">
-        <span class="file-icon">
-          <i :class="icon" />
-        </span>
-
-        <span class="file-label">
-          <slot v-bind="slotProps">Choose a file…</slot>
-        </span>
-      </span>
-
-      <span v-if="filename" class="file-name">{{ label }}</span>
+      <slot v-bind="slotProps" />
     </label>
   </div>
 </template>

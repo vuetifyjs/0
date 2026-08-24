@@ -13,6 +13,9 @@ import { BuDropdownMenu } from '#bulma/components/BuDropdownMenu'
 import { BuDropdownTrigger } from '#bulma/components/BuDropdownTrigger'
 import { BuField } from '#bulma/components/BuField'
 import { BuFile } from '#bulma/components/BuFile'
+import { BuFileCta } from '#bulma/components/BuFileCta'
+import { BuFileIcon } from '#bulma/components/BuFileIcon'
+import { BuFileName } from '#bulma/components/BuFileName'
 import { BuHelp } from '#bulma/components/BuHelp'
 import { BuInput } from '#bulma/components/BuInput'
 import { BuLabel } from '#bulma/components/BuLabel'
@@ -213,7 +216,13 @@ const SWEEP: Record<string, Subject> = {
     ]),
   },
   BuFile: {
-    node: () => h(BuFile, { filename: true, name: 'resume' }),
+    node: () => h(BuFile, { filename: true, name: 'resume' }, () => [
+      h(BuFileCta, null, () => [
+        h(BuFileIcon, null, () => h('i', { class: 'fas fa-upload' })),
+        h('span', { class: 'file-label' }, 'Choose a file…'),
+      ]),
+      h(BuFileName),
+    ]),
   },
   BuHelp: {
     node: () => h(BuField, null, () => [

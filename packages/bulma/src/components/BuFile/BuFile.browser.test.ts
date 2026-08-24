@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 // Components
 import { BuFile } from './index'
+import { BuFileCta } from '../BuFileCta'
+import { BuFileIcon } from '../BuFileIcon'
+import { BuFileName } from '../BuFileName'
 
 // Utilities
 import { createApp, h, nextTick } from 'vue'
@@ -21,6 +24,13 @@ function mount (render: () => ReturnType<typeof h>) {
   return { el, unmount }
 }
 
+function cta (text = 'Choose a file…') {
+  return h(BuFileCta, null, () => [
+    h(BuFileIcon, null, () => h('i', { class: 'fas fa-upload' })),
+    h('span', { class: 'file-label' }, text),
+  ])
+}
+
 function pick (el: Element, filename: string) {
   const control = el.querySelector('input')!
   const transfer = new DataTransfer()
@@ -31,11 +41,14 @@ function pick (el: Element, filename: string) {
 
 describe('buFile', () => {
   it('should conform to the Bulma file fixtures', () => {
-    const basic = mount(() => h(BuFile, { name: 'resume' }))
+    const basic = mount(() => h(BuFile, { name: 'resume' }, () => cta()))
     conform(basic.el, 'form-file')
     basic.unmount()
 
-    const named = mount(() => h(BuFile, { filename: true, id: 'file-js-example', name: 'resume' }))
+    const named = mount(() => h(BuFile, { filename: true, id: 'file-js-example', name: 'resume' }, () => [
+      cta(),
+      h(BuFileName),
+    ]))
     // The docs fixture hooks its JS by an id on the root div; BuFile's `id`
     // targets the native input (label association), so skip id here.
     conform(named.el, 'form-file:js example', { ignoreAttrs: ['id'] })
@@ -48,7 +61,10 @@ describe('buFile', () => {
       filename: true,
       name: 'resume',
       onChange: (files: FileList | null) => selected.push(files),
-    }))
+    }, () => [
+      cta(),
+      h(BuFileName),
+    ]))
 
     expect(el.querySelector('.file-name')!.textContent!.trim()).toBe('No file uploaded')
 
