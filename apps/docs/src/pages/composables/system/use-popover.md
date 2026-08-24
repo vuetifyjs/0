@@ -22,6 +22,23 @@ A composable for native popover API behavior with CSS anchor positioning.
 
 <DocsPageFeatures :frontmatter />
 
+## Installation
+
+Install the Popover plugin to set an app-wide positioning adapter. Without it, every `usePopover()` call uses `V0PopoverAdapter` (CSS anchor positioning). Per-instance `adapter` still wins over the plugin. Tooltip surfaces can set a different adapter on `createTooltipPlugin` that only they see.
+
+```ts main.ts
+import { createApp } from 'vue'
+import { createPopoverPlugin } from '@vuetify/v0'
+import { FloatingUIPopoverAdapter } from '@vuetify/v0/popover/adapters/floating-ui'
+import App from './App.vue'
+
+const app = createApp(App)
+
+app.use(createPopoverPlugin({ adapter: new FloatingUIPopoverAdapter() }))
+
+app.mount('#app')
+```
+
 ## Usage
 
 `usePopover` manages a popover's open/close state, generates CSS anchor positioning styles, and synchronizes reactive state with native popover toggle events. Spread `anchorStyles` on the activator, `contentAttrs` and `contentStyles` on the content element, and call `attach()` to wire up the native popover lifecycle.
@@ -110,6 +127,15 @@ import { FloatingUIPopoverAdapter } from '@vuetify/v0/popover/adapters/floating-
 const popover = usePopover({ adapter: new FloatingUIPopoverAdapter() })
 ```
 
+App-wide, skip the per-instance option and install the plugin once:
+
+```ts
+import { createPopoverPlugin } from '@vuetify/v0'
+import { FloatingUIPopoverAdapter } from '@vuetify/v0/popover/adapters/floating-ui'
+
+app.use(createPopoverPlugin({ adapter: new FloatingUIPopoverAdapter() }))
+```
+
 ## Options
 
 | Option | Type | Default | Notes |
@@ -120,7 +146,7 @@ const popover = usePopover({ adapter: new FloatingUIPopoverAdapter() })
 | `isOpen` | `Ref<boolean>` | — | External ref for bidirectional open state (e.g., from `defineModel`) |
 | `openDelay` | `MaybeRefOrGetter<number>` | `0` | Milliseconds to wait before opening the popover |
 | `closeDelay` | `MaybeRefOrGetter<number>` | `0` | Milliseconds to wait before closing the popover |
-| `adapter` | `PopoverAdapter` | `new V0PopoverAdapter()` | Positioning engine. The default emits CSS anchor positioning with zero runtime dependency — see [Adapters](#adapters) |
+| `adapter` | `PopoverAdapter` | `new V0PopoverAdapter()` | Positioning engine. Resolution: per-instance, then `createPopoverPlugin`, then CSS anchor positioning — see [Adapters](#adapters) |
 
 ## Reactivity
 

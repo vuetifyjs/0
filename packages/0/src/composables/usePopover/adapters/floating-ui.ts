@@ -40,8 +40,9 @@ export interface FloatingUIPopoverAdapterOptions {
 /**
  * JS-engine positioning adapter backed by `@floating-ui/dom`.
  *
- * `setup()` is re-entrant: a single shared instance can serve every popover.
- * Per-call state lives in the setup closure, never on `this.dispose`.
+ * `setup()` is re-entrant: a single shared instance (e.g. the one passed to
+ * `createPopoverPlugin`) can serve every popover. Per-call state lives in the
+ * setup closure, never on `this.dispose`.
  *
  * `positionTry` is ignored; `flip()` covers the overflow intent.
  */

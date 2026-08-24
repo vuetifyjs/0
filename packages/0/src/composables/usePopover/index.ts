@@ -40,9 +40,18 @@
  *
  * const popover = usePopover({ adapter: new MyAdapter() })
  * ```
+ *
+ * @example App-wide adapter via createPopoverPlugin
+ * ```ts
+ * import { createPopoverPlugin } from '@vuetify/v0'
+ * import { FloatingUIPopoverAdapter } from '@vuetify/v0/popover/adapters/floating-ui'
+ *
+ * app.use(createPopoverPlugin({ adapter: new FloatingUIPopoverAdapter() }))
+ * ```
  */
 
 // Composables
+import { createPluginContext } from '#v0/composables/createPlugin'
 import { useDelay } from '#v0/composables/useDelay'
 import { useEventListener } from '#v0/composables/useEventListener'
 
@@ -83,9 +92,9 @@ export interface PopoverOptions {
   /** Delay in ms before closing the popover. @default 0 */
   closeDelay?: MaybeRefOrGetter<number>
   /**
-   * Positioning engine. @default `new V0PopoverAdapter()` — CSS anchor
-   * positioning, zero runtime dependency. Pass a custom `PopoverAdapter` to
-   * bring your own engine (floating-ui, Popper, etc.).
+   * Positioning engine. Resolution: per-instance `adapter`, then the
+   * `createPopoverPlugin` adapter, then `new V0PopoverAdapter()` (CSS
+   * anchor positioning, zero runtime dependency).
    */
   adapter?: PopoverAdapter
 }
@@ -115,15 +124,89 @@ export interface PopoverReturn {
   attachAnchor: (el: MaybeRefOrGetter<Element | null | undefined>) => void
 }
 
+export interface PopoverPluginContext {
+  /**
+   * App-wide positioning adapter. `undefined` means each `usePopover()`
+   * call falls through to `V0PopoverAdapter`.
+   *
+   * @example
+   * ```ts
+   * import { createPopoverPlugin } from '@vuetify/v0'
+   * import { FloatingUIPopoverAdapter } from '@vuetify/v0/popover/adapters/floating-ui'
+   *
+   * app.use(createPopoverPlugin({ adapter: new FloatingUIPopoverAdapter() }))
+   * ```
+   */
+  adapter: PopoverAdapter | undefined
+}
+
+export interface PopoverPluginContextOptions {
+  /** Positioning engine used when a per-instance `adapter` is not passed. */
+  adapter?: PopoverAdapter
+  namespace?: string
+}
+
+export interface PopoverPluginOptions extends PopoverPluginContextOptions {}
+
+function createPopover (options: Omit<PopoverPluginOptions, 'namespace' | 'persist'> = {}): PopoverPluginContext {
+  return { adapter: options.adapter }
+}
+
+/**
+ * Synthesized fallback used when `usePopover()` is called without
+ * `app.use(createPopoverPlugin())`. Returns `{ adapter: undefined }` so
+ * resolution falls through to `V0PopoverAdapter`.
+ *
+ * @example
+ * ```ts
+ * import { createPopoverFallback } from '@vuetify/v0'
+ *
+ * const plugin = createPopoverFallback()
+ * plugin.adapter // undefined
+ * ```
+ */
+export function createPopoverFallback (): PopoverPluginContext {
+  return { adapter: undefined }
+}
+
+/**
+ * Plugin trinity for an app-wide popover positioning adapter.
+ *
+ * Namespace is `v0:popover-plugin` — not `v0:popover`, which `Popover.Root`
+ * already owns for compound context. The generated consumer is module-private;
+ * `usePopover()` consults it internally. Fallback is `{ adapter: undefined }`,
+ * so zero-config matches today's `V0PopoverAdapter` default.
+ *
+ * @example
+ * ```ts
+ * import { createPopoverPlugin } from '@vuetify/v0'
+ * import { FloatingUIPopoverAdapter } from '@vuetify/v0/popover/adapters/floating-ui'
+ *
+ * app.use(createPopoverPlugin({ adapter: new FloatingUIPopoverAdapter() }))
+ * ```
+ */
+const [createPopoverContext, createPopoverPlugin, usePopoverPlugin] =
+  createPluginContext<PopoverPluginOptions, PopoverPluginContext>(
+    'v0:popover-plugin',
+    createPopover,
+    {
+      fallback: () => createPopoverFallback(),
+    },
+  )
+
+export { createPopoverContext, createPopoverPlugin }
+
 export function usePopover (options: PopoverOptions = {}): PopoverReturn {
+  const plugin = usePopoverPlugin()
   const {
     id: _id,
     positionArea = 'bottom',
     positionTry = 'most-width bottom',
     openDelay,
     closeDelay,
-    adapter = new V0PopoverAdapter(),
   } = options
+
+  const adapter = options.adapter ?? plugin.adapter ?? new V0PopoverAdapter()
 
   const id = _id ?? useId()
   const anchor = `--${String(id).replace(/[^a-zA-Z0-9_-]/g, '')}`

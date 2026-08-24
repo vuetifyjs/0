@@ -1,17 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Composables
+import { createPopoverPlugin, PopoverAdapter } from '#v0/composables/usePopover'
 import { createTooltipPlugin } from '#v0/composables/useTooltip'
 
 import { Tooltip } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick } from 'vue'
+import { defineComponent, h, nextTick, toRef } from 'vue'
 
 // Types
 import type { MountingOptions } from '@vue/test-utils'
-import type { Component } from 'vue'
+import type { Component, Plugin } from 'vue'
 
 describe('tooltip', () => {
   let plugin: ReturnType<typeof createTooltipPlugin>
@@ -401,6 +402,66 @@ describe('tooltip', () => {
       await nextTick()
 
       expect(wrapper.find('button').attributes('data-state')).not.toBe('closed')
+      wrapper.unmount()
+    })
+  })
+
+  describe('adapter precedence', () => {
+    class MarkerAdapter extends PopoverAdapter {
+      token: string
+
+      constructor (token: string) {
+        super()
+        this.token = token
+      }
+
+      setup () {
+        return toRef(() => ({ '--engine': this.token }))
+      }
+    }
+
+    function mountOpen (props: Record<string, unknown> = {}, extraPlugins: Plugin[] = []) {
+      return mountTooltip(defineComponent({
+        setup () {
+          return () =>
+            h(Tooltip.Root, { modelValue: true, ...props }, () => [
+              h(Tooltip.Activator, null, () => 'Trigger'),
+              h(Tooltip.Content, null, () => 'Tip'),
+            ])
+        },
+      }), {
+        attachTo: document.body,
+        global: { plugins: extraPlugins },
+      })
+    }
+
+    it('should apply the tooltip plugin adapter to content', async () => {
+      plugin = createTooltipPlugin({ adapter: new MarkerAdapter('tooltip-plugin') })
+      const wrapper = mountOpen()
+      await nextTick()
+
+      expect(wrapper.find('[role="tooltip"]').attributes('style')).toContain('--engine: tooltip-plugin')
+      wrapper.unmount()
+    })
+
+    it('should prefer a per-instance adapter over the tooltip plugin adapter', async () => {
+      plugin = createTooltipPlugin({ adapter: new MarkerAdapter('tooltip-plugin') })
+      const wrapper = mountOpen({ adapter: new MarkerAdapter('instance') })
+      await nextTick()
+
+      expect(wrapper.find('[role="tooltip"]').attributes('style')).toContain('--engine: instance')
+      wrapper.unmount()
+    })
+
+    it('should prefer the tooltip plugin adapter over the popover plugin adapter', async () => {
+      plugin = createTooltipPlugin({ adapter: new MarkerAdapter('tooltip-plugin') })
+      const wrapper = mountOpen(
+        {},
+        [createPopoverPlugin({ adapter: new MarkerAdapter('popover-plugin') })],
+      )
+      await nextTick()
+
+      expect(wrapper.find('[role="tooltip"]').attributes('style')).toContain('--engine: tooltip-plugin')
       wrapper.unmount()
     })
   })

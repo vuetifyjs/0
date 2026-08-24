@@ -1,13 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { PopoverAdapter, usePopover } from './index'
+import { createPopoverPlugin, PopoverAdapter, usePopover } from './index'
+
+// Composables
+import { createTooltipPlugin } from '#v0/composables/useTooltip'
 
 // Utilities
-import { effectScope, nextTick, shallowRef, toRef } from 'vue'
+import { createApp, defineComponent, effectScope, h, nextTick, shallowRef, toRef } from 'vue'
 
 // Types
 import type { PopoverAdapterContext } from './index'
-import type { Ref } from 'vue'
+import type { Plugin, Ref } from 'vue'
 
 function createPopoverElement (options: { open?: boolean, connected?: boolean } = {}) {
   const state = {
@@ -553,6 +556,109 @@ describe('usePopover', () => {
       scope.stop()
 
       expect(hidePopover).toHaveBeenCalled()
+    })
+  })
+
+  describe('plugin adapter resolution', () => {
+    class MarkerAdapter extends PopoverAdapter {
+      token: string
+
+      constructor (token: string) {
+        super()
+        this.token = token
+      }
+
+      setup () {
+        return toRef(() => ({ '--engine': this.token }))
+      }
+    }
+
+    function mountProbe (options: Parameters<typeof usePopover>[0], plugins: Plugin[] = []) {
+      let styles: Record<string, string> | undefined
+
+      const Probe = defineComponent({
+        setup () {
+          const popover = usePopover(options)
+          styles = popover.contentStyles.value
+          return () => h('div')
+        },
+      })
+
+      const app = createApp(Probe)
+      for (const plugin of plugins) {
+        app.use(plugin)
+      }
+      const root = document.createElement('div')
+      app.mount(root)
+
+      return {
+        styles: () => styles,
+        unmount: () => app.unmount(),
+      }
+    }
+
+    it('should prefer a per-instance adapter over the plugin adapter', () => {
+      const probe = mountProbe(
+        { adapter: new MarkerAdapter('instance') },
+        [createPopoverPlugin({ adapter: new MarkerAdapter('plugin') })],
+      )
+
+      expect(probe.styles()).toEqual({ '--engine': 'instance' })
+      probe.unmount()
+    })
+
+    it('should use the plugin adapter when no per-instance adapter is given', () => {
+      const probe = mountProbe(
+        {},
+        [createPopoverPlugin({ adapter: new MarkerAdapter('plugin') })],
+      )
+
+      expect(probe.styles()).toEqual({ '--engine': 'plugin' })
+      probe.unmount()
+    })
+
+    it('should use V0PopoverAdapter when the plugin has no adapter', () => {
+      const probe = mountProbe({ id: 'test' }, [createPopoverPlugin()])
+
+      expect(probe.styles()).toEqual({
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset-area': 'bottom',
+        'position-area': 'bottom',
+        'position-anchor': '--test',
+        'position-try-fallbacks': 'most-width bottom',
+      })
+      probe.unmount()
+    })
+
+    it('should not leak the tooltip plugin adapter into usePopover', () => {
+      const probe = mountProbe(
+        {},
+        [
+          createTooltipPlugin({ adapter: new MarkerAdapter('tooltip') }),
+          createPopoverPlugin({ adapter: new MarkerAdapter('popover') }),
+        ],
+      )
+
+      expect(probe.styles()).toEqual({ '--engine': 'popover' })
+      probe.unmount()
+    })
+
+    it('should ignore the tooltip plugin adapter when no popover plugin adapter is set', () => {
+      const probe = mountProbe(
+        { id: 'test' },
+        [createTooltipPlugin({ adapter: new MarkerAdapter('tooltip') })],
+      )
+
+      expect(probe.styles()).toEqual({
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset-area': 'bottom',
+        'position-area': 'bottom',
+        'position-anchor': '--test',
+        'position-try-fallbacks': 'most-width bottom',
+      })
+      probe.unmount()
     })
   })
 })

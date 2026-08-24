@@ -46,6 +46,8 @@ region.shouldSkipOpenDelay()    // false until a tooltip opens
 
 `<Tooltip.Root>` reads from `useTooltip()` automatically; you do not call this composable yourself unless you're building a non-component consumer.
 
+Pass `adapter` on `createTooltipPlugin` to set a tooltip-only positioning engine. It does not leak into Popover, Select, or Combobox. A per-instance `adapter` on `Tooltip.Root` still wins; if neither is set, resolution falls through to `createPopoverPlugin` and then `V0PopoverAdapter`.
+
 ## Architecture
 
 ```mermaid "Skip-window coordination"
@@ -70,6 +72,7 @@ flowchart LR
 | `shouldSkipOpenDelay` | `() => boolean` | Whether the next open should bypass the delay |
 | `register` | `(input?: Partial<RegistryTicketInput>) => RegistryTicket` | Track a newly-opened tooltip |
 | `unregister` | `(id: ID) => void` | Untrack a closed tooltip |
+| `adapter` | `PopoverAdapter \| undefined` | Tooltip-only positioning engine. Per-instance `adapter` on `Tooltip.Root` wins; Popover / Select / Combobox never see this value |
 
 ## Examples
 

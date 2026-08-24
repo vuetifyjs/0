@@ -2,8 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createTooltipContext, createTooltipPlugin, useTooltip } from './index'
 
+// Composables
+import { PopoverAdapter } from '#v0/composables/usePopover'
+
 // Utilities
-import { createApp, defineComponent, effectScope, h } from 'vue'
+import { createApp, defineComponent, effectScope, h, toRef } from 'vue'
 
 describe('useTooltip', () => {
   beforeEach(() => {
@@ -154,6 +157,42 @@ describe('useTooltip', () => {
       expect(captured?.openDelay.value).toBe(700)
 
       app.unmount()
+    })
+
+    it('should expose adapter from plugin options', () => {
+      class MarkerAdapter extends PopoverAdapter {
+        setup () {
+          return toRef(() => ({ '--engine': 'tooltip' }))
+        }
+      }
+
+      const adapter = new MarkerAdapter()
+      let captured: ReturnType<typeof useTooltip> | undefined
+
+      const Probe = defineComponent({
+        setup () {
+          captured = useTooltip()
+          return () => h('div')
+        },
+      })
+
+      const app = createApp(Probe)
+      app.use(createTooltipPlugin({ adapter }))
+      const root = document.createElement('div')
+      app.mount(root)
+
+      expect(captured?.adapter).toBe(adapter)
+
+      app.unmount()
+    })
+
+    it('should default adapter to undefined without a plugin adapter', () => {
+      const scope = effectScope()
+      scope.run(() => {
+        const [,, ctx] = createTooltipContext({ namespace: 'v0:test-tooltip' })
+        expect(ctx.adapter).toBeUndefined()
+      })
+      scope.stop()
     })
   })
 
