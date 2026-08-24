@@ -106,11 +106,6 @@
           context.virtualFocus.onKeydown(e)
           break
         }
-        default: {
-          if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-            context.virtualFocus.typeahead(e.key)
-          }
-        }
       }
     } else {
       switch (e.key) {
