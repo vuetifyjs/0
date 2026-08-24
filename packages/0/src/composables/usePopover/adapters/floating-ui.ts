@@ -16,14 +16,14 @@
  * ```
  */
 
-// Adapters
-import { PopoverAdapter } from './adapter'
+import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
+import { PopoverAdapter } from './adapter'
+
 // Utilities
-import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { isNullOrUndefined } from '#v0/utilities'
 import { onScopeDispose, shallowRef, watch } from 'vue'
 
@@ -57,9 +57,9 @@ export class FloatingUIPopoverAdapter extends PopoverAdapter {
   setup (context: PopoverAdapterContext): Readonly<Ref<Record<string, string>>> {
     function positionStyles (top: string, left: string): Record<string, string> {
       return {
-        'position': 'fixed',
-        'margin': 'unset',
-        'inset': 'unset',
+        position: 'fixed',
+        margin: 'unset',
+        inset: 'unset',
         top,
         left,
       }

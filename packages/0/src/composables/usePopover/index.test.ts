@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createPopoverPlugin, PopoverAdapter, usePopover } from './index'
-
 // Composables
 import { createTooltipPlugin } from '#v0/composables/useTooltip'
+
+import { createPopoverPlugin, PopoverAdapter, usePopover } from './index'
 
 // Utilities
 import { createApp, defineComponent, effectScope, h, nextTick, shallowRef, toRef } from 'vue'

@@ -20,6 +20,7 @@ vi.mock('@floating-ui/dom', () => {
 })
 
 import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom'
+
 import { FloatingUIPopoverAdapter } from './floating-ui'
 import { toPlacement } from './placement'
 
@@ -113,11 +114,11 @@ describe('floatingUIPopoverAdapter', () => {
       const styles = adapter.setup(context)
 
       expect(styles.value).toEqual({
-        'position': 'fixed',
-        'margin': 'unset',
-        'inset': 'unset',
-        'top': '0px',
-        'left': '0px',
+        position: 'fixed',
+        margin: 'unset',
+        inset: 'unset',
+        top: '0px',
+        left: '0px',
       })
 
       context.anchorEl.value = element()
@@ -126,11 +127,11 @@ describe('floatingUIPopoverAdapter', () => {
       await flush()
 
       expect(styles.value).toEqual({
-        'position': 'fixed',
-        'margin': 'unset',
-        'inset': 'unset',
-        'top': '34px',
-        'left': '12px',
+        position: 'fixed',
+        margin: 'unset',
+        inset: 'unset',
+        top: '34px',
+        left: '12px',
       })
       expect(styles.value).not.toHaveProperty('position-try-fallbacks')
     })
@@ -229,11 +230,11 @@ describe('floatingUIPopoverAdapter', () => {
       expect(autoUpdate).not.toHaveBeenCalled()
       expect(computePosition).not.toHaveBeenCalled()
       expect(styles.value).toEqual({
-        'position': 'fixed',
-        'margin': 'unset',
-        'inset': 'unset',
-        'top': '0px',
-        'left': '0px',
+        position: 'fixed',
+        margin: 'unset',
+        inset: 'unset',
+        top: '0px',
+        left: '0px',
       })
 
       context.contentEl.value = null
@@ -300,18 +301,18 @@ describe('floatingUIPopoverAdapter', () => {
 
       expect(autoUpdate).toHaveBeenCalledTimes(2)
       expect(firstStyles.value).toEqual({
-        'position': 'fixed',
-        'margin': 'unset',
-        'inset': 'unset',
-        'top': '34px',
-        'left': '12px',
+        position: 'fixed',
+        margin: 'unset',
+        inset: 'unset',
+        top: '34px',
+        left: '12px',
       })
       expect(secondStyles.value).toEqual({
-        'position': 'fixed',
-        'margin': 'unset',
-        'inset': 'unset',
-        'top': '34px',
-        'left': '12px',
+        position: 'fixed',
+        margin: 'unset',
+        inset: 'unset',
+        top: '34px',
+        left: '12px',
       })
 
       first.isOpen.value = false
