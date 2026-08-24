@@ -187,46 +187,71 @@ The example exercises the full three-part spread that `usePopover` returns. `anc
 
 ## Bring your own positioning engine
 
-`usePopover` positions content with CSS anchor positioning by default (`V0PopoverAdapter`) — no JavaScript measurement, no runtime dependency. For Firefox ESR and Safari before version 26, reach for the shipped [FloatingUIPopoverAdapter](#adapters) first. The sketch below is the same adapter shape if you want to wrap a different engine (Popper, or your own) rather than import one.
+`usePopover` positions content with CSS anchor positioning by default (`V0PopoverAdapter`) — no JavaScript measurement, no runtime dependency. For Firefox ESR and Safari before version 26, reach for the shipped [FloatingUIPopoverAdapter](#adapters) first. The sketch below is the adapter shape if you want to wrap a different engine (Popper, or your own) rather than import the first-party one. Per-call state lives in the `setup()` closure so a shared instance stays re-entrant — do not assign `this.dispose`. Native `[popover]` is `position: fixed` with `inset: 0; margin: auto`, so any JS engine that writes `top`/`left` must unset those, and if the engine has a strategy option it must be `'fixed'`.
 
-```ts collapse no-filename floating-ui-popover-adapter.ts
-import { PopoverAdapter } from '@vuetify/v0'
-import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom'
-import { shallowRef, watch } from 'vue'
+```ts collapse no-filename my-popover-adapter.ts
+import { IN_BROWSER, isNullOrUndefined, PopoverAdapter } from '@vuetify/v0'
+import { onScopeDispose, shallowRef, watch } from 'vue'
 
 import type { PopoverAdapterContext } from '@vuetify/v0'
 
-export class FloatingUIPopoverAdapter extends PopoverAdapter {
+export class MyPopoverAdapter extends PopoverAdapter {
   setup (context: PopoverAdapterContext) {
-    const styles = shallowRef<Record<string, string>>({ position: 'fixed', top: '0px', left: '0px' })
-    let stopAutoUpdate: (() => void) | undefined
-
-    async function reposition () {
-      const anchor = context.anchorEl.value
-      const content = context.contentEl.value
-      if (!anchor || !content) return
-
-      const { side, align } = context.placement.value
-      const { x, y } = await computePosition(anchor, content, {
-        placement: align === 'center' ? side : `${side}-${align}`,
-        middleware: [offset(8), flip(), shift({ padding: 8 })],
-      })
-
-      styles.value = { position: 'fixed', top: `${y}px`, left: `${x}px` }
+    function positionStyles (top: string, left: string): Record<string, string> {
+      return {
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset': 'unset',
+        top,
+        left,
+      }
     }
 
-    watch(
-      () => [context.anchorEl.value, context.contentEl.value, context.isOpen.value] as const,
-      ([anchor, content, isOpen]) => {
-        stopAutoUpdate?.()
-        stopAutoUpdate = undefined
-        if (!anchor || !content || !isOpen) return
-        stopAutoUpdate = autoUpdate(anchor, content, reposition)
-      },
+    const styles = shallowRef(positionStyles('0px', '0px'))
+
+    function reposition () {
+      if (!IN_BROWSER) return
+
+      const anchor = context.anchorEl.value
+      const content = context.contentEl.value
+
+      if (isNullOrUndefined(anchor) || isNullOrUndefined(content)) return
+      if (!context.isOpen.value) return
+
+      const rect = anchor.getBoundingClientRect()
+      const size = content.getBoundingClientRect()
+      const { side, align } = context.placement.value
+      const gap = 8
+
+      let top = rect.bottom + gap
+      let left = rect.left
+
+      if (side === 'top') {
+        top = rect.top - size.height - gap
+      } else if (side === 'left') {
+        top = rect.top
+        left = rect.left - size.width - gap
+      } else if (side === 'right') {
+        top = rect.top
+        left = rect.right + gap
+      }
+
+      if (align === 'end') {
+        left = rect.right - size.width
+      } else if (align === 'center' && (side === 'top' || side === 'bottom')) {
+        left = rect.left + (rect.width - size.width) / 2
+      }
+
+      styles.value = positionStyles(`${top}px`, `${left}px`)
+    }
+
+    const stopWatch = watch(
+      [context.anchorEl, context.contentEl, context.isOpen, context.placement],
+      reposition,
       { immediate: true },
     )
 
-    this.dispose = () => stopAutoUpdate?.()
+    onScopeDispose(stopWatch, true)
 
     return styles
   }
@@ -235,12 +260,12 @@ export class FloatingUIPopoverAdapter extends PopoverAdapter {
 
 ```ts no-filename usage
 import { usePopover } from '@vuetify/v0'
-import { FloatingUIPopoverAdapter } from './floating-ui-popover-adapter'
+import { MyPopoverAdapter } from './my-popover-adapter'
 
-const popover = usePopover({ adapter: new FloatingUIPopoverAdapter() })
+const popover = usePopover({ adapter: new MyPopoverAdapter() })
 ```
 
-Everything else is unchanged — `attach()`, `attachAnchor()`, `contentAttrs`, and `anchorStyles` all work the same way regardless of which adapter is active. `contentStyles` becomes whatever the adapter's `setup()` returns instead of the CSS anchor-positioning declarations, so a floating-ui adapter can hand back computed `top`/`left`/`position` the way the sketch above does.
+Everything else is unchanged — `attach()`, `attachAnchor()`, `contentAttrs`, and `anchorStyles` all work the same way regardless of which adapter is active. `contentStyles` becomes whatever the adapter's `setup()` returns instead of the CSS anchor-positioning declarations.
 
 The [Popover](/components/disclosure/popover) component and the [Select](/components/forms/select), [Tooltip](/components/disclosure/tooltip), and `createCombobox` built on top of `usePopover` all accept the same `adapter` option (`positionAdapter` on `createCombobox`, since it already has its own filtering `adapter`) and forward it through, so swapping the positioning engine for one of those doesn't require dropping down to `usePopover` directly.
 

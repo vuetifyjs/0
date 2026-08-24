@@ -83,6 +83,7 @@ export class FloatingUIPopoverAdapter extends PopoverAdapter {
 
       const { x, y } = await computePosition(anchor, content, {
         placement,
+        strategy: 'fixed',
         middleware,
       })
 

@@ -13,24 +13,24 @@ vi.mock('#v0/constants/globals', () => ({
 import { usePopover } from './index'
 
 describe('usePopover SSR', () => {
-  it('does not throw when called without a provider', () => {
+  it('should not throw when called without a provider', () => {
     expect(() => usePopover({ id: 'ssr-1' })).not.toThrow()
   })
 
-  it('uses V0PopoverAdapter CSS output without a plugin', () => {
+  it('should use V0PopoverAdapter CSS output without a plugin', () => {
     const popover = usePopover({ id: 'ssr' })
 
     expect(popover.contentStyles.value['position-area']).toBe('bottom')
     expect(popover.contentStyles.value['position-try-fallbacks']).toBe('most-width bottom')
   })
 
-  it('isOpen defaults to false in SSR fallback', () => {
+  it('should default isOpen to false in SSR fallback', () => {
     const popover = usePopover({ id: 'ssr-2' })
 
     expect(popover.isOpen.value).toBe(false)
   })
 
-  it('two calls without a provider return distinct instances', () => {
+  it('should return distinct instances on two calls without a provider', () => {
     const first = usePopover({ id: 'ssr-a' })
     const second = usePopover({ id: 'ssr-b' })
 

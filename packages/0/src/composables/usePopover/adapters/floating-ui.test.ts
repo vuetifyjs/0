@@ -101,7 +101,7 @@ describe('floatingUIPopoverAdapter', () => {
       expect(computePosition).toHaveBeenCalledWith(
         anchor,
         content,
-        expect.objectContaining({ middleware: custom }),
+        expect.objectContaining({ middleware: custom, strategy: 'fixed' }),
       )
     })
   })
@@ -181,7 +181,7 @@ describe('floatingUIPopoverAdapter', () => {
       expect(computePosition).toHaveBeenCalledWith(
         expect.anything(),
         expect.anything(),
-        expect.objectContaining({ placement: 'bottom' }),
+        expect.objectContaining({ placement: 'bottom', strategy: 'fixed' }),
       )
 
       vi.mocked(computePosition).mockClear()
@@ -194,7 +194,7 @@ describe('floatingUIPopoverAdapter', () => {
       expect(computePosition).toHaveBeenCalledWith(
         expect.anything(),
         expect.anything(),
-        expect.objectContaining({ placement: 'top' }),
+        expect.objectContaining({ placement: 'top', strategy: 'fixed' }),
       )
     })
 
@@ -213,7 +213,7 @@ describe('floatingUIPopoverAdapter', () => {
       expect(computePosition).toHaveBeenCalledWith(
         expect.anything(),
         expect.anything(),
-        expect.objectContaining({ placement: 'bottom-end' }),
+        expect.objectContaining({ placement: 'bottom-end', strategy: 'fixed' }),
       )
     })
 
