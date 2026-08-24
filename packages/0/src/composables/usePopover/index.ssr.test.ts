@@ -37,7 +37,8 @@ describe('usePopover SSR', () => {
   it('should fall back to V0PopoverAdapter when plugin not installed in SSR', () => {
     const popover = usePopover()
 
-    expect(popover.contentStyles).toBeDefined()
-    expect(popover.anchorStyles).toBeDefined()
+    // V0PopoverAdapter.setup() emits distinctive keys: position-area, position-try-fallbacks, position-anchor
+    expect(popover.contentStyles.value['position-area']).toBeDefined()
+    expect(popover.contentStyles.value['position-try-fallbacks']).toBeDefined()
   })
 })
