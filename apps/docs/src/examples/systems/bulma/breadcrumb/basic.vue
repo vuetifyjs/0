@@ -1,14 +1,26 @@
 <script setup lang="ts">
-  import { BuBreadcrumb } from '@paper/bulma'
-
-  const items = [
-    { text: 'Bulma', href: '#' },
-    { text: 'Documentation', href: '#' },
-    { text: 'Components', href: '#' },
-    { text: 'Breadcrumb', href: '#' },
-  ]
+  import { BuBreadcrumb, BuBreadcrumbItem } from '@paper/bulma'
 </script>
 
 <template>
-  <BuBreadcrumb :items />
+  <BuBreadcrumb>
+    <BuBreadcrumbItem href="#">
+      Bulma
+    </BuBreadcrumbItem>
+
+    <BuBreadcrumbItem href="#">
+      Documentation
+    </BuBreadcrumbItem>
+
+    <BuBreadcrumbItem href="#">
+      Components
+    </BuBreadcrumbItem>
+
+    <BuBreadcrumbItem
+      current
+      href="#"
+    >
+      Breadcrumb
+    </BuBreadcrumbItem>
+  </BuBreadcrumb>
 </template>

@@ -5,6 +5,7 @@ import { createStackPlugin, InputRoot } from '@vuetify/v0'
 
 // Components
 import { BuBreadcrumb } from '#bulma/components/BuBreadcrumb'
+import { BuBreadcrumbItem } from '#bulma/components/BuBreadcrumbItem'
 import { BuCheckbox } from '#bulma/components/BuCheckbox'
 import { BuControl } from '#bulma/components/BuControl'
 import { BuDropdown } from '#bulma/components/BuDropdown'
@@ -132,13 +133,6 @@ function items (props: BuDropdownMenuSlotProps) {
   ]
 }
 
-const crumbs = [
-  { text: 'Bulma', href: '#' },
-  { text: 'Documentation', href: '#' },
-  { text: 'Components', href: '#' },
-  { text: 'Breadcrumb', href: '#' },
-]
-
 const sections: BuMenuSection<string>[] = [
   { label: 'General', items: [{ label: 'Dashboard' }, { label: 'Customers' }] },
   {
@@ -188,7 +182,12 @@ function navbarMenu () {
 // they are the compound's members, not separately mountable widgets.
 const SWEEP: Record<string, Subject> = {
   BuBreadcrumb: {
-    node: () => h(BuBreadcrumb, { items: crumbs }),
+    node: () => h(BuBreadcrumb, null, () => [
+      h(BuBreadcrumbItem, { href: '#' }, () => 'Bulma'),
+      h(BuBreadcrumbItem, { href: '#' }, () => 'Documentation'),
+      h(BuBreadcrumbItem, { href: '#' }, () => 'Components'),
+      h(BuBreadcrumbItem, { href: '#', current: true }, () => 'Breadcrumb'),
+    ]),
   },
   BuCheckbox: {
     node: () => [

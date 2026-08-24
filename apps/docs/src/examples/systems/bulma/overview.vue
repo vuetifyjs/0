@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import {
     BuBreadcrumb,
+    BuBreadcrumbItem,
     BuCheckbox,
     BuControl,
     BuDropdown,
@@ -50,12 +51,6 @@
   const watchers = shallowRef<number | null>(3)
   const privateRepo = shallowRef(false)
 
-  const crumbs = [
-    { text: 'Paper', href: '#' },
-    { text: 'Bulma', href: '#' },
-    { text: 'Dashboard' },
-  ]
-
   const menu = [
     {
       label: 'General',
@@ -102,7 +97,19 @@
   </BuNavbar>
 
   <section class="section">
-    <BuBreadcrumb :items="crumbs" />
+    <BuBreadcrumb>
+      <BuBreadcrumbItem href="#">
+        Paper
+      </BuBreadcrumbItem>
+
+      <BuBreadcrumbItem href="#">
+        Bulma
+      </BuBreadcrumbItem>
+
+      <BuBreadcrumbItem current>
+        Dashboard
+      </BuBreadcrumbItem>
+    </BuBreadcrumb>
 
     <div class="columns">
       <div class="column is-one-quarter">

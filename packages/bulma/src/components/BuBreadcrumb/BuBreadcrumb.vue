@@ -11,24 +11,18 @@
  * is lost. v0-core follow-up: BreadcrumbsRoot should skip the truncation
  * branch when no ellipsis ticket is registered (or expose an overflow
  * opt-out); revisit once fixed.
+ *
+ * Crumbs are composed as `BuBreadcrumbItem` children — set `current` on the
+ * last item; the root does not infer it.
  */
 
 <script lang="ts">
   // Utilities
   import { toRef } from 'vue'
 
-  export interface BuBreadcrumbItem {
-    /** Display text */
-    text: string
-    /** Link target */
-    href?: string
-  }
-
   export interface BuBreadcrumbProps {
     /** Center the crumb list (`is-centered`) */
     centered?: boolean
-    /** Breadcrumb trail — the last item is declaratively current */
-    items?: BuBreadcrumbItem[]
     /** Accessible label for the navigation landmark */
     label?: string
     /** Right-align the crumb list (`is-right`) */
@@ -38,28 +32,18 @@
     /** Bulma size modifier */
     size?: 'small' | 'normal' | 'medium' | 'large'
   }
-
-  export interface BuBreadcrumbSlotProps {
-    /** The item being rendered */
-    item: BuBreadcrumbItem
-    /** Position in the trail */
-    index: number
-    /** Whether this is the current (last) item */
-    isLast: boolean
-  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'BuBreadcrumb' })
 
   defineSlots<{
-    /** Anchor content per item; falls back to item text */
-    item?: (props: BuBreadcrumbSlotProps) => any
+    /** `BuBreadcrumbItem` crumbs rendered inside the `<ul>` */
+    default?: () => any
   }>()
 
   const {
     centered = false,
-    items = [],
     label = 'breadcrumbs',
     right = false,
     separator,
@@ -72,8 +56,6 @@
     right && 'is-right',
     size && `is-${size}`,
   ])
-
-  const last = toRef(() => items.length - 1)
 </script>
 
 <template>
@@ -83,23 +65,7 @@
     :class="classes"
   >
     <ul>
-      <li
-        v-for="(item, index) in items"
-        :key="index"
-        :class="{ 'is-active': index === last }"
-      >
-        <a
-          :aria-current="index === last ? 'page' : undefined"
-          :href="item.href"
-        >
-          <slot
-            :index
-            :is-last="index === last"
-            :item
-            name="item"
-          >{{ item.text }}</slot>
-        </a>
-      </li>
+      <slot />
     </ul>
   </nav>
 </template>

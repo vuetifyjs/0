@@ -1,4 +1,5 @@
 export * from './BuBreadcrumb'
+export * from './BuBreadcrumbItem'
 export * from './BuCheckbox'
 export * from './BuControl'
 export * from './BuDropdown'

@@ -1,24 +1,13 @@
 import { describe, it } from 'vitest'
-
-// Context
-import BuBreadcrumb from './BuBreadcrumb.vue'
-
-// Utilities
-import { createApp } from 'vue'
-
+import { createApp, h } from 'vue'
 import { conform } from '../../../harness/conform'
+import { BuBreadcrumb } from './index'
+import { BuBreadcrumbItem } from '../BuBreadcrumbItem'
 
-const items = [
-  { text: 'Bulma', href: '#' },
-  { text: 'Documentation', href: '#' },
-  { text: 'Components', href: '#' },
-  { text: 'Breadcrumb', href: '#' },
-]
-
-function mount (props: Record<string, unknown>) {
+function mount (vnode: ReturnType<typeof h>) {
   const host = document.createElement('div')
   document.body.append(host)
-  const app = createApp(BuBreadcrumb, props)
+  const app = createApp({ render: () => vnode })
   app.mount(host)
   return {
     el: host.firstElementChild!,
@@ -29,24 +18,38 @@ function mount (props: Record<string, unknown>) {
   }
 }
 
+function trail () {
+  return [
+    h(BuBreadcrumbItem, { href: '#' }, () => 'Bulma'),
+    h(BuBreadcrumbItem, { href: '#' }, () => 'Documentation'),
+    h(BuBreadcrumbItem, { href: '#' }, () => 'Components'),
+    h(BuBreadcrumbItem, { href: '#', current: true }, () => 'Breadcrumb'),
+  ]
+}
+
 describe('buBreadcrumb', () => {
   it('conforms to the basic breadcrumb fixture with active last item', () => {
-    const { el, destroy } = mount({ items })
-
-    try {
-      conform(el, 'breadcrumb')
-    } finally {
-      destroy()
-    }
+    const { el, destroy } = mount(h(BuBreadcrumb, null, () => trail()))
+    try { conform(el, 'breadcrumb') } finally { destroy() }
   })
 
   it('conforms to the alternative separator fixture', () => {
-    const { el, destroy } = mount({ items, separator: 'arrow' })
+    const { el, destroy } = mount(h(BuBreadcrumb, { separator: 'arrow' }, () => trail()))
+    try { conform(el, 'breadcrumb:separator') } finally { destroy() }
+  })
 
-    try {
-      conform(el, 'breadcrumb:separator')
-    } finally {
-      destroy()
+  it('conforms to the icons fixture', () => {
+    function crumb (href: string, icon: string, text: string, current = false) {
+      return h(BuBreadcrumbItem, { href, current }, () => [
+        h('span', { class: 'icon is-small' }, h('i', { class: icon, 'aria-hidden': 'true' })),
+        h('span', null, text),
+      ])
     }
+    const { el, destroy } = mount(h(BuBreadcrumb, null, () => [
+      crumb('#', 'fas fa-home', 'Bulma'),
+      crumb('#', 'fas fa-book', 'Documentation'),
+      crumb('#', 'fas fa-thumbs-up', 'Breadcrumb', true),
+    ]))
+    try { conform(el, 'breadcrumb:icons') } finally { destroy() }
   })
 })
