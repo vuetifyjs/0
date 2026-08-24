@@ -126,6 +126,19 @@ async function getComposableData (): Promise<{
       }
     }
 
+    // Find named export lists (value re-exports of module-private declarations)
+    // Matches: export { createPopoverContext, createPopoverPlugin }
+    const namedExports = content.matchAll(/export\s+\{([^}]+)\}/g)
+    for (const match of namedExports) {
+      const bindings = match[1].split(',').map(s => s.trim().split(/\s+as\s+/).pop()!)
+      for (const binding of bindings) {
+        if (COMPOSABLE_PATTERN.test(binding)) {
+          names.add(binding)
+          toDir[binding] = dir
+        }
+      }
+    }
+
     // Also add the directory name itself (the primary export)
     names.add(dir)
     toDir[dir] = dir
