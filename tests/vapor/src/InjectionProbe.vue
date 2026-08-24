@@ -23,8 +23,8 @@
   // A real createPluginContext consumer: with createLoggerPlugin installed,
   // inject() resolves the provided context; without it, the fallback logger
   // resolves instead of throwing. current() discriminates the two.
-  let level = ''
-  let loggerError = ''
+  let level: string | undefined
+  let loggerError: string | undefined
   try {
     level = useLogger().current()
   } catch (error) {
@@ -36,8 +36,8 @@
   <div
     :data-has-injection-context="String(has)"
     :data-injected="injected"
-    :data-logger-error="loggerError"
-    :data-logger-level="level"
+    :data-logger-error="loggerError ?? ''"
+    :data-logger-level="level ?? ''"
     :data-raw-null="String(rawNull)"
   />
 </template>
