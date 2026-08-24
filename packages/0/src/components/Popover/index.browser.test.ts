@@ -676,6 +676,41 @@ describe('popover', () => {
       expect(context.contentEl.value?.textContent).toBe('Content')
     })
 
+    it('should position content with FloatingUIPopoverAdapter coordinates', async () => {
+      const { FloatingUIPopoverAdapter } = await import('#v0/popover/adapters/floating-ui')
+
+      const wrapper = mount(defineComponent({
+        setup () {
+          return () => h('div', { style: 'position: relative; padding: 160px 0 0 120px;' }, [
+            h(Popover.Root, {
+              id: 'floating-popover',
+              adapter: new FloatingUIPopoverAdapter(),
+              modelValue: true,
+            }, () => [
+              h(Popover.Activator, {}, () => 'Toggle'),
+              h(Popover.Content, {}, () => 'Content'),
+            ]),
+          ])
+        },
+      }))
+
+      await nextTick()
+
+      const content = wrapper.find('[popover]')
+
+      await vi.waitFor(() => {
+        const style = content.attributes('style') ?? ''
+        expect(style).toContain('position: fixed')
+        expect(style).toMatch(/top:\s*-?\d/)
+        expect(style).toMatch(/left:\s*-?\d/)
+        expect(style).not.toContain('position-area')
+
+        const top = /top:\s*([-\d.]+)px/.exec(style)?.[1]
+        const left = /left:\s*([-\d.]+)px/.exec(style)?.[1]
+        expect(top === '0' && left === '0').toBe(false)
+      })
+    })
+
     it('should apply a custom adapter\'s styles to the content element', async () => {
       class FixedStyleAdapter extends PopoverAdapter {
         setup () {

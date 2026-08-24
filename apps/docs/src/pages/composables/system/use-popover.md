@@ -72,6 +72,44 @@ flowchart TD
   usePopover --> Tooltip["Tooltip / Menu"]
 ```
 
+## Adapters
+
+Adapters let you swap the underlying positioning engine without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `V0PopoverAdapter` | `@vuetify/v0` | CSS anchor positioning (default, zero runtime dependency) |
+| `FloatingUIPopoverAdapter` | `@vuetify/v0/popover/adapters/floating-ui` | [Floating UI](https://floating-ui.com) JS measurement — `flip()` covers overflow |
+
+`FloatingUIPopoverAdapter` is subpath-only so `@floating-ui/dom` stays out of the main barrel. Install the peer, then pass an instance via the `adapter` option. `positionTry` is ignored; `flip()` covers the overflow intent. Pass `middleware` to the constructor to override the default `[offset(8), flip(), shift({ padding: 8 })]`.
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm add @floating-ui/dom
+```
+
+```bash npm
+npm install @floating-ui/dom
+```
+
+```bash yarn
+yarn add @floating-ui/dom
+```
+
+```bash bun
+bun add @floating-ui/dom
+```
+
+:::
+
+```ts src/popover.ts
+import { usePopover } from '@vuetify/v0'
+import { FloatingUIPopoverAdapter } from '@vuetify/v0/popover/adapters/floating-ui'
+
+const popover = usePopover({ adapter: new FloatingUIPopoverAdapter() })
+```
+
 ## Options
 
 | Option | Type | Default | Notes |
@@ -82,7 +120,7 @@ flowchart TD
 | `isOpen` | `Ref<boolean>` | — | External ref for bidirectional open state (e.g., from `defineModel`) |
 | `openDelay` | `MaybeRefOrGetter<number>` | `0` | Milliseconds to wait before opening the popover |
 | `closeDelay` | `MaybeRefOrGetter<number>` | `0` | Milliseconds to wait before closing the popover |
-| `adapter` | `PopoverAdapter` | `new V0PopoverAdapter()` | Positioning engine. The default emits CSS anchor positioning with zero runtime dependency — see [Bring your own positioning engine](#bring-your-own-positioning-engine) |
+| `adapter` | `PopoverAdapter` | `new V0PopoverAdapter()` | Positioning engine. The default emits CSS anchor positioning with zero runtime dependency — see [Adapters](#adapters) |
 
 ## Reactivity
 
@@ -123,7 +161,7 @@ The example exercises the full three-part spread that `usePopover` returns. `anc
 
 ## Bring your own positioning engine
 
-`usePopover` positions content with CSS anchor positioning by default (`V0PopoverAdapter`) — no JavaScript measurement, no runtime dependency. That default is unavailable in Firefox ESR and Safari before version 26; if you need to support those, swap in a JS positioning library via the `adapter` option. `@vuetify/v0` doesn't bundle one today, so this example is one you write in your own app rather than an import from the package.
+`usePopover` positions content with CSS anchor positioning by default (`V0PopoverAdapter`) — no JavaScript measurement, no runtime dependency. For Firefox ESR and Safari before version 26, reach for the shipped [FloatingUIPopoverAdapter](#adapters) first. The sketch below is the same adapter shape if you want to wrap a different engine (Popper, or your own) rather than import one.
 
 ```ts collapse no-filename floating-ui-popover-adapter.ts
 import { PopoverAdapter } from '@vuetify/v0'
@@ -206,7 +244,7 @@ Set `positionArea` (e.g. `'bottom'`) for the primary placement and `positionTry`
 
 ??? Does v0 ship a floating-ui adapter?
 
-Not yet — a first-party floating-ui adapter is planned. Until then, see [Bring your own positioning engine](#bring-your-own-positioning-engine) for a worked example you can adapt in your own app. The CSS anchor-positioning default (`V0PopoverAdapter`) stays zero-dependency either way.
+Yes. Import `FloatingUIPopoverAdapter` from `@vuetify/v0/popover/adapters/floating-ui` and pass it as the `adapter` option — see [Adapters](#adapters). It requires the `@floating-ui/dom` peer; the CSS default (`V0PopoverAdapter`) stays zero-dependency. For a different engine, see [Bring your own positioning engine](#bring-your-own-positioning-engine).
 
 :::
 
