@@ -79,10 +79,12 @@ markup against bulma.io's documented fixtures.
   registration so renderless consumers can supply the focus target
   ([#912](https://github.com/vuetifyjs/0/issues/912)).
 - **BuBreadcrumb hand-rolls its markup:** v0 BreadcrumbsRoot's overflow watcher hides
-  middle crumbs whenever measured capacity < item count even with no Ellipsis
-  registered — items silently disappear where upstream Bulma flex-wraps. Since
+  middle crumbs whenever measured capacity < crumb count even with no Ellipsis
+  registered — crumbs silently disappear where upstream Bulma flex-wraps. Since
   BuBreadcrumb uses no other compound behavior (no v-model, no overflow UI), Tier 1
-  renders plain `nav > ul > li > a` + `aria-current="page"`. v0-core follow-up:
+  renders `nav.breadcrumb > ul` and composed `BuBreadcrumbItem` (`li > a`); the last
+  crumb is the `current` prop (`is-active` + `aria-current="page"`), not inferred.
+  The part split does not adopt v0 Breadcrumbs. v0-core follow-up:
   BreadcrumbsRoot should skip the truncation branch when no ellipsis ticket is
   registered (or expose an overflow opt-out)
   ([#911](https://github.com/vuetifyjs/0/issues/911)).

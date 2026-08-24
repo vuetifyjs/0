@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Bulma's `.pagination` with the JavaScript it never shipped: current page, ellipses, and disabled previous/next.
+Bulma's `.pagination` with the JavaScript it never shipped: current page, ellipses, and disabled previous and next.
 
 > [!NOTE]
 > Reference: [Pagination on bulma.io](https://bulma.io/documentation/components/pagination/) — classes and visual variants. This page is the JavaScript.

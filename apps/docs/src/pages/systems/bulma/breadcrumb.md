@@ -121,7 +121,7 @@ Reach for `arrow` when the trail is a path you walk, `bullet` when it is a list 
 
 ### Icons
 
-Icon crumbs are ordinary anchor children — a `.icon.is-small` span beside a text span inside `BuBreadcrumbItem`. There is no `#item` slot and no special icon prop; compose the markup Bulma documents.
+Icon crumbs are ordinary anchor children — a `.icon.is-small` span beside a text span inside `BuBreadcrumbItem`. Compose the markup Bulma documents; there is no named slot and no special icon prop.
 :::
 
 ## Props
