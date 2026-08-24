@@ -22,6 +22,7 @@
           <span class="icon is-small">
             <i aria-hidden="true" class="fas fa-cog" />
           </span>
+
           <span>Team Settings</span>
         </BuMenuLink>
       </BuMenuItem>
@@ -31,6 +32,7 @@
           <span class="icon is-small">
             <i aria-hidden="true" class="fas fa-users" />
           </span>
+
           <span>Manage Your Team</span>
           <span class="tag is-info is-light ml-2">3</span>
         </BuMenuLink>

@@ -1,7 +1,11 @@
 import { describe, it } from 'vitest'
-import { createApp, h } from 'vue'
-import { conform } from '../../../harness/conform'
+
 import { BuPagination } from './index'
+
+// Utilities
+import { createApp, h } from 'vue'
+
+import { conform } from '../../../harness/conform'
 import { BuPaginationEllipsis } from '../BuPaginationEllipsis'
 import { BuPaginationItem } from '../BuPaginationItem'
 import { BuPaginationList } from '../BuPaginationList'
@@ -44,7 +48,11 @@ function pager (props: { pages: number, modelValue: number, visible?: number }, 
 describe('buPagination', () => {
   it('conforms to the full pagination fixture with ellipses and current page', () => {
     const { el, destroy } = mount(pager({ pages: 86, modelValue: 46, visible: 7 }))
-    try { conform(el, 'pagination', IGNORE) } finally { destroy() }
+    try {
+      conform(el, 'pagination', IGNORE)
+    } finally {
+      destroy()
+    }
   })
 
   it('conforms to the disabled-previous fixture on the first page', () => {
@@ -52,6 +60,10 @@ describe('buPagination', () => {
       { pages: 3, modelValue: 1, visible: 7 },
       { title: 'This is the first page' },
     ))
-    try { conform(el, 'pagination:disabled', IGNORE) } finally { destroy() }
+    try {
+      conform(el, 'pagination:disabled', IGNORE)
+    } finally {
+      destroy()
+    }
   })
 })

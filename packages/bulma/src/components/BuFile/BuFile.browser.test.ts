@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest'
 
 // Components
 import { BuFile } from './index'
-import { BuFileCta } from '../BuFileCta'
-import { BuFileIcon } from '../BuFileIcon'
-import { BuFileName } from '../BuFileName'
 
 // Utilities
 import { createApp, h, nextTick } from 'vue'
 
 import { conform } from '../../../harness/conform'
+import { BuFileCta } from '../BuFileCta'
+import { BuFileIcon } from '../BuFileIcon'
+import { BuFileName } from '../BuFileName'
 
 function mount (render: () => ReturnType<typeof h>) {
   const host = document.createElement('div')

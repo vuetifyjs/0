@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
 import { BuMenu } from './index'
-import { BuMenuItem } from '../BuMenuItem'
-import { BuMenuLabel } from '../BuMenuLabel'
-import { BuMenuLink } from '../BuMenuLink'
-import { BuMenuList } from '../BuMenuList'
 
 // Utilities
 import { createApp, h, nextTick, shallowRef } from 'vue'
 
 import { conform } from '../../../harness/conform'
+import { BuMenuItem } from '../BuMenuItem'
+import { BuMenuLabel } from '../BuMenuLabel'
+import { BuMenuLink } from '../BuMenuLink'
+import { BuMenuList } from '../BuMenuList'
 
 function link (value: string, label = value) {
   return h(BuMenuItem, null, () => h(BuMenuLink, { value }, () => label))

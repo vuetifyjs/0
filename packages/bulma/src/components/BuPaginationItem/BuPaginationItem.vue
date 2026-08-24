@@ -47,7 +47,7 @@
       :namespace
       :value
     >
-      <slot :is-selected="isSelected" :page>{{ page }}</slot>
+      <slot :is-selected :page>{{ page }}</slot>
     </Pagination.Item>
   </li>
 </template>

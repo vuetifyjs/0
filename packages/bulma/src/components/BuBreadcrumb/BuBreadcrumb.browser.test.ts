@@ -1,7 +1,11 @@
 import { describe, it } from 'vitest'
-import { createApp, h } from 'vue'
-import { conform } from '../../../harness/conform'
+
 import { BuBreadcrumb } from './index'
+
+// Utilities
+import { createApp, h } from 'vue'
+
+import { conform } from '../../../harness/conform'
 import { BuBreadcrumbItem } from '../BuBreadcrumbItem'
 
 function mount (vnode: ReturnType<typeof h>) {
@@ -30,18 +34,26 @@ function trail () {
 describe('buBreadcrumb', () => {
   it('conforms to the basic breadcrumb fixture with active last item', () => {
     const { el, destroy } = mount(h(BuBreadcrumb, null, () => trail()))
-    try { conform(el, 'breadcrumb') } finally { destroy() }
+    try {
+      conform(el, 'breadcrumb')
+    } finally {
+      destroy()
+    }
   })
 
   it('conforms to the alternative separator fixture', () => {
     const { el, destroy } = mount(h(BuBreadcrumb, { separator: 'arrow' }, () => trail()))
-    try { conform(el, 'breadcrumb:separator') } finally { destroy() }
+    try {
+      conform(el, 'breadcrumb:separator')
+    } finally {
+      destroy()
+    }
   })
 
   it('conforms to the icons fixture', () => {
     function crumb (href: string, icon: string, text: string, current = false) {
       return h(BuBreadcrumbItem, { href, current }, () => [
-        h('span', { class: 'icon is-small' }, h('i', { class: icon, 'aria-hidden': 'true' })),
+        h('span', { class: 'icon is-small' }, h('i', { 'class': icon, 'aria-hidden': 'true' })),
         h('span', null, text),
       ])
     }
@@ -50,6 +62,10 @@ describe('buBreadcrumb', () => {
       crumb('#', 'fas fa-book', 'Documentation'),
       crumb('#', 'fas fa-thumbs-up', 'Breadcrumb', true),
     ]))
-    try { conform(el, 'breadcrumb:icons') } finally { destroy() }
+    try {
+      conform(el, 'breadcrumb:icons')
+    } finally {
+      destroy()
+    }
   })
 })

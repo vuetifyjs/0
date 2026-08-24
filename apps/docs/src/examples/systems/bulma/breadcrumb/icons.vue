@@ -11,6 +11,7 @@
           class="fas fa-home"
         />
       </span>
+
       <span>Bulma</span>
     </BuBreadcrumbItem>
 
@@ -21,6 +22,7 @@
           class="fas fa-book"
         />
       </span>
+
       <span>Documentation</span>
     </BuBreadcrumbItem>
 
@@ -34,6 +36,7 @@
           class="fas fa-thumbs-up"
         />
       </span>
+
       <span>Breadcrumb</span>
     </BuBreadcrumbItem>
   </BuBreadcrumb>

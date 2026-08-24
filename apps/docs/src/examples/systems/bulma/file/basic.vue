@@ -8,6 +8,7 @@
       <BuFileIcon>
         <i class="fas fa-upload" />
       </BuFileIcon>
+
       <span class="file-label">Choose a file…</span>
     </BuFileCta>
   </BuFile>
