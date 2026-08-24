@@ -116,6 +116,8 @@
     format?: Intl.NumberFormatOptions
     /** Whether commit() clamps to min/max (default: true) */
     clamp?: boolean
+    /** When typed input is written into the model (default: 'change') */
+    commitOn?: 'input' | 'change'
     /** Validation rules */
     rules?: (FormValidationRule | RuleAlias | StandardSchemaV1)[]
     /** When to trigger validation */
@@ -218,7 +220,8 @@
     wrap,
     locale,
     format: formatOptions,
-    clamp: shouldClamp,
+    clamp: shouldClamp = true,
+    commitOn = 'change',
     rules = [],
     validateOn = 'blur',
     error = false,
@@ -239,6 +242,7 @@
     locale,
     format: formatOptions,
     clamp: shouldClamp,
+    commitOn,
     disabled: () => toValue(disabled),
     readonly: () => toValue(_readonly),
     min,
