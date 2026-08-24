@@ -15,6 +15,9 @@
   // Utilities
   import { toRef, watch } from 'vue'
 
+  // Types
+  import type { PaginationRootSlotProps } from '@vuetify/v0'
+
   export interface BuPaginationProps {
     /** Total page count (maps to v0 size with one item per page) */
     pages?: number
@@ -43,12 +46,7 @@
 
   defineSlots<{
     /** Prev, Next, then List — fixture DOM order */
-    default?: (props: {
-      items: { type: string, value: number }[]
-      isFirst: boolean
-      isLast: boolean
-      page: number
-    }) => any
+    default?: (props: PaginationRootSlotProps) => any
   }>()
 
   const {
