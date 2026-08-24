@@ -8,6 +8,7 @@ import { createApp, h, nextTick, shallowRef } from 'vue'
 import { conform } from '../../../harness/conform'
 // Components
 import { BuMessageBody } from '../BuMessageBody'
+import { BuMessageDelete } from '../BuMessageDelete'
 import { BuMessageHeader } from '../BuMessageHeader'
 
 let teardown: (() => void) | undefined
@@ -42,7 +43,10 @@ function body () {
 describe('buMessage', () => {
   it('should conform to the header and delete fixture', () => {
     const host = mount(() => h(BuMessage, {}, () => [
-      h(BuMessageHeader, null, () => h('p', 'Hello World')),
+      h(BuMessageHeader, null, () => [
+        h('p', 'Hello World'),
+        h(BuMessageDelete),
+      ]),
       h(BuMessageBody, null, body),
     ]))
 
@@ -64,7 +68,10 @@ describe('buMessage', () => {
         open.value = value
       },
     }, () => [
-      h(BuMessageHeader, null, () => h('p', 'Hello World')),
+      h(BuMessageHeader, null, () => [
+        h('p', 'Hello World'),
+        h(BuMessageDelete),
+      ]),
       h(BuMessageBody, null, () => 'content'),
     ]))
 

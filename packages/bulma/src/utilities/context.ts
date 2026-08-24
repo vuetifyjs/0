@@ -1,9 +1,9 @@
 /**
  * Shared dev-time guard for part components.
  *
- * Region parts (BuModalHead, BuMessageHeader, BuDropdownMenu, …) read their
- * state from the parent Bu component's context. Injection is optional so an
- * orphan part still renders its Bulma markup instead of throwing; this warns
+ * Region parts (BuMessageDelete, BuNotificationDelete, BuDropdownMenu, …) read
+ * their state from the parent Bu component's context. Injection is optional so
+ * an orphan part still renders its Bulma markup instead of throwing; this warns
  * once at setup so the missing wiring is not silent. Mirrors the BuHelp
  * precedent for an ambient context that never arrived.
  */

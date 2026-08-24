@@ -2,39 +2,21 @@
  * @module BuModalHead
  *
  * @remarks
- * Bulma `.modal-card-head` — holds BuModalTitle and always renders the
- * documented `.delete` button, wired to close through v0's `Dialog.Close`
- * (which supplies the localized `aria-label` and keyboard handling).
+ * Bulma `.modal-card-head` — title and optional BuModalDelete. Pure markup;
+ * a head without Delete is a valid title-only card head.
  */
-
-<script lang="ts">
-  // Framework
-  import { Dialog } from '@vuetify/v0'
-
-  // Utilities
-  import { orphan } from '../../utilities/context'
-
-  // Context
-  import { useBuModal } from '../BuModal/BuModal.vue'
-</script>
 
 <script setup lang="ts">
   defineOptions({ name: 'BuModalHead' })
 
   defineSlots<{
-    /** Head content — typically BuModalTitle. */
+    /** Head content — typically BuModalTitle and optional BuModalDelete. */
     default?: () => any
   }>()
-
-  const modal = useBuModal()
-
-  orphan('BuModalHead', 'BuModal', modal)
 </script>
 
 <template>
   <header class="modal-card-head">
     <slot />
-
-    <Dialog.Close class="delete" />
   </header>
 </template>

@@ -28,7 +28,7 @@ Bulma's `.message` with a dismissible header and a headerless body-only variant.
 
 ## Usage
 
-`BuMessage` is `article.message` and owns visibility through `v-model`, default `true`. Compose `BuMessageHeader` and `BuMessageBody` inside it. The header always renders the `.delete` button; omitting the header is the documented body-only variant, and that variant is not dismissible because there is no button to click.
+`BuMessage` is `article.message` and owns visibility through `v-model`, default `true`. Compose `BuMessageHeader` and `BuMessageBody` inside it. Dismiss is opt-in: compose `BuMessageDelete` inside the header. A header without Delete is a title-only bar. Omitting the header is the documented body-only variant.
 
 ::: ds-example
 /systems/bulma/message/basic
@@ -38,12 +38,14 @@ Bulma's `.message` with a dismissible header and a headerless body-only variant.
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { BuMessage, BuMessageBody, BuMessageHeader } from '@paper/bulma'
+  import { BuMessage, BuMessageBody, BuMessageDelete, BuMessageHeader } from '@paper/bulma'
 </script>
 
 <template>
   <BuMessage>
-    <BuMessageHeader />
+    <BuMessageHeader>
+      <BuMessageDelete />
+    </BuMessageHeader>
 
     <BuMessageBody />
   </BuMessage>
@@ -54,11 +56,11 @@ Bulma's `.message` with a dismissible header and a headerless body-only variant.
 
 `BuMessage` wraps v0's [Presence](/components/primitives/presence) the same way `BuNotification` does: `v-model` drives present/leaving/unmounted, `data-state` lands on `article.message`, and a dismiss unmounts the article on the next tick.
 
-The rest is package context, not a v0 compound. `BuMessage` provides `bulma:message` with a `close()` that writes `false` through the model. `BuMessageHeader` is the only consumer — it renders the documented `.delete` and calls `close()` on click. `BuMessageBody` injects nothing; it is a `div.message-body`.
+The rest is package context, not a v0 compound. `BuMessage` provides `bulma:message` with a `close()` that writes `false` through the model. `BuMessageDelete` is the only consumer — it renders `button.delete` and calls `close()` on click. `BuMessageHeader` and `BuMessageBody` inject nothing; they are classed divs.
 
-Injection is optional. A header rendered outside `BuMessage` still emits the Bulma markup, warns once in dev, and the delete button is inert. Parts backed by a v0 context throw instead; this family does not, because the header's only job is a classed div and a button.
+Injection is optional. A Delete rendered outside `BuMessage` still emits the button, warns once in dev, and the click is inert. Parts backed by a v0 context throw instead; this family does not.
 
-Presence does not supply a header, a body, or a close control. Those are Bulma's regions, expressed as parts, which is why a message with no `BuMessageHeader` is still a valid message — it is the body-only fixture, not a half-composed one.
+Presence does not supply a header, a body, or a close control. Those are Bulma's regions, expressed as parts, which is why a message with no `BuMessageHeader` is still a valid message — it is the body-only fixture, not a half-composed one. A header with no `BuMessageDelete` is a valid title-only header.
 
 ## The markup you know
 
@@ -86,6 +88,7 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
   <BuMessage>
     <BuMessageHeader>
       <p>Hello World</p>
+      <BuMessageDelete />
     </BuMessageHeader>
 
     <BuMessageBody>
@@ -100,7 +103,7 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 
 :::
 
-You write no `.delete` and no close handler. Composing `BuMessageHeader` is what opts the message into being dismissible; the part owns the button.
+You write no close handler. Composing `BuMessageDelete` inside the header is what opts the message into being dismissible.
 
 ## Examples
 
@@ -130,16 +133,17 @@ Reach for it when the message is standing copy rather than a dismissible notice:
 
 | Part | Renders | Notes |
 |------|---------|-------|
-| `BuMessageHeader` | `div.message-header` | Always renders `.delete`, wired through `bulma:message` |
+| `BuMessageHeader` | `div.message-header` | Slot only; compose optional `BuMessageDelete` |
+| `BuMessageDelete` | `button.delete` | Calls `close()` on `bulma:message` |
 | `BuMessageBody` | `div.message-body` | Pure markup; the headerless variant is a message with no header |
 
 The header's default slot is the title. Bulma wraps its own in a `<p>`; the part does not wrap for you.
 
 ## Accessibility
 
-`BuMessageHeader`'s delete button carries `aria-label="delete"` and `type="button"`, matching the fixture. Dismiss is that click. There is no Escape handler, and nothing moves focus when the message appears or leaves.
+`BuMessageDelete` carries `aria-label="delete"` and `type="button"`, matching the fixture. Dismiss is that click. There is no Escape handler, and nothing moves focus when the message appears or leaves.
 
 > [!NOTE]
-> A `BuMessageHeader` rendered outside `BuMessage` still emits the header markup. In development it warns once that `bulma:message` was missing; the delete button then does nothing. Nest the part, or you get a button that looks like a close control and isn't one.
+> A `BuMessageDelete` rendered outside `BuMessage` still emits the button. In development it warns once that `bulma:message` was missing; the click then does nothing. Nest the part, or you get a button that looks like a close control and isn't one.
 
 The root is an `article` with no live-region role. It will not announce itself. Put the severity in the header text; `color` is decoration.

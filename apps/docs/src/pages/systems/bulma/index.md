@@ -107,7 +107,7 @@ Where the two differ, the difference is deliberate and declared:
 | No owned token namespace | `--bulma-*` belongs to upstream; the package owns no prefix |
 | Upstream state classes, unprefixed | `is-active` and `is-hoverable` instead of data-attribute hooks — Bulma's CSS selects on them |
 | Native form controls | Bulma styles native `select`, `input[type=checkbox]` and friends; a non-native control gets none of your CSS |
-| Added aria | `BuDropdownMenu` emits `role="menu"` only when its items really are menu items[^dropdown-menu]; `BuNotification` labels its delete button |
+| Added aria | `BuDropdownMenu` emits `role="menu"` only when its items really are menu items[^dropdown-menu]; `BuNotificationDelete` labels its delete button |
 
 ## Components
 

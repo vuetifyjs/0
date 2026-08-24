@@ -46,6 +46,7 @@ Both panels are shown here for completeness — a modal composes one or the othe
     BuModalCard,
     BuModalClose,
     BuModalContent,
+    BuModalDelete,
     BuModalFoot,
     BuModalHead,
     BuModalTitle,
@@ -61,6 +62,8 @@ Both panels are shown here for completeness — a modal composes one or the othe
     <BuModalCard>
       <BuModalHead>
         <BuModalTitle />
+
+        <BuModalDelete />
       </BuModalHead>
 
       <BuModalBody />
@@ -77,7 +80,7 @@ Wraps v0's [Dialog](/components/disclosure/dialog). `Dialog.Root` owns `v-model`
 
 Two things v0 ships that this wrapper skips. `Scrim` is global per stack ticket — mounting it behind a modal that already paints `.modal-background` would double the backdrop, so the backdrop is hand-rolled. And v0 has no `useFocusTrap`: Tab and Shift+Tab wrap inside `.modal`, and focus returns to the trigger on close, including when the modal unmounts while open.
 
-The parts that do map through: `BuModalTitle` is `Dialog.Title as="p"`. `BuModalClose` is `Dialog.Close`. `BuModalHead` also renders the documented `.delete` close through `Dialog.Close`.
+The parts that do map through: `BuModalTitle` is `Dialog.Title as="p"`. `BuModalClose` is `Dialog.Close` with class `modal-close` (the content-variant large X). `BuModalDelete` is `Dialog.Close` with class `delete` (the card-head X). They are not interchangeable.
 
 `blocking` is Dialog's `blocking` — backdrop clicks only. Escape still closes.
 
@@ -114,6 +117,7 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
     <BuModalCard>
       <BuModalHead>
         <BuModalTitle>Modal title</BuModalTitle>
+        <BuModalDelete />
       </BuModalHead>
 
       <BuModalBody>
@@ -133,7 +137,7 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 
 :::
 
-You write no `is-active`, no `.modal-background`, no `.delete` button, and no close handler. The components own those, driven by `v-model`.
+You write no `is-active` and no `.modal-background`. Compose `BuModalDelete` in the card head (or `BuModalClose` beside the content panel) for the documented X; omitting it is a valid head without a dismiss.
 
 ## Examples
 
@@ -142,7 +146,7 @@ You write no `is-active`, no `.modal-background`, no `.delete` button, and no cl
 
 ### Card variant
 
-Composing `BuModalCard` instead of `BuModalContent` gives Bulma's three-region layout — a sticky head and foot with a scrollable body, sized to the viewport. `BuModalHead` always renders the documented `.delete` button wired to close, so the only close handlers you write are the ones on your own footer buttons.
+Composing `BuModalCard` instead of `BuModalContent` gives Bulma's three-region layout — a sticky head and foot with a scrollable body, sized to the viewport. Compose `BuModalDelete` inside `BuModalHead` for the documented card-head X; a head without it is a title-only bar. Footer buttons still write `v-model` themselves.
 
 Reach for it when the modal has an obvious title and a decision to commit — a form, a confirmation. The plain content variant, with its large corner close button, suits a modal whose body is a single self-contained block.
 :::
@@ -161,8 +165,9 @@ Reach for it when the modal has an obvious title and a decision to commit — a 
 | `BuModalContent` | `div.modal-content` | Plain variant panel; carries `role="dialog"` |
 | `BuModalClose` | `button.modal-close` | Sibling of the content panel; `size` prop, default `large` |
 | `BuModalCard` | `div.modal-card` | Card variant panel; carries `role="dialog"` |
-| `BuModalHead` | `header.modal-card-head` | Always renders the `.delete` close button |
+| `BuModalHead` | `header.modal-card-head` | Slot only; compose Title and optional Delete |
 | `BuModalTitle` | `p.modal-card-title` | Supplies the panel's accessible name |
+| `BuModalDelete` | `button.delete` | Card-head X; `Dialog.Close` — not `BuModalClose` |
 | `BuModalBody` | `section.modal-card-body` | Scrollable region |
 | `BuModalFoot` | `footer.modal-card-foot` | Action row |
 

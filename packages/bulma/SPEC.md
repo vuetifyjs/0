@@ -121,13 +121,13 @@ markup against bulma.io's documented fixtures.
   shows `is-danger` — deceptively half-wired). Compose validation fields as
   `<InputRoot renderless v-model :rules>` wrapping the whole field; BuHelp warns in
   dev when `validation` is set with no ambient root.
-- **Part components are composed, not enforced:** region parts (BuModalHead, BuMessageBody,
-  BuDropdownMenu, BuNavbarBrand, …) read their parent's state through an optional context
+- **Part components are composed, not enforced:** region parts (BuMessageDelete,
+  BuNotificationDelete, BuDropdownMenu, BuNavbarBrand, …) read their parent's state through an optional context
   and warn in dev when it is missing, so a part rendered outside its parent still emits
   Bulma markup with inert behavior rather than throwing. Parts backed by a v0 context
   (BuPanelBlock, BuPanelTab, BuTab, BuModalTitle) inherit v0's stricter contract instead
   and throw `V0_CONTEXT_MISSING`.
-- **A11y improvements over verbatim docs markup:** BuNotification adds
+- **A11y improvements over verbatim docs markup:** `BuNotificationDelete` adds
   `aria-label="delete"` (docs ship the delete button unlabeled); BuDropdown emits
   `role="menu"` only when items actually render `role="menuitem"` (the docs' verbatim
   arbitrary-content dropdown fails axe's aria-required-children). The harness tolerates

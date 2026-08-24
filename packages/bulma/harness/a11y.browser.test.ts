@@ -26,10 +26,12 @@ import { BuMenuLink } from '#bulma/components/BuMenuLink'
 import { BuMenuList } from '#bulma/components/BuMenuList'
 import { BuMessage } from '#bulma/components/BuMessage'
 import { BuMessageBody } from '#bulma/components/BuMessageBody'
+import { BuMessageDelete } from '#bulma/components/BuMessageDelete'
 import { BuMessageHeader } from '#bulma/components/BuMessageHeader'
 import { BuModal } from '#bulma/components/BuModal'
 import { BuModalBody } from '#bulma/components/BuModalBody'
 import { BuModalCard } from '#bulma/components/BuModalCard'
+import { BuModalDelete } from '#bulma/components/BuModalDelete'
 import { BuModalFoot } from '#bulma/components/BuModalFoot'
 import { BuModalHead } from '#bulma/components/BuModalHead'
 import { BuModalTitle } from '#bulma/components/BuModalTitle'
@@ -37,6 +39,7 @@ import { BuNavbar } from '#bulma/components/BuNavbar'
 import { BuNavbarBrand } from '#bulma/components/BuNavbarBrand'
 import { BuNavbarMenu } from '#bulma/components/BuNavbarMenu'
 import { BuNotification } from '#bulma/components/BuNotification'
+import { BuNotificationDelete } from '#bulma/components/BuNotificationDelete'
 import { BuNumberField } from '#bulma/components/BuNumberField'
 import { BuNumberFieldDecrement } from '#bulma/components/BuNumberFieldDecrement'
 import { BuNumberFieldIncrement } from '#bulma/components/BuNumberFieldIncrement'
@@ -268,14 +271,20 @@ const SWEEP: Record<string, Subject> = {
   },
   BuMessage: {
     node: () => h(BuMessage, {}, () => [
-      h(BuMessageHeader, null, () => h('p', 'Hello World')),
+      h(BuMessageHeader, null, () => [
+        h('p', 'Hello World'),
+        h(BuMessageDelete),
+      ]),
       h(BuMessageBody, null, () => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
     ]),
   },
   BuModal: {
     plugins: [createStackPlugin()],
     node: () => h(BuModal, { modelValue: true }, () => h(BuModalCard, null, () => [
-      h(BuModalHead, null, () => h(BuModalTitle, null, () => 'Modal title')),
+      h(BuModalHead, null, () => [
+        h(BuModalTitle, null, () => 'Modal title'),
+        h(BuModalDelete),
+      ]),
       h(BuModalBody, null, () => 'Modal body content'),
       h(BuModalFoot, null, () => h('div', { class: 'buttons' }, [
         h('button', { class: 'button is-success' }, 'Save changes'),
@@ -293,7 +302,10 @@ const SWEEP: Record<string, Subject> = {
     ]),
   },
   BuNotification: {
-    node: () => h(BuNotification, {}, () => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
+    node: () => h(BuNotification, {}, () => [
+      h(BuNotificationDelete),
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    ]),
   },
   BuNumberField: {
     // Mounted LABELLED: the spinbutton is a real <input>, so axe's `label` rule

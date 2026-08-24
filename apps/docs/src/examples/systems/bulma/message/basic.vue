@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { BuMessage, BuMessageBody, BuMessageHeader } from '@paper/bulma'
+  import { BuMessage, BuMessageBody, BuMessageDelete, BuMessageHeader } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
 
@@ -19,6 +19,7 @@
   <BuMessage v-model="open">
     <BuMessageHeader>
       <p>Hello World</p>
+      <BuMessageDelete />
     </BuMessageHeader>
 
     <BuMessageBody>

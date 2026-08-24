@@ -1,3 +1,3 @@
-export type { BuNotificationProps } from './BuNotification.vue'
+export type { BuNotificationContext, BuNotificationProps } from './BuNotification.vue'
 
 export { default as BuNotification } from './BuNotification.vue'

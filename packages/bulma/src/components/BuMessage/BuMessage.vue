@@ -13,7 +13,7 @@
   }
 
   export interface BuMessageContext {
-    /** Dismiss the message — drives the delete button in BuMessageHeader. */
+    /** Dismiss the message — drives BuMessageDelete. */
     close: () => void
   }
 
@@ -28,7 +28,7 @@
   defineOptions({ name: 'BuMessage', inheritAttrs: false })
 
   defineSlots<{
-    /** `article.message` children — BuMessageHeader and BuMessageBody. */
+    /** `article.message` children — BuMessageHeader (with optional BuMessageDelete) and BuMessageBody. */
     default?: () => any
   }>()
 

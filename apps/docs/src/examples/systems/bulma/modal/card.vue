@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { BuModal, BuModalBody, BuModalCard, BuModalFoot, BuModalHead, BuModalTitle } from '@paper/bulma'
+  import { BuModal, BuModalBody, BuModalCard, BuModalDelete, BuModalFoot, BuModalHead, BuModalTitle } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
 
@@ -15,13 +15,14 @@
     <BuModalCard>
       <BuModalHead>
         <BuModalTitle>Modal title</BuModalTitle>
+        <BuModalDelete />
       </BuModalHead>
 
       <BuModalBody>
         <p>
           Composing <code>BuModalCard</code> renders the <code>.modal-card</code>
-          variant: head, body and foot regions, with the <code>.delete</code>
-          button wired to close.
+          variant: head, body and foot regions. Compose <code>BuModalDelete</code>
+          in the head for the card-head X.
         </p>
       </BuModalBody>
 

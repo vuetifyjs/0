@@ -6,6 +6,8 @@ import { BuNotification } from './index'
 import { createApp, h, nextTick, shallowRef } from 'vue'
 
 import { conform } from '../../../harness/conform'
+// Components
+import { BuNotificationDelete } from '../BuNotificationDelete'
 
 let teardown: (() => void) | undefined
 
@@ -39,7 +41,9 @@ const TYPE = { ignoreAttrs: ['type'] }
 
 describe('buNotification', () => {
   it('should conform to the basic notification fixture', () => {
-    const host = mount(() => h(BuNotification, {}, { default: () => body }))
+    const host = mount(() => h(BuNotification, {}, {
+      default: () => [h(BuNotificationDelete), ...body],
+    }))
 
     conform(host.firstElementChild!, 'notification', TYPE)
   })
@@ -47,6 +51,7 @@ describe('buNotification', () => {
   it('should conform to the color variant fixture', () => {
     const host = mount(() => h(BuNotification, { color: 'primary' }, {
       default: () => [
+        h(BuNotificationDelete),
         'Primar lorem ipsum dolor sit amet, consectetur adipiscing elit lorem ipsum dolor. ',
         h('strong', 'Pellentesque risus mi'),
         ', tempus quis placerat ut, porta nec nulla. Vestibulum rhoncus ac ex sit amet fringilla. Nullam gravida purus diam, et dictum ',
@@ -65,7 +70,7 @@ describe('buNotification', () => {
       'onUpdate:modelValue': (value: boolean) => {
         open.value = value
       },
-    }, { default: () => 'content' }))
+    }, { default: () => [h(BuNotificationDelete), 'content'] }))
 
     host.querySelector<HTMLButtonElement>('.delete')!.click()
     await nextTick()

@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { Presence } from '@vuetify/v0'
+  import { createContext, Presence } from '@vuetify/v0'
 
   // Utilities
   import { toRef, useAttrs } from 'vue'
@@ -11,13 +11,24 @@
     /** Light color variant, rendered as `is-light`. */
     light?: boolean
   }
+
+  export interface BuNotificationContext {
+    /** Dismiss the notification — drives BuNotificationDelete. */
+    close: () => void
+  }
+
+  // Only the parent provides, so the provider stays module-local; parts import
+  // the hook.
+  const [useBuNotification, provideBuNotification] = createContext<BuNotificationContext | null>('bulma:notification', null)
+
+  export { useBuNotification }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'BuNotification', inheritAttrs: false })
 
   defineSlots<{
-    /** Notification content, rendered after the delete button. */
+    /** Notification content — compose BuNotificationDelete first to match the documented shape. */
     default?: () => any
   }>()
 
@@ -39,9 +50,11 @@
     light && 'is-light',
   ])
 
-  function onDelete () {
-    model.value = false
-  }
+  provideBuNotification({
+    close: () => {
+      model.value = false
+    },
+  })
 </script>
 
 <template>
@@ -55,14 +68,6 @@
       :data-state="state['data-state']"
       v-bind="attrs"
     >
-      <!-- Deliberate a11y addition: upstream fixture ships this button unlabeled -->
-      <button
-        aria-label="delete"
-        class="delete"
-        type="button"
-        @click="onDelete"
-      />
-
       <slot />
     </div>
   </Presence>

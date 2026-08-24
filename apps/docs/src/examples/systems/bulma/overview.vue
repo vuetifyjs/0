@@ -18,6 +18,7 @@
     BuModal,
     BuModalBody,
     BuModalCard,
+    BuModalDelete,
     BuModalFoot,
     BuModalHead,
     BuModalTitle,
@@ -25,6 +26,7 @@
     BuNavbarBrand,
     BuNavbarMenu,
     BuNotification,
+    BuNotificationDelete,
     BuNumberField,
     BuNumberFieldDecrement,
     BuNumberFieldIncrement,
@@ -137,6 +139,7 @@
 
       <div class="column">
         <BuNotification v-model="notice" color="info">
+          <BuNotificationDelete />
           Bulma ships the classes. Escape, focus return, and the burger toggle
           come from Vuetify0.
         </BuNotification>
@@ -253,6 +256,7 @@
     <BuModalCard>
       <BuModalHead>
         <BuModalTitle>New repository</BuModalTitle>
+        <BuModalDelete />
       </BuModalHead>
 
       <BuModalBody>

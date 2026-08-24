@@ -17,6 +17,7 @@ import { BuModalBody } from '../BuModalBody'
 import { BuModalCard } from '../BuModalCard'
 import { BuModalClose } from '../BuModalClose'
 import { BuModalContent } from '../BuModalContent'
+import { BuModalDelete } from '../BuModalDelete'
 import { BuModalFoot } from '../BuModalFoot'
 import { BuModalHead } from '../BuModalHead'
 import { BuModalTitle } from '../BuModalTitle'
@@ -44,7 +45,10 @@ afterEach(() => {
 
 function card () {
   return () => h(BuModalCard, null, () => [
-    h(BuModalHead, null, () => h(BuModalTitle, null, () => 'Modal title')),
+    h(BuModalHead, null, () => [
+      h(BuModalTitle, null, () => 'Modal title'),
+      h(BuModalDelete),
+    ]),
     h(BuModalBody),
     h(BuModalFoot, null, () => h('div', { class: 'buttons' }, [
       h('button', { class: 'button is-success' }, 'Save changes'),
