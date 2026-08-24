@@ -477,6 +477,26 @@ range(5, 10)  // [10, 11, 12, 13, 14]
 range(0)      // []
 ```
 
+### findMatchRanges
+
+Locate a query inside a string and get back `[start, end]` pairs, optionally folding accents before matching. This is what backs the `ignoreAccents` option of [toHighlight](/composables/transformers/to-highlight):
+
+```ts
+import { findMatchRanges } from '@vuetify/v0'
+
+findMatchRanges('Zürich', 'zurich', { ignoreCase: true, ignoreAccents: true })  // [[0, 6]]
+findMatchRanges('Zürich', 'zurich', { ignoreCase: true })                       // []
+```
+
+`ignoreAccents` is directional. `'target'` folds only the text, so a plain query reaches accented entries; `'query'` folds only the search term, so a pasted `café` reaches plain `cafe`; `true` folds both sides.
+
+```ts
+findMatchRanges('Łódź', 'Lo', { ignoreAccents: 'target' })   // [[0, 2]]
+findMatchRanges('cafe', 'café', { ignoreAccents: 'query' })  // [[0, 4]]
+```
+
+Folding strips Combining Diacritical Marks (U+0300–036F) after NFD, then common letters NFD leaves alone (`ł`, `ø`, `đ`, `ß`, `æ`, `œ`, …). When the text is folded or case-converted, ranges are mapped back onto the source — `ß` → `ss` still spans one source character, and `İ` still spans one. Pass `matchAll: true` for every occurrence instead of the first.
+
 ### pxToNumber
 
 Parse a CSS pixel length into a number. Built for reading `getComputedStyle` output, where a length that does not apply resolves to `''` or `'auto'` rather than to a number:
@@ -534,4 +554,3 @@ const id = useId()  // 'v:0' (Vue's format)
 // Outside component
 const id = useId()  // 'v0-0', 'v0-1', ...
 ```
-
