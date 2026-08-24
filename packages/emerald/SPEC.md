@@ -40,8 +40,9 @@ Flat color maps for v0’s theme engine: `src/colors.ts` (`emeraldColors` + `eme
 
 ### Dark theme
 
-`createEmeraldPlugin` registers two themes: `emerald` (default) and `emerald-dark`
-(`dark: true`). The dark map is derived, not Figma-paged: each family inverts the
+`createEmeraldPlugin` registers two themes: `emerald-light` (default) and `emerald-dark`
+(`dark: true`). It follows the OS via `system: { light: 'emerald-light', dark: 'emerald-dark' }`
+until `useTheme().select`. The dark map is derived, not Figma-paged: each family inverts the
 light family’s lightness ladder with re-tuned chroma (100 = deepest tint, 600/1000 =
 brightest), `on-*` flips to ink-on-color (white fails AA on the brighter dark
 DEFAULTs), surfaces anchor on `background.dark` / `surface.dark`, and shadows swap
@@ -74,6 +75,33 @@ showcase quality.
 - **Shells** (Checkbox, Switch, Button, TextField, Slider): fixed anatomy in one SFC; props for simple text (e.g. `label`, `description`).
 - **Compounds** (Dialog, Select, Tabs, Pagination, Avatar, Card, Alert): one Em* per region; consumer builds the tree with default slots only.
 - **Install:** consumers use `createEmeraldPlugin` + CSS; they do not construct the stylesheet adapter unless they already own a theme plugin.
+
+## Compound access
+
+Every compound attaches its sub-components to the root, so one import reaches
+the whole tree. The sub-key drops the parent prefix — `EmCalendarGrid` is
+`EmCalendar.Grid`, `EmListItemTitle` is `EmList.ItemTitle`.
+
+```vue
+<script setup lang="ts">
+  import { EmCalendar } from '@paper/emerald'
+</script>
+
+<template>
+  <EmCalendar>
+    <EmCalendar.Header>
+      <EmCalendar.Prev />
+    </EmCalendar.Header>
+
+    <EmCalendar.Grid />
+  </EmCalendar>
+</template>
+```
+
+- The flat names stay exported and stay valid — the dot path and `EmCalendarGrid` are the same component object, so mixing the two styles is safe.
+- The root is the compound: Emerald has no `.Root` key, unlike v0's `Splitter.Root`.
+- A key that reads as a parent in the markup (`EmExpansionPanel.Group`, `EmSnackbar.Portal`, `EmRadio.Group`) is still reached through the root — the dot path is an access path, not a nesting claim.
+- Single-SFC shells (`EmButton`, `EmIcon`, `EmTextField`, …) attach nothing.
 
 ## Wave 1 surface (preview)
 

@@ -79,7 +79,7 @@ export function generateAppWrapper (entryPath: string): string {
  * Build the src/-prefixed file record that loadExample expects.
  * When dir is provided, files are nested: src/{dir}/{name}
  */
-function buildPlaygroundFiles (inputFiles: PlaygroundFile[], dir?: string): Record<string, string> {
+export function buildPlaygroundFiles (inputFiles: PlaygroundFile[], dir?: string): Record<string, string> {
   const files: Record<string, string> = {}
   const prefix = dir ? `src/${dir}` : 'src'
 
@@ -213,7 +213,14 @@ export interface PlaygroundHashData {
   files: Record<string, string>
   active?: string
   imports?: Record<string, string>
-  settings?: { vue?: string, v0?: string, preset?: string, addons?: string }
+  settings?: {
+    vue?: string
+    v0?: string
+    vuetify?: string
+    vuetifyNightly?: boolean
+    preset?: string
+    addons?: string
+  }
 }
 
 /**
@@ -223,11 +230,13 @@ export async function encodePlaygroundHash (data: PlaygroundHashData): Promise<s
   return utoa(JSON.stringify(data))
 }
 
-function isValidSettings (v: unknown): v is { vue?: string, v0?: string, preset?: string, addons?: string } {
+function isValidSettings (v: unknown): v is PlaygroundHashData['settings'] {
   if (!isObject(v)) return false
   const s = v as Record<string, unknown>
   return (isUndefined(s.vue) || isString(s.vue))
     && (isUndefined(s.v0) || isString(s.v0))
+    && (isUndefined(s.vuetify) || isString(s.vuetify))
+    && (isUndefined(s.vuetifyNightly) || typeof s.vuetifyNightly === 'boolean')
     && (isUndefined(s.preset) || isString(s.preset))
     && (isUndefined(s.addons) || isString(s.addons))
 }

@@ -159,7 +159,7 @@
 </script>
 
 <template>
-  <div class="emerald-sink" data-theme="emerald">
+  <div class="emerald-sink" data-theme="emerald-light">
     <header class="sink-header">
       <h1>Emerald Kitchen Sink</h1>
 

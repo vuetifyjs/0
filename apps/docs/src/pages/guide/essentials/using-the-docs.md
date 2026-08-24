@@ -14,7 +14,7 @@ related:
   - /introduction/getting-started
 ---
 
-<script setup>
+<script setup lang="ts">
 import { useRtl } from '@vuetify/v0'
 import { useSettings } from '@/composables/useSettings'
 
@@ -401,9 +401,9 @@ Click any item to expand its details, including code examples where available.
 
 ### Dedicated API Pages
 
-For focused reference, visit `/api/{name}`:
+For focused reference, visit `/api/{name}` (kebab-case slug, e.g. `/api/dialog`):
 
-- All component variants shown together (e.g., Dialog.Root, Dialog.Content)
+- All component variants shown together (e.g. Dialog.Root, Dialog.Content)
 - Full details without page navigation
 - Useful for side-by-side comparison
 

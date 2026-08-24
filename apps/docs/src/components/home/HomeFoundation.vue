@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <!-- Vuetify 5 quote -->
+    <!-- Vuetify adoption quote -->
     <div class="p-5 md:p-6 rounded-xl border border-primary/30 bg-surface-tint mb-12 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
       <img
         alt="John Leider"
@@ -58,7 +58,7 @@
 
       <div>
         <p class="text-sm leading-relaxed italic opacity-80">
-          "Vuetify 5 will be built on v0. Every pattern we've refined over a decade is becoming the foundation for the next generation."
+          "Vuetify 4 starts consuming v0 in 4.2.0, and every minor after that takes more of it. Every pattern we've refined over a decade is becoming the foundation Vuetify 5 gets built on."
         </p>
 
         <p class="text-xs opacity-50 mt-2">John Leider, Creator of Vuetify</p>

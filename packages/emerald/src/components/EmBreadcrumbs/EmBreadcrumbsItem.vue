@@ -3,14 +3,9 @@
   import { Breadcrumbs } from '@vuetify/v0'
 
   // Types
-  import type { ID } from '@vuetify/v0'
+  import type { BreadcrumbsItemProps } from '@vuetify/v0'
 
-  export interface EmBreadcrumbsItemProps {
-    id?: ID
-    value?: unknown
-    text?: string
-    namespace?: string
-  }
+  export interface EmBreadcrumbsItemProps extends Omit<BreadcrumbsItemProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

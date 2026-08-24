@@ -10,7 +10,7 @@ vi.mock('#v0/constants/globals', () => ({
   IN_BROWSER: false,
 }))
 
-import { useTheme } from './index'
+import { createTheme, useTheme } from './index'
 
 describe('useTheme SSR', () => {
   it('does not throw when called without a provider', () => {
@@ -34,5 +34,19 @@ describe('useTheme SSR', () => {
     const second = useTheme()
 
     expect(first).not.toBe(second)
+  })
+
+  it('should keep default selected while following system on the server', () => {
+    const theme = createTheme({
+      default: 'dark',
+      system: { light: 'light', dark: 'dark' },
+      themes: {
+        light: { dark: false, colors: { primary: '#fff' } },
+        dark: { dark: true, colors: { primary: '#000' } },
+      },
+    })
+
+    expect(theme.isSystem.value).toBe(true)
+    expect(theme.selectedId.value).toBe('dark')
   })
 })

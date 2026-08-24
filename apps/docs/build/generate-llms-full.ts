@@ -243,7 +243,7 @@ function generateLlmsTxt (pages: PageInfo[]): string {
   }
 
   // AI Resources section
-  lines.push('## AI Resources', '', `- [SKILL.md](${BASE_URL}/SKILL.md): Compact reference with patterns, anti-patterns, and TypeScript types for AI coding assistants`, `- [Vuetify MCP](${BASE_URL}/guide/tooling/vuetify-mcp): Model Context Protocol server for structured API access`, '')
+  lines.push('## AI Resources', '', `- [SKILL.md](${BASE_URL}/SKILL.md): Compact reference with patterns, anti-patterns, and TypeScript types for AI coding assistants`, `- [REFERENCE.md](${BASE_URL}/REFERENCE.md): Detailed API examples agents load on demand`, `- [Vuetify MCP](${BASE_URL}/guide/tooling/vuetify-mcp): Model Context Protocol server for structured API access`, '')
 
   return lines.join('\n')
 }

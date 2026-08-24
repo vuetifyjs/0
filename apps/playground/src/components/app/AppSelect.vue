@@ -19,10 +19,12 @@
   const {
     items,
     mandatory,
+    disabled,
     placeholder = 'Select...',
   } = defineProps<{
     items: AppSelectItem[]
     mandatory?: boolean
+    disabled?: boolean
     placeholder?: string
   }>()
 
@@ -35,22 +37,22 @@
 </script>
 
 <template>
-  <Select.Root v-model="model" :mandatory>
-    <Select.Activator class="trigger">
+  <Select.Root v-model="model" :disabled :mandatory>
+    <Select.Activator class="flex items-center justify-between gap-1.5 w-full bg-surface-variant border border-outline-variant rounded-md text-on-surface text-[13px] px-2.5 py-1.5 text-left transition-colors hover:not-data-[disabled]:border-outline data-[disabled]:opacity-60 data-[disabled]:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-primary focus-visible:-outline-offset-1">
       <span>{{ selectedLabel }}</span>
 
-      <Select.Cue class="cue">
+      <Select.Cue class="flex items-center shrink-0 text-on-surface-variant transition-transform data-[state=open]:rotate-180">
         <AppIcon icon="chevron-down" :size="14" />
       </Select.Cue>
     </Select.Activator>
 
-    <Select.Content class="content">
+    <Select.Content class="bg-surface border border-outline-variant rounded-md shadow-lg text-[13px] max-h-[260px] overflow-y-auto p-1" style="width: anchor-size(width)">
       <Select.Item
         v-for="item in items"
         :id="item.id"
         :key="item.id"
         v-slot="{ isSelected }"
-        class="item"
+        class="flex items-center justify-between rounded text-on-surface cursor-pointer px-2 py-1.5 transition-colors select-none hover:bg-surface-tint data-[highlighted]:bg-surface-tint data-[selected]:text-primary"
         :value="item.id"
       >
         <span>{{ item.label }}</span>
@@ -58,7 +60,7 @@
         <svg
           v-if="isSelected"
           aria-hidden="true"
-          class="check"
+          class="text-primary shrink-0"
           fill="none"
           height="12"
           stroke="currentColor"
@@ -72,80 +74,3 @@
     </Select.Content>
   </Select.Root>
 </template>
-
-<style scoped>
-.trigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  width: 100%;
-  background: var(--v0-surface-variant);
-  border: 1px solid var(--v0-outline-variant, var(--v0-outline));
-  border-radius: 6px;
-  color: var(--v0-on-surface);
-  font-size: 13px;
-  padding: 6px 10px;
-  text-align: left;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.trigger:hover {
-  border-color: var(--v0-outline);
-}
-
-.trigger:focus-visible {
-  outline: 2px solid var(--v0-primary);
-  outline-offset: -1px;
-}
-
-.cue {
-  display: flex;
-  align-items: center;
-  color: var(--v0-on-surface-variant);
-  flex-shrink: 0;
-  transition: transform 0.15s;
-}
-
-.cue[data-state="open"] {
-  transform: rotate(180deg);
-}
-
-.content {
-  background: var(--v0-surface);
-  border: 1px solid var(--v0-outline-variant, var(--v0-outline));
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  font-size: 13px;
-  max-height: 260px;
-  width: anchor-size(width);
-  overflow-y: auto;
-  padding: 4px;
-}
-
-.item {
-  align-items: center;
-  border-radius: 4px;
-  color: var(--v0-on-surface);
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 8px;
-  transition: background 0.1s;
-  user-select: none;
-}
-
-.item:hover,
-.item[data-highlighted] {
-  background: var(--v0-surface-tint);
-}
-
-.item[data-selected] {
-  color: var(--v0-primary);
-}
-
-.check {
-  color: var(--v0-primary);
-  flex-shrink: 0;
-}
-</style>

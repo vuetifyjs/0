@@ -5,12 +5,15 @@
   // Types
   import type { PopoverActivatorProps } from '@vuetify/v0'
 
-  export interface EmPopoverActivatorProps extends Pick<PopoverActivatorProps, 'as'> {
+  export interface EmPopoverActivatorProps extends Pick<
+    PopoverActivatorProps,
+    'as' | 'renderless'
+  > {
     /**
      * When true, Activator is a pure slot host — bind `attrs` onto your own
      * trigger (e.g. EmButton) so you do not nest interactive elements.
      */
-    renderless?: boolean
+    renderless?: PopoverActivatorProps['renderless']
   }
 </script>
 

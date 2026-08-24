@@ -185,6 +185,7 @@ declare global {
   const flatten: typeof import('../../packages/0/src/composables/createTokens/index').flatten
   const foreground: typeof import('../../packages/0/src/utilities/apca').foreground
   const genId: typeof import('../../packages/0/src/utilities/helpers').genId
+  const getActiveElement: typeof import('../../packages/0/src/utilities/helpers').getActiveElement
   const getCurrentInstance: typeof import('vue').getCurrentInstance
   const getCurrentInstanceName: typeof import('../../packages/paper/src/utilities/getCurrentInstanceName').getCurrentInstanceName
   const getCurrentScope: typeof import('vue').getCurrentScope
@@ -239,6 +240,7 @@ declare global {
   const parseColor: typeof import('../../packages/paper/src/composables/useColor/index').parseColor
   const provide: typeof import('vue').provide
   const provideContext: typeof import('../../packages/0/src/composables/createContext/index').provideContext
+  const pxToNumber: typeof import('../../packages/0/src/utilities/helpers').pxToNumber
   const range: typeof import('../../packages/0/src/utilities/helpers').range
   const reactive: typeof import('vue').reactive
   const readonly: typeof import('vue').readonly
@@ -566,7 +568,7 @@ declare global {
   export type { StorageContext, StorageOptions, StorageContextOptions, StoragePluginOptions, StorageType } from '../../packages/0/src/composables/useStorage/index'
   import('../../packages/0/src/composables/useStorage/index')
   // @ts-ignore
-  export type { Colors, ThemeColors, ThemeRecord, ThemeTicketInput, ThemeTicket, ThemeContext, ThemeOptions, ThemeContextOptions, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
+  export type { Colors, ThemeColors, ThemeRecord, ThemeTicketInput, ThemeTicket, ThemeContext, ThemeSystemPair, ThemeOptions, ThemeContextOptions, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
   import('../../packages/0/src/composables/useTheme/index')
   // @ts-ignore
   export type { TimerOptions, TimerContext } from '../../packages/0/src/composables/useTimer/index'
@@ -755,6 +757,7 @@ declare module 'vue' {
     readonly extractLeaves: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['extractLeaves']>
     readonly flatten: UnwrapRef<typeof import('../../packages/0/src/composables/createTokens/index')['flatten']>
     readonly foreground: UnwrapRef<typeof import('../../packages/0/src/utilities/apca')['foreground']>
+    readonly getActiveElement: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['getActiveElement']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentInstanceName: UnwrapRef<typeof import('../../packages/paper/src/utilities/getCurrentInstanceName')['getCurrentInstanceName']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
@@ -808,6 +811,7 @@ declare module 'vue' {
     readonly parseColor: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['parseColor']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideContext: UnwrapRef<typeof import('../../packages/0/src/composables/createContext/index')['provideContext']>
+    readonly pxToNumber: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['pxToNumber']>
     readonly range: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['range']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>

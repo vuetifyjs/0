@@ -1,28 +1,23 @@
 <script lang="ts">
   // Framework
   import { Input } from '@vuetify/v0'
-  // Utilities
   import { useId } from '@vuetify/v0/utilities'
 
-  // Types
-  import type { FormValidationRule, ID, ValidateOn } from '@vuetify/v0'
+  // Utilities
+  import { toValue } from 'vue'
 
-  export interface EmTextareaProps {
-    id?: ID
+  // Types
+  import type { InputRootProps } from '@vuetify/v0'
+
+  /** Emerald withholds `form` and `type` from v0's input surface; everything else tracks it. */
+  type EmTextareaKeys = 'id' | 'label' | 'disabled' | 'readonly' | 'required' | 'name' | 'rules' | 'validateOn' | 'error' | 'errorMessages' | 'namespace'
+
+  export interface EmTextareaProps extends Pick<InputRootProps, EmTextareaKeys> {
     /** Visible label text; associated via `for`/`id` (not Root aria-label) */
-    label?: string
+    label?: InputRootProps['label']
     /** Help text under the control (no named slots — props only) */
     description?: string
-    disabled?: boolean
-    readonly?: boolean
-    required?: boolean
-    name?: string
     placeholder?: string
-    rules?: FormValidationRule[]
-    validateOn?: ValidateOn
-    error?: boolean
-    errorMessages?: string | string[]
-    namespace?: string
     /** Visible text rows; drives native `rows` and control min-height */
     rows?: number
   }
@@ -58,7 +53,7 @@
     :id
     v-model="model"
     class="emerald-textarea"
-    :data-disabled="disabled || undefined"
+    :data-disabled="toValue(disabled) || undefined"
     :disabled
     :error
     :error-messages

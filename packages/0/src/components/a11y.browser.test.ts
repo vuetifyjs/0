@@ -1,6 +1,7 @@
 import { afterAll, describe, expect, it } from 'vitest'
 
 // Context
+import AlertFixture from './fixtures/Alert.vue'
 import AlertDialogFixture from './fixtures/AlertDialog.vue'
 import AspectRatioFixture from './fixtures/AspectRatio.vue'
 import AtomFixture from './fixtures/Atom.vue'
@@ -117,6 +118,7 @@ import type { Component } from 'vue'
 // explicit-array convention in src/surface.test.ts — a component entering or
 // leaving the sweep should be a reviewable diff, not a side effect of a glob.
 const FIXTURES = {
+  Alert: AlertFixture,
   AlertDialog: AlertDialogFixture,
   AspectRatio: AspectRatioFixture,
   Atom: AtomFixture,

@@ -14,9 +14,14 @@
   const Repl = defineAsyncComponent(() =>
     import('@vue/repl').then(m => m.Repl),
   )
-  const Monaco = defineAsyncComponent(() =>
-    import('@vue/repl/monaco-editor'),
-  )
+  const Monaco = defineAsyncComponent(() => {
+    const g = globalThis as typeof globalThis & {
+      MonacoEnvironment?: { globalAPI?: boolean }
+    }
+    g.MonacoEnvironment ??= {}
+    g.MonacoEnvironment.globalAPI = true
+    return import('@vue/repl/monaco-editor')
+  })
 
   const editorOptions = toRef(() => ({
     monacoOptions: {
@@ -31,8 +36,8 @@
   // already-created editor instance through the prop, so it's also pushed
   // directly via editor.updateOptions(). This needs globalThis.monaco, set as
   // a side effect of the dynamic import below, but only once
-  // MonacoEnvironment.globalAPI is set - see main.ts, which sets it before
-  // this module can ever be imported.
+  // MonacoEnvironment.globalAPI is set - the Monaco loader above sets it
+  // before the editor module is imported.
   watch(() => playground.wordWrap.value, async wordWrapOn => {
     await import('@vue/repl/monaco-editor')
     const monaco = (globalThis as { monaco?: any }).monaco

@@ -2,12 +2,13 @@
   // Framework
   import { Select } from '@vuetify/v0'
 
+  // Types
+  import type { SelectActivatorProps } from '@vuetify/v0'
+
   // Components
   import EmIcon from '../EmIcon/EmIcon.vue'
 
-  export interface EmSelectActivatorProps {
-    namespace?: string
-  }
+  export interface EmSelectActivatorProps extends Omit<SelectActivatorProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

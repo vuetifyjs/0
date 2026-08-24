@@ -1,9 +1,43 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { usePopover } from './index'
+import { PopoverAdapter, usePopover } from './index'
 
 // Utilities
-import { effectScope, shallowRef } from 'vue'
+import { effectScope, nextTick, shallowRef, toRef } from 'vue'
+
+// Types
+import type { PopoverAdapterContext } from './index'
+import type { Ref } from 'vue'
+
+function createPopoverElement (options: { open?: boolean, connected?: boolean } = {}) {
+  const state = {
+    open: options.open ?? false,
+    connected: options.connected ?? true,
+  }
+
+  const showPopover = vi.fn(() => {
+    state.open = true
+  })
+  const hidePopover = vi.fn(() => {
+    state.open = false
+  })
+
+  const element = {
+    get isConnected () {
+      return state.connected
+    },
+    set isConnected (value: boolean) {
+      state.connected = value
+    },
+    showPopover,
+    hidePopover,
+    matches: vi.fn((selector: string) => selector === ':popover-open' && state.open),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  } as unknown as HTMLElement
+
+  return { element, showPopover, hidePopover }
+}
 
 describe('usePopover', () => {
   beforeEach(() => {
@@ -197,6 +231,203 @@ describe('usePopover', () => {
     })
   })
 
+  class RecordingAdapter extends PopoverAdapter {
+    context?: PopoverAdapterContext
+    disposed = false
+
+    setup (context: PopoverAdapterContext): Readonly<Ref<Record<string, string>>> {
+      this.context = context
+      this.dispose = () => {
+        this.disposed = true
+      }
+      return toRef(() => ({ 'custom-style': context.placement.value.side }))
+    }
+  }
+
+  describe('adapter seam', () => {
+    it('should use the default V0PopoverAdapter output when no adapter is given', () => {
+      const popover = usePopover({ id: 'test' })
+
+      expect(popover.contentStyles.value).toEqual({
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset-area': 'bottom',
+        'position-area': 'bottom',
+        'position-anchor': '--test',
+        'position-try-fallbacks': 'most-width bottom',
+      })
+    })
+
+    it('should defer contentStyles entirely to a custom adapter', () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ id: 'test', positionArea: 'top', adapter })
+
+      expect(popover.contentStyles.value).toEqual({ 'custom-style': 'top' })
+    })
+
+    it('should pass anchorName, positionTry, and isOpen through to the adapter context', () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ id: 'test', positionTry: 'most-height top', adapter })
+
+      expect(adapter.context!.anchorName).toBe('--test')
+      expect(adapter.context!.positionTry).toBe('most-height top')
+      expect(adapter.context!.isOpen).toBe(popover.isOpen)
+    })
+
+    it('should populate contentEl in the adapter context via attach()', () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ adapter })
+
+      expect(adapter.context!.contentEl.value).toBeUndefined()
+
+      const el = document.createElement('div')
+      const scope = effectScope()
+      scope.run(() => {
+        popover.attach(shallowRef(el))
+      })
+
+      expect(adapter.context!.contentEl.value).toBe(el)
+
+      scope.stop()
+
+      expect(adapter.context!.contentEl.value).toBeNull()
+    })
+
+    it('should populate anchorEl in the adapter context via attachAnchor()', () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ adapter })
+
+      const el = document.createElement('div')
+      const scope = effectScope()
+      scope.run(() => {
+        popover.attachAnchor(shallowRef(el))
+      })
+
+      expect(adapter.context!.anchorEl.value).toBe(el)
+
+      scope.stop()
+
+      expect(adapter.context!.anchorEl.value).toBeNull()
+    })
+
+    it('should call the adapter dispose hook on scope disposal', () => {
+      const adapter = new RecordingAdapter()
+      const scope = effectScope()
+
+      scope.run(() => {
+        usePopover({ adapter })
+      })
+
+      expect(adapter.disposed).toBe(false)
+      scope.stop()
+      expect(adapter.disposed).toBe(true)
+    })
+  })
+
+  describe('attach lifecycle', () => {
+    it('should hand sync ownership to the newest attached content element', async () => {
+      const popover = usePopover()
+      const first = createPopoverElement()
+      const second = createPopoverElement()
+      const scope = effectScope()
+
+      scope.run(() => {
+        popover.attach(shallowRef(first.element))
+      })
+
+      popover.isOpen.value = true
+      await nextTick()
+      expect(first.showPopover).toHaveBeenCalledTimes(1)
+
+      scope.run(() => {
+        popover.attach(shallowRef(second.element))
+      })
+      await nextTick()
+
+      expect(first.hidePopover).toHaveBeenCalledTimes(1)
+      expect(second.showPopover).toHaveBeenCalledTimes(1)
+
+      popover.isOpen.value = false
+      await nextTick()
+
+      expect(second.hidePopover).toHaveBeenCalledTimes(1)
+      expect(first.hidePopover).toHaveBeenCalledTimes(1)
+
+      scope.stop()
+    })
+
+    it('should track only the newest anchor registration', async () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ adapter })
+      const first = shallowRef<HTMLElement | null>(document.createElement('div'))
+      const second = shallowRef<HTMLElement | null>(document.createElement('div'))
+      const scope = effectScope()
+
+      scope.run(() => {
+        popover.attachAnchor(first)
+      })
+      expect(adapter.context!.anchorEl.value).toBe(first.value)
+
+      scope.run(() => {
+        popover.attachAnchor(second)
+      })
+      expect(adapter.context!.anchorEl.value).toBe(second.value)
+
+      first.value = document.createElement('span')
+      await nextTick()
+      expect(adapter.context!.anchorEl.value).toBe(second.value)
+
+      scope.stop()
+    })
+
+    it('should stop watchers and clear element refs when the attaching scope is disposed', async () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ adapter })
+      const anchor = shallowRef<HTMLElement | null>(document.createElement('div'))
+      const content = shallowRef<HTMLElement | null>(document.createElement('div'))
+      const scope = effectScope()
+
+      scope.run(() => {
+        popover.attachAnchor(anchor)
+        popover.attach(content)
+      })
+
+      expect(adapter.context!.anchorEl.value).toBe(anchor.value)
+      expect(adapter.context!.contentEl.value).toBe(content.value)
+
+      scope.stop()
+
+      expect(adapter.context!.anchorEl.value).toBeNull()
+      expect(adapter.context!.contentEl.value).toBeNull()
+
+      anchor.value = document.createElement('span')
+      content.value = document.createElement('span')
+      await nextTick()
+
+      expect(adapter.context!.anchorEl.value).toBeNull()
+      expect(adapter.context!.contentEl.value).toBeNull()
+    })
+
+    it('should not warn outside a scope and still replace the prior watcher', async () => {
+      using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ adapter })
+      const first = shallowRef<HTMLElement | null>(document.createElement('div'))
+      const second = shallowRef<HTMLElement | null>(document.createElement('div'))
+
+      popover.attachAnchor(first)
+      popover.attachAnchor(second)
+      expect(adapter.context!.anchorEl.value).toBe(second.value)
+
+      first.value = document.createElement('span')
+      await nextTick()
+
+      expect(adapter.context!.anchorEl.value).toBe(second.value)
+      expect(warn).not.toHaveBeenCalled()
+    })
+  })
+
   describe('auto-cleanup', () => {
     it('should clean up timers on scope disposal', () => {
       const scope = effectScope()
@@ -212,6 +443,116 @@ describe('usePopover', () => {
 
       vi.advanceTimersByTime(500)
       expect(popover!.isOpen.value).toBe(false)
+    })
+  })
+
+  describe('attach', () => {
+    it('should hide when the same still-open node reappears after close while the getter is null', async () => {
+      const scope = effectScope()
+      const { element, showPopover, hidePopover } = createPopoverElement()
+      const target = shallowRef<HTMLElement | null>(element)
+
+      const popover = scope.run(() => {
+        const instance = usePopover()
+        instance.attach(() => target.value)
+        return instance
+      })!
+
+      popover.isOpen.value = true
+      await nextTick()
+      expect(showPopover).toHaveBeenCalledTimes(1)
+
+      target.value = null
+      popover.isOpen.value = false
+      await nextTick()
+
+      target.value = element
+      await nextTick()
+
+      expect(hidePopover).toHaveBeenCalled()
+      scope.stop()
+    })
+
+    it('should hide when isOpen becomes false while the element is disconnected', async () => {
+      const scope = effectScope()
+      const { element, showPopover, hidePopover } = createPopoverElement()
+      const target = shallowRef<HTMLElement | null>(element)
+
+      const popover = scope.run(() => {
+        const instance = usePopover()
+        instance.attach(() => target.value)
+        return instance
+      })!
+
+      popover.isOpen.value = true
+      await nextTick()
+      expect(showPopover).toHaveBeenCalledTimes(1)
+
+      Object.defineProperty(element, 'isConnected', { value: false, configurable: true })
+      popover.isOpen.value = false
+      await nextTick()
+
+      expect(hidePopover).toHaveBeenCalled()
+      scope.stop()
+    })
+
+    it('should hide the previous node when the getter swaps away from a still-open popover', async () => {
+      const scope = effectScope()
+      const previous = createPopoverElement()
+      const next = createPopoverElement()
+      const target = shallowRef<HTMLElement | null>(previous.element)
+
+      const popover = scope.run(() => {
+        const instance = usePopover()
+        instance.attach(() => target.value)
+        return instance
+      })!
+
+      popover.isOpen.value = true
+      await nextTick()
+      expect(previous.showPopover).toHaveBeenCalledTimes(1)
+
+      target.value = next.element
+      await nextTick()
+
+      expect(previous.hidePopover).toHaveBeenCalled()
+      scope.stop()
+    })
+
+    it('should show when attach is called while isOpen is already true', async () => {
+      const scope = effectScope()
+      const isOpen = shallowRef(true)
+      const { element, showPopover } = createPopoverElement()
+      const target = shallowRef<HTMLElement | null>(element)
+
+      scope.run(() => {
+        const instance = usePopover({ isOpen })
+        instance.attach(() => target.value)
+      })
+
+      await nextTick()
+      expect(showPopover).toHaveBeenCalledTimes(1)
+      scope.stop()
+    })
+
+    it('should hide a still-open node on scope dispose', async () => {
+      const scope = effectScope()
+      const { element, showPopover, hidePopover } = createPopoverElement()
+      const target = shallowRef<HTMLElement | null>(element)
+
+      const popover = scope.run(() => {
+        const instance = usePopover()
+        instance.attach(() => target.value)
+        return instance
+      })!
+
+      popover.isOpen.value = true
+      await nextTick()
+      expect(showPopover).toHaveBeenCalledTimes(1)
+
+      scope.stop()
+
+      expect(hidePopover).toHaveBeenCalled()
     })
   })
 })

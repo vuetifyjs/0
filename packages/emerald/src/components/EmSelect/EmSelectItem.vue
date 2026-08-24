@@ -3,12 +3,11 @@
   import { Select } from '@vuetify/v0'
 
   // Types
-  import type { ID } from '@vuetify/v0'
+  import type { ID, SelectItemProps } from '@vuetify/v0'
 
-  export interface EmSelectItemProps {
+  export interface EmSelectItemProps extends Pick<SelectItemProps, 'disabled' | 'namespace'> {
+    /** Required here, unlike v0 — an Emerald option is always addressable. */
     value: ID
-    disabled?: boolean
-    namespace?: string
   }
 </script>
 

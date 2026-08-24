@@ -6,9 +6,12 @@
   import { usePlaygroundFiles } from '@/composables/usePlaygroundFiles'
 
   // Utilities
-  import { nextTick, onMounted, shallowRef, watch } from 'vue'
+  import { nextTick, onMounted, shallowRef, toRef, watch } from 'vue'
 
   // Types
+  import type { ActiveExample } from '@/composables/usePlaygroundFiles'
+  import type { RegistryExampleRef } from '@/data/registry'
+  import type { VuetifyExampleRef } from '@/data/vuetify-examples'
   import type { ReplStore } from '@vue/repl'
   import type { Ref, ShallowRef } from 'vue'
 
@@ -22,8 +25,12 @@
     editor: { value: boolean }
     vueVersion: Ref<string | null>
     v0Version: Ref<string>
+    vuetifyVersion: Ref<string>
+    vuetifyNightly: Ref<boolean>
     vueVersions: Ref<string[]>
     v0Versions: Ref<string[]>
+    vuetifyVersions: Ref<string[]>
+    vuetifyNightlyVersions: Ref<string[]>
     fetching: Ref<boolean>
     fetchVersions: () => Promise<void>
     activePreset: ShallowRef<string>
@@ -31,17 +38,59 @@
     activeAddons: ShallowRef<string[]>
     toggleAddon: (id: string) => Promise<void>
     filesVersion: ShallowRef<number>
+    loadError: ShallowRef<string | undefined>
     openPlayground: (content: string) => Promise<void>
+    openRegistryExample: (ref: RegistryExampleRef, options?: { clearSearch?: boolean }) => Promise<void>
+    openVuetifyExample: (ref: VuetifyExampleRef, options?: { clearSearch?: boolean }) => Promise<void>
+    /** Last Open-gallery example loaded into the editor (for highlight). */
+    activeExample: ShallowRef<ActiveExample | undefined>
+    /** JSON payload for Vuetify One `playground.content`. */
+    snapshotContent: () => string
     showConfig: ShallowRef<boolean>
     wordWrap: Ref<boolean>
     showErrors: Ref<boolean>
+    /** Current playground locked state from Vuetify One. */
+    isLocked: Ref<boolean>
+    /** Keyboard shortcuts dialog. */
+    cheatsheet: ShallowRef<boolean>
   }
 
   export const [usePlayground, providePlayground] = createContext<PlaygroundContext>('v0:playground')
 </script>
 
 <script setup lang="ts">
-  const { store, isReady, filesVersion, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions, activePreset, applyPreset, activeAddons, toggleAddon, openPlayground } = usePlaygroundFiles()
+  // Composables
+  import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
+
+  const one = useOnePlaygrounds()
+
+  const {
+    store,
+    isReady,
+    filesVersion,
+    loadError,
+    vueVersion,
+    v0Version,
+    vuetifyVersion,
+    vuetifyNightly,
+    vueVersions,
+    v0Versions,
+    vuetifyVersions,
+    vuetifyNightlyVersions,
+    fetching,
+    fetchVersions,
+    activePreset,
+    applyPreset,
+    activeAddons,
+    toggleAddon,
+    openPlayground,
+    openRegistryExample,
+    openVuetifyExample,
+    activeExample,
+    snapshotContent,
+  } = usePlaygroundFiles()
+
+  const isLocked = toRef(() => one.currentMeta?.value.locked ?? false)
   const storage = useStorage()
   const { isMobile } = useBreakpoints()
 
@@ -72,6 +121,7 @@
   // Shared with the tabs strip so config files are enrolled as tabbable
   // before a click can race the mandatory Tabs.Root selection.
   const showConfig = shallowRef(false)
+  const cheatsheet = shallowRef(false)
 
   // Editor preferences, persisted per-browser (not synced to a user account).
   const wordWrap = storage.get('playground-editor-word-wrap', false)
@@ -87,8 +137,12 @@
     editor,
     vueVersion,
     v0Version,
+    vuetifyVersion,
+    vuetifyNightly,
     vueVersions,
     v0Versions,
+    vuetifyVersions,
+    vuetifyNightlyVersions,
     fetching,
     fetchVersions,
     activePreset,
@@ -96,10 +150,17 @@
     activeAddons,
     toggleAddon,
     filesVersion,
+    loadError,
     openPlayground,
+    openRegistryExample,
+    openVuetifyExample,
+    activeExample,
+    snapshotContent,
     showConfig,
     wordWrap,
     showErrors,
+    isLocked,
+    cheatsheet,
   })
 
   // Restore panel state on runtime breakpoint changes
@@ -138,6 +199,22 @@
     class="h-screen flex flex-col overflow-hidden bg-background transition-opacity duration-150"
     :class="settled ? 'opacity-100' : 'opacity-0'"
   >
+    <div
+      v-if="loadError"
+      class="flex items-center justify-between gap-3 px-3 py-2 text-xs bg-error/10 text-error border-b border-error/20 shrink-0"
+      role="alert"
+    >
+      <span class="min-w-0 truncate">{{ loadError }}</span>
+
+      <button
+        class="shrink-0 underline opacity-80 hover:opacity-100"
+        type="button"
+        @click="loadError = undefined"
+      >
+        Dismiss
+      </button>
+    </div>
+
     <slot />
   </div>
 </template>

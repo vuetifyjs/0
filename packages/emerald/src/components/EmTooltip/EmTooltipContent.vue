@@ -2,9 +2,10 @@
   // Framework
   import { Tooltip } from '@vuetify/v0'
 
-  export interface EmTooltipContentProps {
-    namespace?: string
-  }
+  // Types
+  import type { TooltipContentProps } from '@vuetify/v0'
+
+  export interface EmTooltipContentProps extends Omit<TooltipContentProps, 'as' | 'renderless'> {}
 </script>
 
 <script setup lang="ts">

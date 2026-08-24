@@ -72,7 +72,7 @@ admonitions). Kits stay prefix-blind; the DS owns the bridge.
 
 ```css
 /* Emitted alongside --emerald-* by the DS adapter (illustrative) */
-[data-theme="emerald"] {
+[data-theme="emerald-light"] {
   --emerald-primary: #26c26d;
   --v0-primary: var(--emerald-primary);
   /* …same for surface / on-surface / … */
