@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { PopoverAdapter, usePopover } from './index'
+import { PopoverAdapter, createPopoverPlugin, usePopover } from './index'
 
 // Utilities
-import { effectScope, nextTick, shallowRef, toRef } from 'vue'
+import { createApp, defineComponent, effectScope, h, nextTick, shallowRef, toRef } from 'vue'
 
 // Types
 import type { PopoverAdapterContext } from './index'
@@ -554,5 +554,70 @@ describe('usePopover', () => {
 
       expect(hidePopover).toHaveBeenCalled()
     })
+  })
+})
+
+describe('createPopoverPlugin', () => {
+  class StubAdapter extends PopoverAdapter {
+    setup () {
+      return toRef(() => ({ '--stub': 'plugin' }))
+    }
+  }
+
+  function mountProbe (setup: () => void, plugins: { install: (app: ReturnType<typeof createApp>) => void }[] = []) {
+    const Probe = defineComponent({
+      setup () {
+        setup()
+        return () => h('div')
+      },
+    })
+    const app = createApp(Probe)
+    for (const plugin of plugins) app.use(plugin)
+    const root = document.createElement('div')
+    app.mount(root)
+    return () => app.unmount()
+  }
+
+  it('uses the plugin adapter when no per-instance adapter is given', () => {
+    let popover!: ReturnType<typeof usePopover>
+    const unmount = mountProbe(() => {
+      popover = usePopover()
+    }, [createPopoverPlugin({ adapter: new StubAdapter() })])
+
+    expect(popover.contentStyles.value).toEqual({ '--stub': 'plugin' })
+    unmount()
+  })
+
+  it('prefers a per-instance adapter over the plugin adapter', () => {
+    class Winner extends PopoverAdapter {
+      setup () {
+        return toRef(() => ({ '--stub': 'instance' }))
+      }
+    }
+    let popover!: ReturnType<typeof usePopover>
+    const unmount = mountProbe(() => {
+      popover = usePopover({ adapter: new Winner() })
+    }, [createPopoverPlugin({ adapter: new StubAdapter() })])
+
+    expect(popover.contentStyles.value).toEqual({ '--stub': 'instance' })
+    unmount()
+  })
+
+  it('falls back to V0PopoverAdapter when no plugin is installed', () => {
+    let popover!: ReturnType<typeof usePopover>
+    const unmount = mountProbe(() => {
+      popover = usePopover()
+    })
+
+    expect(popover.contentStyles.value).toHaveProperty('position-area')
+    unmount()
+  })
+
+  it('falls back to V0PopoverAdapter without an injection context', () => {
+    const scope = effectScope()
+    const popover = scope.run(() => usePopover())!
+
+    expect(popover.contentStyles.value).toHaveProperty('position-area')
+    scope.stop()
   })
 })

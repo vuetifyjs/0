@@ -40,9 +40,17 @@
  *
  * const popover = usePopover({ adapter: new MyAdapter() })
  * ```
+ *
+ * @example App-wide adapter default
+ * ```ts
+ * import { createPopoverPlugin } from '@vuetify/v0'
+ *
+ * app.use(createPopoverPlugin({ adapter: new MyAdapter() }))
+ * ```
  */
 
 // Composables
+import { createPluginContext } from '#v0/composables/createPlugin'
 import { useDelay } from '#v0/composables/useDelay'
 import { useEventListener } from '#v0/composables/useEventListener'
 
@@ -85,10 +93,47 @@ export interface PopoverOptions {
   /**
    * Positioning engine. @default `new V0PopoverAdapter()` — CSS anchor
    * positioning, zero runtime dependency. Pass a custom `PopoverAdapter` to
-   * bring your own engine (floating-ui, Popper, etc.).
+   * bring your own engine (floating-ui, Popper, etc.). When omitted, an
+   * app-wide default from `createPopoverPlugin({ adapter })` is used first.
    */
   adapter?: PopoverAdapter
 }
+
+export interface PopoverPluginOptions {
+  namespace?: string
+  /**
+   * App-wide default positioning engine for every popover-derived surface
+   * (Popover, Tooltip, Select, Combobox). Precedence, most-specific wins:
+   * per-instance `adapter` option → `createTooltipPlugin({ adapter })`
+   * (tooltip surfaces only) → this option → `V0PopoverAdapter`.
+   *
+   * The instance is shared by every consuming popover: `setup()` is called
+   * once per popover, and a `dispose` (if defined) fires on each popover's
+   * scope teardown — adapters installed here must not keep per-popover
+   * state on `this`.
+   */
+  adapter?: PopoverAdapter
+}
+
+export interface PopoverPluginContext {
+  /** App-wide adapter default, or null when unset. */
+  adapter: PopoverAdapter | null
+}
+
+function createPopoverDefaults (options: Omit<PopoverPluginOptions, 'namespace'> = {}): PopoverPluginContext {
+  return { adapter: options.adapter ?? null }
+}
+
+const [createPopoverContext, createPopoverPlugin, usePopoverDefaults] =
+  createPluginContext<PopoverPluginOptions, PopoverPluginContext>(
+    'v0:popover',
+    createPopoverDefaults,
+    {
+      fallback: () => createPopoverDefaults(),
+    },
+  )
+
+export { createPopoverContext, createPopoverPlugin }
 
 export interface PopoverReturn {
   /** Whether the popover is open */
@@ -122,8 +167,10 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
     positionTry = 'most-width bottom',
     openDelay,
     closeDelay,
-    adapter = new V0PopoverAdapter(),
   } = options
+
+  const defaults = usePopoverDefaults()
+  const adapter = options.adapter ?? defaults.adapter ?? new V0PopoverAdapter()
 
   const id = _id ?? useId()
   const anchor = `--${String(id).replace(/[^a-zA-Z0-9_-]/g, '')}`
