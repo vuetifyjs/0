@@ -1,13 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Composables
+import { createPopoverPlugin, PopoverAdapter } from '#v0/composables/usePopover'
 import { createTooltipPlugin } from '#v0/composables/useTooltip'
 
 import { Tooltip } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick } from 'vue'
+import { defineComponent, h, nextTick, toRef } from 'vue'
 
 // Types
 import type { MountingOptions } from '@vue/test-utils'
@@ -401,6 +402,39 @@ describe('tooltip', () => {
       await nextTick()
 
       expect(wrapper.find('button').attributes('data-state')).not.toBe('closed')
+      wrapper.unmount()
+    })
+  })
+
+  describe('adapter precedence', () => {
+    class Stub extends PopoverAdapter {
+      constructor (readonly marker: string) {
+        super()
+      }
+
+      setup () {
+        return toRef(() => ({ '--stub': this.marker }))
+      }
+    }
+
+    it('should prefer the tooltip plugin adapter over the popover plugin adapter', async () => {
+      plugin = createTooltipPlugin({ adapter: new Stub('tooltip') })
+      const wrapper = mountTooltip(defineComponent({
+        setup () {
+          return () =>
+            h(Tooltip.Root, { modelValue: true }, () => [
+              h(Tooltip.Activator, null, () => 'Trigger'),
+              h(Tooltip.Content, null, () => 'Tip'),
+            ])
+        },
+      }), {
+        attachTo: document.body,
+        global: { plugins: [createPopoverPlugin({ adapter: new Stub('popover') })] },
+      })
+
+      await nextTick()
+
+      expect(wrapper.find('[popover]').attributes('style')).toContain('--stub: tooltip')
       wrapper.unmount()
     })
   })
