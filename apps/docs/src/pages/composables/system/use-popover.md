@@ -180,6 +180,28 @@ Everything else is unchanged — `attach()`, `attachAnchor()`, `contentAttrs`, a
 
 The [Popover](/components/disclosure/popover) component and the [Select](/components/forms/select), [Tooltip](/components/disclosure/tooltip), and `createCombobox` built on top of `usePopover` all accept the same `adapter` option (`positionAdapter` on `createCombobox`, since it already has its own filtering `adapter`) and forward it through, so swapping the positioning engine for one of those doesn't require dropping down to `usePopover` directly.
 
+## App-wide adapter default
+
+Passing `adapter` per instance works, but switching every
+popover-derived surface — Popover, Tooltip, Select, Combobox — onto one
+engine is a plugin concern. Install it once:
+
+```ts
+import { createPopoverPlugin } from '@vuetify/v0'
+
+app.use(createPopoverPlugin({ adapter: new MyAdapter() }))
+```
+
+Resolution is most-specific wins:
+
+1. per-instance `adapter` option
+2. `createTooltipPlugin({ adapter })` — tooltip surfaces only
+3. `createPopoverPlugin({ adapter })`
+4. `V0PopoverAdapter`
+
+The plugin is also the home for future popover-wide defaults (for
+example `positionTry`).
+
 ## FAQ
 
 ::: faq

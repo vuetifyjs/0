@@ -70,6 +70,7 @@ flowchart LR
 | `shouldSkipOpenDelay` | `() => boolean` | Whether the next open should bypass the delay |
 | `register` | `(input?: Partial<RegistryTicketInput>) => RegistryTicket` | Track a newly-opened tooltip |
 | `unregister` | `(id: ID) => void` | Untrack a closed tooltip |
+| `adapter` | `PopoverAdapter \| null` | Region-scoped positioning adapter, or `null` when unset. Overrides the [createPopoverPlugin](/composables/system/use-popover#app-wide-adapter-default) app-wide default for tooltip surfaces only — a per-instance `adapter` on `Tooltip.Root` still wins |
 
 ## Examples
 

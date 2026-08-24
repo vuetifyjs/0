@@ -79,6 +79,7 @@ app.use(
 | `createStackPlugin` | Overlay z-index stacking | [useStack](/composables/plugins/use-stack) |
 | `createReducedMotionPlugin` | Respect or override `prefers-reduced-motion` | [useReducedMotion](/composables/plugins/use-reduced-motion) |
 | `createTooltipPlugin` | Region-scoped tooltip delay coordination | [useTooltip](/composables/plugins/use-tooltip) |
+| `createPopoverPlugin` | App-wide positioning adapter default | [usePopover](/composables/system/use-popover) |
 
 > [!TIP]
 > All plugins are optional. Only install what you need—v0 works without any plugins installed.
