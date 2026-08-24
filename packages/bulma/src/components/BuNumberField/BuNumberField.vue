@@ -40,6 +40,8 @@
     ariaLabelledby?: string
     /** Whether `commit()` clamps to min/max (v0 default: true) */
     clamp?: boolean
+    /** When typed input writes into `v-model` (v0 default: `'change'`) */
+    commitOn?: NumberFieldRootProps['commitOn']
     /** Color modifier on the steppers: `is-{color}` */
     color?: BuNumberFieldColor
     /** Disables the field and both steppers */
@@ -127,6 +129,7 @@
     ariaLabelledby,
     clamp,
     color,
+    commitOn,
     disabled = false,
     error = false,
     errorMessages,
@@ -180,6 +183,7 @@
     :clamp
     class="field has-addons"
     :class="classes"
+    :commit-on
     :disabled
     :error
     :error-messages

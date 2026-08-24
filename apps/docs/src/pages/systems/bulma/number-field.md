@@ -154,6 +154,7 @@ Pick `readonly` for a value the reader should be able to see and copy but not ch
 | `aria-labelledby` | `string` | — | Id of the element naming the spinbutton |
 | `clamp` | `boolean` | `true` | Clamp a committed value to `min`/`max` |
 | `color` | `'primary' \| 'link' \| 'info' \| 'success' \| 'warning' \| 'danger'` | — | `is-{color}` on the steppers only |
+| `commit-on` | `'input' \| 'change'` | `'change'` | When typed input writes into `v-model` |
 | `disabled` | `boolean` | `false` | Disables the input and both steppers |
 | `error` | `boolean` | `false` | Force the invalid state |
 | `error-messages` | `string \| string[]` | — | Manual errors, merged with rule errors |
