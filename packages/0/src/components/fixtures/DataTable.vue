@@ -4,7 +4,13 @@
 
   import { DataTable, useDataTableRoot } from '../DataTable/index'
 
-  const users = [
+  interface User extends Record<string, unknown> {
+    id: number
+    name: string
+    email: string
+  }
+
+  const users: User[] = [
     { id: 1, name: 'Alice', email: 'alice@example.com' },
     { id: 2, name: 'Bob', email: 'bob@example.com' },
   ]
@@ -17,7 +23,7 @@
   const DataTableInit = defineComponent({
     name: 'DataTableInit',
     setup () {
-      const context = useDataTableRoot('v0:data-table')
+      const context = useDataTableRoot<User>('v0:data-table')
       context.columns.onboard(columns)
       context.onboard(users.map(u => ({ id: u.id, value: u })))
       return () => null
@@ -36,8 +42,13 @@
             v-for="col in columns"
             :id="col.id"
             :key="col.id"
+            v-slot="{ isSortable, toggleSort }"
           >
-            {{ col.title }}
+            <button v-if="isSortable" @click="toggleSort">
+              {{ col.title }}
+            </button>
+
+            <span v-else>{{ col.title }}</span>
           </DataTable.Column>
         </DataTable.Row>
       </DataTable.Header>
@@ -45,15 +56,15 @@
       <DataTable.Body v-slot="{ items }">
         <DataTable.Row
           v-for="item in items"
-          :id="(item as any).id"
-          :key="(item as any).id"
+          :id="(item as User).id"
+          :key="(item as User).id"
         >
-          <DataTable.Cell>{{ (item as any).name }}</DataTable.Cell>
-          <DataTable.Cell>{{ (item as any).email }}</DataTable.Cell>
+          <DataTable.Cell>{{ (item as User).name }}</DataTable.Cell>
+          <DataTable.Cell>{{ (item as User).email }}</DataTable.Cell>
         </DataTable.Row>
 
-        <DataTable.Empty>
-          <DataTable.Cell :colspan="2">
+        <DataTable.Empty v-slot="{ columnCount }">
+          <DataTable.Cell :colspan="columnCount">
             No users found
           </DataTable.Cell>
         </DataTable.Empty>

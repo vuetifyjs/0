@@ -44,7 +44,7 @@
     toggleSort: () => void
     attrs: {
       'role': 'columnheader'
-      'scope': 'col'
+      'scope': 'col' | 'colgroup'
       'aria-sort': 'ascending' | 'descending' | 'none' | undefined
       'data-direction': 'asc' | 'desc' | undefined
       'colspan': number | undefined
@@ -108,7 +108,7 @@
     toggleSort,
     attrs: {
       'role': 'columnheader',
-      'scope': 'col',
+      'scope': (colspan ?? 1) > 1 ? 'colgroup' : 'col',
       'aria-sort': ariaSort.value,
       'data-direction': isSortable.value && (sortDirection.value === 'asc' || sortDirection.value === 'desc')
         ? sortDirection.value

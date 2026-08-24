@@ -2,7 +2,7 @@
 title: DataTable - Headless Table Component with Sorting and Pagination
 meta:
 - name: description
-  content: Headless data table component built on createDataTable composable. Supports sorting, filtering, pagination, selection, and expansion for Vue 3.
+  content: Headless data table component for Vue 3. Supports sorting, filtering, pagination, selection, and expansion with semantic table markup.
 - name: keywords
   content: data table, table, sorting, pagination, filtering, selection, Vue 3, headless
 features:
@@ -13,6 +13,8 @@ features:
   level: 2
 related:
   - /composables/data/create-data-table
+  - /composables/data/create-pagination
+  - /composables/data/create-filter
   - /components/semantic/pagination
 ---
 
@@ -24,7 +26,7 @@ Headless compound component for rendering tabular data with sorting, pagination,
 
 ## Usage
 
-The DataTable component provides a semantic table structure that wraps the `createDataTable` composable. It exposes all table state and controls through slot props for maximum flexibility.
+`DataTable.Body` renders the **current page** of rows. The client adapter defaults to **10 rows per page**, and the compound ships no pager — compose [Pagination](/components/semantic/pagination) or pass `:pagination="{ itemsPerPage: n }"` on Root.
 
 ::: gn-example
 /components/data-table/basic
@@ -95,7 +97,9 @@ flowchart TD
 
 ### Data Loading
 
-Register columns and rows once via the `useDataTableRoot` composable in a child component:
+Register columns and rows once via `useDataTableRoot` in a child component. Init `onboard` is **one-shot** — for async or replaced data call `clear()` then `onboard()`, or `upsert`. Duplicate ids warn and keep the old ticket.
+
+`DataTable.Row` `:id` must be the **ticket id** used at `onboard({ id, value })`. `item.id` only works when it equals that ticket id.
 
 ```vue
 <script setup lang="ts">
@@ -162,27 +166,50 @@ Register columns and rows once via the `useDataTableRoot` composable in a child 
 | `isExpanded` | `boolean` | Whether the row is expanded |
 | `toggleExpansion` | `() => void` | Toggle row expansion |
 
+Bind `:id` to the **ticket id** from `onboard({ id, value })`, not a field on the row value unless they are the same.
+
+### Pagination
+
+The compound has no pager. Drive `context.pagination` yourself, or compose [Pagination](/components/semantic/pagination):
+
+```vue
+<template>
+  <DataTable.Root v-slot="{ context }" :pagination="{ itemsPerPage: 10 }">
+    <!-- table markup -->
+
+    <button :disabled="context.pagination.isFirst.value" @click="context.pagination.prev()">
+      Previous
+    </button>
+    <span>{{ context.pagination.page.value }} / {{ context.pagination.pages }}</span>
+    <button :disabled="context.pagination.isLast.value" @click="context.pagination.next()">
+      Next
+    </button>
+  </DataTable.Root>
+</template>
+```
+
 ## Accessibility
 
 DataTable renders semantic table markup with ARIA attributes:
 
-- `DataTable.Table` renders `<table role="table">` with `aria-rowcount`
+- `DataTable.Table` renders `<table role="table">`. Name it with `aria-label` or a `<caption>` — Root is a fragment and cannot be named.
+- `aria-rowcount` is set only when the current page is a **subset** of total. The count includes header rows. When it is set, bind `aria-rowindex` on each body `DataTable.Row` via `:index="rowStart + i"` (`rowStart` comes from Body slot props).
 - `DataTable.Column` renders `<th role="columnheader">` with `aria-sort` for sortable columns
-- `DataTable.Row` renders `<tr role="row">` with `aria-selected` when selection is enabled
+- `DataTable.Row` renders `<tr role="row">` with `aria-selected` when `selectable` is set
 - `DataTable.Cell` renders `<td role="cell">`
 
-Use `renderless` mode to customize the underlying elements while preserving the ARIA attributes via slot props:
+Put a button inside sortable header cells — do not make the `<th>` itself the control:
 
 ```vue
 <template>
   <DataTable.Column
     id="name"
-    v-slot="{ attrs, toggleSort }"
-    renderless
+    v-slot="{ isSortable, toggleSort }"
   >
-    <th v-bind="attrs" @click="toggleSort">
+    <button v-if="isSortable" @click="toggleSort">
       Name
-    </th>
+    </button>
+    <span v-else>Name</span>
   </DataTable.Column>
 </template>
 ```
@@ -207,11 +234,47 @@ Pass `sort-multiple` to the Root:
 
 ??? How do I handle server-side data?
 
-Pass a `ServerDataTableAdapter` to the Root:
+Construct a [ServerDataTableAdapter](/composables/data/create-data-table) in `<script setup>` with `{ total, loading?, error? }` — there is no `fetch` option. Watch query/sort/page and replace rows with `clear()` then `onboard()`.
 
 ```vue
+<script setup lang="ts">
+  import { DataTable, ServerDataTableAdapter, useDataTableRoot } from '@vuetify/v0'
+  import { defineComponent, shallowRef, watch } from 'vue'
+
+  const total = shallowRef(0)
+  const loading = shallowRef(false)
+  const adapter = new ServerDataTableAdapter({ total, loading })
+
+  const DataTableInit = defineComponent({
+    name: 'DataTableInit',
+    setup () {
+      const context = useDataTableRoot('v0:data-table')
+
+      async function load () {
+        loading.value = true
+        const result = await fetchPage(/* query, sort, page */)
+        total.value = result.total
+        context.clear()
+        context.onboard(result.items.map(u => ({ id: u.id, value: u })))
+        loading.value = false
+      }
+
+      watch(
+        [context.query, context.sort.columns, context.pagination.page],
+        () => load(),
+        { immediate: true },
+      )
+
+      return () => null
+    },
+  })
+</script>
+
 <template>
-  <DataTable.Root :adapter="new ServerDataTableAdapter({ fetch: fetchData })" />
+  <DataTable.Root :adapter="adapter">
+    <DataTableInit />
+    <!-- table markup -->
+  </DataTable.Root>
 </template>
 ```
 

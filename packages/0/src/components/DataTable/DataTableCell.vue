@@ -20,12 +20,15 @@
   export interface DataTableCellProps extends AtomProps {
     /** Number of columns this cell spans */
     colspan?: number
+    /** Number of rows this cell spans */
+    rowspan?: number
   }
 
   export interface DataTableCellSlotProps {
     attrs: {
       role: 'cell'
       colspan: number | undefined
+      rowspan: number | undefined
     }
   }
 </script>
@@ -40,6 +43,7 @@
   const {
     as = 'td',
     colspan,
+    rowspan,
     renderless,
   } = defineProps<DataTableCellProps>()
 
@@ -49,6 +53,7 @@
     attrs: {
       role: 'cell',
       colspan,
+      rowspan,
     },
   }))
 </script>

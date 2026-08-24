@@ -46,16 +46,34 @@ import Table from './DataTableTable.vue'
  * @example
  * ```vue
  * <script setup lang="ts">
- *   import { DataTable } from '@vuetify/v0'
+ *   import { defineComponent } from 'vue'
+ *   import { DataTable, useDataTableRoot } from '@vuetify/v0'
  *
  *   const users = [
  *     { id: 1, name: 'Alice', email: 'alice@test.com' },
  *     { id: 2, name: 'Bob', email: 'bob@test.com' },
  *   ]
+ *
+ *   const columns = [
+ *     { id: 'name', title: 'Name', sortable: true },
+ *     { id: 'email', title: 'Email' },
+ *   ]
+ *
+ *   const DataTableInit = defineComponent({
+ *     name: 'DataTableInit',
+ *     setup () {
+ *       const context = useDataTableRoot('v0:data-table')
+ *       context.columns.onboard(columns)
+ *       context.onboard(users.map(u => ({ id: u.id, value: u })))
+ *       return () => null
+ *     },
+ *   })
  * </script>
  *
  * <template>
- *   <DataTable.Root v-slot="{ context }">
+ *   <DataTable.Root>
+ *     <DataTableInit />
+ *
  *     <DataTable.Table>
  *       <DataTable.Header>
  *         <DataTable.Row>
@@ -64,14 +82,19 @@ import Table from './DataTableTable.vue'
  *         </DataTable.Row>
  *       </DataTable.Header>
  *
- *       <DataTable.Body v-slot="{ items }">
- *         <DataTable.Row v-for="item in items" :key="item.id" :id="item.id">
+ *       <DataTable.Body v-slot="{ items, rowStart }">
+ *         <DataTable.Row
+ *           v-for="(item, i) in items"
+ *           :id="item.id"
+ *           :index="rowStart + i"
+ *           :key="item.id"
+ *         >
  *           <DataTable.Cell>{{ item.name }}</DataTable.Cell>
  *           <DataTable.Cell>{{ item.email }}</DataTable.Cell>
  *         </DataTable.Row>
  *
- *         <DataTable.Empty>
- *           <DataTable.Cell :colspan="2">No data available</DataTable.Cell>
+ *         <DataTable.Empty v-slot="{ columnCount }">
+ *           <DataTable.Cell :colspan="columnCount">No data available</DataTable.Cell>
  *         </DataTable.Empty>
  *       </DataTable.Body>
  *     </DataTable.Table>
@@ -95,7 +118,8 @@ export const DataTable = {
    */
   Root,
   /**
-   * The `<table>` element wrapper with ARIA table role and rowcount.
+   * The `<table>` element wrapper with ARIA table role. `aria-rowcount` is
+   * set only when the current page is a subset of total.
    *
    * @see https://0.vuetifyjs.com/components/data/data-table
    *
@@ -119,8 +143,10 @@ export const DataTable = {
    *   <DataTable.Row v-for="(row, i) in headers" :key="i">
    *     <DataTable.Column
    *       v-for="header in row"
-   *       :key="header.id"
    *       :id="header.id"
+   *       :key="header.id"
+   *       :colspan="header.colspan"
+   *       :rowspan="header.rowspan"
    *     >
    *       {{ header.title }}
    *     </DataTable.Column>
@@ -155,8 +181,13 @@ export const DataTable = {
    *
    * @example
    * ```vue
-   * <DataTable.Body v-slot="{ items, isEmpty }">
-   *   <DataTable.Row v-for="item in items" :key="item.id">
+   * <DataTable.Body v-slot="{ items, isEmpty, rowStart }">
+   *   <DataTable.Row
+   *     v-for="(item, i) in items"
+   *     :id="item.id"
+   *     :key="item.id"
+   *     :index="rowStart + i"
+   *   >
    *     <!-- cells -->
    *   </DataTable.Row>
    * </DataTable.Body>
@@ -185,6 +216,15 @@ export const DataTable = {
    * A `<td>` element for data cells.
    *
    * @see https://0.vuetifyjs.com/components/data/data-table
+   *
+   * @example
+   * ```vue
+   * <DataTable.Cell>{{ item.name }}</DataTable.Cell>
+   *
+   * <DataTable.Empty v-slot="{ columnCount }">
+   *   <DataTable.Cell :colspan="columnCount">No data available</DataTable.Cell>
+   * </DataTable.Empty>
+   * ```
    */
   Cell,
   /**
@@ -194,8 +234,8 @@ export const DataTable = {
    *
    * @example
    * ```vue
-   * <DataTable.Empty>
-   *   <DataTable.Cell :colspan="columns.length">
+   * <DataTable.Empty v-slot="{ columnCount }">
+   *   <DataTable.Cell :colspan="columnCount">
    *     No data available
    *   </DataTable.Cell>
    * </DataTable.Empty>

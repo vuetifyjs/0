@@ -27,8 +27,12 @@
   export interface DataTableRowProps extends AtomProps {
     /** Namespace for dependency injection. @default 'v0:data-table' */
     namespace?: string
-    /** Row identifier for selection/expansion binding */
+    /** Row identifier for selection/expansion binding — the ticket id used at onboard */
     id?: ID
+    /** 1-based aria-rowindex. Bind `rowStart + i` from Body when aria-rowcount is set. */
+    index?: number
+    /** Emit aria-selected. @default false */
+    selectable?: boolean
   }
 
   export interface DataTableRowSlotProps {
@@ -45,6 +49,7 @@
     attrs: {
       'role': 'row'
       'aria-selected': boolean | undefined
+      'aria-rowindex': number | undefined
       'data-selected': true | undefined
       'data-expanded': true | undefined
     }
@@ -62,6 +67,8 @@
     as = 'tr',
     namespace = 'v0:data-table',
     id,
+    index,
+    selectable = false,
     renderless,
   } = defineProps<DataTableRowProps>()
 
@@ -103,7 +110,8 @@
     toggleExpansion,
     attrs: {
       'role': 'row',
-      'aria-selected': isUndefined(id) ? undefined : isSelected.value,
+      'aria-selected': selectable && !isUndefined(id) ? isSelected.value : undefined,
+      'aria-rowindex': isUndefined(index) ? undefined : index,
       'data-selected': isSelected.value || undefined,
       'data-expanded': isExpanded.value || undefined,
     },

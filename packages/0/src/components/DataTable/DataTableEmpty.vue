@@ -29,7 +29,11 @@
   export interface DataTableEmptySlotProps {
     /** Whether the table is loading */
     isLoading: boolean
-    attrs: Record<string, unknown>
+    /** Leaf column count — bind as Cell colspan */
+    columnCount: number
+    attrs: {
+      role: 'row' | undefined
+    }
   }
 </script>
 
@@ -53,7 +57,10 @@
 
   const slotProps = toRef((): DataTableEmptySlotProps => ({
     isLoading: context.loading.value,
-    attrs: {},
+    columnCount: context.leaves.value.length,
+    attrs: {
+      role: as === 'tr' ? undefined : 'row',
+    },
   }))
 </script>
 

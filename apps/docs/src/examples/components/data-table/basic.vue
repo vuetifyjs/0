@@ -3,7 +3,7 @@
 
   import { DataTable, useDataTableRoot } from '@vuetify/v0'
 
-  interface User {
+  interface User extends Record<string, unknown> {
     id: number
     name: string
     email: string
@@ -28,7 +28,7 @@
   const DataTableInit = defineComponent({
     name: 'DataTableInit',
     setup () {
-      const context = useDataTableRoot('v0:data-table')
+      const context = useDataTableRoot<User>('v0:data-table')
       context.columns.onboard(columns)
       context.onboard(users.map(u => ({ id: u.id, value: u })))
       return () => null
@@ -37,11 +37,12 @@
 </script>
 
 <template>
-  <DataTable.Root v-slot="{ context }">
+  <DataTable.Root v-slot="{ context }" :pagination="{ itemsPerPage: 5 }">
     <DataTableInit />
 
     <div class="mb-4">
       <input
+        aria-label="Search users"
         class="border rounded-md px-3 py-2 w-64"
         placeholder="Search..."
         type="text"
@@ -49,7 +50,7 @@
       >
     </div>
 
-    <DataTable.Table class="w-full border-collapse">
+    <DataTable.Table aria-label="Users table" class="w-full border-collapse">
       <DataTable.Header>
         <DataTable.Row class="border-b">
           <DataTable.Column
@@ -84,8 +85,8 @@
           <DataTable.Cell class="p-3">{{ (item as User).role }}</DataTable.Cell>
         </DataTable.Row>
 
-        <DataTable.Empty>
-          <DataTable.Cell class="p-6 text-center text-on-surface-variant" :colspan="3">
+        <DataTable.Empty v-slot="{ columnCount }">
+          <DataTable.Cell class="p-6 text-center text-on-surface-variant" :colspan="columnCount">
             No users found
           </DataTable.Cell>
         </DataTable.Empty>

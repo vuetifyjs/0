@@ -26,22 +26,26 @@
     namespace?: string
   }
 
-  export interface DataTableBodySlotProps<T = unknown> {
+  export interface DataTableBodySlotProps<T extends Record<string, unknown> = Record<string, unknown>> {
     /** Paginated items for rendering */
     items: readonly T[]
     /** Whether the table is loading */
     isLoading: boolean
     /** Whether the table has no items */
     isEmpty: boolean
-    attrs: Record<string, unknown>
+    /** 1-based index of the first visible data row (onboarded header-grid rows + pageStart + 1). Bind `:index="rowStart + i"` when aria-rowcount is set. */
+    rowStart: number
+    attrs: {
+      role: 'rowgroup' | undefined
+    }
   }
 </script>
 
-<script setup lang="ts">
+<script lang="ts" setup generic="T extends Record<string, unknown> = Record<string, unknown>">
   defineOptions({ name: 'DataTableBody', inheritAttrs: false })
 
   defineSlots<{
-    default: (props: DataTableBodySlotProps) => unknown
+    default: (props: DataTableBodySlotProps<T>) => unknown
   }>()
 
   const {
@@ -51,13 +55,16 @@
   } = defineProps<DataTableBodyProps>()
 
   const attrs = useAttrs()
-  const context = useDataTableRoot(namespace)
+  const context = useDataTableRoot<T>(namespace)
 
-  const slotProps = toRef((): DataTableBodySlotProps => ({
+  const slotProps = toRef((): DataTableBodySlotProps<T> => ({
     items: context.items.value,
     isLoading: context.loading.value,
     isEmpty: context.items.value.length === 0,
-    attrs: {},
+    rowStart: context.headers.value.length + context.pagination.pageStart.value + 1,
+    attrs: {
+      role: as === 'tbody' ? undefined : 'rowgroup',
+    },
   }))
 </script>
 

@@ -30,7 +30,9 @@
   export interface DataTableHeaderSlotProps {
     /** 2D header grid for rendering multi-level headers */
     headers: readonly InternalHeader[][]
-    attrs: Record<string, unknown>
+    attrs: {
+      role: 'rowgroup' | undefined
+    }
   }
 </script>
 
@@ -52,7 +54,9 @@
 
   const slotProps = toRef((): DataTableHeaderSlotProps => ({
     headers: context.headers.value,
-    attrs: {},
+    attrs: {
+      role: as === 'thead' ? undefined : 'rowgroup',
+    },
   }))
 </script>
 

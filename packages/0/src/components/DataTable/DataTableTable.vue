@@ -29,7 +29,7 @@
   export interface DataTableTableSlotProps {
     attrs: {
       'role': 'table'
-      'aria-rowcount': number
+      'aria-rowcount': number | undefined
     }
   }
 </script>
@@ -50,10 +50,13 @@
   const attrs = useAttrs()
   const context = useDataTableRoot(namespace)
 
+  const headerRows = toRef(() => context.headers.value.length)
+  const truncated = toRef(() => context.items.value.length < context.total.value)
+
   const slotProps = toRef((): DataTableTableSlotProps => ({
     attrs: {
       'role': 'table',
-      'aria-rowcount': context.total.value,
+      'aria-rowcount': truncated.value ? headerRows.value + context.total.value : undefined,
     },
   }))
 </script>

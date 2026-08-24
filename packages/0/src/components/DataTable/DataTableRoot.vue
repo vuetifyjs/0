@@ -31,7 +31,15 @@
     context: DataTableContext<T>
   }
 
-  export const [useDataTableRoot, provideDataTableRoot] = createContext<DataTableContext<Record<string, unknown>>>()
+  const [_useDataTableRoot, provideDataTableRoot] = createContext<DataTableContext<Record<string, unknown>>>()
+
+  export function useDataTableRoot<
+    T extends Record<string, unknown> = Record<string, unknown>,
+    > (namespace = 'v0:data-table'): DataTableContext<T> {
+    return _useDataTableRoot(namespace) as DataTableContext<T>
+  }
+
+  export { provideDataTableRoot }
 </script>
 
 <script lang="ts" setup generic="T extends Record<string, unknown> = Record<string, unknown>">
