@@ -187,7 +187,7 @@ describe('useTooltip', () => {
       }
     }
 
-    it('exposes the configured adapter on the context', () => {
+    it('should expose the configured adapter on the context', () => {
       const adapter = new StubAdapter()
       let context!: TooltipContext
       const Probe = defineComponent({
@@ -205,7 +205,7 @@ describe('useTooltip', () => {
       app.unmount()
     })
 
-    it('defaults adapter to null, including in the fallback', () => {
+    it('should default adapter to null, including in the fallback', () => {
       expect(createTooltipFallback().adapter).toBeNull()
     })
   })

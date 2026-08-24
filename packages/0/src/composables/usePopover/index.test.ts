@@ -578,7 +578,7 @@ describe('createPopoverPlugin', () => {
     return () => app.unmount()
   }
 
-  it('uses the plugin adapter when no per-instance adapter is given', () => {
+  it('should use the plugin adapter when no per-instance adapter is given', () => {
     let popover!: ReturnType<typeof usePopover>
     const unmount = mountProbe(() => {
       popover = usePopover()
@@ -588,7 +588,7 @@ describe('createPopoverPlugin', () => {
     unmount()
   })
 
-  it('prefers a per-instance adapter over the plugin adapter', () => {
+  it('should prefer a per-instance adapter over the plugin adapter', () => {
     class Winner extends PopoverAdapter {
       setup () {
         return toRef(() => ({ '--stub': 'instance' }))
@@ -603,7 +603,7 @@ describe('createPopoverPlugin', () => {
     unmount()
   })
 
-  it('falls back to V0PopoverAdapter when no plugin is installed', () => {
+  it('should fall back to V0PopoverAdapter when no plugin is installed', () => {
     let popover!: ReturnType<typeof usePopover>
     const unmount = mountProbe(() => {
       popover = usePopover()
@@ -613,7 +613,7 @@ describe('createPopoverPlugin', () => {
     unmount()
   })
 
-  it('falls back to V0PopoverAdapter without an injection context', () => {
+  it('should fall back to V0PopoverAdapter without an injection context', () => {
     const scope = effectScope()
     const popover = scope.run(() => usePopover())!
 
