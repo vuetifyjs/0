@@ -19,6 +19,9 @@
 // Adapters
 import { PopoverAdapter } from './adapter'
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { isNullOrUndefined } from '#v0/utilities'
@@ -28,9 +31,6 @@ import { onScopeDispose, shallowRef, watch } from 'vue'
 import type { PopoverAdapterContext } from './adapter'
 import type { Middleware, Placement } from '@floating-ui/dom'
 import type { Ref } from 'vue'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
 
 export interface FloatingUIPopoverAdapterOptions {
   /** Middleware passed to `computePosition`. @default `[offset(8), flip(), shift({ padding: 8 })]` */
@@ -55,7 +55,17 @@ export class FloatingUIPopoverAdapter extends PopoverAdapter {
   }
 
   setup (context: PopoverAdapterContext): Readonly<Ref<Record<string, string>>> {
-    const styles = shallowRef<Record<string, string>>({ position: 'fixed', top: '0px', left: '0px' })
+    function positionStyles (top: string, left: string): Record<string, string> {
+      return {
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset': 'unset',
+        top,
+        left,
+      }
+    }
+
+    const styles = shallowRef<Record<string, string>>(positionStyles('0px', '0px'))
     const middleware = this.middleware
     let stopAutoUpdate: (() => void) | undefined
 
@@ -78,7 +88,7 @@ export class FloatingUIPopoverAdapter extends PopoverAdapter {
 
       if (!context.isOpen.value) return
 
-      styles.value = { position: 'fixed', top: `${y}px`, left: `${x}px` }
+      styles.value = positionStyles(`${y}px`, `${x}px`)
     }
 
     function sync () {

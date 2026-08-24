@@ -701,6 +701,8 @@ describe('popover', () => {
       await vi.waitFor(() => {
         const style = content.attributes('style') ?? ''
         expect(style).toContain('position: fixed')
+        expect(style).toContain('margin: unset')
+        expect(style).toContain('inset: unset')
         expect(style).toMatch(/top:\s*-?\d/)
         expect(style).toMatch(/left:\s*-?\d/)
         expect(style).not.toContain('position-area')

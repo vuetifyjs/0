@@ -112,12 +112,26 @@ describe('floatingUIPopoverAdapter', () => {
       const context = makeContext({ positionTry: 'flip-block' })
       const styles = adapter.setup(context)
 
+      expect(styles.value).toEqual({
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset': 'unset',
+        'top': '0px',
+        'left': '0px',
+      })
+
       context.anchorEl.value = element()
       context.contentEl.value = element()
       context.isOpen.value = true
       await flush()
 
-      expect(styles.value).toEqual({ position: 'fixed', top: '34px', left: '12px' })
+      expect(styles.value).toEqual({
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset': 'unset',
+        'top': '34px',
+        'left': '12px',
+      })
       expect(styles.value).not.toHaveProperty('position-try-fallbacks')
     })
   })
@@ -214,7 +228,13 @@ describe('floatingUIPopoverAdapter', () => {
 
       expect(autoUpdate).not.toHaveBeenCalled()
       expect(computePosition).not.toHaveBeenCalled()
-      expect(styles.value).toEqual({ position: 'fixed', top: '0px', left: '0px' })
+      expect(styles.value).toEqual({
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset': 'unset',
+        'top': '0px',
+        'left': '0px',
+      })
 
       context.contentEl.value = null
       context.anchorEl.value = element()
@@ -279,8 +299,20 @@ describe('floatingUIPopoverAdapter', () => {
       await flush()
 
       expect(autoUpdate).toHaveBeenCalledTimes(2)
-      expect(firstStyles.value).toEqual({ position: 'fixed', top: '34px', left: '12px' })
-      expect(secondStyles.value).toEqual({ position: 'fixed', top: '34px', left: '12px' })
+      expect(firstStyles.value).toEqual({
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset': 'unset',
+        'top': '34px',
+        'left': '12px',
+      })
+      expect(secondStyles.value).toEqual({
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset': 'unset',
+        'top': '34px',
+        'left': '12px',
+      })
 
       first.isOpen.value = false
       await flush()
