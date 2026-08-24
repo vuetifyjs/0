@@ -2,9 +2,8 @@
 
 ## Identity
 
-**Class:** Compat (third class — see [DESIGN_SYSTEMS.md](../../DESIGN_SYSTEMS.md); the
-compat-class addendum is extracted from daisyfy + this package after Tier 1, not authored
-up front). Full approved spec: `.claude/specs/2026-07-31-paper-bulma-compat.md`.
+**Class:** Compat (third class — see [DESIGN_SYSTEMS.md](../../DESIGN_SYSTEMS.md)
+*Compat class*). This file is the living spec.
 
 Bulma ships zero JavaScript by design — its docs tell you to bring your own JS for modal,
 dropdown, navbar burger, and dismissals; `@paper/bulma` is that JS. Components render
@@ -30,9 +29,9 @@ Inherent to the compat class — the package's entire purpose is markup fidelity
 upstream CSS framework:
 
 1. **No owned token namespace** (deviation from **ruling 1**) — `--bulma-*` belongs to
-   upstream. There is no `theme.ts`-owned prefix; runtime theming (the optional
-   `createBulmaPlugin()`) drives upstream's own `--bulma-*` variables and `data-theme`
-   via `V0StyleSheetThemeAdapter`.
+   upstream. There is no `theme.ts`-owned prefix. Tier 1 ships no plugin; a later
+   optional `createBulmaPlugin()` would drive upstream's own `--bulma-*` variables
+   and `data-theme` via `V0StyleSheetThemeAdapter`, never an owned prefix.
 2. **Upstream state classes, unprefixed** (deviation from **ruling 3**) — `is-active`,
    `is-current`, `is-hoverable` instead of data-attribute hooks, and Bulma's unprefixed
    class names (`.modal`, `.dropdown`) instead of package-prefixed ones (`bulma-*`).
@@ -55,7 +54,9 @@ markup against bulma.io's documented fixtures.
   without a way to mark it `scrim: false`, so an app that mounts v0's global `<Scrim>`
   renders a second backdrop behind every `BuModal` (which hand-rolls `.modal-background`,
   since Scrim is global/per-ticket and cannot serve as an in-flow per-modal element).
-  Candidate v0-core follow-up alongside a reusable `useFocusTrap` — BuModal currently
+  Candidate v0-core follow-up alongside a reusable `useFocusTrap`
+  ([#910](https://github.com/vuetifyjs/0/issues/910),
+  [#909](https://github.com/vuetifyjs/0/issues/909)) — BuModal currently
   hand-rolls focus containment because v0 ships no focus-trap composable.
 - **`label[disabled]` (BuCheckbox/BuRadio):** Bulma documents the non-standard `disabled`
   attribute on the wrapping `<label>` and its CSS selects on it; the components reproduce
@@ -75,25 +76,27 @@ markup against bulma.io's documented fixtures.
   selection, panels, and `aria-selected`, but the visible focus ring and screen-reader
   announcement stay on the previously focused anchor (APG tabs deviation the axe sweep
   cannot catch). v0-core follow-up: let TabsItem accept an element input via
-  registration so renderless consumers can supply the focus target.
+  registration so renderless consumers can supply the focus target
+  ([#912](https://github.com/vuetifyjs/0/issues/912)).
 - **BuBreadcrumb hand-rolls its markup:** v0 BreadcrumbsRoot's overflow watcher hides
   middle crumbs whenever measured capacity < item count even with no Ellipsis
   registered — items silently disappear where upstream Bulma flex-wraps. Since
   BuBreadcrumb uses no other compound behavior (no v-model, no overflow UI), Tier 1
   renders plain `nav > ul > li > a` + `aria-current="page"`. v0-core follow-up:
   BreadcrumbsRoot should skip the truncation branch when no ellipsis ticket is
-  registered (or expose an overflow opt-out).
+  registered (or expose an overflow opt-out)
+  ([#911](https://github.com/vuetifyjs/0/issues/911)).
 - **Ambient `Input.Root` owns the whole behavioral surface of BuInput/BuTextarea:**
   inside an ambient root, `v-model`, `type`, `disabled`, `readonly`, `required`,
   `name`, `form`, `id`, and validation props on the Bu component are ignored (the
   root's control attrs win the merge — v0's `mergeProps` assigns even `undefined`
   keys, so a wrapper cannot force `readonly`; v0-core follow-up: InputControl should
-  omit falsy keys). `plaintext` is class-only there.
+  omit falsy keys — [#913](https://github.com/vuetifyjs/0/issues/913)). `plaintext` is class-only there.
 - **Ambient `NumberField.Root` owns the whole behavioral surface of
   BuNumberField:** BuNumberField detects an ambient root on its namespace and
   renders a plain `.field.has-addons` div instead of creating a second one (a
   nested root would shadow the outer one for every part). Inside that ambient
-  root, `v-model`, `min`/`max`/`step`/`leap`/`wrap`/`clamp`, `locale`/`format`,
+  root, `v-model`, `min`/`max`/`step`/`leap`/`wrap`/`clamp`/`commitOn`, `locale`/`format`,
   `wheel`/`spinDelay`/`spinRate`, `id`, `name`, `form`, `label`, `required`,
   `disabled`, `readonly`, and all validation props passed to BuNumberField are
   ignored — the root owns them. Only the presentational modifiers (`color`,
@@ -111,7 +114,7 @@ markup against bulma.io's documented fixtures.
   on the label and help.
 - **validateOn machinery is package-local** (`src/utilities/validate.ts`): v0's
   `parseValidateOn` is internal to `InputRoot.vue`. v0-core follow-up: export it from
-  the Input barrel.
+  the Input barrel ([#914](https://github.com/vuetifyjs/0/issues/914)).
 - **`BuHelp validation` requires an ambient `Input.Root`:** BuInput/BuTextarea create
   their own *renderless* root scoped to their subtree, so a sibling BuHelp inside the
   same BuField injects nothing and renders an empty `.help` (while the input still

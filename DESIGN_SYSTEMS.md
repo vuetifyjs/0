@@ -19,25 +19,67 @@ The stack:
 vuetify          orchestration + defaults (Material ships here)
 ```
 
-## Two classes
+## Three classes
 
-The `@paper/*` scope hosts two deliberately different kinds of package. Identify the
+The `@paper/*` scope hosts three deliberately different kinds of package. Identify the
 class first — a kit missing a token pipeline is correct, not incomplete; a design
-system missing one is broken.
+system missing one is broken; a compat package that owns a token prefix is in the
+wrong class.
 
-| | **Design system** | **Kit** |
-|---|---|---|
-| Intent | Encompass everything — a complete visual framework | Purpose-scoped component set |
-| Exemplars | Material, Emerald, Onyx | Genesis (docs) |
-| Token namespace | Owns one (`--emerald-*`) | **None** — consumes `--v0-*` |
-| Theme plugin / adapter | Required (`theme.ts`, `adapter.ts`, `plugin.ts`) | **Forbidden** |
-| Stylesheet artifact | `dist/theme.css` (prebaked default theme) | None — inherits the page's theme |
-| Component coverage | Full, spec-driven | Only what the purpose needs |
-| Visual language | Its own | Blends with whatever theme is active |
+| | **Design system** | **Kit** | **Compat** |
+|---|---|---|---|
+| Intent | Encompass everything — a complete visual framework | Purpose-scoped component set | Upstream CSS framework's markup, v0's JavaScript |
+| Exemplars | Material, Emerald, Onyx | Genesis (docs) | Bulma (`@paper/bulma`); daisyUI ([daisyfy](https://github.com/J-Sek/v0-daisyui), external) |
+| Token namespace | Owns one (`--emerald-*`) | **None** — consumes `--v0-*` | **None** — consumes upstream's (`--bulma-*`) |
+| Theme plugin / adapter | Required (`theme.ts`, `adapter.ts`, `plugin.ts`) | **Forbidden** | **Forbidden** at Tier 1. A later plugin would drive upstream vars, never an owned prefix |
+| Stylesheet artifact | `dist/theme.css` (prebaked default theme) | None — inherits the page's theme | **None** — the user's own upstream CSS is the styling source |
+| Component coverage | Full, spec-driven | Only what the purpose needs | Upstream's documented component / element / form families; composites are Tier 2 |
+| Visual language | Its own | Blends with whatever theme is active | Upstream's, verbatim |
+| Component prefix | `Em*`, `On*` | `Gn*` | `Bu*` (`B*` reserved for Bootstrap) |
 
 "Custom design system via bring-your-own Figma" is a **delivery mode** of the design
-system class, not a third class: same contract, same pipeline, tokens sourced from the
+system class, not a fourth class: same contract, same pipeline, tokens sourced from the
 customer's file. This is why the token pipeline must be reproducible end to end.
+
+### Compat class
+
+Pitch: delete the framework's JavaScript, keep the CSS. Components render the upstream
+framework's **real** markup and classes (`button is-primary`, `is-active`) against the
+user's own stylesheet; `@vuetify/v0` supplies behavior, focus, and accessibility.
+
+The class exists because the logic layer is the expensive part, and v0 already ships
+it. Each compat package is a search wedge (`bulma vue`, `daisyui vue`) into v0 — not
+a conversion onto a new visual language.
+
+**Declared deviations** from rulings 1–3 — inherent to the class, not exceptions to
+file per component:
+
+1. **No owned token namespace** (ruling 1). `--bulma-*` belongs to upstream.
+2. **Native form controls where upstream CSS demands them** (ruling 2). A non-native
+   `<select>` gets none of the user's CSS. Rich replacements (combobox, etc.) live in
+   Tier 2 on full v0 primitives.
+3. **Upstream state classes, unprefixed** (ruling 3). `is-active` instead of
+   `data-active`. **State classes are component-owned and JS-set, never CSS** — a hard
+   requirement. Docs sandboxes classify overlay / float / grow from the presence of
+   `.is-active`; a future target that styles open state with `:hover` only cannot
+   reuse that classifier.
+
+**Additional rulings, compat only:**
+
+- **No named slots.** Every region is an express part component named after the
+  upstream part class (`BuModalHead`, `BuDropdownMenu`). Parts read parent state
+  through optional context and warn in dev when it is missing; parts backed by a v0
+  context throw instead.
+- **Optional peer** for the upstream CSS package. Zero-config consumers load it
+  off-CDN. The package never imports it.
+- **Conformance harness** is the factory asset: fixtures captured from upstream
+  docs, DOM / class diff with a strict additive-attr charter (`aria-*` / `data-*` /
+  `role` / `tabindex` / `id` only).
+- Isolation comes from upstream class names, not a package prefix. Ruling 3's
+  "never `<style scoped>`" still holds.
+
+This addendum is extracted from `@paper/bulma` and daisyfy. A third target
+(Bootstrap) will stress-test it; until then the table is the contract.
 
 ## Rulings
 
@@ -185,7 +227,7 @@ code.
 
 Every `@paper/*` package carries a `SPEC.md` declaring:
 
-1. its **class** (design system or kit) and purpose;
+1. its **class** (design system, kit, or compat) and purpose;
 2. its **token source** (e.g. the canonical Figma file key) — design systems only;
 3. its component inventory and any intentional deviations from this contract, with
    reasons.
