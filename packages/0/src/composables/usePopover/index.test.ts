@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { PopoverAdapter, createPopoverPlugin, usePopover } from './index'
 
 // Utilities
-import { createApp, defineComponent, effectScope, h, nextTick, shallowRef, toRef } from 'vue'
+import { createApp, defineComponent, effectScope, h, nextTick, provide, shallowRef, toRef } from 'vue'
 
 // Types
 import type { PopoverAdapterContext } from './index'
@@ -619,5 +619,28 @@ describe('createPopoverPlugin', () => {
 
     expect(popover.contentStyles.value).toHaveProperty('position-area')
     scope.stop()
+  })
+
+  it('should not be shadowed by a component-level v0:popover provide (e.g. PopoverRoot)', () => {
+    let popover!: ReturnType<typeof usePopover>
+    const Consumer = defineComponent({
+      setup () {
+        popover = usePopover()
+        return () => h('div')
+      },
+    })
+    const Shadow = defineComponent({
+      setup () {
+        provide('v0:popover', {})
+        return () => h(Consumer)
+      },
+    })
+    const app = createApp(Shadow)
+    app.use(createPopoverPlugin({ adapter: new StubAdapter() }))
+    const root = document.createElement('div')
+    app.mount(root)
+
+    expect(popover.contentStyles.value).toEqual({ '--stub': 'plugin' })
+    app.unmount()
   })
 })

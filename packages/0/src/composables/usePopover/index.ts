@@ -100,6 +100,15 @@ export interface PopoverOptions {
 }
 
 export interface PopoverPluginOptions {
+  /**
+   * Dependency-injection namespace for the plugin's default-adapter context.
+   * @default `'v0:popover:defaults'` — deliberately distinct from `'v0:popover'`,
+   * the key `PopoverRoot` provides its component-level `PopoverContext` under.
+   * `usePopover()` always consults the default namespace automatically when
+   * resolving its app-wide adapter default, so installing this plugin under a
+   * custom namespace disconnects it from that consult (inherent
+   * `createPluginContext` behavior).
+   */
   namespace?: string
   /**
    * App-wide default positioning engine for every popover-derived surface
@@ -126,7 +135,7 @@ function createPopoverDefaults (options: Omit<PopoverPluginOptions, 'namespace'>
 
 const [createPopoverContext, createPopoverPlugin, usePopoverDefaults] =
   createPluginContext<PopoverPluginOptions, PopoverPluginContext>(
-    'v0:popover',
+    'v0:popover:defaults',
     createPopoverDefaults,
     {
       fallback: () => createPopoverDefaults(),
