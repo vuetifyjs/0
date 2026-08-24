@@ -28,7 +28,7 @@ Bulma's `.menu` with the JavaScript it never shipped: exclusive active tracking 
 
 ## Usage
 
-Pass `items` as alternating sections — an optional `p.menu-label` plus a `ul.menu-list`. `v-model` is the selected item's value, and the value defaults to the label when you omit it. `is-active` lands on the **anchor**, not the `li`. That is the opposite of tabs and breadcrumb, and it is what Bulma's CSS selects on.
+Compose `BuMenuLabel`, `BuMenuList`, `BuMenuItem`, and `BuMenuLink`. `v-model` is the selected link's `value`. `is-active` lands on the **anchor**, not the `li`. That is the opposite of tabs and breadcrumb, and it is what Bulma's CSS selects on.
 
 ::: ds-example
 /systems/bulma/menu/basic
@@ -38,21 +38,35 @@ Pass `items` as alternating sections — an optional `p.menu-label` plus a `ul.m
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { BuMenu } from '@paper/bulma'
+  import {
+    BuMenu,
+    BuMenuItem,
+    BuMenuLabel,
+    BuMenuLink,
+    BuMenuList,
+  } from '@paper/bulma'
 </script>
 
 <template>
-  <BuMenu />
+  <BuMenu>
+    <BuMenuLabel />
+
+    <BuMenuList>
+      <BuMenuItem>
+        <BuMenuLink />
+      </BuMenuItem>
+    </BuMenuList>
+  </BuMenu>
 </template>
 ```
 
 ## Composed on v0
 
-`BuMenu` wraps v0's [Single](/components/providers/single). `Single.Root` is a pure provider — it renders no element — so the `aside.menu` and every list are Bulma's. Each entry is a renderless `Single.Item` whose `isSelected` and `select` are bound by hand onto the anchor: `is-active` for Bulma's CSS, `data-selected` for the data-attr hook, click to select.
+`BuMenu` wraps v0's [Single](/components/providers/single). `Single.Root` is a pure provider — it renders no element — so the `aside.menu` and every list are Bulma's. Each `BuMenuLink` is a renderless `Single.Item` whose `isSelected` and `select` are bound by hand onto the anchor: `is-active` for Bulma's CSS, `data-selected` for the data-attr hook, click to select.
 
 The Item `attrs` object is never spread. Those attrs include `aria-selected`, which is invalid on a role-less `<a>` (axe `aria-allowed-attr`, critical). Hand-picking is the same convention [BuPanel](/systems/bulma/panel) uses.
 
-Nested children are still `Single.Item`s in that one exclusive selection. They render as a bare `<ul>` sibling of the parent anchor, always visible. [createNested](/composables/selection/create-nested) and [Collapsible](/components/disclosure/collapsible) are skipped on purpose: Bulma documents no collapse, no tree, and no `aria-expanded` on these lists. Inventing one would be a different component.
+Nested children are still `Single.Item`s in that one exclusive selection. They render inside a `BuMenuList` with `nested`, which is a bare `<ul>` sibling of the parent anchor, always visible. [createNested](/composables/selection/create-nested) and [Collapsible](/components/disclosure/collapsible) are skipped on purpose: Bulma documents no collapse, no tree, and no `aria-expanded` on these lists. Inventing one would be a different component.
 
 ## The markup you know
 
@@ -93,13 +107,81 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 
 ```vue Vue
 <template>
-  <BuMenu v-model="active" :items="items" />
+  <BuMenu v-model="active">
+    <BuMenuLabel>General</BuMenuLabel>
+
+    <BuMenuList>
+      <BuMenuItem>
+        <BuMenuLink value="Dashboard">Dashboard</BuMenuLink>
+      </BuMenuItem>
+
+      <BuMenuItem>
+        <BuMenuLink value="Customers">Customers</BuMenuLink>
+      </BuMenuItem>
+    </BuMenuList>
+
+    <BuMenuLabel>Administration</BuMenuLabel>
+
+    <BuMenuList>
+      <BuMenuItem>
+        <BuMenuLink value="Team Settings">Team Settings</BuMenuLink>
+      </BuMenuItem>
+
+      <BuMenuItem>
+        <BuMenuLink value="Manage Your Team">Manage Your Team</BuMenuLink>
+
+        <BuMenuList nested>
+          <BuMenuItem>
+            <BuMenuLink value="Members">Members</BuMenuLink>
+          </BuMenuItem>
+
+          <BuMenuItem>
+            <BuMenuLink value="Plugins">Plugins</BuMenuLink>
+          </BuMenuItem>
+
+          <BuMenuItem>
+            <BuMenuLink value="Add a member">Add a member</BuMenuLink>
+          </BuMenuItem>
+        </BuMenuList>
+      </BuMenuItem>
+
+      <BuMenuItem>
+        <BuMenuLink value="Invitations">Invitations</BuMenuLink>
+      </BuMenuItem>
+
+      <BuMenuItem>
+        <BuMenuLink value="Cloud Storage Environment Settings">
+          Cloud Storage Environment Settings
+        </BuMenuLink>
+      </BuMenuItem>
+
+      <BuMenuItem>
+        <BuMenuLink value="Authentication">Authentication</BuMenuLink>
+      </BuMenuItem>
+    </BuMenuList>
+
+    <BuMenuLabel>Transactions</BuMenuLabel>
+
+    <BuMenuList>
+      <BuMenuItem>
+        <BuMenuLink value="Payments">Payments</BuMenuLink>
+      </BuMenuItem>
+
+      <BuMenuItem>
+        <BuMenuLink value="Transfers">Transfers</BuMenuLink>
+      </BuMenuItem>
+
+      <BuMenuItem>
+        <BuMenuLink value="Balance">Balance</BuMenuLink>
+      </BuMenuItem>
+    </BuMenuList>
+  </BuMenu>
 </template>
 ```
 
 :::
 
-You write no `is-active` and no nested-list markup. The `items` array owns the sections, and `v-model` owns which anchor is current.
+You write no `is-active` yourself — `v-model` owns which anchor is current. Nested markup is explicit: a second `BuMenuList` with `nested` inside the same `BuMenuItem`.
 
 ## Examples
 
@@ -108,7 +190,9 @@ You write no `is-active` and no nested-list markup. The `items` array owns the s
 
 ### Nested lists
 
-One level of `children` on an item renders a bare `<ul>` as a sibling of that item's anchor, inside the same `<li>`. The nested list has no class, and it is always visible. Bulma documents no collapse for `.menu-list`, so there is no disclosure, no chevron, and no `aria-expanded` — clicking a parent selects it the same way clicking a child does.
+A `BuMenuList` with `nested` inside a `BuMenuItem` renders a bare `<ul>` as a sibling of that item's `BuMenuLink`. The nested list has no class, and it is always visible. Bulma documents no collapse for `.menu-list`, so there is no disclosure, no chevron, and no `aria-expanded` — clicking a parent selects it the same way clicking a child does.
+
+The link's default slot is open for icons and badges — the nested example puts a Font Awesome icon and a `.tag` inside `BuMenuLink` without changing the selection wiring.
 
 That is the whole nesting story. The nested entries share the menu's single `v-model`; they are not a second selection and not a tree. Reach for this when the sidebar has a short group that should stay expanded — team settings, a docs section. If you need a collapsible tree, that is [Treeview](/components/disclosure/treeview) in Vuetify0, and it will not give you Bulma's markup.
 :::
@@ -117,21 +201,26 @@ That is the whole nesting story. The nested entries share the menu's single `v-m
 
 <!-- Hand-authored; <DocsApi /> does not cover @paper/* -->
 
-`BuMenu` renders `aside.menu` and owns the selection. There are no part components; the lists come from `items`.
+`BuMenu` renders `aside.menu` and owns the selection. Lists and labels are composed parts.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `v-model` | `T` | — | Selected item value |
-| `items` | `BuMenuSection<T>[]` | `[]` | Alternating label + list sections |
+| `v-model` | `T` | — | Selected link value |
 
-Each section is an optional `label` (`p.menu-label`) plus `items`. Each item:
+### BuMenuList
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `label` | `string` | — | Anchor text |
-| `value` | `T` | `label` | Selection value matched against `v-model` |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `nested` | `boolean` | `false` | Omit `.menu-list` — bare `<ul>` for nested lists |
+
+### BuMenuLink
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `T` | — | Selection value matched against `v-model` |
 | `href` | `string` | — | Optional `href` on the anchor |
-| `children` | `BuMenuItem<T>[]` | — | One level of nesting; always visible |
+
+`BuMenuLabel` and `BuMenuItem` take no props — heading text and children go in the default slot.
 
 ## Accessibility
 

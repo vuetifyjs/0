@@ -17,6 +17,10 @@ import { BuHelp } from '#bulma/components/BuHelp'
 import { BuInput } from '#bulma/components/BuInput'
 import { BuLabel } from '#bulma/components/BuLabel'
 import { BuMenu } from '#bulma/components/BuMenu'
+import { BuMenuItem } from '#bulma/components/BuMenuItem'
+import { BuMenuLabel } from '#bulma/components/BuMenuLabel'
+import { BuMenuLink } from '#bulma/components/BuMenuLink'
+import { BuMenuList } from '#bulma/components/BuMenuList'
 import { BuMessage } from '#bulma/components/BuMessage'
 import { BuMessageBody } from '#bulma/components/BuMessageBody'
 import { BuMessageHeader } from '#bulma/components/BuMessageHeader'
@@ -65,7 +69,6 @@ import { createApp, h, nextTick } from 'vue'
 // Types
 import type { BuDropdownMenuSlotProps } from '#bulma/components/BuDropdownMenu'
 import type { BuDropdownTriggerSlotProps } from '#bulma/components/BuDropdownTrigger'
-import type { BuMenuSection } from '#bulma/components/BuMenu'
 import type { AxeViolation } from '#v0/components/fixtures/audit'
 import type { Plugin } from 'vue'
 
@@ -137,18 +140,6 @@ function items (props: BuDropdownMenuSlotProps) {
     h('a', { class: 'dropdown-item', href: '#', ...props.item }, ' With a divider '),
   ]
 }
-
-const sections: BuMenuSection<string>[] = [
-  { label: 'General', items: [{ label: 'Dashboard' }, { label: 'Customers' }] },
-  {
-    label: 'Administration',
-    items: [
-      { label: 'Team Settings' },
-      { label: 'Manage Your Team', children: [{ label: 'Members' }, { label: 'Plugins' }] },
-      { label: 'Invitations' },
-    ],
-  },
-]
 
 const repos = [
   { label: 'bulma', icon: 'fas fa-book' },
@@ -246,7 +237,25 @@ const SWEEP: Record<string, Subject> = {
     ]),
   },
   BuMenu: {
-    node: () => h(BuMenu as any, { items: sections, modelValue: 'Manage Your Team' }),
+    node: () => h(BuMenu as any, { modelValue: 'Manage Your Team' }, () => [
+      h(BuMenuLabel, null, () => 'General'),
+      h(BuMenuList, null, () => [
+        h(BuMenuItem, null, () => h(BuMenuLink, { value: 'Dashboard' }, () => 'Dashboard')),
+        h(BuMenuItem, null, () => h(BuMenuLink, { value: 'Customers' }, () => 'Customers')),
+      ]),
+      h(BuMenuLabel, null, () => 'Administration'),
+      h(BuMenuList, null, () => [
+        h(BuMenuItem, null, () => h(BuMenuLink, { value: 'Team Settings' }, () => 'Team Settings')),
+        h(BuMenuItem, null, () => [
+          h(BuMenuLink, { value: 'Manage Your Team' }, () => 'Manage Your Team'),
+          h(BuMenuList, { nested: true }, () => [
+            h(BuMenuItem, null, () => h(BuMenuLink, { value: 'Members' }, () => 'Members')),
+            h(BuMenuItem, null, () => h(BuMenuLink, { value: 'Plugins' }, () => 'Plugins')),
+          ]),
+        ]),
+        h(BuMenuItem, null, () => h(BuMenuLink, { value: 'Invitations' }, () => 'Invitations')),
+      ]),
+    ]),
   },
   BuMessage: {
     node: () => h(BuMessage, {}, () => [

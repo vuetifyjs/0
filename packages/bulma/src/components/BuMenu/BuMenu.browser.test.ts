@@ -1,49 +1,53 @@
 import { describe, expect, it } from 'vitest'
 
 import { BuMenu } from './index'
+import { BuMenuItem } from '../BuMenuItem'
+import { BuMenuLabel } from '../BuMenuLabel'
+import { BuMenuLink } from '../BuMenuLink'
+import { BuMenuList } from '../BuMenuList'
 
 // Utilities
 import { createApp, h, nextTick, shallowRef } from 'vue'
 
-// Types
-import type { BuMenuSection } from './index'
-
 import { conform } from '../../../harness/conform'
 
-const sections: BuMenuSection<string>[] = [
-  {
-    label: 'General',
-    items: [
-      { label: 'Dashboard' },
-      { label: 'Customers' },
-    ],
-  },
-  {
-    label: 'Administration',
-    items: [
-      { label: 'Team Settings' },
-      {
-        label: 'Manage Your Team',
-        children: [
-          { label: 'Members' },
-          { label: 'Plugins' },
-          { label: 'Add a member' },
-        ],
-      },
-      { label: 'Invitations' },
-      { label: 'Cloud Storage Environment Settings' },
-      { label: 'Authentication' },
-    ],
-  },
-  {
-    label: 'Transactions',
-    items: [
-      { label: 'Payments' },
-      { label: 'Transfers' },
-      { label: 'Balance' },
-    ],
-  },
-]
+function link (value: string, label = value) {
+  return h(BuMenuItem, null, () => h(BuMenuLink, { value }, () => label))
+}
+
+function nested (value: string, children: string[]) {
+  return h(BuMenuItem, null, () => [
+    h(BuMenuLink, { value }, () => value),
+    h(BuMenuList, { nested: true }, () => children.map(child => link(child))),
+  ])
+}
+
+function menu (modelValue?: string, onUpdate?: (value: string) => void) {
+  return h(BuMenu as any, {
+    modelValue,
+    'onUpdate:modelValue': onUpdate,
+  }, () => [
+    h(BuMenuLabel, null, () => 'General'),
+    h(BuMenuList, null, () => [
+      link('Dashboard'),
+      link('Customers'),
+    ]),
+    h(BuMenuLabel, null, () => 'Administration'),
+    h(BuMenuList, null, () => [
+      link('Team Settings'),
+      nested('Manage Your Team', ['Members', 'Plugins', 'Add a member']),
+      link('Invitations'),
+      link('Cloud Storage Environment Settings'),
+      link('Authentication'),
+    ]),
+    h(BuMenuLabel, null, () => 'Transactions'),
+    h(BuMenuList, null, () => [
+      link('Payments'),
+      link('Transfers'),
+      link('Balance'),
+    ]),
+  ])
+}
 
 function mount (component: Parameters<typeof createApp>[0]) {
   const host = document.createElement('div')
@@ -61,7 +65,7 @@ function mount (component: Parameters<typeof createApp>[0]) {
 describe('buMenu', () => {
   it('conforms to the menu fixture', () => {
     const { el, unmount } = mount({
-      render: () => h(BuMenu as any, { items: sections, modelValue: 'Manage Your Team' }),
+      render: () => menu('Manage Your Team'),
     })
     conform(el, 'menu')
     unmount()
@@ -71,12 +75,8 @@ describe('buMenu', () => {
     const active = shallowRef<string>()
     const { el, unmount } = mount({
       setup () {
-        return () => h(BuMenu as any, {
-          'items': sections,
-          'modelValue': active.value,
-          'onUpdate:modelValue': (value: string) => {
-            active.value = value
-          },
+        return () => menu(active.value, value => {
+          active.value = value
         })
       },
     })

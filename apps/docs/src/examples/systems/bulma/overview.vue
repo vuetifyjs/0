@@ -11,6 +11,10 @@
     BuInput,
     BuLabel,
     BuMenu,
+    BuMenuItem,
+    BuMenuLabel,
+    BuMenuLink,
+    BuMenuList,
     BuModal,
     BuModalBody,
     BuModalCard,
@@ -55,24 +59,6 @@
   const visibility = shallowRef('public')
   const watchers = shallowRef<number | null>(3)
   const privateRepo = shallowRef(false)
-
-  const menu = [
-    {
-      label: 'General',
-      items: [
-        { label: 'Dashboard' },
-        { label: 'Customers' },
-      ],
-    },
-    {
-      label: 'Transactions',
-      items: [
-        { label: 'Payments' },
-        { label: 'Transfers' },
-        { label: 'Balance' },
-      ],
-    },
-  ]
 </script>
 
 <template>
@@ -118,7 +104,35 @@
 
     <div class="columns">
       <div class="column is-one-quarter">
-        <BuMenu v-model="section" :items="menu" />
+        <BuMenu v-model="section">
+          <BuMenuLabel>General</BuMenuLabel>
+
+          <BuMenuList>
+            <BuMenuItem>
+              <BuMenuLink value="Dashboard">Dashboard</BuMenuLink>
+            </BuMenuItem>
+
+            <BuMenuItem>
+              <BuMenuLink value="Customers">Customers</BuMenuLink>
+            </BuMenuItem>
+          </BuMenuList>
+
+          <BuMenuLabel>Transactions</BuMenuLabel>
+
+          <BuMenuList>
+            <BuMenuItem>
+              <BuMenuLink value="Payments">Payments</BuMenuLink>
+            </BuMenuItem>
+
+            <BuMenuItem>
+              <BuMenuLink value="Transfers">Transfers</BuMenuLink>
+            </BuMenuItem>
+
+            <BuMenuItem>
+              <BuMenuLink value="Balance">Balance</BuMenuLink>
+            </BuMenuItem>
+          </BuMenuList>
+        </BuMenu>
       </div>
 
       <div class="column">
