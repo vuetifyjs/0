@@ -14,6 +14,9 @@
       "path": "./packages/emerald"
     },
     {
+      "path": "./packages/bulma"
+    },
+    {
       "path": "./apps/docs"
     },
     {
