@@ -47,9 +47,11 @@
     <style>
       /* Bulma's reset reserves a permanent scrollbar track (`overflow-y: scroll`),
          which reads as a dead scrollbar inside a frame that is sized to its own
-         content. */
+         content. `clip` (not `auto` / `hidden`) so no scroll container exists
+         at all — a resize reflow that briefly outgrows the held height cannot
+         paint a root scrollbar or leave the document at a stale offset. */
       html {
-        overflow-y: auto;
+        overflow: clip;
       }
 
       /* Nothing here forces transparency while promoted: an iframe paints an
