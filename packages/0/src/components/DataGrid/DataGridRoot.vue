@@ -1,19 +1,15 @@
-/**
- * @module DataGridRoot
- *
- * @see https://0.vuetifyjs.com/components/data/data-grid
- *
- * @remarks
- * Root provider for the DataGrid compound. Creates a data grid context via
- * createDataGrid and provides it to descendant components. The context
- * exposes layout, rows (ordering), editing, and spans on top of the inherited
- * DataTable pipeline.
- *
- * Rows are registered through the inherited registry surface (`register`,
- * `onboard`, `unregister`, `clear`) — they are not passed as an `items` option.
- */
-
 <script lang="ts">
+  /**
+   * @module DataGridRoot
+   *
+   * @see https://0.vuetifyjs.com/components/data/data-grid
+   *
+   * @remarks
+   * Provider for the DataGrid compound. Creates `createDataGrid` and
+   * provides it to children. Rows and columns register themselves when
+   * they mount — same lifecycle as Checkbox.Group. Renders only slot content.
+   */
+
   // Composables
   import { createContext } from '#v0/composables/createContext'
   import { createDataGrid } from '#v0/composables/createDataGrid'
@@ -34,7 +30,15 @@
     context: DataGridContext<T>
   }
 
-  export const [useDataGridRoot, provideDataGridRoot] = createContext<DataGridContext<Record<string, unknown>>>()
+  const [_useDataGridRoot, provideDataGridRoot] = createContext<DataGridContext<Record<string, unknown>>>()
+
+  export function useDataGridRoot<
+    T extends Record<string, unknown> = Record<string, unknown>,
+    > (namespace = 'v0:data-grid'): DataGridContext<T> {
+    return _useDataGridRoot(namespace) as DataGridContext<T>
+  }
+
+  export { provideDataGridRoot }
 </script>
 
 <script lang="ts" setup generic="T extends Record<string, unknown> = Record<string, unknown>">

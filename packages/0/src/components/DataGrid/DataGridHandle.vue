@@ -1,33 +1,35 @@
-/**
- * @module DataGridHandle
- *
- * @see https://0.vuetifyjs.com/components/data/data-grid
- *
- * @remarks
- * Column resize handle for the data grid. This is a thin wrapper around
- * Splitter.Handle that provides the drag interaction for column resizing.
- *
- * Place between adjacent DataGridColumn components inside a resizable
- * DataGridRow. The handle inherits all Splitter.Handle functionality
- * including pointer drag and keyboard support (Arrow keys, Page Up/Down,
- * Home/End).
- */
-
 <script lang="ts">
+  /**
+   * @module DataGridHandle
+   *
+   * @see https://0.vuetifyjs.com/components/data/data-grid
+   *
+   * @remarks
+   * Column resize handle for the data grid. Thin wrapper around
+   * Splitter.Handle. Only mounts inside a resizable DataGridRow — otherwise
+   * renders nothing so it cannot hijack an ancestor Splitter or throw
+   * V0_CONTEXT_MISSING.
+   */
+
   // Components
   import { SplitterHandle } from '#v0/components/Splitter'
+
+  // Context
+  import { useDataGridRow } from './DataGridRow.vue'
 
   // Composables
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
-  import { toRef, useAttrs } from 'vue'
+  import { toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { SplitterHandleSlotProps } from '#v0/components/Splitter'
 
   export interface DataGridHandleProps extends AtomProps {
+    /** Namespace for dependency injection. @default 'v0:data-grid' */
+    namespace?: string
     /** Whether the handle is disabled */
     disabled?: boolean
     /** Accessible label for the resize handle */
@@ -59,10 +61,14 @@
 
   const {
     as = 'div',
+    namespace = 'v0:data-grid',
     renderless,
     disabled = false,
     label,
   } = defineProps<DataGridHandleProps>()
+
+  const row = useDataGridRow(namespace, null)
+  const isResizable = toRef(() => toValue(row?.resizable) ?? false)
 
   const locale = useLocale()
 
@@ -73,6 +79,7 @@
 
 <template>
   <SplitterHandle
+    v-if="isResizable"
     v-slot="handleProps"
     v-bind="attrs"
     :as

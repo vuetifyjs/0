@@ -1,8 +1,7 @@
 <script setup lang="ts">
-  import { DataGrid, useDataGridRoot } from '@vuetify/v0'
-  import { defineComponent } from 'vue'
+  import { DataGrid } from '@vuetify/v0'
 
-  interface User {
+  interface User extends Record<string, unknown> {
     id: number
     name: string
     email: string
@@ -21,24 +20,14 @@
     { id: 'role' },
   ]
 
-  const DataGridInit = defineComponent({
-    name: 'DataGridInit',
-    setup () {
-      const context = useDataGridRoot('v0:data-grid')
-      if (context.columns.size === 0) {
-        context.columns.onboard(columns)
-        context.onboard(users.map(u => ({ id: u.id, value: u as Record<string, unknown> })))
-      }
-      return () => null
-    },
-  })
+  function rows (ordered: readonly Record<string, unknown>[], size: number) {
+    return (size > 0 ? ordered : users) as User[]
+  }
 </script>
 
 <template>
-  <DataGrid.Root v-slot="{ context }">
-    <DataGridInit />
-
-    <DataGrid.Table class="w-full border-collapse">
+  <DataGrid.Root>
+    <DataGrid.Table aria-label="Users" class="w-full border-collapse">
       <DataGrid.Header>
         <DataGrid.Row class="bg-surface-tint">
           <DataGrid.Column
@@ -52,23 +41,26 @@
         </DataGrid.Row>
       </DataGrid.Header>
 
-      <DataGrid.Body>
+      <DataGrid.Body v-slot="{ items, orderedItems, headerRows, size }">
         <DataGrid.Row
-          v-for="item in context.items.value"
-          :id="(item as User).id"
-          :key="(item as User).id"
+          v-for="(user, i) in rows(orderedItems, size)"
+          v-show="items.some(item => item.id === user.id)"
+          :id="user.id"
+          :key="user.id"
           class="hover:bg-surface-tint/50"
+          :index="headerRows + i + 1"
+          :value="user"
         >
           <DataGrid.Cell class="p-3 border-b border-divider" column="name">
-            {{ (item as User).name }}
+            {{ user.name }}
           </DataGrid.Cell>
 
           <DataGrid.Cell class="p-3 border-b border-divider" column="email">
-            {{ (item as User).email }}
+            {{ user.email }}
           </DataGrid.Cell>
 
           <DataGrid.Cell class="p-3 border-b border-divider" column="role">
-            {{ (item as User).role }}
+            {{ user.role }}
           </DataGrid.Cell>
         </DataGrid.Row>
       </DataGrid.Body>

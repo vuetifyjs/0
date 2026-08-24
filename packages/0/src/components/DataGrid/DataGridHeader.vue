@@ -1,14 +1,14 @@
-/**
- * @module DataGridHeader
- *
- * @see https://0.vuetifyjs.com/components/data/data-grid
- *
- * @remarks
- * Header section wrapper for the data grid. Renders as thead by default
- * with role="rowgroup" for ARIA grid semantics.
- */
-
 <script lang="ts">
+  /**
+   * @module DataGridHeader
+   *
+   * @see https://0.vuetifyjs.com/components/data/data-grid
+   *
+   * @remarks
+   * The `<thead>` element wrapper. Exposes the 2D header grid from the context
+   * for rendering nested header rows.
+   */
+
   // Components
   import { Atom } from '#v0/components/Atom'
 
@@ -20,6 +20,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
+  import type { InternalHeader } from '#v0/composables/createDataTable'
 
   export interface DataGridHeaderProps extends AtomProps {
     /** Namespace for dependency injection. @default 'v0:data-grid' */
@@ -27,8 +28,10 @@
   }
 
   export interface DataGridHeaderSlotProps {
+    /** 2D header grid for rendering multi-level headers */
+    headers: readonly InternalHeader[][]
     attrs: {
-      role: string
+      role: 'rowgroup' | undefined
     }
   }
 </script>
@@ -40,20 +43,19 @@
     default: (props: DataGridHeaderSlotProps) => unknown
   }>()
 
-  const attrs = useAttrs()
-
   const {
     as = 'thead',
-    renderless,
     namespace = 'v0:data-grid',
+    renderless,
   } = defineProps<DataGridHeaderProps>()
 
-  // Verify context exists (throws if missing)
-  useDataGridRoot(namespace)
+  const attrs = useAttrs()
+  const context = useDataGridRoot(namespace)
 
   const slotProps = toRef((): DataGridHeaderSlotProps => ({
+    headers: context.headers.value,
     attrs: {
-      role: 'rowgroup',
+      role: as === 'thead' ? undefined : 'rowgroup',
     },
   }))
 </script>

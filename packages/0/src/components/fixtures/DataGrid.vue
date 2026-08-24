@@ -1,36 +1,24 @@
 <script setup lang="ts">
-  // Utilities
-  import { defineComponent } from 'vue'
+  import { DataGrid } from '../DataGrid/index'
 
-  import { DataGrid, useDataGridRoot } from '../DataGrid/index'
+  interface User extends Record<string, unknown> {
+    id: number
+    name: string
+    email: string
+  }
 
-  const users = [
+  const users: User[] = [
     { id: 1, name: 'Alice', email: 'alice@example.com' },
     { id: 2, name: 'Bob', email: 'bob@example.com' },
   ]
 
-  const columns = [
-    { id: 'name' },
-    { id: 'email' },
-  ]
-
-  const DataGridInit = defineComponent({
-    name: 'DataGridInit',
-    setup () {
-      const context = useDataGridRoot('v0:data-grid')
-      if (context.columns.size === 0) {
-        context.columns.onboard(columns)
-        context.onboard(users.map(u => ({ id: u.id, value: u })))
-      }
-      return () => null
-    },
-  })
+  function rows (ordered: readonly Record<string, unknown>[], size: number) {
+    return (size > 0 ? ordered : users) as User[]
+  }
 </script>
 
 <template>
   <DataGrid.Root>
-    <DataGridInit />
-
     <DataGrid.Table aria-label="Users">
       <DataGrid.Header>
         <DataGrid.Row>
@@ -39,14 +27,16 @@
         </DataGrid.Row>
       </DataGrid.Header>
 
-      <DataGrid.Body>
+      <DataGrid.Body v-slot="{ orderedItems, headerRows, size }">
         <DataGrid.Row
-          v-for="item in users"
-          :id="item.id"
-          :key="item.id"
+          v-for="(user, i) in rows(orderedItems, size)"
+          :id="user.id"
+          :key="user.id"
+          :index="headerRows + i + 1"
+          :value="user"
         >
-          <DataGrid.Cell column="name">{{ item.name }}</DataGrid.Cell>
-          <DataGrid.Cell column="email">{{ item.email }}</DataGrid.Cell>
+          <DataGrid.Cell column="name">{{ user.name }}</DataGrid.Cell>
+          <DataGrid.Cell column="email">{{ user.email }}</DataGrid.Cell>
         </DataGrid.Row>
       </DataGrid.Body>
     </DataGrid.Table>

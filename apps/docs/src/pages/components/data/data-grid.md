@@ -2,7 +2,7 @@
 title: DataGrid - Headless Data Grid with Editing and Row Ordering
 meta:
 - name: description
-  content: Headless data grid component with column layout, cell editing, row ordering, and row spanning for Vue 3.
+  content: Headless Vue 3 data grid with column layout, cell editing, row ordering, and spanning. Semantic table markup, sort, filter, pagination — not an APG Grid widget.
 - name: keywords
   content: data grid, table, editing, sorting, filtering, pagination, row ordering, cell editing, Vue 3, headless
 features:
@@ -26,7 +26,7 @@ Headless compound for tabular data with column layout, cell editing, row orderin
 
 ## Usage
 
-DataGrid provides a structural shell for tabular data. Register columns and rows on the Root context, then render header and body cells against that registry.
+`DataGrid.Root` creates the grid. `DataGrid.Column` and `DataGrid.Row` register when they mount and unregister when they unmount — same lifecycle as `Checkbox.Group`. `context.items` is the pipeline over those registered rows. The client adapter defaults to **10 rows per page**; keep off-page rows mounted (`v-show`) so they stay in the registry. Compose [Pagination](/components/semantic/pagination) or pass `:pagination="{ itemsPerPage: n }"` on Root.
 
 ::: gn-example
 /components/data-grid/basic
@@ -45,8 +45,6 @@ DataGrid provides a structural shell for tabular data. Register columns and rows
       <DataGrid.Header>
         <DataGrid.Row>
           <DataGrid.Column />
-
-          <DataGrid.Handle />
         </DataGrid.Row>
       </DataGrid.Header>
 
@@ -65,7 +63,7 @@ DataGrid provides a structural shell for tabular data. Register columns and rows
 DataGrid extends DataTable with four additional capabilities:
 
 - **Layout** — Column pinning, sizing, resizing, and reordering via `context.layout`
-- **Rows** — Manual row ordering via `context.rows.move()` and `context.rows.reset()`
+- **Rows** — Manual row ordering via `context.rows.move()` and `context.rows.reset()`. `v-for` Body `orderedItems` so a move reorders the DOM; `v-show` against `items` for the page.
 - **Editing** — Cell editing state via `context.editing`
 - **Spans** — Row spanning via `context.spans`
 
@@ -73,9 +71,10 @@ DataGrid extends DataTable with four additional capabilities:
 
 The `context.layout` API provides column sizing primitives:
 
-- `layout.resize(columnId, delta)` — Resize a column by a percentage delta
-- `layout.distribute(sizes)` — Set all column sizes at once (used by resizable rows)
+- `layout.resize(columnId, delta)` — Resize a column by a percentage delta (composable neighbor-delta API; Handle does not call this)
+- `layout.distribute(sizes)` — Set visible-column sizes at once in Column DOM/registry order (what a resizable row's Splitter `@layout` calls). Not `layout.columns` pin order.
 - `layout.columns` — Reactive array of column layout state including `size`, `minSize`, `maxSize`
+- `layout.pin(columnId, 'left' | 'right' | false)` — Pin or unpin at runtime
 
 ```mermaid "DataGrid Context"
 flowchart TD
@@ -84,15 +83,15 @@ flowchart TD
   end
 
   subgraph Table["DataGrid.Table"]
-    role["role=grid"]
+    role["role=table"]
   end
 
   subgraph Header["DataGrid.Header"]
-    HeaderRole["role=rowgroup"]
+    HeaderRole["role=rowgroup when as is not thead"]
   end
 
   subgraph Body["DataGrid.Body"]
-    BodyRole["role=rowgroup"]
+    BodyRole["role=rowgroup when as is not tbody"]
   end
 
   subgraph Row["DataGrid.Row"]
@@ -104,7 +103,7 @@ flowchart TD
   end
 
   subgraph Cell["DataGrid.Cell"]
-    CellRole["role=gridcell"]
+    CellRole["role=cell"]
   end
 
   Root --> Table
@@ -120,7 +119,9 @@ flowchart TD
 
 ### Resizable columns
 
-Set `resizable` on `DataGrid.Row` and place `DataGrid.Handle` between adjacent `DataGrid.Column` cells. The row composes [Splitter](/components/semantic/splitter) internally and syncs sizes to `context.layout`. Onboard columns in setup before the header row mounts so each panel's `defaultSize` is the registered size.
+Set `resizable` on `DataGrid.Row` and place `DataGrid.Handle` between adjacent `DataGrid.Column` cells. The row composes [Splitter](/components/semantic/splitter) internally; Splitter emits `@layout` and the row calls `layout.distribute`. `layout.resize(id, delta)` is the composable neighbor-delta API — Handle does not call it.
+
+Splitter cannot live in a native `<table>`. Use the full `as="div"` chain on Table, Header, Body, Row, Column, and Cell.
 
 ::: gn-example
 /components/data-grid/resizable
@@ -128,23 +129,49 @@ Set `resizable` on `DataGrid.Row` and place `DataGrid.Handle` between adjacent `
 
 ```vue
 <template>
-  <DataGrid.Row resizable>
-    <DataGrid.Column id="name">Name</DataGrid.Column>
-    <DataGrid.Handle />
-    <DataGrid.Column id="email">Email</DataGrid.Column>
-  </DataGrid.Row>
+  <DataGrid.Table as="div">
+    <DataGrid.Header as="div">
+      <DataGrid.Row as="div" resizable>
+        <DataGrid.Column as="div" id="name">Name</DataGrid.Column>
+        <DataGrid.Handle />
+        <DataGrid.Column as="div" id="email">Email</DataGrid.Column>
+      </DataGrid.Row>
+    </DataGrid.Header>
+
+    <DataGrid.Body as="div">
+      <DataGrid.Row as="div" :id="item.id" :value="item">
+        <DataGrid.Cell as="div" column="name">{{ item.name }}</DataGrid.Cell>
+      </DataGrid.Row>
+    </DataGrid.Body>
+  </DataGrid.Table>
 </template>
 ```
 
 ## Accessibility
 
-DataGrid ships structural table roles. It is not a WAI-ARIA Grid APG widget — there is no roving tabindex, `aria-activedescendant`, or keyboard cell navigation.
+DataGrid ships structural table roles. It is not a WAI-ARIA Grid APG widget — there is no roving tabindex, `aria-activedescendant`, or keyboard cell navigation. Name it with `aria-label` or a `<caption>` — Root is a fragment and cannot be named.
 
-- `DataGrid.Table` renders with `role="grid"` and `aria-rowcount`
-- `DataGrid.Header` and `DataGrid.Body` render with `role="rowgroup"`
-- `DataGrid.Row` renders with `role="row"`
+- `DataGrid.Table` renders `<table role="table">`. `aria-rowcount` is set only when the current page is a subset of total (count includes header rows). When it is set, also bind `:index` on header Rows (`1`, or `i + 1` over `headers`) and on each body `DataGrid.Row`: `:index="headerRows + i + 1"` when v-for `orderedItems`, or `:index="rowStart + i"` when v-for `items`. Header rows are not auto-indexed.
+- `DataGrid.Header` and `DataGrid.Body` omit `role` on native `thead`/`tbody`; `as="div"` gets `role="rowgroup"`.
+- `DataGrid.Row` renders with `role="row"` and `aria-selected` when `selectable` is set
 - `DataGrid.Column` renders with `role="columnheader"`, `scope="col"`, and `aria-sort` on sortable columns
-- `DataGrid.Cell` renders with `role="gridcell"` and `rowspan` for spanned cells
+- `DataGrid.Cell` renders with `role="cell"` and `rowspan` (or `aria-rowspan` when `as` is not `td`) for spanned cells
+
+Put a button inside sortable header cells — do not make the `<th>` itself the control:
+
+```vue
+<template>
+  <DataGrid.Column
+    id="name"
+    v-slot="{ isSortable, toggleSort }"
+  >
+    <button v-if="isSortable" @click="toggleSort">
+      Name
+    </button>
+    <span v-else>Name</span>
+  </DataGrid.Column>
+</template>
+```
 
 `DataGrid.Handle` (inside a `resizable` row) inherits Splitter's `role="separator"` semantics.
 
@@ -158,27 +185,35 @@ DataGrid adds column layout (pinning, sizing), cell editing, row ordering, and r
 
 ??? How do I enable cell editing?
 
-Pass an `editing` option to `DataGrid.Root` with an `onEdit` callback, then mark columns as `editable: true` when registering them with `context.columns.onboard()`.
+Call `editing.edit(rowId, columnId)`, then `commit(value)` or `cancel()`. `onEdit` is 4-arg `(row, column, value, item)` and runs after a successful commit. `DataGrid.Cell` is display-only — it exposes an `isEditing` flag, not an editor. `DataGrid.Row` must use the same `id` as the ticket. See the [composable editing example](/composables/data/create-data-grid#examples).
 
-??? How does row spanning work?
+??? How do I use a server adapter?
 
-Pass a `rowSpanning` function to `DataGrid.Root` that returns the span count for each cell. Spanned cells are automatically hidden via `v-if` in `DataGrid.Cell`.
+Pass `new ServerGridAdapter({ total, loading?, error? })` — there is no `fetch`. Onboard the current page of rows; the server owns sort, filter, and pagination.
 
 ??? How do I pin columns?
 
-Use `context.layout.pin(columnId, 'left' | 'right')` to pin columns, or set `pinned: 'left' | 'right'` when registering columns.
+Runtime pin is `layout.pin(columnId, 'left' | 'right')`. Unpin with `false`. `ticket.pinned` is a registration snapshot; slot `pinPosition` / `isPinned` read `layout.columns`.
+
+??? How does row spanning work?
+
+A per-column `span(item)` function on the column ticket wins over Root `rowSpanning`. Spanned cells are hidden via `v-if` in `DataGrid.Cell`.
 
 ??? How do I enable column resizing?
 
-Set `resizable` on `DataGrid.Row` and place `DataGrid.Handle` between `DataGrid.Column` cells. Do not compose raw `Splitter` primitives — the row already wraps `Splitter.Root` and each column already wraps `Splitter.Panel`.
+Set `resizable` on `DataGrid.Row` and place `DataGrid.Handle` between `DataGrid.Column` cells. Handle → Splitter `@layout` → `layout.distribute`. `layout.resize(id, delta)` is the composable neighbor-delta API, not what Handle calls. Splitter cannot live in a native table — use the full `as="div"` chain.
 
 ```vue
 <template>
-  <DataGrid.Row resizable>
-    <DataGrid.Column id="name">Name</DataGrid.Column>
-    <DataGrid.Handle />
-    <DataGrid.Column id="email">Email</DataGrid.Column>
-  </DataGrid.Row>
+  <DataGrid.Table as="div">
+    <DataGrid.Header as="div">
+      <DataGrid.Row as="div" resizable>
+        <DataGrid.Column as="div" id="name">Name</DataGrid.Column>
+        <DataGrid.Handle />
+        <DataGrid.Column as="div" id="email">Email</DataGrid.Column>
+      </DataGrid.Row>
+    </DataGrid.Header>
+  </DataGrid.Table>
 </template>
 ```
 

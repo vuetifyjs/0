@@ -1,8 +1,7 @@
 <script setup lang="ts">
-  import { DataGrid, useDataGridRoot } from '@vuetify/v0'
-  import { defineComponent } from 'vue'
+  import { DataGrid } from '@vuetify/v0'
 
-  interface User {
+  interface User extends Record<string, unknown> {
     id: number
     name: string
     email: string
@@ -23,33 +22,28 @@
     { id: 'role', size: 25, minSize: 10, resizable: true },
   ]
 
-  const DataGridInit = defineComponent({
-    name: 'DataGridInit',
-    setup () {
-      const context = useDataGridRoot('v0:data-grid')
-      if (context.columns.size === 0) {
-        context.columns.onboard(columns)
-        context.onboard(users.map(u => ({ id: u.id, value: u as Record<string, unknown> })))
-      }
-      return () => null
-    },
-  })
+  function rows (ordered: readonly Record<string, unknown>[], size: number) {
+    return (size > 0 ? ordered : users) as User[]
+  }
 </script>
 
 <template>
-  <DataGrid.Root v-slot="{ context }">
-    <DataGridInit />
-
+  <DataGrid.Root>
     <DataGrid.Table
+      aria-label="Users"
       as="div"
       class="w-full border border-divider rounded-lg overflow-hidden"
     >
       <DataGrid.Header as="div" class="bg-surface-tint">
-        <DataGrid.Row class="flex" resizable>
+        <DataGrid.Row as="div" class="flex" resizable>
           <template v-for="(col, idx) in columns" :key="col.id">
             <DataGrid.Column
               :id="col.id"
+              as="div"
               class="p-3 text-start font-semibold relative"
+              :min-size="col.minSize"
+              :resizable="col.resizable"
+              :size="col.size"
             >
               <span class="block truncate">
                 {{ col.id.charAt(0).toUpperCase() + col.id.slice(1) }}
@@ -59,31 +53,37 @@
             <DataGrid.Handle
               v-if="idx < columns.length - 1"
               class="w-1 cursor-col-resize bg-transparent hover:bg-primary/50 z-10 data-[state=drag]:bg-primary"
+              :label="'Resize ' + col.id"
             />
           </template>
         </DataGrid.Row>
       </DataGrid.Header>
 
-      <DataGrid.Body as="div">
+      <DataGrid.Body v-slot="{ items, orderedItems, headerRows, size }" as="div">
         <DataGrid.Row
-          v-for="item in context.items.value"
-          :id="(item as User).id"
-          :key="(item as User).id"
+          v-for="(user, i) in rows(orderedItems, size)"
+          v-show="items.some(item => item.id === user.id)"
+          :id="user.id"
+          :key="user.id"
+          as="div"
           class="flex hover:bg-surface-tint/50 border-t border-divider"
+          :index="headerRows + i + 1"
+          :value="user"
         >
           <DataGrid.Cell
             v-for="col in columns"
             :key="col.id"
+            v-slot="{ size: width }"
             as="div"
             class="p-3 truncate"
             :column="col.id"
             :style="{
-              flexBasis: `${context.layout.columns.value.find(c => c.id === col.id)?.size ?? 0}%`,
+              flexBasis: `${width}%`,
               flexGrow: 0,
               flexShrink: 0,
             }"
           >
-            {{ (item as User)[col.id] }}
+            {{ user[col.id] }}
           </DataGrid.Cell>
         </DataGrid.Row>
       </DataGrid.Body>

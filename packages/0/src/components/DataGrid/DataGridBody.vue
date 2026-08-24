@@ -1,14 +1,14 @@
-/**
- * @module DataGridBody
- *
- * @see https://0.vuetifyjs.com/components/data/data-grid
- *
- * @remarks
- * Body section wrapper for the data grid. Renders as tbody by default
- * with role="rowgroup" for ARIA grid semantics.
- */
-
 <script lang="ts">
+  /**
+   * @module DataGridBody
+   *
+   * @see https://0.vuetifyjs.com/components/data/data-grid
+   *
+   * @remarks
+   * The `<tbody>` element wrapper. Exposes the paginated items from the
+   * context for rendering data rows.
+   */
+
   // Components
   import { Atom } from '#v0/components/Atom'
 
@@ -26,34 +26,56 @@
     namespace?: string
   }
 
-  export interface DataGridBodySlotProps {
+  export interface DataGridBodySlotProps<T extends Record<string, unknown> = Record<string, unknown>> {
+    /** Paginated items for the current page — use with `v-show` to hide off-page rows */
+    items: readonly T[]
+    /** Filtered and sorted items in adapter order. Sort only — ignores `rows.move()`. */
+    sortedItems: readonly T[]
+    /** Filter+sort+row-order list before pagination. `v-for` this (fallback to source when `size` is 0). */
+    orderedItems: readonly T[]
+    /** Whether the table is loading */
+    isLoading: boolean
+    /** Whether the table has no items */
+    isEmpty: boolean
+    /** Header-grid row count. Bind `:index="headerRows + i + 1"` when v-for `orderedItems`. */
+    headerRows: number
+    /** 1-based index of the first visible data row (header-grid rows + pageStart + 1). Bind `:index="rowStart + i"` when v-for `items`. */
+    rowStart: number
+    /** Registry size — 0 before rows register (first paint). Use to choose the source fallback. */
+    size: number
     attrs: {
-      role: string
+      role: 'rowgroup' | undefined
     }
   }
 </script>
 
-<script setup lang="ts">
+<script lang="ts" setup generic="T extends Record<string, unknown> = Record<string, unknown>">
   defineOptions({ name: 'DataGridBody', inheritAttrs: false })
 
   defineSlots<{
-    default: (props: DataGridBodySlotProps) => unknown
+    default: (props: DataGridBodySlotProps<T>) => unknown
   }>()
-
-  const attrs = useAttrs()
 
   const {
     as = 'tbody',
-    renderless,
     namespace = 'v0:data-grid',
+    renderless,
   } = defineProps<DataGridBodyProps>()
 
-  // Verify context exists (throws if missing)
-  useDataGridRoot(namespace)
+  const attrs = useAttrs()
+  const context = useDataGridRoot<T>(namespace)
 
-  const slotProps = toRef((): DataGridBodySlotProps => ({
+  const slotProps = toRef((): DataGridBodySlotProps<T> => ({
+    items: context.items.value,
+    sortedItems: context.sortedItems.value,
+    orderedItems: context.orderedItems.value,
+    isLoading: context.loading.value,
+    isEmpty: context.items.value.length === 0,
+    headerRows: context.headers.value.length,
+    rowStart: context.headers.value.length + context.pagination.pageStart.value + 1,
+    size: context.size,
     attrs: {
-      role: 'rowgroup',
+      role: as === 'tbody' ? undefined : 'rowgroup',
     },
   }))
 </script>

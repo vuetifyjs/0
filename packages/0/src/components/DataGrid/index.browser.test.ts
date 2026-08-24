@@ -130,7 +130,7 @@ describe('dataGrid', () => {
         expect(table.element.tagName).toBe('DIV')
       })
 
-      it('should set role=grid attribute', () => {
+      it('should set role=table attribute', () => {
         const wrapper = mount(DataGrid.Root, {
           slots: {
             default: () => h(DataGrid.Table),
@@ -138,10 +138,47 @@ describe('dataGrid', () => {
         })
 
         const table = wrapper.findComponent(DataGrid.Table as any)
-        expect(table.attributes('role')).toBe('grid')
+        expect(table.attributes('role')).toBe('table')
       })
 
-      it('should expose role=grid via slot attrs when renderless', () => {
+      it('should omit aria-rowcount when the full table is in the DOM', async () => {
+        const empty = mount(DataGrid.Root, {
+          slots: {
+            default: () => h(DataGrid.Table),
+          },
+        })
+
+        expect(empty.findComponent(DataGrid.Table as any).attributes('aria-rowcount')).toBeUndefined()
+
+        const users = [
+          { id: 1, name: 'Alice' },
+          { id: 2, name: 'Bob' },
+        ]
+
+        const wrapper = mount(DataGrid.Root, {
+          slots: {
+            default: () =>
+              h(DataGrid.Table, {}, () => [
+                h(DataGrid.Header, {}, () =>
+                  h(DataGrid.Row, {}, () => h(DataGrid.Column, { id: 'name' }, () => 'Name')),
+                ),
+                h(DataGrid.Body as any, {}, () =>
+                  users.map(u =>
+                    h(DataGrid.Row, { id: u.id, value: u }, () =>
+                      h(DataGrid.Cell, { column: 'name' }, () => u.name),
+                    ),
+                  ),
+                ),
+              ]),
+          },
+        })
+
+        await nextTick()
+
+        expect(wrapper.findComponent(DataGrid.Table as any).attributes('aria-rowcount')).toBeUndefined()
+      })
+
+      it('should expose role=table via slot attrs when renderless', () => {
         let slotProps: any
 
         const wrapper = mount(DataGrid.Root, {
@@ -157,8 +194,8 @@ describe('dataGrid', () => {
         })
 
         expect(wrapper.find('table').exists()).toBe(false)
-        expect(wrapper.find('.custom-grid').attributes('role')).toBe('grid')
-        expect(slotProps.attrs.role).toBe('grid')
+        expect(wrapper.find('.custom-grid').attributes('role')).toBe('table')
+        expect(slotProps.attrs.role).toBe('table')
       })
     })
   })
@@ -176,7 +213,7 @@ describe('dataGrid', () => {
         expect(header.element.tagName).toBe('THEAD')
       })
 
-      it('should set role=rowgroup attribute', () => {
+      it('should omit role on native thead', () => {
         const wrapper = mount(DataGrid.Root, {
           slots: {
             default: () => h(DataGrid.Table, {}, () => h(DataGrid.Header)),
@@ -184,7 +221,7 @@ describe('dataGrid', () => {
         })
 
         const header = wrapper.findComponent(DataGrid.Header as any)
-        expect(header.attributes('role')).toBe('rowgroup')
+        expect(header.attributes('role')).toBeUndefined()
       })
 
       it('should render as custom element when as prop is provided', () => {
@@ -199,14 +236,14 @@ describe('dataGrid', () => {
         expect(header.attributes('role')).toBe('rowgroup')
       })
 
-      it('should expose role=rowgroup via slot attrs when renderless', () => {
+      it('should expose role=rowgroup via slot attrs when renderless and as is not thead', () => {
         let slotProps: any
 
         const wrapper = mount(DataGrid.Root, {
           slots: {
             default: () =>
               h(DataGrid.Table, { as: 'div' }, () =>
-                h(DataGrid.Header, { renderless: true }, {
+                h(DataGrid.Header, { as: 'div', renderless: true }, {
                   default: (props: any) => {
                     slotProps = props
                     return h('div', { class: 'custom-header', ...props.attrs }, 'Header')
@@ -228,7 +265,7 @@ describe('dataGrid', () => {
       it('should render as tbody by default', () => {
         const wrapper = mount(DataGrid.Root, {
           slots: {
-            default: () => h(DataGrid.Table, {}, () => h(DataGrid.Body)),
+            default: () => h(DataGrid.Table, {}, () => h(DataGrid.Body as any)),
           },
         })
 
@@ -236,21 +273,21 @@ describe('dataGrid', () => {
         expect(body.element.tagName).toBe('TBODY')
       })
 
-      it('should set role=rowgroup attribute', () => {
+      it('should omit role on native tbody', () => {
         const wrapper = mount(DataGrid.Root, {
           slots: {
-            default: () => h(DataGrid.Table, {}, () => h(DataGrid.Body)),
+            default: () => h(DataGrid.Table, {}, () => h(DataGrid.Body as any)),
           },
         })
 
         const body = wrapper.findComponent(DataGrid.Body as any)
-        expect(body.attributes('role')).toBe('rowgroup')
+        expect(body.attributes('role')).toBeUndefined()
       })
 
       it('should render as custom element when as prop is provided', () => {
         const wrapper = mount(DataGrid.Root, {
           slots: {
-            default: () => h(DataGrid.Table, { as: 'div' }, () => h(DataGrid.Body, { as: 'div' })),
+            default: () => h(DataGrid.Table, { as: 'div' }, () => h(DataGrid.Body as any, { as: 'div' })),
           },
         })
 
@@ -259,14 +296,14 @@ describe('dataGrid', () => {
         expect(body.attributes('role')).toBe('rowgroup')
       })
 
-      it('should expose role=rowgroup via slot attrs when renderless', () => {
+      it('should expose role=rowgroup via slot attrs when renderless and as is not tbody', () => {
         let slotProps: any
 
         const wrapper = mount(DataGrid.Root, {
           slots: {
             default: () =>
               h(DataGrid.Table, { as: 'div' }, () =>
-                h(DataGrid.Body, { renderless: true }, {
+                h(DataGrid.Body as any, { as: 'div', renderless: true }, {
                   default: (props: any) => {
                     slotProps = props
                     return h('div', { class: 'custom-body', ...props.attrs }, 'Body')
@@ -280,6 +317,39 @@ describe('dataGrid', () => {
         expect(wrapper.find('.custom-body').attributes('role')).toBe('rowgroup')
         expect(slotProps.attrs.role).toBe('rowgroup')
       })
+
+      it('should expose row order on Body orderedItems after rows.move', async () => {
+        const users = [
+          { id: 1, name: 'Alice' },
+          { id: 2, name: 'Bob' },
+          { id: 3, name: 'Carol' },
+        ]
+        let bodyProps: any
+
+        const { wrapper, context } = mountRoot(() =>
+          h(DataGrid.Table, {}, () =>
+            h(DataGrid.Body as any, {}, {
+              default: (props: any) => {
+                bodyProps = props
+                const rows = props.orderedItems.length > 0 ? props.orderedItems : users
+                return rows.map((u: any) =>
+                  h(DataGrid.Row, { id: u.id, value: u, key: u.id }, () =>
+                    h(DataGrid.Cell, { column: 'name' }, () => u.name),
+                  ),
+                )
+              },
+            }),
+          ),
+        )
+
+        await nextTick()
+
+        context.rows.move(3, 0)
+        await nextTick()
+
+        expect(bodyProps.orderedItems[0].id).toBe(3)
+        expect(wrapper.findAll('tr')[0]!.text()).toContain('Carol')
+      })
     })
   })
 
@@ -290,7 +360,7 @@ describe('dataGrid', () => {
           slots: {
             default: () =>
               h(DataGrid.Table, {}, () =>
-                h(DataGrid.Body, {}, () => h(DataGrid.Row)),
+                h(DataGrid.Body as any, {}, () => h(DataGrid.Row)),
               ),
           },
         })
@@ -304,7 +374,7 @@ describe('dataGrid', () => {
           slots: {
             default: () =>
               h(DataGrid.Table, {}, () =>
-                h(DataGrid.Body, {}, () => h(DataGrid.Row)),
+                h(DataGrid.Body as any, {}, () => h(DataGrid.Row)),
               ),
           },
         })
@@ -318,7 +388,7 @@ describe('dataGrid', () => {
           slots: {
             default: () =>
               h(DataGrid.Table, { as: 'div' }, () =>
-                h(DataGrid.Body, { as: 'div' }, () => h(DataGrid.Row, { as: 'div' })),
+                h(DataGrid.Body as any, { as: 'div' }, () => h(DataGrid.Row, { as: 'div' })),
               ),
           },
         })
@@ -335,7 +405,7 @@ describe('dataGrid', () => {
           slots: {
             default: () =>
               h(DataGrid.Table, { as: 'div' }, () =>
-                h(DataGrid.Body, { as: 'div' }, () =>
+                h(DataGrid.Body as any, { as: 'div' }, () =>
                   h(DataGrid.Row, { id: 7, renderless: true }, {
                     default: (props: any) => {
                       slotProps = props
@@ -372,6 +442,7 @@ describe('dataGrid', () => {
 
         const column = wrapper.findComponent(DataGrid.Column as any)
         expect(column.element.tagName).toBe('TH')
+        expect(column.attributes('scope')).toBe('col')
       })
 
       it('should set role=columnheader attribute', () => {
@@ -423,6 +494,7 @@ describe('dataGrid', () => {
         const column = wrapper.findComponent(DataGrid.Column as any)
         expect(column.element.tagName).toBe('DIV')
         expect(column.attributes('role')).toBe('columnheader')
+        expect(column.attributes('scope')).toBeUndefined()
       })
 
       it('should expose role=columnheader via slot attrs when renderless', () => {
@@ -434,7 +506,7 @@ describe('dataGrid', () => {
               h(DataGrid.Table, { as: 'div' }, () =>
                 h(DataGrid.Header, { as: 'div' }, () =>
                   h(DataGrid.Row, { as: 'div' }, () =>
-                    h(DataGrid.Column, { renderless: true }, {
+                    h(DataGrid.Column, { as: 'div', renderless: true }, {
                       default: (props: any) => {
                         slotProps = props
                         return h('div', { class: 'custom-column', ...props.attrs }, 'Name')
@@ -449,13 +521,83 @@ describe('dataGrid', () => {
         expect(wrapper.find('th').exists()).toBe(false)
         expect(wrapper.find('.custom-column').attributes('role')).toBe('columnheader')
         expect(slotProps.attrs.role).toBe('columnheader')
-        expect(slotProps.attrs.scope).toBe('col')
+        expect(slotProps.attrs.scope).toBeUndefined()
         expect(slotProps.isSortable).toBe(false)
         expect(slotProps.isSorted).toBe(false)
         expect(slotProps.sortDirection).toBeUndefined()
         expect(slotProps.isPinned).toBe(false)
         expect(slotProps.pinPosition).toBe(false)
         expect(slotProps.size).toBe(0)
+      })
+
+      it('should expose scope=col via slot attrs when renderless and as is th', () => {
+        let slotProps: any
+
+        mount(DataGrid.Root, {
+          slots: {
+            default: () =>
+              h(DataGrid.Table, {}, () =>
+                h(DataGrid.Header, {}, () =>
+                  h(DataGrid.Row, {}, () =>
+                    h(DataGrid.Column, { renderless: true }, {
+                      default: (props: any) => {
+                        slotProps = props
+                        return h('th', { class: 'custom-column', ...props.attrs }, 'Name')
+                      },
+                    }),
+                  ),
+                ),
+              ),
+          },
+        })
+
+        expect(slotProps.attrs.scope).toBe('col')
+        expect(slotProps.attrs.role).toBe('columnheader')
+        expect(slotProps.isSorted).toBe(false)
+        expect(slotProps.sortDirection).toBeUndefined()
+        expect(slotProps.isPinned).toBe(false)
+        expect(slotProps.pinPosition).toBe(false)
+        expect(slotProps.size).toBe(0)
+      })
+
+      it('should support colspan and rowspan attributes', () => {
+        const wrapper = mount(DataGrid.Root, {
+          slots: {
+            default: () =>
+              h(DataGrid.Table, {}, () =>
+                h(DataGrid.Header, {}, () =>
+                  h(DataGrid.Row, {}, () =>
+                    h(DataGrid.Column, { colspan: 2, rowspan: 3 }, () => 'Name'),
+                  ),
+                ),
+              ),
+          },
+        })
+
+        const column = wrapper.findComponent(DataGrid.Column as any)
+        expect(column.attributes('colspan')).toBe('2')
+        expect(column.attributes('rowspan')).toBe('3')
+        expect(column.attributes('scope')).toBe('colgroup')
+      })
+
+      it('should use aria-colspan on non-th hosts', () => {
+        const wrapper = mount(DataGrid.Root, {
+          slots: {
+            default: () =>
+              h(DataGrid.Table, { as: 'div' }, () =>
+                h(DataGrid.Header, { as: 'div' }, () =>
+                  h(DataGrid.Row, { as: 'div' }, () =>
+                    h(DataGrid.Column, { as: 'div', colspan: 2 }, () => 'Name'),
+                  ),
+                ),
+              ),
+          },
+        })
+
+        const column = wrapper.findComponent(DataGrid.Column as any)
+        expect(column.attributes('colspan')).toBeUndefined()
+        expect(column.attributes('aria-colspan')).toBe('2')
+        expect(column.attributes('scope')).toBeUndefined()
       })
 
       it('should fall back to Atom when used outside a row', () => {
@@ -482,7 +624,7 @@ describe('dataGrid', () => {
           h(DataGrid.Table, {}, () =>
             h(DataGrid.Header, {}, () =>
               h(DataGrid.Row, {}, () =>
-                h(DataGrid.Column, { id: 'name' }, {
+                h(DataGrid.Column, { id: 'name', sortable: true }, {
                   default: (props: any) => {
                     slotProps = props
                     return 'Name'
@@ -493,16 +635,13 @@ describe('dataGrid', () => {
           ),
         )
 
-        context.columns.onboard([
-          { id: 'name', sortable: true, size: 50 },
-          { id: 'email', size: 50 },
-        ])
         await nextTick()
 
         expect(slotProps.isSortable).toBe(true)
         expect(slotProps.isSorted).toBe(false)
         expect(slotProps.sortDirection).toBeUndefined()
         expect(slotProps.attrs['aria-sort']).toBe('none')
+        expect(slotProps.attrs['data-direction']).toBeUndefined()
         expect(typeof slotProps.toggleSort).toBe('function')
 
         context.sort.toggle('name')
@@ -511,6 +650,7 @@ describe('dataGrid', () => {
         expect(slotProps.isSorted).toBe(true)
         expect(slotProps.sortDirection).toBe('asc')
         expect(slotProps.attrs['aria-sort']).toBe('ascending')
+        expect(slotProps.attrs['data-direction']).toBe('asc')
 
         context.sort.toggle('name')
         await nextTick()
@@ -518,6 +658,7 @@ describe('dataGrid', () => {
         expect(slotProps.isSorted).toBe(true)
         expect(slotProps.sortDirection).toBe('desc')
         expect(slotProps.attrs['aria-sort']).toBe('descending')
+        expect(slotProps.attrs['data-direction']).toBe('desc')
 
         context.sort.toggle('name')
         await nextTick()
@@ -530,17 +671,17 @@ describe('dataGrid', () => {
       it('should expose left and right pin positions from column tickets', async () => {
         let nameProps: any
         let emailProps: any
-        const { context } = mountRoot(() =>
+        mountRoot(() =>
           h(DataGrid.Table, {}, () =>
             h(DataGrid.Header, {}, () =>
               h(DataGrid.Row, {}, () => [
-                h(DataGrid.Column, { id: 'name' }, {
+                h(DataGrid.Column, { id: 'name', pinned: 'left' }, {
                   default: (props: any) => {
                     nameProps = props
                     return 'Name'
                   },
                 }),
-                h(DataGrid.Column, { id: 'email' }, {
+                h(DataGrid.Column, { id: 'email', pinned: 'right' }, {
                   default: (props: any) => {
                     emailProps = props
                     return 'Email'
@@ -551,10 +692,6 @@ describe('dataGrid', () => {
           ),
         )
 
-        context.columns.onboard([
-          { id: 'name', size: 50, pinned: 'left' },
-          { id: 'email', size: 50, pinned: 'right' },
-        ])
         await nextTick()
 
         expect(nameProps.isPinned).toBe(true)
@@ -572,7 +709,7 @@ describe('dataGrid', () => {
           slots: {
             default: () =>
               h(DataGrid.Table, {}, () =>
-                h(DataGrid.Body, {}, () =>
+                h(DataGrid.Body as any, {}, () =>
                   h(DataGrid.Row, {}, () => h(DataGrid.Cell, {}, () => 'Value')),
                 ),
               ),
@@ -583,12 +720,12 @@ describe('dataGrid', () => {
         expect(cell.element.tagName).toBe('TD')
       })
 
-      it('should set role=gridcell attribute', () => {
+      it('should set role=cell attribute', () => {
         const wrapper = mount(DataGrid.Root, {
           slots: {
             default: () =>
               h(DataGrid.Table, {}, () =>
-                h(DataGrid.Body, {}, () =>
+                h(DataGrid.Body as any, {}, () =>
                   h(DataGrid.Row, {}, () => h(DataGrid.Cell, {}, () => 'Value')),
                 ),
               ),
@@ -596,7 +733,7 @@ describe('dataGrid', () => {
         })
 
         const cell = wrapper.findComponent(DataGrid.Cell as any)
-        expect(cell.attributes('role')).toBe('gridcell')
+        expect(cell.attributes('role')).toBe('cell')
       })
 
       it('should render content in slot', () => {
@@ -604,7 +741,7 @@ describe('dataGrid', () => {
           slots: {
             default: () =>
               h(DataGrid.Table, {}, () =>
-                h(DataGrid.Body, {}, () =>
+                h(DataGrid.Body as any, {}, () =>
                   h(DataGrid.Row, {}, () => h(DataGrid.Cell, {}, () => 'Cell Content')),
                 ),
               ),
@@ -620,7 +757,7 @@ describe('dataGrid', () => {
           slots: {
             default: () =>
               h(DataGrid.Table, { as: 'div' }, () =>
-                h(DataGrid.Body, { as: 'div' }, () =>
+                h(DataGrid.Body as any, { as: 'div' }, () =>
                   h(DataGrid.Row, { as: 'div' }, () =>
                     h(DataGrid.Cell, { as: 'div' }, () => 'Value'),
                   ),
@@ -631,17 +768,42 @@ describe('dataGrid', () => {
 
         const cell = wrapper.findComponent(DataGrid.Cell as any)
         expect(cell.element.tagName).toBe('DIV')
-        expect(cell.attributes('role')).toBe('gridcell')
+        expect(cell.attributes('role')).toBe('cell')
       })
 
-      it('should expose role=gridcell via slot attrs when renderless', () => {
+      it('should set aria-colindex on non-td cells in display order', async () => {
+        const { wrapper } = mountRoot(
+          () =>
+            h(DataGrid.Table, { as: 'div' }, () =>
+              h(DataGrid.Body as any, { as: 'div' }, () =>
+                h(DataGrid.Row, { as: 'div' }, () => [
+                  h(DataGrid.Cell, { as: 'div', column: 'name' }, () => 'A'),
+                  h(DataGrid.Cell, { as: 'div', column: 'email' }, () => 'B'),
+                ]),
+              ),
+            ),
+          {},
+          [
+            { id: 'name' },
+            { id: 'email' },
+          ],
+        )
+
+        await nextTick()
+
+        const cells = wrapper.findAll('[role="cell"]')
+        expect(cells[0]!.attributes('aria-colindex')).toBe('1')
+        expect(cells[1]!.attributes('aria-colindex')).toBe('2')
+      })
+
+      it('should expose role=cell via slot attrs when renderless', () => {
         let slotProps: any
 
         const wrapper = mount(DataGrid.Root, {
           slots: {
             default: () =>
               h(DataGrid.Table, { as: 'div' }, () =>
-                h(DataGrid.Body, { as: 'div' }, () =>
+                h(DataGrid.Body as any, { as: 'div' }, () =>
                   h(DataGrid.Row, { as: 'div' }, () =>
                     h(DataGrid.Cell, { renderless: true }, {
                       default: (props: any) => {
@@ -656,8 +818,8 @@ describe('dataGrid', () => {
         })
 
         expect(wrapper.find('td').exists()).toBe(false)
-        expect(wrapper.find('.custom-cell').attributes('role')).toBe('gridcell')
-        expect(slotProps.attrs.role).toBe('gridcell')
+        expect(wrapper.find('.custom-cell').attributes('role')).toBe('cell')
+        expect(slotProps.attrs.role).toBe('cell')
         expect(slotProps.isEditing).toBe(false)
         expect(slotProps.rowSpan).toBe(1)
       })
@@ -668,7 +830,7 @@ describe('dataGrid', () => {
         let slotProps: any
         const { wrapper, context } = mountRoot(() =>
           h(DataGrid.Table, {}, () =>
-            h(DataGrid.Body, {}, () =>
+            h(DataGrid.Body as any, {}, () =>
               h(DataGrid.Row, { id: 1 }, () =>
                 h(DataGrid.Cell, { column: 'name' }, {
                   default: (props: any) => {
@@ -695,14 +857,14 @@ describe('dataGrid', () => {
         await nextTick()
 
         expect(slotProps.isEditing).toBe(true)
-        expect(wrapper.find('[role="gridcell"]').exists()).toBe(true)
+        expect(wrapper.find('[role="cell"]').exists()).toBe(true)
       })
 
       it('should apply rowspan and hide covered cells', async () => {
         let firstProps: any
         const { wrapper, context } = mountRoot(() =>
           h(DataGrid.Table, {}, () =>
-            h(DataGrid.Body, {}, () => [
+            h(DataGrid.Body as any, {}, () => [
               h(DataGrid.Row, { id: 1 }, () =>
                 h(DataGrid.Cell, { column: 'dept' }, {
                   default: (props: any) => {
@@ -731,7 +893,7 @@ describe('dataGrid', () => {
         expect(firstProps.rowSpan).toBe(2)
         expect(firstProps.attrs.rowspan).toBe(2)
 
-        const cells = wrapper.findAll('[role="gridcell"]')
+        const cells = wrapper.findAll('[role="cell"]')
         expect(cells).toHaveLength(1)
         expect(cells[0]!.attributes('rowspan')).toBe('2')
       })
@@ -873,7 +1035,7 @@ describe('dataGrid', () => {
         const { wrapper } = mountRoot(() =>
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
-              h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
+              h(DataGrid.Row, { resizable: true, as: 'div', class: 'flex' }, () => [
                 h(DataGrid.Column, { id: 'name' }, () => 'Name'),
                 h(DataGrid.Handle),
                 h(DataGrid.Column, { id: 'email' }, () => 'Email'),
@@ -895,7 +1057,7 @@ describe('dataGrid', () => {
         const { wrapper } = mountRoot(() =>
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
-              h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
+              h(DataGrid.Row, { resizable: true, as: 'div', class: 'flex' }, () => [
                 h(DataGrid.Column, { id: 'name' }, () => 'Name'),
                 h(DataGrid.Handle),
                 h(DataGrid.Column, { id: 'email' }, () => 'Email'),
@@ -921,7 +1083,7 @@ describe('dataGrid', () => {
             default: () =>
               h(DataGrid.Table, { as: 'div' }, () =>
                 h(DataGrid.Header, { as: 'div' }, () =>
-                  h(DataGrid.Row, { resizable: true }, {
+                  h(DataGrid.Row, { resizable: true, as: 'div' }, {
                     default: (p: any) => {
                       rowSlotProps = p
                       return 'Row Content'
@@ -965,7 +1127,7 @@ describe('dataGrid', () => {
         const { wrapper } = mountRoot(() =>
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
-              h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
+              h(DataGrid.Row, { resizable: true, as: 'div', class: 'flex' }, () => [
                 h(DataGrid.Column, { id: 'name', as: 'span' }, {
                   default: (props: any) => {
                     slotProps = props
@@ -1000,7 +1162,7 @@ describe('dataGrid', () => {
         const { wrapper, context } = mountRoot(() =>
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
-              h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
+              h(DataGrid.Row, { resizable: true, as: 'div', class: 'flex' }, () => [
                 h(DataGrid.Column, { id: 'name' }, () => 'Name'),
                 h(DataGrid.Handle),
                 h(DataGrid.Column, { id: 'email' }, () => 'Email'),
@@ -1031,7 +1193,7 @@ describe('dataGrid', () => {
         const { wrapper, context } = mountRoot(() =>
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
-              h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
+              h(DataGrid.Row, { resizable: true, as: 'div', class: 'flex' }, () => [
                 h(DataGrid.Column, { id: 'name' }, () => 'Name'),
                 h(DataGrid.Handle),
                 h(DataGrid.Column, { id: 'email' }, () => 'Email'),
@@ -1061,7 +1223,7 @@ describe('dataGrid', () => {
         const { wrapper } = mountRoot(() =>
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
-              h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
+              h(DataGrid.Row, { resizable: true, as: 'div', class: 'flex' }, () => [
                 h(DataGrid.Column, { id: 'name' }, () => 'Name'),
                 h(DataGrid.Handle, { label: 'Resize name', disabled: true }, {
                   default: (props: any) => {
@@ -1094,7 +1256,7 @@ describe('dataGrid', () => {
         const { wrapper } = mountRoot(() =>
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
-              h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
+              h(DataGrid.Row, { resizable: true, as: 'div', class: 'flex' }, () => [
                 h(DataGrid.Column, { id: 'name' }, () => 'Name'),
                 h(DataGrid.Handle, { renderless: true, label: 'Resize name' }, {
                   default: (props: any) => {
@@ -1124,7 +1286,7 @@ describe('dataGrid', () => {
         const { wrapper } = mountRoot(() =>
           h(DataGrid.Table, { as: 'div' }, () =>
             h(DataGrid.Header, { as: 'div' }, () =>
-              h(DataGrid.Row, { resizable: true, class: 'flex' }, () => [
+              h(DataGrid.Row, { resizable: true, as: 'div', class: 'flex' }, () => [
                 h(DataGrid.Column, { id: 'name' }, () => 'Name'),
                 h(DataGrid.Handle),
                 h(DataGrid.Column, { id: 'email' }, () => 'Email'),
@@ -1155,7 +1317,7 @@ describe('dataGrid', () => {
                   h(DataGrid.Column, { id: 'email' }, () => 'Email'),
                 ]),
               ),
-              h(DataGrid.Body, {}, () =>
+              h(DataGrid.Body as any, {}, () =>
                 h(DataGrid.Row, { id: 1 }, () => [
                   h(DataGrid.Cell, { column: 'name' }, () => 'John'),
                   h(DataGrid.Cell, { column: 'email' }, () => 'john@example.com'),
@@ -1205,28 +1367,19 @@ describe('dataGrid', () => {
     })
 
     it('should allow column resize via layout API', async () => {
-      let context: any
-
-      mount(DataGrid.Root, {
-        slots: {
-          default: (props: any) => {
-            context = props.context
-            return h(DataGrid.Table, {}, () =>
-              h(DataGrid.Header, {}, () =>
-                h(DataGrid.Row, {}, () => [
-                  h(DataGrid.Column, { id: 'name' }, () => 'Name'),
-                  h(DataGrid.Column, { id: 'email' }, () => 'Email'),
-                ]),
-              ),
-            )
-          },
-        },
-      })
-
-      context.columns.onboard([
-        { id: 'name', size: 50, minSize: 10, maxSize: 90, resizable: true },
-        { id: 'email', size: 50, minSize: 10, maxSize: 90, resizable: true },
-      ])
+      const { context } = mountRoot(
+        () =>
+          h(DataGrid.Table, {}, () =>
+            h(DataGrid.Header, {}, () =>
+              h(DataGrid.Row, {}, () => [
+                h(DataGrid.Column, { id: 'name' }, () => 'Name'),
+                h(DataGrid.Column, { id: 'email' }, () => 'Email'),
+              ]),
+            ),
+          ),
+        {},
+        resizableColumns,
+      )
 
       await nextTick()
 
@@ -1244,6 +1397,183 @@ describe('dataGrid', () => {
 
       expect(updatedNameCol.size).toBe(60)
       expect(updatedEmailCol.size).toBe(40)
+    })
+
+    it('should register columns and rows on mount without Init', async () => {
+      const users = [
+        { id: 1, name: 'Alice' },
+        { id: 2, name: 'Bob' },
+      ]
+
+      const { context } = mountRoot(() =>
+        h(DataGrid.Table, {}, () => [
+          h(DataGrid.Header, {}, () =>
+            h(DataGrid.Row, {}, () => h(DataGrid.Column, { id: 'name' }, () => 'Name')),
+          ),
+          h(DataGrid.Body as any, {}, () =>
+            users.map(u =>
+              h(DataGrid.Row, { id: u.id, value: u }, () =>
+                h(DataGrid.Cell, { column: 'name' }, () => u.name),
+              ),
+            ),
+          ),
+        ]),
+      )
+
+      await nextTick()
+
+      expect(context.columns.has('name')).toBe(true)
+      expect(context.size).toBe(2)
+      expect(context.items.value).toHaveLength(2)
+    })
+
+    it('should expose pinPosition from layout.pin', async () => {
+      let slotProps: any
+      const { context } = mountRoot(() =>
+        h(DataGrid.Table, {}, () =>
+          h(DataGrid.Header, {}, () =>
+            h(DataGrid.Row, {}, () =>
+              h(DataGrid.Column, { id: 'name' }, {
+                default: (props: any) => {
+                  slotProps = props
+                  return 'Name'
+                },
+              }),
+            ),
+          ),
+        ),
+      )
+
+      await nextTick()
+
+      expect(slotProps.pinPosition).toBe(false)
+      expect(slotProps.isPinned).toBe(false)
+
+      context.layout.pin('name', 'left')
+      await nextTick()
+
+      expect(slotProps.pinPosition).toBe('left')
+      expect(slotProps.isPinned).toBe(true)
+    })
+
+    it('should not mount Handle outside a resizable Row', () => {
+      const wrapper = mount(DataGrid.Root, {
+        slots: {
+          default: () =>
+            h(DataGrid.Table, {}, () =>
+              h(DataGrid.Header, {}, () =>
+                h(DataGrid.Row, {}, () => [
+                  h(DataGrid.Column, { id: 'name' }, () => 'Name'),
+                  h(DataGrid.Handle),
+                  h(DataGrid.Column, { id: 'email' }, () => 'Email'),
+                ]),
+              ),
+            ),
+        },
+      })
+
+      expect(wrapper.find('[role="separator"]').exists()).toBe(false)
+    })
+
+    it('should keep off-page rows registered when paginated', async () => {
+      const users = Array.from({ length: 5 }, (_, i) => ({
+        id: i + 1,
+        name: `User ${i + 1}`,
+      }))
+
+      const { wrapper, context } = mountRoot(
+        () =>
+          h(DataGrid.Table, {}, () => [
+            h(DataGrid.Header, {}, () =>
+              h(DataGrid.Row, {}, () => h(DataGrid.Column, { id: 'name' }, () => 'Name')),
+            ),
+            h(DataGrid.Body as any, {}, () =>
+              users.map(u =>
+                h(DataGrid.Row, { id: u.id, value: u }, () =>
+                  h(DataGrid.Cell, { column: 'name' }, () => u.name),
+                ),
+              ),
+            ),
+          ]),
+        { pagination: { itemsPerPage: 2 } },
+      )
+
+      await nextTick()
+
+      expect(context.items.value).toHaveLength(2)
+      expect(context.size).toBe(5)
+      expect(wrapper.findComponent(DataGrid.Table as any).attributes('aria-rowcount')).toBe('6')
+    })
+
+    it('should bind aria-rowindex from headerRows + i + 1 when v-for orderedItems on page 2', async () => {
+      const users = Array.from({ length: 5 }, (_, i) => ({
+        id: i + 1,
+        name: `User ${i + 1}`,
+      }))
+      let bodyProps: any
+
+      const { wrapper, context } = mountRoot(
+        () =>
+          h(DataGrid.Table, {}, () => [
+            h(DataGrid.Header, {}, () =>
+              h(DataGrid.Row, {}, () => h(DataGrid.Column, { id: 'name' }, () => 'Name')),
+            ),
+            h(DataGrid.Body as any, {}, {
+              default: (props: any) => {
+                bodyProps = props
+                const list = props.size > 0 ? props.orderedItems : users
+                return list.map((u: any, i: number) =>
+                  h(DataGrid.Row, {
+                    id: u.id,
+                    value: u,
+                    key: u.id,
+                    index: props.headerRows + i + 1,
+                  }, () =>
+                    h(DataGrid.Cell, { column: 'name' }, () => u.name),
+                  ),
+                )
+              },
+            }),
+          ]),
+        { pagination: { itemsPerPage: 2 } },
+      )
+
+      await nextTick()
+      context.pagination.next()
+      await nextTick()
+
+      expect(bodyProps.headerRows).toBe(1)
+      expect(bodyProps.rowStart).toBe(4)
+      expect(wrapper.findComponent(DataGrid.Table as any).attributes('aria-rowcount')).toBe('6')
+
+      const rows = wrapper.findAll('tbody [role="row"]')
+      expect(rows[2]!.text()).toContain('User 3')
+      expect(rows[3]!.text()).toContain('User 4')
+      expect(rows[2]!.attributes('aria-rowindex')).toBe('4')
+      expect(rows[3]!.attributes('aria-rowindex')).toBe('5')
+      expect(rows[2]!.attributes('aria-rowindex')).not.toBe(String(bodyProps.rowStart + 2))
+      expect(rows[3]!.attributes('aria-rowindex')).not.toBe(String(bodyProps.rowStart + 3))
+    })
+
+    it('should not coerce a resizable row default as from tr to div', async () => {
+      const { wrapper } = mountRoot(() =>
+        h(DataGrid.Table, { as: 'div' }, () =>
+          h(DataGrid.Header, { as: 'div' }, () =>
+            h(DataGrid.Row, { resizable: true }, () => [
+              h(DataGrid.Column, { id: 'name' }, () => 'Name'),
+              h(DataGrid.Handle),
+              h(DataGrid.Column, { id: 'email' }, () => 'Email'),
+            ]),
+          ),
+        ),
+      {},
+      resizableColumns,
+      )
+
+      await nextTick()
+
+      const row = wrapper.find('[role="row"]')
+      expect(row.element.tagName).toBe('TR')
     })
   })
 })

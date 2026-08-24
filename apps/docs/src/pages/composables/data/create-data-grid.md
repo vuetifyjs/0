@@ -157,7 +157,8 @@ flowchart TD
 | `items` | <AppSuccessIcon /> | Final visible items (filter + sort + row order + paginate) |
 | `allItems` | <AppSuccessIcon /> | Raw unprocessed items (projected from registered tickets) |
 | `filteredItems` | <AppSuccessIcon /> | Items after filtering |
-| `sortedItems` | <AppSuccessIcon /> | Items after filter + sort |
+| `sortedItems` | <AppSuccessIcon /> | Items after filter + sort (adapter sort only — ignores `rows.move()`) |
+| `orderedItems` | <AppSuccessIcon /> | Filter + sort + row order, before pagination. `v-for` this; `v-show` `items` |
 | `layout.columns` | <AppSuccessIcon /> | Resolved columns with size/offset (render set — visible only) |
 | `layout.all` | <AppSuccessIcon /> | Every column incl. hidden, each with a `visible` flag |
 | `layout.pinned` | <AppSuccessIcon /> | Pin region breakdown |

@@ -154,7 +154,8 @@ export interface DataGridOptions<T extends object> extends DataTableOptions<T> {
 /**
  * The reactive grid instance returned by {@link createDataGrid}. Spreads the
  * inherited {@link DataTableContext} surface and adds `layout`, `rows`,
- * `editing`, and `spans`.
+ * `editing`, `spans`, and `orderedItems`. Does not override parent
+ * `sortedItems` (PHILOSOPHY §2.6).
  *
  * @template T Row value type.
  *
@@ -166,6 +167,7 @@ export interface DataGridOptions<T extends object> extends DataTableOptions<T> {
  * grid.rows.move(id, 0)
  * grid.editing.edit(1, 'email')
  * grid.spans.value.get(id)?.get('group')
+ * grid.orderedItems.value
  * ```
  */
 export interface DataGridContext<T extends object> extends DataTableContext<T> {
@@ -178,6 +180,18 @@ export interface DataGridContext<T extends object> extends DataTableContext<T> {
    * `onboard` signatures and runtime behavior is unchanged.
    */
   columns: RegistryContext<DataGridColumnTicketInput<T>, DataGridColumnTicket<T>>
+  /**
+   * Full filter+sort+row-order list before pagination. `v-for` this so
+   * `rows.move()` reorders the DOM. When row order is not dirty this is
+   * `sortedItems`.
+   *
+   * @example
+   * ```ts
+   * grid.rows.move(id, 0)
+   * grid.orderedItems.value[0]
+   * ```
+   */
+  orderedItems: Readonly<Ref<readonly T[]>>
   layout: ColumnLayout
   rows: {
     order: Readonly<Ref<ID[]>>
@@ -311,6 +325,43 @@ export function createDataGrid<T extends object> (
     watch(table.sort.columns, reset, { flush: 'sync' })
   })
 
+  // Full filter+sort+row-order list before pagination. When `!dirty` this is
+  // the table's own sorted projection; when dirty it is the un-sliced reorder.
+  const ordered = computed<{ items: readonly T[], ids: readonly ID[] }>(() => {
+    if (!dirty.value) {
+      return {
+        items: table.sortedItems.value,
+        ids: sortedIds.value,
+      }
+    }
+
+    const sorted = table.sortedItems.value
+    const ids = sortedIds.value
+
+    const byId = new Map<ID, T>()
+    for (let i = 0; i < sorted.length; i++) byId.set(ids[i]!, sorted[i] as T)
+
+    const seen = new Set<ID>(order.value)
+    const items: T[] = []
+    const orderedIds: ID[] = []
+    for (const id of order.value) {
+      const value = byId.get(id)
+      if (!isUndefined(value)) {
+        items.push(value)
+        orderedIds.push(id)
+      }
+    }
+    for (const [i, element] of sorted.entries()) {
+      const id = ids[i]!
+      if (!seen.has(id)) {
+        items.push(element as T)
+        orderedIds.push(id)
+      }
+    }
+
+    return { items, ids: orderedIds }
+  })
+
   // Page-visible rows as parallel `items` / `ids` arrays so spanning and any
   // id-keyed consumer can pair a value with its registry ticket id without
   // reverse-mapping through value references (which collide on shared objects).
@@ -328,42 +379,21 @@ export function createDataGrid<T extends object> (
       }
     }
 
-    const sorted = table.sortedItems.value
-    const ids = sortedIds.value
-
-    const byId = new Map<ID, T>()
-    for (let i = 0; i < sorted.length; i++) byId.set(ids[i]!, sorted[i] as T)
-
-    const seen = new Set<ID>(order.value)
-    const items: T[] = []
-    const ordered: ID[] = []
-    for (const id of order.value) {
-      const value = byId.get(id)
-      if (!isUndefined(value)) {
-        items.push(value)
-        ordered.push(id)
-      }
-    }
-    for (const [i, element] of sorted.entries()) {
-      const id = ids[i]!
-      if (!seen.has(id)) {
-        items.push(element as T)
-        ordered.push(id)
-      }
-    }
+    const full = ordered.value
 
     // When the adapter has already paginated (server: total exceeds the local
     // sorted slice), the global page window starts past `sorted`, so order the
     // page in place rather than re-slicing into emptiness. Client/virtual keep
     // the full set and slice to the page.
-    if (table.total.value > sorted.length) return { items, ids: ordered }
+    if (table.total.value > table.sortedItems.value.length) return full
 
     const start = table.pagination.pageStart.value
     const stop = table.pagination.pageStop.value
-    return { items: items.slice(start, stop), ids: ordered.slice(start, stop) }
+    return { items: full.items.slice(start, stop), ids: full.ids.slice(start, stop) }
   })
 
   const pageOrderedItems = toRef(() => page.value.items)
+  const orderedItems = toRef(() => ordered.value.items)
 
   const layout = createColumnLayout(table.columns)
 
@@ -420,6 +450,7 @@ export function createDataGrid<T extends object> (
   return {
     ...table,
     items: pageOrderedItems,
+    orderedItems,
     layout,
     rows: {
       order,

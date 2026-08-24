@@ -1,14 +1,14 @@
-/**
- * @module DataGridTable
- *
- * @see https://0.vuetifyjs.com/components/data/data-grid
- *
- * @remarks
- * Semantic table wrapper for the data grid. Renders as table by default
- * with role="grid" for ARIA grid semantics.
- */
-
 <script lang="ts">
+  /**
+   * @module DataGridTable
+   *
+   * @see https://0.vuetifyjs.com/components/data/data-grid
+   *
+   * @remarks
+   * The `<table>` element wrapper for the DataGrid compound. Renders a semantic
+   * table with proper ARIA attributes. This is not an APG Grid widget.
+   */
+
   // Components
   import { Atom } from '#v0/components/Atom'
 
@@ -28,8 +28,8 @@
 
   export interface DataGridTableSlotProps {
     attrs: {
-      'role': string
-      'aria-rowcount': number
+      'role': 'table'
+      'aria-rowcount': number | undefined
     }
   }
 </script>
@@ -41,20 +41,22 @@
     default: (props: DataGridTableSlotProps) => unknown
   }>()
 
-  const attrs = useAttrs()
-
   const {
     as = 'table',
-    renderless,
     namespace = 'v0:data-grid',
+    renderless,
   } = defineProps<DataGridTableProps>()
 
+  const attrs = useAttrs()
   const context = useDataGridRoot(namespace)
+
+  const headerRows = toRef(() => context.headers.value.length)
+  const truncated = toRef(() => context.items.value.length < context.total.value)
 
   const slotProps = toRef((): DataGridTableSlotProps => ({
     attrs: {
-      'role': 'grid',
-      'aria-rowcount': context.total.value,
+      'role': 'table',
+      'aria-rowcount': truncated.value ? headerRows.value + context.total.value : undefined,
     },
   }))
 </script>

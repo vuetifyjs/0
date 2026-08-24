@@ -1,19 +1,17 @@
-/**
- * @module DataGridColumn
- *
- * @see https://0.vuetifyjs.com/components/data/data-grid
- *
- * @remarks
- * Header cell component for the data grid. Renders as th by default
- * with role="columnheader" for ARIA grid semantics. Exposes sorting
- * state and column layout information from the grid context.
- *
- * When inside a resizable `DataGridRow`, this component automatically
- * composes `Splitter.Panel` to participate in column resizing. The
- * panel's size, minSize, and maxSize come from the column registration.
- */
-
 <script lang="ts">
+  /**
+   * @module DataGridColumn
+   *
+   * @see https://0.vuetifyjs.com/components/data/data-grid
+   *
+   * @remarks
+   * A `<th>` element for header cells. Exposes sort state, pin, and layout
+   * information from the grid context. Registers on mount when `id` is set.
+   *
+   * When inside a resizable `DataGridRow`, this component composes
+   * `Splitter.Panel`. Keep the consumer `as` — do not swap `th` for `div`.
+   */
+
   // Components
   import { Atom } from '#v0/components/Atom'
   import { SplitterPanel } from '#v0/components/Splitter'
@@ -23,16 +21,38 @@
   import { useDataGridRow } from './DataGridRow.vue'
 
   // Utilities
-  import { mergeProps, toRef, useAttrs } from 'vue'
+  import { isUndefined } from '#v0/utilities'
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
+  import type { PinPosition } from '#v0/composables/createDataGrid'
 
   export interface DataGridColumnProps extends AtomProps {
     /** Namespace for dependency injection. @default 'v0:data-grid' */
     namespace?: string
-    /** Column identifier for sorting and layout */
+    /** Column id — registers this header with the grid when set */
     id?: string
+    /** Participate in the sort pipeline */
+    sortable?: boolean
+    /** Participate in the filter pipeline */
+    filterable?: boolean
+    /** Width as a percentage (0–100) */
+    size?: number
+    /** Minimum width as a percentage */
+    minSize?: number
+    /** Maximum width as a percentage */
+    maxSize?: number
+    /** Pin position */
+    pinned?: PinPosition
+    /** Allow resizing */
+    resizable?: boolean
+    /** Whether cells in this column can be edited */
+    editable?: boolean
+    /** Number of columns this cell spans */
+    colspan?: number
+    /** Number of rows this cell spans */
+    rowspan?: number
   }
 
   export interface DataGridColumnSlotProps {
@@ -47,7 +67,7 @@
     /** Whether this column is pinned */
     isPinned: boolean
     /** Pin position: 'left', 'right', or false */
-    pinPosition: 'left' | 'right' | false
+    pinPosition: PinPosition
     /** Whether this column is resizable */
     isResizable: boolean
     /** Current column size as a percentage */
@@ -59,9 +79,14 @@
     /** Offset from the pinning edge (for sticky positioning) */
     offset: number
     attrs: {
-      'role': string
-      'scope': 'col'
+      'role': 'columnheader'
+      'scope': 'col' | 'colgroup' | undefined
       'aria-sort': 'ascending' | 'descending' | 'none' | undefined
+      'data-direction': 'asc' | 'desc' | undefined
+      'colspan': number | undefined
+      'rowspan': number | undefined
+      'aria-colspan': number | undefined
+      'aria-rowspan': number | undefined
       'style'?: Record<string, string>
     }
   }
@@ -74,24 +99,50 @@
     default: (props: DataGridColumnSlotProps) => unknown
   }>()
 
-  const attrs = useAttrs()
-
   const {
     as = 'th',
-    renderless,
     namespace = 'v0:data-grid',
     id,
+    sortable,
+    filterable,
+    size: _size,
+    minSize: _minSize,
+    maxSize: _maxSize,
+    pinned,
+    resizable = true,
+    editable,
+    colspan,
+    rowspan,
+    renderless,
   } = defineProps<DataGridColumnProps>()
 
+  const attrs = useAttrs()
   const context = useDataGridRoot(namespace)
   const rowContext = useDataGridRow(namespace, null)
 
-  // Check if we're inside a resizable row (which provides Splitter context)
-  const inResizableRow = toRef(() => rowContext?.resizable ?? false)
+  const ticket = !isUndefined(id) && !context.columns.has(id)
+    ? context.columns.register({
+      id,
+      sortable: () => toValue(sortable) ?? false,
+      filterable: () => toValue(filterable) ?? false,
+      size: _size,
+      minSize: _minSize,
+      maxSize: _maxSize,
+      pinned,
+      resizable,
+      editable,
+    })
+    : undefined
+
+  onBeforeUnmount(() => {
+    if (ticket) context.columns.unregister(ticket.id)
+  })
+
+  const inResizableRow = toRef(() => toValue(rowContext?.resizable) ?? false)
 
   const isSortable = toRef(() => {
     if (!id) return false
-    return context.columns.get(id)?.sortable === true
+    return context.leaves.value.some(col => col.id === id && toValue(col.sortable) === true)
   })
 
   const isSorted = toRef(() => {
@@ -112,25 +163,18 @@
     }
   }
 
-  const isPinned = toRef(() => {
-    if (!id) return false
-    const colTicket = context.columns.get(id)
-    return colTicket?.pinned === 'left' || colTicket?.pinned === 'right'
-  })
-
-  const pinPosition = toRef((): 'left' | 'right' | false => {
-    if (!id) return false
-    const colTicket = context.columns.get(id)
-    if (colTicket?.pinned === 'left' || colTicket?.pinned === 'right') {
-      return colTicket.pinned
-    }
-    return false
-  })
-
   const resolvedColumn = toRef(() => {
     if (!id) return undefined
     return context.layout.columns.value.find(c => c.id === id)
   })
+
+  const pinPosition = toRef((): PinPosition => {
+    const pos = resolvedColumn.value?.pinned
+    if (pos === 'left' || pos === 'right') return pos
+    return false
+  })
+
+  const isPinned = toRef(() => pinPosition.value !== false)
 
   const isResizable = toRef(() => resolvedColumn.value?.resizable ?? true)
 
@@ -150,12 +194,6 @@
     return 'none'
   })
 
-  // Element type: use div instead of th in resizable rows (for flex layout)
-  const resolvedAs = toRef(() => {
-    if (inResizableRow.value && as === 'th') return 'div'
-    return as
-  })
-
   const slotProps = toRef((): DataGridColumnSlotProps => ({
     isSortable: isSortable.value,
     isSorted: isSorted.value,
@@ -170,8 +208,15 @@
     offset: offset.value,
     attrs: {
       'role': 'columnheader',
-      'scope': 'col',
+      'scope': as === 'th' ? ((colspan ?? 1) > 1 ? 'colgroup' : 'col') : undefined,
       'aria-sort': ariaSort.value,
+      'data-direction': sortDirection.value === 'asc' || sortDirection.value === 'desc'
+        ? sortDirection.value
+        : undefined,
+      'colspan': as === 'th' ? colspan : undefined,
+      'rowspan': as === 'th' ? rowspan : undefined,
+      'aria-colspan': as !== 'th' && (colspan ?? 1) > 1 ? colspan : undefined,
+      'aria-rowspan': as !== 'th' && (rowspan ?? 1) > 1 ? rowspan : undefined,
       'style': size.value > 0 ? { width: `${size.value}%` } : undefined,
     },
   }))
@@ -180,9 +225,8 @@
 <template>
   <component
     :is="inResizableRow ? SplitterPanel : Atom"
-    v-if="!inResizableRow || resolvedColumn"
     v-bind="inResizableRow
-      ? mergeProps(attrs, slotProps.attrs, { as: resolvedAs, defaultSize: size, minSize, maxSize, renderless })
+      ? mergeProps(attrs, slotProps.attrs, { as, defaultSize: size, minSize, maxSize, renderless })
       : mergeProps(attrs, slotProps.attrs, { as, renderless })"
   >
     <slot v-bind="slotProps" />
