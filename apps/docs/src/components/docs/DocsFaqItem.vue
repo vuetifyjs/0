@@ -3,7 +3,7 @@
   import { ExpansionPanel } from '@vuetify/v0'
 
   // Context
-  import { useFaqFilter } from './DocsFaq.vue'
+  import { useFaqCollapse, useFaqFilter } from './DocsFaq.vue'
 
   // Utilities
   import { toRef } from 'vue'
@@ -13,12 +13,15 @@
   }>()
 
   const filter = useFaqFilter()
+  const collapse = useFaqCollapse()
+  const index = collapse.takeIndex()
   const result = filter.apply(filter.query, () => [question])
   const visible = toRef(() => result.items.value.length > 0)
+  const clippedAway = toRef(() => collapse.clipped.value && index >= collapse.preview)
 </script>
 
 <template>
-  <ExpansionPanel.Root v-show="visible">
+  <ExpansionPanel.Root v-show="visible && !clippedAway">
     <ExpansionPanel.Activator
       v-slot="{ isSelected }"
       class="w-full list-item-bordered flex items-center gap-3 text-left"
