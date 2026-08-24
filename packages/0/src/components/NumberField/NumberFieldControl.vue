@@ -73,7 +73,7 @@
   onMounted(syncText)
 
   // commitOn: 'input' writes to root.value on every keystroke via
-  // commitDraft(), which would otherwise trigger this same watcher and
+  // write(), which would otherwise trigger this same watcher and
   // clobber in-progress text (e.g. a trailing "." lost to String(12.)).
   // isEagerWrite marks writes that originated from the control's own input
   // so the resulting sync is skipped — text.value already reflects them.
@@ -112,8 +112,8 @@
 
     if (root.commitOn === 'input') {
       isEagerWrite = true
-      root.commitDraft(text.value)
-      // Safety net for when commitDraft's write is a no-op (parsed value
+      root.write(text.value)
+      // Safety net for when the write is a no-op (parsed value
       // unchanged) and the watcher above never fires to consume the flag.
       nextTick(() => {
         isEagerWrite = false

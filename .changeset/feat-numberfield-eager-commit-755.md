@@ -10,7 +10,7 @@ model updates without bypassing the field's parse/clamp logic entirely.
 
 Added a `commitOn` option (`'change'` default, matching today's behavior; `'input'`
 opts in to writing on every keystroke) to `createNumberField` and `NumberField.Root`.
-Eager writes go through a new `commitDraft()` on the context, which parses but does
+Eager writes go through a new `write()` on the context, which parses but does
 **not** clamp or snap — clamping mid-type would jump a value like `1` to `min` before
 the user finishes typing `15`. Clamping/snapping still happens on the next `commit()`
 (blur/Enter), unchanged.

@@ -42,7 +42,7 @@ export interface NumberFieldOptions extends NumericOptions {
   /**
    * When to write typed input into `value`. `'change'` (default) only
    * writes on `commit()` (blur/Enter). `'input'` also writes on every
-   * keystroke via `commitDraft()`, without clamping or snapping — clamping
+   * keystroke via `write()`, without clamping or snapping — clamping
    * mid-type would jump a value like `1` to `min` before the user finishes
    * typing `15`. Clamping/snapping still happens on the next `commit()`.
    *
@@ -51,7 +51,7 @@ export interface NumberFieldOptions extends NumericOptions {
    * @example
    * ```ts
    * const field = createNumberField({ min: 10, max: 100, commitOn: 'input' })
-   * field.commitDraft('1')
+   * field.write('1')
    * field.value.value // 1 — no jump to min while typing
    * ```
    */
@@ -111,11 +111,11 @@ export interface NumberFieldContext {
    * @example
    * ```ts
    * const field = createNumberField({ min: 10, max: 100 })
-   * field.commitDraft('1')
+   * field.write('1')
    * field.value.value // 1 — clamped only on the next commit()
    * ```
    */
-  commitDraft: (text: string) => void
+  write: (text: string) => void
 }
 
 export function createNumberField (options: NumberFieldOptions = {}): NumberFieldContext {
@@ -255,7 +255,7 @@ export function createNumberField (options: NumberFieldOptions = {}): NumberFiel
     value.value = numeric.snap(val)
   }
 
-  function commitDraft (text: string): void {
+  function write (text: string): void {
     if (isLocked()) return
     value.value = parse(text)
   }
@@ -275,6 +275,6 @@ export function createNumberField (options: NumberFieldOptions = {}): NumberFiel
     parse,
     commit,
     commitOn,
-    commitDraft,
+    write,
   }
 }
