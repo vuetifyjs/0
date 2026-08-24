@@ -50,6 +50,96 @@ describe('useDate SSR', () => {
 
       expect(adapter.locale).toBe('es-ES')
     })
+
+    it('should derive firstDayOfWeek=1 (Monday) for de-DE in SSR', () => {
+      const adapter = new V0DateAdapter('en-US')
+      const ctx = createDate({ adapter, locale: 'de-DE' })
+
+      expect(ctx.firstDayOfWeek.value).toBe(1)
+      expect(adapter.firstDayOfWeek).toBe(1)
+    })
+
+    it('should derive firstDayOfWeek=0 (Sunday) for en-US in SSR', () => {
+      const adapter = new V0DateAdapter('en-US')
+      const ctx = createDate({ adapter, locale: 'en-US' })
+
+      expect(ctx.firstDayOfWeek.value).toBe(0)
+      expect(adapter.firstDayOfWeek).toBe(0)
+    })
+
+    it('should derive firstDayOfWeek=6 (Saturday) for ar-EG in SSR', () => {
+      const adapter = new V0DateAdapter('en-US')
+      const ctx = createDate({ adapter, locale: 'ar-EG' })
+
+      expect(ctx.firstDayOfWeek.value).toBe(6)
+      expect(adapter.firstDayOfWeek).toBe(6)
+    })
+
+    it('should honor an explicit firstDayOfWeek override in SSR', () => {
+      const adapter = new V0DateAdapter('en-US')
+      const ctx = createDate({ adapter, locale: 'de-DE', firstDayOfWeek: 6 })
+
+      expect(ctx.firstDayOfWeek.value).toBe(6)
+      expect(adapter.firstDayOfWeek).toBe(6)
+    })
+  })
+
+  describe('adapter isolation across separate requests in SSR', () => {
+    it('should not share locale/firstDayOfWeek state between two independently constructed adapters', () => {
+      // Simulates the recommended per-request pattern: a fresh adapter (and
+      // fresh plugin) constructed for each request, rather than one shared
+      // module-scope instance reused across requests.
+      const requestOneAdapter = new V0DateAdapter('en-US')
+      const requestOnePlugin = createDatePlugin({ adapter: requestOneAdapter, locale: 'de-DE' })
+
+      const requestTwoAdapter = new V0DateAdapter('en-US')
+      const requestTwoPlugin = createDatePlugin({ adapter: requestTwoAdapter, locale: 'ar-EG' })
+
+      function mockApp () {
+        return {
+          provide: vi.fn(),
+          config: { globalProperties: {} },
+          _context: {},
+          runWithContext: (fn: () => void) => fn(),
+        }
+      }
+
+      requestOnePlugin.install(mockApp() as never)
+      requestTwoPlugin.install(mockApp() as never)
+
+      expect(requestOneAdapter.locale).toBe('de-DE')
+      expect(requestOneAdapter.firstDayOfWeek).toBe(1)
+
+      expect(requestTwoAdapter.locale).toBe('ar-EG')
+      expect(requestTwoAdapter.firstDayOfWeek).toBe(6)
+
+      // Confirms these are genuinely distinct instances, not the same
+      // adapter observed twice.
+      expect(requestOneAdapter).not.toBe(requestTwoAdapter)
+    })
+
+    it('should give each plugin install its own context rather than sharing one across apps', () => {
+      // Regression guard for the eager createDateContext() call that used to
+      // run once at createDatePlugin() time and get reused by every install.
+      const adapter = new V0DateAdapter('en-US')
+      const plugin = createDatePlugin({ adapter, locale: 'fr-FR' })
+
+      const provided: unknown[] = []
+      function mockApp () {
+        return {
+          provide: (_key: unknown, value: unknown) => provided.push(value),
+          config: { globalProperties: {} },
+          _context: {},
+          runWithContext: (fn: () => void) => fn(),
+        }
+      }
+
+      plugin.install(mockApp() as never)
+      plugin.install(mockApp() as never)
+
+      expect(provided).toHaveLength(2)
+      expect(provided[0]).not.toBe(provided[1])
+    })
   })
 
   describe('createDatePlugin in SSR', () => {

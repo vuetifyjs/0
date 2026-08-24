@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createProgress, createProgressContext, useProgress } from './index'
 
 // Utilities
-import { inject, provide, shallowRef, toValue } from 'vue'
+import { computed, inject, provide, shallowRef, toValue } from 'vue'
 
 // Types
 import type { ProgressOptions } from './index'
@@ -187,6 +187,19 @@ describe('createProgress', () => {
       val.value = 5
       expect(progress.isIndeterminate.value).toBe(false)
     })
+
+    it('should not stay pinned determinate on a value-initialized instance once segments clear', () => {
+      const progress = setup({ value: 60 })
+      expect(progress.isIndeterminate.value).toBe(false)
+
+      const val = shallowRef(60)
+      progress.register({ value: val })
+      expect(progress.isIndeterminate.value).toBe(false)
+
+      progress.apply([])
+      expect(toValue(val)).toBe(0)
+      expect(progress.isIndeterminate.value).toBe(true)
+    })
   })
 
   describe('fromValue', () => {
@@ -250,6 +263,22 @@ describe('createProgress', () => {
       progress.apply([30, 20])
       expect(toValue(val1)).toBe(30)
       expect(toValue(val2)).toBe(20)
+    })
+
+    it('should reset a segment without a matching incoming entry to min', () => {
+      const progress = setup({ min: 0, max: 100 })
+      const val = shallowRef(60)
+      progress.register({ value: val })
+      progress.apply([])
+      expect(toValue(val)).toBe(0)
+    })
+
+    it('should skip readonly segments', () => {
+      const progress = setup({ min: 0, max: 100 })
+      const val = computed(() => 50)
+      progress.register({ value: val })
+      progress.apply([80])
+      expect(toValue(val)).toBe(50)
     })
   })
 

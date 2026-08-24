@@ -114,9 +114,10 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
   })
 
   const isIndeterminate = toRef(() => {
-    if (_hasInitialValue) return false
     const segs = segments.value
-    if (segs.length === 0) return true
+    // The initial value only backs the zero-segment state (mirroring total's
+    // fallback); once segments register they are the sole source of truth.
+    if (segs.length === 0) return !_hasInitialValue
     for (const seg of segs) {
       if ((toValue(seg.value) ?? 0) > 0) return false
     }
@@ -157,10 +158,12 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
       return
     }
 
-    for (const [index, element] of clamped.entries()) {
-      const ticket = segments.value[index]
-      if (!ticket || !isRef(ticket.value) || isReadonly(ticket.value)) continue
-      ticket.value.value = element!
+    // incoming reflects the full desired state, so segments without a
+    // corresponding entry (e.g. apply([]) when transitioning to
+    // indeterminate) are reset to min rather than left at a stale value.
+    for (const [index, ticket] of segments.value.entries()) {
+      if (!isRef(ticket.value) || isReadonly(ticket.value)) continue
+      ticket.value.value = clamped[index] ?? min
     }
   }
 

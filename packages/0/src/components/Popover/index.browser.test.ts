@@ -1,13 +1,17 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+// Composables
+import { PopoverAdapter } from '#v0/composables/usePopover'
+
 import { Popover } from './index'
 
 // Utilities
 import { mount as baseMount } from '@vue/test-utils'
-import { createSSRApp, defineComponent, h, nextTick } from 'vue'
+import { createSSRApp, defineComponent, h, nextTick, toRef } from 'vue'
 
 // Types
+import type { PopoverAdapterContext } from '#v0/composables/usePopover'
 import type { mount as mountType } from '@vue/test-utils'
 
 // Popover/Scrim register click-outside and focus-trap listeners on document
@@ -636,6 +640,66 @@ describe('popover', () => {
 
       expect(popover1Props.isSelected).toBe(true)
       expect(popover2Props.isSelected).toBe(true)
+    })
+
+    it('should give a custom adapter both the anchor and content elements', async () => {
+      const contexts: PopoverAdapterContext[] = []
+
+      class RecordingAdapter extends PopoverAdapter {
+        setup (context: PopoverAdapterContext) {
+          contexts.push(context)
+          return toRef(() => ({}))
+        }
+      }
+
+      const adapter = new RecordingAdapter()
+
+      mount(Popover.Root, {
+        props: { id: 'adapter-popover', adapter },
+        slots: {
+          default: () => [
+            h(Popover.Activator, {}, () => 'Toggle'),
+            h(Popover.Content, {}, () => 'Content'),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      expect(contexts).toHaveLength(1)
+      const context = contexts[0]!
+
+      // Both handles are the actual mounted DOM elements, not stubs.
+      expect(context.anchorEl.value).toBeInstanceOf(HTMLElement)
+      expect(context.anchorEl.value?.textContent).toBe('Toggle')
+      expect(context.contentEl.value).toBeInstanceOf(HTMLElement)
+      expect(context.contentEl.value?.textContent).toBe('Content')
+    })
+
+    it('should apply a custom adapter\'s styles to the content element', async () => {
+      class FixedStyleAdapter extends PopoverAdapter {
+        setup () {
+          return toRef(() => ({ '--custom-position': 'engine-owned' }))
+        }
+      }
+
+      const wrapper = mount(Popover.Root, {
+        props: { id: 'styled-popover', adapter: new FixedStyleAdapter() },
+        slots: {
+          default: () => [
+            h(Popover.Activator, {}, () => 'Toggle'),
+            h(Popover.Content, {}, () => 'Content'),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const content = wrapper.find('[popover]')
+      expect(content.attributes('style')).toContain('--custom-position: engine-owned')
+      // The default adapter's CSS anchor properties are absent - the custom
+      // adapter fully owns contentStyles, not merged with the default.
+      expect(content.attributes('style')).not.toContain('position-area')
     })
   })
 

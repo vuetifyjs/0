@@ -320,6 +320,22 @@ describe('progress', () => {
       expect(rootProps().total).toBe(75)
       expect(rootProps().percent).toBe(75)
     })
+
+    it('should clear stale total/aria-valuenow/data-state when model value becomes undefined', async () => {
+      const model = ref(60)
+      const { wrapper, rootProps, wait } = mountProgress({ model })
+      await wait()
+      expect(rootProps().total).toBe(60)
+      expect(rootProps().attrs['aria-valuenow']).toBe(60)
+      expect(rootProps().attrs['data-state']).toBe('determinate')
+
+      await wrapper.setProps({ modelValue: undefined })
+
+      expect(rootProps().total).toBe(0)
+      expect(rootProps().attrs['aria-valuenow']).toBeUndefined()
+      expect(rootProps().attrs['data-state']).toBe('indeterminate')
+      expect(rootProps().attrs['aria-busy']).toBe(true)
+    })
   })
 
   describe('slot props', () => {
