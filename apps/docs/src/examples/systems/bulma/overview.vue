@@ -26,6 +26,11 @@
     BuNumberFieldIncrement,
     BuNumberFieldInput,
     BuPagination,
+    BuPaginationEllipsis,
+    BuPaginationItem,
+    BuPaginationList,
+    BuPaginationNext,
+    BuPaginationPrev,
     BuPanel,
     BuPanelBlock,
     BuPanelHeading,
@@ -171,7 +176,19 @@
               </BuPanelBlock>
             </BuPanel>
 
-            <BuPagination v-model="page" class="mt-4" :pages="4" />
+            <BuPagination v-slot="{ items }" v-model="page" class="mt-4" :pages="4">
+              <BuPaginationPrev />
+
+              <BuPaginationNext />
+
+              <BuPaginationList>
+                <template v-for="(item, index) in items" :key="index">
+                  <BuPaginationItem v-if="item.type === 'page'" :value="item.value" />
+
+                  <BuPaginationEllipsis v-else />
+                </template>
+              </BuPaginationList>
+            </BuPagination>
           </BuTabPanel>
 
           <BuTabPanel value="settings">

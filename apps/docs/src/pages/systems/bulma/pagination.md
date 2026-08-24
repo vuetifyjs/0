@@ -2,7 +2,7 @@
 title: BuPagination - Bulma Pagination for Vue
 meta:
 - name: description
-  content: Bulma's pagination markup with Vuetify0 behavior — 1-indexed v-model, ellipses and disabled prev/next owned by the component, anchors in the documented DOM order.
+  content: Bulma's pagination markup with Vuetify0 behavior — 1-indexed v-model, composed Prev/Next/List/Item/Ellipsis parts, anchors in the documented DOM order.
 - name: keywords
   content: bulma pagination, vue pagination, pagination-list, is-current, bulma vue, paper bulma
 features:
@@ -28,7 +28,7 @@ Bulma's `.pagination` with the JavaScript it never shipped: current page, ellips
 
 ## Usage
 
-`v-model` is the current page, 1-indexed. `pages` is how many there are. Previous, next, the page list and any ellipses are generated — there are no parts to compose, because the fixture mandates that DOM order.
+`v-model` is the current page, 1-indexed. `pages` is how many there are. Compose `BuPaginationPrev`, `BuPaginationNext`, then `BuPaginationList` with `BuPaginationItem` / `BuPaginationEllipsis` children — that DOM order is load-bearing. Bulma CSS flex-orders the list between the two anchors visually; the harness diffs the source order.
 
 ::: ds-example
 /systems/bulma/pagination/basic
@@ -38,11 +38,28 @@ Bulma's `.pagination` with the JavaScript it never shipped: current page, ellips
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { BuPagination } from '@paper/bulma'
+  import {
+    BuPagination,
+    BuPaginationEllipsis,
+    BuPaginationItem,
+    BuPaginationList,
+    BuPaginationNext,
+    BuPaginationPrev,
+  } from '@paper/bulma'
 </script>
 
 <template>
-  <BuPagination />
+  <BuPagination>
+    <BuPaginationPrev />
+
+    <BuPaginationNext />
+
+    <BuPaginationList>
+      <BuPaginationItem />
+
+      <BuPaginationEllipsis />
+    </BuPaginationList>
+  </BuPagination>
 </template>
 ```
 
@@ -54,7 +71,7 @@ v0's `size` is total items, not page count. The mapping is `:size="pages"` with 
 
 `visible` is `totalVisible`. Omit it and the root measures the container and shows as many page links as fit; pass it and the window is a hard cap, with ellipses filling the gaps.
 
-What the wrapper owns is the Bulma shape the compound does not: anchors (`as="a"`) instead of buttons, `is-disabled` / `is-current` classes instead of a `disabled` attribute, and the DOM order Previous, Next, *then* `ul.pagination-list`. CSS flex-order puts the list between the two anchors visually; the harness diffs the source order, so swapping them to "look right" in the template would fail conformance.
+What the parts own is the Bulma shape the compound does not: anchors (`as="a"`) instead of buttons, `is-disabled` / `is-current` classes instead of a `disabled` attribute, and the consumer-authored DOM order Previous, Next, *then* `ul.pagination-list`.
 
 ## The markup you know
 
@@ -94,13 +111,25 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 
 ```vue Vue
 <template>
-  <BuPagination v-model="page" :pages="86" :visible="7" />
+  <BuPagination v-slot="{ items }" v-model="page" :pages="86" :visible="7">
+    <BuPaginationPrev>Previous</BuPaginationPrev>
+
+    <BuPaginationNext>Next page</BuPaginationNext>
+
+    <BuPaginationList>
+      <template v-for="(item, index) in items" :key="index">
+        <BuPaginationItem v-if="item.type === 'page'" :value="item.value" />
+
+        <BuPaginationEllipsis v-else />
+      </template>
+    </BuPaginationList>
+  </BuPagination>
 </template>
 ```
 
 :::
 
-You write no `is-current`, no `is-disabled`, and no ellipses. The component owns those from `v-model` and `pages`. An out-of-range model is clamped back so the parent matches what renders.
+You write no `is-current` and no `is-disabled` — Prev/Next/Item apply those from the pagination context. An out-of-range model is clamped back so the parent matches what renders. A disabled previous's `title` (fixture: `"This is the first page"`) is authored content — bind it as an attribute on `BuPaginationPrev`.
 
 ## Examples
 
@@ -120,20 +149,31 @@ The trade is information. A hard cap of 5 on 86 pages tells the reader almost no
 
 <!-- Hand-authored; <DocsApi /> does not cover @paper/* yet. Keep in sync with the SFC. -->
 
-`BuPagination` is a single component. There are no parts. Previous and next labels are props, not slots — the component owns that DOM order.
+`BuPagination` also binds `v-model` — the current page as a `number`, 1-indexed, defaulting to `1`.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `v-model` | `number` | `1` | Current page, 1-indexed |
 | `pages` | `number` | `1` | Total page count |
-| `previous` | `string` | `'Previous'` | `.pagination-previous` label |
-| `next` | `string` | `'Next page'` | `.pagination-next` label |
 | `visible` | `number` | — | Visible page-link cap; omit for auto-measure |
 | `ellipsis` | `string` | `'…'` | Character between page ranges |
 | `size` | `'small' \| 'normal' \| 'medium' \| 'large'` | — | `is-{size}` |
 | `rounded` | `boolean` | — | `is-rounded` |
 | `centered` | `boolean` | — | `is-centered` |
 | `right` | `boolean` | — | `is-right` |
+
+The default slot receives v0's pagination surface (`items`, `isFirst`, `isLast`, `page`, …). Iterate `items` to render Item/Ellipsis children.
+
+### Parts
+
+| Part | Props | Notes |
+|------|-------|-------|
+| `BuPaginationPrev` | `namespace` | `.pagination-previous`. Slot is the label (default `Previous`). Applies `is-disabled` on the first page |
+| `BuPaginationNext` | `namespace` | `.pagination-next`. Slot is the label (default `Next page`). Applies `is-disabled` on the last page |
+| `BuPaginationList` | — | `ul.pagination-list` |
+| `BuPaginationItem` | `value` (`number`, required), `namespace` | `li > a.pagination-link`. Applies `is-current` when selected |
+| `BuPaginationEllipsis` | `namespace` | `li > span.pagination-ellipsis` |
+
+DOM order is previous, next, then the list — CSS puts the list in the middle visually. Do not reorder in JS.
 
 ## Accessibility
 

@@ -1,3 +1,13 @@
+/**
+ * @module BuPagination
+ *
+ * @remarks
+ * Bulma `nav.pagination` slot host. Maps `pages` onto v0 Pagination.Root as
+ * `:size="pages" :items-per-page="1"` (v0 size is total items). Compose
+ * BuPaginationPrev, BuPaginationNext, then BuPaginationList — that DOM order
+ * is load-bearing; Bulma CSS flex-orders the list between the anchors.
+ */
+
 <script lang="ts">
   // Framework
   import { Pagination } from '@vuetify/v0'
@@ -8,10 +18,6 @@
   export interface BuPaginationProps {
     /** Total page count (maps to v0 size with one item per page) */
     pages?: number
-    /** `.pagination-previous` label */
-    previous?: string
-    /** `.pagination-next` label */
-    next?: string
     /** Number of visible page buttons; omit for v0's responsive auto-measure */
     visible?: number
     /** Ellipsis character rendered between page ranges */
@@ -35,10 +41,18 @@
     'update:model-value': [value: number]
   }>()
 
+  defineSlots<{
+    /** Prev, Next, then List — fixture DOM order */
+    default?: (props: {
+      items: { type: string, value: number }[]
+      isFirst: boolean
+      isLast: boolean
+      page: number
+    }) => any
+  }>()
+
   const {
     pages = 1,
-    previous = 'Previous',
-    next = 'Next page',
     visible,
     ellipsis = '…',
     size,
@@ -69,6 +83,7 @@
 
 <template>
   <Pagination.Root
+    v-slot="slotProps"
     v-model="page"
     class="pagination"
     :class="classes"
@@ -78,39 +93,6 @@
     :size="pages"
     :total-visible="visible"
   >
-    <template #default="{ items, isFirst, isLast, page: current }">
-      <Pagination.Prev
-        as="a"
-        class="pagination-previous"
-        :class="{ 'is-disabled': isFirst }"
-      >
-        {{ previous }}
-      </Pagination.Prev>
-
-      <Pagination.Next
-        as="a"
-        class="pagination-next"
-        :class="{ 'is-disabled': isLast }"
-      >
-        {{ next }}
-      </Pagination.Next>
-
-      <ul class="pagination-list">
-        <template v-for="(item, index) in items" :key="index">
-          <li v-if="item.type === 'page'">
-            <Pagination.Item
-              as="a"
-              class="pagination-link"
-              :class="{ 'is-current': item.value === current }"
-              :value="item.value"
-            />
-          </li>
-
-          <li v-else>
-            <Pagination.Ellipsis as="span" class="pagination-ellipsis" />
-          </li>
-        </template>
-      </ul>
-    </template>
+    <slot v-bind="slotProps" />
   </Pagination.Root>
 </template>

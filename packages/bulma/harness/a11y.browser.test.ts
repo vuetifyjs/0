@@ -35,6 +35,11 @@ import { BuNumberFieldDecrement } from '#bulma/components/BuNumberFieldDecrement
 import { BuNumberFieldIncrement } from '#bulma/components/BuNumberFieldIncrement'
 import { BuNumberFieldInput } from '#bulma/components/BuNumberFieldInput'
 import { BuPagination } from '#bulma/components/BuPagination'
+import { BuPaginationEllipsis } from '#bulma/components/BuPaginationEllipsis'
+import { BuPaginationItem } from '#bulma/components/BuPaginationItem'
+import { BuPaginationList } from '#bulma/components/BuPaginationList'
+import { BuPaginationNext } from '#bulma/components/BuPaginationNext'
+import { BuPaginationPrev } from '#bulma/components/BuPaginationPrev'
 import { BuPanel } from '#bulma/components/BuPanel'
 import { BuPanelBlock } from '#bulma/components/BuPanelBlock'
 import { BuPanelHeading } from '#bulma/components/BuPanelHeading'
@@ -300,7 +305,17 @@ const SWEEP: Record<string, Subject> = {
     ]),
   },
   BuPagination: {
-    node: () => h(BuPagination, { pages: 86, modelValue: 46, visible: 7 }),
+    node: () => h(BuPagination, { pages: 86, modelValue: 46, visible: 7 }, {
+      default: ({ items }: { items: { type: string, value: number }[] }) => [
+        h(BuPaginationPrev, null, () => 'Previous'),
+        h(BuPaginationNext, null, () => 'Next page'),
+        h(BuPaginationList, null, () => items.map((item, index) =>
+          item.type === 'page'
+            ? h(BuPaginationItem, { key: index, value: item.value })
+            : h(BuPaginationEllipsis, { key: index }),
+        )),
+      ],
+    }),
   },
   BuPanel: {
     node: () => h(BuPanel as any, { modelValue: 'bulma' }, () => [
