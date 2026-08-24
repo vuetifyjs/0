@@ -30,6 +30,7 @@ import { onScopeDispose, toRef, toValue } from 'vue'
 
 // Types
 import type { RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
+import type { PopoverAdapter } from '#v0/composables/usePopover'
 import type { ID } from '#v0/types'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
@@ -52,6 +53,12 @@ export interface TooltipOptions {
   skipDelay?: MaybeRefOrGetter<number>
   /** Disable all tooltips in this region. @default false */
   disabled?: MaybeRefOrGetter<boolean>
+  /**
+   * Default positioning adapter for tooltip surfaces in this region.
+   * Overrides `createPopoverPlugin({ adapter })` for tooltips; a
+   * per-instance `adapter` on `Tooltip.Root` still wins. @default null
+   */
+  adapter?: PopoverAdapter
 }
 
 export interface TooltipContext {
@@ -140,6 +147,12 @@ export interface TooltipContext {
    * ```
    */
   unregister: (id: ID) => void
+  /**
+   * Region-scoped positioning adapter for tooltip surfaces, or null when
+   * unset (falls through to the popover plugin default, then
+   * `V0PopoverAdapter`).
+   */
+  adapter: PopoverAdapter | null
 }
 
 export interface TooltipContextOptions extends TooltipOptions {
@@ -153,6 +166,7 @@ function createTooltip (options: TooltipOptions = {}): TooltipContext {
   const closeDelay = toRef(() => toValue(options.closeDelay) ?? 150)
   const skipDelay = toRef(() => toValue(options.skipDelay) ?? 300)
   const disabled = toRef(() => toValue(options.disabled) ?? false)
+  const adapter = options.adapter ?? null
 
   const registry = createRegistry({ reactive: true, events: true })
   let lastClosedAt: number | null = null
@@ -181,6 +195,7 @@ function createTooltip (options: TooltipOptions = {}): TooltipContext {
     shouldSkipOpenDelay,
     register: registry.register,
     unregister: registry.unregister,
+    adapter,
   }
 }
 

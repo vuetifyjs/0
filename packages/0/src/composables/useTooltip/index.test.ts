@@ -1,9 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createTooltipContext, createTooltipPlugin, useTooltip } from './index'
+// Composables
+import { PopoverAdapter } from '#v0/composables/usePopover'
+
+import { createTooltipContext, createTooltipFallback, createTooltipPlugin, useTooltip } from './index'
 
 // Utilities
-import { createApp, defineComponent, effectScope, h } from 'vue'
+import { createApp, defineComponent, effectScope, h, toRef } from 'vue'
+
+// Types
+import type { TooltipContext } from './index'
 
 describe('useTooltip', () => {
   beforeEach(() => {
@@ -171,6 +177,36 @@ describe('useTooltip', () => {
         expect(ctxB.isAnyOpen.value).toBe(false)
       })
       scope.stop()
+    })
+  })
+
+  describe('adapter option', () => {
+    class StubAdapter extends PopoverAdapter {
+      setup () {
+        return toRef(() => ({ '--stub': 'tooltip' }))
+      }
+    }
+
+    it('exposes the configured adapter on the context', () => {
+      const adapter = new StubAdapter()
+      let context!: TooltipContext
+      const Probe = defineComponent({
+        setup () {
+          context = useTooltip()
+          return () => h('div')
+        },
+      })
+      const app = createApp(Probe)
+      app.use(createTooltipPlugin({ adapter }))
+      const root = document.createElement('div')
+      app.mount(root)
+
+      expect(context.adapter).toBe(adapter)
+      app.unmount()
+    })
+
+    it('defaults adapter to null, including in the fallback', () => {
+      expect(createTooltipFallback().adapter).toBeNull()
     })
   })
 })
