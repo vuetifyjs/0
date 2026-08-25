@@ -17,7 +17,6 @@
     { id: 'name', title: 'Name', sortable: true },
     { id: 'email', title: 'Email', sortable: true },
   ]
-
 </script>
 
 <template>
