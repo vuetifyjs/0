@@ -60,7 +60,12 @@ export default defineConfig({
     'home-card': 'p-6 rounded-xl border bg-surface hover:border-primary hover:bg-surface-tint hover:shadow-md transition-all duration-150',
 
   },
-  safelist: ['max-w-900'],
+  safelist: [
+    'max-w-900',
+    // Applied from JS (`settings.surface`). On-demand scan misses it on
+    // routes that never mention the class as a literal (e.g. systems pages).
+    'bg-glass-surface',
+  ],
   preflights: [
     {
       getCSS: () => `

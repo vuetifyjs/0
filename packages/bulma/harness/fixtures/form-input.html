@@ -1,0 +1,169 @@
+<!--
+  Source: https://bulma.io/documentation/form/input/
+  Bulma version: 1.0.4
+  Fetched: 2026-08-01
+  Canonical markup copied verbatim from the docs. Covers: bare .input, color
+  variants, sizes, is-rounded, state classes (is-hovered/is-focused), .control
+  states (is-loading with size on the CONTROL, not the input), disabled,
+  readonly, is-static, icon placement.
+  Note: the docs' is-static example email value is Cloudflare-obfuscated on the
+  live page; restored here to the value used in the Bulma repo docs source.
+-->
+
+<!-- fixture: basic input (bare, no wrapper required) -->
+<input class="input" type="text" placeholder="Text input" />
+
+<!-- fixture: color link -->
+<input class="input is-link" type="text" placeholder="Link input" />
+<!-- fixture: color primary -->
+<input class="input is-primary" type="text" placeholder="Primary input" />
+<!-- fixture: color info -->
+<input class="input is-info" type="text" placeholder="Info input" />
+<!-- fixture: color success -->
+<input class="input is-success" type="text" placeholder="Success input" />
+<!-- fixture: color warning -->
+<input class="input is-warning" type="text" placeholder="Warning input" />
+<!-- fixture: color danger -->
+<input class="input is-danger" type="text" placeholder="Danger input" />
+
+<!-- fixture: sizes -->
+<input class="input is-small" type="text" placeholder="Small input" />
+<input class="input is-normal" type="text" placeholder="Normal input" />
+<input class="input is-medium" type="text" placeholder="Medium input" />
+<input class="input is-large" type="text" placeholder="Large input" />
+
+<!-- fixture: style rounded -->
+<input class="input is-rounded" type="text" placeholder="Rounded input" />
+
+<!-- fixture: states hover focus (state class goes on the input) -->
+<div class="control">
+  <input class="input" type="text" placeholder="Normal input" />
+</div>
+<div class="control">
+  <input class="input is-hovered" type="text" placeholder="Hovered input" />
+</div>
+<div class="control">
+  <input class="input is-focused" type="text" placeholder="Focused input" />
+</div>
+
+<!-- fixture: state loading (is-loading goes on the CONTROL) -->
+<div class="control is-loading">
+  <input class="input" type="text" placeholder="Loading input" />
+</div>
+
+<!-- fixture: loading sizing (size class duplicated on the control) -->
+<div class="field">
+  <div class="control is-small is-loading">
+    <input class="input is-small" type="text" placeholder="Small loading input" />
+  </div>
+</div>
+<div class="field">
+  <div class="control is-loading">
+    <input class="input" type="text" placeholder="Normal loading input" />
+  </div>
+</div>
+<div class="field">
+  <div class="control is-medium is-loading">
+    <input class="input is-medium" type="text" placeholder="Medium loading input" />
+  </div>
+</div>
+<div class="field">
+  <div class="control is-large is-loading">
+    <input class="input is-large" type="text" placeholder="Large loading input" />
+  </div>
+</div>
+
+<!-- fixture: state disabled (native attribute) -->
+<div class="control">
+  <input class="input" type="text" placeholder="Disabled input" disabled />
+</div>
+
+<!-- fixture: state readonly (native attribute) -->
+<div class="control">
+  <input class="input" type="text" value="This text is readonly" readonly />
+</div>
+
+<!-- fixture: static (is-static + readonly) -->
+<div class="field is-horizontal">
+  <div class="field-label is-normal">
+    <label class="label">From</label>
+  </div>
+  <div class="field-body">
+    <div class="field">
+      <p class="control">
+        <input class="input is-static" type="email" value="me@example.com" readonly />
+      </p>
+    </div>
+  </div>
+</div>
+<div class="field is-horizontal">
+  <div class="field-label is-normal">
+    <label class="label">To</label>
+  </div>
+  <div class="field-body">
+    <div class="field">
+      <p class="control">
+        <input class="input" type="email" placeholder="Recipient email" />
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- fixture: icons -->
+<div class="field">
+  <p class="control has-icons-left has-icons-right">
+    <input class="input" type="email" placeholder="Email" />
+    <span class="icon is-small is-left">
+      <i class="fas fa-envelope"></i>
+    </span>
+    <span class="icon is-small is-right">
+      <i class="fas fa-check"></i>
+    </span>
+  </p>
+</div>
+<div class="field">
+  <p class="control has-icons-left">
+    <input class="input" type="password" placeholder="Password" />
+    <span class="icon is-small is-left">
+      <i class="fas fa-lock"></i>
+    </span>
+  </p>
+</div>
+
+<!-- fixture: icon pairing -->
+<div class="control has-icons-left has-icons-right">
+  <input class="input is-small" type="email" placeholder="Email" />
+  <span class="icon is-small is-left">
+    <i class="fas fa-envelope"></i>
+  </span>
+  <span class="icon is-small is-right">
+    <i class="fas fa-check"></i>
+  </span>
+</div>
+<div class="control has-icons-left has-icons-right">
+  <input class="input" type="email" placeholder="Email" />
+  <span class="icon is-small is-left">
+    <i class="fas fa-envelope"></i>
+  </span>
+  <span class="icon is-small is-right">
+    <i class="fas fa-check"></i>
+  </span>
+</div>
+<div class="control has-icons-left has-icons-right">
+  <input class="input is-medium" type="email" placeholder="Email" />
+  <span class="icon is-left">
+    <i class="fas fa-envelope"></i>
+  </span>
+  <span class="icon is-right">
+    <i class="fas fa-check"></i>
+  </span>
+</div>
+<div class="control has-icons-left has-icons-right">
+  <input class="input is-large" type="email" placeholder="Email" />
+  <span class="icon is-medium is-left">
+    <i class="fas fa-envelope"></i>
+  </span>
+  <span class="icon is-medium is-right">
+    <i class="fas fa-check"></i>
+  </span>
+</div>
