@@ -296,7 +296,7 @@ Use DataTable when you want semantic table markup and ARIA, with rows and column
 
 ??? How do I read a row's data?
 
-`items` and `sortedItems` are arrays of the records you registered — the same objects passed as `:value`. `DataTable.Row` also exposes that record as `value` on its slot, including when the row was registered with `onboard` first.
+`context.items` and `context.sortedItems` are arrays of the records you registered — the same objects passed as `:value`. `DataTable.Row` also exposes that record as `value` on its slot, including when the row was registered with `onboard` first.
 
 ??? Can I pass `:items` to Root?
 
@@ -312,7 +312,7 @@ Visibility lives on `DataTable.Row` after it registers. Body's `items` is empty 
 
 ??? Why doesn't sort move the rows?
 
-The pipeline reorders `sortedItems`, not your source array. `v-for="user in rank(users)"` — `rank` is on the Body slot. Matching is object identity, then the record's `id` field (same id you pass to `DataTable.Row`). If you `v-for` `sortedItems` itself, rows that are not yet registered never mount.
+The pipeline reorders `context.sortedItems`, not your source array. `v-for="user in rank(users)"` — `rank` is on the Body slot. Matching is object identity, then the record's `id` field (same id you pass to `DataTable.Row`). If you `v-for` `context.sortedItems` itself, rows that are not yet registered never mount.
 
 ??? How do I render thousands of rows?
 

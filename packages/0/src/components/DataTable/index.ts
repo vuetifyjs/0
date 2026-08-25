@@ -151,7 +151,7 @@ export const DataTable = {
    */
   Column,
   /**
-   * The `<tbody>` element wrapper. Exposes paginated items.
+   * The `<tbody>` element wrapper. Slot exposes `rank`, `items`, and `isEmpty`.
    *
    * @see https://0.vuetifyjs.com/components/data/data-table
    *

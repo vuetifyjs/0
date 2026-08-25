@@ -4,15 +4,15 @@
 
 feat(DataTable): introduce compound component over createDataTable
 
-Headless compound component for rendering tabular data with semantic table markup and ARIA support:
+Headless table with semantic markup. Root creates `createDataTable`; Column and Row register when they mount (same lifecycle as Checkbox.Group). `v-for="user in rank(users)"` — `rank` is on the Body slot and orders the source by the pipeline. Row hides off-page rows itself so they stay registered.
 
-- **DataTable.Root** — provider that creates `createDataTable`; rows and columns register when they mount
-- **DataTable.Table** — `<table>` with `role="table"`; `aria-rowcount` only when the page is a subset of total
+- **DataTable.Root** — factory + provider; `v-model:search`
+- **DataTable.Table** — `<table>`; `aria-rowcount` only when the page is a subset of total
 - **DataTable.Header** — `<thead>` exposing the 2D header grid
-- **DataTable.Column** — `<th>` with `aria-sort` and sort controls
-- **DataTable.Body** — `<tbody>` exposing paginated items
-- **DataTable.Row** — `<tr>` shared by header and body, with selection and expansion state
-- **DataTable.Cell** — `<td>` with colspan and rowspan support
-- **DataTable.Empty** — conditional empty state row
+- **DataTable.Column** — `<th>` with `aria-sort`; `toggle` / `direction` on the slot
+- **DataTable.Body** — `<tbody>`; slot `rank`, `items`, `isEmpty`
+- **DataTable.Row** — `<tr>` for header or body; owns visibility and `aria-rowindex`
+- **DataTable.Cell** — `<td>`
+- **DataTable.Empty** — empty-state row when the page has no items
 
-The component shell delegates all data pipeline logic (sorting, filtering, pagination, selection, expansion, grouping) to the existing `createDataTable` composable — no behavior reimplementation.
+Sorting, filtering, pagination, selection, and expansion stay on `createDataTable`. Large lists use `VirtualDataTableAdapter` + `createVirtual`, not this compound.

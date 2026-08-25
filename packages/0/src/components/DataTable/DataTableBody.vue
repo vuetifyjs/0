@@ -5,8 +5,7 @@
    * @see https://0.vuetifyjs.com/components/data/data-table
    *
    * @remarks
-   * The `<tbody>` element wrapper. Exposes the paginated items from the
-   * context for rendering data rows.
+   * The `<tbody>` element wrapper. Slot exposes `rank`, `items`, and `isEmpty`.
    */
 
   // Components
@@ -29,16 +28,12 @@
   export interface DataTableBodySlotProps<T extends object = object> {
     /** Paginated items for the current page. Row hides off-page rows itself. */
     items: readonly T[]
-    /** Filtered and sorted items in pipeline order. */
-    sortedItems: readonly T[]
-    /** Rank a source array by `sortedItems`. v-for `rank(users)` so rows register themselves. */
+    /** Rank a source array by pipeline order. v-for `rank(users)` so rows register themselves. */
     rank: <U extends object>(source: readonly U[]) => U[]
     /** Whether the table is loading */
     isLoading: boolean
     /** Whether the table has no items */
     isEmpty: boolean
-    /** 1-based index of the first visible data row (header-grid rows + pageStart + 1). Row sets aria-rowindex unless `:index` is passed. */
-    rowStart: number
     attrs: {
       role: 'rowgroup' | undefined
     }
@@ -63,11 +58,9 @@
 
   const slotProps = toRef((): DataTableBodySlotProps<T> => ({
     items: context.items.value,
-    sortedItems: context.sortedItems.value,
     rank: context.rank,
     isLoading: context.loading.value,
     isEmpty: context.items.value.length === 0,
-    rowStart: context.headers.value.length + context.pagination.pageStart.value + 1,
     attrs: {
       role: as === 'tbody' ? undefined : 'rowgroup',
     },

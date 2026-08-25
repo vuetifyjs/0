@@ -652,17 +652,17 @@ describe('data-table', () => {
 
         expect(column.isSortable).toBe(true)
         expect(body.items.map((item: User) => item.name)).toEqual(['Alice', 'Bob', 'Carol'])
-        expect(body.sortedItems.map((item: User) => item.name)).toEqual(['Alice', 'Bob', 'Carol'])
+        expect(body.rank(testUsers).map((item: User) => item.name)).toEqual(['Alice', 'Bob', 'Carol'])
 
         column.toggle()
         await nextTick()
         expect(column.direction).toBe('asc')
-        expect(body.sortedItems.map((item: User) => item.name)).toEqual(['Alice', 'Bob', 'Carol'])
+        expect(body.rank(testUsers).map((item: User) => item.name)).toEqual(['Alice', 'Bob', 'Carol'])
 
         column.toggle()
         await nextTick()
         expect(column.direction).toBe('desc')
-        expect(body.sortedItems.map((item: User) => item.name)).toEqual(['Carol', 'Bob', 'Alice'])
+        expect(body.rank(testUsers).map((item: User) => item.name)).toEqual(['Carol', 'Bob', 'Alice'])
       })
 
       it('should have aria-sort attribute when sortable', async () => {
@@ -991,7 +991,6 @@ describe('data-table', () => {
         expect(slotProps).toBeDefined()
         expect(Array.isArray(slotProps.items)).toBe(true)
         expect(slotProps.items).toHaveLength(3)
-        expect(slotProps.sortedItems).toHaveLength(3)
         expect(typeof slotProps.rank).toBe('function')
         expect(slotProps.isEmpty).toBe(false)
       })
@@ -1084,8 +1083,8 @@ describe('data-table', () => {
                   default: (props: any) => {
                     slotProps = props
                     return [
-                      ...props.items.map((item: User, i: number) =>
-                        h(DataTable.Row as any, { key: item.id, id: item.id, index: props.rowStart + i }, () =>
+                      ...props.items.map((item: User) =>
+                        h(DataTable.Row as any, { key: item.id, id: item.id }, () =>
                           h(DataTable.Cell, {}, () => item.name),
                         ),
                       ),
@@ -1102,7 +1101,6 @@ describe('data-table', () => {
 
         expect(slotProps.items).toHaveLength(2)
         expect(slotProps.items[0].name).toBe('Alice')
-        expect(slotProps.rowStart).toBe(2)
         expect(wrapper.text()).not.toContain('No data')
         expect(wrapper.findComponent(DataTable.Row as any).attributes('aria-rowindex')).toBe('2')
 
@@ -1528,7 +1526,10 @@ describe('data-table', () => {
         context.sort.toggle('name')
         context.sort.toggle('name')
         await nextTick()
-        expect(body.sortedItems.map((item: User) => item.name)).toEqual(['Carol', 'Alice Cooper'])
+        expect(body.rank([
+          { id: 1, name: 'Alice Cooper', email: 'bob@test.com' },
+          { id: 2, name: 'Carol', email: 'carol@test.com' },
+        ]).map((item: User) => item.name)).toEqual(['Carol', 'Alice Cooper'])
       })
 
       it('should hide off-page child-registered rows without unregistering them', async () => {
