@@ -327,7 +327,7 @@ Pass a [ServerDataTableAdapter](/composables/data/create-data-table#serverdatata
 Pass `sort-multiple` to Root:
 
 ```vue
-<DataTable.Root :sort-multiple="true" />
+<DataTable.Root sort-multiple />
 ```
 
 ??? Why does clicking a row toggle selection?

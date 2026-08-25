@@ -29,7 +29,7 @@
             :id="col.id"
             :key="col.id"
             v-slot="{ isSortable, toggle }"
-            :sortable="true"
+            sortable
           >
             <Button.Root v-if="isSortable" @click="toggle">
               {{ col.title }}
