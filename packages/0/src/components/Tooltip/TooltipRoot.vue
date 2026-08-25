@@ -125,7 +125,12 @@
 
   const isDisabled = toRef(() => disabled || region.disabled.value)
 
-  const popover = usePopover({ isOpen, positionArea, positionTry, adapter: adapter ?? region.adapter })
+  const popover = usePopover({
+    isOpen,
+    positionArea: () => positionArea,
+    positionTry: () => positionTry,
+    adapter: adapter ?? region.adapter,
+  })
 
   const skipped = shallowRef(false)
 

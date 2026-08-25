@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { createCombobox, createComboboxContext, useCombobox } from './index'
-
 // Composables
 import { PopoverAdapter } from '#v0/composables/usePopover'
+
+import { createCombobox, createComboboxContext, useCombobox } from './index'
 
 // Utilities
 import { effectScope, inject, nextTick, toRef } from 'vue'
