@@ -18,7 +18,7 @@
 
   // Utilities
   import { isUndefined } from '#v0/utilities'
-  import { mergeProps, onBeforeUnmount, toRef, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, useAttrs, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -31,7 +31,7 @@
     id?: ID
     /** Row value to register. Omit on header rows. */
     value?: Record<string, unknown>
-    /** 1-based aria-rowindex. Bind `rowStart + i` from Body when aria-rowcount is set. */
+    /** 1-based aria-rowindex. Defaults to the row's position in sortedItems. */
     index?: number
     /** Emit aria-selected. @default false */
     selectable?: boolean
@@ -48,6 +48,8 @@
     isSelectable: boolean
     /** Whether this row is expanded */
     isExpanded: boolean
+    /** Whether this data row is on the current page. Header rows are always visible. */
+    isVisible: boolean
     /** Toggle row selection */
     toggleSelection: () => void
     /** Toggle row expansion */
@@ -87,12 +89,22 @@
     ? context.register({ id, value })
     : undefined
 
+  if (ticket) {
+    watch(() => value, next => {
+      if (!isUndefined(next)) context.upsert(ticket.id, { value: next })
+    })
+  }
+
   onBeforeUnmount(() => {
     if (ticket) context.unregister(ticket.id)
   })
 
   function rowId () {
     return ticket?.id ?? id
+  }
+
+  function isHeaderRow () {
+    return isUndefined(ticket) && isUndefined(value) && (isUndefined(id) || !context.has(id))
   }
 
   const record = toRef((): Record<string, unknown> | undefined => {
@@ -102,6 +114,28 @@
     if (isUndefined(current)) return undefined
 
     return context.get(current)?.value
+  })
+
+  function matches (item: Record<string, unknown>) {
+    const rec = record.value
+    if (!isUndefined(rec) && item === rec) return true
+    const current = rowId()
+    return !isUndefined(current) && item.id === current
+  }
+
+  const isVisible = toRef(() => {
+    if (isHeaderRow()) return true
+    return context.items.value.some(item => matches(item))
+  })
+
+  const rowIndex = toRef((): number | undefined => {
+    if (!isUndefined(index)) return index
+    if (isHeaderRow()) return undefined
+
+    const pos = context.sortedItems.value.findIndex(item => matches(item))
+    if (pos === -1) return undefined
+
+    return context.headers.value.length + pos + 1
   })
 
   const isSelected = toRef(() => {
@@ -146,12 +180,13 @@
     isSelected: isSelected.value,
     isSelectable: isSelectable.value,
     isExpanded: isExpanded.value,
+    isVisible: isVisible.value,
     toggleSelection,
     toggleExpansion,
     attrs: {
       'role': 'row',
       'aria-selected': selectable && !isUndefined(rowId()) ? isSelected.value : undefined,
-      'aria-rowindex': isUndefined(index) ? undefined : index,
+      'aria-rowindex': rowIndex.value,
       'data-selected': isSelected.value || undefined,
       'data-expanded': isExpanded.value || undefined,
       'onClick': selectable ? onClick : undefined,
@@ -161,6 +196,7 @@
 
 <template>
   <Atom
+    v-show="isVisible"
     :as
     :renderless
     v-bind="mergeProps(attrs, slotProps.attrs)"

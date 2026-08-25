@@ -228,6 +228,38 @@ describe('data-table', () => {
         wrapper.setData({ query: 'alice' })
         await nextTick()
         expect(slotProps.items.map((item: User) => item.name)).toEqual(['Alice'])
+
+        wrapper.setData({ query: 'admin' })
+        await nextTick()
+        expect(slotProps.items).toHaveLength(0)
+      })
+
+      it('should update the parent search model when context.search is called', async () => {
+        let context: any
+
+        const Host = defineComponent({
+          data: () => ({ query: '' }),
+          render () {
+            return h(DataTable.Root as any, {
+              'search': this.query,
+              'onUpdate:search': (value: string) => {
+                this.query = value
+              },
+            }, {
+              default: (props: any) => {
+                context = props.context
+                return h('div')
+              },
+            })
+          },
+        })
+
+        const wrapper = mount(Host)
+        await nextTick()
+
+        context.search('x')
+        await nextTick()
+        expect(wrapper.vm.query).toBe('x')
       })
 
       it('should onboard columns and rows after mount', async () => {
@@ -879,6 +911,46 @@ describe('data-table', () => {
         expect(slotProps.isSortable).toBe(true)
         expect(slotProps.direction).toBe('none')
       })
+
+      it('should update isSortable when the sortable prop flips after mount', async () => {
+        let slotProps: any
+
+        const Host = defineComponent({
+          data: () => ({ sortable: false }),
+          render () {
+            return h(DataTable.Root as any, {}, () =>
+              h(DataTable.Table, {}, () =>
+                h(DataTable.Header, {}, () =>
+                  h(DataTable.Row as any, {}, () =>
+                    h(DataTable.Column, { id: 'name', sortable: this.sortable }, {
+                      default: (props: any) => {
+                        slotProps = props
+                        return h('span', 'Name')
+                      },
+                    }),
+                  ),
+                ),
+              ),
+            )
+          },
+        })
+
+        const wrapper = mount(Host)
+        await nextTick()
+        expect(slotProps.isSortable).toBe(false)
+
+        slotProps.toggle()
+        await nextTick()
+        expect(slotProps.direction).toBe('none')
+
+        wrapper.setData({ sortable: true })
+        await nextTick()
+        expect(slotProps.isSortable).toBe(true)
+
+        slotProps.toggle()
+        await nextTick()
+        expect(slotProps.direction).toBe('asc')
+      })
     })
   })
 
@@ -1398,6 +1470,189 @@ describe('data-table', () => {
         expect(slotProps.isSelectable).toBe(true)
         expect(slotProps.isSelected).toBe(false)
       })
+
+      it('should upsert a child-registered row when :value is replaced', async () => {
+        let body: any
+        let context: any
+
+        const Host = defineComponent({
+          data: () => ({
+            rows: [
+              { id: 1, name: 'Bob', email: 'bob@test.com' },
+              { id: 2, name: 'Carol', email: 'carol@test.com' },
+            ] as User[],
+          }),
+          render () {
+            return h(DataTable.Root as any, {}, {
+              default: (props: any) => {
+                context = props.context
+                return h(DataTable.Table, {}, () => [
+                  h(DataTable.Header, {}, () =>
+                    h(DataTable.Row as any, {}, () =>
+                      h(DataTable.Column, { id: 'name', sortable: true, filterable: true }),
+                    ),
+                  ),
+                  h(DataTable.Body as any, {}, {
+                    default: (slot: any) => {
+                      body = slot
+                      return this.rows.map(user =>
+                        h(DataTable.Row as any, { key: user.id, id: user.id, value: user }, () =>
+                          h(DataTable.Cell, {}, () => user.name),
+                        ),
+                      )
+                    },
+                  }),
+                ])
+              },
+            })
+          },
+        })
+
+        const wrapper = mount(Host)
+        await nextTick()
+
+        context.search('alice')
+        await nextTick()
+        expect(body.items).toHaveLength(0)
+
+        wrapper.setData({
+          rows: [
+            { id: 1, name: 'Alice Cooper', email: 'bob@test.com' },
+            { id: 2, name: 'Carol', email: 'carol@test.com' },
+          ],
+        })
+        await nextTick()
+        expect(body.items.map((item: User) => item.name)).toEqual(['Alice Cooper'])
+
+        context.search('')
+        context.sort.toggle('name')
+        context.sort.toggle('name')
+        await nextTick()
+        expect(body.sortedItems.map((item: User) => item.name)).toEqual(['Carol', 'Alice Cooper'])
+      })
+
+      it('should hide off-page child-registered rows without unregistering them', async () => {
+        let context: any
+        let body: any
+
+        const wrapper = mountRoot({
+          props: { pagination: { itemsPerPage: 2 } },
+          slots: {
+            default: (props: any) => {
+              context = props.context
+              return h(DataTable.Table, {}, () => [
+                h(DataTable.Header, {}, () =>
+                  h(DataTable.Row as any, {}, () =>
+                    h(DataTable.Column, { id: 'name', sortable: true }),
+                  ),
+                ),
+                h(DataTable.Body as any, {}, {
+                  default: (slot: any) => {
+                    body = slot
+                    return testUsers.map(user =>
+                      h(DataTable.Row as any, { key: user.id, id: user.id, value: user }, () =>
+                        h(DataTable.Cell, {}, () => user.name),
+                      ),
+                    )
+                  },
+                }),
+              ])
+            },
+          },
+        })
+
+        await nextTick()
+
+        expect(context.total.value).toBe(3)
+        expect(context.size).toBe(3)
+        expect(body.items).toHaveLength(2)
+
+        const rows = wrapper.findAllComponents(DataTable.Row as any)
+        const dataRows = rows.filter(row => row.props('value'))
+        expect(dataRows).toHaveLength(3)
+        expect((dataRows[0]!.element as HTMLElement).style.display).not.toBe('none')
+        expect((dataRows[1]!.element as HTMLElement).style.display).not.toBe('none')
+        expect((dataRows[2]!.element as HTMLElement).style.display).toBe('none')
+        expect(dataRows[0]!.attributes('aria-rowindex')).toBe('2')
+        expect(dataRows[1]!.attributes('aria-rowindex')).toBe('3')
+        expect(dataRows[2]!.attributes('aria-rowindex')).toBe('4')
+
+        context.pagination.next()
+        await nextTick()
+
+        expect(context.total.value).toBe(3)
+        expect(context.size).toBe(3)
+        expect(body.items).toHaveLength(1)
+        expect((dataRows[0]!.element as HTMLElement).style.display).toBe('none')
+        expect((dataRows[1]!.element as HTMLElement).style.display).toBe('none')
+        expect((dataRows[2]!.element as HTMLElement).style.display).not.toBe('none')
+        expect(dataRows[2]!.attributes('aria-rowindex')).toBe('4')
+      })
+
+      it('should order child-registered rows by calling rank()', async () => {
+        let ranked: User[] | undefined
+        let column: any
+
+        mountRoot({
+          slots: {
+            default: () =>
+              h(DataTable.Table, {}, () => [
+                h(DataTable.Header, {}, () =>
+                  h(DataTable.Row as any, {}, () =>
+                    h(DataTable.Column, { id: 'name', sortable: true }, {
+                      default: (props: any) => {
+                        column = props
+                        return h('span', 'Name')
+                      },
+                    }),
+                  ),
+                ),
+                h(DataTable.Body as any, {}, {
+                  default: ({ rank }: any) => {
+                    ranked = rank(testUsers)
+                    return ranked!.map(user =>
+                      h(DataTable.Row as any, { key: user.id, id: user.id, value: user }, () =>
+                        h(DataTable.Cell, {}, () => user.name),
+                      ),
+                    )
+                  },
+                }),
+              ]),
+          },
+        })
+
+        await nextTick()
+        expect(ranked!.map(user => user.name)).toEqual(['Alice', 'Bob', 'Carol'])
+
+        column.toggle()
+        column.toggle()
+        await nextTick()
+        expect(ranked!.map(user => user.name)).toEqual(['Carol', 'Bob', 'Alice'])
+      })
+
+      it('should keep header rows visible', async () => {
+        let slotProps: any
+
+        const wrapper = mountRoot({
+          slots: {
+            default: () => h(DataTable.Table, {}, () =>
+              h(DataTable.Header, {}, () =>
+                h(DataTable.Row as any, {}, {
+                  default: (props: any) => {
+                    slotProps = props
+                    return h(DataTable.Column, { id: 'name' })
+                  },
+                }),
+              ),
+            ),
+          },
+        })
+
+        await nextTick()
+        expect(slotProps.isVisible).toBe(true)
+        expect((wrapper.findComponent(DataTable.Row as any).element as HTMLElement).style.display).not.toBe('none')
+        expect(wrapper.findComponent(DataTable.Row as any).attributes('aria-rowindex')).toBeUndefined()
+      })
     })
   })
 
@@ -1684,6 +1939,36 @@ describe('data-table', () => {
       expect(html).toContain('<tbody')
       expect(html).toContain('Name')
       expect(html).toContain('Alice')
+    })
+
+    it('should keep child-registered rows in SSR HTML and hide off-page ones', async () => {
+      const app = createSSRApp(defineComponent({
+        render: () =>
+          h(DataTable.Root as any, { pagination: { itemsPerPage: 2 } }, () =>
+            h(DataTable.Table as any, {}, () => [
+              h(DataTable.Header as any, {}, () =>
+                h(DataTable.Row as any, {}, () =>
+                  h(DataTable.Column as any, { id: 'name', sortable: true }, () => 'Name'),
+                ),
+              ),
+              h(DataTable.Body as any, {}, {
+                default: ({ rank }: any) =>
+                  rank(testUsers).map((user: User) =>
+                    h(DataTable.Row as any, { key: user.id, id: user.id, value: user }, () =>
+                      h(DataTable.Cell as any, {}, () => user.name),
+                    ),
+                  ),
+              }),
+            ]),
+          ),
+      }))
+
+      const html = await renderToString(app)
+
+      expect(html).toContain('Alice')
+      expect(html).toContain('Bob')
+      expect(html).toContain('Carol')
+      expect(html.match(/display:\s*none/g)).toHaveLength(1)
     })
 
     it('should hydrate without mismatches', async () => {

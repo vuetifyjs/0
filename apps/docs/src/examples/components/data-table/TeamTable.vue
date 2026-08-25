@@ -67,7 +67,6 @@
       <DataTable.Body v-slot="{ items, rank }">
         <DataTable.Row
           v-for="member in rank(members)"
-          v-show="shown(items, member)"
           :id="member.id"
           :key="member.id"
           class="hover:bg-surface-variant"

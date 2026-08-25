@@ -82,6 +82,10 @@
 
   provideDataTableRoot(namespace, context as DataTableContext<Record<string, unknown>>)
 
+  defineEmits<{
+    'update:search': [value: string]
+  }>()
+
   const search = defineModel<string>('search', { default: '' })
 
   watch(search, value => {

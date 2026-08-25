@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { Button } from '../Button/index'
   import { DataTable } from '../DataTable/index'
 
   interface User extends Record<string, unknown> {
@@ -31,9 +32,9 @@
             v-slot="{ isSortable, toggle }"
             :sortable="true"
           >
-            <button v-if="isSortable" @click="toggle">
+            <Button.Root v-if="isSortable" @click="toggle">
               {{ col.title }}
-            </button>
+            </Button.Root>
 
             <span v-else>{{ col.title }}</span>
           </DataTable.Column>

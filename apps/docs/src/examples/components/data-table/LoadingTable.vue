@@ -49,7 +49,6 @@
       <DataTable.Body v-slot="{ items, rank }">
         <DataTable.Row
           v-for="user in rank(users)"
-          v-show="shown(items, user)"
           :id="user.id"
           :key="user.id"
           :class="divided(items, user) ? 'border-b border-divider' : undefined"

@@ -66,13 +66,11 @@ import Table from './DataTableTable.vue'
  *         </DataTable.Row>
  *       </DataTable.Header>
  *
- *       <DataTable.Body v-slot="{ items, rank, rowStart }">
+ *       <DataTable.Body v-slot="{ rank }">
  *         <DataTable.Row
- *           v-for="(user, i) in rank(users)"
- *           v-show="items.some(item => item.id === user.id)"
+ *           v-for="user in rank(users)"
  *           :id="user.id"
  *           :value="user"
- *           :index="rowStart + i"
  *           :key="user.id"
  *         >
  *           <DataTable.Cell>{{ user.name }}</DataTable.Cell>
@@ -144,9 +142,9 @@ export const DataTable = {
    *   id="name"
    *   v-slot="{ isSortable, toggle }"
    * >
-   *   <button v-if="isSortable" @click="toggle">
+   *   <Button.Root v-if="isSortable" @click="toggle">
    *     Name
-   *   </button>
+   *   </Button.Root>
    *   <span v-else>Name</span>
    * </DataTable.Column>
    * ```
@@ -159,14 +157,12 @@ export const DataTable = {
    *
    * @example
    * ```vue
-   * <DataTable.Body v-slot="{ items, rank, rowStart }">
+   * <DataTable.Body v-slot="{ rank }">
    *   <DataTable.Row
-   *     v-for="(user, i) in rank(users)"
-   *     v-show="items.some(item => item.id === user.id)"
+   *     v-for="user in rank(users)"
    *     :id="user.id"
    *     :key="user.id"
    *     :value="user"
-   *     :index="rowStart + i"
    *   >
    *     <!-- cells -->
    *   </DataTable.Row>
@@ -183,10 +179,13 @@ export const DataTable = {
    * ```vue
    * <DataTable.Row
    *   :id="item.id"
+   *   :value="item"
    *   v-slot="{ isSelected, toggleSelection }"
    * >
    *   <DataTable.Cell>
-   *     <input type="checkbox" :checked="isSelected" @change="toggleSelection">
+   *     <Button.Root :aria-pressed="isSelected" @click="toggleSelection">
+   *       Select
+   *     </Button.Root>
    *   </DataTable.Cell>
    * </DataTable.Row>
    * ```

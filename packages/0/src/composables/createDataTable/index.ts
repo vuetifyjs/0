@@ -98,7 +98,10 @@ export type SelectStrategy = 'single' | 'page' | 'all'
  * table.register({ id: user.id, value: user })
  * ```
  */
-export type DataTableTicketInput<T extends Record<string, unknown>> = RegistryTicketInput<T>
+export interface DataTableTicketInput<T extends Record<string, unknown>> extends RegistryTicketInput<T> {
+  /** Row record. Required — the pipeline reads ticket.value. */
+  value: T
+}
 
 /**
  * Output ticket returned by row `register` / `onboard` / `get`.

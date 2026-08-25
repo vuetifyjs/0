@@ -27,7 +27,7 @@
   }
 
   export interface DataTableBodySlotProps<T extends Record<string, unknown> = Record<string, unknown>> {
-    /** Paginated items for the current page — use with `v-show` to hide off-page rows */
+    /** Paginated items for the current page. Row hides off-page rows itself. */
     items: readonly T[]
     /** Filtered and sorted items in pipeline order. */
     sortedItems: readonly T[]
@@ -37,7 +37,7 @@
     isLoading: boolean
     /** Whether the table has no items */
     isEmpty: boolean
-    /** 1-based index of the first visible data row (header-grid rows + pageStart + 1). Bind `:index="rowStart + i"` when aria-rowcount is set. */
+    /** 1-based index of the first visible data row (header-grid rows + pageStart + 1). Row sets aria-rowindex unless `:index` is passed. */
     rowStart: number
     attrs: {
       role: 'rowgroup' | undefined

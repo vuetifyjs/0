@@ -100,10 +100,9 @@
         </DataTable.Row>
       </DataTable.Header>
 
-      <DataTable.Body v-slot="{ items, rank }">
+      <DataTable.Body v-slot="{ rank }">
         <DataTable.Row
           v-for="issue in rank(issues)"
-          v-show="items.some(item => item.id === issue.id)"
           :id="issue.id"
           :key="issue.id"
           v-slot="{ isSelected }"

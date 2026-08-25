@@ -217,6 +217,13 @@ describe('createDataTable', () => {
       table.search('')
       expect(table.filteredItems.value.length).toBe(5)
     })
+
+    it('should not match values on non-filterable columns', () => {
+      const table = createTable()
+      table.search('Engineering')
+      expect(table.filteredItems.value).toHaveLength(0)
+      expect(table.total.value).toBe(0)
+    })
   })
 
   describe('sort', () => {
@@ -948,6 +955,23 @@ describe('createDataTable', () => {
 
       table.search('alice')
       expect(table.total.value).toBe(1)
+    })
+
+    it('should keep total as the filtered count when paginated and sorted', () => {
+      const table = createTable({ pagination: { itemsPerPage: 2 } })
+      table.search('@test.com')
+      table.sort.toggle('name')
+      table.sort.toggle('name')
+
+      expect(table.items.value).toHaveLength(2)
+      expect(table.total.value).toBe(5)
+      expect(table.sortedItems.value.map(item => (item as User).name)).toEqual([
+        'Eve',
+        'Dan',
+        'Carol',
+        'Bob',
+        'Alice',
+      ])
     })
   })
 

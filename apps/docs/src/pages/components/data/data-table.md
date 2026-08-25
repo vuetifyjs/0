@@ -28,7 +28,7 @@ Headless compound component for rendering tabular data with sorting, pagination,
 
 ## Usage
 
-`DataTable.Root` creates the table. `DataTable.Column` and `DataTable.Row` register when they mount and unregister when they unmount — same lifecycle as `Checkbox.Group`. `context.items` is the pipeline over those registered rows. The client adapter defaults to **10 rows per page**[^page-size]; keep off-page rows mounted (`v-show`) so they stay in the registry. Compose [Pagination](/components/semantic/pagination) or pass `:pagination="{ itemsPerPage: n }"` on Root.
+`DataTable.Root` creates the table. `DataTable.Column` and `DataTable.Row` register when they mount and unregister when they unmount — same lifecycle as `Checkbox.Group`. `context.items` is the pipeline over those registered rows. The client adapter defaults to **10 rows per page**[^page-size]; `DataTable.Row` hides off-page rows itself so they stay registered. Compose [Pagination](/components/semantic/pagination) or pass `:pagination="{ itemsPerPage: n }"` on Root.
 
 ::: gn-example
 /components/data-table/basic
@@ -66,7 +66,7 @@ Headless compound component for rendering tabular data with sorting, pagination,
 
 ## Architecture
 
-The DataTable compound is a thin shell over `createDataTable`. Root creates the instance; Column and Row register as children, like Checkbox.Group. `v-for` the source array ordered by `sortedItems`; `v-show` against `items` so off-page rows stay registered.
+The DataTable compound is a thin shell over `createDataTable`. Root creates the instance; Column and Row register as children, like Checkbox.Group. `v-for="user in rank(users)"` — `rank` is on the Body slot. Row hides off-page rows after it registers — don't add a consumer `v-show`.
 
 ```mermaid "Component Flow"
 flowchart TD
@@ -89,7 +89,7 @@ flowchart TD
 
 ### Data Loading
 
-Put a `DataTable.Row` in the DOM for each row and a `DataTable.Column` for each column. They register on setup and unregister on unmount. Pass `:value` on data rows. `v-for="user in rank(users)"` — `rank` is on the Body slot, ranks the source by the pipeline. Use `v-show` (not `v-if`) when hiding off-page rows so they stay registered.
+Put a `DataTable.Row` in the DOM for each row and a `DataTable.Column` for each column. They register on setup and unregister on unmount. Pass `:value` on data rows. `v-for="user in rank(users)"` — `rank` is on the Body slot, ranks the source by the pipeline. Don't `v-if` off-page rows — Row already `v-show`s them so they stay registered.
 
 ::: gn-example
 /components/data-table/useLoading.ts 1
@@ -99,7 +99,7 @@ Put a `DataTable.Row` in the DOM for each row and a `DataTable.Column` for each 
 | File | Role |
 |------|------|
 | `useLoading.ts` | Composable — user seed |
-| `LoadingTable.vue` | Reusable table — children register on render, `v-show` the page, pager |
+| `LoadingTable.vue` | Reusable table — children register on render, Row hides the page, pager |
 | `loading.vue` | Entry — wires the seed to the table |
 :::
 
@@ -115,7 +115,7 @@ Put a `DataTable.Row` in the DOM for each row and a `DataTable.Column` for each 
 
 ### Team directory
 
-A client-side roster that shows the loading path the compound is built for: each `DataTable.Column` and `DataTable.Row` registers on setup, `v-model:search` drives the filter pipeline, and body rows `v-for="member in rank(members)"` so a header click reorders the table without replacing the collection. Off-page rows stay mounted behind `v-show` against the paginated `items` list — `v-if` would unregister them and the pager would lie about totals. The name cell composes [Avatar](/components/semantic/avatar); members without an image fall through to initials.
+A client-side roster that shows the loading path the compound is built for: each `DataTable.Column` and `DataTable.Row` registers on setup, `v-model:search` drives the filter pipeline, and body rows `v-for="member in rank(members)"` so a header click reorders the table without replacing the collection. Off-page rows stay mounted — Row hides them after register, so a consumer `v-show` against Body's `items` is not required (`items` is empty on the first SSR pass). `v-if` would unregister them and the pager would lie about totals. The name cell composes [Avatar](/components/semantic/avatar); members without an image fall through to initials.
 
 The pager is `context.pagination`; swap those two buttons for [Pagination](/components/semantic/pagination) if you want numbered page items, but keep a single page owner.
 
@@ -165,7 +165,7 @@ Bind `v-model:search` on Root — same shape as `Pagination.Root`'s `v-model`. C
 
 ### Sorting
 
-`DataTable.Column` exposes sort state when given an `id`. `sortable` / `filterable` are live getters on the registered ticket, like `disabled` on `Tabs.Item`. Order the source array by `sortedItems` so toggling sort reorders the rows:
+`DataTable.Column` exposes sort state when given an `id`. `sortable` / `filterable` are live getters on the registered ticket, like `disabled` on `Tabs.Item`. `v-for="user in rank(users)"` so toggling sort reorders the rows:
 
 | Slot prop | Type | Description |
 |-----------|------|-------------|
@@ -181,9 +181,10 @@ Bind `v-model:search` on Root — same shape as `Pagination.Root`'s `v-model`. C
 | Slot prop | Type | Description |
 |-----------|------|-------------|
 | `id` | `ID \| undefined` | Registered row id |
-| `value` | `T \| undefined` | Registered row record. Undefined on header rows. |
+| `value` | `Record<string, unknown> \| undefined` | Registered row record. Undefined on header rows. |
 | `isSelected` | `boolean` | Whether the row is selected |
 | `isSelectable` | `boolean` | Whether the row can be selected |
+| `isVisible` | `boolean` | Whether this data row is on the current page. Header rows are always visible. |
 | `toggleSelection` | `() => void` | Toggle row selection |
 
 ### Expansion
@@ -204,15 +205,15 @@ The compound has no pager. Drive `context.pagination` yourself, or compose [Pagi
 ```vue
 <template>
   <DataTable.Root v-slot="{ context }" :pagination="{ itemsPerPage: 10 }">
-    <!-- table markup; keep off-page rows mounted with v-show[^collapse] -->
+    <!-- table markup; Row hides off-page rows after it registers[^collapse] -->
 
-    <button :disabled="context.pagination.isFirst.value" @click="context.pagination.prev()">
+    <Button.Root :disabled="context.pagination.isFirst.value" @click="context.pagination.prev()">
       Previous
-    </button>
+    </Button.Root>
     <span>{{ context.pagination.page.value }} / {{ context.pagination.pages }}</span>
-    <button :disabled="context.pagination.isLast.value" @click="context.pagination.next()">
+    <Button.Root :disabled="context.pagination.isLast.value" @click="context.pagination.next()">
       Next
-    </button>
+    </Button.Root>
   </DataTable.Root>
 </template>
 ```
@@ -255,7 +256,7 @@ See the [virtual scrolling example](/composables/data/create-data-table#virtual-
 
 | Dataset | Loading | Render |
 |---------|---------|--------|
-| Fits in the page | Children register | `v-for` the source, `v-show` the page |
+| Fits in the page | Children register | `v-for` the source; Row hides off-page rows |
 | Fits in the client, not the DOM | `onboard` + `VirtualDataTableAdapter` | `createVirtual(table.items)` |
 | Doesn't fit in the client | `ServerDataTableAdapter` + `onboard` the page | The page the API returned |
 
@@ -264,12 +265,12 @@ See the [virtual scrolling example](/composables/data/create-data-table#virtual-
 DataTable renders semantic table markup with ARIA attributes:
 
 - `DataTable.Table` renders `<table role="table">`. Name it with `aria-label` or a `<caption>` — Root is a fragment and cannot be named.
-- `aria-rowcount` is set only when the current page is a **subset** of total. The count includes header rows. When it is set, bind `aria-rowindex` on each body `DataTable.Row` via `:index="rowStart + i"` (`rowStart` comes from Body slot props).
+- `aria-rowcount` is set only when the current page is a **subset** of total. The count includes header rows. `DataTable.Row` sets `aria-rowindex` from its position in `sortedItems` unless `:index` is passed.
 - `DataTable.Column` renders `<th role="columnheader">` with `aria-sort` for sortable columns
 - `DataTable.Row` renders `<tr role="row">` with `aria-selected` when `selectable` is set
 - `DataTable.Cell` renders `<td role="cell">`
 
-Put a button inside sortable header cells — do not make the `<th>` itself the control:
+Put a `Button.Root` inside sortable header cells — do not make the `<th>` itself the control:
 
 ```vue
 <template>
@@ -277,9 +278,9 @@ Put a button inside sortable header cells — do not make the `<th>` itself the 
     id="name"
     v-slot="{ isSortable, toggle }"
   >
-    <button v-if="isSortable" @click="toggle">
+    <Button.Root v-if="isSortable" @click="toggle">
       Name
-    </button>
+    </Button.Root>
     <span v-else>Name</span>
   </DataTable.Column>
 </template>
@@ -303,11 +304,11 @@ No. Collection composables don't take an `items` factory option, and neither doe
 
 ??? Can I `v-for` `context.items` to create rows?
 
-No. `items` is derived from registered rows. First paint is empty, nothing registers, the table stays empty. `v-for` the source array and order it by `sortedItems`.
+No. `items` is derived from registered rows. First paint is empty, nothing registers, the table stays empty. `v-for="user in rank(users)"` so rows mount from the source.
 
-??? Why is `v-show` required for pagination?
+??? Why is `v-show` not required on the consumer row?
 
-`v-if` unmounts the row, which unregisters the ticket, so `total` and page counts shrink to the visible page. `v-show` keeps the node mounted.
+Visibility lives on `DataTable.Row` after it registers. Body's `items` is empty on the first SSR pass, so a consumer `v-show="items.some(...)"` hides every row in the HTML. Don't `v-if` off-page rows either — that unregisters the ticket, so `total` and page counts shrink to the visible page.
 
 ??? Why doesn't sort move the rows?
 
@@ -343,7 +344,7 @@ No. Selection lives on `context.selection`. A parallel group `v-model` will drif
 
 :::
 
-[^page-size]: `itemsPerPage: 10` is the [createPagination](/composables/data/create-pagination) default the client adapter ships. Pass `:pagination="{ itemsPerPage: n }"` on Root, or `Infinity` for a single page — off-page rows still have to stay mounted.
+[^page-size]: `itemsPerPage: 10` is the [createPagination](/composables/data/create-pagination) default the client adapter ships. Pass `:pagination="{ itemsPerPage: n }"` on Root, or `Infinity` for a single page — off-page rows stay mounted; Row hides them.
 
 [^collapse]: `v-show` sets `display: none` on the `<tr>`. In a `border-collapse` table those rows still participate in the border model, so page 1 shows a phantom line under the last visible record. `border-separate border-spacing-0` takes them out of that model.
 

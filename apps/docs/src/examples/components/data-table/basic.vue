@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { DataTable } from '@vuetify/v0'
+  import { Button, DataTable } from '@vuetify/v0'
   import { shallowRef } from 'vue'
 
   interface User extends Record<string, unknown> {
@@ -51,24 +51,23 @@
             :filterable="col.filterable"
             :sortable="col.sortable"
           >
-            <button
+            <Button.Root
               v-if="isSortable"
               class="flex items-center gap-1 hover:text-primary"
               @click="toggle"
             >
               {{ col.title }}
               <span v-if="direction !== 'none'" class="text-xs font-normal opacity-60">{{ direction }}</span>
-            </button>
+            </Button.Root>
 
             <span v-else>{{ col.title }}</span>
           </DataTable.Column>
         </DataTable.Row>
       </DataTable.Header>
 
-      <DataTable.Body v-slot="{ items, rank }">
+      <DataTable.Body v-slot="{ rank }">
         <DataTable.Row
           v-for="user in rank(users)"
-          v-show="items.some(item => item.id === user.id)"
           :id="user.id"
           :key="user.id"
           class="border-b hover:bg-surface-variant"
