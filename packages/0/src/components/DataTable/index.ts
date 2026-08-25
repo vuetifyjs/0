@@ -52,12 +52,10 @@ import Table from './DataTableTable.vue'
  *     { id: 1, name: 'Alice', email: 'alice@test.com' },
  *     { id: 2, name: 'Bob', email: 'bob@test.com' },
  *   ]
- *
  * </script>
  *
  * <template>
  *   <DataTable.Root>
- *
  *     <DataTable.Table>
  *       <DataTable.Header>
  *         <DataTable.Row>
@@ -70,8 +68,8 @@ import Table from './DataTableTable.vue'
  *         <DataTable.Row
  *           v-for="user in rank(users)"
  *           :id="user.id"
- *           :value="user"
  *           :key="user.id"
+ *           :value="user"
  *         >
  *           <DataTable.Cell>{{ user.name }}</DataTable.Cell>
  *           <DataTable.Cell>{{ user.email }}</DataTable.Cell>
@@ -94,9 +92,19 @@ export const DataTable = {
    *
    * @example
    * ```vue
-   * <DataTable.Root v-model:search="query" v-slot="{ context }">
-   *   <!-- context.items is derived from mounted Row children -->
-   * </DataTable.Root>
+   * <script setup lang="ts">
+   *   import { DataTable } from '@vuetify/v0'
+   *   import { shallowRef } from 'vue'
+   *
+   *   const query = shallowRef('')
+   * </script>
+   *
+   * <template>
+   *   <DataTable.Root v-model:search="query" v-slot="{ context }">
+   *     <input v-model="query" type="search" aria-label="Search">
+   *     <!-- context.items is derived from mounted Row children -->
+   *   </DataTable.Root>
+   * </template>
    * ```
    */
   Root,
@@ -108,10 +116,18 @@ export const DataTable = {
    *
    * @example
    * ```vue
-   * <DataTable.Table>
-   *   <DataTable.Header />
-   *   <DataTable.Body />
-   * </DataTable.Table>
+   * <script setup lang="ts">
+   *   import { DataTable } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <DataTable.Root>
+   *     <DataTable.Table aria-label="Users">
+   *       <DataTable.Header />
+   *       <DataTable.Body />
+   *     </DataTable.Table>
+   *   </DataTable.Root>
+   * </template>
    * ```
    */
   Table,
@@ -122,12 +138,22 @@ export const DataTable = {
    *
    * @example
    * ```vue
-   * <DataTable.Header>
-   *   <DataTable.Row>
-   *     <DataTable.Column id="name" sortable>Name</DataTable.Column>
-   *     <DataTable.Column id="email">Email</DataTable.Column>
-   *   </DataTable.Row>
-   * </DataTable.Header>
+   * <script setup lang="ts">
+   *   import { DataTable } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <DataTable.Root>
+   *     <DataTable.Table>
+   *       <DataTable.Header>
+   *         <DataTable.Row>
+   *           <DataTable.Column id="name" sortable>Name</DataTable.Column>
+   *           <DataTable.Column id="email">Email</DataTable.Column>
+   *         </DataTable.Row>
+   *       </DataTable.Header>
+   *     </DataTable.Table>
+   *   </DataTable.Root>
+   * </template>
    * ```
    */
   Header,
@@ -138,15 +164,24 @@ export const DataTable = {
    *
    * @example
    * ```vue
-   * <DataTable.Column
-   *   id="name"
-   *   v-slot="{ isSortable, toggle }"
-   * >
-   *   <Button.Root v-if="isSortable" @click="toggle">
-   *     Name
-   *   </Button.Root>
-   *   <span v-else>Name</span>
-   * </DataTable.Column>
+   * <script setup lang="ts">
+   *   import { Button, DataTable } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <DataTable.Root>
+   *     <DataTable.Table>
+   *       <DataTable.Header>
+   *         <DataTable.Row>
+   *           <DataTable.Column id="name" sortable v-slot="{ isSortable, toggle }">
+   *             <Button.Root v-if="isSortable" @click="toggle">Name</Button.Root>
+   *             <span v-else>Name</span>
+   *           </DataTable.Column>
+   *         </DataTable.Row>
+   *       </DataTable.Header>
+   *     </DataTable.Table>
+   *   </DataTable.Root>
+   * </template>
    * ```
    */
   Column,
@@ -157,16 +192,37 @@ export const DataTable = {
    *
    * @example
    * ```vue
-   * <DataTable.Body v-slot="{ rank }">
-   *   <DataTable.Row
-   *     v-for="user in rank(users)"
-   *     :id="user.id"
-   *     :key="user.id"
-   *     :value="user"
-   *   >
-   *     <!-- cells -->
-   *   </DataTable.Row>
-   * </DataTable.Body>
+   * <script setup lang="ts">
+   *   import { DataTable } from '@vuetify/v0'
+   *
+   *   const users = [
+   *     { id: 1, name: 'Alice' },
+   *     { id: 2, name: 'Bob' },
+   *   ]
+   * </script>
+   *
+   * <template>
+   *   <DataTable.Root>
+   *     <DataTable.Table>
+   *       <DataTable.Header>
+   *         <DataTable.Row>
+   *           <DataTable.Column id="name">Name</DataTable.Column>
+   *         </DataTable.Row>
+   *       </DataTable.Header>
+   *
+   *       <DataTable.Body v-slot="{ rank }">
+   *         <DataTable.Row
+   *           v-for="user in rank(users)"
+   *           :id="user.id"
+   *           :key="user.id"
+   *           :value="user"
+   *         >
+   *           <DataTable.Cell>{{ user.name }}</DataTable.Cell>
+   *         </DataTable.Row>
+   *       </DataTable.Body>
+   *     </DataTable.Table>
+   *   </DataTable.Root>
+   * </template>
    * ```
    */
   Body,
@@ -177,17 +233,37 @@ export const DataTable = {
    *
    * @example
    * ```vue
-   * <DataTable.Row
-   *   :id="item.id"
-   *   :value="item"
-   *   v-slot="{ isSelected, toggleSelection }"
-   * >
-   *   <DataTable.Cell>
-   *     <Button.Root :aria-pressed="isSelected" @click="toggleSelection">
-   *       Select
-   *     </Button.Root>
-   *   </DataTable.Cell>
-   * </DataTable.Row>
+   * <script setup lang="ts">
+   *   import { Button, DataTable } from '@vuetify/v0'
+   *
+   *   const users = [
+   *     { id: 1, name: 'Alice' },
+   *   ]
+   * </script>
+   *
+   * <template>
+   *   <DataTable.Root>
+   *     <DataTable.Table>
+   *       <DataTable.Body v-slot="{ rank }">
+   *         <DataTable.Row
+   *           v-for="user in rank(users)"
+   *           :id="user.id"
+   *           :key="user.id"
+   *           :value="user"
+   *           selectable
+   *           v-slot="{ isSelected, toggleSelection }"
+   *         >
+   *           <DataTable.Cell>
+   *             <Button.Root :aria-pressed="isSelected" @click="toggleSelection">
+   *               Select
+   *             </Button.Root>
+   *           </DataTable.Cell>
+   *           <DataTable.Cell>{{ user.name }}</DataTable.Cell>
+   *         </DataTable.Row>
+   *       </DataTable.Body>
+   *     </DataTable.Table>
+   *   </DataTable.Root>
+   * </template>
    * ```
    */
   Row,
@@ -198,11 +274,30 @@ export const DataTable = {
    *
    * @example
    * ```vue
-   * <DataTable.Cell>{{ item.name }}</DataTable.Cell>
+   * <script setup lang="ts">
+   *   import { DataTable } from '@vuetify/v0'
    *
-   * <DataTable.Empty v-slot="{ columnCount }">
-   *   <DataTable.Cell :colspan="columnCount">No data available</DataTable.Cell>
-   * </DataTable.Empty>
+   *   const users = [
+   *     { id: 1, name: 'Alice' },
+   *   ]
+   * </script>
+   *
+   * <template>
+   *   <DataTable.Root>
+   *     <DataTable.Table>
+   *       <DataTable.Body v-slot="{ rank }">
+   *         <DataTable.Row
+   *           v-for="user in rank(users)"
+   *           :id="user.id"
+   *           :key="user.id"
+   *           :value="user"
+   *         >
+   *           <DataTable.Cell>{{ user.name }}</DataTable.Cell>
+   *         </DataTable.Row>
+   *       </DataTable.Body>
+   *     </DataTable.Table>
+   *   </DataTable.Root>
+   * </template>
    * ```
    */
   Cell,
@@ -213,11 +308,23 @@ export const DataTable = {
    *
    * @example
    * ```vue
-   * <DataTable.Empty v-slot="{ columnCount }">
-   *   <DataTable.Cell :colspan="columnCount">
-   *     No data available
-   *   </DataTable.Cell>
-   * </DataTable.Empty>
+   * <script setup lang="ts">
+   *   import { DataTable } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <DataTable.Root>
+   *     <DataTable.Table>
+   *       <DataTable.Body>
+   *         <DataTable.Empty v-slot="{ columnCount }">
+   *           <DataTable.Cell :colspan="columnCount">
+   *             No data available
+   *           </DataTable.Cell>
+   *         </DataTable.Empty>
+   *       </DataTable.Body>
+   *     </DataTable.Table>
+   *   </DataTable.Root>
+   * </template>
    * ```
    */
   Empty,
