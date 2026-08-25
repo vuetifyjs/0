@@ -38,7 +38,7 @@ interface WritableContext {
   contentEl: Ref<HTMLElement | null | undefined>
   isOpen: Ref<boolean>
   placement: Ref<PopoverPlacement>
-  positionTry: string
+  positionTry: Ref<string>
 }
 
 function makeContext (overrides: Partial<WritableContext> = {}): WritableContext {
@@ -48,7 +48,7 @@ function makeContext (overrides: Partial<WritableContext> = {}): WritableContext
     contentEl: shallowRef(),
     isOpen: shallowRef(false),
     placement: toRef(() => toPlacement('bottom')),
-    positionTry: 'most-width bottom',
+    positionTry: shallowRef('most-width bottom'),
     ...overrides,
   }
 }
@@ -117,7 +117,7 @@ describe('floatingUIPopoverAdapter', () => {
   describe('positionTry', () => {
     it('should ignore positionTry and emit top/left instead of CSS fallbacks', async () => {
       const adapter = new FloatingUIPopoverAdapter()
-      const context = makeContext({ positionTry: 'flip-block' })
+      const context = makeContext({ positionTry: shallowRef('flip-block') })
       const styles = adapter.setup(context)
 
       expect(styles.value).toEqual({

@@ -31,7 +31,7 @@ export interface PopoverAdapterContext {
   /** Normalized placement intent, derived from the `positionArea` option. */
   placement: Readonly<Ref<PopoverPlacement>>
   /** The `positionTry` option, verbatim - CSS `position-try-fallbacks` passthrough. */
-  positionTry: string
+  positionTry: Readonly<Ref<string>>
 }
 
 /**
@@ -43,7 +43,13 @@ export interface PopoverAdapterContext {
  * @see https://0.vuetifyjs.com/composables/system/use-popover
  */
 export abstract class PopoverAdapter {
-  /** Optional teardown; read lazily when the popover's scope disposes. */
+  /**
+   * Optional instance teardown; read lazily when the popover's scope disposes.
+   * Plugin-shared adapters must put per-popover cleanup in `setup()` +
+   * `onScopeDispose`, never `this.dispose` — assigning `dispose` on a shared
+   * instance clobbers the previous popover's teardown when `setup()` is
+   * re-entered. First-party `FloatingUIPopoverAdapter` already follows this.
+   */
   dispose?: () => void
   /**
    * Called once, synchronously, during `usePopover()` setup. Returns the

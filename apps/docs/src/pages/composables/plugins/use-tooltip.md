@@ -46,7 +46,23 @@ region.shouldSkipOpenDelay()    // false until a tooltip opens
 
 `<Tooltip.Root>` reads from `useTooltip()` automatically; you do not call this composable yourself unless you're building a non-component consumer.
 
-Pass `adapter` on `createTooltipPlugin` to set a tooltip-only positioning engine. It does not leak into Popover, Select, or Combobox. A per-instance `adapter` on `Tooltip.Root` still wins; if neither is set, resolution falls through to `createPopoverPlugin` and then `V0PopoverAdapter`.
+## Adapters
+
+Adapters let you swap the tooltip positioning engine without changing your application code. Tooltips reuse the `PopoverAdapter` contract from [usePopover](/composables/system/use-popover).
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `V0PopoverAdapter` | `@vuetify/v0` | CSS anchor positioning (default, zero runtime dependency) |
+| `FloatingUIPopoverAdapter` | `@vuetify/v0/popover/adapters/floating-ui` | [Floating UI](https://floating-ui.com) JS measurement — `flip()` covers overflow |
+
+Pass `adapter` on `createTooltipPlugin` to set a tooltip-only engine. It does not leak into Popover, Select, or Combobox. `createPopoverPlugin({ adapter })` is the app-wide default those other surfaces — and tooltips, when the tooltip plugin has no adapter — read. A per-instance `adapter` on `Tooltip.Root` still wins.
+
+```ts
+import { createTooltipPlugin } from '@vuetify/v0'
+import { FloatingUIPopoverAdapter } from '@vuetify/v0/popover/adapters/floating-ui'
+
+app.use(createTooltipPlugin({ adapter: new FloatingUIPopoverAdapter() }))
+```
 
 ## Architecture
 

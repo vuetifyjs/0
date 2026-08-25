@@ -464,5 +464,17 @@ describe('tooltip', () => {
       expect(wrapper.find('[role="tooltip"]').attributes('style')).toContain('--engine: tooltip-plugin')
       wrapper.unmount()
     })
+
+    it('should fall through to the popover plugin adapter when the tooltip plugin has no adapter', async () => {
+      plugin = createTooltipPlugin()
+      const wrapper = mountOpen(
+        {},
+        [createPopoverPlugin({ adapter: new MarkerAdapter('popover-plugin') })],
+      )
+      await nextTick()
+
+      expect(wrapper.find('[role="tooltip"]').attributes('style')).toContain('--engine: popover-plugin')
+      wrapper.unmount()
+    })
   })
 })

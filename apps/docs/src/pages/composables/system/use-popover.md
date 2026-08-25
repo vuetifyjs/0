@@ -41,29 +41,32 @@ app.mount('#app')
 
 ## Usage
 
-`usePopover` manages a popover's open/close state, generates CSS anchor positioning styles, and synchronizes reactive state with native popover toggle events. Spread `anchorStyles` on the activator, `contentAttrs` and `contentStyles` on the content element, and call `attach()` to wire up the native popover lifecycle.
+`usePopover` manages a popover's open/close state, generates CSS anchor positioning styles, and synchronizes reactive state with native popover toggle events. Spread `anchorStyles` on the activator, `contentAttrs` and `contentStyles` on the content element, call `attachAnchor()` on the trigger, and `attach()` on the content to wire the positioning adapter and native popover lifecycle.
 
 ```vue collapse no-filename usePopover
 <script setup lang="ts">
   import { usePopover } from '@vuetify/v0'
   import { useTemplateRef } from 'vue'
 
+  const trigger = useTemplateRef('trigger')
   const content = useTemplateRef('content')
 
   const {
     isOpen,
     toggle,
     attach,
+    attachAnchor,
     anchorStyles,
     contentAttrs,
     contentStyles,
   } = usePopover({ positionArea: 'bottom' })
 
+  attachAnchor(trigger)
   attach(content)
 </script>
 
 <template>
-  <button :style="anchorStyles" @click="toggle">
+  <button ref="trigger" :style="anchorStyles" @click="toggle">
     {{ isOpen ? 'Close' : 'Open' }}
   </button>
 
@@ -75,18 +78,6 @@ app.mount('#app')
     Popover content
   </div>
 </template>
-```
-
-## Architecture
-
-`usePopover` builds on `useEventListener` for native toggle event synchronization. It is a standalone composable — not part of the compound Popover component — making it ideal for building select, combobox, tooltip, and menu components directly.
-
-```mermaid "Popover Architecture"
-flowchart TD
-  useEventListener --> usePopover
-  usePopover --> Popover["Popover component"]
-  usePopover --> Select["Select / Combobox"]
-  usePopover --> Tooltip["Tooltip / Menu"]
 ```
 
 ## Adapters
@@ -136,13 +127,25 @@ import { FloatingUIPopoverAdapter } from '@vuetify/v0/popover/adapters/floating-
 app.use(createPopoverPlugin({ adapter: new FloatingUIPopoverAdapter() }))
 ```
 
+## Architecture
+
+`usePopover` builds on `useEventListener` for native toggle event synchronization. It is a standalone composable — not part of the compound Popover component — making it ideal for building select, combobox, tooltip, and menu components directly.
+
+```mermaid "Popover Architecture"
+flowchart TD
+  useEventListener --> usePopover
+  usePopover --> Popover["Popover component"]
+  usePopover --> Select["Select / Combobox"]
+  usePopover --> Tooltip["Tooltip / Menu"]
+```
+
 ## Options
 
 | Option | Type | Default | Notes |
 | - | - | - | - |
 | `id` | `string` | auto | Base ID for anchor name and popover `id`. Auto-generated if not provided |
-| `positionArea` | `string` | `'bottom'` | CSS `position-area` value — controls where the content appears relative to the anchor |
-| `positionTry` | `string` | `'most-width bottom'` | CSS `position-try-fallbacks` value — fallback positions when the primary area overflows |
+| `positionArea` | `MaybeRefOrGetter<string>` | `'bottom'` | CSS `position-area` value — controls where the content appears relative to the anchor |
+| `positionTry` | `MaybeRefOrGetter<string>` | `'most-width bottom'` | CSS `position-try-fallbacks` value — fallback positions when the primary area overflows |
 | `isOpen` | `Ref<boolean>` | — | External ref for bidirectional open state (e.g., from `defineModel`) |
 | `openDelay` | `MaybeRefOrGetter<number>` | `0` | Milliseconds to wait before opening the popover |
 | `closeDelay` | `MaybeRefOrGetter<number>` | `0` | Milliseconds to wait before closing the popover |
@@ -161,7 +164,7 @@ app.use(createPopoverPlugin({ adapter: new FloatingUIPopoverAdapter() }))
 | `attachAnchor(el)` | - | Register the activator/reference element with the positioning adapter |
 | `anchorStyles` | <AppSuccessIcon /> | Readonly Ref, CSS `anchor-name` for the activator element |
 | `contentAttrs` | <AppSuccessIcon /> | Readonly Ref, `id` and `popover` attribute for the content element |
-| `contentStyles` | <AppSuccessIcon /> | Readonly Ref, CSS anchor positioning styles for the content element |
+| `contentStyles` | <AppSuccessIcon /> | Readonly Ref, adapter-owned styles for the content element |
 
 ## Examples
 
@@ -174,14 +177,14 @@ app.use(createPopoverPlugin({ adapter: new FloatingUIPopoverAdapter() }))
 
 A custom account menu built directly on `usePopover`, without the compound Popover component. The composable owns the popover instance and the menu data, the presentational component renders the trigger and the panel, and the entry wires them together and reports the chosen action. This is the shape to reach for when you want full control over a menu, select, or combobox surface rather than the slots and transitions of [Popover](/components/disclosure/popover).
 
-The example exercises the full three-part spread that `usePopover` returns. `anchorStyles` goes on the trigger, where it sets the CSS `anchor-name` the panel positions against; `contentAttrs` goes on the panel and applies its `id` plus the native `popover` attribute; and `contentStyles` carries the CSS anchor-positioning rules — `position-anchor`, `position-area`, and the `position-try-fallbacks` produced by `positionTry: 'flip-block'`, which lets the browser flip the panel above the trigger when there is no room below, with no JavaScript position math. Because `contentAttrs` registers an auto popover, the browser handles light dismiss for free: clicking outside or pressing Escape closes the panel.
+The example exercises the full three-part spread that `usePopover` returns. `anchorStyles` goes on the trigger, where it sets the CSS `anchor-name` the panel positions against; `contentAttrs` goes on the panel and applies its `id` plus the native `popover` attribute; and `contentStyles` is adapter-owned — CSS anchor-positioning rules from `V0PopoverAdapter` by default (`position-anchor`, `position-area`, and the `position-try-fallbacks` produced by `positionTry: 'flip-block'`), or `top`/`left` coordinates from a JS engine such as Floating UI. Because `contentAttrs` registers an auto popover, the browser handles light dismiss for free: clicking outside or pressing Escape closes the panel.
 
-`MenuButton.vue` calls `attach(content)` with a template ref to the panel element. That single call wires the native `toggle` event back into `isOpen`, so when the browser closes the popover on light dismiss the reactive state stays in sync. Selecting an item calls `close()` and records the choice; the trigger reads `isOpen` to rotate its caret. For the close-on-outside-click behavior wired manually rather than through the native popover, see [useClickOutside](/composables/system/use-click-outside); the open and close delays come from [useDelay](/composables/system/use-delay).
+`MenuButton.vue` calls `attachAnchor(trigger)` and `attach(content)` with template refs to the trigger and panel. `attachAnchor` registers the reference element with the positioning adapter — Floating UI needs both nodes — and `attach` wires the native `toggle` event back into `isOpen`, so when the browser closes the popover on light dismiss the reactive state stays in sync. Selecting an item calls `close()` and records the choice; the trigger reads `isOpen` to rotate its caret. For the close-on-outside-click behavior wired manually rather than through the native popover, see [useClickOutside](/composables/system/use-click-outside); the open and close delays come from [useDelay](/composables/system/use-delay).
 
 | File | Role |
 |------|------|
 | `useMenu.ts` | Creates the popover, owns the menu items, and closes on select |
-| `MenuButton.vue` | Renders the trigger and panel; calls `attach` to sync native state |
+| `MenuButton.vue` | Renders the trigger and panel; calls `attachAnchor` and `attach` |
 | `menu-button.vue` | Wires the composable to the component and shows the chosen action |
 :::
 

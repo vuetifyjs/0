@@ -709,10 +709,68 @@ describe('popover', () => {
         expect(style).toMatch(/left:\s*-?\d/)
         expect(style).not.toContain('position-area')
 
-        const top = /top:\s*([-\d.]+)px/.exec(style)?.[1]
-        const left = /left:\s*([-\d.]+)px/.exec(style)?.[1]
-        expect(top === '0' && left === '0').toBe(false)
+        const topMatch = /top:\s*([-\d.]+)px/.exec(style)?.[1]
+        const leftMatch = /left:\s*([-\d.]+)px/.exec(style)?.[1]
+        expect(topMatch).toBeDefined()
+        expect(leftMatch).toBeDefined()
+        const top = Number(topMatch)
+        const left = Number(leftMatch)
+        expect(Number.isNaN(top)).toBe(false)
+        expect(Number.isNaN(left)).toBe(false)
+        expect(top === 0 && left === 0).toBe(false)
       })
+    })
+
+    it('should honor Content positionArea over Root defaults', async () => {
+      const contexts: PopoverAdapterContext[] = []
+
+      class RecordingAdapter extends PopoverAdapter {
+        setup (context: PopoverAdapterContext) {
+          contexts.push(context)
+          return toRef(() => ({ '--side': context.placement.value.side }))
+        }
+      }
+
+      const wrapper = mount(Popover.Root, {
+        props: { adapter: new RecordingAdapter() },
+        slots: {
+          default: () => [
+            h(Popover.Activator, {}, () => 'Toggle'),
+            h(Popover.Content, { positionArea: 'top' }, () => 'Content'),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      expect(contexts).toHaveLength(1)
+      expect(contexts[0]!.placement.value.side).toBe('top')
+      expect(wrapper.find('[popover]').attributes('style')).toContain('--side: top')
+    })
+
+    it('should still use adapter styles when Content has a custom id', async () => {
+      class MarkerAdapter extends PopoverAdapter {
+        setup () {
+          return toRef(() => ({ '--engine': 'adapter' }))
+        }
+      }
+
+      const wrapper = mount(Popover.Root, {
+        props: { adapter: new MarkerAdapter() },
+        slots: {
+          default: () => [
+            h(Popover.Activator, {}, () => 'Toggle'),
+            h(Popover.Content, { id: 'custom-id' }, () => 'Content'),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const content = wrapper.find('[popover]')
+      expect(content.attributes('id')).toBe('custom-id')
+      expect(content.attributes('style')).toContain('--engine: adapter')
+      expect(content.attributes('style')).not.toContain('position-area')
     })
 
     it('should apply a custom adapter\'s styles to the content element', async () => {

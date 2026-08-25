@@ -232,6 +232,32 @@ describe('usePopover', () => {
       expect(popover.contentStyles.value['position-area']).toBe('top')
       expect(popover.contentStyles.value['position-try-fallbacks']).toBe('most-height top')
     })
+
+    it('should expose writable positionArea and positionTry refs', () => {
+      const popover = usePopover({ id: 'test', positionArea: 'bottom' })
+
+      expect(popover.positionArea.value).toBe('bottom')
+      expect(popover.contentStyles.value['position-area']).toBe('bottom')
+
+      popover.positionArea.value = 'top'
+      popover.positionTry.value = 'most-height top'
+
+      expect(popover.contentStyles.value['position-area']).toBe('top')
+      expect(popover.contentStyles.value['position-try-fallbacks']).toBe('most-height top')
+    })
+
+    it('should track a reactive positionArea option', async () => {
+      const area = shallowRef('bottom')
+      const popover = usePopover({ id: 'test', positionArea: area })
+
+      expect(popover.contentStyles.value['position-area']).toBe('bottom')
+
+      area.value = 'top'
+      await nextTick()
+
+      expect(popover.positionArea.value).toBe('top')
+      expect(popover.contentStyles.value['position-area']).toBe('top')
+    })
   })
 
   class RecordingAdapter extends PopoverAdapter {
@@ -268,12 +294,24 @@ describe('usePopover', () => {
       expect(popover.contentStyles.value).toEqual({ 'custom-style': 'top' })
     })
 
+    it('should update adapter placement when positionArea is written', () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ id: 'test', positionArea: 'bottom', adapter })
+
+      expect(adapter.context!.placement.value.side).toBe('bottom')
+
+      popover.positionArea.value = 'top'
+
+      expect(adapter.context!.placement.value.side).toBe('top')
+      expect(popover.contentStyles.value).toEqual({ 'custom-style': 'top' })
+    })
+
     it('should pass anchorName, positionTry, and isOpen through to the adapter context', () => {
       const adapter = new RecordingAdapter()
       const popover = usePopover({ id: 'test', positionTry: 'most-height top', adapter })
 
       expect(adapter.context!.anchorName).toBe('--test')
-      expect(adapter.context!.positionTry).toBe('most-height top')
+      expect(adapter.context!.positionTry.value).toBe('most-height top')
       expect(adapter.context!.isOpen).toBe(popover.isOpen)
     })
 

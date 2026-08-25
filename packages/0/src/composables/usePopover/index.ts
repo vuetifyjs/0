@@ -62,8 +62,8 @@ import { V0PopoverAdapter, toPlacement } from '#v0/composables/usePopover/adapte
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { isNullOrUndefined, useId } from '#v0/utilities'
-import { onScopeDispose, shallowRef, toRef, toValue, watch } from 'vue'
+import { isFunction, isNullOrUndefined, isUndefined, useId } from '#v0/utilities'
+import { isRef, onScopeDispose, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Exports
 export { PopoverAdapter, toPlacement, V0PopoverAdapter } from '#v0/composables/usePopover/adapters'
@@ -82,9 +82,9 @@ export interface PopoverOptions {
   /** Auto-generated if not provided */
   id?: string
   /** CSS position-area value @default 'bottom' */
-  positionArea?: string
+  positionArea?: MaybeRefOrGetter<string | undefined>
   /** CSS position-try-fallbacks value @default 'most-width bottom' */
-  positionTry?: string
+  positionTry?: MaybeRefOrGetter<string | undefined>
   /** External ref for bidirectional open state (e.g., from defineModel) */
   isOpen?: Ref<boolean>
   /** Delay in ms before opening the popover. @default 0 */
@@ -116,8 +116,16 @@ export interface PopoverReturn {
   anchorStyles: Readonly<Ref<Record<string, string>>>
   /** Attrs to spread on the content element (id, popover) */
   contentAttrs: Readonly<Ref<{ id: string, popover: '' }>>
-  /** Styles to spread on the content element — adapter-owned positioning */
+  /**
+   * Styles to spread on the content element. Owned by the active adapter —
+   * CSS anchor declarations from `V0PopoverAdapter`, or whatever a custom
+   * engine (e.g. Floating UI) returns. Not inherently CSS-anchor styles.
+   */
   contentStyles: Readonly<Ref<Record<string, string>>>
+  /** Placement intent. Writable so Content can override Root. @default `'bottom'` */
+  positionArea: Ref<string>
+  /** Fallback positioning. Writable so Content can override Root. @default `'most-width bottom'` */
+  positionTry: Ref<string>
   /** Attach to a content element — wires show/hide watch + toggle event sync */
   attach: (el: MaybeRefOrGetter<HTMLElement | null | undefined>) => void
   /** Register the activator/reference element with the positioning adapter */
@@ -170,6 +178,19 @@ export function createPopoverFallback (): PopoverPluginContext {
 }
 
 /**
+ * Creates a scoped popover plugin context (the first member of the plugin trinity).
+ *
+ * @example
+ * ```ts
+ * import { createPopoverContext } from '@vuetify/v0'
+ * import { FloatingUIPopoverAdapter } from '@vuetify/v0/popover/adapters/floating-ui'
+ *
+ * export const [useAppPopover, provideAppPopover, appPopover] = createPopoverContext({
+ *   namespace: 'app:popover-plugin',
+ *   adapter: new FloatingUIPopoverAdapter(),
+ * })
+ * ```
+ *
  * Plugin trinity for an app-wide popover positioning adapter.
  *
  * Namespace is `v0:popover-plugin` — not `v0:popover`, which `Popover.Root`
@@ -196,12 +217,22 @@ const [createPopoverContext, createPopoverPlugin, usePopoverPlugin] =
 
 export { createPopoverContext, createPopoverPlugin }
 
+function bindOption (source: MaybeRefOrGetter<string | undefined> | undefined, fallback: string): Ref<string> {
+  const value = shallowRef(toValue(source) ?? fallback)
+
+  if (isRef(source) || isFunction(source)) {
+    watch(source, next => {
+      if (!isUndefined(next)) value.value = next
+    })
+  }
+
+  return value
+}
+
 export function usePopover (options: PopoverOptions = {}): PopoverReturn {
   const plugin = usePopoverPlugin()
   const {
     id: _id,
-    positionArea = 'bottom',
-    positionTry = 'most-width bottom',
     openDelay,
     closeDelay,
   } = options
@@ -211,6 +242,8 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
   const id = _id ?? useId()
   const anchor = `--${String(id).replace(/[^a-zA-Z0-9_-]/g, '')}`
   const isOpen = options.isOpen ?? shallowRef(false)
+  const positionArea = bindOption(options.positionArea, 'bottom')
+  const positionTry = bindOption(options.positionTry, 'most-width bottom')
 
   const delay = useDelay(direction => {
     isOpen.value = direction
@@ -247,7 +280,7 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
 
   const anchorEl = shallowRef<Element | null | undefined>()
   const contentEl = shallowRef<HTMLElement | null | undefined>()
-  const placement = toRef(() => toPlacement(positionArea))
+  const placement = toRef(() => toPlacement(positionArea.value))
 
   const contentStyles = adapter.setup({
     anchorName: anchor,
@@ -382,6 +415,8 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
     anchorStyles,
     contentAttrs,
     contentStyles,
+    positionArea,
+    positionTry,
     attach,
     attachAnchor,
   }

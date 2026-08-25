@@ -16,7 +16,7 @@ function makeContext (overrides: Partial<PopoverAdapterContext> = {}): PopoverAd
     contentEl: shallowRef(),
     isOpen: shallowRef(false),
     placement: toRef(() => toPlacement('bottom')),
-    positionTry: 'most-width bottom',
+    positionTry: shallowRef('most-width bottom'),
     ...overrides,
   }
 }
@@ -50,10 +50,21 @@ describe('v0PopoverAdapter', () => {
     const adapter = new V0PopoverAdapter()
     const styles = adapter.setup(makeContext({
       anchorName: '--custom-anchor',
-      positionTry: 'most-height top',
+      positionTry: shallowRef('most-height top'),
     }))
 
     expect(styles.value['position-anchor']).toBe('--custom-anchor')
+    expect(styles.value['position-try-fallbacks']).toBe('most-height top')
+  })
+
+  it('should react to positionTry changes', () => {
+    const positionTry = shallowRef('most-width bottom')
+    const adapter = new V0PopoverAdapter()
+    const styles = adapter.setup(makeContext({ positionTry }))
+
+    expect(styles.value['position-try-fallbacks']).toBe('most-width bottom')
+
+    positionTry.value = 'most-height top'
     expect(styles.value['position-try-fallbacks']).toBe('most-height top')
   })
 
