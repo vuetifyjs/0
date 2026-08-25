@@ -5,9 +5,9 @@
    * @see https://0.vuetifyjs.com/components/data/data-table
    *
    * @remarks
-   * Root component for the DataTable compound. Creates and provides the
-   * `createDataTable` context for child components to consume. The Root itself
-   * is a pure provider — it renders only its slot content without adding DOM.
+   * Provider for the DataTable compound. Creates `createDataTable` and
+   * provides it to children. Rows and columns register themselves when
+   * they mount — same lifecycle as Checkbox.Group. Renders only slot content.
    */
 
   // Composables
@@ -15,7 +15,7 @@
   import { createDataTable } from '#v0/composables/createDataTable'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { toRef, watch } from 'vue'
 
   // Types
   import type { DataTableContext, DataTableOptions } from '#v0/composables/createDataTable'
@@ -81,6 +81,16 @@
   })
 
   provideDataTableRoot(namespace, context as DataTableContext<Record<string, unknown>>)
+
+  const search = defineModel<string>('search', { default: '' })
+
+  watch(search, value => {
+    if (context.query.value !== (value ?? '')) context.search(value ?? '')
+  }, { immediate: true })
+
+  watch(context.query, value => {
+    if (search.value !== value) search.value = value
+  })
 
   const slotProps = toRef((): DataTableRootSlotProps<T> => ({ context }))
 </script>

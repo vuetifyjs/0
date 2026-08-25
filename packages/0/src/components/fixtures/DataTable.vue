@@ -1,8 +1,5 @@
 <script setup lang="ts">
-  // Utilities
-  import { defineComponent } from 'vue'
-
-  import { DataTable, useDataTableRoot } from '../DataTable/index'
+  import { DataTable } from '../DataTable/index'
 
   interface User extends Record<string, unknown> {
     id: number
@@ -20,21 +17,10 @@
     { id: 'email', title: 'Email', sortable: true },
   ]
 
-  const DataTableInit = defineComponent({
-    name: 'DataTableInit',
-    setup () {
-      const context = useDataTableRoot<User>('v0:data-table')
-      context.columns.onboard(columns)
-      context.onboard(users.map(u => ({ id: u.id, value: u })))
-      return () => null
-    },
-  })
 </script>
 
 <template>
   <DataTable.Root>
-    <DataTableInit />
-
     <DataTable.Table aria-label="Users table">
       <DataTable.Header>
         <DataTable.Row>
@@ -42,9 +28,10 @@
             v-for="col in columns"
             :id="col.id"
             :key="col.id"
-            v-slot="{ isSortable, toggleSort }"
+            v-slot="{ isSortable, toggle }"
+            :sortable="true"
           >
-            <button v-if="isSortable" @click="toggleSort">
+            <button v-if="isSortable" @click="toggle">
               {{ col.title }}
             </button>
 
@@ -53,14 +40,15 @@
         </DataTable.Row>
       </DataTable.Header>
 
-      <DataTable.Body v-slot="{ items }">
+      <DataTable.Body v-slot="{ rank }">
         <DataTable.Row
-          v-for="item in items"
-          :id="(item as User).id"
-          :key="(item as User).id"
+          v-for="user in rank(users)"
+          :id="user.id"
+          :key="user.id"
+          :value="user"
         >
-          <DataTable.Cell>{{ (item as User).name }}</DataTable.Cell>
-          <DataTable.Cell>{{ (item as User).email }}</DataTable.Cell>
+          <DataTable.Cell>{{ user.name }}</DataTable.Cell>
+          <DataTable.Cell>{{ user.email }}</DataTable.Cell>
         </DataTable.Row>
 
         <DataTable.Empty v-slot="{ columnCount }">

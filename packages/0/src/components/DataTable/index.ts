@@ -46,51 +46,37 @@ import Table from './DataTableTable.vue'
  * @example
  * ```vue
  * <script setup lang="ts">
- *   import { defineComponent } from 'vue'
- *   import { DataTable, useDataTableRoot } from '@vuetify/v0'
+ *   import { DataTable } from '@vuetify/v0'
  *
  *   const users = [
  *     { id: 1, name: 'Alice', email: 'alice@test.com' },
  *     { id: 2, name: 'Bob', email: 'bob@test.com' },
  *   ]
  *
- *   const columns = [
- *     { id: 'name', title: 'Name', sortable: true },
- *     { id: 'email', title: 'Email' },
- *   ]
- *
- *   const DataTableInit = defineComponent({
- *     name: 'DataTableInit',
- *     setup () {
- *       const context = useDataTableRoot('v0:data-table')
- *       context.columns.onboard(columns)
- *       context.onboard(users.map(u => ({ id: u.id, value: u })))
- *       return () => null
- *     },
- *   })
  * </script>
  *
  * <template>
  *   <DataTable.Root>
- *     <DataTableInit />
  *
  *     <DataTable.Table>
  *       <DataTable.Header>
  *         <DataTable.Row>
- *           <DataTable.Column id="name">Name</DataTable.Column>
+ *           <DataTable.Column id="name" sortable>Name</DataTable.Column>
  *           <DataTable.Column id="email">Email</DataTable.Column>
  *         </DataTable.Row>
  *       </DataTable.Header>
  *
- *       <DataTable.Body v-slot="{ items, rowStart }">
+ *       <DataTable.Body v-slot="{ items, rank, rowStart }">
  *         <DataTable.Row
- *           v-for="(item, i) in items"
- *           :id="item.id"
+ *           v-for="(user, i) in rank(users)"
+ *           v-show="items.some(item => item.id === user.id)"
+ *           :id="user.id"
+ *           :value="user"
  *           :index="rowStart + i"
- *           :key="item.id"
+ *           :key="user.id"
  *         >
- *           <DataTable.Cell>{{ item.name }}</DataTable.Cell>
- *           <DataTable.Cell>{{ item.email }}</DataTable.Cell>
+ *           <DataTable.Cell>{{ user.name }}</DataTable.Cell>
+ *           <DataTable.Cell>{{ user.email }}</DataTable.Cell>
  *         </DataTable.Row>
  *
  *         <DataTable.Empty v-slot="{ columnCount }">
@@ -104,15 +90,14 @@ import Table from './DataTableTable.vue'
  */
 export const DataTable = {
   /**
-   * Root component that creates and provides the createDataTable context.
-   * Pure provider — renders only its slot content.
+   * Provider that creates `createDataTable`. Children register when they mount.
    *
    * @see https://0.vuetifyjs.com/components/data/data-table
    *
    * @example
    * ```vue
-   * <DataTable.Root v-slot="{ context }">
-   *   <!-- Access context.columns.onboard, context.onboard, etc. -->
+   * <DataTable.Root v-model:search="query" v-slot="{ context }">
+   *   <!-- context.items is derived from mounted Row children -->
    * </DataTable.Root>
    * ```
    */
@@ -133,23 +118,16 @@ export const DataTable = {
    */
   Table,
   /**
-   * The `<thead>` element wrapper. Exposes the 2D header grid.
+   * The `<thead>` element wrapper. Exposes the 2D header grid after columns register.
    *
    * @see https://0.vuetifyjs.com/components/data/data-table
    *
    * @example
    * ```vue
-   * <DataTable.Header v-slot="{ headers }">
-   *   <DataTable.Row v-for="(row, i) in headers" :key="i">
-   *     <DataTable.Column
-   *       v-for="header in row"
-   *       :id="header.id"
-   *       :key="header.id"
-   *       :colspan="header.colspan"
-   *       :rowspan="header.rowspan"
-   *     >
-   *       {{ header.title }}
-   *     </DataTable.Column>
+   * <DataTable.Header>
+   *   <DataTable.Row>
+   *     <DataTable.Column id="name" sortable>Name</DataTable.Column>
+   *     <DataTable.Column id="email">Email</DataTable.Column>
    *   </DataTable.Row>
    * </DataTable.Header>
    * ```
@@ -164,9 +142,9 @@ export const DataTable = {
    * ```vue
    * <DataTable.Column
    *   id="name"
-   *   v-slot="{ isSortable, toggleSort }"
+   *   v-slot="{ isSortable, toggle }"
    * >
-   *   <button v-if="isSortable" @click="toggleSort">
+   *   <button v-if="isSortable" @click="toggle">
    *     Name
    *   </button>
    *   <span v-else>Name</span>
@@ -181,11 +159,13 @@ export const DataTable = {
    *
    * @example
    * ```vue
-   * <DataTable.Body v-slot="{ items, isEmpty, rowStart }">
+   * <DataTable.Body v-slot="{ items, rank, rowStart }">
    *   <DataTable.Row
-   *     v-for="(item, i) in items"
-   *     :id="item.id"
-   *     :key="item.id"
+   *     v-for="(user, i) in rank(users)"
+   *     v-show="items.some(item => item.id === user.id)"
+   *     :id="user.id"
+   *     :key="user.id"
+   *     :value="user"
    *     :index="rowStart + i"
    *   >
    *     <!-- cells -->

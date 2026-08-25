@@ -1,7 +1,6 @@
 <script setup lang="ts">
-  import { defineComponent } from 'vue'
-
-  import { DataTable, useDataTableRoot } from '@vuetify/v0'
+  import { DataTable } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
 
   interface User extends Record<string, unknown> {
     id: number
@@ -9,6 +8,8 @@
     email: string
     role: string
   }
+
+  const query = shallowRef('')
 
   const users: User[] = [
     { id: 1, name: 'Alice Johnson', email: 'alice@example.com', role: 'Admin' },
@@ -24,29 +25,17 @@
     { id: 'role', title: 'Role', sortable: true },
   ]
 
-  // One-shot initialization component
-  const DataTableInit = defineComponent({
-    name: 'DataTableInit',
-    setup () {
-      const context = useDataTableRoot<User>('v0:data-table')
-      context.columns.onboard(columns)
-      context.onboard(users.map(u => ({ id: u.id, value: u })))
-      return () => null
-    },
-  })
 </script>
 
 <template>
-  <DataTable.Root v-slot="{ context }" :pagination="{ itemsPerPage: 5 }">
-    <DataTableInit />
-
+  <DataTable.Root v-model:search="query">
     <div class="mb-4">
       <input
+        v-model="query"
         aria-label="Search users"
         class="border rounded-md px-3 py-2 w-64"
         placeholder="Search..."
         type="text"
-        @input="(e) => context.search((e.target as HTMLInputElement).value)"
       >
     </div>
 
@@ -57,15 +46,18 @@
             v-for="col in columns"
             :id="col.id"
             :key="col.id"
-            v-slot="{ isSortable, toggleSort }"
+            v-slot="{ isSortable, toggle, direction }"
             class="text-left p-3 font-semibold"
+            :filterable="col.filterable"
+            :sortable="col.sortable"
           >
             <button
               v-if="isSortable"
               class="flex items-center gap-1 hover:text-primary"
-              @click="toggleSort"
+              @click="toggle"
             >
               {{ col.title }}
+              <span v-if="direction !== 'none'" class="text-xs font-normal opacity-60">{{ direction }}</span>
             </button>
 
             <span v-else>{{ col.title }}</span>
@@ -73,16 +65,18 @@
         </DataTable.Row>
       </DataTable.Header>
 
-      <DataTable.Body v-slot="{ items }">
+      <DataTable.Body v-slot="{ items, rank }">
         <DataTable.Row
-          v-for="item in items"
-          :id="(item as User).id"
-          :key="(item as User).id"
+          v-for="user in rank(users)"
+          v-show="items.some(item => item.id === user.id)"
+          :id="user.id"
+          :key="user.id"
           class="border-b hover:bg-surface-variant"
+          :value="user"
         >
-          <DataTable.Cell class="p-3">{{ (item as User).name }}</DataTable.Cell>
-          <DataTable.Cell class="p-3">{{ (item as User).email }}</DataTable.Cell>
-          <DataTable.Cell class="p-3">{{ (item as User).role }}</DataTable.Cell>
+          <DataTable.Cell class="p-3">{{ user.name }}</DataTable.Cell>
+          <DataTable.Cell class="p-3">{{ user.email }}</DataTable.Cell>
+          <DataTable.Cell class="p-3">{{ user.role }}</DataTable.Cell>
         </DataTable.Row>
 
         <DataTable.Empty v-slot="{ columnCount }">

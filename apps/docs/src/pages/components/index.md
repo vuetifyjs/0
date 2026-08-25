@@ -71,6 +71,14 @@ Form control components with accessibility and validation support.
 | [Slider](/components/forms/slider) | Range input with snapping, range mode, and custom tracks |
 | [Switch](/components/forms/switch) | Toggle switch with on/off states and label association |
 
+## Data
+
+Components for displaying and interacting with data collections.
+
+| Name | Description |
+| - | - |
+| [DataTable](/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
+
 ## Semantic
 
 Components with meaningful HTML defaults. Render semantic elements by default but support the `as` prop for customization.
@@ -87,14 +95,6 @@ Components with meaningful HTML defaults. Render semantic elements by default bu
 | [Progress](/components/semantic/progress) | Headless progress bar with multi-segment and buffer support |
 | [Snackbar](/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](/components/semantic/splitter) | Resizable panel layout with drag handles |
-
-## Data
-
-Components for displaying and interacting with data collections.
-
-| Name | Description |
-| - | - |
-| [DataTable](/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
 
 ## Disclosure
 

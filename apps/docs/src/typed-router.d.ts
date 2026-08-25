@@ -80,6 +80,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/data/data-table': RouteRecordInfo<
+      '/components/data/data-table',
+      '/components/data/data-table',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/alert-dialog': RouteRecordInfo<
       '/components/disclosure/alert-dialog',
       '/components/disclosure/alert-dialog',
@@ -279,6 +286,13 @@ declare module 'vue-router/auto-routes' {
     '/components/providers/theme': RouteRecordInfo<
       '/components/providers/theme',
       '/components/providers/theme',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/semantic/alert': RouteRecordInfo<
+      '/components/semantic/alert',
+      '/components/semantic/alert',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1437,6 +1451,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/components/data/data-table.md': {
+      routes:
+        | '/components/data/data-table'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/components/disclosure/alert-dialog.md': {
       routes:
         | '/components/disclosure/alert-dialog'
@@ -1664,6 +1686,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/providers/theme.md': {
       routes:
         | '/components/providers/theme'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/semantic/alert.md': {
+      routes:
+        | '/components/semantic/alert'
       views:
         | never
       pathParamNames:

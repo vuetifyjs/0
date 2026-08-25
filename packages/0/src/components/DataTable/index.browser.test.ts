@@ -7,7 +7,7 @@ import { DataTable, useDataTableRoot } from './index'
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, onMounted } from 'vue'
 
-interface User {
+interface User extends Record<string, unknown> {
   id: number
   name: string
   email: string
@@ -24,11 +24,15 @@ const testColumns = [
   { id: 'email', title: 'Email', filterable: true },
 ]
 
+function mountRoot (options: { props?: Record<string, unknown>, slots?: any } = {}) {
+  return mount(DataTable.Root as any, options)
+}
+
 describe('data-table', () => {
   describe('root', () => {
     describe('rendering', () => {
       it('should render children in default slot', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h('div', { class: 'test-child' }, 'Child content'),
           },
@@ -41,7 +45,7 @@ describe('data-table', () => {
       it('should expose context in slot props', () => {
         let slotProps: any
 
-        mount(DataTable.Root, {
+        mountRoot({
           slots: {
             default: (props: any) => {
               slotProps = props
@@ -64,7 +68,7 @@ describe('data-table', () => {
 
     describe('context provision', () => {
       it('should provide context with default namespace', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table),
           },
@@ -75,7 +79,7 @@ describe('data-table', () => {
       })
 
       it('should provide context with custom namespace', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           props: {
             namespace: 'v0:custom-table',
           },
@@ -89,7 +93,143 @@ describe('data-table', () => {
       })
     })
 
-    describe('onboard', () => {
+    describe('registration', () => {
+      it('should derive items from mounted Row children', async () => {
+        let slotProps: any
+
+        mountRoot({
+          slots: {
+            default: () =>
+              h(DataTable.Table, {}, () => [
+                h(DataTable.Header, {}, () =>
+                  h(DataTable.Row as any, {}, () =>
+                    testColumns.map(col =>
+                      h(DataTable.Column, { key: col.id, id: col.id, sortable: col.sortable, filterable: col.filterable }),
+                    ),
+                  ),
+                ),
+                h(DataTable.Body as any, {}, {
+                  default: (props: any) => {
+                    slotProps = props
+                    return testUsers.map(user =>
+                      h(DataTable.Row as any, { key: user.id, id: user.id, value: user }),
+                    )
+                  },
+                }),
+              ]),
+          },
+        })
+
+        await nextTick()
+
+        expect(slotProps.isEmpty).toBe(false)
+        expect(slotProps.items).toHaveLength(3)
+        expect(slotProps.items[0].name).toBe('Alice')
+      })
+
+      it('should unregister rows when they unmount', async () => {
+        let slotProps: any
+
+        const Host = defineComponent({
+          data: () => ({ rows: testUsers as User[] }),
+          render () {
+            return h(DataTable.Root as any, {}, () =>
+              h(DataTable.Body as any, {}, {
+                default: (props: any) => {
+                  slotProps = props
+                  return this.rows.map(user =>
+                    h(DataTable.Row as any, { key: user.id, id: user.id, value: user }),
+                  )
+                },
+              }),
+            )
+          },
+        })
+
+        const wrapper = mount(Host)
+        await nextTick()
+        expect(slotProps.items).toHaveLength(3)
+
+        wrapper.setData({ rows: [testUsers[0]] })
+        await nextTick()
+        expect(slotProps.items).toHaveLength(1)
+      })
+
+      it('should unregister columns when they unmount', async () => {
+        let context: any
+
+        const Host = defineComponent({
+          data: () => ({ columns: testColumns as { id: string, title: string }[] }),
+          render () {
+            return h(DataTable.Root as any, {}, {
+              default: (props: any) => {
+                context = props.context
+                return this.columns.map(col =>
+                  h(DataTable.Column, { key: col.id, id: col.id }),
+                )
+              },
+            })
+          },
+        })
+
+        const wrapper = mount(Host)
+        await nextTick()
+        expect(context.columns.size).toBe(2)
+
+        wrapper.setData({ columns: [testColumns[0]] })
+        await nextTick()
+        expect(context.columns.size).toBe(1)
+        expect(context.columns.has('name')).toBe(true)
+        expect(context.columns.has('email')).toBe(false)
+      })
+
+      it('should filter through v-model:search', async () => {
+        let slotProps: any
+
+        const Host = defineComponent({
+          data: () => ({ query: '' }),
+          render () {
+            return h(DataTable.Root as any, {
+              'search': this.query,
+              'onUpdate:search': (value: string) => {
+                this.query = value
+              },
+            }, () =>
+              h(DataTable.Table, {}, () => [
+                h(DataTable.Header, {}, () =>
+                  h(DataTable.Row as any, {}, () =>
+                    testColumns.map(col =>
+                      h(DataTable.Column, {
+                        key: col.id,
+                        id: col.id,
+                        sortable: col.sortable,
+                        filterable: col.filterable,
+                      }),
+                    ),
+                  ),
+                ),
+                h(DataTable.Body as any, {}, {
+                  default: (props: any) => {
+                    slotProps = props
+                    return testUsers.map(user =>
+                      h(DataTable.Row as any, { key: user.id, id: user.id, value: user }),
+                    )
+                  },
+                }),
+              ]),
+            )
+          },
+        })
+
+        const wrapper = mount(Host)
+        await nextTick()
+        expect(slotProps.items).toHaveLength(3)
+
+        wrapper.setData({ query: 'alice' })
+        await nextTick()
+        expect(slotProps.items.map((item: User) => item.name)).toEqual(['Alice'])
+      })
+
       it('should onboard columns and rows after mount', async () => {
         let slotProps: any
 
@@ -104,7 +244,7 @@ describe('data-table', () => {
           },
         })
 
-        mount(DataTable.Root, {
+        mountRoot({
           slots: {
             default: () => [
               h(Init),
@@ -133,7 +273,7 @@ describe('data-table', () => {
   describe('table', () => {
     describe('rendering', () => {
       it('should render as table by default', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table),
           },
@@ -144,7 +284,7 @@ describe('data-table', () => {
       })
 
       it('should have role="table" attribute', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table),
           },
@@ -155,7 +295,7 @@ describe('data-table', () => {
       })
 
       it('should omit aria-rowcount when the full table is in the DOM', async () => {
-        const empty = mount(DataTable.Root, {
+        const empty = mountRoot({
           slots: {
             default: () => h(DataTable.Table),
           },
@@ -163,7 +303,7 @@ describe('data-table', () => {
 
         expect(empty.findComponent(DataTable.Table as any).attributes('aria-rowcount')).toBeUndefined()
 
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.columns.onboard(testColumns)
@@ -179,7 +319,7 @@ describe('data-table', () => {
       })
 
       it('should set aria-rowcount to header rows plus total when the page is truncated', async () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           props: { pagination: { itemsPerPage: 2 } },
           slots: {
             default: ({ context }: any) => {
@@ -196,7 +336,7 @@ describe('data-table', () => {
       })
 
       it('should render as custom element when as prop is provided', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, { as: 'div' }),
           },
@@ -208,7 +348,7 @@ describe('data-table', () => {
       })
 
       it('should support renderless mode', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, { renderless: true }, () =>
               h('div', { class: 'custom-table' }, 'content'),
@@ -225,7 +365,7 @@ describe('data-table', () => {
   describe('header', () => {
     describe('rendering', () => {
       it('should render as thead by default', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () => h(DataTable.Header)),
           },
@@ -238,7 +378,7 @@ describe('data-table', () => {
       it('should expose headers in slot props', () => {
         let slotProps: any
 
-        mount(DataTable.Root, {
+        mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Header, {}, {
@@ -258,7 +398,7 @@ describe('data-table', () => {
       it('should populate headers from a parent and children column tree', async () => {
         let slotProps: any
 
-        mount(DataTable.Root, {
+        mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.columns.onboard([
@@ -291,7 +431,7 @@ describe('data-table', () => {
       })
 
       it('should render as custom element when as prop is provided', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () => h(DataTable.Header, { as: 'div' })),
           },
@@ -303,7 +443,7 @@ describe('data-table', () => {
       })
 
       it('should support renderless mode', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Header, { renderless: true }, () =>
@@ -320,7 +460,7 @@ describe('data-table', () => {
       it('should resolve context with custom namespace', () => {
         let slotProps: any
 
-        mount(DataTable.Root, {
+        mountRoot({
           props: { namespace: 'v0:custom-table' },
           slots: {
             default: () => h(DataTable.Table, { namespace: 'v0:custom-table' }, () =>
@@ -342,11 +482,11 @@ describe('data-table', () => {
   describe('column', () => {
     describe('rendering', () => {
       it('should render as th by default', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Header, {}, () =>
-                h(DataTable.Row, {}, () => h(DataTable.Column)),
+                h(DataTable.Row as any, {}, () => h(DataTable.Column)),
               ),
             ),
           },
@@ -357,11 +497,11 @@ describe('data-table', () => {
       })
 
       it('should have role="columnheader" attribute', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Header, {}, () =>
-                h(DataTable.Row, {}, () => h(DataTable.Column)),
+                h(DataTable.Row as any, {}, () => h(DataTable.Column)),
               ),
             ),
           },
@@ -375,13 +515,13 @@ describe('data-table', () => {
       it('should expose sort state when id is provided', async () => {
         let slotProps: any
 
-        mount(DataTable.Root, {
+        mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Header, {}, () =>
-                  h(DataTable.Row, {}, () =>
+                  h(DataTable.Row as any, {}, () =>
                     h(DataTable.Column, { id: 'name' }, {
                       default: (props: any) => {
                         slotProps = props
@@ -399,21 +539,21 @@ describe('data-table', () => {
 
         expect(slotProps).toBeDefined()
         expect(slotProps.isSortable).toBe(true)
-        expect(slotProps.sortDirection).toBe('none')
-        expect(slotProps.sortPriority).toBe(-1)
-        expect(typeof slotProps.toggleSort).toBe('function')
+        expect(slotProps.direction).toBe('none')
+        expect(slotProps.priority).toBe(-1)
+        expect(typeof slotProps.toggle).toBe('function')
       })
 
-      it('should toggle sort when toggleSort is called', async () => {
+      it('should toggle sort when toggle is called', async () => {
         let slotProps: any
 
-        mount(DataTable.Root, {
+        mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Header, {}, () =>
-                  h(DataTable.Row, {}, () =>
+                  h(DataTable.Row as any, {}, () =>
                     h(DataTable.Column, { id: 'name' }, {
                       default: (props: any) => {
                         slotProps = props
@@ -428,25 +568,79 @@ describe('data-table', () => {
         })
 
         await nextTick()
-        expect(slotProps.sortDirection).toBe('none')
+        expect(slotProps.direction).toBe('none')
 
-        slotProps.toggleSort()
+        slotProps.toggle()
         await nextTick()
-        expect(slotProps.sortDirection).toBe('asc')
+        expect(slotProps.direction).toBe('asc')
 
-        slotProps.toggleSort()
+        slotProps.toggle()
         await nextTick()
-        expect(slotProps.sortDirection).toBe('desc')
+        expect(slotProps.direction).toBe('desc')
+      })
+
+      it('should reorder items when a child-registered column toggles sort', async () => {
+        let column: any
+        let body: any
+
+        mountRoot({
+          slots: {
+            default: () =>
+              h(DataTable.Table, {}, () => [
+                h(DataTable.Header, {}, () =>
+                  h(DataTable.Row as any, {}, () =>
+                    testColumns.map(col =>
+                      h(DataTable.Column, {
+                        key: col.id,
+                        id: col.id,
+                        sortable: col.sortable,
+                        filterable: col.filterable,
+                      }, {
+                        default: (props: any) => {
+                          if (col.id === 'name') column = props
+                          return h('button', { onClick: props.toggle }, col.title)
+                        },
+                      }),
+                    ),
+                  ),
+                ),
+                h(DataTable.Body as any, {}, {
+                  default: (props: any) => {
+                    body = props
+                    return testUsers.map(user =>
+                      h(DataTable.Row as any, { key: user.id, id: user.id, value: user }),
+                    )
+                  },
+                }),
+              ]),
+          },
+        })
+
+        await nextTick()
+
+        expect(column.isSortable).toBe(true)
+        expect(body.items.map((item: User) => item.name)).toEqual(['Alice', 'Bob', 'Carol'])
+        expect(body.sortedItems.map((item: User) => item.name)).toEqual(['Alice', 'Bob', 'Carol'])
+
+        column.toggle()
+        await nextTick()
+        expect(column.direction).toBe('asc')
+        expect(body.sortedItems.map((item: User) => item.name)).toEqual(['Alice', 'Bob', 'Carol'])
+
+        column.toggle()
+        await nextTick()
+        expect(column.direction).toBe('desc')
+        expect(body.sortedItems.map((item: User) => item.name)).toEqual(['Carol', 'Bob', 'Alice'])
       })
 
       it('should have aria-sort attribute when sortable', async () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Header, {}, () =>
-                  h(DataTable.Row, {}, () =>
+                  h(DataTable.Row as any, {}, () =>
                     h(DataTable.Column, { id: 'name' }, () => 'Name'),
                   ),
                 ),
@@ -462,11 +656,11 @@ describe('data-table', () => {
       })
 
       it('should render as custom element when as prop is provided', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Header, {}, () =>
-                h(DataTable.Row, {}, () => h(DataTable.Column, { as: 'div' })),
+                h(DataTable.Row as any, {}, () => h(DataTable.Column, { as: 'div' })),
               ),
             ),
           },
@@ -477,11 +671,11 @@ describe('data-table', () => {
       })
 
       it('should support renderless mode', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Header, {}, () =>
-                h(DataTable.Row, {}, () =>
+                h(DataTable.Row as any, {}, () =>
                   h(DataTable.Column, { renderless: true }, () =>
                     h('div', { class: 'custom-header-cell' }, 'Name'),
                   ),
@@ -497,11 +691,11 @@ describe('data-table', () => {
       it('should expose inert sort state when id is omitted', () => {
         let slotProps: any
 
-        mount(DataTable.Root, {
+        mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Header, {}, () =>
-                h(DataTable.Row, {}, () =>
+                h(DataTable.Row as any, {}, () =>
                   h(DataTable.Column, {}, {
                     default: (props: any) => {
                       slotProps = props
@@ -515,23 +709,23 @@ describe('data-table', () => {
         })
 
         expect(slotProps.isSortable).toBe(false)
-        expect(slotProps.sortDirection).toBe('none')
-        expect(slotProps.sortPriority).toBe(-1)
+        expect(slotProps.direction).toBe('none')
+        expect(slotProps.priority).toBe(-1)
 
-        slotProps.toggleSort()
-        expect(slotProps.sortDirection).toBe('none')
+        slotProps.toggle()
+        expect(slotProps.direction).toBe('none')
       })
 
       it('should omit aria-sort and ignore toggle when column is not sortable', async () => {
         let slotProps: any
 
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Header, {}, () =>
-                  h(DataTable.Row, {}, () =>
+                  h(DataTable.Row as any, {}, () =>
                     h(DataTable.Column, { id: 'email' }, {
                       default: (props: any) => {
                         slotProps = props
@@ -550,21 +744,21 @@ describe('data-table', () => {
         expect(slotProps.isSortable).toBe(false)
         expect(wrapper.findComponent(DataTable.Column as any).attributes('aria-sort')).toBeUndefined()
 
-        slotProps.toggleSort()
+        slotProps.toggle()
         await nextTick()
-        expect(slotProps.sortDirection).toBe('none')
+        expect(slotProps.direction).toBe('none')
       })
 
       it('should set aria-sort to ascending and descending when toggled', async () => {
         let slotProps: any
 
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Header, {}, () =>
-                  h(DataTable.Row, {}, () =>
+                  h(DataTable.Row as any, {}, () =>
                     h(DataTable.Column, { id: 'name' }, {
                       default: (props: any) => {
                         slotProps = props
@@ -583,21 +777,21 @@ describe('data-table', () => {
         const column = wrapper.findComponent(DataTable.Column as any)
         expect(column.attributes('aria-sort')).toBe('none')
 
-        slotProps.toggleSort()
+        slotProps.toggle()
         await nextTick()
         expect(column.attributes('aria-sort')).toBe('ascending')
 
-        slotProps.toggleSort()
+        slotProps.toggle()
         await nextTick()
         expect(column.attributes('aria-sort')).toBe('descending')
       })
 
       it('should support colspan and rowspan attributes', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Header, {}, () =>
-                h(DataTable.Row, {}, () =>
+                h(DataTable.Row as any, {}, () =>
                   h(DataTable.Column, { colspan: 2, rowspan: 3 }, () => 'Name'),
                 ),
               ),
@@ -611,16 +805,16 @@ describe('data-table', () => {
         expect(column.attributes('scope')).toBe('colgroup')
       })
 
-      it('should cycle data-direction and sortPriority through none, asc, and desc', async () => {
+      it('should cycle data-direction and priority through none, asc, and desc', async () => {
         let slotProps: any
 
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Header, {}, () =>
-                  h(DataTable.Row, {}, () =>
+                  h(DataTable.Row as any, {}, () =>
                     h(DataTable.Column, { id: 'name' }, {
                       default: (props: any) => {
                         slotProps = props
@@ -638,35 +832,35 @@ describe('data-table', () => {
 
         const column = wrapper.findComponent(DataTable.Column as any)
         expect(column.attributes('data-direction')).toBeUndefined()
-        expect(slotProps.sortPriority).toBe(-1)
+        expect(slotProps.priority).toBe(-1)
 
-        slotProps.toggleSort()
+        slotProps.toggle()
         await nextTick()
         expect(column.attributes('data-direction')).toBe('asc')
-        expect(slotProps.sortPriority).toBe(0)
+        expect(slotProps.priority).toBe(0)
 
-        slotProps.toggleSort()
+        slotProps.toggle()
         await nextTick()
         expect(column.attributes('data-direction')).toBe('desc')
-        expect(slotProps.sortPriority).toBe(0)
+        expect(slotProps.priority).toBe(0)
 
-        slotProps.toggleSort()
+        slotProps.toggle()
         await nextTick()
         expect(column.attributes('data-direction')).toBeUndefined()
-        expect(slotProps.sortPriority).toBe(-1)
+        expect(slotProps.priority).toBe(-1)
       })
 
       it('should resolve sort state with custom namespace', async () => {
         let slotProps: any
 
-        mount(DataTable.Root, {
+        mountRoot({
           props: { namespace: 'v0:custom-table' },
           slots: {
             default: ({ context }: any) => {
               context.columns.onboard(testColumns)
               return h(DataTable.Table, { namespace: 'v0:custom-table' }, () =>
                 h(DataTable.Header, { namespace: 'v0:custom-table' }, () =>
-                  h(DataTable.Row, { namespace: 'v0:custom-table' }, () =>
+                  h(DataTable.Row as any, { namespace: 'v0:custom-table' }, () =>
                     h(DataTable.Column, { namespace: 'v0:custom-table', id: 'name' }, {
                       default: (props: any) => {
                         slotProps = props
@@ -683,7 +877,7 @@ describe('data-table', () => {
         await nextTick()
 
         expect(slotProps.isSortable).toBe(true)
-        expect(slotProps.sortDirection).toBe('none')
+        expect(slotProps.direction).toBe('none')
       })
     })
   })
@@ -691,7 +885,7 @@ describe('data-table', () => {
   describe('body', () => {
     describe('rendering', () => {
       it('should render as tbody by default', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () => h(DataTable.Body as any)),
           },
@@ -704,7 +898,7 @@ describe('data-table', () => {
       it('should expose items in slot props', async () => {
         let slotProps: any
 
-        mount(DataTable.Root, {
+        mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
@@ -725,13 +919,15 @@ describe('data-table', () => {
         expect(slotProps).toBeDefined()
         expect(Array.isArray(slotProps.items)).toBe(true)
         expect(slotProps.items).toHaveLength(3)
+        expect(slotProps.sortedItems).toHaveLength(3)
+        expect(typeof slotProps.rank).toBe('function')
         expect(slotProps.isEmpty).toBe(false)
       })
 
       it('should set isEmpty when no items', () => {
         let slotProps: any
 
-        mount(DataTable.Root, {
+        mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, {}, {
@@ -748,7 +944,7 @@ describe('data-table', () => {
       })
 
       it('should render as custom element when as prop is provided', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () => h(DataTable.Body as any, { as: 'div' })),
           },
@@ -760,7 +956,7 @@ describe('data-table', () => {
       })
 
       it('should support renderless mode', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, { renderless: true }, () =>
@@ -777,7 +973,7 @@ describe('data-table', () => {
       it('should resolve items with custom namespace', async () => {
         let slotProps: any
 
-        mount(DataTable.Root, {
+        mountRoot({
           props: { namespace: 'v0:custom-table' },
           slots: {
             default: ({ context }: any) => {
@@ -804,7 +1000,7 @@ describe('data-table', () => {
         let slotProps: any
         let table: any
 
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           props: { pagination: { itemsPerPage: 2 } },
           slots: {
             default: ({ context }: any) => {
@@ -817,7 +1013,7 @@ describe('data-table', () => {
                     slotProps = props
                     return [
                       ...props.items.map((item: User, i: number) =>
-                        h(DataTable.Row, { key: item.id, id: item.id, index: props.rowStart + i }, () =>
+                        h(DataTable.Row as any, { key: item.id, id: item.id, index: props.rowStart + i }, () =>
                           h(DataTable.Cell, {}, () => item.name),
                         ),
                       ),
@@ -860,7 +1056,7 @@ describe('data-table', () => {
   describe('row', () => {
     describe('rendering', () => {
       it('should render as tr by default', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, {}, () => h(DataTable.Row)),
@@ -873,7 +1069,7 @@ describe('data-table', () => {
       })
 
       it('should have role="row" attribute', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, {}, () => h(DataTable.Row)),
@@ -888,13 +1084,13 @@ describe('data-table', () => {
       it('should expose selection state when id is provided', async () => {
         let slotProps: any
 
-        mount(DataTable.Root, {
+        mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Body as any, {}, () =>
-                  h(DataTable.Row, { id: 1 }, {
+                  h(DataTable.Row as any, { id: 1 }, {
                     default: (props: any) => {
                       slotProps = props
                       return h('td')
@@ -914,18 +1110,20 @@ describe('data-table', () => {
         expect(slotProps.isExpanded).toBe(false)
         expect(typeof slotProps.toggleSelection).toBe('function')
         expect(typeof slotProps.toggleExpansion).toBe('function')
+        expect(slotProps.id).toBe(1)
+        expect(slotProps.value).toEqual(testUsers[0])
       })
 
       it('should toggle selection when toggleSelection is called', async () => {
         let slotProps: any
 
-        mount(DataTable.Root, {
+        mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Body as any, {}, () =>
-                  h(DataTable.Row, { id: 1 }, {
+                  h(DataTable.Row as any, { id: 1 }, {
                     default: (props: any) => {
                       slotProps = props
                       return h('td')
@@ -949,14 +1147,66 @@ describe('data-table', () => {
         expect(slotProps.isSelected).toBe(false)
       })
 
-      it('should have aria-selected attribute when id is provided and selectable', async () => {
-        const wrapper = mount(DataTable.Root, {
+      it('should toggle selection when a selectable row is clicked', async () => {
+        const wrapper = mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Body as any, {}, () =>
-                  h(DataTable.Row, { id: 1, selectable: true }),
+                  h(DataTable.Row as any, { id: 1, selectable: true }, () => h('td', 'Alice')),
+                ),
+              )
+            },
+          },
+        })
+
+        await nextTick()
+        const row = wrapper.findComponent(DataTable.Row as any)
+        expect(row.attributes('aria-selected')).toBe('false')
+
+        await row.trigger('click')
+        expect(row.attributes('aria-selected')).toBe('true')
+
+        await row.trigger('click')
+        expect(row.attributes('aria-selected')).toBe('false')
+      })
+
+      it('should not toggle selection when a non-selectable row is clicked', async () => {
+        let slotProps: any
+
+        const wrapper = mountRoot({
+          slots: {
+            default: ({ context }: any) => {
+              context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
+              return h(DataTable.Table, {}, () =>
+                h(DataTable.Body as any, {}, {
+                  default: () =>
+                    h(DataTable.Row as any, { id: 1 }, {
+                      default: (props: any) => {
+                        slotProps = props
+                        return h('td', 'Alice')
+                      },
+                    }),
+                }),
+              )
+            },
+          },
+        })
+
+        await nextTick()
+        await wrapper.findComponent(DataTable.Row as any).trigger('click')
+        expect(slotProps.isSelected).toBe(false)
+      })
+
+      it('should have aria-selected attribute when id is provided and selectable', async () => {
+        const wrapper = mountRoot({
+          slots: {
+            default: ({ context }: any) => {
+              context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
+              return h(DataTable.Table, {}, () =>
+                h(DataTable.Body as any, {}, () =>
+                  h(DataTable.Row as any, { id: 1, selectable: true }),
                 ),
               )
             },
@@ -970,13 +1220,13 @@ describe('data-table', () => {
       })
 
       it('should omit aria-selected when id is provided without selectable', async () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Body as any, {}, () =>
-                  h(DataTable.Row, { id: 1 }),
+                  h(DataTable.Row as any, { id: 1 }),
                 ),
               )
             },
@@ -990,10 +1240,10 @@ describe('data-table', () => {
       })
 
       it('should render as custom element when as prop is provided', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
-              h(DataTable.Body as any, {}, () => h(DataTable.Row, { as: 'div' })),
+              h(DataTable.Body as any, {}, () => h(DataTable.Row as any, { as: 'div' })),
             ),
           },
         })
@@ -1003,11 +1253,11 @@ describe('data-table', () => {
       })
 
       it('should support renderless mode', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, {}, () =>
-                h(DataTable.Row, { renderless: true }, () =>
+                h(DataTable.Row as any, { renderless: true }, () =>
                   h('div', { class: 'custom-row' }),
                 ),
               ),
@@ -1021,11 +1271,11 @@ describe('data-table', () => {
       it('should expose inert selection state when id is omitted', () => {
         let slotProps: any
 
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, {}, () =>
-                h(DataTable.Row, {}, {
+                h(DataTable.Row as any, {}, {
                   default: (props: any) => {
                     slotProps = props
                     return h('td')
@@ -1050,13 +1300,13 @@ describe('data-table', () => {
       it('should toggle expansion and set data-expanded', async () => {
         let slotProps: any
 
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Body as any, {}, () =>
-                  h(DataTable.Row, { id: 1 }, {
+                  h(DataTable.Row as any, { id: 1 }, {
                     default: (props: any) => {
                       slotProps = props
                       return h('td')
@@ -1086,13 +1336,13 @@ describe('data-table', () => {
       it('should set aria-selected and data-selected when selected', async () => {
         let slotProps: any
 
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
               return h(DataTable.Table, {}, () =>
                 h(DataTable.Body as any, {}, () =>
-                  h(DataTable.Row, { id: 1, selectable: true }, {
+                  h(DataTable.Row as any, { id: 1, selectable: true }, {
                     default: (props: any) => {
                       slotProps = props
                       return h('td')
@@ -1124,14 +1374,14 @@ describe('data-table', () => {
       it('should resolve selection state with custom namespace', async () => {
         let slotProps: any
 
-        mount(DataTable.Root, {
+        mountRoot({
           props: { namespace: 'v0:custom-table' },
           slots: {
             default: ({ context }: any) => {
               context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
               return h(DataTable.Table, { namespace: 'v0:custom-table' }, () =>
                 h(DataTable.Body as any, { namespace: 'v0:custom-table' }, () =>
-                  h(DataTable.Row, { namespace: 'v0:custom-table', id: 1 }, {
+                  h(DataTable.Row as any, { namespace: 'v0:custom-table', id: 1 }, {
                     default: (props: any) => {
                       slotProps = props
                       return h('td')
@@ -1154,11 +1404,11 @@ describe('data-table', () => {
   describe('cell', () => {
     describe('rendering', () => {
       it('should render as td by default', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, {}, () =>
-                h(DataTable.Row, {}, () => h(DataTable.Cell)),
+                h(DataTable.Row as any, {}, () => h(DataTable.Cell)),
               ),
             ),
           },
@@ -1169,11 +1419,11 @@ describe('data-table', () => {
       })
 
       it('should have role="cell" attribute', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, {}, () =>
-                h(DataTable.Row, {}, () => h(DataTable.Cell)),
+                h(DataTable.Row as any, {}, () => h(DataTable.Cell)),
               ),
             ),
           },
@@ -1184,11 +1434,11 @@ describe('data-table', () => {
       })
 
       it('should support colspan attribute', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, {}, () =>
-                h(DataTable.Row, {}, () => h(DataTable.Cell, { colspan: 3 })),
+                h(DataTable.Row as any, {}, () => h(DataTable.Cell, { colspan: 3 })),
               ),
             ),
           },
@@ -1199,11 +1449,11 @@ describe('data-table', () => {
       })
 
       it('should support rowspan attribute', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, {}, () =>
-                h(DataTable.Row, {}, () => h(DataTable.Cell, { rowspan: 3 })),
+                h(DataTable.Row as any, {}, () => h(DataTable.Cell, { rowspan: 3 })),
               ),
             ),
           },
@@ -1214,11 +1464,11 @@ describe('data-table', () => {
       })
 
       it('should render as custom element when as prop is provided', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, {}, () =>
-                h(DataTable.Row, {}, () => h(DataTable.Cell, { as: 'div' })),
+                h(DataTable.Row as any, {}, () => h(DataTable.Cell, { as: 'div' })),
               ),
             ),
           },
@@ -1229,11 +1479,11 @@ describe('data-table', () => {
       })
 
       it('should support renderless mode', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, {}, () =>
-                h(DataTable.Row, {}, () =>
+                h(DataTable.Row as any, {}, () =>
                   h(DataTable.Cell, { renderless: true }, () =>
                     h('div', { class: 'custom-cell' }, 'Alice'),
                   ),
@@ -1251,7 +1501,7 @@ describe('data-table', () => {
   describe('empty', () => {
     describe('rendering', () => {
       it('should render when items is empty', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, {}, () => h(DataTable.Empty, {}, () => 'No data')),
@@ -1265,7 +1515,7 @@ describe('data-table', () => {
       })
 
       it('should not render when items exist', async () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: ({ context }: any) => {
               context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
@@ -1285,7 +1535,7 @@ describe('data-table', () => {
       it('should expose isLoading in slot props', () => {
         let slotProps: any
 
-        mount(DataTable.Root, {
+        mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, {}, () =>
@@ -1306,7 +1556,7 @@ describe('data-table', () => {
       })
 
       it('should render as custom element when as prop is provided', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, {}, () => h(DataTable.Empty, { as: 'div' }, () => 'No data')),
@@ -1321,7 +1571,7 @@ describe('data-table', () => {
       })
 
       it('should support renderless mode', () => {
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           slots: {
             default: () => h(DataTable.Table, {}, () =>
               h(DataTable.Body as any, {}, () =>
@@ -1340,7 +1590,7 @@ describe('data-table', () => {
       it('should resolve empty state with custom namespace', () => {
         let slotProps: any
 
-        const wrapper = mount(DataTable.Root, {
+        const wrapper = mountRoot({
           props: { namespace: 'v0:custom-table' },
           slots: {
             default: () => h(DataTable.Table, { namespace: 'v0:custom-table' }, () =>
@@ -1364,14 +1614,14 @@ describe('data-table', () => {
 
   describe('integration', () => {
     it('should work as complete table with data', async () => {
-      const wrapper = mount(DataTable.Root, {
+      const wrapper = mountRoot({
         slots: {
           default: ({ context }: any) => {
             context.columns.onboard(testColumns)
             context.onboard(testUsers.map(u => ({ id: u.id, value: u })))
             return h(DataTable.Table, {}, () => [
               h(DataTable.Header, {}, () =>
-                h(DataTable.Row, {}, () =>
+                h(DataTable.Row as any, {}, () =>
                   testColumns.map(col =>
                     h(DataTable.Column, { key: col.id, id: col.id }, () => col.title),
                   ),
@@ -1380,7 +1630,7 @@ describe('data-table', () => {
               h(DataTable.Body as any, {}, {
                 default: ({ items }: any) =>
                   items.map((item: User) =>
-                    h(DataTable.Row, { key: item.id, id: item.id }, () => [
+                    h(DataTable.Row as any, { key: item.id, id: item.id }, () => [
                       h(DataTable.Cell, { key: 'name' }, () => item.name),
                       h(DataTable.Cell, { key: 'email' }, () => item.email),
                     ]),

@@ -374,6 +374,15 @@ describe('createDataTable', () => {
       expect(names).toEqual(['Eve', 'Dan', 'Carol', 'Bob', 'Alice'])
     })
 
+    it('should rank a source array by sortedItems', () => {
+      const table = createTable()
+      expect(table.rank(users).map(user => user.name)).toEqual(['Alice', 'Bob', 'Carol', 'Dan', 'Eve'])
+
+      table.sort.toggle('name')
+      table.sort.toggle('name')
+      expect(table.rank(users).map(user => user.name)).toEqual(['Eve', 'Dan', 'Carol', 'Bob', 'Alice'])
+    })
+
     it('should use custom sort comparator', () => {
       const table = createTable()
       table.sort.toggle('salary')

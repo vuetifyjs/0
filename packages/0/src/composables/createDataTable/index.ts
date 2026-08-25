@@ -63,7 +63,7 @@ import { extractLeaves, resolveHeaders } from './columns'
 
 // Utilities
 import { isNullOrUndefined } from '#v0/utilities'
-import { computed, shallowReactive, shallowReadonly, shallowRef, toRef, watch } from 'vue'
+import { computed, shallowReactive, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { FilterOptions } from '#v0/composables/createFilter'
@@ -73,7 +73,7 @@ import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { Extensible, ID } from '#v0/types'
 import type { DataTableAdapter, SortDirection, SortEntry } from './adapters/adapter'
 import type { InternalHeader } from './columns'
-import type { Ref, ShallowRef } from 'vue'
+import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 // Exports
 export { DataTableAdapter } from './adapters'
@@ -139,9 +139,9 @@ export interface DataTableColumnTicketInput<T extends Record<string, unknown> = 
   /** Display title rendered in the header cell. */
   title?: string
   /** Allow this column to participate in the sort pipeline. */
-  sortable?: boolean
+  sortable?: MaybeRefOrGetter<boolean>
   /** Allow this column to participate in the filter pipeline. */
-  filterable?: boolean
+  filterable?: MaybeRefOrGetter<boolean>
   /** Custom per-column sort comparator. */
   sort?: (a: unknown, b: unknown) => number
   /** Custom per-column filter predicate. */
@@ -281,6 +281,8 @@ export interface DataTableContext<T extends Record<string, unknown>>
   filteredItems: Readonly<Ref<readonly T[]>>
   /** Items after filtering and sorting */
   sortedItems: Readonly<Ref<readonly T[]>>
+  /** Rank a source array by `sortedItems`. v-for this so rows register; missing ranks stay in source order. */
+  rank: <U extends Record<string, unknown>>(source: readonly U[]) => U[]
   /**
    * Column registry. Use `columns.register({...})`, `columns.onboard([...])`,
    * `columns.unregister(id)`, and `columns.clear()` to manage columns. The
@@ -407,7 +409,7 @@ export function createDataTable<T extends Record<string, unknown>> (
   const leaves = computed(() => extractLeaves(columns.values()))
   const headers = computed(() => resolveHeaders(columns.values()))
 
-  const sortable = computed(() => leaves.value.filter(col => col.sortable === true))
+  const sortable = computed(() => leaves.value.filter(col => toValue(col.sortable) === true))
 
   const group = createGroup({ multiple: sortMultiple })
 
@@ -525,7 +527,7 @@ export function createDataTable<T extends Record<string, unknown>> (
   const filterable = computed(() => {
     const ids: string[] = []
     for (const col of leaves.value) {
-      if (col.filterable === true) ids.push(String(col.id))
+      if (toValue(col.filterable) === true) ids.push(String(col.id))
     }
     return ids
   })
@@ -794,12 +796,30 @@ export function createDataTable<T extends Record<string, unknown>> (
     },
   }
 
+  function rank<U extends Record<string, unknown>> (source: readonly U[]): U[] {
+    const ranked = sortedItems.value
+    const positions = new Map<unknown, number>()
+
+    for (const [index, row] of ranked.entries()) {
+      positions.set(row, index)
+      const id = row.id
+      if (!isNullOrUndefined(id)) positions.set(id, index)
+    }
+
+    return [...source].toSorted((a, b) => {
+      const left = positions.get(a) ?? positions.get(a.id) ?? Infinity
+      const right = positions.get(b) ?? positions.get(b.id) ?? Infinity
+      return left - right
+    })
+  }
+
   return {
     ...registry,
     items: visible,
     allItems,
     filteredItems,
     sortedItems,
+    rank,
     columns,
     leaves,
     headers,

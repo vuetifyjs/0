@@ -18,7 +18,7 @@
 
   // Utilities
   import { isUndefined } from '#v0/utilities'
-  import { mergeProps, toRef, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -27,8 +27,10 @@
   export interface DataTableRowProps extends AtomProps {
     /** Namespace for dependency injection. @default 'v0:data-table' */
     namespace?: string
-    /** Row identifier for selection/expansion binding — the ticket id used at onboard */
+    /** Row identifier. Registers a data ticket when set with `value`. */
     id?: ID
+    /** Row value to register. Omit on header rows. */
+    value?: Record<string, unknown>
     /** 1-based aria-rowindex. Bind `rowStart + i` from Body when aria-rowcount is set. */
     index?: number
     /** Emit aria-selected. @default false */
@@ -36,6 +38,10 @@
   }
 
   export interface DataTableRowSlotProps {
+    /** Registered row id */
+    id: ID | undefined
+    /** Registered row record. Undefined on header rows. */
+    value: Record<string, unknown> | undefined
     /** Whether this row is selected */
     isSelected: boolean
     /** Whether this row is selectable */
@@ -52,6 +58,7 @@
       'aria-rowindex': number | undefined
       'data-selected': true | undefined
       'data-expanded': true | undefined
+      'onClick': (() => void) | undefined
     }
   }
 </script>
@@ -67,6 +74,7 @@
     as = 'tr',
     namespace = 'v0:data-table',
     id,
+    value,
     index,
     selectable = false,
     renderless,
@@ -75,34 +83,66 @@
   const attrs = useAttrs()
   const context = useDataTableRoot(namespace)
 
+  const ticket = !isUndefined(value) && (isUndefined(id) || !context.has(id))
+    ? context.register({ id, value })
+    : undefined
+
+  onBeforeUnmount(() => {
+    if (ticket) context.unregister(ticket.id)
+  })
+
+  function rowId () {
+    return ticket?.id ?? id
+  }
+
+  const record = toRef((): Record<string, unknown> | undefined => {
+    if (!isUndefined(value)) return value
+
+    const current = rowId()
+    if (isUndefined(current)) return undefined
+
+    return context.get(current)?.value
+  })
+
   const isSelected = toRef(() => {
-    if (isUndefined(id)) return false
-    return context.selection.isSelected(id)
+    const current = rowId()
+    if (isUndefined(current)) return false
+    return context.selection.isSelected(current)
   })
 
   const isSelectable = toRef(() => {
-    if (isUndefined(id)) return false
-    return context.selection.isSelectable(id)
+    const current = rowId()
+    if (isUndefined(current)) return false
+    return context.selection.isSelectable(current)
   })
 
   const isExpanded = toRef(() => {
-    if (isUndefined(id)) return false
-    return context.expansion.isExpanded(id)
+    const current = rowId()
+    if (isUndefined(current)) return false
+    return context.expansion.isExpanded(current)
   })
 
   function toggleSelection () {
-    if (!isUndefined(id)) {
-      context.selection.toggle(id)
-    }
+    const current = rowId()
+    if (isUndefined(current) || !isSelectable.value) return
+    context.selection.toggle(current)
+  }
+
+  function onClick () {
+    if (!selectable) return
+    toggleSelection()
   }
 
   function toggleExpansion () {
-    if (!isUndefined(id)) {
-      context.expansion.toggle(id)
+    const current = rowId()
+    if (!isUndefined(current)) {
+      context.expansion.toggle(current)
     }
   }
 
   const slotProps = toRef((): DataTableRowSlotProps => ({
+    id: rowId(),
+    value: record.value,
     isSelected: isSelected.value,
     isSelectable: isSelectable.value,
     isExpanded: isExpanded.value,
@@ -110,10 +150,11 @@
     toggleExpansion,
     attrs: {
       'role': 'row',
-      'aria-selected': selectable && !isUndefined(id) ? isSelected.value : undefined,
+      'aria-selected': selectable && !isUndefined(rowId()) ? isSelected.value : undefined,
       'aria-rowindex': isUndefined(index) ? undefined : index,
       'data-selected': isSelected.value || undefined,
       'data-expanded': isExpanded.value || undefined,
+      'onClick': selectable ? onClick : undefined,
     },
   }))
 </script>

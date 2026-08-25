@@ -27,13 +27,17 @@
   }
 
   export interface DataTableBodySlotProps<T extends Record<string, unknown> = Record<string, unknown>> {
-    /** Paginated items for rendering */
+    /** Paginated items for the current page — use with `v-show` to hide off-page rows */
     items: readonly T[]
+    /** Filtered and sorted items in pipeline order. */
+    sortedItems: readonly T[]
+    /** Rank a source array by `sortedItems`. v-for `rank(users)` so rows register themselves. */
+    rank: <U extends Record<string, unknown>>(source: readonly U[]) => U[]
     /** Whether the table is loading */
     isLoading: boolean
     /** Whether the table has no items */
     isEmpty: boolean
-    /** 1-based index of the first visible data row (onboarded header-grid rows + pageStart + 1). Bind `:index="rowStart + i"` when aria-rowcount is set. */
+    /** 1-based index of the first visible data row (header-grid rows + pageStart + 1). Bind `:index="rowStart + i"` when aria-rowcount is set. */
     rowStart: number
     attrs: {
       role: 'rowgroup' | undefined
@@ -59,6 +63,8 @@
 
   const slotProps = toRef((): DataTableBodySlotProps<T> => ({
     items: context.items.value,
+    sortedItems: context.sortedItems.value,
+    rank: context.rank,
     isLoading: context.loading.value,
     isEmpty: context.items.value.length === 0,
     rowStart: context.headers.value.length + context.pagination.pageStart.value + 1,
