@@ -95,4 +95,29 @@ describe('docsFaq', () => {
     expect(wrapper.find('.genesis-peek').exists()).toBe(true)
     expect(visibleQuestions(wrapper)).toHaveLength(5)
   })
+
+  it('should render inline code in the question instead of raw backticks', () => {
+    const wrapper = mount(DocsFaq, {
+      global: { stubs },
+      slots: {
+        default: () => h(DocsFaqItem, { question: 'What is `foo`?' }, () => 'Answer'),
+      },
+    })
+    expect(wrapper.find('code').text()).toBe('foo')
+    expect(wrapper.text()).not.toContain('`foo`')
+  })
+
+  it('should prefer the question slot over the raw question string', () => {
+    const wrapper = mount(DocsFaq, {
+      global: { stubs },
+      slots: {
+        default: () => h(DocsFaqItem, { question: 'What is `foo`?' }, {
+          question: () => h('code', { class: 'from-slot' }, 'foo'),
+          default: () => 'Answer',
+        }),
+      },
+    })
+    expect(wrapper.find('code.from-slot').text()).toBe('foo')
+    expect(wrapper.findAll('code')).toHaveLength(1)
+  })
 })

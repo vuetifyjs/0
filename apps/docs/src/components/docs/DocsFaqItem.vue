@@ -6,6 +6,7 @@
   import { useFaqCollapse, useFaqFilter } from './DocsFaq.vue'
 
   // Utilities
+  import { renderInlineMarkdown } from '@/utilities/markdown'
   import { toRef } from 'vue'
 
   const { question } = defineProps<{
@@ -18,6 +19,7 @@
   const result = filter.apply(filter.query, () => [question])
   const visible = toRef(() => result.items.value.length > 0)
   const clippedAway = toRef(() => collapse.clipped.value && index >= collapse.preview)
+  const html = renderInlineMarkdown(question)
 </script>
 
 <template>
@@ -33,7 +35,11 @@
         {{ isSelected ? '−' : '?' }}
       </span>
 
-      <span class="font-medium">{{ question }}</span>
+      <span class="font-medium [&_code]:font-normal">
+        <slot name="question">
+          <span v-html="html" />
+        </slot>
+      </span>
     </ExpansionPanel.Activator>
 
     <ExpansionPanel.Content class="px-4 pb-4 pt-3 text-on-surface-variant [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:opacity-80 [&_p]:my-2 first:[&_p]:mt-0 [&_ul]:my-2 [&_ul]:ml-4 [&_ul]:list-disc [&_li]:my-1">
