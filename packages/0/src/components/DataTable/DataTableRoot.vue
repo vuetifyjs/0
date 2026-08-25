@@ -20,29 +20,29 @@
   // Types
   import type { DataTableContext, DataTableOptions } from '#v0/composables/createDataTable'
 
-  export interface DataTableRootProps<T extends Record<string, unknown> = Record<string, unknown>>
+  export interface DataTableRootProps<T extends object = object>
     extends DataTableOptions<T> {
     /** Namespace for dependency injection. @default 'v0:data-table' */
     namespace?: string
   }
 
-  export interface DataTableRootSlotProps<T extends Record<string, unknown> = Record<string, unknown>> {
+  export interface DataTableRootSlotProps<T extends object = object> {
     /** The data table context for direct access to state and methods */
     context: DataTableContext<T>
   }
 
-  const [_useDataTableRoot, provideDataTableRoot] = createContext<DataTableContext<Record<string, unknown>>>()
+  const [_useDataTableRoot, provideDataTableRoot] = createContext<DataTableContext<object>>()
 
   export function useDataTableRoot<
-    T extends Record<string, unknown> = Record<string, unknown>,
+    T extends object = object,
     > (namespace = 'v0:data-table'): DataTableContext<T> {
-    return _useDataTableRoot(namespace) as DataTableContext<T>
+    return _useDataTableRoot(namespace) as unknown as DataTableContext<T>
   }
 
   export { provideDataTableRoot }
 </script>
 
-<script lang="ts" setup generic="T extends Record<string, unknown> = Record<string, unknown>">
+<script lang="ts" setup generic="T extends object = object">
   defineOptions({ name: 'DataTableRoot' })
 
   defineSlots<{
@@ -80,7 +80,7 @@
     adapter,
   })
 
-  provideDataTableRoot(namespace, context as DataTableContext<Record<string, unknown>>)
+  provideDataTableRoot(namespace, context as unknown as DataTableContext<object>)
 
   defineEmits<{
     'update:search': [value: string]

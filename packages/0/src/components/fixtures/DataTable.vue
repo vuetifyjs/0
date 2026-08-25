@@ -2,7 +2,7 @@
   import { Button } from '../Button/index'
   import { DataTable } from '../DataTable/index'
 
-  interface User extends Record<string, unknown> {
+  interface User {
     id: number
     name: string
     email: string

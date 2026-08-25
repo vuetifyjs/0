@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-export interface User extends Record<string, unknown> {
+export interface User {
   id: number
   name: string
   role: string

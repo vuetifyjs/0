@@ -30,7 +30,7 @@
     /** Row identifier. Registers a data ticket when set with `value`. */
     id?: ID
     /** Row value to register. Omit on header rows. */
-    value?: Record<string, unknown>
+    value?: object
     /** 1-based aria-rowindex. Defaults to the row's position in sortedItems. */
     index?: number
     /** Emit aria-selected. @default false */
@@ -41,7 +41,7 @@
     /** Registered row id */
     id: ID | undefined
     /** Registered row record. Undefined on header rows. */
-    value: Record<string, unknown> | undefined
+    value: object | undefined
     /** Whether this row is selected */
     isSelected: boolean
     /** Whether this row is selectable */
@@ -107,7 +107,7 @@
     return isUndefined(ticket) && isUndefined(value) && (isUndefined(id) || !context.has(id))
   }
 
-  const record = toRef((): Record<string, unknown> | undefined => {
+  const record = toRef((): object | undefined => {
     if (!isUndefined(value)) return value
 
     const current = rowId()
@@ -116,11 +116,11 @@
     return context.get(current)?.value
   })
 
-  function matches (item: Record<string, unknown>) {
+  function matches (item: object) {
     const rec = record.value
     if (!isUndefined(rec) && item === rec) return true
     const current = rowId()
-    return !isUndefined(current) && item.id === current
+    return !isUndefined(current) && (item as Record<string, unknown>).id === current
   }
 
   const isVisible = toRef(() => {

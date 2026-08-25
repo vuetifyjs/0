@@ -9,12 +9,13 @@
 
   const query = defineModel<string>('search', { default: '' })
 
-  function shown (items: readonly Record<string, unknown>[], member: Member) {
-    return items.some(item => item.id === member.id)
+  function shown (items: readonly object[], member: Member) {
+    return items.some(item => item === member || (item as Member).id === member.id)
   }
 
-  function divided (items: readonly Record<string, unknown>[], member: Member) {
-    return shown(items, member) && items.at(-1)?.id !== member.id
+  function divided (items: readonly object[], member: Member) {
+    const last = items.at(-1) as Member | undefined
+    return shown(items, member) && last?.id !== member.id
   }
 
   function initials (name: string) {

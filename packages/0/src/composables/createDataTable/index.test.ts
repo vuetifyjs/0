@@ -381,6 +381,19 @@ describe('createDataTable', () => {
       expect(names).toEqual(['Eve', 'Dan', 'Carol', 'Bob', 'Alice'])
     })
 
+    it('should accept a normal interface as T', () => {
+      interface Plain {
+        id: number
+        name: string
+      }
+
+      const table = createDataTable<Plain>()
+      const ada = { id: 1, name: 'Ada' }
+      table.onboard([{ id: 1, value: ada }])
+
+      expect(table.rank([ada])[0]?.name).toBe('Ada')
+    })
+
     it('should rank a source array by sortedItems', () => {
       const table = createTable()
       expect(table.rank(users).map(user => user.name)).toEqual(['Alice', 'Bob', 'Carol', 'Dan', 'Eve'])

@@ -26,13 +26,13 @@
     namespace?: string
   }
 
-  export interface DataTableBodySlotProps<T extends Record<string, unknown> = Record<string, unknown>> {
+  export interface DataTableBodySlotProps<T extends object = object> {
     /** Paginated items for the current page. Row hides off-page rows itself. */
     items: readonly T[]
     /** Filtered and sorted items in pipeline order. */
     sortedItems: readonly T[]
     /** Rank a source array by `sortedItems`. v-for `rank(users)` so rows register themselves. */
-    rank: <U extends Record<string, unknown>>(source: readonly U[]) => U[]
+    rank: <U extends object>(source: readonly U[]) => U[]
     /** Whether the table is loading */
     isLoading: boolean
     /** Whether the table has no items */
@@ -45,7 +45,7 @@
   }
 </script>
 
-<script lang="ts" setup generic="T extends Record<string, unknown> = Record<string, unknown>">
+<script lang="ts" setup generic="T extends object = object">
   defineOptions({ name: 'DataTableBody', inheritAttrs: false })
 
   defineSlots<{

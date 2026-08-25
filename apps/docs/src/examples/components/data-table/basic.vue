@@ -2,7 +2,7 @@
   import { Button, DataTable } from '@vuetify/v0'
   import { shallowRef } from 'vue'
 
-  interface User extends Record<string, unknown> {
+  interface User {
     id: number
     name: string
     email: string

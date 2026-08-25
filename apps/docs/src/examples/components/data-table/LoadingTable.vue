@@ -6,12 +6,13 @@
     users: User[]
   }>()
 
-  function shown (items: readonly Record<string, unknown>[], user: User) {
-    return items.some(item => item.id === user.id)
+  function shown (items: readonly object[], user: User) {
+    return items.some(item => item === user || (item as User).id === user.id)
   }
 
-  function divided (items: readonly Record<string, unknown>[], user: User) {
-    return shown(items, user) && items.at(-1)?.id !== user.id
+  function divided (items: readonly object[], user: User) {
+    const last = items.at(-1) as User | undefined
+    return shown(items, user) && last?.id !== user.id
   }
 </script>
 

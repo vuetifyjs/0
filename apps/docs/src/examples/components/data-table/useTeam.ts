@@ -1,6 +1,6 @@
 import { ref, shallowRef } from 'vue'
 
-export interface Member extends Record<string, unknown> {
+export interface Member {
   id: number
   name: string
   email: string

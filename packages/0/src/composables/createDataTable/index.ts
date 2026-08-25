@@ -75,6 +75,10 @@ import type { DataTableAdapter, SortDirection, SortEntry } from './adapters/adap
 import type { InternalHeader } from './columns'
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
+function recordId (row: object): unknown {
+  return (row as Record<string, unknown>).id
+}
+
 // Exports
 export { DataTableAdapter } from './adapters'
 export type { DataTableAdapterContext, DataTableAdapterResult, SortDirection, SortEntry } from './adapters'
@@ -98,7 +102,7 @@ export type SelectStrategy = 'single' | 'page' | 'all'
  * table.register({ id: user.id, value: user })
  * ```
  */
-export interface DataTableTicketInput<T extends Record<string, unknown>> extends RegistryTicketInput<T> {
+export interface DataTableTicketInput<T extends object> extends RegistryTicketInput<T> {
   /** Row record. Required — the pipeline reads ticket.value. */
   value: T
 }
@@ -108,7 +112,7 @@ export interface DataTableTicketInput<T extends Record<string, unknown>> extends
  *
  * @template T Row value type.
  */
-export type DataTableTicket<T extends Record<string, unknown>> = RegistryTicket<T> & DataTableTicketInput<T>
+export type DataTableTicket<T extends object> = RegistryTicket<T> & DataTableTicketInput<T>
 
 /**
  * Input shape passed to `table.columns.register` / `table.columns.onboard`.
@@ -135,7 +139,7 @@ export type DataTableTicket<T extends Record<string, unknown>> = RegistryTicket<
  * })
  * ```
  */
-export interface DataTableColumnTicketInput<T extends Record<string, unknown> = Record<string, unknown>>
+export interface DataTableColumnTicketInput<T extends object = object>
   extends RegistryTicketInput {
   /** Column identifier. Required — selection / sort / filter all key off it. */
   id: Extensible<keyof T & string>
@@ -161,7 +165,7 @@ export interface DataTableColumnTicketInput<T extends Record<string, unknown> = 
  *
  * @template T Row value type.
  */
-export type DataTableColumnTicket<T extends Record<string, unknown> = Record<string, unknown>>
+export type DataTableColumnTicket<T extends object = object>
   = RegistryTicket<DataTableColumnTicketInput<T>['value']> & DataTableColumnTicketInput<T>
 
 export interface DataTableSort {
@@ -204,7 +208,7 @@ export interface DataTableSelection {
   isMixed: Readonly<Ref<boolean>>
 }
 
-export interface DataTableGroup<T extends Record<string, unknown>> {
+export interface DataTableGroup<T extends object> {
   /** Stringified group identifier */
   key: string
   /** Raw value of the groupBy column for this group */
@@ -213,7 +217,7 @@ export interface DataTableGroup<T extends Record<string, unknown>> {
   items: readonly T[]
 }
 
-export interface DataTableGrouping<T extends Record<string, unknown>> {
+export interface DataTableGrouping<T extends object> {
   /** Grouped items derived from sortedItems */
   groups: Readonly<Ref<DataTableGroup<T>[]>>
   /** Toggle a group's open/closed state */
@@ -247,7 +251,7 @@ export interface DataTableExpansion {
   collapseAll: () => void
 }
 
-export interface DataTableOptions<T extends Record<string, unknown>> {
+export interface DataTableOptions<T extends object> {
   /** Filter options (keys derived from columns) */
   filter?: Omit<FilterOptions, 'keys'>
   /** Pagination options (size derived from pipeline) */
@@ -274,7 +278,7 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
   adapter?: DataTableAdapter<T>
 }
 
-export interface DataTableContext<T extends Record<string, unknown>>
+export interface DataTableContext<T extends object>
   extends RegistryContext<DataTableTicketInput<T>, DataTableTicket<T>> {
   /** Final paginated items for rendering */
   items: Readonly<Ref<readonly T[]>>
@@ -285,7 +289,7 @@ export interface DataTableContext<T extends Record<string, unknown>>
   /** Items after filtering and sorting */
   sortedItems: Readonly<Ref<readonly T[]>>
   /** Rank a source array by `sortedItems`. v-for this so rows register; missing ranks stay in source order. */
-  rank: <U extends Record<string, unknown>>(source: readonly U[]) => U[]
+  rank: <U extends object>(source: readonly U[]) => U[]
   /**
    * Column registry. Use `columns.register({...})`, `columns.onboard([...])`,
    * `columns.unregister(id)`, and `columns.clear()` to manage columns. The
@@ -318,7 +322,7 @@ export interface DataTableContext<T extends Record<string, unknown>>
   error: Readonly<Ref<Error | null>>
 }
 
-export interface DataTableContextOptions<T extends Record<string, unknown>> extends DataTableOptions<T> {
+export interface DataTableContextOptions<T extends object> extends DataTableOptions<T> {
   namespace?: string
 }
 
@@ -363,7 +367,7 @@ export interface DataTableContextOptions<T extends Record<string, unknown>> exte
  * table.selection.toggle(1)
  * ```
  */
-export function createDataTable<T extends Record<string, unknown>> (
+export function createDataTable<T extends object> (
   options: DataTableOptions<T> = {},
 ): DataTableContext<T> {
   const {
@@ -799,19 +803,19 @@ export function createDataTable<T extends Record<string, unknown>> (
     },
   }
 
-  function rank<U extends Record<string, unknown>> (source: readonly U[]): U[] {
+  function rank<U extends object> (source: readonly U[]): U[] {
     const ranked = sortedItems.value
     const positions = new Map<unknown, number>()
 
     for (const [index, row] of ranked.entries()) {
       positions.set(row, index)
-      const id = row.id
+      const id = recordId(row)
       if (!isNullOrUndefined(id)) positions.set(id, index)
     }
 
     return [...source].toSorted((a, b) => {
-      const left = positions.get(a) ?? positions.get(a.id) ?? Infinity
-      const right = positions.get(b) ?? positions.get(b.id) ?? Infinity
+      const left = positions.get(a) ?? positions.get(recordId(a)) ?? Infinity
+      const right = positions.get(b) ?? positions.get(recordId(b)) ?? Infinity
       return left - right
     })
   }
@@ -872,7 +876,7 @@ export function createDataTable<T extends Record<string, unknown>> (
  * const table = useDataTable()
  * ```
  */
-export function createDataTableContext<T extends Record<string, unknown>> (
+export function createDataTableContext<T extends object> (
   _options: DataTableContextOptions<T> = {},
 ): ContextTrinity<DataTableContext<T>> {
   const { namespace = 'v0:data-table', ...options } = _options
@@ -899,7 +903,7 @@ export function createDataTableContext<T extends Record<string, unknown>> (
  * </script>
  * ```
  */
-export function useDataTable<T extends Record<string, unknown>> (
+export function useDataTable<T extends object> (
   namespace = 'v0:data-table',
 ): DataTableContext<T> {
   return useContext<DataTableContext<T>>(namespace)

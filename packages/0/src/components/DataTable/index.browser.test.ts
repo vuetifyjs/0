@@ -7,7 +7,7 @@ import { DataTable, useDataTableRoot } from './index'
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, onMounted } from 'vue'
 
-interface User extends Record<string, unknown> {
+interface User {
   id: number
   name: string
   email: string

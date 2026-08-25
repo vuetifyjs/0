@@ -1,6 +1,6 @@
 import { ref, shallowRef } from 'vue'
 
-export interface Issue extends Record<string, unknown> {
+export interface Issue {
   id: string
   title: string
   status: 'open' | 'done'

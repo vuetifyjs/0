@@ -181,7 +181,7 @@ Bind `v-model:search` on Root — same shape as `Pagination.Root`'s `v-model`. C
 | Slot prop | Type | Description |
 |-----------|------|-------------|
 | `id` | `ID \| undefined` | Registered row id |
-| `value` | `Record<string, unknown> \| undefined` | Registered row record. Undefined on header rows. |
+| `value` | `object \| undefined` | Registered row record. Undefined on header rows. |
 | `isSelected` | `boolean` | Whether the row is selected |
 | `isSelectable` | `boolean` | Whether the row can be selected |
 | `isVisible` | `boolean` | Whether this data row is on the current page. Header rows are always visible. |
@@ -312,7 +312,7 @@ Visibility lives on `DataTable.Row` after it registers. Body's `items` is empty 
 
 ??? Why doesn't sort move the rows?
 
-The pipeline reorders `sortedItems`, not your source array. `v-for="user in rank(users)"` — `rank` is on the Body slot. If you `v-for` `sortedItems` itself, rows that are not yet registered never mount.
+The pipeline reorders `sortedItems`, not your source array. `v-for="user in rank(users)"` — `rank` is on the Body slot. Matching is object identity, then the record's `id` field (same id you pass to `DataTable.Row`). If you `v-for` `sortedItems` itself, rows that are not yet registered never mount.
 
 ??? How do I render thousands of rows?
 
