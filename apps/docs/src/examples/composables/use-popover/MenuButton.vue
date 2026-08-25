@@ -2,14 +2,15 @@
   import { Button, toElement } from '@vuetify/v0'
   import { useTemplateRef } from 'vue'
 
+  import type { AtomExpose } from '@vuetify/v0'
   import type { Menu } from './useMenu'
 
   const { menu } = defineProps<{ menu: Menu }>()
 
-  const trigger = useTemplateRef('trigger')
+  const trigger = useTemplateRef<AtomExpose>('trigger')
   const content = useTemplateRef<HTMLElement>('content')
 
-  menu.attachAnchor(() => toElement(trigger.value) ?? null)
+  menu.attachAnchor(() => toElement(trigger.value?.element) ?? null)
   menu.attach(content)
 </script>
 
