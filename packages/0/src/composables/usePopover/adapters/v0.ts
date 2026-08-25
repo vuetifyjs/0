@@ -21,7 +21,7 @@ export class V0PopoverAdapter extends PopoverAdapter {
       'inset-area': context.placement.value.raw,
       'position-area': context.placement.value.raw,
       'position-anchor': context.anchorName,
-      'position-try-fallbacks': context.positionTry,
+      'position-try-fallbacks': context.positionTry.value,
     }))
   }
 }

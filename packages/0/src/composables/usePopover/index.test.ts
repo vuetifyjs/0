@@ -1,13 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { PopoverAdapter, usePopover } from './index'
+// Composables
+import { createTooltipPlugin } from '#v0/composables/useTooltip'
+
+import { createPopoverPlugin, PopoverAdapter, usePopover } from './index'
 
 // Utilities
-import { effectScope, nextTick, shallowRef, toRef } from 'vue'
+import { createApp, defineComponent, effectScope, h, nextTick, shallowRef, toRef } from 'vue'
 
 // Types
 import type { PopoverAdapterContext } from './index'
-import type { Ref } from 'vue'
+import type { Plugin, Ref } from 'vue'
 
 function createPopoverElement (options: { open?: boolean, connected?: boolean } = {}) {
   const state = {
@@ -229,6 +232,48 @@ describe('usePopover', () => {
       expect(popover.contentStyles.value['position-area']).toBe('top')
       expect(popover.contentStyles.value['position-try-fallbacks']).toBe('most-height top')
     })
+
+    it('should expose writable positionArea and positionTry refs', () => {
+      const popover = usePopover({ id: 'test', positionArea: 'bottom' })
+
+      expect(popover.positionArea.value).toBe('bottom')
+      expect(popover.contentStyles.value['position-area']).toBe('bottom')
+
+      popover.positionArea.value = 'top'
+      popover.positionTry.value = 'most-height top'
+
+      expect(popover.contentStyles.value['position-area']).toBe('top')
+      expect(popover.contentStyles.value['position-try-fallbacks']).toBe('most-height top')
+    })
+
+    it('should track a reactive positionArea option', async () => {
+      const area = shallowRef('bottom')
+      const popover = usePopover({ id: 'test', positionArea: area })
+
+      expect(popover.contentStyles.value['position-area']).toBe('bottom')
+
+      area.value = 'top'
+      await nextTick()
+
+      expect(popover.positionArea.value).toBe('top')
+      expect(popover.contentStyles.value['position-area']).toBe('top')
+    })
+
+    it('should keep a written positionArea over later source updates', async () => {
+      const rootArea = shallowRef('bottom')
+      const popover = usePopover({ id: 'test', positionArea: () => rootArea.value })
+
+      expect(popover.positionArea.value).toBe('bottom')
+
+      popover.positionArea.value = 'top'
+      expect(popover.positionArea.value).toBe('top')
+
+      rootArea.value = 'left'
+      await nextTick()
+
+      expect(popover.positionArea.value).toBe('top')
+      expect(popover.contentStyles.value['position-area']).toBe('top')
+    })
   })
 
   class RecordingAdapter extends PopoverAdapter {
@@ -265,12 +310,24 @@ describe('usePopover', () => {
       expect(popover.contentStyles.value).toEqual({ 'custom-style': 'top' })
     })
 
+    it('should update adapter placement when positionArea is written', () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ id: 'test', positionArea: 'bottom', adapter })
+
+      expect(adapter.context!.placement.value.side).toBe('bottom')
+
+      popover.positionArea.value = 'top'
+
+      expect(adapter.context!.placement.value.side).toBe('top')
+      expect(popover.contentStyles.value).toEqual({ 'custom-style': 'top' })
+    })
+
     it('should pass anchorName, positionTry, and isOpen through to the adapter context', () => {
       const adapter = new RecordingAdapter()
       const popover = usePopover({ id: 'test', positionTry: 'most-height top', adapter })
 
       expect(adapter.context!.anchorName).toBe('--test')
-      expect(adapter.context!.positionTry).toBe('most-height top')
+      expect(adapter.context!.positionTry.value).toBe('most-height top')
       expect(adapter.context!.isOpen).toBe(popover.isOpen)
     })
 
@@ -553,6 +610,109 @@ describe('usePopover', () => {
       scope.stop()
 
       expect(hidePopover).toHaveBeenCalled()
+    })
+  })
+
+  describe('plugin adapter resolution', () => {
+    class MarkerAdapter extends PopoverAdapter {
+      token: string
+
+      constructor (token: string) {
+        super()
+        this.token = token
+      }
+
+      setup () {
+        return toRef(() => ({ '--engine': this.token }))
+      }
+    }
+
+    function mountProbe (options: Parameters<typeof usePopover>[0], plugins: Plugin[] = []) {
+      let styles: Record<string, string> | undefined
+
+      const Probe = defineComponent({
+        setup () {
+          const popover = usePopover(options)
+          styles = popover.contentStyles.value
+          return () => h('div')
+        },
+      })
+
+      const app = createApp(Probe)
+      for (const plugin of plugins) {
+        app.use(plugin)
+      }
+      const root = document.createElement('div')
+      app.mount(root)
+
+      return {
+        styles: () => styles,
+        unmount: () => app.unmount(),
+      }
+    }
+
+    it('should prefer a per-instance adapter over the plugin adapter', () => {
+      const probe = mountProbe(
+        { adapter: new MarkerAdapter('instance') },
+        [createPopoverPlugin({ adapter: new MarkerAdapter('plugin') })],
+      )
+
+      expect(probe.styles()).toEqual({ '--engine': 'instance' })
+      probe.unmount()
+    })
+
+    it('should use the plugin adapter when no per-instance adapter is given', () => {
+      const probe = mountProbe(
+        {},
+        [createPopoverPlugin({ adapter: new MarkerAdapter('plugin') })],
+      )
+
+      expect(probe.styles()).toEqual({ '--engine': 'plugin' })
+      probe.unmount()
+    })
+
+    it('should use V0PopoverAdapter when the plugin has no adapter', () => {
+      const probe = mountProbe({ id: 'test' }, [createPopoverPlugin()])
+
+      expect(probe.styles()).toEqual({
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset-area': 'bottom',
+        'position-area': 'bottom',
+        'position-anchor': '--test',
+        'position-try-fallbacks': 'most-width bottom',
+      })
+      probe.unmount()
+    })
+
+    it('should not leak the tooltip plugin adapter into usePopover', () => {
+      const probe = mountProbe(
+        {},
+        [
+          createTooltipPlugin({ adapter: new MarkerAdapter('tooltip') }),
+          createPopoverPlugin({ adapter: new MarkerAdapter('popover') }),
+        ],
+      )
+
+      expect(probe.styles()).toEqual({ '--engine': 'popover' })
+      probe.unmount()
+    })
+
+    it('should ignore the tooltip plugin adapter when no popover plugin adapter is set', () => {
+      const probe = mountProbe(
+        { id: 'test' },
+        [createTooltipPlugin({ adapter: new MarkerAdapter('tooltip') })],
+      )
+
+      expect(probe.styles()).toEqual({
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset-area': 'bottom',
+        'position-area': 'bottom',
+        'position-anchor': '--test',
+        'position-try-fallbacks': 'most-width bottom',
+      })
+      probe.unmount()
     })
   })
 })
