@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@floating-ui/dom', () => {
   return {
@@ -29,7 +29,7 @@ import { effectScope, nextTick, shallowRef, toRef } from 'vue'
 
 // Types
 import type { PopoverPlacement } from './adapter'
-import type { Middleware } from '@floating-ui/dom'
+import type { ComputePositionReturn, Middleware } from '@floating-ui/dom'
 import type { Ref } from 'vue'
 
 interface WritableContext {
@@ -66,10 +66,17 @@ async function flush () {
 describe('floatingUIPopoverAdapter', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-  })
-
-  afterEach(() => {
-    vi.restoreAllMocks()
+    vi.mocked(computePosition).mockResolvedValue({
+      x: 12,
+      y: 34,
+      placement: 'bottom',
+      strategy: 'fixed',
+      middlewareData: {},
+    })
+    vi.mocked(autoUpdate).mockImplementation((_anchor, _content, update) => {
+      void update()
+      return vi.fn()
+    })
   })
 
   describe('middleware', () => {
@@ -216,6 +223,85 @@ describe('floatingUIPopoverAdapter', () => {
         expect.anything(),
         expect.objectContaining({ placement: 'bottom-end', strategy: 'fixed' }),
       )
+    })
+
+    it('should no-op a late autoUpdate tick after elements or isOpen drop', async () => {
+      let tick: (() => void) | undefined
+      vi.mocked(autoUpdate).mockImplementation((_anchor, _content, update) => {
+        tick = update
+        return vi.fn()
+      })
+
+      const adapter = new FloatingUIPopoverAdapter()
+      const context = makeContext()
+      const styles = adapter.setup(context)
+
+      context.anchorEl.value = element()
+      context.contentEl.value = element()
+      context.isOpen.value = true
+      await flush()
+
+      expect(tick).toBeTypeOf('function')
+      vi.mocked(computePosition).mockClear()
+
+      context.anchorEl.value = null
+      await tick?.()
+      await flush()
+      expect(computePosition).not.toHaveBeenCalled()
+
+      context.anchorEl.value = element()
+      context.contentEl.value = null
+      await tick?.()
+      await flush()
+      expect(computePosition).not.toHaveBeenCalled()
+
+      context.contentEl.value = element()
+      context.isOpen.value = false
+      await tick?.()
+      await flush()
+      expect(computePosition).not.toHaveBeenCalled()
+      expect(styles.value).toEqual({
+        position: 'fixed',
+        margin: 'unset',
+        inset: 'unset',
+        top: '0px',
+        left: '0px',
+      })
+    })
+
+    it('should discard computePosition results after the popover closes', async () => {
+      let resolveCompute: ((value: ComputePositionReturn) => void) | undefined
+      vi.mocked(autoUpdate).mockImplementation((_anchor, _content, update) => {
+        void update()
+        return vi.fn()
+      })
+      vi.mocked(computePosition).mockImplementation(() => new Promise(resolve => {
+        resolveCompute = resolve
+      }))
+
+      const adapter = new FloatingUIPopoverAdapter()
+      const context = makeContext()
+      const styles = adapter.setup(context)
+
+      context.anchorEl.value = element()
+      context.contentEl.value = element()
+      context.isOpen.value = true
+      await flush()
+
+      expect(resolveCompute).toBeTypeOf('function')
+      expect(styles.value.top).toBe('0px')
+
+      context.isOpen.value = false
+      resolveCompute?.({ x: 99, y: 88, placement: 'bottom', strategy: 'fixed', middlewareData: {} })
+      await flush()
+
+      expect(styles.value).toEqual({
+        position: 'fixed',
+        margin: 'unset',
+        inset: 'unset',
+        top: '0px',
+        left: '0px',
+      })
     })
 
     it('should no-op when the anchor or content element is missing', async () => {

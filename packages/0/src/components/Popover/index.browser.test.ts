@@ -702,7 +702,9 @@ describe('popover', () => {
         const style = content.attributes('style') ?? ''
         expect(style).toContain('position: fixed')
         expect(style).toContain('margin: unset')
-        expect(style).toContain('inset: unset')
+        // Chromium expands `inset: unset` into the longhands after top/left apply.
+        expect(style).toContain('right: unset')
+        expect(style).toContain('bottom: unset')
         expect(style).toMatch(/top:\s*-?\d/)
         expect(style).toMatch(/left:\s*-?\d/)
         expect(style).not.toContain('position-area')

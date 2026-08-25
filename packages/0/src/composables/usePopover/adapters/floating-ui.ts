@@ -70,6 +70,7 @@ export class FloatingUIPopoverAdapter extends PopoverAdapter {
     let stopAutoUpdate: (() => void) | undefined
 
     async function reposition () {
+      /* v8 ignore next -- SSR: no layout engine off-DOM */
       if (!IN_BROWSER) return
 
       const anchor = context.anchorEl.value
@@ -96,6 +97,7 @@ export class FloatingUIPopoverAdapter extends PopoverAdapter {
       stopAutoUpdate?.()
       stopAutoUpdate = undefined
 
+      /* v8 ignore next -- SSR: no layout engine off-DOM */
       if (!IN_BROWSER) return
 
       const anchor = context.anchorEl.value
