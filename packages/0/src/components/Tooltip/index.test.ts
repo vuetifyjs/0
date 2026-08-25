@@ -11,6 +11,7 @@ import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, toRef } from 'vue'
 
 // Types
+import type { PopoverAdapterContext } from '#v0/composables/usePopover'
 import type { MountingOptions } from '@vue/test-utils'
 import type { Component, Plugin } from 'vue'
 
@@ -474,6 +475,40 @@ describe('tooltip', () => {
       await nextTick()
 
       expect(wrapper.find('[role="tooltip"]').attributes('style')).toContain('--engine: popover-plugin')
+      wrapper.unmount()
+    })
+
+    it('should update content placement when the Root positionArea prop changes', async () => {
+      class RecordingAdapter extends PopoverAdapter {
+        setup (context: PopoverAdapterContext) {
+          return toRef(() => ({ '--side': context.placement.value.side }))
+        }
+      }
+
+      const adapter = new RecordingAdapter()
+
+      const Harness = defineComponent({
+        props: {
+          positionArea: { type: String, default: 'top' },
+        },
+        setup (props) {
+          return () =>
+            h(Tooltip.Root, { modelValue: true, positionArea: props.positionArea, adapter }, () => [
+              h(Tooltip.Activator, null, () => 'Trigger'),
+              h(Tooltip.Content, null, () => 'Tip'),
+            ])
+        },
+      })
+
+      const wrapper = mountTooltip(Harness, { attachTo: document.body })
+      await nextTick()
+
+      expect(wrapper.find('[role="tooltip"]').attributes('style')).toContain('--side: top')
+
+      await wrapper.setProps({ positionArea: 'bottom' })
+      await nextTick()
+
+      expect(wrapper.find('[role="tooltip"]').attributes('style')).toContain('--side: bottom')
       wrapper.unmount()
     })
   })

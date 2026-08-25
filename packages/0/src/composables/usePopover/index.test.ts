@@ -258,6 +258,22 @@ describe('usePopover', () => {
       expect(popover.positionArea.value).toBe('top')
       expect(popover.contentStyles.value['position-area']).toBe('top')
     })
+
+    it('should keep a written positionArea over later source updates', async () => {
+      const rootArea = shallowRef('bottom')
+      const popover = usePopover({ id: 'test', positionArea: () => rootArea.value })
+
+      expect(popover.positionArea.value).toBe('bottom')
+
+      popover.positionArea.value = 'top'
+      expect(popover.positionArea.value).toBe('top')
+
+      rootArea.value = 'left'
+      await nextTick()
+
+      expect(popover.positionArea.value).toBe('top')
+      expect(popover.contentStyles.value['position-area']).toBe('top')
+    })
   })
 
   class RecordingAdapter extends PopoverAdapter {

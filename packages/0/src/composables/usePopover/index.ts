@@ -62,8 +62,8 @@ import { V0PopoverAdapter, toPlacement } from '#v0/composables/usePopover/adapte
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { isFunction, isNullOrUndefined, isUndefined, useId } from '#v0/utilities'
-import { isRef, onScopeDispose, shallowRef, toRef, toValue, watch } from 'vue'
+import { isNullOrUndefined, useId } from '#v0/utilities'
+import { computed, onScopeDispose, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Exports
 export { PopoverAdapter, toPlacement, V0PopoverAdapter } from '#v0/composables/usePopover/adapters'
@@ -218,15 +218,14 @@ const [createPopoverContext, createPopoverPlugin, usePopoverPlugin] =
 export { createPopoverContext, createPopoverPlugin }
 
 function bindOption (source: MaybeRefOrGetter<string | undefined> | undefined, fallback: string): Ref<string> {
-  const value = shallowRef(toValue(source) ?? fallback)
+  const override = shallowRef<string>()
 
-  if (isRef(source) || isFunction(source)) {
-    watch(source, next => {
-      if (!isUndefined(next)) value.value = next
-    })
-  }
-
-  return value
+  return computed({
+    get: () => override.value ?? toValue(source) ?? fallback,
+    set: value => {
+      override.value = value
+    },
+  })
 }
 
 export function usePopover (options: PopoverOptions = {}): PopoverReturn {
