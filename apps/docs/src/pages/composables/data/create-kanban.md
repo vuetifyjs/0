@@ -81,6 +81,7 @@ The composable adds the following on top of two `createSortable` instances:
 | `on` / `off` | Subscribe to the `transfer:ticket` event. For column register/unregister/move events, subscribe via `kanban.columns.on(...)` instead. |
 | `lookup` (internal) | `createRegistry` mapping item id → column id. Maintained by per-column items-bus subscriptions. |
 | `bus` (internal) | `createRegistry` used as an event bus for `transfer:ticket`. |
+| `dispose()` | Tear down the board: every column's inner `items` sortable, the lookup, the transfer bus, and the columns registry. `columns.dispose` is the same function — not a columns-only wipe. |
 
 ## Reactivity
 
@@ -95,6 +96,7 @@ The composable adds the following on top of two `createSortable` instances:
 | `transfer:ticket` event | <AppSuccessIcon /> | Fires after a successful cross-column move. Payload: `{ ticket, from, to, fromIndex, toIndex }`. Does not fire for same-column moves. |
 | `move:ticket` on `kanban.columns` | <AppSuccessIcon /> | Fires when a column is reordered via `kanban.columns.move`, `swap`, or `reorder`. Subscribe via `kanban.columns.on('move:ticket', ...)` — not `kanban.on(...)`. |
 | `move:ticket` on `column.items` | <AppSuccessIcon /> | Fires on intra-column `move` / `swap` / `reorder`, and on the destination column when a transfer needs a positional correction to `toIndex`. Append-position transfers emit none. Subscribe via `column.items.on('move:ticket', ...)`. |
+| `dispose()` | — | Method — cascade teardown. Call `kanban.dispose()`, not `columns.clear()`. `columns.dispose === kanban.dispose`. Repeatable after a rebuild. |
 
 ## Examples
 
@@ -254,6 +256,14 @@ flowchart TD
 ```
 
 `transfer:ticket` is the user-level cross-column event — its listeners see the ticket already in the destination. Dest `move:ticket` during a transfer is the landing correction, not a second move; do not persist it as a separate reorder. Intra-column reorders stay on `column.items.on('move:ticket')`.
+
+### Teardown
+
+Call `kanban.dispose()` to cascade inner sortables. `columns.clear()` only wipes tickets — registry `clear()` never emits `unregister:ticket`, so per-column cleanup would not run. `kanban.columns.dispose` is the same function as `kanban.dispose()`, not a columns-only wipe. Repeatable: register columns again, then `dispose()` tears down the rebuilt board the same way.
+
+```ts
+kanban.dispose()
+```
 
 ## FAQ
 

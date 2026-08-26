@@ -1,12 +1,5 @@
 <script setup lang="ts">
-  import {
-    EmCalendar,
-    EmCalendarGrid,
-    EmCalendarHeader,
-    EmCalendarNext,
-    EmCalendarPrev,
-    EmCalendarTitle,
-  } from '@paper/emerald'
+  import { EmCalendar } from '@paper/emerald'
 
   import { shallowRef } from 'vue'
 
@@ -16,15 +9,15 @@
 <template>
   <div class="emerald-docs-stack">
     <EmCalendar v-model="day">
-      <EmCalendarHeader>
-        <EmCalendarPrev />
+      <EmCalendar.Header>
+        <EmCalendar.Prev />
 
-        <EmCalendarTitle />
+        <EmCalendar.Title />
 
-        <EmCalendarNext />
-      </EmCalendarHeader>
+        <EmCalendar.Next />
+      </EmCalendar.Header>
 
-      <EmCalendarGrid />
+      <EmCalendar.Grid />
     </EmCalendar>
 
     <p v-if="day" class="emerald-docs-note">

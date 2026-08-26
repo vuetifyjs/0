@@ -11,6 +11,7 @@ features:
   github: /composables/createDataGrid/
   level: 3
 related:
+  - /components/data/data-grid
   - /composables/data/create-data-table
   - /composables/data/create-filter
   - /composables/data/create-pagination
@@ -399,6 +400,10 @@ grid.headers.value
 ## FAQ
 
 ::: faq
+
+??? When should I use DataGrid vs createDataGrid?
+
+Use [DataGrid](/components/data/data-grid) when you want the compound markup and ARIA. Use `createDataGrid` when you own the rendering — custom cells, virtual lists, or `onboard` of a server page.
 
 ??? When should I use createDataGrid vs createDataTable?
 

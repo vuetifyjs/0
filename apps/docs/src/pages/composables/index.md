@@ -278,7 +278,7 @@ Browser API wrappers with automatic lifecycle cleanup.
 | [useLazy](/composables/system/use-lazy) | Defer rendering until first activation for dialogs, menus, and tooltips |
 | [useMediaQuery](/composables/system/use-media-query) | Reactive CSS media query matching |
 | [useMutationObserver](/composables/system/use-mutation-observer) | Mutation Observer API for DOM change detection |
-| [usePopover](/composables/system/use-popover) | Native Popover API behavior with CSS anchor positioning |
+| [usePopover](/composables/system/use-popover) | Native Popover API with CSS anchor positioning; install `createPopoverPlugin` to set an app-wide positioning adapter |
 | [usePresence](/composables/system/use-presence) | Animation-agnostic mount lifecycle with lazy mounting and exit timing |
 | [useRaf](/composables/system/use-raf) | Scope-safe requestAnimationFrame with automatic cleanup |
 | [useResizeObserver](/composables/system/use-resize-observer) | Resize Observer API for element size changes |

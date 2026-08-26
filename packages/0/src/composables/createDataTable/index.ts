@@ -272,7 +272,7 @@ export interface DataTableOptions<T extends object> {
   openAll?: boolean
   /** Allow multiple rows expanded simultaneously. @default true */
   expandMultiple?: boolean
-  /** Locale for sorting (defaults to useLocale's selected locale or browser default) */
+  /** Locale for sorting. When set, wins over useLocale; otherwise useLocale or the browser default. */
   locale?: string
   /** Pipeline adapter. @default ClientDataTableAdapter */
   adapter?: DataTableAdapter<T>
@@ -406,11 +406,11 @@ export function createDataTable<T extends object> (
   const { selectedId: selectedLocale } = useLocale()
 
   const locale = toRef(() => {
+    if (!isNullOrUndefined(initialLocale)) return initialLocale
+
     const selected = selectedLocale?.value
 
     if (!isNullOrUndefined(selected)) return String(selected)
-
-    return initialLocale
   })
 
   const leaves = computed(() => extractLeaves(columns.values()))

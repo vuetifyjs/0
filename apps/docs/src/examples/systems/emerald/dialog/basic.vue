@@ -1,14 +1,5 @@
 <script setup lang="ts">
-  import {
-    EmButton,
-    EmDialog,
-    EmDialogActivator,
-    EmDialogClose,
-    EmDialogContent,
-    EmDialogDescription,
-    EmDialogFooter,
-    EmDialogTitle,
-  } from '@paper/emerald'
+  import { EmButton, EmDialog } from '@paper/emerald'
 
   import { shallowRef } from 'vue'
 
@@ -24,25 +15,25 @@
 <template>
   <div class="emerald-docs-row">
     <EmDialog v-model="open">
-      <EmDialogActivator v-slot="{ attrs }" renderless>
+      <EmDialog.Activator v-slot="{ attrs }" renderless>
         <EmButton v-bind="attrs">Invite teammate</EmButton>
-      </EmDialogActivator>
+      </EmDialog.Activator>
 
-      <EmDialogContent>
-        <EmDialogTitle>Invite a teammate</EmDialogTitle>
+      <EmDialog.Content>
+        <EmDialog.Title>Invite a teammate</EmDialog.Title>
 
-        <EmDialogDescription>
+        <EmDialog.Description>
           They will get an email with a link to join this workspace.
-        </EmDialogDescription>
+        </EmDialog.Description>
 
-        <EmDialogFooter>
+        <EmDialog.Footer>
           <EmButton variant="tertiary" @click="open = false">Cancel</EmButton>
 
           <EmButton @click="onSend">Send invite</EmButton>
-        </EmDialogFooter>
+        </EmDialog.Footer>
 
-        <EmDialogClose />
-      </EmDialogContent>
+        <EmDialog.Close />
+      </EmDialog.Content>
     </EmDialog>
 
     <span v-if="sent" class="emerald-docs-note" role="status">Invite sent.</span>
