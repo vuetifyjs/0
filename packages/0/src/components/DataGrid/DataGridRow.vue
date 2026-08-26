@@ -230,7 +230,7 @@
   }
 
   function onSplitterLayout (sizes: number[]) {
-    if (sizes.length !== context.layout.columns.value.length) return
+    if (sizes.length !== panels.length) return
 
     const visible = new Set(context.layout.columns.value.map(c => c.id))
     const assigned = new Map<string, number>()
@@ -250,7 +250,7 @@
       permuted.push(size)
     }
 
-    if (permuted.length !== sizes.length) return
+    if (permuted.length !== visible.size) return
 
     context.layout.distribute(permuted)
   }

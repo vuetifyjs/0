@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { DataGrid } from './index'
 
 // Utilities
+import { isUndefined } from '#v0/utilities'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
 
@@ -1728,6 +1729,58 @@ describe('dataGrid', () => {
         expect(size('c')).toBe(10)
         expect(size('a')).toBe(20)
         expect(size('b')).toBe(70)
+      })
+
+      it('should sync Splitter layout after a column is hidden', async () => {
+        const { wrapper, context } = mountRoot(
+          () =>
+            h(DataGrid.Table, { as: 'div' }, () =>
+              h(DataGrid.Header, { as: 'div' }, () =>
+                h(DataGrid.Row, { resizable: true, as: 'div', class: 'flex' }, () => [
+                  h(DataGrid.Column, { id: 'name' }, () => 'Name'),
+                  h(DataGrid.Handle),
+                  h(DataGrid.Column, { id: 'email' }, () => 'Email'),
+                  h(DataGrid.Handle),
+                  h(DataGrid.Column, { id: 'status' }, () => 'Status'),
+                ]),
+              ),
+            ),
+          {},
+          [
+            { id: 'name', size: 40, minSize: 5, maxSize: 90, resizable: true },
+            { id: 'email', size: 30, minSize: 5, maxSize: 90, resizable: true },
+            { id: 'status', size: 30, minSize: 5, maxSize: 90, resizable: true },
+          ],
+        )
+
+        await nextTick()
+        context.layout.hide('email')
+        await nextTick()
+
+        expect(context.layout.columns.value.map((c: any) => c.id)).toEqual(['name', 'status'])
+        expect(wrapper.findAll('[data-panel-index]')).toHaveLength(3)
+
+        const row = wrapper.findComponent(DataGrid.Row as any)
+        const splitter = row.findComponent({ name: 'SplitterRoot' })
+        expect(splitter.exists()).toBe(true)
+
+        splitter.vm.distribute([40, 20, 40])
+        await nextTick()
+
+        function column (id: string) {
+          return context.layout.all.value.find((c: any) => c.id === id)
+        }
+
+        const nameCol = column('name')
+        const emailCol = column('email')
+        const statusCol = column('status')
+
+        expect(isUndefined(nameCol)).toBe(false)
+        expect(isUndefined(emailCol)).toBe(false)
+        expect(isUndefined(statusCol)).toBe(false)
+        expect(nameCol.size).toBe(50)
+        expect(emailCol.size).toBe(30)
+        expect(statusCol.size).toBe(50)
       })
 
       it('should resize columns from Handle keyboard interaction', async () => {
