@@ -230,8 +230,6 @@
   }
 
   function onSplitterLayout (sizes: number[]) {
-    if (sizes.length !== panels.length) return
-
     const visible = new Set(context.layout.columns.value.map(c => c.id))
     const assigned = new Map<string, number>()
 
