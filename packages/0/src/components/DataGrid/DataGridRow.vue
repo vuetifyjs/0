@@ -250,8 +250,6 @@
       permuted.push(size)
     }
 
-    if (permuted.length !== visible.size) return
-
     context.layout.distribute(permuted)
   }
 

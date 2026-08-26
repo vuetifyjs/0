@@ -1783,6 +1783,48 @@ describe('dataGrid', () => {
         expect(statusCol.size).toBe(50)
       })
 
+      it('should ignore Splitter layout whose length does not match mounted panels', async () => {
+        const { wrapper, context } = mountRoot(
+          () =>
+            h(DataGrid.Table, { as: 'div' }, () =>
+              h(DataGrid.Header, { as: 'div' }, () =>
+                h(DataGrid.Row, { resizable: true, as: 'div', class: 'flex' }, () => [
+                  h(DataGrid.Column, { id: 'name' }, () => 'Name'),
+                  h(DataGrid.Handle),
+                  h(DataGrid.Column, { id: 'email' }, () => 'Email'),
+                  h(DataGrid.Handle),
+                  h(DataGrid.Column, { id: 'status' }, () => 'Status'),
+                ]),
+              ),
+            ),
+          {},
+          [
+            { id: 'name', size: 40, minSize: 5, maxSize: 90, resizable: true },
+            { id: 'email', size: 30, minSize: 5, maxSize: 90, resizable: true },
+            { id: 'status', size: 30, minSize: 5, maxSize: 90, resizable: true },
+          ],
+        )
+
+        await nextTick()
+        context.layout.hide('email')
+        await nextTick()
+
+        expect(wrapper.findAll('[data-panel-index]')).toHaveLength(3)
+
+        const row = wrapper.findComponent(DataGrid.Row as any)
+        const splitter = row.findComponent({ name: 'SplitterRoot' })
+        splitter.vm.distribute([50, 50])
+        await nextTick()
+
+        function column (id: string) {
+          return context.layout.all.value.find((c: any) => c.id === id)
+        }
+
+        expect(column('name').size).toBe(40)
+        expect(column('email').size).toBe(30)
+        expect(column('status').size).toBe(30)
+      })
+
       it('should resize columns from Handle keyboard interaction', async () => {
         const { wrapper, context } = mountRoot(() =>
           h(DataGrid.Table, { as: 'div' }, () =>
