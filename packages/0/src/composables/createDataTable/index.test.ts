@@ -1,9 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createDataTable, createDataTableContext, useDataTable, ServerDataTableAdapter, VirtualDataTableAdapter } from './index'
+// Composables
+import { createLocalePlugin, useLocale } from '#v0/composables/useLocale'
+
+import { createDataTable, createDataTableContext, useDataTable, ClientDataTableAdapter, ServerDataTableAdapter, VirtualDataTableAdapter } from './index'
 
 // Utilities
-import { computed, inject, nextTick, provide, ref } from 'vue'
+import { computed, createApp, inject, nextTick, provide, ref } from 'vue'
 
 // Types
 import type { DataTableColumnTicketInput, DataTableOptions, DataTableTicketInput } from './index'
@@ -900,13 +903,52 @@ describe('createDataTable', () => {
   })
 
   describe('locale resolution', () => {
-    it('should use initialLocale when no locale plugin is available', () => {
-      const table = createTable({ locale: 'de-DE' })
+    function withLocaleCapture (overrides: Partial<DataTableOptions<User>> = {}) {
+      const adapter = new ClientDataTableAdapter<User>()
+      const setup = adapter.setup.bind(adapter)
+      const captured = { locale: undefined as string | undefined }
+      adapter.setup = context => {
+        captured.locale = context.locale?.value
+        return setup(context)
+      }
+      const table = createTable({ ...overrides, adapter })
+      return { table, captured }
+    }
 
-      // The locale should be used by the adapter for sorting
-      // Verify the table works with the provided locale
+    it('should use initialLocale when no locale plugin is available', () => {
+      const { table, captured } = withLocaleCapture({ locale: 'de-DE' })
+
       table.sort.toggle('name')
+
+      expect(captured.locale).toBe('de-DE')
       expect(table.sortedItems.value.length).toBe(5)
+    })
+
+    it('should prefer factory locale over plugin selectedId', async () => {
+      const actual = await vi.importActual('vue') as { inject: typeof inject }
+
+      mockInject.mockImplementation(actual.inject)
+
+      try {
+        const app = createApp({ render: () => null })
+        app.use(createLocalePlugin({
+          default: 'en',
+          messages: {
+            en: {},
+            fr: {},
+          },
+        }))
+
+        app.runWithContext(() => {
+          expect(useLocale().selectedId.value).toBe('en')
+
+          const { table, captured } = withLocaleCapture({ locale: 'de-DE' })
+          table.sort.toggle('name')
+          expect(captured.locale).toBe('de-DE')
+        })
+      } finally {
+        mockInject.mockReset()
+      }
     })
   })
 
