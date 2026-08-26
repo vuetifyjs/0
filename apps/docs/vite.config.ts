@@ -34,12 +34,6 @@ import pkg from './package.json' with { type: 'json' }
 import type { ViteSSGOptions } from 'vite-ssg'
 
 export default defineConfig({
-  optimizeDeps: {
-    exclude: ['@vue/repl', 'monaco-editor'],
-  },
-  ssr: {
-    noExternal: ['@vue/repl'],
-  },
   build: {
     sourcemap: true,
     rollupOptions: {

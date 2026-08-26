@@ -3,12 +3,14 @@ on:
   push:
     branches: [master]
     # Single paths list with `!` negations — GitHub does not allow both
-    # `paths` and `paths-ignore` on the same event. Playground bundles only
-    # @vuetify/v0 (no genesis, no paper), so those packages are omitted.
+    # `paths` and `paths-ignore` on the same event. Playground bundles
+    # @vuetify/v0, @vuetify/play, and @paper/genesis.
     paths:
       - 'apps/playground/**'
       - 'packages/0/src/**'
       - 'packages/0/package.json'
+      - 'packages/genesis/**'
+      - 'packages/play/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
       - '.github/workflows/playground-deploy.yml'
