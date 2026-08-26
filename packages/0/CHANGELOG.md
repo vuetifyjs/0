@@ -1,5 +1,190 @@
 # @vuetify/v0
 
+## 1.2.0
+
+### Minor Changes
+
+- [#826](https://github.com/vuetifyjs/0/pull/826) [`bcc509c`](https://github.com/vuetifyjs/0/commit/bcc509c909404443dfff098ef0b0bc73e206da93) Thanks [@johnleider](https://github.com/johnleider)! - feat(DataGrid): headless compound with column layout, editing, and spanning
+
+  Adds `DataGrid` compound component providing structural shells for building data grids:
+
+  - `DataGrid.Root` — context provider wrapping `createDataGrid`. Columns and rows register on mount.
+  - `DataGrid.Table` — semantic `<table>` with `role="table"` (not an APG Grid widget)
+  - `DataGrid.Header` / `DataGrid.Body` — section containers; `role="rowgroup"` only when `as` is not the native `thead`/`tbody`
+  - `DataGrid.Row` — row container with optional `id`/`value` for registration, selection, and expansion
+  - `DataGrid.Column` — header cell with sorting state, `aria-sort`, and layout (pin/size)
+  - `DataGrid.Cell` — data cell with `role="cell"`, editing state, and row spanning
+  - `DataGrid.Empty` — empty-state row; slot `columnCount` for Cell colspan
+  - `DataGrid.Handle` — column resize handle (Splitter.Handle) for use inside a resizable row on the `as="div"` chain
+
+  Context injection via `useDataGridRoot` / `provideDataGridRoot` and `useDataGridRow` / `provideDataGridRow`.
+
+- [#825](https://github.com/vuetifyjs/0/pull/825) [`bac9bdb`](https://github.com/vuetifyjs/0/commit/bac9bdbca5d61582780f6bf143ddc163dc03c117) Thanks [@johnleider](https://github.com/johnleider)! - feat(DataTable): introduce compound component over createDataTable
+
+  Headless table with semantic markup. Root creates `createDataTable`; Column and Row register when they mount (same lifecycle as Checkbox.Group). `v-for="user in rank(users)"` — `rank` is on the Body slot and orders the source by the pipeline. Row hides off-page rows itself so they stay registered.
+
+  - **DataTable.Root** — factory + provider; `v-model:search`
+  - **DataTable.Table** — `<table>`; `aria-rowcount` only when the page is a subset of total
+  - **DataTable.Header** — `<thead>` exposing the 2D header grid
+  - **DataTable.Column** — `<th>` with `aria-sort`; `toggle` / `direction` on the slot
+  - **DataTable.Body** — `<tbody>`; slot `rank`, `items`, `isEmpty`
+  - **DataTable.Row** — `<tr>` for header or body; owns visibility and `aria-rowindex`
+  - **DataTable.Cell** — `<td>`
+  - **DataTable.Empty** — empty-state row when the page has no items
+
+  Sorting, filtering, pagination, selection, and expansion stay on `createDataTable`. Large lists use `VirtualDataTableAdapter` + `createVirtual`, not this compound.
+
+- [#823](https://github.com/vuetifyjs/0/pull/823) [`afd8718`](https://github.com/vuetifyjs/0/commit/afd8718bef5cd2d4870d653f63840482acdcdfbf) Thanks [@johnleider](https://github.com/johnleider)! - feat(Alert): add `Alert` compound component
+
+  A headless compound component for inline status messages: `Alert.Root` renders a live region that assistive technology announces automatically when content is inserted or updated, `Alert.Title` renders as a `<p>`, and `Alert.Description` renders as a `<p>`. Use `role="alert"` (the default, assertive) for urgent messages that must interrupt the current announcement, or `role="status"` for polite, non-urgent information.
+
+- [#786](https://github.com/vuetifyjs/0/pull/786) [`1d3d810`](https://github.com/vuetifyjs/0/commit/1d3d810341d766c5ecad0e4903b8736abcdc6636) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - feat(NumberField): add opt-in eager commit via `commitOn: 'input'` ([#755](https://github.com/vuetifyjs/0/issues/755))
+
+  `NumberField` only wrote the typed value into the model on blur/Enter — any consumer
+  wanting live feedback per keystroke (previews, running calculations) had no way to get
+  model updates without bypassing the field's parse/clamp logic entirely.
+
+  Added a `commitOn` option (`'change'` default, matching today's behavior; `'input'`
+  opts in to writing on every keystroke) to `createNumberField` and `NumberField.Root`.
+  Eager writes go through a new `write()` on the context, which parses but does
+  **not** clamp or snap — clamping mid-type would jump a value like `1` to `min` before
+  the user finishes typing `15`. Clamping/snapping still happens on the next `commit()`
+  (blur/Enter), unchanged.
+
+  Also fixes a real bug found while adding coverage for the above: `NumberFieldRoot`'s
+  `clamp` prop is optional and boolean-typed with no explicit default, so when unset,
+  Vue's boolean-prop casting resolved it to `false` rather than `undefined` — silently
+  disabling the documented default-`true` clamping behavior for every consumer who
+  didn't explicitly pass `:clamp="true"`. A component-level default now matches the
+  composable's own `clamp: shouldClamp = true` default.
+
+- [#635](https://github.com/vuetifyjs/0/pull/635) [`840d6ea`](https://github.com/vuetifyjs/0/commit/840d6eaa7a578eb895ce8790e45687ac97c341c0) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - feat(Select): add `label` prop to `SelectActivator` ([#635](https://github.com/vuetifyjs/0/issues/635))
+
+  `SelectActivator` had no way to carry an accessible name when the visible label lives in a sibling element. A new `label` prop renders as `aria-label` on the activator (and is exposed through the slot attrs), so screen readers announce the select's purpose without requiring a wired-up `<label>` element.
+
+- [#603](https://github.com/vuetifyjs/0/pull/603) [`be427af`](https://github.com/vuetifyjs/0/commit/be427af15b294fb894f26a426ee1ceb4c5585f51) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - feat(useStack): add app-wide `default` teleport option to `createStackPlugin` ([#603](https://github.com/vuetifyjs/0/issues/603))
+
+  Previously the only way to teleport all Portals to a non-default target was per-component (`<SnackbarPortal to="top-layer" />` on every instance) — there was no single place to configure the fallback for the whole app. `createStackPlugin({ default: 'top-layer' })` now sets that fallback once; `Portal` resolves its target through `to` prop → `stack.default` → `'body'`.
+
+- [#388](https://github.com/vuetifyjs/0/pull/388) [`d2fde78`](https://github.com/vuetifyjs/0/commit/d2fde78dddf57fbaaa5f1a04a5efd51f0ef92be6) Thanks [@johnleider](https://github.com/johnleider)! - feat(useFeatures): add `persist` option to `createFeaturesPlugin`
+
+  Setting `persist: true` saves the user's feature-flag overrides to storage as a delta relative to each flag's registration default (`{ enabled, disabled }`) and reapplies them on load. Flags the user never touched are not stored, so they keep following code and adapter defaults across releases; toggling a flag back to its default drops it from the delta. Overrides for flags that register late (adapters, runtime registrations) apply at registration time, and entries for flags that no longer exist are pruned from the next write. `reset()` restores every flag to its registration default in-session and clears the stored overrides. Backed by the existing `createPluginContext` persist/restore hooks and keyed by the plugin namespace.
+
+- [#862](https://github.com/vuetifyjs/0/pull/862) [`a3d8d1c`](https://github.com/vuetifyjs/0/commit/a3d8d1cb9e2270595054b1fff6bee5db229bc23b) Thanks [@J-Sek](https://github.com/J-Sek)! - feat(toHighlight): add `ignoreAccents` so a plain query matches accented text
+
+  `toHighlight(text, query, { ignoreCase: true, ignoreAccents: true })` folds diacritics before matching and maps the ranges back onto the source, so `zurich` highlights _Zürich_ with its umlaut intact. It is directional — `'target'` folds only the text, `'query'` only the search term, `true` both sides — and covers common letters NFD leaves alone (`ł`, `ø`, `ß`, `æ`, …).
+
+  With `ignoreCase`, Greek final sigma folds to `σ` so `ΣΟΦΟΣ` and `σοφος` match each other.
+
+  The matcher behind it ships as `findMatchRanges(text, query, { ignoreCase, ignoreAccents, matchAll })` for filters that need the same ranges without the chunking.
+
+- [#384](https://github.com/vuetifyjs/0/pull/384) [`04eb489`](https://github.com/vuetifyjs/0/commit/04eb489585f87f95c5d855c6a5d5dd169aaaad60) Thanks [@johnleider](https://github.com/johnleider)! - feat(useNotifications): add `persist` option to `createNotificationsPlugin`
+
+  Setting `persist: true` saves each notification's interaction state — `readAt`, `seenAt`, `archivedAt`, and `snoozedUntil` — to storage as a map keyed by notification id, and merges it back onto the notifications the app registers, whether they exist at restore time or register later (adapters, runtime sends). Notification content is never stored: code stays the source of truth for subject, body, and data. Expired snoozes are dropped on restore, and state for notifications that no longer register is pruned from the next write. Backed by the existing `createPluginContext` persist/restore hooks and keyed by the plugin namespace.
+
+- [#846](https://github.com/vuetifyjs/0/pull/846) [`1864803`](https://github.com/vuetifyjs/0/commit/186480383960f364ba90c0236b8a38711c88b899) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - feat(usePopover): add a pluggable positioning-adapter seam
+
+  `usePopover` had exactly one positioning implementation - CSS anchor
+  positioning, hard-coded, with no way to supply another. CSS anchor
+  positioning isn't available in Firefox ESR or pre-26 Safari; when the
+  browser doesn't support it, the emitted `position-area` /
+  `position-try-fallbacks` properties are silently ignored and content
+  renders unanchored at `position: fixed`, pinned to the viewport
+  origin. There was also no path for a consumer who wants a JS
+  positioning library (floating-ui, Popper, or their own) - not as a
+  fallback, not as an opt-in.
+
+  `usePopover` now accepts an `adapter: PopoverAdapter` option,
+  following the same abstract-class adapter pattern already used by
+  `useLogger`, `useLocale`, and `useStorage`. `V0PopoverAdapter` (the
+  default) reproduces today's CSS anchor-positioning output byte-for-byte
+
+  - no consumer's build changes, no bundle-size delta, no new dependency.
+    This change ships the contract only — no bundled JS-engine adapter.
+
+  The adapter's `setup()` context now also carries the previously-missing
+  activator element - a new `attachAnchor()` (companion to the existing
+  `attach()`) registers it - so a JS engine can measure both the
+  reference and floating elements, plus a normalized `{ side, align }`
+  placement descriptor derived from `positionArea` (with the raw CSS
+  value always available as an escape hatch).
+
+  `Popover.Root`, `Tooltip.Root`, `Select.Root`, and `createCombobox` all
+  thread an `adapter` option through to their underlying `usePopover()`
+  call (`positionAdapter` on `createCombobox`, since it already has its
+  own `adapter` option for query filtering).
+
+  See the "Bring your own positioning engine" section on the `usePopover`
+  docs page for a worked floating-ui adapter example.
+
+- [#917](https://github.com/vuetifyjs/0/pull/917) [`e6c4068`](https://github.com/vuetifyjs/0/commit/e6c406875ae04a6b22ebdf087dd4d5a93e46f410) Thanks [@johnleider](https://github.com/johnleider)! - feat(usePopover): ship a first-party floating-ui adapter
+
+  CSS anchor positioning is still the default and still zero-dependency.
+  For Firefox ESR and Safari before 26 — or any consumer who already
+  wants a JS engine — import `FloatingUIPopoverAdapter` from
+  `@vuetify/v0/popover/adapters/floating-ui` and pass it as `adapter`.
+  The subpath is the only place `@floating-ui/dom` is reachable; install
+  it as a peer (`>=1.8.0`). `positionTry` is ignored — `flip()` covers
+  overflow. Override the default middleware (`offset(8)`, `flip()`,
+  `shift({ padding: 8 })`) via the constructor.
+
+- [#917](https://github.com/vuetifyjs/0/pull/917) [`e6c4068`](https://github.com/vuetifyjs/0/commit/e6c406875ae04a6b22ebdf087dd4d5a93e46f410) Thanks [@johnleider](https://github.com/johnleider)! - feat(usePopover): add createPopoverPlugin and a tooltip adapter default
+
+  Set a positioning engine once for the whole app:
+
+  `app.use(createPopoverPlugin({ adapter: new FloatingUIPopoverAdapter() }))`
+
+  importing the adapter from `@vuetify/v0/popover/adapters/floating-ui`.
+  Per-instance `adapter` still wins. Tooltips can set their own engine on
+  `createTooltipPlugin({ adapter })` without leaking it into Popover,
+  Select, or Combobox. Zero-config is unchanged — no plugin still means
+  `V0PopoverAdapter` (CSS anchor positioning).
+
+- [#731](https://github.com/vuetifyjs/0/pull/731) [`d876cf9`](https://github.com/vuetifyjs/0/commit/d876cf98c3ebab23e0cdc59a37f279a3b27bd25d) Thanks [@johnleider](https://github.com/johnleider)! - feat(utilities): add `pxToNumber` for reading CSS lengths off `getComputedStyle`
+
+  `pxToNumber(value, fallback?)` parses a resolved CSS length — `'16px'` becomes `16` — and returns `fallback` (default `0`) when the length does not parse, which is what `getComputedStyle` reports for a property that does not apply (`''`, `'auto'`).
+
+  Unlike the `Number.parseFloat(value) || 0` idiom it replaces, a length that legitimately resolves to `0` stays `0` instead of collapsing onto the fallback, so a non-zero fallback is usable: `pxToNumber(style.width, rect.width)` falls back to the client rect only when the resolved width really is unreadable.
+
+- [#693](https://github.com/vuetifyjs/0/pull/693) [`3904c8f`](https://github.com/vuetifyjs/0/commit/3904c8f0082b9e848ef89f67767c41eb2eb444cf) Thanks [@johnleider](https://github.com/johnleider)! - feat(utilities): add `getActiveElement()` and use it for shadow-DOM-aware focus checks
+
+  New `getActiveElement()` utility resolves the deepest focused element by walking open shadow roots — `document.activeElement` returns the shadow _host_ when focus is inside a custom element, which silently breaks focus logic. `useHotkey` (typing guard), `useClickOutside` (iframe-outside check), and `useDragDrop`'s keyboard adapter now use it, so their focus checks stay correct when v0 runs inside a web component / shadow root. Returns the same value as `document.activeElement` in light DOM; open shadow roots only (closed roots can't be traversed).
+
+- [#872](https://github.com/vuetifyjs/0/pull/872) [`e82f95a`](https://github.com/vuetifyjs/0/commit/e82f95aa6b42fb1dbf71e20b9c6bba1af217d12c) Thanks [@johnleider](https://github.com/johnleider)! - feat(useTheme): follow a registered light/dark pair until an explicit select ([#872](https://github.com/vuetifyjs/0/issues/872))
+
+  Pass `system: { light, dark }` on `createTheme` / `createThemePlugin`. The plugin
+  tracks `prefers-color-scheme` while `isSystem` is true. `persist: true` stores a
+  theme id only after `select`; `reset()` returns to the pair. Both ids must already
+  be registered.
+
+### Patch Changes
+
+- [#843](https://github.com/vuetifyjs/0/pull/843) [`2e92047`](https://github.com/vuetifyjs/0/commit/2e9204786d72db0cf58147289792165f9944ba72) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(createProgress): clear stale segment values when the model becomes indeterminate
+
+  `Progress.Root`'s `apply()` only wrote incoming values to segments at matching
+  indices, so `apply([])` — what happens when the bound model value becomes
+  `undefined`, e.g. flipping `EmProgress`'s `indeterminate` prop after a value was
+  already committed — left previously-registered segments untouched. The bar
+  correctly ran Emerald's indeterminate sweep animation via CSS, but `data-state`
+  stayed `"determinate"` and `aria-valuenow`/`aria-valuetext` kept reporting the
+  stale committed value to assistive tech.
+
+  `apply()` now walks every registered segment rather than only the incoming
+  values, resetting any segment without a corresponding entry back to `min`. A
+  progress bar transitioning to indeterminate now correctly reports
+  `data-state="indeterminate"`, clears `aria-valuenow`/`aria-valuetext`, and sets
+  `aria-busy`.
+
+  Also fixes the related pin in `isIndeterminate`: an instance created with an
+  initial `value` (`createProgress({ value })`) returned `false` permanently, even
+  after segments registered and were cleared back to `min`. The initial value now
+  only backs the zero-segment state — mirroring `total`'s fallback — so segments
+  become the sole source of truth once registered.
+
+- [#845](https://github.com/vuetifyjs/0/pull/845) [`3cd588a`](https://github.com/vuetifyjs/0/commit/3cd588a85dd593e09a4cb5e3a8f1e16ce775d59b) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - fix(useDate): sync with the active locale when installed via createDatePlugin ([#845](https://github.com/vuetifyjs/0/issues/845))
+
+  The documented `useLocale` integration never worked through the plugin path: dates formatted with the plugin's `locale` option (or the adapter default), and switching locales did nothing unless `createDate()` was called directly inside a component's `setup()`. Installed after `createLocalePlugin`, the date plugin now resolves the selected locale and derived `firstDayOfWeek` reactively, and each `app.use()` gets its own date context instead of sharing one across apps — one SSR request's locale no longer bleeds into another's render. That isolation does not extend to a shared `adapter` instance: `adapter.locale` / `adapter.firstDayOfWeek` are mutable state the sync writes into, so construct the adapter fresh per request under SSR (see the use-date FAQ).
+
 ## 1.1.0
 
 ### Minor Changes
