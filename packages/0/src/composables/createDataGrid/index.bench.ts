@@ -35,7 +35,7 @@ import type { DataGridColumnTicketInput, DataGridOptions } from '@vuetify/v0/com
 // FIXTURES - Created once, reused across read-only benchmarks
 // =============================================================================
 
-interface BenchmarkRow extends Record<string, unknown> {
+interface BenchmarkRow {
   id: number
   name: string
   email: string

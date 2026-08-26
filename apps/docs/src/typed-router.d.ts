@@ -80,6 +80,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/data/data-table': RouteRecordInfo<
+      '/components/data/data-table',
+      '/components/data/data-table',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/alert-dialog': RouteRecordInfo<
       '/components/disclosure/alert-dialog',
       '/components/disclosure/alert-dialog',
@@ -1572,6 +1579,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/actions/toggle.md': {
       routes:
         | '/components/actions/toggle'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/data/data-table.md': {
+      routes:
+        | '/components/data/data-table'
       views:
         | never
       pathParamNames:

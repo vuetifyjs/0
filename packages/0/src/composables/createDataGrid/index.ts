@@ -87,7 +87,7 @@ export type { ServerGridAdapterOptions } from './adapters'
  * ])
  * ```
  */
-export interface DataGridColumnTicketInput<T extends Record<string, unknown> = Record<string, unknown>>
+export interface DataGridColumnTicketInput<T extends object = object>
   extends DataTableColumnTicketInput<T> {
   /** Width as a percentage (0–100). Unset columns share remaining space equally. */
   size?: number
@@ -119,14 +119,14 @@ export interface DataGridColumnTicketInput<T extends Record<string, unknown> = R
  *
  * @template T Row value type.
  */
-export type DataGridColumnTicket<T extends Record<string, unknown> = Record<string, unknown>>
+export type DataGridColumnTicket<T extends object = object>
   = DataTableColumnTicket<T> & DataGridColumnTicketInput<T>
 
 /**
  * @deprecated Use {@link DataGridColumnTicketInput}. Columns are now onboarded
  * via `grid.columns.onboard([...])` rather than passed as a factory option.
  */
-export type DataGridColumn<T extends Record<string, unknown> = Record<string, unknown>> = DataGridColumnTicketInput<T>
+export type DataGridColumn<T extends object = object> = DataGridColumnTicketInput<T>
 
 /**
  * Factory options for {@link createDataGrid}. Extends {@link DataTableOptions}
@@ -143,7 +143,7 @@ export type DataGridColumn<T extends Record<string, unknown> = Record<string, un
  * })
  * ```
  */
-export interface DataGridOptions<T extends Record<string, unknown>> extends DataTableOptions<T> {
+export interface DataGridOptions<T extends object> extends DataTableOptions<T> {
   editing?: {
     onEdit?: (row: ID, column: string, value: unknown, item: T) => void
   }
@@ -168,7 +168,7 @@ export interface DataGridOptions<T extends Record<string, unknown>> extends Data
  * grid.spans.value.get(id)?.get('group')
  * ```
  */
-export interface DataGridContext<T extends Record<string, unknown>> extends DataTableContext<T> {
+export interface DataGridContext<T extends object> extends DataTableContext<T> {
   /**
    * Column registry, widened to the grid column ticket shape. Covariant
    * override of the inherited {@link DataTableContext.columns} (PHILOSOPHY
@@ -188,7 +188,7 @@ export interface DataGridContext<T extends Record<string, unknown>> extends Data
   spans: ComputedRef<Map<ID, Map<string, SpanEntry>>>
 }
 
-export interface DataGridContextOptions<T extends Record<string, unknown>> extends DataGridOptions<T> {
+export interface DataGridContextOptions<T extends object> extends DataGridOptions<T> {
   namespace?: string
 }
 
@@ -218,7 +218,7 @@ export interface DataGridContextOptions<T extends Record<string, unknown>> exten
  * grid.editing.edit(row.id, 'progress')
  * ```
  */
-export function createDataGrid<T extends Record<string, unknown>> (
+export function createDataGrid<T extends object> (
   _options: DataGridOptions<T> = {},
 ): DataGridContext<T> {
   const {
@@ -452,7 +452,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
  * const ctx = useDataGrid()
  * ```
  */
-export function createDataGridContext<T extends Record<string, unknown>> (
+export function createDataGridContext<T extends object> (
   _options: DataGridContextOptions<T> = {},
 ): ContextTrinity<DataGridContext<T>> {
   const { namespace = 'v0:data-grid', ...options } = _options
@@ -483,7 +483,7 @@ export function createDataGridContext<T extends Record<string, unknown>> (
  * grid.rows.reset()
  * ```
  */
-export function useDataGrid<T extends Record<string, unknown>> (
+export function useDataGrid<T extends object> (
   namespace = 'v0:data-grid',
 ): DataGridContext<T> {
   return useContext<DataGridContext<T>>(namespace)
