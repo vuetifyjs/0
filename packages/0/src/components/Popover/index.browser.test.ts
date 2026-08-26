@@ -1,13 +1,17 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+// Composables
+import { PopoverAdapter } from '#v0/composables/usePopover'
+
 import { Popover } from './index'
 
 // Utilities
 import { mount as baseMount } from '@vue/test-utils'
-import { createSSRApp, defineComponent, h, nextTick } from 'vue'
+import { createSSRApp, defineComponent, h, nextTick, toRef } from 'vue'
 
 // Types
+import type { PopoverAdapterContext } from '#v0/composables/usePopover'
 import type { mount as mountType } from '@vue/test-utils'
 
 // Popover/Scrim register click-outside and focus-trap listeners on document
@@ -636,6 +640,163 @@ describe('popover', () => {
 
       expect(popover1Props.isSelected).toBe(true)
       expect(popover2Props.isSelected).toBe(true)
+    })
+
+    it('should give a custom adapter both the anchor and content elements', async () => {
+      const contexts: PopoverAdapterContext[] = []
+
+      class RecordingAdapter extends PopoverAdapter {
+        setup (context: PopoverAdapterContext) {
+          contexts.push(context)
+          return toRef(() => ({}))
+        }
+      }
+
+      const adapter = new RecordingAdapter()
+
+      mount(Popover.Root, {
+        props: { id: 'adapter-popover', adapter },
+        slots: {
+          default: () => [
+            h(Popover.Activator, {}, () => 'Toggle'),
+            h(Popover.Content, {}, () => 'Content'),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      expect(contexts).toHaveLength(1)
+      const context = contexts[0]!
+
+      // Both handles are the actual mounted DOM elements, not stubs.
+      expect(context.anchorEl.value).toBeInstanceOf(HTMLElement)
+      expect(context.anchorEl.value?.textContent).toBe('Toggle')
+      expect(context.contentEl.value).toBeInstanceOf(HTMLElement)
+      expect(context.contentEl.value?.textContent).toBe('Content')
+    })
+
+    it('should position content with FloatingUIPopoverAdapter coordinates', async () => {
+      const { FloatingUIPopoverAdapter } = await import('#v0/popover/adapters/floating-ui')
+
+      const wrapper = mount(defineComponent({
+        setup () {
+          return () => h('div', { style: 'position: relative; padding: 160px 0 0 120px;' }, [
+            h(Popover.Root, {
+              id: 'floating-popover',
+              adapter: new FloatingUIPopoverAdapter(),
+              modelValue: true,
+            }, () => [
+              h(Popover.Activator, {}, () => 'Toggle'),
+              h(Popover.Content, {}, () => 'Content'),
+            ]),
+          ])
+        },
+      }))
+
+      await nextTick()
+
+      const content = wrapper.find('[popover]')
+
+      await vi.waitFor(() => {
+        const style = content.attributes('style') ?? ''
+        expect(style).toContain('position: fixed')
+        expect(style).toContain('margin: unset')
+        // Chromium expands `inset: unset` into the longhands after top/left apply.
+        expect(style).toContain('right: unset')
+        expect(style).toContain('bottom: unset')
+        expect(style).toMatch(/top:\s*-?\d/)
+        expect(style).toMatch(/left:\s*-?\d/)
+        expect(style).not.toContain('position-area')
+
+        const topMatch = /top:\s*([-\d.]+)px/.exec(style)?.[1]
+        const leftMatch = /left:\s*([-\d.]+)px/.exec(style)?.[1]
+        expect(topMatch).toBeDefined()
+        expect(leftMatch).toBeDefined()
+        const top = Number(topMatch)
+        const left = Number(leftMatch)
+        expect(Number.isNaN(top)).toBe(false)
+        expect(Number.isNaN(left)).toBe(false)
+        expect(top === 0 && left === 0).toBe(false)
+      })
+    })
+
+    it('should honor Content positionArea over Root defaults', async () => {
+      const contexts: PopoverAdapterContext[] = []
+
+      class RecordingAdapter extends PopoverAdapter {
+        setup (context: PopoverAdapterContext) {
+          contexts.push(context)
+          return toRef(() => ({ '--side': context.placement.value.side }))
+        }
+      }
+
+      const wrapper = mount(Popover.Root, {
+        props: { adapter: new RecordingAdapter() },
+        slots: {
+          default: () => [
+            h(Popover.Activator, {}, () => 'Toggle'),
+            h(Popover.Content, { positionArea: 'top' }, () => 'Content'),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      expect(contexts).toHaveLength(1)
+      expect(contexts[0]!.placement.value.side).toBe('top')
+      expect(wrapper.find('[popover]').attributes('style')).toContain('--side: top')
+    })
+
+    it('should still use adapter styles when Content has a custom id', async () => {
+      class MarkerAdapter extends PopoverAdapter {
+        setup () {
+          return toRef(() => ({ '--engine': 'adapter' }))
+        }
+      }
+
+      const wrapper = mount(Popover.Root, {
+        props: { adapter: new MarkerAdapter() },
+        slots: {
+          default: () => [
+            h(Popover.Activator, {}, () => 'Toggle'),
+            h(Popover.Content, { id: 'custom-id' }, () => 'Content'),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const content = wrapper.find('[popover]')
+      expect(content.attributes('id')).toBe('custom-id')
+      expect(content.attributes('style')).toContain('--engine: adapter')
+      expect(content.attributes('style')).not.toContain('position-area')
+    })
+
+    it('should apply a custom adapter\'s styles to the content element', async () => {
+      class FixedStyleAdapter extends PopoverAdapter {
+        setup () {
+          return toRef(() => ({ '--custom-position': 'engine-owned' }))
+        }
+      }
+
+      const wrapper = mount(Popover.Root, {
+        props: { id: 'styled-popover', adapter: new FixedStyleAdapter() },
+        slots: {
+          default: () => [
+            h(Popover.Activator, {}, () => 'Toggle'),
+            h(Popover.Content, {}, () => 'Content'),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const content = wrapper.find('[popover]')
+      expect(content.attributes('style')).toContain('--custom-position: engine-owned')
+      // The default adapter's CSS anchor properties are absent - the custom
+      // adapter fully owns contentStyles, not merged with the default.
+      expect(content.attributes('style')).not.toContain('position-area')
     })
   })
 

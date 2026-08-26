@@ -1,0 +1,55 @@
+<!--
+  Source: https://bulma.io/documentation/components/dropdown/
+  Bulma version: 1.0.4
+  Canonical documented markup, open state (`is-active` on .dropdown root as
+  shown in the docs). Trigger: .dropdown-trigger > button[aria-haspopup][aria-controls];
+  menu: .dropdown-menu[id][role=menu] > .dropdown-content > .dropdown-item.
+  Other documented modifiers: is-hoverable, is-right, is-up.
+-->
+
+<!-- fixture: dropdown with items, active item, and divider (open) -->
+<div class="dropdown is-active">
+  <div class="dropdown-trigger">
+    <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+      <span>Dropdown button</span>
+      <span class="icon is-small">
+        <i class="fas fa-angle-down" aria-hidden="true"></i>
+      </span>
+    </button>
+  </div>
+  <div class="dropdown-menu" id="dropdown-menu" role="menu">
+    <div class="dropdown-content">
+      <a href="#" class="dropdown-item"> Dropdown item </a>
+      <a class="dropdown-item"> Other dropdown item </a>
+      <a href="#" class="dropdown-item is-active"> Active dropdown item </a>
+      <a href="#" class="dropdown-item"> Other dropdown item </a>
+      <hr class="dropdown-divider" />
+      <a href="#" class="dropdown-item"> With a divider </a>
+    </div>
+  </div>
+</div>
+
+<!-- fixture: dropdown with arbitrary content (div.dropdown-item) -->
+<div class="dropdown is-active">
+  <div class="dropdown-trigger">
+    <button class="button" aria-haspopup="true" aria-controls="dropdown-menu2">
+      <span>Content</span>
+      <span class="icon is-small">
+        <i class="fas fa-angle-down" aria-hidden="true"></i>
+      </span>
+    </button>
+  </div>
+  <div class="dropdown-menu" id="dropdown-menu2" role="menu">
+    <div class="dropdown-content">
+      <div class="dropdown-item">
+        <p>You can insert <strong>any type of content</strong> within the dropdown menu.</p>
+      </div>
+      <hr class="dropdown-divider" />
+      <div class="dropdown-item">
+        <p>You simply need to use a <code>&lt;div&gt;</code> instead.</p>
+      </div>
+      <hr class="dropdown-divider" />
+      <a href="#" class="dropdown-item"> This is a link </a>
+    </div>
+  </div>
+</div>

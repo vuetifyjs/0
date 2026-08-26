@@ -30,9 +30,10 @@ export default function zero (app: App) {
 
   app.use(
     createFeaturesPlugin({
+      persist: true,
       features: {
         devmode: {
-          $value: IN_BROWSER ? localStorage.getItem('v0:devmode') === 'true' : false,
+          $value: false,
           $description: 'Enables development mode with additional logging and warnings',
         },
       },
@@ -77,7 +78,8 @@ export default function zero (app: App) {
     createThemePlugin({
       adapter: new V0UnheadThemeAdapter(),
       persist: true,
-      default: 'dark',
+      default: 'light',
+      system: { light: 'light', dark: 'dark' },
       target: 'html',
       palette: {
         brand: {

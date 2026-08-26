@@ -96,6 +96,8 @@
       "./permissions": "./dist/permissions/index.mjs",
       "./permissions/adapters": "./dist/permissions/adapters/index.mjs",
       "./permissions/adapters/v0": "./dist/permissions/adapters/v0/index.mjs",
+      "./popover": "./dist/popover/index.mjs",
+      "./popover/adapters/floating-ui": "./dist/popover/adapters/floating-ui/index.mjs",
       "./rules": "./dist/rules/index.mjs",
       "./storage": "./dist/storage/index.mjs",
       "./storage/adapters": "./dist/storage/adapters/index.mjs",
@@ -114,6 +116,7 @@
     "@adobe/leonardo-contrast-colors": ">=1.0.0",
     "@ant-design/colors": ">=7.0.0",
     "@flagsmith/flagsmith": ">=11.0.0",
+    "@floating-ui/dom": ">=1.8.0",
     "@js-temporal/polyfill": ">=0.5.0",
     "@material/material-color-utilities": ">=0.3.0",
     "launchdarkly-js-client-sdk": "^3.0.0",
@@ -123,6 +126,9 @@
   },
   "peerDependenciesMeta": {
     "@flagsmith/flagsmith": {
+      "optional": true
+    },
+    "@floating-ui/dom": {
       "optional": true
     },
     "@js-temporal/polyfill": {
@@ -151,6 +157,7 @@
     "@adobe/leonardo-contrast-colors": "catalog:",
     "@ant-design/colors": "catalog:",
     "@flagsmith/flagsmith": "catalog:",
+    "@floating-ui/dom": "catalog:",
     "@js-temporal/polyfill": "catalog:",
     "@material/material-color-utilities": "catalog:",
     "@testing-library/vue": "catalog:",
@@ -325,6 +332,14 @@
     "./permissions/adapters/v0": {
       "development": "./src/permissions/adapters/v0/index.ts",
       "default": "./dist/permissions/adapters/v0/index.mjs"
+    },
+    "./popover": {
+      "development": "./src/popover/index.ts",
+      "default": "./dist/popover/index.mjs"
+    },
+    "./popover/adapters/floating-ui": {
+      "development": "./src/popover/adapters/floating-ui/index.ts",
+      "default": "./dist/popover/adapters/floating-ui/index.mjs"
     },
     "./rules": {
       "development": "./src/rules/index.ts",

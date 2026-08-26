@@ -95,6 +95,7 @@ import {
   mdiWaterOutline,
   mdiWeatherNight,
   mdiWeatherSunny,
+  mdiWrap,
 } from '@mdi/js'
 
 // Framework
@@ -166,6 +167,7 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'link': mdiLinkVariant,
     'search': mdiMagnify,
     'tags': mdiTagMultiple,
+    'wrap': mdiWrap,
 
     // Open-gallery feature icons (see data/feature-icons.ts)
     'feat-alert': mdiAlertCircleOutline,

@@ -39,27 +39,20 @@ Unlike `EmButton` and `EmTextField`, `EmSelect` has a variable tree — you deci
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import {
-    EmSelect,
-    EmSelectActivator,
-    EmSelectContent,
-    EmSelectItem,
-    EmSelectPlaceholder,
-    EmSelectValue,
-  } from '@paper/emerald'
+  import { EmSelect } from '@paper/emerald'
 </script>
 
 <template>
   <EmSelect>
-    <EmSelectActivator>
-      <EmSelectValue />
+    <EmSelect.Activator>
+      <EmSelect.Value />
 
-      <EmSelectPlaceholder />
-    </EmSelectActivator>
+      <EmSelect.Placeholder />
+    </EmSelect.Activator>
 
-    <EmSelectContent>
-      <EmSelectItem />
-    </EmSelectContent>
+    <EmSelect.Content>
+      <EmSelect.Item />
+    </EmSelect.Content>
   </EmSelect>
 </template>
 ```

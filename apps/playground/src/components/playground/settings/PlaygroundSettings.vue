@@ -4,6 +4,7 @@
   import AppIcon from '@/components/app/AppIcon.vue'
 
   // Context
+  import PlaygroundSettingsEditor from './PlaygroundSettingsEditor.vue'
   import PlaygroundSettingsExport from './PlaygroundSettingsExport.vue'
   import PlaygroundSettingsIcons from './PlaygroundSettingsIcons.vue'
   import PlaygroundSettingsPresets from './PlaygroundSettingsPresets.vue'
@@ -27,6 +28,7 @@
   const sections: Section[] = [
     { id: 'versions', label: 'Versions', icon: 'tags', component: PlaygroundSettingsVersions, available: true },
     { id: 'presets', label: 'Presets', icon: 'layers', component: PlaygroundSettingsPresets, available: true },
+    { id: 'editor', label: 'Editor', icon: 'editor', component: PlaygroundSettingsEditor, available: true },
     { id: 'icons', label: 'Icons', icon: 'feat-theme', component: PlaygroundSettingsIcons, available: true },
     { id: 'export', label: 'Export', icon: 'download', component: PlaygroundSettingsExport, available: true },
   ]

@@ -12,7 +12,9 @@
       "#v0": ["../../packages/0/src"],
       "#v0/*": ["../../packages/0/src/*"],
       "@paper/emerald": ["../../packages/emerald/src"],
-      "@paper/emerald/*": ["../../packages/emerald/src/*"]
+      "@paper/emerald/*": ["../../packages/emerald/src/*"],
+      "@paper/bulma": ["../../packages/bulma/src"],
+      "@paper/bulma/*": ["../../packages/bulma/src/*"]
     },
     "lib": [
       "dom",
@@ -35,11 +37,14 @@
     "../../packages/0/src/**/*.ts",
     "../../packages/0/src/**/*.vue",
     "../../packages/emerald/src/**/*.ts",
-    "../../packages/emerald/src/**/*.vue"
+    "../../packages/emerald/src/**/*.vue",
+    "../../packages/bulma/src/**/*.ts",
+    "../../packages/bulma/src/**/*.vue"
   ],
   "exclude": [
     "../../packages/0/src/**/__tests__/*",
     "../../packages/emerald/src/**/__tests__/*",
+    "../../packages/bulma/src/**/__tests__/*",
     "src/examples/composables/create-data-table/**",
     "src/examples/composables/create-data-grid/**",
     "src/examples/composables/create-queue/**",

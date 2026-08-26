@@ -139,7 +139,7 @@ const [useThemeToggleContext, provideThemeToggle] = createContext<ThemeToggleCon
   null,
 )
 
-export { provideThemeToggle }
+export { provideThemeToggle, useThemeToggleContext }
 
 export function useThemeToggleController (): ThemeToggleContext {
   return useThemeToggleContext() ?? useThemeToggle()

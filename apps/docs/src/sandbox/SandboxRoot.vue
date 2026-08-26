@@ -20,7 +20,7 @@
     /**
      * What each scheme is called in `data-theme`. The docs page only ever speaks
      * in light and dark; a design system is free to name its themes something
-     * else, and Emerald does (`emerald` / `emerald-dark`) because those are the
+     * else, and Emerald does (`emerald-light` / `emerald-dark`) because those are the
      * ids its stylesheet keys on. Defaulting to the scheme names themselves
      * keeps every system that agrees with the docs — Bulma — untouched.
      *

@@ -197,7 +197,7 @@
       key: 'emerald-docs-tokens',
       id: 'emerald-docs-tokens',
       innerHTML: emeraldAdapter.generate({
-        'emerald': emeraldColors,
+        'emerald-light': emeraldColors,
         'emerald-dark': emeraldDarkColors,
       }),
     }],

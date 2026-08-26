@@ -37,14 +37,14 @@ A status message with four severity variants. The live-region role follows the s
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { EmAlert, EmAlertDescription, EmAlertTitle } from '@paper/emerald'
+  import { EmAlert } from '@paper/emerald'
 </script>
 
 <template>
   <EmAlert>
-    <EmAlertTitle />
+    <EmAlert.Title />
 
-    <EmAlertDescription />
+    <EmAlert.Description />
   </EmAlert>
 </template>
 ```

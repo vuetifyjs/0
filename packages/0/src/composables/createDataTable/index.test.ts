@@ -217,6 +217,13 @@ describe('createDataTable', () => {
       table.search('')
       expect(table.filteredItems.value.length).toBe(5)
     })
+
+    it('should not match values on non-filterable columns', () => {
+      const table = createTable()
+      table.search('Engineering')
+      expect(table.filteredItems.value).toHaveLength(0)
+      expect(table.total.value).toBe(0)
+    })
   })
 
   describe('sort', () => {
@@ -344,6 +351,41 @@ describe('createDataTable', () => {
       expect(table.sort.columns.value.length).toBe(0)
     })
 
+    it('should participate in sort when sortable is a getter', () => {
+      const table = createDataTable<User>()
+      table.columns.onboard([
+        { id: 'name', title: 'Name', sortable: () => true },
+        { id: 'email', title: 'Email' },
+        { id: 'department', title: 'Dept' },
+        { id: 'salary', title: 'Salary' },
+        { id: 'active', title: 'Status' },
+      ])
+      table.onboard(toInputs(users))
+
+      table.sort.toggle('name')
+      expect(table.sort.direction('name')).toBe('asc')
+      const names = table.sortedItems.value.map(i => (i as User).name)
+      expect(names).toEqual(['Alice', 'Bob', 'Carol', 'Dan', 'Eve'])
+    })
+
+    it('should participate in sort when sortable is a ref', () => {
+      const sortable = ref(true)
+      const table = createDataTable<User>()
+      table.columns.onboard([
+        { id: 'name', title: 'Name', sortable },
+        { id: 'email', title: 'Email' },
+        { id: 'department', title: 'Dept' },
+        { id: 'salary', title: 'Salary' },
+        { id: 'active', title: 'Status' },
+      ])
+      table.onboard(toInputs(users))
+
+      table.sort.toggle('name')
+      expect(table.sort.direction('name')).toBe('asc')
+      const names = table.sortedItems.value.map(i => (i as User).name)
+      expect(names).toEqual(['Alice', 'Bob', 'Carol', 'Dan', 'Eve'])
+    })
+
     it('should sort null and undefined values consistently', () => {
       const rows = [
         { id: 1, name: null, email: '', department: '', salary: 0, active: true },
@@ -372,6 +414,28 @@ describe('createDataTable', () => {
       table.sort.toggle('name')
       const names = table.sortedItems.value.map(i => (i as User).name)
       expect(names).toEqual(['Eve', 'Dan', 'Carol', 'Bob', 'Alice'])
+    })
+
+    it('should accept a normal interface as T', () => {
+      interface Plain {
+        id: number
+        name: string
+      }
+
+      const table = createDataTable<Plain>()
+      const ada = { id: 1, name: 'Ada' }
+      table.onboard([{ id: 1, value: ada }])
+
+      expect(table.rank([ada])[0]?.name).toBe('Ada')
+    })
+
+    it('should rank a source array by sortedItems', () => {
+      const table = createTable()
+      expect(table.rank(users).map(user => user.name)).toEqual(['Alice', 'Bob', 'Carol', 'Dan', 'Eve'])
+
+      table.sort.toggle('name')
+      table.sort.toggle('name')
+      expect(table.rank(users).map(user => user.name)).toEqual(['Eve', 'Dan', 'Carol', 'Bob', 'Alice'])
     })
 
     it('should use custom sort comparator', () => {
@@ -678,6 +742,37 @@ describe('createDataTable', () => {
         const names = table.filteredItems.value.map(i => (i as User).name)
         expect(names).toEqual(['Alice'])
       })
+
+      it('should participate in filter when filterable is a getter', () => {
+        const table = createDataTable<User>()
+        table.columns.onboard([
+          { id: 'name', title: 'Name', filterable: () => true },
+          { id: 'email', title: 'Email' },
+          { id: 'department', title: 'Dept' },
+          { id: 'salary', title: 'Salary' },
+          { id: 'active', title: 'Status' },
+        ])
+        table.onboard(toInputs(users))
+
+        table.search('alice')
+        expect(table.filteredItems.value.map(i => (i as User).name)).toEqual(['Alice'])
+      })
+
+      it('should participate in filter when filterable is a ref', () => {
+        const filterable = ref(true)
+        const table = createDataTable<User>()
+        table.columns.onboard([
+          { id: 'name', title: 'Name', filterable },
+          { id: 'email', title: 'Email' },
+          { id: 'department', title: 'Dept' },
+          { id: 'salary', title: 'Salary' },
+          { id: 'active', title: 'Status' },
+        ])
+        table.onboard(toInputs(users))
+
+        table.search('alice')
+        expect(table.filteredItems.value.map(i => (i as User).name)).toEqual(['Alice'])
+      })
     })
 
     describe('serverAdapter', () => {
@@ -939,6 +1034,23 @@ describe('createDataTable', () => {
 
       table.search('alice')
       expect(table.total.value).toBe(1)
+    })
+
+    it('should keep total as the filtered count when paginated and sorted', () => {
+      const table = createTable({ pagination: { itemsPerPage: 2 } })
+      table.search('@test.com')
+      table.sort.toggle('name')
+      table.sort.toggle('name')
+
+      expect(table.items.value).toHaveLength(2)
+      expect(table.total.value).toBe(5)
+      expect(table.sortedItems.value.map(item => (item as User).name)).toEqual([
+        'Eve',
+        'Dan',
+        'Carol',
+        'Bob',
+        'Alice',
+      ])
     })
   })
 

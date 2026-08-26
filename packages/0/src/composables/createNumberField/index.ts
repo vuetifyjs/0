@@ -39,6 +39,23 @@ export interface NumberFieldOptions extends NumericOptions {
   format?: Intl.NumberFormatOptions
   /** Whether commit() clamps to min/max. @default true */
   clamp?: boolean
+  /**
+   * When to write typed input into `value`. `'change'` (default) only
+   * writes on `commit()` (blur/Enter). `'input'` also writes on every
+   * keystroke via `write()`, without clamping or snapping — clamping
+   * mid-type would jump a value like `1` to `min` before the user finishes
+   * typing `15`. Clamping/snapping still happens on the next `commit()`.
+   *
+   * @default 'change'
+   *
+   * @example
+   * ```ts
+   * const field = createNumberField({ min: 10, max: 100, commitOn: 'input' })
+   * field.write('1')
+   * field.value.value // 1 — no jump to min while typing
+   * ```
+   */
+  commitOn?: 'input' | 'change'
   /** Disabled state. */
   disabled?: MaybeRefOrGetter<boolean>
   /** Readonly state. */
@@ -84,6 +101,21 @@ export interface NumberFieldContext {
   parse: (text: string) => number | null
   /** Snap and optionally clamp the current value. Pass `next` to avoid reading the stale model on the same tick as a write. */
   commit: (next?: number | null) => void
+  /** When typed input is written into `value` — see {@link NumberFieldOptions.commitOn}. */
+  readonly commitOn: 'input' | 'change'
+  /**
+   * Parse `text` and write it straight into `value`, without clamping or
+   * snapping. Used by `commitOn: 'input'` consumers to get per-keystroke
+   * updates without the min/max jump `commit()` would cause mid-type.
+   *
+   * @example
+   * ```ts
+   * const field = createNumberField({ min: 10, max: 100 })
+   * field.write('1')
+   * field.value.value // 1 — clamped only on the next commit()
+   * ```
+   */
+  write: (text: string) => void
 }
 
 export function createNumberField (options: NumberFieldOptions = {}): NumberFieldContext {
@@ -92,6 +124,7 @@ export function createNumberField (options: NumberFieldOptions = {}): NumberFiel
     locale = 'en-US',
     format: formatOptions,
     clamp: shouldClamp = true,
+    commitOn = 'change',
     disabled = false,
     readonly: _readonly = false,
     min,
@@ -222,6 +255,11 @@ export function createNumberField (options: NumberFieldOptions = {}): NumberFiel
     value.value = numeric.snap(val)
   }
 
+  function write (text: string): void {
+    if (isLocked()) return
+    value.value = parse(text)
+  }
+
   return {
     value,
     display,
@@ -236,5 +274,7 @@ export function createNumberField (options: NumberFieldOptions = {}): NumberFiel
     formatValue,
     parse,
     commit,
+    commitOn,
+    write,
   }
 }

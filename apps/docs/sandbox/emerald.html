@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="emerald">
+<html lang="en" data-theme="emerald-light">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,12 +14,12 @@
       // stylesheet, the app bundle — decides it after the reader has already
       // seen a white frame. This runs before either exists.
       //
-      // Emerald's theme vocabulary is `emerald` / `emerald-dark`, not
+      // Emerald's theme vocabulary is `emerald-light` / `emerald-dark`, not
       // `light` / `dark`: those are the ids its colors are registered under, and
       // the attribute selector its stylesheet keys on. The docs page speaks in
       // schemes, so the query param is translated here.
       document.documentElement.dataset.theme =
-        new URLSearchParams(location.search).get('theme') === 'dark' ? 'emerald-dark' : 'emerald'
+        new URLSearchParams(location.search).get('theme') === 'dark' ? 'emerald-dark' : 'emerald-light'
     </script>
 
     <style>
@@ -36,7 +36,7 @@
          Unlike Bulma, Emerald ships no page-level reset — nothing in the design
          system colors `html`, so these blocks are not merely a first-paint
          stand-in, they are what gives the frame its surface for good. */
-      :where(html[data-theme="emerald"]) {
+      :where(html[data-theme="emerald-light"]) {
         --emerald-background: #FEFEFE;
         --emerald-surface: #FFFFFF;
         --emerald-on-surface: #2B2D2E;

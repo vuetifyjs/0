@@ -1,6 +1,7 @@
 import { afterAll, describe, expect, it } from 'vitest'
 
 // Context
+import AlertFixture from './fixtures/Alert.vue'
 import AlertDialogFixture from './fixtures/AlertDialog.vue'
 import AspectRatioFixture from './fixtures/AspectRatio.vue'
 import AtomFixture from './fixtures/Atom.vue'
@@ -11,6 +12,8 @@ import CarouselFixture from './fixtures/Carousel.vue'
 import CheckboxFixture from './fixtures/Checkbox.vue'
 import CollapsibleFixture from './fixtures/Collapsible.vue'
 import ComboboxFixture from './fixtures/Combobox.vue'
+import DataGridFixture from './fixtures/DataGrid.vue'
+import DataTableFixture from './fixtures/DataTable.vue'
 import AlertDialogDegenerate from './fixtures/degenerate/AlertDialog.vue'
 import AvatarDegenerate from './fixtures/degenerate/Avatar.vue'
 import ButtonDegenerate from './fixtures/degenerate/Button.vue'
@@ -116,6 +119,7 @@ import type { Component } from 'vue'
 // explicit-array convention in src/surface.test.ts — a component entering or
 // leaving the sweep should be a reviewable diff, not a side effect of a glob.
 const FIXTURES = {
+  Alert: AlertFixture,
   AlertDialog: AlertDialogFixture,
   AspectRatio: AspectRatioFixture,
   Atom: AtomFixture,
@@ -126,6 +130,8 @@ const FIXTURES = {
   Checkbox: CheckboxFixture,
   Collapsible: CollapsibleFixture,
   Combobox: ComboboxFixture,
+  DataGrid: DataGridFixture,
+  DataTable: DataTableFixture,
   Dialog: DialogFixture,
   ExpansionPanel: ExpansionPanelFixture,
   Form: FormFixture,

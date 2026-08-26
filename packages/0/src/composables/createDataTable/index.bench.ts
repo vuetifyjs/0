@@ -28,7 +28,7 @@ import type { DataTableColumnTicketInput, DataTableOptions, DataTableTicketInput
 // FIXTURES - Created once, reused across read-only benchmarks
 // =============================================================================
 
-interface BenchmarkRow extends Record<string, unknown> {
+interface BenchmarkRow {
   id: number
   name: string
   email: string

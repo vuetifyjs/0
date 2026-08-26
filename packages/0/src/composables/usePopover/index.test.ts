@@ -1,9 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { usePopover } from './index'
+// Composables
+import { createTooltipPlugin } from '#v0/composables/useTooltip'
+
+import { createPopoverPlugin, PopoverAdapter, usePopover } from './index'
 
 // Utilities
-import { effectScope, nextTick, shallowRef } from 'vue'
+import { createApp, defineComponent, effectScope, h, nextTick, shallowRef, toRef } from 'vue'
+
+// Types
+import type { PopoverAdapterContext } from './index'
+import type { Plugin, Ref } from 'vue'
 
 function createPopoverElement (options: { open?: boolean, connected?: boolean } = {}) {
   const state = {
@@ -225,6 +232,257 @@ describe('usePopover', () => {
       expect(popover.contentStyles.value['position-area']).toBe('top')
       expect(popover.contentStyles.value['position-try-fallbacks']).toBe('most-height top')
     })
+
+    it('should expose writable positionArea and positionTry refs', () => {
+      const popover = usePopover({ id: 'test', positionArea: 'bottom' })
+
+      expect(popover.positionArea.value).toBe('bottom')
+      expect(popover.contentStyles.value['position-area']).toBe('bottom')
+
+      popover.positionArea.value = 'top'
+      popover.positionTry.value = 'most-height top'
+
+      expect(popover.contentStyles.value['position-area']).toBe('top')
+      expect(popover.contentStyles.value['position-try-fallbacks']).toBe('most-height top')
+    })
+
+    it('should track a reactive positionArea option', async () => {
+      const area = shallowRef('bottom')
+      const popover = usePopover({ id: 'test', positionArea: area })
+
+      expect(popover.contentStyles.value['position-area']).toBe('bottom')
+
+      area.value = 'top'
+      await nextTick()
+
+      expect(popover.positionArea.value).toBe('top')
+      expect(popover.contentStyles.value['position-area']).toBe('top')
+    })
+
+    it('should keep a written positionArea over later source updates', async () => {
+      const rootArea = shallowRef('bottom')
+      const popover = usePopover({ id: 'test', positionArea: () => rootArea.value })
+
+      expect(popover.positionArea.value).toBe('bottom')
+
+      popover.positionArea.value = 'top'
+      expect(popover.positionArea.value).toBe('top')
+
+      rootArea.value = 'left'
+      await nextTick()
+
+      expect(popover.positionArea.value).toBe('top')
+      expect(popover.contentStyles.value['position-area']).toBe('top')
+    })
+  })
+
+  class RecordingAdapter extends PopoverAdapter {
+    context?: PopoverAdapterContext
+    disposed = false
+
+    setup (context: PopoverAdapterContext): Readonly<Ref<Record<string, string>>> {
+      this.context = context
+      this.dispose = () => {
+        this.disposed = true
+      }
+      return toRef(() => ({ 'custom-style': context.placement.value.side }))
+    }
+  }
+
+  describe('adapter seam', () => {
+    it('should use the default V0PopoverAdapter output when no adapter is given', () => {
+      const popover = usePopover({ id: 'test' })
+
+      expect(popover.contentStyles.value).toEqual({
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset-area': 'bottom',
+        'position-area': 'bottom',
+        'position-anchor': '--test',
+        'position-try-fallbacks': 'most-width bottom',
+      })
+    })
+
+    it('should defer contentStyles entirely to a custom adapter', () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ id: 'test', positionArea: 'top', adapter })
+
+      expect(popover.contentStyles.value).toEqual({ 'custom-style': 'top' })
+    })
+
+    it('should update adapter placement when positionArea is written', () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ id: 'test', positionArea: 'bottom', adapter })
+
+      expect(adapter.context!.placement.value.side).toBe('bottom')
+
+      popover.positionArea.value = 'top'
+
+      expect(adapter.context!.placement.value.side).toBe('top')
+      expect(popover.contentStyles.value).toEqual({ 'custom-style': 'top' })
+    })
+
+    it('should pass anchorName, positionTry, and isOpen through to the adapter context', () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ id: 'test', positionTry: 'most-height top', adapter })
+
+      expect(adapter.context!.anchorName).toBe('--test')
+      expect(adapter.context!.positionTry.value).toBe('most-height top')
+      expect(adapter.context!.isOpen).toBe(popover.isOpen)
+    })
+
+    it('should populate contentEl in the adapter context via attach()', () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ adapter })
+
+      expect(adapter.context!.contentEl.value).toBeUndefined()
+
+      const el = document.createElement('div')
+      const scope = effectScope()
+      scope.run(() => {
+        popover.attach(shallowRef(el))
+      })
+
+      expect(adapter.context!.contentEl.value).toBe(el)
+
+      scope.stop()
+
+      expect(adapter.context!.contentEl.value).toBeNull()
+    })
+
+    it('should populate anchorEl in the adapter context via attachAnchor()', () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ adapter })
+
+      const el = document.createElement('div')
+      const scope = effectScope()
+      scope.run(() => {
+        popover.attachAnchor(shallowRef(el))
+      })
+
+      expect(adapter.context!.anchorEl.value).toBe(el)
+
+      scope.stop()
+
+      expect(adapter.context!.anchorEl.value).toBeNull()
+    })
+
+    it('should call the adapter dispose hook on scope disposal', () => {
+      const adapter = new RecordingAdapter()
+      const scope = effectScope()
+
+      scope.run(() => {
+        usePopover({ adapter })
+      })
+
+      expect(adapter.disposed).toBe(false)
+      scope.stop()
+      expect(adapter.disposed).toBe(true)
+    })
+  })
+
+  describe('attach lifecycle', () => {
+    it('should hand sync ownership to the newest attached content element', async () => {
+      const popover = usePopover()
+      const first = createPopoverElement()
+      const second = createPopoverElement()
+      const scope = effectScope()
+
+      scope.run(() => {
+        popover.attach(shallowRef(first.element))
+      })
+
+      popover.isOpen.value = true
+      await nextTick()
+      expect(first.showPopover).toHaveBeenCalledTimes(1)
+
+      scope.run(() => {
+        popover.attach(shallowRef(second.element))
+      })
+      await nextTick()
+
+      expect(first.hidePopover).toHaveBeenCalledTimes(1)
+      expect(second.showPopover).toHaveBeenCalledTimes(1)
+
+      popover.isOpen.value = false
+      await nextTick()
+
+      expect(second.hidePopover).toHaveBeenCalledTimes(1)
+      expect(first.hidePopover).toHaveBeenCalledTimes(1)
+
+      scope.stop()
+    })
+
+    it('should track only the newest anchor registration', async () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ adapter })
+      const first = shallowRef<HTMLElement | null>(document.createElement('div'))
+      const second = shallowRef<HTMLElement | null>(document.createElement('div'))
+      const scope = effectScope()
+
+      scope.run(() => {
+        popover.attachAnchor(first)
+      })
+      expect(adapter.context!.anchorEl.value).toBe(first.value)
+
+      scope.run(() => {
+        popover.attachAnchor(second)
+      })
+      expect(adapter.context!.anchorEl.value).toBe(second.value)
+
+      first.value = document.createElement('span')
+      await nextTick()
+      expect(adapter.context!.anchorEl.value).toBe(second.value)
+
+      scope.stop()
+    })
+
+    it('should stop watchers and clear element refs when the attaching scope is disposed', async () => {
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ adapter })
+      const anchor = shallowRef<HTMLElement | null>(document.createElement('div'))
+      const content = shallowRef<HTMLElement | null>(document.createElement('div'))
+      const scope = effectScope()
+
+      scope.run(() => {
+        popover.attachAnchor(anchor)
+        popover.attach(content)
+      })
+
+      expect(adapter.context!.anchorEl.value).toBe(anchor.value)
+      expect(adapter.context!.contentEl.value).toBe(content.value)
+
+      scope.stop()
+
+      expect(adapter.context!.anchorEl.value).toBeNull()
+      expect(adapter.context!.contentEl.value).toBeNull()
+
+      anchor.value = document.createElement('span')
+      content.value = document.createElement('span')
+      await nextTick()
+
+      expect(adapter.context!.anchorEl.value).toBeNull()
+      expect(adapter.context!.contentEl.value).toBeNull()
+    })
+
+    it('should not warn outside a scope and still replace the prior watcher', async () => {
+      using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const adapter = new RecordingAdapter()
+      const popover = usePopover({ adapter })
+      const first = shallowRef<HTMLElement | null>(document.createElement('div'))
+      const second = shallowRef<HTMLElement | null>(document.createElement('div'))
+
+      popover.attachAnchor(first)
+      popover.attachAnchor(second)
+      expect(adapter.context!.anchorEl.value).toBe(second.value)
+
+      first.value = document.createElement('span')
+      await nextTick()
+
+      expect(adapter.context!.anchorEl.value).toBe(second.value)
+      expect(warn).not.toHaveBeenCalled()
+    })
   })
 
   describe('auto-cleanup', () => {
@@ -352,6 +610,109 @@ describe('usePopover', () => {
       scope.stop()
 
       expect(hidePopover).toHaveBeenCalled()
+    })
+  })
+
+  describe('plugin adapter resolution', () => {
+    class MarkerAdapter extends PopoverAdapter {
+      token: string
+
+      constructor (token: string) {
+        super()
+        this.token = token
+      }
+
+      setup () {
+        return toRef(() => ({ '--engine': this.token }))
+      }
+    }
+
+    function mountProbe (options: Parameters<typeof usePopover>[0], plugins: Plugin[] = []) {
+      let styles: Record<string, string> | undefined
+
+      const Probe = defineComponent({
+        setup () {
+          const popover = usePopover(options)
+          styles = popover.contentStyles.value
+          return () => h('div')
+        },
+      })
+
+      const app = createApp(Probe)
+      for (const plugin of plugins) {
+        app.use(plugin)
+      }
+      const root = document.createElement('div')
+      app.mount(root)
+
+      return {
+        styles: () => styles,
+        unmount: () => app.unmount(),
+      }
+    }
+
+    it('should prefer a per-instance adapter over the plugin adapter', () => {
+      const probe = mountProbe(
+        { adapter: new MarkerAdapter('instance') },
+        [createPopoverPlugin({ adapter: new MarkerAdapter('plugin') })],
+      )
+
+      expect(probe.styles()).toEqual({ '--engine': 'instance' })
+      probe.unmount()
+    })
+
+    it('should use the plugin adapter when no per-instance adapter is given', () => {
+      const probe = mountProbe(
+        {},
+        [createPopoverPlugin({ adapter: new MarkerAdapter('plugin') })],
+      )
+
+      expect(probe.styles()).toEqual({ '--engine': 'plugin' })
+      probe.unmount()
+    })
+
+    it('should use V0PopoverAdapter when the plugin has no adapter', () => {
+      const probe = mountProbe({ id: 'test' }, [createPopoverPlugin()])
+
+      expect(probe.styles()).toEqual({
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset-area': 'bottom',
+        'position-area': 'bottom',
+        'position-anchor': '--test',
+        'position-try-fallbacks': 'most-width bottom',
+      })
+      probe.unmount()
+    })
+
+    it('should not leak the tooltip plugin adapter into usePopover', () => {
+      const probe = mountProbe(
+        {},
+        [
+          createTooltipPlugin({ adapter: new MarkerAdapter('tooltip') }),
+          createPopoverPlugin({ adapter: new MarkerAdapter('popover') }),
+        ],
+      )
+
+      expect(probe.styles()).toEqual({ '--engine': 'popover' })
+      probe.unmount()
+    })
+
+    it('should ignore the tooltip plugin adapter when no popover plugin adapter is set', () => {
+      const probe = mountProbe(
+        { id: 'test' },
+        [createTooltipPlugin({ adapter: new MarkerAdapter('tooltip') })],
+      )
+
+      expect(probe.styles()).toEqual({
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset-area': 'bottom',
+        'position-area': 'bottom',
+        'position-anchor': '--test',
+        'position-try-fallbacks': 'most-width bottom',
+      })
+      probe.unmount()
     })
   })
 })

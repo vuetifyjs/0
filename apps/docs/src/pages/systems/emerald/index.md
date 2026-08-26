@@ -87,7 +87,7 @@ Both halves of the install are independently optional:
 
 ### Without the plugin
 
-`theme.css` carries the light palette on `:root` as well as on `[data-theme="emerald"]`, so a bare CSS import is a complete install for a single-theme app — no plugin, no JavaScript:
+`theme.css` carries the light palette on `:root` as well as on `[data-theme="emerald-light"]`, so a bare CSS import is a complete install for a single-theme app — no plugin, no JavaScript:
 
 ```ts main.ts
 import '@paper/emerald/theme.css'

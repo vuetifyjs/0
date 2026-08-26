@@ -302,6 +302,55 @@ describe('createNumberField', () => {
     })
   })
 
+  describe('commitOn', () => {
+    it('should default to change', () => {
+      const field = setup({})
+      expect(field.commitOn).toBe('change')
+    })
+
+    it('should reflect the configured value', () => {
+      const field = setup({ commitOn: 'input' })
+      expect(field.commitOn).toBe('input')
+    })
+  })
+
+  describe('write', () => {
+    it('should write the parsed value without clamping', () => {
+      const value = ref<number | null>(null)
+      const field = setup({ value, min: 10, max: 100, step: 5 })
+      field.write('1')
+      expect(field.value.value).toBe(1)
+    })
+
+    it('should not snap to step', () => {
+      const value = ref<number | null>(null)
+      const field = setup({ value, min: 0, max: 100, step: 5 })
+      field.write('13')
+      expect(field.value.value).toBe(13)
+    })
+
+    it('should write null for unparseable text', () => {
+      const value = ref<number | null>(5)
+      const field = setup({ value })
+      field.write('')
+      expect(field.value.value).toBeNull()
+    })
+
+    it('should no-op when disabled', () => {
+      const value = ref<number | null>(13)
+      const field = setup({ value, disabled: true })
+      field.write('99')
+      expect(field.value.value).toBe(13)
+    })
+
+    it('should no-op when readonly', () => {
+      const value = ref<number | null>(13)
+      const field = setup({ value, readonly: true })
+      field.write('99')
+      expect(field.value.value).toBe(13)
+    })
+  })
+
   describe('numeric context', () => {
     it('should expose numeric properties', () => {
       const field = setup({ min: 0, max: 100, step: 5 })

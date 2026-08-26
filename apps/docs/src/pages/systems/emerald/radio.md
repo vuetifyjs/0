@@ -37,13 +37,13 @@ A radio's label is its default slot. Leave the slot empty — an icon-adjacent r
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { EmRadio, EmRadioGroup } from '@paper/emerald'
+  import { EmRadio } from '@paper/emerald'
 </script>
 
 <template>
-  <EmRadioGroup>
+  <EmRadio.Group>
     <EmRadio />
-  </EmRadioGroup>
+  </EmRadio.Group>
 </template>
 ```
 
