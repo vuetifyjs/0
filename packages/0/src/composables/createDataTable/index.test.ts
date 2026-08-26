@@ -351,6 +351,41 @@ describe('createDataTable', () => {
       expect(table.sort.columns.value.length).toBe(0)
     })
 
+    it('should participate in sort when sortable is a getter', () => {
+      const table = createDataTable<User>()
+      table.columns.onboard([
+        { id: 'name', title: 'Name', sortable: () => true },
+        { id: 'email', title: 'Email' },
+        { id: 'department', title: 'Dept' },
+        { id: 'salary', title: 'Salary' },
+        { id: 'active', title: 'Status' },
+      ])
+      table.onboard(toInputs(users))
+
+      table.sort.toggle('name')
+      expect(table.sort.direction('name')).toBe('asc')
+      const names = table.sortedItems.value.map(i => (i as User).name)
+      expect(names).toEqual(['Alice', 'Bob', 'Carol', 'Dan', 'Eve'])
+    })
+
+    it('should participate in sort when sortable is a ref', () => {
+      const sortable = ref(true)
+      const table = createDataTable<User>()
+      table.columns.onboard([
+        { id: 'name', title: 'Name', sortable },
+        { id: 'email', title: 'Email' },
+        { id: 'department', title: 'Dept' },
+        { id: 'salary', title: 'Salary' },
+        { id: 'active', title: 'Status' },
+      ])
+      table.onboard(toInputs(users))
+
+      table.sort.toggle('name')
+      expect(table.sort.direction('name')).toBe('asc')
+      const names = table.sortedItems.value.map(i => (i as User).name)
+      expect(names).toEqual(['Alice', 'Bob', 'Carol', 'Dan', 'Eve'])
+    })
+
     it('should sort null and undefined values consistently', () => {
       const rows = [
         { id: 1, name: null, email: '', department: '', salary: 0, active: true },
@@ -706,6 +741,37 @@ describe('createDataTable', () => {
         table.search('Al')
         const names = table.filteredItems.value.map(i => (i as User).name)
         expect(names).toEqual(['Alice'])
+      })
+
+      it('should participate in filter when filterable is a getter', () => {
+        const table = createDataTable<User>()
+        table.columns.onboard([
+          { id: 'name', title: 'Name', filterable: () => true },
+          { id: 'email', title: 'Email' },
+          { id: 'department', title: 'Dept' },
+          { id: 'salary', title: 'Salary' },
+          { id: 'active', title: 'Status' },
+        ])
+        table.onboard(toInputs(users))
+
+        table.search('alice')
+        expect(table.filteredItems.value.map(i => (i as User).name)).toEqual(['Alice'])
+      })
+
+      it('should participate in filter when filterable is a ref', () => {
+        const filterable = ref(true)
+        const table = createDataTable<User>()
+        table.columns.onboard([
+          { id: 'name', title: 'Name', filterable },
+          { id: 'email', title: 'Email' },
+          { id: 'department', title: 'Dept' },
+          { id: 'salary', title: 'Salary' },
+          { id: 'active', title: 'Status' },
+        ])
+        table.onboard(toInputs(users))
+
+        table.search('alice')
+        expect(table.filteredItems.value.map(i => (i as User).name)).toEqual(['Alice'])
       })
     })
 

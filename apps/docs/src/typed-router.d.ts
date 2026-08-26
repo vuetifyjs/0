@@ -80,6 +80,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/data/data-grid': RouteRecordInfo<
+      '/components/data/data-grid',
+      '/components/data/data-grid',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/data/data-table': RouteRecordInfo<
       '/components/data/data-table',
       '/components/data/data-table',
@@ -1579,6 +1586,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/actions/toggle.md': {
       routes:
         | '/components/actions/toggle'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/data/data-grid.md': {
+      routes:
+        | '/components/data/data-grid'
       views:
         | never
       pathParamNames:

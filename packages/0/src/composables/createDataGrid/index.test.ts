@@ -326,6 +326,60 @@ describe('createDataGrid', () => {
 
       expect(grid.rows.order.value).toEqual([2, 3, 1, 4])
       expect(grid.items.value.map(item => item.id)).toEqual([2, 3, 1, 4])
+      expect(grid.orderedItems.value.map(item => item.id)).toEqual([2, 3, 1, 4])
+    })
+
+    it('should not override sortedItems when rows.move reorders', () => {
+      const grid = createDataGrid<Row>()
+
+      grid.columns.onboard([{ id: 'name', size: 100 }])
+
+      onboard(grid, items)
+
+      const sorted = grid.sortedItems.value.map(item => item.id)
+      expect(sorted).toEqual([1, 2, 3, 4])
+      expect(grid.orderedItems.value.map(item => item.id)).toEqual(sorted)
+
+      grid.rows.move(4, 0)
+
+      expect(grid.sortedItems.value.map(item => item.id)).toEqual(sorted)
+      expect(grid.orderedItems.value.map(item => item.id)).toEqual([4, 1, 2, 3])
+      expect(grid.items.value.map(item => item.id)).toEqual([4, 1, 2, 3])
+    })
+
+    it('should rank a source array by orderedItems after rows.move', () => {
+      const grid = createDataGrid<Row>()
+
+      grid.columns.onboard([{ id: 'name', size: 100 }])
+
+      onboard(grid, items)
+
+      expect(grid.rank(items).map(item => item.id)).toEqual([1, 2, 3, 4])
+
+      grid.rows.move(4, 0)
+
+      expect(grid.rank(items)[0]!.id).toBe(4)
+      expect(grid.rank(items).map(item => item.id)).toEqual([4, 1, 2, 3])
+      expect(grid.sortedItems.value.map(item => item.id)).toEqual([1, 2, 3, 4])
+    })
+
+    it('should keep orderedItems as the full pre-pagination list after rows.move', () => {
+      const grid = createDataGrid<Row>({
+        pagination: { itemsPerPage: 2 },
+      })
+
+      grid.columns.onboard([{ id: 'name', size: 100 }])
+
+      onboard(grid, items)
+
+      expect(grid.orderedItems.value.map(item => item.id)).toEqual([1, 2, 3, 4])
+      expect(grid.items.value.map(item => item.id)).toEqual([1, 2])
+
+      grid.rows.move(4, 0)
+
+      expect(grid.orderedItems.value.map(item => item.id)).toEqual([4, 1, 2, 3])
+      expect(grid.items.value.map(item => item.id)).toEqual([4, 1])
+      expect(grid.sortedItems.value.map(item => item.id)).toEqual([1, 2, 3, 4])
     })
 
     it('should restore natural registration order on rows.reset', () => {
