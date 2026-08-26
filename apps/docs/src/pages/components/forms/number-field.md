@@ -121,6 +121,18 @@ Increment and Decrement buttons repeat automatically when held. Configure timing
 </template>
 ```
 
+### Eager Commit
+
+By default the typed value reaches the model on blur or Enter. Set `commit-on="input"` to write on every keystroke — mid-typing values are parsed but not clamped or snapped, so typing `15` into a `:min="10"` field never jumps to `10` after the first digit. Clamping still runs on blur:
+
+```vue
+<template>
+  <NumberField.Root v-model="value" :min="10" :max="100" commit-on="input">
+    <NumberField.Control />
+  </NumberField.Root>
+</template>
+```
+
 ### Mouse Wheel
 
 Enable value adjustment via scroll wheel when the input is focused:

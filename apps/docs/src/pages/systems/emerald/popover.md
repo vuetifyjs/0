@@ -37,18 +37,14 @@ There is nothing to position in JavaScript and nothing to teleport. The panel es
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import {
-    EmPopover,
-    EmPopoverActivator,
-    EmPopoverContent,
-  } from '@paper/emerald'
+  import { EmPopover } from '@paper/emerald'
 </script>
 
 <template>
   <EmPopover>
-    <EmPopoverActivator />
+    <EmPopover.Activator />
 
-    <EmPopoverContent />
+    <EmPopover.Content />
   </EmPopover>
 </template>
 ```
@@ -58,8 +54,6 @@ There is nothing to position in JavaScript and nothing to teleport. The panel es
 Each part maps one-to-one onto v0's [Popover](/components/disclosure/popover) compound — `Popover.Root`, `Popover.Activator`, `Popover.Content`. v0 supplies the state, the `popovertarget` and `popover` wiring, the ARIA attributes and the anchor plumbing; Emerald supplies the panel's skin — the bordered, elevated `.emerald-popover` surface on its spacing and radius tokens — and an open transition (a fade and 4px drop into place) built on `@starting-style` and discrete transitions so the native display toggle animates.
 
 The split is why `v-model` survives light dismiss. The browser closes the popover on outside click or Escape without asking anyone; v0 listens for the native toggle event and writes the new state back into the model, so your `ref` reads `false` after a dismissal it never initiated. State flows both ways — write `true` to open, and the browser's own closes flow back.
-
-One wiring detail Emerald handles for you: v0's `Popover.Content` only applies `position-area` and `position-try` when it is given an explicit id, so `EmPopoverContent` reads the root's id from context and passes it down. Placement props work out of the box while the anchor name stays matched to the activator.
 
 > [!NOTE]
 > Open, close and light dismiss work in every browser with the popover API; automatic placement additionally needs CSS Anchor Positioning. The [v0 Popover page](/components/disclosure/popover) lists the supported versions.

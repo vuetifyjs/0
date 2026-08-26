@@ -39,33 +39,24 @@ Arrange the parts however the surface needs. Nothing is required except the root
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import {
-    EmCalendar,
-    EmCalendarGrid,
-    EmCalendarHeader,
-    EmCalendarMini,
-    EmCalendarNext,
-    EmCalendarPrev,
-    EmCalendarTitle,
-    EmCalendarToday,
-  } from '@paper/emerald'
+  import { EmCalendar } from '@paper/emerald'
 </script>
 
 <template>
   <EmCalendar>
-    <EmCalendarHeader>
-      <EmCalendarPrev />
+    <EmCalendar.Header>
+      <EmCalendar.Prev />
 
-      <EmCalendarTitle />
+      <EmCalendar.Title />
 
-      <EmCalendarNext />
+      <EmCalendar.Next />
 
-      <EmCalendarToday />
-    </EmCalendarHeader>
+      <EmCalendar.Today />
+    </EmCalendar.Header>
 
-    <EmCalendarGrid />
+    <EmCalendar.Grid />
 
-    <EmCalendarMini />
+    <EmCalendar.Mini />
   </EmCalendar>
 </template>
 ```

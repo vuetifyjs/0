@@ -37,12 +37,12 @@ By default `mandatory` is `'force'`: the first enabled step selects itself when 
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { EmStep, EmStepItem } from '@paper/emerald'
+  import { EmStep } from '@paper/emerald'
 </script>
 
 <template>
   <EmStep>
-    <EmStepItem />
+    <EmStep.Item />
   </EmStep>
 </template>
 ```

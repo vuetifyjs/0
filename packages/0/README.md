@@ -142,6 +142,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 
 | Component | Description |
 |-----------|-------------|
+| [Alert](https://0.vuetifyjs.com/components/semantic/alert) | Inline status message with ARIA live-region semantics |
 | [Avatar](https://0.vuetifyjs.com/components/semantic/avatar) | Image/fallback avatar with priority loading |
 | [Breadcrumbs](https://0.vuetifyjs.com/components/semantic/breadcrumbs) | Navigation breadcrumbs with overflow detection and truncation |
 | [Carousel](https://0.vuetifyjs.com/components/semantic/carousel) | Scroll-snap slide navigation with multi-slide display and drag/swipe |
@@ -151,6 +152,13 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Progress](https://0.vuetifyjs.com/components/semantic/progress) | Headless progress indicator with multi-segment and buffer support |
 | [Snackbar](https://0.vuetifyjs.com/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](https://0.vuetifyjs.com/components/semantic/splitter) | Resizable panel layout with drag handles |
+
+#### Data
+
+| Component | Description |
+|-----------|-------------|
+| [DataGrid](https://0.vuetifyjs.com/components/data/data-grid) | Headless data grid with column layout, cell editing, row ordering, and row spanning |
+| [DataTable](https://0.vuetifyjs.com/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
 
 ### Composables
 

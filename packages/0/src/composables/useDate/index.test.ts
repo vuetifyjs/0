@@ -2010,6 +2010,111 @@ describe('createDate', () => {
 
       wrapper.unmount()
     })
+
+    it('should sync adapter locale dynamically through the plugin path (createDatePlugin)', async () => {
+      const { mount } = await import('@vue/test-utils')
+      const { defineComponent, nextTick } = await import('vue')
+      const { createLocalePlugin, useLocale } = await import('#v0/composables/useLocale')
+
+      const localePlugin = createLocalePlugin({
+        default: 'en',
+        messages: {
+          en: { hello: 'Hello' },
+          de: { hello: 'Hallo' },
+        },
+      })
+
+      const adapter = new V0DateAdapter()
+      // Installed via app.use(), the documented usage pattern — not
+      // createDate() called directly inside a component's setup().
+      const datePlugin = createDatePlugin({
+        adapter,
+        locales: { en: 'en-US', de: 'de-DE' },
+      })
+
+      let select: ((id: string) => void) | undefined
+
+      const TestComponent = defineComponent({
+        setup () {
+          const locale = useLocale()
+          const date = useDate()
+          select = locale.select
+          return {
+            dateLocale: date.locale,
+            adapterLocale: () => date.adapter.locale,
+          }
+        },
+        template: '<div>{{ dateLocale }} - {{ adapterLocale() }}</div>',
+      })
+
+      const wrapper = mount(TestComponent, {
+        global: {
+          plugins: [localePlugin, datePlugin],
+        },
+      })
+
+      // Plugin-installed context should resolve useLocale's initial selection.
+      expect(wrapper.text()).toContain('en-US')
+
+      select!('de')
+      await nextTick()
+
+      // The reactive sync must arm through the plugin path too, not just
+      // when createDate() is called directly inside a component.
+      expect(wrapper.text()).toContain('de-DE')
+      expect(adapter.locale).toBe('de-DE')
+
+      wrapper.unmount()
+    })
+
+    it('should preserve an explicit firstDayOfWeek when the locale changes', async () => {
+      const { mount } = await import('@vue/test-utils')
+      const { defineComponent, nextTick } = await import('vue')
+      const { createLocalePlugin, useLocale } = await import('#v0/composables/useLocale')
+
+      const localePlugin = createLocalePlugin({
+        default: 'en',
+        messages: { en: {}, de: {} },
+      })
+
+      const adapter = new V0DateAdapter()
+      // V0DateAdapter re-derives firstDayOfWeek inside its own `locale` setter
+      // (de-DE would yield 1), so the sync has to write the override back after
+      // every locale change or the explicit value is silently clobbered.
+      const datePlugin = createDatePlugin({
+        adapter,
+        locales: { en: 'en-US', de: 'de-DE' },
+        firstDayOfWeek: 6,
+      })
+
+      let select: ((id: string) => void) | undefined
+
+      const TestComponent = defineComponent({
+        setup () {
+          const locale = useLocale()
+          const date = useDate()
+          select = locale.select
+          return { firstDayOfWeek: date.firstDayOfWeek }
+        },
+        template: '<div>{{ firstDayOfWeek }}</div>',
+      })
+
+      const wrapper = mount(TestComponent, {
+        global: {
+          plugins: [localePlugin, datePlugin],
+        },
+      })
+
+      expect(adapter.firstDayOfWeek).toBe(6)
+
+      select!('de')
+      await nextTick()
+
+      expect(adapter.locale).toBe('de-DE')
+      expect(adapter.firstDayOfWeek).toBe(6)
+
+      wrapper.unmount()
+    })
   })
 
   describe('plugin firstDayOfWeek derivation', () => {

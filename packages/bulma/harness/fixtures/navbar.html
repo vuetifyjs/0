@@ -1,0 +1,93 @@
+<!--
+  Source: https://bulma.io/documentation/components/navbar/
+  Bulma version: 1.0.4
+  Canonical documented markup (brand SVG logo replaced by a placeholder img —
+  the docs embed the full Bulma wordmark SVG; structure `a.navbar-item > (logo)`
+  is what matters). Verified against live page 2026-08-01:
+  - burger has FOUR aria-hidden spans in Bulma 1.0 (was three in 0.9)
+  - `is-selected` on a .navbar-dropdown item is genuine 1.0 docs markup
+  - open state = `is-active` on BOTH .navbar-burger and .navbar-menu
+-->
+
+<!-- fixture: full navbar (closed/desktop state as documented) -->
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="https://bulma.io">
+      <img src="logo.png" alt="Logo" />
+    </a>
+
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <a class="navbar-item">
+        Home
+      </a>
+
+      <a class="navbar-item">
+        Documentation
+      </a>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          More
+        </a>
+
+        <div class="navbar-dropdown">
+          <a class="navbar-item">
+            About
+          </a>
+          <a class="navbar-item is-selected">
+            Jobs
+          </a>
+          <a class="navbar-item">
+            Contact
+          </a>
+          <hr class="navbar-divider">
+          <a class="navbar-item">
+            Report an issue
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <div class="buttons">
+          <a class="button is-primary">
+            <strong>Sign up</strong>
+          </a>
+          <a class="button is-light">
+            Log in
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- fixture: burger + menu OPEN state (docs: toggle is-active on both) -->
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger is-active" aria-label="menu" aria-expanded="true" data-target="navbarOpenExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div id="navbarOpenExample" class="navbar-menu is-active">
+    <div class="navbar-start">
+      <a class="navbar-item">
+        Home
+      </a>
+    </div>
+  </div>
+</nav>

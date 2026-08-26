@@ -47,6 +47,8 @@
     /** JSON payload for Vuetify One `playground.content`. */
     snapshotContent: () => string
     showConfig: ShallowRef<boolean>
+    wordWrap: Ref<boolean>
+    showErrors: Ref<boolean>
     /** Current playground locked state from Vuetify One. */
     isLocked: Ref<boolean>
     /** Keyboard shortcuts dialog. */
@@ -121,6 +123,10 @@
   const showConfig = shallowRef(false)
   const cheatsheet = shallowRef(false)
 
+  // Editor preferences, persisted per-browser (not synced to a user account).
+  const wordWrap = storage.get('playground-editor-word-wrap', false)
+  const showErrors = storage.get('playground-editor-show-errors', true)
+
   providePlayground({
     store,
     isReady,
@@ -151,6 +157,8 @@
     activeExample,
     snapshotContent,
     showConfig,
+    wordWrap,
+    showErrors,
     isLocked,
     cheatsheet,
   })

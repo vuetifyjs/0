@@ -13,6 +13,14 @@ import pinia from './plugins/pinia'
 
 import 'virtual:uno.css'
 
+// Must run before @vue/repl/monaco-editor is ever imported (PlaygroundEditor.vue,
+// lazy-loaded on demand): tells Monaco to expose itself as globalThis.monaco once
+// it loads, which is how the editor preferences settings (word wrap, show errors)
+// reach the live editor instance after creation - see PlaygroundEditor.vue.
+if (IN_BROWSER) {
+  (globalThis as typeof globalThis & { MonacoEnvironment?: { globalAPI?: boolean } }).MonacoEnvironment = { globalAPI: true }
+}
+
 export const createApp = ViteSSG(
   App,
   { routes: setupLayouts(routes) },

@@ -1,9 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { PopoverAdapter } from '#v0/composables/usePopover'
+
 import { createCombobox, createComboboxContext, useCombobox } from './index'
 
 // Utilities
-import { effectScope, inject, nextTick } from 'vue'
+import { effectScope, inject, nextTick, toRef } from 'vue'
 
 // Types
 import type { EffectScope } from 'vue'
@@ -68,6 +71,18 @@ describe('createCombobox', () => {
 
       expect(ctx.name).toBe('search')
       expect(ctx.form).toBe('my-form')
+    })
+
+    it('should forward positionAdapter into usePopover', () => {
+      class MarkerAdapter extends PopoverAdapter {
+        setup () {
+          return toRef(() => ({ '--engine': 'combo' }))
+        }
+      }
+
+      const ctx = setup({ positionAdapter: new MarkerAdapter() })
+
+      expect(ctx.popover.contentStyles.value).toEqual({ '--engine': 'combo' })
     })
   })
 

@@ -132,6 +132,76 @@ describe('toHighlight', () => {
     })
   })
 
+  describe('accent folding', () => {
+    function matched (chunks: { text: string, match: boolean }[]) {
+      return chunks.filter(chunk => chunk.match).map(chunk => chunk.text)
+    }
+
+    it('should not fold accents by default', () => {
+      expect(toHighlight('café', 'cafe')).toStrictEqual([{ text: 'café', match: false }])
+    })
+
+    it('should fold both sides when ignoreAccents is true', () => {
+      expect(matched(toHighlight('a café here', 'cafe', { ignoreAccents: true }))).toStrictEqual(['café'])
+      expect(matched(toHighlight('a cafe here', 'café', { ignoreAccents: true }))).toStrictEqual(['cafe'])
+    })
+
+    it('should preserve the original text when the source is decomposed', () => {
+      const decomposed = 'cafe\u0301'
+
+      expect(matched(toHighlight(`a ${decomposed} here`, 'cafe', { ignoreAccents: true })))
+        .toStrictEqual([decomposed])
+    })
+
+    it('should fold only the text when target', () => {
+      expect(matched(toHighlight('café', 'cafe', { ignoreAccents: 'target' }))).toStrictEqual(['café'])
+      expect(toHighlight('cafe', 'café', { ignoreAccents: 'target' }))
+        .toStrictEqual([{ text: 'cafe', match: false }])
+    })
+
+    it('should fold only the query when query', () => {
+      expect(matched(toHighlight('cafe', 'café', { ignoreAccents: 'query' }))).toStrictEqual(['cafe'])
+    })
+
+    it('should combine with ignoreCase and matchAll', () => {
+      expect(matched(toHighlight('Zürich, zurich', 'zurich', {
+        ignoreAccents: true,
+        ignoreCase: true,
+        matchAll: true,
+      }))).toStrictEqual(['Zürich', 'zurich'])
+    })
+
+    it('should map ignoreCase expansion back onto the original character', () => {
+      expect(toHighlight('İstanbul', 'İ', { ignoreCase: true })).toStrictEqual([
+        { text: 'İ', match: true },
+        { text: 'stanbul', match: false },
+      ])
+      expect(toHighlight('İstanbul', 'i', { ignoreCase: true })).toStrictEqual([
+        { text: 'İ', match: true },
+        { text: 'stanbul', match: false },
+      ])
+    })
+
+    it('should expand a half-fold hit to the whole source character', () => {
+      expect(toHighlight('straße', 's', { ignoreAccents: true, matchAll: true })).toStrictEqual([
+        { text: 's', match: true },
+        { text: 'tra', match: false },
+        { text: 'ß', match: true },
+        { text: 'e', match: false },
+      ])
+    })
+
+    it('should accept a getter for ignoreAccents', () => {
+      const ignoreAccents = shallowRef<'target' | false>(false)
+      const chunks = computed(() => toHighlight('Tromsø', 'tromso', { ignoreCase: true, ignoreAccents }))
+
+      expect(matched(chunks.value)).toStrictEqual([])
+
+      ignoreAccents.value = 'target'
+      expect(matched(chunks.value)).toStrictEqual(['Tromsø'])
+    })
+  })
+
   describe('priority and fallthrough', () => {
     it('should use pre-computed matches over query when both are provided', () => {
       expect(toHighlight('hello', 'hello', { matches: [[1, 3]] })).toStrictEqual([

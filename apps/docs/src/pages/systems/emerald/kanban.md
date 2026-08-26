@@ -37,17 +37,17 @@ The column's default slot is the card body. It is scoped — `v-slot="{ card }"`
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { EmKanban, EmKanbanColumn } from '@paper/emerald'
+  import { EmKanban } from '@paper/emerald'
 </script>
 
 <template>
   <EmKanban>
-    <EmKanbanColumn />
+    <EmKanban.Column />
   </EmKanban>
 </template>
 ```
 
-`EmKanbanCard` exists and is exported, but you never write it — each column renders one around your slot content per card.
+`EmKanban.Card` exists and is exported, but you never write it — each column renders one around your slot content per card.
 
 ## Composed on v0
 

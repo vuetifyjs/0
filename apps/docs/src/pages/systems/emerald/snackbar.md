@@ -37,25 +37,19 @@ The queue is optional. A static `EmSnackbar` under a `v-if` is a complete snackb
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import {
-    EmSnackbar,
-    EmSnackbarClose,
-    EmSnackbarContent,
-    EmSnackbarPortal,
-    EmSnackbarQueue,
-  } from '@paper/emerald'
+  import { EmSnackbar } from '@paper/emerald'
 </script>
 
 <template>
-  <EmSnackbarPortal>
-    <EmSnackbarQueue>
+  <EmSnackbar.Portal>
+    <EmSnackbar.Queue>
       <EmSnackbar>
-        <EmSnackbarContent />
+        <EmSnackbar.Content />
 
-        <EmSnackbarClose />
+        <EmSnackbar.Close />
       </EmSnackbar>
-    </EmSnackbarQueue>
-  </EmSnackbarPortal>
+    </EmSnackbar.Queue>
+  </EmSnackbar.Portal>
 </template>
 ```
 

@@ -208,6 +208,16 @@ describe('createStack', () => {
         expect(ticket1.id).not.toBe(ticket2.id)
       })
 
+      it('should expose default teleport from options', () => {
+        const stack = createStack({ default: 'top-layer' })
+        expect(stack.default.value).toBe('top-layer')
+      })
+
+      it('should have undefined default when not set', () => {
+        const stack = createStack()
+        expect(stack.default.value).toBeUndefined()
+      })
+
       it('should handle toggle', async () => {
         const stack = createStack()
         const ticket = stack.register()
@@ -318,6 +328,46 @@ describe('createStack', () => {
         })
 
         expect(contextFound).toBe(true)
+      })
+
+      it('should expose default teleport option via stack.default', () => {
+        const plugin = createStackPlugin({ default: 'top-layer' })
+
+        let defaultValue: string | HTMLElement | undefined
+
+        const TestComponent = defineComponent({
+          setup () {
+            const ctx = useStack()
+            defaultValue = ctx.default.value
+            return () => null
+          },
+        })
+
+        mount(TestComponent, {
+          global: { plugins: [plugin] },
+        })
+
+        expect(defaultValue).toBe('top-layer')
+      })
+
+      it('should have undefined default when no default option is given', () => {
+        const plugin = createStackPlugin()
+
+        let defaultValue: string | HTMLElement | undefined = 'sentinel'
+
+        const TestComponent = defineComponent({
+          setup () {
+            const ctx = useStack()
+            defaultValue = ctx.default.value
+            return () => null
+          },
+        })
+
+        mount(TestComponent, {
+          global: { plugins: [plugin] },
+        })
+
+        expect(defaultValue).toBeUndefined()
       })
     })
 

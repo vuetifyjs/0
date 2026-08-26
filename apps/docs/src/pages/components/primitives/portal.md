@@ -25,7 +25,7 @@ Renderless teleport wrapper with automatic z-index stacking.
 
 ## Usage
 
-Portal wraps Vue's `<Teleport>` with automatic `useStack` integration. Content is teleported to `body` by default and receives a `zIndex` via slot props for proper overlay ordering.
+Portal wraps Vue's `<Teleport>` with automatic `useStack` integration. Content receives a `zIndex` via slot props for proper overlay ordering. The teleport target resolves as per-component `to` -> `stack.default` (from `createStackPlugin`) -> `'body'`.
 
 ::: gn-example
 /components/portal/basic
@@ -69,6 +69,10 @@ Teleported content lands outside your app's landmark structure — `body` is not
 ## FAQ
 
 ::: faq
+??? How do I change the default teleport target for all Portals?
+
+Install `createStackPlugin({ default: 'top-layer' })` (or a selector/`HTMLElement`). See [useStack](/composables/plugins/use-stack). A Portal `to` prop always overrides.
+
 ??? When should I use Portal vs native Teleport?
 
 Use Portal when your teleported content needs z-index coordination with other overlays. Portal auto-registers with `useStack` so your content stacks correctly alongside Dialogs, Snackbars, and other overlay components.
