@@ -2,6 +2,8 @@
 
 ## 1.2.0
 
+DataTable, DataGrid, and Alert ship in this minor, not 1.1.0. 1.1.0 went out earlier with Splitter pending-intent and `@vuetify/play` after those `feat`s landed on `master`.
+
 ### Minor Changes
 
 - [#826](https://github.com/vuetifyjs/0/pull/826) [`bcc509c`](https://github.com/vuetifyjs/0/commit/bcc509c909404443dfff098ef0b0bc73e206da93) Thanks [@johnleider](https://github.com/johnleider)! - feat(DataGrid): headless compound with column layout, editing, and spanning
