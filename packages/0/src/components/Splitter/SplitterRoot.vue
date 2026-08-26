@@ -28,7 +28,7 @@
 
   // Utilities
   import { clamp, isNull, isNullOrUndefined, isUndefined } from '#v0/utilities'
-  import { mergeProps, shallowRef, toRef, toValue, useAttrs, useTemplateRef, watch } from 'vue'
+  import { mergeProps, onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -70,8 +70,9 @@
     resize: (index: number, delta: number, options?: { emit?: boolean }) => void
     onStartDrag: (index: number) => void
     onEndDrag: () => void
-    collapse: (index: number, neighborIndex?: number) => void
-    expand: (index: number, neighborIndex?: number) => void
+    onAbortDrag: () => void
+    collapse: (index: number, neighborIndex?: number) => boolean
+    expand: (index: number, neighborIndex?: number) => boolean
     distribute: (sizes: number[]) => void
   }
 
@@ -187,6 +188,23 @@
     return ticket.minSize
   }
 
+  function canExpand (ticket: SplitterPanelTicket, neighbor: SplitterPanelTicket) {
+    const target = Math.min(ticket.defaultSize, ticket.maxSize)
+    const take = Math.min(target - ticket.collapsedSize, neighbor.size - neighbor.minSize)
+    return ticket.collapsedSize + take >= ticket.minSize
+  }
+
+  function canCollapse (ticket: SplitterPanelTicket) {
+    const need = ticket.size - ticket.collapsedSize
+    let room = 0
+    for (const other of panels.values()) {
+      if (other.id === ticket.id) continue
+      room += other.maxSize - other.size
+      if (room >= need) return true
+    }
+    return false
+  }
+
   function resize (index: number, delta: number, options?: { emit?: boolean }) {
     const before = panel(index)
     const after = panel(index + 1)
@@ -204,12 +222,17 @@
     const beforeCollapsed = !toValue(before.isSelected)
     const drag = dragging.value
 
-    // Collapse boundary for the leading panel. While dragging, pin at minSize and arm an intent
-    // instead of collapsing outright; keyboard/programmatic resize keeps the legacy instant snap.
+    // Collapse boundary for the leading panel. While dragging, pin at minSize and arm from
+    // overshoot past the wall (not the whole approach delta) so a flick that barely crosses
+    // does not collapse; keyboard/programmatic resize keeps the legacy instant snap.
     if (before.collapsible && !beforeCollapsed && size <= before.minSize && delta < 0) {
       if (drag) {
-        size = before.minSize
-        arm(before.id, 'collapse', delta)
+        if (before.size >= before.minSize) {
+          size = before.minSize
+          if (canCollapse(before)) {
+            arm(before.id, 'collapse', Math.max(0, before.minSize - (before.size + delta)))
+          }
+        }
       } else {
         size = before.collapsedSize
         before.unselect()
@@ -219,7 +242,9 @@
       // Expand boundary for the leading panel. While dragging, hold at collapsedSize and arm intent.
       if (drag) {
         size = before.collapsedSize
-        arm(before.id, 'expand', delta)
+        if (canExpand(before, after)) {
+          arm(before.id, 'expand', delta)
+        }
       } else {
         const accum = (expandAccum.get(before.id) ?? 0) + delta
         expandAccum.set(before.id, accum)
@@ -239,8 +264,12 @@
     const afterCollapsed = !toValue(after.isSelected)
     if (after.collapsible && !afterCollapsed && afterSize <= after.minSize && delta > 0) {
       if (drag) {
-        size = total - after.minSize
-        arm(after.id, 'collapse', delta)
+        if (after.size >= after.minSize) {
+          size = total - after.minSize
+          if (canCollapse(after)) {
+            arm(after.id, 'collapse', Math.max(0, after.minSize - (after.size - delta)))
+          }
+        }
       } else {
         size = total - after.collapsedSize
         after.unselect()
@@ -249,7 +278,9 @@
     } else if (after.collapsible && afterCollapsed && delta < 0) {
       if (drag) {
         size = total - after.collapsedSize
-        arm(after.id, 'expand', delta)
+        if (canExpand(after, before)) {
+          arm(after.id, 'expand', delta)
+        }
       } else {
         const accum = (expandAccum.get(after.id) ?? 0) + Math.abs(delta)
         expandAccum.set(after.id, accum)
@@ -274,11 +305,11 @@
   function collapse (index: number, neighborIndex?: number) {
     const ticket = panel(index)
     /* v8 ignore next -- defensive: collapse called only on collapsible+selected panels */
-    if (!ticket?.collapsible || !toValue(ticket.isSelected)) return
+    if (!ticket?.collapsible || !toValue(ticket.isSelected)) return false
 
     const neighbor = panel(neighborIndex ?? (index > 0 ? index - 1 : index + 1))
     /* v8 ignore next -- defensive: at least one neighbor exists when there are 2+ panels */
-    if (!neighbor) return
+    if (!neighbor) return false
 
     const diff = ticket.size - ticket.collapsedSize
     const absorbed = Math.min(diff, neighbor.maxSize - neighbor.size)
@@ -306,31 +337,29 @@
     }
 
     emitLayout()
+    return true
   }
 
   function expand (index: number, neighborIndex?: number) {
     const ticket = panel(index)
     /* v8 ignore next -- defensive: expand called only on collapsible+collapsed panels */
-    if (!ticket?.collapsible || toValue(ticket.isSelected)) return
+    if (!ticket?.collapsible || toValue(ticket.isSelected)) return false
 
     const neighbor = panel(neighborIndex ?? (index > 0 ? index - 1 : index + 1))
     /* v8 ignore next -- defensive: at least one neighbor exists when there are 2+ panels */
-    if (!neighbor) return
+    if (!neighbor) return false
+
+    if (!canExpand(ticket, neighbor)) return false
 
     const target = Math.min(ticket.defaultSize, ticket.maxSize)
-    const diff = target - ticket.collapsedSize
-    const available = neighbor.size - neighbor.minSize
-    const take = Math.min(diff, available)
-
-    // Don't expand if we can't reach minSize
-    /* v8 ignore next -- defensive: only triggers when neighbor has insufficient space */
-    if (ticket.collapsedSize + take < ticket.minSize) return
+    const take = Math.min(target - ticket.collapsedSize, neighbor.size - neighbor.minSize)
 
     neighbor.size -= take
     ticket.size = ticket.collapsedSize + take
     ticket.select()
 
     emitLayout()
+    return true
   }
 
   function distribute (incoming: number[]) {
@@ -377,7 +406,7 @@
     draggingHandle.value = index
   }
 
-  function onEndDrag () {
+  function endDrag (commit: boolean) {
     if (isNull(draggingHandle.value)) return
 
     const handleIndex = draggingHandle.value
@@ -387,18 +416,31 @@
     expandAccum.clear()
     intentAccum.clear()
 
-    if (intent) {
+    if (commit && intent) {
       const ticket = panels.get(intent.id)
       if (ticket) {
         const neighborIndex = ticket.index === handleIndex ? handleIndex + 1 : handleIndex
-        if (intent.mode === 'collapse') collapse(ticket.index, neighborIndex)
-        else expand(ticket.index, neighborIndex)
-        return
+        const applied = intent.mode === 'collapse'
+          ? collapse(ticket.index, neighborIndex)
+          : expand(ticket.index, neighborIndex)
+        if (applied) return
       }
     }
 
     emitLayout()
   }
+
+  function onEndDrag () {
+    endDrag(true)
+  }
+
+  function onAbortDrag () {
+    endDrag(false)
+  }
+
+  onBeforeUnmount(() => {
+    onAbortDrag()
+  })
 
   function emitLayout () {
     emit('layout', panels.values().map(t => t.size))
@@ -417,6 +459,7 @@
     resize,
     onStartDrag,
     onEndDrag,
+    onAbortDrag,
     collapse,
     expand,
     distribute,

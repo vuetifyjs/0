@@ -53,7 +53,7 @@
 </script>
 
 <template>
-  <SplitterHandle v-slot="{ state, pending, attrs }" renderless>
+  <SplitterHandle v-slot="{ state, pending, pendingLabel, attrs }" renderless>
     <div
       v-bind="attrs"
       class="hidden md:block bg-divider relative hover:bg-primary transition-colors shrink-0"
@@ -85,7 +85,7 @@
         class="absolute left-1/2 top-1/2 z-2 whitespace-nowrap rounded border border-primary bg-surface px-2 py-1 text-xs font-medium text-primary shadow-sm pointer-events-none"
         :class="direction === 'horizontal' ? 'translate-x-3 -translate-y-1/2' : '-translate-x-1/2 translate-y-3'"
       >
-        {{ pending === 'collapse' ? 'Release to hide' : 'Release to open' }}
+        {{ pendingLabel }}
       </span>
     </div>
   </SplitterHandle>

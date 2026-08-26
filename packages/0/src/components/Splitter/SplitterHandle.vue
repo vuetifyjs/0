@@ -44,12 +44,14 @@
     isDisabled: boolean
     state: SplitterHandleState
     pending: SplitterIntentMode | null
+    pendingLabel: string | undefined
     attrs: {
       'role': 'separator'
       'tabindex': 0 | -1
       'aria-valuenow': number
       'aria-valuemin': number
       'aria-valuemax': number
+      'aria-valuetext': string | undefined
       'aria-orientation': SplitterOrientation
       'aria-controls': string | undefined
       'aria-label': string | undefined
@@ -111,6 +113,7 @@
   const pending = toRef((): SplitterIntentMode | null => {
     const intent = splitter.pending.value
     if (!intent) return null
+    if (splitter.draggingHandle.value !== ticket.index) return null
     const before = splitter.panel(ticket.index)
     const after = splitter.panel(ticket.index + 1)
     return intent.id === before?.id || intent.id === after?.id ? intent.mode : null
@@ -177,13 +180,23 @@
       splitter.onEndDrag()
     })
 
-    onScopeDispose(() => {
-      splitter.onEndDrag()
+    useDocumentEventListener('pointercancel', () => {
+      update.cancel()
       /* v8 ignore next 4 -- IN_BROWSER always true in happy-dom test env */
       if (IN_BROWSER) {
         document.documentElement.style.userSelect = ''
         document.documentElement.style.touchAction = ''
       }
+      splitter.onAbortDrag()
+    })
+
+    onScopeDispose(() => {
+      /* v8 ignore next 4 -- IN_BROWSER always true in happy-dom test env */
+      if (IN_BROWSER) {
+        document.documentElement.style.userSelect = ''
+        document.documentElement.style.touchAction = ''
+      }
+      splitter.onAbortDrag()
     })
   })
 
@@ -269,32 +282,42 @@
     return isNullOrUndefined(p) ? undefined : String(p.id)
   })
 
-  const slotProps = toRef((): SplitterHandleSlotProps => ({
-    isDragging: splitter.draggingHandle.value === ticket.index,
-    isDisabled: isDisabled.value,
-    state: state.value,
-    pending: pending.value,
-    attrs: {
-      'role': 'separator',
-      'tabindex': isDisabled.value ? -1 : 0,
-      'aria-valuenow': valuenow.value,
-      'aria-valuemin': valuemin.value,
-      'aria-valuemax': valuemax.value,
-      'aria-orientation': ariaOrientation.value,
-      'aria-controls': ariaControls.value,
-      'aria-label': label || (locale.ti('Splitter.handle') ?? 'Resize'),
-      'aria-disabled': isDisabled.value,
-      'data-state': state.value,
-      'data-orientation': splitter.orientation.value,
-      'data-disabled': isDisabled.value || undefined,
-      'data-pending': pending.value ?? undefined,
-      'style': { 'touch-action': 'none' },
-      'onPointerdown': onPointerDown,
-      'onPointerenter': onPointerEnter,
-      'onPointerleave': onPointerLeave,
-      'onKeydown': onKeydown,
-    },
-  }))
+  const slotProps = toRef((): SplitterHandleSlotProps => {
+    const pendingLabel = pending.value === 'collapse'
+      ? (locale.ti('Splitter.releaseToHide') ?? 'Release to hide')
+      : (pending.value === 'expand'
+        ? (locale.ti('Splitter.releaseToOpen') ?? 'Release to open')
+        : undefined)
+
+    return {
+      isDragging: splitter.draggingHandle.value === ticket.index,
+      isDisabled: isDisabled.value,
+      state: state.value,
+      pending: pending.value,
+      pendingLabel,
+      attrs: {
+        'role': 'separator',
+        'tabindex': isDisabled.value ? -1 : 0,
+        'aria-valuenow': valuenow.value,
+        'aria-valuemin': valuemin.value,
+        'aria-valuemax': valuemax.value,
+        'aria-valuetext': pendingLabel,
+        'aria-orientation': ariaOrientation.value,
+        'aria-controls': ariaControls.value,
+        'aria-label': label || (locale.ti('Splitter.handle') ?? 'Resize'),
+        'aria-disabled': isDisabled.value,
+        'data-state': state.value,
+        'data-orientation': splitter.orientation.value,
+        'data-disabled': isDisabled.value || undefined,
+        'data-pending': pending.value ?? undefined,
+        'style': { 'touch-action': 'none' },
+        'onPointerdown': onPointerDown,
+        'onPointerenter': onPointerEnter,
+        'onPointerleave': onPointerLeave,
+        'onKeydown': onKeydown,
+      },
+    }
+  })
 </script>
 
 <template>

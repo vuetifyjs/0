@@ -70,6 +70,39 @@ function threePanel (options: {
   })
 }
 
+async function dragHandle (
+  handleEl: HTMLElement,
+  rootEl: HTMLElement,
+  from: { x: number, y?: number },
+  to: { x?: number, y?: number },
+) {
+  handleEl.setPointerCapture = vi.fn()
+  Object.defineProperty(rootEl, 'offsetWidth', { value: 1000, configurable: true })
+  Object.defineProperty(rootEl, 'offsetHeight', { value: 1000, configurable: true })
+
+  const fromX = from.x
+  const fromY = from.y ?? 50
+  const toX = to.x ?? fromX
+  const toY = to.y ?? fromY
+
+  handleEl.dispatchEvent(new PointerEvent('pointerdown', {
+    button: 0,
+    clientX: fromX,
+    clientY: fromY,
+    bubbles: true,
+    pointerId: 1,
+  }))
+  await nextTick()
+
+  document.dispatchEvent(new PointerEvent('pointermove', {
+    clientX: toX,
+    clientY: toY,
+    bubbles: true,
+  }))
+  await new Promise(resolve => requestAnimationFrame(resolve))
+  await nextTick()
+}
+
 describe('splitter', () => {
   describe('root', () => {
     describe('rendering', () => {
@@ -1104,7 +1137,7 @@ describe('splitter', () => {
       expect(onLayout).not.toHaveBeenCalled()
     })
 
-    it('should not expand if available space is less than minSize', async () => {
+    it('should expand when neighbor has enough space to reach minSize', async () => {
       const onLayout = vi.fn()
       const wrapper = twoPanel({
         onLayout,
@@ -1122,13 +1155,40 @@ describe('splitter', () => {
       onLayout.mockClear()
 
       // Neighbor has size ~100, minSize=38, available=62
-      // target = min(defaultSize=60, maxSize=100) = 60, diff = 60, take = min(60, 62) = 60
+      // target = min(defaultSize=60, maxSize=100) = 60, take = min(60, 62) = 60
       // collapsedSize + take = 60 >= minSize=50, so it expands
       panels[0]!.vm.expand()
       await nextTick()
 
       expect(panels[0]!.vm.isCollapsed).toBe(false)
       expect(panels[0]!.vm.size).toBe(60)
+    })
+
+    it('should not expand if available space is less than minSize', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [
+          { defaultSize: 60, collapsible: true, collapsedSize: 0, minSize: 50 },
+          { defaultSize: 40, minSize: 80 },
+        ],
+      })
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      panels[0]!.vm.collapse()
+      await nextTick()
+      expect(panels[0]!.vm.isCollapsed).toBe(true)
+      onLayout.mockClear()
+
+      // Neighbor size ~100, minSize=80, available=20
+      // take = min(60, 20) = 20; collapsedSize + take = 20 < minSize=50
+      panels[0]!.vm.expand()
+      await nextTick()
+
+      expect(onLayout).not.toHaveBeenCalled()
+      expect(panels[0]!.vm.isCollapsed).toBe(true)
+      expect(panels[0]!.vm.size).toBe(0)
     })
 
     it('should resize first panel to max via End key on handle', async () => {
@@ -1540,13 +1600,16 @@ describe('splitter', () => {
       expect(panels[0].vm.isCollapsed).toBe(true)
       expect(panels[0].vm.size).toBe(0)
       expect(handle.attributes('data-pending')).toBe('expand')
+      expect(handle.attributes('aria-valuetext')).toBe('Release to open')
 
       // Release commits the expand
       document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
       await nextTick()
 
       expect(panels[0].vm.isCollapsed).toBe(false)
-      expect(panels[0].vm.size).toBeGreaterThan(0)
+      expect(panels[0].vm.size).toBe(50)
+      expect(handle.attributes('data-pending')).toBeUndefined()
+      expect(handle.attributes('aria-valuetext')).toBeUndefined()
     })
 
     it('should not expand when released before the intent threshold', async () => {
@@ -1595,6 +1658,7 @@ describe('splitter', () => {
       // Stays collapsed
       expect(panels[0].vm.isCollapsed).toBe(true)
       expect(panels[0].vm.size).toBe(0)
+      expect(handle.attributes('data-pending')).toBeUndefined()
     })
 
     it('should hold a collapsed trailing panel closed during drag and expand on release', async () => {
@@ -1649,7 +1713,75 @@ describe('splitter', () => {
       await nextTick()
 
       expect(panels[1].vm.isCollapsed).toBe(false)
-      expect(panels[1].vm.size).toBeGreaterThan(0)
+      expect(panels[1].vm.size).toBe(50)
+      expect(handle.attributes('data-pending')).toBeUndefined()
+    })
+
+    it('should cancel the expand when dragged back in before release', async () => {
+      const wrapper = twoPanel({
+        panels: [
+          { defaultSize: 50, collapsible: true, collapsedSize: 0, minSize: 15 },
+          { defaultSize: 50 },
+        ],
+      })
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      panels[0].vm.collapse()
+      await nextTick()
+
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+      const rootEl = wrapper.element as HTMLElement
+
+      await dragHandle(handleEl, rootEl, { x: 0 }, { x: 120 })
+      expect(handle.attributes('data-pending')).toBe('expand')
+
+      document.dispatchEvent(new PointerEvent('pointermove', {
+        clientX: 0,
+        clientY: 50,
+        bubbles: true,
+      }))
+      await new Promise(resolve => requestAnimationFrame(resolve))
+      await nextTick()
+      expect(handle.attributes('data-pending')).toBeUndefined()
+
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      expect(panels[0].vm.isCollapsed).toBe(true)
+      expect(panels[0].vm.size).toBe(0)
+      expect(handle.attributes('data-pending')).toBeUndefined()
+    })
+
+    it('should not expand on release when expand would not reach minSize', async () => {
+      const wrapper = twoPanel({
+        panels: [
+          { defaultSize: 60, collapsible: true, collapsedSize: 0, minSize: 50 },
+          { defaultSize: 40, minSize: 70 },
+        ],
+      })
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      panels[0].vm.collapse()
+      await nextTick()
+      expect(panels[0].vm.isCollapsed).toBe(true)
+      expect(panels[0].vm.size).toBe(0)
+
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+      const rootEl = wrapper.element as HTMLElement
+
+      await dragHandle(handleEl, rootEl, { x: 0 }, { x: 120 })
+      expect(handle.attributes('data-pending')).toBeUndefined()
+
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      expect(panels[0].vm.isCollapsed).toBe(true)
+      expect(panels[0].vm.size).toBe(0)
+      expect(handle.attributes('data-pending')).toBeUndefined()
     })
   })
 
@@ -1701,6 +1833,7 @@ describe('splitter', () => {
 
       expect(panels[0].vm.isCollapsed).toBe(true)
       expect(panels[0].vm.size).toBe(0)
+      expect(handle.attributes('data-pending')).toBeUndefined()
     })
 
     it('should cancel the collapse when dragged back out before release', async () => {
@@ -1755,6 +1888,7 @@ describe('splitter', () => {
       // Stays expanded — never collapsed
       expect(panels[0].vm.isCollapsed).toBe(false)
       expect(panels[0].vm.size).toBeGreaterThanOrEqual(15)
+      expect(handle.attributes('data-pending')).toBeUndefined()
     })
 
     it('should not collapse when released without arming the intent', async () => {
@@ -1802,6 +1936,7 @@ describe('splitter', () => {
       // Released without intent — pinned at min, not collapsed
       expect(panels[0].vm.isCollapsed).toBe(false)
       expect(panels[0].vm.size).toBe(15)
+      expect(handle.attributes('data-pending')).toBeUndefined()
     })
 
     it('should pin the trailing panel at minSize while dragging and collapse on release', async () => {
@@ -1851,6 +1986,210 @@ describe('splitter', () => {
 
       expect(panels[1].vm.isCollapsed).toBe(true)
       expect(panels[1].vm.size).toBe(0)
+      expect(handle.attributes('data-pending')).toBeUndefined()
+    })
+
+    it('should abort collapse on pointercancel and ignore a later pointerup', async () => {
+      const wrapper = twoPanel({
+        panels: [
+          { defaultSize: 50, collapsible: true, collapsedSize: 0, minSize: 15 },
+          { defaultSize: 50 },
+        ],
+      })
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+      const rootEl = wrapper.element as HTMLElement
+
+      await dragHandle(handleEl, rootEl, { x: 500 }, { x: 50 })
+      expect(handle.attributes('data-pending')).toBe('collapse')
+      expect(panels[0].vm.size).toBe(15)
+
+      document.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true }))
+      await nextTick()
+
+      expect(panels[0].vm.isCollapsed).toBe(false)
+      expect(panels[0].vm.size).toBe(15)
+      expect(handle.attributes('data-pending')).toBeUndefined()
+
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      expect(panels[0].vm.isCollapsed).toBe(false)
+      expect(panels[0].vm.size).toBe(15)
+    })
+
+    it('should abort collapse when unmounted mid-drag', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [
+          { defaultSize: 50, collapsible: true, collapsedSize: 0, minSize: 15 },
+          { defaultSize: 50 },
+        ],
+      })
+      await nextTick()
+
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+      const rootEl = wrapper.element as HTMLElement
+
+      await dragHandle(handleEl, rootEl, { x: 500 }, { x: 50 })
+      expect(handle.attributes('data-pending')).toBe('collapse')
+
+      wrapper.unmount()
+
+      const last = onLayout.mock.calls.at(-1)![0] as number[]
+      expect(last[0]).toBe(15)
+    })
+
+    it('should expose pending only on the dragging handle', async () => {
+      const wrapper = mount(SplitterRoot, {
+        props: { orientation: 'horizontal' },
+        slots: {
+          default: () => [
+            h(SplitterPanel as any, { defaultSize: 33, minSize: 10 }),
+            h(SplitterHandle as any),
+            h(SplitterPanel as any, {
+              defaultSize: 34,
+              minSize: 15,
+              collapsible: true,
+              collapsedSize: 0,
+            }),
+            h(SplitterHandle as any),
+            h(SplitterPanel as any, { defaultSize: 33, minSize: 10 }),
+          ],
+        },
+      })
+      await nextTick()
+
+      const handles = wrapper.findAllComponents(SplitterHandle as any)
+      const handleEl = handles[0]!.element as HTMLElement
+      const rootEl = wrapper.element as HTMLElement
+
+      // Grow p0 / shrink p1 past minSize so the shared middle panel arms collapse
+      await dragHandle(handleEl, rootEl, { x: 330 }, { x: 850 })
+
+      expect(handles[0]!.attributes('data-pending')).toBe('collapse')
+      expect(handles[1]!.attributes('data-pending')).toBeUndefined()
+
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      expect(handles[0]!.attributes('data-pending')).toBeUndefined()
+    })
+
+    it('should pin and commit collapse on a vertical drag', async () => {
+      const wrapper = twoPanel({
+        orientation: 'vertical',
+        panels: [
+          { defaultSize: 50, collapsible: true, collapsedSize: 0, minSize: 15 },
+          { defaultSize: 50 },
+        ],
+      })
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+      const rootEl = wrapper.element as HTMLElement
+
+      await dragHandle(handleEl, rootEl, { x: 50, y: 500 }, { x: 50, y: 50 })
+
+      expect(panels[0].vm.isCollapsed).toBe(false)
+      expect(panels[0].vm.size).toBe(15)
+      expect(handle.attributes('data-pending')).toBe('collapse')
+
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      expect(panels[0].vm.isCollapsed).toBe(true)
+      expect(panels[0].vm.size).toBe(0)
+      expect(handle.attributes('data-pending')).toBeUndefined()
+    })
+
+    it('should not arm collapse when overshoot is below the intent threshold', async () => {
+      const wrapper = twoPanel({
+        panels: [
+          { defaultSize: 50, collapsible: true, collapsedSize: 0, minSize: 15 },
+          { defaultSize: 50 },
+        ],
+      })
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+      const rootEl = wrapper.element as HTMLElement
+
+      await dragHandle(handleEl, rootEl, { x: 500 }, { x: 120 })
+
+      expect(handle.attributes('data-pending')).toBeUndefined()
+      expect(panels[0].vm.size).toBe(15)
+
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      expect(panels[0].vm.isCollapsed).toBe(false)
+      expect(panels[0].vm.size).toBe(15)
+      expect(handle.attributes('data-pending')).toBeUndefined()
+    })
+
+    it('should not arm collapse when the neighbor cannot absorb the hide', async () => {
+      const wrapper = twoPanel({
+        panels: [
+          { defaultSize: 50, collapsible: true, collapsedSize: 0, minSize: 15 },
+          { defaultSize: 50, maxSize: 90 },
+        ],
+      })
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+      const rootEl = wrapper.element as HTMLElement
+
+      await dragHandle(handleEl, rootEl, { x: 500 }, { x: 50 })
+
+      expect(handle.attributes('data-pending')).toBeUndefined()
+      expect(panels[0].vm.isCollapsed).toBe(false)
+      expect(panels[0].vm.size).toBe(15)
+
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      expect(panels[0].vm.isCollapsed).toBe(false)
+      expect(panels[0].vm.size).toBe(15)
+      expect(handle.attributes('data-pending')).toBeUndefined()
+    })
+
+    it('should announce pending collapse via aria-valuetext', async () => {
+      const wrapper = twoPanel({
+        panels: [
+          { defaultSize: 50, collapsible: true, collapsedSize: 0, minSize: 15 },
+          { defaultSize: 50 },
+        ],
+      })
+      await nextTick()
+
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+      const rootEl = wrapper.element as HTMLElement
+
+      expect(handle.attributes('aria-valuetext')).toBeUndefined()
+
+      await dragHandle(handleEl, rootEl, { x: 500 }, { x: 50 })
+
+      expect(handle.attributes('data-pending')).toBe('collapse')
+      expect(handle.attributes('aria-valuetext')).toBe('Release to hide')
+
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      expect(handle.attributes('data-pending')).toBeUndefined()
+      expect(handle.attributes('aria-valuetext')).toBeUndefined()
     })
   })
 
@@ -1908,7 +2247,7 @@ describe('splitter', () => {
       document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
       await nextTick()
 
-      // pointerup handler and scope-dispose both call onEndDrag — should still emit once
+      // pointerup commits; scope-dispose aborts — isNull guard keeps a single emit
       expect(onLayout).toHaveBeenCalledTimes(1)
     })
   })

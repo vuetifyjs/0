@@ -76,5 +76,7 @@ export default {
   },
   Splitter: {
     handle: 'Resize',
+    releaseToHide: 'Release to hide',
+    releaseToOpen: 'Release to open',
   },
 } as const
