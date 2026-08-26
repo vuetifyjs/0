@@ -56,24 +56,27 @@ export const ROADMAP_BUCKETS: Record<string, ReleaseBucket> = {
     ],
   },
   'v1.1.0': {
-    date: '2026-08-25',
-    features: ['DataTable', 'DataGrid', 'Alert'],
+    // Shipped 2026-08-26: Splitter pending-intent + @vuetify/play. No new maturity chips.
+    date: '2026-08-26',
+    features: [],
     stabilizing: [],
   },
   'v1.2.0': {
-    date: '2026-09-22',
-    features: ['Tour'],
+    // Shipped 2026-08-26: DataTable/DataGrid/Alert were planned for 1.1.0; a
+    // master-side minor consumed 1.1.0 first. Tour and the first stable wave
+    // slip to v1.3.0.
+    date: '2026-08-26',
+    features: ['DataTable', 'DataGrid', 'Alert'],
+    stabilizing: [],
+  },
+  'v1.3.0': {
+    date: '2026-10-20',
+    features: ['Tour', 'Virtualizer', 'Kanban', 'Otp'],
     stabilizing: [
       'createValidation', 'createForm', 'createInput', 'usePopover', 'usePresence',
       'useRovingFocus', 'useVirtualFocus', 'createFilter', 'createPagination', 'useRtl',
       'useLocale', 'useStack',
       'Single', 'Step', 'Selection', 'Group', 'Theme', 'Locale', 'Scrim',
-    ],
-  },
-  'v1.3.0': {
-    date: '2026-10-20',
-    features: ['Virtualizer', 'Kanban', 'Otp'],
-    stabilizing: [
       'useClickOutside', 'useEventListener', 'useHotkey', 'useMediaQuery', 'useToggleScope',
       'useRaf', 'useTimer', 'useProxyModel', 'useProxyRegistry', 'toArray', 'toElement',
       'toReactive', 'useDelay', 'useHydration',
