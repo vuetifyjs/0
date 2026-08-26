@@ -1,4 +1,12 @@
 {
+  "Alert": {
+    "coverage": {
+      "statements": 0,
+      "functions": 0,
+      "branches": 0,
+      "overall": 0
+    }
+  },
   "AlertDialog": {
     "coverage": {
       "statements": 5.9,
@@ -77,6 +85,22 @@
       "functions": 0,
       "branches": 0,
       "overall": 4.2
+    }
+  },
+  "DataGrid": {
+    "coverage": {
+      "statements": 6.7,
+      "functions": 0,
+      "branches": 0,
+      "overall": 3.4
+    }
+  },
+  "DataTable": {
+    "coverage": {
+      "statements": 7.1,
+      "functions": 0,
+      "branches": 0,
+      "overall": 3.6
     }
   },
   "Dialog": {
@@ -161,10 +185,10 @@
   },
   "Popover": {
     "coverage": {
-      "statements": 12.5,
+      "statements": 10,
       "functions": 0,
       "branches": 0,
-      "overall": 6.3
+      "overall": 5
     }
   },
   "Portal": {
@@ -257,10 +281,10 @@
   },
   "Splitter": {
     "coverage": {
-      "statements": 0.7,
+      "statements": 0.5,
       "functions": 0,
       "branches": 0,
-      "overall": 0.4
+      "overall": 0.3
     }
   },
   "Step": {
@@ -345,10 +369,10 @@
   },
   "createDataGrid": {
     "coverage": {
-      "statements": 96,
-      "functions": 92.6,
-      "branches": 90.9,
-      "overall": 94
+      "statements": 96.6,
+      "functions": 93.8,
+      "branches": 92.3,
+      "overall": 94.9
     },
     "benchmarks": {
       "_groups": {
@@ -2559,10 +2583,10 @@
   },
   "createGroup": {
     "coverage": {
-      "statements": 98.8,
-      "functions": 97.1,
+      "statements": 100,
+      "functions": 100,
       "branches": 100,
-      "overall": 98.5
+      "overall": 100
     },
     "benchmarks": {
       "_groups": {
@@ -5007,10 +5031,10 @@
   },
   "createProgress": {
     "coverage": {
-      "statements": 98.3,
+      "statements": 100,
       "functions": 100,
       "branches": 100,
-      "overall": 99.2
+      "overall": 100
     }
   },
   "createQueue": {
@@ -9313,10 +9337,10 @@
   },
   "useDate": {
     "coverage": {
-      "statements": 97.7,
+      "statements": 100,
       "functions": 100,
       "branches": 100,
-      "overall": 98.9
+      "overall": 100
     },
     "benchmarks": {
       "_groups": {
@@ -9895,10 +9919,10 @@
   },
   "useFeatures": {
     "coverage": {
-      "statements": 100,
-      "functions": 100,
+      "statements": 95,
+      "functions": 83.3,
       "branches": 100,
-      "overall": 100
+      "overall": 92.5
     }
   },
   "useHotkey": {
@@ -9975,10 +9999,10 @@
   },
   "useNotifications": {
     "coverage": {
-      "statements": 94.2,
+      "statements": 92.5,
       "functions": 100,
       "branches": 100,
-      "overall": 97.1
+      "overall": 96.3
     }
   },
   "usePermissions": {
@@ -9991,10 +10015,10 @@
   },
   "usePopover": {
     "coverage": {
-      "statements": 84,
-      "functions": 93.3,
-      "branches": 94.7,
-      "overall": 88.9
+      "statements": 91.4,
+      "functions": 96.7,
+      "branches": 95.5,
+      "overall": 93.8
     }
   },
   "usePresence": {
@@ -10654,7 +10678,7 @@
   },
   "useStack": {
     "coverage": {
-      "statements": 98.5,
+      "statements": 98.6,
       "functions": 100,
       "branches": 100,
       "overall": 99.3
@@ -10670,10 +10694,10 @@
   },
   "useTheme": {
     "coverage": {
-      "statements": 100,
-      "functions": 91.3,
+      "statements": 99,
+      "functions": 96.8,
       "branches": 100,
-      "overall": 97.4
+      "overall": 98.5
     }
   },
   "useTimer": {
@@ -10724,6 +10748,14 @@
       "overall": 100
     }
   },
+  "diacritics": {
+    "coverage": {
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
+    }
+  },
   "errors": {
     "coverage": {
       "statements": 90.9,
@@ -10734,10 +10766,10 @@
   },
   "helpers": {
     "coverage": {
-      "statements": 98.3,
+      "statements": 98.6,
       "functions": 100,
       "branches": 100,
-      "overall": 99.2
+      "overall": 99.3
     },
     "benchmarks": {
       "_groups": {
