@@ -15,33 +15,33 @@
   import { createDataGrid } from '#v0/composables/createDataGrid'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { toRef, watch } from 'vue'
 
   // Types
   import type { DataGridContext, DataGridOptions } from '#v0/composables/createDataGrid'
 
-  export interface DataGridRootProps<T extends Record<string, unknown> = Record<string, unknown>> extends DataGridOptions<T> {
+  export interface DataGridRootProps<T extends object = object> extends DataGridOptions<T> {
     /** Namespace for dependency injection. @default 'v0:data-grid' */
     namespace?: string
   }
 
-  export interface DataGridRootSlotProps<T extends Record<string, unknown> = Record<string, unknown>> {
+  export interface DataGridRootSlotProps<T extends object = object> {
     /** The data grid context instance */
     context: DataGridContext<T>
   }
 
-  const [_useDataGridRoot, provideDataGridRoot] = createContext<DataGridContext<Record<string, unknown>>>()
+  const [_useDataGridRoot, provideDataGridRoot] = createContext<DataGridContext<object>>()
 
   export function useDataGridRoot<
-    T extends Record<string, unknown> = Record<string, unknown>,
+    T extends object = object,
     > (namespace = 'v0:data-grid'): DataGridContext<T> {
-    return _useDataGridRoot(namespace) as DataGridContext<T>
+    return _useDataGridRoot(namespace) as unknown as DataGridContext<T>
   }
 
   export { provideDataGridRoot }
 </script>
 
-<script lang="ts" setup generic="T extends Record<string, unknown> = Record<string, unknown>">
+<script lang="ts" setup generic="T extends object = object">
   defineOptions({ name: 'DataGridRoot' })
 
   defineSlots<{
@@ -63,7 +63,21 @@
     ...options,
   })
 
-  provideDataGridRoot(namespace, context as DataGridContext<Record<string, unknown>>)
+  provideDataGridRoot(namespace, context as unknown as DataGridContext<object>)
+
+  defineEmits<{
+    'update:search': [value: string]
+  }>()
+
+  const search = defineModel<string>('search', { default: '' })
+
+  watch(search, value => {
+    if (context.query.value !== (value ?? '')) context.search(value ?? '')
+  }, { immediate: true })
+
+  watch(context.query, value => {
+    if (search.value !== value) search.value = value
+  })
 
   const slotProps = toRef((): DataGridRootSlotProps<T> => ({
     context,

@@ -12,6 +12,7 @@
 export { default as DataGridBody } from './DataGridBody.vue'
 export { default as DataGridCell } from './DataGridCell.vue'
 export { default as DataGridColumn } from './DataGridColumn.vue'
+export { default as DataGridEmpty } from './DataGridEmpty.vue'
 export { default as DataGridHandle } from './DataGridHandle.vue'
 export { default as DataGridHeader } from './DataGridHeader.vue'
 export { provideDataGridRoot, useDataGridRoot } from './DataGridRoot.vue'
@@ -23,6 +24,7 @@ export { default as DataGridTable } from './DataGridTable.vue'
 export type { DataGridBodyProps, DataGridBodySlotProps } from './DataGridBody.vue'
 export type { DataGridCellProps, DataGridCellSlotProps } from './DataGridCell.vue'
 export type { DataGridColumnProps, DataGridColumnSlotProps } from './DataGridColumn.vue'
+export type { DataGridEmptyProps, DataGridEmptySlotProps } from './DataGridEmpty.vue'
 export type { DataGridHeaderProps, DataGridHeaderSlotProps } from './DataGridHeader.vue'
 export type { DataGridRootProps, DataGridRootSlotProps } from './DataGridRoot.vue'
 export type { DataGridRowContext, DataGridRowProps, DataGridRowSlotProps } from './DataGridRow.vue'
@@ -39,6 +41,7 @@ export type {
 import Body from './DataGridBody.vue'
 import Cell from './DataGridCell.vue'
 import Column from './DataGridColumn.vue'
+import Empty from './DataGridEmpty.vue'
 import Handle from './DataGridHandle.vue'
 import Header from './DataGridHeader.vue'
 import Root from './DataGridRoot.vue'
@@ -60,9 +63,6 @@ import Table from './DataGridTable.vue'
  *     { id: 2, name: 'Jane', email: 'jane@example.com' },
  *   ]
  *
- *   function rows (ordered: readonly Record<string, unknown>[], size: number) {
- *     return (size > 0 ? ordered : users) as typeof users
- *   }
  * </script>
  *
  * <template>
@@ -75,18 +75,20 @@ import Table from './DataGridTable.vue'
  *         </DataGrid.Row>
  *       </DataGrid.Header>
  *
- *       <DataGrid.Body v-slot="{ items, orderedItems, headerRows, size }">
+ *       <DataGrid.Body v-slot="{ rank }">
  *         <DataGrid.Row
- *           v-for="(user, i) in rows(orderedItems, size)"
- *           v-show="items.some(item => item.id === user.id)"
+ *           v-for="user in rank(users)"
  *           :id="user.id"
  *           :value="user"
- *           :index="headerRows + i + 1"
  *           :key="user.id"
  *         >
  *           <DataGrid.Cell column="name">{{ user.name }}</DataGrid.Cell>
  *           <DataGrid.Cell column="email">{{ user.email }}</DataGrid.Cell>
  *         </DataGrid.Row>
+ *
+ *         <DataGrid.Empty v-slot="{ columnCount }">
+ *           <DataGrid.Cell :colspan="columnCount">No data available</DataGrid.Cell>
+ *         </DataGrid.Empty>
  *       </DataGrid.Body>
  *     </DataGrid.Table>
  *   </DataGrid.Root>
@@ -101,7 +103,7 @@ export const DataGrid = {
    *
    * @example
    * ```vue
-   * <DataGrid.Root v-slot="{ context }">
+   * <DataGrid.Root v-model:search="query" v-slot="{ context }">
    *   <!-- context.items is derived from mounted Row children -->
    * </DataGrid.Root>
    * ```
@@ -147,11 +149,11 @@ export const DataGrid = {
    * ```vue
    * <DataGrid.Column
    *   id="name"
-   *   v-slot="{ isSortable, toggleSort }"
+   *   v-slot="{ isSortable, toggle }"
    * >
-   *   <button v-if="isSortable" @click="toggleSort">
+   *   <Button.Root v-if="isSortable" @click="toggle">
    *     Name
-   *   </button>
+   *   </Button.Root>
    *   <span v-else>Name</span>
    * </DataGrid.Column>
    * ```
@@ -164,14 +166,12 @@ export const DataGrid = {
    *
    * @example
    * ```vue
-   * <DataGrid.Body v-slot="{ items, orderedItems, headerRows, size }">
+   * <DataGrid.Body v-slot="{ rank }">
    *   <DataGrid.Row
-   *     v-for="(user, i) in rows(orderedItems, size)"
-   *     v-show="items.some(item => item.id === user.id)"
+   *     v-for="user in rank(users)"
    *     :id="user.id"
    *     :key="user.id"
    *     :value="user"
-   *     :index="headerRows + i + 1"
    *   >
    *     <!-- cells -->
    *   </DataGrid.Row>
@@ -192,7 +192,9 @@ export const DataGrid = {
    *   v-slot="{ isSelected, toggleSelection }"
    * >
    *   <DataGrid.Cell column="name">
-   *     <input type="checkbox" :checked="isSelected" @change="toggleSelection">
+   *     <Button.Root :aria-pressed="isSelected" @click="toggleSelection">
+   *       Select
+   *     </Button.Root>
    *   </DataGrid.Cell>
    * </DataGrid.Row>
    * ```
@@ -208,12 +210,31 @@ export const DataGrid = {
    * <DataGrid.Cell v-slot="{ isEditing }" column="name">
    *   {{ isEditing ? 'editing' : item.name }}
    * </DataGrid.Cell>
+   *
+   * <DataGrid.Empty v-slot="{ columnCount }">
+   *   <DataGrid.Cell :colspan="columnCount">No data available</DataGrid.Cell>
+   * </DataGrid.Empty>
    * ```
    */
   Cell,
   /**
+   * Empty state row that renders when the grid has no items.
+   *
+   * @see https://0.vuetifyjs.com/components/data/data-grid
+   *
+   * @example
+   * ```vue
+   * <DataGrid.Empty v-slot="{ columnCount }">
+   *   <DataGrid.Cell :colspan="columnCount">
+   *     No data available
+   *   </DataGrid.Cell>
+   * </DataGrid.Empty>
+   * ```
+   */
+  Empty,
+  /**
    * Column resize handle. Wraps `Splitter.Handle` for drag interaction.
-   * Place between adjacent `DataGridColumn` components in a resizable row
+   * Nest inside a `DataGridColumn` (except the last) in a resizable row
    * that uses the full `as="div"` chain.
    *
    * @see https://0.vuetifyjs.com/components/data/data-grid
@@ -223,8 +244,10 @@ export const DataGrid = {
    * <DataGrid.Table as="div">
    *   <DataGrid.Header as="div">
    *     <DataGrid.Row as="div" resizable>
-   *       <DataGrid.Column as="div" id="name">Name</DataGrid.Column>
-   *       <DataGrid.Handle />
+   *       <DataGrid.Column as="div" id="name">
+   *         Name
+   *         <DataGrid.Handle />
+   *       </DataGrid.Column>
    *       <DataGrid.Column as="div" id="email">Email</DataGrid.Column>
    *     </DataGrid.Row>
    *   </DataGrid.Header>

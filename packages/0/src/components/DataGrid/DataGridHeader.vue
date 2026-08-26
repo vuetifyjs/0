@@ -15,12 +15,26 @@
   // Context
   import { useDataGridRoot } from './DataGridRoot.vue'
 
+  // Composables
+  import { createContext } from '#v0/composables/createContext'
+
   // Utilities
-  import { mergeProps, toRef, useAttrs } from 'vue'
+  import { mergeProps, ref, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { InternalHeader } from '#v0/composables/createDataTable'
+  import type { Ref } from 'vue'
+
+  export interface DataGridHeaderContext {
+    register: () => {
+      index: Readonly<Ref<number | undefined>>
+      unregister: () => void
+    }
+  }
+
+  const [useDataGridHeader, provideDataGridHeader] = createContext<DataGridHeaderContext | null>({ suffix: 'header' })
+  export { useDataGridHeader }
 
   export interface DataGridHeaderProps extends AtomProps {
     /** Namespace for dependency injection. @default 'v0:data-grid' */
@@ -51,6 +65,26 @@
 
   const attrs = useAttrs()
   const context = useDataGridRoot(namespace)
+  const rows = ref<object[]>([])
+
+  function register () {
+    const token = {}
+    rows.value.push(token)
+
+    const index = toRef(() => {
+      const pos = rows.value.indexOf(token)
+      return pos === -1 ? undefined : pos + 1
+    })
+
+    function unregister () {
+      const pos = rows.value.indexOf(token)
+      if (pos !== -1) rows.value.splice(pos, 1)
+    }
+
+    return { index, unregister }
+  }
+
+  provideDataGridHeader(namespace, { register })
 
   const slotProps = toRef((): DataGridHeaderSlotProps => ({
     headers: context.headers.value,

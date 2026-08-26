@@ -1,10 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { DataGrid } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { h, nextTick } from 'vue'
+import { defineComponent, h, nextTick } from 'vue'
 
 function mountRoot (
   slot: (props: any) => any,
@@ -75,6 +75,79 @@ describe('dataGrid', () => {
         expect(slotProps.context).toBeDefined()
         expect(typeof slotProps.context.onboard).toBe('function')
         expect(typeof slotProps.context.register).toBe('function')
+        expect(typeof slotProps.context.rank).toBe('function')
+      })
+
+      it('should filter through v-model:search', async () => {
+        const users = [
+          { id: 1, name: 'Alice' },
+          { id: 2, name: 'Bob' },
+        ]
+        let slotProps: any
+
+        const Host = defineComponent({
+          data: () => ({ query: '' }),
+          render () {
+            return h(DataGrid.Root as any, {
+              'search': this.query,
+              'onUpdate:search': (value: string) => {
+                this.query = value
+              },
+            }, () =>
+              h(DataGrid.Table, {}, () => [
+                h(DataGrid.Header, {}, () =>
+                  h(DataGrid.Row, {}, () =>
+                    h(DataGrid.Column, { id: 'name', filterable: true }),
+                  ),
+                ),
+                h(DataGrid.Body as any, {}, {
+                  default: (props: any) => {
+                    slotProps = props
+                    return users.map(user =>
+                      h(DataGrid.Row, { key: user.id, id: user.id, value: user }),
+                    )
+                  },
+                }),
+              ]),
+            )
+          },
+        })
+
+        const wrapper = mount(Host)
+        await nextTick()
+        expect(slotProps.items).toHaveLength(2)
+
+        wrapper.setData({ query: 'alice' })
+        await nextTick()
+        expect(slotProps.items.map((item: { name: string }) => item.name)).toEqual(['Alice'])
+      })
+
+      it('should update the parent search model when context.search is called', async () => {
+        let context: any
+
+        const Host = defineComponent({
+          data: () => ({ query: '' }),
+          render () {
+            return h(DataGrid.Root as any, {
+              'search': this.query,
+              'onUpdate:search': (value: string) => {
+                this.query = value
+              },
+            }, {
+              default: (props: any) => {
+                context = props.context
+                return h('div')
+              },
+            })
+          },
+        })
+
+        const wrapper = mount(Host)
+        await nextTick()
+
+        context.search('x')
+        await nextTick()
+        expect(wrapper.vm.query).toBe('x')
       })
     })
 
@@ -257,6 +330,88 @@ describe('dataGrid', () => {
         expect(wrapper.find('.custom-header').attributes('role')).toBe('rowgroup')
         expect(slotProps.attrs.role).toBe('rowgroup')
       })
+
+      it('should set aria-rowindex to 1 on a single header row', () => {
+        const wrapper = mount(DataGrid.Root, {
+          slots: {
+            default: () =>
+              h(DataGrid.Table, {}, () =>
+                h(DataGrid.Header, {}, () =>
+                  h(DataGrid.Row, {}, () => h(DataGrid.Column, { id: 'name' }, () => 'Name')),
+                ),
+              ),
+          },
+        })
+
+        expect(wrapper.find('thead [role="row"]').attributes('aria-rowindex')).toBe('1')
+      })
+
+      it('should set aria-rowindex 1 and 2 on two header rows', () => {
+        const wrapper = mount(DataGrid.Root, {
+          slots: {
+            default: () =>
+              h(DataGrid.Table, {}, () =>
+                h(DataGrid.Header, {}, () => [
+                  h(DataGrid.Row, {}, () => h(DataGrid.Column, { id: 'group' }, () => 'Group')),
+                  h(DataGrid.Row, {}, () => h(DataGrid.Column, { id: 'name' }, () => 'Name')),
+                ]),
+              ),
+          },
+        })
+
+        const rows = wrapper.findAll('thead [role="row"]')
+        expect(rows[0]!.attributes('aria-rowindex')).toBe('1')
+        expect(rows[1]!.attributes('aria-rowindex')).toBe('2')
+      })
+
+      it('should prefer :index over the auto header row index', () => {
+        const wrapper = mount(DataGrid.Root, {
+          slots: {
+            default: () =>
+              h(DataGrid.Table, {}, () =>
+                h(DataGrid.Header, {}, () =>
+                  h(DataGrid.Row, { index: 9 }, () => h(DataGrid.Column, { id: 'name' }, () => 'Name')),
+                ),
+              ),
+          },
+        })
+
+        expect(wrapper.find('thead [role="row"]').attributes('aria-rowindex')).toBe('9')
+      })
+
+      it('should recompute header aria-rowindex after a sibling unmounts', async () => {
+        const Host = defineComponent({
+          data: () => ({ extra: true }),
+          render () {
+            return h(DataGrid.Root, null, {
+              default: () =>
+                h(DataGrid.Table, {}, () =>
+                  h(DataGrid.Header, {}, () => [
+                    this.extra
+                      ? h(DataGrid.Row, { key: 'a' }, () => h(DataGrid.Column, { id: 'a' }, () => 'A'))
+                      : null,
+                    h(DataGrid.Row, { key: 'b' }, () => h(DataGrid.Column, { id: 'b' }, () => 'B')),
+                  ]),
+                ),
+            })
+          },
+        })
+
+        const wrapper = mount(Host)
+        await nextTick()
+
+        let rows = wrapper.findAll('thead [role="row"]')
+        expect(rows[0]!.attributes('aria-rowindex')).toBe('1')
+        expect(rows[1]!.attributes('aria-rowindex')).toBe('2')
+
+        await wrapper.setData({ extra: false })
+        await nextTick()
+
+        rows = wrapper.findAll('thead [role="row"]')
+        expect(rows).toHaveLength(1)
+        expect(rows[0]!.attributes('aria-rowindex')).toBe('1')
+        expect(rows[0]!.text()).toBe('B')
+      })
     })
   })
 
@@ -318,6 +473,28 @@ describe('dataGrid', () => {
         expect(slotProps.attrs.role).toBe('rowgroup')
       })
 
+      it('should expose rank in Body slot props', async () => {
+        let slotProps: any
+
+        mount(DataGrid.Root, {
+          slots: {
+            default: () =>
+              h(DataGrid.Table, {}, () =>
+                h(DataGrid.Body as any, {}, {
+                  default: (props: any) => {
+                    slotProps = props
+                    return h('tr')
+                  },
+                }),
+              ),
+          },
+        })
+
+        await nextTick()
+
+        expect(typeof slotProps.rank).toBe('function')
+      })
+
       it('should expose row order on Body orderedItems after rows.move', async () => {
         const users = [
           { id: 1, name: 'Alice' },
@@ -348,6 +525,41 @@ describe('dataGrid', () => {
         await nextTick()
 
         expect(bodyProps.orderedItems[0].id).toBe(3)
+        expect(wrapper.findAll('tr')[0]!.text()).toContain('Carol')
+      })
+
+      it('should expose rank on Body and order by orderedItems after rows.move', async () => {
+        const users = [
+          { id: 1, name: 'Alice' },
+          { id: 2, name: 'Bob' },
+          { id: 3, name: 'Carol' },
+        ]
+        let ranked: { id: number, name: string }[] | undefined
+
+        const { wrapper, context } = mountRoot(() =>
+          h(DataGrid.Table, {}, () =>
+            h(DataGrid.Body as any, {}, {
+              default: ({ rank }: any) => {
+                ranked = rank(users)
+                return ranked!.map((u: any) =>
+                  h(DataGrid.Row, { id: u.id, value: u, key: u.id }, () =>
+                    h(DataGrid.Cell, { column: 'name' }, () => u.name),
+                  ),
+                )
+              },
+            }),
+          ),
+        )
+
+        await nextTick()
+
+        expect(typeof ranked).not.toBe('undefined')
+        expect(ranked!.map(u => u.id)).toEqual([1, 2, 3])
+
+        context.rows.move(3, 0)
+        await nextTick()
+
+        expect(ranked![0]!.id).toBe(3)
         expect(wrapper.findAll('tr')[0]!.text()).toContain('Carol')
       })
     })
@@ -422,6 +634,134 @@ describe('dataGrid', () => {
         expect(slotProps.id).toBe(7)
         expect(slotProps.isResizable).toBe(false)
         expect(slotProps.attrs.role).toBe('row')
+      })
+
+      it('should not apply v-show on a renderless row', async () => {
+        using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+        const users = Array.from({ length: 3 }, (_, i) => ({
+          id: i + 1,
+          name: `User ${i + 1}`,
+        }))
+
+        const { wrapper } = mountRoot(
+          () =>
+            h(DataGrid.Table, { as: 'div' }, () => [
+              h(DataGrid.Header, { as: 'div' }, () =>
+                h(DataGrid.Row, { as: 'div' }, () => h(DataGrid.Column, { id: 'name' }, () => 'Name')),
+              ),
+              h(DataGrid.Body as any, { as: 'div' }, () =>
+                users.map(u =>
+                  h(DataGrid.Row, {
+                    id: u.id,
+                    value: u,
+                    renderless: true,
+                  }, {
+                    default: (props: any) => h('div', { class: 'custom-row', ...props.attrs }, u.name),
+                  }),
+                ),
+              ),
+            ]),
+          { pagination: { itemsPerPage: 1 } },
+        )
+
+        await nextTick()
+
+        const custom = wrapper.findAll('.custom-row')
+        expect(custom).toHaveLength(3)
+        expect((custom[0]!.element as HTMLElement).style.display).not.toBe('none')
+        expect((custom[1]!.element as HTMLElement).style.display).not.toBe('none')
+        expect((custom[2]!.element as HTMLElement).style.display).not.toBe('none')
+        expect(warn.mock.calls.some(args => String(args[0]).includes('Runtime directive'))).toBe(false)
+      })
+    })
+
+    describe('selection and expansion', () => {
+      const users = [
+        { id: 1, name: 'Alice', email: 'alice@test.com' },
+        { id: 2, name: 'Bob', email: 'bob@test.com' },
+      ]
+
+      function mountDataRow (rowProps: Record<string, unknown> = {}, slot?: (props: any) => any) {
+        const mounted = mountRoot(() =>
+          h(DataGrid.Table, {}, () =>
+            h(DataGrid.Body as any, {}, () =>
+              h(DataGrid.Row, { id: 1, ...rowProps }, slot
+                ? { default: slot }
+                : () => h('td', 'Alice')),
+            ),
+          ),
+        )
+        mounted.context.onboard(users.map(u => ({ id: u.id, value: u })))
+        return mounted
+      }
+
+      it('should toggle selection when a selectable row is clicked', async () => {
+        const { wrapper } = mountDataRow({ selectable: true })
+
+        await nextTick()
+        const row = wrapper.findComponent(DataGrid.Row as any)
+        expect(row.attributes('aria-selected')).toBe('false')
+
+        await row.trigger('click')
+        expect(row.attributes('aria-selected')).toBe('true')
+
+        await row.trigger('click')
+        expect(row.attributes('aria-selected')).toBe('false')
+      })
+
+      it('should not toggle selection when a non-selectable row is clicked', async () => {
+        let slotProps: any
+
+        const { wrapper } = mountDataRow({}, (props: any) => {
+          slotProps = props
+          return h('td', 'Alice')
+        })
+
+        await nextTick()
+        await wrapper.findComponent(DataGrid.Row as any).trigger('click')
+        expect(slotProps.isSelected).toBe(false)
+      })
+
+      it('should have aria-selected attribute when id is provided and selectable', async () => {
+        const { wrapper } = mountDataRow({ selectable: true })
+
+        await nextTick()
+
+        const row = wrapper.findComponent(DataGrid.Row as any)
+        expect(row.attributes('aria-selected')).toBe('false')
+      })
+
+      it('should omit aria-selected when id is provided without selectable', async () => {
+        const { wrapper } = mountDataRow()
+
+        await nextTick()
+
+        const row = wrapper.findComponent(DataGrid.Row as any)
+        expect(row.attributes('aria-selected')).toBeUndefined()
+      })
+
+      it('should toggle expansion and set data-expanded', async () => {
+        let slotProps: any
+
+        const { wrapper } = mountDataRow({}, (props: any) => {
+          slotProps = props
+          return h('td')
+        })
+
+        await nextTick()
+        expect(slotProps.isExpanded).toBe(false)
+        expect(wrapper.findComponent(DataGrid.Row as any).attributes('data-expanded')).toBeUndefined()
+
+        slotProps.toggleExpansion()
+        await nextTick()
+        expect(slotProps.isExpanded).toBe(true)
+        expect(wrapper.findComponent(DataGrid.Row as any).attributes('data-expanded')).toBe('true')
+
+        slotProps.toggleExpansion()
+        await nextTick()
+        expect(slotProps.isExpanded).toBe(false)
+        expect(wrapper.findComponent(DataGrid.Row as any).attributes('data-expanded')).toBeUndefined()
       })
     })
   })
@@ -523,8 +863,8 @@ describe('dataGrid', () => {
         expect(slotProps.attrs.role).toBe('columnheader')
         expect(slotProps.attrs.scope).toBeUndefined()
         expect(slotProps.isSortable).toBe(false)
-        expect(slotProps.isSorted).toBe(false)
-        expect(slotProps.sortDirection).toBeUndefined()
+        expect(slotProps.direction).toBe('none')
+        expect(slotProps.priority).toBe(-1)
         expect(slotProps.isPinned).toBe(false)
         expect(slotProps.pinPosition).toBe(false)
         expect(slotProps.size).toBe(0)
@@ -553,8 +893,8 @@ describe('dataGrid', () => {
 
         expect(slotProps.attrs.scope).toBe('col')
         expect(slotProps.attrs.role).toBe('columnheader')
-        expect(slotProps.isSorted).toBe(false)
-        expect(slotProps.sortDirection).toBeUndefined()
+        expect(slotProps.direction).toBe('none')
+        expect(slotProps.priority).toBe(-1)
         expect(slotProps.isPinned).toBe(false)
         expect(slotProps.pinPosition).toBe(false)
         expect(slotProps.size).toBe(0)
@@ -638,34 +978,77 @@ describe('dataGrid', () => {
         await nextTick()
 
         expect(slotProps.isSortable).toBe(true)
-        expect(slotProps.isSorted).toBe(false)
-        expect(slotProps.sortDirection).toBeUndefined()
+        expect(slotProps.direction).toBe('none')
+        expect(slotProps.priority).toBe(-1)
         expect(slotProps.attrs['aria-sort']).toBe('none')
         expect(slotProps.attrs['data-direction']).toBeUndefined()
-        expect(typeof slotProps.toggleSort).toBe('function')
+        expect(typeof slotProps.toggle).toBe('function')
 
         context.sort.toggle('name')
         await nextTick()
 
-        expect(slotProps.isSorted).toBe(true)
-        expect(slotProps.sortDirection).toBe('asc')
+        expect(slotProps.direction).toBe('asc')
+        expect(slotProps.priority).toBe(0)
         expect(slotProps.attrs['aria-sort']).toBe('ascending')
         expect(slotProps.attrs['data-direction']).toBe('asc')
 
         context.sort.toggle('name')
         await nextTick()
 
-        expect(slotProps.isSorted).toBe(true)
-        expect(slotProps.sortDirection).toBe('desc')
+        expect(slotProps.direction).toBe('desc')
+        expect(slotProps.priority).toBe(0)
         expect(slotProps.attrs['aria-sort']).toBe('descending')
         expect(slotProps.attrs['data-direction']).toBe('desc')
 
         context.sort.toggle('name')
         await nextTick()
 
-        expect(slotProps.isSorted).toBe(false)
-        expect(slotProps.sortDirection).toBeUndefined()
+        expect(slotProps.direction).toBe('none')
+        expect(slotProps.priority).toBe(-1)
         expect(slotProps.attrs['aria-sort']).toBe('none')
+      })
+
+      it('should update isSortable when the sortable prop flips after mount', async () => {
+        let slotProps: any
+
+        const Host = defineComponent({
+          data: () => ({ sortable: false }),
+          render () {
+            return h(DataGrid.Root as any, {}, () =>
+              h(DataGrid.Table, {}, () =>
+                h(DataGrid.Header, {}, () =>
+                  h(DataGrid.Row, {}, () =>
+                    h(DataGrid.Column, { id: 'name', sortable: this.sortable }, {
+                      default: (props: any) => {
+                        slotProps = props
+                        return h('span', 'Name')
+                      },
+                    }),
+                  ),
+                ),
+              ),
+            )
+          },
+        })
+
+        const wrapper = mount(Host)
+        await nextTick()
+        expect(slotProps.isSortable).toBe(false)
+        expect(slotProps.attrs['aria-sort']).toBeUndefined()
+
+        slotProps.toggle()
+        await nextTick()
+        expect(slotProps.direction).toBe('none')
+
+        wrapper.setData({ sortable: true })
+        await nextTick()
+        expect(slotProps.isSortable).toBe(true)
+        expect(slotProps.attrs['aria-sort']).toBe('none')
+
+        slotProps.toggle()
+        await nextTick()
+        expect(slotProps.direction).toBe('asc')
+        expect(slotProps.attrs['aria-sort']).toBe('ascending')
       })
 
       it('should expose left and right pin positions from column tickets', async () => {
@@ -796,6 +1179,28 @@ describe('dataGrid', () => {
         expect(cells[1]!.attributes('aria-colindex')).toBe('2')
       })
 
+      it('should apply layout size as flex-basis on the cell host', async () => {
+        const { wrapper } = mountRoot(
+          () =>
+            h(DataGrid.Table, { as: 'div' }, () =>
+              h(DataGrid.Body as any, { as: 'div' }, () =>
+                h(DataGrid.Row, { as: 'div', class: 'flex' }, () =>
+                  h(DataGrid.Cell, { as: 'div', column: 'name' }, () => 'A'),
+                ),
+              ),
+            ),
+          {},
+          [{ id: 'name', size: 40 }],
+        )
+
+        await nextTick()
+
+        const cell = wrapper.find('[role="cell"]')
+        const style = cell.attributes('style') ?? ''
+        expect(style).toContain('width: 40%')
+        expect(style.includes('flex-basis: 40%') || style.includes('flex: 0 0 40%')).toBe(true)
+      })
+
       it('should expose role=cell via slot attrs when renderless', () => {
         let slotProps: any
 
@@ -822,6 +1227,62 @@ describe('dataGrid', () => {
         expect(slotProps.attrs.role).toBe('cell')
         expect(slotProps.isEditing).toBe(false)
         expect(slotProps.rowSpan).toBe(1)
+      })
+
+      it('should support colspan on native td', () => {
+        let slotProps: any
+
+        const wrapper = mount(DataGrid.Root, {
+          slots: {
+            default: () =>
+              h(DataGrid.Table, {}, () =>
+                h(DataGrid.Body as any, {}, () =>
+                  h(DataGrid.Row, {}, () =>
+                    h(DataGrid.Cell, { colspan: 3 }, {
+                      default: (props: any) => {
+                        slotProps = props
+                        return 'Empty'
+                      },
+                    }),
+                  ),
+                ),
+              ),
+          },
+        })
+
+        const cell = wrapper.findComponent(DataGrid.Cell as any)
+        expect(cell.attributes('colspan')).toBe('3')
+        expect(cell.attributes('aria-colspan')).toBeUndefined()
+        expect(slotProps.attrs.colspan).toBe(3)
+        expect(slotProps.attrs['aria-colspan']).toBeUndefined()
+      })
+
+      it('should use aria-colspan on non-td hosts', () => {
+        let slotProps: any
+
+        const wrapper = mount(DataGrid.Root, {
+          slots: {
+            default: () =>
+              h(DataGrid.Table, { as: 'div' }, () =>
+                h(DataGrid.Body as any, { as: 'div' }, () =>
+                  h(DataGrid.Row, { as: 'div' }, () =>
+                    h(DataGrid.Cell, { as: 'div', colspan: 3 }, {
+                      default: (props: any) => {
+                        slotProps = props
+                        return 'Empty'
+                      },
+                    }),
+                  ),
+                ),
+              ),
+          },
+        })
+
+        const cell = wrapper.findComponent(DataGrid.Cell as any)
+        expect(cell.attributes('colspan')).toBeUndefined()
+        expect(cell.attributes('aria-colspan')).toBe('3')
+        expect(slotProps.attrs.colspan).toBeUndefined()
+        expect(slotProps.attrs['aria-colspan']).toBe(3)
       })
     })
 
@@ -858,6 +1319,41 @@ describe('dataGrid', () => {
 
         expect(slotProps.isEditing).toBe(true)
         expect(wrapper.find('[role="cell"]').exists()).toBe(true)
+      })
+
+      it('should resolve isEditing from a generated row ticket when :id is omitted', async () => {
+        let cellProps: any
+        let rowProps: any
+        const item = { name: 'Alice' }
+        const { context } = mountRoot(() =>
+          h(DataGrid.Table, {}, () =>
+            h(DataGrid.Body as any, {}, () =>
+              h(DataGrid.Row, { value: item }, {
+                default: (props: any) => {
+                  rowProps = props
+                  return h(DataGrid.Cell, { column: 'name' }, {
+                    default: (p: any) => {
+                      cellProps = p
+                      return 'Alice'
+                    },
+                  })
+                },
+              }),
+            ),
+          ),
+        {},
+        [{ id: 'name', editable: true }],
+        )
+
+        await nextTick()
+
+        expect(rowProps.id).toBeDefined()
+        expect(cellProps.isEditing).toBe(false)
+
+        context.editing.edit(rowProps.id, 'name')
+        await nextTick()
+
+        expect(cellProps.isEditing).toBe(true)
       })
 
       it('should apply rowspan and hide covered cells', async () => {
@@ -1189,6 +1685,51 @@ describe('dataGrid', () => {
         expect(emailCol.size).toBe(30)
       })
 
+      it('should permute Splitter layout into registry order when columns are pinned', async () => {
+        const { wrapper, context } = mountRoot(
+          () =>
+            h(DataGrid.Table, { as: 'div' }, () =>
+              h(DataGrid.Header, { as: 'div' }, () =>
+                h(DataGrid.Row, { resizable: true, as: 'div', class: 'flex' }, () => [
+                  h(DataGrid.Column, { id: 'c' }, () => 'C'),
+                  h(DataGrid.Handle),
+                  h(DataGrid.Column, { id: 'a' }, () => 'A'),
+                  h(DataGrid.Handle),
+                  h(DataGrid.Column, { id: 'b' }, () => 'B'),
+                ]),
+              ),
+            ),
+          {},
+          [
+            { id: 'a', size: 40, minSize: 5, maxSize: 90, resizable: true },
+            { id: 'b', size: 30, minSize: 5, maxSize: 90, resizable: true },
+            { id: 'c', size: 30, minSize: 5, maxSize: 90, resizable: true },
+          ],
+        )
+
+        await nextTick()
+        context.layout.pin('c', 'left')
+        await nextTick()
+
+        expect(context.layout.columns.value.map((c: any) => c.id)).toEqual(['c', 'a', 'b'])
+
+        const row = wrapper.findComponent(DataGrid.Row as any)
+        const splitter = row.findComponent({ name: 'SplitterRoot' })
+        expect(splitter.exists()).toBe(true)
+        expect(wrapper.findAll('[data-panel-index]')).toHaveLength(3)
+
+        splitter.vm.distribute([10, 20, 70])
+        await nextTick()
+
+        function size (id: string) {
+          return context.layout.columns.value.find((c: any) => c.id === id).size
+        }
+
+        expect(size('c')).toBe(10)
+        expect(size('a')).toBe(20)
+        expect(size('b')).toBe(70)
+      })
+
       it('should resize columns from Handle keyboard interaction', async () => {
         const { wrapper, context } = mountRoot(() =>
           h(DataGrid.Table, { as: 'div' }, () =>
@@ -1503,9 +2044,17 @@ describe('dataGrid', () => {
       expect(context.items.value).toHaveLength(2)
       expect(context.size).toBe(5)
       expect(wrapper.findComponent(DataGrid.Table as any).attributes('aria-rowcount')).toBe('6')
+
+      const dataRows = wrapper.findAllComponents(DataGrid.Row as any).filter(row => row.props('value'))
+      expect(dataRows).toHaveLength(5)
+      expect((dataRows[0]!.element as HTMLElement).style.display).not.toBe('none')
+      expect((dataRows[1]!.element as HTMLElement).style.display).not.toBe('none')
+      expect((dataRows[2]!.element as HTMLElement).style.display).toBe('none')
+      expect((dataRows[3]!.element as HTMLElement).style.display).toBe('none')
+      expect((dataRows[4]!.element as HTMLElement).style.display).toBe('none')
     })
 
-    it('should bind aria-rowindex from headerRows + i + 1 when v-for orderedItems on page 2', async () => {
+    it('should auto-set aria-rowindex from orderedItems without :index on page 2', async () => {
       const users = Array.from({ length: 5 }, (_, i) => ({
         id: i + 1,
         name: `User ${i + 1}`,
@@ -1521,13 +2070,11 @@ describe('dataGrid', () => {
             h(DataGrid.Body as any, {}, {
               default: (props: any) => {
                 bodyProps = props
-                const list = props.size > 0 ? props.orderedItems : users
-                return list.map((u: any, i: number) =>
+                return props.rank(users).map((u: any) =>
                   h(DataGrid.Row, {
                     id: u.id,
                     value: u,
                     key: u.id,
-                    index: props.headerRows + i + 1,
                   }, () =>
                     h(DataGrid.Cell, { column: 'name' }, () => u.name),
                   ),
@@ -1546,13 +2093,108 @@ describe('dataGrid', () => {
       expect(bodyProps.rowStart).toBe(4)
       expect(wrapper.findComponent(DataGrid.Table as any).attributes('aria-rowcount')).toBe('6')
 
+      expect(wrapper.find('thead [role="row"]').attributes('aria-rowindex')).toBe('1')
+
       const rows = wrapper.findAll('tbody [role="row"]')
       expect(rows[2]!.text()).toContain('User 3')
       expect(rows[3]!.text()).toContain('User 4')
       expect(rows[2]!.attributes('aria-rowindex')).toBe('4')
       expect(rows[3]!.attributes('aria-rowindex')).toBe('5')
-      expect(rows[2]!.attributes('aria-rowindex')).not.toBe(String(bodyProps.rowStart + 2))
-      expect(rows[3]!.attributes('aria-rowindex')).not.toBe(String(bodyProps.rowStart + 3))
+      expect((rows[2]!.element as HTMLElement).style.display).not.toBe('none')
+      expect((rows[3]!.element as HTMLElement).style.display).not.toBe('none')
+    })
+
+    it('should upsert a child-registered row when :value is replaced', async () => {
+      let body: any
+      let context: any
+
+      const Host = defineComponent({
+        data: () => ({
+          rows: [
+            { id: 1, name: 'Bob' },
+            { id: 2, name: 'Carol' },
+          ] as { id: number, name: string }[],
+        }),
+        render () {
+          return h(DataGrid.Root as any, {}, {
+            default: (props: any) => {
+              context = props.context
+              return h(DataGrid.Table, {}, () => [
+                h(DataGrid.Header, {}, () =>
+                  h(DataGrid.Row, {}, () =>
+                    h(DataGrid.Column, { id: 'name', filterable: true }),
+                  ),
+                ),
+                h(DataGrid.Body as any, {}, {
+                  default: (slot: any) => {
+                    body = slot
+                    return this.rows.map(user =>
+                      h(DataGrid.Row, { key: user.id, id: user.id, value: user }, () =>
+                        h(DataGrid.Cell, { column: 'name' }, () => user.name),
+                      ),
+                    )
+                  },
+                }),
+              ])
+            },
+          })
+        },
+      })
+
+      const wrapper = mount(Host)
+      await nextTick()
+
+      context.search('alice')
+      await nextTick()
+      expect(body.items).toHaveLength(0)
+
+      wrapper.setData({
+        rows: [
+          { id: 1, name: 'Alice Cooper' },
+          { id: 2, name: 'Carol' },
+        ],
+      })
+      await nextTick()
+      expect(body.items.map((item: { name: string }) => item.name)).toEqual(['Alice Cooper'])
+      expect(context.get(1)?.value).toEqual({ id: 1, name: 'Alice Cooper' })
+    })
+
+    it('should show Empty when no rows are registered', () => {
+      const wrapper = mount(DataGrid.Root, {
+        slots: {
+          default: () =>
+            h(DataGrid.Table, {}, () =>
+              h(DataGrid.Body as any, {}, () =>
+                h(DataGrid.Empty, {}, () => 'No data'),
+              ),
+            ),
+        },
+      })
+
+      const empty = wrapper.findComponent(DataGrid.Empty as any)
+      expect(empty.exists()).toBe(true)
+      expect(empty.text()).toBe('No data')
+    })
+
+    it('should not render Empty when items exist', async () => {
+      const wrapper = mount(DataGrid.Root, {
+        slots: {
+          default: ({ context }: any) => {
+            if (context.size === 0) {
+              context.onboard([{ id: 1, value: { id: 1, name: 'Alice' } }])
+            }
+            return h(DataGrid.Table, {}, () =>
+              h(DataGrid.Body as any, {}, () =>
+                h(DataGrid.Empty, {}, () => 'No data'),
+              ),
+            )
+          },
+        },
+      })
+
+      await nextTick()
+
+      expect(wrapper.text()).not.toContain('No data')
     })
 
     it('should not coerce a resizable row default as from tr to div', async () => {

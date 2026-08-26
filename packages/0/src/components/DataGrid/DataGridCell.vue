@@ -6,7 +6,7 @@
    *
    * @remarks
    * A `<td>` element for data cells. Exposes editing state, row spanning,
-   * and layout (pin/size/offset) from the grid context.
+   * consumer `colspan`, and layout (pin/size/offset) from the grid context.
    */
 
   // Components
@@ -29,6 +29,8 @@
     namespace?: string
     /** Column identifier for editing and span lookup */
     column?: string
+    /** Number of columns this cell spans. Row spanning owns `rowspan`. */
+    colspan?: number
   }
 
   export interface DataGridCellSlotProps {
@@ -46,10 +48,13 @@
     offset: number
     attrs: {
       'role': 'cell'
+      'colspan': number | undefined
       'rowspan': number | undefined
+      'aria-colspan': number | undefined
       'aria-rowspan': number | undefined
       'aria-colindex': number | undefined
       'data-state': 'editing' | undefined
+      'style'?: Record<string, string | number>
     }
   }
 </script>
@@ -65,6 +70,7 @@
     as = 'td',
     namespace = 'v0:data-grid',
     column,
+    colspan,
     renderless,
   } = defineProps<DataGridCellProps>()
 
@@ -128,10 +134,20 @@
     offset: offset.value,
     attrs: {
       'role': 'cell',
+      'colspan': as === 'td' ? colspan : undefined,
       'rowspan': as === 'td' && rowSpan.value > 1 ? rowSpan.value : undefined,
+      'aria-colspan': as !== 'td' && (colspan ?? 1) > 1 ? colspan : undefined,
       'aria-rowspan': as !== 'td' && rowSpan.value > 1 ? rowSpan.value : undefined,
       'aria-colindex': colIndex(),
       'data-state': isEditing.value ? 'editing' : undefined,
+      'style': size.value > 0
+        ? {
+          width: `${size.value}%`,
+          flexBasis: `${size.value}%`,
+          flexGrow: 0,
+          flexShrink: 0,
+        }
+        : undefined,
     },
   }))
 </script>

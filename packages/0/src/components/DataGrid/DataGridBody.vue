@@ -26,22 +26,24 @@
     namespace?: string
   }
 
-  export interface DataGridBodySlotProps<T extends Record<string, unknown> = Record<string, unknown>> {
-    /** Paginated items for the current page — use with `v-show` to hide off-page rows */
+  export interface DataGridBodySlotProps<T extends object = object> {
+    /** Paginated items for the current page. Row hides off-page rows itself. */
     items: readonly T[]
     /** Filtered and sorted items in adapter order. Sort only — ignores `rows.move()`. */
     sortedItems: readonly T[]
-    /** Filter+sort+row-order list before pagination. `v-for` this (fallback to source when `size` is 0). */
+    /** Filter+sort+row-order list before pagination. */
     orderedItems: readonly T[]
+    /** Rank a source array by `orderedItems`. v-for `rank(users)` so rows register themselves. */
+    rank: <U extends object>(source: readonly U[]) => U[]
     /** Whether the table is loading */
     isLoading: boolean
     /** Whether the table has no items */
     isEmpty: boolean
-    /** Header-grid row count. Bind `:index="headerRows + i + 1"` when v-for `orderedItems`. */
+    /** Header-grid row count. */
     headerRows: number
-    /** 1-based index of the first visible data row (header-grid rows + pageStart + 1). Bind `:index="rowStart + i"` when v-for `items`. */
+    /** 1-based index of the first visible data row (header-grid rows + pageStart + 1). Row sets aria-rowindex unless `:index` is passed. */
     rowStart: number
-    /** Registry size — 0 before rows register (first paint). Use to choose the source fallback. */
+    /** Registry size — 0 before rows register (first paint). */
     size: number
     attrs: {
       role: 'rowgroup' | undefined
@@ -49,7 +51,7 @@
   }
 </script>
 
-<script lang="ts" setup generic="T extends Record<string, unknown> = Record<string, unknown>">
+<script lang="ts" setup generic="T extends object = object">
   defineOptions({ name: 'DataGridBody', inheritAttrs: false })
 
   defineSlots<{
@@ -69,6 +71,7 @@
     items: context.items.value,
     sortedItems: context.sortedItems.value,
     orderedItems: context.orderedItems.value,
+    rank: context.rank,
     isLoading: context.loading.value,
     isEmpty: context.items.value.length === 0,
     headerRows: context.headers.value.length,

@@ -27,6 +27,7 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { PinPosition } from '#v0/composables/createDataGrid'
+  import type { SortDirection } from '#v0/composables/createDataTable'
 
   export interface DataGridColumnProps extends AtomProps {
     /** Namespace for dependency injection. @default 'v0:data-grid' */
@@ -49,6 +50,8 @@
     resizable?: boolean
     /** Whether cells in this column can be edited */
     editable?: boolean
+    /** Validate a committed edit. Return `true` or an error string. */
+    validate?: (value: unknown) => string | true
     /** Number of columns this cell spans */
     colspan?: number
     /** Number of rows this cell spans */
@@ -58,12 +61,12 @@
   export interface DataGridColumnSlotProps {
     /** Whether this column is sortable */
     isSortable: boolean
-    /** Whether this column is currently sorted */
-    isSorted: boolean
-    /** Sort direction: 'asc', 'desc', or undefined */
-    sortDirection: 'asc' | 'desc' | undefined
+    /** Current sort direction: 'asc' | 'desc' | 'none' */
+    direction: SortDirection
+    /** Sort priority index (0-based), or -1 if not sorted */
+    priority: number
     /** Toggle sort for this column */
-    toggleSort: () => void
+    toggle: () => void
     /** Whether this column is pinned */
     isPinned: boolean
     /** Pin position: 'left', 'right', or false */
@@ -111,6 +114,7 @@
     pinned,
     resizable = true,
     editable,
+    validate,
     colspan,
     rowspan,
     renderless,
@@ -131,11 +135,15 @@
       pinned,
       resizable,
       editable,
+      validate,
     })
     : undefined
 
+  if (!isUndefined(id)) rowContext?.registerColumn(id)
+
   onBeforeUnmount(() => {
     if (ticket) context.columns.unregister(ticket.id)
+    if (!isUndefined(id)) rowContext?.unregisterColumn(id)
   })
 
   const inResizableRow = toRef(() => toValue(rowContext?.resizable) ?? false)
@@ -145,19 +153,17 @@
     return context.leaves.value.some(col => col.id === id && toValue(col.sortable) === true)
   })
 
-  const isSorted = toRef(() => {
-    if (!id) return false
-    return context.sort.columns.value.some(c => c.key === id && c.direction !== 'none')
+  const direction = toRef((): SortDirection => {
+    if (!id) return 'none'
+    return context.sort.direction(id)
   })
 
-  const sortDirection = toRef((): 'asc' | 'desc' | undefined => {
-    if (!id) return undefined
-    const sortCol = context.sort.columns.value.find(c => c.key === id)
-    if (!sortCol || sortCol.direction === 'none') return undefined
-    return sortCol.direction
+  const priority = toRef(() => {
+    if (!id) return -1
+    return context.sort.priority(id)
   })
 
-  function toggleSort () {
+  function toggle () {
     if (id && isSortable.value) {
       context.sort.toggle(id)
     }
@@ -188,7 +194,7 @@
 
   const ariaSort = toRef((): 'ascending' | 'descending' | 'none' | undefined => {
     if (!isSortable.value) return undefined
-    const dir = sortDirection.value
+    const dir = direction.value
     if (dir === 'asc') return 'ascending'
     if (dir === 'desc') return 'descending'
     return 'none'
@@ -196,9 +202,9 @@
 
   const slotProps = toRef((): DataGridColumnSlotProps => ({
     isSortable: isSortable.value,
-    isSorted: isSorted.value,
-    sortDirection: sortDirection.value,
-    toggleSort,
+    direction: direction.value,
+    priority: priority.value,
+    toggle,
     isPinned: isPinned.value,
     pinPosition: pinPosition.value,
     isResizable: isResizable.value,
@@ -210,8 +216,8 @@
       'role': 'columnheader',
       'scope': as === 'th' ? ((colspan ?? 1) > 1 ? 'colgroup' : 'col') : undefined,
       'aria-sort': ariaSort.value,
-      'data-direction': sortDirection.value === 'asc' || sortDirection.value === 'desc'
-        ? sortDirection.value
+      'data-direction': isSortable.value && (direction.value === 'asc' || direction.value === 'desc')
+        ? direction.value
         : undefined,
       'colspan': as === 'th' ? colspan : undefined,
       'rowspan': as === 'th' ? rowspan : undefined,

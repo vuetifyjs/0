@@ -12,6 +12,7 @@ Adds `DataGrid` compound component providing structural shells for building data
 - `DataGrid.Row` — row container with optional `id`/`value` for registration, selection, and expansion
 - `DataGrid.Column` — header cell with sorting state, `aria-sort`, and layout (pin/size)
 - `DataGrid.Cell` — data cell with `role="cell"`, editing state, and row spanning
+- `DataGrid.Empty` — empty-state row; slot `columnCount` for Cell colspan
 - `DataGrid.Handle` — column resize handle (Splitter.Handle) for use inside a resizable row on the `as="div"` chain
 
 Context injection via `useDataGridRoot` / `provideDataGridRoot` and `useDataGridRow` / `provideDataGridRow`.
