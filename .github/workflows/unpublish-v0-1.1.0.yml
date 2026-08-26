@@ -1,0 +1,25 @@
+# One-shot: retract the accidental 1.1.0 so DataTable/DataGrid can own that version.
+# Delete this workflow after it succeeds.
+name: Unpublish v0 1.1.0
+
+on:
+  workflow_dispatch:
+
+jobs:
+  unpublish:
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Unpublish @vuetify/v0@1.1.0
+        run: npm unpublish @vuetify/v0@1.1.0 --force
