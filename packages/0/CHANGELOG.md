@@ -1,5 +1,19 @@
 # @vuetify/v0
 
+## 1.1.0
+
+### Minor Changes
+
+- [#901](https://github.com/vuetifyjs/0/pull/901) [`a27db81`](https://github.com/vuetifyjs/0/commit/a27db81ee18d8b8ca886f70460d52978274574d3) Thanks [@johnleider](https://github.com/johnleider)! - feat(play): share the v0play hash protocol as `@vuetify/play`
+
+  Docs, the playground, and (later) genesis / the builder encode and sanitize the same `{ files, theme, themes }` payload. `ThemeAdapter.SAFE_IDENT` and `UNSAFE_CSS` are public so color values cannot drift from the stylesheet generator; CSS comments are rejected in theme tokens.
+
+- [#457](https://github.com/vuetifyjs/0/pull/457) [`884b6e7`](https://github.com/vuetifyjs/0/commit/884b6e780193161fb21baa0fbfef49cfec4b21b4) Thanks [@johnleider](https://github.com/johnleider)! - feat(Splitter): defer drag collapse/expand to pointer release with a pending intent — dragging a collapsible panel past its `minSize` no longer collapses instantly. While dragging, the panel now pins at its `minSize` (or `collapsedSize` when opening a collapsed panel) and arms a pending intent; the collapse/expand only commits on release, and dragging back out cancels it. `SplitterHandle` exposes the armed state through a `pending` slot prop (`'collapse' | 'expand' | null`) and a matching `data-pending` attribute so consumers can render a "release to hide/open" affordance. Keyboard and programmatic resize keep their existing instant behavior.
+
+### Patch Changes
+
+- [#889](https://github.com/vuetifyjs/0/pull/889) [`0e31f73`](https://github.com/vuetifyjs/0/commit/0e31f73e84fe2e7d3bcb86d24847b60b8e0d59c3) Thanks [@johnleider](https://github.com/johnleider)! - fix(createKanban): contexts can now be disposed — `kanban.dispose()` (and `kanban.columns.dispose`) tears down every column's inner sortable, the internal id → column lookup, and the transfer event bus, so boards no longer leak listeners and stale lookup entries
+
 ## 1.0.5
 
 ### Patch Changes
