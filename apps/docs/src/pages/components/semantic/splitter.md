@@ -96,6 +96,8 @@ Set `orientation` on the root to control layout direction. Defaults to `horizont
 
 Panels can collapse to a minimum size. Set `collapsible` and optionally `collapsed-size` on the panel. The panel's slot props provide `collapse()`, `expand()`, `size`, and `isCollapsed` — use these to build collapse controls inline. Keyboard users can press Home/End on the adjacent handle.
 
+Pointer drag pins at `minSize` (or `collapsedSize` when opening), arms a pending intent after a small overshoot, commits on pointer **release**, and cancels if you drag back (or the gesture is cancelled). Keyboard Home/End/Enter stay **immediate**. Handle slot `pending` is `'collapse' | 'expand' | null`; `data-pending` matches; `pendingLabel` is the localized “Release to hide/open” string. Home/End/Enter affect the **preceding** (`aria-controls`) panel; arrow keys and pointer pending can affect either adjacent collapsible panel.
+
 ```vue
 <script setup lang="ts">
   import { Splitter } from '@vuetify/v0'
@@ -163,7 +165,7 @@ Use `v-model:collapsed` for two-way binding of collapsed state. This lets you co
 </template>
 ```
 
-The model syncs in both directions — setting the ref collapses/expands the panel, and drag-to-collapse or keyboard Home/End updates the ref.
+The model syncs in both directions — setting the ref collapses/expands the panel. Pointer drag commits collapse/expand on **release**; keyboard Home/End is instant.
 
 ### Events
 
@@ -247,7 +249,7 @@ The Splitter implements the [WAI-ARIA Window Splitter](https://www.w3.org/WAI/AR
 | End | Expand preceding panel (if collapsed) or grow to maximum |
 | Enter | Toggle collapse state of preceding panel (if collapsible) |
 
-Arrow direction follows the layout orientation — horizontal splitters use Left/Right, vertical splitters use Up/Down.
+Arrow direction follows the layout orientation — horizontal splitters use Left/Right, vertical splitters use Up/Down. Home/End/Enter affect the **preceding** (`aria-controls`) panel; arrow keys and pointer pending can affect either adjacent collapsible panel.
 
 ## FAQ
 
@@ -259,7 +261,7 @@ Panel sizes are percentages set via `default-size` and must sum to 100. Constrai
 
 ??? How do I control collapse from outside the splitter?
 
-Use `v-model:collapsed` on the panel for two-way binding — setting the ref collapses or expands it, and drag-to-collapse or keyboard Home/End updates the ref. For inline controls, the panel's slot props expose `collapse()`, `expand()`, and `isCollapsed`.
+Use `v-model:collapsed` on the panel for two-way binding — setting the ref collapses or expands it. Pointer drag commits on **release**; keyboard Home/End is instant. For inline controls, the panel's slot props expose `collapse()`, `expand()`, and `isCollapsed`.
 
 ??? How do I resize panels programmatically?
 

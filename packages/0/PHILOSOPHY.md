@@ -65,7 +65,7 @@ Non-negotiable. Each axiom carries a statement, a rationale, and a concrete anti
 
 **Operational definition.** Consumers must be able to replicate every visible behavior by writing CSS against the data attributes v0 emits. Acid test: "If I stripped every stylesheet from the consuming app, would v0's components still function and announce their state correctly to a screen reader?" [intent:281]
 
-**Canonical example.** `packages/0/src/components/Splitter/SplitterRoot.vue:373-376` — inline `:style="[..., { display: 'flex', flexDirection: '...' }]"`. Structural layout, no visual opinion.
+**Canonical example.** `packages/0/src/components/Splitter/SplitterRoot.vue:489-492` — inline `:style="[..., { display: 'flex', flexDirection: '...' }]"`. Structural layout, no visual opinion.
 
 **Allowed.** Structural inline `:style` bindings when layout cannot work otherwise (flex directions, CSS custom properties for depth, visually-hidden positioning for hidden inputs, z-index from `useStack`). [intent:279]
 
@@ -412,7 +412,9 @@ Consumers in **non-renderless** components must not spread `attrs` onto a child 
 
 ### 3.6 Boolean data attributes
 
-Data attributes are always `true | undefined` (or the equivalent `'' | undefined`), never `true | false`. Undefined removes the attribute from DOM. [intent:172]
+Boolean data attributes (`data-disabled`, `data-open`, `data-selected`) are always `true | undefined` (or the equivalent `'' | undefined`), never `true | false`. Undefined removes the attribute from DOM. [intent:172]
+
+Token-valued attributes (`data-state`, `data-orientation`) use their string union plus `undefined` to omit. Splitter's `data-pending` is `'collapse' | 'expand' | undefined` — not the boolean `'' | undefined` used by AlertDialogAction.
 
 `aria-disabled` is the exception: always `boolean`, so assistive tech reads a concrete value. [intent:175]
 
