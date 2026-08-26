@@ -52,7 +52,7 @@ For new features:
 ### Prerequisites
 
 - Node 26+ (matches .nvmrc)
-- pnpm 10.6+
+- pnpm 11.16.0
 - Git
 
 ### Setup
@@ -82,6 +82,9 @@ pnpm dev:docs
 │   │       ├── composables/   # Composable functions
 │   │       ├── utilities/     # Helper functions
 │   │       └── types/         # TypeScript types
+│   ├── play/           # @vuetify/play - playground hash protocol
+│   ├── emerald/        # @paper/emerald - design system
+│   ├── bulma/          # @paper/bulma - Bulma compat design system
 │   ├── genesis/        # @paper/genesis - design system
 │   └── paper/          # @vuetify/paper - styling primitives (dormant, not published)
 ├── apps/

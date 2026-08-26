@@ -123,7 +123,7 @@ Increment and Decrement buttons repeat automatically when held. Configure timing
 
 ### Eager Commit
 
-By default the typed value reaches the model on blur or Enter. Set `commit-on="input"` to write on every keystroke — mid-typing values are parsed but not clamped or snapped, so typing `15` into a `:min="10"` field never jumps to `10` after the first digit. Clamping still runs on blur:
+`commitOn` is `'input' | 'change'` (default `'change'`). On `'change'`, the typed value reaches the model on blur or Enter (clamped and snapped). Set `commit-on="input"` to write on every keystroke — mid-typing values are parsed but not clamped or snapped, so typing `15` into a `:min="10"` field never jumps to `10` after the first digit. Clamping still runs on blur:
 
 ```vue
 <template>
@@ -195,6 +195,10 @@ Increment and Decrement buttons use `tabindex="-1"` to keep them out of the tab 
 ## FAQ
 
 ::: faq
+
+??? When does the typed value reach v-model?
+
+Default `commitOn="change"` writes on blur or Enter (clamped and snapped). `commitOn="input"` writes on every keystroke without clamping or snapping; clamp still runs on blur.
 
 ??? How does formatting work?
 

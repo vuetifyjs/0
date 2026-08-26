@@ -11,6 +11,7 @@ features:
   github: /composables/createDataTable/
   level: 3
 related:
+  - /components/data/data-table
   - /composables/data/create-filter
   - /composables/data/create-pagination
   - /composables/data/create-virtual
@@ -205,7 +206,7 @@ const virtual = createVirtual(table.items, { itemHeight: 40 })
 
 ## Architecture
 
-`createDataTable` composes independent primitives rather than extending a selection chain. Rows live in a non-reactive `createRegistry` surfaced reactively through `useProxyRegistry`, while columns live in a second, reactive registry. Sort state rides `createGroup`'s tri-state (selected = ascending, mixed = descending, unselected = none), `useLocale` supplies the collation locale, and the `DataTableAdapter` runs the filter → sort → paginate pipeline — the client adapter in memory, the server and virtual adapters against a fetcher.
+`createDataTable` composes independent primitives rather than extending a selection chain. Rows live in a non-reactive `createRegistry` surfaced reactively through `useProxyRegistry`, while columns live in a second, reactive registry. Sort state rides `createGroup`'s tri-state (selected = ascending, mixed = descending, unselected = none), `useLocale` supplies the collation locale, and the `DataTableAdapter` runs the pipeline: client is in-memory (filter → sort → paginate); server is pass-through — the caller `onboard()`s each page; virtual filters and sorts with no pagination.
 
 ```mermaid "createDataTable Architecture"
 flowchart TD
@@ -233,6 +234,7 @@ flowchart TD
 | `allItems` | <AppSuccessIcon /> | Computed — every registered row, unfiltered/unsorted |
 | `filteredItems` | <AppSuccessIcon /> | Computed — items after filtering |
 | `sortedItems` | <AppSuccessIcon /> | Computed — items after filter + sort |
+| `rank(source)` | — | Method — ranks a source array by `sortedItems`. v-for this so rows register; missing ranks stay in source order |
 | `columns` | <AppSuccessIcon /> | RegistryContext — reactive column registry (`columns.values()` drives `leaves` and `headers`) |
 | `leaves` | <AppSuccessIcon /> | Computed — leaf columns (no children) used by the data pipeline |
 | `headers` | <AppSuccessIcon /> | Computed — 2D header grid with colspan/rowspan for rendering thead |
@@ -479,6 +481,10 @@ table.grouping.closeAll()
 ## FAQ
 
 ::: faq
+
+??? When should I use DataTable vs createDataTable?
+
+Use [DataTable](/components/data/data-table) when you want semantic table markup and ARIA, with rows and columns as children. Use `createDataTable` when the dataset is not the DOM — cards, virtual lists, or `onboard` of a server page.
 
 ??? Which adapter should I use?
 

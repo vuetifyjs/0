@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Button, DataTable } from '@vuetify/v0'
+  import { Button, DataTable, Input } from '@vuetify/v0'
   import { shallowRef } from 'vue'
 
   interface User {
@@ -30,13 +30,12 @@
 <template>
   <DataTable.Root v-model:search="query">
     <div class="mb-4">
-      <input
-        v-model="query"
-        aria-label="Search users"
-        class="border rounded-md px-3 py-2 w-64"
-        placeholder="Search..."
-        type="text"
-      >
+      <Input.Root v-model="query" label="Search users">
+        <Input.Control
+          class="border rounded-md px-3 py-2 w-64"
+          placeholder="Search..."
+        />
+      </Input.Root>
     </div>
 
     <DataTable.Table aria-label="Users table" class="w-full border-collapse">

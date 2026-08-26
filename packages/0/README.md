@@ -43,6 +43,11 @@ This is a **pnpm monorepo** containing:
 | Package | Description |
 |---------|-------------|
 | [`@vuetify/v0`](./packages/0) | Core headless components and composables |
+| [`@vuetify/play`](./packages/play) | Playground hash protocol |
+| [`@paper/emerald`](./packages/emerald) | Emerald design system |
+| [`@paper/bulma`](./packages/bulma) | Bulma compat design system |
+| [`@paper/genesis`](./packages/genesis) | Genesis design system (docs primitives) |
+| [`@vuetify/paper`](./packages/paper) | Styling primitives (private, dormant) |
 | [`apps/docs`](./apps/docs) | Documentation site ([0.vuetifyjs.com](https://0.vuetifyjs.com)) |
 | [`apps/playground`](./apps/playground) | Interactive development environment |
 

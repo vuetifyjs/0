@@ -242,7 +242,7 @@ In priority order:
 1. `GnDocsCallout` — TIP / NOTE / WARNING / CAUTION / IMPORTANT admonition shell (severity
    tokens via cascade; interactive types stay docs-site)
 2. `GnDocsCodeGroup` — tabbed code blocks
-3. `GnDocsKbd`, `GnDocsBadge`, `GnDocsCard` — atomic primitives
+3. `GnDocsBadge`, `GnDocsCard` — atomic primitives
 4. `GnDocsMarkup` — code block chrome with slot-injected highlighter (no URL actions)
 5. `GnDocsApi*` — presentation-only API tables/cards/sections; **data is injected** by the
    host (props or provide). Do not import `virtual:api`
