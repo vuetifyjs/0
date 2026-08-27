@@ -105,6 +105,7 @@
         { name: 'useIntersectionObserver', to: '/composables/system/use-intersection-observer', description: 'Viewport intersection', type: 'composable' },
         { name: 'useMutationObserver', to: '/composables/system/use-mutation-observer', description: 'DOM mutation tracking', type: 'composable' },
         { name: 'usePresence', to: '/composables/system/use-presence', description: 'Enter/exit animations', type: 'composable' },
+        { name: 'useFocusTrap', to: '/composables/system/use-focus-trap', description: 'Contain Tab focus', type: 'composable' },
         { name: 'useRovingFocus', to: '/composables/system/use-roving-focus', description: 'Arrow key navigation', type: 'composable' },
         { name: 'useVirtualFocus', to: '/composables/system/use-virtual-focus', description: 'Focus without DOM focus', type: 'composable' },
         { name: 'useRaf', to: '/composables/system/use-raf', description: 'requestAnimationFrame loop', type: 'composable' },

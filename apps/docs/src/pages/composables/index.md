@@ -272,6 +272,7 @@ Browser API wrappers with automatic lifecycle cleanup.
 | [useDelay](/composables/system/use-delay) | Schedule open and close transitions with configurable delays |
 | [useDragDrop](/composables/system/use-drag-drop) | Headless drag-and-drop with two registries and pluggable pointer / keyboard adapters |
 | [useEventListener](/composables/system/use-event-listener) | Handle DOM events with automatic cleanup |
+| [useFocusTrap](/composables/system/use-focus-trap) | Confine Tab and Shift+Tab to a root element |
 | [useHotkey](/composables/system/use-hotkey) | Handle hotkey combinations and sequences |
 | [useImage](/composables/system/use-image) | Image loading state machine with deferred loading and retry |
 | [useIntersectionObserver](/composables/system/use-intersection-observer) | Intersection Observer API for visibility detection |

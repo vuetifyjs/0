@@ -71,7 +71,7 @@ export const ROADMAP_BUCKETS: Record<string, ReleaseBucket> = {
   },
   'v1.3.0': {
     date: '2026-10-20',
-    features: ['Tour', 'Virtualizer', 'Kanban', 'Otp'],
+    features: ['Tour', 'Virtualizer', 'Kanban', 'Otp', 'useFocusTrap'],
     stabilizing: [
       'createValidation', 'createForm', 'createInput', 'usePopover', 'usePresence',
       'useRovingFocus', 'useVirtualFocus', 'createFilter', 'createPagination', 'useRtl',
