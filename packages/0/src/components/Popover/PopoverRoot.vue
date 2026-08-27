@@ -58,6 +58,10 @@
     default: (props: PopoverRootSlotProps) => any
   }>()
 
+  defineEmits<{
+    'update:model-value': [value: boolean]
+  }>()
+
   const { as = null, id: _id, adapter, positionArea, positionTry } = defineProps<PopoverRootProps>()
 
   const isSelected = defineModel<boolean>({ default: false })

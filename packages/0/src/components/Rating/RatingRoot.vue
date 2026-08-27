@@ -107,6 +107,10 @@
     default: (props: RatingRootSlotProps) => any
   }>()
 
+  defineEmits<{
+    'update:model-value': [value: number]
+  }>()
+
   const {
     as = 'div',
     renderless,
