@@ -13,7 +13,7 @@ export { default as ButtonRoot } from './ButtonRoot.vue'
 export { provideButtonRoot, useButtonRoot } from './ButtonRoot.vue'
 
 export type { ButtonContentProps, ButtonContentSlotProps } from './ButtonContent.vue'
-export type { ButtonGroupProps, ButtonGroupSlotProps } from './ButtonGroup.vue'
+export type { ButtonGroupExpose, ButtonGroupProps, ButtonGroupSlotProps, ButtonTicket } from './ButtonGroup.vue'
 export type { ButtonHiddenInputProps } from './ButtonHiddenInput.vue'
 export type { ButtonIconProps, ButtonIconSlotProps } from './ButtonIcon.vue'
 export type { ButtonLoadingProps, ButtonLoadingSlotProps } from './ButtonLoading.vue'

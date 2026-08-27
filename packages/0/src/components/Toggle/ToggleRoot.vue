@@ -17,8 +17,11 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
   import type { Ref } from 'vue'
 
@@ -74,7 +77,7 @@
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { mergeProps, onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, watch } from 'vue'
+  import { mergeProps, onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { ToggleGroupContext } from './ToggleGroup.vue'
@@ -119,8 +122,11 @@
     pressed.value = v ?? false
   })
 
+  const atomRef = useTemplateRef<AtomExpose>('atom')
+  const el = toRef(() => toElement(atomRef.value?.element) ?? undefined)
+
   // Dual mode: register with group's selection composable
-  const ticket = group?.selection.register({ id, value, disabled: () => toValue(disabled) ?? false })
+  const ticket = group?.selection.register({ id, value, disabled: () => toValue(disabled) ?? false, el })
 
   const isPressed = toRef(() => ticket
     ? toValue(ticket.isSelected)
@@ -182,10 +188,17 @@
       'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
+
+  defineExpose<AtomExpose>({
+    get element () {
+      return (atomRef.value?.element ?? null) as AtomExpose['element']
+    },
+  })
 </script>
 
 <template>
   <Atom
+    ref="atom"
     v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless

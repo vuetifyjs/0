@@ -16,6 +16,12 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
+  // Utilities
+  import { isUndefined } from '#v0/utilities'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { SingleContext, SingleTicket } from '#v0/composables/createSingle'
@@ -26,6 +32,12 @@
   export interface RadioTicket extends SingleTicket {
     /** Element reference for roving tabindex focus management */
     el?: MaybeRefOrGetter<Element | null | undefined>
+  }
+
+  /** Imperative handle exposed by Radio.Group. */
+  export interface RadioGroupExpose {
+    /** Focus the selected radio, or the first if none is selected. */
+    focus: (options?: FocusOptions) => void
   }
 
   /** Activation mode alias for Radio component API */
@@ -203,6 +215,14 @@
   useProxyModel(single, model, { multiple: false })
 
   provideRadioGroup(namespace, { ...single, name, activation: toRef(() => activation) })
+
+  function focus (options?: FocusOptions) {
+    const id = [...single.selectedIds][0]
+    const ticket = isUndefined(id) ? single.seek('first') : single.get(id)
+    ;(toElement(toValue(ticket?.el)) as HTMLElement | undefined)?.focus(options)
+  }
+
+  defineExpose<RadioGroupExpose>({ focus })
 
   const slotProps = toRef((): RadioGroupSlotProps => ({
     isDisabled: toValue(single.disabled),
