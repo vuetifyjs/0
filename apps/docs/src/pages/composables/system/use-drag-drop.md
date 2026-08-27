@@ -363,6 +363,25 @@ dnd.draggables.register({
 })
 ```
 
+### Installing a plugin
+
+A plugin is `(context) => disposer`. Nothing named `scroll()` or `flip()` is exported — write autoscroll or FLIP yourself against `active` and the registry event bus.
+
+```ts
+import { useDragDrop } from '@vuetify/v0'
+import type { DragDropPlugin } from '@vuetify/v0'
+
+const logDrops: DragDropPlugin = context => {
+  function onRegister (ticket: { id: string }) {
+    console.log('zone', ticket.id)
+  }
+  context.zones.on('register:ticket', onRegister)
+  return () => context.zones.off('register:ticket', onRegister)
+}
+
+const dnd = useDragDrop({ plugins: [logDrops] })
+```
+
 ## Accessibility
 
 WAI-ARIA does not standardize a kanban or "drag list" pattern. The primitive follows the **list-of-lists** convention used by Pragmatic DnD, dnd-kit, and headless-ui:
@@ -391,22 +410,13 @@ After a successful keyboard drop, the moved element is typically replaced by the
 
 Native HTML5 DnD has terrible mobile support, an ugly default ghost element you can't customize cross-browser, no programmatic activation distance, and inconsistent event semantics across input devices. `PointerAdapter` uses Pointer Events instead — uniform mouse, touch, and pen handling, no default ghost (you render whatever you want), and full control over activation thresholds. Plug HTML5 in as a custom adapter if you need cross-window drops or OS file-drag integration; the headless contract doesn't lock it out.
 
-??? When does position.index get set?
+??? When does `position.index` get set?
 
 Only when the over-zone declares `orientation`. Without orientation, the zone is opaque — drops fire with `position.pointer` only. With orientation, the composable measures **every element child** of the zone `el` (`zoneEl.children`) and resolves an index against that list, not against registered draggables. Empty oriented zones default `index` to `0`. The indicator is `null` over the two slots flanking the dragged element's own position in its home zone — dropping there changes nothing, so no slot is proposed and the drop resolves `index` to the element's current position.
 
-`position.index` is computed against the **pre-move** child list. If your `onDrop` removes the source first and then splices at that index, same-list downward moves overshoot by one:
+`position.index` is computed against the **pre-move** child list. If your `onDrop` removes the source first and then splices at that index, same-list downward moves overshoot by one — use `to > from ? to - 1 : to`. Cross-list drops do not need the `-1`; the destination's children never included the source. The two-list example and [createSortable](/composables/data/create-sortable)'s DnD demo both apply that adjustment.
 
-```ts
-const from = items.findIndex(i => i.id === drag.value.id)
-const to = position.index ?? 0
-items.splice(from, 1)
-items.splice(to > from ? to - 1 : to, 0, drag.value)
-```
-
-Cross-list drops do not need the `-1` — the destination's children never included the source. [createSortable](/composables/data/create-sortable) documents the same contract next to `sortable.move`.
-
-??? How do I pick the right Z parameter?
+??? How do I pick the right `Z` parameter?
 
 `Z` is a discriminated union of every drag type the scope handles. For a single type, write `useDragDrop<{ type: 'card', value: Card }>()`. For multiple, union them: `{ type: 'card', value: Card } | { type: 'column', value: Column }`. The types are distributive — narrowing on `drag.type` narrows `drag.value` to the matching variant. `ActiveDrag.id` is the registry ticket id (pass `id` to `register` if you need it stable); your payload lives on `value`.
 
@@ -416,22 +426,7 @@ Yes. Two registrations on the same element work because they live in different r
 
 ??? What if I need autoscroll, FLIP animations, or multi-select drag?
 
-These don't ship in v1 to keep the surface small. The plugin slot is the extension point — a plugin is `(context) => disposer`, installed via `useDragDrop({ plugins: [logDrops] })`. Write autoscroll or FLIP as plugins that subscribe to `active` / registry events; nothing named `scroll()` or `flip()` is exported. Multi-select drag is best composed with [createSelection](/composables/selection/create-selection) so the selected set is its own first-class concept.
-
-```ts
-import { useDragDrop } from '@vuetify/v0'
-import type { DragDropPlugin } from '@vuetify/v0'
-
-const logDrops: DragDropPlugin = context => {
-  function onRegister (ticket: { id: string }) {
-    console.log('zone', ticket.id)
-  }
-  context.zones.on('register:ticket', onRegister)
-  return () => context.zones.off('register:ticket', onRegister)
-}
-
-const dnd = useDragDrop({ plugins: [logDrops] })
-```
+These don't ship in v1 to keep the surface small. The plugin slot is the extension point — a plugin is `(context) => disposer`. Write autoscroll or FLIP against `active` and the registry event bus; nothing named `scroll()` or `flip()` is exported. See [Installing a plugin](#installing-a-plugin). Multi-select drag is best composed with [createSelection](/composables/selection/create-selection) so the selected set is its own first-class concept.
 
 :::
 
