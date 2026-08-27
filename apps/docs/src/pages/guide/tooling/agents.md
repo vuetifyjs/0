@@ -31,7 +31,7 @@ Paste a prompt into [Grok Bot](https://x.ai/bot). It walks GitHub, dry-runs one 
 Use this when you don't know yet whether the bot is for an app or the monorepo — it will ask. Connect GitHub when it asks. It fetches [SKILL.md](/SKILL.md) and the matching page on [0.vuetifyjs.com](https://0.vuetifyjs.com) itself.
 
 ```text
-Set up a new bot for me dedicated to Vuetify0 work, in its own dedicated chat. Walk me through connecting GitHub, then configure it: default to @vuetify/v0 headless primitives — never Vuetify 3/4 (VBtn, vuetify/components) unless I ask. Before inventing an API, fetch https://0.vuetifyjs.com/SKILL.md and the matching page on https://0.vuetifyjs.com; use Vuetify MCP at https://mcp.vuetifyjs.com/mcp when it's available. If a named primitive covers the need, use it. Ask me whether this bot is for a consumer app (import from @vuetify/v0) or the vuetifyjs/0 monorepo (use the #v0/ alias and follow AGENTS.md), which repositories it may touch, and whether it may open pull requests or must hand me a diff. Do a supervised dry run on a small real task I name, cite the v0 primitive it chose, then save it as "Vuetify0 Engineer".
+Set up a new bot for me dedicated to Vuetify0 work, in its own dedicated chat. Walk me through connecting GitHub, then configure it: default to @vuetify/v0 headless primitives — never Vuetify 3/4 (VBtn, vuetify/components) unless I ask. Before inventing an API, fetch https://0.vuetifyjs.com/SKILL.md and the matching page on https://0.vuetifyjs.com; use Vuetify MCP at https://mcp.vuetifyjs.com/mcp (docs, no login) when it's available. To authenticate with Vuetify One and reach ecosystem sites, add https://mcp.vuetifyjs.com/one. If a named primitive covers the need, use it. Ask me whether this bot is for a consumer app (import from @vuetify/v0) or the vuetifyjs/0 monorepo (use the #v0/ alias and follow AGENTS.md), which repositories it may touch, and whether it may open pull requests or must hand me a diff. Do a supervised dry run on a small real task I name, cite the v0 primitive it chose, then save it as "Vuetify0 Engineer".
 ```
 
 After the dry run, paste the matching identity below onto the saved bot so later sessions keep the same rules.
@@ -81,6 +81,8 @@ grok mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 ```
 
 :::
+
+Docs-only. Add `https://mcp.vuetifyjs.com/one` to authenticate with Vuetify One — see [Vuetify MCP](/guide/tooling/vuetify-mcp).
 
 Paste the identity **Description** into the agent's persona / system prompt. For harness tips (surface map in always-loaded context, reminder hooks, typecheck gate), see [Making Agents Actually Use v0](/guide/tooling/ai-tools#making-agents-actually-use-v0). Add [Vuetify MCP](/guide/tooling/vuetify-mcp) so the agent can call `get_vuetify0_*` tools.
 
