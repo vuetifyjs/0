@@ -6,9 +6,9 @@ features:
   level: 1
 meta:
   - name: description
-    content: Connect Claude, Cursor, and other AI assistants to Vuetify 3/4 and v0 APIs, install and upgrade docs, plus Vuetify One bins, playgrounds, and links.
+    content: Connect Claude, Cursor, and other AI assistants to Vuetify 3/4 and v0 APIs, install and upgrade docs, and authenticate with Vuetify One for ecosystem sites.
   - name: keywords
-    content: MCP, Model Context Protocol, Claude, Cursor, Grok, Codex, Kimi, AI assistant, Vuetify API, Vuetify One, OAuth, bins, playgrounds, developer tools
+    content: MCP, Model Context Protocol, Claude, Cursor, Grok, Codex, Kimi, AI assistant, Vuetify API, Vuetify One, OAuth, developer tools
 related:
   - /guide/tooling/ai-tools
   - /guide/tooling/vuetify-cli
@@ -18,16 +18,16 @@ logo: vmcp
 
 # Vuetify MCP
 
-Vuetify MCP is a [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro) server that gives AI assistants structured access to Vuetify 3/4 and v0 APIs, install/upgrade/breaking-change docs, and — with [Vuetify One](https://one.vuetifyjs.com) — bins, playgrounds, and links. Unlike [llms.txt](/guide/tooling/ai-tools), MCP is real-time and queryable.
+Vuetify MCP is a [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro) server that gives AI assistants structured access to Vuetify 3/4 and v0 APIs and install/upgrade/breaking-change docs. Authenticate with [Vuetify One](https://one.vuetifyjs.com) to reach ecosystem sites. Unlike [llms.txt](/guide/tooling/ai-tools), MCP is real-time and queryable.
 
 Two hosted URLs (streamable HTTP). Clients that treat OAuth as connect-time (Grok Bot, Cursor Agents) must not share them:
 
 | URL | Auth | Tools |
 | - | - | - |
 | [https://mcp.vuetifyjs.com/mcp](https://mcp.vuetifyjs.com/mcp) | none | docs, APIs, install/upgrade guides |
-| [https://mcp.vuetifyjs.com/one](https://mcp.vuetifyjs.com/one) | [Vuetify One](https://one.vuetifyjs.com) OAuth | docs plus bins, playgrounds, and [vtfy.link](https://vtfy.link) |
+| [https://mcp.vuetifyjs.com/one](https://mcp.vuetifyjs.com/one) | [Vuetify One](https://one.vuetifyjs.com) OAuth | docs plus ecosystem sites |
 
-Most editors should add `/mcp`. Add `/one` only if you have a One subscription and want bins. Do not paste an API key.
+Most editors should add `/mcp`. Add `/one` to authenticate with Vuetify One; subscribers can then access anything from the ecosystem sites. Do not paste an API key.
 
 <DocsPageFeatures :frontmatter />
 
@@ -87,7 +87,7 @@ claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 
 1. Go to [https://grok.com/connectors](https://grok.com/connectors)
 2. Click **New Connector**, then select **Custom**
-3. Enter `https://mcp.vuetifyjs.com/mcp` for docs (no login). For bins, add a second connector at `https://mcp.vuetifyjs.com/one` and complete Vuetify One OAuth.
+3. Enter `https://mcp.vuetifyjs.com/mcp` for docs (no login). To authenticate with Vuetify One, add a second connector at `https://mcp.vuetifyjs.com/one`.
 
 Do not paste an API key.
 
@@ -111,7 +111,7 @@ url = "https://mcp.vuetifyjs.com/one"
 
 ### Grok Bot
 
-[Grok Bot](/guide/tooling/agents) (Cursor Agents) treats OAuth as connect-time for the whole URL. Add `https://mcp.vuetifyjs.com/mcp` for docs (no Authorize). Add `https://mcp.vuetifyjs.com/one` only for bins and complete Vuetify One OAuth on that connector.
+[Grok Bot](/guide/tooling/agents) (Cursor Agents) treats OAuth as connect-time for the whole URL. Add `https://mcp.vuetifyjs.com/mcp` for docs (no Authorize). Add `https://mcp.vuetifyjs.com/one` to authenticate with Vuetify One on that connector.
 
 ### Codex
 
@@ -124,7 +124,7 @@ url = "https://mcp.vuetifyjs.com/mcp"
 
 Or in ChatGPT / the IDE: **Settings → MCP servers → Add server → Streamable HTTP** and the URL above.
 
-Documentation and API tools on `/mcp` need no login. For bins, add `https://mcp.vuetifyjs.com/one` and run `codex mcp login vuetify-one`.
+Documentation and API tools on `/mcp` need no login. To authenticate with Vuetify One, add `https://mcp.vuetifyjs.com/one` and run `codex mcp login vuetify-one`.
 
 ### Kimi CLI
 
@@ -140,7 +140,7 @@ Documentation and API tools on `/mcp` need no login. For bins, add `https://mcp.
 }
 ```
 
-Or run `/mcp-config` in the Kimi TUI to add `/mcp` interactively. Add `https://mcp.vuetifyjs.com/one` and `/mcp-config login vuetify-one` only for bins.
+Or run `/mcp-config` in the Kimi TUI to add `/mcp` interactively. Add `https://mcp.vuetifyjs.com/one` and `/mcp-config login vuetify-one` to authenticate with Vuetify One.
 
 ### Claude Desktop
 
@@ -278,7 +278,7 @@ Manual configuration for each IDE. Use the interactive setup above for automatic
 
 ## Available Tools
 
-Public `/mcp` has the documentation and API tools. `/one` adds the Vuetify One tools and requires OAuth.
+Public `/mcp` has the documentation and API tools. `/one` authenticates with Vuetify One so subscribers can access ecosystem sites.
 
 ### Documentation and API
 
@@ -310,7 +310,7 @@ No account. Served on both `/mcp` and `/one`.
 
 ### Vuetify One
 
-Only on [https://mcp.vuetifyjs.com/one](https://mcp.vuetifyjs.com/one). Connect that URL and complete [Vuetify One](https://one.vuetifyjs.com) OAuth. They are not on `/mcp` and are not configured with a pasted API key.
+Only on [https://mcp.vuetifyjs.com/one](https://mcp.vuetifyjs.com/one). Connect that URL to authenticate with [Vuetify One](https://one.vuetifyjs.com). Subscribers can then access ecosystem sites. These tools are not on `/mcp` and are not configured with a pasted API key.
 
 | Tool | Purpose |
 | - | - |
@@ -347,7 +347,7 @@ For Vuetify 3/4 work, start with `get_installation_guide`, `get_component_api_by
 ## Authentication
 
 - **Public** — [https://mcp.vuetifyjs.com/mcp](https://mcp.vuetifyjs.com/mcp). Documentation and API tools, no login.
-- **Vuetify One OAuth** — [https://mcp.vuetifyjs.com/one](https://mcp.vuetifyjs.com/one). Bins, playgrounds, and links. Do not paste an API key.
+- **Vuetify One OAuth** — [https://mcp.vuetifyjs.com/one](https://mcp.vuetifyjs.com/one). Authenticate with Vuetify One; subscribers can access anything from the ecosystem sites. Do not paste an API key.
 
 Grok Bot and Cursor Agents treat OAuth as connect-time for the whole URL. That is why One is a second endpoint.
 

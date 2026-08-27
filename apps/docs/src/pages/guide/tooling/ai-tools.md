@@ -61,7 +61,7 @@ npx skills add vuetifyjs/0
 
 ### Editors and CLIs
 
-**Claude Code / Grok Build** — add Vuetify MCP for structured API access (`/mcp` is public docs; bins are a second URL — see [Vuetify MCP](/guide/tooling/vuetify-mcp)):
+**Claude Code / Grok Build** — add Vuetify MCP for structured API access (`/mcp` is public docs; `/one` authenticates with Vuetify One — see [Vuetify MCP](/guide/tooling/vuetify-mcp)):
 
 ::: code-group no-filename
 
