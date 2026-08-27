@@ -79,7 +79,15 @@
   }, { immediate: true })
 
   const id = toRef(() => _id ?? context.id)
-  const style = toRef(() => context.contentStyles.value)
+  const style = toRef(() => {
+    const styles = context.contentStyles.value
+    if (isUndefined(_id)) return styles
+    // Custom id pairs with Activator `target`; position-anchor must match that id, not Root's.
+    return {
+      ...styles,
+      'position-anchor': `--${String(_id).replace(/[^a-zA-Z0-9_-]/g, '')}`,
+    }
+  })
 
   context.attach(() => ref.value?.element)
 
