@@ -30,6 +30,7 @@
     "unplugin-vue-components": "catalog:",
     "unplugin-vue-markdown": "catalog:",
     "vite": "catalog:",
+    "vite-plugin-vue-devtools": "catalog:",
     "vite-plugin-vue-layouts-next": "catalog:",
     "vite-ssg": "catalog:",
     "vue-router": "catalog:"
