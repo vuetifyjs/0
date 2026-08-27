@@ -417,6 +417,8 @@ Only when the over-zone declares `orientation`. Without orientation, the zone is
 `Z` is a discriminated union of every drag type the scope handles. Default to one variant. Widen only when two types actually interact in the same scope — otherwise a second `useDragDrop()` is cleaner. The types are distributive: narrowing `drag.type` narrows `drag.value`. `ActiveDrag.id` is the registry ticket id (pass `id` to `register` if you need it stable); your payload lives on `value`.
 
 ```ts
+import { useDragDrop } from '@vuetify/v0'
+
 // One type — every callback already knows the shape
 const cards = useDragDrop<{ type: 'card', value: Card }>()
 
