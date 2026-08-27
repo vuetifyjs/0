@@ -28,7 +28,7 @@
   const uid = useId()
   const open = shallowRef(false)
 
-  const chip = 'bg-surface-tint text-on-surface-tint hover:bg-surface-tint pa-1 inline-flex rounded-none rounded-bl-[0.375rem] rounded-tr-[0.375rem] cursor-pointer'
+  const chip = 'bg-surface-tint text-on-surface-tint hover:bg-surface-tint pa-1 inline-flex rounded-none rounded-bl-[0.375rem] cursor-pointer'
 
   function onFlip () {
     toggle.setMode(toggle.isDark.value ? 'light' : 'dark')

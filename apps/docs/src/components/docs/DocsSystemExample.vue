@@ -370,14 +370,14 @@
   >
     <div
       :aria-busy="pending || undefined"
-      class="relative w-full overflow-hidden rounded-2xl"
+      class="relative w-full overflow-hidden rounded-2xl rounded-tr-none"
       :style="[surface, { height: `${height}px` }]"
     >
       <iframe
         ref="frame"
         :class="overlay
           ? 'fixed inset-0 z-[9999] h-full w-full border-0'
-          : 'absolute inset-0 h-full w-full rounded-2xl border-0'"
+          : 'absolute inset-0 h-full w-full rounded-2xl rounded-tr-none border-0'"
         loading="lazy"
         :src
         :style="[surface, overlay && clip ? { clipPath: `path('${clip}')` } : undefined]"
