@@ -14,6 +14,9 @@
  * context/plugin/consumer triple for plugin composables, eliminating boilerplate.
  * Supports `persist()` / `restore()` lifecycle hooks for saving and rehydrating plugin state.
  *
+ * In development, each installed plugin is registered with Vue DevTools under a
+ * single "v0" inspector. No consumer opt-in — `app.use()` is the registration.
+ *
  * @example
  * ```ts
  * import { createPlugin } from '@vuetify/v0'
@@ -29,6 +32,9 @@
 // Composables
 import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
 import { isNullOrUndefined, isUndefined } from '#v0/utilities'
@@ -48,11 +54,28 @@ export interface Plugin {
   install: (app: App, ...options: unknown[]) => void
 }
 
+interface PluginRecord {
+  namespace: string
+  context?: unknown
+}
+
 const INSTALLED = Symbol.for('v0:installed-plugins')
 
-function getInstalled (app: App): Set<string> {
-  const ctx = app._context as unknown as Record<symbol, Set<string>>
-  return ctx[INSTALLED] ??= new Set<string>()
+function getInstalled (app: App): Map<string, PluginRecord> {
+  const ctx = app._context as unknown as Record<symbol, Map<string, PluginRecord>>
+  return ctx[INSTALLED] ??= new Map()
+}
+
+function bindContext (app: App, namespace: string, context: unknown) {
+  const record = getInstalled(app).get(namespace)
+  if (record) record.context = context
+}
+
+function notifyDevtools (app: App) {
+  /* v8 ignore next -- __DEV__ is a build-time constant; production short-circuits */
+  if (typeof __DEV__ === 'undefined' || !__DEV__ || !IN_BROWSER) return
+
+  void import('./devtools').then(mod => mod.sync(app, getInstalled(app)))
 }
 
 /**
@@ -85,10 +108,11 @@ export function createPlugin<Z extends Plugin = Plugin> (options: PluginOptions)
       app.runWithContext(() => {
         const installed = getInstalled(app)
         if (installed.has(options.namespace)) return
-        installed.add(options.namespace)
+        installed.set(options.namespace, { namespace: options.namespace })
 
         options.provide(app)
         options.setup?.(app)
+        notifyDevtools(app)
       })
     },
   } satisfies Plugin as Z
@@ -187,6 +211,7 @@ export function createPluginContext<
         const [, provide, ctx] = createXContext({ ...options, namespace } as O)
         context = ctx
         provide(context, app)
+        bindContext(app, namespace, context)
 
         if (shouldPersist && config?.restore) {
           const storage = getPersistedStorage()

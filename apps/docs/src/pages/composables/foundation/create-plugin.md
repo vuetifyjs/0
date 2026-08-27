@@ -113,6 +113,12 @@ export function createMyPlugin () {
 > [!TIP]
 > The **setup** and **provide** hooks are separated for semantic purposes — `provide` is for DI context, `setup` is for side effects (watchers, adapters, globals).
 
+## Vue DevTools
+
+In development, every `app.use(createXPlugin())` (or `createPlugin()`) appears under a **v0** inspector in Vue DevTools. The tree is the installed plugin namespaces; selecting a node shows the provided context (functions omitted). No extra registration — `install()` is the hook.
+
+This is `__DEV__`-gated and a no-op if `@vue/devtools-api` is not present. Pair it with `vite-plugin-vue-devtools` (or the browser extension) so the inspector has a host.
+
 ## Examples
 
 ::: gn-example

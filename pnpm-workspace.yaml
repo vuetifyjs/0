@@ -37,6 +37,7 @@ catalog:
   '@vitest/browser-playwright': 4.1.10
   '@vitest/coverage-v8': ^4.1.10
   '@vue/compiler-dom': ^3.5.39
+  '@vue/devtools-api': ^8.2.1
   '@vue/repl': ^4.7.1
   '@vue/test-utils': ^2.4.11
   '@vue/tsconfig': ^0.9.1

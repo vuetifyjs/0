@@ -121,10 +121,14 @@
     "@material/material-color-utilities": ">=0.3.0",
     "launchdarkly-js-client-sdk": "^3.0.0",
     "posthog-js": "^1.0.0",
+    "@vue/devtools-api": ">=7.0.0",
     "vue": ">=3.5.0 || >=3.6.0-0",
     "vue-i18n": ">=10.0.0"
   },
   "peerDependenciesMeta": {
+    "@vue/devtools-api": {
+      "optional": true
+    },
     "@flagsmith/flagsmith": {
       "optional": true
     },
@@ -163,6 +167,7 @@
     "@testing-library/vue": "catalog:",
     "@vitest/browser-playwright": "catalog:",
     "@vue/compiler-dom": "catalog:",
+    "@vue/devtools-api": "catalog:",
     "@vue/test-utils": "catalog:",
     "axe-core": "catalog:",
     "launchdarkly-js-client-sdk": "catalog:",
