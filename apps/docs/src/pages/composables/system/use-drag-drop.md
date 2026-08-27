@@ -255,9 +255,7 @@ Every consumer-facing state field is a reactive ref <AppSuccessIcon />. Reads in
 | `delta` | `{ x, y }` | `current - origin` |
 | `over` | `ID \| null` | Zone id under the point, or `null` |
 | `willAccept` | `boolean` | Whether that zone's `accept` matches this drag |
-| `via` | `DragVia` | `'pointer'`, `'keyboard'`, or an adapter-declared extension[^drag-via-usage] |
-
-[^drag-via-usage]: Read this to branch keyboard-only behaviors like focus restoration.
+| `via` | `DragVia` | `'pointer'`, `'keyboard'`, or an adapter-declared extension. Read this to branch keyboard-only behaviors like focus restoration. |
 
 Indicator rects are cached per zone; `getBoundingClientRect` runs only when the zone resizes or its children mount/unmount, not on each pointer move. The index is measured against **every element child** of the zone `el` (`zoneEl.children`) — headers, spacers, and an in-zone indicator all count as slots. Keep the indicator as a sibling of the zone, not a child.
 
@@ -268,9 +266,7 @@ Indicator rects are cached per zone; `getBoundingClientRect` runs only when the 
 | `dnd.draggables.register(input)` | Register a draggable. Requires `el`, `type`, and `value`. Returns a ticket with `isDragging` and `unregister()`. |
 | `dnd.zones.register(input)` | Register a drop zone. Requires `el`. Returns a ticket with `isOver`, `willAccept`, `indicator`, and `unregister()`. |
 | `ticket.unregister()` | Drop a ticket from its registry. Child components that register must unregister on unmount — the factory only disposes remaining tickets when its own scope tears down. Unregistering the active draggable cancels the drag. |
-| `dnd.cancel()` | Programmatically cancel the active drag. Fires the cancel chain[^drag-cancel-chain] with `reason: 'cancel'`. No-op when no drag is active. |
-
-[^drag-cancel-chain]: `onLeave` on the over-zone → per-draggable `onCancel` → global `onCancel`.
+| `dnd.cancel()` | Programmatically cancel the active drag. Fires `onLeave` on the over-zone, then per-draggable `onCancel`, then global `onCancel`, with `reason: 'cancel'`. No-op when no drag is active. |
 
 ### DOM attributes
 

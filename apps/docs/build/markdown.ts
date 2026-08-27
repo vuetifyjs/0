@@ -288,7 +288,9 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
       inlineToken.children = []
       // `question` stays plain text for search/filter; the slot is the same
       // inline pipeline as body markdown (`code`, API hover, links).
-      const title = md.renderInline(question, env)
+      // Do not pass the page `env` — markdown-it-footnote flushes collected
+      // footnotes into renderInline and they land in every question title.
+      const title = md.renderInline(question)
       return `${closeTag}<DocsFaqItem question="${md.utils.escapeHtml(question)}">\n<template #question>${title}</template>\n`
     }
     return defaultParagraphOpen
