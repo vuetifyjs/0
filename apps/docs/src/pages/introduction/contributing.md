@@ -180,7 +180,8 @@ Never edit `package.json` versions by hand — release automation owns every bum
 ### PR Guidelines
 
 - Keep PRs focused - one feature or fix per PR
-- Write a clear title and description
+- Title must be Conventional Commits: `type(scope): subject` (scope optional). Allowed types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`. Squash merge uses the title as the commit — Semantic PR is required, and a non-matching title cannot merge
+- Write a clear description
 - Reference any related issues
 - Be responsive to feedback
 
