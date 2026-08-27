@@ -414,7 +414,27 @@ Only when the over-zone declares `orientation`. Without orientation, the zone is
 
 ??? How do I pick the right `Z` parameter?
 
-`Z` is a discriminated union of every drag type the scope handles. For a single type, write `useDragDrop<{ type: 'card', value: Card }>()`. For multiple, union them: `{ type: 'card', value: Card } | { type: 'column', value: Column }`. The types are distributive — narrowing on `drag.type` narrows `drag.value` to the matching variant. `ActiveDrag.id` is the registry ticket id (pass `id` to `register` if you need it stable); your payload lives on `value`.
+`Z` is a discriminated union of every drag type the scope handles. Default to one variant. Widen only when two types actually interact in the same scope — otherwise a second `useDragDrop()` is cleaner. The types are distributive: narrowing `drag.type` narrows `drag.value`. `ActiveDrag.id` is the registry ticket id (pass `id` to `register` if you need it stable); your payload lives on `value`.
+
+```ts
+// One type — every callback already knows the shape
+const cards = useDragDrop<{ type: 'card', value: Card }>()
+
+// Two types that meet — narrow on drag.type
+type Kanban =
+  | { type: 'card', value: Card }
+  | { type: 'column', value: Column }
+
+const dnd = useDragDrop<Kanban>()
+
+dnd.zones.register({
+  el,
+  accept: ['card'],
+  onDrop: drag => {
+    drag.value // Card
+  },
+})
+```
 
 ??? Can the same DOM element be both a draggable and a zone?
 
