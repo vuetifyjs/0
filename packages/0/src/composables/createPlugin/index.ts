@@ -14,8 +14,8 @@
  * context/plugin/consumer triple for plugin composables, eliminating boilerplate.
  * Supports `persist()` / `restore()` lifecycle hooks for saving and rehydrating plugin state.
  *
- * In development, each installed plugin is registered with Vue DevTools under a
- * single "v0" inspector. No consumer opt-in — `app.use()` is the registration.
+ * In development, plugins that pass `devtools: true` appear under a single "v0"
+ * inspector in Vue DevTools. Default is off — opt in per plugin.
  *
  * @example
  * ```ts
@@ -48,6 +48,8 @@ export interface PluginOptions {
   namespace: string
   provide: (app: App) => void
   setup?: (app: App) => void
+  /** When true, this plugin appears in the Vue DevTools v0 inspector. @default false */
+  devtools?: boolean
 }
 
 export interface Plugin {
@@ -57,6 +59,7 @@ export interface Plugin {
 interface PluginRecord {
   namespace: string
   context?: unknown
+  devtools: boolean
 }
 
 const INSTALLED = Symbol.for('v0:installed-plugins')
@@ -108,11 +111,14 @@ export function createPlugin<Z extends Plugin = Plugin> (options: PluginOptions)
       app.runWithContext(() => {
         const installed = getInstalled(app)
         if (installed.has(options.namespace)) return
-        installed.set(options.namespace, { namespace: options.namespace })
+        installed.set(options.namespace, {
+          namespace: options.namespace,
+          devtools: options.devtools === true,
+        })
 
         options.provide(app)
         options.setup?.(app)
-        notifyDevtools(app)
+        if (options.devtools) notifyDevtools(app)
       })
     },
   } satisfies Plugin as Z
@@ -138,6 +144,8 @@ export interface PluginContextConfig<O, E> {
   persist?: (context: E) => unknown
   /** Restores previously persisted state into the context. Called before setup. */
   restore?: (context: E, saved: unknown) => void
+  /** Default `devtools` for this plugin. Install-time `devtools` overrides. @default false */
+  devtools?: boolean
 }
 
 function deriveKey (namespace: string): string {
@@ -178,27 +186,30 @@ function getPersistedStorage (): PersistedStorage {
  *   })
  * ```
  */
+type PluginKeys = { namespace?: string, persist?: boolean, devtools?: boolean }
+
 export function createPluginContext<
-  O extends { namespace?: string, persist?: boolean } = Record<never, never>,
+  O extends PluginKeys = Record<never, never>,
   E = unknown,
 > (
   defaultNamespace: string,
-  factory: (options: Omit<O, 'namespace' | 'persist'>) => E,
-  config?: PluginContextConfig<Omit<O, 'namespace' | 'persist'>, E>,
+  factory: (options: Omit<O, 'namespace' | 'persist' | 'devtools'>) => E,
+  config?: PluginContextConfig<Omit<O, 'namespace' | 'persist' | 'devtools'>, E>,
 ): readonly [
   <_E extends E = E>(_options?: O) => ContextTrinity<_E>,
-  (_options?: O) => Plugin,
+  (_options?: O & { devtools?: boolean }) => Plugin,
   <_E extends E = E>(namespace?: string) => _E,
 ] {
   function createXContext<_E extends E = E> (_options: O = {} as O): ContextTrinity<_E> {
-    const { namespace = defaultNamespace, persist: _persist, ...options } = _options as O & { namespace?: string, persist?: boolean }
-    const context = factory(options as Omit<O, 'namespace' | 'persist'>) as _E
+    const { namespace = defaultNamespace, persist: _persist, devtools: _devtools, ...options } = _options as O & PluginKeys
+    const context = factory(options as Omit<O, 'namespace' | 'persist' | 'devtools'>) as _E
 
     return createTrinity<_E>(namespace, context)
   }
 
-  function createXPlugin (_options: O = {} as O): Plugin {
-    const { namespace = defaultNamespace, persist: shouldPersist, ...options } = _options as O & { namespace?: string, persist?: boolean }
+  function createXPlugin (_options: O & { devtools?: boolean } = {} as O): Plugin {
+    const { namespace = defaultNamespace, persist: shouldPersist, devtools, ...options } = _options as O & PluginKeys
+    const inspect = devtools ?? config?.devtools ?? false
 
     // Created lazily inside provide (install time) so a never-installed or skipped
     // duplicate-namespace plugin allocates no live resources.
@@ -207,6 +218,7 @@ export function createPluginContext<
 
     return createPlugin({
       namespace,
+      devtools: inspect,
       provide: app => {
         const [, provide, ctx] = createXContext({ ...options, namespace } as O)
         context = ctx
@@ -229,7 +241,7 @@ export function createPluginContext<
           // persist watch must close over this local, not the outer `context`.
           const ctx = context
 
-          config?.setup?.(ctx, app, options as Omit<O, 'namespace' | 'persist'>)
+          config?.setup?.(ctx, app, options as Omit<O, 'namespace' | 'persist' | 'devtools'>)
 
           if (shouldPersist && config?.persist) {
             const storage = getPersistedStorage()

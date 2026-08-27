@@ -2,4 +2,4 @@
 "@vuetify/v0": patch
 ---
 
-feat(createPlugin): surface installed plugins in Vue DevTools during development
+feat(createPlugin): opt plugins into Vue DevTools with `devtools: true`

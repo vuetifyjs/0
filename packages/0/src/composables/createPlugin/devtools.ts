@@ -3,7 +3,7 @@
  *
  * @remarks
  * Vue DevTools inspector for v0 plugins. Wired from `createPlugin` install
- * in development only — every `app.use(createXPlugin())` lands as a node
+ * in development only — plugins that pass `devtools: true` land as a node
  * under a single "v0" inspector. `@vue/devtools-api` is an optional peer;
  * missing it is a silent no-op so production and apps without DevTools
  * are unaffected.
@@ -18,6 +18,7 @@ import type { App } from 'vue'
 interface PluginRecord {
   namespace: string
   context?: unknown
+  devtools: boolean
 }
 
 const INSPECTOR_ID = 'v0-plugins'
@@ -86,10 +87,12 @@ async function connect (app: App, records: Map<string, PluginRecord>) {
         if (payload.inspectorId !== INSPECTOR_ID) return
 
         const current = hooked.get(app)?.records ?? records
-        payload.rootNodes = [...current.values()].map(record => ({
-          id: record.namespace,
-          label: record.namespace,
-        }))
+        payload.rootNodes = [...current.values()]
+          .filter(record => record.devtools)
+          .map(record => ({
+            id: record.namespace,
+            label: record.namespace,
+          }))
       })
 
       api.on.getInspectorState(payload => {
@@ -97,7 +100,7 @@ async function connect (app: App, records: Map<string, PluginRecord>) {
 
         const current = hooked.get(app)?.records ?? records
         const record = current.get(payload.nodeId)
-        if (!record) return
+        if (!record?.devtools) return
 
         payload.state = {
           plugin: [

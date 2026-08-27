@@ -115,7 +115,14 @@ export function createMyPlugin () {
 
 ## Vue DevTools
 
-In development, every `app.use(createXPlugin())` (or `createPlugin()`) appears under a **v0** inspector in Vue DevTools. The tree is the installed plugin namespaces; selecting a node shows the provided context (functions omitted). No extra registration — `install()` is the hook.
+Pass `devtools: true` to put a plugin in the **v0** inspector. Default is off — opt in per plugin. Selecting a node shows the provided context (functions omitted).
+
+```ts
+app.use(createThemePlugin({ devtools: true }))
+app.use(createLocalePlugin()) // not in the inspector
+```
+
+Plugin authors can default it on via `createPluginContext` config (`devtools: true`); the install-time option overrides.
 
 This is `__DEV__`-gated and a no-op if `@vue/devtools-api` is not present. Pair it with `vite-plugin-vue-devtools` (or the browser extension) so the inspector has a host.
 

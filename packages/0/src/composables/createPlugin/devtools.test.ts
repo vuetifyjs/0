@@ -40,11 +40,23 @@ describe('createPlugin vue-devtools', () => {
     mocks.on.getInspectorState.mockClear()
   })
 
-  it('should register a v0 inspector on first install', async () => {
+  it('should not register a DevTools inspector when devtools is omitted', async () => {
     const app = createApp({ render: () => null })
     createPlugin({
       namespace: 'v0:theme',
       provide: () => {},
+    }).install(app)
+
+    await Promise.resolve()
+    expect(mocks.setupDevtoolsPlugin).not.toHaveBeenCalled()
+  })
+
+  it('should register a v0 inspector on first install when devtools is true', async () => {
+    const app = createApp({ render: () => null })
+    createPlugin({
+      namespace: 'v0:theme',
+      provide: () => {},
+      devtools: true,
     }).install(app)
 
     await vi.waitFor(() => expect(mocks.setupDevtoolsPlugin).toHaveBeenCalledTimes(1))
@@ -63,10 +75,10 @@ describe('createPlugin vue-devtools', () => {
 
   it('should not call setupDevtoolsPlugin twice for a second plugin on the same app', async () => {
     const app = createApp({ render: () => null })
-    createPlugin({ namespace: 'v0:theme', provide: () => {} }).install(app)
+    createPlugin({ namespace: 'v0:theme', provide: () => {}, devtools: true }).install(app)
     await vi.waitFor(() => expect(mocks.setupDevtoolsPlugin).toHaveBeenCalledTimes(1))
 
-    createPlugin({ namespace: 'v0:locale', provide: () => {} }).install(app)
+    createPlugin({ namespace: 'v0:locale', provide: () => {}, devtools: true }).install(app)
     await vi.waitFor(() => expect(mocks.sendInspectorTree).toHaveBeenCalled())
 
     expect(mocks.setupDevtoolsPlugin).toHaveBeenCalledTimes(1)
@@ -74,8 +86,9 @@ describe('createPlugin vue-devtools', () => {
 
   it('should list installed namespaces on the inspector tree', async () => {
     const app = createApp({ render: () => null })
-    createPlugin({ namespace: 'v0:theme', provide: () => {} }).install(app)
+    createPlugin({ namespace: 'v0:theme', provide: () => {}, devtools: true }).install(app)
     createPlugin({ namespace: 'v0:locale', provide: () => {} }).install(app)
+    createPlugin({ namespace: 'v0:logger', provide: () => {}, devtools: true }).install(app)
 
     await vi.waitFor(() => expect(mocks.on.getInspectorTree).toHaveBeenCalled())
 
@@ -88,7 +101,7 @@ describe('createPlugin vue-devtools', () => {
 
     expect(payload.rootNodes).toEqual([
       { id: 'v0:theme', label: 'v0:theme' },
-      { id: 'v0:locale', label: 'v0:locale' },
+      { id: 'v0:logger', label: 'v0:logger' },
     ])
   })
 
@@ -102,7 +115,7 @@ describe('createPlugin vue-devtools', () => {
     )
 
     const app = createApp({ render: () => null })
-    createXPlugin().install(app)
+    createXPlugin({ devtools: true }).install(app)
 
     await vi.waitFor(() => expect(mocks.on.getInspectorState).toHaveBeenCalled())
 
@@ -128,7 +141,7 @@ describe('createPlugin vue-devtools', () => {
 
   it('should skip inspector callbacks for a different inspector id', async () => {
     const app = createApp({ render: () => null })
-    createPlugin({ namespace: 'v0:theme', provide: () => {} }).install(app)
+    createPlugin({ namespace: 'v0:theme', provide: () => {}, devtools: true }).install(app)
     await vi.waitFor(() => expect(mocks.on.getInspectorTree).toHaveBeenCalled())
 
     const handler = mocks.on.getInspectorTree.mock.calls[0]![0] as (payload: {
@@ -139,5 +152,22 @@ describe('createPlugin vue-devtools', () => {
     handler(payload)
 
     expect(payload).toEqual({ inspectorId: 'other' })
+  })
+
+  it('should use config.devtools as the author default, overridable at install', async () => {
+    const [, createXPlugin] = createPluginContext(
+      'v0:default-on',
+      () => ({ ok: true }),
+      { devtools: true },
+    )
+
+    const app = createApp({ render: () => null })
+    createXPlugin().install(app)
+    await vi.waitFor(() => expect(mocks.setupDevtoolsPlugin).toHaveBeenCalledTimes(1))
+
+    const hidden = createApp({ render: () => null })
+    createXPlugin({ devtools: false }).install(hidden)
+    await Promise.resolve()
+    expect(mocks.setupDevtoolsPlugin).toHaveBeenCalledTimes(1)
   })
 })

@@ -6,6 +6,7 @@ import type { App } from 'vue'
 export function registerPlugins (app: App, options: { playgroundTheme?: boolean } = {}) {
   app.use(
     createFeaturesPlugin({
+      devtools: true,
       features: {
         dev: true,
       },
@@ -14,11 +15,11 @@ export function registerPlugins (app: App, options: { playgroundTheme?: boolean 
 
   app.use(createHydrationPlugin())
 
-  app.use(createLoggerPlugin())
+  app.use(createLoggerPlugin({ devtools: true }))
 
   app.use(
     createBreakpointsPlugin({
-      //
+      devtools: true,
     }),
   )
 
@@ -35,6 +36,7 @@ export function registerPlugins (app: App, options: { playgroundTheme?: boolean 
 
   app.use(
     createLocalePlugin({
+      devtools: true,
       default: 'en',
       messages: {
         en: {
@@ -53,6 +55,7 @@ export function registerPlugins (app: App, options: { playgroundTheme?: boolean 
 
   app.use(
     createThemePlugin({
+      devtools: true,
       default: 'minimalSlate',
       palette: {
         md: materialPalette,
