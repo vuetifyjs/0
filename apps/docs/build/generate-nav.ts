@@ -27,11 +27,13 @@ export interface NavItemLink {
   emphasized?: EmphasisLevel
   devmode?: boolean
   children?: NavItem[]
+  collapsible?: boolean
 }
 
 export interface NavItemCategory {
   name: string
   children: NavItem[]
+  collapsible?: boolean
 }
 
 export interface NavItemDivider {
@@ -66,12 +68,13 @@ function getEmphasisLevel (iso: string | undefined | null): EmphasisLevel {
 
 // Section configuration - defines structure and ordering
 // rootPath: string = custom link, undefined = default to /${section}, null = no link
-const SECTIONS: Record<string, { order: number, hasSubcategories: boolean, rootPath?: string | null, name?: string }> = {
+// collapsibleSubcategories: nested groups start collapsed (top-level sections already do)
+const SECTIONS: Record<string, { order: number, hasSubcategories: boolean, rootPath?: string | null, name?: string, collapsibleSubcategories?: boolean }> = {
   introduction: { order: 0, hasSubcategories: false, rootPath: null },
   guide: { order: 2, hasSubcategories: true },
   components: { order: 4, hasSubcategories: true },
   composables: { order: 6, hasSubcategories: true },
-  systems: { order: 7, hasSubcategories: true, rootPath: null, name: 'Design Systems' },
+  systems: { order: 7, hasSubcategories: true, rootPath: null, name: 'Design Systems', collapsibleSubcategories: true },
 }
 
 // Subcategory ordering within sections
@@ -233,27 +236,34 @@ function buildSubcategories (section: string, pages: PageInfo[]): NavItem[] {
   }
 
   const order = SUBCATEGORY_ORDER[section] ?? []
+  const collapsible = SECTIONS[section]?.collapsibleSubcategories === true
 
   return [
     ...roots.toSorted(comparePages).map(toNavLink),
     ...Array.from(subcategories.entries())
       .toSorted(createSubcategoryComparator(order))
-      .map(([subcategory, subPages]) => toSubcategory(titleCase(subcategory), subPages)),
+      .map(([subcategory, subPages]) => toSubcategory(titleCase(subcategory), subPages, collapsible)),
   ]
 }
 
 // A subcategory that owns an index page becomes a link that still expands —
 // the same shape a top-level section gets — rather than a dead label with the
 // index page listed under it as a separate child.
-function toSubcategory (name: string, pages: PageInfo[]): NavItem {
+function toSubcategory (name: string, pages: PageInfo[], collapsible = false): NavItem {
   const index = pages.find(p => p.path.endsWith('index.md'))
   const children = pages.filter(p => p !== index).toSorted(comparePages).map(toNavLink)
 
-  if (!index) return { name, children }
+  if (!index) {
+    const item: NavItemCategory = { name, children }
+    if (collapsible) item.collapsible = true
+    return item
+  }
 
-  return children.length > 0
-    ? { name, to: index.urlPath, children }
-    : { name, to: index.urlPath }
+  if (children.length === 0) return { name, to: index.urlPath }
+
+  const item: NavItemLink = { name, to: index.urlPath, children }
+  if (collapsible) item.collapsible = true
+  return item
 }
 
 async function generateNav (): Promise<NavItem[]> {
