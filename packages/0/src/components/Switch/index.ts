@@ -11,7 +11,7 @@ export { provideSwitchGroup, useSwitchGroup } from './SwitchGroup.vue'
 export { provideSwitchRoot, useSwitchRoot } from './SwitchRoot.vue'
 
 // Types
-export type { SwitchGroupProps, SwitchGroupSlotProps } from './SwitchGroup.vue'
+export type { SwitchGroupExpose, SwitchGroupProps, SwitchGroupSlotProps, SwitchTicket } from './SwitchGroup.vue'
 export type { SwitchHiddenInputProps } from './SwitchHiddenInput.vue'
 export type { SwitchRootContext, SwitchRootProps, SwitchRootSlotProps, SwitchState } from './SwitchRoot.vue'
 export type { SwitchSelectAllProps, SwitchSelectAllSlotProps } from './SwitchSelectAll.vue'

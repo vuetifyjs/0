@@ -6,7 +6,7 @@ export { default as ToggleIndicator } from './ToggleIndicator.vue'
 export { default as ToggleRoot } from './ToggleRoot.vue'
 export { provideToggleRoot, useToggleRoot } from './ToggleRoot.vue'
 
-export type { ToggleGroupContext, ToggleGroupProps, ToggleGroupSlotProps, ToggleOrientation } from './ToggleGroup.vue'
+export type { ToggleGroupContext, ToggleGroupExpose, ToggleGroupProps, ToggleGroupSlotProps, ToggleGroupTicket, ToggleOrientation, ToggleTicket } from './ToggleGroup.vue'
 export type { ToggleIndicatorProps, ToggleIndicatorSlotProps } from './ToggleIndicator.vue'
 export type { ToggleRootContext, ToggleRootProps, ToggleRootSlotProps } from './ToggleRoot.vue'
 

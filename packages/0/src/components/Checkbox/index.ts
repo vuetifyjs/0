@@ -10,7 +10,7 @@ export { default as CheckboxRoot } from './CheckboxRoot.vue'
 export { default as CheckboxSelectAll } from './CheckboxSelectAll.vue'
 export { provideCheckboxRoot, useCheckboxRoot } from './CheckboxRoot.vue'
 
-export type { CheckboxGroupProps, CheckboxGroupSlotProps } from './CheckboxGroup.vue'
+export type { CheckboxGroupExpose, CheckboxGroupProps, CheckboxGroupSlotProps, CheckboxTicket } from './CheckboxGroup.vue'
 export type { CheckboxHiddenInputProps } from './CheckboxHiddenInput.vue'
 export type { CheckboxIndicatorProps, CheckboxIndicatorSlotProps } from './CheckboxIndicator.vue'
 export type { CheckboxRootContext, CheckboxRootProps, CheckboxRootSlotProps, CheckboxState } from './CheckboxRoot.vue'
