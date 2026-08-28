@@ -10,7 +10,8 @@
  */
 
 // Utilities
-import { isFunction, isObject } from '#v0/utilities'
+import { isArray, isFunction, isNullOrUndefined, isObject } from '#v0/utilities'
+import { isRef } from 'vue'
 
 // Types
 import type { App } from 'vue'
@@ -19,9 +20,19 @@ interface PluginRecord {
   namespace: string
   context?: unknown
   devtools: boolean
+  inspect?: (context: unknown) => unknown
 }
 
 const INSPECTOR_ID = 'v0-plugins'
+
+// TabIcon only treats `/…` or `https?://…` as images. data: URIs become a CSS class and vanish.
+function pluginLogo (): string {
+  const origin = globalThis.location?.origin ?? ''
+  if (/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/.test(origin)) {
+    return `${origin}/vzero.svg`
+  }
+  return 'https://0.vuetifyjs.com/vzero.svg'
+}
 
 interface Hook {
   api: {
@@ -70,7 +81,7 @@ async function connect (app: App, records: Map<string, PluginRecord>) {
       label: 'Vuetify0',
       packageName: '@vuetify/v0',
       homepage: 'https://0.vuetifyjs.com',
-      logo: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero.png',
+      logo: pluginLogo(),
       app,
     },
     api => {
@@ -105,7 +116,7 @@ async function connect (app: App, records: Map<string, PluginRecord>) {
         payload.state = {
           plugin: [
             { key: 'namespace', value: record.namespace },
-            { key: 'context', value: snapshot(record.context) },
+            { key: 'context', value: snapshot(record.inspect?.(record.context) ?? record.context) },
           ],
         }
       })
@@ -113,14 +124,63 @@ async function connect (app: App, records: Map<string, PluginRecord>) {
   )
 }
 
-function snapshot (context: unknown): unknown {
-  if (!isObject(context)) return context
+function isPlainObject (value: object) {
+  const proto = Object.getPrototypeOf(value)
+  return proto === Object.prototype || proto === null
+}
+
+function typeName (value: object) {
+  const name = value.constructor?.name
+  if (!name || name === 'Object' || name === 'Array') return undefined
+  return name
+}
+
+function snapshot (value: unknown, depth = 0): unknown {
+  if (depth > 4) return value
+  if (isRef(value)) return snapshot(value.value, depth + 1)
+  if (isFunction(value) || !isObject(value)) return value
+  if (typeof Element !== 'undefined' && value instanceof Element) return value.constructor.name
+  if (value instanceof Map) {
+    return Object.fromEntries([...value].map(([key, item]) => [String(key), snapshot(item, depth + 1)]))
+  }
+  if (value instanceof Set) {
+    return [...value].map(item => snapshot(item, depth + 1))
+  }
+  if (isArray(value)) return value.map(item => snapshot(item, depth + 1))
 
   const out: Record<string, unknown> = {}
-  for (const key of Object.keys(context)) {
-    const value = (context as Record<string, unknown>)[key]
-    if (isFunction(value)) continue
-    out[key] = value
+  const seen = new Set<string>()
+
+  for (const key of Object.keys(value)) {
+    seen.add(key)
+    const current = (value as Record<string, unknown>)[key]
+    if (isFunction(current) || isNullOrUndefined(current)) continue
+    out[key] = snapshot(current, depth + 1)
   }
+
+  let proto = Object.getPrototypeOf(value)
+  while (proto && proto !== Object.prototype) {
+    for (const key of Object.getOwnPropertyNames(proto)) {
+      if (key === 'constructor' || seen.has(key)) continue
+      const desc = Object.getOwnPropertyDescriptor(proto, key)
+      if (!desc?.get) continue
+      seen.add(key)
+      try {
+        const current = desc.get.call(value)
+        if (isFunction(current) || isNullOrUndefined(current)) continue
+        out[key] = snapshot(current, depth + 1)
+      } catch {
+        // getter threw — skip
+      }
+    }
+    proto = Object.getPrototypeOf(proto)
+  }
+
+  const name = typeName(value)
+  if (!isPlainObject(value) && name) {
+    if (Object.keys(out).length === 0) return name
+    return { type: name, ...out }
+  }
+
   return out
 }

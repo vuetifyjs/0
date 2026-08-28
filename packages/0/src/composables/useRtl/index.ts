@@ -53,6 +53,8 @@ export interface RtlContext {
    * Call manually when using a standalone context (`createRtlContext`).
    */
   dispose: () => void
+  /** Active RTL adapter. Defaults to `V0RtlAdapter`. */
+  adapter: RtlAdapter
 }
 
 export interface RtlOptions {
@@ -81,20 +83,23 @@ export interface RtlPluginOptions extends RtlContextOptions {
  * @see https://0.vuetifyjs.com/composables/plugins/use-rtl
  */
 export function createRtl (options: RtlOptions = {}): RtlContext {
+  const adapter = options.adapter ?? new V0RtlAdapter()
   const isRtl = shallowRef(options.default ?? false)
 
   function toggle () {
     isRtl.value = !isRtl.value
   }
 
-  return { isRtl, toggle, dispose: () => {} }
+  return { isRtl, toggle, adapter, dispose: () => adapter.dispose?.() }
 }
 
 export function createRtlFallback (): RtlContext {
+  const adapter = new V0RtlAdapter()
   return {
     isRtl: shallowRef(false),
     toggle: () => {},
-    dispose: () => {},
+    adapter,
+    dispose: () => adapter.dispose?.(),
   }
 }
 
@@ -103,10 +108,14 @@ export const [createRtlContext, createRtlPlugin, useRtl] =
     'v0:rtl',
     options => createRtl(options),
     {
+      inspect: ctx => ({
+        isRtl: ctx.isRtl,
+        adapter: ctx.adapter.constructor.name,
+      }),
       fallback: () => createRtlFallback(),
-      setup: (context, app, { adapter = new V0RtlAdapter(), target }) => {
-        adapter.setup(app, context, target)
-        app.onUnmount(() => adapter.dispose?.())
+      setup: (context, app, { target }) => {
+        context.adapter.setup(app, context, target)
+        app.onUnmount(() => context.adapter.dispose?.())
       },
       persist: ctx => ctx.isRtl.value,
       restore: (ctx, saved) => {

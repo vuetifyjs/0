@@ -40,7 +40,7 @@
 
 // Composables
 import { useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
+import { bindPluginContext, createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useLocale } from '#v0/composables/useLocale'
 
@@ -272,11 +272,20 @@ export function createDateContext<
 export function createDatePlugin<
   Z,
   E extends DateContext<Z> = DateContext<Z>,
-> (_options: DatePluginOptions<Z>) {
-  const { namespace = 'v0:date', ...options } = _options
+> (_options: DatePluginOptions<Z> & { devtools?: boolean }) {
+  const { namespace = 'v0:date', devtools, ...options } = _options
 
   return createPlugin({
     namespace,
+    devtools,
+    inspect: ctx => {
+      const context = ctx as DateContext<Z>
+      return {
+        locale: context.locale,
+        firstDayOfWeek: context.firstDayOfWeek,
+        adapter: context.adapter.constructor.name,
+      }
+    },
     // Created lazily inside provide (install time) so useLocale() resolves
     // through app.runWithContext(), and each app.use() gets its own context
     // instead of sharing one across installs.
@@ -284,6 +293,7 @@ export function createDatePlugin<
     provide: (app: App) => {
       const [, provideDateContext, context] = createDateContext<Z, E>({ namespace, ...options })
       provideDateContext(context, app)
+      bindPluginContext(app, namespace, context)
     },
   })
 }

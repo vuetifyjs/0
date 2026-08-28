@@ -36,7 +36,6 @@ import { isNaN, isNull, isObject, isString, isUndefined, UNSAFE_KEYS, useId } fr
 import type { QueueContext } from '#v0/composables/createQueue'
 import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { Extensible, ID } from '#v0/types'
-// Adapters
 import type { NotificationsAdapter } from './adapters/adapter'
 
 /** Notification urgency level. Maps to ARIA roles: `'error'`/`'warning'` → `role="alert"`, `'info'`/`'success'` → `role="status"`. Extensible — custom values like `'critical'` are allowed with autocomplete for defaults. */
@@ -145,12 +144,14 @@ export interface NotificationsContext<
   readAll: () => void
   /** Archive all unarchived notifications. */
   archiveAll: () => void
+  /** Active notifications adapter, when the plugin was installed with one. */
+  adapter?: NotificationsAdapter
 }
 
 export function createNotifications (
-  _options: NotificationsOptions = {},
+  _options: NotificationsOptions & { adapter?: NotificationsAdapter } = {},
 ): NotificationsContext {
-  const { timeout = 3000, ...options } = _options
+  const { timeout = 3000, adapter, ...options } = _options
 
   const registry = createRegistry<NotificationTicket>({
     ...options,
@@ -559,6 +560,7 @@ export function createNotifications (
     wake,
     readAll,
     archiveAll,
+    adapter,
     get size () {
       return registry.size
     },
@@ -782,6 +784,11 @@ export const [createNotificationsContext, createNotificationsPlugin, useNotifica
     'v0:notifications',
     options => createNotifications(options),
     {
+      inspect: ctx => ({
+        adapter: ctx.adapter?.constructor.name ?? 'none',
+        size: ctx.size,
+        queue: ctx.queue.size,
+      }),
       fallback: () => createNotificationsFallback(),
       persist: context => snapshot(context),
       restore: (context, saved) => {
@@ -798,13 +805,13 @@ export const [createNotificationsContext, createNotificationsPlugin, useNotifica
         // notification never registers are pruned by the next persist write.
         context.on('register:ticket', ticket => merge(context, map, ticket as NotificationTicket))
       },
-      setup: (context, app, options) => {
+      setup: (context, app) => {
         app.onUnmount(() => {
           context.dispose()
           context.queue.dispose()
         })
 
-        const { adapter } = options
+        const { adapter } = context
         if (!adapter) return
 
         adapter.setup({

@@ -50,6 +50,8 @@ export interface PluginOptions {
   setup?: (app: App) => void
   /** When true, this plugin appears in the Vue DevTools v0 inspector. @default false */
   devtools?: boolean
+  /** Custom inspector payload. Falls back to a generic snapshot of `context`. */
+  inspect?: (context: unknown) => unknown
 }
 
 export interface Plugin {
@@ -60,16 +62,38 @@ interface PluginRecord {
   namespace: string
   context?: unknown
   devtools: boolean
+  inspect?: (context: unknown) => unknown
 }
 
 const INSTALLED = Symbol.for('v0:installed-plugins')
 
 function getInstalled (app: App): Map<string, PluginRecord> {
-  const ctx = app._context as unknown as Record<symbol, Map<string, PluginRecord>>
+  const ctx = app._context as typeof app._context & { [INSTALLED]?: Map<string, PluginRecord> }
   return ctx[INSTALLED] ??= new Map()
 }
 
-function bindContext (app: App, namespace: string, context: unknown) {
+/**
+ * Attach a plugin context to the DevTools inspector record for `namespace`.
+ *
+ * `createPluginContext` calls this after provide. Plugins that wrap
+ * `createPlugin` directly (stack, date) must call it from `provide`.
+ *
+ * @param app The Vue app the plugin was installed on.
+ * @param namespace The plugin namespace, e.g. `'v0:stack'`.
+ * @param context The live plugin context to show in the inspector.
+ *
+ * @example
+ * ```ts
+ * return createPlugin({
+ *   namespace,
+ *   provide: app => {
+ *     provideStackContext(context, app)
+ *     bindPluginContext(app, namespace, context)
+ *   },
+ * })
+ * ```
+ */
+export function bindPluginContext (app: App, namespace: string, context: unknown) {
   const record = getInstalled(app).get(namespace)
   if (record) record.context = context
 }
@@ -114,6 +138,7 @@ export function createPlugin<Z extends Plugin = Plugin> (options: PluginOptions)
         installed.set(options.namespace, {
           namespace: options.namespace,
           devtools: options.devtools === true,
+          inspect: options.inspect,
         })
 
         options.provide(app)
@@ -146,6 +171,8 @@ export interface PluginContextConfig<O, E> {
   restore?: (context: E, saved: unknown) => void
   /** Default `devtools` for this plugin. Install-time `devtools` overrides. @default false */
   devtools?: boolean
+  /** Custom inspector payload. Falls back to a generic snapshot of the context. */
+  inspect?: (context: E) => unknown
 }
 
 function deriveKey (namespace: string): string {
@@ -209,7 +236,7 @@ export function createPluginContext<
 
   function createXPlugin (_options: O & { devtools?: boolean } = {} as O): Plugin {
     const { namespace = defaultNamespace, persist: shouldPersist, devtools, ...options } = _options as O & PluginKeys
-    const inspect = devtools ?? config?.devtools ?? false
+    const enabled = devtools ?? config?.devtools ?? false
 
     // Created lazily inside provide (install time) so a never-installed or skipped
     // duplicate-namespace plugin allocates no live resources.
@@ -218,12 +245,15 @@ export function createPluginContext<
 
     return createPlugin({
       namespace,
-      devtools: inspect,
+      devtools: enabled,
+      inspect: config?.inspect
+        ? (context: unknown) => config.inspect!(context as E)
+        : undefined,
       provide: app => {
         const [, provide, ctx] = createXContext({ ...options, namespace } as O)
         context = ctx
         provide(context, app)
-        bindContext(app, namespace, context)
+        bindPluginContext(app, namespace, context)
 
         if (shouldPersist && config?.restore) {
           const storage = getPersistedStorage()

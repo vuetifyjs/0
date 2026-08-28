@@ -115,7 +115,18 @@ export function createMyPlugin () {
 
 ## Vue DevTools
 
-Pass `devtools: true` to put a plugin in the **v0** inspector. Default is off — opt in per plugin. Selecting a node shows the provided context (functions omitted).
+Pass `devtools: true` to put a plugin in the **v0** inspector. Default is off — opt in per plugin. Selecting a node snapshots the context: refs and computeds are unwrapped, class getters are read, functions are omitted.
+
+Plugin authors can supply `inspect` on `createPluginContext` config when the useful state is behind methods:
+
+```ts
+createPluginContext('v0:logger', factory, {
+  inspect: ctx => ({
+    level: ctx.current(),
+    enabled: ctx.enabled(),
+  }),
+})
+```
 
 ```ts
 app.use(createThemePlugin({ devtools: true }))

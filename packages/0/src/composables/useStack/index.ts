@@ -25,7 +25,7 @@
 
 // Composables
 import { useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
+import { bindPluginContext, createPlugin } from '#v0/composables/createPlugin'
 import { createSelection } from '#v0/composables/createSelection'
 import { createTrinity } from '#v0/composables/createTrinity'
 
@@ -420,14 +420,16 @@ export function createStackContext (_options: StackContextOptions = {}): Context
  * app.mount('#app')
  * ```
  */
-export function createStackPlugin (_options: StackPluginOptions = {}) {
-  const { namespace = 'v0:stack', ...options } = _options
+export function createStackPlugin (_options: StackPluginOptions & { devtools?: boolean } = {}) {
+  const { namespace = 'v0:stack', devtools, ...options } = _options
   const [, provideStackContext, context] = createStackContext({ ...options, namespace })
 
   return createPlugin({
     namespace,
+    devtools,
     provide: (app: App) => {
       provideStackContext(context, app)
+      bindPluginContext(app, namespace, context)
     },
   })
 }

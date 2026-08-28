@@ -80,6 +80,8 @@ export interface ReducedMotionContext {
    * ```
    */
   dispose: () => void
+  /** Active reduced-motion adapter. Defaults to `V0ReducedMotionAdapter`. */
+  adapter: ReducedMotionAdapter
 }
 
 export interface ReducedMotionOptions {
@@ -121,6 +123,7 @@ export interface ReducedMotionPluginOptions extends ReducedMotionContextOptions 
  * ```
  */
 export function createReducedMotion (options: ReducedMotionOptions = {}): ReducedMotionContext {
+  const adapter = options.adapter ?? new V0ReducedMotionAdapter()
   const selectedMode = shallowRef<ReducedMotionMode>(options.mode ?? 'system')
 
   const media = usePrefersReducedMotion()
@@ -139,16 +142,19 @@ export function createReducedMotion (options: ReducedMotionOptions = {}): Reduce
     selectedMode: shallowReadonly(selectedMode),
     isReduced,
     select,
+    adapter,
     dispose: media.stop,
   }
 }
 
 function createReducedMotionFallback (): ReducedMotionContext {
+  const adapter = new V0ReducedMotionAdapter()
   return {
     selectedMode: shallowReadonly(shallowRef<ReducedMotionMode>('system')),
     isReduced: shallowReadonly(shallowRef(false)),
     select: () => {},
-    dispose: () => {},
+    adapter,
+    dispose: () => adapter.dispose?.(),
   }
 }
 
@@ -157,6 +163,11 @@ export const [createReducedMotionContext, createReducedMotionPlugin, useReducedM
     'v0:reduced-motion',
     options => createReducedMotion(options),
     {
+      inspect: ctx => ({
+        selectedMode: ctx.selectedMode,
+        isReduced: ctx.isReduced,
+        adapter: ctx.adapter.constructor.name,
+      }),
       fallback: () => createReducedMotionFallback(),
       persist: context => context.selectedMode.value,
       restore: (context, saved) => {
@@ -164,12 +175,12 @@ export const [createReducedMotionContext, createReducedMotionPlugin, useReducedM
           context.select(saved)
         }
       },
-      setup: (context, app, { adapter = new V0ReducedMotionAdapter() }) => {
+      setup: (context, app) => {
         app.onUnmount(() => context.dispose())
 
-        adapter.setup(app, context)
+        context.adapter.setup(app, context)
 
-        app.onUnmount(() => adapter.dispose?.())
+        app.onUnmount(() => context.adapter.dispose?.())
       },
     },
   )

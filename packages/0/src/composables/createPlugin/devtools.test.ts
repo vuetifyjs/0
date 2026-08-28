@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Composables
-import { createPlugin, createPluginContext } from './index'
+import { bindPluginContext, createPlugin, createPluginContext } from './index'
 
 // Utilities
-import { createApp } from 'vue'
+import { computed, createApp, ref } from 'vue'
 
 const mocks = vi.hoisted(() => {
   const sendInspectorTree = vi.fn()
@@ -139,6 +139,121 @@ describe('createPlugin vue-devtools', () => {
     })
   })
 
+  it('should unwrap refs and prototype getters in inspector state', async () => {
+    class Adapter {
+      #locale = 'en-US'
+      get locale () {
+        return this.#locale
+      }
+    }
+
+    const [, createXPlugin] = createPluginContext(
+      'v0:unwrap-test',
+      () => ({
+        count: ref(3),
+        locale: computed(() => 'en'),
+        adapter: new Adapter(),
+        tick: () => {},
+      }),
+    )
+
+    const app = createApp({ render: () => null })
+    createXPlugin({ devtools: true }).install(app)
+    await vi.waitFor(() => expect(mocks.on.getInspectorState).toHaveBeenCalled())
+
+    const handler = mocks.on.getInspectorState.mock.calls.at(-1)![0] as (payload: {
+      inspectorId: string
+      nodeId: string
+      state: unknown
+    }) => void
+    const payload: { inspectorId: string, nodeId: string, state: unknown } = {
+      inspectorId: 'v0-plugins',
+      nodeId: 'v0:unwrap-test',
+      state: undefined,
+    }
+    handler(payload)
+
+    expect(payload.state).toEqual({
+      plugin: [
+        { key: 'namespace', value: 'v0:unwrap-test' },
+        { key: 'context', value: { count: 3, locale: 'en', adapter: { type: 'Adapter', locale: 'en-US' } } },
+      ],
+    })
+  })
+
+  it('should label class instances that only have empty optional fields', async () => {
+    class V0PopoverAdapter {
+      dispose?: () => void
+    }
+
+    const [, createXPlugin] = createPluginContext(
+      'v0:adapter-name',
+      () => ({ adapter: new V0PopoverAdapter() }),
+    )
+
+    const app = createApp({ render: () => null })
+    createXPlugin({ devtools: true }).install(app)
+    await vi.waitFor(() => expect(mocks.on.getInspectorState).toHaveBeenCalled())
+
+    const handler = mocks.on.getInspectorState.mock.calls.at(-1)![0] as (payload: {
+      inspectorId: string
+      nodeId: string
+      state: unknown
+    }) => void
+    const payload: { inspectorId: string, nodeId: string, state: unknown } = {
+      inspectorId: 'v0-plugins',
+      nodeId: 'v0:adapter-name',
+      state: undefined,
+    }
+    handler(payload)
+
+    expect(payload.state).toEqual({
+      plugin: [
+        { key: 'namespace', value: 'v0:adapter-name' },
+        { key: 'context', value: { adapter: 'V0PopoverAdapter' } },
+      ],
+    })
+  })
+
+  it('should use config.inspect when provided', async () => {
+    const [, createXPlugin] = createPluginContext(
+      'v0:inspect-hook',
+      () => ({
+        current: () => 'info',
+        enabled: () => true,
+      }),
+      {
+        inspect: ctx => ({
+          level: ctx.current(),
+          enabled: ctx.enabled(),
+        }),
+      },
+    )
+
+    const app = createApp({ render: () => null })
+    createXPlugin({ devtools: true }).install(app)
+    await vi.waitFor(() => expect(mocks.on.getInspectorState).toHaveBeenCalled())
+
+    const handler = mocks.on.getInspectorState.mock.calls.at(-1)![0] as (payload: {
+      inspectorId: string
+      nodeId: string
+      state: unknown
+    }) => void
+    const payload: { inspectorId: string, nodeId: string, state: unknown } = {
+      inspectorId: 'v0-plugins',
+      nodeId: 'v0:inspect-hook',
+      state: undefined,
+    }
+    handler(payload)
+
+    expect(payload.state).toEqual({
+      plugin: [
+        { key: 'namespace', value: 'v0:inspect-hook' },
+        { key: 'context', value: { level: 'info', enabled: true } },
+      ],
+    })
+  })
+
   it('should skip inspector callbacks for a different inspector id', async () => {
     const app = createApp({ render: () => null })
     createPlugin({ namespace: 'v0:theme', provide: () => {}, devtools: true }).install(app)
@@ -152,6 +267,38 @@ describe('createPlugin vue-devtools', () => {
     handler(payload)
 
     expect(payload).toEqual({ inspectorId: 'other' })
+  })
+
+  it('should bind context for plugins that wrap createPlugin directly', async () => {
+    const app = createApp({ render: () => null })
+    createPlugin({
+      namespace: 'v0:direct',
+      provide: app => {
+        bindPluginContext(app, 'v0:direct', { openDelay: 400 })
+      },
+      devtools: true,
+    }).install(app)
+
+    await vi.waitFor(() => expect(mocks.on.getInspectorState).toHaveBeenCalled())
+
+    const handler = mocks.on.getInspectorState.mock.calls.at(-1)![0] as (payload: {
+      inspectorId: string
+      nodeId: string
+      state: unknown
+    }) => void
+    const payload: { inspectorId: string, nodeId: string, state: unknown } = {
+      inspectorId: 'v0-plugins',
+      nodeId: 'v0:direct',
+      state: undefined,
+    }
+    handler(payload)
+
+    expect(payload.state).toEqual({
+      plugin: [
+        { key: 'namespace', value: 'v0:direct' },
+        { key: 'context', value: { openDelay: 400 } },
+      ],
+    })
   })
 
   it('should use config.devtools as the author default, overridable at install', async () => {
