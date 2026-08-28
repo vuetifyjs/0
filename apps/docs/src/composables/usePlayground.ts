@@ -32,6 +32,34 @@ function playgroundBase () {
   return import.meta.env.VITE_PLAYGROUND_URL ?? 'https://v0play.vuetifyjs.com'
 }
 
+const PAPER_CDN = {
+  '@paper/bulma': 'https://cdn.jsdelivr.net/npm/@paper/bulma@latest/dist/index.mjs',
+  '@paper/emerald': 'https://cdn.jsdelivr.net/npm/@paper/emerald@latest/dist/index.mjs',
+  '@paper/emerald/style.css': 'https://cdn.jsdelivr.net/npm/@paper/emerald@latest/dist/style.css',
+  '@paper/emerald/theme.css': 'https://cdn.jsdelivr.net/npm/@paper/emerald@latest/dist/theme.css',
+} as const
+
+/**
+ * Map `@paper/emerald` / `@paper/bulma` specifiers in example source to jsDelivr
+ * ESM URLs. The playground also has these on its builtin import map; embedding
+ * them in the hash keeps older v0play builds and shared links self-contained.
+ *
+ * jsDelivr, not esm.sh — these packages import `vue` / `@vuetify/v0` as bare
+ * specifiers and must share the REPL's copies.
+ */
+export function paperImportsFromCode (files: Iterable<{ code: string }>): Record<string, string> {
+  const imports: Record<string, string> = {}
+  for (const file of files) {
+    if (file.code.includes('@paper/emerald')) {
+      imports['@paper/emerald'] = PAPER_CDN['@paper/emerald']
+      imports['@paper/emerald/style.css'] = PAPER_CDN['@paper/emerald/style.css']
+      imports['@paper/emerald/theme.css'] = PAPER_CDN['@paper/emerald/theme.css']
+    }
+    if (file.code.includes('@paper/bulma')) imports['@paper/bulma'] = PAPER_CDN['@paper/bulma']
+  }
+  return imports
+}
+
 /**
  * Build a v0play URL for the given files.
  *
@@ -65,7 +93,11 @@ export async function usePlayground (
 
   const files = buildPlaygroundFiles(inputFiles, options.dir)
   const data: PlaygroundHashData = { files }
-  if (options.imports && Object.keys(options.imports).length > 0) data.imports = options.imports
+  const resolved = {
+    ...paperImportsFromCode(inputFiles),
+    ...options.imports,
+  }
+  if (Object.keys(resolved).length > 0) data.imports = resolved
   if (options.settings && Object.keys(options.settings).length > 0) data.settings = options.settings
   if (options.theme) data.theme = options.theme
   if (options.themes && Object.keys(options.themes).length > 0) data.themes = options.themes

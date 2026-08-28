@@ -118,6 +118,7 @@ export function parseVuetifyPlayTuple (parsed: unknown[]): { files: Record<strin
     ...Object.keys(imports),
     'vue', 'vue/server-renderer', '@vue/devtools-api',
     '@vuetify/v0', 'vuetify',
+    '@paper/emerald', '@paper/bulma',
   ])
   const bareImportRe = /\bfrom\s+['"]([^./][^'"]*)['"]/g
   for (const code of Object.values(files)) {

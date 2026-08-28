@@ -61,6 +61,10 @@ export interface MainOptions {
   vuetify?: boolean
   /** Set to false to omit @vuetify/v0 theme plugin and UnoCSS (e.g. for Vuetify 4 preset) */
   v0?: boolean
+  /** Load @paper/emerald CSS + icon plugin when user files import it */
+  emerald?: boolean
+  /** Load bulma.css when user files import @paper/bulma */
+  bulma?: boolean
 }
 
 /**
@@ -101,6 +105,83 @@ export function vuetifyEsmUrl (version = 'latest', nightly = false): string {
 function vuetifyCssUrl (version = 'latest', nightly = false): string {
   const pkg = nightly ? '@vuetify/nightly' : 'vuetify'
   return `https://cdn.jsdelivr.net/npm/${pkg}@${version}/dist/vuetify-labs.css`
+}
+
+/** Sandbox import-map entries for `@vuetify/v0`, including subpaths Paper DS builds import. */
+export function v0CdnImports (version = 'latest'): Record<string, string> {
+  const base = `https://cdn.jsdelivr.net/npm/@vuetify/v0@${version}/dist`
+  return {
+    '@vuetify/v0': `${base}/index.mjs`,
+    '@vuetify/v0/utilities': `${base}/utilities/index.mjs`,
+  }
+}
+
+/**
+ * jsDelivr ESM entry for a published `@paper/*` design system.
+ *
+ * Always jsDelivr, never esm.sh — these packages import `vue` / `@vuetify/v0`
+ * as bare specifiers and must share the REPL's copies. esm.sh without
+ * `?external=` would dual-bundle Vue.
+ */
+export function paperEsmUrl (pkg: 'emerald' | 'bulma', version = 'latest'): string {
+  return `https://cdn.jsdelivr.net/npm/@paper/${pkg}@${version}/dist/index.mjs`
+}
+
+/** Sandbox import-map entries for Paper design systems, including CSS subpaths. */
+export function paperCdnImports (version = 'latest'): Record<string, string> {
+  return {
+    '@paper/bulma': paperEsmUrl('bulma', version),
+    '@paper/emerald': paperEsmUrl('emerald', version),
+    '@paper/emerald/style.css': `https://cdn.jsdelivr.net/npm/@paper/emerald@${version}/dist/style.css`,
+    '@paper/emerald/theme.css': `https://cdn.jsdelivr.net/npm/@paper/emerald@${version}/dist/theme.css`,
+  }
+}
+
+const PAPER_SCAN_SKIP = new Set([
+  'src/main.ts',
+  'src/uno.config.ts',
+  'src/vuetify.ts',
+  'import-map.json',
+  'tsconfig.json',
+])
+
+/**
+ * Detect `@paper/*` specifiers in user files. Skips generated infrastructure
+ * so injecting CSS/plugin imports into `main.ts` cannot latch the flag.
+ */
+export function detectPaperUsage (files: Record<string, string>): { emerald: boolean, bulma: boolean } {
+  let emerald = false
+  let bulma = false
+  for (const [path, code] of Object.entries(files)) {
+    if (PAPER_SCAN_SKIP.has(path)) continue
+    if (!emerald && code.includes('@paper/emerald')) emerald = true
+    if (!bulma && code.includes('@paper/bulma')) bulma = true
+    if (emerald && bulma) break
+  }
+  return { emerald, bulma }
+}
+
+function paperCssUrls (system: 'emerald' | 'bulma', version = 'latest'): string[] {
+  if (system === 'emerald') {
+    return [
+      `https://cdn.jsdelivr.net/npm/@paper/emerald@${version}/dist/theme.css`,
+      `https://cdn.jsdelivr.net/npm/@paper/emerald@${version}/dist/style.css`,
+    ]
+  }
+  return ['https://cdn.jsdelivr.net/npm/bulma@latest/css/bulma.min.css']
+}
+
+function stylesheetSetup (preset: string, hrefs: string[]): string[] {
+  if (hrefs.length === 0) return []
+  return [
+    `for (const href of [`,
+    ...hrefs.map(href => `  '${href}',`),
+    `]) {`,
+    `  const link = Object.assign(document.createElement('link'), { rel: 'stylesheet', href })`,
+    `  link.dataset.presetCss = '${preset}'`,
+    `  document.head.appendChild(link)`,
+    `}`,
+  ]
 }
 
 const DEFAULT_SANDBOX_THEMES: { light: PlaygroundThemeDefinition, dark: PlaygroundThemeDefinition } = {
@@ -212,6 +293,14 @@ export function createMainTs (defaultTheme = 'light', options?: MainOptions, vue
       `}`,
     )
     extraPlugins.push(`app.use(vuetify)`)
+  }
+  if (options?.emerald) {
+    extraImports.push(`import { createEmeraldIconsPlugin } from '@paper/emerald'`)
+    extraSetup.push(...stylesheetSetup('emerald', paperCssUrls('emerald')))
+    extraPlugins.push(`app.use(createEmeraldIconsPlugin())`)
+  }
+  if (options?.bulma) {
+    extraSetup.push(...stylesheetSetup('bulma', paperCssUrls('bulma')))
   }
 
   const importBlock = extraImports.length > 0 ? '\n' + extraImports.join('\n') : ''

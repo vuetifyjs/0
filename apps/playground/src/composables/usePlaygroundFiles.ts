@@ -9,7 +9,7 @@ import { decodePlaygroundHash, encodePlaygroundHash, isFileRecord, parseVuetifyP
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
 // Data
-import { createMainTs, createVuetifyTs, REPL_BUILTIN_FILES, REPL_TSCONFIG, REPL_TYPESCRIPT_VERSION, UNO_CONFIG_TS, vuetifyEsmUrl } from '@/data/playground-defaults'
+import { createMainTs, createVuetifyTs, detectPaperUsage, paperCdnImports, REPL_BUILTIN_FILES, REPL_TSCONFIG, REPL_TYPESCRIPT_VERSION, UNO_CONFIG_TS, v0CdnImports, vuetifyEsmUrl } from '@/data/playground-defaults'
 import { ADDONS, DEFAULT_APP, PRESETS } from '@/data/presets'
 import { parseRegistryQuery, resolveRegistryExample } from '@/data/registry'
 import { parseVuetifyExampleQuery, resolveVuetifyExample } from '@/data/vuetify-examples'
@@ -51,7 +51,8 @@ export function usePlaygroundFiles () {
   const builtinImportMap = computed(() => ({
     imports: {
       ...importMap.value?.imports,
-      '@vuetify/v0': `https://cdn.jsdelivr.net/npm/@vuetify/v0@${v0Version.value}/dist/index.mjs`,
+      ...v0CdnImports(v0Version.value),
+      ...paperCdnImports(),
       // Always available — pinia/vue-router prod builds import this at runtime to detect devtools
       '@vue/devtools-api': 'https://esm.sh/@vue/devtools-api@6',
     },
@@ -123,9 +124,24 @@ export function usePlaygroundFiles () {
     theme.select(dark ? 'dark' : 'light')
   }
 
-  function mainTs (defaultTheme?: string) {
+  function scanFiles (scan?: Record<string, string>): Record<string, string> {
+    if (scan) return scan
+    const files: Record<string, string> = {}
+    for (const [path, file] of Object.entries(store.files)) {
+      files[path] = file.code
+    }
+    return files
+  }
+
+  function mainTs (defaultTheme?: string, scan?: Record<string, string>) {
     const id = defaultTheme ?? sandboxThemeId(theme.isDark.value)
-    return createMainTs(id, mergedMainOptions(), vuetifyVersion.value, vuetifyNightly.value, extraThemes.value)
+    return createMainTs(
+      id,
+      { ...mergedMainOptions(), ...detectPaperUsage(scanFiles(scan)) },
+      vuetifyVersion.value,
+      vuetifyNightly.value,
+      extraThemes.value,
+    )
   }
 
   function rebuildMain () {
@@ -319,7 +335,7 @@ export function usePlaygroundFiles () {
     rebuildImportMap()
     await store.setFiles(
       {
-        'src/main.ts': mainTs(theme_),
+        'src/main.ts': mainTs(theme_, files),
         'src/uno.config.ts': UNO_CONFIG_TS,
         'tsconfig.json': REPL_TSCONFIG,
         ...(options.vuetify ? { 'src/vuetify.ts': createVuetifyTs(theme.isDark.value ? 'dark' : 'light') } : {}),
@@ -432,6 +448,15 @@ export function usePlaygroundFiles () {
     rebuildImportMap()
   })
 
+  // Inject Paper CSS / icon plugin when the user starts (or stops) importing a DS.
+  watch(() => {
+    const usage = detectPaperUsage(scanFiles())
+    return `${usage.emerald}:${usage.bulma}`
+  }, (next, prev) => {
+    if (!isReady.value || next === prev) return
+    rebuildMain()
+  })
+
   watch(() => store.activeFile?.code, code => {
     if (code === undefined) return
     const flatPath = aliasMap.value.get(store.activeFile.filename)
@@ -460,7 +485,7 @@ export function usePlaygroundFiles () {
     const options = preset.mainOptions
     await store.setFiles(
       {
-        'src/main.ts': createMainTs(theme_, options, vuetifyVersion.value, vuetifyNightly.value),
+        'src/main.ts': createMainTs(theme_, { ...options, ...detectPaperUsage(preset.files) }, vuetifyVersion.value, vuetifyNightly.value),
         'src/uno.config.ts': UNO_CONFIG_TS,
         'tsconfig.json': REPL_TSCONFIG,
         ...(options?.vuetify ? { 'src/vuetify.ts': createVuetifyTs(theme_) } : {}),
