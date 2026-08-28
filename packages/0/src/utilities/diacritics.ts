@@ -190,9 +190,6 @@ function search (
   return project(collect(haystack, needle, matchAll), map)
 }
 
-// Merges two already-sorted range lists, dropping duplicates and overlaps.
-// Ties (identical start) keep whichever range came from `a`, so the exact
-// (unfolded) pass wins over the folded one when both find the same spot.
 function mergeRanges (a: readonly MatchRange[], b: readonly MatchRange[]): MatchRange[] {
   const combined = [...a, ...b].toSorted((x, y) => x[0] - y[0] || x[1] - y[1])
   const merged: MatchRange[] = []
