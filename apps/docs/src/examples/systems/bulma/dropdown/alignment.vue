@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { BuDropdown, BuDropdownMenu, BuDropdownTrigger } from '@paper/bulma'
+  import { BuDropdown } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
 
@@ -15,7 +15,7 @@
 
   <div class="is-flex is-justify-content-space-between">
     <BuDropdown v-model="up" up>
-      <BuDropdownTrigger v-slot="{ attrs }">
+      <BuDropdown.Trigger v-slot="{ attrs }">
         <button class="button" type="button" v-bind="attrs">
           <span>Opens up</span>
 
@@ -23,17 +23,17 @@
             <i aria-hidden="true" class="fas fa-angle-up" />
           </span>
         </button>
-      </BuDropdownTrigger>
+      </BuDropdown.Trigger>
 
-      <BuDropdownMenu v-slot="{ close }">
+      <BuDropdown.Menu v-slot="{ close }">
         <a class="dropdown-item" @click="close">Overview</a>
 
         <a class="dropdown-item" @click="close">Modifiers</a>
-      </BuDropdownMenu>
+      </BuDropdown.Menu>
     </BuDropdown>
 
     <BuDropdown v-model="right" right>
-      <BuDropdownTrigger v-slot="{ attrs }">
+      <BuDropdown.Trigger v-slot="{ attrs }">
         <button class="button" type="button" v-bind="attrs">
           <span>Aligns right</span>
 
@@ -41,13 +41,13 @@
             <i aria-hidden="true" class="fas fa-angle-down" />
           </span>
         </button>
-      </BuDropdownTrigger>
+      </BuDropdown.Trigger>
 
-      <BuDropdownMenu v-slot="{ close }">
+      <BuDropdown.Menu v-slot="{ close }">
         <a class="dropdown-item" @click="close">Overview</a>
 
         <a class="dropdown-item" @click="close">Modifiers</a>
-      </BuDropdownMenu>
+      </BuDropdown.Menu>
     </BuDropdown>
   </div>
 </template>

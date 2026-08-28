@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { BuDropdown, BuDropdownMenu, BuDropdownTrigger } from '@paper/bulma'
+  import { BuDropdown } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
 
@@ -15,7 +15,7 @@
 
 <template>
   <BuDropdown v-model="open" menu>
-    <BuDropdownTrigger v-slot="{ isOpen, attrs }">
+    <BuDropdown.Trigger v-slot="{ isOpen, attrs }">
       <button class="button" type="button" v-bind="attrs">
         <span>Documentation</span>
 
@@ -23,9 +23,9 @@
           <i aria-hidden="true" class="fas" :class="isOpen ? 'fa-angle-up' : 'fa-angle-down'" />
         </span>
       </button>
-    </BuDropdownTrigger>
+    </BuDropdown.Trigger>
 
-    <BuDropdownMenu v-slot="{ close, item }">
+    <BuDropdown.Menu v-slot="{ close, item }">
       <a
         v-for="entry in sections"
         :key="entry.value"
@@ -40,6 +40,6 @@
       <hr class="dropdown-divider">
 
       <a class="dropdown-item" v-bind="item" @click="close">Report an issue</a>
-    </BuDropdownMenu>
+    </BuDropdown.Menu>
   </BuDropdown>
 </template>

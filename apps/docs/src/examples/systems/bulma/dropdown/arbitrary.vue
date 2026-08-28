@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { BuDropdown, BuDropdownMenu, BuDropdownTrigger } from '@paper/bulma'
+  import { BuDropdown } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
 
@@ -8,7 +8,7 @@
 
 <template>
   <BuDropdown v-model="open">
-    <BuDropdownTrigger v-slot="{ attrs }">
+    <BuDropdown.Trigger v-slot="{ attrs }">
       <button class="button" type="button" v-bind="attrs">
         <span>Content</span>
 
@@ -16,9 +16,9 @@
           <i aria-hidden="true" class="fas fa-angle-down" />
         </span>
       </button>
-    </BuDropdownTrigger>
+    </BuDropdown.Trigger>
 
-    <BuDropdownMenu v-slot="{ close }">
+    <BuDropdown.Menu v-slot="{ close }">
       <div class="dropdown-item">
         <p>
           You can insert <strong>any type of content</strong> within the dropdown
@@ -33,6 +33,6 @@
           Got it
         </button>
       </div>
-    </BuDropdownMenu>
+    </BuDropdown.Menu>
   </BuDropdown>
 </template>

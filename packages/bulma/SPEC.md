@@ -123,6 +123,9 @@ markup against bulma.io's documented fixtures.
   shows `is-danger` — deceptively half-wired). Compose validation fields as
   `<InputRoot renderless v-model :rules>` wrapping the whole field; BuHelp warns in
   dev when `validation` is set with no ambient root.
+- **Part components attach to the parent export:** `import { BuModal } from '@paper/bulma'`
+  reaches the whole family (`<BuModal.Head />`, `<BuModal.Title />`). Flat names
+  (`BuModalHead`) remain exported and resolve to the same component.
 - **Part components are composed, not enforced:** region parts (BuMessageDelete,
   BuNotificationDelete, BuDropdownMenu, BuNavbarBrand, …) read their parent's state through an optional context
   and warn in dev when it is missing, so a part rendered outside its parent still emits

@@ -6,7 +6,7 @@
 - Import ONLY from `@vuetify/v0` — never `#v0/*` (that alias in tsconfig/tsdown exists for tooling parity with genesis; the cheatsheet forbids its use in package source).
 - Layout: `src/components/BuThing/BuThing.vue` + `src/components/BuThing/index.ts` (`export type { BuThingProps } from './BuThing.vue'` + `export { default as BuThing } from './BuThing.vue'`). Append ONE alphabetically-placed line per component to `src/components/index.ts`; touch no other shared file. Never edit root tsconfig.json, vitest.config.ts, pnpm-workspace.yaml, or packages/0.
 - Dual-script SFC, `defineOptions({ name: 'BuThing' })`, destructured props (no `withDefaults`), `defineModel` + explicit kebab `defineEmits`, `toRef` slotProps object, no `<style>` block at all in Tier 1, no `<style scoped>` ever.
-- Family shape is FLAT components (BuField > BuControl > BuInput composed in userland exactly as Bulma nests classes) — no compound `BuX.Y` namespaces in Tier 1. Region parts are flat components too (`BuModalHead`, not `BuModal.Head`); see "Slots" below.
+- Family shape is nested classes composed in userland exactly as Bulma nests them (BuField > BuControl > BuInput). Region parts attach to the parent export (`BuModal.Head`) the same way Emerald does; the flat names (`BuModalHead`) remain exported and valid. See "Slots" below.
 
 ## Prop → modifier class mapping (identical across all groups)
 | Prop | Type | Class |

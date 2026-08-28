@@ -1,11 +1,5 @@
 <script setup lang="ts">
-  import {
-    BuMenu,
-    BuMenuItem,
-    BuMenuLabel,
-    BuMenuLink,
-    BuMenuList,
-  } from '@paper/bulma'
+  import { BuMenu } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
 
@@ -14,51 +8,51 @@
 
 <template>
   <BuMenu v-model="active">
-    <BuMenuLabel>Administration</BuMenuLabel>
+    <BuMenu.Label>Administration</BuMenu.Label>
 
-    <BuMenuList>
-      <BuMenuItem>
-        <BuMenuLink value="Team Settings">
+    <BuMenu.List>
+      <BuMenu.Item>
+        <BuMenu.Link value="Team Settings">
           <span class="icon is-small">
             <i aria-hidden="true" class="fas fa-cog" />
           </span>
 
           <span>Team Settings</span>
-        </BuMenuLink>
-      </BuMenuItem>
+        </BuMenu.Link>
+      </BuMenu.Item>
 
-      <BuMenuItem>
-        <BuMenuLink value="Manage Your Team">
+      <BuMenu.Item>
+        <BuMenu.Link value="Manage Your Team">
           <span class="icon is-small">
             <i aria-hidden="true" class="fas fa-users" />
           </span>
 
           <span>Manage Your Team</span>
           <span class="tag is-info is-light ml-2">3</span>
-        </BuMenuLink>
+        </BuMenu.Link>
 
-        <BuMenuList nested>
-          <BuMenuItem>
-            <BuMenuLink value="Members">Members</BuMenuLink>
-          </BuMenuItem>
+        <BuMenu.List nested>
+          <BuMenu.Item>
+            <BuMenu.Link value="Members">Members</BuMenu.Link>
+          </BuMenu.Item>
 
-          <BuMenuItem>
-            <BuMenuLink value="Plugins">Plugins</BuMenuLink>
-          </BuMenuItem>
+          <BuMenu.Item>
+            <BuMenu.Link value="Plugins">Plugins</BuMenu.Link>
+          </BuMenu.Item>
 
-          <BuMenuItem>
-            <BuMenuLink value="Add a member">Add a member</BuMenuLink>
-          </BuMenuItem>
-        </BuMenuList>
-      </BuMenuItem>
+          <BuMenu.Item>
+            <BuMenu.Link value="Add a member">Add a member</BuMenu.Link>
+          </BuMenu.Item>
+        </BuMenu.List>
+      </BuMenu.Item>
 
-      <BuMenuItem>
-        <BuMenuLink value="Invitations">Invitations</BuMenuLink>
-      </BuMenuItem>
+      <BuMenu.Item>
+        <BuMenu.Link value="Invitations">Invitations</BuMenu.Link>
+      </BuMenu.Item>
 
-      <BuMenuItem>
-        <BuMenuLink value="Authentication">Authentication</BuMenuLink>
-      </BuMenuItem>
-    </BuMenuList>
+      <BuMenu.Item>
+        <BuMenu.Link value="Authentication">Authentication</BuMenu.Link>
+      </BuMenu.Item>
+    </BuMenu.List>
   </BuMenu>
 </template>

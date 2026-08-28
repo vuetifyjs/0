@@ -38,27 +38,20 @@ Bulma's `.pagination` with the JavaScript it never shipped: current page, ellips
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import {
-    BuPagination,
-    BuPaginationEllipsis,
-    BuPaginationItem,
-    BuPaginationList,
-    BuPaginationNext,
-    BuPaginationPrev,
-  } from '@paper/bulma'
+  import { BuPagination } from '@paper/bulma'
 </script>
 
 <template>
   <BuPagination>
-    <BuPaginationPrev />
+    <BuPagination.Prev />
 
-    <BuPaginationNext />
+    <BuPagination.Next />
 
-    <BuPaginationList>
-      <BuPaginationItem />
+    <BuPagination.List>
+      <BuPagination.Item />
 
-      <BuPaginationEllipsis />
-    </BuPaginationList>
+      <BuPagination.Ellipsis />
+    </BuPagination.List>
   </BuPagination>
 </template>
 ```
@@ -112,17 +105,17 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 ```vue Vue
 <template>
   <BuPagination v-slot="{ items }" v-model="page" :pages="86" :visible="7">
-    <BuPaginationPrev>Previous</BuPaginationPrev>
+    <BuPagination.Prev>Previous</BuPagination.Prev>
 
-    <BuPaginationNext>Next page</BuPaginationNext>
+    <BuPagination.Next>Next page</BuPagination.Next>
 
-    <BuPaginationList>
+    <BuPagination.List>
       <template v-for="(item, index) in items" :key="index">
-        <BuPaginationItem v-if="item.type === 'page'" :value="item.value" />
+        <BuPagination.Item v-if="item.type === 'page'" :value="item.value" />
 
-        <BuPaginationEllipsis v-else />
+        <BuPagination.Ellipsis v-else />
       </template>
-    </BuPaginationList>
+    </BuPagination.List>
   </BuPagination>
 </template>
 ```
