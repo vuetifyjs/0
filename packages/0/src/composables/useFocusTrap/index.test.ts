@@ -293,6 +293,52 @@ describe('useFocusTrap', () => {
       expect(tab().defaultPrevented).toBe(true)
       expect(document.activeElement).toBe(first)
     })
+
+    // An earlier capture-phase listener on document — which is what an outer
+    // trap is — gets to claim the keystroke first.
+    it('should ignore a keydown another handler already claimed', () => {
+      last.focus()
+
+      const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+      event.preventDefault()
+      document.dispatchEvent(event)
+
+      expect(document.activeElement).toBe(last)
+    })
+
+    // The boundary is an order question, not an identity one: focus parked past
+    // the last tabbable is not `last`, but the browser's next stop from there is
+    // still outside the root.
+    it('should wrap Tab from a non-tabbable element after the last tabbable', () => {
+      const trailing = document.createElement('div')
+      trailing.tabIndex = -1
+      root.append(trailing)
+      trailing.focus()
+
+      expect(tab().defaultPrevented).toBe(true)
+      expect(document.activeElement).toBe(first)
+    })
+
+    it('should wrap Shift+Tab from a non-tabbable element before the first tabbable', () => {
+      const leading = document.createElement('div')
+      leading.tabIndex = -1
+      first.before(leading)
+      leading.focus()
+
+      expect(tab({ shiftKey: true }).defaultPrevented).toBe(true)
+      expect(document.activeElement).toBe(last)
+    })
+
+    it('should not intercept Tab from a non-tabbable element between the edges', () => {
+      const middle = document.createElement('div')
+      middle.tabIndex = -1
+      last.before(middle)
+      middle.focus()
+
+      expect(tab().defaultPrevented).toBe(false)
+      expect(tab({ shiftKey: true }).defaultPrevented).toBe(false)
+      expect(document.activeElement).toBe(middle)
+    })
   })
 
   describe('escaped focus recovery', () => {
@@ -466,6 +512,94 @@ describe('useFocusTrap', () => {
       )
 
       expect(wrapTarget()).toBe(root.querySelector('[data-id="a"]'))
+    })
+
+    // The nearest disabled fieldset exempts its first legend; an outer one still
+    // disables everything under it, legend included.
+    it('should skip a control in a nested disabled fieldset first legend', async () => {
+      const [, outside] = await trapWith(
+        '<fieldset disabled><fieldset disabled><legend>'
+        + '<button data-id="a">a</button></legend></fieldset></fieldset>'
+        + '<button data-id="b">b</button>',
+      )
+
+      expect(document.activeElement).toBe(outside)
+    })
+  })
+
+  describe('radio groups', () => {
+    /** A radio group markup helper: `checked` names the member to pre-check. */
+    function radios (name: string, checked?: string) {
+      return ['r1', 'r2', 'r3']
+        .map(id => `<input type="radio" name="${name}" data-id="${id}"`
+          + `${id === checked ? ' checked' : ''}>`)
+        .join('')
+    }
+
+    async function trapWith (inner: string) {
+      root.innerHTML = inner
+      useFocusTrap(root, { active: true })
+      await nextTick()
+      return (id: string) => root.querySelector<HTMLElement>(`[data-id="${id}"]`)!
+    }
+
+    // A group is one tab stop, so the checked member is the last stop even though
+    // two more radios follow it in document order.
+    it('should treat the checked member as the group tab stop', async () => {
+      const at = await trapWith(`<button data-id="b">b</button>${radios('g', 'r2')}`)
+
+      at('r2').focus()
+
+      expect(tab().defaultPrevented).toBe(true)
+      expect(document.activeElement).toBe(at('b'))
+    })
+
+    it('should contain Tab from an unchecked member past the group stop', async () => {
+      const at = await trapWith(`<button data-id="b">b</button>${radios('g', 'r2')}`)
+
+      at('r3').focus()
+
+      expect(tab().defaultPrevented).toBe(true)
+      expect(document.activeElement).toBe(at('b'))
+    })
+
+    it('should rank the first member as the stop when none is checked', async () => {
+      const at = await trapWith(`${radios('g')}<button data-id="b">b</button>`)
+
+      expect(document.activeElement).toBe(at('r1'))
+    })
+
+    it('should wrap Shift+Tab from the group stop when none is checked', async () => {
+      const at = await trapWith(`${radios('g')}<button data-id="b">b</button>`)
+
+      at('r1').focus()
+
+      expect(tab({ shiftKey: true }).defaultPrevented).toBe(true)
+      expect(document.activeElement).toBe(at('b'))
+    })
+
+    // Same `name`, different form owner — two groups, so each keeps its own stop.
+    it('should keep same-named groups in separate forms independent', async () => {
+      const at = await trapWith(
+        '<form><input type="radio" name="g" data-id="a"></form>'
+        + '<form><input type="radio" name="g" data-id="b"></form>',
+      )
+
+      at('b').focus()
+
+      expect(tab().defaultPrevented).toBe(true)
+      expect(document.activeElement).toBe(at('a'))
+    })
+
+    it('should treat an unnamed radio as its own group', async () => {
+      const at = await trapWith(
+        '<input type="radio" data-id="a"><input type="radio" data-id="b">',
+      )
+
+      at('b').focus()
+
+      expect(tab().defaultPrevented).toBe(true)
+      expect(document.activeElement).toBe(at('a'))
     })
   })
 
@@ -665,6 +799,105 @@ describe('useFocusTrap', () => {
       last.focus()
 
       expect(tab().defaultPrevented).toBe(false)
+    })
+  })
+
+  describe('initial focus fallback', () => {
+    it('should fall back to the first tabbable when initial is detached', async () => {
+      useFocusTrap(root, { active: true, initial: button('orphan') })
+      await nextTick()
+
+      expect(document.activeElement).toBe(first)
+    })
+
+    // A node with no tabindex ignores focus() in a real browser; happy-dom
+    // focuses anything, so neutralize the method to model the browser.
+    it('should fall back when an explicit initial cannot take focus', async () => {
+      const plain = document.createElement('div')
+      root.append(plain)
+      Object.defineProperty(plain, 'focus', { value: () => {} })
+
+      useFocusTrap(root, { active: true, initial: plain })
+      await nextTick()
+
+      expect(document.activeElement).toBe(first)
+    })
+
+    it('should accept initial as a ref', async () => {
+      useFocusTrap(root, { active: true, initial: shallowRef(last) })
+      await nextTick()
+
+      expect(document.activeElement).toBe(last)
+    })
+
+    it('should accept initial as a getter', async () => {
+      useFocusTrap(root, { active: true, initial: () => last })
+      await nextTick()
+
+      expect(document.activeElement).toBe(last)
+    })
+  })
+
+  describe('root replacement', () => {
+    // A wizard step keyed on its index, or a portal re-mount: the trap stays
+    // engaged while the root element itself is swapped. The entry latch keys on
+    // the root's identity so the new element still gets focus.
+    it('should focus into a replacement root while active', async () => {
+      const target = shallowRef<HTMLElement>(root)
+
+      useFocusTrap(target, { active: true })
+      await nextTick()
+      expect(document.activeElement).toBe(first)
+
+      const next = document.createElement('div')
+      const only = button('next')
+
+      next.tabIndex = -1
+      next.append(only)
+      container.append(next)
+      root.remove()
+      target.value = next
+      await nextTick()
+
+      expect(document.activeElement).toBe(only)
+    })
+
+    it('should not re-steal focus while the root is unchanged', async () => {
+      const target = shallowRef<HTMLElement>(root)
+
+      useFocusTrap(target, { active: true })
+      await nextTick()
+
+      last.focus()
+      target.value = root
+      await nextTick()
+
+      expect(document.activeElement).toBe(last)
+    })
+  })
+
+  describe('nested traps', () => {
+    // Documented behavior, not an aspiration: both traps bind the same
+    // capture-phase listener on document, so they run in creation order and the
+    // OUTER trap wraps first. The inner one then sees defaultPrevented.
+    it('should resolve a shared boundary outward first', async () => {
+      const inner = document.createElement('div')
+      const i1 = button('i1')
+      const i2 = button('i2')
+
+      inner.tabIndex = -1
+      inner.append(i1, i2)
+      root.append(inner)
+      last.remove()
+
+      useFocusTrap(root, { active: true })
+      useFocusTrap(inner, { active: true })
+      await nextTick()
+
+      i2.focus()
+
+      expect(tab().defaultPrevented).toBe(true)
+      expect(document.activeElement).toBe(first)
     })
   })
 

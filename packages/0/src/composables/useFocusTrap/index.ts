@@ -14,6 +14,7 @@
  * - Focuses the first tabbable descendant on activate, or the root as a fallback
  * - Restores the previously focused element on deactivate, skipping the restore
  *   when something outside the root has already claimed focus
+ * - A radio group counts as one tab stop, the way the browser counts it
  * - Reactive `active` option plus imperative `activate()` / `deactivate()`
  * - Optional `onEscape` callback; the trap itself never closes anything
  * - Shadow-piercing containment via `getActiveElement()`
@@ -54,58 +55,17 @@ import { toElement } from '#v0/composables/toElement'
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
+// Tabbability
+import { FOCUSABLE, follows, isFocusTrapElement, tabbable } from './tabbable'
+
 // Utilities
-import { getActiveElement, isElement, isFunction, isNull, isUndefined } from '#v0/utilities'
+import { getActiveElement, isNull, isUndefined } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toValue, watch, watchEffect } from 'vue'
 
 // Types
 import type { MaybeElementRef } from '#v0/composables/toElement'
+import type { FocusTrapElement } from './tabbable'
 import type { MaybeRefOrGetter, Ref } from 'vue'
-
-/**
- * An element that can hold focus. `focus()` / `blur()` come from the
- * `HTMLOrSVGElement` mixin, so SVG content participates alongside HTML.
- */
-export type FocusTrapElement = HTMLElement | SVGElement
-
-/**
- * Candidate tab stops, in document order.
- *
- * Every entry is a *potential* stop — negative `tabindex`, `disabled`, `inert`,
- * `hidden`, collapsed `<details>`, and CSS-hidden are disqualified in
- * {@link tabbable} so one JS pass owns the rules and the selector stays cheap.
- *
- * `input:not([type="hidden"])` is filtered here rather than in JS because it is
- * strictly cheaper. `button` / `select` / `textarea` carry no `:not([disabled])`
- * on purpose: property-only disabling and `fieldset[disabled]` inheritance are
- * invisible to an attribute selector, so disabled state is resolved in JS.
- *
- * Deliberately absent: `label` and `fieldset` (not focusable), `[draggable]`
- * (not focusable), `svg[focusable]` (a dead SVG 1.1 attribute).
- */
-const FOCUSABLE = [
-  'a[href]',
-  'area[href]',
-  'audio[controls]',
-  'button',
-  'details > summary:first-of-type',
-  'embed',
-  'iframe',
-  'input:not([type="hidden"])',
-  'object',
-  'select',
-  'textarea',
-  'video[controls]',
-  '[contenteditable]:not([contenteditable="false"])',
-  '[tabindex]',
-].join(',')
-
-/**
- * Narrow an unknown node to something that can hold focus.
- */
-function isFocusTrapElement (el: unknown): el is FocusTrapElement {
-  return isElement(el) && 'focus' in el && isFunction(el.focus)
-}
 
 /**
  * Shadow-piercing containment test.
@@ -126,93 +86,6 @@ function contains (root: Node, node: Node | null): boolean {
   }
 
   return false
-}
-
-/**
- * Whether an element is disabled — by its own property or by inheritance from a
- * `fieldset[disabled]` ancestor.
- *
- * Gated on `'disabled' in el` so the fieldset rule reaches form controls only:
- * a link inside a disabled fieldset stays focusable.
- */
-function isDisabled (el: Element): boolean {
-  if (!('disabled' in el)) return false
-  if ((el as Element & { disabled?: boolean }).disabled === true) return true
-
-  const fieldset = el.closest('fieldset[disabled]')
-
-  if (isNull(fieldset)) return false
-
-  // Controls inside a disabled fieldset's first legend stay enabled.
-  for (const child of fieldset.children) {
-    if (child.tagName === 'LEGEND') return !child.contains(el)
-  }
-
-  return true
-}
-
-/**
- * Whether an element sits in the collapsed content of a `<details>`.
- *
- * Attribute-only, so it needs no layout — the summary itself stays a stop.
- */
-function isConcealed (el: Element): boolean {
-  const details = el.closest('details:not([open])')
-
-  if (isNull(details)) return false
-
-  const summary = el.closest('summary')
-
-  return isNull(summary) || summary.parentElement !== details
-}
-
-/**
- * Whether an element is rendered.
- *
- * `checkVisibility()` is the only clean way to detect `display: none` and
- * `visibility: hidden` applied by a stylesheet, and it is one batched style read
- * with no interleaved writes. `opacity: 0` elements are still focusable, so
- * opacity is explicitly excluded, and size is never checked — visually-hidden
- * controls (skip links, clipped checkboxes) are legitimate tab stops.
- *
- * Where the API is unavailable (older engines, happy-dom), assume visible: a
- * false negative silently drops a real tab stop and breaks containment, while a
- * false positive only focuses something the attribute checks did not catch.
- */
-function isVisible (el: FocusTrapElement): boolean {
-  if (!isFunction(el.checkVisibility)) return true
-
-  return el.checkVisibility({
-    checkOpacity: false,
-    checkVisibilityCSS: true,
-    contentVisibilityAuto: true,
-    visibilityProperty: true,
-  })
-}
-
-/**
- * Whether a {@link FOCUSABLE} candidate is actually reachable by Tab.
- *
- * `aria-disabled="true"` is deliberately **not** filtered: per APG an
- * aria-disabled control stays in the tab order, so dropping it would let the
- * browser walk past the computed boundary and out of the trap.
- * `Treeview/TreeviewList.vue` excludes it for the opposite reason — roving focus
- * must skip disabled items — so the two filters diverge on purpose.
- */
-function tabbable (el: Element): el is FocusTrapElement {
-  if (!isFocusTrapElement(el)) return false
-
-  const tabindex = el.getAttribute('tabindex')
-
-  // Parsed rather than matched: `:not([tabindex="-1"])` misses `-2` and ` -1 `.
-  if (!isNull(tabindex) && Number.parseInt(tabindex, 10) < 0) return false
-
-  if (isDisabled(el)) return false
-  if (!isNull(el.closest('[inert]'))) return false
-  if (!isNull(el.closest('[hidden]'))) return false
-  if (isConcealed(el)) return false
-
-  return isVisible(el)
 }
 
 export interface UseFocusTrapOptions {
@@ -297,6 +170,11 @@ export interface UseFocusTrapReturn {
    * Engage the trap: capture the focused element for a later restore, bind
    * containment, and focus into the root once it exists. No-op when already
    * engaged, so it never overwrites the captured restore target.
+   *
+   * @remarks
+   * The document listener binds on the next flush, so a Tab dispatched
+   * synchronously in the same tick as this call is not yet intercepted. Awaiting
+   * a tick — or letting Vue drive the trap through `options.active` — avoids it.
    */
   activate: () => void
   /**
@@ -343,6 +221,14 @@ export interface UseFocusTrapReturn {
  * discovery cannot (`querySelectorAll` does not cross the boundary). If the last
  * tab stop lives inside a descendant's shadow root, focus can still leave on
  * Tab. The same applies to `<iframe>` content, which no JS trap can contain.
+ *
+ * **Nesting resolves outward-first.** Every trap binds the same capture-phase
+ * listener on `document`, so they run in creation order: the outer trap wraps
+ * first and the inner one sees `defaultPrevented`. Nested traps are not
+ * coordinated — deactivate the outer trap, or gate on a `useStack` ticket, when
+ * the inner one has to own its own boundary. For the same reason a handler
+ * *inside* the root cannot `preventDefault()` its way past the boundary; capture
+ * on `document` has already run.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-focus-trap
  *
@@ -402,7 +288,7 @@ export function useFocusTrap (
   const isActive = shallowRef(false)
 
   let previous: FocusTrapElement | null = null
-  let entered = false
+  let entry: FocusTrapElement | null = null
 
   /**
    * The trap root, or undefined while it is missing or detached.
@@ -430,7 +316,19 @@ export function useFocusTrap (
     return isUndefined(first) ? [] : [first, candidates.findLast(tabbable)]
   }
 
-  /** Whether the trap owns focus — inside the root, or nowhere in particular. */
+  /**
+   * Whether the trap owns focus.
+   *
+   * True when focus is inside the root, and also when focus is nowhere in
+   * particular — `null` or `<body>`, which is where a backdrop click or an
+   * unmounted trigger leaves it.
+   *
+   * That deliberately errs toward owning, and the two callers want opposite
+   * things from it: `deactivate()` needs it so a blur to `<body>` still
+   * restores, while `onEscape` pays for it by firing on every engaged trap when
+   * focus sits on `<body>`. Gate `onEscape` on a `useStack` ticket when several
+   * traps can be engaged at once.
+   */
   function owns (el: FocusTrapElement): boolean {
     const focused = getActiveElement()
 
@@ -445,9 +343,13 @@ export function useFocusTrap (
 
     const explicit = toElement(initial)
 
-    if (isFocusTrapElement(explicit)) {
+    if (isFocusTrapElement(explicit) && explicit.isConnected) {
       explicit.focus()
-      return
+
+      // `focus()` on a non-focusable node (a plain `<div>` with no `tabindex`)
+      // is a silent no-op, which would leave focus outside the trap with nothing
+      // to retry it. Confirm it landed before trusting the explicit target.
+      if (contains(explicit, getActiveElement())) return
     }
 
     // No tabbable descendants — hold focus on the root, which only lands if the
@@ -463,7 +365,7 @@ export function useFocusTrap (
     const focused = getActiveElement()
     previous = isFocusTrapElement(focused) && focused.isConnected ? focused : null
 
-    entered = false
+    entry = null
     isActive.value = true
   }
 
@@ -500,6 +402,9 @@ export function useFocusTrap (
 
   function onKeydown (event: KeyboardEvent) {
     if (!isActive.value) return
+    // Honours a `preventDefault()` from an earlier capture-phase listener, which
+    // includes an outer trap — so nested traps resolve outward-first. It cannot
+    // honour a handler *inside* the root: capture on `document` runs first.
     if (event.defaultPrevented) return
     // Escape and Tab both terminate IME composition; hijacking them breaks
     // composed input.
@@ -528,7 +433,7 @@ export function useFocusTrap (
     // third-party script called focus(), or `initial: false` never pulled it in.
     // A root-bound listener would never see this keystroke — recover by entering
     // at the edge the keypress was heading toward.
-    if (!contains(el, focused)) {
+    if (isNull(focused) || !contains(el, focused)) {
       event.preventDefault()
       ;((event.shiftKey ? last : first) ?? el).focus()
       return
@@ -542,10 +447,16 @@ export function useFocusTrap (
       return
     }
 
-    if (event.shiftKey && (focused === first || focused === el)) {
+    // Order, not identity. An identity test (`focused === last`) leaks: focus
+    // parked on a script-focusable `tabindex="-1"` descendant that sits *after*
+    // the last tabbable is not the edge, yet the browser's next stop from there
+    // is outside the root. So wrap whenever nothing tabbable remains in the
+    // direction of travel — focused is at-or-past the edge. The root itself
+    // falls out of this for free, since it precedes every descendant.
+    if (event.shiftKey && (focused === first || follows(focused, first))) {
       event.preventDefault()
       last.focus()
-    } else if (!event.shiftKey && focused === last) {
+    } else if (!event.shiftKey && (focused === last || follows(last, focused))) {
       event.preventDefault()
       first.focus()
     }
@@ -557,13 +468,18 @@ export function useFocusTrap (
 
     // Post-flush so the root's children exist (the `nextTick` a hand-rolled trap
     // has to await), and re-evaluated so a root that mounts a tick later still
-    // gets focus. `entered` latches the one-shot and resets on each activate().
+    // gets focus.
+    //
+    // The latch is the root's identity, not a boolean: a root swapped while the
+    // trap stays engaged — `<div v-if="open" :key="step">` in a wizard, a portal
+    // re-mount — is a new element that has never been entered, and a boolean
+    // would leave focus stranded on <body> until the next Tab recovered it.
     watchEffect(() => {
       const el = root()
 
-      if (isUndefined(el) || entered) return
+      if (isUndefined(el) || el === entry) return
 
-      entered = true
+      entry = el
       enter(el)
     }, { flush: 'post' })
   })
@@ -586,3 +502,5 @@ export function useFocusTrap (
     onKeydown,
   }
 }
+
+export { type FocusTrapElement } from './tabbable'

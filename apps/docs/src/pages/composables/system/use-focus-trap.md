@@ -130,7 +130,22 @@ useFocusTrap(panel, {
 
 ### Releasing Tab to an Inner Widget
 
-A code editor or grid inside the trap needs Tab for itself. Because only the boundaries are intercepted, this works without configuration — Tab presses between the first and last stop are never touched. Only a widget that sits *at* a boundary needs to handle its own Tab and call `preventDefault()`, which the trap honours.
+A code editor or grid inside the trap needs Tab for itself. Because only the boundaries are intercepted, this works without configuration — Tab presses between the first and last stop are never touched.
+
+A widget that sits *at* a boundary cannot opt out, though. The trap listens on `document` in the capture phase, so it has already wrapped focus by the time a handler inside the root runs; that handler's `preventDefault()` comes too late. Two ways out:
+
+- **Keep the widget off the boundary.** A tabbable element after it — a footer button, or a `tabindex="0"` sentinel — makes the widget interior, and its Tab handling is then untouched.
+- **Own the listener.** Drive the exposed `onKeydown` yourself and call in only when you want the boundary enforced.
+
+```ts
+const trap = useFocusTrap(panel, { active: isOpen })
+
+function onPanelKeydown (event: KeyboardEvent) {
+  if (editorHasFocus.value && event.key === 'Tab') return
+
+  trap.onKeydown(event)
+}
+```
 
 ## Accessibility
 
@@ -146,6 +161,10 @@ A focus trap is one half of a modal contract. The trap manages focus order; you 
 | `tabindex="-1"` on the root | Your markup |
 
 `aria-disabled="true"` controls are treated as tabbable, per [APG](https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/): an aria-disabled control stays in the tab order, and skipping it would let the browser walk past the computed boundary and out of the trap. This is a deliberate divergence from roving-focus composables like [useRovingFocus](/composables/system/use-roving-focus), which must skip disabled items.
+
+The boundary is computed the way the browser computes tab order, so a radio group counts as **one** stop — the checked radio, or the first member when none is checked — not one per member. Grouping follows the HTML rule of same `name` plus same form owner, so two forms on a page keep independent groups.
+
+Positive `tabindex` values are the one case the trap declines to model: candidates are collected in document order and never re-sorted into their real tab position, so a root containing them can leak at the boundary. Use `0` and `-1` only.
 
 ## FAQ
 
@@ -169,7 +188,9 @@ Containment pierces open shadow roots, but discovery cannot — `querySelectorAl
 
 ??? Can two traps be active at once?
 
-Nested ones, yes: an inner root sits inside the outer, and the inner trap's listener binds later so its wrap wins at a shared boundary. Two *disjoint* active traps are not supported — each reads the other's focus as outside and they fight over every Tab. Deactivate one first.
+Nested ones, yes — but they resolve *outward*-first, which is probably not what you want. Every trap binds the same capture-phase listener on `document`, so they run in creation order: at a shared boundary the outer trap wraps first, and the inner one sees `defaultPrevented` and stands down. Deactivate the outer trap while the inner is open, or lay the roots out so the two never share a boundary.
+
+Two *disjoint* active traps are not supported at all — each reads the other's focus as outside and they fight over every Tab. Deactivate one first.
 
 :::
 
