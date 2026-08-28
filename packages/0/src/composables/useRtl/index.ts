@@ -110,6 +110,7 @@ export const [createRtlContext, createRtlPlugin, useRtl] =
     {
       inspect: ctx => ({
         adapter: ctx.adapter.constructor.name,
+        isRtl: ctx.isRtl,
       }),
       fallback: () => createRtlFallback(),
       setup: (context, app, { target }) => {
