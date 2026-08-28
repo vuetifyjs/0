@@ -236,7 +236,10 @@ export interface StackContextOptions extends StackOptions {
   namespace?: string
 }
 
-export interface StackPluginOptions extends StackContextOptions {}
+export interface StackPluginOptions extends StackContextOptions {
+  /** When true, this plugin appears in the Vue DevTools v0 inspector. @default false */
+  devtools?: boolean
+}
 
 /**
  * Creates a new stack instance for managing overlay z-indexes.
@@ -420,7 +423,7 @@ export function createStackContext (_options: StackContextOptions = {}): Context
  * app.mount('#app')
  * ```
  */
-export function createStackPlugin (_options: StackPluginOptions & { devtools?: boolean } = {}) {
+export function createStackPlugin (_options: StackPluginOptions = {}) {
   const { namespace = 'v0:stack', devtools, ...options } = _options
   const [, provideStackContext, context] = createStackContext({ ...options, namespace })
 

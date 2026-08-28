@@ -95,7 +95,10 @@ export interface DateContextOptions<Z> extends DateOptions<Z> {
 }
 
 /** Plugin options */
-export interface DatePluginOptions<Z> extends DateContextOptions<Z> {}
+export interface DatePluginOptions<Z> extends DateContextOptions<Z> {
+  /** When true, this plugin appears in the Vue DevTools v0 inspector. @default false */
+  devtools?: boolean
+}
 
 /**
  * Default short locale codes mapped to full Intl locale strings.
@@ -272,7 +275,7 @@ export function createDateContext<
 export function createDatePlugin<
   Z,
   E extends DateContext<Z> = DateContext<Z>,
-> (_options: DatePluginOptions<Z> & { devtools?: boolean }) {
+> (_options: DatePluginOptions<Z>) {
   const { namespace = 'v0:date', devtools, ...options } = _options
 
   return createPlugin({

@@ -59,7 +59,7 @@ export interface StorageContext {
   /** Unprefixed keys currently cached by this instance (read or written this session). */
   keys: () => string[]
   /** Active storage backend (`localStorage` or a `StorageAdapter`). */
-  adapter: StorageAdapter | globalThis.Storage
+  adapter: StorageAdapter | Storage
 }
 
 export interface StorageOptions {
