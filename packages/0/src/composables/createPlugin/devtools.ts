@@ -10,7 +10,7 @@
  */
 
 // Utilities
-import { isArray, isFunction, isNullOrUndefined, isObject } from '#v0/utilities'
+import { isArray, isFunction, isNullOrUndefined, isObject, isUndefined } from '#v0/utilities'
 import { isRef } from 'vue'
 
 // Types
@@ -153,7 +153,7 @@ function snapshot (value: unknown, depth = 0): unknown {
   if (depth > 4) return value
   if (isRef(value)) return snapshot(value.value, depth + 1)
   if (isFunction(value) || !isObject(value)) return value
-  if (typeof Element !== 'undefined' && value instanceof Element) return value.constructor.name
+  if (!isUndefined(globalThis.Element) && value instanceof Element) return value.constructor.name
   if (value instanceof Map) {
     return Object.fromEntries([...value].map(([key, item]) => [String(key), snapshot(item, depth + 1)]))
   }
