@@ -67,6 +67,9 @@ export function registerPlugins (app: App, options: { playgroundTheme?: boolean 
         email: v => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v)) || 'Must be a valid email',
         slug: v => !v || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(v)) || 'Must be a valid slug',
         prefix: v => !v || String(v).startsWith('/') || 'Must start with /',
+        min: v => !v || String(v).length >= 3 || 'Must be at least 3 characters',
+        max: v => !v || String(v).length <= 32 || 'Must be at most 32 characters',
+        integer: v => !v || /^-?\d+$/.test(String(v)) || 'Must be an integer',
       },
     }),
   )
