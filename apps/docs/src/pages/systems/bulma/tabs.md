@@ -38,16 +38,16 @@ Bulma's `.tabs` with selection and panels — the JavaScript and the tabpanels t
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { BuTab, BuTabList, BuTabPanel, BuTabs } from '@paper/bulma'
+  import { BuTabs } from '@paper/bulma'
 </script>
 
 <template>
   <BuTabs>
-    <BuTabList>
-      <BuTab />
-    </BuTabList>
+    <BuTabs.List>
+      <BuTabs.Tab />
+    </BuTabs.List>
 
-    <BuTabPanel />
+    <BuTabs.Panel />
   </BuTabs>
 </template>
 ```
@@ -84,12 +84,12 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 ```vue Vue
 <template>
   <BuTabs>
-    <BuTabList>
-      <BuTab value="pictures">Pictures</BuTab>
-      <BuTab value="music">Music</BuTab>
-      <BuTab value="videos">Videos</BuTab>
-      <BuTab value="documents">Documents</BuTab>
-    </BuTabList>
+    <BuTabs.List>
+      <BuTabs.Tab value="pictures">Pictures</BuTabs.Tab>
+      <BuTabs.Tab value="music">Music</BuTabs.Tab>
+      <BuTabs.Tab value="videos">Videos</BuTabs.Tab>
+      <BuTabs.Tab value="documents">Documents</BuTabs.Tab>
+    </BuTabs.List>
   </BuTabs>
 </template>
 ```

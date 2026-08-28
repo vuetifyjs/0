@@ -67,10 +67,11 @@ file per component:
 **Additional rulings, compat only:**
 
 - **No named slots.** Every region is an express part component named after the
-  upstream part class (`BuModalHead`, `BuDropdownMenu`). List-shaped families
-  (breadcrumb, pagination, menu, file) are parts too, not `items` props. Parts
-  read parent state through optional context and warn in dev when it is missing;
-  parts backed by a v0 context throw instead.
+  upstream part class (`BuModalHead`, `BuDropdownMenu`). Those parts also attach
+  to the parent export (`BuModal.Head`, `BuDropdown.Menu`); the flat names remain
+  valid. List-shaped families (breadcrumb, pagination, menu, file) are parts too,
+  not `items` props. Parts read parent state through optional context and warn in
+  dev when it is missing; parts backed by a v0 context throw instead.
 - **Optional peer** for the upstream CSS package. Zero-config consumers load it
   off-CDN. The package never imports it.
 - **Conformance harness** is the factory asset: fixtures captured from upstream

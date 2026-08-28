@@ -40,36 +40,26 @@ Both panels are shown here for completeness — a modal composes one or the othe
 
 ```vue Anatomy no-filename collapse
 <script setup lang="ts">
-  import {
-    BuModal,
-    BuModalBody,
-    BuModalCard,
-    BuModalClose,
-    BuModalContent,
-    BuModalDelete,
-    BuModalFoot,
-    BuModalHead,
-    BuModalTitle,
-  } from '@paper/bulma'
+  import { BuModal } from '@paper/bulma'
 </script>
 
 <template>
   <BuModal>
-    <BuModalContent />
+    <BuModal.Content />
 
-    <BuModalClose />
+    <BuModal.Close />
 
-    <BuModalCard>
-      <BuModalHead>
-        <BuModalTitle />
+    <BuModal.Card>
+      <BuModal.Head>
+        <BuModal.Title />
 
-        <BuModalDelete />
-      </BuModalHead>
+        <BuModal.Delete />
+      </BuModal.Head>
 
-      <BuModalBody />
+      <BuModal.Body />
 
-      <BuModalFoot />
-    </BuModalCard>
+      <BuModal.Foot />
+    </BuModal.Card>
   </BuModal>
 </template>
 ```
@@ -114,23 +104,23 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 ```vue Vue collapse
 <template>
   <BuModal v-model="open">
-    <BuModalCard>
-      <BuModalHead>
-        <BuModalTitle>Modal title</BuModalTitle>
-        <BuModalDelete />
-      </BuModalHead>
+    <BuModal.Card>
+      <BuModal.Head>
+        <BuModal.Title>Modal title</BuModal.Title>
+        <BuModal.Delete />
+      </BuModal.Head>
 
-      <BuModalBody>
+      <BuModal.Body>
         Content ...
-      </BuModalBody>
+      </BuModal.Body>
 
-      <BuModalFoot>
+      <BuModal.Foot>
         <div class="buttons">
           <button class="button is-success">Save changes</button>
           <button class="button">Cancel</button>
         </div>
-      </BuModalFoot>
-    </BuModalCard>
+      </BuModal.Foot>
+    </BuModal.Card>
   </BuModal>
 </template>
 ```

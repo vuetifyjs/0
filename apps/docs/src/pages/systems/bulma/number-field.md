@@ -40,21 +40,16 @@ Give the input the leftover width with `expanded`. Without it the input sizes to
 
 ```vue Anatomy no-filename collapse
 <script setup lang="ts">
-  import {
-    BuNumberField,
-    BuNumberFieldDecrement,
-    BuNumberFieldIncrement,
-    BuNumberFieldInput,
-  } from '@paper/bulma'
+  import { BuNumberField } from '@paper/bulma'
 </script>
 
 <template>
   <BuNumberField>
-    <BuNumberFieldDecrement />
+    <BuNumberField.Decrement />
 
-    <BuNumberFieldInput />
+    <BuNumberField.Input />
 
-    <BuNumberFieldIncrement />
+    <BuNumberField.Increment />
   </BuNumberField>
 </template>
 ```
@@ -92,11 +87,11 @@ That changes what conformance can promise here, and the change is declared rathe
 ```vue Vue
 <template>
   <BuNumberField v-model="quantity" :max="10" :min="0">
-    <BuNumberFieldDecrement />
+    <BuNumberField.Decrement />
 
-    <BuNumberFieldInput expanded />
+    <BuNumberField.Input expanded />
 
-    <BuNumberFieldIncrement />
+    <BuNumberField.Increment />
   </BuNumberField>
 </template>
 ```

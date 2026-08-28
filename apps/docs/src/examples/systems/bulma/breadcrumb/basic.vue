@@ -1,26 +1,26 @@
 <script setup lang="ts">
-  import { BuBreadcrumb, BuBreadcrumbItem } from '@paper/bulma'
+  import { BuBreadcrumb } from '@paper/bulma'
 </script>
 
 <template>
   <BuBreadcrumb>
-    <BuBreadcrumbItem href="#">
+    <BuBreadcrumb.Item href="#">
       Bulma
-    </BuBreadcrumbItem>
+    </BuBreadcrumb.Item>
 
-    <BuBreadcrumbItem href="#">
+    <BuBreadcrumb.Item href="#">
       Documentation
-    </BuBreadcrumbItem>
+    </BuBreadcrumb.Item>
 
-    <BuBreadcrumbItem href="#">
+    <BuBreadcrumb.Item href="#">
       Components
-    </BuBreadcrumbItem>
+    </BuBreadcrumb.Item>
 
-    <BuBreadcrumbItem
+    <BuBreadcrumb.Item
       current
       href="#"
     >
       Breadcrumb
-    </BuBreadcrumbItem>
+    </BuBreadcrumb.Item>
   </BuBreadcrumb>
 </template>

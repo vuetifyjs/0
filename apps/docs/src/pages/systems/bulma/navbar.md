@@ -40,14 +40,14 @@ Compose three parts: `BuNavbar` renders `nav.navbar` and owns the open state, `B
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { BuNavbar, BuNavbarBrand, BuNavbarMenu } from '@paper/bulma'
+  import { BuNavbar } from '@paper/bulma'
 </script>
 
 <template>
   <BuNavbar>
-    <BuNavbarBrand />
+    <BuNavbar.Brand />
 
-    <BuNavbarMenu />
+    <BuNavbar.Menu />
   </BuNavbar>
 </template>
 ```
@@ -135,13 +135,13 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 ```vue Vue collapse
 <template>
   <BuNavbar id="navbarBasicExample" v-model="open">
-    <BuNavbarBrand>
+    <BuNavbar.Brand>
       <a class="navbar-item" href="https://bulma.io">
         <img src="logo.png" alt="Logo">
       </a>
-    </BuNavbarBrand>
+    </BuNavbar.Brand>
 
-    <BuNavbarMenu>
+    <BuNavbar.Menu>
       <div class="navbar-start">
         <a class="navbar-item">Home</a>
         <a class="navbar-item">Documentation</a>
@@ -166,7 +166,7 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
           </div>
         </div>
       </div>
-    </BuNavbarMenu>
+    </BuNavbar.Menu>
   </BuNavbar>
 </template>
 ```

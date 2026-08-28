@@ -2,8 +2,6 @@
   import {
     BuControl,
     BuField,
-    BuFieldBody,
-    BuFieldLabel,
     BuHelp,
     BuInput,
     BuLabel,
@@ -16,11 +14,11 @@
 
 <template>
   <BuField horizontal>
-    <BuFieldLabel size="normal">
+    <BuField.Label size="normal">
       <BuLabel>Subject</BuLabel>
-    </BuFieldLabel>
+    </BuField.Label>
 
-    <BuFieldBody>
+    <BuField.Body>
       <BuField>
         <BuControl>
           <BuInput
@@ -31,6 +29,6 @@
 
         <BuHelp color="danger">This field is required</BuHelp>
       </BuField>
-    </BuFieldBody>
+    </BuField.Body>
   </BuField>
 </template>

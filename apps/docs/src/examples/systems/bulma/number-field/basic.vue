@@ -4,9 +4,6 @@
     BuHelp,
     BuLabel,
     BuNumberField,
-    BuNumberFieldDecrement,
-    BuNumberFieldIncrement,
-    BuNumberFieldInput,
   } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
@@ -25,9 +22,9 @@
       :min="0"
       :step="1"
     >
-      <BuNumberFieldDecrement />
-      <BuNumberFieldInput expanded />
-      <BuNumberFieldIncrement />
+      <BuNumberField.Decrement />
+      <BuNumberField.Input expanded />
+      <BuNumberField.Increment />
     </BuNumberField>
 
     <BuHelp>Value: {{ quantity }} — the steppers go inert at 0 and 10.</BuHelp>

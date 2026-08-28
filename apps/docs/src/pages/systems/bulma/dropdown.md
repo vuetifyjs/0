@@ -40,14 +40,14 @@ Positioning stays Bulma's. The menu is placed by CSS against the trigger, so the
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { BuDropdown, BuDropdownMenu, BuDropdownTrigger } from '@paper/bulma'
+  import { BuDropdown } from '@paper/bulma'
 </script>
 
 <template>
   <BuDropdown>
-    <BuDropdownTrigger />
+    <BuDropdown.Trigger />
 
-    <BuDropdownMenu />
+    <BuDropdown.Menu />
   </BuDropdown>
 </template>
 ```
@@ -90,21 +90,21 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 ```vue Vue collapse
 <template>
   <BuDropdown menu>
-    <BuDropdownTrigger v-slot="{ attrs }">
+    <BuDropdown.Trigger v-slot="{ attrs }">
       <button class="button" type="button" v-bind="attrs">
         <span>Dropdown button</span>
         <span class="icon is-small">
           <i class="fas fa-angle-down" aria-hidden="true" />
         </span>
       </button>
-    </BuDropdownTrigger>
+    </BuDropdown.Trigger>
 
-    <BuDropdownMenu v-slot="{ close, item }">
+    <BuDropdown.Menu v-slot="{ close, item }">
       <a class="dropdown-item" v-bind="item" @click="close">Dropdown item</a>
       <a class="dropdown-item is-active" v-bind="item" @click="close">Active dropdown item</a>
       <hr class="dropdown-divider">
       <a class="dropdown-item" v-bind="item" @click="close">With a divider</a>
-    </BuDropdownMenu>
+    </BuDropdown.Menu>
   </BuDropdown>
 </template>
 ```
