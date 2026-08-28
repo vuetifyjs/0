@@ -786,8 +786,6 @@ export const [createNotificationsContext, createNotificationsPlugin, useNotifica
     {
       inspect: ctx => ({
         adapter: ctx.adapter?.constructor.name ?? 'none',
-        size: ctx.size,
-        queue: ctx.queue.size,
       }),
       fallback: () => createNotificationsFallback(),
       persist: context => snapshot(context),

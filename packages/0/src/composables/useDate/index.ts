@@ -278,14 +278,9 @@ export function createDatePlugin<
   return createPlugin({
     namespace,
     devtools,
-    inspect: ctx => {
-      const context = ctx as DateContext<Z>
-      return {
-        locale: context.locale,
-        firstDayOfWeek: context.firstDayOfWeek,
-        adapter: context.adapter.constructor.name,
-      }
-    },
+    inspect: ctx => ({
+      adapter: (ctx as DateContext<Z>).adapter.constructor.name,
+    }),
     // Created lazily inside provide (install time) so useLocale() resolves
     // through app.runWithContext(), and each app.use() gets its own context
     // instead of sharing one across installs.

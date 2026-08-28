@@ -455,8 +455,6 @@ export const [createFeaturesContext, createFeaturesPlugin, useFeatures] =
         adapter: isArray(ctx.adapter)
           ? ctx.adapter.map(item => item.constructor.name)
           : (ctx.adapter?.constructor.name ?? 'none'),
-        size: ctx.size,
-        selected: [...ctx.selectedIds],
       }),
       setup: (context, app, { adapter }) => {
         if (!adapter) return

@@ -117,7 +117,7 @@ export function createMyPlugin () {
 
 Pass `devtools: true` to put a plugin in the **v0** inspector. Default is off — opt in per plugin. Selecting a node snapshots the context: refs and computeds are unwrapped, class getters are read, functions are omitted.
 
-Plugin authors can supply `inspect` on `createPluginContext` config when the useful state is behind methods:
+Plugin authors can supply `inspect` on `createPluginContext` config to overlay keys onto the snapshot (adapter names, values behind methods). It does not replace the rest of the context:
 
 ```ts
 createPluginContext('v0:logger', factory, {

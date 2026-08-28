@@ -116,12 +116,23 @@ async function connect (app: App, records: Map<string, PluginRecord>) {
         payload.state = {
           plugin: [
             { key: 'namespace', value: record.namespace },
-            { key: 'context', value: snapshot(record.inspect?.(record.context) ?? record.context) },
+            { key: 'context', value: display(record) },
           ],
         }
       })
     },
   )
+}
+
+function display (record: PluginRecord): unknown {
+  const base = snapshot(record.context)
+  if (!record.inspect) return base
+
+  const overlay = snapshot(record.inspect(record.context))
+  if (!isObject(overlay) || isArray(overlay)) return overlay
+  if (!isObject(base) || isArray(base)) return overlay
+
+  return { ...base, ...overlay }
 }
 
 function isPlainObject (value: object) {

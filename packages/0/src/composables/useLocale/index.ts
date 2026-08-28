@@ -218,9 +218,7 @@ export const [createLocaleContext, createLocalePlugin, useLocale] =
     options => createLocale(options),
     {
       inspect: ctx => ({
-        selectedId: ctx.selectedId,
         adapter: ctx.adapter.constructor.name,
-        size: ctx.size,
       }),
       fallback: () => createLocaleFallback(),
       persist: ctx => ctx.selectedId.value,

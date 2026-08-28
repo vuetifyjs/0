@@ -254,6 +254,42 @@ describe('createPlugin vue-devtools', () => {
     })
   })
 
+  it('should overlay inspect keys without dropping snapshot fields', async () => {
+    const [, createXPlugin] = createPluginContext(
+      'v0:inspect-merge',
+      () => ({
+        count: 1,
+        adapter: { constructor: { name: 'V0PermissionsAdapter' } },
+      }),
+      {
+        inspect: ctx => ({ adapter: ctx.adapter.constructor.name }),
+      },
+    )
+
+    const app = createApp({ render: () => null })
+    createXPlugin({ devtools: true }).install(app)
+    await vi.waitFor(() => expect(mocks.on.getInspectorState).toHaveBeenCalled())
+
+    const handler = mocks.on.getInspectorState.mock.calls.at(-1)![0] as (payload: {
+      inspectorId: string
+      nodeId: string
+      state: unknown
+    }) => void
+    const payload: { inspectorId: string, nodeId: string, state: unknown } = {
+      inspectorId: 'v0-plugins',
+      nodeId: 'v0:inspect-merge',
+      state: undefined,
+    }
+    handler(payload)
+
+    expect(payload.state).toEqual({
+      plugin: [
+        { key: 'namespace', value: 'v0:inspect-merge' },
+        { key: 'context', value: { count: 1, adapter: 'V0PermissionsAdapter' } },
+      ],
+    })
+  })
+
   it('should skip inspector callbacks for a different inspector id', async () => {
     const app = createApp({ render: () => null })
     createPlugin({ namespace: 'v0:theme', provide: () => {}, devtools: true }).install(app)

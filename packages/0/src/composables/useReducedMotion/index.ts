@@ -164,8 +164,6 @@ export const [createReducedMotionContext, createReducedMotionPlugin, useReducedM
     options => createReducedMotion(options),
     {
       inspect: ctx => ({
-        selectedMode: ctx.selectedMode,
-        isReduced: ctx.isReduced,
         adapter: ctx.adapter.constructor.name,
       }),
       fallback: () => createReducedMotionFallback(),

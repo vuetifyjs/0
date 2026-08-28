@@ -527,11 +527,7 @@ export const [createThemeContext, createThemePlugin, useTheme] =
     options => createTheme(options),
     {
       inspect: ctx => ({
-        selectedId: ctx.selectedId,
-        isDark: ctx.isDark,
-        isSystem: ctx.isSystem,
         adapter: ctx.adapter.constructor.name,
-        themes: [...ctx.keys()],
       }),
       fallback: () => createThemeFallback(),
       setup: (context, app, { target, rgb }) => {
