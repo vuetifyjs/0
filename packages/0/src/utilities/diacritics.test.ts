@@ -45,8 +45,6 @@ describe('diacritics', () => {
       expect(findMatchRanges('café', 'cafe', { ignoreAccents: 'query' })).toStrictEqual([])
     })
 
-    // https://github.com/vuetifyjs/v0/issues/944 — folding only one side must
-    // never hide a spelling that already agrees, accents and all, on both.
     it('should still match an identical accented spelling under directional folding', () => {
       expect(findMatchRanges('… Kraków …', 'Kraków', { ignoreAccents: 'query' })).toStrictEqual([[2, 8]])
       expect(findMatchRanges('café', 'café', { ignoreAccents: 'target' })).toStrictEqual([[0, 4]])
