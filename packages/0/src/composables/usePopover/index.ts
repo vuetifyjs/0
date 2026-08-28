@@ -186,17 +186,18 @@ export function createPopoverFallback (): PopoverPluginContext {
  * import { FloatingUIPopoverAdapter } from '@vuetify/v0/popover/adapters/floating-ui'
  *
  * export const [useAppPopover, provideAppPopover, appPopover] = createPopoverContext({
- *   namespace: 'app:popover-plugin',
+ *   namespace: 'app:popover',
  *   adapter: new FloatingUIPopoverAdapter(),
  * })
  * ```
  *
  * Plugin trinity for an app-wide popover positioning adapter.
  *
- * Namespace is `v0:popover-plugin` — not `v0:popover`, which `Popover.Root`
- * already owns for compound context. The generated consumer is module-private;
- * `usePopover()` consults it internally. Fallback is `{ adapter: undefined }`,
- * so zero-config matches today's `V0PopoverAdapter` default.
+ * Namespace is `v0:popover`. Compound `Popover.Root` context lives at
+ * `v0:popover:root` so the two do not collide. The generated consumer is
+ * module-private; `usePopover()` consults it internally. Fallback is
+ * `{ adapter: undefined }`, so zero-config matches today's `V0PopoverAdapter`
+ * default.
  *
  * @example
  * ```ts
@@ -208,7 +209,7 @@ export function createPopoverFallback (): PopoverPluginContext {
  */
 const [createPopoverContext, createPopoverPlugin, usePopoverPlugin] =
   createPluginContext<PopoverPluginOptions, PopoverPluginContext>(
-    'v0:popover-plugin',
+    'v0:popover',
     createPopover,
     {
       fallback: () => createPopoverFallback(),
