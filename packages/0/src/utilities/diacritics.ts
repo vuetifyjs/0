@@ -23,10 +23,15 @@ export type MatchRange = readonly [number, number]
 /**
  * Which side of a comparison has its accents folded before matching.
  *
- * - `'query'` — only the query, so typing `café` finds plain `cafe`
- * - `'target'` — only the text, so typing `cafe` finds accented `café`
- * - `true` — both sides
- * - `false` — neither
+ * - `'query'` — folds the query, so typing `café` finds plain `cafe`
+ * - `'target'` — folds the text, so typing `cafe` finds accented `café`
+ * - `true` — both sides fold, so any accent variant matches any other
+ * - `false` — neither folds, exact match only
+ *
+ * `'query'` and `'target'` fold only one side, but a spelling that already
+ * agrees on both sides still matches verbatim — folding one side never
+ * hides a match the other side already has. They still don't fold each
+ * other's accents together, so `café` won't match `cafè` under either.
  */
 export type IgnoreAccents = boolean | 'query' | 'target'
 
@@ -154,42 +159,14 @@ function project (ranges: readonly [number, number][], map: number[]): MatchRang
   return projected
 }
 
-/**
- * Finds `[start, end]` index pairs where `query` occurs in `text`, optionally
- * folding accents on either side. Returned indices always address the original
- * `text`, even when folding or case-conversion changed its length.
- *
- * @param text The string to search.
- * @param query The term to look for. An empty query yields no ranges.
- * @param options Optional `ignoreCase`, `ignoreAccents`, `matchAll`.
- * @returns Ranges into `text`, where `end` is exclusive.
- *
- * @example
- * ```ts
- * import { findMatchRanges } from '@vuetify/v0'
- *
- * findMatchRanges('Zürich', 'zurich', { ignoreCase: true, ignoreAccents: true })
- * // [[0, 6]]
- *
- * findMatchRanges('Łódź', 'Lo', { ignoreAccents: 'target' })
- * // [[0, 2]]
- * ```
- */
-/* #__NO_SIDE_EFFECTS__ */
-export function findMatchRanges (
+function search (
   text: string,
   query: string,
-  options: FindMatchRangesOptions = {},
+  ignoreCase: boolean,
+  foldQuery: boolean,
+  foldTarget: boolean,
+  matchAll: boolean,
 ): MatchRange[] {
-  const {
-    ignoreCase = false,
-    ignoreAccents = false,
-    matchAll = false,
-  } = options
-
-  const foldQuery = ignoreAccents === true || ignoreAccents === 'query'
-  const foldTarget = ignoreAccents === true || ignoreAccents === 'target'
-
   const folded = foldQuery ? fold(query) : query
   const needle = ignoreCase ? lower(folded) : folded
 
@@ -211,4 +188,76 @@ export function findMatchRanges (
   const { folded: haystack, map } = foldWithMap(text, ignoreCase, foldTarget)
 
   return project(collect(haystack, needle, matchAll), map)
+}
+
+// Merges two already-sorted range lists, dropping duplicates and overlaps.
+// Ties (identical start) keep whichever range came from `a`, so the exact
+// (unfolded) pass wins over the folded one when both find the same spot.
+function mergeRanges (a: readonly MatchRange[], b: readonly MatchRange[]): MatchRange[] {
+  const combined = [...a, ...b].toSorted((x, y) => x[0] - y[0] || x[1] - y[1])
+  const merged: MatchRange[] = []
+
+  for (const range of combined) {
+    const last = merged.at(-1)
+    if (last && range[0] < last[1]) continue
+
+    merged.push(range)
+  }
+
+  return merged
+}
+
+/**
+ * Finds `[start, end]` index pairs where `query` occurs in `text`, optionally
+ * folding accents on either side. Returned indices always address the original
+ * `text`, even when folding or case-conversion changed its length.
+ *
+ * Directional folding (`'query'` or `'target'`) only transforms one side, but
+ * a spelling that's already identical on both sides — accents and all — is
+ * merged in verbatim, so folding one side never hides a match the other side
+ * already has.
+ *
+ * @param text The string to search.
+ * @param query The term to look for. An empty query yields no ranges.
+ * @param options Optional `ignoreCase`, `ignoreAccents`, `matchAll`.
+ * @returns Ranges into `text`, where `end` is exclusive.
+ *
+ * @example
+ * ```ts
+ * import { findMatchRanges } from '@vuetify/v0'
+ *
+ * findMatchRanges('Zürich', 'zurich', { ignoreCase: true, ignoreAccents: true })
+ * // [[0, 6]]
+ *
+ * findMatchRanges('Łódź', 'Lo', { ignoreAccents: 'target' })
+ * // [[0, 2]]
+ *
+ * findMatchRanges('… Kraków …', 'Kraków', { ignoreAccents: 'query' })
+ * // [[4, 10]] — typing the exact accented name always finds itself
+ * ```
+ */
+/* #__NO_SIDE_EFFECTS__ */
+export function findMatchRanges (
+  text: string,
+  query: string,
+  options: FindMatchRangesOptions = {},
+): MatchRange[] {
+  const {
+    ignoreCase = false,
+    ignoreAccents = false,
+    matchAll = false,
+  } = options
+
+  const foldQuery = ignoreAccents === true || ignoreAccents === 'query'
+  const foldTarget = ignoreAccents === true || ignoreAccents === 'target'
+
+  if (foldQuery === foldTarget) {
+    return search(text, query, ignoreCase, foldQuery, foldTarget, matchAll)
+  }
+
+  const exact = search(text, query, ignoreCase, false, false, true)
+  const folded = search(text, query, ignoreCase, foldQuery, foldTarget, true)
+  const merged = mergeRanges(exact, folded)
+
+  return matchAll ? merged : merged.slice(0, 1)
 }
