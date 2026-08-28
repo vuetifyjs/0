@@ -112,7 +112,7 @@ export function createMyPlugin () {
     provide: (app: App) => {
       provideMyContext(context, app)
     },
-    setup: (_app: App) => {
+    setup: (app: App) => {
       // For everything else not provide related
     },
   })
@@ -237,7 +237,7 @@ import { createPluginContext, createTheme } from '@vuetify/v0'
 
 export const [createThemeContext, createThemePlugin, useTheme] =
   createPluginContext('v0:theme', createTheme, {
-    setup: (context, _app, _options) => {
+    setup: (context, app, options) => {
       // adapter setup...
     },
     persist: ctx => ctx.selectedId.value,
