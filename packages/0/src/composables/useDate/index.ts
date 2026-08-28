@@ -40,7 +40,7 @@
 
 // Composables
 import { useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
+import { bindPluginContext, createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useLocale } from '#v0/composables/useLocale'
 
@@ -95,7 +95,10 @@ export interface DateContextOptions<Z> extends DateOptions<Z> {
 }
 
 /** Plugin options */
-export interface DatePluginOptions<Z> extends DateContextOptions<Z> {}
+export interface DatePluginOptions<Z> extends DateContextOptions<Z> {
+  /** When true, this plugin appears in the Vue DevTools v0 inspector. @default false */
+  devtools?: boolean
+}
 
 /**
  * Default short locale codes mapped to full Intl locale strings.
@@ -273,10 +276,14 @@ export function createDatePlugin<
   Z,
   E extends DateContext<Z> = DateContext<Z>,
 > (_options: DatePluginOptions<Z>) {
-  const { namespace = 'v0:date', ...options } = _options
+  const { namespace = 'v0:date', devtools, ...options } = _options
 
   return createPlugin({
     namespace,
+    devtools,
+    inspect: ctx => ({
+      adapter: (ctx as DateContext<Z>).adapter.constructor.name,
+    }),
     // Created lazily inside provide (install time) so useLocale() resolves
     // through app.runWithContext(), and each app.use() gets its own context
     // instead of sharing one across installs.
@@ -284,6 +291,7 @@ export function createDatePlugin<
     provide: (app: App) => {
       const [, provideDateContext, context] = createDateContext<Z, E>({ namespace, ...options })
       provideDateContext(context, app)
+      bindPluginContext(app, namespace, context)
     },
   })
 }

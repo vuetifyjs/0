@@ -18,9 +18,9 @@ related:
 
 # createPlugin
 
-Factory for creating Vue plugins with typed dependency injection and lifecycle hooks.
-
 <DocsPageFeatures :frontmatter />
+
+Register app-wide plugins with typed context any component can consume. Prefer `createPluginContext` unless you need to control provide and setup yourself.
 
 ## Usage
 
@@ -49,7 +49,15 @@ export const [createAnalyticsContext, createAnalyticsPlugin, useAnalytics] =
 ```
 
 ```ts src/main.ts
+import { createApp } from 'vue'
+import { createAnalyticsPlugin } from './plugins/analytics'
+import App from './App.vue'
+
+const app = createApp(App)
+
 app.use(createAnalyticsPlugin({ trackPageviews: true }))
+
+app.mount('#app')
 ```
 
 ```vue src/components/MyComponent.vue
@@ -86,6 +94,7 @@ Use `createPlugin` directly when you need fine-grained control over plugin setup
 
 ```ts collapse
 import { createContext, createPlugin } from '@vuetify/v0'
+import type { App } from 'vue'
 
 interface MyPluginContext {
   app: string
@@ -95,7 +104,7 @@ export const [useMyContext, provideMyContext] = createContext<MyPluginContext>('
 
 export function createMyPlugin () {
   const context = {
-    app: 'my-app'
+    app: 'my-app',
   }
 
   return createPlugin({
@@ -105,13 +114,71 @@ export function createMyPlugin () {
     },
     setup: (app: App) => {
       // For everything else not provide related
-    }
+    },
   })
 }
 ```
 
 > [!TIP]
 > The **setup** and **provide** hooks are separated for semantic purposes — `provide` is for DI context, `setup` is for side effects (watchers, adapters, globals).
+
+## Vue DevTools
+
+Opt a plugin into the **v0** inspector in Vue DevTools with `{ devtools: true }`. Off by default.
+
+The inspector shows that plugin's context — refs and class getters unwrapped, functions omitted. Pass `inspect` to overlay extra keys (adapter names, values behind methods) without replacing the rest of the snapshot.
+
+```ts
+import { createLogger, createPluginContext } from '@vuetify/v0'
+
+export const [createLoggerContext, createLoggerPlugin, useLogger] =
+  createPluginContext('v0:logger', createLogger, {
+    inspect: ctx => ({
+      level: ctx.current(),
+      enabled: ctx.enabled(),
+    }),
+  })
+```
+
+```ts src/main.ts
+import { createApp } from 'vue'
+import { createLocalePlugin, createThemePlugin } from '@vuetify/v0'
+import App from './App.vue'
+
+const app = createApp(App)
+
+app.use(createThemePlugin({ devtools: true }))
+app.use(createLocalePlugin()) // not in the inspector
+
+app.mount('#app')
+```
+
+Plugin authors can default it on via `createPluginContext` config (`devtools: true`); the install-time option overrides.
+
+`createPluginContext` binds the context for you. Plugins that wrap `createPlugin` directly must call `bindPluginContext` from `provide`, or the inspector shows `context: undefined`:
+
+```ts
+import { bindPluginContext, createContext, createPlugin } from '@vuetify/v0'
+import type { App } from 'vue'
+
+const [useMyContext, provideMyContext] = createContext<{ ready: boolean }>('v0:my-plugin')
+
+export function createMyPlugin () {
+  const context = { ready: true }
+  const namespace = 'v0:my-plugin'
+
+  return createPlugin({
+    namespace,
+    devtools: true,
+    provide: (app: App) => {
+      provideMyContext(context, app)
+      bindPluginContext(app, namespace, context)
+    },
+  })
+}
+```
+
+This is `__DEV__`-gated and a no-op if `@vue/devtools-api` is not present. Pair it with `vite-plugin-vue-devtools` (or the browser extension) so the inspector has a host.
 
 ## Examples
 
@@ -166,24 +233,30 @@ Plugins can automatically save and restore state across page reloads using `useS
 Define what to save and how to restore in the `createPluginContext` config:
 
 ```ts collapse no-filename
-import { createPluginContext } from '@vuetify/v0'
+import { createPluginContext, createTheme } from '@vuetify/v0'
 
 export const [createThemeContext, createThemePlugin, useTheme] =
   createPluginContext('v0:theme', createTheme, {
     setup: (context, app, options) => {
       // adapter setup...
     },
-    // Return the value to save — called reactively
     persist: ctx => ctx.selectedId.value,
-    // Apply saved value on load — called before setup
     restore: (ctx, saved) => ctx.select(saved),
   })
 ```
 
 #### Consumer
 
-```ts no-filename
+```ts src/main.ts
+import { createApp } from 'vue'
+import { createThemePlugin } from '@vuetify/v0'
+import App from './App.vue'
+
+const app = createApp(App)
+
 app.use(createThemePlugin({ persist: true }))
+
+app.mount('#app')
 ```
 
 When `persist: true` is passed, the plugin automatically:
@@ -209,12 +282,15 @@ The critical ordering is **restore before setup**. This means adapters (like the
 #### Hook signatures
 
 ```ts
-interface PluginContextConfig<O, E> {
-  /** Return the value to persist — called reactively inside a watch source */
-  persist?: (context: E) => unknown
-  /** Restore previously persisted state — called before setup */
-  restore?: (context: E, saved: unknown) => void
+import { createPluginContext, createTheme } from '@vuetify/v0'
+import type { PluginContextConfig } from '@vuetify/v0'
+
+const hooks: PluginContextConfig<unknown, ReturnType<typeof createTheme>> = {
+  persist: ctx => ctx.selectedId.value,
+  restore: (ctx, saved) => ctx.select(saved as string),
 }
+
+createPluginContext('v0:theme', createTheme, hooks)
 ```
 
 The `persist` return value is stored under the plugin namespace key (e.g. `v0:theme`). `restore` receives whatever was stored — cast to the expected type inside the hook.

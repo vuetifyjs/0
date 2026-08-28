@@ -49,6 +49,8 @@ export interface PermissionTicket extends TokenTicket<boolean | ((context: Recor
 
 export interface PermissionContext<Z extends PermissionTicket = PermissionTicket> extends TokenContext<Z> {
   can: (id: ID, action: string, subject: string, context?: Record<string, unknown>) => boolean
+  /** Active permissions adapter. */
+  adapter: PermissionsAdapter
 }
 
 export interface PermissionOptions extends TokenOptions {
@@ -113,6 +115,7 @@ export function createPermissions (_options: PermissionOptions = {}): Permission
   return {
     ...tokens,
     can,
+    adapter,
     get size () {
       return tokens.size
     },
@@ -153,7 +156,13 @@ export const [createPermissionsContext, createPermissionsPlugin, usePermissions]
   createPluginContext<PermissionContextOptions, PermissionContext>(
     'v0:permissions',
     options => createPermissions(options),
-    { fallback: () => createPermissionsFallback() },
+    {
+      fallback: () => createPermissionsFallback(),
+      inspect: ctx => ({
+        adapter: ctx.adapter.constructor.name,
+        collection: ctx.collection,
+      }),
+    },
   )
 
 /**

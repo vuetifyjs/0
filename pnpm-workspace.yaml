@@ -37,6 +37,7 @@ catalog:
   '@vitest/browser-playwright': 4.1.10
   '@vitest/coverage-v8': ^4.1.10
   '@vue/compiler-dom': ^3.5.39
+  '@vue/devtools-api': ^8.2.1
   '@vue/repl': ^4.7.1
   '@vue/test-utils': ^2.4.11
   '@vue/tsconfig': ^0.9.1
@@ -83,6 +84,7 @@ catalog:
   unplugin-vue-markdown: ^30.0.0
   vite: 8.1.4
   vite-plugin-pwa: ^1.2.0
+  vite-plugin-vue-devtools: ^8.2.1
   vite-plugin-vue-layouts-next: ^2.1.0
   vite-ssg: ^28.3.0
   vite-ssg-sitemap: ^0.10.0

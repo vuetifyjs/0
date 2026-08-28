@@ -33,6 +33,7 @@ declare global {
   const PermissionsAdapter: typeof import('../../packages/0/src/composables/usePermissions/index').PermissionsAdapter
   const PinoLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').PinoLoggerAdapter
   const PointerAdapter: typeof import('../../packages/0/src/composables/useDragDrop/index').PointerAdapter
+  const PopoverAdapter: typeof import('../../packages/0/src/composables/usePopover/index').PopoverAdapter
   const PostHogFeatureAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').PostHogFeatureAdapter
   const ReducedMotionAdapter: typeof import('../../packages/0/src/composables/useReducedMotion/index').ReducedMotionAdapter
   const RtlAdapter: typeof import('../../packages/0/src/composables/useRtl/index').RtlAdapter
@@ -53,6 +54,7 @@ declare global {
   const V0Error: typeof import('../../packages/0/src/utilities/errors').V0Error
   const V0LocaleAdapter: typeof import('../../packages/0/src/composables/useLocale/index').V0LocaleAdapter
   const V0LoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').V0LoggerAdapter
+  const V0PopoverAdapter: typeof import('../../packages/0/src/composables/usePopover/index').V0PopoverAdapter
   const V0ReducedMotionAdapter: typeof import('../../packages/0/src/composables/useReducedMotion/index').V0ReducedMotionAdapter
   const V0RtlAdapter: typeof import('../../packages/0/src/composables/useRtl/index').V0RtlAdapter
   const V0StyleSheetThemeAdapter: typeof import('../../packages/0/src/composables/useTheme/index').V0StyleSheetThemeAdapter
@@ -128,6 +130,9 @@ declare global {
   const createPermissionsPlugin: typeof import('../../packages/0/src/composables/usePermissions/index').createPermissionsPlugin
   const createPlugin: typeof import('../../packages/0/src/composables/createPlugin/index').createPlugin
   const createPluginContext: typeof import('../../packages/0/src/composables/createPlugin/index').createPluginContext
+  const createPopoverContext: typeof import('../../packages/0/src/composables/usePopover/index').createPopoverContext
+  const createPopoverFallback: typeof import('../../packages/0/src/composables/usePopover/index').createPopoverFallback
+  const createPopoverPlugin: typeof import('../../packages/0/src/composables/usePopover/index').createPopoverPlugin
   const createProgress: typeof import('../../packages/0/src/composables/createProgress/index').createProgress
   const createProgressContext: typeof import('../../packages/0/src/composables/createProgress/index').createProgressContext
   const createQueue: typeof import('../../packages/0/src/composables/createQueue/index').createQueue
@@ -262,6 +267,7 @@ declare global {
   const toElement: typeof import('../../packages/0/src/composables/toElement/index').toElement
   const toHighlight: typeof import('../../packages/0/src/composables/toHighlight/index').toHighlight
   const toKebabCase: typeof import('../../packages/paper/src/utilities/helpers').toKebabCase
+  const toPlacement: typeof import('../../packages/0/src/composables/usePopover/index').toPlacement
   const toRaw: typeof import('vue').toRaw
   const toReactive: typeof import('../../packages/0/src/composables/toReactive/index').toReactive
   const toRef: typeof import('vue').toRef
@@ -389,7 +395,7 @@ declare global {
   export type { ContextKey, CreateContextOptions } from '../../packages/0/src/composables/createContext/index'
   import('../../packages/0/src/composables/createContext/index')
   // @ts-ignore
-  export type { DataGridColumnTicketInput, DataGridColumnTicket, DataGridColumn, DataGridOptions, DataGridContext, DataGridContextOptions, ColumnLayout, GridColumnDef, PinnedRegion, PinPosition, ResolvedColumn, ActiveCell, CellEditing, CellEditingOptions, CellEditingRegistry, EditableColumn, RowSpanningOptions, SpanEntry, ServerGridAdapterOptions } from '../../packages/0/src/composables/createDataGrid/index'
+  export type { DataGridColumnTicketInput, DataGridColumnTicket, DataGridOptions, DataGridContext, DataGridContextOptions, ColumnLayout, GridColumnDef, PinnedRegion, PinPosition, ResolvedColumn, ActiveCell, CellEditing, CellEditingOptions, CellEditingRegistry, EditableColumn, RowSpanningOptions, SpanEntry, ServerGridAdapterOptions } from '../../packages/0/src/composables/createDataGrid/index'
   import('../../packages/0/src/composables/createDataGrid/index')
   // @ts-ignore
   export type { SelectStrategy, DataTableTicketInput, DataTableTicket, DataTableColumnTicketInput, DataTableColumnTicket, DataTableSort, DataTableSelection, DataTableGroup, DataTableGrouping, DataTableExpansion, DataTableOptions, DataTableContext, DataTableContextOptions, DataTableAdapterContext, DataTableAdapterResult, SortDirection, SortEntry, ServerDataTableAdapterOptions, ColumnNode, InternalHeader } from '../../packages/0/src/composables/createDataTable/index'
@@ -533,7 +539,7 @@ declare global {
   export type { PermissionTicket, PermissionContext, PermissionOptions, PermissionContextOptions, PermissionPluginOptions } from '../../packages/0/src/composables/usePermissions/index'
   import('../../packages/0/src/composables/usePermissions/index')
   // @ts-ignore
-  export type { PopoverOptions, PopoverReturn } from '../../packages/0/src/composables/usePopover/index'
+  export type { PopoverOptions, PopoverReturn, PopoverPluginContext, PopoverPluginContextOptions, PopoverPluginOptions, PopoverAdapterContext, PopoverAlign, PopoverPlacement, PopoverSide } from '../../packages/0/src/composables/usePopover/index'
   import('../../packages/0/src/composables/usePopover/index')
   // @ts-ignore
   export type { PresenceState, UsePresenceOptions, UsePresenceReturn } from '../../packages/0/src/composables/usePresence/index'
@@ -621,6 +627,7 @@ declare module 'vue' {
     readonly PermissionsAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['PermissionsAdapter']>
     readonly PinoLoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['PinoLoggerAdapter']>
     readonly PointerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useDragDrop/index')['PointerAdapter']>
+    readonly PopoverAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/usePopover/index')['PopoverAdapter']>
     readonly ReducedMotionAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useReducedMotion/index')['ReducedMotionAdapter']>
     readonly RtlAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useRtl/index')['RtlAdapter']>
     readonly SELF_CLOSING_TAGS: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']>
@@ -638,6 +645,7 @@ declare module 'vue' {
     readonly V0Error: UnwrapRef<typeof import('../../packages/0/src/utilities/errors')['V0Error']>
     readonly V0LocaleAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['V0LocaleAdapter']>
     readonly V0LoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['V0LoggerAdapter']>
+    readonly V0PopoverAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/usePopover/index')['V0PopoverAdapter']>
     readonly V0ReducedMotionAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useReducedMotion/index')['V0ReducedMotionAdapter']>
     readonly V0RtlAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useRtl/index')['V0RtlAdapter']>
     readonly V0StyleSheetThemeAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['V0StyleSheetThemeAdapter']>
@@ -706,6 +714,9 @@ declare module 'vue' {
     readonly createPermissionsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissionsPlugin']>
     readonly createPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/createPlugin/index')['createPlugin']>
     readonly createPluginContext: UnwrapRef<typeof import('../../packages/0/src/composables/createPlugin/index')['createPluginContext']>
+    readonly createPopoverContext: UnwrapRef<typeof import('../../packages/0/src/composables/usePopover/index')['createPopoverContext']>
+    readonly createPopoverFallback: UnwrapRef<typeof import('../../packages/0/src/composables/usePopover/index')['createPopoverFallback']>
+    readonly createPopoverPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/usePopover/index')['createPopoverPlugin']>
     readonly createProgress: UnwrapRef<typeof import('../../packages/0/src/composables/createProgress/index')['createProgress']>
     readonly createProgressContext: UnwrapRef<typeof import('../../packages/0/src/composables/createProgress/index')['createProgressContext']>
     readonly createQueue: UnwrapRef<typeof import('../../packages/0/src/composables/createQueue/index')['createQueue']>
@@ -836,6 +847,7 @@ declare module 'vue' {
     readonly toElement: UnwrapRef<typeof import('../../packages/0/src/composables/toElement/index')['toElement']>
     readonly toHighlight: UnwrapRef<typeof import('../../packages/0/src/composables/toHighlight/index')['toHighlight']>
     readonly toKebabCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toKebabCase']>
+    readonly toPlacement: UnwrapRef<typeof import('../../packages/0/src/composables/usePopover/index')['toPlacement']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
     readonly toReactive: UnwrapRef<typeof import('../../packages/0/src/composables/toReactive/index')['toReactive']>
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>

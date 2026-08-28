@@ -27,11 +27,11 @@ export const createApp = ViteSSG(
   async ({ app, initialState }) => {
     app.use(pinia)
     app.use(createIconPlugin())
-    app.use(createLoggerPlugin())
+    app.use(createLoggerPlugin({ devtools: true }))
     app.use(createHydrationPlugin())
-    app.use(createBreakpointsPlugin({ mobileBreakpoint: 768 }))
+    app.use(createBreakpointsPlugin({ mobileBreakpoint: 768, devtools: true }))
     app.use(createStoragePlugin())
-    app.use(createStackPlugin())
+    app.use(createStackPlugin({ devtools: true }))
 
     function getSystemTheme (): 'light' | 'dark' {
       if (!IN_BROWSER) return 'light'
@@ -40,6 +40,7 @@ export const createApp = ViteSSG(
 
     app.use(
       createThemePlugin({
+        devtools: true,
         default: getSystemTheme(),
         target: 'html',
         themes: {
