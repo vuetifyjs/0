@@ -1,5 +1,5 @@
 ---
-"@vuetify/v0": patch
+"@vuetify/v0": minor
 ---
 
 feat(createPlugin): opt plugins into Vue DevTools with `devtools: true`

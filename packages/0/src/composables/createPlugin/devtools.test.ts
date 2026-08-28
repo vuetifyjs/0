@@ -254,6 +254,41 @@ describe('createPlugin vue-devtools', () => {
     })
   })
 
+  it('should keep the snapshot if inspect throws', async () => {
+    const [, createXPlugin] = createPluginContext(
+      'v0:inspect-throw',
+      () => ({ count: 1 }),
+      {
+        inspect: () => {
+          throw new Error('boom')
+        },
+      },
+    )
+
+    const app = createApp({ render: () => null })
+    createXPlugin({ devtools: true }).install(app)
+    await vi.waitFor(() => expect(mocks.on.getInspectorState).toHaveBeenCalled())
+
+    const handler = mocks.on.getInspectorState.mock.calls.at(-1)![0] as (payload: {
+      inspectorId: string
+      nodeId: string
+      state: unknown
+    }) => void
+    const payload: { inspectorId: string, nodeId: string, state: unknown } = {
+      inspectorId: 'v0-plugins',
+      nodeId: 'v0:inspect-throw',
+      state: undefined,
+    }
+    handler(payload)
+
+    expect(payload.state).toEqual({
+      plugin: [
+        { key: 'namespace', value: 'v0:inspect-throw' },
+        { key: 'context', value: { count: 1 } },
+      ],
+    })
+  })
+
   it('should overlay inspect keys without dropping snapshot fields', async () => {
     const [, createXPlugin] = createPluginContext(
       'v0:inspect-merge',

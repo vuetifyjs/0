@@ -135,6 +135,19 @@ app.use(createLocalePlugin()) // not in the inspector
 
 Plugin authors can default it on via `createPluginContext` config (`devtools: true`); the install-time option overrides.
 
+`createPluginContext` binds the context for you. Plugins that wrap `createPlugin` directly must call `bindPluginContext` from `provide`, or the inspector shows `context: undefined`:
+
+```ts
+return createPlugin({
+  namespace,
+  devtools: true,
+  provide: app => {
+    provideStackContext(context, app)
+    bindPluginContext(app, namespace, context)
+  },
+})
+```
+
 This is `__DEV__`-gated and a no-op if `@vue/devtools-api` is not present. Pair it with `vite-plugin-vue-devtools` (or the browser extension) so the inspector has a host.
 
 ## Examples
