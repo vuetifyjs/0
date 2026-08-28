@@ -454,7 +454,7 @@ export const [createFeaturesContext, createFeaturesPlugin, useFeatures] =
       inspect: ctx => ({
         adapter: isArray(ctx.adapter)
           ? ctx.adapter.map(item => item.constructor.name)
-          : (ctx.adapter?.constructor.name ?? 'none'),
+          : ctx.adapter?.constructor.name,
       }),
       setup: (context, app, { adapter }) => {
         if (!adapter) return
