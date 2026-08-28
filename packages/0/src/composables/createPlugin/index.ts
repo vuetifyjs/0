@@ -100,7 +100,7 @@ export function bindPluginContext (app: App, namespace: string, context: unknown
 
 function notifyDevtools (app: App) {
   /* v8 ignore next -- __DEV__ is a build-time constant; production short-circuits */
-  if (typeof __DEV__ === 'undefined' || !__DEV__ || !IN_BROWSER) return
+  if (isUndefined(__DEV__) || !__DEV__ || !IN_BROWSER) return
 
   void import('./devtools').then(mod => mod.sync(app, getInstalled(app)))
 }
