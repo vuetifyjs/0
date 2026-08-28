@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Components
+import { providePopoverContext } from '#v0/components/Popover'
+
 // Composables
 import { createTooltipPlugin } from '#v0/composables/useTooltip'
 
@@ -713,6 +716,32 @@ describe('usePopover', () => {
         'position-try-fallbacks': 'most-width bottom',
       })
       probe.unmount()
+    })
+
+    it('should keep the plugin adapter under a Popover.Root instance context', () => {
+      let styles: Record<string, string> | undefined
+
+      const Child = defineComponent({
+        setup () {
+          styles = usePopover({ id: 'child' }).contentStyles.value
+          return () => h('div')
+        },
+      })
+
+      const Root = defineComponent({
+        setup () {
+          providePopoverContext(usePopover({ id: 'root' }))
+          return () => h(Child)
+        },
+      })
+
+      const app = createApp(Root)
+      app.use(createPopoverPlugin({ adapter: new MarkerAdapter('plugin') }))
+      const el = document.createElement('div')
+      app.mount(el)
+
+      expect(styles).toEqual({ '--engine': 'plugin' })
+      app.unmount()
     })
   })
 })

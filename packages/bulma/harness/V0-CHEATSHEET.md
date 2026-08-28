@@ -68,7 +68,7 @@ Parts: `Popover.Root`, `.Activator`, `.Content`.
 
 | Part | `as` default | Key props | Slot props |
 |---|---|---|---|
-| Root | renderless (`as = null`) | `id` (auto) — **no `namespace` prop**; context is `createContext<PopoverContext>('v0:popover')` fixed | `{ id, isSelected, toggle }` |
+| Root | renderless (`as = null`) | `id` (auto) — **no `namespace` prop**; context is `createContext<PopoverContext>('v0:popover:root')` fixed | `{ id, isSelected, toggle }` |
 | Activator | `button` | `target` (override popover id) | `{ isOpen, attrs }` — attrs: **`popovertarget`** (native invoker), `type/role` polyfill, `tabindex:0`, `aria-expanded`, `aria-controls`, `data-open`, `style` (anchor-name), `onKeydown` (non-button only; toggle via context) |
 | Content | Atom default `div` | `id`, `positionArea`, `positionTry` | `{ isOpen, attrs }` — attrs: `id`, **`popover: ''`**, `style` (CSS anchor positioning: `position: fixed`, `position-area`, `position-anchor`, `position-try-fallbacks`), `onBeforetoggle` |
 

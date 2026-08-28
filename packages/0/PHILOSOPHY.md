@@ -982,7 +982,7 @@ Every key passed to `createContext(key)` or `createXContext({ namespace })` must
 
 **Static-key vs dynamic-key modes.** `createContext` operates in two modes:
 
-- **Static-key mode** — the call site passes a single string (`createContext('v0:popover')`). The namespace is fixed at module load; the `[useX, provideX]` pair injects against that one key. Used by the few Roots whose namespace never needs to vary per subtree — in component source today, only `Popover` (`'v0:popover'`) and `Splitter` (`'v0:splitter'`).
+- **Static-key mode** — the call site passes a single string (`createContext('v0:popover:root')`). The namespace is fixed at module load; the `[useX, provideX]` pair injects against that one key. Used by the few Roots whose namespace never needs to vary per subtree — in component source today, only `Popover` (`'v0:popover:root'`) and `Splitter` (`'v0:splitter'`).
 - **Dynamic-key mode** — the call site passes an options object or omits the positional key (`createContext({ suffix: 'item' })` or `createContext()`), which makes the returned `useX` / `provideX` accept a runtime namespace argument supplied at provide time; `suffix` is an optional string appended to that runtime key (`key:suffix`). This is the default for compound Roots — `Tabs`, `Dialog`, `Combobox`, `Select`, and the rest omit the positional key and pass the namespace to `provideXRoot(namespace, context)` (see §6.5). It is also what lets a single composable service multiple disjoint subtrees within the same app (e.g., nested `Selection` providers). The `[v0:context]` colon warning is static-key-mode only (gated on `isString(keyOrOptions)`); the dynamic branch performs no colon check on the runtime key.
 
 ### 9.4 SSR gating
