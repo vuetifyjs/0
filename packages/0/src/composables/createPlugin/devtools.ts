@@ -10,7 +10,7 @@
  */
 
 // Utilities
-import { isArray, isFunction, isNullOrUndefined, isObject, isUndefined } from '#v0/utilities'
+import { isArray, isFunction, isNull, isNullOrUndefined, isObject, isUndefined } from '#v0/utilities'
 import { isRef } from 'vue'
 
 // Types
@@ -140,7 +140,7 @@ function display (record: PluginRecord): unknown {
 
 function isPlainObject (value: object) {
   const proto = Object.getPrototypeOf(value)
-  return proto === Object.prototype || proto === null
+  return proto === Object.prototype || isNull(proto)
 }
 
 function typeName (value: object) {
@@ -153,6 +153,7 @@ function snapshot (value: unknown, depth = 0): unknown {
   if (depth > 4) return value
   if (isRef(value)) return snapshot(value.value, depth + 1)
   if (isFunction(value) || !isObject(value)) return value
+  if (value instanceof Date) return value.toISOString()
   if (!isUndefined(globalThis.Element) && value instanceof Element) return value.constructor.name
   if (value instanceof Map) {
     return Object.fromEntries([...value].map(([key, item]) => [String(key), snapshot(item, depth + 1)]))
