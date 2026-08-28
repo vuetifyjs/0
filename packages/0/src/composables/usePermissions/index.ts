@@ -160,6 +160,7 @@ export const [createPermissionsContext, createPermissionsPlugin, usePermissions]
       fallback: () => createPermissionsFallback(),
       inspect: ctx => ({
         adapter: ctx.adapter.constructor.name,
+        collection: ctx.collection,
       }),
     },
   )
