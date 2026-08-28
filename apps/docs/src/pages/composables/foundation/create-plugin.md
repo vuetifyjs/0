@@ -241,7 +241,7 @@ export const [createThemeContext, createThemePlugin, useTheme] =
       // adapter setup...
     },
     persist: ctx => ctx.selectedId.value,
-    restore: (ctx, saved) => ctx.select(saved as string),
+    restore: (ctx, saved) => ctx.select(saved),
   })
 ```
 
