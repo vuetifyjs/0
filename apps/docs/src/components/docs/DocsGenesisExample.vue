@@ -271,8 +271,8 @@
 
   .docs-genesis-example-pane__actions {
     position: absolute;
-    top: 0.75rem;
-    inset-inline-end: 0.75rem;
+    top: 0.25rem;
+    inset-inline-end: 0.25rem;
     z-index: 10;
     display: flex;
     gap: 0.25rem;
