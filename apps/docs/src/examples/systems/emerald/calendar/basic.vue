@@ -7,7 +7,7 @@
 </script>
 
 <template>
-  <div class="emerald-docs-stack">
+  <div class="emerald-docs-calendar">
     <EmCalendar v-model="day">
       <EmCalendar.Header>
         <EmCalendar.Prev />
@@ -27,10 +27,11 @@
 </template>
 
 <style>
-  .emerald-docs-stack {
+  .emerald-docs-calendar {
     display: flex;
     flex-direction: column;
     gap: var(--emerald-spacing-m, 16px);
+    width: 100%;
   }
 
   .emerald-docs-note {
