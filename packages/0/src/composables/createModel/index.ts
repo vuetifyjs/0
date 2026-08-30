@@ -445,6 +445,7 @@ export function createModel<
     const id = registration.id ?? useId()
     const item: Partial<E> = {
       disabled: false,
+      unregister: () => unregister(id),
       ...registration,
       isSelected: toRef(() => selected(id)),
       id,
