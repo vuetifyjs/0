@@ -93,6 +93,11 @@
   const attrs = useAttrs()
 
   provideContext(namespace, form)
+  // Auto-registering fields inject 'v0:form'. Provide both so a custom
+  // namespace still collects Input / createValidation children.
+  if (namespace !== 'v0:form') {
+    provideContext('v0:form', form)
+  }
 
   async function onSubmit (event: Event) {
     event.preventDefault()

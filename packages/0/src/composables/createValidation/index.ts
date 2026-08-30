@@ -83,6 +83,8 @@ export interface ValidationOptions extends GroupOptions {
   rules?: RuleInput[]
   /** Value source for validate() when called without arguments. */
   value?: MaybeRefOrGetter<unknown>
+  /** Form injection key. Defaults to `'v0:form'`. */
+  namespace?: string
 }
 
 interface ValidationRun {
@@ -123,7 +125,13 @@ const UNSET = /* @__PURE__ */ Symbol('unset')
  * ```
  */
 export function createValidation (_options: ValidationOptions = {}): ValidationContext {
-  const { rules: initialRules = [], value: valueSource, enroll = true, ...options } = _options
+  const {
+    rules: initialRules = [],
+    value: valueSource,
+    enroll = true,
+    namespace = 'v0:form',
+    ...options
+  } = _options
   const group = createGroup({ ...options, enroll, multiple: true })
   const rulesContext = useRules()
 
@@ -140,7 +148,10 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
   function register (input: RuleInput | Partial<ValidationTicketInput>): ValidationTicket {
     if (isFunction(input) || isString(input) || isStandardSchema(input)) {
       const resolved = rulesContext.resolve([input as RuleInput])
-      return group.register({ value: resolved[0] ?? (() => true) }) as ValidationTicket
+      const rule = resolved[0] ?? (() => (
+        isString(input) ? `Unknown validation rule "${input}"` : false
+      ))
+      return group.register({ value: rule }) as ValidationTicket
     }
     return group.register(input) as ValidationTicket
   }
@@ -249,7 +260,7 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
   } as ValidationContext
 
   // Auto-register with parent form
-  const form = useForm()
+  const form = useForm(namespace)
   const ticket = form?.register({ value: context as ValidationContext })
 
   onScopeDispose(() => {

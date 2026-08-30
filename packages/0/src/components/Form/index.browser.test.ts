@@ -151,6 +151,18 @@ describe('form', () => {
       expect(emitted![0]).toEqual([{ valid: false }])
     })
 
+    it('should auto-register fields when Form uses a custom namespace', async () => {
+      const wrapper = mount(Form, {
+        props: { namespace: 'custom:form' },
+        slots: { default: () => h(FailingField) },
+      })
+      await wrapper.trigger('submit')
+      await flushPromises()
+      const emitted = wrapper.emitted('submit')
+      expect(emitted).toHaveLength(1)
+      expect(emitted![0]).toEqual([{ valid: false }])
+    })
+
     it('should emit reset and reset field validations on native reset', async () => {
       let injected: ReturnType<typeof useForm>
 

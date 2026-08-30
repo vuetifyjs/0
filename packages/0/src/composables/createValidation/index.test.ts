@@ -81,15 +81,15 @@ describe('createValidation', () => {
       expect(validation.size).toBe(1)
     })
 
-    it('should use noop for unresolvable string aliases', async () => {
+    it('should fail unresolvable string aliases', async () => {
       using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const validation = createValidation()
       validation.register('nonexistent')
 
       const result = await validation.validate('')
-      // Noop rule returns true, so validation passes
-      expect(result).toBe(true)
+      expect(result).toBe(false)
+      expect(validation.errors.value).toEqual(['Unknown validation rule "nonexistent"'])
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('nonexistent'))
     })
@@ -597,14 +597,14 @@ describe('createValidation', () => {
       expect(validation.errors.value).toEqual(['Required'])
     })
 
-    it('should use noop for string aliases without rules context', async () => {
+    it('should fail string aliases without rules context', async () => {
       using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const validation = createValidation({ rules: ['required'] })
 
-      // String alias without context uses noop — no rules to fail
       const result = await validation.validate('')
-      expect(result).toBe(true)
+      expect(result).toBe(false)
+      expect(validation.errors.value).toEqual(['Unknown validation rule "required"'])
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('required'))
     })
