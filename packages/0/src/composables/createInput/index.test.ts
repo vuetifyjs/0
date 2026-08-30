@@ -156,6 +156,41 @@ describe('createInput', () => {
       })
       expect(input.isValid.value).toBe(false)
     })
+
+    it('should fail validation when required and empty', async () => {
+      const input = createInput({
+        value: ref(''),
+        required: true,
+      })
+      const result = await input.validate()
+      expect(result).toBe(false)
+      expect(input.errors.value).toEqual(['Required'])
+      expect(input.isValid.value).toBe(false)
+    })
+
+    it('should pass validation when required and filled', async () => {
+      const input = createInput({
+        value: ref('hello'),
+        required: true,
+      })
+      const result = await input.validate()
+      expect(result).toBe(true)
+      expect(input.errors.value).toEqual([])
+    })
+
+    it('should use the dirty predicate for required presence', async () => {
+      const value = ref<number | null>(null)
+      const input = createInput({
+        value,
+        required: true,
+        dirty: v => v !== null,
+      })
+
+      expect(await input.validate()).toBe(false)
+
+      value.value = 0
+      expect(await input.validate()).toBe(true)
+    })
   })
 
   describe('reset', () => {

@@ -243,6 +243,7 @@
     label,
     name,
     formNamespace,
+    required,
     locale,
     format: formatOptions,
     clamp: shouldClamp,

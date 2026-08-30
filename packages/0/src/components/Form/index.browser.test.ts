@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
+// Components
+import { Input } from '#v0/components/Input'
+
 // Composables
 import { useForm } from '#v0/composables/createForm'
 import { createValidation } from '#v0/composables/createValidation'
@@ -139,6 +142,36 @@ describe('form', () => {
     it('should emit submit with valid:true when no fields registered', async () => {
       const wrapper = mount(Form)
       await wrapper.trigger('submit')
+      const emitted = wrapper.emitted('submit')
+      expect(emitted).toHaveLength(1)
+      expect(emitted![0]).toEqual([{ valid: true }])
+    })
+
+    it('should fail submit when a required Input is empty', async () => {
+      const wrapper = mount(Form, {
+        slots: {
+          default: () => h(Input.Root, { required: true }, {
+            default: () => h(Input.Control as any),
+          }),
+        },
+      })
+      await wrapper.trigger('submit')
+      await flushPromises()
+      const emitted = wrapper.emitted('submit')
+      expect(emitted).toHaveLength(1)
+      expect(emitted![0]).toEqual([{ valid: false }])
+    })
+
+    it('should submit empty Input without required as valid', async () => {
+      const wrapper = mount(Form, {
+        slots: {
+          default: () => h(Input.Root, {}, {
+            default: () => h(Input.Control as any),
+          }),
+        },
+      })
+      await wrapper.trigger('submit')
+      await flushPromises()
       const emitted = wrapper.emitted('submit')
       expect(emitted).toHaveLength(1)
       expect(emitted![0]).toEqual([{ valid: true }])
