@@ -134,6 +134,8 @@
     wheel?: boolean
     /** Namespace for context provision */
     namespace?: string
+    /** Namespace for connecting to parent Form. Must match Form's namespace. */
+    formNamespace?: string
   }
 
   export interface NumberFieldRootSlotProps {
@@ -230,6 +232,7 @@
     spinRate = 60,
     wheel = false,
     namespace = 'v0:number-field:root',
+    formNamespace = 'v0:form',
   } = defineProps<NumberFieldRootProps>()
 
   const model = defineModel<number | null>({ default: null })
@@ -239,6 +242,7 @@
     id,
     label,
     name,
+    formNamespace,
     locale,
     format: formatOptions,
     clamp: shouldClamp,

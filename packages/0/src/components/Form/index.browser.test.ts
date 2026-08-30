@@ -11,10 +11,14 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, shallowRef, toValue } from 'vue'
 
 const FailingField = defineComponent({
-  setup () {
+  props: {
+    formNamespace: { type: String, default: 'v0:form' },
+  },
+  setup (props) {
     const value = shallowRef('')
     createValidation({
       value,
+      formNamespace: props.formNamespace,
       rules: [(v: unknown) => v === 'valid' ? true : 'Error'],
     })
     return () => h('input')
@@ -149,6 +153,30 @@ describe('form', () => {
       const emitted = wrapper.emitted('submit')
       expect(emitted).toHaveLength(1)
       expect(emitted![0]).toEqual([{ valid: false }])
+    })
+
+    it('should auto-register fields when formNamespace matches Form namespace', async () => {
+      const wrapper = mount(Form, {
+        props: { namespace: 'custom:form' },
+        slots: { default: () => h(FailingField, { formNamespace: 'custom:form' }) },
+      })
+      await wrapper.trigger('submit')
+      await flushPromises()
+      const emitted = wrapper.emitted('submit')
+      expect(emitted).toHaveLength(1)
+      expect(emitted![0]).toEqual([{ valid: false }])
+    })
+
+    it('should not auto-register fields when formNamespace does not match Form namespace', async () => {
+      const wrapper = mount(Form, {
+        props: { namespace: 'custom:form' },
+        slots: { default: () => h(FailingField) },
+      })
+      await wrapper.trigger('submit')
+      await flushPromises()
+      const emitted = wrapper.emitted('submit')
+      expect(emitted).toHaveLength(1)
+      expect(emitted![0]).toEqual([{ valid: true }])
     })
 
     it('should emit reset and reset field validations on native reset', async () => {
