@@ -82,6 +82,26 @@ describe('createProgress', () => {
       progress.register()
       expect(progress.size).toBe(3)
     })
+
+    it('should drop selectedIds via ticket.unregister', () => {
+      const progress = setup()
+      const ticket = progress.register({ value: shallowRef(50) })
+
+      expect(progress.percent.value).toBe(50)
+
+      ticket.unregister()
+
+      expect(progress.selectedIds.has(ticket.id)).toBe(false)
+      expect(progress.percent.value).toBe(0)
+    })
+
+    it('should apply pending values through onboard', () => {
+      const progress = setup({ max: 100 })
+      progress.apply([50, 25])
+      progress.onboard([{}, {}])
+
+      expect(progress.percent.value).toBe(75)
+    })
   })
 
   describe('total', () => {
