@@ -133,19 +133,21 @@ The `disabled` and `readonly` props propagate to the form context. Child compone
 
 ### Custom Namespace
 
-Use `namespace` to isolate multiple forms on the same page. Keys must contain `:`. Child fields still auto-register; the custom key is for explicit `useForm('v0:billing')`.
+Use `namespace` to isolate multiple forms on the same page. Keys must contain `:`. Child fields join via `form-namespace` — the same pairing as `group-namespace` on Toggle/Checkbox/Radio.
 
 ```vue
 <template>
   <Form namespace="v0:billing">
-    <!-- useForm('v0:billing') resolves this form -->
+    <Input.Root form-namespace="v0:billing" />
   </Form>
 
   <Form namespace="v0:shipping">
-    <!-- useForm('v0:shipping') resolves this form -->
+    <Input.Root form-namespace="v0:shipping" />
   </Form>
 </template>
 ```
+
+`form` on Input is the HTML `form="id"` attribute. `form-namespace` is the DI key. Defaults match (`v0:form`), so a single unnamed Form needs no extra prop.
 
 ### Programmatic Submit
 
@@ -185,7 +187,7 @@ Call `submit()` from slot props when you need to trigger validation without a su
 
 ??? How do I keep two forms on the same page from interfering?
 
-Give each a `namespace` that contains `:` (e.g. `namespace="v0:billing"`). Sibling forms are already isolated by Vue's nearest provide — the custom key is for `useForm('v0:billing')` from outside the tree. `Input` and `createValidation` children still auto-register.
+Give each a `namespace` that contains `:` (e.g. `namespace="v0:billing"`) and set the same value on each field's `form-namespace`. Sibling forms are already isolated by Vue's nearest provide; the custom key is for `useForm('v0:billing')` from outside the tree and for fields that would otherwise inject the default `'v0:form'`.
 
 ??? Why doesn't calling `submit()` from slot props emit the `@submit` event?
 

@@ -83,8 +83,17 @@ export interface ValidationOptions extends GroupOptions {
   rules?: RuleInput[]
   /** Value source for validate() when called without arguments. */
   value?: MaybeRefOrGetter<unknown>
-  /** Form injection key. Defaults to `'v0:form'`. */
-  namespace?: string
+  /**
+   * Form injection key. Must match the parent Form's `namespace`.
+   *
+   * @default 'v0:form'
+   *
+   * @example
+   * ```ts
+   * createValidation({ formNamespace: 'v0:billing' })
+   * ```
+   */
+  formNamespace?: string
 }
 
 interface ValidationRun {
@@ -129,7 +138,7 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
     rules: initialRules = [],
     value: valueSource,
     enroll = true,
-    namespace = 'v0:form',
+    formNamespace = 'v0:form',
     ...options
   } = _options
   const group = createGroup({ ...options, enroll, multiple: true })
@@ -260,7 +269,7 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
   } as ValidationContext
 
   // Auto-register with parent form
-  const form = useForm(namespace)
+  const form = useForm(formNamespace)
   const ticket = form?.register({ value: context as ValidationContext })
 
   onScopeDispose(() => {

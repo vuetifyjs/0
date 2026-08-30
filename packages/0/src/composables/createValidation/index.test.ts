@@ -628,6 +628,19 @@ describe('createValidation', () => {
 
       const validation = createValidation()
 
+      expect(mockUseForm).toHaveBeenCalledWith('v0:form')
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith({ value: validation })
+    })
+
+    it('should inject form via formNamespace', () => {
+      const form = createForm()
+      using spy = vi.spyOn(form, 'register')
+      mockUseForm.mockReturnValueOnce(form as any)
+
+      const validation = createValidation({ formNamespace: 'v0:billing' })
+
+      expect(mockUseForm).toHaveBeenCalledWith('v0:billing')
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith({ value: validation })
     })

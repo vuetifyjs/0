@@ -53,6 +53,12 @@ export interface InputOptions<T = string> {
   name?: string
   /** Associate with form by ID. */
   form?: string
+  /**
+   * Form injection key. Must match the parent Form's `namespace`.
+   *
+   * @default 'v0:form'
+   */
+  formNamespace?: string
   /** Whether required. */
   required?: boolean
   /** Disabled state. */
@@ -115,6 +121,7 @@ export function createInput<T = string> (options: InputOptions<T>): InputContext
     label,
     name,
     form,
+    formNamespace,
     required,
     disabled = false,
     readonly: _readonly = false,
@@ -125,7 +132,7 @@ export function createInput<T = string> (options: InputOptions<T>): InputContext
     equals = (a: T, b: T) => a === b,
   } = options
 
-  const validation = createValidation({ rules, value })
+  const validation = createValidation({ rules, value, formNamespace })
 
   const initialValue = value.value
   const isFocused = shallowRef(false)
