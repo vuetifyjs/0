@@ -527,8 +527,10 @@
       /* width:100% resolves to max(container, min-content) at phone widths
          and squeezes every wrappable column to one word per line. Let the
          table take its natural width (capped so prose cells still wrap) and
-         scroll inside its wrapper. */
-      div.docs-table > table {
+         scroll inside its wrapper. Both wrapper classes, so this outranks
+         the base table rule structurally — (0,3,2) over its (0,2,2) —
+         instead of by source order. */
+      div.docs-table.overflow-x-auto > table {
         width: max-content;
         min-width: 100%;
         max-width: 42rem;

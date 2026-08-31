@@ -87,7 +87,7 @@
       <template v-for="[category, entries] in componentGroups" :key="`c-${category}`">
         <DocsHeaderAnchor :id="`components-${toKebab(category)}`" class="text-2xl leading-8 mt-6 mb-2" tag="h3">{{ toTitle(category) }}</DocsHeaderAnchor>
 
-        <div class="overflow-x-auto mb-4">
+        <div class="docs-table overflow-x-auto mb-4">
           <table>
             <thead>
               <tr>
@@ -118,7 +118,7 @@
       <template v-for="[category, entries] in composableGroups" :key="`e-${category}`">
         <DocsHeaderAnchor :id="`composables-${toKebab(category)}`" class="text-2xl leading-8 mt-6 mb-2" tag="h3">{{ toTitle(category) }}</DocsHeaderAnchor>
 
-        <div class="overflow-x-auto mb-4">
+        <div class="docs-table overflow-x-auto mb-4">
           <table>
             <thead>
               <tr>
