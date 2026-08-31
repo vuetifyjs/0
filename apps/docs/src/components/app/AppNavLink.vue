@@ -145,7 +145,7 @@
         v-if="isCollapsible"
         :aria-controls="`nav-section-${id}`"
         :aria-expanded="isOpen ? 'true' : 'false'"
-        class="size-5 media-[(pointer:coarse)]:h-9 flex items-center justify-center shrink-0 rounded hover:bg-surface-tint focus-visible:bg-surface-tint focus-visible:outline-none"
+        class="size-5 media-[(pointer:coarse)]:size-9 flex items-center justify-center shrink-0 rounded hover:bg-surface-tint focus-visible:bg-surface-tint focus-visible:outline-none"
         type="button"
         @click.stop="onToggle"
       >
@@ -157,7 +157,7 @@
       </button>
 
       <!-- Dash prefix for top-level solo links (only when collapsible nav is enabled) -->
-      <span v-else-if="isTopLevel && !navConfig.flatMode.value" aria-hidden="true" class="size-5 shrink-0 flex items-center justify-center text-divider">–</span>
+      <span v-else-if="isTopLevel && !navConfig.flatMode.value" aria-hidden="true" class="size-5 media-[(pointer:coarse)]:w-9 shrink-0 flex items-center justify-center text-divider">–</span>
 
       <!-- External link -->
       <Atom
