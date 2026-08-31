@@ -265,6 +265,14 @@
     backdrop-filter: blur(12px);
   }
 
+  /* The glass skin above replaces the description's surface-tint background,
+     which leaves genesis's truncation fade painting the wrong color — the
+     collapsed text stays fully legible and the Expand pill lands on top of
+     it. Re-point the fade at the surface the glass resolves over. */
+  :deep(.genesis-docs-example-description__fade) {
+    background: linear-gradient(transparent, var(--v0-surface));
+  }
+
   .docs-genesis-example-pane {
     position: relative;
   }
