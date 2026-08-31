@@ -32,7 +32,7 @@ export interface GnIconsContext {
    * Draw this genesis chrome role. Return `null` to use the component-local
    * inline SVG (unknown role, version skew, or deliberate miss).
    */
-  render: (role: GnIconRole, props?: { size?: number }) => VNode | null
+  render: (role: GnIconRole, options?: { size?: number }) => VNode | null
 }
 
 export const [useGnIcons, provideGnIcons] = createContext<GnIconsContext | null>(
