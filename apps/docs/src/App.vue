@@ -22,6 +22,9 @@
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
+  // Constants
+  import { INDEXABLE, PROD_SITE_URL } from '@/constants/site'
+
   // Stores
   import { useAppStore } from '@/stores/app'
 
@@ -74,7 +77,7 @@
     return false
   })
 
-  const url = toRef(() => `https://0.vuetifyjs.com${route.path}`)
+  const url = toRef(() => `${PROD_SITE_URL}${route.path}`)
   const breadcrumbs = useBreadcrumbItems()
 
   // Advertise the page's markdown twin so agent fetchers and AI crawlers can
@@ -88,7 +91,7 @@
       key: 'alternate-markdown',
       rel: 'alternate',
       type: 'text/markdown',
-      href: `https://0.vuetifyjs.com${twin}`,
+      href: `${PROD_SITE_URL}${twin}`,
     }]
   })
 
@@ -112,7 +115,7 @@
             'position': index + 1,
             name,
           }
-          if (!isLast && item.to) entry.item = `https://0.vuetifyjs.com${item.to}`
+          if (!isLast && item.to) entry.item = `${PROD_SITE_URL}${item.to}`
           return entry
         }),
       }),
@@ -140,7 +143,7 @@
         '@type': 'TechArticle',
         headline,
         'url': url.value,
-        'isPartOf': { '@type': 'WebSite', 'name': 'Vuetify0', 'url': 'https://0.vuetifyjs.com' },
+        'isPartOf': { '@type': 'WebSite', 'name': 'Vuetify0', 'url': PROD_SITE_URL },
         'about': { '@type': 'SoftwareSourceCode', 'name': '@vuetify/v0', 'programmingLanguage': 'TypeScript' },
         'publisher': { '@type': 'Organization', 'name': 'Vuetify', 'url': 'https://vuetifyjs.com' },
         ...dates?.updated ? { dateModified: dates.updated } : {},
@@ -179,8 +182,8 @@
       { key: 'canonical', rel: 'canonical', href: url.value },
       // Site-wide LLM context bundles. Documented for humans on
       // /guide/tooling/ai-tools; these make them machine-discoverable.
-      { key: 'llms', rel: 'alternate', type: 'text/plain', href: 'https://0.vuetifyjs.com/llms.txt', title: 'llms.txt' },
-      { key: 'llms-full', rel: 'alternate', type: 'text/plain', href: 'https://0.vuetifyjs.com/llms-full.txt', title: 'llms-full.txt' },
+      { key: 'llms', rel: 'alternate', type: 'text/plain', href: `${PROD_SITE_URL}/llms.txt`, title: 'llms.txt' },
+      { key: 'llms-full', rel: 'alternate', type: 'text/plain', href: `${PROD_SITE_URL}/llms-full.txt`, title: 'llms-full.txt' },
       ...markdown.value,
     ]),
     meta: [
@@ -192,6 +195,7 @@
       { key: 'og:image', property: 'og:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
       { key: 'twitter:card', name: 'twitter:card', content: 'summary_large_image' },
       { key: 'twitter:site', name: 'twitter:site', content: '@VuetifyJS' },
+      ...INDEXABLE ? [] : [{ key: 'robots', name: 'robots', content: 'noindex, nofollow' }],
     ],
     style: [{
       key: 'emerald-docs-tokens',
@@ -209,7 +213,7 @@
           '@context': 'https://schema.org',
           '@type': 'WebSite',
           'name': 'Vuetify0',
-          'url': 'https://0.vuetifyjs.com',
+          'url': PROD_SITE_URL,
           'description': 'Headless components and composables for building modern applications and design systems',
           'publisher': {
             '@type': 'Organization',
