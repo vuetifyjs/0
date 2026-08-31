@@ -349,6 +349,9 @@
 
     h1, h2, h3, h4, h5, h6 {
       position: relative;
+      /* Long API tokens (useIntersectionObserver, SUPPORTS_*) must break
+         instead of widening the layout viewport on phones. */
+      overflow-wrap: anywhere;
 
       > .header-anchor {
         color: inherit;
@@ -371,6 +374,9 @@
         }
 
         &::after {
+          /* Out of flow — an in-flow '#' extends the widest line by ~1em
+             and with it the page's scrollWidth on mobile. */
+          position: absolute;
           margin-left: 0.25em;
           opacity: 0;
         }
@@ -428,6 +434,9 @@
 
     code {
       font-family: 'Courier New', Courier, monospace;
+      /* Inline paths/imports in prose wrap instead of widening the page;
+         inert inside pre-formatted (.shiki) blocks. */
+      overflow-wrap: anywhere;
     }
 
     p {
