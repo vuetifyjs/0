@@ -201,9 +201,14 @@
       const eW = ellipsisWidth.value
       const reserved = fI + gap + fD + gap + eW + gap
 
-      if (capacity === Infinity || capacity >= measuredCount) {
-        // Everything fits — show all content, hide ellipsis. Truncation is
-        // gone, so a disclosure left open from a narrower viewport is stale.
+      if (
+        ellipsisTickets.length === 0 ||
+        capacity === Infinity ||
+        capacity >= measuredCount
+      ) {
+        // Everything fits, or no overflow UI composed — show all content, hide
+        // ellipsis. Truncation is gone, so a disclosure left open from a
+        // narrower viewport is stale.
         hiddenCount.value = 0
         if (expanded.value) expanded.value = false
         for (const t of ellipsisTickets) group.unselect(t.id)
