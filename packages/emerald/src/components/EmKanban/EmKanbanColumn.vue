@@ -68,7 +68,13 @@
     const target = from?.column === column.id && from.index < to ? to - 1 : to
     const moved = kanban.transfer(card, column.id, target)
 
-    if (!moved || !from) return
+    // Without an announcement the live region keeps the stale pickup message.
+    if (!moved) {
+      context.announce('Move not allowed, the card stayed where it was.')
+      return
+    }
+
+    if (!from) return
 
     if (focus) context.dropped.value = card
 

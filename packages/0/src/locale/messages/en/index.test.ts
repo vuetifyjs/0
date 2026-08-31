@@ -68,7 +68,7 @@ describe('locale/messages/en', () => {
   it('should export an English aria-string catalog for every v0 component namespace', () => {
     expect(en).toBeTypeOf('object')
 
-    for (const key of ['AlertDialog', 'Avatar', 'Breadcrumbs', 'Button', 'Carousel', 'Combobox', 'DataGrid', 'Dialog', 'NumberField', 'Pagination', 'Rating', 'Slider', 'Snackbar', 'Splitter']) {
+    for (const key of ['AlertDialog', 'Avatar', 'Breadcrumbs', 'Button', 'Carousel', 'Combobox', 'DataGrid', 'Dialog', 'Input', 'NumberField', 'Pagination', 'Rating', 'Slider', 'Snackbar', 'Splitter']) {
       expect(en).toHaveProperty(key)
     }
   })

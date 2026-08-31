@@ -497,6 +497,16 @@ findMatchRanges('cafe', 'café', { ignoreAccents: 'query' })  // [[0, 4]]
 
 Folding strips Combining Diacritical Marks (U+0300–036F) after NFD, then common letters NFD leaves alone (`ł`, `ø`, `đ`, `ß`, `æ`, `œ`, …). When the text is folded or case-converted, ranges are mapped back onto the source — `ß` → `ss` still spans one source character, and `İ` still spans one. Pass `matchAll: true` for every occurrence instead of the first.
 
+### getActiveElement
+
+Resolve the deepest focused node. Open shadow roots are walked so focus/keyboard logic sees the real control, not the host; light DOM matches `document.activeElement`. Closed roots are not traversable. Returns `null` under SSR.
+
+```ts
+import { getActiveElement } from '@vuetify/v0'
+
+const active = getActiveElement()
+```
+
 ### pxToNumber
 
 Parse a CSS pixel length into a number. Built for reading `getComputedStyle` output, where a length that does not apply resolves to `''` or `'auto'` rather than to a number:

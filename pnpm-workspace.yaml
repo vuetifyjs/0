@@ -15,6 +15,8 @@ catalog:
   '@changesets/cli': ^2.31.0
   '@flagsmith/flagsmith': ^11.0.0
   '@floating-ui/dom': ^1.8.0
+  '@iconify-json/lucide': 1.2.121
+  '@iconify-json/mdi': ^1.2.3
   '@js-temporal/polyfill': 0.5.1
   '@material/material-color-utilities': ^0.4.0
   '@mdi/js': npm:mdi-js-es@7.4.47

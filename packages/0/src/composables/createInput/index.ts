@@ -16,7 +16,7 @@
  * import { createInput } from '@vuetify/v0'
  *
  * const value = shallowRef('')
- * const input = createInput({ value, label: 'Name', rules: ['required'] })
+ * const input = createInput({ value, label: 'Name', required: true })
  * await input.validate()
  * ```
  */
@@ -24,6 +24,7 @@
 // Composables
 import { createRegistry } from '#v0/composables/createRegistry'
 import { createValidation } from '#v0/composables/createValidation'
+import { useLocale } from '#v0/composables/useLocale'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -53,7 +54,16 @@ export interface InputOptions<T = string> {
   name?: string
   /** Associate with form by ID. */
   form?: string
-  /** Whether required. */
+  /**
+   * Form injection key. Must match the parent Form's `namespace`.
+   *
+   * @default 'v0:form'
+   */
+  formNamespace?: string
+  /**
+   * Whether required. When true, a presence rule is registered so Form
+   * submit fails on empty values even with `novalidate`.
+   */
   required?: boolean
   /** Disabled state. */
   disabled?: MaybeRefOrGetter<boolean>
@@ -115,6 +125,7 @@ export function createInput<T = string> (options: InputOptions<T>): InputContext
     label,
     name,
     form,
+    formNamespace,
     required,
     disabled = false,
     readonly: _readonly = false,
@@ -125,7 +136,22 @@ export function createInput<T = string> (options: InputOptions<T>): InputContext
     equals = (a: T, b: T) => a === b,
   } = options
 
-  const validation = createValidation({ rules, value })
+  function filled (val: T): boolean {
+    if (dirtyFn) return dirtyFn(val)
+    return isString(val) ? val.length > 0 : !isNullOrUndefined(val)
+  }
+
+  const locale = useLocale()
+
+  function requiredRule (v: unknown) {
+    return filled(v as T) || (locale.ti('Input.required') ?? 'Required')
+  }
+
+  const validation = createValidation({
+    rules: required ? [requiredRule, ...rules] : rules,
+    value,
+    formNamespace,
+  })
 
   const initialValue = value.value
   const isFocused = shallowRef(false)
@@ -140,10 +166,7 @@ export function createInput<T = string> (options: InputOptions<T>): InputContext
   const descriptionId = `${id}-description`
   const errorId = `${id}-error`
 
-  const isDirty = toRef(() => {
-    if (dirtyFn) return dirtyFn(value.value)
-    return isString(value.value) ? value.value.length > 0 : !isNullOrUndefined(value.value)
-  })
+  const isDirty = toRef(() => filled(value.value))
 
   const isPristine = shallowRef(true)
 

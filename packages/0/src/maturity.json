@@ -386,7 +386,7 @@
       "level": "preview",
       "since": "0.1.8",
       "category": "system",
-      "description": "A composable for native popover API behavior with CSS anchor positioning."
+      "description": "Native popover API with a pluggable positioning adapter. Defaults to CSS-anchor positioning; swap in FloatingUIPopoverAdapter (or any PopoverAdapter) per instance or app-wide via createPopoverPlugin."
     },
     "usePresence": {
       "level": "preview",
@@ -648,7 +648,7 @@
     },
     "Alert": {
       "level": "preview",
-      "since": null,
+      "since": "1.2.0",
       "category": "semantic",
       "description": "Inline status message with ARIA live-region semantics. Use role=alert for urgent messages, role=status for informational."
     },
@@ -708,13 +708,13 @@
     },
     "DataGrid": {
       "level": "preview",
-      "since": null,
+      "since": "1.2.0",
       "category": "data",
       "description": "Headless data grid compound with column layout, cell editing, row ordering, and row spanning. Built on createDataGrid."
     },
     "DataTable": {
       "level": "preview",
-      "since": null,
+      "since": "1.2.0",
       "category": "data",
       "description": "Headless compound component for rendering tabular data with sorting, pagination, selection, and expansion support."
     },
@@ -744,7 +744,7 @@
     },
     "findMatchRanges": {
       "level": "preview",
-      "since": null,
+      "since": "1.2.0",
       "category": "utilities",
       "description": "Finds match ranges of a query in a string, optionally folding accents on either side."
     },
@@ -755,8 +755,9 @@
     },
     "getActiveElement": {
       "level": "preview",
-      "since": null,
-      "category": "utilities"
+      "since": "1.2.0",
+      "category": "utilities",
+      "description": "Walks open shadow roots to the deepest focused element. Returns null under SSR."
     },
     "hexToRgb": {
       "level": "preview",
@@ -845,7 +846,7 @@
     },
     "pxToNumber": {
       "level": "preview",
-      "since": null,
+      "since": "1.2.0",
       "category": "utilities",
       "description": "Parses a CSS pixel length into a number, returning a caller-supplied fallback when the length does not parse."
     },

@@ -440,6 +440,37 @@ describe('popover', () => {
 
         expect(contentProps.attrs.id).toBe('custom-id')
       })
+
+      it('should CSS-anchor a custom Content id to a matching Activator target', async () => {
+        let activatorProps: any
+        let contentProps: any
+
+        mount(Popover.Root, {
+          slots: {
+            default: () => [
+              h(Popover.Activator, { target: 'custom-id' }, {
+                default: (props: any) => {
+                  activatorProps = props
+                  return h('button', 'Toggle')
+                },
+              }),
+              h(Popover.Content, { id: 'custom-id', positionArea: 'bottom span-right' }, {
+                default: (props: any) => {
+                  contentProps = props
+                  return h('div', 'Content')
+                },
+              }),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(activatorProps.attrs.style.anchorName).toBe('--custom-id')
+        expect(contentProps.attrs.style['position-anchor']).toBe('--custom-id')
+        expect(contentProps.attrs.style['position-area']).toBe('bottom span-right')
+        expect(contentProps.attrs.style['inset-area']).toBe('bottom span-right')
+      })
     })
 
     describe('open state', () => {

@@ -12,7 +12,7 @@ v0 is a **headless meta-framework for building UI libraries** — a set of Vue 3
 
 ### What v0 is
 
-- A layer of Vue 3 composables (~73) and compound components (~40) that encode interaction patterns, selection state, registries, accessibility contracts, keyboard navigation, focus management, SSR safety, and adapter-backed plugin state.
+- A layer of Vue 3 composables (~71) and compound components (~43) that encode interaction patterns, selection state, registries, accessibility contracts, keyboard navigation, focus management, SSR safety, and adapter-backed plugin state.
 - The bottom of a four-layer stack: **v0 → Paper → Design Systems → Vuetify**. v0 handles logic *and the headless token substrate* — theme state (`useTheme`), design tokens (`createTokens`), palettes-as-data (`src/palettes/`), and color/contrast math (`apca`); Paper consumes that substrate and handles styling *application* (`useColor`, `useContrast`); design systems (Emerald, Onyx, etc.) compose Paper into complete frameworks; Vuetify 4 is one such consumer, and from 4.2.0 it also depends on v0 directly — the utility layer first, with deeper adoption through subsequent 4.x minors. [intent:295, intent:296, intent:297, intent:298]
 - Zero runtime dependencies on UI styling. No Tailwind, no UnoCSS, no Vuetify classes inside `packages/0/src/`. [intent:82, intent:278]
 - WAI-ARIA correct by default. Every interactive component ships `role`, `aria-*`, keyboard handlers, and `aria-disabled` semantics. [intent:174, intent:178]
@@ -65,7 +65,7 @@ Non-negotiable. Each axiom carries a statement, a rationale, and a concrete anti
 
 **Operational definition.** Consumers must be able to replicate every visible behavior by writing CSS against the data attributes v0 emits. Acid test: "If I stripped every stylesheet from the consuming app, would v0's components still function and announce their state correctly to a screen reader?" [intent:281]
 
-**Canonical example.** `packages/0/src/components/Splitter/SplitterRoot.vue:373-376` — inline `:style="[..., { display: 'flex', flexDirection: '...' }]"`. Structural layout, no visual opinion.
+**Canonical example.** `packages/0/src/components/Splitter/SplitterRoot.vue:489-492` — inline `:style="[..., { display: 'flex', flexDirection: '...' }]"`. Structural layout, no visual opinion.
 
 **Allowed.** Structural inline `:style` bindings when layout cannot work otherwise (flex directions, CSS custom properties for depth, visually-hidden positioning for hidden inputs, z-index from `useStack`). [intent:279]
 
@@ -181,7 +181,7 @@ return {
 
 **Statement.** All utilities carry `#__NO_SIDE_EFFECTS__`. No top-level side effects in `packages/0/src/utilities/**`. [intent:95]
 
-**Why.** Consumers import from a flat barrel. Without the marker, bundlers retain every utility the barrel touches. Meta-frameworks with 73 composables and 40 components cannot afford a lazy barrel.
+**Why.** Consumers import from a flat barrel. Without the marker, bundlers retain every utility the barrel touches. Meta-frameworks with 71 composables and 43 components cannot afford a lazy barrel.
 
 **Canonical example.** `packages/0/src/utilities/helpers.ts:32,49,69,87,113,138,156,174,194,219` — every exported guard carries the comment directly above the function declaration.
 
@@ -412,7 +412,9 @@ Consumers in **non-renderless** components must not spread `attrs` onto a child 
 
 ### 3.6 Boolean data attributes
 
-Data attributes are always `true | undefined` (or the equivalent `'' | undefined`), never `true | false`. Undefined removes the attribute from DOM. [intent:172]
+Boolean data attributes (`data-disabled`, `data-open`, `data-selected`) are always `true | undefined` (or the equivalent `'' | undefined`), never `true | false`. Undefined removes the attribute from DOM. [intent:172]
+
+Token-valued attributes (`data-state`, `data-orientation`) use their string union plus `undefined` to omit. Splitter's `data-pending` is `'collapse' | 'expand' | undefined` — not the boolean `'' | undefined` used by AlertDialogAction.
 
 `aria-disabled` is the exception: always `boolean`, so assistive tech reads a concrete value. [intent:175]
 
@@ -503,7 +505,7 @@ Always use `.value` when reading these in templates. Never rely on Vue's auto-un
 **Intentional mutable returns.** Some composables return *mutable* refs by design because the consumer is expected to write to them. The return interface types them as `ShallowRef<T>` (or `Ref<T>`) so the write contract is visible at the type level:
 
 - `packages/0/src/composables/useTimer/index.ts:68,70,72` — `remaining`, `isActive`, `isPaused` typed as `ShallowRef<...>` in `TimerContext`. Consumers pause and resume by writing.
-- `packages/0/src/composables/usePopover/index.ts:58` — `isOpen: Ref<boolean>` for v-model bidirectional binding.
+- `packages/0/src/composables/usePopover/index.ts:104` — `isOpen: Ref<boolean>` for v-model bidirectional binding.
 - `packages/0/src/composables/createInput/index.ts:90,94,98` — `value`, `isFocused`, `isTouched` mutable so bound components can write; `isDirty` / `isPristine` are `Readonly<Ref<boolean>>` (do not write).
 
 **Audit (resolved).** `useRovingFocus` and `createFocusTraversal` each expose a single consumer-visible ref (`focusedId` / `activeId`), both declared `ShallowRef<ID | undefined>` in their return interface (`RovingFocusReturn` / `TraversalReturn`). These are intentionally mutable — consumers set focus by writing the ref — so the `ShallowRef<T>` type is the correct contract; no `shallowReadonly` boundary wrapper is required. (Design note: writing the ref directly bypasses the internal `applyFocus()` DOM-focus side-effect; switch to `Readonly<Ref>` + a `focus()` method if direct writes should be disallowed.)
@@ -607,7 +609,7 @@ This is an acid test, not a vibe. If the only way to get state X to render diffe
 - **No utility classes.** Zero `class="px-4"`, zero `class="bg-primary"`. [intent:278]
 - **Structural-only `:style`.** `display: flex`, `flex-grow`, `visibility`, z-index from `useStack`, CSS custom properties for depth, visually-hidden positioning. If your `:style` sets `color` or `padding`, it is not structural. [intent:279]
 - **Data attributes as styling hooks.** `data-state="open"`, `data-disabled`, `data-orientation="vertical"`. Consumers style against these. [intent:280]
-- **DOM-rendering Roots use `<Atom :as :renderless>`.** The universal wrapper that lets consumers swap the tag and strip it. Provider / slot-only Roots — `Group`, `Locale`, `Portal`, `Presence`, `Selection`, `Single`, `Step`, `Tabs`, `Treeview` — render only `<slot v-bind="slotProps" />` (or teleport their children) with no `Atom` wrapper, because their DOM is emitted by sub-components or the wrapper would be meaningless. [intent:186, intent:336]
+- **DOM-rendering Roots use `<Atom :as :renderless>`.** The universal wrapper that lets consumers swap the tag and strip it. Provider / slot-only Roots — `DataGrid`, `DataTable`, `Group`, `Locale`, `Portal`, `Presence`, `Selection`, `Single`, `Step`, `Tabs`, `Treeview` — render only `<slot v-bind="slotProps" />` (or teleport their children) with no `Atom` wrapper, because their DOM is emitted by sub-components or the wrapper would be meaningless. [intent:186, intent:336]
 
 ### 5.4 Hidden inputs
 
@@ -980,7 +982,7 @@ Every key passed to `createContext(key)` or `createXContext({ namespace })` must
 
 **Static-key vs dynamic-key modes.** `createContext` operates in two modes:
 
-- **Static-key mode** — the call site passes a single string (`createContext('v0:popover')`). The namespace is fixed at module load; the `[useX, provideX]` pair injects against that one key. Used by the few Roots whose namespace never needs to vary per subtree — in component source today, only `Popover` (`'v0:popover'`) and `Splitter` (`'v0:splitter'`).
+- **Static-key mode** — the call site passes a single string (`createContext('v0:popover:root')`). The namespace is fixed at module load; the `[useX, provideX]` pair injects against that one key. Used by the few Roots whose namespace never needs to vary per subtree — in component source today, only `Popover` (`'v0:popover:root'`) and `Splitter` (`'v0:splitter'`).
 - **Dynamic-key mode** — the call site passes an options object or omits the positional key (`createContext({ suffix: 'item' })` or `createContext()`), which makes the returned `useX` / `provideX` accept a runtime namespace argument supplied at provide time; `suffix` is an optional string appended to that runtime key (`key:suffix`). This is the default for compound Roots — `Tabs`, `Dialog`, `Combobox`, `Select`, and the rest omit the positional key and pass the namespace to `provideXRoot(namespace, context)` (see §6.5). It is also what lets a single composable service multiple disjoint subtrees within the same app (e.g., nested `Selection` providers). The `[v0:context]` colon warning is static-key-mode only (gated on `isString(keyOrOptions)`); the dynamic branch performs no colon check on the runtime key.
 
 ### 9.4 SSR gating
@@ -1320,7 +1322,7 @@ v0 never renders a sort indicator itself. Direction lives in state, not in marku
 
 **Wrong (v0 source renders an indicator directly).**
 ```vue
-<!-- packages/0/src/components/DataTable/DataTableColumnHeader.vue — hypothetical, do not write -->
+<!-- packages/0/src/components/DataTable/DataTableColumn.vue — hypothetical, do not write -->
 <template>
   <Atom :as :renderless>
     <button>
@@ -1335,7 +1337,7 @@ Two failures in one snippet: the span is rendered inside v0 source (which is the
 
 **Right (consumer owns the indicator).**
 ```vue
-<!-- packages/0/src/components/DataTable/DataTableColumnHeader.vue -->
+<!-- packages/0/src/components/DataTable/DataTableColumn.vue -->
 <template>
   <Atom :as :renderless>
     <slot v-bind="slotProps" />
@@ -1344,14 +1346,14 @@ Two failures in one snippet: the span is rendered inside v0 source (which is the
 ```
 
 ```vue
-<!-- consumer's app — renders whatever it likes -->
-<DataTable.ColumnHeader v-slot="{ attrs, direction }">
+<!-- consumer's app — renders whatever it likes; Column emits data-direction on attrs -->
+<DataTable.Column sortable v-slot="{ attrs, direction }">
   <button v-bind="attrs">
     {{ label }}
     <MyIcon v-if="direction === 'asc'" name="arrow-up" />
     <MyIcon v-else-if="direction === 'desc'" name="arrow-down" />
   </button>
-</DataTable.ColumnHeader>
+</DataTable.Column>
 ```
 
 Reason: §2.1, §5.1 (headless acid test — consumer must be able to style/render against data attributes alone), [intent:269]. v0 emits state, consumers emit glyphs.

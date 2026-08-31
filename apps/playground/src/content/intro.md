@@ -46,6 +46,30 @@ Point `?registry=` at a custom origin when testing a local docs build.
 - The URL updates as you edit — copy it to share exactly what you built
 - **Vuetify One playgrounds** get a canonical URL: `/playgrounds/:id` (e.g. `/playgrounds/abc123`). The editor hash is preserved for sharing with content inline
 - Save to Vuetify One via **☰ → File → Save** to persist your work and get a shareable link
+- Owners manage saved playgrounds from **☰ → File → Open → Vuetify One** (rename, pin, favorite, visibility, delete)
+
+## Sending a theme
+
+Any producer — docs, the builder, a host app — can ship a theme in the hash next to the files. v0play merges `themes` into the sandbox `createThemePlugin` and selects `theme`:
+
+```json
+{
+  "files": { "src/App.vue": "…" },
+  "theme": "brand-light",
+  "themes": {
+    "brand-light": {
+      "dark": false,
+      "colors": { "primary": "#7453ec", "background": "#ffffff" }
+    },
+    "brand-dark": {
+      "dark": true,
+      "colors": { "primary": "#c4b5fd", "background": "#121212" }
+    }
+  }
+}
+```
+
+Ids must be CSS identifiers. Light/dark pairs are `{name}-light` / `{name}-dark` — never a bare `{name}` for one side. Color values must be plain tokens (hex / rgb / names) — no `url()`, `expression()`, or braces. Include both records if the playground host toggle should stay on that palette; a single custom theme is enough when there is no pair.
 
 ## Tips
 

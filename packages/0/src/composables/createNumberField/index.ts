@@ -66,6 +66,17 @@ export interface NumberFieldOptions extends NumericOptions {
   label?: string
   /** Form field name. */
   name?: string
+  /**
+   * Form injection key. Must match the parent Form's `namespace`.
+   *
+   * @default 'v0:form'
+   */
+  formNamespace?: string
+  /**
+   * Whether required. When true, a presence rule is registered so Form
+   * submit fails on empty values even with `novalidate`.
+   */
+  required?: boolean
   /** Validation rules. */
   rules?: InputOptions<number | null>['rules']
   /** Manual error state override — forces invalid. */
@@ -135,6 +146,8 @@ export function createNumberField (options: NumberFieldOptions = {}): NumberFiel
     id,
     label,
     name,
+    formNamespace,
+    required,
     rules,
     error,
     errorMessages,
@@ -147,6 +160,8 @@ export function createNumberField (options: NumberFieldOptions = {}): NumberFiel
     id,
     label,
     name,
+    formNamespace,
+    required,
     disabled,
     readonly: _readonly,
     rules,

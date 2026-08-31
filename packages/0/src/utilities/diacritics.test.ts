@@ -45,6 +45,40 @@ describe('diacritics', () => {
       expect(findMatchRanges('café', 'cafe', { ignoreAccents: 'query' })).toStrictEqual([])
     })
 
+    it('should still match an identical accented spelling under directional folding', () => {
+      expect(findMatchRanges('… Kraków …', 'Kraków', { ignoreAccents: 'query' })).toStrictEqual([[2, 8]])
+      expect(findMatchRanges('café', 'café', { ignoreAccents: 'target' })).toStrictEqual([[0, 4]])
+    })
+
+    it('should not lose the exact-match distinction between different accents', () => {
+      expect(findMatchRanges('café', 'cafè', { ignoreAccents: 'query' })).toStrictEqual([])
+      expect(findMatchRanges('café', 'cafè', { ignoreAccents: 'target' })).toStrictEqual([])
+    })
+
+    it('should merge an exact match with a folded match under matchAll', () => {
+      expect(findMatchRanges('café and cafe', 'café', { ignoreAccents: 'query', matchAll: true }))
+        .toStrictEqual([[0, 4], [9, 13]])
+    })
+
+    it('should return the first source-order range after merging exact and folded', () => {
+      expect(findMatchRanges('café and cafe', 'café', { ignoreAccents: 'query' }))
+        .toStrictEqual([[0, 4]])
+      expect(findMatchRanges('cafe and café', 'café', { ignoreAccents: 'query' }))
+        .toStrictEqual([[0, 4]])
+    })
+
+    it('should collapse an exact match that coincides with a folded match', () => {
+      expect(findMatchRanges('cafe', 'cafe', { ignoreAccents: 'query', matchAll: true }))
+        .toStrictEqual([[0, 4]])
+    })
+
+    it('should still match an identical accented spelling when ignoreCase is set', () => {
+      expect(findMatchRanges('Kraków', 'kraków', { ignoreAccents: 'query', ignoreCase: true }))
+        .toStrictEqual([[0, 6]])
+      expect(findMatchRanges('Kraków', 'kraków', { ignoreAccents: 'target', ignoreCase: true }))
+        .toStrictEqual([[0, 6]])
+    })
+
     it('should find the first occurrence only unless matchAll is set', () => {
       expect(findMatchRanges('é é', 'e', { ignoreAccents: true })).toStrictEqual([[0, 1]])
       expect(findMatchRanges('é é', 'e', { ignoreAccents: true, matchAll: true })).toStrictEqual([[0, 1], [2, 3]])

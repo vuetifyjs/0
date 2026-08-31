@@ -52,6 +52,9 @@ export default {
   Dialog: {
     close: 'Close',
   },
+  Input: {
+    required: 'Required',
+  },
   NumberField: {
     decrement: 'Decrement',
     increment: 'Increment',
@@ -79,5 +82,7 @@ export default {
   },
   Splitter: {
     handle: 'Resize',
+    releaseToHide: 'Release to hide',
+    releaseToOpen: 'Release to open',
   },
 } as const

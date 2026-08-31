@@ -150,6 +150,10 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
     return ticket
   }
 
+  function onboard (registrations: Partial<ProgressTicketInput>[]): ProgressTicket[] {
+    return model.batch(() => registrations.map(registration => register(registration)))
+  }
+
   function apply (incoming: unknown[], _options?: { multiple?: boolean }): void {
     const clamped = incoming.map(v => clamp(Number(v), min, max))
 
@@ -175,6 +179,7 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
     isIndeterminate,
     fromValue,
     register,
+    onboard,
     apply,
     min,
     max,

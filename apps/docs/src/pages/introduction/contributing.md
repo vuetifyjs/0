@@ -52,7 +52,7 @@ For new features:
 ### Prerequisites
 
 - Node 26+ (matches .nvmrc)
-- pnpm 10.6+
+- pnpm 11.16.0
 - Git
 
 ### Setup
@@ -82,6 +82,9 @@ pnpm dev:docs
 │   │       ├── composables/   # Composable functions
 │   │       ├── utilities/     # Helper functions
 │   │       └── types/         # TypeScript types
+│   ├── play/           # @vuetify/play - playground hash protocol
+│   ├── emerald/        # @paper/emerald - design system
+│   ├── bulma/          # @paper/bulma - Bulma compat design system
 │   ├── genesis/        # @paper/genesis - design system
 │   └── paper/          # @vuetify/paper - styling primitives (dormant, not published)
 ├── apps/
@@ -124,7 +127,9 @@ pnpm build            # Build packages
 | `dev` | New features that add public API (a component, composable, prop, or option) | Minor |
 | `next` | Breaking changes (anything with a `BREAKING CHANGE:` footer) | Major |
 
-Only `master` publishes to npm. Work on `dev` and `next` merges into `master` at the next minor or major release, and that merge is what ships it. If you're unsure which base fits, open against `master` — a maintainer will retarget it.
+Only `master` publishes to npm. Work on `dev` and `next` merges into `master` at the next minor or major release, and that merge is what ships it. That join is a **merge commit**, not squash or rebase — squashing rewrites the `dev` SHAs and the next cut treats the same history as new. If you're unsure which base fits, open against `master` — a maintainer will retarget it.
+
+A `feat` PR that adds public API **must** target `dev`. If it lands on `master` with a `minor` changeset, the next Version Packages merge *is* that minor, even if larger features are still queued on `dev`. The version number is not reserved for a milestone.
 
 > [!TIP]
 > A `feat` that only touches the docs site, playground, or other tooling (not `packages/*` source) ships no package version, so it targets `master` — prefer a `docs`/`chore` prefix for those.
@@ -175,7 +180,8 @@ Never edit `package.json` versions by hand — release automation owns every bum
 ### PR Guidelines
 
 - Keep PRs focused - one feature or fix per PR
-- Write a clear title and description
+- Title must be Conventional Commits: `type(scope): subject` (scope optional). Allowed types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`. Squash merge uses the title as the commit — Semantic PR is required, and a non-matching title cannot merge
+- Write a clear description
 - Reference any related issues
 - Be responsive to feedback
 

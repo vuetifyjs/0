@@ -196,7 +196,6 @@ declare module 'vue' {
     EmTooltip: typeof import('./../../packages/emerald/src/components/EmTooltip/EmTooltip.vue')['default']
     EmTooltipActivator: typeof import('./../../packages/emerald/src/components/EmTooltip/EmTooltipActivator.vue')['default']
     EmTooltipContent: typeof import('./../../packages/emerald/src/components/EmTooltip/EmTooltipContent.vue')['default']
->>>>>>> origin/dev
     ExpansionPanel: typeof import('./../../packages/0/src/components/fixtures/ExpansionPanel.vue')['default']
     ExpansionPanelActivator: typeof import('./../../packages/0/src/components/ExpansionPanel/ExpansionPanelActivator.vue')['default']
     ExpansionPanelContent: typeof import('./../../packages/0/src/components/ExpansionPanel/ExpansionPanelContent.vue')['default']

@@ -53,6 +53,8 @@
     ariaLabelledby?: string
     /** ID of element that describes this tab */
     ariaDescribedby?: string
+    /** Focus target when renderless / `:as="null"`. Defaults to the Atom host. */
+    el?: MaybeRefOrGetter<Element | null | undefined>
   }
 
   export interface TabsItemSlotProps {
@@ -106,11 +108,12 @@
     ariaLabel,
     ariaLabelledby,
     ariaDescribedby,
+    el: _el,
   } = defineProps<TabsItemProps<V>>()
 
   const tabs = useTabsRoot(namespace)
 
-  const el = toRef(() => toElement(rootRef.value?.element) ?? undefined)
+  const el = toRef(() => toElement(_el) ?? toElement(rootRef.value?.element) ?? undefined)
   const ticket = tabs.register({ id, value, disabled: () => toValue(disabled) ?? false, el })
 
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(tabs.disabled))
@@ -126,7 +129,7 @@
     nextTick(() => {
       const selected = tabs.selectedItem.value
       if (selected) {
-        (toValue(selected.el) as HTMLElement | undefined)?.focus()
+        (toElement(selected.el) as HTMLElement | undefined)?.focus()
       }
     })
   }
@@ -148,7 +151,7 @@
       }
       const item = all[index]
       if (item && !toValue(item.disabled)) {
-        nextTick(() => (toValue(item.el) as HTMLElement | undefined)?.focus())
+        nextTick(() => (toElement(item.el) as HTMLElement | undefined)?.focus())
         return
       }
       index += direction
@@ -158,7 +161,7 @@
 
   function focusEdge (edge: 'first' | 'last') {
     const item = tabs.seek(edge)
-    if (item) nextTick(() => (toValue(item.el) as HTMLElement | undefined)?.focus())
+    if (item) nextTick(() => (toElement(item.el) as HTMLElement | undefined)?.focus())
   }
 
   function onKeydown (e: KeyboardEvent) {

@@ -219,7 +219,7 @@ export function isElement (item: unknown): item is Element {
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function getActiveElement (): Element | null {
-  if (typeof document === 'undefined') return null
+  if (!IN_BROWSER) return null
   let active = document.activeElement
   while (active?.shadowRoot?.activeElement) {
     active = active.shadowRoot.activeElement

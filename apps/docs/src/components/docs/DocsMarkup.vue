@@ -60,7 +60,7 @@
         {{ hideFilename ? language : title ?? language }}
       </span>
 
-      <div class="absolute top-3 end-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100">
+      <div class="absolute top-2 end-2 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100">
         <DocsCodeActions
           v-model:size="size"
           v-model:wrap="lineWrap"

@@ -65,14 +65,6 @@ markup against bulma.io's documented fixtures.
 - **Esc closes a `blocking` BuModal:** matches v0 Dialog semantics (`blocking` gates
   scrim-click dismissal only, mirroring native `<dialog>` cancel). Revisit if the DS wants
   `blocking` to gate keyboard dismissal too.
-- **BuTab arrow keys move selection, not focus:** Tabs.Item renders renderless (the
-  fixture demands `li > a` with `is-active` on the `li`), so it registers no element and
-  v0's `focusSelectedTab`/`focusAdjacent` are no-ops — ArrowLeft/ArrowRight update
-  selection, panels, and `aria-selected`, but the visible focus ring and screen-reader
-  announcement stay on the previously focused anchor (APG tabs deviation the axe sweep
-  cannot catch). v0-core follow-up: let TabsItem accept an element input via
-  registration so renderless consumers can supply the focus target
-  ([#912](https://github.com/vuetifyjs/0/issues/912)).
 - **BuBreadcrumb hand-rolls its markup:** v0 BreadcrumbsRoot's overflow watcher hides
   middle crumbs whenever measured capacity < crumb count even with no Ellipsis
   registered — crumbs silently disappear where upstream Bulma flex-wraps. Since

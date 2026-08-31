@@ -14,7 +14,7 @@ import { IN_BROWSER } from '@vuetify/v0'
 import { useAuthStore } from '@vuetify/auth'
 
 // Utilities
-import { isNullOrUndefined, isUndefined } from '#v0/utilities'
+import { isArray, isNullOrUndefined, isUndefined } from '#v0/utilities'
 import { computed, type ComputedRef, type InjectionKey, inject, provide, shallowRef, toRef } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -197,7 +197,7 @@ export function useOnePlaygrounds () {
     }
   }
 
-  function clearCurrent () {
+  function clearCurrent (options?: { skipUrlSync?: boolean }) {
     cancelAutosave()
     lastSynced = undefined
     autosaveEnabled.value = true
@@ -210,7 +210,9 @@ export function useOnePlaygrounds () {
       visibility: 'public',
     }
     currentOwner.value = undefined
-    syncUrl(undefined)
+    if (!options?.skipUrlSync) {
+      syncUrl(undefined)
+    }
   }
 
   function setAutosave (enabled: boolean) {
@@ -380,22 +382,61 @@ export function useOnePlaygrounds () {
   }
 
   /**
-   * Partial update for meta fields only — does not touch content.
-   * Keeps meta and content autosave on separate paths to avoid races.
+   * List the signed-in user's Vuetify One playgrounds.
+   */
+  async function list (): Promise<OnePlayground[]> {
+    if (!IN_BROWSER) throw new Error('list is only available in the browser')
+
+    const res = await fetch(`${ONE_API}/one/playgrounds`, {
+      credentials: 'include',
+    })
+
+    if (res.status === 401) throw new Error('Sign in required')
+    if (!res.ok) throw new Error(`Failed to load playgrounds (${res.status})`)
+
+    const data = await res.json()
+    const playgrounds = data.playgrounds ?? data
+    if (!isArray(playgrounds)) throw new Error('Failed to load playgrounds')
+    return playgrounds as OnePlayground[]
+  }
+
+  /**
+   * Full-meta update — does not touch content.
+   * One's Zod schema requires title + favorite + pinned + visibility (locked included).
+   * Merge `snapshot` (or current title/meta) then spread `patch` last.
    */
   async function patchMeta (
     patch: Partial<Pick<OnePlaygroundMeta, 'favorite' | 'pinned' | 'locked' | 'visibility'> & { title?: string }>,
     id?: string,
+    snapshot?: Pick<OnePlayground, 'title' | 'favorite' | 'pinned' | 'locked' | 'visibility'>,
   ): Promise<OnePlayground> {
     if (!IN_BROWSER) throw new Error('patchMeta is only available in the browser')
     const target = id ?? currentId.value
     if (!target) throw new Error('No playground linked')
 
+    let source: Pick<OnePlayground, 'title' | 'favorite' | 'pinned' | 'locked' | 'visibility'>
+    if (snapshot) {
+      source = snapshot
+    } else if (currentId.value === target) {
+      source = { title: currentTitle.value, ...currentMeta.value }
+    } else {
+      throw new Error('patchMeta requires a snapshot when the target is not the current playground')
+    }
+
+    const title = ((patch.title ?? source.title) || '').trim() || 'Untitled'
+    const playground = {
+      title,
+      favorite: patch.favorite ?? source.favorite,
+      pinned: patch.pinned ?? source.pinned,
+      locked: patch.locked ?? source.locked,
+      visibility: patch.visibility ?? source.visibility,
+    }
+
     const res = await fetch(`${ONE_API}/one/playgrounds/${target}`, {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ playground: patch }),
+      body: JSON.stringify({ playground }),
     })
 
     if (res.status === 401) throw new Error('Sign in required')
@@ -404,32 +445,47 @@ export function useOnePlaygrounds () {
     if (!res.ok) throw new Error(`Update failed (${res.status})`)
 
     const data = await res.json()
-    const playground = (data.playground ?? data) as OnePlayground
+    const result = (data.playground ?? data) as OnePlayground
 
     if (currentId.value === target) {
-      if (!isUndefined(patch.title)) currentTitle.value = playground.title
+      currentTitle.value = result.title
       currentMeta.value = {
-        favorite: playground.favorite,
-        pinned: playground.pinned,
-        locked: playground.locked,
-        visibility: playground.visibility,
+        favorite: result.favorite,
+        pinned: result.pinned,
+        locked: result.locked,
+        visibility: result.visibility,
       }
     }
 
-    return playground
+    return result
   }
 
   /**
-   * Delete the current playground and clear the association.
+   * Delete a playground. Defaults to the current association.
    * Throws if favorite or locked — caller must clear those first.
+   * Clears the current association only when the deleted id is current.
    */
-  async function destroy (): Promise<void> {
+  async function destroy (
+    id?: string,
+    snapshot?: Pick<OnePlayground, 'favorite' | 'locked'>,
+  ): Promise<void> {
     if (!IN_BROWSER) throw new Error('destroy is only available in the browser')
-    if (!currentId.value) throw new Error('No playground linked')
-    if (currentMeta.value.favorite) throw new Error('Cannot delete a favorited playground')
-    if (currentMeta.value.locked) throw new Error('Cannot delete a locked playground')
+    const target = id ?? currentId.value
+    if (!target) throw new Error('No playground linked')
 
-    const res = await fetch(`${ONE_API}/one/playgrounds/${currentId.value}`, {
+    let source: Pick<OnePlayground, 'favorite' | 'locked'>
+    if (snapshot) {
+      source = snapshot
+    } else if (currentId.value === target) {
+      source = currentMeta.value
+    } else {
+      throw new Error('destroy requires a snapshot when the target is not the current playground')
+    }
+
+    if (source.favorite) throw new Error('Cannot delete a favorited playground')
+    if (source.locked) throw new Error('Cannot delete a locked playground')
+
+    const res = await fetch(`${ONE_API}/one/playgrounds/${target}`, {
       method: 'DELETE',
       credentials: 'include',
     })
@@ -439,8 +495,11 @@ export function useOnePlaygrounds () {
     if (res.status === 404) throw new Error('Playground not found')
     if (!res.ok) throw new Error(`Delete failed (${res.status})`)
 
-    clearCurrent()
-    navigateToRoot()
+    if (currentId.value === target) {
+      const editor = IN_BROWSER && window.location.pathname === `/playgrounds/${target}`
+      clearCurrent({ skipUrlSync: !editor })
+      if (editor) navigateToRoot()
+    }
   }
 
   /**
@@ -519,6 +578,7 @@ export function useOnePlaygrounds () {
     create,
     update,
     save,
+    list,
     patchMeta,
     destroy,
     fork,

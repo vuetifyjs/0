@@ -58,9 +58,7 @@ Bulma's `.tabs` with selection and panels — the JavaScript and the tabpanels t
 
 `BuTabs` is `Tabs.Root` with no element of its own. Bulma's `.tabs` block is the list, and the panels are siblings of that block, so the selection context has to wrap both. Every `.tabs` modifier — `centered`, `boxed`, `toggle`, `size` — therefore lives on `BuTabList`, which is the `div.tabs` plus the `ul` (`Tabs.List as="ul"`). Putting those classes on the root would paint a wrapper Bulma does not document.
 
-`BuTab` is `Tabs.Item` with `as` set to `null`, not the `renderless` prop. `as` feeds the item's button polyfill, so `renderless` alone would leak `type="button"` and `disabled` onto the anchor. The item renders `li.is-active > a` itself, which is what the fixture demands: `is-active` on the `li`, no `href` on the `a`.
-
-That renderless item registers no element. v0's `focusSelectedTab` / `focusAdjacent` then become no-ops — Arrow keys still move selection, panels and `aria-selected`, but DOM focus stays on the previously selected anchor. That is a documented APG deviation, not an oversight; the v0-core follow-up is to let `TabsItem` accept an element via registration so a renderless consumer can supply the focus target.
+`BuTab` is `Tabs.Item` with `as` set to `null`, not the `renderless` prop. `as` feeds the item's button polyfill, so `renderless` alone would leak `type="button"` and `disabled` onto the anchor. The item renders `li.is-active > a` itself, which is what the fixture demands: `is-active` on the `li`, no `href` on the `a`. The `<a>` is passed as `el` so arrow-key focus follows the real control.
 
 `BuTabPanel` is `Tabs.Panel` as-is. The `hidden` attribute is fine here: Bulma defines no panel CSS, so there is no class for the wrapper to fight.
 
@@ -137,8 +135,5 @@ Size still belongs on the list. `small` / `medium` / `large` scale the tabs with
 | Key | Behavior |
 |-----|----------|
 | Click | Selects that tab |
-| Arrow Left / Right | Moves **selection**, not focus |
-| Home / End | Selects first / last |
-
-> [!WARNING]
-> Arrow keys update selection, panels and `aria-selected`, but the focus ring and the screen-reader cursor stay on the tab that was focused. `BuTab` is renderless, so v0 has no element to move focus to. This is an APG tabs deviation the axe sweep cannot catch. Click still focuses the tab you clicked; keyboard users who start on a tab and arrow away will hear the old tab while a new panel is showing.
+| Arrow Left / Right | Moves focus **and** activates the tab |
+| Home / End | Focuses **and** activates first / last |
