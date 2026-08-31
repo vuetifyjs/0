@@ -515,7 +515,7 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     return `<DocsMarkup code="${encodedCode}" language="${lang || 'text'}"${titleAttr}${binTitleAttr}${playgroundAttr}${collapseAttr}${collapseLinesAttr}${hideFilenameAttr}${tourAttr}>${highlighted}</DocsMarkup>`
   }
   // Wrap tables in scrollable container for mobile
-  md.renderer.rules.table_open = () => '<div class="overflow-x-auto mb-4"><table>'
+  md.renderer.rules.table_open = () => '<div class="docs-table overflow-x-auto mb-4"><table>'
   md.renderer.rules.table_close = () => '</table></div>'
 
   // Emit <AppImage> for markdown images: ![alt](src "title") — title maps to caption
