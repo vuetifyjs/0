@@ -79,7 +79,7 @@ function getMarked (hl: Highlighter): Marked {
         }
         const thead = `<thead><tr>${header.map(cell => `<th${cell.align ? ` align="${cell.align}"` : ''}>${parse(cell.text)}</th>`).join('')}</tr></thead>`
         const tbody = `<tbody>${rows.map(row => `<tr>${row.map(cell => `<td${cell.align ? ` align="${cell.align}"` : ''}>${parse(cell.text)}</td>`).join('')}</tr>`).join('')}</tbody>`
-        return `<div class="overflow-x-auto mb-4"><table>${thead}${tbody}</table></div>`
+        return `<div class="docs-table overflow-x-auto mb-4"><table>${thead}${tbody}</table></div>`
       },
       blockquote ({ raw }) {
         // GitHub-style callouts: > [!TIP], > [!NOTE], > [!WARNING], > [!CAUTION], > [!IMPORTANT], > [!TRY], > [!TOUR]

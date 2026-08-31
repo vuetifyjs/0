@@ -354,6 +354,12 @@
     h1, h2, h3, h4, h5, h6 {
       position: relative;
 
+      /* Long API tokens (useIntersectionObserver, SUPPORTS_*) must break
+         instead of widening the layout viewport on phones. */
+      @media (max-width: 767px) {
+        overflow-wrap: anywhere;
+      }
+
       > .header-anchor {
         color: inherit;
         text-decoration: none;
@@ -375,7 +381,10 @@
         }
 
         &::after {
-          margin-left: 0.25em;
+          /* Out of flow — an in-flow '#' extends the widest line by ~1em
+             and with it the page's scrollWidth on mobile. */
+          position: absolute;
+          margin-inline-start: 0.25em;
           opacity: 0;
         }
 
@@ -388,6 +397,18 @@
         @media (max-width: 767px) {
           &::before {
             display: none;
+          }
+
+          &::after {
+            /* Explicit offsets, heading-relative: the static position of an
+               abspos child of the inline-flex anchor is the flex alignment
+               origin — over the heading's first characters — and anything
+               hung past the text end re-widens wrapped headings. Pinned to
+               the inline-end of the heading's last line instead: a wrapped
+               heading's first line is full by construction, its last line is
+               the short leftover. */
+            inset-inline-end: 0;
+            bottom: 0;
           }
         }
       }
@@ -432,6 +453,12 @@
 
     code {
       font-family: 'Courier New', Courier, monospace;
+
+      /* Inline paths/imports in prose wrap instead of widening the page;
+         inert inside pre-formatted (.shiki) blocks. */
+      @media (max-width: 767px) {
+        overflow-wrap: anywhere;
+      }
     }
 
     p {
@@ -494,6 +521,80 @@
       tr:last-child td {
         border-bottom: none;
       }
+    }
+
+    /* Markdown-emitted tables only — .docs-table is the wrapper both
+       markdown pipelines emit (build/markdown.ts, useMarkdown.ts). Example
+       and app tables (data-grid, benchmarks, freshness) manage their own
+       widths and must not be clamped. */
+    @media (max-width: 767px) {
+      /* width:100% resolves to max(container, min-content) at phone widths
+         and squeezes every wrappable column to one word per line. Let the
+         table take its natural width (capped so prose cells still wrap) and
+         scroll inside its wrapper. Both wrapper classes, so this outranks
+         the base table rule structurally — (0,3,2) over its (0,2,2) —
+         instead of by source order. */
+      div.docs-table.overflow-x-auto > table {
+        width: max-content;
+        min-width: 100%;
+        max-width: 42rem;
+      }
+
+      /* Scroll affordance: overlay scrollbars are invisible until touched,
+         leaving no signal that a wide table extends past the viewport. Fade
+         the clipped edge of an overflowing wrapper — the fade tracks scroll
+         position and vanishes at the reached edge (an inactive timeline
+         leaves the no-fade base values, so non-overflowing tables are
+         untouched). Browsers without scroll timelines keep a thin
+         scrollbar. */
+      div.docs-table {
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in srgb, var(--v0-on-surface) 40%, transparent) transparent;
+        padding-bottom: 2px;
+      }
+
+      @supports (animation-timeline: scroll(self x)) {
+        div.docs-table {
+          --table-fade-start: 0px;
+          --table-fade-end: 0px;
+          mask-image: linear-gradient(to right, transparent 0, black var(--table-fade-start), black calc(100% - var(--table-fade-end)), transparent 100%);
+          -webkit-mask-image: linear-gradient(to right, transparent 0, black var(--table-fade-start), black calc(100% - var(--table-fade-end)), transparent 100%);
+          animation: docs-table-edge-fade linear both;
+          animation-timeline: scroll(self x);
+
+          /* RTL scrolls from the right edge, so the fade sides flip. */
+          [dir='rtl'] & {
+            mask-image: linear-gradient(to left, transparent 0, black var(--table-fade-start), black calc(100% - var(--table-fade-end)), transparent 100%);
+            -webkit-mask-image: linear-gradient(to left, transparent 0, black var(--table-fade-start), black calc(100% - var(--table-fade-end)), transparent 100%);
+          }
+        }
+      }
+    }
+  }
+
+  /* Registered so the table-wrapper edge fade interpolates smoothly instead
+     of flipping mid-scroll (custom properties animate discretely otherwise). */
+  @property --table-fade-start {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+  }
+
+  @property --table-fade-end {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+  }
+
+  @keyframes docs-table-edge-fade {
+    0% {
+      --table-fade-start: 0px;
+      --table-fade-end: 2.5rem;
+    }
+
+    100% {
+      --table-fade-start: 2.5rem;
+      --table-fade-end: 0px;
     }
   }
 
