@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Button } from '@vuetify/v0'
+  import { Button, createVirtual } from '@vuetify/v0'
 
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
@@ -9,6 +9,15 @@
 
   // Context
   import PlaygroundOpenSavedRow from './PlaygroundOpenSavedRow.vue'
+
+  // Composables
+  import {
+    peekPlaygroundStack,
+    rememberedStack,
+  } from '@/composables/playgroundStack'
+
+  // Utilities
+  import { toRef, watch } from 'vue'
 
   // Types
   import type { VuetifyPlayground } from './types'
@@ -37,10 +46,56 @@
     update: [item: VuetifyPlayground]
     remove: [id: string]
   }>()
+
+  const ROW_HEIGHT = 48
+  const virtual = createVirtual(toRef(() => items), {
+    itemHeight: ROW_HEIGHT,
+    overscan: 8,
+  })
+  const { element, items: virtualItems, offset, size, scroll } = virtual
+
+  const inflight = new Set<string>()
+
+  function applyStack (id: string, stack: NonNullable<VuetifyPlayground['stack']>) {
+    const item = items.find(entry => entry.id === id) ?? pinned.find(entry => entry.id === id)
+    if (!item || item.stack === stack) return
+    emit('update', { ...item, stack })
+  }
+
+  async function hydrate (id: string) {
+    if (inflight.has(id)) return
+    const cached = rememberedStack(id)
+    if (cached) {
+      applyStack(id, cached)
+      return
+    }
+    inflight.add(id)
+    try {
+      const stack = await peekPlaygroundStack(id)
+      if (stack) applyStack(id, stack)
+    } finally {
+      inflight.delete(id)
+    }
+  }
+
+  watch(
+    () => [
+      ...virtualItems.value.map(entry => entry.raw.id),
+      ...pinned.map(entry => entry.id),
+    ].join(','),
+    keys => {
+      if (!keys) return
+      for (const id of keys.split(',')) void hydrate(id)
+    },
+    { immediate: true },
+  )
 </script>
 
 <template>
-  <div v-if="loading" class="p-4">
+  <div
+    v-if="loading"
+    class="p-4 h-full"
+  >
     <AppSkeleton height="h-12" :lines="4" />
   </div>
 
@@ -58,10 +113,13 @@
     <p class="text-sm text-on-surface-variant">No Vuetify One playgrounds</p>
   </div>
 
-  <div v-else>
+  <div
+    v-else
+    class="h-full min-h-0 flex-1 flex flex-col"
+  >
     <div
       v-if="pinned.length > 0"
-      class="flex flex-wrap gap-1 px-3 pt-2"
+      class="flex flex-wrap gap-1 px-3 pt-2 shrink-0"
     >
       <span
         v-for="item in pinned"
@@ -112,15 +170,24 @@
       </p>
     </div>
 
-    <div v-else class="p-2">
+    <div
+      v-else
+      ref="element"
+      class="flex-1 min-h-0 overflow-y-auto p-2"
+      @scroll="scroll"
+    >
+      <div :style="{ height: `${offset}px` }" />
+
       <PlaygroundOpenSavedRow
-        v-for="item in items"
-        :key="item.id"
-        :item
+        v-for="entry in virtualItems"
+        :key="entry.raw.id"
+        :item="entry.raw"
         @open="emit('open', $event)"
         @remove="emit('remove', $event)"
         @update="emit('update', $event)"
       />
+
+      <div :style="{ height: `${size}px` }" />
     </div>
   </div>
 </template>

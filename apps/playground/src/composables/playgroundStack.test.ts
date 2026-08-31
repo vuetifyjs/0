@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { playgroundStack } from './types'
+import { classifyResponsePrefix, playgroundStack } from './playgroundStack'
 
 describe('playgroundStack', () => {
   it('should return undefined for missing content', () => {
@@ -29,5 +29,26 @@ describe('playgroundStack', () => {
     expect(playgroundStack(JSON.stringify({
       files: { 'src/App.vue': 'import { createVuetify } from \'vuetify\'' },
     }))).toBe('v0')
+  })
+})
+
+describe('classifyResponsePrefix', () => {
+  it('should treat a nested play tuple as vuetify', () => {
+    expect(classifyResponsePrefix('{"playground":{"content":"[{}]}"}')).toBe('vuetify')
+  })
+
+  it('should treat settings-first vuetify preset as vuetify', () => {
+    const buf = String.raw`{"playground":{"content":"{\"settings\":{\"preset\":\"vuetify\"},\"files\":{}}"}}`
+    expect(classifyResponsePrefix(buf)).toBe('vuetify')
+  })
+
+  it('should treat settings-first default as v0', () => {
+    const buf = String.raw`{"playground":{"content":"{\"settings\":{},\"files\":{}}"}}`
+    expect(classifyResponsePrefix(buf)).toBe('v0')
+  })
+
+  it('should not guess v0 from files-first truncated bodies', () => {
+    const buf = String.raw`{"playground":{"content":"{\"files\":{\"src/App.vue\":\"`
+    expect(classifyResponsePrefix(buf)).toBeUndefined()
   })
 })

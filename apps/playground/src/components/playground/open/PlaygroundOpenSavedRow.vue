@@ -7,10 +7,11 @@
   import AppTooltip from '@/components/app/AppTooltip.vue'
 
   // Composables
+  import { playgroundStackIcon, playgroundStackLabel } from '@/composables/playgroundStack'
   import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
   // Local
-  import { formatDate, playgroundStackIcon, playgroundStackLabel } from './types'
+  import { formatDate } from './types'
 
   // Utilities
   import { nextTick, shallowRef, toRef, useTemplateRef } from 'vue'
@@ -140,7 +141,7 @@
 
 <template>
   <div
-    class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-md hover:bg-surface-tint/60"
+    class="h-12 box-border flex items-center justify-between gap-3 px-3 rounded-md hover:bg-surface-tint/60"
     :data-busy="busy || undefined"
   >
     <div class="min-w-0 flex-1 flex items-center gap-2">
