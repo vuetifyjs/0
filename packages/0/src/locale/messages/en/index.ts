@@ -52,6 +52,9 @@ export default {
   Dialog: {
     close: 'Close',
   },
+  Input: {
+    required: 'Required',
+  },
   NumberField: {
     decrement: 'Decrement',
     increment: 'Increment',

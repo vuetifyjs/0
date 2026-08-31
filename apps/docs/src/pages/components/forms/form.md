@@ -181,6 +181,10 @@ Call `submit()` from slot props when you need to trigger validation without a su
 
 ::: faq
 
+??? Why does required still fail submit when Form is novalidate?
+
+Form defaults to `novalidate`, so the browser never runs native constraint validation. `required` on [Input](/components/forms/input) and [NumberField](/components/forms/number-field) still registers a presence rule with the Form, so empty required fields make `submit()` return `false`.
+
 ??? Why does my `@submit` handler run even when the form is invalid?
 
 `@submit` is pass-through — it fires on every native submit regardless of validity. Guard inside the handler: read the `valid` flag from the payload and `return` early when it's `false`.
