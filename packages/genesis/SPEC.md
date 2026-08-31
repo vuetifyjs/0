@@ -30,6 +30,7 @@ packages/genesis/
 │   └── components/
 │       ├── index.ts
 │       ├── GnActionButton/
+│       ├── GnDocsBadge/
 │       ├── GnDocsExample/          # + Description, Preview, Code, Tabs, Panel, Actions
 │       ├── GnDotGrid/
 │       └── GnPeek/
@@ -62,8 +63,8 @@ pass an explicit `color`.
 |---|---|
 | `--v0-surface` | Outer component background |
 | `--v0-surface-tint` | Preview wrap, tab strip |
-| `--v0-on-surface` | Primary text + computed divider via color-mix |
-| `--v0-on-surface-variant` | Muted text |
+| `--v0-on-surface` | Primary text + computed divider via color-mix; `GnDocsBadge` default fill (8% mix) |
+| `--v0-on-surface-variant` | Muted text; `GnDocsBadge` default text |
 | `--v0-primary` | Active tab, filename badge, peek pill |
 | `--v0-on-primary` | Text on primary |
 | `--v0-pre` | Code pane background |
@@ -177,6 +178,29 @@ interface GnDotGridProps {
 }
 ```
 
+### `GnDocsBadge` — static label/tag
+
+A non-interactive `<span>` for skill levels, skill modes, category tags, and similar
+docs-site chrome. No business logic, no icon-name resolution.
+
+```ts
+interface GnDocsBadgeProps {
+  color?: string             // any CSS color; omit for muted chrome
+  backgroundOpacity?: number // default: 15 — color-mix %; ignored when color is omitted
+  shape?: 'rounded' | 'pill' // default: 'rounded'
+  title?: string              // native tooltip
+}
+```
+
+Optional `color` sets text to that value and tints the background with `color-mix` at
+`backgroundOpacity` (default 15). Omit `color` for muted chrome: `--v0-on-surface-variant`
+text and an 8% `--v0-on-surface` mix (`backgroundOpacity` does not apply).
+
+Default slot is the label. An `icon` slot (no default) renders an optional leading icon —
+same "slot, not string" pattern as every other Genesis icon surface. The icon wrapper is
+`aria-hidden` (decorative by contract; the label is the accessible name). Slotted icons
+keep their own dimensions — the badge does not resize them.
+
 ## Icon strategy
 
 Action buttons expose icon slots with inline `<svg>` defaults using MDI paths.
@@ -186,6 +210,7 @@ Action buttons expose icon slots with inline `<svg>` defaults using MDI paths.
 | `GnDocsExample` | `reset-icon` (single-file mode reset button), `toggle-icon` (show/hide-code button) | refresh / chevron-down |
 | `GnDocsExampleTabs` | `reset-icon`, `playground-icon`, `bin-icon`, `combine-icon`, `split-icon` | refresh / play / open-in-new / unfold-less / unfold-more |
 | `GnPeek` | `icon` (chevron, rotates when expanded) | chevron-down |
+| `GnDocsBadge` | `icon` | none — no generic badge icon to default to |
 
 ```vue
 <GnDocsExampleTabs>
@@ -194,7 +219,8 @@ Action buttons expose icon slots with inline `<svg>` defaults using MDI paths.
 </GnDocsExampleTabs>
 ```
 
-Zero-config works (defaults render); consumer can override per slot.
+Zero-config works for slots that ship a default; `GnDocsBadge`'s `icon` slot does not.
+Consumer can override per slot.
 
 ## Code highlighting
 
@@ -242,7 +268,7 @@ In priority order:
 1. `GnDocsCallout` — TIP / NOTE / WARNING / CAUTION / IMPORTANT admonition shell (severity
    tokens via cascade; interactive types stay docs-site)
 2. `GnDocsCodeGroup` — tabbed code blocks
-3. `GnDocsBadge`, `GnDocsCard` — atomic primitives
+3. `GnDocsCard` — atomic primitives (`GnDocsBadge` shipped)
 4. `GnDocsMarkup` — code block chrome with slot-injected highlighter (no URL actions)
 5. `GnDocsApi*` — presentation-only API tables/cards/sections; **data is injected** by the
    host (props or provide). Do not import `virtual:api`
@@ -252,8 +278,8 @@ In priority order:
 8. `GnDocsThemeSwitcher` — **first-class** for design-system docs whose product *is*
    theming; drives host `theme`/`adapter`/`plugin` rather than a thin local toggle
 
-Already open against `packages/genesis` (items 1 and 3 above, not blockers for the rest of
-Phase 2): `GnDocsCallout` (#593), `GnDocsBadge` (#463).
+Already open against `packages/genesis` (item 1 above, not a blocker for the rest of
+Phase 2): `GnDocsCallout` (#593).
 
 ### Phase 3 — design-system docs primitives
 
