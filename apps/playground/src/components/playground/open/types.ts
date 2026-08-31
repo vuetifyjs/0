@@ -1,8 +1,5 @@
 // Types
-import type { PlaygroundStack } from '@/composables/playgroundStack'
 import type { RegistryIndexEntry } from '@/data/registry'
-
-export type { PlaygroundStack } from '@/composables/playgroundStack'
 
 /** Top-level Open dialog rails — product stacks + Vuetify One. */
 export type OpenRail = 'v0' | 'vuetify' | 'saved'
@@ -33,8 +30,6 @@ export interface VuetifyPlayground {
   updatedAt: string
   /** Owner from API response (publicUserResponse shape). */
   owner?: { id: string }
-  /** v0 vs Vuetify 4 — filled after content hydrate. */
-  stack?: PlaygroundStack
 }
 
 /** Map legacy session rails (components/composables/plugins) → `v0`. */

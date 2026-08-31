@@ -7,7 +7,6 @@
   import AppTooltip from '@/components/app/AppTooltip.vue'
 
   // Composables
-  import { playgroundStackIcon, playgroundStackLabel } from '@/composables/playgroundStack'
   import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
   // Local
@@ -43,8 +42,6 @@
   const visibilityHint = toRef(() => (
     (item.visibility ?? 'public') === 'private' ? 'Make public' : 'Make private'
   ))
-  const stackIcon = toRef(() => playgroundStackIcon(item.stack))
-  const stackLabel = toRef(() => playgroundStackLabel(item.stack))
 
   const deleteTimer = useTimer(() => {
     confirmDelete.value = false
@@ -145,21 +142,6 @@
     :data-busy="busy || undefined"
   >
     <div class="min-w-0 flex-1 flex items-center gap-2">
-      <AppTooltip
-        v-if="stackIcon && stackLabel"
-        as="span"
-        class="inline-flex shrink-0"
-        :open-delay="200"
-        position-area="top"
-        :text="stackLabel"
-      >
-        <AppIcon
-          class="text-on-surface-variant"
-          :icon="stackIcon"
-          :size="14"
-        />
-      </AppTooltip>
-
       <input
         v-if="renaming"
         ref="input"

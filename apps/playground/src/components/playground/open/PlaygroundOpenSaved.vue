@@ -10,14 +10,8 @@
   // Context
   import PlaygroundOpenSavedRow from './PlaygroundOpenSavedRow.vue'
 
-  // Composables
-  import {
-    peekPlaygroundStack,
-    rememberedStack,
-  } from '@/composables/playgroundStack'
-
   // Utilities
-  import { toRef, watch } from 'vue'
+  import { toRef } from 'vue'
 
   // Types
   import type { VuetifyPlayground } from './types'
@@ -53,42 +47,6 @@
     overscan: 8,
   })
   const { element, items: virtualItems, offset, size, scroll } = virtual
-
-  const inflight = new Set<string>()
-
-  function applyStack (id: string, stack: NonNullable<VuetifyPlayground['stack']>) {
-    const item = items.find(entry => entry.id === id) ?? pinned.find(entry => entry.id === id)
-    if (!item || item.stack === stack) return
-    emit('update', { ...item, stack })
-  }
-
-  async function hydrate (id: string) {
-    if (inflight.has(id)) return
-    const cached = rememberedStack(id)
-    if (cached) {
-      applyStack(id, cached)
-      return
-    }
-    inflight.add(id)
-    try {
-      const stack = await peekPlaygroundStack(id)
-      if (stack) applyStack(id, stack)
-    } finally {
-      inflight.delete(id)
-    }
-  }
-
-  watch(
-    () => [
-      ...virtualItems.value.map(entry => entry.raw.id),
-      ...pinned.map(entry => entry.id),
-    ].join(','),
-    keys => {
-      if (!keys) return
-      for (const id of keys.split(',')) void hydrate(id)
-    },
-    { immediate: true },
-  )
 </script>
 
 <template>
@@ -131,13 +89,6 @@
           @click="emit('open', item)"
         >
           <AppIcon class="shrink-0 text-on-surface-variant" icon="pin" :size="12" />
-
-          <AppIcon
-            v-if="item.stack"
-            class="shrink-0 text-on-surface-variant"
-            :icon="item.stack === 'vuetify' ? 'vuetify' : 'vuetify-0'"
-            :size="12"
-          />
 
           <span class="truncate">{{ item.title || 'Untitled' }}</span>
         </Button.Root>
