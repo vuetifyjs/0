@@ -31,9 +31,6 @@ export default defineConfig({
     'card-interactive': 'border border-divider rounded-lg hover:border-primary hover:shadow-md transition-all cursor-pointer',
     'card-header': 'flex items-center justify-between gap-4 px-4 py-3 border-b border-divider bg-surface',
 
-    // Badges
-    'badge-base': 'inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded',
-
     // Buttons
     'btn-primary': 'px-4 py-2 bg-primary text-on-primary rounded-lg font-semibold hover:opacity-90 transition-opacity',
     'btn-secondary': 'px-4 py-2 bg-surface text-on-surface border rounded-lg font-semibold hover:bg-surface-tint transition-colors',
