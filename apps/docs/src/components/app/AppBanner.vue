@@ -2,6 +2,9 @@
   // Framework
   import { IN_BROWSER, Atom, useNotifications, useStorage } from '@vuetify/v0'
 
+  // Constants
+  import { INDEXABLE, PROD_SITE_URL } from '@/constants/site'
+
   // Utilities
   import { onScopeDispose, toRef, watchEffect } from 'vue'
 
@@ -15,7 +18,7 @@
 
   // Bump BANNER_ID whenever the banner content changes — a new id re-shows the
   // banner even for readers who dismissed the previous one.
-  const BANNER_ID = 'v1.0-live'
+  const BANNER_ID = INDEXABLE ? 'v1.0-live' : 'docs-dev-unreleased'
   const SNOOZE_MS = 7 * 24 * 60 * 60 * 1000
 
   // Snooze is owned by the notifications plugin (persist: true). Dismiss is a
@@ -23,7 +26,7 @@
   if (!notifications.has(BANNER_ID)) {
     notifications.register({
       id: BANNER_ID,
-      subject: 'Vuetify0 v1.0 is here',
+      subject: INDEXABLE ? 'Vuetify0 v1.0 is here' : 'Unreleased dev docs',
       severity: 'warning',
       data: { type: 'banner' },
     })
@@ -69,7 +72,13 @@
     <AppIcon class="shrink-0" icon="vuetify-0" :size="14" />
 
     <div class="min-w-0 truncate pe-6">
-      {{ banner?.subject }}<span class="hidden sm:inline"> — the stable release is live!</span><span class="hidden md:inline"> Read the <a class="underline underline-offset-2" href="https://vtfy.link/announcing-vuetify0-v1" rel="noopener" target="_blank">announcement</a>.</span>
+      <template v-if="INDEXABLE">
+        {{ banner?.subject }}<span class="hidden sm:inline"> — the stable release is live!</span><span class="hidden md:inline"> Read the <a class="underline underline-offset-2" href="https://vtfy.link/announcing-vuetify0-v1" rel="noopener" target="_blank">announcement</a>.</span>
+      </template>
+
+      <template v-else>
+        {{ banner?.subject }}<span class="hidden sm:inline"> — queued features, not a release.</span><span class="hidden md:inline"> Stable docs: <a class="underline underline-offset-2" :href="PROD_SITE_URL" rel="noopener">0.vuetifyjs.com</a>.</span>
+      </template>
     </div>
 
     <div class="absolute end-2 flex items-center gap-2">
