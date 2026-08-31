@@ -859,7 +859,9 @@
             </span>
           </button>
 
-          <p class="hidden sm:block mx-3 mt-3 mb-0.5 text-[10px] font-medium uppercase tracking-wide text-on-surface-variant">
+          <div class="hidden sm:block mx-3 my-2 border-t border-divider" />
+
+          <p class="hidden sm:block mx-3 mb-0.5 text-[10px] font-medium uppercase tracking-wide text-on-surface-variant">
             Examples
           </p>
 
