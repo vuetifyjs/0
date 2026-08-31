@@ -25,7 +25,7 @@ Renderless teleport wrapper with automatic z-index stacking.
 
 ## Usage
 
-Portal wraps Vue's `<Teleport>` with automatic `useStack` integration. Content is teleported to `body` by default and receives a `zIndex` via slot props for proper overlay ordering.
+Portal wraps Vue's `<Teleport>` with automatic `useStack` integration. Content receives a `zIndex` via slot props for proper overlay ordering. The teleport target resolves as per-component `to` -> `stack.default` (from `createStackPlugin`) -> `'body'`.
 
 ::: gn-example
 /components/portal/basic
@@ -50,9 +50,29 @@ Portal is transparent — it adds no DOM elements, ARIA attributes, or keyboard 
 > [!TIP]
 > When teleporting interactive content (modals, menus, notifications), ensure it has proper ARIA roles, keyboard handling, and focus management. Portal handles *where* content renders, not *how* it behaves.
 
+### Landmarks
+
+Teleported content lands outside your app's landmark structure — `body` is not inside `<main>`, so audit tools flag the subtree with the axe [region](https://dequeuniversity.com/rules/axe/4.12/region) rule. Give the teleported subtree its own semantics instead of relying on the surrounding page:
+
+- `role="dialog"` — dialogs are exempt from the landmark rule
+- `role="status"` or `role="alert"` — toast and notification regions
+- `role="region"` plus `aria-label` — arbitrary overlays with no more specific role
+
+```vue
+<template>
+  <Portal>
+    <div role="region" aria-label="Chat panel">...</div>
+  </Portal>
+</template>
+```
+
 ## FAQ
 
 ::: faq
+??? How do I change the default teleport target for all Portals?
+
+Install `createStackPlugin({ default: 'top-layer' })` (or a selector/`HTMLElement`). See [useStack](/composables/plugins/use-stack). A Portal `to` prop always overrides.
+
 ??? When should I use Portal vs native Teleport?
 
 Use Portal when your teleported content needs z-index coordination with other overlays. Portal auto-registers with `useStack` so your content stacks correctly alongside Dialogs, Snackbars, and other overlay components.

@@ -162,7 +162,9 @@ const valid = await validation.validate('', true) // silent = true
 
 ### Auto-Registration with Forms
 
-When created inside a component with a parent form context, `createValidation` **auto-registers** with the form. The form can then coordinate submit and reset across all registered validations. Cleanup happens automatically via `onScopeDispose`:
+When created inside a component with a parent form context, `createValidation` **auto-registers** with the form. The form can then coordinate submit and reset across all registered validations. Cleanup happens automatically via `onScopeDispose`.
+
+Join a custom Form key with `formNamespace` — it must match the Form's `namespace` (same pairing as `groupNamespace`):
 
 ```vue
 <script setup lang="ts">
@@ -245,7 +247,7 @@ Pass `silent` as the second argument: `validate(value, true)`. It returns the bo
 
 ??? How does createValidation differ from createForm?
 
-createValidation owns one input's rules and validity state; [createForm](/composables/forms/create-form) is a registry that coordinates `submit` and `reset` across many validations. A validation created inside a form's tree auto-registers with it.
+createValidation owns one input's rules and validity state; [createForm](/composables/forms/create-form) is a registry that coordinates `submit` and `reset` across many validations. A validation created inside a form's tree auto-registers when `formNamespace` matches the Form's `namespace`.
 
 ??? How do I turn a rule off without removing it?
 

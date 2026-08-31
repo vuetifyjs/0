@@ -171,8 +171,8 @@
      * @example
      * ```vue
      * <template>
-     *   <Radio.Root v-slot="{ isChecked, select, attrs }" value="a">
-     *     <div v-bind="attrs" v-on:click="select">
+     *   <Radio.Root v-slot="{ isChecked, attrs }" value="a" renderless>
+     *     <div v-bind="attrs">
      *       <span :class="{ 'font-bold': isChecked }">Option A</span>
      *     </div>
      *   </Radio.Root>
@@ -308,6 +308,12 @@
       'onKeydown': onKeydown,
     },
   }))
+
+  defineExpose<AtomExpose>({
+    get element () {
+      return (rootRef.value?.element ?? null) as AtomExpose['element']
+    },
+  })
 </script>
 
 <template>

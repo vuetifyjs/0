@@ -204,6 +204,7 @@ const slotProps = toRef((): ComponentRootSlotProps => ({
 | `data-selected` | Selected styling | `true \| undefined` |
 | `data-open` | Open/expanded | `true \| undefined` |
 | `data-orientation` | Layout direction | `'horizontal' \| 'vertical'` [intent:173] |
+| `data-pending` | Pending intent / wait | Splitter: `'collapse' \| 'expand' \| undefined`; AlertDialogAction: `'' \| undefined` |
 
 **Rule.** Boolean data attributes are always `true | undefined`, not `true | false`. Undefined removes the attribute from DOM so CSS `[data-disabled]` selectors don't match when the value is false. [intent:172, PHILOSOPHY §3.6]
 
@@ -259,6 +260,31 @@ function onKeydown (event: KeyboardEvent) {
 ```
 
 [intent:181]
+
+### Default-button host polyfill (100% for click-to-activate controls)
+
+Controls that default to `as = 'button'` and activate on click must keep native button behavior on the default path and **polyfill** when the host is not a native button (PaginationItem is the reference):
+
+```ts
+function onKeydown (e: KeyboardEvent) {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault()
+    onClick()
+  }
+}
+
+attrs: {
+  'type': as === 'button' ? 'button' : undefined,
+  'role': as === 'button' ? undefined : 'button',
+  'tabindex': isDisabled.value ? -1 : 0,
+  'onClick': onClick,
+  'onKeydown': as === 'button' ? undefined : onKeydown,
+}
+```
+
+- **Do not** attach Enter/Space `onKeydown` when `as === 'button'` (avoids double-activation).
+- Specialized roles (`checkbox`, `radio`, `switch`, `tab`, `combobox`) keep their own APG — do not force `role="button"`.
+- Spinbutton steppers that intentionally use `tabindex: -1` (NumberField ±) are out of this contract.
 
 ## Model Bridging Pattern
 
@@ -503,7 +529,7 @@ export interface AtomExpose {
 `Atom` calls `defineExpose<AtomExpose>({ element })` at the component level. Vue auto-unwraps refs surfaced via `defineExpose`, so consumers access the element directly — *not* through a `.value` chain:
 
 ```ts
-// packages/0/src/components/Splitter/SplitterRoot.vue:112
+// packages/0/src/components/Splitter/SplitterRoot.vue:125
 const rootAtom = useTemplateRef<AtomExpose>('root')
 // rootAtom.value?.element gives the HTMLElement | null directly
 ```
@@ -518,7 +544,7 @@ const atomRef = useTemplateRef<AtomExpose>('atom')
 const el = toRef(() => toElement(atomRef.value?.element) ?? null)
 ```
 
-- **Name the `useTemplateRef` holder** `atomRef` (single Atom) or `{role}Ref` / `{role}Atom` (multiple). It holds an `AtomExpose` wrapper, not an `HTMLElement` — never suffix it with `El`. Precedents: `Image/ImageRoot.vue:93` (`atomRef`), `Splitter/SplitterRoot.vue:112` (`rootAtom`), `Tabs/TabsItem.vue:88` (`rootRef`), `Snackbar/SnackbarQueue.vue:80` (`container`). **Anti-precedent**: `Carousel/CarouselNext.vue:57`, `CarouselItem.vue:79`, `CarouselLiveRegion.vue:64` use `rootEl` for the AtomExpose holder — that name belongs to the toRef-derived element, not the ref-of-wrapper.
+- **Name the `useTemplateRef` holder** `atomRef` (single Atom) or `{role}Ref` / `{role}Atom` (multiple). It holds an `AtomExpose` wrapper, not an `HTMLElement` — never suffix it with `El`. Precedents: `Image/ImageRoot.vue:93` (`atomRef`), `Splitter/SplitterRoot.vue:125` (`rootAtom`), `Tabs/TabsItem.vue:88` (`rootRef`), `Snackbar/SnackbarQueue.vue:80` (`container`). **Anti-precedent**: `Carousel/CarouselNext.vue:57`, `CarouselItem.vue:79`, `CarouselLiveRegion.vue:64` use `rootEl` for the AtomExpose holder — that name belongs to the toRef-derived element, not the ref-of-wrapper.
 - **Always** route the access through `toElement` (`#v0/composables/toElement`). The raw `as HTMLElement | null | undefined` cast bypasses the normalization layer that handles ref-vs-direct-element variants and is the bug-family flagged in the saved-memory `toElement-template-refs.md`.
 - **Wrap in `toRef(() => ...)`** so downstream consumers (`watch`, `useResizeObserver`, `useIntersectionObserver`, popover attach) get a reactive ref instead of a snapshot.
 - **`?? null` only — no `as HTMLElement | null` cast on the ref.** `toElement` returns `Element | undefined`. The historical pattern `as HTMLElement | null ?? null` (Image / Carousel × 4) papers over both transitions with a single misleading cast — TS thinks it's `HTMLElement | null` but the runtime value is `Element | null` after the coalesce. Drop the cast: write `toElement(...) ?? null` and let the ref be `Ref<Element | null>`. If a consumer needs HTMLElement-specific properties (`offsetWidth`, `offsetHeight`), cast at the use site (`(el.value as HTMLElement).offsetWidth`) — the boundary cast is honest about what's happening.

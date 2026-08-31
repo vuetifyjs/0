@@ -29,7 +29,47 @@ Theme colors work two ways: CSS custom properties (`var(--v0-primary)`) and UnoC
 
 ## Getting started
 
-Open the **examples** menu in the toolbar and load any demo — you'll get a complete, working project with files, imports, and a live preview that updates as you type. Or skip that entirely: open `App.vue` in the editor and start writing a component from scratch. The preview hot-reloads on every keystroke, so you'll see the result before you finish the thought. Either way, you're writing real Vue 3 code against the full v0 API — no stubs, no simulations.
+Use **☰ → File → Open example…** to browse every docs demo from the official registry (same catalog as `vuetify add`). Pick a feature, then an example, and the workspace loads with files and a live preview. Or skip that entirely: open `App.vue` and start from scratch — the preview hot-reloads on every keystroke.
+
+Short links also work:
+
+```
+/?example=dialog
+/?example=dialog/basic
+/?example=components/dialog/basic
+```
+
+Point `?registry=` at a custom origin when testing a local docs build.
+
+## Sharing & Saving
+
+- The URL updates as you edit — copy it to share exactly what you built
+- **Vuetify One playgrounds** get a canonical URL: `/playgrounds/:id` (e.g. `/playgrounds/abc123`). The editor hash is preserved for sharing with content inline
+- Save to Vuetify One via **☰ → File → Save** to persist your work and get a shareable link
+- Owners manage saved playgrounds from **☰ → File → Open → Vuetify One** (rename, pin, favorite, visibility, delete)
+
+## Sending a theme
+
+Any producer — docs, the builder, a host app — can ship a theme in the hash next to the files. v0play merges `themes` into the sandbox `createThemePlugin` and selects `theme`:
+
+```json
+{
+  "files": { "src/App.vue": "…" },
+  "theme": "brand-light",
+  "themes": {
+    "brand-light": {
+      "dark": false,
+      "colors": { "primary": "#7453ec", "background": "#ffffff" }
+    },
+    "brand-dark": {
+      "dark": true,
+      "colors": { "primary": "#c4b5fd", "background": "#121212" }
+    }
+  }
+}
+```
+
+Ids must be CSS identifiers. Light/dark pairs are `{name}-light` / `{name}-dark` — never a bare `{name}` for one side. Color values must be plain tokens (hex / rgb / names) — no `url()`, `expression()`, or braces. Include both records if the playground host toggle should stay on that palette; a single custom theme is enough when there is no pair.
 
 ## Tips
 
@@ -37,4 +77,3 @@ Open the **examples** menu in the toolbar and load any demo — you'll get a com
 - **Double-click** any resize handle to snap it back to its default width
 - Switch between **Preview Right** and **Preview Bottom** via ☰ → View
 - Add new files in the file tree and import them normally — multi-file projects work out of the box
-- The URL updates as you edit — copy it to share exactly what you built

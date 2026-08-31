@@ -15,7 +15,7 @@
  *   node scripts/run-bench-stable.ts --runs 1 --out /tmp/b.json   # history (same isolation)
  */
 
-import { execFileSync } from 'node:child_process'
+import { spawn, type ChildProcess } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, resolve } from 'node:path'
@@ -27,18 +27,25 @@ import {
   medianMergeRuns,
   normalizeBenchJson,
 } from './lib/bench-stable.ts'
+import { describeEnv } from './lib/env.ts'
+import { checkHost, formatHost } from './lib/host-guard.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
 const DEFAULT_OUT = resolve(ROOT, 'apps/docs/public/benchmarks.json')
 
-function parseArgs (argv: string[]): { runs: number, out: string, help: boolean } {
+function parseArgs (argv: string[]): { runs: number, out: string, help: boolean, contended: boolean } {
   let runs = 3
   let out = DEFAULT_OUT
   let help = false
+  let contended = process.env.V0_BENCH_ALLOW_CONTENDED === '1'
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]
     switch (arg) {
+      case '--allow-contended': {
+        contended = true
+        break
+      }
       case '--runs': {
         runs = Number(argv[++i])
         if (!Number.isFinite(runs) || runs < 1) throw new Error(`--runs must be >= 1, got ${argv[i]}`)
@@ -55,12 +62,59 @@ function parseArgs (argv: string[]): { runs: number, out: string, help: boolean 
       }
     }
   }
-  return { runs, out, help }
+  return { runs, out, help, contended }
 }
 
-function runOnce (jsonOut: string): BenchJson {
-  try {
-    execFileSync('pnpm', [
+/**
+ * Refuse to measure a machine that is busy with something else.
+ *
+ * The host is *always* inspected, so `env` records the conditions behind every
+ * artifact even where the guard would not stop anything — that attribution is
+ * the whole reason the fields exist.
+ *
+ * Enforcement is skipped on CI, which is an ephemeral VM doing nothing else.
+ * Note the reference workstation is not driven by CI; if that ever changes,
+ * this check needs a sharper discriminator than the `CI` variable alone,
+ * because it would then disable the guard on the one machine it was written for.
+ */
+function guardHost (contended: boolean): ReturnType<typeof checkHost> {
+  const report = checkHost()
+  const ephemeral = process.env.CI === 'true'
+  console.log(`[run-bench-stable] host: ${formatHost(report)}`)
+  for (const warn of report.warns) console.warn(`[run-bench-stable] warn: ${warn}`)
+
+  if (report.blocks.length === 0) return report
+  for (const block of report.blocks) console.error(`[run-bench-stable] blocked: ${block}`)
+  if (ephemeral) {
+    console.warn('[run-bench-stable] ephemeral CI runner — not enforcing host readiness')
+    return report
+  }
+  if (contended) {
+    console.warn('[run-bench-stable] --allow-contended set — measuring anyway, numbers are not comparable')
+    return report
+  }
+  throw new Error(
+    '[run-bench-stable] host is not idle enough to bench. Wait for it to settle, '
+    + 'or pass --allow-contended (V0_BENCH_ALLOW_CONTENDED=1) to measure anyway.',
+  )
+}
+
+/** The vitest process currently being awaited, so a signal can take it down with us. */
+let child: ChildProcess | null = null
+
+/**
+ * Run one vitest bench pass.
+ *
+ * Spawned asynchronously rather than with `execFileSync` specifically so the
+ * event loop stays free. A synchronous exec blocks signal delivery for its
+ * whole duration, which here is the entire suite — a Ctrl-C would sit queued
+ * behind a 25-minute child and the interrupt would appear to do nothing.
+ * Verified on the reference host before this was changed: SIGINT to the parent
+ * left vitest benching on, orphaned, with the parent waiting on it.
+ */
+function runOnce (jsonOut: string): Promise<BenchJson> {
+  return new Promise((resolve, reject) => {
+    const proc = spawn('pnpm', [
       'exec',
       'vitest',
       ...STABLE_VITEST_BENCH_ARGS,
@@ -71,27 +125,56 @@ function runOnce (jsonOut: string): BenchJson {
       stdio: 'inherit',
       env: { ...process.env },
     })
-  } catch {
-    // Vitest exits non-zero when some benches error (e.g. history vs old API).
-    // Keep partial outputJson if present.
-    console.warn('[run-bench-stable] vitest exited non-zero — using partial results if present')
-  }
-  if (!existsSync(jsonOut)) {
-    throw new Error(`[run-bench-stable] no output written to ${jsonOut}`)
-  }
-  return JSON.parse(readFileSync(jsonOut, 'utf8')) as BenchJson
+    child = proc
+
+    proc.on('error', error => {
+      child = null
+      reject(error)
+    })
+
+    proc.on('close', code => {
+      child = null
+      if (code !== 0) {
+        // Vitest exits non-zero when some benches error (e.g. history vs old
+        // API). Keep partial outputJson if present.
+        console.warn(`[run-bench-stable] vitest exited ${code} — using partial results if present`)
+      }
+      if (!existsSync(jsonOut)) {
+        reject(new Error(`[run-bench-stable] no output written to ${jsonOut}`))
+        return
+      }
+      resolve(JSON.parse(readFileSync(jsonOut, 'utf8')) as BenchJson)
+    })
+  })
 }
 
-function main (): void {
-  const { runs, out, help } = parseArgs(process.argv.slice(2))
+/**
+ * Take the in-flight vitest process down with us, so an interrupt is not
+ * silently ignored and a 25-minute child is not orphaned to run to completion
+ * after its parent is gone.
+ */
+function stopChild (signal: NodeJS.Signals): void {
+  child?.kill(signal)
+  process.off(signal, stopChild)
+  process.kill(process.pid, signal)
+}
+
+process.once('SIGINT', stopChild)
+process.once('SIGTERM', stopChild)
+
+async function main (): Promise<void> {
+  const { runs, out, help, contended } = parseArgs(process.argv.slice(2))
   if (help) {
     console.log(`Usage: node scripts/run-bench-stable.ts [--runs N] [--out path]
-  --runs  Independent vitest bench passes to median-merge (default: 3)
-  --out   Output JSON path (default: apps/docs/public/benchmarks.json)`)
+  --runs             Independent vitest bench passes to median-merge (default: 3)
+  --out              Output JSON path (default: apps/docs/public/benchmarks.json)
+  --allow-contended  Measure even when the host is busy (default: refuse)`)
     return
   }
   const target = process.env.V0_BENCH_TARGET ?? '(source)'
   console.log(`[run-bench-stable] apparatus: project=v0:unit maxWorkers=1 no-file-parallelism runs=${runs} V0_BENCH_TARGET=${target}`)
+
+  const host = guardHost(contended)
 
   const dir = mkdtempSync(resolve(tmpdir(), 'v0-bench-stable-'))
   const runFiles: BenchJson[] = []
@@ -100,24 +183,45 @@ function main (): void {
     for (let i = 0; i < runs; i++) {
       const path = resolve(dir, `run-${i + 1}.json`)
       console.log(`[run-bench-stable] run ${i + 1}/${runs} → ${path}`)
-      runFiles.push(runOnce(path))
+      runFiles.push(await runOnce(path))
     }
 
     const merged = runs === 1
       ? normalizeBenchJson(runFiles[0]!)
       : medianMergeRuns(runFiles)
 
+    // The fingerprint travels with the numbers it describes. Values stay raw:
+    // there is nothing to correct for when every artifact comes from the same
+    // machine, and the fingerprint is what reveals the day that stops being true.
+    const env = describeEnv({
+      busy: host.busy,
+      peak: host.peak,
+      governor: host.governor,
+    })
+    const withEnv: BenchJson = { ...merged, env, runs }
+
     mkdirSync(dirname(out), { recursive: true })
-    writeFileSync(out, `${JSON.stringify(merged, null, 2)}\n`)
+    writeFileSync(out, `${JSON.stringify(withEnv, null, 2)}\n`)
     const nFiles = merged.files?.length ?? 0
     const nBenches = (merged.files ?? []).reduce(
       (sum, f) => sum + (f.groups ?? []).reduce((s, g) => s + (g.benchmarks?.length ?? 0), 0),
       0,
     )
     console.log(`[run-bench-stable] wrote ${out} (${nFiles} files, ${nBenches} benches, median of ${runs})`)
+    console.log(
+      `[run-bench-stable] env: cpu=${env.cpu ?? 'unknown'} node=${env.node} `
+      + `busy=${env.busy === null || env.busy === undefined ? 'unknown' : `${(env.busy * 100).toFixed(1)}%`} `
+      + `governor=${env.governor ?? 'n/a'}`,
+    )
   } finally {
     rmSync(dir, { recursive: true, force: true })
   }
 }
 
-main()
+// Explicit rather than relying on the default unhandled-rejection exit: the
+// guard refusing a contended host is an expected outcome, and it should read as
+// one line rather than a stack trace.
+main().catch((error: unknown) => {
+  console.error(error instanceof Error ? error.message : error)
+  process.exitCode = 1
+})

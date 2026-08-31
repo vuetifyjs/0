@@ -16,10 +16,29 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
+  // Utilities
+  import { isUndefined } from '#v0/utilities'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
   import type { ID } from '#v0/types'
+  import type { MaybeRefOrGetter } from 'vue'
+
+  /** Ticket for checkbox items with element reference for focus management */
+  export interface CheckboxTicket extends GroupTicket {
+    /** Element reference for group focus management */
+    el?: MaybeRefOrGetter<Element | null | undefined>
+  }
+
+  /** Imperative handle exposed by Checkbox.Group. */
+  export interface CheckboxGroupExpose {
+    /** Focus the selected checkbox, or the first if none is selected. */
+    focus: (options?: FocusOptions) => void
+  }
 
   export interface CheckboxGroupProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -73,7 +92,7 @@
     }
   }
 
-  export const [useCheckboxGroup, provideCheckboxGroup] = createContext<GroupContext<GroupTicket>>()
+  export const [useCheckboxGroup, provideCheckboxGroup] = createContext<GroupContext<CheckboxTicket>>()
 </script>
 
 <script setup lang="ts" generic="T = unknown">
@@ -108,7 +127,7 @@
 
   const model = defineModel<T | T[]>()
 
-  const group = createGroup({
+  const group = createGroup<CheckboxTicket>({
     disabled: toRef(() => disabled),
     enroll: toRef(() => enroll),
     mandatory: toRef(() => mandatory),
@@ -118,6 +137,14 @@
   useProxyModel(group, model, { multiple: true })
 
   provideCheckboxGroup(namespace, group)
+
+  function focus (options?: FocusOptions) {
+    const id = [...group.selectedIds][0]
+    const ticket = isUndefined(id) ? group.seek('first') : group.get(id)
+    ;(toElement(toValue(ticket?.el)) as HTMLElement | undefined)?.focus(options)
+  }
+
+  defineExpose<CheckboxGroupExpose>({ focus })
 
   const slotProps = toRef((): CheckboxGroupSlotProps => ({
     isDisabled: toValue(group.disabled),

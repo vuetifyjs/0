@@ -624,12 +624,13 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
 
   function unselectAll (): void {
     if (toValue(group.disabled)) return
-    const first = group.selectedIds.values().next().value
     group.selectedIds.clear()
     group.mixedIds.clear()
-    if (toValue(mandatoryOption) && first) {
-      group.selectedIds.add(first)
-      updateAncestors(first)
+    if (!toValue(mandatoryOption)) return
+    const ticket = group.seek('first')
+    if (ticket) {
+      group.selectedIds.add(ticket.id)
+      updateAncestors(ticket.id)
     }
   }
 
@@ -720,10 +721,11 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
 
     const ticket = group.register(item as Partial<GroupTicketInput>) as NestedTicket
 
-    // Override group-level selection methods with cascade-aware versions
+    // Override group-level methods with cascade-aware versions
     ticket.select = () => select(id)
     ticket.unselect = () => unselect(id)
     ticket.toggle = () => toggle(id)
+    ticket.unregister = () => unregister(id)
 
     if (registration.active) {
       activate(id)
@@ -846,6 +848,15 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     group.reset()
   }
 
+  function dispose (): void {
+    children.clear()
+    parents.clear()
+    openedIds.clear()
+    activeIds.clear()
+    rootIds.clear()
+    group.dispose()
+  }
+
   const context = {
     ...group,
     children: children as ReadonlyMap<ID, readonly ID[]>,
@@ -894,6 +905,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     onboard,
     clear,
     reset,
+    dispose,
     get size () {
       return group.size
     },

@@ -1,41 +1,84 @@
+// Framework
+import { V0PopoverAdapter } from '@vuetify/v0'
+import { V0DateAdapter } from '@vuetify/v0/date'
+
 import { materialPalette, tailwindPalette } from './palettes'
 
 // Types
 import type { App } from 'vue'
 
-export function registerPlugins (app: App) {
+export function registerPlugins (app: App, options: { playgroundTheme?: boolean } = {}) {
+  app.use(createHydrationPlugin({ devtools: true }))
+
+  app.use(
+    createLoggerPlugin({
+      devtools: true,
+      level: 'debug',
+      prefix: '[dev]',
+    }),
+  )
+
+  app.use(
+    createStoragePlugin({
+      devtools: true,
+      prefix: 'dev:',
+      ttl: 86_400_000,
+    }),
+  )
+
   app.use(
     createFeaturesPlugin({
+      persist: true,
+      devtools: true,
       features: {
         dev: true,
+        playground: true,
+        search: { $value: true, $variation: 'v2' },
       },
     }),
   )
 
-  app.use(createHydrationPlugin())
-
-  app.use(createLoggerPlugin())
+  app.use(
+    createStackPlugin({
+      devtools: true,
+      baseZIndex: 3000,
+      increment: 20,
+      default: 'body',
+    }),
+  )
 
   app.use(
     createBreakpointsPlugin({
-      //
+      devtools: true,
+      mobileBreakpoint: 768,
+      breakpoints: {
+        sm: 600,
+        md: 960,
+        lg: 1280,
+      },
     }),
   )
 
   app.use(
     createRulesPlugin({
+      devtools: true,
       aliases: {
         required: v => (v === 0 || !!v) || 'This field is required',
         email: v => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v)) || 'Must be a valid email',
         slug: v => !v || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(v)) || 'Must be a valid slug',
         prefix: v => !v || String(v).startsWith('/') || 'Must start with /',
+        min: v => !v || String(v).length >= 3 || 'Must be at least 3 characters',
+        max: v => !v || String(v).length <= 32 || 'Must be at most 32 characters',
+        integer: v => !v || /^-?\d+$/.test(String(v)) || 'Must be an integer',
       },
     }),
   )
 
   app.use(
     createLocalePlugin({
+      devtools: true,
       default: 'en',
+      fallback: 'en',
       messages: {
         en: {
           hello: 'Hello',
@@ -50,7 +93,74 @@ export function registerPlugins (app: App) {
   )
 
   app.use(
+    createRtlPlugin({
+      devtools: true,
+      default: false,
+    }),
+  )
+
+  app.use(
+    createDatePlugin({
+      adapter: new V0DateAdapter('en-US'),
+      locale: 'en-US',
+      firstDayOfWeek: 1,
+      locales: { en: 'en-US', fr: 'fr-FR' },
+      devtools: true,
+    }),
+  )
+
+  app.use(
+    createPermissionsPlugin({
+      devtools: true,
+      permissions: {
+        admin: [['read', 'write'], ['users', 'posts']],
+        editor: [['read', 'edit'], 'posts'],
+        viewer: [['read'], ['posts', 'users']],
+      },
+    }),
+  )
+
+  app.use(
+    createNotificationsPlugin({
+      devtools: true,
+      timeout: 5000,
+    }),
+  )
+
+  app.use(
+    createReducedMotionPlugin({
+      devtools: true,
+      mode: 'system',
+    }),
+  )
+
+  app.use(
+    createTooltipPlugin({
+      devtools: true,
+      openDelay: 400,
+      closeDelay: 80,
+      skipDelay: 200,
+      adapter: new V0PopoverAdapter(),
+    }),
+  )
+
+  app.use(
+    createPopoverPlugin({
+      devtools: true,
+      adapter: new V0PopoverAdapter(),
+    }),
+  )
+
+  app.runWithContext(() => {
+    const storage = useStorage()
+    storage.set('preview', { source: 'devtools-demo' })
+  })
+
+  if (options.playgroundTheme === false) return
+
+  app.use(
     createThemePlugin({
+      devtools: true,
       default: 'minimalSlate',
       palette: {
         md: materialPalette,

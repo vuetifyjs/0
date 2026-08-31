@@ -2,9 +2,9 @@ name: PR Checks
 
 on:
   pull_request:
-    branches: [master]
+    branches: [master, dev, next]
   push:
-    branches: [master]
+    branches: [master, dev, next]
 
 permissions:
   contents: read
@@ -40,11 +40,17 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      # Coverage is scoped to .ts (composables/utilities/plugins); component
-      # .vue coverage comes from the browser job below and Codecov merges the
-      # two flagged uploads into one project total.
+      # No --coverage.include override: both jobs report the full source set
+      # from the root vitest.config.ts and Codecov unions the two flagged
+      # uploads per line. Scoping this job to .ts hid every .vue belonging to a
+      # component tested in v0:unit rather than v0:browser (36 files across 8
+      # components had an SF: entry in neither report). The v8 provider only
+      # emits records for files a run actually loaded, so a wide include costs
+      # this job nothing — it does not backfill untouched files at 0%.
+      # `*:browser` (v0:browser, bulma:browser) needs Playwright Chromium —
+      # those projects run in the `browser` job, which installs the binary.
       - name: Run unit tests with coverage
-        run: pnpm test:run --coverage --project '!v0:browser' --coverage.include='packages/0/src/**/*.ts'
+        run: pnpm test:run --coverage --project '!*:browser'
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
@@ -80,10 +86,13 @@ jobs:
         run: pnpm exec playwright install chromium
       - name: Install Playwright system dependencies
         run: pnpm exec playwright install-deps chromium
-      # Coverage scoped to component .vue; composable .ts coverage comes from the
-      # unit job. Uploaded under the `browser` flag so Codecov merges the two.
+      # Uploaded under the `browser` flag so Codecov merges it with the unit
+      # flag. Scoping this job to component .vue threw away every .ts line a
+      # *.browser.test.ts was the only test to exercise, which is what forced
+      # PR #725 to duplicate its browser assertions as unit tests to recover
+      # codecov/patch (70.83% -> 100%). Keep the include wide.
       - name: Run component tests with coverage
-        run: pnpm exec vitest run --project v0:browser --coverage --coverage.include='packages/0/src/components/**/*.vue'
+        run: pnpm exec vitest run --project '*:browser' --coverage
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
@@ -95,6 +104,56 @@ jobs:
           slug: vuetifyjs/0
           fail_ci_if_error: true
           verbose: true
+
+  # Automated accessibility audit: axe-core over every component, mounted in the
+  # shape its own @example JSDoc documents, in the same real Chromium the
+  # browser job uses. Advisory on purpose — see the header comment in
+  # packages/0/src/components/a11y.browser.test.ts.
+  #
+  # Gate (two edits, not one): assert on `violations` in the sweep file, then
+  # drop `continue-on-error` below once the count reaches zero. Manifest and
+  # render smoke still fail hard via the `browser` job (same `*.browser.test.ts`).
+  #
+  # Its own job rather than a step on `browser` so the breakdown gets its own
+  # step summary instead of being buried under the coverage upload. Same cache
+  # key as `browser`, so Chromium restores rather than re-downloads.
+  a11y:
+    needs: prepare
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+      - name: Cache Playwright browser
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-1.61.0-${{ runner.os }}
+      - name: Install Playwright browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install chromium
+      - name: Install Playwright system dependencies
+        run: pnpm exec playwright install-deps chromium
+      # --reporter=verbose because the default reporter swallows console output
+      # from browser tests, and the report the sweep prints is the deliverable.
+      - name: Run accessibility sweep
+        run: |
+          set -o pipefail
+          pnpm exec vitest run --project v0:browser --reporter=verbose \
+            packages/0/src/components/a11y.browser.test.ts 2>&1 | tee a11y.log
+      - name: Publish violation breakdown
+        if: always()
+        run: |
+          set -uo pipefail
+          {
+            echo '## Accessibility audit (advisory)'
+            echo
+            echo '```'
+            awk '/--- v0 a11y report ---/{flag=1; next} /--- end v0 a11y report ---/{flag=0} flag' a11y.log \
+              || echo 'No report in the run log — the sweep failed before afterAll ran.'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   # Upload success ≠ processed report. Codecov queues OK then sometimes leaves
   # commit state/totals null (badge graph → "unknown"). Surface that here so we
@@ -148,9 +207,10 @@ jobs:
           git fetch origin "$GITHUB_BASE_REF" --depth=1
           pnpm metrics:check
 
-  # Vapor parity tests run on a beta Vue (tests/vapor, vue@3.6.0-beta), pinned
-  # separately from the rest of the repo. Non-blocking: a Vapor regression
-  # surfaces as a visible signal without redding the build on a beta hiccup.
+  # Vapor parity tests run on a pre-release Vue (tests/vapor, vue@3.6.0-rc),
+  # pinned separately from the rest of the repo. Non-blocking: a Vapor
+  # regression surfaces as a visible signal without redding the build on a
+  # pre-release hiccup.
   vapor:
     needs: prepare
     runs-on: ubuntu-latest

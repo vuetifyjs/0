@@ -16,16 +16,40 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
+  // Utilities
+  import { isUndefined } from '#v0/utilities'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
   import type { SingleContext, SingleTicket } from '#v0/composables/createSingle'
-  import type { Ref } from 'vue'
+  import type { MaybeRefOrGetter, Ref } from 'vue'
 
   export type ToggleOrientation = 'horizontal' | 'vertical'
 
+  /** Ticket for single-select toggle items with element reference for focus management */
+  export interface ToggleTicket extends SingleTicket {
+    /** Element reference for group focus management */
+    el?: MaybeRefOrGetter<Element | null | undefined>
+  }
+
+  /** Ticket for multi-select toggle items with element reference for focus management */
+  export interface ToggleGroupTicket extends GroupTicket {
+    /** Element reference for group focus management */
+    el?: MaybeRefOrGetter<Element | null | undefined>
+  }
+
+  /** Imperative handle exposed by Toggle.Group. */
+  export interface ToggleGroupExpose {
+    /** Focus the selected toggle, or the first if none is selected. */
+    focus: (options?: FocusOptions) => void
+  }
+
   export interface ToggleGroupContext<
-    S extends SingleContext<SingleTicket> | GroupContext<GroupTicket> = SingleContext<SingleTicket> | GroupContext<GroupTicket>,
+    S extends SingleContext<ToggleTicket> | GroupContext<ToggleGroupTicket> = SingleContext<ToggleTicket> | GroupContext<ToggleGroupTicket>,
   > {
     disabled: Ref<boolean>
     orientation: Ref<ToggleOrientation>
@@ -105,12 +129,12 @@
   const model = defineModel<T | T[]>()
 
   const selection = multiple
-    ? createGroup({
+    ? createGroup<ToggleGroupTicket>({
       disabled: toRef(() => disabled),
       mandatory: toRef(() => mandatory),
       events: true,
     })
-    : createSingle({
+    : createSingle<ToggleTicket>({
       disabled: toRef(() => disabled),
       mandatory: toRef(() => mandatory),
       events: true,
@@ -123,6 +147,14 @@
     orientation: toRef(() => orientation),
     selection,
   })
+
+  function focus (options?: FocusOptions) {
+    const id = [...selection.selectedIds][0]
+    const ticket = isUndefined(id) ? selection.seek('first') : selection.get(id)
+    ;(toElement(toValue(ticket?.el)) as HTMLElement | undefined)?.focus(options)
+  }
+
+  defineExpose<ToggleGroupExpose>({ focus })
 
   const slotProps = toRef((): ToggleGroupSlotProps => ({
     isDisabled: toValue(disabled),

@@ -21,20 +21,25 @@
 
   // Utilities
   import { isArray, isNullOrUndefined, useId } from '#v0/utilities'
-  import { computed, mergeProps, toRef, useAttrs } from 'vue'
+  import { computed, mergeProps, shallowRef, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ProgressContext, ProgressTicket } from '#v0/composables/createProgress'
+  import type { ShallowRef } from 'vue'
 
   export interface ProgressRootContext extends ProgressContext {
     readonly id: string
     readonly name?: string
     readonly labelId: string
+    /** Whether a Progress.Label child is currently mounted */
+    readonly hasLabel: ShallowRef<boolean>
   }
 
   export interface ProgressRootProps extends AtomProps {
     id?: string
+    /** Accessible label when no visible Progress.Label is used */
+    ariaLabel?: string
     modelValue?: number | number[]
     min?: number
     max?: number
@@ -54,7 +59,8 @@
       'aria-valuemin': number
       'aria-valuemax': number
       'aria-valuetext': string | undefined
-      'aria-labelledby': string
+      'aria-label': string | undefined
+      'aria-labelledby': string | undefined
       'aria-busy': true | undefined
       'data-state': 'determinate' | 'indeterminate'
       'data-complete': true | undefined
@@ -73,10 +79,15 @@
     default: (props: ProgressRootSlotProps) => any
   }>()
 
+  defineEmits<{
+    'update:model-value': [value: number | number[]]
+  }>()
+
   const {
     as = 'div',
     renderless,
     id = useId(),
+    ariaLabel,
     min = 0,
     max = 100,
     name,
@@ -84,7 +95,6 @@
   } = defineProps<ProgressRootProps>()
 
   const model = defineModel<number | number[]>()
-  const scalar = !isArray(model.value) && !isNullOrUndefined(model.value)
 
   const internal = computed({
     get: () => {
@@ -94,8 +104,8 @@
     set: (arr: number[]) => {
       /* v8 ignore next -- defensive guard for null/undefined model with empty registry */
       if (isNullOrUndefined(model.value) && arr.length === 0) return
-      /* v8 ignore next -- arr[0] always defined when scalar=true since model started as a number */
-      model.value = scalar ? (arr[0] ?? 0) : arr
+      /* v8 ignore next -- arr[0] is defined once a fill has registered a value */
+      model.value = isArray(model.value) ? arr : (arr[0] ?? 0)
     },
   })
 
@@ -104,12 +114,14 @@
   useProxyModel(progress, internal, { multiple: true })
 
   const labelId = `${id}-label`
+  const hasLabel = shallowRef(false)
 
   const context: ProgressRootContext = {
     ...progress,
     id,
     name,
     labelId,
+    hasLabel,
   }
 
   provideProgressRoot(namespace, context)
@@ -131,7 +143,8 @@
         'aria-valuemin': min,
         'aria-valuemax': max,
         'aria-valuetext': indeterminate ? undefined : `${Math.round(pct)}%`,
-        'aria-labelledby': labelId,
+        'aria-label': hasLabel.value ? undefined : ariaLabel,
+        'aria-labelledby': hasLabel.value ? labelId : undefined,
         'aria-busy': indeterminate ? true : undefined,
         'data-state': indeterminate ? 'indeterminate' : 'determinate',
         'data-complete': total >= max ? true : undefined,

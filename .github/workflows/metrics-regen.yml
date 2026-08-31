@@ -1,8 +1,20 @@
-name: Regenerate Metrics
+name: Regenerate Coverage Metrics
 
-# Regenerates benchmark + coverage metrics and the per-version history series,
-# then opens an auto-PR for review. Never pushes to master directly — close the
-# PR to discard a noisy run.
+# Regenerates the COVERAGE half of metrics.json and opens an auto-PR. Never
+# pushes to master directly — close the PR to discard.
+#
+# It deliberately does NOT run benchmarks. `runs-on` is a shared GitHub runner,
+# and `ubuntu-24.04` pins the OS image, not the CPU: GHA rotates hosts across
+# generations differing ~1.5x in single-thread throughput, which once moved the
+# byte-identical 1.0.0 dist by +50.9% median across 623 benches and flipped 35
+# tier badges. Benchmarks are therefore measured only on the fixed reference
+# workstation — see "Regenerating metrics" in .claude/rules/benchmarks.md for
+# that runbook. Coverage is deterministic and does not care which CPU ran it,
+# so it stays here.
+#
+# generate-metrics.js reads `apps/docs/public/benchmarks.json` from the working
+# tree, so this job re-emits the committed reference-host benchmark numbers
+# unchanged alongside fresh coverage. It must never regenerate that file.
 #
 # Trigger: completion of the Release workflow (NOT `on: release: published`).
 # The aggregate `v*` release is minted by scripts/github-release.js with the
@@ -47,77 +59,59 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
 
-      # Discover published 1.x versions from npm and list those with no snapshot.
-      # On the automatic (workflow_run) path, skip the expensive bench when nothing
-      # new shipped. A manual dispatch always proceeds — e.g. to re-measure the
-      # whole series after a bench-suite change even though no version is new.
-      - name: Gate on new version
-        id: gate
-        env:
-          EVENT_NAME: ${{ github.event_name }}
+      # Coverage is cheap and changes with every release, so there is no gate:
+      # the expensive, version-dependent step this used to guard (benching each
+      # published dist) no longer runs here. If the produced diff is empty,
+      # create-pull-request simply opens nothing.
+
+      # Coverage only, v0:unit (no Playwright). Benchmarks are NOT run here — see
+      # the header. generate-metrics.js merges fresh coverage with the committed
+      # reference-host benchmark numbers.
+      - name: Regenerate coverage metrics
+        run: pnpm metrics:coverage
+
+      - name: Assert benchmarks were not touched
         run: |
-          MISSING=$(node scripts/generate-metrics-history.ts --print-missing)
-          if [ "$EVENT_NAME" != "workflow_dispatch" ] && [ -z "$MISSING" ]; then
-            echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "No new 1.x version to bench — skipping regen."
-            {
-              echo "### Metrics regen skipped"
-              echo ""
-              echo "Automatic \`workflow_run\` only regenerates when a published 1.x"
-              echo "version has no snapshot yet (\`--print-missing\` was empty)."
-              echo ""
-              echo "To force a full re-measure (e.g. after apparatus changes), use"
-              echo "**Actions → Regenerate Metrics → Run workflow** (\`workflow_dispatch\`)."
-            } >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "run=true" >> "$GITHUB_OUTPUT"
-            echo "Regenerating — missing: ${MISSING:-<none; manual dispatch>}"
-          fi
-
-      # Fixed apparatus (see scripts/lib/bench-stable.ts + .claude/rules/benchmarks.md):
-      #   ubuntu-24.04 + .nvmrc Node, v0:unit only, maxWorkers=1, no file parallelism,
-      #   V0_BENCH_TARGET=dist, median of 3 runs (current) / 1 run (history).
-      # Coverage for metrics is v0:unit only — no Playwright.
-
-      - name: Snapshot previous benchmarks.json
-        if: steps.gate.outputs.run == 'true'
-        run: |
-          if [ -f apps/docs/public/benchmarks.json ]; then
-            cp apps/docs/public/benchmarks.json /tmp/benchmarks-prev.json
-          fi
-
-      - name: Regenerate history series
-        if: steps.gate.outputs.run == 'true'
-        run: pnpm metrics:history --force
-
-      - name: Regenerate current metrics
-        if: steps.gate.outputs.run == 'true'
-        run: pnpm metrics
-
-      - name: Canary delta report
-        if: steps.gate.outputs.run == 'true'
-        id: delta
-        run: |
-          if [ -f /tmp/benchmarks-prev.json ]; then
-            node scripts/report-benchmark-delta.ts \
-              --prev /tmp/benchmarks-prev.json \
-              --next apps/docs/public/benchmarks.json \
-              --out /tmp/bench-delta.md
-            {
-              echo "report<<EOF"
-              cat /tmp/bench-delta.md
-              echo "EOF"
-            } >> "$GITHUB_OUTPUT"
-          else
-            echo "report=_(no previous benchmarks.json to compare)_" >> "$GITHUB_OUTPUT"
+          # A CI-measured benchmarks.json would silently replace reference-host
+          # numbers with whichever CPU this runner drew. Fail loudly instead.
+          if ! git diff --quiet -- apps/docs/public/benchmarks.json; then
+            echo "::error::benchmarks.json changed on a CI runner. Benchmarks may only be measured on the reference host."
+            git --no-pager diff --stat -- apps/docs/public/benchmarks.json
+            exit 1
           fi
           pnpm metrics:check
+
+      # Benchmarks are owed on the reference host, not here. Surface that in the
+      # PR this job opens so the debt is visible on a page someone already reads,
+      # rather than depending on anyone remembering to check.
+      - name: Check for versions owed a reference-host bench
+        id: owed
+        run: |
+          MISSING=$(node scripts/generate-metrics-history.ts --print-missing || true)
+          if [ -n "$MISSING" ]; then
+            LIST=$(echo "$MISSING" | tr '\n' ' ')
+            echo "Versions owed a bench run: $LIST" >> "$GITHUB_STEP_SUMMARY"
+            # Multi-line values need the delimiter form; a plain assignment
+            # would break GITHUB_OUTPUT parsing at the first newline.
+            {
+              echo "note<<OWED_EOF"
+              echo "> [!NOTE]"
+              echo "> Published without a benchmark snapshot: **$LIST**"
+              echo ">"
+              echo "> History points are measured on the reference workstation, not here."
+              echo "> Run \`pnpm metrics\` and \`pnpm metrics:history\` there, then open a"
+              echo "> \`chore(bench): regenerate metrics\` PR."
+              echo "OWED_EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "Every published version has a benchmark snapshot." >> "$GITHUB_STEP_SUMMARY"
+            echo "note=" >> "$GITHUB_OUTPUT"
+          fi
 
       # create-pull-request will not open a *new* PR if one was closed for this
       # branch — it only updates the branch. Reopen so "Close to discard" is not
       # a one-way trap on the next regen.
       - name: Reopen closed metrics-regen PR if needed
-        if: steps.gate.outputs.run == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -128,36 +122,24 @@ jobs:
           fi
 
       - name: Open/update auto-PR
-        if: steps.gate.outputs.run == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           base: master # required — checkout is a detached commit on the workflow_run path
-          commit-message: "chore: regenerate benchmark + history metrics"
-          title: "chore: regenerate benchmark + history metrics"
+          commit-message: "chore: regenerate coverage metrics"
+          title: "chore: regenerate coverage metrics"
           body: |
-            Auto-regenerated after a release.
+            Auto-regenerated after a release. **Coverage only.**
 
-            ## Apparatus (fixed)
+            ${{ steps.owed.outputs.note }}
 
-            - Runner: `ubuntu-24.04` + Node from `.nvmrc`
-            - Project: `v0:unit` only (`maxWorkers=1`, no file parallelism)
-            - Target: built dist (`V0_BENCH_TARGET=dist`); history uses npm-installed dists
-            - Aggregation: **median of 3 runs** (current); history 1 run with same isolation
-            - Paths: repo-relative (`packages/0/src/...`) — never laptop absolute paths
+            Benchmark numbers in this diff are the committed reference-host
+            measurements, re-emitted unchanged — a shared GitHub runner does not
+            pin the CPU, and measuring benches here would replace them with
+            whichever host this job drew.
 
-            History series re-measured on one runner (`metrics:history --force`) so
-            sparklines stay comparable. Version set is discovered from npm
-            (`scripts/metrics-history.config.ts`).
-
-            ## Canary delta
-
-            ${{ steps.delta.outputs.report }}
-
-            Acceptable canary noise on shared GHA: **±20%**. Tier badges near a
-            boundary may still flip. **Close this PR to discard** if the delta looks
-            like runner noise rather than a real change.
+            To refresh benchmarks or the per-version history, run them on the
+            reference workstation: see "Regenerating metrics" in
+            `.claude/rules/benchmarks.md`.
           branch: chore/metrics-regen
           add-paths: |
-            apps/docs/public/benchmarks.json
             apps/docs/src/data/metrics.json
-            apps/docs/src/data/metrics/*.json

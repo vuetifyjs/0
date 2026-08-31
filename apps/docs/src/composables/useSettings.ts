@@ -33,6 +33,7 @@ export interface DocSettings {
   showMeshGrid: boolean
   showMeshTransition: boolean
   showBgGlass: boolean
+  styledScrollbars: boolean
 }
 
 export interface SettingsContext {
@@ -58,6 +59,9 @@ export interface SettingsContext {
   showMeshGrid: ShallowRef<boolean>
   showMeshTransition: ShallowRef<boolean>
   showBgGlass: ShallowRef<boolean>
+  styledScrollbars: ShallowRef<boolean>
+  /** Surface background class tracking the glass setting — bind it instead of re-deriving the ternary. */
+  surface: Ref<string>
   hasChanges: ShallowRef<boolean>
   open: () => void
   close: () => void
@@ -82,6 +86,7 @@ const DEFAULTS: DocSettings = {
   showMeshGrid: true,
   showMeshTransition: true,
   showBgGlass: true,
+  styledScrollbars: false,
 }
 
 // Create context
@@ -143,6 +148,7 @@ export function createSettingsContext (): SettingsContext {
   const showMeshGrid = shallowRef(DEFAULTS.showMeshGrid)
   const showMeshTransition = shallowRef(DEFAULTS.showMeshTransition)
   const showBgGlass = shallowRef(DEFAULTS.showBgGlass)
+  const styledScrollbars = shallowRef(DEFAULTS.styledScrollbars)
 
   // Load stored preferences
   loadSetting(storage, 'lineWrap', lineWrap)
@@ -161,9 +167,10 @@ export function createSettingsContext (): SettingsContext {
   loadSetting(storage, 'showMeshGrid', showMeshGrid)
   loadSetting(storage, 'showMeshTransition', showMeshTransition)
   loadSetting(storage, 'showBgGlass', showBgGlass)
+  loadSetting(storage, 'styledScrollbars', styledScrollbars)
 
   // Persist on change
-  const settings = { lineWrap, codeSize, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks, collapsibleNav, showDotGrid, dotGridIntensity, dotGridCoverage, showMeshGrid, showMeshTransition, showBgGlass }
+  const settings = { lineWrap, codeSize, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks, collapsibleNav, showDotGrid, dotGridIntensity, dotGridCoverage, showMeshGrid, showMeshTransition, showBgGlass, styledScrollbars }
   for (const [key, ref] of Object.entries(settings)) {
     watch(ref, val => storage.set(key, val))
   }
@@ -179,6 +186,8 @@ export function createSettingsContext (): SettingsContext {
     if (forceReducedMotion.value) return true
     return userPrefersReducedMotion.value
   })
+
+  const surface = toRef(() => showBgGlass.value ? 'bg-glass-surface' : 'bg-surface')
 
   // Check if any setting differs from defaults
   const hasChanges = toRef(() => (
@@ -196,7 +205,8 @@ export function createSettingsContext (): SettingsContext {
     dotGridCoverage.value !== DEFAULTS.dotGridCoverage ||
     showMeshGrid.value !== DEFAULTS.showMeshGrid ||
     showMeshTransition.value !== DEFAULTS.showMeshTransition ||
-    showBgGlass.value !== DEFAULTS.showBgGlass
+    showBgGlass.value !== DEFAULTS.showBgGlass ||
+    styledScrollbars.value !== DEFAULTS.styledScrollbars
   ))
 
   // Track trigger element for focus restoration
@@ -241,6 +251,7 @@ export function createSettingsContext (): SettingsContext {
     showMeshGrid.value = DEFAULTS.showMeshGrid
     showMeshTransition.value = DEFAULTS.showMeshTransition
     showBgGlass.value = DEFAULTS.showBgGlass
+    styledScrollbars.value = DEFAULTS.styledScrollbars
   }
 
   return {
@@ -263,6 +274,8 @@ export function createSettingsContext (): SettingsContext {
     showMeshGrid,
     showMeshTransition,
     showBgGlass,
+    styledScrollbars,
+    surface,
     hasChanges,
     open,
     close,

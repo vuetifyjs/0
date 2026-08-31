@@ -80,6 +80,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/data/data-grid': RouteRecordInfo<
+      '/components/data/data-grid',
+      '/components/data/data-grid',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/data/data-table': RouteRecordInfo<
+      '/components/data/data-table',
+      '/components/data/data-table',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/alert-dialog': RouteRecordInfo<
       '/components/disclosure/alert-dialog',
       '/components/disclosure/alert-dialog',
@@ -279,6 +293,13 @@ declare module 'vue-router/auto-routes' {
     '/components/providers/theme': RouteRecordInfo<
       '/components/providers/theme',
       '/components/providers/theme',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/semantic/alert': RouteRecordInfo<
+      '/components/semantic/alert',
+      '/components/semantic/alert',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1011,9 +1032,23 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/tooling/agents': RouteRecordInfo<
+      '/guide/tooling/agents',
+      '/guide/tooling/agents',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/tooling/ai-tools': RouteRecordInfo<
       '/guide/tooling/ai-tools',
       '/guide/tooling/ai-tools',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guide/tooling/grok-bot': RouteRecordInfo<
+      '/guide/tooling/grok-bot',
+      '/guide/tooling/grok-bot',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1151,6 +1186,349 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/bulma/': RouteRecordInfo<
+      '/systems/bulma/',
+      '/systems/bulma',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/breadcrumb': RouteRecordInfo<
+      '/systems/bulma/breadcrumb',
+      '/systems/bulma/breadcrumb',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/checkbox': RouteRecordInfo<
+      '/systems/bulma/checkbox',
+      '/systems/bulma/checkbox',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/dropdown': RouteRecordInfo<
+      '/systems/bulma/dropdown',
+      '/systems/bulma/dropdown',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/field': RouteRecordInfo<
+      '/systems/bulma/field',
+      '/systems/bulma/field',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/file': RouteRecordInfo<
+      '/systems/bulma/file',
+      '/systems/bulma/file',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/input': RouteRecordInfo<
+      '/systems/bulma/input',
+      '/systems/bulma/input',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/menu': RouteRecordInfo<
+      '/systems/bulma/menu',
+      '/systems/bulma/menu',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/message': RouteRecordInfo<
+      '/systems/bulma/message',
+      '/systems/bulma/message',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/modal': RouteRecordInfo<
+      '/systems/bulma/modal',
+      '/systems/bulma/modal',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/navbar': RouteRecordInfo<
+      '/systems/bulma/navbar',
+      '/systems/bulma/navbar',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/notification': RouteRecordInfo<
+      '/systems/bulma/notification',
+      '/systems/bulma/notification',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/number-field': RouteRecordInfo<
+      '/systems/bulma/number-field',
+      '/systems/bulma/number-field',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/pagination': RouteRecordInfo<
+      '/systems/bulma/pagination',
+      '/systems/bulma/pagination',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/panel': RouteRecordInfo<
+      '/systems/bulma/panel',
+      '/systems/bulma/panel',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/radio': RouteRecordInfo<
+      '/systems/bulma/radio',
+      '/systems/bulma/radio',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/select': RouteRecordInfo<
+      '/systems/bulma/select',
+      '/systems/bulma/select',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/tabs': RouteRecordInfo<
+      '/systems/bulma/tabs',
+      '/systems/bulma/tabs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bulma/textarea': RouteRecordInfo<
+      '/systems/bulma/textarea',
+      '/systems/bulma/textarea',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/': RouteRecordInfo<
+      '/systems/emerald/',
+      '/systems/emerald',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/alert': RouteRecordInfo<
+      '/systems/emerald/alert',
+      '/systems/emerald/alert',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/avatar': RouteRecordInfo<
+      '/systems/emerald/avatar',
+      '/systems/emerald/avatar',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/badge': RouteRecordInfo<
+      '/systems/emerald/badge',
+      '/systems/emerald/badge',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/breadcrumbs': RouteRecordInfo<
+      '/systems/emerald/breadcrumbs',
+      '/systems/emerald/breadcrumbs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/button': RouteRecordInfo<
+      '/systems/emerald/button',
+      '/systems/emerald/button',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/calendar': RouteRecordInfo<
+      '/systems/emerald/calendar',
+      '/systems/emerald/calendar',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/card': RouteRecordInfo<
+      '/systems/emerald/card',
+      '/systems/emerald/card',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/checkbox': RouteRecordInfo<
+      '/systems/emerald/checkbox',
+      '/systems/emerald/checkbox',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/dialog': RouteRecordInfo<
+      '/systems/emerald/dialog',
+      '/systems/emerald/dialog',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/divider': RouteRecordInfo<
+      '/systems/emerald/divider',
+      '/systems/emerald/divider',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/expansion-panel': RouteRecordInfo<
+      '/systems/emerald/expansion-panel',
+      '/systems/emerald/expansion-panel',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/icon': RouteRecordInfo<
+      '/systems/emerald/icon',
+      '/systems/emerald/icon',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/kanban': RouteRecordInfo<
+      '/systems/emerald/kanban',
+      '/systems/emerald/kanban',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/list': RouteRecordInfo<
+      '/systems/emerald/list',
+      '/systems/emerald/list',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/pagination': RouteRecordInfo<
+      '/systems/emerald/pagination',
+      '/systems/emerald/pagination',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/popover': RouteRecordInfo<
+      '/systems/emerald/popover',
+      '/systems/emerald/popover',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/progress': RouteRecordInfo<
+      '/systems/emerald/progress',
+      '/systems/emerald/progress',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/radio': RouteRecordInfo<
+      '/systems/emerald/radio',
+      '/systems/emerald/radio',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/select': RouteRecordInfo<
+      '/systems/emerald/select',
+      '/systems/emerald/select',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/slider': RouteRecordInfo<
+      '/systems/emerald/slider',
+      '/systems/emerald/slider',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/snackbar': RouteRecordInfo<
+      '/systems/emerald/snackbar',
+      '/systems/emerald/snackbar',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/spinner': RouteRecordInfo<
+      '/systems/emerald/spinner',
+      '/systems/emerald/spinner',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/step': RouteRecordInfo<
+      '/systems/emerald/step',
+      '/systems/emerald/step',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/switch': RouteRecordInfo<
+      '/systems/emerald/switch',
+      '/systems/emerald/switch',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/tabs': RouteRecordInfo<
+      '/systems/emerald/tabs',
+      '/systems/emerald/tabs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/tag': RouteRecordInfo<
+      '/systems/emerald/tag',
+      '/systems/emerald/tag',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/text-field': RouteRecordInfo<
+      '/systems/emerald/text-field',
+      '/systems/emerald/text-field',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/textarea': RouteRecordInfo<
+      '/systems/emerald/textarea',
+      '/systems/emerald/textarea',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/tooltip': RouteRecordInfo<
+      '/systems/emerald/tooltip',
+      '/systems/emerald/tooltip',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -1215,6 +1593,22 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/actions/toggle.md': {
       routes:
         | '/components/actions/toggle'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/data/data-grid.md': {
+      routes:
+        | '/components/data/data-grid'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/data/data-table.md': {
+      routes:
+        | '/components/data/data-table'
       views:
         | never
       pathParamNames:
@@ -1447,6 +1841,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/providers/theme.md': {
       routes:
         | '/components/providers/theme'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/semantic/alert.md': {
+      routes:
+        | '/components/semantic/alert'
       views:
         | never
       pathParamNames:
@@ -2284,9 +2686,25 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/guide/tooling/agents.md': {
+      routes:
+        | '/guide/tooling/agents'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/guide/tooling/ai-tools.md': {
       routes:
         | '/guide/tooling/ai-tools'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/guide/tooling/grok-bot.md': {
+      routes:
+        | '/guide/tooling/grok-bot'
       views:
         | never
       pathParamNames:
@@ -2439,6 +2857,398 @@ declare module 'vue-router/auto-routes' {
     'src/pages/sponsor.md': {
       routes:
         | '/sponsor'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/index.md': {
+      routes:
+        | '/systems/bulma/'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/breadcrumb.md': {
+      routes:
+        | '/systems/bulma/breadcrumb'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/checkbox.md': {
+      routes:
+        | '/systems/bulma/checkbox'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/dropdown.md': {
+      routes:
+        | '/systems/bulma/dropdown'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/field.md': {
+      routes:
+        | '/systems/bulma/field'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/file.md': {
+      routes:
+        | '/systems/bulma/file'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/input.md': {
+      routes:
+        | '/systems/bulma/input'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/menu.md': {
+      routes:
+        | '/systems/bulma/menu'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/message.md': {
+      routes:
+        | '/systems/bulma/message'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/modal.md': {
+      routes:
+        | '/systems/bulma/modal'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/navbar.md': {
+      routes:
+        | '/systems/bulma/navbar'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/notification.md': {
+      routes:
+        | '/systems/bulma/notification'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/number-field.md': {
+      routes:
+        | '/systems/bulma/number-field'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/pagination.md': {
+      routes:
+        | '/systems/bulma/pagination'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/panel.md': {
+      routes:
+        | '/systems/bulma/panel'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/radio.md': {
+      routes:
+        | '/systems/bulma/radio'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/select.md': {
+      routes:
+        | '/systems/bulma/select'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/tabs.md': {
+      routes:
+        | '/systems/bulma/tabs'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bulma/textarea.md': {
+      routes:
+        | '/systems/bulma/textarea'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/index.md': {
+      routes:
+        | '/systems/emerald/'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/alert.md': {
+      routes:
+        | '/systems/emerald/alert'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/avatar.md': {
+      routes:
+        | '/systems/emerald/avatar'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/badge.md': {
+      routes:
+        | '/systems/emerald/badge'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/breadcrumbs.md': {
+      routes:
+        | '/systems/emerald/breadcrumbs'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/button.md': {
+      routes:
+        | '/systems/emerald/button'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/calendar.md': {
+      routes:
+        | '/systems/emerald/calendar'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/card.md': {
+      routes:
+        | '/systems/emerald/card'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/checkbox.md': {
+      routes:
+        | '/systems/emerald/checkbox'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/dialog.md': {
+      routes:
+        | '/systems/emerald/dialog'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/divider.md': {
+      routes:
+        | '/systems/emerald/divider'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/expansion-panel.md': {
+      routes:
+        | '/systems/emerald/expansion-panel'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/icon.md': {
+      routes:
+        | '/systems/emerald/icon'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/kanban.md': {
+      routes:
+        | '/systems/emerald/kanban'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/list.md': {
+      routes:
+        | '/systems/emerald/list'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/pagination.md': {
+      routes:
+        | '/systems/emerald/pagination'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/popover.md': {
+      routes:
+        | '/systems/emerald/popover'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/progress.md': {
+      routes:
+        | '/systems/emerald/progress'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/radio.md': {
+      routes:
+        | '/systems/emerald/radio'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/select.md': {
+      routes:
+        | '/systems/emerald/select'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/slider.md': {
+      routes:
+        | '/systems/emerald/slider'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/snackbar.md': {
+      routes:
+        | '/systems/emerald/snackbar'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/spinner.md': {
+      routes:
+        | '/systems/emerald/spinner'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/step.md': {
+      routes:
+        | '/systems/emerald/step'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/switch.md': {
+      routes:
+        | '/systems/emerald/switch'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/tabs.md': {
+      routes:
+        | '/systems/emerald/tabs'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/tag.md': {
+      routes:
+        | '/systems/emerald/tag'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/text-field.md': {
+      routes:
+        | '/systems/emerald/text-field'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/textarea.md': {
+      routes:
+        | '/systems/emerald/textarea'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/tooltip.md': {
+      routes:
+        | '/systems/emerald/tooltip'
       views:
         | never
       pathParamNames:

@@ -10,6 +10,10 @@
       ]
     },
     "apps/docs": {
+      "ignoreDependencies": [
+        "@iconify-json/lucide",
+        "@iconify-json/mdi"
+      ],
       "entry": [
         "src/App.vue",
         "src/components/**/*.vue",
@@ -22,7 +26,8 @@
         "src/pages/**/*.{vue,md}",
         "build/**/*.ts",
         "vite.config.*",
-        "src/examples/**/*.vue"
+        "src/examples/**/*.vue",
+        "src/sandbox/*.ts"
       ],
       "ignore": [
         "src/typed-router.d.ts",
@@ -38,6 +43,9 @@
         "@vuetify/v0": [
           "../../packages/0/src"
         ],
+        "@vuetify/play": [
+          "../../packages/play/src"
+        ],
         "@vuetify/paper": [
           "../../packages/paper/src"
         ],
@@ -46,6 +54,18 @@
         ],
         "#paper": [
           "../../packages/paper/src"
+        ],
+        "@paper/bulma": [
+          "../../packages/bulma/src"
+        ],
+        "#bulma": [
+          "../../packages/bulma/src"
+        ],
+        "@paper/emerald": [
+          "../../packages/emerald/src"
+        ],
+        "#emerald": [
+          "../../packages/emerald/src"
         ]
       }
     },
@@ -63,12 +83,17 @@
       "ignore": [
         "src/**/*.bench.ts"
       ],
-
       "paths": {
         "#v0/*": [
           "src/*"
         ]
       }
+    },
+    "packages/play": {
+      "project": [
+        "src/**/*.ts",
+        "!src/**/*.test.ts"
+      ]
     },
     "packages/paper": {
       "project": [
@@ -100,6 +125,9 @@
         ],
         "@vuetify/v0": [
           "../../packages/0/src"
+        ],
+        "@vuetify/play": [
+          "../../packages/play/src"
         ],
         "#v0": [
           "../../packages/0/src"
@@ -143,7 +171,6 @@
   ],
   "ignoreDependencies": [
     "@js-temporal/polyfill",
-    "@vue/repl",
     "@vuetify/paper"
   ],
   "ignoreBinaries": [

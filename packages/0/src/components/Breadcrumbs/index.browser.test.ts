@@ -244,6 +244,43 @@ describe('breadcrumbs', () => {
       expect(typeof itemProps!.isSelected).toBe('boolean')
       expect(itemProps!.attrs).toBeDefined()
     })
+
+    it('should expose inert on collapsed items', async () => {
+      let itemProps: Record<string, unknown> | undefined
+      let ctx: any
+
+      const Spy = defineComponent({
+        setup () {
+          ctx = useBreadcrumbsRoot('v0:breadcrumbs')
+          return () => null
+        },
+      })
+
+      mount(Breadcrumbs.Root, {
+        slots: {
+          default: () => [
+            h(Breadcrumbs.Item as never, {}, {
+              default: (props: Record<string, unknown>) => {
+                itemProps = props
+                return h('span', 'Home')
+              },
+            }),
+            h(Spy),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      // Visible items stay interactive
+      expect((itemProps!.attrs as Record<string, unknown>).inert).toBeUndefined()
+
+      ctx.group.unselect(itemProps!.id)
+      await nextTick()
+
+      // Collapsed items leave the a11y tree AND stop being focusable
+      expect((itemProps!.attrs as Record<string, unknown>).inert).toBe(true)
+    })
   })
 
   describe('link', () => {
@@ -527,6 +564,105 @@ describe('breadcrumbs', () => {
 
       const attrs = ellipsisProps!.attrs as Record<string, unknown>
       expect(attrs['aria-hidden']).toBe('true')
+      expect(attrs['aria-expanded']).toBeUndefined()
+      expect(attrs.onClick).toBeUndefined()
+    })
+
+    it('should render a nested activator and keep the list item role', async () => {
+      const wrapper = mount(Breadcrumbs.Root, {
+        slots: {
+          default: () => h(Breadcrumbs.List as never, {}, {
+            default: () => h(Breadcrumbs.Ellipsis as never, {}, {
+              default: () => h(Breadcrumbs.Activator as never),
+            }),
+          }),
+        },
+      })
+
+      await nextTick()
+
+      const li = wrapper.find('li')
+      const trigger = wrapper.find('li button')
+
+      // The li must stay a listitem — role="button" on it would break the list
+      expect(li.attributes('role')).toBeUndefined()
+      expect(li.attributes('aria-hidden')).toBeUndefined()
+      expect(li.attributes('tabindex')).toBeUndefined()
+
+      expect(trigger.exists()).toBe(true)
+      expect(trigger.attributes('type')).toBe('button')
+      expect(trigger.attributes('aria-expanded')).toBe('false')
+      expect(trigger.attributes('aria-label')).toBeDefined()
+      expect(trigger.attributes('data-state')).toBe('closed')
+    })
+
+    it('should stay decorative without an activator', async () => {
+      const wrapper = mount(Breadcrumbs.Root, {
+        slots: {
+          default: () => h(Breadcrumbs.List as never, {}, {
+            default: () => h(Breadcrumbs.Ellipsis as never),
+          }),
+        },
+      })
+
+      await nextTick()
+
+      expect(wrapper.find('li').attributes('aria-hidden')).toBe('true')
+      expect(wrapper.find('li button').exists()).toBe(false)
+    })
+
+    it('should return to decorative when the activator unmounts', async () => {
+      const show = ref(true)
+
+      const wrapper = mount(Breadcrumbs.Root, {
+        slots: {
+          default: () => h(Breadcrumbs.List as never, {}, {
+            default: () => h(Breadcrumbs.Ellipsis as never, {}, {
+              default: () => (show.value ? h(Breadcrumbs.Activator as never) : null),
+            }),
+          }),
+        },
+      })
+
+      await nextTick()
+
+      expect(wrapper.find('li').attributes('aria-hidden')).toBeUndefined()
+
+      show.value = false
+      await nextTick()
+
+      // Reachability is tied to hosting a disclosure, so losing the activator
+      // has to put the ellipsis back out of the a11y tree
+      expect(wrapper.find('li button').exists()).toBe(false)
+      expect(wrapper.find('li').attributes('aria-hidden')).toBe('true')
+    })
+
+    it('should use the registered locale string for the disclosure label', async () => {
+      const plugin = createLocalePlugin({
+        default: 'en',
+        messages: {
+          en: {
+            Breadcrumbs: {
+              expand: 'Zeige {count} weitere',
+            },
+          },
+        },
+      })
+
+      const wrapper = mount(Breadcrumbs.Root, {
+        global: { plugins: [plugin] },
+        slots: {
+          default: () => h(Breadcrumbs.List as never, {}, {
+            default: () => h(Breadcrumbs.Ellipsis as never, {}, {
+              default: () => h(Breadcrumbs.Activator as never),
+            }),
+          }),
+        },
+      })
+
+      await nextTick()
+
+      expect(wrapper.find('li button').attributes('aria-label')).toContain('weitere')
     })
   })
 
@@ -1047,8 +1183,10 @@ describe('breadcrumbs', () => {
     function mountOverflowTree (options: {
       itemCount?: number
       withEllipsis?: boolean
+      withDividers?: boolean
+      activator?: Record<string, unknown>
     } = {}) {
-      const { itemCount = 4, withEllipsis = true } = options
+      const { itemCount = 4, withEllipsis = true, withDividers = true, activator } = options
 
       let ctx: any
 
@@ -1065,12 +1203,17 @@ describe('breadcrumbs', () => {
             const children: ReturnType<typeof h>[] = []
             for (let i = 0; i < itemCount; i++) {
               children.push(h(Breadcrumbs.Item as never, { key: `item-${i}` }, () => `Item ${i}`))
-              if (i < itemCount - 1) {
+              if (withDividers && i < itemCount - 1) {
                 children.push(h(Breadcrumbs.Divider as never, { key: `div-${i}` }))
               }
             }
             if (withEllipsis) {
-              children.push(h(Breadcrumbs.Ellipsis as never, { key: 'ellipsis' }))
+              children.push(activator
+                ? h(Breadcrumbs.Ellipsis as never, { key: 'ellipsis' }, {
+                    default: () => h(Breadcrumbs.Activator as never, activator),
+                  })
+                : h(Breadcrumbs.Ellipsis as never, { key: 'ellipsis' }),
+              )
             }
             children.push(h(Spy, { key: 'spy' }))
             return children
@@ -1321,6 +1464,34 @@ describe('breadcrumbs', () => {
       el.remove()
     })
 
+    it('should keep all crumbs visible when overflowing with no Ellipsis registered', async () => {
+      // 4 items + 3 dividers = 7 content, measuredCount = 5
+      const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: false })
+      await nextTick()
+      const ctx = context()
+
+      const el = createMeasurableElement(20)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      await nextTick()
+
+      // reserved = 20+8+20+8 = 56 (no ellipsisWidth); width=50 => capacity=0 < measuredCount
+      triggerResize(50)
+      await nextTick()
+
+      expect(ctx.overflow.capacity.value).toBe(0)
+
+      for (const t of ctx.group.values()) {
+        if (t.type !== 'ellipsis' && t.type !== 'activator') {
+          expect(t.isSelected.value).toBe(true)
+        }
+      }
+
+      expect(ctx.hiddenCount.value).toBe(0)
+
+      el.remove()
+    })
+
     it('should hide first divider when w < reserved + fD in capacity=0', async () => {
       const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
       await nextTick()
@@ -1473,6 +1644,106 @@ describe('breadcrumbs', () => {
       el.remove()
     })
 
+    it('should reveal collapsed items and track hiddenCount when expanded', async () => {
+      const { context } = mountOverflowTree({ itemCount: 5, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
+
+      const el = createMeasurableElement(15)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 15
+      await nextTick()
+
+      // reserved = 15+8+15+8+15+8 = 69; width=60 => capacity=0
+      triggerResize(60)
+      await nextTick()
+
+      expect(ctx.overflow.capacity.value).toBe(0)
+      // item0 and item4 stay visible; items 1-3 are truncated away
+      expect(ctx.hiddenCount.value).toBe(3)
+
+      // Open the disclosure — all content is revealed, ellipsis stays
+      // visible so it can serve as the collapse toggle
+      ctx.expanded.value = true
+      await nextTick()
+
+      for (const t of ctx.group.values()) {
+        expect(t.isSelected.value).toBe(true)
+      }
+
+      // The count reports what truncation hides, not what is on screen, so
+      // the expander's accessible name stays meaningful while open
+      expect(ctx.hiddenCount.value).toBe(3)
+
+      // Close the disclosure — items collapse again
+      ctx.expanded.value = false
+      await nextTick()
+
+      expect(ctx.hiddenCount.value).toBe(3)
+
+      el.remove()
+    })
+
+    it('should keep tracking the hidden count while the disclosure is open', async () => {
+      const { context } = mountOverflowTree({ itemCount: 5, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
+
+      const el = createMeasurableElement(15)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 15
+      await nextTick()
+
+      triggerResize(60)
+      await nextTick()
+      expect(ctx.hiddenCount.value).toBe(3)
+
+      ctx.expanded.value = true
+      await nextTick()
+
+      // Widening while open still truncates, so the count must follow the new
+      // measurements rather than stay frozen at whatever the last closed pass left
+      triggerResize(100)
+      await nextTick()
+
+      expect(ctx.expanded.value).toBe(true)
+      expect(ctx.hiddenCount.value).toBe(2)
+
+      el.remove()
+    })
+
+    it('should re-collapse after the container grows and shrinks again', async () => {
+      const { context } = mountOverflowTree({ itemCount: 5, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
+
+      const el = createMeasurableElement(15)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 15
+      await nextTick()
+
+      triggerResize(60)
+      await nextTick()
+      ctx.expanded.value = true
+      await nextTick()
+
+      // Widening removes the truncation entirely, so a disclosure left open
+      // from the narrow layout is stale and must not survive
+      triggerResize(1000)
+      await nextTick()
+      expect(ctx.hiddenCount.value).toBe(0)
+      expect(ctx.expanded.value).toBe(false)
+
+      triggerResize(60)
+      await nextTick()
+      expect(ctx.hiddenCount.value).toBe(3)
+
+      el.remove()
+    })
+
     it('should select separator divider before shown item in overflow', async () => {
       // Content: item0(0), div0(1), item1(2), div1(3), item2(4), div2(5), item3(6), div3(7), item4(8)
       // poolStart=2, measuredCount = max(0, 9-2) = 7
@@ -1509,6 +1780,141 @@ describe('breadcrumbs', () => {
 
       // contentTickets[6] = item3 should be hidden (unselected)
       expect(content[6]!.isSelected.value).toBe(false)
+
+      el.remove()
+    })
+
+    it('should not reveal a separator when the crumb before the shown one is an item', async () => {
+      // Dividers are optional — a trail styled with CSS separators registers
+      // items back to back, so the slot before a shown crumb is not a divider
+      const { context } = mountOverflowTree({ itemCount: 5, withDividers: false })
+      await nextTick()
+      const ctx = context()
+
+      const el = createMeasurableElement(15)
+      ctx.measureElement(0, 'item', el)
+      ctx.ellipsisWidth.value = 15
+
+      const pool = createMeasurableElement(10)
+      for (let i = 2; i <= 4; i++) {
+        ctx.overflow.measure(i, pool)
+      }
+      await nextTick()
+
+      // reserved = 15+8+15+8 = 46; available = 60-46 = 14 fits one pool item
+      triggerResize(60)
+      await nextTick()
+
+      expect(ctx.overflow.capacity.value).toBe(1)
+
+      const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
+
+      expect(content[4]!.isSelected.value).toBe(true)
+      expect(content[3]!.isSelected.value).toBe(false)
+      expect(ctx.hiddenCount.value).toBe(2)
+
+      el.remove()
+      pool.remove()
+    })
+
+    it('should keep the first divider when the container still fits it', async () => {
+      const { context } = mountOverflowTree({ itemCount: 5 })
+      await nextTick()
+      const ctx = context()
+
+      const item = createMeasurableElement(15)
+      const divider = createMeasurableElement(5)
+      ctx.measureElement(0, 'item', item)
+      ctx.measureElement(0, 'divider', divider)
+      ctx.ellipsisWidth.value = 15
+
+      const pool = createMeasurableElement(30)
+      for (let i = 2; i <= 8; i++) {
+        ctx.overflow.measure(i, pool)
+      }
+      await nextTick()
+
+      // reserved = 15+8+5+8+15+8 = 59; available = 70-59 = 11 fits no pool item,
+      // yet 70 still clears reserved + fD = 64, so the first divider survives
+      triggerResize(70)
+      await nextTick()
+
+      expect(ctx.overflow.capacity.value).toBe(0)
+
+      const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
+
+      expect(content[0]!.isSelected.value).toBe(true)
+      expect(content[1]!.isSelected.value).toBe(true)
+
+      item.remove()
+      divider.remove()
+      pool.remove()
+    })
+
+    it('should toggle the disclosure when the activator is clicked', async () => {
+      const { wrapper, context } = mountOverflowTree({ itemCount: 5, activator: {} })
+      await nextTick()
+      const ctx = context()
+
+      const el = createMeasurableElement(15)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 15
+      await nextTick()
+
+      triggerResize(60)
+      await nextTick()
+      expect(ctx.hiddenCount.value).toBe(3)
+
+      const trigger = wrapper.find('button')
+      expect(trigger.attributes('aria-expanded')).toBe('false')
+      expect(trigger.attributes('data-state')).toBe('closed')
+
+      await trigger.trigger('click')
+
+      expect(ctx.expanded.value).toBe(true)
+      expect(trigger.attributes('aria-expanded')).toBe('true')
+      expect(trigger.attributes('data-state')).toBe('open')
+
+      await trigger.trigger('click')
+
+      expect(ctx.expanded.value).toBe(false)
+      expect(trigger.attributes('aria-expanded')).toBe('false')
+      expect(trigger.attributes('data-state')).toBe('closed')
+
+      el.remove()
+    })
+
+    it('should drive the disclosure from the keyboard when not rendered as a button', async () => {
+      const { wrapper, context } = mountOverflowTree({ itemCount: 5, activator: { as: 'span' } })
+      await nextTick()
+      const ctx = context()
+
+      const el = createMeasurableElement(15)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 15
+      await nextTick()
+
+      triggerResize(60)
+      await nextTick()
+
+      const trigger = wrapper.find('span[role="button"]')
+
+      // A non-button host has to carry the role and be focusable on its own
+      expect(trigger.exists()).toBe(true)
+      expect(trigger.attributes('type')).toBeUndefined()
+      expect(trigger.attributes('tabindex')).toBe('0')
+
+      await trigger.trigger('keydown', { key: 'Enter' })
+      expect(ctx.expanded.value).toBe(true)
+
+      await trigger.trigger('keydown', { key: ' ' })
+      expect(ctx.expanded.value).toBe(false)
+
+      // Everything else belongs to the page, not the disclosure
+      await trigger.trigger('keydown', { key: 'a' })
+      expect(ctx.expanded.value).toBe(false)
 
       el.remove()
     })

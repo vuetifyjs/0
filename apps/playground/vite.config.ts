@@ -8,6 +8,8 @@ import Components from 'unplugin-vue-components/vite'
 import Markdown from 'unplugin-vue-markdown/vite'
 import Vue from 'unplugin-vue/rolldown'
 import { defineConfig } from 'vite'
+import { VitePWA } from 'vite-plugin-pwa'
+import VueDevTools from 'vite-plugin-vue-devtools'
 import Layouts from 'vite-plugin-vue-layouts-next'
 import VueRouter from 'vue-router/vite'
 
@@ -101,6 +103,7 @@ export default defineConfig({
     Vue({
       include: [/\.vue$/, /\.md$/],
     }),
+    VueDevTools(),
     await createMarkdownPlugin(),
     Components({
       dirs: ['src/components'],
@@ -110,6 +113,27 @@ export default defineConfig({
     }),
     UnocssVitePlugin(),
     Layouts(),
+    VitePWA({
+      injectRegister: 'script-defer',
+      registerType: 'autoUpdate',
+      manifest: {
+        name: 'Vuetify0 Play',
+        short_name: 'v0play',
+        description: 'Interactive playground for Vuetify0',
+        theme_color: '#1867C0',
+        background_color: '#121212',
+        display: 'standalone',
+        icons: [
+          { src: '/pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+      },
+    }),
   ],
   define: {
     'process.env': {},
@@ -123,6 +147,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('src', import.meta.url)),
       '@vuetify/v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '#v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
+      '@paper/genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
     },
   },
   server: {

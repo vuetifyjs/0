@@ -10,12 +10,14 @@
   },
   "dependencies": {
     "@mdi/js": "catalog:",
+    "@paper/genesis": "workspace:*",
     "@vue/repl": "catalog:",
     "@vuetify/auth": "catalog:",
+    "@vuetify/play": "workspace:*",
     "@vuetify/v0": "workspace:*",
     "client-zip": "catalog:",
-    "fflate": "catalog:",
     "pinia": "catalog:",
+    "swetrix": "catalog:",
     "vue": "catalog:"
   },
   "devDependencies": {
@@ -29,6 +31,8 @@
     "unplugin-vue-components": "catalog:",
     "unplugin-vue-markdown": "catalog:",
     "vite": "catalog:",
+    "vite-plugin-pwa": "catalog:",
+    "vite-plugin-vue-devtools": "catalog:",
     "vite-plugin-vue-layouts-next": "catalog:",
     "vite-ssg": "catalog:",
     "vue-router": "catalog:"

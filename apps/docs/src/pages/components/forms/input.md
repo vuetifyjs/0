@@ -191,7 +191,7 @@ Input.Control renders as a native `<input>` and manages all ARIA attributes auto
 | `aria-describedby` | Description ID | Only present when `Input.Description` is mounted |
 | `aria-errormessage` | Error ID | Only present when `Input.Error` is mounted and errors exist |
 | `aria-required` | `true` | From Root's `required` prop |
-| `required` | `true` | Native attribute, from Root's `required` prop |
+| `required` | `true` | Native attribute, from Root's `required` prop. Also registers a presence rule so Form submit fails on empty values even with `novalidate`. |
 | `disabled` | `true` | Native attribute, from Root's `disabled` prop |
 | `readonly` | `true` | Native attribute, from Root's `readonly` prop |
 

@@ -1,3 +1,4 @@
+export { default as BreadcrumbsActivator } from './BreadcrumbsActivator.vue'
 export { default as BreadcrumbsDivider } from './BreadcrumbsDivider.vue'
 export { default as BreadcrumbsEllipsis } from './BreadcrumbsEllipsis.vue'
 export { default as BreadcrumbsItem } from './BreadcrumbsItem.vue'
@@ -8,6 +9,7 @@ export { provideBreadcrumbsRoot, useBreadcrumbsRoot } from './BreadcrumbsRoot.vu
 
 export { default as BreadcrumbsRoot } from './BreadcrumbsRoot.vue'
 
+export type { BreadcrumbsActivatorProps, BreadcrumbsActivatorSlotProps } from './BreadcrumbsActivator.vue'
 export type { BreadcrumbsDividerProps, BreadcrumbsDividerSlotProps } from './BreadcrumbsDivider.vue'
 export type { BreadcrumbsEllipsisProps, BreadcrumbsEllipsisSlotProps } from './BreadcrumbsEllipsis.vue'
 export type { BreadcrumbsItemProps, BreadcrumbsItemSlotProps } from './BreadcrumbsItem.vue'
@@ -17,6 +19,7 @@ export type { BreadcrumbsPageProps, BreadcrumbsPageSlotProps } from './Breadcrum
 export type { BreadcrumbsRootContext, BreadcrumbsRootProps, BreadcrumbsRootSlotProps, BreadcrumbsTicket, BreadcrumbsTicketType } from './BreadcrumbsRoot.vue'
 
 // Context
+import Activator from './BreadcrumbsActivator.vue'
 import Divider from './BreadcrumbsDivider.vue'
 import Ellipsis from './BreadcrumbsEllipsis.vue'
 import Item from './BreadcrumbsItem.vue'
@@ -201,4 +204,20 @@ export const Breadcrumbs = {
    * ```
    */
   Ellipsis,
+  /**
+   * Disclosure control that reveals the crumbs hidden by truncation.
+   * Place inside an Ellipsis, which stays the list item.
+   *
+   * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
+   *
+   * @example
+   * ```vue
+   * <template>
+   *   <Breadcrumbs.Ellipsis>
+   *     <Breadcrumbs.Activator />
+   *   </Breadcrumbs.Ellipsis>
+   * </template>
+   * ```
+   */
+  Activator,
 }

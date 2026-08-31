@@ -51,7 +51,7 @@
     /** Form field name */
     readonly name?: string
     /** Input type */
-    readonly type: string
+    readonly type: Readonly<Ref<string>>
     /** Associate with form by ID */
     readonly form?: string
     /** Whether this input is required */
@@ -119,6 +119,8 @@
     errorMessages?: MaybeArray<string>
     /** Namespace for context provision to children */
     namespace?: string
+    /** Namespace for connecting to parent Form. Must match Form's namespace. */
+    formNamespace?: string
   }
 
   export interface InputRootSlotProps {
@@ -204,6 +206,7 @@
     error = false,
     errorMessages,
     namespace = 'v0:input:root',
+    formNamespace = 'v0:form',
   } = defineProps<InputRootProps>()
 
   const model = defineModel<string>({ default: '' })
@@ -215,6 +218,7 @@
     label,
     name,
     form,
+    formNamespace,
     required,
     disabled: () => toValue(disabled),
     readonly: () => toValue(_readonly),
@@ -265,7 +269,7 @@
     id: input.id,
     label,
     name,
-    type,
+    type: toRef(() => type),
     form,
     required,
     descriptionId: input.descriptionId,

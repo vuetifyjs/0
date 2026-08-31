@@ -26,7 +26,7 @@ Track the development of @vuetify/v0. Milestones are organized by time horizon:
 
 ## Release Calendar
 
-Expected dates for the v1.1–v1.5 minor releases, the net-new features landing in each, and the existing preview features on track to graduate to stable as of that release.
+Expected dates for the v1.1–v1.5 minor releases, the net-new features landing in each, and the existing preview features on track to graduate to stable as of that release. v1.1.0 shipped Splitter pending-intent and `@vuetify/play`; DataTable, DataGrid, and Alert shipped in v1.2.0.
 
 <DocsReleaseCalendar />
 
@@ -50,8 +50,8 @@ Alpha opened on April 7, 2026 for feedback; beta hardened the APIs; the release 
 This isn't a proof of concept. v0 is feature-complete for v1 and ready to build with.
 
 - **The stable set is locked.** 16 composables and 17 utilities are marked stable — breaking changes require a major version. See the [maturity matrix](#maturity-matrix) below for the full breakdown.
-- **v0 is being built directly into Vuetify.** The composables and patterns here are the same ones powering Vuetify's next generation. This isn't a side project — it's the core.
-- **Development continues.** v1.1 and beyond are on the roadmap above, and preview APIs graduate to stable release by release. Every regression, gap, or rough edge you report still gets priority — if something feels wrong, say so.
+- **v0 is being built directly into Vuetify.** The composables and patterns here are the same ones powering Vuetify's next generation — `vuetify` takes `@vuetify/v0` as a runtime dependency from 4.2.0, starting with the utility layer, and adopts more of the surface each minor. This isn't a side project — it's the core.
+- **Development continues.** v1.3 and beyond are on the roadmap above, and preview APIs graduate to stable release by release. Every regression, gap, or rough edge you report still gets priority — if something feels wrong, say so.
 
 ### Try v0
 
@@ -93,7 +93,7 @@ Whether you want to explore in the browser, scaffold a project, or integrate wit
 
 ### Get involved
 
-**Report a bug or request a feature** — [Open an issue](https://github.com/vuetifyjs/0/issues) on GitHub.
+**Report a bug or request a feature** — [Open an issue](https://issues.vuetifyjs.com/?repo=vuetify0).
 
 **Ask a question or join the conversation** — Find us on [Discord](https://discord.gg/vuetify).
 
@@ -118,11 +118,11 @@ v0 is a headless UI framework for Vue 3. It provides composables and renderless 
 
 ??? How is v0 related to Vuetify?
 
-v0 is the foundation layer being built directly into Vuetify's next generation. The composables and patterns in v0 are the same ones that will power Vuetify's styled components. You can use v0 standalone or alongside Vuetify.
+v0 is the foundation layer being built directly into Vuetify's next generation. The composables and patterns in v0 are the same ones that will power Vuetify's styled components — `vuetify` takes `@vuetify/v0` as a runtime dependency from 4.2.0, starting with the shared utilities, and adopts more of the surface through subsequent minors. You can use v0 standalone or alongside Vuetify.
 
 ??? Can I use v0 in production?
 
-Yes. `v1.0.0` is stable and shipped July 22, 2026. The v1 stable set is locked, and the core is already being used to build Vuetify itself. Preview APIs may still see minor, documented adjustments.
+Yes. `v1.0.0` is stable and shipped July 22, 2026. The v1 stable set is locked, and the core is already being used to build Vuetify itself — `vuetify` takes it as a runtime dependency from 4.2.0. Preview APIs may still see minor, documented adjustments.
 
 ??? Will stable APIs break?
 
@@ -142,7 +142,7 @@ Yes. All composables and components are SSR-safe. Nuxt integration is documented
 
 ??? How do I report a bug?
 
-[Open an issue](https://github.com/vuetifyjs/0/issues) on GitHub. Include a reproduction if possible — the [playground](https://v0play.vuetifyjs.com) is a good way to create one.
+[Open an issue](https://issues.vuetifyjs.com/?repo=vuetify0&type=bug). Include a reproduction if possible — the [playground](https://v0play.vuetifyjs.com) is a good way to create one.
 
 ??? How can I contribute?
 

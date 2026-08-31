@@ -10,7 +10,7 @@ import { Snackbar } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick, provide } from 'vue'
+import { defineComponent, h, inject, nextTick, provide, shallowRef } from 'vue'
 
 let stackPlugin: ReturnType<typeof createStackPlugin>
 
@@ -78,6 +78,80 @@ describe('snackbar', () => {
       expect(wrapper.exists()).toBe(true)
       // Teleported content is not in wrapper's own DOM tree
       expect(wrapper.find('.teleported').exists()).toBe(false)
+    })
+
+    it('should keep consumer positioning classes on the wrapper', async () => {
+      const sheet = document.createElement('style')
+      sheet.textContent = '.snackbar-absolute { position: absolute; }'
+      document.head.append(sheet)
+
+      let slotProps: any
+
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        attachTo: document.body,
+        attrs: { class: 'snackbar-absolute' },
+        props: { teleport: false },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', 'content')
+          },
+        },
+      })
+
+      await nextTick()
+
+      const el = wrapper.find('.snackbar-absolute').element as HTMLElement
+
+      expect(getComputedStyle(el).position).toBe('absolute')
+      // No inline position — the consumer class must win
+      expect(el.style.position).toBe('')
+      expect(el.style.zIndex).toBe(String(slotProps.zIndex))
+
+      sheet.remove()
+      wrapper.unmount()
+    })
+
+    it('should skip the position nudge when the wrapper becomes renderless', async () => {
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { teleport: false },
+        slots: { default: () => h('div', { class: 'content' }, 'content') },
+      })
+
+      await nextTick()
+
+      // Flipping to renderless drops the Atom element — the watch fires with
+      // null and must bail without touching styles
+      await wrapper.setProps({ renderless: true })
+      await nextTick()
+
+      expect(wrapper.find('.content').exists()).toBe(true)
+    })
+
+    it('should apply position relative when the wrapper is static', async () => {
+      let slotProps: any
+
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        attachTo: document.body,
+        attrs: { class: 'snackbar-static' },
+        props: { teleport: false },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', 'content')
+          },
+        },
+      })
+
+      await nextTick()
+
+      const el = wrapper.find('.snackbar-static').element as HTMLElement
+
+      expect(getComputedStyle(el).position).toBe('relative')
+      expect(el.style.position).toBe('relative')
+      expect(el.style.zIndex).toBe(String(slotProps.zIndex))
+
+      wrapper.unmount()
     })
   })
 
@@ -232,6 +306,47 @@ describe('snackbar', () => {
       const close = wrapper.findComponent(Snackbar.Close as any)
       expect(close.element.tagName).toBe('DIV')
       expect(close.attributes('type')).toBeUndefined()
+    })
+
+    it('should dismiss via onKeydown Enter when as is not button', async () => {
+      const onDismiss = vi.fn()
+      let attrs: any
+
+      mount(
+        defineComponent({
+          setup () {
+            provide('v0:notifications:root', { id: 'x', onDismiss })
+          },
+          render () {
+            return h(Snackbar.Close, { as: 'div' }, {
+              default: (p: any) => {
+                attrs = p.attrs
+                return 'X'
+              },
+            })
+          },
+        }),
+      )
+
+      await nextTick()
+      expect(attrs.role).toBe('button')
+      expect(attrs.tabindex).toBe(0)
+      expect(attrs.onKeydown).toBeTypeOf('function')
+
+      const enter = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+      attrs.onKeydown(enter)
+      expect(onDismiss).toHaveBeenCalledTimes(1)
+      expect(enter.defaultPrevented).toBe(true)
+
+      const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      attrs.onKeydown(space)
+      expect(onDismiss).toHaveBeenCalledTimes(2)
+      expect(space.defaultPrevented).toBe(true)
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true })
+      attrs.onKeydown(tab)
+      expect(tab.defaultPrevented).toBe(false)
+      expect(onDismiss).toHaveBeenCalledTimes(2)
     })
 
     it('should throw when used without root context', () => {
@@ -517,7 +632,10 @@ describe('snackbar', () => {
       const custom = wrapper.find('[data-testid="custom-portal"]')
       expect(custom.exists()).toBe(true)
       expect(wrapper.findAll('[data-testid="custom-portal"]')).toHaveLength(1)
-      expect(wrapper.findAll('div')).toHaveLength(0)
+      // Only the persistent announcers render as divs — no wrapper around content
+      const divs = wrapper.findAll('div')
+      expect(divs).toHaveLength(2)
+      for (const div of divs) expect(div.attributes('aria-live')).toBeDefined()
       expect(captured.attrs.style.zIndex).toBe(captured.zIndex)
       expect((custom.element as HTMLElement).style.zIndex).toBe(String(captured.zIndex))
     })
@@ -719,6 +837,219 @@ describe('snackbar', () => {
         modal.unselect()
         dialogEl.remove()
       }
+    })
+  })
+
+  describe('announcer', () => {
+    it('should render both announcers empty before any toast', () => {
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { teleport: false },
+        slots: { default: () => h('div') },
+      })
+
+      const status = wrapper.find('[aria-live="polite"]')
+      const alert = wrapper.find('[aria-live="assertive"]')
+
+      expect(status.exists()).toBe(true)
+      expect(alert.exists()).toBe(true)
+      expect(status.attributes('role')).toBe('status')
+      expect(alert.attributes('role')).toBe('alert')
+      expect(status.attributes('aria-atomic')).toBe('true')
+      expect(alert.attributes('aria-atomic')).toBe('true')
+      expect(status.text()).toBe('')
+      expect(alert.text()).toBe('')
+    })
+
+    it('should remove the announcer pair when announcer is false', () => {
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { announcer: false, teleport: false },
+        slots: { default: () => h('div') },
+      })
+
+      expect(wrapper.find('[aria-live]').exists()).toBe(false)
+    })
+
+    it('should announce through an explicitly placed announcer', async () => {
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { announcer: false, teleport: false },
+        slots: {
+          default: () => [
+            h(Snackbar.Announcer),
+            h(Snackbar.Root, {}, () => 'Saved'),
+          ],
+        },
+      })
+
+      expect(wrapper.findAll('[aria-live]')).toHaveLength(2)
+
+      await vi.waitFor(() => {
+        expect(wrapper.find('[aria-live="polite"]').text()).toBe('Saved')
+      })
+    })
+
+    it('should mirror a mounted toast into the polite announcer', async () => {
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { teleport: false },
+        slots: {
+          default: () => h(Snackbar.Root, {}, () => 'Saved'),
+        },
+      })
+
+      await vi.waitFor(() => {
+        expect(wrapper.find('[aria-live="polite"]').text()).toBe('Saved')
+      })
+      expect(wrapper.find('[aria-live="assertive"]').text()).toBe('')
+    })
+
+    it('should mirror an urgent toast into the assertive announcer', async () => {
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { teleport: false },
+        slots: {
+          default: () => h(Snackbar.Root, { urgent: true }, () => 'Upload failed'),
+        },
+      })
+
+      await vi.waitFor(() => {
+        expect(wrapper.find('[aria-live="assertive"]').text()).toBe('Upload failed')
+      })
+      expect(wrapper.find('[aria-live="polite"]').text()).toBe('')
+    })
+
+    it('should re-announce identical consecutive messages via clear-then-fill', async () => {
+      const items = shallowRef(['a'])
+
+      const wrapper = mountWithStack(
+        defineComponent({
+          setup () {
+            return () => h(Snackbar.Portal as any, { teleport: false }, () =>
+              items.value.map(id => h(Snackbar.Root as any, { id, key: id }, () => 'Saved')),
+            )
+          },
+        }),
+      )
+
+      const announcer = wrapper.find('[aria-live="polite"]')
+      await vi.waitFor(() => {
+        expect(announcer.text()).toBe('Saved')
+      })
+
+      // Record every text mutation on the announcer — the second, identical
+      // message must produce a clear ('') followed by a fill ('Saved')
+      const el = announcer.element
+      const records: string[] = []
+      const observer = new MutationObserver(() => records.push(el.textContent ?? ''))
+      observer.observe(el, { characterData: true, childList: true, subtree: true })
+
+      items.value = ['b']
+
+      await vi.waitFor(() => {
+        expect(records).toContain('')
+        expect(records.at(-1)).toBe('Saved')
+      })
+      observer.disconnect()
+
+      expect(announcer.text()).toBe('Saved')
+    })
+
+    it('should cancel pending announcement frames on unmount', async () => {
+      using spy = vi.spyOn(window, 'cancelAnimationFrame')
+
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { teleport: false },
+        slots: { default: () => h(Snackbar.Root, {}, () => 'Saved') },
+      })
+
+      // Two ticks flush the Root's mount announce — its fill frame is still
+      // pending because no paint can interleave the microtask chain; useRaf
+      // cancels it on scope disposal when the Portal unmounts
+      await nextTick()
+      await nextTick()
+
+      wrapper.unmount()
+
+      expect(spy).toHaveBeenCalled()
+    })
+
+    it('should coalesce rapid announcements to the latest message', async () => {
+      let portal: any
+
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { teleport: false },
+        slots: {
+          default: () => h(defineComponent({
+            setup () {
+              portal = inject('v0:notifications:portal')
+              return () => h('div')
+            },
+          })),
+        },
+      })
+
+      const el = wrapper.find('[aria-live="polite"]').element
+      const records: string[] = []
+      const observer = new MutationObserver(() => records.push(el.textContent ?? ''))
+      observer.observe(el, { characterData: true, childList: true, subtree: true })
+
+      // Back-to-back announces before a frame elapses — useRaf dedupes, so
+      // only the final message may ever reach the region
+      portal.announce('first')
+      portal.announce('second')
+
+      await vi.waitFor(() => {
+        expect(records).toContain('second')
+      })
+      observer.disconnect()
+
+      expect(records).not.toContain('first')
+      expect(wrapper.find('[aria-live="polite"]').text()).toBe('second')
+    })
+
+    it('should not announce for a renderless root', async () => {
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { teleport: false },
+        slots: {
+          default: () => h(Snackbar.Root, { renderless: true }, {
+            default: (props: any) => h('span', props.attrs, 'Saved'),
+          }),
+        },
+      })
+
+      // No Atom element to mirror — nothing reaches the announcer
+      await nextTick()
+      await nextTick()
+      await new Promise(resolve => requestAnimationFrame(resolve))
+      await nextTick()
+
+      expect(wrapper.find('[aria-live="polite"]').text()).toBe('')
+    })
+
+    it('should render empty when the portal context is null', () => {
+      const wrapper = mount(
+        defineComponent({
+          setup () {
+            provide('v0:notifications:portal', null)
+          },
+          render () {
+            return h(Snackbar.Announcer)
+          },
+        }),
+      )
+
+      expect(wrapper.find('[aria-live="polite"]').text()).toBe('')
+      expect(wrapper.find('[aria-live="assertive"]').text()).toBe('')
+    })
+
+    it('should mount a bare root without a portal and announce nothing', async () => {
+      const wrapper = mount(Snackbar.Root, {
+        slots: { default: () => h('span', 'Saved') },
+      })
+
+      await nextTick()
+      await nextTick()
+
+      expect(wrapper.attributes('role')).toBe('status')
+      expect(wrapper.text()).toBe('Saved')
+      expect(wrapper.find('[aria-live]').exists()).toBe(false)
     })
   })
 })

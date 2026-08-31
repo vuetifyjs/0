@@ -29,6 +29,14 @@
      * @default false
      */
     blocking?: boolean
+    /**
+     * Whether the global Scrim should paint a backdrop for this dialog
+     *
+     * @default true
+     * @remarks When false, this dialog still stacks for z-index but `Scrim` skips it.
+     * Use when the consumer owns its own backdrop (e.g. a design-system modal background).
+     */
+    scrim?: boolean
   }
 
   export interface AlertDialogContentEmits {
@@ -48,8 +56,8 @@
       'id': string
       'role': 'alertdialog'
       'aria-modal': 'true'
-      'aria-labelledby': string
-      'aria-describedby': string
+      'aria-labelledby': string | undefined
+      'aria-describedby': string | undefined
       'style': { zIndex: number }
       'onCancel': (e: Event) => void
       'onClose': (e: Event) => void
@@ -84,6 +92,7 @@
     closeOnClickOutside = false,
     closeOnEscape = false,
     blocking = false,
+    scrim = true,
     renderless,
   } = defineProps<AlertDialogContentProps>()
 
@@ -98,6 +107,7 @@
   const ticket = stack.register({
     onDismiss: () => context.close(),
     blocking: () => blocking,
+    scrim: () => scrim,
     el: () => contentRef.value?.element,
   })
 
@@ -109,6 +119,10 @@
     }
   }, { immediate: true })
 
+  function focusCancel () {
+    context.cancelEl.value?.focus()
+  }
+
   watch(context.isOpen, isOpen => {
     const element = contentRef.value?.element as HTMLDialogElement | undefined
     /* v8 ignore next -- defensive guard, element is always present after mount */
@@ -116,6 +130,7 @@
 
     if (isOpen) {
       element.showModal?.()
+      focusCancel()
     } else {
       element.close?.()
     }
@@ -124,6 +139,7 @@
   onMounted(() => {
     if (context.isOpen.value) {
       (contentRef.value?.element as HTMLDialogElement | undefined)?.showModal()
+      focusCancel()
     }
   })
 
@@ -162,8 +178,8 @@
       'id': context.id,
       'role': 'alertdialog',
       'aria-modal': 'true',
-      'aria-labelledby': context.titleId,
-      'aria-describedby': context.descriptionId,
+      'aria-labelledby': context.hasTitle.value ? context.titleId : undefined,
+      'aria-describedby': context.hasDescription.value ? context.descriptionId : undefined,
       'style': { zIndex: ticket.zIndex.value },
       'onCancel': onCancel,
       'onClose': onClose,

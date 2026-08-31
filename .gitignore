@@ -58,3 +58,8 @@ apps/docs/build/generated/
 
 # Grok
 .grok/worktrees/
+
+# Vitest failure artifacts
+packages/0/.vitest-attachments/
+**/__screenshots__/
+.vitest-attachments/

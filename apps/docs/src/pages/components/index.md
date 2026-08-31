@@ -71,12 +71,22 @@ Form control components with accessibility and validation support.
 | [Slider](/components/forms/slider) | Range input with snapping, range mode, and custom tracks |
 | [Switch](/components/forms/switch) | Toggle switch with on/off states and label association |
 
+## Data
+
+Components for displaying and interacting with data collections.
+
+| Name | Description |
+| - | - |
+| [DataGrid](/components/data/data-grid) | Headless data grid with column layout, cell editing, row ordering, and row spanning |
+| [DataTable](/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
+
 ## Semantic
 
 Components with meaningful HTML defaults. Render semantic elements by default but support the `as` prop for customization.
 
 | Name | Description |
 | - | - |
+| [Alert](/components/semantic/alert) | Inline status message with ARIA live-region semantics |
 | [Avatar](/components/semantic/avatar) | Image/fallback avatar with priority loading |
 | [Breadcrumbs](/components/semantic/breadcrumbs) | Navigation breadcrumbs with overflow detection and truncation |
 | [Carousel](/components/semantic/carousel) | Scroll-snap slide navigation with multi-slide display and drag/swipe |

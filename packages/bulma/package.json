@@ -1,0 +1,55 @@
+{
+  "name": "@paper/bulma",
+  "version": "0.1.0",
+  "description": "Bulma compat design system — real Bulma markup, Vuetify0 behavior",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vuetifyjs/0.git",
+    "directory": "packages/bulma"
+  },
+  "types": "./dist/index.d.mts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "vue-tsc --noEmit --incremental",
+    "test:browser": "vitest --project bulma:browser"
+  },
+  "peerDependencies": {
+    "bulma": "^1.0",
+    "vue": ">=3.5.0"
+  },
+  "peerDependenciesMeta": {
+    "bulma": {
+      "optional": true
+    }
+  },
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    }
+  },
+  "dependencies": {
+    "@vuetify/v0": "workspace:^"
+  },
+  "devDependencies": {
+    "@vitest/browser-playwright": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "unplugin-vue": "catalog:",
+    "vitest": "catalog:",
+    "vue": "catalog:"
+  }
+}

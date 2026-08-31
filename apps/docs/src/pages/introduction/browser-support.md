@@ -132,7 +132,7 @@ The `Popover` component uses CSS Anchor Positioning for automatic placement rela
 - <AppBrowserIcon browser="firefox" /> **Firefox 147+**: Full support
 - <AppBrowserIcon browser="safari" /> **Safari 26+**: Full support
 
-When anchor positioning is unavailable, the CSS properties are simply ignored. Consider using a JavaScript positioning library like [Floating UI](https://floating-ui.com) if you need to support older browser versions.
+When anchor positioning is unavailable, the CSS properties are simply ignored. Pass the shipped [FloatingUIPopoverAdapter](/composables/system/use-popover#adapters) (`@vuetify/v0/popover/adapters/floating-ui`) if you need to support older browser versions.
 
 ### Popover API
 

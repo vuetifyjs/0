@@ -8,6 +8,11 @@
  * BreadcrumbsRoot as type='ellipsis'. Root's watcher controls visibility
  * based on overflow state - hidden when everything fits, shown when truncating.
  * Renders as a list item by default with aria-hidden.
+ *
+ * Decorative by default. Place a BreadcrumbsActivator inside it to turn the
+ * trail's truncation into a disclosure — the ellipsis stays the list item, so
+ * button semantics never land on the `li` itself where they would replace its
+ * `listitem` role.
  */
 
 <script lang="ts">
@@ -21,6 +26,7 @@
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
+  import { pxToNumber } from '#v0/utilities'
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -43,12 +49,15 @@
     ellipsis: string
     /** Whether the ellipsis is currently selected (visible) */
     isSelected: boolean
+    /** Number of breadcrumb items hidden by truncation */
+    count: number
     /** Attributes to bind to the ellipsis element */
     attrs: {
-      'aria-hidden': 'true'
+      'aria-hidden': 'true' | undefined
       'data-selected': true | undefined
     }
   }
+
 </script>
 
 <script setup lang="ts">
@@ -84,7 +93,7 @@
 
       const el = element as HTMLElement
       const style = getComputedStyle(el)
-      const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+      const marginX = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
       context.ellipsisWidth.value = (el.offsetWidth || 0) + marginX
     },
     { immediate: true },
@@ -97,13 +106,17 @@
 
   const resolvedEllipsis = toRef(() => ellipsis ?? context.ellipsis.value)
   const isSelected = toRef(() => ticket.isSelected.value)
+  const count = toRef(() => context.hiddenCount.value)
 
   const slotProps = toRef((): BreadcrumbsEllipsisSlotProps => ({
     id: ticket.id,
     ellipsis: resolvedEllipsis.value,
     isSelected: isSelected.value,
+    count: count.value,
     attrs: {
-      'aria-hidden': 'true',
+      // A decorative ellipsis stays out of the a11y tree; hosting an Activator
+      // makes it the disclosure, which has to be reachable.
+      'aria-hidden': context.hasActivator.value ? undefined : 'true',
       'data-selected': isSelected.value || undefined,
     },
   }))

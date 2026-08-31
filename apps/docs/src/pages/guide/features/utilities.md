@@ -428,8 +428,8 @@ if (!isNullOrUndefined(x)) {
 | `isString(x)` | `string` |
 | `isNumber(x)` | `number` (includes NaN) |
 | `isBoolean(x)` | `boolean` |
-| `isObject(x)` | `Record<string, unknown>` (excludes null and arrays) |
-| `isArray(x)` | `unknown[]` |
+| `isObject(x)` | `Record<string, any>` (excludes null and arrays)[^isobject-any] |
+| `isArray(x)` | the array member of `x`[^isarray-preserves] |
 | `isElement(x)` | `Element` |
 | `isNull(x)` | `null` |
 | `isUndefined(x)` | `undefined` |
@@ -439,6 +439,8 @@ if (!isNullOrUndefined(x)) {
 | `isNaN(x)` | `number` (only the NaN value)[^isnan-vs-global] |
 | `isThenable(x)` | `{ then: Function }`[^isthenable-duck-typed] |
 
+[^isobject-any]: The value type is `any` rather than `unknown` so that narrowing preserves what you already knew. TypeScript never grants an interface an implicit index signature, so a predicate of `Record<string, unknown>` would collapse an interface-typed value's known property types and would fail to remove object members in the `else` branch. `any` here widens only the *index* type — the union member itself survives narrowing intact.
+[^isarray-preserves]: Narrowing preserves the element type, so a `string[] | string` narrows to `string[]`, not `unknown[]`. Tuples keep their arity and `readonly` arrays stay `readonly`. When nothing more specific is known (e.g. `x: unknown`), it falls back to `unknown[]`.
 [^isnan-vs-global]: `isNaN` here uses `Number.isNaN()` internally — it does not coerce strings like the global `isNaN()`. `isNaN("foo")` returns `false`, not `true`.
 [^isthenable-duck-typed]: Duck-typed — matches native `Promise` instances and any other object exposing a callable `.then`, not just `instanceof Promise`. Use it to guard async-vs-sync return values; use `instanceof Promise` directly when only native promises should pass.
 
@@ -475,6 +477,63 @@ range(5, 10)  // [10, 11, 12, 13, 14]
 range(0)      // []
 ```
 
+### findMatchRanges
+
+Locate a query inside a string and get back `[start, end]` pairs, optionally folding accents before matching. This is what backs the `ignoreAccents` option of [toHighlight](/composables/transformers/to-highlight):
+
+```ts
+import { findMatchRanges } from '@vuetify/v0'
+
+findMatchRanges('Zürich', 'zurich', { ignoreCase: true, ignoreAccents: true })  // [[0, 6]]
+findMatchRanges('Zürich', 'zurich', { ignoreCase: true })                       // []
+```
+
+`ignoreAccents` is directional. `'target'` folds only the text, so a plain query reaches accented entries; `'query'` folds only the search term, so a pasted `café` reaches plain `cafe`; `true` folds both sides.
+
+```ts
+findMatchRanges('Łódź', 'Lo', { ignoreAccents: 'target' })   // [[0, 2]]
+findMatchRanges('cafe', 'café', { ignoreAccents: 'query' })  // [[0, 4]]
+```
+
+Folding strips Combining Diacritical Marks (U+0300–036F) after NFD, then common letters NFD leaves alone (`ł`, `ø`, `đ`, `ß`, `æ`, `œ`, …). When the text is folded or case-converted, ranges are mapped back onto the source — `ß` → `ss` still spans one source character, and `İ` still spans one. Pass `matchAll: true` for every occurrence instead of the first.
+
+### getActiveElement
+
+Resolve the deepest focused node. Open shadow roots are walked so focus/keyboard logic sees the real control, not the host; light DOM matches `document.activeElement`. Closed roots are not traversable. Returns `null` under SSR.
+
+```ts
+import { getActiveElement } from '@vuetify/v0'
+
+const active = getActiveElement()
+```
+
+### pxToNumber
+
+Parse a CSS pixel length into a number. Built for reading `getComputedStyle` output, where a length that does not apply resolves to `''` or `'auto'` rather than to a number:
+
+```ts
+import { pxToNumber } from '@vuetify/v0'
+
+const style = getComputedStyle(el)
+
+pxToNumber(style.marginLeft)   // 16
+pxToNumber(style.marginRight)  // 0   (resolved '0px')
+pxToNumber(style.width)        // 0   ('auto' does not parse)
+pxToNumber(undefined)          // 0
+```
+
+The second argument is the value returned when the length does not parse — it defaults to `0`:
+
+```ts
+// A parsed 0 and an unparseable length are different answers
+pxToNumber('0px', rect.width)  // 0
+pxToNumber('auto', rect.width) // rect.width
+```
+
+That distinction is the reason to reach for this over `Number.parseFloat(value) || 0`, which collapses both cases onto `0` and so is only correct when the fallback is itself `0`.
+
+Only the leading number is read, matching `Number.parseFloat`, so any unit suffix is ignored. Values `getComputedStyle` never returns — percentages, `calc()` expressions, multi-value shorthands — are out of scope.
+
 ### mergeDeep
 
 Deep-merge objects without mutating inputs. Arrays are replaced, not concatenated:
@@ -505,4 +564,3 @@ const id = useId()  // 'v:0' (Vue's format)
 // Outside component
 const id = useId()  // 'v0-0', 'v0-1', ...
 ```
-

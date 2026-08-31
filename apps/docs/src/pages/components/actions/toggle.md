@@ -121,7 +121,29 @@ Yes. Standalone Toggle.Root manages a boolean `v-model` and works independently.
 
 ??? Why is there no roving focus in Toggle.Group?
 
-Roving focus is a separate concern. Toggle.Group manages selection state. Focus management can be layered on top with a separate composable when needed.
+Arrow-key roving is a separate concern — Toggle.Group manages selection state, not a tab-stop ring. For programmatic focus, `ToggleGroupExpose.focus()` moves to the selected item (or the first if none is selected); layer `useRovingFocus` only if you need arrow navigation.
+
+??? How do I focus this control programmatically?
+
+Hold a template ref on `Toggle.Root` typed as `AtomExpose` — `ref.value?.element` is the host; call `.focus()` on it. On `Toggle.Group`, type the ref as `ToggleGroupExpose` and call `ref.value?.focus()` — that focuses the selected item, or the first if none is selected. Pass DOM `FocusOptions` (`preventScroll`, `focusVisible`); `focusVisible` is pass-through only, not emulated. Renderless roots expose `element: null` — there is no host to focus.
+
+```vue
+<script setup lang="ts">
+  import { Toggle } from '@vuetify/v0'
+  import type { AtomExpose, ToggleGroupExpose } from '@vuetify/v0'
+  import { useTemplateRef } from 'vue'
+
+  const root = useTemplateRef<AtomExpose>('root')
+  const group = useTemplateRef<ToggleGroupExpose>('group')
+</script>
+
+<template>
+  <Toggle.Root ref="root" />
+  <Toggle.Group ref="group">
+    <Toggle.Root value="a" />
+  </Toggle.Group>
+</template>
+```
 
 :::
 

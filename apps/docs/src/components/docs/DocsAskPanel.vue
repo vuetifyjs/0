@@ -150,7 +150,7 @@
     :aria-modal="!isDesktop"
     :class="[
       'flex flex-col',
-      settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface',
+      settings.surface.value,
       isDesktop && fullscreen
         ? 'fixed inset-4 rounded-lg border border-divider shadow-lg'
         : isDesktop
@@ -227,7 +227,7 @@
     <Discovery.Activator
       ref="messages"
       as="div"
-      class="rounded-lg flex-1 h-full pa-4 overflow-y-auto"
+      class="rounded-lg flex-1 h-full pa-4 overflow-y-auto overscroll-contain"
       :padding="-4"
       step="ask-ai-panel"
     >

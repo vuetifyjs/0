@@ -196,6 +196,19 @@ function extractGroupName (fullName: string): string {
   return parts.length > 1 ? parts.slice(1).join(' > ') : fullName
 }
 
+/**
+ * A retired host-calibration suite that measured the machine rather than v0.
+ * It has no docs page and no feature name, and `extractComposableName` would
+ * render its whole filepath as a card title, so it is still filtered out —
+ * artifacts committed while it existed continue to carry its entries.
+ */
+const CALIBRATION_BENCH = 'bench/calibration.bench.ts'
+
+/** Drop apparatus entries that are not features. Values are shown as measured. */
+function usable (files: RawBenchmarkFile[]): RawBenchmarkFile[] {
+  return (files ?? []).filter(file => !file.filepath.endsWith(CALIBRATION_BENCH))
+}
+
 function normalizeFiles (
   files: RawBenchmarkFile[],
   metricsData: Record<string, { benchmarks?: Record<string, unknown> }>,
@@ -298,7 +311,7 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
       try {
         const response = await fetch('/benchmarks.json')
         const json = await response.json() as { files: RawBenchmarkFile[] }
-        rawData.value = json.files
+        rawData.value = usable(json.files)
       } catch {
         rawData.value = []
       } finally {

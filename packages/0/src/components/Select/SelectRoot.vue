@@ -34,7 +34,7 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { SelectionContext } from '#v0/composables/createSelection'
-  import type { PopoverReturn } from '#v0/composables/usePopover'
+  import type { PopoverAdapter, PopoverReturn } from '#v0/composables/usePopover'
   import type { VirtualFocusReturn } from '#v0/composables/useVirtualFocus'
   import type { ID } from '#v0/types'
   import type { MaybeRefOrGetter, Ref } from 'vue'
@@ -96,6 +96,8 @@
      * - `force`: Automatically selects the first non-disabled item
      */
     mandatory?: boolean | 'force'
+    /** Positioning engine. @default CSS anchor positioning (`V0PopoverAdapter`) */
+    adapter?: PopoverAdapter
   }
 
   export interface SelectRootSlotProps {
@@ -136,6 +138,7 @@
     disabled = false,
     multiple = false,
     mandatory = false,
+    adapter,
   } = defineProps<SelectRootProps>()
 
   const model = defineModel<T | T[]>()
@@ -155,10 +158,11 @@
 
   const selectedId = toRef(() => selection.selectedIds.values().next().value)
 
-  const popover = usePopover({ id })
+  const popover = usePopover({ id, adapter })
   const isOpen = popover.isOpen
 
   const activatorEl = shallowRef<HTMLElement | null>(null)
+  popover.attachAnchor(activatorEl)
 
   const virtualFocus = useVirtualFocus(
     () => selection.values().map(ticket => ({
