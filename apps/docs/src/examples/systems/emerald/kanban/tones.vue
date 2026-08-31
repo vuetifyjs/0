@@ -42,7 +42,7 @@
 </script>
 
 <template>
-  <EmKanban label="Component board">
+  <EmKanban class="emerald-docs-kanban" label="Component board">
     <EmKanbanColumn
       v-for="column in columns"
       :key="column.title"

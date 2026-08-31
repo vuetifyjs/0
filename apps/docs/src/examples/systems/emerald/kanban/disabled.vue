@@ -34,7 +34,7 @@
       </EmButton>
     </div>
 
-    <EmKanban :disabled="frozen" label="Roadmap board">
+    <EmKanban class="emerald-docs-kanban" :disabled="frozen" label="Roadmap board">
       <EmKanbanColumn
         v-for="column in columns"
         :key="column.title"

@@ -39,7 +39,7 @@
 
 <template>
   <div class="emerald-docs-stack">
-    <EmKanban ref="board" label="Weekly board" @move="onMove">
+    <EmKanban ref="board" class="emerald-docs-kanban" label="Weekly board" @move="onMove">
       <EmKanbanColumn
         v-for="column in columns"
         :key="column.title"
