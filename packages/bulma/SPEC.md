@@ -50,14 +50,9 @@ markup against bulma.io's documented fixtures.
 
 ## Known limitations (Tier 1)
 
-- **Global `<Scrim>` double-backdrop:** v0's `DialogContent` registers its stack ticket
-  without a way to mark it `scrim: false`, so an app that mounts v0's global `<Scrim>`
-  renders a second backdrop behind every `BuModal` (which hand-rolls `.modal-background`,
-  since Scrim is global/per-ticket and cannot serve as an in-flow per-modal element).
-  Candidate v0-core follow-up alongside a reusable `useFocusTrap`
-  ([#910](https://github.com/vuetifyjs/0/issues/910),
-  [#909](https://github.com/vuetifyjs/0/issues/909)) — BuModal currently
-  hand-rolls focus containment because v0 ships no focus-trap composable.
+- **Focus trap is hand-rolled:** v0 ships no `useFocusTrap` composable
+  ([#909](https://github.com/vuetifyjs/0/issues/909)), so BuModal contains Tab
+  within the `.modal` subtree itself.
 - **`label[disabled]` (BuCheckbox/BuRadio):** Bulma documents the non-standard `disabled`
   attribute on the wrapping `<label>` and its CSS selects on it; the components reproduce
   it (alongside the input's real `disabled`). Expect axe/validator discussion — deliberate

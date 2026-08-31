@@ -141,6 +141,7 @@
       :blocking
       :close-on-click-outside="false"
       renderless
+      :scrim="false"
     >
       <!--
         tabindex=-1 keeps backdrop clicks from blurring to <body> (which would
