@@ -147,10 +147,11 @@
   /* These index tables are two columns where the name is a single unbreakable
      token, so the phone-width max-content rule in App.vue parks the whole
      Description column off-screen. Squeeze back to container width — names
-     keep their natural width and descriptions wrap beside them. Outranks the
-     App.vue rule structurally: (0,4,2) over (0,3,2). */
+     keep their natural width and descriptions wrap beside them. The
+     .markdown-body prefix outranks App.vue's nested rule structurally:
+     (0,4,2) over (0,3,2), instead of by import order. */
   @media (max-width: 767px) {
-    div.docs-api-index.docs-table.overflow-x-auto > table {
+    .markdown-body div.docs-api-index.docs-table.overflow-x-auto > table {
       width: 100%;
       max-width: none;
     }
