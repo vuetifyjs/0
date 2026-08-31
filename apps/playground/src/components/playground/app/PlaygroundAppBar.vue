@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Button, IN_BROWSER, useEventListener, useHotkey, useTheme, useTimer } from '@vuetify/v0'
+  import { IN_BROWSER, useEventListener, useHotkey, useTheme, useTimer } from '@vuetify/v0'
 
   // Components
   import PlaygroundCheatsheet from '@/components/playground/app/PlaygroundCheatsheet.vue'
@@ -16,12 +16,8 @@
   import { useExport } from '@/composables/useExport'
   import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
-  // Stores
-  import { useAuthStore } from '@vuetify/auth'
-
   // Utilities
   import { shallowRef } from 'vue'
-  import { useRouter } from 'vue-router'
 
   const open = shallowRef(false)
   const saveOpen = shallowRef(false)
@@ -39,14 +35,8 @@
   } = useOnePlaygrounds()
 
   const theme = useTheme()
-  const auth = useAuthStore()
-  const router = useRouter()
   const playground = usePlayground()
   const { copyProject, downloadProject } = useExport()
-
-  function onDashboard () {
-    void router.push('/user/dashboard')
-  }
 
   /** First save only — linked playgrounds auto-save; bar control is status + rename. */
   function onOneClick () {
@@ -189,22 +179,6 @@
             ? (oneSaving ? 'cloud-sync' : 'cloud-check')
             : 'save'"
         />
-      </AppTooltip>
-
-      <AppTooltip
-        v-if="auth.user"
-        as="span"
-        class="inline-flex"
-        position-area="bottom"
-        text="Dashboard"
-      >
-        <Button.Root
-          aria-label="Dashboard"
-          class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity opacity-50 border-0 bg-transparent"
-          @click="onDashboard"
-        >
-          <AppIcon icon="dashboard" />
-        </Button.Root>
       </AppTooltip>
 
       <AppTooltip

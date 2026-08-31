@@ -606,6 +606,16 @@
     }
   }
 
+  function onUpdate (next: VuetifyPlayground) {
+    saved.value = saved.value.map(entry => (
+      entry.id === next.id ? { ...entry, ...next } : entry
+    ))
+  }
+
+  function onRemove (id: string) {
+    saved.value = saved.value.filter(entry => entry.id !== id)
+  }
+
   function onBack () {
     // Capture examples scroll before unmounting the list (optional for next drill).
     if (pane.value) pendingExamplesScroll.value = pane.value.scrollTop
@@ -1069,7 +1079,9 @@
               :query
               :total="saved.length"
               @open="openSaved"
+              @remove="onRemove"
               @unpin="onUnpin"
+              @update="onUpdate"
             />
 
             <PlaygroundOpenGallery

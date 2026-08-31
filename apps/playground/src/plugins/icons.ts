@@ -155,7 +155,6 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'pin': mdiPin,
     'pin-outline': mdiPinOutline,
     'pencil': mdiPencilOutline,
-    'dashboard': mdiViewDashboardOutline,
     'lock': mdiLock,
     'lock-open': mdiLockOpenVariantOutline,
     'visibility-public': mdiEarth,

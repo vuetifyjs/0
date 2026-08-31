@@ -5,24 +5,26 @@
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
   import AppTooltip from '@/components/app/AppTooltip.vue'
-  import { formatDate } from '@/components/playground/open/types'
 
   // Composables
   import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
+  // Local
+  import { formatDate } from './types'
+
   // Utilities
   import { nextTick, shallowRef, toRef, useTemplateRef } from 'vue'
-  import { RouterLink } from 'vue-router'
 
   // Types
-  import type { OnePlayground } from '@/composables/useOnePlaygrounds'
+  import type { VuetifyPlayground } from './types'
 
   const { item } = defineProps<{
-    item: OnePlayground
+    item: VuetifyPlayground
   }>()
 
   const emit = defineEmits<{
-    update: [item: OnePlayground]
+    open: [item: VuetifyPlayground]
+    update: [item: VuetifyPlayground]
     remove: [id: string]
   }>()
 
@@ -35,10 +37,10 @@
 
   const canDelete = toRef(() => !item.favorite && !item.locked)
   const visibilityIcon = toRef(() => (
-    item.visibility === 'private' ? 'visibility-private' : 'visibility-public'
+    (item.visibility ?? 'public') === 'private' ? 'visibility-private' : 'visibility-public'
   ))
   const visibilityHint = toRef(() => (
-    item.visibility === 'private' ? 'Make public' : 'Make private'
+    (item.visibility ?? 'public') === 'private' ? 'Make public' : 'Make private'
   ))
 
   const deleteTimer = useTimer(() => {
@@ -47,26 +49,26 @@
 
   const actionClass = 'pa-1 inline-flex items-center justify-center rounded border-0 bg-transparent text-on-surface-variant hover:bg-surface-tint hover:text-on-surface cursor-pointer data-[disabled]:opacity-40 data-[disabled]:hover:bg-transparent data-[disabled]:cursor-not-allowed'
 
-  function meta () {
+  function snapshot () {
     return {
       title: item.title,
-      favorite: item.favorite,
-      pinned: item.pinned,
-      locked: item.locked,
-      visibility: item.visibility,
+      favorite: item.favorite ?? false,
+      pinned: item.pinned ?? false,
+      locked: item.locked ?? false,
+      visibility: item.visibility ?? 'public',
     }
   }
 
   async function patch (
-    next: Partial<Pick<OnePlayground, 'favorite' | 'pinned' | 'locked' | 'visibility'> & { title?: string }>,
+    next: Partial<Pick<VuetifyPlayground, 'favorite' | 'pinned' | 'locked' | 'visibility'> & { title?: string }>,
   ) {
     if (busy.value) return
     busy.value = true
     const previous = { ...item }
-    const snapshot = meta()
+    const source = snapshot()
     emit('update', { ...item, ...next })
     try {
-      const result = await one.patchMeta(next, previous.id, snapshot)
+      const result = await one.patchMeta(next, previous.id, source)
       emit('update', { ...previous, ...result })
     } catch {
       emit('update', previous)
@@ -80,11 +82,13 @@
   }
 
   function onPin () {
-    void patch({ pinned: !item.pinned })
+    void patch({ pinned: !(item.pinned ?? false) })
   }
 
   function onVisibility () {
-    void patch({ visibility: item.visibility === 'public' ? 'private' : 'public' })
+    void patch({
+      visibility: (item.visibility ?? 'public') === 'public' ? 'private' : 'public',
+    })
   }
 
   async function onRename () {
@@ -118,7 +122,7 @@
       confirmDelete.value = false
       busy.value = true
       try {
-        await one.destroy(item.id, item)
+        await one.destroy(item.id, snapshot())
         emit('remove', item.id)
       } catch {
         // leave the row if the API rejects
@@ -138,13 +142,6 @@
     :data-busy="busy || undefined"
   >
     <div class="min-w-0 flex-1 flex items-center gap-2">
-      <AppIcon
-        v-if="item.locked"
-        class="shrink-0 text-on-surface-variant"
-        icon="lock"
-        :size="14"
-      />
-
       <input
         v-if="renaming"
         ref="input"
@@ -159,13 +156,13 @@
         @keydown.esc.prevent="onRenameCancel"
       >
 
-      <RouterLink
+      <Button.Root
         v-else
-        class="text-sm text-on-surface truncate hover:text-primary"
-        :to="`/playgrounds/${item.id}`"
+        class="min-w-0 text-sm text-on-surface truncate hover:text-primary border-0 bg-transparent cursor-pointer text-left p-0"
+        @click="emit('open', item)"
       >
         {{ item.title || 'Untitled' }}
-      </RouterLink>
+      </Button.Root>
     </div>
 
     <div class="flex items-center gap-1 shrink-0">

@@ -22,10 +22,8 @@
 
   // Utilities
   import { shallowRef, toRef, watch } from 'vue'
-  import { useRouter } from 'vue-router'
 
   const auth = useAuthStore()
-  const router = useRouter()
   const playground = usePlayground()
   const {
     currentId: oneId,
@@ -80,14 +78,6 @@
   function onOpen () {
     menu.value = false
     dialog.value = true
-  }
-
-  async function onDashboard () {
-    menu.value = false
-    file.value = false
-    const ok = await ensureAuth()
-    if (!ok) return
-    void router.push('/user/dashboard')
   }
 
   function onSave (asNew = false) {
@@ -294,10 +284,6 @@
         >
           <PlaygroundMenuItem @click="onOpen">
             Open
-          </PlaygroundMenuItem>
-
-          <PlaygroundMenuItem @click="onDashboard">
-            Dashboard
           </PlaygroundMenuItem>
 
           <div class="border-t border-divider my-1" />

@@ -40,6 +40,7 @@ declare module 'vue' {
     PlaygroundOpenExamples: typeof import('./components/playground/open/PlaygroundOpenExamples.vue')['default']
     PlaygroundOpenGallery: typeof import('./components/playground/open/PlaygroundOpenGallery.vue')['default']
     PlaygroundOpenSaved: typeof import('./components/playground/open/PlaygroundOpenSaved.vue')['default']
+    PlaygroundOpenSavedRow: typeof import('./components/playground/open/PlaygroundOpenSavedRow.vue')['default']
     PlaygroundPreviewError: typeof import('./components/playground/editor/PlaygroundPreviewError.vue')['default']
     PlaygroundSaveDialog: typeof import('./components/playground/app/PlaygroundSaveDialog.vue')['default']
     PlaygroundSettings: typeof import('./components/playground/settings/PlaygroundSettings.vue')['default']
