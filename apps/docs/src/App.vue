@@ -475,6 +475,16 @@
     table:not([data-grid] table) {
       width: 100%;
       background-color: var(--v0-surface);
+
+      /* Phones: width:100% resolves to max(container, min-content) and
+         squeezes every wrappable column to one word per line. Let the table
+         take its natural width (capped so prose cells still wrap) and scroll
+         inside the overflow-x-auto wrapper markdown.ts provides. */
+      @media (max-width: 767px) {
+        width: max-content;
+        min-width: 100%;
+        max-width: 42rem;
+      }
       border-collapse: separate;
       border-spacing: 0;
       border-radius: 0.5rem;
@@ -499,6 +509,56 @@
       tr:last-child td {
         border-bottom: none;
       }
+    }
+
+    /* Mobile scroll affordance: overlay scrollbars are invisible until
+       touched, leaving no signal that a wide table extends past the
+       viewport. Fade the clipped edge of an overflowing wrapper — the fade
+       tracks scroll position and vanishes at the reached edge (an inactive
+       timeline leaves the no-fade base values, so non-overflowing tables are
+       untouched). Browsers without scroll timelines keep a thin scrollbar. */
+    @media (max-width: 767px) {
+      div.overflow-x-auto:has(> table) {
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in srgb, var(--v0-on-surface) 40%, transparent) transparent;
+        padding-bottom: 2px;
+      }
+
+      @supports (animation-timeline: scroll(self x)) {
+        div.overflow-x-auto:has(> table) {
+          --table-fade-start: 0px;
+          --table-fade-end: 0px;
+          mask-image: linear-gradient(to right, transparent 0, black var(--table-fade-start), black calc(100% - var(--table-fade-end)), transparent 100%);
+          animation: docs-table-edge-fade linear both;
+          animation-timeline: scroll(self x);
+        }
+      }
+    }
+  }
+
+  /* Registered so the table-wrapper edge fade interpolates smoothly instead
+     of flipping mid-scroll (custom properties animate discretely otherwise). */
+  @property --table-fade-start {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+  }
+
+  @property --table-fade-end {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+  }
+
+  @keyframes docs-table-edge-fade {
+    0% {
+      --table-fade-start: 0px;
+      --table-fade-end: 2.5rem;
+    }
+
+    100% {
+      --table-fade-start: 2.5rem;
+      --table-fade-end: 0px;
     }
   }
 
