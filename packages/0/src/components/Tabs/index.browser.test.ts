@@ -1,11 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
 import { Tabs } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
+import { createSSRApp, defineComponent, h, nextTick, ref, useTemplateRef } from 'vue'
 
 describe('tabs', () => {
   describe('root', () => {
@@ -1765,6 +1765,268 @@ describe('tabs', () => {
       expect(panelProps.isSelected).toBe(false)
       // ID falls back to value when ticket is null
       expect(panelProps.attrs.id).toContain('orphan')
+    })
+  })
+
+  describe('renderless el focus target', () => {
+    let wrapper: ReturnType<typeof mount>
+
+    afterEach(() => {
+      wrapper?.unmount()
+    })
+
+    function key (name: string) {
+      return new KeyboardEvent('keydown', { key: name })
+    }
+
+    function tabs () {
+      return wrapper.findAll('[role="tab"]').map(node => node.element as HTMLElement)
+    }
+
+    it('should update selection without moving focus when as is null and el is omitted', async () => {
+      const selected = ref('tab-1')
+      const captured: Record<string, any> = {}
+
+      wrapper = mount(Tabs.Root, {
+        attachTo: document.body,
+        props: {
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            selected.value = v as string
+          },
+        },
+        slots: {
+          default: () => [
+            h(Tabs.Item as any, { as: null, value: 'tab-1' }, {
+              default: (props: any) => {
+                captured.tab1 = props
+                return h('button', { ...props.attrs, type: 'button' }, 'Tab 1')
+              },
+            }),
+            h(Tabs.Item as any, { as: null, value: 'tab-2' }, {
+              default: (props: any) => h('button', { ...props.attrs, type: 'button' }, 'Tab 2'),
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const [first, second] = tabs()
+      first!.focus()
+      expect(document.activeElement).toBe(first)
+
+      captured.tab1.attrs.onKeydown(key('ArrowRight'))
+      await nextTick()
+
+      expect(selected.value).toBe('tab-2')
+      expect(document.activeElement).toBe(first)
+      expect(document.activeElement).not.toBe(second)
+    })
+
+    function mountWithEl (activation: 'automatic' | 'manual' = 'automatic') {
+      const selected = ref('tab-1')
+      const captured: Record<string, any> = {}
+
+      const Harness = defineComponent({
+        setup () {
+          const tab1 = useTemplateRef<HTMLElement>('tab1')
+          const tab2 = useTemplateRef<HTMLElement>('tab2')
+          const tab3 = useTemplateRef<HTMLElement>('tab3')
+
+          return () => h(Tabs.Root as any, {
+            activation,
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              selected.value = v as string
+            },
+          }, () => [
+            h(Tabs.Item as any, { as: null, el: tab1, value: 'tab-1' }, {
+              default: (props: any) => {
+                captured.tab1 = props
+                return h('button', { ...props.attrs, ref: 'tab1', type: 'button' }, 'Tab 1')
+              },
+            }),
+            h(Tabs.Item as any, { as: null, el: tab2, value: 'tab-2' }, {
+              default: (props: any) => {
+                captured.tab2 = props
+                return h('button', { ...props.attrs, ref: 'tab2', type: 'button' }, 'Tab 2')
+              },
+            }),
+            h(Tabs.Item as any, { as: null, el: tab3, value: 'tab-3' }, {
+              default: (props: any) => {
+                captured.tab3 = props
+                return h('button', { ...props.attrs, ref: 'tab3', type: 'button' }, 'Tab 3')
+              },
+            }),
+          ])
+        },
+      })
+
+      wrapper = mount(Harness, { attachTo: document.body })
+
+      return { selected, captured }
+    }
+
+    it('should move selection and focus on ArrowRight when as is null and el is supplied', async () => {
+      const { selected, captured } = mountWithEl()
+      await nextTick()
+
+      const [first, second] = tabs()
+      first!.focus()
+      expect(document.activeElement).toBe(first)
+
+      captured.tab1.attrs.onKeydown(key('ArrowRight'))
+      await nextTick()
+
+      expect(selected.value).toBe('tab-2')
+      expect(document.activeElement).toBe(second)
+    })
+
+    it('should move selection and focus on ArrowLeft when as is null and el is supplied', async () => {
+      const { selected, captured } = mountWithEl()
+      await nextTick()
+
+      const [first, second] = tabs()
+      captured.tab2.select()
+      await nextTick()
+      second!.focus()
+      expect(selected.value).toBe('tab-2')
+
+      captured.tab2.attrs.onKeydown(key('ArrowLeft'))
+      await nextTick()
+
+      expect(selected.value).toBe('tab-1')
+      expect(document.activeElement).toBe(first)
+    })
+
+    it('should move selection and focus on Home when as is null and el is supplied', async () => {
+      const { selected, captured } = mountWithEl()
+      await nextTick()
+
+      const [first, , last] = tabs()
+      captured.tab3.select()
+      await nextTick()
+      last!.focus()
+
+      captured.tab3.attrs.onKeydown(key('Home'))
+      await nextTick()
+
+      expect(selected.value).toBe('tab-1')
+      expect(document.activeElement).toBe(first)
+    })
+
+    it('should move selection and focus on End when as is null and el is supplied', async () => {
+      const { selected, captured } = mountWithEl()
+      await nextTick()
+
+      const [first, , last] = tabs()
+      first!.focus()
+
+      captured.tab1.attrs.onKeydown(key('End'))
+      await nextTick()
+
+      expect(selected.value).toBe('tab-3')
+      expect(document.activeElement).toBe(last)
+    })
+
+    it('should move focus only on ArrowRight in manual mode when el is supplied', async () => {
+      const { selected, captured } = mountWithEl('manual')
+      await nextTick()
+
+      const [first, second] = tabs()
+      first!.focus()
+
+      captured.tab1.attrs.onKeydown(key('ArrowRight'))
+      await nextTick()
+
+      expect(selected.value).toBe('tab-1')
+      expect(document.activeElement).toBe(second)
+    })
+
+    it('should move focus only on ArrowLeft in manual mode when el is supplied', async () => {
+      const { selected, captured } = mountWithEl('manual')
+      await nextTick()
+
+      const [first, second] = tabs()
+      captured.tab2.select()
+      await nextTick()
+      second!.focus()
+      expect(selected.value).toBe('tab-2')
+
+      captured.tab2.attrs.onKeydown(key('ArrowLeft'))
+      await nextTick()
+
+      expect(selected.value).toBe('tab-2')
+      expect(document.activeElement).toBe(first)
+    })
+
+    it('should move focus only on Home in manual mode when el is supplied', async () => {
+      const { selected, captured } = mountWithEl('manual')
+      await nextTick()
+
+      const [first, , last] = tabs()
+      captured.tab3.select()
+      await nextTick()
+      last!.focus()
+
+      captured.tab3.attrs.onKeydown(key('Home'))
+      await nextTick()
+
+      expect(selected.value).toBe('tab-3')
+      expect(document.activeElement).toBe(first)
+    })
+
+    it('should move focus only on End in manual mode when el is supplied', async () => {
+      const { selected, captured } = mountWithEl('manual')
+      await nextTick()
+
+      const [first, , last] = tabs()
+      first!.focus()
+
+      captured.tab1.attrs.onKeydown(key('End'))
+      await nextTick()
+
+      expect(selected.value).toBe('tab-1')
+      expect(document.activeElement).toBe(last)
+    })
+
+    it('should focus the Atom host on ArrowRight without passing el', async () => {
+      const selected = ref('tab-1')
+      const captured: Record<string, any> = {}
+
+      wrapper = mount(Tabs.Root, {
+        attachTo: document.body,
+        props: {
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            selected.value = v as string
+          },
+        },
+        slots: {
+          default: () => [
+            h(Tabs.Item as any, { value: 'tab-1' }, {
+              default: (props: any) => {
+                captured.tab1 = props
+                return 'Tab 1'
+              },
+            }),
+            h(Tabs.Item as any, { value: 'tab-2' }, () => 'Tab 2'),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const [first, second] = tabs()
+      first!.focus()
+      expect(document.activeElement).toBe(first)
+
+      captured.tab1.attrs.onKeydown(key('ArrowRight'))
+      await nextTick()
+
+      expect(selected.value).toBe('tab-2')
+      expect(document.activeElement).toBe(second)
     })
   })
 })
