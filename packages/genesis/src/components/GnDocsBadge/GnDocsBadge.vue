@@ -47,7 +47,7 @@
   </span>
 </template>
 
-<style scoped>
+<style>
   .genesis-docs-badge {
     display: inline-flex;
     align-items: center;
