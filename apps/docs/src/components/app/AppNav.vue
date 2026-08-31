@@ -160,17 +160,17 @@
     step="navigation"
     :style="{ zIndex: isMobile ? ticket.zIndex.value : undefined }"
   >
+    <!-- Mobile header — outside the scroll container so scroll-active-into-view can't push it out of reach -->
+    <header class="md:hidden shrink-0 px-4 py-3 border-b border-divider flex items-center justify-between bg-surface">
+      <div class="flex items-center gap-2">
+        <AppIcon class="text-primary" icon="menu" />
+        <span class="font-medium">Navigation</span>
+      </div>
+
+      <AppCloseButton label="Close navigation" @click="navigation.close" />
+    </header>
+
     <div class="nav-scroll flex-1 min-h-0 overflow-y-auto py-4">
-      <!-- Mobile header -->
-      <header class="md:hidden shrink-0 px-4 py-3 -mt-4 mb-4 border-b border-divider flex items-center justify-between bg-surface">
-        <div class="flex items-center gap-2">
-          <AppIcon class="text-primary" icon="menu" />
-          <span class="font-medium">Navigation</span>
-        </div>
-
-        <AppCloseButton label="Close navigation" @click="navigation.close" />
-      </header>
-
       <!-- URL filter banner -->
       <div v-if="navConfig.activeFeatures.value" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant-50 border-b border-divider">
         <p class="text-xs text-on-surface-variant mb-2">
