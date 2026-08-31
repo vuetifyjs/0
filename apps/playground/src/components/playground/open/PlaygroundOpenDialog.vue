@@ -26,12 +26,16 @@
     exampleLabel,
     featureBucket,
     normalizeOpenRail,
+    playgroundStack,
+    rememberStack,
+    rememberedStack,
     sortPlaygrounds,
     type OpenKind,
     type OpenRail,
     type OpenRailItem,
     type OpenSavedChip,
     type OpenSavedSort,
+    type PlaygroundStack,
     type VuetifyPlayground,
   } from './types'
 
@@ -525,6 +529,7 @@
     try {
       saved.value = await one.list()
       savedLoaded.value = true
+      void hydrateStacks(saved.value)
     } catch (error) {
       if (error instanceof Error && error.message === 'Sign in required') {
         savedError.value = 'Session expired. Please sign in again.'
@@ -614,6 +619,36 @@
     saved.value = saved.value.map(entry => (
       entry.id === next.id ? { ...entry, ...next } : entry
     ))
+  }
+
+  function applyStack (id: string, stack: PlaygroundStack) {
+    saved.value = saved.value.map(entry => (
+      entry.id === id ? { ...entry, stack } : entry
+    ))
+  }
+
+  async function hydrateStacks (items: VuetifyPlayground[]) {
+    await Promise.all(items.map(async item => {
+      const cached = rememberedStack(item.id)
+      if (cached) {
+        applyStack(item.id, cached)
+        return
+      }
+
+      try {
+        let content = item.content
+        if (!content) {
+          const full = await one.fetchById(item.id)
+          content = full?.content
+        }
+        const stack = playgroundStack(content)
+        if (!stack) return
+        rememberStack(item.id, stack)
+        applyStack(item.id, stack)
+      } catch {
+        // leave unmarked
+      }
+    }))
   }
 
   function onRemove (id: string) {

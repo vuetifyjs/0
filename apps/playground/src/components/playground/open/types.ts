@@ -1,3 +1,6 @@
+// Framework
+import { isArray, isObject, isString } from '@vuetify/v0'
+
 // Types
 import type { RegistryIndexEntry } from '@/data/registry'
 
@@ -18,6 +21,9 @@ export interface OpenRailItem {
   label: string
 }
 
+/** Product stack inferred from saved One content. */
+export type PlaygroundStack = 'v0' | 'vuetify'
+
 export interface VuetifyPlayground {
   id: string
   title: string
@@ -30,6 +36,56 @@ export interface VuetifyPlayground {
   updatedAt: string
   /** Owner from API response (publicUserResponse shape). */
   owner?: { id: string }
+  /** v0 vs Vuetify 4 — filled after content hydrate. */
+  stack?: PlaygroundStack
+}
+
+const STACK_CACHE = new Map<string, PlaygroundStack>()
+
+export function rememberedStack (id: string) {
+  return STACK_CACHE.get(id)
+}
+
+export function rememberStack (id: string, stack: PlaygroundStack) {
+  STACK_CACHE.set(id, stack)
+}
+
+/**
+ * Classify a One `content` blob as Vuetify0 or Vuetify 4.
+ * Play tuples are always Vuetify 4. Do not sniff file source for `vuetify`
+ * imports — that mis-detected play single-file playgrounds as v0 (#666).
+ */
+export function playgroundStack (content: string | undefined): PlaygroundStack | undefined {
+  if (!content) return undefined
+
+  try {
+    const parsed: unknown = JSON.parse(content)
+    if (isArray(parsed)) return 'vuetify'
+    if (!isObject(parsed) || !('files' in parsed) || !isObject(parsed.files)) return undefined
+
+    const settings = 'settings' in parsed && isObject(parsed.settings)
+      ? parsed.settings
+      : undefined
+    if (settings && isString(settings.preset) && settings.preset === 'vuetify') {
+      return 'vuetify'
+    }
+
+    return 'v0'
+  } catch {
+    return undefined
+  }
+}
+
+export function playgroundStackIcon (stack: PlaygroundStack | undefined) {
+  if (stack === 'vuetify') return 'vuetify'
+  if (stack === 'v0') return 'vuetify-0'
+  return undefined
+}
+
+export function playgroundStackLabel (stack: PlaygroundStack | undefined) {
+  if (stack === 'vuetify') return 'Vuetify 4'
+  if (stack === 'v0') return 'Vuetify0'
+  return undefined
 }
 
 /** Map legacy session rails (components/composables/plugins) → `v0`. */

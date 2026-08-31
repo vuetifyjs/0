@@ -73,6 +73,14 @@
           @click="emit('open', item)"
         >
           <AppIcon class="shrink-0 text-on-surface-variant" icon="pin" :size="12" />
+
+          <AppIcon
+            v-if="item.stack"
+            class="shrink-0 text-on-surface-variant"
+            :icon="item.stack === 'vuetify' ? 'vuetify' : 'vuetify-0'"
+            :size="12"
+          />
+
           <span class="truncate">{{ item.title || 'Untitled' }}</span>
         </Button.Root>
 

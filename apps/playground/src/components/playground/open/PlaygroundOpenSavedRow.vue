@@ -10,7 +10,7 @@
   import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
   // Local
-  import { formatDate } from './types'
+  import { formatDate, playgroundStackIcon, playgroundStackLabel } from './types'
 
   // Utilities
   import { nextTick, shallowRef, toRef, useTemplateRef } from 'vue'
@@ -42,6 +42,8 @@
   const visibilityHint = toRef(() => (
     (item.visibility ?? 'public') === 'private' ? 'Make public' : 'Make private'
   ))
+  const stackIcon = toRef(() => playgroundStackIcon(item.stack))
+  const stackLabel = toRef(() => playgroundStackLabel(item.stack))
 
   const deleteTimer = useTimer(() => {
     confirmDelete.value = false
@@ -142,6 +144,21 @@
     :data-busy="busy || undefined"
   >
     <div class="min-w-0 flex-1 flex items-center gap-2">
+      <AppTooltip
+        v-if="stackIcon && stackLabel"
+        as="span"
+        class="inline-flex shrink-0"
+        :open-delay="200"
+        position-area="top"
+        :text="stackLabel"
+      >
+        <AppIcon
+          class="text-on-surface-variant"
+          :icon="stackIcon"
+          :size="14"
+        />
+      </AppTooltip>
+
       <input
         v-if="renaming"
         ref="input"
