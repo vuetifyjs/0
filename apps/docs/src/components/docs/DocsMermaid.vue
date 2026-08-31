@@ -446,10 +446,14 @@
       min-width: calc(var(--mermaid-w, 0px) * 0.8);
     }
 
-    /* Pin the caption to the visible slice while the diagram scrolls. */
+    /* Pin the caption to the visible slice while the diagram scrolls.
+       align-self overrides the figure's items-center — a centered caption
+       on a max-content figure starts off-screen at rest, and the sticky
+       inset only clamps leftward. */
     .docs-mermaid:not(.docs-mermaid-panzoom) figcaption {
       position: sticky;
       inset-inline-start: 0;
+      align-self: flex-start;
       max-width: calc(100vw - 3rem);
     }
   }
