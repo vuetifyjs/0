@@ -519,22 +519,16 @@
     savedLoading.value = true
     savedError.value = undefined
     try {
-      const res = await fetch(`${ONE_API}/one/playgrounds`, {
-        credentials: 'include',
-      })
-
-      if (!res.ok) {
-        savedError.value = res.status === 401
-          ? 'Session expired. Please sign in again.'
-          : `Failed to load playgrounds (${res.status})`
-        return
-      }
-
-      const data = await res.json()
-      saved.value = data.playgrounds ?? data
+      saved.value = await one.list()
       savedLoaded.value = true
-    } catch {
-      savedError.value = 'Failed to load playgrounds'
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Sign in required') {
+        savedError.value = 'Session expired. Please sign in again.'
+      } else if (error instanceof Error) {
+        savedError.value = error.message
+      } else {
+        savedError.value = 'Failed to load playgrounds'
+      }
     } finally {
       savedLoading.value = false
       await nextTick()
@@ -597,7 +591,13 @@
 
   async function onUnpin (item: VuetifyPlayground) {
     try {
-      await one.patchMeta({ pinned: false }, item.id)
+      await one.patchMeta({ pinned: false }, item.id, {
+        title: item.title,
+        favorite: item.favorite ?? false,
+        pinned: item.pinned ?? false,
+        locked: item.locked ?? false,
+        visibility: item.visibility ?? 'public',
+      })
       saved.value = saved.value.map(entry => (
         entry.id === item.id ? { ...entry, pinned: false } : entry
       ))
