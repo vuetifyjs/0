@@ -183,6 +183,7 @@
   const decodedCode = toRef(() => decodeBase64(props.code))
 
   const svg = ref('')
+  const width = shallowRef(0)
   const id = `mermaid-${useId()}`
 
   async function render () {
@@ -191,6 +192,10 @@
       const m = await loadMermaid()
       const { svg: rendered } = await m.render(id, decodedCode.value)
       svg.value = rendered
+      // useMaxWidth serializes the natural width as an inline max-width;
+      // the phone floor below needs it as a CSS variable
+      const natural = rendered.match(/max-width:\s*([\d.]+)px/)
+      width.value = natural ? Number(natural[1]) : 0
     } catch (error) {
       logger.error('Mermaid render error', error)
       svg.value = `<pre class="text-error">${decodedCode.value}</pre>`
@@ -277,7 +282,10 @@
 
 <template>
   <Dialog.Root v-model="isOpen">
-    <Dialog.Activator class="docs-mermaid flex justify-center w-full my-4 overflow-x-auto cursor-pointer">
+    <Dialog.Activator
+      class="docs-mermaid flex justify-center w-full my-4 overflow-x-auto cursor-pointer"
+      :style="{ '--mermaid-w': `${width}px` }"
+    >
       <figure class="flex flex-col items-center w-full">
         <div class="flex justify-center w-full" v-html="svg" />
 
@@ -406,6 +414,44 @@
   .docs-mermaid svg {
     max-width: 100%;
     height: auto;
+  }
+
+  /* Wide diagrams scale to fit the column, and at phone widths that renders
+     labels as microtext. Below md, floor the svg at 80% of its natural width
+     (min-width outranks the max-width cap) so oversized diagrams scroll in
+     the activator instead of shrinking; a fitting diagram is unaffected. The
+     :not() guard keeps the dialog's pan-zoom svg on its own sizing. */
+  @media (max-width: 767px) {
+    /* Auto margins re-center the figure without the justify-center overflow
+       trap that would clip the scrolled-out start edge. */
+    .docs-mermaid:not(.docs-mermaid-panzoom) {
+      justify-content: flex-start;
+    }
+
+    .docs-mermaid:not(.docs-mermaid-panzoom) figure {
+      /* flex-shrink would collapse the max-content width back to the
+         activator, leaving the overflow unreachable */
+      flex: none;
+      width: max-content;
+      min-width: 100%;
+      margin-inline: auto;
+    }
+
+    .docs-mermaid:not(.docs-mermaid-panzoom) figure > div {
+      width: max-content;
+      min-width: 100%;
+    }
+
+    .docs-mermaid:not(.docs-mermaid-panzoom) svg {
+      min-width: calc(var(--mermaid-w, 0px) * 0.8);
+    }
+
+    /* Pin the caption to the visible slice while the diagram scrolls. */
+    .docs-mermaid:not(.docs-mermaid-panzoom) figcaption {
+      position: sticky;
+      inset-inline-start: 0;
+      max-width: calc(100vw - 3rem);
+    }
   }
 
   /* Rounded nodes */
