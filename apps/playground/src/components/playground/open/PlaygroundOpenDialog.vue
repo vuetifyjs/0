@@ -94,11 +94,12 @@
   const itemLoading = shallowRef(false)
   const itemError = shallowRef<string>()
 
-  const rails: OpenRailItem[] = [
+  const savedRail: OpenRailItem = { id: 'saved', label: 'Vuetify One' }
+  const exampleRails: OpenRailItem[] = [
     { id: 'v0', label: 'Vuetify0' },
     { id: 'vuetify', label: 'Vuetify 4' },
-    { id: 'saved', label: 'Vuetify One' },
   ]
+  const rails: OpenRailItem[] = [savedRail, ...exampleRails]
 
   const railLabel = computed(() =>
     rails.find(r => r.id === rail.value)?.label ?? 'Examples',
@@ -836,34 +837,50 @@
         class="relative bg-surface border border-divider rounded-lg shadow-xl w-[900px] max-w-[calc(100vw-2rem)] h-[640px] max-h-[calc(100vh-2rem)] flex flex-col sm:flex-row overflow-hidden"
         role="dialog"
       >
-        <!-- Left rail: product stacks (same search model) + Vuetify One -->
+        <!-- Left rail: Vuetify One, then example stacks -->
         <nav
           aria-label="Open source"
           class="flex flex-row flex-wrap sm:flex-nowrap sm:flex-col w-full sm:w-36 shrink-0 border-b sm:border-b-0 sm:border-r border-divider gap-1 p-2 bg-surface"
         >
-          <template v-for="item in rails" :key="item.id">
-            <div
-              v-if="item.id === 'saved'"
-              class="hidden sm:block mx-3 my-2 border-t border-divider"
-            />
+          <button
+            :aria-pressed="rail === savedRail.id"
+            class="flex-1 sm:flex-none min-w-0 mx-0 sm:mx-1.5 flex items-center justify-center sm:justify-between gap-2 px-2.5 py-1.5 sm:py-2 text-xs text-center sm:text-left rounded-md transition-colors"
+            :class="railActiveClass(savedRail.id)"
+            type="button"
+            @click="onRail(savedRail.id)"
+          >
+            <span class="truncate">{{ savedRail.label }}</span>
 
-            <button
-              :aria-pressed="rail === item.id"
-              class="flex-1 sm:flex-none min-w-0 mx-0 sm:mx-1.5 flex items-center justify-center sm:justify-between gap-2 px-2.5 py-1.5 sm:py-2 text-xs text-center sm:text-left rounded-md transition-colors"
-              :class="railActiveClass(item.id)"
-              type="button"
-              @click="onRail(item.id)"
+            <span
+              v-if="railCount(savedRail.id) !== undefined"
+              class="tabular-nums text-[10px] text-on-surface-variant shrink-0"
             >
-              <span class="truncate">{{ item.label }}</span>
+              {{ railCount(savedRail.id) }}
+            </span>
+          </button>
 
-              <span
-                v-if="railCount(item.id) !== undefined"
-                class="tabular-nums text-[10px] text-on-surface-variant shrink-0"
-              >
-                {{ railCount(item.id) }}
-              </span>
-            </button>
-          </template>
+          <p class="hidden sm:block mx-3 mt-3 mb-0.5 text-[10px] font-medium uppercase tracking-wide text-on-surface-variant">
+            Examples
+          </p>
+
+          <button
+            v-for="item in exampleRails"
+            :key="item.id"
+            :aria-pressed="rail === item.id"
+            class="flex-1 sm:flex-none min-w-0 mx-0 sm:mx-1.5 flex items-center justify-center sm:justify-between gap-2 px-2.5 py-1.5 sm:py-2 text-xs text-center sm:text-left rounded-md transition-colors"
+            :class="railActiveClass(item.id)"
+            type="button"
+            @click="onRail(item.id)"
+          >
+            <span class="truncate">{{ item.label }}</span>
+
+            <span
+              v-if="railCount(item.id) !== undefined"
+              class="tabular-nums text-[10px] text-on-surface-variant shrink-0"
+            >
+              {{ railCount(item.id) }}
+            </span>
+          </button>
         </nav>
 
         <!-- Main pane -->
