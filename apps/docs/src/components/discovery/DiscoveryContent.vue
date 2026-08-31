@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { IN_BROWSER, isNullOrUndefined, useBreakpoints, useLogger } from '@vuetify/v0'
+  import { IN_BROWSER, isNull, isNullOrUndefined, useBreakpoints, useLogger } from '@vuetify/v0'
 
   // Context
   import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
@@ -30,10 +30,48 @@
   }>()
 
   const breakpoints = useBreakpoints()
+
+  // Mobile fallback placement, measured per step. A vertical anchor edge alone
+  // can't keep the card on-screen: a full-height target (Ask AI panel, expanded
+  // code pane) leaves no room on the anchored side and `bottom: anchor(top)`
+  // pushes the card past the viewport edge.
+  const flip = shallowRef<string | null>(null)
+
+  // Room a card needs on the anchored side: max-height is unknowable before
+  // render, so budget for a typical tall card (20rem wide, ~15rem tall) + offset.
+  const ROOM = 256
+
+  function measure (el: HTMLElement) {
+    flip.value = null
+    if (!breakpoints.smAndDown.value) return
+
+    const requested = isNullOrUndefined(placementMobile) ? placement : placementMobile
+    if (requested !== 'top' && requested !== 'bottom') return
+
+    const rect = el.getBoundingClientRect()
+    const vh = window.innerHeight
+
+    // A target most of the viewport tall has no roomy side; overlaying it
+    // centered keeps the card (and its buttons) reachable.
+    if (rect.height >= vh * 0.6) {
+      flip.value = 'center'
+      return
+    }
+
+    const room = { top: rect.top, bottom: vh - rect.bottom }
+    if (room[requested] >= ROOM) return
+
+    const other = requested === 'top' ? 'bottom' : 'top'
+    flip.value = room[other] >= ROOM ? other : 'center'
+  }
+
   const activePlacement = toRef(() => {
     // Last step always uses center placement
     if (discovery.isLast.value) return 'center'
-    if (!isNullOrUndefined(placementMobile) && breakpoints.smAndDown.value) return placementMobile
+    if (breakpoints.smAndDown.value) {
+      if (!isNull(flip.value)) return flip.value
+      if (!isNullOrUndefined(placementMobile)) return placementMobile
+    }
     return placement
   })
 
@@ -182,6 +220,7 @@
 
           const activator = discovery.activators.get(root.step)
           if (activator?.element?.value) {
+            measure(activator.element.value)
             // Activator found - wait one more frame for anchor-name CSS
             requestAnimationFrame(() => {
               if (!isUnmounted) isReady.value = true
@@ -198,6 +237,7 @@
         requestAnimationFrame(checkActivator)
       } else {
         isReady.value = false
+        flip.value = null
       }
     },
     { immediate: true },
