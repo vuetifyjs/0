@@ -18,7 +18,7 @@
 
 <template>
   <div class="flex flex-col gap-6">
-    <div class="flex items-center gap-3">
+    <div class="flex flex-wrap items-center gap-3">
       <Button.Group
         class="inline-flex rounded-lg bg-surface-variant p-1 gap-1"
         label="Reduced motion mode"
