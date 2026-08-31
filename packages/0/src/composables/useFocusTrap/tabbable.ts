@@ -1,13 +1,18 @@
 /**
  * @module tabbable
+ * @internal Second consumer is Treeview; promote to `#v0/utilities` if a third appears.
+ *
+ * @see https://0.vuetifyjs.com/composables/system/use-focus-trap
  *
  * @remarks
  * The "which descendants can Tab reach" rules, shared rather than duplicated.
  *
  * Shared by `useFocusTrap` (containment) and `Treeview/TreeviewList.vue`
- * (roving). Treeview layers its own `aria-disabled` and treeitem-scope filters
- * on top of {@link tabbable}. `FOCUSABLE`, `tabbable`, and `isFocusTrapElement`
- * are re-exported from `useFocusTrap/index.ts`; {@link follows} stays local.
+ * (roving). Treeview imports this file directly so it does not evaluate
+ * `useFocusTrap/index.ts` (nest stack). It layers its own `aria-disabled` and
+ * treeitem-scope filters on top of {@link tabbable}. The barrel re-exports
+ * `FOCUSABLE` and `tabbable` for public consumers; `isFocusTrapElement` and
+ * {@link follows} stay local.
  */
 
 // Utilities
@@ -62,9 +67,11 @@ export function isFocusTrapElement (el: unknown): el is FocusTrapElement {
 /**
  * Whether `node` sits after `ref` in document order.
  *
- * A cross-tree comparison reports `DOCUMENT_POSITION_DISCONNECTED` and an
- * implementation-defined direction, so it answers false rather than guessing —
- * focus inside a descendant's shadow root falls back to the identity test.
+ * Cross-tree comparisons (disconnected nodes, including a descendant's shadow
+ * root) report `DOCUMENT_POSITION_DISCONNECTED` and an implementation-defined
+ * direction, so this returns false rather than guessing. Callers must not treat
+ * that false as "not past the edge" — it only means the two nodes are not in
+ * the same tree.
  */
 export function follows (ref: Node, node: Node): boolean {
   const position = ref.compareDocumentPosition(node)

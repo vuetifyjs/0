@@ -9,10 +9,10 @@ A `<dialog>` opened with `showModal()` is trapped by the browser. Anything else 
 ```ts
 const panel = useTemplateRef<HTMLElement>('panel')
 
-useFocusTrap(panel, { present: isOpen })
+useFocusTrap(panel, { active: isOpen })
 ```
 
-Tab and Shift+Tab wrap at the first and last tabbable descendant, focus moves into the root on activate, and the previously focused element gets it back on deactivate. Pass `initialFocus` to choose where focus lands (or `false` to skip autofocus), `returnFocus: false` to leave focus alone on release, and `onEscape` to opt into Escape handling — the trap never closes anything itself. Nested traps resolve inward-first: only the last activated trap handles Tab and Escape.
+Tab and Shift+Tab wrap at the first and last tabbable descendant, focus moves into the root on activate, and the previously focused element gets it back on deactivate. Pass `initial` to choose where focus lands (or `false` to skip autofocus), `restore: false` to leave focus alone on release, and `onEscape` to opt into Escape handling — the trap never closes anything itself. Nested traps: the last connected trap owns Tab; the last connected trap that has `onEscape` owns Escape.
 
 The boundary is computed the way the browser computes tab order, not by element identity: a radio group counts as one stop (the checked member if it is otherwise tabbable, otherwise the first otherwise-tabbable member), and focus parked on a script-focusable `tabindex="-1"` descendant past the last stop still wraps rather than walking out. `aria-disabled` controls stay in the tab order per APG, so they remain real boundaries.
 

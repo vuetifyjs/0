@@ -26,7 +26,7 @@ A composable that confines keyboard focus to a root element for as long as the t
 
 ## Usage
 
-A native `<dialog>` opened with `showModal()` is trapped by the browser, so it needs nothing here. Everything else does: a `Dialog.Content` rendered `as="div"`, a drawer, a command palette. `useFocusTrap` wraps Tab and Shift+Tab at the first and last tabbable descendant, focuses into the root on activate, and hands focus back to the trigger on deactivate.
+A native `<dialog>` opened with `showModal()` is trapped by the browser, so it needs nothing here. Modal overlays that are not a native dialog do: a `Dialog.Content` rendered `as="div"`, a drawer, a command palette. Tooltips and menus typically do not. `useFocusTrap` wraps Tab and Shift+Tab at the first and last tabbable descendant, focuses into the root on activate, and returns focus to the previously focused element on deactivate, unless focus already left the root.
 
 ```vue collapse no-filename useFocusTrap
 <script setup lang="ts">
@@ -36,13 +36,13 @@ A native `<dialog>` opened with `showModal()` is trapped by the browser, so it n
   const isOpen = shallowRef(false)
   const panel = useTemplateRef<HTMLElement>('panel')
 
-  useFocusTrap(panel, { present: isOpen })
+  useFocusTrap(panel, { active: isOpen })
 </script>
 
 <template>
   <button @click="isOpen = true">Open</button>
 
-  <div v-if="isOpen" ref="panel" tabindex="-1" role="dialog" aria-modal="true">
+  <div v-if="isOpen" ref="panel" tabindex="-1" aria-label="Trapped panel">
     <input>
     <button @click="isOpen = false">Close</button>
   </div>
@@ -51,7 +51,7 @@ A native `<dialog>` opened with `showModal()` is trapped by the browser, so it n
 
 ## Architecture
 
-`useFocusTrap` composes `useDocumentEventListener` and `useToggleScope`, binding a single document-level listener only while the trap is engaged:
+`useFocusTrap` composes `useDocumentEventListener` and `useToggleScope`. Each engaged `listen: true` trap binds its own document-level listener; a module-level stack chooses which of those listeners owns Tab and Escape:
 
 ```mermaid "Focus Trap Composition"
 flowchart TD
@@ -70,26 +70,29 @@ Only the boundaries are intercepted. A Tab press in the middle of the list passe
 
 | Option | Type | Default | Description |
 | - | - | - | - |
-| `present` | `MaybeRefOrGetter<boolean>` | `undefined` | Reactive activation source. Omit it to drive the trap imperatively |
-| `initialFocus` | `false \| MaybeElementRef` | `undefined` | Where focus lands on activate. `false` skips autofocus; an element focuses that node instead of the first tabbable one |
-| `returnFocus` | `boolean` | `true` | Return focus to the previously focused element on deactivate |
-| `listen` | `boolean` | `true` | Bind the capture-phase document listener. Set `false` to drive `onKeydown` yourself |
-| `onEscape` | `(event: KeyboardEvent) => void` | `undefined` | Called on Escape while this trap is the top engaged trap and owns focus. Opt-in — the trap never closes anything itself |
+| `active` | `MaybeRefOrGetter<boolean>` | `undefined` | Reactive activation source. Omit it to drive the trap imperatively |
+| `initial` | `false \| MaybeElementRef` | `undefined` | Where focus lands on activate. `false` skips autofocus; an element focuses that node instead of the first tabbable one. If the node cannot take focus, the first tabbable descendant (or the root) is used instead |
+| `restore` | `boolean` | `true` | Return focus to the previously focused element on deactivate. Skipped when focus already sits on an outside control; a blur to `<body>` still restores |
+| `listen` | `boolean` | `true` | Bind the capture-phase document listener. Set `false` to drive `onKeydown` yourself — a `listen: false` trap is not pushed onto the nest stack |
+| `onEscape` | `(event: KeyboardEvent) => void` | `undefined` | Called on Escape while this trap is the last connected trap that has `onEscape` and owns focus. Opt-in — the trap never closes anything itself |
 
 ```ts
 import { useFocusTrap } from '@vuetify/v0'
+import { shallowRef, useTemplateRef } from 'vue'
 
+const isOpen = shallowRef(false)
+const panel = useTemplateRef<HTMLElement>('panel')
 const cancel = useTemplateRef<HTMLElement>('cancel')
 
 // Destructive dialogs should land on the safe action
-useFocusTrap(panel, { present: isOpen, initialFocus: cancel })
+useFocusTrap(panel, { active: isOpen, initial: cancel })
 ```
 
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
 | - | :-: | - |
-| `isActive` | <AppSuccessIcon /> | ShallowRef, readonly. The trap's state — `present` is only its source |
+| `isActive` | <AppSuccessIcon /> | ShallowRef, readonly. The trap's state — `active` is only its source |
 | `activate()` | - | Captures the return-focus target and engages containment |
 | `deactivate()` | - | Releases containment and returns focus |
 | `onKeydown()` | - | The handler. Bound on `document` unless `listen` is `false` |
@@ -103,9 +106,7 @@ useFocusTrap(panel, { present: isOpen, initialFocus: cancel })
 
 A panel holding two text inputs and two buttons. Opening it moves focus to the first input; Tab from the Confirm button wraps back to that input rather than continuing into the page, and Shift+Tab from the first input wraps to Confirm. Escape and Cancel both close the panel, and focus returns to the trigger that opened it.
 
-The root carries `tabindex="-1"` because that is the consumer's responsibility, not the composable's — v0 never writes attributes onto elements it did not render. It matters in one case: when the root holds no tabbable descendants at all, the trap falls back to focusing the root itself, and without a `tabindex` that call is a silent no-op. Containment still holds either way, since the Tab is swallowed before the fallback is attempted.
-
-Reach for this whenever an overlay is not a native `<dialog>`. Pair it with `useStack` for z-index and dismissal ordering, and with `useClickOutside` for pointer dismissal — the trap deliberately owns focus order and nothing else.
+Reach for this whenever a modal overlay is not a native `<dialog>`. Pair it with `useStack` for z-index and dismissal ordering, and with `useClickOutside` for pointer dismissal — the trap deliberately owns focus order and nothing else.
 
 :::
 
@@ -113,16 +114,19 @@ Reach for this whenever an overlay is not a native `<dialog>`. Pair it with `use
 
 ### Escape Only for the Top Overlay
 
-Nested *traps* already resolve inward-first: only the last activated trap receives Escape. Nested *overlays* still need a stacking guard when dismissal policy is overlay-stack, not trap-stack — `useStack` tracks which overlay is topmost:
+Nested *traps* already resolve to the last *connected* trap that has `onEscape`. Nested *overlays* still need a stacking guard when dismissal policy is overlay-stack, not trap-stack — `useStack` tracks which overlay is topmost:
 
 ```ts
 import { useFocusTrap, useStack } from '@vuetify/v0'
+import { shallowRef, useTemplateRef } from 'vue'
 
+const isOpen = shallowRef(false)
+const panel = useTemplateRef<HTMLElement>('panel')
 const stack = useStack()
 const ticket = stack.register({ onDismiss: () => (isOpen.value = false) })
 
 useFocusTrap(panel, {
-  present: isOpen,
+  active: isOpen,
   onEscape: event => {
     if (!ticket.globalTop.value) return
     event.preventDefault()
@@ -141,7 +145,13 @@ A widget that sits *at* a boundary cannot opt out, though. The trap listens on `
 - **Own the listener.** Pass `listen: false` and call `onKeydown` yourself — otherwise the document capture listener has already wrapped.
 
 ```ts
-const trap = useFocusTrap(panel, { present: isOpen, listen: false })
+import { useFocusTrap } from '@vuetify/v0'
+import { shallowRef, useTemplateRef } from 'vue'
+
+const isOpen = shallowRef(false)
+const panel = useTemplateRef<HTMLElement>('panel')
+const editorHasFocus = shallowRef(false)
+const trap = useFocusTrap(panel, { active: isOpen, listen: false })
 
 function onPanelKeydown (event: KeyboardEvent) {
   if (editorHasFocus.value && event.key === 'Tab') return
@@ -183,7 +193,7 @@ The root has no tabbable descendants and no `tabindex`. The trap falls back to f
 
 ??? I called `deactivate()` but the trap will not reopen.
 
-`present` is a *source*, `isActive` is the state. The source's transitions drive the trap; an imperative call writes the state directly and never writes back. So `deactivate()` while `present` still reads `true` stays deactivated until `present` next goes false then true. Drive it from one side or the other, not both.
+`active` is a *source*, `isActive` is the state. The source's transitions drive the trap; an imperative call writes the state directly and never writes back. So `deactivate()` while `active` still reads `true` stays deactivated until `active` next goes false then true. Drive it from one side or the other, not both.
 
 ??? Focus escapes past a control inside a custom element.
 
@@ -191,7 +201,7 @@ Containment pierces open shadow roots, but discovery cannot — `querySelectorAl
 
 ??? Can two traps be active at once?
 
-Nested ones, yes — they resolve *inward*-first. Engaged traps sit on a module-level stack; only the last activated trap handles Tab and Escape, matching APG (the topmost dialog owns the loop).
+Nested ones, yes — the last *connected* activated trap owns Tab, and the last connected trap that has `onEscape` owns Escape. Typical overlay nesting is inward-first (inner activated last), matching APG. An inner Tab-only trap does not eat the outer dialog's Escape.
 
 Two *disjoint* active traps are not supported — each reads the other's focus as outside and they fight over every Tab. Deactivate one first.
 

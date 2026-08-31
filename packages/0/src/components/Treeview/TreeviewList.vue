@@ -18,7 +18,7 @@
 
   // Composables
   import { createContext } from '#v0/composables/createContext'
-  import { FOCUSABLE, tabbable } from '#v0/composables/useFocusTrap'
+  import { FOCUSABLE, tabbable } from '#v0/composables/useFocusTrap/tabbable'
   import { useRovingFocus } from '#v0/composables/useRovingFocus'
 
   // Constants

@@ -40,7 +40,7 @@ async function trap (root: HTMLElement, options: UseFocusTrapOptions = {}) {
 
   onTestFinished(() => scope.stop())
 
-  const instance = scope.run(() => useFocusTrap(root, { present: true, ...options }))!
+  const instance = scope.run(() => useFocusTrap(root, { active: true, ...options }))!
 
   await nextTick()
 
@@ -226,5 +226,22 @@ describe('useFocusTrap', () => {
     instance.deactivate()
 
     expect(document.activeElement).toBe(at('outside-before'))
+  })
+
+  it('should wrap a nested inner trap without leaking to outside-after', async () => {
+    const at = fixture(
+      '<button data-id="outer">outer</button>'
+      + '<div data-id="inner" tabindex="-1">'
+      + '<button data-id="i1">i1</button><button data-id="i2">i2</button>'
+      + '</div>',
+    )
+    await trap(at('root'))
+    await trap(at('inner'))
+
+    at('i2').focus()
+    await userEvent.keyboard('{Tab}')
+
+    expect(document.activeElement).not.toBe(at('outside-after'))
+    expect(document.activeElement).toBe(at('i1'))
   })
 })

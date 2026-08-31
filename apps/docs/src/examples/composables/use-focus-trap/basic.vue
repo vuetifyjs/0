@@ -6,7 +6,7 @@
   const panel = useTemplateRef<HTMLElement>('panel')
 
   useFocusTrap(panel, {
-    present: isOpen,
+    active: isOpen,
     onEscape: event => {
       event.preventDefault()
       isOpen.value = false
@@ -33,9 +33,7 @@
       v-if="isOpen"
       ref="panel"
       aria-label="Trapped panel"
-      aria-modal="true"
       class="flex flex-col gap-3 p-4 border-2 border-primary rounded bg-surface"
-      role="dialog"
       tabindex="-1"
     >
       <input
