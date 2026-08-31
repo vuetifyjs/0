@@ -115,7 +115,6 @@ declare module 'vue' {
     DocsAskPanel: typeof import('./components/docs/DocsAskPanel.vue')['default']
     DocsBackmatter: typeof import('./components/docs/DocsBackmatter.vue')['default']
     DocsBackToTop: typeof import('./components/docs/DocsBackToTop.vue')['default']
-    DocsBadge: typeof import('./components/docs/DocsBadge.vue')['default']
     DocsBenchmarks: typeof import('./components/docs/DocsBenchmarks.vue')['default']
     DocsBrowserSupport: typeof import('./components/docs/DocsBrowserSupport.vue')['default']
     DocsCallout: typeof import('./components/docs/DocsCallout.vue')['default']
