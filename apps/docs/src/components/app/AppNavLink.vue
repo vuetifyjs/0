@@ -145,7 +145,7 @@
         v-if="isCollapsible"
         :aria-controls="`nav-section-${id}`"
         :aria-expanded="isOpen ? 'true' : 'false'"
-        class="size-5 flex items-center justify-center shrink-0 rounded hover:bg-surface-tint focus-visible:bg-surface-tint focus-visible:outline-none"
+        class="size-5 media-[(pointer:coarse)]:h-9 flex items-center justify-center shrink-0 rounded hover:bg-surface-tint focus-visible:bg-surface-tint focus-visible:outline-none"
         type="button"
         @click.stop="onToggle"
       >
@@ -163,7 +163,7 @@
       <Atom
         v-if="to && isExternal"
         as="a"
-        class="font-semibold icon-text flex-1 min-w-0"
+        class="font-semibold icon-text flex-1 min-w-0 media-[(pointer:coarse)]:py-2"
         :class="[
           'hover:underline hover:text-primary focus-visible:underline focus-visible:text-primary',
           !isTopLevel && !hasChildren && 'opacity-70 hover:opacity-100 focus-visible:opacity-100',
@@ -180,7 +180,7 @@
         v-else-if="to"
         :aria-current="isActive ? 'page' : undefined"
         :as
-        class="font-semibold icon-text flex-1 min-w-0 scroll-my-[100px]"
+        class="font-semibold icon-text flex-1 min-w-0 scroll-my-[100px] media-[(pointer:coarse)]:py-2"
         :class="[
           'hover:underline hover:text-primary focus-visible:underline focus-visible:text-primary',
           !isTopLevel && !hasChildren && 'opacity-70 hover:opacity-100 focus-visible:opacity-100',
@@ -203,7 +203,7 @@
       <!-- Category header (not navigable) -->
       <span
         v-else
-        class="font-semibold flex-1 min-w-0 truncate"
+        class="font-semibold flex-1 min-w-0 truncate media-[(pointer:coarse)]:py-2"
         :class="[
           isCollapsible && 'cursor-pointer hover:text-primary focus-visible:text-primary',
           containsActivePage && 'text-primary underline',
