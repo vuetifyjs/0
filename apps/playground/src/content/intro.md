@@ -46,6 +46,7 @@ Point `?registry=` at a custom origin when testing a local docs build.
 - The URL updates as you edit — copy it to share exactly what you built
 - **Vuetify One playgrounds** get a canonical URL: `/playgrounds/:id` (e.g. `/playgrounds/abc123`). The editor hash is preserved for sharing with content inline
 - Save to Vuetify One via **☰ → File → Save** to persist your work and get a shareable link
+- Owners manage saved playgrounds from **☰ → File → Open → Vuetify One** (rename, pin, favorite, visibility, delete)
 
 ## Sending a theme
 

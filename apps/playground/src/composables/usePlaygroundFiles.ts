@@ -380,9 +380,11 @@ export function usePlaygroundFiles () {
     if (activeAddons.value.length > 0) settings.addons = activeAddons.value.join(',')
 
     const data: PlaygroundHashData = { files, active, imports: extraImports.value }
-    if (Object.keys(settings).length > 0) data.settings = settings
     if (extraDefault.value) data.theme = extraDefault.value
     if (extraThemes.value) data.themes = extraThemes.value
+    if (Object.keys(settings).length > 0) {
+      return { settings, ...data }
+    }
     return data
   }
 

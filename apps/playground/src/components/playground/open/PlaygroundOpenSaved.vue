@@ -1,10 +1,17 @@
 <script setup lang="ts">
+  // Framework
+  import { Button, createVirtual } from '@vuetify/v0'
+
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
   import AppSkeleton from '@/components/app/AppSkeleton.vue'
+  import AppTooltip from '@/components/app/AppTooltip.vue'
 
-  // Local
-  import { formatDate } from './types'
+  // Context
+  import PlaygroundOpenSavedRow from './PlaygroundOpenSavedRow.vue'
+
+  // Utilities
+  import { toRef } from 'vue'
 
   // Types
   import type { VuetifyPlayground } from './types'
@@ -30,19 +37,23 @@
   const emit = defineEmits<{
     open: [item: VuetifyPlayground]
     unpin: [item: VuetifyPlayground]
+    update: [item: VuetifyPlayground]
+    remove: [id: string]
   }>()
 
-  function visibilityIcon (item: VuetifyPlayground) {
-    return item.visibility === 'private' ? 'visibility-private' : 'visibility-public'
-  }
-
-  function visibilityLabel (item: VuetifyPlayground) {
-    return item.visibility === 'private' ? 'Private' : 'Public'
-  }
+  const ROW_HEIGHT = 48
+  const virtual = createVirtual(toRef(() => items), {
+    itemHeight: ROW_HEIGHT,
+    overscan: 8,
+  })
+  const { element, items: virtualItems, offset, size, scroll } = virtual
 </script>
 
 <template>
-  <div v-if="loading" class="p-4">
+  <div
+    v-if="loading"
+    class="p-4 h-full"
+  >
     <AppSkeleton height="h-12" :lines="4" />
   </div>
 
@@ -60,33 +71,43 @@
     <p class="text-sm text-on-surface-variant">No Vuetify One playgrounds</p>
   </div>
 
-  <div v-else>
+  <div
+    v-else
+    class="h-full min-h-0 flex-1 flex flex-col"
+  >
     <div
       v-if="pinned.length > 0"
-      class="flex flex-wrap gap-1 px-3 pt-2"
+      class="flex flex-wrap gap-1 px-3 pt-2 shrink-0"
     >
       <span
         v-for="item in pinned"
         :key="item.id"
         class="inline-flex items-center max-w-[11rem] h-6 rounded-full border border-divider bg-surface-tint/40"
       >
-        <button
-          class="min-w-0 inline-flex items-center gap-1 pl-1.5 pr-1 text-[11px] text-on-surface"
-          type="button"
+        <Button.Root
+          class="min-w-0 inline-flex items-center gap-1 pl-1.5 pr-1 text-[11px] text-on-surface border-0 bg-transparent cursor-pointer"
           @click="emit('open', item)"
         >
           <AppIcon class="shrink-0 text-on-surface-variant" icon="pin" :size="12" />
-          <span class="truncate">{{ item.title || 'Untitled' }}</span>
-        </button>
 
-        <button
-          aria-label="Unpin"
-          class="shrink-0 p-0.5 mr-0.5 rounded-full text-on-surface-variant hover:bg-surface-tint hover:text-on-surface"
-          type="button"
-          @click="emit('unpin', item)"
+          <span class="truncate">{{ item.title || 'Untitled' }}</span>
+        </Button.Root>
+
+        <AppTooltip
+          as="span"
+          class="inline-flex"
+          :open-delay="200"
+          position-area="top"
+          text="Unpin"
         >
-          <AppIcon icon="close" :size="12" />
-        </button>
+          <Button.Root
+            aria-label="Unpin"
+            class="shrink-0 p-0.5 mr-0.5 inline-flex items-center justify-center rounded-full border-0 bg-transparent text-on-surface-variant hover:bg-surface-tint hover:text-on-surface cursor-pointer"
+            @click.stop="emit('unpin', item)"
+          >
+            <AppIcon icon="close" :size="12" />
+          </Button.Root>
+        </AppTooltip>
       </span>
     </div>
 
@@ -100,48 +121,24 @@
       </p>
     </div>
 
-    <div v-else class="p-2">
-      <button
-        v-for="item in items"
-        :key="item.id"
-        class="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left rounded-md hover:bg-surface-tint transition-colors"
-        type="button"
-        @click="emit('open', item)"
-      >
-        <span class="text-sm text-on-surface truncate">{{ item.title || 'Untitled' }}</span>
+    <div
+      v-else
+      ref="element"
+      class="flex-1 min-h-0 overflow-y-auto p-2"
+      @scroll="scroll"
+    >
+      <div :style="{ height: `${offset}px` }" />
 
-        <span class="flex items-center gap-2 shrink-0">
-          <span
-            :aria-label="[
-              visibilityLabel(item),
-              item.favorite ? 'Favorite' : null,
-              item.locked ? 'Locked' : null,
-            ].filter(Boolean).join(', ')"
-            class="inline-flex items-center gap-1 text-on-surface-variant"
-          >
-            <AppIcon
-              v-if="item.favorite"
-              icon="star"
-              :size="14"
-            />
+      <PlaygroundOpenSavedRow
+        v-for="entry in virtualItems"
+        :key="entry.raw.id"
+        :item="entry.raw"
+        @open="emit('open', $event)"
+        @remove="emit('remove', $event)"
+        @update="emit('update', $event)"
+      />
 
-            <AppIcon
-              v-if="item.locked"
-              icon="lock"
-              :size="14"
-            />
-
-            <AppIcon
-              :icon="visibilityIcon(item)"
-              :size="14"
-            />
-          </span>
-
-          <span class="text-xs text-on-surface-variant">
-            {{ formatDate(item.updatedAt || item.createdAt) }}
-          </span>
-        </span>
-      </button>
+      <div :style="{ height: `${size}px` }" />
     </div>
   </div>
 </template>
