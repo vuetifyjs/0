@@ -6,7 +6,9 @@
 
 A focused **docs-primitives library**: Vue 3 components that documentation sites need
 (live examples, callouts, code groups, API tables, atomic primitives). Headless on the
-parts that vary across consumers — code highlighting and icons are slot-injected.
+parts that vary across consumers — code highlighting is slot-injected. Icons are
+slot-overridable; unused slot defaults resolve through an optional host
+`GnIconsContext` (`provideGnIcons`), else a component-local inline SVG.
 
 Genesis is a **thin component layer over v0's theme system**. Components consume
 `var(--v0-*)` tokens directly so they inherit whatever theme v0 has applied to the page.
@@ -26,7 +28,8 @@ packages/genesis/
 ├── package.json          # name: @paper/genesis ; deps: @vuetify/v0 only
 ├── SPEC.md               # this document
 ├── src/
-│   ├── index.ts          # re-exports components
+│   ├── index.ts          # re-exports components + provideGnIcons
+│   ├── icons.ts          # optional host renderer (createContext, not a plugin)
 │   └── components/
 │       ├── index.ts
 │       ├── GnActionButton/
@@ -37,7 +40,9 @@ packages/genesis/
 │       └── GnPeek/
 ```
 
-No `GnDocsIcon`, no `adapter.ts`, no `plugin.ts`, no `theme.ts`. Genesis is just components.
+No public icon component (`GnDocsIcon` / `GnIcon` is `@internal` chrome, not barreled),
+no `adapter.ts`, no `plugin.ts`, no `theme.ts`. `src/icons.ts` is the kit's one
+sanctioned context: optional inject, `null` when absent — not a plugin.
 
 ## Theme inheritance
 
@@ -168,7 +173,8 @@ interface GnActionButtonProps {
 }
 ```
 
-The icon goes in the default slot, rendered inside `Button.Icon`.
+The icon goes in the default slot, rendered inside `Button.Icon`. `GnActionButton`
+has no genesis icon role and no default glyph — the consumer supplies the artwork.
 
 ### `GnDotGrid` — decorative backdrop
 
@@ -221,31 +227,52 @@ interface GnDocsCalloutProps {
 
 | Slot | Exposes | Default |
 |---|---|---|
-| `icon` | `{ type }` | inline MDI SVG per type |
+| `icon` | `{ type }` | `GnIcon` for `callout-{type}` (host renderer, else local MDI path) |
 | `title` | `{ type }` | English title for the type (`Tip`, `Note`, …) |
 | default | — | callout body |
 
 ## Icon strategy
 
-Action buttons expose icon slots with inline `<svg>` defaults using MDI paths.
+Precedence, highest first:
 
-| Component | Slots | Default icon |
-|---|---|---|
-| `GnDocsExample` | `reset-icon` (single-file mode reset button), `toggle-icon` (show/hide-code button) | refresh / chevron-down |
-| `GnDocsExampleTabs` | `reset-icon`, `playground-icon`, `bin-icon`, `combine-icon`, `split-icon` | refresh / play / open-in-new / unfold-less / unfold-more |
-| `GnPeek` | `icon` (chevron, rotates when expanded) | chevron-down |
-| `GnDocsBadge` | `icon` | none — no generic badge icon to default to |
-| `GnDocsCallout` | `icon` (per-type glyph) | MDI path per type |
+1. Named icon slot (one-off override).
+2. Optional host `GnIconsContext.render(role)` from `provideGnIcons`.
+3. Component-local inline SVG (`d` kept next to the component that owns it — no
+   package-wide fallback map).
 
-```vue
-<GnDocsExampleTabs>
-  <template #reset-icon><MyIcon name="refresh" /></template>
-  <template #combine-icon><MyIcon name="merge" /></template>
-</GnDocsExampleTabs>
+Roles name genesis **chrome needs** (`callout-tip`, `example-reset`, `peek`), not
+glyphs. The host maps those onto its own icon set (`AppIcon`, `EmIcon`, …).
+`render` may return `null` to fall through to the local SVG (unknown role,
+version skew). `GnIcon` is internal; the public surface is `provideGnIcons` and
+`GnIconRole`.
+
+```ts
+import { provideGnIcons, type GnIconRole } from '@paper/genesis'
+import { h } from 'vue'
+
+const toApp = {
+  'callout-tip': 'lightbulb',
+  // …every GnIconRole
+} satisfies Record<GnIconRole, string>
+
+provideGnIcons({
+  render: (role, { size = 16 } = {}) => h(AppIcon, { icon: toApp[role], size }),
+}, app)
 ```
 
-Zero-config works for slots that ship a default; `GnDocsBadge`'s `icon` slot does not.
-Consumer can override per slot.
+| Component | Slots | Role(s) |
+|---|---|---|
+| `GnDocsExample` | `reset-icon`, `toggle-icon` | `example-reset`, `example-toggle` |
+| `GnDocsExampleTabs` | `reset-icon`, `playground-icon`, `bin-icon`, `combine-icon`, `split-icon` | `example-reset`, `example-playground`, `example-bin`, `example-combine`, `example-split` |
+| `GnPeek` | `icon` (wrapper rotates when expanded) | `peek` |
+| `GnDocsCallout` | `icon` | `callout-tip` / `note` / `warning` / `caution` / `important` |
+| `GnDocsBadge` | `icon` | — (no role, no default glyph) |
+| `GnActionButton` | default slot is the icon | — (no role, no default glyph) |
+
+Named slots remain the one-off escape hatch. Install `provideGnIcons` together
+with deleting routine host slot-fills, or not at all — a provider nothing reads
+is a third unused icon path. `GnDocsBadge`'s `icon` slot has no default — host
+must fill it or the badge is text-only.
 
 ## Code highlighting
 
@@ -271,7 +298,8 @@ integration.
   (`showPlayground` / `showBin`) and emits `playground` / `bin` with the current files;
   navigation stays a docs-site concern
 - Bundled Shiki — slot consumption only
-- Icon library — slot defaults with inline SVG
+- Icon library / genesis-owned glyph registry / `createGenesisIconsPlugin` —
+  host provides a renderer; components keep local SVG fallbacks. Named slots still win
 - Paper composables / V0Paper — not used
 - General-purpose buttons / forms / dialogs — out of scope (`GnActionButton` is docs-toolbar
   chrome wrapping v0's Button)

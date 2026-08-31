@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { GnDocsCallout, type GnDocsCalloutType } from '@paper/genesis'
+  import { GnDocsCallout } from '@paper/genesis'
 
   // Framework
   import { useBreakpoints } from '@vuetify/v0'
@@ -16,7 +16,7 @@
   import { useTips } from '@/composables/useTips'
 
   // Config
-  import { type CalloutType, getCalloutConfig } from './calloutConfig'
+  import { type CalloutType, getCalloutConfig, isAdmonition } from './calloutConfig'
 
   // Stores
   import { useSkillzStore } from '@/stores/skillz'
@@ -181,13 +181,9 @@
   </div>
 
   <GnDocsCallout
-    v-else-if="!suppress"
-    :type="(props.type as GnDocsCalloutType)"
+    v-else-if="!suppress && isAdmonition(props.type)"
+    :type="props.type"
   >
-    <template #icon>
-      <AppIcon :icon="config.icon" :size="18" />
-    </template>
-
     <template v-if="props.type === 'tip' && randomTip">
       <div class="docs-alert-content" v-html="randomTip.bodyHtml" />
 
