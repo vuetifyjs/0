@@ -8,7 +8,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 
 // Types
-import type { InputRootSlotProps } from './index'
+import type { InputControlSlotProps, InputRootSlotProps } from './index'
 import type { VueWrapper } from '@vue/test-utils'
 
 interface MountResult {
@@ -22,6 +22,7 @@ function mountInput (options: {
   model?: ReturnType<typeof ref<string>>
   withDescription?: boolean
   withError?: boolean
+  controlAttrs?: Record<string, unknown>
 } = {}): MountResult {
   let capturedProps: any
 
@@ -39,7 +40,7 @@ function mountInput (options: {
       default: (props: any) => {
         capturedProps = props
         const children = [
-          h(Input.Control as any),
+          h(Input.Control as any, options.controlAttrs),
         ]
         if (options.withDescription !== false) {
           children.push(h(Input.Description as any, {}, () => 'Help text'))
@@ -791,6 +792,92 @@ describe('input', () => {
       await wait()
 
       expect(props().isValid).toBeNull()
+    })
+  })
+
+  describe('control fallthrough attrs', () => {
+    it('should apply Control readonly when Root leaves it unset', () => {
+      const { wrapper } = mountInput({ controlAttrs: { readonly: true } })
+
+      expect(wrapper.find('input').attributes('readonly')).toBeDefined()
+    })
+
+    it('should apply Control disabled when Root leaves it unset', () => {
+      const { wrapper } = mountInput({ controlAttrs: { disabled: true } })
+
+      expect(wrapper.find('input').attributes('disabled')).toBeDefined()
+    })
+
+    it('should apply Control required when Root leaves it unset', () => {
+      const { wrapper } = mountInput({ controlAttrs: { required: true } })
+
+      expect(wrapper.find('input').attributes('required')).toBeDefined()
+    })
+
+    it('should apply Control name when Root leaves it unset', () => {
+      const { wrapper } = mountInput({ controlAttrs: { name: 'email' } })
+
+      expect(wrapper.find('input').attributes('name')).toBe('email')
+    })
+
+    it('should apply Control form when Root leaves it unset', () => {
+      const { wrapper } = mountInput({ controlAttrs: { form: 'signup' } })
+
+      expect(wrapper.find('input').attributes('form')).toBe('signup')
+    })
+
+    it('should keep Root readonly when Control also sets readonly', () => {
+      const { wrapper } = mountInput({
+        props: { readonly: true },
+        controlAttrs: { readonly: true },
+      })
+
+      expect(wrapper.find('input').attributes('readonly')).toBeDefined()
+    })
+
+    it('should keep Root readonly when Control omits readonly', () => {
+      const { wrapper } = mountInput({ props: { readonly: true } })
+
+      expect(wrapper.find('input').attributes('readonly')).toBeDefined()
+    })
+
+    it('should not set readonly when Root and Control leave it unset', () => {
+      const { wrapper } = mountInput()
+
+      expect(wrapper.find('input').attributes('readonly')).toBeUndefined()
+    })
+
+    it('should keep empty value on the native input', () => {
+      const { wrapper } = mountInput()
+      const input = wrapper.find('input').element as HTMLInputElement
+
+      expect(input.value).toBe('')
+    })
+
+    it('should keep empty value in control attrs', () => {
+      let captured: InputControlSlotProps | undefined
+
+      mount(Input.Root, {
+        slots: {
+          default: () => h(Input.Control as any, { renderless: true }, {
+            default: (p: InputControlSlotProps) => {
+              captured = p
+            },
+          }),
+        },
+      })
+
+      expect(captured?.attrs.value).toBe('')
+      expect(Object.hasOwn(captured!.attrs, 'value')).toBe(true)
+    })
+
+    it('should keep Root type when Control sets a different type', () => {
+      const { wrapper } = mountInput({
+        props: { type: 'password' },
+        controlAttrs: { type: 'email' },
+      })
+
+      expect(wrapper.find('input').attributes('type')).toBe('password')
     })
   })
 
