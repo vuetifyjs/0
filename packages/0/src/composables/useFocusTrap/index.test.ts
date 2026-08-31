@@ -170,17 +170,17 @@ describe('useFocusTrap', () => {
     })
   })
 
-  describe('reactive active option', () => {
-    it('should activate when active is already true', async () => {
-      useFocusTrap(root, { active: true })
+  describe('reactive present option', () => {
+    it('should activate when present is already true', async () => {
+      useFocusTrap(root, { present: true })
       await nextTick()
 
       expect(document.activeElement).toBe(first)
     })
 
-    it('should activate and deactivate as active flips', async () => {
+    it('should activate and deactivate as present flips', async () => {
       const isOpen = shallowRef(false)
-      const trap = useFocusTrap(root, { active: isOpen })
+      const trap = useFocusTrap(root, { present: isOpen })
 
       isOpen.value = true
       await nextTick()
@@ -193,9 +193,9 @@ describe('useFocusTrap', () => {
       expect(document.activeElement).toBe(trigger)
     })
 
-    it('should stay deactivated after deactivate while active still reads true', async () => {
+    it('should stay deactivated after deactivate while present still reads true', async () => {
       const isOpen = shallowRef(true)
-      const trap = useFocusTrap(root, { active: isOpen })
+      const trap = useFocusTrap(root, { present: isOpen })
       await nextTick()
 
       trap.deactivate()
@@ -207,7 +207,7 @@ describe('useFocusTrap', () => {
 
     it('should re-activate on the next false to true transition', async () => {
       const isOpen = shallowRef(true)
-      const trap = useFocusTrap(root, { active: isOpen })
+      const trap = useFocusTrap(root, { present: isOpen })
       await nextTick()
 
       trap.deactivate()
@@ -219,7 +219,7 @@ describe('useFocusTrap', () => {
       expect(trap.isActive.value).toBe(true)
     })
 
-    it('should stay inert with no active option until activate is called', async () => {
+    it('should stay inert with no present option until activate is called', async () => {
       const trap = useFocusTrap(root)
       await nextTick()
 
@@ -230,7 +230,7 @@ describe('useFocusTrap', () => {
 
   describe('tab containment', () => {
     beforeEach(async () => {
-      useFocusTrap(root, { active: true })
+      useFocusTrap(root, { present: true })
       await nextTick()
     })
 
@@ -343,7 +343,7 @@ describe('useFocusTrap', () => {
 
   describe('escaped focus recovery', () => {
     beforeEach(async () => {
-      useFocusTrap(root, { active: true })
+      useFocusTrap(root, { present: true })
       await nextTick()
     })
 
@@ -383,7 +383,7 @@ describe('useFocusTrap', () => {
   describe('tabbable filtering', () => {
     async function trapWith (inner: string) {
       root.innerHTML = inner
-      useFocusTrap(root, { active: true })
+      useFocusTrap(root, { present: true })
       await nextTick()
       return [...root.querySelectorAll<HTMLElement>('[data-id]')]
     }
@@ -508,7 +508,7 @@ describe('useFocusTrap', () => {
       hidden!.checkVisibility = () => false
       visible!.checkVisibility = () => true
 
-      useFocusTrap(root, { active: true })
+      useFocusTrap(root, { present: true })
       await nextTick()
 
       expect(document.activeElement).toBe(visible)
@@ -547,7 +547,7 @@ describe('useFocusTrap', () => {
 
     async function trapWith (inner: string) {
       root.innerHTML = inner
-      useFocusTrap(root, { active: true })
+      useFocusTrap(root, { present: true })
       await nextTick()
       return (id: string) => root.querySelector<HTMLElement>(`[data-id="${id}"]`)!
     }
@@ -702,7 +702,7 @@ describe('useFocusTrap', () => {
   describe('escape', () => {
     it('should invoke onEscape while active and owning focus', async () => {
       const onEscape = vi.fn()
-      useFocusTrap(root, { active: true, onEscape })
+      useFocusTrap(root, { present: true, onEscape })
       await nextTick()
 
       press('Escape')
@@ -712,7 +712,7 @@ describe('useFocusTrap', () => {
 
     it('should not preventDefault or deactivate on its own', async () => {
       const onEscape = vi.fn()
-      const trap = useFocusTrap(root, { active: true, onEscape })
+      const trap = useFocusTrap(root, { present: true, onEscape })
       await nextTick()
 
       const event = press('Escape')
@@ -726,7 +726,7 @@ describe('useFocusTrap', () => {
       container.append(elsewhere)
 
       const onEscape = vi.fn()
-      useFocusTrap(root, { active: true, onEscape })
+      useFocusTrap(root, { present: true, onEscape })
       await nextTick()
 
       elsewhere.focus()
@@ -770,7 +770,7 @@ describe('useFocusTrap', () => {
     })
 
     it('should stop intercepting Tab once the root is removed while active', async () => {
-      useFocusTrap(root, { active: true })
+      useFocusTrap(root, { present: true })
       await nextTick()
 
       root.remove()
@@ -779,7 +779,7 @@ describe('useFocusTrap', () => {
     })
 
     it('should still restore focus after the root is removed while active', async () => {
-      const trap = useFocusTrap(root, { active: true })
+      const trap = useFocusTrap(root, { present: true })
       await nextTick()
 
       root.remove()
@@ -797,7 +797,7 @@ describe('useFocusTrap', () => {
       const inner = button('inner')
       shadow.append(inner)
 
-      useFocusTrap(root, { active: true })
+      useFocusTrap(root, { present: true })
       await nextTick()
 
       inner.focus()
@@ -808,7 +808,7 @@ describe('useFocusTrap', () => {
 
   describe('manual binding', () => {
     it('should expose onKeydown for a consumer-owned listener', async () => {
-      const trap = useFocusTrap(root, { active: true, listen: false })
+      const trap = useFocusTrap(root, { present: true, listen: false })
       await nextTick()
       last.focus()
 
@@ -820,7 +820,7 @@ describe('useFocusTrap', () => {
     })
 
     it('should not intercept Tab on document when listen is false', async () => {
-      useFocusTrap(root, { active: true, listen: false })
+      useFocusTrap(root, { present: true, listen: false })
       await nextTick()
       last.focus()
 
@@ -831,7 +831,7 @@ describe('useFocusTrap', () => {
   describe('scope lifecycle', () => {
     it('should restore focus when the owning scope stops while active', async () => {
       const scope = effectScope()
-      const trap = scope.run(() => createFocusTrap(root, { active: true }))!
+      const trap = scope.run(() => createFocusTrap(root, { present: true }))!
       await nextTick()
       expect(trap.isActive.value).toBe(true)
 
@@ -842,7 +842,7 @@ describe('useFocusTrap', () => {
 
     it('should stop intercepting Tab after the scope stops', async () => {
       const scope = effectScope()
-      scope.run(() => createFocusTrap(root, { active: true }))
+      scope.run(() => createFocusTrap(root, { present: true }))
       await nextTick()
 
       scope.stop()
@@ -854,7 +854,7 @@ describe('useFocusTrap', () => {
 
   describe('initial focus fallback', () => {
     it('should fall back to the first tabbable when initialFocus is detached', async () => {
-      useFocusTrap(root, { active: true, initialFocus: button('orphan') })
+      useFocusTrap(root, { present: true, initialFocus: button('orphan') })
       await nextTick()
 
       expect(document.activeElement).toBe(first)
@@ -867,21 +867,21 @@ describe('useFocusTrap', () => {
       root.append(plain)
       Object.defineProperty(plain, 'focus', { value: () => {} })
 
-      useFocusTrap(root, { active: true, initialFocus: plain })
+      useFocusTrap(root, { present: true, initialFocus: plain })
       await nextTick()
 
       expect(document.activeElement).toBe(first)
     })
 
     it('should accept initialFocus as a ref', async () => {
-      useFocusTrap(root, { active: true, initialFocus: shallowRef(last) })
+      useFocusTrap(root, { present: true, initialFocus: shallowRef(last) })
       await nextTick()
 
       expect(document.activeElement).toBe(last)
     })
 
     it('should accept initialFocus as a getter', async () => {
-      useFocusTrap(root, { active: true, initialFocus: () => last })
+      useFocusTrap(root, { present: true, initialFocus: () => last })
       await nextTick()
 
       expect(document.activeElement).toBe(last)
@@ -895,7 +895,7 @@ describe('useFocusTrap', () => {
     it('should focus into a replacement root while active', async () => {
       const target = shallowRef<HTMLElement>(root)
 
-      useFocusTrap(target, { active: true })
+      useFocusTrap(target, { present: true })
       await nextTick()
       expect(document.activeElement).toBe(first)
 
@@ -915,7 +915,7 @@ describe('useFocusTrap', () => {
     it('should not re-steal focus while the root is unchanged', async () => {
       const target = shallowRef<HTMLElement>(root)
 
-      useFocusTrap(target, { active: true })
+      useFocusTrap(target, { present: true })
       await nextTick()
 
       last.focus()
@@ -937,8 +937,8 @@ describe('useFocusTrap', () => {
       root.append(inner)
       last.remove()
 
-      useFocusTrap(root, { active: true })
-      useFocusTrap(inner, { active: true })
+      useFocusTrap(root, { present: true })
+      useFocusTrap(inner, { present: true })
       await nextTick()
 
       i2.focus()
@@ -958,8 +958,8 @@ describe('useFocusTrap', () => {
       const outerEscape = vi.fn()
       const innerEscape = vi.fn()
 
-      useFocusTrap(root, { active: true, onEscape: outerEscape })
-      useFocusTrap(inner, { active: true, onEscape: innerEscape })
+      useFocusTrap(root, { present: true, onEscape: outerEscape })
+      useFocusTrap(inner, { present: true, onEscape: innerEscape })
       await nextTick()
       i1.focus()
       press('Escape')
@@ -972,7 +972,7 @@ describe('useFocusTrap', () => {
   // eslint-disable-next-line vitest/prefer-lowercase-title
   describe('SSR safety', () => {
     it('should expose a valid API and never throw', async () => {
-      const trap = useFocusTrap(root, { active: true })
+      const trap = useFocusTrap(root, { present: true })
       await nextTick()
 
       expect(trap).toHaveProperty('isActive')

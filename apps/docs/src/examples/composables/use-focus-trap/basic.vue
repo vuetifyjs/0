@@ -6,65 +6,62 @@
   const panel = useTemplateRef<HTMLElement>('panel')
 
   useFocusTrap(panel, {
-    active: isOpen,
-    onEscape: () => {
+    present: isOpen,
+    onEscape: event => {
+      event.preventDefault()
       isOpen.value = false
     },
   })
 </script>
 
 <template>
-  <div class="relative">
+  <div class="flex flex-col gap-3">
     <Button.Root
-      class="px-4 py-2 bg-primary text-on-primary rounded"
+      class="self-start px-4 py-2 bg-primary text-on-primary rounded"
       @click="isOpen = true"
     >
       Open panel
     </Button.Root>
 
-    <p class="mt-2 text-sm text-on-surface-variant">
-      Tab past the last button — focus wraps back to the first instead of
-      reaching this page. Escape or Cancel closes the panel and returns focus
-      to the trigger.
+    <p class="text-sm text-on-surface-variant">
+      {{ isOpen
+        ? 'Tab from Confirm wraps to First stop. Escape or Cancel returns to Open panel.'
+        : 'Open the panel, then Tab — focus stays inside until you close it.' }}
     </p>
 
     <div
       v-if="isOpen"
-      class="mt-4 p-4 border border-divider rounded bg-surface"
+      ref="panel"
+      aria-label="Trapped panel"
+      aria-modal="true"
+      class="flex flex-col gap-3 p-4 border-2 border-primary rounded bg-surface"
+      role="dialog"
+      tabindex="-1"
     >
-      <div
-        ref="panel"
-        aria-label="Trapped panel"
-        aria-modal="true"
-        class="flex flex-col gap-3"
-        role="dialog"
-        tabindex="-1"
+      <input
+        class="px-3 py-2 border border-divider rounded bg-surface"
+        placeholder="First stop"
       >
-        <input
-          class="px-3 py-2 border border-divider rounded bg-surface"
-          placeholder="First stop"
+
+      <input
+        class="px-3 py-2 border border-divider rounded bg-surface"
+        placeholder="Second stop"
+      >
+
+      <div class="flex gap-2">
+        <Button.Root
+          class="px-3 py-2 bg-surface-tint rounded"
+          @click="isOpen = false"
         >
+          Cancel
+        </Button.Root>
 
-        <input
-          class="px-3 py-2 border border-divider rounded bg-surface"
-          placeholder="Second stop"
+        <Button.Root
+          class="px-3 py-2 bg-primary text-on-primary rounded"
+          @click="isOpen = false"
         >
-
-        <div class="flex gap-2">
-          <Button.Root
-            class="px-3 py-2 bg-surface-tint rounded"
-            @click="isOpen = false"
-          >
-            Cancel
-          </Button.Root>
-
-          <Button.Root
-            class="px-3 py-2 bg-primary text-on-primary rounded"
-            @click="isOpen = false"
-          >
-            Confirm
-          </Button.Root>
-        </div>
+          Confirm
+        </Button.Root>
       </div>
     </div>
   </div>

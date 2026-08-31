@@ -9,7 +9,7 @@ A `<dialog>` opened with `showModal()` is trapped by the browser. Anything else 
 ```ts
 const panel = useTemplateRef<HTMLElement>('panel')
 
-useFocusTrap(panel, { active: isOpen })
+useFocusTrap(panel, { present: isOpen })
 ```
 
 Tab and Shift+Tab wrap at the first and last tabbable descendant, focus moves into the root on activate, and the previously focused element gets it back on deactivate. Pass `initialFocus` to choose where focus lands (or `false` to skip autofocus), `returnFocus: false` to leave focus alone on release, and `onEscape` to opt into Escape handling — the trap never closes anything itself. Nested traps resolve inward-first: only the last activated trap handles Tab and Escape.

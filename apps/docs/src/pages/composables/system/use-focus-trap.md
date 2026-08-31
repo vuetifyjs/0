@@ -36,7 +36,7 @@ A native `<dialog>` opened with `showModal()` is trapped by the browser, so it n
   const isOpen = shallowRef(false)
   const panel = useTemplateRef<HTMLElement>('panel')
 
-  useFocusTrap(panel, { active: isOpen })
+  useFocusTrap(panel, { present: isOpen })
 </script>
 
 <template>
@@ -70,7 +70,7 @@ Only the boundaries are intercepted. A Tab press in the middle of the list passe
 
 | Option | Type | Default | Description |
 | - | - | - | - |
-| `active` | `MaybeRefOrGetter<boolean>` | `undefined` | Reactive activation source. Omit it to drive the trap imperatively |
+| `present` | `MaybeRefOrGetter<boolean>` | `undefined` | Reactive activation source. Omit it to drive the trap imperatively |
 | `initialFocus` | `false \| MaybeElementRef` | `undefined` | Where focus lands on activate. `false` skips autofocus; an element focuses that node instead of the first tabbable one |
 | `returnFocus` | `boolean` | `true` | Return focus to the previously focused element on deactivate |
 | `listen` | `boolean` | `true` | Bind the capture-phase document listener. Set `false` to drive `onKeydown` yourself |
@@ -82,14 +82,14 @@ import { useFocusTrap } from '@vuetify/v0'
 const cancel = useTemplateRef<HTMLElement>('cancel')
 
 // Destructive dialogs should land on the safe action
-useFocusTrap(panel, { active: isOpen, initialFocus: cancel })
+useFocusTrap(panel, { present: isOpen, initialFocus: cancel })
 ```
 
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
 | - | :-: | - |
-| `isActive` | <AppSuccessIcon /> | ShallowRef, readonly. The trap's state — `active` is only its source |
+| `isActive` | <AppSuccessIcon /> | ShallowRef, readonly. The trap's state — `present` is only its source |
 | `activate()` | - | Captures the return-focus target and engages containment |
 | `deactivate()` | - | Releases containment and returns focus |
 | `onKeydown()` | - | The handler. Bound on `document` unless `listen` is `false` |
@@ -122,7 +122,7 @@ const stack = useStack()
 const ticket = stack.register({ onDismiss: () => (isOpen.value = false) })
 
 useFocusTrap(panel, {
-  active: isOpen,
+  present: isOpen,
   onEscape: event => {
     if (!ticket.globalTop.value) return
     event.preventDefault()
@@ -141,7 +141,7 @@ A widget that sits *at* a boundary cannot opt out, though. The trap listens on `
 - **Own the listener.** Pass `listen: false` and call `onKeydown` yourself — otherwise the document capture listener has already wrapped.
 
 ```ts
-const trap = useFocusTrap(panel, { active: isOpen, listen: false })
+const trap = useFocusTrap(panel, { present: isOpen, listen: false })
 
 function onPanelKeydown (event: KeyboardEvent) {
   if (editorHasFocus.value && event.key === 'Tab') return
@@ -183,7 +183,7 @@ The root has no tabbable descendants and no `tabindex`. The trap falls back to f
 
 ??? I called `deactivate()` but the trap will not reopen.
 
-`active` is a *source*, `isActive` is the state. The source's transitions drive the trap; an imperative call writes the state directly and never writes back. So `deactivate()` while `active` still reads `true` stays deactivated until `active` next goes false then true. Drive it from one side or the other, not both.
+`present` is a *source*, `isActive` is the state. The source's transitions drive the trap; an imperative call writes the state directly and never writes back. So `deactivate()` while `present` still reads `true` stays deactivated until `present` next goes false then true. Drive it from one side or the other, not both.
 
 ??? Focus escapes past a control inside a custom element.
 

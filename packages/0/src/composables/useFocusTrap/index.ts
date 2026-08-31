@@ -17,7 +17,7 @@
  * - A radio group counts as one tab stop, the way the browser counts it
  * - Nested traps resolve inward-first: only the top (last activated) trap
  *   handles Tab and Escape
- * - Reactive `active` option plus imperative `activate()` / `deactivate()`
+ * - Reactive `present` option plus imperative `activate()` / `deactivate()`
  * - Optional `onEscape` callback; the trap itself never closes anything
  * - `listen: false` skips the document listener so a consumer-owned handler
  *   can call `onKeydown` itself
@@ -45,7 +45,7 @@
  * const isOpen = shallowRef(false)
  * const panel = useTemplateRef<HTMLElement>('panel')
  *
- * useFocusTrap(panel, { active: isOpen })
+ * useFocusTrap(panel, { present: isOpen })
  * ```
  */
 
@@ -116,10 +116,10 @@ export interface UseFocusTrapOptions {
    *
    * @example
    * ```ts
-   * useFocusTrap(panel, { active: () => dialog.isOpen.value })
+   * useFocusTrap(panel, { present: () => dialog.isOpen.value })
    * ```
    */
-  active?: MaybeRefOrGetter<boolean>
+  present?: MaybeRefOrGetter<boolean>
   /**
    * Where focus lands when the trap engages.
    *
@@ -163,7 +163,7 @@ export interface UseFocusTrapOptions {
    *
    * @example
    * ```ts
-   * const trap = useFocusTrap(panel, { active: isOpen, listen: false })
+   * const trap = useFocusTrap(panel, { present: isOpen, listen: false })
    *
    * function onPanelKeydown (event: KeyboardEvent) {
    *   if (editorHasFocus.value && event.key === 'Tab') return
@@ -186,7 +186,7 @@ export interface UseFocusTrapOptions {
    * const ticket = stack.register({ onDismiss: () => (isOpen.value = false) })
    *
    * useFocusTrap(panel, {
-   *   active: isOpen,
+   *   present: isOpen,
    *   onEscape: event => {
    *     if (!ticket.globalTop.value) return
    *     event.preventDefault()
@@ -211,7 +211,7 @@ export interface UseFocusTrapReturn {
    * @remarks
    * The document listener binds on the next flush, so a Tab dispatched
    * synchronously in the same tick as this call is not yet intercepted. Awaiting
-   * a tick — or letting Vue drive the trap through `options.active` — avoids it.
+   * a tick — or letting Vue drive the trap through `options.present` — avoids it.
    */
   activate: () => void
   /**
@@ -224,7 +224,7 @@ export interface UseFocusTrapReturn {
    *
    * @example
    * ```ts
-   * const trap = useFocusTrap(panel, { active: isOpen, listen: false })
+   * const trap = useFocusTrap(panel, { present: isOpen, listen: false })
    *
    * function onPanelKeydown (event: KeyboardEvent) {
    *   trap.onKeydown(event)
@@ -253,11 +253,11 @@ export interface UseFocusTrapReturn {
  * through untouched, so an inner widget keeps full control of its own Tab
  * handling everywhere except the first and last stop.
  *
- * **Precedence.** `options.active` is a source; `isActive` is the state. The
+ * **Precedence.** `options.present` is a source; `isActive` is the state. The
  * source's transitions call `activate()` / `deactivate()`, while imperative
  * calls write the state directly and never write back to the source. Calling
- * `deactivate()` while the `active` getter still returns `true` therefore stays
- * deactivated until `active` next transitions false → true.
+ * `deactivate()` while the `present` getter still returns `true` therefore stays
+ * deactivated until `present` next transitions false → true.
  *
  * **Ordering.** Candidates are collected in document order. Positive `tabindex`
  * values are not re-sorted into their real tab position — they are an
@@ -285,14 +285,14 @@ export interface UseFocusTrapReturn {
  * const panel = useTemplateRef<HTMLElement>('panel')
  * const isOpen = shallowRef(false)
  *
- * useFocusTrap(panel, { active: isOpen })
+ * useFocusTrap(panel, { present: isOpen })
  * ```
  *
  * @example Component ref (e.g., Atom)
  * ```ts
  * const content = useTemplateRef<AtomExpose>('content')
  *
- * useFocusTrap(() => content.value?.element, { active: () => context.isOpen.value })
+ * useFocusTrap(() => content.value?.element, { present: () => context.isOpen.value })
  * ```
  *
  * @example Imperative activation
@@ -308,13 +308,13 @@ export interface UseFocusTrapReturn {
  * const cancel = useTemplateRef<HTMLElement>('cancel')
  *
  * // Destructive dialogs should land on the safe action
- * useFocusTrap(panel, { active: isOpen, initialFocus: cancel })
+ * useFocusTrap(panel, { present: isOpen, initialFocus: cancel })
  * ```
  *
  * @example Opt-in Escape
  * ```ts
  * useFocusTrap(panel, {
- *   active: isOpen,
+ *   present: isOpen,
  *   onEscape: event => {
  *     event.preventDefault()
  *     isOpen.value = false
@@ -327,7 +327,7 @@ export function useFocusTrap (
   options: UseFocusTrapOptions = {},
 ): UseFocusTrapReturn {
   const {
-    active,
+    present,
     initialFocus,
     returnFocus = true,
     listen = true,
@@ -388,13 +388,19 @@ export function useFocusTrap (
     return contains(el, focused)
   }
 
+  function focus (el: FocusTrapElement) {
+    // Click-to-open is a pointer gesture; a plain `.focus()` then lands without
+    // `:focus-visible` and the ring never paints. Always request it.
+    el.focus({ focusVisible: true })
+  }
+
   function enter (el: FocusTrapElement) {
     if (initialFocus === false) return
 
     const explicit = toElement(initialFocus)
 
     if (isFocusTrapElement(explicit) && explicit.isConnected) {
-      explicit.focus()
+      focus(explicit)
 
       // `focus()` on a non-focusable node (a plain `<div>` with no `tabindex`)
       // is a silent no-op, which would leave focus outside the trap with nothing
@@ -404,7 +410,7 @@ export function useFocusTrap (
 
     // No tabbable descendants — hold focus on the root, which only lands if the
     // consumer rendered `tabindex="-1"` on it.
-    ;(edges(el)[0] ?? el).focus()
+    focus(edges(el)[0] ?? el)
   }
 
   function activate () {
@@ -441,7 +447,7 @@ export function useFocusTrap (
     if (!isUndefined(current) && !owns(current)) return
 
     if (!isNull(el) && el.isConnected) {
-      el.focus()
+      focus(el)
       return
     }
 
@@ -494,7 +500,7 @@ export function useFocusTrap (
     // at the edge the keypress was heading toward.
     if (isNull(focused) || !contains(el, focused)) {
       event.preventDefault()
-      ;((event.shiftKey ? last : first) ?? el).focus()
+      focus((event.shiftKey ? last : first) ?? el)
       return
     }
 
@@ -502,7 +508,7 @@ export function useFocusTrap (
     // root.focus() only lands if the consumer gave the root a tabindex.
     if (isUndefined(first) || isUndefined(last)) {
       event.preventDefault()
-      el.focus()
+      focus(el)
       return
     }
 
@@ -514,10 +520,10 @@ export function useFocusTrap (
     // falls out of this for free, since it precedes every descendant.
     if (event.shiftKey && (focused === first || follows(focused, first))) {
       event.preventDefault()
-      last.focus()
+      focus(last)
     } else if (!event.shiftKey && (focused === last || follows(last, focused))) {
       event.preventDefault()
-      first.focus()
+      focus(first)
     }
   }
 
@@ -543,10 +549,10 @@ export function useFocusTrap (
     }, { flush: 'post' })
   })
 
-  if (!isUndefined(active)) {
+  if (!isUndefined(present)) {
     // Default (pre) flush: the callback runs before the DOM updates in the same
     // flush, so activate() still sees the trigger mounted and focused.
-    watch(() => toValue(active), value => {
+    watch(() => toValue(present), value => {
       if (value) activate()
       else deactivate()
     }, { immediate: true })

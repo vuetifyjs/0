@@ -40,7 +40,7 @@ async function trap (root: HTMLElement, options: UseFocusTrapOptions = {}) {
 
   onTestFinished(() => scope.stop())
 
-  const instance = scope.run(() => useFocusTrap(root, { active: true, ...options }))!
+  const instance = scope.run(() => useFocusTrap(root, { present: true, ...options }))!
 
   await nextTick()
 
