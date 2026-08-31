@@ -292,6 +292,12 @@
       "category": "system",
       "description": "A composable for handling DOM events with automatic cleanup on component unmount."
     },
+    "useFocusTrap": {
+      "level": "preview",
+      "since": null,
+      "category": "system",
+      "description": "Confines Tab and Shift+Tab to a root element, focuses into it on activate, and restores the previously focused element on deactivate."
+    },
     "useHotkey": {
       "level": "preview",
       "since": "0.1.0",

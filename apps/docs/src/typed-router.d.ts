@@ -745,6 +745,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/system/use-focus-trap': RouteRecordInfo<
+      '/composables/system/use-focus-trap',
+      '/composables/system/use-focus-trap',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/system/use-hotkey': RouteRecordInfo<
       '/composables/system/use-hotkey',
       '/composables/system/use-hotkey',
@@ -2353,6 +2360,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/system/use-event-listener.md': {
       routes:
         | '/composables/system/use-event-listener'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/composables/system/use-focus-trap.md': {
+      routes:
+        | '/composables/system/use-focus-trap'
       views:
         | never
       pathParamNames:

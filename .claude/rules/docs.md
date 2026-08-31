@@ -416,7 +416,7 @@ Ask: **"What must the reader already know to use this page?"**
 | `registration` | createQueue, createRegistry, createTimeline, createTokens |
 | `selection` | createGroup, createModel, createNested, createSelection, createSingle, createStep |
 | `semantic` | createBreadcrumbs, createOverflow, createProgress |
-| `system` | useClickOutside, useDelay, useEventListener, useHotkey, useImage, useIntersectionObserver, useLazy, useMediaQuery, useMutationObserver, usePopover, usePresence, useRaf, useResizeObserver, useRovingFocus, useTimer, useToggleScope, useVirtualFocus |
+| `system` | useClickOutside, useDelay, useEventListener, useFocusTrap, useHotkey, useImage, useIntersectionObserver, useLazy, useMediaQuery, useMutationObserver, usePopover, usePresence, useRaf, useResizeObserver, useRovingFocus, useTimer, useToggleScope, useVirtualFocus |
 | `transformers` | toArray, toElement, toReactive |
 
 ## Auditing
