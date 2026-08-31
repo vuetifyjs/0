@@ -230,7 +230,7 @@ function mergeRanges (a: readonly MatchRange[], b: readonly MatchRange[]): Match
  * // [[0, 2]]
  *
  * findMatchRanges('… Kraków …', 'Kraków', { ignoreAccents: 'query' })
- * // [[4, 10]] — typing the exact accented name always finds itself
+ * // [[2, 8]] — typing the exact accented name always finds itself
  * ```
  */
 /* #__NO_SIDE_EFFECTS__ */
