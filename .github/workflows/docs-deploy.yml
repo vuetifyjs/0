@@ -1,7 +1,7 @@
 name: Docs Deploy
 on:
   push:
-    branches: [master]
+    branches: [master, dev]
     # Single paths list with `!` negations — GitHub does not allow both
     # `paths` and `paths-ignore` on the same event. Order matters: a negation
     # after a positive match wins, so a test-only src commit is excluded.
@@ -23,13 +23,13 @@ on:
       - '!packages/0/src/**/*.ssr.test.ts'
 
 concurrency:
-  group: docs-deploy
+  group: docs-deploy-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: Production
+    environment: ${{ github.ref_name == 'master' && 'Production' || 'Dev' }}
     permissions:
       contents: read
       packages: write
@@ -55,6 +55,8 @@ jobs:
         env:
           VITE_API_SERVER_URL: ${{ vars.API_SERVER_URL }}
           VITE_GITHUB_SHA: ${{ github.sha }}
+          VITE_INDEX: ${{ github.ref_name == 'master' && 'true' || 'false' }}
+          VITE_SITE_URL: ${{ github.ref_name == 'master' && 'https://0.vuetifyjs.com' || 'https://0-dev.vuetifyjs.com' }}
       - uses: vuetifyjs/coolify-action@37a9c5a532f4c489e941d43edffd73fd2af00ec2 # master
         with:
           imageName: v0-docs

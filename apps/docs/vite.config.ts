@@ -1,4 +1,4 @@
-import { readdirSync } from 'node:fs'
+import { readdirSync, writeFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 
 import UnocssVitePlugin from 'unocss/vite'
@@ -27,6 +27,7 @@ import generateTestCountPlugin from './build/generate-test-count'
 import generateTipsPlugin from './build/generate-tips'
 import Markdown from './build/markdown'
 import mdRoutesPlugin from './build/md-routes'
+import { isIndexable, PROD_SITE_URL, robotsTxt } from './build/site'
 import { getSkillzSlugs } from './build/skillz-tours'
 import pkg from './package.json' with { type: 'json' }
 
@@ -78,13 +79,20 @@ export default defineConfig({
       return [...filtered, ...apiRoutes, ...skillzRoutes, '/404']
     },
     async onFinished () {
-      generateSitemap({
-        hostname: 'https://0.vuetifyjs.com',
-        generateRobotsTxt: false,
-        changefreq: 'daily',
-        priority: 0.7,
-        exclude: ['/404'],
-      })
+      const indexable = isIndexable()
+      if (indexable) {
+        generateSitemap({
+          hostname: PROD_SITE_URL,
+          generateRobotsTxt: false,
+          changefreq: 'daily',
+          priority: 0.7,
+          exclude: ['/404'],
+        })
+      }
+      writeFileSync(
+        fileURLToPath(new URL('dist/robots.txt', import.meta.url)),
+        robotsTxt(indexable),
+      )
       await generateOgImages()
     },
   } as ViteSSGOptions,
