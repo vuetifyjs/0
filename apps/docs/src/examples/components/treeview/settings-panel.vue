@@ -53,7 +53,7 @@
 </script>
 
 <template>
-  <div class="settings-panel flex gap-4">
+  <div class="settings-panel flex flex-col gap-4 sm:flex-row">
     <Treeview.Root>
       <Treeview.List class="settings-tree flex-1 text-sm text-on-surface select-none min-w-0">
         <SettingNode
@@ -66,7 +66,7 @@
       </Treeview.List>
     </Treeview.Root>
 
-    <div class="w-48 shrink-0 border-l border-divider pl-4 text-sm">
+    <div class="border-t border-divider pt-4 text-sm sm:w-48 sm:shrink-0 sm:border-t-0 sm:border-l sm:pl-4 sm:pt-0">
       <template v-if="active">
         <p class="font-medium text-on-surface">{{ active.label }}</p>
         <p class="mt-1 text-on-surface-variant text-xs leading-relaxed">{{ active.description }}</p>

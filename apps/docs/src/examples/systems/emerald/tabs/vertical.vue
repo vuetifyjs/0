@@ -44,7 +44,18 @@
     align-items: flex-start;
   }
 
+  .emerald-docs-tabs-row .emerald-tabs__list {
+    flex-shrink: 0;
+  }
+
   .emerald-docs-tabs-row .emerald-tabs__panel {
     min-width: 0;
+  }
+
+  @media (max-width: 599px) {
+    .emerald-docs-tabs-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
   }
 </style>
