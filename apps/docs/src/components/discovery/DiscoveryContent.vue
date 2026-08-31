@@ -216,14 +216,15 @@
 
         // Poll until activator is registered and DOM element exists (with timeout)
         function checkActivator () {
-          if (isUnmounted) return
+          // A stale loop can outlive its step (next/back/exit while polling)
+          if (isUnmounted || !root.isActive.value) return
 
           const activator = discovery.activators.get(root.step)
           if (activator?.element?.value) {
             measure(activator.element.value)
             // Activator found - wait one more frame for anchor-name CSS
             requestAnimationFrame(() => {
-              if (!isUnmounted) isReady.value = true
+              if (!isUnmounted && root.isActive.value) isReady.value = true
             })
           } else if (performance.now() - startTime > TIMEOUT_MS) {
             logger.warn(`[DiscoveryContent] Activator for step "${root.step}" not found after ${TIMEOUT_MS}ms`)
