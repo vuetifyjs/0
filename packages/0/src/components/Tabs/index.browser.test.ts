@@ -2028,5 +2028,75 @@ describe('tabs', () => {
       expect(selected.value).toBe('tab-2')
       expect(document.activeElement).toBe(second)
     })
+
+    it('should leave focus in place on Home when as is null and el is omitted (manual)', async () => {
+      const selected = ref('tab-2')
+      const captured: Record<string, any> = {}
+
+      wrapper = mount(Tabs.Root, {
+        attachTo: document.body,
+        props: {
+          'activation': 'manual',
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            selected.value = v as string
+          },
+        },
+        slots: {
+          default: () => [
+            h(Tabs.Item as any, { as: null, value: 'tab-1' }, {
+              default: (props: any) => h('button', { ...props.attrs, type: 'button' }, 'Tab 1'),
+            }),
+            h(Tabs.Item as any, { as: null, value: 'tab-2' }, {
+              default: (props: any) => {
+                captured.tab2 = props
+                return h('button', { ...props.attrs, type: 'button' }, 'Tab 2')
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const [first, second] = tabs()
+      second!.focus()
+      expect(document.activeElement).toBe(second)
+
+      captured.tab2.attrs.onKeydown(key('Home'))
+      await nextTick()
+
+      expect(selected.value).toBe('tab-2')
+      expect(document.activeElement).toBe(second)
+      expect(document.activeElement).not.toBe(first)
+    })
+
+    it('should no-op focusEdge when every tab is disabled', async () => {
+      const captured: Record<string, any> = {}
+
+      wrapper = mount(Tabs.Root, {
+        attachTo: document.body,
+        props: {
+          activation: 'manual',
+          mandatory: false,
+        },
+        slots: {
+          default: () => [
+            h(Tabs.Item as any, { value: 'tab-1', disabled: true }, {
+              default: (props: any) => {
+                captured.tab1 = props
+                return 'Tab 1'
+              },
+            }),
+            h(Tabs.Item as any, { value: 'tab-2', disabled: true }, () => 'Tab 2'),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      expect(() => captured.tab1.attrs.onKeydown(key('Home'))).not.toThrow()
+      await nextTick()
+    })
   })
 })
