@@ -4,14 +4,14 @@
  * @remarks
  * The "which descendants can Tab reach" rules, shared rather than duplicated.
  *
- * Package-private: deliberately not re-exported from `useFocusTrap/index.ts`,
- * so none of this reaches the public surface. Two consumers today —
- * `useFocusTrap` for containment, and `Treeview/TreeviewList.vue`, which layers
- * its own `aria-disabled` and treeitem-scope filters on top of {@link tabbable}.
+ * Shared by `useFocusTrap` (containment) and `Treeview/TreeviewList.vue`
+ * (roving). Treeview layers its own `aria-disabled` and treeitem-scope filters
+ * on top of {@link tabbable}. `FOCUSABLE`, `tabbable`, and `isFocusTrapElement`
+ * are re-exported from `useFocusTrap/index.ts`; {@link follows} stays local.
  */
 
 // Utilities
-import { isElement, isFunction, isNull } from '#v0/utilities'
+import { isElement, isFunction, isNull, isUndefined } from '#v0/utilities'
 
 /**
  * An element that can hold focus. `focus()` / `blur()` come from the
@@ -131,27 +131,55 @@ function isConcealed (el: Element): boolean {
 }
 
 /**
+ * Sequential-focus checks shared by {@link tabbable} and radio-group ranking.
+ *
+ * Radio grouping is applied on top — a checked-but-disabled radio is not a stop,
+ * and must not veto the rest of the group either.
+ */
+function isTabStop (el: FocusTrapElement): boolean {
+  const tabindex = el.getAttribute('tabindex')
+
+  // Parsed rather than matched: `:not([tabindex="-1"])` misses `-2` and ` -1 `.
+  if (!isNull(tabindex) && Number.parseInt(tabindex, 10) < 0) return false
+
+  if (isDisabled(el)) return false
+  if (!isNull(el.closest('[inert]'))) return false
+  if (!isNull(el.closest('[hidden]'))) return false
+  if (isConcealed(el)) return false
+
+  return isVisible(el)
+}
+
+/**
  * Whether a radio participates in sequential focus navigation.
  *
- * A radio group is *one* tab stop, not one per member: the checked radio, or the
- * first member when none is checked. Treating every member as a stop computes a
- * boundary the browser does not agree with, which is how focus leaks out of a
- * trap that contains a radio group.
+ * A radio group is *one* tab stop, not one per member: the checked radio if it
+ * is otherwise tabbable, otherwise the first otherwise-tabbable member.
+ * Disabled / hidden / inert members are not stops and must not hide the rest
+ * of the group — HTML sequential navigation skips them the same way.
  *
  * Grouping follows the HTML radio button group definition — same `name`, same
  * form owner — so two forms on a page keep independent groups, and an unnamed
  * radio is its own group.
  */
 function isTabbableRadio (el: HTMLInputElement): boolean {
-  if (el.checked) return true
   if (el.name === '') return true
 
   // Scoped to the owning form where there is one; the group cannot span forms.
   const scope: ParentNode = el.form ?? el.ownerDocument
   const members = [...scope.querySelectorAll<HTMLInputElement>('input[type="radio"]')]
-    .filter(member => member.name === el.name && member.form === el.form)
+    .filter(member => (
+      member.name === el.name
+      && member.form === el.form
+      && isFocusTrapElement(member)
+      && isTabStop(member)
+    ))
 
-  return !members.some(member => member.checked) && members[0] === el
+  const checked = members.find(member => member.checked)
+
+  if (!isUndefined(checked)) return checked === el
+
+  return members[0] === el
 }
 
 /**
@@ -197,16 +225,7 @@ function isVisible (el: FocusTrapElement): boolean {
  */
 export function tabbable (el: Element): el is FocusTrapElement {
   if (!isFocusTrapElement(el)) return false
-
-  const tabindex = el.getAttribute('tabindex')
-
-  // Parsed rather than matched: `:not([tabindex="-1"])` misses `-2` and ` -1 `.
-  if (!isNull(tabindex) && Number.parseInt(tabindex, 10) < 0) return false
-
-  if (isDisabled(el)) return false
-  if (!isNull(el.closest('[inert]'))) return false
-  if (!isNull(el.closest('[hidden]'))) return false
-  if (isConcealed(el)) return false
+  if (!isTabStop(el)) return false
 
   // Tag-name rather than `instanceof`: an `<input>` inside an iframe belongs to
   // another realm and would fail the constructor check.
@@ -216,5 +235,5 @@ export function tabbable (el: Element): el is FocusTrapElement {
     if (input.type === 'radio' && !isTabbableRadio(input)) return false
   }
 
-  return isVisible(el)
+  return true
 }

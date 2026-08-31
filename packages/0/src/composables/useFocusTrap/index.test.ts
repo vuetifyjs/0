@@ -110,8 +110,8 @@ describe('useFocusTrap', () => {
       expect(document.activeElement).toBe(root)
     })
 
-    it('should not move focus when initial is false', async () => {
-      const trap = useFocusTrap(root, { initial: false })
+    it('should not move focus when initialFocus is false', async () => {
+      const trap = useFocusTrap(root, { initialFocus: false })
 
       trap.activate()
       await nextTick()
@@ -120,7 +120,7 @@ describe('useFocusTrap', () => {
     })
 
     it('should focus an explicit initial element', async () => {
-      const trap = useFocusTrap(root, { initial: last })
+      const trap = useFocusTrap(root, { initialFocus: last })
 
       trap.activate()
       await nextTick()
@@ -369,6 +369,15 @@ describe('useFocusTrap', () => {
       expect(tab().defaultPrevented).toBe(true)
       expect(document.activeElement).toBe(root)
     })
+
+    it('should contain Tab when focus is already on an empty root', () => {
+      first.remove()
+      last.remove()
+      root.focus()
+
+      expect(tab().defaultPrevented).toBe(true)
+      expect(document.activeElement).toBe(root)
+    })
   })
 
   describe('tabbable filtering', () => {
@@ -601,6 +610,39 @@ describe('useFocusTrap', () => {
       expect(tab().defaultPrevented).toBe(true)
       expect(document.activeElement).toBe(at('a'))
     })
+
+    it('should rank the first enabled member when the first is disabled and none is checked', async () => {
+      const at = await trapWith(
+        '<input type="radio" name="g" data-id="r1" disabled>'
+        + '<input type="radio" name="g" data-id="r2">'
+        + '<button data-id="b">b</button>',
+      )
+
+      expect(document.activeElement).toBe(at('r2'))
+    })
+
+    it('should rank the first enabled member when the checked member is disabled', async () => {
+      const at = await trapWith(
+        '<input type="radio" name="g" data-id="r1" checked disabled>'
+        + '<input type="radio" name="g" data-id="r2">'
+        + '<button data-id="b">b</button>',
+      )
+
+      expect(document.activeElement).toBe(at('r2'))
+    })
+
+    it('should wrap Tab from the remaining member when the first is disabled', async () => {
+      const at = await trapWith(
+        '<button data-id="b">b</button>'
+        + '<input type="radio" name="g" data-id="r1" disabled>'
+        + '<input type="radio" name="g" data-id="r2">',
+      )
+
+      at('r2').focus()
+
+      expect(tab().defaultPrevented).toBe(true)
+      expect(document.activeElement).toBe(at('b'))
+    })
   })
 
   describe('restore', () => {
@@ -614,8 +656,8 @@ describe('useFocusTrap', () => {
       expect(document.activeElement).toBe(trigger)
     })
 
-    it('should not restore when restore is false', async () => {
-      const trap = useFocusTrap(root, { restore: false })
+    it('should not restore when returnFocus is false', async () => {
+      const trap = useFocusTrap(root, { returnFocus: false })
 
       trap.activate()
       await nextTick()
@@ -766,7 +808,7 @@ describe('useFocusTrap', () => {
 
   describe('manual binding', () => {
     it('should expose onKeydown for a consumer-owned listener', async () => {
-      const trap = useFocusTrap(root, { active: true })
+      const trap = useFocusTrap(root, { active: true, listen: false })
       await nextTick()
       last.focus()
 
@@ -775,6 +817,14 @@ describe('useFocusTrap', () => {
 
       expect(event.defaultPrevented).toBe(true)
       expect(document.activeElement).toBe(first)
+    })
+
+    it('should not intercept Tab on document when listen is false', async () => {
+      useFocusTrap(root, { active: true, listen: false })
+      await nextTick()
+      last.focus()
+
+      expect(tab().defaultPrevented).toBe(false)
     })
   })
 
@@ -803,8 +853,8 @@ describe('useFocusTrap', () => {
   })
 
   describe('initial focus fallback', () => {
-    it('should fall back to the first tabbable when initial is detached', async () => {
-      useFocusTrap(root, { active: true, initial: button('orphan') })
+    it('should fall back to the first tabbable when initialFocus is detached', async () => {
+      useFocusTrap(root, { active: true, initialFocus: button('orphan') })
       await nextTick()
 
       expect(document.activeElement).toBe(first)
@@ -817,21 +867,21 @@ describe('useFocusTrap', () => {
       root.append(plain)
       Object.defineProperty(plain, 'focus', { value: () => {} })
 
-      useFocusTrap(root, { active: true, initial: plain })
+      useFocusTrap(root, { active: true, initialFocus: plain })
       await nextTick()
 
       expect(document.activeElement).toBe(first)
     })
 
-    it('should accept initial as a ref', async () => {
-      useFocusTrap(root, { active: true, initial: shallowRef(last) })
+    it('should accept initialFocus as a ref', async () => {
+      useFocusTrap(root, { active: true, initialFocus: shallowRef(last) })
       await nextTick()
 
       expect(document.activeElement).toBe(last)
     })
 
-    it('should accept initial as a getter', async () => {
-      useFocusTrap(root, { active: true, initial: () => last })
+    it('should accept initialFocus as a getter', async () => {
+      useFocusTrap(root, { active: true, initialFocus: () => last })
       await nextTick()
 
       expect(document.activeElement).toBe(last)
@@ -877,10 +927,7 @@ describe('useFocusTrap', () => {
   })
 
   describe('nested traps', () => {
-    // Documented behavior, not an aspiration: both traps bind the same
-    // capture-phase listener on document, so they run in creation order and the
-    // OUTER trap wraps first. The inner one then sees defaultPrevented.
-    it('should resolve a shared boundary outward first', async () => {
+    it('should resolve a shared boundary inward first', async () => {
       const inner = document.createElement('div')
       const i1 = button('i1')
       const i2 = button('i2')
@@ -897,7 +944,28 @@ describe('useFocusTrap', () => {
       i2.focus()
 
       expect(tab().defaultPrevented).toBe(true)
-      expect(document.activeElement).toBe(first)
+      expect(document.activeElement).toBe(i1)
+    })
+
+    it('should invoke onEscape only on the top trap', async () => {
+      const inner = document.createElement('div')
+      const i1 = button('i1')
+
+      inner.tabIndex = -1
+      inner.append(i1)
+      root.append(inner)
+
+      const outerEscape = vi.fn()
+      const innerEscape = vi.fn()
+
+      useFocusTrap(root, { active: true, onEscape: outerEscape })
+      useFocusTrap(inner, { active: true, onEscape: innerEscape })
+      await nextTick()
+      i1.focus()
+      press('Escape')
+
+      expect(innerEscape).toHaveBeenCalledTimes(1)
+      expect(outerEscape).not.toHaveBeenCalled()
     })
   })
 

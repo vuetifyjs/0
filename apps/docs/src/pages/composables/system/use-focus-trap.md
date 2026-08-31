@@ -13,6 +13,8 @@ features:
 related:
   - /components/disclosure/dialog
   - /composables/system/use-click-outside
+  - /composables/system/use-event-listener
+  - /composables/system/use-roving-focus
   - /composables/plugins/use-stack
 ---
 
@@ -49,15 +51,15 @@ A native `<dialog>` opened with `showModal()` is trapped by the browser, so it n
 
 ## Architecture
 
-`useFocusTrap` composes `useEventListener` and `useToggleScope`, binding a single document-level listener only while the trap is engaged:
+`useFocusTrap` composes `useDocumentEventListener` and `useToggleScope`, binding a single document-level listener only while the trap is engaged:
 
 ```mermaid "Focus Trap Composition"
 flowchart TD
-  useEventListener --> useFocusTrap
+  useDocumentEventListener --> useFocusTrap
   useToggleScope --> useFocusTrap
-  useFocusTrap --> Dialogs
   useFocusTrap --> Drawers
   useFocusTrap --> Palettes
+  useFocusTrap --> CustomOverlays["as=div dialogs"]
 ```
 
 The keydown listener is bound to `document` in the capture phase, not to the root. A root-bound listener stops firing the moment focus leaves the subtree — a backdrop click that blurs to `<body>`, or a stray programmatic `focus()` — and the trap is then dead with no way back. Binding at the document means an escaped focus is recovered on the next Tab, and containment survives an inner `stopPropagation()`.
@@ -69,9 +71,10 @@ Only the boundaries are intercepted. A Tab press in the middle of the list passe
 | Option | Type | Default | Description |
 | - | - | - | - |
 | `active` | `MaybeRefOrGetter<boolean>` | `undefined` | Reactive activation source. Omit it to drive the trap imperatively |
-| `initial` | `false \| MaybeElementRef` | `undefined` | Where focus lands on activate. `false` skips autofocus; an element focuses that node instead of the first tabbable one |
-| `restore` | `boolean` | `true` | Return focus to the previously focused element on deactivate |
-| `onEscape` | `(event: KeyboardEvent) => void` | `undefined` | Called on Escape while the trap owns focus. Opt-in — the trap never closes anything itself |
+| `initialFocus` | `false \| MaybeElementRef` | `undefined` | Where focus lands on activate. `false` skips autofocus; an element focuses that node instead of the first tabbable one |
+| `returnFocus` | `boolean` | `true` | Return focus to the previously focused element on deactivate |
+| `listen` | `boolean` | `true` | Bind the capture-phase document listener. Set `false` to drive `onKeydown` yourself |
+| `onEscape` | `(event: KeyboardEvent) => void` | `undefined` | Called on Escape while this trap is the top engaged trap and owns focus. Opt-in — the trap never closes anything itself |
 
 ```ts
 import { useFocusTrap } from '@vuetify/v0'
@@ -79,7 +82,7 @@ import { useFocusTrap } from '@vuetify/v0'
 const cancel = useTemplateRef<HTMLElement>('cancel')
 
 // Destructive dialogs should land on the safe action
-useFocusTrap(panel, { active: isOpen, initial: cancel })
+useFocusTrap(panel, { active: isOpen, initialFocus: cancel })
 ```
 
 ## Reactivity
@@ -87,9 +90,9 @@ useFocusTrap(panel, { active: isOpen, initial: cancel })
 | Property/Method | Reactive | Notes |
 | - | :-: | - |
 | `isActive` | <AppSuccessIcon /> | ShallowRef, readonly. The trap's state — `active` is only its source |
-| `activate()` | - | Captures the restore target and engages containment |
-| `deactivate()` | - | Releases containment and restores focus |
-| `onKeydown()` | - | The handler, for consumers that already own a listener |
+| `activate()` | - | Captures the return-focus target and engages containment |
+| `deactivate()` | - | Releases containment and returns focus |
+| `onKeydown()` | - | The handler. Bound on `document` unless `listen` is `false` |
 
 ## Examples
 
@@ -110,7 +113,7 @@ Reach for this whenever an overlay is not a native `<dialog>`. Pair it with `use
 
 ### Escape Only for the Top Overlay
 
-`onEscape` fires on every engaged trap, so nested overlays need a stacking guard. `useStack` already tracks which overlay is topmost:
+Nested *traps* already resolve inward-first: only the last activated trap receives Escape. Nested *overlays* still need a stacking guard when dismissal policy is overlay-stack, not trap-stack — `useStack` tracks which overlay is topmost:
 
 ```ts
 import { useFocusTrap, useStack } from '@vuetify/v0'
@@ -135,10 +138,10 @@ A code editor or grid inside the trap needs Tab for itself. Because only the bou
 A widget that sits *at* a boundary cannot opt out, though. The trap listens on `document` in the capture phase, so it has already wrapped focus by the time a handler inside the root runs; that handler's `preventDefault()` comes too late. Two ways out:
 
 - **Keep the widget off the boundary.** A tabbable element after it — a footer button, or a `tabindex="0"` sentinel — makes the widget interior, and its Tab handling is then untouched.
-- **Own the listener.** Drive the exposed `onKeydown` yourself and call in only when you want the boundary enforced.
+- **Own the listener.** Pass `listen: false` and call `onKeydown` yourself — otherwise the document capture listener has already wrapped.
 
 ```ts
-const trap = useFocusTrap(panel, { active: isOpen })
+const trap = useFocusTrap(panel, { active: isOpen, listen: false })
 
 function onPanelKeydown (event: KeyboardEvent) {
   if (editorHasFocus.value && event.key === 'Tab') return
@@ -162,7 +165,7 @@ A focus trap is one half of a modal contract. The trap manages focus order; you 
 
 `aria-disabled="true"` controls are treated as tabbable, per [APG](https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/): an aria-disabled control stays in the tab order, and skipping it would let the browser walk past the computed boundary and out of the trap. This is a deliberate divergence from roving-focus composables like [useRovingFocus](/composables/system/use-roving-focus), which must skip disabled items.
 
-The boundary is computed the way the browser computes tab order, so a radio group counts as **one** stop — the checked radio, or the first member when none is checked — not one per member. Grouping follows the HTML rule of same `name` plus same form owner, so two forms on a page keep independent groups.
+The boundary is computed the way the browser computes tab order, so a radio group counts as **one** stop — the checked radio if it is otherwise tabbable, otherwise the first otherwise-tabbable member. Disabled, hidden, or inert members are not stops and do not hide the rest of the group. Grouping follows the HTML rule of same `name` plus same form owner, so two forms on a page keep independent groups.
 
 Positive `tabindex` values are the one case the trap declines to model: candidates are collected in document order and never re-sorted into their real tab position, so a root containing them can leak at the boundary. Use `0` and `-1` only.
 
@@ -188,9 +191,9 @@ Containment pierces open shadow roots, but discovery cannot — `querySelectorAl
 
 ??? Can two traps be active at once?
 
-Nested ones, yes — but they resolve *outward*-first, which is probably not what you want. Every trap binds the same capture-phase listener on `document`, so they run in creation order: at a shared boundary the outer trap wraps first, and the inner one sees `defaultPrevented` and stands down. Deactivate the outer trap while the inner is open, or lay the roots out so the two never share a boundary.
+Nested ones, yes — they resolve *inward*-first. Engaged traps sit on a module-level stack; only the last activated trap handles Tab and Escape, matching APG (the topmost dialog owns the loop).
 
-Two *disjoint* active traps are not supported at all — each reads the other's focus as outside and they fight over every Tab. Deactivate one first.
+Two *disjoint* active traps are not supported — each reads the other's focus as outside and they fight over every Tab. Deactivate one first.
 
 :::
 

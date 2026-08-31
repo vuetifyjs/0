@@ -48,6 +48,17 @@ async function trap (root: HTMLElement, options: UseFocusTrapOptions = {}) {
 }
 
 describe('useFocusTrap', () => {
+  it('should contain a real Tab when the root has no tabbable descendants', async () => {
+    const at = fixture('')
+    await trap(at('root'))
+
+    at('root').focus()
+    await userEvent.keyboard('{Tab}')
+
+    expect(document.activeElement).not.toBe(at('outside-after'))
+    expect(document.activeElement).toBe(at('root'))
+  })
+
   it('should wrap a real Tab from the last tabbable to the first', async () => {
     const at = fixture('<button data-id="a">a</button><button data-id="b">b</button>')
     await trap(at('root'))
@@ -123,6 +134,34 @@ describe('useFocusTrap', () => {
     await userEvent.keyboard('{Tab}')
 
     expect(document.activeElement).toBe(at('a'))
+  })
+
+  it('should treat the remaining radio as the group stop when the first is disabled', async () => {
+    const at = fixture(
+      '<button data-id="a">a</button>'
+      + '<input type="radio" name="g" data-id="r1" disabled>'
+      + '<input type="radio" name="g" data-id="r2">',
+    )
+    await trap(at('root'))
+
+    at('r2').focus()
+    await userEvent.keyboard('{Tab}')
+
+    expect(document.activeElement).toBe(at('a'))
+  })
+
+  it('should reach the remaining radio when Tab enters a group whose first member is disabled', async () => {
+    const at = fixture(
+      '<button data-id="a">a</button>'
+      + '<input type="radio" name="g" data-id="r1" disabled>'
+      + '<input type="radio" name="g" data-id="r2">',
+    )
+    await trap(at('root'))
+
+    at('a').focus()
+    await userEvent.keyboard('{Tab}')
+
+    expect(document.activeElement).toBe(at('r2'))
   })
 
   it('should reach the group stop when Tab enters an unchecked group', async () => {

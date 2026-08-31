@@ -12,11 +12,15 @@
  * - Tab / Shift+Tab wrap at the first and last tabbable descendant
  * - Recovers focus that escaped the root (backdrop blur, third-party `focus()`)
  * - Focuses the first tabbable descendant on activate, or the root as a fallback
- * - Restores the previously focused element on deactivate, skipping the restore
- *   when something outside the root has already claimed focus
+ * - Returns focus to the previously focused element on deactivate, skipping
+ *   that when something outside the root has already claimed focus
  * - A radio group counts as one tab stop, the way the browser counts it
+ * - Nested traps resolve inward-first: only the top (last activated) trap
+ *   handles Tab and Escape
  * - Reactive `active` option plus imperative `activate()` / `deactivate()`
  * - Optional `onEscape` callback; the trap itself never closes anything
+ * - `listen: false` skips the document listener so a consumer-owned handler
+ *   can call `onKeydown` itself
  * - Shadow-piercing containment via `getActiveElement()`
  * - No DOM mutation — the root's `tabindex` stays the consumer's responsibility
  * - Silent no-op while the root is missing or detached from the document
@@ -88,6 +92,16 @@ function contains (root: Node, node: Node | null): boolean {
   return false
 }
 
+/**
+ * Engaged traps whose document listener is bound (`listen !== false`).
+ *
+ * Capture-phase listeners on `document` run in registration order, which is
+ * activation order — not "outer first." The stack, not listener order, picks
+ * the owner: only the last activated trap handles Tab / Escape, matching APG
+ * (the topmost dialog owns the loop).
+ */
+const stack: Array<(event: KeyboardEvent) => void> = []
+
 export interface UseFocusTrapOptions {
   /**
    * Reactive activation source. When it flips true the trap engages and focuses
@@ -117,11 +131,11 @@ export interface UseFocusTrapOptions {
    * ```ts
    * const search = useTemplateRef<HTMLInputElement>('search')
    *
-   * useFocusTrap(panel, { initial: search })   // autofocus a specific control
-   * useFocusTrap(panel, { initial: false })    // no autofocus at all
+   * useFocusTrap(panel, { initialFocus: search })   // autofocus a specific control
+   * useFocusTrap(panel, { initialFocus: false })    // no autofocus at all
    * ```
    */
-  initial?: false | MaybeElementRef
+  initialFocus?: false | MaybeElementRef
   /**
    * Return focus to the element that was focused before activation.
    *
@@ -133,16 +147,39 @@ export interface UseFocusTrapOptions {
    *
    * @example
    * ```ts
-   * useFocusTrap(panel, { restore: false })
+   * useFocusTrap(panel, { returnFocus: false })
    * ```
    */
-  restore?: boolean
+  returnFocus?: boolean
   /**
-   * Invoked on Escape while the trap is engaged and owns focus.
+   * Bind the capture-phase `keydown` listener on `document`.
+   *
+   * Set `false` when a consumer-owned listener will call {@link UseFocusTrapReturn.onKeydown}
+   * itself — otherwise the document listener has already wrapped by the time a
+   * root handler runs. A `listen: false` trap is not part of the nested-trap
+   * stack.
+   *
+   * @default true
+   *
+   * @example
+   * ```ts
+   * const trap = useFocusTrap(panel, { active: isOpen, listen: false })
+   *
+   * function onPanelKeydown (event: KeyboardEvent) {
+   *   if (editorHasFocus.value && event.key === 'Tab') return
+   *
+   *   trap.onKeydown(event)
+   * }
+   * ```
+   */
+  listen?: boolean
+  /**
+   * Invoked on Escape while this trap is the top engaged trap and owns focus.
    *
    * Opt-in and side-effect free: the trap never calls `preventDefault()` and
-   * never deactivates itself. Nested traps are not coordinated — check your own
-   * stack ticket when several traps can be engaged at once.
+   * never deactivates itself. Nested traps: only the last activated trap
+   * receives Escape. Gate on a `useStack` ticket when dismissal policy is
+   * overlay-stack, not trap-stack.
    *
    * @example
    * ```ts
@@ -182,8 +219,17 @@ export interface UseFocusTrapReturn {
    */
   deactivate: () => void
   /**
-   * The keydown handler, exposed so a consumer that already owns a listener can
-   * call in rather than binding a second one
+   * The keydown handler. Bound on `document` in the capture phase while the
+   * trap is engaged unless {@link UseFocusTrapOptions.listen} is `false`.
+   *
+   * @example
+   * ```ts
+   * const trap = useFocusTrap(panel, { active: isOpen, listen: false })
+   *
+   * function onPanelKeydown (event: KeyboardEvent) {
+   *   trap.onKeydown(event)
+   * }
+   * ```
    */
   onKeydown: (event: KeyboardEvent) => void
 }
@@ -222,13 +268,15 @@ export interface UseFocusTrapReturn {
  * tab stop lives inside a descendant's shadow root, focus can still leave on
  * Tab. The same applies to `<iframe>` content, which no JS trap can contain.
  *
- * **Nesting resolves outward-first.** Every trap binds the same capture-phase
- * listener on `document`, so they run in creation order: the outer trap wraps
- * first and the inner one sees `defaultPrevented`. Nested traps are not
- * coordinated — deactivate the outer trap, or gate on a `useStack` ticket, when
- * the inner one has to own its own boundary. For the same reason a handler
- * *inside* the root cannot `preventDefault()` its way past the boundary; capture
- * on `document` has already run.
+ * **Nesting resolves inward-first.** Engaged traps with `listen` (the default)
+ * sit on a module-level stack; only the last activated trap handles Tab and
+ * Escape, matching APG (the topmost dialog owns the loop). A handler *inside*
+ * the root still cannot `preventDefault()` its way past the boundary — capture
+ * on `document` has already run. Use `listen: false` and drive `onKeydown`
+ * yourself when an inner widget must own Tab at a boundary.
+ *
+ * Two *disjoint* traps that are both engaged still fight: each reads the
+ * other's focus as outside. Deactivate one first.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-focus-trap
  *
@@ -260,7 +308,7 @@ export interface UseFocusTrapReturn {
  * const cancel = useTemplateRef<HTMLElement>('cancel')
  *
  * // Destructive dialogs should land on the safe action
- * useFocusTrap(panel, { active: isOpen, initial: cancel })
+ * useFocusTrap(panel, { active: isOpen, initialFocus: cancel })
  * ```
  *
  * @example Opt-in Escape
@@ -280,8 +328,9 @@ export function useFocusTrap (
 ): UseFocusTrapReturn {
   const {
     active,
-    initial,
-    restore = true,
+    initialFocus,
+    returnFocus = true,
+    listen = true,
     onEscape,
   } = options
 
@@ -325,9 +374,10 @@ export function useFocusTrap (
    *
    * That deliberately errs toward owning, and the two callers want opposite
    * things from it: `deactivate()` needs it so a blur to `<body>` still
-   * restores, while `onEscape` pays for it by firing on every engaged trap when
-   * focus sits on `<body>`. Gate `onEscape` on a `useStack` ticket when several
-   * traps can be engaged at once.
+   * returns focus, while `onEscape` would fire on every engaged trap when
+   * focus sits on `<body>`. Only the top stack trap reaches `onEscape`, so
+   * nested traps do not all dismiss; gate on a `useStack` ticket when
+   * dismissal policy is overlay-stack, not trap-stack.
    */
   function owns (el: FocusTrapElement): boolean {
     const focused = getActiveElement()
@@ -339,9 +389,9 @@ export function useFocusTrap (
   }
 
   function enter (el: FocusTrapElement) {
-    if (initial === false) return
+    if (initialFocus === false) return
 
-    const explicit = toElement(initial)
+    const explicit = toElement(initialFocus)
 
     if (isFocusTrapElement(explicit) && explicit.isConnected) {
       explicit.focus()
@@ -367,17 +417,23 @@ export function useFocusTrap (
 
     entry = null
     isActive.value = true
+    if (listen) stack.push(onKeydown)
   }
 
   function deactivate () {
     if (!isActive.value) return
+
+    if (listen) {
+      const index = stack.lastIndexOf(onKeydown)
+      if (index !== -1) stack.splice(index, 1)
+    }
 
     isActive.value = false
 
     const el = previous
     previous = null
 
-    if (!restore) return
+    if (!returnFocus) return
 
     const current = root()
 
@@ -402,9 +458,12 @@ export function useFocusTrap (
 
   function onKeydown (event: KeyboardEvent) {
     if (!isActive.value) return
-    // Honours a `preventDefault()` from an earlier capture-phase listener, which
-    // includes an outer trap — so nested traps resolve outward-first. It cannot
-    // honour a handler *inside* the root: capture on `document` runs first.
+    // Nested traps: only the last activated (`listen: true`) trap owns Tab /
+    // Escape. Listener order is activation order, which is *not* "outer first."
+    if (listen && stack.at(-1) !== onKeydown) return
+    // Honours a `preventDefault()` from an earlier capture-phase listener
+    // (unrelated to this stack). It cannot honour a handler *inside* the root:
+    // capture on `document` runs first.
     if (event.defaultPrevented) return
     // Escape and Tab both terminate IME composition; hijacking them breaks
     // composed input.
@@ -430,7 +489,7 @@ export function useFocusTrap (
     const [first, last] = edges(el)
 
     // Focus is outside the root: a backdrop click blurred to <body>, a
-    // third-party script called focus(), or `initial: false` never pulled it in.
+    // third-party script called focus(), or `initialFocus: false` never pulled it in.
     // A root-bound listener would never see this keystroke — recover by entering
     // at the edge the keypress was heading toward.
     if (isNull(focused) || !contains(el, focused)) {
@@ -464,7 +523,7 @@ export function useFocusTrap (
 
   useToggleScope(isActive, () => {
     // Capture phase on document — see the `@remarks` on useFocusTrap.
-    useDocumentEventListener('keydown', onKeydown, true)
+    if (listen) useDocumentEventListener('keydown', onKeydown, true)
 
     // Post-flush so the root's children exist (the `nextTick` a hand-rolled trap
     // has to await), and re-evaluated so a root that mounts a tick later still
@@ -503,4 +562,5 @@ export function useFocusTrap (
   }
 }
 
+export { FOCUSABLE, isFocusTrapElement, tabbable } from './tabbable'
 export { type FocusTrapElement } from './tabbable'
