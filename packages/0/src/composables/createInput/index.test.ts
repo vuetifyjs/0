@@ -191,6 +191,36 @@ describe('createInput', () => {
       value.value = 0
       expect(await input.validate()).toBe(true)
     })
+
+    it('should treat non-string null as empty when required', async () => {
+      const input = createInput<number | null>({
+        value: ref<number | null>(null),
+        required: true,
+      })
+
+      expect(await input.validate()).toBe(false)
+      expect(input.errors.value).toEqual(['Required'])
+    })
+
+    it('should treat non-string 0 as filled when required', async () => {
+      const input = createInput<number | null>({
+        value: ref<number | null>(0),
+        required: true,
+      })
+
+      expect(await input.validate()).toBe(true)
+    })
+
+    it('should run required before additional rules', async () => {
+      const input = createInput({
+        value: ref(''),
+        required: true,
+        rules: [v => (v as string).length >= 3 || 'Too short'],
+      })
+
+      await input.validate()
+      expect(input.errors.value).toEqual(['Required', 'Too short'])
+    })
   })
 
   describe('reset', () => {

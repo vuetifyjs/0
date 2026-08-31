@@ -406,5 +406,16 @@ describe('createNumberField', () => {
       value.value = null
       expect(field.input.isPristine.value).toBe(true)
     })
+
+    it('should fail validate when required and empty', async () => {
+      const field = setup({ required: true })
+      expect(await field.input.validate()).toBe(false)
+      expect(field.input.errors.value).toEqual(['Required'])
+    })
+
+    it('should pass validate when required and 0', async () => {
+      const field = setup({ value: ref(0), required: true })
+      expect(await field.input.validate()).toBe(true)
+    })
   })
 })
