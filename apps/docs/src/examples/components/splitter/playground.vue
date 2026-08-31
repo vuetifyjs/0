@@ -32,7 +32,7 @@ h1 {
       :max-size="30"
       :min-size="15"
     >
-      <div class="px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wide border-b border-divider">
+      <div class="px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wide border-b border-divider truncate">
         Explorer
       </div>
 
@@ -41,7 +41,7 @@ h1 {
           v-for="name in Object.keys(files)"
           :key="name"
           :class="[
-            'px-2 py-1 rounded cursor-pointer',
+            'px-2 py-1 rounded cursor-pointer truncate',
             name === active ? 'bg-primary/10 text-primary' : 'hover:bg-surface-tint',
           ]"
           @click="active = name"

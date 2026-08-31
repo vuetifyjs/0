@@ -26,7 +26,7 @@
 
 <template>
   <div class="space-y-4">
-    <nav class="flex items-center gap-1.5 text-sm">
+    <nav class="flex flex-wrap items-center gap-1.5 text-sm">
       <template
         v-for="(ticket, i) in items"
         :key="ticket.id"

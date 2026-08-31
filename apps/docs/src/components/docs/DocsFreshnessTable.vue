@@ -175,7 +175,7 @@
 
     <div
       v-if="table.pagination.pages > 1"
-      class="flex items-center justify-between gap-3 mt-4 text-sm"
+      class="flex flex-wrap items-center justify-between gap-3 mt-4 text-sm"
     >
       <span class="text-on-surface-variant text-xs">
         Showing
@@ -191,7 +191,7 @@
         :size="table.filteredItems.value.length"
         :total-visible="5"
       >
-        <Pagination.First class="w-8 h-8 rounded border border-divider flex items-center justify-center bg-surface hover:bg-surface-tint data-[disabled]:opacity-40 data-[disabled]:cursor-not-allowed">
+        <Pagination.First class="w-8 h-8 rounded border border-divider hidden sm:flex items-center justify-center bg-surface hover:bg-surface-tint data-[disabled]:opacity-40 data-[disabled]:cursor-not-allowed">
           «
         </Pagination.First>
 
@@ -218,7 +218,7 @@
           ›
         </Pagination.Next>
 
-        <Pagination.Last class="w-8 h-8 rounded border border-divider flex items-center justify-center bg-surface hover:bg-surface-tint data-[disabled]:opacity-40 data-[disabled]:cursor-not-allowed">
+        <Pagination.Last class="w-8 h-8 rounded border border-divider hidden sm:flex items-center justify-center bg-surface hover:bg-surface-tint data-[disabled]:opacity-40 data-[disabled]:cursor-not-allowed">
           »
         </Pagination.Last>
       </Pagination.Root>
