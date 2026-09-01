@@ -141,7 +141,7 @@ interface RegistryTicket {
 ### Extension Chain
 
 ```mermaid "Extension Chain"
-flowchart LR
+flowchart TD
     R[createRegistry] --> M[createModel]
     M --> S[createSelection]
     M --> Sl[createSlider]

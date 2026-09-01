@@ -242,7 +242,7 @@ The `formatByString()` method supports these tokens:
 The adapter pattern decouples date operations from the underlying library. When you call `adapter.format()`, the request flows through the provided adapter to its underlying date library:
 
 ```mermaid "Adapter Pattern Flow"
-flowchart LR
+flowchart TD
   subgraph Setup["Plugin Setup"]
     plugin["createDatePlugin"]
     opts["adapter option"]

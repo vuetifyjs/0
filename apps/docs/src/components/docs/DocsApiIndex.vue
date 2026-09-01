@@ -87,7 +87,7 @@
       <template v-for="[category, entries] in componentGroups" :key="`c-${category}`">
         <DocsHeaderAnchor :id="`components-${toKebab(category)}`" class="text-2xl leading-8 mt-6 mb-2" tag="h3">{{ toTitle(category) }}</DocsHeaderAnchor>
 
-        <div class="docs-table overflow-x-auto mb-4">
+        <div class="docs-api-index docs-table overflow-x-auto mb-4">
           <table>
             <thead>
               <tr>
@@ -118,7 +118,7 @@
       <template v-for="[category, entries] in composableGroups" :key="`e-${category}`">
         <DocsHeaderAnchor :id="`composables-${toKebab(category)}`" class="text-2xl leading-8 mt-6 mb-2" tag="h3">{{ toTitle(category) }}</DocsHeaderAnchor>
 
-        <div class="docs-table overflow-x-auto mb-4">
+        <div class="docs-api-index docs-table overflow-x-auto mb-4">
           <table>
             <thead>
               <tr>
@@ -142,3 +142,18 @@
     </template>
   </div>
 </template>
+
+<style>
+  /* These index tables are two columns where the name is a single unbreakable
+     token, so the phone-width max-content rule in App.vue parks the whole
+     Description column off-screen. Squeeze back to container width — names
+     keep their natural width and descriptions wrap beside them. The
+     .markdown-body prefix outranks App.vue's nested rule structurally:
+     (0,4,2) over (0,3,2), instead of by import order. */
+  @media (max-width: 767px) {
+    .markdown-body div.docs-api-index.docs-table.overflow-x-auto > table {
+      width: 100%;
+      max-width: none;
+    }
+  }
+</style>
