@@ -1,3 +1,6 @@
+// Types
+import type { GnDocsCalloutType } from '@paper/genesis'
+
 /**
  * Configuration for DocsCallout component types.
  * Extracted for maintainability and potential reuse.
@@ -9,7 +12,12 @@ export interface CalloutConfig {
   classes: string
 }
 
-export type CalloutType = 'tip' | 'note' | 'warning' | 'caution' | 'important' | 'askai' | 'discord' | 'tour'
+export type InteractiveCalloutType = 'askai' | 'discord' | 'tour'
+export type CalloutType = GnDocsCalloutType | InteractiveCalloutType
+
+export function isAdmonition (type: CalloutType): type is GnDocsCalloutType {
+  return type === 'tip' || type === 'note' || type === 'warning' || type === 'caution' || type === 'important'
+}
 
 const CALLOUT_CONFIG: Record<CalloutType, CalloutConfig> = {
   tip: {
