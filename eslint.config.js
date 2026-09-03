@@ -15,6 +15,27 @@ export default vuetify({
     'import/first': 'off',
     'curly': 'off',
     '@stylistic/operator-linebreak': 'off',
+    // eslint-config-vuetify 4.7.2 — flood / unsafe-autofix / AST false positives.
+    // Keep the small correctness set (css-escape, empty lookahead, dupe
+    // disjunctions, unused capturing groups) and fix those in source.
+    'unicorn/no-this-outside-of-class': 'off',
+    'unicorn/no-unused-array-method-return': 'off',
+    'unicorn/numeric-separators-style': 'off',
+    'unicorn/prefer-split-limit': 'off',
+    'unicorn/prefer-includes-over-repeated-comparisons': 'off',
+    'unicorn/prefer-https': 'off',
+    'unicorn/prefer-string-repeat': 'off',
+    'unicorn/consistent-compound-words': 'off',
+    'unicorn/better-dom-traversing': 'off',
+    'regexp/use-ignore-case': 'off',
+    'regexp/prefer-w': 'off',
+    'regexp/strict': 'off',
+    'regexp/no-super-linear-backtracking': 'off',
+    'regexp/optimal-quantifier-concatenation': 'off',
+    'regexp/prefer-d': 'off',
+    'regexp/prefer-character-class': 'off',
+    'regexp/match-any': 'off',
+    'prefer-regex-literals': 'off',
   },
 },
 {

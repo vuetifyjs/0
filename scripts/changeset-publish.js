@@ -45,7 +45,7 @@ const ALREADY_PUBLISHED = /cannot publish over the previously published|EPUBLISH
 
 // Each failed package emits exactly one of these lines; the trailing text is the
 // underlying error message we classify against.
-const PUBLISH_ERROR = /an error occurred while publishing (\S+): (.+)/g
+const PUBLISH_ERROR = /an error occurred while publishing \S+: (.+)/g
 
 // `npm view name@version` exits non-zero when that exact version is not on the
 // registry — the "is it published?" signal used both to pre-skip already-live
@@ -93,7 +93,7 @@ try {
 
   if (code !== 0) {
     const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`
-    const errors = [...output.matchAll(PUBLISH_ERROR)].map(match => match[2])
+    const errors = [...output.matchAll(PUBLISH_ERROR)].map(match => match[1])
 
     const everyErrorIsAlreadyPublished =
       errors.length > 0 && errors.every(message => ALREADY_PUBLISHED.test(message))

@@ -375,7 +375,7 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
     const formatted = this.getFormatter({ hour: 'numeric', hour12: true }).format(date)
 
     // Extract the AM/PM text from the formatted string
-    const match = formatted.match(/[AP]M|[ap]m|午前|午後|上午|下午/i)
+    const match = formatted.match(/[ap]m|午前|午後|上午|下午/i)
     return match ? match[0] : ampm.toUpperCase()
   }
 

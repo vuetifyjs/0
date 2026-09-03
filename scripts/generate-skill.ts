@@ -78,7 +78,7 @@ async function barrel (file: string): Promise<Reexport[]> {
   const found: Reexport[] = []
   for (const raw of content.split('\n')) {
     const line = raw.trim().replace(/;$/, '')
-    if (!/^export\b.*\bfrom ['"]\.\//.test(line)) continue
+    if (!/^export .+ from ['"]\.\//.test(line)) continue
     if (/^export type\b/.test(line)) continue
     const star = line.match(/^export \* from ['"]\.\/([^'"]+)['"]$/)
     if (star) {

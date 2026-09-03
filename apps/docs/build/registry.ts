@@ -262,7 +262,7 @@ export function blocks (body: string, warnings?: string[]): Block[] {
   for (const line of lines) {
     const trimmed = line.trim()
 
-    if (/^:::\s*(gn-)?example\b/.test(trimmed)) {
+    if (/^:::\s*(?:gn-)?example\b/.test(trimmed)) {
       if (current?.paths.length) {
         warnings?.push('[registry] unclosed example block before a new one — previous block dropped')
       }
@@ -368,6 +368,8 @@ function escapeRegExp (value: string): string {
  * cannot corrupt the pattern.
  */
 export function tokenPattern (universe: readonly string[]): RegExp {
+  // Match nothing — empty lookahead is the intentional never-match.
+  // eslint-disable-next-line regexp/no-empty-lookarounds-assertion
   if (universe.length === 0) return /(?!)/g
 
   const sorted = universe

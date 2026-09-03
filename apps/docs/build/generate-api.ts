@@ -259,7 +259,8 @@ function extractComponentApi (filePath: string): ComponentApi | null {
       events,
       slots,
     }
-  } catch {
+  } catch (error) {
+    console.warn(`[generate-api] Failed to extract ${filePath}:`, error instanceof Error ? error.message : error)
     return null
   }
 }

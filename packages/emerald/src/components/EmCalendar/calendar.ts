@@ -131,7 +131,7 @@ function within (iso: string, anchor: string) {
  * `YYYY-MM` or `YYYY-MM-DD`. A structural check, not validation — it exists so
  * an unparseable string no-ops instead of turning the anchor into `NaN`.
  */
-const SHAPE = /^\d{4}-\d{2}(-\d{2})?$/
+const SHAPE = /^\d{4}-\d{2}(?:-\d{2})?$/
 
 function shaped (value: unknown): value is string {
   return isString(value) && SHAPE.test(value)
