@@ -256,8 +256,8 @@ catalogs:
       specifier: 3.5.42
       version: 3.5.42
     vue-component-meta:
-      specifier: 3.3.10
-      version: 3.3.10
+      specifier: 3.2.7
+      version: 3.2.7
     vue-i18n:
       specifier: ^11.4.8
       version: 11.4.8
@@ -513,7 +513,7 @@ importers:
         version: 0.10.0
       vue-component-meta:
         specifier: 'catalog:'
-        version: 3.3.10(typescript@6.0.3)
+        version: 3.2.7(typescript@6.0.3)
       vue-router:
         specifier: 'catalog:'
         version: 5.2.0(@vue/compiler-sfc@3.5.42)(esbuild@0.28.2)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.42(typescript@6.0.3)))(rolldown@1.2.5)(rollup@4.59.0)(vite@8.2.2(@types/node@25.6.0)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.102.0)(sass@1.103.0)(terser@5.48.0)(tsx@4.23.12)(yaml@2.9.0))(vue@3.5.42(typescript@6.0.3))
@@ -701,7 +701,7 @@ importers:
         version: 3.5.42(typescript@6.0.3)
       vue-component-meta:
         specifier: 'catalog:'
-        version: 3.3.10(typescript@6.0.3)
+        version: 3.2.7(typescript@6.0.3)
       vue-i18n:
         specifier: 'catalog:'
         version: 11.4.8(vue@3.5.42(typescript@6.0.3))
@@ -3652,6 +3652,9 @@ packages:
 
   '@vue/devtools-shared@8.1.5':
     resolution: {integrity: sha512-mhT4zcPFhF+Xk1O4BfhhrbXzpmfqY03fS6xGpcllbQG7lDjhQf8pQHcTIhqQIYx1hfwtHmk/6jM96ele0UxPqQ==}
+
+  '@vue/language-core@3.2.7':
+    resolution: {integrity: sha512-Gn4q/tRxbpVGLEuARQ43p3YELlNAFgRUVCgW9U5Cr+5q4vfD2bWDWpl3ABbJMXUt5xlE1dF8dkigg2aUq7JYYw==}
 
   '@vue/language-core@3.3.10':
     resolution: {integrity: sha512-CR7ByBbgPHqhxrioKPOcZBqttaozzLNwtkCzXQ+uF8gLPHnUe03srPnGpdtHD3zp+bq5iyVkZ1WNx7W564RPwg==}
@@ -7397,8 +7400,8 @@ packages:
   vscode-uri@3.1.0:
     resolution: {integrity: sha512-/BpdSx+yCQGnCvecbyXdxHDkuk55/G3xwnC0GqY4gmQ3j+A+g8kzzgB4Nk/SINjqn6+waqw3EgbVF2QKExkRxQ==}
 
-  vue-component-meta@3.3.10:
-    resolution: {integrity: sha512-9iZ4hYcaB3k59wmcrUIeX0W5wzdsCHEa1b3pyH6atq3FwCcz+V1a/kRbekZihTZ2Hm/l9dyvjszsMUvnc01tpw==}
+  vue-component-meta@3.2.7:
+    resolution: {integrity: sha512-dxcDX+Qyhn0alsmjNBHO6/Irz7q1tv8uZnT+0gNkqMuTkL5bP/7XxsI8tOukq3jwkdFZAGO4bEqLl9rkPDF3uQ==}
     peerDependencies:
       typescript: '*'
     peerDependenciesMeta:
@@ -10444,6 +10447,16 @@ snapshots:
       rfdc: 1.4.1
 
   '@vue/devtools-shared@8.1.5': {}
+
+  '@vue/language-core@3.2.7':
+    dependencies:
+      '@volar/language-core': 2.4.28
+      '@vue/compiler-dom': 3.5.42
+      '@vue/shared': 3.5.42
+      alien-signals: 3.2.1
+      muggle-string: 0.4.1
+      path-browserify: 1.0.1
+      picomatch: 4.0.5
 
   '@vue/language-core@3.3.10':
     dependencies:
@@ -14498,10 +14511,10 @@ snapshots:
 
   vscode-uri@3.1.0: {}
 
-  vue-component-meta@3.3.10(typescript@6.0.3):
+  vue-component-meta@3.2.7(typescript@6.0.3):
     dependencies:
       '@volar/typescript': 2.4.28
-      '@vue/language-core': 3.3.10
+      '@vue/language-core': 3.2.7
       path-browserify: 1.0.1
     optionalDependencies:
       typescript: 6.0.3

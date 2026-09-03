@@ -80,7 +80,7 @@ jobs:
           path: ~/.cache/ms-playwright
           # TODO: bump the version in this key whenever the `playwright` catalog
           # pin changes in pnpm-workspace.yaml, or the cache serves a stale binary.
-          key: playwright-chromium-1.61.0-${{ runner.os }}
+          key: playwright-chromium-1.62.1-${{ runner.os }}
       - name: Install Playwright browser
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install chromium
@@ -129,7 +129,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-chromium-1.61.0-${{ runner.os }}
+          key: playwright-chromium-1.62.1-${{ runner.os }}
       - name: Install Playwright browser
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install chromium
