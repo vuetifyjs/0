@@ -30,12 +30,19 @@
         "src/sandbox/*.ts"
       ],
       "ignore": [
+        "CLAUDE.md",
         "src/typed-router.d.ts",
         "src/examples/guide/building-frameworks/my-ui/src/**/*.ts",
         "src/examples/guide/building-frameworks/my-ui/vite.config.ts",
         "src/examples/composables/create-trinity/toasts.ts",
+        "src/skillz/intro.md",
         "src/skillz/tours/**/index.ts"
       ],
+      "ignoreIssues": {
+        "src/components/discovery/Question/index.ts": [
+          "types"
+        ]
+      },
       "paths": {
         "@/*": [
           "src/*"

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createOverflow, createOverflowContext, useOverflow } from './index'
 
 // Utilities
-import { nextTick, ref, shallowRef } from 'vue'
+import { nextTick, readonly, ref, shallowRef } from 'vue'
 
 const mockIsHydrated = ref(true)
 vi.mock('#v0/composables/useHydration', () => ({
@@ -713,6 +713,30 @@ describe('createOverflow', () => {
       }))
 
       const containerRef = shallowRef<Element | undefined>(container)
+      const result = createOverflow({ container: containerRef, itemWidth: 50 })
+
+      await nextTick()
+      resizeCallback?.([{ contentRect: { width: 200, height: 50 } }])
+      await nextTick()
+
+      expect(result.capacity.value).toBe(4)
+    })
+
+    it('should accept a readonly template-ref shaped container', async () => {
+      const container = document.createElement('div')
+      container.getBoundingClientRect = vi.fn(() => ({
+        width: 200,
+        height: 50,
+        top: 0,
+        left: 0,
+        right: 200,
+        bottom: 50,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }))
+
+      const containerRef = readonly(shallowRef<Element | null>(container))
       const result = createOverflow({ container: containerRef, itemWidth: 50 })
 
       await nextTick()

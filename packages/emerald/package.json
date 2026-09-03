@@ -48,6 +48,7 @@
     "tsdown": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",
-    "unplugin-vue": "catalog:"
+    "unplugin-vue": "catalog:",
+    "vue": "catalog:"
   }
 }

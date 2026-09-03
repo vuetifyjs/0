@@ -12,7 +12,7 @@ import * as Vue from 'vue'
  * @see https://github.com/orgs/vuejs/discussions/13629
  * @internal
  */
-const INSTANCE_KEY = /* @__PURE__ */ 'current' + 'Instance'
+const INSTANCE_KEY = 'current' + 'Instance'
 
 function getInstanceCompat () {
   const vueExports = Vue as Record<string, unknown>

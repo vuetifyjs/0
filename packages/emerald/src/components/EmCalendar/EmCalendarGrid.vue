@@ -64,7 +64,7 @@
   }
 
   function focus (iso: string) {
-    root.value?.querySelector<HTMLElement>(`[data-iso="${iso}"]`)?.focus()
+    root.value?.querySelector<HTMLElement>(`[data-iso="${CSS.escape(iso)}"]`)?.focus()
   }
 
   /**

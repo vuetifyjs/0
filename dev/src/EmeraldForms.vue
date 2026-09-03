@@ -62,7 +62,7 @@
   }
 
   function semver (v: unknown): boolean | string {
-    return !v || /^\d+\.\d+\.\d+(-[\da-z.-]+)?$/i.test(String(v)) || 'Use major.minor.patch, e.g. 2.4.0 or 3.0.0-beta.1'
+    return !v || /^\d+\.\d+\.\d+(?:-[\da-z.-]+)?$/i.test(String(v)) || 'Use major.minor.patch, e.g. 2.4.0 or 3.0.0-beta.1'
   }
 
   function hex (v: unknown): boolean | string {

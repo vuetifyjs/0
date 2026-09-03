@@ -9,92 +9,92 @@ autoInstallPeers: true
 catalog:
   '@adobe/leonardo-contrast-colors': ^1.1.0
   '@ant-design/colors': ^8.0.1
-  '@arethetypeswrong/cli': ^0.18.4
-  axe-core: ^4.12.1
+  '@arethetypeswrong/cli': ^0.18.5
+  axe-core: ^4.13.0
   '@changesets/changelog-github': ^0.7.0
   '@changesets/cli': ^2.31.0
   '@flagsmith/flagsmith': ^11.0.0
   '@floating-ui/dom': ^1.8.0
-  '@iconify-json/lucide': 1.2.121
+  '@iconify-json/lucide': 1.2.124
   '@iconify-json/mdi': ^1.2.3
   '@js-temporal/polyfill': 0.5.1
   '@material/material-color-utilities': ^0.4.0
   '@mdi/js': npm:mdi-js-es@7.4.47
-  '@octokit/core': ^7.0.6
+  '@octokit/core': ^7.0.7
   '@octokit/openapi-types': ^27.0.0
   '@resvg/resvg-js': ^2.6.2
-  '@shikijs/langs': ^4.3.1
-  '@shikijs/markdown-it': ^4.3.1
-  '@shikijs/themes': ^4.3.1
+  '@shikijs/langs': ^4.4.3
+  '@shikijs/markdown-it': ^4.4.3
+  '@shikijs/themes': ^4.4.3
   '@size-limit/preset-small-lib': ^11.0.0
   '@testing-library/vue': ^8.1.0
-  '@tsconfig/node24': ^24.0.4
-  '@tsdown/css': ^0.21.10
-  '@types/markdown-it': ^14.1.2
+  '@tsconfig/node24': ^24.0.5
+  '@tsdown/css': ^0.22.14
+  '@types/markdown-it': ^14.2.0
   '@types/markdown-it-attrs': ^4.1.3
   '@types/markdown-it-container': ^4.0.0
   '@types/markdown-it-footnote': ^3.0.4
   '@types/node': ^25.6.0
   '@unhead/vue': ^2.1.15
-  '@vitest/browser-playwright': 4.1.10
-  '@vitest/coverage-v8': ^4.1.10
-  '@vue/compiler-dom': ^3.5.39
-  '@vue/repl': ^4.7.1
-  '@vue/test-utils': ^2.4.11
+  '@vitest/browser-playwright': 4.1.11
+  '@vitest/coverage-v8': ^4.1.11
+  '@vue/compiler-dom': ^3.5.42
+  '@vue/repl': ^4.7.2
+  '@vue/test-utils': ^2.5.0
   '@vue/tsconfig': ^0.9.1
   '@vuetify/auth': 0.1.8
   client-zip: ^2.5.0
-  eslint: ^10.7.0
-  eslint-config-vuetify: 4.6.2
-  eslint-plugin-vuejs-accessibility: ^2.5.0
+  eslint: ^10.9.1
+  eslint-config-vuetify: 4.7.2
+  eslint-plugin-vuejs-accessibility: ^2.6.0
   fflate: ^0.8.3
-  happy-dom: ^20.10.6
-  knip: ^6.24.0
-  launchdarkly-js-client-sdk: ^3.9.3
+  happy-dom: ^20.11.6
+  knip: ^6.32.2
+  launchdarkly-js-client-sdk: ^3.9.5
   markdown-it: ^14.3.0
   markdown-it-anchor: ^9.2.1
   markdown-it-attrs: ^4.3.1
   markdown-it-container: ^4.0.0
   markdown-it-footnote: ^4.0.0
-  marked: ^18.0.5
+  marked: ^18.0.10
   marked-emoji: ^2.0.3
-  mermaid: ^11.16.0
+  mermaid: ^11.17.0
   minisearch: ^7.2.0
   pinia: ^3.0.4
-  playwright: 1.61.0
-  posthog-js: ^1.398.0
-  publint: ^0.3.21
+  playwright: 1.62.1
+  posthog-js: ^1.418.5
+  publint: ^0.3.24
   rollup-plugin-sass: ^1.15.3
-  sass: ^1.101.0
-  sass-embedded: ^1.100.0
-  satori: ^0.26.0
+  sass: ^1.103.0
+  sass-embedded: ^1.102.0
+  satori: ^0.29.1
   sherif: ^1.13.0
-  shiki: ^4.3.1
+  shiki: ^4.4.3
   simple-git-hooks: ^2.13.1
   'size-limit': ^11.0.0
   svg-pan-zoom: ^3.6.2
-  swetrix: ^4.4.0
+  swetrix: ^4.5.0
   ts-morph: 27.0.2
-  tsdown: ^0.21.10
-  tsx: 4.21.0
+  tsdown: ^0.22.14
+  tsx: 4.23.12
   typescript: 6.0.3
-  unocss: ^66.7.4
-  unplugin-auto-import: ^21.0.0
+  unocss: ^66.8.0
+  unplugin-auto-import: ^21.1.0
   unplugin-vue: ^7.2.0
   unplugin-vue-components: ^32.1.0
   unplugin-vue-markdown: ^30.0.0
-  vite: 8.1.4
-  vite-plugin-pwa: ^1.2.0
+  vite: 8.2.2
+  vite-plugin-pwa: ^1.3.0
   vite-plugin-vue-layouts-next: ^2.1.0
   vite-ssg: ^28.3.0
   vite-ssg-sitemap: ^0.10.0
-  vitest: ^4.1.10
+  vitest: ^4.1.11
 
-  vue: 3.5.39
-  vue-component-meta: 3.2.7
-  vue-i18n: ^11.4.6
-  vue-router: ^5.1.0
-  vue-tsc: 3.2.7
+  vue: 3.5.42
+  vue-component-meta: 3.3.10
+  vue-i18n: ^11.4.8
+  vue-router: ^5.2.0
+  vue-tsc: 3.3.10
 
 catalogMode: strict
 
@@ -124,7 +124,7 @@ onlyBuiltDependencies:
   - unrs-resolver
 
 patchedDependencies:
-  '@vue/repl@4.7.1': patches/@vue__repl@4.7.1.patch
+  '@vue/repl@4.7.2': patches/@vue__repl@4.7.2.patch
   vite-ssg@28.3.0: patches/vite-ssg@28.3.0.patch
 
 overrides:

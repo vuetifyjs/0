@@ -27,7 +27,7 @@ import { useRouter } from 'vue-router'
 import type { MaybeRefOrGetter } from 'vue'
 
 /** File extensions that should trigger native download/navigation */
-const DOWNLOAD_EXTENSIONS = /\.(pdf|zip|tar|gz|tgz|rar|7z|dmg|exe|msi|deb|rpm|apk|xlsx?|docx?|pptx?|csv|txt|json|xml|png|jpe?g|gif|svg|webp|ico|mp3|mp4|webm|ogg|wav|mov|avi)$/i
+const DOWNLOAD_EXTENSIONS = /\.(?:pdf|zip|tar|gz|tgz|rar|7z|dmg|exe|msi|deb|rpm|apk|xlsx?|docx?|pptx?|csv|txt|json|xml|png|jpe?g|gif|svg|webp|ico|mp3|mp4|webm|ogg|wav|mov|avi)$/i
 
 /**
  * Intercepts clicks on internal links within a container and uses

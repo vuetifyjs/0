@@ -21,7 +21,7 @@
   import { Splitter, useElementSize } from '@vuetify/v0'
 
   // Utilities
-  import { shallowRef, useTemplateRef } from 'vue'
+  import { shallowRef, toRef, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'GnDocsExamplePreview' })
 
@@ -35,6 +35,7 @@
   const resetKey = shallowRef(0)
   const previewContent = useTemplateRef<HTMLElement>('preview-content')
   const { width } = useElementSize(previewContent)
+  const roundedWidth = toRef(() => Math.round(width.value))
 
   function reset () {
     resetKey.value++
@@ -80,7 +81,7 @@
                 aria-hidden="true"
                 class="genesis-docs-example-preview__indicator"
               >
-                {{ Math.round(width) }}px
+                {{ roundedWidth }}px
               </div>
             </Transition>
           </div>

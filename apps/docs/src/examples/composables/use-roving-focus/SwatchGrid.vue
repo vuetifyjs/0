@@ -28,7 +28,7 @@
   const { focusedId, isTabbable } = useRovingFocus(
     () => swatches.map(s => ({
       id: s.id,
-      el: () => grid.value?.querySelector(`[data-id="${s.id}"]`),
+      el: () => grid.value?.querySelector(`[data-id="${CSS.escape(s.id)}"]`),
     })),
     {
       target: grid,
