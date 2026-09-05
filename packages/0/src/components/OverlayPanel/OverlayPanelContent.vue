@@ -69,9 +69,9 @@
   import { useToggleScope } from '#v0/composables/useToggleScope'
 
   // Utilities
-  import { nextTick, onMounted, toRef, useTemplateRef, watch } from 'vue'
+  import { mergeProps, nextTick, onMounted, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
-  defineOptions({ name: 'OverlayPanelContent' })
+  defineOptions({ name: 'OverlayPanelContent', inheritAttrs: false })
 
   defineSlots<{
     default: (props: OverlayPanelContentSlotProps) => any
@@ -90,6 +90,7 @@
   } = defineProps<OverlayPanelContentProps>()
 
   const context = useOverlayPanelContext(namespace)
+  const attrs = useAttrs()
 
   const contentRef = useTemplateRef('content')
   let previousActiveElement: Element | null = null
@@ -171,7 +172,7 @@
       ref="content"
       :as
       :renderless
-      v-bind="slotProps.attrs"
+      v-bind="mergeProps(attrs, slotProps.attrs)"
     >
       <slot v-bind="slotProps" />
     </Atom>
