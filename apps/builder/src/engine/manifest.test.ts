@@ -589,7 +589,7 @@ describe('registry cross-checks', () => {
     for (const [path, source] of Object.entries(defaults)) {
       const dir = path.split('/').at(-2)!
       const id = `use${dir.replace(/(^|-)(\w)/g, (_, __, c) => c.toUpperCase())}`
-      const config = source.match(/export interface \w*Config \{[^}]*\}/s)?.[0] ?? ''
+      const config = source.match(/export interface \w*Config \{[^}]*\}/)?.[0] ?? ''
 
       if (!/^\s+persist\??:/m.test(config)) continue
 
