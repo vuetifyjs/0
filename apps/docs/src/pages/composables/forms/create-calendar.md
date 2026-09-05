@@ -11,16 +11,16 @@ features:
   level: 2
   github: /composables/createCalendar/
 related:
-  - /composables/forms/create-step
+  - /composables/selection/create-single
   - /composables/plugins/use-date
   - /composables/system/use-timer
 ---
 
 # createCalendar
 
-Month calendar geometry and navigation with focus management, min/max bounds, and locale-aware week start. Selection-agnostic — compose with `createSingle` or `createSelection` for date pickers.
-
 <DocsPageFeatures :frontmatter />
+
+Month calendar geometry and navigation with focus management, min/max bounds, and locale-aware week start. Selection-agnostic — compose with `createSingle` or `createSelection` for date pickers.
 
 ## Usage
 
@@ -56,6 +56,28 @@ bounded.isLast.value    // false - not at max wall
 
 // Month matrix
 bounded.months.value[0].weeks  // 6 weeks × 7 cells
+```
+
+## Adapters
+
+By default, `createCalendar` uses a plain-Date engine with CLDR-derived week start. When [createDatePlugin](/composables/plugins/use-date) is installed, it delegates to the adapter for locale-aware formatting.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| Plain Date (default) | — | Built-in engine; no plugin required |
+| `V0DateAdapter` | `@vuetify/v0/date` | Temporal adapter via the date plugin |
+
+```ts
+import { createApp } from 'vue'
+import { createDatePlugin } from '@vuetify/v0'
+import { V0DateAdapter } from '@vuetify/v0/date'
+
+const app = createApp(App)
+app.use(createDatePlugin({ adapter: new V0DateAdapter() }))
+
+// Calendar now uses the adapter for formatting
+const calendar = createCalendar()
+calendar.label.value // Localized via adapter
 ```
 
 ## Architecture
@@ -103,7 +125,7 @@ Key design decisions:
 | `today()` | `() => void` | — | Page to current month, focus today |
 | `move(u, n)` | `(unit: CalendarUnit, amount: number) => void` | — | Walk focus by day/week/month/year |
 
-## CalendarCell
+### CalendarCell
 
 Each cell in the matrix describes a single day:
 
@@ -118,7 +140,7 @@ Each cell in the matrix describes a single day:
 ## Examples
 
 ::: gn-example
-/composables/create-calendar/basic.vue
+/composables/create-calendar/basic
 
 ### Basic Calendar Grid
 
@@ -133,24 +155,9 @@ The example shows how the composable handles:
 Compose with `createSingle` for single date selection, or `createSelection` for date ranges. The composable owns geometry and navigation; selection semantics are layered on top.
 :::
 
-## Date Plugin Integration
+## Recipes
 
-By default, `createCalendar` uses a plain-Date engine with CLDR-derived week start. When `createDatePlugin` is installed, it delegates to the adapter for locale-aware formatting:
-
-```ts
-import { createApp } from 'vue'
-import { createDatePlugin } from '@vuetify/v0'
-import { V0DateAdapter } from '@vuetify/v0/date'
-
-const app = createApp(App)
-app.use(createDatePlugin({ adapter: new V0DateAdapter() }))
-
-// Calendar now uses the adapter for formatting
-const calendar = createCalendar()
-calendar.label.value // Localized via adapter
-```
-
-## Controlled Month
+### Controlled Month
 
 Pass a reactive `month` to control the visible month externally:
 
@@ -164,7 +171,7 @@ calendar.anchor.value   // '2026-12'
 
 Focus is carried across when the anchor changes, clamping to the target month's length (Jan 31 → Feb 28).
 
-## Disabling Days
+### Disabling Days
 
 Disable specific days with a predicate:
 
@@ -172,7 +179,8 @@ Disable specific days with a predicate:
 // Disable weekends
 const calendar = createCalendar({
   disabled: iso => {
-    const day = new Date(iso).getDay()
+    const [y, m, d] = iso.split('-').map(Number)
+    const day = new Date(y, m - 1, d).getDay()
     return day === 0 || day === 6
   }
 })
@@ -184,6 +192,20 @@ const calendar = createCalendar({ disabled: true })
 const disabled = shallowRef(false)
 const calendar = createCalendar({ disabled })
 ```
+
+## Accessibility
+
+The consumer owns the grid markup. Follow the [APG Date Picker](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/datepicker-dialog/) keyboard map on a `role="grid"`:
+
+| Key | Action |
+|-----|--------|
+| Arrow Left / Right | `move('day', ±1)` |
+| Arrow Up / Down | `move('week', ±1)` |
+| Home / End | First / last day of the focused week |
+| Page Up / Page Down | Previous / next month |
+| Shift + Page Up / Page Down | Previous / next year |
+
+Put `tabindex="0"` on the cell whose `iso` matches `focused`, and `tabindex="-1"` on every other cell. After `move()`, focus the `[tabindex="0"]` cell so the roving tabindex stays in sync with the keyboard.
 
 ## FAQ
 

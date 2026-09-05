@@ -174,8 +174,8 @@ function weeks (value: Date, first: number, fixed: boolean): Date[][] {
  *
  * @param locale Optional Intl locale string for formatting and week derivation.
  */
-function createPlainEngine (locale?: string): CalendarDateEngine {
-  const info = deriveWeekInfo(locale ?? 'en-US')
+function createPlainEngine (locale = 'en-US'): CalendarDateEngine {
+  const info = deriveWeekInfo(locale)
 
   return {
     first: () => info.firstDay,
@@ -275,7 +275,7 @@ function createAdaptedEngine (context: DateContext<unknown>): CalendarDateEngine
  *
  * @param locale Fallback locale when no date plugin is installed.
  */
-export function useCalendarDate (locale?: string): CalendarDateEngine {
+export function useCalendarDate (locale = 'en-US'): CalendarDateEngine {
   if (!hasInjectionContext()) return createPlainEngine(locale)
 
   const context = useContext<DateContext<unknown> | null>('v0:date', null)

@@ -151,7 +151,8 @@ export interface CalendarOptions {
    * // Disable weekends
    * createCalendar({
    *   disabled: iso => {
-   *     const day = new Date(iso).getDay()
+   *     const [y, m, d] = iso.split('-').map(Number)
+   *     const day = new Date(y, m - 1, d).getDay()
    *     return day === 0 || day === 6
    *   }
    * })
@@ -382,14 +383,15 @@ function shaped (value: unknown): value is string {
  * // Disable specific days
  * const noWeekends = createCalendar({
  *   disabled: iso => {
- *     const day = new Date(iso).getDay()
+ *     const [y, m, d] = iso.split('-').map(Number)
+ *     const day = new Date(y, m - 1, d).getDay()
  *     return day === 0 || day === 6
  *   }
  * })
  * ```
  */
 export function createCalendar (options: CalendarOptions = {}): CalendarContext {
-  const { month, min, max, disabled, firstDayOfWeek, fixedWeeks = false, locale } = options
+  const { month, min, max, disabled, firstDayOfWeek, fixedWeeks = false, locale = 'en-US' } = options
 
   const date = useCalendarDate(locale)
 

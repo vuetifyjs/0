@@ -1,10 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Composables
+import { createDatePlugin } from '#v0/composables/useDate'
+
+// Adapters
+import { V0DateAdapter } from '#v0/composables/useDate/adapters/v0'
+
 import { createCalendar } from './index'
 
 // Utilities
-import { effectScope, nextTick, shallowRef } from 'vue'
+import { createApp, effectScope, nextTick, shallowRef } from 'vue'
 
 // Types
 import type { CalendarContext, CalendarOptions } from './index'
@@ -20,7 +25,7 @@ function make (options: CalendarOptions = {}): CalendarContext {
 
   scopes.push(scope)
 
-  return scope.run(() => createCalendar(options))!
+  return scope.run(() => createCalendar({ locale: 'en-US', ...options }))!
 }
 
 function flat (calendar: CalendarContext) {
@@ -396,8 +401,8 @@ describe('createCalendar', () => {
 
   describe('weekdays', () => {
     it('should rotate to the configured week start', () => {
-      const sunday = make()
-      const monday = make({ firstDayOfWeek: 1 })
+      const sunday = make({ locale: 'en-US' })
+      const monday = make({ firstDayOfWeek: 1, locale: 'en-US' })
 
       expect(sunday.weekdays.value).toHaveLength(7)
       expect(sunday.weekdays.value[0].long).toBe('Sunday')
@@ -406,7 +411,7 @@ describe('createCalendar', () => {
     })
 
     it('should carry all three widths', () => {
-      const calendar = make()
+      const calendar = make({ locale: 'en-US' })
       const [first] = calendar.weekdays.value
 
       expect(first.short).toBe('Sun')
@@ -454,7 +459,7 @@ describe('createCalendar', () => {
 
   describe('label', () => {
     it('should localize the anchor month', () => {
-      const calendar = make()
+      const calendar = make({ locale: 'en-US' })
 
       expect(calendar.label.value).toBe('August 2026')
 
@@ -626,6 +631,23 @@ describe('createCalendar', () => {
       await nextTick()
 
       expect(flat(calendar).find(cell => cell.today)!.iso).toBe('2026-08-06')
+    })
+  })
+
+  describe('date plugin', () => {
+    it('should format labels through the installed date adapter', () => {
+      const adapter = new V0DateAdapter('en-US')
+      using spy = vi.spyOn(adapter, 'format').mockImplementation((_date, format) => {
+        return format === 'monthAndYear' ? 'SENTINEL' : format
+      })
+
+      const app = createApp({ render: () => null })
+      app.use(createDatePlugin({ adapter }))
+
+      const calendar = app.runWithContext(() => make({ month: '2026-08' }))
+
+      expect(calendar.label.value).toBe('SENTINEL')
+      expect(spy).toHaveBeenCalledWith(expect.anything(), 'monthAndYear')
     })
   })
 })

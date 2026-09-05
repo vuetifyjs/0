@@ -1,14 +1,23 @@
 <script setup lang="ts">
   import { createCalendar } from '@vuetify/v0'
+  import { nextTick, useTemplateRef } from 'vue'
 
   const calendar = createCalendar({
     fixedWeeks: true,
   })
 
+  const grid = useTemplateRef<HTMLElement>('grid')
+
   function onClick (iso: string, disabled: boolean) {
     if (disabled) return
 
     calendar.focused.value = iso
+  }
+
+  function focusCell () {
+    nextTick(() => {
+      grid.value?.querySelector<HTMLElement>('[tabindex="0"]')?.focus()
+    })
   }
 
   function onKeydown (event: KeyboardEvent) {
@@ -40,11 +49,21 @@
         break
       }
       case 'Home': {
-        calendar.first()
+        const week = calendar.months.value[0].weeks.find(days =>
+          days.some(cell => cell.iso === calendar.focused.value),
+        )
+        const first = week?.at(0)
+
+        if (first) calendar.goto(first.iso)
         break
       }
       case 'End': {
-        calendar.last()
+        const week = calendar.months.value[0].weeks.find(days =>
+          days.some(cell => cell.iso === calendar.focused.value),
+        )
+        const last = week?.at(-1)
+
+        if (last) calendar.goto(last.iso)
         break
       }
       default: {
@@ -52,26 +71,27 @@
       }
     }
     event.preventDefault()
+    focusCell()
   }
 </script>
 
 <template>
-  <div class="calendar">
-    <header class="calendar-header">
+  <div class="w-72 mx-auto flex flex-col gap-2 p-4 bg-surface border border-divider rounded-lg select-none">
+    <header class="flex items-center justify-between">
       <button
         aria-label="Previous month"
-        class="calendar-nav"
+        class="size-8 flex items-center justify-center border border-divider rounded-md bg-surface hover:bg-surface-tint cursor-pointer"
         type="button"
         @click="calendar.prev()"
       >
         ←
       </button>
 
-      <span class="calendar-label">{{ calendar.label.value }}</span>
+      <span class="text-base font-semibold">{{ calendar.label.value }}</span>
 
       <button
         aria-label="Next month"
-        class="calendar-nav"
+        class="size-8 flex items-center justify-center border border-divider rounded-md bg-surface hover:bg-surface-tint cursor-pointer"
         type="button"
         @click="calendar.next()"
       >
@@ -79,18 +99,19 @@
       </button>
     </header>
 
-    <div class="calendar-weekdays">
+    <div class="grid grid-cols-7 gap-0.5 text-center">
       <span
         v-for="weekday in calendar.weekdays.value"
         :key="weekday.short"
-        class="calendar-weekday"
+        class="py-1 text-xs font-medium text-on-surface-variant"
       >
         {{ weekday.narrow }}
       </span>
     </div>
 
     <div
-      class="calendar-grid"
+      ref="grid"
+      class="grid grid-cols-7 gap-0.5"
       role="grid"
       @keydown="onKeydown"
     >
@@ -100,13 +121,11 @@
           :key="cell.iso"
           :aria-disabled="cell.disabled"
           :aria-label="cell.iso"
-          class="calendar-cell"
-          :class="{
-            'calendar-cell--outside': cell.outside,
-            'calendar-cell--today': cell.today,
-            'calendar-cell--disabled': cell.disabled,
-            'calendar-cell--focused': calendar.focused.value === cell.iso,
-          }"
+          class="aspect-square flex items-center justify-center rounded-md text-sm bg-transparent border-none cursor-pointer hover:bg-surface-tint data-[outside]:text-on-surface-variant data-[outside]:opacity-50 data-[today]:font-bold data-[today]:text-primary data-[disabled]:text-on-surface-variant data-[disabled]:opacity-30 data-[disabled]:cursor-not-allowed data-[disabled]:pointer-events-none data-[focused]:outline data-[focused]:outline-2 data-[focused]:outline-primary data-[focused]:outline-offset-[-2px]"
+          :data-disabled="cell.disabled || undefined"
+          :data-focused="calendar.focused.value === cell.iso || undefined"
+          :data-outside="cell.outside || undefined"
+          :data-today="cell.today || undefined"
           role="gridcell"
           :tabindex="calendar.focused.value === cell.iso ? 0 : -1"
           type="button"
@@ -117,9 +136,9 @@
       </template>
     </div>
 
-    <footer class="calendar-footer">
+    <footer class="flex justify-center pt-2 border-t border-divider">
       <button
-        class="calendar-today"
+        class="px-3 py-1.5 border border-divider rounded-md bg-surface text-sm cursor-pointer hover:bg-surface-tint"
         type="button"
         @click="calendar.today()"
       >
@@ -128,122 +147,3 @@
     </footer>
   </div>
 </template>
-
-<style scoped>
-  .calendar {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-width: 280px;
-    padding: 16px;
-    background: var(--gn-surface);
-    border: 1px solid var(--gn-divider);
-    border-radius: 8px;
-    font-family: system-ui, sans-serif;
-  }
-
-  .calendar-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .calendar-label {
-    font-size: 1rem;
-    font-weight: 600;
-  }
-
-  .calendar-nav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border: 1px solid var(--gn-divider);
-    border-radius: 6px;
-    background: var(--gn-surface);
-    cursor: pointer;
-  }
-
-  .calendar-nav:hover {
-    background: var(--gn-surface-variant);
-  }
-
-  .calendar-weekdays {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
-    text-align: center;
-  }
-
-  .calendar-weekday {
-    padding: 4px 0;
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--gn-on-surface-variant);
-  }
-
-  .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
-  }
-
-  .calendar-cell {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    aspect-ratio: 1;
-    padding: 0;
-    border: none;
-    border-radius: 6px;
-    background: transparent;
-    font-size: 0.875rem;
-    cursor: pointer;
-  }
-
-  .calendar-cell:hover:not(.calendar-cell--disabled) {
-    background: var(--gn-surface-variant);
-  }
-
-  .calendar-cell--outside {
-    color: var(--gn-on-surface-variant);
-    opacity: 0.5;
-  }
-
-  .calendar-cell--today {
-    font-weight: 700;
-    color: var(--gn-primary);
-  }
-
-  .calendar-cell--disabled {
-    color: var(--gn-on-surface-variant);
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  .calendar-cell--focused {
-    outline: 2px solid var(--gn-primary);
-    outline-offset: -2px;
-  }
-
-  .calendar-footer {
-    display: flex;
-    justify-content: center;
-    padding-top: 8px;
-    border-top: 1px solid var(--gn-divider);
-  }
-
-  .calendar-today {
-    padding: 6px 12px;
-    border: 1px solid var(--gn-divider);
-    border-radius: 6px;
-    background: var(--gn-surface);
-    font-size: 0.875rem;
-    cursor: pointer;
-  }
-
-  .calendar-today:hover {
-    background: var(--gn-surface-variant);
-  }
-</style>
