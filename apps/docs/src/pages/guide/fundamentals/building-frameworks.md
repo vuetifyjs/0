@@ -17,7 +17,7 @@ related:
 
 # Building Frameworks
 
-When building a component framework, you're often reimplementing the same patterns: selection state, keyboard navigation, form validation, and focus management. v0 provides these behaviors as headless primitives so you can focus on what makes your framework unique—its design language.
+When building a component framework, you're often reimplementing the same patterns: selection state, keyboard navigation, form validation, and focus management. Vuetify0 provides these behaviors as headless primitives so you can focus on what makes your framework unique—its design language.
 
 <DocsPageFeatures :frontmatter />
 
@@ -28,7 +28,7 @@ When building a component framework, you're often reimplementing the same patter
 
 ### New Project
 
-Use `vuetify0 create` to scaffold a new project with v0 pre-configured:
+Use `vuetify0 create` to scaffold a new project with Vuetify0 pre-configured:
 
 ::: code-group no-filename
 
@@ -74,7 +74,7 @@ bun add @vuetify/v0
 
 :::
 
-v0 uses [subpath exports](https://nodejs.org/api/packages.html#subpath-exports) for tree-shaking:
+Vuetify0 uses [subpath exports](https://nodejs.org/api/packages.html#subpath-exports) for tree-shaking:
 
 ```ts
 // Import everything
@@ -95,7 +95,7 @@ This guide covers two approaches:
 | Pattern | When to Use |
 | - | - |
 | **Pattern A: Behavior-Focused** | Need complex state (selection, navigation, validation) with full rendering control |
-| **Pattern B: Component Wrappers** | Building styled components on top of v0's headless primitives |
+| **Pattern B: Component Wrappers** | Building styled components on top of Vuetify0's headless primitives |
 
 > [!TIP]
 > v0's composables are completely headless—they manage state and behavior without any DOM assumptions. This makes them ideal for building design systems that need complete control over markup and styling.
@@ -104,7 +104,7 @@ This guide covers two approaches:
 
 ### Direct vs Context APIs
 
-v0 composables offer two API surfaces. The direct API creates standalone instances—perfect for component-local state. The context API uses Vue's [provide/inject](https://vuejs.org/guide/components/provide-inject.html) for sharing state across component trees.
+Vuetify0 composables offer two API surfaces. The direct API creates standalone instances—perfect for component-local state. The context API uses Vue's [provide/inject](https://vuejs.org/guide/components/provide-inject.html) for sharing state across component trees.
 
 ```ts
 // Direct instance (component-local)
@@ -119,7 +119,7 @@ const [useTabs, provideTabs, defaultTabs] = createSingleContext()
 
 ### The Ticket System
 
-When you register items with a v0 registry, you get back "tickets"—plain objects that contain reactive properties and bound methods. Properties like `isSelected` are Vue refs that update automatically when selection state changes.
+When you register items with a Vuetify0 registry, you get back "tickets"—plain objects that contain reactive properties and bound methods. Properties like `isSelected` are Vue refs that update automatically when selection state changes.
 
 ```ts
 tabs.register({ id: 'home', value: 'Home' })
@@ -174,7 +174,7 @@ Custom tabs using `createSingle` and `useProxyRegistry` with ARIA attributes and
 
 ### Adding Keyboard Navigation
 
-v0 composables handle state; you add the interaction layer:
+Vuetify0 composables handle state; you add the interaction layer:
 
 ::: gn-example
 /guide/building-frameworks/pattern-a/tabs-keyboard
@@ -198,11 +198,11 @@ Accordion with expand/collapse-all using `createGroup` and tri-state support.
 
 :::
 
-> [!ASKAI] How does building a Tabs UI manually with createSingle and useProxyRegistry compare to v0's built-in Tabs component?
+> [!ASKAI] How does building a Tabs UI manually with createSingle and useProxyRegistry compare to Vuetify0's built-in Tabs component?
 
 ## Pattern B: Component Wrappers
 
-Wrap v0's headless components with your design system's styling. v0 handles behavior, accessibility, and keyboard navigation—you control the visual presentation.
+Wrap Vuetify0's headless components with your design system's styling. Vuetify0 handles behavior, accessibility, and keyboard navigation—you control the visual presentation.
 
 ### Polymorphic Elements
 
@@ -260,7 +260,7 @@ Reading and toggling theme and breakpoint state anywhere in the component tree v
 :::
 
 > [!TIP]
-> v0 plugins are designed to be order-independent. Each plugin gracefully handles missing dependencies by providing sensible fallbacks.
+> Vuetify0 plugins are designed to be order-independent. Each plugin gracefully handles missing dependencies by providing sensible fallbacks.
 
 ### Creating Custom Plugins
 
@@ -301,7 +301,7 @@ See [createPlugin](/composables/foundation/create-plugin) for the full API inclu
 
 ## SSR Safety
 
-v0 is designed for universal rendering. Use the provided constants and composables to guard browser-only code:
+Vuetify0 is designed for universal rendering. Use the provided constants and composables to guard browser-only code:
 
 ```ts
 import { useHydration, useWindowEventListener } from '@vuetify/v0'
@@ -328,7 +328,7 @@ Using `useHydration()` and `IN_BROWSER` to safely defer browser-only rendering u
 
 ## TypeScript Patterns
 
-v0 uses generics extensively. When extending composables, provide your custom ticket and context types:
+Vuetify0 uses generics extensively. When extending composables, provide your custom ticket and context types:
 
 ::: gn-example
 /guide/building-frameworks/typescript/type-extension
@@ -350,7 +350,7 @@ To see everything come together, we've included a complete example library that 
 
 ### Complete Design System
 
-MyButton, MyTabs, and MyAccordion assembled from v0 primitives — all patterns from this guide working together.
+MyButton, MyTabs, and MyAccordion assembled from Vuetify0 primitives — all patterns from this guide working together.
 
 :::
 
@@ -362,7 +362,7 @@ my-ui/
 ├── vite.config.ts        # Library build config
 ├── src/
 │   ├── index.ts          # Public exports
-│   ├── plugin.ts         # Vue plugin with v0 setup
+│   ├── plugin.ts         # Vue plugin with Vuetify0 setup
 │   └── components/
 │       ├── MyButton.vue  # Atom wrapper (polymorphic)
 │       ├── MyTabs.vue    # createSingle + keyboard nav

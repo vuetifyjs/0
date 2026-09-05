@@ -78,14 +78,14 @@ bunx @vuetify/cli init --type vuetify0
 
 :::
 
-Both options scaffold a complete project with UnoCSS, theming, and example components pre-configured — the same shape as [DevKey](/guide/integration/devkey), the reference v0 starter project.
+Both options scaffold a complete project with UnoCSS, theming, and example components pre-configured — the same shape as [DevKey](/guide/integration/devkey), the reference Vuetify0 starter project.
 
 > [!TIP]
 > Use the Skill Filter to narrow down navigation to match your experience level: <AppSkillFilter />
 
 ## Manual Setup
 
-To add v0 to an existing project, follow the steps below.
+To add Vuetify0 to an existing project, follow the steps below.
 
 ### Create Vue Project
 
@@ -178,7 +178,7 @@ app.mount('#app')
 
 ## Seed Working Examples
 
-v0 is headless: installing `@vuetify/v0` and importing a component gives you logic, accessibility, and state management — but no rendered UI. To start with a working, styled example you can edit and ship, use `vuetify add` to pull from the [docs registry](https://0.vuetifyjs.com/registry/index.json):
+Vuetify0 is headless: installing `@vuetify/v0` and importing a component gives you logic, accessibility, and state management — but no rendered UI. To start with a working, styled example you can edit and ship, use `vuetify add` to pull from the [docs registry](https://0.vuetifyjs.com/registry/index.json):
 
 ::: code-group no-filename
 
@@ -255,7 +255,7 @@ Components are completely unstyled. Add your own classes using Tailwind, UnoCSS,
 
 ## Styling
 
-v0 is style-agnostic. Choose your preferred CSS framework and map theme colors to v0's CSS variables.
+Vuetify0 is style-agnostic. Choose your preferred CSS framework and map theme colors to v0's CSS variables.
 
 ### UnoCSS
 
@@ -439,7 +439,7 @@ Type-safe access via `useCssModule()`:
 
 ## Nuxt
 
-v0 works with Nuxt via a standard plugin.
+Vuetify0 works with Nuxt via a standard plugin.
 
 ### 1. Create Plugin
 
@@ -526,7 +526,7 @@ Click the portrait to copy John's identity into [Grok Bot](https://x.ai/bot). Se
 
 ## Next Steps
 
-Now that v0 is installed, choose your path:
+Now that Vuetify0 is installed, choose your path:
 
 | Goal | Start Here |
 | - | - |
@@ -538,13 +538,13 @@ Now that v0 is installed, choose your path:
 | Explore interactively | [Playground](/playground) |
 
 > [!TIP]
-> Use `Cmd+/` on any documentation page to ask AI questions about v0.
+> Use `Cmd+/` on any documentation page to ask AI questions about Vuetify0.
 
 > [!TOUR] using-search
 
-## Support v0
+## Support Vuetify0
 
-v0 is built and maintained in the open. If it's useful to you or your team, sponsoring funds the work and keeps it moving — and need a hand shipping? The [Services](/services) page covers direct support plans and fixed-scope project builds.
+Vuetify0 is built and maintained in the open. If it's useful to you or your team, sponsoring funds the work and keeps it moving — and need a hand shipping? The [Services](/services) page covers direct support plans and fixed-scope project builds.
 
 ::: sponsor
 :::

@@ -45,11 +45,11 @@ Everything around the input is a prop. `label` renders the visible label and wir
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `EmTextField` renders v0's [Input](/components/forms/input) compound: `Input.Root` owns the field, `Input.Control` is the element you type into, and `Input.Description` and `Input.Error` are the two message regions.
 
-Most of what is hard about a text field lives in that compound rather than in Emerald. `Input.Root` wires each message region to the control by its own attribute and runs the validation pipeline — v0's `createValidation` under the hood, so the rule contract and the `validateOn` timing are the same ones documented on the Input page.
+Most of what is hard about a text field lives in that compound rather than in Emerald. `Input.Root` wires each message region to the control by its own attribute and runs the validation pipeline — Vuetify0's `createValidation` under the hood, so the rule contract and the `validateOn` timing are the same ones documented on the Input page.
 
 The label is the exception, and it is worth knowing which layer owns it. Emerald generates the field id itself with `useId()` when you do not pass one, renders its own `<label for="…">`, and hands the id down to `Input.Root` — which then uses it for the control and derives the description and error ids from it. So the `for`/`id` pair is the skin's, and the attribute wiring beneath it is v0's.
 

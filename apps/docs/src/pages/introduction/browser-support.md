@@ -2,7 +2,7 @@
 title: Browser Support - Vuetify0 Compatibility
 meta:
   - name: description
-    content: Browser compatibility matrix for Vuetify0 headless UI. Learn which browsers support v0 features and recommended browsers for the documentation site.
+    content: Browser compatibility matrix for Vuetify0 headless UI. Learn which browsers support Vuetify0 features and recommended browsers for the documentation site.
   - name: keywords
     content: vuetify0, browser support, compatibility, Chrome, Firefox, Safari, Edge
 features:
@@ -37,7 +37,7 @@ Vuetify0 requires Vue 3.5+, which targets browsers with native [ES2016 support](
 
 ## Feature Compatibility
 
-Some v0 features use modern browser APIs that have varying levels of support. The library includes feature detection and graceful degradation where possible.
+Some Vuetify0 features use modern browser APIs that have varying levels of support. The library includes feature detection and graceful degradation where possible.
 
 ### Cutting-Edge Features
 
@@ -82,7 +82,7 @@ if (isHydrated.value && IN_BROWSER) {
 
 ## Feature Detection Constants
 
-v0 exposes feature detection constants for conditional logic:
+Vuetify0 exposes feature detection constants for conditional logic:
 
 ```ts
 import {

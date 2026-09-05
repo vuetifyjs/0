@@ -47,15 +47,15 @@ Always pass `label` — it is the accessible name for the slider, and without it
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `EmSlider` renders v0's [Slider](/components/forms/slider) compound — `Slider.Root` wrapping a default anatomy of `Slider.Track`, `Slider.Range` and a single `Slider.Thumb`.
 
-The ownership split is clean: v0 owns every behavior, Emerald owns every pixel. Pointer drag (tracked on the document, so a drag that leaves the track keeps working), click-to-position on the track, the keyboard map, step snapping, the ARIA slider attributes, and the hidden form inputs all come from the v0 parts. Emerald contributes the wrapper element, the `emerald-slider__*` classes, and the stylesheet that turns v0's `data-orientation`, `data-disabled`, `data-readonly` and `data-state` attributes into a styled control — it never writes a state class of its own.
+The ownership split is clean: v0 owns every behavior, Emerald owns every pixel. Pointer drag (tracked on the document, so a drag that leaves the track keeps working), click-to-position on the track, the keyboard map, step snapping, the ARIA slider attributes, and the hidden form inputs all come from the Vuetify0 parts. Emerald contributes the wrapper element, the `emerald-slider__*` classes, and the stylesheet that turns v0's `data-orientation`, `data-disabled`, `data-readonly` and `data-state` attributes into a styled control — it never writes a state class of its own.
 
-The default slot replaces the built-in track and thumb while keeping `Slider.Root` and its state. Anything you place there resolves the same slider context, which is how the range example supplies two thumbs. Emerald does not re-export the v0 parts, so slot content imports `Slider` from `@vuetify/v0` and borrows Emerald's classes — the stylesheet is global, so `emerald-slider__thumb` styles a v0 `Slider.Thumb` exactly as it styles the built-in one.
+The default slot replaces the built-in track and thumb while keeping `Slider.Root` and its state. Anything you place there resolves the same slider context, which is how the range example supplies two thumbs. Emerald does not re-export the Vuetify0 parts, so slot content imports `Slider` from `@vuetify/v0` and borrows Emerald's classes — the stylesheet is global, so `emerald-slider__thumb` styles a Vuetify0 `Slider.Thumb` exactly as it styles the built-in one.
 
-One consequence of the wrapper: `Slider.Root` emits `start` and `end` drag events, but `EmSlider` does not forward them — its root element is the wrapper `div`, not the v0 root. React to changes through `v-model`.
+One consequence of the wrapper: `Slider.Root` emits `start` and `end` drag events, but `EmSlider` does not forward them — its root element is the wrapper `div`, not the Vuetify0 root. React to changes through `v-model`.
 
 ## Examples
 
@@ -119,7 +119,7 @@ Track clicks still work in range mode: the click moves whichever thumb is neares
 | `name` | `string` | — | Form field name. Renders one hidden input per thumb |
 | `form` | `string` | — | Associates the hidden inputs with a form by ID |
 | `id` | `string` | auto-generated | Identifier for the underlying slider context. Not rendered as a DOM id |
-| `namespace` | `string` | — | Context the v0 slider parts resolve against. Leave unset except when nesting sliders |
+| `namespace` | `string` | — | Context the Vuetify0 slider parts resolve against. Leave unset except when nesting sliders |
 
 The default slot replaces the built-in track, range and thumb — see the range example. There are no named slots, and nothing is exposed through a template ref.
 

@@ -53,13 +53,13 @@ The queue is optional. A static `EmSnackbar` under a `v-if` is a complete snackb
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
-Each part is a thin skin over the matching part of v0's [Snackbar](/components/semantic/snackbar) compound — `Snackbar.Portal`, `Snackbar.Queue`, `Snackbar.Root`, `Snackbar.Content`, `Snackbar.Close`. Emerald adds no behavior of its own.
+Each part is a thin skin over the matching part of Vuetify0's [Snackbar](/components/semantic/snackbar) compound — `Snackbar.Portal`, `Snackbar.Queue`, `Snackbar.Root`, `Snackbar.Content`, `Snackbar.Close`. Emerald adds no behavior of its own.
 
 The split is clean. v0 owns everything that moves: the portal's teleport and z-index coordination through the stack, the queue's connection to `useNotifications` with its FIFO auto-dismiss and its hover/focus pause, the dismiss context that wires a Close button to its Root, and the live-region plumbing that makes a freshly mounted toast actually get announced. Emerald owns everything you see: the card — border, radius, shadow, status-token tint keyed off the `data-variant` attribute the root writes — the fixed bottom-right region capped at `min(360px, 100vw - 32px)`, and the close button's hit area and default glyph.
 
-Two consequences of the split are worth knowing. Dismissal is context-driven: inside a queue, `EmSnackbarClose` removes the ticket from the notifications instance; outside one, the underlying `Snackbar.Root` emits `dismiss` instead, which is why the basic example above hides its toast with `@dismiss` on `EmSnackbar`. And because every Emerald part renders exactly one v0 component at its root, props the wrapper does not re-declare still reach the v0 part through Vue's fallthrough — `namespace` on the portal, or `urgent` on the root — though only the declared surface below is Emerald's contract.
+Two consequences of the split are worth knowing. Dismissal is context-driven: inside a queue, `EmSnackbarClose` removes the ticket from the notifications instance; outside one, the underlying `Snackbar.Root` emits `dismiss` instead, which is why the basic example above hides its toast with `@dismiss` on `EmSnackbar`. And because every Emerald part renders exactly one Vuetify0 component at its root, props the wrapper does not re-declare still reach the Vuetify0 part through Vue's fallthrough — `namespace` on the portal, or `urgent` on the root — though only the declared surface below is Emerald's contract.
 
 ## Examples
 
@@ -116,7 +116,7 @@ Outside a queue, the underlying root emits `dismiss` with the snackbar's id when
 | `EmSnackbarContent` | — | The message body. Flexes to fill the row |
 | `EmSnackbarClose` | `namespace` (`string`, default `'v0:notifications'` (*v0*)) | Dismiss button. Default slot replaces the built-in close glyph |
 
-`EmSnackbarContent` and `EmSnackbarPortal` take no `namespace` of their own — Content needs no context, and the portal coordinates on the v0 default unless you pass one through.
+`EmSnackbarContent` and `EmSnackbarPortal` take no `namespace` of their own — Content needs no context, and the portal coordinates on the Vuetify0 default unless you pass one through.
 
 ## Accessibility
 

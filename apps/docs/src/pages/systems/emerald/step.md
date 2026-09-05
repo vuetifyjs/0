@@ -47,7 +47,7 @@ By default `mandatory` is `'force'`: the first enabled step selects itself when 
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `EmStep` wraps v0's [Step](/components/providers/step) compound — `Step.Root` and `Step.Item` — which is the renderless single-selection provider with sequential navigation, built on [createStep](/composables/selection/create-step).
 

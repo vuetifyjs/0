@@ -48,7 +48,7 @@ A wrapper is optional. Bulma's `.input` is bare-capable, so `BuInput` renders th
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `BuInput` is a renderless [Input.Root](/components/forms/input) around a native `Input.Control`. The root owns the value, focus, the validation pipeline and the aria ids; the control is the element you type into. No wrapper element lands, which is why the conformance fixture is a bare `<input class="input">`.
 
@@ -140,7 +140,7 @@ Prefer a visible `BuLabel` over `label` on the input. The prop becomes an `aria-
 |-------|-----------|-----------|--------|
 | `readonly` | Yes | Yes | Native readonly. Use `plaintext` when it should also look like static text (`is-static`) |
 | `disabled` | No | No | Native disabled, Bulma's disabled treatment |
-| `error` / failed rules | Yes | Yes | `is-danger` on the input; `aria-invalid` from v0 |
+| `error` / failed rules | Yes | Yes | `is-danger` on the input; `aria-invalid` from Vuetify0 |
 
 ### Validation
 

@@ -45,7 +45,7 @@ The whole component is one `<label>` — box, glyph and text — so the entire s
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `EmCheckbox` renders v0's [Checkbox](/components/forms/checkbox) compound — `Checkbox.Root` and `Checkbox.Indicator` — and adds nothing to its behavior.
 
@@ -53,7 +53,7 @@ The split is clean. `Checkbox.Root` owns the state machine: `role="checkbox"` on
 
 The mark is where `Checkbox.Indicator` earns its place. The indicator exposes `isMixed` to its slot, and Emerald renders a single [EmIcon](/systems/emerald/icon) that swaps between the `check` and `minus` glyphs off that flag. The indicator hides itself with `visibility` rather than unmounting, so the box never reflows when the state flips — the glyph is simply invisible until there is something to show.
 
-One inherited capability worth knowing about: `Checkbox.Root` is dual-mode, and `EmCheckbox` leaves the group namespace at its default. Rendered inside a v0 `Checkbox.Group`, it registers with the group and defers its checked state to it — the `v-model` is ignored in that mode. Emerald does not ship a group part yet, so treat that as a v0 escape hatch rather than a documented Emerald surface.
+One inherited capability worth knowing about: `Checkbox.Root` is dual-mode, and `EmCheckbox` leaves the group namespace at its default. Rendered inside a Vuetify0 `Checkbox.Group`, it registers with the group and defers its checked state to it — the `v-model` is ignored in that mode. Emerald does not ship a group part yet, so treat that as a Vuetify0 escape hatch rather than a documented Emerald surface.
 
 ## Examples
 

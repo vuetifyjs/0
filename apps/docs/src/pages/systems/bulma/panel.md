@@ -65,9 +65,9 @@ Tabs have a second `v-model` of their own. The two selections never share.
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
-`BuPanel` wraps its children in v0's [Selection](/components/providers/selection). That is the block `v-model`. `BuPanelBlock` is a renderless `Selection.Item` with the same hand-picked anchor bindings [BuMenu](/systems/bulma/menu) uses: `is-active`, `data-selected`, click to select — never the Item `attrs` spread, because `aria-selected` is invalid on a role-less `<a>`. `multiple` is Selection's `multiple`, forwarded.
+`BuPanel` wraps its children in Vuetify0's [Selection](/components/providers/selection). That is the block `v-model`. `BuPanelBlock` is a renderless `Selection.Item` with the same hand-picked anchor bindings [BuMenu](/systems/bulma/menu) uses: `is-active`, `data-selected`, click to select — never the Item `attrs` spread, because `aria-selected` is invalid on a role-less `<a>`. `multiple` is Selection's `multiple`, forwarded.
 
 `BuPanelTabs` opens a nested [Single](/components/providers/single) of its own, with `mandatory="force"` so one tab is always active, matching Bulma's docs. Its `v-model` never shares the panel's. Clicking a tab cannot select a block, and the reverse.
 

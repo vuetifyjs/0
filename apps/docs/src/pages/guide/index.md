@@ -69,12 +69,12 @@ For building production UIs.
 
 ### Track C: Integration
 
-See v0 patterns in production.
+See Vuetify0 patterns in production.
 
 | Guide | What You'll Learn |
 | - | - |
 | [Nuxt](/guide/integration/nuxt) | SSR, auto-imports, theme persistence |
-| [Building This Documentation](/guide/integration/building-docs) | How this site uses v0, UnoCSS, and vite-ssg |
+| [Building This Documentation](/guide/integration/building-docs) | How this site uses Vuetify0, UnoCSS, and vite-ssg |
 
 > [!TIP]
 > New to v0? Start with Track A. Already building? Jump to Track B as needed.
@@ -88,7 +88,7 @@ If you have an existing styled component library and want to adopt v0's headless
 ### Strategy
 
 1. **Keep your styled components** - They become thin wrappers around v0 logic
-2. **Replace internal state** - Swap custom selection/toggle logic for v0 composables
+2. **Replace internal state** - Swap custom selection/toggle logic for Vuetify0 composables
 3. **Expose v0's API** - Let consumers access the underlying composable if needed
 
 ### Example: Styled Tabs Component
@@ -173,7 +173,7 @@ If you have an existing styled component library and want to adopt v0's headless
 
 ### Benefits
 
-- **Less code to maintain** - v0 handles edge cases
+- **Less code to maintain** - Vuetify0 handles edge cases
 - **Consistent patterns** - All your components use the same selection primitives
 - **Incremental adoption** - Migrate one component at a time
 

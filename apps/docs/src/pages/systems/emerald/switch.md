@@ -45,7 +45,7 @@ The whole component is one `<label>` — track, thumb and text — so the entire
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `EmSwitch` renders v0's [Switch](/components/forms/switch) compound — `Switch.Root`, `Switch.Track` and `Switch.Thumb` — and adds nothing to its behavior.
 
@@ -53,7 +53,7 @@ The split is clean. `Switch.Root` owns the state machine: `role="switch"` on a n
 
 One deliberate quirk lives in the track: v0 renders it with a hardcoded `dir="ltr"`, so the thumb's travel is physical, not logical — on is always thumb-right, even under an RTL document. Emerald's CSS honors that and does not reverse the travel under `[dir=rtl]`; the checked state is carried by the fill color either way.
 
-Two inherited capabilities are not surfaced. `Switch.Root` supports an `indeterminate` state, which `EmSwitch` does not pass — an Emerald switch is strictly two-state. And the root is dual-mode: rendered inside a v0 `Switch.Group` it registers with the group and defers its checked state to it, ignoring the `v-model`. Emerald does not ship a group part, so treat that as a v0 escape hatch rather than a documented Emerald surface.
+Two inherited capabilities are not surfaced. `Switch.Root` supports an `indeterminate` state, which `EmSwitch` does not pass — an Emerald switch is strictly two-state. And the root is dual-mode: rendered inside a Vuetify0 `Switch.Group` it registers with the group and defers its checked state to it, ignoring the `v-model`. Emerald does not ship a group part, so treat that as a Vuetify0 escape hatch rather than a documented Emerald surface.
 
 ## Examples
 

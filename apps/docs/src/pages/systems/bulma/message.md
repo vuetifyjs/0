@@ -52,13 +52,13 @@ Bulma's `.message` with a dismissible header and a headerless body-only variant.
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `BuMessage` wraps v0's [Presence](/components/primitives/presence) the same way `BuNotification` does: `v-model` drives present/leaving/unmounted, `data-state` lands on `article.message`, and a dismiss unmounts the article on the next tick.
 
-The rest is package context, not a v0 compound. `BuMessage` provides `bulma:message` with a `close()` that writes `false` through the model. `BuMessageDelete` is the only consumer — it renders `button.delete` and calls `close()` on click. `BuMessageHeader` and `BuMessageBody` inject nothing; they are classed divs.
+The rest is package context, not a Vuetify0 compound. `BuMessage` provides `bulma:message` with a `close()` that writes `false` through the model. `BuMessageDelete` is the only consumer — it renders `button.delete` and calls `close()` on click. `BuMessageHeader` and `BuMessageBody` inject nothing; they are classed divs.
 
-Injection is optional. A Delete rendered outside `BuMessage` still emits the button, warns once in dev, and the click is inert. Parts backed by a v0 context throw instead; this family does not.
+Injection is optional. A Delete rendered outside `BuMessage` still emits the button, warns once in dev, and the click is inert. Parts backed by a Vuetify0 context throw instead; this family does not.
 
 Presence does not supply a header, a body, or a close control. Those are Bulma's regions, expressed as parts, which is why a message with no `BuMessageHeader` is still a valid message — it is the body-only fixture, not a half-composed one. A header with no `BuMessageDelete` is a valid title-only header.
 

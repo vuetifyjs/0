@@ -48,7 +48,7 @@ Short definitions of the vocabulary that recurs throughout v0's docs and source 
 
 A component or composable that ships behavior, state, and accessibility but **no styling** — you write every line of CSS yourself.
 
-Why it exists: v0 sits at the bottom of the stack (v0 → Paper → design systems → Vuetify). A single utility class in source would bind every downstream design system to it. The acid test is "strip every stylesheet and the component still functions and announces its state to a screen reader."
+Why it exists: Vuetify0 sits at the bottom of the stack (Vuetify0 → Paper → design systems → Vuetify). A single utility class in source would bind every downstream design system to it. The acid test is "strip every stylesheet and the component still functions and announces its state to a screen reader."
 
 See [Styling](/guide/fundamentals/styling) and [Components](/guide/fundamentals/components).
 
@@ -62,7 +62,7 @@ See [Components](/guide/fundamentals/components).
 
 ### Trinity
 
-The signature return shape of v0's context and plugin factories: a readonly three-element tuple. Context factories return `[useX, provideX, defaultX]`; plugin factories return `[createXContext, createXPlugin, useX]`.
+The signature return shape of Vuetify0's context and plugin factories: a readonly three-element tuple. Context factories return `[useX, provideX, defaultX]`; plugin factories return `[createXContext, createXPlugin, useX]`.
 
 Why it exists: three elements cover every consumption mode — inject in a child (`useX`), provide from a parent (`provideX`), and use standalone or in a test without mounting Vue (`defaultX`). One predictable shape across the whole library keeps data flow debuggable.
 
@@ -98,7 +98,7 @@ See [createPlugin](/composables/foundation/create-plugin) and [Plugins](/guide/f
 
 A swappable backend behind a composable. The composable defines an interface; an adapter implements it against a concrete library — console, pino, or consola for the logger; localStorage or sessionStorage for storage; a date library for dates.
 
-Why it exists: v0 is not a thin wrapper around any one library. Adapters let a consumer keep v0's API while choosing — or writing — the implementation underneath, and they are the boundary where untrusted input is sanitized before it reaches the DOM.
+Why it exists: Vuetify0 is not a thin wrapper around any one library. Adapters let a consumer keep its API while choosing — or writing — the implementation underneath, and they are the boundary where untrusted input is sanitized before it reaches the DOM.
 
 See [useLogger](/composables/plugins/use-logger) and [Plugins](/guide/fundamentals/plugins).
 

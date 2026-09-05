@@ -64,7 +64,7 @@ flowchart LR
 
 ### Coordinated toolbar
 
-A single tooltip hides one of v0's better tricks: the `createTooltipPlugin` registry coordinates *every* tooltip in the app from one place. Hover a toolbar button and wait out the open delay, then slide to a neighbor — it opens instantly, because the shared region is already warm. Without the plugin each tooltip would re-wait its own delay on every move, so the toolbar would feel sluggish. That shared skip-window is exactly why open and close timing lives in one plugin instead of per-tooltip state.
+A single tooltip hides one of Vuetify0's better tricks: the `createTooltipPlugin` registry coordinates *every* tooltip in the app from one place. Hover a toolbar button and wait out the open delay, then slide to a neighbor — it opens instantly, because the shared region is already warm. Without the plugin each tooltip would re-wait its own delay on every move, so the toolbar would feel sluggish. That shared skip-window is exactly why open and close timing lives in one plugin instead of per-tooltip state.
 
 The `Link` control adds `interactive`: its content stays open while you move the pointer in to copy the URL, and Copy flips to a `bg-success` / `text-on-success` confirmation that stays legible in both light and dark themes. Reach for `interactive` only when the content genuinely needs pointer access — the strict WAI-ARIA APG tooltip pattern forbids focusable content, so a richer surface may belong in a future `HoverCard` instead.
 

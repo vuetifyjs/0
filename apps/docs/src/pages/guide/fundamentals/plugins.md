@@ -18,7 +18,7 @@ related:
 
 # Plugins
 
-v0 plugins are Vue plugins built with `createPlugin`. They provide app-wide singletons for features like theming, locale, and logging. For understanding the underlying architecture, see [Core](/guide/fundamentals/core).
+Vuetify0 plugins are Vue plugins built with `createPlugin`. They provide app-wide singletons for features like theming, locale, and logging. For understanding the underlying architecture, see [Core](/guide/fundamentals/core).
 
 <DocsPageFeatures :frontmatter />
 
@@ -82,9 +82,9 @@ app.use(
 | `createPopoverPlugin` | App-wide popover positioning adapter | [usePopover](/composables/system/use-popover) |
 
 > [!TIP]
-> All plugins are optional. Only install what you need—v0 works without any plugins installed.
+> All plugins are optional. Only install what you need—Vuetify0 works without any plugins installed.
 
-> [!ASKAI] Which built-in plugins do I actually need? Can I use v0 without them?
+> [!ASKAI] Which built-in plugins do I actually need? Can I use Vuetify0 without them?
 
 ## Creating Custom Plugins
 

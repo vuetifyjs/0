@@ -47,7 +47,7 @@ A design system here is a **complete framework**, not a theme. Emerald does not 
 
 That split is the whole point of the layering. An `EmSelect` is a few dozen lines of template and CSS over v0's `Select` compound. When v0 fixes a listbox keyboard bug, Emerald inherits the fix without a release of its own.
 
-The practical consequence for you: everything you learn about a v0 compound applies to the Emerald component that wraps it, and anything Emerald does not expose is still reachable by dropping to the v0 component underneath.
+The practical consequence for you: everything you learn about a Vuetify0 compound applies to the Emerald component that wraps it, and anything Emerald does not expose is still reachable by dropping to the Vuetify0 component underneath.
 
 ## Figma UI Kit
 
@@ -120,7 +120,7 @@ Colors are emitted twice: as the hex value and as space-separated RGB channels, 
 
 ### The v0 bridge
 
-Alongside its own namespace, Emerald mirrors its color roles onto the `--v0-*` names that v0 kits read. Anything built against the generic kit vocabulary picks up Emerald's brand colors with no adapter of its own.
+Alongside its own namespace, Emerald mirrors its color roles onto the `--v0-*` names that Vuetify0 kits read. Anything built against the generic kit vocabulary picks up Emerald's brand colors with no adapter of its own.
 
 The mapping is mostly one-to-one (`--v0-primary` ← `--emerald-primary`), with a few renames where the two vocabularies disagree about severity: `--v0-error` reads Emerald's `danger`, `--v0-warning` reads `alert`, and `--v0-accent` reads `primary`. Each is emitted with its paired foreground, so a kit never gets a background without the `on-` color that is legible against it.
 
