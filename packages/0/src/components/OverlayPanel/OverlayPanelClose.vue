@@ -41,9 +41,9 @@
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
-  import { mergeProps, toRef, useAttrs } from 'vue'
+  import { toRef } from 'vue'
 
-  defineOptions({ name: 'OverlayPanelClose', inheritAttrs: false })
+  defineOptions({ name: 'OverlayPanelClose' })
 
   defineSlots<{
     default: (props: OverlayPanelCloseSlotProps) => any
@@ -55,7 +55,6 @@
     renderless,
   } = defineProps<OverlayPanelCloseProps>()
 
-  const attrs = useAttrs()
   const context = useOverlayPanelContext(namespace)
   const locale = useLocale()
 
@@ -86,7 +85,7 @@
   <Atom
     :as
     :renderless
-    v-bind="mergeProps(attrs, slotProps.attrs)"
+    v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />
   </Atom>
