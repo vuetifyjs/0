@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { OverlayPanel, Scrim } from '@vuetify/v0'
+  import { OverlayPanel } from '@vuetify/v0'
 </script>
 
 <template>
@@ -9,9 +9,8 @@
         Open Drawer
       </OverlayPanel.Activator>
 
-      <Scrim />
-
       <OverlayPanel.Content
+        aria-label="Side drawer"
         class="fixed top-0 right-0 h-full w-80 bg-surface border-l border-divider shadow-lg transform transition-transform"
         scrim
       >

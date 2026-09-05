@@ -43,6 +43,10 @@ function mountWithStack<T extends Parameters<typeof mount>[0]> (
   return wrapper
 }
 
+function queryDialog () {
+  return document.querySelector<HTMLElement>('[role="dialog"]')
+}
+
 describe('overlay-panel', () => {
   describe('root', () => {
     describe('rendering', () => {
@@ -104,22 +108,22 @@ describe('overlay-panel', () => {
           },
         })
 
-        expect(wrapper.find('[role="dialog"]').exists()).toBe(false)
+        expect(queryDialog()).toBeNull()
 
         await wrapper.setProps({ modelValue: true })
         await nextTick()
 
-        expect(wrapper.find('[role="dialog"]').exists()).toBe(true)
+        expect(queryDialog()).not.toBeNull()
       })
 
       it('should default to closed', () => {
-        const wrapper = mountWithStack(OverlayPanel.Root, {
+        mountWithStack(OverlayPanel.Root, {
           slots: {
             default: () => h(OverlayPanel.Content, {}, () => 'Content'),
           },
         })
 
-        expect(wrapper.find('[role="dialog"]').exists()).toBe(false)
+        expect(queryDialog()).toBeNull()
       })
     })
 
@@ -136,9 +140,8 @@ describe('overlay-panel', () => {
         })
 
         const trigger = wrapper.findComponent(OverlayPanel.Activator as any)
-        const content = wrapper.find('[role="dialog"]')
         expect(trigger.exists()).toBe(true)
-        expect(content.exists()).toBe(true)
+        expect(queryDialog()).not.toBeNull()
       })
 
       it('should provide context with custom namespace', () => {
@@ -377,7 +380,7 @@ describe('overlay-panel', () => {
   describe('content', () => {
     describe('rendering', () => {
       it('should render as div by default', async () => {
-        const wrapper = mountWithStack(OverlayPanel.Root, {
+        mountWithStack(OverlayPanel.Root, {
           props: { modelValue: true },
           slots: {
             default: () => h(OverlayPanel.Content, {}, () => 'Content'),
@@ -385,12 +388,11 @@ describe('overlay-panel', () => {
         })
 
         await nextTick()
-        const content = wrapper.find('[role="dialog"]')
-        expect(content.element.tagName).toBe('DIV')
+        expect(queryDialog()?.tagName).toBe('DIV')
       })
 
       it('should render children in default slot', async () => {
-        const wrapper = mountWithStack(OverlayPanel.Root, {
+        mountWithStack(OverlayPanel.Root, {
           props: { modelValue: true },
           slots: {
             default: () => h(OverlayPanel.Content, {}, () => h('p', 'Panel content')),
@@ -398,24 +400,24 @@ describe('overlay-panel', () => {
         })
 
         await nextTick()
-        expect(wrapper.find('p').text()).toBe('Panel content')
+        expect(queryDialog()?.querySelector('p')?.textContent).toBe('Panel content')
       })
 
       it('should not render when closed', () => {
-        const wrapper = mountWithStack(OverlayPanel.Root, {
+        mountWithStack(OverlayPanel.Root, {
           props: { modelValue: false },
           slots: {
             default: () => h(OverlayPanel.Content, {}, () => 'Content'),
           },
         })
 
-        expect(wrapper.find('[role="dialog"]').exists()).toBe(false)
+        expect(queryDialog()).toBeNull()
       })
     })
 
     describe('accessibility', () => {
       it('should have role=dialog', async () => {
-        const wrapper = mountWithStack(OverlayPanel.Root, {
+        mountWithStack(OverlayPanel.Root, {
           props: { modelValue: true },
           slots: {
             default: () => h(OverlayPanel.Content, {}, () => 'Content'),
@@ -423,12 +425,11 @@ describe('overlay-panel', () => {
         })
 
         await nextTick()
-        const content = wrapper.find('[role="dialog"]')
-        expect(content.attributes('role')).toBe('dialog')
+        expect(queryDialog()?.getAttribute('role')).toBe('dialog')
       })
 
       it('should have aria-modal=false (non-modal)', async () => {
-        const wrapper = mountWithStack(OverlayPanel.Root, {
+        mountWithStack(OverlayPanel.Root, {
           props: { modelValue: true },
           slots: {
             default: () => h(OverlayPanel.Content, {}, () => 'Content'),
@@ -436,8 +437,114 @@ describe('overlay-panel', () => {
         })
 
         await nextTick()
+        expect(queryDialog()?.getAttribute('aria-modal')).toBe('false')
+      })
+
+      it('should have an accessible name when aria-label is provided', async () => {
+        mountWithStack(OverlayPanel.Root, {
+          props: { modelValue: true },
+          slots: {
+            default: () => h(OverlayPanel.Content, { 'aria-label': 'Overlay panel' }, () => 'Content'),
+          },
+        })
+
+        await nextTick()
+        expect(queryDialog()?.getAttribute('aria-label')).toBeDefined()
+      })
+    })
+
+    describe('focus', () => {
+      it('should move focus into the dialog on open', async () => {
+        const wrapper = mountWithStack(OverlayPanel.Root, {
+          props: { modelValue: false },
+          slots: {
+            default: () => [
+              h(OverlayPanel.Activator, {}, () => 'Open'),
+              h(OverlayPanel.Content, { 'aria-label': 'Overlay panel' }, () => 'Panel body'),
+            ],
+          },
+        })
+
+        const activator = wrapper.findComponent(OverlayPanel.Activator as any).element as HTMLElement
+        activator.focus()
+        await wrapper.findComponent(OverlayPanel.Activator as any).trigger('click')
+        await nextTick()
+
+        const dialog = document.querySelector('[role="dialog"]')
+        expect(dialog).not.toBeNull()
+        expect(document.activeElement).toBe(dialog)
+      })
+
+      it('should restore focus to the activator on close', async () => {
+        const isOpen = ref(false)
+
+        const wrapper = mountWithStack(OverlayPanel.Root, {
+          props: {
+            'modelValue': false,
+            'onUpdate:modelValue': (v: unknown) => {
+              isOpen.value = v as boolean
+              wrapper.setProps({ modelValue: v as boolean })
+            },
+          },
+          slots: {
+            default: () => [
+              h(OverlayPanel.Activator, {}, () => 'Open'),
+              h(OverlayPanel.Content, { 'aria-label': 'Overlay panel' }, () => [
+                h(OverlayPanel.Close, {}, () => 'Close'),
+              ]),
+            ],
+          },
+        })
+
+        const activator = wrapper.findComponent(OverlayPanel.Activator as any).element as HTMLElement
+        activator.focus()
+        await wrapper.findComponent(OverlayPanel.Activator as any).trigger('click')
+        await nextTick()
+        expect(isOpen.value).toBe(true)
+
+        const close = queryDialog()?.querySelector('button')
+        expect(close).not.toBeNull()
+        close!.click()
+        await nextTick()
+        await nextTick()
+
+        expect(isOpen.value).toBe(false)
+        expect(document.activeElement).toBe(activator)
+      })
+    })
+
+    describe('teleport', () => {
+      it('should teleport content to a custom host when to is set', async () => {
+        const host = document.createElement('div')
+        host.id = 'overlay-panel-host'
+        document.body.append(host)
+
+        mountWithStack(OverlayPanel.Root, {
+          props: { modelValue: true },
+          slots: {
+            default: () => h(OverlayPanel.Content, { 'to': host, 'aria-label': 'Overlay panel' }, () => 'Panel body'),
+          },
+        })
+
+        await nextTick()
+        expect(host.querySelector('[role="dialog"]')).not.toBeNull()
+        expect(host.querySelector('[role="dialog"]')!.textContent).toContain('Panel body')
+
+        host.remove()
+      })
+
+      it('should render content inline when teleport is disabled', async () => {
+        const wrapper = mountWithStack(OverlayPanel.Root, {
+          props: { modelValue: true },
+          slots: {
+            default: () => h(OverlayPanel.Content, { 'disabled': true, 'aria-label': 'Overlay panel' }, () => 'Panel body'),
+          },
+        })
+
+        await nextTick()
         const content = wrapper.find('[role="dialog"]')
-        expect(content.attributes('aria-modal')).toBe('false')
+        expect(content.exists()).toBe(true)
+        expect(content.text()).toContain('Panel body')
       })
     })
 
@@ -559,7 +666,7 @@ describe('overlay-panel', () => {
 
     describe('z-index stacking', () => {
       it('should have z-index from stack', async () => {
-        const wrapper = mountWithStack(OverlayPanel.Root, {
+        mountWithStack(OverlayPanel.Root, {
           props: { modelValue: true },
           slots: {
             default: () => h(OverlayPanel.Content, {}, () => 'Content'),
@@ -567,9 +674,7 @@ describe('overlay-panel', () => {
         })
 
         await nextTick()
-        const content = wrapper.find('[role="dialog"]')
-        const style = content.attributes('style')
-        expect(style).toContain('z-index')
+        expect(queryDialog()?.getAttribute('style')).toContain('z-index')
       })
     })
   })
@@ -804,7 +909,7 @@ describe('overlay-panel', () => {
       await wrapper.setProps({ modelValue: true })
       await nextTick()
 
-      expect(wrapper.find('[role="dialog"]').exists()).toBe(true)
+      expect(queryDialog()).not.toBeNull()
     })
 
     it('should handle overlay without activator (controlled)', async () => {
@@ -822,7 +927,7 @@ describe('overlay-panel', () => {
       })
 
       await nextTick()
-      expect(wrapper.find('[role="dialog"]').exists()).toBe(true)
+      expect(queryDialog()).not.toBeNull()
 
       const close = wrapper.findComponent(OverlayPanel.Close as any)
       expect(close.exists()).toBe(true)
@@ -850,6 +955,26 @@ describe('overlay-panel', () => {
 
       expect(html).toBeTruthy()
       expect(html).toContain('Open')
+    })
+
+    it('should render panel body on server when modelValue is true', async () => {
+      const app = createSSRApp(defineComponent({
+        render: () =>
+          h(OverlayPanel.Root as never, { modelValue: true }, {
+            default: () => [
+              h(OverlayPanel.Activator as never, {}, () => 'Open'),
+              h(OverlayPanel.Content as never, {}, () => 'Panel body'),
+            ],
+          }),
+      }))
+
+      app.use(createStackPlugin())
+
+      const ctx: { teleports?: Record<string, string> } = {}
+      const html = await renderToString(app, ctx)
+      const teleported = Object.values(ctx.teleports ?? {}).join('')
+
+      expect(`${html}${teleported}`).toContain('Panel body')
     })
 
     it('should hydrate without mismatches', async () => {

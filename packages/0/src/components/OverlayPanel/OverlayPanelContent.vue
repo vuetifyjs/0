@@ -18,7 +18,7 @@
 
 <script lang="ts">
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { Extensible } from '#v0/types'
 
   export interface OverlayPanelContentProps extends AtomProps {
@@ -50,7 +50,8 @@
       'id': string
       'role': 'dialog'
       'aria-modal': 'false'
-      'style': { zIndex: number, position: 'fixed' }
+      'tabindex': -1
+      'style': { zIndex: number }
     }
   }
 </script>
@@ -68,8 +69,15 @@
   import { useStack } from '#v0/composables/useStack'
   import { useToggleScope } from '#v0/composables/useToggleScope'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
+  // Globals
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Utilities
-  import { mergeProps, nextTick, onMounted, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+  import { getActiveElement } from '#v0/utilities'
+  import { mergeProps, nextTick, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   defineOptions({ name: 'OverlayPanelContent', inheritAttrs: false })
 
@@ -92,7 +100,8 @@
   const context = useOverlayPanelContext(namespace)
   const attrs = useAttrs()
 
-  const contentRef = useTemplateRef('content')
+  const contentRef = useTemplateRef<AtomExpose>('content')
+  const el = toRef(() => toElement(contentRef.value?.element) ?? null)
   let previousActiveElement: Element | null = null
 
   const stack = useStack()
@@ -100,12 +109,12 @@
     onDismiss: () => context.close(),
     blocking: () => blocking,
     scrim: () => scrim,
-    el: () => contentRef.value?.element,
+    el: () => el.value,
   })
 
   watch(context.isOpen, isOpen => {
     if (isOpen) {
-      previousActiveElement = document.activeElement
+      previousActiveElement = getActiveElement()
       ticket.select()
     } else {
       ticket.unselect()
@@ -113,24 +122,26 @@
   }, { immediate: true })
 
   watch(context.isOpen, async isOpen => {
-    if (!isOpen && previousActiveElement instanceof HTMLElement) {
+    if (!IN_BROWSER) return
+    if (isOpen) {
       await nextTick()
-      previousActiveElement.focus()
-      previousActiveElement = null
+      if (el.value instanceof HTMLElement) {
+        el.value.focus()
+      }
+      return
     }
-  })
-
-  onMounted(() => {
-    if (context.isOpen.value) {
-      previousActiveElement = document.activeElement
+    const restore = previousActiveElement
+    previousActiveElement = null
+    if (restore instanceof HTMLElement && restore.isConnected) {
+      restore.focus()
     }
-  })
+  }, { flush: 'post', immediate: true })
 
   useToggleScope(
     () => closeOnClickOutside && context.isOpen.value,
     () => {
       useClickOutside(
-        () => contentRef.value?.element,
+        () => el.value instanceof HTMLElement ? el.value : null,
         () => context.close(),
       )
     },
@@ -160,7 +171,8 @@
       'id': context.id,
       'role': 'dialog',
       'aria-modal': 'false',
-      'style': { zIndex: ticket.zIndex.value, position: 'fixed' },
+      'tabindex': -1,
+      'style': { zIndex: ticket.zIndex.value },
     },
   }))
 </script>
