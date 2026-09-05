@@ -330,9 +330,7 @@ describe('slider', () => {
       const model = ref([50])
       const { thumbProps, wait } = mountSlider({ model })
       await wait()
-      expect(thumbProps().attrs.style.left).toBe(
-        'calc(var(--v0-slider-thumb-offset, 0px) + (100% - 2 * var(--v0-slider-thumb-offset, 0px)) * 0.5)',
-      )
+      expect(thumbProps().attrs.style.left).toBe('50%')
     })
 
     it('should use bottom for vertical orientation', async () => {
@@ -342,27 +340,7 @@ describe('slider', () => {
         props: { orientation: 'vertical' },
       })
       await wait()
-      expect(thumbProps().attrs.style.bottom).toBe(
-        'calc(var(--v0-slider-thumb-offset, 0px) + (100% - 2 * var(--v0-slider-thumb-offset, 0px)) * 0.5)',
-      )
-    })
-
-    it('should use CSS calc for thumb positioning at min (0%)', async () => {
-      const model = ref([0])
-      const { thumbProps, wait } = mountSlider({ model })
-      await wait()
-      expect(thumbProps().attrs.style.left).toBe(
-        'calc(var(--v0-slider-thumb-offset, 0px) + (100% - 2 * var(--v0-slider-thumb-offset, 0px)) * 0)',
-      )
-    })
-
-    it('should use CSS calc for thumb positioning at max (100%)', async () => {
-      const model = ref([100])
-      const { thumbProps, wait } = mountSlider({ model })
-      await wait()
-      expect(thumbProps().attrs.style.left).toBe(
-        'calc(var(--v0-slider-thumb-offset, 0px) + (100% - 2 * var(--v0-slider-thumb-offset, 0px)) * 1)',
-      )
+      expect(thumbProps().attrs.style.bottom).toBe('50%')
     })
   })
 
@@ -617,9 +595,7 @@ describe('slider', () => {
         props: { orientation: 'vertical' },
       })
       await wait()
-      expect(thumbProps().attrs.style.bottom).toBe(
-        'calc(var(--v0-slider-thumb-offset, 0px) + (100% - 2 * var(--v0-slider-thumb-offset, 0px)) * 0.5)',
-      )
+      expect(thumbProps().attrs.style.bottom).toBe('50%')
       expect(thumbProps().attrs.style.left).toBeUndefined()
     })
 

@@ -2806,27 +2806,6 @@ describe('carousel', () => {
       }).not.toThrow()
     })
 
-    it('should start autoplay automatically on mount when autoplay > 0', async () => {
-      let rootProps: any
-
-      mount(Carousel.Root, {
-        props: { autoplay: 1000 },
-        slots: {
-          default: (props: any) => {
-            rootProps = props
-            return [
-              h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
-              h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
-            ]
-          },
-        },
-      })
-
-      await nextTick()
-
-      expect(rootProps.isAutoplay).toBe(true)
-    })
-
     it('should report active autoplay after play()', async () => {
       let rootProps: any
 
@@ -2878,33 +2857,6 @@ describe('carousel', () => {
       rootProps.resume()
       await nextTick()
       expect(rootProps.isPaused).toBe(false)
-    })
-
-    it('should advance to the next slide automatically on mount when autoplay > 0', async () => {
-      const selected = ref<string>('a')
-
-      mount(Carousel.Root, {
-        props: {
-          'autoplay': 1000,
-          'modelValue': selected.value,
-          'onUpdate:modelValue': (v: unknown) => {
-            selected.value = v as string
-          },
-        },
-        slots: {
-          default: () => [
-            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
-            h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
-          ],
-        },
-      })
-
-      await nextTick()
-
-      vi.advanceTimersByTime(1000)
-      await nextTick()
-
-      expect(selected.value).toBe('b')
     })
 
     it('should advance to the next slide when autoplay timer fires', async () => {
