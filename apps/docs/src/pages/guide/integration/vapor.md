@@ -16,14 +16,14 @@ related:
 
 # Vapor
 
-[Vue Vapor mode](https://github.com/vuejs/core/releases/tag/v3.6.0-rc.1) is Vue's compiler-optimized runtime that ships without the virtual DOM, compiling templates to direct DOM operations. v0 is built to keep working under Vapor.
+[Vue Vapor mode](https://github.com/vuejs/core/releases/tag/v3.6.0-rc.1) is Vue's compiler-optimized runtime that ships without the virtual DOM, compiling templates to direct DOM operations. Vuetify0 is built to keep working under Vapor.
 
 <DocsPageFeatures :frontmatter />
 
 > [!IMPORTANT]
-> Vapor mode ships in **Vue 3.6**, now in release-candidate phase with Vapor feature-complete. This page describes a **forward-compatibility target**, not a stable guarantee. v0 itself is published against Vue `>=3.5`; the Vapor support below is verified on a pinned Vue 3.6 release candidate and exercised by a dedicated test suite, but treat it as pre-release until Vue 3.6 is stable.
+> Vapor mode ships in **Vue 3.6**, now in release-candidate phase with Vapor feature-complete. This page describes a **forward-compatibility target**, not a stable guarantee. Vuetify0 itself is published against Vue `>=3.5`; the Vapor support below is verified on a pinned Vue 3.6 release candidate and exercised by a dedicated test suite, but treat it as pre-release until Vue 3.6 is stable.
 
-## Why v0 is a good fit for Vapor
+## Why Vuetify0 is a good fit for Vapor
 
 Vapor leans harder on fine-grained reactivity and removes the virtual DOM. v0's design already points that way:
 
@@ -34,13 +34,13 @@ This is a standing design rule, not an afterthought: every new v0 abstraction is
 
 ## What is verified today
 
-v0 ships an isolated Vapor test suite (`tests/vapor`, run with `pnpm test:vapor`) that mounts real Vapor components against a pinned Vue 3.6 release candidate[^rc-pin] and asserts:
+Vuetify0 ships an isolated Vapor test suite (`tests/vapor`, run with `pnpm test:vapor`) that mounts real Vapor components against a pinned Vue 3.6 release candidate[^rc-pin] and asserts:
 
 | Area | What it proves |
 | - | - |
 | Instance detection | `getCurrentInstance()` is `null` in a Vapor component, yet v0 still resolves the active instance[^instance-shim] — so composables that depend on component context keep working. |
 | Composables | `createSelection` registers items, updates reactive state, and drives Vapor DOM updates from inside a Vapor `setup`. |
-| Component interop | A classic (vdom) v0 component renders inside a Vapor app through `vaporInteropPlugin`, including slot content forwarded from a Vapor parent[^interop-slots]. |
+| Component interop | A classic (vdom) Vuetify0 component renders inside a Vapor app through `vaporInteropPlugin`, including slot content forwarded from a Vapor parent[^interop-slots]. |
 
 [^rc-pin]: Pinned to `vue@3.6.0-rc.2`. The Vapor surface the suite touches (the `vapor` SFC attribute, `createVaporApp`, `vaporInteropPlugin`) has been stable across the beta and RC lines; the pin moves to `3.6.0` when stable ships.
 [^instance-shim]: Vapor exposes the active instance on Vue 3.6's `currentInstance` export; `getCurrentInstance()` returns `null` inside a Vapor component by design ([vuejs/core discussion #13629](https://github.com/orgs/vuejs/discussions/13629)). v0 reads `currentInstance` when present and falls back to `getCurrentInstance()` on Vue 3.5 — see `utilities/instance.ts`.
@@ -67,7 +67,7 @@ Composables need no special handling — call them inside a `<script setup vapor
 
 ### The `getCurrentInstance()` caveat
 
-Vapor intentionally makes `getCurrentInstance()` return `null` inside a component. Libraries that call it directly to detect component context can break — v0 does not. Internally v0 reads Vue 3.6's `currentInstance` export when it is available and falls back to `getCurrentInstance()` on older Vue, so instance-aware helpers like `useId()` continue to resolve correctly under Vapor. If you write your own instance-aware logic, prefer the same pattern over a bare `getCurrentInstance()` call.
+Vapor intentionally makes `getCurrentInstance()` return `null` inside a component. Libraries that call it directly to detect component context can break — Vuetify0 does not. Internally v0 reads Vue 3.6's `currentInstance` export when it is available and falls back to `getCurrentInstance()` on older Vue, so instance-aware helpers like `useId()` continue to resolve correctly under Vapor. If you write your own instance-aware logic, prefer the same pattern over a bare `getCurrentInstance()` call.
 
 ## Using components under Vapor
 
@@ -133,7 +133,7 @@ Put the Vapor↔vdom boundary **above** the repeated region, never inside it —
 Measured on Vue `3.6.0-rc.2` with the repository's gated interop bench (200 compound checkboxes): inline composition costs +44% mount time and +12% retained heap over a classic root; the same tree behind a single classic wrapper is within noise. A production Vue SPA (11k tests) independently measured the same shape in real Chromium at 1x and 4x CPU throttle: +66–78% mount and +49% heap inline, all collapsing to noise — update operations and heap included — with one wrapper.
 
 > [!WARNING]
-> Inline composition is the natural way to author this, and nothing warns you when the boundary sits inside the loop — the subtree just mounts slower. Audit Vapor templates for v0 components inside `v-for` blocks.
+> Inline composition is the natural way to author this, and nothing warns you when the boundary sits inside the loop — the subtree just mounts slower. Audit Vapor templates for Vuetify0 components inside `v-for` blocks.
 
 The wrapper is a parity workaround, not a win: everything inside the boundary still renders classic, so it never sees Vapor's cheaper updates. Vapor-native v0 builds are the actual fix; until then, keep regions in one rendering mode.
 

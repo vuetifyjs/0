@@ -57,11 +57,11 @@ Unlike `EmButton` and `EmTextField`, `EmSelect` has a variable tree — you deci
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 Every part maps one-to-one onto v0's [Select](/components/forms/select) compound — `Select.Root`, `Select.Activator`, `Select.Value`, `Select.Placeholder`, `Select.Content`, `Select.Item`. Emerald adds CSS and a caret; v0 supplies everything else.
 
-"Everything else" is most of what a select is. `Select.Root` is built on v0's selection primitives, so `multiple` and `mandatory` are `createSelection` behaviors rather than props Emerald implements. The listbox roles, the roving `aria-activedescendant`, and the keyboard map are v0's. `Select.Content` renders through the native popover API, which is why the menu escapes overflow and stacking contexts without a floating library or a z-index to manage.
+"Everything else" is most of what a select is. `Select.Root` is built on Vuetify0's selection primitives, so `multiple` and `mandatory` are `createSelection` behaviors rather than props Emerald implements. The listbox roles, the roving `aria-activedescendant`, and the keyboard map are v0's. `Select.Content` renders through the native popover API, which is why the menu escapes overflow and stacking contexts without a floating library or a z-index to manage.
 
 `Select` is a picker over a fixed set of options — it has no text entry and no type-to-filter. When you need the reader to type, either to filter a long list or to enter a value that is not in it, reach for [Combobox](/components/forms/combobox) instead; that is where v0 puts filtering and typeahead. Emerald does not wrap it yet.
 
@@ -94,7 +94,7 @@ Reach for `mandatory` on the root when the field must never be empty — it stop
 
 `EmSelectItem` takes a default slot, so an option can hold anything — an icon, a secondary line, a badge. `value` is what lands in the model, and it is independent of what the option renders, so the display can be as rich as you like while the bound value stays a plain id.
 
-The trade-off to be aware of is the trigger. Because `value` is the model, `EmSelectValue` can only render what you give it; with structured options you generally want to look the selected value back up, as this example does, rather than print the raw id. That lookup is yours — v0 tracks selection, not your data model.
+The trade-off to be aware of is the trigger. Because `value` is the model, `EmSelectValue` can only render what you give it; with structured options you generally want to look the selected value back up, as this example does, rather than print the raw id. That lookup is yours — Vuetify0 tracks selection, not your data model.
 
 `disabled` on an item keeps it visible and announced but unselectable, which is right when its absence would be confusing — a plan the account has outgrown, a permission the current role cannot grant. When an option is simply irrelevant, filter it out instead; a list of options that cannot be picked is noise a keyboard user has to walk through.
 
@@ -135,7 +135,7 @@ Every part takes an optional `namespace`; only `EmSelectItem` adds props of its 
 
 ## Accessibility
 
-The listbox semantics, the focus model and the keyboard map all come from v0's `Select`, so they match every other consumer of that compound rather than being Emerald's own interpretation.
+The listbox semantics, the focus model and the keyboard map all come from Vuetify0's `Select`, so they match every other consumer of that compound rather than being Emerald's own interpretation.
 
 ### Keyboard
 

@@ -2,7 +2,7 @@
 title: Roadmap - Vuetify0 Development Timeline
 meta:
   - name: description
-    content: Track upcoming features, releases, milestones, and maturity status for @vuetify/v0 headless UI library. v0 is stable — v1.0 shipped July 22, 2026.
+    content: Track upcoming features, releases, milestones, and maturity status for @vuetify/v0 headless UI library. Vuetify0 is stable — v1.0 shipped July 22, 2026.
   - name: keywords
     content: vuetify0, roadmap, stable, v1.0, semver, timeline, milestones, releases, features, maturity, stability, Vue 3, v0, headless ui
 features:
@@ -47,10 +47,10 @@ Alpha opened on April 7, 2026 for feedback; beta hardened the APIs; the release 
 
 ### What v1.0 means
 
-This isn't a proof of concept. v0 is feature-complete for v1 and ready to build with.
+This isn't a proof of concept. Vuetify0 is feature-complete for v1 and ready to build with.
 
 - **The stable set is locked.** 16 composables and 17 utilities are marked stable — breaking changes require a major version. See the [maturity matrix](#maturity-matrix) below for the full breakdown.
-- **v0 is being built directly into Vuetify.** The composables and patterns here are the same ones powering Vuetify's next generation — `vuetify` takes `@vuetify/v0` as a runtime dependency from 4.2.0, starting with the utility layer, and adopts more of the surface each minor. This isn't a side project — it's the core.
+- **Vuetify0 is being built directly into Vuetify.** The composables and patterns here are the same ones powering Vuetify's next generation — `vuetify` takes `@vuetify/v0` as a runtime dependency from 4.2.0, starting with the utility layer, and adopts more of the surface each minor. This isn't a side project — it's the core.
 - **Development continues.** v1.3 and beyond are on the roadmap above, and preview APIs graduate to stable release by release. Every regression, gap, or rough edge you report still gets priority — if something feels wrong, say so.
 
 ### Try v0
@@ -89,7 +89,7 @@ Whether you want to explore in the browser, scaffold a project, or integrate wit
 </div>
 
 > [!TIP]
-> Want a complete working reference? [DevKey](/guide/integration/devkey) is the example project that ships with v0 — a full Vue 3 + Vite + UnoCSS app built on `@vuetify/v0`. Clone it, or run `pnpm create vuetify0` to scaffold your own copy.
+> Want a complete working reference? [DevKey](/guide/integration/devkey) is the example project that ships with Vuetify0 — a full Vue 3 + Vite + UnoCSS app built on `@vuetify/v0`. Clone it, or run `pnpm create vuetify0` to scaffold your own copy.
 
 ### Get involved
 
@@ -112,15 +112,15 @@ Every feature climbs the same track. Its level tells you what you can rely on to
 ## FAQ
 
 ::: faq
-??? What is v0?
+??? What is Vuetify0?
 
-v0 is a headless UI framework for Vue 3. It provides composables and renderless components that handle behavior, state, and accessibility — without any styling opinions. You bring the design; v0 handles the logic.
+Vuetify0 is a headless UI framework for Vue 3. It provides composables and renderless components that handle behavior, state, and accessibility — without any styling opinions. You bring the design; Vuetify0 handles the logic.
 
-??? How is v0 related to Vuetify?
+??? How is Vuetify0 related to Vuetify?
 
-v0 is the foundation layer being built directly into Vuetify's next generation. The composables and patterns in v0 are the same ones that will power Vuetify's styled components — `vuetify` takes `@vuetify/v0` as a runtime dependency from 4.2.0, starting with the shared utilities, and adopts more of the surface through subsequent minors. You can use v0 standalone or alongside Vuetify.
+Vuetify0 is the foundation layer being built directly into Vuetify's next generation. The composables and patterns in Vuetify0 are the same ones that will power Vuetify's styled components — `vuetify` takes `@vuetify/v0` as a runtime dependency from 4.2.0, starting with the shared utilities, and adopts more of the surface through subsequent minors. You can use Vuetify0 standalone or alongside Vuetify.
 
-??? Can I use v0 in production?
+??? Can I use Vuetify0 in production?
 
 Yes. `v1.0.0` is stable and shipped July 22, 2026. The v1 stable set is locked, and the core is already being used to build Vuetify itself — `vuetify` takes it as a runtime dependency from 4.2.0. Preview APIs may still see minor, documented adjustments.
 
@@ -128,11 +128,11 @@ Yes. `v1.0.0` is stable and shipped July 22, 2026. The v1 stable set is locked, 
 
 No — the stable set is locked, and breaking changes to it require a major version. Preview features may still evolve in minor releases, with every change documented in release notes. Alpha gathered the feedback; beta locked things down; the release candidate was the final validation pass before v1.0.
 
-??? What styling framework should I use with v0?
+??? What styling framework should I use with Vuetify0?
 
-v0 is style-agnostic — use UnoCSS, Tailwind, plain CSS, CSS Modules, or whatever fits your project. The docs and examples use UnoCSS. The theme plugin exposes CSS custom properties that you can map to any framework's color system.
+Vuetify0 is style-agnostic — use UnoCSS, Tailwind, plain CSS, CSS Modules, or whatever fits your project. The docs and examples use UnoCSS. The theme plugin exposes CSS custom properties that you can map to any framework's color system.
 
-??? Does v0 support SSR and Nuxt?
+??? Does Vuetify0 support SSR and Nuxt?
 
 Yes. All composables and components are SSR-safe. Nuxt integration is documented in the [getting started guide](/introduction/getting-started).
 

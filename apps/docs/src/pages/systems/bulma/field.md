@@ -28,7 +28,7 @@ The `.field` wrapper and the parts that live inside it: label, control, help. Ad
 
 ## Usage
 
-`BuField` is markup. It does not own a value and it does not create a v0 context. Put a [BuLabel](#bulabel), a [BuControl](#bucontrol) around the input, and a [BuHelp](#buhelp) under it — that is the stacked field Bulma documents.
+`BuField` is markup. It does not own a value and it does not create a Vuetify0 context. Put a [BuLabel](#bulabel), a [BuControl](#bucontrol) around the input, and a [BuHelp](#buhelp) under it — that is the stacked field Bulma documents.
 
 `addons`, `grouped` and `horizontal` are three layouts — pick one. The component will happily emit both `has-addons` and `is-grouped` if you set both, and Bulma has no stylesheet for that combination. `addons` attaches controls into one group (`has-addons`, plus `has-addons-centered` / `has-addons-right` when you pass those strings). `grouped` spaces them as separate controls. `horizontal` splits the row into a label column and a body column, which you compose from `BuFieldLabel` and `BuFieldBody`.
 
@@ -75,13 +75,13 @@ The first tree is a stacked field. The second is the horizontal layout — a fie
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
-`BuField`, `BuFieldLabel`, `BuFieldBody` and `BuControl` are pure markup. They emit Bulma's classes around a slot. There is no model, no context and no v0 primitive underneath.
+`BuField`, `BuFieldLabel`, `BuFieldBody` and `BuControl` are pure markup. They emit Bulma's classes around a slot. There is no model, no context and no Vuetify0 primitive underneath.
 
-`BuLabel` and `BuHelp` are the two that reach into v0. Both optionally inject an [Input.Root](/components/forms/input) on `v0:input:root` by default. `BuLabel`'s `for` falls back to that root's id when you do not pass one. `BuHelp` with `validation` wraps a renderless `Input.Error`, so the error id, `aria-live` and `aria-errormessage` registration wire up without you tracking them.
+`BuLabel` and `BuHelp` are the two that reach into Vuetify0. Both optionally inject an [Input.Root](/components/forms/input) on `v0:input:root` by default. `BuLabel`'s `for` falls back to that root's id when you do not pass one. `BuHelp` with `validation` wraps a renderless `Input.Error`, so the error id, `aria-live` and `aria-errormessage` registration wire up without you tracking them.
 
-v0 ships no `Input.Label` part, which is why `BuLabel` is hand-rolled markup rather than a styled v0 label.
+Vuetify0 ships no `Input.Label` part, which is why `BuLabel` is hand-rolled markup rather than a styled v0 label.
 
 Without an ambient root they still render — a standalone label has no `for`, and a help with `validation` renders an empty `.help` (and warns in development). That is the half-wired trap on [BuInput](/systems/bulma/input): the input still paints `is-danger`, the sibling help stays blank. Wrap the field in `<InputRoot renderless>` when the label and the error text need to see the same context.
 

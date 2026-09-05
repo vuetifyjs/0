@@ -48,7 +48,7 @@ The default slot is the label text. Selection only ever moves, it never clears: 
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `BuRadio` calls [createInput](/composables/forms/create-input) for validation, form registration, the generated id and `aria-invalid`. The element is a native `<input type="radio">` inside `<label class="radio">`.
 

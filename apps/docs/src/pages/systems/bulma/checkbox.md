@@ -48,11 +48,11 @@ There are no color modifiers. A failing value sets `aria-invalid` on the input a
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `BuCheckbox` calls [createInput](/composables/forms/create-input) for validation, form registration, the generated id and `aria-invalid`. The element is a native `<input type="checkbox">` inside `<label class="checkbox">`.
 
-It does **not** wrap v0's Checkbox compound. That compound is a `role="checkbox"` button with an indicator slot; Bulma styles a visible native checkbox, and a button gets none of your CSS. This is the Ruling 2 deviation: Tier 1 wraps the native where the stylesheet demands it. Do not replace this with v0 Checkbox and expect it to look like Bulma.
+It does **not** wrap v0's Checkbox compound. That compound is a `role="checkbox"` button with an indicator slot; Bulma styles a visible native checkbox, and a button gets none of your CSS. This is the Ruling 2 deviation: Tier 1 wraps the native where the stylesheet demands it. Do not replace this with Vuetify0 Checkbox and expect it to look like Bulma.
 
 Fallthrough is split. `class` and `style` merge onto the wrapping label; every other attribute lands on the native input.
 

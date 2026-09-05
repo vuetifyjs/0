@@ -19,7 +19,7 @@ related:
 
 # createDataTable
 
-Composable data table built on v0 primitives. Composes sorting, filtering, pagination, selection, and expansion into a single pipeline.
+Composable data table built on Vuetify0 primitives. Composes sorting, filtering, pagination, selection, and expansion into a single pipeline.
 
 <DocsPageFeatures :frontmatter />
 

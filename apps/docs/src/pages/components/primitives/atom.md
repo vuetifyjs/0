@@ -23,7 +23,7 @@ Low-level primitive for building polymorphic components.
 
 ## Usage
 
-This is the pattern used by every v0 component. Extend `AtomProps`, choose a default element, build your attributes, and let Atom handle the rendering:
+This is the pattern used by every Vuetify0 component. Extend `AtomProps`, choose a default element, build your attributes, and let Atom handle the rendering:
 
 ```vue collapse
 <script lang="ts">
@@ -189,7 +189,7 @@ In renderless mode, the component provides state and behavior through its slot p
 ```
 
 > [!TIP]
-> Any v0 component can be switched between rendered and renderless. Pass `renderless` to strip the wrapper. Pass `as="section"` to add one. This works on every component because they all use Atom underneath.
+> Any Vuetify0 component can be switched between rendered and renderless. Pass `renderless` to strip the wrapper. Pass `as="section"` to add one. This works on every component because they all use Atom underneath.
 
 ## Examples
 
@@ -322,9 +322,9 @@ In renderless mode, you're responsible for applying attrs to your custom element
 ## FAQ
 
 ::: faq
-??? When would I use Atom directly vs just using a v0 component?
+??? When would I use Atom directly vs just using a Vuetify0 component?
 
-**You wouldn't, in most cases.** v0 components already wrap Atom with sensible defaults. CheckboxRoot is a `<button>`, AvatarImage is an `<img>`, DialogRoot is renderless. You override the element via the `as` and `renderless` props on those components.
+**You wouldn't, in most cases.** Vuetify0 components already wrap Atom with sensible defaults. CheckboxRoot is a `<button>`, AvatarImage is an `<img>`, DialogRoot is renderless. You override the element via the `as` and `renderless` props on those components.
 
 **Use Atom directly when building a custom component** that needs polymorphic rendering — like a design system button that renders as `<button>` by default but allows consumers to render it as `<a>` or go renderless. The [Polymorphic Button](#polymorphic-button) example shows this pattern.
 

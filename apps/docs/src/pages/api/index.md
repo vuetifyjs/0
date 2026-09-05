@@ -16,7 +16,7 @@ related:
 
 # API Reference
 
-Complete API documentation for all @vuetify/v0 components and composables.
+Complete API documentation for all @vuetify/Vuetify0 components and composables.
 
 <DocsPageFeatures :frontmatter />
 

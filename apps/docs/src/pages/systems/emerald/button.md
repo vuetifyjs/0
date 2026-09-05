@@ -45,13 +45,13 @@ The four variants are a hierarchy, not a palette. Use exactly one `primary` per 
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `EmButton` renders v0's [Button](/components/actions/button) compound — `Button.Root`, `Button.Content` and `Button.Loading` — and adds nothing to its behavior.
 
 The division is worth knowing because it explains the loading state. `Button.Loading` is a slot-only shell that renders no element of its own, so Emerald owns the absolutely-positioned wrapper inside it and the spinner within that. `Button.Content` stays in the flow the whole time. The result is that a loading button keeps the exact width its label gave it — the label is still laid out, just covered — so a toolbar does not reflow the moment someone clicks Save.
 
-`Button.Root` is also what emits the `data-disabled` and `data-loading` attributes that every rule in Emerald's stylesheet hangs off. Emerald never writes a state class; it styles the attributes v0 already publishes.
+`Button.Root` is also what emits the `data-disabled` and `data-loading` attributes that every rule in Emerald's stylesheet hangs off. Emerald never writes a state class; it styles the attributes Vuetify0 already publishes.
 
 ## Examples
 

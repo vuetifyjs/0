@@ -16,13 +16,13 @@ related:
 
 # Styling Headless Components
 
-v0 components are headless—they provide behavior and accessibility, you provide the styling. This guide covers two first-class patterns for styling based on component state.
+Vuetify0 components are headless—they provide behavior and accessibility, you provide the styling. This guide covers two first-class patterns for styling based on component state.
 
 <DocsPageFeatures :frontmatter />
 
 ## Two Approaches
 
-v0 exposes component state in two ways:
+Vuetify0 exposes component state in two ways:
 
 | Approach | Syntax | Best For |
 | - | - | - |
@@ -36,7 +36,7 @@ Both approaches work with any CSS framework. Data attributes are set automatical
 
 ## Data Attributes Reference
 
-All v0 components expose state via `data-*` attributes in the `attrs` object:
+All Vuetify0 components expose state via `data-*` attributes in the `attrs` object:
 
 | Component | Attributes | Notes |
 | - | - | - |

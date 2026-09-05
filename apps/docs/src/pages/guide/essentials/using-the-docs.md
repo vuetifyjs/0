@@ -2,7 +2,7 @@
 title: Using the Docs - Navigate and Learn Effectively
 meta:
   - name: description
-    content: "Master the v0 documentation with Ask AI, skill-level filtering, interactive examples, keyboard shortcuts, and learning tracks designed for your experience."
+    content: "Master the Vuetify0 documentation with Ask AI, skill-level filtering, interactive examples, keyboard shortcuts, and learning tracks designed for your experience."
   - name: keywords
     content: "documentation, navigation, ask ai, search, examples, learning tracks, keyboard shortcuts, accessibility"
 features:
@@ -24,7 +24,7 @@ const rtl = useRtl()
 
 # Using the Docs
 
-This guide helps you get the most out of v0 documentation. Whether you're exploring headless components for the first time or diving deep into composable architecture, these features will accelerate your learning.
+This guide helps you get the most out of Vuetify0 documentation. Whether you're exploring headless components for the first time or diving deep into composable architecture, these features will accelerate your learning.
 
 <DocsPageFeatures :frontmatter />
 
@@ -114,7 +114,7 @@ The [Guide overview](/guide) defines three learning tracks for structured progre
 
 **Track C: Integration** — See v0 in production
 1. [Nuxt](/guide/integration/nuxt) — SSR, auto-imports, theme persistence
-2. [Building Docs](/guide/integration/building-docs) — How this documentation site uses v0
+2. [Building Docs](/guide/integration/building-docs) — How this documentation site uses Vuetify0
 
 New to v0? Start with Track A. Already building? Jump to Track B as needed.
 
@@ -171,7 +171,7 @@ Results are grouped by category, with Guide pages prioritized. Maximum 20 result
 
 ## Ask AI
 
-The documentation includes a context-aware AI assistant that understands v0 concepts and has access to the current page's content.
+The documentation includes a context-aware AI assistant that understands Vuetify0 concepts and has access to the current page's content.
 
 ### Opening Ask AI
 
@@ -442,7 +442,7 @@ theme.toggle() // switch themes
 - Shows description and key API members
 - Click **"View API →"** to jump to the full reference
 
-> [!TIP] The hover works on any recognized v0 component or composable in code blocks, making it easy to explore without leaving your current page.
+> [!TIP] The hover works on any recognized Vuetify0 component or composable in code blocks, making it easy to explore without leaving your current page.
 
 ### Vue Documentation Links
 
@@ -461,7 +461,7 @@ onMounted(() => {
 
 | Type | Popover badge | Footer action |
 |------|---------------|---------------|
-| v0 API | Component / Composable | **View API →** (internal page) |
+| Vuetify0 API | Component / Composable | **View API →** (internal page) |
 | Vue built-in | Function / Reactivity / Lifecycle | **View Vue docs ↗** (external) |
 
 Both share the same dotted underline — the popover's colored badge and footer link tell you which kind you're looking at.

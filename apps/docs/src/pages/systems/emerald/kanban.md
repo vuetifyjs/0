@@ -49,13 +49,13 @@ The column's default slot is the card body. It is scoped — `v-slot="{ card }"`
 
 `EmKanban.Card` exists and is exported, but you never write it — each column renders one around your slot content per card.
 
-## Composed on v0
+## Composed on Vuetify0
 
-`EmKanban` instantiates two v0 composables at the root and shares both with its parts through context under the `emerald:kanban` namespace: [createKanban](/composables/data/create-kanban), which owns the columns registry and the `transfer` primitive, and [useDragDrop](/composables/system/use-drag-drop), which owns the draggables, the drop zones, and the drag lifecycle through its default pointer and keyboard adapters.
+`EmKanban` instantiates two Vuetify0 composables at the root and shares both with its parts through context under the `emerald:kanban` namespace: [createKanban](/composables/data/create-kanban), which owns the columns registry and the `transfer` primitive, and [useDragDrop](/composables/system/use-drag-drop), which owns the draggables, the drop zones, and the drag lifecycle through its default pointer and keyboard adapters.
 
 The split follows from that. Each `EmKanbanColumn` registers itself into `kanban.columns` and registers its card list as a vertical drop zone that accepts `card` drags; each card registers a draggable. From there v0 does the mechanics — hit-testing the pointer against zones, resolving which slot a drop lands in from the zone's geometry, and gating everything on `disabled` — while Emerald owns everything a design system should: the DOM and its list semantics, the drop-indicator bar (drawn from the zone's `indicator` rect), the polite live region and its messages, returning focus to a card after a keyboard drop, and the `move` event.
 
-One correction lives in Emerald rather than v0, and it is worth knowing about if you build your own board: on a same-column drop the zone resolves its index against a stack that still contains the dragged card, while `transfer` removes before inserting — so the column subtracts one when the card moves down its own column. The reactive card iteration comes from v0 too, via [useProxyRegistry](/composables/reactivity/use-proxy-registry).
+One correction lives in Emerald rather than v0, and it is worth knowing about if you build your own board: on a same-column drop the zone resolves its index against a stack that still contains the dragged card, while `transfer` removes before inserting — so the column subtracts one when the card moves down its own column. The reactive card iteration comes from Vuetify0 too, via [useProxyRegistry](/composables/reactivity/use-proxy-registry).
 
 ## Examples
 

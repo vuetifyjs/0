@@ -2,7 +2,7 @@
 title: Why v0 - The Meta-Framework for Building UI Libraries
 meta:
   - name: description
-    content: v0 is a meta-framework for building UI libraries. Headless composables, AI-native docs, interactive playground, and a decade of Vuetify battle-testing.
+    content: Vuetify0 is a meta-framework for building UI libraries. Headless composables, AI-native docs, interactive playground, and a decade of Vuetify battle-testing.
   - name: keywords
     content: vuetify0, meta-framework, headless ui, composables, vue, design system, ai documentation, mcp
 features:
@@ -17,17 +17,17 @@ related:
 logo: vzero
 ---
 
-# Why v0
+# Why Vuetify0
 
 The meta-framework for building UI libraries.
 
 <DocsPageFeatures :frontmatter />
 
-v0 provides headless composables, unstyled components, and reactive primitives — the foundation layer that UI frameworks are built on. **39 components, 70 composables** — all unstyled, all accessible, built on standard Vue SFCs using the latest macros (`defineModel`, `defineSlots`, generics).
+Vuetify0 provides headless composables, unstyled components, and reactive primitives — the foundation layer that UI frameworks are built on. **39 components, 70 composables** — all unstyled, all accessible, built on standard Vue SFCs using the latest macros (`defineModel`, `defineSlots`, generics).
 
-No custom compiler, no proprietary patterns. Use it to build a full design system shared across projects, or import a single composable to solve one problem in your app. v0 scales to your ambition.
+No custom compiler, no proprietary patterns. Use it to build a full design system shared across projects, or import a single composable to solve one problem in your app. Vuetify0 scales to your ambition.
 
-From the creators of [Vuetify](https://vuetifyjs.com) — **41K+ GitHub stars**, **4M+ monthly downloads**, a decade of production use. Vuetify itself is being rebuilt on v0.
+From the creators of [Vuetify](https://vuetifyjs.com) — **41K+ GitHub stars**, **4M+ monthly downloads**, a decade of production use. Vuetify itself is being rebuilt on Vuetify0.
 
 ## Composable-First Architecture
 
@@ -35,7 +35,7 @@ From the creators of [Vuetify](https://vuetifyjs.com) — **41K+ GitHub stars**,
 
 ### Logic Without Components
 
-Most headless libraries give you components. v0 gives you **composables that optionally have components**. Use the logic without any rendering layer:
+Most headless libraries give you components. Vuetify0 gives you **composables that optionally have components**. Use the logic without any rendering layer:
 
 ```ts
 import { createSelection } from '@vuetify/v0'
@@ -60,7 +60,7 @@ console.log(items[0].isSelected.value) // true
 
 The same selection logic powers chips, listboxes, tabs, or whatever you build. That's what a meta-framework does.
 
-You can also use v0 composables inside an existing Vuetify application:
+You can also use Vuetify0 composables inside an existing Vuetify application:
 
 ```vue collapse
 <script setup lang="ts">
@@ -107,7 +107,7 @@ Use as many layers as you need. The same selection logic works whether you're bu
 
 The real power isn't any single composable — it's what you build when you combine them.
 
-A `Cmd+K` command palette is just four v0 primitives working together:
+A `Cmd+K` command palette is just four Vuetify0 primitives working together:
 
 ```ts
 // ~100 lines. No third-party command palette library needed.
@@ -132,7 +132,7 @@ That's what a meta-framework does — composable primitives that combine cleanly
 
 ### Adapter-Based Plugins
 
-v0 defines contracts, not implementations. Plugins use adapters — swap the underlying library without changing a line of consumer code. Your components never know the difference.
+Vuetify0 defines contracts, not implementations. Plugins use adapters — swap the underlying library without changing a line of consumer code. Your components never know the difference.
 
 Built-in adapters ship for the most common integrations:
 
@@ -161,20 +161,20 @@ Lazy rendering is built in: [`usePresence`](/composables/system/use-presence) de
 
 **Features that grow with your stack.**
 
-v0 features automatically upgrade when plugins are present. No wiring. No configuration. They just get better.
+Vuetify0 features automatically upgrade when plugins are present. No wiring. No configuration. They just get better.
 
 - **Pagination + Locale:** Uses a default label string out of the box. Add `useLocale`, define your pagination label, and the component picks it up automatically.
 - **Logger:** `console.log` by default. Add the logger plugin and you get colored output and visual formatting — no code changes.
 - **Breakpoints:** Add `useBreakpoints` and composables can consume it for responsive behavior — available throughout the system with zero configuration.
 
 > [!TIP]
-> This is the difference between a library and a meta-framework. Libraries make you wire everything. v0 features are aware of each other.
+> This is the difference between a library and a meta-framework. Libraries make you wire everything. Vuetify0 features are aware of each other.
 
 ## AI-Native Ecosystem
 
 **Your AI already knows v0.**
 
-v0 was built in the AI era. Not retrofitted — designed from day one to be consumed by both humans and machines.
+Vuetify0 was built in the AI era. Not retrofitted — designed from day one to be consumed by both humans and machines.
 
 ### MCP Server
 
@@ -186,7 +186,7 @@ A context-aware AI assistant embedded in the documentation. It has access to the
 
 ### Personalized Documentation
 
-`vuetify-cli analyze` scans your project, finds which v0 features you actually use, and generates a personalized docs URL filtered to your stack. Share it with your team for focused onboarding.
+`vuetify-cli analyze` scans your project, finds which Vuetify0 features you actually use, and generates a personalized docs URL filtered to your stack. Share it with your team for focused onboarding.
 
 ### AI-Friendly Exports
 
@@ -216,7 +216,7 @@ Examples aren't throwaway demos. Each one teaches a concept — multi-file, orde
 
 **Built on what works.**
 
-While v0 is new, its patterns are not. Registration, selection, theming, forms — Vuetify has used some form of these approaches since its founding. Every version refined them. v0 is the extraction and formalization of a decade of production-tested architecture.
+While Vuetify0 is new, its patterns are not. Registration, selection, theming, forms — Vuetify has used some form of these approaches since its founding. Every version refined them. Vuetify0 is the extraction and formalization of a decade of production-tested architecture.
 
 ### The Platform Behind v0
 
@@ -234,17 +234,17 @@ Active Discord. Weekly releases. Responsive maintainers. The kind of support tha
 
 **MIT licensed — and nothing to gate.**
 
-v0 is MIT licensed — every component, composable, and utility. No pro tier, no paywalled features, no plans for either. There's nothing to gate, because the project isn't funded by gating it: development is carried by the wider Vuetify ecosystem — sponsorships, optional services, and a decade of continuous open-source work. The foundation you build on today stays free, and stays maintained.
+Vuetify0 is MIT licensed — every component, composable, and utility. No pro tier, no paywalled features, no plans for either. There's nothing to gate, because the project isn't funded by gating it: development is carried by the wider Vuetify ecosystem — sponsorships, optional services, and a decade of continuous open-source work. The foundation you build on today stays free, and stays maintained.
 
 ### Vuetify Convergence
 
-Vuetify0 is already being merged into Vuetify's next major release. The first PR has landed. Investing in v0 now means your foundation aligns with where the entire Vuetify ecosystem is actively heading.
+Vuetify0 is already being merged into Vuetify's next major release. The first PR has landed. Investing in Vuetify0 now means your foundation aligns with where the entire Vuetify ecosystem is actively heading.
 
 ### Road to v1
 
 **Alpha → Beta → Release Candidate → v1.0** — stable, shipped July 22, 2026. [See the full roadmap](/roadmap).
 
-What comes after v1: **Vuetify Paper** — a styled layer built on v0 that provides opinionated design system primitives. Emerald is in-repo as the first commercial design system; Bulma is the first compat DS. Onyx is not shipped. Build on v0 today; Paper gives you a head start on the styled layer when you're ready.
+What comes after v1: **Vuetify Paper** — a styled layer built on Vuetify0 that provides opinionated design system primitives. Emerald is in-repo as the first commercial design system; Bulma is the first compat DS. Onyx is not shipped. Build on Vuetify0 today; Paper gives you a head start on the styled layer when you're ready.
 
 ### For Your Leadership
 
@@ -252,7 +252,7 @@ Need to justify the choice to management? Here's what matters to them:
 
 - **Proven track record:** 10+ years, 41K+ stars, 324K+ dependents — not a gamble
 - **Active development:** Weekly releases, thousands of PRs merged, public roadmap
-- **Ecosystem convergence:** v0 is already being merged into Vuetify's next major release
+- **Ecosystem convergence:** Vuetify0 is already being merged into Vuetify's next major release
 - **Enterprise adoption:** Production use across industries
 - **Community health:** Active Discord, dedicated maintainer team, massive documentation investment
 - **Enterprise support:** [Dedicated support options available](https://vuetifyjs.com/introduction/enterprise-support/) for teams that need SLA guarantees
@@ -263,10 +263,10 @@ Need to justify the choice to management? Here's what matters to them:
 
 | | Tool | Description |
 |:-:|------|-------------|
-| <AppIcon icon="vuetify-create" :size="20" /> | **[create-vuetify0](https://www.npmjs.com/package/create-vuetify0)** | One command, project scaffolded with v0 pre-configured |
+| <AppIcon icon="vuetify-create" :size="20" /> | **[create-vuetify0](https://www.npmjs.com/package/create-vuetify0)** | One command, project scaffolded with Vuetify0 pre-configured |
 | <AppIcon icon="vuetify-cli" :size="20" /> | **[Vuetify CLI](/guide/tooling/vuetify-cli)** | Analyze usage, generate components, debug issues |
 | <AppIcon icon="vuetify-mcp" :size="20" /> | **[Vuetify MCP](/guide/tooling/vuetify-mcp)** | AI-native API access for Claude, Cursor, and other assistants |
-| <AppIcon icon="vuetify-play" :size="20" /> | **[Vuetify Play](/playground)** | Browser IDE for experimenting with v0 in real-time |
+| <AppIcon icon="vuetify-play" :size="20" /> | **[Vuetify Play](/playground)** | Browser IDE for experimenting with Vuetify0 in real-time |
 | <AppIcon icon="vuetify-bin" :size="20" /> | **[Vuetify Bin](https://bin.vuetifyjs.com)** | Share runnable code snippets with a link |
 
 ## Learn by Doing
@@ -285,11 +285,11 @@ The documentation isn't just reference — it's a training ground. Vuetify0 Skil
 **Coming soon:**
 
 - Tests and challenges to prove mastery
-- Skill-based progression that improves how you work with v0 and with AI tools
+- Skill-based progression that improves how you work with Vuetify0 and with AI tools
 
 ## Beyond a Component Library
 
-Headless component libraries solve one problem well: unstyled UI primitives. v0 solves the layer beneath — the composable architecture, plugin system, and developer ecosystem that UI libraries are built on.
+Headless component libraries solve one problem well: unstyled UI primitives. Vuetify0 solves the layer beneath — the composable architecture, plugin system, and developer ecosystem that UI libraries are built on.
 
 | Capability | Typical Headless Library | v0 Meta-Framework |
 |------------|:--:|:--:|
@@ -305,7 +305,7 @@ Headless component libraries solve one problem well: unstyled UI primitives. v0 
 | CLI tooling | <AppIcon icon="close" class="text-error" /> | <AppIcon icon="success" class="text-success" /> |
 | 10+ years ecosystem | <AppIcon icon="close" class="text-error" /> | <AppIcon icon="success" class="text-success" /> |
 
-Need a full styled framework today? [Vuetify 4](https://vuetifyjs.com) has 80+ Material Design components ready to go. Need headless components that v0 doesn't have yet? Other options exist. v0 complements all of them — it's the foundation layer, not a replacement.
+Need a full styled framework today? [Vuetify 4](https://vuetifyjs.com) has 80+ Material Design components ready to go. Need headless components that Vuetify0 doesn't have yet? Other options exist. Vuetify0 complements all of them — it's the foundation layer, not a replacement.
 
 ## Get Started
 

@@ -27,7 +27,7 @@ A rule between things — horizontal or vertical, with an optional center label.
 
 `EmDivider` has one prop and one slot. `orientation` turns the line vertical; the default slot, when you fill it, becomes a small centered label with the line running out to both sides of it.
 
-An empty horizontal divider renders a native `hr`, so the common case is the semantic one for free. The vertical and labeled shapes swap to `div`-based rendering because the platform element cannot express them — the details are under Composed on v0.
+An empty horizontal divider renders a native `hr`, so the common case is the semantic one for free. The vertical and labeled shapes swap to `div`-based rendering because the platform element cannot express them — the details are under Composed on Vuetify0.
 
 ::: ds-example
 /systems/emerald/divider/basic
@@ -45,9 +45,9 @@ An empty horizontal divider renders a native `hr`, so the common case is the sem
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
-`EmDivider` renders a single [Atom](/components/primitives/atom) — v0's polymorphic foundation element — and the whole component is really a decision about what to ask that Atom to be:
+`EmDivider` renders a single [Atom](/components/primitives/atom) — Vuetify0's polymorphic foundation element — and the whole component is really a decision about what to ask that Atom to be:
 
 - **No label, horizontal** — the Atom renders as `hr`. The platform supplies the separator semantics; Emerald supplies only the stroke.
 - **No label, vertical** — `hr` is unavoidably horizontal, so the Atom renders as a `div` carrying `role="separator"` and `aria-orientation="vertical"`, restating by hand what the native element would have said.
@@ -89,7 +89,7 @@ Prefer a gap over a divider when whitespace alone already separates the items. A
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Direction of the rule. Also decides the rendered element and ARIA — see Composed on v0 |
+| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Direction of the rule. Also decides the rendered element and ARIA — see Composed on Vuetify0 |
 
 The default slot is the optional label; filling it switches the component to its labeled shape. There are no named slots and no events.
 
