@@ -69,6 +69,35 @@ yarn add @vuetify/v0
 bun add @vuetify/v0
 ```
 
+## CLI
+
+The Vuetify CLI scaffolds projects and seeds working examples from the docs registry.
+
+### Create a Project
+
+```bash
+pnpm create vuetify0
+# or
+pnpm dlx @vuetify/cli init
+```
+
+### Seed Examples
+
+v0 is headless — importing a component gives you logic and accessibility, not a rendered UI. Use `vuetify add` to pull a styled example from the [docs registry](https://0.vuetifyjs.com/registry/index.json) into your project:
+
+```bash
+# Interactive picker
+pnpm dlx @vuetify/cli add
+
+# Seed a specific component
+pnpm dlx @vuetify/cli add dialog
+
+# Seed a composable plugin
+pnpm dlx @vuetify/cli add use-theme
+```
+
+See the [CLI guide](https://0.vuetifyjs.com/guide/tooling/vuetify-cli) for registry options, `vuetify.json` tracking, and the full command list.
+
 ## Exports
 
 The package provides tree-shakeable subpath exports:
