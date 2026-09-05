@@ -182,7 +182,7 @@
       'data-disabled': isDisabled.value ? true : undefined,
       'data-readonly': isReadonly.value ? true : undefined,
       'style': {
-        [isVertical.value ? 'bottom' : 'left']: `${pct.value}%`,
+        [isVertical.value ? 'bottom' : 'left']: `calc(var(--v0-slider-thumb-offset, 0px) + (100% - 2 * var(--v0-slider-thumb-offset, 0px)) * ${pct.value / 100})`,
         'touch-action': 'none',
       },
       'onKeydown': onKeydown,
