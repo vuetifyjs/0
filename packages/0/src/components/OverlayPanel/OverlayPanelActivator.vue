@@ -43,9 +43,9 @@
   import { useOverlayPanelContext } from './OverlayPanelRoot.vue'
 
   // Utilities
-  import { mergeProps, toRef, useAttrs } from 'vue'
+  import { toRef } from 'vue'
 
-  defineOptions({ name: 'OverlayPanelActivator', inheritAttrs: false })
+  defineOptions({ name: 'OverlayPanelActivator' })
 
   defineSlots<{
     default: (props: OverlayPanelActivatorSlotProps) => any
@@ -57,7 +57,6 @@
     renderless,
   } = defineProps<OverlayPanelActivatorProps>()
 
-  const attrs = useAttrs()
   const context = useOverlayPanelContext(namespace)
 
   function onClick () {
@@ -91,7 +90,7 @@
   <Atom
     :as
     :renderless
-    v-bind="mergeProps(attrs, slotProps.attrs)"
+    v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />
   </Atom>
