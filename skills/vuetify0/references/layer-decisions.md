@@ -7,11 +7,13 @@ When to use composables, components, or both.
 ```
 Vuetify 4 (design system consumer)
     ↑
-Design Systems (Emerald, Helix, …) — add styling on top of v0
+Design Systems (Emerald, Genesis, Bulma) — add styling on top of v0
     ↑
 v0 — components (WAI-ARIA wrappers)
 v0 — composables (state, logic, registries)
 ```
+
+Vuetify 4 also consumes v0 directly, as a runtime dependency, from 4.2.0 onward — the utility layer first (type guards, `range`, `toHighlight`), with more of the surface adopted through subsequent 4.x minors.
 
 v0 ships **two layers**: composables (headless logic) and components (headless UI). Knowing which to reach for is the primary architectural decision.
 
@@ -24,7 +26,7 @@ v0 ships **two layers**: composables (headless logic) and components (headless U
 | Drop in a standard UI pattern with full accessibility | Component — `<Dialog.Root>`, `<Tabs.Root>`, etc. |
 | Add selection / step / form logic to a custom component | Composable — `createSingle`, `createSelection`, etc. |
 | Build a new reusable compound component on top of v0 | Both — composable for state inside a Root component |
-| Build a design system (Emerald, Helix, …) | Both — components as reference, composables as foundation |
+| Build a design system (Emerald, Genesis, Bulma) | Both — components as reference, composables as foundation |
 
 ---
 

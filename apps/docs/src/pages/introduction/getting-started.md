@@ -10,9 +10,15 @@ features:
   level: 1
 related:
   - /guide/essentials/using-the-docs
+  - /guide/tooling/ai-tools
+  - /guide/tooling/agents
   - /composables
   - /components
 ---
+
+<script setup lang="ts">
+  import { john } from '@/constants/identities'
+</script>
 
 # Get started with Vuetify0
 
@@ -169,6 +175,48 @@ app.mount('#app')
 
 > [!NOTE]
 > For additional plugins, theming options, and advanced configuration, see the [Guide](/guide).
+
+## Seed Working Examples
+
+v0 is headless: installing `@vuetify/v0` and importing a component gives you logic, accessibility, and state management — but no rendered UI. To start with a working, styled example you can edit and ship, use `vuetify add` to pull from the [docs registry](https://0.vuetifyjs.com/registry/index.json):
+
+::: code-group no-filename
+
+```bash pnpm
+# Interactive picker
+pnpm dlx @vuetify/cli add
+
+# Seed a Dialog example
+pnpm dlx @vuetify/cli add dialog
+
+# Seed a composable plugin
+pnpm dlx @vuetify/cli add use-theme
+```
+
+```bash npm
+npx @vuetify/cli add
+npx @vuetify/cli add dialog
+npx @vuetify/cli add use-theme
+```
+
+```bash yarn
+yarn dlx @vuetify/cli add
+yarn dlx @vuetify/cli add dialog
+yarn dlx @vuetify/cli add use-theme
+```
+
+```bash bun
+bunx @vuetify/cli add
+bunx @vuetify/cli add dialog
+bunx @vuetify/cli add use-theme
+```
+
+:::
+
+The CLI writes example files into your project, installs any missing dependencies, and records the install in `vuetify.json` so you can diff or refresh later.
+
+> [!TIP]
+> See the [Vuetify CLI guide](/guide/tooling/vuetify-cli) for the full command list, registry options, and `vuetify.json` tracking.
 
 ## Requirements
 
@@ -470,6 +518,12 @@ import { isObject, isString } from '@vuetify/v0/utilities'
 import { IN_BROWSER } from '@vuetify/v0/constants'
 ```
 
+## Agents
+
+Click the portrait to copy John's identity into [Grok Bot](https://x.ai/bot). Setup prompts live on [Agents](/guide/tooling/agents).
+
+<DocsIdentity v-bind="john" dense />
+
 ## Next Steps
 
 Now that v0 is installed, choose your path:
@@ -479,6 +533,8 @@ Now that v0 is installed, choose your path:
 | Understand the architecture | [Components](/guide/fundamentals/components) → [Composables](/guide/fundamentals/composables) → [Core](/guide/fundamentals/core) |
 | Build production UIs now | [Theming](/guide/features/theming) → [Accessibility](/guide/features/accessibility) |
 | Build a component library | [Building Frameworks](/guide/fundamentals/building-frameworks) |
+| Seed styled examples | [Vuetify CLI](/guide/tooling/vuetify-cli) (`vuetify add`) |
+| Set up an AI agent | [Agents](/guide/tooling/agents) → [AI Tools](/guide/tooling/ai-tools) |
 | Explore interactively | [Playground](/playground) |
 
 > [!TIP]

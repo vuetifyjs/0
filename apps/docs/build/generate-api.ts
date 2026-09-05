@@ -8,7 +8,7 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { glob, readdir } from 'node:fs/promises'
+import { glob, readdir, stat } from 'node:fs/promises'
 import { basename, dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -259,7 +259,8 @@ function extractComponentApi (filePath: string): ComponentApi | null {
       events,
       slots,
     }
-  } catch {
+  } catch (error) {
+    console.warn(`[generate-api] Failed to extract ${filePath}:`, error instanceof Error ? error.message : error)
     return null
   }
 }
@@ -831,6 +832,34 @@ export interface ApiData {
   related: Record<string, string[]>
 }
 
+/**
+ * Fingerprint of the extracted source tree (entry count + newest mtime). The
+ * cache must expire when `packages/0/src` changes: a stale manifest 404s every
+ * `/api/<slug>` route minted for a component the cache predates (DataGrid,
+ * DataTable) and resurrects internals the barrel no longer exports.
+ *
+ * Directories count too — a rename changes neither entry count nor any file's
+ * mtime, only the parent directory's, so the scan must include directory
+ * mtimes (and the roots themselves, for top-level folder renames).
+ */
+async function fingerprint (): Promise<string> {
+  let count = 0
+  let newest = 0
+
+  for (const dir of [COMPONENTS_DIR, COMPOSABLES_DIR]) {
+    for await (const entry of glob(`${dir}/**/*`)) {
+      const info = await stat(entry)
+      count++
+      newest = Math.max(newest, info.mtimeMs)
+    }
+
+    const info = await stat(dir)
+    newest = Math.max(newest, info.mtimeMs)
+  }
+
+  return `${count}:${newest}`
+}
+
 export default function generateApiPlugin (): Plugin {
   let apiData: ApiData | null = null
   let apiPromise: Promise<ApiData> | null = null
@@ -841,10 +870,11 @@ export default function generateApiPlugin (): Plugin {
     // Try to read from cache first (SSR build reuses client build cache)
     if (existsSync(API_CACHE_FILE)) {
       try {
-        const cached = JSON.parse(readFileSync(API_CACHE_FILE, 'utf8')) as Partial<ApiData>
-        // Invalidate caches written before the `related` field existed.
-        if (cached.components && cached.composables && cached.related) {
-          apiData = cached as ApiData
+        const cached = JSON.parse(readFileSync(API_CACHE_FILE, 'utf8')) as Partial<ApiData> & { stamp?: string }
+        // Invalidate caches without a stamp (pre-stamp format) or whose stamp
+        // no longer matches the source tree.
+        if (cached.components && cached.composables && cached.related && cached.stamp === await fingerprint()) {
+          apiData = { components: cached.components, composables: cached.composables, related: cached.related }
           console.log(`[generate-api] Loaded API from cache`)
           return apiData
         }
@@ -865,7 +895,7 @@ export default function generateApiPlugin (): Plugin {
           // Write to cache for subsequent builds (SSR reuses this)
           try {
             mkdirSync(API_CACHE_DIR, { recursive: true })
-            writeFileSync(API_CACHE_FILE, JSON.stringify(data))
+            writeFileSync(API_CACHE_FILE, JSON.stringify({ ...data, stamp: await fingerprint() }))
           } catch {
             // Cache write failed, continue without caching
           }

@@ -27,11 +27,13 @@ export interface NavItemLink {
   emphasized?: EmphasisLevel
   devmode?: boolean
   children?: NavItem[]
+  collapsible?: boolean
 }
 
 export interface NavItemCategory {
   name: string
   children: NavItem[]
+  collapsible?: boolean
 }
 
 export interface NavItemDivider {
@@ -66,18 +68,21 @@ function getEmphasisLevel (iso: string | undefined | null): EmphasisLevel {
 
 // Section configuration - defines structure and ordering
 // rootPath: string = custom link, undefined = default to /${section}, null = no link
-const SECTIONS: Record<string, { order: number, hasSubcategories: boolean, rootPath?: string | null }> = {
+// collapsibleSubcategories: nested groups start collapsed (top-level sections already do)
+const SECTIONS: Record<string, { order: number, hasSubcategories: boolean, rootPath?: string | null, name?: string, collapsibleSubcategories?: boolean }> = {
   introduction: { order: 0, hasSubcategories: false, rootPath: null },
   guide: { order: 2, hasSubcategories: true },
   components: { order: 4, hasSubcategories: true },
   composables: { order: 6, hasSubcategories: true },
+  systems: { order: 7, hasSubcategories: true, rootPath: null, name: 'Design Systems', collapsibleSubcategories: true },
 }
 
 // Subcategory ordering within sections
 const SUBCATEGORY_ORDER: Record<string, string[]> = {
   guide: ['essentials', 'fundamentals', 'features', 'integration', 'tooling'],
-  components: ['primitives', 'providers', 'actions', 'disclosure', 'forms', 'semantic'],
+  components: ['primitives', 'providers', 'actions', 'disclosure', 'forms', 'data', 'semantic'],
   composables: ['foundation', 'registration', 'selection', 'forms', 'data', 'semantic', 'reactivity', 'system', 'plugins', 'transformers'],
+  systems: ['bulma', 'emerald'],
 }
 
 // Standalone pages that appear between sections
@@ -212,6 +217,55 @@ function createPageInfo (relPath: string, file: string, name: string, frontmatte
   }
 }
 
+// Root-level pages first, then subcategory groups in configured order.
+function buildSubcategories (section: string, pages: PageInfo[]): NavItem[] {
+  const subcategories = new Map<string, PageInfo[]>()
+  const roots: PageInfo[] = []
+
+  for (const page of pages) {
+    const parts = page.path.split('/')
+
+    if (parts.length < 3) {
+      if (page.name) roots.push(page)
+      continue
+    }
+
+    const subcategory = parts[1]
+    if (!subcategories.has(subcategory)) subcategories.set(subcategory, [])
+    subcategories.get(subcategory)!.push(page)
+  }
+
+  const order = SUBCATEGORY_ORDER[section] ?? []
+  const collapsible = SECTIONS[section]?.collapsibleSubcategories === true
+
+  return [
+    ...roots.toSorted(comparePages).map(toNavLink),
+    ...Array.from(subcategories.entries())
+      .toSorted(createSubcategoryComparator(order))
+      .map(([subcategory, subPages]) => toSubcategory(titleCase(subcategory), subPages, collapsible)),
+  ]
+}
+
+// A subcategory that owns an index page becomes a link that still expands —
+// the same shape a top-level section gets — rather than a dead label with the
+// index page listed under it as a separate child.
+function toSubcategory (name: string, pages: PageInfo[], collapsible = false): NavItem {
+  const index = pages.find(p => p.path.endsWith('index.md'))
+  const children = pages.filter(p => p !== index).toSorted(comparePages).map(toNavLink)
+
+  if (!index) {
+    const item: NavItemCategory = { name, children }
+    if (collapsible) item.collapsible = true
+    return item
+  }
+
+  if (children.length === 0) return { name, to: index.urlPath }
+
+  const item: NavItemLink = { name, to: index.urlPath, children }
+  if (collapsible) item.collapsible = true
+  return item
+}
+
 async function generateNav (): Promise<NavItem[]> {
   const pages = new Map<string, PageInfo[]>()
   const standalonePages: Array<{ item: NavItemLink, order: number }> = []
@@ -277,57 +331,15 @@ async function generateNav (): Promise<NavItem[]> {
       nav.push({ divider: true })
     }
 
-    const sectionName = titleCase(section)
+    const sectionName = config.name ?? titleCase(section)
     // Create NavItemCategory (no link) if rootPath is null, otherwise NavItemLink
     const sectionItem: NavItemLink | NavItemCategory = config.rootPath === null
       ? { name: sectionName, children: [] }
       : { name: sectionName, to: config.rootPath ?? `/${section}`, children: [] }
 
-    if (config.hasSubcategories) {
-      // Group by subcategory
-      const subcategories = new Map<string, PageInfo[]>()
-      const rootPages: PageInfo[] = []
-
-      for (const page of sectionPages) {
-        const parts = page.path.split('/')
-        if (parts.length < 3) {
-          // Root-level pages (not in subcategory)
-          if (page.name) rootPages.push(page)
-          continue
-        }
-
-        const subcategory = parts[1]
-        if (!subcategories.has(subcategory)) subcategories.set(subcategory, [])
-        subcategories.get(subcategory)!.push(page)
-      }
-
-      // Add root-level pages first (sorted by order)
-      const sortedRootPages = rootPages.toSorted(comparePages)
-      for (const page of sortedRootPages) {
-        sectionItem.children!.push(toNavLink(page))
-      }
-
-      // Sort subcategories by configured order, then alphabetically
-      const order = SUBCATEGORY_ORDER[section] ?? []
-      const sortedSubcategories = Array.from(subcategories.entries())
-        .toSorted(createSubcategoryComparator(order))
-
-      for (const [subcategory, subPages] of sortedSubcategories) {
-        const sortedPages = subPages.toSorted(comparePages)
-
-        sectionItem.children!.push({
-          name: titleCase(subcategory),
-          children: sortedPages.map(toNavLink),
-        })
-      }
-    } else {
-      // Flat list of children
-      const sortedPages = sectionPages
-        .filter(p => p.name)
-        .toSorted(comparePages)
-
-      sectionItem.children = sortedPages.map(toNavLink)
-    }
+    sectionItem.children = config.hasSubcategories
+      ? buildSubcategories(section, sectionPages)
+      : sectionPages.filter(p => p.name).toSorted(comparePages).map(toNavLink)
 
     nav.push(sectionItem)
   }

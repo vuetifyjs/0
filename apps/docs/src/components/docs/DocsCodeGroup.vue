@@ -3,10 +3,11 @@
   import { createSingle, useProxyRegistry } from '@vuetify/v0'
 
   // Composables
+  import { provideCodeGroupExpand } from '@/composables/useCodeGroupExpand'
   import { useSettings, type PackageManager } from '@/composables/useSettings'
 
   // Utilities
-  import { cloneVNode, computed, toRef, toValue, useId, useSlots, type VNode, watch } from 'vue'
+  import { cloneVNode, computed, shallowRef, toRef, toValue, useId, useSlots, type VNode, watch } from 'vue'
 
   const props = defineProps<{
     noFilename?: boolean
@@ -17,6 +18,7 @@
   const slots = useSlots()
   const uid = useId()
   const settings = useSettings()
+  provideCodeGroupExpand(shallowRef(false))
 
   const single = createSingle({ mandatory: 'force', events: true })
   const proxy = useProxyRegistry(single)

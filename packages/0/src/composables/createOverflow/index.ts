@@ -47,24 +47,29 @@ import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useElementSize } from '#v0/composables/useResizeObserver'
 
+// Transformers
+import { toElement } from '#v0/composables/toElement'
+
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { isUndefined } from '#v0/utilities'
+import { isUndefined, pxToNumber } from '#v0/utilities'
 import { computed, shallowRef, toRef, toValue } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { MaybeElementRef } from '#v0/composables/toElement'
 import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 export interface OverflowOptions {
   /**
    * Container element to track. Can be a ref, getter, or MaybeRefOrGetter.
    * When provided, useOverflow tracks this element's width automatically.
-   * Accepts null for compatibility with Vue's useTemplateRef.
+   * Also accepts Vue `useTemplateRef` — Vue 3.5.42 wraps that in a deep
+   * `Readonly<Ref>` that is not assignable to `MaybeRefOrGetter`.
    */
-  container?: MaybeRefOrGetter<Element | null | undefined>
+  container?: MaybeRefOrGetter<Element | null | undefined> | { readonly value: unknown }
   /** Gap between items in pixels */
   gap?: MaybeRefOrGetter<number>
   /** Reserved space in pixels (for nav buttons, ellipsis, etc) */
@@ -164,7 +169,9 @@ export function createOverflow<
     reverse,
   } = options
 
-  const container = isUndefined(_container) ? shallowRef<Element | null | undefined>() : toRef(_container)
+  const container = isUndefined(_container)
+    ? shallowRef<Element | null | undefined>()
+    : toRef(() => toElement(_container as MaybeElementRef) ?? null)
   const widths = shallowRef<Map<number, number>>(new Map())
 
   const { width } = useElementSize(container)
@@ -183,7 +190,7 @@ export function createOverflow<
     if (!IN_BROWSER) return
 
     const style = getComputedStyle(el)
-    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    const marginX = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
     const w = ((el as HTMLElement).offsetWidth || 0) + marginX
 
     if (widths.value.get(index) !== w) {

@@ -30,7 +30,7 @@ import { createQueue } from '#v0/composables/createQueue'
 import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
-import { isFunction, isNull, isUndefined, useId } from '#v0/utilities'
+import { isNaN, isNull, isObject, isString, isUndefined, UNSAFE_KEYS, useId } from '#v0/utilities'
 
 // Types
 import type { QueueContext } from '#v0/composables/createQueue'
@@ -568,6 +568,106 @@ export function createNotifications (
 export interface NotificationsPluginOptions extends NotificationsOptions {
   namespace?: string
   adapter?: NotificationsAdapter
+  /**
+   * Persist notification interaction state to storage and restore it on load.
+   *
+   * @remarks Stores only interaction state — a map of notification id to its
+   * `readAt` / `seenAt` / `archivedAt` / `snoozedUntil` timestamps (ISO
+   * strings, non-null fields only). Notification content is never stored:
+   * notifications are always created by code or an adapter, and the saved
+   * state merges onto them as they register — at restore time or any time
+   * later. Expired snoozes are dropped on restore, and entries whose
+   * notification never re-registers are pruned from the next persist write.
+   * The storage key is the plugin namespace with the `v0:` prefix stripped
+   * (`notifications`).
+   *
+   * Requires stable notification `id`s to associate state across reloads.
+   *
+   * @default false
+   */
+  persist?: boolean
+}
+
+/** Persisted per-notification interaction state (ISO strings, non-null fields only). */
+interface PersistedInteraction {
+  readAt?: string
+  seenAt?: string
+  archivedAt?: string
+  snoozedUntil?: string
+}
+
+/** In-memory interaction state parsed from storage. */
+interface Interaction {
+  readAt?: Date
+  seenAt?: Date
+  archivedAt?: Date
+  snoozedUntil?: Date
+}
+
+function toDate (value: unknown): Date | null {
+  if (!isString(value)) return null
+
+  const date = new Date(value)
+
+  return isNaN(date.getTime()) ? null : date
+}
+
+function snapshot (context: NotificationsContext): Record<ID, PersistedInteraction> | null {
+  const out: Record<ID, PersistedInteraction> = {}
+  let count = 0
+
+  for (const ticket of context.values()) {
+    if (UNSAFE_KEYS.has(String(ticket.id))) continue
+
+    const entry: PersistedInteraction = {}
+
+    if (!isNull(ticket.readAt)) entry.readAt = ticket.readAt.toISOString()
+    if (!isNull(ticket.seenAt)) entry.seenAt = ticket.seenAt.toISOString()
+    if (!isNull(ticket.archivedAt)) entry.archivedAt = ticket.archivedAt.toISOString()
+    if (!isNull(ticket.snoozedUntil) && ticket.snoozedUntil.getTime() > Date.now()) {
+      entry.snoozedUntil = ticket.snoozedUntil.toISOString()
+    }
+
+    if (Object.keys(entry).length === 0) continue
+
+    out[ticket.id] = entry
+    count++
+  }
+
+  return count > 0 ? out : null
+}
+
+function coerce (saved: unknown): Map<ID, Interaction> | null {
+  if (!isObject(saved)) return null
+
+  const map = new Map<ID, Interaction>()
+
+  for (const [id, entry] of Object.entries(saved)) {
+    if (!isObject(entry)) continue
+
+    const state: Interaction = {}
+    const readAt = toDate(entry.readAt)
+    const seenAt = toDate(entry.seenAt)
+    const archivedAt = toDate(entry.archivedAt)
+    const snoozedUntil = toDate(entry.snoozedUntil)
+
+    if (!isNull(readAt)) state.readAt = readAt
+    if (!isNull(seenAt)) state.seenAt = seenAt
+    if (!isNull(archivedAt)) state.archivedAt = archivedAt
+    // An expired snooze is dropped here, so the next persist write prunes it.
+    if (!isNull(snoozedUntil) && snoozedUntil.getTime() > Date.now()) state.snoozedUntil = snoozedUntil
+
+    if (Object.keys(state).length > 0) map.set(id, state)
+  }
+
+  return map.size > 0 ? map : null
+}
+
+function merge (context: NotificationsContext, map: Map<ID, Interaction>, ticket: NotificationTicket) {
+  // Object keys stringify on write, so a numeric id round-trips as a string.
+  const state = map.get(ticket.id) ?? map.get(String(ticket.id))
+
+  if (state) context.upsert(ticket.id, state as Partial<NotificationTicket>)
 }
 
 // Fallback
@@ -683,6 +783,21 @@ export const [createNotificationsContext, createNotificationsPlugin, useNotifica
     options => createNotifications(options),
     {
       fallback: () => createNotificationsFallback(),
+      persist: context => snapshot(context),
+      restore: (context, saved) => {
+        const map = coerce(saved)
+
+        if (!map) return
+
+        for (const ticket of context.values()) {
+          merge(context, map, ticket)
+        }
+
+        // Saved state stays mergeable for the whole session so late
+        // registrations (adapters, runtime sends) pick it up; entries whose
+        // notification never registers are pruned by the next persist write.
+        context.on('register:ticket', ticket => merge(context, map, ticket as NotificationTicket))
+      },
       setup: (context, app, options) => {
         app.onUnmount(() => {
           context.dispose()
@@ -699,9 +814,7 @@ export const [createNotificationsContext, createNotificationsPlugin, useNotifica
           off: context.off,
         })
 
-        if (isFunction(adapter.dispose)) {
-          app.onUnmount(() => adapter.dispose!())
-        }
+        app.onUnmount(() => adapter.dispose?.())
       },
     },
   )

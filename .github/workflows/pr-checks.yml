@@ -47,8 +47,10 @@ jobs:
       # components had an SF: entry in neither report). The v8 provider only
       # emits records for files a run actually loaded, so a wide include costs
       # this job nothing — it does not backfill untouched files at 0%.
+      # `*:browser` (v0:browser, bulma:browser) needs Playwright Chromium —
+      # those projects run in the `browser` job, which installs the binary.
       - name: Run unit tests with coverage
-        run: pnpm test:run --coverage --project '!v0:browser'
+        run: pnpm test:run --coverage --project '!*:browser'
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
@@ -78,7 +80,7 @@ jobs:
           path: ~/.cache/ms-playwright
           # TODO: bump the version in this key whenever the `playwright` catalog
           # pin changes in pnpm-workspace.yaml, or the cache serves a stale binary.
-          key: playwright-chromium-1.61.0-${{ runner.os }}
+          key: playwright-chromium-1.62.1-${{ runner.os }}
       - name: Install Playwright browser
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install chromium
@@ -90,7 +92,7 @@ jobs:
       # PR #725 to duplicate its browser assertions as unit tests to recover
       # codecov/patch (70.83% -> 100%). Keep the include wide.
       - name: Run component tests with coverage
-        run: pnpm exec vitest run --project v0:browser --coverage
+        run: pnpm exec vitest run --project '*:browser' --coverage
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
@@ -127,7 +129,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-chromium-1.61.0-${{ runner.os }}
+          key: playwright-chromium-1.62.1-${{ runner.os }}
       - name: Install Playwright browser
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install chromium
@@ -205,9 +207,10 @@ jobs:
           git fetch origin "$GITHUB_BASE_REF" --depth=1
           pnpm metrics:check
 
-  # Vapor parity tests run on a beta Vue (tests/vapor, vue@3.6.0-beta), pinned
-  # separately from the rest of the repo. Non-blocking: a Vapor regression
-  # surfaces as a visible signal without redding the build on a beta hiccup.
+  # Vapor parity tests run on a pre-release Vue (tests/vapor, vue@3.6.0-rc),
+  # pinned separately from the rest of the repo. Non-blocking: a Vapor
+  # regression surfaces as a visible signal without redding the build on a
+  # pre-release hiccup.
   vapor:
     needs: prepare
     runs-on: ubuntu-latest

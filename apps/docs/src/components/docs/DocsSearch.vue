@@ -155,7 +155,7 @@
       role="dialog"
       :style="{ zIndex: ticket.zIndex.value }"
     >
-      <div :class="['rounded-lg shadow-xl border border-divider overflow-hidden', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']">
+      <div :class="['rounded-lg shadow-xl border border-divider overflow-hidden', settings.surface.value]">
         <Discovery.Activator
           class="flex-1 bg-transparent flex border-b border-divider outline-none text-on-surface rounded-lg rounded-b-0 items-center gap-3 px-4 py-3"
           step="search-input"
@@ -275,7 +275,7 @@
                   <AppTooltip
                     aria-label="Remove from favorites"
                     as="span"
-                    class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                    class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 media-[(pointer:coarse)]:opacity-100 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                     role="button"
                     tabindex="0"
                     text="Remove from favorites"
@@ -334,7 +334,7 @@
                     <AppTooltip
                       aria-label="Add to favorites"
                       as="span"
-                      class="btn-action text-on-surface/60 hover:text-warning focus-visible:text-warning opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                      class="btn-action text-on-surface/60 hover:text-warning focus-visible:text-warning opacity-0 media-[(pointer:coarse)]:opacity-100 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                       role="button"
                       tabindex="0"
                       text="Add to favorites"
@@ -348,7 +348,7 @@
                     <AppTooltip
                       aria-label="Remove from recent searches"
                       as="span"
-                      class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                      class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 media-[(pointer:coarse)]:opacity-100 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                       role="button"
                       tabindex="0"
                       text="Remove from recent"
@@ -444,7 +444,7 @@
                         as="span"
                         :class="[
                           'btn-action cursor-pointer',
-                          search.isFavorite(group.items[0].id) || discovery.isActive.value ? 'opacity-100 text-warning' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
+                          search.isFavorite(group.items[0].id) || discovery.isActive.value ? 'opacity-100 text-warning' : 'opacity-0 media-[(pointer:coarse)]:opacity-100 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
                         ]"
                         role="button"
                         tabindex="0"
@@ -472,7 +472,7 @@
                         as="span"
                         :class="[
                           'btn-action text-on-surface/60 hover:text-primary focus-visible:text-primary cursor-pointer',
-                          discovery.isActive.value ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
+                          discovery.isActive.value ? 'opacity-100' : 'opacity-0 media-[(pointer:coarse)]:opacity-100 group-hover:opacity-100 focus-visible:opacity-100',
                         ]"
                         role="button"
                         tabindex="0"
@@ -496,7 +496,7 @@
                         as="span"
                         :class="[
                           'btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant cursor-pointer',
-                          discovery.isActive.value ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
+                          discovery.isActive.value ? 'opacity-100' : 'opacity-0 media-[(pointer:coarse)]:opacity-100 group-hover:opacity-100 focus-visible:opacity-100',
                         ]"
                         role="button"
                         tabindex="0"
@@ -546,7 +546,7 @@
                       as="span"
                       :class="[
                         'btn-action cursor-pointer',
-                        search.isFavorite(result.id) ? 'opacity-100 text-warning' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
+                        search.isFavorite(result.id) ? 'opacity-100 text-warning' : 'opacity-0 media-[(pointer:coarse)]:opacity-100 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
                       ]"
                       role="button"
                       tabindex="0"
@@ -565,7 +565,7 @@
                     <AppTooltip
                       aria-label="Ask AI about this page"
                       as="span"
-                      class="btn-action text-on-surface/60 hover:text-primary focus-visible:text-primary opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                      class="btn-action text-on-surface/60 hover:text-primary focus-visible:text-primary opacity-0 media-[(pointer:coarse)]:opacity-100 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                       role="button"
                       tabindex="0"
                       text="Ask AI"
@@ -579,7 +579,7 @@
                     <AppTooltip
                       aria-label="Dismiss result"
                       as="span"
-                      class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                      class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 media-[(pointer:coarse)]:opacity-100 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                       role="button"
                       tabindex="0"
                       text="Dismiss result"
@@ -596,8 +596,8 @@
           </div>
         </Discovery.Activator>
 
-        <div class="flex items-center justify-between px-4 py-2 border-t border-divider text-xs text-on-surface-variant">
-          <div class="flex items-center gap-4">
+        <div class="flex items-center justify-between max-sm:justify-center px-4 py-2 border-t border-divider text-xs text-on-surface-variant">
+          <div class="hidden sm:flex items-center gap-4">
             <span class="flex items-center gap-1">
               <kbd class="px-1.5 py-0.5 rounded bg-surface-variant font-mono">↑</kbd>
               <kbd class="px-1.5 py-0.5 rounded bg-surface-variant font-mono">↓</kbd>

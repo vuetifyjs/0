@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useIntersectionObserver, useLogger } from '@vuetify/v0'
+  import { useIntersectionObserver } from '@vuetify/v0'
 
   // Composables
   import { useSettings } from '@/composables/useSettings'
@@ -22,7 +22,6 @@
 
   const app = useAppStore()
   const releases = useReleasesStore()
-  const logger = useLogger()
   const settings = useSettings()
   const toggle = useThemeToggle()
 
@@ -43,21 +42,7 @@
   )
 
   async function fetch () {
-    // Fetch latest commit
-    try {
-      const octokit = await import('@/plugins/octokit').then(m => m.default)
-      const { data = [] } = await octokit.request('GET /repos/{owner}/{repo}/commits', {
-        owner: 'vuetifyjs',
-        repo: '0',
-        per_page: 1,
-      })
-
-      if (data.length > 0) {
-        app.stats.commit = data[0] as typeof app.stats.commit
-      }
-    } catch (error) {
-      logger.warn('Failed to fetch commit info', error)
-    }
+    await app.fetchCommit()
 
     // Fetch latest release if not already loaded
     if (releases.releases.length === 0) {
@@ -80,7 +65,7 @@
   <footer
     ref="footer"
     class="app-footer py-4 border-t border-divider/50"
-    :class="[inset && 'md:ms-[230px]', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
+    :class="[inset && 'md:ms-[230px]', settings.surface.value]"
   >
     <div class="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="flex flex-col md:flex-row items-center gap-4 text-sm opacity-60">
@@ -99,7 +84,7 @@
             <AppTooltip
               v-if="app.stats.commit"
               as="a"
-              class="flex items-center gap-1 hover:text-primary hover:underline"
+              class="flex items-center gap-1 min-h-9 hover:text-primary hover:underline"
               :href="app.stats.commit.html_url"
               rel="noopener nofollow"
               target="_blank"
@@ -114,7 +99,7 @@
 
       <div class="flex items-center gap-4">
         <router-link
-          class="text-sm opacity-60 hover:opacity-100 hover:text-primary transition-opacity"
+          class="inline-flex items-center min-h-9 text-sm opacity-60 hover:opacity-100 hover:text-primary transition-opacity"
           to="/services"
         >
           Services

@@ -83,7 +83,7 @@ export interface RowSpanningOptions<T = Record<string, unknown>> {
  * spans.value.get(id)?.get('group') // { rowSpan: 3, hidden: false }
  * ```
  */
-export function createRowSpanning<T extends Record<string, unknown>> (
+export function createRowSpanning<T extends object> (
   options: RowSpanningOptions<T>,
 ): ComputedRef<Map<ID, Map<string, SpanEntry>>> {
   const { items, columns, key, itemKey = 'id', span } = options
@@ -98,11 +98,11 @@ export function createRowSpanning<T extends Record<string, unknown>> (
 
     // Track which cells are covered by a span from a previous row
     // covered[colIndex] = number of remaining rows to skip
-    const covered = Array.from<number>({ length: resolved.length }).fill(0)
+    const covered = Array.from({ length: resolved.length }, () => 0)
 
     for (let row = 0; row < list.length; row++) {
       const item = list[row]
-      const id = key ? key(item, row) : item[itemKey] as ID
+      const id = key ? key(item, row) : (item as Record<string, unknown>)[itemKey] as ID
 
       // A row that can't be identified gets no span entry, and must not
       // participate as a coverage source — skip before computing spans.

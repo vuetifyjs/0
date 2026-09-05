@@ -43,6 +43,11 @@ This is a **pnpm monorepo** containing:
 | Package | Description |
 |---------|-------------|
 | [`@vuetify/v0`](./packages/0) | Core headless components and composables |
+| [`@vuetify/play`](./packages/play) | Playground hash protocol |
+| [`@paper/emerald`](./packages/emerald) | Emerald design system |
+| [`@paper/bulma`](./packages/bulma) | Bulma compat design system |
+| [`@paper/genesis`](./packages/genesis) | Genesis design system (docs primitives) |
+| [`@vuetify/paper`](./packages/paper) | Styling primitives (private, dormant) |
 | [`apps/docs`](./apps/docs) | Documentation site ([0.vuetifyjs.com](https://0.vuetifyjs.com)) |
 | [`apps/playground`](./apps/playground) | Interactive development environment |
 
@@ -63,6 +68,35 @@ yarn add @vuetify/v0
 # or
 bun add @vuetify/v0
 ```
+
+## CLI
+
+The Vuetify CLI scaffolds projects and seeds working examples from the docs registry.
+
+### Create a Project
+
+```bash
+pnpm create vuetify0
+# or
+pnpm dlx @vuetify/cli init
+```
+
+### Seed Examples
+
+v0 is headless — importing a component gives you logic and accessibility, not a rendered UI. Use `vuetify add` to pull a styled example from the [docs registry](https://0.vuetifyjs.com/registry/index.json) into your project:
+
+```bash
+# Interactive picker
+pnpm dlx @vuetify/cli add
+
+# Seed a specific component
+pnpm dlx @vuetify/cli add dialog
+
+# Seed a composable plugin
+pnpm dlx @vuetify/cli add use-theme
+```
+
+See the [CLI guide](https://0.vuetifyjs.com/guide/tooling/vuetify-cli) for registry options, `vuetify.json` tracking, and the full command list.
 
 ## Exports
 
@@ -142,6 +176,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 
 | Component | Description |
 |-----------|-------------|
+| [Alert](https://0.vuetifyjs.com/components/semantic/alert) | Inline status message with ARIA live-region semantics |
 | [Avatar](https://0.vuetifyjs.com/components/semantic/avatar) | Image/fallback avatar with priority loading |
 | [Breadcrumbs](https://0.vuetifyjs.com/components/semantic/breadcrumbs) | Navigation breadcrumbs with overflow detection and truncation |
 | [Carousel](https://0.vuetifyjs.com/components/semantic/carousel) | Scroll-snap slide navigation with multi-slide display and drag/swipe |
@@ -151,6 +186,13 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Progress](https://0.vuetifyjs.com/components/semantic/progress) | Headless progress indicator with multi-segment and buffer support |
 | [Snackbar](https://0.vuetifyjs.com/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](https://0.vuetifyjs.com/components/semantic/splitter) | Resizable panel layout with drag handles |
+
+#### Data
+
+| Component | Description |
+|-----------|-------------|
+| [DataGrid](https://0.vuetifyjs.com/components/data/data-grid) | Headless data grid with column layout, cell editing, row ordering, and row spanning |
+| [DataTable](https://0.vuetifyjs.com/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
 
 ### Composables
 

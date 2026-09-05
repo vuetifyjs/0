@@ -26,7 +26,10 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import { DateAdapter } from './adapter'
 
 // Utilities
-import { isFunction, isNull, isNullOrUndefined, isNumber, isString } from '#v0/utilities'
+import { isNull, isNullOrUndefined, isNumber, isString } from '#v0/utilities'
+
+// Week info
+import { deriveWeekInfo } from '../weekinfo'
 
 /** Resolved Temporal implementation — native when the runtime provides it, polyfill otherwise. */
 export const Temporal = (globalThis as unknown as { Temporal?: typeof polyfill }).Temporal ?? polyfill
@@ -38,47 +41,6 @@ const FORMAT_TOKEN_REGEX = /YYYY|YY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|s
 
 /** Maximum cache size to prevent memory leaks */
 const MAX_CACHE_SIZE = 50
-
-interface IntlLocaleWeekInfo {
-  firstDay?: number
-  minimalDays?: number
-}
-
-interface IntlLocaleWithWeekInfo {
-  getWeekInfo?: () => IntlLocaleWeekInfo
-  weekInfo?: IntlLocaleWeekInfo
-}
-
-/**
- * Derive week info from locale.
- *
- * Uses Intl.Locale.getWeekInfo() when available, with a hardcoded
- * fallback table for minimalDays (not available in all runtimes).
- * Data sourced from CLDR via Intl.Locale.getWeekInfo() spec.
- */
-function deriveWeekInfo (locale: string): { firstDay: number, minimalDays: number } {
-  try {
-    const loc: IntlLocaleWithWeekInfo = new Intl.Locale(locale)
-    /* v8 ignore next -- Intl.Locale.getWeekInfo always present in Node 22+, .weekInfo fallback is for legacy runtimes */
-    const info = isFunction(loc.getWeekInfo) ? loc.getWeekInfo() : loc.weekInfo
-    // Intl weekInfo.firstDay: 1=Mon...7=Sun, convert to 0=Sun...6=Sat
-    /* v8 ignore next -- Sun=7 conversion only for locales where Sunday is weekStart; covered by other-locale path */
-    const firstDay = info?.firstDay === 7 ? 0 : info?.firstDay ?? 0
-    const minimalDays = info?.minimalDays ?? deriveMinimalDays(locale)
-    return { firstDay, minimalDays }
-  } catch {
-    return { firstDay: 0, minimalDays: 1 }
-  }
-}
-
-/** Fallback minimalDays lookup when Intl.Locale doesn't provide it */
-function deriveMinimalDays (locale: string): number {
-  const code = locale.slice(-2).toUpperCase()
-  // ISO 8601 regions using minimalDays=4 (first week must contain Thursday)
-  const md4 = 'AD AN AT AX BE BG CH CZ DE DK EE ES FI FJ FO FR GB GF GP GR HU IE IS IT LI LT LU MC MQ NL NO PL PT RE RU SE SK SM VA'
-  if (md4.includes(code)) return 4
-  return 1
-}
 
 export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   private _locale: string
@@ -413,7 +375,7 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
     const formatted = this.getFormatter({ hour: 'numeric', hour12: true }).format(date)
 
     // Extract the AM/PM text from the formatted string
-    const match = formatted.match(/[AP]M|[ap]m|午前|午後|上午|下午/i)
+    const match = formatted.match(/[ap]m|午前|午後|上午|下午/i)
     return match ? match[0] : ampm.toUpperCase()
   }
 
@@ -686,7 +648,7 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
     return weekdays
   }
 
-  getWeekArray (date: PlainDateTime): PlainDateTime[][] {
+  getWeekArray (date: PlainDateTime, fixedWeeks = false): PlainDateTime[][] {
     const weeks: PlainDateTime[][] = []
     const monthStart = this.startOfMonth(date)
     const monthEnd = this.endOfMonth(date)
@@ -694,7 +656,10 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
     let current = this.startOfWeek(monthStart)
     const end = this.endOfWeek(monthEnd)
 
-    while (Temporal.PlainDateTime.compare(current, end) <= 0) {
+    while (
+      Temporal.PlainDateTime.compare(current, end) <= 0 ||
+      (fixedWeeks && weeks.length < 6)
+    ) {
       const week: PlainDateTime[] = []
 
       for (let i = 0; i < 7; i++) {

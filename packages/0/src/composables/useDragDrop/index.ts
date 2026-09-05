@@ -57,6 +57,17 @@ export type {
 export type Orientation = 'vertical' | 'horizontal'
 
 /**
+ * `MaybeRefOrGetter<T>` plus Vue 3.5.42 `useTemplateRef` / `shallowReadonly`
+ * results. Those wrap in a deep `Readonly<Ref<T>>` that is not assignable
+ * to `Ref<T>`.
+ */
+type MaybeReadonlyRefOrGetter<T> = MaybeRefOrGetter<T> | { readonly value: unknown }
+
+function toSource<T> (source: MaybeReadonlyRefOrGetter<T>): T {
+  return toValue(source as MaybeRefOrGetter<T>)
+}
+
+/**
  * Discriminated payload describing what is being dragged. Consumers extend
  * this with concrete `type` literals plus a matching `value`.
  *
@@ -105,8 +116,10 @@ export interface DropIndicator {
 }
 
 /**
- * Position passed to drop hooks. `index` and `indicator` are populated for
- * oriented zones; unoriented zones receive only the pointer location.
+ * Position passed to drop hooks. `index` is populated for oriented zones;
+ * unoriented zones receive only the pointer location. `indicator` is absent
+ * when no slot was proposed: an empty zone resolves `index` to `0`, a drop on
+ * a slot flanking the drag's own position resolves to that position (a stay).
  *
  * @example
  * ```ts
@@ -192,8 +205,8 @@ export type DraggableTicketInput<Z extends DragType = DragType> = Z extends Drag
   ? RegistryTicketInput & {
     type: Z['type']
     value: Z['value']
-    el: MaybeRefOrGetter<HTMLElement | null>
-    disabled?: MaybeRefOrGetter<boolean>
+    el: MaybeReadonlyRefOrGetter<HTMLElement | null>
+    disabled?: MaybeReadonlyRefOrGetter<boolean>
     onBeforeStart?: (drag: ActiveDrag<Z>) => boolean | void
     onMove?: (drag: ActiveDrag<Z>) => void
     onCancel?: (drag: ActiveDrag<Z>, reason: 'cancel' | 'reject') => void
@@ -244,11 +257,11 @@ export type DraggableTicket<Z extends DragType = DragType> = Z extends DragType
  */
 export interface DropZoneTicketInput<Z extends DragType = DragType>
   extends RegistryTicketInput {
-  el: MaybeRefOrGetter<HTMLElement | null>
+  el: MaybeReadonlyRefOrGetter<HTMLElement | null>
   /** Allowed drag types or a synchronous predicate. Async predicates (Promise / thenable returns) are rejected with a warning — `accept` must return synchronously. */
   accept?: Z['type'][] | ((drag: ActiveDrag<Z>) => boolean)
   orientation?: Orientation
-  disabled?: MaybeRefOrGetter<boolean>
+  disabled?: MaybeReadonlyRefOrGetter<boolean>
   onEnter?: (drag: ActiveDrag<Z>) => void
   onLeave?: (drag: ActiveDrag<Z>) => void
   onBeforeDrop?: (drag: ActiveDrag<Z>, position: DropPosition) => boolean | void
@@ -384,6 +397,10 @@ export interface DragDropContext<Z extends DragType = DragType> {
  * Pure math for resolving where in an oriented zone a pointer would drop.
  * Internal — consumers rely on the `position.index` / `position.indicator`
  * fields delivered to `onDrop`.
+ *
+ * Assumes rects ascend along the axis (DOM order in normal flow). Reversed
+ * layouts resolve arbitrary slots — always have — and sorting is not the fix:
+ * the slot must stay the child's DOM index for consumers to splice by.
  */
 function resolveDropPosition (
   point: { x: number, y: number },
@@ -398,36 +415,22 @@ function resolveDropPosition (
 
   const coord = point[axis]
 
-  if (coord < rects[0][start]) {
-    return { index: 0, edge: 'before', rect: rects[0] }
-  }
+  // The slot before the first uncrossed midpoint; a gap coordinate is already
+  // past the previous rect's midpoint, so gaps need no case of their own.
+  let index = rects.length
 
-  const last = rects.at(-1)!
-  if (coord > last[end]) {
-    return { index: rects.length, edge: 'after', rect: last }
-  }
-
-  for (const [index, rect] of rects.entries()) {
-    if (coord >= rect[start] && coord <= rect[end]) {
-      const mid = rect[start] + (rect[end] - rect[start]) / 2
-      if (coord < mid) {
-        return { index, edge: 'before', rect }
-      }
-      return { index: index + 1, edge: 'after', rect }
+  for (const [at, rect] of rects.entries()) {
+    if (coord < rect[start] + (rect[end] - rect[start]) / 2) {
+      index = at
+      break
     }
   }
 
-  for (let index = 0; index < rects.length - 1; index++) {
-    const a = rects[index]
-    const b = rects[index + 1]
-    if (coord > a[end] && coord < b[start]) {
-      const mid = (a[end] + b[start]) / 2
-      if (coord <= mid) return { index: index + 1, edge: 'after', rect: a }
-      return { index: index + 1, edge: 'before', rect: b }
-    }
-  }
-
-  return { index: rects.length, edge: 'after', rect: last }
+  // Anchored by slot, not by approach — otherwise the same slot draws at two
+  // anchors and the indicator twitches across the gap.
+  return index === 0
+    ? { index, edge: 'before', rect: rects[0] }
+    : { index, edge: 'after', rect: rects[index - 1] }
 }
 
 /**
@@ -515,7 +518,7 @@ export function useDragDrop<Z extends DragType = DragType> (
     ..._draggables,
     register (registration: DraggableTicketInput<Z>): DraggableTicket<Z> {
       const id = registration.id ?? useId()
-      const el = toRef(() => toValue(registration.el))
+      const el = toRef(() => toSource(registration.el))
       const dragging = toRef(() => active.value?.id === id)
 
       const input = {
@@ -540,7 +543,7 @@ export function useDragDrop<Z extends DragType = DragType> (
       if (_zones.has(id)) {
         return _zones.register(registration as unknown as Partial<DropZoneTicketInput<Z> & RegistryTicket>) as DropZoneTicket
       }
-      const el = toRef(() => toValue(registration.el))
+      const el = toRef(() => toSource(registration.el))
       const isOver = toRef(() => active.value?.over === id)
       const willAccept = toRef(() => safeAccept(registration.accept, active.value))
 
@@ -577,7 +580,18 @@ export function useDragDrop<Z extends DragType = DragType> (
 
       const indicator = computed<DropIndicator | null>(() => {
         if (!registration.orientation || !isOver.value || !active.value) return null
-        return resolveDropPosition(active.value.current, rects.value, registration.orientation)
+
+        const resolved = resolveDropPosition(active.value.current, rects.value, registration.orientation)
+
+        if (!resolved) return null
+
+        // The slots flanking a same-zone drag's own position are stays, not
+        // moves — no indicator for them.
+        const from = home(el.value, active.value.id)
+
+        if (from !== -1 && (resolved.index === from || resolved.index === from + 1)) return null
+
+        return resolved
       })
 
       const input = {
@@ -607,6 +621,23 @@ export function useDragDrop<Z extends DragType = DragType> (
     return null
   }
 
+  // The dragged element's slot among a zone's children, -1 when the zone is
+  // not its home. Home means the nearest registered zone — a board zone
+  // wrapping column zones contains every card but is home to none of them.
+  function home (zoneEl: HTMLElement | null | undefined, id: ID): number {
+    const source = toValue(_draggables.get(id)?.el)
+
+    if (!zoneEl || !source) return -1
+
+    for (let el = source.parentElement; el; el = el.parentElement) {
+      if (!nodes.has(el)) continue
+      if (el !== zoneEl) return -1
+      break
+    }
+
+    return Array.from(zoneEl.children).findIndex(child => child.contains(source))
+  }
+
   function position (zoneId: ID, drag: ActiveDrag<Z>): DropPosition {
     const zone = _zones.get(zoneId)
     const out: DropPosition = { pointer: drag.current }
@@ -616,8 +647,10 @@ export function useDragDrop<Z extends DragType = DragType> (
         out.index = resolved.index
         out.indicator = resolved
       } else {
-        // Empty zone — index 0 lets consumers splice without a fallback.
-        out.index = 0
+        // No slot proposed: a suppressed same-zone drop resolves to its own
+        // position (a stay, not a move to the top); an empty zone splices at 0.
+        const from = home(toValue(zone.el), drag.id)
+        out.index = from === -1 ? 0 : from
       }
     }
     return out

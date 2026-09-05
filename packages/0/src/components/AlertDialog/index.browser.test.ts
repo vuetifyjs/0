@@ -287,7 +287,7 @@ describe('alertDialog', () => {
       expect(content.attributes('aria-modal')).toBe('true')
     })
 
-    it('should have aria-labelledby pointing to title', () => {
+    it('should have aria-labelledby pointing to title when Title is mounted', async () => {
       const wrapper = mountWithStack(AlertDialog.Root, {
         props: { id: 'test-alert' },
         slots: {
@@ -297,11 +297,12 @@ describe('alertDialog', () => {
         },
       })
 
+      await nextTick()
       const content = wrapper.findComponent(AlertDialog.Content as any)
       expect(content.attributes('aria-labelledby')).toBe('test-alert-title')
     })
 
-    it('should have aria-describedby pointing to description', () => {
+    it('should have aria-describedby pointing to description when Description is mounted', async () => {
       const wrapper = mountWithStack(AlertDialog.Root, {
         props: { id: 'test-alert' },
         slots: {
@@ -311,6 +312,7 @@ describe('alertDialog', () => {
         },
       })
 
+      await nextTick()
       const content = wrapper.findComponent(AlertDialog.Content as any)
       expect(content.attributes('aria-describedby')).toBe('test-alert-description')
     })
@@ -401,6 +403,32 @@ describe('alertDialog', () => {
       expect(cancelEvent.defaultPrevented).toBe(true)
     })
 
+    it('should close and emit close on native close event', async () => {
+      const isOpen = ref(true)
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: {
+          'modelValue': isOpen.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            isOpen.value = v as boolean
+          },
+        },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => 'Content'),
+        },
+      })
+
+      await nextTick()
+
+      const content = wrapper.findComponent(AlertDialog.Content as any)
+      await content.trigger('close')
+
+      await nextTick()
+
+      expect(isOpen.value).toBe(false)
+      expect(content.emitted('close')).toBeTruthy()
+    })
+
     it('should close on escape when closeOnEscape=true', async () => {
       const isOpen = ref(true)
 
@@ -488,6 +516,85 @@ describe('alertDialog', () => {
       const custom = wrapper.find('[data-testid="custom-content"]')
       expect(custom.element.parentElement?.tagName).not.toBe('DIALOG')
       expect(wrapper.findAll('[role="alertdialog"]')).toHaveLength(1)
+    })
+
+    it('should focus the Cancel element when dialog opens', async () => {
+      const isOpen = ref(false)
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: {
+          'modelValue': isOpen.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            isOpen.value = v as boolean
+          },
+        },
+        attachTo: document.body,
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Cancel, {}, () => 'Cancel'),
+          ]),
+        },
+      })
+
+      await nextTick()
+
+      const cancel = wrapper.findComponent(AlertDialog.Cancel as any)
+      const focusSpy = vi.spyOn(cancel.element as HTMLElement, 'focus')
+
+      await wrapper.setProps({ modelValue: true })
+      await nextTick()
+
+      expect(focusSpy).toHaveBeenCalled()
+      wrapper.unmount()
+    })
+
+    it('should focus the Cancel element when opened with modelValue=true from the start', async () => {
+      const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus')
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { modelValue: true },
+        attachTo: document.body,
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Cancel, {}, () => 'Cancel'),
+          ]),
+        },
+      })
+
+      await nextTick()
+
+      const cancel = wrapper.findComponent(AlertDialog.Cancel as any)
+      expect(focusSpy).toHaveBeenCalledWith()
+      expect(cancel.element.tagName).toBe('BUTTON')
+      wrapper.unmount()
+    })
+
+    it('should not throw when opened without a Cancel element', async () => {
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { modelValue: true },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => 'No cancel here'),
+        },
+      })
+      await nextTick()
+      expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
+      wrapper.unmount()
+    })
+
+    it('should not throw when Cancel is renderless (no element to focus)', async () => {
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { modelValue: true },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Cancel, { renderless: true }, {
+              default: () => h('span', 'Cancel'),
+            }),
+          ]),
+        },
+      })
+      await nextTick()
+      expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
+      wrapper.unmount()
     })
   })
 
@@ -1409,6 +1516,41 @@ describe('alertDialog', () => {
 
       expect(isOpen.value).toBe(false)
       expect(spy).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('edge cases', () => {
+    it('should omit aria-labelledby/describedby when Title/Description are absent', () => {
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { id: 'no-title-alert' },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => 'Just content'),
+        },
+      })
+
+      const content = wrapper.findComponent(AlertDialog.Content as any)
+      // aria-labelledby/describedby should be omitted when Title/Description not mounted
+      expect(content.attributes('aria-labelledby')).toBeUndefined()
+      expect(content.attributes('aria-describedby')).toBeUndefined()
+    })
+
+    it('should emit aria-labelledby/describedby when Title/Description are present', async () => {
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { id: 'with-title-alert' },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Title, {}, () => 'Title'),
+            h(AlertDialog.Description, {}, () => 'Description'),
+            'Content',
+          ]),
+        },
+      })
+
+      await nextTick()
+      const content = wrapper.findComponent(AlertDialog.Content as any)
+      // aria-labelledby/describedby should be present when Title/Description are mounted
+      expect(content.attributes('aria-labelledby')).toBe('with-title-alert-title')
+      expect(content.attributes('aria-describedby')).toBe('with-title-alert-description')
     })
   })
 

@@ -11,6 +11,15 @@
       "path": "./packages/genesis"
     },
     {
+      "path": "./packages/emerald"
+    },
+    {
+      "path": "./packages/bulma"
+    },
+    {
+      "path": "./packages/play"
+    },
+    {
       "path": "./apps/docs"
     },
     {

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createOverflow, createOverflowContext, useOverflow } from './index'
 
 // Utilities
-import { nextTick, ref, shallowRef } from 'vue'
+import { nextTick, readonly, ref, shallowRef } from 'vue'
 
 const mockIsHydrated = ref(true)
 vi.mock('#v0/composables/useHydration', () => ({
@@ -84,6 +84,51 @@ describe('createOverflow', () => {
     result.measure(2, el)
 
     expect(result.total.value).toBe(150)
+  })
+
+  it('should treat a genuine 0 margin as 0, not as an unreadable length', async () => {
+    const result = createOverflow()
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: '0px',
+      marginRight: '0px',
+    } as CSSStyleDeclaration)
+
+    result.measure(0, el)
+
+    expect(result.total.value).toBe(50)
+  })
+
+  it('should fall back to 0 for a margin that does not resolve to a length', async () => {
+    const result = createOverflow()
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: 'auto',
+      marginRight: '',
+    } as CSSStyleDeclaration)
+
+    result.measure(0, el)
+
+    expect(result.total.value).toBe(50)
+  })
+
+  it('should add both resolved margins to the measured width', async () => {
+    const result = createOverflow()
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: '4px',
+      marginRight: '0px',
+    } as CSSStyleDeclaration)
+
+    result.measure(0, el)
+
+    expect(result.total.value).toBe(54)
   })
 
   it('should include gap in total calculation', async () => {
@@ -668,6 +713,30 @@ describe('createOverflow', () => {
       }))
 
       const containerRef = shallowRef<Element | undefined>(container)
+      const result = createOverflow({ container: containerRef, itemWidth: 50 })
+
+      await nextTick()
+      resizeCallback?.([{ contentRect: { width: 200, height: 50 } }])
+      await nextTick()
+
+      expect(result.capacity.value).toBe(4)
+    })
+
+    it('should accept a readonly template-ref shaped container', async () => {
+      const container = document.createElement('div')
+      container.getBoundingClientRect = vi.fn(() => ({
+        width: 200,
+        height: 50,
+        top: 0,
+        left: 0,
+        right: 200,
+        bottom: 50,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }))
+
+      const containerRef = readonly(shallowRef<Element | null>(container))
       const result = createOverflow({ container: containerRef, itemWidth: 50 })
 
       await nextTick()

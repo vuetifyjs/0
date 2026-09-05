@@ -88,7 +88,7 @@ async function getComposableData (): Promise<{
   ])
 
   // Pattern for composable function names we care about
-  const COMPOSABLE_PATTERN = /^(use|create|to|provide)[A-Z]/
+  const COMPOSABLE_PATTERN = /^(?:use|create|to|provide)[A-Z]/
 
   for (const dir of dirs) {
     // Composable directories start with 'use', 'create', or 'to'
@@ -118,6 +118,19 @@ async function getComposableData (): Promise<{
     const destructuredExports = content.matchAll(/export\s+const\s+\[([^\]]+)\]/g)
     for (const match of destructuredExports) {
       const bindings = match[1].split(',').map(s => s.trim())
+      for (const binding of bindings) {
+        if (COMPOSABLE_PATTERN.test(binding)) {
+          names.add(binding)
+          toDir[binding] = dir
+        }
+      }
+    }
+
+    // Find named export lists (value re-exports of module-private declarations)
+    // Matches: export { createPopoverContext, createPopoverPlugin }
+    const namedExports = content.matchAll(/export\s+\{([^}]+)\}/g)
+    for (const match of namedExports) {
+      const bindings = match[1].split(',').map(s => s.trim().split(/\s+as\s+/).pop()!)
       for (const binding of bindings) {
         if (COMPOSABLE_PATTERN.test(binding)) {
           names.add(binding)

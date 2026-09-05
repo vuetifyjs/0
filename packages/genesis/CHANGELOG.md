@@ -1,5 +1,29 @@
 # @paper/genesis
 
+## 1.0.2
+
+### Patch Changes
+
+- [#871](https://github.com/vuetifyjs/0/pull/871) [`761c629`](https://github.com/vuetifyjs/0/commit/761c6292bb1eb4f9cc71979f6588796816da8e85) Thanks [@johnleider](https://github.com/johnleider)! - feat(GnDocsExample): expose a `preview-actions` slot on the live-example preview chrome
+
+- Updated dependencies [[`41d90cc`](https://github.com/vuetifyjs/0/commit/41d90cc965ffaacf0f01ecbf51c9575eff57052a), [`bd8988b`](https://github.com/vuetifyjs/0/commit/bd8988b00d62b54468ff13767ff502ff5f1f82c5), [`6cdd09c`](https://github.com/vuetifyjs/0/commit/6cdd09c538c1c68db601b8ff5c8310d938aee8fa), [`a25ea53`](https://github.com/vuetifyjs/0/commit/a25ea53ae53865d595355be8ab883a84f1a3ccaa)]:
+  - @vuetify/v0@1.0.5
+
+## 1.0.1
+
+### Patch Changes
+
+- [#792](https://github.com/vuetifyjs/0/pull/792) [`2735313`](https://github.com/vuetifyjs/0/commit/2735313d219ec6e657c1c89c83eafde150e841af) Thanks [@johnleider](https://github.com/johnleider)! - fix(GnDocsExample): keep the card's bottom hairline from being eaten by backdrop-filter
+
+  Consumers apply a `backdrop-filter` to the example's bars (the docs glass treatment), which composites that child into its own layer. The layer pixel-snaps outward and paints over the card's own `border-bottom` whenever the card's bottom edge lands below a half-pixel — so the bottom border disappeared on some examples and not others, and changing any earlier example's height reshuffled which ones broke. `GnDocsExample` now draws the hairline on the last child instead: a border on the child paints above its own filter, so it survives at any sub-pixel offset. A `-1px` margin keeps it on the row the card's border occupied, leaving the card's height and corner radii unchanged.
+
+- [#792](https://github.com/vuetifyjs/0/pull/792) [`2735313`](https://github.com/vuetifyjs/0/commit/2735313d219ec6e657c1c89c83eafde150e841af) Thanks [@johnleider](https://github.com/johnleider)! - fix(GnDocsExample): restore the preview/code divider in peek mode
+
+  Peek examples skip the toggle bar, and the toggle bar is what carried the `border-top` separating the preview from the code pane — so a peek example rendered its preview and its code as one unbroken surface while a non-peek example on the same page showed a divider. On docs pages that interleave the two modes (peek under Usage and Recipes, expandable examples under Examples) the inconsistency reads as every other example missing a border. `GnDocsExample` now draws the divider on `.genesis-docs-example__code` itself when the root carries `data-peek`, so both modes match.
+
+- Updated dependencies [[`5a9a388`](https://github.com/vuetifyjs/0/commit/5a9a388ef42a5bd96d5a398e28cb046da78e59a3), [`a7334f8`](https://github.com/vuetifyjs/0/commit/a7334f84e475da9be0f6ab3d880ef474eeec8406), [`4a19d6c`](https://github.com/vuetifyjs/0/commit/4a19d6c0375e565851d1f1a2cd7125fac5e46ea4)]:
+  - @vuetify/v0@1.0.4
+
 ## 1.0.0
 
 ### Minor Changes

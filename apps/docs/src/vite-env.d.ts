@@ -2,6 +2,14 @@
 /// <reference types="vue-router/auto" />
 /// <reference types="vite-plugin-vue-layouts-next/client" />
 
+interface ImportMetaEnv {
+  readonly VITE_API_SERVER_URL?: string
+  readonly VITE_GITHUB_SHA?: string
+  readonly VITE_INDEX?: string
+  readonly VITE_PLAYGROUND_URL?: string
+  readonly VITE_SITE_URL?: string
+}
+
 declare module '*.md' {
   // Types
   import type { ComponentOptions } from 'vue'
@@ -28,6 +36,20 @@ declare module 'virtual:page-dates' {
   import type { PageDates } from '@build/generate-page-dates'
   const data: PageDates
   export default data
+}
+
+declare module 'virtual:faqs' {
+  // Types
+  import type { Faq } from '@build/generate-faqs'
+  /** Route path -> FAQ entries extracted from `::: faq` blocks. */
+  const faqs: Record<string, Faq[]>
+  export default faqs
+}
+
+declare module 'virtual:md-routes' {
+  /** Route path -> markdown twin URL, for `rel="alternate"` links. */
+  const routes: Record<string, string>
+  export default routes
 }
 
 declare module 'virtual:llms-stats' {

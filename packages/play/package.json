@@ -1,0 +1,45 @@
+{
+  "name": "@vuetify/play",
+  "version": "0.1.1",
+  "description": "v0play hash protocol — encode, decode, and sanitize playground payloads",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vuetifyjs/0.git",
+    "directory": "packages/play"
+  },
+  "types": "./dist/index.d.mts",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "vue-tsc --noEmit --incremental"
+  },
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    }
+  },
+  "dependencies": {
+    "@vuetify/v0": "workspace:^",
+    "fflate": "catalog:"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "unplugin-vue": "catalog:",
+    "vue-tsc": "catalog:"
+  }
+}

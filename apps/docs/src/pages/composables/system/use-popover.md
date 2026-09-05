@@ -22,31 +22,51 @@ A composable for native popover API behavior with CSS anchor positioning.
 
 <DocsPageFeatures :frontmatter />
 
+## Installation
+
+Install the Popover plugin to set an app-wide positioning adapter. Without it, every `usePopover()` call uses `V0PopoverAdapter` (CSS anchor positioning). Per-instance `adapter` still wins over the plugin. Tooltip surfaces can set a different adapter on `createTooltipPlugin` that only they see.
+
+```ts main.ts
+import { createApp } from 'vue'
+import { createPopoverPlugin } from '@vuetify/v0'
+import { FloatingUIPopoverAdapter } from '@vuetify/v0/popover/adapters/floating-ui'
+import App from './App.vue'
+
+const app = createApp(App)
+
+app.use(createPopoverPlugin({ adapter: new FloatingUIPopoverAdapter() }))
+
+app.mount('#app')
+```
+
 ## Usage
 
-`usePopover` manages a popover's open/close state, generates CSS anchor positioning styles, and synchronizes reactive state with native popover toggle events. Spread `anchorStyles` on the activator, `contentAttrs` and `contentStyles` on the content element, and call `attach()` to wire up the native popover lifecycle.
+`usePopover` manages a popover's open/close state, generates CSS anchor positioning styles, and synchronizes reactive state with native popover toggle events. Spread `anchorStyles` on the activator, `contentAttrs` and `contentStyles` on the content element, call `attachAnchor()` on the trigger, and `attach()` on the content to wire the positioning adapter and native popover lifecycle.
 
 ```vue collapse no-filename usePopover
 <script setup lang="ts">
   import { usePopover } from '@vuetify/v0'
   import { useTemplateRef } from 'vue'
 
+  const trigger = useTemplateRef('trigger')
   const content = useTemplateRef('content')
 
   const {
     isOpen,
     toggle,
     attach,
+    attachAnchor,
     anchorStyles,
     contentAttrs,
     contentStyles,
   } = usePopover({ positionArea: 'bottom' })
 
+  attachAnchor(trigger)
   attach(content)
 </script>
 
 <template>
-  <button :style="anchorStyles" @click="toggle">
+  <button ref="trigger" :style="anchorStyles" @click="toggle">
     {{ isOpen ? 'Close' : 'Open' }}
   </button>
 
@@ -58,6 +78,53 @@ A composable for native popover API behavior with CSS anchor positioning.
     Popover content
   </div>
 </template>
+```
+
+## Adapters
+
+Adapters let you swap the underlying positioning engine without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `V0PopoverAdapter` | `@vuetify/v0` | CSS anchor positioning (default, zero runtime dependency) |
+| `FloatingUIPopoverAdapter` | `@vuetify/v0/popover/adapters/floating-ui` | [Floating UI](https://floating-ui.com) JS measurement — `flip()` covers overflow |
+
+`FloatingUIPopoverAdapter` is subpath-only so `@floating-ui/dom` stays out of the main barrel. Install the peer, then pass an instance via the `adapter` option. `positionTry` is ignored; `flip()` covers the overflow intent. Pass `middleware` to the constructor to override the default `[offset(8), flip(), shift({ padding: 8 })]`.
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm add @floating-ui/dom
+```
+
+```bash npm
+npm install @floating-ui/dom
+```
+
+```bash yarn
+yarn add @floating-ui/dom
+```
+
+```bash bun
+bun add @floating-ui/dom
+```
+
+:::
+
+```ts src/popover.ts
+import { usePopover } from '@vuetify/v0'
+import { FloatingUIPopoverAdapter } from '@vuetify/v0/popover/adapters/floating-ui'
+
+const popover = usePopover({ adapter: new FloatingUIPopoverAdapter() })
+```
+
+App-wide, skip the per-instance option and install the plugin once:
+
+```ts
+import { createPopoverPlugin } from '@vuetify/v0'
+import { FloatingUIPopoverAdapter } from '@vuetify/v0/popover/adapters/floating-ui'
+
+app.use(createPopoverPlugin({ adapter: new FloatingUIPopoverAdapter() }))
 ```
 
 ## Architecture
@@ -77,11 +144,12 @@ flowchart TD
 | Option | Type | Default | Notes |
 | - | - | - | - |
 | `id` | `string` | auto | Base ID for anchor name and popover `id`. Auto-generated if not provided |
-| `positionArea` | `string` | `'bottom'` | CSS `position-area` value — controls where the content appears relative to the anchor |
-| `positionTry` | `string` | `'most-width bottom'` | CSS `position-try-fallbacks` value — fallback positions when the primary area overflows |
+| `positionArea` | `MaybeRefOrGetter<string>` | `'bottom'` | CSS `position-area` value — controls where the content appears relative to the anchor |
+| `positionTry` | `MaybeRefOrGetter<string>` | `'most-width bottom'` | CSS `position-try-fallbacks` value — fallback positions when the primary area overflows |
 | `isOpen` | `Ref<boolean>` | — | External ref for bidirectional open state (e.g., from `defineModel`) |
 | `openDelay` | `MaybeRefOrGetter<number>` | `0` | Milliseconds to wait before opening the popover |
 | `closeDelay` | `MaybeRefOrGetter<number>` | `0` | Milliseconds to wait before closing the popover |
+| `adapter` | `PopoverAdapter` | `new V0PopoverAdapter()` | Positioning engine. Resolution: per-instance, then `createPopoverPlugin`, then CSS anchor positioning — see [Adapters](#adapters) |
 
 ## Reactivity
 
@@ -93,9 +161,10 @@ flowchart TD
 | `toggle()` | - | Toggle open/close |
 | `cancel()` | - | Cancel any pending open or close transition |
 | `attach(el)` | - | Wire native show/hide watch + toggle event sync to a content element |
+| `attachAnchor(el)` | - | Register the activator/reference element with the positioning adapter |
 | `anchorStyles` | <AppSuccessIcon /> | Readonly Ref, CSS `anchor-name` for the activator element |
 | `contentAttrs` | <AppSuccessIcon /> | Readonly Ref, `id` and `popover` attribute for the content element |
-| `contentStyles` | <AppSuccessIcon /> | Readonly Ref, CSS anchor positioning styles for the content element |
+| `contentStyles` | <AppSuccessIcon /> | Readonly Ref, adapter-owned styles for the content element |
 
 ## Examples
 
@@ -108,16 +177,100 @@ flowchart TD
 
 A custom account menu built directly on `usePopover`, without the compound Popover component. The composable owns the popover instance and the menu data, the presentational component renders the trigger and the panel, and the entry wires them together and reports the chosen action. This is the shape to reach for when you want full control over a menu, select, or combobox surface rather than the slots and transitions of [Popover](/components/disclosure/popover).
 
-The example exercises the full three-part spread that `usePopover` returns. `anchorStyles` goes on the trigger, where it sets the CSS `anchor-name` the panel positions against; `contentAttrs` goes on the panel and applies its `id` plus the native `popover` attribute; and `contentStyles` carries the CSS anchor-positioning rules — `position-anchor`, `position-area`, and the `position-try-fallbacks` produced by `positionTry: 'flip-block'`, which lets the browser flip the panel above the trigger when there is no room below, with no JavaScript position math. Because `contentAttrs` registers an auto popover, the browser handles light dismiss for free: clicking outside or pressing Escape closes the panel.
+The example exercises the full three-part spread that `usePopover` returns. `anchorStyles` goes on the trigger, where it sets the CSS `anchor-name` the panel positions against; `contentAttrs` goes on the panel and applies its `id` plus the native `popover` attribute; and `contentStyles` is adapter-owned — CSS anchor-positioning rules from `V0PopoverAdapter` by default (`position-anchor`, `position-area`, and the `position-try-fallbacks` produced by `positionTry: 'flip-block'`), or `top`/`left` coordinates from a JS engine such as Floating UI. Because `contentAttrs` registers an auto popover, the browser handles light dismiss for free: clicking outside or pressing Escape closes the panel.
 
-`MenuButton.vue` calls `attach(content)` with a template ref to the panel element. That single call wires the native `toggle` event back into `isOpen`, so when the browser closes the popover on light dismiss the reactive state stays in sync. Selecting an item calls `close()` and records the choice; the trigger reads `isOpen` to rotate its caret. For the close-on-outside-click behavior wired manually rather than through the native popover, see [useClickOutside](/composables/system/use-click-outside); the open and close delays come from [useDelay](/composables/system/use-delay).
+`MenuButton.vue` calls `attachAnchor(trigger)` and `attach(content)` with template refs to the trigger and panel. `attachAnchor` registers the reference element with the positioning adapter — Floating UI needs both nodes — and `attach` wires the native `toggle` event back into `isOpen`, so when the browser closes the popover on light dismiss the reactive state stays in sync. Selecting an item calls `close()` and records the choice; the trigger reads `isOpen` to rotate its caret. For the close-on-outside-click behavior wired manually rather than through the native popover, see [useClickOutside](/composables/system/use-click-outside); the open and close delays come from [useDelay](/composables/system/use-delay).
 
 | File | Role |
 |------|------|
 | `useMenu.ts` | Creates the popover, owns the menu items, and closes on select |
-| `MenuButton.vue` | Renders the trigger and panel; calls `attach` to sync native state |
+| `MenuButton.vue` | Renders the trigger and panel; calls `attachAnchor` and `attach` |
 | `menu-button.vue` | Wires the composable to the component and shows the chosen action |
 :::
+
+## Bring your own positioning engine
+
+`usePopover` positions content with CSS anchor positioning by default (`V0PopoverAdapter`) — no JavaScript measurement, no runtime dependency. For Firefox ESR and Safari before version 26, reach for the shipped [FloatingUIPopoverAdapter](#adapters) first. The sketch below is the adapter shape if you want to wrap a different engine (Popper, or your own) rather than import the first-party one. Per-call state lives in the `setup()` closure so a shared instance stays re-entrant — do not assign `this.dispose`. Native `[popover]` is `position: fixed` with `inset: 0; margin: auto`, so any JS engine that writes `top`/`left` must unset those, and if the engine has a strategy option it must be `'fixed'`.
+
+```ts collapse no-filename my-popover-adapter.ts
+import { IN_BROWSER, isNullOrUndefined, PopoverAdapter } from '@vuetify/v0'
+import { onScopeDispose, shallowRef, watch } from 'vue'
+
+import type { PopoverAdapterContext } from '@vuetify/v0'
+
+export class MyPopoverAdapter extends PopoverAdapter {
+  setup (context: PopoverAdapterContext) {
+    function positionStyles (top: string, left: string): Record<string, string> {
+      return {
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset': 'unset',
+        top,
+        left,
+      }
+    }
+
+    const styles = shallowRef(positionStyles('0px', '0px'))
+
+    function reposition () {
+      if (!IN_BROWSER) return
+
+      const anchor = context.anchorEl.value
+      const content = context.contentEl.value
+
+      if (isNullOrUndefined(anchor) || isNullOrUndefined(content)) return
+      if (!context.isOpen.value) return
+
+      const rect = anchor.getBoundingClientRect()
+      const size = content.getBoundingClientRect()
+      const { side, align } = context.placement.value
+      const gap = 8
+
+      let top = rect.bottom + gap
+      let left = rect.left
+
+      if (side === 'top') {
+        top = rect.top - size.height - gap
+      } else if (side === 'left') {
+        top = rect.top
+        left = rect.left - size.width - gap
+      } else if (side === 'right') {
+        top = rect.top
+        left = rect.right + gap
+      }
+
+      if (align === 'end') {
+        left = rect.right - size.width
+      } else if (align === 'center' && (side === 'top' || side === 'bottom')) {
+        left = rect.left + (rect.width - size.width) / 2
+      }
+
+      styles.value = positionStyles(`${top}px`, `${left}px`)
+    }
+
+    const stopWatch = watch(
+      [context.anchorEl, context.contentEl, context.isOpen, context.placement],
+      reposition,
+      { immediate: true },
+    )
+
+    onScopeDispose(stopWatch, true)
+
+    return styles
+  }
+}
+```
+
+```ts no-filename usage
+import { usePopover } from '@vuetify/v0'
+import { MyPopoverAdapter } from './my-popover-adapter'
+
+const popover = usePopover({ adapter: new MyPopoverAdapter() })
+```
+
+Everything else is unchanged — `attach()`, `attachAnchor()`, `contentAttrs`, and `anchorStyles` all work the same way regardless of which adapter is active. `contentStyles` becomes whatever the adapter's `setup()` returns instead of the CSS anchor-positioning declarations.
+
+The [Popover](/components/disclosure/popover) component and the [Select](/components/forms/select), [Tooltip](/components/disclosure/tooltip), and `createCombobox` built on top of `usePopover` all accept the same `adapter` option (`positionAdapter` on `createCombobox`, since it already has its own filtering `adapter`) and forward it through, so swapping the positioning engine for one of those doesn't require dropping down to `usePopover` directly.
 
 ## FAQ
 
@@ -142,6 +295,10 @@ Pass `openDelay` and `closeDelay` (ms) in the options. Call `cancel()` to abort 
 ??? How do I control where the popover appears relative to its trigger?
 
 Set `positionArea` (e.g. `'bottom'`) for the primary placement and `positionTry` for the fallback positions the browser flips to when that area overflows — CSS anchor positioning handles it with no JavaScript layout math.
+
+??? Does v0 ship a floating-ui adapter?
+
+Yes. Import `FloatingUIPopoverAdapter` from `@vuetify/v0/popover/adapters/floating-ui` and pass it as the `adapter` option — see [Adapters](#adapters). It requires the `@floating-ui/dom` peer; the CSS default (`V0PopoverAdapter`) stays zero-dependency. For a different engine, see [Bring your own positioning engine](#bring-your-own-positioning-engine).
 
 :::
 

@@ -164,6 +164,38 @@ const users = cache.get('users', [])
 > [!TIP] How TTL works
 > When `ttl` is set, values are internally wrapped as `{ __ttl, __v, __t }` with a timestamp. On `get()`, if the entry is older than the TTL, it is treated as absent and removed from storage. Non-TTL entries stored previously are read normally.
 
+### Surface failed writes
+
+Writes are fire-and-forget: a quota error or `SecurityError` is logged and the in-memory ref stays current, so `storage.set` cannot reject. The composition point is the adapter — wrap `setItem`, record the failure, and rethrow so the internal log still fires. Theme/locale persist ride the same plugin instance, so one wrap covers those too. Corrupt stored JSON is a `serializer.read` failure; wrap that the same way if you need it.
+
+```ts collapse no-filename Failed writes
+import { createStoragePlugin, IN_BROWSER } from '@vuetify/v0'
+import { MemoryStorageAdapter } from '@vuetify/v0/storage/adapters/memory'
+import { shallowRef } from 'vue'
+
+const saveError = shallowRef<unknown>(null)
+const backend = IN_BROWSER ? localStorage : new MemoryStorageAdapter()
+
+app.use(
+  createStoragePlugin({
+    adapter: {
+      getItem: key => backend.getItem(key),
+      setItem: (key, value) => {
+        try {
+          backend.setItem(key, value)
+        } catch (error) {
+          saveError.value = error
+          throw error
+        }
+      },
+      removeItem: key => backend.removeItem(key),
+    },
+  }),
+)
+```
+
+Watch `saveError` to drive a notice. Same composition point as a custom logger or notifications adapter — swap the implementation, don't grow a parallel hook on the factory.
+
 ## FAQ
 
 ::: faq
@@ -179,6 +211,10 @@ No. The ref returned by `get(key, default)` is watched with `{ deep: true }`, so
 ??? How do I make cached entries expire automatically?
 
 Pass a `ttl` (in milliseconds) to `createStorage`. Entries are timestamped on write; once older than the TTL, `get()` returns the default and removes the entry from storage.
+
+??? How do I know when a write failed?
+
+You don't, unless you wrap the adapter. `setItem` throws (quota, `SecurityError`) inside a deep watcher, so `storage.set` cannot reject and no error state is exposed. Wrap `setItem`, record the failure, rethrow so the internal log still fires — see Surface failed writes. Corrupt JSON is `serializer.read`; wrap that too if you need it.
 
 ??? How do I use sessionStorage instead of localStorage?
 

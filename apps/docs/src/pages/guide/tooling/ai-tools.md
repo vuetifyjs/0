@@ -10,68 +10,80 @@ meta:
   - name: keywords
     content: llms.txt, AI tools, LLM, Claude, ChatGPT, Grok, Cursor, documentation, developer experience
 related:
+  - /guide/tooling/agents
   - /guide/tooling/vuetify-mcp
   - /guide/tooling/vuetify-cli
   - /introduction/getting-started
 ---
 
-<script setup>
+<script setup lang="ts">
   import llmsStats from 'virtual:llms-stats'
 </script>
 
 # AI Tools
 
-v0 provides machine-readable documentation files following the [llms.txt](https://llmstxt.org/) standard. These files help AI assistants understand the library without hallucinating APIs or patterns.
-
 <DocsPageFeatures :frontmatter />
+
+v0 provides machine-readable documentation files following the [llms.txt](https://llmstxt.org/) standard. These files help AI assistants understand the library without hallucinating APIs or patterns.
 
 ## Available Files
 
 | File | Size | Purpose | Best For |
 | - | - | - | - |
-| <a href="/llms.txt" target="_blank" class="v0-link">llms.txt↗</a> | {{ llmsStats.llms.sizeFormatted }} | Curated index with links | Quick context, navigation |
-| <a href="/llms-full.txt" target="_blank" class="v0-link whitespace-nowrap">llms-full.txt↗</a> | {{ llmsStats.llmsFull.sizeFormatted }} | Complete documentation | Deep understanding, code generation |
-| <a href="/SKILL.md" target="_blank" class="v0-link">SKILL.md↗</a> | {{ llmsStats.skill.sizeFormatted }} | Patterns & anti-patterns | Claude Code, Grok Build, Cursor, Windsurf |
+| <a href="/llms.txt" target="_blank" rel="noopener noreferrer" class="v0-link whitespace-nowrap">llms.txt↗︎</a> | {{ llmsStats.llms.sizeFormatted }} | Curated index with links | Quick context, navigation |
+| <a href="/llms-full.txt" target="_blank" rel="noopener noreferrer" class="v0-link whitespace-nowrap">llms-full.txt↗︎</a> | {{ llmsStats.llmsFull.sizeFormatted }} | Complete documentation | Deep understanding, code generation |
+| <a href="/SKILL.md" target="_blank" rel="noopener noreferrer" class="v0-link whitespace-nowrap">SKILL.md↗︎</a> | {{ llmsStats.skill.sizeFormatted }} | Patterns & anti-patterns | Claude Code, Codex, Cursor, Grok Build, Windsurf |
+
+## What's Included
+
+**llms.txt** contains categorized links to:
+
+- Guide pages (fundamentals, features, tooling, integration, and more)
+- <DocsCount type="component" /> headless components (Atom, Avatar, Pagination, etc.)
+- <DocsCount type="composable" /> composables across categories
+- FAQ and contributing guides
+
+**llms-full.txt** contains the complete content of every documentation page, stripped of Vue components and frontmatter for cleaner LLM consumption.
+
+**SKILL.md** is a compact reference optimized for AI coding assistants. It focuses on decision trees, code conventions, anti-patterns, and the composition hierarchy. Detailed API examples live in a separate [REFERENCE.md](/references/REFERENCE.md) that agents load on demand.
 
 > [!ASKAI] How do I configure my AI agent to consume llms-full.txt?
 
 ## Usage
 
-Install SKILL.md via [skills.sh](https://www.skills.sh) — works with Claude Code, Grok Build, Cursor, Windsurf, Codex, and [35+ agents](https://github.com/vercel-labs/skills#supported-agents):
+Need a ready-made agent? Paste the [setup prompt](/guide/tooling/agents) into [Grok Bot](https://x.ai/bot) — it walks connections and saves itself. Identity fields on that page also work for Claude Code and Cursor.
+
+Install SKILL.md via [skills.sh](https://www.skills.sh) — works with Claude Code, Codex, Cursor, Grok Build, Windsurf, and [35+ agents](https://github.com/vercel-labs/skills#supported-agents):
 
 ```bash
 npx skills add vuetifyjs/0
 ```
 
-### For Humans
+### Editors and CLIs
 
-**Claude Code / Codex** — Add Vuetify MCP for structured API access:
+**Claude Code / Grok Build** — add Vuetify MCP for structured API access (`/mcp` is public docs; `/one` authenticates with Vuetify One — see [Vuetify MCP](/guide/tooling/vuetify-mcp)):
 
-```bash
+::: code-group no-filename
+
+```bash Claude Code
 claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 ```
 
-Or fetch docs directly in your session:
-
-```text
-WebFetch https://0.vuetifyjs.com/llms-full.txt
-```
-
-**Grok Build** — Add Vuetify MCP for structured API access:
-
-```bash
+```bash Grok Build
 grok mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 ```
 
+:::
+
 Or fetch docs directly in your session:
 
 ```text
 WebFetch https://0.vuetifyjs.com/llms-full.txt
 ```
 
-Grok also loads SKILL.md (via `npx skills add vuetifyjs/0` or `.grok/skills/`) and project rules from `AGENTS.md` / `CLAUDE.md`.
+Grok Build also loads SKILL.md (via `npx skills add vuetifyjs/0` or `.grok/skills/`) and project rules from `AGENTS.md` / `CLAUDE.md`.
 
-**Cursor / Windsurf** — Add to .cursorrules or configure MCP:
+**Cursor / Windsurf** — add to .cursorrules or configure MCP:
 
 ```text
 @https://0.vuetifyjs.com/llms.txt
@@ -79,29 +91,32 @@ Grok also loads SKILL.md (via `npx skills add vuetifyjs/0` or `.grok/skills/`) a
 
 See [Vuetify MCP](/guide/tooling/vuetify-mcp) for IDE configuration.
 
-**ChatGPT / Claude.ai** — Paste the URL in chat:
+**ChatGPT / Claude.ai** — paste the URL in chat:
 
 ```text
 Read https://0.vuetifyjs.com/llms-full.txt and help me build a multi-select dropdown.
 ```
 
-### For Agents
+### Agent Context
 
-**With MCP** — Always-current structured access:
+**With MCP** — always-current structured access:
 
 - `get_vuetify0_skill` — Latest SKILL.md reference
 - `get_vuetify0_composable_list` — Browse all composables
 - `get_vuetify0_composable_guide` — Detailed composable docs
 - `get_vuetify0_component_list` — Browse headless components
 - `get_vuetify0_component_guide` — Component docs and examples
+- `get_vuetify0_exports_list` — Package subpath exports
+- `get_vuetify0_installation_guide` — Setup instructions
+- `get_vuetify0_package_guide` — Package-specific documentation
 
-**Without MCP** — Fetch SKILL.md at session start:
+**Without MCP** — fetch SKILL.md at session start:
 
 ```text
 WebFetch https://0.vuetifyjs.com/SKILL.md
 ```
 
-**What's in SKILL.md:**
+**What's in SKILL.md**
 
 - Decision tree mapping needs to composables
 - Code style conventions (shallowRef, function declarations)
@@ -116,7 +131,7 @@ Docs access alone isn't enough. An agent only looks things up when it feels unce
 
 > [!ASKAI] Set up my agent harness so it always uses v0 primitives instead of hand-rolling Vue logic.
 
-### 1. Put a surface map in always-loaded context
+### 1. Put a Surface Map in Always-Loaded Context
 
 Add an inventory of v0 exports — every name with a one-line purpose — to a file your agent loads on every session (`CLAUDE.md`, `.cursorrules`, `AGENTS.md`). An agent can't reach for `createSelection` if it doesn't know the name exists; once the name is in context, fetching the full guide via MCP or SKILL.md follows naturally.
 
@@ -132,7 +147,7 @@ If a name below covers the need, use it — never hand-roll an equivalent.
 <!-- ...full export list... -->
 ```
 
-### 2. Add a deterministic reminder hook
+### 2. Add a Deterministic Reminder Hook
 
 Context-file instructions degrade over long sessions; hooks don't. In Claude Code, a `PreToolUse` hook fires every time the agent edits a file — including edits made by subagents — and can't be rationalized away. In `.claude/settings.json`:
 
@@ -165,26 +180,13 @@ esac
 exit 0
 ```
 
-### 3. Let the type checker catch what slips through
+### 3. Let the Type Checker Catch What Slips Through
 
 Hallucinated v0 APIs fail to compile. Run `vue-tsc --noEmit` (or `tsc --noEmit`) as a verification step before accepting agent-written code — it converts "plausible but wrong" into a hard error the agent can fix itself.
 
-## What's Included
-
-**llms.txt** contains categorized links to:
-
-- Guide pages (fundamentals, features, tooling, integration, and more)
-- <DocsCount type="component" /> headless components (Atom, Avatar, Pagination, etc.)
-- <DocsCount type="composable" /> composables across categories
-- FAQ and contributing guides
-
-**llms-full.txt** includes the complete content of every documentation page, stripped of Vue components and frontmatter for cleaner LLM consumption.
-
-**SKILL.md** is a compact reference optimized for AI coding assistants. It focuses on decision trees, code conventions, anti-patterns, and the composition hierarchy. Detailed API examples live in a separate [REFERENCE.md](/references/REFERENCE.md) that agents load on demand. Install via [skills.sh](https://www.skills.sh) (`npx skills add vuetifyjs/0`) to make it available across Claude Code, Grok Build, Cursor, Windsurf, and 35+ other agents.
-
 ## How It Works
 
-Both files are auto-generated at build time by [generate-llms-full.ts](https://github.com/vuetifyjs/0/blob/master/apps/docs/build/generate-llms-full.ts):
+All three files are produced at build time:
 
-- `llms.txt` extracts titles and descriptions, organized by category
-- `llms-full.txt` includes the complete content of every markdown page, stripped of Vue components and frontmatter
+- `llms.txt` and `llms-full.txt` are generated by [generate-llms-full.ts](https://github.com/vuetifyjs/0/blob/master/apps/docs/build/generate-llms-full.ts) — the first extracts titles and descriptions organized by category, the second inlines the complete content of every markdown page.
+- `SKILL.md` is authored in the repository at `skills/vuetify0/SKILL.md` and copied to the docs root by [copy-markdown.ts](https://github.com/vuetifyjs/0/blob/master/apps/docs/build/copy-markdown.ts), together with every reference it links under `/references/`.

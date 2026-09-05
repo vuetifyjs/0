@@ -38,6 +38,7 @@ export async function createHighlighter (): Promise<DocsHighlighter> {
       import('@shikijs/langs/vue'),
       import('@shikijs/langs/html'),
       import('@shikijs/langs/markdown'),
+      import('@shikijs/langs/toml'),
     ],
     engine: createJavaScriptRegexEngine(),
   })
@@ -67,30 +68,31 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     },
   })
 
-  // Example containers: ::: example, ::: example collapse, ::: gn-example.
+  // Example containers: ::: gn-example, ::: ds-example (+ "collapse" modifier).
   // Lines starting with / are file paths, rest is markdown description.
   // Single file without description: renders with peek, no description slot.
   // Multiple files or with description: renders with description slot.
   // "collapse" modifier: adds collapse prop for inline expand/collapse button.
-  // `gn-example` emits <DocsGenesisExample>; `example` emits <DocsExample>.
+  // `gn-example` emits <DocsGenesisExample>; `ds-example` emits <DocsSystemExample>.
   function renderExampleOpenWithDescription (env: Record<string, unknown>): string {
     const paths = env._exampleFilePaths as string[]
     const orders = env._exampleFileOrders as (number | undefined)[]
     const hasOrders = orders?.some(o => o !== undefined)
     const collapse = env._exampleCollapse
     const collapseAttr = collapse ? ' collapse' : ''
+    const noResizeAttr = env._exampleNoResize ? ' disable-resize' : ''
     const imports = env._exampleImports as Record<string, string>
     const importsAttr = Object.keys(imports).length > 0
       ? ` :imports="${JSON.stringify(imports).replace(/"/g, '\'')}"`
       : ''
-    const exampleTag = (env._exampleTag as string) || 'DocsExample'
+    const exampleTag = env._exampleTag as string
 
     if (paths.length === 1) {
-      return `<${exampleTag} file-path="${paths[0]}"${collapseAttr}${importsAttr}>\n<template #description>\n`
+      return `<${exampleTag} file-path="${paths[0]}"${collapseAttr}${noResizeAttr}${importsAttr}>\n<template #description>\n`
     }
     const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
     const ordersAttr = hasOrders ? ` :file-orders="${JSON.stringify(orders)}"` : ''
-    return `<${exampleTag} :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${importsAttr}>\n<template #description>\n`
+    return `<${exampleTag} :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${noResizeAttr}${importsAttr}>\n<template #description>\n`
   }
 
   function renderExampleClose (env: Record<string, unknown>, fallbackTag: string): string {
@@ -99,6 +101,7 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     const orders = env._exampleFileOrders as (number | undefined)[]
     const hasOrders = orders?.some(o => o !== undefined)
     const collapse = env._exampleCollapse
+    const noResize = env._exampleNoResize
     const imports = env._exampleImports as Record<string, string>
     const exampleTag = (env._exampleTag as string) || fallbackTag
 
@@ -110,8 +113,10 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     delete env._exampleOpened
     delete env._examplePathPara
     delete env._exampleCollapse
+    delete env._exampleNoResize
 
     const collapseAttr = collapse ? ' collapse' : ''
+    const noResizeAttr = noResize ? ' disable-resize' : ''
     const importsAttr = Object.keys(imports).length > 0
       ? ` :imports="${JSON.stringify(imports).replace(/"/g, '\'')}"`
       : ''
@@ -119,12 +124,12 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     if (wasOpened) return `</template>\n</${exampleTag}>\n`
 
     if (paths?.length === 1) {
-      return `<${exampleTag} file-path="${paths[0]}"${collapse ? collapseAttr : ' peek'}${importsAttr} />\n`
+      return `<${exampleTag} file-path="${paths[0]}"${collapse ? collapseAttr : ' peek'}${noResizeAttr}${importsAttr} />\n`
     }
     if (paths?.length > 1) {
       const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
       const ordersAttr = hasOrders ? ` :file-orders="${JSON.stringify(orders)}"` : ''
-      return `<${exampleTag} :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${importsAttr} />\n`
+      return `<${exampleTag} :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${noResizeAttr}${importsAttr} />\n`
     }
 
     return ''
@@ -141,6 +146,7 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
           env._exampleFileOrders = [] as (number | undefined)[]
           env._exampleImports = {} as Record<string, string>
           env._exampleCollapse = info.includes('collapse')
+          env._exampleNoResize = info.includes('no-resize')
           return ''
         }
 
@@ -149,8 +155,10 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     })
   }
 
-  registerExampleContainer('example', 'DocsExample')
   registerExampleContainer('gn-example', 'DocsGenesisExample')
+  // Design-system examples render in an isolated iframe (the system's own CSS
+  // cannot share a document with the docs shell) — same authoring syntax.
+  registerExampleContainer('ds-example', 'DocsSystemExample')
 
   // Sponsor container: ::: sponsor ... :::
   // Renders the $2,000/mo Primary Sponsor teaser (full pitch lives at /sponsor)
@@ -206,7 +214,7 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
         ? defaultHeadingOpen(tokens, index, options, env, self)
         : self.renderToken(tokens, index, options)
 
-      const exampleTag = (env._exampleTag as string) || 'DocsExample'
+      const exampleTag = env._exampleTag as string
 
       if (paths.length === 1) {
         return `<${exampleTag} file-path="${paths[0]}"${collapseAttr}${importsAttr}>\n<template #description>\n${defaultRender}`
@@ -278,7 +286,12 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
       env._faqQuestionPara = true
       inlineToken.content = ''
       inlineToken.children = []
-      return `${closeTag}<DocsFaqItem question="${md.utils.escapeHtml(question)}">\n`
+      // `question` stays plain text for search/filter; the slot is the same
+      // inline pipeline as body markdown (`code`, API hover, links).
+      // Do not pass the page `env` — markdown-it-footnote flushes collected
+      // footnotes into renderInline and they land in every question title.
+      const title = md.renderInline(question)
+      return `${closeTag}<DocsFaqItem question="${md.utils.escapeHtml(question)}">\n<template #question>${title}</template>\n`
     }
     return defaultParagraphOpen
       ? defaultParagraphOpen(tokens, index, options, env, self)
@@ -502,7 +515,7 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     return `<DocsMarkup code="${encodedCode}" language="${lang || 'text'}"${titleAttr}${binTitleAttr}${playgroundAttr}${collapseAttr}${collapseLinesAttr}${hideFilenameAttr}${tourAttr}>${highlighted}</DocsMarkup>`
   }
   // Wrap tables in scrollable container for mobile
-  md.renderer.rules.table_open = () => '<div class="overflow-x-auto mb-4"><table>'
+  md.renderer.rules.table_open = () => '<div class="docs-table overflow-x-auto mb-4"><table>'
   md.renderer.rules.table_close = () => '</table></div>'
 
   // Emit <AppImage> for markdown images: ![alt](src "title") — title maps to caption

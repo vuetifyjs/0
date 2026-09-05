@@ -1,0 +1,11 @@
+# titleOnly: squash merge uses the PR title as the commit on master/dev.
+# Types match apps/docs/src/pages/introduction/contributing.md — not the
+# app's default list (which also allows style/perf/build/ci/revert).
+titleOnly: true
+types:
+  - feat
+  - fix
+  - docs
+  - refactor
+  - test
+  - chore

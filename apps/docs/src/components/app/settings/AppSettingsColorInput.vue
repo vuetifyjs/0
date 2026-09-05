@@ -1,28 +1,29 @@
 <script setup lang="ts">
   defineProps<{
-    modelValue: string
+    /** Undefined renders the row empty — the color has no value yet. */
+    modelValue?: string
     label: string
   }>()
 
   const emit = defineEmits<{
-    'update:modelValue': [value: string]
+    'update:model-value': [value: string]
   }>()
 
   function onColorInput (event: Event) {
     const target = event.target as HTMLInputElement
-    emit('update:modelValue', target.value)
+    emit('update:model-value', target.value)
   }
 
   function onTextInput (event: Event) {
     const target = event.target as HTMLInputElement
     let value = target.value.trim()
 
-    // Auto-add # prefix if missing
-    if (value && !value.startsWith('#')) {
+    // Auto-add # prefix for bare hex, but leave rgb()/hsl()/named colors alone
+    if (/^[\da-f]{3,8}$/i.test(value)) {
       value = `#${value}`
     }
 
-    emit('update:modelValue', value)
+    emit('update:model-value', value)
   }
 </script>
 

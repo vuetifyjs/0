@@ -3,22 +3,26 @@ import { downloadZip } from 'client-zip'
 // Components
 import { usePlayground } from '@/components/playground/app/PlaygroundApp.vue'
 
-import { generateProjectFiles } from '@/util/export'
+import { formatProjectForClipboard, generateProjectFiles } from '@/util/export'
 
 export function useExport () {
   const playground = usePlayground()
 
-  async function downloadProject () {
+  function collectProjectFiles (): Record<string, string> {
     const store = playground.store
     const files: Record<string, string> = {}
     for (const path of Object.keys(store.files)) {
       files[path] = store.files[path]!.code
     }
 
-    const exportFiles = generateProjectFiles({
+    return generateProjectFiles({
       files,
       importMap: store.getImportMap(),
     })
+  }
+
+  async function downloadProject () {
+    const exportFiles = collectProjectFiles()
 
     try {
       const entries = Object.entries(exportFiles).map(([path, content]) => ({
@@ -32,7 +36,18 @@ export function useExport () {
     }
   }
 
-  return { downloadProject }
+  /**
+   * Copy the full exportable project (same file set as the ZIP, including
+   * README + scaffold) to the clipboard as a multi-file text dump —
+   * intended for pasting into an agent / LLM chat ("Copy for Agent").
+   */
+  async function copyProject () {
+    const exportFiles = collectProjectFiles()
+    const text = formatProjectForClipboard(exportFiles)
+    await navigator.clipboard.writeText(text)
+  }
+
+  return { copyProject, downloadProject }
 }
 
 function saveBlob (blob: Blob, fileName: string) {

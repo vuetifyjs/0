@@ -26,7 +26,7 @@
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
-  import { isNull } from '#v0/utilities'
+  import { isNull, pxToNumber } from '#v0/utilities'
   import { shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -154,7 +154,7 @@
     }
     const htmlEl = el as HTMLElement
     const style = getComputedStyle(htmlEl)
-    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    const marginX = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
     target.value = (htmlEl.offsetWidth || 0) + marginX
   }
 
@@ -201,9 +201,14 @@
       const eW = ellipsisWidth.value
       const reserved = fI + gap + fD + gap + eW + gap
 
-      if (capacity === Infinity || capacity >= measuredCount) {
-        // Everything fits — show all content, hide ellipsis. Truncation is
-        // gone, so a disclosure left open from a narrower viewport is stale.
+      if (
+        ellipsisTickets.length === 0 ||
+        capacity === Infinity ||
+        capacity >= measuredCount
+      ) {
+        // Everything fits, or no overflow UI composed — show all content, hide
+        // ellipsis. Truncation is gone, so a disclosure left open from a
+        // narrower viewport is stale.
         hiddenCount.value = 0
         if (expanded.value) expanded.value = false
         for (const t of ellipsisTickets) group.unselect(t.id)

@@ -144,7 +144,7 @@
         <DocsCodeActions
           v-model:wrap="lineWrap"
           bin
-          class="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
+          class="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
           :code="api.highlighted[key]?.code ?? ''"
           language="typescript"
           show-copy

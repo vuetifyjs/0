@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Avatar, useFeatures, useRtl, useStack, useStorage } from '@vuetify/v0'
+  import { Avatar, useFeatures, useRtl, useStack } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -19,7 +19,6 @@
   const auth = useAuthStore()
   const features = useFeatures()
   const rtl = useRtl()
-  const storage = useStorage()
   const settings = useSettings()
   const levelFilter = useLevelFilterContext()
   const stack = useStack()
@@ -61,10 +60,6 @@
     el.focus()
   })
 
-  watch(() => devmode.isSelected.value, isSelected => {
-    storage.set('devmode', isSelected)
-  })
-
   function onKeydown (e: KeyboardEvent) {
     if (e.key === 'Escape') {
       settings.close()
@@ -77,7 +72,7 @@
     ref="sheet"
     aria-labelledby="settings-title"
     aria-modal="true"
-    :class="['fixed inset-y-0 end-0 flex flex-col w-[320px] max-w-full shadow-xl outline-none', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
+    :class="['fixed inset-y-0 end-0 flex flex-col w-[320px] max-w-full shadow-xl outline-none', settings.surface.value]"
     role="dialog"
     :style="{ zIndex: ticket.zIndex.value }"
     tabindex="-1"

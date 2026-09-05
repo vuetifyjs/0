@@ -1,5 +1,10 @@
 <script setup lang="ts">
+  // Baked theme.css must not be imported here — it paints `--v0-*` on `:root`.
+  import { EmeraldStyleSheetAdapter, emeraldColors, emeraldDarkColors } from '@paper/emerald'
   import { useHead } from '@unhead/vue'
+  import faqs from 'virtual:faqs'
+  import mdRoutes from 'virtual:md-routes'
+  import pageDates from 'virtual:page-dates'
 
   // Framework
   import { IN_BROWSER, Scrim, useBreakpoints, useStack } from '@vuetify/v0'
@@ -17,12 +22,20 @@
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
+  // Constants
+  import { INDEXABLE, PROD_SITE_URL } from '@/constants/site'
+
   // Stores
   import { useAppStore } from '@/stores/app'
 
   // Utilities
   import { defineAsyncComponent, toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
+
+  const emeraldAdapter = new EmeraldStyleSheetAdapter({
+    v0Aliases: true,
+    stylesheetId: 'emerald-docs-tokens',
+  })
 
   const AppSettingsSheet = defineAsyncComponent(() => import('@/components/app/AppSettingsSheet.vue'))
   const DocsSearch = defineAsyncComponent(() => import('@/components/docs/DocsSearch.vue'))
@@ -64,8 +77,23 @@
     return false
   })
 
-  const url = toRef(() => `https://0.vuetifyjs.com${route.path}`)
+  const url = toRef(() => `${PROD_SITE_URL}${route.path}`)
   const breadcrumbs = useBreadcrumbItems()
+
+  // Advertise the page's markdown twin so agent fetchers and AI crawlers can
+  // retrieve source markdown instead of scraping rendered HTML. Only emitted for
+  // routes that actually have a twin — see build/md-routes.ts.
+  const markdown = toRef(() => {
+    const twin = mdRoutes[route.path] ?? mdRoutes[route.path.replace(/\/$/, '')]
+    if (!twin) return []
+
+    return [{
+      key: 'alternate-markdown',
+      rel: 'alternate',
+      type: 'text/markdown',
+      href: `${PROD_SITE_URL}${twin}`,
+    }]
+  })
 
   const breadcrumbScript = toRef(() => {
     if (route.path === '/') return []
@@ -87,9 +115,59 @@
             'position': index + 1,
             name,
           }
-          if (!isLast && item.to) entry.item = `https://0.vuetifyjs.com${item.to}`
+          if (!isLast && item.to) entry.item = `${PROD_SITE_URL}${item.to}`
           return entry
         }),
+      }),
+    }]
+  })
+
+  // Documentation pages are TechArticle, not bare WebSite nodes — it carries the
+  // headline and dateModified that AI answer engines use to judge freshness.
+  // `dateModified` is the page's last git commit, already collected for the
+  // freshness badge.
+  const articleScript = toRef(() => {
+    const items = breadcrumbs.value
+    if (items.length <= 1) return []
+
+    const headline = items.at(-1)?.text
+    if (!headline) return []
+
+    const dates = pageDates[route.path]
+
+    return [{
+      key: 'article-schema',
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        headline,
+        'url': url.value,
+        'isPartOf': { '@type': 'WebSite', 'name': 'Vuetify0', 'url': PROD_SITE_URL },
+        'about': { '@type': 'SoftwareSourceCode', 'name': '@vuetify/v0', 'programmingLanguage': 'TypeScript' },
+        'publisher': { '@type': 'Organization', 'name': 'Vuetify', 'url': 'https://vuetifyjs.com' },
+        ...dates?.updated ? { dateModified: dates.updated } : {},
+      }),
+    }]
+  })
+
+  // FAQPage markup must mirror content the reader can see, so these come from
+  // the same `::: faq` blocks the page renders — see build/generate-faqs.ts.
+  const faqScript = toRef(() => {
+    const items = faqs[route.path] ?? faqs[route.path.replace(/\/$/, '')]
+    if (!items?.length) return []
+
+    return [{
+      key: 'faq-schema',
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': items.map(item => ({
+          '@type': 'Question',
+          'name': item.question,
+          'acceptedAnswer': { '@type': 'Answer', 'text': item.answer },
+        })),
       }),
     }]
   })
@@ -97,12 +175,17 @@
   useHead({
     title: 'Vuetify0',
     titleTemplate: '%s — Vuetify0',
-    link: [
+    link: toRef(() => [
       { rel: 'preconnect', href: 'https://api.github.com' },
       { rel: 'preconnect', href: 'https://cdn.vuetifyjs.com' },
       { rel: 'dns-prefetch', href: 'https://api.npmjs.org' },
-      { key: 'canonical', rel: 'canonical', href: url },
-    ],
+      { key: 'canonical', rel: 'canonical', href: url.value },
+      // Site-wide LLM context bundles. Documented for humans on
+      // /guide/tooling/ai-tools; these make them machine-discoverable.
+      { key: 'llms', rel: 'alternate', type: 'text/plain', href: `${PROD_SITE_URL}/llms.txt`, title: 'llms.txt' },
+      { key: 'llms-full', rel: 'alternate', type: 'text/plain', href: `${PROD_SITE_URL}/llms-full.txt`, title: 'llms-full.txt' },
+      ...markdown.value,
+    ]),
     meta: [
       { key: 'description', name: 'description', content: 'Headless components and composables for building modern applications and design systems' },
       { key: 'og:type', property: 'og:type', content: 'website' },
@@ -112,7 +195,16 @@
       { key: 'og:image', property: 'og:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
       { key: 'twitter:card', name: 'twitter:card', content: 'summary_large_image' },
       { key: 'twitter:site', name: 'twitter:site', content: '@VuetifyJS' },
+      ...INDEXABLE ? [] : [{ key: 'robots', name: 'robots', content: 'noindex, nofollow' }],
     ],
+    style: [{
+      key: 'emerald-docs-tokens',
+      id: 'emerald-docs-tokens',
+      innerHTML: emeraldAdapter.generate({
+        'emerald-light': emeraldColors,
+        'emerald-dark': emeraldDarkColors,
+      }),
+    }],
     script: toRef(() => [
       {
         key: 'website-schema',
@@ -121,7 +213,7 @@
           '@context': 'https://schema.org',
           '@type': 'WebSite',
           'name': 'Vuetify0',
-          'url': 'https://0.vuetifyjs.com',
+          'url': PROD_SITE_URL,
           'description': 'Headless components and composables for building modern applications and design systems',
           'publisher': {
             '@type': 'Organization',
@@ -132,6 +224,8 @@
         }),
       },
       ...breadcrumbScript.value,
+      ...articleScript.value,
+      ...faqScript.value,
     ]),
   })
 </script>
@@ -177,24 +271,6 @@
 <style>
   html {
     scroll-padding-top: calc(48px + var(--app-banner-h, 0px) + 0.5rem);
-  }
-
-  /* Scrollbar styling */
-  ::-webkit-scrollbar-track {
-    background: var(--v0-background);
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: var(--v0-scrollbar-thumb);
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in srgb, var(--v0-primary) 50%, var(--v0-scrollbar-thumb));
-  }
-
-  /* Firefox */
-  * {
-    scrollbar-color: var(--v0-scrollbar-thumb) var(--v0-background);
   }
 
   #app > .app-shell {
@@ -246,7 +322,7 @@
       );
     }
 
-    [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]) &.dot-grid::before {
+    [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]):not([data-theme="emerald-light"]) &.dot-grid::before {
       --dot-opacity: 10%;
     }
 
@@ -278,6 +354,12 @@
     h1, h2, h3, h4, h5, h6 {
       position: relative;
 
+      /* Long API tokens (useIntersectionObserver, SUPPORTS_*) must break
+         instead of widening the layout viewport on phones. */
+      @media (max-width: 767px) {
+        overflow-wrap: anywhere;
+      }
+
       > .header-anchor {
         color: inherit;
         text-decoration: none;
@@ -299,7 +381,10 @@
         }
 
         &::after {
-          margin-left: 0.25em;
+          /* Out of flow — an in-flow '#' extends the widest line by ~1em
+             and with it the page's scrollWidth on mobile. */
+          position: absolute;
+          margin-inline-start: 0.25em;
           opacity: 0;
         }
 
@@ -312,6 +397,18 @@
         @media (max-width: 767px) {
           &::before {
             display: none;
+          }
+
+          &::after {
+            /* Explicit offsets, heading-relative: the static position of an
+               abspos child of the inline-flex anchor is the flex alignment
+               origin — over the heading's first characters — and anything
+               hung past the text end re-widens wrapped headings. Pinned to
+               the inline-end of the heading's last line instead: a wrapped
+               heading's first line is full by construction, its last line is
+               the short leftover. */
+            inset-inline-end: 0;
+            bottom: 0;
           }
         }
       }
@@ -356,6 +453,12 @@
 
     code {
       font-family: 'Courier New', Courier, monospace;
+
+      /* Inline paths/imports in prose wrap instead of widening the page;
+         inert inside pre-formatted (.shiki) blocks. */
+      @media (max-width: 767px) {
+        overflow-wrap: anywhere;
+      }
     }
 
     p {
@@ -418,6 +521,80 @@
       tr:last-child td {
         border-bottom: none;
       }
+    }
+
+    /* Markdown-emitted tables only — .docs-table is the wrapper both
+       markdown pipelines emit (build/markdown.ts, useMarkdown.ts). Example
+       and app tables (data-grid, benchmarks, freshness) manage their own
+       widths and must not be clamped. */
+    @media (max-width: 767px) {
+      /* width:100% resolves to max(container, min-content) at phone widths
+         and squeezes every wrappable column to one word per line. Let the
+         table take its natural width (capped so prose cells still wrap) and
+         scroll inside its wrapper. Both wrapper classes, so this outranks
+         the base table rule structurally — (0,3,2) over its (0,2,2) —
+         instead of by source order. */
+      div.docs-table.overflow-x-auto > table {
+        width: max-content;
+        min-width: 100%;
+        max-width: 42rem;
+      }
+
+      /* Scroll affordance: overlay scrollbars are invisible until touched,
+         leaving no signal that a wide table extends past the viewport. Fade
+         the clipped edge of an overflowing wrapper — the fade tracks scroll
+         position and vanishes at the reached edge (an inactive timeline
+         leaves the no-fade base values, so non-overflowing tables are
+         untouched). Browsers without scroll timelines keep a thin
+         scrollbar. */
+      div.docs-table {
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in srgb, var(--v0-on-surface) 40%, transparent) transparent;
+        padding-bottom: 2px;
+      }
+
+      @supports (animation-timeline: scroll(self x)) {
+        div.docs-table {
+          --table-fade-start: 0px;
+          --table-fade-end: 0px;
+          mask-image: linear-gradient(to right, transparent 0, black var(--table-fade-start), black calc(100% - var(--table-fade-end)), transparent 100%);
+          -webkit-mask-image: linear-gradient(to right, transparent 0, black var(--table-fade-start), black calc(100% - var(--table-fade-end)), transparent 100%);
+          animation: docs-table-edge-fade linear both;
+          animation-timeline: scroll(self x);
+
+          /* RTL scrolls from the right edge, so the fade sides flip. */
+          [dir='rtl'] & {
+            mask-image: linear-gradient(to left, transparent 0, black var(--table-fade-start), black calc(100% - var(--table-fade-end)), transparent 100%);
+            -webkit-mask-image: linear-gradient(to left, transparent 0, black var(--table-fade-start), black calc(100% - var(--table-fade-end)), transparent 100%);
+          }
+        }
+      }
+    }
+  }
+
+  /* Registered so the table-wrapper edge fade interpolates smoothly instead
+     of flipping mid-scroll (custom properties animate discretely otherwise). */
+  @property --table-fade-start {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+  }
+
+  @property --table-fade-end {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+  }
+
+  @keyframes docs-table-edge-fade {
+    0% {
+      --table-fade-start: 0px;
+      --table-fade-end: 2.5rem;
+    }
+
+    100% {
+      --table-fade-start: 2.5rem;
+      --table-fade-end: 0px;
     }
   }
 
@@ -510,27 +687,6 @@
   }
 
   .docs-markup--wrap .shiki code {
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-
-  /* DocsExample code block styling */
-  .docs-example-code .shiki {
-    border: none;
-    border-radius: 0;
-    margin-bottom: 0;
-  }
-
-  .docs-example-code .shiki code {
-    padding-right: 5rem;
-    line-height: 1.625;
-  }
-
-  .docs-example-code--expanded .shiki {
-    padding-top: 2rem;
-  }
-
-  .docs-example-code--wrap .shiki code {
     white-space: pre-wrap;
     word-break: break-word;
   }

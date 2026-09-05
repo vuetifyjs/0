@@ -3,8 +3,9 @@
 // - The substrate (@vuetify/v0 + @vuetify/paper, always lockstep) gets ONE
 //   aggregate release on a `v<version>` tag, so downstream tooling keyed off a
 //   single versioned release keeps working. v0's CHANGELOG entry is the body.
-// - Every other published package (the @paper/* design systems) gets its own
-//   release on a `name@version` tag.
+// - Every other published package (the @paper/* design systems, @vuetify/play)
+//   gets its own release on a `name@version` tag. Those never take GitHub's
+//   Latest badge — only the stable `v*` substrate release may.
 //
 // `createGithubReleases: false` on the action means it does NOT push the
 // per-package tags `changeset publish` makes locally, so `gh release create`
@@ -167,9 +168,14 @@ function onNpm (name, value) {
 // `gh release create` mints the tag at `target` (the publish commit) and the
 // release together. Idempotent on re-run: an already-minted release is skipped
 // so a retry reconciles the missing ones instead of dying on the first 422.
-// A prerelease version (anything carrying a `-`, e.g. `-beta.N`) is flagged
-// `--prerelease` so GitHub never marks a beta as the repo's "Latest release".
-function release (tag, body, target, prerelease) {
+//
+// GitHub's Latest badge is last-write-wins unless `--latest` is set explicitly.
+// A multi-package cut mints `v*` first, then `@paper/*` / `@vuetify/play`, so
+// the last DS/play release would steal Latest from the substrate. Only the
+// stable `v*` tag may take the badge (`--latest`); every other mint passes
+// `--latest=false`. A prerelease version (anything carrying a `-`, e.g.
+// `-beta.N`) is also flagged `--prerelease` so a beta can never be Latest.
+function release (tag, body, target, { prerelease = false, latest = false } = {}) {
   if (exists(tag)) {
     console.log(`release ${tag} already exists, skipping`)
     return
@@ -177,6 +183,7 @@ function release (tag, body, target, prerelease) {
 
   const args = ['release', 'create', tag, '--title', tag, '--notes', body || 'No release notes.', '--target', target]
   if (prerelease) args.push('--prerelease')
+  args.push(latest && !prerelease ? '--latest' : '--latest=false')
   execFileSync('gh', args, { stdio: 'inherit' })
 }
 
@@ -184,9 +191,9 @@ const failures = []
 
 // Each release is isolated so one failure (e.g. an API hiccup) reports and is
 // retried on a re-run instead of aborting every release not yet minted.
-function mint (tag, body, target, prerelease) {
+function mint (tag, body, target, options) {
   try {
-    release(tag, body, target, prerelease)
+    release(tag, body, target, options)
   } catch (error) {
     console.error(`::error::failed to create release ${tag}: ${error.message}`)
     failures.push(tag)
@@ -204,16 +211,21 @@ if (substrate) {
   if (version['@vuetify/v0'] && version['@vuetify/paper']) {
     body += `\n\n---\n\`@vuetify/paper@${version['@vuetify/paper']}\` shipped in lockstep.`
   }
-  mint(`v${substrate}`, body, sha, substrate.includes('-'))
+  const pre = substrate.includes('-')
+  mint(`v${substrate}`, body, sha, { prerelease: pre, latest: !pre })
 }
 
-// Each design system (@paper/*) releases independently on its own tag.
-// Convention: @paper/<name> lives at packages/<name>.
+// Each non-substrate package (@paper/* design systems, @vuetify/play) releases
+// independently on its own tag. Convention: @paper/<name> lives at packages/<name>.
+// Never Latest — a DS-only cut must leave the previous `v*` badge in place.
 for (const { name, version: value } of published) {
   if (SUBSTRATE.has(name)) continue
   const dir = name.split('/').pop()
   const body = notes(`packages/${dir}/CHANGELOG.md`, value)
-  mint(`${name}@${value}`, overview(body) + body, sha, value.includes('-'))
+  mint(`${name}@${value}`, overview(body) + body, sha, {
+    prerelease: value.includes('-'),
+    latest: false,
+  })
 }
 
 // Fail the step (after attempting every release) if any could not be minted, so a

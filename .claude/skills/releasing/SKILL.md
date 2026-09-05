@@ -16,7 +16,24 @@ pnpm changeset         # Author a changeset — once per change
 pnpm release:prepare   # Pre-release validation (validate + build)
 ```
 
-Publishing is automated via the Version Packages PR on `master` — do not `npm publish` by hand.
+Publishing is automated via the Version Packages PR on `master` — do not `npm publish` by hand except the **first create** of a new scoped package (OIDC cannot PUT a name that does not exist yet). That one-shot is `npm publish --access public` from a logged-in human, then add a trusted publisher (GitHub Actions / org `vuetifyjs` / repo `0` / workflow `release.yml` / environment empty). Every package needs `publishConfig.access: public` before that PUT.
+
+`npm view` 404 on a brand-new name after a successful `+ pkg@version` is packument lag — the version URL can 200 while the packument is still 404. Do not abort the GitHub-release step on that.
+
+A changeset file must not mix a public package with a `private` one (`privatePackages.version: false` treats private as ignored; changesets rejects mixed files). Un-private the DS if this cut is meant to ship it; do not strip it from the changeset as a workaround unless it should stay unpublished.
+
+## Version Packages review (before merge)
+
+The bump in that PR **is** the next published version. It is not held for a milestone.
+
+1. Read the title (`1.1.0` vs `1.0.6`).
+2. Every pending `.changeset/*.md` on `master` — any `"@vuetify/v0": minor` (or `major`) *is* that bump.
+3. What is still on `dev` that you wanted in this minor?
+4. If (2) and (3) disagree: **do not merge**. Retarget the stray `feat` PRs to `dev`, or accept this minor is the master feats and the `dev` train is the *next* minor.
+
+`dev` → `master` is a **merge commit**, never squash. Do not unpublish if another published package depends on v0 with a caret range.
+
+Agents do not merge this PR or cut `dev`→`master` unless John says so.
 
 ## Changeset content contract
 

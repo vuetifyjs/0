@@ -1,8 +1,17 @@
-import { defineConfig, presetWind4 } from 'unocss'
+import { defineConfig, presetIcons, presetWind4 } from 'unocss'
 
 export default defineConfig({
   presets: [
     presetWind4(),
+    // Example previews use Iconify classes (`i-mdi-*`, `i-lucide-*`). Play
+    // already has this preset; without it the same source renders empty spans.
+    presetIcons({
+      scale: 1.2,
+      extraProperties: {
+        'display': 'inline-block',
+        'vertical-align': 'middle',
+      },
+    }),
   ],
   // Wind4 uses color-mix with oklch - opacity modifiers (bg-surface/50)
   // don't work with CSS variables. Color-mix utilities are in tokens.css.
@@ -60,7 +69,12 @@ export default defineConfig({
     'home-card': 'p-6 rounded-xl border bg-surface hover:border-primary hover:bg-surface-tint hover:shadow-md transition-all duration-150',
 
   },
-  safelist: ['max-w-900'],
+  safelist: [
+    'max-w-900',
+    // Applied from JS (`settings.surface`). On-demand scan misses it on
+    // routes that never mention the class as a literal (e.g. systems pages).
+    'bg-glass-surface',
+  ],
   preflights: [
     {
       getCSS: () => `

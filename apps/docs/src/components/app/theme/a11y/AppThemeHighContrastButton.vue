@@ -1,11 +1,11 @@
 <script setup lang="ts">
   // Composables
-  import { useThemeToggle } from '@/composables/useThemeToggle'
+  import { useThemeToggleController } from '@/composables/useThemeToggle'
 
   // Utilities
   import { toRef } from 'vue'
 
-  const toggle = useThemeToggle()
+  const toggle = useThemeToggleController()
   const active = toRef(() => toggle.preference.value === 'high-contrast')
 </script>
 

@@ -179,14 +179,14 @@
             :class="item.type === 'component' ? 'hover:border-primary' : 'hover:border-teal-400'"
             :to="item.to"
           >
-            <div class="flex items-center gap-1.5 mb-1">
+            <div class="flex items-center gap-1.5 mb-1 min-w-0">
               <span
                 class="w-1.75 h-1.75 flex-shrink-0"
                 :class="item.type === 'component' ? 'rounded-full bg-primary' : 'rounded-sm bg-teal-400'"
               />
 
               <span
-                class="font-semibold text-sm transition-colors"
+                class="font-semibold text-sm transition-colors truncate"
                 :class="[
                   item.type === 'composable' ? 'font-mono' : '',
                   item.type === 'component' ? 'group-hover:text-primary' : 'group-hover:text-teal-400',

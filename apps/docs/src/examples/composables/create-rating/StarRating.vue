@@ -6,7 +6,7 @@
 
 <template>
   <div class="flex flex-col gap-4">
-    <div class="flex items-center gap-3">
+    <div class="flex flex-wrap items-center gap-3">
       <div class="flex gap-1" @mouseleave="review.clearHover()">
         <div
           v-for="item in review.display.value"

@@ -12,7 +12,8 @@
     "build:packages": "pnpm --filter=\"./packages/*\" build",
     "build:dev": "pnpm --filter=dev build",
     "build:play": "pnpm --filter=@vuetify-private/playground build",
-    "build:docs": "pnpm --filter=docs build",
+    "build:docs": "pnpm --filter=docs build && pnpm build:demo",
+    "build:demo": "DEMO_BASE=/demo/emerald/ pnpm --filter=dev build && rm -rf apps/docs/dist/demo && mkdir -p apps/docs/dist/demo && cp -R dev/dist apps/docs/dist/demo/emerald",
     "build:apps": "pnpm --filter=docs --filter=dev --filter=@vuetify-private/playground build",
     "build:all": "pnpm --filter=\"./packages/*\" --filter=docs --filter=dev --filter=@vuetify-private/playground build",
     "test": "vitest",
@@ -32,7 +33,7 @@
     "metrics:verify": "node scripts/verify-bench-stability.ts",
     "metrics:delta": "node scripts/report-benchmark-delta.ts",
     "skill": "node scripts/generate-skill.ts",
-    "typecheck": "pnpm --filter=\"./packages/*\" typecheck",
+    "typecheck": "pnpm --filter=\"./packages/*\" --filter=docs typecheck",
     "typecheck:0": "pnpm --filter=\"./packages/0\" typecheck",
     "typecheck:paper": "pnpm --filter=\"./packages/paper\" typecheck",
     "lint": "eslint --concurrency auto",
@@ -54,7 +55,7 @@
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-push": "pnpm lint && pnpm typecheck && pnpm test:run --project '!v0:browser' && pnpm repo:check"
+    "pre-push": "pnpm lint && pnpm typecheck && pnpm test:run --project '!*:browser' && pnpm repo:check"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",

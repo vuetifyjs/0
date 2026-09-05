@@ -1,6 +1,6 @@
 {
   "name": "@paper/genesis",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Genesis Design System — minimal docs primitives extracted from the v0 docs site",
   "license": "MIT",
   "repository": {
@@ -41,6 +41,7 @@
   "devDependencies": {
     "tsdown": "catalog:",
     "typescript": "catalog:",
-    "unplugin-vue": "catalog:"
+    "unplugin-vue": "catalog:",
+    "vue": "catalog:"
   }
 }

@@ -139,6 +139,10 @@ Add `enroll` to `Tabs.Root`. The first tab to register becomes the active one, w
 
 Set `orientation="vertical"` on `Tabs.Root`. Keyboard navigation then uses Arrow Up/Down instead of Arrow Left/Right.
 
+??? How do I keep arrow-key focus when a tab is renderless?
+
+Pass `el` on `Tabs.Item` when `as` is `null`, pointing at the real control the slot renders. Arrow, Home, and End then move focus to that node. Without `el`, selection still updates but DOM focus stays put.
+
 :::
 
 <DocsApi />

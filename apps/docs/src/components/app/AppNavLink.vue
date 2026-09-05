@@ -64,10 +64,18 @@
   const childIds = toRef(() => navNested.nested.children.get(id) ?? [])
   const hasChildren = toRef(() => childIds.value.length > 0)
 
-  // Only top-level items can be collapsed (disabled in flat mode)
+  // Top-level groups always collapse; nested groups only when the nav item opts in.
   const isTopLevel = toRef(() => depth === 0)
-  const isCollapsible = toRef(() => !navConfig.flatMode.value && isTopLevel.value && hasChildren.value)
+  const navItem = toRef(() => navNested.nested.get(id)?.value)
+  const isCollapsible = toRef(() => !navConfig.flatMode.value && hasChildren.value && (isTopLevel.value || !!navItem.value?.collapsible))
   const isOpen = toRef(() => isCollapsible.value ? navNested.nested.opened(id) : true)
+  // Persistent groups keep the section indent. Nested collapsible groups
+  // already have a chevron; use a smaller offset so children still line up.
+  const childrenIndent = toRef(() => {
+    if (navItem.value?.collapsible) return 'ml-2'
+    if (isTopLevel.value && !navConfig.flatMode.value) return 'ml-6'
+    return undefined
+  })
 
   // Check if this node is an ancestor of the current route (for highlighting category headers)
   const containsActivePage = toRef(() => {
@@ -128,13 +136,16 @@
 
 <template>
   <li ref="item" class="px-3 scroll-my-[100px]">
-    <div class="flex items-center gap-1" :class="isTopLevel && navConfig.flatMode.value && 'pl-1'">
-      <!-- Expand/collapse toggle button (only for top-level) -->
+    <div
+      class="flex items-center gap-1"
+      :class="[isTopLevel && navConfig.flatMode.value && 'pl-1', !isTopLevel && isCollapsible && '-ml-2']"
+    >
+      <!-- Expand/collapse toggle button -->
       <button
         v-if="isCollapsible"
         :aria-controls="`nav-section-${id}`"
         :aria-expanded="isOpen ? 'true' : 'false'"
-        class="size-5 flex items-center justify-center shrink-0 rounded hover:bg-surface-tint focus-visible:bg-surface-tint focus-visible:outline-none"
+        class="size-5 media-[(pointer:coarse)]:size-9 flex items-center justify-center shrink-0 rounded hover:bg-surface-tint focus-visible:bg-surface-tint focus-visible:outline-none"
         type="button"
         @click.stop="onToggle"
       >
@@ -146,13 +157,13 @@
       </button>
 
       <!-- Dash prefix for top-level solo links (only when collapsible nav is enabled) -->
-      <span v-else-if="isTopLevel && !navConfig.flatMode.value" aria-hidden="true" class="size-5 shrink-0 flex items-center justify-center text-divider">–</span>
+      <span v-else-if="isTopLevel && !navConfig.flatMode.value" aria-hidden="true" class="size-5 media-[(pointer:coarse)]:w-9 shrink-0 flex items-center justify-center text-divider">–</span>
 
       <!-- External link -->
       <Atom
         v-if="to && isExternal"
         as="a"
-        class="font-semibold icon-text flex-1 min-w-0"
+        class="font-semibold icon-text flex-1 min-w-0 media-[(pointer:coarse)]:py-2"
         :class="[
           'hover:underline hover:text-primary focus-visible:underline focus-visible:text-primary',
           !isTopLevel && !hasChildren && 'opacity-70 hover:opacity-100 focus-visible:opacity-100',
@@ -169,7 +180,7 @@
         v-else-if="to"
         :aria-current="isActive ? 'page' : undefined"
         :as
-        class="font-semibold icon-text flex-1 min-w-0 scroll-my-[100px]"
+        class="font-semibold icon-text flex-1 min-w-0 scroll-my-[100px] media-[(pointer:coarse)]:py-2"
         :class="[
           'hover:underline hover:text-primary focus-visible:underline focus-visible:text-primary',
           !isTopLevel && !hasChildren && 'opacity-70 hover:opacity-100 focus-visible:opacity-100',
@@ -192,7 +203,7 @@
       <!-- Category header (not navigable) -->
       <span
         v-else
-        class="font-semibold flex-1 min-w-0 truncate"
+        class="font-semibold flex-1 min-w-0 truncate media-[(pointer:coarse)]:py-2"
         :class="[
           isCollapsible && 'cursor-pointer hover:text-primary focus-visible:text-primary',
           containsActivePage && 'text-primary underline',
@@ -207,9 +218,9 @@
       </span>
     </div>
 
-    <!-- Children (always visible for nested items, conditional for top-level) -->
+    <!-- Children (conditional when collapsible, always visible otherwise) -->
     <Transition :name="expandTransition" @after-enter="onAfterExpand">
-      <div v-if="hasChildren && isOpen" class="grid mt-2" :class="isTopLevel && !navConfig.flatMode.value && 'ml-6'">
+      <div v-if="hasChildren && isOpen" class="grid mt-2" :class="childrenIndent">
         <ul
           :id="`nav-section-${id}`"
           class="flex flex-col gap-2 overflow-hidden"

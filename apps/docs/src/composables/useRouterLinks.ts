@@ -6,7 +6,7 @@
  * Prevents full page reloads for same-origin navigation in markdown content.
  *
  * Key features:
- * - Skips external links, file downloads, and new-tab links
+ * - Skips external links, same-origin demo apps, file downloads, and new-tab links
  * - Handles paths with query strings and hash fragments
  * - Smooth scrolls to hash anchors (respects reduced motion preference)
  * - Automatically cleaned up on component unmount
@@ -27,7 +27,7 @@ import { useRouter } from 'vue-router'
 import type { MaybeRefOrGetter } from 'vue'
 
 /** File extensions that should trigger native download/navigation */
-const DOWNLOAD_EXTENSIONS = /\.(pdf|zip|tar|gz|tgz|rar|7z|dmg|exe|msi|deb|rpm|apk|xlsx?|docx?|pptx?|csv|txt|json|xml|png|jpe?g|gif|svg|webp|ico|mp3|mp4|webm|ogg|wav|mov|avi)$/i
+const DOWNLOAD_EXTENSIONS = /\.(?:pdf|zip|tar|gz|tgz|rar|7z|dmg|exe|msi|deb|rpm|apk|xlsx?|docx?|pptx?|csv|txt|json|xml|png|jpe?g|gif|svg|webp|ico|mp3|mp4|webm|ogg|wav|mov|avi)$/i
 
 /**
  * Intercepts clicks on internal links within a container and uses
@@ -50,9 +50,10 @@ export function useRouterLinks (
     const href = anchor.getAttribute('href')
     if (!href) return
 
-    // Skip: external links, file downloads, new tab links
+    // Skip: external links, same-origin demo apps, file downloads, new tab links
     if (
       /^https?:\/\//i.test(href) ||
+      href.startsWith('/demo/') ||
       DOWNLOAD_EXTENSIONS.test(href) ||
       anchor.hasAttribute('target')
     ) return

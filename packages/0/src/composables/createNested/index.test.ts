@@ -2,6 +2,9 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { createNested } from './index'
 
+// Utilities
+import { ref } from 'vue'
+
 // Types
 import type { NestedRegistration } from './types'
 
@@ -1059,6 +1062,34 @@ describe('createNested', () => {
     })
   })
 
+  describe('dispose', () => {
+    it('should wipe topology on dispose', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'a', value: 'A' })
+      nested.open('a')
+      nested.dispose()
+
+      expect(nested.size).toBe(0)
+      expect(nested.openedIds.size).toBe(0)
+    })
+  })
+
+  describe('ticket.unregister', () => {
+    it('should drop topology via ticket.unregister', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'root', value: 'Root' })
+      const child = nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+      child.unregister()
+
+      expect(nested.has('child')).toBe(false)
+      expect(nested.parents.has('child')).toBe(false)
+      expect(nested.children.get('root') ?? []).not.toContain('child')
+    })
+  })
+
   describe('inherited group behavior', () => {
     it('should support selection independent of open state', () => {
       const nested = createNested()
@@ -1883,8 +1914,27 @@ describe('disabled state blocking', () => {
 
     nested.unselectAll()
 
-    // Mandatory keeps the first selected item; the rest is cleared
+    // Mandatory keeps the first enabled ticket in registry order
     expect(nested.selectedIds.size).toBe(1)
+    expect(nested.selectedIds.has('a')).toBe(true)
+  })
+
+  it('should not re-select a disabled id on unselectAll', () => {
+    const disabled = ref(false)
+    const nested = createNested({ mandatory: true })
+
+    nested.onboard([
+      { id: 'a', value: 'A', disabled },
+      { id: 'b', value: 'B' },
+    ])
+    nested.select('a')
+    nested.select('b')
+    disabled.value = true
+
+    nested.unselectAll()
+
+    expect(nested.selectedIds.has('a')).toBe(false)
+    expect(nested.selectedIds.has('b')).toBe(true)
   })
 })
 

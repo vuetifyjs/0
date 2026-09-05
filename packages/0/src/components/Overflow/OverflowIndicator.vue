@@ -31,6 +31,7 @@
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
+  import { pxToNumber } from '#v0/utilities'
   import { computed, onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -75,7 +76,7 @@
       return
     }
     const style = getComputedStyle(el.value)
-    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    const marginX = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
     root.indicatorWidth.value = ((el.value as HTMLElement).offsetWidth || 0) + marginX
   }
 

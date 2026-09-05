@@ -16,10 +16,21 @@
   import { useInputRoot } from './InputRoot.vue'
 
   // Utilities
+  import { isUndefined } from '#v0/utilities'
   import { mergeProps, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
+
+  function defined (attrs: Record<string, unknown>): Record<string, unknown> {
+    const result: Record<string, unknown> = {}
+
+    for (const key of Object.keys(attrs)) {
+      if (!isUndefined(attrs[key])) result[key] = attrs[key]
+    }
+
+    return result
+  }
 
   export interface InputControlProps extends AtomProps {
     namespace?: string
@@ -79,9 +90,9 @@
     const readonly = root.isReadonly.value
     const isFocused = root.isFocused.value
 
-    return {
+    return defined({
       'id': root.id,
-      'type': root.type,
+      'type': root.type.value,
       'name': root.name,
       'value': root.value.value,
       'form': root.form,
@@ -100,7 +111,7 @@
       'onInput': onInput,
       'onFocus': onFocus,
       'onBlur': onBlur,
-    }
+    })
   })
 
   const slotProps = toRef((): InputControlSlotProps => ({

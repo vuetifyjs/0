@@ -126,7 +126,7 @@ Atom is an advanced, low-level primitive that enables **polymorphic components**
 A polymorphic component is one where the **consumer decides** how it renders. The component provides behavior and attributes; the consumer chooses the element — or opts out of an element entirely.
 
 ```mermaid "Polymorphic Rendering"
-flowchart LR
+flowchart TD
   Component["Your Component"]:::primary
   Rendered["Rendered"]
   Renderless["Renderless"]
@@ -217,7 +217,7 @@ This is the core value of building on Atom: one component definition, two consum
 When you build a component on Atom, the first decision is: **should it render an element by default, or should it be renderless?**
 
 ```mermaid "Choosing a Default"
-flowchart LR
+flowchart TD
   Start["Needs DOM?"]:::primary
   Interactive{"Interactive?"}
   Semantic{"Specific element?"}

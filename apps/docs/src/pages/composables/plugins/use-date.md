@@ -170,7 +170,7 @@ abstract class DateAdapter<T> {
 
   // Calendar Utilities
   abstract getWeekdays (weekdayFormat?: 'long' | 'short' | 'narrow'): string[]
-  abstract getWeekArray (date: T): T[][]
+  abstract getWeekArray (date: T, fixedWeeks?: boolean): T[][]
   abstract getMonthArray (date: T): T[]
   abstract getYearRange (start: T, end: T): T[]
   abstract getNextMonth (date: T): T
@@ -242,7 +242,7 @@ The `formatByString()` method supports these tokens:
 The adapter pattern decouples date operations from the underlying library. When you call `adapter.format()`, the request flows through the provided adapter to its underlying date library:
 
 ```mermaid "Adapter Pattern Flow"
-flowchart LR
+flowchart TD
   subgraph Setup["Plugin Setup"]
     plugin["createDatePlugin"]
     opts["adapter option"]
@@ -371,7 +371,7 @@ The following example builds a complete, interactive date surface from adapter c
 
 ### Interactive month calendar
 
-A navigable month grid with click-to-select, built entirely from the adapter. `useCalendar.ts` calls `useDate()` once and owns all the date math: `getWeekArray()` produces the 2D week grid, `getWeekdays('narrow')` drives the column headers, `getPreviousMonth()` and `getNextMonth()` handle navigation, and `isSameDay()` / `isSameMonth()` power the today ring, the selected fill, and the greyed-out overflow cells. The grid renders as many week rows as the month spans — four to six — straight from `getWeekArray()`, so every in-month day stays visible and the calendar never truncates a long month or borrows days from the wrong neighbouring week.
+A navigable month grid with click-to-select, built entirely from the adapter. `useCalendar.ts` calls `useDate()` once and owns all the date math: `getWeekArray()` produces the 2D week grid, `getWeekdays('narrow')` drives the column headers, `getPreviousMonth()` and `getNextMonth()` handle navigation, and `isSameDay()` / `isSameMonth()` power the today ring, the selected fill, and the greyed-out overflow cells. The grid renders as many week rows as the month spans — four to six — straight from `getWeekArray()`, so every in-month day stays visible and the calendar never truncates a long month or borrows days from the wrong neighbouring week. When a constant grid height matters more than a compact one — stacked month views, or any layout where row-count jumps cause reflow — pass `getWeekArray(date, true)` and the matrix pads trailing weeks into the next month up to a fixed six rows (42 cells).
 
 The composable precomputes each `weeks` cell into a flat `{ date, day, today, selected, outside }` record, so `CalendarGrid.vue` renders the surface from plain props — `weekdays`, `weeks`, `monthYear`, plus the `prev`, `next`, `today`, and `select` callbacks — without ever touching the adapter directly. The entry instantiates the calendar once and reads `selectedLabel` and `locale` for the summary panel. This is the structural half of the adapter interface — building and navigating grids — rather than the formatting presets shown in the Usage example above.
 
@@ -469,6 +469,25 @@ Pick whichever fits your setup:
    ```
 
 3. **Server timezone:** Set `TZ=UTC` environment variable on your server for consistent baseline.
+
+??? Is it safe to share one date plugin instance across every request in SSR?
+
+No — construct the adapter (and the plugin) fresh per request instead of at module scope:
+
+```ts
+// ❌ Don't: one adapter instance shared by every request for the server's lifetime
+export const datePlugin = createDatePlugin({ adapter: new V0DateAdapter() })
+```
+
+```ts
+// ✅ Do: a fresh adapter per request
+export function createRequestPlugins () {
+  return [createDatePlugin({ adapter: new V0DateAdapter() })]
+}
+// per request: for (const plugin of createRequestPlugins()) app.use(plugin)
+```
+
+`adapter.locale` and `adapter.firstDayOfWeek` are mutable state kept in sync with `useLocale`'s selection (see [Locale Integration](#locale-integration)). A shared module-scope adapter means every concurrent request's locale sync writes to the *same* adapter instance — one request's locale can leak into another's rendered output, affecting not just formatting but calendar layout (which column a week starts in, week numbers). `createDatePlugin` itself is safe to install on multiple `app` instances — each install gets its own locale/`firstDayOfWeek` context — but that isolation doesn't extend to an `adapter` object you construct once and pass to every install.
 
 ??? Do I need to install the Temporal polyfill?
 

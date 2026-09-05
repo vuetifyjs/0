@@ -122,7 +122,7 @@
             <span class="hidden sm:inline">Back to Skillz</span>
           </RouterLink>
 
-          <div class="flex items-center gap-4">
+          <div class="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
             <SkillDuration class="text-sm text-on-surface-variant" :minutes="tour.minutes" />
 
             <!-- Reset button (shows when there's progress) -->
@@ -165,7 +165,7 @@
 
         <div
           class="border border-divider rounded-xl p-4 md:p-6"
-          :class="settings.showBgGlass ? 'bg-glass-surface' : 'bg-surface'"
+          :class="settings.surface.value"
         >
           <div class="flex items-center gap-2 mb-3">
             <SkillLevelBadge :level="tour.level" />

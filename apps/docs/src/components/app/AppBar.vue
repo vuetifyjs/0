@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Atom, useBreakpoints, useFeatures, useStorage, useTheme } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useTheme } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -14,7 +14,7 @@
   import { useAuthStore } from '@vuetify/auth'
 
   // Utilities
-  import { toRef, watch } from 'vue'
+  import { toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -24,22 +24,14 @@
 
   const auth = useAuthStore()
   const navigation = useNavigation()
-  const storage = useStorage()
   const route = useRoute()
 
   const isHomePage = toRef(() => route.path === '/')
 
   const breakpoints = useBreakpoints()
-  const features = useFeatures()
   const search = useSearch()
   const settings = useSettings()
   const theme = useTheme()
-
-  const devmode = features.get('devmode')!
-
-  watch(() => devmode.isSelected.value, isSelected => {
-    storage.set('devmode', isSelected)
-  })
 
   const darkLogo = 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.svg'
   const lightLogo = 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.svg'
@@ -48,7 +40,7 @@
 <template>
   <Atom
     :as
-    :class="['flex items-center justify-between h-[48px] fixed inset-x-0 top-[var(--app-banner-h,24px)] px-3 text-on-surface border-b border-solid border-divider z-1', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
+    :class="['flex items-center justify-between h-[48px] fixed inset-x-0 top-[var(--app-banner-h,24px)] px-2 min-[430px]:px-3 text-on-surface border-b border-solid border-divider z-1', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
     data-app-bar
   >
     <div class="flex items-center gap-2">
@@ -104,7 +96,7 @@
       </Discovery.Activator>
     </div>
 
-    <div class="flex align-center items-center gap-3">
+    <div class="flex align-center items-center gap-2 min-[430px]:gap-3">
       <AppSkillFilter v-if="!isHomePage && settings.showSkillFilter.value && breakpoints.width.value >= 440" />
 
       <AppThemeToggle v-if="isHomePage || settings.showThemeToggle.value" />
@@ -113,7 +105,7 @@
         v-if="isHomePage || settings.showSocialLinks.value"
         aria-label="Discord Community (opens in new tab)"
         as="a"
-        class="bg-[#5865F2] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
+        class="bg-[#5865F2] text-white pa-1 hidden min-[430px]:inline-flex rounded opacity-90 hover:opacity-100"
         href="https://discord.gg/vuetify"
         position-area="bottom"
         rel="noopener noreferrer"
@@ -127,7 +119,7 @@
         v-if="isHomePage || settings.showSocialLinks.value"
         aria-label="GitHub Repository (opens in new tab)"
         as="a"
-        class="bg-[#24292f] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
+        class="bg-[#24292f] text-white pa-1 hidden min-[430px]:inline-flex rounded opacity-90 hover:opacity-100"
         href="https://github.com/vuetifyjs/0"
         position-area="bottom"
         rel="noopener noreferrer"

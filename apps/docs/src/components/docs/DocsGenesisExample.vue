@@ -1,8 +1,12 @@
 <script setup lang="ts">
   import { GnDocsExample } from '@paper/genesis'
 
+  // Framework
+  import { Theme } from '@vuetify/v0'
+
   // Context
   import DocsCodeActions from './DocsCodeActions.vue'
+  import DocsExampleThemeMenu from './DocsExampleThemeMenu.vue'
   import DocsGenesisShikiBlock from './DocsGenesisShikiBlock.vue'
 
   // Composables
@@ -10,14 +14,22 @@
   import { useExamples } from '@/composables/useExamples'
   import { prehighlight } from '@/composables/useHighlightCode'
   import { useIdleCallback } from '@/composables/useIdleCallback'
-  import { usePlayground } from '@/composables/usePlayground'
+  import {
+    playgroundRegistryUrl,
+    registryRefFromExamplePath,
+    toPlaygroundThemes,
+    usePlayground,
+  } from '@/composables/usePlayground'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
+  import { PALETTE_THEMES, createThemeToggle, provideThemeToggle, useThemeToggleContext } from '@/composables/useThemeToggle'
 
   // Utilities
   import { computed, onMounted, toRef } from 'vue'
 
   // Types
+  import type { PlaygroundHashData } from '@/composables/usePlayground'
+  import type { Palette } from '@/composables/useThemeToggle'
   import type { GnDocsExampleFile } from '@paper/genesis'
 
   export interface DocsGenesisExampleProps {
@@ -45,9 +57,21 @@
     peek?: boolean
     /** Visible peek lines (default 6) */
     peekLines?: number
+    /** Force a named theme on the preview (`data-theme`); hides the palette picker unless `modesOnly` */
+    theme?: string
+    /** Default palette while following the page. Omit to track the page palette. */
+    palette?: Palette
+    /** Light / dark toggle only — used by design-system examples that own their palette */
+    modesOnly?: boolean
+    /** Skip the preview splitter */
+    disableResize?: boolean
   }
 
   const props = defineProps<DocsGenesisExampleProps>()
+
+  const inherited = useThemeToggleContext()
+  const example = inherited ?? createThemeToggle({ palette: props.palette })
+  if (!inherited) provideThemeToggle(example)
 
   const examples = useExamples()
 
@@ -90,9 +114,45 @@
     useIdleCallback(warm)
   })
 
+  function playgroundThemes (): Pick<PlaygroundHashData, 'theme' | 'themes'> | undefined {
+    const id = props.theme ?? example.currentThemeId.value
+    const records: Record<string, { dark?: boolean, colors: Record<string, unknown> }> = {}
+
+    function add (themeId: string) {
+      const colors = example.theme.colors.value[themeId]
+      if (colors) records[themeId] = { dark: example.theme.get(themeId)?.dark, colors }
+    }
+
+    add(id)
+    const mapping = PALETTE_THEMES[example.palette.value]
+    if (mapping && (id === mapping.light || id === mapping.dark)) {
+      add(mapping.light)
+      add(mapping.dark)
+    }
+
+    return toPlaygroundThemes(id, records)
+  }
+
   async function onPlayground (list: GnDocsExampleFile[]) {
+    const packed = playgroundThemes()
+    // Embed source in the hash by default — works without a live /registry/*
+    // (PR #721). Opt into short registry URLs with VITE_PLAYGROUND_REGISTRY=1
+    // once the seed is deployed; entry file is the last .vue (registry contract).
+    // Theme tokens only travel in the hash payload.
+    const hasThemes = packed?.themes && Object.keys(packed.themes).length > 0
+    if (import.meta.env.VITE_PLAYGROUND_REGISTRY === '1' && !props.imports && !hasThemes) {
+      const path = props.filePath
+        ?? [...(props.filePaths ?? [])].findLast(p => p.endsWith('.vue'))
+        ?? props.filePaths?.[0]
+      const ref = path ? registryRefFromExamplePath(path) : null
+      if (ref) {
+        window.open(playgroundRegistryUrl({ ...ref, theme: packed?.theme }), '_blank')
+        return
+      }
+    }
+
     const files = list.map(f => ({ name: f.name, code: f.code }))
-    const url = await usePlayground(files, undefined, props.imports)
+    const url = await usePlayground(files, { imports: props.imports, ...packed })
     window.open(url, '_blank')
   }
 
@@ -110,6 +170,7 @@
     :code="resolvedCode"
     :collapse
     data-tour="example"
+    :disable-resize
     :file-name
     :file-orders
     :files="resolvedFiles"
@@ -119,15 +180,22 @@
     show-bin
     show-playground
     :style="{ '--gn-docs-example-sticky-top': 'calc(48px + var(--app-banner-h, 0px))' }"
+    :theme="theme ?? example.currentThemeId.value"
     :title
     @bin="onBin"
     @playground="onPlayground"
   >
-    <component :is="resolvedComponent" v-if="resolvedComponent" />
-    <slot v-else />
+    <Theme :theme="theme ?? example.currentThemeId.value">
+      <component :is="resolvedComponent" v-if="resolvedComponent" />
+      <slot v-else />
+    </Theme>
 
     <template #decoration>
       <AppDotGrid :coverage="60" />
+    </template>
+
+    <template v-if="!theme || modesOnly" #preview-actions>
+      <DocsExampleThemeMenu :modes-only />
     </template>
 
     <template v-if="$slots.description" #description>
@@ -174,6 +242,7 @@
             :code="paneCode ?? ''"
             :language="paneLanguage"
             :playground="!paneFile"
+            :playground-themes="playgroundThemes()"
             show-copy
             show-size
             show-wrap
@@ -196,14 +265,22 @@
     backdrop-filter: blur(12px);
   }
 
+  /* The glass skin above replaces the description's surface-tint background,
+     which leaves genesis's truncation fade painting the wrong color — the
+     collapsed text stays fully legible and the Expand pill lands on top of
+     it. Re-point the fade at the surface the glass resolves over. */
+  :deep(.genesis-docs-example-description__fade) {
+    background: linear-gradient(transparent, var(--v0-surface));
+  }
+
   .docs-genesis-example-pane {
     position: relative;
   }
 
   .docs-genesis-example-pane__actions {
     position: absolute;
-    top: 0.75rem;
-    inset-inline-end: 0.75rem;
+    top: 0.5rem;
+    inset-inline-end: 0.5rem;
     z-index: 10;
     display: flex;
     gap: 0.25rem;

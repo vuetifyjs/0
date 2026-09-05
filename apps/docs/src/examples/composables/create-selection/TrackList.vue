@@ -60,16 +60,16 @@
             class="block text-sm truncate"
             :class="ticket.isSelected.value ? 'text-primary font-medium' : 'text-on-surface'"
           >
-            {{ ticket.value.title }}
+            {{ ticket.value?.title }}
           </span>
 
           <span class="block text-xs text-on-surface-variant truncate">
-            {{ ticket.value.artist }}
+            {{ ticket.value?.artist }}
             <template v-if="toValue(ticket.disabled)"> &middot; unavailable</template>
           </span>
         </span>
 
-        <span class="text-xs tabular-nums text-on-surface-variant shrink-0">{{ ticket.value.duration }}</span>
+        <span class="text-xs tabular-nums text-on-surface-variant shrink-0">{{ ticket.value?.duration }}</span>
       </Checkbox.Root>
     </div>
   </div>
