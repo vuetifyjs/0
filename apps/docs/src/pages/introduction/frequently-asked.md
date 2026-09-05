@@ -60,7 +60,7 @@ Yes. Create a Nuxt plugin that registers v0 plugins, add `@vuetify/v0` to `build
 
 ??? What version of Vue is required?
 
-Vue 3.5.0 or higher. Vuetify0 uses modern Vue features like `useId()` and improved reactivity that require Vue 3.5+. Node 22+ is recommended for development.
+Vue 3.5.0 or higher. Vuetify0 uses modern Vue features like `useId()` and improved reactivity that require Vue 3.5+. Node 22+ is recommended for application development. Contributing to Vuetify0 requires Node 26+.
 
 ??? Is Vuetify0 tree-shakeable?
 
