@@ -54,7 +54,7 @@
         )
         const first = week?.at(0)
 
-        if (first) calendar.goto(first.iso)
+        if (first) calendar.focused.value = first.iso
         break
       }
       case 'End': {
@@ -63,7 +63,7 @@
         )
         const last = week?.at(-1)
 
-        if (last) calendar.goto(last.iso)
+        if (last) calendar.focused.value = last.iso
         break
       }
       default: {
