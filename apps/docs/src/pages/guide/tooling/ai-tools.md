@@ -36,7 +36,7 @@ v0 provides machine-readable documentation files following the [llms.txt](https:
 
 ## Markdown Twins
 
-Every documentation page serves its source markdown at the same path with a `.md` extension:
+Authored pages ship a `.md` twin at `{path}.md`; section indexes use `{dir}/index.md`. Authored twins are verbatim source (frontmatter + Vue); API twins are generated reference; `llms-full.txt` is the cleaned corpus.
 
 | Page | Markdown Source |
 | - | - |
