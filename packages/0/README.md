@@ -213,6 +213,7 @@ Selection management composables built on `createRegistry`:
 - [`createNumeric`](https://0.vuetifyjs.com/composables/forms/create-numeric) - Pure numeric math primitive: clamp, snap, step, percentage, and circular wrapping
 - [`createOtp`](https://0.vuetifyjs.com/composables/forms/create-otp) - OTP / verification code state with pattern-gated entry and decisional completion hook
 - [`createValidation`](https://0.vuetifyjs.com/composables/forms/create-validation) - Field-level validation with sync/async rules
+- [`createCalendar`](https://0.vuetifyjs.com/composables/forms/create-calendar) - Month calendar geometry and navigation with focus management and locale-aware week start
 - [`createCombobox`](https://0.vuetifyjs.com/composables/forms/create-combobox) - Combobox state management with filtering and virtual focus
 - [`createRating`](https://0.vuetifyjs.com/composables/forms/create-rating) - Bounded rating value with discrete items and half-step support
 - [`createSlider`](https://0.vuetifyjs.com/composables/forms/create-slider) - Slider state with snapping, range mode, and step control
