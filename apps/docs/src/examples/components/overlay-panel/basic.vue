@@ -10,6 +10,7 @@
       </OverlayPanel.Activator>
 
       <OverlayPanel.Content
+        aria-label="Overlay panel"
         class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl bg-surface border border-divider max-w-md w-full shadow-lg"
       >
         <div class="px-4 py-3 border-b border-divider flex items-center justify-between">
