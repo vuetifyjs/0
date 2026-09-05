@@ -640,8 +640,8 @@ describe('registry cross-checks', () => {
 
 describe('draft features', () => {
   const DRAFT = [
-    'DatePicker', 'DateRangePicker', 'Otp', 'TimePicker', 'Alert',
-    'DataGrid', 'DataTable', 'Kanban', 'Virtualizer', 'Tour',
+    'DatePicker', 'DateRangePicker', 'Kanban', 'Otp', 'TimePicker',
+    'Tour', 'Virtualizer',
   ]
 
   // These are on the roadmap but not exported from @vuetify/v0, so emitting one
@@ -662,9 +662,9 @@ describe('draft features', () => {
   })
 
   it('should keep draft picks out of the playground payload too', () => {
-    const data = toHashData({ intent: 'spa', features: ['DataTable', 'Button'], resolved: [], adapters: {} })
+    const data = toHashData({ intent: 'spa', features: ['DatePicker', 'Button'], resolved: [], adapters: {} })
 
-    expect(data.files['src/framework.ts']).not.toContain('DataTable')
+    expect(data.files['src/framework.ts']).not.toContain('DatePicker')
   })
 })
 
