@@ -2,7 +2,7 @@
   import { mdiDownload, mdiOpenInNew } from '@mdi/js'
 
   // Framework
-  import { Button, Input } from '@vuetify/v0'
+  import { Button, Input, isUndefined } from '@vuetify/v0'
 
   import { PLUGINS } from '@/data/plugins'
   // Engine
@@ -31,13 +31,24 @@
 
   const isBusy = shallowRef(false)
 
+  const DEFAULTS = Object.fromEntries(
+    Object.entries(import.meta.glob('../../plugins/*/defaults.ts', { eager: true }))
+      .map(([path, mod]) => [
+        path.split('/').at(-2)!,
+        (mod as { defaultConfig?: unknown }).defaultConfig,
+      ]),
+  )
+
   function statusFor (meta: PluginMeta): Status {
     if (!meta.hasConfig) return 'no-config'
-    const config = store.pluginConfig[meta.id]
-    if (config && typeof config === 'object' && Object.keys(config as object).length > 0) {
-      return 'customized'
-    }
-    return 'defaults'
+
+    const saved = store.pluginConfig[meta.id]
+    if (isUndefined(saved)) return 'defaults'
+
+    const defaults = DEFAULTS[meta.slug]
+    if (isUndefined(defaults)) return 'customized'
+
+    return JSON.stringify(saved) !== JSON.stringify(defaults) ? 'customized' : 'defaults'
   }
 
   const pluginRows = toRef((): PluginRow[] =>
