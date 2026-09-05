@@ -67,7 +67,7 @@ Composables need no special handling — call them inside a `<script setup vapor
 
 ### The `getCurrentInstance()` caveat
 
-Vapor intentionally makes `getCurrentInstance()` return `null` inside a component. Libraries that call it directly to detect component context can break — Vuetify0 does not. Internally v0 reads Vue 3.6's `currentInstance` export when it is available and falls back to `getCurrentInstance()` on older Vue, so instance-aware helpers like `useId()` continue to resolve correctly under Vapor. If you write your own instance-aware logic, prefer the same pattern over a bare `getCurrentInstance()` call.
+Vapor intentionally makes `getCurrentInstance()` return `null` inside a component. Libraries that call it directly to detect component context can break — Vuetify0 does not. Internally it reads Vue 3.6's `currentInstance` export when it is available and falls back to `getCurrentInstance()` on older Vue, so instance-aware helpers like `useId()` continue to resolve correctly under Vapor. If you write your own instance-aware logic, prefer the same pattern over a bare `getCurrentInstance()` call.
 
 ## Using components under Vapor
 

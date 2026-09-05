@@ -202,7 +202,7 @@ Accordion with expand/collapse-all using `createGroup` and tri-state support.
 
 ## Pattern B: Component Wrappers
 
-Wrap v0's headless components with your design system's styling. Vuetify0 handles behavior, accessibility, and keyboard navigation—you control the visual presentation.
+Wrap Vuetify0's headless components with your design system's styling. Vuetify0 handles behavior, accessibility, and keyboard navigation—you control the visual presentation.
 
 ### Polymorphic Elements
 

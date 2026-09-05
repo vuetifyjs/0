@@ -127,7 +127,7 @@ WebFetch https://0.vuetifyjs.com/SKILL.md
 
 ## Making Agents Actually Use v0
 
-Docs access alone isn't enough. An agent only looks things up when it feels uncertain — and a model trained before v0 existed doesn't feel uncertain writing generic Vue. It will fluently hand-roll selection state, focus traps, or virtual scrolling without ever checking whether Vuetify0 provides them. The fix is to move v0 knowledge from on-demand recall to ambient context, plus a deterministic trigger.
+Docs access alone isn't enough. An agent only looks things up when it feels uncertain — and a model trained before Vuetify0 existed doesn't feel uncertain writing generic Vue. It will fluently hand-roll selection state, focus traps, or virtual scrolling without ever checking whether Vuetify0 provides them. The fix is to move that knowledge from on-demand recall to ambient context, plus a deterministic trigger.
 
 > [!ASKAI] Set up my agent harness so it always uses Vuetify0 primitives instead of hand-rolling Vue logic.
 
@@ -173,7 +173,7 @@ case "$file" in
     mark="${TMPDIR:-/tmp}/v0-reminder-$(jq -r '.session_id' <<< "$input")"
     if [ ! -e "$mark" ]; then
       touch "$mark"
-      printf '%s' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"Check the Vuetify0 surface map in CLAUDE.md before writing Vue logic — never hand-roll a primitive @vuetify/Vuetify0 already provides."}}'
+      printf '%s' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"Check the Vuetify0 surface map in CLAUDE.md before writing Vue logic — never hand-roll a primitive @vuetify/v0 already provides."}}'
     fi
     ;;
 esac

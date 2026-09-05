@@ -1,5 +1,5 @@
 ---
-title: Why v0 - The Meta-Framework for Building UI Libraries
+title: Why Vuetify0 - The Meta-Framework for Building UI Libraries
 meta:
   - name: description
     content: Vuetify0 is a meta-framework for building UI libraries. Headless composables, AI-native docs, interactive playground, and a decade of Vuetify battle-testing.
@@ -95,7 +95,7 @@ You can also use Vuetify0 composables inside an existing Vuetify application:
 
 ### The Trinity Pattern
 
-v0's [Trinity pattern](/guide/fundamentals/core#the-trinity-pattern) provides three layers that work together:
+Vuetify0's [Trinity pattern](/guide/fundamentals/core#the-trinity-pattern) provides three layers that work together:
 
 1. **Context** — Dependency injection via `provide`/`inject`
 2. **Composable** — Reactive logic you can use anywhere
@@ -172,13 +172,13 @@ Vuetify0 features automatically upgrade when plugins are present. No wiring. No 
 
 ## AI-Native Ecosystem
 
-**Your AI already knows v0.**
+**Your AI already knows Vuetify0.**
 
 Vuetify0 was built in the AI era. Not retrofitted — designed from day one to be consumed by both humans and machines.
 
 ### MCP Server
 
-First-class [Model Context Protocol server](/guide/tooling/vuetify-mcp) for Claude, Cursor, and other AI assistants. Structured access to v0's full API — accurate, versioned, complete. No hallucinations, no outdated docs. See the full [AI Tools guide](/guide/tooling/ai-tools) for setup and usage.
+First-class [Model Context Protocol server](/guide/tooling/vuetify-mcp) for Claude, Cursor, and other AI assistants. Structured access to Vuetify0's full API — accurate, versioned, complete. No hallucinations, no outdated docs. See the full [AI Tools guide](/guide/tooling/ai-tools) for setup and usage.
 
 ### Ask AI — Built Into Every Page
 
@@ -218,7 +218,7 @@ Examples aren't throwaway demos. Each one teaches a concept — multi-file, orde
 
 While Vuetify0 is new, its patterns are not. Registration, selection, theming, forms — Vuetify has used some form of these approaches since its founding. Every version refined them. Vuetify0 is the extraction and formalization of a decade of production-tested architecture.
 
-### The Platform Behind v0
+### The Platform Behind Vuetify0
 
 - **41K+ GitHub stars**, **4M+ monthly downloads**, **324K+ dependent projects**
 - **10+ years** of continuous development
@@ -291,7 +291,7 @@ The documentation isn't just reference — it's a training ground. Vuetify0 Skil
 
 Headless component libraries solve one problem well: unstyled UI primitives. Vuetify0 solves the layer beneath — the composable architecture, plugin system, and developer ecosystem that UI libraries are built on.
 
-| Capability | Typical Headless Library | v0 Meta-Framework |
+| Capability | Typical Headless Library | Vuetify0 Meta-Framework |
 |------------|:--:|:--:|
 | Use without components | <AppIcon icon="close" class="text-error" /> | <AppIcon icon="success" class="text-success" /> |
 | Adapter-based plugins | <AppIcon icon="close" class="text-error" /> | <AppIcon icon="success" class="text-success" /> |
@@ -331,7 +331,7 @@ bun add @vuetify/v0
 
 :::
 
-- **[Install v0](/introduction/getting-started)** and start building
+- **[Install Vuetify0](/introduction/getting-started)** and start building
 - **[Explore the playground](/playground)** and experiment live
 - **[Browse composables](/guide/fundamentals/composables)** to see what's available
 

@@ -421,7 +421,7 @@ See [Benchmarks](/guide/fundamentals/benchmarks) for detailed measurements and m
 ## FAQ
 
 ::: faq
-??? Why does not Vuetify0 just make everything reactive like Vue?
+??? Why doesn't Vuetify0 just make everything reactive like Vue?
 
 Performance and predictability. Vue's deep reactivity is convenient but has costs:
 
