@@ -32,7 +32,7 @@
     max: { test: value => value.length <= 12, hint: 'at most 12 characters' },
     pattern: { test: value => /^[a-z0-9-]+$/.test(value), hint: 'lowercase, digits, dashes' },
     url: { test: value => parses(value), hint: 'absolute URL' },
-    numeric: { test: value => /^-?\d+(\.\d+)?$/.test(value), hint: 'a number' },
+    numeric: { test: value => /^-?\d+(?:\.\d+)?$/.test(value), hint: 'a number' },
   }
 
   const store = useBuilderStore()

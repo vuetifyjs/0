@@ -48,7 +48,7 @@
     const defaults = DEFAULTS[meta.slug]
     if (isUndefined(defaults)) return 'customized'
 
-    return JSON.stringify(saved) !== JSON.stringify(defaults) ? 'customized' : 'defaults'
+    return JSON.stringify(saved) === JSON.stringify(defaults) ? 'defaults' : 'customized'
   }
 
   const pluginRows = toRef((): PluginRow[] =>
