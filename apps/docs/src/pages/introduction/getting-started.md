@@ -221,7 +221,7 @@ The CLI writes example files into your project, installs any missing dependencie
 ## Requirements
 
 - Vue 3.5.0 or higher
-- Node 22+
+- Node 26+
 
 ## Usage
 
