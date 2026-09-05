@@ -191,6 +191,12 @@
       "category": "semantic",
       "description": "A composable that extends `createSingle` for breadcrumb navigation with automatic path truncation."
     },
+    "createCalendar": {
+      "level": "preview",
+      "since": null,
+      "category": "forms",
+      "description": "Month calendar geometry and navigation with focus management, min/max bounds, and locale-aware week start. Selection-agnostic — compose with `createSingle` or `createSelection` for date pickers."
+    },
     "createOverflow": {
       "level": "preview",
       "since": "0.1.0",

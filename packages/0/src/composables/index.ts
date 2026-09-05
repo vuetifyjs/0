@@ -1,5 +1,6 @@
 // Composables
 export * from './createBreadcrumbs'
+export * from './createCalendar'
 export * from './createCombobox'
 export * from './createContext'
 export * from './createDataGrid'
