@@ -122,6 +122,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/disclosure/overlay-panel': RouteRecordInfo<
+      '/components/disclosure/overlay-panel',
+      '/components/disclosure/overlay-panel',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/popover': RouteRecordInfo<
       '/components/disclosure/popover',
       '/components/disclosure/popover',
@@ -1641,6 +1648,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/disclosure/expansion-panel.md': {
       routes:
         | '/components/disclosure/expansion-panel'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/disclosure/overlay-panel.md': {
+      routes:
+        | '/components/disclosure/overlay-panel'
       views:
         | never
       pathParamNames:

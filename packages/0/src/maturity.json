@@ -682,6 +682,12 @@
       "category": "semantic",
       "description": "Responsive truncation — hides overflowing items as the container runs out of width and surfaces the hidden count via an indicator."
     },
+    "OverlayPanel": {
+      "level": "preview",
+      "since": null,
+      "category": "disclosure",
+      "description": "Position-agnostic, non-modal floating overlay primitive with portal, z-index stacking, focus return, escape dismissal, and click-outside behavior."
+    },
     "Pagination": {
       "level": "preview",
       "since": "0.1.0",

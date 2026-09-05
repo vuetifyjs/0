@@ -107,6 +107,7 @@ Components for showing/hiding content.
 | [Collapsible](/components/disclosure/collapsible) | Single-item disclosure toggle for showing and hiding content |
 | [Dialog](/components/disclosure/dialog) | Modal dialog with focus management |
 | [ExpansionPanel](/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
+| [OverlayPanel](/components/disclosure/overlay-panel) | Position-agnostic, non-modal floating overlay primitive |
 | [Popover](/components/disclosure/popover) | CSS anchor-positioned popup content |
 | [Tabs](/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
 | [Tooltip](/components/disclosure/tooltip) | Description tooltip with hover/focus triggers and shared delay coordination |
