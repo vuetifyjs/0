@@ -23,7 +23,7 @@
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { toRef, toValue } from 'vue'
+  import { onMounted, toRef, toValue } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -200,6 +200,10 @@
   const timer = autoplay > 0
     ? useTimer(() => next(), { duration: autoplay, repeat: true })
     : null
+
+  onMounted(() => {
+    timer?.start()
+  })
 
   function pause () {
     timer?.pause()
