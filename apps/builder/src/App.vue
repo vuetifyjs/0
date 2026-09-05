@@ -23,6 +23,13 @@
 </template>
 
 <style>
+/* The fixed StepBar at the bottom is ~4rem + 1px; scroll-padding-bottom ensures
+   scroll-to targets (in-page anchors, router scrollBehavior) land above it, not
+   under. The 6rem matches the pb-24 content padding the stepped pages already use. */
+html {
+  scroll-padding-bottom: 6rem;
+}
+
 /* Shiki (defaultColor: false, dual themes) writes each token's color as a pair of
    --shiki-light/--shiki-dark custom properties on its own span rather than as a
    `color` declaration — nothing consumes them without this rule. apps/docs' toggle
