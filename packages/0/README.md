@@ -167,6 +167,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Collapsible](https://0.vuetifyjs.com/components/disclosure/collapsible) | Single-item disclosure toggle for showing and hiding content |
 | [Dialog](https://0.vuetifyjs.com/components/disclosure/dialog) | Modal dialog using native `<dialog>` with focus management |
 | [ExpansionPanel](https://0.vuetifyjs.com/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
+| [OverlayPanel](https://0.vuetifyjs.com/components/disclosure/overlay-panel) | Position-agnostic, non-modal floating overlay primitive |
 | [Popover](https://0.vuetifyjs.com/components/disclosure/popover) | CSS anchor-positioned popup content |
 | [Tabs](https://0.vuetifyjs.com/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
 | [Tooltip](https://0.vuetifyjs.com/components/disclosure/tooltip) | Description tooltip with hover/focus triggers |
