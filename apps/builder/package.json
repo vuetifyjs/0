@@ -1,0 +1,32 @@
+{
+  "name": "@vuetify-private/builder",
+  "version": "1.0.0-alpha.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "tsx build/generate-dependencies.ts",
+    "dev": "pnpm generate && vite",
+    "build": "pnpm generate && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mdi/js": "catalog:",
+    "@paper/genesis": "workspace:*",
+    "@shikijs/langs": "catalog:",
+    "@shikijs/themes": "catalog:",
+    "@vuetify/v0": "workspace:*",
+    "fflate": "catalog:",
+    "pinia": "catalog:",
+    "shiki": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  },
+  "devDependencies": {
+    "tsx": "catalog:",
+    "unocss": "catalog:",
+    "unplugin-vue": "catalog:",
+    "unplugin-vue-components": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-vue-layouts-next": "catalog:"
+  }
+}
