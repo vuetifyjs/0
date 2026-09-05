@@ -34,7 +34,7 @@ import Root from './OverlayPanelRoot.vue'
  *       Open Panel
  *     </OverlayPanel.Activator>
  *
- *     <OverlayPanel.Content class="panel">
+ *     <OverlayPanel.Content aria-label="Panel" class="panel">
  *       <p>Panel content goes here.</p>
  *       <OverlayPanel.Close>Close</OverlayPanel.Close>
  *     </OverlayPanel.Content>
@@ -66,7 +66,7 @@ export const OverlayPanel = {
    * <template>
    *   <OverlayPanel.Root>
    *     <OverlayPanel.Activator>Open</OverlayPanel.Activator>
-   *     <OverlayPanel.Content>
+   *     <OverlayPanel.Content aria-label="Panel">
    *       <OverlayPanel.Close>Close</OverlayPanel.Close>
    *     </OverlayPanel.Content>
    *   </OverlayPanel.Root>
@@ -105,7 +105,7 @@ export const OverlayPanel = {
    * </script>
    *
    * <template>
-   *   <OverlayPanel.Content>
+   *   <OverlayPanel.Content aria-label="Panel">
    *     <p>Content goes here.</p>
    *     <OverlayPanel.Close>Close</OverlayPanel.Close>
    *   </OverlayPanel.Content>

@@ -115,6 +115,7 @@ OverlayPanel uses `role="dialog"` with `aria-modal="false"` since it's non-modal
 | `aria-controls` | Content element ID | Activator |
 | `role` | `dialog` | Content |
 | `aria-modal` | `false` | Content |
+| `aria-label` / `aria-labelledby` | Consumer-provided accessible name | Content |
 | `aria-label` | Localized "Close" string | Close |
 
 ### Keyboard Navigation
@@ -127,7 +128,7 @@ OverlayPanel uses `role="dialog"` with `aria-modal="false"` since it's non-modal
 
 ### Focus Management
 
-When the panel opens, focus stays on the activator by default. When the panel closes, focus returns to the element that was focused before the panel opened. Unlike Dialog, focus is not trapped inside the panel.
+When the panel opens, focus moves to the panel (`tabindex="-1"` on Content). When it closes, focus returns to the previously focused element. Focus is not trapped (unlike Dialog). Consumers must give Content an accessible name (`aria-label` or `aria-labelledby`).
 
 ## OverlayPanel vs Dialog vs Popover
 
