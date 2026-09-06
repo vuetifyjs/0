@@ -26,7 +26,7 @@ See [Getting Started](/introduction/getting-started#nuxt) for the minimal plugin
 
 ## Auto-Imports
 
-Configure Nuxt to auto-import v0 composables:
+Configure Nuxt to auto-import Vuetify0 composables:
 
 ```ts nuxt.config.ts collapse
 export default defineNuxtConfig({

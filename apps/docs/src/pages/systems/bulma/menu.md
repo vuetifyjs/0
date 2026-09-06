@@ -60,7 +60,7 @@ Compose `BuMenuLabel`, `BuMenuList`, `BuMenuItem`, and `BuMenuLink`. `v-model` i
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `BuMenu` wraps v0's [Single](/components/providers/single). `Single.Root` is a pure provider — it renders no element — so the `aside.menu` and every list are Bulma's. Each `BuMenuLink` is a renderless `Single.Item` whose `isSelected` and `select` are bound by hand onto the anchor: `is-active` for Bulma's CSS, `data-selected` for the data-attr hook, click to select.
 

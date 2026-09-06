@@ -59,7 +59,7 @@ Give the input the leftover width with `expanded`. Without it the input sizes to
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 Composes v0's [NumberField](/components/forms/number-field). `BuNumberField` creates a `NumberField.Root` unless an ambient one already exists; `Decrement`, `Control`, and `Increment` live inside each part's own `.control`.
 

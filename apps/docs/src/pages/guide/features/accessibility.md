@@ -16,13 +16,13 @@ related:
 
 # Accessibility
 
-v0 provides ARIA attributes out-of-the-box through the `attrs` pattern. You provide styling and visual feedback.
+Vuetify0 provides ARIA attributes out-of-the-box through the `attrs` pattern. You provide styling and visual feedback.
 
 <DocsPageFeatures :frontmatter />
 
 ## The attrs Pattern
 
-Every v0 component exposes an `attrs` object containing all accessibility attributes. Spread it onto your elements:
+Every Vuetify0 component exposes an `attrs` object containing all accessibility attributes. Spread it onto your elements:
 
 ```vue playground
 <script setup>
@@ -61,7 +61,7 @@ Every v0 component exposes an `attrs` object containing all accessibility attrib
 
 ## Developer Responsibilities
 
-v0 provides the ARIA plumbing. You must provide:
+Vuetify0 provides the ARIA plumbing. You must provide:
 
 | Responsibility | Example |
 | - | - |
@@ -84,7 +84,7 @@ v0 does **not** provide roving tabindex. This keeps the library headless - imple
 
 ### Teleported Content and Landmarks
 
-Content teleported by [Portal](/components/primitives/portal) renders into `body`, outside your app's landmarks, so audit tools flag it with the axe [region](https://dequeuniversity.com/rules/axe/4.12/region) rule. v0 is headless — it won't pick a landmark role for you. Give the teleported subtree its own semantics: `role="dialog"` for modals (exempt from the landmark rule), `role="status"` or `role="alert"` for toast regions, or `role="region"` plus `aria-label` for arbitrary overlays. See the [Portal accessibility notes](/components/primitives/portal#landmarks) for an example.
+Content teleported by [Portal](/components/primitives/portal) renders into `body`, outside your app's landmarks, so audit tools flag it with the axe [region](https://dequeuniversity.com/rules/axe/4.12/region) rule. Vuetify0 is headless — it won't pick a landmark role for you. Give the teleported subtree its own semantics: `role="dialog"` for modals (exempt from the landmark rule), `role="status"` or `role="alert"` for toast regions, or `role="region"` plus `aria-label` for arbitrary overlays. See the [Portal accessibility notes](/components/primitives/portal#landmarks) for an example.
 
 ## Keyboard Navigation
 
@@ -104,7 +104,7 @@ Content teleported by [Portal](/components/primitives/portal) renders into `body
 | Tabs | Arrow keys, Home/End |
 
 ```ts
-// You implement navigation logic - v0 provides selection state
+// You implement navigation logic - Vuetify0 provides selection state
 function onKeydown (e: KeyboardEvent, ids: string[], currentIndex: number) {
   switch (e.key) {
     case 'ArrowDown': selection.select(ids[currentIndex + 1]); break
@@ -164,8 +164,8 @@ Use this checklist during manual QA:
 
 ## Internationalization
 
-Every v0 component ships an inline English accessible name for the ARIA labels it renders — a Dialog close button reads `"Close"`, a pagination landmark reads `"Pagination"`, and so on. Each default lives at the component's call site as `locale.ti(key) ?? 'English default'`, so an app that never installs a locale plugin still satisfies [WCAG 4.1.2 Name, Role, Value](https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html) out of the box. No locale strings are bundled into the runtime.
+Every Vuetify0 component ships an inline English accessible name for the ARIA labels it renders — a Dialog close button reads `"Close"`, a pagination landmark reads `"Pagination"`, and so on. Each default lives at the component's call site as `locale.ti(key) ?? 'English default'`, so an app that never installs a locale plugin still satisfies [WCAG 4.1.2 Name, Role, Value](https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html) out of the box. No locale strings are bundled into the runtime.
 
-To localize those names, install the [Locale plugin](/composables/plugins/use-locale) with translations for the component keys (`Dialog.close`, `Pagination.label`, `Carousel.next`, …). When a key resolves the component uses your translation; when it doesn't, the inline English default still renders. The optional `@vuetify/v0/locale/messages/en` export is the canonical map of every key v0 components look up — import it as a starting point for a new translation, or register it as-is for a complete English baseline.
+To localize those names, install the [Locale plugin](/composables/plugins/use-locale) with translations for the component keys (`Dialog.close`, `Pagination.label`, `Carousel.next`, …). When a key resolves the component uses your translation; when it doesn't, the inline English default still renders. The optional `@vuetify/v0/locale/messages/en` export is the canonical map of every key Vuetify0 components look up — import it as a starting point for a new translation, or register it as-is for a complete English baseline.
 
 For RTL (right-to-left) support, see `useRtl`. Direction is managed independently from locale — `useRtl` provides a reactive `isRtl` boolean and sets the `dir` attribute on the target element.

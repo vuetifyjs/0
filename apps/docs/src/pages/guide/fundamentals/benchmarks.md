@@ -140,7 +140,7 @@ Numbers from your own machine are useful for spotting a regression you just intr
 ::: faq single
 ??? Is this fast enough for my app?
 
-Most v0 composables handle 10,000+ items at interactive speeds (>60fps). For typical UIs:
+Most Vuetify0 composables handle 10,000+ items at interactive speeds (>60fps). For typical UIs:
 
 - **<100 items** — Instant, no optimization needed
 - **100-1,000 items** — Smooth, standard usage
@@ -163,7 +163,7 @@ Vue's reactivity system is powerful but not free. Each reactive wrapper adds:
 - CPU cycles for change detection
 - Potential for unnecessary re-renders
 
-By keeping reactivity minimal, v0 composables stay predictable—you know exactly what triggers updates. When you need reactivity, opt in explicitly with `useProxyRegistry`.
+By keeping reactivity minimal, Vuetify0 composables stay predictable—you know exactly what triggers updates. When you need reactivity, opt in explicitly with `useProxyRegistry`.
 
 ??? How do I compare raw vs reactive performance?
 

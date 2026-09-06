@@ -206,7 +206,7 @@ Override the ellipsis globally on Root or per-instance:
 
 ### Plugins
 
-Breadcrumbs integrates with v0's plugin system for internationalization.
+Breadcrumbs integrates with Vuetify0's plugin system for internationalization.
 
 #### Locale
 

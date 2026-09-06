@@ -53,13 +53,13 @@ The strip renders as a segmented control: adjacent tabs share their borders, onl
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `EmTabs` wraps v0's [Tabs](/components/disclosure/tabs) compound — `Tabs.Root`, `Tabs.List`, `Tabs.Item` and `Tabs.Panel` — with [createStep](/composables/selection/create-step) doing the selection underneath.
 
 `Tabs.Root` is a pure context provider that renders no element of its own, so `EmTabs` supplies the wrapper `div` and stamps `data-orientation` and `data-disabled` on it — the one place Emerald writes state attributes itself, because there is no v0 element there to carry them. Everything else is v0's: `Tabs.List` renders the `tablist`, `Tabs.Item` renders each trigger as a native `<button>` with the roving tabindex and the keyboard handlers, and `Tabs.Panel` renders the panel with its `hidden` state. Emerald adds a class and token styling to each and changes none of the behavior.
 
-That split is what the stylesheet hangs off. The selected and disabled looks are `[data-selected]` and `[data-disabled]` rules over attributes v0 already publishes, and the vertical layout keys off the `aria-orientation` v0 puts on the list — Emerald styles the semantics rather than duplicating them into classes.
+That split is what the stylesheet hangs off. The selected and disabled looks are `[data-selected]` and `[data-disabled]` rules over attributes Vuetify0 already publishes, and the vertical layout keys off the `aria-orientation` v0 puts on the list — Emerald styles the semantics rather than duplicating them into classes.
 
 The default slot of `EmTabs` forwards `Tabs.Root`'s slot props, so `first`, `last`, `next`, `prev`, `step` and `select` are available in the template when you want to drive the tabs from outside the strip.
 

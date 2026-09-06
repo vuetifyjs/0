@@ -17,7 +17,7 @@ related:
 
 # Core
 
-v0's core architecture provides type-safe dependency injection and composable patterns. This page explains **how v0 works**. For creating plugins, see [Plugins Guide](/guide/fundamentals/plugins); for one-line definitions of the terms used here, see the [Glossary](/guide/essentials/glossary).
+Vuetify0's core architecture provides type-safe dependency injection and composable patterns. This page explains **how Vuetify0 works**. For creating plugins, see [Plugins Guide](/guide/fundamentals/plugins); for one-line definitions of the terms used here, see the [Glossary](/guide/essentials/glossary).
 
 <DocsPageFeatures :frontmatter />
 
@@ -35,7 +35,7 @@ flowchart TD
 
 ## The Trinity Pattern
 
-The signature pattern of v0. Every composable returns a readonly 3-tuple:
+The signature pattern of Vuetify0. Every composable returns a readonly 3-tuple:
 
 ```ts
 const [useTheme, provideTheme, theme] = createThemeContext()
@@ -267,7 +267,7 @@ wizard.last()   // Jump to end
 
 1. **Throws on missing context** — No silent `undefined` bugs
 2. **Type inference** — Full TypeScript support without manual casting
-3. **Consistent API** — Same pattern across all v0 composables
+3. **Consistent API** — Same pattern across all Vuetify0 composables
 
 ```ts
 // Vue's provide/inject - silent failure

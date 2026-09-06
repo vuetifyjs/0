@@ -20,7 +20,7 @@ related:
 
 # Palettes
 
-v0 ships pre-built color data from popular design systems and generator adapters that create complete themes from a single brand color.
+Vuetify0 ships pre-built color data from popular design systems and generator adapters that create complete themes from a single brand color.
 
 <DocsPageFeatures :frontmatter />
 

@@ -16,7 +16,7 @@ related:
 
 # Composables
 
-Composables are the foundation of v0. They provide headless logic that you can use directly or through wrapper components.
+Composables are the foundation of Vuetify0. They provide headless logic that you can use directly or through wrapper components.
 
 <DocsPageFeatures :frontmatter />
 
@@ -55,7 +55,7 @@ selection.select('a')
 
 ## Quick Reactivity Note
 
-v0 uses **minimal reactivity** for performance. Unlike Vue's default approach where everything is deeply reactive, v0 only makes reactive what *must* be reactive.
+Vuetify0 uses **minimal reactivity** for performance. Unlike Vue's default approach where everything is deeply reactive, v0 only makes reactive what *must* be reactive.
 
 **Selection state is always reactive** — `selectedId`, `selectedIds`, and `isSelected` update your templates automatically. This covers 90% of use cases.
 
@@ -338,7 +338,7 @@ flowchart TD
     end
 ```
 
-Trinity's third element is the idiomatic v0 approach—see [The Trinity Pattern](/guide/fundamentals/core#the-trinity-pattern) for details. Module singletons work outside Vue. Context injection scopes sharing to the providing component's subtree.
+Trinity's third element is the idiomatic Vuetify0 approach—see [The Trinity Pattern](/guide/fundamentals/core#the-trinity-pattern) for details. Module singletons work outside Vue. Context injection scopes sharing to the providing component's subtree.
 
 ??? What's the lifecycle of a composable when components unmount?
 

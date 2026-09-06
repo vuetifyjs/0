@@ -48,13 +48,13 @@ Bulma's `.notification` with a dismiss that unmounts the block.
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `BuNotification` wraps v0's [Presence](/components/primitives/presence). Presence is a mount lifecycle, not a notification primitive: `v-model` drives present/leaving/unmounted, `data-state` is forwarded onto `.notification`, and with Presence's default `immediate` the leaving state resolves on the next tick, so a dismissed notification unmounts rather than sitting in the DOM at `display: none`.
 
 The delete button is not Presence's. Presence has no close affordance and no default content. `BuNotification` provides `bulma:notification` with a `close()` that writes `false` through the model. `BuNotificationDelete` renders `button.delete` and calls it — compose it first so the fixture shape (delete, then body) holds. A notification without Delete is a valid box. The one deliberate delta from the fixture is `aria-label="delete"`: upstream ships that button unlabeled, which is an axe failure, and labelling it is a declared deviation on the [Bulma overview](/systems/bulma).
 
-There is no queue, no timeout, and no severity role. A notification that should announce, stack, or expire is a different component — [Snackbar](/components/semantic/snackbar) in v0, or `BuMessage` when the block has a header.
+There is no queue, no timeout, and no severity role. A notification that should announce, stack, or expire is a different component — [Snackbar](/components/semantic/snackbar) in Vuetify0, or `BuMessage` when the block has a header.
 
 ## The markup you know
 

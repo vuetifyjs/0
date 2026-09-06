@@ -126,7 +126,7 @@ Skip-window coordination is most useful when neighbors across UI regions coopera
 
 ??? Can I install useTooltip without using `<Tooltip.Root>`?
 
-Yes. The plugin is just a small shared state object — register and unregister tickets manually if you're building a custom tooltip surface and want it to coordinate with v0 tooltips on the page.
+Yes. The plugin is just a small shared state object — register and unregister tickets manually if you're building a custom tooltip surface and want it to coordinate with Vuetify0 tooltips on the page.
 
 ??? What if I never install the plugin?
 

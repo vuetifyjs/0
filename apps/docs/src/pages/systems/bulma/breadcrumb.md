@@ -48,7 +48,7 @@ Bulma's `.breadcrumb` — compose crumb items, mark the current page with `curre
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 None. [Breadcrumbs](/components/semantic/breadcrumbs) is the compound it is *not* wrapping, and the skip is load-bearing.
 
@@ -56,7 +56,7 @@ v0's `Breadcrumbs.Root` owns an overflow watcher. The moment the measured contai
 
 BuBreadcrumb also uses nothing else the compound offers. There is no v-model: the current page is the item you mark with `current`. There is no overflow UI to opt into. Wrapping the compound in Tier 1 would have bought a truncation bug and no behavior, so the component renders `nav.breadcrumb > ul` itself and leaves each `BuBreadcrumbItem` to emit `li > a`.
 
-The follow-up is in v0, not here. `BreadcrumbsRoot` should skip the truncation branch when no ellipsis ticket is registered, or expose an overflow opt-out. Once it does, this page can wrap the compound without changing a class.
+The follow-up is in Vuetify0, not here. `BreadcrumbsRoot` should skip the truncation branch when no ellipsis ticket is registered, or expose an overflow opt-out. Once it does, this page can wrap the compound without changing a class.
 
 ## The markup you know
 

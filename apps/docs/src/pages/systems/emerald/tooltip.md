@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A description bubble that opens on hover or keyboard focus — delays, warmup and dismissal come from v0; Emerald supplies the dark, compact surface.
+A description bubble that opens on hover or keyboard focus — delays, warmup and dismissal come from Vuetify0; Emerald supplies the dark, compact surface.
 
 ## Usage
 
@@ -49,7 +49,7 @@ Hovering the trigger opens the bubble after an open delay — 700ms by default �
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 Each part maps one-to-one onto v0's [Tooltip](/components/disclosure/tooltip) compound — `Tooltip.Root`, `Tooltip.Activator`, `Tooltip.Content`. v0 owns everything that behaves: the open and close timers, the pointer and focus wiring, the `aria-describedby` link, the native popover rendering and the anchor plumbing. Emerald owns only the skin — the `.emerald-tooltip__content` bubble, a 240px-max dark surface on the system's smallest body step — and an unstyled `.emerald-tooltip__activator` class hook on the trigger. The root renders no element at all.
 

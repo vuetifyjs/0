@@ -268,7 +268,7 @@ Look up a message key with `t()` or `ti()`. Both run the same pipeline — selec
 
 #### Translate if exists
 
-`ti()` ("translate if exists") never echoes the key. Pair it with the nullish-coalescing operator to provide an inline default — the pattern every v0 component uses for its accessible names:
+`ti()` ("translate if exists") never echoes the key. Pair it with the nullish-coalescing operator to provide an inline default — the pattern every Vuetify0 component uses for its accessible names:
 
 ```vue no-filename TranslateIfExists
 <script setup lang="ts">
@@ -288,7 +288,7 @@ When an app installs the Locale plugin with a `Pagination.label` translation, th
 
 #### Bundled English messages
 
-The inline `ti(key) ?? '...'` idiom keeps a sensible default at each call site. If you would rather register full, centralized English coverage for v0's own component keys, import the optional `@vuetify/v0/locale/messages/en` map. It is a plain object of every key v0 components look up, and it is never pulled into the runtime unless you import it:
+The inline `ti(key) ?? '...'` idiom keeps a sensible default at each call site. If you would rather register full, centralized English coverage for Vuetify0's own component keys, import the optional `@vuetify/v0/locale/messages/en` map. It is a plain object of every key Vuetify0 components look up, and it is never pulled into the runtime unless you import it:
 
 ```ts main.ts
 import en from '@vuetify/v0/locale/messages/en'
@@ -302,7 +302,7 @@ app.use(
 )
 ```
 
-Use it as a starting point for a new translation — copy the shape, swap the values for your language — or register it as-is to give every v0 component a complete English baseline.
+Use it as a starting point for a new translation — copy the shape, swap the values for your language — or register it as-is to give every Vuetify0 component a complete English baseline.
 
 ## FAQ
 
@@ -324,9 +324,9 @@ Install the `VueI18nLocaleAdapter` from `@vuetify/v0/locale/adapters/vue-i18n` a
 
 Call `locale.n(value)` — it delegates to `Intl.NumberFormat` using the selected locale, so switching locales reformats the output. You can nest it inside `t()` to interpolate a formatted number into a translated string.
 
-??? How do I give v0's own components English labels?
+??? How do I give Vuetify0's own components English labels?
 
-Import the optional `@vuetify/v0/locale/messages/en` map and register it as the `en` messages on `createLocalePlugin`. It covers every key v0 components look up and is never bundled unless you import it — use it as-is for a full English baseline, or as a template for another language.
+Import the optional `@vuetify/v0/locale/messages/en` map and register it as the `en` messages on `createLocalePlugin`. It covers every key Vuetify0 components look up and is never bundled unless you import it — use it as-is for a full English baseline, or as a template for another language.
 
 :::
 

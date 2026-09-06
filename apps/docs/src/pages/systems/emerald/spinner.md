@@ -47,13 +47,13 @@ The two spinners below look identical on purpose: `label` changes what a screen 
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `EmSpinner` renders v0's [Atom](/components/primitives/atom) — the polymorphic primitive at the bottom of the component system — pinned to `as="span"`. Atom's other modes are not exposed: the component forwards neither `as` nor `renderless`, so the anatomy is fixed. A spinner is always one span wrapping a ring and a hidden label.
 
 What the Atom base contributes is attribute fallthrough. Anything you put on `EmSpinner` that is not a prop — `class`, `style`, an id, extra ARIA — lands on the rendered span, which is how the recoloring pattern below works without the component needing a `color` prop. The `role="status"` and `aria-live="polite"` on that span are static attributes Emerald places on the Atom, not behavior v0 adds.
 
-The rest is the usual Emerald split: the component publishes `data-size` and the stylesheet hangs every dimension off it, while the ring's color is simply `currentcolor` against a root that defaults to Emerald's primary green. There is no context, no `namespace`, and no v0 composable underneath — this is the smallest kind of Emerald component there is.
+The rest is the usual Emerald split: the component publishes `data-size` and the stylesheet hangs every dimension off it, while the ring's color is simply `currentcolor` against a root that defaults to Emerald's primary green. There is no context, no `namespace`, and no Vuetify0 composable underneath — this is the smallest kind of Emerald component there is.
 
 One relative worth knowing about: [EmButton](/systems/emerald/button)'s loading state draws its own ring rather than nesting `EmSpinner`, so it can sit inside the button's layout and inherit the variant's text color. Use the button's `loading` prop there; `EmSpinner` is for everywhere that is not a button.
 

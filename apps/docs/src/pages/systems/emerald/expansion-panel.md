@@ -55,7 +55,7 @@ Give every panel an explicit `value`. A panel without one falls back to its regi
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 Each part is a one-to-one wrapper over v0's [ExpansionPanel](/components/disclosure/expansion-panel) compound: `EmExpansionPanelGroup` renders `ExpansionPanel.Group`, `EmExpansionPanel` renders `ExpansionPanel.Root`, and the header, activator, content and cue map the same way. v0 owns all of the behavior — the selection model behind the group, the registration of panels, every ARIA attribute, and the `hidden` toggling of content. Emerald owns only the classes and tokens on top, plus the default chevron: `EmExpansionPanelCue` fills v0's `ExpansionPanel.Cue` with an [EmIcon](/systems/emerald/icon) `chevron-down` glyph that rotates on the `data-state="open"` attribute v0 publishes.
 
@@ -138,7 +138,7 @@ Every one of the six parts accepts `namespace`, defaulting to v0's `v0:expansion
 
 ## Accessibility
 
-The compound follows the [WAI-ARIA accordion pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/), and all of it comes from v0 rather than from Emerald. `EmExpansionPanelHeader` renders an `h3` wrapping the activator, so screen-reader users can jump between panels by heading; `EmExpansionPanelActivator` renders a native `button type="button"`, so Enter and Space activation, focusability and the implicit role are the platform's.
+The compound follows the [WAI-ARIA accordion pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/), and all of it comes from Vuetify0 rather than from Emerald. `EmExpansionPanelHeader` renders an `h3` wrapping the activator, so screen-reader users can jump between panels by heading; `EmExpansionPanelActivator` renders a native `button type="button"`, so Enter and Space activation, focusability and the implicit role are the platform's.
 
 ### ARIA attributes
 

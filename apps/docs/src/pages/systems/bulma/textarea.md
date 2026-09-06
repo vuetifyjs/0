@@ -48,7 +48,7 @@ A wrapper is optional. Put it in a [BuField](/systems/bulma/field) when you need
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `BuTextarea` is a renderless [Input.Root](/components/forms/input) around `Input.Control` rendered as a native `<textarea>`. The compound is element-agnostic — the whole wiring surface (value sync, focus tracking, the validation pipeline, the aria attributes) applies to a textarea exactly as it does to an input. v0 supplies the behavior; the skin picks the element with `as="textarea"` and the `.textarea` class.
 
@@ -132,7 +132,7 @@ Prefer a visible `BuLabel` over `label` on the textarea. `placeholder` is a form
 |-------|-----------|-----------|--------|
 | `readonly` | Yes | Yes | Native readonly |
 | `disabled` | No | No | Native disabled, Bulma's disabled treatment |
-| `error` / failed rules | Yes | Yes | `is-danger` on the textarea; `aria-invalid` from v0 |
+| `error` / failed rules | Yes | Yes | `is-danger` on the textarea; `aria-invalid` from Vuetify0 |
 
 ### Validation
 

@@ -48,7 +48,7 @@ This is a styled native select, not a listbox. Put `<option>` (and `<optgroup>`)
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `BuSelect` calls [createInput](/composables/forms/create-input) for validation, form registration, the generated id and `aria-invalid`. The element is a native `<select>` inside `div.select`.
 
@@ -139,7 +139,7 @@ Point a `BuLabel` at the select's id, or wrap the field the way Bulma does. The 
 
 ### Keyboard
 
-Arrow keys, Home / End, typeahead and Space are native. There is no roving tabindex and no `aria-activedescendant`. Do not reach for v0 Select to "upgrade" this — you would lose the markup your CSS is written for.
+Arrow keys, Home / End, typeahead and Space are native. There is no roving tabindex and no `aria-activedescendant`. Do not reach for Vuetify0 Select to "upgrade" this — you would lose the markup your CSS is written for.
 
 ### Validation
 

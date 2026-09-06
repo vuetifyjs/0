@@ -57,9 +57,9 @@ The parts inside a row are free-form. `EmListItemMedia`, `EmListItemContent` wit
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
-`EmList` renders v0's [Single](/components/providers/single) compound. `Single.Root` and `Single.Item` are both renderless, so the elements are all Emerald's: the root provides the selection context around a real `<ul>`, and each item resolves its state inside an `<li>` and binds it onto the row host. The split is clean — v0 owns registration, the exclusive-selection rule, `mandatory` enforcement and the disabled resolution (a row is disabled when either it or the list is); Emerald owns the markup, the data attributes and every pixel.
+`EmList` renders v0's [Single](/components/providers/single) compound. `Single.Root` and `Single.Item` are both renderless, so the elements are all Emerald's: the root provides the selection context around a real `<ul>`, and each item resolves its state inside an `<li>` and binds it onto the row host. The split is clean — Vuetify0 owns registration, the exclusive-selection rule, `mandatory` enforcement and the disabled resolution (a row is disabled when either it or the list is); Emerald owns the markup, the data attributes and every pixel.
 
 One deliberate deviation is worth knowing. `Single.Item` offers listbox-flavored `attrs` — `role="option"`, `aria-selected`, a tabindex — and `EmListItem` binds only the click handler and the state attributes, not the role. The list is not a listbox: there is no roving focus and no typeahead, and a bare `option` outside a `listbox` misleads assistive technology worse than an honest button. Each row is a plain button that marks its selection with `aria-current` instead.
 

@@ -45,9 +45,9 @@ The prop that changes what the component *is* rather than how it looks is `inter
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
-`EmTag` renders a single [Atom](/components/primitives/atom) — v0's polymorphic foundation element — and the component's real job is deciding what to ask that Atom to be. With `interactive` off it renders as a `span`; on, it renders as a `button` with `type="button"`, so a tag inside a form never submits it by accident.
+`EmTag` renders a single [Atom](/components/primitives/atom) — Vuetify0's polymorphic foundation element — and the component's real job is deciding what to ask that Atom to be. With `interactive` off it renders as a `span`; on, it renders as a `button` with `type="button"`, so a tag inside a form never submits it by accident.
 
 The Atom's `as` and `renderless` escape hatches are not part of the prop surface — the element choice above *is* the component, and exposing `as` would let a caller undo it. What does pass through is everything Vue's attribute fallthrough carries: the Atom is the single root, so a `@click` listener, an `id`, or an extra class lands on whichever element the tag rendered as.
 
