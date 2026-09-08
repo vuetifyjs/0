@@ -37,9 +37,9 @@ combobox.selection.register({ id: 'cherry', value: 'Cherry' })
 // Open the dropdown
 combobox.open()
 
-// Select an item — in single mode this updates the query and closes
+// Select an item — in single mode this updates display and closes
 combobox.select('banana')
-// combobox.query.value === 'Banana'
+// combobox.display.value === 'Banana'
 // combobox.isOpen.value === false
 
 // Filter is pristine after selection — all items still visible
@@ -60,14 +60,15 @@ combobox.query.value = 'ch'
 | Member | Type | Description |
 | - | - | - |
 | `open()` | `() => void` | Opens the dropdown |
-| `close()` | `() => void` | Closes; applies strict revert if needed |
+| `close()` | `() => void` | Closes and resets query/pristine (always discards uncommitted text; does not commit) |
 | `toggle()` | `() => void` | Opens or closes |
+| `commit()` | `() => void` | Commits typed text (exact browse match, or mint when `!strict`); empty, pristine, or strict-unmatched just close |
 | `select(id)` | `(id: ID) => void` | Selects an item by ID |
 | `clear()` | `() => void` | Resets query and deselects all |
 | `id` | `string` | Base ID used for ARIA relationships |
 | `inputId` | `string` | `${id}-input` |
 | `listboxId` | `string` | `${id}-listbox` |
-| `multiple` | `boolean` | Resolved multiple flag |
+| `multiple` | `Readonly<Ref<boolean>>` | Multiple-select flag |
 | `strict` | `MaybeRefOrGetter<boolean>` | Strict option ref |
 | `disabled` | `MaybeRefOrGetter<boolean>` | Disabled option ref |
 | `name` | `string \| undefined` | Form field name |
@@ -109,7 +110,7 @@ interface ComboboxAdapterResult {
 }
 ```
 
-The `context` exposes `query` (the current search string), `selection` (the underlying selection context), and `items` (all registered IDs). Return the three refs above and the combobox wires them to the dropdown state automatically.
+The `context` exposes `{ query, items }`, where `items` is the registered ticket list (ad-hoc free-text tickets excluded). Return the three refs above and the combobox wires them to the dropdown state automatically.
 
 ### ClientComboboxAdapter
 
@@ -180,7 +181,7 @@ interface ComboboxOptions {
   multiple?: MaybeRefOrGetter<boolean>   // Enable multi-select
   mandatory?: MaybeRefOrGetter<boolean>  // Prevent deselecting last item
   disabled?: MaybeRefOrGetter<boolean>   // Disable all interaction
-  strict?: MaybeRefOrGetter<boolean>     // Revert query on close if no match
+  strict?: MaybeRefOrGetter<boolean>     // Constrain accepted values to registered options; unmatched text is discarded on confirm (Enter/Tab/click-outside)
   adapter?: ComboboxAdapter              // Filtering strategy (default: ClientComboboxAdapter)
   positionAdapter?: PopoverAdapter       // Dropdown positioning engine (default: V0PopoverAdapter)
   displayValue?: (value: unknown) => string  // Format selected value for display in input
@@ -216,9 +217,9 @@ interface ComboboxOptions {
 
 A fully custom country picker built directly on `createCombobox` with the default [ClientComboboxAdapter](/composables/forms/create-combobox). The composable registers a dozen countries into the underlying `selection` registry; the adapter filters the visible set on every keystroke, and `cursor` (the [useVirtualFocus](/composables/system/use-virtual-focus) surface) tracks the keyboard-highlighted row independently of real DOM focus. A separate panel mirrors the confirmed selection, so the example shows both halves of an autocomplete: the typeahead input and the value display it feeds.
 
-State and view are split deliberately. `useCountrySearch` owns the data and the coordinated state — it returns the `combobox` context plus a `selected` getter derived from `selection.selectedIds` — while `CountryAutocomplete` owns the markup and the DOM events. The composable never touches events; the component wires `onInput`, `onKeydown`, and `@focus` to drive the context, exactly mirroring how `createCombobox` expects a host to feed it. Arrow keys call `cursor.next()` / `cursor.prev()`, Enter reads `cursor.highlightedId` and routes to `select(id)`, and Escape calls `close()`. Closing resets `query` and `pristine`, so the `display` getter falls back to the last selected ticket — the input reverts to the confirmed selection without any extra option.
+State and view are split deliberately. `useCountrySearch` owns the data and the coordinated state — it creates a `createComboboxContext({ namespace: 'v0:country-combobox' })` trinity, registers countries, and returns the context plus a `selected` getter derived from `selection.selectedIds`. The parent calls `provideCountryCombobox`; `CountryAutocomplete` injects via `useCountryCombobox`. The composable never touches events; the component wires `onInput`, `onKeydown`, and `@focus` to drive the context. Arrow keys call `cursor.next()` / `cursor.prev()`. Enter reads `cursor.highlightedId` and routes to `select(id)`, or to `commit()` when nothing is highlighted. Tab does the same accept path — selecting a highlighted unselected option, otherwise `commit()` — then `close()` so the listbox doesn't linger; it does not preventDefault, so focus can move on. Pointer dismiss uses [useClickOutside](/composables/system/use-click-outside) to `commit()` then `close()` (query only, ignoring leftover virtual focus). Escape and any other `close()` discard uncommitted text. Closing without commit still reverts the input via `pristine` + `display` falling back to the last selected ticket.
 
-ARIA wiring is manual but mechanical: `role="combobox"`, `aria-controls`, `aria-expanded`, `aria-autocomplete`, and `aria-activedescendant` are set on the input from the IDs the context vends (`inputId`, `listboxId`, `id`), and each option row carries `role="option"`, `aria-selected`, and a stable per-option id so screen readers can correlate the highlighted row. Reach for this approach when you need full control over the markup; prefer the [Combobox component](/components/forms/combobox) when the defaults suffice, and see [createSelection](/composables/selection/create-selection) for the selection layer underneath.
+ARIA wiring is manual but mechanical: `role="combobox"`, `aria-controls`, `aria-expanded`, `aria-autocomplete="list"`, and `aria-activedescendant` are set on the input from the IDs the context vends (`inputId`, `listboxId`, `id`), and each option row carries `role="option"`, `aria-selected`, and a stable per-option id so screen readers can correlate the highlighted row. Reach for this approach when you need full control over the markup; prefer the [Combobox component](/components/forms/combobox) when the defaults suffice, and see [createSelection](/composables/selection/create-selection) for the selection layer underneath.
 
 | File | Role |
 |------|------|
@@ -231,15 +232,12 @@ ARIA wiring is manual but mechanical: `role="combobox"`, `aria-controls`, `aria-
 
 ### Strict Mode
 
-When `strict: true`, closing the dropdown without an active selection reverts the query:
+`strict` constrains accepted values to registered options. Confirming with Enter, Tab, or click-outside:
 
-- If an item is selected, `query` resets to that item's label.
-- If nothing is selected, `query` resets to `''`.
+- Non-strict (default): `commit()` mints a ticket for unmatched text, selects it, and emits it.
+- Strict: unmatched text is discarded; the dropdown closes.
 
-Non-strict mode (default) leaves whatever text the user typed in place.
-
-> [!TIP]
-> `aria-autocomplete="both"` is set automatically on the input when `strict` is enabled, per the WAI-ARIA combobox pattern.
+`close()` and Escape always discard uncommitted text — they never commit. After close, `pristine` is true so `display` falls back to the selected ticket's label (or `''` if nothing is selected).
 
 ### Pristine Flag
 
@@ -247,13 +245,7 @@ Non-strict mode (default) leaves whatever text the user typed in place.
 
 - Starts as `true` (no user input yet).
 - Becomes `false` when the user types — the adapter receives the raw query.
-- Resets to `true` after a selection (`select(id)`), so reopening the dropdown always shows all items instead of the previous typed query.
-
-```ts
-// The adapter receives `search`, not `query` directly
-const search = toRef(() => pristine.value ? '' : query.value)
-const { filtered } = adapter.setup({ query: search, items })
-```
+- Resets to `true` after `select(id)` or `commit()`, and `query` is cleared, so the adapter sees an empty query and unfilters. Reopening the dropdown always shows all items.
 
 ### Multi-Select Behavior
 
@@ -283,7 +275,7 @@ Pass `new ServerComboboxAdapter()` and watch `combobox.query` to drive your own 
 
 ??? What does `strict` mode do?
 
-With `strict: true`, closing the dropdown without a live match reverts `query` — to the selected item's label if one is selected, otherwise to `''`. Non-strict (the default) leaves whatever the user typed. It also sets `aria-autocomplete="both"` per the WAI-ARIA pattern.
+With `strict: true`, confirming unmatched text (Enter, Tab, or click-outside) discards it and closes; only registered options can be chosen. Non-strict (the default) commits the typed value as a new selection. `close()` and Escape always discard uncommitted text. `aria-autocomplete` is set by `Combobox.Control`, not this composable.
 
 ??? How does `select(id)` behave in multiple mode?
 

@@ -6,7 +6,7 @@ import { PopoverAdapter } from '#v0/composables/usePopover'
 import { createCombobox, createComboboxContext, useCombobox } from './index'
 
 // Utilities
-import { effectScope, inject, nextTick, toRef } from 'vue'
+import { effectScope, inject, nextTick, shallowRef, toRef } from 'vue'
 
 // Types
 import type { EffectScope } from 'vue'
@@ -45,7 +45,7 @@ describe('createCombobox', () => {
       expect(ctx.query.value).toBe('')
       expect(ctx.pristine.value).toBe(true)
       expect(ctx.isOpen.value).toBe(false)
-      expect(ctx.multiple).toBe(false)
+      expect(ctx.multiple.value).toBe(false)
     })
 
     it('should generate unique ids', () => {
@@ -432,6 +432,129 @@ describe('createCombobox', () => {
       expect(ctx.pristine.value).toBe(true)
     })
 
+    it('should skip clear when the combobox is disabled', () => {
+      const disabled = shallowRef(false)
+      const ctx = setup({ disabled })
+      ctx.selection.register({ id: 'a', value: 'Apple' })
+      ctx.selection.select('a')
+
+      disabled.value = true
+      ctx.clear()
+
+      expect(ctx.selection.selectedIds.has('a')).toBe(true)
+    })
+
+    it('should keep the last selected id when mandatory', () => {
+      const ctx = setup({ mandatory: true, strict: false })
+      type(ctx, 'orphan')
+      ctx.commit()
+      const adhocId = [...ctx.selection.selectedIds][0]!
+
+      ctx.clear()
+
+      expect(ctx.selection.selectedIds.has(adhocId)).toBe(true)
+      expect(ctx.selection.has(adhocId)).toBe(true)
+    })
+
+    it('should drain a disabled selected ticket', () => {
+      const ctx = setup()
+      ctx.selection.register({ id: 'a', value: 'Apple', disabled: true })
+      ctx.selection.selectedIds.add('a')
+
+      ctx.clear()
+
+      expect(ctx.selection.selectedIds.size).toBe(0)
+      expect(ctx.selection.has('a')).toBe(true)
+    })
+
+    it('should trim query on commit so padded text matches a registered option', () => {
+      const ctx = setup({ strict: false })
+      ctx.selection.register({ id: 'a', value: 'Apple' })
+      const size = ctx.selection.size
+
+      type(ctx, 'Apple ')
+      ctx.commit()
+
+      expect(ctx.selection.selectedIds.has('a')).toBe(true)
+      expect(ctx.selection.selectedValues.value).toEqual(new Set(['Apple']))
+      expect(ctx.selection.size).toBe(size)
+    })
+
+    it('should close without minting when the query is only whitespace', () => {
+      const ctx = setup({ strict: false })
+      ctx.selection.register({ id: 'a', value: 'Apple' })
+      const size = ctx.selection.size
+
+      ctx.open()
+      type(ctx, ' '.repeat(3))
+      ctx.commit()
+
+      expect(ctx.selection.size).toBe(size)
+      expect(ctx.selection.selectedIds.size).toBe(0)
+      expect(ctx.isOpen.value).toBe(false)
+      expect(ctx.query.value).toBe('')
+    })
+
+    it('should unregister an adhoc ticket when deselected in multiple mode', () => {
+      const ctx = setup({ multiple: true, strict: false })
+
+      type(ctx, 'tag')
+      ctx.commit()
+      const id = [...ctx.selection.selectedIds][0]!
+      expect(ctx.selection.has(id)).toBe(true)
+
+      ctx.select(id)
+
+      expect(ctx.selection.selectedIds.has(id)).toBe(false)
+      expect(ctx.selection.has(id)).toBe(false)
+    })
+
+    it('should purge unselected adhoc tickets when selection.apply empties', async () => {
+      const ctx = setup({ multiple: true, strict: false })
+
+      type(ctx, 'tag')
+      ctx.commit()
+      const id = [...ctx.selection.selectedIds][0]!
+      expect(ctx.selection.has(id)).toBe(true)
+
+      ctx.selection.apply([])
+      await nextTick()
+
+      expect(ctx.selection.selectedIds.size).toBe(0)
+      expect(ctx.selection.has(id)).toBe(false)
+    })
+
+    it('should clear highlight when the query filters out the highlighted option', async () => {
+      const ctx = setup()
+      ctx.selection.register({ id: 'a', value: 'Apple' })
+      ctx.selection.register({ id: 'b', value: 'Banana' })
+      await nextTick()
+
+      ctx.open()
+      ctx.cursor.first()
+      expect(ctx.cursor.highlightedId.value).toBe('a')
+
+      type(ctx, 'Ban')
+      await nextTick()
+
+      expect(ctx.filtered.value.has('a')).toBe(false)
+      expect(ctx.cursor.highlightedId.value).toBeUndefined()
+    })
+
+    it('should select a registered id on exact match when strict', () => {
+      const ctx = setup({ strict: true })
+      ctx.selection.register({ id: 'a', value: 'Apple' })
+      ctx.selection.register({ id: 'b', value: 'Banana' })
+      const size = ctx.selection.size
+
+      type(ctx, 'Banana')
+      ctx.commit()
+
+      expect(ctx.selection.selectedIds.has('b')).toBe(true)
+      expect(ctx.selection.selectedValues.value).toEqual(new Set(['Banana']))
+      expect(ctx.selection.size).toBe(size)
+    })
+
     it('should exclude ad-hoc free-text tickets from virtual-focus navigation', async () => {
       const ctx = setup({ strict: false })
       ctx.selection.register({ id: 'a', value: 'Apple' })
@@ -448,7 +571,7 @@ describe('createCombobox', () => {
 
       // All registered tickets match empty query, but ad-hoc values have no
       // rendered option and must stay out of keyboard navigation.
-      expect(ctx.filtered.value.has(adhocId)).toBe(true)
+      expect(ctx.filtered.value.has(adhocId)).toBe(false)
       expect(ctx.filtered.value.has('a')).toBe(true)
 
       ctx.cursor.first()

@@ -17,7 +17,7 @@
   import { useComboboxContext } from './ComboboxRoot.vue'
 
   // Utilities
-  import { onBeforeUnmount, onMounted, useAttrs } from 'vue'
+  import { onBeforeUnmount, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -50,9 +50,7 @@
 
   const context = useComboboxContext(namespace)
 
-  onMounted(() => {
-    context.hasDescription.value = true
-  })
+  context.hasDescription.value = true
 
   onBeforeUnmount(() => {
     context.hasDescription.value = false

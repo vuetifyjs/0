@@ -1,13 +1,22 @@
 <script setup lang="ts">
   import type { Country } from './useCountrySearch'
-  import { inject } from 'vue'
-  import { COMBOBOX_KEY } from './useCountrySearch'
+  import { isUndefined, useClickOutside } from '@vuetify/v0'
+  import { useTemplateRef } from 'vue'
+  import { useCountryCombobox } from './useCountrySearch'
 
   const { countries } = defineProps<{
     countries: Country[]
   }>()
 
-  const combobox = inject(COMBOBOX_KEY)!
+  const combobox = useCountryCombobox()
+  const root = useTemplateRef<HTMLElement>('root')
+
+  useClickOutside(root, () => {
+    if (combobox.isOpen.value) {
+      combobox.commit()
+      combobox.close()
+    }
+  })
 
   function onInput (event: Event) {
     combobox.query.value = (event.target as HTMLInputElement).value
@@ -31,7 +40,18 @@
       case 'Enter': {
         event.preventDefault()
         const id = combobox.cursor.highlightedId.value
-        if (id) combobox.select(id)
+        if (isUndefined(id)) combobox.commit()
+        else combobox.select(id)
+        break
+      }
+      case 'Tab': {
+        const id = combobox.cursor.highlightedId.value
+        if (isUndefined(id)) {
+          combobox.commit()
+        } else if (!combobox.selection.selectedIds.has(id)) {
+          combobox.select(id)
+        }
+        combobox.close()
         break
       }
       case 'Escape': {
@@ -43,11 +63,11 @@
 </script>
 
 <template>
-  <div class="relative">
+  <div ref="root" class="relative">
     <input
       :id="combobox.inputId"
       :aria-activedescendant="combobox.cursor.highlightedId.value ? `${combobox.id}-option-${combobox.cursor.highlightedId.value}` : undefined"
-      aria-autocomplete="both"
+      aria-autocomplete="list"
       :aria-controls="combobox.listboxId"
       :aria-expanded="combobox.isOpen.value"
       autocomplete="off"

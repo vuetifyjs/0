@@ -97,7 +97,7 @@ export interface ComboboxContext {
   errors: Readonly<Ref<string[]>>
   isValid: Readonly<Ref<boolean | null>>
   inputEl: ShallowRef<HTMLElement | null>
-  multiple: boolean
+  multiple: Readonly<Ref<boolean>>
   strict: MaybeRefOrGetter<boolean>
   disabled: MaybeRefOrGetter<boolean>
   name: string | undefined
@@ -129,7 +129,7 @@ export interface ComboboxContext {
  * combobox.selection.register({ id: 'b', value: 'Banana' })
  *
  * combobox.open()
- * combobox.select('a') // query → 'Apple', dropdown closes
+ * combobox.select('a') // display → 'Apple', dropdown closes
  * ```
  */
 export function createCombobox (options: ComboboxOptions = {}): ComboboxContext {
@@ -194,7 +194,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   })
   const items = computed(() => {
     void version.value
-    return [...selection.values()]
+    return [...selection.values()].filter(ticket => !adhoc.has(ticket.id))
   })
 
   // Setup adapter (defaults to ClientComboboxAdapter for local filtering)
@@ -254,6 +254,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
       pristine.value = true
       cursor.highlight(itemId)
       inputEl.value?.focus()
+      purge()
     } else {
       selection.select(itemId)
       purge()
@@ -264,16 +265,17 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   }
 
   function mint (value: string): ID {
-    const ticket = selection.register({ value })
-    adhoc.add(ticket.id)
-    return ticket.id
+    const id = useId()
+    // Track before register so the items computed, which re-runs on
+    // register:ticket, already excludes this ticket from adapter filtering.
+    adhoc.add(id)
+    selection.register({ id, value })
+    return id
   }
 
-  // Single-select keeps at most one free-text value, so drop any prior ad-hoc
-  // ticket that is no longer selected. Multi-select keeps every committed value
-  // as a tag, so it is left untouched.
+  // Drop unselected ad-hoc tickets. Selected tags (multiple) and the current
+  // single-select value stay registered.
   function purge () {
-    if (toValue(multiple)) return
     for (const id of adhoc) {
       if (!selection.selectedIds.has(id)) {
         selection.unregister(id)
@@ -282,8 +284,10 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     }
   }
 
+  watch(() => [...selection.selectedIds], () => purge())
+
   function commit () {
-    const text = query.value
+    const text = query.value.trim()
 
     if (pristine.value || text === '') {
       close()
@@ -306,8 +310,9 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
       if (!selection.selectedIds.has(id)) selection.select(id)
       query.value = ''
       pristine.value = true
-      cursor.highlight(id)
+      if (!adhoc.has(id)) cursor.highlight(id)
       inputEl.value?.focus()
+      purge()
     } else {
       selection.select(id)
       purge()
@@ -328,15 +333,22 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
       selection.selectedIds.delete(id)
     }
     for (const id of adhoc) {
-      selection.unregister(id)
+      if (!selection.selectedIds.has(id)) {
+        selection.unregister(id)
+        adhoc.delete(id)
+      }
     }
-    adhoc.clear()
   }
 
   watch(isOpen, open => {
     if (!open) {
       cursor.clear()
     }
+  })
+
+  watch(filtered, ids => {
+    const id = cursor.highlightedId.value
+    if (!isUndefined(id) && !ids.has(id)) cursor.clear()
   })
 
   return {
@@ -360,7 +372,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     errors,
     isValid,
     inputEl,
-    multiple: toValue(multiple),
+    multiple: toRef(() => toValue(multiple)),
     strict,
     disabled,
     name,

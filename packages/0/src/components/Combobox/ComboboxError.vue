@@ -19,7 +19,7 @@
   import { useComboboxContext } from './ComboboxRoot.vue'
 
   // Utilities
-  import { mergeProps, onBeforeUnmount, onMounted, toRef, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -61,9 +61,7 @@
   const context = useComboboxContext(namespace)
   const errors = context.errors
 
-  onMounted(() => {
-    context.hasError.value = true
-  })
+  context.hasError.value = true
 
   onBeforeUnmount(() => {
     context.hasError.value = false

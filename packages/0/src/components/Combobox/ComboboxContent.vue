@@ -7,7 +7,9 @@
  * Dropdown content for the combobox. Uses the popover composable from Root
  * context for native popover API and CSS anchor positioning. Uses manual
  * popover mode to prevent light-dismiss from closing the dropdown when the
- * user clicks the input/activator area. Dismiss is handled via useClickOutside.
+ * user clicks the input/activator area. Pointer dismiss is handled via
+ * useClickOutside as commit-then-close of the query (ignores leftover
+ * virtual focus); Escape still cancels via close() only.
  *
  * Uses `useLazy` to defer slot rendering until the dropdown is first opened.
  */
@@ -24,7 +26,7 @@
   import { useLazy } from '#v0/composables/useLazy'
 
   // Utilities
-  import { toRef, useTemplateRef } from 'vue'
+  import { toRef, toValue, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -40,7 +42,15 @@
     /** Whether the dropdown is open */
     isOpen: boolean
     /** Attributes to bind to the content element */
-    attrs: Record<string, unknown>
+    attrs: {
+      'id': string
+      'role': 'listbox'
+      'aria-labelledby': string
+      'aria-multiselectable': true | undefined
+      'popover': 'manual'
+      'tabindex': -1
+      'style': Record<string, string>
+    }
   }
 </script>
 
@@ -66,12 +76,18 @@
   const { hasContent } = useLazy(context.isOpen, { eager })
 
   // Manual popover mode — dismiss on click outside both content and activator
-  const activator = toRef(() => context.inputEl.value?.closest('[data-state]') as HTMLElement | null)
+  const activator = toRef(() => {
+    const node = context.inputEl.value?.closest('[data-state]')
+    return node instanceof HTMLElement ? node : null
+  })
 
   useClickOutside(
     [() => content.value?.element, activator],
     () => {
-      if (context.isOpen.value) context.close()
+      if (context.isOpen.value) {
+        context.commit()
+        context.close()
+      }
     },
   )
 
@@ -82,7 +98,7 @@
       'id': context.listboxId,
       'role': 'listbox',
       'aria-labelledby': context.inputId,
-      'aria-multiselectable': context.multiple || undefined,
+      'aria-multiselectable': toValue(context.multiple) || undefined,
       'popover': 'manual',
       'tabindex': -1,
       'style': context.popover.contentStyles.value,

@@ -38,9 +38,9 @@ import Root from './ComboboxRoot.vue'
  * ```vue
  * <script lang="ts" setup>
  *   import { Combobox } from '@vuetify/v0'
- *   import { ref } from 'vue'
+ *   import { shallowRef } from 'vue'
  *
- *   const selected = ref()
+ *   const selected = shallowRef()
  *   const items = [
  *     { id: 'apple', label: 'Apple' },
  *     { id: 'banana', label: 'Banana' },
@@ -81,9 +81,9 @@ export const Combobox = {
    * ```vue
    * <script lang="ts" setup>
    *   import { Combobox } from '@vuetify/v0'
-   *   import { ref } from 'vue'
+   *   import { shallowRef } from 'vue'
    *
-   *   const selected = ref()
+   *   const selected = shallowRef()
    * </script>
    *
    * <template>

@@ -742,7 +742,7 @@ describe('combobox', () => {
       await nextTick()
 
       const input = wrapper.find('input')
-      await input.trigger('keydown', { key: 'Home' })
+      await input.trigger('keydown', { key: 'ArrowDown' })
       await nextTick()
       await input.trigger('keydown', { key: 'Enter' })
       await nextTick()
@@ -780,7 +780,7 @@ describe('combobox', () => {
       expect(event.defaultPrevented).toBe(false)
     })
 
-    it('should navigate to first item on Home', async () => {
+    it('should clear list highlight on Home without preventDefault', async () => {
       const { wrapper, open } = await createCombobox()
 
       open()
@@ -788,7 +788,6 @@ describe('combobox', () => {
 
       const input = wrapper.find('input')
 
-      // Navigate to Banana via two ArrowDowns
       await input.trigger('keydown', { key: 'ArrowDown' })
       await nextTick()
       await input.trigger('keydown', { key: 'ArrowDown' })
@@ -797,30 +796,34 @@ describe('combobox', () => {
         .find(item => (item.element as HTMLElement).dataset.highlighted === '')
       expect(atBanana?.text()).toBe('Banana')
 
-      // Home back to first
-      await input.trigger('keydown', { key: 'Home' })
+      const event = new KeyboardEvent('keydown', { key: 'Home', bubbles: true, cancelable: true })
+      input.element.dispatchEvent(event)
       await nextTick()
-      const atStart = wrapper.findAllComponents(Combobox.Item as any)
-        .find(item => (item.element as HTMLElement).dataset.highlighted === '')
 
-      expect(atStart?.text()).toBe('Apple')
+      expect(event.defaultPrevented).toBe(false)
+      const highlighted = wrapper.findAllComponents(Combobox.Item as any)
+        .find(item => (item.element as HTMLElement).dataset.highlighted === '')
+      expect(highlighted).toBeUndefined()
     })
 
-    it('should navigate to last item on End', async () => {
+    it('should clear list highlight on End without preventDefault', async () => {
       const { wrapper, open } = await createCombobox()
 
       open()
       await nextTick()
 
       const input = wrapper.find('input')
-
-      // End goes directly to last item
-      await input.trigger('keydown', { key: 'End' })
+      await input.trigger('keydown', { key: 'ArrowDown' })
       await nextTick()
-      const atEnd = wrapper.findAllComponents(Combobox.Item as any)
-        .find(item => (item.element as HTMLElement).dataset.highlighted === '')
 
-      expect(atEnd?.text()).toBe('Cherry')
+      const event = new KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true })
+      input.element.dispatchEvent(event)
+      await nextTick()
+
+      expect(event.defaultPrevented).toBe(false)
+      const highlighted = wrapper.findAllComponents(Combobox.Item as any)
+        .find(item => (item.element as HTMLElement).dataset.highlighted === '')
+      expect(highlighted).toBeUndefined()
     })
   })
 
@@ -1055,7 +1058,7 @@ describe('combobox', () => {
       await nextTick()
 
       const input = wrapper.find('input')
-      await input.trigger('keydown', { key: 'Home' })
+      await input.trigger('keydown', { key: 'ArrowDown' })
       await nextTick()
       await input.trigger('keydown', { key: 'ArrowDown' })
       await nextTick()
@@ -1146,6 +1149,205 @@ describe('combobox', () => {
 
       expect(selected.value).toEqual(['tag'])
       expect(isOpen()).toBe(false)
+    })
+
+    it('should not unselect a highlighted selected item on Tab in multiple mode', async () => {
+      const selected = ref<string[]>([])
+      const { wrapper, open, isOpen } = await createCombobox({
+        'multiple': true,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string[]
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const items = wrapper.findAllComponents(Combobox.Item as any)
+      await items[0]!.trigger('click')
+      await nextTick()
+      expect(selected.value).toEqual(['Apple'])
+
+      const input = wrapper.find('input')
+
+      const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+      input.element.dispatchEvent(event)
+      await nextTick()
+
+      expect(selected.value).toEqual(['Apple'])
+      expect(isOpen()).toBe(false)
+    })
+
+    it('should show the empty state when the query only matches a committed free-text value', async () => {
+      const selected = ref<string>()
+      const { wrapper, open } = await createCombobox({
+        'strict': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('Durian')
+      await input.trigger('input')
+      await nextTick()
+      await input.trigger('keydown', { key: 'Enter' })
+      await nextTick()
+
+      expect(selected.value).toBe('Durian')
+
+      open()
+      await nextTick()
+
+      await input.setValue('Durian')
+      await input.trigger('input')
+      await nextTick()
+
+      const empty = wrapper.findComponent(Combobox.Empty as any)
+      expect(empty.exists()).toBe(true)
+      expect(empty.text()).toBe('No results')
+    })
+
+    it('should commit unmatched free text on click-outside when not strict', async () => {
+      const selected = ref<string>()
+      const { wrapper, open, isOpen } = await createCombobox({
+        'strict': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('Durian')
+      await input.trigger('input')
+      await nextTick()
+
+      document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+      document.body.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      expect(selected.value).toBe('Durian')
+      expect(isOpen()).toBe(false)
+    })
+
+    it('should discard unmatched free text on click-outside when strict', async () => {
+      const selected = ref<string>()
+      const { wrapper, open, isOpen, query } = await createCombobox({
+        'strict': true,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('Durian')
+      await input.trigger('input')
+      await nextTick()
+
+      document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+      document.body.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      expect(selected.value).toBeUndefined()
+      expect(isOpen()).toBe(false)
+      expect(query()).toBe('')
+    })
+
+    it('should highlight the first registered option on ArrowDown after reopening a free-text commit', async () => {
+      const selected = ref<string>()
+      const { wrapper, open } = await createCombobox({
+        'strict': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('Durian')
+      await input.trigger('input')
+      await nextTick()
+      await input.trigger('keydown', { key: 'Enter' })
+      await nextTick()
+
+      expect(selected.value).toBe('Durian')
+
+      open()
+      await nextTick()
+      await input.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      const highlighted = wrapper.findAllComponents(Combobox.Item as any)
+        .find(item => (item.element as HTMLElement).dataset.highlighted === '')
+      expect(highlighted?.text()).toBe('Apple')
+    })
+
+    it('should commit a tag and close on click-outside in multiple mode', async () => {
+      const selected = ref<string[]>([])
+      const { wrapper, open, isOpen } = await createCombobox({
+        'multiple': true,
+        'strict': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string[]
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('tag')
+      await input.trigger('input')
+      await nextTick()
+
+      document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+      document.body.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      expect(selected.value).toEqual(['tag'])
+      expect(isOpen()).toBe(false)
+    })
+
+    it('should keep the menu open on Enter in multiple mode', async () => {
+      const selected = ref<string[]>([])
+      const { wrapper, open, isOpen } = await createCombobox({
+        'multiple': true,
+        'strict': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string[]
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('tag')
+      await input.trigger('input')
+      await nextTick()
+      await input.trigger('keydown', { key: 'Enter' })
+      await nextTick()
+
+      expect(selected.value).toEqual(['tag'])
+      expect(isOpen()).toBe(true)
     })
   })
 

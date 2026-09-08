@@ -1,11 +1,10 @@
 <script setup lang="ts">
-  import { provide } from 'vue'
   import CountryAutocomplete from './CountryAutocomplete.vue'
-  import { COMBOBOX_KEY, useCountrySearch } from './useCountrySearch'
+  import { useCountrySearch } from './useCountrySearch'
 
-  const { combobox, countries, selected } = useCountrySearch()
+  const { combobox, countries, selected, provideCountryCombobox } = useCountrySearch()
 
-  provide(COMBOBOX_KEY, combobox)
+  provideCountryCombobox(combobox)
 </script>
 
 <template>

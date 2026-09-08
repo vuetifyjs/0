@@ -16,12 +16,15 @@
   // Context
   import { useComboboxContext } from './ComboboxRoot.vue'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
   import { isUndefined } from '#v0/utilities'
-  import { toRef, toValue, useTemplateRef, watchEffect } from 'vue'
+  import { onBeforeUnmount, toRef, toValue, useTemplateRef, watch } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
 
   export interface ComboboxControlProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -49,6 +52,8 @@
       'aria-errormessage': string | undefined
       'aria-invalid': boolean | undefined
       'aria-disabled': boolean
+      'autocomplete': 'off'
+      'data-disabled': true | undefined
       'disabled': boolean | undefined
       'placeholder': string | undefined
       'value': string
@@ -76,9 +81,12 @@
 
   const context = useComboboxContext(namespace)
 
-  const input = useTemplateRef('input')
-  watchEffect(() => {
-    context.inputEl.value = input.value?.element ?? null
+  const atomRef = useTemplateRef<AtomExpose>('input')
+  watch(() => toElement(atomRef.value?.element) ?? null, el => {
+    context.inputEl.value = el instanceof HTMLElement ? el : null
+  }, { immediate: true })
+  onBeforeUnmount(() => {
+    context.inputEl.value = null
   })
 
   function onInput (e: Event) {
@@ -113,7 +121,7 @@
           const highlighted = context.cursor.highlightedId.value
           if (isUndefined(highlighted)) {
             context.commit()
-          } else {
+          } else if (!context.selection.selectedIds.has(highlighted)) {
             context.select(highlighted)
           }
           // Multiple-select commit/select keeps the menu open; close it here so the
@@ -123,18 +131,21 @@
           break
         }
         case 'ArrowDown':
-        case 'ArrowUp':
-        case 'Home':
-        case 'End': {
+        case 'ArrowUp': {
           e.preventDefault()
           if (isUndefined(context.cursor.highlightedId.value)) {
             const selected = context.selection.selectedIds.values().next().value
             if (!isUndefined(selected)) {
               context.cursor.highlight(selected)
-              break
+              if (!isUndefined(context.cursor.highlightedId.value)) break
             }
           }
           context.cursor.onKeydown(e)
+          break
+        }
+        case 'Home':
+        case 'End': {
+          context.cursor.clear()
           break
         }
       }
@@ -167,6 +178,8 @@
       'aria-errormessage': (context.hasError.value && context.errors.value.length > 0) ? context.errorId : undefined,
       'aria-invalid': invalid.value || undefined,
       'aria-disabled': toValue(context.disabled),
+      'autocomplete': 'off',
+      'data-disabled': toValue(context.disabled) || undefined,
       'disabled': toValue(context.disabled) || undefined,
       'placeholder': placeholder,
       'value': context.display.value,

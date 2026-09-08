@@ -93,6 +93,8 @@
     toggle: () => void
     /** Clear query and selection */
     clear: () => void
+    /** Commit typed text (exact match or mint when not strict) */
+    commit: () => void
   }
 
   export const [useComboboxContext, provideComboboxContext] = createContext<ComboboxContext>()
@@ -143,7 +145,7 @@
     displayValue,
   })
 
-  useProxyModel(context.selection, model, { multiple })
+  useProxyModel(context.selection, model, { multiple: toRef(() => multiple) })
 
   provideComboboxContext(namespace, context)
 
@@ -160,6 +162,7 @@
     close: context.close,
     toggle: context.toggle,
     clear: context.clear,
+    commit: context.commit,
   }))
 </script>
 
