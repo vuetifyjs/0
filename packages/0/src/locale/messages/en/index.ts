@@ -60,6 +60,9 @@ export default {
     increment: 'Increment',
     label: 'Number',
   },
+  OverlayPanel: {
+    close: 'Close',
+  },
   Pagination: {
     currentPage: 'Page {page}, current',
     first: 'First page',
