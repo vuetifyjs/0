@@ -11,3 +11,5 @@ locale-driven default accessible name, and auto-renders a hidden input when
 that auto-advances on input, moves back on Backspace of an empty box, supports
 arrow-key movement, and distributes pasted or autofilled text across boxes.
 `onComplete` can reject a code (clears the value and surfaces an error).
+Root slots an `items` array derived from `length` (same pattern as Rating) so
+boxes are iterated once instead of repeating the count in `v-for`.

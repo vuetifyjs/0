@@ -68,16 +68,16 @@ Otp renders a group of single-character boxes. Items expose fill state via data 
 
 <template>
   <Otp.Root
-    v-slot="{ isError, errors, isValidating }"
+    v-slot="{ items, isError, errors, isValidating }"
     v-model="code"
     :length="6"
     :aria-describedby="statusId"
     :on-complete="verify"
   >
     <Otp.Item
-      v-for="i in 6"
-      :key="i"
-      :index="i - 1"
+      v-for="item in items"
+      :key="item.index"
+      :index="item.index"
     />
     <p
       :id="statusId"
@@ -159,15 +159,15 @@ Slot props `isError` and `errors` expose the same rejection state to the templat
 
 ??? How do I render N boxes?
 
-Bind `length` on Root and loop Items with a 0-based `index`:
+Bind `length` on Root and v-for the slot `items` array — same pattern as Rating. Do not write the number twice.
 
 ```vue
 <template>
-  <Otp.Root v-model="code" :length="length">
+  <Otp.Root v-slot="{ items }" v-model="code" :length="length">
     <Otp.Item
-      v-for="i in length"
-      :key="i"
-      :index="i - 1"
+      v-for="item in items"
+      :key="item.index"
+      :index="item.index"
     />
   </Otp.Root>
 </template>
@@ -183,8 +183,12 @@ Set the `name` prop on Root. A hidden input is auto-rendered with the current jo
 
 ```vue
 <template>
-  <Otp.Root v-model="code" name="verification-code" :length="6">
-    <Otp.Item v-for="i in 6" :key="i" :index="i - 1" />
+  <Otp.Root v-slot="{ items }" v-model="code" name="verification-code" :length="6">
+    <Otp.Item
+      v-for="item in items"
+      :key="item.index"
+      :index="item.index"
+    />
   </Otp.Root>
 </template>
 ```
@@ -197,8 +201,12 @@ Pass `pattern` on Root. Presets are `'numeric'` (default), `'alphanumeric'`, and
 
 ```vue
 <template>
-  <Otp.Root v-model="code" pattern="alphanumeric" :length="8">
-    <Otp.Item v-for="i in 8" :key="i" :index="i - 1" />
+  <Otp.Root v-slot="{ items }" v-model="code" pattern="alphanumeric" :length="8">
+    <Otp.Item
+      v-for="item in items"
+      :key="item.index"
+      :index="item.index"
+    />
   </Otp.Root>
 </template>
 ```

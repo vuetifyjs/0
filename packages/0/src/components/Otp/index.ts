@@ -6,7 +6,7 @@ export { default as OtpRoot } from './OtpRoot.vue'
 export { provideOtpRoot, useOtpRoot } from './OtpRoot.vue'
 
 export type { OtpHiddenInputProps } from './OtpHiddenInput.vue'
-export type { OtpItemProps, OtpItemSlotProps, OtpItemState } from './OtpItem.vue'
+export type { OtpItemProps, OtpItemSlotProps } from './OtpItem.vue'
 export type { OtpRootContext, OtpRootExpose, OtpRootProps, OtpRootSlotProps } from './OtpRoot.vue'
 
 // Context
@@ -36,11 +36,11 @@ import Root from './OtpRoot.vue'
  * </script>
  *
  * <template>
- *   <Otp.Root v-model="code" :length="6">
+ *   <Otp.Root v-slot="{ items }" v-model="code" :length="6">
  *     <Otp.Item
- *       v-for="i in 6"
- *       :key="i"
- *       :index="i - 1"
+ *       v-for="item in items"
+ *       :key="item.index"
+ *       :index="item.index"
  *     />
  *   </Otp.Root>
  * </template>
@@ -72,8 +72,12 @@ export const Otp = {
    * </script>
    *
    * <template>
-   *   <Otp.Root v-model="code" :length="6" :on-complete="verify">
-   *     <Otp.Item v-for="i in 6" :key="i" :index="i - 1" />
+   *   <Otp.Root v-slot="{ items }" v-model="code" :length="6" :on-complete="verify">
+   *     <Otp.Item
+   *       v-for="item in items"
+   *       :key="item.index"
+   *       :index="item.index"
+   *     />
    *   </Otp.Root>
    * </template>
    * ```
@@ -130,8 +134,12 @@ export const Otp = {
    * </script>
    *
    * <template>
-   *   <Otp.Root v-model="code" name="verification-code" :length="6">
-   *     <Otp.Item v-for="i in 6" :key="i" :index="i - 1" />
+   *   <Otp.Root v-slot="{ items }" v-model="code" name="verification-code" :length="6">
+   *     <Otp.Item
+   *       v-for="item in items"
+   *       :key="item.index"
+   *       :index="item.index"
+   *     />
    *   </Otp.Root>
    * </template>
    * ```

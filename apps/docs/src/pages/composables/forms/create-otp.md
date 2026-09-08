@@ -80,6 +80,7 @@ Layer 2 orchestrator. Aggregates createInput for validation, dirty tracking, and
 | - | - | :-: | - |
 | `value` | `Readonly<Ref<string>>` | <AppSuccessIcon /> | Joined OTP string. Readonly — mutate via the helpers below. |
 | `length` | `Readonly<Ref<number>>` | <AppSuccessIcon /> | Target character count from the `length` option. |
+| `items` | `ComputedRef<OtpItemDescriptor[]>` | <AppSuccessIcon /> | One descriptor per box (`index`, `value`, `state`). Iterate this instead of `v-for="i in length"`. |
 | `input` | `InputContext<string>` | <AppSuccessIcon /> | Underlying `createInput` surface — ARIA IDs, errors, validation, focus/touched. |
 | `isComplete` | `Readonly<Ref<boolean>>` | <AppSuccessIcon /> | `true` when value reaches `length` and every character passes `accepts`. Fires `onComplete` on the false → true edge. |
 | `write(index, char)` | `(index: number, char: string) => void` | — | Writes one character at `index`. Empty `char` truncates to `value.slice(0, index)` (Backspace mental model). Multi-character `char` is reduced to the first character — use `distribute` for multi-character input. |

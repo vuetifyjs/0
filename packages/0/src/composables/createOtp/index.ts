@@ -34,12 +34,12 @@ import { createInput } from '#v0/composables/createInput'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { clamp, isString, isThenable } from '#v0/utilities'
-import { shallowRef, toRef, toValue, watch } from 'vue'
+import { clamp, isString, isThenable, range } from '#v0/utilities'
+import { computed, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { InputContext, InputOptions } from '#v0/composables/createInput'
-import type { MaybeRefOrGetter, Ref } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
 /**
  * Pattern presets — string literals compile to internal RegExps; arbitrary
@@ -52,6 +52,31 @@ import type { MaybeRefOrGetter, Ref } from 'vue'
  * ```
  */
 export type OtpPattern = 'numeric' | 'alphanumeric' | 'alphabetic' | RegExp
+
+export type OtpItemState = 'filled' | 'empty'
+
+/**
+ * Per-character descriptor for iterating boxes from `length`.
+ *
+ * @example
+ * ```ts
+ * const otp = createOtp({ length: 4 })
+ * otp.items.value[0] // { index: 0, value: '', state: 'empty' }
+ * otp.write(0, '4')
+ * otp.items.value[0] // { index: 0, value: '4', state: 'filled' }
+ * ```
+ */
+export interface OtpItemDescriptor {
+  /** 0-based position */
+  index: number
+  /** Character at this index, or '' when empty */
+  value: string
+  /** Fill state */
+  state: OtpItemState
+}
+
+// Upper bound on generated items; guards against an unbounded allocation from a hostile `length`
+const MAX_LENGTH = 1000
 
 const PRESETS: Record<Exclude<OtpPattern, RegExp>, RegExp> = {
   numeric: /^[0-9]$/,
@@ -120,6 +145,11 @@ export interface OtpContext {
   /** Resolved character count from the `length` option. */
   length: Readonly<Ref<number>>
   /**
+   * One descriptor per box, derived from `length` and `value`.
+   * Iterate this instead of `v-for="i in length"`.
+   */
+  items: ComputedRef<OtpItemDescriptor[]>
+  /**
    * The underlying `createInput` context — exposes ARIA IDs, validation
    * state, focus/touched, and the `validate` / `reset` methods.
    *
@@ -185,6 +215,20 @@ export function createOtp (_options: OtpOptions = {}): OtpContext {
   })
 
   const lengthRef = toRef(() => toValue(length))
+
+  const items = computed<OtpItemDescriptor[]>(() => {
+    const current = value.value
+    const count = clamp(Math.floor(toValue(lengthRef)), 0, MAX_LENGTH)
+
+    return range(count).map(index => {
+      const char = current[index] ?? ''
+      return {
+        index,
+        value: char,
+        state: char === '' ? 'empty' : 'filled',
+      }
+    })
+  })
 
   // Track the last value that triggered onComplete to detect repeated completion edges.
   // Watching isComplete directly misses cycles where value clears then refills within
@@ -345,6 +389,7 @@ export function createOtp (_options: OtpOptions = {}): OtpContext {
   return {
     value,
     length: lengthRef,
+    items,
     input: inputContext,
     isComplete,
     isValidating: isPending,

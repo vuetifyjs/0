@@ -40,9 +40,10 @@ function mountOtp (options: {
   wrapper = mount(Otp.Root as Component, {
     props,
     slots: {
-      default: () => Array.from({ length: options.length ?? 6 }, (_, i) =>
-        h(Otp.Item as Component, { key: i, index: i }),
-      ),
+      default: (slotProps: { items: { index: number }[] }) =>
+        slotProps.items.map(item =>
+          h(Otp.Item as Component, { key: item.index, index: item.index }),
+        ),
     },
     attachTo: document.body,
   })

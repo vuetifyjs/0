@@ -8,11 +8,11 @@
 </script>
 
 <template>
-  <Otp.Root v-model="code" :length="6">
+  <Otp.Root v-slot="{ items }" v-model="code" :length="6">
     <Otp.Item
-      v-for="i in 6"
-      :key="i"
-      :index="i - 1"
+      v-for="item in items"
+      :key="item.index"
+      :index="item.index"
     />
   </Otp.Root>
 </template>

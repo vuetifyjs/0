@@ -28,7 +28,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { OtpContext, OtpPattern } from '#v0/composables/createOtp'
+  import type { OtpContext, OtpItemDescriptor, OtpPattern } from '#v0/composables/createOtp'
   import type { MaybeRefOrGetter, Ref } from 'vue'
 
   export interface OtpRootContext extends OtpContext {
@@ -81,6 +81,8 @@
     value: string
     /** Number of characters */
     length: number
+    /** One descriptor per box — v-for this instead of `i in length` */
+    items: OtpItemDescriptor[]
     /** Whether the value is complete and pattern-valid */
     isComplete: boolean
     /** Whether onComplete rejected the value (`input.isValid === false`) */
@@ -196,6 +198,7 @@
     return {
       value: otp.value.value,
       length: otp.length.value,
+      items: otp.items.value,
       isComplete: otp.isComplete.value,
       isError,
       errors: otp.input.errors.value.map(msg =>

@@ -7,12 +7,12 @@
 
 <template>
   <div class="flex flex-col items-center gap-4">
-    <Otp.Root v-model="code" class="flex gap-2" :length="6">
+    <Otp.Root v-slot="{ items }" v-model="code" class="flex gap-2" :length="6">
       <Otp.Item
-        v-for="i in 6"
-        :key="i"
+        v-for="item in items"
+        :key="item.index"
         class="w-10 h-12 text-center border border-divider rounded text-lg outline-none [&[data-state=filled]]:border-primary"
-        :index="i - 1"
+        :index="item.index"
       />
     </Otp.Root>
 

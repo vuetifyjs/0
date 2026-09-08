@@ -35,8 +35,7 @@
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
-
-  export type OtpItemState = 'filled' | 'empty'
+  import type { OtpItemState } from '#v0/composables/createOtp'
 
   export interface OtpItemProps extends AtomProps {
     /** 0-based position within the OTP value */

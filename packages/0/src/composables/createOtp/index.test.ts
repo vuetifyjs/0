@@ -27,12 +27,53 @@ describe('createOtp', () => {
       expect(typeof otp.clear).toBe('function')
       expect(typeof otp.fill).toBe('function')
       expect(typeof otp.accepts).toBe('function')
+      expect(otp.items.value).toHaveLength(6)
     })
 
     it('should accept an external value ref', () => {
       const value = shallowRef('123')
       const otp = setup({ value })
       expect(otp.value.value).toBe('123')
+    })
+  })
+
+  describe('items', () => {
+    it('should compute 6 empty items by default', () => {
+      const otp = setup()
+
+      expect(otp.items.value).toEqual([
+        { index: 0, value: '', state: 'empty' },
+        { index: 1, value: '', state: 'empty' },
+        { index: 2, value: '', state: 'empty' },
+        { index: 3, value: '', state: 'empty' },
+        { index: 4, value: '', state: 'empty' },
+        { index: 5, value: '', state: 'empty' },
+      ])
+    })
+
+    it('should mark filled items from the joined value', () => {
+      const otp = setup({ length: 4 })
+      otp.write(0, '4')
+      otp.write(1, '2')
+
+      expect(otp.items.value).toEqual([
+        { index: 0, value: '4', state: 'filled' },
+        { index: 1, value: '2', state: 'filled' },
+        { index: 2, value: '', state: 'empty' },
+        { index: 3, value: '', state: 'empty' },
+      ])
+    })
+
+    it('should update items when length changes', () => {
+      const length = shallowRef(4)
+      const otp = setup({ length })
+
+      expect(otp.items.value).toHaveLength(4)
+
+      length.value = 6
+
+      expect(otp.items.value).toHaveLength(6)
+      expect(otp.items.value[5]).toEqual({ index: 5, value: '', state: 'empty' })
     })
   })
 

@@ -43,8 +43,8 @@ function mountOtp (options: {
     slots: {
       default: (slotProps: OtpRootSlotProps) => {
         captured = slotProps
-        return Array.from({ length: options.length ?? 6 }, (_, i) =>
-          h(Otp.Item as any, { key: i, index: i }),
+        return slotProps.items.map(item =>
+          h(Otp.Item as any, { key: item.index, index: item.index }),
         )
       },
     },
@@ -72,6 +72,29 @@ describe('otp', () => {
     it('should render one input per length', () => {
       const { itemEls } = mountOtp({ length: 4 })
       expect(itemEls()).toHaveLength(4)
+    })
+
+    it('should expose items from length on Root slot props', async () => {
+      const { props, wait } = mountOtp({ length: 4 })
+      await wait()
+
+      expect(props().items).toEqual([
+        { index: 0, value: '', state: 'empty' },
+        { index: 1, value: '', state: 'empty' },
+        { index: 2, value: '', state: 'empty' },
+        { index: 3, value: '', state: 'empty' },
+      ])
+    })
+
+    it('should grow items when length changes', async () => {
+      const { wrapper, props, wait } = mountOtp({ length: 4 })
+      await wait()
+
+      await wrapper.setProps({ length: 6 })
+      await wait()
+
+      expect(props().items).toHaveLength(6)
+      expect(props().items[5]).toEqual({ index: 5, value: '', state: 'empty' })
     })
 
     it('should default the aria-label', () => {

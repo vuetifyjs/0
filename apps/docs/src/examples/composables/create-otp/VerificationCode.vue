@@ -43,8 +43,8 @@
 <template>
   <div class="flex gap-2">
     <input
-      v-for="i in otp.length.value"
-      :key="i - 1"
+      v-for="item in otp.items.value"
+      :key="item.index"
       ref="cells"
       autocomplete="one-time-code"
       class="w-11 h-14 text-center tabular-nums text-xl rounded-lg border-2 border-divider bg-surface text-on-surface outline-none focus:border-primary data-[state=rejected]:border-error data-[state=verified]:border-success disabled:opacity-60 transition-colors"
@@ -52,10 +52,10 @@
       :disabled="locked"
       inputmode="numeric"
       maxlength="1"
-      :value="otp.value.value[i - 1] ?? ''"
-      @input="onInput(i - 1, $event)"
-      @keydown="onKeydown(i - 1, $event)"
-      @paste="onPaste(i - 1, $event)"
+      :value="item.value"
+      @input="onInput(item.index, $event)"
+      @keydown="onKeydown(item.index, $event)"
+      @paste="onPaste(item.index, $event)"
     >
   </div>
 </template>
