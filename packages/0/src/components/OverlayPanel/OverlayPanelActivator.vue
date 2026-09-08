@@ -9,8 +9,20 @@
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
+  // Context
+  import { useOverlayPanelContext } from './OverlayPanelRoot.vue'
+
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
+  // Utilities
+  import { onBeforeUnmount, toRef, useTemplateRef, watchEffect } from 'vue'
+
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
 
   export interface OverlayPanelActivatorProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -36,15 +48,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Context
-  import { useOverlayPanelContext } from './OverlayPanelRoot.vue'
-
-  // Utilities
-  import { toRef } from 'vue'
-
   defineOptions({ name: 'OverlayPanelActivator' })
 
   defineSlots<{
@@ -58,6 +61,17 @@
   } = defineProps<OverlayPanelActivatorProps>()
 
   const context = useOverlayPanelContext(namespace)
+
+  const atomRef = useTemplateRef<AtomExpose>('atom')
+  const el = toRef(() => toElement(atomRef.value?.element) ?? null)
+
+  watchEffect(() => {
+    context.activatorEl.value = el.value
+  })
+
+  onBeforeUnmount(() => {
+    context.activatorEl.value = null
+  })
 
   function onClick () {
     context.toggle()
@@ -88,6 +102,7 @@
 
 <template>
   <Atom
+    ref="atom"
     :as
     :renderless
     v-bind="slotProps.attrs"

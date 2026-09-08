@@ -4,19 +4,41 @@
  * @see https://0.vuetifyjs.com/components/disclosure/overlay-panel
  *
  * @remarks
- * Content component for overlay panels. Renders the overlay panel using Portal
- * for teleportation and integrates with useStack for z-index coordination.
+ * Content component for overlay panels. Renders the overlay panel using Teleport
+ * and useStack for teleportation and z-index coordination.
  *
  * Features:
- * - Portal-based rendering with configurable teleport target
+ * - Teleport-based rendering with configurable teleport target
  * - Z-index coordination via useStack
  * - Escape key dismissal via useHotkey
  * - Click-outside dismissal via useClickOutside
- * - Focus return to activator on close
+ * - Focus returns to the previously focused element except on pointer light-dismiss
  * - Position-agnostic (consumer applies positioning)
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
+  // Context
+  import { useOverlayPanelContext } from './OverlayPanelRoot.vue'
+
+  // Composables
+  import { useClickOutside } from '#v0/composables/useClickOutside'
+  import { useHotkey } from '#v0/composables/useHotkey'
+  import { useStack } from '#v0/composables/useStack'
+  import { useToggleScope } from '#v0/composables/useToggleScope'
+
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
+  // Globals
+  import { IN_BROWSER } from '#v0/constants/globals'
+
+  // Utilities
+  import { getActiveElement } from '#v0/utilities'
+  import { mergeProps, nextTick, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { Extensible } from '#v0/types'
@@ -57,28 +79,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Context
-  import { useOverlayPanelContext } from './OverlayPanelRoot.vue'
-
-  // Composables
-  import { useClickOutside } from '#v0/composables/useClickOutside'
-  import { useHotkey } from '#v0/composables/useHotkey'
-  import { useStack } from '#v0/composables/useStack'
-  import { useToggleScope } from '#v0/composables/useToggleScope'
-
-  // Transformers
-  import { toElement } from '#v0/composables/toElement'
-
-  // Globals
-  import { IN_BROWSER } from '#v0/constants/globals'
-
-  // Utilities
-  import { getActiveElement } from '#v0/utilities'
-  import { mergeProps, nextTick, toRef, useAttrs, useTemplateRef, watch } from 'vue'
-
   defineOptions({ name: 'OverlayPanelContent', inheritAttrs: false })
 
   defineSlots<{
@@ -103,6 +103,7 @@
   const contentRef = useTemplateRef<AtomExpose>('content')
   const el = toRef(() => toElement(contentRef.value?.element) ?? null)
   let previousActiveElement: Element | null = null
+  let skipRestore = false
 
   const stack = useStack()
   const ticket = stack.register({
@@ -124,10 +125,15 @@
   watch(context.isOpen, async isOpen => {
     if (!IN_BROWSER) return
     if (isOpen) {
+      skipRestore = false
       await nextTick()
       if (el.value instanceof HTMLElement) {
         el.value.focus()
       }
+      return
+    }
+    if (skipRestore) {
+      skipRestore = false
       return
     }
     const restore = previousActiveElement
@@ -137,24 +143,33 @@
     }
   }, { flush: 'post', immediate: true })
 
+  function onClickOutside () {
+    if (!ticket.globalTop.value) return
+    if (blocking) return
+    skipRestore = true
+    context.close()
+  }
+
   useToggleScope(
     () => closeOnClickOutside && context.isOpen.value,
     () => {
       useClickOutside(
-        () => el.value instanceof HTMLElement ? el.value : null,
-        () => context.close(),
+        [
+          () => el.value instanceof HTMLElement ? el.value : null,
+          () => context.activatorEl.value instanceof HTMLElement ? context.activatorEl.value : null,
+        ],
+        onClickOutside,
+        { ignore: IN_BROWSER ? [`[aria-controls="${CSS.escape(context.id)}"]`] : [] },
       )
     },
   )
 
   useToggleScope(
-    () => closeOnEscape && context.isOpen.value,
+    () => closeOnEscape && context.isOpen.value && ticket.globalTop.value,
     () => {
       useHotkey('escape', () => {
-        if (ticket.globalTop.value) {
-          context.close()
-        }
-      })
+        context.close()
+      }, { inputs: true })
     },
   )
 

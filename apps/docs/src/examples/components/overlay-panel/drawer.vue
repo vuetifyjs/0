@@ -10,17 +10,18 @@
       </OverlayPanel.Activator>
 
       <OverlayPanel.Content
-        aria-label="Side drawer"
-        class="fixed top-0 right-0 h-full w-80 bg-surface border-l border-divider shadow-lg transform transition-transform"
+        aria-labelledby="overlay-panel-drawer-title"
+        class="fixed top-0 end-0 h-full w-80 bg-surface border-s border-divider shadow-lg"
         scrim
       >
         <div class="px-4 py-3 border-b border-divider flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-on-surface">
+          <h3 id="overlay-panel-drawer-title" class="text-lg font-semibold text-on-surface">
             Side Drawer
           </h3>
 
           <OverlayPanel.Close class="p-1 rounded hover:bg-surface-tint text-on-surface-variant">
             <svg
+              aria-hidden="true"
               fill="none"
               height="20"
               stroke="currentColor"
@@ -39,8 +40,8 @@
 
         <div class="p-4 space-y-4">
           <p class="text-sm text-on-surface leading-relaxed">
-            This drawer slides in from the right side. Position is controlled entirely by CSS — OverlayPanel
-            handles the portal, z-index, and dismissal behaviors.
+            This drawer docks to the inline end. Position is controlled entirely by CSS — OverlayPanel
+            handles teleport, z-index, and dismissal.
           </p>
 
           <nav class="space-y-1">

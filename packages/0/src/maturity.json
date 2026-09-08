@@ -692,7 +692,7 @@
       "level": "preview",
       "since": null,
       "category": "disclosure",
-      "description": "Position-agnostic, non-modal floating overlay primitive with portal, z-index stacking, focus return, escape dismissal, and click-outside behavior."
+      "description": "Position-agnostic, non-modal floating overlay primitive with teleport, z-index stacking, focus return, escape dismissal, and click-outside behavior."
     },
     "Pagination": {
       "level": "preview",
