@@ -10,6 +10,7 @@ locale-driven default accessible name, and auto-renders a hidden input when
 `name` is set. Each Item is a single character box (`autocomplete="one-time-code"`)
 that auto-advances on input, moves back on Backspace of an empty box, supports
 arrow-key movement, and distributes pasted or autofilled text across boxes.
-`onComplete` can reject a code (clears the value and surfaces an error).
+`@complete` fires when the code fills. Reject-and-retry lives on `createOtp`'s
+`onComplete` option.
 Root slots an `items` array derived from `length` (same pattern as Rating) so
 boxes are iterated once instead of repeating the count in `v-for`.

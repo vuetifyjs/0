@@ -20,6 +20,7 @@ afterEach(() => {
 
 function mountOtp (options: {
   props?: Record<string, unknown>
+  attrs?: Record<string, unknown>
   model?: ReturnType<typeof ref<string>>
   length?: number
 } = {}) {
@@ -40,6 +41,7 @@ function mountOtp (options: {
 
   wrapper = mount(Otp.Root, {
     props,
+    attrs: options.attrs,
     slots: {
       default: (slotProps: OtpRootSlotProps) => {
         captured = slotProps
@@ -575,7 +577,7 @@ describe('otp', () => {
     })
   })
 
-  describe('onComplete', () => {
+  describe('complete', () => {
     it('should mark data-complete when the value reaches length', async () => {
       const model = ref('12345')
       const { groupEl, itemEls, wait } = mountOtp({ model, length: 6 })
@@ -587,10 +589,10 @@ describe('otp', () => {
       expect(groupEl().attributes('data-complete')).toBe('true')
     })
 
-    it('should call onComplete once with the joined value', async () => {
+    it('should emit complete once with the joined value', async () => {
       const onComplete = vi.fn()
       const model = ref('')
-      const { itemEls, wait } = mountOtp({ model, length: 2, props: { onComplete } })
+      const { wrapper, itemEls, wait } = mountOtp({ model, length: 2, attrs: { onComplete } })
       await wait()
 
       await itemEls()[0]!.setValue('1')
@@ -600,12 +602,13 @@ describe('otp', () => {
 
       expect(onComplete).toHaveBeenCalledTimes(1)
       expect(onComplete).toHaveBeenCalledWith('12')
+      expect(wrapper.emitted('complete')).toEqual([['12']])
     })
 
-    it('should call onComplete again after clearing and refilling', async () => {
+    it('should emit complete again after clearing and refilling', async () => {
       const onComplete = vi.fn()
       const model = ref('1')
-      const { itemEls, wait } = mountOtp({ model, length: 2, props: { onComplete } })
+      const { itemEls, wait } = mountOtp({ model, length: 2, attrs: { onComplete } })
       await wait()
 
       await itemEls()[1]!.setValue('2')
@@ -621,111 +624,12 @@ describe('otp', () => {
       expect(onComplete).toHaveBeenLastCalledWith('13')
     })
 
-    it('should mark aria-busy while an async onComplete is pending', async () => {
-      let resolve!: (value: boolean) => void
-      const pending = new Promise<boolean>(r => {
-        resolve = r
-      })
-      const model = ref('1')
-      const { groupEl, itemEls, wait } = mountOtp({
-        model,
-        length: 2,
-        props: { onComplete: () => pending },
-      })
-      await wait()
-
-      await itemEls()[1]!.setValue('2')
-      await wait()
-
-      expect(groupEl().attributes('aria-busy')).toBe('true')
-
-      resolve(true)
-      await wait()
-      await wait()
-
-      expect(groupEl().attributes('aria-busy')).toBeUndefined()
-    })
-
-    it('should revert a keystroke while an async onComplete is pending', async () => {
-      let resolve!: (value: boolean) => void
-      const pending = new Promise<boolean>(r => {
-        resolve = r
-      })
-      const model = ref('1')
-      const { itemEls, wait } = mountOtp({
-        model,
-        length: 2,
-        props: { onComplete: () => pending },
-      })
-      await wait()
-
-      await itemEls()[1]!.setValue('2')
-      await wait()
-
-      await itemEls()[0]!.setValue('9')
-      await wait()
-
-      expect(model.value).toBe('12')
-      expect((itemEls()[0]!.element as HTMLInputElement).value).toBe('1')
-
-      const first = itemEls()[0]!.element as HTMLInputElement
-      first.focus()
-      const before = new InputEvent('beforeinput', { data: '9', bubbles: true, cancelable: true })
-      first.dispatchEvent(before)
-      await wait()
-
-      expect(before.defaultPrevented).toBe(true)
-      expect(model.value).toBe('12')
-      expect(document.activeElement).toBe(first)
-
-      const second = itemEls()[1]!.element as HTMLInputElement
-      second.value = ''
-      second.focus()
-      const backspace = new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true, cancelable: true })
-      second.dispatchEvent(backspace)
-      await wait()
-
-      expect(backspace.defaultPrevented).toBe(true)
-      expect(model.value).toBe('12')
-      expect(document.activeElement).toBe(second)
-
-      resolve(true)
-      await wait()
-    })
-
-    it('should still move focus with arrow keys while an async onComplete is pending', async () => {
-      let resolve!: (value: boolean) => void
-      const pending = new Promise<boolean>(r => {
-        resolve = r
-      })
-      const model = ref('1')
-      const { itemEls, wait } = mountOtp({
-        model,
-        length: 2,
-        props: { onComplete: () => pending },
-      })
-      await wait()
-
-      await itemEls()[1]!.setValue('2')
-      await wait()
-
-      const first = itemEls()[0]!.element as HTMLInputElement
-      first.focus()
-      await itemEls()[0]!.trigger('keydown', { key: 'ArrowRight' })
-      await wait()
-
-      expect(document.activeElement).toBe(itemEls()[1]!.element)
-
-      resolve(true)
-      await wait()
-    })
-
-    it('should reject and clear when onComplete resolves false', async () => {
+    it('should ignore a false return from complete', async () => {
       const model = ref('')
       const { itemEls, wait } = mountOtp({
         model,
         length: 2,
-        props: { onComplete: () => false },
+        attrs: { onComplete: () => false },
       })
       await wait()
 
@@ -734,28 +638,7 @@ describe('otp', () => {
       await itemEls()[1]!.setValue('2')
       await wait()
 
-      expect(model.value).toBe('')
-    })
-
-    it('should surface a rejected onComplete on the group', async () => {
-      const model = ref('')
-      const { groupEl, itemEls, props, wait } = mountOtp({
-        model,
-        length: 2,
-        props: { onComplete: () => false },
-      })
-      await wait()
-
-      await itemEls()[0]!.setValue('1')
-      await wait()
-      await itemEls()[1]!.setValue('2')
-      await wait()
-
-      expect(groupEl().attributes('aria-invalid')).toBe('true')
-      expect(groupEl().attributes('data-error')).toBeDefined()
-      expect(itemEls()[0]!.attributes('aria-invalid')).toBe('true')
-      expect(props().isError).toBe(true)
-      expect(props().errors).toContain('Invalid code')
+      expect(model.value).toBe('12')
     })
   })
 

@@ -67,13 +67,14 @@
     ariaDescribedby?: string
     /** Form field name — triggers hidden input */
     name?: string
-    /**
-     * Fire when the joined value first reaches `length`. Decisional —
-     * return / resolve `false` to reject (clears value, sets error).
-     */
-    onComplete?: (value: string) => boolean | void | PromiseLike<boolean | void>
     /** Namespace for context provision */
     namespace?: string
+  }
+
+  export type OtpRootEmits = {
+    'update:model-value': [value: string]
+    /** Joined value first reached `length`. Observational — return values are ignored. */
+    'complete': [value: string]
   }
 
   export interface OtpRootSlotProps {
@@ -85,11 +86,11 @@
     items: OtpItemDescriptor[]
     /** Whether the value is complete and pattern-valid */
     isComplete: boolean
-    /** Whether onComplete rejected the value (`input.isValid === false`) */
+    /** Whether createOtp rejected the value (`input.isValid === false`) */
     isError: boolean
     /** Current validation messages from the underlying input */
     errors: string[]
-    /** Whether an async onComplete is in flight */
+    /** Whether an async createOtp onComplete is in flight */
     isValidating: boolean
     /** Whether the field is disabled */
     isDisabled: boolean
@@ -139,15 +140,12 @@
     ariaLabelledby,
     ariaDescribedby,
     name,
-    onComplete,
     namespace = 'v0:otp:root',
   } = defineProps<OtpRootProps>()
 
   const model = defineModel<string>({ default: '' })
 
-  defineEmits<{
-    'update:model-value': [value: string]
-  }>()
+  const emit = defineEmits<OtpRootEmits>()
 
   const otp = createOtp({
     value: model,
@@ -157,7 +155,9 @@
     pattern: toRef(() => pattern),
     disabled: () => toValue(disabled),
     readonly: () => toValue(_readonly),
-    onComplete,
+    onComplete: value => {
+      emit('complete', value)
+    },
   })
 
   const itemEls = new Map<number, Element>()

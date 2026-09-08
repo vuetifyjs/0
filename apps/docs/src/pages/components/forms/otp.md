@@ -2,7 +2,7 @@
 title: Otp - One-Time Password Input
 meta:
 - name: description
-  content: Headless one-time-password and verification-code boxes with auto-advance, paste distribution, pattern-gated entry, and a decisional completion hook for Vue 3.
+  content: Headless one-time-password and verification-code boxes with auto-advance, paste distribution, pattern-gated entry, and an observational complete event for Vue 3.
 - name: keywords
   content: otp, one-time password, verification code, pin input, Vue 3, headless, accessible
 features:
@@ -18,7 +18,7 @@ related:
 
 # Otp
 
-Headless one-time-password and verification-code boxes with auto-advance, paste distribution, and a decisional completion hook.
+Headless one-time-password and verification-code boxes with auto-advance, paste distribution, and an observational complete event.
 
 <DocsPageFeatures :frontmatter />
 
@@ -48,9 +48,9 @@ Otp renders a group of single-character boxes. Items expose fill state via data 
 
 ## Recipes
 
-### Verifying the code
+### Completion
 
-`onComplete` fires once when the joined value first reaches `length` with every character passing the pattern. Return or resolve `false` to reject — the value clears and Root surfaces the error via `isError`, `errors`, `aria-invalid`, and `data-error`. The next successful mutation clears the error automatically. While an async check is in flight, `isValidating` is true, mutations no-op, and Root sets `aria-busy`.
+`@complete` fires once when the joined value first reaches `length` with every character passing the pattern. It is observational — return values are ignored, same as Form `@submit` and Portal `@close`. For reject-and-retry (clear on invalid code, lock while a request is in flight), use [createOtp](/composables/forms/create-otp) and its `onComplete` option.
 
 ```vue
 <script setup lang="ts">
@@ -58,39 +58,27 @@ Otp renders a group of single-character boxes. Items expose fill state via data 
   import { shallowRef } from 'vue'
 
   const code = shallowRef('')
-  const statusId = 'otp-status'
 
-  async function verify (value: string) {
-    const res = await fetch('/verify', { method: 'POST', body: value })
-    return res.ok
+  function verify (value: string) {
+    void fetch('/verify', { method: 'POST', body: value })
   }
 </script>
 
 <template>
   <Otp.Root
-    v-slot="{ items, isError, errors, isValidating }"
+    v-slot="{ items }"
     v-model="code"
     :length="6"
-    :aria-describedby="statusId"
-    :on-complete="verify"
+    @complete="verify"
   >
     <Otp.Item
       v-for="item in items"
       :key="item.index"
       :index="item.index"
     />
-    <p
-      :id="statusId"
-      aria-live="polite"
-    >
-      <template v-if="isValidating">Verifying…</template>
-      <template v-else-if="isError">{{ errors[0] }}</template>
-    </p>
   </Otp.Root>
 </template>
 ```
-
-See [createOtp](/composables/forms/create-otp) for the completion edge, lock window, and reject-and-retry contract.
 
 ## Accessibility
 
@@ -118,21 +106,16 @@ Otp.Root is a `role="group"` with a locale-driven default accessible name. Each 
 | `aria-labelledby` | When `ariaLabelledby` is set (replaces `aria-label`) |
 | `aria-describedby` | When `ariaDescribedby` is set |
 | `aria-disabled` | `true` when disabled |
-| `aria-busy` | `true` while an async `onComplete` is in flight |
-| `aria-invalid` | `true` when `onComplete` has rejected (or another error is present) |
 
 **Item:**
 
 | Attribute | Value |
 |-----------|-------|
 | `aria-label` | Locale default, e.g. "Digit 1 of 6" |
-| `aria-invalid` | `true` when `onComplete` has rejected (omitted when valid) |
 | `aria-describedby` | Same id as Root when `ariaDescribedby` is set |
 | `autocomplete` | `one-time-code` |
 | `inputmode` | `numeric` when `pattern` is `'numeric'`, otherwise `text` |
 | `maxlength` | `1` |
-
-Slot props `isError` and `errors` expose the same rejection state to the template so you can render a message next to the group.
 
 ### Data Attributes
 
@@ -143,7 +126,6 @@ Slot props `isError` and `errors` expose the same rejection state to the templat
 | `data-disabled` | Present when disabled |
 | `data-readonly` | Present when readonly |
 | `data-complete` | Present when the value is complete and pattern-valid |
-| `data-error` | Present when an error is surfaced (rejected `onComplete`) |
 
 **Item:**
 
@@ -173,9 +155,9 @@ Bind `length` on Root and v-for the slot `items` array — same pattern as Ratin
 </template>
 ```
 
-??? What happens when onComplete rejects?
+??? How do I reject an invalid code?
 
-Return or resolve `false` (a thrown error or rejected promise is treated the same). The joined value clears, Root sets `isError` / `errors`, and emits `aria-invalid` plus `data-error`. The next successful mutation clears the error so the user can retry. While an async check is pending, `isValidating` is true and further writes no-op.
+`@complete` does not reject — Vue events are observational. Pass `onComplete` to [createOtp](/composables/forms/create-otp) and return or resolve `false`. That path clears the value, sets `input.errors`, and locks mutations while an async check is in flight.
 
 ??? How does form submission work?
 

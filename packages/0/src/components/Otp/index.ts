@@ -7,7 +7,7 @@ export { provideOtpRoot, useOtpRoot } from './OtpRoot.vue'
 
 export type { OtpHiddenInputProps } from './OtpHiddenInput.vue'
 export type { OtpItemProps, OtpItemSlotProps } from './OtpItem.vue'
-export type { OtpRootContext, OtpRootExpose, OtpRootProps, OtpRootSlotProps } from './OtpRoot.vue'
+export type { OtpRootContext, OtpRootEmits, OtpRootExpose, OtpRootProps, OtpRootSlotProps } from './OtpRoot.vue'
 
 // Context
 import HiddenInput from './OtpHiddenInput.vue'
@@ -21,7 +21,7 @@ import Root from './OtpRoot.vue'
  * Provides a headless, accessible OTP field with auto-advance on input,
  * backspace-back and arrow-key navigation between boxes, paste
  * distribution across boxes, per-character pattern matching, and a
- * decisional async `onComplete` hook. Uses `createOtp` internally for
+ * `@complete` event when the value fills. Uses `createOtp` internally for
  * value management.
  *
  * @see https://0.vuetifyjs.com/components/forms/otp
@@ -65,14 +65,13 @@ export const Otp = {
    *
    *   const code = shallowRef('')
    *
-   *   const verify = async (value: string) => {
-   *     const res = await fetch('/verify', { method: 'POST', body: value })
-   *     return res.ok
+   *   function verify (value: string) {
+   *     void fetch('/verify', { method: 'POST', body: value })
    *   }
    * </script>
    *
    * <template>
-   *   <Otp.Root v-slot="{ items }" v-model="code" :length="6" :on-complete="verify">
+   *   <Otp.Root v-slot="{ items }" v-model="code" :length="6" @complete="verify">
    *     <Otp.Item
    *       v-for="item in items"
    *       :key="item.index"
