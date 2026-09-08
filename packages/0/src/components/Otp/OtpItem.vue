@@ -8,6 +8,13 @@
  * renders its character from `value[index]`, and handles auto-advance
  * on input, backspace-back navigation, arrow-key movement between
  * boxes, and paste distribution across siblings starting at this box.
+ *
+ * In renderless mode Atom does not mount an element, so this Item never
+ * registers a focus target by itself. The consumer must call
+ * `registerItemEl(index, el)` (via `useOtpRoot`) with the real input;
+ * otherwise auto-advance, arrow, and paste-focus no-op. `onFocus`
+ * registers `e.target` as a best-effort for the focused box when slot
+ * attrs are spread onto the input.
  */
 
 <script lang="ts">
@@ -57,6 +64,8 @@
       'disabled': true | undefined
       'readonly': true | undefined
       'aria-label': string
+      'aria-invalid': true | undefined
+      'aria-describedby': string | undefined
       'data-state': OtpItemState
       'data-disabled': true | undefined
       'data-readonly': true | undefined
@@ -64,6 +73,7 @@
       'onInput': (e: Event) => void
       'onKeydown': (e: KeyboardEvent) => void
       'onPaste': (e: ClipboardEvent) => void
+      'onFocus': (e: FocusEvent) => void
     }
   }
 </script>
@@ -103,8 +113,19 @@
 
   function onBeforeinput (e: InputEvent) {
     if (root.isDisabled.value || root.isReadonly.value) return
+    if (root.isValidating.value) {
+      e.preventDefault()
+      return
+    }
     if (!e.data || e.data.length !== 1) return
-    if (!root.accepts(e.data)) e.preventDefault()
+    if (!root.accepts(e.data)) {
+      e.preventDefault()
+      return
+    }
+    e.preventDefault()
+    const at = Math.min(index, root.value.value.length)
+    root.write(at, e.data)
+    root.focusItem(at + 1)
   }
 
   function onInput (e: Event) {
@@ -122,6 +143,15 @@
       return
     }
 
+    if (text.length > 1) {
+      const previous = root.value.value.length
+      const written = root.distribute(text, index)
+      if (written > 0) root.focusItem(Math.min(index, previous) + written)
+      // Vue skips the patch when this box's model char didn't change.
+      target.value = char.value
+      return
+    }
+
     const entered = text.at(-1)!
 
     if (!root.accepts(entered)) {
@@ -131,22 +161,20 @@
       return
     }
 
-    root.write(index, entered)
-    root.focusItem(index + 1)
+    const at = Math.min(index, root.value.value.length)
+    root.write(at, entered)
+    root.focusItem(at + 1)
+    target.value = char.value
+  }
+
+  function onFocus (e: FocusEvent) {
+    const target = e.target as HTMLInputElement
+    root.registerItemEl(index, target)
+    target.select()
   }
 
   function onKeydown (e: KeyboardEvent) {
     if (root.isDisabled.value || root.isReadonly.value) return
-
-    if (e.key === 'Backspace') {
-      const target = e.target as HTMLInputElement
-      if (target.value === '') {
-        e.preventDefault()
-        root.write(index - 1, '')
-        root.focusItem(index - 1)
-      }
-      return
-    }
 
     if (e.key === 'ArrowLeft') {
       e.preventDefault()
@@ -157,6 +185,21 @@
     if (e.key === 'ArrowRight') {
       e.preventDefault()
       root.focusItem(index + 1)
+      return
+    }
+
+    if (root.isValidating.value) {
+      if (e.key === 'Backspace') e.preventDefault()
+      return
+    }
+
+    if (e.key === 'Backspace') {
+      const target = e.target as HTMLInputElement
+      if (target.value === '') {
+        e.preventDefault()
+        root.write(index - 1, '')
+        root.focusItem(index - 1)
+      }
     }
   }
 
@@ -164,12 +207,9 @@
     if (root.isDisabled.value || root.isReadonly.value) return
     e.preventDefault()
     const text = e.clipboardData?.getData('text') ?? ''
+    const previous = root.value.value.length
     const written = root.distribute(text, index)
-    // distribute splices at min(value.length, index), so the next empty box
-    // sits at that start plus the written count — `index + written` would
-    // overshoot when the paste lands before `index` on a shorter value.
-    // Computed from the pre-write value: the model ref may update async.
-    if (written > 0) root.focusItem(Math.min(root.value.value.length, index) + written)
+    if (written > 0) root.focusItem(Math.min(index, previous) + written)
   }
 
   const slotProps = toRef((): OtpItemSlotProps => ({
@@ -186,6 +226,8 @@
       'disabled': root.isDisabled.value || undefined,
       'readonly': root.isReadonly.value || undefined,
       'aria-label': locale.ti('Otp.itemLabel', { index: index + 1, length: root.length.value }) ?? `Digit ${index + 1} of ${root.length.value}`,
+      'aria-invalid': root.input.isValid.value === false || undefined,
+      'aria-describedby': root.ariaDescribedby.value || undefined,
       'data-state': state.value,
       'data-disabled': root.isDisabled.value ? true : undefined,
       'data-readonly': root.isReadonly.value ? true : undefined,
@@ -193,6 +235,7 @@
       'onInput': onInput,
       'onKeydown': onKeydown,
       'onPaste': onPaste,
+      'onFocus': onFocus,
     },
   }))
 </script>

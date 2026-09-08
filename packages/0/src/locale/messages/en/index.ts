@@ -55,6 +55,7 @@ export default {
     label: 'Number',
   },
   Otp: {
+    invalid: 'Invalid code',
     itemLabel: 'Digit {index} of {length}',
     label: 'Verification code',
   },

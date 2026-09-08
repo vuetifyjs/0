@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { Otp } from './index'
 
@@ -7,7 +7,16 @@ import { mount } from '@vue/test-utils'
 import { h, nextTick, ref } from 'vue'
 
 // Types
+import type { OtpRootSlotProps } from './index'
 import type { VueWrapper } from '@vue/test-utils'
+
+const wrappers: VueWrapper[] = []
+
+afterEach(() => {
+  while (wrappers.length > 0) {
+    wrappers.pop()!.unmount()
+  }
+})
 
 function mountOtp (options: {
   props?: Record<string, unknown>
@@ -15,6 +24,7 @@ function mountOtp (options: {
   length?: number
 } = {}) {
   let wrapper: VueWrapper
+  let captured: OtpRootSlotProps
 
   const props: Record<string, unknown> = {
     ...(options.model && {
@@ -31,15 +41,21 @@ function mountOtp (options: {
   wrapper = mount(Otp.Root, {
     props,
     slots: {
-      default: () => Array.from({ length: options.length ?? 6 }, (_, i) =>
-        h(Otp.Item as any, { key: i, index: i }),
-      ),
+      default: (slotProps: OtpRootSlotProps) => {
+        captured = slotProps
+        return Array.from({ length: options.length ?? 6 }, (_, i) =>
+          h(Otp.Item as any, { key: i, index: i }),
+        )
+      },
     },
     attachTo: document.body,
   })
 
+  wrappers.push(wrapper)
+
   return {
     wrapper,
+    props: () => captured,
     groupEl: () => wrapper.find('[role="group"]'),
     itemEls: () => wrapper.findAll('input'),
     wait: () => nextTick(),
@@ -74,6 +90,12 @@ describe('otp', () => {
       expect(groupEl().attributes('aria-labelledby')).toBe('code-heading')
     })
 
+    it('should set aria-describedby on the group and items', () => {
+      const { groupEl, itemEls } = mountOtp({ props: { ariaDescribedby: 'otp-status' } })
+      expect(groupEl().attributes('aria-describedby')).toBe('otp-status')
+      expect(itemEls()[0]!.attributes('aria-describedby')).toBe('otp-status')
+    })
+
     it('should label each item with its position', () => {
       const { itemEls } = mountOtp({ length: 3 })
       const labels = itemEls().map(el => el.attributes('aria-label'))
@@ -101,6 +123,35 @@ describe('otp', () => {
 
       expect(model.value).toBe('4')
       expect(document.activeElement).toBe(itemEls()[1]!.element)
+    })
+
+    it('should write a later-box keystroke at the compact-string slot and focus the next empty', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 6 })
+      await wait()
+
+      const input = itemEls()[3]!.element as HTMLInputElement
+      input.focus()
+      const event = new InputEvent('beforeinput', { data: '7', bubbles: true, cancelable: true })
+      input.dispatchEvent(event)
+      await wait()
+
+      expect(model.value).toBe('7')
+      expect(document.activeElement).toBe(itemEls()[1]!.element)
+      expect((itemEls()[3]!.element as HTMLInputElement).value).toBe('')
+    })
+
+    it('should revert a later-box input DOM value when the write lands at the compact-string slot', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 6 })
+      await wait()
+
+      await itemEls()[3]!.setValue('7')
+      await wait()
+
+      expect(model.value).toBe('7')
+      expect(document.activeElement).toBe(itemEls()[1]!.element)
+      expect((itemEls()[3]!.element as HTMLInputElement).value).toBe('')
     })
 
     it('should ignore a character the pattern rejects', async () => {
@@ -138,7 +189,7 @@ describe('otp', () => {
       expect(event.defaultPrevented).toBe(true)
     })
 
-    it('should allow an accepted keystroke via beforeinput', async () => {
+    it('should take over an accepted keystroke via beforeinput', async () => {
       const { itemEls, wait } = mountOtp({ length: 3 })
       await wait()
 
@@ -148,7 +199,50 @@ describe('otp', () => {
       Object.defineProperty(event, 'target', { value: input })
       input.dispatchEvent(event)
 
-      expect(event.defaultPrevented).toBe(false)
+      expect(event.defaultPrevented).toBe(true)
+    })
+
+    it('should overwrite a filled cell via beforeinput without backspace', async () => {
+      const model = ref('1')
+      const { itemEls, wait } = mountOtp({ model, length: 3 })
+      await wait()
+
+      const input = itemEls()[0]!.element as HTMLInputElement
+      input.focus()
+      const event = new InputEvent('beforeinput', { data: '9', bubbles: true, cancelable: true })
+      input.dispatchEvent(event)
+      await wait()
+
+      expect(model.value.startsWith('9')).toBe(true)
+      expect(document.activeElement).toBe(itemEls()[1]!.element)
+    })
+
+    it('should distribute a multi-character input event across boxes', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 4 })
+      await wait()
+
+      const input = itemEls()[0]!.element as HTMLInputElement
+      input.value = '1234'
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+      await wait()
+
+      expect(model.value).toBe('1234')
+      expect(document.activeElement).toBe(itemEls()[3]!.element)
+    })
+
+    it('should revert the box DOM value after a multi-character input that leaves this box unchanged', async () => {
+      const model = ref('4')
+      const { itemEls, wait } = mountOtp({ model, length: 6 })
+      await wait()
+
+      const input = itemEls()[0]!.element as HTMLInputElement
+      input.value = '424242'
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+      await wait()
+
+      expect(model.value).toBe('424242')
+      expect((itemEls()[0]!.element as HTMLInputElement).value).toBe('4')
     })
 
     it('should ignore multi-character beforeinput data', async () => {
@@ -551,6 +645,54 @@ describe('otp', () => {
       expect(model.value).toBe('12')
       expect((itemEls()[0]!.element as HTMLInputElement).value).toBe('1')
 
+      const first = itemEls()[0]!.element as HTMLInputElement
+      first.focus()
+      const before = new InputEvent('beforeinput', { data: '9', bubbles: true, cancelable: true })
+      first.dispatchEvent(before)
+      await wait()
+
+      expect(before.defaultPrevented).toBe(true)
+      expect(model.value).toBe('12')
+      expect(document.activeElement).toBe(first)
+
+      const second = itemEls()[1]!.element as HTMLInputElement
+      second.value = ''
+      second.focus()
+      const backspace = new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true, cancelable: true })
+      second.dispatchEvent(backspace)
+      await wait()
+
+      expect(backspace.defaultPrevented).toBe(true)
+      expect(model.value).toBe('12')
+      expect(document.activeElement).toBe(second)
+
+      resolve(true)
+      await wait()
+    })
+
+    it('should still move focus with arrow keys while an async onComplete is pending', async () => {
+      let resolve!: (value: boolean) => void
+      const pending = new Promise<boolean>(r => {
+        resolve = r
+      })
+      const model = ref('1')
+      const { itemEls, wait } = mountOtp({
+        model,
+        length: 2,
+        props: { onComplete: () => pending },
+      })
+      await wait()
+
+      await itemEls()[1]!.setValue('2')
+      await wait()
+
+      const first = itemEls()[0]!.element as HTMLInputElement
+      first.focus()
+      await itemEls()[0]!.trigger('keydown', { key: 'ArrowRight' })
+      await wait()
+
+      expect(document.activeElement).toBe(itemEls()[1]!.element)
+
       resolve(true)
       await wait()
     })
@@ -570,6 +712,27 @@ describe('otp', () => {
       await wait()
 
       expect(model.value).toBe('')
+    })
+
+    it('should surface a rejected onComplete on the group', async () => {
+      const model = ref('')
+      const { groupEl, itemEls, props, wait } = mountOtp({
+        model,
+        length: 2,
+        props: { onComplete: () => false },
+      })
+      await wait()
+
+      await itemEls()[0]!.setValue('1')
+      await wait()
+      await itemEls()[1]!.setValue('2')
+      await wait()
+
+      expect(groupEl().attributes('aria-invalid')).toBe('true')
+      expect(groupEl().attributes('data-error')).toBeDefined()
+      expect(itemEls()[0]!.attributes('aria-invalid')).toBe('true')
+      expect(props().isError).toBe(true)
+      expect(props().errors).toContain('Invalid code')
     })
   })
 
@@ -691,6 +854,7 @@ describe('otp', () => {
         },
         attachTo: document.body,
       })
+      wrappers.push(wrapper)
       await nextTick()
 
       const inputs = wrapper.findAll('input')

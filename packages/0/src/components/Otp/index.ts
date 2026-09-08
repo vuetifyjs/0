@@ -88,6 +88,10 @@ export const Otp = {
    * paste distribution across siblings starting at this box. Exposes
    * fill state via `data-state` for CSS-only styling.
    *
+   * In renderless mode the consumer must call `registerItemEl(index, el)`
+   * (via `useOtpRoot`) with the real input; otherwise auto-advance,
+   * arrow, and paste-focus no-op.
+   *
    * @see https://0.vuetifyjs.com/components/forms/otp#anatomy
    *
    * @example

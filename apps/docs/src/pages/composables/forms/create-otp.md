@@ -13,6 +13,7 @@ features:
 related:
   - /composables/forms/create-input
   - /composables/forms/create-validation
+  - /components/forms/otp
 ---
 
 # createOtp

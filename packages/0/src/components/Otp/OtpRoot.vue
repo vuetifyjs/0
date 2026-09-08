@@ -40,6 +40,8 @@
     isDisabled: Readonly<Ref<boolean>>
     /** Whether the field is readonly */
     isReadonly: Readonly<Ref<boolean>>
+    /** ID of element that describes this group */
+    ariaDescribedby: Readonly<Ref<string | undefined>>
     /** Register an Item's focusable element for focus movement between boxes */
     registerItemEl: (index: number, el: Element | null) => void
     /** Move focus to the item at `index`, clamped to [0, length). No-op if unregistered. */
@@ -61,6 +63,8 @@
     ariaLabel?: string
     /** ID of element that labels this group */
     ariaLabelledby?: string
+    /** ID of element that describes this group */
+    ariaDescribedby?: string
     /** Form field name — triggers hidden input */
     name?: string
     /**
@@ -79,6 +83,10 @@
     length: number
     /** Whether the value is complete and pattern-valid */
     isComplete: boolean
+    /** Whether onComplete rejected the value (`input.isValid === false`) */
+    isError: boolean
+    /** Current validation messages from the underlying input */
+    errors: string[]
     /** Whether an async onComplete is in flight */
     isValidating: boolean
     /** Whether the field is disabled */
@@ -90,11 +98,14 @@
       'role': 'group'
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
+      'aria-describedby': string | undefined
       'aria-disabled': boolean
+      'aria-invalid': boolean
       'aria-busy': true | undefined
       'data-disabled': true | undefined
       'data-readonly': true | undefined
       'data-complete': true | undefined
+      'data-error': true | undefined
     }
   }
 
@@ -124,6 +135,7 @@
     readonly: _readonly = false,
     ariaLabel,
     ariaLabelledby,
+    ariaDescribedby,
     name,
     onComplete,
     namespace = 'v0:otp:root',
@@ -169,6 +181,7 @@
     pattern: toRef(() => pattern),
     isDisabled,
     isReadonly,
+    ariaDescribedby: toRef(() => ariaDescribedby),
     registerItemEl,
     focusItem,
   }
@@ -177,24 +190,35 @@
 
   const locale = useLocale()
 
-  const slotProps = toRef((): OtpRootSlotProps => ({
-    value: otp.value.value,
-    length: otp.length.value,
-    isComplete: otp.isComplete.value,
-    isValidating: otp.isValidating.value,
-    isDisabled: isDisabled.value,
-    isReadonly: isReadonly.value,
-    attrs: {
-      'role': 'group',
-      'aria-label': ariaLabelledby ? undefined : (ariaLabel || (locale.ti('Otp.label') ?? 'Verification code')),
-      'aria-labelledby': ariaLabelledby || undefined,
-      'aria-disabled': isDisabled.value,
-      'aria-busy': otp.isValidating.value ? true : undefined,
-      'data-disabled': isDisabled.value ? true : undefined,
-      'data-readonly': isReadonly.value ? true : undefined,
-      'data-complete': otp.isComplete.value ? true : undefined,
-    },
-  }))
+  const slotProps = toRef((): OtpRootSlotProps => {
+    const isError = otp.input.isValid.value === false
+
+    return {
+      value: otp.value.value,
+      length: otp.length.value,
+      isComplete: otp.isComplete.value,
+      isError,
+      errors: otp.input.errors.value.map(msg =>
+        msg === 'Invalid code' ? (locale.ti('Otp.invalid') ?? 'Invalid code') : msg,
+      ),
+      isValidating: otp.isValidating.value,
+      isDisabled: isDisabled.value,
+      isReadonly: isReadonly.value,
+      attrs: {
+        'role': 'group',
+        'aria-label': ariaLabelledby ? undefined : (ariaLabel || (locale.ti('Otp.label') ?? 'Verification code')),
+        'aria-labelledby': ariaLabelledby || undefined,
+        'aria-describedby': ariaDescribedby || undefined,
+        'aria-disabled': isDisabled.value,
+        'aria-invalid': isError,
+        'aria-busy': otp.isValidating.value ? true : undefined,
+        'data-disabled': isDisabled.value ? true : undefined,
+        'data-readonly': isReadonly.value ? true : undefined,
+        'data-complete': otp.isComplete.value ? true : undefined,
+        'data-error': isError ? true : undefined,
+      },
+    }
+  })
 
   defineExpose<OtpRootExpose>({ focusItem })
 </script>
