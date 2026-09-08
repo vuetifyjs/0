@@ -8,14 +8,21 @@
  * to child OverlayPanel components. Manages open/closed state via v-model binding.
  *
  * OverlayPanel is a position-agnostic, non-modal floating overlay primitive that
- * combines portal, focus management, escape dismissal, and click-outside behavior.
+ * combines teleport, focus management, escape dismissal, and click-outside behavior.
  * Unlike Dialog (which uses native modal) or Popover (which uses CSS anchor positioning),
  * OverlayPanel leaves positioning entirely to the consumer.
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
   // Composables
   import { createContext } from '#v0/composables/createContext'
+
+  // Utilities
+  import { useId } from '#v0/utilities'
+  import { shallowRef, toRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -24,6 +31,7 @@
   export interface OverlayPanelContext {
     isOpen: ShallowRef<boolean>
     id: string
+    activatorEl: ShallowRef<Element | null>
     open: () => void
     close: () => void
     toggle: () => void
@@ -53,13 +61,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Utilities
-  import { useId } from '#v0/utilities'
-  import { toRef } from 'vue'
-
   defineOptions({ name: 'OverlayPanelRoot' })
 
   defineSlots<{
@@ -79,6 +80,7 @@
   const isOpen = defineModel<boolean>({ default: false })
 
   const id = _id ?? useId()
+  const activatorEl = shallowRef<Element | null>(null)
 
   function open () {
     isOpen.value = true
@@ -95,6 +97,7 @@
   provideOverlayPanelContext(namespace, {
     isOpen,
     id,
+    activatorEl,
     open,
     close,
     toggle,

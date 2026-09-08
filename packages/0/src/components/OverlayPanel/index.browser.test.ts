@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+// Components
+import { Scrim } from '#v0/components/Scrim'
+
 // Composables
 import { createStackPlugin, useStack } from '#v0/composables/useStack'
 
@@ -511,6 +514,84 @@ describe('overlay-panel', () => {
         expect(isOpen.value).toBe(false)
         expect(document.activeElement).toBe(activator)
       })
+
+      it('should restore focus to the activator on Escape', async () => {
+        const isOpen = ref(false)
+
+        const wrapper = mountWithStack(OverlayPanel.Root, {
+          props: {
+            'modelValue': false,
+            'onUpdate:modelValue': (v: unknown) => {
+              isOpen.value = v as boolean
+              wrapper.setProps({ modelValue: v as boolean })
+            },
+          },
+          slots: {
+            default: () => [
+              h(OverlayPanel.Activator, {}, () => 'Open'),
+              h(OverlayPanel.Content, { 'aria-label': 'Overlay panel' }, () => 'Panel body'),
+            ],
+          },
+        })
+
+        const activator = wrapper.findComponent(OverlayPanel.Activator as any).element as HTMLElement
+        activator.focus()
+        await wrapper.findComponent(OverlayPanel.Activator as any).trigger('click')
+        await nextTick()
+        expect(isOpen.value).toBe(true)
+        expect(document.activeElement).toBe(queryDialog())
+
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+        await nextTick()
+        await nextTick()
+
+        expect(isOpen.value).toBe(false)
+        expect(document.activeElement).toBe(activator)
+      })
+
+      it('should not restore focus to the activator on pointer light-dismiss', async () => {
+        const isOpen = ref(false)
+
+        const outside = document.createElement('button')
+        outside.id = 'outside-focus-target'
+        outside.textContent = 'Outside'
+        document.body.append(outside)
+
+        const wrapper = mountWithStack(OverlayPanel.Root, {
+          props: {
+            'modelValue': false,
+            'onUpdate:modelValue': (v: unknown) => {
+              isOpen.value = v as boolean
+              wrapper.setProps({ modelValue: v as boolean })
+            },
+          },
+          slots: {
+            default: () => [
+              h(OverlayPanel.Activator, {}, () => 'Open'),
+              h(OverlayPanel.Content, { 'aria-label': 'Overlay panel' }, () => 'Panel body'),
+            ],
+          },
+        })
+
+        const activator = wrapper.findComponent(OverlayPanel.Activator as any).element as HTMLElement
+        activator.focus()
+        await wrapper.findComponent(OverlayPanel.Activator as any).trigger('click')
+        await nextTick()
+        expect(isOpen.value).toBe(true)
+
+        outside.focus()
+        expect(document.activeElement).toBe(outside)
+
+        outside.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+        outside.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+        await nextTick()
+        await nextTick()
+
+        expect(isOpen.value).toBe(false)
+        expect(document.activeElement).toBe(outside)
+
+        outside.remove()
+      })
     })
 
     describe('teleport', () => {
@@ -612,6 +693,210 @@ describe('overlay-panel', () => {
 
         outsideEl.remove()
       })
+
+      it('should not close overlay when pointerdown/up lands on the activator', async () => {
+        const isOpen = ref(true)
+
+        const wrapper = mountWithStack(OverlayPanel.Root, {
+          props: {
+            'modelValue': isOpen.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              isOpen.value = v as boolean
+            },
+          },
+          attachTo: document.body,
+          slots: {
+            default: () => [
+              h(OverlayPanel.Activator, {}, () => 'Open'),
+              h(OverlayPanel.Content, { closeOnClickOutside: true }, () => 'Content'),
+            ],
+          },
+        })
+
+        await nextTick()
+        expect(queryDialog()).not.toBeNull()
+
+        const activator = wrapper.findComponent(OverlayPanel.Activator as any).element as HTMLElement
+        activator.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+        activator.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+
+        await nextTick()
+
+        expect(isOpen.value).toBe(true)
+      })
+
+      it('should not close a lower overlay when pointerdown/up lands on the top panel content', async () => {
+        const lowerOpen = ref(true)
+        const topOpen = ref(true)
+
+        mountWithStack(defineComponent({
+          render: () => [
+            h(OverlayPanel.Root, {
+              'namespace': 'v0:overlay-lower',
+              'modelValue': lowerOpen.value,
+              'onUpdate:modelValue': (v: unknown) => {
+                lowerOpen.value = v as boolean
+              },
+            }, () => [
+              h(OverlayPanel.Activator, { namespace: 'v0:overlay-lower' }, () => 'Lower'),
+              h(OverlayPanel.Content, {
+                'namespace': 'v0:overlay-lower',
+                'aria-label': 'Lower panel',
+              }, () => h('p', { class: 'lower-body' }, 'Lower body')),
+            ]),
+            h(OverlayPanel.Root, {
+              'namespace': 'v0:overlay-top',
+              'modelValue': topOpen.value,
+              'onUpdate:modelValue': (v: unknown) => {
+                topOpen.value = v as boolean
+              },
+            }, () => [
+              h(OverlayPanel.Activator, { namespace: 'v0:overlay-top' }, () => 'Top'),
+              h(OverlayPanel.Content, {
+                'namespace': 'v0:overlay-top',
+                'aria-label': 'Top panel',
+              }, () => h('p', { class: 'top-body' }, 'Top body')),
+            ]),
+          ],
+        }))
+
+        await nextTick()
+
+        const topBody = document.querySelector('.top-body')
+        expect(topBody).not.toBeNull()
+
+        topBody!.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+        topBody!.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+
+        await nextTick()
+
+        expect(lowerOpen.value).toBe(true)
+        expect(topOpen.value).toBe(true)
+      })
+
+      it('should not close overlay on outside pointerdown/up when blocking and scrim are set', async () => {
+        const isOpen = ref(true)
+
+        const outsideEl = document.createElement('div')
+        outsideEl.id = 'blocking-outside'
+        document.body.append(outsideEl)
+
+        mountWithStack(OverlayPanel.Root, {
+          props: {
+            'modelValue': isOpen.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              isOpen.value = v as boolean
+            },
+          },
+          attachTo: document.body,
+          slots: {
+            default: () => h(OverlayPanel.Content, { blocking: true, scrim: true }, () => 'Content'),
+          },
+        })
+
+        await nextTick()
+
+        outsideEl.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+        outsideEl.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+
+        await nextTick()
+
+        expect(isOpen.value).toBe(true)
+
+        outsideEl.remove()
+      })
+
+      it('should not close overlay when clicking the global scrim while blocking', async () => {
+        const isOpen = ref(true)
+
+        const wrapper = mountWithStack(
+          defineComponent({
+            setup () {
+              return () => [
+                h(OverlayPanel.Root, {
+                  'modelValue': isOpen.value,
+                  'onUpdate:modelValue': (v: unknown) => {
+                    isOpen.value = v as boolean
+                  },
+                }, () => h(OverlayPanel.Content, { blocking: true, scrim: true }, () => 'Content')),
+                h(Scrim, { teleport: false, class: 'test-scrim' }),
+              ]
+            },
+          }),
+        )
+
+        await nextTick()
+
+        const scrim = wrapper.find('.test-scrim')
+        expect(scrim.exists()).toBe(true)
+        await scrim.trigger('click')
+        await nextTick()
+
+        expect(isOpen.value).toBe(true)
+      })
+
+      it('should close overlay when clicking the global scrim', async () => {
+        const isOpen = ref(true)
+
+        const wrapper = mountWithStack(
+          defineComponent({
+            setup () {
+              return () => [
+                h(OverlayPanel.Root, {
+                  'modelValue': isOpen.value,
+                  'onUpdate:modelValue': (v: unknown) => {
+                    isOpen.value = v as boolean
+                  },
+                }, () => h(OverlayPanel.Content, { scrim: true }, () => 'Content')),
+                h(Scrim, { teleport: false, class: 'test-scrim' }),
+              ]
+            },
+          }),
+        )
+
+        await nextTick()
+
+        const scrim = wrapper.find('.test-scrim')
+        expect(scrim.exists()).toBe(true)
+        await scrim.trigger('click')
+        await nextTick()
+
+        expect(isOpen.value).toBe(false)
+      })
+
+      it('should not close overlay when pointerdown/up lands on a renderless activator host', async () => {
+        const isOpen = ref(true)
+
+        mountWithStack(OverlayPanel.Root, {
+          props: {
+            'modelValue': isOpen.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              isOpen.value = v as boolean
+            },
+          },
+          slots: {
+            default: () => [
+              h(OverlayPanel.Activator, { renderless: true }, {
+                default: (p: any) => h('button', { ...p.attrs, class: 'renderless-host' }, 'Open'),
+              }),
+              h(OverlayPanel.Content, { closeOnClickOutside: true }, () => 'Content'),
+            ],
+          },
+        })
+
+        await nextTick()
+        expect(queryDialog()).not.toBeNull()
+
+        const host = document.querySelector('.renderless-host') as HTMLElement | null
+        expect(host).not.toBeNull()
+        expect(host!.getAttribute('aria-controls')).toBeDefined()
+
+        host!.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+        host!.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+        await nextTick()
+
+        expect(isOpen.value).toBe(true)
+      })
     })
 
     describe('escape key', () => {
@@ -661,6 +946,125 @@ describe('overlay-panel', () => {
         await nextTick()
 
         expect(isOpen.value).toBe(true)
+      })
+
+      it('should close overlay when pressing Escape from a focused input inside the panel', async () => {
+        const isOpen = ref(true)
+
+        mountWithStack(OverlayPanel.Root, {
+          props: {
+            'modelValue': isOpen.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              isOpen.value = v as boolean
+            },
+          },
+          slots: {
+            default: () => h(OverlayPanel.Content, { closeOnEscape: true }, () =>
+              h('input', { class: 'panel-input' })),
+          },
+        })
+
+        await nextTick()
+
+        const input = queryDialog()?.querySelector<HTMLInputElement>('.panel-input')
+        expect(input).not.toBeNull()
+        input!.focus()
+        expect(document.activeElement).toBe(input)
+
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+
+        await nextTick()
+
+        expect(isOpen.value).toBe(false)
+      })
+
+      it('should close only the top overlay when pressing Escape with two open panels', async () => {
+        const lowerOpen = ref(true)
+        const topOpen = ref(true)
+
+        mountWithStack(defineComponent({
+          render: () => [
+            h(OverlayPanel.Root, {
+              'namespace': 'v0:overlay-lower',
+              'modelValue': lowerOpen.value,
+              'onUpdate:modelValue': (v: unknown) => {
+                lowerOpen.value = v as boolean
+              },
+            }, () => [
+              h(OverlayPanel.Activator, { namespace: 'v0:overlay-lower' }, () => 'Lower'),
+              h(OverlayPanel.Content, {
+                'namespace': 'v0:overlay-lower',
+                'aria-label': 'Lower panel',
+              }, () => h('p', { class: 'lower-body' }, 'Lower body')),
+            ]),
+            h(OverlayPanel.Root, {
+              'namespace': 'v0:overlay-top',
+              'modelValue': topOpen.value,
+              'onUpdate:modelValue': (v: unknown) => {
+                topOpen.value = v as boolean
+              },
+            }, () => [
+              h(OverlayPanel.Activator, { namespace: 'v0:overlay-top' }, () => 'Top'),
+              h(OverlayPanel.Content, {
+                'namespace': 'v0:overlay-top',
+                'aria-label': 'Top panel',
+              }, () => h('p', { class: 'top-body' }, 'Top body')),
+            ]),
+          ],
+        }))
+
+        await nextTick()
+
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+        await nextTick()
+
+        expect(lowerOpen.value).toBe(true)
+        expect(topOpen.value).toBe(false)
+      })
+
+      it('should not close the lower overlay when the top overlay has closeOnEscape=false', async () => {
+        const lowerOpen = ref(true)
+        const topOpen = ref(true)
+
+        mountWithStack(defineComponent({
+          render: () => [
+            h(OverlayPanel.Root, {
+              'namespace': 'v0:overlay-lower',
+              'modelValue': lowerOpen.value,
+              'onUpdate:modelValue': (v: unknown) => {
+                lowerOpen.value = v as boolean
+              },
+            }, () => [
+              h(OverlayPanel.Activator, { namespace: 'v0:overlay-lower' }, () => 'Lower'),
+              h(OverlayPanel.Content, {
+                'namespace': 'v0:overlay-lower',
+                'aria-label': 'Lower panel',
+              }, () => h('p', { class: 'lower-body' }, 'Lower body')),
+            ]),
+            h(OverlayPanel.Root, {
+              'namespace': 'v0:overlay-top',
+              'modelValue': topOpen.value,
+              'onUpdate:modelValue': (v: unknown) => {
+                topOpen.value = v as boolean
+              },
+            }, () => [
+              h(OverlayPanel.Activator, { namespace: 'v0:overlay-top' }, () => 'Top'),
+              h(OverlayPanel.Content, {
+                'namespace': 'v0:overlay-top',
+                'closeOnEscape': false,
+                'aria-label': 'Top panel',
+              }, () => h('p', { class: 'top-body' }, 'Top body')),
+            ]),
+          ],
+        }))
+
+        await nextTick()
+
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+        await nextTick()
+
+        expect(lowerOpen.value).toBe(true)
+        expect(topOpen.value).toBe(true)
       })
     })
 

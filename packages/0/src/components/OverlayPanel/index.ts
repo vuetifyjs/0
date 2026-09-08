@@ -17,7 +17,7 @@ import Root from './OverlayPanelRoot.vue'
 /**
  * OverlayPanel component with sub-components for building non-modal floating overlays.
  *
- * Position-agnostic overlay primitive combining portal, z-index stacking, focus management,
+ * Position-agnostic overlay primitive combining teleport, z-index stacking, focus management,
  * escape dismissal, and click-outside behavior. Consumer applies positioning.
  *
  * @see https://0.vuetifyjs.com/components/disclosure/overlay-panel

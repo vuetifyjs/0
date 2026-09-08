@@ -10,16 +10,17 @@
       </OverlayPanel.Activator>
 
       <OverlayPanel.Content
-        aria-label="Overlay panel"
+        aria-labelledby="overlay-panel-title"
         class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl bg-surface border border-divider max-w-md w-full shadow-lg"
       >
         <div class="px-4 py-3 border-b border-divider flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-on-surface">
+          <h3 id="overlay-panel-title" class="text-lg font-semibold text-on-surface">
             Panel Title
           </h3>
 
           <OverlayPanel.Close class="p-1 rounded hover:bg-surface-tint text-on-surface-variant">
             <svg
+              aria-hidden="true"
               fill="none"
               height="20"
               stroke="currentColor"
@@ -38,7 +39,7 @@
 
         <div class="p-4 space-y-4">
           <p class="text-sm text-on-surface leading-relaxed">
-            This is a basic overlay panel. It renders via a portal, coordinates z-index with other overlays,
+            This is a basic overlay panel. It teleports, coordinates z-index with other overlays,
             and can be closed by clicking outside or pressing Escape.
           </p>
 

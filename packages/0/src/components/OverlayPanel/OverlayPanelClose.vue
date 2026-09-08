@@ -9,6 +9,18 @@
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
+  // Context
+  import { useOverlayPanelContext } from './OverlayPanelRoot.vue'
+
+  // Composables
+  import { useLocale } from '#v0/composables/useLocale'
+
+  // Utilities
+  import { toRef } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
@@ -31,18 +43,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Context
-  import { useOverlayPanelContext } from './OverlayPanelRoot.vue'
-
-  // Composables
-  import { useLocale } from '#v0/composables/useLocale'
-
-  // Utilities
-  import { toRef } from 'vue'
-
   defineOptions({ name: 'OverlayPanelClose' })
 
   defineSlots<{
