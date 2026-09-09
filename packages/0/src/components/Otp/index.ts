@@ -7,7 +7,7 @@ export { provideOtpItems, provideOtpRoot, useOtpItems, useOtpRoot } from './OtpR
 
 export type { OtpHiddenInputProps } from './OtpHiddenInput.vue'
 export type { OtpItemProps, OtpItemSlotProps } from './OtpItem.vue'
-export type { OtpRootContext, OtpRootEmits, OtpRootExpose, OtpRootProps, OtpRootSlotProps } from './OtpRoot.vue'
+export type { OtpItemsContext, OtpRootContext, OtpRootEmits, OtpRootExpose, OtpRootProps, OtpRootSlotProps } from './OtpRoot.vue'
 
 // Context
 import HiddenInput from './OtpHiddenInput.vue'

@@ -91,8 +91,8 @@ Otp.Root is a `role="group"` with a locale-driven default accessible name. Each 
 | Character | Writes the character if it matches `pattern` at `min(focused index, current length)` on the compact string and advances. A keystroke in a later empty box lands in the first empty slot, not the focused box |
 | Backspace (empty box) | Clears the previous box and moves focus back |
 | Backspace (filled box) | Truncates the compact value from this index onward — this box and every box after it clear |
-| ArrowLeft | Move focus to the previous box |
-| ArrowRight | Move focus to the next box |
+| ArrowLeft / ArrowRight | Move focus to the previous / next box (RTL-aware) |
+| Home / End | Move focus to the first / last box |
 | Paste | Distributes clipboard text from `min(focused index, current length)` on the compact string. A paste into a later empty box fills from the first empty slot, not the focused box |
 
 ### ARIA

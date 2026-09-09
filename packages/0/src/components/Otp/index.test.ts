@@ -99,6 +99,19 @@ describe('otp', () => {
       expect(props().items[5]).toEqual({ index: 5, value: '', state: 'empty' })
     })
 
+    it('should unregister focus targets when length shrinks', async () => {
+      const { wrapper, itemEls, wait } = mountOtp({ length: 6 })
+      await wait()
+
+      await wrapper.setProps({ length: 4 })
+      await wait()
+
+      expect(itemEls()).toHaveLength(4)
+      await itemEls()[0]!.trigger('keydown', { key: 'End' })
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[3]!.element)
+    })
+
     it('should default the aria-label', () => {
       const { groupEl } = mountOtp()
       expect(groupEl().attributes('aria-label')).toBe('Verification code')
@@ -332,6 +345,19 @@ describe('otp', () => {
       await itemEls()[1]!.trigger('keydown', { key: 'ArrowLeft' })
       await wait()
       expect(document.activeElement).toBe(itemEls()[0]!.element)
+    })
+
+    it('should move focus to the first and last box with Home and End', async () => {
+      const { itemEls, wait } = mountOtp({ length: 4 })
+      await wait()
+
+      await itemEls()[3]!.trigger('keydown', { key: 'Home' })
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[0]!.element)
+
+      await itemEls()[0]!.trigger('keydown', { key: 'End' })
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[3]!.element)
     })
 
     it('should clamp arrow navigation at both ends', async () => {
@@ -643,17 +669,45 @@ describe('otp', () => {
   })
 
   describe('expose', () => {
-    it('should expose focusItem clamped to the boxes', async () => {
+    it('should expose focus clamped to the boxes', async () => {
       const { wrapper, itemEls, wait } = mountOtp({ length: 3 })
       await wait()
 
-      const vm = wrapper.vm as unknown as { focusItem: (index: number) => void }
+      const vm = wrapper.vm as unknown as { focus: (id?: number) => void }
 
-      vm.focusItem(1)
+      vm.focus(1)
+      await wait()
       expect(document.activeElement).toBe(itemEls()[1]!.element)
 
-      vm.focusItem(99)
+      vm.focus(99)
+      await wait()
       expect(document.activeElement).toBe(itemEls()[2]!.element)
+
+      vm.focus()
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[0]!.element)
+    })
+
+    it('should focus the first empty box when focus is called without an index', async () => {
+      const model = ref('12')
+      const { wrapper, itemEls, wait } = mountOtp({ model, length: 4 })
+      await wait()
+
+      const vm = wrapper.vm as unknown as { focus: (index?: number) => void }
+      vm.focus()
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[2]!.element)
+    })
+
+    it('should focus the last box when complete and focus is called without an index', async () => {
+      const model = ref('1234')
+      const { wrapper, itemEls, wait } = mountOtp({ model, length: 4 })
+      await wait()
+
+      const vm = wrapper.vm as unknown as { focus: (index?: number) => void }
+      vm.focus()
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[3]!.element)
     })
   })
 

@@ -6,9 +6,10 @@
  * @remarks
  * Root component for one-time-password / verification-code inputs. Creates
  * OTP context via createOtp, provides it to child components (Item,
- * HiddenInput), bridges v-model, and keeps an items registry so Item
- * can move focus between boxes (auto-advance, backspace-back, paste
- * distribution).
+ * HiddenInput), bridges v-model, and keeps an items registry plus
+ * `useRovingFocus` so Item can move focus between boxes (auto-advance,
+ * arrows, paste). Boxes stay independently tabbable — roving is for
+ * arrow/programmatic focus, not a single tabindex.
  */
 
 <script lang="ts">
@@ -23,15 +24,23 @@
   import { createOtp } from '#v0/composables/createOtp'
   import { createRegistry } from '#v0/composables/createRegistry'
   import { useLocale } from '#v0/composables/useLocale'
+  import { useRovingFocus } from '#v0/composables/useRovingFocus'
 
   // Utilities
+  import { clamp, isUndefined } from '#v0/utilities'
   import { mergeProps, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { OtpContext, OtpItemDescriptor, OtpPattern } from '#v0/composables/createOtp'
-  import type { RegistryContext } from '#v0/composables/createRegistry'
-  import type { MaybeRefOrGetter, Ref } from 'vue'
+  import type { RegistryContext, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
+  import type { ID } from '#v0/types'
+  import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+
+  export type OtpItemsContext = RegistryContext<
+    RegistryTicketInput<Element>,
+    RegistryTicket<Element>
+  >
 
   export interface OtpRootContext extends OtpContext {
     /** Form field name */
@@ -44,8 +53,15 @@
     isReadonly: Readonly<Ref<boolean>>
     /** ID of element that describes this group */
     ariaDescribedby: Readonly<Ref<string | undefined>>
-    /** Move focus to the item at `index`, clamped to [0, length). No-op if unregistered. */
-    focusItem: (index: number) => void
+    /**
+     * Move DOM focus to a box. Omitting `index` focuses the first empty box
+     * (or the last box when complete). Clamped to [0, length).
+     */
+    focus: (index?: number) => void
+    /** Roving arrow/Home/End handler. Sync `focusedId` before calling. */
+    onKeydown: (e: KeyboardEvent) => void
+    /** Roving cursor — set on pointer/tab into a box without calling `focus`. */
+    focusedId: ShallowRef<ID | undefined>
   }
 
   export interface OtpRootProps extends AtomProps {
@@ -86,12 +102,6 @@
     items: OtpItemDescriptor[]
     /** Whether the value is complete and pattern-valid */
     isComplete: boolean
-    /** Whether createOtp rejected the value (`input.isValid === false`) */
-    isError: boolean
-    /** Current validation messages from the underlying input */
-    errors: string[]
-    /** Whether an async createOtp onComplete is in flight */
-    isValidating: boolean
     /** Whether the field is disabled */
     isDisabled: boolean
     /** Whether the field is readonly */
@@ -103,22 +113,22 @@
       'aria-labelledby': string | undefined
       'aria-describedby': string | undefined
       'aria-disabled': boolean
-      'aria-invalid': boolean
-      'aria-busy': true | undefined
       'data-disabled': true | undefined
       'data-readonly': true | undefined
       'data-complete': true | undefined
-      'data-error': true | undefined
     }
   }
 
   export interface OtpRootExpose {
-    /** Move focus to the item at `index`, clamped to [0, length). */
-    focusItem: (index: number) => void
+    /**
+     * Focus a box by index, or the first empty box when omitted.
+     * Clamped to [0, length).
+     */
+    focus: (index?: number) => void
   }
 
   export const [useOtpRoot, provideOtpRoot] = createContext<OtpRootContext>()
-  export const [useOtpItems, provideOtpItems] = createContext<RegistryContext>({ suffix: 'items' })
+  export const [useOtpItems, provideOtpItems] = createContext<OtpItemsContext>({ suffix: 'items' })
 </script>
 
 <script setup lang="ts">
@@ -161,17 +171,25 @@
     },
   })
 
-  const items = createRegistry()
-
-  function focusItem (index: number) {
-    const max = toValue(otp.length) - 1
-    const clamped = Math.min(Math.max(index, 0), max)
-    const el = items.get(clamped)?.value as HTMLElement | undefined
-    el?.focus()
-  }
-
+  const items = createRegistry<RegistryTicketInput<Element>, RegistryTicket<Element>>()
   const isDisabled = toRef(() => toValue(disabled))
   const isReadonly = toRef(() => toValue(_readonly))
+
+  const roving = useRovingFocus(
+    () => items.values().map(ticket => ({
+      id: ticket.id,
+      el: ticket.value,
+      disabled: isDisabled,
+    })),
+    { orientation: 'horizontal' },
+  )
+
+  function focus (index?: number) {
+    const max = toValue(otp.length) - 1
+    if (max < 0) return
+    const raw = isUndefined(index) ? otp.value.value.length : index
+    roving.focus(clamp(raw, 0, max))
+  }
 
   const context: OtpRootContext = {
     ...otp,
@@ -180,7 +198,9 @@
     isDisabled,
     isReadonly,
     ariaDescribedby: toRef(() => ariaDescribedby),
-    focusItem,
+    focus,
+    onKeydown: roving.onKeydown,
+    focusedId: roving.focusedId,
   }
 
   provideOtpRoot(namespace, context)
@@ -188,38 +208,26 @@
 
   const locale = useLocale()
 
-  const slotProps = toRef((): OtpRootSlotProps => {
-    const isError = otp.input.isValid.value === false
+  const slotProps = toRef((): OtpRootSlotProps => ({
+    value: otp.value.value,
+    length: otp.length.value,
+    items: otp.items.value,
+    isComplete: otp.isComplete.value,
+    isDisabled: isDisabled.value,
+    isReadonly: isReadonly.value,
+    attrs: {
+      'role': 'group',
+      'aria-label': ariaLabelledby ? undefined : (ariaLabel || (locale.ti('Otp.label') ?? 'Verification code')),
+      'aria-labelledby': ariaLabelledby || undefined,
+      'aria-describedby': ariaDescribedby || undefined,
+      'aria-disabled': isDisabled.value,
+      'data-disabled': isDisabled.value ? true : undefined,
+      'data-readonly': isReadonly.value ? true : undefined,
+      'data-complete': otp.isComplete.value ? true : undefined,
+    },
+  }))
 
-    return {
-      value: otp.value.value,
-      length: otp.length.value,
-      items: otp.items.value,
-      isComplete: otp.isComplete.value,
-      isError,
-      errors: otp.input.errors.value.map(msg =>
-        msg === 'Invalid code' ? (locale.ti('Otp.invalid') ?? 'Invalid code') : msg,
-      ),
-      isValidating: otp.isValidating.value,
-      isDisabled: isDisabled.value,
-      isReadonly: isReadonly.value,
-      attrs: {
-        'role': 'group',
-        'aria-label': ariaLabelledby ? undefined : (ariaLabel || (locale.ti('Otp.label') ?? 'Verification code')),
-        'aria-labelledby': ariaLabelledby || undefined,
-        'aria-describedby': ariaDescribedby || undefined,
-        'aria-disabled': isDisabled.value,
-        'aria-invalid': isError,
-        'aria-busy': otp.isValidating.value ? true : undefined,
-        'data-disabled': isDisabled.value ? true : undefined,
-        'data-readonly': isReadonly.value ? true : undefined,
-        'data-complete': otp.isComplete.value ? true : undefined,
-        'data-error': isError ? true : undefined,
-      },
-    }
-  })
-
-  defineExpose<OtpRootExpose>({ focusItem })
+  defineExpose<OtpRootExpose>({ focus })
 </script>
 
 <template>
