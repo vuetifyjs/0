@@ -64,6 +64,9 @@
     focusedId: ShallowRef<ID | undefined>
   }
 
+  export const [useOtpRoot, provideOtpRoot] = createContext<OtpRootContext>()
+  export const [useOtpItems, provideOtpItems] = createContext<OtpItemsContext>({ suffix: 'items' })
+
   export interface OtpRootProps extends AtomProps {
     /** Joined OTP value */
     modelValue?: string
@@ -126,9 +129,6 @@
      */
     focus: (index?: number) => void
   }
-
-  export const [useOtpRoot, provideOtpRoot] = createContext<OtpRootContext>()
-  export const [useOtpItems, provideOtpItems] = createContext<OtpItemsContext>({ suffix: 'items' })
 </script>
 
 <script setup lang="ts">
