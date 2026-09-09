@@ -1,4 +1,4 @@
-import { readFile, glob } from 'node:fs/promises'
+import { glob, readFile, stat } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -18,7 +18,7 @@ export interface TestCount {
 
 const TEST_CALL_RE = /(?<![\w.])(?:it|test)\s*(?:\.(each|skip|todo|fails|concurrent|sequential|only))?\s*\(/g
 
-const EXCLUDE_RE = /\/(?:node_modules|dist|coverage|\.cache|\.claude|\.output)\//
+const EXCLUDE_RE = /\/(?:node_modules|dist|coverage|\.cache|\.claude|\.output|__screenshots__)\//
 
 function stripCommentsAndStrings (source: string): string {
   let out = ''
@@ -101,7 +101,7 @@ function countEachRows (source: string, openIndex: number): number {
   return 1
 }
 
-async function countTests (): Promise<TestCount> {
+export async function countTests (): Promise<TestCount> {
   let files = 0
   let tests = 0
   for await (const file of glob([
@@ -110,6 +110,9 @@ async function countTests (): Promise<TestCount> {
     `${ROOT_DIR}/apps/**/*.test.ts`,
     `${ROOT_DIR}/apps/**/*.spec.ts`,
   ], { exclude: path => EXCLUDE_RE.test(path) })) {
+    // Playwright names screenshot dirs after the test file (`foo.browser.test.ts/`),
+    // which matches `**/*.test.ts`. Skip anything that isn't a regular file.
+    if (!(await stat(file)).isFile()) continue
     const raw = await readFile(file, 'utf8')
     const source = stripCommentsAndStrings(raw)
     files++

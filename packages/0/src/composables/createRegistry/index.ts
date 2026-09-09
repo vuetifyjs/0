@@ -73,7 +73,13 @@ export interface RegistryTicket<V = unknown> {
    * @remarks Set to true when no explicit value is provided during registration. It's not recommended to manually set this.
    */
   valueIsIndex: boolean
-  /** Remove this ticket from the registry. Semantic sugar for `registry.unregister(ticket.id)`. */
+  /**
+   * Remove this ticket from the collection that registered it.
+   *
+   * @remarks Equivalent to calling `unregister(ticket.id)` on that collection.
+   * Wrapping registries (model, group, nested) rebind this so sugar hits their
+   * cleanup, not only the base Map delete.
+   */
   unregister: () => void
 }
 
@@ -1085,12 +1091,12 @@ export function createRegistry<
     }
 
     const input = {
+      unregister: () => unregister(id),
       ...registration,
       id,
       index,
       value,
       valueIsIndex,
-      unregister: () => unregister(id),
     } as E
 
     const ticket = reactive ? shallowReactive(input) : input

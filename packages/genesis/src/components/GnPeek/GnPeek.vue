@@ -1,10 +1,15 @@
 <script lang="ts">
+  // Context
+  import { GnIcon } from '../GnIcon'
+
   export interface GnPeekProps {
     /** Label shown while expanded */
     expandedLabel?: string
     /** Label shown while collapsed */
     collapsedLabel?: string
   }
+
+  const PEEK = 'M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z'
 </script>
 
 <script setup lang="ts">
@@ -36,17 +41,7 @@
     </slot>
 
     <slot :expanded name="icon">
-      <svg
-        aria-hidden="true"
-        class="genesis-peek__chevron"
-        fill="currentColor"
-        height="14"
-        viewBox="0 0 24 24"
-        width="14"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
-      </svg>
+      <GnIcon class="genesis-peek__chevron" :d="PEEK" role="peek" :size="14" />
     </slot>
   </button>
 </template>

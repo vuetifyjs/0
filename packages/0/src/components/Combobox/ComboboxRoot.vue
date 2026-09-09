@@ -28,6 +28,7 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ComboboxAdapter, ComboboxContext } from '#v0/composables/createCombobox'
+  import type { PopoverAdapter } from '#v0/composables/usePopover'
   import type { MaybeArray } from '#v0/types'
 
   export interface ComboboxRootProps extends AtomProps {
@@ -57,6 +58,8 @@
     errorMessages?: MaybeArray<string>
     /** Filtering/loading adapter (client-side or server-side) */
     adapter?: ComboboxAdapter
+    /** Positioning engine for the dropdown. @default CSS anchor positioning (`V0PopoverAdapter`) */
+    positionAdapter?: PopoverAdapter
     /** Maps selected value to input display text. Defaults to String(value). */
     displayValue?: (value: unknown) => string
   }
@@ -115,6 +118,7 @@
     error = false,
     errorMessages,
     adapter,
+    positionAdapter,
     displayValue,
   } = defineProps<ComboboxRootProps>()
 
@@ -131,6 +135,7 @@
     error: () => error,
     errorMessages: () => errorMessages,
     adapter,
+    positionAdapter,
     displayValue,
   })
 

@@ -15,13 +15,19 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { PopoverReturn } from '#v0/composables/usePopover'
+  import type { PopoverAdapter, PopoverReturn } from '#v0/composables/usePopover'
 
   export type PopoverContext = PopoverReturn
 
   export interface PopoverRootProps extends AtomProps {
     /** Unique identifier for the popover (auto-generated if not provided) */
     id?: string
+    /** CSS position-area value for anchor positioning */
+    positionArea?: string
+    /** CSS position-try-fallbacks value for overflow */
+    positionTry?: string
+    /** Positioning engine. @default CSS anchor positioning (`V0PopoverAdapter`) */
+    adapter?: PopoverAdapter
   }
 
   export interface PopoverRootSlotProps {
@@ -33,7 +39,7 @@
     toggle: () => void
   }
 
-  export const [usePopoverContext, providePopoverContext] = createContext<PopoverContext>('v0:popover')
+  export const [usePopoverContext, providePopoverContext] = createContext<PopoverContext>('v0:popover:root')
 </script>
 
 <script setup lang="ts">
@@ -52,11 +58,21 @@
     default: (props: PopoverRootSlotProps) => any
   }>()
 
-  const { as = null, id: _id } = defineProps<PopoverRootProps>()
+  defineEmits<{
+    'update:model-value': [value: boolean]
+  }>()
+
+  const { as = null, id: _id, adapter, positionArea, positionTry } = defineProps<PopoverRootProps>()
 
   const isSelected = defineModel<boolean>({ default: false })
 
-  const popover = usePopover({ id: _id, isOpen: isSelected })
+  const popover = usePopover({
+    id: _id,
+    isOpen: isSelected,
+    adapter,
+    positionArea: () => positionArea,
+    positionTry: () => positionTry,
+  })
 
   providePopoverContext(popover)
 

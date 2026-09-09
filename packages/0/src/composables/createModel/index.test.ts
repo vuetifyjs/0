@@ -69,6 +69,17 @@ describe('createModel', () => {
 
       expect(model.selectedIds.has('item-1')).toBe(false)
     })
+
+    it('should drop selectedIds via ticket.unregister', () => {
+      const model = createModel()
+      const ticket = model.register({ id: 'item-1', value: 'val-1' })
+      model.select('item-1')
+
+      ticket.unregister()
+
+      expect(model.size).toBe(0)
+      expect(model.selectedIds.has('item-1')).toBe(false)
+    })
   })
 
   describe('offboard', () => {

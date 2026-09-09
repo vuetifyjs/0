@@ -46,7 +46,7 @@ rendering "Placeholder — <label> · <gap>".
 | No responsive master/detail pattern | Mail, Chat (and any list-detail page) | Emerald (pattern) | Both pages hand-roll the same `detail` ref + `data-detail` CSS to push a pane on mobile; a shared pattern (or `EmSplitView`) would remove the duplication. |
 | Page-rule specificity vs component classes | showcase convention | none (convention) | Rules like `.adm-x .emerald-card` (0,2,0) silently beat page modifier classes (0,1,0) — killed two intended styles on Pricing. Convention: scope page overrides at matching specificity. |
 | `EmSwitch` label wrapper can double-fire | shell dark toggle, any switch | Emerald | The `role="switch"` button sits inside a `<label>`; a label click can fire twice and cancel itself. Surfaced as a flaky toggle during the dark sweep. Restructure so the label targets rather than wraps, or absorb the duplicate activation. |
-| Popover.* lacks `namespace`; Root doesn't forward positionArea/positionTry | EmPopover | v0 | Select/Tooltip take a namespace, Popover is static-key only; and position props are honored only when Content carries an explicit id (EmPopover injects it via usePopoverContext as a workaround). Both are v0 API-parity items. |
+| Popover.* lacks `namespace` | EmPopover | v0 | Select/Tooltip take a namespace; Popover is static-key only. |
 
 ## Confirmed no-gap (checked, real primitive exists and is used)
 

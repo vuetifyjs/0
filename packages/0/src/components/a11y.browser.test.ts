@@ -12,6 +12,8 @@ import CarouselFixture from './fixtures/Carousel.vue'
 import CheckboxFixture from './fixtures/Checkbox.vue'
 import CollapsibleFixture from './fixtures/Collapsible.vue'
 import ComboboxFixture from './fixtures/Combobox.vue'
+import DataGridFixture from './fixtures/DataGrid.vue'
+import DataTableFixture from './fixtures/DataTable.vue'
 import AlertDialogDegenerate from './fixtures/degenerate/AlertDialog.vue'
 import AvatarDegenerate from './fixtures/degenerate/Avatar.vue'
 import ButtonDegenerate from './fixtures/degenerate/Button.vue'
@@ -129,6 +131,8 @@ const FIXTURES = {
   Checkbox: CheckboxFixture,
   Collapsible: CollapsibleFixture,
   Combobox: ComboboxFixture,
+  DataGrid: DataGridFixture,
+  DataTable: DataTableFixture,
   Dialog: DialogFixture,
   ExpansionPanel: ExpansionPanelFixture,
   Form: FormFixture,

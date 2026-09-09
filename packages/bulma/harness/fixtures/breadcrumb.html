@@ -1,0 +1,58 @@
+<!--
+  Source: https://bulma.io/documentation/components/breadcrumb/
+  Bulma version: 1.0.4
+  Canonical documented markup: nav.breadcrumb[aria-label=breadcrumbs] > ul > li;
+  current item = li.is-active > a[aria-current=page] (anchor KEPT, styled inert
+  by Bulma CSS). Separator/alignment/size variants are root modifier classes
+  (has-*-separator, is-centered/is-right, is-small/-medium/-large).
+-->
+
+<!-- fixture: basic breadcrumb with active item -->
+<nav class="breadcrumb" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="#">Bulma</a></li>
+    <li><a href="#">Documentation</a></li>
+    <li><a href="#">Components</a></li>
+    <li class="is-active"><a href="#" aria-current="page">Breadcrumb</a></li>
+  </ul>
+</nav>
+
+<!-- fixture: breadcrumb with icons -->
+<nav class="breadcrumb" aria-label="breadcrumbs">
+  <ul>
+    <li>
+      <a href="#">
+        <span class="icon is-small">
+          <i class="fas fa-home" aria-hidden="true"></i>
+        </span>
+        <span>Bulma</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+        <span class="icon is-small">
+          <i class="fas fa-book" aria-hidden="true"></i>
+        </span>
+        <span>Documentation</span>
+      </a>
+    </li>
+    <li class="is-active">
+      <a href="#">
+        <span class="icon is-small">
+          <i class="fas fa-thumbs-up" aria-hidden="true"></i>
+        </span>
+        <span>Breadcrumb</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+<!-- fixture: alternative separator variant -->
+<nav class="breadcrumb has-arrow-separator" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="#">Bulma</a></li>
+    <li><a href="#">Documentation</a></li>
+    <li><a href="#">Components</a></li>
+    <li class="is-active"><a href="#" aria-current="page">Breadcrumb</a></li>
+  </ul>
+</nav>

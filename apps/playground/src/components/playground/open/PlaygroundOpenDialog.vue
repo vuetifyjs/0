@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createFilter } from '@vuetify/v0'
+  import { createFilter, useStorage } from '@vuetify/v0'
 
   // Components
   import AppCloseButton from '@/components/app/AppCloseButton.vue'
@@ -46,8 +46,10 @@
 
   const playground = usePlayground()
   const one = useOnePlaygrounds()
+  const storage = useStorage()
+  const railPref = storage.get('playground-open-rail', 'v0')
   const restored = readOpenSession()
-  const rail = shallowRef<OpenRail>(normalizeOpenRail(restored?.rail))
+  const rail = shallowRef<OpenRail>(normalizeOpenRail(restored?.rail ?? railPref.value))
   const query = shallowRef(restored?.query ?? '')
   /** Vuetify0 kind chip — Components / Composables / Plugins (or all). */
   const kind = shallowRef<OpenKind | 'all'>(restored?.kind ?? 'all')
@@ -92,11 +94,12 @@
   const itemLoading = shallowRef(false)
   const itemError = shallowRef<string>()
 
-  const rails: OpenRailItem[] = [
+  const savedRail: OpenRailItem = { id: 'saved', label: 'Vuetify One' }
+  const exampleRails: OpenRailItem[] = [
     { id: 'v0', label: 'Vuetify0' },
     { id: 'vuetify', label: 'Vuetify 4' },
-    { id: 'saved', label: 'Vuetify One' },
   ]
+  const rails: OpenRailItem[] = [savedRail, ...exampleRails]
 
   const railLabel = computed(() =>
     rails.find(r => r.id === rail.value)?.label ?? 'Examples',
@@ -382,6 +385,7 @@
       pendingScroll.value = pane.value.scrollTop
     }
 
+    railPref.value = rail.value
     writeOpenSession({
       rail: rail.value,
       scrollTop: pendingScroll.value,
@@ -519,22 +523,16 @@
     savedLoading.value = true
     savedError.value = undefined
     try {
-      const res = await fetch(`${ONE_API}/one/playgrounds`, {
-        credentials: 'include',
-      })
-
-      if (!res.ok) {
-        savedError.value = res.status === 401
-          ? 'Session expired. Please sign in again.'
-          : `Failed to load playgrounds (${res.status})`
-        return
-      }
-
-      const data = await res.json()
-      saved.value = data.playgrounds ?? data
+      saved.value = await one.list()
       savedLoaded.value = true
-    } catch {
-      savedError.value = 'Failed to load playgrounds'
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Sign in required') {
+        savedError.value = 'Session expired. Please sign in again.'
+      } else if (error instanceof Error) {
+        savedError.value = error.message
+      } else {
+        savedError.value = 'Failed to load playgrounds'
+      }
     } finally {
       savedLoading.value = false
       await nextTick()
@@ -597,13 +595,29 @@
 
   async function onUnpin (item: VuetifyPlayground) {
     try {
-      await one.patchMeta({ pinned: false }, item.id)
+      await one.patchMeta({ pinned: false }, item.id, {
+        title: item.title,
+        favorite: item.favorite ?? false,
+        pinned: item.pinned ?? false,
+        locked: item.locked ?? false,
+        visibility: item.visibility ?? 'public',
+      })
       saved.value = saved.value.map(entry => (
         entry.id === item.id ? { ...entry, pinned: false } : entry
       ))
     } catch {
       // leave the row pinned if the API rejects
     }
+  }
+
+  function onUpdate (next: VuetifyPlayground) {
+    saved.value = saved.value.map(entry => (
+      entry.id === next.id ? { ...entry, ...next } : entry
+    ))
+  }
+
+  function onRemove (id: string) {
+    saved.value = saved.value.filter(entry => entry.id !== id)
   }
 
   function onBack () {
@@ -823,34 +837,52 @@
         class="relative bg-surface border border-divider rounded-lg shadow-xl w-[900px] max-w-[calc(100vw-2rem)] h-[640px] max-h-[calc(100vh-2rem)] flex flex-col sm:flex-row overflow-hidden"
         role="dialog"
       >
-        <!-- Left rail: product stacks (same search model) + Vuetify One -->
+        <!-- Left rail: Vuetify One, then example stacks -->
         <nav
           aria-label="Open source"
           class="flex flex-row flex-wrap sm:flex-nowrap sm:flex-col w-full sm:w-36 shrink-0 border-b sm:border-b-0 sm:border-r border-divider gap-1 p-2 bg-surface"
         >
-          <template v-for="item in rails" :key="item.id">
-            <div
-              v-if="item.id === 'saved'"
-              class="hidden sm:block mx-3 my-2 border-t border-divider"
-            />
+          <button
+            :aria-pressed="rail === savedRail.id"
+            class="flex-1 sm:flex-none min-w-0 mx-0 sm:mx-1.5 flex items-center justify-center sm:justify-between gap-2 px-2.5 py-1.5 sm:py-2 text-xs text-center sm:text-left rounded-md transition-colors"
+            :class="railActiveClass(savedRail.id)"
+            type="button"
+            @click="onRail(savedRail.id)"
+          >
+            <span class="truncate">{{ savedRail.label }}</span>
 
-            <button
-              :aria-pressed="rail === item.id"
-              class="flex-1 sm:flex-none min-w-0 mx-0 sm:mx-1.5 flex items-center justify-center sm:justify-between gap-2 px-2.5 py-1.5 sm:py-2 text-xs text-center sm:text-left rounded-md transition-colors"
-              :class="railActiveClass(item.id)"
-              type="button"
-              @click="onRail(item.id)"
+            <span
+              v-if="railCount(savedRail.id) !== undefined"
+              class="tabular-nums text-[10px] text-on-surface-variant shrink-0"
             >
-              <span class="truncate">{{ item.label }}</span>
+              {{ railCount(savedRail.id) }}
+            </span>
+          </button>
 
-              <span
-                v-if="railCount(item.id) !== undefined"
-                class="tabular-nums text-[10px] text-on-surface-variant shrink-0"
-              >
-                {{ railCount(item.id) }}
-              </span>
-            </button>
-          </template>
+          <div class="hidden sm:block mx-3 my-2 border-t border-divider" />
+
+          <p class="hidden sm:block mx-3 mb-0.5 text-[10px] font-medium uppercase tracking-wide text-on-surface-variant">
+            Examples
+          </p>
+
+          <button
+            v-for="item in exampleRails"
+            :key="item.id"
+            :aria-pressed="rail === item.id"
+            class="flex-1 sm:flex-none min-w-0 mx-0 sm:mx-1.5 flex items-center justify-center sm:justify-between gap-2 px-2.5 py-1.5 sm:py-2 text-xs text-center sm:text-left rounded-md transition-colors"
+            :class="railActiveClass(item.id)"
+            type="button"
+            @click="onRail(item.id)"
+          >
+            <span class="truncate">{{ item.label }}</span>
+
+            <span
+              v-if="railCount(item.id) !== undefined"
+              class="tabular-nums text-[10px] text-on-surface-variant shrink-0"
+            >
+              {{ railCount(item.id) }}
+            </span>
+          </button>
         </nav>
 
         <!-- Main pane -->
@@ -1034,7 +1066,10 @@
 
           <div
             ref="pane"
-            class="flex-1 overflow-y-auto min-h-0"
+            class="flex-1 min-h-0"
+            :class="rail === 'saved' && !selected && !selectedVuetify
+              ? 'overflow-hidden flex flex-col'
+              : 'overflow-y-auto'"
             @scroll.passive="onPaneScroll"
           >
             <PlaygroundOpenExamples
@@ -1069,7 +1104,9 @@
               :query
               :total="saved.length"
               @open="openSaved"
+              @remove="onRemove"
               @unpin="onUnpin"
+              @update="onUpdate"
             />
 
             <PlaygroundOpenGallery

@@ -119,7 +119,7 @@
     id="main-content"
     ref="main"
     :class="[
-      'pa-6 ms-0 md:ms-[230px] relative z-0',
+      'py-6 px-3 md:px-6 ms-0 md:ms-[230px] relative z-0',
       isSettled.value && !settings.prefersReducedMotion.value && 'transition-[padding] duration-200',
       'data-[has-toc]:xl:pe-[232px]',
       'data-[ask-open]:xl:pe-[calc(clamp(280px,calc(100vw-230px-730px-64px),500px)+32px)]',

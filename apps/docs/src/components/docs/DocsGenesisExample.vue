@@ -17,16 +17,18 @@
   import {
     playgroundRegistryUrl,
     registryRefFromExamplePath,
+    toPlaygroundThemes,
     usePlayground,
   } from '@/composables/usePlayground'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
-  import { createThemeToggle, provideThemeToggle } from '@/composables/useThemeToggle'
+  import { PALETTE_THEMES, createThemeToggle, provideThemeToggle, useThemeToggleContext } from '@/composables/useThemeToggle'
 
   // Utilities
   import { computed, onMounted, toRef } from 'vue'
 
   // Types
+  import type { PlaygroundHashData } from '@/composables/usePlayground'
   import type { Palette } from '@/composables/useThemeToggle'
   import type { GnDocsExampleFile } from '@paper/genesis'
 
@@ -55,16 +57,21 @@
     peek?: boolean
     /** Visible peek lines (default 6) */
     peekLines?: number
-    /** Force a named theme on the preview (`data-theme`); bypasses the example theme toggle (systems pages) */
+    /** Force a named theme on the preview (`data-theme`); hides the palette picker unless `modesOnly` */
     theme?: string
     /** Default palette while following the page. Omit to track the page palette. */
     palette?: Palette
+    /** Light / dark toggle only — used by design-system examples that own their palette */
+    modesOnly?: boolean
+    /** Skip the preview splitter */
+    disableResize?: boolean
   }
 
   const props = defineProps<DocsGenesisExampleProps>()
 
-  const example = createThemeToggle({ palette: props.palette })
-  provideThemeToggle(example)
+  const inherited = useThemeToggleContext()
+  const example = inherited ?? createThemeToggle({ palette: props.palette })
+  if (!inherited) provideThemeToggle(example)
 
   const examples = useExamples()
 
@@ -107,23 +114,45 @@
     useIdleCallback(warm)
   })
 
+  function playgroundThemes (): Pick<PlaygroundHashData, 'theme' | 'themes'> | undefined {
+    const id = props.theme ?? example.currentThemeId.value
+    const records: Record<string, { dark?: boolean, colors: Record<string, unknown> }> = {}
+
+    function add (themeId: string) {
+      const colors = example.theme.colors.value[themeId]
+      if (colors) records[themeId] = { dark: example.theme.get(themeId)?.dark, colors }
+    }
+
+    add(id)
+    const mapping = PALETTE_THEMES[example.palette.value]
+    if (mapping && (id === mapping.light || id === mapping.dark)) {
+      add(mapping.light)
+      add(mapping.dark)
+    }
+
+    return toPlaygroundThemes(id, records)
+  }
+
   async function onPlayground (list: GnDocsExampleFile[]) {
+    const packed = playgroundThemes()
     // Embed source in the hash by default — works without a live /registry/*
     // (PR #721). Opt into short registry URLs with VITE_PLAYGROUND_REGISTRY=1
     // once the seed is deployed; entry file is the last .vue (registry contract).
-    if (import.meta.env.VITE_PLAYGROUND_REGISTRY === '1' && !props.imports) {
+    // Theme tokens only travel in the hash payload.
+    const hasThemes = packed?.themes && Object.keys(packed.themes).length > 0
+    if (import.meta.env.VITE_PLAYGROUND_REGISTRY === '1' && !props.imports && !hasThemes) {
       const path = props.filePath
         ?? [...(props.filePaths ?? [])].toReversed().find(p => p.endsWith('.vue'))
         ?? props.filePaths?.[0]
       const ref = path ? registryRefFromExamplePath(path) : null
       if (ref) {
-        window.open(playgroundRegistryUrl(ref), '_blank')
+        window.open(playgroundRegistryUrl({ ...ref, theme: packed?.theme }), '_blank')
         return
       }
     }
 
     const files = list.map(f => ({ name: f.name, code: f.code }))
-    const url = await usePlayground(files, undefined, props.imports)
+    const url = await usePlayground(files, { imports: props.imports, ...packed })
     window.open(url, '_blank')
   }
 
@@ -141,6 +170,7 @@
     :code="resolvedCode"
     :collapse
     data-tour="example"
+    :disable-resize
     :file-name
     :file-orders
     :files="resolvedFiles"
@@ -164,36 +194,12 @@
       <AppDotGrid :coverage="60" />
     </template>
 
-    <template v-if="!theme" #preview-actions>
-      <DocsExampleThemeMenu />
+    <template v-if="!theme || modesOnly" #preview-actions>
+      <DocsExampleThemeMenu :modes-only />
     </template>
 
     <template v-if="$slots.description" #description>
       <slot name="description" />
-    </template>
-
-    <template #toggle-icon="{ expanded }">
-      <AppChevron :open="expanded" :size="16" vertical />
-    </template>
-
-    <template #reset-icon>
-      <AppIcon icon="restart" :size="16" />
-    </template>
-
-    <template #playground-icon>
-      <AppIcon icon="vuetify-play" :size="16" />
-    </template>
-
-    <template #bin-icon>
-      <AppIcon icon="vuetify-bin" :size="16" />
-    </template>
-
-    <template #combine-icon>
-      <AppIcon icon="combine" :size="16" />
-    </template>
-
-    <template #split-icon>
-      <AppIcon icon="split" :size="16" />
     </template>
 
     <template #code="{ code: paneCode, file: paneFile, language: paneLanguage }">
@@ -212,6 +218,7 @@
             :code="paneCode ?? ''"
             :language="paneLanguage"
             :playground="!paneFile"
+            :playground-themes="playgroundThemes()"
             show-copy
             show-size
             show-wrap
@@ -240,8 +247,8 @@
 
   .docs-genesis-example-pane__actions {
     position: absolute;
-    top: 0.75rem;
-    inset-inline-end: 0.75rem;
+    top: 0.5rem;
+    inset-inline-end: 0.5rem;
     z-index: 10;
     display: flex;
     gap: 0.25rem;

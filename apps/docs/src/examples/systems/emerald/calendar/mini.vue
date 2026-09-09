@@ -28,7 +28,7 @@
 </script>
 
 <template>
-  <div class="emerald-docs-stack">
+  <div class="emerald-docs-calendar emerald-docs-calendar-mini">
     <EmCalendar v-model="day" :events>
       <EmCalendarHeader>
         <EmCalendarPrev />
@@ -44,10 +44,20 @@
 </template>
 
 <style>
-  .emerald-docs-stack {
+  .emerald-docs-calendar {
     display: flex;
     flex-direction: column;
     gap: var(--emerald-spacing-m, 16px);
+    width: 100%;
+  }
+
+  .emerald-docs-calendar-mini {
     max-width: 260px;
+  }
+
+  @media (max-width: 640px) {
+    .emerald-docs-calendar-mini {
+      max-width: none;
+    }
   }
 </style>

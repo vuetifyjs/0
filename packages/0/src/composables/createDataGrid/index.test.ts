@@ -14,7 +14,15 @@ vi.mock('vue', async () => {
   }
 })
 
-const items = [
+type Row = {
+  id: number
+  name: string
+  email: string
+  age: number
+  dept: string
+}
+
+const items: Row[] = [
   { id: 1, name: 'Alice', email: 'alice@test.com', age: 30, dept: 'Eng' },
   { id: 2, name: 'Bob', email: 'bob@test.com', age: 25, dept: 'Eng' },
   { id: 3, name: 'Carol', email: 'carol@test.com', age: 35, dept: 'Sales' },
@@ -30,7 +38,7 @@ function onboard<T extends { id: number }> (
 
 describe('createDataGrid', () => {
   it('should create a grid with data table pipeline', () => {
-    const grid = createDataGrid()
+    const grid = createDataGrid<Row>()
 
     grid.columns.onboard([
       { id: 'name', title: 'Name', sortable: true, filterable: true, size: 30 },
@@ -45,7 +53,7 @@ describe('createDataGrid', () => {
   })
 
   it('should filter items via search', () => {
-    const grid = createDataGrid()
+    const grid = createDataGrid<Row>()
 
     grid.columns.onboard([
       { id: 'name', filterable: true, size: 50 },
@@ -60,7 +68,7 @@ describe('createDataGrid', () => {
   })
 
   it('should sort through the table pipeline', () => {
-    const grid = createDataGrid()
+    const grid = createDataGrid<Row>()
 
     grid.columns.onboard([
       { id: 'name', sortable: true, size: 50 },
@@ -76,7 +84,7 @@ describe('createDataGrid', () => {
 
   describe('row registry', () => {
     it('should onboard rows via the inherited registry surface', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([{ id: 'name', size: 100 }])
 
@@ -89,7 +97,7 @@ describe('createDataGrid', () => {
     })
 
     it('should register a single row and expose it through the pipeline', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([{ id: 'name', size: 100 }])
 
@@ -101,7 +109,7 @@ describe('createDataGrid', () => {
     })
 
     it('should remove a row via unregister', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([{ id: 'name', size: 100 }])
 
@@ -113,7 +121,7 @@ describe('createDataGrid', () => {
     })
 
     it('should clear all rows', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([{ id: 'name', size: 100 }])
 
@@ -125,7 +133,7 @@ describe('createDataGrid', () => {
     })
 
     it('should not throw when reset is called on a grid with no rows', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([{ id: 'name', size: 100 }])
 
@@ -137,7 +145,7 @@ describe('createDataGrid', () => {
 
   describe('column layout', () => {
     it('should initialize with correct sizes', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([
         { id: 'name', size: 40 },
@@ -151,7 +159,7 @@ describe('createDataGrid', () => {
     })
 
     it('should support nested columns', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([
         { id: 'name', title: 'Name', size: 30 },
@@ -177,7 +185,7 @@ describe('createDataGrid', () => {
     })
 
     it('should expose hidden columns through all and toggle visibility', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([
         { id: 'name', size: 50 },
@@ -199,7 +207,7 @@ describe('createDataGrid', () => {
   describe('cell editing', () => {
     it('should commit an edit through the edit lifecycle', () => {
       const onEdit = vi.fn()
-      const grid = createDataGrid({
+      const grid = createDataGrid<Row>({
         editing: { onEdit },
       })
 
@@ -219,7 +227,7 @@ describe('createDataGrid', () => {
     })
 
     it('should reject bad values via validation', () => {
-      const grid = createDataGrid({
+      const grid = createDataGrid<Row>({
         editing: {},
       })
 
@@ -245,7 +253,7 @@ describe('createDataGrid', () => {
       // after the grid (and its editing instance) was built must become
       // editable — proving the editable-bypass is fixed and editing is reactive.
       const onEdit = vi.fn()
-      const grid = createDataGrid({
+      const grid = createDataGrid<Row>({
         editing: { onEdit },
       })
 
@@ -270,7 +278,7 @@ describe('createDataGrid', () => {
     // The factory forwards every inherited DataTableOption via the rest spread,
     // so options like groupBy are no longer silently dropped.
     it('should forward groupBy to the underlying data table', () => {
-      const grid = createDataGrid({
+      const grid = createDataGrid<Row>({
         groupBy: 'dept',
       })
 
@@ -286,7 +294,7 @@ describe('createDataGrid', () => {
     })
 
     it('should leave grouping empty when groupBy is not forwarded', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([{ id: 'name', size: 100 }])
 
@@ -298,7 +306,7 @@ describe('createDataGrid', () => {
 
   describe('row ordering', () => {
     it('should expose registered row ids on rows.order in registration order', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([{ id: 'name', size: 100 }])
 
@@ -308,7 +316,7 @@ describe('createDataGrid', () => {
     })
 
     it('should reorder rows when rows.move is called with an id', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([{ id: 'name', size: 100 }])
 
@@ -318,10 +326,64 @@ describe('createDataGrid', () => {
 
       expect(grid.rows.order.value).toEqual([2, 3, 1, 4])
       expect(grid.items.value.map(item => item.id)).toEqual([2, 3, 1, 4])
+      expect(grid.orderedItems.value.map(item => item.id)).toEqual([2, 3, 1, 4])
+    })
+
+    it('should not override sortedItems when rows.move reorders', () => {
+      const grid = createDataGrid<Row>()
+
+      grid.columns.onboard([{ id: 'name', size: 100 }])
+
+      onboard(grid, items)
+
+      const sorted = grid.sortedItems.value.map(item => item.id)
+      expect(sorted).toEqual([1, 2, 3, 4])
+      expect(grid.orderedItems.value.map(item => item.id)).toEqual(sorted)
+
+      grid.rows.move(4, 0)
+
+      expect(grid.sortedItems.value.map(item => item.id)).toEqual(sorted)
+      expect(grid.orderedItems.value.map(item => item.id)).toEqual([4, 1, 2, 3])
+      expect(grid.items.value.map(item => item.id)).toEqual([4, 1, 2, 3])
+    })
+
+    it('should rank a source array by orderedItems after rows.move', () => {
+      const grid = createDataGrid<Row>()
+
+      grid.columns.onboard([{ id: 'name', size: 100 }])
+
+      onboard(grid, items)
+
+      expect(grid.rank(items).map(item => item.id)).toEqual([1, 2, 3, 4])
+
+      grid.rows.move(4, 0)
+
+      expect(grid.rank(items)[0]!.id).toBe(4)
+      expect(grid.rank(items).map(item => item.id)).toEqual([4, 1, 2, 3])
+      expect(grid.sortedItems.value.map(item => item.id)).toEqual([1, 2, 3, 4])
+    })
+
+    it('should keep orderedItems as the full pre-pagination list after rows.move', () => {
+      const grid = createDataGrid<Row>({
+        pagination: { itemsPerPage: 2 },
+      })
+
+      grid.columns.onboard([{ id: 'name', size: 100 }])
+
+      onboard(grid, items)
+
+      expect(grid.orderedItems.value.map(item => item.id)).toEqual([1, 2, 3, 4])
+      expect(grid.items.value.map(item => item.id)).toEqual([1, 2])
+
+      grid.rows.move(4, 0)
+
+      expect(grid.orderedItems.value.map(item => item.id)).toEqual([4, 1, 2, 3])
+      expect(grid.items.value.map(item => item.id)).toEqual([4, 1])
+      expect(grid.sortedItems.value.map(item => item.id)).toEqual([1, 2, 3, 4])
     })
 
     it('should restore natural registration order on rows.reset', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([{ id: 'name', size: 100 }])
 
@@ -335,7 +397,7 @@ describe('createDataGrid', () => {
     })
 
     it('should reset row order when sort changes by default', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([
         { id: 'name', sortable: true, size: 50 },
@@ -353,7 +415,7 @@ describe('createDataGrid', () => {
     })
 
     it('should keep row order across sort changes when preserveRowOrder is set', () => {
-      const grid = createDataGrid({
+      const grid = createDataGrid<Row>({
         preserveRowOrder: true,
       })
 
@@ -371,7 +433,7 @@ describe('createDataGrid', () => {
 
     it('should react to a preserveRowOrder ref toggling the sort-reset watcher', async () => {
       const preserve = shallowRef(false)
-      const grid = createDataGrid({
+      const grid = createDataGrid<Row>({
         preserveRowOrder: preserve,
       })
 
@@ -406,7 +468,7 @@ describe('createDataGrid', () => {
 
     it('should re-arm sort-reset when preserveRowOrder toggles back to false', async () => {
       const preserve = shallowRef(false)
-      const grid = createDataGrid({
+      const grid = createDataGrid<Row>({
         preserveRowOrder: preserve,
       })
 
@@ -439,7 +501,7 @@ describe('createDataGrid', () => {
     })
 
     it('should append late-registered rows at the end of rows.order', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([{ id: 'name', size: 100 }])
 
@@ -453,7 +515,7 @@ describe('createDataGrid', () => {
     })
 
     it('should drop unregistered rows from rows.order', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([{ id: 'name', size: 100 }])
 
@@ -466,7 +528,7 @@ describe('createDataGrid', () => {
     })
 
     it('should empty rows.order when clear is called', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([{ id: 'name', size: 100 }])
 
@@ -517,7 +579,7 @@ describe('createDataGrid', () => {
 
     // b2: a second consecutive move must recompute the ordered projection.
     it('should recompute items on a second consecutive move', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([{ id: 'name', size: 100 }])
 
@@ -538,7 +600,7 @@ describe('createDataGrid', () => {
 
     // b4: a manual move after a sort must preserve the active sort order.
     it('should preserve the active sort when moving a row', () => {
-      const grid = createDataGrid({
+      const grid = createDataGrid<Row>({
         preserveRowOrder: true,
       })
 
@@ -599,7 +661,7 @@ describe('createDataGrid', () => {
 
   describe('row spanning', () => {
     it('should compute a span map', () => {
-      const grid = createDataGrid({
+      const grid = createDataGrid<Row>({
         rowSpanning: (item, column) => {
           if (column === 'dept' && (item.dept === 'Eng' || item.dept === 'Sales')) return 2
           return 1
@@ -687,7 +749,7 @@ describe('createDataGrid', () => {
     // A per-column `col.span` must produce spans even when no global rowSpanning
     // option is supplied — the previous early-return left the map empty.
     it('should produce spans from a column span with no global rowSpanning', () => {
-      const grid = createDataGrid()
+      const grid = createDataGrid<Row>()
 
       grid.columns.onboard([
         { id: 'dept', size: 50, span: () => 2 },
@@ -704,7 +766,7 @@ describe('createDataGrid', () => {
 
     // A per-column `col.span` takes precedence over the global rowSpanning option.
     it('should let a column span override the global rowSpanning', () => {
-      const grid = createDataGrid({
+      const grid = createDataGrid<Row>({
         rowSpanning: () => 3,
       })
 

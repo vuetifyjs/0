@@ -43,8 +43,9 @@
 
   const model = defineModel<number>()
 
-  // ProgressRoot always emits aria-labelledby="{id}-label"; when no Progress.Label is
-  // rendered that reference dangles and accname falls through to aria-label.
+  // ProgressRoot only emits aria-labelledby="{id}-label" when a Progress.Label
+  // child is mounted (gated on hasLabel); otherwise accname falls through to
+  // aria-label, which is what we provide here.
   const ariaLabel = toRef(() => label ? undefined : _ariaLabel ?? 'Progress')
 
   function onModel (value: number | number[] | undefined) {

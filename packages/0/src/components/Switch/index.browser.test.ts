@@ -1416,4 +1416,123 @@ describe('switch', () => {
       })
     })
   })
+
+  describe('expose', () => {
+    describe('root', () => {
+      it('should expose the rendered host as element', async () => {
+        const { wrapper, wait } = mountSwitch()
+        await wait()
+
+        expect((wrapper.vm as any).element).toBe(wrapper.find('button').element)
+      })
+
+      it('should focus the host via the exposed element', async () => {
+        const wrapper = mount(Switch.Root, {
+          slots: {
+            default: () => h(Switch.Track as any, {}, () => h(Switch.Thumb as any)),
+          },
+          attachTo: document.body,
+        })
+        await nextTick()
+
+        const el = (wrapper.vm as any).element as HTMLElement
+        el.focus()
+        expect(document.activeElement).toBe(el)
+        wrapper.unmount()
+      })
+
+      it('should expose null element when renderless', async () => {
+        const wrapper = mount(Switch.Root, {
+          props: { renderless: true },
+          slots: {
+            default: (props: any) => h('div', { class: 'custom', ...props.attrs }, 'Custom'),
+          },
+        })
+        await nextTick()
+
+        expect((wrapper.vm as any).element).toBeNull()
+      })
+    })
+
+    describe('group', () => {
+      it('should focus the selected item', async () => {
+        const wrapper = mount(Switch.Group, {
+          props: { modelValue: ['item-2'] },
+          slots: {
+            default: () => [
+              h(Switch.Root as any, { value: 'item-1' }, () =>
+                h(Switch.Track as any, {}, () => h(Switch.Thumb as any)),
+              ),
+              h(Switch.Root as any, { value: 'item-2' }, () =>
+                h(Switch.Track as any, {}, () => h(Switch.Thumb as any)),
+              ),
+            ],
+          },
+          attachTo: document.body,
+        })
+        await nextTick()
+
+        ;(wrapper.vm as any).focus()
+        expect(document.activeElement).toBe(wrapper.findAll('button')[1]!.element)
+        wrapper.unmount()
+      })
+
+      it('should focus the selected item when its id is 0', async () => {
+        const wrapper = mount(Switch.Group, {
+          props: { modelValue: ['item-2'] },
+          slots: {
+            default: () => [
+              h(Switch.Root as any, { id: 1, value: 'item-1' }, () =>
+                h(Switch.Track as any, {}, () => h(Switch.Thumb as any)),
+              ),
+              h(Switch.Root as any, { id: 0, value: 'item-2' }, () =>
+                h(Switch.Track as any, {}, () => h(Switch.Thumb as any)),
+              ),
+            ],
+          },
+          attachTo: document.body,
+        })
+        await nextTick()
+
+        ;(wrapper.vm as any).focus()
+        expect(document.activeElement).toBe(wrapper.findAll('button')[1]!.element)
+        wrapper.unmount()
+      })
+
+      it('should focus the first item when none is selected', async () => {
+        const wrapper = mount(Switch.Group, {
+          slots: {
+            default: () => [
+              h(Switch.Root as any, { value: 'item-1' }, () =>
+                h(Switch.Track as any, {}, () => h(Switch.Thumb as any)),
+              ),
+              h(Switch.Root as any, { value: 'item-2' }, () =>
+                h(Switch.Track as any, {}, () => h(Switch.Thumb as any)),
+              ),
+            ],
+          },
+          attachTo: document.body,
+        })
+        await nextTick()
+
+        ;(wrapper.vm as any).focus()
+        expect(document.activeElement).toBe(wrapper.findAll('button')[0]!.element)
+        wrapper.unmount()
+      })
+
+      it('should not throw when the group is empty', async () => {
+        const { wrapper, wait } = mountGroup({ items: [] })
+        await wait()
+
+        expect(() => (wrapper.vm as any).focus()).not.toThrow()
+      })
+
+      it('should accept preventScroll in FocusOptions', async () => {
+        const { wrapper, wait } = mountGroup()
+        await wait()
+
+        expect(() => (wrapper.vm as any).focus({ preventScroll: true })).not.toThrow()
+      })
+    })
+  })
 })

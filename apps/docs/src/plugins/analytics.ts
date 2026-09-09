@@ -13,6 +13,6 @@ async function initAnalytics () {
   Swetrix.trackErrors()
 }
 
-if (IN_BROWSER) {
+if (IN_BROWSER && import.meta.env.VITE_INDEX !== 'false') {
   useIdleCallback(initAnalytics, 2000)
 }

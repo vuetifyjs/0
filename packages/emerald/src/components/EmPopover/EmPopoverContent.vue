@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { Popover, usePopoverContext } from '@vuetify/v0'
+  import { Popover } from '@vuetify/v0'
 
   // Types
   import type { PopoverContentProps } from '@vuetify/v0'
@@ -20,15 +20,10 @@
   defineOptions({ name: 'EmPopoverContent' })
 
   const { positionArea, positionTry } = defineProps<EmPopoverContentProps>()
-
-  // Popover.Content only honours position-area/position-try when it is given an
-  // explicit id; the root's id keeps the anchor-name matched to the activator.
-  const context = usePopoverContext()
 </script>
 
 <template>
   <Popover.Content
-    :id="context.id"
     class="emerald-popover"
     :position-area
     :position-try

@@ -1,16 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { PopoverAdapter } from '#v0/composables/usePopover'
+
 // Adapters
 import { ClientComboboxAdapter } from '#v0/composables/createCombobox/adapters/client'
 
-// Composables
 import { createLocalePlugin } from '#v0/composables'
 
 import { Combobox } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick, ref } from 'vue'
+import { defineComponent, h, nextTick, ref, toRef } from 'vue'
 
 // Track every mounted wrapper so afterEach can unmount each one. Without
 // unmount, attachTo: document.body leaks both DOM nodes and Vue effect scopes
@@ -48,6 +50,7 @@ async function createCombobox (options: {
   'form'?: string
   'id'?: string
   'adapter'?: InstanceType<typeof ClientComboboxAdapter>
+  'positionAdapter'?: PopoverAdapter
   'items'?: Array<{ id?: string, value: string, disabled?: boolean }>
   'openOn'?: 'focus' | 'input'
 } = {}) {
@@ -453,6 +456,25 @@ describe('combobox', () => {
       const highlighted = wrapper.findAllComponents(Combobox.Item as any)
         .find(item => (item.element as HTMLElement).dataset.highlighted === '')
       expect(highlighted?.text()).toBe('Cherry')
+    })
+  })
+
+  describe('positionAdapter', () => {
+    it('should apply positionAdapter styles to the dropdown', async () => {
+      class MarkerAdapter extends PopoverAdapter {
+        setup () {
+          return toRef(() => ({ '--engine': 'combo' }))
+        }
+      }
+
+      const { wrapper, open } = await createCombobox({
+        positionAdapter: new MarkerAdapter(),
+      })
+
+      open()
+      await nextTick()
+
+      expect(wrapper.find('[role="listbox"]').attributes('style')).toContain('--engine: combo')
     })
   })
 

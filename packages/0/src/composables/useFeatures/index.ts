@@ -131,6 +131,8 @@ export interface FeatureContext<
    * ```
    */
   reset: () => void
+  /** External feature-flag adapter(s), when the plugin was installed with one. */
+  adapter?: MaybeArray<FeaturesAdapter>
 }
 
 export interface FeatureOptions extends RegistryOptions {
@@ -244,8 +246,8 @@ function coerce (saved: unknown): Map<ID, boolean> | null {
  * })
  * ```
  */
-export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
-  const { features, ...options } = _options
+export function createFeatures (_options: FeatureOptions & { adapter?: MaybeArray<FeaturesAdapter> } = {}): FeatureContext {
+  const { features, adapter, ...options } = _options
 
   const tokens = createTokens(features, { flat: true })
   const registry = createGroup({ ...options, events: true, reactive: true })
@@ -407,6 +409,7 @@ export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
     register,
     onboard,
     sync,
+    adapter,
     get size () {
       return registry.size
     },
@@ -448,6 +451,11 @@ export const [createFeaturesContext, createFeaturesPlugin, useFeatures] =
       fallback: () => createFeaturesFallback(),
       persist: context => seams.get(context)?.delta() ?? null,
       restore: (context, saved) => seams.get(context)?.restore(saved),
+      inspect: ctx => ({
+        adapter: isArray(ctx.adapter)
+          ? ctx.adapter.map(item => item.constructor.name)
+          : ctx.adapter?.constructor.name,
+      }),
       setup: (context, app, { adapter }) => {
         if (!adapter) return
 

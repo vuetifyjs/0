@@ -43,6 +43,11 @@ This is a **pnpm monorepo** containing:
 | Package | Description |
 |---------|-------------|
 | [`@vuetify/v0`](./packages/0) | Core headless components and composables |
+| [`@vuetify/play`](./packages/play) | Playground hash protocol |
+| [`@paper/emerald`](./packages/emerald) | Emerald design system |
+| [`@paper/bulma`](./packages/bulma) | Bulma compat design system |
+| [`@paper/genesis`](./packages/genesis) | Genesis design system (docs primitives) |
+| [`@vuetify/paper`](./packages/paper) | Styling primitives (private, dormant) |
 | [`apps/docs`](./apps/docs) | Documentation site ([0.vuetifyjs.com](https://0.vuetifyjs.com)) |
 | [`apps/playground`](./apps/playground) | Interactive development environment |
 
@@ -154,6 +159,13 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Snackbar](https://0.vuetifyjs.com/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](https://0.vuetifyjs.com/components/semantic/splitter) | Resizable panel layout with drag handles |
 
+#### Data
+
+| Component | Description |
+|-----------|-------------|
+| [DataGrid](https://0.vuetifyjs.com/components/data/data-grid) | Headless data grid with column layout, cell editing, row ordering, and row spanning |
+| [DataTable](https://0.vuetifyjs.com/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
+
 ### Composables
 
 #### Foundation
@@ -230,6 +242,7 @@ Selection management composables built on `createRegistry`:
 - [`useDelay`](https://0.vuetifyjs.com/composables/system/use-delay) - Schedule open and close transitions with configurable delays
 - [`useDragDrop`](https://0.vuetifyjs.com/composables/system/use-drag-drop) - Headless drag-and-drop primitive with two registries, pluggable adapters, and accessibility-first defaults
 - [`useEventListener`](https://0.vuetifyjs.com/composables/system/use-event-listener) - Lifecycle-managed event listeners
+- [`useFocusTrap`](https://0.vuetifyjs.com/composables/system/use-focus-trap) - Confine Tab and Shift+Tab to a root element
 - [`useHotkey`](https://0.vuetifyjs.com/composables/system/use-hotkey) - Hotkey combinations and sequences
 - [`useImage`](https://0.vuetifyjs.com/composables/system/use-image) - Image loading state machine with deferred loading and retry
 - [`useIntersectionObserver`](https://0.vuetifyjs.com/composables/system/use-intersection-observer) - Intersection observer with auto-cleanup

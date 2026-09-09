@@ -594,6 +594,32 @@ describe('select', () => {
 
       expect(itemSlotProps.value.Apple.attrs['data-id']).toBe('a')
     })
+
+    it('should set aria-label on activator when label prop is provided', async () => {
+      const wrapper = mount(
+        defineComponent({
+          render () {
+            return h(Select.Root as any, { id: 'label-test' }, {
+              default: () => h(Select.Activator as any, { label: 'Choose a fruit' }, {
+                default: (slotProps: any) => h('span', slotProps.attrs),
+              }),
+            })
+          },
+        }),
+      )
+
+      await nextTick()
+
+      const activator = wrapper.findComponent(Select.Activator as any)
+      expect(activator.attributes('aria-label')).toBe('Choose a fruit')
+    })
+
+    it('should omit aria-label when label prop is not provided', async () => {
+      const { wrapper } = await createSelect({ id: 'no-label-test' })
+
+      const activator = wrapper.findComponent(Select.Activator as any)
+      expect(activator.attributes('aria-label')).toBeUndefined()
+    })
   })
 
   describe('form integration', () => {

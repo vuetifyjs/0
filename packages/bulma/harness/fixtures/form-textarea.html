@@ -1,0 +1,106 @@
+<!--
+  Source: https://bulma.io/documentation/form/textarea/
+  Bulma version: 1.0.4
+  Fetched: 2026-08-01
+  Canonical markup copied verbatim from the docs. Covers: bare .textarea,
+  rows, color variants, sizes, states (is-hovered/is-focused on the textarea;
+  is-loading + size on the .control), disabled, readonly, has-fixed-size.
+-->
+
+<!-- fixture: basic textarea (bare, no wrapper required) -->
+<textarea class="textarea" placeholder="e.g. Hello world"></textarea>
+
+<!-- fixture: rows attribute -->
+<textarea
+  class="textarea"
+  placeholder="10 lines of textarea"
+  rows="10"
+></textarea>
+
+<!-- fixture: color link -->
+<textarea class="textarea is-link" placeholder="Link textarea"></textarea>
+<!-- fixture: color primary -->
+<textarea class="textarea is-primary" placeholder="Primary textarea"></textarea>
+<!-- fixture: color info -->
+<textarea class="textarea is-info" placeholder="Info textarea"></textarea>
+<!-- fixture: color success -->
+<textarea class="textarea is-success" placeholder="Success textarea"></textarea>
+<!-- fixture: color warning -->
+<textarea class="textarea is-warning" placeholder="Warning textarea"></textarea>
+<!-- fixture: color danger -->
+<textarea class="textarea is-danger" placeholder="Danger textarea"></textarea>
+
+<!-- fixture: sizes -->
+<div class="field">
+  <div class="control">
+    <textarea class="textarea is-small" placeholder="Small textarea"></textarea>
+  </div>
+</div>
+<div class="field">
+  <div class="control">
+    <textarea class="textarea" placeholder="Normal textarea"></textarea>
+  </div>
+</div>
+<div class="field">
+  <div class="control">
+    <textarea class="textarea is-medium" placeholder="Medium textarea"></textarea>
+  </div>
+</div>
+<div class="field">
+  <div class="control">
+    <textarea class="textarea is-large" placeholder="Large textarea"></textarea>
+  </div>
+</div>
+
+<!-- fixture: states hover focus (state class goes on the textarea) -->
+<div class="control">
+  <textarea class="textarea" placeholder="Normal textarea"></textarea>
+</div>
+<div class="control">
+  <textarea class="textarea is-hovered" placeholder="Hovered textarea"></textarea>
+</div>
+<div class="control">
+  <textarea class="textarea is-focused" placeholder="Focused textarea"></textarea>
+</div>
+
+<!-- fixture: state loading (is-loading goes on the CONTROL) -->
+<div class="control is-loading">
+  <textarea class="textarea" placeholder="Loading textarea"></textarea>
+</div>
+
+<!-- fixture: loading sizing (size class duplicated on the control) -->
+<div class="field">
+  <div class="control is-small is-loading">
+    <textarea class="textarea is-small" placeholder="Small loading textarea"></textarea>
+  </div>
+</div>
+<div class="field">
+  <div class="control is-loading">
+    <textarea class="textarea" placeholder="Normal loading textarea"></textarea>
+  </div>
+</div>
+<div class="field">
+  <div class="control is-medium is-loading">
+    <textarea class="textarea is-medium" placeholder="Medium loading textarea"></textarea>
+  </div>
+</div>
+<div class="field">
+  <div class="control is-large is-loading">
+    <textarea class="textarea is-large" placeholder="Large loading textarea"></textarea>
+  </div>
+</div>
+
+<!-- fixture: state disabled (native attribute) -->
+<div class="control">
+  <textarea class="textarea" placeholder="Disabled textarea" disabled></textarea>
+</div>
+
+<!-- fixture: state readonly (native attribute) -->
+<div class="control">
+  <textarea class="textarea" readonly>This content is readonly</textarea>
+</div>
+
+<!-- fixture: fixed size (disables resize) -->
+<div class="control">
+  <textarea class="textarea has-fixed-size" placeholder="Fixed size textarea"></textarea>
+</div>

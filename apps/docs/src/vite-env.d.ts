@@ -2,6 +2,14 @@
 /// <reference types="vue-router/auto" />
 /// <reference types="vite-plugin-vue-layouts-next/client" />
 
+interface ImportMetaEnv {
+  readonly VITE_API_SERVER_URL?: string
+  readonly VITE_GITHUB_SHA?: string
+  readonly VITE_INDEX?: string
+  readonly VITE_PLAYGROUND_URL?: string
+  readonly VITE_SITE_URL?: string
+}
+
 declare module '*.md' {
   // Types
   import type { ComponentOptions } from 'vue'

@@ -198,6 +198,10 @@ export function createStep<
     const length = registry.size
     if (!length) return
 
+    // Drain deferred reindex before reading selectedIndex (ticket.index can
+    // lag after unregister of an explicit-value sibling).
+    void registry.lookup(0)
+
     const currentIndex = registry.selectedIndex.value
     const direction = Math.sign(count || 1)
     let hops = 0

@@ -13,10 +13,10 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.7",
-    "@vue/runtime-vapor": "3.6.0-rc.2",
+    "@vue/runtime-vapor": "3.6.0-rc.5",
     "happy-dom": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
-    "vue": "3.6.0-rc.2"
+    "vue": "3.6.0-rc.5"
   }
 }

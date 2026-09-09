@@ -108,11 +108,37 @@ Reach for this pattern whenever a field accepts several independent choices that
 
 ## Recipes
 
+### Accessible Name
+
+Pass `label` on `Select.Activator` when there is no visible text label — it lands on `aria-label`:
+
+```vue
+<script setup lang="ts">
+  import { Select } from '@vuetify/v0'
+</script>
+
+<template>
+  <Select.Root>
+    <Select.Activator label="Choose a fruit">
+      <Select.Value />
+      <Select.Cue />
+    </Select.Activator>
+  </Select.Root>
+</template>
+```
+
 ### Form Submission
 
 Set `name` on Root to auto-render hidden inputs for form submission — one per selected value in multi-select mode:
 
 ```vue
+<script setup lang="ts">
+  import { Select } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+
+  const value = shallowRef()
+</script>
+
 <template>
   <Select.Root v-model="value" name="color">
     <!-- ... -->
@@ -125,6 +151,13 @@ Set `name` on Root to auto-render hidden inputs for form submission — one per 
 Use `mandatory` to prevent deselecting the last item, or `mandatory="force"` to auto-select the first item on mount:
 
 ```vue
+<script setup lang="ts">
+  import { Select } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+
+  const value = shallowRef()
+</script>
+
 <template>
   <Select.Root v-model="value" mandatory="force">
     <!-- First non-disabled item is selected automatically -->
@@ -186,6 +219,13 @@ The model always receives the `value` prop, not the `id`. When `id` and `value` 
 Select supports pre-selected values via `v-model` or `:model-value`. The `Select.Value` component shows the model value immediately, even before the dropdown has been opened. `Select.Placeholder` automatically hides when a model value is present:
 
 ```vue
+<script setup lang="ts">
+  import { Select } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+
+  const fruit = shallowRef('Banana')
+</script>
+
 <template>
   <!-- "Banana" shows immediately, no dropdown open needed -->
   <Select.Root v-model="fruit" mandatory>
@@ -226,6 +266,7 @@ The Select implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apg/pa
 | `role` | `listbox` | Content |
 | `role` | `option` | Item |
 | `aria-expanded` | `true` / `false` | Activator |
+| `aria-label` | Activator `label` prop | Activator (omitted when `label` is unset) |
 | `aria-haspopup` | `listbox` | Activator |
 | `aria-controls` | listbox ID | Activator |
 | `aria-selected` | `true` / `false` | Item |

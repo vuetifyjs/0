@@ -46,8 +46,14 @@ export default {
   Combobox: {
     noResults: 'No results',
   },
+  DataGrid: {
+    resizeHandle: 'Resize column',
+  },
   Dialog: {
     close: 'Close',
+  },
+  Input: {
+    required: 'Required',
   },
   NumberField: {
     decrement: 'Decrement',
@@ -81,5 +87,7 @@ export default {
   },
   Splitter: {
     handle: 'Resize',
+    releaseToHide: 'Release to hide',
+    releaseToOpen: 'Release to open',
   },
 } as const

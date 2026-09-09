@@ -12,7 +12,7 @@ feature-complete as of rc.1). The rest of the monorepo is pinned to Vue 3.5 via
 the catalog, and we don't want a pre-release Vue in the default test run. So
 this package:
 
-- Declares its **own** `vue@3.6.0-rc.2` + `@vue/runtime-vapor@3.6.0-rc.2`
+- Declares its **own** `vue@3.6.0-rc.5` + `@vue/runtime-vapor@3.6.0-rc.5`
   devDependencies. pnpm installs them alongside the 3.5 copy; `packages/0`
   is untouched.
 - Lives under `tests/*`, which the root `vitest.config.ts`
@@ -34,6 +34,7 @@ pnpm --filter @vuetify-private/vapor-tests test
 | `test/instance.vapor.test.ts` | `utilities/instance.ts` works under a real Vapor render: `getCurrentInstance()` is genuinely `null`, yet the `currentInstance` shim still detects the instance and `useId()` resolves. `instance.test.ts` can only mock this. |
 | `test/composables.vapor.test.ts` | `createSelection` (registry + reactive tickets + computed Set) runs in a Vapor setup and drives Vapor DOM updates. |
 | `test/context.vapor.test.ts` | `createContext` carries a value from a Vapor ancestor to a Vapor descendant — the provide/inject substrate beneath every v0 compound component. |
+| `test/injection.vapor.test.ts` | `hasInjectionContext()` is vapor-aware and app-level provides resolve via `inject()` inside a Vapor setup — the gate `createPlugin` puts in front of every generated `useX()` consumer, exercised through a real `createLoggerPlugin` install (provided context resolves, fallback resolves when absent, no throws). |
 | `test/interop.vapor.test.ts` | A classic (vdom) v0 component renders inside a Vapor root via `vaporInteropPlugin`, including slot content forwarded from the Vapor parent. |
 
 ## Why the vitest config is unusual
@@ -54,7 +55,7 @@ Two toolchain traps, both handled in `vitest.config.ts`:
 
 ## RC pin
 
-`3.6.0-rc.2` is the newest 3.6 release candidate. RCs land faster than the
+`3.6.0-rc.5` is the newest 3.6 release candidate. RCs land faster than the
 workspace's `minimumReleaseAge` (14 days) clears them, so `vue` and `@vue/*`
 sit in `minimumReleaseAgeExclude` — safe because both are exact-pinned
 everywhere (default catalog + this package), so no floating range can pull an

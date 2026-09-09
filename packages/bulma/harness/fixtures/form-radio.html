@@ -1,0 +1,66 @@
+<!--
+  Source: https://bulma.io/documentation/form/radio/
+  Bulma version: 1.0.4
+  Fetched: 2026-08-01
+  Canonical markup copied verbatim from the docs. label.radio WRAPS the native
+  input; grouping is via the shared name attribute; siblings sit inside a
+  .control (inline) or a .radios wrapper (Bulma 1.0 list layout). Disabled
+  state puts the disabled attribute on BOTH the label and the input (label
+  `disabled` is non-standard HTML but is what Bulma documents and styles).
+-->
+
+<!-- fixture: basic radio group (inside a .control) -->
+<div class="control">
+  <label class="radio">
+    <input type="radio" name="answer" />
+    Yes
+  </label>
+  <label class="radio">
+    <input type="radio" name="answer" />
+    No
+  </label>
+</div>
+
+<!-- fixture: default checked -->
+<div class="control">
+  <label class="radio">
+    <input type="radio" name="foobar" />
+    Foo
+  </label>
+  <label class="radio">
+    <input type="radio" name="foobar" checked />
+    Bar
+  </label>
+</div>
+
+<!-- fixture: disabled option (attribute on label AND input) -->
+<div class="control">
+  <label class="radio">
+    <input type="radio" name="rsvp" />
+    Going
+  </label>
+  <label class="radio">
+    <input type="radio" name="rsvp" />
+    Not going
+  </label>
+  <label class="radio" disabled>
+    <input type="radio" name="rsvp" disabled />
+    Maybe
+  </label>
+</div>
+
+<!-- fixture: radios list (.radios wrapper) -->
+<div class="radios">
+  <label class="radio">
+    <input type="radio" name="rsvp" />
+    Going
+  </label>
+  <label class="radio">
+    <input type="radio" name="rsvp" />
+    Not going
+  </label>
+  <label class="radio" disabled>
+    <input type="radio" name="rsvp" disabled />
+    Maybe
+  </label>
+</div>

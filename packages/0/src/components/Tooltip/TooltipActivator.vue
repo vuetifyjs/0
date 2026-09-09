@@ -20,11 +20,14 @@
   // Context
   import { useTooltipRoot } from './TooltipRoot.vue'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
-  import { mergeProps, toRef, useAttrs } from 'vue'
+  import { mergeProps, toRef, useAttrs, useTemplateRef } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { TooltipState } from './TooltipRoot.vue'
 
   export interface TooltipActivatorProps extends AtomProps {
@@ -68,6 +71,10 @@
   } = defineProps<TooltipActivatorProps>()
 
   const root = useTooltipRoot(namespace)
+
+  const atomRef = useTemplateRef<AtomExpose>('atom')
+
+  root.attachAnchor(() => toElement(atomRef.value?.element) ?? null)
 
   function onPointerenter (e: PointerEvent) {
     if (e.pointerType === 'touch') return
@@ -123,6 +130,7 @@
 
 <template>
   <Atom
+    ref="atom"
     :as
     :renderless
     :style="root.anchorStyles.value"

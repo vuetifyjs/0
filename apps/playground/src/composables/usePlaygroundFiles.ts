@@ -1,3 +1,5 @@
+import { isPlaygroundThemeId, sanitizePlaygroundThemes } from '@vuetify/play'
+
 // Framework
 import { IN_BROWSER, isArray, isObject, useTheme, useTimer } from '@vuetify/v0'
 
@@ -7,7 +9,7 @@ import { decodePlaygroundHash, encodePlaygroundHash, isFileRecord, parseVuetifyP
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
 // Data
-import { createMainTs, createVuetifyTs, REPL_BUILTIN_FILES, REPL_TSCONFIG, REPL_TYPESCRIPT_VERSION, UNO_CONFIG_TS, vuetifyEsmUrl } from '@/data/playground-defaults'
+import { createMainTs, createVuetifyTs, detectPaperUsage, paperCdnImports, REPL_BUILTIN_FILES, REPL_TSCONFIG, REPL_TYPESCRIPT_VERSION, UNO_CONFIG_TS, v0CdnImports, vuetifyEsmUrl } from '@/data/playground-defaults'
 import { ADDONS, DEFAULT_APP, PRESETS } from '@/data/presets'
 import { parseRegistryQuery, resolveRegistryExample } from '@/data/registry'
 import { parseVuetifyExampleQuery, resolveVuetifyExample } from '@/data/vuetify-examples'
@@ -17,7 +19,7 @@ import { compileFile, useStore } from '@vue/repl/core'
 import { computed, onMounted, shallowRef, watch, watchEffect } from 'vue'
 
 // Types
-import type { PlaygroundHashData } from '@/composables/usePlayground'
+import type { PlaygroundHashData, PlaygroundThemeDefinition } from '@/composables/usePlayground'
 import type { RegistryExampleRef } from '@/data/registry'
 import type { VuetifyExampleRef } from '@/data/vuetify-examples'
 import type { ShallowRef } from 'vue'
@@ -49,7 +51,8 @@ export function usePlaygroundFiles () {
   const builtinImportMap = computed(() => ({
     imports: {
       ...importMap.value?.imports,
-      '@vuetify/v0': `https://cdn.jsdelivr.net/npm/@vuetify/v0@${v0Version.value}/dist/index.mjs`,
+      ...v0CdnImports(v0Version.value),
+      ...paperCdnImports(),
       // Always available — pinia/vue-router prod builds import this at runtime to detect devtools
       '@vue/devtools-api': 'https://esm.sh/@vue/devtools-api@6',
     },
@@ -75,6 +78,8 @@ export function usePlaygroundFiles () {
   const extraImports = shallowRef<Record<string, string>>()
   const activePreset = shallowRef('default')
   const activeAddons = shallowRef<string[]>([])
+  const extraThemes = shallowRef<Record<string, PlaygroundThemeDefinition>>()
+  const extraDefault = shallowRef<string>()
 
   function mergedMainOptions () {
     const preset = PRESETS.find(p => p.id === activePreset.value)
@@ -86,10 +91,63 @@ export function usePlaygroundFiles () {
     return result
   }
 
+  function applyIncomingTheme (data?: Pick<PlaygroundHashData, 'theme' | 'themes' | 'settings'>) {
+    const raw = data?.theme ?? (data?.settings as { theme?: string } | undefined)?.theme
+    const id = raw && isPlaygroundThemeId(raw) ? raw : undefined
+    extraDefault.value = id
+    extraThemes.value = sanitizePlaygroundThemes(
+      data?.themes ?? (data?.settings as { themes?: Record<string, PlaygroundThemeDefinition> } | undefined)?.themes,
+    )
+  }
+
+  function clearIncomingTheme () {
+    extraDefault.value = undefined
+    extraThemes.value = undefined
+  }
+
+  function sandboxThemeId (isDark: boolean): string {
+    const extra = extraThemes.value
+    const selected = extraDefault.value
+    if (selected && extra?.[selected]?.dark === isDark) {
+      return selected
+    }
+    if (extra) {
+      const match = Object.entries(extra).find(([, def]) => def.dark === isDark)
+      if (match) return match[0]
+    }
+    return isDark ? 'dark' : 'light'
+  }
+
+  function syncHostTheme (id: string | undefined, themes?: Record<string, PlaygroundThemeDefinition>) {
+    if (!id) return
+    const dark = themes?.[id]?.dark ?? id === 'dark'
+    theme.select(dark ? 'dark' : 'light')
+  }
+
+  function scanFiles (scan?: Record<string, string>): Record<string, string> {
+    if (scan) return scan
+    const files: Record<string, string> = {}
+    for (const [path, file] of Object.entries(store.files)) {
+      files[path] = file.code
+    }
+    return files
+  }
+
+  function mainTs (defaultTheme?: string, scan?: Record<string, string>) {
+    const id = defaultTheme ?? sandboxThemeId(theme.isDark.value)
+    return createMainTs(
+      id,
+      { ...mergedMainOptions(), ...detectPaperUsage(scanFiles(scan)) },
+      vuetifyVersion.value,
+      vuetifyNightly.value,
+      extraThemes.value,
+    )
+  }
+
   function rebuildMain () {
     const file = store.files['src/main.ts']
     if (!file) return
-    file.code = createMainTs(theme.isDark.value ? 'dark' : 'light', mergedMainOptions(), vuetifyVersion.value, vuetifyNightly.value)
+    file.code = mainTs()
     compileFile(store, file)
   }
 
@@ -120,6 +178,7 @@ export function usePlaygroundFiles () {
     const search = (!oneId && !decoded) ? new URLSearchParams(window.location.search) : null
     const vuetifyRef = search ? parseVuetifyExampleQuery(search) : null
     const registryRef = search && !vuetifyRef ? parseRegistryQuery(search) : null
+    const themeQuery = search?.get('theme') ?? undefined
 
     if (oneId) {
       one.pauseAutosave()
@@ -157,7 +216,7 @@ export function usePlaygroundFiles () {
       }
     } else if (registryRef) {
       try {
-        await openRegistryExample(registryRef, { clearSearch: true })
+        await openRegistryExample(registryRef, { clearSearch: true, theme: themeQuery })
       } catch (error) {
         loadError.value = error instanceof Error ? error.message : String(error)
         // Drop ?example= so a later hash rewrite / reload does not re-hit a
@@ -201,6 +260,8 @@ export function usePlaygroundFiles () {
       decoded.files['src/setup.ts'] = `document.head.insertAdjacentHTML('afterbegin', '<style>@layer vuetify-core,vuetify-components,vuetify-overrides,vuetify-utilities,vuetify-final;</style>')\n${decoded.files['src/setup.ts']}`
     }
 
+    applyIncomingTheme(decoded)
+    syncHostTheme(decoded.theme, decoded.themes)
     await loadExample(decoded.files, decoded.active)
     if (decoded.imports && Object.keys(decoded.imports).length > 0) {
       extraImports.value = decoded.imports
@@ -209,10 +270,9 @@ export function usePlaygroundFiles () {
   }
 
   async function seedDefault () {
-    const theme_ = theme.isDark.value ? 'dark' : 'light'
     await store.setFiles(
       {
-        'src/main.ts': createMainTs(theme_),
+        'src/main.ts': mainTs(),
         'src/uno.config.ts': UNO_CONFIG_TS,
         'src/App.vue': DEFAULT_APP,
         'tsconfig.json': REPL_TSCONFIG,
@@ -233,6 +293,7 @@ export function usePlaygroundFiles () {
     activeAddons.value = []
     extraImports.value = undefined
     aliasMap.value = new Map()
+    clearIncomingTheme()
     rebuildImportMap()
     await seedDefault()
     filesVersion.value++
@@ -266,18 +327,18 @@ export function usePlaygroundFiles () {
 
     aliasMap.value = nextAliasMap
 
-    const theme_ = theme.isDark.value ? 'dark' : 'light'
     const options = mergedMainOptions()
+    const theme_ = extraDefault.value ?? (theme.isDark.value ? 'dark' : 'light')
     // Ensure bare-specifier imports (vuetify, pinia, …) are on the map before
     // compile. setFiles calls applyBuiltinImportMap which can drop them, so
     // callers still rebuildImportMap() after loadExample — and we seed here too.
     rebuildImportMap()
     await store.setFiles(
       {
-        'src/main.ts': createMainTs(theme_, options, vuetifyVersion.value, vuetifyNightly.value),
+        'src/main.ts': mainTs(theme_, files),
         'src/uno.config.ts': UNO_CONFIG_TS,
         'tsconfig.json': REPL_TSCONFIG,
-        ...(options.vuetify ? { 'src/vuetify.ts': createVuetifyTs(theme_) } : {}),
+        ...(options.vuetify ? { 'src/vuetify.ts': createVuetifyTs(theme.isDark.value ? 'dark' : 'light') } : {}),
         ...files,
         ...aliases,
       },
@@ -319,7 +380,11 @@ export function usePlaygroundFiles () {
     if (activeAddons.value.length > 0) settings.addons = activeAddons.value.join(',')
 
     const data: PlaygroundHashData = { files, active, imports: extraImports.value }
-    if (Object.keys(settings).length > 0) data.settings = settings
+    if (extraDefault.value) data.theme = extraDefault.value
+    if (extraThemes.value) data.themes = extraThemes.value
+    if (Object.keys(settings).length > 0) {
+      return { settings, ...data }
+    }
     return data
   }
 
@@ -364,9 +429,10 @@ export function usePlaygroundFiles () {
   watch(theme.isDark, isDark => {
     if (!isReady.value) return
     const mode = isDark ? 'dark' : 'light'
+    extraDefault.value = sandboxThemeId(isDark)
     const main = store.files['src/main.ts']
     if (main) {
-      main.code = createMainTs(mode, mergedMainOptions(), vuetifyVersion.value, vuetifyNightly.value)
+      main.code = mainTs(extraDefault.value)
       compileFile(store, main)
     }
     // Keep sandbox Vuetify theme aligned with the host chrome toggle.
@@ -382,6 +448,15 @@ export function usePlaygroundFiles () {
     if (!isReady.value || activePreset.value !== 'vuetify') return
     rebuildMain()
     rebuildImportMap()
+  })
+
+  // Inject Paper CSS / icon plugin when the user starts (or stops) importing a DS.
+  watch(() => {
+    const usage = detectPaperUsage(scanFiles())
+    return `${usage.emerald}:${usage.bulma}`
+  }, (next, prev) => {
+    if (!isReady.value || next === prev) return
+    rebuildMain()
   })
 
   watch(() => store.activeFile?.code, code => {
@@ -402,6 +477,7 @@ export function usePlaygroundFiles () {
     activeAddons.value = []
     extraImports.value = preset.imports ?? undefined
     aliasMap.value = new Map() // presets use direct paths, no aliases
+    clearIncomingTheme()
 
     // Import map must include bare `vuetify` *before* setFiles compiles main/vuetify.ts.
     // setFiles re-applies builtins, so rebuild again after to keep preset imports.
@@ -411,7 +487,7 @@ export function usePlaygroundFiles () {
     const options = preset.mainOptions
     await store.setFiles(
       {
-        'src/main.ts': createMainTs(theme_, options, vuetifyVersion.value, vuetifyNightly.value),
+        'src/main.ts': createMainTs(theme_, { ...options, ...detectPaperUsage(preset.files) }, vuetifyVersion.value, vuetifyNightly.value),
         'src/uno.config.ts': UNO_CONFIG_TS,
         'tsconfig.json': REPL_TSCONFIG,
         ...(options?.vuetify ? { 'src/vuetify.ts': createVuetifyTs(theme_) } : {}),
@@ -511,6 +587,8 @@ export function usePlaygroundFiles () {
         if (data.settings?.v0) v0Version.value = data.settings.v0
         if (data.settings?.vuetify) vuetifyVersion.value = data.settings.vuetify
         if (data.settings?.vuetifyNightly) vuetifyNightly.value = data.settings.vuetifyNightly
+        applyIncomingTheme(data)
+        syncHostTheme(data.theme, data.themes)
 
         await loadExample(data.files, data.active)
         rebuildImportMap()
@@ -531,6 +609,7 @@ export function usePlaygroundFiles () {
         activeAddons.value = []
         extraImports.value = Object.keys(imports).length > 0 ? imports : undefined
         aliasMap.value = new Map()
+        clearIncomingTheme()
 
         if (vue) vueVersion.value = vue
 
@@ -547,6 +626,7 @@ export function usePlaygroundFiles () {
         activeAddons.value = []
         extraImports.value = undefined
         aliasMap.value = new Map()
+        clearIncomingTheme()
         await loadExample(parsed)
         rebuildImportMap()
         filesVersion.value++
@@ -562,6 +642,7 @@ export function usePlaygroundFiles () {
     url.searchParams.delete('registry')
     url.searchParams.delete('vuetify')
     url.searchParams.delete('source')
+    url.searchParams.delete('theme')
     history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
   }
 
@@ -572,7 +653,7 @@ export function usePlaygroundFiles () {
    */
   async function openRegistryExample (
     ref: RegistryExampleRef,
-    options: { clearSearch?: boolean } = {},
+    options: { clearSearch?: boolean, theme?: string } = {},
   ) {
     loadError.value = undefined
     const resolved = await resolveRegistryExample(ref)
@@ -582,6 +663,8 @@ export function usePlaygroundFiles () {
     activeAddons.value = []
     extraImports.value = resolved.imports
     aliasMap.value = new Map()
+    applyIncomingTheme(options.theme ? { theme: options.theme } : undefined)
+    syncHostTheme(options.theme)
 
     await loadExample(resolved.files, resolved.active)
     rebuildImportMap()
@@ -616,6 +699,7 @@ export function usePlaygroundFiles () {
     activeAddons.value = []
     extraImports.value = preset?.imports ?? undefined
     aliasMap.value = new Map()
+    clearIncomingTheme()
 
     try {
       // Map first (bare `vuetify` → labs CDN), then compile main + vuetify.ts + App.

@@ -244,7 +244,7 @@ Vuetify0 is already being merged into Vuetify's next major release. The first PR
 
 **Alpha → Beta → Release Candidate → v1.0** — stable, shipped July 22, 2026. [See the full roadmap](/roadmap).
 
-What comes after v1: **Vuetify Paper** — a styled layer built on v0 that provides opinionated design system primitives. Emerald and Onyx are the first design systems. Build on v0 today; Paper gives you a head start on the styled layer when you're ready.
+What comes after v1: **Vuetify Paper** — a styled layer built on v0 that provides opinionated design system primitives. Emerald is in-repo as the first commercial design system; Bulma is the first compat DS. Onyx is not shipped. Build on v0 today; Paper gives you a head start on the styled layer when you're ready.
 
 ### For Your Leadership
 

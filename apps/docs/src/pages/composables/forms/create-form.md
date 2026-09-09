@@ -52,7 +52,7 @@ form.reset()
 
 ### Auto-Registration
 
-When a `createValidation` instance is created inside a component that has a parent form context, it **auto-registers** with the form — no manual `form.register()` needed:
+When a `createValidation` instance is created inside a component that has a parent form context, it **auto-registers** with the form — no manual `form.register()` needed. Defaults join `'v0:form'`; a custom Form `namespace` needs the matching `formNamespace` on the field.
 
 ```vue
 <script setup lang="ts">
@@ -106,7 +106,7 @@ const form = useContactForm()
 await form.submit()
 ```
 
-Validations inside the component tree auto-register with the provided form — no manual `form.register()` needed.
+Validations inside the component tree auto-register when their `formNamespace` matches this context's `namespace` — no manual `form.register()` needed. Defaults are both `'v0:form'`.
 
 ## Architecture
 
@@ -173,7 +173,7 @@ createForm is a pure registry of validations and never holds field values. `rese
 
 ??? Do I have to call `form.register()` for every field?
 
-No. A [createValidation](/composables/forms/create-validation) created inside a component with a parent form context auto-registers (and cleans up on unmount). Manual `form.register({ value })` is only needed for validations built outside the provided tree.
+No. A [createValidation](/composables/forms/create-validation) created inside a component with a parent form context auto-registers (and cleans up on unmount) when `formNamespace` matches the Form's `namespace`. Manual `form.register({ value })` is only needed for validations built outside the provided tree.
 
 ??? What does `form.isValid` return before the first submit?
 

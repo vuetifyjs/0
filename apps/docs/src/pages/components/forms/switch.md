@@ -164,6 +164,28 @@ Drive it off the `data-state` attribute — no JavaScript event handling needed.
 
 Yes. `Switch.Track` and `Switch.Thumb` are purely cosmetic — they read switch state from context to render the rail and knob. You can omit them entirely and render your own visual using the `attrs` slot prop on `Switch.Root`, or use `renderless` mode for full control over the rendered element.
 
+??? How do I focus this control programmatically?
+
+Hold a template ref on `Switch.Root` typed as `AtomExpose` — `ref.value?.element` is the host; call `.focus()` on it. On `Switch.Group`, type the ref as `SwitchGroupExpose` and call `ref.value?.focus()` — that focuses the selected item, or the first if none is selected. Pass DOM `FocusOptions` (`preventScroll`, `focusVisible`); `focusVisible` is pass-through only, not emulated. Renderless roots expose `element: null` — there is no host to focus.
+
+```vue
+<script setup lang="ts">
+  import { Switch } from '@vuetify/v0'
+  import type { AtomExpose, SwitchGroupExpose } from '@vuetify/v0'
+  import { useTemplateRef } from 'vue'
+
+  const root = useTemplateRef<AtomExpose>('root')
+  const group = useTemplateRef<SwitchGroupExpose>('group')
+</script>
+
+<template>
+  <Switch.Root ref="root" />
+  <Switch.Group ref="group">
+    <Switch.Root value="a" />
+  </Switch.Group>
+</template>
+```
+
 :::
 
 <DocsApi />

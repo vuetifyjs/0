@@ -182,6 +182,8 @@
   .emerald-calendar {
     display: flex;
     flex-direction: column;
+    width: 100%;
+    min-width: 0;
     overflow: hidden;
     background: var(--emerald-background, #fefefe);
     border: var(--emerald-stroke-s, 1px) solid var(--emerald-neutral-300, #ccd6e7);

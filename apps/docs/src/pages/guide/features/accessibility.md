@@ -72,15 +72,13 @@ v0 provides the ARIA plumbing. You must provide:
 
 ### Focus Trapping
 
-v0 does **not** provide focus trapping. Use external solutions:
+[useFocusTrap](/composables/system/use-focus-trap) confines Tab and Shift+Tab to a root element, focuses into it on activate, and restores the previously focused element on deactivate.
 
-- [focus-trap](https://github.com/focus-trap/focus-trap)
-- Native `inert` attribute for siblings
-- [vue-final-modal](https://vue-final-modal.org/)
+You do not need it for a `Dialog` with the default `as="dialog"` — `showModal()` makes the browser supply containment, page inerting, and Escape. Reach for it when the host is not a native `<dialog>`: a `Dialog.Content` rendered `as="div"`, a drawer, or a command palette.
 
 ### Roving Tabindex
 
-v0 does **not** provide roving tabindex. This keeps the library headless - implement in your design system layer if needed for arrow key navigation between items.
+[useRovingFocus](/composables/system/use-roving-focus) manages arrow-key navigation across a group of items, keeping exactly one item tabbable and skipping disabled ones. [useVirtualFocus](/composables/system/use-virtual-focus) covers the `aria-activedescendant` variant, where DOM focus stays on a single control while a visual highlight moves.
 
 ### Teleported Content and Landmarks
 
@@ -100,7 +98,7 @@ Content teleported by [Portal](/components/primitives/portal) renders into `body
 | - | - |
 | List selection | Arrow keys, Home/End |
 | Menus | Arrow keys, Escape, Enter |
-| Dialogs | Escape to close, focus trap |
+| Dialogs | Escape to close (focus trapping ships as `useFocusTrap`) |
 | Tabs | Arrow keys, Home/End |
 
 ```ts

@@ -1390,4 +1390,31 @@ describe('dialog', () => {
 
     wrapper.unmount()
   })
+
+  it('should skip the global scrim when scrim is false', async () => {
+    let capturedStack: ReturnType<typeof useStack> | undefined
+    const wrapper = mountWithStack(
+      defineComponent({
+        setup () {
+          capturedStack = useStack()
+          return () => [
+            h(Dialog.Root, { modelValue: true }, {
+              default: () => h(Dialog.Content as any, { scrim: false }, () => h('p', 'Body')),
+            }),
+            h(Scrim, { teleport: false, class: 'test-scrim' }),
+          ]
+        },
+      }),
+      { attachTo: document.body },
+    )
+
+    await nextTick()
+
+    expect(wrapper.find('.test-scrim').exists()).toBe(false)
+    const dialogEl = document.body.querySelector('dialog')
+    expect(dialogEl).not.toBeNull()
+    expect(capturedStack!.topElement.value).not.toBe(dialogEl)
+
+    wrapper.unmount()
+  })
 })

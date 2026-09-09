@@ -217,7 +217,7 @@
         </div>
 
         <p v-if="selected.stabilizing.length === 0" class="text-sm text-on-surface-variant">
-          No stable graduations this release — the two-minor clock resets at v1.0, so the first stable wave lands in v1.2.0.
+          No stable graduations this release — the two-minor clock resets at v1.0, so the first stable wave lands in v1.3.0.
         </p>
       </div>
     </div>

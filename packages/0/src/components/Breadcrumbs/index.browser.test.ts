@@ -1464,6 +1464,34 @@ describe('breadcrumbs', () => {
       el.remove()
     })
 
+    it('should keep all crumbs visible when overflowing with no Ellipsis registered', async () => {
+      // 4 items + 3 dividers = 7 content, measuredCount = 5
+      const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: false })
+      await nextTick()
+      const ctx = context()
+
+      const el = createMeasurableElement(20)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      await nextTick()
+
+      // reserved = 20+8+20+8 = 56 (no ellipsisWidth); width=50 => capacity=0 < measuredCount
+      triggerResize(50)
+      await nextTick()
+
+      expect(ctx.overflow.capacity.value).toBe(0)
+
+      for (const t of ctx.group.values()) {
+        if (t.type !== 'ellipsis' && t.type !== 'activator') {
+          expect(t.isSelected.value).toBe(true)
+        }
+      }
+
+      expect(ctx.hiddenCount.value).toBe(0)
+
+      el.remove()
+    })
+
     it('should hide first divider when w < reserved + fD in capacity=0', async () => {
       const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
       await nextTick()

@@ -147,6 +147,8 @@ watch(query, async q => {
 > [!TIP]
 > See the [Combobox server example](/components/forms/combobox#server-side-filtering) for a complete integration.
 
+Dropdown placement is a separate seam: pass `positionAdapter` (a `PopoverAdapter`) rather than reusing `adapter`. Default is CSS anchor positioning; swap in `FloatingUIPopoverAdapter` from `@vuetify/v0/popover/adapters/floating-ui` the same way as [usePopover](/composables/system/use-popover#adapters).
+
 ## Architecture
 
 `createCombobox` orchestrates four independent primitives without extending their chains — it composes them. The adapter translates queries into a filtered set; virtual focus uses that set to skip hidden items.
@@ -180,6 +182,7 @@ interface ComboboxOptions {
   disabled?: MaybeRefOrGetter<boolean>   // Disable all interaction
   strict?: MaybeRefOrGetter<boolean>     // Revert query on close if no match
   adapter?: ComboboxAdapter              // Filtering strategy (default: ClientComboboxAdapter)
+  positionAdapter?: PopoverAdapter       // Dropdown positioning engine (default: V0PopoverAdapter)
   displayValue?: (value: unknown) => string  // Format selected value for display in input
   id?: string                            // Base ID for ARIA attributes
   name?: string                          // Hidden input name for form submission

@@ -75,6 +75,10 @@
     default: (props: StepRootSlotProps) => any
   }>()
 
+  defineEmits<{
+    'update:model-value': [value: T | T[]]
+  }>()
+
   const {
     namespace = 'v0:step',
     disabled = false,

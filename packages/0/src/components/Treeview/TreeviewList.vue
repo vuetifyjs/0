@@ -18,6 +18,7 @@
 
   // Composables
   import { createContext } from '#v0/composables/createContext'
+  import { FOCUSABLE, tabbable } from '#v0/composables/useFocusTrap/tabbable'
   import { useRovingFocus } from '#v0/composables/useRovingFocus'
 
   // Constants
@@ -31,8 +32,6 @@
   import type { RovingFocusReturn } from '#v0/composables/useRovingFocus'
   import type { ID } from '#v0/types'
   import type { TreeviewListProps, TreeviewListSlotProps } from './types'
-
-  const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]'
 
   export type TreeviewListContext = RovingFocusReturn
 
@@ -119,10 +118,20 @@
     }
   }
 
+  /**
+   * Controls inside a treeitem that Tab can reach.
+   *
+   * `tabbable` owns the generic rules (negative tabindex, disabled, inert,
+   * hidden, collapsed details, radio groups, CSS visibility) and is shared with
+   * `useFocusTrap`. Two rules stay local: roving focus must *skip*
+   * `aria-disabled` items where a trap must keep them (they stay in the tab
+   * order per APG), and only controls owned by this treeitem count — a nested
+   * item's controls belong to that item.
+   */
   function focusableChildren (el: HTMLElement): HTMLElement[] {
     return Array.from(el.querySelectorAll<HTMLElement>(FOCUSABLE))
       .filter(child =>
-        child.getAttribute('tabindex') !== '-1'
+        tabbable(child)
         && child.getAttribute('aria-disabled') !== 'true'
         && child.closest('[role="treeitem"]') === el,
       )

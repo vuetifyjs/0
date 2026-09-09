@@ -25,13 +25,17 @@
   import { useLocale } from '#v0/composables/useLocale'
   import { useTimer } from '#v0/composables/useTimer'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
-  import { mergeProps, onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, watch } from 'vue'
+  import { mergeProps, onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
-  import type { SelectionContext, SelectionTicket } from '#v0/composables/createSelection'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+  import type { SelectionContext } from '#v0/composables/createSelection'
   import type { SingleContext } from '#v0/composables/createSingle'
+  import type { ButtonTicket } from './ButtonGroup.vue'
   import type { Ref } from 'vue'
 
   export interface ButtonRootContext {
@@ -142,12 +146,15 @@
     groupNamespace = 'v0:button:group',
   } = defineProps<ButtonRootProps<V>>()
 
-  let group: SelectionContext<SelectionTicket> | null = null
+  let group: SelectionContext<ButtonTicket> | null = null
   try {
     group = useButtonGroup(groupNamespace)
   } catch {}
 
-  const ticket = group?.register({ value, disabled: () => toValue(disabled) ?? false })
+  const atomRef = useTemplateRef<AtomExpose>('atom')
+  const el = toRef(() => toElement(atomRef.value?.element) ?? undefined)
+
+  const ticket = group?.register({ value, disabled: () => toValue(disabled) ?? false, el })
 
   const isDisabled = toRef(() => group && ticket
     ? toValue(ticket.disabled) || toValue(group.disabled)
@@ -242,10 +249,17 @@
     isSelected: isSelected.value,
     attrs: elementAttrs.value,
   }))
+
+  defineExpose<AtomExpose>({
+    get element () {
+      return (atomRef.value?.element ?? null) as AtomExpose['element']
+    },
+  })
 </script>
 
 <template>
   <Atom
+    ref="atom"
     v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless

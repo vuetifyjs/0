@@ -32,7 +32,7 @@ export interface ServerDataTableAdapterOptions {
   error?: MaybeRefOrGetter<Error | null>
 }
 
-export class ServerDataTableAdapter<T extends Record<string, unknown>> extends DataTableAdapter<T> {
+export class ServerDataTableAdapter<T extends object> extends DataTableAdapter<T> {
   private options: ServerDataTableAdapterOptions
 
   constructor (options: ServerDataTableAdapterOptions) {

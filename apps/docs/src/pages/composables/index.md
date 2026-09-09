@@ -272,13 +272,14 @@ Browser API wrappers with automatic lifecycle cleanup.
 | [useDelay](/composables/system/use-delay) | Schedule open and close transitions with configurable delays |
 | [useDragDrop](/composables/system/use-drag-drop) | Headless drag-and-drop with two registries and pluggable pointer / keyboard adapters |
 | [useEventListener](/composables/system/use-event-listener) | Handle DOM events with automatic cleanup |
+| [useFocusTrap](/composables/system/use-focus-trap) | Confine Tab and Shift+Tab to a root element |
 | [useHotkey](/composables/system/use-hotkey) | Handle hotkey combinations and sequences |
 | [useImage](/composables/system/use-image) | Image loading state machine with deferred loading and retry |
 | [useIntersectionObserver](/composables/system/use-intersection-observer) | Intersection Observer API for visibility detection |
 | [useLazy](/composables/system/use-lazy) | Defer rendering until first activation for dialogs, menus, and tooltips |
 | [useMediaQuery](/composables/system/use-media-query) | Reactive CSS media query matching |
 | [useMutationObserver](/composables/system/use-mutation-observer) | Mutation Observer API for DOM change detection |
-| [usePopover](/composables/system/use-popover) | Native Popover API behavior with CSS anchor positioning |
+| [usePopover](/composables/system/use-popover) | Native Popover API with CSS anchor positioning; install `createPopoverPlugin` to set an app-wide positioning adapter |
 | [usePresence](/composables/system/use-presence) | Animation-agnostic mount lifecycle with lazy mounting and exit timing |
 | [useRaf](/composables/system/use-raf) | Scope-safe requestAnimationFrame with automatic cleanup |
 | [useResizeObserver](/composables/system/use-resize-observer) | Resize Observer API for element size changes |

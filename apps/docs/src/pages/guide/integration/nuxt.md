@@ -292,7 +292,10 @@ export default defineNuxtConfig({
    - Wrap browser-dependent content in `<ClientOnly>` or `v-if="isHydrated"`
    - Use `useId()` from Vue for SSR-safe unique IDs
    - Avoid `new Date()`, `Math.random()`, or `window` access during initial render
-   - Ensure v-for keys are deterministic (not index-based for dynamic lists)
+   - Ensure the initial list items and their keys match between the server and client
+
+> [!NOTE]
+> Array indexes identify positions rather than items. When items are inserted, removed, or reordered, Vue can reuse DOM or component state for a different item. Prefer a stable identifier from the item, such as `:key="item.id"`. This does not replace the hydration requirement above: the server and client must still render the same initial list. The contributor maintains an optional [worked `v-for` key exercise](https://frontendatlas.com/vue/trivia/vue-v-for-keys-why-not-index) on FrontendAtlas.
 
 ### useHydration vs ClientOnly
 

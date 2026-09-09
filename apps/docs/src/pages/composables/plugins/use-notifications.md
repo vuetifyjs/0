@@ -43,7 +43,7 @@ app.mount('#app')
 
 ### Persistence
 
-Pass `persist: true` to remember the notification registry across reloads. Requires [useStorage](/composables/plugins/use-storage) to be installed first. Tickets are stored under the key `notifications` (the plugin namespace with the `v0:` prefix stripped).
+Pass `persist: true` to remember how the user interacted with each notification across reloads. Requires [useStorage](/composables/plugins/use-storage) to be installed first. Only interaction state is stored — a map of notification id to its `readAt` / `seenAt` / `archivedAt` / `snoozedUntil` timestamps under the key `notifications` (the plugin namespace with the `v0:` prefix stripped). Notification content is never stored; your code (or an adapter) stays the source of truth.
 
 ```ts main.ts
 import { createStoragePlugin, createNotificationsPlugin } from '@vuetify/v0'
@@ -52,7 +52,7 @@ app.use(createStoragePlugin())
 app.use(createNotificationsPlugin({ persist: true }))
 ```
 
-Give tickets a stable `id` — generated ids accumulate on every reload. Unknown or malformed stored entries are ignored. On load, persisted tickets win over an adapter's first snapshot; later adapter updates still overlay live remote state.
+Give tickets a stable `id` — saved state is matched by id and merges onto notifications as they register, whether that happens at load or later (adapter pushes, runtime sends). A notification that is never re-registered is not resurrected from storage, and its saved state is pruned on the next write. Expired snoozes and malformed entries are dropped on load.
 
 ## Usage
 
@@ -404,7 +404,7 @@ The `severity` field categorizes notifications by urgency. It maps to ARIA live 
 
 ??? How do I persist notifications across reloads?
 
-Pass `persist: true` to `createNotificationsPlugin`, and install `createStoragePlugin` first. The saved value is the list of identified tickets (including `snoozedUntil`). On load it is reconciled against the registry and wins over an adapter's first snapshot.
+Pass `persist: true` to `createNotificationsPlugin`, and install `createStoragePlugin` first. The saved value is a map of interaction state per notification id (`readAt`, `seenAt`, `archivedAt`, `snoozedUntil`) — never notification content. On load it merges onto notifications as your code or adapter registers them; nothing is created from storage.
 
 ??? How do I keep a notification from auto-dismissing?
 

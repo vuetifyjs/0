@@ -11,6 +11,7 @@ features:
   github: /composables/createDataGrid/
   level: 3
 related:
+  - /components/data/data-grid
   - /composables/data/create-data-table
   - /composables/data/create-filter
   - /composables/data/create-pagination
@@ -157,7 +158,8 @@ flowchart TD
 | `items` | <AppSuccessIcon /> | Final visible items (filter + sort + row order + paginate) |
 | `allItems` | <AppSuccessIcon /> | Raw unprocessed items (projected from registered tickets) |
 | `filteredItems` | <AppSuccessIcon /> | Items after filtering |
-| `sortedItems` | <AppSuccessIcon /> | Items after filter + sort |
+| `sortedItems` | <AppSuccessIcon /> | Items after filter + sort (adapter sort only — ignores `rows.move()`) |
+| `orderedItems` | <AppSuccessIcon /> | Filter + sort + row order, before pagination. `rank()` orders a source by this so `rows.move()` is visible |
 | `layout.columns` | <AppSuccessIcon /> | Resolved columns with size/offset (render set — visible only) |
 | `layout.all` | <AppSuccessIcon /> | Every column incl. hidden, each with a `visible` flag |
 | `layout.pinned` | <AppSuccessIcon /> | Pin region breakdown |
@@ -398,6 +400,10 @@ grid.headers.value
 ## FAQ
 
 ::: faq
+
+??? When should I use DataGrid vs createDataGrid?
+
+Use [DataGrid](/components/data/data-grid) when you want the compound markup and ARIA. Use `createDataGrid` when you own the rendering — custom cells, virtual lists, or `onboard` of a server page.
 
 ??? When should I use createDataGrid vs createDataTable?
 

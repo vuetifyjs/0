@@ -166,6 +166,27 @@ Clicking an already-selected radio does not deselect it because `Radio.Root` exp
 
 Yes. Initialize the `v-model` on `Radio.Group` with the desired `value` — whichever `Radio.Root` has a matching `value` prop will render as checked on mount. You can also use `mandatory="force"` to auto-select the first non-disabled option when no initial value is provided.
 
+??? How do I focus this control programmatically?
+
+Hold a template ref on `Radio.Root` typed as `AtomExpose` — `ref.value?.element` is the host; call `.focus()` on it. On `Radio.Group`, type the ref as `RadioGroupExpose` and call `ref.value?.focus()` — that focuses the selected item, or the first if none is selected. Pass DOM `FocusOptions` (`preventScroll`, `focusVisible`); `focusVisible` is pass-through only, not emulated. Renderless roots expose `element: null` — there is no host to focus.
+
+```vue
+<script setup lang="ts">
+  import { Radio } from '@vuetify/v0'
+  import type { AtomExpose, RadioGroupExpose } from '@vuetify/v0'
+  import { useTemplateRef } from 'vue'
+
+  const root = useTemplateRef<AtomExpose>('root')
+  const group = useTemplateRef<RadioGroupExpose>('group')
+</script>
+
+<template>
+  <Radio.Group ref="group">
+    <Radio.Root ref="root" value="a" />
+  </Radio.Group>
+</template>
+```
+
 :::
 
 <DocsApi />

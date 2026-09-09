@@ -79,6 +79,10 @@
     default: (props: ProgressRootSlotProps) => any
   }>()
 
+  defineEmits<{
+    'update:model-value': [value: number | number[]]
+  }>()
+
   const {
     as = 'div',
     renderless,
@@ -91,7 +95,6 @@
   } = defineProps<ProgressRootProps>()
 
   const model = defineModel<number | number[]>()
-  const scalar = !isArray(model.value) && !isNullOrUndefined(model.value)
 
   const internal = computed({
     get: () => {
@@ -101,8 +104,8 @@
     set: (arr: number[]) => {
       /* v8 ignore next -- defensive guard for null/undefined model with empty registry */
       if (isNullOrUndefined(model.value) && arr.length === 0) return
-      /* v8 ignore next -- arr[0] always defined when scalar=true since model started as a number */
-      model.value = scalar ? (arr[0] ?? 0) : arr
+      /* v8 ignore next -- arr[0] is defined once a fill has registered a value */
+      model.value = isArray(model.value) ? arr : (arr[0] ?? 0)
     },
   })
 

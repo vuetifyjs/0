@@ -292,6 +292,12 @@
       "category": "system",
       "description": "A composable for handling DOM events with automatic cleanup on component unmount."
     },
+    "useFocusTrap": {
+      "level": "preview",
+      "since": null,
+      "category": "system",
+      "description": "Confines Tab and Shift+Tab to a root element, focuses into it on activate, and restores the previously focused element on deactivate."
+    },
     "useHotkey": {
       "level": "preview",
       "since": "0.1.0",
@@ -386,7 +392,7 @@
       "level": "preview",
       "since": "0.1.8",
       "category": "system",
-      "description": "A composable for native popover API behavior with CSS anchor positioning."
+      "description": "Native popover API with a pluggable positioning adapter. Defaults to CSS-anchor positioning; swap in FloatingUIPopoverAdapter (or any PopoverAdapter) per instance or app-wide via createPopoverPlugin."
     },
     "usePresence": {
       "level": "preview",
@@ -650,7 +656,7 @@
     },
     "Alert": {
       "level": "preview",
-      "since": null,
+      "since": "1.2.0",
       "category": "semantic",
       "description": "Inline status message with ARIA live-region semantics. Use role=alert for urgent messages, role=status for informational."
     },
@@ -709,12 +715,16 @@
       "description": "A compound component for building accessible hierarchical tree interfaces with expand/collapse and selection support."
     },
     "DataGrid": {
-      "level": "draft",
-      "category": "data"
+      "level": "preview",
+      "since": "1.2.0",
+      "category": "data",
+      "description": "Headless data grid compound with column layout, cell editing, row ordering, and row spanning. Built on createDataGrid."
     },
     "DataTable": {
-      "level": "draft",
-      "category": "data"
+      "level": "preview",
+      "since": "1.2.0",
+      "category": "data",
+      "description": "Headless compound component for rendering tabular data with sorting, pagination, selection, and expansion support."
     },
     "Kanban": {
       "level": "draft",
@@ -740,6 +750,12 @@
       "since": "0.0.15",
       "category": "utilities"
     },
+    "findMatchRanges": {
+      "level": "preview",
+      "since": "1.2.0",
+      "category": "utilities",
+      "description": "Finds match ranges of a query in a string, optionally folding accents on either side."
+    },
     "foreground": {
       "level": "preview",
       "since": "0.1.11",
@@ -747,8 +763,9 @@
     },
     "getActiveElement": {
       "level": "preview",
-      "since": null,
-      "category": "utilities"
+      "since": "1.2.0",
+      "category": "utilities",
+      "description": "Walks open shadow roots to the deepest focused element. Returns null under SSR."
     },
     "hexToRgb": {
       "level": "preview",
@@ -837,7 +854,7 @@
     },
     "pxToNumber": {
       "level": "preview",
-      "since": null,
+      "since": "1.2.0",
       "category": "utilities",
       "description": "Parses a CSS pixel length into a number, returning a caller-supplied fallback when the length does not parse."
     },

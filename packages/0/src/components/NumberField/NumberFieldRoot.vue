@@ -116,6 +116,8 @@
     format?: Intl.NumberFormatOptions
     /** Whether commit() clamps to min/max (default: true) */
     clamp?: boolean
+    /** When typed input is written into the model (default: 'change') */
+    commitOn?: 'input' | 'change'
     /** Validation rules */
     rules?: (FormValidationRule | RuleAlias | StandardSchemaV1)[]
     /** When to trigger validation */
@@ -132,6 +134,8 @@
     wheel?: boolean
     /** Namespace for context provision */
     namespace?: string
+    /** Namespace for connecting to parent Form. Must match Form's namespace. */
+    formNamespace?: string
   }
 
   export interface NumberFieldRootSlotProps {
@@ -218,7 +222,8 @@
     wrap,
     locale,
     format: formatOptions,
-    clamp: shouldClamp,
+    clamp: shouldClamp = true,
+    commitOn = 'change',
     rules = [],
     validateOn = 'blur',
     error = false,
@@ -227,6 +232,7 @@
     spinRate = 60,
     wheel = false,
     namespace = 'v0:number-field:root',
+    formNamespace = 'v0:form',
   } = defineProps<NumberFieldRootProps>()
 
   const model = defineModel<number | null>({ default: null })
@@ -236,9 +242,12 @@
     id,
     label,
     name,
+    formNamespace,
+    required,
     locale,
     format: formatOptions,
     clamp: shouldClamp,
+    commitOn,
     disabled: () => toValue(disabled),
     readonly: () => toValue(_readonly),
     min,

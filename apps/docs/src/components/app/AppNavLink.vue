@@ -64,10 +64,18 @@
   const childIds = toRef(() => navNested.nested.children.get(id) ?? [])
   const hasChildren = toRef(() => childIds.value.length > 0)
 
-  // Only top-level items can be collapsed (disabled in flat mode)
+  // Top-level groups always collapse; nested groups only when the nav item opts in.
   const isTopLevel = toRef(() => depth === 0)
-  const isCollapsible = toRef(() => !navConfig.flatMode.value && isTopLevel.value && hasChildren.value)
+  const navItem = toRef(() => navNested.nested.get(id)?.value)
+  const isCollapsible = toRef(() => !navConfig.flatMode.value && hasChildren.value && (isTopLevel.value || !!navItem.value?.collapsible))
   const isOpen = toRef(() => isCollapsible.value ? navNested.nested.opened(id) : true)
+  // Persistent groups keep the section indent. Nested collapsible groups
+  // already have a chevron; use a smaller offset so children still line up.
+  const childrenIndent = toRef(() => {
+    if (navItem.value?.collapsible) return 'ml-2'
+    if (isTopLevel.value && !navConfig.flatMode.value) return 'ml-6'
+    return undefined
+  })
 
   // Check if this node is an ancestor of the current route (for highlighting category headers)
   const containsActivePage = toRef(() => {
@@ -128,8 +136,11 @@
 
 <template>
   <li ref="item" class="px-3 scroll-my-[100px]">
-    <div class="flex items-center gap-1" :class="isTopLevel && navConfig.flatMode.value && 'pl-1'">
-      <!-- Expand/collapse toggle button (only for top-level) -->
+    <div
+      class="flex items-center gap-1"
+      :class="[isTopLevel && navConfig.flatMode.value && 'pl-1', !isTopLevel && isCollapsible && '-ml-2']"
+    >
+      <!-- Expand/collapse toggle button -->
       <button
         v-if="isCollapsible"
         :aria-controls="`nav-section-${id}`"
@@ -207,9 +218,9 @@
       </span>
     </div>
 
-    <!-- Children (always visible for nested items, conditional for top-level) -->
+    <!-- Children (conditional when collapsible, always visible otherwise) -->
     <Transition :name="expandTransition" @after-enter="onAfterExpand">
-      <div v-if="hasChildren && isOpen" class="grid mt-2" :class="isTopLevel && !navConfig.flatMode.value && 'ml-6'">
+      <div v-if="hasChildren && isOpen" class="grid mt-2" :class="childrenIndent">
         <ul
           :id="`nav-section-${id}`"
           class="flex flex-col gap-2 overflow-hidden"

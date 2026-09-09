@@ -2,7 +2,7 @@
 import { createVaporApp, vaporInteropPlugin } from '@vue/runtime-vapor'
 
 // Types
-import type { Component } from 'vue'
+import type { Component, Plugin } from 'vue'
 
 export interface VaporMount {
   host: HTMLElement
@@ -16,6 +16,12 @@ export interface MountOptions {
   // Install vaporInteropPlugin so classic (vdom) v0 components can render
   // inside this Vapor app — required for any test that mounts a v0 SFC.
   interop?: boolean
+  // App plugins to install before mount — v0's createXPlugin() objects go
+  // through the same app.use() path they take in a real app.
+  plugins?: Plugin[]
+  // App-level provides, applied before mount the way v0 plugins provide
+  // their contexts.
+  provide?: Record<string, unknown>
 }
 
 // @vue/test-utils has no Vapor support yet (vuejs/core#13687), so mount
@@ -28,6 +34,12 @@ export function mountVapor (component: Component, options: MountOptions = {}): V
   const app = createVaporApp(component as Parameters<typeof createVaporApp>[0], options.props)
   if (options.interop) {
     app.use(vaporInteropPlugin)
+  }
+  for (const plugin of options.plugins ?? []) {
+    app.use(plugin)
+  }
+  for (const [key, value] of Object.entries(options.provide ?? {})) {
+    app.provide(key, value)
   }
   app.mount(host)
 

@@ -160,7 +160,12 @@ function exampleToPlayground (example: RegistryExample): {
   const imports: Record<string, string> = {}
 
   for (const dep of example.dependencies) {
-    if (dep === 'vue' || dep.startsWith('vue/') || dep === '@vuetify/v0') continue
+    if (
+      dep === 'vue'
+      || dep.startsWith('vue/')
+      || dep === '@vuetify/v0'
+      || dep.startsWith('@paper/')
+    ) continue
     imports[dep] = `https://esm.sh/${dep}`
   }
 

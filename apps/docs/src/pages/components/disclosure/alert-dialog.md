@@ -112,6 +112,10 @@ Use AlertDialog when the user must make an explicit choice before proceeding (de
 
 Yes, pass `closeOnEscape` to Content: `<AlertDialog.Content closeOnEscape>`.
 
+??? Can I skip the global Scrim?
+
+Yes, pass `:scrim="false"` on Content when you own the backdrop — same as Dialog.
+
 :::
 
 <DocsApi />

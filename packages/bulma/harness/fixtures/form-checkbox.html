@@ -1,0 +1,60 @@
+<!--
+  Source: https://bulma.io/documentation/form/checkbox/
+  Bulma version: 1.0.4
+  Fetched: 2026-08-01
+  Canonical markup copied verbatim from the docs. label.checkbox WRAPS the
+  native input; label text is a bare text node after the input. Disabled state
+  puts the disabled attribute on BOTH the label and the input (the label
+  `disabled` attribute is non-standard HTML but is what Bulma documents and
+  styles). Lists use the .checkboxes wrapper (added in Bulma 1.0).
+-->
+
+<!-- fixture: basic checkbox -->
+<label class="checkbox">
+  <input type="checkbox" />
+  Remember me
+</label>
+
+<!-- fixture: nested link -->
+<label class="checkbox">
+  <input type="checkbox" />
+  I agree to the <a href="#">terms and conditions</a>
+</label>
+
+<!-- fixture: disabled (attribute on label AND input) -->
+<label class="checkbox" disabled>
+  <input type="checkbox" disabled />
+  Save my preferences
+</label>
+
+<!-- fixture: checkboxes list (.checkboxes wrapper) -->
+<div class="checkboxes">
+  <label class="checkbox">
+    <input type="checkbox" />
+    Monday
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" />
+    Tuesday
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" />
+    Wednesday
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" />
+    Thursday
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" />
+    Friday
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" checked />
+    Saturday
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" checked />
+    Sunday
+  </label>
+</div>

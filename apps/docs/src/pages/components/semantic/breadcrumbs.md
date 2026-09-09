@@ -319,6 +319,10 @@ Use `Breadcrumbs.Link` for navigable crumbs and `Breadcrumbs.Page` for the curre
 
 The `gap` prop (default `8`) must match your actual CSS gap. If they differ, the overflow capacity calculation drifts — set `:gap` to your pixel gap.
 
+??? Why did my crumbs disappear when I didn't add an Ellipsis?
+
+Omitting `Breadcrumbs.Ellipsis` skips truncation; every crumb stays visible. Wrap is consumer CSS. Composing Ellipsis is the overflow-UI opt-in.
+
 ??? How do I render crumbs as Vue Router links?
 
 Pass `:as="RouterLink"` along with `to` on `Breadcrumbs.Link`.

@@ -1,121 +1,106 @@
+import {
+  buildPlaygroundFiles,
+  encodePlaygroundHash,
+} from '@vuetify/play'
+
 // Framework
 import { isObject, isString } from '@vuetify/v0'
 
-// Utilities
-import { toPascal } from '@/utilities/strings'
+export {
+  decodePlaygroundHash,
+  encodePlaygroundHash,
+  loadFflate,
+  toPlaygroundThemes,
+} from '@vuetify/play'
 
-export interface PlaygroundFile {
-  name: string
-  code: string
-}
+export type {
+  PlaygroundFile,
+  PlaygroundHashData,
+  PlaygroundHashSettings,
+  PlaygroundThemeDefinition,
+  UsePlaygroundOptions,
+} from '@vuetify/play'
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-let _fflate: typeof import('fflate') | undefined
-
-export async function loadFflate () {
-  if (!_fflate) _fflate = await import('fflate')
-  return _fflate
-}
-
-async function utoa (data: string): Promise<string> {
-  const { strToU8, strFromU8, zlibSync } = await loadFflate()
-  const buffer = strToU8(data)
-  const zipped = zlibSync(buffer, { level: 9 })
-  const binary = strFromU8(zipped, true)
-  return btoa(binary)
-}
-
-async function atou (base64: string): Promise<string> {
-  const { strToU8, strFromU8, unzlibSync } = await loadFflate()
-  const binary = atob(base64)
-  const buffer = strToU8(binary, true)
-  const unzipped = unzlibSync(buffer)
-  return strFromU8(unzipped)
-}
-
-/**
- * Detect which file is the entry point for a multi-file example.
- */
-export function detectEntryFile (files: PlaygroundFile[]): PlaygroundFile | undefined {
-  const vueFiles = files.filter(f => f.name.endsWith('.vue'))
-
-  const entryNames = ['index.vue', 'App.vue', 'example.vue', 'main.vue']
-  for (const name of entryNames) {
-    const found = vueFiles.find(f => f.name.toLowerCase() === name.toLowerCase())
-    if (found) return found
-  }
-
-  for (const file of vueFiles) {
-    const importsOthers = vueFiles.some(other =>
-      other !== file && file.code.includes(`./${other.name.replace(/\.\w+$/, '')}`),
-    )
-    if (importsOthers) return file
-  }
-
-  return vueFiles.at(-1)
-}
-
-/**
- * Generate an App.vue wrapper that imports and renders the entry component.
- */
-export function generateAppWrapper (entryPath: string): string {
-  const baseName = entryPath.split('/').pop()!.replace(/\.vue$/, '')
-  const pascalName = toPascal(baseName)
-  return [
-    '<' + `script setup lang="ts">`,
-    `  import ${pascalName} from './${entryPath}'`,
-    '</' + 'script>',
-    '',
-    '<template>',
-    '  <div class="p-4">',
-    `    <${pascalName} />`,
-    '  </div>',
-    '</template>',
-    '',
-  ].join('\n')
-}
-
-/**
- * Build the src/-prefixed file record that loadExample expects.
- * When dir is provided, files are nested: src/{dir}/{name}
- */
-function buildPlaygroundFiles (inputFiles: PlaygroundFile[], dir?: string): Record<string, string> {
-  const files: Record<string, string> = {}
-  const prefix = dir ? `src/${dir}` : 'src'
-
-  for (const file of inputFiles) {
-    const path = file.name.startsWith('src/') ? file.name : `${prefix}/${file.name}`
-    files[path] = file.code
-  }
-
-  const hasAppVue = inputFiles.some(f => f.name.toLowerCase() === 'app.vue')
-  if (!hasAppVue) {
-    const entryFile = detectEntryFile(inputFiles)
-    if (entryFile) {
-      const entryPath = dir ? `${dir}/${entryFile.name}` : entryFile.name
-      files['src/App.vue'] = generateAppWrapper(entryPath)
-    }
-  }
-
-  return files
-}
+// Types
+import type {
+  PlaygroundFile,
+  PlaygroundHashData,
+  UsePlaygroundOptions,
+} from '@vuetify/play'
 
 function playgroundBase () {
   return import.meta.env.VITE_PLAYGROUND_URL ?? 'https://v0play.vuetifyjs.com'
 }
 
+const PAPER_CDN = {
+  '@paper/bulma': 'https://cdn.jsdelivr.net/npm/@paper/bulma@latest/dist/index.mjs',
+  '@paper/emerald': 'https://cdn.jsdelivr.net/npm/@paper/emerald@latest/dist/index.mjs',
+  '@paper/emerald/style.css': 'https://cdn.jsdelivr.net/npm/@paper/emerald@latest/dist/style.css',
+  '@paper/emerald/theme.css': 'https://cdn.jsdelivr.net/npm/@paper/emerald@latest/dist/theme.css',
+} as const
+
 /**
- * Get editor URL for multiple files.
- * When dir is provided, files are nested under src/{dir}/.
+ * Map `@paper/emerald` / `@paper/bulma` specifiers in example source to jsDelivr
+ * ESM URLs. The playground also has these on its builtin import map; embedding
+ * them in the hash keeps older v0play builds and shared links self-contained.
+ *
+ * jsDelivr, not esm.sh — these packages import `vue` / `@vuetify/v0` as bare
+ * specifiers and must share the REPL's copies.
+ */
+export function paperImportsFromCode (files: Iterable<{ code: string }>): Record<string, string> {
+  const imports: Record<string, string> = {}
+  for (const file of files) {
+    if (file.code.includes('@paper/emerald')) {
+      imports['@paper/emerald'] = PAPER_CDN['@paper/emerald']
+      imports['@paper/emerald/style.css'] = PAPER_CDN['@paper/emerald/style.css']
+      imports['@paper/emerald/theme.css'] = PAPER_CDN['@paper/emerald/theme.css']
+    }
+    if (file.code.includes('@paper/bulma')) imports['@paper/bulma'] = PAPER_CDN['@paper/bulma']
+  }
+  return imports
+}
+
+/**
+ * Build a v0play URL for the given files.
+ *
+ * Pass `theme` + `themes` to install any theme in the sandbox — docs
+ * palettes, a builder export, or a one-off custom record. `dir` still
+ * accepted as a positional string for older callers.
+ *
+ * @example
+ * ```ts
+ * const url = await usePlayground(files, {
+ *   ...toPlaygroundThemes('brand-light', {
+ *     'brand-light': { dark: false, colors: { primary: '#7453ec', background: '#fff' } },
+ *     'brand-dark': { dark: true, colors: { primary: '#c4b5fd', background: '#121212' } },
+ *   }),
+ * })
+ * ```
  */
 export async function usePlayground (
   inputFiles: PlaygroundFile[],
-  dir?: string,
+  dirOrOptions?: string | UsePlaygroundOptions,
   imports?: Record<string, string>,
 ): Promise<string> {
-  const files = buildPlaygroundFiles(inputFiles, dir)
+  let options: UsePlaygroundOptions
+  if (isString(dirOrOptions)) {
+    options = { dir: dirOrOptions, imports }
+  } else if (isObject(dirOrOptions)) {
+    options = dirOrOptions
+  } else {
+    options = { imports }
+  }
+
+  const files = buildPlaygroundFiles(inputFiles, options.dir)
   const data: PlaygroundHashData = { files }
-  if (imports && Object.keys(imports).length > 0) data.imports = imports
+  const resolved = {
+    ...paperImportsFromCode(inputFiles),
+    ...options.imports,
+  }
+  if (Object.keys(resolved).length > 0) data.imports = resolved
+  if (options.settings && Object.keys(options.settings).length > 0) data.settings = options.settings
+  if (options.theme) data.theme = options.theme
+  if (options.themes && Object.keys(options.themes).length > 0) data.themes = options.themes
   const hash = await encodePlaygroundHash(data)
   return `${playgroundBase()}/#${hash}`
 }
@@ -129,6 +114,8 @@ export interface PlaygroundRegistryRef {
   type?: 'components' | 'composables'
   /** Override docs registry origin. */
   registry?: string
+  /** Sandbox default theme id (`light` / `dark` / palette id). */
+  theme?: string
 }
 
 /**
@@ -158,6 +145,7 @@ export function playgroundRegistryUrl (ref: PlaygroundRegistryRef): string {
     params.set('example', ref.item)
   }
   if (ref.registry) params.set('registry', ref.registry)
+  if (ref.theme) params.set('theme', ref.theme)
   return `${playgroundBase()}/?${params}`
 }
 
@@ -182,51 +170,5 @@ export function registryRefFromExamplePath (path: string): PlaygroundRegistryRef
     type,
     item,
     example: parts[2],
-  }
-}
-
-function isFileRecord (v: unknown): v is Record<string, string> {
-  return isObject(v) && Object.values(v).every(x => isString(x))
-}
-
-export interface PlaygroundHashData {
-  files: Record<string, string>
-  active?: string
-  imports?: Record<string, string>
-}
-
-/**
- * Encode editor state (files + active filename) to a URL hash string.
- */
-export async function encodePlaygroundHash (data: PlaygroundHashData): Promise<string> {
-  return utoa(JSON.stringify(data))
-}
-
-/**
- * Decode an editor hash back to editor state.
- * Handles both the current { files, active } format and the legacy plain Record<string, string> format.
- */
-export async function decodePlaygroundHash (hash: string): Promise<PlaygroundHashData | null> {
-  try {
-    const parsed: unknown = JSON.parse(await atou(hash))
-    if (isFileRecord(parsed)) {
-      return { files: parsed }
-    }
-    if (
-      typeof parsed === 'object'
-      && parsed !== null
-      && 'files' in parsed
-      && isFileRecord((parsed as { files: unknown }).files)
-    ) {
-      const { files, active, imports } = parsed as { files: Record<string, string>, active?: unknown, imports?: unknown }
-      return {
-        files,
-        active: isString(active) ? active : undefined,
-        imports: isFileRecord(imports) ? imports : undefined,
-      }
-    }
-    return null
-  } catch {
-    return null
   }
 }

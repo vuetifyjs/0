@@ -152,6 +152,10 @@ Composables never bind DOM events — that's a component responsibility. createI
 
 createValidation handles rule evaluation only. createInput wraps it and adds field state (dirty, pristine, focused, touched), ARIA IDs, error merging with manual messages, and the `error` prop override. Think of createInput as the full "form field" while createValidation is just the "rule runner."
 
+??? Does required participate in Form submit?
+
+Yes. Form defaults to `novalidate`, so the native `required` attribute never blocks submit. Pass `required: true` to `createInput` and a presence rule is registered — empty values fail `validate()` / Form `submit()`. Presence uses the same `dirty` predicate as `isDirty`.
+
 ??? Why is there no validateOn option?
 
 `validateOn` is event policy — "validate on blur vs input vs submit." That decision belongs in the component, not the composable. The component calls `input.validate()` whenever it decides to.

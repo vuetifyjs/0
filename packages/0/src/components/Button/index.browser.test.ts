@@ -796,4 +796,93 @@ describe('button', () => {
       expect(spy).toHaveBeenCalledTimes(1)
     })
   })
+
+  describe('expose', () => {
+    describe('root', () => {
+      it('should expose the rendered host as element', async () => {
+        const wrapper = mount(Button.Root, {
+          slots: { default: () => h('span', 'Click me') },
+        })
+        await nextTick()
+
+        expect((wrapper.vm as any).element).toBe(wrapper.find('button').element)
+      })
+
+      it('should focus the host via the exposed element', async () => {
+        const wrapper = mount(Button.Root, {
+          slots: { default: () => h('span', 'Click me') },
+          attachTo: document.body,
+        })
+        await nextTick()
+
+        const el = (wrapper.vm as any).element as HTMLElement
+        el.focus()
+        expect(document.activeElement).toBe(el)
+        wrapper.unmount()
+      })
+
+      it('should expose null element when renderless', async () => {
+        const wrapper = mount(Button.Root, {
+          props: { renderless: true },
+          slots: {
+            default: (props: any) => h('div', { class: 'custom', ...props.attrs }, 'Custom'),
+          },
+        })
+        await nextTick()
+
+        expect((wrapper.vm as any).element).toBeNull()
+      })
+    })
+
+    describe('group', () => {
+      it('should focus the selected item', async () => {
+        const wrapper = mount(Button.Group, {
+          props: { modelValue: 'italic' },
+          slots: {
+            default: () => [
+              h(Button.Root as any, { value: 'bold' }, () => h('span', 'bold')),
+              h(Button.Root as any, { value: 'italic' }, () => h('span', 'italic')),
+            ],
+          },
+          attachTo: document.body,
+        })
+        await nextTick()
+
+        ;(wrapper.vm as any).focus()
+        expect(document.activeElement).toBe(wrapper.findAll('button')[1]!.element)
+        wrapper.unmount()
+      })
+
+      it('should focus the first item when none is selected', async () => {
+        const wrapper = mount(Button.Group, {
+          slots: {
+            default: () => [
+              h(Button.Root as any, { value: 'bold' }, () => h('span', 'bold')),
+              h(Button.Root as any, { value: 'italic' }, () => h('span', 'italic')),
+            ],
+          },
+          attachTo: document.body,
+        })
+        await nextTick()
+
+        ;(wrapper.vm as any).focus()
+        expect(document.activeElement).toBe(wrapper.findAll('button')[0]!.element)
+        wrapper.unmount()
+      })
+
+      it('should not throw when the group is empty', async () => {
+        const { wrapper, wait } = mountGroup({ items: [] })
+        await wait()
+
+        expect(() => (wrapper.vm as any).focus()).not.toThrow()
+      })
+
+      it('should accept preventScroll in FocusOptions', async () => {
+        const { wrapper, wait } = mountGroup()
+        await wait()
+
+        expect(() => (wrapper.vm as any).focus({ preventScroll: true })).not.toThrow()
+      })
+    })
+  })
 })

@@ -28,6 +28,14 @@
      * @remarks When true, clicking the scrim will not dismiss this dialog. Use for critical dialogs requiring explicit user action.
      */
     blocking?: boolean
+    /**
+     * Whether the global Scrim should paint a backdrop for this dialog
+     *
+     * @default true
+     * @remarks When false, this dialog still stacks for z-index but `Scrim` skips it.
+     * Use when the consumer owns its own backdrop (e.g. a design-system modal background).
+     */
+    scrim?: boolean
   }
 
   export interface DialogContentEmits {
@@ -82,6 +90,7 @@
     namespace = 'v0:dialog',
     closeOnClickOutside = true,
     blocking = false,
+    scrim = true,
     renderless,
   } = defineProps<DialogContentProps>()
 
@@ -96,6 +105,7 @@
   const ticket = stack.register({
     onDismiss: () => context.close(),
     blocking: () => blocking,
+    scrim: () => scrim,
     el: () => contentRef.value?.element,
   })
 

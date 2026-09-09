@@ -365,6 +365,42 @@ describe('numberField', () => {
       expect(model.value).toBe(0)
     })
 
+    it('should clamp a typed out-of-range value on blur by default', async () => {
+      // Regression test: `clamp` is an optional boolean prop with no
+      // explicit default, so when unset Vue's boolean-prop casting resolves
+      // it to `false` rather than `undefined` — silently disabling the
+      // documented default-true clamping unless a local default is set.
+      const model = ref<number | null>(null)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { min: 10, max: 100 },
+      })
+      await wait()
+
+      await controlEl().trigger('focus')
+      await controlEl().setValue('1')
+      await controlEl().trigger('blur')
+      await wait()
+
+      expect(model.value).toBe(10)
+    })
+
+    it('should skip clamping when clamp is explicitly false', async () => {
+      const model = ref<number | null>(null)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { min: 10, max: 100, clamp: false },
+      })
+      await wait()
+
+      await controlEl().trigger('focus')
+      await controlEl().setValue('1')
+      await controlEl().trigger('blur')
+      await wait()
+
+      expect(model.value).toBe(1)
+    })
+
     it('should expose canIncrement as false at max', async () => {
       const model = ref<number | null>(100)
       const { rootProps, wait } = mountNumberField({
@@ -1758,6 +1794,83 @@ describe('numberField', () => {
       expect(captured.isReadonly).toBe(false)
       expect(captured.isFocused).toBe(false)
       expect(typeof captured.value).toBe('string')
+    })
+  })
+
+  describe('commitOn', () => {
+    it('should not write to the model per keystroke by default', async () => {
+      const model = ref<number | null>(null)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { min: 0, max: 100 },
+      })
+      await wait()
+
+      await controlEl().setValue('5')
+      await wait()
+
+      expect(model.value).toBeNull()
+    })
+
+    it('should write to the model per keystroke when commitOn is input', async () => {
+      const model = ref<number | null>(null)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { min: 0, max: 100, commitOn: 'input' },
+      })
+      await wait()
+
+      await controlEl().setValue('5')
+      await wait()
+
+      expect(model.value).toBe(5)
+    })
+
+    it('should not clamp mid-typing even when the typed value is out of range', async () => {
+      const model = ref<number | null>(null)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { min: 10, max: 100, commitOn: 'input' },
+      })
+      await wait()
+
+      await controlEl().setValue('1')
+      await wait()
+
+      // Typing "15" one digit at a time must not jump to min (10) after "1"
+      expect(model.value).toBe(1)
+    })
+
+    it('should clamp on blur even with commitOn input', async () => {
+      const model = ref<number | null>(null)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { min: 10, max: 100, commitOn: 'input' },
+      })
+      await wait()
+
+      await controlEl().setValue('1')
+      await wait()
+      await controlEl().trigger('blur')
+      await wait()
+
+      expect(model.value).toBe(10)
+    })
+
+    it('should preserve a trailing decimal point while typing', async () => {
+      const model = ref<number | null>(null)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { min: 0, max: 100, commitOn: 'input' },
+      })
+      await wait()
+
+      await controlEl().trigger('focus')
+      await controlEl().setValue('12.')
+      await wait()
+
+      expect(model.value).toBe(12)
+      expect((controlEl().element as HTMLInputElement).value).toBe('12.')
     })
   })
 

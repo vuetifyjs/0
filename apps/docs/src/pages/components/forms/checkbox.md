@@ -148,6 +148,28 @@ Pass the `disabled` prop on `Checkbox.Root`. The component sets `aria-disabled`,
 
 Yes. `Checkbox.Indicator` is purely cosmetic — it reads checkbox state from context to render a checkmark. You can omit it entirely and render your own visual using the `attrs` slot prop on `Checkbox.Root`, or use `renderless` mode for full control over the rendered element.
 
+??? How do I focus this control programmatically?
+
+Hold a template ref on `Checkbox.Root` typed as `AtomExpose` — `ref.value?.element` is the host; call `.focus()` on it. On `Checkbox.Group`, type the ref as `CheckboxGroupExpose` and call `ref.value?.focus()` — that focuses the selected item, or the first if none is selected. Pass DOM `FocusOptions` (`preventScroll`, `focusVisible`); `focusVisible` is pass-through only, not emulated. Renderless roots expose `element: null` — there is no host to focus.
+
+```vue
+<script setup lang="ts">
+  import { Checkbox } from '@vuetify/v0'
+  import type { AtomExpose, CheckboxGroupExpose } from '@vuetify/v0'
+  import { useTemplateRef } from 'vue'
+
+  const root = useTemplateRef<AtomExpose>('root')
+  const group = useTemplateRef<CheckboxGroupExpose>('group')
+</script>
+
+<template>
+  <Checkbox.Root ref="root" />
+  <Checkbox.Group ref="group">
+    <Checkbox.Root value="a" />
+  </Checkbox.Group>
+</template>
+```
+
 :::
 
 <DocsApi />

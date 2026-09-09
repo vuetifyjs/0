@@ -1,0 +1,179 @@
+<!--
+  Source: https://bulma.io/documentation/form/select/
+  Bulma version: 1.0.4
+  Fetched: 2026-08-01
+  Canonical markup copied verbatim from the docs. The div.select WRAPS a
+  native <select>; modifier classes (color, size, is-rounded, is-multiple,
+  is-loading) go on the .select wrapper — EXCEPT is-hovered/is-focused which
+  go on the native select element itself.
+-->
+
+<!-- fixture: basic select (.select > select) -->
+<div class="select">
+  <select>
+    <option>Select dropdown</option>
+    <option>With options</option>
+  </select>
+</div>
+
+<!-- fixture: multiple select (.select.is-multiple + multiple/size attrs on select) -->
+<div class="select is-multiple">
+  <select multiple size="8">
+    <option value="Argentina">Argentina</option>
+    <option value="Bolivia">Bolivia</option>
+    <option value="Brazil">Brazil</option>
+    <option value="Chile">Chile</option>
+    <option value="Colombia">Colombia</option>
+    <option value="Ecuador">Ecuador</option>
+    <option value="Guyana">Guyana</option>
+    <option value="Paraguay">Paraguay</option>
+    <option value="Peru">Peru</option>
+    <option value="Suriname">Suriname</option>
+    <option value="Uruguay">Uruguay</option>
+    <option value="Venezuela">Venezuela</option>
+  </select>
+</div>
+
+<!-- fixture: colors (on the wrapper) -->
+<div class="select is-link">
+  <select>
+    <option>Select dropdown</option>
+    <option>With options</option>
+  </select>
+</div>
+<div class="select is-primary">
+  <select>
+    <option>Select dropdown</option>
+    <option>With options</option>
+  </select>
+</div>
+<div class="select is-info">
+  <select>
+    <option>Select dropdown</option>
+    <option>With options</option>
+  </select>
+</div>
+<div class="select is-success">
+  <select>
+    <option>Select dropdown</option>
+    <option>With options</option>
+  </select>
+</div>
+<div class="select is-warning">
+  <select>
+    <option>Select dropdown</option>
+    <option>With options</option>
+  </select>
+</div>
+<div class="select is-danger">
+  <select>
+    <option>Select dropdown</option>
+    <option>With options</option>
+  </select>
+</div>
+
+<!-- fixture: style rounded (on the wrapper) -->
+<div class="select is-rounded">
+  <select>
+    <option>Rounded dropdown</option>
+    <option>With options</option>
+  </select>
+</div>
+
+<!-- fixture: sizes (on the wrapper) -->
+<div class="select is-small">
+  <select>
+    <option>Select dropdown</option>
+    <option>With options</option>
+  </select>
+</div>
+<div class="select is-normal">
+  <select>
+    <option>Select dropdown</option>
+    <option>With options</option>
+  </select>
+</div>
+<div class="select is-medium">
+  <select>
+    <option>Select dropdown</option>
+    <option>With options</option>
+  </select>
+</div>
+<div class="select is-large">
+  <select>
+    <option>Select dropdown</option>
+    <option>With options</option>
+  </select>
+</div>
+
+<!-- fixture: states hover focus (classes go on the NATIVE select, not the wrapper) -->
+<div class="select">
+  <select class="is-hovered">
+    <option>Select dropdown</option>
+    <option>With options</option>
+  </select>
+</div>
+<div class="select">
+  <select class="is-focused">
+    <option>Select dropdown</option>
+    <option>With options</option>
+  </select>
+</div>
+
+<!-- fixture: state loading (on the wrapper — replaces the dropdown arrow) -->
+<div class="select is-loading">
+  <select>
+    <option>Select dropdown</option>
+    <option>With options</option>
+  </select>
+</div>
+
+<!-- fixture: with icon (.control.has-icons-left wraps .select; icon size matches select size) -->
+<div class="control has-icons-left">
+  <div class="select is-small">
+    <select>
+      <option selected>Country</option>
+      <option>Select dropdown</option>
+      <option>With options</option>
+    </select>
+  </div>
+  <span class="icon is-small is-left">
+    <i class="fas fa-globe"></i>
+  </span>
+</div>
+<div class="control has-icons-left">
+  <div class="select">
+    <select>
+      <option selected>Country</option>
+      <option>Select dropdown</option>
+      <option>With options</option>
+    </select>
+  </div>
+  <span class="icon is-left">
+    <i class="fas fa-globe"></i>
+  </span>
+</div>
+<div class="control has-icons-left">
+  <div class="select is-medium">
+    <select>
+      <option selected>Country</option>
+      <option>Select dropdown</option>
+      <option>With options</option>
+    </select>
+  </div>
+  <span class="icon is-medium is-left">
+    <i class="fas fa-globe"></i>
+  </span>
+</div>
+<div class="control has-icons-left">
+  <div class="select is-large">
+    <select>
+      <option selected>Country</option>
+      <option>Select dropdown</option>
+      <option>With options</option>
+    </select>
+  </div>
+  <span class="icon is-large is-left">
+    <i class="fas fa-globe"></i>
+  </span>
+</div>

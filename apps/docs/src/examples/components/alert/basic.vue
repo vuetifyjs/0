@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { shallowRef } from 'vue'
-  import { Alert } from '@vuetify/v0'
+  import { Alert, Button } from '@vuetify/v0'
 
   const visible = shallowRef(false)
 
@@ -28,13 +28,12 @@
       </Alert.Description>
     </Alert.Root>
 
-    <button
+    <Button.Root
       class="self-start px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium"
-      type="button"
       @click="onShow"
     >
       Show session warning
-    </button>
+    </Button.Root>
 
     <Alert.Root
       v-if="visible"
@@ -50,13 +49,12 @@
         </Alert.Description>
       </div>
 
-      <button
+      <Button.Root
         class="shrink-0 p-1 -mr-1 opacity-50 hover:opacity-100"
-        type="button"
         @click="onDismiss"
       >
         Dismiss
-      </button>
+      </Button.Root>
     </Alert.Root>
   </div>
 </template>

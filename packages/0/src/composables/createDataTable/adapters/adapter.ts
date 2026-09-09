@@ -19,7 +19,7 @@ import { isArray, isNaN, isNullOrUndefined, isNumber, isObject, isString } from 
 import { computed, toRef, toValue } from 'vue'
 
 // Types
-import type { FilterOptions } from '#v0/composables/createFilter'
+import type { FilterItem, FilterOptions } from '#v0/composables/createFilter'
 import type { PaginationContext, PaginationOptions } from '#v0/composables/createPagination'
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
@@ -31,7 +31,7 @@ export interface SortEntry {
 }
 
 /** Inputs provided by createDataTable to the adapter */
-export interface DataTableAdapterContext<T extends Record<string, unknown>> {
+export interface DataTableAdapterContext<T extends object> {
   /** Source items */
   items: MaybeRefOrGetter<T[]>
   /** Search query ref */
@@ -53,7 +53,7 @@ export interface DataTableAdapterContext<T extends Record<string, unknown>> {
 }
 
 /** Outputs returned by the adapter to createDataTable */
-export interface DataTableAdapterResult<T extends Record<string, unknown>> {
+export interface DataTableAdapterResult<T extends object> {
   /** Raw unprocessed items */
   allItems: Readonly<Ref<readonly T[]>>
   /** Items after filtering */
@@ -104,9 +104,12 @@ function compareValues (a: unknown, b: unknown, collator?: Intl.Collator): numbe
   return collator ? collator.compare(sa, sb) : sa.localeCompare(sb)
 }
 
-export abstract class DataTableAdapter<T extends Record<string, unknown>> {
+export abstract class DataTableAdapter<T extends object> {
   /** Create the filter pipeline stage */
-  protected filter (context: DataTableAdapterContext<T>) {
+  protected filter (context: DataTableAdapterContext<T>): {
+    allItems: Readonly<Ref<T[]>>
+    filteredItems: Readonly<Ref<readonly T[]>>
+  } {
     // `customFilter` closes over the reactive maps so column registry mutations
     // are observed at filter-call time rather than at setup time.
     const filterOptions: FilterOptions = {
@@ -136,8 +139,9 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> {
 
     const filter = createFilter(filterOptions)
 
-    const allItems = toRef(() => toValue(context.items))
-    const { items: filteredItems } = filter.apply(context.search, allItems)
+    const allItems = toRef(() => toValue(context.items)) as Readonly<Ref<T[]>>
+    const { items: filtered } = filter.apply(context.search, allItems as MaybeRefOrGetter<FilterItem[]>)
+    const filteredItems = filtered as unknown as Readonly<Ref<readonly T[]>>
 
     return { allItems, filteredItems }
   }
@@ -165,8 +169,8 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> {
 
       return filteredItems.value.toSorted((a, b) => {
         for (const { parts, direction, custom } of resolved) {
-          const aVal = parts.length === 1 ? (a as Record<string, unknown>)[parts[0]!] : getNestedValue(a, parts)
-          const bVal = parts.length === 1 ? (b as Record<string, unknown>)[parts[0]!] : getNestedValue(b, parts)
+          const aVal = parts.length === 1 ? (a as Record<string, unknown>)[parts[0]!] : getNestedValue(a as Record<string, unknown>, parts)
+          const bVal = parts.length === 1 ? (b as Record<string, unknown>)[parts[0]!] : getNestedValue(b as Record<string, unknown>, parts)
           const cmp = custom ? custom(aVal, bVal) : compareValues(aVal, bVal, collator)
           if (cmp !== 0) return direction === 'desc' ? -cmp : cmp
         }

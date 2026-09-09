@@ -22,23 +22,14 @@
 import { toArray } from '#v0/composables/toArray'
 
 // Utilities
+import { findMatchRanges } from '#v0/utilities'
 import { toValue } from 'vue'
 
 // Types
+import type { IgnoreAccents, MatchRange as Range } from '#v0/utilities'
 import type { MaybeRefOrGetter } from 'vue'
 
-/**
- * A `[start, end]` index pair where `end` is exclusive (matches
- * `String.prototype.slice` convention).
- *
- * @example
- * ```ts
- * import type { MatchRange } from '@vuetify/v0'
- *
- * const ranges: MatchRange[] = [[0, 5], [12, 17]]
- * ```
- */
-export type MatchRange = readonly [number, number]
+export type { MatchRange } from '#v0/utilities'
 
 /**
  * A contiguous chunk of source text, flagged as matched or unmatched.
@@ -75,7 +66,7 @@ export interface ToHighlightOptions {
    * Caller-supplied ranges are sorted and merged before chunking, so
    * unsorted or overlapping input is handled gracefully.
    */
-  matches?: MaybeRefOrGetter<readonly MatchRange[] | undefined>
+  matches?: MaybeRefOrGetter<readonly Range[] | undefined>
   /**
    * Highlight every occurrence (`true`) or only the first per term (`false`, default).
    * Ignored when `matches` is provided.
@@ -83,9 +74,14 @@ export interface ToHighlightOptions {
   matchAll?: MaybeRefOrGetter<boolean>
   /** Case-insensitive matching. Default `false`. */
   ignoreCase?: MaybeRefOrGetter<boolean>
+  /**
+   * Folds accents before matching. `'query'` folds only the search term,
+   * `'target'` only the text, `true` both sides. Default `false`.
+   */
+  ignoreAccents?: MaybeRefOrGetter<IgnoreAccents>
 }
 
-function merge (ranges: readonly MatchRange[]): MatchRange[] {
+function merge (ranges: readonly Range[]): Range[] {
   const sorted = ranges
     .filter(span => span[0] < span[1])
     .toSorted((a, b) => a[0] - b[0])
@@ -100,7 +96,7 @@ function merge (ranges: readonly MatchRange[]): MatchRange[] {
   return merged
 }
 
-function chunk (text: string, ranges: readonly MatchRange[]): HighlightChunk[] {
+function chunk (text: string, ranges: readonly Range[]): HighlightChunk[] {
   const chunks: HighlightChunk[] = []
   let cursor = 0
 
@@ -115,25 +111,15 @@ function chunk (text: string, ranges: readonly MatchRange[]): HighlightChunk[] {
   return chunks
 }
 
-function find (text: string, query: string | string[], matchAll: boolean, ignoreCase: boolean): MatchRange[] {
-  const terms = toArray(query).filter(Boolean)
-  const haystack = ignoreCase ? text.toLocaleLowerCase() : text
-  const spans: [number, number][] = []
+function find (
+  text: string,
+  query: string | string[],
+  options: { matchAll: boolean, ignoreCase: boolean, ignoreAccents: IgnoreAccents },
+): Range[] {
+  const spans: Range[] = []
 
-  for (const term of terms) {
-    const needle = ignoreCase ? term.toLocaleLowerCase() : term
-    let index = haystack.indexOf(needle)
-
-    if (index !== -1) {
-      spans.push([index, index + term.length])
-      if (matchAll) {
-        index = haystack.indexOf(needle, index + term.length)
-        while (index !== -1) {
-          spans.push([index, index + term.length])
-          index = haystack.indexOf(needle, index + term.length)
-        }
-      }
-    }
+  for (const term of toArray(query).filter(Boolean)) {
+    spans.push(...findMatchRanges(text, term, options))
   }
 
   return merge(spans)
@@ -149,7 +135,7 @@ function find (text: string, query: string | string[], matchAll: boolean, ignore
  *
  * @param text The source string to split.
  * @param query One or more search terms. Empty strings are ignored. Case sensitivity controlled by `options.ignoreCase`.
- * @param options Optional `matches`, `matchAll`, `ignoreCase`.
+ * @param options Optional `matches`, `matchAll`, `ignoreCase`, `ignoreAccents`.
  * @returns A `HighlightChunk[]` array.
  *
  * @see https://0.vuetifyjs.com/composables/transformers/to-highlight
@@ -177,11 +163,12 @@ export function toHighlight (
   const _matches = toValue(options.matches)
   const matchAll = toValue(options.matchAll) ?? false
   const ignoreCase = toValue(options.ignoreCase) ?? false
+  const ignoreAccents = toValue(options.ignoreAccents) ?? false
 
   if (_matches?.length) return chunk(_text, merge(_matches))
 
   if (_query) {
-    const ranges = find(_text, _query, matchAll, ignoreCase)
+    const ranges = find(_text, _query, { matchAll, ignoreCase, ignoreAccents })
     return ranges.length > 0 ? chunk(_text, ranges) : [{ text: _text, match: false }]
   }
 

@@ -654,6 +654,45 @@ describe('createGroup', () => {
       expect(group.mixedIds.size).toBe(0)
     })
 
+    it('should clear mixedIds on dispose', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+      ])
+      group.mix('item-1')
+
+      group.dispose()
+
+      expect(group.size).toBe(0)
+      expect(group.mixedIds.size).toBe(0)
+    })
+
+    it('should clear mixedIds on clear', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+      ])
+      group.mix('item-1')
+
+      group.clear()
+
+      expect(group.size).toBe(0)
+      expect(group.mixedIds.size).toBe(0)
+    })
+
+    it('should drop mixedIds via ticket.unregister', () => {
+      const group = createGroup()
+      const ticket = group.register({ id: 'item-1', value: 'value-1' })
+      group.mix('item-1')
+
+      ticket.unregister()
+
+      expect(group.size).toBe(0)
+      expect(group.mixedIds.has('item-1')).toBe(false)
+    })
+
     it('should remove from mixedIds on unregister', () => {
       const group = createGroup()
 

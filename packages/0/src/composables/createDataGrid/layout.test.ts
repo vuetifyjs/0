@@ -482,6 +482,41 @@ describe('createColumnLayout', () => {
       expect(total).toBeCloseTo(100)
     })
 
+    it('should zip sizes against visible registry order, not pin display order', () => {
+      const { layout } = setup([
+        { id: 'a', size: 30 },
+        { id: 'b', size: 30 },
+        { id: 'c', size: 40 },
+      ])
+
+      layout.pin('c', 'left')
+      expect(layout.columns.value.map(c => c.id)).toEqual(['c', 'a', 'b'])
+
+      layout.distribute([10, 20, 70])
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBe(10)
+      expect(cols.find(c => c.id === 'b')!.size).toBe(20)
+      expect(cols.find(c => c.id === 'c')!.size).toBe(70)
+    })
+
+    it('should keep hidden column sizes when distributing the visible set', () => {
+      const { layout } = setup([
+        { id: 'a', size: 25 },
+        { id: 'b', size: 25 },
+        { id: 'c', size: 25 },
+        { id: 'd', size: 25 },
+      ])
+
+      layout.hide('b')
+      layout.distribute([40, 30, 30])
+
+      expect(layout.all.value.find(c => c.id === 'a')!.size).toBe(40)
+      expect(layout.all.value.find(c => c.id === 'b')!.size).toBe(25)
+      expect(layout.all.value.find(c => c.id === 'c')!.size).toBe(30)
+      expect(layout.all.value.find(c => c.id === 'd')!.size).toBe(30)
+    })
+
     it('should warn and no-op when array length mismatches', () => {
       const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const { layout } = setup([

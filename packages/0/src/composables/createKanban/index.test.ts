@@ -24,7 +24,7 @@ describe('createKanban', () => {
   })
 
   describe('shape', () => {
-    it('should expose columns sortable, transfer, on, off', () => {
+    it('should expose columns sortable, transfer, on, off, dispose', () => {
       const kanban = createKanban()
 
       expect(typeof kanban.columns.register).toBe('function')
@@ -32,6 +32,8 @@ describe('createKanban', () => {
       expect(typeof kanban.transfer).toBe('function')
       expect(typeof kanban.on).toBe('function')
       expect(typeof kanban.off).toBe('function')
+      expect(typeof kanban.dispose).toBe('function')
+      expect(kanban.columns.dispose).toBe(kanban.dispose)
     })
 
     it('should expose a live kanban.columns.size getter', () => {
@@ -565,6 +567,152 @@ describe('createKanban', () => {
       expect(kanban.transfer(b.id, done.id, 0)).toBeUndefined()
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('unknown ticket id'))
+    })
+  })
+
+  describe('emission sequence', () => {
+    function record () {
+      const kanban = createKanban<CardInput, ColumnInput>()
+      const todo = kanban.columns.register({ value: { title: 'Todo' } })
+      const done = kanban.columns.register({ value: { title: 'Done' } })
+      const a = todo.items.register({ value: { title: 'a' } })
+
+      const events: string[] = []
+
+      function listen () {
+        todo.items.on('unregister:ticket', () => events.push('unregister'))
+        done.items.on('register:ticket', () => events.push('register'))
+        done.items.on('move:ticket', () => events.push('move'))
+        kanban.on('transfer:ticket', () => events.push('transfer'))
+      }
+
+      return { kanban, todo, done, a, events, listen }
+    }
+
+    it('should emit unregister → register → transfer for an append-position transfer (no move:ticket)', () => {
+      const { kanban, done, a, events, listen } = record()
+      listen()
+
+      // register always appends; empty dest lands at 0. transfer(..., 0)
+      // matches that index, so move() (and move:ticket) are skipped.
+      kanban.transfer(a.id, done.id, 0)
+
+      expect(events).toEqual(['unregister', 'register', 'transfer'])
+    })
+
+    it('should emit unregister → register → move → transfer for a mid-position transfer', () => {
+      const { kanban, done, a, events, listen } = record()
+
+      done.items.register({ value: { title: 'x' } })
+      done.items.register({ value: { title: 'y' } })
+      listen()
+
+      kanban.transfer(a.id, done.id, 1)
+
+      expect(events).toEqual(['unregister', 'register', 'move', 'transfer'])
+    })
+  })
+
+  describe('dispose', () => {
+    it('should tear down inner sortables and empty the lookup', () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const kanban = createKanban<CardInput, ColumnInput>()
+      const todo = kanban.columns.register({ value: { title: 'Todo' } })
+      const done = kanban.columns.register({ value: { title: 'Done' } })
+      const a = todo.items.register({ value: { title: 'a' } })
+
+      const todoHandler = vi.fn()
+      const doneHandler = vi.fn()
+      todo.items.on('register:ticket', todoHandler)
+      done.items.on('register:ticket', doneHandler)
+      todo.items.register({ value: { title: 'b' } })
+      done.items.register({ value: { title: 'd' } })
+      expect(todoHandler).toHaveBeenCalledTimes(1)
+      expect(doneHandler).toHaveBeenCalledTimes(1)
+
+      kanban.dispose()
+
+      expect(kanban.columns.size).toBe(0)
+
+      // Inner sortables disposed: prior listeners no longer fire.
+      todo.items.register({ value: { title: 'c' } })
+      done.items.register({ value: { title: 'e' } })
+      expect(todoHandler).toHaveBeenCalledTimes(1)
+      expect(doneHandler).toHaveBeenCalledTimes(1)
+
+      // Lookup emptied: transfer of a previously-known ticket warns as unknown.
+      expect(kanban.transfer(a.id, done.id, 0)).toBeUndefined()
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('unknown ticket id'))
+    })
+
+    it('should silence the kanban transfer:ticket bus after dispose', () => {
+      const kanban = createKanban<CardInput, ColumnInput>()
+      const todo = kanban.columns.register({ value: { title: 'Todo' } })
+      kanban.columns.register({ value: { title: 'Done' } })
+      todo.items.register({ value: { title: 'a' } })
+
+      const handler = vi.fn()
+      kanban.on('transfer:ticket', handler)
+
+      kanban.dispose()
+
+      const todo2 = kanban.columns.register({ value: { title: 'Todo' } })
+      const done2 = kanban.columns.register({ value: { title: 'Done' } })
+      const c = todo2.items.register({ value: { title: 'c' } })
+
+      expect(kanban.transfer(c.id, done2.id, 0)).toBeDefined()
+      expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('should be safe on an empty board and idempotent', () => {
+      const empty = createKanban<CardInput, ColumnInput>()
+      expect(() => empty.dispose()).not.toThrow()
+      expect(empty.columns.size).toBe(0)
+
+      const kanban = createKanban<CardInput, ColumnInput>()
+      const todo = kanban.columns.register({ value: { title: 'Todo' } })
+      todo.items.register({ value: { title: 'a' } })
+
+      kanban.dispose()
+      expect(() => kanban.dispose()).not.toThrow()
+      expect(kanban.columns.size).toBe(0)
+    })
+
+    it('should tear down a rebuilt board on a second dispose', () => {
+      const kanban = createKanban<CardInput, ColumnInput>()
+      kanban.columns.register({ value: { title: 'Todo' } })
+      kanban.dispose()
+
+      const todo = kanban.columns.register({ value: { title: 'Todo' } })
+      const handler = vi.fn()
+      todo.items.on('register:ticket', handler)
+      todo.items.register({ value: { title: 'a' } })
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      kanban.dispose()
+
+      expect(kanban.columns.size).toBe(0)
+      todo.items.register({ value: { title: 'b' } })
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+
+    it('should still dispose a column inner sortable after a rebuild', () => {
+      const kanban = createKanban<CardInput, ColumnInput>()
+      kanban.columns.register({ value: { title: 'Old' } })
+      kanban.dispose()
+
+      const todo = kanban.columns.register({ value: { title: 'Todo' } })
+      const handler = vi.fn()
+      todo.items.on('register:ticket', handler)
+      todo.items.register({ value: { title: 'a' } })
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      todo.unregister()
+
+      todo.items.register({ value: { title: 'b' } })
+      expect(handler).toHaveBeenCalledTimes(1)
     })
   })
 })

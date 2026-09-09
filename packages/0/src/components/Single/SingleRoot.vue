@@ -65,6 +65,10 @@
     default: (props: SingleRootSlotProps) => any
   }>()
 
+  defineEmits<{
+    'update:model-value': [value: T | T[]]
+  }>()
+
   const {
     namespace = 'v0:single',
     disabled = false,

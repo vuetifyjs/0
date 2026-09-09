@@ -1,7 +1,6 @@
 {
   "name": "@paper/emerald",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
   "description": "Emerald design system — Wave 1–4 (v0-composed, Figma-tokened)",
   "license": "MIT",
   "repository": {
@@ -34,6 +33,7 @@
     "./theme.css": "./dist/theme.css"
   },
   "publishConfig": {
+    "access": "public",
     "exports": {
       ".": "./dist/index.mjs",
       "./package.json": "./package.json",

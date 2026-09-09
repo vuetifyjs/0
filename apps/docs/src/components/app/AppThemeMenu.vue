@@ -43,6 +43,7 @@
         <AppPaletteMaterial3Button />
         <AppPaletteRadixButton />
         <AppPaletteAntDesignButton />
+        <AppPaletteEmeraldButton />
       </div>
 
       <slot name="palettes-footer" />

@@ -88,7 +88,12 @@ export const createApp = ViteSSG(
     // Local `dev` still hosts the playground palettes on `v0:theme`, so Emerald
     // takes a side namespace and leaves `data-theme` to each product root.
     if (demo) {
-      app.use(createEmeraldPlugin())
+      app.use(
+        createEmeraldPlugin({
+          theme: { devtools: true },
+          icons: { devtools: true },
+        }),
+      )
       return
     }
 
@@ -96,6 +101,11 @@ export const createApp = ViteSSG(
     // `htmlAttrs: { data-theme }` unconditionally, which would stamp
     // `data-theme="emerald-light"` onto every prerendered playground page.
     if (IN_BROWSER) {
-      app.use(createEmeraldPlugin({ theme: { namespace: 'emerald:theme', target: null } }))
+      app.use(
+        createEmeraldPlugin({
+          theme: { namespace: 'emerald:theme', target: null, devtools: true },
+          icons: { devtools: true },
+        }),
+      )
     }
   })

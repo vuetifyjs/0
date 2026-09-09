@@ -460,13 +460,17 @@ describe('helpers', () => {
       expect(result).toBe(document.body)
     })
 
-    it('should return null when document is undefined (SSR)', () => {
-      const originalDocument = globalThis.document
-      vi.stubGlobal('document', undefined)
+    it('should return null when not in browser (SSR)', async () => {
+      vi.resetModules()
+      vi.doMock('#v0/constants/globals', () => ({
+        IN_BROWSER: false,
+      }))
       try {
-        expect(getActiveElement()).toBeNull()
+        const { getActiveElement: getActive } = await import('./helpers')
+        expect(getActive()).toBeNull()
       } finally {
-        vi.stubGlobal('document', originalDocument)
+        vi.resetModules()
+        vi.doUnmock('#v0/constants/globals')
       }
     })
 

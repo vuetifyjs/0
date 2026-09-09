@@ -1,4 +1,4 @@
-import { readdirSync } from 'node:fs'
+import { readdirSync, writeFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 
 import UnocssVitePlugin from 'unocss/vite'
@@ -6,6 +6,7 @@ import Components from 'unplugin-vue-components/vite'
 import Vue from 'unplugin-vue/rolldown'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import VueDevTools from 'vite-plugin-vue-devtools'
 import Layouts from 'vite-plugin-vue-layouts-next'
 import generateSitemap from 'vite-ssg-sitemap'
 import VueRouter from 'vue-router/vite'
@@ -27,6 +28,7 @@ import generateTestCountPlugin from './build/generate-test-count'
 import generateTipsPlugin from './build/generate-tips'
 import Markdown from './build/markdown'
 import mdRoutesPlugin from './build/md-routes'
+import { isIndexable, PROD_SITE_URL, robotsTxt } from './build/site'
 import { getSkillzSlugs } from './build/skillz-tours'
 import pkg from './package.json' with { type: 'json' }
 
@@ -34,12 +36,6 @@ import pkg from './package.json' with { type: 'json' }
 import type { ViteSSGOptions } from 'vite-ssg'
 
 export default defineConfig({
-  optimizeDeps: {
-    exclude: ['@vue/repl', 'monaco-editor'],
-  },
-  ssr: {
-    noExternal: ['@vue/repl'],
-  },
   build: {
     sourcemap: true,
     rollupOptions: {
@@ -84,13 +80,20 @@ export default defineConfig({
       return [...filtered, ...apiRoutes, ...skillzRoutes, '/404']
     },
     async onFinished () {
-      generateSitemap({
-        hostname: 'https://0.vuetifyjs.com',
-        generateRobotsTxt: false,
-        changefreq: 'daily',
-        priority: 0.7,
-        exclude: ['/404'],
-      })
+      const indexable = isIndexable()
+      if (indexable) {
+        generateSitemap({
+          hostname: PROD_SITE_URL,
+          generateRobotsTxt: false,
+          changefreq: 'daily',
+          priority: 0.7,
+          exclude: ['/404'],
+        })
+      }
+      writeFileSync(
+        fileURLToPath(new URL('dist/robots.txt', import.meta.url)),
+        robotsTxt(indexable),
+      )
       await generateOgImages()
     },
   } as ViteSSGOptions,
@@ -103,6 +106,7 @@ export default defineConfig({
     Vue({
       include: [/\.vue$/, /\.md$/],
     }),
+    VueDevTools(),
     await Markdown(),
     Components({
       dirs: ['src/components'],
@@ -169,11 +173,13 @@ export default defineConfig({
       '@vuetify/v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '@vuetify/paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
       '@paper/genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
+      '@paper/bulma': fileURLToPath(new URL('../../packages/bulma/src', import.meta.url)),
       '@paper/emerald': fileURLToPath(new URL('../../packages/emerald/src', import.meta.url)),
       // internal
       '#v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
       '#genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
+      '#bulma': fileURLToPath(new URL('../../packages/bulma/src', import.meta.url)),
       '#emerald': fileURLToPath(new URL('../../packages/emerald/src', import.meta.url)),
     },
   },
