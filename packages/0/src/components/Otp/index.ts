@@ -3,7 +3,7 @@ export { default as OtpHiddenInput } from './OtpHiddenInput.vue'
 export { default as OtpItem } from './OtpItem.vue'
 
 export { default as OtpRoot } from './OtpRoot.vue'
-export { provideOtpRoot, useOtpRoot } from './OtpRoot.vue'
+export { provideOtpItems, provideOtpRoot, useOtpItems, useOtpRoot } from './OtpRoot.vue'
 
 export type { OtpHiddenInputProps } from './OtpHiddenInput.vue'
 export type { OtpItemProps, OtpItemSlotProps } from './OtpItem.vue'
@@ -91,9 +91,9 @@ export const Otp = {
    * paste distribution across siblings starting at this box. Exposes
    * fill state via `data-state` for CSS-only styling.
    *
-   * In renderless mode the consumer must call `registerItemEl(index, el)`
-   * (via `useOtpRoot`) with the real input; otherwise auto-advance,
-   * arrow, and paste-focus no-op.
+   * In renderless mode the consumer must call
+   * `register({ id: index, value: el })` (via `useOtpItems`) with the
+   * real input; otherwise auto-advance, arrow, and paste-focus no-op.
    *
    * @see https://0.vuetifyjs.com/components/forms/otp#anatomy
    *

@@ -6,8 +6,8 @@
  * @remarks
  * Root component for one-time-password / verification-code inputs. Creates
  * OTP context via createOtp, provides it to child components (Item,
- * HiddenInput), bridges v-model, and tracks per-item element refs so
- * Item can move focus between boxes (auto-advance, backspace-back, paste
+ * HiddenInput), bridges v-model, and keeps an items registry so Item
+ * can move focus between boxes (auto-advance, backspace-back, paste
  * distribution).
  */
 
@@ -21,6 +21,7 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
   import { createOtp } from '#v0/composables/createOtp'
+  import { createRegistry } from '#v0/composables/createRegistry'
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
@@ -29,6 +30,7 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { OtpContext, OtpItemDescriptor, OtpPattern } from '#v0/composables/createOtp'
+  import type { RegistryContext } from '#v0/composables/createRegistry'
   import type { MaybeRefOrGetter, Ref } from 'vue'
 
   export interface OtpRootContext extends OtpContext {
@@ -42,8 +44,6 @@
     isReadonly: Readonly<Ref<boolean>>
     /** ID of element that describes this group */
     ariaDescribedby: Readonly<Ref<string | undefined>>
-    /** Register an Item's focusable element for focus movement between boxes */
-    registerItemEl: (index: number, el: Element | null) => void
     /** Move focus to the item at `index`, clamped to [0, length). No-op if unregistered. */
     focusItem: (index: number) => void
   }
@@ -118,6 +118,7 @@
   }
 
   export const [useOtpRoot, provideOtpRoot] = createContext<OtpRootContext>()
+  export const [useOtpItems, provideOtpItems] = createContext<RegistryContext>({ suffix: 'items' })
 </script>
 
 <script setup lang="ts">
@@ -160,17 +161,12 @@
     },
   })
 
-  const itemEls = new Map<number, Element>()
-
-  function registerItemEl (index: number, el: Element | null) {
-    if (el) itemEls.set(index, el)
-    else itemEls.delete(index)
-  }
+  const items = createRegistry()
 
   function focusItem (index: number) {
     const max = toValue(otp.length) - 1
     const clamped = Math.min(Math.max(index, 0), max)
-    const el = itemEls.get(clamped) as HTMLElement | undefined
+    const el = items.get(clamped)?.value as HTMLElement | undefined
     el?.focus()
   }
 
@@ -184,11 +180,11 @@
     isDisabled,
     isReadonly,
     ariaDescribedby: toRef(() => ariaDescribedby),
-    registerItemEl,
     focusItem,
   }
 
   provideOtpRoot(namespace, context)
+  provideOtpItems(namespace, items)
 
   const locale = useLocale()
 

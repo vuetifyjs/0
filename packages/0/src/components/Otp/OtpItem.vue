@@ -11,10 +11,8 @@
  *
  * In renderless mode Atom does not mount an element, so this Item never
  * registers a focus target by itself. The consumer must call
- * `registerItemEl(index, el)` (via `useOtpRoot`) with the real input;
- * otherwise auto-advance, arrow, and paste-focus no-op. `onFocus`
- * registers `e.target` as a best-effort for the focused box when slot
- * attrs are spread onto the input.
+ * `register({ id: index, value: el })` (via `useOtpItems`) with the real
+ * input; otherwise auto-advance, arrow, and paste-focus no-op.
  */
 
 <script lang="ts">
@@ -22,7 +20,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Context
-  import { useOtpRoot } from './OtpRoot.vue'
+  import { useOtpItems, useOtpRoot } from './OtpRoot.vue'
 
   // Composables
   import { useLocale } from '#v0/composables/useLocale'
@@ -94,18 +92,18 @@
   } = defineProps<OtpItemProps>()
 
   const root = useOtpRoot(namespace)
+  const items = useOtpItems(namespace)
   const locale = useLocale()
 
   const atomRef = useTemplateRef<AtomExpose>('item')
   const el = toRef(() => toElement(atomRef.value?.element) ?? null)
 
   watch(el, next => {
-    root.registerItemEl(index, next)
-  })
+    if (!next) return
+    items.register({ id: index, value: next })
+  }, { immediate: true })
 
-  onBeforeUnmount(() => {
-    root.registerItemEl(index, null)
-  })
+  onBeforeUnmount(() => items.unregister(index))
 
   const char = toRef(() => root.value.value[index] ?? '')
   const state = toRef((): OtpItemState => char.value === '' ? 'empty' : 'filled')
@@ -168,7 +166,6 @@
 
   function onFocus (e: FocusEvent) {
     const target = e.target as HTMLInputElement
-    root.registerItemEl(index, target)
     target.select()
   }
 
