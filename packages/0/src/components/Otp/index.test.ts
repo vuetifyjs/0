@@ -134,6 +134,14 @@ describe('otp', () => {
       expect(itemEls()[0]!.attributes('aria-describedby')).toBe('otp-status')
     })
 
+    it('should set autocomplete one-time-code on each item', () => {
+      const { itemEls } = mountOtp({ length: 4 })
+      for (const item of itemEls()) {
+        expect(item.attributes('autocomplete')).toBe('one-time-code')
+        expect(item.attributes('tabindex')).toBeUndefined()
+      }
+    })
+
     it('should label each item with its position', () => {
       const { itemEls } = mountOtp({ length: 3 })
       const labels = itemEls().map(el => el.attributes('aria-label'))
@@ -400,6 +408,7 @@ describe('otp', () => {
       await wait()
 
       expect(model.value).toBe('1234')
+      expect(document.activeElement).toBe(itemEls()[3]!.element)
     })
   })
 

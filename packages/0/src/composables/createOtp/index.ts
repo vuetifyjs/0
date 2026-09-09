@@ -6,7 +6,7 @@
  * @remarks
  * Headless state for a fixed-length one-time-password / verification-code value.
  * Owns the joined string, per-character pattern matching, length contract,
- * completion edge detection with a decisional async `onComplete` hook, and
+ * a decisional async `onComplete` hook (fires on each new complete string), and
  * validation through `createInput`. Rendering, focus, and per-element event
  * wiring are the consumer's responsibility.
  *
@@ -31,6 +31,7 @@
 
 // Composables
 import { createInput } from '#v0/composables/createInput'
+import { useLocale } from '#v0/composables/useLocale'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
@@ -114,9 +115,10 @@ export interface OtpOptions extends Omit<InputOptions<string>, 'value' | 'error'
    */
   pattern?: MaybeRefOrGetter<OtpPattern>
   /**
-   * Fire when the joined value first reaches `length`. Decisional —
+   * Fire when the joined value becomes a new complete string. Decisional —
    * return / resolve `false` to reject (clears value, sets error).
    * A rejected Promise is treated as `false` and logs a warning.
+   * The same complete string is deduped until the value goes incomplete.
    */
   onComplete?: (value: string) => boolean | void | PromiseLike<boolean | void>
 }
@@ -201,6 +203,7 @@ export function createOtp (_options: OtpOptions = {}): OtpContext {
   } = _options
 
   const logger = useLogger()
+  const locale = useLocale()
 
   const errorRef = shallowRef(false)
   const errorMessagesRef = shallowRef<string[] | undefined>(undefined)
@@ -326,7 +329,7 @@ export function createOtp (_options: OtpOptions = {}): OtpContext {
 
   function reject (): void {
     errorRef.value = true
-    errorMessagesRef.value = ['Invalid code']
+    errorMessagesRef.value = [locale.ti('Otp.invalid') ?? 'Invalid code']
     lastCompleted = ''
     value.value = ''
   }

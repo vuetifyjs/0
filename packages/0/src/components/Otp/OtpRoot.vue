@@ -166,6 +166,7 @@
     pattern: toRef(() => pattern),
     disabled: () => toValue(disabled),
     readonly: () => toValue(_readonly),
+    name,
     onComplete: value => {
       emit('complete', value)
     },

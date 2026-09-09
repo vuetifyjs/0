@@ -50,7 +50,7 @@ Otp renders a group of single-character boxes. Items expose fill state via data 
 
 ### Completion
 
-`@complete` fires once when the joined value first reaches `length` with every character passing the pattern. It is observational — return values are ignored, same as Form `@submit` and Portal `@close`. For reject-and-retry (clear on invalid code, lock while a request is in flight), use [createOtp](/composables/forms/create-otp) and its `onComplete` option.
+`@complete` fires when the joined value becomes a new complete string. It is observational — return values are ignored, same as Form `@submit` and Portal `@close`. For reject-and-retry (clear on invalid code, lock while a request is in flight), use [createOtp](/composables/forms/create-otp) and its `onComplete` option.
 
 ```vue
 <script setup lang="ts">

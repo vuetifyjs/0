@@ -13,13 +13,24 @@
   const locked = toRef(() => state === 'verifying' || state === 'verified')
 
   function focus (index: number) {
-    cells.value?.[index]?.focus()
+    const max = otp.length.value - 1
+    if (max < 0) return
+    cells.value?.[Math.min(Math.max(index, 0), max)]?.focus()
   }
 
   function onInput (index: number, event: Event) {
     const target = event.target as HTMLInputElement
-    otp.write(index, target.value)
-    // Reflect the gated value back so a pattern-rejected keystroke never lingers visually.
+    const text = target.value
+
+    if (text.length > 1) {
+      const previous = otp.value.value.length
+      const written = otp.distribute(text, index)
+      target.value = otp.value.value[index] ?? ''
+      if (written > 0) focus(Math.min(index, previous) + written)
+      return
+    }
+
+    otp.write(index, text)
     target.value = otp.value.value[index] ?? ''
     if (otp.value.value.length > index) focus(index + 1)
   }
@@ -35,8 +46,9 @@
   function onPaste (index: number, event: ClipboardEvent) {
     event.preventDefault()
     const text = event.clipboardData?.getData('text') ?? ''
+    const previous = otp.value.value.length
     const consumed = otp.distribute(text, index)
-    focus(Math.min(index + consumed, otp.length.value - 1))
+    if (consumed > 0) focus(Math.min(index, previous) + consumed)
   }
 </script>
 
