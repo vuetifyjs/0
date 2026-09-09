@@ -1,0 +1,840 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import { Otp } from './index'
+
+// Utilities
+import { mount } from '@vue/test-utils'
+import { h, nextTick, ref } from 'vue'
+
+// Types
+import type { OtpRootSlotProps } from './index'
+import type { VueWrapper } from '@vue/test-utils'
+
+const wrappers: VueWrapper[] = []
+
+afterEach(() => {
+  while (wrappers.length > 0) {
+    wrappers.pop()!.unmount()
+  }
+})
+
+function mountOtp (options: {
+  props?: Record<string, unknown>
+  attrs?: Record<string, unknown>
+  model?: ReturnType<typeof ref<string>>
+  length?: number
+} = {}) {
+  let wrapper: VueWrapper
+  let captured: OtpRootSlotProps
+
+  const props: Record<string, unknown> = {
+    ...(options.model && {
+      'modelValue': options.model.value,
+      'onUpdate:modelValue': (v: unknown) => {
+        options.model!.value = v as string
+        wrapper.setProps({ modelValue: v })
+      },
+    }),
+    length: options.length ?? 6,
+    ...options.props,
+  }
+
+  wrapper = mount(Otp.Root, {
+    props,
+    attrs: options.attrs,
+    slots: {
+      default: (slotProps: OtpRootSlotProps) => {
+        captured = slotProps
+        return slotProps.items.map(item =>
+          h(Otp.Item as any, { key: item.index, index: item.index }),
+        )
+      },
+    },
+    attachTo: document.body,
+  })
+
+  wrappers.push(wrapper)
+
+  return {
+    wrapper,
+    props: () => captured,
+    groupEl: () => wrapper.find('[role="group"]'),
+    itemEls: () => wrapper.findAll('input'),
+    wait: () => nextTick(),
+  }
+}
+
+describe('otp', () => {
+  describe('rendering', () => {
+    it('should render a role=group container', () => {
+      const { groupEl } = mountOtp()
+      expect(groupEl().exists()).toBe(true)
+    })
+
+    it('should render one input per length', () => {
+      const { itemEls } = mountOtp({ length: 4 })
+      expect(itemEls()).toHaveLength(4)
+    })
+
+    it('should expose items from length on Root slot props', async () => {
+      const { props, wait } = mountOtp({ length: 4 })
+      await wait()
+
+      expect(props().items).toEqual([
+        { index: 0, value: '', state: 'empty' },
+        { index: 1, value: '', state: 'empty' },
+        { index: 2, value: '', state: 'empty' },
+        { index: 3, value: '', state: 'empty' },
+      ])
+    })
+
+    it('should grow items when length changes', async () => {
+      const { wrapper, props, wait } = mountOtp({ length: 4 })
+      await wait()
+
+      await wrapper.setProps({ length: 6 })
+      await wait()
+
+      expect(props().items).toHaveLength(6)
+      expect(props().items[5]).toEqual({ index: 5, value: '', state: 'empty' })
+    })
+
+    it('should unregister focus targets when length shrinks', async () => {
+      const { wrapper, itemEls, wait } = mountOtp({ length: 6 })
+      await wait()
+
+      await wrapper.setProps({ length: 4 })
+      await wait()
+
+      expect(itemEls()).toHaveLength(4)
+      await itemEls()[0]!.trigger('keydown', { key: 'End' })
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[3]!.element)
+    })
+
+    it('should default the aria-label', () => {
+      const { groupEl } = mountOtp()
+      expect(groupEl().attributes('aria-label')).toBe('Verification code')
+    })
+
+    it('should use a custom ariaLabel', () => {
+      const { groupEl } = mountOtp({ props: { ariaLabel: 'Enter your code' } })
+      expect(groupEl().attributes('aria-label')).toBe('Enter your code')
+    })
+
+    it('should suppress aria-label when ariaLabelledby is set', () => {
+      const { groupEl } = mountOtp({ props: { ariaLabelledby: 'code-heading' } })
+      expect(groupEl().attributes('aria-label')).toBeUndefined()
+      expect(groupEl().attributes('aria-labelledby')).toBe('code-heading')
+    })
+
+    it('should set aria-describedby on the group and items', () => {
+      const { groupEl, itemEls } = mountOtp({ props: { ariaDescribedby: 'otp-status' } })
+      expect(groupEl().attributes('aria-describedby')).toBe('otp-status')
+      expect(itemEls()[0]!.attributes('aria-describedby')).toBe('otp-status')
+    })
+
+    it('should set autocomplete one-time-code on each item', () => {
+      const { itemEls } = mountOtp({ length: 4 })
+      for (const item of itemEls()) {
+        expect(item.attributes('autocomplete')).toBe('one-time-code')
+        expect(item.attributes('tabindex')).toBeUndefined()
+      }
+    })
+
+    it('should label each item with its position', () => {
+      const { itemEls } = mountOtp({ length: 3 })
+      const labels = itemEls().map(el => el.attributes('aria-label'))
+      expect(labels).toEqual(['Digit 1 of 3', 'Digit 2 of 3', 'Digit 3 of 3'])
+    })
+  })
+
+  describe('v-model', () => {
+    it('should render each character in its box', async () => {
+      const model = ref('12')
+      const { itemEls, wait } = mountOtp({ model, length: 4 })
+      await wait()
+
+      const values = itemEls().map(el => (el.element as HTMLInputElement).value)
+      expect(values).toEqual(['1', '2', '', ''])
+    })
+
+    it('should write a typed character and advance focus', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 3 })
+      await wait()
+
+      await itemEls()[0]!.setValue('4')
+      await wait()
+
+      expect(model.value).toBe('4')
+      expect(document.activeElement).toBe(itemEls()[1]!.element)
+    })
+
+    it('should write a later-box keystroke at the compact-string slot and focus the next empty', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 6 })
+      await wait()
+
+      const input = itemEls()[3]!.element as HTMLInputElement
+      input.focus()
+      const event = new InputEvent('beforeinput', { data: '7', bubbles: true, cancelable: true })
+      input.dispatchEvent(event)
+      await wait()
+
+      expect(model.value).toBe('7')
+      expect(document.activeElement).toBe(itemEls()[1]!.element)
+      expect((itemEls()[3]!.element as HTMLInputElement).value).toBe('')
+    })
+
+    it('should revert a later-box input DOM value when the write lands at the compact-string slot', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 6 })
+      await wait()
+
+      await itemEls()[3]!.setValue('7')
+      await wait()
+
+      expect(model.value).toBe('7')
+      expect(document.activeElement).toBe(itemEls()[1]!.element)
+      expect((itemEls()[3]!.element as HTMLInputElement).value).toBe('')
+    })
+
+    it('should ignore a character the pattern rejects', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 3 })
+      await wait()
+
+      await itemEls()[0]!.setValue('a')
+      await wait()
+
+      expect(model.value).toBe('')
+    })
+
+    it('should revert the box DOM value when the pattern rejects the keystroke', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 3 })
+      await wait()
+
+      await itemEls()[0]!.setValue('a')
+      await wait()
+
+      expect((itemEls()[0]!.element as HTMLInputElement).value).toBe('')
+    })
+
+    it('should prevent a rejected keystroke via beforeinput', async () => {
+      const { itemEls, wait } = mountOtp({ length: 3 })
+      await wait()
+
+      const input = itemEls()[0]!.element as HTMLInputElement
+      const event = new Event('beforeinput', { cancelable: true }) as InputEvent
+      Object.defineProperty(event, 'data', { value: 'a' })
+      Object.defineProperty(event, 'target', { value: input })
+      input.dispatchEvent(event)
+
+      expect(event.defaultPrevented).toBe(true)
+    })
+
+    it('should take over an accepted keystroke via beforeinput', async () => {
+      const { itemEls, wait } = mountOtp({ length: 3 })
+      await wait()
+
+      const input = itemEls()[0]!.element as HTMLInputElement
+      const event = new Event('beforeinput', { cancelable: true }) as InputEvent
+      Object.defineProperty(event, 'data', { value: '4' })
+      Object.defineProperty(event, 'target', { value: input })
+      input.dispatchEvent(event)
+
+      expect(event.defaultPrevented).toBe(true)
+    })
+
+    it('should overwrite a filled cell via beforeinput without backspace', async () => {
+      const model = ref('1')
+      const { itemEls, wait } = mountOtp({ model, length: 3 })
+      await wait()
+
+      const input = itemEls()[0]!.element as HTMLInputElement
+      input.focus()
+      const event = new InputEvent('beforeinput', { data: '9', bubbles: true, cancelable: true })
+      input.dispatchEvent(event)
+      await wait()
+
+      expect(model.value.startsWith('9')).toBe(true)
+      expect(document.activeElement).toBe(itemEls()[1]!.element)
+    })
+
+    it('should distribute a multi-character input event across boxes', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 4 })
+      await wait()
+
+      const input = itemEls()[0]!.element as HTMLInputElement
+      input.value = '1234'
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+      await wait()
+
+      expect(model.value).toBe('1234')
+      expect(document.activeElement).toBe(itemEls()[3]!.element)
+    })
+
+    it('should revert the box DOM value after a multi-character input that leaves this box unchanged', async () => {
+      const model = ref('4')
+      const { itemEls, wait } = mountOtp({ model, length: 6 })
+      await wait()
+
+      const input = itemEls()[0]!.element as HTMLInputElement
+      input.value = '424242'
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+      await wait()
+
+      expect(model.value).toBe('424242')
+      expect((itemEls()[0]!.element as HTMLInputElement).value).toBe('4')
+    })
+
+    it('should ignore multi-character beforeinput data', async () => {
+      const { itemEls, wait } = mountOtp({ length: 3 })
+      await wait()
+
+      const input = itemEls()[0]!.element as HTMLInputElement
+      const event = new Event('beforeinput', { cancelable: true }) as InputEvent
+      Object.defineProperty(event, 'data', { value: 'ab' })
+      Object.defineProperty(event, 'target', { value: input })
+      input.dispatchEvent(event)
+
+      expect(event.defaultPrevented).toBe(false)
+    })
+
+    it('should clear a filled box on native backspace without moving focus', async () => {
+      const model = ref('1')
+      const { itemEls, wait } = mountOtp({ model, length: 3 })
+      await wait()
+
+      await itemEls()[0]!.setValue('')
+      await wait()
+
+      expect(model.value).toBe('')
+      expect(document.activeElement).not.toBe(itemEls()[1]!.element)
+    })
+
+    it('should move focus back and clear the previous box on backspace from empty', async () => {
+      const model = ref('1')
+      const { itemEls, wait } = mountOtp({ model, length: 3 })
+      await wait()
+
+      await itemEls()[1]!.trigger('keydown', { key: 'Backspace' })
+      await wait()
+
+      expect(model.value).toBe('')
+      expect(document.activeElement).toBe(itemEls()[0]!.element)
+    })
+
+    it('should no-op backspace on an empty first box', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 3 })
+      await wait()
+
+      const first = itemEls()[0]!.element as HTMLInputElement
+      first.focus()
+      await itemEls()[0]!.trigger('keydown', { key: 'Backspace' })
+      await wait()
+
+      expect(model.value).toBe('')
+      expect(document.activeElement).toBe(first)
+    })
+
+    it('should move focus with arrow keys', async () => {
+      const { itemEls, wait } = mountOtp({ length: 3 })
+      await wait()
+
+      await itemEls()[0]!.trigger('keydown', { key: 'ArrowRight' })
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[1]!.element)
+
+      await itemEls()[1]!.trigger('keydown', { key: 'ArrowLeft' })
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[0]!.element)
+    })
+
+    it('should move focus to the first and last box with Home and End', async () => {
+      const { itemEls, wait } = mountOtp({ length: 4 })
+      await wait()
+
+      await itemEls()[3]!.trigger('keydown', { key: 'Home' })
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[0]!.element)
+
+      await itemEls()[0]!.trigger('keydown', { key: 'End' })
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[3]!.element)
+    })
+
+    it('should clamp arrow navigation at both ends', async () => {
+      const { itemEls, wait } = mountOtp({ length: 3 })
+      await wait()
+
+      const first = itemEls()[0]!.element as HTMLInputElement
+      const last = itemEls()[2]!.element as HTMLInputElement
+
+      first.focus()
+      await itemEls()[0]!.trigger('keydown', { key: 'ArrowLeft' })
+      await wait()
+      expect(document.activeElement).toBe(first)
+
+      last.focus()
+      await itemEls()[2]!.trigger('keydown', { key: 'ArrowRight' })
+      await wait()
+      expect(document.activeElement).toBe(last)
+    })
+
+    it('should keep focus on the last box when typing into it', async () => {
+      const model = ref('12')
+      const { itemEls, wait } = mountOtp({ model, length: 3 })
+      await wait()
+
+      await itemEls()[2]!.setValue('3')
+      await wait()
+
+      expect(model.value).toBe('123')
+      expect(document.activeElement).toBe(itemEls()[2]!.element)
+    })
+
+    it('should distribute pasted text across boxes and focus past the last written box', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 4 })
+      await wait()
+
+      const dataTransfer = { getData: () => '1234' }
+      await itemEls()[0]!.trigger('paste', { clipboardData: dataTransfer })
+      await wait()
+
+      expect(model.value).toBe('1234')
+      expect(document.activeElement).toBe(itemEls()[3]!.element)
+    })
+  })
+
+  describe('paste', () => {
+    it('should filter rejected characters out of pasted text', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 4 })
+      await wait()
+
+      const dataTransfer = { getData: () => '1a2b' }
+      await itemEls()[0]!.trigger('paste', { clipboardData: dataTransfer })
+      await wait()
+
+      expect(model.value).toBe('12')
+      expect(document.activeElement).toBe(itemEls()[2]!.element)
+    })
+
+    it('should ignore a paste with no accepted characters', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 4 })
+      await wait()
+
+      const first = itemEls()[0]!.element as HTMLInputElement
+      first.focus()
+      const dataTransfer = { getData: () => 'abc' }
+      await itemEls()[0]!.trigger('paste', { clipboardData: dataTransfer })
+      await wait()
+
+      expect(model.value).toBe('')
+      expect(document.activeElement).toBe(first)
+    })
+
+    it('should truncate a paste longer than length', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 4 })
+      await wait()
+
+      const dataTransfer = { getData: () => '123456789' }
+      await itemEls()[0]!.trigger('paste', { clipboardData: dataTransfer })
+      await wait()
+
+      expect(model.value).toBe('1234')
+      expect(document.activeElement).toBe(itemEls()[3]!.element)
+    })
+
+    it('should focus the next empty box when pasting into a later box with a short value', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 6 })
+      await wait()
+
+      const dataTransfer = { getData: () => '12' }
+      await itemEls()[3]!.trigger('paste', { clipboardData: dataTransfer })
+      await wait()
+
+      expect(model.value).toBe('12')
+      expect(document.activeElement).toBe(itemEls()[2]!.element)
+    })
+
+    it('should not distribute while disabled', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, props: { disabled: true } })
+      await wait()
+
+      const dataTransfer = { getData: () => '1234' }
+      await itemEls()[0]!.trigger('paste', { clipboardData: dataTransfer })
+      await wait()
+
+      expect(model.value).toBe('')
+    })
+  })
+
+  describe('pattern', () => {
+    it('should set inputmode numeric for the numeric pattern', () => {
+      const { itemEls } = mountOtp()
+      expect(itemEls()[0]!.attributes('inputmode')).toBe('numeric')
+    })
+
+    it('should accept letters with the alphanumeric pattern', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, props: { pattern: 'alphanumeric' } })
+      await wait()
+
+      expect(itemEls()[0]!.attributes('inputmode')).toBe('text')
+
+      await itemEls()[0]!.setValue('a')
+      await wait()
+
+      expect(model.value).toBe('a')
+    })
+
+    it('should apply a custom RegExp pattern per character', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, props: { pattern: /^[0-7]$/ } })
+      await wait()
+
+      await itemEls()[0]!.setValue('8')
+      await wait()
+      expect(model.value).toBe('')
+
+      await itemEls()[0]!.setValue('7')
+      await wait()
+      expect(model.value).toBe('7')
+    })
+
+    it('should react to a pattern prop change', async () => {
+      const model = ref('')
+      const { wrapper, itemEls, wait } = mountOtp({ model })
+      await wait()
+
+      expect(itemEls()[0]!.attributes('inputmode')).toBe('numeric')
+
+      await wrapper.setProps({ pattern: 'alphabetic' })
+      await wait()
+
+      expect(itemEls()[0]!.attributes('inputmode')).toBe('text')
+
+      await itemEls()[0]!.setValue('z')
+      await wait()
+
+      expect(model.value).toBe('z')
+    })
+  })
+
+  describe('disabled state', () => {
+    it('should mark the group aria-disabled', () => {
+      const { groupEl } = mountOtp({ props: { disabled: true } })
+      expect(groupEl().attributes('aria-disabled')).toBe('true')
+    })
+
+    it('should mark items disabled and data-disabled', () => {
+      const { itemEls } = mountOtp({ props: { disabled: true } })
+      expect(itemEls()[0]!.attributes('disabled')).toBeDefined()
+      expect(itemEls()[0]!.attributes('data-disabled')).toBe('true')
+    })
+
+    it('should not write while disabled', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, props: { disabled: true } })
+      await wait()
+
+      await itemEls()[0]!.setValue('4')
+      await wait()
+
+      expect(model.value).toBe('')
+    })
+  })
+
+  describe('readonly state', () => {
+    it('should mark the group and items data-readonly', () => {
+      const { groupEl, itemEls } = mountOtp({ props: { readonly: true } })
+      expect(groupEl().attributes('data-readonly')).toBe('true')
+      expect(itemEls()[0]!.attributes('readonly')).toBeDefined()
+      expect(itemEls()[0]!.attributes('data-readonly')).toBe('true')
+    })
+
+    it('should not write while readonly', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, props: { readonly: true } })
+      await wait()
+
+      await itemEls()[0]!.setValue('4')
+      await wait()
+
+      expect(model.value).toBe('')
+    })
+  })
+
+  describe('name prop', () => {
+    it('should render a hidden input with the joined value', async () => {
+      const model = ref('123')
+      const { wrapper, wait } = mountOtp({ model, props: { name: 'code' } })
+      await wait()
+
+      const hidden = wrapper.find('input[type="hidden"]')
+      expect(hidden.exists()).toBe(true)
+      expect(hidden.attributes('name')).toBe('code')
+      expect((hidden.element as HTMLInputElement).value).toBe('123')
+    })
+
+    it('should keep the hidden input in sync as the value changes', async () => {
+      const model = ref('')
+      const { wrapper, itemEls, wait } = mountOtp({ model, length: 3, props: { name: 'code' } })
+      await wait()
+
+      await itemEls()[0]!.setValue('4')
+      await wait()
+
+      const hidden = wrapper.find('input[type="hidden"]')
+      expect((hidden.element as HTMLInputElement).value).toBe('4')
+    })
+
+    it('should disable the hidden input when disabled', () => {
+      const { wrapper } = mountOtp({ props: { name: 'code', disabled: true } })
+      const hidden = wrapper.find('input[type="hidden"]')
+      expect(hidden.attributes('disabled')).toBeDefined()
+    })
+
+    it('should not render a hidden input without name', () => {
+      const { wrapper } = mountOtp()
+      expect(wrapper.find('input[type="hidden"]').exists()).toBe(false)
+    })
+  })
+
+  describe('complete', () => {
+    it('should mark data-complete when the value reaches length', async () => {
+      const model = ref('12345')
+      const { groupEl, itemEls, wait } = mountOtp({ model, length: 6 })
+      await wait()
+
+      await itemEls()[5]!.setValue('6')
+      await wait()
+
+      expect(groupEl().attributes('data-complete')).toBe('true')
+    })
+
+    it('should emit complete once with the joined value', async () => {
+      const onComplete = vi.fn()
+      const model = ref('')
+      const { wrapper, itemEls, wait } = mountOtp({ model, length: 2, attrs: { onComplete } })
+      await wait()
+
+      await itemEls()[0]!.setValue('1')
+      await wait()
+      await itemEls()[1]!.setValue('2')
+      await wait()
+
+      expect(onComplete).toHaveBeenCalledTimes(1)
+      expect(onComplete).toHaveBeenCalledWith('12')
+      expect(wrapper.emitted('complete')).toEqual([['12']])
+    })
+
+    it('should emit complete again after clearing and refilling', async () => {
+      const onComplete = vi.fn()
+      const model = ref('1')
+      const { itemEls, wait } = mountOtp({ model, length: 2, attrs: { onComplete } })
+      await wait()
+
+      await itemEls()[1]!.setValue('2')
+      await wait()
+      expect(onComplete).toHaveBeenCalledTimes(1)
+
+      await itemEls()[1]!.setValue('')
+      await wait()
+      await itemEls()[1]!.setValue('3')
+      await wait()
+
+      expect(onComplete).toHaveBeenCalledTimes(2)
+      expect(onComplete).toHaveBeenLastCalledWith('13')
+    })
+
+    it('should ignore a false return from complete', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({
+        model,
+        length: 2,
+        attrs: { onComplete: () => false },
+      })
+      await wait()
+
+      await itemEls()[0]!.setValue('1')
+      await wait()
+      await itemEls()[1]!.setValue('2')
+      await wait()
+
+      expect(model.value).toBe('12')
+    })
+  })
+
+  describe('expose', () => {
+    it('should expose focus clamped to the boxes', async () => {
+      const { wrapper, itemEls, wait } = mountOtp({ length: 3 })
+      await wait()
+
+      const vm = wrapper.vm as unknown as { focus: (id?: number) => void }
+
+      vm.focus(1)
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[1]!.element)
+
+      vm.focus(99)
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[2]!.element)
+
+      vm.focus()
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[0]!.element)
+    })
+
+    it('should focus the first empty box when focus is called without an index', async () => {
+      const model = ref('12')
+      const { wrapper, itemEls, wait } = mountOtp({ model, length: 4 })
+      await wait()
+
+      const vm = wrapper.vm as unknown as { focus: (index?: number) => void }
+      vm.focus()
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[2]!.element)
+    })
+
+    it('should focus the last box when complete and focus is called without an index', async () => {
+      const model = ref('1234')
+      const { wrapper, itemEls, wait } = mountOtp({ model, length: 4 })
+      await wait()
+
+      const vm = wrapper.vm as unknown as { focus: (index?: number) => void }
+      vm.focus()
+      await wait()
+      expect(document.activeElement).toBe(itemEls()[3]!.element)
+    })
+  })
+
+  describe('guards', () => {
+    it('should skip beforeinput handling while disabled or readonly', async () => {
+      for (const prop of ['disabled', 'readonly'] as const) {
+        const { itemEls, wait } = mountOtp({ length: 2, props: { [prop]: true } })
+        await wait()
+
+        const input = itemEls()[0]!.element as HTMLInputElement
+        const event = new Event('beforeinput', { cancelable: true }) as InputEvent
+        Object.defineProperty(event, 'data', { value: 'x' })
+        Object.defineProperty(event, 'target', { value: input })
+        input.dispatchEvent(event)
+
+        expect(event.defaultPrevented).toBe(false)
+      }
+    })
+
+    it('should ignore arrow keys while disabled or readonly', async () => {
+      for (const prop of ['disabled', 'readonly'] as const) {
+        const { itemEls, wait } = mountOtp({ length: 2, props: { [prop]: true } })
+        await wait()
+
+        await itemEls()[0]!.trigger('keydown', { key: 'ArrowRight' })
+        await wait()
+
+        expect(document.activeElement).not.toBe(itemEls()[1]!.element)
+      }
+    })
+
+    it('should leave backspace on a filled box to the native input', async () => {
+      const model = ref('12')
+      const { itemEls, wait } = mountOtp({ model, length: 3 })
+      await wait()
+
+      const input = itemEls()[1]!.element as HTMLInputElement
+      const event = new KeyboardEvent('keydown', { key: 'Backspace', cancelable: true })
+      input.dispatchEvent(event)
+      await wait()
+
+      expect(event.defaultPrevented).toBe(false)
+      expect(model.value).toBe('12')
+    })
+
+    it('should ignore unrelated keys', async () => {
+      const model = ref('1')
+      const { itemEls, wait } = mountOtp({ model, length: 3 })
+      await wait()
+
+      const first = itemEls()[0]!.element as HTMLInputElement
+      first.focus()
+      await itemEls()[0]!.trigger('keydown', { key: 'Tab' })
+      await wait()
+
+      expect(model.value).toBe('1')
+      expect(document.activeElement).toBe(first)
+    })
+
+    it('should not distribute while readonly', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, props: { readonly: true } })
+      await wait()
+
+      const dataTransfer = { getData: () => '1234' }
+      await itemEls()[0]!.trigger('paste', { clipboardData: dataTransfer })
+      await wait()
+
+      expect(model.value).toBe('')
+    })
+
+    it('should treat a paste without clipboard data as empty', async () => {
+      const model = ref('')
+      const { itemEls, wait } = mountOtp({ model, length: 3 })
+      await wait()
+
+      await itemEls()[0]!.trigger('paste')
+      await wait()
+
+      expect(model.value).toBe('')
+    })
+  })
+
+  describe('renderless', () => {
+    it('should drive a consumer-rendered input through slot attrs', async () => {
+      const model = ref('')
+
+      const wrapper: VueWrapper = mount(Otp.Root, {
+        props: {
+          'length': 2,
+          'modelValue': model.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            model.value = v as string
+            wrapper.setProps({ modelValue: v })
+          },
+        },
+        slots: {
+          default: () => Array.from({ length: 2 }, (_, i) =>
+            h(Otp.Item as any, { key: i, index: i, renderless: true }, {
+              default: (props: { attrs: Record<string, unknown>, state: string }) =>
+                h('input', { ...props.attrs, 'data-custom': props.state }),
+            }),
+          ),
+        },
+        attachTo: document.body,
+      })
+      wrappers.push(wrapper)
+      await nextTick()
+
+      const inputs = wrapper.findAll('input')
+      expect(inputs).toHaveLength(2)
+      expect(inputs[0]!.attributes('data-custom')).toBe('empty')
+
+      await inputs[0]!.setValue('4')
+      await nextTick()
+
+      expect(model.value).toBe('4')
+      expect(inputs[0]!.attributes('data-custom')).toBe('filled')
+    })
+  })
+})

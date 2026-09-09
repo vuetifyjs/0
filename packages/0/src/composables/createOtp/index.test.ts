@@ -22,17 +22,59 @@ describe('createOtp', () => {
       expect(otp.length.value).toBe(6)
       expect(otp.input).toBeDefined()
       expect(otp.isComplete.value).toBe(false)
+      expect(otp.isValidating.value).toBe(false)
       expect(typeof otp.write).toBe('function')
       expect(typeof otp.distribute).toBe('function')
       expect(typeof otp.clear).toBe('function')
       expect(typeof otp.fill).toBe('function')
       expect(typeof otp.accepts).toBe('function')
+      expect(otp.items.value).toHaveLength(6)
     })
 
     it('should accept an external value ref', () => {
       const value = shallowRef('123')
       const otp = setup({ value })
       expect(otp.value.value).toBe('123')
+    })
+  })
+
+  describe('items', () => {
+    it('should compute 6 empty items by default', () => {
+      const otp = setup()
+
+      expect(otp.items.value).toEqual([
+        { index: 0, value: '', state: 'empty' },
+        { index: 1, value: '', state: 'empty' },
+        { index: 2, value: '', state: 'empty' },
+        { index: 3, value: '', state: 'empty' },
+        { index: 4, value: '', state: 'empty' },
+        { index: 5, value: '', state: 'empty' },
+      ])
+    })
+
+    it('should mark filled items from the joined value', () => {
+      const otp = setup({ length: 4 })
+      otp.write(0, '4')
+      otp.write(1, '2')
+
+      expect(otp.items.value).toEqual([
+        { index: 0, value: '4', state: 'filled' },
+        { index: 1, value: '2', state: 'filled' },
+        { index: 2, value: '', state: 'empty' },
+        { index: 3, value: '', state: 'empty' },
+      ])
+    })
+
+    it('should update items when length changes', () => {
+      const length = shallowRef(4)
+      const otp = setup({ length })
+
+      expect(otp.items.value).toHaveLength(4)
+
+      length.value = 6
+
+      expect(otp.items.value).toHaveLength(6)
+      expect(otp.items.value[5]).toEqual({ index: 5, value: '', state: 'empty' })
     })
   })
 
@@ -102,6 +144,13 @@ describe('createOtp', () => {
       expect(otp.value.value).toBe('4')
     })
 
+    it('should keep the tail when overwriting a middle character', () => {
+      const otp = setup({ length: 4 })
+      otp.fill('1234')
+      otp.write(1, '9')
+      expect(otp.value.value).toBe('1934')
+    })
+
     it('should write at the configured length boundary', () => {
       const otp = setup({ length: 4 })
       otp.fill('12')
@@ -152,12 +201,20 @@ describe('createOtp', () => {
       expect(otp.value.value).toBe('123456')
     })
 
-    it('should splice into the existing value at the given index', () => {
+    it('should overwrite from the given index through the end', () => {
       const otp = setup({ length: 6 })
       otp.fill('12')
       const count = otp.distribute('34', 2)
       expect(count).toBe(2)
       expect(otp.value.value).toBe('1234')
+    })
+
+    it('should drop the tail after the paste start', () => {
+      const otp = setup({ length: 6 })
+      otp.fill('123456')
+      const count = otp.distribute('99', 1)
+      expect(count).toBe(2)
+      expect(otp.value.value).toBe('199')
     })
 
     it('should clip to length when distribute would overflow', () => {
@@ -271,7 +328,7 @@ describe('createOtp', () => {
   })
 
   describe('onComplete (sync)', () => {
-    it('should fire once on the false → true edge', async () => {
+    it('should fire when the value first becomes complete', async () => {
       const onComplete = vi.fn()
       const otp = setup({ length: 4, onComplete })
       otp.fill('1234')
@@ -289,6 +346,17 @@ describe('createOtp', () => {
       otp.fill('5678')
       await nextTick()
       expect(onComplete).toHaveBeenCalledTimes(2)
+    })
+
+    it('should fire again when a complete value is overwritten to a different complete value', async () => {
+      const onComplete = vi.fn()
+      const otp = setup({ length: 4, onComplete })
+      otp.fill('1234')
+      await nextTick()
+      otp.write(3, '5')
+      await nextTick()
+      expect(onComplete).toHaveBeenCalledTimes(2)
+      expect(onComplete).toHaveBeenLastCalledWith('1235')
     })
 
     it('should clear value and set error when sync onComplete returns false', async () => {
@@ -418,11 +486,13 @@ describe('createOtp', () => {
       })
       otp.fill('1234')
       await nextTick()
+      expect(otp.isValidating.value).toBe(true)
       otp.write(0, '9')
       expect(otp.value.value).toBe('1234')
       resolve(false)
       await nextTick()
       await nextTick()
+      expect(otp.isValidating.value).toBe(false)
       expect(otp.value.value).toBe('')
       expect(otp.input.errors.value).toContain('Invalid code')
     })

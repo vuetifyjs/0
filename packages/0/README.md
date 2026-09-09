@@ -124,6 +124,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Form](https://0.vuetifyjs.com/components/forms/form) | Form validation coordinator with submit handling and error aggregation |
 | [Input](https://0.vuetifyjs.com/components/forms/input) | Text input with label, description, error messages, and character counting |
 | [NumberField](https://0.vuetifyjs.com/components/forms/number-field) | Numeric input with increment/decrement, scrub, and Intl formatting |
+| [Otp](https://0.vuetifyjs.com/components/forms/otp) | One-time-password / verification-code boxes with auto-advance, paste, and completion |
 | [Radio](https://0.vuetifyjs.com/components/forms/radio) | Radio group with single-selection and keyboard navigation |
 | [Select](https://0.vuetifyjs.com/components/forms/select) | Dropdown selection with virtual focus and multi-select support |
 | [Rating](https://0.vuetifyjs.com/components/forms/rating) | Star/icon rating with hover preview, half-stars, and keyboard navigation |
