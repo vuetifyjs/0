@@ -69,6 +69,8 @@ Non-negotiable. Each axiom carries a statement, a rationale, and a concrete anti
 
 **Allowed.** Structural inline `:style` bindings when layout cannot work otherwise (flex directions, CSS custom properties for depth, visually-hidden positioning for hidden inputs, z-index from `useStack`). [intent:279]
 
+**Allowed — plugin CSS adapters.** `useTheme` adapters may inject a stylesheet of **custom properties** (`--{prefix}-{token}: …`) and `:root { color-scheme }`. They must not set element-level visual properties (`color`, `background`, `padding`, `font-*`, …). Applying tokens to rendered pixels is Paper's job. RTL and reduced-motion adapters write HTML `dir` / `data-*` attributes, not CSS. [intent:297]
+
 **Encouraged.** Data attributes for every state (`data-state`, `data-layer`, `data-disabled`, `data-orientation`). These are the consumer's styling hooks. [intent:280]
 
 **Anti-example.** Grep `class="(flex|px-|py-|bg-|text-|w-|h-|m-|gap-|grid)"` across `packages/0/src/**/*.vue` currently returns zero hits. Keep it that way. The single JSDoc example in `packages/0/src/components/Radio/RadioRoot.vue:176` is prose, not rendered.
@@ -81,10 +83,11 @@ Non-negotiable. Each axiom carries a statement, a rationale, and a concrete anti
 
 **Why.** `any` silently disables type-checking downstream. A single `as any` in a composable propagates into every consumer that spreads it. `unknown` forces the consumer to narrow, which is the correct contract.
 
-**Current state.** Zero `as any` casts in source. The one place reaching into a foreign private shape — `packages/0/src/components/Locale/Locale.vue:69`, accessing `vue-i18n`'s `_rootT`/`_rootN` — declares those fields on a local `ScopedLocale` interface and uses a typed intersection cast (`parent as typeof parent & ScopedLocale`), so the shape is documented rather than erased. No `: any`, `as any`, or `<any>` in `packages/0/src/` — with two sanctioned exceptions:
+**Current state.** Zero `as any` casts in source. The one place reaching into a foreign private shape — `packages/0/src/components/Locale/Locale.vue:69`, accessing `vue-i18n`'s `_rootT`/`_rootN` — declares those fields on a local `ScopedLocale` interface and uses a typed intersection cast (`parent as typeof parent & ScopedLocale`), so the shape is documented rather than erased. No `: any`, `as any`, or `<any>` in `packages/0/src/` — with three sanctioned exceptions:
 
-1. **Slot returns** — `defineSlots<{ default: (props: SlotProps) => any }>()`, which Volar requires for correct slot inference (see §8.8). That `=> any` types the slot's *return*, never a value or argument, so it disables no downstream checking.
+1. **Slot returns** — `defineSlots<{ default: (props: SlotProps) => any }>()`. That `=> any` types the slot's *return*, never a value or argument, so it disables no downstream checking. `=> unknown` also typechecks and is in use; either is acceptable (see §8.8).
 2. **`isObject` predicate** — `item is Record<string, any>` in `packages/0/src/utilities/helpers.ts`. `Record<string, unknown>` is *incorrect* as a type predicate: TypeScript never grants interfaces an implicit index signature, so the guard destroys known property types and fails to subtract `Record<string, any>` members in the `else` branch (issue #723). The `any` is only the *index* type of the predicate; it is not a value typed `any`, and it is not a license for `as any` elsewhere. Call sites that walk untyped trees and need checked property access must pin the read: `const inner: unknown = value.$value`. The private `isPlainObject` helper used by `mergeDeep` stays on `Record<string, unknown>` deliberately — it is not a public predicate and must keep index reads as `unknown`.
+3. **Atom generic default** — `generic="T extends Record<string, any> = {}"` on `Atom.vue`. The `any` is the index of an unconstrained attrs bag so consumers can pass arbitrary attribute shapes; no call site instantiates `Atom<T>`. Same class as (1): it does not type a value as `any`.
 
 **Anti-example (do not do this).**
 ```ts
@@ -150,6 +153,8 @@ import { createRegistry } from '../createRegistry'
 - System composables that compose those primitives against an **explicitly injected** `MaybeRefOrGetter<EventTarget>` target, or a global (`document` / `window`) for session-scoped behavior. `useRovingFocus` and `useVirtualFocus` bind `keydown` to an injected container ref; `useDragDrop` adapters bind `pointer*` to `document`; `useStorage` listens for `storage` on `window`. The consumer supplies (or globally scopes) the target, so no tree is stolen — consistent with §5.2's `MaybeRefOrGetter<EventTarget>` input contract.
 
 **Anti-example (do not introduce).** A `createSlider` that calls `document.querySelector('.thumb')` (or renders and binds its own element) to attach `pointermove`. The correct shape exposes `onPointerdown`, `onPointermove`, `onPointerup` and the `SliderThumb.vue` component wires them — or, if it must own the listener, takes the thumb element as an injected `MaybeRefOrGetter<EventTarget>` rather than finding it.
+
+§6.3's DOM-query alternative is a **component Root**, fire-and-forget read. It does not license `querySelector` inside a `create*` / `use*` factory, and it does not license a standing `el: () => document.querySelector(...)` getter. **Known misses:** `createCombobox` and `SelectRoot` still ship that standing getter for option nodes.
 
 ---
 
@@ -334,6 +339,7 @@ Choose 3.1.3 only when there is literally one useful return. Any time you reach 
 - **Positional required input first**, then `options` object. `createFoo(required, options?)`.
 - **Options object is destructured inside the factory** using literal defaults, never `withDefaults`. [intent:9]
 - **Rest variable is named `options`** when destructuring — not `modelOptions`, not `registryOptions`. [intent:287]
+- **Required ref inside a field-options bag.** When the required input is a `Ref` that belongs with the rest of a field's config (`createInput`, `createValidation` — `value` next to `rules`, `error`, `disabled`), the bag *is* the signature: `createInput(options)` with `value: Ref<T>` inside. Do not split that positional-first; the ref is one option among several, not a standalone source.
 
 ```ts
 // Right
@@ -401,12 +407,14 @@ Why: destructuring defaults compose cleanly with Vapor mode and keep the prop su
 
 ### 3.5 Slot conventions
 
-All interactive components emit one slot, default, bound via `<slot v-bind="slotProps" />`. `slotProps` is a `toRef` with two shapes of content:
+**Interactive controls** (Checkbox, Switch, Dialog Action, Tabs Item, …) emit one default slot bound via `<slot v-bind="slotProps" />`. `slotProps` is a `toRef` with two shapes of content:
 
 - **Boolean state fields** named `is<State>`: `isDisabled`, `isSelected`, `isOpen`, `isMixed`, etc.
 - **An `attrs` object** containing ARIA attributes, data attributes, and event handlers, pre-merged via `mergeProps`. [intent:168, intent:169, intent:170]
 
-Slot props are always computed through `toRef`, never inline and never through `computed` unless the shape is legitimately expensive. [intent:169]
+Slot props on that path are always computed through `toRef`, never inline and never through `computed` unless the shape is legitimately expensive. [intent:169]
+
+**Structural / passthrough slots** — a chrome wrapper (AvatarRoot), a placeholder that only needs `hasValue`/`isEmpty`, a description that only forwards an `id` — may bind a single field (`<slot :id />`) without inventing an empty `attrs` object. Do not force the control shape onto a slot that has no ARIA or handlers to emit.
 
 Consumers in **non-renderless** components must not spread `attrs` onto a child — the handlers are already bound to the outer `<Atom>`. Spreading doubles the event. The rule is enforced in examples and lives in the docs rules file. [intent:189, intent:206, intent:207]
 
@@ -416,7 +424,7 @@ Boolean data attributes (`data-disabled`, `data-open`, `data-selected`) are alwa
 
 Token-valued attributes (`data-state`, `data-orientation`) use their string union plus `undefined` to omit. Splitter's `data-pending` is `'collapse' | 'expand' | undefined` — not the boolean `'' | undefined` used by AlertDialogAction.
 
-`aria-disabled` is the exception: always `boolean`, so assistive tech reads a concrete value. [intent:175]
+`aria-disabled` is the exception on **non-button hosts**: always a concrete `boolean`, so assistive tech reads a value. Native `<button>` hosts (`as === 'button'`) use the `disabled` attribute and **omit** `aria-disabled` — APG treats native `disabled` as the signal; duplicating it with `aria-disabled` is noise. The three-pronged pattern (`aria-disabled` + `data-disabled` + `tabindex`) applies on the polyfill path (`as !== 'button'`). [intent:175]
 
 ### 3.7 Comments: why, not what
 
@@ -460,7 +468,7 @@ The choice is **data shape × mutation scope**:
 | `reactive(obj)` | Deeply-nested object | Deep mutation tracked | **Rare.** Only when consumers must mutate nested fields and we cannot hand them a ref. Prefer `ref()` on the owner, `toRef(() => root.field)` for read-only access by subtrees. |
 | `toRef(() => expr)` | Derivation | Read-through (no cache) | Default for derivations — property access, booleans, ternaries, cheap composition. [intent:12, intent:37, intent:128] |
 | `computed(() => expr)` | Derivation | Cached until deps change | Only when the work is expensive: filtering, mapping, aggregation. [intent:38, intent:127] |
-| `readonly(obj)` / `shallowReadonly(ref)` | Any | Freezes writes | Plugin singletons and boundary-exposed state. [intent:130, intent:131] |
+| `readonly(obj)` / `shallowReadonly(ref)` | Any | Freezes writes | Plugin singletons and their fallbacks. Factory returns use type-only `Readonly<Ref<T>>` — see §4.2 / §8.3. [intent:130, intent:131] |
 
 The default is `toRef`. Reach for `computed` only when you would otherwise pay the same cost on every read. This keeps the mental model simple: "`toRef` is a getter, `computed` is a getter that remembers."
 
@@ -477,7 +485,11 @@ The default is `toRef`. Reach for `computed` only when you would otherwise pay t
 
 **Canonical form.** `shallowReadonly(state)` or `readonly(state)` for scalar state (interchangeable on a primitive `shallowRef`), `readonly(registry)` for deep collections.
 
-**The `Readonly<Ref<T>>` return-type pattern.** When a composable exposes a ref to consumers and does NOT want them to write to it, the returned interface types the field as `Readonly<Ref<T>>`. The type is load-bearing — consumers read it as a promise ("you cannot write this") and IDEs flag `.value = ...` as a type error. Wrapping with `shallowReadonly()` at runtime reinforces the same contract. [intent:252]
+**The `Readonly<Ref<T>>` return-type pattern.** When a composable exposes a ref to consumers and does NOT want them to write to it, the returned interface types the field as `Readonly<Ref<T>>`. The type is load-bearing — consumers read it as a promise ("you cannot write this") and IDEs flag `.value = ...` as a type error. [intent:252]
+
+**Runtime wrap is for plugin singletons.** `shallowReadonly()` / `readonly()` on the returned value is required on plugin contexts **and their fallbacks** — the value outlives a single setup scope and is reached from templates across the app. Factory composables (`createInput`, `createOtp`, `createValidation`, …) type the same contract as `Readonly<Ref<T>>` and return the bare ref; that is correct, not a leak. A `shallowReadonly` wrapper without the `Readonly<…>` type is useless; a `ShallowRef<T>` type on a value nobody should mutate is a leak.
+
+**Canonical runtime wrap.** `createReducedMotionFallback` wraps both `selectedMode` and `isReduced` with `shallowReadonly`. The live `createReducedMotion` wraps `selectedMode` only — `isReduced` is already a readonly `toRef`. A plugin fallback that returns a bare `shallowRef` for a field typed `Readonly<Ref<T>>` is the miss (`createThemeFallback`).
 
 ```ts
 // Right — boundary contract clear from both value and type
@@ -510,7 +522,7 @@ Always use `.value` when reading these in templates. Never rely on Vue's auto-un
 
 **Audit (resolved).** `useRovingFocus` and `createFocusTraversal` each expose a single consumer-visible ref (`focusedId` / `activeId`), both declared `ShallowRef<ID | undefined>` in their return interface (`RovingFocusReturn` / `TraversalReturn`). These are intentionally mutable — consumers set focus by writing the ref — so the `ShallowRef<T>` type is the correct contract; no `shallowReadonly` boundary wrapper is required. (Design note: writing the ref directly bypasses the internal `applyFocus()` DOM-focus side-effect; switch to `Readonly<Ref>` + a `focus()` method if direct writes should be disallowed.)
 
-**Resolution rule.** Any mutable return at a boundary must be intentional and declared in the return interface. If the type says `ShallowRef<boolean>`, the contract is "you can write this." If the type says `Readonly<Ref<boolean>>`, the contract is "do not write this." The type is load-bearing — a `shallowReadonly` wrapper on the value without updating the type is useless; a `ShallowRef<T>` type on a value nobody should mutate is a leak. [intent:252]
+**Resolution rule.** Any mutable return at a boundary must be intentional and declared in the return interface. If the type says `ShallowRef<boolean>`, the contract is "you can write this." If the type says `Readonly<Ref<boolean>>`, the contract is "do not write this." The type is load-bearing. Runtime `shallowReadonly` is an additional requirement on plugin singletons and fallbacks only — see above and §8.3. [intent:252]
 
 ### 4.3 `MaybeRefOrGetter<T>` at composable inputs
 
@@ -609,7 +621,11 @@ This is an acid test, not a vibe. If the only way to get state X to render diffe
 - **No utility classes.** Zero `class="px-4"`, zero `class="bg-primary"`. [intent:278]
 - **Structural-only `:style`.** `display: flex`, `flex-grow`, `visibility`, z-index from `useStack`, CSS custom properties for depth, visually-hidden positioning. If your `:style` sets `color` or `padding`, it is not structural. [intent:279]
 - **Data attributes as styling hooks.** `data-state="open"`, `data-disabled`, `data-orientation="vertical"`. Consumers style against these. [intent:280]
-- **DOM-rendering Roots use `<Atom :as :renderless>`.** The universal wrapper that lets consumers swap the tag and strip it. Provider / slot-only Roots — `DataGrid`, `DataTable`, `Group`, `Locale`, `Portal`, `Presence`, `Selection`, `Single`, `Step`, `Tabs`, `Treeview` — render only `<slot v-bind="slotProps" />` (or teleport their children) with no `Atom` wrapper, because their DOM is emitted by sub-components or the wrapper would be meaningless. [intent:186, intent:336]
+- **Three Root shapes.** [intent:186, intent:336]
+  - **DOM-rendering Roots** use `<Atom :as :renderless>`. The universal wrapper that lets consumers swap the tag and strip it.
+  - **Provider / slot-only Roots** — `DataGrid`, `DataTable`, `Group`, `Portal`, `Presence`, `Selection`, `Single`, `Step`, `Tabs`, `Treeview` — render only `<slot v-bind="slotProps" />` (or teleport their children) with no `Atom` wrapper, because their DOM is emitted by sub-components or the wrapper would be meaningless.
+  - **Overlay context Roots** — `AlertDialog`, `Combobox`, `Dialog`, `Popover`, `Select`, `Tooltip` — wrap a **renderless** Atom (`as` default `null`, `renderless` static `true`) so they provide context without emitting a host node. The visible surface is Activator / Content.
+  - **`Locale`** is a dual-mode provider: default wrapper `<component :is="as">` (`as = 'div'`), or renderless slot. It does not use `Atom` today; that is a known gap versus `Theme` / `Form`, not a slot-only Root. Do not list it with the provider-only set.
 
 ### 5.4 Hidden inputs
 
@@ -620,7 +636,13 @@ Interactive inputs with a `name` prop render a `<ComponentHiddenInput>` for nati
 
 ### 5.5 Locale-first strings
 
-Every user-facing string (`aria-label`, error messages, day-of-week names, month names) goes through `useLocale()`. The canonical pattern is `locale.ti(key) ?? '<English default>'` — `ti()` ("translate if exists") returns `undefined` for a missing key, where `t()` echoes the raw key back, and the `??` supplies an English fallback for the no-adapter case. Never hardcode a string with no `useLocale` path. Tests assert localizability — either via `toBeDefined()` or by asserting the English default plus a translated-locale value (e.g. Pagination `'Next page'` / `'Nächste Seite'`) — never by pinning a single hardcoded English string as the only expectation. [intent:176, intent:177]
+Three classes of string, three paths. Do not treat them as one rule. [intent:176, intent:177]
+
+1. **Translatable copy** — `aria-label`, error messages, visible names, day-of-week / month names. Goes through `useLocale()`. Canonical: `locale.ti(key) ?? '<English default>'` — `ti()` ("translate if exists") returns `undefined` for a missing key, where `t()` echoes the raw key back, and the `??` supplies an English fallback for the no-adapter case. Hardcoding `'Invalid code'` / `'Close dialog'` with no `useLocale` path is the miss.
+2. **ARIA role tokens** — spec tokens used as `role` or `aria-roledescription` values (`'carousel'`, `'slide'`, `'dialog'`, `'tablist'`). These are WAI-ARIA vocabulary, not locale copy. Leave them as the spec string.
+3. **Formatted numbers / dates / percents** — `aria-valuetext`, visible numeric labels. Go through `locale.n` / `useDate` when an adapter exists. A template literal `` `${pct}%` `` is a locale miss; `'carousel'` is not.
+
+Tests assert localizability of class (1) — either via `toBeDefined()` or by asserting the English default plus a translated-locale value (e.g. Pagination `'Next page'` / `'Nächste Seite'`) — never by pinning a single hardcoded English string as the only expectation.
 
 ---
 
@@ -659,7 +681,16 @@ Element refs shared between sub-components must propagate through registry regis
 
 **Carve-out — singleton 1:1 sub-components.** When the Root owns exactly one well-known sub-component (Popover's Activator, Slider's Track, Combobox's Control), the Root may expose a single boundary-typed `Readonly<Ref<Element | null>>` on its context and the sub-component writes to it directly on mount. The trade-off the registry pattern is solving (deregistration races for an unbounded set of children) does not apply when N is provably 1. The same Root must clear the field in `onBeforeUnmount` of the sub-component so the contract is symmetric.
 
-**Alternative — DOM query.** A Root that only needs the element for a one-shot read (measurement, focus on open) can query for it via a well-known data attribute the sub-component sets (illustratively, something like `[data-v0-popover-activator]` — note v0 does not currently ship a `data-v0-*` attribute convention) instead of holding a ref. The DOM query is acceptable for fire-and-forget reads; reactive observation (ResizeObserver, IntersectionObserver) still needs the ref so the observer can rebind across re-mounts.
+**Alternative — DOM query (component Root, fire-and-forget only).** A **`.vue` Root** that needs the element for a one-shot read (measurement, focus on open) may query a well-known data attribute the sub-component sets (illustratively `[data-v0-popover-activator]` — v0 does not currently ship a `data-v0-*` convention) instead of holding a ref.
+
+All four of these must hold or it is a §2.5 violation, not this carve-out:
+
+- The caller is a component Root, never a `create*` / `use*` composable.
+- The read is fire-and-forget (once on open, once on measure) — not a standing `el` getter re-run on every cursor move.
+- The selector is a data attribute the sub-component owns, not a reconstructed id (`#${id}-option-${ticket.id}`).
+- Reactive observation (ResizeObserver, IntersectionObserver, virtual-focus `el`) still needs a ref so the observer can rebind across re-mounts. Pass that ref from the component that renders the node.
+
+**Known misses.** `createCombobox` (`index.ts`) and `SelectRoot.vue` still feed virtual-focus `el` via a standing `document.querySelector` on a reconstructed `#${id}-option-${ticket.id}`. That is a §2.5 violation, not this carve-out — do not cite them as precedent.
 
 ### 6.4 Optional injection
 
@@ -869,19 +900,33 @@ When a type is genuinely indeterminate (e.g., ticket `value`), it is `unknown`. 
 
 ### 8.3 `Readonly<Ref<T>>` return contract
 
-Composable return interfaces type consumer-visible refs as `Readonly<Ref<T>>` when the caller must not mutate them. Cross-linked from §4.2. The wrapper is TypeScript-level *and* runtime-level: `shallowReadonly(ref)` on the value, `Readonly<Ref<T>>` in the return interface. [intent:252]
+Composable return interfaces type consumer-visible refs as `Readonly<Ref<T>>` when the caller must not mutate them. The type is the contract. Cross-linked from §4.2. [intent:252]
+
+Runtime `shallowReadonly(ref)` / `readonly(ref)` is required on **plugin singletons and their fallbacks** only. Factory composables type `Readonly<Ref<T>>` and return the bare ref.
 
 ```ts
-// Right
-export interface BreakpointsContext {
-  width: Readonly<ShallowRef<number>>
+// Right — plugin singleton (and its fallback): type + runtime wrap
+export interface ReducedMotionContext {
+  selectedMode: Readonly<Ref<ReducedMotionMode>>
+  isReduced: Readonly<Ref<boolean>>
 }
 
-function useBreakpoints (): BreakpointsContext {
-  const width = shallowRef(window.innerWidth)
-  return { width: readonly(width) }
+function createReducedMotionFallback (): ReducedMotionContext {
+  return {
+    selectedMode: shallowReadonly(shallowRef<ReducedMotionMode>('system')),
+    isReduced: shallowReadonly(shallowRef(false)),
+    select: () => {},
+    dispose: () => {},
+  }
+}
+
+// Right — factory: type-only. Returning the bare ref is not a leak.
+export interface InputContext {
+  isPristine: Readonly<Ref<boolean>>
 }
 ```
+
+A plugin fallback that returns `isDark: shallowRef(false)` for a field typed `Readonly<Ref<boolean>>` is the miss (`createThemeFallback`). Do not "fix" `createInput.isPristine` by wrapping it — that is the factory shape.
 
 ### 8.4 `MaybeRefOrGetter<T>` at composable inputs
 
@@ -946,9 +991,11 @@ export function createSortable<
 > (_options: SortableOptions = {}): SortableContext<Z, E>
 ```
 
+**Exception — `createQueue`.** Registry-based and on the §6.10 list, but not parameterized: `createQueue(): QueueContext`. Queue tickets are data records patched via `upsert` (`isPaused: boolean`), not selection-style `Readonly<Ref<boolean>>` ticket state. Do not add `Z`/`E` unless a caller needs custom ticket fields.
+
 ### 8.8 Slot type guardrails
 
-Components explicitly type slots via `defineSlots<{ default: (props: SlotProps) => any }>()`. Never `export *` from `.vue` files — it breaks Volar slot inference. [intent:184, intent:337, intent:338]
+Components explicitly type slots via `defineSlots<{ default: (props: SlotProps) => any }>()`. `=> any` is conventional for Volar slot inference; `=> unknown` also typechecks in this package and is in use. Either is acceptable — do not churn existing sites, and do not treat `=> unknown` as a §2.2 violation. Never `export *` from `.vue` files — it breaks Volar slot inference. [intent:184, intent:337, intent:338]
 
 ---
 
@@ -1018,33 +1065,33 @@ Reason: §2.3.
 
 ### 10.2 Unwrapped mutable state at a boundary
 
-**Before (wrong — illustrative; the live `useResizeObserver` delegates to `createObserver`, and the sibling `useElementSize` already wraps `isActive` in `shallowReadonly`).**
+Applies to **plugin singletons and their fallbacks**. Factory composables type `Readonly<Ref<T>>` and return the bare ref — that is the §8.3 factory shape, not this anti-pattern.
+
+**Before (wrong — a plugin fallback returning a bare ref for a field typed `Readonly<Ref<T>>`).**
 ```ts
-return {
-  width: shallowReadonly(width),
-  height: shallowReadonly(height),
-  isActive,                              // mutable — inconsistent
-  isPaused: shallowReadonly(isPaused),
-  pause,
-  resume,
-  stop,
+function createReducedMotionFallback (): ReducedMotionContext {
+  return {
+    selectedMode: shallowReadonly(shallowRef<ReducedMotionMode>('system')),
+    isReduced: shallowRef(false),        // typed Readonly<Ref<boolean>>, returned mutable
+    select: () => {},
+    dispose: () => {},
+  }
 }
 ```
 
 **After (right).**
 ```ts
-return {
-  width: shallowReadonly(width),
-  height: shallowReadonly(height),
-  isActive: shallowReadonly(isActive),
-  isPaused: shallowReadonly(isPaused),
-  pause,
-  resume,
-  stop,
+function createReducedMotionFallback (): ReducedMotionContext {
+  return {
+    selectedMode: shallowReadonly(shallowRef<ReducedMotionMode>('system')),
+    isReduced: shallowReadonly(shallowRef(false)),
+    select: () => {},
+    dispose: () => {},
+  }
 }
 ```
 
-Reason: §4.2. Either all boundary state is readonly, or the interface explicitly declares mutability with `ShallowRef<T>`.
+Reason: §4.2 / §8.3. On a plugin surface, either wrap at runtime or declare mutability with `ShallowRef<T>`. Do not mix.
 
 ---
 
@@ -1297,11 +1344,14 @@ Reason: §6.3, [intent:270].
 
 ### 10.13 Hardcoded English strings
 
+Class (1) from §5.5 — translatable copy. ARIA role tokens (`aria-roledescription: 'carousel'`) are class (2) and are not this anti-pattern.
+
 **Before (wrong).**
 ```ts
 attrs: {
   'aria-label': 'Close dialog',
 }
+errorMessages.value = ['Invalid code']
 ```
 
 **After (right).**
@@ -1310,6 +1360,7 @@ const locale = useLocale()
 attrs: {
   'aria-label': locale.ti('Dialog.close') ?? 'Close',
 }
+errorMessages.value = [locale.ti('Otp.invalid') ?? 'Invalid code']
 ```
 
 Reason: §5.5, [intent:176].

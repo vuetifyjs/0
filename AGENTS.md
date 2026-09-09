@@ -13,6 +13,8 @@ when violated, not a stylistic preference.
 - **Headless contract** — no styling, CSS, or utility classes in package source. The
   library ships logic only; visual concerns belong to consumers. Structural inline
   styles a primitive genuinely needs (e.g. positioning) are the only exception.
+  Theme adapters may emit CSS custom properties and `color-scheme`; they must not
+  set element-level `color` / `background` / `padding`. Applying tokens is Paper.
 - **Events belong to components, not composables** — composables never attach or
   handle DOM events; only components (`.vue`) do. A `window.addEventListener` or
   `el.addEventListener` inside a composable body is a violation.

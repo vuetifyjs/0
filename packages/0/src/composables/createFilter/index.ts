@@ -49,7 +49,7 @@ export type FilterFunction = (query: Primitive | Primitive[], item: FilterItem) 
 
 export interface FilterOptions {
   customFilter?: FilterFunction
-  keys?: string[]
+  keys?: MaybeRefOrGetter<readonly string[]>
   mode?: FilterMode
 }
 
@@ -61,7 +61,7 @@ export interface FilterContext<Z extends FilterItem = FilterItem> {
   /** The filter mode */
   mode: FilterMode
   /** Keys to filter on for object items */
-  keys: string[] | undefined
+  keys: MaybeRefOrGetter<readonly string[]> | undefined
   /** Custom filter function */
   customFilter: FilterFunction | undefined
   /** Current query ref */
@@ -83,7 +83,7 @@ export interface FilterContextOptions extends FilterOptions {
 function defaultFilter (
   query: Primitive | Primitive[],
   item: FilterItem,
-  keys?: string[],
+  keys?: readonly string[],
   mode: FilterMode = 'some',
 ): boolean {
   const queries = toArray(query).map(q => String(q).toLowerCase())
@@ -145,7 +145,7 @@ export function createFilter<
   E extends FilterContext<Z> = FilterContext<Z>,
 > (options: FilterOptions = {}): E {
   const { customFilter, keys, mode = 'some' } = options
-  const filterFunction = customFilter ?? ((q, i) => defaultFilter(q, i, keys, mode))
+  const filterFunction = customFilter ?? ((q, i) => defaultFilter(q, i, toValue(keys), mode))
   const query = shallowRef<Primitive | Primitive[]>('')
 
   function apply<T extends Z> (

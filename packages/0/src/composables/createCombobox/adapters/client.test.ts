@@ -125,6 +125,25 @@ describe('clientComboboxAdapter', () => {
       expect(result.filtered.value.has('a')).toBe(true)
       expect(result.filtered.value.has('b')).toBe(false)
     })
+
+    it('should re-filter when keys is a ref that changes', () => {
+      const keys = shallowRef(['name'])
+      const adapter = new ClientComboboxAdapter({ keys })
+      const items = [
+        makeTicket('a', { name: 'Apple', desc: 'red fruit' }),
+        makeTicket('b', { name: 'Banana', desc: 'yellow fruit' }),
+      ]
+      const ctx = createContext(items, 'fruit')
+      const result = adapter.setup(ctx)
+
+      expect(result.filtered.value.has('a')).toBe(false)
+      expect(result.filtered.value.has('b')).toBe(false)
+
+      keys.value = ['desc']
+
+      expect(result.filtered.value.has('a')).toBe(true)
+      expect(result.filtered.value.has('b')).toBe(true)
+    })
   })
 
   describe('whitespace query', () => {

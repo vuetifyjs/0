@@ -162,7 +162,9 @@ const {
 
 **Never re-declare inherited `AtomProps`** (`as`, `renderless`). [intent:166]
 
-## Slot Props Pattern (100% enforced)
+## Slot Props Pattern (interactive controls)
+
+Interactive controls follow this shape. Structural / passthrough slots (AvatarRoot chrome, SelectPlaceholder, ComboboxDescription) may bind a single field without an `attrs` object — PHILOSOPHY §3.5.
 
 ```ts
 export interface ComponentRootSlotProps {
@@ -192,8 +194,8 @@ const slotProps = toRef((): ComponentRootSlotProps => ({
 
 - Boolean state named `is<State>` (isDisabled, isSelected, isOpen). [intent:167]
 - `attrs` object includes ARIA + data + handlers. [intent:168]
-- Always computed via `toRef`. [intent:169]
-- Template always uses `<slot v-bind="slotProps" />`. [intent:170]
+- Computed via `toRef` on the control path. [intent:169]
+- Interactive controls use `<slot v-bind="slotProps" />`; structural slots may bind a single field. [intent:170]
 
 ## Data Attribute Pattern (100% enforced)
 
@@ -210,11 +212,13 @@ const slotProps = toRef((): ComponentRootSlotProps => ({
 
 ## ARIA Pattern (WAI-ARIA compliant)
 
-Every interactive component ships a correct `role`, `aria-*` state attributes, keyboard handlers, and locale-driven strings via `useLocale()` (canonical: `locale.ti(key) ?? '<English default>'`). `aria-disabled` is always concrete `boolean` (not `true | undefined`). Tests assert `toBeDefined()` on the locale strings, not exact values. [intent:174, intent:175, intent:176, intent:177]
+Every interactive component ships a correct `role`, `aria-*` state attributes, keyboard handlers, and locale-driven strings via `useLocale()` (canonical: `locale.ti(key) ?? '<English default>'`). `aria-disabled` is a concrete `boolean` on non-button hosts; native `<button>` uses the `disabled` attribute and omits `aria-disabled`. Translatable copy goes through `useLocale`; ARIA role tokens (`aria-roledescription: 'carousel'`) stay as spec strings — PHILOSOPHY §5.5. Tests assert `toBeDefined()` on locale strings, not exact values. [intent:174, intent:175, intent:176, intent:177]
 
 The full ARIA vocabulary, WCAG success-criterion mapping, and worked precedents live under [WCAG Accessibility — how we apply the patterns](#wcag-accessibility--how-we-apply-the-patterns) below. Don't restate the table here.
 
 ## Disabled Pattern (three-pronged, 100% enforced)
+
+Non-button hosts (`as !== 'button'`):
 
 ```ts
 attrs: {
@@ -224,7 +228,7 @@ attrs: {
 }
 ```
 
-[intent:178]
+Native `<button>` (`as === 'button'`): `disabled` attribute, omit `aria-disabled`, keep `data-disabled` + `tabindex`. [intent:178]
 
 ## Hidden Input Pattern (PHILOSOPHY §5.4)
 
@@ -283,6 +287,7 @@ attrs: {
 ```
 
 - **Do not** attach Enter/Space `onKeydown` when `as === 'button'` (avoids double-activation).
+- Native `<button>` uses `disabled` and omits `aria-disabled`; the polyfill path (`as !== 'button'`) emits concrete `aria-disabled`.
 - Specialized roles (`checkbox`, `radio`, `switch`, `tab`, `combobox`) keep their own APG — do not force `role="button"`.
 - Spinbutton steppers that intentionally use `tabindex: -1` (NumberField ±) are out of this contract.
 
@@ -365,8 +370,8 @@ A wrapper that supplies shared defaults or context to a compound family's Roots 
 
 ## Template Pattern (100% enforced)
 
-- DOM-rendering Roots use `<Atom :as :renderless>`; pure context-provider Roots (`Group`, `Selection`, `Single`, `Step`, `Tabs`, `Treeview`) render only `<slot v-bind="slotProps" />` with no `Atom`. [intent:186, intent:336] (PHILOSOPHY §5.3)
-- Slot props via `<slot v-bind="slotProps" />`.
+- DOM-rendering Roots use `<Atom :as :renderless>`; pure context-provider Roots (`Group`, `Selection`, `Single`, `Step`, `Tabs`, `Treeview`, plus DataGrid/DataTable/Portal/Presence) render only `<slot v-bind="slotProps" />` with no `Atom`. Overlay context Roots (`AlertDialog`, `Combobox`, `Dialog`, `Popover`, `Select`, `Tooltip`) wrap a renderless Atom. `Locale` is a dual-mode provider (wrapper or renderless slot), not slot-only. [intent:186, intent:336] (PHILOSOPHY §5.3)
+- Slot props via `<slot v-bind="slotProps" />` on interactive controls; structural slots may bind a single field (PHILOSOPHY §3.5).
 - Hidden inputs conditionally rendered: `<ComponentHiddenInput v-if="name" />`. [intent:187]
 - `v-if` for structural conditionals; `v-show` only when the element must stay mounted to preserve state. [intent:188]
   - **Registry-driven visibility** — child registered with a Root for measurement or selection (Breadcrumbs item/divider/ellipsis, Overflow item).
@@ -469,7 +474,7 @@ PHILOSOPHY §5.5 mandates that every interactive component ships correct `role`,
 | Attribute | Purpose | Value shape | Example |
 |-----------|---------|-------------|---------|
 | `role` | Semantic role | WAI-ARIA 1.2 role name | `role="combobox"`, `role="alertdialog"` |
-| `aria-disabled` | Announce disabled state | `boolean` (always concrete) | `'aria-disabled': isDisabled.value` [intent:175] |
+| `aria-disabled` | Announce disabled state | `boolean` on non-button hosts; omit on native `<button>` (use `disabled`) | `'aria-disabled': isDisabled.value` [intent:175] |
 | `aria-selected` | Announce selection | `boolean` | Item in a listbox/tablist |
 | `aria-expanded` | Announce disclosure | `boolean` | Activator toggles content |
 | `aria-controls` | Activator → content linkage | Content element ID | `aria-controls="popover-123"` |
@@ -686,15 +691,15 @@ When uncertain, don't hook up. Adding a plugin later is a non-breaking change; r
 - [ ] `defineOptions({ name: '...' })` present
 - [ ] Props interface extends `AtomProps` and does not re-declare `as` / `renderless`
 - [ ] Defaults in destructuring, never in interface
-- [ ] Slot props typed as `ComponentRootSlotProps` with `is<State>` booleans and `attrs` object
-- [ ] `slotProps` computed via `toRef`
+- [ ] Interactive-control slot props typed as `ComponentRootSlotProps` with `is<State>` booleans and `attrs` object; structural slots may bind a single field
+- [ ] `slotProps` computed via `toRef` on the control path
 - [ ] Data attributes use `true | undefined`, not `true | false`
-- [ ] `aria-disabled` always boolean; `data-disabled` always `true | undefined`
-- [ ] All user-facing strings through `useLocale()`
-- [ ] Three-pronged disabled (`aria-disabled`, `data-disabled`, tabindex)
+- [ ] `aria-disabled` concrete boolean on non-button hosts; native `<button>` uses `disabled` and omits `aria-disabled`; `data-disabled` always `true | undefined`
+- [ ] Translatable copy through `useLocale()`; ARIA role tokens stay as spec strings
+- [ ] Three-pronged disabled on the polyfill path (`aria-disabled`, `data-disabled`, tabindex)
 - [ ] Hidden input conditionally rendered with `v-if="name"`
 - [ ] Barrel: no `export *` from `.vue`, named exports plus compound object
-- [ ] Template root is `<Atom :as :renderless>` (DOM-rendering Roots) or a bare `<slot v-bind="slotProps" />` (pure context-provider Roots — §5.3)
+- [ ] Template root is `<Atom :as :renderless>` (DOM-rendering Roots), a bare `<slot v-bind="slotProps" />` (pure context-provider Roots), or a renderless Atom (overlay context Roots — §5.3)
 - [ ] `v-if` for structural conditionals; `v-show` only when the element must stay mounted (registry-driven visibility, load-state preservation, virtualization)
 - [ ] `onBeforeUnmount` for deregistration, not `onUnmounted`
 - [ ] Zero utility classes; all `:style` bindings structural
