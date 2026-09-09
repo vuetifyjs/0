@@ -24,8 +24,8 @@ afterEach(() => {
   while (wrappers.length > 0) {
     wrappers.pop()!.unmount()
   }
-  // Cursor uses document.querySelector (global), so stale elements from
-  // prior tests cause false matches if not cleared.
+  // Items register their element on the ticket; leftover body nodes from
+  // prior tests still leak listeners and confuse attachTo: document.body.
   while (document.body.firstChild) {
     document.body.firstChild.remove()
   }
@@ -36,8 +36,8 @@ afterEach(() => {
  * register with the selection context (useLazy defers rendering
  * until isOpen becomes true).
  *
- * Attaches to document.body so cursor can resolve item elements
- * via document.querySelector (needed for aria-activedescendant).
+ * Attaches to document.body so option elements mount and register
+ * `el` on the ticket (needed for aria-activedescendant).
  */
 async function createCombobox (options: {
   'modelValue'?: unknown
@@ -1239,6 +1239,70 @@ describe('combobox', () => {
       expect(isOpen()).toBe(false)
     })
 
+    it('should commit unmatched free text on blur when not strict', async () => {
+      const selected = ref<string>()
+      const { wrapper, open, isOpen } = await createCombobox({
+        'strict': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('Durian')
+      await input.trigger('input')
+      await nextTick()
+
+      await input.trigger('blur')
+      await nextTick()
+
+      expect(selected.value).toBe('Durian')
+      expect(isOpen()).toBe(false)
+    })
+
+    it('should not commit on Enter while composing', async () => {
+      const selected = ref<string>()
+      const { wrapper, open, isOpen } = await createCombobox({
+        'strict': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('て')
+      await input.trigger('input')
+      await nextTick()
+
+      const event = new KeyboardEvent('keydown', { key: 'Enter', isComposing: true, bubbles: true, cancelable: true })
+      input.element.dispatchEvent(event)
+      await nextTick()
+
+      expect(event.defaultPrevented).toBe(false)
+      expect(selected.value).toBeUndefined()
+      expect(isOpen()).toBe(true)
+    })
+
+    it('should not open on ArrowDown while composing', async () => {
+      const { wrapper, isOpen } = await createCombobox()
+
+      const input = wrapper.find('input')
+      const event = new KeyboardEvent('keydown', { key: 'ArrowDown', isComposing: true, bubbles: true, cancelable: true })
+      input.element.dispatchEvent(event)
+      await nextTick()
+
+      expect(event.defaultPrevented).toBe(false)
+      expect(isOpen()).toBe(false)
+    })
+
     it('should discard unmatched free text on click-outside when strict', async () => {
       const selected = ref<string>()
       const { wrapper, open, isOpen, query } = await createCombobox({
@@ -1535,6 +1599,47 @@ describe('combobox', () => {
       cueEl.dispatchEvent(event)
       await nextTick()
 
+      expect(isOpen()).toBe(false)
+    })
+
+    it('should not steal input focus on cue pointerdown', async () => {
+      const { wrapper, open } = await createCombobox()
+
+      open()
+      await nextTick()
+
+      const cueEl = wrapper.findComponent(Combobox.Cue as any).element as HTMLElement
+      const event = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
+      cueEl.dispatchEvent(event)
+
+      expect(event.defaultPrevented).toBe(true)
+    })
+
+    it('should not commit free text when the cue is clicked', async () => {
+      const selected = ref<string>()
+      const { wrapper, open, isOpen } = await createCombobox({
+        'strict': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('Durian')
+      await input.trigger('input')
+      await nextTick()
+
+      const cue = wrapper.findComponent(Combobox.Cue as any)
+      await cue.trigger('pointerdown')
+      const cueEl = cue.element as HTMLElement
+      cueEl.dispatchEvent(new MouseEvent('click', { bubbles: false, cancelable: true }))
+      await nextTick()
+
+      expect(selected.value).toBeUndefined()
       expect(isOpen()).toBe(false)
     })
 

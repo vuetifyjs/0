@@ -524,6 +524,24 @@ describe('createCombobox', () => {
       expect(ctx.selection.has(id)).toBe(false)
     })
 
+    it('should resolve virtual-focus el from the ticket, not document.querySelector', () => {
+      const ctx = setup({ id: 'combo' })
+
+      const decoy = document.createElement('div')
+      decoy.id = 'combo-option-a'
+      document.body.append(decoy)
+
+      const real = document.createElement('div')
+      real.id = 'real-a'
+      ctx.selection.register({ id: 'a', value: 'Apple', el: () => real })
+      ctx.open()
+      ctx.cursor.highlight('a')
+
+      expect(real.dataset.highlighted).toBe('')
+      expect(decoy.dataset.highlighted).toBeUndefined()
+      decoy.remove()
+    })
+
     it('should clear highlight when the query filters out the highlighted option', async () => {
       const ctx = setup()
       ctx.selection.register({ id: 'a', value: 'Apple' })

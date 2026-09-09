@@ -1,21 +1,35 @@
 <script setup lang="ts">
   import type { Country } from './useCountrySearch'
-  import { isUndefined, useClickOutside } from '@vuetify/v0'
-  import { useTemplateRef } from 'vue'
-  import { useCountryCombobox } from './useCountrySearch'
+  import { isElement, isUndefined, useClickOutside } from '@vuetify/v0'
+  import { onBeforeUnmount, useTemplateRef, watch } from 'vue'
+  import { bindEl, useCountryCombobox } from './useCountrySearch'
 
   const { countries } = defineProps<{
     countries: Country[]
   }>()
 
   const combobox = useCountryCombobox()
-  const root = useTemplateRef<HTMLElement>('root')
+  const input = useTemplateRef<HTMLInputElement>('input')
+  const list = useTemplateRef<HTMLElement>('list')
 
-  useClickOutside(root, () => {
-    if (combobox.isOpen.value) {
-      combobox.commit()
-      combobox.close()
-    }
+  watch(input, el => {
+    combobox.inputEl.value = el
+  }, { immediate: true })
+
+  combobox.popover.attach(() => list.value)
+
+  useClickOutside(
+    [input, list],
+    () => {
+      if (combobox.isOpen.value) {
+        combobox.commit()
+        combobox.close()
+      }
+    },
+  )
+
+  onBeforeUnmount(() => {
+    combobox.inputEl.value = null
   })
 
   function onInput (event: Event) {
@@ -24,7 +38,22 @@
     if (!combobox.isOpen.value) combobox.open()
   }
 
+  function composing (event: KeyboardEvent) {
+    return event.isComposing && (
+      event.key === 'ArrowUp'
+      || event.key === 'ArrowDown'
+      || event.key === 'ArrowLeft'
+      || event.key === 'ArrowRight'
+      || event.key === 'Enter'
+      || event.key === 'Escape'
+      || event.key === 'Tab'
+      || event.key === ' '
+    )
+  }
+
   function onKeydown (event: KeyboardEvent) {
+    if (composing(event)) return
+
     switch (event.key) {
       case 'ArrowDown': {
         event.preventDefault()
@@ -48,7 +77,7 @@
         const id = combobox.cursor.highlightedId.value
         if (isUndefined(id)) {
           combobox.commit()
-        } else if (!combobox.selection.selectedIds.has(id)) {
+        } else if (!combobox.selection.selected(id)) {
           combobox.select(id)
         }
         combobox.close()
@@ -60,44 +89,59 @@
       }
     }
   }
+
+  function onBlur (event: FocusEvent) {
+    const next = event.relatedTarget
+    if (isElement(next) && list.value?.contains(next)) return
+    combobox.commit()
+    combobox.close()
+  }
 </script>
 
 <template>
-  <div ref="root" class="relative">
+  <div class="max-w-xs mx-auto">
     <input
       :id="combobox.inputId"
+      ref="input"
       :aria-activedescendant="combobox.cursor.highlightedId.value ? `${combobox.id}-option-${combobox.cursor.highlightedId.value}` : undefined"
-      aria-autocomplete="list"
+      aria-autocomplete="both"
       :aria-controls="combobox.listboxId"
       :aria-expanded="combobox.isOpen.value"
       autocomplete="off"
       class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm placeholder:text-on-surface-variant focus:border-primary focus:outline-none transition-colors"
       placeholder="Search countries…"
       role="combobox"
+      :style="combobox.popover.anchorStyles.value"
       :value="combobox.display.value"
+      @blur="onBlur"
       @focus="combobox.open()"
       @input="onInput"
       @keydown="onKeydown"
     >
 
     <div
-      v-if="combobox.isOpen.value"
       :id="combobox.listboxId"
-      class="absolute left-0 right-0 top-full z-10 mt-1 rounded-lg border border-divider bg-surface shadow-lg p-1"
+      ref="list"
+      class="p-1 rounded-lg border border-divider bg-surface shadow-lg"
+      popover="manual"
       role="listbox"
+      :style="{ ...combobox.popover.contentStyles.value, minWidth: 'anchor-size(width)' }"
     >
       <template v-for="country in countries" :key="country.id">
         <div
           v-if="combobox.filtered.value.has(country.id)"
           :id="`${combobox.id}-option-${country.id}`"
+          :ref="node => bindEl(country.id, node)"
           :aria-selected="combobox.selection.selectedIds.has(country.id)"
-          class="flex items-center justify-between px-3 py-2 rounded-md cursor-default select-none text-sm text-on-surface transition-colors"
-          :class="{
-            'bg-primary text-on-primary': combobox.cursor.highlightedId.value === country.id,
-            'font-medium text-primary': combobox.selection.selectedIds.has(country.id) && combobox.cursor.highlightedId.value !== country.id,
-          }"
+          class="flex items-center justify-between px-3 py-2 rounded-md cursor-default select-none text-sm transition-colors"
+          :class="combobox.cursor.highlightedId.value === country.id
+            ? 'bg-primary text-on-primary'
+            : combobox.selection.selected(country.id)
+              ? 'font-medium text-primary'
+              : 'text-on-surface hover:bg-surface-variant'"
           role="option"
           @click="combobox.select(country.id)"
+          @pointerdown.prevent
           @pointerenter="combobox.cursor.highlight(country.id)"
         >
           <span>{{ country.value }}</span>

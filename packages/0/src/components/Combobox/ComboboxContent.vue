@@ -25,11 +25,14 @@
   import { useClickOutside } from '#v0/composables/useClickOutside'
   import { useLazy } from '#v0/composables/useLazy'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
-  import { toRef, toValue, useTemplateRef } from 'vue'
+  import { onBeforeUnmount, toRef, toValue, useTemplateRef, watch } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
 
   export interface ComboboxContentProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -69,9 +72,20 @@
   } = defineProps<ComboboxContentProps>()
 
   const context = useComboboxContext(namespace)
-  const content = useTemplateRef('content')
+  const content = useTemplateRef<AtomExpose>('content')
 
-  context.popover.attach(() => content.value?.element)
+  function contentEl () {
+    const el = toElement(content.value?.element)
+    return el instanceof HTMLElement ? el : null
+  }
+
+  context.popover.attach(contentEl)
+  watch(contentEl, el => {
+    context.listEl.value = el
+  }, { immediate: true })
+  onBeforeUnmount(() => {
+    context.listEl.value = null
+  })
 
   const { hasContent } = useLazy(context.isOpen, { eager })
 
@@ -82,7 +96,7 @@
   })
 
   useClickOutside(
-    [() => content.value?.element, activator],
+    [contentEl, activator],
     () => {
       if (context.isOpen.value) {
         context.commit()

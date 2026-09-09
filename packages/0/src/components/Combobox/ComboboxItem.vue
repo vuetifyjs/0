@@ -5,8 +5,9 @@
  *
  * @remarks
  * Option component for the combobox dropdown. Registers with the parent selection
- * context and provides selection state via scoped slots. Element ID follows the
- * pattern `${rootId}-option-${ticketId}` for virtual focus resolution.
+ * context (including the rendered element) and provides selection state via
+ * scoped slots. Element ID follows `${rootId}-option-${ticketId}` for
+ * `aria-activedescendant`.
  *
  * Uses `v-show` (not `v-if`) to keep items registered with the selection context
  * even when filtered out, so virtual focus can track them correctly.
@@ -19,11 +20,15 @@
   // Context
   import { useComboboxContext } from './ComboboxRoot.vue'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
-  import { onBeforeUnmount, toRef, toValue } from 'vue'
+  import { onBeforeUnmount, toRef, toValue, useTemplateRef } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+  import type { MaybeElementRef } from '#v0/composables/toElement'
   import type { MaybeRefOrGetter } from 'vue'
 
   export interface ComboboxItemProps<V = unknown> extends AtomProps {
@@ -35,6 +40,8 @@
     value?: V
     /** Disables this specific option */
     disabled?: MaybeRefOrGetter<boolean>
+    /** Host element when renderless. Virtual focus uses this instead of the Atom node. */
+    el?: MaybeElementRef
   }
 
   export interface ComboboxItemSlotProps<V = unknown> {
@@ -61,6 +68,7 @@
       'data-disabled': true | undefined
       'data-id': string
       'onClick': () => void
+      'onPointerdown': (e: PointerEvent) => void
     }
   }
 </script>
@@ -79,11 +87,14 @@
     value,
     disabled,
     renderless,
+    el: _el,
   } = defineProps<ComboboxItemProps<V>>()
 
   const context = useComboboxContext(namespace)
+  const atomRef = useTemplateRef<AtomExpose>('atom')
+  const el = toRef(() => toElement(_el) ?? toElement(atomRef.value?.element) ?? null)
 
-  const ticket = context.selection.register({ id, value, disabled: () => toValue(disabled) ?? false })
+  const ticket = context.selection.register({ id, value, disabled: () => toValue(disabled) ?? false, el })
 
   const elementId = `${context.id}-option-${ticket.id}`
   const isSelected = toRef(() => toValue(ticket.isSelected))
@@ -93,6 +104,10 @@
 
   function onClick () {
     if (!toValue(isDisabled)) context.select(ticket.id)
+  }
+
+  function onPointerdown (e: PointerEvent) {
+    e.preventDefault()
   }
 
   onBeforeUnmount(() => {
@@ -116,6 +131,7 @@
       'data-disabled': isDisabled.value || undefined,
       'data-id': String(ticket.id),
       'onClick': onClick,
+      'onPointerdown': onPointerdown,
     },
   }))
 </script>
@@ -123,6 +139,7 @@
 <template>
   <Atom
     v-show="isFiltered"
+    ref="atom"
     v-bind="slotProps.attrs"
     :as
     :renderless

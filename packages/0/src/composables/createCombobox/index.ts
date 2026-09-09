@@ -39,17 +39,16 @@ import { ClientComboboxAdapter } from './adapters'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
+import { toElement } from '#v0/composables/toElement'
 
 // Utilities
 import { isUndefined, useId } from '#v0/utilities'
 import { computed, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
-import type { SelectionContext } from '#v0/composables/createSelection'
+import type { SelectionContext, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { MaybeElementRef } from '#v0/composables/toElement'
 import type { PopoverAdapter, PopoverReturn } from '#v0/composables/usePopover'
 import type { VirtualFocusReturn } from '#v0/composables/useVirtualFocus'
 import type { MaybeArray, ID } from '#v0/types'
@@ -59,6 +58,13 @@ import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 // Exports
 export { ClientComboboxAdapter, ComboboxAdapter, ServerComboboxAdapter } from './adapters'
 export type { ClientComboboxAdapterOptions, ComboboxAdapterContext, ComboboxAdapterResult } from './adapters'
+
+export interface ComboboxTicketInput<V = unknown> extends SelectionTicketInput<V> {
+  /** Rendered option element. Virtual focus reads this instead of querying the document. */
+  el?: MaybeElementRef
+}
+
+export type ComboboxTicket<Z extends ComboboxTicketInput = ComboboxTicketInput> = SelectionTicket<Z>
 
 export interface ComboboxOptions {
   multiple?: MaybeRefOrGetter<boolean>
@@ -77,7 +83,7 @@ export interface ComboboxOptions {
 }
 
 export interface ComboboxContext {
-  selection: SelectionContext
+  selection: SelectionContext<ComboboxTicketInput, ComboboxTicket>
   popover: PopoverReturn
   cursor: VirtualFocusReturn
   query: ShallowRef<string>
@@ -97,6 +103,7 @@ export interface ComboboxContext {
   errors: Readonly<Ref<string[]>>
   isValid: Readonly<Ref<boolean | null>>
   inputEl: ShallowRef<HTMLElement | null>
+  listEl: ShallowRef<HTMLElement | null>
   multiple: Readonly<Ref<boolean>>
   strict: MaybeRefOrGetter<boolean>
   disabled: MaybeRefOrGetter<boolean>
@@ -167,7 +174,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     return null
   })
 
-  const selection = createSelection({
+  const selection = createSelection<ComboboxTicketInput, ComboboxTicket>({
     multiple,
     mandatory,
     disabled: toRef(() => toValue(disabled)),
@@ -177,6 +184,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   const query = shallowRef('')
   const pristine = shallowRef(true)
   const inputEl = shallowRef<HTMLElement | null>(null)
+  const listEl = shallowRef<HTMLElement | null>(null)
 
   // Ids of tickets minted from free-text commits (strict === false). Tracked so
   // single-select can prune a superseded value once a new one is committed,
@@ -211,7 +219,10 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
       .filter(ticket => filtered.value.has(ticket.id) && !toValue(ticket.disabled) && !adhoc.has(ticket.id))
       .map(ticket => ({
         id: ticket.id,
-        el: () => IN_BROWSER ? document.querySelector<HTMLElement>(`#${CSS.escape(`${id}-option-${ticket.id}`)}`) : null,
+        el: () => {
+          const node = toElement(ticket.el)
+          return node instanceof HTMLElement ? node : null
+        },
         disabled: ticket.disabled,
       })),
     {
@@ -372,6 +383,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     errors,
     isValid,
     inputEl,
+    listEl,
     multiple: toRef(() => toValue(multiple)),
     strict,
     disabled,

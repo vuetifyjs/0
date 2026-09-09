@@ -210,7 +210,7 @@ The Combobox implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apg/
 | `Tab` | Accept the highlighted item if one is active, otherwise commit the typed value, then close and move focus |
 | `Home` / `End` | Move the caret in the input; list highlight is cleared |
 
-Click-outside always `commit()`s the query (ignores leftover virtual focus) then closes. Tab accepts a highlight when one exists, otherwise commits. Escape / `close()` cancel without committing.
+Click-outside and blur always `commit()` the query (ignores leftover virtual focus) then close. Tab accepts a highlight when one exists, otherwise commits. Escape / `close()` cancel without committing.
 
 ## FAQ
 
@@ -230,7 +230,7 @@ Items render with `v-show` (not `v-if`) against the filtered set, so they're hid
 
 ??? How do I stop users from keeping free text that doesn't match an option?
 
-Set `strict` on `Combobox.Root`. By default, confirming with **Enter**, **Tab**, or click-outside commits unmatched text as a free-text value through `v-model`; with `strict`, unmatched text is discarded on confirm and the input reverts to the selected option's value — or clears if nothing is selected — so only registered options can be chosen. **Tab** and click-outside are the leave-the-field paths; blur itself does not commit. **Escape** (and `close()`) still cancel.
+Set `strict` on `Combobox.Root`. By default, confirming with **Enter**, **Tab**, click-outside, or blur commits unmatched text as a free-text value through `v-model`; with `strict`, unmatched text is discarded on confirm and the input reverts to the selected option's value — or clears if nothing is selected — so only registered options can be chosen. **Escape** (and `close()`) still cancel.
 
 ??? How do I submit the selected value(s) with a native form?
 

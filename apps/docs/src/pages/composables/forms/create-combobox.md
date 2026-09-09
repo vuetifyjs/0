@@ -181,7 +181,7 @@ interface ComboboxOptions {
   multiple?: MaybeRefOrGetter<boolean>   // Enable multi-select
   mandatory?: MaybeRefOrGetter<boolean>  // Prevent deselecting last item
   disabled?: MaybeRefOrGetter<boolean>   // Disable all interaction
-  strict?: MaybeRefOrGetter<boolean>     // Constrain accepted values to registered options; unmatched text is discarded on confirm (Enter/Tab/click-outside)
+  strict?: MaybeRefOrGetter<boolean>     // Constrain accepted values to registered options; unmatched text is discarded on confirm (Enter/Tab/click-outside/blur)
   adapter?: ComboboxAdapter              // Filtering strategy (default: ClientComboboxAdapter)
   positionAdapter?: PopoverAdapter       // Dropdown positioning engine (default: V0PopoverAdapter)
   displayValue?: (value: unknown) => string  // Format selected value for display in input
@@ -215,11 +215,11 @@ interface ComboboxOptions {
 
 ### Country Autocomplete
 
-A fully custom country picker built directly on `createCombobox` with the default [ClientComboboxAdapter](/composables/forms/create-combobox). The composable registers a dozen countries into the underlying `selection` registry; the adapter filters the visible set on every keystroke, and `cursor` (the [useVirtualFocus](/composables/system/use-virtual-focus) surface) tracks the keyboard-highlighted row independently of real DOM focus. A separate panel mirrors the confirmed selection, so the example shows both halves of an autocomplete: the typeahead input and the value display it feeds.
+A fully custom country picker built directly on `createCombobox` with the default [ClientComboboxAdapter](/composables/forms/create-combobox). The composable registers a dozen countries into the underlying `selection` registry with `strict: true`, so unmatched text is discarded on confirm; the adapter filters the visible set on every keystroke, and `cursor` (the [useVirtualFocus](/composables/system/use-virtual-focus) surface) tracks the keyboard-highlighted row independently of real DOM focus. A separate panel mirrors the confirmed selection, so the example shows both halves of an autocomplete: the typeahead input and the value display it feeds.
 
-State and view are split deliberately. `useCountrySearch` owns the data and the coordinated state — it creates a `createComboboxContext({ namespace: 'v0:country-combobox' })` trinity, registers countries, and returns the context plus a `selected` getter derived from `selection.selectedIds`. The parent calls `provideCountryCombobox`; `CountryAutocomplete` injects via `useCountryCombobox`. The composable never touches events; the component wires `onInput`, `onKeydown`, and `@focus` to drive the context. Arrow keys call `cursor.next()` / `cursor.prev()`. Enter reads `cursor.highlightedId` and routes to `select(id)`, or to `commit()` when nothing is highlighted. Tab does the same accept path — selecting a highlighted unselected option, otherwise `commit()` — then `close()` so the listbox doesn't linger; it does not preventDefault, so focus can move on. Pointer dismiss uses [useClickOutside](/composables/system/use-click-outside) to `commit()` then `close()` (query only, ignoring leftover virtual focus). Escape and any other `close()` discard uncommitted text. Closing without commit still reverts the input via `pristine` + `display` falling back to the last selected ticket.
+State and view are split deliberately. `useCountrySearch` owns the data and the coordinated state — it creates a `createComboboxContext({ namespace: 'v0:country-combobox', strict: true })` trinity, registers countries, and returns the context plus a `selected` getter derived from `selection.selectedIds`. The parent calls `provideCountryCombobox`; `CountryAutocomplete` injects via `useCountryCombobox`. The composable never touches events; the component wires `onInput`, `onKeydown`, and `@focus` to drive the context. Arrow keys call `cursor.next()` / `cursor.prev()`. Enter reads `cursor.highlightedId` and routes to `select(id)`, or to `commit()` when nothing is highlighted. Tab does the same accept path — selecting a highlighted unselected option, otherwise `commit()` — then `close()` so the listbox doesn't linger; it does not preventDefault, so focus can move on. Pointer dismiss uses [useClickOutside](/composables/system/use-click-outside) to `commit()` then `close()` (query only, ignoring leftover virtual focus). Escape and any other `close()` discard uncommitted text. Closing without commit still reverts the input via `pristine` + `display` falling back to the last selected ticket.
 
-ARIA wiring is manual but mechanical: `role="combobox"`, `aria-controls`, `aria-expanded`, `aria-autocomplete="list"`, and `aria-activedescendant` are set on the input from the IDs the context vends (`inputId`, `listboxId`, `id`), and each option row carries `role="option"`, `aria-selected`, and a stable per-option id so screen readers can correlate the highlighted row. Reach for this approach when you need full control over the markup; prefer the [Combobox component](/components/forms/combobox) when the defaults suffice, and see [createSelection](/composables/selection/create-selection) for the selection layer underneath.
+ARIA wiring is manual but mechanical: `role="combobox"`, `aria-controls`, `aria-expanded`, `aria-autocomplete="both"` (strict), and `aria-activedescendant` are set on the input from the IDs the context vends (`inputId`, `listboxId`, `id`), and each option row carries `role="option"`, `aria-selected`, and a stable per-option id so screen readers can correlate the highlighted row. Reach for this approach when you need full control over the markup; prefer the [Combobox component](/components/forms/combobox) when the defaults suffice, and see [createSelection](/composables/selection/create-selection) for the selection layer underneath.
 
 | File | Role |
 |------|------|
@@ -232,7 +232,7 @@ ARIA wiring is manual but mechanical: `role="combobox"`, `aria-controls`, `aria-
 
 ### Strict Mode
 
-`strict` constrains accepted values to registered options. Confirming with Enter, Tab, or click-outside:
+`strict` constrains accepted values to registered options. Confirming with Enter, Tab, click-outside, or blur:
 
 - Non-strict (default): `commit()` mints a ticket for unmatched text, selects it, and emits it.
 - Strict: unmatched text is discarded; the dropdown closes.
@@ -275,7 +275,7 @@ Pass `new ServerComboboxAdapter()` and watch `combobox.query` to drive your own 
 
 ??? What does `strict` mode do?
 
-With `strict: true`, confirming unmatched text (Enter, Tab, or click-outside) discards it and closes; only registered options can be chosen. Non-strict (the default) commits the typed value as a new selection. `close()` and Escape always discard uncommitted text. `aria-autocomplete` is set by `Combobox.Control`, not this composable.
+With `strict: true`, confirming unmatched text (Enter, Tab, click-outside, or blur) discards it and closes; only registered options can be chosen. Non-strict (the default) commits the typed value as a new selection. `close()` and Escape always discard uncommitted text. `aria-autocomplete` is set by `Combobox.Control`, not this composable.
 
 ??? How does `select(id)` behave in multiple mode?
 

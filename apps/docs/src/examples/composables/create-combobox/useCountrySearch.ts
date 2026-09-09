@@ -9,6 +9,12 @@ export interface Country {
 }
 
 const NAMESPACE = 'v0:country-combobox'
+const els = new Map<string, HTMLElement>()
+
+export function bindEl (id: string, node: unknown) {
+  if (node instanceof HTMLElement) els.set(id, node)
+  else els.delete(id)
+}
 
 const countries: Country[] = [
   { id: 'us', value: 'United States', code: 'US', region: 'Americas' },
@@ -32,10 +38,16 @@ export function useCountryCombobox () {
 export function useCountrySearch () {
   const [, provideCountryCombobox, combobox] = createComboboxContext({
     namespace: NAMESPACE,
+    strict: true,
   })
 
   for (const country of countries) {
-    combobox.selection.register({ id: country.id, value: country.value })
+    const id = country.id
+    combobox.selection.register({
+      id,
+      value: country.value,
+      el: () => els.get(id) ?? null,
+    })
   }
 
   const selected = toRef(() => {

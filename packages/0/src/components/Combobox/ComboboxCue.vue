@@ -33,6 +33,7 @@
       'aria-hidden': true
       'data-state': 'open' | 'closed'
       'onClick': () => void
+      'onPointerdown': (e: PointerEvent) => void
     }
   }
 </script>
@@ -56,12 +57,17 @@
     if (!toValue(context.disabled)) context.toggle()
   }
 
+  function onPointerdown (e: PointerEvent) {
+    e.preventDefault()
+  }
+
   const slotProps = toRef((): ComboboxCueSlotProps => ({
     isOpen: context.isOpen.value,
     attrs: {
       'aria-hidden': true,
       'data-state': context.isOpen.value ? 'open' : 'closed',
       'onClick': onClick,
+      'onPointerdown': onPointerdown,
     },
   }))
 </script>

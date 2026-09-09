@@ -20,7 +20,7 @@
   import { toElement } from '#v0/composables/toElement'
 
   // Utilities
-  import { isUndefined } from '#v0/utilities'
+  import { isElement, isUndefined } from '#v0/utilities'
   import { onBeforeUnmount, toRef, toValue, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -59,6 +59,7 @@
       'value': string
       'onInput': (e: Event) => void
       'onFocus': () => void
+      'onBlur': (e: FocusEvent) => void
       'onKeydown': (e: KeyboardEvent) => void
     }
   }
@@ -99,7 +100,32 @@
     if (openOn === 'focus') context.open()
   }
 
+  function onBlur (e: FocusEvent) {
+    const next = e.relatedTarget
+    if (isElement(next)) {
+      const activator = context.inputEl.value?.closest('[data-state]')
+      if (context.listEl.value?.contains(next) || activator?.contains(next)) return
+    }
+    context.commit()
+    context.close()
+  }
+
+  function composing (e: KeyboardEvent) {
+    return e.isComposing && (
+      e.key === 'ArrowUp'
+      || e.key === 'ArrowDown'
+      || e.key === 'ArrowLeft'
+      || e.key === 'ArrowRight'
+      || e.key === 'Enter'
+      || e.key === 'Escape'
+      || e.key === 'Tab'
+      || e.key === ' '
+    )
+  }
+
   function onKeydown (e: KeyboardEvent) {
+    if (composing(e)) return
+
     if (context.isOpen.value) {
       switch (e.key) {
         case 'Enter': {
@@ -121,7 +147,7 @@
           const highlighted = context.cursor.highlightedId.value
           if (isUndefined(highlighted)) {
             context.commit()
-          } else if (!context.selection.selectedIds.has(highlighted)) {
+          } else if (!context.selection.selected(highlighted)) {
             context.select(highlighted)
           }
           // Multiple-select commit/select keeps the menu open; close it here so the
@@ -185,6 +211,7 @@
       'value': context.display.value,
       'onInput': onInput,
       'onFocus': onFocus,
+      'onBlur': onBlur,
       'onKeydown': onKeydown,
     },
   }))
