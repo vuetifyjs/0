@@ -43,6 +43,32 @@ describe('createFilter.apply', () => {
     expect(filtered.value[0]?.name).toBe('banana')
   })
 
+  it('should re-filter when keys is a ref that changes', () => {
+    const keys = shallowRef(['color'])
+    const filter = createFilter({ keys })
+    const { items: filtered } = filter.apply('apple', items)
+
+    expect(filtered.value).toHaveLength(1)
+    expect(filtered.value[0]?.name).toBe('apple juice')
+
+    keys.value = ['name']
+
+    expect(filtered.value).toHaveLength(3)
+    expect(filtered.value.every(i => i.name.includes('apple'))).toBe(true)
+  })
+
+  it('should re-filter when keys is a getter that changes', () => {
+    const keys = shallowRef(['color'])
+    const filter = createFilter({ keys: () => keys.value })
+    const { items: filtered } = filter.apply('apple', items)
+
+    expect(filtered.value).toHaveLength(1)
+
+    keys.value = ['name']
+
+    expect(filtered.value).toHaveLength(3)
+  })
+
   it('should require all keys to match query with mode: every', () => {
     const filter = createFilter({ keys: ['name', 'color'], mode: 'every' })
     const { items: filtered } = filter.apply('apple', items)

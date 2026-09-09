@@ -18,12 +18,13 @@ import { computed, shallowRef, toRef } from 'vue'
 import type { FilterItem, FilterMode } from '#v0/composables/createFilter'
 import type { ID } from '#v0/types'
 import type { ComboboxAdapterContext, ComboboxAdapterResult } from './adapter'
+import type { MaybeRefOrGetter } from 'vue'
 
 export interface ClientComboboxAdapterOptions {
   /** Filter matching mode */
   mode?: FilterMode
   /** Object keys to match against (for object values) */
-  keys?: string[]
+  keys?: MaybeRefOrGetter<readonly string[]>
   /** Custom filter function — overrides default matching */
   filter?: (query: string, value: unknown) => boolean
 }

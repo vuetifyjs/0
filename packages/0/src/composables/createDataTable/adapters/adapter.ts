@@ -114,7 +114,7 @@ export abstract class DataTableAdapter<T extends object> {
     // are observed at filter-call time rather than at setup time.
     const filterOptions: FilterOptions = {
       ...context.filterOptions,
-      keys: [...toValue(context.filterableKeys)],
+      keys: context.filterableKeys,
       customFilter: context.filterOptions.customFilter ?? ((query, item) => {
         const columnFilters = toValue(context.customColumnFilters)
         const keys = toValue(context.filterableKeys)
