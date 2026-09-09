@@ -287,7 +287,7 @@ const wrapper = mount(Component.Root, {
 
 ## Locale string assertions (PHILOSOPHY §5.5)
 
-Assert `toBeDefined()` for locale strings, not exact text values. Tests must not pin to an English rendering. [intent:177]
+Assert `toBeDefined()` for **translatable copy** (aria-label, errors, visible names), not exact text values. Tests must not pin to an English rendering. [intent:177] ARIA role tokens (`aria-roledescription: 'carousel'`) are spec strings, not locale copy — pin those.
 
 ```ts
 // Right
