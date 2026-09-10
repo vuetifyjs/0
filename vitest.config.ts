@@ -10,6 +10,7 @@ export default defineConfig({
       'packages/emerald',
       'packages/play',
       'apps/docs',
+      'apps/builder',
       'apps/playground',
     ],
     globals: true,
