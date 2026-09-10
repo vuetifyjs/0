@@ -2,7 +2,7 @@
   import type { Country } from './useCountrySearch'
   import { isElement, isUndefined, useClickOutside } from '@vuetify/v0'
   import { onBeforeUnmount, useTemplateRef, watch } from 'vue'
-  import { bindEl, useCountryCombobox } from './useCountrySearch'
+  import { useCountryCombobox } from './useCountrySearch'
 
   const { countries } = defineProps<{
     countries: Country[]
@@ -88,6 +88,12 @@
         break
       }
     }
+  }
+
+  function bindEl (id: string, node: unknown) {
+    const ticket = combobox.selection.get(id)
+    if (isUndefined(ticket)) return
+    ticket.el = node instanceof HTMLElement ? node : null
   }
 
   function onBlur (event: FocusEvent) {

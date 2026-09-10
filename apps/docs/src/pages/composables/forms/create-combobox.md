@@ -13,6 +13,7 @@ features:
 related:
   - /composables/selection/create-selection
   - /composables/system/use-virtual-focus
+  - /composables/data/create-virtual
   - /components/forms/combobox
 ---
 
@@ -256,6 +257,14 @@ In `multiple` mode, `select(id)` differs from single mode:
 - Keeps the dropdown open.
 - Highlights the clicked item via `cursor.highlight(id)` so ArrowDown continues from that position.
 - Refocuses the input so keyboard navigation continues immediately.
+
+### Virtualized listbox
+
+Keep every ticket registered. Window the DOM with [createVirtual](/composables/data/create-virtual). Write `ticket.el` from the row, then `scrollTo` before `cursor.highlight` so off-screen arrows land on a real node.
+
+::: gn-example
+/composables/create-combobox/virtual-listbox
+:::
 
 ## FAQ
 
