@@ -138,20 +138,17 @@
           v-if="combobox.filtered.value.has(country.id)"
           :id="`${combobox.id}-option-${country.id}`"
           :ref="node => bindEl(country.id, node)"
-          :aria-selected="combobox.selection.selectedIds.has(country.id)"
-          class="flex items-center justify-between px-3 py-2 rounded-md cursor-default select-none text-sm transition-colors"
-          :class="combobox.cursor.highlightedId.value === country.id
-            ? 'bg-primary text-on-primary'
-            : combobox.selection.selected(country.id)
-              ? 'font-medium text-primary'
-              : 'text-on-surface hover:bg-surface-variant'"
+          :aria-selected="combobox.selection.selected(country.id)"
+          class="group flex items-center justify-between px-3 py-2 rounded-md cursor-default select-none text-sm text-on-surface hover:bg-surface-variant data-[selected]:font-medium data-[selected]:text-primary data-[highlighted]:bg-primary data-[highlighted]:text-on-primary data-[highlighted]:hover:bg-primary"
+          :data-highlighted="combobox.cursor.highlightedId.value === country.id || undefined"
+          :data-selected="combobox.selection.selected(country.id) || undefined"
           role="option"
           @click="combobox.select(country.id)"
           @pointerdown.prevent
           @pointerenter="combobox.cursor.highlight(country.id)"
         >
           <span>{{ country.value }}</span>
-          <span class="text-xs opacity-60">{{ country.code }}</span>
+          <span class="text-xs text-on-surface-variant group-data-[highlighted]:text-on-primary group-data-[highlighted]:opacity-80">{{ country.code }}</span>
         </div>
       </template>
 
