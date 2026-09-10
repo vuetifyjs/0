@@ -246,7 +246,7 @@
       Skip to main content
     </a>
 
-    <div class="app-shell-content pt-[calc(48px+var(--app-banner-h,24px))]">
+    <div class="app-shell-content pt-[calc(48px+var(--app-banner-h,0px))]">
       <AppBanner />
       <AppBar />
 
