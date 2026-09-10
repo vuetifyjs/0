@@ -14,7 +14,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Context
-  import { useComboboxContext } from './ComboboxRoot.vue'
+  import { useComboboxRoot } from './ComboboxRoot.vue'
 
   // Utilities
   import { onBeforeUnmount, useAttrs } from 'vue'
@@ -48,22 +48,22 @@
     namespace = 'v0:combobox',
   } = defineProps<ComboboxDescriptionProps>()
 
-  const context = useComboboxContext(namespace)
+  const root = useComboboxRoot(namespace)
 
-  context.hasDescription.value = true
+  root.hasDescription.value = true
 
   onBeforeUnmount(() => {
-    context.hasDescription.value = false
+    root.hasDescription.value = false
   })
 </script>
 
 <template>
   <Atom
     v-bind="attrs"
-    :id="context.descriptionId"
+    :id="root.descriptionId"
     :as
     :renderless
   >
-    <slot :id="context.descriptionId" />
+    <slot :id="root.descriptionId" />
   </Atom>
 </template>

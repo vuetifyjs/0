@@ -5,7 +5,7 @@
  *
  * @remarks
  * Conditional render when no items match the current query. Automatically
- * shown when `context.isEmpty` is true. Exposes the current query string
+ * shown when `root.isEmpty` is true. Exposes the current query string
  * via slot props for custom empty state messages.
  */
 
@@ -14,7 +14,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Context
-  import { useComboboxContext } from './ComboboxRoot.vue'
+  import { useComboboxRoot } from './ComboboxRoot.vue'
 
   // Composables
   import { useLocale } from '#v0/composables/useLocale'
@@ -49,16 +49,16 @@
     renderless,
   } = defineProps<ComboboxEmptyProps>()
 
-  const context = useComboboxContext(namespace)
+  const root = useComboboxRoot(namespace)
   const locale = useLocale()
 
   const slotProps = toRef((): ComboboxEmptySlotProps => ({
-    query: context.query.value,
+    query: root.query.value,
   }))
 </script>
 
 <template>
-  <Atom v-if="context.isEmpty.value" :as :renderless>
+  <Atom v-if="root.isEmpty.value" :as :renderless>
     <slot v-bind="slotProps">{{ locale.ti('Combobox.noResults') ?? 'No results' }}</slot>
   </Atom>
 </template>

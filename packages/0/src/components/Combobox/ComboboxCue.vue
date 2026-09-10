@@ -15,7 +15,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Context
-  import { useComboboxContext } from './ComboboxRoot.vue'
+  import { useComboboxRoot } from './ComboboxRoot.vue'
 
   // Utilities
   import { toRef, toValue } from 'vue'
@@ -51,10 +51,10 @@
     renderless,
   } = defineProps<ComboboxCueProps>()
 
-  const context = useComboboxContext(namespace)
+  const root = useComboboxRoot(namespace)
 
   function onClick () {
-    if (!toValue(context.disabled)) context.toggle()
+    if (!toValue(root.disabled)) root.toggle()
   }
 
   function onPointerdown (e: PointerEvent) {
@@ -62,10 +62,10 @@
   }
 
   const slotProps = toRef((): ComboboxCueSlotProps => ({
-    isOpen: context.isOpen.value,
+    isOpen: root.isOpen.value,
     attrs: {
       'aria-hidden': true,
-      'data-state': context.isOpen.value ? 'open' : 'closed',
+      'data-state': root.isOpen.value ? 'open' : 'closed',
       'onClick': onClick,
       'onPointerdown': onPointerdown,
     },

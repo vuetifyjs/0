@@ -6,7 +6,7 @@ export { default as ComboboxDescription } from './ComboboxDescription.vue'
 export { default as ComboboxEmpty } from './ComboboxEmpty.vue'
 export { default as ComboboxError } from './ComboboxError.vue'
 export { default as ComboboxItem } from './ComboboxItem.vue'
-export { provideComboboxContext, useComboboxContext } from './ComboboxRoot.vue'
+export { provideComboboxRoot, useComboboxRoot } from './ComboboxRoot.vue'
 export { default as ComboboxRoot } from './ComboboxRoot.vue'
 export type { ComboboxActivatorProps, ComboboxActivatorSlotProps } from './ComboboxActivator.vue'
 export type { ComboboxContentProps, ComboboxContentSlotProps } from './ComboboxContent.vue'
@@ -16,7 +16,7 @@ export type { ComboboxDescriptionProps, ComboboxDescriptionSlotProps } from './C
 export type { ComboboxEmptyProps, ComboboxEmptySlotProps } from './ComboboxEmpty.vue'
 export type { ComboboxErrorProps, ComboboxErrorSlotProps } from './ComboboxError.vue'
 export type { ComboboxItemProps, ComboboxItemSlotProps } from './ComboboxItem.vue'
-export type { ComboboxRootProps, ComboboxRootSlotProps } from './ComboboxRoot.vue'
+export type { ComboboxRootContext, ComboboxRootProps, ComboboxRootSlotProps } from './ComboboxRoot.vue'
 
 // Context
 import Activator from './ComboboxActivator.vue'

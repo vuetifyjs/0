@@ -6,7 +6,7 @@
  * The adapter is a pass-through — it shows all registered items and
  * exposes loading state for the consumer to control.
  *
- * The consumer watches `query` via useComboboxContext() or slot props
+ * The consumer watches `query` via useCombobox() / useComboboxRoot() or slot props
  * and provides filtered items reactively.
  */
 

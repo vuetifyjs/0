@@ -16,7 +16,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Context
-  import { useComboboxContext } from './ComboboxRoot.vue'
+  import { useComboboxRoot } from './ComboboxRoot.vue'
 
   // Utilities
   import { mergeProps, onBeforeUnmount, toRef, useAttrs } from 'vue'
@@ -58,20 +58,20 @@
     namespace = 'v0:combobox',
   } = defineProps<ComboboxErrorProps>()
 
-  const context = useComboboxContext(namespace)
-  const errors = context.errors
+  const root = useComboboxRoot(namespace)
+  const errors = root.errors
 
-  context.hasError.value = true
+  root.hasError.value = true
 
   onBeforeUnmount(() => {
-    context.hasError.value = false
+    root.hasError.value = false
   })
 
   const slotProps = toRef((): ComboboxErrorSlotProps => ({
-    id: context.errorId,
+    id: root.errorId,
     errors: errors.value,
     attrs: {
-      'id': context.errorId,
+      'id': root.errorId,
       'aria-live': 'polite',
       'data-state': errors.value.length > 0 ? 'visible' : 'hidden',
     },

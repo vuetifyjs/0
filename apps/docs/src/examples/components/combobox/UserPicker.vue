@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Combobox, ServerComboboxAdapter, useComboboxContext } from '@vuetify/v0'
+  import { Combobox, ServerComboboxAdapter, useComboboxRoot } from '@vuetify/v0'
   import { defineComponent, watch } from 'vue'
   import type { User } from './useUserSearch'
 
@@ -18,8 +18,8 @@
   // Renderless watcher — observes the combobox query and forwards it upward
   const SearchWatcher = defineComponent({
     setup () {
-      const ctx = useComboboxContext('v0:combobox')
-      watch(ctx.query, query => emit('search', query))
+      const root = useComboboxRoot('v0:combobox')
+      watch(root.query, query => emit('search', query))
     },
     render: () => null,
   })

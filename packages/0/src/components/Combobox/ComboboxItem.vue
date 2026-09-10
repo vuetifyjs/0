@@ -18,7 +18,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Context
-  import { useComboboxContext } from './ComboboxRoot.vue'
+  import { useComboboxRoot } from './ComboboxRoot.vue'
 
   // Transformers
   import { toElement } from '#v0/composables/toElement'
@@ -90,20 +90,20 @@
     el: _el,
   } = defineProps<ComboboxItemProps<V>>()
 
-  const context = useComboboxContext(namespace)
+  const root = useComboboxRoot(namespace)
   const atomRef = useTemplateRef<AtomExpose>('atom')
   const el = toRef(() => toElement(_el) ?? toElement(atomRef.value?.element) ?? null)
 
-  const ticket = context.selection.register({ id, value, disabled: () => toValue(disabled) ?? false, el })
+  const ticket = root.selection.register({ id, value, disabled: () => toValue(disabled) ?? false, el })
 
-  const elementId = `${context.id}-option-${ticket.id}`
+  const elementId = `${root.id}-option-${ticket.id}`
   const isSelected = toRef(() => toValue(ticket.isSelected))
-  const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(context.disabled))
-  const isHighlighted = toRef(() => context.cursor.highlightedId.value === ticket.id)
-  const isFiltered = toRef(() => context.filtered.value.has(ticket.id))
+  const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(root.disabled))
+  const isHighlighted = toRef(() => root.cursor.highlightedId.value === ticket.id)
+  const isFiltered = toRef(() => root.filtered.value.has(ticket.id))
 
   function onClick () {
-    if (!toValue(isDisabled)) context.select(ticket.id)
+    if (!toValue(isDisabled)) root.select(ticket.id)
   }
 
   function onPointerdown (e: PointerEvent) {
@@ -111,7 +111,7 @@
   }
 
   onBeforeUnmount(() => {
-    context.selection.unregister(ticket.id)
+    root.selection.unregister(ticket.id)
   })
 
   const slotProps = toRef((): ComboboxItemSlotProps<V> => ({
@@ -120,7 +120,7 @@
     isHighlighted: isHighlighted.value,
     isDisabled: isDisabled.value,
     isFiltered: isFiltered.value,
-    select: () => context.select(ticket.id),
+    select: () => root.select(ticket.id),
     attrs: {
       'id': elementId,
       'role': 'option',

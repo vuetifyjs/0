@@ -19,7 +19,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Context
-  import { useComboboxContext } from './ComboboxRoot.vue'
+  import { useComboboxRoot } from './ComboboxRoot.vue'
 
   // Composables
   import { useClickOutside } from '#v0/composables/useClickOutside'
@@ -71,51 +71,50 @@
     renderless,
   } = defineProps<ComboboxContentProps>()
 
-  const context = useComboboxContext(namespace)
+  const root = useComboboxRoot(namespace)
   const content = useTemplateRef<AtomExpose>('content')
-
-  function contentEl () {
-    const el = toElement(content.value?.element)
-    return el instanceof HTMLElement ? el : null
-  }
-
-  context.popover.attach(contentEl)
-  watch(contentEl, el => {
-    context.listEl.value = el
-  }, { immediate: true })
-  onBeforeUnmount(() => {
-    context.listEl.value = null
+  const el = toRef(() => {
+    const node = toElement(content.value?.element)
+    return node instanceof HTMLElement ? node : null
   })
 
-  const { hasContent } = useLazy(context.isOpen, { eager })
+  root.popover.attach(el)
+  watch(el, node => {
+    root.listEl.value = node
+  }, { immediate: true })
+  onBeforeUnmount(() => {
+    root.listEl.value = null
+  })
+
+  const { hasContent } = useLazy(root.isOpen, { eager })
 
   // Manual popover mode — dismiss on click outside both content and activator
   const activator = toRef(() => {
-    const node = context.inputEl.value?.closest('[data-state]')
+    const node = root.inputEl.value?.closest('[data-state]')
     return node instanceof HTMLElement ? node : null
   })
 
   useClickOutside(
-    [contentEl, activator],
+    [el, activator],
     () => {
-      if (context.isOpen.value) {
-        context.commit()
-        context.close()
+      if (root.isOpen.value) {
+        root.commit()
+        root.close()
       }
     },
   )
 
   const slotProps = toRef((): ComboboxContentSlotProps => ({
-    isOpen: context.isOpen.value,
+    isOpen: root.isOpen.value,
     attrs: {
-      ...context.popover.contentAttrs.value,
-      'id': context.listboxId,
+      ...root.popover.contentAttrs.value,
+      'id': root.listboxId,
       'role': 'listbox',
-      'aria-labelledby': context.inputId,
-      'aria-multiselectable': toValue(context.multiple) || undefined,
+      'aria-labelledby': root.inputId,
+      'aria-multiselectable': toValue(root.multiple) || undefined,
       'popover': 'manual',
       'tabindex': -1,
-      'style': context.popover.contentStyles.value,
+      'style': root.popover.contentStyles.value,
     },
   }))
 </script>

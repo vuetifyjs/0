@@ -103,7 +103,6 @@ export interface ComboboxContext {
   errors: Readonly<Ref<string[]>>
   isValid: Readonly<Ref<boolean | null>>
   inputEl: ShallowRef<HTMLElement | null>
-  listEl: ShallowRef<HTMLElement | null>
   multiple: Readonly<Ref<boolean>>
   strict: MaybeRefOrGetter<boolean>
   disabled: MaybeRefOrGetter<boolean>
@@ -184,7 +183,6 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   const query = shallowRef('')
   const pristine = shallowRef(true)
   const inputEl = shallowRef<HTMLElement | null>(null)
-  const listEl = shallowRef<HTMLElement | null>(null)
 
   // Ids of tickets minted from free-text commits (strict === false). Tracked so
   // single-select can prune a superseded value once a new one is committed,
@@ -383,7 +381,6 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     errors,
     isValid,
     inputEl,
-    listEl,
     multiple: toRef(() => toValue(multiple)),
     strict,
     disabled,
