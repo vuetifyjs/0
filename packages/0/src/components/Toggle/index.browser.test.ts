@@ -188,8 +188,28 @@ describe('toggle', () => {
 
         expect(model.value).toBe(false)
         expect(props().isDisabled).toBe(true)
+        expect(props().attrs.disabled).toBe(true)
+        expect(props().attrs['aria-disabled']).toBeUndefined()
+        expect(props().attrs['data-disabled']).toBe(true)
+        expect(wrapper.attributes('disabled')).toBe('')
+      })
+
+      it('should emit aria-disabled on a non-button host', async () => {
+        const model = ref(false)
+        const { wrapper, props, wait } = mountToggle({
+          model,
+          props: { disabled: true, as: 'div' },
+        })
+
+        await wrapper.trigger('click')
+        await wait()
+
+        expect(model.value).toBe(false)
+        expect(props().attrs.disabled).toBeUndefined()
         expect(props().attrs['aria-disabled']).toBe(true)
         expect(props().attrs['data-disabled']).toBe(true)
+        expect(wrapper.attributes('disabled')).toBeUndefined()
+        expect(wrapper.attributes('aria-disabled')).toBe('true')
       })
 
       it('should expose toggle function in slot props', () => {
@@ -444,6 +464,9 @@ describe('toggle', () => {
 
         expect(model.value).toBeUndefined()
         expect(itemProps('a').isDisabled).toBe(true)
+        expect(itemProps('a').attrs.disabled).toBe(true)
+        expect(itemProps('a').attrs['aria-disabled']).toBeUndefined()
+        expect(buttons[0].attributes('disabled')).toBe('')
       })
 
       it('should reflect group disabled in group slot props', () => {
