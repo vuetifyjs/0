@@ -23,13 +23,19 @@
   import { useProxyModel } from '#v0/composables/useProxyModel'
 
   // Utilities
-  import { toRef, toValue } from 'vue'
+  import { shallowRef, toRef, toValue } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ComboboxAdapter, ComboboxContext } from '#v0/composables/createCombobox'
   import type { PopoverAdapter } from '#v0/composables/usePopover'
   import type { MaybeArray } from '#v0/types'
+  import type { ShallowRef } from 'vue'
+
+  export interface ComboboxRootContext extends ComboboxContext {
+    /** Listbox element. Written by Content; Control uses it to skip blur-commit. */
+    listEl: ShallowRef<HTMLElement | null>
+  }
 
   export interface ComboboxRootProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -50,7 +56,11 @@
      * - true: Prevents deselecting the last selected item
      */
     mandatory?: boolean
-    /** Strict mode: reverts query to selected value on close if no match */
+    /**
+     * Constrains accepted values to registered options.
+     * - false (default): confirming (Enter/Tab) typed text with no match commits it as a new value
+     * - true: unmatched text is discarded on confirm; only registered options can be selected
+     */
     strict?: boolean
     /** Manual error state override — forces invalid regardless of error messages */
     error?: boolean
@@ -89,9 +99,11 @@
     toggle: () => void
     /** Clear query and selection */
     clear: () => void
+    /** Commit typed text (exact match or mint when not strict) */
+    commit: () => void
   }
 
-  export const [useComboboxContext, provideComboboxContext] = createContext<ComboboxContext>()
+  export const [useComboboxRoot, provideComboboxRoot] = createContext<ComboboxRootContext>()
 </script>
 
 <script lang="ts" setup generic="T = unknown">
@@ -124,7 +136,7 @@
 
   const model = defineModel<T | T[]>()
 
-  const context = createCombobox({
+  const combobox = createCombobox({
     id,
     name,
     form,
@@ -139,23 +151,26 @@
     displayValue,
   })
 
-  useProxyModel(context.selection, model, { multiple })
+  useProxyModel(combobox.selection, model, { multiple: toRef(() => multiple) })
 
-  provideComboboxContext(namespace, context)
+  const listEl = shallowRef<HTMLElement | null>(null)
+
+  provideComboboxRoot(namespace, { ...combobox, listEl })
 
   const slotProps = toRef((): ComboboxRootSlotProps => ({
-    id: context.id,
-    query: context.query.value,
-    isOpen: context.isOpen.value,
-    isEmpty: context.isEmpty.value,
-    isLoading: context.isLoading.value,
-    isDisabled: toValue(context.disabled),
-    errors: context.errors.value,
-    isValid: context.isValid.value,
-    open: context.open,
-    close: context.close,
-    toggle: context.toggle,
-    clear: context.clear,
+    id: combobox.id,
+    query: combobox.query.value,
+    isOpen: combobox.isOpen.value,
+    isEmpty: combobox.isEmpty.value,
+    isLoading: combobox.isLoading.value,
+    isDisabled: toValue(combobox.disabled),
+    errors: combobox.errors.value,
+    isValid: combobox.isValid.value,
+    open: combobox.open,
+    close: combobox.close,
+    toggle: combobox.toggle,
+    clear: combobox.clear,
+    commit: combobox.commit,
   }))
 </script>
 

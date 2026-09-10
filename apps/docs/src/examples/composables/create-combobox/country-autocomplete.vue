@@ -1,11 +1,10 @@
 <script setup lang="ts">
-  import { provide } from 'vue'
   import CountryAutocomplete from './CountryAutocomplete.vue'
-  import { COMBOBOX_KEY, useCountrySearch } from './useCountrySearch'
+  import { useCountrySearch } from './useCountrySearch'
 
-  const { combobox, countries, selected } = useCountrySearch()
+  const { combobox, countries, selected, provideCountryCombobox } = useCountrySearch()
 
-  provide(COMBOBOX_KEY, combobox)
+  provideCountryCombobox(combobox)
 </script>
 
 <template>
@@ -17,18 +16,28 @@
         Selected country
       </p>
 
-      <div v-if="selected" class="flex items-center justify-between">
-        <span class="text-sm font-medium text-on-surface">{{ selected.value }}</span>
-        <span class="text-xs text-on-surface-variant">{{ selected.code }} · {{ selected.region }}</span>
+      <div class="grid min-h-10 items-center">
+        <div
+          class="col-start-1 row-start-1 flex items-center justify-between gap-2"
+          :class="!selected && 'invisible'"
+        >
+          <span class="text-sm font-medium text-on-surface truncate">{{ selected?.value }}</span>
+          <span class="text-xs text-on-surface-variant shrink-0">{{ selected?.code }} · {{ selected?.region }}</span>
+        </div>
+
+        <p
+          class="col-start-1 row-start-1 text-sm text-on-surface-variant"
+          :class="selected && 'invisible'"
+        >
+          None yet
+        </p>
       </div>
 
-      <p v-else class="text-sm text-on-surface-variant">
-        None yet — start typing to search.
-      </p>
+      <hr class="my-2 border-0 border-t border-divider">
 
       <button
-        v-if="selected"
-        class="mt-2 text-xs text-primary hover:underline"
+        class="text-xs text-primary hover:underline disabled:text-on-surface-variant disabled:hover:no-underline disabled:cursor-not-allowed"
+        :disabled="!selected"
         @click="combobox.clear()"
       >
         Clear selection

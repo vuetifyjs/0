@@ -106,7 +106,7 @@ flowchart TD
 
 A GitHub-style assignee picker that searches people from a mocked server as you type. It wires `ServerComboboxAdapter` onto `Combobox.Root` to disable client-side filtering, debounces the `query`, runs an async lookup that resolves a `Promise`, shows a loading hint while the request is in flight, and renders multi-select chips for everyone assigned. When the server returns nothing, `Combobox.Empty` reports the unmatched term.
 
-The interesting piece is how the query reaches the fetch without prop-drilling. A renderless `SearchWatcher` — a `defineComponent` with `render: () => null` — reads the combobox context via [useComboboxContext](/composables/forms/create-combobox) and watches its `query`, emitting a `search` event that the composable debounces before calling the mock `search()`. Results flow back down as a prop, so `Combobox.Item` re-registers on each update. `open-on="input"` on `Combobox.Control` keeps an empty focus from firing a needless fetch, and the `name` prop on `Combobox.Root` auto-renders the hidden inputs for native form submission — one per selected handle — so you never place a hidden input by hand (Combobox does not export one).
+The interesting piece is how the query reaches the fetch without prop-drilling. A renderless `SearchWatcher` — a `defineComponent` with `render: () => null` — reads the combobox context via `useComboboxRoot` and watches its `query`, emitting a `search` event that the composable debounces before calling the mock `search()`. Results flow back down as a prop, so `Combobox.Item` re-registers on each update. `open-on="input"` on `Combobox.Control` keeps an empty focus from firing a needless fetch, and the `name` prop on `Combobox.Root` auto-renders the hidden inputs for native form submission — one per selected handle — so you never place a hidden input by hand (Combobox does not export one).
 
 Reach for this whenever the dataset is too large to ship to the client, needs full-text indexing, or depends on server context like permissions or org membership. The trade-off versus the default [ClientComboboxAdapter](/composables/forms/create-combobox) is the debounce-and-network latency and the loading state you must surface; for small static lists, prefer client filtering. Related: [createSelection](/composables/selection/create-selection) powers the multi-select state, and [Select](/components/forms/select) covers the non-typeahead equivalent.
 
@@ -198,18 +198,19 @@ The Combobox implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apg/
 | `aria-live` | `polite` | Error |
 
 > [!TIP]
-> `aria-autocomplete="both"` is set automatically when `strict` is enabled, signaling that the input value will revert to a valid option on close.
+> `aria-autocomplete="both"` is set automatically when `strict` is enabled (versus `"list"` when free-text is allowed), signaling to assistive tech that the field resolves to one of the listed options.
 
 ### Keyboard Navigation
 
 | Key | Action |
 |-----|--------|
 | `ArrowDown` / `ArrowUp` | Open dropdown, or move highlight down / up |
-| `Enter` | Select highlighted item |
-| `Escape` | Close dropdown |
-| `Tab` | Close dropdown and move focus |
-| `Home` | Move highlight to first item |
-| `End` | Move highlight to last item |
+| `Enter` | Select highlighted item, or commit the typed value (unless `strict`) |
+| `Escape` | Close dropdown and discard the typed value |
+| `Tab` | Accept the highlighted item if one is active, otherwise commit the typed value, then close and move focus |
+| `Home` / `End` | Move the caret in the input; list highlight is cleared |
+
+Click-outside and blur always `commit()` the query (ignores leftover virtual focus) then close. Tab accepts a highlight when one exists, otherwise commits. Escape / `close()` cancel without committing.
 
 ## FAQ
 
@@ -229,7 +230,7 @@ Items render with `v-show` (not `v-if`) against the filtered set, so they're hid
 
 ??? How do I stop users from keeping free text that doesn't match an option?
 
-Set `strict` on `Combobox.Root`. When the dropdown closes, the input reverts to the selected option's value — or clears if nothing is selected — so an unmatched query never sticks.
+Set `strict` on `Combobox.Root`. By default, confirming with **Enter**, **Tab**, click-outside, or blur commits unmatched text as a free-text value through `v-model`; with `strict`, unmatched text is discarded on confirm and the input reverts to the selected option's value — or clears if nothing is selected — so only registered options can be chosen. **Escape** (and `close()`) still cancel.
 
 ??? How do I submit the selected value(s) with a native form?
 
