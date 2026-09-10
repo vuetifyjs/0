@@ -24,7 +24,7 @@
     "name": "useTheme",
     "path": "packages/0/dist/composables/index.mjs",
     "import": "{ useTheme }",
-    "limit": "8.5 kB",
+    "limit": "8.6 kB",
     "ignore": ["vue"]
   },
   {
@@ -32,6 +32,13 @@
     "path": "packages/0/dist/composables/index.mjs",
     "import": "{ usePopover }",
     "limit": "7.5 kB",
+    "ignore": ["vue"]
+  },
+  {
+    "name": "createCalendar",
+    "path": "packages/0/dist/composables/index.mjs",
+    "import": "{ createCalendar }",
+    "limit": "6 kB",
     "ignore": ["vue"]
   },
   {
