@@ -56,7 +56,8 @@
       'type': 'button' | undefined
       'role': 'button' | undefined
       'aria-pressed': boolean
-      'aria-disabled': boolean
+      'aria-disabled': boolean | undefined
+      'disabled': boolean | undefined
       'tabindex': 0 | -1
       'data-state': 'on' | 'off'
       'data-disabled': true | undefined
@@ -174,7 +175,8 @@
       'type': as === 'button' ? 'button' : undefined,
       'role': as === 'button' ? undefined : 'button',
       'aria-pressed': isPressed.value,
-      'aria-disabled': isDisabled.value,
+      'aria-disabled': as === 'button' ? undefined : isDisabled.value,
+      'disabled': as === 'button' ? isDisabled.value : undefined,
       'tabindex': isDisabled.value ? -1 : 0,
       'data-state': isPressed.value ? 'on' : 'off',
       'data-disabled': isDisabled.value ? true : undefined,
