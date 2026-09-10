@@ -1,5 +1,21 @@
 # @vuetify/v0
 
+## 1.2.2
+
+### Patch Changes
+
+- [#982](https://github.com/vuetifyjs/0/pull/982) [`09a62d7`](https://github.com/vuetifyjs/0/commit/09a62d7ecba84e0f6a8c02f59cb05fc7ac7b65f6) Thanks [@johnleider](https://github.com/johnleider)! - fix(createFilter): track reactive `keys`
+
+  `keys` now accepts a ref or getter (`MaybeRefOrGetter<readonly string[]>`), so changing which fields are searched re-runs the filter. Passing a plain `string[]` is unchanged.
+
+- [#982](https://github.com/vuetifyjs/0/pull/982) [`09a62d7`](https://github.com/vuetifyjs/0/commit/09a62d7ecba84e0f6a8c02f59cb05fc7ac7b65f6) Thanks [@johnleider](https://github.com/johnleider)! - fix(useTheme): stop emitting element-level color on `[data-theme]`
+
+  `ThemeAdapter.generate()` still writes custom properties and `:root { color-scheme }`. It no longer sets `color: var(--*-on-background)` on the theme selector — applying tokens is Paper's job. Unstyled hosts that relied on that inherited `color` need to set it themselves.
+
+- [#985](https://github.com/vuetifyjs/0/pull/985) [`8396668`](https://github.com/vuetifyjs/0/commit/839666876b63106567ae01ae2b8b8a88970b8eb5) Thanks [@johnleider](https://github.com/johnleider)! - fix(Toggle): emit native `disabled` on the default button host
+
+  Disabled `Toggle.Root` now sets the HTML `disabled` attribute when `as` is `"button"` (the default) and omits `aria-disabled` on that path. Non-button hosts still get `aria-disabled`.
+
 ## 1.2.1
 
 ### Patch Changes
