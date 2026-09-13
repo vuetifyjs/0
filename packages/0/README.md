@@ -142,6 +142,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Popover](https://0.vuetifyjs.com/components/disclosure/popover) | CSS anchor-positioned popup content |
 | [Tabs](https://0.vuetifyjs.com/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
 | [Tooltip](https://0.vuetifyjs.com/components/disclosure/tooltip) | Description tooltip with hover/focus triggers |
+| [Tour](https://0.vuetifyjs.com/components/disclosure/tour) | Guided product tour with activator highlighting and step navigation |
 | [Treeview](https://0.vuetifyjs.com/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
 
 #### Semantic
@@ -228,6 +229,7 @@ Selection management composables built on `createRegistry`:
 - [`createBreadcrumbs`](https://0.vuetifyjs.com/composables/semantic/create-breadcrumbs) - Breadcrumb navigation model with depth tracking and path traversal
 - [`createOverflow`](https://0.vuetifyjs.com/composables/semantic/create-overflow) - Container overflow measurement for item capacity
 - [`createProgress`](https://0.vuetifyjs.com/composables/semantic/create-progress) - Progress state with multi-segment and buffer tracking
+- [`createTour`](https://0.vuetifyjs.com/composables/semantic/create-tour) - Headless guided-tour sequencer with step collection, activators, and form-gated navigation
 
 #### Transformers
 
