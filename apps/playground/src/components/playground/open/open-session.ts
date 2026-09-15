@@ -5,7 +5,7 @@
 
 // Local
 // Types
-import { normalizeOpenRail, type OpenKind, type OpenRail, type OpenSavedChip, type OpenSavedSort } from './types'
+import { DEFAULT_OPEN_RAIL, normalizeOpenRail, type OpenKind, type OpenRail, type OpenSavedChip, type OpenSavedSort } from './types'
 
 const TTL_MS = 2 * 60 * 1000
 
@@ -97,7 +97,7 @@ export function readOpenSession (): OpenSessionState | null {
 export function writeOpenSession (state: OpenSessionState) {
   const rail = normalizeOpenRail(state.rail)
   session = {
-    rail: isRail(rail) ? rail : 'v0',
+    rail: isRail(rail) ? rail : DEFAULT_OPEN_RAIL,
     scrollTop: Math.max(0, state.scrollTop || 0),
     examplesScrollTop: Math.max(0, state.examplesScrollTop || 0),
     query: state.query ?? '',
