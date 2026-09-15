@@ -40,14 +40,14 @@ jobs:
           fetch-depth: 0
       - uses: vuetifyjs/setup-action@cb5ac088588387e65433a762de90c0b06d878677 # master
       - name: Restore OG images cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: apps/docs/node_modules/.cache/og-images
           key: og-images-${{ hashFiles('apps/docs/build/og-images-worker.ts', 'apps/docs/build/generate-og-images.ts', 'apps/docs/build/fonts/**') }}
           restore-keys: |
             og-images-
       - name: Restore API metadata cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: apps/docs/node_modules/.cache/api-cache.json
           key: api-cache-${{ hashFiles('packages/0/src/components/**', 'packages/0/src/composables/**', 'apps/docs/build/generate-api.ts') }}
