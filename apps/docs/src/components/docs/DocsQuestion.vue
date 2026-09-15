@@ -344,16 +344,17 @@
           </Question.Stem>
 
           <p v-if="slate.hint" class="mt-1 text-sm text-on-surface-variant opacity-80">
-            <span
+            <AppTooltip
+              as="span"
               class="rounded align-middle transition-colors"
               :class="revealed.has(slate.id) ? '' : 'cursor-pointer select-none bg-on-surface-variant/25 text-transparent hover:bg-on-surface-variant/35'"
               :role="revealed.has(slate.id) ? undefined : 'button'"
               :tabindex="revealed.has(slate.id) ? undefined : 0"
-              :title="revealed.has(slate.id) ? undefined : 'Reveal hint'"
+              :text="revealed.has(slate.id) ? undefined : 'Reveal hint'"
               @click="reveal(slate.id)"
               @keydown.enter="reveal(slate.id)"
               @keydown.space.prevent="reveal(slate.id)"
-            >{{ slate.hint }}</span>
+            >{{ slate.hint }}</AppTooltip>
           </p>
         </div>
 

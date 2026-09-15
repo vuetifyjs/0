@@ -386,11 +386,13 @@
 
           <div class="w-px h-4 bg-divider mx-1" />
 
-          <Dialog.Close aria-label="Close diagram" class="btn-icon" title="Close">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-            </svg>
-          </Dialog.Close>
+          <AppTooltip as="span" class="inline-flex" text="Close">
+            <Dialog.Close aria-label="Close diagram" class="btn-icon">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+              </svg>
+            </Dialog.Close>
+          </AppTooltip>
         </div>
       </div>
 

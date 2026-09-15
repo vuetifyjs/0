@@ -29,11 +29,16 @@
     <AppChip :color :icon :text />
   </AppTooltip>
 
-  <AppChip
+  <AppTooltip
     v-else
-    :color
-    :icon
-    :text
-    @click="emit('click', $event)"
-  />
+    as="span"
+    :text="title"
+  >
+    <AppChip
+      :color
+      :icon
+      :text
+      @click="emit('click', $event)"
+    />
+  </AppTooltip>
 </template>

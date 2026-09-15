@@ -10,8 +10,14 @@
 </script>
 
 <template>
-  <div class="inline-flex items-center gap-2 pl-3 pr-1.5 py-1 rounded-full border bg-surface font-mono text-sm max-w-full" :title="props.command">
-    <code class="flex-1 truncate opacity-80 !bg-transparent !p-0 !rounded-none">{{ props.command }}</code>
+  <div class="inline-flex items-center gap-2 pl-3 pr-1.5 py-1 rounded-full border bg-surface font-mono text-sm max-w-full">
+    <AppTooltip
+      as="code"
+      class="flex-1 truncate opacity-80 !bg-transparent !p-0 !rounded-none"
+      :text="props.command"
+    >
+      {{ props.command }}
+    </AppTooltip>
 
     <button
       :aria-label="copied ? 'Copied!' : 'Copy command'"

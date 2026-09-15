@@ -42,10 +42,7 @@
 </script>
 
 <template>
-  <div
-    class="inline-flex items-center gap-1.5 px-1.5 py-1 rounded-full border bg-surface font-mono text-sm max-w-full"
-    :title="command"
-  >
+  <div class="inline-flex items-center gap-1.5 px-1.5 py-1 rounded-full border bg-surface font-mono text-sm max-w-full">
     <Popover.Root v-model="isOpen">
       <AppTooltip as="span" class="inline-flex" text="Change package manager">
         <Popover.Activator
@@ -72,7 +69,13 @@
       </Popover.Content>
     </Popover.Root>
 
-    <code class="flex-1 truncate opacity-80 !bg-transparent !p-0 !rounded-none">{{ VERBS[settings.packageManager.value] }} {{ PACKAGE }}</code>
+    <AppTooltip
+      as="code"
+      class="flex-1 truncate opacity-80 !bg-transparent !p-0 !rounded-none"
+      :text="command"
+    >
+      {{ VERBS[settings.packageManager.value] }} {{ PACKAGE }}
+    </AppTooltip>
 
     <button
       :aria-label="copied ? 'Copied!' : 'Copy command'"
