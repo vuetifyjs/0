@@ -64,6 +64,7 @@ pass an explicit `color`.
 | `--v0-surface-tint` | Preview wrap, tab strip |
 | `--v0-on-surface` | Primary text + computed divider via color-mix |
 | `--v0-on-surface-variant` | Muted text |
+| `--v0-divider` | Tooltip / chrome borders |
 | `--v0-primary` | Active tab, filename badge, peek pill |
 | `--v0-on-primary` | Text on primary |
 | `--v0-pre` | Code pane background |
@@ -151,12 +152,12 @@ slots are overridable.
 ### `GnActionButton` — toolbar action affordance
 
 A 32px icon action button for docs chrome (copy, reset, open-in). Wraps v0's
-`Button.Root` + `Button.Icon`.
+`Button.Root` + `Button.Icon`, and v0 `Tooltip` when `title` is set.
 
 ```ts
 interface GnActionButtonProps {
   ariaLabel?: string                     // forwarded to Button.Root's ariaLabel
-  title?: string                         // native tooltip
+  title?: string                         // v0 Tooltip text; region delays when a tooltip plugin is installed
   type?: 'button' | 'submit' | 'reset'   // default: 'button'
 }
 ```
