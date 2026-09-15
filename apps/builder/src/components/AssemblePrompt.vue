@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiAutoFix, mdiLockOutline, mdiSparkles } from '@mdi/js'
+  import { mdiAutoFix, mdiLockOutline } from '@mdi/js'
 
   // Framework
   import { AlertDialog, Button, Dialog } from '@vuetify/v0'
@@ -98,7 +98,7 @@
     <Button.Root class="btn-outline h-12 px-5" @click="open">
       <Button.Icon>
         <svg class="w-4 h-4" viewBox="0 0 24 24">
-          <path :d="mdiSparkles" fill="currentColor" />
+          <path :d="mdiAutoFix" fill="currentColor" />
         </svg>
       </Button.Icon>
 
