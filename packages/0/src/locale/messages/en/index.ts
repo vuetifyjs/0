@@ -65,6 +65,9 @@ export default {
     itemLabel: 'Digit {index} of {length}',
     label: 'Verification code',
   },
+  OverlayPanel: {
+    close: 'Close',
+  },
   Pagination: {
     currentPage: 'Page {page}, current',
     first: 'First page',
