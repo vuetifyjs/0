@@ -99,12 +99,13 @@
         <span class="ml-2 text-xs text-on-surface-variant">{{ group.benchmarks.length }}</span>
       </div>
 
-      <span
+      <AppTooltip
         v-if="changes"
         :aria-label="label"
+        as="span"
         class="flex items-center gap-1.5 shrink-0"
         role="img"
-        :title="label"
+        :text="label"
       >
         <span v-if="changes.up" class="inline-flex items-center gap-0.5 text-xs text-success">
           <AppIcon icon="trending-up" :size="14" />{{ changes.up }}
@@ -113,7 +114,7 @@
         <span v-if="changes.down" class="inline-flex items-center gap-0.5 text-xs text-error">
           <AppIcon icon="trending-down" :size="14" />{{ changes.down }}
         </span>
-      </span>
+      </AppTooltip>
 
       <code class="text-xs text-on-surface-variant shrink-0 hidden sm:inline">
         {{ group.fastest.hzLabel }}
