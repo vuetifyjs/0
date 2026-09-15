@@ -127,10 +127,10 @@
 
       <div class="hidden md:block w-px bg-divider" />
 
-      <div>
+      <a href="https://npmx.dev/package/@vuetify/v0#downloads" rel="noopener" target="_blank">
         <div class="stat-number min-w-[4ch]">{{ stats.downloads }}</div>
         <div class="stat-label">Monthly Downloads</div>
-      </div>
+      </a>
 
       <div class="hidden md:block w-px bg-divider" />
 
