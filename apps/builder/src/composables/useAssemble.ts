@@ -220,11 +220,3 @@ export function isSubscriber (role: string | undefined | null): boolean {
 export function getPluginCatalog (): string[] {
   return PLUGINS.map(p => p.id)
 }
-
-/**
- * Get plugin metadata for display purposes.
- */
-export function getPluginInfo (id: string): { title: string, category: string } | undefined {
-  const plugin = PLUGINS.find(p => p.id === id)
-  return plugin ? { title: plugin.title, category: plugin.category } : undefined
-}
