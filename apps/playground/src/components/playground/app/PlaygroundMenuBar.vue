@@ -9,6 +9,8 @@
   import PlaygroundMenuItem from '@/components/playground/app/PlaygroundMenuItem.vue'
   import PlaygroundSaveDialog from '@/components/playground/app/PlaygroundSaveDialog.vue'
   import PlaygroundOpenDialog from '@/components/playground/open/PlaygroundOpenDialog.vue'
+  // Local
+  import { DEFAULT_OPEN_RAIL, normalizeOpenRail, type OpenRail } from '@/components/playground/open/types'
 
   // Context
   import { usePlayground } from './PlaygroundApp.vue'
@@ -40,6 +42,10 @@
   const breakpoints = useBreakpoints()
   const storage = useStorage()
   const sidePref = storage.get('playground-preview-right', false)
+  // Enroll on this always-mounted bar. PlaygroundOpenDialog is v-if'd; a
+  // storage.get() watch created there dies on close and stops persisting.
+  const openRail = storage.get<OpenRail>('playground-open-rail', DEFAULT_OPEN_RAIL)
+  openRail.value = normalizeOpenRail(openRail.value)
 
   const menu = shallowRef(false)
   const file = shallowRef(false)
@@ -520,6 +526,7 @@
 
   <PlaygroundOpenDialog
     v-if="dialog"
+    v-model:rail="openRail"
     @close="dialog = false"
   />
 
