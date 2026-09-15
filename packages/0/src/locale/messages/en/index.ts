@@ -60,7 +60,7 @@ export default {
     increment: 'Increment',
     label: 'Number',
   },
-Otp: {
+  Otp: {
     invalid: 'Invalid code',
     itemLabel: 'Digit {index} of {length}',
     label: 'Verification code',
