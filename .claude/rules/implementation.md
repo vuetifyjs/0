@@ -187,6 +187,8 @@ app.onUnmount(() => adapter.dispose?.())
 ```
 [intent:108]
 
+**Popover adapters (carve-out).** Popover adapters (`TooltipAdapter`, `MenuAdapter`, …) are instantiated per consumer `setup()` and torn down via `onScopeDispose` — they are *not* shared singletons, because each consumer owns its own anchor/floating pair. [intent:116]
+
 **Unhead resolution (SSR head adapters).** Adapters that render server-side head state resolve unhead by duck-typing the app's provides — never by importing `@unhead` types into package source:
 
 ```ts
