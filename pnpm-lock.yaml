@@ -369,6 +369,9 @@ importers:
       '@shikijs/themes':
         specifier: 'catalog:'
         version: 4.4.3
+      '@vuetify/auth':
+        specifier: 'catalog:'
+        version: 0.1.8(pinia@3.0.4(typescript@6.0.3)(vue@3.5.42(typescript@6.0.3)))(vue@3.5.42(typescript@6.0.3))
       '@vuetify/v0':
         specifier: workspace:*
         version: link:../../packages/0

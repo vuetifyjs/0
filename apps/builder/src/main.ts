@@ -7,11 +7,11 @@ import { createBreakpointsPlugin, createHydrationPlugin, createStoragePlugin, cr
 // Context
 import App from './App.vue'
 
-// Router
+// Plugins
+import pinia from '@/plugins/pinia'
 import { builderGuard } from '@/router/guards'
 
 // Utilities
-import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -30,7 +30,7 @@ const router = createRouter({
   routes: setupLayouts(routes),
 })
 
-app.use(createPinia())
+app.use(pinia)
 router.beforeEach(builderGuard)
 app.use(router)
 app.use(createHydrationPlugin())
@@ -93,3 +93,9 @@ app.use(createThemePlugin({
 }))
 
 app.mount('#app')
+
+if (IN_BROWSER) {
+  import('@vuetify/auth').then(({ useAuthStore }) => {
+    useAuthStore().verify()
+  })
+}

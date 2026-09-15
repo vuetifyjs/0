@@ -4,6 +4,9 @@
   // Framework
   import { AlertDialog, Button } from '@vuetify/v0'
 
+  // Components
+  import AssemblePrompt from '@/components/AssemblePrompt.vue'
+
   import { COMPONENTS } from '@/data/components'
   import { PLUGINS } from '@/data/plugins'
 
@@ -139,6 +142,8 @@
           <Button.Root v-if="store.builds.length > 0" class="btn-outline h-12 px-5" @click="onNew">
             <Button.Content>Start a new build</Button.Content>
           </Button.Root>
+
+          <AssemblePrompt />
 
           <p class="t-index text-on-surface-variant">
             {{ plugins }} plugins · {{ components }} components · 0 dependencies
