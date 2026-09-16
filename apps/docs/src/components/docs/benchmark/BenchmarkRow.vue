@@ -100,7 +100,7 @@
     <!-- Trend -->
     <td v-if="historyPoints" class="py-2 pr-3 text-right hidden lg:table-cell">
       <div class="inline-flex items-center gap-2 justify-end">
-        <Tooltip.Root :close-delay="100" :open-delay="300">
+        <Tooltip.Root :close-delay="100" interactive :open-delay="300">
           <Tooltip.Activator as="span" class="inline-flex cursor-help">
             <BenchmarkSparkline
               :height="18"
