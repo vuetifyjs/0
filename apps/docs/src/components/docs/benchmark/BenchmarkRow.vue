@@ -7,10 +7,12 @@
   import { significant } from '@/composables/useBenchmarkHistory'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   // Types
   import type { HistoryPoint } from '@/composables/useBenchmarkHistory'
+
+  const DEFAULT_VISIBLE_RUNS = 5
 
   const props = defineProps<{
     benchmark: NormalizedBenchmark
@@ -20,6 +22,16 @@
   }>()
 
   const barColor = toRef(() => TIER_BG[props.benchmark.tier])
+  const showAllHistory = shallowRef(false)
+
+  const hasMoreHistory = toRef(() => (props.historyPoints?.length ?? 0) > DEFAULT_VISIBLE_RUNS)
+
+  const displayedPoints = toRef(() => {
+    const points = props.historyPoints
+    if (!points) return []
+    if (showAllHistory.value || points.length <= DEFAULT_VISIBLE_RUNS) return points
+    return points.slice(-DEFAULT_VISIBLE_RUNS)
+  })
 
   // Colored only when the delta clears the noise band, so a row reads the same
   // way the group header counted it.
@@ -104,13 +116,22 @@
           >
             <div class="flex flex-col gap-1">
               <div
-                v-for="p in historyPoints"
+                v-for="p in displayedPoints"
                 :key="p.version"
                 class="flex items-center justify-between gap-4"
               >
                 <span :class="p.isCurrent ? 'font-medium text-on-surface' : 'text-on-surface-variant'">{{ p.version }}</span>
                 <code class="text-on-surface">{{ formatHz(p.hz) }}</code>
               </div>
+
+              <button
+                v-if="hasMoreHistory"
+                class="text-primary hover:underline text-left mt-1 pt-1 border-t border-divider"
+                type="button"
+                @click.stop="showAllHistory = !showAllHistory"
+              >
+                {{ showAllHistory ? `Show last ${DEFAULT_VISIBLE_RUNS}` : `Show all ${historyPoints?.length} runs` }}
+              </button>
 
               <div
                 v-if="historyDelta !== undefined"
