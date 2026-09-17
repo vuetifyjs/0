@@ -1,7 +1,7 @@
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://cdn.vuetifyjs.com/docs/images/one/logos/vplay-logo-dark.png">
-    <img alt="Vuetify" src="https://cdn.vuetifyjs.com/docs/images/one/logos/vplay-logo-light.png" height="100">
+    <img alt="Vuetify Play" src="https://cdn.vuetifyjs.com/docs/images/one/logos/vplay-logo-light.png" height="100">
   </picture>
 </div>
 
