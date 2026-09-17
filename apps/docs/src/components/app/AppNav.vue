@@ -186,7 +186,7 @@
         </button>
       </div>
 
-      <ul class="flex gap-2 flex-col">
+      <ul class="flex gap-1 md:gap-2 flex-col">
         <template v-if="filteredOutPage">
           <li class="px-4 section-label">
             Active page
