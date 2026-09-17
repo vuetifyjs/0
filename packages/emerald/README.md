@@ -9,7 +9,7 @@
   <a href="https://www.npmjs.com/package/@paper/emerald"><img src="https://img.shields.io/npm/v/%40paper%2Femerald.svg" alt="Version"></a>
   <a href="https://www.npmjs.com/package/@paper/emerald"><img src="https://img.shields.io/npm/dm/%40paper%2Femerald.svg" alt="Downloads"></a>
   <br>
-  <a href="https://github.com/vuetifyjs/0/blob/master/LICENSE"><img src="https://img.shields.io/npm/l/%40paper%2Femerald.svg" alt="License"></a>
+  <a href="https://github.com/vuetifyjs/0/blob/master/LICENSE.md"><img src="https://img.shields.io/npm/l/%40paper%2Femerald.svg" alt="License"></a>
   <a href="https://discord.gg/vuetify"><img src="https://img.shields.io/discord/1513968811047522396?logo=discord&logoColor=white&label=Discord&color=5865F2" alt="Discord"></a>
 </p>
 
