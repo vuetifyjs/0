@@ -11,6 +11,7 @@ export default defineConfig({
       'packages/play',
       'apps/docs',
       'apps/playground',
+      'apps/builder',
     ],
     globals: true,
     include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
