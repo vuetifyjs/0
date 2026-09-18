@@ -66,9 +66,25 @@ Set up a new bot for me dedicated to contributing to vuetifyjs/0, in its own ded
 
 Claude Code, Cursor, and Grok Build are editor/CLI agents, not Grok Bot. They need the files installed in the workspace; they will not walk a GitHub connection for you.
 
-```bash
+::: code-group no-filename
+
+```bash pnpm
+pnpm dlx skills add vuetifyjs/0
+```
+
+```bash npm
 npx skills add vuetifyjs/0
 ```
+
+```bash yarn
+yarn dlx skills add vuetifyjs/0
+```
+
+```bash bun
+bunx skills add vuetifyjs/0
+```
+
+:::
 
 ::: code-group no-filename
 
