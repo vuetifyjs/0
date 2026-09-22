@@ -111,6 +111,6 @@ Components for showing/hiding content.
 | [Popover](/components/disclosure/popover) | CSS anchor-positioned popup content |
 | [Tabs](/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
 | [Tooltip](/components/disclosure/tooltip) | Description tooltip with hover/focus triggers and shared delay coordination |
-| [Tour](/components/disclosure/tour) | Guided tour with step navigation, validation gates, and keyboard support |
+| [Tour](/components/disclosure/tour) | Guided product tour with activator highlighting and step navigation |
 | [Treeview](/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
 

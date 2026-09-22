@@ -1,17 +1,24 @@
 /**
  * @module TourRoot
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/tour
+ *
  * @remarks
- * Per-step context provider for the Tour compound component.
- * Gates children by active step and provides step-scoped context.
+ * Per-step context provider for a guided tour. Consumes `useTour()` and
+ * provides step-local state (isActive, title/description ids, navigation)
+ * to Tour sub-components. Does not create the tour instance.
  */
 
 <script lang="ts">
   // Composables
   import { createContext } from '#v0/composables/createContext'
+  import { useTour } from '#v0/composables/createTour'
+
+  // Utilities
+  import { useId } from '#v0/utilities'
+  import { toRef } from 'vue'
 
   // Types
-  import type { TourContext } from '#v0/composables/useTour'
   import type { ID } from '#v0/types'
   import type { Ref } from 'vue'
 
@@ -19,20 +26,23 @@
     step: ID
     isActive: Readonly<Ref<boolean>>
     index: Readonly<Ref<number>>
-    total: Ref<number>
+    total: Readonly<Ref<number>>
     isFirst: Readonly<Ref<boolean>>
     isLast: Readonly<Ref<boolean>>
-    canGoBack: TourContext['canGoBack']
-    canGoNext: TourContext['canGoNext']
+    canGoBack: Readonly<Ref<boolean>>
+    canGoNext: Readonly<Ref<boolean>>
     titleId: string
     descriptionId: string
     next: () => void
     prev: () => void
     stop: () => void
+    complete: () => void
   }
 
   export interface TourRootProps {
+    /** Step id this root represents */
     step: ID
+    /** Namespace for dependency injection @default 'v0:tour' */
     namespace?: string
   }
 
@@ -44,19 +54,16 @@
     isLast: boolean
     canGoBack: boolean
     canGoNext: boolean
+    next: () => void
+    prev: () => void
+    stop: () => void
+    complete: () => void
   }
 
   export const [useTourRootContext, provideTourRootContext] = createContext<TourRootContext>({ suffix: 'root' })
 </script>
 
 <script setup lang="ts">
-  // Composables
-  import { useTour } from '#v0/composables/useTour'
-
-  // Utilities
-  import { useId } from '#v0/utilities'
-  import { toRef } from 'vue'
-
   defineOptions({ name: 'TourRoot' })
 
   defineSlots<{
@@ -69,14 +76,29 @@
   } = defineProps<TourRootProps>()
 
   const tour = useTour(namespace)
-
   const id = useId()
   const titleId = `${id}-title`
   const descriptionId = `${id}-description`
 
   const isActive = toRef(() => tour.isActive.value && tour.selectedId.value === step)
-  const total = toRef(() => tour.total)
   const index = toRef(() => tour.steps.selectedIndex.value)
+  const total = toRef(() => tour.total)
+
+  function next () {
+    void tour.next()
+  }
+
+  function prev () {
+    void tour.prev()
+  }
+
+  function stop () {
+    tour.stop()
+  }
+
+  function complete () {
+    tour.complete()
+  }
 
   provideTourRootContext(namespace, {
     step,
@@ -89,21 +111,27 @@
     canGoNext: tour.canGoNext,
     titleId,
     descriptionId,
-    next: () => tour.next(),
-    prev: () => tour.prev(),
-    stop: () => tour.stop(),
+    next,
+    prev,
+    stop,
+    complete,
   })
 
+  const slotProps = toRef((): TourRootSlotProps => ({
+    isActive: isActive.value,
+    index: index.value,
+    total: total.value,
+    isFirst: tour.isFirst.value,
+    isLast: tour.isLast.value,
+    canGoBack: tour.canGoBack.value,
+    canGoNext: tour.canGoNext.value,
+    next,
+    prev,
+    stop,
+    complete,
+  }))
 </script>
 
 <template>
-  <slot
-    :can-go-back="tour.canGoBack.value"
-    :can-go-next="tour.canGoNext.value"
-    :index
-    :is-active
-    :is-first="tour.isFirst.value"
-    :is-last="tour.isLast.value"
-    :total
-  />
+  <slot v-bind="slotProps" />
 </template>

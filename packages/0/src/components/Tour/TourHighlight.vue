@@ -1,45 +1,54 @@
 /**
  * @module TourHighlight
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/tour
+ *
  * @remarks
- * SVG overlay with cutout that highlights the active step's activator.
- * Tracks activator bounding rect via rAF loop. Teleports to body.
- * Renders full scrim for dialog/floating steps without activators.
+ * SVG scrim with a cutout around the active activator. Optional click-swallow
+ * layers for the backdrop and cutout; neither dismisses the tour.
  */
 
 <script lang="ts">
-  // Types
-  export interface TourHighlightProps {
-    namespace?: string
-    /** Backdrop opacity (0-1). @default 0.5 */
-    opacity?: number
-    /** Padding around the highlighted element. @default 0 */
-    padding?: number
-    /** Whether clicking the backdrop dismisses the tour. @default false */
-    dismissible?: boolean
-  }
+  // Components
+  import { Portal } from '#v0/components/Portal'
 
-  export interface TourHighlightSlotProps {
-    rect: { x: number, y: number, width: number, height: number } | null
-    radius: number
-    isVisible: boolean
-  }
-</script>
-
-<script setup lang="ts">
   // Composables
-  import { useTour } from '#v0/composables/useTour'
+  import { useTour } from '#v0/composables/createTour'
+  import { useRaf } from '#v0/composables/useRaf'
 
   // Transformers
   import { toElement } from '#v0/composables/toElement'
 
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Utilities
-  import { useId } from '#v0/utilities'
-  import { onBeforeUnmount, shallowRef, toRef, watch } from 'vue'
+  import { isNull, isUndefined, useId } from '#v0/utilities'
+  import { shallowRef, toRef, watch } from 'vue'
 
+  export interface TourHighlightProps {
+    /** Backdrop opacity (0–1) @default 0.5 */
+    opacity?: number
+    /** Extra padding around the cutout when the activator has none @default 0 */
+    padding?: number
+    /** Swallow clicks on the backdrop. Does not stop the tour. @default false */
+    blocking?: boolean
+    /** Swallow clicks on the cutout. Does not stop the tour. @default false */
+    blockActivator?: boolean
+    /** Namespace for dependency injection @default 'v0:tour' */
+    namespace?: string
+  }
+
+  export interface TourHighlightSlotProps {
+    isActive: boolean
+  }
+
+  interface HighlightRect {
+    x: number
+    y: number
+    width: number
+    height: number
+  }
+</script>
+
+<script setup lang="ts">
   defineOptions({ name: 'TourHighlight' })
 
   defineSlots<{
@@ -47,173 +56,198 @@
   }>()
 
   const {
-    namespace = 'v0:tour',
     opacity = 0.5,
     padding = 0,
-    dismissible = false,
+    blocking = false,
+    blockActivator = false,
+    namespace = 'v0:tour',
   } = defineProps<TourHighlightProps>()
 
   const tour = useTour(namespace)
   const maskId = `tour-highlight-${useId()}`
 
-  const rect = shallowRef<{ x: number, y: number, width: number, height: number } | null>(null)
+  const rect = shallowRef<HighlightRect | null>(null)
   const borderRadius = shallowRef(0)
 
   function updateRect () {
     const id = tour.selectedId.value
-    if (!id || !tour.isActive.value) {
-      if (rect.value !== null) rect.value = null
-      return
-    }
-
-    const step = tour.steps.get(id)
-    if (step?.type === 'dialog' || step?.type === 'floating') {
-      if (rect.value !== null) rect.value = null
+    if (isUndefined(id) || !tour.isActive.value) {
+      if (!isNull(rect.value)) rect.value = null
       return
     }
 
     const activator = tour.activators.get(id)
-    const el = toElement(activator?.element)
-    const r = el?.getBoundingClientRect()
-    if (!r) return
+    if (!activator) {
+      if (!isNull(rect.value)) rect.value = null
+      return
+    }
 
-    const p = activator?.padding ?? padding
+    const el = toElement(activator.element)
+    if (!el) return
 
-    const newRect = {
-      x: r.x - p,
-      y: r.y - p,
-      width: r.width + p * 2,
-      height: r.height + p * 2,
+    const bounds = el.getBoundingClientRect()
+    const pad = activator.padding ?? padding
+    const next = {
+      x: bounds.x - pad,
+      y: bounds.y - pad,
+      width: bounds.width + pad * 2,
+      height: bounds.height + pad * 2,
     }
 
     if (
       !rect.value
-      || rect.value.x !== newRect.x
-      || rect.value.y !== newRect.y
-      || rect.value.width !== newRect.width
-      || rect.value.height !== newRect.height
+      || rect.value.x !== next.x
+      || rect.value.y !== next.y
+      || rect.value.width !== next.width
+      || rect.value.height !== next.height
     ) {
-      rect.value = newRect
+      rect.value = next
     }
 
-    if (el) {
-      const styles = getComputedStyle(el)
-      const newRadius = Number.parseFloat(styles.borderRadius) || 0
-      if (borderRadius.value !== newRadius) {
-        borderRadius.value = newRadius
-      }
-    }
+    const radius = Number.parseFloat(getComputedStyle(el).borderRadius) || 0
+    if (borderRadius.value !== radius) borderRadius.value = radius
   }
 
-  // Continuous RAF loop
-  let rafId: number | null = null
+  const loop = useRaf(() => {
+    updateRect()
+    if (tour.isActive.value) loop()
+  })
 
-  function startLoop () {
-    if (rafId !== null || !IN_BROWSER) return
-    function loop () {
-      updateRect()
-      rafId = requestAnimationFrame(loop)
+  watch(() => tour.isActive.value, active => {
+    if (active) {
+      loop()
+      return
     }
-    rafId = requestAnimationFrame(loop)
-  }
-
-  function stopLoop () {
-    if (rafId !== null) {
-      cancelAnimationFrame(rafId)
-      rafId = null
-    }
+    loop.cancel()
     rect.value = null
-  }
+  }, { immediate: true })
 
-  watch(
-    () => tour.isActive.value,
-    active => {
-      if (active) startLoop()
-      else stopLoop()
-    },
-    { immediate: true },
-  )
+  const showCutout = toRef(() => !isNull(rect.value))
 
-  onBeforeUnmount(stopLoop)
+  const clipPath = toRef(() => {
+    if (isNull(rect.value)) return undefined
 
-  const isVisible = toRef(() => tour.isActive.value)
-  const showCutout = toRef(() => rect.value !== null)
+    const { x, y, width, height } = rect.value
+    const r = borderRadius.value
 
-  function onBackdropClick () {
-    if (dismissible) tour.stop()
-  }
+    if (r > 0) {
+      return `path(evenodd, "M 0 0 H 100000 V 100000 H 0 Z M ${x + r} ${y} H ${x + width - r} Q ${x + width} ${y} ${x + width} ${y + r} V ${y + height - r} Q ${x + width} ${y + height} ${x + width - r} ${y + height} H ${x + r} Q ${x} ${y + height} ${x} ${y + height - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z")`
+    }
+
+    return `path(evenodd, "M 0 0 H 100000 V 100000 H 0 Z M ${x} ${y} V ${y + height} H ${x + width} V ${y} Z")`
+  })
 
   const slotProps = toRef((): TourHighlightSlotProps => ({
-    rect: rect.value,
-    radius: borderRadius.value,
-    isVisible: isVisible.value,
+    isActive: tour.isActive.value,
   }))
+
+  const overlayStyle = toRef(() => ({
+    position: 'fixed' as const,
+    inset: '0',
+    pointerEvents: 'none' as const,
+  }))
+
+  const svgStyle = {
+    position: 'absolute' as const,
+    inset: '0',
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none' as const,
+  }
+
+  const blockStyle = toRef(() => ({
+    position: 'absolute' as const,
+    inset: '0',
+    pointerEvents: 'auto' as const,
+    cursor: 'default',
+    clipPath: clipPath.value,
+  }))
+
+  const cutoutStyle = toRef(() => {
+    if (isNull(rect.value)) return undefined
+
+    return {
+      position: 'absolute' as const,
+      pointerEvents: 'auto' as const,
+      cursor: 'default',
+      left: `${rect.value.x}px`,
+      top: `${rect.value.y}px`,
+      width: `${rect.value.width}px`,
+      height: `${rect.value.height}px`,
+      borderRadius: `${borderRadius.value}px`,
+    }
+  })
 </script>
 
 <template>
   <slot v-bind="slotProps" />
 
-  <Teleport to="body">
-    <div v-if="isVisible" class="fixed inset-0 pointer-events-none" style="z-index: 9998">
-      <!-- Click layer for backdrop dismissal -->
+  <Portal v-if="tour.isActive.value" :scrim="false">
+    <template #default="{ zIndex }">
       <div
-        v-if="dismissible"
         aria-hidden="true"
-        class="absolute inset-0 pointer-events-auto"
-        @click="onBackdropClick"
-      />
-
-      <!-- SVG Backdrop -->
-      <svg
-        aria-hidden="true"
-        class="absolute inset-0 pointer-events-none w-screen h-screen"
+        data-part="highlight"
+        data-scope="tour"
+        :style="{ ...overlayStyle, zIndex }"
       >
-        <template v-if="showCutout && rect">
-          <defs>
-            <mask :id="maskId">
-              <rect fill="white" height="100%" width="100%" />
+        <div
+          v-if="blocking && showCutout && rect"
+          aria-hidden="true"
+          :style="blockStyle"
+        />
 
-              <rect
-                fill="black"
-                :height="rect.height"
-                :rx="borderRadius"
-                :ry="borderRadius"
-                :width="rect.width"
-                :x="rect.x"
-                :y="rect.y"
-              />
-            </mask>
-          </defs>
+        <div
+          v-if="blockActivator && showCutout && rect"
+          aria-hidden="true"
+          :style="cutoutStyle"
+        />
+
+        <svg aria-hidden="true" :style="svgStyle">
+          <template v-if="showCutout && rect">
+            <defs>
+              <mask :id="maskId">
+                <rect fill="white" height="100%" width="100%" />
+
+                <rect
+                  fill="black"
+                  :height="rect.height"
+                  :rx="borderRadius"
+                  :ry="borderRadius"
+                  :width="rect.width"
+                  :x="rect.x"
+                  :y="rect.y"
+                />
+              </mask>
+            </defs>
+
+            <rect
+              :fill="`rgba(0, 0, 0, ${opacity})`"
+              height="100%"
+              :mask="`url(#${maskId})`"
+              width="100%"
+            />
+
+            <rect
+              fill="none"
+              :height="rect.height"
+              :rx="borderRadius"
+              :ry="borderRadius"
+              stroke="currentColor"
+              stroke-width="2"
+              :width="rect.width"
+              :x="rect.x"
+              :y="rect.y"
+            />
+          </template>
 
           <rect
+            v-else
             :fill="`rgba(0, 0, 0, ${opacity})`"
             height="100%"
-            :mask="`url(#${maskId})`"
             width="100%"
           />
-
-          <rect
-            class="fill-none"
-            :height="rect.height"
-            :rx="borderRadius"
-            :ry="borderRadius"
-            stroke="currentColor"
-            stroke-opacity="0.3"
-            stroke-width="2"
-            :width="rect.width"
-            :x="rect.x"
-            :y="rect.y"
-          />
-        </template>
-
-        <!-- Full scrim for dialog/floating steps -->
-        <rect
-          v-else
-          :fill="`rgba(0, 0, 0, ${opacity})`"
-          height="100%"
-          width="100%"
-        />
-      </svg>
-    </div>
-  </Teleport>
+        </svg>
+      </div>
+    </template>
+  </Portal>
 </template>

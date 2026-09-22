@@ -1,39 +1,90 @@
 /**
  * @module TourContent
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/tour
+ *
  * @remarks
- * Tour content container. Teleported to body for overlay positioning.
- * Self-gates via root context isActive. Handles CSS anchor positioning
- * for tooltip steps and centering for dialog/floating steps.
- * Safari fallback centers content at the viewport edge.
+ * Headless overlay for a tour step. Portals to body, waits for the step
+ * activator (or a 2s timeout), then positions via CSS anchor with a
+ * viewport-edge fallback. Renders only while the parent Root is active.
  */
 
 <script lang="ts">
-  // Types
-  export interface TourContentProps {
-    /** Placement relative to the activator. @default 'bottom' */
-    placement?: 'top' | 'bottom' | 'left' | 'right'
-    /** Offset from viewport edges in px. @default 16 */
-    offset?: number
-    namespace?: string
-  }
+  // Components
+  import { Atom } from '#v0/components/Atom'
+  import { Portal } from '#v0/components/Portal'
 
-  export interface TourContentSlotProps {}
-</script>
-
-<script setup lang="ts">
   // Context
   import { useTourRootContext } from './TourRoot.vue'
 
   // Composables
-  import { useTour } from '#v0/composables/useTour'
+  import { useTour } from '#v0/composables/createTour'
+  import { useBreakpoints } from '#v0/composables/useBreakpoints'
+  import { useLogger } from '#v0/composables/useLogger'
+  import { useRaf } from '#v0/composables/useRaf'
 
-  // Constants
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
+  // Globals
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
-  import { nextTick, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+  import { getActiveElement, isElement, isUndefined } from '#v0/utilities'
+  import { mergeProps, nextTick, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
+  // Types
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+  import type { CSSProperties } from 'vue'
+
+  export type TourPlacement = 'top' | 'bottom' | 'left' | 'right' | 'center'
+
+  export interface TourContentProps extends AtomProps {
+    /** Preferred placement relative to the activator @default 'bottom' */
+    placement?: TourPlacement
+    /** Placement used when `smAndDown` is true */
+    placementMobile?: TourPlacement
+    /** Gap from the activator or viewport edge, in px @default 16 */
+    offset?: number
+    /** Namespace for dependency injection @default 'v0:tour' */
+    namespace?: string
+  }
+
+  export interface TourContentSlotProps {
+    isReady: boolean
+    placement: TourPlacement
+    attrs: {
+      'role': 'dialog'
+      'aria-modal': 'true'
+      'aria-labelledby': string
+      'aria-describedby': string
+      'data-scope': 'tour'
+      'data-part': 'content'
+      'tabindex': number
+      'style': CSSProperties
+    }
+  }
+
+  const PLACEMENT_AREA: Record<Exclude<TourPlacement, 'center'>, Record<string, string>> = {
+    bottom: { positionArea: 'bottom', justifySelf: 'anchor-center' },
+    top: { positionArea: 'top', justifySelf: 'anchor-center' },
+    left: { positionArea: 'left', alignSelf: 'anchor-center' },
+    right: { positionArea: 'right', alignSelf: 'anchor-center' },
+  }
+
+  const FALLBACK_EDGE: Record<Exclude<TourPlacement, 'center'>, Record<string, string>> = {
+    bottom: { bottom: 'var(--tour-offset)', left: '50%', transform: 'translateX(-50%)' },
+    top: { top: 'var(--tour-offset)', left: '50%', transform: 'translateX(-50%)' },
+    left: { top: '50%', left: 'var(--tour-offset)', transform: 'translateY(-50%)' },
+    right: { top: '50%', right: 'var(--tour-offset)', transform: 'translateY(-50%)' },
+  }
+
+  function isPlacement (value: unknown): value is TourPlacement {
+    return value === 'top' || value === 'bottom' || value === 'left' || value === 'right' || value === 'center'
+  }
+</script>
+
+<script setup lang="ts">
   defineOptions({ name: 'TourContent', inheritAttrs: false })
 
   defineSlots<{
@@ -41,115 +92,199 @@
   }>()
 
   const {
+    as = 'div',
+    renderless,
     placement = 'bottom',
+    placementMobile,
     offset = 16,
     namespace = 'v0:tour',
   } = defineProps<TourContentProps>()
 
   const attrs = useAttrs()
+  const logger = useLogger()
+  const breakpoints = useBreakpoints()
   const root = useTourRootContext(namespace)
   const tour = useTour(namespace)
-  const contentRef = useTemplateRef<HTMLElement>('content')
+  const atomRef = useTemplateRef<AtomExpose>('atom')
 
-  const supportsAnchor = IN_BROWSER
-    && typeof CSS !== 'undefined'
-    && typeof CSS.supports === 'function'
-    && CSS.supports('position-area', 'top')
+  const supportsAnchor = IN_BROWSER && CSS.supports?.('position-area', 'top') === true
 
-  const placementStyles: Record<string, Record<string, string>> = {
-    bottom: { positionArea: 'bottom', justifySelf: 'anchor-center' },
-    top: { positionArea: 'top', justifySelf: 'anchor-center' },
-    left: { positionArea: 'left', alignSelf: 'anchor-center' },
-    right: { positionArea: 'right', alignSelf: 'anchor-center' },
-  }
+  const isReady = shallowRef(false)
+  const missingActivator = shallowRef(false)
 
-  const fallbackStyles: Record<string, Record<string, string>> = {
-    bottom: { bottom: '16px', left: '50%', transform: 'translateX(-50%)' },
-    top: { top: '16px', left: '50%', transform: 'translateX(-50%)' },
-    left: { top: '50%', left: '16px', transform: 'translateY(-50%)' },
-    right: { top: '50%', right: '16px', transform: 'translateY(-50%)' },
-    center: { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
-  }
+  let startTime = 0
+  let found = false
 
-  const step = toRef(() => tour.steps.get(root.step))
-  const isDialog = toRef(() => {
-    const type = step.value?.type
-    return type === 'dialog' || type === 'floating'
+  const poll = useRaf(() => {
+    if (!IN_BROWSER) return
+
+    const el = toElement(tour.activators.get(root.step)?.element)
+    if (el) {
+      if (found) {
+        isReady.value = true
+        return
+      }
+      found = true
+      poll()
+      return
+    }
+
+    if (performance.now() - startTime > 2000) {
+      logger.warn(`Tour.Content: activator for step "${String(root.step)}" not found after 2000ms`)
+      missingActivator.value = true
+      isReady.value = true
+      return
+    }
+
+    poll()
   })
 
-  const activePlacement = toRef(() => {
-    if (isDialog.value) return 'center'
-    return step.value?.placement ?? placement
+  watch(() => root.isActive.value, isActive => {
+    if (!IN_BROWSER) return
+
+    poll.cancel()
+    found = false
+    missingActivator.value = false
+
+    if (!isActive) {
+      isReady.value = false
+      return
+    }
+
+    isReady.value = false
+    startTime = performance.now()
+    poll()
+  }, { immediate: true })
+
+  const activePlacement = toRef((): TourPlacement => {
+    if (missingActivator.value) return 'center'
+
+    const el = toElement(tour.activators.get(root.step)?.element)
+    if (breakpoints.smAndDown.value && el) {
+      void breakpoints.height.value
+      if (el.getBoundingClientRect().height >= breakpoints.height.value * 0.6) {
+        return 'center'
+      }
+    }
+
+    const fromTicket = tour.steps.get(root.step)?.placement
+    const base = isPlacement(fromTicket) ? fromTicket : placement
+
+    if (!isUndefined(placementMobile) && breakpoints.smAndDown.value) return placementMobile
+
+    return base
   })
 
-  const style = toRef(() => {
-    const p = activePlacement.value
+  const style = toRef((): CSSProperties => {
+    const current = activePlacement.value
+    const gap = `${offset}px`
 
-    if (isDialog.value) {
+    if (current === 'center') {
       return {
-        position: 'fixed' as const,
+        position: 'fixed',
         inset: '0',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        pointerEvents: 'none' as const,
-        zIndex: 9999,
+        margin: 'auto',
+        width: 'max-content',
+        height: 'max-content',
+        maxWidth: `calc(100vw - ${offset * 2}px)`,
+        maxHeight: `calc(100vh - ${offset * 2}px)`,
       }
     }
 
     if (supportsAnchor) {
-      return {
+      const base = {
         position: 'fixed' as const,
-        inset: `${offset}px`,
         width: 'max-content',
         height: 'max-content',
+        maxWidth: `calc(100vw - ${offset * 2}px)`,
         maxHeight: `calc(100vh - ${offset * 2}px)`,
         positionAnchor: `--tour-${root.step}`,
-        zIndex: 9999,
-        ...placementStyles[p] ?? placementStyles.bottom,
+      }
+
+      if (breakpoints.smAndDown.value && current === 'bottom') {
+        return {
+          ...base,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          top: 'anchor(bottom)',
+          marginTop: gap,
+        }
+      }
+
+      if (breakpoints.smAndDown.value && current === 'top') {
+        return {
+          ...base,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          bottom: 'anchor(top)',
+          marginBottom: gap,
+        }
+      }
+
+      return {
+        ...base,
+        inset: gap,
+        ...PLACEMENT_AREA[current] ?? PLACEMENT_AREA.bottom,
       }
     }
 
     return {
-      position: 'fixed' as const,
-      inset: 'auto',
-      zIndex: 9999,
-      ...fallbackStyles[p] ?? fallbackStyles.bottom,
+      'inset': 'auto',
+      'position': 'fixed',
+      'maxWidth': `calc(100vw - ${offset * 2}px)`,
+      'maxHeight': `calc(100vh - ${offset * 2}px)`,
+      '--tour-offset': gap,
+      ...FALLBACK_EDGE[current] ?? FALLBACK_EDGE.bottom,
     }
   })
 
-  // Auto-focus on mount (skip if input is focused)
-  watch(root.isActive, active => {
-    if (!active || !IN_BROWSER) return
+  const isVisible = toRef(() => root.isActive.value && isReady.value)
+
+  watch(isReady, ready => {
+    if (!ready || !IN_BROWSER) return
+
     nextTick(() => {
-      const focused = document.activeElement
-      const isInputFocused = focused?.tagName === 'INPUT'
-        || focused?.tagName === 'TEXTAREA'
-        || focused?.getAttribute('contenteditable') === 'true'
-      if (!isInputFocused) {
-        contentRef.value?.focus()
-      }
+      const active = getActiveElement()
+      const tag = active?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || active?.getAttribute('contenteditable') === 'true') return
+
+      const element = toElement(atomRef.value?.element)
+      if (isElement(element)) (element as HTMLElement).focus()
     })
   })
+
+  function getSlotProps (zIndex: number): TourContentSlotProps {
+    return {
+      isReady: isReady.value,
+      placement: activePlacement.value,
+      attrs: {
+        'role': 'dialog',
+        'aria-modal': 'true',
+        'aria-labelledby': root.titleId,
+        'aria-describedby': root.descriptionId,
+        'data-scope': 'tour',
+        'data-part': 'content',
+        'tabindex': -1,
+        'style': {
+          ...style.value,
+          zIndex,
+        },
+      },
+    }
+  }
 </script>
 
 <template>
-  <Teleport v-if="root.isActive.value" to="body">
-    <div
-      ref="content"
-      v-bind="attrs"
-      :aria-describedby="root.descriptionId"
-      :aria-labelledby="root.titleId"
-      data-part="content"
-      :data-placement="activePlacement"
-      data-scope="tour"
-      :data-step="String(root.step)"
-      :data-type="isDialog ? 'dialog' : 'tooltip'"
-      role="dialog"
-      :style
-      tabindex="-1"
-    >
-      <slot />
-    </div>
-  </Teleport>
+  <Portal v-if="isVisible" :scrim="false">
+    <template #default="{ zIndex }">
+      <Atom
+        ref="atom"
+        v-bind="mergeProps(attrs, getSlotProps(zIndex).attrs)"
+        :as
+        :renderless
+      >
+        <slot v-bind="getSlotProps(zIndex)" />
+      </Atom>
+    </template>
+  </Portal>
 </template>

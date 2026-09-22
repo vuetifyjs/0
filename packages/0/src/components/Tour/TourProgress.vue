@@ -1,16 +1,30 @@
 /**
  * @module TourProgress
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/tour
+ *
  * @remarks
- * Step counter with ARIA status role.
- * Exposes current, total, text, and percent via slot props.
+ * Live-region progress indicator showing the 1-based current step over total.
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
+  // Context
+  import { useTourRootContext } from './TourRoot.vue'
+
+  // Composables
+  import { useLocale } from '#v0/composables/useLocale'
+
+  // Utilities
+  import { mergeProps, toRef, useAttrs } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface TourProgressProps extends AtomProps {
+    /** Namespace for dependency injection @default 'v0:tour' */
     namespace?: string
   }
 
@@ -18,49 +32,51 @@
     current: number
     total: number
     text: string
-    percent: number
+    attrs: {
+      'role': 'status'
+      'data-scope': 'tour'
+      'data-part': 'progress'
+    }
   }
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Context
-  import { useTourRootContext } from './TourRoot.vue'
-
-  // Utilities
-  import { toRef } from 'vue'
-
-  defineOptions({ name: 'TourProgress' })
+  defineOptions({ name: 'TourProgress', inheritAttrs: false })
 
   defineSlots<{
     default: (props: TourProgressSlotProps) => any
   }>()
 
-  const { as = 'span', namespace = 'v0:tour' } = defineProps<TourProgressProps>()
+  const {
+    as = 'span',
+    renderless,
+    namespace = 'v0:tour',
+  } = defineProps<TourProgressProps>()
 
+  const attrs = useAttrs()
+  const locale = useLocale()
   const root = useTourRootContext(namespace)
 
   const current = toRef(() => root.index.value + 1)
-  const percent = toRef(() => root.total.value > 0 ? Math.round((current.value / root.total.value) * 100) : 0)
-  const text = toRef(() => `${current.value} of ${root.total.value}`)
+  const text = toRef(() => `${locale.n(current.value)} / ${locale.n(root.total.value)}`)
 
   const slotProps = toRef((): TourProgressSlotProps => ({
     current: current.value,
     total: root.total.value,
     text: text.value,
-    percent: percent.value,
+    attrs: {
+      'role': 'status',
+      'data-scope': 'tour',
+      'data-part': 'progress',
+    },
   }))
 </script>
 
 <template>
   <Atom
-    :aria-label="`Step ${current} of ${root.total.value}`"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
-    data-part="progress"
-    data-scope="tour"
-    role="status"
+    :renderless
   >
     <slot v-bind="slotProps">
       {{ text }}

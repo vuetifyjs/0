@@ -309,7 +309,6 @@ Application-level features installable via Vue plugins.
 | [useStorage](/composables/plugins/use-storage) | Reactive browser storage interface |
 | [useTheme](/composables/plugins/use-theme) | Theme management with CSS custom properties |
 | [useTooltip](/composables/plugins/use-tooltip) | Region-scoped tooltip delay coordination plugin |
-| [useTour](/composables/plugins/use-tour) | Guided tour orchestration with step navigation and validation gates |
 
 ## Data
 
@@ -334,6 +333,7 @@ Composables for presentational and semantic components.
 | [createBreadcrumbs](/composables/semantic/create-breadcrumbs) | Breadcrumb navigation with path truncation |
 | [createOverflow](/composables/semantic/create-overflow) | Compute item capacity for responsive truncation |
 | [createProgress](/composables/semantic/create-progress) | Progress tracking with multi-segment registration |
+| [createTour](/composables/semantic/create-tour) | Headless guided-tour sequencer with step collection, activators, and form-gated navigation |
 
 ## Transformers
 
