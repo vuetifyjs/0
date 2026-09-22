@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createStorage, createStorageContext, createStoragePlugin, useStorage } from './index'
 
@@ -521,6 +521,26 @@ describe('createStorage', () => {
       expect(storage.has('cached')).toBe(true)
       expect(adapter.getItem).not.toHaveBeenCalled()
     })
+
+    it('should return the default value when the adapter getItem throws', () => {
+      const throwingAdapter = {
+        getItem: vi.fn(() => {
+          throw new Error('Storage disabled')
+        }),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+      }
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const storage = createStorage({ adapter: throwingAdapter as unknown as StorageAdapter, prefix: 'test:' })
+
+      expect(storage.get('key', 'default').value).toBe('default')
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[v0:storage] Failed to read key'),
+        expect.any(Error),
+      )
+
+      consoleSpy.mockRestore()
+    })
   })
 
   describe('useStorage cross-tab sync', () => {
@@ -743,6 +763,69 @@ describe('createStorage', () => {
       await nextTick()
 
       expect(ref.value).toBeUndefined()
+    })
+  })
+
+  describe('useStorage refused localStorage', () => {
+    let original: PropertyDescriptor | undefined
+
+    beforeEach(() => {
+      vi.resetModules()
+      vi.clearAllMocks()
+
+      original = Object.getOwnPropertyDescriptor(globalThis.window, 'localStorage')
+
+      // A browser policy that blocks site data makes the property read itself throw
+      Object.defineProperty(globalThis.window, 'localStorage', {
+        get () {
+          throw new DOMException('denied', 'SecurityError')
+        },
+        configurable: true,
+      })
+    })
+
+    afterEach(() => {
+      if (original) {
+        Object.defineProperty(globalThis.window, 'localStorage', original)
+      }
+    })
+
+    it('should fall back to memory when the browser refuses localStorage', async () => {
+      vi.doMock('#v0/constants/globals', () => ({
+        IN_BROWSER: true,
+      }))
+
+      const { createStorage } = await import('./index')
+
+      const storage = createStorage({ prefix: 'test:' })
+      const username = storage.get('username', 'guest')
+
+      expect(username.value).toBe('guest')
+
+      username.value = 'john'
+      await nextTick()
+
+      expect(storage.get('username').value).toBe('john')
+    })
+
+    it('should not throw from the useStorage fallback when localStorage is refused', async () => {
+      vi.doMock('#v0/constants/globals', () => ({
+        IN_BROWSER: true,
+      }))
+
+      const { useStorage } = await import('./index')
+
+      expect(() => useStorage()).not.toThrow()
+    })
+
+    it('should not throw when given an explicit adapter and localStorage is refused', async () => {
+      vi.doMock('#v0/constants/globals', () => ({
+        IN_BROWSER: true,
+      }))
+
+      const { createStorage, MemoryStorageAdapter } = await import('./index')
+
+      expect(() => createStorage({ adapter: new MemoryStorageAdapter(), prefix: 'test:' })).not.toThrow()
     })
   })
 

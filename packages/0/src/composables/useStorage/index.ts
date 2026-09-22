@@ -38,7 +38,7 @@ import { MemoryStorageAdapter } from '#v0/composables/useStorage/adapters'
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { isArray, isNullOrUndefined, isObject } from '#v0/utilities'
+import { isArray, isNull, isNullOrUndefined, isObject } from '#v0/utilities'
 import { ref, watch } from 'vue'
 
 // Types
@@ -85,6 +85,27 @@ export { MemoryStorageAdapter, StorageAdapter } from '#v0/composables/useStorage
 export type { StorageType } from '#v0/composables/useStorage/adapters'
 
 /**
+ * Resolves the browser's localStorage, or `null` when it is unavailable.
+ *
+ * @remarks
+ * Reading `window.localStorage` throws a `SecurityError` when a browser policy
+ * blocks site data (Chrome's "block all cookies", a sandboxed iframe without
+ * `allow-same-origin`, Firefox's `dom.storage.enabled=false`), so the property
+ * access itself has to be guarded.
+ *
+ * @returns The browser's localStorage, or `null` outside the browser or when it is refused.
+ */
+function localStorageOrNull (): Storage | null {
+  if (!IN_BROWSER) return null
+
+  try {
+    return window.localStorage
+  } catch {
+    return null
+  }
+}
+
+/**
  * Creates a new storage instance.
  *
  * @param options The options for the storage instance.
@@ -111,8 +132,10 @@ export type { StorageType } from '#v0/composables/useStorage/adapters'
 export function createStorage<
   E extends StorageContext,
 > (options: StorageOptions = {}) {
+  const local = localStorageOrNull()
+
   const {
-    adapter = IN_BROWSER ? window.localStorage : new MemoryStorageAdapter(),
+    adapter = local ?? new MemoryStorageAdapter(),
     prefix = 'v0:',
     serializer = {
       read: JSON.parse,
@@ -132,7 +155,15 @@ export function createStorage<
   }
 
   function readStored (prefixedKey: string) {
-    const raw = adapter?.getItem(prefixedKey)
+    let raw: string | null | undefined
+
+    try {
+      raw = adapter?.getItem(prefixedKey)
+    } catch (error) {
+      logger.error(`[v0:storage] Failed to read key "${prefixedKey}":`, error)
+      return undefined
+    }
+
     if (isNullOrUndefined(raw)) return undefined
 
     try {
@@ -227,7 +258,7 @@ export function createStorage<
     }
   }
 
-  if (IN_BROWSER && adapter === window.localStorage) {
+  if (!isNull(local) && adapter === local) {
     useWindowEventListener('storage', (e: StorageEvent) => {
       if (!e.key?.startsWith(prefix)) return
 
