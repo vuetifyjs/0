@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { useHead } from '@unhead/vue'
+
   // Framework
   import { createContext, useBreakpoints, useStorage } from '@vuetify/v0'
 
@@ -63,6 +65,12 @@
   import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
   const one = useOnePlaygrounds()
+
+  useHead({
+    title: () => one.isLinked.value
+      ? `${one.currentTitle.value} · Vuetify0 Play`
+      : 'Vuetify0 Play',
+  })
 
   const {
     store,

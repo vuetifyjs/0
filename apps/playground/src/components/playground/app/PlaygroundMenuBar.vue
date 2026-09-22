@@ -30,6 +30,7 @@
   const {
     currentId: oneId,
     currentTitle: oneTitle,
+    isLinked,
     currentMeta,
     isOwner,
     saving: oneSaving,
@@ -295,15 +296,15 @@
           <div class="border-t border-divider my-1" />
 
           <!--
-            Linked: always One# identity + autosave switch (toggle only gates API writes).
-            Unlinked: Save to Vuetify One.
+            Linked: truncated title + autosave switch (One#id in cloud tooltip).
+            Unlinked: Local status, then Save to Vuetify One.
           -->
           <div
-            v-if="oneId"
+            v-if="isLinked"
             class="w-full flex items-center justify-between gap-2 px-3 py-1.5 text-xs"
           >
-            <span class="min-w-0 flex-1 truncate tabular-nums text-on-surface-variant">
-              One#{{ oneId }}
+            <span class="min-w-0 flex-1 truncate text-on-surface-variant">
+              {{ oneTitle }}
             </span>
 
             <AppTooltip
@@ -314,8 +315,8 @@
               :text="oneSaving
                 ? 'Syncing…'
                 : autosaveEnabled
-                  ? `Auto-saving to Vuetify One (${oneTitle})`
-                  : 'Auto-save off'"
+                  ? `Auto-saving to Vuetify One · One#${oneId}`
+                  : `Auto-save off · One#${oneId}`"
             >
               <AppIcon
                 :class="!autosaveEnabled && !oneSaving ? 'opacity-40' : ''"
@@ -336,29 +337,36 @@
             </Switch.Root>
           </div>
 
-          <PlaygroundMenuItem
+          <div
             v-else
+            class="w-full flex items-center px-3 py-1.5 text-xs text-on-surface-variant"
+          >
+            Local
+          </div>
+
+          <PlaygroundMenuItem
+            v-if="!isLinked"
             @click="onSave(false)"
           >
             Save to Vuetify One
           </PlaygroundMenuItem>
 
           <PlaygroundMenuItem
-            v-if="oneId"
+            v-if="isLinked"
             @click="onSave(false)"
           >
             Rename
           </PlaygroundMenuItem>
 
           <PlaygroundMenuItem
-            v-if="oneId"
+            v-if="isLinked"
             @click="onSave(true)"
           >
             Save as new
           </PlaygroundMenuItem>
 
           <!-- Lifecycle actions for linked playgrounds -->
-          <template v-if="oneId">
+          <template v-if="isLinked">
             <div class="border-t border-divider my-1" />
 
             <!-- Owner actions -->

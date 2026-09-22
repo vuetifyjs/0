@@ -17,7 +17,6 @@
   providePlaygroundRoute(playgroundId)
 
   useHead({
-    title: 'Vuetify0 Play',
     meta: [
       { key: 'description', name: 'description', content: 'Experiment with @vuetify/v0 headless composables and components in an interactive browser-based editor.' },
       { key: 'og:title', property: 'og:title', content: 'Vuetify0 Play' },
