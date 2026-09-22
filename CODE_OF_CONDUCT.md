@@ -34,7 +34,7 @@ Community leaders have the right and responsibility to remove, edit, or reject c
 
 This Code of Conduct applies within all community spaces, and also applies when an individual is officially representing the community in public spaces. Community spaces operated by the Vuetify team include:
 
-* The [Vuetify Discord server](https://community.vuetifyjs.com)
+* The [Vuetify Discord server](https://discord.gg/vuetify)
 * The [vuetifyjs GitHub organization](https://github.com/vuetifyjs) — issues, discussions, pull requests, and code review
 * Official Vuetify social media accounts
 * Official events, online or offline

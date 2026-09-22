@@ -1,10 +1,10 @@
 ---
 title: createInput - Shared Form Field Primitive
 meta:
-  - name: description
-    content: Generic form field primitive with validation, field state tracking, ARIA IDs, and form registration for Vue 3 headless components.
-  - name: keywords
-    content: createInput, input, form, validation, field state, composable, Vue 3, headless
+- name: description
+  content: Generic form field primitive with validation, field state tracking, ARIA IDs, and form registration for Vue 3 headless components.
+- name: keywords
+  content: createInput, input, form, validation, field state, composable, Vue 3, headless
 features:
   category: Composable
   label: 'E: createInput'
@@ -151,6 +151,10 @@ Composables never bind DOM events — that's a component responsibility. createI
 ??? How does createInput differ from createValidation?
 
 createValidation handles rule evaluation only. createInput wraps it and adds field state (dirty, pristine, focused, touched), ARIA IDs, error merging with manual messages, and the `error` prop override. Think of createInput as the full "form field" while createValidation is just the "rule runner."
+
+??? Does required participate in Form submit?
+
+Yes. Form defaults to `novalidate`, so the native `required` attribute never blocks submit. Pass `required: true` to `createInput` and a presence rule is registered — empty values fail `validate()` / Form `submit()`. Presence uses the same `dirty` predicate as `isDirty`.
 
 ??? Why is there no validateOn option?
 

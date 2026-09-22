@@ -11,6 +11,7 @@ import type { Plugin, ViteDevServer } from 'vite'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
 const BASE_URL = 'https://0.vuetifyjs.com'
+const SKILL_PATH = resolve(__dirname, '../../../skills/vuetify0/SKILL.md')
 
 const VIRTUAL_MODULE_ID = 'virtual:llms-stats'
 const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
@@ -18,6 +19,7 @@ const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
 export interface LlmsStats {
   llms: { size: number, sizeFormatted: string }
   llmsFull: { size: number, sizeFormatted: string }
+  skill: { size: number, sizeFormatted: string }
 }
 
 function formatSize (bytes: number): string {
@@ -241,7 +243,7 @@ function generateLlmsTxt (pages: PageInfo[]): string {
   }
 
   // AI Resources section
-  lines.push('## AI Resources', '', `- [SKILL.md](${BASE_URL}/SKILL.md): Compact reference with patterns, anti-patterns, and TypeScript types for AI coding assistants`, `- [Vuetify MCP](${BASE_URL}/guide/tooling/vuetify-mcp): Model Context Protocol server for structured API access`, '')
+  lines.push('## AI Resources', '', `- [SKILL.md](${BASE_URL}/SKILL.md): Compact reference with patterns, anti-patterns, and TypeScript types for AI coding assistants`, `- [REFERENCE.md](${BASE_URL}/REFERENCE.md): Detailed API examples agents load on demand`, `- [Vuetify MCP](${BASE_URL}/guide/tooling/vuetify-mcp): Model Context Protocol server for structured API access`, '')
 
   return lines.join('\n')
 }
@@ -299,10 +301,12 @@ export default function generateLlmsFullPlugin (): Plugin {
 
     const llmsSize = new TextEncoder().encode(llmsContent).length
     const llmsFullSize = new TextEncoder().encode(llmsFullContent).length
+    const skillSize = readFileSync(SKILL_PATH).byteLength
 
     statsCache = {
       llms: { size: llmsSize, sizeFormatted: formatSize(llmsSize) },
       llmsFull: { size: llmsFullSize, sizeFormatted: formatSize(llmsFullSize) },
+      skill: { size: skillSize, sizeFormatted: formatSize(skillSize) },
     }
 
     return statsCache

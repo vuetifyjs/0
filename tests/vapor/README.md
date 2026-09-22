@@ -1,17 +1,18 @@
 # @vuetify-private/vapor-tests
 
-Isolated [Vue Vapor mode](https://github.com/vuejs/core/releases/tag/v3.6.0-beta.1)
+Isolated [Vue Vapor mode](https://github.com/vuejs/core/releases/tag/v3.6.0-rc.1)
 parity tests for `@vuetify/v0`. This package verifies — with **real Vapor
 renders**, not mocks — that v0's composables and components work under Vue's
 vdom-less runtime.
 
 ## Why this is a separate package
 
-Vapor ships in **Vue 3.6** (still beta). The rest of the monorepo is pinned to
-`vue@3.5.33` via the catalog, and we don't want a beta Vue in the default test
-run. So this package:
+Vapor ships in **Vue 3.6**, which is in release-candidate phase (Vapor is
+feature-complete as of rc.1). The rest of the monorepo is pinned to Vue 3.5 via
+the catalog, and we don't want a pre-release Vue in the default test run. So
+this package:
 
-- Declares its **own** `vue@3.6.0-beta.15` + `@vue/runtime-vapor@3.6.0-beta.15`
+- Declares its **own** `vue@3.6.0-rc.5` + `@vue/runtime-vapor@3.6.0-rc.5`
   devDependencies. pnpm installs them alongside the 3.5 copy; `packages/0`
   is untouched.
 - Lives under `tests/*`, which the root `vitest.config.ts`
@@ -29,15 +30,16 @@ pnpm --filter @vuetify-private/vapor-tests test
 
 | File | Proves |
 |------|--------|
-| `test/smoke.test.ts` | The beta toolchain compiles + mounts a `<script setup vapor>` SFC and reacts. If this fails, the harness is broken, not v0. |
+| `test/smoke.test.ts` | The pre-release toolchain compiles + mounts a `<script setup vapor>` SFC and reacts. If this fails, the harness is broken, not v0. |
 | `test/instance.vapor.test.ts` | `utilities/instance.ts` works under a real Vapor render: `getCurrentInstance()` is genuinely `null`, yet the `currentInstance` shim still detects the instance and `useId()` resolves. `instance.test.ts` can only mock this. |
 | `test/composables.vapor.test.ts` | `createSelection` (registry + reactive tickets + computed Set) runs in a Vapor setup and drives Vapor DOM updates. |
 | `test/context.vapor.test.ts` | `createContext` carries a value from a Vapor ancestor to a Vapor descendant — the provide/inject substrate beneath every v0 compound component. |
+| `test/injection.vapor.test.ts` | `hasInjectionContext()` is vapor-aware and app-level provides resolve via `inject()` inside a Vapor setup — the gate `createPlugin` puts in front of every generated `useX()` consumer, exercised through a real `createLoggerPlugin` install (provided context resolves, fallback resolves when absent, no throws). |
 | `test/interop.vapor.test.ts` | A classic (vdom) v0 component renders inside a Vapor root via `vaporInteropPlugin`, including slot content forwarded from the Vapor parent. |
 
 ## Why the vitest config is unusual
 
-Two beta-specific traps, both handled in `vitest.config.ts`:
+Two toolchain traps, both handled in `vitest.config.ts`:
 
 1. **Vue's `node` export condition resolves to a Vapor-less build.** `vue`'s
    `.` export maps `node` → `index.mjs` → the full CJS build, which does **not**
@@ -51,9 +53,13 @@ Two beta-specific traps, both handled in `vitest.config.ts`:
    the `__VUE_*__` feature flags are replaced via `define`, and the packages are
    `inline`d so Vite (not Node) transforms them.
 
-## Beta pin
+## RC pin
 
-`3.6.0-beta.15` is deliberate: it is the newest 3.6 beta older than the
-workspace's `minimumReleaseAge` (14 days), so it installs without a policy
-exclusion. Bump it as 3.6 stabilizes; the Vapor API (`vapor` attribute,
-`createVaporApp`, `vaporInteropPlugin`) has been stable across the beta line.
+`3.6.0-rc.5` is the newest 3.6 release candidate. RCs land faster than the
+workspace's `minimumReleaseAge` (14 days) clears them, so `vue` and `@vue/*`
+sit in `minimumReleaseAgeExclude` — safe because both are exact-pinned
+everywhere (default catalog + this package), so no floating range can pull an
+un-aged release. Bump the pin to `3.6.0` when stable ships and drop the
+exclusions once it clears the age window; the Vapor API (`vapor` attribute,
+`createVaporApp`, `vaporInteropPlugin`) has been stable across the beta and RC
+lines.

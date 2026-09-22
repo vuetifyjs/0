@@ -45,6 +45,9 @@ app.mount('#app')
 
 The Scrim component renders a backdrop that appears when any overlay is active. It automatically positions itself below the topmost overlay using z-index management from the stack context.
 
+> [!IMPORTANT]
+> The scrim is rendered with `aria-hidden` — it is decorative. Don't place interactive or focusable content in its default slot; keep controls inside the overlay itself.
+
 ::: gn-example
 /components/scrim/basic
 :::
@@ -128,6 +131,12 @@ The default transition is `fade`. Customize with the `transition` prop:
   }
 </style>
 ```
+
+## Accessibility
+
+Scrim renders each backdrop layer with `aria-hidden="true"`, so assistive technology skips it entirely — the scrim is decorative and must never hold focusable or interactive content. Its only behavior is click-to-dismiss (suppressed when the topmost overlay is `blocking`), which is a pointer convenience, not the accessible dismissal path.
+
+The accessible dismissal contract — Escape-to-close, focus trapping, and focus return — belongs to the overlay the scrim sits behind, not to the scrim itself. Pair Scrim with [Dialog](/components/disclosure/dialog), which owns `role="dialog"`, focus management, and keyboard handling; the scrim only paints the backdrop.
 
 ## FAQ
 

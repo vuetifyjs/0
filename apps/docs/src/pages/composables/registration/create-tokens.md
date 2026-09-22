@@ -31,12 +31,12 @@ The `createTokens` composable allows you to define a collection of design tokens
 ```ts collapse
 import { createTokens } from '@vuetify/v0'
 
-// Default behavior (depth = Infinity): fully flatten nested objects
+// Default behavior: fully flatten nested objects into dot-notation ids
 const tokens = createTokens({
   color: {
     primary: '#3b82f6',
     secondary: '#64748b',
-    info: '{primary}'
+    info: '{color.primary}'
   },
   radius: {
     sm: '4px',
@@ -147,17 +147,17 @@ A design system with four token categories — color palettes, semantic aliases,
 ## FAQ
 
 ::: faq
-??? What's the difference between `depth: Infinity` and `flat: true`?
+??? What's the difference between the default flattening and `flat: true`?
 
 They control how nested objects are processed:
 
 | Option | Behavior | Token IDs |
 | - | - | - |
-| `depth: Infinity` (default) | Recursively flatten all nested objects | `color.primary`, `color.secondary` |
+| default | Recursively flatten all nested objects | `color.primary`, `color.secondary` |
 | `flat: true` | Keep objects as-is at their base key | `rtl` → `{ value: true, ... }` |
 
 ```ts
-// depth: Infinity (default) - flattens nested objects
+// default - flattens nested objects
 const colors = createTokens({
   color: { primary: '#3b82f6', secondary: '#64748b' }
 })
@@ -175,24 +175,23 @@ Use `flat: true` when your token values are objects you want to keep intact (e.g
 
 ??? Can token aliases be circular? What happens?
 
-Circular aliases will cause infinite recursion. The resolver doesn't detect cycles:
+The resolver detects cycles. It tracks visited aliases while resolving, and when it revisits one it logs a warning and returns `undefined` instead of recursing forever — no stack overflow:
 
 ```ts
-// DON'T DO THIS - infinite loop
 const tokens = createTokens({
   a: '{b}',
   b: '{a}', // circular reference
 })
-tokens.resolve('a') // Maximum call stack exceeded
+tokens.resolve('a') // undefined — warns: Circular alias detected for "a"
 ```
 
-Design your token hierarchy as a directed acyclic graph (DAG). The [Design Tokens spec](https://www.designtokens.org/tr/drafts/format/#aliases-references) recommends keeping alias chains shallow:
+Even though cycles fail safe, design your token hierarchy as a directed acyclic graph (DAG). The [Design Tokens spec](https://www.designtokens.org/tr/drafts/format/#aliases-references) recommends keeping alias chains shallow:
 
 ```mermaid "Valid Token Graph"
 flowchart TD
-    primary["primary: #3b82f6"] --> info["info: {primary}"]
-    primary --> link["link: {primary}"]
-    info --> infoBorder["info-border: {info}"]
+    primary["color.primary: #3b82f6"] --> info["color.info: {color.primary}"]
+    primary --> link["color.link: {color.primary}"]
+    info --> infoBorder["color.info-border: {color.info}"]
 ```
 
 ??? Can I use refs or computed values as tokens?
@@ -222,7 +221,7 @@ No. Aliases only resolve within the same `createTokens` instance:
 const colors = createTokens({ primary: '#3b82f6' })
 const spacing = createTokens({ gap: '{primary}' }) // Won't resolve - different instance
 
-spacing.resolve('gap') // '{primary}' - returned as literal string
+spacing.resolve('gap') // undefined - '{primary}' isn't registered in this instance (warns)
 ```
 
 To share tokens across collections, use a single unified token set or compose at the application level.

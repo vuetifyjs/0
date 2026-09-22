@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { shallowRef } from 'vue'
-  import Listbox from './Listbox.vue'
+  import VirtualListbox from './VirtualListbox.vue'
 
   const fruits = [
     { id: 'apple', label: 'Apple' },
@@ -29,7 +29,7 @@
 <template>
   <div class="flex flex-col items-center gap-4">
     <div class="w-64">
-      <Listbox
+      <VirtualListbox
         v-model="selected"
         :items="fruits"
         placeholder="Pick a fruit…"

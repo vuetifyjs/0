@@ -299,7 +299,7 @@ describe('useRules', () => {
 })
 
 /** Helper to create a mock Standard Schema object */
-function mockSchema (validate: (value: unknown) => { value?: unknown, issues?: ReadonlyArray<{ message: string }> }): StandardSchemaV1 {
+function mockSchema (validate: StandardSchemaV1['~standard']['validate']): StandardSchemaV1 {
   return {
     '~standard': {
       version: 1,
@@ -376,6 +376,15 @@ describe('standard Schema integration', () => {
       const rule = toRule(schema)
 
       expect(await rule('test')).toBe(true)
+    })
+
+    it('should accept issues with spec path segments', async () => {
+      const schema = mockSchema(() => ({
+        issues: [{ message: 'Must be a string', path: ['field', { key: 'nested' }] }],
+      }))
+      const rule = toRule(schema)
+
+      expect(await rule({})).toBe('Must be a string')
     })
 
     it('should return first issue when multiple issues exist', async () => {

@@ -39,7 +39,6 @@ import Root from './RatingRoot.vue'
  *       v-for="i in 5"
  *       :key="i"
  *       :index="i"
- *       as="button"
  *       v-slot="{ state }"
  *     >
  *       {{ state === 'full' ? '★' : '☆' }}
@@ -75,7 +74,6 @@ export const Rating = {
    *       v-for="i in 5"
    *       :key="i"
    *       :index="i"
-   *       as="button"
    *       v-slot="{ state }"
    *     >
    *       {{ state === 'full' ? '★' : '☆' }}
@@ -106,7 +104,6 @@ export const Rating = {
    * <template>
    *   <Rating.Item
    *     :index="1"
-   *     as="button"
    *     class="[&[data-state=full]]:text-amber-500 [&[data-state=empty]]:text-gray-300"
    *     v-slot="{ state }"
    *   >
@@ -142,7 +139,6 @@ export const Rating = {
    *       v-for="i in 5"
    *       :key="i"
    *       :index="i"
-   *       as="button"
    *       v-slot="{ state }"
    *     >
    *       {{ state === 'full' ? '★' : '☆' }}

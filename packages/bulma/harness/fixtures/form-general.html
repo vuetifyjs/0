@@ -1,0 +1,88 @@
+<!--
+  Source: https://bulma.io/documentation/form/general/
+  Bulma version: 1.0.4
+  Fetched: 2026-08-01
+  Canonical markup copied verbatim from the docs. Covers: .field / .label /
+  .control / .input / .help, control icons, .field.has-addons,
+  .field.is-grouped, .field.is-horizontal, validation state (.is-danger).
+-->
+
+<!-- fixture: basic field (label + control + input + help) -->
+<div class="field">
+  <label class="label">Label</label>
+  <div class="control">
+    <input class="input" type="text" placeholder="Text input">
+  </div>
+  <p class="help">This is a help text</p>
+</div>
+
+<!-- fixture: control icons (left/right) -->
+<div class="field">
+  <p class="control has-icons-left has-icons-right">
+    <input class="input" type="email" placeholder="Email">
+    <span class="icon is-small is-left">
+      <i class="fas fa-envelope"></i>
+    </span>
+    <span class="icon is-small is-right">
+      <i class="fas fa-check"></i>
+    </span>
+  </p>
+</div>
+
+<!-- fixture: validation state (.input.is-danger + .help.is-danger) -->
+<div class="field">
+  <label class="label">Email</label>
+  <div class="control has-icons-left has-icons-right">
+    <input class="input is-danger" type="email" placeholder="Email input" value="hello@">
+    <span class="icon is-small is-left">
+      <i class="fas fa-envelope"></i>
+    </span>
+    <span class="icon is-small is-right">
+      <i class="fas fa-exclamation-triangle"></i>
+    </span>
+  </div>
+  <p class="help is-danger">This email is invalid</p>
+</div>
+
+<!-- fixture: addons (.field.has-addons, one .control per attached item) -->
+<div class="field has-addons">
+  <div class="control">
+    <input class="input" type="text" placeholder="Find a repository">
+  </div>
+  <div class="control">
+    <button class="button is-info">
+      Search
+    </button>
+  </div>
+</div>
+
+<!-- fixture: grouped controls (.field.is-grouped, one .control per item) -->
+<div class="field is-grouped">
+  <p class="control">
+    <button class="button is-primary">
+      Submit
+    </button>
+  </p>
+  <p class="control">
+    <a class="button is-light">
+      Cancel
+    </a>
+  </p>
+</div>
+
+<!-- fixture: horizontal form (.field.is-horizontal > .field-label + .field-body > .field) -->
+<div class="field is-horizontal">
+  <div class="field-label is-normal">
+    <label class="label">Subject</label>
+  </div>
+  <div class="field-body">
+    <div class="field">
+      <div class="control">
+        <input class="input is-danger" type="text" placeholder="e.g. Partnership opportunity">
+      </div>
+      <p class="help is-danger">
+        This field is required
+      </p>
+    </div>
+  </div>
+</div>

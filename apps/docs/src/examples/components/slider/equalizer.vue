@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import Equalizer from './Equalizer.vue'
+  import EqualizerBands from './EqualizerBands.vue'
   import { useEqualizer } from './useEqualizer'
 
   const { bands, gains, presets, reset, apply } = useEqualizer()
@@ -25,6 +25,6 @@
       </button>
     </div>
 
-    <Equalizer v-model="gains" :bands />
+    <EqualizerBands v-model="gains" :bands />
   </div>
 </template>

@@ -33,7 +33,7 @@ import { createGroup } from '#v0/composables/createGroup'
 import { isStandardSchema, useRules } from '#v0/composables/useRules'
 
 // Utilities
-import { isFunction, isString } from '#v0/utilities'
+import { isFunction, isString, isUndefined } from '#v0/utilities'
 import { onScopeDispose, shallowRef, toValue } from 'vue'
 
 // Types
@@ -83,6 +83,22 @@ export interface ValidationOptions extends GroupOptions {
   rules?: RuleInput[]
   /** Value source for validate() when called without arguments. */
   value?: MaybeRefOrGetter<unknown>
+  /**
+   * Form injection key. Must match the parent Form's `namespace`.
+   *
+   * @default 'v0:form'
+   *
+   * @example
+   * ```ts
+   * createValidation({ formNamespace: 'v0:billing' })
+   * ```
+   */
+  formNamespace?: string
+}
+
+interface ValidationRun {
+  generation: number
+  promise: Promise<boolean>
 }
 
 const UNSET = /* @__PURE__ */ Symbol('unset')
@@ -118,7 +134,13 @@ const UNSET = /* @__PURE__ */ Symbol('unset')
  * ```
  */
 export function createValidation (_options: ValidationOptions = {}): ValidationContext {
-  const { rules: initialRules = [], value: valueSource, enroll = true, ...options } = _options
+  const {
+    rules: initialRules = [],
+    value: valueSource,
+    enroll = true,
+    formNamespace = 'v0:form',
+    ...options
+  } = _options
   const group = createGroup({ ...options, enroll, multiple: true })
   const rulesContext = useRules()
 
@@ -126,11 +148,19 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
   const isValid = shallowRef<boolean | null>(null)
   const isValidating = shallowRef(false)
   let generation = 0
+  // Generation of the most recent non-silent (visible) run — owns isValidating.
+  // Tracked separately from `generation` so a silent run bumping the shared
+  // counter can't strand the flag an in-flight non-silent run set.
+  let visible = 0
+  let latest: ValidationRun | undefined
 
   function register (input: RuleInput | Partial<ValidationTicketInput>): ValidationTicket {
     if (isFunction(input) || isString(input) || isStandardSchema(input)) {
       const resolved = rulesContext.resolve([input as RuleInput])
-      return group.register({ value: resolved[0] ?? (() => true) }) as ValidationTicket
+      const rule = resolved[0] ?? (() => (
+        isString(input) ? `Unknown validation rule "${input}"` : false
+      ))
+      return group.register({ value: rule }) as ValidationTicket
     }
     return group.register(input) as ValidationTicket
   }
@@ -139,11 +169,20 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
     return group.batch(() => rules.map(r => register(r)))
   }
 
-  async function validate (_value: unknown = UNSET, silent = false): Promise<boolean> {
-    // Bump generation up-front so every call — including the no-active-rules
-    // path below — invalidates any in-flight validation. Otherwise a slow rule
-    // resolving after a later no-rules call would overwrite the newer state.
-    const gen = ++generation
+  // A superseded call defers to the winning generation's outcome. Loops
+  // because the awaited winner may itself be superseded before settling;
+  // every iteration either returns or awaits a strictly newer generation.
+  async function wait (): Promise<boolean> {
+    while (true) {
+      const current = latest
+      if (isUndefined(current)) return false
+
+      const result = await current.promise
+      if (current.generation === generation) return result
+    }
+  }
+
+  async function run (gen: number, _value: unknown, silent: boolean): Promise<boolean> {
     const val = _value === UNSET ? toValue(valueSource) : _value
     const activeRules: FormValidationRule[] = []
 
@@ -164,7 +203,7 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
 
     try {
       const results = await Promise.all(activeRules.map(rule => rule(val)))
-      if (gen !== generation) return false
+      if (gen !== generation) return wait()
 
       const errorMessages = results
         .filter(result => isString(result) || result === false)
@@ -177,7 +216,7 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
 
       return errorMessages.length === 0
     } catch (error) {
-      if (gen !== generation) return false
+      if (gen !== generation) return wait()
 
       if (!silent) {
         errors.value = [error instanceof Error ? error.message : 'Validation error']
@@ -186,10 +225,22 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
 
       return false
     } finally {
-      if (gen === generation && !silent) {
+      if (!silent && gen === visible) {
         isValidating.value = false
       }
     }
+  }
+
+  async function validate (_value: unknown = UNSET, silent = false): Promise<boolean> {
+    // Bump generation up-front so every call - including the no-active-rules
+    // path - invalidates any in-flight validation. Otherwise a slow rule
+    // resolving after a later no-rules call would overwrite the newer state.
+    const gen = ++generation
+    if (!silent) visible = gen
+    const promise = run(gen, _value, silent)
+    latest = { generation: gen, promise }
+
+    return promise
   }
 
   function reset () {
@@ -197,6 +248,7 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
     isValid.value = null
     isValidating.value = false
     generation++
+    latest = undefined
   }
 
   // Register initial rules
@@ -217,7 +269,7 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
   } as ValidationContext
 
   // Auto-register with parent form
-  const form = useForm()
+  const form = useForm(formNamespace)
   const ticket = form?.register({ value: context as ValidationContext })
 
   onScopeDispose(() => {

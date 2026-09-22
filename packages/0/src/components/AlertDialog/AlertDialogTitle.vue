@@ -33,7 +33,7 @@
   import { useAlertDialogContext } from './AlertDialogRoot.vue'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { onBeforeUnmount, onMounted, toRef } from 'vue'
 
   defineOptions({ name: 'AlertDialogTitle' })
 
@@ -48,6 +48,14 @@
   } = defineProps<AlertDialogTitleProps>()
 
   const context = useAlertDialogContext(namespace)
+
+  onMounted(() => {
+    context.hasTitle.value = true
+  })
+
+  onBeforeUnmount(() => {
+    context.hasTitle.value = false
+  })
 
   const slotProps = toRef((): AlertDialogTitleSlotProps => ({
     attrs: {

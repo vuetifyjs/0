@@ -76,7 +76,7 @@
             class="relative inline-flex items-center w-8 h-4.5 rounded-full transition-colors bg-on-surface/20 data-[state=checked]:bg-primary"
           >
             <Switch.Thumb
-              class="![visibility:visible] block size-3.5 rounded-full bg-white shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-3.75"
+              class="block size-3.5 rounded-full bg-white shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-3.75"
             />
           </Switch.Track>
         </Switch.Root>

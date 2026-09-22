@@ -33,8 +33,10 @@
   export interface NumberFieldRootContext extends NumberFieldContext {
     /** Unique identifier */
     readonly id: ID
-    /** Optional display label */
+    /** Optional display label (used as aria-label on spinbutton) */
     readonly label?: string
+    /** ID of element that labels this spinbutton */
+    readonly ariaLabelledby?: string
     /** Form field name */
     readonly name?: string
     /** Associate with form by ID */
@@ -84,8 +86,10 @@
   export interface NumberFieldRootProps extends AtomProps {
     /** Unique identifier (auto-generated if not provided) */
     id?: ID
-    /** Optional display label */
+    /** Optional display label (rendered as aria-label on the spinbutton) */
     label?: string
+    /** ID of element that labels this spinbutton */
+    ariaLabelledby?: string
     /** Form field name */
     name?: string
     /** Associate with form by ID */
@@ -112,6 +116,8 @@
     format?: Intl.NumberFormatOptions
     /** Whether commit() clamps to min/max (default: true) */
     clamp?: boolean
+    /** When typed input is written into the model (default: 'change') */
+    commitOn?: 'input' | 'change'
     /** Validation rules */
     rules?: (FormValidationRule | RuleAlias | StandardSchemaV1)[]
     /** When to trigger validation */
@@ -128,6 +134,8 @@
     wheel?: boolean
     /** Namespace for context provision */
     namespace?: string
+    /** Namespace for connecting to parent Form. Must match Form's namespace. */
+    formNamespace?: string
   }
 
   export interface NumberFieldRootSlotProps {
@@ -201,6 +209,7 @@
     renderless,
     id = useId(),
     label,
+    ariaLabelledby,
     name,
     form,
     required,
@@ -213,7 +222,8 @@
     wrap,
     locale,
     format: formatOptions,
-    clamp: shouldClamp,
+    clamp: shouldClamp = true,
+    commitOn = 'change',
     rules = [],
     validateOn = 'blur',
     error = false,
@@ -222,6 +232,7 @@
     spinRate = 60,
     wheel = false,
     namespace = 'v0:number-field:root',
+    formNamespace = 'v0:form',
   } = defineProps<NumberFieldRootProps>()
 
   const model = defineModel<number | null>({ default: null })
@@ -231,9 +242,12 @@
     id,
     label,
     name,
+    formNamespace,
+    required,
     locale,
     format: formatOptions,
     clamp: shouldClamp,
+    commitOn,
     disabled: () => toValue(disabled),
     readonly: () => toValue(_readonly),
     min,
@@ -288,6 +302,7 @@
     input,
     id: input.id,
     label,
+    ariaLabelledby,
     name,
     form,
     required,

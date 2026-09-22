@@ -48,8 +48,9 @@
     dismiss: () => void
     /** Attributes to bind to the scrim element */
     attrs: {
-      style: { zIndex: number }
-      onClick: () => void
+      'aria-hidden': 'true'
+      'style': { zIndex: number }
+      'onClick': () => void
     }
   }
 </script>
@@ -97,8 +98,9 @@
       isBlocking: ticket.blocking.value,
       dismiss: () => onDismiss(ticket),
       attrs: {
-        style: { zIndex },
-        onClick: () => onDismiss(ticket),
+        'aria-hidden': 'true',
+        'style': { zIndex },
+        'onClick': () => onDismiss(ticket),
       },
     }
   }

@@ -10,7 +10,7 @@ name: Changeset reminder
 # comments — no untrusted PR code is ever checked out or executed.
 on:
   pull_request_target:
-    branches: [master]
+    branches: [master, dev, next]
     types: [opened, synchronize, reopened]
 
 permissions:
@@ -24,7 +24,7 @@ jobs:
   remind:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6 # base branch (master) — trusted, NOT the PR head
+      - uses: actions/checkout@v6 # PR base branch (master/dev/next) — trusted, NOT the PR head
       - name: Changeset reminder
         env:
           GH_TOKEN: ${{ github.token }}

@@ -25,12 +25,12 @@ v0's core architecture provides type-safe dependency injection and composable pa
 
 ```mermaid "Architecture Overview"
 flowchart TD
-    A[createContext] --> B[createTrinity]
-    B --> C[createPlugin]
+  A[createContext] --> B[createTrinity]
+  B --> C[createPlugin]
 
-    A -.- A1["Type-safe provide/inject wrapper"]
-    B -.- B1["[use, provide, context] tuple"]
-    C -.- C1["Vue plugin factory"]
+  A -.- A1["Type-safe provide/inject wrapper"]
+  B -.- B1["[use, provide, context] tuple"]
+  C -.- C1["Vue plugin factory"]
 ```
 
 ## The Trinity Pattern
@@ -57,10 +57,10 @@ theme.cycle()  // Cycle through themes
 | - | - |
 | `useContext` | Consume in child components |
 | `provideContext` | Provide from parent (defaults to built-in context) |
-| `defaultContext` | Standalone access, testing, outside Vue |
+| `context` | Standalone access, testing, outside Vue |
 
 > [!TIP]
-> The third element (`defaultContext`) is useful for unit testing without mounting Vue components.
+> The third element (`context`) is useful for unit testing without mounting Vue components.
 
 ## createContext
 
@@ -150,19 +150,21 @@ flowchart LR
     S --> Si[createSingle]
     S --> G[createGroup]
     Si --> St[createStep]
+    G --> Ne[createNested]
 ```
 
 | Composable | Extends | Adds |
 | - | - | - |
 | `createRegistry` | — | Base collection management |
 | `createModel` | Registry | `selectedIds` Set, `multiple`, `enroll` |
+| `createTokens` | Registry | Alias resolution |
+| `createForm` | Registry | Validation |
 | `createSelection` | Model | Mandatory enforcement, disabled guards |
+| `createSlider` | Model | Per-thumb value math, step snapping |
 | `createSingle` | Selection | Single selection constraint |
 | `createGroup` | Selection | Tri-state, batch ops |
 | `createStep` | Single | Navigation (next/prev/first/last) |
-| `createSlider` | Model | Per-thumb value math, step snapping |
-| `createTokens` | Registry | Alias resolution |
-| `createForm` | Registry | Validation |
+| `createNested` | Group | Parent-child selection |
 
 ## Selection System
 

@@ -165,6 +165,14 @@ createVirtual windows whatever array you pass, so filter or sort first and feed 
 
 Call `scrollTo(index, options?)` — it accepts `behavior`, `block`, and `offset`, so `scrollTo(500, { behavior: 'smooth' })` brings item 500 into view. Bound the index with `clamp` so it can't point past the data.
 
+??? How do I reverse the list for chat-style UIs?
+
+Pass `direction: 'reverse'`. The scroller pins to the bottom on mount and keeps the view anchored when new items append — the usual pattern for message threads. Pair with `anchor: 'end'` when you also need explicit end-anchoring across data changes.
+
+??? How do I load more items as the user approaches the edge?
+
+Pass `onEndReached` (and/or `onStartReached`). Each callback receives the distance in pixels from that edge; use `endThreshold` / `startThreshold` (default `0`) to fire before the user hits the absolute edge. Append to the source array inside the handler — `createVirtual` watches the items ref and reflows. Edge checks run from `scroll()`, so keep `@scroll="scroll"` on the container.
+
 :::
 
 <DocsApi />

@@ -132,6 +132,10 @@ async function getBenchmarksData (): Promise<Record<string, BenchmarkSummary[]>>
     const data = await response.json()
     const result: Record<string, BenchmarkSummary[]> = {}
 
+    // Values are quoted as measured. benchmarks.json used to carry a host
+    // "scale" that consumers divided by; it was deleted after measurement showed
+    // it made results less reproducible, not more. Benchmarks come from one
+    // fixed workstation, so there is nothing to divide out.
     for (const file of data.files || []) {
       // Extract composable name from filepath
       // e.g., ".../createFilter/index.bench.ts" -> "create-filter"

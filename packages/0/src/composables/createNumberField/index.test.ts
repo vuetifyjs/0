@@ -274,6 +274,81 @@ describe('createNumberField', () => {
       field.commit()
       expect(field.value.value).toBeNull()
     })
+
+    it('should no-op when disabled', () => {
+      const field = setup({ value: ref(13), min: 0, max: 100, step: 5, disabled: true })
+      field.commit()
+      expect(field.value.value).toBe(13)
+      field.commit(42)
+      expect(field.value.value).toBe(13)
+    })
+
+    it('should no-op when readonly', () => {
+      const field = setup({ value: ref(13), min: 0, max: 100, step: 5, readonly: true })
+      field.commit()
+      expect(field.value.value).toBe(13)
+      field.commit(42)
+      expect(field.value.value).toBe(13)
+    })
+
+    it('should commit again once unlocked', () => {
+      const disabled = shallowRef(true)
+      const field = setup({ value: ref(13), min: 0, max: 100, step: 5, disabled })
+      field.commit()
+      expect(field.value.value).toBe(13)
+      disabled.value = false
+      field.commit()
+      expect(field.value.value).toBe(15)
+    })
+  })
+
+  describe('commitOn', () => {
+    it('should default to change', () => {
+      const field = setup({})
+      expect(field.commitOn).toBe('change')
+    })
+
+    it('should reflect the configured value', () => {
+      const field = setup({ commitOn: 'input' })
+      expect(field.commitOn).toBe('input')
+    })
+  })
+
+  describe('write', () => {
+    it('should write the parsed value without clamping', () => {
+      const value = ref<number | null>(null)
+      const field = setup({ value, min: 10, max: 100, step: 5 })
+      field.write('1')
+      expect(field.value.value).toBe(1)
+    })
+
+    it('should not snap to step', () => {
+      const value = ref<number | null>(null)
+      const field = setup({ value, min: 0, max: 100, step: 5 })
+      field.write('13')
+      expect(field.value.value).toBe(13)
+    })
+
+    it('should write null for unparseable text', () => {
+      const value = ref<number | null>(5)
+      const field = setup({ value })
+      field.write('')
+      expect(field.value.value).toBeNull()
+    })
+
+    it('should no-op when disabled', () => {
+      const value = ref<number | null>(13)
+      const field = setup({ value, disabled: true })
+      field.write('99')
+      expect(field.value.value).toBe(13)
+    })
+
+    it('should no-op when readonly', () => {
+      const value = ref<number | null>(13)
+      const field = setup({ value, readonly: true })
+      field.write('99')
+      expect(field.value.value).toBe(13)
+    })
   })
 
   describe('numeric context', () => {
@@ -330,6 +405,17 @@ describe('createNumberField', () => {
       expect(field.input.isPristine.value).toBe(false)
       value.value = null
       expect(field.input.isPristine.value).toBe(true)
+    })
+
+    it('should fail validate when required and empty', async () => {
+      const field = setup({ required: true })
+      expect(await field.input.validate()).toBe(false)
+      expect(field.input.errors.value).toEqual(['Required'])
+    })
+
+    it('should pass validate when required and 0', async () => {
+      const field = setup({ value: ref(0), required: true })
+      expect(await field.input.validate()).toBe(true)
     })
   })
 })

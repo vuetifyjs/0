@@ -11,7 +11,7 @@ export { provideSwitchGroup, useSwitchGroup } from './SwitchGroup.vue'
 export { provideSwitchRoot, useSwitchRoot } from './SwitchRoot.vue'
 
 // Types
-export type { SwitchGroupProps, SwitchGroupSlotProps } from './SwitchGroup.vue'
+export type { SwitchGroupExpose, SwitchGroupProps, SwitchGroupSlotProps, SwitchTicket } from './SwitchGroup.vue'
 export type { SwitchHiddenInputProps } from './SwitchHiddenInput.vue'
 export type { SwitchRootContext, SwitchRootProps, SwitchRootSlotProps, SwitchState } from './SwitchRoot.vue'
 export type { SwitchSelectAllProps, SwitchSelectAllSlotProps } from './SwitchSelectAll.vue'
@@ -180,10 +180,10 @@ export const Switch = {
    */
   SelectAll,
   /**
-   * Sliding knob indicator for switches.
+   * Sliding knob for switches.
    *
-   * Renders as a span with `data-state` attribute for CSS styling.
-   * Hidden via `visibility: hidden` when unchecked and not mixed.
+   * Renders as a span with a `data-state` attribute for CSS styling.
+   * Always visible; drive its off/on position and color from `data-state`.
    * Must be used within a Switch.Root or Switch.SelectAll.
    *
    * @see https://0.vuetifyjs.com/components/forms/switch

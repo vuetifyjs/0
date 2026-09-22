@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 
 // Utilities
 import {
@@ -16,9 +16,11 @@ import {
   isPrimitive,
   isSymbol,
   isNaN,
+  getActiveElement,
   mergeDeep,
   clamp,
   range,
+  pxToNumber,
   useId,
 } from './helpers'
 
@@ -136,6 +138,32 @@ describe('helpers', () => {
         expect(isObject(new Map())).toBe(true)
         expect(isObject(/regex/)).toBe(true)
       })
+
+      // Narrowing is the point of the guard, so assert the narrowed types
+      // themselves. These are checked by `pnpm typecheck`, which includes
+      // `src/**/*.ts`; the runtime expectations only keep the branches live.
+      it('should preserve known props on interface-typed unions', () => {
+        interface Opts { tokens: number }
+        const value = { tokens: 3 } as string | Opts
+
+        if (isObject(value)) {
+          expectTypeOf(value.tokens).toEqualTypeOf<number>()
+          expect(value.tokens).toBe(3)
+        } else {
+          expectTypeOf(value).toEqualTypeOf<string>()
+        }
+      })
+
+      it('should subtract Record<string, any> from a union in the negative branch', () => {
+        const value = 'x' as string | boolean | Record<string, any>
+
+        if (isObject(value)) {
+          expectTypeOf(value).toEqualTypeOf<Record<string, any>>()
+        } else {
+          expectTypeOf(value).toEqualTypeOf<string | boolean>()
+          expect(value).toBe('x')
+        }
+      })
     })
 
     describe('isThenable', () => {
@@ -190,6 +218,75 @@ describe('helpers', () => {
         expect(isArray({})).toBe(false)
         expect(isArray('array')).toBe(false)
         expect(isArray({ length: 3 })).toBe(false)
+      })
+
+      // Narrowing is the point of the guard, so assert the narrowed types
+      // themselves. These are checked by `pnpm typecheck`, which includes
+      // `src/**/*.ts`; the runtime expectations only keep the branches live.
+      it('should preserve element types when narrowing a union', () => {
+        const value = ['a'] as string[] | string
+
+        if (isArray(value)) {
+          expectTypeOf(value).toEqualTypeOf<string[]>()
+          expect(value[0]).toBe('a')
+        } else {
+          expectTypeOf(value).toEqualTypeOf<string>()
+        }
+      })
+
+      it('should preserve readonly arrays and drop them from the else branch', () => {
+        const value = 'a' as readonly string[] | string
+
+        if (isArray(value)) {
+          expectTypeOf(value).toEqualTypeOf<readonly string[]>()
+        } else {
+          expectTypeOf(value).toEqualTypeOf<string>()
+          expect(value).toBe('a')
+        }
+      })
+
+      it('should preserve tuple arity', () => {
+        const value = ['a', 1] as [string, number] | string
+
+        if (isArray(value)) {
+          expectTypeOf(value).toEqualTypeOf<[string, number]>()
+          expect(value[1]).toBe(1)
+        }
+      })
+
+      it('should preserve interface element types', () => {
+        interface Rule { name: string }
+        const value = [{ name: 'required' }] as Rule | Rule[]
+
+        if (isArray(value)) {
+          expectTypeOf(value).toEqualTypeOf<Rule[]>()
+          expect(value[0].name).toBe('required')
+        } else {
+          expectTypeOf(value).toEqualTypeOf<Rule>()
+        }
+      })
+
+      it('should keep every array constituent of a multi-array union', () => {
+        const value = [1] as number[] | string[] | boolean
+
+        if (isArray(value)) {
+          expectTypeOf(value).toEqualTypeOf<number[] | string[]>()
+          expect(value[0]).toBe(1)
+        }
+      })
+
+      it('should fall back to unknown[] for an unknown value, keeping it mutable', () => {
+        const value: unknown = ['a']
+
+        if (isArray(value)) {
+          expectTypeOf(value).toEqualTypeOf<unknown[]>()
+
+          const slot: unknown[] = value
+
+          value.push('b')
+
+          expect(slot).toEqual(['a', 'b'])
+        }
       })
     })
 
@@ -343,6 +440,53 @@ describe('helpers', () => {
         expect(isNaN({})).toBe(false)
         expect(isNaN(null)).toBe(false)
       })
+    })
+  })
+
+  describe('getActiveElement', () => {
+    it('should return document.activeElement in light DOM', () => {
+      const input = document.createElement('input')
+      document.body.append(input)
+      try {
+        input.focus()
+        expect(getActiveElement()).toBe(input)
+      } finally {
+        input.remove()
+      }
+    })
+
+    it('should return document.body when nothing is focused', () => {
+      const result = getActiveElement()
+      expect(result).toBe(document.body)
+    })
+
+    it('should return null when not in browser (SSR)', async () => {
+      vi.resetModules()
+      vi.doMock('#v0/constants/globals', () => ({
+        IN_BROWSER: false,
+      }))
+      try {
+        const { getActiveElement: getActive } = await import('./helpers')
+        expect(getActive()).toBeNull()
+      } finally {
+        vi.resetModules()
+        vi.doUnmock('#v0/constants/globals')
+      }
+    })
+
+    it('should pierce open shadow roots to find the deepest focused element', () => {
+      const host = document.createElement('div')
+      const shadow = host.attachShadow({ mode: 'open' })
+      const input = document.createElement('input')
+      shadow.append(input)
+      document.body.append(host)
+      try {
+        input.focus()
+        expect(getActiveElement()).toBe(input)
+        expect(document.activeElement).toBe(host)
+      } finally {
+        host.remove()
+      }
     })
   })
 
@@ -556,6 +700,71 @@ describe('helpers', () => {
     it('should create single element array', () => {
       expect(range(1)).toEqual([0])
       expect(range(1, 5)).toEqual([5])
+    })
+  })
+
+  describe('pxToNumber', () => {
+    it('should parse a pixel length', () => {
+      expect(pxToNumber('16px')).toBe(16)
+      expect(pxToNumber('4.5px')).toBe(4.5)
+      expect(pxToNumber('-4.5px')).toBe(-4.5)
+    })
+
+    it('should parse a bare number and ignore any unit suffix', () => {
+      expect(pxToNumber('12')).toBe(12)
+      expect(pxToNumber('1.5em')).toBe(1.5)
+      expect(pxToNumber('  24px  ')).toBe(24)
+    })
+
+    it('should return the fallback for a length that does not parse', () => {
+      expect(pxToNumber('auto')).toBe(0)
+      expect(pxToNumber('')).toBe(0)
+      expect(pxToNumber('none')).toBe(0)
+      expect(pxToNumber('px')).toBe(0)
+    })
+
+    it('should return the fallback for a non-string value', () => {
+      expect(pxToNumber(undefined)).toBe(0)
+      expect(pxToNumber(null as unknown as string)).toBe(0)
+      expect(pxToNumber(16 as unknown as string)).toBe(0)
+    })
+
+    it('should default the fallback to 0', () => {
+      expect(pxToNumber('auto')).toBe(0)
+      expect(pxToNumber(undefined)).toBe(0)
+    })
+
+    it('should distinguish a parsed 0 from an unparseable length', () => {
+      expect(pxToNumber('0px', 100)).toBe(0)
+      expect(pxToNumber('0', 100)).toBe(0)
+      expect(pxToNumber('-0px', 100)).toBe(-0)
+
+      expect(pxToNumber('auto', 100)).toBe(100)
+      expect(pxToNumber('', 100)).toBe(100)
+      expect(pxToNumber(undefined, 100)).toBe(100)
+    })
+
+    it('should differ from `parseFloat(value) || 0` only where the fallback is non-zero', () => {
+      // The `|| 0` idiom this replaces cannot express a non-zero fallback: it
+      // collapses a parsed 0 and an unparseable length onto the same result.
+      expect(Number.parseFloat('0px') || 100).toBe(100)
+      expect(pxToNumber('0px', 100)).toBe(0)
+
+      // With a zero fallback the two agree — every existing call site that
+      // used `|| 0` keeps its behavior.
+      for (const value of ['0px', '', 'auto', '16px', '-4.5px', 'px']) {
+        expect(pxToNumber(value)).toBe(Number.parseFloat(value) || 0)
+      }
+    })
+
+    it('should return the fallback for a NaN-shaped literal', () => {
+      expect(pxToNumber('NaN')).toBe(0)
+      expect(pxToNumber('NaNpx', 100)).toBe(100)
+    })
+
+    it('should preserve Infinity, which parses but is not NaN', () => {
+      expect(pxToNumber('Infinity')).toBe(Number.POSITIVE_INFINITY)
+      expect(pxToNumber('-Infinity')).toBe(Number.NEGATIVE_INFINITY)
     })
   })
 

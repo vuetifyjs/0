@@ -1,12 +1,12 @@
 <script setup lang="ts">
   // Composables
-  import { TIER_CONFIG, type Tier } from '@/composables/useBenchmarkData'
+  import { TIER_CONFIG, type TierState } from '@/composables/useBenchmarkData'
 
   // Utilities
   import { toRef } from 'vue'
 
   const props = defineProps<{
-    tier: Tier
+    tier: TierState
     size?: 'sm' | 'md'
   }>()
 

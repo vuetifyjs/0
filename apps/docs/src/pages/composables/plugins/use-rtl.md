@@ -109,6 +109,24 @@ abstract class RtlAdapter {
 }
 ```
 
+## Architecture
+
+`useRtl` is a standalone plugin built with `createPluginContext`; its entire state is one reactive boolean (`isRtl`). Applying that direction to the DOM is delegated to an `RtlAdapter` — the default `V0RtlAdapter` writes the `dir` attribute onto the target element (`document.documentElement` unless overridden). It is independent of `useLocale`; Vuetify wires the two together through its own adapter.
+
+```mermaid "useRtl Architecture"
+flowchart TD
+  Plugin["createPluginContext"]
+  UR["useRtl"]:::primary
+  Adapter["RtlAdapter"]
+  V0["V0RtlAdapter"]
+  DOM["dir attribute on target"]
+
+  Plugin --> UR
+  UR --> Adapter
+  Adapter --> V0
+  V0 --> DOM
+```
+
 ## Reactivity
 
 | Property | Type | Description |

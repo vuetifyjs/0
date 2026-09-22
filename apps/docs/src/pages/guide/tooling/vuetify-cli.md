@@ -2,23 +2,24 @@
 title: Vuetify CLI - Project Scaffolding & Management
 features:
   label: Vuetify CLI
-  order: 1
+  order: 2
   level: 1
 meta:
   - name: description
-    content: Scaffold and manage v0 projects with the official CLI. Create new projects, update dependencies, and analyze usage.
+    content: Scaffold v0 projects, seed components from the docs registry with vuetify add, and manage local component libraries.
   - name: keywords
-    content: vuetify cli, create-vuetify0, scaffolding, project generator, vuetify update, v0
+    content: vuetify cli, create-vuetify0, vuetify add, registry, vuetify.json, scaffolding, component library, v0
 related:
   - /guide/tooling/ai-tools
   - /guide/tooling/vuetify-mcp
+  - /guide/fundamentals/building-frameworks
   - /guide/integration/nuxt
 logo: vcli
 ---
 
 # Vuetify CLI
 
-The Vuetify CLI is a tooling ecosystem for scaffolding and managing Vuetify projects. It provides interactive project generation, intelligent dependency updates, and codebase analysis.
+The Vuetify CLI scaffolds Vuetify and v0 projects, seeds working examples from the official docs registry (`vuetify add`), and helps you track a local component library over time.
 
 <DocsPageFeatures :frontmatter />
 
@@ -28,6 +29,9 @@ The Vuetify CLI is a tooling ecosystem for scaffolding and managing Vuetify proj
 | - | - | - |
 | [@vuetify/cli](https://www.npmjs.com/package/@vuetify/cli) | `vuetify` | Full CLI with all commands |
 | [create-vuetify0](https://www.npmjs.com/package/create-vuetify0) | `create-vuetify0` | Scaffold [v0](/introduction/getting-started) projects |
+
+> [!NOTE]
+> Registry commands (`add <feature>`, `list`, `generate`, `diff`, `refresh`, `registry build`) require a recent `@vuetify/cli` that includes the docs registry consumer. The seed itself is live at [0.vuetifyjs.com/registry](https://0.vuetifyjs.com/registry/index.json).
 
 ## Installation
 
@@ -110,10 +114,18 @@ bun create vuetify0
 | Command | Description |
 | - | - |
 | `vuetify init` | Initialize a new project |
+| `vuetify add <name>` | Seed a component, composable, or plugin from the docs registry |
 | `vuetify add eslint` | Add ESLint with Vuetify config |
-| `vuetify add mcp` | Add MCP server configuration |
+| `vuetify list` | List components tracked in `vuetify.json` |
+| `vuetify status` | Check tracked files still exist on disk |
+| `vuetify generate <name>` | Scaffold a local component (no registry origin) |
+| `vuetify diff <name>` | Compare a tracked component to its registry origin |
+| `vuetify refresh <name>` | Re-fetch a tracked component from its origin |
+| `vuetify registry build` | Emit a static registry from your inventory |
+| `vuetify mcp` | Configure [Vuetify MCP](/guide/tooling/vuetify-mcp) for your IDE |
 | `vuetify update` | Update Vuetify packages |
 | `vuetify docs` | Open version-specific documentation |
+| `vuetify release-notes` | Print release notes for a package |
 | `vuetify analyze` | Scan codebase for usage patterns |
 | `vuetify upgrade` | Self-upgrade the CLI |
 
@@ -143,46 +155,165 @@ bunx @vuetify/cli init my-app
 
 ### add
 
-Add integrations to existing projects:
+v0 is headless: installing `@vuetify/v0` and importing a primitive does not yield a rendered UI. `vuetify add` seeds a **working, styled example** from the official docs registry into your project so you own a real file you can edit, theme, and ship.
+
+The registry is published at [0.vuetifyjs.com/registry](https://0.vuetifyjs.com/registry/index.json) — the same curated examples that appear on component and composable docs pages.
+
+#### Seed a feature
 
 ::: code-group no-filename
 
 ```bash pnpm
-# Add ESLint with Vuetify config
-pnpm dlx @vuetify/cli add eslint
+# Interactive picker when you omit the name
+pnpm dlx @vuetify/cli add
 
-# Add MCP server configuration
-pnpm dlx @vuetify/cli add mcp
+# Component example (writes under src/components/…)
+pnpm dlx @vuetify/cli add dialog
+
+# Plugin (install-first — wires createThemePlugin into the app)
+pnpm dlx @vuetify/cli add use-theme
+
+# Pick a specific example when a feature ships more than one
+pnpm dlx @vuetify/cli add create-data-table --example features
+
+# Non-interactive (CI / scripts)
+pnpm dlx @vuetify/cli add dialog --yes
 ```
 
 ```bash npm
-# Add ESLint with Vuetify config
-npx @vuetify/cli add eslint
-
-# Add MCP server configuration
-npx @vuetify/cli add mcp
+npx @vuetify/cli add
+npx @vuetify/cli add dialog
+npx @vuetify/cli add use-theme
+npx @vuetify/cli add create-data-table --example features
+npx @vuetify/cli add dialog --yes
 ```
 
 ```bash yarn
-# Add ESLint with Vuetify config
-yarn dlx @vuetify/cli add eslint
-
-# Add MCP server configuration
-yarn dlx @vuetify/cli add mcp
+yarn dlx @vuetify/cli add
+yarn dlx @vuetify/cli add dialog
+yarn dlx @vuetify/cli add use-theme
+yarn dlx @vuetify/cli add create-data-table --example features
+yarn dlx @vuetify/cli add dialog --yes
 ```
 
 ```bash bun
-# Add ESLint with Vuetify config
-bunx @vuetify/cli add eslint
-
-# Add MCP server configuration
-bunx @vuetify/cli add mcp
+bunx @vuetify/cli add
+bunx @vuetify/cli add dialog
+bunx @vuetify/cli add use-theme
+bunx @vuetify/cli add create-data-table --example features
+bunx @vuetify/cli add dialog --yes
 ```
 
 :::
 
-> [!TIP]
-> The `add mcp` command configures [Vuetify MCP](/guide/tooling/vuetify-mcp) for your IDE automatically.
+| Option | Description |
+| - | - |
+| `--example <id>` | Example within the feature (`basic`, `gallery`, …) |
+| `--dir <path>` | Write destination (defaults to `vuetify.json` aliases or `src/components`) |
+| `--registry <url\|alias>` | Registry origin (default `https://0.vuetifyjs.com`) |
+| `--overwrite` | Replace existing files without prompting |
+| `--yes` | Accept prompts with defaults (skips optional plugin demos) |
+
+What it does:
+
+1. Resolves the name against the registry index (fuzzy match when needed).
+2. Installs missing npm dependencies declared by the example (with confirm, or immediately with `--yes`).
+3. Writes example files into your project and maps semantic colors if UnoCSS/Tailwind is present.
+4. Records the install in **`vuetify.json`** (path, files, and upstream origin for later diff/refresh).
+
+#### Plugins
+
+Plugin pages (for example [useTheme](/composables/plugins/use-theme)) are **install-first**: the CLI wires `createThemePlugin` (or the matching factory) into `src/plugins/` and your app entry. A usage example is optional — confirm interactively, or pass `--example` to force one. With `--yes`, only the plugin module is installed.
+
+```bash
+vuetify add use-theme
+vuetify add use-locale --yes
+```
+
+#### Integrations
+
+`add` still installs project tooling integrations:
+
+```bash
+vuetify add eslint
+```
+
+Configure the MCP server with [`vuetify mcp install`](/guide/tooling/vuetify-mcp) (not `add mcp` — that path is deprecated).
+
+### list and status
+
+Track what `add` (and `generate`) put on disk:
+
+```bash
+# Inventory from vuetify.json
+vuetify list
+vuetify list --json
+
+# Healthy vs missing files
+vuetify status
+```
+
+### generate
+
+Scaffold a **local** component with no registry origin — useful when you are building your own library and only need a tracked file:
+
+```bash
+vuetify generate MyCard
+vuetify generate my-button --dir src/components/ui
+```
+
+`--dir` is one-shot for that file. It does not change the project components alias used by later `add` / `refresh` calls.
+### diff and refresh
+
+When a feature came from the registry, compare or re-pull it:
+
+```bash
+# Show which files match, changed, or only exist locally / upstream
+vuetify diff dialog
+
+# Re-fetch from the recorded origin (overwrites local files)
+vuetify refresh dialog
+vuetify refresh use-theme
+```
+
+Git remains the source of truth for your edits. Diff/refresh only compare against the registry seed you originally installed.
+
+### registry build
+
+Publish **your** inventory as a static registry in the same shape as the official seed, so other projects can point `vuetify add --registry` at it:
+
+```bash
+vuetify registry build
+# → ./registry/index.json, tokens.json, {type}/{name}.json
+```
+
+Host the **parent** of the output directory so URLs resolve as `{origin}/registry/index.json` (the CLI always fetches under `/registry/`).
+
+```bash
+# After hosting at https://design.example.com/registry/…
+vuetify add dialog --registry https://design.example.com
+```
+
+### Multi-registry
+
+`vuetify.json` can map short aliases to origins:
+
+```json
+{
+  "version": 1,
+  "aliases": { "components": "src/components" },
+  "registries": {
+    "@vuetify": "https://0.vuetifyjs.com",
+    "@acme": "https://design.example.com"
+  },
+  "components": {}
+}
+```
+
+```bash
+vuetify add @acme/button
+vuetify add dialog --registry @acme
+```
 
 ### update
 
@@ -252,6 +383,47 @@ bunx @vuetify/cli docs
 > [!NOTE]
 > The CLI auto-detects your installed Vuetify version and opens the correct documentation site.
 
+### release-notes
+
+Print the release notes for a Vuetify package without leaving the terminal:
+
+::: code-group no-filename
+
+```bash pnpm
+# Latest v0 release
+pnpm dlx @vuetify/cli release-notes v0
+
+# A specific version
+pnpm dlx @vuetify/cli release-notes v0 --version 1.0.0
+```
+
+```bash npm
+npx @vuetify/cli release-notes v0
+npx @vuetify/cli release-notes v0 --version 1.0.0
+```
+
+```bash yarn
+yarn dlx @vuetify/cli release-notes v0
+yarn dlx @vuetify/cli release-notes v0 --version 1.0.0
+```
+
+```bash bun
+bunx @vuetify/cli release-notes v0
+bunx @vuetify/cli release-notes v0 --version 1.0.0
+```
+
+:::
+
+The command prints the release name, tag, publish date, and full notes, along with links to the documentation and the GitHub release.
+
+| Argument | Default | Description |
+| - | - | - |
+| `package` | `vuetify` | Package to fetch — `vuetify` or `v0` (aliases: `vuetify0`, `0`) |
+| `--version`, `-v` | `latest` | Release version; `latest` resolves to the newest core release |
+
+> [!TIP]
+> Pass `v0` to read the [Vuetify0 release notes](/releases). Omitting `--version` shows the latest release.
+
 ### analyze
 
 Scan your codebase for Vuetify usage patterns:
@@ -285,9 +457,9 @@ bunx @vuetify/cli analyze --reporter json
 
 The analyzer scans your project and detects all imports from `@vuetify/v0`:
 
-- **Components** — `VBtn`, `VCard`, `VDataTable`, etc.
-- **Composables** — `useDisplay`, `useTheme`, `createFilter`, etc.
-- **Plugins** — `createVuetify`, `createIconsPlugin`, etc.
+- **Components** — `Dialog`, `Tabs`, `Avatar`, etc.
+- **Composables** — `useBreakpoints`, `useTheme`, `createFilter`, etc.
+- **Plugins** — `createThemePlugin`, `createBreakpointsPlugin`, etc.
 - **Utilities and constants**
 
 #### Custom Documentation URL
@@ -295,7 +467,7 @@ The analyzer scans your project and detects all imports from `@vuetify/v0`:
 After analyzing your project, the CLI generates a **personalized documentation URL**:
 
 ```text
-https://0.vuetifyjs.com/?features=Dialog,Avatar,useDisplay,...
+https://0.vuetifyjs.com/?features=Dialog,Avatar,useBreakpoints,...
 ```
 
 This URL filters the v0 documentation to show **only the features you're actually using**, giving you a focused, clutter-free reference tailored to your project. Share this URL with your team to onboard developers faster.

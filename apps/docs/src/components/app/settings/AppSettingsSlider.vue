@@ -11,12 +11,14 @@
     min = 0,
     max = 2,
     step = 0.05,
+    precision = 2,
   } = defineProps<{
     label: string
     description?: string
     min?: number
     max?: number
     step?: number
+    precision?: number
   }>()
 
   const model = defineModel<number>({ required: true })
@@ -42,7 +44,7 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <span class="text-xs text-on-surface-variant tabular-nums">{{ model.toFixed(2) }}</span>
+        <span class="text-xs text-on-surface-variant tabular-nums">{{ model.toFixed(precision) }}</span>
 
         <Checkbox.Root
           v-model="expanded"

@@ -9,6 +9,7 @@
   import { CODE_SIZES } from '@/composables/useSettings'
 
   // Types
+  import type { PlaygroundHashData } from '@/composables/usePlayground'
   import type { CodeSize } from '@/composables/useSettings'
 
   const props = defineProps<{
@@ -18,6 +19,7 @@
     title?: string
     binTitle?: string
     playground?: boolean
+    playgroundThemes?: Pick<PlaygroundHashData, 'theme' | 'themes'>
     bin?: boolean
     showCopy?: boolean
     showWrap?: boolean
@@ -44,7 +46,10 @@
   }
 
   async function openInPlayground () {
-    const url = await usePlayground([{ name: props.title ?? 'Example.vue', code: props.playgroundCode ?? props.code }])
+    const url = await usePlayground(
+      [{ name: props.title ?? 'Example.vue', code: props.playgroundCode ?? props.code }],
+      props.playgroundThemes,
+    )
     window.open(url, '_blank')
   }
 </script>

@@ -2,8 +2,7 @@
   // Framework
   import { createDataTable, createGroup, createSingle, isString, Tooltip, toHighlight } from '@vuetify/v0'
 
-  import maturityData from '#v0/maturity.json'
-  import { LEVEL_KEYS as levelKeys, MATURITY_LEVELS as levels } from '@/constants/maturity'
+  import { LEVEL_KEYS as levelKeys, MATURITY as data, MATURITY_LEVELS as levels } from '@/constants/maturity'
   import { releaseAlias } from '@/constants/releases'
 
   // Utilities
@@ -11,7 +10,7 @@
   import { RouterLink, useRoute } from 'vue-router'
 
   // Types
-  import type { Level, MaturityData } from '@/constants/maturity'
+  import type { Level } from '@/constants/maturity'
 
   type ItemType = 'composable' | 'component' | 'utility'
 
@@ -30,8 +29,6 @@
   function kebab (name: string): string {
     return name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
   }
-
-  const data = maturityData as MaturityData
 
   // Flatten JSON into MaturityItem[]
   function flatten (): MaturityItem[] {
@@ -74,7 +71,7 @@
         level: entry.level,
         since: entry.since,
         levelOrder: levels[entry.level]?.order ?? -1,
-        path: '/utilities',
+        path: '/guide/features/utilities',
         description: entry.description,
       })
     }
@@ -145,10 +142,6 @@
     table.clear()
     table.onboard(items.map(item => ({ id: item.id, value: item })))
   }, { immediate: true })
-
-  function onSearch (event: Event) {
-    table.search((event.target as HTMLInputElement).value)
-  }
 
   // Feature pages deep-link here with `?category=&feature=` so the reader's
   // category is auto-expanded and their feature's row is highlighted, instead
@@ -269,13 +262,12 @@
 
     <!-- Search + expand toggle -->
     <div class="flex items-center gap-2 mb-4">
-      <input
-        class="flex-1 px-4 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm placeholder-on-surface-variant/50 outline-none transition-colors focus:border-primary"
+      <DocsSearchInput
+        class="flex-1"
+        :model-value="table.query.value"
         placeholder="Search by name, type, or category..."
-        type="text"
-        :value="table.query.value"
-        @input="onSearch"
-      >
+        @update:model-value="table.search($event)"
+      />
 
       <button
         class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-on-surface-variant bg-transparent border-0 cursor-pointer transition-colors hover:text-on-surface whitespace-nowrap"

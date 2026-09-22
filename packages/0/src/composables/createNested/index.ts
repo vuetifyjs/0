@@ -139,7 +139,6 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   function open (ids: ID | ID[]): void {
     if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
-      if (!group.has(id)) continue
       const item = group.get(id)
       if (!item || toValue(item.disabled)) continue
 
@@ -173,7 +172,6 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   function close (ids: ID | ID[]): void {
     if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
-      if (!group.has(id)) continue
       const item = group.get(id)
       if (!item || toValue(item.disabled)) continue
       openedIds.delete(id)
@@ -183,7 +181,6 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   function flip (ids: ID | ID[]): void {
     if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
-      if (!group.has(id)) continue
       const item = group.get(id)
       if (!item || toValue(item.disabled)) continue
       if (opened(id)) {
@@ -490,24 +487,43 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     return getDescendants(id).filter(did => isLeaf(did))
   }
 
+  function removeLeaves (leafIds: ID[]): void {
+    const { selectedIds, mixedIds } = group
+    const ids = new Set(leafIds)
+
+    if (toValue(mandatoryOption) && [...selectedIds].every(id => ids.has(id))) return
+
+    for (const id of ids) {
+      mixedIds.delete(id)
+      selectedIds.delete(id)
+    }
+
+    for (const id of ids) {
+      updateAncestors(id)
+    }
+  }
+
   function select (ids: ID | ID[]): void {
     if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
-      if (!group.has(id)) continue
-      const item = group.get(id)
-      if (!item || toValue(item.disabled)) continue
-
       if (selectionMode === 'independent') {
         group.select(id)
       } else if (selectionMode === 'leaf') {
         if (isLeaf(id)) {
           group.select(id)
         } else {
+          const item = group.get(id)
+          if (!item || toValue(item.disabled)) continue
           for (const lid of getLeafDescendants(id)) {
             group.select(lid)
           }
         }
       } else {
+        // Cascade mutates selectedIds directly, so the targeted-id gesture
+        // guard the chain provides elsewhere must be enforced locally.
+        const item = group.get(id)
+        if (!item || toValue(item.disabled)) continue
+
         if (!toValue(multipleOption)) {
           group.select(id)
           return
@@ -529,21 +545,21 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   function unselect (ids: ID | ID[]): void {
     if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
-      if (!group.has(id)) continue
-      const item = group.get(id)
-      if (!item || toValue(item.disabled)) continue
-
       if (selectionMode === 'independent') {
         group.unselect(id)
       } else if (selectionMode === 'leaf') {
-        if (isLeaf(id)) {
-          group.unselect(id)
-        } else {
-          for (const lid of getLeafDescendants(id)) {
-            group.unselect(lid)
-          }
-        }
+        // removeLeaves mutates selectedIds directly, so the targeted-id
+        // gesture guard the chain provides elsewhere must be enforced locally.
+        const item = group.get(id)
+        if (!item || toValue(item.disabled)) continue
+
+        removeLeaves(isLeaf(id) ? [id] : getLeafDescendants(id))
       } else {
+        // Cascade mutates selectedIds directly, so the targeted-id gesture
+        // guard the chain provides elsewhere must be enforced locally.
+        const item = group.get(id)
+        if (!item || toValue(item.disabled)) continue
+
         const { selectedIds, mixedIds } = group
         if (toValue(mandatoryOption)) {
           const toRemove = new Set<ID>([id, ...getDescendants(id)])
@@ -551,9 +567,9 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
         }
         mixedIds.delete(id)
         selectedIds.delete(id)
+        // Cascade removal is wholesale — disabled descendants drain too,
+        // so state can never get stuck behind a disabled ticket.
         for (const did of getDescendants(id)) {
-          const desc = group.get(did)
-          if (desc && toValue(desc.disabled)) continue
           mixedIds.delete(did)
           selectedIds.delete(did)
         }
@@ -565,8 +581,6 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   function toggle (ids: ID | ID[]): void {
     if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
-      const item = group.get(id)
-      if (!item || toValue(item.disabled)) continue
       if (selectionMode === 'independent') {
         // Independent: just toggle this node
         group.toggle(id)
@@ -575,12 +589,12 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
         if (isLeaf(id)) {
           group.toggle(id)
         } else {
+          const item = group.get(id)
+          if (!item || toValue(item.disabled)) continue
           const leafIds = getLeafDescendants(id)
           const allSelected = leafIds.every(lid => group.selected(lid))
           if (allSelected) {
-            for (const lid of leafIds) {
-              group.unselect(lid)
-            }
+            removeLeaves(leafIds)
           } else {
             for (const lid of leafIds) {
               group.select(lid)
@@ -610,12 +624,13 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
 
   function unselectAll (): void {
     if (toValue(group.disabled)) return
-    const first = group.selectedIds.values().next().value
     group.selectedIds.clear()
     group.mixedIds.clear()
-    if (toValue(mandatoryOption) && first) {
-      group.selectedIds.add(first)
-      updateAncestors(first)
+    if (!toValue(mandatoryOption)) return
+    const ticket = group.seek('first')
+    if (ticket) {
+      group.selectedIds.add(ticket.id)
+      updateAncestors(ticket.id)
     }
   }
 
@@ -706,10 +721,11 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
 
     const ticket = group.register(item as Partial<GroupTicketInput>) as NestedTicket
 
-    // Override group-level selection methods with cascade-aware versions
+    // Override group-level methods with cascade-aware versions
     ticket.select = () => select(id)
     ticket.unselect = () => unselect(id)
     ticket.toggle = () => toggle(id)
+    ticket.unregister = () => unregister(id)
 
     if (registration.active) {
       activate(id)
@@ -832,6 +848,15 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     group.reset()
   }
 
+  function dispose (): void {
+    children.clear()
+    parents.clear()
+    openedIds.clear()
+    activeIds.clear()
+    rootIds.clear()
+    group.dispose()
+  }
+
   const context = {
     ...group,
     children: children as ReadonlyMap<ID, readonly ID[]>,
@@ -880,6 +905,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     onboard,
     clear,
     reset,
+    dispose,
     get size () {
       return group.size
     },

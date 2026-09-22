@@ -24,10 +24,13 @@
     /** Attributes to bind to the trigger element */
     attrs: {
       'type': 'button' | undefined
+      'role': 'button' | undefined
+      'tabindex': number
       'aria-haspopup': 'dialog'
       'aria-expanded': boolean
       'data-open': true | undefined
       'onClick': () => void
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 </script>
@@ -60,14 +63,24 @@
     context.open()
   }
 
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
   const slotProps = toRef((): AlertDialogActivatorSlotProps => ({
     isOpen: context.isOpen.value,
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
+      'role': as === 'button' ? undefined : 'button',
+      'tabindex': 0,
       'aria-haspopup': 'dialog',
       'aria-expanded': context.isOpen.value,
       'data-open': context.isOpen.value || undefined,
       'onClick': onClick,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
 </script>

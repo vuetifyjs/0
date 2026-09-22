@@ -5,10 +5,15 @@
     "incremental": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "customConditions": ["development"],
+    // Mirrors the `resolve.alias` block in vite.config.ts.
     "paths": {
       "@/*": ["./src/*"],
       "#v0": ["../packages/0/src"],
-      "#v0/*": ["../packages/0/src/*"]
+      "#v0/*": ["../packages/0/src/*"],
+      "#paper": ["../packages/paper/src"],
+      "#paper/*": ["../packages/paper/src/*"],
+      "#emerald": ["../packages/emerald/src"],
+      "#emerald/*": ["../packages/emerald/src/*"]
     },
     "lib": [
       "dom",

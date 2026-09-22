@@ -13,15 +13,15 @@
       :class="ticket.isSelected.value
         ? 'border-primary scale-105 shadow-md'
         : 'border-transparent hover:border-divider'"
-      :style="{ backgroundColor: ticket.value.bg, color: ticket.value.fg }"
+      :style="{ backgroundColor: ticket.value?.bg, color: ticket.value?.fg }"
       @click="ticket.select()"
     >
       <span
         class="size-6 rounded-full mx-auto mb-2 block"
-        :style="{ backgroundColor: ticket.value.accent }"
+        :style="{ backgroundColor: ticket.value?.accent }"
       />
 
-      <span class="text-xs font-medium">{{ ticket.value.name }}</span>
+      <span class="text-xs font-medium">{{ ticket.value?.name }}</span>
     </button>
   </div>
 </template>

@@ -45,11 +45,14 @@
     toggle: () => void
     /** Attributes to bind to the item element */
     attrs: {
+      'role': 'tab'
+      'tabindex': 0 | -1
       'aria-selected': boolean
       'aria-disabled': boolean
       'data-selected': true | undefined
       'data-disabled': true | undefined
       'onClick': () => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
   }
 </script>
@@ -87,6 +90,14 @@
     ticket.toggle()
   }
 
+  // aria-selected implies an interactive element, so keyboard users need
+  // parity with click — Enter/Space activate per the WAI-ARIA APG.
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key !== 'Enter' && e.key !== ' ') return
+    e.preventDefault()
+    onClick()
+  }
+
   onBeforeUnmount(() => {
     step.unregister(ticket.id)
   })
@@ -101,11 +112,14 @@
     unselect: ticket.unselect,
     toggle: ticket.toggle,
     attrs: {
+      'role': 'tab',
+      'tabindex': toValue(isDisabled) ? -1 : 0,
       'aria-selected': toValue(ticket.isSelected),
       'aria-disabled': toValue(isDisabled),
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-disabled': toValue(isDisabled) || undefined,
       'onClick': onClick,
+      'onKeydown': onKeydown,
     },
   }))
 </script>

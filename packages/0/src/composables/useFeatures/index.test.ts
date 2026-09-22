@@ -1,9 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { createStoragePlugin, MemoryStorageAdapter, useStorage } from '#v0/composables/useStorage'
+
 import { createFeatures, createFeaturesPlugin, useFeatures } from './index'
 
 // Utilities
-import { createApp, watchEffect } from 'vue'
+import { createApp, nextTick, watchEffect } from 'vue'
 
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapter } from './adapters'
@@ -384,6 +387,23 @@ describe('createFeatures', () => {
       expect(context.variation('obj-feature')).toBe('blue')
     })
 
+    it('should leave selection alone when sync has only $variation', () => {
+      const context = createFeatures({
+        features: {
+          search: { $value: true, $variation: 'v1' },
+        },
+      })
+
+      expect(context.selectedIds.has('search')).toBe(true)
+
+      context.sync({
+        search: { $variation: 'v2' },
+      })
+
+      expect(context.selectedIds.has('search')).toBe(true)
+      expect(context.variation('search')).toBe('v2')
+    })
+
     it('should unselect object features with $value: false', () => {
       const context = createFeatures({
         features: {
@@ -724,6 +744,768 @@ describe('createFeaturesPlugin', () => {
 
       expect(dispose1).toHaveBeenCalled()
       expect(dispose2).toHaveBeenCalled()
+    })
+  })
+
+  describe('persist/restore', () => {
+    it('should apply a persisted delta without disturbing untouched flags', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        const storage = useStorage()
+        storage.set('features', { enabled: ['feature-b'], disabled: ['feature-c'] })
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+            'feature-b': false,
+            'feature-c': true,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-b')).toBe(true)
+      expect(context.selectedIds.has('feature-c')).toBe(false)
+      // Untouched — keeps its registered default.
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+    })
+
+    it('should not unselect a newly default-enabled flag absent from the delta', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        // Delta written by an older app version that knew nothing of feature-a.
+        useStorage().set('features', { enabled: ['feature-b'] })
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            // Newly enabled-by-default in this version.
+            'feature-a': true,
+            'feature-b': false,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('feature-b')).toBe(true)
+    })
+
+    it('should auto-save the user delta when the selection changes', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      app.runWithContext(() => {
+        const context = useFeatures()
+        context.select('feature-a')
+      })
+
+      await nextTick()
+
+      const stored = app.runWithContext(() => useStorage().get('features').value)
+
+      expect(stored).toEqual({ enabled: ['feature-a'], disabled: [] })
+
+      app.unmount()
+    })
+
+    it('should drop a flag from the delta when toggled back to its default', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.select('feature-a')
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value))
+        .toEqual({ enabled: ['feature-a'], disabled: [] })
+
+      context.unselect('feature-a')
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value)).toEqual({ enabled: [], disabled: [] })
+
+      app.unmount()
+    })
+
+    it('should ignore a malformed persisted value', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        const storage = useStorage()
+        storage.set('features', 'garbage')
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+    })
+
+    it('should ignore the legacy persisted array format', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', ['feature-b'])
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+            'feature-b': false,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('feature-b')).toBe(false)
+    })
+
+    it('should keep only string or number ids from a mixed delta', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        const storage = useStorage()
+        storage.set('features', { enabled: ['feature-a', 42, { evil: true }, null] })
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has(42)).toBe(false)
+    })
+
+    it('should persist a disabled entry when a default-enabled flag is turned off', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      app.runWithContext(() => {
+        useFeatures().unselect('feature-a')
+      })
+
+      await nextTick()
+
+      const stored = app.runWithContext(() => useStorage().get('features').value)
+
+      expect(stored).toEqual({ enabled: [], disabled: ['feature-a'] })
+
+      app.unmount()
+    })
+
+    it('should prune unregistered delta entries from the next persist write', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', { enabled: ['ghost', 'feature-a'] })
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+            'feature-b': false,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('ghost')).toBe(false)
+
+      context.select('feature-b')
+      await nextTick()
+
+      const stored = app.runWithContext(() => useStorage().get('features').value)
+
+      expect(stored).toEqual({ enabled: ['feature-a', 'feature-b'], disabled: [] })
+
+      app.unmount()
+    })
+
+    it('should apply the saved override to a flag registered after restore', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', { disabled: ['late'] })
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.register({ id: 'late', value: true })
+
+      expect(context.selectedIds.has('late')).toBe(false)
+
+      await nextTick()
+
+      const stored = app.runWithContext(() => useStorage().get('features').value)
+
+      expect(stored).toEqual({ enabled: [], disabled: ['late'] })
+
+      app.unmount()
+    })
+
+    it('should keep restored overrides after the first adapter sync', () => {
+      const mockAdapter: FeaturesAdapter = {
+        setup: () => ({
+          'feature-a': false,
+          'feature-b': true,
+        }),
+      }
+
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', { enabled: ['feature-a'] })
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+            'feature-b': false,
+          },
+          persist: true,
+          adapter: mockAdapter,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      // User override wins the adapter's first snapshot.
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      // Untouched — adapter state stands.
+      expect(context.selectedIds.has('feature-b')).toBe(true)
+    })
+
+    it('should apply the saved override to a flag first registered by an adapter', () => {
+      const mockAdapter: FeaturesAdapter = {
+        setup: () => ({
+          remote: true,
+        }),
+      }
+
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', { disabled: ['remote'] })
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          persist: true,
+          adapter: mockAdapter,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.has('remote')).toBe(true)
+      expect(context.selectedIds.has('remote')).toBe(false)
+    })
+
+    it('should not restore when persist is off', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', { enabled: ['feature-b'] })
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+            'feature-b': false,
+          },
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('feature-b')).toBe(false)
+    })
+
+    it('should keep defaults when the delta is empty', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', { enabled: [], disabled: [] })
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+          },
+          persist: true,
+        }),
+      )
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+    })
+
+    it('should not write to storage when persist is off', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+          },
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      app.runWithContext(() => {
+        useFeatures().select('feature-a')
+      })
+
+      await nextTick()
+
+      const stored = app.runWithContext(() => useStorage().get('features').value)
+
+      expect(stored).toBeUndefined()
+
+      app.unmount()
+    })
+
+    it('should not persist changes made through ticket self-methods', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+            'feature-b': true,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.get('feature-a')!.toggle()
+      context.get('feature-b')!.unselect()
+
+      // The state changes take effect in-session…
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('feature-b')).toBe(false)
+
+      await nextTick()
+
+      // …but record no intent, so a reload reverts to defaults.
+      const stored = app.runWithContext(() => useStorage().get('features').value)
+
+      expect(stored).toBeUndefined()
+
+      app.unmount()
+    })
+
+    it('should not persist selectAll', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+            'feature-b': false,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.selectAll()
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('feature-b')).toBe(true)
+
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value)).toBeUndefined()
+
+      app.unmount()
+    })
+
+    it('should not persist unselectAll', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+            'feature-b': true,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.unselectAll()
+
+      expect(context.selectedIds.size).toBe(0)
+
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value)).toBeUndefined()
+
+      app.unmount()
+    })
+
+    it('should not persist toggleAll', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+            'feature-b': false,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.toggleAll()
+
+      expect(context.selectedIds.has('feature-b')).toBe(true)
+
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value)).toBeUndefined()
+
+      app.unmount()
+    })
+
+    it('should restore registration defaults in-session and clear storage on reset', async () => {
+      const adapter = new MemoryStorageAdapter()
+
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', { enabled: ['feature-b'] })
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+            'feature-b': false,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-b')).toBe(true)
+
+      context.reset()
+
+      await nextTick()
+
+      // Intent and storage are cleared; defaults return immediately.
+      expect(app.runWithContext(() => useStorage().get('features').value)).toEqual({ enabled: [], disabled: [] })
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+      expect(context.selectedIds.has('feature-b')).toBe(false)
+
+      app.unmount()
+
+      // A fresh boot on the same storage agrees with the in-session state.
+      const next = createApp({ render: () => null })
+      next.use(createStoragePlugin({ adapter }))
+      next.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+            'feature-b': false,
+          },
+          persist: true,
+        }),
+      )
+
+      const rebooted = next.runWithContext(() => useFeatures())
+
+      expect(rebooted.selectedIds.has('feature-a')).toBe(true)
+      expect(rebooted.selectedIds.has('feature-b')).toBe(false)
+    })
+
+    it('should not resurrect a persisted override registered after a reset', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', { enabled: ['late'] })
+      })
+
+      app.use(createFeaturesPlugin({ persist: true }))
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.reset()
+      context.register({ id: 'late', value: false })
+
+      expect(context.selectedIds.has('late')).toBe(false)
+
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value)).toEqual({ enabled: [], disabled: [] })
+
+      app.unmount()
+    })
+
+    it('should leave a flag disabled after boot unselected on reset', () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+
+      context.upsert('feature-a', { disabled: true })
+      context.reset()
+
+      // Selection ops are guarded on disabled tickets, so the baseline replay
+      // no-ops — the flag stays unselected until re-enabled.
+      expect(context.selectedIds.has('feature-a')).toBe(false)
+
+      app.unmount()
+    })
+
+    it('should let a later adapter update overlay a restored override', async () => {
+      let push!: (flags: Record<string, boolean>) => void
+      const adapter: FeaturesAdapter = {
+        setup: update => {
+          push = update
+          return { 'feature-a': true }
+        },
+      }
+
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', { disabled: ['feature-a'] })
+      })
+
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': true,
+          },
+          persist: true,
+          adapter,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      // Restored override wins the first snapshot…
+      expect(context.selectedIds.has('feature-a')).toBe(false)
+
+      push({ 'feature-a': true })
+
+      // …but a live remote update overlays it, and the state-based delta
+      // then matches the default again, emptying storage.
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value)).toEqual({ enabled: [], disabled: [] })
+
+      app.unmount()
+    })
+
+    it('should drop delta entries independently as flags return to default', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(
+        createFeaturesPlugin({
+          features: {
+            'feature-a': false,
+            'feature-b': false,
+          },
+          persist: true,
+        }),
+      )
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.select('feature-a')
+      context.select('feature-b')
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value))
+        .toEqual({ enabled: ['feature-a', 'feature-b'], disabled: [] })
+
+      context.unselect('feature-a')
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value))
+        .toEqual({ enabled: ['feature-b'], disabled: [] })
+
+      app.unmount()
+    })
+
+    it('should record no intent for toggles on a disabled flag', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+      app.use(createFeaturesPlugin({ persist: true }))
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.register({ id: 'locked', value: false, disabled: true })
+      // A disabled default-enabled flag never auto-selects — its baseline is
+      // the state it actually boots with.
+      context.register({ id: 'sealed', value: true, disabled: true })
+
+      expect(context.selectedIds.has('sealed')).toBe(false)
+
+      context.select('locked')
+      context.toggle('sealed')
+      context.unselect('sealed')
+
+      expect(context.selectedIds.has('locked')).toBe(false)
+      expect(context.selectedIds.has('sealed')).toBe(false)
+
+      await nextTick()
+
+      // No phantom delta entries for ops that no-oped at the model layer.
+      expect(app.runWithContext(() => useStorage().get('features').value))
+        .toEqual({ enabled: [], disabled: [] })
+
+      app.unmount()
+    })
+
+    it('should round-trip a numeric flag id through the delta', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+      app.runWithContext(() => {
+        useStorage().set('features', { enabled: [42] })
+      })
+
+      app.use(createFeaturesPlugin({ persist: true }))
+      app.mount(document.createElement('div'))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      context.register({ id: 42, value: false })
+
+      expect(context.selectedIds.has(42)).toBe(true)
+
+      await nextTick()
+
+      expect(app.runWithContext(() => useStorage().get('features').value))
+        .toEqual({ enabled: [42], disabled: [] })
+
+      app.unmount()
     })
   })
 })

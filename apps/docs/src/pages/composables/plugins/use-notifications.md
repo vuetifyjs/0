@@ -41,6 +41,19 @@ app.use(createNotificationsPlugin())
 app.mount('#app')
 ```
 
+### Persistence
+
+Pass `persist: true` to remember how the user interacted with each notification across reloads. Requires [useStorage](/composables/plugins/use-storage) to be installed first. Only interaction state is stored — a map of notification id to its `readAt` / `seenAt` / `archivedAt` / `snoozedUntil` timestamps under the key `notifications` (the plugin namespace with the `v0:` prefix stripped). Notification content is never stored; your code (or an adapter) stays the source of truth.
+
+```ts main.ts
+import { createStoragePlugin, createNotificationsPlugin } from '@vuetify/v0'
+
+app.use(createStoragePlugin())
+app.use(createNotificationsPlugin({ persist: true }))
+```
+
+Give tickets a stable `id` — saved state is matched by id and merges onto notifications as they register, whether that happens at load or later (adapter pushes, runtime sends). A notification that is never re-registered is not resurrected from storage, and its saved state is pruned on the next write. Expired snoozes and malformed entries are dropped on load.
+
 ## Usage
 
 Once the plugin is installed, use the `useNotifications` composable in any component:
@@ -388,6 +401,10 @@ The `severity` field categorizes notifications by urgency. It maps to ARIA live 
 ??? What's the difference between `send()` and `register()`?
 
 `send()` registers a notification and enqueues it for toast display — use it for real-time, in-the-moment events. `register()` adds it to the registry only, with no toast, which is what you want when loading historical or initial notifications.
+
+??? How do I persist notifications across reloads?
+
+Pass `persist: true` to `createNotificationsPlugin`, and install `createStoragePlugin` first. The saved value is a map of interaction state per notification id (`readAt`, `seenAt`, `archivedAt`, `snoozedUntil`) — never notification content. On load it merges onto notifications as your code or adapter registers them; nothing is created from storage.
 
 ??? How do I keep a notification from auto-dismissing?
 

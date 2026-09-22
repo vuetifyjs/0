@@ -180,6 +180,21 @@ describe('createStep', () => {
         expect(stepper.selectedId.value).toBe('step-3')
       })
 
+      it('should next after removing an earlier explicit-value ticket', () => {
+        const stepper = createStep()
+
+        stepper.onboard([
+          { id: 'a', value: 'A' },
+          { id: 'b', value: 'B' },
+          { id: 'c', value: 'C' },
+        ])
+        stepper.select('b')
+        stepper.unregister('a')
+        stepper.next()
+
+        expect(stepper.selectedId.value).toBe('c')
+      })
+
       it('should not wrap around at end when circular is false (default)', () => {
         const stepper = createStep()
 

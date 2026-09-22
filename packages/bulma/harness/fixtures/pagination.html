@@ -1,0 +1,55 @@
+<!--
+  Source: https://bulma.io/documentation/components/pagination/
+  Bulma version: 1.0.4
+  Canonical documented markup: nav.pagination[role=navigation][aria-label=pagination]
+  with .pagination-previous + .pagination-next as SIBLINGS BEFORE ul.pagination-list
+  (CSS order puts the list visually between them). Current page:
+  a.pagination-link.is-current[aria-current=page] with NO href.
+  Disabled: `is-disabled` class + href removed (anchor, not button).
+-->
+
+<!-- fixture: full pagination with ellipses and current page -->
+<nav class="pagination" role="navigation" aria-label="pagination">
+  <a href="#" class="pagination-previous">Previous</a>
+  <a href="#" class="pagination-next">Next page</a>
+  <ul class="pagination-list">
+    <li>
+      <a href="#" class="pagination-link" aria-label="Goto page 1">1</a>
+    </li>
+    <li>
+      <span class="pagination-ellipsis">&hellip;</span>
+    </li>
+    <li>
+      <a href="#" class="pagination-link" aria-label="Goto page 45">45</a>
+    </li>
+    <li>
+      <a class="pagination-link is-current" aria-label="Page 46" aria-current="page">46</a>
+    </li>
+    <li>
+      <a href="#" class="pagination-link" aria-label="Goto page 47">47</a>
+    </li>
+    <li>
+      <span class="pagination-ellipsis">&hellip;</span>
+    </li>
+    <li>
+      <a href="#" class="pagination-link" aria-label="Goto page 86">86</a>
+    </li>
+  </ul>
+</nav>
+
+<!-- fixture: disabled previous (first page) -->
+<nav class="pagination" role="navigation" aria-label="pagination">
+  <a class="pagination-previous is-disabled" title="This is the first page">Previous</a>
+  <a href="#" class="pagination-next">Next page</a>
+  <ul class="pagination-list">
+    <li>
+      <a class="pagination-link is-current" aria-label="Page 1" aria-current="page">1</a>
+    </li>
+    <li>
+      <a href="#" class="pagination-link" aria-label="Goto page 2">2</a>
+    </li>
+    <li>
+      <a href="#" class="pagination-link" aria-label="Goto page 3">3</a>
+    </li>
+  </ul>
+</nav>

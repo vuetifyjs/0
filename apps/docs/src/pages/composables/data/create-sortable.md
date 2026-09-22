@@ -101,12 +101,12 @@ createSortable's surface is mostly imperative — `move`, `swap`, and `reorder` 
 
 ::: gn-example
 /composables/create-sortable/usePlaylist.ts 1
-/composables/create-sortable/Playlist.vue 2
+/composables/create-sortable/PlaylistQueue.vue 2
 /composables/create-sortable/playlist.vue 3
 
 ### Button and keyboard reorder
 
-A playlist queue reordered two ways from the same state: per-row up and down buttons, and arrow-key presses while a row is focused. Both paths funnel into `sortable.move(id, index)` — the entire mutation surface for this example. The composable owns the order and the move semantics; `Playlist.vue` is pure presentation that calls back into it, so the same logic drives clicks and keystrokes without duplication.
+A playlist queue reordered two ways from the same state: per-row up and down buttons, and arrow-key presses while a row is focused. Both paths funnel into `sortable.move(id, index)` — the entire mutation surface for this example. The composable owns the order and the move semantics; `PlaylistQueue.vue` is pure presentation that calls back into it, so the same logic drives clicks and keystrokes without duplication.
 
 The template iterates `proxy.values` from `useProxyRegistry(sortable)`, a reactive snapshot that re-renders whenever the registry order changes — no manual `watch`, no second copy of the list. Buttons disable at the edges via `:disabled="ticket.index === 0"` and `:disabled="ticket.index === proxy.size - 1"`, and `moveUp` / `moveDown` repeat the bounds check so arrow keys no-op past the ends. Subscribing to the typed `move:ticket` event drives the live status line below the list, and because `TransitionGroup` reuses the keyed DOM nodes, focus rides along with a row as it moves — press the arrow key again to keep nudging it. The `.list-move` transition on `transform` animates the slide.
 
@@ -115,7 +115,7 @@ Reach for this pattern for any user-ordered list where drag is unnecessary: prio
 | File | Role |
 |------|------|
 | `usePlaylist.ts` | Owns the sortable instance, track data, the proxy snapshot, the `move:ticket` status line, and bounds-checked `moveUp` / `moveDown` |
-| `Playlist.vue` | Renders the ordered rows with up/down buttons and translates arrow-key presses into move calls |
+| `PlaylistQueue.vue` | Renders the ordered rows with up/down buttons and translates arrow-key presses into move calls |
 | `playlist.vue` | Wires the composable to the component and shows the live reorder status |
 
 :::

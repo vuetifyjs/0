@@ -1,10 +1,9 @@
 <script setup lang="ts">
   // Framework
-  import maturityData from '#v0/maturity.json'
-  import { MATURITY_LEVELS as levels } from '@/constants/maturity'
+  import { MATURITY as data, MATURITY_LEVELS as levels } from '@/constants/maturity'
 
   // Types
-  import type { Level, MaturityData } from '@/constants/maturity'
+  import type { Level } from '@/constants/maturity'
 
   interface Gate {
     promoter: string
@@ -17,8 +16,6 @@
     /** Requirements to reach this rung from the one above it. Absent on the entry rung. */
     gate?: Gate
   }
-
-  const data = maturityData as MaturityData
 
   function tally (): Record<Level, number> {
     const result: Record<Level, number> = { draft: 0, preview: 0, stable: 0, mature: 0, deprecated: 0 }

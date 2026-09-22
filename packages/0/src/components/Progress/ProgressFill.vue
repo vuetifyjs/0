@@ -34,7 +34,7 @@
     attrs: {
       'data-index': number
       'data-state': 'determinate' | 'indeterminate'
-      'style': { width: string }
+      'style': { width: string } | undefined
     }
   }
 </script>
@@ -69,16 +69,20 @@
   const current = toRef(() => toValue(ticket.value) ?? 0)
   const percent = toRef(() => root.fromValue(current.value))
 
-  const slotProps = toRef((): ProgressFillSlotProps => ({
-    value: current.value,
-    percent: percent.value,
-    index: ticket.index,
-    attrs: {
-      'data-index': ticket.index,
-      'data-state': root.isIndeterminate.value ? 'indeterminate' : 'determinate',
-      'style': { width: `${percent.value}%` },
-    },
-  }))
+  const slotProps = toRef((): ProgressFillSlotProps => {
+    const indeterminate = root.isIndeterminate.value
+
+    return {
+      value: current.value,
+      percent: percent.value,
+      index: ticket.index,
+      attrs: {
+        'data-index': ticket.index,
+        'data-state': indeterminate ? 'indeterminate' : 'determinate',
+        'style': indeterminate ? undefined : { width: `${percent.value}%` },
+      },
+    }
+  })
 </script>
 
 <template>

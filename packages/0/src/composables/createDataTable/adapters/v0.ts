@@ -19,7 +19,7 @@ import { computed, toRef, watch } from 'vue'
 // Types
 import type { DataTableAdapterContext, DataTableAdapterResult } from './adapter'
 
-export class ClientDataTableAdapter<T extends Record<string, unknown>> extends DataTableAdapter<T> {
+export class ClientDataTableAdapter<T extends object> extends DataTableAdapter<T> {
   setup (context: DataTableAdapterContext<T>): DataTableAdapterResult<T> {
     const { search, sortBy, locale, paginationOptions, customSorts } = context
 

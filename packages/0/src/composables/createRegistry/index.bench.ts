@@ -3,7 +3,11 @@
  *
  * Structure:
  * - READ-ONLY operations use shared fixtures (safe, isolates operation cost)
- * - MUTATION operations create fresh fixtures per iteration (includes setup cost)
+ * - WARM operations (upsert, reorder) share a populated fixture and only time
+ *   the operation — the O(n) onboard is not re-paid per iteration. Safe because
+ *   both are deterministic and idempotent-to-target (no state drift).
+ * - FRESH fixtures only where the populate IS the measured op (initialization)
+ *   or the op consumes/dirties the fixture (onboard-then-clear/offboard/reindex)
  * - Tests both 1,000 and 10,000 item datasets
  * - Categories: initialization, lookup, mutation, batch, computed access, seek
  */
@@ -44,8 +48,8 @@ function createPopulatedRegistry (count: number): RegistryContext<RegistryTicket
   return registry
 }
 
-// Reactive variant: keys()/values()/entries() skip the read cache and recompute
-// on every call, so these fixtures isolate the uncached O(n) read cost.
+// Reactive variant: keys()/values()/entries() read through the version-memoized
+// cache; these fixtures isolate the reactive read path (touch signal + cache hit).
 function createReactiveRegistry (count: number): RegistryContext<RegistryTicket> {
   const registry = createRegistry({ reactive: true })
   const items = count === 1000 ? ITEMS_1K : ITEMS_10K
@@ -133,18 +137,22 @@ describe('createRegistry benchmarks', () => {
 
   // ===========================================================================
   // MUTATION OPERATIONS - Single item changes
-  // Fresh fixture per iteration (required - mutations change state)
-  // Measures: setup + operation cost (unavoidable for mutations)
+  // Upsert is WARM: shared populated fixture, upsert an existing id in place —
+  // idempotent, so no growth or drift across iterations. Times only the upsert,
+  // never the O(n) onboard. Register benches stay FRESH: they start from an
+  // empty registry (O(1) construction, no populate to hoist), and registering
+  // into a shared fixture would grow it unbounded.
   // ===========================================================================
   describe('mutation operations', () => {
+    const registry1k = createPopulatedRegistry(1000)
+    const registry10k = createPopulatedRegistry(10_000)
+
     bench('Upsert single item (1,000 items)', () => {
-      const registry = createPopulatedRegistry(1000)
-      registry.upsert(LOOKUP_ID_1K, { value: 'updated' })
+      registry1k.upsert(LOOKUP_ID_1K, { value: 'updated' })
     })
 
     bench('Upsert single item (10,000 items)', () => {
-      const registry = createPopulatedRegistry(10_000)
-      registry.upsert(LOOKUP_ID_10K, { value: 'updated' })
+      registry10k.upsert(LOOKUP_ID_10K, { value: 'updated' })
     })
 
     bench('Register single item', () => {
@@ -161,8 +169,13 @@ describe('createRegistry benchmarks', () => {
 
   // ===========================================================================
   // BATCH OPERATIONS - Bulk actions
-  // Fresh fixture per iteration (required - mutations change state)
-  // Measures: setup + operation cost (realistic for batch workflows)
+  // The onboard-then-{clear,reindex,offboard} benches stay FRESH: the operation
+  // consumes or re-dirties the fixture (clear empties it, offboard shrinks it,
+  // reindex needs the pending-dirty state onboard leaves), so they measure the
+  // whole batch roundtrip by design and can't share a fixture.
+  // Reorder is WARM: reorder() always does full O(n) work (no already-sorted
+  // short-circuit — see createRegistry reorder()) and is deterministic to its
+  // target order, so a shared fixture isolates the reorder from the onboard.
   // ===========================================================================
   describe('batch operations', () => {
     bench('Onboard then clear 1,000 items', () => {
@@ -204,16 +217,15 @@ describe('createRegistry benchmarks', () => {
       registry.offboard(halfIds10k)
     })
 
+    const reorder1k = createPopulatedRegistry(1000)
+    const reorder10k = createPopulatedRegistry(10_000)
+
     bench('Reorder reverse (1,000 items)', () => {
-      const registry = createRegistry()
-      registry.onboard(ITEMS_1K)
-      registry.reorder(PERMUTATION_1K)
+      reorder1k.reorder(PERMUTATION_1K)
     })
 
     bench('Reorder reverse (10,000 items)', () => {
-      const registry = createRegistry()
-      registry.onboard(ITEMS_10K)
-      registry.reorder(PERMUTATION_10K)
+      reorder10k.reorder(PERMUTATION_10K)
     })
   })
 
@@ -264,7 +276,7 @@ describe('createRegistry benchmarks', () => {
   })
 
   // ===========================================================================
-  // REACTIVE ACCESS - Uncached recompute path (reactive: true bypasses the cache)
+  // REACTIVE ACCESS - Version-memoized path (reactive: true tracks one signal)
   // Shared fixture (safe - read-only operations, no state changes)
   // Measures: full O(n) recompute of keys/values/entries on every call (the
   // `computed access` group above measures the cached path), plus the combined

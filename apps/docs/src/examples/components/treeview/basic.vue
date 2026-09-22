@@ -35,7 +35,7 @@
             v-if="item.children"
             class="inline-flex items-center border-none bg-transparent p-0 cursor-pointer text-on-surface hover:text-primary"
           >
-            <Treeview.Cue v-slot="{ attrs }">
+            <Treeview.Cue v-slot="{ attrs }" renderless>
               <svg
                 v-bind="attrs"
                 class="size-3.5 opacity-60 transition-transform data-[state=open]:rotate-90"

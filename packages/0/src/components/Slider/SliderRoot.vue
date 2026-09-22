@@ -76,6 +76,10 @@
     name?: string
     /** Associate with form by ID */
     form?: string
+    /** Accessible name for the group */
+    label?: string
+    /** ID of element that labels this group */
+    ariaLabelledby?: string
     /** Namespace for context provision */
     namespace?: string
   }
@@ -113,6 +117,9 @@
     ceil: (index: number) => void
     /** Pre-computed attributes for binding */
     attrs: {
+      'role': 'group'
+      'aria-label': string | undefined
+      'aria-labelledby': string | undefined
       'data-disabled': true | undefined
       'data-readonly': true | undefined
       'data-orientation': 'horizontal' | 'vertical'
@@ -152,6 +159,8 @@
     crossover = false,
     name,
     form,
+    label,
+    ariaLabelledby,
     namespace = 'v0:slider:root',
   } = defineProps<SliderRootProps>()
 
@@ -280,6 +289,9 @@
     floor: slider.floor,
     ceil: slider.ceil,
     attrs: {
+      'role': 'group',
+      'aria-label': label || undefined,
+      'aria-labelledby': ariaLabelledby || undefined,
       'data-disabled': isDisabled.value ? true : undefined,
       'data-readonly': isReadonly.value ? true : undefined,
       'data-orientation': toValue(slider.orientation),

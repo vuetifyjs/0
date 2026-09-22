@@ -1,13 +1,13 @@
 <script setup lang="ts">
   // Composables
-  import { useThemeToggle } from '@/composables/useThemeToggle'
+  import { useThemeToggleController } from '@/composables/useThemeToggle'
 
   // Utilities
   import { toRef } from 'vue'
 
-  const toggle = useThemeToggle()
+  const toggle = useThemeToggleController()
   const active = toRef(() =>
-    !toggle.isAccessibilityActive.value && toggle.palette.value === 'tailwind',
+    !toggle.isOverrideActive.value && toggle.palette.value === 'tailwind',
   )
 </script>
 

@@ -30,6 +30,12 @@ export interface MaturityData {
 }
 
 /**
+ * The maturity inventory, typed once. Import this rather than re-importing
+ * `#v0/maturity.json` and re-casting it at each consumer.
+ */
+export const MATURITY = maturityData as MaturityData
+
+/**
  * Single source of truth for level display. Two color fields on purpose: the
  * roadmap matrix styles inline (and parses the hex for its blended group dot),
  * while the page chip applies a utility class through DocsMetaItem. Keep both in
@@ -51,10 +57,9 @@ function countShipped (bucket: Record<string, MaturityEntry>): number {
   return Object.values(bucket).filter(entry => entry.level !== 'draft').length
 }
 
-const data = maturityData as MaturityData
-const composable = countShipped(data.composables)
-const component = countShipped(data.components)
-const utility = countShipped(data.utilities)
+const composable = countShipped(MATURITY.composables)
+const component = countShipped(MATURITY.components)
+const utility = countShipped(MATURITY.utilities)
 
 /** Counts of shipped (non-draft) features by type, derived from `maturity.json` — the single inventory source. */
 export const MATURITY_COUNTS: Record<MaturityCountKey, number> = {

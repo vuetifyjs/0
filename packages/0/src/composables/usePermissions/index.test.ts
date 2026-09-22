@@ -336,6 +336,57 @@ describe('createPermissions', () => {
         expect(permissions.can('user', 'read', 'posts')).toBe(true)
       })
     })
+
+    // Guards the UNSAFE_KEYS skips at index.ts role/action/subject; without them a
+    // `__proto__` role walks record['__proto__'] -> Object.prototype and pollutes it.
+    // JSON.parse yields an own-enumerable `__proto__`; an object literal would not.
+    describe('prototype pollution protection', () => {
+      afterEach(() => {
+        delete (Object.prototype as any).read
+        delete (Object.prototype as any).polluted
+        delete (Object.prototype as any).x
+      })
+
+      it('should skip an unsafe role key without polluting Object.prototype', () => {
+        const malicious = JSON.parse('{"__proto__":[["read","polluted",true]],"admin":[["read","users"]]}')
+        const permissions = createPermissions({ permissions: malicious })
+
+        expect(({} as any).read).toBeUndefined()
+        expect(permissions.can('__proto__', 'read', 'polluted')).toBe(false)
+        // A legit role declared alongside the malicious key still registers.
+        expect(permissions.can('admin', 'read', 'users')).toBe(true)
+      })
+
+      it('should skip constructor and prototype role keys', () => {
+        const permissions = createPermissions({
+          permissions: JSON.parse('{"constructor":[["read","users"]],"prototype":[["read","users"]]}'),
+        })
+
+        expect(permissions.can('constructor', 'read', 'users')).toBe(false)
+        expect(permissions.can('prototype', 'read', 'users')).toBe(false)
+        expect(({} as any).polluted).toBeUndefined()
+      })
+
+      it('should skip an unsafe action key without polluting Object.prototype', () => {
+        const permissions = createPermissions({
+          permissions: JSON.parse('{"admin":[["__proto__","x",true],["read","users"]]}'),
+        })
+
+        expect(({} as any).x).toBeUndefined()
+        expect(permissions.can('admin', '__proto__', 'x')).toBe(false)
+        expect(permissions.can('admin', 'read', 'users')).toBe(true)
+      })
+
+      it('should skip an unsafe subject key without polluting Object.prototype', () => {
+        const permissions = createPermissions({
+          permissions: JSON.parse('{"admin":[["read","__proto__",true],["read","users"]]}'),
+        })
+
+        expect(permissions.can('admin', 'read', '__proto__')).toBe(false)
+        expect(permissions.can('admin', 'read', 'users')).toBe(true)
+        expect(({} as any).polluted).toBeUndefined()
+      })
+    })
   })
 
   describe('createPermissionsContext', () => {

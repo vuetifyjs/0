@@ -17,12 +17,29 @@
   import { createSelection } from '#v0/composables/createSelection'
   import { useProxyModel } from '#v0/composables/useProxyModel'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
+  import { isUndefined } from '#v0/utilities'
   import { toRef, toValue } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { SelectionContext, SelectionTicket } from '#v0/composables/createSelection'
+  import type { MaybeRefOrGetter } from 'vue'
+
+  /** Ticket for button items with element reference for focus management */
+  export interface ButtonTicket extends SelectionTicket {
+    /** Element reference for group focus management */
+    el?: MaybeRefOrGetter<Element | null | undefined>
+  }
+
+  /** Imperative handle exposed by Button.Group. */
+  export interface ButtonGroupExpose {
+    /** Focus the selected button, or the first if none is selected. */
+    focus: (options?: FocusOptions) => void
+  }
 
   export interface ButtonGroupProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -58,7 +75,7 @@
     }
   }
 
-  export const [useButtonGroup, provideButtonGroup] = createContext<SelectionContext<SelectionTicket>>()
+  export const [useButtonGroup, provideButtonGroup] = createContext<SelectionContext<ButtonTicket>>()
 </script>
 
 <script lang="ts" setup generic="T = unknown">
@@ -86,7 +103,7 @@
 
   const model = defineModel<T | T[]>()
 
-  const selection = createSelection({
+  const selection = createSelection<ButtonTicket>({
     disabled: toRef(() => disabled),
     multiple: toRef(() => multiple),
     mandatory: toRef(() => mandatory),
@@ -96,6 +113,14 @@
   useProxyModel(selection, model, { multiple: toRef(() => multiple) })
 
   provideButtonGroup(namespace, selection)
+
+  function focus (options?: FocusOptions) {
+    const id = [...selection.selectedIds][0]
+    const ticket = isUndefined(id) ? selection.seek('first') : selection.get(id)
+    ;(toElement(toValue(ticket?.el)) as HTMLElement | undefined)?.focus(options)
+  }
+
+  defineExpose<ButtonGroupExpose>({ focus })
 
   const slotProps = toRef((): ButtonGroupSlotProps => ({
     isDisabled: toValue(selection.disabled),

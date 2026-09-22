@@ -41,7 +41,9 @@ Headless image component with state-driven placeholder and error fallback. Track
 <template>
   <Image.Root>
     <Image.Img />
+
     <Image.Placeholder />
+
     <Image.Fallback />
   </Image.Root>
 </template>

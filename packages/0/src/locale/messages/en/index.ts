@@ -26,6 +26,7 @@ export default {
     indicatorLabel: '+{count} more',
   },
   Breadcrumbs: {
+    expand: 'Show {count} more breadcrumbs',
     label: 'Breadcrumbs',
   },
   Button: {
@@ -42,12 +43,27 @@ export default {
     progressLabel: 'Carousel progress',
     slide: 'Slide {current} of {size}',
   },
+  Combobox: {
+    noResults: 'No results',
+  },
+  DataGrid: {
+    resizeHandle: 'Resize column',
+  },
   Dialog: {
     close: 'Close',
+  },
+  Input: {
+    required: 'Required',
   },
   NumberField: {
     decrement: 'Decrement',
     increment: 'Increment',
+    label: 'Number',
+  },
+  Otp: {
+    invalid: 'Invalid code',
+    itemLabel: 'Digit {index} of {length}',
+    label: 'Verification code',
   },
   Pagination: {
     currentPage: 'Page {page}, current',
@@ -60,9 +76,18 @@ export default {
     status: 'Page {page} of {pages}',
   },
   Rating: {
+    label: 'Rating',
     valueText: '{value} of {size} stars',
+  },
+  Slider: {
+    label: 'Slider',
   },
   Snackbar: {
     close: 'Dismiss',
+  },
+  Splitter: {
+    handle: 'Resize',
+    releaseToHide: 'Release to hide',
+    releaseToOpen: 'Release to open',
   },
 } as const

@@ -1,13 +1,25 @@
-import { defineConfig, presetWind4 } from 'unocss'
+import { defineConfig, presetIcons, presetWind4 } from 'unocss'
 
 export default defineConfig({
-  presets: [presetWind4()],
+  presets: [
+    presetWind4(),
+    // Settings → Icons previews + any host chrome using i-{collection}-*
+    presetIcons({
+      cdn: 'https://esm.sh/',
+      scale: 1.2,
+      extraProperties: {
+        'display': 'inline-block',
+        'vertical-align': 'middle',
+      },
+    }),
+  ],
   shortcuts: {
     'fade-interactive': 'opacity-50 hover:opacity-80 focus-visible:opacity-80 transition-opacity',
     'bg-glass-surface': '[background:var(--v0-glass-surface)] backdrop-blur-12',
   },
   preflights: [
     {
+      // Inline <code> chips (settings copy, export help). Shiki is for fences.
       getCSS: () => `
         button:not(:disabled),
         [role="button"]:not(:disabled) {
@@ -17,6 +29,14 @@ export default defineConfig({
         *:focus-visible {
           outline: 2px solid var(--v0-primary);
           outline-offset: 2px;
+        }
+
+        :not(pre) > code {
+          background: var(--v0-surface-tint);
+          color: var(--v0-on-surface-variant);
+          padding: 0.125rem 0.375rem;
+          border-radius: 0.25rem;
+          font-size: 0.875em;
         }
 
         @media (prefers-reduced-motion: reduce) {

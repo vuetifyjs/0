@@ -23,14 +23,18 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
   import { useId } from '#v0/utilities'
-  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
-  import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+  import type { GroupContext } from '#v0/composables/createGroup'
   import type { ID } from '#v0/types'
+  import type { SwitchTicket } from './SwitchGroup.vue'
   import type { MaybeRefOrGetter, Ref } from 'vue'
 
   /** Visual state of the switch for styling purposes */
@@ -119,7 +123,7 @@
     attrs: {
       'type': 'button' | undefined
       'role': 'switch'
-      'aria-checked': boolean | 'mixed'
+      'aria-checked': boolean
       'aria-disabled': boolean
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
@@ -166,7 +170,7 @@
     groupNamespace = 'v0:switch:group',
   } = defineProps<SwitchRootProps<V>>()
 
-  let group: GroupContext<GroupTicket> | null = null
+  let group: GroupContext<SwitchTicket> | null = null
   try {
     group = useSwitchGroup(groupNamespace)
   } catch {
@@ -175,7 +179,10 @@
 
   const model = defineModel<boolean>()
 
-  const ticket = group?.register({ id, value, disabled: () => toValue(disabled) ?? false, indeterminate: () => toValue(indeterminate) ?? false })
+  const atomRef = useTemplateRef<AtomExpose>('atom')
+  const el = toRef(() => toElement(atomRef.value?.element) ?? undefined)
+
+  const ticket = group?.register({ id, value, disabled: () => toValue(disabled) ?? false, indeterminate: () => toValue(indeterminate) ?? false, el })
 
   const isChecked = toRef(() => ticket
     ? toValue(ticket.isSelected)
@@ -282,7 +289,7 @@
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
       'role': 'switch',
-      'aria-checked': isMixed.value ? 'mixed' : isChecked.value,
+      'aria-checked': !isMixed.value && isChecked.value,
       'aria-disabled': isDisabled.value,
       'aria-label': label || undefined,
       'aria-labelledby': ariaLabelledby || undefined,
@@ -295,10 +302,17 @@
       'onKeydown': onKeydown,
     },
   }))
+
+  defineExpose<AtomExpose>({
+    get element () {
+      return (atomRef.value?.element ?? null) as AtomExpose['element']
+    },
+  })
 </script>
 
 <template>
   <Atom
+    ref="atom"
     v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless

@@ -43,6 +43,7 @@
       'id': string
       'popover': ''
       'role': 'listbox'
+      'aria-labelledby': string
       'aria-multiselectable': true | undefined
       'tabindex': -1
       'style': Record<string, string>
@@ -77,6 +78,7 @@
       ...context.popover.contentAttrs.value,
       'id': context.listboxId,
       'role': 'listbox',
+      'aria-labelledby': context.activatorId,
       'aria-multiselectable': context.multiple || undefined,
       'tabindex': -1,
       'style': context.popover.contentStyles.value,

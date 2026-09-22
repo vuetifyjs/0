@@ -2,35 +2,13 @@
 import { useAppStore } from '@/stores/app'
 
 // Utilities
+import { findNav } from '@/utilities/nav'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-
-// Types
-import type { NavItem } from '@/stores/app'
 
 export interface BreadcrumbItem {
   text: string
   to?: string
-}
-
-function findNavPath (items: NavItem[], targetPath: string): Array<{ name: string, to?: string }> | null {
-  for (const item of items) {
-    if ('divider' in item) continue
-
-    if ('to' in item && item.to === targetPath) {
-      return [{ name: item.name }]
-    }
-
-    if ('children' in item && item.children) {
-      const childPath = findNavPath(item.children, targetPath)
-      if (childPath) {
-        const entry: { name: string, to?: string } = { name: item.name }
-        if ('to' in item) entry.to = item.to
-        return [entry, ...childPath]
-      }
-    }
-  }
-  return null
 }
 
 export function useBreadcrumbItems () {
@@ -40,21 +18,22 @@ export function useBreadcrumbItems () {
 
   return computed<BreadcrumbItem[]>(() => {
     const path = route.path.replace(/\/$/, '') || '/'
-    const navPath = findNavPath(store.nav, path)
+    const navPath = findNav(store.nav, path)
 
     if (navPath) {
       return [
         { text: 'Home', to: '/' },
         ...navPath.map((entry, i) => {
           const isLast = i === navPath.length - 1
-          if (isLast || !entry.to) return { text: entry.name }
+          const to = 'to' in entry ? entry.to : undefined
+          if (isLast || !to) return { text: entry.name }
 
-          const { matched } = router.resolve(entry.to)
+          const { matched } = router.resolve(to)
           const hasPage = matched.some(r => !r.path.includes('*'))
 
           return {
             text: entry.name,
-            to: hasPage ? entry.to : undefined,
+            to: hasPage ? to : undefined,
           }
         }),
       ]

@@ -8,7 +8,7 @@
   import { themes, type ThemeDefinition } from '@/themes'
 
   // Utilities
-  import { reactive, toRef, watch } from 'vue'
+  import { reactive, shallowRef, toRef, watch } from 'vue'
 
   const props = defineProps<{
     theme?: ThemeDefinition | null
@@ -84,6 +84,23 @@
     colors: { ...(props.theme?.colors ?? themes.light.colors) } as Record<string, string>,
   })
 
+  // Scrollbar styling is opt-in per theme, derived from key presence — the
+  // stored model stays colors-only, no flag. New themes seed from a palette
+  // whose colors now carry `scrollbar-thumb`, so the seed is remembered as
+  // the switch-on prefill and stripped from the draft: only a theme the
+  // user saved with the key starts with the switch on.
+  const seed = shallowRef(draft.colors['scrollbar-thumb'])
+  const styled = shallowRef(isEditingExisting.value && !!draft.colors['scrollbar-thumb'])
+  if (!styled.value) delete draft.colors['scrollbar-thumb']
+
+  watch(styled, value => {
+    if (value) {
+      draft.colors['scrollbar-thumb'] ||= seed.value ?? (draft.dark ? '#505050' : '#b0b0b0')
+    } else {
+      delete draft.colors['scrollbar-thumb']
+    }
+  })
+
   // Real-time preview - watch draft changes and apply them
   watch(
     () => ({ colors: { ...draft.colors }, dark: draft.dark }),
@@ -95,12 +112,16 @@
   customThemes.preview(draft.colors, draft.dark)
 
   function onSave () {
+    const colors = { ...draft.colors }
+    // Scrollbar is opt-in: with the switch off or the value empty the key
+    // must not persist, even if a color lingers in editor state.
+    if (!styled.value || !colors['scrollbar-thumb']) delete colors['scrollbar-thumb']
     const theme: CustomTheme = {
       id: props.theme?.id ?? '',
       label: draft.label,
       icon: 'theme-custom',
       dark: draft.dark,
-      colors: { ...draft.colors },
+      colors,
       custom: true,
     }
     emit('save', theme)
@@ -122,6 +143,10 @@
     const baseId = draft.dark ? 'dark' : 'light'
     const resolvedColors = themeSystem.colors.value[baseId]
     draft.colors = { ...(resolvedColors ?? themes[baseId].colors) }
+    // The reseed carries the base theme's scrollbar value; it becomes the
+    // new prefill, and stays in the draft only while the switch is on
+    seed.value = draft.colors['scrollbar-thumb']
+    if (!styled.value) delete draft.colors['scrollbar-thumb']
   }
 </script>
 
@@ -198,6 +223,21 @@
           :label="COLOR_LABELS[colorKey]"
         />
       </div>
+    </div>
+
+    <!-- Scrollbar -->
+    <div class="space-y-2">
+      <AppSettingsToggle
+        v-model="styled"
+        description="Off uses the browser's native scrollbar"
+        label="Style scrollbar"
+      />
+
+      <AppSettingsColorInput
+        v-if="styled"
+        v-model="draft.colors['scrollbar-thumb']"
+        label="Scrollbar"
+      />
     </div>
 
     <!-- Actions -->

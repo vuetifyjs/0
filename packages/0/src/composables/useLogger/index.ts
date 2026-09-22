@@ -64,6 +64,8 @@ export interface LoggerContext {
   enabled: () => boolean
   enable: () => void
   disable: () => void
+  /** Active logger adapter. */
+  adapter: LoggerAdapter
 }
 
 export interface LoggerOptions {
@@ -191,6 +193,7 @@ export function createLogger (options: LoggerOptions = {}): LoggerContext {
     enabled,
     enable,
     disable,
+    adapter,
   } as LoggerContext
 }
 
@@ -215,6 +218,7 @@ function createFallbackLogger (namespace = NAMESPACE): LoggerContext {
     enabled: () => true,
     enable: () => {},
     disable: () => {},
+    adapter: new V0LoggerAdapter({ prefix: namespace }),
   } as LoggerContext
 }
 
@@ -243,6 +247,11 @@ const [createLoggerContext, createLoggerPlugin, useLoggerContext] =
     options => createLogger(options),
     {
       fallback: ns => createFallbackLogger(ns),
+      inspect: ctx => ({
+        level: ctx.current(),
+        enabled: ctx.enabled(),
+        adapter: ctx.adapter.constructor.name,
+      }),
       setup: (context, _app, _options) => {
         if (typeof __DEV__ !== 'undefined' && __DEV__ && IN_BROWSER) {
           ;(window as unknown as Record<string, unknown>).__v0Logger__ = context

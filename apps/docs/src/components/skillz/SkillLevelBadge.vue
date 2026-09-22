@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  // Components
-  import DocsBadge from '@/components/docs/DocsBadge.vue'
+  // Framework
+  import { GnDocsBadge } from '@paper/genesis'
 
   import { SKILL_LEVEL_META } from '@/types/skill'
 
@@ -30,13 +30,13 @@
 </script>
 
 <template>
-  <DocsBadge
-    :color="meta.color"
-    :icon="meta.icon"
-    :icon-size
-    :label="meta.label"
-    :show-icon
-    :show-label
-    :title="meta.title"
-  />
+  <AppTooltip as="span" :text="meta.title">
+    <GnDocsBadge :color="meta.color">
+      <template v-if="showIcon" #icon>
+        <AppIcon :icon="meta.icon" :size="iconSize" />
+      </template>
+
+      <template v-if="showLabel">{{ meta.label }}</template>
+    </GnDocsBadge>
+  </AppTooltip>
 </template>

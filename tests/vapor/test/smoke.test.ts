@@ -10,11 +10,11 @@ import type { VaporMount } from './mount'
 
 import Counter from '../src/Counter.vue'
 
-// Smoke test: proves the beta toolchain (vue@3.6 + @vue/runtime-vapor +
+// Smoke test: proves the pre-release toolchain (vue@3.6 + @vue/runtime-vapor +
 // @vitejs/plugin-vue) can compile a <script setup vapor> SFC, mount it, and
 // observe reactive DOM updates. Nothing v0-specific here — if this fails, the
 // harness is broken, not v0.
-describe('vapor toolchain smoke', () => {
+describe('vapor smoke', () => {
   let wrapper: VaporMount
 
   afterEach(() => {

@@ -25,9 +25,12 @@
     /** Attributes to bind to the cancel button element */
     attrs: {
       'type': 'button' | undefined
+      'role': 'button' | undefined
+      'tabindex': number
       'disabled': boolean | undefined
       'data-disabled': '' | undefined
       'onClick': () => void
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 </script>
@@ -40,7 +43,7 @@
   import { useAlertDialogContext } from './AlertDialogRoot.vue'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { onMounted, onUnmounted, toRef, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'AlertDialogCancel' })
 
@@ -57,24 +60,45 @@
 
   const context = useAlertDialogContext(namespace)
 
+  const cancelRef = useTemplateRef('cancel')
+
+  onMounted(() => {
+    context.cancelEl.value = (cancelRef.value?.element as HTMLElement | null) ?? null
+  })
+
+  onUnmounted(() => {
+    context.cancelEl.value = null
+  })
+
   function onClick () {
     if (disabled) return
     context.close()
+  }
+
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onClick()
+    }
   }
 
   const slotProps = toRef((): AlertDialogCancelSlotProps => ({
     isOpen: context.isOpen.value,
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
-      'disabled': disabled || undefined,
+      'role': as === 'button' ? undefined : 'button',
+      'tabindex': disabled ? -1 : 0,
+      'disabled': as === 'button' ? (disabled || undefined) : undefined,
       'data-disabled': disabled ? '' : undefined,
       'onClick': onClick,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
 </script>
 
 <template>
   <Atom
+    ref="cancel"
     :as
     :renderless
     v-bind="slotProps.attrs"

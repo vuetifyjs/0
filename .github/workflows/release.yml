@@ -2,6 +2,10 @@ name: Release
 
 on:
   push:
+    # master is the sole release branch. Under the master/dev/next model,
+    # `dev` (features/minor) and `next` (breaking/major) accumulate work and
+    # merge INTO master at each minor/major cut — the merge is what triggers
+    # publishing. Do NOT add dev/next here; they must not publish directly.
     branches:
       - master
 

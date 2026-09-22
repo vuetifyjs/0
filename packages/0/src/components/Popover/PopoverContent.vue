@@ -47,7 +47,8 @@
   import { usePopoverContext } from './PopoverRoot.vue'
 
   // Utilities
-  import { toRef, useTemplateRef } from 'vue'
+  import { isUndefined } from '#v0/utilities'
+  import { toRef, useTemplateRef, watch } from 'vue'
 
   defineOptions({ name: 'PopoverContent' })
 
@@ -69,19 +70,23 @@
 
   const ref = useTemplateRef('ref')
 
+  watch(() => positionArea, value => {
+    if (!isUndefined(value)) context.positionArea.value = value
+  }, { immediate: true })
+
+  watch(() => positionTry, value => {
+    if (!isUndefined(value)) context.positionTry.value = value
+  }, { immediate: true })
+
   const id = toRef(() => _id ?? context.id)
   const style = toRef(() => {
-    if (_id) {
-      return {
-        'position': 'fixed',
-        'margin': 'unset',
-        'inset-area': positionArea ?? 'bottom',
-        'position-area': positionArea ?? 'bottom',
-        'position-anchor': `--${String(_id).replace(/[^a-zA-Z0-9_-]/g, '')}`,
-        'position-try-fallbacks': positionTry ?? 'most-width bottom',
-      }
+    const styles = context.contentStyles.value
+    if (isUndefined(_id)) return styles
+    // Custom id pairs with Activator `target`; position-anchor must match that id, not Root's.
+    return {
+      ...styles,
+      'position-anchor': `--${String(_id).replace(/[^a-zA-Z0-9_-]/g, '')}`,
     }
-    return context.contentStyles.value
   })
 
   context.attach(() => ref.value?.element)

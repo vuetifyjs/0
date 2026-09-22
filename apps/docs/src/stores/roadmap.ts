@@ -3,7 +3,7 @@
 import { createStorage, isArray, isNull, useLogger } from '@vuetify/v0'
 
 import { CACHE_TTL } from '@/constants/cache'
-import { type ResolvedFeature, auditBuckets, featuresFor } from '@/constants/roadmap-buckets'
+import { type ResolvedFeature, auditBuckets, dateFor, featuresFor } from '@/constants/roadmap-buckets'
 
 // Utilities
 import { defineStore } from 'pinia'
@@ -21,6 +21,13 @@ export interface Milestone extends GitHubMilestone {
   issues?: GitHubIssue[]
   issuesLoading?: boolean
   features?: ResolvedFeature[]
+  /**
+   * Display date: the published calendar date for this milestone, falling back
+   * to GitHub `due_on` for milestones with no calendar entry (e.g. historical
+   * v0.x releases). The calendar constant is the source of truth for v1.x — see
+   * `dateFor`.
+   */
+  date?: string | null
 }
 
 interface State {
@@ -105,8 +112,8 @@ export const useRoadmapStore = defineStore('roadmap', {
       // Check cache first
       const cached = storage.get<Milestone[] | null>('milestones', null)
       if (isArray(cached.value)) {
-        // Re-resolve features on read so bucket edits reflect without waiting for cache TTL.
-        this.milestones = cached.value.map(m => ({ ...m, features: featuresFor(m.title) }))
+        // Re-resolve features and date on read so bucket edits reflect without waiting for cache TTL.
+        this.milestones = cached.value.map(m => ({ ...m, features: featuresFor(m.title), date: dateFor(m.title) ?? m.due_on }))
         return
       }
 
@@ -139,7 +146,7 @@ export const useRoadmapStore = defineStore('roadmap', {
         this.milestones = [
           ...assignHorizons(openMilestones),
           ...closedMilestones.map(m => ({ ...m, horizon: 'done' as TimeHorizon })),
-        ].map(m => ({ ...m, features: featuresFor(m.title) }))
+        ].map(m => ({ ...m, features: featuresFor(m.title), date: dateFor(m.title) ?? m.due_on }))
 
         storage.set('milestones', this.milestones)
       } catch (error: unknown) {

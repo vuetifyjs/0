@@ -21,6 +21,23 @@ vi.mock('vue', async () => {
 const mockProvide = vi.mocked(provide)
 const mockInject = vi.mocked(inject)
 
+interface RuleCall {
+  value: unknown
+  resolve: (result: boolean | string) => void
+}
+
+function createRule () {
+  const calls: RuleCall[] = []
+
+  function rule (value: unknown): Promise<boolean | string> {
+    return new Promise(resolve => {
+      calls.push({ value, resolve })
+    })
+  }
+
+  return { calls, rule }
+}
+
 describe('createForm', () => {
   it('should register a validation context', () => {
     const form = createForm()
@@ -166,6 +183,50 @@ describe('createForm', () => {
 
       await promise
       expect(form.isValidating.value).toBe(false)
+    })
+
+    it('should return true from concurrent submits when the latest field validation passes', async () => {
+      const form = createForm()
+      const val = shallowRef('valid')
+      const { calls, rule } = createRule()
+
+      const validation = createValidation({ value: val, rules: [rule] })
+      form.register({ value: validation })
+
+      const first = form.submit()
+      const second = form.submit()
+
+      calls[1]!.resolve(true)
+      const secondResult = await second
+
+      calls[0]!.resolve(true)
+      const firstResult = await first
+
+      expect(secondResult).toBe(true)
+      expect(firstResult).toBe(true)
+      expect(form.isValid.value).toBe(true)
+    })
+
+    it('should not return false when a field validation supersedes submit validation', async () => {
+      const form = createForm()
+      const val = shallowRef('valid')
+      const { calls, rule } = createRule()
+
+      const validation = createValidation({ value: val, rules: [rule] })
+      form.register({ value: validation })
+
+      const submit = form.submit()
+      const field = validation.validate()
+
+      calls[1]!.resolve(true)
+      const fieldResult = await field
+
+      calls[0]!.resolve(true)
+      const submitResult = await submit
+
+      expect(fieldResult).toBe(true)
+      expect(submitResult).toBe(true)
+      expect(form.isValid.value).toBe(true)
     })
   })
 

@@ -32,14 +32,14 @@
 </script>
 
 <template>
-  <button
+  <AppTooltip
+    aria-label="Toggle filter"
     :aria-pressed="checked"
     class="w-5 h-5 rounded border flex items-center justify-center cursor-pointer transition-colors"
     :class="checked ? colorClass : 'border-divider hover:border-on-surface-variant'"
-    title="Toggle filter"
-    type="button"
+    text="Toggle filter"
     @click="levelFilter.toggle(level)"
   >
     <AppIcon v-if="checked" icon="check" size="14" />
-  </button>
+  </AppTooltip>
 </template>

@@ -18,7 +18,7 @@ related:
 
 # createBreadcrumbs
 
-A composable that extends `createSingle` for breadcrumb navigation with automatic path truncation.
+Manage a breadcrumb trail with automatic path truncation — selecting an earlier crumb drops everything after it.
 
 <DocsPageFeatures :frontmatter />
 

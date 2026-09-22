@@ -32,7 +32,7 @@ The most prominent placement in Vuetify0 — one company at a time, at the top o
 The Primary Sponsor slot is the most prominent placement in the Vuetify0 ecosystem — one company, at the top of the docs and the README, the name associated with the framework. It isn't ad inventory; Vuetify0 doesn't run ads, and there are no plans to. It's for the team whose product runs on `@vuetify/v0`, or is being built to: the people shipping against it in production or planning a build on top of it, filing issues, with a direct stake in the framework staying healthy and actively maintained.
 
 > [!NOTE]
-> Vuetify0 is the foundation for Vuetify 5 and the Paper design system family. Sponsoring Vuetify0 directly funds work that touches the entire ecosystem — not just the piece you're using today.
+> Vuetify 4 depends on Vuetify0 directly from 4.2.0 onward, and Vuetify0 is the foundation for the Paper design system family and for Vuetify 5. Sponsoring Vuetify0 directly funds work that touches the entire ecosystem — not just the piece you're using today.
 
 If that's you, sponsoring funds the work directly and makes the relationship visible — to your engineering org, to prospective hires, and to every other team evaluating Vuetify0 for the same reasons you are.
 

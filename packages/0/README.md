@@ -7,7 +7,13 @@
 
 <p align="center">
   <a href="https://codecov.io/github/vuetifyjs/0">
-    <img src="https://img.shields.io/codecov/c/github/vuetifyjs/0" alt="Coverage">
+    <!--
+      shields.io/codecov scrapes Codecov's graph/badge.svg, which has been stuck
+      on "unknown" for this repo even when API v2 repo totals are complete
+      (~99%). Point at the same Codecov numbers via the public API instead —
+      still their signal, not a self-hosted %.
+    -->
+    <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.codecov.io%2Fapi%2Fv2%2Fgithub%2Fvuetifyjs%2Frepos%2F0%2F&query=%24.totals.coverage&suffix=%25&label=coverage&color=brightgreen" alt="Coverage">
   </a>
   <a href="https://www.npmjs.com/package/@vuetify/v0">
     <img src="https://img.shields.io/npm/dt/@vuetify/v0.svg" alt="Downloads">
@@ -28,11 +34,7 @@
 
 Headless Vue 3 UI primitives and composables for building modern applications and design systems. `@vuetify/v0` is the foundation of the Vuetify ecosystem, offering lightweight, unstyled building blocks with full TypeScript support and accessibility features built-in.
 
-> **Note:** v0 is a release candidate — the v1 stable set is locked. Install with `npm i @vuetify/v0@rc`. Preview APIs may still see minor, documented changes before the stable release.
-
-## Primary Sponsor
-
-This spot is open. Vuetify0 accepts one Primary Sponsor at a time — $2,000/mo gets your logo on the Vuetify0 docs site (home page + desktop sidebar on every docs page) and this README. [Become the Primary Sponsor →](https://0.vuetifyjs.com/sponsor)
+> **Note:** v0 is stable — `v1.0.0` shipped July 22, 2026 and the stable API surface is locked under [SemVer](https://semver.org/). Preview-level APIs (flagged in the [roadmap](https://0.vuetifyjs.com/roadmap)) may still see documented changes.
 
 ## Repository Structure
 
@@ -41,7 +43,11 @@ This is a **pnpm monorepo** containing:
 | Package | Description |
 |---------|-------------|
 | [`@vuetify/v0`](./packages/0) | Core headless components and composables |
-| [`@vuetify/paper`](./packages/paper) | Styling and layout primitives |
+| [`@vuetify/play`](./packages/play) | Playground hash protocol |
+| [`@paper/emerald`](./packages/emerald) | Emerald design system |
+| [`@paper/bulma`](./packages/bulma) | Bulma compat design system |
+| [`@paper/genesis`](./packages/genesis) | Genesis design system (docs primitives) |
+| [`@vuetify/paper`](./packages/paper) | Styling primitives (private, dormant) |
 | [`apps/docs`](./apps/docs) | Documentation site ([0.vuetifyjs.com](https://0.vuetifyjs.com)) |
 | [`apps/playground`](./apps/playground) | Interactive development environment |
 
@@ -118,6 +124,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Form](https://0.vuetifyjs.com/components/forms/form) | Form validation coordinator with submit handling and error aggregation |
 | [Input](https://0.vuetifyjs.com/components/forms/input) | Text input with label, description, error messages, and character counting |
 | [NumberField](https://0.vuetifyjs.com/components/forms/number-field) | Numeric input with increment/decrement, scrub, and Intl formatting |
+| [Otp](https://0.vuetifyjs.com/components/forms/otp) | One-time-password / verification-code boxes with auto-advance, paste, and completion |
 | [Radio](https://0.vuetifyjs.com/components/forms/radio) | Radio group with single-selection and keyboard navigation |
 | [Select](https://0.vuetifyjs.com/components/forms/select) | Dropdown selection with virtual focus and multi-select support |
 | [Rating](https://0.vuetifyjs.com/components/forms/rating) | Star/icon rating with hover preview, half-stars, and keyboard navigation |
@@ -142,6 +149,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 
 | Component | Description |
 |-----------|-------------|
+| [Alert](https://0.vuetifyjs.com/components/semantic/alert) | Inline status message with ARIA live-region semantics |
 | [Avatar](https://0.vuetifyjs.com/components/semantic/avatar) | Image/fallback avatar with priority loading |
 | [Breadcrumbs](https://0.vuetifyjs.com/components/semantic/breadcrumbs) | Navigation breadcrumbs with overflow detection and truncation |
 | [Carousel](https://0.vuetifyjs.com/components/semantic/carousel) | Scroll-snap slide navigation with multi-slide display and drag/swipe |
@@ -151,6 +159,13 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Progress](https://0.vuetifyjs.com/components/semantic/progress) | Headless progress indicator with multi-segment and buffer support |
 | [Snackbar](https://0.vuetifyjs.com/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](https://0.vuetifyjs.com/components/semantic/splitter) | Resizable panel layout with drag handles |
+
+#### Data
+
+| Component | Description |
+|-----------|-------------|
+| [DataGrid](https://0.vuetifyjs.com/components/data/data-grid) | Headless data grid with column layout, cell editing, row ordering, and row spanning |
+| [DataTable](https://0.vuetifyjs.com/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
 
 ### Composables
 
@@ -228,6 +243,7 @@ Selection management composables built on `createRegistry`:
 - [`useDelay`](https://0.vuetifyjs.com/composables/system/use-delay) - Schedule open and close transitions with configurable delays
 - [`useDragDrop`](https://0.vuetifyjs.com/composables/system/use-drag-drop) - Headless drag-and-drop primitive with two registries, pluggable adapters, and accessibility-first defaults
 - [`useEventListener`](https://0.vuetifyjs.com/composables/system/use-event-listener) - Lifecycle-managed event listeners
+- [`useFocusTrap`](https://0.vuetifyjs.com/composables/system/use-focus-trap) - Confine Tab and Shift+Tab to a root element
 - [`useHotkey`](https://0.vuetifyjs.com/composables/system/use-hotkey) - Hotkey combinations and sequences
 - [`useImage`](https://0.vuetifyjs.com/composables/system/use-image) - Image loading state machine with deferred loading and retry
 - [`useIntersectionObserver`](https://0.vuetifyjs.com/composables/system/use-intersection-observer) - Intersection observer with auto-cleanup
@@ -307,16 +323,7 @@ pnpm validate
 
 ## Contributing
 
-Vuetify0 is a release candidate — open for final validation, bug reports, and contributions. See the [Roadmap](https://0.vuetifyjs.com/roadmap#release-candidate) for what's planned and how to get involved.
-
-## Supporting Vuetify
-
-Vuetify0 is an MIT-licensed open source project. Its ongoing development is made possible by the support of sponsors and backers. If you'd like to join them, please consider:
-
-- [Sponsor on GitHub](https://github.com/sponsors/johnleider)
-- [Donate via Open Collective](https://opencollective.com/vuetify)
-
-For direct support plans and fixed-scope project builds, see [Vuetify Services](https://0.vuetifyjs.com/services).
+Vuetify0 is stable and open for bug reports, feature requests, and contributions. See the [Roadmap](https://0.vuetifyjs.com/roadmap) for what's planned and how to get involved.
 
 ## License
 

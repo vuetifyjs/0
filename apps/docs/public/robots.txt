@@ -2,3 +2,11 @@ User-agent: *
 Allow: /
 
 Sitemap: https://0.vuetifyjs.com/sitemap.xml
+
+# LLM context bundles — curated documentation for AI assistants.
+# Index:     https://0.vuetifyjs.com/llms.txt
+# Full text: https://0.vuetifyjs.com/llms-full.txt
+# Agent skill: https://0.vuetifyjs.com/SKILL.md
+# Every docs page also serves its source markdown at the same path + ".md"
+# (e.g. https://0.vuetifyjs.com/composables/data/create-filter.md), advertised
+# per-page via <link rel="alternate" type="text/markdown">.

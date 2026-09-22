@@ -34,12 +34,14 @@ v0 components are Vue wrappers around composables. Composables hold logic, compo
 
 | Category | Purpose | Examples |
 | - | - | - |
-| **Primitives** | Base building blocks | [Atom](/components/primitives/atom) |
-| **Providers** | Pure state management, no DOM | [Selection](/components/providers/selection), [Single](/components/providers/single), [Group](/components/providers/group), [Step](/components/providers/step) |
-| **Actions** | Interactive controls that trigger behavior | [Button](/components/actions/button), [Toggle](/components/actions/toggle) |
-| **Forms** | Form controls with accessibility | [Checkbox](/components/forms/checkbox) |
-| **Semantic** | Meaningful HTML defaults | [Avatar](/components/semantic/avatar), [Pagination](/components/semantic/pagination) |
-| **Disclosure** | Show/hide patterns | [Dialog](/components/disclosure/dialog), [ExpansionPanel](/components/disclosure/expansion-panel), [Popover](/components/disclosure/popover) |
+| **Primitives** | Base building blocks | [Atom](/components/primitives/atom), [Presence](/components/primitives/presence) — [all primitives](/components#primitives) |
+| **Providers** | Pure state management, no DOM | [Selection](/components/providers/selection), [Theme](/components/providers/theme) — [all providers](/components#providers) |
+| **Actions** | Interactive controls that trigger behavior | [Button](/components/actions/button), [Toggle](/components/actions/toggle) — [all actions](/components#actions) |
+| **Forms** | Form controls with accessibility | [Checkbox](/components/forms/checkbox), [Select](/components/forms/select), [Form](/components/forms/form) — [all forms](/components#forms) |
+| **Semantic** | Meaningful HTML defaults | [Avatar](/components/semantic/avatar), [Pagination](/components/semantic/pagination) — [all semantic](/components#semantic) |
+| **Disclosure** | Show/hide patterns | [Dialog](/components/disclosure/dialog), [AlertDialog](/components/disclosure/alert-dialog), [Tabs](/components/disclosure/tabs) — [all disclosure](/components#disclosure) |
+
+Full inventory with descriptions: [Components](/components).
 
 ## Atom: The Foundation
 
@@ -75,7 +77,7 @@ The `Atom` component is a polymorphic base element supporting any HTML tag:
 
 ## Slot Props Pattern
 
-Every component exposes `attrs` in its default slot. Spread onto your element for behavior and accessibility:
+Every component exposes `attrs` in its default slot. Spread onto your element for behavior and accessibility — `attrs` already includes the click handler plus ARIA and `data-*` attributes. Do not also bind `@click` when spreading `attrs`, or both handlers fire.
 
 ```vue playground
 <script setup lang="ts">
@@ -86,11 +88,10 @@ Every component exposes `attrs` in its default slot. Spread onto your element fo
 
 <template>
   <Selection.Root>
-    <Selection.Item v-for="item in items" v-slot="{ attrs, isSelected, toggle }">
+    <Selection.Item v-for="item in items" v-slot="{ attrs, isSelected }">
       <button
         v-bind="attrs"
         :class="{ 'bg-primary': isSelected }"
-        @click="toggle"
       >
         {{ item }}
       </button>

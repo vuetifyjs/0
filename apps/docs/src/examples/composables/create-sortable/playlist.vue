@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import Playlist from './Playlist.vue'
+  import PlaylistQueue from './PlaylistQueue.vue'
   import { usePlaylist } from './usePlaylist'
 
   const { proxy, status, moveUp, moveDown } = usePlaylist()
@@ -7,7 +7,7 @@
 
 <template>
   <div class="mx-auto flex max-w-md flex-col gap-3">
-    <Playlist
+    <PlaylistQueue
       :move-down
       :move-up
       :proxy

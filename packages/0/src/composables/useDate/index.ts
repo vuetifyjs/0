@@ -40,13 +40,16 @@
 
 // Composables
 import { useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
+import { bindPluginContext, createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useLocale } from '#v0/composables/useLocale'
 
+// Week info
+import { deriveWeekInfo } from './weekinfo'
+
 // Utilities
 import { instanceExists, isNullOrUndefined, isUndefined, V0Error } from '#v0/utilities'
-import { computed, watchEffect, onScopeDispose } from 'vue'
+import { computed, hasInjectionContext, watchEffect, onScopeDispose } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -92,7 +95,10 @@ export interface DateContextOptions<Z> extends DateOptions<Z> {
 }
 
 /** Plugin options */
-export interface DatePluginOptions<Z> extends DateContextOptions<Z> {}
+export interface DatePluginOptions<Z> extends DateContextOptions<Z> {
+  /** When true, this plugin appears in the Vue DevTools v0 inspector. @default false */
+  devtools?: boolean
+}
 
 /**
  * Default short locale codes mapped to full Intl locale strings.
@@ -110,21 +116,6 @@ const defaultLocales: Record<string, string> = {
   zh: 'zh-CN',
   ru: 'ru-RU',
   ar: 'ar-SA',
-}
-
-/**
- * Derive firstDayOfWeek from an Intl locale string.
- * Returns 0-6 (0=Sun) or 0 as fallback.
- */
-function deriveFirstDayOfWeek (locale: string): number {
-  try {
-    const loc = new Intl.Locale(locale) as Intl.Locale & { getWeekInfo?: () => { firstDay: number } }
-    const info = loc.getWeekInfo?.()
-    /* v8 ignore next -- defensive: getWeekInfo always returns info in Node 22+ */
-    return info ? info.firstDay % 7 : 0 // ISO 1-7 → v0 0-6
-  } catch {
-    return 0
-  }
 }
 
 /**
@@ -162,11 +153,13 @@ export function createDate<
     firstDayOfWeek: explicitFirstDay,
   } = options
 
-  // Try to get selected locale from useLocale if available
+  // Try to get selected locale from useLocale if available — inject() (which
+  // useLocale relies on) resolves inside a component's setup() and inside a
+  // plugin's app.runWithContext() callback.
   let selectedId: Ref<ID | undefined> | undefined
 
   try {
-    if (instanceExists()) {
+    if (hasInjectionContext()) {
       selectedId = useLocale().selectedId
     }
   } catch {
@@ -190,11 +183,13 @@ export function createDate<
   const firstDayOfWeek = computed(() => {
     if (!isUndefined(explicitFirstDay)) return explicitFirstDay
     const loc = locale.value
-    return loc ? deriveFirstDayOfWeek(loc) : 0
+    return loc ? deriveWeekInfo(loc).firstDay : 0
   })
 
-  // Keep adapter locale in sync (only when in component scope)
-  if (instanceExists()) {
+  // Keep adapter locale in sync reactively whenever inject() is usable.
+  // failSilently on onScopeDispose avoids a spurious warning at plugin-install
+  // time, where no component effect scope exists.
+  if (hasInjectionContext()) {
     const stop = watchEffect(() => {
       const loc = locale.value
 
@@ -207,7 +202,7 @@ export function createDate<
         adapter.firstDayOfWeek = fdow
       }
     })
-    onScopeDispose(stop)
+    onScopeDispose(stop, true)
   } else {
     // Outside component: sync once, no reactive watch
     const loc = locale.value
@@ -281,13 +276,22 @@ export function createDatePlugin<
   Z,
   E extends DateContext<Z> = DateContext<Z>,
 > (_options: DatePluginOptions<Z>) {
-  const { namespace = 'v0:date', ...options } = _options
-  const [, provideDateContext, context] = createDateContext<Z, E>({ namespace, ...options })
+  const { namespace = 'v0:date', devtools, ...options } = _options
 
   return createPlugin({
     namespace,
+    devtools,
+    inspect: ctx => ({
+      adapter: (ctx as DateContext<Z>).adapter.constructor.name,
+    }),
+    // Created lazily inside provide (install time) so useLocale() resolves
+    // through app.runWithContext(), and each app.use() gets its own context
+    // instead of sharing one across installs.
+    // https://github.com/vuetifyjs/0/issues/798
     provide: (app: App) => {
+      const [, provideDateContext, context] = createDateContext<Z, E>({ namespace, ...options })
       provideDateContext(context, app)
+      bindPluginContext(app, namespace, context)
     },
   })
 }

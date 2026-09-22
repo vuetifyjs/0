@@ -1,5 +1,10 @@
 <script setup lang="ts">
+  // Baked theme.css must not be imported here — it paints `--v0-*` on `:root`.
+  import { EmeraldStyleSheetAdapter, emeraldColors, emeraldDarkColors } from '@paper/emerald'
   import { useHead } from '@unhead/vue'
+  import faqs from 'virtual:faqs'
+  import mdRoutes from 'virtual:md-routes'
+  import pageDates from 'virtual:page-dates'
 
   // Framework
   import { IN_BROWSER, Scrim, useBreakpoints, useStack } from '@vuetify/v0'
@@ -17,12 +22,20 @@
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
+  // Constants
+  import { INDEXABLE, PROD_SITE_URL } from '@/constants/site'
+
   // Stores
   import { useAppStore } from '@/stores/app'
 
   // Utilities
   import { defineAsyncComponent, toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
+
+  const emeraldAdapter = new EmeraldStyleSheetAdapter({
+    v0Aliases: true,
+    stylesheetId: 'emerald-docs-tokens',
+  })
 
   const AppSettingsSheet = defineAsyncComponent(() => import('@/components/app/AppSettingsSheet.vue'))
   const DocsSearch = defineAsyncComponent(() => import('@/components/docs/DocsSearch.vue'))
@@ -64,8 +77,23 @@
     return false
   })
 
-  const url = toRef(() => `https://0.vuetifyjs.com${route.path}`)
+  const url = toRef(() => `${PROD_SITE_URL}${route.path}`)
   const breadcrumbs = useBreadcrumbItems()
+
+  // Advertise the page's markdown twin so agent fetchers and AI crawlers can
+  // retrieve source markdown instead of scraping rendered HTML. Only emitted for
+  // routes that actually have a twin — see build/md-routes.ts.
+  const markdown = toRef(() => {
+    const twin = mdRoutes[route.path] ?? mdRoutes[route.path.replace(/\/$/, '')]
+    if (!twin) return []
+
+    return [{
+      key: 'alternate-markdown',
+      rel: 'alternate',
+      type: 'text/markdown',
+      href: `${PROD_SITE_URL}${twin}`,
+    }]
+  })
 
   const breadcrumbScript = toRef(() => {
     if (route.path === '/') return []
@@ -87,9 +115,59 @@
             'position': index + 1,
             name,
           }
-          if (!isLast && item.to) entry.item = `https://0.vuetifyjs.com${item.to}`
+          if (!isLast && item.to) entry.item = `${PROD_SITE_URL}${item.to}`
           return entry
         }),
+      }),
+    }]
+  })
+
+  // Documentation pages are TechArticle, not bare WebSite nodes — it carries the
+  // headline and dateModified that AI answer engines use to judge freshness.
+  // `dateModified` is the page's last git commit, already collected for the
+  // freshness badge.
+  const articleScript = toRef(() => {
+    const items = breadcrumbs.value
+    if (items.length <= 1) return []
+
+    const headline = items.at(-1)?.text
+    if (!headline) return []
+
+    const dates = pageDates[route.path]
+
+    return [{
+      key: 'article-schema',
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        headline,
+        'url': url.value,
+        'isPartOf': { '@type': 'WebSite', 'name': 'Vuetify0', 'url': PROD_SITE_URL },
+        'about': { '@type': 'SoftwareSourceCode', 'name': '@vuetify/v0', 'programmingLanguage': 'TypeScript' },
+        'publisher': { '@type': 'Organization', 'name': 'Vuetify', 'url': 'https://vuetifyjs.com' },
+        ...dates?.updated ? { dateModified: dates.updated } : {},
+      }),
+    }]
+  })
+
+  // FAQPage markup must mirror content the reader can see, so these come from
+  // the same `::: faq` blocks the page renders — see build/generate-faqs.ts.
+  const faqScript = toRef(() => {
+    const items = faqs[route.path] ?? faqs[route.path.replace(/\/$/, '')]
+    if (!items?.length) return []
+
+    return [{
+      key: 'faq-schema',
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': items.map(item => ({
+          '@type': 'Question',
+          'name': item.question,
+          'acceptedAnswer': { '@type': 'Answer', 'text': item.answer },
+        })),
       }),
     }]
   })
@@ -97,12 +175,17 @@
   useHead({
     title: 'Vuetify0',
     titleTemplate: '%s — Vuetify0',
-    link: [
+    link: toRef(() => [
       { rel: 'preconnect', href: 'https://api.github.com' },
       { rel: 'preconnect', href: 'https://cdn.vuetifyjs.com' },
       { rel: 'dns-prefetch', href: 'https://api.npmjs.org' },
-      { key: 'canonical', rel: 'canonical', href: url },
-    ],
+      { key: 'canonical', rel: 'canonical', href: url.value },
+      // Site-wide LLM context bundles. Documented for humans on
+      // /guide/tooling/ai-tools; these make them machine-discoverable.
+      { key: 'llms', rel: 'alternate', type: 'text/plain', href: `${PROD_SITE_URL}/llms.txt`, title: 'llms.txt' },
+      { key: 'llms-full', rel: 'alternate', type: 'text/plain', href: `${PROD_SITE_URL}/llms-full.txt`, title: 'llms-full.txt' },
+      ...markdown.value,
+    ]),
     meta: [
       { key: 'description', name: 'description', content: 'Headless components and composables for building modern applications and design systems' },
       { key: 'og:type', property: 'og:type', content: 'website' },
@@ -112,7 +195,16 @@
       { key: 'og:image', property: 'og:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
       { key: 'twitter:card', name: 'twitter:card', content: 'summary_large_image' },
       { key: 'twitter:site', name: 'twitter:site', content: '@VuetifyJS' },
+      ...INDEXABLE ? [] : [{ key: 'robots', name: 'robots', content: 'noindex, nofollow' }],
     ],
+    style: [{
+      key: 'emerald-docs-tokens',
+      id: 'emerald-docs-tokens',
+      innerHTML: emeraldAdapter.generate({
+        'emerald-light': emeraldColors,
+        'emerald-dark': emeraldDarkColors,
+      }),
+    }],
     script: toRef(() => [
       {
         key: 'website-schema',
@@ -121,7 +213,7 @@
           '@context': 'https://schema.org',
           '@type': 'WebSite',
           'name': 'Vuetify0',
-          'url': 'https://0.vuetifyjs.com',
+          'url': PROD_SITE_URL,
           'description': 'Headless components and composables for building modern applications and design systems',
           'publisher': {
             '@type': 'Organization',
@@ -132,6 +224,8 @@
         }),
       },
       ...breadcrumbScript.value,
+      ...articleScript.value,
+      ...faqScript.value,
     ]),
   })
 </script>
@@ -143,7 +237,7 @@
     class="app-shell min-h-screen text-on-background"
     :class="{ 'dot-grid': settings.showDotGrid.value }"
     :data-code-size="settings.codeSize.value"
-    :style="{ '--line-opacity': `${settings.dotGridIntensity.value}%` }"
+    :style="{ '--line-opacity': `${settings.dotGridIntensity.value}%`, '--dot-coverage': `${settings.dotGridCoverage.value}%` }"
   >
     <a
       class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:start-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-on-primary focus:rounded"
@@ -179,24 +273,6 @@
     scroll-padding-top: calc(48px + var(--app-banner-h, 0px) + 0.5rem);
   }
 
-  /* Scrollbar styling */
-  ::-webkit-scrollbar-track {
-    background: var(--v0-background);
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: var(--v0-scrollbar-thumb);
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in srgb, var(--v0-primary) 50%, var(--v0-scrollbar-thumb));
-  }
-
-  /* Firefox */
-  * {
-    scrollbar-color: var(--v0-scrollbar-thumb) var(--v0-background);
-  }
-
   #app > .app-shell {
     position: relative;
     background: color-mix(in srgb, var(--v0-background) 85%, transparent);
@@ -216,6 +292,8 @@
     &.dot-grid::before {
       --dot-opacity: 12%;
       /* --line-opacity is set inline from the "Line intensity" setting (defaults to 0.85%). */
+      /* --dot-coverage is set inline from the "Dot coverage" setting (defaults to 15%): the
+         diagonal fade stays solid to that stop, then ramps to transparent 20% further out. */
       content: '';
       position: absolute;
       top: 0;
@@ -233,18 +311,18 @@
       mask-image: linear-gradient(
         225deg,
         black 0%,
-        black 15%,
-        transparent 35%
+        black var(--dot-coverage, 15%),
+        transparent calc(var(--dot-coverage, 15%) + 20%)
       );
       -webkit-mask-image: linear-gradient(
         225deg,
         black 0%,
-        black 15%,
-        transparent 35%
+        black var(--dot-coverage, 15%),
+        transparent calc(var(--dot-coverage, 15%) + 20%)
       );
     }
 
-    [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]) &.dot-grid::before {
+    [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]):not([data-theme="emerald-light"]) &.dot-grid::before {
       --dot-opacity: 10%;
     }
 
@@ -508,27 +586,6 @@
   }
 
   .docs-markup--wrap .shiki code {
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-
-  /* DocsExample code block styling */
-  .docs-example-code .shiki {
-    border: none;
-    border-radius: 0;
-    margin-bottom: 0;
-  }
-
-  .docs-example-code .shiki code {
-    padding-right: 5rem;
-    line-height: 1.625;
-  }
-
-  .docs-example-code--expanded .shiki {
-    padding-top: 2rem;
-  }
-
-  .docs-example-code--wrap .shiki code {
     white-space: pre-wrap;
     word-break: break-word;
   }

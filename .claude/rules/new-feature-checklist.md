@@ -1,3 +1,7 @@
+---
+paths: ['packages/0/src/components/**', 'packages/0/src/composables/**', 'packages/0/src/maturity.json', 'packages/0/src/surface.test.ts', 'packages/0/README.md', 'README.md', 'apps/docs/src/pages/components/**', 'apps/docs/src/pages/composables/**', 'apps/docs/src/examples/**']
+---
+
 # New Feature Checklist
 
 **Applies to:** Adding any new component or composable to `packages/0/`.
@@ -146,7 +150,7 @@ The version a feature first shipped in is only known the moment a maintainer cut
 - Brand-new feature, no implementation yet → `level: "draft"`. `since` may be omitted (or set to `null`); it's filled in when the feature actually ships.
 - Implementation landed, passing tests, docs page exists → `level: "preview"`, `since: null`. The maintainer who cuts the next release flips `since` to the release version (level stays `preview` if the API isn't stable yet).
 - API has shipped for multiple minor versions with no breaking changes, test coverage is comprehensive, real consumers depend on it → `level: "stable"`. `since` was already set when the feature first shipped — leave it alone.
-- Downstream consumers (Vuetify 5, Paper design systems, third-party apps) depend on the API and it's frozen → `level: "mature"`.
+- Downstream consumers (Vuetify 4 and 5, Paper design systems, third-party apps) depend on the API and it's frozen → `level: "mature"`.
 - Feature is being phased out → `level: "deprecated"`. Add a `notes` field with the migration target and removal timeline.
 
 ### When to promote

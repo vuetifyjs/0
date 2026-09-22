@@ -6,7 +6,7 @@ export { default as ComboboxDescription } from './ComboboxDescription.vue'
 export { default as ComboboxEmpty } from './ComboboxEmpty.vue'
 export { default as ComboboxError } from './ComboboxError.vue'
 export { default as ComboboxItem } from './ComboboxItem.vue'
-export { provideComboboxContext, useComboboxContext } from './ComboboxRoot.vue'
+export { provideComboboxRoot, useComboboxRoot } from './ComboboxRoot.vue'
 export { default as ComboboxRoot } from './ComboboxRoot.vue'
 export type { ComboboxActivatorProps, ComboboxActivatorSlotProps } from './ComboboxActivator.vue'
 export type { ComboboxContentProps, ComboboxContentSlotProps } from './ComboboxContent.vue'
@@ -16,7 +16,7 @@ export type { ComboboxDescriptionProps, ComboboxDescriptionSlotProps } from './C
 export type { ComboboxEmptyProps, ComboboxEmptySlotProps } from './ComboboxEmpty.vue'
 export type { ComboboxErrorProps, ComboboxErrorSlotProps } from './ComboboxError.vue'
 export type { ComboboxItemProps, ComboboxItemSlotProps } from './ComboboxItem.vue'
-export type { ComboboxRootProps, ComboboxRootSlotProps } from './ComboboxRoot.vue'
+export type { ComboboxRootContext, ComboboxRootProps, ComboboxRootSlotProps } from './ComboboxRoot.vue'
 
 // Context
 import Activator from './ComboboxActivator.vue'
@@ -38,9 +38,9 @@ import Root from './ComboboxRoot.vue'
  * ```vue
  * <script lang="ts" setup>
  *   import { Combobox } from '@vuetify/v0'
- *   import { ref } from 'vue'
+ *   import { shallowRef } from 'vue'
  *
- *   const selected = ref()
+ *   const selected = shallowRef()
  *   const items = [
  *     { id: 'apple', label: 'Apple' },
  *     { id: 'banana', label: 'Banana' },
@@ -61,9 +61,8 @@ import Root from './ComboboxRoot.vue'
  *         :key="item.id"
  *         :id="item.id"
  *         :value="item.label"
- *         v-slot="{ isSelected, attrs }"
  *       >
- *         <div v-bind="attrs">{{ item.label }}</div>
+ *         {{ item.label }}
  *       </Combobox.Item>
  *       <Combobox.Empty>No results found</Combobox.Empty>
  *     </Combobox.Content>
@@ -82,9 +81,9 @@ export const Combobox = {
    * ```vue
    * <script lang="ts" setup>
    *   import { Combobox } from '@vuetify/v0'
-   *   import { ref } from 'vue'
+   *   import { shallowRef } from 'vue'
    *
-   *   const selected = ref()
+   *   const selected = shallowRef()
    * </script>
    *
    * <template>
@@ -171,10 +170,13 @@ export const Combobox = {
    *
    * @example
    * ```vue
-   * <Combobox.Item id="apple" value="Apple" v-slot="{ isSelected, isHighlighted, attrs }">
-   *   <div v-bind="attrs" :class="{ highlighted: isHighlighted }">
-   *     Apple {{ isSelected ? '✓' : '' }}
-   *   </div>
+   * <Combobox.Item
+   *   id="apple"
+   *   value="Apple"
+   *   class="data-[highlighted]:bg-primary"
+   *   v-slot="{ isSelected }"
+   * >
+   *   Apple {{ isSelected ? '✓' : '' }}
    * </Combobox.Item>
    * ```
    */

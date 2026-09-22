@@ -12,7 +12,7 @@
  * - Adapter-based filtering (client-side or server-side via ClientComboboxAdapter/ServerComboboxAdapter)
  * - Single or multi-select mode
  * - Virtual focus keyboard navigation (aria-activedescendant pattern)
- * - Strict mode: reverts query to selected value on close if no match
+ * - Strict mode: constrains values to registered options; non-strict commits typed text as a new value
  * - Popover-based dropdown positioning
  * - Context DI via createComboboxContext / useCombobox
  *
@@ -39,18 +39,17 @@ import { ClientComboboxAdapter } from './adapters'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
+import { toElement } from '#v0/composables/toElement'
 
 // Utilities
 import { isUndefined, useId } from '#v0/utilities'
 import { computed, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
-import type { SelectionContext } from '#v0/composables/createSelection'
+import type { SelectionContext, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { PopoverReturn } from '#v0/composables/usePopover'
+import type { MaybeElementRef } from '#v0/composables/toElement'
+import type { PopoverAdapter, PopoverReturn } from '#v0/composables/usePopover'
 import type { VirtualFocusReturn } from '#v0/composables/useVirtualFocus'
 import type { MaybeArray, ID } from '#v0/types'
 import type { ComboboxAdapter } from './adapters'
@@ -60,6 +59,13 @@ import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 export { ClientComboboxAdapter, ComboboxAdapter, ServerComboboxAdapter } from './adapters'
 export type { ClientComboboxAdapterOptions, ComboboxAdapterContext, ComboboxAdapterResult } from './adapters'
 
+export interface ComboboxTicketInput<V = unknown> extends SelectionTicketInput<V> {
+  /** Rendered option element. Virtual focus reads this instead of querying the document. */
+  el?: MaybeElementRef
+}
+
+export type ComboboxTicket<Z extends ComboboxTicketInput = ComboboxTicketInput> = SelectionTicket<Z>
+
 export interface ComboboxOptions {
   multiple?: MaybeRefOrGetter<boolean>
   mandatory?: MaybeRefOrGetter<boolean>
@@ -68,6 +74,8 @@ export interface ComboboxOptions {
   error?: MaybeRefOrGetter<boolean>
   errorMessages?: MaybeRefOrGetter<MaybeArray<string> | undefined>
   adapter?: ComboboxAdapter
+  /** Positioning engine for the dropdown. @default CSS anchor positioning (`V0PopoverAdapter`) */
+  positionAdapter?: PopoverAdapter
   displayValue?: (value: unknown) => string
   id?: string
   name?: string
@@ -75,7 +83,7 @@ export interface ComboboxOptions {
 }
 
 export interface ComboboxContext {
-  selection: SelectionContext
+  selection: SelectionContext<ComboboxTicketInput, ComboboxTicket>
   popover: PopoverReturn
   cursor: VirtualFocusReturn
   query: ShallowRef<string>
@@ -95,7 +103,7 @@ export interface ComboboxContext {
   errors: Readonly<Ref<string[]>>
   isValid: Readonly<Ref<boolean | null>>
   inputEl: ShallowRef<HTMLElement | null>
-  multiple: boolean
+  multiple: Readonly<Ref<boolean>>
   strict: MaybeRefOrGetter<boolean>
   disabled: MaybeRefOrGetter<boolean>
   name: string | undefined
@@ -103,6 +111,7 @@ export interface ComboboxContext {
   open: () => void
   close: () => void
   toggle: () => void
+  commit: () => void
   select: (id: ID) => void
   clear: () => void
 }
@@ -126,7 +135,7 @@ export interface ComboboxContext {
  * combobox.selection.register({ id: 'b', value: 'Banana' })
  *
  * combobox.open()
- * combobox.select('a') // query → 'Apple', dropdown closes
+ * combobox.select('a') // display → 'Apple', dropdown closes
  * ```
  */
 export function createCombobox (options: ComboboxOptions = {}): ComboboxContext {
@@ -138,6 +147,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     error = false,
     errorMessages,
     adapter,
+    positionAdapter,
     displayValue = v => String(v ?? ''),
     id: _id,
     name,
@@ -163,7 +173,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     return null
   })
 
-  const selection = createSelection({
+  const selection = createSelection<ComboboxTicketInput, ComboboxTicket>({
     multiple,
     mandatory,
     disabled: toRef(() => toValue(disabled)),
@@ -173,6 +183,11 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   const query = shallowRef('')
   const pristine = shallowRef(true)
   const inputEl = shallowRef<HTMLElement | null>(null)
+
+  // Ids of tickets minted from free-text commits (strict === false). Tracked so
+  // single-select can prune a superseded value once a new one is committed,
+  // instead of leaving it behind as a ghost option in the list.
+  const adhoc = new Set<ID>()
 
   // items for the adapter — track registration events to trigger reactivity
   // since selection.values() is not natively reactive
@@ -185,21 +200,27 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   })
   const items = computed(() => {
     void version.value
-    return [...selection.values()]
+    return [...selection.values()].filter(ticket => !adhoc.has(ticket.id))
   })
 
   // Setup adapter (defaults to ClientComboboxAdapter for local filtering)
   const { filtered, isLoading, isEmpty } = (adapter ?? new ClientComboboxAdapter()).setup({ query, items })
 
-  const popover = usePopover({ id })
+  const popover = usePopover({ id, adapter: positionAdapter })
+  popover.attachAnchor(inputEl)
   const isOpen = popover.isOpen
 
   const cursor = useVirtualFocus(
     () => selection.values()
-      .filter(ticket => filtered.value.has(ticket.id) && !toValue(ticket.disabled))
+      // Ad-hoc free-text values have no rendered option, so keep them out of
+      // keyboard navigation — they're committed values, not list options.
+      .filter(ticket => filtered.value.has(ticket.id) && !toValue(ticket.disabled) && !adhoc.has(ticket.id))
       .map(ticket => ({
         id: ticket.id,
-        el: () => IN_BROWSER ? document.querySelector<HTMLElement>(`#${CSS.escape(`${id}-option-${ticket.id}`)}`) : null,
+        el: () => {
+          const node = toElement(ticket.el)
+          return node instanceof HTMLElement ? node : null
+        },
         disabled: ticket.disabled,
       })),
     {
@@ -242,8 +263,68 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
       pristine.value = true
       cursor.highlight(itemId)
       inputEl.value?.focus()
+      purge()
     } else {
       selection.select(itemId)
+      purge()
+      query.value = ''
+      pristine.value = true
+      close()
+    }
+  }
+
+  function mint (value: string): ID {
+    const id = useId()
+    // Track before register so the items computed, which re-runs on
+    // register:ticket, already excludes this ticket from adapter filtering.
+    adhoc.add(id)
+    selection.register({ id, value })
+    return id
+  }
+
+  // Drop unselected ad-hoc tickets. Selected tags (multiple) and the current
+  // single-select value stay registered.
+  function purge () {
+    for (const id of adhoc) {
+      if (!selection.selectedIds.has(id)) {
+        selection.unregister(id)
+        adhoc.delete(id)
+      }
+    }
+  }
+
+  watch(() => [...selection.selectedIds], () => purge())
+
+  function commit () {
+    const text = query.value.trim()
+
+    if (pristine.value || text === '') {
+      close()
+      return
+    }
+
+    const matches = selection.browse(text)
+    const matchId = matches && matches.length > 0 ? matches[0] : undefined
+
+    // Strict mode only accepts a value that maps to a registered option;
+    // unmatched free text is discarded on confirm.
+    if (isUndefined(matchId) && toValue(strict)) {
+      close()
+      return
+    }
+
+    const id = matchId ?? mint(text)
+
+    if (toValue(multiple)) {
+      if (!selection.selectedIds.has(id)) selection.select(id)
+      query.value = ''
+      pristine.value = true
+      if (!adhoc.has(id)) cursor.highlight(id)
+      inputEl.value?.focus()
+      purge()
+    } else {
+      selection.select(id)
+      purge()
       query.value = ''
       pristine.value = true
       close()
@@ -253,8 +334,18 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   function clear () {
     query.value = ''
     pristine.value = true
+    if (toValue(disabled)) return
+    // Clear is wholesale — drain directly so disabled selected ids still
+    // empty out, preserving the mandatory floor of one.
     for (const id of Array.from(selection.selectedIds)) {
-      selection.unselect(id)
+      if (toValue(mandatory) && selection.selectedIds.size === 1) break
+      selection.selectedIds.delete(id)
+    }
+    for (const id of adhoc) {
+      if (!selection.selectedIds.has(id)) {
+        selection.unregister(id)
+        adhoc.delete(id)
+      }
     }
   }
 
@@ -262,6 +353,11 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     if (!open) {
       cursor.clear()
     }
+  })
+
+  watch(filtered, ids => {
+    const id = cursor.highlightedId.value
+    if (!isUndefined(id) && !ids.has(id)) cursor.clear()
   })
 
   return {
@@ -285,7 +381,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     errors,
     isValid,
     inputEl,
-    multiple: toValue(multiple),
+    multiple: toRef(() => toValue(multiple)),
     strict,
     disabled,
     name,
@@ -293,6 +389,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     open,
     close,
     toggle,
+    commit,
     select,
     clear,
   }

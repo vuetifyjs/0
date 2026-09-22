@@ -226,35 +226,21 @@ Use `useStorage` to persist theme selection across page loads. The key is instal
 > )
 > ```
 >
-> `createStoragePlugin()` still has to be installed first — the theme plugin reads/writes through it. Reach for the manual approach below when persistence needs custom logic the built-in path doesn't cover — a cookie for SSR, a backend call, or resolving `prefers-color-scheme` before the first paint.
+> `createStoragePlugin()` still has to be installed first — the theme plugin reads/writes through it. Reach for the manual approach below when persistence needs custom logic the built-in path doesn't cover — a cookie for SSR or a backend call. To follow the OS until the user picks a theme, pass `system` (see [Follow the operating system](/composables/plugins/use-theme#follow-the-operating-system)) instead of resolving `matchMedia` into `default`.
 
 ```ts main.ts collapse
 import { createApp } from 'vue'
-import {
-  createStoragePlugin,
-  createThemePlugin,
-  useStorage,
-  IN_BROWSER,
-} from '@vuetify/v0'
+import { createStoragePlugin, createThemePlugin } from '@vuetify/v0'
+import App from './App.vue'
 
 const app = createApp(App)
 
-// Install storage plugin first
 app.use(createStoragePlugin())
-
-// Helper to resolve system preference
-function getSystemTheme(): 'light' | 'dark' {
-  if (!IN_BROWSER) return 'light'
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
-
-// Read stored preference using app context
-const storedTheme = app.runWithContext(() => useStorage().get<string>('theme'))
-const initialTheme = storedTheme.value === 'dark' ? 'dark' : storedTheme.value === 'light' ? 'light' : getSystemTheme()
-
 app.use(
   createThemePlugin({
-    default: initialTheme,
+    default: 'light',
+    system: { light: 'light', dark: 'dark' },
+    persist: true,
     themes: {
       light: { dark: false, colors: { /* ... */ } },
       dark: { dark: true, colors: { /* ... */ } },
@@ -263,29 +249,7 @@ app.use(
 )
 ```
 
-Then sync theme changes back to storage:
-
-```vue ThemeToggle.vue
-<script setup lang="ts">
-  import { useStorage, useTheme } from '@vuetify/v0'
-  import { watch } from 'vue'
-
-  const storage = useStorage()
-  const theme = useTheme()
-  const storedTheme = storage.get<string>('theme')
-
-  // Persist changes to storage
-  watch(() => theme.selectedId.value, id => {
-    storedTheme.value = id
-  })
-</script>
-
-<template>
-  <button @click="theme.cycle()">
-    {{ theme.isDark ? 'Light' : 'Dark' }}
-  </button>
-</template>
-```
+`system` requires both ids to already be registered. A system-applied theme is not persisted; `select` is. `theme.reset()` follows the OS again.
 
 > [!TIP]
 > For SSR apps, use cookies instead of localStorage—see [Nuxt Theme Persistence](/guide/integration/nuxt#theme-persistence).

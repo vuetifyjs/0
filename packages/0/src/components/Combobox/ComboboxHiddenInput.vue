@@ -11,7 +11,7 @@
 
 <script lang="ts">
   // Context
-  import { useComboboxContext } from './ComboboxRoot.vue'
+  import { useComboboxRoot } from './ComboboxRoot.vue'
 
   // Utilities
   import { isNullOrUndefined, isObject } from '#v0/utilities'
@@ -37,17 +37,17 @@
     namespace = 'v0:combobox',
   } = defineProps<{ namespace?: string }>()
 
-  const context = useComboboxContext(namespace)
+  const root = useComboboxRoot(namespace)
 
   const values = toRef(() => {
-    return Array.from(context.selection.selectedValues.value).map(v => {
+    return Array.from(root.selection.selectedValues.value).map(v => {
       if (isNullOrUndefined(v)) return ''
       if (isObject(v)) return JSON.stringify(v)
       return String(v)
     })
   })
 
-  const isDisabled = toRef(() => toValue(context.disabled))
+  const isDisabled = toRef(() => toValue(root.disabled))
 </script>
 
 <template>
@@ -55,9 +55,9 @@
     v-for="(val, index) in values"
     :key="index"
     :disabled="isDisabled"
-    :form="context.form"
+    :form="root.form"
     inert
-    :name="context.name"
+    :name="root.name"
     :style="visuallyHiddenStyle"
     tabindex="-1"
     type="hidden"

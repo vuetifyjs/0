@@ -147,6 +147,10 @@
     default: (props: CarouselRootSlotProps) => any
   }>()
 
+  defineEmits<{
+    'update:model-value': [value: T | T[]]
+  }>()
+
   const {
     as = 'div',
     renderless,

@@ -12,17 +12,17 @@ v0 is a **headless meta-framework for building UI libraries** — a set of Vue 3
 
 ### What v0 is
 
-- A layer of Vue 3 composables (~73) and compound components (~40) that encode interaction patterns, selection state, registries, accessibility contracts, keyboard navigation, focus management, SSR safety, and adapter-backed plugin state.
-- The bottom of a four-layer stack: **v0 → Paper → Design Systems → Vuetify**. v0 handles logic; Paper handles styling primitives (`useColor`, `useTheme`, `useContrast`); design systems (Emerald, Helix, etc.) compose Paper into complete frameworks; Vuetify 4 is one such consumer. [intent:295, intent:296, intent:297, intent:298]
+- A layer of Vue 3 composables (~71) and compound components (~43) that encode interaction patterns, selection state, registries, accessibility contracts, keyboard navigation, focus management, SSR safety, and adapter-backed plugin state.
+- The bottom of a four-layer stack: **v0 → Paper → Design Systems → Vuetify**. v0 handles logic *and the headless token substrate* — theme state (`useTheme`), design tokens (`createTokens`), palettes-as-data (`src/palettes/`), and color/contrast math (`apca`); Paper consumes that substrate and handles styling *application* (`useColor`, `useContrast`); design systems (Emerald, Onyx, etc.) compose Paper into complete frameworks; Vuetify 4 is one such consumer, and from 4.2.0 it also depends on v0 directly — the utility layer first, with deeper adoption through subsequent 4.x minors. [intent:295, intent:296, intent:297, intent:298]
 - Zero runtime dependencies on UI styling. No Tailwind, no UnoCSS, no Vuetify classes inside `packages/0/src/`. [intent:82, intent:278]
 - WAI-ARIA correct by default. Every interactive component ships `role`, `aria-*`, keyboard handlers, and `aria-disabled` semantics. [intent:174, intent:178]
 - Headless in the operational sense: consumers can replicate every visible behavior by writing CSS against the data attributes v0 exposes. [intent:281]
 
 ### What v0 is not
 
-- Not a component library. No theme, no skin, no CSS. Icons belong to Paper, not v0. [intent:299]
+- Not a component library. No skin, no CSS, no *applied* styling. (v0 ships headless theme *state* and token *data*, but never paints — see below.) Icons belong to Paper, not v0. [intent:299]
 - Not a framework wrapper. Composables are not thin wrappers around `vue-i18n`, `date-fns`, or `pino` — those ship as adapters. [intent:107, intent:145]
-- Not a styling primitive. Color math, contrast, theme tokens — those live one layer up in Paper. [intent:297]
+- Not a styling *application* layer. v0 owns the headless substrate — theme state, design tokens, palettes-as-data, and color/contrast math (`useTheme`, `createTokens`, `src/palettes/`, `apca`) — but never turns a token into a rendered pixel. Applying tokens to visible color is Paper's job. [intent:297]
 
 ### Audience
 
@@ -59,13 +59,13 @@ Non-negotiable. Each axiom carries a statement, a rationale, and a concrete anti
 
 ### 2.1 Headless contract is absolute
 
-**Statement.** No utility classes, no CSS framework references, no color values, no typography, no spacing in `packages/0/src/`. Styling is the consumer's responsibility. [intent:82, intent:278, intent:203]
+**Statement.** No utility classes, no CSS framework references, no typography, no spacing in `packages/0/src/`. Color *values* appear only as headless token data (`src/palettes/`, consumed via `createTokens`) — never applied to a rendered element. Styling is the consumer's responsibility. [intent:82, intent:278, intent:203]
 
 **Why.** v0 sits at the bottom of the stack. A single `class="px-4"` anywhere in source binds every downstream design system to UnoCSS defaults and breaks the promise that design systems can paint v0 with their own tokens. "Headless" that ships even one utility class is not headless.
 
 **Operational definition.** Consumers must be able to replicate every visible behavior by writing CSS against the data attributes v0 emits. Acid test: "If I stripped every stylesheet from the consuming app, would v0's components still function and announce their state correctly to a screen reader?" [intent:281]
 
-**Canonical example.** `packages/0/src/components/Splitter/SplitterRoot.vue:373-376` — inline `:style="[..., { display: 'flex', flexDirection: '...' }]"`. Structural layout, no visual opinion.
+**Canonical example.** `packages/0/src/components/Splitter/SplitterRoot.vue:489-492` — inline `:style="[..., { display: 'flex', flexDirection: '...' }]"`. Structural layout, no visual opinion.
 
 **Allowed.** Structural inline `:style` bindings when layout cannot work otherwise (flex directions, CSS custom properties for depth, visually-hidden positioning for hidden inputs, z-index from `useStack`). [intent:279]
 
@@ -81,7 +81,10 @@ Non-negotiable. Each axiom carries a statement, a rationale, and a concrete anti
 
 **Why.** `any` silently disables type-checking downstream. A single `as any` in a composable propagates into every consumer that spreads it. `unknown` forces the consumer to narrow, which is the correct contract.
 
-**Current state.** Zero `as any` casts in source. The one place reaching into a foreign private shape — `packages/0/src/components/Locale/Locale.vue:69`, accessing `vue-i18n`'s `_rootT`/`_rootN` — declares those fields on a local `ScopedLocale` interface and uses a typed intersection cast (`parent as typeof parent & ScopedLocale`), so the shape is documented rather than erased. No `: any`, `as any`, or `<any>` anywhere in `packages/0/src/`.
+**Current state.** Zero `as any` casts in source. The one place reaching into a foreign private shape — `packages/0/src/components/Locale/Locale.vue:69`, accessing `vue-i18n`'s `_rootT`/`_rootN` — declares those fields on a local `ScopedLocale` interface and uses a typed intersection cast (`parent as typeof parent & ScopedLocale`), so the shape is documented rather than erased. No `: any`, `as any`, or `<any>` in `packages/0/src/` — with two sanctioned exceptions:
+
+1. **Slot returns** — `defineSlots<{ default: (props: SlotProps) => any }>()`, which Volar requires for correct slot inference (see §8.8). That `=> any` types the slot's *return*, never a value or argument, so it disables no downstream checking.
+2. **`isObject` predicate** — `item is Record<string, any>` in `packages/0/src/utilities/helpers.ts`. `Record<string, unknown>` is *incorrect* as a type predicate: TypeScript never grants interfaces an implicit index signature, so the guard destroys known property types and fails to subtract `Record<string, any>` members in the `else` branch (issue #723). The `any` is only the *index* type of the predicate; it is not a value typed `any`, and it is not a license for `as any` elsewhere. Call sites that walk untyped trees and need checked property access must pin the read: `const inner: unknown = value.$value`. The private `isPlainObject` helper used by `mergeDeep` stays on `Record<string, unknown>` deliberately — it is not a public predicate and must keep index reads as `unknown`.
 
 **Anti-example (do not do this).**
 ```ts
@@ -135,15 +138,18 @@ import { createRegistry } from '../createRegistry'
 
 ---
 
-### 2.5 Composables never touch DOM events
+### 2.5 Composables never reach into the consumer's element tree
 
-**Statement.** Composables expose state and methods. Components bind those to DOM events. `blur`, `input`, `keydown`, `wheel`, `pointer*` — these appear only in `.vue` files. [intent:262, intent:263, intent:264]
+**Statement.** Composables expose state and methods; components bind those to DOM events. The dividing line is *how a composable obtains its target*, not which file the event word appears in. A composable must never create an element, query the DOM for one, or implicitly pick a rendered node — those are `.vue` concerns. `blur`, `input`, `change`, `wheel` on component-owned inputs appear only in `.vue` files. [intent:262, intent:263, intent:264]
 
-**Why.** Event binding couples a composable to the consumer's element tree. A composable that binds `keydown` directly picks the target for you; one that exposes `onKeydown(event)` lets the consumer decide. The second form composes; the first does not.
+**Why.** Event binding is a problem only when it couples a composable to a tree it does not own. A composable that `querySelector`s its target, or binds to an element it rendered, picks the tree for you; one that exposes `onKeydown(event)`, or binds via `useEventListener` to a target the consumer *injects*, does not. The first couples; the second composes.
 
-**Allowed.** The small set of browser-primitive composables whose entire purpose is to wrap a listener or a matched-media observer: `useEventListener`, `useHotkey`, `useClickOutside`, `useMediaQuery`. These are the boundary. Anything that sits on top of them is a component concern.
+**Allowed.** Two boundaries own listeners legitimately:
 
-**Anti-example (do not introduce).** A `createSlider` that internally binds `pointermove` to a passed `el` ref. The correct shape exposes `onPointerdown`, `onPointermove`, `onPointerup` and the `SliderThumb.vue` component wires them.
+- The browser-primitive composables whose entire purpose is to wrap a listener or matched-media observer: `useEventListener`, `useHotkey`, `useClickOutside`, `useMediaQuery`.
+- System composables that compose those primitives against an **explicitly injected** `MaybeRefOrGetter<EventTarget>` target, or a global (`document` / `window`) for session-scoped behavior. `useRovingFocus` and `useVirtualFocus` bind `keydown` to an injected container ref; `useFocusTrap` binds `keydown` on `document` (like `useDragDrop` on pointer); `useDragDrop` adapters bind `pointer*` to `document`; `useStorage` listens for `storage` on `window`. The consumer supplies (or globally scopes) the target, so no tree is stolen — consistent with §5.2's `MaybeRefOrGetter<EventTarget>` input contract.
+
+**Anti-example (do not introduce).** A `createSlider` that calls `document.querySelector('.thumb')` (or renders and binds its own element) to attach `pointermove`. The correct shape exposes `onPointerdown`, `onPointermove`, `onPointerup` and the `SliderThumb.vue` component wires them — or, if it must own the listener, takes the thumb element as an injected `MaybeRefOrGetter<EventTarget>` rather than finding it.
 
 ---
 
@@ -175,7 +181,7 @@ return {
 
 **Statement.** All utilities carry `#__NO_SIDE_EFFECTS__`. No top-level side effects in `packages/0/src/utilities/**`. [intent:95]
 
-**Why.** Consumers import from a flat barrel. Without the marker, bundlers retain every utility the barrel touches. Meta-frameworks with 73 composables and 40 components cannot afford a lazy barrel.
+**Why.** Consumers import from a flat barrel. Without the marker, bundlers retain every utility the barrel touches. Meta-frameworks with 71 composables and 43 components cannot afford a lazy barrel.
 
 **Canonical example.** `packages/0/src/utilities/helpers.ts:32,49,69,87,113,138,156,174,194,219` — every exported guard carries the comment directly above the function declaration.
 
@@ -305,7 +311,7 @@ return {
 }
 ```
 
-**3.1.2 Trinity tuple.** `[useX, provideX, defaultX] as const` (registries) or `[createXContext, createXPlugin, useX] as const` (plugins). Returned from exactly two foundation factories: `createTrinity` and `createPlugin`. `createContext` returns the `[useX, provideX]` pair that `createTrinity` consumes and extends into the trinity. Every other "trinity-using" composable *consumes* these internally and returns a plain object. [intent:80, intent:119, intent:120]
+**3.1.2 Trinity tuple.** `[useX, provideX, defaultX] as const` (registries) or `[createXContext, createXPlugin, useX] as const` (plugins). Returned from exactly two foundation factories: `createTrinity` and `createPluginContext`. (`createPlugin` itself returns a Vue plugin *object*, not the tuple; `createPluginContext` is the tuple-returning factory.) `createContext` returns the `[useX, provideX]` pair that `createTrinity` consumes and extends into the trinity. Every other "trinity-using" composable *consumes* these internally and returns a plain object. [intent:80, intent:119, intent:120]
 
 ```ts
 // packages/0/src/composables/createTrinity/index.ts:100-104
@@ -406,7 +412,9 @@ Consumers in **non-renderless** components must not spread `attrs` onto a child 
 
 ### 3.6 Boolean data attributes
 
-Data attributes are always `true | undefined` (or the equivalent `'' | undefined`), never `true | false`. Undefined removes the attribute from DOM. [intent:172]
+Boolean data attributes (`data-disabled`, `data-open`, `data-selected`) are always `true | undefined` (or the equivalent `'' | undefined`), never `true | false`. Undefined removes the attribute from DOM. [intent:172]
+
+Token-valued attributes (`data-state`, `data-orientation`) use their string union plus `undefined` to omit. Splitter's `data-pending` is `'collapse' | 'expand' | undefined` — not the boolean `'' | undefined` used by AlertDialogAction.
 
 `aria-disabled` is the exception: always `boolean`, so assistive tech reads a concrete value. [intent:175]
 
@@ -497,7 +505,7 @@ Always use `.value` when reading these in templates. Never rely on Vue's auto-un
 **Intentional mutable returns.** Some composables return *mutable* refs by design because the consumer is expected to write to them. The return interface types them as `ShallowRef<T>` (or `Ref<T>`) so the write contract is visible at the type level:
 
 - `packages/0/src/composables/useTimer/index.ts:68,70,72` — `remaining`, `isActive`, `isPaused` typed as `ShallowRef<...>` in `TimerContext`. Consumers pause and resume by writing.
-- `packages/0/src/composables/usePopover/index.ts:58` — `isOpen: Ref<boolean>` for v-model bidirectional binding.
+- `packages/0/src/composables/usePopover/index.ts:104` — `isOpen: Ref<boolean>` for v-model bidirectional binding.
 - `packages/0/src/composables/createInput/index.ts:90,94,98` — `value`, `isFocused`, `isTouched` mutable so bound components can write; `isDirty` / `isPristine` are `Readonly<Ref<boolean>>` (do not write).
 
 **Audit (resolved).** `useRovingFocus` and `createFocusTraversal` each expose a single consumer-visible ref (`focusedId` / `activeId`), both declared `ShallowRef<ID | undefined>` in their return interface (`RovingFocusReturn` / `TraversalReturn`). These are intentionally mutable — consumers set focus by writing the ref — so the `ShallowRef<T>` type is the correct contract; no `shallowReadonly` boundary wrapper is required. (Design note: writing the ref directly bypasses the internal `applyFocus()` DOM-focus side-effect; switch to `Readonly<Ref>` + a `focus()` method if direct writes should be disallowed.)
@@ -543,7 +551,9 @@ createOverflow({ gap: () => gap })
 
 ### 4.4 Registry reactivity
 
-`reactive: true` on a registry wraps the internal collection as `shallowReactive` and each registered ticket as a `shallowReactive` proxy. When this option is set, `values()` / `keys()` / `entries()` skip their result cache and re-iterate on every call, so Vue's dep tracking holds across computed re-runs. Template iteration, `registry.size` reads, `get(id)` reads, and per-ticket field mutations via `upsert` all propagate to consumers. [intent:253]
+`reactive: true` on a registry wraps the internal collection as `shallowReactive` and each registered ticket as a `shallowReactive` proxy. When this option is set, `values()` / `keys()` / `entries()` additionally register a single version dependency — a signal bumped on every structural mutation — so Vue's dep tracking holds across computed re-runs while iteration results stay cached between mutations. A subscribing effect holds one dependency regardless of collection size, and reactive reads cost the same as non-reactive ones. Template iteration, `registry.size` reads, and `get(id)` reads all propagate to consumers. Field patches via `upsert` propagate through the ticket proxies and `update:ticket` — they don't re-notify version subscribers (membership and order are unchanged), though the read cache still refreshes so `useProxyRegistry`-style snapshot consumers observe a fresh array identity. [intent:253]
+
+**The version signal is a scoped exception, not a precedent.** The rule stands: no hand-rolled version counters or dirty flags where Vue's native tracking gives real granularity — `get(id)`, `has()`, `size`, and ticket field reads stay natively tracked. Iteration qualifies because it clears two bars, and any future version-signal proposal must clear both: (1) native tracking was never fine-grained for the read shape — collection iteration is a single `ITERATE`-style dependency in Vue itself, so proxies added per-element cost without adding precision; (2) the bump rides an invalidation choke point the code already maintains (`invalidate()`), so reactivity and cache validity are one invariant, not parallel bookkeeping.
 
 `useProxyRegistry(registry)` (on a registry created with `events: true`) exposes `proxy.values` / `proxy.keys` / `proxy.entries` / `proxy.size` as properties on a reactive object, updated from `register:ticket` / `unregister:ticket` / `update:ticket` / `clear:registry` / `reindex:registry` events. It does not wrap the tickets themselves, and supports `{ deep: true }` for nested tracking. [intent:254]
 
@@ -592,18 +602,21 @@ This is an acid test, not a vibe. If the only way to get state X to render diffe
 
 - **No DOM creation.** Composables do not `document.createElement`. They accept targets via `MaybeRefOrGetter<EventTarget>`. [intent:99]
 - **No visual state.** A composable never cares what color something is. `createRating` tracks a number; `RatingRoot.vue` tracks hover state internally — the composable is value-only. [intent:319, intent:320]
-- **No event binding.** Restated for emphasis: composables expose handlers, components wire them. [intent:262, intent:263]
+- **No event binding into an owned tree.** Composables expose handlers; components wire them. The exception is system composables that bind via `useEventListener` to an **injected** `MaybeRefOrGetter<EventTarget>` or a global — see §2.5. [intent:262, intent:263]
 
 ### 5.3 Components
 
 - **No utility classes.** Zero `class="px-4"`, zero `class="bg-primary"`. [intent:278]
 - **Structural-only `:style`.** `display: flex`, `flex-grow`, `visibility`, z-index from `useStack`, CSS custom properties for depth, visually-hidden positioning. If your `:style` sets `color` or `padding`, it is not structural. [intent:279]
 - **Data attributes as styling hooks.** `data-state="open"`, `data-disabled`, `data-orientation="vertical"`. Consumers style against these. [intent:280]
-- **DOM-rendering Roots use `<Atom :as :renderless>`.** The universal wrapper that lets consumers swap the tag and strip it. Pure context-provider Roots — `Group`, `Selection`, `Single`, `Step`, `Tabs`, `Treeview` — render only `<slot v-bind="slotProps" />` with no `Atom` wrapper, because their DOM is emitted by sub-components. [intent:186, intent:336]
+- **DOM-rendering Roots use `<Atom :as :renderless>`.** The universal wrapper that lets consumers swap the tag and strip it. Provider / slot-only Roots — `DataGrid`, `DataTable`, `Group`, `Locale`, `Portal`, `Presence`, `Selection`, `Single`, `Step`, `Tabs`, `Treeview` — render only `<slot v-bind="slotProps" />` (or teleport their children) with no `Atom` wrapper, because their DOM is emitted by sub-components or the wrapper would be meaningless. [intent:186, intent:336]
 
 ### 5.4 Hidden inputs
 
-Interactive inputs with a `name` prop render a `<ComponentHiddenInput>`: `inert`, `tabindex="-1"`, JSON-serialized for complex values, hidden via visually-hidden CSS. This is the native-form integration boundary; it is not styling. [intent:179, intent:187]
+Interactive inputs with a `name` prop render a `<ComponentHiddenInput>` for native-form integration. This is the boundary; it is not styling. Two tiers exist, by widget shape: [intent:179, intent:187]
+
+- **Focusable-mirror inputs** (`Checkbox`, `Radio`, `Switch`) — render a real `<input>` marked `inert` with `tabindex="-1"`, JSON-serialized for complex values, hidden via visually-hidden CSS. The mirror carries state the browser must see (checked, value) without stealing focus from the styled control.
+- **Value-only inputs** (`Rating`, `Slider`, `Progress`) — render a plain `<input type="hidden">`. There is nothing to focus or announce on the hidden node itself — the visible control owns interaction — so the `inert` / visually-hidden treatment is unnecessary; a native hidden input carries the value to form submission.
 
 ### 5.5 Locale-first strings
 
@@ -627,16 +640,16 @@ Every user-facing string (`aria-label`, error messages, day-of-week names, month
 ```
 RegistryTicketInput
   ├── ModelTicketInput
-  │     ├── SelectionTicketInput
-  │     │     └── SingleTicketInput
-  │     │           └── StepTicketInput
-  │     └── GroupTicketInput
-  │           └── NestedTicketInput
+  │     └── SelectionTicketInput
+  │           ├── SingleTicketInput
+  │           │     └── StepTicketInput
+  │           └── GroupTicketInput
+  │                 └── NestedTicketInput
   ├── QueueTicketInput
   └── FormTicketInput
 ```
 
-Every ticket has the base interface `{ id: ID, index: number, value: unknown, valueIsIndex: boolean, unregister: () => void }`. [intent:96] Extensions spread the parent; they never override it. [intent:101]
+The tree above is the **input** hierarchy — the `*TicketInput` shapes a caller passes to `register`. The base `RegistryTicketInput` is just `{ id?: ID, value?: V }` (both optional); each extension spreads its parent and adds its own optional fields. The registry then resolves every input into a **`RegistryTicket`** — the output shape read via `get()` / `values()` — which carries the full base interface `{ id: ID, index: number, value: unknown, valueIsIndex: boolean, unregister: () => void }`. [intent:96] Extensions spread the parent; they never override it. [intent:101]
 
 ### 6.3 Element refs via registry
 
@@ -698,7 +711,7 @@ useProxyModel(context, model, { multiple })
 
 ### 6.7 `useProxyRegistry` — reactive view onto a registry
 
-**What.** Returns a shallow-reactive `{ keys, values, entries, size }` object that updates on every `register:ticket` / `unregister:ticket` / `update:ticket` / `clear:registry` / `reindex:registry` event. [intent:254]
+**What.** Returns a reactive `{ keys, values, entries, size }` object that updates on every `register:ticket` / `unregister:ticket` / `update:ticket` / `clear:registry` / `reindex:registry` event. [intent:254]
 
 **When to use.**
 - Templates need to iterate registry contents with `v-for`.
@@ -797,6 +810,12 @@ Callers who want domain-stable identity pass `id` explicitly — same pattern as
 
 **Composables that follow this rule.** `createRegistry`, `createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`, `createNested`, `createSortable`, `createKanban`, `createQueue`, `createTimeline`, `createTokens`, `createDataGrid`. `createDataTable` predated the convention and has been brought in line — `items`, `itemValue`, and `columns` are all gone; consumers `onboard` rows on the returned context and columns on `table.columns`. [intent:353]
 
+### 6.11 Disabled semantics: gestures vs wholesale
+
+**Rule.** Operations targeted at a specific id — `select`, `unselect`, `toggle`, at both the context and the ticket level — treat a disabled ticket as inert in **both** directions: it can be neither selected nor unselected. Wholesale operations — `apply` (the v-model path), `selectAll`, cascade/propagated mutation, `clear` / `reset` — skip disabled tickets on **add** but never guard **removal**; they mutate `selectedIds` directly instead of routing through the gesture-guarded functions.
+
+**Why.** A gesture on a disabled control must do nothing, in either direction, or `disabled` is only half a contract. But programmatic state application must always be able to converge: if removal were guarded too, a ticket disabled while selected would wedge its id in `selectedIds` forever — no v-model write, clear, or cascade could drain it. So the guard splits by intent: gestures are inert; state can always drain.
+
 ---
 
 ## 7. Events & lifecycle
@@ -811,10 +830,12 @@ Components that defer the mount of **complex DOM** default to lazy. Expose only 
 
 **Scope.** "Complex DOM" means a sub-tree the user pays for only when an interaction opens it — Dialog content, Popover content, expanded Tabs panels, deferred Combobox lists. The point is keeping mount cost off the initial paint.
 
+**Current adopters.** `Combobox` and `Select` content implement the `useLazy` + `eager?` pattern today. `Dialog`, `Popover`, and `Tabs` panels are named here as the *target* for this convention but are always-mounted at present. Treat lazy + `eager?` as the standard for new deferred-content work; retrofitting the existing always-mounted components is a possible future enhancement, not a current guarantee.
+
 **Carve-outs.** Components whose entire identity is "manage the mount lifecycle" expose their own dedicated knobs and do not follow the `eager?` shorthand:
 
 - `Image` — `<Image.Img>` mounts on load-state transitions; the `Image.Placeholder` / `Image.Fallback` slots are the visible mount surface. There is no `eager` prop because the load lifecycle is the component.
-- `Presence` — owns the `UNMOUNTED → MOUNTED → PRESENT → LEAVING → UNMOUNTED` state machine directly. `Presence` takes `present: boolean` and `lazy: boolean` separately because both are observable states, not opt-ins to a single shorthand.
+- `Presence` — owns the `UNMOUNTED → MOUNTED → PRESENT → LEAVING → UNMOUNTED` state machine directly. The component drives presence through a `v-model` (`defineModel<boolean>`) plus separate `lazy` / `immediate` props; the underlying `usePresence` composable takes the resolved model as its `present` option alongside `lazy`, because both are observable states, not opt-ins to a single shorthand.
 
 ### 7.3 Cleanup on unmount
 
@@ -824,7 +845,7 @@ Components use `onBeforeUnmount` for registry deregistration — not `onUnmounte
 
 ### 7.4 Presence state machine
 
-Mount-and-animate components follow the presence state machine: `UNMOUNTED → MOUNTED → PRESENT → LEAVING → UNMOUNTED`. `Presence` with `lazy: true` is the current replacement for the older `useLazy` pattern. [intent:313, intent:314]
+Mount-and-animate components follow the presence state machine. Default (eager): `UNMOUNTED → MOUNTED → PRESENT → LEAVING → UNMOUNTED`. With `lazy: true` the node is retained in the DOM after leave, so the terminal state is `MOUNTED`, not `UNMOUNTED` (`usePresence/index.ts:114` — `state = lazy ? 'mounted' : 'unmounted'`); a re-open resumes from `MOUNTED → PRESENT` and skips the initial mount. `Presence` / `usePresence` with `lazy: true` is the intended replacement for the older `useLazy` pattern; migration is in progress — `Combobox` and `Select` content still use `useLazy`. [intent:313, intent:314]
 
 ### 7.5 Conditional scopes with `useToggleScope`
 
@@ -843,6 +864,8 @@ See §2.2.
 ### 8.2 `unknown` over `any`
 
 When a type is genuinely indeterminate (e.g., ticket `value`), it is `unknown`. Narrowing happens at the point of use through `isObject`, `isString`, etc. [intent:79]
+
+**`isObject` caveat.** Guarding an `unknown` (or other indeterminate) value with `isObject` narrows to `Record<string, any>`, so property reads are `any` — not a further-checked type. That is intentional (see §2.2 exception 2): the alternative predicate collapses interface-typed unions. Prefer typed inputs (`interface` / object type in a union) when you need known properties after the guard; when walking untyped trees, pin intermediate reads to `unknown` before re-guarding.
 
 ### 8.3 `Readonly<Ref<T>>` return contract
 
@@ -955,12 +978,12 @@ Current exempt sites:
 
 ### 9.3 Namespace keys contain `:`
 
-Every key passed to `createContext(key)` or `createXContext({ namespace })` must contain a colon. `v0:` prefix for production keys, `test:` prefix for test-only keys. Missing colons trigger a `[v0:context]` warning. [intent:226, intent:227]
+Every key passed to `createContext(key)` or `createXContext({ namespace })` must contain a colon. Use the `v0:` prefix for keys — production and test alike (`v0:tabs`, `v0:test`, `v0:test-key`); source keeps a single `v0:` namespace rather than introducing a separate `test:` one. Missing colons trigger a `[v0:context]` warning. [intent:226, intent:227]
 
 **Static-key vs dynamic-key modes.** `createContext` operates in two modes:
 
-- **Static-key mode** — the call site passes a single string (`createContext('v0:tabs')`). The namespace is fixed at module load; the `[useX, provideX]` pair injects against that one key. Used by every compound component that scopes a single context per Root (`Tabs`, `Dialog`, `Combobox`).
-- **Dynamic-key mode** — the call site passes an options object or omits the positional key (`createContext({ suffix: 'item' })` or `createContext()`), which makes the returned `useX` / `provideX` accept a runtime namespace argument; `suffix` is an optional string appended to that runtime key (`key:suffix`). Used when a single composable services multiple disjoint subtrees within the same app (e.g., nested `Selection` providers). The `[v0:context]` colon warning is static-key-mode only (gated on `isString(keyOrOptions)`); the dynamic branch performs no colon check on the runtime key.
+- **Static-key mode** — the call site passes a single string (`createContext('v0:popover:root')`). The namespace is fixed at module load; the `[useX, provideX]` pair injects against that one key. Used by the few Roots whose namespace never needs to vary per subtree — in component source today, only `Popover` (`'v0:popover:root'`) and `Splitter` (`'v0:splitter'`).
+- **Dynamic-key mode** — the call site passes an options object or omits the positional key (`createContext({ suffix: 'item' })` or `createContext()`), which makes the returned `useX` / `provideX` accept a runtime namespace argument supplied at provide time; `suffix` is an optional string appended to that runtime key (`key:suffix`). This is the default for compound Roots — `Tabs`, `Dialog`, `Combobox`, `Select`, and the rest omit the positional key and pass the namespace to `provideXRoot(namespace, context)` (see §6.5). It is also what lets a single composable service multiple disjoint subtrees within the same app (e.g., nested `Selection` providers). The `[v0:context]` colon warning is static-key-mode only (gated on `isString(keyOrOptions)`); the dynamic branch performs no colon check on the runtime key.
 
 ### 9.4 SSR gating
 
@@ -1167,7 +1190,7 @@ Reason: §3.5, [intent:189, intent:206, intent:207].
 ```ts
 function createSlider (options) {
   const el = toElement(options.el)
-  document.addEventListener('pointermove', onPointermove)  // Wrong: composable bound a DOM listener
+  document.addEventListener('pointermove', onPointermove)  // Wrong: raw listener for a component-owned widget, no injected target, no scope cleanup (cf. the §2.5 carve-out for session-scoped system composables)
   // ...
 }
 ```
@@ -1240,7 +1263,7 @@ Reason: §3.6, [intent:172]. `false` writes `data-disabled="false"` to the DOM, 
 
 **Exceptions — where `v-show` is correct.** A child component that registers a ticket with its Root must stay mounted even while invisible; `v-if` would unmount it, fire `onBeforeUnmount`, unregister the ticket, drop its measurement, and on re-include cause a measurement / capacity / visibility cascade that thrashes neighbours. Use `v-show` when state must survive the visibility flip:
 
-- **Registry-driven visibility.** `Breadcrumbs/BreadcrumbsItem.vue`, `BreadcrumbsDivider.vue`, `BreadcrumbsEllipsis.vue`, `Overflow/OverflowItem.vue` — items registered with the Root for measurement or selection must stay mounted so their ticket and width entry survive the flip.
+- **Registry-driven visibility.** `Breadcrumbs/BreadcrumbsItem.vue`, `BreadcrumbsDivider.vue`, `BreadcrumbsEllipsis.vue`, `Overflow/OverflowItem.vue`, `Avatar/AvatarRoot.vue` — items registered with the Root (or an enclosing group) for measurement, selection, or overflow counting must stay mounted so their ticket survives the flip; `AvatarRoot` hides via `v-show="!isHidden"` when the group's visible count excludes it, yet keeps its ticket so the count stays correct.
 - **Load-state preservation.** `Avatar/AvatarImage.vue` — image load state would reset on remount.
 - **Virtualization.** `Combobox/ComboboxItem.vue` — load-bearing for the filtered list.
 
@@ -1285,7 +1308,7 @@ attrs: {
 ```ts
 const locale = useLocale()
 attrs: {
-  'aria-label': locale.t('$v0.dialog.close'),
+  'aria-label': locale.ti('Dialog.close') ?? 'Close',
 }
 ```
 
@@ -1299,7 +1322,7 @@ v0 never renders a sort indicator itself. Direction lives in state, not in marku
 
 **Wrong (v0 source renders an indicator directly).**
 ```vue
-<!-- packages/0/src/components/DataTable/DataTableColumnHeader.vue — hypothetical, do not write -->
+<!-- packages/0/src/components/DataTable/DataTableColumn.vue — hypothetical, do not write -->
 <template>
   <Atom :as :renderless>
     <button>
@@ -1314,7 +1337,7 @@ Two failures in one snippet: the span is rendered inside v0 source (which is the
 
 **Right (consumer owns the indicator).**
 ```vue
-<!-- packages/0/src/components/DataTable/DataTableColumnHeader.vue -->
+<!-- packages/0/src/components/DataTable/DataTableColumn.vue -->
 <template>
   <Atom :as :renderless>
     <slot v-bind="slotProps" />
@@ -1323,14 +1346,14 @@ Two failures in one snippet: the span is rendered inside v0 source (which is the
 ```
 
 ```vue
-<!-- consumer's app — renders whatever it likes -->
-<DataTable.ColumnHeader v-slot="{ attrs, direction }">
+<!-- consumer's app — renders whatever it likes; Column emits data-direction on attrs -->
+<DataTable.Column sortable v-slot="{ attrs, direction }">
   <button v-bind="attrs">
     {{ label }}
     <MyIcon v-if="direction === 'asc'" name="arrow-up" />
     <MyIcon v-else-if="direction === 'desc'" name="arrow-down" />
   </button>
-</DataTable.ColumnHeader>
+</DataTable.Column>
 ```
 
 Reason: §2.1, §5.1 (headless acid test — consumer must be able to style/render against data attributes alone), [intent:269]. v0 emits state, consumers emit glyphs.
@@ -1460,7 +1483,7 @@ The bug family: any composable that exposes two derived values where one is driv
 | 3 API shape | returns, args, names, slots, comments | 22 |
 | 4 Reactivity | primitives, readonly, options, scope | 22 |
 | 5 Headless | operational definition | 10 |
-| 6 Registries | context, tickets, useProxyModel, useProxyRegistry, mergeProps, collection composables | 17 |
+| 6 Registries | context, tickets, useProxyModel, useProxyRegistry, mergeProps, collection composables, disabled semantics | 17 |
 | 7 Events & lifecycle | binding, mounting, cleanup, toggle scope | 7 |
 | 8 Types | any, readonly-ref, MRG, generics, slot guards | 8 |
 | 9 Errors | throw/warn/return, logger, SSR | 9 |

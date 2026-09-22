@@ -1,0 +1,31 @@
+<!--
+  Source: https://bulma.io/documentation/components/message/
+  Bulma version: 1.0.4
+  Canonical documented markup: article.message > .message-header (p + button.delete)
+  + .message-body. Delete button carries aria-label="delete".
+  Body-only variant is also documented.
+-->
+
+<!-- fixture: message with header and delete -->
+<article class="message">
+  <div class="message-header">
+    <p>Hello World</p>
+    <button class="delete" aria-label="delete"></button>
+  </div>
+  <div class="message-body">
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    <strong>Pellentesque risus mi</strong>, tempus quis placerat ut, porta nec
+    nulla. Vestibulum rhoncus ac ex sit amet fringilla. Nullam gravida purus
+    diam, et dictum <a>felis venenatis</a> efficitur.
+  </div>
+</article>
+
+<!-- fixture: message body only -->
+<article class="message">
+  <div class="message-body">
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    <strong>Pellentesque risus mi</strong>, tempus quis placerat ut, porta nec
+    nulla. Vestibulum rhoncus ac ex sit amet fringilla. Nullam gravida purus
+    diam, et dictum <a>felis venenatis</a> efficitur.
+  </div>
+</article>

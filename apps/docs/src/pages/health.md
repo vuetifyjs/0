@@ -10,7 +10,7 @@ features:
   level: 1
 ---
 
-<script setup>
+<script setup lang="ts">
   import AppIcon from '@/components/app/AppIcon.vue'
   import DocsFreshnessSparkline from '@/components/docs/DocsFreshnessSparkline.vue'
   import DocsFreshnessTable from '@/components/docs/DocsFreshnessTable.vue'

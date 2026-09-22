@@ -27,7 +27,9 @@ A headless modal dialog component using the native HTML dialog element.
   :versions="{ chrome: '37+', edge: '79+', firefox: '98+', safari: '15.4+', opera: '24+' }"
   anchor="native-dialog"
 >
-  Uses the native dialog element with showModal(). Safari 15.4+ is required; older versions have no support.
+
+Uses the native dialog element with showModal(). Safari 15.4+ is required; older versions have no support.
+
 </DocsBrowserSupport>
 
 ## Usage
@@ -48,9 +50,12 @@ The Dialog component leverages the native `showModal()` API for proper modal beh
 <template>
   <Dialog.Root>
     <Dialog.Activator />
+
     <Dialog.Content>
       <Dialog.Title />
+
       <Dialog.Description />
+
       <Dialog.Close />
     </Dialog.Content>
   </Dialog.Root>
@@ -78,10 +83,54 @@ The `blocking` prop disables scrim-based dismissal entirely — the dialog can o
 ```vue
 <template>
   <Dialog.Content blocking>
-    <!-- No scrim, no click-outside close — must use Dialog.Close or v-model -->
+    <!-- Scrim click and click-outside will not close — must use Dialog.Close or v-model -->
   </Dialog.Content>
 </template>
 ```
+
+### Opting Out of the Global Scrim
+
+`closeOnClickOutside` stops click-outside from closing. `blocking` keeps the global Scrim but ignores scrim clicks. `scrim` (default `true`) controls whether the global `<Scrim>` paints a layer at all — pass `false` when you own the backdrop.
+
+```vue
+<template>
+  <Dialog.Content :scrim="false">
+    <!-- Consumer-owned backdrop; global Scrim skips this dialog -->
+  </Dialog.Content>
+</template>
+```
+
+The dialog still participates in z-index stacking. `scrim: false` is not a modal host for `top-layer` teleports (Snackbar-in-dialog).
+
+## Accessibility
+
+Dialog renders its panel through the native `<dialog>` element opened with `showModal()`, so focus trapping, backdrop rendering, inerting of the page behind it, and Escape-to-close all come from the browser.
+
+### ARIA Attributes
+
+| Attribute | Value | Element |
+|-----------|-------|---------|
+| `aria-haspopup` | `dialog` | Activator |
+| `aria-expanded` | `true` / `false` | Activator |
+| `role` | `dialog` | Content |
+| `aria-modal` | `true` | Content |
+| `aria-labelledby` | Title element ID | Content |
+| `aria-describedby` | Description element ID | Content |
+| `aria-label` | Localized "Close" string | Close |
+
+`Dialog.Title` and `Dialog.Description` generate the IDs referenced by `aria-labelledby` and `aria-describedby`. Render them inside `Dialog.Content` so the dialog has an accessible name and description.
+
+### Keyboard Navigation
+
+| Key | Action |
+|-----|--------|
+| `Tab` / `Shift + Tab` | Cycles focus through focusable controls inside Content (trapped by `showModal()`) |
+| `Escape` | Closes the dialog (native `cancel` event) |
+| `Enter` / `Space` | Activates the focused control |
+
+### Focus management
+
+`showModal()` moves focus into the dialog on open, and the browser traps `Tab` within it while it stays open. `Dialog.Activator` renders a `<button>` by default — carrying `aria-haspopup="dialog"` and `aria-expanded` — and opens the dialog on click.
 
 ## FAQ
 
@@ -110,7 +159,11 @@ To opt out, set `teleport="body"` (always body) or `:teleport="false"` (render i
 
 ??? What's the difference between `closeOnClickOutside` and `blocking`?
 
-`:close-on-click-outside="false"` on `Dialog.Content` stops backdrop clicks from closing the dialog. `blocking` goes further and disables scrim-based dismissal entirely, so the dialog can only be closed programmatically via `Dialog.Close` or `v-model` — reach for it on critical confirmations that require an explicit choice.
+`:close-on-click-outside="false"` on `Dialog.Content` stops backdrop clicks from closing the dialog. `blocking` goes further and disables scrim-based dismissal entirely, so the dialog can only be closed programmatically via `Dialog.Close` or `v-model` — reach for it on critical confirmations that require an explicit choice. Neither opts the dialog out of the global `<Scrim>` — use `:scrim="false"` for that.
+
+??? How do I opt a dialog out of the global Scrim?
+
+Pass `:scrim="false"` on `Dialog.Content` when you own the backdrop. Default is `true`. The dialog still stacks for z-index, but is not a modal host for `top-layer` teleports (Snackbar-in-dialog).
 
 :::
 

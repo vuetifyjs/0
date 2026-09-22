@@ -1,7 +1,7 @@
 ---
 title: Tree-Shaking - Bundle Size Optimization
 features:
-  order: 7
+  order: 9
   level: 2
 meta:
   - name: description
@@ -50,7 +50,7 @@ Subpath imports narrow the module scope, giving bundlers less work to analyze. T
 
 ### Adapter Subpaths
 
-Composables with optional adapters have dedicated subpaths that isolate their dependencies:
+Composables with optional adapters have dedicated subpaths that isolate their dependencies. Prefer these over root imports when you need a hard boundary around peer-heavy entry points:
 
 ```ts
 import { useDate } from '@vuetify/v0/date'
@@ -60,10 +60,13 @@ import { useTheme } from '@vuetify/v0/theme'
 import { useLocale } from '@vuetify/v0/locale'
 import { useLogger } from '@vuetify/v0/logger'
 import { usePermissions } from '@vuetify/v0/permissions'
+import { useNotifications } from '@vuetify/v0/notifications'
+import { useRules } from '@vuetify/v0/rules'
 import { createDataTable } from '@vuetify/v0/data-table'
+import { material } from '@vuetify/v0/palettes/material/generate'
 ```
 
-These are primarily useful for **framework authors** who want to guarantee that adapter peer dependencies (like `date-fns` or `flagsmith`) don't leak into consumer bundles.
+Nested adapter packages (e.g. `@vuetify/v0/features/adapters/flagsmith`, `@vuetify/v0/locale/adapters/vue-i18n`) hang off these entry points. These subpaths are primarily useful for **framework authors** who want to guarantee that adapter peer dependencies (like `date-fns` or `flagsmith`) don't leak into consumer bundles.
 
 ## Bundle Size
 
@@ -143,7 +146,7 @@ function isObject(value: unknown): value is object {
 
 ### 3. Subpath Exports
 
-The `package.json` defines [subpath exports](https://nodejs.org/api/packages.html#subpath-exports) that map to individual entry points:
+The `package.json` defines [subpath exports](https://nodejs.org/api/packages.html#subpath-exports) that map to individual entry points. The block below is a **representative excerpt** — the published map is much larger (adapters, palettes, nested data-table paths, and more). For the isolation-oriented imports that matter day to day, see [Adapter Subpaths](#adapter-subpaths).
 
 ```json
 {

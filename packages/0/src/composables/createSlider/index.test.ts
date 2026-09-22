@@ -177,6 +177,40 @@ describe('createSlider', () => {
     })
   })
 
+  describe('disabled mode', () => {
+    it('should not change value on set when disabled', () => {
+      const { slider, addThumb } = setup({ min: 0, max: 100, step: 1, disabled: true })
+      addThumb(50)
+      slider.set(0, 75)
+      expect(slider.values.value).toEqual([50])
+    })
+
+    it('should not change value on up or down when disabled', () => {
+      const { slider, addThumb } = setup({ min: 0, max: 100, step: 5, disabled: true })
+      addThumb(50)
+      slider.up(0)
+      expect(slider.values.value).toEqual([50])
+      slider.down(0)
+      expect(slider.values.value).toEqual([50])
+    })
+
+    it('should not change value on floor or ceil when disabled', () => {
+      const { slider, addThumb } = setup({ min: 10, max: 90, disabled: true })
+      addThumb(50)
+      slider.floor(0)
+      expect(slider.values.value).toEqual([50])
+      slider.ceil(0)
+      expect(slider.values.value).toEqual([50])
+    })
+
+    it('should still update values via apply when disabled', () => {
+      const { slider, addThumb } = setup({ min: 0, max: 100, step: 10, disabled: true })
+      addThumb(0)
+      slider.apply([33])
+      expect(slider.values.value).toEqual([30])
+    })
+  })
+
   describe('set with following thumb constraint', () => {
     it('should constrain first thumb below following thumb gap', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100, step: 1, minStepsBetweenThumbs: 10 })

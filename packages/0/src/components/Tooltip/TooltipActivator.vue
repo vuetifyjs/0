@@ -5,10 +5,12 @@
  *
  * @remarks
  * Tooltip trigger element. Binds pointer, focus, and escape events and
- * exposes them on slot attrs for renderless usage. Touch interactions
- * are suppressed per WAI-ARIA APG. Keyboard focus opens the tooltip
- * instantly (no delay), gated on :focus-visible so a mouse click that
- * incidentally moves focus does not open the tooltip.
+ * exposes them on slot `attrs` — alongside the anchor-positioning `styles` —
+ * for renderless usage, so a consumer can wire the tooltip onto their own
+ * element (e.g. a native `type="submit"` button) and still anchor the
+ * content. Touch interactions are suppressed per WAI-ARIA APG. Keyboard
+ * focus opens the tooltip instantly (no delay), gated on :focus-visible so a
+ * mouse click that incidentally moves focus does not open the tooltip.
  */
 
 <script lang="ts">
@@ -18,11 +20,14 @@
   // Context
   import { useTooltipRoot } from './TooltipRoot.vue'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
-  import { mergeProps, toRef, useAttrs } from 'vue'
+  import { mergeProps, toRef, useAttrs, useTemplateRef } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { TooltipState } from './TooltipRoot.vue'
 
   export interface TooltipActivatorProps extends AtomProps {
@@ -46,6 +51,7 @@
       'onClick': () => void
       'onKeydown': (e: KeyboardEvent) => void
     }
+    styles: Record<string, string>
   }
 </script>
 
@@ -65,6 +71,10 @@
   } = defineProps<TooltipActivatorProps>()
 
   const root = useTooltipRoot(namespace)
+
+  const atomRef = useTemplateRef<AtomExpose>('atom')
+
+  root.attachAnchor(() => toElement(atomRef.value?.element) ?? null)
 
   function onPointerenter (e: PointerEvent) {
     if (e.pointerType === 'touch') return
@@ -114,11 +124,13 @@
       'onClick': onClick,
       'onKeydown': onKeydown,
     },
+    styles: root.anchorStyles.value,
   }))
 </script>
 
 <template>
   <Atom
+    ref="atom"
     :as
     :renderless
     :style="root.anchorStyles.value"

@@ -1,0 +1,240 @@
+# Paper — Design Systems & Kits
+
+**Paper** is the family of design systems and kits built on `@vuetify/v0`, published
+under the `@paper/*` scope. Each package stands on its own — v0 is the only substrate.
+
+This document is the family contract. Per-package specifics live in that package's
+`SPEC.md` (see [Per-package SPEC.md](#per-package-specmd)); this document defines what
+is common, what is required, and what is forbidden — so patterns are decided once, not
+rediscovered per component.
+
+Rulings 1–3 below are **decided**; sections 4–5 are **PROPOSED** and open for review.
+
+The stack:
+
+```
+@vuetify/v0      the substrate — compound components, composables, utilities,
+                 and the theme engine (incl. V0StyleSheetThemeAdapter)
+@paper/*         design systems and kits (the classes below), each standalone on v0
+vuetify          orchestration + defaults (Material ships here)
+```
+
+## Three classes
+
+The `@paper/*` scope hosts three deliberately different kinds of package. Identify the
+class first — a kit missing a token pipeline is correct, not incomplete; a design
+system missing one is broken; a compat package that owns a token prefix is in the
+wrong class.
+
+| | **Design system** | **Kit** | **Compat** |
+|---|---|---|---|
+| Intent | Encompass everything — a complete visual framework | Purpose-scoped component set | Upstream CSS framework's markup, v0's JavaScript |
+| Exemplars | Material, Emerald, Onyx | Genesis (docs) | Bulma (`@paper/bulma`); daisyUI ([daisyfy](https://github.com/J-Sek/v0-daisyui), external) |
+| Token namespace | Owns one (`--emerald-*`) | **None** — consumes `--v0-*` | **None** — consumes upstream's (`--bulma-*`) |
+| Theme plugin / adapter | Required (`theme.ts`, `adapter.ts`, `plugin.ts`) | **Forbidden** | **Forbidden** at Tier 1. A later plugin would drive upstream vars, never an owned prefix |
+| Stylesheet artifact | `dist/theme.css` (prebaked default theme) | None — inherits the page's theme | **None** — the user's own upstream CSS is the styling source |
+| Component coverage | Full, spec-driven | Only what the purpose needs | Upstream's documented component / element / form families; composites are Tier 2 |
+| Visual language | Its own | Blends with whatever theme is active | Upstream's, verbatim |
+| Component prefix | `Em*`, `On*` | `Gn*` | `Bu*` (`B*` reserved for Bootstrap) |
+
+"Custom design system via bring-your-own Figma" is a **delivery mode** of the design
+system class, not a fourth class: same contract, same pipeline, tokens sourced from the
+customer's file. This is why the token pipeline must be reproducible end to end.
+
+### Compat class
+
+Pitch: delete the framework's JavaScript, keep the CSS. Components render the upstream
+framework's **real** markup and classes (`button is-primary`, `is-active`) against the
+user's own stylesheet; `@vuetify/v0` supplies behavior, focus, and accessibility.
+
+The class exists because the logic layer is the expensive part, and v0 already ships
+it. Each compat package is a search wedge (`bulma vue`, `daisyui vue`) into v0 — not
+a conversion onto a new visual language.
+
+**Declared deviations** from rulings 1–3 — inherent to the class, not exceptions to
+file per component:
+
+1. **No owned token namespace** (ruling 1). `--bulma-*` belongs to upstream.
+2. **Native form controls where upstream CSS demands them** (ruling 2). A non-native
+   `<select>` gets none of the user's CSS. Rich replacements (combobox, etc.) live in
+   Tier 2 on full v0 primitives.
+3. **Upstream state classes, unprefixed** (ruling 3). `is-active` instead of
+   `data-active`. **State classes are component-owned and JS-set, never CSS** — a hard
+   requirement. Docs sandboxes classify overlay / float / grow from the presence of
+   `.is-active`; a future target that styles open state with `:hover` only cannot
+   reuse that classifier.
+
+**Additional rulings, compat only:**
+
+- **No named slots.** Every region is an express part component named after the
+  upstream part class (`BuModalHead`, `BuDropdownMenu`). Those parts also attach
+  to the parent export (`BuModal.Head`, `BuDropdown.Menu`); the flat names remain
+  valid. List-shaped families (breadcrumb, pagination, menu, file) are parts too,
+  not `items` props. Parts read parent state through optional context and warn in
+  dev when it is missing; parts backed by a v0 context throw instead.
+- **Optional peer** for the upstream CSS package. Zero-config consumers load it
+  off-CDN. The package never imports it.
+- **Conformance harness** is the factory asset: fixtures captured from upstream
+  docs, DOM / class diff with a strict additive-attr charter (`aria-*` / `data-*` /
+  `role` / `tabindex` / `id` only).
+- Isolation comes from upstream class names, not a package prefix. Ruling 3's
+  "never `<style scoped>`" still holds.
+
+This addendum is extracted from `@paper/bulma` and daisyfy. A third target
+(Bootstrap) will stress-test it; until then the table is the contract.
+
+## Rulings
+
+### 1. Tokens and the zero-config on-ramp (design systems)
+
+Tokens are TypeScript objects (`theme.ts`), published as CSS custom properties at
+runtime by a stylesheet adapter extending **v0's theme engine**
+(`V0StyleSheetThemeAdapter`, constructed with the design system's prefix). Two
+consumption paths, both required:
+
+- **Zero-config**: the build prebakes the default theme to `dist/theme.css`. A newcomer
+  installs, imports one CSS file, and components render correctly — no plugin.
+- **Full**: `app.use(create<Name>Plugin())` for theming, dark mode, runtime switching,
+  CSP nonces.
+
+Component styles reference tokens with literal fallbacks — `var(--emerald-primary,
+#26C26D)` — so components degrade to the default look rather than breaking when neither
+path is wired. Design values live in tokens; literals appear **only** as `var()`
+fallbacks or in `theme.ts`.
+
+Kits skip all of this: consume `--v0-*` variables with literal fallbacks, exactly as
+`@paper/genesis` documents in its SPEC.md.
+
+#### Kit interop — `--v0-*` bridge (design systems)
+
+A design system that hosts a kit (today: Genesis chrome on an Emerald docs page) must
+still provide the `--v0-*` cascade the kit reads. Preferred mechanism: the design
+system's stylesheet adapter **also emits `--v0-*` aliases** for the color roles kits
+consume (`surface`, `on-surface`, `surface-tint`, `on-surface-variant`, `primary`,
+`on-primary`, `pre`, `background`, `on-background`, and the severity tokens kits use for
+admonitions). Kits stay prefix-blind; the DS owns the bridge.
+
+```css
+/* Emitted alongside --emerald-* by the DS adapter (illustrative) */
+[data-theme="emerald-light"] {
+  --emerald-primary: #26c26d;
+  --v0-primary: var(--emerald-primary);
+  /* …same for surface / on-surface / … */
+}
+```
+
+Alternatives (register a parallel v0 theme; host-only alias stylesheet) are allowed.
+Do **not** teach kits a DS prefix — that reintroduces the dual-cascade failure mode
+Genesis already rejected (Phase 1 → revised).
+
+### 2. Composition
+
+- **Behavioral components** compose **v0 compound primitives directly** —
+  `Button.Root`, `Dialog.Root`, `Tabs.Root`, and friends own behavior, accessibility,
+  and state.
+- **Purely presentational components** (cards, badges, dividers) render semantic
+  elements or v0's `Atom`; there is no behavioral primitive to compose and none should
+  be invented.
+- Styling logic comes from v0's utilities (`apca`, `foreground`, `hexToRgb`, …) and the
+  package's own tokens; no published `@paper/*` package routes styling through an
+  intermediate styling-primitives layer. (`@vuetify/paper` is removed from the
+  version/publish path and kept dormant in-repo. Whether v0's utilities fully cover the
+  color/contrast math a design system needs — and so whether Paper's primitives are still
+  required — is to be evaluated against the second design system, Onyx: decision deferred,
+  not made.)
+- Never compose native HTML form controls.
+
+### 3. Styling
+
+- **Never `<style scoped>`.** Scoped rules silently fail on multi-root compound
+  children (the `data-v` attribute never lands on the primitive's root — this bit
+  Genesis in [#359](https://github.com/vuetifyjs/0/issues/359)). One rule, zero
+  judgment calls.
+- Isolation comes from the class prefix: every class is namespaced by package
+  (`emerald-button`, `genesis-docs-example`).
+- State styling hooks are data attributes (`data-variant`, `data-size`,
+  `data-disabled`), not JS-computed class lists.
+- No utility classes in package source.
+
+### 4. Package skeleton (PROPOSED)
+
+The config layer is mechanical and must be **generated, not authored** — scaffolded new
+packages start from the canonical shape rather than copying a sibling:
+
+- `package.json`: two-tier exports (`development` condition → `src/index.ts`,
+  `publishConfig` dist-only), `@vuetify/v0` as the sole internal dependency
+  (`workspace:^`), `vue >=3.5.0` peer (components use reactive props destructure),
+  `catalog:` dev deps.
+- `tsconfig.json`: extends `@vue/tsconfig/tsconfig.dom.json`; `#<name>` and `#v0` path
+  aliases; `lib` includes `esnext`; no `baseUrl`.
+- `tsdown.config.mts`: `unplugin-vue/rolldown`, `dts: { vue: true }`, the deferred
+  `__DEV__: 'process.env.NODE_ENV !== \'production\''` expression (never baked at
+  build time), `exports: { devExports: 'development' }`.
+- **Design systems additionally**: `src/theme.ts`, `src/adapter.ts`, `src/plugin.ts`,
+  and the build step that prebakes `dist/theme.css` from the default theme (ruling 1).
+
+### 5. Component maturity bar (PROPOSED)
+
+A design system component ships only when:
+
+- every variant and size in its spec exists (no "1 of 4 variants");
+- interactive states are styled: hover, `:focus-visible`, disabled, loading where
+  applicable;
+- dark-mode tokens resolve wherever the design system defines a dark theme;
+- its tokens are **wired** — a token defined in `theme.ts` but unused by any component,
+  or a component hardcoding a value a token exists for, fails review.
+
+Kits gate only on their purpose's spec.
+
+### 6. Icons
+
+Every design system ships its **own** icon set. There is no shared artwork and no
+bundled icon library — a design system's glyphs are as much a part of its visual
+language as its type scale, and Onyx's chevron is not Emerald's.
+
+What *is* shared is the **role vocabulary** and the resolution mechanism:
+
+- A design system maps **role names to glyphs** — `close`, `check`, `chevron-down`,
+  `search`, `menu` — and registers them through v0's `createTokens`
+  ([#107](https://github.com/vuetifyjs/0/issues/107)). Alias resolution is the reason
+  `createTokens` is the right primitive: `{envelope: '{mail}'}` costs one entry, and
+  overriding `mail` moves both names at once.
+- Roles are named for **what the glyph is**, not the one screen that first needed it —
+  `receipt`, not `orders`. Two features drawing the same mark get one role and an
+  alias, never two copies of the path data.
+- Icons are their **own plugin**, built with v0's `createPluginContext` and carrying a
+  lazy fallback so the renderer still draws with nothing installed. The design system's
+  main plugin composes it; consumers extend or replace roles through its options.
+  Overriding a role must restyle the system's own chrome, which means **components may
+  not inline their own artwork** — an Em*/On* component that hardcodes an SVG is a
+  component a consumer cannot rebrand.
+- Do not promise the glyph map is tree-shakeable. Measured against Emerald's build
+  (rollup and esbuild, `dist/index.mjs`): a module-scope trinity —
+  `const [a, b, c] = createXContext()` — survives tree-shaking even annotated
+  `/* @__PURE__ */`, so the map is retained by any import from the package. Skipping the
+  plugin install is a registration switch, not a bundle switch. A separate entry point is
+  the only mechanism that would actually drop it, and no design system has needed one yet.
+- Whatever a design system's glyphs are (path data, sprite ids, icon-font classnames,
+  UnoCSS `i-*` classes), the *role* layer is the same; the renderer is the design
+  system's own component (`EmIcon`, and its Onyx counterpart).
+
+Emerald is the first implementation — `packages/emerald/src/icons.ts` plus `EmIcon`,
+drawing 24x24 stroke-grid path data. Whether the role vocabulary, the collect/alias
+plumbing, or the renderer itself is worth extracting into a shared package is **to be
+evaluated against the second implementation**: one consumer is not a pattern. Decision
+deferred, not made — until then, a second design system copies the approach, not the
+code.
+
+## Per-package SPEC.md
+
+Every `@paper/*` package carries a `SPEC.md` declaring:
+
+1. its **class** (design system, kit, or compat) and purpose;
+2. its **token source** (e.g. the canonical Figma file key) — design systems only;
+3. its component inventory and any intentional deviations from this contract, with
+   reasons.
+
+`packages/genesis/SPEC.md` is the exemplar of the kit *shape*, and declares its class.
+Genesis otherwise predates this contract (most of its components still use
+`<style scoped>`); that alignment is tracked separately and does not weaken the rulings
+above.

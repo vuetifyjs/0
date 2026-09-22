@@ -26,7 +26,7 @@
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
-  import { isNull } from '#v0/utilities'
+  import { isNull, pxToNumber } from '#v0/utilities'
   import { shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -102,6 +102,10 @@
   const group = createGroup<BreadcrumbsTicket>({
     enroll: true,
     multiple: true,
+    // Membership must be a tracked dependency: children register after the
+    // Root renders, and both the hidden count and the ellipsis's disclosure
+    // state are read from this registry. Never passed to a template v-for.
+    reactive: true,
   })
 
   // Reserved widths — first pair + ellipsis are excluded from the overflow
@@ -125,6 +129,19 @@
 
   const isOverflowing = overflow.isOverflowing
 
+  // Derived here rather than in each ellipsis — the Root owns the registry and
+  // is already where isOverflowing and hiddenCount are worked out.
+  const hasActivator = toRef(() => group.values().some(t => t.type === 'activator'))
+
+  // Disclosure state — when true, collapsed items are revealed (toggled by
+  // an interactive BreadcrumbsEllipsis).
+  const expanded = shallowRef(false)
+
+  // Written imperatively by the visibility watcher below rather than derived.
+  // The group is not `reactive`, so membership is not a tracked dependency and
+  // a getter would go stale inside render effects when crumbs come and go.
+  const hiddenCount = shallowRef(0)
+
   // Element measurement routing — first item/divider write to reserved refs,
   // everything else feeds into the overflow pool.
   let _firstItemIndex: number | null = null
@@ -137,7 +154,7 @@
     }
     const htmlEl = el as HTMLElement
     const style = getComputedStyle(htmlEl)
-    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    const marginX = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
     target.value = (htmlEl.offsetWidth || 0) + marginX
   }
 
@@ -156,7 +173,7 @@
   }
 
   watch(
-    [() => overflow.capacity.value, () => group.size],
+    [() => overflow.capacity.value, () => group.size, expanded],
     ([capacity]) => {
       const all = group.values()
 
@@ -166,6 +183,9 @@
       const ellipsisTickets: Ticket[] = []
 
       for (const ticket of all) {
+        // Activators live inside an ellipsis and occupy no space of their own,
+        // so they take no part in the layout maths.
+        if (ticket.type === 'activator') continue
         if (ticket.type === 'ellipsis') {
           ellipsisTickets.push(ticket)
         } else {
@@ -181,19 +201,21 @@
       const eW = ellipsisWidth.value
       const reserved = fI + gap + fD + gap + eW + gap
 
-      if (capacity === Infinity || capacity >= measuredCount) {
-        // Everything fits — show all content, hide ellipsis
+      if (
+        ellipsisTickets.length === 0 ||
+        capacity === Infinity ||
+        capacity >= measuredCount
+      ) {
+        // Everything fits, or no overflow UI composed — show all content, hide
+        // ellipsis. Truncation is gone, so a disclosure left open from a
+        // narrower viewport is stale.
+        hiddenCount.value = 0
+        if (expanded.value) expanded.value = false
         for (const t of ellipsisTickets) group.unselect(t.id)
         for (const t of contentTickets) {
           if (!t.isSelected.value) group.select(t.id)
         }
         return
-      }
-
-      for (const t of ellipsisTickets) group.select(t.id)
-
-      for (let i = 0; i < 2 && i < contentSize; i++) {
-        if (!contentTickets[i]!.isSelected.value) group.select(contentTickets[i]!.id)
       }
 
       const lastIndex = contentSize - 1
@@ -202,31 +224,49 @@
       const toShow = Math.min(poolSize, capacity)
       const showStart = lastIndex - toShow + 1
 
-      for (let i = poolStart; i <= lastIndex; i++) {
-        const t = contentTickets[i]!
-        if (i >= showStart) {
-          if (!t.isSelected.value) group.select(t.id)
-        } else {
-          group.unselect(t.id)
-        }
-      }
+      // Plan the truncated layout as data before touching selection. The
+      // disclosure only changes which plan gets applied, so the hidden count
+      // stays a function of the current measurements either way.
+      const visible = Array.from({ length: contentSize }, (_, i) => i < 2 || i >= showStart)
+      let showEllipsis = true
 
+      // showStart > poolStart puts the separator inside the pool, so it needs no
+      // lower-bound check of its own.
       if (toShow > 0 && showStart > poolStart && contentTickets[showStart]!.type === 'item') {
         const sep = showStart - 1
-        if (sep >= poolStart && contentTickets[sep]!.type === 'divider' && !contentTickets[sep]!.isSelected.value) group.select(contentTickets[sep]!.id)
+        if (contentTickets[sep]!.type === 'divider') visible[sep] = true
       }
 
       if (capacity === 0) {
-        if (lastIndex >= poolStart && !contentTickets[lastIndex]!.isSelected.value) group.select(contentTickets[lastIndex]!.id)
+        // Getting past the early return means capacity < measuredCount, so there
+        // are at least three content tickets and every index below is in range.
+        visible[lastIndex] = true
 
         const w = overflow.width.value
 
-        if (w < reserved + fD && contentSize > 1) group.unselect(contentTickets[1]!.id)
-        if (w < fI + gap + eW + gap) {
-          for (const t of ellipsisTickets) group.unselect(t.id)
-        }
-        if (w < fI + gap) {
-          group.unselect(contentTickets[0]!.id)
+        if (w < reserved + fD) visible[1] = false
+        if (w < fI + gap + eW + gap) showEllipsis = false
+        if (w < fI + gap) visible[0] = false
+      }
+
+      let hidden = 0
+      for (let i = 0; i < contentSize; i++) {
+        if (!visible[i] && contentTickets[i]!.type === 'item') hidden++
+      }
+      hiddenCount.value = hidden
+
+      // An open disclosure keeps the ellipsis so it can collapse the trail again.
+      for (const t of ellipsisTickets) {
+        if (showEllipsis || expanded.value) group.select(t.id)
+        else group.unselect(t.id)
+      }
+
+      for (let i = 0; i < contentSize; i++) {
+        const t = contentTickets[i]!
+        if (expanded.value || visible[i]) {
+          if (!t.isSelected.value) group.select(t.id)
+        } else {
+          group.unselect(t.id)
         }
       }
     },
@@ -240,6 +280,9 @@
     divider: toRef(() => divider),
     ellipsis: toRef(() => ellipsis),
     isOverflowing,
+    expanded,
+    hasActivator,
+    hiddenCount,
     ellipsisWidth,
     measureElement,
   })

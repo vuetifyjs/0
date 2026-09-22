@@ -5,19 +5,25 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import Vue from 'unplugin-vue/rolldown'
 import { defineConfig } from 'vite'
+import VueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // Set when the app is built as the docs-site demo (see root build:demo);
+  // ViteSSG feeds BASE_URL to the router, so routes follow the subpath.
+  base: process.env.DEMO_BASE ?? '/',
   experimental: {
     enableNativePlugin: true,
   },
   plugins: [
     Vue(),
+    VueDevTools(),
     UnocssVitePlugin(),
     Components({
       dirs: [
         '../packages/paper/src/components/',
         '../packages/0/src/components/',
+        '../packages/emerald/src/components/',
       ],
       dts: 'src/components.d.ts',
     }),
@@ -53,9 +59,13 @@ export default defineConfig({
       '@': fileURLToPath(new URL('src', import.meta.url)),
       '@vuetify/v0': fileURLToPath(new URL('../packages/0/src', import.meta.url)),
       '@vuetify/paper': fileURLToPath(new URL('../packages/paper/src', import.meta.url)),
+      '@paper/bulma': fileURLToPath(new URL('../packages/bulma/src', import.meta.url)),
+      '@paper/emerald': fileURLToPath(new URL('../packages/emerald/src', import.meta.url)),
       // internal
       '#v0': fileURLToPath(new URL('../packages/0/src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../packages/paper/src', import.meta.url)),
+      '#bulma': fileURLToPath(new URL('../packages/bulma/src', import.meta.url)),
+      '#emerald': fileURLToPath(new URL('../packages/emerald/src', import.meta.url)),
     },
   },
   build: {

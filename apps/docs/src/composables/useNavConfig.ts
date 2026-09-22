@@ -6,6 +6,7 @@ import { IN_BROWSER } from '@vuetify/v0/constants'
 import { useSettings } from '@/composables/useSettings'
 
 // Utilities
+import { filterNav } from '@/utilities/nav'
 import { toCamel } from '@/utilities/strings'
 import { computed, shallowRef, toRef, toValue, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -62,35 +63,6 @@ function matchesFeature (item: NavItemLink, features: Set<string>): boolean {
   return features.has(featureName)
 }
 
-/**
- * Filter nav items to only include those matching requested features
- * Preserves category structure if any children match
- */
-function filterNavByFeatures (items: NavItem[], features: Set<string>): NavItem[] {
-  const filtered = items
-    .map(item => {
-      if ('divider' in item) return item
-      if ('children' in item && item.children) {
-        const childFiltered = filterNavByFeatures(item.children, features)
-        if (childFiltered.length === 0) return null
-        return { ...item, children: childFiltered }
-      }
-      if ('to' in item && !matchesFeature(item, features)) return null
-      return item
-    })
-    .filter((item): item is NavItem => item !== null)
-
-  // Remove orphaned dividers
-  return filtered.filter((item, i, arr) => {
-    if (!('divider' in item)) return true
-    const prev = arr[i - 1]
-    const next = arr[i + 1]
-    if (!prev || !next) return false
-    if ('divider' in prev || 'divider' in next) return false
-    return true
-  })
-}
-
 // =============================================================================
 // Composable
 // =============================================================================
@@ -141,7 +113,8 @@ export function createNavConfig (nav: MaybeRefOrGetter<NavItem[]>) {
     const items = toValue(nav)
     const features = activeFeatures.value
     if (!features) return items
-    return filterNavByFeatures(items, new Set(features.map(f => f.toLowerCase())))
+    const set = new Set(features.map(f => f.toLowerCase()))
+    return filterNav(items, item => matchesFeature(item, set))
   })
 
   function clearFilter () {

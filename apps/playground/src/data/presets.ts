@@ -33,13 +33,11 @@ export const DEFAULT_APP = `<script lang="ts" setup>
 
   const single = createSingle({ mandatory: 'force' })
 
-  single.onboard([
+  const tabs = single.onboard([
     { id: 'home', value: 'Home' },
     { id: 'profile', value: 'Profile' },
     { id: 'settings', value: 'Settings' },
   ])
-
-  const tabs = single.values()
 </script>
 
 <template>

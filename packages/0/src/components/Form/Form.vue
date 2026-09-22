@@ -20,6 +20,8 @@
     disabled?: boolean
     /** Sets all registered fields to readonly */
     readonly?: boolean
+    /** Suppress native constraint validation (default: true) — set false to restore browser validation UI */
+    novalidate?: boolean
   }
 
   export interface FormSlotProps {
@@ -37,6 +39,7 @@
     reset: () => void
     /** Attributes to bind to the form element */
     attrs: {
+      novalidate: true | undefined
       onSubmit: (event: Event) => void
       onReset: (event: Event) => void
     }
@@ -72,6 +75,7 @@
     namespace = 'v0:form',
     disabled = false,
     readonly = false,
+    novalidate = true,
     renderless,
   } = defineProps<FormProps>()
 
@@ -110,6 +114,7 @@
     submit: form.submit,
     reset: form.reset,
     attrs: {
+      novalidate: novalidate || undefined,
       onSubmit,
       onReset,
     },

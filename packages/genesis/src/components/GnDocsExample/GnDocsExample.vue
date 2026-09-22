@@ -2,6 +2,9 @@
   // Types
   import type { GnDocsExampleFile } from './GnDocsExampleTabs.vue'
 
+  // Context
+  import { GnIcon } from '../GnIcon'
+
   export interface GnDocsExampleProps {
     /** Anchor id for deep linking */
     id?: string
@@ -39,6 +42,8 @@
     showBin?: boolean
   }
 
+  const RESET = 'M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z'
+  const TOGGLE = 'M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z'
 </script>
 
 <script setup lang="ts">
@@ -140,18 +145,30 @@
       <template v-if="$slots.decoration" #decoration>
         <slot name="decoration" />
       </template>
+
+      <template v-if="$slots['preview-actions']" #actions>
+        <slot name="preview-actions" />
+      </template>
     </GnDocsExamplePreview>
 
     <div v-if="hasCode && !peek" class="genesis-docs-example__toggle-bar">
       <button
         :aria-controls="`${uid}-code`"
         :aria-expanded="showCode"
+        :aria-label="showCode ? 'Hide code' : 'Show code'"
         class="genesis-docs-example__toggle"
         data-tour="example-toggle"
         type="button"
         @click="toggleCode"
       >
-        {{ showCode ? 'Hide code' : 'Show code' }}
+        <slot :expanded="showCode" name="toggle-icon">
+          <GnIcon
+            class="genesis-docs-example__toggle-chevron"
+            :d="TOGGLE"
+            role="example-toggle"
+            :size="14"
+          />
+        </slot>
 
         <span v-if="hasMultipleFiles" class="genesis-docs-example__meta">
           {{ files!.length }} file(s)
@@ -223,16 +240,7 @@
               @click="onReset"
             >
               <slot name="reset-icon">
-                <svg
-                  aria-hidden="true"
-                  fill="currentColor"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  width="16"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
-                </svg>
+                <GnIcon :d="RESET" role="example-reset" />
               </slot>
             </GnActionButton>
           </GnDocsExampleActions>
@@ -278,6 +286,8 @@
     border-radius: 0.5rem;
     background: var(--v0-surface, #fff);
     color: var(--v0-on-surface, #1a1c1e);
+    /* The bottom hairline is drawn by the last child instead — see below. */
+    border-bottom-color: transparent;
   }
 
   .genesis-docs-example__toggle-bar {
@@ -292,12 +302,29 @@
     border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
   }
 
+  /* Peek mode drops the toggle bar, and with it the border-top that separates
+     the preview from the code pane. Restore the divider on the pane itself so
+     peek and non-peek examples read the same. */
+  .genesis-docs-example[data-peek] .genesis-docs-example__code {
+    border-top: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
+  }
+
   .genesis-docs-example > *:first-child:not(.genesis-peek) {
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
   }
 
+  /* Draw the card's bottom hairline on the last child rather than on the card.
+     Consumers put a backdrop-filter on these bars (the docs glass treatment),
+     which composites the child into its own layer; that layer pixel-snaps
+     outward and paints over the card's own border-bottom whenever the card's
+     bottom edge lands below a half-pixel. A border on the child paints above
+     its own filter, so it survives at any sub-pixel offset. The negative
+     margin keeps it on the same row the card's border occupied, so the card's
+     height and the corner radii are unchanged. */
   .genesis-docs-example > *:nth-last-child(1 of :not(.genesis-peek)) {
+    border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
+    margin-bottom: -1px;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
   }
@@ -324,6 +351,14 @@
 
   .genesis-docs-example__toggle:hover {
     background: var(--v0-surface, #fff);
+  }
+
+  .genesis-docs-example__toggle-chevron {
+    transition: transform 0.15s;
+  }
+
+  .genesis-docs-example[data-expanded] .genesis-docs-example__toggle-chevron {
+    transform: rotate(180deg);
   }
 
   .genesis-docs-example__meta {

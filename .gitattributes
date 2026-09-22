@@ -1,0 +1,26 @@
+# Generated metrics artifacts.
+#
+# These are written only by the metrics pipeline (scripts/run-bench-stable.ts ->
+# generate-metrics), never by hand. Each is 300-450KB of pretty-printed JSON, and
+# `metrics:history --force` rewrites every per-version snapshot on each release —
+# so a single regen PR churns tens of thousands of lines. #714 was 30,060
+# additions / 20,087 deletions for one added version. Nobody can review that, and
+# an unreviewable diff hides exactly the noise it should surface.
+#
+#   linguist-generated  collapses the diff on GitHub and drops it from language stats
+#   -diff               stops git generating a textual diff at all
+#
+# To actually compare two artifact sets, use the apparatus-aware tooling
+# (scripts/report-benchmark-delta.ts) rather than reading a raw diff — raw ops/s
+# are not comparable across runs on different hosts. See .claude/rules/benchmarks.md.
+apps/docs/public/benchmarks.json linguist-generated -diff
+apps/docs/src/data/metrics.json linguist-generated -diff
+apps/docs/src/data/metrics/*.json linguist-generated -diff
+
+# DO NOT add a global `* text=auto` here.
+#
+# packages/0/bench/calibration.test.ts asserts a sha256 of calibration.bench.ts
+# to stop a silent re-baseline of the whole benchmark history. Line-ending
+# normalization would change those bytes on checkout, so the guard would fail on
+# some platforms and pass on others — the worst possible failure mode for a
+# tripwire whose entire job is to be trustworthy.

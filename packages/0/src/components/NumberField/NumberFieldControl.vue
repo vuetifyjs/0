@@ -15,9 +15,12 @@
   // Context
   import { useNumberFieldRoot } from './NumberFieldRoot.vue'
 
+  // Composables
+  import { useLocale } from '#v0/composables/useLocale'
+
   // Utilities
   import { isNull } from '#v0/utilities'
-  import { mergeProps, onMounted, shallowRef, toRef, useAttrs, watch } from 'vue'
+  import { mergeProps, nextTick, onMounted, shallowRef, toRef, useAttrs, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -57,6 +60,7 @@
   } = defineProps<NumberFieldControlProps>()
 
   const root = useNumberFieldRoot(namespace)
+  const locale = useLocale()
 
   const leap = Math.max(1, Math.round(root.numeric.leap / root.numeric.step))
 
@@ -68,7 +72,20 @@
 
   onMounted(syncText)
 
-  watch(() => root.value.value, syncText)
+  // commitOn: 'input' writes to root.value on every keystroke via
+  // write(), which would otherwise trigger this same watcher and
+  // clobber in-progress text (e.g. a trailing "." lost to String(12.)).
+  // isEagerWrite marks writes that originated from the control's own input
+  // so the resulting sync is skipped — text.value already reflects them.
+  let isEagerWrite = false
+
+  watch(() => root.value.value, () => {
+    if (isEagerWrite) {
+      isEagerWrite = false
+      return
+    }
+    syncText()
+  })
 
   const displayValue = toRef(() => {
     return root.isFocused.value ? text.value : root.display.value
@@ -92,6 +109,16 @@
   function onInput (e: Event) {
     const target = e.target as HTMLInputElement
     text.value = target.value
+
+    if (root.commitOn === 'input') {
+      isEagerWrite = true
+      root.write(text.value)
+      // Safety net for when the write is a no-op (parsed value
+      // unchanged) and the watcher above never fires to consume the flag.
+      nextTick(() => {
+        isEagerWrite = false
+      })
+    }
   }
 
   function onFocus () {
@@ -182,7 +209,8 @@
       'aria-valuemin': Number.isFinite(root.numeric.min) ? root.numeric.min : undefined,
       'aria-valuemax': Number.isFinite(root.numeric.max) ? root.numeric.max : undefined,
       'aria-invalid': invalid || undefined,
-      'aria-label': root.label || undefined,
+      'aria-label': root.ariaLabelledby ? undefined : (root.label || (locale.ti('NumberField.label') ?? 'Number')),
+      'aria-labelledby': root.ariaLabelledby || undefined,
       'aria-describedby': describedby.value,
       'aria-errormessage': (root.hasError.value && root.errors.value.length > 0) ? root.errorId : undefined,
       'aria-required': root.required || undefined,

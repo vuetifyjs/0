@@ -104,6 +104,8 @@ export interface LocaleContext<
    */
   ti: (key: string, ...params: unknown[]) => string | undefined
   n: (value: number) => string
+  /** Active locale adapter. */
+  adapter: LocaleAdapter
   /**
    * Register a locale with optional messages.
    *
@@ -194,6 +196,7 @@ export function createLocale (_options: LocaleOptions = {}): LocaleContext {
     ti,
     n,
     register,
+    adapter,
     get size () {
       return registry.size
     },
@@ -214,6 +217,9 @@ export const [createLocaleContext, createLocalePlugin, useLocale] =
     'v0:locale',
     options => createLocale(options),
     {
+      inspect: ctx => ({
+        adapter: ctx.adapter.constructor.name,
+      }),
       fallback: () => createLocaleFallback(),
       persist: ctx => ctx.selectedId.value,
       restore: (ctx, saved) => {

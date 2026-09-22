@@ -43,6 +43,7 @@ The Slider supports single-value and range modes. Add one `Slider.Thumb` for a s
     </Slider.Track>
 
     <Slider.Thumb />
+
     <Slider.HiddenInput />
   </Slider.Root>
 </template>
@@ -76,7 +77,7 @@ The Root creates a slider instance and provides it via context. Track listens fo
 
 ::: gn-example
 /components/slider/useEqualizer.ts 1
-/components/slider/Equalizer.vue 2
+/components/slider/EqualizerBands.vue 2
 /components/slider/equalizer.vue 3
 
 ### Audio Equalizer
@@ -88,7 +89,7 @@ Multiple vertical sliders composed into a 5-band equalizer with preset managemen
 | File | Role |
 |------|------|
 | `useEqualizer.ts` | Composable — band definitions, gain state, named presets, `apply()` and `reset()` |
-| `Equalizer.vue` | Reusable component — renders one vertical Slider per band with dB scale and frequency labels |
+| `EqualizerBands.vue` | Reusable component — renders one vertical Slider per band with dB scale and frequency labels |
 | `equalizer.vue` | Demo — wires preset buttons to the composable |
 
 **Key patterns:**
@@ -101,7 +102,7 @@ Multiple vertical sliders composed into a 5-band equalizer with preset managemen
 
 ::: gn-example
 /components/slider/ColorSlider.vue 1
-/components/slider/ColorPicker.vue 2
+/components/slider/HslColorPicker.vue 2
 /components/slider/color-picker.vue 3
 
 ### HSL Color Picker
@@ -113,7 +114,7 @@ Three sliders for Hue, Saturation, and Lightness with reactive gradient tracks a
 | File | Role |
 |------|------|
 | `ColorSlider.vue` | Reusable gradient slider — accepts a `gradient` prop for the track background and `thumbColor` for dynamic thumb styling |
-| `ColorPicker.vue` | Composes three ColorSliders with reactive gradients that update when hue changes, plus a color swatch and hex output |
+| `HslColorPicker.vue` | Composes three ColorSliders with reactive gradients that update when hue changes, plus a color swatch and hex output |
 | `color-picker.vue` | Demo — adds clickable color presets that set all three models at once |
 
 **Key patterns:**

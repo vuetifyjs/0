@@ -110,9 +110,13 @@ export function usePreviewHealth (iframe: () => HTMLIFrameElement | null | undef
     watchdog.start()
   }
 
-  function retry () {
+  function reload () {
     reloadKey.value++
     start()
+  }
+
+  function retry () {
+    reload()
   }
 
   function dismiss () {
@@ -127,5 +131,5 @@ export function usePreviewHealth (iframe: () => HTMLIFrameElement | null | undef
     { immediate: true },
   )
 
-  return { status, failed, dismissed, reloadKey, retry, dismiss }
+  return { status, failed, dismissed, reloadKey, reload, retry, dismiss }
 }

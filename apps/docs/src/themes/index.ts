@@ -20,7 +20,7 @@ export const themes = {
     icon: 'theme-light',
     dark: false,
     colors: {
-      'primary': '#7c5cf6',
+      'primary': '#7453ec',
       'secondary': '#64748b',
       'accent': '#6366f1',
       'error': '#ef4444',
@@ -668,6 +668,84 @@ export const themes = {
       'github': '#24292f',
     },
   },
+  // Values mirror the @paper/emerald token sheet injected in App.vue. The dark
+  // id matches its `[data-theme="emerald-dark"]` block, so both stylesheets must
+  // agree; the light id is deliberately NOT `emerald` — that block pins the
+  // kit's dark code-pane (`--v0-pre`) which docs chrome doesn't want.
+  'emerald-dark': {
+    id: 'emerald-dark',
+    label: 'Emerald',
+    icon: 'theme-emerald',
+    dark: true,
+    colors: {
+      'primary': '#2ECC77',
+      'secondary': '#22BFE3',
+      'accent': '#2ECC77',
+      'error': '#FF5C6A',
+      'info': '#6E9BFF',
+      'success': '#2FD07C',
+      'warning': '#FFD84D',
+      'background': '#1A1C1E',
+      'surface': '#1E1C28',
+      'surface-tint': '#2ECC771A',
+      'surface-variant': '#22252A',
+      'divider': '#30343B',
+      'pre': '#22252A',
+      'on-primary': '#04150C',
+      'on-secondary': '#04252C',
+      'on-accent': '#04150C',
+      'on-error': '#2B0708',
+      'on-info': '#0A1733',
+      'on-success': '#06281A',
+      'on-warning': '#211B06',
+      'on-background': '#EEF1F4',
+      'on-surface': '#EEF1F4',
+      'on-surface-variant': '#949DA9',
+      'glass-surface': 'rgba(30, 28, 40, 0.7)',
+      'scrollbar-thumb': 'rgba(46, 204, 119, 0.4)',
+      'discord': '{palette.brand.discord}',
+      'vue': '{palette.brand.vue}',
+      'mastered': '{palette.brand.mastered}',
+      'github': '#24292f',
+    },
+  },
+  'emerald-light': {
+    id: 'emerald-light',
+    label: 'Emerald',
+    icon: 'theme-emerald',
+    dark: false,
+    colors: {
+      'primary': '#26C26D',
+      'secondary': '#00809D',
+      'accent': '#26C26D',
+      'error': '#FB3748',
+      'info': '#3A70E2',
+      'success': '#1FC16B',
+      'warning': '#FFDB43',
+      'background': '#FEFEFE',
+      'surface': '#FFFFFF',
+      'surface-tint': '#26C26D1A',
+      'surface-variant': '#F6F8FA',
+      'divider': '#CCD6E7',
+      'pre': '{emerald-light.colors.surface-variant}',
+      'on-primary': '#FEFEFE',
+      'on-secondary': '#FEFEFE',
+      'on-accent': '#FEFEFE',
+      'on-error': '#FEFEFE',
+      'on-info': '#FEFEFE',
+      'on-success': '#FEFEFE',
+      'on-warning': '#2B2D2E',
+      'on-background': '#2B2D2E',
+      'on-surface': '#2B2D2E',
+      'on-surface-variant': '#757E85',
+      'glass-surface': 'rgba(255, 255, 255, 0.85)',
+      'scrollbar-thumb': 'rgba(38, 194, 109, 0.4)',
+      'discord': '{palette.brand.discord}',
+      'vue': '{palette.brand.vue}',
+      'mastered': '{palette.brand.mastered}',
+      'github': '#24292f',
+    },
+  },
 } as const satisfies Record<string, ThemeDefinition>
 
 /**
@@ -686,8 +764,7 @@ export function getAllThemeConfigs (): Record<ThemeId, { dark: boolean, colors: 
  * Export theme as Vuetify config format.
  * Ready to paste into createVuetify() themes option.
  */
-export function exportThemeAsVuetifyConfig (id: ThemeId): string {
-  const theme = themes[id]
+export function exportThemeAsVuetifyConfig (theme: Pick<ThemeDefinition, 'colors' | 'dark'>): string {
   const config = {
     dark: theme.dark,
     colors: { ...theme.colors },

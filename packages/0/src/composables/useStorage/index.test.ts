@@ -69,6 +69,17 @@ describe('createStorage', () => {
       expect(ref1).toBe(ref2)
     })
 
+    it('should list cached keys without the prefix', () => {
+      const storage = createStorage({ adapter: mockAdapter, prefix: 'test:' })
+
+      expect(storage.keys()).toEqual([])
+
+      storage.get('username', 'guest')
+      storage.set('theme', 'dark')
+
+      expect(storage.keys()).toEqual(['username', 'theme'])
+    })
+
     it('should use set() to update value', async () => {
       const storage = createStorage({ adapter: mockAdapter, prefix: 'test:' })
 

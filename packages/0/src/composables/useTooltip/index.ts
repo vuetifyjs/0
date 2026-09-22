@@ -30,6 +30,7 @@ import { onScopeDispose, toRef, toValue } from 'vue'
 
 // Types
 import type { RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
+import type { PopoverAdapter } from '#v0/composables/usePopover'
 import type { ID } from '#v0/types'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
@@ -52,6 +53,12 @@ export interface TooltipOptions {
   skipDelay?: MaybeRefOrGetter<number>
   /** Disable all tooltips in this region. @default false */
   disabled?: MaybeRefOrGetter<boolean>
+  /**
+   * Positioning adapter for tooltip surfaces in this region. Tooltip-only —
+   * Popover / Select / Combobox never see this value. Per-instance `adapter`
+   * on `Tooltip.Root` still wins.
+   */
+  adapter?: PopoverAdapter
 }
 
 export interface TooltipContext {
@@ -140,6 +147,17 @@ export interface TooltipContext {
    * ```
    */
   unregister: (id: ID) => void
+  /**
+   * Region positioning adapter, or `undefined` to fall through to the
+   * popover plugin / `V0PopoverAdapter`.
+   *
+   * @example
+   * ```ts
+   * const tooltip = useTooltip()
+   * tooltip.adapter
+   * ```
+   */
+  adapter: PopoverAdapter | undefined
 }
 
 export interface TooltipContextOptions extends TooltipOptions {
@@ -181,6 +199,7 @@ function createTooltip (options: TooltipOptions = {}): TooltipContext {
     shouldSkipOpenDelay,
     register: registry.register,
     unregister: registry.unregister,
+    adapter: options.adapter,
   }
 }
 

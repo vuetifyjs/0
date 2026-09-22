@@ -31,23 +31,23 @@
 </script>
 
 <template>
-  <button
+  <AppTooltip
     v-if="!auth.isAuthenticated"
     aria-label="Sign in"
     class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer border-0"
-    title="Sign in"
-    type="button"
+    position-area="bottom"
+    text="Sign in"
     @click="auth.dialog = true"
   >
     <AppIcon icon="account" />
-  </button>
+  </AppTooltip>
 
   <Discovery.Activator v-else class="inline-flex rounded-full" step="settings">
-    <button
+    <AppTooltip
       aria-label="Account settings"
       class="inline-flex items-center justify-center rounded-full cursor-pointer border-0 bg-transparent p-0 hover:ring-2 hover:ring-primary/50 transition-all"
-      title="Account settings"
-      type="button"
+      position-area="bottom"
+      text="Account settings"
       @click="settings.toggle"
     >
       <Avatar.Root class="size-6 rounded-full overflow-hidden">
@@ -61,7 +61,7 @@
           {{ initial }}
         </Avatar.Fallback>
       </Avatar.Root>
-    </button>
+    </AppTooltip>
   </Discovery.Activator>
 
   <Dialog.Root v-model="auth.dialog">

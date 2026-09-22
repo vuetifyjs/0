@@ -112,10 +112,21 @@
 
       <Splitter.Panel :default-size="0" :min-size="0" />
     </Splitter.Root>
+
+    <div v-if="$slots.actions" class="genesis-docs-example-preview__actions">
+      <slot name="actions" />
+    </div>
   </div>
 </template>
 
 <style scoped>
+  .genesis-docs-example-preview__actions {
+    position: absolute;
+    top: 0;
+    inset-inline-end: 0;
+    z-index: 4;
+  }
+
   .genesis-docs-example-preview {
     position: relative;
     padding: 0.5rem;
@@ -190,7 +201,7 @@
 
   .genesis-docs-example-preview__indicator {
     position: absolute;
-    top: 0.5rem;
+    bottom: 0.5rem;
     inset-inline-end: 0.5rem;
     z-index: 2;
     padding: 0.125rem 0.375rem;

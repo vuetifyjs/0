@@ -104,7 +104,10 @@ export interface ColumnLayout {
    * counted. No-op if the resolved top-level group has `reorderable: false`.
    */
   reorder: (from: number, to: number) => void
-  /** Replace all sizes at once and normalize to sum to 100 */
+  /**
+   * Replace visible-column sizes in registry (mount) order, not pin display order.
+   * Hidden columns keep their sizes. Length must match the visible leaf count.
+   */
   distribute: (sizes: number[]) => void
   /** Show a previously hidden column */
   show: (id: string) => void
@@ -412,9 +415,11 @@ export function createColumnLayout<
   }
 
   function distribute (incoming: number[]) {
-    const tickets = extractLeaves(cols.values())
-    if (incoming.length !== tickets.length) {
-      logger.warn(`createDataGrid: distribute() expected ${tickets.length} sizes but received ${incoming.length}; ignoring.`)
+    // Zip against visible leaves in registry (mount) order, not pin display
+    // order. Hidden columns keep the sizes they already have.
+    const visible = extractLeaves(cols.values()).filter(leaf => !hidden.has(String(leaf.id)))
+    if (incoming.length !== visible.length) {
+      logger.warn(`createDataGrid: distribute() expected ${visible.length} sizes but received ${incoming.length}; ignoring.`)
       return
     }
 
@@ -425,14 +430,14 @@ export function createColumnLayout<
     }
 
     // Normalize proportionally to sum 100, then clamp each to its constraints.
-    const metas = tickets.map(ticket => configs.get(String(ticket.id)) ?? DEFAULT_EXTRAS)
+    const metas = visible.map(col => configs.get(String(col.id)) ?? DEFAULT_EXTRAS)
     let current = incoming.map((value, i) => clamp(value / sum * 100, metas[i]!.minSize, metas[i]!.maxSize))
 
     // Redistribute the residual proportionally across columns that still have
     // room in the residual's direction. Bounded loop guards against constraints
     // that make 100 unreachable.
     let residual = 100 - current.reduce((acc, value) => acc + value, 0)
-    const max = tickets.length * 2
+    const max = visible.length * 2
     for (let pass = 0; pass < max && Math.abs(residual) >= 1e-6; pass++) {
       const room = current.map((value, i) => residual > 0 ? metas[i]!.maxSize - value : value - metas[i]!.minSize)
       const available = room.reduce((acc, value) => acc + Math.max(0, value), 0)
@@ -447,8 +452,8 @@ export function createColumnLayout<
       logger.warn(`createDataGrid: distribute() could not reach 100 within min/max constraints (off by ${residual.toFixed(2)})`)
     }
 
-    for (const [i, ticket] of tickets.entries()) {
-      sizes.set(String(ticket.id), current[i]!)
+    for (const [i, col] of visible.entries()) {
+      sizes.set(String(col.id), current[i]!)
     }
   }
 

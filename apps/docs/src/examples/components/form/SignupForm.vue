@@ -19,13 +19,13 @@
   const input = 'w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface placeholder:text-on-surface-variant/50 outline-none data-[focused]:border-primary data-[state=invalid]:border-error transition-colors'
 
   const passwordRules = [
-    (v: string) => !!v || 'Password is required',
-    (v: string) => v.length >= 8 || 'At least 8 characters',
+    (v: unknown) => !!v || 'Password is required',
+    (v: unknown) => (v as string).length >= 8 || 'At least 8 characters',
   ]
 
   // Cross-field rule — the confirm field validates against the password model
   const confirmRules = [
-    (v: string) => v === password.value || 'Passwords must match',
+    (v: unknown) => v === password.value || 'Passwords must match',
   ]
 
   function onSubmit (payload: { valid: boolean }) {
@@ -42,7 +42,7 @@
     <Input.Root
       v-model="name"
       label="Name"
-      :rules="[(v: string) => !!v || 'Name is required']"
+      :rules="[v => !!v || 'Name is required']"
       validate-on="blur lazy"
     >
       <Input.Control
@@ -62,8 +62,8 @@
       :error-messages="serverError"
       label="Email"
       :rules="[
-        (v: string) => !!v || 'Email is required',
-        (v: string) => /.+@.+\..+/.test(v) || 'Must be a valid email',
+        v => !!v || 'Email is required',
+        v => /.+@.+\..+/.test(v as string) || 'Must be a valid email',
       ]"
       type="email"
       validate-on="blur lazy"

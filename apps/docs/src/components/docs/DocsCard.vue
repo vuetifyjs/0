@@ -16,9 +16,9 @@
   export interface DocsCardProps extends AtomProps {
     /** Make card hoverable with border/shadow effects */
     hoverable?: boolean
-    /** Link destination (makes card clickable) */
+    /** Internal docs path — Vue Router */
     to?: string
-    /** External link destination */
+    /** External destination, including same-origin apps like `/demo/emerald/` — new tab */
     href?: string
     /** Disabled state */
     disabled?: boolean
@@ -29,8 +29,6 @@
     disabled = false,
     ...props
   } = defineProps<DocsCardProps>()
-
-  const isExternal = toRef(() => props.href?.startsWith('http'))
 
   const componentAs = computed(() => {
     if (disabled) return 'div'
@@ -45,8 +43,8 @@
     if (props.href) {
       return {
         href: props.href,
-        target: isExternal.value ? '_blank' : undefined,
-        rel: isExternal.value ? 'noopener noreferrer' : undefined,
+        target: '_blank',
+        rel: 'noopener noreferrer',
       }
     }
     return {}

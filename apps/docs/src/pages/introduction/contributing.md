@@ -25,7 +25,7 @@ Before contributing, please:
 
 1. Read the [Getting Started](/introduction/getting-started) guide to understand the project
 2. Review existing [issues](https://github.com/vuetifyjs/0/issues)
-3. Join our [Discord community](https://community.vuetifyjs.com) for questions
+3. Join our [Discord community](https://discord.gg/vuetify) for questions
 
 ## Reporting Issues
 
@@ -52,7 +52,7 @@ For new features:
 ### Prerequisites
 
 - Node 26+ (matches .nvmrc)
-- pnpm 10.6+
+- pnpm 11.16.0
 - Git
 
 ### Setup
@@ -82,8 +82,11 @@ pnpm dev:docs
 │   │       ├── composables/   # Composable functions
 │   │       ├── utilities/     # Helper functions
 │   │       └── types/         # TypeScript types
+│   ├── play/           # @vuetify/play - playground hash protocol
+│   ├── emerald/        # @paper/emerald - design system
+│   ├── bulma/          # @paper/bulma - Bulma compat design system
 │   ├── genesis/        # @paper/genesis - design system
-│   └── paper/          # @vuetify/paper - styling primitives
+│   └── paper/          # @vuetify/paper - styling primitives (dormant, not published)
 ├── apps/
 │   ├── docs/           # Documentation site
 │   └── playground/     # Browser-based code editor
@@ -114,9 +117,26 @@ pnpm build            # Build packages
 
 ## Pull Requests
 
+### Branch Model
+
+`@vuetify/v0` uses three long-lived branches. Open your PR against the base that matches the **semver impact** of your change:
+
+| Base | Use it for | Release |
+|------|-----------|---------|
+| `master` | Bug fixes, docs, chores, refactors, tests | Patch (or no version bump) |
+| `dev` | New features that add public API (a component, composable, prop, or option) | Minor |
+| `next` | Breaking changes (anything with a `BREAKING CHANGE:` footer) | Major |
+
+Only `master` publishes to npm. Work on `dev` and `next` merges into `master` at the next minor or major release, and that merge is what ships it. That join is a **merge commit**, not squash or rebase — squashing rewrites the `dev` SHAs and the next cut treats the same history as new. If you're unsure which base fits, open against `master` — a maintainer will retarget it.
+
+A `feat` PR that adds public API **must** target `dev`. If it lands on `master` with a `minor` changeset, the next Version Packages merge *is* that minor, even if larger features are still queued on `dev`. The version number is not reserved for a milestone.
+
+> [!TIP]
+> A `feat` that only touches the docs site, playground, or other tooling (not `packages/*` source) ships no package version, so it targets `master` — prefer a `docs`/`chore` prefix for those.
+
 ### Before Submitting
 
-1. Create a new branch from `master`
+1. Create a new branch from the right base for your change (see [Branch Model](#branch-model)): `master` for fixes, `dev` for features, `next` for breaking changes
 2. Make your changes
 3. Write tests for new functionality
 4. Run `pnpm lint:fix` to fix formatting
@@ -145,7 +165,13 @@ Pick the affected package(s), a bump type (`patch`/`minor`/`major`), and a short
 fix(createSelection): reject disabled items in multiple-mode apply
 ```
 
-The summary becomes the changelog entry for the release — describe the user-visible change, not the implementation. `@vuetify/v0` and `@vuetify/paper` version in lockstep — selecting `@vuetify/v0` carries `@vuetify/paper` automatically; the `@paper/*` design systems version separately. Docs-only, chore, refactor, or CI PRs don't need one. A bot comments on every PR to remind you.
+The entire changeset body — everything after the frontmatter — is rendered verbatim into the changelog and the GitHub release notes. It is release-note copy, not a commit message. So the rule is not "how long" but "what belongs":
+
+- **First line** — the conventional-commit summary: `type(Scope): what changed (#PR)`, describing the change from the consumer's side, not the diff's. It stands alone as the whole changeset when it already answers both questions a consumer asks of release notes — *does this affect me, and must I act?* Many routine fixes need nothing more. A title that instead restates the diff is a commit message wearing changeset frontmatter — that is the failure to avoid, body or not.
+- **Body (optional)** — add one when the title can't carry the whole consumer-visible consequence: a behavior delta, a performance change worth quantifying (state the magnitude), a breaking change or migration step, or new public options / escape hatches. Length is earned by consumer impact — a genuinely rich behavior change may run to a paragraph; a routine, self-evident fix stays one line.
+- **Never the mechanism.** How you implemented it — internal composables touched, private fields, refactors mirrored from a sibling — belongs in the PR description and the commit body, not the changelog. A consumer reads release notes to decide whether to upgrade and whether they must act, nothing more.
+
+`@vuetify/v0` versions and publishes independently; `@vuetify/paper` is `private` and unpublished, so it takes no changeset. The `@paper/*` design systems version separately. Docs-only, chore, refactor, or CI PRs don't need one. A bot comments on every PR to remind you.
 
 The changeset is how your change reaches a release. On every push to `master`, automation gathers all pending `.changeset/*.md` files into a "Version Packages" PR that applies the version bumps and writes the changelog entries. When a maintainer merges that PR, the packages are built, published to npm, and the GitHub releases are created. A `packages/*` change merged without a changeset still ships in the code — but with no version bump and no changelog entry.
 
@@ -154,18 +180,21 @@ Never edit `package.json` versions by hand — release automation owns every bum
 ### PR Guidelines
 
 - Keep PRs focused - one feature or fix per PR
-- Write a clear title and description
+- Title must be Conventional Commits: `type(scope): subject` (scope optional). Allowed types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`. Squash merge uses the title as the commit — Semantic PR is required, and a non-matching title cannot merge
+- Write a clear description
 - Reference any related issues
 - Be responsive to feedback
 
 ### Branch Naming
 
-Use descriptive branch names:
+Use descriptive branch names; the prefix should match the base branch you target (see [Branch Model](#branch-model)):
 
-- `fix/issue-description` - Bug fixes
-- `feat/feature-name` - New features
-- `docs/what-changed` - Documentation updates
-- `refactor/what-changed` - Code refactoring
+- `fix/issue-description` - Bug fixes → base `master`
+- `feat/feature-name` - New features → base `dev`
+- `docs/what-changed` - Documentation updates → base `master`
+- `refactor/what-changed` - Code refactoring → base `master`
+
+Breaking changes target `next` regardless of prefix.
 
 ## Commit Messages
 

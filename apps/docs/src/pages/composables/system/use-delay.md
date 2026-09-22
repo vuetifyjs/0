@@ -110,7 +110,7 @@ import { shallowRef } from 'vue'
 
 const fast = shallowRef(false)
 
-const delay = useDelay({
+const delay = useDelay(undefined, {
   openDelay: () => fast.value ? 0 : 500,
   closeDelay: 200,
 })
@@ -121,7 +121,7 @@ const delay = useDelay({
 Pass `minDelay` to `start()` to enforce a floor on the resolved delay. Useful for transient feedback like toasts where the close delay must not be shorter than the time the content has been visible.
 
 ```ts
-const delay = useDelay({ closeDelay: 200 })
+const delay = useDelay(undefined, { closeDelay: 200 })
 
 await delay.start(true)
 // User dismisses immediately — still hold for 500ms total
@@ -143,7 +143,7 @@ delay.start(false) // previous promise resolves false, new close delay begins
 Pause preserves the remaining delay; resume continues from where pause left off. Useful for hover-driven UI where the user briefly interacts with the panel itself and you don't want the auto-close timer to keep counting.
 
 ```ts
-const delay = useDelay({ closeDelay: 1000 })
+const delay = useDelay(undefined, { closeDelay: 1000 })
 
 delay.start(false)
 
@@ -160,7 +160,7 @@ The pending timer clears on scope disposal — no manual cleanup needed.
 
 ```ts
 // Timer automatically clears when component unmounts
-const delay = useDelay({ openDelay: 300 })
+const delay = useDelay(undefined, { openDelay: 300 })
 ```
 
 ## FAQ

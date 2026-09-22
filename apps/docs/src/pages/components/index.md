@@ -1,10 +1,10 @@
 ---
 title: Vuetify0 Components - Headless Vue 3 UI Primitives
 meta:
-  - name: description
-    content: Headless Vue 3 UI components with full accessibility. Selection, pagination, expansion panels, popovers, and more. Unstyled and fully customizable.
-  - name: keywords
-    content: components, headless ui, Vue 3, accessible, customizable, selection, pagination, expansion panel, popover
+- name: description
+  content: Headless Vue 3 UI components with full accessibility. Selection, pagination, expansion panels, popovers, and more. Unstyled and fully customizable.
+- name: keywords
+  content: components, headless ui, Vue 3, accessible, customizable, selection, pagination, expansion panel, popover
 features:
   level: 1
 related:
@@ -65,11 +65,21 @@ Form control components with accessibility and validation support.
 | [Form](/components/forms/form) | Form validation coordinator with submit handling and error aggregation |
 | [Input](/components/forms/input) | Text input with label, description, error messages, and character counting |
 | [NumberField](/components/forms/number-field) | Numeric input with increment/decrement, formatting, and scrub |
+| [Otp](/components/forms/otp) | One-time-password / verification-code boxes with auto-advance, paste, and completion |
 | [Radio](/components/forms/radio) | Radio group with single-selection and keyboard navigation |
 | [Select](/components/forms/select) | Dropdown selection with virtual focus and multi-select support |
 | [Rating](/components/forms/rating) | Star/icon rating with hover preview, half-stars, and keyboard navigation |
 | [Slider](/components/forms/slider) | Range input with snapping, range mode, and custom tracks |
 | [Switch](/components/forms/switch) | Toggle switch with on/off states and label association |
+
+## Data
+
+Components for displaying and interacting with data collections.
+
+| Name | Description |
+| - | - |
+| [DataGrid](/components/data/data-grid) | Headless data grid with column layout, cell editing, row ordering, and row spanning |
+| [DataTable](/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
 
 ## Semantic
 
@@ -77,6 +87,7 @@ Components with meaningful HTML defaults. Render semantic elements by default bu
 
 | Name | Description |
 | - | - |
+| [Alert](/components/semantic/alert) | Inline status message with ARIA live-region semantics |
 | [Avatar](/components/semantic/avatar) | Image/fallback avatar with priority loading |
 | [Breadcrumbs](/components/semantic/breadcrumbs) | Navigation breadcrumbs with overflow detection and truncation |
 | [Carousel](/components/semantic/carousel) | Scroll-snap slide navigation with multi-slide display and drag/swipe |

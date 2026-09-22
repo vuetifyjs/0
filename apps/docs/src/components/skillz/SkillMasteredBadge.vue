@@ -8,10 +8,11 @@
 </script>
 
 <template>
-  <span
+  <AppTooltip
+    as="span"
     class="icon-text text-warning"
-    title="You've completed this skill!"
+    text="You've completed this skill!"
   >
     <AppIcon icon="medal" :size />
-  </span>
+  </AppTooltip>
 </template>

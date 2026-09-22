@@ -1,7 +1,7 @@
 ---
 title: Styling Headless Components - Data Attributes & Slot Props
 features:
-  order: 5
+  order: 7
   level: 2
 meta:
   - name: description
@@ -86,7 +86,7 @@ Tabs styled with CSS modules targeting `[data-selected]` in scoped styles.
 
 ### Plain CSS
 
-Standard [attribute selectors](https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors) work in any stylesheet:
+Standard [attribute selectors](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/Attribute_selectors) work in any stylesheet:
 
 ```css
 /* Single state */

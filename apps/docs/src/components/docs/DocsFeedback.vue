@@ -101,17 +101,16 @@
       <span class="text-sm text-on-surface-variant">Was this page helpful?</span>
 
       <div class="flex gap-1">
-        <button
+        <AppTooltip
           v-for="option in RATING_OPTIONS"
           :key="option.value"
           :aria-label="option.label"
           class="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-transparent hover:border-divider hover:bg-surface-variant transition-colors text-xl"
-          :title="option.label"
-          type="button"
+          :text="option.label"
           @click="selectRating(option.value)"
         >
           {{ option.emoji }}
-        </button>
+        </AppTooltip>
       </div>
     </div>
 

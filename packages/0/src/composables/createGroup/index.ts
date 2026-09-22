@@ -263,6 +263,7 @@ export function createGroup<
       toggle: () => toggle(id),
       mix: () => mix(id),
       unmix: () => unmix(id),
+      unregister: () => unregister(id),
     }
 
     // Type assertion needed because item has more properties than Partial<Z>
@@ -295,6 +296,16 @@ export function createGroup<
   function reset () {
     mixedIds.clear()
     selection.reset()
+  }
+
+  function clear () {
+    mixedIds.clear()
+    selection.clear()
+  }
+
+  function dispose () {
+    mixedIds.clear()
+    selection.dispose()
   }
 
   const selectableItems = computed(() => {
@@ -348,6 +359,8 @@ export function createGroup<
     offboard,
     onboard,
     reset,
+    clear,
+    dispose,
     selectAll,
     unselectAll,
     toggleAll,

@@ -57,9 +57,8 @@ import Value from './SelectValue.vue'
  *         :key="item.id"
  *         :id="item.id"
  *         :value="item.label"
- *         v-slot="{ isSelected, attrs }"
  *       >
- *         <div v-bind="attrs">{{ item.label }}</div>
+ *         {{ item.label }}
  *       </Select.Item>
  *     </Select.Content>
  *   </Select.Root>
@@ -183,8 +182,8 @@ export const Select = {
    * </script>
    *
    * <template>
-   *   <Select.Item id="apple" value="Apple" v-slot="{ isSelected, attrs }">
-   *     <div v-bind="attrs">Apple {{ isSelected ? '✓' : '' }}</div>
+   *   <Select.Item id="apple" value="Apple" v-slot="{ isSelected }">
+   *     Apple {{ isSelected ? '✓' : '' }}
    *   </Select.Item>
    * </template>
    * ```

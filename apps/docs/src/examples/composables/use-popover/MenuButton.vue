@@ -1,18 +1,22 @@
 <script setup lang="ts">
-  import { Button } from '@vuetify/v0'
+  import { Button, toElement } from '@vuetify/v0'
   import { useTemplateRef } from 'vue'
 
+  import type { AtomExpose } from '@vuetify/v0'
   import type { Menu } from './useMenu'
 
   const { menu } = defineProps<{ menu: Menu }>()
 
+  const trigger = useTemplateRef<AtomExpose>('trigger')
   const content = useTemplateRef<HTMLElement>('content')
 
+  menu.attachAnchor(() => toElement(trigger.value?.element) ?? null)
   menu.attach(content)
 </script>
 
 <template>
   <Button.Root
+    ref="trigger"
     class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
     :class="menu.isOpen.value ? 'bg-primary text-on-primary' : 'bg-surface-variant text-on-surface-variant hover:bg-primary/10'"
     :style="menu.anchorStyles.value"

@@ -12,8 +12,8 @@
       v-model="email"
       label="Email"
       :rules="[
-        (v: string) => !!v || 'Email is required',
-        (v: string) => /.+@.+\..+/.test(v) || 'Must be a valid email',
+        v => !!v || 'Email is required',
+        v => /.+@.+\..+/.test(v as string) || 'Must be a valid email',
       ]"
       type="email"
     >

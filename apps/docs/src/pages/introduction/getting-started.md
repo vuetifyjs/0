@@ -10,9 +10,15 @@ features:
   level: 1
 related:
   - /guide/essentials/using-the-docs
+  - /guide/tooling/ai-tools
+  - /guide/tooling/agents
   - /composables
   - /components
 ---
+
+<script setup lang="ts">
+  import { john } from '@/constants/identities'
+</script>
 
 # Get started with Vuetify0
 
@@ -470,6 +476,12 @@ import { isObject, isString } from '@vuetify/v0/utilities'
 import { IN_BROWSER } from '@vuetify/v0/constants'
 ```
 
+## Agents
+
+Click the portrait to copy John's identity into [Grok Bot](https://x.ai/bot). Setup prompts live on [Agents](/guide/tooling/agents).
+
+<DocsIdentity v-bind="john" dense />
+
 ## Next Steps
 
 Now that v0 is installed, choose your path:
@@ -479,6 +491,7 @@ Now that v0 is installed, choose your path:
 | Understand the architecture | [Components](/guide/fundamentals/components) → [Composables](/guide/fundamentals/composables) → [Core](/guide/fundamentals/core) |
 | Build production UIs now | [Theming](/guide/features/theming) → [Accessibility](/guide/features/accessibility) |
 | Build a component library | [Building Frameworks](/guide/fundamentals/building-frameworks) |
+| Set up an AI agent | [Agents](/guide/tooling/agents) → [AI Tools](/guide/tooling/ai-tools) |
 | Explore interactively | [Playground](/playground) |
 
 > [!TIP]

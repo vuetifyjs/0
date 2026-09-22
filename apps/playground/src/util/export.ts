@@ -1,4 +1,4 @@
-import { indexHtmlTemplate, packageJsonTemplate, tsconfigTemplate, unoConfigTemplate, viteConfigTemplate } from '@/util/export-templates'
+import { indexHtmlTemplate, packageJsonTemplate, readmeTemplate, tsconfigTemplate, unoConfigTemplate, viteConfigTemplate } from '@/util/export-templates'
 
 // REPL infrastructure files; the template versions (or no version at all) win.
 const EXCLUDED_FILES = new Set([
@@ -16,6 +16,7 @@ function generateProjectFiles ({ files, importMap }: GenerateProjectFilesOptions
   const packageJson = importMapToPackageJson(importMap)
 
   const templates: Record<string, string> = {
+    'README.md': readmeTemplate,
     'index.html': indexHtmlTemplate,
     'package.json': JSON.stringify(packageJson, null, 2),
     'src/uno.config.ts': unoConfigTemplate,
@@ -106,4 +107,15 @@ function adaptMainTs (source: string): string {
   return updated
 }
 
-export { generateProjectFiles }
+/**
+ * Flatten project files into a single clipboard-friendly string.
+ * Paths are sorted; each file is fenced with a clear path header.
+ */
+function formatProjectForClipboard (files: Record<string, string>): string {
+  return Object.keys(files)
+    .toSorted((a, b) => a.localeCompare(b))
+    .map(path => `===== ${path} =====\n${files[path] ?? ''}`)
+    .join('\n\n')
+}
+
+export { formatProjectForClipboard, generateProjectFiles }

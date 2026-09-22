@@ -47,7 +47,7 @@ We pledge to act and interact in ways that contribute to an open, welcoming, div
 
 This Code of Conduct applies within all community spaces operated by the Vuetify team:
 
-- The [Vuetify Discord server](https://community.vuetifyjs.com) — support channels, showcase, and general chat
+- The [Vuetify Discord server](https://discord.gg/vuetify) — support channels, showcase, and general chat
 - The [vuetifyjs GitHub organization](https://github.com/vuetifyjs) — issues, discussions, pull requests, and code review
 - Official Vuetify social media accounts
 - Official events, online or offline

@@ -64,16 +64,45 @@ function notes (changelog, value) {
   return lines.slice(start + 1, end).join('\n').trim()
 }
 
-// Condense each changelog bullet's conventional-commit title into a flat, skimmable
-// list at the top of the release notes — changesets' per-entry prose buries the
-// one-line summaries readers skim for. Two authoring shapes both need trimming: a
-// title-only first line with the detail in a separate indented paragraph below
-// (BULLET's `.+$` already stops at line end), and a single line packing title +
-// detail together, separated by ' — ' (em dash).
+// Condense each changelog bullet's conventional-commit title into a skimmable,
+// grouped overview at the top of the release notes — changesets' per-entry prose
+// buries the one-line summaries readers skim for, and its flat list mixes features,
+// fixes, and perf work together. The overview reorganizes them the way the old
+// `conventional-changelog-vuetify` preset did: a section per commit type (its exact
+// emoji headers and group order — see SECTIONS below), the redundant `type(scope): `
+// prefix folded into a bold scope, and real Markdown PR links so the notes render on
+// our own releases page — not just on GitHub, which is the only place bare `#123`
+// text autolinks.
+//
+// BULLET peels off the changesets-added preamble (PR link, commit link, "Thanks
+// X!"), leaving `text` = the conventional-commit title the author wrote, optionally
+// with a ` — <detail>` trailer on the same line. TITLE then splits that title into
+// type / scope / description; a title with no recognizable `type:` prefix keeps its
+// full text and falls through to the Other bucket.
+const REPO = 'vuetifyjs/0'
 const BULLET = /^- (?:\[#(\d+)]\([^)]*\)\s*)?(?:\[`[0-9a-f]+`]\([^)]*\)\s*)?(?:Thanks .*?! - )?(.+)$/
+const TITLE = /^(\w+)(?:\(([^)]*)\))?!?:\s*(.+)$/
+
+// Commit type → overview section, mirroring `conventional-changelog-vuetify`'s
+// writer map and group order. Literal emoji (not `:shortcode:`) so the section
+// headers render on the docs releases page too — its markedEmoji map doesn't carry
+// every shortcode (e.g. arrows_counterclockwise). Array order is the render order.
+// The preset's Labs section is vuetify-core-specific (keyed off packages/vuetify/src
+// /labs) and omitted here. Unlike the preset — which discards non-breaking docs/
+// chore/style — any type absent here or a title with no type prefix lands in Other
+// Commits, because in the changesets flow every entry exists only because an author
+// wrote a changeset, so nothing should silently vanish.
+const SECTIONS = [
+  ['feat', '🚀 Features'],
+  ['fix', '🔧 Bug Fixes'],
+  ['perf', '🔥 Performance Improvements'],
+  ['refactor', '🔬 Code Refactoring'],
+  ['revert', '🔁 Reverts'],
+]
+const OTHER = 'Other Commits'
 
 function overview (body) {
-  const titles = []
+  const buckets = new Map()
   for (const line of body.split('\n')) {
     const match = line.match(BULLET)
     if (!match) continue
@@ -82,10 +111,37 @@ function overview (body) {
     // for packages that only bumped because an internal dependency changed — no
     // conventional-commit title to extract, and the sha list is pure noise here.
     if (text.startsWith('Updated dependencies')) continue
-    const title = text.split(' — ')[0]
-    titles.push(pr ? `- ${title} (#${pr})` : `- ${title}`)
+
+    const title = text.split(' — ')[0].trim()
+    const parts = title.match(TITLE)
+    const type = parts ? parts[1] : ''
+    const scope = parts ? parts[2] : ''
+    const desc = parts ? parts[3] : title
+
+    // Bold the scope and drop the type word (it's the section header now); a
+    // scopeless title keeps its bare description.
+    const summary = scope ? `**${scope}:** ${desc}` : desc
+    // Skip our appended PR link when the author already ended the title with a
+    // linked issue/PR reference (e.g. a "…stay interactive ([#279](…))" trailer) —
+    // otherwise the row renders two adjacent parenthesized links.
+    const linked = /\(\[#\d+]\([^)]*\)\)\s*$/.test(desc)
+    const link = pr && !linked ? ` ([#${pr}](https://github.com/${REPO}/pull/${pr}))` : ''
+    const label = SECTIONS.find(([t]) => t === type)?.[1] ?? OTHER
+
+    if (!buckets.has(label)) buckets.set(label, [])
+    buckets.get(label).push(`- ${summary}${link}`)
   }
-  return titles.length > 0 ? `## Overview\n${titles.join('\n')}\n\n---\n\n` : ''
+
+  if (buckets.size === 0) return ''
+
+  const order = [...SECTIONS.map(([, label]) => label), OTHER]
+  const sections = []
+  for (const label of order) {
+    const lines = buckets.get(label)
+    if (lines) sections.push(`### ${label}\n${lines.join('\n')}`)
+  }
+
+  return `## Overview\n\n${sections.join('\n\n')}\n\n---\n\n`
 }
 
 function exists (tag) {

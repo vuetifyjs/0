@@ -293,6 +293,40 @@ describe('createBreakpoints', () => {
       })
     })
 
+    describe('initial state via matchMedia', () => {
+      it('should resolve initial state through matchMedia when it disagrees with innerWidth', () => {
+        // Fractional zoom / classic scrollbars: CSS media queries can
+        // disagree with innerWidth. matchMedia reports 1200, innerWidth 1024.
+        mockWindow.innerWidth = 1024
+        mockWindow.matchMedia = (query: string) => {
+          const match = query.match(/\(min-width:\s*(\d+)px\)/)
+          return { matches: match ? 1200 >= Number(match[1]) : false }
+        }
+
+        const context = createBreakpoints()
+
+        expect(context.name.value).toBe('lg')
+        expect(context.lg.value).toBe(true)
+        expect(context.lgAndUp.value).toBe(true)
+        expect(context.mdAndDown.value).toBe(false)
+        expect(context.isMobile.value).toBe(false)
+        expect(context.width.value).toBe(1024)
+      })
+
+      it('should keep clientWidth comparison for initial state when ssr is configured', () => {
+        mockWindow.innerWidth = 500
+        mockWindow.matchMedia = (query: string) => {
+          const match = query.match(/\(min-width:\s*(\d+)px\)/)
+          return { matches: match ? 500 >= Number(match[1]) : false }
+        }
+
+        const context = createBreakpoints({ ssr: { clientWidth: 1200 } })
+
+        expect(context.name.value).toBe('lg')
+        expect(context.isMobile.value).toBe(false)
+      })
+    })
+
     describe('window resize handling', () => {
       it('should update breakpoint when update is called multiple times', () => {
         mockWindow.innerWidth = 500
@@ -889,6 +923,11 @@ describe('createBreakpoints', () => {
       mockWindow.innerWidth = 1400
 
       const context = create()
+
+      // Initial state falls back to innerWidth without touching matchMedia
+      expect(context.name.value).toBe('lg')
+      expect(context.isMobile.value).toBe(false)
+
       context.update()
 
       expect(context.name.value).toBe('lg')

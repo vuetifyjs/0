@@ -6,39 +6,13 @@ Vue 3 headless UI primitives and composables. Unstyled, logic-focused building b
 
 **STOP. Check existing functionality first.**
 
-### Use Built-in Utilities (`#v0/utilities`)
+### Use What Already Ships
 
-| Utility | Purpose |
-|---------|---------|
-| `isFunction`, `isString`, `isNumber`, `isBoolean` | Type guards |
-| `isObject`, `isArray`, `isNull`, `isUndefined` | Type guards |
-| `isNullOrUndefined`, `isPrimitive`, `isSymbol`, `isNaN`, `isElement` | Type guards |
-| `isThenable` | Duck-typed thenable check (any object with a `.then` method) |
-| `mergeDeep(target, ...sources)` | Deep merge with `DeepPartial<T>` |
-| `useId()` | SSR-safe ID (Vue's useId in components, counter fallback) |
-| `clamp(value, min, max)` | Clamp number to range |
-| `range(length, start)` | Create sequential number array |
+Never hand-roll a helper, type, or environment check that the package already exports. Read the barrels before writing:
 
-### Use Built-in Types (`#v0/types`)
-
-| Type | Purpose |
-|------|---------|
-| `ID` | Identifier type (`string \| number`) for registry tickets |
-| `Extensible<T>` | Preserves string literal autocomplete while allowing arbitrary strings |
-| `MaybeArray<T>` | Union accepting single value or array (`T \| T[]`) |
-| `DeepPartial<T>` | Recursively makes all properties optional |
-| `Activation` | Keyboard activation mode (`'automatic' \| 'manual'`) |
-
-### Use Built-in Constants (`#v0/constants/globals`)
-
-| Constant | Purpose |
-|----------|---------|
-| `IN_BROWSER` | SSR-safe `typeof window !== 'undefined'` |
-| `SUPPORTS_TOUCH` | Touch device detection |
-| `SUPPORTS_MATCH_MEDIA` | matchMedia availability |
-| `SUPPORTS_OBSERVER` | ResizeObserver availability |
-| `SUPPORTS_INTERSECTION_OBSERVER` | IntersectionObserver availability |
-| `SUPPORTS_MUTATION_OBSERVER` | MutationObserver availability |
+- `#v0/utilities` — type guards (incl. `isThenable`), `mergeDeep`, `useId`, `clamp`, `range`
+- `#v0/types` — `ID`, `Extensible`, `MaybeArray`, `DeepPartial`, `Activation`
+- `#v0/constants/globals` — `IN_BROWSER`, `SUPPORTS_*` (never write `typeof window !== 'undefined'`)
 
 ### Check Existing Composables & Components (`#v0/composables`, `#v0/components`)
 
@@ -58,64 +32,46 @@ import { createRegistry } from '#v0/composables'
 ## Packages
 
 - **`@vuetify/v0`** (`packages/0/`): Headless components and composables
-- **`@vuetify/paper`** (`packages/paper/`): Styling primitives depending on v0
-
-## Apps
-
-- **Dev** (`dev/`): Dev environment
-- **Playground** (`apps/playground/`): Browser-based editor with live preview
-- **Docs** (`apps/docs/`): VitePress-style documentation
+- **`@vuetify/paper`** (`packages/paper/`): Styling primitives depending on v0 — **not published (dormant)**
 
 ## Commands
 
-```bash collapse
-# Development
-pnpm dev              # Dev environment
-pnpm dev:docs         # Documentation
+Scripts live in the root `package.json` — read it for the full list. The non-obvious ones:
 
-# Build
-pnpm build            # All packages
-pnpm build:0          # @vuetify/v0 only
-pnpm build:paper      # @vuetify/paper only
-pnpm build:apps       # All apps
-pnpm build:all        # Everything
-
-# Quality
-pnpm test             # Watch mode
-pnpm test:run         # CI mode
-pnpm test:bench       # Run benchmarks
-pnpm metrics          # Generate performance metrics
-pnpm typecheck        # All packages
-pnpm lint:fix         # Always use lint:fix, not lint
+```bash
+pnpm lint:fix         # Always use lint:fix, never plain lint
 pnpm validate         # lint + typecheck + test
-
-# Release (Changesets)
-pnpm changeset        # Author a changeset for your PR (run per change)
-pnpm release:prepare  # Pre-release validation (validate + build)
-# Publishing is automated: pushing to master opens a "Version Packages" PR;
-# merging it builds, publishes to npm via OIDC, and creates the GitHub releases.
-# Currently in PRE mode (beta dist-tag) — see "Releasing" below before cutting stable.
-
-# Repo health
+pnpm metrics          # CI metrics-regen only — do not commit artifacts from feature branches; local: pnpm test:bench
 pnpm repo:check       # knip + sherif
+pnpm changeset        # Author a changeset — run once per change, see "Releasing"
 ```
 
 ## Releasing
 
 Changesets-driven. Pushing to `master` opens/updates a "Version Packages" PR; merging it publishes to npm (tokenless OIDC) and mints the GitHub releases (`.github/workflows/release.yml`).
 
-- **Substrate** (`@vuetify/v0` + `@vuetify/paper`) is a `fixed` group: one shared version, one aggregate `v<version>` GitHub release.
-- **Design systems** (`@paper/*`, e.g. `@paper/genesis`) version and release independently, each on its own `name@version` release. Note `@paper/genesis` depends on `@vuetify/v0`, so a substrate **major** bump (e.g. `1.x` → `2.0.0`) leaves genesis's `^` range and changesets will also bump + republish genesis. That is expected — review it in the "Version Packages" PR before merging.
+### Branch model — where a PR goes by change type
 
-### Exiting beta / cutting a stable release
+Three long-lived branches; a PR's base is chosen by the semver impact of the change, not by its commit-type label alone:
 
-The repo is in changesets **pre mode** (`.changeset/pre.json`, `beta` dist-tag); every release is `…-beta.N` published under the `beta` tag. Before the first stable release:
+| Base | Change type | Semver | Examples |
+|------|-------------|--------|----------|
+| `master` | fixes, docs, chore, refactor, tests | patch / none | `fix(...)`, `docs(...)`, `test(...)`, and any app/tooling change that ships no package version |
+| `dev` | new features that add public API | minor | `feat(...)` that adds a component, composable, prop, or option |
+| `next` | breaking changes | major | anything with a `BREAKING CHANGE:` footer |
 
-1. `pnpm changeset pre exit`
-2. Commit the removal of `.changeset/pre.json`
-3. Let the next "Version Packages" PR produce the clean `1.0.0`, then merge it
+- **Only `master` publishes.** `dev` and `next` accumulate work and merge **into `master`** at the next minor / major cut — that merge is what triggers the changesets release. Never publish from `dev`/`next` directly.
+- **The next minor number is not reserved.** Any `"@vuetify/v0": minor` changeset that is already on `master` when Version Packages merges *is* that minor (1.1.0 was Splitter + play because those `feat`s landed on `master` while DataTable/DataGrid were still on `dev`). Before merging Version Packages: read the bump in the PR title, list pending `.changeset/*.md` bump types on `master`, and check what is still queued on `dev`. If they disagree, stop.
+- **`dev`/`next` → `master` is a merge commit** (`git merge --no-ff`), never squash or rebase. Squash rewrites SHAs so the next cut treats the same history as new. GitHub may have merge commits disabled — enable for that PR only.
+- **Do not unpublish** a version any published package depends on with a range (`@paper/genesis` is `^1.0.5`). npm returns 405.
+- **`feat`/`fix` are still reserved for `packages/*` source.** A `feat(docs)` / `feat(playground)` / app-only change ships no package version, so it targets `master` (patch train) regardless of the `feat` label — prefer `docs`/`chore` for those.
+- **Design systems** (`@paper/*`) version independently; a DS feature still targets `dev` (it's a minor bump for that package).
+- **Agents do not merge Version Packages or cut `dev`→`master` unless John explicitly says so.**
+- CI (`pr-checks.yml`) and the changeset reminder (`changeset-reminder.yml`) run on PRs into all three branches; `release.yml` triggers on `master` pushes only.
 
-Skipping `pre exit` ships `1.0.0-beta.N` (or mistags it) instead of a real `1.0.0`.
+### Authoring a changeset / cutting a release
+
+For the changeset content contract, the two version domains (`@vuetify/v0` vs `@paper/*`), and optional pre/beta channel workflow, invoke the **`releasing`** skill (`.claude/skills/releasing/SKILL.md`).
 
 ## Conventions
 
@@ -134,22 +90,9 @@ Skipping `pre exit` ships `1.0.0-beta.N` (or mistags it) instead of a real `1.0.
 - **Never use `ltr:` variant** — it requires an explicit `dir="ltr"` attribute on an ancestor. Use the bare class for default (LTR) behavior, `rtl:` for the override (e.g. `-translate-x-full rtl:translate-x-full`, not `ltr:-translate-x-full rtl:translate-x-full`)
 
 ### Testing
-- Vitest + happy-dom
-- Colocated with source (`*.test.ts`)
+- Vitest, two projects: `v0:unit` (happy-dom, `*.test.ts` — composables/utilities) and `v0:browser` (real Chromium via Playwright, `*.browser.test.ts` — components)
+- Colocated with source (`*.test.ts`, components `*.browser.test.ts`)
 - Focus: edge cases, error conditions, async, SSR safety
-
-## Requirements
-
-- **Node**: >=26
-- **pnpm**: >=10.6
-
-## Build Tooling
-
-- **Build**: tsdown
-- **Dev**: Vite
-- **Test**: Vitest
-- **Lint**: ESLint (vuetify config)
-- **Style**: UnoCSS
 
 ## Worktrees
 
@@ -164,3 +107,4 @@ See `.claude/rules/` for path-scoped documentation:
 - `benchmarks.md` - Standards for `*.bench.ts` files
 - `docs.md` - Architecture for `apps/docs/**`
 - `testing.md` - Standards for `*.test.ts` files
+- `new-feature-checklist.md` - Required files when adding a component or composable (path-scoped)

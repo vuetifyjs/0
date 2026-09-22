@@ -315,7 +315,7 @@ export interface SliderContext extends Omit<
    * @param value Raw value to set.
    *
    * @remarks
-   * No-op when `readonly` is `true`. The value is snapped to step, clamped to min/max,
+   * No-op when `disabled` or `readonly` is `true`. The value is snapped to step, clamped to min/max,
    * and constrained by adjacent thumbs when `crossover` is `false`.
    *
    * @see {@link up} and {@link down} for relative adjustments.
@@ -550,7 +550,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
   }
 
   function set (index: number, value: number): void {
-    if (readonly.value) return
+    if (disabled.value || readonly.value) return
     const snapped = snap(value)
     const current = values.value
 

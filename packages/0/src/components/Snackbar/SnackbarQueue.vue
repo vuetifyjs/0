@@ -14,7 +14,6 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  // Foundational
   import { createContext } from '#v0/composables/createContext'
   import { useNotifications } from '#v0/composables/useNotifications'
 

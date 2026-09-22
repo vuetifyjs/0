@@ -56,6 +56,7 @@ Headless responsive truncation primitive. Children render until the container ru
 <template>
   <Overflow.Root>
     <Overflow.Item />
+
     <Overflow.Indicator />
   </Overflow.Root>
 </template>

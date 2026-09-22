@@ -33,7 +33,12 @@ import App from './App.vue'
 
 const app = createApp(App)
 
-app.use(createStackPlugin())
+app.use(
+  createStackPlugin({
+    // optional: app-wide Portal fallback when no per-component `to` is set
+    default: 'top-layer',
+  })
+)
 
 app.mount('#app')
 ```
@@ -110,6 +115,7 @@ Stack state and ticket properties are reactive for automatic UI updates.
 | `scrimZIndex` | <AppSuccessIcon /> | Z-index for scrim element |
 | `isBlocking` | <AppSuccessIcon /> | Top overlay blocks dismissal |
 | `topElement` | <AppSuccessIcon /> | Element of the topmost open modal (`<dialog>`), or `null`; consumed by `Portal`/`Snackbar.Portal` via `teleport="top-layer"` |
+| `default` | <AppSuccessIcon /> | App-wide Portal teleport fallback from `createStackPlugin({ default })` |
 | ticket `zIndex` | <AppSuccessIcon /> | Computed from selection order |
 | ticket `globalTop` | <AppSuccessIcon /> | True if topmost |
 | ticket `isSelected` | <AppSuccessIcon /> | Overlay active state |
@@ -155,6 +161,26 @@ const ticket = stack.register({
 
 Dialog and AlertDialog pass their `<dialog>` element automatically — this pattern is only needed when building a custom modal component from scratch.
 
+### Default Teleport
+
+Set an app-wide Portal fallback so every Portal without a `to` prop inherits the same target:
+
+```ts no-filename
+app.use(
+  createStackPlugin({
+    default: 'top-layer',
+  })
+)
+```
+
+Resolution order:
+
+1. per-component `to` prop
+2. `stack.default` (from the plugin option)
+3. `'body'`
+
+`'top-layer'` still resolves to the topmost open modal element (via `topElement`), then falls back to `'body'` when no modal is active - same as a per-component `to="top-layer"`.
+
 ### Scrim Integration
 
 Use the `Scrim` component alongside `useStack` to provide a backdrop for your overlays. The Scrim automatically positions itself below the topmost overlay:
@@ -178,6 +204,10 @@ The Scrim reads from the same stack context, so its z-index is always coordinate
 ??? Do I have to install the plugin to use useStack?
 
 Not for client-only apps — you can use the default `stack` singleton directly. Install `createStackPlugin` for SSR, where it ensures each request gets its own isolated stack instance instead of sharing one across requests.
+
+??? How do I teleport every Portal to the top layer by default?
+
+`createStackPlugin({ default: 'top-layer' })`. Per-component `to` still wins when set.
 
 ??? How do I give a nested group of overlays its own z-index range?
 

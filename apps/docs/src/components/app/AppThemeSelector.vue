@@ -14,7 +14,7 @@
   const router = useRouter()
 
   const toggle = useThemeToggle()
-  const { customThemes: themes, editor } = useCustomThemes()
+  const { editor } = useCustomThemes()
   const settings = useSettings()
 
   const isOpen = shallowRef(false)
@@ -39,13 +39,20 @@
 
 <template>
   <Popover.Root id="theme-selector" v-model="isOpen">
-    <Popover.Activator
-      aria-label="Select theme"
-      class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
-      :title="toggle.title.value"
+    <AppTooltip
+      as="span"
+      class="inline-flex"
+      position-area="bottom"
+      :text="toggle.title.value"
     >
-      <AppIcon :icon="toggle.icon.value" />
-    </Popover.Activator>
+      <Popover.Activator
+        aria-label="Select theme"
+        class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant data-[state=open]:bg-surface-variant transition-all cursor-pointer"
+        :data-state="isOpen ? 'open' : undefined"
+      >
+        <AppIcon :icon="toggle.icon.value" />
+      </Popover.Activator>
+    </AppTooltip>
 
     <Popover.Content
       id="theme-selector"
@@ -59,49 +66,17 @@
         <AppCloseButton size="sm" @click="isOpen = false" />
       </div>
 
-      <!-- Mode -->
-      <div class="mb-3">
-        <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Mode</div>
-
-        <div class="grid grid-cols-3 gap-2">
-          <AppThemeSystemButton />
-          <AppThemeLightButton />
-          <AppThemeDarkButton />
-        </div>
-      </div>
-
-      <!-- Palettes -->
-      <div class="mb-3">
-        <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Palettes</div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <AppPaletteVuetify0Button />
-          <AppPaletteTailwindButton />
-          <AppPaletteMaterial3Button />
-          <AppPaletteRadixButton />
-          <AppPaletteAntDesignButton />
-        </div>
-
-        <button
-          class="w-full text-xs text-primary border border-primary rounded py-1.5 transition-colors hover:bg-primary/15 text-center mt-2"
-          type="button"
-          @click="onBrowse"
-        >
-          Browse Palettes
-        </button>
-      </div>
-
-      <!-- Accessibility -->
-      <div>
-        <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Accessibility</div>
-
-        <div class="flex gap-2">
-          <AppThemeHighContrastButton class="flex-1" />
-          <AppThemeProtanopiaButton />
-          <AppThemeDeuteranopiaButton />
-          <AppThemeTritanopiaButton />
-        </div>
-      </div>
+      <AppThemeMenu editable @edit="onEdit">
+        <template #palettes-footer>
+          <button
+            class="w-full text-xs text-primary border border-primary rounded py-1.5 transition-colors hover:bg-primary/15 text-center mt-2"
+            type="button"
+            @click="onBrowse"
+          >
+            Browse Palettes
+          </button>
+        </template>
+      </AppThemeMenu>
 
       <!-- Create Theme -->
       <button
@@ -112,21 +87,6 @@
         <AppIcon icon="plus" size="16" />
         <span>Create Theme</span>
       </button>
-
-      <!-- Custom Themes -->
-      <div v-if="themes.length > 0" class="mt-3">
-        <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Custom Themes</div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <AppThemeCustomButton
-            v-for="theme in themes"
-            :key="theme.id"
-            editable
-            :theme-id="theme.id"
-            @edit="onEdit"
-          />
-        </div>
-      </div>
     </Popover.Content>
   </Popover.Root>
 </template>

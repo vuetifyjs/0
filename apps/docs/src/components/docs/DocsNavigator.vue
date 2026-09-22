@@ -6,6 +6,7 @@
   import { useNavConfigContext } from '@/composables/useNavConfig'
 
   // Utilities
+  import { flatten } from '@/utilities/nav'
   import { shallowRef, toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
@@ -19,17 +20,6 @@
   const isVisible = toRef(() => !route.path.startsWith('/skillz'))
 
   // Flatten nav items to route paths
-  function flattenRoutes (nav: NavItem): string[] {
-    const routes: string[] = []
-    if ('to' in nav && nav.to) {
-      routes.push(nav.to)
-    }
-    if ('children' in nav && nav.children) {
-      routes.push(...nav.children.flatMap(child => flattenRoutes(child)))
-    }
-    return routes
-  }
-
   // Use refs updated via watch to avoid reactivity timing issues during navigation
   const prev = shallowRef<string | false>(false)
   const next = shallowRef<string | false>(false)
@@ -40,7 +30,7 @@
       const pages: string[] = []
       for (const nav of navConfig.configuredNav.value) {
         if (!('children' in nav) && !('to' in nav)) continue
-        pages.push(...flattenRoutes(nav as NavItem))
+        pages.push(...flatten(nav as NavItem))
       }
 
       const normalizedPath = `/${path.split('/').slice(1).join('/')}`

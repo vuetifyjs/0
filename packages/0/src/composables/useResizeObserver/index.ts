@@ -15,6 +15,7 @@
  * - SSR-safe (checks SUPPORTS_OBSERVER)
  * - Hydration-aware
  * - Box model options (content-box/border-box)
+ * - Reports `borderBoxSize` and `contentBoxSize` alongside `contentRect`
  *
  * Perfect for responsive components and size-based rendering.
  *
@@ -37,6 +38,7 @@ import { createObserver } from '#v0/composables/createObserver'
 import { SUPPORTS_OBSERVER } from '#v0/constants/globals'
 
 // Utilities
+import { isString, pxToNumber } from '#v0/utilities'
 import { shallowReadonly, shallowRef } from 'vue'
 
 // Types
@@ -44,6 +46,23 @@ import type { ObserverReturn } from '#v0/composables/createObserver'
 import type { MaybeElementRef } from '#v0/composables/toElement'
 import type { Ref } from 'vue'
 
+/**
+ * A reported size change for an observed element.
+ *
+ * `contentRect` always describes the content box, regardless of the `box`
+ * option. Read `borderBoxSize` when padding and borders should be included —
+ * both arrays are populated on every entry, so `box` selects which box model
+ * triggers a callback, not which measurements are available.
+ *
+ * @example
+ * ```ts
+ * useResizeObserver(el, ([entry]) => {
+ *   entry.contentRect.height        // content box, excludes padding + border
+ *   entry.contentBoxSize[0].blockSize   // same value, writing-mode relative
+ *   entry.borderBoxSize[0].blockSize    // includes padding + border
+ * }, { box: 'border-box' })
+ * ```
+ */
 export interface ResizeObserverEntry {
   contentRect: {
     width: number
@@ -51,6 +70,23 @@ export interface ResizeObserverEntry {
     top: number
     left: number
   }
+  /**
+   * The element's border box — content plus padding plus border — in
+   * writing-mode-relative `inlineSize` / `blockSize` terms.
+   *
+   * Unlike `getBoundingClientRect()`, this is a layout measurement and is not
+   * scaled by CSS transforms. The array mirrors the native API: one entry per
+   * box fragment, so single-fragment elements report `borderBoxSize[0]`.
+   */
+  borderBoxSize: readonly ResizeObserverSize[]
+  /**
+   * The element's content box — excluding padding and border — in
+   * writing-mode-relative `inlineSize` / `blockSize` terms.
+   *
+   * Carries the same measurement as `contentRect`, expressed on the logical
+   * axes. The array mirrors the native API: one entry per box fragment.
+   */
+  contentBoxSize: readonly ResizeObserverSize[]
   target: Element
 }
 
@@ -61,6 +97,73 @@ export interface ResizeObserverOptions {
 }
 
 export interface UseResizeObserverReturn extends ObserverReturn {}
+
+/**
+ * Synthesize the entry the observer would report for `el`, for the `immediate`
+ * callback that fires before the observer's own first delivery.
+ *
+ * Every measurement comes from `getComputedStyle` rather than
+ * `getBoundingClientRect` because resolved lengths are layout values — like the
+ * observer, and unlike a client rect, they are not scaled by CSS transforms.
+ * `contentRect` mirrors the native entry: width/height are the content box and
+ * top/left are the padding offsets, so the immediate entry matches what the
+ * observer reports next. The client rect only remains as the fallback when a
+ * resolved length is not numeric (e.g. a detached element).
+ *
+ * Every read is written to tolerate a partial style declaration: an element
+ * with no layout box resolves its lengths to `''`, and this runs on whatever
+ * `getComputedStyle` returns.
+ */
+/* #__NO_SIDE_EFFECTS__ */
+function measure (el: Element): ResizeObserverEntry {
+  const rect = el.getBoundingClientRect()
+  const style = getComputedStyle(el)
+
+  const padding = {
+    top: pxToNumber(style.paddingTop),
+    left: pxToNumber(style.paddingLeft),
+    right: pxToNumber(style.paddingRight),
+    bottom: pxToNumber(style.paddingBottom),
+  }
+  const paddingX = padding.left + padding.right
+  const paddingY = padding.top + padding.bottom
+  const borderX = pxToNumber(style.borderLeftWidth) + pxToNumber(style.borderRightWidth)
+  const borderY = pxToNumber(style.borderTopWidth) + pxToNumber(style.borderBottomWidth)
+
+  // Resolved width/height follow `box-sizing` — they describe the border box
+  // under `border-box` and the content box otherwise — so which box needs the
+  // padding and border added depends on which one they already measured.
+  const outer = style.boxSizing === 'border-box'
+  const resolvedX = pxToNumber(style.width, rect.width)
+  const resolvedY = pxToNumber(style.height, rect.height)
+
+  const width = {
+    border: outer ? resolvedX : resolvedX + paddingX + borderX,
+    content: Math.max(0, outer ? resolvedX - paddingX - borderX : resolvedX),
+  }
+  const height = {
+    border: outer ? resolvedY : resolvedY + paddingY + borderY,
+    content: Math.max(0, outer ? resolvedY - paddingY - borderY : resolvedY),
+  }
+
+  // Logical axes swap under any vertical writing mode, matching how the
+  // observer maps inlineSize/blockSize onto the physical box.
+  const vertical = isString(style.writingMode) && style.writingMode.startsWith('vertical')
+  const inline = vertical ? height : width
+  const block = vertical ? width : height
+
+  return {
+    contentRect: {
+      width: width.content,
+      height: height.content,
+      top: padding.top,
+      left: padding.left,
+    },
+    borderBoxSize: [{ inlineSize: inline.border, blockSize: block.border }],
+    contentBoxSize: [{ inlineSize: inline.content, blockSize: block.content }],
+    target: el,
+  }
+}
 
 /**
  * A composable that uses the Resize Observer API to detect when an element's
@@ -102,6 +205,15 @@ export interface UseResizeObserverReturn extends ObserverReturn {}
  * // Resume observation
  * resume()
  * ```
+ *
+ * @example
+ * Measuring the border box — padding and borders included:
+ *
+ * ```ts
+ * useResizeObserver(el, ([entry]) => {
+ *   height.value = entry.borderBoxSize[0].blockSize
+ * }, { box: 'border-box' })
+ * ```
  */
 export function useResizeObserver (
   target: MaybeElementRef,
@@ -119,24 +231,13 @@ export function useResizeObserver (
           top: e.contentRect.top,
           left: e.contentRect.left,
         },
+        borderBoxSize: e.borderBoxSize,
+        contentBoxSize: e.contentBoxSize,
         target: e.target,
       })))
     }),
     observe: (obs, el) => obs.observe(el, { box: options.box ?? 'content-box' }),
-    immediate: options.immediate
-      ? el => {
-        const rect = el.getBoundingClientRect()
-        return [{
-          contentRect: {
-            width: rect.width,
-            height: rect.height,
-            top: rect.top,
-            left: rect.left,
-          },
-          target: el,
-        }]
-      }
-      : undefined,
+    immediate: options.immediate ? el => [measure(el)] : undefined,
   })
 }
 

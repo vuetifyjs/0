@@ -248,6 +248,9 @@
 
     useEventListener(el, 'touchstart', () => carousel.pause(), { passive: true })
     useEventListener(el, 'touchend', () => carousel.resume(), { passive: true })
+
+    useEventListener(el, 'focusin', () => carousel.pause())
+    useEventListener(el, 'focusout', () => carousel.resume())
   }
 
   watch(() => carousel.selectedIndex.value, index => {

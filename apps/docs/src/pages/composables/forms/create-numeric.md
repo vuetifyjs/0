@@ -1,10 +1,10 @@
 ---
 title: createNumeric - Pure Numeric Math Primitive
 meta:
-  - name: description
-    content: Pure numeric math for bounded values. Snap, step, clamp, percentage conversion, and circular wrapping with floating-point precision handling.
-  - name: keywords
-    content: createNumeric, numeric, math, clamp, snap, step, composable, Vue 3, headless
+- name: description
+  content: Pure numeric math for bounded values. Snap, step, clamp, percentage conversion, and circular wrapping with floating-point precision handling.
+- name: keywords
+  content: createNumeric, numeric, math, clamp, snap, step, composable, Vue 3, headless
 features:
   category: Composable
   label: 'E: createNumeric'

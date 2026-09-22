@@ -200,7 +200,7 @@ describe('v0StyleSheetThemeAdapter', () => {
       scope.stop()
     })
 
-    it('should assign entry.dispose to adapter.dispose when entry has dispose', () => {
+    it('should call entry.dispose through adapter.dispose when entry has dispose', () => {
       mockInBrowser.value = false
       const entryDispose = vi.fn()
       const headMock = { push: vi.fn(() => ({ dispose: entryDispose })) }
@@ -208,21 +208,36 @@ describe('v0StyleSheetThemeAdapter', () => {
       const context = createMockContext()
       const adapter = new V0StyleSheetThemeAdapter()
 
-      adapter.setup(app, context)
+      const scope = effectScope()
+      scope.run(() => {
+        adapter.setup(app, context)
+      })
 
-      expect(adapter.dispose).toBe(entryDispose)
+      expect(adapter.dispose).toBeTypeOf('function')
+
+      adapter.dispose!()
+
+      expect(entryDispose).toHaveBeenCalledOnce()
+
+      scope.stop()
     })
 
-    it('should leave dispose unset when head entry has no dispose', () => {
+    it('should still define dispose to clean up the watch when entry has no dispose', () => {
       mockInBrowser.value = false
       const headMock = { push: vi.fn(() => ({})) }
       const app = createMockApp(headMock)
       const context = createMockContext()
       const adapter = new V0StyleSheetThemeAdapter()
 
-      adapter.setup(app, context)
+      const scope = effectScope()
+      scope.run(() => {
+        adapter.setup(app, context)
+      })
 
-      expect(adapter.dispose).toBeUndefined()
+      expect(adapter.dispose).toBeTypeOf('function')
+      expect(() => adapter.dispose!()).not.toThrow()
+
+      scope.stop()
     })
 
     it('should not call update in SSR', () => {
@@ -417,6 +432,18 @@ describe('v0StyleSheetThemeAdapter', () => {
       )
 
       expect(css).toContain('color-scheme: dark')
+    })
+
+    it('should omit color values that contain css comments', () => {
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      const css = adapter.generate(
+        { light: { primary: '#1976d2', inject: 'red /*' } },
+        false,
+      )
+
+      expect(css).toContain('--v0-primary: #1976d2')
+      expect(css).not.toContain('red /*')
     })
 
     it('should use custom prefix in CSS variables', () => {

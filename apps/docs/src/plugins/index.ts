@@ -17,7 +17,7 @@ import './analytics'
 
 export function registerPlugins (app: App) {
   app.use(zero)
-  app.use(createNotificationsPlugin())
+  app.use(createNotificationsPlugin({ persist: true }))
   app.use(_app)
   app.use(SettingsPlugin)
 

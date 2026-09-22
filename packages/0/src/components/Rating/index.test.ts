@@ -351,6 +351,44 @@ describe('rating', () => {
         wrapper.unmount()
       })
 
+      it('should have a default aria-label', async () => {
+        const { rootProps, wait } = mountRating()
+        await wait()
+
+        expect(rootProps().attrs['aria-label']).toBe('Rating')
+      })
+
+      it('should prefer the ariaLabel prop over the default', async () => {
+        const { rootProps, wait } = mountRating({ props: { ariaLabel: 'Product rating' } })
+        await wait()
+
+        expect(rootProps().attrs['aria-label']).toBe('Product rating')
+      })
+
+      it('should omit the default aria-label when ariaLabelledby is set', async () => {
+        const { rootProps, wait } = mountRating({ props: { ariaLabelledby: 'rating-label' } })
+        await wait()
+
+        expect(rootProps().attrs['aria-label']).toBeUndefined()
+        expect(rootProps().attrs['aria-labelledby']).toBe('rating-label')
+      })
+
+      it('should omit aria-label when both ariaLabel and ariaLabelledby are set', async () => {
+        const { rootProps, wait } = mountRating({ props: { ariaLabel: 'Product rating', ariaLabelledby: 'rating-label' } })
+        await wait()
+
+        expect(rootProps().attrs['aria-label']).toBeUndefined()
+        expect(rootProps().attrs['aria-labelledby']).toBe('rating-label')
+      })
+
+      it('should render no focusable descendants inside the slider', async () => {
+        const { wrapper, wait } = mountRating()
+        await wait()
+
+        expect(wrapper.find('button').exists()).toBe(false)
+        expect(wrapper.find('[role="slider"] [tabindex]').exists()).toBe(false)
+      })
+
       it('should set aria-disabled to false when not disabled', async () => {
         const { rootProps, wait } = mountRating()
         await wait()

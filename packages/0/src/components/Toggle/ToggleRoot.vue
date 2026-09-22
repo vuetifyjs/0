@@ -17,8 +17,11 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
   import type { Ref } from 'vue'
 
@@ -54,13 +57,14 @@
     /** Attributes to bind to the toggle element */
     attrs: {
       'type': 'button' | undefined
+      'role': 'button' | undefined
       'aria-pressed': boolean
       'aria-disabled': boolean
-      'tabindex': 0 | undefined
+      'tabindex': 0 | -1
       'data-state': 'on' | 'off'
       'data-disabled': true | undefined
       'onClick': () => void
-      'onKeydown': (e: KeyboardEvent) => void
+      'onKeydown': ((e: KeyboardEvent) => void) | undefined
     }
   }
 
@@ -73,7 +77,7 @@
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { mergeProps, onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, watch } from 'vue'
+  import { mergeProps, onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { ToggleGroupContext } from './ToggleGroup.vue'
@@ -118,8 +122,11 @@
     pressed.value = v ?? false
   })
 
+  const atomRef = useTemplateRef<AtomExpose>('atom')
+  const el = toRef(() => toElement(atomRef.value?.element) ?? undefined)
+
   // Dual mode: register with group's selection composable
-  const ticket = group?.selection.register({ id, value, disabled: () => toValue(disabled) ?? false })
+  const ticket = group?.selection.register({ id, value, disabled: () => toValue(disabled) ?? false, el })
 
   const isPressed = toRef(() => ticket
     ? toValue(ticket.isSelected)
@@ -147,7 +154,7 @@
   }
 
   function onKeydown (e: KeyboardEvent) {
-    if (e.key !== ' ') return
+    if (e.key !== ' ' && e.key !== 'Enter') return
 
     e.preventDefault()
     toggle()
@@ -171,19 +178,27 @@
     toggle,
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
+      'role': as === 'button' ? undefined : 'button',
       'aria-pressed': isPressed.value,
       'aria-disabled': isDisabled.value,
-      'tabindex': isDisabled.value ? undefined : 0,
+      'tabindex': isDisabled.value ? -1 : 0,
       'data-state': isPressed.value ? 'on' : 'off',
       'data-disabled': isDisabled.value ? true : undefined,
       'onClick': onClick,
-      'onKeydown': onKeydown,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
     },
   }))
+
+  defineExpose<AtomExpose>({
+    get element () {
+      return (atomRef.value?.element ?? null) as AtomExpose['element']
+    },
+  })
 </script>
 
 <template>
   <Atom
+    ref="atom"
     v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless

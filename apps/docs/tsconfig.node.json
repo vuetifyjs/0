@@ -6,7 +6,8 @@
     "cypress.config.*",
     "nightwatch.conf.*",
     "playwright.config.*",
-    "build/**/*.ts"
+    "build/**/*.ts",
+    "../../packages/0/src/theme/tokens.ts"
   ],
   "compilerOptions": {
     "composite": true,

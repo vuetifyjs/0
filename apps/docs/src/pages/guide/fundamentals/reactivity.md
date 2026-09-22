@@ -1,7 +1,7 @@
 ---
 title: Reactivity - Minimal by Design
 features:
-  order: 2
+  order: 3
   level: 2
 meta:
   - name: description

@@ -21,9 +21,12 @@
   function onMove (item: Item, toSide: Side, toIndex: number) {
     const fromList = left.value.some(i => i.id === item.id) ? left : right
     const toList = toSide === 'left' ? left : right
+    const fromIndex = fromList.value.findIndex(i => i.id === item.id)
     fromList.value = fromList.value.filter(i => i.id !== item.id)
-    toList.value.splice(toIndex, 0, item)
-    announcement.value = `${item.label} moved to ${toSide}, position ${toIndex + 1}`
+    // position.index is pre-move. Same-list downward: subtract 1 after removing.
+    const index = fromList === toList && toIndex > fromIndex ? toIndex - 1 : toIndex
+    toList.value.splice(index, 0, item)
+    announcement.value = `${item.label} moved to ${toSide}, position ${index + 1}`
   }
 </script>
 
