@@ -2,8 +2,14 @@
   // Framework
   import { useTheme } from '@vuetify/v0'
 
+  // Composables
+  import { attachFormatOnBlur, readMonaco, registerVueFormatter } from '@/composables/formatActiveFile'
+
   // Utilities
-  import { defineAsyncComponent, toRef, watch } from 'vue'
+  import { defineAsyncComponent, onScopeDispose, toRef, watch } from 'vue'
+
+  // Types
+  import type { MonacoEditor } from '@/composables/formatActiveFile'
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
@@ -38,15 +44,70 @@
   // a side effect of the dynamic import below, but only once
   // MonacoEnvironment.globalAPI is set - the Monaco loader above sets it
   // before the editor module is imported.
-  watch(() => playground.wordWrap.value, async wordWrapOn => {
+  const disposables: Array<{ dispose: () => void }> = []
+  const bound = new WeakSet<MonacoEditor>()
+  let listening = false
+
+  function bindEditor (editor: MonacoEditor) {
+    if (bound.has(editor)) return
+    bound.add(editor)
+    disposables.push(attachFormatOnBlur(
+      editor,
+      () => playground.autoFormat.value && !playground.isLocked.value,
+      (filename, code) => {
+        // Snapshot every file before the write. vue-repl assigns the editor's
+        // change to activeFile 250ms later, which is the wrong file if a tab
+        // click was the thing that blurred the editor.
+        const previous = new Map<string, string>()
+        for (const [name, file] of Object.entries(playground.store.files)) {
+          previous.set(name, file.code)
+        }
+
+        const owned = playground.store.files[filename]
+        if (owned) owned.code = code
+
+        const timer = setTimeout(() => {
+          const active = playground.store.activeFile
+          if (active.filename !== filename && active.code === code) {
+            const prior = previous.get(active.filename)
+            if (prior !== undefined) active.code = prior
+          }
+          const file = playground.store.files[filename]
+          if (file) file.code = code
+        }, 400)
+        disposables.push({ dispose: () => clearTimeout(timer) })
+      },
+    ))
+  }
+
+  async function ensureMonaco () {
     await import('@vue/repl/monaco-editor')
-    const monaco = (globalThis as { monaco?: any }).monaco
+    const monaco = readMonaco()
+    if (!monaco) return undefined
+
+    if (!listening) {
+      listening = true
+      registerVueFormatter(monaco)
+      for (const editor of monaco.editor.getEditors()) bindEditor(editor)
+      const created = monaco.editor.onDidCreateEditor?.(bindEditor)
+      if (created) disposables.push(created)
+    }
+
+    return monaco
+  }
+
+  watch(() => playground.wordWrap.value, async wordWrapOn => {
+    const monaco = await ensureMonaco()
     if (!monaco) return
 
     for (const editor of monaco.editor.getEditors()) {
-      editor.updateOptions({ wordWrap: wordWrapOn ? 'on' : 'off' })
+      editor.updateOptions?.({ wordWrap: wordWrapOn ? 'on' : 'off' })
     }
   }, { immediate: true })
+
+  onScopeDispose(() => {
+    for (const disposable of disposables) disposable.dispose()
+  })
 </script>
 
 <template>

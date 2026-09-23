@@ -325,16 +325,24 @@
               />
             </AppTooltip>
 
-            <Switch.Root
-              aria-label="Auto-save"
-              class="shrink-0 inline-flex items-center border-none bg-transparent p-0 outline-none"
-              :model-value="autosaveEnabled"
-              @update:model-value="setAutosave"
+            <AppTooltip
+              as="span"
+              class="inline-flex shrink-0"
+              :open-delay="200"
+              position-area="right"
+              text="Save changes to Vuetify One as you edit"
             >
-              <Switch.Track class="relative inline-flex items-center rounded-full transition-colors h-4 w-7 bg-surface-variant data-[state=checked]:bg-primary">
-                <Switch.Thumb class="block size-3 rounded-full bg-on-surface-variant shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-3.5 data-[state=checked]:bg-on-primary" />
-              </Switch.Track>
-            </Switch.Root>
+              <Switch.Root
+                class="inline-flex items-center border-none bg-transparent p-0 outline-none"
+                label="Auto-save"
+                :model-value="autosaveEnabled"
+                @update:model-value="setAutosave"
+              >
+                <Switch.Track class="relative inline-flex items-center rounded-full transition-colors h-4 w-7 bg-surface-variant data-[state=checked]:bg-primary">
+                  <Switch.Thumb class="block size-3 rounded-full bg-on-surface-variant shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-3.5 data-[state=checked]:bg-on-primary" />
+                </Switch.Track>
+              </Switch.Root>
+            </AppTooltip>
           </div>
 
           <div
@@ -455,6 +463,30 @@
           <PlaygroundMenuItem @click="onFormat">
             <span class="flex-1">Format</span>
             <span class="text-on-surface/40 text-2.5">Ctrl+S</span>
+
+            <AppTooltip
+              as="span"
+              class="inline-flex shrink-0"
+              :open-delay="200"
+              position-area="right"
+              text="Format the file when the editor loses focus"
+              @click.stop
+            >
+              <Switch.Root
+                as="span"
+                class="inline-flex items-center border-none bg-transparent p-0 outline-none"
+                label="Auto format"
+                :model-value="playground.autoFormat.value"
+                @click.stop
+                @keydown.enter.prevent
+                @keydown.space.prevent
+                @update:model-value="playground.autoFormat.value = $event"
+              >
+                <Switch.Track class="relative inline-flex items-center rounded-full transition-colors h-4 w-7 bg-surface-variant data-[state=checked]:bg-primary">
+                  <Switch.Thumb class="block size-3 rounded-full bg-on-surface-variant shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-3.5 data-[state=checked]:bg-on-primary" />
+                </Switch.Track>
+              </Switch.Root>
+            </AppTooltip>
           </PlaygroundMenuItem>
 
           <div class="border-t border-divider my-1" />

@@ -51,6 +51,8 @@
     showConfig: ShallowRef<boolean>
     wordWrap: Ref<boolean>
     showErrors: Ref<boolean>
+    /** Format the focused file when the editor blurs. */
+    autoFormat: Ref<boolean>
     /** Current playground locked state from Vuetify One. */
     isLocked: Ref<boolean>
     /** Keyboard shortcuts dialog. */
@@ -134,6 +136,8 @@
   // Editor preferences, persisted per-browser (not synced to a user account).
   const wordWrap = storage.get('playground-editor-word-wrap', false)
   const showErrors = storage.get('playground-editor-show-errors', true)
+  // Off by default: blur-format rewrites the buffer and can autosave a One playground.
+  const autoFormat = storage.get('playground-editor-auto-format', false)
 
   providePlayground({
     store,
@@ -167,6 +171,7 @@
     showConfig,
     wordWrap,
     showErrors,
+    autoFormat,
     isLocked,
     cheatsheet,
   })

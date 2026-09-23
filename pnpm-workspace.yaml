@@ -63,6 +63,7 @@ catalog:
   pinia: ^3.0.4
   playwright: 1.62.1
   posthog-js: ^1.418.5
+  prettier: ^3.6.2
   publint: ^0.3.24
   rollup-plugin-sass: ^1.15.3
   sass: ^1.103.0

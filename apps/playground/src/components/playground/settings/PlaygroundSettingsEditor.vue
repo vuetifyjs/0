@@ -9,7 +9,7 @@
   const playground = usePlayground()
 
   interface Preference {
-    id: 'wordWrap' | 'showErrors'
+    id: 'wordWrap' | 'showErrors' | 'autoFormat'
     label: string
     description: string
     icon: string
@@ -27,6 +27,12 @@
       label: 'Show errors',
       description: 'Highlight type and syntax errors inline in the editor',
       icon: 'alert',
+    },
+    {
+      id: 'autoFormat',
+      label: 'Auto format',
+      description: 'Format the open file when the editor loses focus',
+      icon: 'format',
     },
   ]
 </script>
