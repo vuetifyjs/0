@@ -89,7 +89,7 @@
     rebuildFileTree()
   })
 
-  const PROTECTED = new Set(['src/App.vue', 'src/main.ts', 'src/uno.config.ts', 'import-map.json', 'tsconfig.json', 'src', '/'])
+  const PROTECTED = new Set(['src/App.vue', 'src/main.ts', 'src/uno.config.ts', 'src/v0-macros.ts', 'import-map.json', 'tsconfig.json', 'src', '/'])
   const VALID_EXT = /\.(?:vue|jsx?|tsx?|css|json)$/
 
   const CONFIG_FILES: { id: string, value: string, parentId?: string }[] = [
