@@ -50,6 +50,7 @@
       'data-state': 'active' | undefined
       'style': {
         anchorName: string
+        scrollMarginBottom: string
       }
     }
   }
@@ -93,7 +94,7 @@
 
   const isActive = toRef(() => {
     const selected = tour.selectedId.value
-    return !isUndefined(selected) && steps.includes(selected)
+    return tour.isActive.value && !isUndefined(selected) && steps.includes(selected)
   })
 
   async function onActive () {
@@ -118,6 +119,7 @@
       'data-state': isActive.value ? 'active' : undefined,
       'style': {
         anchorName: steps.map(id => `--tour-${id}`).join(', '),
+        scrollMarginBottom: '100px',
       },
     },
   }))

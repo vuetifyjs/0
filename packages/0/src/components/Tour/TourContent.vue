@@ -7,6 +7,9 @@
  * Headless overlay for a tour step. Portals to body, waits for the step
  * activator (or a 2s timeout), then positions via CSS anchor with a
  * viewport-edge fallback. Renders only while the parent Root is active.
+ * The panel is a non-modal dialog: the spotlight target stays operable.
+ * Escape stops the tour. Focus moves to the panel unless a field already
+ * has it, and returns to the opener when the tour ends.
  */
 
 <script lang="ts">
@@ -20,6 +23,7 @@
   // Composables
   import { useTour } from '#v0/composables/createTour'
   import { useBreakpoints } from '#v0/composables/useBreakpoints'
+  import { useHotkey } from '#v0/composables/useHotkey'
   import { useLogger } from '#v0/composables/useLogger'
   import { useRaf } from '#v0/composables/useRaf'
 
@@ -30,14 +34,16 @@
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
-  import { getActiveElement, isElement, isUndefined } from '#v0/utilities'
+  import { getActiveElement, isUndefined } from '#v0/utilities'
   import { mergeProps, nextTick, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+  // Types
+  import type { TourPlacement } from '#v0/composables/createTour'
   import type { CSSProperties } from 'vue'
 
-  export type TourPlacement = 'top' | 'bottom' | 'left' | 'right' | 'center'
+  export type { TourPlacement } from '#v0/composables/createTour'
 
   export interface TourContentProps extends AtomProps {
     /** Preferred placement relative to the activator @default 'bottom' */
@@ -55,7 +61,6 @@
     placement: TourPlacement
     attrs: {
       'role': 'dialog'
-      'aria-modal': 'true'
       'aria-labelledby': string
       'aria-describedby': string
       'data-scope': 'tour'
@@ -139,6 +144,15 @@
     poll()
   })
 
+  // The poll gives up after 2s and centers. If the activator registers later
+  // (async enter), drop the center latch and anchor on the next frame.
+  watch(() => toElement(tour.activators.get(root.step)?.element), element => {
+    if (!element || !root.isActive.value || !missingActivator.value) return
+
+    missingActivator.value = false
+    poll()
+  })
+
   watch(() => root.isActive.value, isActive => {
     if (!IN_BROWSER) return
 
@@ -151,21 +165,25 @@
       return
     }
 
+    // Last step and noActivator steps have nothing to wait for.
+    if (tour.isLast.value || tour.steps.get(root.step)?.noActivator === true) {
+      isReady.value = true
+      return
+    }
+
     isReady.value = false
     startTime = performance.now()
     poll()
   }, { immediate: true })
 
   const activePlacement = toRef((): TourPlacement => {
+    if (tour.isLast.value || tour.steps.get(root.step)?.noActivator === true) return 'center'
     if (missingActivator.value) return 'center'
 
     const el = toElement(tour.activators.get(root.step)?.element)
-    if (breakpoints.smAndDown.value && el) {
-      void breakpoints.height.value
-      if (el.getBoundingClientRect().height >= breakpoints.height.value * 0.6) {
-        return 'center'
-      }
-    }
+    const height = breakpoints.height.value
+    // Fallback breakpoints report height 0. That is "unmeasured", not a 0px viewport.
+    if (height > 0 && breakpoints.smAndDown.value && el && el.getBoundingClientRect().height >= height * 0.6) return 'center'
 
     const fromTicket = tour.steps.get(root.step)?.placement
     const base = isPlacement(fromTicket) ? fromTicket : placement
@@ -240,18 +258,35 @@
 
   const isVisible = toRef(() => root.isActive.value && isReady.value)
 
+  function isFieldFocused () {
+    const active = getActiveElement()
+    const tag = active?.tagName
+    const role = active?.getAttribute('role')
+
+    return tag === 'INPUT'
+      || tag === 'TEXTAREA'
+      || tag === 'SELECT'
+      || role === 'textbox'
+      || active?.getAttribute('contenteditable') === 'true'
+      || active?.hasAttribute('contenteditable') === true
+  }
+
   watch(isReady, ready => {
-    if (!ready || !IN_BROWSER) return
+    if (!ready || !IN_BROWSER || isFieldFocused()) return
 
     nextTick(() => {
-      const active = getActiveElement()
-      const tag = active?.tagName
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || active?.getAttribute('contenteditable') === 'true') return
-
       const element = toElement(atomRef.value?.element)
-      if (isElement(element)) (element as HTMLElement).focus()
+      if (element instanceof HTMLElement) element.focus({ preventScroll: true })
     })
   })
+
+  useHotkey(() => isVisible.value ? 'escape' : undefined, event => {
+    const target = event.target
+    if (target instanceof Element && target.closest('dialog[open]')) return
+
+    event.preventDefault()
+    root.stop()
+  }, { inputs: true, preventDefault: false })
 
   function getSlotProps (zIndex: number): TourContentSlotProps {
     return {
@@ -259,7 +294,6 @@
       placement: activePlacement.value,
       attrs: {
         'role': 'dialog',
-        'aria-modal': 'true',
         'aria-labelledby': root.titleId,
         'aria-describedby': root.descriptionId,
         'data-scope': 'tour',
@@ -275,7 +309,7 @@
 </script>
 
 <template>
-  <Portal v-if="isVisible" :scrim="false">
+  <Portal v-if="isVisible" :promote="1" :scrim="false">
     <template #default="{ zIndex }">
       <Atom
         ref="atom"

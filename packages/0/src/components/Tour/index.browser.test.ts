@@ -130,7 +130,7 @@ describe('tour', () => {
       expect(content).not.toBeNull()
       expect(title).not.toBeNull()
       expect(description).not.toBeNull()
-      expect(content!.getAttribute('aria-modal')).toBe('true')
+      expect(content!.getAttribute('aria-modal')).toBeNull()
       expect(content!.getAttribute('aria-labelledby')).toBe(title!.id)
       expect(content!.getAttribute('aria-describedby')).toBe(description!.id)
       expect(title!.id).toBeDefined()

@@ -98,19 +98,18 @@ Reach for this shape when the walkthrough targets elements that already exist in
 
 ## Accessibility
 
-`Tour.Content` renders a modal dialog (`role="dialog"` `aria-modal="true"`) labelled by `Tour.Title` and described by `Tour.Description`. `Tour.Progress` is a live region (`role="status"`) announcing `current / total`. `Tour.Highlight` is `aria-hidden`. When the overlay is ready, focus moves to Content unless an `input`, `textarea`, or `contenteditable` already has it.
+`Tour.Content` renders a non-modal dialog (`role="dialog"`, no `aria-modal`) labelled by `Tour.Title` and described by `Tour.Description`. The spotlight target stays in the page, so Tab is allowed to leave the card. `Tour.Progress` is a live region (`role="status"`) announcing the localized step count. `Tour.Highlight` is `aria-hidden`. When the overlay is ready, focus moves to Content unless a field already has it. When the tour stops or completes, focus returns to the element that was focused before `start()`. `blocking` also marks the rest of the page `inert` (the card, the scrim, and — unless `blockActivator` — the active target stay operable).
 
 ### ARIA Attributes
 
 | Attribute | Value | Element |
 |-----------|-------|---------|
 | `role` | `dialog` | Content |
-| `aria-modal` | `true` | Content |
 | `aria-labelledby` | Title element ID | Content |
 | `aria-describedby` | Description element ID | Content |
 | `role` | `status` | Progress |
 | `aria-label` | Localized previous / next / complete / skip string | Prev, Next, Skip |
-| `aria-disabled` | `true` / `false` | Prev, Next |
+| `aria-disabled` | boolean on a non-button host; omitted on `<button>` | Prev, Next |
 | `aria-hidden` | `true` | Highlight |
 
 `Tour.Title` and `Tour.Description` generate the IDs referenced by Content. Render them inside `Tour.Content` so the dialog has an accessible name and description. Prev is disabled on the first step; Next is disabled while the tour is unready.
@@ -123,9 +122,10 @@ Reach for this shape when the walkthrough targets elements that already exist in
 | `ArrowLeft` | Moves to the previous step |
 | `Enter` | Advances unless a control is focused; completes on the last step |
 | `Escape` | Stops the tour without completing |
-| `Tab` | Moves focus through the overlay controls |
+| `Tab` | Moves focus. It is not trapped; the target stays reachable |
+| `Escape` | Stops the tour even when `Tour.Keyboard` is omitted. Content listens on its own |
 
-`Tour.Keyboard` is renderless and only binds while `isActive`. Pass `lock` to swallow other keys in the capture phase during an active tour — Escape, Tab, arrows, Enter, and Space on a focused control still get through. Space on a focused Prev / Next / Skip activates that control natively.
+`Tour.Keyboard` is renderless and only binds arrows and Enter while `isActive`. Arrows do nothing when focus is inside a slider, tablist, listbox, radiogroup, menu, or `<select>`. Escape is also bound by Content, so a card still dismisses without Keyboard. Space on a focused Prev / Next / Skip activates that control natively.
 
 ## FAQ
 
@@ -141,7 +141,7 @@ No. `blocking` swallows clicks on the backdrop and `blockActivator` swallows cli
 
 ??? What if the activator is not mounted yet?
 
-Content polls for the step's activator and waits up to two seconds, then shows anyway (centered, with a warning). The overlay is not delayed forever.
+Content polls for the step's activator and waits up to two seconds, then shows anyway (centered, with a warning). The last step, and any step with `noActivator`, skips that wait and centers immediately. Highlight paints a full scrim for those steps instead of a cutout. `Tour.Highlight` and `Tour.Content` promote themselves above overlays that open later, so a step that opens search or settings does not cover the card.
 
 ??? How do placement and placementMobile interact with the ticket?
 

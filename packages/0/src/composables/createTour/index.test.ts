@@ -2,6 +2,10 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { createTour } from './index'
 
+// Utilities
+import { mount } from '@vue/test-utils'
+import { defineComponent, h } from 'vue'
+
 vi.mock('#v0/composables/useLogger', () => ({
   useLogger: () => ({
     debug: vi.fn(),
@@ -85,7 +89,7 @@ describe('createTour', () => {
   })
 
   describe('stop and complete', () => {
-    it('should set isComplete only on complete, not stop', () => {
+    it('should set isComplete only on complete, not stop', async () => {
       const tour = createTour()
 
       tour.steps.onboard([{ id: 'one' }])
@@ -96,7 +100,7 @@ describe('createTour', () => {
       expect(tour.isComplete.value).toBe(false)
 
       tour.start()
-      tour.complete()
+      await tour.complete()
 
       expect(tour.isActive.value).toBe(false)
       expect(tour.isComplete.value).toBe(true)
@@ -104,12 +108,12 @@ describe('createTour', () => {
   })
 
   describe('reset', () => {
-    it('should clear steps and flags', () => {
+    it('should clear steps and flags', async () => {
       const tour = createTour()
 
       tour.steps.onboard([{ id: 'one' }, { id: 'two' }])
       tour.start()
-      tour.complete()
+      await tour.complete()
       tour.reset()
 
       expect(tour.total).toBe(0)
@@ -191,6 +195,54 @@ describe('createTour', () => {
       await tour.next()
       expect(tour.steps.selectedId.value).toBe('after')
     })
+
+    it('should advance one step when next is called twice during validation', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+      tour.start()
+
+      function hold (_value: boolean) {}
+      let release: (value: boolean) => void = hold
+
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(() => new Promise(resolve => {
+        release = resolve
+      }))
+
+      const first = tour.next()
+      const second = tour.next()
+
+      release(true)
+      await first
+      await second
+
+      expect(tour.steps.selectedId.value).toBe('b')
+    })
+
+    it('should not advance when the tour stops during validation', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      tour.start()
+
+      function hold (_value: boolean) {}
+      let release: (value: boolean) => void = hold
+
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(() => new Promise(resolve => {
+        release = resolve
+      }))
+
+      const pending = tour.next()
+
+      tour.stop()
+      release(true)
+      await pending
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.steps.selectedId.value).toBe('a')
+    })
   })
 
   describe('activate', () => {
@@ -208,11 +260,15 @@ describe('createTour', () => {
         padding: 8,
       })
       expect(el.style.getPropertyValue('anchor-name')).toBe('--tour-search')
+      expect(el.style.scrollMarginTop).toBe('100px')
+      expect(el.style.scrollMarginBottom).toBe('100px')
 
       tour.deactivate()
 
       expect(tour.activators.get('search')).toBeUndefined()
       expect(el.style.getPropertyValue('anchor-name')).toBe('')
+      expect(el.style.scrollMarginTop).toBe('')
+      expect(el.style.scrollMarginBottom).toBe('')
     })
 
     it('should clean the programmatic activator on stop', () => {
@@ -275,6 +331,81 @@ describe('createTour', () => {
       tour.start()
 
       expect(tour.steps.selectedItem.value?.enter).toBe(enter)
+    })
+  })
+
+  describe('complete', () => {
+    it('should not complete the last step when its form rejects', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'only' }])
+      tour.start()
+
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockResolvedValue(false)
+
+      await tour.complete()
+
+      expect(tour.isActive.value).toBe(true)
+      expect(tour.isComplete.value).toBe(false)
+    })
+  })
+
+  describe('step', () => {
+    it('should jump by a 1-based index', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+      tour.start()
+
+      await tour.step(3)
+
+      expect(tour.steps.selectedId.value).toBe('c')
+    })
+  })
+
+  describe('focus', () => {
+    it('should restore the opener when the tour stops', () => {
+      const opener = document.createElement('button')
+      document.body.append(opener)
+      opener.focus()
+
+      const other = document.createElement('button')
+      document.body.append(other)
+
+      const tour = createTour()
+      tour.steps.onboard([{ id: 'a' }])
+      tour.start()
+      other.focus()
+
+      tour.stop()
+
+      expect(document.activeElement).toBe(opener)
+      opener.remove()
+      other.remove()
+    })
+  })
+
+  describe('hydration', () => {
+    it('should defer start until the host is mounted', () => {
+      let tour: ReturnType<typeof createTour> | undefined
+      let duringSetup = true
+
+      const Host = defineComponent({
+        setup () {
+          tour = createTour()
+          tour.steps.onboard([{ id: 'a' }])
+          tour.start()
+          duringSetup = tour.isActive.value
+          return () => h('div')
+        },
+      })
+
+      const wrapper = mount(Host)
+
+      expect(duringSetup).toBe(false)
+      expect(tour!.isActive.value).toBe(true)
+      wrapper.unmount()
     })
   })
 })

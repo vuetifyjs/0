@@ -145,7 +145,7 @@ export const Tour = {
    * </script>
    *
    * <template>
-   *   <Tour.Keyboard lock />
+   *   <Tour.Keyboard />
    * </template>
    * ```
    */

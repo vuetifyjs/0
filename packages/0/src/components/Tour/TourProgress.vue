@@ -58,7 +58,13 @@
   const root = useTourRootContext(namespace)
 
   const current = toRef(() => root.index.value + 1)
-  const text = toRef(() => `${locale.n(current.value)} / ${locale.n(root.total.value)}`)
+  const text = toRef(() => {
+    const currentText = locale.n(current.value)
+    const totalText = locale.n(root.total.value)
+
+    return locale.ti('Tour.progress', { current: currentText, total: totalText })
+      ?? `Step ${currentText} of ${totalText}`
+  })
 
   const slotProps = toRef((): TourProgressSlotProps => ({
     current: current.value,

@@ -50,7 +50,7 @@ await tour.next()
 tour.complete()
 ```
 
-`placement` is stored on the ticket and never interpreted — opaque passthrough for later content chrome. Extra fields survive `onboard` / `register`.
+`placement` is `TourPlacement` (`top`, `bottom`, `left`, `right`, `center`). The composable stores it; `Tour.Content` uses it to override its own `placement` prop. `noActivator` marks a step with no target: the card centers immediately. The last step does that even without the flag. `activate()` sets a 100px scroll margin on the target and restores it on `deactivate()`. Extra fields survive `onboard` / `register` when you pass them through `createTour`'s ticket generic.
 
 Filter the list *before* onboard. The factory does not drop steps for viewport, platform, or catalog rules.
 
@@ -139,7 +139,7 @@ flowchart TD
 
 A three-step tour of two fake chrome nodes — a search field and an avatar — driven only by `createTour`. There is no Tour compound here: `enter` queries `[data-tour="…"]` and passes the element to `activate()` so the current target gets `--tour-{id}` as its `anchor-name`, and the demo paints a ring from `selectedId`. Start, Prev, Next, and Stop are the whole control surface; Next becomes Complete on the last step because `next()` is a no-op there.
 
-`useOnboarding.ts` owns the instance and the copy. It onboards three tickets (`welcome`, `search`, `avatar`), leaves `welcome` without an `enter` so it is ready immediately, and on the other two activates the matching `[data-tour]` node with `{ scroll: false }` so the docs preview does not jump. `placement` is set on the tickets and read back in the card — proof it is opaque passthrough, not layout. `basic.vue` renders the chrome, the current title/body, and the buttons from `isActive`, `canGoBack`, `canGoNext`, and `isLast`.
+`useOnboarding.ts` owns the instance and the copy. It onboards three tickets (`welcome`, `search`, `avatar`), leaves `welcome` without an `enter` so it is ready immediately, and on the other two activates the matching `[data-tour]` node with `{ scroll: false }` so the docs preview does not jump. `placement` is set on the tickets and `Tour.Content` uses it for that step's position. `basic.vue` renders the chrome, the current title/body, and the buttons from `isActive`, `canGoBack`, `canGoNext`, and `isLast`.
 
 Reach for this shape when the walkthrough is a handful of existing DOM nodes and you want the sequencer without shipping highlight/content chrome. Filter the array before `onboard` if a step should not run on a given viewport; register a form field under the step id when Next must validate. A Tour compound for the visual layer is forthcoming.
 

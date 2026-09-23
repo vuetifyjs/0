@@ -4,22 +4,20 @@
  * @see https://0.vuetifyjs.com/components/disclosure/tour
  *
  * @remarks
- * Renderless keyboard bindings for an active tour. Arrow keys move,
- * Enter advances (unless a control is focused), Escape stops. Optional
- * capture-phase lock swallows unrelated keys.
+ * Renderless keyboard bindings for an active tour. Arrow keys move when
+ * the focused node is not a composite widget. Enter advances unless a
+ * control is focused. Escape stops.
  */
 
 <script lang="ts">
   // Composables
   import { useTour } from '#v0/composables/createTour'
-  import { useDocumentEventListener } from '#v0/composables/useEventListener'
   import { useHotkey } from '#v0/composables/useHotkey'
-  import { useToggleScope } from '#v0/composables/useToggleScope'
 
   // Utilities
   import { getActiveElement } from '#v0/utilities'
 
-  const ALLOWED = new Set(['Escape', 'Tab', 'ArrowLeft', 'ArrowRight', 'Enter'])
+  const WIDGET = '[role="slider"], [role="tablist"], [role="listbox"], [role="radiogroup"], [role="menu"], select'
 
   export interface TourKeyboardProps {
     /** Hotkey that moves to the previous step @default 'arrowleft' */
@@ -28,12 +26,6 @@
     next?: string
     /** Hotkey that stops the tour @default 'escape' */
     stop?: string
-    /**
-     * When true and the tour is active, capture-phase keydown swallows keys
-     * other than Escape, Tab, arrows, Enter, and Space-on-a-focused-control.
-     * @default false
-     */
-    lock?: boolean
     /** Namespace for dependency injection @default 'v0:tour' */
     namespace?: string
   }
@@ -50,7 +42,6 @@
     prev = 'arrowleft',
     next = 'arrowright',
     stop = 'escape',
-    lock = false,
     namespace = 'v0:tour',
   } = defineProps<TourKeyboardProps>()
 
@@ -70,17 +61,26 @@
     void tour.next()
   }
 
-  function onEnter (e: KeyboardEvent) {
-    if (isControlFocused()) return
-    e.preventDefault()
+  function onEnter (event: KeyboardEvent) {
+    if (event.repeat || isControlFocused()) return
+    event.preventDefault()
     onAdvance()
   }
 
-  function onNext () {
+  function isWidget (event: KeyboardEvent) {
+    const target = event.target
+    return target instanceof Element && Boolean(target.closest(WIDGET))
+  }
+
+  function onNext (event: KeyboardEvent) {
+    if (event.repeat || isWidget(event) || !tour.isReady.value) return
+    event.preventDefault()
     onAdvance()
   }
 
-  function onPrev () {
+  function onPrev (event: KeyboardEvent) {
+    if (event.repeat || isWidget(event) || !tour.isReady.value) return
+    event.preventDefault()
     void tour.prev()
   }
 
@@ -88,24 +88,10 @@
     tour.stop()
   }
 
-  useHotkey(() => tour.isActive.value ? prev : undefined, onPrev)
-  useHotkey(() => tour.isActive.value ? next : undefined, onNext)
+  useHotkey(() => tour.isActive.value ? prev : undefined, onPrev, { preventDefault: false })
+  useHotkey(() => tour.isActive.value ? next : undefined, onNext, { preventDefault: false })
   useHotkey(() => tour.isActive.value ? stop : undefined, onStop, { inputs: true })
   useHotkey(() => tour.isActive.value ? 'enter' : undefined, onEnter, { preventDefault: false })
-
-  function onLock (e: KeyboardEvent) {
-    if (e.key === ' ' && isControlFocused()) return
-    if (ALLOWED.has(e.key)) return
-    e.preventDefault()
-    e.stopImmediatePropagation()
-  }
-
-  useToggleScope(
-    () => lock && tour.isActive.value,
-    () => {
-      useDocumentEventListener('keydown', onLock, { capture: true })
-    },
-  )
 </script>
 
 <template>

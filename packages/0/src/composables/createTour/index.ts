@@ -49,8 +49,8 @@ import { toElement } from '#v0/composables/toElement'
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { isElement, isFunction, isThenable, isUndefined } from '#v0/utilities'
-import { effectScope, onScopeDispose, shallowRef, toRef } from 'vue'
+import { getActiveElement, isElement, isFunction, isThenable, isUndefined } from '#v0/utilities'
+import { effectScope, getCurrentInstance, onMounted, onScopeDispose, shallowRef, toRef } from 'vue'
 
 // Types
 import type { FormContext } from '#v0/composables/createForm'
@@ -62,6 +62,9 @@ import type { ID } from '#v0/types'
 import type { EffectScope, Ref, ShallowRef } from 'vue'
 
 export type TourDirection = 'forward' | 'back' | 'resume' | 'jump'
+
+/** Placement `Tour.Content` honors. Any other string is ignored at runtime. */
+export type TourPlacement = 'top' | 'bottom' | 'left' | 'right' | 'center'
 
 /**
  * Context passed to a step `enter` handler.
@@ -112,8 +115,13 @@ export interface TourActivateOptions {
  * ```
  */
 export interface TourTicketInput extends StepTicketInput {
-  /** Opaque passthrough for Tour.Content; not interpreted here. */
-  placement?: string
+  /** Honored by Tour.Content. Ignored here. */
+  placement?: TourPlacement
+  /**
+   * No target element. Content centers immediately and Highlight paints a full scrim.
+   * The last step does this even when the flag is omitted.
+   */
+  noActivator?: boolean
   enter?: (ctx: TourEnterContext) => void | Promise<void>
   leave?: () => void
   completed?: () => void
@@ -269,6 +277,8 @@ interface Programmatic {
   id: ID
   element: HTMLElement
   previous: string
+  marginTop: string
+  marginBottom: string
   owned: boolean
 }
 
@@ -285,10 +295,13 @@ interface Programmatic {
  * tour.start()
  * ```
  */
-export function createTour (_options: TourOptions = {}): TourContext {
+export function createTour<
+  Z extends TourTicketInput = TourTicketInput,
+  E extends TourTicket<Z> = TourTicket<Z>,
+> (_options: TourOptions = {}): TourContext<Z, E> {
   const logger = useLogger()
-  const steps = createStep<TourTicketInput, TourTicket>({ events: true, reactive: true })
-  const activators = createRegistry<TourActivatorTicketInput, TourActivatorTicket>()
+  const steps = createStep<Z, E>({ events: true, reactive: true })
+  const activators = createRegistry<TourActivatorTicketInput, TourActivatorTicket>({ reactive: true })
   const form = createForm()
 
   const isActive = shallowRef(false)
@@ -301,8 +314,29 @@ export function createTour (_options: TourOptions = {}): TourContext {
   const canGoNext = toRef(() => isReady.value && !isLast.value)
 
   let generation = 0
+  let navigating = false
   let scope: EffectScope | undefined
   let programmatic: Programmatic | undefined
+  let opener: HTMLElement | undefined
+  let pendingStart: { stepId?: ID } | undefined
+  let startQueued = false
+
+  function rememberOpener () {
+    if (!IN_BROWSER || opener) return
+
+    const active = getActiveElement()
+    if (active instanceof HTMLElement && active.isConnected && active !== document.body) {
+      opener = active
+    }
+  }
+
+  function restoreOpener () {
+    const el = opener
+    opener = undefined
+    if (!el?.isConnected) return
+
+    el.focus({ preventScroll: true })
+  }
 
   function ready () {
     if (!isActive.value) return
@@ -333,14 +367,18 @@ export function createTour (_options: TourOptions = {}): TourContext {
     deactivate()
 
     const previous = element.style.getPropertyValue('anchor-name')
+    const marginTop = element.style.scrollMarginTop
+    const marginBottom = element.style.scrollMarginBottom
     element.style.setProperty('anchor-name', `--tour-${id}`)
+    element.style.scrollMarginTop = '100px'
+    element.style.scrollMarginBottom = '100px'
 
     const owned = !activators.has(id)
     if (owned) {
       activators.register({ id, element, padding: options?.padding })
     }
 
-    programmatic = { id, element, previous, owned }
+    programmatic = { id, element, previous, marginTop, marginBottom, owned }
 
     if (options?.scroll !== false) {
       element.scrollIntoView({ block: 'center', behavior: 'instant' })
@@ -350,12 +388,14 @@ export function createTour (_options: TourOptions = {}): TourContext {
   function deactivate () {
     if (isUndefined(programmatic)) return
 
-    const { id, element, previous, owned } = programmatic
+    const { id, element, previous, marginTop, marginBottom, owned } = programmatic
     if (previous) {
       element.style.setProperty('anchor-name', previous)
     } else {
       element.style.removeProperty('anchor-name')
     }
+    element.style.scrollMarginTop = marginTop
+    element.style.scrollMarginBottom = marginBottom
 
     if (owned) {
       activators.unregister(id)
@@ -445,12 +485,12 @@ export function createTour (_options: TourOptions = {}): TourContext {
     }
   }
 
-  function start (options: { stepId?: ID } = {}) {
-    if (!IN_BROWSER) return
+  function applyStart (options: { stepId?: ID } = {}) {
     if (isActive.value) {
       leave()
     }
 
+    rememberOpener()
     isComplete.value = false
     isActive.value = true
 
@@ -465,19 +505,60 @@ export function createTour (_options: TourOptions = {}): TourContext {
     enter('forward')
   }
 
+  function start (options: { stepId?: ID } = {}) {
+    if (!IN_BROWSER) return
+
+    // setup() runs before hydration. Applying isActive here would render
+    // Highlight and activator state the server HTML does not have.
+    const instance = getCurrentInstance()
+    if (instance && !instance.isMounted) {
+      pendingStart = options
+      if (!startQueued) {
+        startQueued = true
+        onMounted(() => {
+          startQueued = false
+          const queued = pendingStart
+          pendingStart = undefined
+          if (queued) applyStart(queued)
+        })
+      }
+      return
+    }
+
+    applyStart(options)
+  }
+
   function stop () {
     if (!isActive.value) return
     leave()
     isActive.value = false
+    restoreOpener()
   }
 
-  function complete () {
-    if (isActive.value) {
+  async function complete () {
+    if (!isActive.value) {
+      isComplete.value = true
+      restoreOpener()
+      return
+    }
+
+    if (navigating) return
+
+    navigating = true
+    const token = generation
+
+    try {
+      if (!await gate()) return
+      if (token !== generation || !isActive.value) return
+
       finish()
       leave()
       isActive.value = false
+      isComplete.value = true
+      restoreOpener()
+    } finally {
+      navigating = false
     }
-    isComplete.value = true
   }
 
   function reset () {
@@ -490,30 +571,55 @@ export function createTour (_options: TourOptions = {}): TourContext {
   }
 
   async function next () {
-    if (!isActive.value || !isReady.value || isLast.value) return
-    if (!await gate()) return
-    finish()
-    leave()
-    steps.next()
-    enter('forward')
+    if (navigating || !isActive.value || !isReady.value || isLast.value) return
+
+    navigating = true
+    const token = generation
+
+    try {
+      if (!await gate()) return
+      // stop/start/reset during validation invalidates this navigation.
+      // A second next() during the await is dropped by `navigating`.
+      if (token !== generation || !isActive.value || !isReady.value || isLast.value) return
+
+      finish()
+      leave()
+      steps.next()
+      enter('forward')
+    } finally {
+      navigating = false
+    }
   }
 
   async function prev () {
-    if (!isActive.value || !isReady.value || isFirst.value) return
+    if (navigating || !isActive.value || !isReady.value || isFirst.value) return
+
     leave()
     steps.prev()
     enter('back')
   }
 
   async function step (index: number) {
-    if (!isActive.value || !isReady.value) return
+    if (navigating || !isActive.value || !isReady.value) return
+
     const id = steps.lookup(index - 1)
     if (isUndefined(id) || id === steps.selectedId.value) return
-    if (!await gate()) return
-    finish()
-    leave()
-    steps.select(id)
-    enter('jump')
+
+    navigating = true
+    const token = generation
+
+    try {
+      if (!await gate()) return
+      if (token !== generation || !isActive.value || !isReady.value) return
+      if (id === steps.selectedId.value) return
+
+      finish()
+      leave()
+      steps.select(id)
+      enter('jump')
+    } finally {
+      navigating = false
+    }
   }
 
   onScopeDispose(() => {
@@ -565,15 +671,18 @@ export function createTour (_options: TourOptions = {}): TourContext {
  * provideTour()
  * ```
  */
-export function createTourContext (_options: TourContextOptions = {}): ContextTrinity<TourContext> {
+export function createTourContext<
+  Z extends TourTicketInput = TourTicketInput,
+  E extends TourTicket<Z> = TourTicket<Z>,
+> (_options: TourContextOptions = {}): ContextTrinity<TourContext<Z, E>> {
   const {
     namespace = 'v0:tour',
     ...options
   } = _options
 
-  const context = createTour(options)
+  const context = createTour<Z, E>(options)
 
-  return createTrinity<TourContext>(namespace, context)
+  return createTrinity<TourContext<Z, E>>(namespace, context)
 }
 
 /**
@@ -590,6 +699,9 @@ export function createTourContext (_options: TourContextOptions = {}): ContextTr
  * await tour.next()
  * ```
  */
-export function useTour (namespace = 'v0:tour'): TourContext {
-  return useContext<TourContext>(namespace)
+export function useTour<
+  Z extends TourTicketInput = TourTicketInput,
+  E extends TourTicket<Z> = TourTicket<Z>,
+> (namespace = 'v0:tour'): TourContext<Z, E> {
+  return useContext<TourContext<Z, E>>(namespace)
 }

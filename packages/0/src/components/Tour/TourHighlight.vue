@@ -19,9 +19,12 @@
   // Transformers
   import { toElement } from '#v0/composables/toElement'
 
+  // Globals
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Utilities
   import { isNull, isUndefined, useId } from '#v0/utilities'
-  import { shallowRef, toRef, watch } from 'vue'
+  import { onScopeDispose, shallowRef, toRef, watch } from 'vue'
 
   export interface TourHighlightProps {
     /** Backdrop opacity (0–1) @default 0.5 */
@@ -76,6 +79,12 @@
       return
     }
 
+    const step = tour.steps.get(id)
+    if (tour.isLast.value || step?.noActivator === true) {
+      if (!isNull(rect.value)) rect.value = null
+      return
+    }
+
     const activator = tour.activators.get(id)
     if (!activator) {
       if (!isNull(rect.value)) rect.value = null
@@ -83,7 +92,10 @@
     }
 
     const el = toElement(activator.element)
-    if (!el) return
+    if (!el) {
+      if (!isNull(rect.value)) rect.value = null
+      return
+    }
 
     const bounds = el.getBoundingClientRect()
     const pad = activator.padding ?? padding
@@ -104,7 +116,8 @@
       rect.value = next
     }
 
-    const radius = Number.parseFloat(getComputedStyle(el).borderRadius) || 0
+    const raw = Number.parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0
+    const radius = Math.min(Math.max(raw, 8), next.width / 2, next.height / 2)
     if (borderRadius.value !== radius) borderRadius.value = radius
   }
 
@@ -112,6 +125,60 @@
     updateRect()
     if (tour.isActive.value) loop()
   })
+
+  const held: HTMLElement[] = []
+
+  function releaseInert () {
+    for (const el of held) {
+      el.inert = false
+      delete el.dataset.tourInert
+    }
+    held.length = 0
+  }
+
+  function applyInert () {
+    releaseInert()
+    if (!IN_BROWSER || !blocking || !tour.isActive.value) return
+
+    const id = tour.selectedId.value
+    const activator = isUndefined(id) ? undefined : toElement(tour.activators.get(id)?.element)
+
+    function visit (el: Element) {
+      if (!(el instanceof HTMLElement)) return
+
+      const part = el.dataset.part
+      if (part === 'content' || part === 'highlight') return
+
+      if (el.querySelector('[data-part="content"], [data-part="highlight"]')) {
+        for (const child of el.children) visit(child)
+        return
+      }
+
+      // Only the active target stays operable. Other Tour.Activator nodes are chrome.
+      if (!blockActivator && activator && (el === activator || el.contains(activator))) {
+        for (const child of el.children) visit(child)
+        return
+      }
+
+      el.inert = true
+      el.dataset.tourInert = ''
+      held.push(el)
+    }
+
+    for (const child of document.body.children) visit(child)
+  }
+
+  watch(
+    () => {
+      const id = tour.selectedId.value
+      const registered = !isUndefined(id) && tour.activators.has(id)
+      return [tour.isActive.value, id, registered, blocking, blockActivator] as const
+    },
+    () => applyInert(),
+    { flush: 'post', immediate: true },
+  )
+
+  onScopeDispose(releaseInert)
 
   watch(() => tour.isActive.value, active => {
     if (active) {
@@ -123,6 +190,12 @@
   }, { immediate: true })
 
   const showCutout = toRef(() => !isNull(rect.value))
+  const bare = toRef(() => {
+    const id = tour.selectedId.value
+    if (!tour.isActive.value || isUndefined(id)) return false
+    if (tour.isLast.value) return true
+    return tour.steps.get(id)?.noActivator === true
+  })
 
   const clipPath = toRef(() => {
     if (isNull(rect.value)) return undefined
@@ -159,7 +232,6 @@
     position: 'absolute' as const,
     inset: '0',
     pointerEvents: 'auto' as const,
-    cursor: 'default',
     clipPath: clipPath.value,
   }))
 
@@ -169,7 +241,6 @@
     return {
       position: 'absolute' as const,
       pointerEvents: 'auto' as const,
-      cursor: 'default',
       left: `${rect.value.x}px`,
       top: `${rect.value.y}px`,
       width: `${rect.value.width}px`,
@@ -182,7 +253,7 @@
 <template>
   <slot v-bind="slotProps" />
 
-  <Portal v-if="tour.isActive.value" :scrim="false">
+  <Portal v-if="tour.isActive.value" :promote="0" :scrim="false">
     <template #default="{ zIndex }">
       <div
         aria-hidden="true"
@@ -202,49 +273,50 @@
           :style="cutoutStyle"
         />
 
-        <svg aria-hidden="true" :style="svgStyle">
-          <template v-if="showCutout && rect">
-            <defs>
-              <mask :id="maskId">
-                <rect fill="white" height="100%" width="100%" />
+        <svg v-if="bare" aria-hidden="true" :style="svgStyle">
+          <rect
+            fill="currentColor"
+            height="100%"
+            :opacity
+            width="100%"
+          />
+        </svg>
 
-                <rect
-                  fill="black"
-                  :height="rect.height"
-                  :rx="borderRadius"
-                  :ry="borderRadius"
-                  :width="rect.width"
-                  :x="rect.x"
-                  :y="rect.y"
-                />
-              </mask>
-            </defs>
+        <svg v-else-if="showCutout && rect" aria-hidden="true" :style="svgStyle">
+          <defs>
+            <mask :id="maskId">
+              <rect fill="white" height="100%" width="100%" />
 
-            <rect
-              :fill="`rgba(0, 0, 0, ${opacity})`"
-              height="100%"
-              :mask="`url(#${maskId})`"
-              width="100%"
-            />
-
-            <rect
-              fill="none"
-              :height="rect.height"
-              :rx="borderRadius"
-              :ry="borderRadius"
-              stroke="currentColor"
-              stroke-width="2"
-              :width="rect.width"
-              :x="rect.x"
-              :y="rect.y"
-            />
-          </template>
+              <rect
+                fill="black"
+                :height="rect.height"
+                :rx="borderRadius"
+                :ry="borderRadius"
+                :width="rect.width"
+                :x="rect.x"
+                :y="rect.y"
+              />
+            </mask>
+          </defs>
 
           <rect
-            v-else
-            :fill="`rgba(0, 0, 0, ${opacity})`"
+            fill="currentColor"
             height="100%"
+            :mask="`url(#${maskId})`"
+            :opacity
             width="100%"
+          />
+
+          <rect
+            fill="none"
+            :height="rect.height"
+            :rx="borderRadius"
+            :ry="borderRadius"
+            stroke="currentColor"
+            stroke-width="2"
+            :width="rect.width"
+            :x="rect.x"
+            :y="rect.y"
           />
         </svg>
       </div>
