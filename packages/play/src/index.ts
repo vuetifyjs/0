@@ -2,6 +2,8 @@ export {
   buildPlaygroundFiles,
   detectEntryFile,
   generateAppWrapper,
+  rewritePackageMacroTypes,
+  V0_MACROS_FILE,
 } from './files'
 export type { PlaygroundFile } from './files'
 
