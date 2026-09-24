@@ -28,14 +28,13 @@
 // Composables
 import { createPluginContext } from '#v0/composables/createPlugin'
 import { useWindowEventListener } from '#v0/composables/useEventListener'
-import { useHydration } from '#v0/composables/useHydration'
 
 // Globals
 import { IN_BROWSER, SUPPORTS_MATCH_MEDIA } from '#v0/constants/globals'
 
 // Utilities
 import { isNumber, mergeDeep } from '#v0/utilities'
-import { onScopeDispose, readonly, shallowRef, watch } from 'vue'
+import { readonly, shallowRef } from 'vue'
 
 // Types
 import type { ShallowRef } from 'vue'
@@ -212,14 +211,29 @@ export function createBreakpoints (_options: BreakpointsOptions = {}): Breakpoin
   // client markup match; no-matchMedia environments keep the width comparison.
   apply(resolve(initialWidth, !ssr && IN_BROWSER && SUPPORTS_MATCH_MEDIA))
 
+  let listening = false
+
+  function listen () {
+    if (listening || !IN_BROWSER) return
+
+    listening = true
+    useWindowEventListener('resize', () => {
+      update()
+    }, { passive: true })
+  }
+
   function update () {
     if (!IN_BROWSER) return
+
+    listen()
 
     width.value = window.innerWidth
     height.value = window.innerHeight
 
     apply(resolve(width.value, SUPPORTS_MATCH_MEDIA))
   }
+
+  if (!ssr) listen()
 
   return {
     breakpoints,
@@ -284,31 +298,18 @@ export const [createBreakpointsContext, createBreakpointsPlugin, useBreakpoints]
     options => createBreakpoints(options),
     {
       fallback: () => createBreakpointsFallback(),
-      setup: (context, app, _options) => {
-        // In SSR mode, skip the synchronous update to avoid hydration mismatch.
-        // The hydration watcher below will call update() after hydration completes.
-        if (IN_BROWSER && !_options?.ssr) context.update()
+      setup: (context, app, options) => {
+        if (!options?.ssr) {
+          if (IN_BROWSER) context.update()
+          return
+        }
 
+        // The factory listens on the first update(). This call is that flush,
+        // after mount, so the server width survives install.
         const { mount } = app
         app.mount = (...args) => {
           const vm = mount(...args)
-
-          const hydration = useHydration()
-
-          function listener () {
-            context.update()
-          }
-
-          const unwatch = watch(hydration.isHydrated, hydrated => {
-            if (hydrated) listener()
-          }, { immediate: true })
-
-          const cleanup = useWindowEventListener('resize', listener, { passive: true })
-          onScopeDispose(() => {
-            cleanup()
-            unwatch()
-          }, true)
-
+          context.update()
           app.mount = mount
           return vm
         }
