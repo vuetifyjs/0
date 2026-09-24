@@ -1,5 +1,19 @@
 # @vuetify/v0
 
+## 1.2.3
+
+### Patch Changes
+
+- [#1003](https://github.com/vuetifyjs/0/pull/1003) [`6426af3`](https://github.com/vuetifyjs/0/commit/6426af360bb47b3c9d8d513a0eae86d8bb05c629) Thanks [@johnleider](https://github.com/johnleider)! - fix(useBreakpoints): breakpoint flags follow the matched name
+
+  `sm` is the `sm` threshold, including when a custom map is not in ascending order. `name` and the boolean flags stay in agreement. Default thresholds are unchanged.
+
+- [#1004](https://github.com/vuetifyjs/0/pull/1004) [`675e097`](https://github.com/vuetifyjs/0/commit/675e09776bb003a9c8b1424ce6b786d908ac6279) Thanks [@johnleider](https://github.com/johnleider)! - fix(useBreakpoints): resize updates run without the plugin
+
+  `createBreakpoints()` follows viewport changes on its own. With `ssr` set, that listener waits for the first `update()`, so the server width stays in place until hydration. The plugin still calls `update()` once after mount in that case.
+
+- [#1001](https://github.com/vuetifyjs/0/pull/1001) [`bbc0ac0`](https://github.com/vuetifyjs/0/commit/bbc0ac024a46900d67e87fc33a981c080372a053) Thanks [@johnleider](https://github.com/johnleider)! - useStorage no longer throws when the browser refuses localStorage; it falls back to memory and reads tolerate a throwing adapter.
+
 ## 1.2.2
 
 ### Patch Changes
@@ -430,7 +444,7 @@ DataTable, DataGrid, and Alert ship in this minor, not 1.1.0. 1.1.0 went out ear
       entry.contentRect.height; // 30 — content box, as before
       entry.borderBoxSize[0].blockSize; // 40 — with 4px padding and a 1px border
     },
-    { box: "border-box" }
+    { box: "border-box" },
   );
   ```
 

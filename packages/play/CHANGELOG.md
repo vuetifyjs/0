@@ -1,5 +1,16 @@
 # @vuetify/play
 
+## 0.1.2
+
+### Patch Changes
+
+- [#1002](https://github.com/vuetifyjs/0/pull/1002) [`cfea403`](https://github.com/vuetifyjs/0/commit/cfea403d9db5d45b784398c7e29815470268256a) Thanks [@johnleider](https://github.com/johnleider)! - fix(play): compile SFCs that import types from a package
+
+  Vue's browser compiler rejects `import type` from a package inside `defineProps`, `defineEmits`, and `defineModel`. Those imports are rewritten to a relative shim so the playground can compile them.
+
+- Updated dependencies [[`6426af3`](https://github.com/vuetifyjs/0/commit/6426af360bb47b3c9d8d513a0eae86d8bb05c629), [`675e097`](https://github.com/vuetifyjs/0/commit/675e09776bb003a9c8b1424ce6b786d908ac6279), [`bbc0ac0`](https://github.com/vuetifyjs/0/commit/bbc0ac024a46900d67e87fc33a981c080372a053)]:
+  - @vuetify/v0@1.2.3
+
 ## 0.1.1
 
 ### Patch Changes
