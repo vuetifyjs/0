@@ -6,7 +6,7 @@ import { useHydration } from '#v0/composables/useHydration'
 import { createBreakpoints, createBreakpointsPlugin, useBreakpoints } from './index'
 
 // Utilities
-import { getCurrentInstance, hasInjectionContext, onMounted, onScopeDispose, shallowRef } from 'vue'
+import { getCurrentInstance, hasInjectionContext, nextTick, onMounted, onScopeDispose, shallowRef } from 'vue'
 
 // Types
 import type { App } from 'vue'
@@ -162,13 +162,29 @@ describe('createBreakpoints', () => {
         expect(typeof context.update).toBe('function')
       })
 
-      it('should not register resize listener directly in createBreakpoints', () => {
+      it('should register a resize listener in createBreakpoints', async () => {
         mockGetCurrentInstance.mockReturnValue({} as ReturnType<typeof getCurrentInstance>)
 
         createBreakpoints()
+        await nextTick()
+
+        expect(mockWindow.addEventListener).toHaveBeenCalledWith('resize', expect.any(Function), { passive: true })
+        expect(mockOnScopeDispose).toHaveBeenCalled()
+      })
+
+      it('should defer the resize listener until update when ssr is set', async () => {
+        createBreakpoints({ ssr: { clientWidth: 1200 } })
+        await nextTick()
 
         expect(mockWindow.addEventListener).not.toHaveBeenCalled()
-        expect(mockOnScopeDispose).not.toHaveBeenCalled()
+
+        mockWindow.innerWidth = 500
+        const context = createBreakpoints({ ssr: { clientWidth: 1200 } })
+        context.update()
+        await nextTick()
+
+        expect(context.width.value).toBe(500)
+        expect(mockWindow.addEventListener).toHaveBeenCalledWith('resize', expect.any(Function), { passive: true })
       })
 
       it('should update dimensions when update is called', () => {
@@ -675,7 +691,7 @@ describe('createBreakpoints', () => {
     })
 
     describe('plugin app.mount wrapping', () => {
-      it('should wrap app.mount during install', () => {
+      it('should leave app.mount alone when ssr is not set', () => {
         const plugin = createBreakpointsPlugin()
         const originalMount = vi.fn(() => ({}) as any)
         const mockApp: Record<string, any> = {
@@ -686,47 +702,13 @@ describe('createBreakpoints', () => {
         }
 
         plugin.install(mockApp as unknown as App)
-
-        expect(mockApp.mount).not.toBe(originalMount)
-      })
-
-      it('should setup hydration watcher and resize listener on mount', () => {
-        const plugin = createBreakpointsPlugin()
-        const originalMount = vi.fn(() => ({}) as any)
-        const mockApp: Record<string, any> = {
-          _context: {},
-          runWithContext: vi.fn((callback: () => void) => callback()),
-          provide: vi.fn(),
-          mount: originalMount,
-        }
-
-        plugin.install(mockApp as unknown as App)
-
-        mockApp.mount('#app')
-
-        expect(originalMount).toHaveBeenCalledWith('#app')
-        expect(mockUseHydration).toHaveBeenCalled()
-      })
-
-      it('should restore original mount after first call', () => {
-        const plugin = createBreakpointsPlugin()
-        const originalMount = vi.fn(() => ({}) as any)
-        const mockApp: Record<string, any> = {
-          _context: {},
-          runWithContext: vi.fn((callback: () => void) => callback()),
-          provide: vi.fn(),
-          mount: originalMount,
-        }
-
-        plugin.install(mockApp as unknown as App)
-
-        mockApp.mount('#app')
 
         expect(mockApp.mount).toBe(originalMount)
       })
 
-      it('should register cleanup on scope dispose', () => {
-        const plugin = createBreakpointsPlugin()
+      it('should flush the server width on mount when ssr is set', async () => {
+        mockWindow.innerWidth = 500
+        const plugin = createBreakpointsPlugin({ ssr: { clientWidth: 1200, clientHeight: 800 } })
         const originalMount = vi.fn(() => ({}) as any)
         const mockApp: Record<string, any> = {
           _context: {},
@@ -736,8 +718,29 @@ describe('createBreakpoints', () => {
         }
 
         plugin.install(mockApp as unknown as App)
+        await nextTick()
+
+        expect(mockApp.mount).not.toBe(originalMount)
+        expect(mockWindow.addEventListener).not.toHaveBeenCalled()
 
         mockApp.mount('#app')
+        await nextTick()
+
+        expect(originalMount).toHaveBeenCalledWith('#app')
+        expect(mockApp.mount).toBe(originalMount)
+        expect(mockWindow.addEventListener).toHaveBeenCalledWith('resize', expect.any(Function), { passive: true })
+      })
+
+      it('should register cleanup on scope dispose', () => {
+        const plugin = createBreakpointsPlugin()
+        const mockApp: Record<string, any> = {
+          _context: {},
+          runWithContext: vi.fn((callback: () => void) => callback()),
+          provide: vi.fn(),
+          mount: vi.fn(() => ({}) as any),
+        }
+
+        plugin.install(mockApp as unknown as App)
 
         expect(mockOnScopeDispose).toHaveBeenCalled()
         expect(mockOnScopeDispose.mock.calls[0]![1]).toBe(true)
@@ -751,17 +754,14 @@ describe('createBreakpoints', () => {
         })
 
         const plugin = createBreakpointsPlugin()
-        const originalMount = vi.fn(() => ({}) as any)
         const mockApp: Record<string, any> = {
           _context: {},
           runWithContext: vi.fn((callback: () => void) => callback()),
           provide: vi.fn(),
-          mount: originalMount,
+          mount: vi.fn(() => ({}) as any),
         }
 
         plugin.install(mockApp as unknown as App)
-
-        mockApp.mount('#app')
 
         expect(cleanupFn).toBeDefined()
         expect(() => cleanupFn!()).not.toThrow()
