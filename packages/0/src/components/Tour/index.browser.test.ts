@@ -199,6 +199,118 @@ describe('tour', () => {
     })
   })
 
+  describe('blocking', () => {
+    it('should leave the control inside the activator operable', async () => {
+      let tour!: TourContext
+      let clicked = 0
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }, { id: 'two' }])
+
+          return () => h('div', [
+            h(Tour.Highlight, { blocking: true }),
+            h(Tour.Root, { step: 'one' }, () => h(Tour.Activator, { step: 'one' }, () => h('button', {
+              class: 'tour-target',
+              onClick: () => {
+                clicked += 1
+              },
+            }, 'Go'))),
+          ])
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      tour.start()
+      await nextTick()
+
+      const button = document.querySelector('.tour-target') as HTMLButtonElement
+      expect(button.inert).toBe(false)
+      button.click()
+      expect(clicked).toBe(1)
+    })
+
+    it('should swallow clicks on a last-step scrim', async () => {
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }, { id: 'two' }])
+
+          return () => h('div', [
+            h(Tour.Highlight, { blocking: true }),
+            h(Tour.Root, { step: 'two' }, () => h(Tour.Activator, { step: 'two' }, () => 'Last')),
+          ])
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      tour.start({ stepId: 'two' })
+      await nextTick()
+
+      const shield = document.querySelector('[data-part="shield"]') as HTMLElement
+      expect(shield).not.toBeNull()
+      expect(getComputedStyle(shield).pointerEvents).toBe('auto')
+    })
+
+    it('should restore focus after a blocking tour stops', async () => {
+      const opener = document.createElement('button')
+      document.body.append(opener)
+      opener.focus()
+
+      let tour!: TourContext
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }, { id: 'two' }])
+
+          return () => h('div', [
+            h(Tour.Highlight, { blocking: true }),
+            h(Tour.Root, { step: 'one' }, () => [
+              h(Tour.Activator, { step: 'one' }, () => 'Target'),
+              h(Tour.Content, {}, () => 'Card'),
+            ]),
+          ])
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      tour.start()
+      await nextTick()
+      await vi.waitFor(() => {
+        expect(document.querySelector('[data-part="content"]')).not.toBeNull()
+      })
+
+      tour.stop()
+
+      expect(document.activeElement).toBe(opener)
+      opener.remove()
+    })
+  })
+
   describe('keyboard', () => {
     it('should stop on Escape', async () => {
       const { tour } = mountTour()

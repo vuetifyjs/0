@@ -315,6 +315,7 @@ export function createTour<
 
   let generation = 0
   let navigating = false
+  let finishInstead = false
   let scope: EffectScope | undefined
   let programmatic: Programmatic | undefined
   let opener: HTMLElement | undefined
@@ -336,6 +337,15 @@ export function createTour<
     if (!el?.isConnected) return
 
     el.focus({ preventScroll: true })
+  }
+
+  function end () {
+    finishInstead = false
+    finish()
+    leave()
+    isActive.value = false
+    isComplete.value = true
+    restoreOpener()
   }
 
   function ready () {
@@ -542,7 +552,10 @@ export function createTour<
       return
     }
 
-    if (navigating) return
+    if (navigating) {
+      finishInstead = true
+      return
+    }
 
     navigating = true
     const token = generation
@@ -551,11 +564,7 @@ export function createTour<
       if (!await gate()) return
       if (token !== generation || !isActive.value) return
 
-      finish()
-      leave()
-      isActive.value = false
-      isComplete.value = true
-      restoreOpener()
+      end()
     } finally {
       navigating = false
     }
@@ -577,10 +586,22 @@ export function createTour<
     const token = generation
 
     try {
-      if (!await gate()) return
+      if (!await gate()) {
+        finishInstead = false
+        return
+      }
       // stop/start/reset during validation invalidates this navigation.
       // A second next() during the await is dropped by `navigating`.
-      if (token !== generation || !isActive.value || !isReady.value || isLast.value) return
+      // complete() during the await sets finishInstead and must not gate again.
+      if (token !== generation || !isActive.value) {
+        finishInstead = false
+        return
+      }
+      if (finishInstead) {
+        end()
+        return
+      }
+      if (!isReady.value || isLast.value) return
 
       finish()
       leave()
@@ -609,9 +630,19 @@ export function createTour<
     const token = generation
 
     try {
-      if (!await gate()) return
-      if (token !== generation || !isActive.value || !isReady.value) return
-      if (id === steps.selectedId.value) return
+      if (!await gate()) {
+        finishInstead = false
+        return
+      }
+      if (token !== generation || !isActive.value) {
+        finishInstead = false
+        return
+      }
+      if (finishInstead) {
+        end()
+        return
+      }
+      if (!isReady.value || id === steps.selectedId.value) return
 
       finish()
       leave()

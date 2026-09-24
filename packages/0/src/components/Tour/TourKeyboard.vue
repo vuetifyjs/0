@@ -84,13 +84,17 @@
     void tour.prev()
   }
 
-  function onStop () {
+  function onStop (event: KeyboardEvent) {
+    const target = event.target
+    if (target instanceof Element && target.closest('dialog[open]')) return
+
+    event.preventDefault()
     tour.stop()
   }
 
   useHotkey(() => tour.isActive.value ? prev : undefined, onPrev, { preventDefault: false })
   useHotkey(() => tour.isActive.value ? next : undefined, onNext, { preventDefault: false })
-  useHotkey(() => tour.isActive.value ? stop : undefined, onStop, { inputs: true })
+  useHotkey(() => tour.isActive.value ? stop : undefined, onStop, { inputs: true, preventDefault: false })
   useHotkey(() => tour.isActive.value ? 'enter' : undefined, onEnter, { preventDefault: false })
 </script>
 

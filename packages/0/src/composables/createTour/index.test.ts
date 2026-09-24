@@ -220,6 +220,32 @@ describe('createTour', () => {
       expect(tour.steps.selectedId.value).toBe('b')
     })
 
+    it('should complete instead of advancing when complete is called during validation', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      tour.start()
+
+      function hold (_value: boolean) {}
+      let release: (value: boolean) => void = hold
+
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(() => new Promise(resolve => {
+        release = resolve
+      }))
+
+      const pending = tour.next()
+      const completing = tour.complete()
+
+      release(true)
+      await pending
+      await completing
+
+      expect(tour.steps.selectedId.value).toBe('a')
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(true)
+    })
+
     it('should not advance when the tour stops during validation', async () => {
       const tour = createTour()
 

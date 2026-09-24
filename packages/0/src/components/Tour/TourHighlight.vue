@@ -154,8 +154,10 @@
         return
       }
 
-      // Only the active target stays operable. Other Tour.Activator nodes are chrome.
+      // The activator element stays operable, including its control. Descend
+      // only through ancestors so siblings can still be inert.
       if (!blockActivator && activator && (el === activator || el.contains(activator))) {
+        if (el === activator) return
         for (const child of el.children) visit(child)
         return
       }
@@ -175,7 +177,9 @@
       return [tour.isActive.value, id, registered, blocking, blockActivator] as const
     },
     () => applyInert(),
-    { flush: 'post', immediate: true },
+    // Sync so stop()/complete() clear inert before they restore focus.
+    // A post flush leaves the opener inert for that focus() call.
+    { flush: 'sync', immediate: true },
   )
 
   onScopeDispose(releaseInert)
@@ -235,6 +239,12 @@
     clipPath: clipPath.value,
   }))
 
+  const bareShield = {
+    position: 'absolute' as const,
+    inset: '0',
+    pointerEvents: 'auto' as const,
+  }
+
   const cutoutStyle = toRef(() => {
     if (isNull(rect.value)) return undefined
 
@@ -261,6 +271,13 @@
         data-scope="tour"
         :style="{ ...overlayStyle, zIndex }"
       >
+        <div
+          v-if="blocking && bare"
+          aria-hidden="true"
+          data-part="shield"
+          :style="bareShield"
+        />
+
         <div
           v-if="blocking && showCutout && rect"
           aria-hidden="true"
