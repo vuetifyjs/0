@@ -333,6 +333,7 @@ Composables for presentational and semantic components.
 | [createBreadcrumbs](/composables/semantic/create-breadcrumbs) | Breadcrumb navigation with path truncation |
 | [createOverflow](/composables/semantic/create-overflow) | Compute item capacity for responsive truncation |
 | [createProgress](/composables/semantic/create-progress) | Progress tracking with multi-segment registration |
+| [createTour](/composables/semantic/create-tour) | Headless guided-tour sequencer with step collection, activators, and form-gated navigation |
 
 ## Transformers
 

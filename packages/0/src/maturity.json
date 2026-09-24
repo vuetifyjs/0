@@ -198,9 +198,10 @@
       "description": "Computes how many items fit in a container based on available width, for responsive truncation in pagination, breadcrumbs, and similar UIs."
     },
     "createTour": {
-      "level": "draft",
+      "level": "preview",
+      "since": null,
       "category": "semantic",
-      "description": "Headless state for guided product tours and feature discovery: step sequencing, target-element tracking, mask cutout geometry, and per-step focus management. Built on `createStep`, `usePopover`, and `useRovingFocus`."
+      "description": "Headless guided-tour sequencer: step collection, activator registry, form-gated navigation, programmatic activate/deactivate, and per-step enter/leave/completed handlers plus events. Built on `createStep`, `createRegistry`, and `createForm`."
     },
     "useBreakpoints": {
       "level": "stable",
@@ -735,8 +736,10 @@
       "category": "data"
     },
     "Tour": {
-      "level": "draft",
-      "category": "disclosure"
+      "level": "preview",
+      "since": null,
+      "category": "disclosure",
+      "description": "Headless guided-tour compound: per-step Root context, activator registry, portaled content with CSS-anchor positioning, SVG highlight cutout, and keyboard chrome on top of createTour."
     }
   },
   "utilities": {
