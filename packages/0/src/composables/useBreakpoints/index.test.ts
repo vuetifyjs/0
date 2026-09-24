@@ -650,6 +650,28 @@ describe('createBreakpoints', () => {
         expect(context.name.value).toBe('md')
         expect(context.md.value).toBe(true)
       })
+
+      it('should key flags off the matched name when thresholds are out of order', () => {
+        mockWindow.innerWidth = 150
+
+        const context = createBreakpoints({
+          breakpoints: { lg: 100 },
+        })
+
+        expect(context.name.value).toBe('lg')
+        expect(context.lg.value).toBe(true)
+        expect(context.sm.value).toBe(false)
+        expect(context.xs.value).toBe(false)
+        expect(context.smAndUp.value).toBe(true)
+        expect(context.mdAndDown.value).toBe(false)
+
+        mockWindow.innerWidth = 50
+        context.update()
+
+        expect(context.name.value).toBe('xs')
+        expect(context.xs.value).toBe(true)
+        expect(context.lg.value).toBe(false)
+      })
     })
 
     describe('plugin app.mount wrapping', () => {

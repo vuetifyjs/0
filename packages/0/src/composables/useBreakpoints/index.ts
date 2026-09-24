@@ -42,6 +42,8 @@ import type { ShallowRef } from 'vue'
 
 export type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl'
 
+const BREAKPOINT_ORDER = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const satisfies readonly BreakpointName[]
+
 export interface BreakpointsContext {
   breakpoints: Readonly<Record<BreakpointName, number>>
   mobileBreakpoint: BreakpointName | number
@@ -183,15 +185,17 @@ export function createBreakpoints (_options: BreakpointsOptions = {}): Breakpoin
     return { current, index, mobile }
   }
 
-  function apply ({ current, index, mobile }: ReturnType<typeof resolve>) {
+  function apply ({ current, mobile }: ReturnType<typeof resolve>) {
+    const index = BREAKPOINT_ORDER.indexOf(current)
+
     name.value = current
     isMobile.value = mobile
-    xs.value = index === 0
-    sm.value = index === 1
-    md.value = index === 2
-    lg.value = index === 3
-    xl.value = index === 4
-    xxl.value = index === 5
+    xs.value = current === 'xs'
+    sm.value = current === 'sm'
+    md.value = current === 'md'
+    lg.value = current === 'lg'
+    xl.value = current === 'xl'
+    xxl.value = current === 'xxl'
     smAndUp.value = index >= 1
     mdAndUp.value = index >= 2
     lgAndUp.value = index >= 3
