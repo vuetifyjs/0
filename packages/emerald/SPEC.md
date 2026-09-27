@@ -9,6 +9,13 @@ Figma-sourced tokens, a themed adapter that publishes `--emerald-*` (plus `--v0-
 kit aliases), and Vue components that **compose v0 primitives** and style them with
 unscoped class CSS.
 
+**Pinned spec:** Emerald 1.0 Figma, file key `WaY9z9gHeU6LbkqNgcD9io` (see
+[Token source](#token-source)). Coverage is that file, all of it, and nothing else —
+ruling 7 in [DESIGN_SYSTEMS.md](../../DESIGN_SYSTEMS.md). A v0 primitive existing is
+not a reason to add an Em* component; absence from the Figma is. Consumers who want
+something the file does not specify compose a v0 primitive with `--emerald-*` /
+`emerald-*` classes; that composition is unsupported as an Emerald component.
+
 ### Purpose — Emerald exists to sell v0
 
 v0 is the headless OS. Emerald is a thin commercial skin. If Emerald is hard to
@@ -69,7 +76,8 @@ showcase quality.
 - **Behavioral** UI composes v0 compounds (`Button.Root`, `Checkbox.Root`, `Dialog.Root`, …).
 - **Never** `@vuetify/paper` / `V0Paper`.
 - **Never** `<style scoped>` (multi-root primitives drop `data-v`).
-- **Never named slots** on Em* — structure is compounds or props + a single default slot (no Vuetify-style `#label` / `#prepend` surface).
+- **Never named slots** on Em* — structure is compounds or props + a single default slot (no Vuetify-style `#label` / `#prepend` surface). Spec features (leading/trailing icons, supporting text) are props or compounds, not Vuetify slot names.
+- **Wrappee, not Vuetify.** An orchestrator may wrap Em* and translate its own API onto them (ruling 8). Em* does not grow density / ripple / `to` / named slots to make that wrapper trivial, and non-spec props must not fall through.
 - Class prefix: `emerald-*`. State: `data-*` attributes.
 - Every `var(--emerald-*)` carries a literal fallback.
 - **Shells** (Checkbox, Switch, Button, TextField, Slider): fixed anatomy in one SFC; props for simple text (e.g. `label`, `description`).
@@ -169,11 +177,17 @@ Dev showcase routes (Figma product examples; inventory in [FIGMA_INVENTORY.md](.
 
 ## Non-goals (current)
 
-- DatePicker / Upload / Charts (no finished v0 primitive or deferred)
-- DataTable / DataGrid (v0 preview as of 1.2.0; Emerald skin not yet)
+Out because they are **not in the pinned Figma**, or not yet at the ruling-5 bar —
+not because v0 lacks a primitive. Promoting any of these requires the Figma (or an
+explicit spec amendment), not a v0 landing.
+
+- DatePicker / Upload / Charts
+- DataTable / DataGrid
 - Pixel-perfect Figma component-set parity for every variant (library pages limited via MCP seat; tokens + Wave 1–4 shells ship first)
 
-EmCalendar ships in Wave 4 as temporary DS-owned headless (APG grid keyboard + `Date`/`DateAdapter`) until a headless Calendar primitive lands in `@vuetify/v0`.
+EmCalendar ships in Wave 4 because it **is** in the spec, as temporary DS-owned
+headless (APG grid keyboard + `Date`/`DateAdapter`) until a headless Calendar
+primitive lands in `@vuetify/v0`. Spec-in without a v0 primitive still ships.
 
 ## Reference
 
