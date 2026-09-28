@@ -120,6 +120,57 @@ describe('tour', () => {
       expect(scroll).toHaveBeenCalled()
       scroll.mockRestore()
     })
+
+    it('should scroll when stop and start happen in the same turn', async () => {
+      const { tour } = mountTour()
+      await startAndWait(tour)
+
+      const target = document.querySelector('[data-part="activator"]') as HTMLElement
+      const scroll = vi.spyOn(target, 'scrollIntoView')
+
+      tour.stop()
+      tour.start()
+      await nextTick()
+      await nextTick()
+
+      expect(scroll).toHaveBeenCalled()
+      scroll.mockRestore()
+    })
+
+    it('should scroll a shared activator when the step changes', async () => {
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }, { id: 'two' }])
+
+          return () => h(Tour.Activator, { step: ['one', 'two'] }, () => 'Both')
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      tour.start()
+      await nextTick()
+      await nextTick()
+
+      const target = document.querySelector('[data-part="activator"]') as HTMLElement
+      const scroll = vi.spyOn(target, 'scrollIntoView')
+
+      await tour.next()
+      await nextTick()
+      await nextTick()
+
+      expect(scroll).toHaveBeenCalled()
+      scroll.mockRestore()
+    })
   })
 
   describe('root', () => {

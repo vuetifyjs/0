@@ -109,9 +109,16 @@
   }
 
   onMounted(onActive)
-  watch(isActive, active => {
-    if (active) void onActive()
-  })
+  // Sync so stop(); start() in one turn is seen as two changes. selectedId
+  // is in the source so an activator shared by two steps scrolls on each.
+  watch(
+    () => [tour.isActive.value, tour.selectedId.value] as const,
+    ([active, id]) => {
+      if (!active || isUndefined(id) || !steps.includes(id)) return
+      void onActive()
+    },
+    { flush: 'sync' },
+  )
 
   const slotProps = toRef((): TourActivatorSlotProps => ({
     isActive: isActive.value,

@@ -554,6 +554,11 @@ export function createTour<
   }
 
   function applyStart (options: { stepId?: ID } = {}) {
+    // leave() is still on the stack. Selecting here changes the step the
+    // outer next/prev/step then moves from, and that leave() stops the
+    // enter this start just opened.
+    if (leaving) return
+
     finishInstead = false
 
     if (steps.size === 0) {

@@ -172,6 +172,27 @@ describe('createTour', () => {
       expect(tour.isComplete.value).toBe(true)
     })
 
+    it('should ignore start called from a leave hook', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([
+        { id: 'a' },
+        {
+          id: 'b',
+          leave () {
+            tour.start({ stepId: 'a' })
+          },
+        },
+        { id: 'c' },
+      ])
+      tour.start()
+      await tour.next()
+      await tour.next()
+
+      expect(tour.steps.selectedId.value).toBe('c')
+      expect(tour.isActive.value).toBe(true)
+    })
+
     it('should not move off the current step when a leave hook calls prev', async () => {
       const tour = createTour()
       let during: string | number | undefined
