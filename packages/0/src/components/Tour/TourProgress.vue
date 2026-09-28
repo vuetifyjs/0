@@ -34,6 +34,8 @@
     text: string
     attrs: {
       'role': 'status'
+      'aria-live': 'polite'
+      'aria-atomic': true
       'data-scope': 'tour'
       'data-part': 'progress'
     }
@@ -72,6 +74,8 @@
     text: text.value,
     attrs: {
       'role': 'status',
+      'aria-live': 'polite',
+      'aria-atomic': true,
       'data-scope': 'tour',
       'data-part': 'progress',
     },

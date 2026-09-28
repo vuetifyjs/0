@@ -48,7 +48,7 @@
   const tour = useTour(namespace)
 
   function isControlFocused () {
-    const active = getActiveElement() as HTMLElement | null
+    const active = getActiveElement()
     return !!active?.closest('button, a[href], [role="button"]')
   }
 
@@ -61,15 +61,15 @@
     void tour.next()
   }
 
-  function onEnter (event: KeyboardEvent) {
-    if (event.repeat || isControlFocused()) return
-    event.preventDefault()
-    onAdvance()
-  }
-
   function isWidget (event: KeyboardEvent) {
     const target = event.target
     return target instanceof Element && Boolean(target.closest(WIDGET))
+  }
+
+  function onEnter (event: KeyboardEvent) {
+    if (event.repeat || isControlFocused() || isWidget(event)) return
+    event.preventDefault()
+    onAdvance()
   }
 
   function onNext (event: KeyboardEvent) {

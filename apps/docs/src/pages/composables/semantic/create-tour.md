@@ -141,7 +141,7 @@ A three-step tour of two fake chrome nodes — a search field and an avatar — 
 
 `useOnboarding.ts` owns the instance and the copy. It onboards three tickets (`welcome`, `search`, `avatar`), leaves `welcome` without an `enter` so it is ready immediately, and on the other two activates the matching `[data-tour]` node with `{ scroll: false }` so the docs preview does not jump. `placement` is set on the tickets and `Tour.Content` uses it for that step's position. `basic.vue` renders the chrome, the current title/body, and the buttons from `isActive`, `canGoBack`, `canGoNext`, and `isLast`.
 
-Reach for this shape when the walkthrough is a handful of existing DOM nodes and you want the sequencer without shipping highlight/content chrome. Filter the array before `onboard` if a step should not run on a given viewport; register a form field under the step id when Next must validate. A Tour compound for the visual layer is forthcoming.
+Reach for this shape when the walkthrough is a handful of existing DOM nodes and you want the sequencer without shipping highlight/content chrome. Filter the array before `onboard` if a step should not run on a given viewport; register a form field under the step id when Next must validate. The visual layer ships as [Tour](/components/disclosure/tour).
 
 | File | Role |
 |------|------|
@@ -205,7 +205,7 @@ It is a number getter over `steps.size`. Read `tour.total`, never `tour.total.va
 
 ??? Does createTour ship a plugin or visual chrome?
 
-No. It is a factory with an optional `createTourContext` / `useTour` trinity, like [createOverflow](/composables/semantic/create-overflow). There is no `createTourPlugin`. Highlight, floating content, and keyboard belong to a forthcoming Tour compound — this composable only sequences steps, activators, and the form gate.
+No. It is a factory with an optional `createTourContext` / `useTour` trinity, like [createOverflow](/composables/semantic/create-overflow). There is no `createTourPlugin`. Highlight, floating content, and keyboard live on [Tour](/components/disclosure/tour) — this composable only sequences steps, activators, and the form gate.
 
 :::
 

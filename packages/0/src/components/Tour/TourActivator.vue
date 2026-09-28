@@ -105,11 +105,13 @@
     const element = el.value
     if (!isElement(element)) return
 
-    ;(element as HTMLElement).scrollIntoView(scrollOptions ?? { block: 'end', behavior: 'instant' })
+    element.scrollIntoView(scrollOptions ?? { block: 'end', behavior: 'instant' })
   }
 
   onMounted(onActive)
-  watch(() => tour.selectedId.value, onActive)
+  watch(isActive, active => {
+    if (active) void onActive()
+  })
 
   const slotProps = toRef((): TourActivatorSlotProps => ({
     isActive: isActive.value,

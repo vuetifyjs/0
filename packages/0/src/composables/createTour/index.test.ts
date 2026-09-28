@@ -1,10 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { createHydrationPlugin, useHydration } from '#v0/composables/useHydration'
+
 import { createTour } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { defineComponent, h } from 'vue'
+import { createApp, defineComponent, h, nextTick } from 'vue'
 
 vi.mock('#v0/composables/useLogger', () => ({
   useLogger: () => ({
@@ -63,6 +66,15 @@ describe('createTour', () => {
       expect(tour.steps.selectedId.value).toBe('two')
       expect(tour.isActive.value).toBe(true)
     })
+
+    it('should not activate when start is called with zero steps', () => {
+      const tour = createTour()
+
+      tour.start()
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.steps.size).toBe(0)
+    })
   })
 
   describe('navigation', () => {
@@ -86,9 +98,139 @@ describe('createTour', () => {
       await tour.next()
       expect(tour.steps.selectedId.value).toBe('three')
     })
+
+    it('should ignore next from an enter that resolves after stop', async () => {
+      const tour = createTour()
+      function hold () {}
+      let release = hold
+
+      tour.steps.onboard([
+        {
+          id: 'a',
+          enter (ctx) {
+            return new Promise<void>(resolve => {
+              release = function fire () {
+                void ctx.next()
+                resolve()
+              }
+            })
+          },
+        },
+        { id: 'b' },
+      ])
+      tour.start()
+      expect(tour.steps.selectedId.value).toBe('a')
+
+      tour.stop()
+      release()
+      await Promise.resolve()
+
+      expect(tour.steps.selectedId.value).toBe('a')
+      expect(tour.isActive.value).toBe(false)
+    })
+
+    it('should not advance when a leave hook stops the tour', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([
+        {
+          id: 'a',
+          leave () {
+            tour.stop()
+          },
+        },
+        { id: 'b' },
+      ])
+      tour.start()
+      await tour.next()
+
+      expect(tour.steps.selectedId.value).toBe('a')
+      expect(tour.isActive.value).toBe(false)
+    })
+
+    it('should run completed when a leave hook completes during prev', async () => {
+      const tour = createTour()
+      const completed = vi.fn()
+
+      tour.steps.onboard([
+        { id: 'a' },
+        {
+          id: 'b',
+          completed,
+          leave () {
+            void tour.complete()
+          },
+        },
+      ])
+      tour.start()
+      await tour.next()
+      await tour.prev()
+
+      expect(completed).toHaveBeenCalledTimes(1)
+      expect(tour.steps.selectedId.value).toBe('b')
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(true)
+    })
+
+    it('should not move off the current step when a leave hook calls prev', async () => {
+      const tour = createTour()
+      let during: string | number | undefined
+
+      tour.steps.onboard([
+        { id: 'a' },
+        { id: 'b' },
+        {
+          id: 'c',
+          leave () {
+            void tour.prev()
+            during = tour.steps.selectedId.value
+          },
+        },
+      ])
+      tour.start()
+      await tour.next()
+      await tour.next()
+      expect(tour.steps.selectedId.value).toBe('c')
+
+      await tour.prev()
+
+      expect(during).toBe('c')
+      expect(tour.steps.selectedId.value).toBe('b')
+      expect(tour.isActive.value).toBe(true)
+    })
   })
 
   describe('stop and complete', () => {
+    it('should start again after stop', async () => {
+      const tour = createTour()
+      let once = true
+
+      tour.steps.onboard([
+        {
+          id: 'a',
+          leave () {
+            if (!once) return
+            once = false
+            void tour.complete()
+            tour.stop()
+          },
+        },
+        { id: 'b' },
+      ])
+      tour.start()
+      await tour.next()
+      tour.start()
+
+      expect(tour.isActive.value).toBe(true)
+      expect(tour.isComplete.value).toBe(false)
+
+      await tour.next()
+
+      expect(tour.isActive.value).toBe(true)
+      expect(tour.isComplete.value).toBe(false)
+      expect(tour.steps.selectedId.value).toBe('b')
+    })
+
     it('should set isComplete only on complete, not stop', async () => {
       const tour = createTour()
 
@@ -246,6 +388,102 @@ describe('createTour', () => {
       expect(tour.isComplete.value).toBe(true)
     })
 
+    it('should resolve complete after an in-flight next ends the tour', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      tour.start()
+
+      function hold (_value: boolean) {}
+      let release: (value: boolean) => void = hold
+
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(() => new Promise(resolve => {
+        release = resolve
+      }))
+
+      void tour.next()
+      const completing = tour.complete()
+
+      release(true)
+      await completing
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(true)
+    })
+
+    it('should leave the tour incomplete when an in-flight gate rejects complete', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      tour.start()
+
+      function hold (_value: boolean) {}
+      let release: (value: boolean) => void = hold
+
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(() => new Promise(resolve => {
+        release = resolve
+      }))
+
+      void tour.next()
+      const completing = tour.complete()
+
+      release(false)
+      await completing
+
+      expect(tour.isActive.value).toBe(true)
+      expect(tour.isComplete.value).toBe(false)
+    })
+
+    it('should not end the tour on the next advance after a rejected second complete', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      tour.start()
+
+      function hold (_value: boolean) {}
+      let release: (value: boolean) => void = hold
+
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(() => new Promise(resolve => {
+        release = resolve
+      }))
+
+      const first = tour.complete()
+      void tour.complete()
+
+      release(false)
+      await first
+
+      const pending = tour.next()
+      release(true)
+      await pending
+
+      expect(tour.steps.selectedId.value).toBe('b')
+      expect(tour.isActive.value).toBe(true)
+      expect(tour.isComplete.value).toBe(false)
+    })
+
+    it('should finish the tour when submit awaits complete', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      tour.start()
+
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(async () => {
+        await tour.complete()
+        return true
+      })
+
+      await tour.next()
+
+      expect(tour.steps.selectedId.value).toBe('a')
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(true)
+    })
+
     it('should not advance when the tour stops during validation', async () => {
       const tour = createTour()
 
@@ -314,6 +552,33 @@ describe('createTour', () => {
 
       expect(tour.activators.get('target')).toBeUndefined()
       expect(el.style.getPropertyValue('anchor-name')).toBe('')
+    })
+
+    it('should ignore activate from an enter that resolves after stop', async () => {
+      const tour = createTour()
+      const el = document.createElement('div')
+      function hold () {}
+      let release = hold
+
+      tour.steps.onboard([{
+        id: 'late',
+        enter (ctx) {
+          return new Promise<void>(resolve => {
+            release = function fire () {
+              ctx.activate(el)
+              resolve()
+            }
+          })
+        },
+      }])
+
+      tour.start()
+      tour.stop()
+      release()
+      await Promise.resolve()
+
+      expect(el.style.getPropertyValue('anchor-name')).toBe('')
+      expect(tour.isActive.value).toBe(false)
     })
   })
 
@@ -432,6 +697,140 @@ describe('createTour', () => {
       expect(duringSetup).toBe(false)
       expect(tour!.isActive.value).toBe(true)
       wrapper.unmount()
+    })
+
+    it('should not start when stop is called before the host mounts', () => {
+      let tour: ReturnType<typeof createTour> | undefined
+
+      const Host = defineComponent({
+        setup () {
+          tour = createTour()
+          tour.steps.onboard([{ id: 'a' }])
+          tour.start()
+          tour.stop()
+          return () => h('div')
+        },
+      })
+
+      const wrapper = mount(Host)
+
+      expect(tour!.isActive.value).toBe(false)
+      wrapper.unmount()
+    })
+
+    it('should not start when reset is called before the host mounts', () => {
+      let tour: ReturnType<typeof createTour> | undefined
+
+      const Host = defineComponent({
+        setup () {
+          tour = createTour()
+          tour.steps.onboard([{ id: 'a' }])
+          tour.start()
+          tour.reset()
+          return () => h('div')
+        },
+      })
+
+      const wrapper = mount(Host)
+
+      expect(tour!.isActive.value).toBe(false)
+      expect(tour!.steps.size).toBe(0)
+      wrapper.unmount()
+    })
+
+    it('should stay complete when complete cancels a start queued before mount', async () => {
+      let tour: ReturnType<typeof createTour> | undefined
+
+      const Host = defineComponent({
+        setup () {
+          tour = createTour()
+          tour.steps.onboard([{ id: 'a' }])
+          tour.start()
+          void tour.complete()
+          return () => h('div')
+        },
+      })
+
+      const wrapper = mount(Host)
+
+      expect(tour!.isActive.value).toBe(false)
+      expect(tour!.isComplete.value).toBe(true)
+      wrapper.unmount()
+    })
+
+    it('should start when a second start replaces one cancelled before mount', () => {
+      let tour: ReturnType<typeof createTour> | undefined
+
+      const Host = defineComponent({
+        setup () {
+          tour = createTour()
+          tour.steps.onboard([{ id: 'a' }])
+          tour.start()
+          tour.stop()
+          tour.start()
+          return () => h('div')
+        },
+      })
+
+      const wrapper = mount(Host)
+
+      expect(tour!.isActive.value).toBe(true)
+      expect(tour!.steps.selectedId.value).toBe('a')
+      wrapper.unmount()
+    })
+
+    it('should defer a no-instance start until hydration', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createHydrationPlugin())
+
+      let tour!: ReturnType<typeof createTour>
+
+      app.runWithContext(() => {
+        tour = createTour()
+        tour.steps.onboard([{ id: 'a' }])
+        tour.start()
+        expect(tour.isActive.value).toBe(false)
+        expect(useHydration().isHydrated.value).toBe(false)
+      })
+
+      app.runWithContext(() => {
+        useHydration().hydrate()
+      })
+      await nextTick()
+
+      expect(tour.isActive.value).toBe(true)
+      tour.stop()
+    })
+
+    it('should not start a deferred hydration start after stop', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createHydrationPlugin())
+
+      let tour!: ReturnType<typeof createTour>
+
+      app.runWithContext(() => {
+        tour = createTour()
+        tour.steps.onboard([{ id: 'a' }])
+        tour.start()
+        tour.stop()
+        useHydration().hydrate()
+      })
+
+      await nextTick()
+
+      expect(tour.isActive.value).toBe(false)
+    })
+
+    it('should start immediately when no hydration plugin is installed', () => {
+      const app = createApp({ render: () => null })
+
+      app.runWithContext(() => {
+        const tour = createTour()
+        tour.steps.onboard([{ id: 'a' }])
+        tour.start()
+        expect(tour.isActive.value).toBe(true)
+        tour.stop()
+      })
     })
   })
 })

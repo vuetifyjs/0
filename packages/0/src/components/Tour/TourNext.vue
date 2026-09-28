@@ -38,7 +38,7 @@
     next: () => void
     attrs: {
       'aria-label': string
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'data-disabled': true | undefined
       'data-scope': 'tour'
       'data-part': 'next'
@@ -99,7 +99,7 @@
       'aria-label': root.isLast.value
         ? locale.ti('Tour.complete') ?? 'Complete tour'
         : locale.ti('Tour.next') ?? 'Go to next step',
-      'aria-disabled': as === 'button' ? undefined : isDisabled.value,
+      'aria-disabled': isDisabled.value,
       'data-disabled': isDisabled.value || undefined,
       'data-scope': 'tour',
       'data-part': 'next',

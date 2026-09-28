@@ -103,6 +103,25 @@ async function startAndWait (tour: TourContext, stepId?: string) {
 }
 
 describe('tour', () => {
+  describe('activator', () => {
+    it('should scroll again when the tour restarts on the same step', async () => {
+      const { tour } = mountTour()
+      await startAndWait(tour)
+
+      const target = document.querySelector('[data-part="activator"]') as HTMLElement
+      const scroll = vi.spyOn(target, 'scrollIntoView')
+
+      tour.stop()
+      await nextTick()
+      tour.start()
+      await nextTick()
+      await nextTick()
+
+      expect(scroll).toHaveBeenCalled()
+      scroll.mockRestore()
+    })
+  })
+
   describe('root', () => {
     it('should expose isActive false before start and true after start for that step', async () => {
       const { tour, slot } = mountTour()
@@ -136,6 +155,34 @@ describe('tour', () => {
       expect(title!.id).toBeDefined()
       expect(description!.id).toBeDefined()
     })
+
+    it('should omit aria-labelledby and aria-describedby when title and description are absent', async () => {
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }])
+
+          return () => h(Tour.Root, { step: 'one' }, () => h(Tour.Content, {}, () => 'Body'))
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      await startAndWait(tour)
+
+      const content = document.querySelector('[data-part="content"][role="dialog"]')
+      expect(content).not.toBeNull()
+      expect(content!.hasAttribute('aria-labelledby')).toBe(false)
+      expect(content!.hasAttribute('aria-describedby')).toBe(false)
+    })
   })
 
   describe('next', () => {
@@ -148,9 +195,9 @@ describe('tour', () => {
       const next = document.querySelector('[data-part="next"]') as HTMLElement
       const prev = document.querySelector('[data-part="prev"]') as HTMLElement
       expect(next).not.toBeNull()
-      expect(next.hasAttribute('aria-disabled')).toBe(false)
+      expect(next.getAttribute('aria-disabled')).toBe('false')
       expect(prev.hasAttribute('disabled')).toBe(true)
-      expect(prev.hasAttribute('aria-disabled')).toBe(false)
+      expect(prev.getAttribute('aria-disabled')).toBe('true')
       next.click()
       await nextTick()
 
@@ -308,6 +355,78 @@ describe('tour', () => {
 
       expect(document.activeElement).toBe(opener)
       opener.remove()
+    })
+
+    it('should keep an already inert element inert after a blocking tour stops', async () => {
+      const locked = document.createElement('button')
+      locked.inert = true
+      document.body.append(locked)
+
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }, { id: 'two' }])
+
+          return () => h('div', [
+            h(Tour.Highlight, { blocking: true }),
+            h(Tour.Root, { step: 'one' }, () => h(Tour.Activator, { step: 'one' }, () => 'Target')),
+          ])
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      tour.start()
+      await nextTick()
+
+      expect(locked.inert).toBe(true)
+      expect(locked.dataset.tourInert).toBe('')
+
+      tour.stop()
+
+      expect(locked.inert).toBe(true)
+      expect(locked.dataset.tourInert).toBeUndefined()
+      locked.remove()
+    })
+
+    it('should leave the step status region operable under a blocking tour', async () => {
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }, { id: 'two' }])
+
+          return () => h('div', [
+            h(Tour.Highlight, { blocking: true }),
+          ])
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      tour.start()
+      await nextTick()
+      await tour.next()
+      await nextTick()
+
+      const status = document.querySelector('[data-part="status"]')
+      expect(status).not.toBeNull()
+      expect((status as HTMLElement).inert).toBe(false)
     })
   })
 

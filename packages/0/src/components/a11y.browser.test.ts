@@ -25,6 +25,7 @@ import InputDegenerate from './fixtures/degenerate/Input.vue'
 import RadioDegenerate from './fixtures/degenerate/Radio.vue'
 import SwitchDegenerate from './fixtures/degenerate/Switch.vue'
 import ToggleDegenerate from './fixtures/degenerate/Toggle.vue'
+import TourDegenerate from './fixtures/degenerate/Tour.vue'
 import DialogFixture from './fixtures/Dialog.vue'
 import ExpansionPanelFixture from './fixtures/ExpansionPanel.vue'
 import FormFixture from './fixtures/Form.vue'
@@ -55,6 +56,7 @@ import TabsFixture from './fixtures/Tabs.vue'
 import ThemeFixture from './fixtures/Theme.vue'
 import ToggleFixture from './fixtures/Toggle.vue'
 import TooltipFixture from './fixtures/Tooltip.vue'
+import TourFixture from './fixtures/Tour.vue'
 import TreeviewFixture from './fixtures/Treeview.vue'
 
 // Composables
@@ -163,6 +165,7 @@ const FIXTURES = {
   Theme: ThemeFixture,
   Toggle: ToggleFixture,
   Tooltip: TooltipFixture,
+  Tour: TourFixture,
   Treeview: TreeviewFixture,
 } as const satisfies Record<string, Component>
 
@@ -209,6 +212,7 @@ const DEGENERATE = {
   Radio: RadioDegenerate,
   Switch: SwitchDegenerate,
   Toggle: ToggleDegenerate,
+  Tour: TourDegenerate,
 } as const satisfies Partial<Record<keyof typeof FIXTURES, Component>>
 
 /** Distinguishes the two passes in the report; `summarize` groups by subject. */

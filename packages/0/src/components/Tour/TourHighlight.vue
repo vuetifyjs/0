@@ -14,7 +14,9 @@
 
   // Composables
   import { useTour } from '#v0/composables/createTour'
+  import { useLocale } from '#v0/composables/useLocale'
   import { useRaf } from '#v0/composables/useRaf'
+  import { useTimer } from '#v0/composables/useTimer'
 
   // Transformers
   import { toElement } from '#v0/composables/toElement'
@@ -49,6 +51,18 @@
     width: number
     height: number
   }
+
+  const statusStyle = {
+    position: 'absolute',
+    width: '1px',
+    height: '1px',
+    padding: '0',
+    margin: '-1px',
+    overflow: 'hidden',
+    clip: 'rect(0, 0, 0, 0)',
+    whiteSpace: 'nowrap',
+    border: '0',
+  } as const
 </script>
 
 <script setup lang="ts">
@@ -67,7 +81,26 @@
   } = defineProps<TourHighlightProps>()
 
   const tour = useTour(namespace)
+  const locale = useLocale()
   const maskId = `tour-highlight-${useId()}`
+  const status = shallowRef('')
+
+  const timer = useTimer(() => {
+    const current = locale.n(tour.steps.selectedIndex.value + 1)
+    const total = locale.n(tour.total)
+
+    status.value = locale.ti('Tour.progress', { current, total })
+      ?? `Step ${current} of ${total}`
+  }, { duration: 100 })
+
+  watch(() => [tour.isActive.value, tour.selectedId.value] as const, ([active]) => {
+    timer.stop()
+    if (!active) {
+      status.value = ''
+      return
+    }
+    timer.start()
+  }, { immediate: true })
 
   const rect = shallowRef<HighlightRect | null>(null)
   const borderRadius = shallowRef(0)
@@ -126,12 +159,12 @@
     if (tour.isActive.value) loop()
   })
 
-  const held: HTMLElement[] = []
+  const held: { el: HTMLElement, inert: boolean }[] = []
 
   function releaseInert () {
-    for (const el of held) {
-      el.inert = false
-      delete el.dataset.tourInert
+    for (const item of held) {
+      item.el.inert = item.inert
+      delete item.el.dataset.tourInert
     }
     held.length = 0
   }
@@ -147,9 +180,9 @@
       if (!(el instanceof HTMLElement)) return
 
       const part = el.dataset.part
-      if (part === 'content' || part === 'highlight') return
+      if (part === 'content' || part === 'highlight' || part === 'status') return
 
-      if (el.querySelector('[data-part="content"], [data-part="highlight"]')) {
+      if (el.querySelector('[data-part="content"], [data-part="highlight"], [data-part="status"]')) {
         for (const child of el.children) visit(child)
         return
       }
@@ -162,9 +195,9 @@
         return
       }
 
+      held.push({ el, inert: el.inert })
       el.inert = true
       el.dataset.tourInert = ''
-      held.push(el)
     }
 
     for (const child of document.body.children) visit(child)
@@ -265,6 +298,15 @@
 
   <Portal v-if="tour.isActive.value" :promote="0" :scrim="false">
     <template #default="{ zIndex }">
+      <div
+        aria-atomic="true"
+        aria-live="polite"
+        data-part="status"
+        data-scope="tour"
+        role="status"
+        :style="statusStyle"
+      >{{ status }}</div>
+
       <div
         aria-hidden="true"
         data-part="highlight"

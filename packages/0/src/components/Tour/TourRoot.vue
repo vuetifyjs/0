@@ -16,11 +16,11 @@
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { toRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   // Types
   import type { ID } from '#v0/types'
-  import type { Ref } from 'vue'
+  import type { Ref, ShallowRef } from 'vue'
 
   export interface TourRootContext {
     step: ID
@@ -33,6 +33,8 @@
     canGoNext: Readonly<Ref<boolean>>
     titleId: string
     descriptionId: string
+    hasTitle: ShallowRef<boolean>
+    hasDescription: ShallowRef<boolean>
     next: () => void
     prev: () => void
     stop: () => void
@@ -79,6 +81,8 @@
   const id = useId()
   const titleId = `${id}-title`
   const descriptionId = `${id}-description`
+  const hasTitle = shallowRef(false)
+  const hasDescription = shallowRef(false)
 
   const isActive = toRef(() => tour.isActive.value && tour.selectedId.value === step)
   const index = toRef(() => tour.steps.selectedIndex.value)
@@ -111,6 +115,8 @@
     canGoNext: tour.canGoNext,
     titleId,
     descriptionId,
+    hasTitle,
+    hasDescription,
     next,
     prev,
     stop,

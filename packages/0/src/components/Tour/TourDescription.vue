@@ -16,7 +16,7 @@
   import { useTourRootContext } from './TourRoot.vue'
 
   // Utilities
-  import { mergeProps, toRef, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, onMounted, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -50,6 +50,14 @@
 
   const attrs = useAttrs()
   const root = useTourRootContext(namespace)
+
+  onMounted(() => {
+    root.hasDescription.value = true
+  })
+
+  onBeforeUnmount(() => {
+    root.hasDescription.value = false
+  })
 
   const slotProps = toRef((): TourDescriptionSlotProps => ({
     attrs: {

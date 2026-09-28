@@ -61,8 +61,8 @@
     placement: TourPlacement
     attrs: {
       'role': 'dialog'
-      'aria-labelledby': string
-      'aria-describedby': string
+      'aria-labelledby': string | undefined
+      'aria-describedby': string | undefined
       'data-scope': 'tour'
       'data-part': 'content'
       'tabindex': number
@@ -294,8 +294,8 @@
       placement: activePlacement.value,
       attrs: {
         'role': 'dialog',
-        'aria-labelledby': root.titleId,
-        'aria-describedby': root.descriptionId,
+        'aria-labelledby': root.hasTitle.value ? root.titleId : undefined,
+        'aria-describedby': root.hasDescription.value ? root.descriptionId : undefined,
         'data-scope': 'tour',
         'data-part': 'content',
         'tabindex': -1,

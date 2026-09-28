@@ -98,7 +98,7 @@ Reach for this shape when the walkthrough targets elements that already exist in
 
 ## Accessibility
 
-`Tour.Content` renders a non-modal dialog (`role="dialog"`, no `aria-modal`) labelled by `Tour.Title` and described by `Tour.Description`. The spotlight target stays in the page, so Tab is allowed to leave the card. `Tour.Progress` is a live region (`role="status"`) announcing the localized step count. `Tour.Highlight` is `aria-hidden`. When the overlay is ready, focus moves to Content unless a field already has it. When the tour stops or completes, focus returns to the element that was focused before `start()`. `blocking` also marks the rest of the page `inert` (the card, the scrim, and — unless `blockActivator` — the active target stay operable).
+`Tour.Content` renders a non-modal dialog (`role="dialog"`, no `aria-modal`) labelled by `Tour.Title` and described by `Tour.Description`. The spotlight target stays in the page, so Tab is allowed to leave the card. `Tour.Progress` is a live region (`role="status"`) announcing the localized step count. Highlight also exposes a tour-level status region so the step count is announced when Progress lives inside a step. `Tour.Highlight`'s scrim is `aria-hidden`. When the overlay is ready, focus moves to Content unless a field already has it. When the tour stops or completes, focus returns to the element that was focused before `start()`. `blocking` also marks the rest of the page `inert` (the card, the scrim, and — unless `blockActivator` — the active target stay operable).
 
 ### ARIA Attributes
 
@@ -109,7 +109,7 @@ Reach for this shape when the walkthrough targets elements that already exist in
 | `aria-describedby` | Description element ID | Content |
 | `role` | `status` | Progress |
 | `aria-label` | Localized previous / next / complete / skip string | Prev, Next, Skip |
-| `aria-disabled` | boolean on a non-button host; omitted on `<button>` | Prev, Next |
+| `aria-disabled` | boolean | Prev, Next |
 | `aria-hidden` | `true` | Highlight |
 
 `Tour.Title` and `Tour.Description` generate the IDs referenced by Content. Render them inside `Tour.Content` so the dialog has an accessible name and description. Prev is disabled on the first step; Next is disabled while the tour is unready.
@@ -120,7 +120,7 @@ Reach for this shape when the walkthrough targets elements that already exist in
 |-----|--------|
 | `ArrowRight` | Advances; completes on the last step |
 | `ArrowLeft` | Moves to the previous step |
-| `Enter` | Advances unless a control is focused; completes on the last step |
+| `Enter` | Advances unless a control is focused; completes on the last step. Enter uses the same widget guard as the arrows. |
 | `Escape` | Stops the tour without completing |
 | `Tab` | Moves focus. It is not trapped; the target stays reachable |
 | `Escape` | Stops the tour even when `Tour.Keyboard` is omitted. Content listens on its own |

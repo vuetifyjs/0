@@ -40,6 +40,7 @@ import { createForm } from '#v0/composables/createForm'
 import { createRegistry } from '#v0/composables/createRegistry'
 import { createStep } from '#v0/composables/createStep'
 import { createTrinity } from '#v0/composables/createTrinity'
+import { useHydration } from '#v0/composables/useHydration'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Transformers
@@ -49,8 +50,8 @@ import { toElement } from '#v0/composables/toElement'
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { getActiveElement, isElement, isFunction, isThenable, isUndefined } from '#v0/utilities'
-import { effectScope, getCurrentInstance, onMounted, onScopeDispose, shallowRef, toRef } from 'vue'
+import { getActiveElement, isFunction, isThenable, isUndefined } from '#v0/utilities'
+import { effectScope, getCurrentInstance, hasInjectionContext, onMounted, onScopeDispose, shallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { FormContext } from '#v0/composables/createForm'
@@ -199,13 +200,15 @@ export interface TourContext<
   stop: () => void
   /**
    * Dismiss and mark complete. Emits `completed` for the current step.
+   * Resolves after an in-flight `next()` or `step()` finishes that completion,
+   * or after its gate drops it.
    *
    * @example
    * ```ts
-   * tour.complete()
+   * await tour.complete()
    * ```
    */
-  complete: () => void
+  complete: () => Promise<void>
   /**
    * Stop, reset the form, and clear steps and activators.
    *
@@ -275,7 +278,7 @@ export interface TourContext<
 
 interface Programmatic {
   id: ID
-  element: HTMLElement
+  element: HTMLElement | SVGElement
   previous: string
   marginTop: string
   marginBottom: string
@@ -315,12 +318,22 @@ export function createTour<
 
   let generation = 0
   let navigating = false
+  let leaving = false
   let finishInstead = false
   let scope: EffectScope | undefined
   let programmatic: Programmatic | undefined
   let opener: HTMLElement | undefined
   let pendingStart: { stepId?: ID } | undefined
   let startQueued = false
+  let flight: Promise<void> | undefined
+  let stopHydration: (() => void) | undefined
+  let submitting = false
+
+  function cancelQueue () {
+    pendingStart = undefined
+    stopHydration?.()
+    stopHydration = undefined
+  }
 
   function rememberOpener () {
     if (!IN_BROWSER || opener) return
@@ -348,19 +361,30 @@ export function createTour<
     restoreOpener()
   }
 
+  // Complete without a second finish(). `alreadyLeft` skips leave() — the
+  // caller is the tail that just ran it, and leave() must not nest.
+  function dismiss (alreadyLeft: boolean) {
+    finishInstead = false
+    if (!alreadyLeft) leave()
+    isActive.value = false
+    isComplete.value = true
+    restoreOpener()
+  }
+
   function ready () {
     if (!isActive.value) return
     isReady.value = true
   }
 
-  function resolve (target: MaybeElementRef): HTMLElement | undefined {
+  function resolve (target: MaybeElementRef): HTMLElement | SVGElement | undefined {
     const found = toElement(target)
-    if (!isElement(found)) return undefined
-    return found as HTMLElement
+    if (found instanceof HTMLElement) return found
+    if (typeof SVGElement !== 'undefined' && found instanceof SVGElement) return found
+    return undefined
   }
 
   function activate (target: MaybeElementRef, options?: TourActivateOptions) {
-    if (!IN_BROWSER) return
+    if (!IN_BROWSER || !isActive.value) return
 
     const id = steps.selectedId.value
     if (isUndefined(id)) {
@@ -415,18 +439,25 @@ export function createTour<
   }
 
   function leave () {
-    generation++
-    const ticket = steps.selectedItem.value
-    if (ticket) {
-      steps.emit('leave', ticket)
+    if (leaving) return
+
+    leaving = true
+    try {
+      generation++
+      const ticket = steps.selectedItem.value
+      if (ticket) {
+        steps.emit('leave', ticket)
+      }
+      if (isFunction(ticket?.leave)) {
+        ticket.leave()
+      }
+      scope?.stop()
+      scope = undefined
+      deactivate()
+      isReady.value = false
+    } finally {
+      leaving = false
     }
-    if (isFunction(ticket?.leave)) {
-      ticket.leave()
-    }
-    scope?.stop()
-    scope = undefined
-    deactivate()
-    isReady.value = false
   }
 
   function enter (direction: TourDirection) {
@@ -436,6 +467,16 @@ export function createTour<
     function done () {
       if (token !== generation) return
       ready()
+    }
+
+    function activateForStep (target: MaybeElementRef, options?: TourActivateOptions) {
+      if (token !== generation) return
+      activate(target, options)
+    }
+
+    function deactivateForStep () {
+      if (token !== generation) return
+      deactivate()
     }
 
     const handler = ticket?.enter
@@ -450,10 +491,13 @@ export function createTour<
     scope.run(() => {
       const ctx: TourEnterContext = {
         done,
-        next,
+        next: async () => {
+          if (token !== generation) return
+          await next()
+        },
         direction,
-        activate,
-        deactivate,
+        activate: activateForStep,
+        deactivate: deactivateForStep,
       }
 
       try {
@@ -487,8 +531,22 @@ export function createTour<
   async function gate (): Promise<boolean> {
     const id = steps.selectedId.value
     if (isUndefined(id) || !form.has(id)) return true
+
+    // True only while submit() is on the stack. complete() from inside
+    // submit must not await this navigation — that cycle never settles.
+    submitting = true
+    let pending: Promise<boolean> | boolean
     try {
-      return await form.submit(id)
+      pending = form.submit(id)
+    } catch (error) {
+      logger.warn('createTour: form submit failed', error)
+      return false
+    } finally {
+      submitting = false
+    }
+
+    try {
+      return await pending
     } catch (error) {
       logger.warn('createTour: form submit failed', error)
       return false
@@ -496,6 +554,17 @@ export function createTour<
   }
 
   function applyStart (options: { stepId?: ID } = {}) {
+    finishInstead = false
+
+    if (steps.size === 0) {
+      if (isActive.value) {
+        leave()
+        isActive.value = false
+        restoreOpener()
+      }
+      return
+    }
+
     if (isActive.value) {
       leave()
     }
@@ -515,6 +584,43 @@ export function createTour<
     enter('forward')
   }
 
+  function queueMounted (options: { stepId?: ID }) {
+    pendingStart = options
+    if (startQueued) return
+
+    startQueued = true
+    onMounted(() => {
+      startQueued = false
+      if (isUndefined(pendingStart)) return
+      const queued = pendingStart
+      pendingStart = undefined
+      applyStart(queued)
+    })
+    // Clears the latch only. A tour that already started must keep running
+    // when this child unmounts.
+    onScopeDispose(() => {
+      pendingStart = undefined
+      startQueued = false
+      stopHydration?.()
+      stopHydration = undefined
+    })
+  }
+
+  function queueHydration (options: { stepId?: ID }) {
+    pendingStart = options
+    if (stopHydration) return
+
+    const hydration = useHydration()
+    stopHydration = watch(hydration.isHydrated, hydrated => {
+      if (!hydrated || isUndefined(pendingStart)) return
+      const queued = pendingStart
+      pendingStart = undefined
+      stopHydration?.()
+      stopHydration = undefined
+      applyStart(queued)
+    })
+  }
+
   function start (options: { stepId?: ID } = {}) {
     if (!IN_BROWSER) return
 
@@ -522,16 +628,15 @@ export function createTour<
     // Highlight and activator state the server HTML does not have.
     const instance = getCurrentInstance()
     if (instance && !instance.isMounted) {
-      pendingStart = options
-      if (!startQueued) {
-        startQueued = true
-        onMounted(() => {
-          startQueued = false
-          const queued = pendingStart
-          pendingStart = undefined
-          if (queued) applyStart(queued)
-        })
-      }
+      queueMounted(options)
+      return
+    }
+
+    // No instance, but a hydration plugin that has not settled yet
+    // (app.runWithContext, or a call from outside setup). The fallback
+    // context is already hydrated, so apps without the plugin stay sync.
+    if (!instance && hasInjectionContext() && !useHydration().isHydrated.value) {
+      queueHydration(options)
       return
     }
 
@@ -539,6 +644,8 @@ export function createTour<
   }
 
   function stop () {
+    finishInstead = false
+    cancelQueue()
     if (!isActive.value) return
     leave()
     isActive.value = false
@@ -546,6 +653,8 @@ export function createTour<
   }
 
   async function complete () {
+    cancelQueue()
+
     if (!isActive.value) {
       isComplete.value = true
       restoreOpener()
@@ -554,15 +663,22 @@ export function createTour<
 
     if (navigating) {
       finishInstead = true
-      return
+      if (submitting || isUndefined(flight)) return
+      return flight
     }
 
     navigating = true
     const token = generation
 
     try {
-      if (!await gate()) return
-      if (token !== generation || !isActive.value) return
+      if (!await gate()) {
+        finishInstead = false
+        return
+      }
+      if (token !== generation || !isActive.value) {
+        finishInstead = false
+        return
+      }
 
       end()
     } finally {
@@ -580,80 +696,140 @@ export function createTour<
   }
 
   async function next () {
-    if (navigating || !isActive.value || !isReady.value || isLast.value) return
+    if (leaving || navigating || !isActive.value || !isReady.value || isLast.value) return
 
     navigating = true
     const token = generation
+    const run = (async () => {
+      try {
+        if (!await gate()) {
+          finishInstead = false
+          return
+        }
+        // stop/start/reset during validation invalidates this navigation.
+        // A second next() during the await is dropped by `navigating`.
+        // complete() during the await sets finishInstead and must not gate again.
+        if (token !== generation || !isActive.value) {
+          finishInstead = false
+          return
+        }
+        if (finishInstead) {
+          end()
+          return
+        }
+        if (!isReady.value || isLast.value) return
 
-    try {
-      if (!await gate()) {
-        finishInstead = false
-        return
-      }
-      // stop/start/reset during validation invalidates this navigation.
-      // A second next() during the await is dropped by `navigating`.
-      // complete() during the await sets finishInstead and must not gate again.
-      if (token !== generation || !isActive.value) {
-        finishInstead = false
-        return
-      }
-      if (finishInstead) {
-        end()
-        return
-      }
-      if (!isReady.value || isLast.value) return
+        finish()
+        if (!isActive.value) return
+        if (finishInstead) {
+          dismiss(false)
+          return
+        }
 
-      finish()
-      leave()
-      steps.next()
-      enter('forward')
-    } finally {
-      navigating = false
-    }
+        leave()
+        if (!isActive.value) return
+        if (finishInstead) {
+          dismiss(true)
+          return
+        }
+
+        steps.next()
+        enter('forward')
+      } finally {
+        navigating = false
+        flight = undefined
+      }
+    })()
+    flight = run
+    return run
   }
 
   async function prev () {
-    if (navigating || !isActive.value || !isReady.value || isFirst.value) return
+    if (leaving || navigating || !isActive.value || !isReady.value || isFirst.value) return
 
-    leave()
+    // navigating so complete() during leave sets finishInstead instead of
+    // starting its own gate. Cleared before enter so a fresh ctx.next can run.
+    navigating = true
+    let stopped = false
+    try {
+      leave()
+      if (!isActive.value) {
+        stopped = true
+      } else if (finishInstead) {
+        // Back does not emit completed. An explicit complete() from leave does.
+        finishInstead = false
+        finish()
+        if (isActive.value) dismiss(true)
+        stopped = true
+      }
+    } finally {
+      navigating = false
+    }
+
+    if (stopped) return
+
     steps.prev()
     enter('back')
   }
 
   async function step (index: number) {
-    if (navigating || !isActive.value || !isReady.value) return
+    if (leaving || navigating || !isActive.value || !isReady.value) return
 
     const id = steps.lookup(index - 1)
     if (isUndefined(id) || id === steps.selectedId.value) return
 
     navigating = true
     const token = generation
+    const run = (async () => {
+      try {
+        if (!await gate()) {
+          finishInstead = false
+          return
+        }
+        if (token !== generation || !isActive.value) {
+          finishInstead = false
+          return
+        }
+        if (finishInstead) {
+          end()
+          return
+        }
+        if (!isReady.value || id === steps.selectedId.value) return
 
-    try {
-      if (!await gate()) {
-        finishInstead = false
-        return
-      }
-      if (token !== generation || !isActive.value) {
-        finishInstead = false
-        return
-      }
-      if (finishInstead) {
-        end()
-        return
-      }
-      if (!isReady.value || id === steps.selectedId.value) return
+        finish()
+        if (!isActive.value) return
+        if (finishInstead) {
+          dismiss(false)
+          return
+        }
 
-      finish()
-      leave()
-      steps.select(id)
-      enter('jump')
-    } finally {
-      navigating = false
-    }
+        leave()
+        if (!isActive.value) return
+        if (finishInstead) {
+          dismiss(true)
+          return
+        }
+
+        steps.select(id)
+        enter('jump')
+      } finally {
+        navigating = false
+        flight = undefined
+      }
+    })()
+    flight = run
+    return run
   }
 
   onScopeDispose(() => {
+    cancelQueue()
+    if (isActive.value) {
+      leave()
+      isActive.value = false
+      restoreOpener()
+      return
+    }
+
     scope?.stop()
     scope = undefined
     deactivate()
