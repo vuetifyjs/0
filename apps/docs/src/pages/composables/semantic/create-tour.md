@@ -21,11 +21,11 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Sequence a guided tour through your UI. Register steps, activate a target on enter, and advance only when the step is ready.
+Sequence a guided tour. Register each step, point it at a target when it opens, and move on when that step is ready.
 
 ## Usage
 
-`createTour` owns one step collection, an activator registry, and a form gate. Add steps with `steps.onboard` or `steps.register` — there is no `items` option. `start()` selects the first step, or `start({ stepId })` a given one. `next()`, `prev()`, and `step(n)` no-op while inactive, unready, or at a boundary. `step` is 1-based. `complete()` marks the tour done; `stop()` dismisses without completing; `reset()` stops and clears steps, activators, and the form.
+Create a tour, add the steps, and start it. Steps join through `steps.onboard` or `steps.register`. There is no `items` option.
 
 ```ts collapse no-filename
 import { createTour } from '@vuetify/v0'
@@ -50,21 +50,58 @@ await tour.next()
 tour.complete()
 ```
 
-`placement` is `TourPlacement` (`top`, `bottom`, `left`, `right`, `center`). The composable stores it; `Tour.Content` uses it to override its own `placement` prop. `noActivator` marks a step with no target: the card centers immediately. The last step does that even without the flag. `activate()` sets a 100px scroll margin on the target and restores it on `deactivate()`. Extra fields survive `onboard` / `register` when you pass them through `createTour`'s ticket generic.
+### Start, move, and finish
 
-Filter the list *before* onboard. The factory does not drop steps for viewport, platform, or catalog rules.
+- `start()` opens the first step. `start({ stepId })` opens that step instead.
+- `next()`, `prev()`, and `step(n)` do nothing while the tour is stopped, the current step is not ready, or you are already at that end.
+- `step` counts from 1. `tour.step(3)` opens the third step.
+- `complete()` finishes the tour and sets `isComplete`.
+- `stop()` closes the tour and leaves `isComplete` false.
+- `reset()` stops the tour, resets the form, and clears the steps and activators.
+
+### Tell the card where to sit
+
+`placement` is `top`, `bottom`, `left`, `right`, or `center`. createTour stores the value. [Tour.Content](/components/disclosure/tour) uses it in place of its own `placement` prop.
+
+- Set `noActivator` on a step that has no target. The card centers immediately.
+- The last step centers the same way, even without that flag.
+- `activate()` sets a 100px scroll margin on the target. `deactivate()` puts the previous margin back.
+- Extra fields you pass to `onboard` or `register` stay on the ticket. Type them through `createTour`'s generic so they survive.
+
+### Skip a step you do not want
+
+Filter the list before you onboard. createTour keeps every step you give it.
 
 ```ts
 tour.steps.onboard(isMobile ? steps.filter(step => step.id !== 'sidebar') : steps)
 ```
 
-An `enter` handler that takes a context must call `done()` (or return a promise) before `next` / `prev` / `step` will move. Omit `enter` and the step is ready immediately. `tour.ready()` is the public alias of `done()`. `activate(el)` registers the current step's target, sets `anchor-name` to `--tour-{id}`, and scrolls it into view unless `{ scroll: false }`. Resolve selectors in the handler (`document.querySelector`) — the factory does not query the DOM. `deactivate()` restores the previous `anchor-name`; leave already calls it.
+### Let the step finish opening
 
-If a form field is registered under the current step id, `next()` and `step()` call `form.submit(id)` and stay put when it returns false. `prev()` does not validate and does not emit `completed`. Ticket handlers (`enter`, `leave`, `completed`) and `steps` events of the same names both fire; `completed` runs on successful next, on `step()`, and on `complete()` — not on `prev` or `stop`. `start()` is a no-op when not in the browser.
+`enter` runs when the step opens. The tour will not move until that step is ready.
+
+- Call `done()`, or return a promise, when `enter` accepts the context. `next()`, `prev()`, and `step()` wait for that.
+- Leave `enter` off and the step is ready as soon as it opens.
+- A handler with no parameters is ready immediately too. A parameter that only has a default value still counts as no parameters. Accept the context argument when you need to call `done()` yourself.
+- Return a promise and the tour waits for it, then marks the step ready. If `enter` throws, or the promise rejects, the step is still marked ready and a warning is logged.
+- Call `tour.ready(stepId, visit)` when the work continues after `enter` returns. `visit` is the number on the enter context. The call does nothing unless the tour is still active, that step is still selected, and `visit` is still the current one.
+- Call `activate(el)` to register this step's target. It sets `anchor-name` to `--tour-{id}` and scrolls the element into view. Pass `{ scroll: false }` to keep the page still.
+- Find the element yourself, usually with `document.querySelector`. createTour does not search the DOM for you.
+- `deactivate()` restores the previous `anchor-name`. Leaving the step already calls it.
+
+### Check a form before Next
+
+Register a form field under the step id when Next should validate it.
+
+- `next()` and `step()` call `form.submit(id)` and stay on the step when it returns false.
+- `prev()` does not validate, and it does not emit `completed`.
+- A ticket's `enter`, `leave`, and `completed` functions run, and `steps` emits those same names.
+- `completed` runs after a successful `next()`, after `step()`, and from `complete()`. It does not run for `prev()` or `stop()`.
+- `start()` does nothing outside the browser.
 
 ## Context / DI
 
-Use `createTourContext` to share a tour instance across a component tree. This is a factory-owned trinity, not a plugin — there is no `createTourPlugin`.
+Share one tour across the component tree with `createTourContext`. You get a provide and inject pair from the factory. There is no `createTourPlugin`.
 
 ```ts
 import { createTourContext } from '@vuetify/v0'
@@ -80,7 +117,7 @@ const tour = useOnboardingTour()
 await tour.next()
 ```
 
-Use `useTour` to inject the default (`v0:tour`) context provided by a parent:
+Read the default `v0:tour` context with `useTour` when a parent has already provided it:
 
 ```ts
 import { useTour } from '@vuetify/v0'
@@ -91,7 +128,7 @@ await tour.next()
 
 ## Architecture
 
-`createTour` composes a step collection, an activator registry, and a form. Navigation runs `enter` on the selected step, waits for `done()` / `ready()`, and on `next` / `step` submits the form field registered under that step id when one exists.
+`createTour` keeps the steps, the activators, and a form. Opening a step runs `enter`, then waits for `done()` or `ready(stepId, visit)`. `next()` and `step()` submit the form field registered under that step id, when one exists.
 
 ```mermaid "Tour Architecture"
 flowchart TD
@@ -110,24 +147,24 @@ flowchart TD
   form -.-> nav
 ```
 
-`prev()` skips the form gate and does not emit `completed`. Visual chrome — highlight, floating content, keyboard — is out of scope for this composable.
+`prev()` skips the form and does not emit `completed`. The highlight, the card, and the keyboard live on [Tour](/components/disclosure/tour).
 
 ## Reactivity
 
 | Property | Reactive | Notes |
 | - | :-: | - |
-| `isActive` | <AppSuccessIcon /> | ShallowRef, readonly — `true` between `start` and `stop` / `complete` |
-| `isComplete` | <AppSuccessIcon /> | ShallowRef, readonly — `true` after `complete()`, cleared by `start` / `reset` |
-| `isReady` | <AppSuccessIcon /> | ShallowRef, readonly — `false` until `enter` calls `done()` / `ready()` (or there is no `enter`) |
-| `isFirst` | <AppSuccessIcon /> | `true` when `selectedIndex === 0` |
-| `isLast` | <AppSuccessIcon /> | `true` when the selected step is the last |
+| `isActive` | <AppSuccessIcon /> | ShallowRef, readonly. True from `start()` until `stop()` or `complete()` |
+| `isComplete` | <AppSuccessIcon /> | ShallowRef, readonly. True after `complete()`. `start()` and `reset()` clear it |
+| `isReady` | <AppSuccessIcon /> | ShallowRef, readonly. False until `enter` calls `done()` or `ready(stepId, visit)`. A step with no `enter` is ready immediately |
+| `isFirst` | <AppSuccessIcon /> | True when `selectedIndex === 0` |
+| `isLast` | <AppSuccessIcon /> | True when the selected step is the last |
 | `canGoBack` | <AppSuccessIcon /> | `isReady && !isFirst` |
 | `canGoNext` | <AppSuccessIcon /> | `isReady && !isLast` |
 | `selectedId` | <AppSuccessIcon /> | Current step id |
-| `total` | <AppErrorIcon /> | Number getter over `steps.size` — read `tour.total`, not `tour.total.value` |
+| `total` | <AppErrorIcon /> | A number from `steps.size`. Read `tour.total`, not `tour.total.value` |
 
-> [!TIP] Navigation is gated on isReady
-> `canGoNext` / `canGoBack` stay false until `done()` runs, so Prev/Next disable themselves while a step is still entering. `next()` / `prev()` / `step()` also no-op on that flag — the buttons are not the only guard.
+> [!TIP] Navigation waits for isReady
+> `canGoNext` and `canGoBack` stay false until `done()` runs, so Prev and Next stay disabled while a step is still opening. `next()`, `prev()`, and `step()` check the same flag.
 
 ## Examples
 
@@ -135,18 +172,18 @@ flowchart TD
 /composables/create-tour/useOnboarding.ts 1
 /composables/create-tour/basic.vue 2
 
-### Headless chrome walkthrough
+### A tour without card chrome
 
-A three-step tour of two fake chrome nodes — a search field and an avatar — driven only by `createTour`. There is no Tour compound here: `enter` queries `[data-tour="…"]` and passes the element to `activate()` so the current target gets `--tour-{id}` as its `anchor-name`, and the demo paints a ring from `selectedId`. Start, Prev, Next, and Stop are the whole control surface; Next becomes Complete on the last step because `next()` is a no-op there.
+Three steps, a search field, and an avatar, sequenced only by `createTour`. `enter` finds `[data-tour]` and passes the element to `activate()`, which sets `anchor-name` to `--tour-{id}`. The demo draws a ring from `selectedId`. Start, Prev, Next, and Stop are the controls. On the last step, Next becomes Complete, because `next()` does nothing there.
 
-`useOnboarding.ts` owns the instance and the copy. It onboards three tickets (`welcome`, `search`, `avatar`), leaves `welcome` without an `enter` so it is ready immediately, and on the other two activates the matching `[data-tour]` node with `{ scroll: false }` so the docs preview does not jump. `placement` is set on the tickets and `Tour.Content` uses it for that step's position. `basic.vue` renders the chrome, the current title/body, and the buttons from `isActive`, `canGoBack`, `canGoNext`, and `isLast`.
+`useOnboarding.ts` owns the tour and the copy. It onboards `welcome`, `search`, and `avatar`. `welcome` has no `enter`, so it is ready immediately. The other two call `activate` with `{ scroll: false }` so the docs page does not jump. `placement` on the ticket is what [Tour.Content](/components/disclosure/tour) would use for that step. `basic.vue` renders the targets, the current title and body, and the buttons from `isActive`, `canGoBack`, `canGoNext`, and `isLast`.
 
-Reach for this shape when the walkthrough is a handful of existing DOM nodes and you want the sequencer without shipping highlight/content chrome. Filter the array before `onboard` if a step should not run on a given viewport; register a form field under the step id when Next must validate. The visual layer ships as [Tour](/components/disclosure/tour).
+Use this when the targets are already on the page and you only need the sequencer. Filter the array before `onboard` when a step should not run on a small screen. Register a form field under the step id when Next must validate. The card and highlight ship as [Tour](/components/disclosure/tour).
 
 | File | Role |
 |------|------|
-| `useOnboarding.ts` | Owns the `createTour` instance, onboards the three steps, and derives the current copy |
-| `basic.vue` | Fake chrome bar, step card, and Start / Prev / Next / Stop controls |
+| `useOnboarding.ts` | Creates the tour, onboards the three steps, and picks the current copy |
+| `basic.vue` | Targets, the step copy, and Start, Prev, Next, and Stop |
 
 :::
 
@@ -154,7 +191,7 @@ Reach for this shape when the walkthrough is a handful of existing DOM nodes and
 
 ### Filter steps before onboard
 
-The factory does not filter. Drop steps the caller does not want, then onboard.
+createTour does not filter. Remove the steps you do not want, then onboard what is left.
 
 ```ts
 const visible = isMobile
@@ -166,7 +203,7 @@ tour.steps.onboard(visible)
 
 ### Gate next on a form field
 
-Register a validation under the same id as the step. `next()` and `step()` call `form.submit(id)` and stay put when it returns false. `prev()` does not validate.
+Register validation under the same id as the step. `next()` and `step()` call `form.submit(id)` and stay on the step when it returns false. `prev()` does not validate.
 
 ```ts
 import { createTour, createValidation } from '@vuetify/v0'
@@ -189,23 +226,30 @@ tour.steps.onboard([{ id: 'profile' }, { id: 'done' }])
 
 ??? Why won't next advance?
 
-The tour is inactive, the current step is not ready, or you are already on the last step. An `enter` that takes a context must call `done()` (or return a promise); until then `isReady` is false and `next()` / `prev()` / `step()` no-op. If a form field is registered under this step id, `next()` also stays put when `form.submit(id)` returns false.
+`next()` stays put for one of these reasons:
+
+- The tour is not active.
+- The current step is not ready. If `enter` accepts a context, call `done()` or return a promise. Until then `isReady` is false, and `prev()` and `step()` wait too.
+- You are already on the last step.
+- A form field is registered under this step id, and `form.submit(id)` returned false.
 
 ??? What is the difference between stop and complete?
 
-`stop()` dismisses without marking complete — `isComplete` stays false, and `completed` does not fire. `complete()` runs the current step's `completed` handler and event, then dismisses and sets `isComplete` to true. `reset()` stops, resets the form, and clears steps and activators.
+- `stop()` closes the tour. `isComplete` stays false, and `completed` does not run.
+- `complete()` runs the current step's `completed` handler and event, closes the tour, and sets `isComplete` to true.
+- `reset()` stops the tour, resets the form, and clears the steps and activators.
 
 ??? Is step 0-based or 1-based?
 
-1-based. `tour.step(3)` jumps to the third step (`steps.lookup(2)`). It validates when leaving a form step, emits `completed` for the step you leave, and enters with direction `jump`.
+`step` counts from 1. `tour.step(3)` opens the third step (`steps.lookup(2)`). Leaving a form step still validates. The step you leave emits `completed`. The step you open receives direction `jump`.
 
 ??? Why is total not a ref?
 
-It is a number getter over `steps.size`. Read `tour.total`, never `tour.total.value`. The other flags (`isActive`, `isReady`, `selectedId`, …) are refs.
+`total` is a number, read from `steps.size`. Use `tour.total`. `isActive`, `isReady`, and `selectedId` are refs.
 
 ??? Does createTour ship a plugin or visual chrome?
 
-No. It is a factory with an optional `createTourContext` / `useTour` trinity, like [createOverflow](/composables/semantic/create-overflow). There is no `createTourPlugin`. Highlight, floating content, and keyboard live on [Tour](/components/disclosure/tour) — this composable only sequences steps, activators, and the form gate.
+No. You get the factory, and `createTourContext` / `useTour` when a parent should share it. There is no `createTourPlugin`. [createOverflow](/composables/semantic/create-overflow) works the same way. The highlight, the card, and the keyboard are on [Tour](/components/disclosure/tour).
 
 :::
 

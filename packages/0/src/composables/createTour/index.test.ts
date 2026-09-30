@@ -317,11 +317,14 @@ describe('createTour', () => {
 
     it('should advance after ready when enter waits on ctx', async () => {
       const tour = createTour()
+      let visit = 0
 
       tour.steps.onboard([
         {
           id: 'wait',
-          enter (_ctx) {},
+          enter (ctx) {
+            visit = ctx.visit
+          },
         },
         { id: 'next' },
       ])
@@ -332,11 +335,41 @@ describe('createTour', () => {
       await tour.next()
       expect(tour.steps.selectedId.value).toBe('wait')
 
-      tour.ready()
+      tour.ready('wait', visit)
       expect(tour.isReady.value).toBe(true)
 
       await tour.next()
       expect(tour.steps.selectedId.value).toBe('next')
+    })
+
+    it('should ignore ready from an earlier visit or a different step', () => {
+      const tour = createTour()
+      let visit = 0
+
+      tour.steps.onboard([
+        {
+          id: 'wait',
+          enter (ctx) {
+            visit = ctx.visit
+          },
+        },
+      ])
+      tour.start()
+      const first = visit
+
+      tour.stop()
+      tour.ready('wait', first)
+      expect(tour.isReady.value).toBe(false)
+
+      tour.start()
+      tour.ready('wait', first)
+      expect(tour.isReady.value).toBe(false)
+
+      tour.ready('other', visit)
+      expect(tour.isReady.value).toBe(false)
+
+      tour.ready('wait', visit)
+      expect(tour.isReady.value).toBe(true)
     })
   })
 

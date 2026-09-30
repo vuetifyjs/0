@@ -2,7 +2,7 @@
 title: Tour - Guided Tour Component for Vue 3
 meta:
 - name: description
-  content: Build guided product tours for Vue 3. Highlight targets, step through overlays, and navigate with keyboard — headless chrome for onboarding walkthroughs.
+  content: Build guided product tours for Vue 3. Highlight a control, show a step card next to it, and move with the keyboard or the buttons on the card.
 - name: keywords
   content: tour, guided tour, onboarding, walkthrough, highlight, Vue 3, headless
 features:
@@ -19,7 +19,7 @@ related:
 
 # Tour
 
-Walk users through your UI with a highlight, a portaled overlay, and keyboard bindings. Each Root is one step; the tour instance is provided above the tree.
+Point each step at a control and show a card next to it. Next, Back, and the keyboard move through the tour.
 
 <DocsPageFeatures :frontmatter />
 
@@ -35,7 +35,7 @@ Tour.Content positions against the activator with CSS Anchor Positioning. In bro
 
 ## Usage
 
-Provide a tour instance above the tree with [createTourContext](/composables/semantic/create-tour), wrap real elements with `Tour.Activator`, and render one `Tour.Root` per step. Root does not create the tour.
+Create the tour with [createTourContext](/composables/semantic/create-tour) and provide it around the page. Wrap each target in `Tour.Activator`, and put that step's card in its own `Tour.Root`.
 
 ::: gn-example
 /components/tour/basic
@@ -82,9 +82,9 @@ Provide a tour instance above the tree with [createTourContext](/composables/sem
 
 ### Product walkthrough
 
-A three-step walkthrough of a fake chrome bar — search, settings, and the avatar — driven by the Tour compound rather than hand-rolled overlay math. The instance is created once with [createTourContext](/composables/semantic/create-tour), provided above the tree, and onboarded with three tickets. `Tour.Root` is per-step: it does not own the sequencer, it only exposes that step's `isActive` / `next` / `prev` / `stop` / `complete` to its children. Activators wrap the real controls; a single `Tour.Highlight blocking` paints the scrim, and `Tour.Keyboard` binds arrows, Enter, and Escape for the active tour.
+A three-step walkthrough: search, settings, and the avatar. The instance is created once with [createTourContext](/composables/semantic/create-tour), provided to the page, and onboarded with three steps. Each `Tour.Root` is one step. It exposes that step's `isActive`, `next`, `prev`, `stop`, and `complete` to its children. Activators wrap the controls. One `Tour.Highlight` with `blocking` paints the scrim, and `Tour.Keyboard` binds arrows, Enter, and Escape while the tour is active.
 
-Content portals to the body and waits up to two seconds for its activator before showing anyway, then anchors with CSS `position-area` (or a viewport-edge fallback). `placement` and `placementMobile` live on `Tour.Content`; a ticket `placement` of `top` / `bottom` / `left` / `right` / `center` overrides Content's `placement`. The avatar step sets `placement: 'left'` on the ticket so that step sits beside the control while the others keep Content's `bottom` default. Next on the last step calls `complete()` instead of a no-op `next()`; Skip emits `skip` and then `stop()`, so the tour ends without `isComplete`. `blocking` swallows backdrop clicks and does not dismiss — Escape or Skip does.
+Content portals to the body and waits up to two seconds for its activator before showing anyway, then anchors with CSS `position-area` (or a viewport-edge fallback). `placement` and `placementMobile` live on `Tour.Content`; a ticket `placement` of `top` / `bottom` / `left` / `right` / `center` overrides Content's `placement`. The avatar step sets `placement: 'left'` on the ticket so that step sits beside the control while the others keep Content's `bottom` default. Next on the last step calls `complete()` instead of a no-op `next()`; Skip emits `skip` and then `stop()`, so the tour ends without `isComplete`. `blocking` swallows backdrop clicks and does not dismiss. Escape or Skip does.
 
 Reach for this shape when the walkthrough targets elements that already exist in the page. Prefer [createTour](/composables/semantic/create-tour) without the compound when you only need the sequencer and will paint chrome yourself. Filter the onboard list before `start()` if a step should not run on a given viewport; do not expect the factory to drop steps for you.
 
@@ -92,13 +92,13 @@ Reach for this shape when the walkthrough targets elements that already exist in
 |------|------|
 | `useOnboarding.ts` | Creates the tour context, provides it, and onboards the three step tickets |
 | `OnboardingTour.vue` | Chrome bar, activators, highlight, keyboard, and per-step Root / Content |
-| `product-tour.vue` | Entry — provides the instance, Start control, and complete status |
+| `product-tour.vue` | Provides the instance, the Start control, and the complete status |
 
 :::
 
 ## Accessibility
 
-`Tour.Content` renders a non-modal dialog (`role="dialog"`, no `aria-modal`) labelled by `Tour.Title` and described by `Tour.Description`. The spotlight target stays in the page, so Tab is allowed to leave the card. `Tour.Progress` is a live region (`role="status"`) announcing the localized step count. Highlight also exposes a tour-level status region so the step count is announced when Progress lives inside a step. `Tour.Highlight`'s scrim is `aria-hidden`. When the overlay is ready, focus moves to Content unless a field already has it. When the tour stops or completes, focus returns to the element that was focused before `start()`. `blocking` also marks the rest of the page `inert` (the card, the scrim, and — unless `blockActivator` — the active target stay operable).
+`Tour.Content` renders a non-modal dialog (`role="dialog"`, no `aria-modal`) labelled by `Tour.Title` and described by `Tour.Description`. The spotlight target stays in the page, so Tab is allowed to leave the card. `Tour.Progress` is a live region (`role="status"`) announcing the localized step count. Highlight also exposes a tour-level status region so the step count is announced when Progress lives inside a step. `Tour.Highlight`'s scrim is `aria-hidden`. When the overlay is ready, focus moves to Content unless a field already has it. When the tour stops or completes, focus returns to the element that was focused before `start()`. `blocking` also marks the rest of the page `inert`. The card, the scrim, and the active target stay operable unless `blockActivator` is set.
 
 ### ARIA Attributes
 
@@ -133,7 +133,7 @@ Reach for this shape when the walkthrough targets elements that already exist in
 
 ??? Does Tour.Root create the tour instance?
 
-No. Root is per-step context — `isActive`, title/description ids, and navigation delegates. Create the instance with [createTour](/composables/semantic/create-tour) or [createTourContext](/composables/semantic/create-tour) and provide it above the tree before any Root, Activator, Highlight, or Keyboard mounts.
+No. Root is per-step context: `isActive`, title and description ids, and navigation delegates. Create the instance with [createTour](/composables/semantic/create-tour) or [createTourContext](/composables/semantic/create-tour) and provide it around the page before any Root, Activator, Highlight, or Keyboard mounts.
 
 ??? Does clicking the highlight dismiss the tour?
 
@@ -149,7 +149,7 @@ Content polls for the step's activator and waits up to two seconds, then shows a
 
 ??? What is the difference between Next on the last step and Skip?
 
-Next on the last step calls `complete()` — the tour ends with `isComplete` true. Skip emits `skip` and then `stop()` — the tour ends without completing. Escape calls `stop()` without emitting `skip`.
+Next on the last step calls `complete()`, so the tour ends with `isComplete` true. Skip emits `skip` and then `stop()`, so the tour ends without completing. Escape calls `stop()` without emitting `skip`.
 
 :::
 

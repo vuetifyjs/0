@@ -84,6 +84,11 @@ export type TourPlacement = 'top' | 'bottom' | 'left' | 'right' | 'center'
  */
 export interface TourEnterContext {
   done: () => void
+  /**
+   * Token for this entry. Pass it to `tour.ready(stepId, visit)` when the work
+   * outlives the handler. A number copy, captured when `enter` starts.
+   */
+  visit: number
   next: () => Promise<void>
   direction: TourDirection
   activate: (target: MaybeElementRef, options?: TourActivateOptions) => void
@@ -266,14 +271,18 @@ export interface TourContext<
    */
   deactivate: () => void
   /**
-   * Public alias of enter-context `done()`. Sets `isReady` when the tour is active.
+   * Mark this entry ready from outside the handler. No-op unless the tour is
+   * active, `stepId` is still selected, and `visit` is the token from that
+   * entry's context.
    *
    * @example
    * ```ts
-   * tour.ready()
+   * enter: ({ visit }) => {
+   *   load().then(() => tour.ready('search', visit))
+   * }
    * ```
    */
-  ready: () => void
+  ready: (stepId: ID, visit: number) => void
 }
 
 interface Programmatic {
@@ -371,8 +380,10 @@ export function createTour<
     restoreOpener()
   }
 
-  function ready () {
+  function ready (stepId: ID, visit: number) {
     if (!isActive.value) return
+    if (visit !== generation) return
+    if (stepId !== steps.selectedId.value) return
     isReady.value = true
   }
 
@@ -465,8 +476,8 @@ export function createTour<
     const token = ++generation
 
     function done () {
-      if (token !== generation) return
-      ready()
+      if (!ticket) return
+      ready(ticket.id, token)
     }
 
     function activateForStep (target: MaybeElementRef, options?: TourActivateOptions) {
@@ -491,6 +502,7 @@ export function createTour<
     scope.run(() => {
       const ctx: TourEnterContext = {
         done,
+        visit: token,
         next: async () => {
           if (token !== generation) return
           await next()

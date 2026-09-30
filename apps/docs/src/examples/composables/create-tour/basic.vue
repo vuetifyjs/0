@@ -73,7 +73,7 @@
     </p>
 
     <p v-else class="text-sm text-neutral-500">
-      Press Start to walk the chrome.
+      Press Start.
     </p>
 
     <div class="flex items-center gap-2">

@@ -11,7 +11,7 @@ interface Copy {
 const copy: Record<string, Copy> = {
   welcome: {
     title: 'Welcome',
-    body: 'Two controls in the bar — search and your avatar. Start here.',
+    body: 'Search and your avatar are the two controls in this tour. Start here.',
   },
   search: {
     title: 'Search',

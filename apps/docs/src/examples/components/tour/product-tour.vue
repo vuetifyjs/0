@@ -30,7 +30,7 @@
       </p>
 
       <p v-else-if="!isActive" class="text-sm text-on-surface-variant">
-        Press Start to walk the chrome.
+        Press Start.
       </p>
     </div>
   </div>

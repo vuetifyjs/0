@@ -57,7 +57,7 @@
       </Tour.Title>
 
       <Tour.Description class="text-sm text-on-surface-variant">
-        Find pages, docs, and people from the bar.
+        Search pages, docs, and people.
       </Tour.Description>
 
       <Tour.Progress class="text-xs text-on-surface-variant" />
@@ -91,7 +91,7 @@
       </Tour.Title>
 
       <Tour.Description class="text-sm text-on-surface-variant">
-        Theme, locale, and account preferences live here.
+        Theme, locale, and account preferences.
       </Tour.Description>
 
       <Tour.Progress class="text-xs text-on-surface-variant" />
@@ -125,7 +125,7 @@
       </Tour.Title>
 
       <Tour.Description class="text-sm text-on-surface-variant">
-        Open your profile and sign out from the avatar.
+        Open your profile, or sign out.
       </Tour.Description>
 
       <Tour.Progress class="text-xs text-on-surface-variant" />
