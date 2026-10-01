@@ -44,7 +44,7 @@ import Title from './TourTitle.vue'
  *
  * @example
  * ```vue
- * <script lang="ts" setup>
+ * <script setup lang="ts">
  *   import { createTourContext } from '@vuetify/v0'
  *   import { Tour } from '@vuetify/v0'
  *
@@ -78,7 +78,7 @@ export const Tour = {
    *
    * @example
    * ```vue
-   * <script lang="ts" setup>
+   * <script setup lang="ts">
    *   import { Tour } from '@vuetify/v0'
    * </script>
    *
@@ -95,7 +95,7 @@ export const Tour = {
    *
    * @example
    * ```vue
-   * <script lang="ts" setup>
+   * <script setup lang="ts">
    *   import { Tour } from '@vuetify/v0'
    * </script>
    *
@@ -110,7 +110,7 @@ export const Tour = {
    *
    * @example
    * ```vue
-   * <script lang="ts" setup>
+   * <script setup lang="ts">
    *   import { Tour } from '@vuetify/v0'
    * </script>
    *
@@ -125,7 +125,7 @@ export const Tour = {
    *
    * @example
    * ```vue
-   * <script lang="ts" setup>
+   * <script setup lang="ts">
    *   import { Tour } from '@vuetify/v0'
    * </script>
    *
@@ -140,7 +140,7 @@ export const Tour = {
    *
    * @example
    * ```vue
-   * <script lang="ts" setup>
+   * <script setup lang="ts">
    *   import { Tour } from '@vuetify/v0'
    * </script>
    *
@@ -155,7 +155,7 @@ export const Tour = {
    *
    * @example
    * ```vue
-   * <script lang="ts" setup>
+   * <script setup lang="ts">
    *   import { Tour } from '@vuetify/v0'
    * </script>
    *
@@ -170,7 +170,7 @@ export const Tour = {
    *
    * @example
    * ```vue
-   * <script lang="ts" setup>
+   * <script setup lang="ts">
    *   import { Tour } from '@vuetify/v0'
    * </script>
    *
@@ -185,7 +185,7 @@ export const Tour = {
    *
    * @example
    * ```vue
-   * <script lang="ts" setup>
+   * <script setup lang="ts">
    *   import { Tour } from '@vuetify/v0'
    * </script>
    *
@@ -200,7 +200,7 @@ export const Tour = {
    *
    * @example
    * ```vue
-   * <script lang="ts" setup>
+   * <script setup lang="ts">
    *   import { Tour } from '@vuetify/v0'
    * </script>
    *
@@ -215,7 +215,7 @@ export const Tour = {
    *
    * @example
    * ```vue
-   * <script lang="ts" setup>
+   * <script setup lang="ts">
    *   import { Tour } from '@vuetify/v0'
    * </script>
    *
@@ -230,7 +230,7 @@ export const Tour = {
    *
    * @example
    * ```vue
-   * <script lang="ts" setup>
+   * <script setup lang="ts">
    *   import { Tour } from '@vuetify/v0'
    * </script>
    *

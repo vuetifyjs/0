@@ -8,9 +8,9 @@
  * registry, a form gate on next/jump, programmatic activate/deactivate,
  * isReady gating, and per-step enter/leave/completed handlers plus events.
  *
- * Visual chrome (highlight, content, keyboard) belongs to a later Tour.*
- * compound. Catalog, progress, routing, and skipOnMobile filtering stay in
- * the consuming app.
+ * Highlight, anchored content, and keyboard live on the Tour compound,
+ * which reads this context. Catalog, progress, routing, and skipOnMobile
+ * filtering stay in the consuming app.
  *
  * Built on createStep, createRegistry, and createForm. Collection membership
  * is `steps.onboard` / `steps.register` — there is no `items` option.

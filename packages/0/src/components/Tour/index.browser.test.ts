@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Composables
 import { createTourContext } from '#v0/composables/createTour'
+import { createBreakpointsPlugin } from '#v0/composables/useBreakpoints'
 import { createStackPlugin } from '#v0/composables/useStack'
 
 // Components
@@ -12,7 +13,8 @@ import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
 
 // Types
-import type { TourContext } from '#v0/composables/createTour'
+import type { TourContext, TourPlacement, TourTicketInput } from '#v0/composables/createTour'
+import type { ID } from '#v0/types'
 import type { TourRootSlotProps } from './TourRoot.vue'
 import type { VueWrapper } from '@vue/test-utils'
 
@@ -486,14 +488,245 @@ describe('tour', () => {
       const { tour } = mountTour()
       await startAndWait(tour)
 
-      window.dispatchEvent(new KeyboardEvent('keydown', {
-        key: 'Escape',
-        bubbles: true,
-        cancelable: true,
-      }))
+      press('Escape')
       await nextTick()
 
       expect(tour.isActive.value).toBe(false)
     })
+
+    it('should move with ArrowRight and ArrowLeft', async () => {
+      const { tour } = mountTour()
+      await startAndWait(tour)
+
+      press('ArrowRight')
+      await vi.waitFor(() => {
+        expect(tour.selectedId.value).toBe('two')
+      })
+
+      press('ArrowLeft')
+      await vi.waitFor(() => {
+        expect(tour.selectedId.value).toBe('one')
+      })
+    })
+
+    it('should ignore a repeated arrow', async () => {
+      const { tour } = mountTour()
+      await startAndWait(tour)
+
+      press('ArrowRight', window, { repeat: true })
+      await nextTick()
+
+      expect(tour.selectedId.value).toBe('one')
+    })
+
+    it('should advance on Enter unless a control is focused', async () => {
+      const { tour } = mountTour()
+      await startAndWait(tour)
+
+      press('Enter')
+      await vi.waitFor(() => {
+        expect(tour.selectedId.value).toBe('two')
+      })
+
+      const next = [...document.querySelectorAll('button')].find(button => button.textContent === 'Done')
+      expect(next).toBeDefined()
+      next!.focus()
+      press('Enter')
+      await nextTick()
+
+      expect(tour.selectedId.value).toBe('two')
+      expect(tour.isActive.value).toBe(true)
+      expect(tour.isComplete.value).toBe(false)
+    })
+
+    it('should leave arrow keys with a composite widget', async () => {
+      const { tour } = mountTour()
+      await startAndWait(tour)
+
+      const widget = document.createElement('div')
+      widget.setAttribute('role', 'slider')
+      const child = document.createElement('span')
+      widget.append(child)
+      document.body.append(widget)
+
+      press('ArrowRight', child)
+      await nextTick()
+
+      expect(tour.selectedId.value).toBe('one')
+      widget.remove()
+    })
+
+    it('should leave Escape inside an open dialog', async () => {
+      const { tour } = mountTour()
+      await startAndWait(tour)
+
+      const dialog = document.createElement('dialog')
+      dialog.open = true
+      const button = document.createElement('button')
+      button.textContent = 'Inside'
+      dialog.append(button)
+      document.body.append(dialog)
+
+      press('Escape', button)
+      await nextTick()
+
+      expect(tour.isActive.value).toBe(true)
+      dialog.remove()
+
+      const closed = document.createElement('dialog')
+      const inside = document.createElement('button')
+      closed.append(inside)
+      document.body.append(closed)
+
+      press('Escape', inside)
+      await nextTick()
+
+      expect(tour.isActive.value).toBe(false)
+      closed.remove()
+    })
+  })
+
+  describe('placement', () => {
+    it('should place content on the bottom by default', async () => {
+      const { tour } = mountPlaced([{ id: 'one' }, { id: 'two' }])
+      await startAndWait(tour)
+
+      expect(placed(content())).toBe('bottom')
+    })
+
+    it('should let the ticket placement override the content prop', async () => {
+      const { tour } = mountPlaced(
+        [{ id: 'one', placement: 'left' }, { id: 'two' }],
+        { placement: 'bottom' },
+      )
+      await startAndWait(tour)
+
+      expect(placed(content())).toBe('left')
+    })
+
+    it('should center the last step', async () => {
+      const { tour } = mountPlaced([
+        { id: 'one' },
+        { id: 'two', placement: 'bottom' },
+      ])
+      await startAndWait(tour)
+      await tour.next()
+      await vi.waitFor(() => {
+        expect(placed(content())).toBe('center')
+      })
+    })
+
+    it('should center a step with no activator', async () => {
+      const { tour } = mountPlaced([
+        { id: 'one', noActivator: true, placement: 'left' },
+        { id: 'two', placement: 'left' },
+      ])
+      await startAndWait(tour)
+
+      expect(tour.selectedId.value).toBe('one')
+      expect(placed(content())).toBe('center')
+    })
+
+    it('should center the last step ahead of placementMobile', async () => {
+      const { tour } = mountPlaced(
+        [{ id: 'one' }, { id: 'two' }],
+        { placementMobile: 'top' },
+        false,
+      )
+      await startAndWait(tour)
+      await tour.next()
+      await vi.waitFor(() => {
+        expect(placed(content())).toBe('center')
+      })
+    })
+
+    it('should use placementMobile when the breakpoint says mobile', async () => {
+      // No breakpoints plugin: the fallback reports smAndDown, so the
+      // mobile override is observable without resizing the browser.
+      const { tour } = mountPlaced(
+        [{ id: 'one', placement: 'left' }, { id: 'two' }],
+        { placement: 'bottom', placementMobile: 'top' },
+        false,
+      )
+      await startAndWait(tour)
+
+      expect(placed(content())).toBe('top')
+    })
   })
 })
+
+function press (key: string, target: EventTarget = window, init: KeyboardEventInit = {}) {
+  target.dispatchEvent(new KeyboardEvent('keydown', {
+    key,
+    bubbles: true,
+    cancelable: true,
+    ...init,
+  }))
+}
+
+function content (): HTMLElement {
+  const el = document.querySelector('[data-part="content"]')
+  expect(el).not.toBeNull()
+  return el as HTMLElement
+}
+
+function placed (el: HTMLElement): TourPlacement | '' {
+  const centered = el.style.position === 'fixed'
+    && (el.style.inset === '0' || el.style.inset === '0px')
+    && el.style.margin === 'auto'
+  if (centered) return 'center'
+
+  const area = el.style.getPropertyValue('position-area')
+  if (area === 'top' || area === 'bottom' || area === 'left' || area === 'right') return area
+
+  if (el.style.top.startsWith('anchor(bottom)')) return 'bottom'
+  if (el.style.bottom.startsWith('anchor(top)')) return 'top'
+  if (el.style.left === 'var(--tour-offset)') return 'left'
+  if (el.style.right === 'var(--tour-offset)') return 'right'
+  if (el.style.bottom === 'var(--tour-offset)') return 'bottom'
+  if (el.style.top === 'var(--tour-offset)') return 'top'
+
+  return ''
+}
+
+function mountPlaced (
+  steps: Array<TourTicketInput & { id: ID }>,
+  contentProps: { placement?: TourPlacement, placementMobile?: TourPlacement } = {},
+  breakpoints = true,
+): Harness {
+  let tour!: TourContext
+
+  const Host = defineComponent({
+    setup () {
+      const [, provideTour, context] = createTourContext()
+      provideTour()
+      tour = context
+      tour.steps.onboard(steps)
+
+      return () => h('div', steps.map(step => h(Tour.Root, { step: step.id }, {
+        default: () => [
+          step.noActivator
+            ? null
+            : h(Tour.Activator, { step: step.id }, () => step.id),
+          h(Tour.Content, contentProps, () => step.id),
+        ],
+      })))
+    },
+  })
+
+  const plugins = breakpoints
+    ? [stackPlugin, createBreakpointsPlugin()]
+    : [stackPlugin]
+
+  const wrapper = mount(Host, {
+    attachTo: document.body,
+    global: { plugins },
+  })
+  wrappers.push(wrapper)
+
+  return {
+    wrapper,
+    tour,
+    slot: () => undefined,
+  }
+}

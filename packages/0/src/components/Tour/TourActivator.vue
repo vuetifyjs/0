@@ -36,8 +36,6 @@
     scroll?: boolean
     /** Options forwarded to `scrollIntoView` */
     scrollOptions?: ScrollIntoViewOptions
-    /** Class applied while this activator's step is selected */
-    activeClass?: string
     /** Namespace for dependency injection @default 'v0:tour' */
     namespace?: string
   }
@@ -70,7 +68,6 @@
     padding,
     scroll = true,
     scrollOptions,
-    activeClass,
     namespace = 'v0:tour',
   } = defineProps<TourActivatorProps>()
 
@@ -139,7 +136,6 @@
     ref="atom"
     v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
-    :class="isActive ? activeClass : undefined"
     :renderless
   >
     <slot v-bind="slotProps" />
