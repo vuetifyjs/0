@@ -13,16 +13,16 @@ v0 is a **headless meta-framework for building UI libraries** — a set of Vue 3
 ### What v0 is
 
 - A layer of Vue 3 composables (~71) and compound components (~43) that encode interaction patterns, selection state, registries, accessibility contracts, keyboard navigation, focus management, SSR safety, and adapter-backed plugin state.
-- The bottom of a four-layer stack: **v0 → Paper → Design Systems → Vuetify**. v0 handles logic *and the headless token substrate* — theme state (`useTheme`), design tokens (`createTokens`), palettes-as-data (`src/palettes/`), and color/contrast math (`apca`); Paper consumes that substrate and handles styling *application* (`useColor`, `useContrast`); design systems (Emerald, Onyx, etc.) compose Paper into complete frameworks; Vuetify 4 is one such consumer, and from 4.2.0 it also depends on v0 directly — the utility layer first, with deeper adoption through subsequent 4.x minors. [intent:295, intent:296, intent:297, intent:298]
+- The bottom of the stack: **v0 → `@paper/*` → Vuetify**. v0 handles logic *and the headless token substrate* — theme state (`useTheme`), design tokens (`createTokens`), palettes-as-data (`src/palettes/`), and color/contrast math (`apca`). `@paper/*` packages — design systems, kits, and compat — compose v0 **directly** and apply tokens; they do not route through `@vuetify/paper`, which is dormant (`useColor` / `useContrast`). Whether those primitives are still required is gated on Onyx, the second original design system. Vuetify is orchestration + defaults: it wraps a design system (`v0 Button → MdButton → VBtn`) and, from 4.2.0, also depends on v0 directly — the utility layer first, with deeper adoption through subsequent 4.x minors. Family contract: repo-root `DESIGN_SYSTEMS.md`. [intent:295, intent:296, intent:297, intent:298]
 - Zero runtime dependencies on UI styling. No Tailwind, no UnoCSS, no Vuetify classes inside `packages/0/src/`. [intent:82, intent:278]
 - WAI-ARIA correct by default. Every interactive component ships `role`, `aria-*`, keyboard handlers, and `aria-disabled` semantics. [intent:174, intent:178]
 - Headless in the operational sense: consumers can replicate every visible behavior by writing CSS against the data attributes v0 exposes. [intent:281]
 
 ### What v0 is not
 
-- Not a component library. No skin, no CSS, no *applied* styling. (v0 ships headless theme *state* and token *data*, but never paints — see below.) Icons belong to Paper, not v0. [intent:299]
+- Not a component library. No skin, no CSS, no *applied* styling. (v0 ships headless theme *state* and token *data*, but never paints — see below.) Icons belong to the design system (`EmIcon` / `OnIcon` / `MdIcon`), not v0. [intent:299]
 - Not a framework wrapper. Composables are not thin wrappers around `vue-i18n`, `date-fns`, or `pino` — those ship as adapters. [intent:107, intent:145]
-- Not a styling *application* layer. v0 owns the headless substrate — theme state, design tokens, palettes-as-data, and color/contrast math (`useTheme`, `createTokens`, `src/palettes/`, `apca`) — but never turns a token into a rendered pixel. Applying tokens to visible color is Paper's job. [intent:297]
+- Not a styling *application* layer. v0 owns the headless substrate — theme state, design tokens, palettes-as-data, and color/contrast math (`useTheme`, `createTokens`, `src/palettes/`, `apca`) — but never turns a token into a rendered pixel. Applying tokens to visible color is the `@paper/*` design system's job. [intent:297]
 
 ### Audience
 
@@ -69,7 +69,7 @@ Non-negotiable. Each axiom carries a statement, a rationale, and a concrete anti
 
 **Allowed.** Structural inline `:style` bindings when layout cannot work otherwise (flex directions, CSS custom properties for depth, visually-hidden positioning for hidden inputs, z-index from `useStack`). [intent:279]
 
-**Allowed — plugin CSS adapters.** `useTheme` adapters may inject a stylesheet of **custom properties** (`--{prefix}-{token}: …`) and `:root { color-scheme }`. They must not set element-level visual properties (`color`, `background`, `padding`, `font-*`, …). Applying tokens to rendered pixels is Paper's job. RTL and reduced-motion adapters write HTML `dir` / `data-*` attributes, not CSS. [intent:297]
+**Allowed — plugin CSS adapters.** `useTheme` adapters may inject a stylesheet of **custom properties** (`--{prefix}-{token}: …`) and `:root { color-scheme }`. They must not set element-level visual properties (`color`, `background`, `padding`, `font-*`, …). Applying tokens to rendered pixels is the `@paper/*` design system's job. RTL and reduced-motion adapters write HTML `dir` / `data-*` attributes, not CSS. [intent:297]
 
 **Encouraged.** Data attributes for every state (`data-state`, `data-layer`, `data-disabled`, `data-orientation`). These are the consumer's styling hooks. [intent:280]
 

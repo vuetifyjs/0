@@ -8,6 +8,10 @@ A focused **docs-primitives library**: Vue 3 components that documentation sites
 (live examples, callouts, code groups, API tables, atomic primitives). Headless on the
 parts that vary across consumers — code highlighting and icons are slot-injected.
 
+Genesis is **complete for that purpose**, not a half-finished design system. It ships
+no `GnDialog` / `GnButton` (beyond toolbar chrome) because those are not docs
+primitives — ruling 7's kit reading. Do not pad it toward Emerald's inventory.
+
 Genesis is a **thin component layer over v0's theme system**. Components consume
 `var(--v0-*)` tokens directly so they inherit whatever theme v0 has applied to the page.
 There is no Genesis-specific token namespace, no Genesis-specific theme plugin, no
@@ -15,7 +19,7 @@ Genesis-specific *theme* stylesheet. Drop the package into any v0-themed app and
 blend with the page's chrome. (The build still extracts component CSS to
 `@paper/genesis/style.css`; published consumers import that once.)
 
-**Hosting on a design-system page** (Emerald, Onyx, …) requires that host to publish the
+**Hosting on a design-system page** (Emerald, Onyx, Material, …) requires that host to publish the
 `--v0-*` cascade Genesis reads — see DESIGN_SYSTEMS.md *Kit interop* and
 [Token bridge](#token-bridge). Genesis itself never aliases DS tokens.
 
