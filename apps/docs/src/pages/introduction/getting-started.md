@@ -486,7 +486,7 @@ export default defineNuxtConfig({
 ```
 
 > [!TIP]
-> For auto-imports, SSR hydration, and theme persistence, see the [Nuxt Guide](/guide/integration/nuxt).
+> This plugin uses the default theme adapter, which emits no CSS during SSR. The [Nuxt guide](/guide/integration/nuxt) replaces `plugins/vuetify0.ts` with one plugin that renders the theme on the server, stores it in a cookie, and sets up hydration and breakpoints. Use that file on its own.
 
 ## Exposed Exports
 
