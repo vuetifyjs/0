@@ -9321,10 +9321,10 @@
   },
   "useBreakpoints": {
     "coverage": {
-      "statements": 98.8,
-      "functions": 100,
+      "statements": 97.8,
+      "functions": 93.3,
       "branches": 100,
-      "overall": 99.4
+      "overall": 96.9
     }
   },
   "useClickOutside": {
