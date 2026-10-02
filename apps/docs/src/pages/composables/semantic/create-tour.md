@@ -23,6 +23,18 @@ related:
 
 Sequence a guided tour. Register each step, point it at a target when it opens, and move on when that step is ready.
 
+## Installation
+
+Install the plugin when a target lives in the layout or on another page. Call `useTour()` during component setup. It returns that same tour.
+
+```ts
+import { createTourPlugin } from '@vuetify/v0'
+
+app.use(createTourPlugin())
+```
+
+Skip the plugin when the whole tour is born and dies inside one component. Provide `createTourContext` on that component instead. A local provide shadows the plugin for its subtree.
+
 ## Usage
 
 Create a tour, add the steps, and start it. Steps join through `steps.onboard` or `steps.register`. There is no `items` option.
@@ -101,7 +113,9 @@ Register a form field under the step id when Next should validate it.
 
 ## Context / DI
 
-Share one tour across the component tree with `createTourContext`. You get a provide and inject pair from the factory. There is no `createTourPlugin`.
+`createTourPlugin()` provides one tour for the app. `useTour()` reads it.
+
+A page that should run a different tour calls `createTourContext` and provides the result. Descendants of that page read the local tour. The rest of the app still reads the plugin.
 
 ```ts
 import { createTourContext } from '@vuetify/v0'
@@ -109,15 +123,15 @@ import { createTourContext } from '@vuetify/v0'
 export const [useOnboardingTour, provideOnboardingTour, onboarding] =
   createTourContext({ namespace: 'app:onboarding' })
 
-// In parent component
+// In the page that owns this tour
 provideOnboardingTour()
 
-// In child component
+// In a child of that page
 const tour = useOnboardingTour()
 await tour.next()
 ```
 
-Read the default `v0:tour` context with `useTour` when a parent has already provided it:
+Read the plugin tour, or a parent that already provided `v0:tour`, with `useTour`:
 
 ```ts
 import { useTour } from '@vuetify/v0'
@@ -189,6 +203,38 @@ Use this when the targets are already on the page and you only need the sequence
 
 ## Recipes
 
+### Run one tour at a time
+
+The plugin holds one step list. Keep each tour's steps in the app. `app.use` belongs in `main.ts`. Call `useTour()` while a component is setting up, and close `startTour` over that tour.
+
+Starting a tour stops whatever is running, clears that list, and onboards the chosen steps. Activators stay registered, so a target in the layout is found when its step opens. `reset()` clears activators too. Use `stop()` and `steps.clear()` instead.
+
+```ts
+// main.ts
+import { createTourPlugin } from '@vuetify/v0'
+
+app.use(createTourPlugin())
+```
+
+```ts
+// component setup
+import { useTour } from '@vuetify/v0'
+
+const tour = useTour()
+
+const catalog = {
+  search: [{ id: 'search' }, { id: 'search-input' }],
+  examples: [{ id: 'intro' }, { id: 'preview' }],
+}
+
+function startTour (id: keyof typeof catalog) {
+  tour.stop()
+  tour.steps.clear()
+  tour.steps.onboard(catalog[id])
+  tour.start()
+}
+```
+
 ### Filter steps before onboard
 
 createTour does not filter. Remove the steps you do not want, then onboard what is left.
@@ -249,7 +295,7 @@ tour.steps.onboard([{ id: 'profile' }, { id: 'done' }])
 
 ??? Does createTour ship a plugin or visual chrome?
 
-No. You get the factory, and `createTourContext` / `useTour` when a parent should share it. There is no `createTourPlugin`. [createOverflow](/composables/semantic/create-overflow) works the same way. The highlight, the card, and the keyboard are on [Tour](/components/disclosure/tour).
+`createTourPlugin()` provides one tour for the app. It does not store the list of tours. The app loads one tour at a time, as in the recipe above. A page can still provide its own tour with `createTourContext`. The highlight, the card, and the keyboard are on [Tour](/components/disclosure/tour).
 
 :::
 

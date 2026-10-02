@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 // Composables
 import { createHydrationPlugin, useHydration } from '#v0/composables/useHydration'
 
-import { createTour } from './index'
+import { createTour, createTourContext, createTourPlugin, useTour } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
@@ -886,5 +886,115 @@ describe('createTour', () => {
         tour.stop()
       })
     })
+  })
+})
+
+describe('createTourPlugin', () => {
+  it('should share one tour across the app', () => {
+    let starter: ReturnType<typeof useTour> | undefined
+    let reader: ReturnType<typeof useTour> | undefined
+
+    const Reader = defineComponent({
+      setup () {
+        reader = useTour()
+        return () => null
+      },
+    })
+
+    const Root = defineComponent({
+      setup () {
+        starter = useTour()
+        return () => h(Reader)
+      },
+    })
+
+    const app = createApp(Root)
+    app.use(createTourPlugin())
+    const root = document.createElement('div')
+    app.mount(root)
+
+    starter!.steps.onboard([{ id: 'search' }])
+
+    expect(reader).toBe(starter)
+    expect(reader!.steps.has('search')).toBe(true)
+
+    app.unmount()
+  })
+
+  it('should let a local provide shadow the plugin', () => {
+    let outside: ReturnType<typeof useTour> | undefined
+    let inside: ReturnType<typeof useTour> | undefined
+    let local: ReturnType<typeof useTour> | undefined
+
+    const Child = defineComponent({
+      setup () {
+        inside = useTour()
+        return () => null
+      },
+    })
+
+    const Parent = defineComponent({
+      setup () {
+        const [, provideTour, tour] = createTourContext()
+        provideTour()
+        local = tour
+        return () => h(Child)
+      },
+    })
+
+    const Host = defineComponent({
+      setup () {
+        outside = useTour()
+        return () => h(Parent)
+      },
+    })
+
+    const app = createApp(Host)
+    app.use(createTourPlugin())
+    const root = document.createElement('div')
+    app.mount(root)
+
+    outside!.steps.register({ id: 'layout' })
+
+    expect(inside).toBe(local)
+    expect(inside).not.toBe(outside)
+    expect(inside!.steps.has('layout')).toBe(false)
+
+    app.unmount()
+  })
+
+  it('should read a custom namespace', () => {
+    let seen: ReturnType<typeof useTour> | undefined
+
+    const Probe = defineComponent({
+      setup () {
+        seen = useTour('app:tour')
+        return () => null
+      },
+    })
+
+    const app = createApp(Probe)
+    app.use(createTourPlugin({ namespace: 'app:tour' }))
+    const root = document.createElement('div')
+    app.mount(root)
+
+    expect(seen).toBeDefined()
+    expect(seen!.total).toBe(0)
+
+    app.unmount()
+  })
+
+  it('should throw when no tour is provided', () => {
+    const Probe = defineComponent({
+      setup () {
+        useTour()
+        return () => null
+      },
+    })
+
+    const app = createApp(Probe)
+    app.config.warnHandler = () => {}
+
+    expect(() => app.mount(document.createElement('div'))).toThrow(/v0:tour/)
   })
 })

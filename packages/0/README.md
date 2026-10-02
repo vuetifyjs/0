@@ -229,7 +229,7 @@ Selection management composables built on `createRegistry`:
 - [`createBreadcrumbs`](https://0.vuetifyjs.com/composables/semantic/create-breadcrumbs) - Breadcrumb navigation model with depth tracking and path traversal
 - [`createOverflow`](https://0.vuetifyjs.com/composables/semantic/create-overflow) - Container overflow measurement for item capacity
 - [`createProgress`](https://0.vuetifyjs.com/composables/semantic/create-progress) - Progress state with multi-segment and buffer tracking
-- [`createTour`](https://0.vuetifyjs.com/composables/semantic/create-tour) - Headless guided-tour sequencer with step collection, activators, and form-gated navigation
+- [`createTour`](https://0.vuetifyjs.com/composables/semantic/create-tour) - Headless guided-tour sequencer with step collection, activators, form-gated navigation, and an app-level plugin
 
 #### Transformers
 

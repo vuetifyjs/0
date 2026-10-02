@@ -35,7 +35,7 @@ Tour.Content positions against the activator with CSS Anchor Positioning. In bro
 
 ## Usage
 
-Create the tour with [createTourContext](/composables/semantic/create-tour) and provide it around the page. Wrap each target in `Tour.Activator`, and put that step's card in its own `Tour.Root`.
+Install [createTourPlugin](/composables/semantic/create-tour) once when a target lives in the layout or on another page. This example provides a tour around the page with [createTourContext](/composables/semantic/create-tour) instead. Wrap each target in `Tour.Activator`, and put that step's card in its own `Tour.Root`.
 
 ::: gn-example
 /components/tour/basic
@@ -133,7 +133,7 @@ Reach for this shape when the walkthrough targets elements that already exist in
 
 ??? Does Tour.Root create the tour instance?
 
-No. Root is per-step context: `isActive`, title and description ids, and navigation delegates. Create the instance with [createTour](/composables/semantic/create-tour) or [createTourContext](/composables/semantic/create-tour) and provide it around the page before any Root, Activator, Highlight, or Keyboard mounts.
+Root is per-step context: `isActive`, title and description ids, and navigation delegates. Install [createTourPlugin](/composables/semantic/create-tour) once when targets live outside this page, and read that tour with `useTour()`. Provide [createTourContext](/composables/semantic/create-tour) around a page when that page should run a tour of its own.
 
 ??? Does clicking the highlight dismiss the tour?
 

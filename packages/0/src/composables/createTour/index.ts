@@ -9,8 +9,9 @@
  * isReady gating, and per-step enter/leave/completed handlers plus events.
  *
  * Highlight, anchored content, and keyboard live on the Tour compound,
- * which reads this context. Catalog, progress, routing, and skipOnMobile
- * filtering stay in the consuming app.
+ * which reads this context. `createTourPlugin()` provides one tour for the
+ * app. The app owns the catalog and loads one tour at a time. Progress,
+ * routing, and skipOnMobile filtering stay there too.
  *
  * Built on createStep, createRegistry, and createForm. Collection membership
  * is `steps.onboard` / `steps.register` — there is no `items` option.
@@ -37,6 +38,7 @@
 // Composables
 import { useContext } from '#v0/composables/createContext'
 import { createForm } from '#v0/composables/createForm'
+import { bindPluginContext, createPlugin } from '#v0/composables/createPlugin'
 import { createRegistry } from '#v0/composables/createRegistry'
 import { createStep } from '#v0/composables/createStep'
 import { createTrinity } from '#v0/composables/createTrinity'
@@ -55,6 +57,7 @@ import { effectScope, getCurrentInstance, hasInjectionContext, onMounted, onScop
 
 // Types
 import type { FormContext } from '#v0/composables/createForm'
+import type { Plugin } from '#v0/composables/createPlugin'
 import type { RegistryContext, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { StepContext, StepTicket, StepTicketInput } from '#v0/composables/createStep'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -163,6 +166,11 @@ export interface TourOptions {}
 export interface TourContextOptions extends TourOptions {
   /** Namespace for dependency injection. @default 'v0:tour' */
   namespace?: string
+}
+
+export interface TourPluginOptions extends TourContextOptions {
+  /** Show this tour in the Vue DevTools v0 inspector. @default false */
+  devtools?: boolean
 }
 
 /**
@@ -907,6 +915,39 @@ export function createTourContext<
   const context = createTour<Z, E>(options)
 
   return createTrinity<TourContext<Z, E>>(namespace, context)
+}
+
+/**
+ * Installs one tour on the app. `useTour()` reads it during component setup.
+ * A local `provide` from `createTourContext` shadows it for that subtree.
+ *
+ * The plugin does not store a catalog. Stop the running tour, clear its
+ * steps, and onboard the next tour's steps. Leave activators registered.
+ * `reset()` clears those too.
+ *
+ * @example
+ * ```ts
+ * import { createTourPlugin } from '@vuetify/v0'
+ *
+ * app.use(createTourPlugin())
+ * ```
+ */
+export function createTourPlugin (_options: TourPluginOptions = {}): Plugin {
+  const {
+    namespace = 'v0:tour',
+    devtools,
+    ...options
+  } = _options
+
+  return createPlugin({
+    namespace,
+    devtools: devtools === true,
+    provide: app => {
+      const [, provideTour, context] = createTourContext({ ...options, namespace })
+      provideTour(context, app)
+      bindPluginContext(app, namespace, context)
+    },
+  })
 }
 
 /**
