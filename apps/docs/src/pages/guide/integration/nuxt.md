@@ -5,140 +5,49 @@ features:
   level: 2
 meta:
   - name: description
-    content: Integrate Vuetify0 with Nuxt. Configure SSR, auto-imports, theme persistence, and hydration handling for server-rendered Vue applications.
+    content: Register Vuetify0 in Nuxt with one plugin. Server-rendered theme CSS, a theme cookie, shared breakpoint width, and hydration. Auto-imports are optional.
   - name: keywords
-    content: vuetify0, nuxt, ssr, server side rendering, hydration, auto-imports, vue 3
+    content: vuetify0, nuxt, ssr, server side rendering, hydration, theme, cookies, breakpoints, auto-imports
 related:
   - /introduction/getting-started
   - /guide/features/theming
   - /composables/plugins/use-hydration
+  - /composables/plugins/use-theme
+  - /composables/plugins/use-breakpoints
 ---
 
 # Nuxt
 
-v0 integrates with Nuxt through standard Vue plugin registration. This guide covers SSR considerations, auto-imports, and theme persistence.
-
 <DocsPageFeatures :frontmatter />
 
-## Basic Setup
+Register v0 from one file in `plugins/`. It renders theme CSS on the server, reads the theme and viewport from cookies, and installs hydration.
 
-See [Getting Started](/introduction/getting-started#nuxt) for the minimal plugin setup.
+Getting Started's `plugins/vuetify0.ts` uses the default theme adapter, which writes no CSS during SSR. Delete that file. A second `createThemePlugin()` is skipped, so the first plugin Nuxt loads is the one that stays.
 
-## Auto-Imports
-
-Configure Nuxt to auto-import Vuetify0 composables:
-
-```ts nuxt.config.ts collapse
-export default defineNuxtConfig({
-  build: {
-    transpile: ['@vuetify/v0'],
-  },
-  imports: {
-    imports: [
-      { from: '@vuetify/v0', name: 'useTheme' },
-      { from: '@vuetify/v0', name: 'createSelection' },
-      { from: '@vuetify/v0', name: 'createGroup' },
-      { from: '@vuetify/v0', name: 'createSingle' },
-      { from: '@vuetify/v0', name: 'createStep' },
-      { from: '@vuetify/v0', name: 'createPagination' },
-      { from: '@vuetify/v0', name: 'useForm' },
-      { from: '@vuetify/v0', name: 'useHydration' },
-      { from: '@vuetify/v0', name: 'useBreakpoints' },
-      { from: '@vuetify/v0', name: 'IN_BROWSER' },
-    ],
-  },
-})
-```
-
-## SSR Considerations
-
-### The IN_BROWSER Constant
-
-Guard browser-only code with `IN_BROWSER`:
-
-```ts
-import { IN_BROWSER } from '@vuetify/v0'
-
-if (IN_BROWSER) {
-  localStorage.setItem('key', 'value')
-  window.addEventListener('resize', handler)
-}
-```
-
-### Hydration State
-
-Use `useHydration` to defer browser-only rendering:
-
-```vue
-<script setup lang="ts">
-  import { useHydration } from '@vuetify/v0'
-
-  const { isHydrated } = useHydration()
-</script>
-
-<template>
-  <div v-if="isHydrated">
-    <BrowserOnlyComponent />
-  </div>
-</template>
-```
-
-The hydration plugin:
-- Sets `isHydrated` to `false` during SSR
-- Flips to `true` after the root component mounts on client
-- Falls back gracefully if not installed
-
-### Theme SSR Integration
-
-The default theme adapter (`V0StyleSheetThemeAdapter`) injects CSS via `document.adoptedStyleSheets`, a client-only API — it renders nothing during SSR. Under Nuxt this ships a themeless server response that repaints once the client hydrates, causing a flash of unstyled content.
-
-For SSR, opt into `V0UnheadThemeAdapter`. It renders the `<style>` tag and `data-theme` attribute into the initial HTML via [Unhead](https://unhead.unjs.io/) — the head manager Nuxt already ships — so the correct theme is present before hydration:
+## Plugin
 
 ```ts plugins/v0.ts
-import { createThemePlugin } from '@vuetify/v0'
+import { createBreakpointsPlugin, createHydrationPlugin, createThemePlugin } from '@vuetify/v0'
 import { V0UnheadThemeAdapter } from '@vuetify/v0/theme/adapters/unhead'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.vueApp.use(
-    createThemePlugin({
-      adapter: new V0UnheadThemeAdapter(),
-      default: 'light',
-      themes: {
-        light: { dark: false, colors: { primary: '#3b82f6' } },
-        dark: { dark: true, colors: { primary: '#60a5fa' } },
-      },
-    }),
-  )
-})
-```
-
-## Theme Persistence
-
-> [!TIP]
-> Use cookies instead of localStorage for theme persistence. Cookies are available on the server, preventing flash of wrong theme.
-
-For theme preference to persist across SSR requests, use cookies instead of localStorage:
-
-```ts plugins/v0.ts collapse
-import { createHydrationPlugin, createThemePlugin, IN_BROWSER } from '@vuetify/v0'
-
-export default defineNuxtPlugin((nuxtApp) => {
-  const themeCookie = useCookie<'light' | 'dark'>('theme', {
-    default: () => 'light',
+  const themeCookie = useCookie<'light' | 'dark'>('theme')
+  const widthCookie = useCookie<number>('viewport-width', {
+    default: () => 1280,
   })
-
-  function resolveTheme(): 'light' | 'dark' {
-    if (themeCookie.value) return themeCookie.value
-    if (!IN_BROWSER) return 'light'
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light'
-  }
 
   nuxtApp.vueApp.use(createHydrationPlugin())
   nuxtApp.vueApp.use(
+    createBreakpointsPlugin({
+      ssr: {
+        clientWidth: widthCookie.value || 1280,
+      },
+    }),
+  )
+  nuxtApp.vueApp.use(
     createThemePlugin({
-      default: resolveTheme(),
+      adapter: new V0UnheadThemeAdapter(),
+      default: themeCookie.value === 'dark' ? 'dark' : 'light',
       themes: {
         light: {
           dark: false,
@@ -164,83 +73,113 @@ export default defineNuxtPlugin((nuxtApp) => {
 })
 ```
 
-To sync theme changes back to the cookie:
+Add these watches to the existing `app.vue` script. Leave its template alone.
 
-```vue
+```vue app.vue
 <script setup lang="ts">
-  import { useTheme } from '@vuetify/v0'
+  import { useBreakpoints, useTheme } from '@vuetify/v0'
   import { watch } from 'vue'
 
   const theme = useTheme()
-  const themeCookie = useCookie('theme')
+  const themeCookie = useCookie<'light' | 'dark'>('theme')
 
-  watch(() => theme.selectedId.value, (id) => {
-    themeCookie.value = id
+  watch(() => theme.selectedId.value, id => {
+    if (id === 'light' || id === 'dark') themeCookie.value = id
   })
-</script>
-```
-
-## SSR Compatibility Reference
-
-| Feature | SSR Support | Notes |
-| - | - | - |
-| Components | Full | All compound components work in SSR |
-| `useTheme` | Partial | Client-only by default; pass `adapter: new V0UnheadThemeAdapter()` for SSR'd styles |
-| `useHydration` | Full | Designed for SSR/client state sync |
-| `useBreakpoints` | Full | Pass `ssr` option for server-side viewport matching |
-| `useStorage` | Partial | Uses memory adapter on server |
-| `createPagination` | Full | Width-based calculation defers to client |
-| Observer composables | Partial | No-op on server, activate on client |
-
-## Breakpoints SSR
-
-Pass `ssr` to the breakpoints plugin so the server renders at the correct viewport size. A common approach is to store the client's width in a cookie:
-
-```ts plugins/v0.ts collapse
-import { createBreakpointsPlugin, createHydrationPlugin } from '@vuetify/v0'
-
-export default defineNuxtPlugin((nuxtApp) => {
-  const widthCookie = useCookie<number>('viewport-width', {
-    default: () => 1280,
-  })
-
-  nuxtApp.vueApp.use(createHydrationPlugin())
-  nuxtApp.vueApp.use(
-    createBreakpointsPlugin({
-      ssr: {
-        clientWidth: widthCookie.value,
-      },
-    })
-  )
-})
-```
-
-Sync the cookie on the client so subsequent SSR requests use the real width:
-
-```vue App.vue
-<script setup lang="ts">
-  import { useBreakpoints } from '@vuetify/v0'
-  import { watch } from 'vue'
 
   const { width } = useBreakpoints()
   const widthCookie = useCookie<number>('viewport-width')
 
-  watch(width, v => {
-    widthCookie.value = v
+  watch(width, value => {
+    widthCookie.value = value
   })
 </script>
 ```
 
-## Common Patterns
+Tell Nuxt to transpile the package:
 
-### Client-Only Components
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  build: {
+    transpile: ['@vuetify/v0'],
+  },
+})
+```
 
-For components that can't render on the server:
+## Theme Persistence
+
+The default adapter, `V0StyleSheetThemeAdapter`, injects CSS with `document.adoptedStyleSheets`. The server HTML has no theme, and the page flashes when the client hydrates.
+
+`V0UnheadThemeAdapter` writes the `<style>` tag and the `data-theme` attribute through [Unhead](https://unhead.unjs.io/), which Nuxt already runs. The theme is in the first response.
+
+The server cannot see the operating system's color scheme. The `theme` cookie is the value both sides share. `default` is `dark` when the cookie is `dark`, and `light` otherwise. With no cookie, the first response is light.
+
+`app.vue` stores `theme.selectedId` after `theme.select()`. The next request renders that id.
+
+Two theme options fight that cookie:
+
+- `persist: true` stores the selected id through `createStoragePlugin()`. Without that plugin the install throws. Server storage is memory, not the browser's `localStorage`, and a theme that is following the OS stores null. Leave `persist` off.
+- `system` follows `prefers-color-scheme` in the browser and replaces `default` on the client. The server has already sent the cookie's theme. Leave `system` off.
+
+### First visit follows the OS
+
+To adopt the OS scheme when the cookie is empty, wait until hydration and call `select`. The selected-id watch in `app.vue` stores the result. The first HTML response is still light. The switch happens after paint. Later requests use the cookie.
+
+Add this watch to the same script. `theme` and `themeCookie` are the ones declared above.
+
+```vue
+<script setup lang="ts">
+  import { IN_BROWSER, useHydration } from '@vuetify/v0'
+  import { watch } from 'vue'
+
+  const { isHydrated } = useHydration()
+
+  watch(isHydrated, ready => {
+    if (!ready || themeCookie.value || !IN_BROWSER) return
+
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    theme.select(dark ? 'dark' : 'light')
+  })
+</script>
+```
+
+The plugin runs for the render the server and the client have to share, so it cannot read `matchMedia`.
+
+## Breakpoints
+
+`ssr.clientWidth` is the width of the server render and of the client render that hydrates it. After the app mounts, breakpoints read the real window. The markup matches. Layout can still change once the real width lands.
+
+The plugin uses `1280` until the browser sends `viewport-width`. The `app.vue` watch stores `width` after mount. The next document request includes it.
+
+With no `ssr` width, the server renders at `0` and the client renders at `window.innerWidth`. Any branch on `isMobile`, `mdAndUp`, or the other breakpoint flags mismatches.
+
+## Hydration
+
+`createHydrationPlugin()` starts `isHydrated` at `false` for the server render and for the hydration render. It flips to `true` on the tick after the root mounts. `isSettled` flips one tick later, after other `onMounted` hooks have run.
+
+Install that plugin before calling `useHydration()`. Without it, the fallback sets `isHydrated` and `isSettled` to `true` immediately, including on the server. `v-if="isHydrated"` then renders during SSR.
+
+```vue
+<script setup lang="ts">
+  import { useHydration } from '@vuetify/v0'
+
+  const { isHydrated } = useHydration()
+</script>
+
+<template>
+  <span>{{ isHydrated ? new Date().toLocaleTimeString() : '--:--:--' }}</span>
+</template>
+```
+
+| Approach | When |
+| - | - |
+| `useHydration` | The server can render a placeholder. Swap the contents after hydration. |
+| `<ClientOnly>` | Constructing the component on the server throws. Canvas and WebGL are the usual cases. Nuxt skips the component and renders the fallback slot. |
 
 ```vue
 <template>
   <ClientOnly>
-    <ComplexVisualization />
+    <CanvasVisualization />
 
     <template #fallback>
       <div class="skeleton" />
@@ -249,35 +188,49 @@ For components that can't render on the server:
 </template>
 ```
 
-### Avoiding Hydration Mismatch
+`IN_BROWSER` is for work that does not change the tree of the first render:
 
-Common causes:
-- Timestamps or random values during render
-- Conditional rendering based on browser state
-- Dynamic IDs without SSR-safe generation
+```ts
+import { IN_BROWSER } from '@vuetify/v0'
 
-```vue
-<script setup lang="ts">
-  import { useHydration } from '@vuetify/v0'
-
-  const { isHydrated } = useHydration()
-
-  // Bad: causes mismatch
-  const time = new Date().toLocaleTimeString()
-
-  // Good: defer to client
-  const time = computed(() => isHydrated.value ? new Date().toLocaleTimeString() : '')
-</script>
+if (IN_BROWSER) {
+  localStorage.setItem('key', 'value')
+}
 ```
 
-### Debugging Hydration Mismatches
+A branch that renders one tree when `IN_BROWSER` is true and another when it is false mismatches, because the server and the client take different branches. Gate that tree with `isHydrated` or `<ClientOnly>`.
 
-When you see hydration warnings in the console:
+## Auto-Imports
 
-1. **Enable Vue's hydration mismatch details** in `nuxt.config.ts`:
+Imports from `@vuetify/v0` work without a preset. A preset only removes the import line for names you list. Add a name when you start calling it. Keep component imports explicit.
 
 ```ts nuxt.config.ts
 export default defineNuxtConfig({
+  build: {
+    transpile: ['@vuetify/v0'],
+  },
+  imports: {
+    presets: [
+      {
+        from: '@vuetify/v0',
+        imports: ['useTheme', 'useHydration', 'useBreakpoints'],
+      },
+    ],
+  },
+})
+```
+
+Merge this into the `nuxt.config.ts` you already have. `build.transpile` is the required part. The preset is optional.
+
+## Hydration Mismatches
+
+Vue warns when the server HTML and the client's first render differ. Development builds include the expected HTML and the actual HTML in that warning. To keep the detail in a production build, add the `vite` key next to `build`. Replacing the whole config with only this key drops `transpile`.
+
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  build: {
+    transpile: ['@vuetify/v0'],
+  },
   vite: {
     define: {
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true,
@@ -286,49 +239,22 @@ export default defineNuxtConfig({
 })
 ```
 
-2. **Check the console** for detailed mismatch info showing expected vs actual HTML.
+Usual causes:
 
-3. **Common fixes**:
-   - Wrap browser-dependent content in `<ClientOnly>` or `v-if="isHydrated"`
-   - Use `useId()` from Vue for SSR-safe unique IDs
-   - Avoid `new Date()`, `Math.random()`, or `window` access during initial render
-   - Ensure the initial list items and their keys match between the server and client
+- `new Date()`, `Math.random()`, or `window` during render
+- A branch chosen with `IN_BROWSER`
+- `useHydration()` without `createHydrationPlugin()`, so `isHydrated` is true on the server
+- Breakpoints with no `ssr` width
+- A list whose items or keys differ between the two renders. Use a stable id from the item as `:key`. Both renders still have to start from the same items.
 
-> [!NOTE]
-> Array indexes identify positions rather than items. When items are inserted, removed, or reordered, Vue can reuse DOM or component state for a different item. Prefer a stable identifier from the item, such as `:key="item.id"`. This does not replace the hydration requirement above: the server and client must still render the same initial list. The contributor maintains an optional [worked `v-for` key exercise](https://frontendatlas.com/vue/trivia/vue-v-for-keys-why-not-index) on FrontendAtlas.
+## SSR Support
 
-### useHydration vs ClientOnly
-
-| Approach | Use When |
-| - | - |
-| `useHydration` | Content can render on server with placeholder, then update on client |
-| `<ClientOnly>` | Component cannot render on server at all (canvas, WebGL, etc.) |
-
-**useHydration** - Renders on both server and client, with reactive `isHydrated` flag:
-
-```vue
-<script setup lang="ts">
-  import { useHydration } from '@vuetify/v0'
-  const { isHydrated } = useHydration()
-</script>
-
-<template>
-  <!-- Shows placeholder on server, real time on client -->
-  <span>{{ isHydrated ? new Date().toLocaleTimeString() : '--:--:--' }}</span>
-</template>
-```
-
-**ClientOnly** - Skips server rendering entirely:
-
-```vue
-<template>
-  <ClientOnly>
-    <CanvasVisualization />
-    <template #fallback>
-      <div class="skeleton h-64" />
-    </template>
-  </ClientOnly>
-</template>
-```
-
-**Rule of thumb**: Prefer `useHydration` when possible—it provides better SEO and faster perceived load. Use `<ClientOnly>` only when the component truly cannot exist on the server.
+| Feature | Server | Notes |
+| - | - | - |
+| Components | Yes | Compound components render on the server. |
+| `useTheme` | With the Unhead adapter | The default adapter emits no server CSS. |
+| `useHydration` | Yes | Requires `createHydrationPlugin()`. |
+| `useBreakpoints` | With `ssr.clientWidth` | Both renders share that width until mount. |
+| `useStorage` | Memory on the server | A write during SSR does not reach `localStorage`. |
+| `createPagination` | Yes | Counts pages and exposes `pageStart` and `pageStop`. No browser APIs. |
+| Observers | When `isHydrated` | Resize, intersection, and mutation observers attach once that flag is true. With this plugin, that is after hydration. |
