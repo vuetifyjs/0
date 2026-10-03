@@ -411,7 +411,7 @@ Ask: **"What must the reader already know to use this page?"**
 | `data` | createDataTable, createFilter, createPagination, createVirtual |
 | `forms` | createCombobox, createForm, createInput, createNumberField, createNumeric, createRating, createSlider, createValidation |
 | `foundation` | createContext, createPlugin, createTrinity |
-| `plugins` | useBreakpoints, useDate, useFeatures, useHydration, useLocale, useLogger, useNotifications, usePermissions, useRtl, useRules, useStack, useStorage, useTheme |
+| `plugins` | useBreakpoints, useDate, useFeatures, useHydration, useLocale, useLogger, useNotifications, usePermissions, useRtl, useRules, useStack, useStorage, useTheme, useTour |
 | `reactivity` | useProxyModel, useProxyRegistry |
 | `registration` | createQueue, createRegistry, createTimeline, createTokens |
 | `selection` | createGroup, createModel, createNested, createSelection, createSingle, createStep |
