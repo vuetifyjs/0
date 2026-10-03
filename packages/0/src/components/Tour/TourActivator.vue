@@ -13,7 +13,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { useTour } from '#v0/composables/createTour'
+  import { useTour } from '#v0/composables/useTour'
 
   // Transformers
   import { toArray } from '#v0/composables/toArray'

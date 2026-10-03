@@ -1,7 +1,7 @@
 /**
- * @module createTour
+ * @module useTour
  *
- * @see https://0.vuetifyjs.com/composables/semantic/create-tour
+ * @see https://0.vuetifyjs.com/composables/plugins/use-tour
  *
  * @remarks
  * Headless guided-tour sequencer. Owns one step collection, an activator

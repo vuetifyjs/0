@@ -12,7 +12,7 @@
 <script lang="ts">
   // Composables
   import { createContext } from '#v0/composables/createContext'
-  import { useTour } from '#v0/composables/createTour'
+  import { useTour } from '#v0/composables/useTour'
 
   // Utilities
   import { useId } from '#v0/utilities'

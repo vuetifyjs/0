@@ -12,7 +12,7 @@ features:
   renderless: false
   level: 2
 related:
-  - /composables/semantic/create-tour
+  - /composables/plugins/use-tour
   - /components/disclosure/dialog
   - /components/disclosure/popover
 ---
@@ -35,7 +35,7 @@ Tour.Content positions against the activator with CSS Anchor Positioning. In bro
 
 ## Usage
 
-Install [createTourPlugin](/composables/semantic/create-tour) once when a target lives in the layout or on another page. This example provides a tour around the page with [createTourContext](/composables/semantic/create-tour) instead. Wrap each target in `Tour.Activator`, and put that step's card in its own `Tour.Root`.
+Install [createTourPlugin](/composables/plugins/use-tour) once when a target lives in the layout or on another page. This example provides a tour around the page with [createTourContext](/composables/plugins/use-tour) instead. Wrap each target in `Tour.Activator`, and put that step's card in its own `Tour.Root`.
 
 ::: gn-example
 /components/tour/basic
@@ -82,11 +82,11 @@ Install [createTourPlugin](/composables/semantic/create-tour) once when a target
 
 ### Product walkthrough
 
-A three-step walkthrough: search, settings, and the avatar. The instance is created once with [createTourContext](/composables/semantic/create-tour), provided to the page, and onboarded with three steps. Each `Tour.Root` is one step. It exposes that step's `isActive`, `next`, `prev`, `stop`, and `complete` to its children. Activators wrap the controls. One `Tour.Highlight` with `blocking` paints the scrim, and `Tour.Keyboard` binds arrows, Enter, and Escape while the tour is active.
+A three-step walkthrough: search, settings, and the avatar. The instance is created once with [createTourContext](/composables/plugins/use-tour), provided to the page, and onboarded with three steps. Each `Tour.Root` is one step. It exposes that step's `isActive`, `next`, `prev`, `stop`, and `complete` to its children. Activators wrap the controls. One `Tour.Highlight` with `blocking` paints the scrim, and `Tour.Keyboard` binds arrows, Enter, and Escape while the tour is active.
 
 Content portals to the body and waits up to two seconds for its activator before showing anyway, then anchors with CSS `position-area` (or a viewport-edge fallback). `placement` and `placementMobile` live on `Tour.Content`; a ticket `placement` of `top` / `bottom` / `left` / `right` / `center` overrides Content's `placement`. The avatar step sets `placement: 'left'` on the ticket so that step sits beside the control while the others keep Content's `bottom` default. Next on the last step calls `complete()` instead of a no-op `next()`; Skip emits `skip` and then `stop()`, so the tour ends without `isComplete`. `blocking` swallows backdrop clicks and does not dismiss. Escape or Skip does.
 
-Reach for this shape when the walkthrough targets elements that already exist in the page. Prefer [createTour](/composables/semantic/create-tour) without the compound when you only need the sequencer and will paint chrome yourself. Filter the onboard list before `start()` if a step should not run on a given viewport; do not expect the factory to drop steps for you.
+Reach for this shape when the walkthrough targets elements that already exist in the page. Prefer [createTour](/composables/plugins/use-tour) without the compound when you only need the sequencer and will paint chrome yourself. Filter the onboard list before `start()` if a step should not run on a given viewport; do not expect the factory to drop steps for you.
 
 | File | Role |
 |------|------|
@@ -133,7 +133,7 @@ Reach for this shape when the walkthrough targets elements that already exist in
 
 ??? Does Tour.Root create the tour instance?
 
-Root is per-step context: `isActive`, title and description ids, and navigation delegates. Install [createTourPlugin](/composables/semantic/create-tour) once when targets live outside this page, and read that tour with `useTour()`. Provide [createTourContext](/composables/semantic/create-tour) around a page when that page should run a tour of its own.
+Root is per-step context: `isActive`, title and description ids, and navigation delegates. Install [createTourPlugin](/composables/plugins/use-tour) once when targets live outside this page, and read that tour with `useTour()`. Provide [createTourContext](/composables/plugins/use-tour) around a page when that page should run a tour of its own.
 
 ??? Does clicking the highlight dismiss the tour?
 

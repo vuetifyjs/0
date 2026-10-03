@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Composables
-  import { createTourContext } from '#v0/composables/createTour'
+  import { createTourContext } from '#v0/composables/useTour'
 
   // Utilities
   import { onMounted } from 'vue'

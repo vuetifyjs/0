@@ -21,11 +21,11 @@
   import { useTourRootContext } from './TourRoot.vue'
 
   // Composables
-  import { useTour } from '#v0/composables/createTour'
   import { useBreakpoints } from '#v0/composables/useBreakpoints'
   import { useHotkey } from '#v0/composables/useHotkey'
   import { useLogger } from '#v0/composables/useLogger'
   import { useRaf } from '#v0/composables/useRaf'
+  import { useTour } from '#v0/composables/useTour'
 
   // Transformers
   import { toElement } from '#v0/composables/toElement'
@@ -39,11 +39,10 @@
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
-  // Types
-  import type { TourPlacement } from '#v0/composables/createTour'
+  import type { TourPlacement } from '#v0/composables/useTour'
   import type { CSSProperties } from 'vue'
 
-  export type { TourPlacement } from '#v0/composables/createTour'
+  export type { TourPlacement } from '#v0/composables/useTour'
 
   export interface TourContentProps extends AtomProps {
     /** Preferred placement relative to the activator @default 'bottom' */

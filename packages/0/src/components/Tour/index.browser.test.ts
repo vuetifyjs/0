@@ -1,11 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Composables
-import { createTourContext } from '#v0/composables/createTour'
 import { createBreakpointsPlugin } from '#v0/composables/useBreakpoints'
 import { createStackPlugin } from '#v0/composables/useStack'
+import { createTourContext } from '#v0/composables/useTour'
 
-// Components
 import { Tour } from './index'
 
 // Utilities
@@ -13,7 +12,7 @@ import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
 
 // Types
-import type { TourContext, TourPlacement, TourTicketInput } from '#v0/composables/createTour'
+import type { TourContext, TourPlacement, TourTicketInput } from '#v0/composables/useTour'
 import type { ID } from '#v0/types'
 import type { TourRootSlotProps } from './TourRoot.vue'
 import type { VueWrapper } from '@vue/test-utils'

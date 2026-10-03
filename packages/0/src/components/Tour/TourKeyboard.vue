@@ -11,8 +11,8 @@
 
 <script lang="ts">
   // Composables
-  import { useTour } from '#v0/composables/createTour'
   import { useHotkey } from '#v0/composables/useHotkey'
+  import { useTour } from '#v0/composables/useTour'
 
   // Utilities
   import { getActiveElement } from '#v0/utilities'

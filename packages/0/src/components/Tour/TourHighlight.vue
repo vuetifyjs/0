@@ -13,10 +13,10 @@
   import { Portal } from '#v0/components/Portal'
 
   // Composables
-  import { useTour } from '#v0/composables/createTour'
   import { useLocale } from '#v0/composables/useLocale'
   import { useRaf } from '#v0/composables/useRaf'
   import { useTimer } from '#v0/composables/useTimer'
+  import { useTour } from '#v0/composables/useTour'
 
   // Transformers
   import { toElement } from '#v0/composables/toElement'

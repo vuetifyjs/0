@@ -1,14 +1,14 @@
 ---
-title: createTour - Guided Tour State for Vue 3
+title: useTour - Guided tour plugin for Vue 3
 meta:
 - name: description
   content: Headless guided-tour sequencer for Vue 3. Onboard steps, activate targets, gate next on form validity, and navigate with start, next, prev, and complete.
 - name: keywords
-  content: createTour, tour, guided tour, onboarding, walkthrough, steps, Vue 3, composable
+  content: useTour, createTourPlugin, tour, guided tour, onboarding, walkthrough, steps, Vue 3, composable
 features:
   category: Composable
-  label: 'E: createTour'
-  github: /composables/createTour/
+  label: 'E: useTour'
+  github: /composables/useTour/
   level: 2
 related:
   - /components/disclosure/tour
@@ -17,7 +17,7 @@ related:
   - /composables/registration/create-registry
 ---
 
-# createTour
+# useTour
 
 <DocsPageFeatures :frontmatter />
 
@@ -25,7 +25,7 @@ Sequence a guided tour. Register each step, point it at a target when it opens, 
 
 ## Installation
 
-Install the plugin when a target lives in the layout or on another page. Call `useTour()` during component setup. It returns that same tour.
+Install the plugin once. Call `useTour()` during component setup. It returns that same tour.
 
 ```ts
 import { createTourPlugin } from '@vuetify/v0'
@@ -33,7 +33,7 @@ import { createTourPlugin } from '@vuetify/v0'
 app.use(createTourPlugin())
 ```
 
-Skip the plugin when the whole tour is born and dies inside one component. Provide `createTourContext` on that component instead. A local provide shadows the plugin for its subtree.
+A subtree that should run a different tour provides `createTourContext` instead. That provide shadows the plugin for its descendants.
 
 ## Usage
 
@@ -85,7 +85,7 @@ tour.complete()
 Filter the list before you onboard. createTour keeps every step you give it.
 
 ```ts
-tour.steps.onboard(isMobile ? steps.filter(step => step.id !== 'sidebar') : steps)
+tour.steps.onboard(mobile ? steps.filter(step => step.id !== 'sidebar') : steps)
 ```
 
 ### Let the step finish opening
@@ -183,20 +183,22 @@ flowchart TD
 ## Examples
 
 ::: gn-example
-/composables/create-tour/useOnboarding.ts 1
-/composables/create-tour/basic.vue 2
+/composables/use-tour/useOnboarding.ts 1
+/composables/use-tour/basic.vue 2
 
-### A tour without card chrome
+### Plain sequencer
 
-Three steps, a search field, and an avatar, sequenced only by `createTour`. `enter` finds `[data-tour]` and passes the element to `activate()`, which sets `anchor-name` to `--tour-{id}`. The demo draws a ring from `selectedId`. Start, Prev, Next, and Stop are the controls. On the last step, Next becomes Complete, because `next()` does nothing there.
+Six steps, sequenced only by `createTour`. The demo draws a ring from `selectedId`. Start, Prev, Next, and Stop are the controls. On the last step, Next becomes Complete, because `next()` does nothing there.
 
-`useOnboarding.ts` owns the tour and the copy. It onboards `welcome`, `search`, and `avatar`. `welcome` has no `enter`, so it is ready immediately. The other two call `activate` with `{ scroll: false }` so the docs page does not jump. `placement` on the ticket is what [Tour.Content](/components/disclosure/tour) would use for that step. `basic.vue` renders the targets, the current title and body, and the buttons from `isActive`, `canGoBack`, `canGoNext`, and `isLast`.
+`useOnboarding.ts` owns the tour. `welcome` has no `enter`, so it is ready immediately and nothing is activated. `search` and `avatar` find `[data-tour]` inside this demo and call `activate` with `{ scroll: false }`, so the docs page does not jump. `settings` withholds `done()` until you press the button, so Next and Prev stay disabled. Opening that step with Prev passes direction `back` and calls `done()` immediately. `name` registers a form field under the same id. Next submits it and stays on the step while the name is empty. Prev does not validate. `finish` activates nothing. Complete runs its `completed` handler. Stop does not.
 
-Use this when the targets are already on the page and you only need the sequencer. Filter the array before `onboard` when a step should not run on a small screen. Register a form field under the step id when Next must validate. The card and highlight ship as [Tour](/components/disclosure/tour).
+`basic.vue` renders the targets, the current title and body, and the buttons from `isActive`, `isReady`, `canGoBack`, `canGoNext`, and `isLast`. Nothing floats. The ring is the only mark.
+
+Use this when the targets are already on the page and you only need the sequencer. The card and highlight ship as [Tour](/components/disclosure/tour).
 
 | File | Role |
 |------|------|
-| `useOnboarding.ts` | Creates the tour, onboards the three steps, and picks the current copy |
+| `useOnboarding.ts` | Creates the tour, onboards the six steps, and holds the name field |
 | `basic.vue` | Targets, the step copy, and Start, Prev, Next, and Stop |
 
 :::
@@ -205,7 +207,7 @@ Use this when the targets are already on the page and you only need the sequence
 
 ### Run one tour at a time
 
-The plugin holds one step list. Keep each tour's steps in the app. `app.use` belongs in `main.ts`. Call `useTour()` while a component is setting up, and close `startTour` over that tour.
+The plugin holds one step list. Keep each tour's steps in the app. `app.use` belongs in `main.ts`. Call `useTour()` while a component is setting up, and close `load` over that tour.
 
 Starting a tour stops whatever is running, clears that list, and onboards the chosen steps. Activators stay registered, so a target in the layout is found when its step opens. `reset()` clears activators too. Use `stop()` and `steps.clear()` instead.
 
@@ -227,7 +229,7 @@ const catalog = {
   examples: [{ id: 'intro' }, { id: 'preview' }],
 }
 
-function startTour (id: keyof typeof catalog) {
+function load (id: keyof typeof catalog) {
   tour.stop()
   tour.steps.clear()
   tour.steps.onboard(catalog[id])
@@ -240,9 +242,9 @@ function startTour (id: keyof typeof catalog) {
 createTour does not filter. Remove the steps you do not want, then onboard what is left.
 
 ```ts
-const visible = isMobile
-  ? catalog.filter(step => step.id !== 'sidebar')
-  : catalog
+const visible = mobile
+  ? steps.filter(step => step.id !== 'sidebar')
+  : steps
 
 tour.steps.onboard(visible)
 ```
@@ -259,7 +261,9 @@ const tour = createTour()
 const name = shallowRef('')
 const validation = createValidation({
   value: name,
-  rules: ['required'],
+  rules: [
+    value => String(value ?? '').trim().length > 0 || 'Enter a name.',
+  ],
 })
 
 tour.form.register({ id: 'profile', value: validation })
