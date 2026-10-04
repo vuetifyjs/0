@@ -10,7 +10,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { ShallowRef } from 'vue'
 
 vi.mock('#v0/constants/globals', async () => ({
-  ...await vi.importActual<typeof import('#v0/constants/globals')>('#v0/constants/globals'),
+  ...await vi.importActual('#v0/constants/globals'),
   IN_BROWSER: false,
 }))
 

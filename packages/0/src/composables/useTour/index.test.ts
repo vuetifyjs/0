@@ -1024,7 +1024,8 @@ describe('createTour', () => {
     it('should ignore a stale deactivate from an earlier visit', () => {
       const tour = createTour()
       const el = document.createElement('div')
-      let release = () => {}
+      function hold () {}
+      let release = hold
 
       tour.steps.onboard([{
         id: 'a',
