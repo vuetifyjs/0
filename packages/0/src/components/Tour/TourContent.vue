@@ -114,7 +114,7 @@
   const supportsAnchor = IN_BROWSER && CSS.supports?.('position-area', 'top') === true
 
   const isReady = shallowRef(false)
-  const missingActivator = shallowRef(false)
+  const missing = shallowRef(false)
 
   let startTime = 0
   let found = false
@@ -123,7 +123,7 @@
     if (!IN_BROWSER) return
 
     const el = toElement(tour.activators.get(root.step)?.element)
-    if (el) {
+    if (!isUndefined(el)) {
       if (found) {
         isReady.value = true
         return
@@ -135,7 +135,7 @@
 
     if (performance.now() - startTime > 2000) {
       logger.warn(`Tour.Content: activator for step "${String(root.step)}" not found after 2000ms`)
-      missingActivator.value = true
+      missing.value = true
       isReady.value = true
       return
     }
@@ -146,9 +146,9 @@
   // The poll gives up after 2s and centers. If the activator registers later
   // (async enter), drop the center latch and anchor on the next frame.
   watch(() => toElement(tour.activators.get(root.step)?.element), element => {
-    if (!element || !root.isActive.value || !missingActivator.value) return
+    if (isUndefined(element) || !root.isActive.value || !missing.value) return
 
-    missingActivator.value = false
+    missing.value = false
     poll()
   })
 
@@ -157,7 +157,7 @@
 
     poll.cancel()
     found = false
-    missingActivator.value = false
+    missing.value = false
 
     if (!isActive) {
       isReady.value = false
@@ -177,12 +177,12 @@
 
   const activePlacement = toRef((): TourPlacement => {
     if (tour.isLast.value || tour.steps.get(root.step)?.noActivator === true) return 'center'
-    if (missingActivator.value) return 'center'
+    if (missing.value) return 'center'
 
     const el = toElement(tour.activators.get(root.step)?.element)
     const height = breakpoints.height.value
     // Fallback breakpoints report height 0. That is "unmeasured", not a 0px viewport.
-    if (height > 0 && breakpoints.smAndDown.value && el && el.getBoundingClientRect().height >= height * 0.6) return 'center'
+    if (height > 0 && breakpoints.smAndDown.value && !isUndefined(el) && el.getBoundingClientRect().height >= height * 0.6) return 'center'
 
     const fromTicket = tour.steps.get(root.step)?.placement
     const base = isPlacement(fromTicket) ? fromTicket : placement
@@ -257,7 +257,7 @@
 
   const isVisible = toRef(() => root.isActive.value && isReady.value)
 
-  function isFieldFocused () {
+  function isField () {
     const active = getActiveElement()
     const tag = active?.tagName
     const role = active?.getAttribute('role')
@@ -271,7 +271,7 @@
   }
 
   watch(isReady, ready => {
-    if (!ready || !IN_BROWSER || isFieldFocused()) return
+    if (!ready || !IN_BROWSER || isField()) return
 
     nextTick(() => {
       const element = toElement(atomRef.value?.element)

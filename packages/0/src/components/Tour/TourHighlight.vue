@@ -103,9 +103,9 @@
   }, { immediate: true })
 
   const rect = shallowRef<HighlightRect | null>(null)
-  const borderRadius = shallowRef(0)
+  const radius = shallowRef(0)
 
-  function updateRect () {
+  function measure () {
     const id = tour.selectedId.value
     if (isUndefined(id) || !tour.isActive.value) {
       if (!isNull(rect.value)) rect.value = null
@@ -119,13 +119,13 @@
     }
 
     const activator = tour.activators.get(id)
-    if (!activator) {
+    if (isUndefined(activator)) {
       if (!isNull(rect.value)) rect.value = null
       return
     }
 
     const el = toElement(activator.element)
-    if (!el) {
+    if (isUndefined(el)) {
       if (!isNull(rect.value)) rect.value = null
       return
     }
@@ -140,7 +140,7 @@
     }
 
     if (
-      !rect.value
+      isNull(rect.value)
       || rect.value.x !== next.x
       || rect.value.y !== next.y
       || rect.value.width !== next.width
@@ -150,18 +150,18 @@
     }
 
     const raw = Number.parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0
-    const radius = Math.min(Math.max(raw, 8), next.width / 2, next.height / 2)
-    if (borderRadius.value !== radius) borderRadius.value = radius
+    const curve = Math.min(Math.max(raw, 8), next.width / 2, next.height / 2)
+    if (radius.value !== curve) radius.value = curve
   }
 
   const loop = useRaf(() => {
-    updateRect()
+    measure()
     if (tour.isActive.value) loop()
   })
 
   const held: { el: HTMLElement, inert: boolean }[] = []
 
-  function releaseInert () {
+  function release () {
     for (const item of held) {
       item.el.inert = item.inert
       delete item.el.dataset.tourInert
@@ -169,8 +169,8 @@
     held.length = 0
   }
 
-  function applyInert () {
-    releaseInert()
+  function apply () {
+    release()
     if (!IN_BROWSER || !blocking || !tour.isActive.value) return
 
     const id = tour.selectedId.value
@@ -189,7 +189,7 @@
 
       // The activator element stays operable, including its control. Descend
       // only through ancestors so siblings can still be inert.
-      if (!blockActivator && activator && (el === activator || el.contains(activator))) {
+      if (!blockActivator && !isUndefined(activator) && (el === activator || el.contains(activator))) {
         if (el === activator) return
         for (const child of el.children) visit(child)
         return
@@ -209,13 +209,13 @@
       const registered = !isUndefined(id) && tour.activators.has(id)
       return [tour.isActive.value, id, registered, blocking, blockActivator] as const
     },
-    () => applyInert(),
+    () => apply(),
     // Sync so stop()/complete() clear inert before they restore focus.
     // A post flush leaves the opener inert for that focus() call.
     { flush: 'sync', immediate: true },
   )
 
-  onScopeDispose(releaseInert)
+  onScopeDispose(release)
 
   watch(() => tour.isActive.value, active => {
     if (active) {
@@ -226,7 +226,7 @@
     rect.value = null
   }, { immediate: true })
 
-  const showCutout = toRef(() => !isNull(rect.value))
+  const cutout = toRef(() => !isNull(rect.value))
   const bare = toRef(() => {
     const id = tour.selectedId.value
     if (!tour.isActive.value || isUndefined(id)) return false
@@ -238,7 +238,7 @@
     if (isNull(rect.value)) return undefined
 
     const { x, y, width, height } = rect.value
-    const r = borderRadius.value
+    const r = radius.value
 
     if (r > 0) {
       return `path(evenodd, "M 0 0 H 100000 V 100000 H 0 Z M ${x + r} ${y} H ${x + width - r} Q ${x + width} ${y} ${x + width} ${y + r} V ${y + height - r} Q ${x + width} ${y + height} ${x + width - r} ${y + height} H ${x + r} Q ${x} ${y + height} ${x} ${y + height - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z")`
@@ -272,7 +272,7 @@
     clipPath: clipPath.value,
   }))
 
-  const bareShield = {
+  const shield = {
     position: 'absolute' as const,
     inset: '0',
     pointerEvents: 'auto' as const,
@@ -288,7 +288,7 @@
       top: `${rect.value.y}px`,
       width: `${rect.value.width}px`,
       height: `${rect.value.height}px`,
-      borderRadius: `${borderRadius.value}px`,
+      borderRadius: `${radius.value}px`,
     }
   })
 </script>
@@ -317,17 +317,17 @@
           v-if="blocking && bare"
           aria-hidden="true"
           data-part="shield"
-          :style="bareShield"
+          :style="shield"
         />
 
         <div
-          v-if="blocking && showCutout && rect"
+          v-if="blocking && cutout && rect"
           aria-hidden="true"
           :style="blockStyle"
         />
 
         <div
-          v-if="blockActivator && showCutout && rect"
+          v-if="blockActivator && cutout && rect"
           aria-hidden="true"
           :style="cutoutStyle"
         />
@@ -341,7 +341,7 @@
           />
         </svg>
 
-        <svg v-else-if="showCutout && rect" aria-hidden="true" :style="svgStyle">
+        <svg v-else-if="cutout && rect" aria-hidden="true" :style="svgStyle">
           <defs>
             <mask :id="maskId">
               <rect fill="white" height="100%" width="100%" />
@@ -349,8 +349,8 @@
               <rect
                 fill="black"
                 :height="rect.height"
-                :rx="borderRadius"
-                :ry="borderRadius"
+                :rx="radius"
+                :ry="radius"
                 :width="rect.width"
                 :x="rect.x"
                 :y="rect.y"
@@ -369,8 +369,8 @@
           <rect
             fill="none"
             :height="rect.height"
-            :rx="borderRadius"
-            :ry="borderRadius"
+            :rx="radius"
+            :ry="radius"
             stroke="currentColor"
             stroke-width="2"
             :width="rect.width"

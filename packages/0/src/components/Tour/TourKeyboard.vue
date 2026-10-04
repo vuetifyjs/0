@@ -47,7 +47,7 @@
 
   const tour = useTour(namespace)
 
-  function isControlFocused () {
+  function isControl () {
     const active = getActiveElement()
     return !!active?.closest('button, a[href], [role="button"]')
   }
@@ -67,7 +67,7 @@
   }
 
   function onEnter (event: KeyboardEvent) {
-    if (event.repeat || isControlFocused() || isWidget(event)) return
+    if (event.repeat || isControl() || isWidget(event)) return
     event.preventDefault()
     onAdvance()
   }

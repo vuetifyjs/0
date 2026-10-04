@@ -297,8 +297,8 @@ interface Programmatic {
   id: ID
   element: HTMLElement | SVGElement
   previous: string
-  marginTop: string
-  marginBottom: string
+  top: string
+  bottom: string
   owned: boolean
 }
 
@@ -336,24 +336,24 @@ export function createTour<
   let generation = 0
   let navigating = false
   let leaving = false
-  let finishInstead = false
+  let instead = false
   let scope: EffectScope | undefined
   let programmatic: Programmatic | undefined
   let opener: HTMLElement | undefined
-  let pendingStart: { stepId?: ID } | undefined
-  let startQueued = false
+  let held: { stepId?: ID } | undefined
+  let latched = false
   let flight: Promise<void> | undefined
-  let stopHydration: (() => void) | undefined
+  let unwatch: (() => void) | undefined
   let submitting = false
 
-  function cancelQueue () {
-    pendingStart = undefined
-    stopHydration?.()
-    stopHydration = undefined
+  function abort () {
+    held = undefined
+    unwatch?.()
+    unwatch = undefined
   }
 
-  function rememberOpener () {
-    if (!IN_BROWSER || opener) return
+  function remember () {
+    if (!IN_BROWSER || !isUndefined(opener)) return
 
     const active = getActiveElement()
     if (active instanceof HTMLElement && active.isConnected && active !== document.body) {
@@ -361,31 +361,31 @@ export function createTour<
     }
   }
 
-  function restoreOpener () {
+  function restore () {
     const el = opener
     opener = undefined
-    if (!el?.isConnected) return
+    if (isUndefined(el) || !el.isConnected) return
 
     el.focus({ preventScroll: true })
   }
 
   function end () {
-    finishInstead = false
+    instead = false
     finish()
     leave()
     isActive.value = false
     isComplete.value = true
-    restoreOpener()
+    restore()
   }
 
-  // Complete without a second finish(). `alreadyLeft` skips leave() — the
+  // Complete without a second finish(). `left` skips leave() — the
   // caller is the tail that just ran it, and leave() must not nest.
-  function dismiss (alreadyLeft: boolean) {
-    finishInstead = false
-    if (!alreadyLeft) leave()
+  function dismiss (left: boolean) {
+    instead = false
+    if (!left) leave()
     isActive.value = false
     isComplete.value = true
-    restoreOpener()
+    restore()
   }
 
   function ready (stepId: ID, visit: number) {
@@ -420,8 +420,8 @@ export function createTour<
     deactivate()
 
     const previous = element.style.getPropertyValue('anchor-name')
-    const marginTop = element.style.scrollMarginTop
-    const marginBottom = element.style.scrollMarginBottom
+    const top = element.style.scrollMarginTop
+    const bottom = element.style.scrollMarginBottom
     element.style.setProperty('anchor-name', `--tour-${id}`)
     element.style.scrollMarginTop = '100px'
     element.style.scrollMarginBottom = '100px'
@@ -431,7 +431,7 @@ export function createTour<
       activators.register({ id, element, padding: options?.padding })
     }
 
-    programmatic = { id, element, previous, marginTop, marginBottom, owned }
+    programmatic = { id, element, previous, top, bottom, owned }
 
     if (options?.scroll !== false) {
       element.scrollIntoView({ block: 'center', behavior: 'instant' })
@@ -441,14 +441,14 @@ export function createTour<
   function deactivate () {
     if (isUndefined(programmatic)) return
 
-    const { id, element, previous, marginTop, marginBottom, owned } = programmatic
+    const { id, element, previous, top, bottom, owned } = programmatic
     if (previous) {
       element.style.setProperty('anchor-name', previous)
     } else {
       element.style.removeProperty('anchor-name')
     }
-    element.style.scrollMarginTop = marginTop
-    element.style.scrollMarginBottom = marginBottom
+    element.style.scrollMarginTop = top
+    element.style.scrollMarginBottom = bottom
 
     if (owned) {
       activators.unregister(id)
@@ -464,7 +464,7 @@ export function createTour<
     try {
       generation++
       const ticket = steps.selectedItem.value
-      if (ticket) {
+      if (!isUndefined(ticket)) {
         steps.emit('leave', ticket)
       }
       if (isFunction(ticket?.leave)) {
@@ -484,24 +484,24 @@ export function createTour<
     const token = ++generation
 
     function done () {
-      if (!ticket) return
+      if (isUndefined(ticket)) return
       ready(ticket.id, token)
     }
 
-    function activateForStep (target: MaybeElementRef, options?: TourActivateOptions) {
+    function pin (target: MaybeElementRef, options?: TourActivateOptions) {
       if (token !== generation) return
       activate(target, options)
     }
 
-    function deactivateForStep () {
+    function unpin () {
       if (token !== generation) return
       deactivate()
     }
 
     const handler = ticket?.enter
-    if (!ticket || !isFunction(handler)) {
+    if (isUndefined(ticket) || !isFunction(handler)) {
       isReady.value = true
-      if (ticket) steps.emit('enter', ticket)
+      if (!isUndefined(ticket)) steps.emit('enter', ticket)
       return
     }
 
@@ -516,8 +516,8 @@ export function createTour<
           await next()
         },
         direction,
-        activate: activateForStep,
-        deactivate: deactivateForStep,
+        activate: pin,
+        deactivate: unpin,
       }
 
       try {
@@ -541,7 +541,7 @@ export function createTour<
 
   function finish () {
     const ticket = steps.selectedItem.value
-    if (!ticket) return
+    if (isUndefined(ticket)) return
     if (isFunction(ticket.completed)) {
       ticket.completed()
     }
@@ -573,19 +573,19 @@ export function createTour<
     }
   }
 
-  function applyStart (options: { stepId?: ID } = {}) {
+  function begin (options: { stepId?: ID } = {}) {
     // leave() is still on the stack. Selecting here changes the step the
     // outer next/prev/step then moves from, and that leave() stops the
     // enter this start just opened.
     if (leaving) return
 
-    finishInstead = false
+    instead = false
 
     if (steps.size === 0) {
       if (isActive.value) {
         leave()
         isActive.value = false
-        restoreOpener()
+        restore()
       }
       return
     }
@@ -594,13 +594,13 @@ export function createTour<
       leave()
     }
 
-    rememberOpener()
+    remember()
     isComplete.value = false
     isActive.value = true
 
-    const stepId = options.stepId
-    if (!isUndefined(stepId) && steps.has(stepId)) {
-      steps.select(stepId)
+    const id = options.stepId
+    if (!isUndefined(id) && steps.has(id)) {
+      steps.select(id)
       enter('resume')
       return
     }
@@ -610,39 +610,39 @@ export function createTour<
   }
 
   function queueMounted (options: { stepId?: ID }) {
-    pendingStart = options
-    if (startQueued) return
+    held = options
+    if (latched) return
 
-    startQueued = true
+    latched = true
     onMounted(() => {
-      startQueued = false
-      if (isUndefined(pendingStart)) return
-      const queued = pendingStart
-      pendingStart = undefined
-      applyStart(queued)
+      latched = false
+      if (isUndefined(held)) return
+      const queued = held
+      held = undefined
+      begin(queued)
     })
     // Clears the latch only. A tour that already started must keep running
     // when this child unmounts.
     onScopeDispose(() => {
-      pendingStart = undefined
-      startQueued = false
-      stopHydration?.()
-      stopHydration = undefined
+      held = undefined
+      latched = false
+      unwatch?.()
+      unwatch = undefined
     })
   }
 
   function queueHydration (options: { stepId?: ID }) {
-    pendingStart = options
-    if (stopHydration) return
+    held = options
+    if (!isUndefined(unwatch)) return
 
     const hydration = useHydration()
-    stopHydration = watch(hydration.isHydrated, hydrated => {
-      if (!hydrated || isUndefined(pendingStart)) return
-      const queued = pendingStart
-      pendingStart = undefined
-      stopHydration?.()
-      stopHydration = undefined
-      applyStart(queued)
+    unwatch = watch(hydration.isHydrated, hydrated => {
+      if (!hydrated || isUndefined(held)) return
+      const queued = held
+      held = undefined
+      unwatch?.()
+      unwatch = undefined
+      begin(queued)
     })
   }
 
@@ -665,29 +665,29 @@ export function createTour<
       return
     }
 
-    applyStart(options)
+    begin(options)
   }
 
   function stop () {
-    finishInstead = false
-    cancelQueue()
+    instead = false
+    abort()
     if (!isActive.value) return
     leave()
     isActive.value = false
-    restoreOpener()
+    restore()
   }
 
   async function complete () {
-    cancelQueue()
+    abort()
 
     if (!isActive.value) {
       isComplete.value = true
-      restoreOpener()
+      restore()
       return
     }
 
     if (navigating) {
-      finishInstead = true
+      instead = true
       if (submitting || isUndefined(flight)) return
       return flight
     }
@@ -697,11 +697,11 @@ export function createTour<
 
     try {
       if (!await gate()) {
-        finishInstead = false
+        instead = false
         return
       }
       if (token !== generation || !isActive.value) {
-        finishInstead = false
+        instead = false
         return
       }
 
@@ -728,17 +728,17 @@ export function createTour<
     const run = (async () => {
       try {
         if (!await gate()) {
-          finishInstead = false
+          instead = false
           return
         }
         // stop/start/reset during validation invalidates this navigation.
         // A second next() during the await is dropped by `navigating`.
-        // complete() during the await sets finishInstead and must not gate again.
+        // complete() during the await sets instead and must not gate again.
         if (token !== generation || !isActive.value) {
-          finishInstead = false
+          instead = false
           return
         }
-        if (finishInstead) {
+        if (instead) {
           end()
           return
         }
@@ -746,14 +746,14 @@ export function createTour<
 
         finish()
         if (!isActive.value) return
-        if (finishInstead) {
+        if (instead) {
           dismiss(false)
           return
         }
 
         leave()
         if (!isActive.value) return
-        if (finishInstead) {
+        if (instead) {
           dismiss(true)
           return
         }
@@ -772,17 +772,17 @@ export function createTour<
   async function prev () {
     if (leaving || navigating || !isActive.value || !isReady.value || isFirst.value) return
 
-    // navigating so complete() during leave sets finishInstead instead of
-    // starting its own gate. Cleared before enter so a fresh ctx.next can run.
+    // navigating so complete() during leave sets `instead` and does not
+    // start its own gate. Cleared before enter so a fresh ctx.next can run.
     navigating = true
     let stopped = false
     try {
       leave()
       if (!isActive.value) {
         stopped = true
-      } else if (finishInstead) {
+      } else if (instead) {
         // Back does not emit completed. An explicit complete() from leave does.
-        finishInstead = false
+        instead = false
         finish()
         if (isActive.value) dismiss(true)
         stopped = true
@@ -808,14 +808,14 @@ export function createTour<
     const run = (async () => {
       try {
         if (!await gate()) {
-          finishInstead = false
+          instead = false
           return
         }
         if (token !== generation || !isActive.value) {
-          finishInstead = false
+          instead = false
           return
         }
-        if (finishInstead) {
+        if (instead) {
           end()
           return
         }
@@ -823,14 +823,14 @@ export function createTour<
 
         finish()
         if (!isActive.value) return
-        if (finishInstead) {
+        if (instead) {
           dismiss(false)
           return
         }
 
         leave()
         if (!isActive.value) return
-        if (finishInstead) {
+        if (instead) {
           dismiss(true)
           return
         }
@@ -847,11 +847,11 @@ export function createTour<
   }
 
   onScopeDispose(() => {
-    cancelQueue()
+    abort()
     if (isActive.value) {
       leave()
       isActive.value = false
-      restoreOpener()
+      restore()
       return
     }
 
