@@ -9,11 +9,18 @@ import { createTour, createTourContext, createTourPlugin, useTour } from './inde
 import { mount } from '@vue/test-utils'
 import { createApp, defineComponent, h, nextTick } from 'vue'
 
+// Types
+import type { ShallowRef } from 'vue'
+
+const { warn } = vi.hoisted(() => ({
+  warn: vi.fn(),
+}))
+
 vi.mock('#v0/composables/useLogger', () => ({
   useLogger: () => ({
     debug: vi.fn(),
     info: vi.fn(),
-    warn: vi.fn(),
+    warn,
     error: vi.fn(),
     trace: vi.fn(),
     fatal: vi.fn(),
@@ -24,6 +31,10 @@ vi.mock('#v0/composables/useLogger', () => ({
     disable: vi.fn(),
   }),
 }))
+
+function write (flag: Readonly<ShallowRef<boolean>>, value: boolean) {
+  (flag as ShallowRef<boolean>).value = value
+}
 
 describe('createTour', () => {
   describe('factory', () => {
@@ -885,6 +896,653 @@ describe('createTour', () => {
         expect(tour.isActive.value).toBe(true)
         tour.stop()
       })
+    })
+
+    it('should keep the latest queued step when start runs twice before hydration', async () => {
+      const app = createApp({ render: () => null })
+      app.use(createHydrationPlugin())
+
+      let tour!: ReturnType<typeof createTour>
+
+      app.runWithContext(() => {
+        tour = createTour()
+        tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+        tour.start()
+        tour.start({ stepId: 'b' })
+        useHydration().hydrate()
+      })
+
+      await nextTick()
+
+      expect(tour.isActive.value).toBe(true)
+      expect(tour.steps.selectedId.value).toBe('b')
+      tour.stop()
+    })
+  })
+
+  describe('branch coverage', () => {
+    it('should warn and ignore activate without a selected step', () => {
+      warn.mockClear()
+      const tour = createTour()
+      const el = document.createElement('div')
+
+      write(tour.isActive, true)
+      tour.activate(el, { scroll: false })
+
+      expect(warn).toHaveBeenCalledTimes(1)
+      expect(warn).toHaveBeenCalledWith('createTour: activate() requires a selected step')
+      expect(el.style.getPropertyValue('anchor-name')).toBe('')
+    })
+
+    it('should warn when activate cannot resolve a target', () => {
+      warn.mockClear()
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }])
+      tour.steps.select('a')
+      write(tour.isActive, true)
+      tour.activate(null)
+
+      expect(warn).toHaveBeenCalledWith('createTour: activate() target not found')
+      expect(tour.activators.size).toBe(0)
+    })
+
+    it('should ignore activate while the tour is inactive', () => {
+      const tour = createTour()
+      const el = document.createElement('div')
+
+      tour.steps.onboard([{ id: 'a' }])
+      tour.steps.select('a')
+      tour.activate(el, { scroll: false })
+
+      expect(tour.activators.size).toBe(0)
+    })
+
+    it('should anchor an svg element and reject a math element', () => {
+      warn.mockClear()
+      const tour = createTour()
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+      const math = document.createElementNS('http://www.w3.org/1998/Math/MathML', 'math')
+
+      tour.steps.onboard([{ id: 'a' }])
+      tour.start()
+      tour.activate(svg, { scroll: false })
+
+      expect(svg.style.getPropertyValue('anchor-name')).toBe('--tour-a')
+
+      tour.activate(math, { scroll: false })
+
+      expect(warn).toHaveBeenCalledWith('createTour: activate() target not found')
+      expect(math.getAttribute('style')).toBeNull()
+    })
+
+    it('should scroll the target unless scroll is false', () => {
+      const tour = createTour()
+      const el = document.createElement('div')
+      const scroll = vi.spyOn(el, 'scrollIntoView').mockImplementation(() => {})
+
+      tour.steps.onboard([{ id: 'a' }])
+      tour.start()
+      tour.activate(el)
+
+      expect(scroll).toHaveBeenCalledTimes(1)
+    })
+
+    it('should restore a pre-existing anchor name and keep a registered activator', () => {
+      const tour = createTour()
+      const el = document.createElement('div')
+      const held = document.createElement('span')
+
+      tour.steps.onboard([{ id: 'a' }])
+      tour.start()
+      tour.activators.register({ id: 'a', element: held })
+      el.style.setProperty('anchor-name', '--kept')
+      tour.activate(el, { scroll: false })
+      tour.deactivate()
+
+      expect(el.style.getPropertyValue('anchor-name')).toBe('--kept')
+      expect(tour.activators.get('a')?.element).toBe(held)
+    })
+
+    it('should activate and deactivate from the current enter context', () => {
+      const tour = createTour()
+      const el = document.createElement('div')
+
+      tour.steps.onboard([{
+        id: 'a',
+        enter (ctx) {
+          ctx.activate(el, { scroll: false })
+          ctx.deactivate()
+        },
+      }])
+      tour.start()
+
+      expect(el.style.getPropertyValue('anchor-name')).toBe('')
+      expect(tour.activators.size).toBe(0)
+    })
+
+    it('should ignore a stale deactivate from an earlier visit', () => {
+      const tour = createTour()
+      const el = document.createElement('div')
+      let release = () => {}
+
+      tour.steps.onboard([{
+        id: 'a',
+        enter (ctx) {
+          ctx.activate(el, { scroll: false })
+          release = () => {
+            ctx.deactivate()
+          }
+        },
+      }])
+      tour.start()
+      expect(el.style.getPropertyValue('anchor-name')).toBe('--tour-a')
+
+      tour.stop()
+      release()
+
+      expect(el.style.getPropertyValue('anchor-name')).toBe('')
+    })
+
+    it('should call next from enter after the step is ready', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([
+        {
+          id: 'a',
+          enter (ctx) {
+            ctx.done()
+            void ctx.next()
+          },
+        },
+        { id: 'b' },
+      ])
+      tour.start()
+      await nextTick()
+
+      expect(tour.steps.selectedId.value).toBe('b')
+    })
+
+    it('should mark the step ready when enter rejects', async () => {
+      warn.mockClear()
+      const tour = createTour()
+
+      tour.steps.onboard([{
+        id: 'a',
+        enter: () => Promise.reject(new Error('nope')),
+      }])
+      tour.start()
+      await nextTick()
+      await Promise.resolve()
+
+      expect(warn).toHaveBeenCalledWith('createTour: enter rejected', expect.any(Error))
+      expect(tour.isReady.value).toBe(true)
+      expect(tour.isActive.value).toBe(true)
+    })
+
+    it('should mark the step ready when enter throws', () => {
+      warn.mockClear()
+      const tour = createTour()
+
+      tour.steps.onboard([{
+        id: 'a',
+        enter () {
+          throw new Error('boom')
+        },
+      }])
+      tour.start()
+
+      expect(warn).toHaveBeenCalledWith('createTour: enter threw', expect.any(Error))
+      expect(tour.isReady.value).toBe(true)
+    })
+
+    it('should warn and stay when form submit throws', async () => {
+      warn.mockClear()
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      tour.start()
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(() => {
+        throw new Error('sync')
+      })
+
+      await tour.next()
+
+      expect(warn).toHaveBeenCalledWith('createTour: form submit failed', expect.any(Error))
+      expect(tour.steps.selectedId.value).toBe('a')
+    })
+
+    it('should warn and stay when form submit rejects', async () => {
+      warn.mockClear()
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      tour.start()
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockRejectedValue(new Error('async'))
+
+      await tour.next()
+
+      expect(warn).toHaveBeenCalledWith('createTour: form submit failed', expect.any(Error))
+      expect(tour.steps.selectedId.value).toBe('a')
+    })
+
+    it('should leave and go inactive when start runs with no steps', () => {
+      const tour = createTour()
+      const opener = document.createElement('button')
+      document.body.append(opener)
+      opener.focus()
+
+      tour.steps.onboard([{ id: 'a' }])
+      tour.start()
+      tour.steps.clear()
+      tour.start()
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.total).toBe(0)
+      opener.remove()
+    })
+
+    it('should leave the current step when start runs again', () => {
+      const tour = createTour()
+      const left = vi.fn()
+
+      tour.steps.onboard([
+        { id: 'a', leave: left },
+        { id: 'b' },
+      ])
+      tour.start()
+      tour.start({ stepId: 'b' })
+
+      expect(left).toHaveBeenCalledTimes(1)
+      expect(tour.steps.selectedId.value).toBe('b')
+      expect(tour.isActive.value).toBe(true)
+    })
+
+    it('should remember the opener only on the first start', () => {
+      const opener = document.createElement('button')
+      const other = document.createElement('button')
+      document.body.append(opener, other)
+      opener.focus()
+
+      const tour = createTour()
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      tour.start()
+      other.focus()
+      tour.start({ stepId: 'b' })
+      tour.stop()
+
+      expect(document.activeElement).toBe(opener)
+      opener.remove()
+      other.remove()
+    })
+
+    it('should not complete when the tour stops during complete', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }])
+      tour.start()
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(() => {
+        tour.stop()
+        return Promise.resolve(true)
+      })
+
+      await tour.complete()
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(false)
+    })
+
+    it('should not advance when the current step becomes last during next', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      tour.start()
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(() => {
+        tour.steps.select('b')
+        return Promise.resolve(true)
+      })
+
+      await tour.next()
+
+      expect(tour.steps.selectedId.value).toBe('b')
+      expect(tour.isActive.value).toBe(true)
+      expect(tour.isComplete.value).toBe(false)
+    })
+
+    it('should end the tour when completed calls complete during next', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([
+        {
+          id: 'a',
+          completed () {
+            void tour.complete()
+          },
+        },
+        { id: 'b' },
+      ])
+      tour.start()
+      await tour.next()
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(true)
+    })
+
+    it('should stop when completed calls stop during next', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([
+        {
+          id: 'a',
+          completed () {
+            tour.stop()
+          },
+        },
+        { id: 'b' },
+      ])
+      tour.start()
+      await tour.next()
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(false)
+      expect(tour.steps.selectedId.value).toBe('a')
+    })
+
+    it('should end the tour when leave calls complete during next', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([
+        {
+          id: 'a',
+          leave () {
+            void tour.complete()
+          },
+        },
+        { id: 'b' },
+      ])
+      tour.start()
+      await tour.next()
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(true)
+    })
+
+    it('should stop when leave calls stop during prev', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([
+        { id: 'a' },
+        {
+          id: 'b',
+          leave () {
+            tour.stop()
+          },
+        },
+      ])
+      tour.start()
+      await tour.next()
+      await tour.prev()
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(false)
+      expect(tour.steps.selectedId.value).toBe('b')
+    })
+
+    it('should skip dismiss when completed stops during prev', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([
+        { id: 'a' },
+        {
+          id: 'b',
+          leave () {
+            void tour.complete()
+          },
+          completed () {
+            tour.stop()
+          },
+        },
+      ])
+      tour.start()
+      await tour.next()
+      await tour.prev()
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(false)
+      expect(tour.steps.selectedId.value).toBe('b')
+    })
+
+    it('should no-op step while unready, on the same index, or past the end', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([
+        {
+          id: 'a',
+          enter (ctx) {
+            void ctx
+          },
+        },
+        { id: 'b' },
+      ])
+      await tour.step(2)
+      tour.start()
+      await tour.step(2)
+      expect(tour.steps.selectedId.value).toBe('a')
+      expect(tour.isReady.value).toBe(false)
+
+      tour.ready('a', 1)
+      await tour.step(1)
+      await tour.step(9)
+
+      expect(tour.steps.selectedId.value).toBe('a')
+      expect(tour.isActive.value).toBe(true)
+    })
+
+    it('should stay when step validation fails', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+      tour.start()
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockResolvedValue(false)
+
+      await tour.step(3)
+
+      expect(tour.steps.selectedId.value).toBe('a')
+    })
+
+    it('should not jump when the tour stops during step validation', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      tour.start()
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(() => {
+        tour.stop()
+        return Promise.resolve(true)
+      })
+
+      await tour.step(2)
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(false)
+    })
+
+    it('should stay when validation selects the requested step', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+      tour.start()
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(() => {
+        tour.steps.select('c')
+        return Promise.resolve(true)
+      })
+
+      await tour.step(3)
+
+      expect(tour.steps.selectedId.value).toBe('c')
+      expect(tour.isActive.value).toBe(true)
+      expect(tour.isComplete.value).toBe(false)
+    })
+
+    it('should stay when validation clears ready during step', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      tour.start()
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(() => {
+        write(tour.isReady, false)
+        return Promise.resolve(true)
+      })
+
+      await tour.step(2)
+
+      expect(tour.steps.selectedId.value).toBe('a')
+      expect(tour.isReady.value).toBe(false)
+      expect(tour.isActive.value).toBe(true)
+    })
+
+    it('should finish when complete runs during step validation', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+      tour.start()
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(() => {
+        void tour.complete()
+        return Promise.resolve(true)
+      })
+
+      await tour.step(3)
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(true)
+    })
+
+    it('should dismiss when completed calls complete during step', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([
+        {
+          id: 'a',
+          completed () {
+            void tour.complete()
+          },
+        },
+        { id: 'b' },
+      ])
+      tour.start()
+      await tour.step(2)
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(true)
+    })
+
+    it('should dismiss when leave calls complete during step', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([
+        {
+          id: 'a',
+          leave () {
+            void tour.complete()
+          },
+        },
+        { id: 'b' },
+      ])
+      tour.start()
+      await tour.step(2)
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(true)
+    })
+
+    it('should stop jumping when completed selects the destination', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([
+        {
+          id: 'a',
+          completed () {
+            tour.steps.select('c')
+          },
+        },
+        { id: 'b' },
+        { id: 'c' },
+      ])
+      tour.start()
+      await tour.step(3)
+
+      expect(tour.steps.selectedId.value).toBe('c')
+      expect(tour.isActive.value).toBe(true)
+      expect(tour.isComplete.value).toBe(false)
+    })
+
+    it('should stop jumping when completed stops the tour', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([
+        {
+          id: 'a',
+          completed () {
+            tour.stop()
+          },
+        },
+        { id: 'b' },
+      ])
+      tour.start()
+      await tour.step(2)
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(false)
+    })
+
+    it('should stop jumping when leave stops the tour', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([
+        {
+          id: 'a',
+          leave () {
+            tour.stop()
+          },
+        },
+        { id: 'b' },
+      ])
+      tour.start()
+      await tour.step(2)
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.steps.selectedId.value).toBe('a')
+    })
+
+    it('should finish with no ticket after the steps are cleared', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }])
+      tour.start()
+      tour.steps.clear()
+      await tour.complete()
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(true)
+    })
+
+    it('should stop with no selected ticket', () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }])
+      tour.start()
+      tour.steps.clear()
+      tour.stop()
+
+      expect(tour.isActive.value).toBe(false)
     })
   })
 })

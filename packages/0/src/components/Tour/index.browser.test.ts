@@ -9,7 +9,7 @@ import { Tour } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick } from 'vue'
+import { defineComponent, h, nextTick, shallowRef } from 'vue'
 
 // Types
 import type { TourContext, TourPlacement, TourTicketInput } from '#v0/composables/useTour'
@@ -172,6 +172,37 @@ describe('tour', () => {
       expect(scroll).toHaveBeenCalled()
       scroll.mockRestore()
     })
+
+    it('should skip scrolling when the activator renders no element', async () => {
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }, { id: 'two' }])
+
+          return () => h(Tour.Root, { step: 'one' }, () => h(Tour.Activator, {
+            renderless: true,
+            step: 'one',
+          }, () => 'Target'))
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      tour.start()
+      await nextTick()
+      await nextTick()
+
+      expect(tour.isActive.value).toBe(true)
+      expect(document.querySelector('[data-part="activator"]')).toBeNull()
+    })
   })
 
   describe('root', () => {
@@ -186,6 +217,20 @@ describe('tour', () => {
 
       expect(slot()?.isActive).toBe(true)
       expect(tour.selectedId.value).toBe('one')
+    })
+
+    it('should move back when the slot calls prev', async () => {
+      const { tour, slot } = mountTour()
+      await startAndWait(tour)
+      await tour.next()
+      await vi.waitFor(() => {
+        expect(tour.selectedId.value).toBe('two')
+      })
+
+      slot()?.prev()
+      await vi.waitFor(() => {
+        expect(tour.selectedId.value).toBe('one')
+      })
     })
   })
 
@@ -295,6 +340,195 @@ describe('tour', () => {
 
       const svg = document.querySelector('[data-part="highlight"] svg')
       expect(svg).not.toBeNull()
+    })
+
+    it('should announce the step after the status timer', async () => {
+      const { tour } = mountTour()
+      await startAndWait(tour)
+
+      await vi.waitFor(() => {
+        const status = document.querySelector('[data-part="status"]')
+        expect(status?.textContent).toContain('1')
+      })
+    })
+
+    it('should clear the cutout when the selection goes away', async () => {
+      const { tour } = mountTour()
+      await startAndWait(tour)
+      await vi.waitFor(() => {
+        expect(document.querySelector('[data-part="highlight"] svg')).not.toBeNull()
+      })
+
+      tour.steps.unselect('one')
+      await nextTick()
+      await frame()
+      await frame()
+
+      expect(tour.isActive.value).toBe(true)
+      expect(tour.selectedId.value).toBeUndefined()
+    })
+
+    it('should clear the cutout when the activator is gone or has no element', async () => {
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }, { id: 'two' }])
+
+          return () => h(Tour.Highlight, { blocking: true })
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      const target = document.createElement('div')
+      target.style.width = '40px'
+      target.style.height = '40px'
+      document.body.append(target)
+
+      tour.start()
+      tour.activate(target, { scroll: false })
+
+      await vi.waitFor(() => {
+        expect(document.querySelector('[data-part="highlight"] svg')).not.toBeNull()
+      })
+
+      tour.deactivate()
+      await frame()
+      await frame()
+
+      expect(document.querySelector('[data-part="highlight"] svg')).toBeNull()
+
+      tour.activate(target, { scroll: false })
+
+      await vi.waitFor(() => {
+        expect(document.querySelector('[data-part="highlight"] svg')).not.toBeNull()
+      })
+
+      tour.deactivate()
+      tour.activators.register({ id: 'one', element: shallowRef<HTMLElement | null>(null) })
+      await frame()
+      await frame()
+
+      expect(document.querySelector('[data-part="highlight"] svg')).toBeNull()
+      expect(tour.isActive.value).toBe(true)
+      expect(tour.selectedId.value).toBe('one')
+      target.remove()
+    })
+
+    it('should draw a square cutout for a zero size target', async () => {
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }, { id: 'two' }])
+
+          return () => h(Tour.Highlight, { blocking: true, blockActivator: true })
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      const target = document.createElement('div')
+      target.style.width = '0'
+      target.style.height = '0'
+      document.body.append(target)
+
+      tour.start()
+      tour.activate(target, { scroll: false })
+
+      await vi.waitFor(() => {
+        const block = [...document.querySelectorAll('[data-part="highlight"] div')].find(el => {
+          return (el as HTMLElement).style.clipPath.includes('path(')
+        }) as HTMLElement | undefined
+        expect(block).toBeDefined()
+        expect(block!.style.clipPath).not.toContain('Q')
+      })
+
+      target.remove()
+    })
+
+    it('should descend into an ancestor that contains the highlight', async () => {
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }, { id: 'two' }])
+
+          return () => h(Tour.Highlight, { blocking: true })
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      const wrap = document.createElement('div')
+      const marker = document.createElement('div')
+      marker.dataset.part = 'highlight'
+      const sibling = document.createElement('button')
+      sibling.textContent = 'Sibling'
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+      wrap.append(marker, sibling)
+      document.body.append(wrap, svg)
+
+      tour.start()
+      await nextTick()
+
+      expect(sibling.inert).toBe(true)
+      expect((svg as SVGSVGElement & { inert?: boolean }).inert).toBeUndefined()
+
+      tour.stop()
+      wrap.remove()
+      svg.remove()
+    })
+
+    it('should shield the page on a step with no activator', async () => {
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([
+            { id: 'one', noActivator: true },
+            { id: 'two' },
+          ])
+
+          return () => h(Tour.Highlight, { blocking: true })
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      tour.start()
+      await nextTick()
+
+      expect(document.querySelector('[data-part="shield"]')).not.toBeNull()
     })
   })
 
@@ -513,6 +747,7 @@ describe('tour', () => {
       await startAndWait(tour)
 
       press('ArrowRight', window, { repeat: true })
+      press('ArrowLeft', window, { repeat: true })
       await nextTick()
 
       expect(tour.selectedId.value).toBe('one')
@@ -583,6 +818,167 @@ describe('tour', () => {
       expect(tour.isActive.value).toBe(false)
       closed.remove()
     })
+
+    it('should complete the last step from the keyboard', async () => {
+      const { tour } = mountTour()
+      await startAndWait(tour, 'two')
+
+      press('ArrowRight')
+      await vi.waitFor(() => {
+        expect(tour.isComplete.value).toBe(true)
+      })
+      expect(tour.isActive.value).toBe(false)
+    })
+
+    it('should ignore arrows until the step is ready', async () => {
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([
+            {
+              id: 'one',
+              enter (ctx) {
+                void ctx.visit
+              },
+            },
+            { id: 'two' },
+          ])
+
+          return () => h('div', [
+            h(Tour.Keyboard),
+            h(Tour.Root, { step: 'one' }, () => h(Tour.Activator, { step: 'one' }, () => 'Target')),
+          ])
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      tour.start()
+      await nextTick()
+      press('ArrowRight')
+      press('Enter')
+      await nextTick()
+
+      expect(tour.selectedId.value).toBe('one')
+      expect(tour.isReady.value).toBe(false)
+      expect(tour.isActive.value).toBe(true)
+    })
+  })
+
+  describe('polyfill host', () => {
+    it('should activate prev, next, and skip from click and keys', async () => {
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }, { id: 'two' }, { id: 'three' }])
+
+          return () => h('div', ['one', 'two'].map(step => h(Tour.Root, { step }, () => [
+            h(Tour.Activator, { step }, () => step),
+            h(Tour.Content, {}, () => [
+              h(Tour.Prev, { as: 'div' }, () => 'Back'),
+              h(Tour.Next, { as: 'div' }, () => 'Next'),
+              h(Tour.Skip, { as: 'div' }, () => 'Skip'),
+            ]),
+          ])))
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      await startAndWait(tour)
+
+      const prev = await part('prev')
+      const next = await part('next')
+      const skip = await part('skip')
+      press('x', prev)
+      press('x', next)
+      press('x', skip)
+      press('Enter', prev)
+      expect(tour.selectedId.value).toBe('one')
+
+      next.click()
+      await vi.waitFor(() => {
+        expect(tour.selectedId.value).toBe('two')
+      })
+
+      press(' ', await part('prev'))
+      await vi.waitFor(() => {
+        expect(tour.selectedId.value).toBe('one')
+      })
+
+      press(' ', await part('next'))
+      await vi.waitFor(() => {
+        expect(tour.selectedId.value).toBe('two')
+      })
+
+      press(' ', await part('prev'))
+      await vi.waitFor(() => {
+        expect(tour.selectedId.value).toBe('one')
+      })
+
+      press('Enter', await part('next'))
+      await vi.waitFor(() => {
+        expect(tour.selectedId.value).toBe('two')
+      })
+
+      const skipNow = await part('skip')
+      press('Enter', skipNow)
+      press(' ', skipNow)
+      await nextTick()
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(false)
+    })
+
+    it('should ignore next when the control is disabled', async () => {
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }, { id: 'two' }])
+
+          return () => h(Tour.Root, { step: 'one' }, () => [
+            h(Tour.Activator, { step: 'one' }, () => 'Target'),
+            h(Tour.Content, {}, () => h(Tour.Next, { as: 'div', disabled: true }, () => 'Next')),
+          ])
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      await startAndWait(tour)
+
+      const next = document.querySelector('[data-part="next"]') as HTMLElement
+      expect(next.tabIndex).toBe(-1)
+      press('Enter', next)
+      next.click()
+      await nextTick()
+
+      expect(tour.selectedId.value).toBe('one')
+    })
   })
 
   describe('placement', () => {
@@ -639,6 +1035,147 @@ describe('tour', () => {
       })
     })
 
+    it('should fall back to edge offsets when anchor positioning is unavailable', async () => {
+      const supports = vi.spyOn(CSS, 'supports').mockReturnValue(false)
+
+      const { tour } = mountPlaced(
+        [{ id: 'one', placement: 'left' }, { id: 'two' }],
+        { placement: 'bottom' },
+      )
+      await startAndWait(tour)
+
+      expect(placed(content())).toBe('left')
+      supports.mockRestore()
+    })
+
+    it('should center and warn when the activator never arrives, then anchor once it does', async () => {
+      let now = 0
+      const clock = vi.spyOn(performance, 'now').mockImplementation(() => now)
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one', placement: 'left' }, { id: 'two' }])
+
+          return () => h(Tour.Root, { step: 'one' }, () => h(Tour.Content, { placement: 'left' }, () => 'Card'))
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin, createBreakpointsPlugin()] },
+      })
+      wrappers.push(wrapper)
+
+      tour.start()
+      await nextTick()
+      await frame()
+      now = 5000
+
+      await vi.waitFor(() => {
+        expect(placed(content())).toBe('center')
+      })
+      expect(spy).toHaveBeenCalled()
+      expect(spy.mock.calls.some(call => String(call[0]).includes('not found after 2000ms'))).toBe(true)
+
+      const el = document.createElement('button')
+      el.textContent = 'Later'
+      document.body.append(el)
+      tour.activate(el, { scroll: false })
+
+      await vi.waitFor(() => {
+        expect(placed(content())).toBe('left')
+      })
+
+      el.remove()
+      clock.mockRestore()
+    })
+
+    it('should center a card that fills a short screen', async () => {
+      let tour!: TourContext
+      const tall = `${Math.ceil(window.innerHeight * 0.7)}px`
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one', placement: 'left' }, { id: 'two' }])
+
+          return () => h(Tour.Root, { step: 'one' }, () => [
+            h(Tour.Activator, {
+              as: 'div',
+              step: 'one',
+              style: `display: block; height: ${tall}`,
+            }, () => 'Tall'),
+            h(Tour.Content, { placement: 'left' }, () => 'Card'),
+          ])
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: {
+          plugins: [
+            stackPlugin,
+            createBreakpointsPlugin({
+              breakpoints: {
+                xs: 0,
+                sm: 1,
+                md: 100_000,
+                lg: 100_001,
+                xl: 100_002,
+                xxl: 100_003,
+              },
+            }),
+          ],
+        },
+      })
+      wrappers.push(wrapper)
+
+      await startAndWait(tour)
+
+      expect(placed(content())).toBe('center')
+    })
+
+    it('should not move focus into renderless content', async () => {
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }, { id: 'two' }])
+
+          return () => h(Tour.Root, { step: 'one' }, () => [
+            h(Tour.Activator, { step: 'one' }, () => 'Target'),
+            h(Tour.Content, { renderless: true }, () => 'Card'),
+          ])
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin, createBreakpointsPlugin()] },
+      })
+      wrappers.push(wrapper)
+
+      const before = document.activeElement
+      tour.start()
+      await frame()
+      await nextTick()
+
+      expect(tour.isActive.value).toBe(true)
+      expect(document.querySelector('[data-part="content"]')).toBeNull()
+      expect(document.activeElement).toBe(before)
+    })
+
     it('should use placementMobile when the breakpoint says mobile', async () => {
       // No breakpoints plugin: the fallback reports smAndDown, so the
       // mobile override is observable without resizing the browser.
@@ -653,6 +1190,23 @@ describe('tour', () => {
     })
   })
 })
+
+async function part (name: string) {
+  let el: HTMLElement | null = null
+
+  await vi.waitFor(() => {
+    el = document.querySelector(`[data-part="${name}"]`) as HTMLElement | null
+    expect(el).not.toBeNull()
+  })
+
+  return el!
+}
+
+function frame () {
+  return new Promise<void>(resolve => {
+    requestAnimationFrame(() => resolve())
+  })
+}
 
 function press (key: string, target: EventTarget = window, init: KeyboardEventInit = {}) {
   target.dispatchEvent(new KeyboardEvent('keydown', {
