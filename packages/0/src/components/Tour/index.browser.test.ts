@@ -1062,19 +1062,6 @@ describe('tour', () => {
       expect(placed(content())).toBe('center')
     })
 
-    it('should use placementMobile on the last step', async () => {
-      const { tour } = mountPlaced(
-        [{ id: 'one' }, { id: 'two' }],
-        { placementMobile: 'top' },
-        false,
-      )
-      await startAndWait(tour)
-      await tour.next()
-      await vi.waitFor(() => {
-        expect(placed(content())).toBe('top')
-      })
-    })
-
     it('should fall back to edge offsets when anchor positioning is unavailable', async () => {
       const supports = vi.spyOn(CSS, 'supports').mockReturnValue(false)
 
@@ -1158,19 +1145,6 @@ describe('tour', () => {
       expect(document.querySelector('[data-part="content"]')).toBeNull()
       expect(document.activeElement).toBe(before)
     })
-
-    it('should use placementMobile when the breakpoint says mobile', async () => {
-      // No breakpoints plugin: the fallback reports smAndDown, so the
-      // mobile override is observable without resizing the browser.
-      const { tour } = mountPlaced(
-        [{ id: 'one', placement: 'left' }, { id: 'two' }],
-        { placement: 'bottom', placementMobile: 'top' },
-        false,
-      )
-      await startAndWait(tour)
-
-      expect(placed(content())).toBe('top')
-    })
   })
 })
 
@@ -1227,8 +1201,7 @@ function placed (el: HTMLElement): TourPlacement | '' {
 
 function mountPlaced (
   steps: Array<TourTicketInput & { id: ID }>,
-  contentProps: { placement?: TourPlacement, placementMobile?: TourPlacement } = {},
-  breakpoints = true,
+  contentProps: { placement?: TourPlacement } = {},
 ): Harness {
   let tour!: TourContext
 
@@ -1250,13 +1223,9 @@ function mountPlaced (
     },
   })
 
-  const plugins = breakpoints
-    ? [stackPlugin, createBreakpointsPlugin()]
-    : [stackPlugin]
-
   const wrapper = mount(Host, {
     attachTo: document.body,
-    global: { plugins },
+    global: { plugins: [stackPlugin, createBreakpointsPlugin()] },
   })
   wrappers.push(wrapper)
 

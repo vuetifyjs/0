@@ -21,7 +21,6 @@
   import { useTourRootContext } from './TourRoot.vue'
 
   // Composables
-  import { useBreakpoints } from '#v0/composables/useBreakpoints'
   import { useHotkey } from '#v0/composables/useHotkey'
   import { useTour } from '#v0/composables/useTour'
 
@@ -45,8 +44,6 @@
   export interface TourContentProps extends AtomProps {
     /** Preferred placement relative to the activator @default 'bottom' */
     placement?: TourPlacement
-    /** Placement used when `smAndDown` is true */
-    placementMobile?: TourPlacement
     /** Gap from the activator or viewport edge, in px @default 16 */
     offset?: number
     /** Namespace for dependency injection @default 'v0:tour' */
@@ -97,13 +94,11 @@
     as = 'div',
     renderless,
     placement = 'bottom',
-    placementMobile,
     offset = 16,
     namespace = 'v0:tour',
   } = defineProps<TourContentProps>()
 
   const attrs = useAttrs()
-  const breakpoints = useBreakpoints()
   const root = useTourRootContext(namespace)
   const tour = useTour(namespace)
   const atomRef = useTemplateRef<AtomExpose>('atom')
@@ -121,11 +116,8 @@
     if (tour.steps.get(root.step)?.noActivator === true) return 'center'
 
     const fromTicket = tour.steps.get(root.step)?.placement
-    const base = isPlacement(fromTicket) ? fromTicket : placement
 
-    if (!isUndefined(placementMobile) && breakpoints.smAndDown.value) return placementMobile
-
-    return base
+    return isPlacement(fromTicket) ? fromTicket : placement
   })
 
   const style = toRef((): CSSProperties => {
@@ -152,26 +144,6 @@
         maxWidth: `calc(100vw - ${offset * 2}px)`,
         maxHeight: `calc(100vh - ${offset * 2}px)`,
         positionAnchor: `--tour-${root.step}`,
-      }
-
-      if (breakpoints.smAndDown.value && current === 'bottom') {
-        return {
-          ...base,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          top: 'anchor(bottom)',
-          marginTop: gap,
-        }
-      }
-
-      if (breakpoints.smAndDown.value && current === 'top') {
-        return {
-          ...base,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          bottom: 'anchor(top)',
-          marginBottom: gap,
-        }
       }
 
       return {

@@ -102,7 +102,7 @@ Wrap each target in `Tour.Activator`, and put that step's card in its own `Tour.
 
 A three-step walkthrough: search, settings, and the avatar. The instance is created once with [createTourContext](/composables/plugins/use-tour), provided to the page, and onboarded with three steps. Each `Tour.Root` is one step. It exposes that step's `isActive`, `next`, `prev`, `stop`, and `complete` to its children. Activators wrap the controls. One `Tour.Highlight` with `blocking` paints the scrim, and `Tour.Keyboard` binds arrows, Enter, and Escape while the tour is active.
 
-Content portals to the body once the step's activator has an element, then anchors with CSS `position-area` (or a viewport-edge fallback). `placement` and `placementMobile` live on `Tour.Content`; a ticket `placement` of `top` / `bottom` / `left` / `right` / `center` overrides Content's `placement`. The avatar step sets `placement: 'left'` on the ticket so that step sits beside the control while the others keep Content's `bottom` default. Next on the last step calls `complete()` instead of a no-op `next()`; Skip emits `skip` and then `stop()`, so the tour ends without `isComplete`. `blocking` swallows backdrop clicks and does not dismiss. Escape or Skip does.
+Content portals to the body once the step's activator has an element, then anchors with CSS `position-area` (or a viewport-edge fallback). `placement` lives on `Tour.Content`. A ticket `placement` of `top`, `bottom`, `left`, `right`, or `center` overrides it. The avatar step sets `placement: 'left'` on the ticket so that step sits beside the control while the others keep Content's `bottom` default. Next on the last step calls `complete()` instead of a no-op `next()`; Skip emits `skip` and then `stop()`, so the tour ends without `isComplete`. `blocking` swallows backdrop clicks and does not dismiss. Escape or Skip does.
 
 Reach for this shape when the walkthrough targets elements that already exist in the page. Prefer [createTour](/composables/plugins/use-tour) without the compound when you only need the sequencer and will paint chrome yourself. Filter the onboard list before `start()` if a step should not run on a given viewport; do not expect the factory to drop steps for you.
 
@@ -161,9 +161,9 @@ No. `blocking` swallows clicks on the backdrop and `blockActivator` swallows cli
 
 Content stays hidden until that step's activator has an element. A step with `noActivator` centers immediately, and Highlight paints a full scrim for it instead of a cutout. `Tour.Highlight` and `Tour.Content` promote themselves above overlays that open later, so a step that opens search or settings does not cover the card.
 
-??? How do placement and placementMobile interact with the ticket?
+??? How is placement chosen?
 
-`placement` on Content is the default (bottom). `placementMobile` wins when `smAndDown` is true. A ticket `placement` of `top`, `bottom`, `left`, `right`, or `center` overrides Content's `placement` (mobile still wins when set). A step with `noActivator` centers.
+`placement` on Content is the default (bottom). A ticket `placement` of `top`, `bottom`, `left`, `right`, or `center` overrides it. A step with `noActivator` centers.
 
 ??? What is the difference between Next on the last step and Skip?
 

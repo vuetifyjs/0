@@ -128,7 +128,6 @@ export interface TourTicketInput extends StepTicketInput {
   placement?: TourPlacement
   /**
    * No target element. Content centers immediately and Highlight paints a full scrim.
-   * The last step does this even when the flag is omitted.
    */
   noActivator?: boolean
   enter?: (ctx: TourEnterContext) => void | Promise<void>
