@@ -113,7 +113,7 @@
     }
 
     const step = tour.steps.get(id)
-    if (tour.isLast.value || step?.noActivator === true) {
+    if (step?.noActivator === true) {
       if (!isNull(rect.value)) rect.value = null
       return
     }
@@ -230,7 +230,6 @@
   const bare = toRef(() => {
     const id = tour.selectedId.value
     if (!tour.isActive.value || isUndefined(id)) return false
-    if (tour.isLast.value) return true
     return tour.steps.get(id)?.noActivator === true
   })
 

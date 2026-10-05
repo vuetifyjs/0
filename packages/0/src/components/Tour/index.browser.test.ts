@@ -263,7 +263,10 @@ describe('tour', () => {
           tour = context
           tour.steps.onboard([{ id: 'one' }])
 
-          return () => h(Tour.Root, { step: 'one' }, () => h(Tour.Content, {}, () => 'Body'))
+          return () => h(Tour.Root, { step: 'one' }, () => [
+            h(Tour.Activator, { step: 'one' }, () => 'Target'),
+            h(Tour.Content, {}, () => 'Body'),
+          ])
         },
       })
 
@@ -279,6 +282,41 @@ describe('tour', () => {
       expect(content).not.toBeNull()
       expect(content!.hasAttribute('aria-labelledby')).toBe(false)
       expect(content!.hasAttribute('aria-describedby')).toBe(false)
+    })
+
+    it('should move focus into content that mounts onto an open step', async () => {
+      let tour!: TourContext
+      const show = shallowRef(false)
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }])
+
+          return () => h(Tour.Root, { step: 'one' }, () => [
+            h(Tour.Activator, { step: 'one' }, () => 'Target'),
+            show.value ? h(Tour.Content, {}, () => 'Body') : null,
+          ])
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin] },
+      })
+      wrappers.push(wrapper)
+
+      tour.start()
+      await nextTick()
+      await frame()
+
+      show.value = true
+
+      await vi.waitFor(() => {
+        expect(document.activeElement).toBe(content())
+      })
     })
   })
 
@@ -338,8 +376,9 @@ describe('tour', () => {
       const { tour } = mountTour()
       await startAndWait(tour)
 
-      const svg = document.querySelector('[data-part="highlight"] svg')
-      expect(svg).not.toBeNull()
+      await vi.waitFor(() => {
+        expect(document.querySelector('[data-part="highlight"] svg')).not.toBeNull()
+      })
     })
 
     it('should announce the step after the status timer', async () => {
@@ -571,7 +610,7 @@ describe('tour', () => {
       expect(clicked).toBe(1)
     })
 
-    it('should swallow clicks on a last-step scrim', async () => {
+    it('should cut out the last step when it has an activator', async () => {
       let tour!: TourContext
 
       const Host = defineComponent({
@@ -597,9 +636,10 @@ describe('tour', () => {
       tour.start({ stepId: 'two' })
       await nextTick()
 
-      const shield = document.querySelector('[data-part="shield"]') as HTMLElement
-      expect(shield).not.toBeNull()
-      expect(getComputedStyle(shield).pointerEvents).toBe('auto')
+      await vi.waitFor(() => {
+        expect(document.querySelector('[data-part="highlight"] svg mask')).not.toBeNull()
+      })
+      expect(document.querySelector('[data-part="shield"]')).toBeNull()
     })
 
     it('should restore focus after a blocking tour stops', async () => {
@@ -999,7 +1039,7 @@ describe('tour', () => {
       expect(placed(content())).toBe('left')
     })
 
-    it('should center the last step', async () => {
+    it('should keep the last step on its placement', async () => {
       const { tour } = mountPlaced([
         { id: 'one' },
         { id: 'two', placement: 'bottom' },
@@ -1007,7 +1047,7 @@ describe('tour', () => {
       await startAndWait(tour)
       await tour.next()
       await vi.waitFor(() => {
-        expect(placed(content())).toBe('center')
+        expect(placed(content())).toBe('bottom')
       })
     })
 
@@ -1022,7 +1062,7 @@ describe('tour', () => {
       expect(placed(content())).toBe('center')
     })
 
-    it('should center the last step ahead of placementMobile', async () => {
+    it('should use placementMobile on the last step', async () => {
       const { tour } = mountPlaced(
         [{ id: 'one' }, { id: 'two' }],
         { placementMobile: 'top' },
@@ -1031,7 +1071,7 @@ describe('tour', () => {
       await startAndWait(tour)
       await tour.next()
       await vi.waitFor(() => {
-        expect(placed(content())).toBe('center')
+        expect(placed(content())).toBe('top')
       })
     })
 
@@ -1048,11 +1088,7 @@ describe('tour', () => {
       supports.mockRestore()
     })
 
-    it('should center and warn when the activator never arrives, then anchor once it does', async () => {
-      let now = 0
-      const clock = vi.spyOn(performance, 'now').mockImplementation(() => now)
-      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
+    it('should stay hidden until the activator registers', async () => {
       let tour!: TourContext
 
       const Host = defineComponent({
@@ -1075,13 +1111,8 @@ describe('tour', () => {
       tour.start()
       await nextTick()
       await frame()
-      now = 5000
 
-      await vi.waitFor(() => {
-        expect(placed(content())).toBe('center')
-      })
-      expect(spy).toHaveBeenCalled()
-      expect(spy.mock.calls.some(call => String(call[0]).includes('not found after 2000ms'))).toBe(true)
+      expect(document.querySelector('[data-part="content"]')).toBeNull()
 
       const el = document.createElement('button')
       el.textContent = 'Later'
@@ -1093,54 +1124,6 @@ describe('tour', () => {
       })
 
       el.remove()
-      clock.mockRestore()
-    })
-
-    it('should center a card that fills a short screen', async () => {
-      let tour!: TourContext
-      const tall = `${Math.ceil(window.innerHeight * 0.7)}px`
-
-      const Host = defineComponent({
-        setup () {
-          const [, provideTour, context] = createTourContext()
-          provideTour()
-          tour = context
-          tour.steps.onboard([{ id: 'one', placement: 'left' }, { id: 'two' }])
-
-          return () => h(Tour.Root, { step: 'one' }, () => [
-            h(Tour.Activator, {
-              as: 'div',
-              step: 'one',
-              style: `display: block; height: ${tall}`,
-            }, () => 'Tall'),
-            h(Tour.Content, { placement: 'left' }, () => 'Card'),
-          ])
-        },
-      })
-
-      const wrapper = mount(Host, {
-        attachTo: document.body,
-        global: {
-          plugins: [
-            stackPlugin,
-            createBreakpointsPlugin({
-              breakpoints: {
-                xs: 0,
-                sm: 1,
-                md: 100_000,
-                lg: 100_001,
-                xl: 100_002,
-                xxl: 100_003,
-              },
-            }),
-          ],
-        },
-      })
-      wrappers.push(wrapper)
-
-      await startAndWait(tour)
-
-      expect(placed(content())).toBe('center')
     })
 
     it('should not move focus into renderless content', async () => {

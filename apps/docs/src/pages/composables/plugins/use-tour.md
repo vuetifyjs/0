@@ -76,7 +76,6 @@ tour.complete()
 `placement` is `top`, `bottom`, `left`, `right`, or `center`. createTour stores the value. [Tour.Content](/components/disclosure/tour) uses it in place of its own `placement` prop.
 
 - Set `noActivator` on a step that has no target. The card centers immediately.
-- The last step centers the same way, even without that flag.
 - `activate()` sets a 100px scroll margin on the target. `deactivate()` puts the previous margin back.
 - Extra fields you pass to `onboard` or `register` stay on the ticket. Type them through `createTour`'s generic so they survive.
 

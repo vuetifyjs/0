@@ -4,9 +4,9 @@
  * @see https://0.vuetifyjs.com/components/disclosure/tour
  *
  * @remarks
- * Headless overlay for a tour step. Portals to body, waits for the step
- * activator (or a 2s timeout), then positions via CSS anchor with a
- * viewport-edge fallback. Renders only while the parent Root is active.
+ * Headless overlay for a tour step. Portals to body and positions via CSS
+ * anchor with a viewport-edge fallback once the step's activator element
+ * is available. Renders only while the parent Root is active.
  * The panel is a non-modal dialog: the spotlight target stays operable.
  * Escape stops the tour. Focus moves to the panel unless a field already
  * has it, and returns to the opener when the tour ends.
@@ -23,8 +23,6 @@
   // Composables
   import { useBreakpoints } from '#v0/composables/useBreakpoints'
   import { useHotkey } from '#v0/composables/useHotkey'
-  import { useLogger } from '#v0/composables/useLogger'
-  import { useRaf } from '#v0/composables/useRaf'
   import { useTour } from '#v0/composables/useTour'
 
   // Transformers
@@ -35,7 +33,7 @@
 
   // Utilities
   import { getActiveElement, isUndefined } from '#v0/utilities'
-  import { mergeProps, nextTick, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+  import { mergeProps, nextTick, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -105,7 +103,6 @@
   } = defineProps<TourContentProps>()
 
   const attrs = useAttrs()
-  const logger = useLogger()
   const breakpoints = useBreakpoints()
   const root = useTourRootContext(namespace)
   const tour = useTour(namespace)
@@ -113,76 +110,15 @@
 
   const supportsAnchor = IN_BROWSER && CSS.supports?.('position-area', 'top') === true
 
-  const isReady = shallowRef(false)
-  const missing = shallowRef(false)
+  const isReady = toRef(() => {
+    if (!IN_BROWSER || !root.isActive.value) return false
+    if (tour.steps.get(root.step)?.noActivator === true) return true
 
-  let startTime = 0
-  let found = false
-
-  const poll = useRaf(() => {
-    if (!IN_BROWSER) return
-
-    const el = toElement(tour.activators.get(root.step)?.element)
-    if (!isUndefined(el)) {
-      if (found) {
-        isReady.value = true
-        return
-      }
-      found = true
-      poll()
-      return
-    }
-
-    if (performance.now() - startTime > 2000) {
-      logger.warn(`Tour.Content: activator for step "${String(root.step)}" not found after 2000ms`)
-      missing.value = true
-      isReady.value = true
-      return
-    }
-
-    poll()
+    return !isUndefined(toElement(tour.activators.get(root.step)?.element))
   })
-
-  // The poll gives up after 2s and centers. If the activator registers later
-  // (async enter), drop the center latch and anchor on the next frame.
-  watch(() => toElement(tour.activators.get(root.step)?.element), element => {
-    if (isUndefined(element) || !root.isActive.value || !missing.value) return
-
-    missing.value = false
-    poll()
-  })
-
-  watch(() => root.isActive.value, isActive => {
-    if (!IN_BROWSER) return
-
-    poll.cancel()
-    found = false
-    missing.value = false
-
-    if (!isActive) {
-      isReady.value = false
-      return
-    }
-
-    // Last step and noActivator steps have nothing to wait for.
-    if (tour.isLast.value || tour.steps.get(root.step)?.noActivator === true) {
-      isReady.value = true
-      return
-    }
-
-    isReady.value = false
-    startTime = performance.now()
-    poll()
-  }, { immediate: true })
 
   const activePlacement = toRef((): TourPlacement => {
-    if (tour.isLast.value || tour.steps.get(root.step)?.noActivator === true) return 'center'
-    if (missing.value) return 'center'
-
-    const el = toElement(tour.activators.get(root.step)?.element)
-    const height = breakpoints.height.value
-    // Fallback breakpoints report height 0. That is "unmeasured", not a 0px viewport.
-    if (height > 0 && breakpoints.smAndDown.value && !isUndefined(el) && el.getBoundingClientRect().height >= height * 0.6) return 'center'
+    if (tour.steps.get(root.step)?.noActivator === true) return 'center'
 
     const fromTicket = tour.steps.get(root.step)?.placement
     const base = isPlacement(fromTicket) ? fromTicket : placement
@@ -277,7 +213,7 @@
       const element = toElement(atomRef.value?.element)
       if (element instanceof HTMLElement) element.focus({ preventScroll: true })
     })
-  })
+  }, { immediate: true })
 
   useHotkey(() => isVisible.value ? 'escape' : undefined, event => {
     const target = event.target
