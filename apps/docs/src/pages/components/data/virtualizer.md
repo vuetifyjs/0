@@ -143,11 +143,11 @@ They only fire in response to scrolling — never on mount. A list shorter than 
 
 ### Scrolling to an item
 
-The default slot exposes `scrollTo(index, options)` and `reset()`. `options` accepts `behavior`, `block` (`'start' | 'center' | 'end' | 'nearest'`), and a pixel `offset`. Call them from the rows themselves — anything else rendered inside Root sits between the spacers and throws off the row offsets.
+The default slot exposes `scrollTo(index, options)` and `reset()`. `options` accepts `behavior`, `block` (`'start' | 'center' | 'end' | 'nearest'`), and a pixel `offset`. Call them from controls inside the rows — anything else rendered inside Root sits between the spacers and throws off the row offsets.
 
 ```vue
 <script setup lang="ts">
-  import { Virtualizer } from '@vuetify/v0'
+  import { Button, Virtualizer } from '@vuetify/v0'
 
   const rows = Array.from({ length: 10_000 }, (_, i) => ({ id: i, name: `Row ${i + 1}` }))
 </script>
@@ -162,10 +162,14 @@ The default slot exposes `scrollTo(index, options)` and `reset()`. `options` acc
     <Virtualizer.Item
       v-for="item in items"
       :key="item.raw.id"
+      class="flex items-center justify-between h-10 px-3"
       :index="item.index"
-      @click="scrollTo(item.index, { block: 'center', behavior: 'smooth' })"
     >
       {{ item.raw.name }}
+
+      <Button.Root @click="scrollTo(item.index, { block: 'center', behavior: 'smooth' })">
+        Center
+      </Button.Root>
     </Virtualizer.Item>
   </Virtualizer.Root>
 </template>
