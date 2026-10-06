@@ -14,8 +14,8 @@
     form.value?.requestSubmit()
   }
 
-  function onSubmit () {
-    if (form.value) submit(form.value)
+  function onSubmit ({ valid }: { valid: boolean }) {
+    if (valid && form.value) submit(form.value)
   }
 </script>
 
