@@ -44,11 +44,11 @@
         <span class="text-xs font-normal text-on-surface-variant">{{ items.length }}</span>
       </div>
 
-      <Kanban.List class="flex min-h-24 flex-col gap-2 rounded-md p-1 data-[over]:bg-surface-tint">
+      <Kanban.List class="flex min-h-24 flex-col gap-2 rounded-md p-1 data-[over]:bg-surface-tint data-[target]:bg-surface-tint">
         <Kanban.Item
           v-for="card in items"
           :key="card.id"
-          class="cursor-grab touch-none select-none rounded-md border border-divider bg-surface px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary data-[state=dragging]:opacity-40 data-[state=grabbed]:border-primary data-[state=grabbed]:ring-2 data-[state=grabbed]:ring-primary"
+          class="cursor-grab touch-none select-none rounded-md border-2 border-divider bg-surface px-3 py-2 data-[drop=after]:border-b-primary data-[drop=before]:border-t-primary text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary data-[state=dragging]:opacity-40 data-[state=grabbed]:border-primary data-[state=grabbed]:ring-2 data-[state=grabbed]:ring-primary"
           :label="card.title"
           :value="card"
         >

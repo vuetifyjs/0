@@ -66,7 +66,7 @@ Bind each column's item array with `v-model` and render items from the column's 
 
 ### WIP limit and locked column
 
-`accept(value, from, index)` vetoes incoming cross-column moves and must be synchronous; `disabled` freezes a column. Doing rejects a fourth item, and Shipped is locked — rejected moves are announced.
+`accept(value, from, index)` vetoes incoming cross-column moves and must be synchronous; `disabled` freezes a column. Doing refuses a third item and Shipped is locked. A pointer drop on either is rejected and announced; the keyboard target skips them — once Doing is full, ArrowRight from Backlog lands on Review. The pending target is styled from `data-target` on the column and list and `data-drop` on the neighbouring item.
 
 ::: gn-example
 /components/kanban/wip-limit
@@ -74,7 +74,7 @@ Bind each column's item array with `v-model` and render items from the column's 
 
 ### Observing moves
 
-`@move` fires once per committed move with `{ value, from, to, fromIndex, toIndex }`. Keyboard moves commit on every arrow key, so debounce persistence if a backend should only see the final position.
+`@move` fires once per drop with `{ value, from, to, fromIndex, toIndex }` — pointer or keyboard, same-column reorder or cross-column transfer. Arrow keys only move a preview, and Escape discards it, so neither emits.
 
 ::: gn-example
 /components/kanban/move-log
@@ -114,6 +114,25 @@ todo.value = todo.value.filter(card => card.id !== 2)
 
 `orientation="vertical"` stacks columns vertically and lays items out horizontally. Keyboard arrows follow the layout: Left and Right move within a column, Up and Down move between columns. Lists expose `data-orientation` for styling.
 
+### Keyboard drop preview
+
+While an item is picked up, the arrow keys move a drop target instead of the item, and the board is not touched until Space or Enter commits one move. Style the pending target from data attributes: `data-target` on the target `Kanban.Column` and `Kanban.List`, and `data-drop="before"` on the item the dropped one would land before — or `data-drop="after"` on the last item when it would land at the end. An empty target list carries only `data-target`.
+
+```vue
+<template>
+  <Kanban.List class="data-[target]:bg-surface-tint">
+    <Kanban.Item
+      v-for="card in items"
+      :key="card.id"
+      class="data-[drop=after]:border-b-primary data-[drop=before]:border-t-primary"
+      :value="card"
+    >
+      {{ card.title }}
+    </Kanban.Item>
+  </Kanban.List>
+</template>
+```
+
 ### Disabling
 
 `disabled` on `Kanban.Root` freezes the whole board, on `Kanban.Column` freezes moves into, out of, and within that column, and on `Kanban.Item` pins one item. Disabled items drop out of the tab order.
@@ -126,14 +145,14 @@ Moves never require a pointer. Each item is focusable and keyboard-movable, ever
 
 | Key | Action |
 |-----|--------|
-| Space / Enter | Pick up the focused item; drop it when picked up |
-| ArrowUp / ArrowDown | Move the picked-up item one slot within its column (between columns for `orientation="vertical"`) |
-| ArrowLeft / ArrowRight | Move the picked-up item to the previous / next column, keeping its index when it fits (within its column for `orientation="vertical"`). RTL-aware |
-| Home / End | Move the picked-up item to the start / end of its column |
-| Escape | Return the picked-up item to where it was picked up |
-| Tab | Drop in place and move focus on |
+| Space / Enter | Pick up the focused item; when picked up, move it to the drop target |
+| ArrowUp / ArrowDown | Move the drop target one slot within its column (between columns for `orientation="vertical"`) |
+| ArrowLeft / ArrowRight | Move the drop target to the previous / next column that can take the item, keeping its index when it fits (within its column for `orientation="vertical"`). Disabled columns and columns whose `accept` refuses the item are skipped. RTL-aware |
+| Home / End | Move the drop target to the start / end of its column |
+| Escape | Discard the drop target; nothing moves |
+| Tab | Discard the drop target and move focus on |
 
-Focus follows the item: when a move re-renders it in another column, the new element takes focus and stays picked up.
+Each target step is announced. Focus follows the item: when a drop re-renders it in another column, the new element takes focus.
 
 ### ARIA
 
@@ -145,7 +164,7 @@ Focus follows the item: when a move re-renders it in another column, the new ele
 | Column | `aria-label` | `label` prop |
 | List | `role` | `list` |
 | Item | `role` | `listitem` |
-| Item | `aria-roledescription` | `draggable item` |
+| Item | `aria-roledescription` | Locale default, `draggable item` |
 | Item | `aria-posinset` / `aria-setsize` | Position within the column |
 | Item | `aria-describedby` | The `Kanban.Instructions` element, when mounted |
 | Item | `aria-disabled` | `true` when the item, its column, or the board is disabled |
@@ -158,8 +177,10 @@ Focus follows the item: when a move re-renders it in another column, the new ele
 | Root | `data-orientation` | `horizontal` \| `vertical` |
 | Root, Column, List, Item | `data-disabled` | Present when disabled |
 | List | `data-over` | Present while an accepted pointer drag hovers the list |
+| Column, List | `data-target` | Present while a pending keyboard drop would land here |
 | List | `data-orientation` | Axis the list's items flow along |
 | Item | `data-state` | `grabbed` (keyboard) \| `dragging` (pointer) \| `idle` |
+| Item | `data-drop` | `before` \| `after` — the pending keyboard drop lands on this side of the item |
 
 ## FAQ
 
