@@ -58,11 +58,13 @@
   const itemRef = useTemplateRef<AtomExpose>('item')
   const el = toRef(() => toElement(itemRef.value?.element) ?? null)
 
+  // Rows stack by their border box, so padding and borders count toward
+  // the space each one occupies
   useResizeObserver(el, entries => {
     const entry = entries[0]
     if (!entry) return
-    root.resize(index, entry.contentRect.height)
-  })
+    root.resize(index, entry.borderBoxSize[0]?.blockSize ?? entry.contentRect.height)
+  }, { box: 'border-box' })
 
   const itemAttrs = toRef(() => ({
     'data-index': index,

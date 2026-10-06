@@ -7,6 +7,7 @@ import { Virtualizer } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
+import { isUndefined } from '#v0/utilities'
 import { h, nextTick } from 'vue'
 
 // Types
@@ -17,17 +18,17 @@ import type { VirtualizerRootContext } from './VirtualizerRoot.vue'
 // constructor but never fires real layout-driven callbacks, so component
 // tests need to trigger them manually the same way createVirtual's own
 // suite does.
-function stubResizeObserver (rectByTarget: (el: Element) => { width: number, height: number }) {
+function stubResizeObserver (rectByTarget: (el: Element) => { width: number, height: number, border?: number }) {
   const realResizeObserver = globalThis.ResizeObserver
   globalThis.ResizeObserver = vi.fn(function (this: unknown, callback: ResizeObserverCallback) {
     return {
       observe: (target: Element) => {
-        const { width, height } = rectByTarget(target)
+        const { width, height, border } = rectByTarget(target)
         callback([
           {
             target,
             contentRect: { width, height, top: 0, left: 0, bottom: height, right: width, x: 0, y: 0, toJSON: () => ({}) },
-            borderBoxSize: [],
+            borderBoxSize: isUndefined(border) ? [] : [{ inlineSize: width, blockSize: border }],
             contentBoxSize: [],
             devicePixelContentBoxSize: [],
           } as unknown as ResizeObserverEntry,
@@ -124,6 +125,25 @@ describe('virtualizer', () => {
     await nextTick()
 
     expect(resize).toHaveBeenCalledWith(3, 88)
+    wrapper.unmount()
+    restore()
+  })
+
+  it('should report the border-box height so padding and borders count', async () => {
+    const restore = stubResizeObserver(() => ({ width: 400, height: 40, border: 57 }))
+    const resize = vi.fn()
+
+    const wrapper = mount({
+      setup () {
+        provideVirtualizerRoot('v0:virtualizer:root', {
+          resize,
+        } as any)
+        return () => h(Virtualizer.Item as any, { index: 2 }, () => 'content')
+      },
+    })
+    await nextTick()
+
+    expect(resize).toHaveBeenCalledWith(2, 57)
     wrapper.unmount()
     restore()
   })
