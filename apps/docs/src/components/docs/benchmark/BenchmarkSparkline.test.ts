@@ -19,12 +19,40 @@ describe('benchmarkSparkline', () => {
     expect(wrapper.findAll('circle')).toHaveLength(4)
   })
 
-  it('should render one polyline with 4 coordinate pairs', () => {
+  it('should render a curve through every point', () => {
     const wrapper = mount(BenchmarkSparkline, { props: { points } })
-    const polyline = wrapper.find('polyline')
-    expect(polyline.exists()).toBe(true)
-    const coords = polyline.attributes('points')!.trim().split(/\s+/)
-    expect(coords).toHaveLength(4)
+    const curve = wrapper.find('path')
+    expect(curve.exists()).toBe(true)
+    const d = curve.attributes('d') ?? ''
+    expect(d.startsWith('M ')).toBe(true)
+    expect(d.match(/ C /g)).toHaveLength(3)
+  })
+
+  it('should mark only the latest point once history is dense', () => {
+    const dense = Array.from({ length: 8 }, (_, index) => ({
+      label: `1.${index}.0`,
+      value: 10_000 + index * 500,
+      isCurrent: index === 7,
+    }))
+    const wrapper = mount(BenchmarkSparkline, { props: { points: dense } })
+    const circles = wrapper.findAll('circle')
+    expect(circles).toHaveLength(1)
+    expect(circles[0]?.attributes('fill')).toBe('none')
+    expect(wrapper.find('path').attributes('d')).toContain(' C ')
+  })
+
+  it('should render a single marker and no curve for one point', () => {
+    const wrapper = mount(BenchmarkSparkline, {
+      props: { points: [{ label: '1.0.0', value: 1_000 }] },
+    })
+    expect(wrapper.find('path').exists()).toBe(false)
+    expect(wrapper.findAll('circle')).toHaveLength(1)
+  })
+
+  it('should render nothing drawable for an empty series', () => {
+    const wrapper = mount(BenchmarkSparkline, { props: { points: [] } })
+    expect(wrapper.find('path').exists()).toBe(false)
+    expect(wrapper.findAll('circle')).toHaveLength(0)
   })
 
   it('should hollow out the last circle when it is the current point', () => {
