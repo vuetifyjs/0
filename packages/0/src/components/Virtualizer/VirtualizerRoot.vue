@@ -133,8 +133,10 @@
     direction,
     anchor,
     anchorSmooth,
-    onStartReached,
-    onEndReached,
+    // createVirtual captures options once; read the callback props at fire
+    // time so a replaced handler (inline `() => load(page)`) stays current
+    onStartReached: distance => onStartReached?.(distance),
+    onEndReached: distance => onEndReached?.(distance),
     startThreshold,
     endThreshold,
     momentum,

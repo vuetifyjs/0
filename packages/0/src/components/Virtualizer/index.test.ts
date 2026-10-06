@@ -298,6 +298,23 @@ describe('virtualizer', () => {
     expect(wrapper.find('[data-spacer]').exists()).toBe(false)
   })
 
+  it('should call the latest edge callback after the prop is replaced', async () => {
+    const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
+    const first = vi.fn()
+    const second = vi.fn()
+    const wrapper = mount(Virtualizer.Root, {
+      props: { items, itemHeight: 40, height: 500, onEndReached: first },
+    })
+    await nextTick()
+
+    await wrapper.setProps({ onEndReached: second })
+    await wrapper.trigger('scroll')
+    await new Promise(resolve => requestAnimationFrame(resolve))
+
+    expect(first).not.toHaveBeenCalled()
+    expect(second).toHaveBeenCalledTimes(1)
+  })
+
   it('should react to items changing', async () => {
     const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
     const wrapper = mount(Virtualizer.Root, {
