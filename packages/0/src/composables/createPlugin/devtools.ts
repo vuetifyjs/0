@@ -28,7 +28,7 @@ const INSPECTOR_ID = 'v0-plugins'
 // TabIcon only treats `/…` or `https?://…` as images. data: URIs become a CSS class and vanish.
 function pluginLogo (): string {
   const origin = globalThis.location?.origin ?? ''
-  if (/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/.test(origin)) {
+  if (/^https?:\/\/(?:127\.0\.0\.1|localhost|\[::1\])(?::\d+)?$/.test(origin)) {
     return `${origin}/vzero.svg`
   }
   return 'https://0.vuetifyjs.com/vzero.svg'

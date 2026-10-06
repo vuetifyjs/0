@@ -32,7 +32,7 @@ function fixture (inner: string) {
   document.body.append(container)
   onTestFinished(() => container.remove())
 
-  return (id: string) => container.querySelector<HTMLElement>(`[data-id="${id}"]`)!
+  return (id: string) => container.querySelector<HTMLElement>(`[data-id="${CSS.escape(id)}"]`)!
 }
 
 async function trap (root: HTMLElement, options: UseFocusTrapOptions = {}) {
