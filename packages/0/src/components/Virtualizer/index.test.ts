@@ -186,6 +186,17 @@ describe('virtualizer', () => {
     expect((bare.element as HTMLElement).style.overflowY).toBe('auto')
   })
 
+  it('should keep a consumer inline height when the height prop is omitted', () => {
+    const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
+    const wrapper = mount(Virtualizer.Root, {
+      props: { items, itemHeight: 40 },
+      attrs: { style: { height: '600px' } },
+    })
+
+    expect((wrapper.element as HTMLElement).style.height).toBe('600px')
+    expect((wrapper.element as HTMLElement).style.overflowY).toBe('auto')
+  })
+
   it('should shift the rendered window when the container is scrolled', async () => {
     const items = Array.from({ length: 1000 }, (_, i) => ({ id: i }))
     let visible: readonly { index: number }[] = []

@@ -81,7 +81,7 @@
     /** Attributes to bind to the scroll container */
     attrs: {
       tabindex: 0
-      style: { overflowY: 'auto', height: string | undefined }
+      style: { overflowY: 'auto', height?: string }
       onScroll: () => void
       onScrollend: () => void
     }
@@ -156,7 +156,10 @@
     reset: virtual.reset,
     attrs: {
       tabindex: 0,
-      style: { overflowY: 'auto', height: height.value },
+      style: {
+        overflowY: 'auto',
+        ...(height.value ? { height: height.value } : {}),
+      },
       onScroll: virtual.scroll,
       onScrollend: virtual.scrollend,
     },
