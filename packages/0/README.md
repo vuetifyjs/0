@@ -165,6 +165,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 |-----------|-------------|
 | [DataGrid](https://0.vuetifyjs.com/components/data/data-grid) | Headless data grid with column layout, cell editing, row ordering, and row spanning |
 | [DataTable](https://0.vuetifyjs.com/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
+| [Kanban](https://0.vuetifyjs.com/components/data/kanban) | Board of movable items in columns with pointer drag, keyboard moves, and per-column v-model |
 
 ### Composables
 

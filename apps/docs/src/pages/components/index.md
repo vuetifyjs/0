@@ -80,6 +80,7 @@ Components for displaying and interacting with data collections.
 | - | - |
 | [DataGrid](/components/data/data-grid) | Headless data grid with column layout, cell editing, row ordering, and row spanning |
 | [DataTable](/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
+| [Kanban](/components/data/kanban) | Board of movable items in columns with pointer drag, keyboard moves, and per-column v-model |
 
 ## Semantic
 
