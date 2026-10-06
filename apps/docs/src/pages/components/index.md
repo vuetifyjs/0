@@ -80,6 +80,7 @@ Components for displaying and interacting with data collections.
 | - | - |
 | [DataGrid](/components/data/data-grid) | Headless data grid with column layout, cell editing, row ordering, and row spanning |
 | [DataTable](/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
+| [Virtualizer](/components/data/virtualizer) | Virtualized list that renders only the visible window, with automatic row measurement |
 
 ## Semantic
 
