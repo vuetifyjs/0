@@ -148,6 +148,26 @@ describe('kanban (browser)', () => {
       expect(wrapper.find('[data-live]').text()).toContain('cannot')
     })
 
+    it('should not emit when dropped back on its own slot', async () => {
+      const { board, moves, el, center, drag } = mountBoard()
+      const target = center(el('[data-item="b"]'))
+
+      await drag('b', { x: target.x, y: target.y - 5 })
+
+      expect(board.value.todo).toEqual(['a', 'b', 'c'])
+      expect(moves).toHaveLength(0)
+    })
+
+    it('should drop into an empty column', async () => {
+      const { board, moves, el, drag } = mountBoard({ board: { todo: ['a', 'b'], doing: [] } })
+      const list = el('[data-list="doing"]').getBoundingClientRect()
+
+      await drag('a', { x: list.left + list.width / 2, y: list.top + 20 })
+
+      expect(board.value.doing).toEqual(['a'])
+      expect(moves).toEqual([{ value: 'a', from: 'todo', to: 'doing', fromIndex: 0, toIndex: 0 }])
+    })
+
     it('should mark the list under an accepted drag', async () => {
       const { el, center } = mountBoard()
       const source = el('[data-item="a"]')
