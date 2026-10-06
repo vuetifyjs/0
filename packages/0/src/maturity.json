@@ -727,8 +727,10 @@
       "description": "Headless compound component for rendering tabular data with sorting, pagination, selection, and expansion support."
     },
     "Kanban": {
-      "level": "draft",
-      "category": "data"
+      "level": "preview",
+      "since": null,
+      "category": "data",
+      "description": "Headless board of movable items in columns, with v-model per column, pointer drag, keyboard pick-up and move, and live-region announcements. Built on createKanban."
     },
     "Virtualizer": {
       "level": "draft",
