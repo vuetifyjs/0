@@ -93,16 +93,29 @@ Rows do not need a fixed height. Each `Virtualizer.Item` reports its measured he
 
 `@end-reached` fires when the scroll position comes within `end-threshold` pixels of the end. Append to `items` and the window extends. `@start-reached` mirrors it for the top.
 
+The callbacks fire on every animation frame of scrolling while the position stays inside the threshold, not once per crossing. An async loader needs an in-flight guard so a slow request is not started several times.
+
 ```vue
 <script setup lang="ts">
   import { Virtualizer } from '@vuetify/v0'
   import { shallowRef } from 'vue'
 
   const rows = shallowRef(Array.from({ length: 100 }, (_, i) => i))
+  const loading = shallowRef(false)
 
-  function onEndReached () {
-    const start = rows.value.length
-    rows.value = [...rows.value, ...Array.from({ length: 100 }, (_, i) => start + i)]
+  async function fetchPage (start: number) {
+    await new Promise(resolve => setTimeout(resolve, 300))
+    return Array.from({ length: 100 }, (_, i) => start + i)
+  }
+
+  async function onEndReached () {
+    if (loading.value) return
+    loading.value = true
+    try {
+      rows.value = [...rows.value, ...await fetchPage(rows.value.length)]
+    } finally {
+      loading.value = false
+    }
   }
 </script>
 
