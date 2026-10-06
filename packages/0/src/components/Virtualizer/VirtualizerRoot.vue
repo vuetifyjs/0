@@ -79,13 +79,6 @@
     scrollTo: (index: number, options?: ScrollToOptions) => void
     /** Reset the virtualizer to its initial scroll state */
     reset: () => void
-    /** Attributes to bind to the scroll container */
-    attrs: {
-      tabindex: number | string
-      style: { overflowY: 'auto', height?: string }
-      onScroll: () => void
-      onScrollend: () => void
-    }
   }
 
   export const [useVirtualizerRoot, provideVirtualizerRoot] = createContext<VirtualizerRootContext>()
@@ -158,29 +151,31 @@
     return isNumber(_height) || /^\d*\.?\d+$/.test(_height) ? `${_height}px` : _height
   })
 
-  // tabindex and overflow are defaults, not state, so consumer attrs are
-  // merged last and win (a `tabindex="-1"` or custom overflow sticks)
+  // Root always binds these to its own element (renderless is unsupported),
+  // so they stay out of the slot. tabindex and overflow are defaults, not
+  // state, so consumer attrs are merged last and win.
+  const containerAttrs = toRef(() => ({
+    tabindex: 0,
+    style: {
+      overflowY: 'auto',
+      ...(height.value ? { height: height.value } : {}),
+    },
+    onScroll: virtual.scroll,
+    onScrollend: virtual.scrollend,
+  }))
+
   const slotProps = toRef((): VirtualizerRootSlotProps<T> => ({
     items: virtual.items.value,
     state: virtual.state.value,
     scrollTo: virtual.scrollTo,
     reset: virtual.reset,
-    attrs: {
-      tabindex: (attrs.tabindex as number | string | undefined) ?? 0,
-      style: {
-        overflowY: 'auto',
-        ...(height.value ? { height: height.value } : {}),
-      },
-      onScroll: virtual.scroll,
-      onScrollend: virtual.scrollend,
-    },
   }))
 </script>
 
 <template>
   <Atom
     ref="container"
-    v-bind="mergeProps(slotProps.attrs, attrs)"
+    v-bind="mergeProps(containerAttrs, attrs)"
     :as
     :renderless
   >

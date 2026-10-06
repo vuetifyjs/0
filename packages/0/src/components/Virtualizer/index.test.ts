@@ -246,6 +246,22 @@ describe('virtualizer', () => {
     expect(typeof captured?.reset).toBe('function')
   })
 
+  it('should not expose container attrs through the default slot', () => {
+    const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
+    let keys: string[] = []
+    mount(Virtualizer.Root, {
+      props: { items, itemHeight: 40, height: 500 },
+      slots: {
+        default: (props: object) => {
+          keys = Object.keys(props)
+          return []
+        },
+      },
+    })
+
+    expect(keys.toSorted()).toEqual(['items', 'reset', 'scrollTo', 'state'])
+  })
+
   it('should size the scroll container from the height prop', () => {
     const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
 
@@ -266,20 +282,12 @@ describe('virtualizer', () => {
 
   it('should let consumer tabindex and overflow override the defaults', () => {
     const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
-    let tabindex: unknown
     const wrapper = mount(Virtualizer.Root, {
       props: { items, itemHeight: 40, height: 500 },
       attrs: { tabindex: '-1', style: { overflowY: 'hidden' } },
-      slots: {
-        default: (props: { attrs: { tabindex: unknown } }) => {
-          tabindex = props.attrs.tabindex
-          return []
-        },
-      },
     })
 
     expect(wrapper.attributes('tabindex')).toBe('-1')
-    expect(tabindex).toBe('-1')
     expect((wrapper.element as HTMLElement).style.overflowY).toBe('hidden')
     expect((wrapper.element as HTMLElement).style.height).toBe('500px')
   })
