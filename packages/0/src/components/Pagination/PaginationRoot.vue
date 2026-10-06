@@ -27,17 +27,20 @@
 
   // Composables
   import { createContext } from '#v0/composables/createContext'
-  import { createOverflow } from '#v0/composables/createOverflow'
   import { createPagination } from '#v0/composables/createPagination'
   import { createRegistry } from '#v0/composables/createRegistry'
   import { useLocale } from '#v0/composables/useLocale'
+  import { useResizeObserver } from '#v0/composables/useResizeObserver'
+
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
 
   // Constants
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
-  import { isNullOrUndefined, pxToNumber } from '#v0/utilities'
-  import { computed, shallowRef, toRef, useTemplateRef, watch } from 'vue'
+  import { isElement, isNullOrUndefined, isUndefined } from '#v0/utilities'
+  import { computed, nextTick, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -130,45 +133,26 @@
   const items = createRegistry()
 
   const atom = useTemplateRef<AtomExpose>('atom')
-  const itemWidth = shallowRef(0)
-  const itemGap = shallowRef(0)
+  const root = toRef(() => toElement(atom.value?.element))
+  const parentWidth = shallowRef(0)
+  const capacity = shallowRef<number>()
+  const pitch = shallowRef(0)
+  let insets: number | undefined
 
-  const overflow = createOverflow({
-    container: () => atom.value?.element as Element | undefined,
-    itemWidth,
-    gap: itemGap,
-  })
-
-  /* v8 ignore start -- browser-only measurement code */
-  watch([() => items.size, () => overflow.width.value], () => {
-    if (!IN_BROWSER) return
-
-    const el = items.seek('first')?.value as HTMLElement | undefined
-    const root = overflow.container.value
-    if (!el || !root) return
-
-    // Use rAF to ensure layout has settled after DOM updates
-    requestAnimationFrame(() => {
-      const rootStyle = getComputedStyle(root)
-      const style = getComputedStyle(el)
-      const marginX = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
-      const gapX = pxToNumber(rootStyle.gap)
-
-      itemWidth.value = (el.offsetWidth || 0) + marginX
-      itemGap.value = gapX
-    })
-  }, { flush: 'post' })
-  /* v8 ignore stop */
+  useResizeObserver(() => root.value?.parentElement, entries => {
+    const next = entries[0]?.contentRect.width ?? 0
+    if (parentWidth.value > 0 && next > parentWidth.value) capacity.value = undefined
+    parentWidth.value = next
+  }, { immediate: true })
 
   const visible = computed(() => {
-    const totalCap = overflow.capacity.value
+    const probe = pitch.value && parentWidth.value ? Math.ceil(parentWidth.value / pitch.value) : Infinity
+    const pageCap = capacity.value ?? probe
 
     // SSR or not measured yet
-    if (totalCap === Infinity) return totalVisible ?? 7
+    if (pageCap === Infinity) return totalVisible ?? 7
 
     /* v8 ignore start -- branches require browser measurement */
-    // Subtract nav buttons from total capacity to get page item capacity
-    const pageCap = Math.max(0, totalCap - controls.size)
     const noVisible = isNullOrUndefined(totalVisible)
 
     if (pageCap > 0) return noVisible ? pageCap : Math.min(totalVisible, pageCap)
@@ -184,6 +168,59 @@
     size: () => size,
     itemsPerPage: () => itemsPerPage,
   })
+
+  /* v8 ignore start -- browser-only measurement code */
+  function elements (registry: RegistryContext) {
+    return registry.values().map(ticket => ticket.value).filter(isElement)
+  }
+
+  function measure () {
+    const pages = elements(items)
+    const all = [...elements(controls), ...pages]
+
+    if (!IN_BROWSER || !root.value || isUndefined(insets) || all.length === 0) return
+
+    const width = root.value.getBoundingClientRect().width - insets
+
+    const rects = all.map(el => el.getBoundingClientRect())
+    const span = Math.max(...rects.map(rect => rect.right)) - Math.min(...rects.map(rect => rect.left))
+    const gap = all.length > 1 ? (span - rects.reduce((sum, rect) => sum + rect.width, 0)) / (all.length - 1) : 0
+    const widths = rects.map(rect => rect.width + gap)
+    const reserved = widths.slice(0, all.length - pages.length).reduce((sum, value) => sum + value, 0)
+    const average = pages.length > 0
+      ? widths.slice(-pages.length).reduce((sum, value) => sum + value, 0) / pages.length
+      : widths[0]
+
+    return {
+      pitch: average,
+      rendered: pages.length,
+      slots: Math.max(0, Math.floor(Number(((width + gap - reserved) / average).toFixed(2)))),
+    }
+  }
+
+  function fit (shrink = false) {
+    const result = measure()
+    if (!result) return
+
+    if (isUndefined(capacity.value)) {
+      pitch.value = result.pitch
+      if (pagination.items.value.length > result.rendered) return
+      capacity.value = result.slots
+    } else {
+      capacity.value = shrink ? Math.min(capacity.value, result.slots) : result.slots
+    }
+  }
+
+  useResizeObserver(root, entries => {
+    const entry = entries[0]
+    if (!entry) return
+
+    insets = (entry.borderBoxSize[0]?.inlineSize ?? entry.contentRect.width) - entry.contentRect.width
+    fit()
+  })
+
+  watch(pagination.items, () => nextTick(() => fit(true)), { flush: 'post' })
+  /* v8 ignore stop */
 
   const slotProps = toRef((): PaginationRootSlotProps => ({
     page: pagination.page.value,
