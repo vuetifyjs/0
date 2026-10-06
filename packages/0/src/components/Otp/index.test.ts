@@ -305,6 +305,23 @@ describe('otp', () => {
       expect(event.defaultPrevented).toBe(false)
     })
 
+    it('should leave a textless beforeinput such as a deletion to the native input', async () => {
+      const model = ref('12')
+      const { itemEls, wait } = mountOtp({ model, length: 4 })
+      await wait()
+
+      const input = itemEls()[1]!.element as HTMLInputElement
+      const event = new Event('beforeinput', { cancelable: true }) as InputEvent
+      Object.defineProperty(event, 'data', { value: null })
+      Object.defineProperty(event, 'inputType', { value: 'deleteContentBackward' })
+      Object.defineProperty(event, 'target', { value: input })
+      input.dispatchEvent(event)
+      await wait()
+
+      expect(event.defaultPrevented).toBe(false)
+      expect(model.value).toBe('12')
+    })
+
     it('should distribute multi-character beforeinput data instead of merging it', async () => {
       const model = ref('5')
       const { itemEls, wait } = mountOtp({ model, length: 4 })
