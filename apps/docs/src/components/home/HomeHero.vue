@@ -57,7 +57,7 @@
 
       if (npmRes.ok) {
         const npm = await npmRes.json()
-        newStats.downloads = formatNumber(npm.downloads)
+        newStats.downloads = formatNumber(npm.downloads, 0)
       }
 
       stats.value = newStats
@@ -66,9 +66,9 @@
     }
   })
 
-  function formatNumber (num: number): string {
-    if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
+  function formatNumber (num: number, decimals = 1): string {
+    if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(decimals)}M`
+    if (num >= 1000) return `${(num / 1000).toFixed(decimals)}K`
     return num.toString()
   }
 </script>
