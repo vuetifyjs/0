@@ -6,11 +6,12 @@
  * @remarks
  * Root of the Kanban compound. Creates a `createKanban` board and a
  * pointer-only `useDragDrop` context, provides both to Column / List / Item,
- * and owns the keyboard move model: an Item is picked up with Space or Enter,
- * moved one slot (or one column) per arrow key, dropped with Space or Enter,
- * and returned to its origin with Escape. Every committed move emits `move`
- * and writes back through each Column's v-model. Announcements land in the
- * Kanban.LiveRegion when one is mounted.
+ * and owns the keyboard move model. Space or Enter picks an Item up; arrow
+ * keys then move a virtual drop target — skipping columns that are disabled
+ * or whose `accept` refuses the item — without touching the board. Space or
+ * Enter commits one move to the target; Escape discards it. Each committed
+ * move emits `move` once and writes back through each Column's v-model.
+ * Announcements land in the Kanban.LiveRegion when one is mounted.
  */
 
 <script lang="ts">
@@ -22,9 +23,10 @@
   import { createKanban } from '#v0/composables/createKanban'
   import { PointerAdapter, useDragDrop } from '#v0/composables/useDragDrop'
   import { useLocale } from '#v0/composables/useLocale'
+  import { useLogger } from '#v0/composables/useLogger'
 
   // Utilities
-  import { clamp, isNull, isNumber, isString, isUndefined } from '#v0/utilities'
+  import { clamp, isNull, isNumber, isString, isThenable, isUndefined } from '#v0/utilities'
   import { mergeProps, nextTick, shallowReadonly, shallowRef, toRef, toValue, useAttrs } from 'vue'
 
   // Types
@@ -67,15 +69,22 @@
     toIndex: number
   }
 
+  export interface KanbanPosition {
+    /** Column id */
+    column: ID
+    /** Index within the column */
+    index: number
+  }
+
   export interface KanbanGrab {
     /** The picked-up item's value */
     value: unknown
     /** Accessible name of the item */
     label: string | undefined
-    /** Column the item was picked up from */
-    column: ID
-    /** Index the item was picked up from */
-    index: number
+    /** Where the item currently sits on the board */
+    origin: KanbanPosition
+    /** Where a drop would land it — the index it would have after the move */
+    target: KanbanPosition
   }
 
   export interface KanbanRootContext {
@@ -89,6 +98,8 @@
     isDisabled: Readonly<Ref<boolean>>
     /** Keyboard pick-up in progress, or null */
     grabbed: Readonly<ShallowRef<KanbanGrab | null>>
+    /** Pending keyboard drop target, or null when it equals the origin */
+    preview: Readonly<Ref<KanbanPosition | null>>
     /** Item value that should take focus after it re-renders */
     pending: ShallowRef<unknown>
     /** Latest announcement for Kanban.LiveRegion */
@@ -103,12 +114,14 @@
     place: (value: unknown, to: ID, index: number, label?: string) => boolean
     /** Pick an item up for keyboard moving */
     grab: (value: unknown, label?: string) => void
-    /** Move the picked-up item one step */
+    /** Move the drop target one step */
     shift: (direction: KanbanDirection) => void
-    /** Drop the picked-up item where it is */
+    /** Commit the picked-up item to its drop target */
     drop: () => void
-    /** Return the picked-up item to where it was picked up */
+    /** Discard the drop target; the board is not touched */
     cancel: () => void
+    /** Re-read the picked-up item's position after an external board change */
+    sync: () => void
     /** Write a message to the live region */
     announce: (text: string) => void
   }
@@ -127,7 +140,7 @@
   }
 
   export type KanbanRootEmits = {
-    /** An item changed position. Fires once per committed move. */
+    /** An item changed position. Fires once per committed drop. */
     move: [payload: KanbanMovePayload]
   }
 
@@ -168,6 +181,7 @@
   const emit = defineEmits<KanbanRootEmits>()
 
   const locale = useLocale()
+  const logger = useLogger()
 
   const kanban = createKanban<SortableTicketInput, KanbanColumnInput>({
     disabled: () => disabled,
@@ -183,13 +197,22 @@
   const instructions = shallowRef<string>()
   const isDisabled = toRef(() => disabled)
 
+  const preview = toRef((): KanbanPosition | null => {
+    const grab = grabbed.value
+    if (isNull(grab)) return null
+    const { origin, target } = grab
+    if (origin.column === target.column && origin.index === target.index) return null
+    return target
+  })
+
   function name (value: unknown, label?: string) {
     if (label) return label
     if (isString(value) || isNumber(value)) return String(value)
     return locale.ti('Kanban.item') ?? 'Item'
   }
 
-  function title (column: KanbanBoardColumn) {
+  function title (column: KanbanBoardColumn | undefined) {
+    if (!column) return ''
     return toValue(column.label) ?? String(column.id)
   }
 
@@ -210,6 +233,11 @@
     return undefined
   }
 
+  function reject (value: unknown, label?: string) {
+    const item = name(value, label)
+    announce(locale.ti('Kanban.rejected', { item }) ?? `${item} cannot move there`)
+  }
+
   function move (value: unknown, to: ID, index: number, label?: string) {
     const at = locate(value)
     if (!at) return false
@@ -219,7 +247,7 @@
     const moved = kanban.transfer(at.ticket.id, to, index)
 
     if (!moved) {
-      announce(locale.ti('Kanban.rejected', { item: name(value, label) }) ?? `${name(value, label)} cannot move there`)
+      reject(value, label)
       return false
     }
 
@@ -230,93 +258,14 @@
     return true
   }
 
-  function position (value: unknown) {
-    const at = locate(value)
-    if (!at) return undefined
-    return {
-      column: title(at.column),
-      position: at.ticket.index + 1,
-      size: at.column.items.size,
-    }
-  }
-
-  function grab (value: unknown, label?: string) {
-    const at = locate(value)
-    if (!at || disabled) return
-
-    grabbed.value = { value, label, column: at.column.id, index: at.ticket.index }
-
-    const item = name(value, label)
-    const now = position(value)
-    const fallback = `${item} picked up in ${now?.column}, position ${now?.position} of ${now?.size}. Use the arrow keys to move, Space or Enter to drop, Escape to cancel.`
-    announce(locale.ti('Kanban.grabbed', { item, ...now }) ?? fallback)
-  }
-
-  function shift (direction: KanbanDirection) {
-    const grab = grabbed.value
-    if (isNull(grab)) return
-
-    const at = locate(grab.value)
-    if (!at) return
-
-    const index = at.ticket.index
-    const last = at.column.items.size - 1
-    let column = at.column
-    let target = index
-
-    switch (direction) {
-      case 'up': {
-        target = index - 1
-        break
-      }
-      case 'down': {
-        target = index + 1
-        break
-      }
-      case 'first': {
-        target = 0
-        break
-      }
-      case 'last': {
-        target = last
-        break
-      }
-      case 'prev':
-      case 'next': {
-        const columns = kanban.columns.values()
-        const next = columns[columns.indexOf(at.column) + (direction === 'next' ? 1 : -1)]
-        if (!next) return
-        column = next
-        target = clamp(index, 0, next.items.size)
-        break
-      }
-    }
-
-    if (column === at.column && (target < 0 || target > last || target === index)) return
-
-    if (!move(grab.value, column.id, target, grab.label)) return
-
-    pending.value = grab.value
-
-    const item = name(grab.value, grab.label)
-    const now = position(grab.value)
-    const fallback = `${item} moved to ${now?.column}, position ${now?.position} of ${now?.size}`
-    announce(locale.ti('Kanban.moved', { item, ...now }) ?? fallback)
-  }
-
   function settle (value: unknown, label?: string) {
     const item = name(value, label)
-    const at = position(value)
-    const fallback = `${item} dropped in ${at?.column}, position ${at?.position} of ${at?.size}`
-    announce(locale.ti('Kanban.dropped', { item, ...at }) ?? fallback)
-  }
-
-  function drop () {
-    const grab = grabbed.value
-    if (isNull(grab)) return
-
-    grabbed.value = null
-    settle(grab.value, grab.label)
+    const at = locate(value)
+    const column = title(at?.column)
+    const position = (at?.ticket.index ?? 0) + 1
+    const size = at?.column.items.size ?? 0
+    const fallback = `${item} dropped in ${column}, position ${position} of ${size}`
+    announce(locale.ti('Kanban.dropped', { item, column, position, size }) ?? fallback)
   }
 
   function place (value: unknown, to: ID, index: number, label?: string) {
@@ -325,22 +274,156 @@
     return true
   }
 
+  /** Highest index the item could take in `column` — one past the end unless it already lives there. */
+  function capacity (column: KanbanBoardColumn, home: ID) {
+    return column.id === home ? column.items.size - 1 : column.items.size
+  }
+
+  /** Mirrors transfer's gates so the keyboard target never rests where a drop would be refused. */
+  function admits (column: KanbanBoardColumn, from: KanbanBoardColumn, ticket: SortableTicket, index: number) {
+    if (column.id === from.id) return true
+    if (disabled || toValue(column.disabled) || toValue(from.disabled) || toValue(ticket.disabled)) return false
+    if (isUndefined(column.accept)) return true
+
+    try {
+      const result: unknown = column.accept(ticket, from.id, index)
+      return !isThenable(result) && Boolean(result)
+    } catch (error) {
+      logger.error('accept predicate threw; treating as reject', error)
+      return false
+    }
+  }
+
+  function over (grab: KanbanGrab) {
+    const item = name(grab.value, grab.label)
+    const column = kanban.columns.get(grab.target.column)
+    const position = grab.target.index + 1
+    const size = column ? capacity(column, grab.origin.column) + 1 : 0
+    const fallback = `${item} over ${title(column)}, position ${position} of ${size}`
+    announce(locale.ti('Kanban.over', { item, column: title(column), position, size }) ?? fallback)
+  }
+
+  function grab (value: unknown, label?: string) {
+    const at = locate(value)
+    if (!at || disabled) return
+
+    const origin = { column: at.column.id, index: at.ticket.index }
+    grabbed.value = { value, label, origin, target: origin }
+
+    const item = name(value, label)
+    const column = title(at.column)
+    const position = origin.index + 1
+    const size = at.column.items.size
+    const fallback = `${item} picked up in ${column}, position ${position} of ${size}. Use the arrow keys to move, Space or Enter to drop, Escape to cancel.`
+    announce(locale.ti('Kanban.grabbed', { item, column, position, size }) ?? fallback)
+  }
+
+  function shift (direction: KanbanDirection) {
+    const grab = grabbed.value
+    if (isNull(grab)) return
+
+    const at = locate(grab.value)
+    if (!at) {
+      grabbed.value = null
+      return
+    }
+
+    const column = kanban.columns.get(grab.target.column) ?? at.column
+    const current = grab.target.index
+    const max = capacity(column, at.column.id)
+    let target: KanbanPosition | undefined
+
+    if (direction === 'prev' || direction === 'next') {
+      const columns = kanban.columns.values()
+      const step = direction === 'next' ? 1 : -1
+
+      for (let index = columns.indexOf(column) + step; index >= 0 && index < columns.length; index += step) {
+        const candidate = columns[index]!
+        const slot = clamp(current, 0, capacity(candidate, at.column.id))
+        if (!admits(candidate, at.column, at.ticket, slot)) continue
+        target = { column: candidate.id, index: slot }
+        break
+      }
+
+      if (!target) {
+        if (columns[columns.indexOf(column) + step]) reject(grab.value, grab.label)
+        return
+      }
+    } else {
+      const slots: Record<typeof direction, number> = {
+        up: current - 1,
+        down: current + 1,
+        first: 0,
+        last: max,
+      }
+      const slot = slots[direction]
+
+      if (slot < 0 || slot > max || slot === current) return
+
+      if (!admits(column, at.column, at.ticket, slot)) {
+        reject(grab.value, grab.label)
+        return
+      }
+
+      target = { column: column.id, index: slot }
+    }
+
+    const next = { ...grab, target }
+    grabbed.value = next
+    over(next)
+  }
+
+  function drop () {
+    const grab = grabbed.value
+    if (isNull(grab)) return
+
+    const moving = !isNull(preview.value)
+    grabbed.value = null
+
+    if (moving) {
+      if (!move(grab.value, grab.target.column, grab.target.index, grab.label)) return
+      pending.value = grab.value
+    }
+
+    settle(grab.value, grab.label)
+  }
+
   function cancel () {
     const grab = grabbed.value
     if (isNull(grab)) return
 
     grabbed.value = null
 
+    const item = name(grab.value, grab.label)
+    const column = title(kanban.columns.get(grab.origin.column))
+    const fallback = `Move cancelled. ${item} stays in ${column}`
+    announce(locale.ti('Kanban.cancelled', { item, column }) ?? fallback)
+  }
+
+  function sync () {
+    const grab = grabbed.value
+    if (isNull(grab)) return
+
     const at = locate(grab.value)
-    if (at && (at.column.id !== grab.column || at.ticket.index !== grab.index)) {
-      move(grab.value, grab.column, grab.index, grab.label)
-      pending.value = grab.value
+    if (!at) {
+      grabbed.value = null
+      return
     }
 
-    const item = name(grab.value, grab.label)
-    const origin = kanban.columns.get(grab.column)
-    const fallback = `Move cancelled. ${item} returned to ${origin ? title(origin) : 'its column'}`
-    announce(locale.ti('Kanban.cancelled', { item, column: origin ? title(origin) : '' }) ?? fallback)
+    const origin = { column: at.column.id, index: at.ticket.index }
+    const column = kanban.columns.get(grab.target.column)
+    const target = column
+      ? { column: column.id, index: clamp(grab.target.index, 0, capacity(column, origin.column)) }
+      : origin
+
+    if (
+      origin.column === grab.origin.column
+      && origin.index === grab.origin.index
+      && target.column === grab.target.column
+      && target.index === grab.target.index
+    ) return
+
+    grabbed.value = { ...grab, origin, target }
   }
 
   provideKanbanRoot(namespace, {
@@ -349,6 +432,7 @@
     orientation: toRef(() => orientation),
     isDisabled,
     grabbed: shallowReadonly(grabbed),
+    preview,
     pending,
     message: shallowReadonly(message),
     instructions,
@@ -359,6 +443,7 @@
     shift,
     drop,
     cancel,
+    sync,
     announce,
   })
 

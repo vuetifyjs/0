@@ -7,9 +7,10 @@
  * One movable item. Identified by `value`, which must match an entry in the
  * parent Kanban.Column's v-model. Pointer-draggable through the board's
  * drag-and-drop context, and keyboard-movable without a pointer: Space or
- * Enter picks it up, arrows move it one slot or one column, Home / End jump to
- * the ends of its column, Space or Enter drops, Escape returns it. Focus
- * follows the item when a move re-renders it in another column.
+ * Enter picks it up, arrows and Home / End move a drop target that the item
+ * previews through `data-drop` on its neighbours, Space or Enter commits the
+ * move, and Escape or leaving the item discards it. Focus follows the item
+ * when a drop re-renders it in another column.
  */
 
 <script lang="ts">
@@ -20,10 +21,14 @@
   import { useKanbanColumn } from './KanbanColumn.vue'
   import { useKanbanRoot } from './KanbanRoot.vue'
 
+  // Composables
+  import { useLocale } from '#v0/composables/useLocale'
+
   // Transformers
   import { toElement } from '#v0/composables/toElement'
 
   // Utilities
+  import { isNull } from '#v0/utilities'
   import { mergeProps, nextTick, onBeforeUnmount, onMounted, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -31,6 +36,8 @@
   import type { KanbanDirection } from './KanbanRoot.vue'
 
   export type KanbanItemState = 'grabbed' | 'dragging' | 'idle'
+
+  export type KanbanItemDrop = 'before' | 'after'
 
   export interface KanbanItemProps<T = unknown> extends AtomProps {
     /** The item's value — must be an entry of the parent Column's v-model */
@@ -54,17 +61,20 @@
     isDragging: boolean
     /** Whether the item cannot be moved */
     isDisabled: boolean
+    /** Side of this item a pending keyboard drop would land on */
+    drop: KanbanItemDrop | undefined
     /** Attributes to bind to the item element */
     attrs: {
       'role': 'listitem'
       'tabindex': 0 | -1
-      'aria-roledescription': 'draggable item'
+      'aria-roledescription': string
       'aria-describedby': string | undefined
       'aria-disabled': boolean
       'aria-posinset': number
       'aria-setsize': number
       'data-state': KanbanItemState
       'data-disabled': true | undefined
+      'data-drop': KanbanItemDrop | undefined
       'onKeydown': (e: KeyboardEvent) => void
       'onBlur': (e: FocusEvent) => void
     }
@@ -91,6 +101,7 @@
 
   const root = useKanbanRoot(namespace)
   const column = useKanbanColumn(namespace)
+  const locale = useLocale()
 
   const atomRef = useTemplateRef<AtomExpose>('atom')
   const el = toRef(() => toElement(atomRef.value?.element) ?? null)
@@ -99,6 +110,19 @@
   const isDisabled = toRef(() => disabled || column.isDisabled.value)
   const isGrabbed = toRef(() => root.grabbed.value?.value === value)
   const isDragging = toRef(() => root.dnd.active.value?.value.value === value)
+
+  const drop = toRef((): KanbanItemDrop | undefined => {
+    const target = root.preview.value
+    if (isNull(target) || target.column !== column.ticket.id || isGrabbed.value) return undefined
+
+    const moving = root.grabbed.value?.value
+    const rest = column.model.value.filter(item => item !== moving)
+    const at = rest.indexOf(value)
+
+    if (at === target.index) return 'before'
+    if (target.index === rest.length && at === rest.length - 1) return 'after'
+    return undefined
+  })
 
   const state = toRef((): KanbanItemState => {
     if (isGrabbed.value) return 'grabbed'
@@ -206,11 +230,7 @@
 
   function onBlur () {
     if (!isGrabbed.value) return
-    // A move that re-renders the item elsewhere detaches this element first;
-    // only a real focus departure drops in place.
-    if (!el.value?.isConnected) return
-    if (root.pending.value === value) return
-    root.drop()
+    root.cancel()
   }
 
   const slotProps = toRef((): KanbanItemSlotProps => ({
@@ -219,16 +239,18 @@
     isGrabbed: isGrabbed.value,
     isDragging: isDragging.value,
     isDisabled: isDisabled.value,
+    drop: drop.value,
     attrs: {
       'role': 'listitem',
       'tabindex': isDisabled.value ? -1 : 0,
-      'aria-roledescription': 'draggable item',
+      'aria-roledescription': locale.ti('Kanban.roledescription') ?? 'draggable item',
       'aria-describedby': root.instructions.value,
       'aria-disabled': isDisabled.value,
       'aria-posinset': index.value + 1,
       'aria-setsize': column.model.value.length,
       'data-state': state.value,
       'data-disabled': isDisabled.value || undefined,
+      'data-drop': drop.value,
       'onKeydown': onKeydown,
       'onBlur': onBlur,
     },

@@ -37,10 +37,13 @@
     isOver: boolean
     /** Whether the column is disabled */
     isDisabled: boolean
+    /** Whether a picked-up item would drop into this list */
+    isTarget: boolean
     /** Attributes to bind to the list element */
     attrs: {
       'role': 'list'
       'data-over': true | undefined
+      'data-target': true | undefined
       'data-disabled': true | undefined
       'data-orientation': KanbanOrientation
     }
@@ -93,12 +96,16 @@
     zone.unregister()
   })
 
+  const isTarget = toRef(() => root.preview.value?.column === column.ticket.id)
+
   const slotProps = toRef((): KanbanListSlotProps => ({
     isOver: zone.isOver.value && zone.willAccept.value,
     isDisabled: column.isDisabled.value,
+    isTarget: isTarget.value,
     attrs: {
       'role': 'list',
       'data-over': (zone.isOver.value && zone.willAccept.value) || undefined,
+      'data-target': isTarget.value || undefined,
       'data-disabled': column.isDisabled.value || undefined,
       'data-orientation': column.orientation.value,
     },

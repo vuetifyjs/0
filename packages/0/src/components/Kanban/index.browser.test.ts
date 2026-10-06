@@ -172,36 +172,76 @@ describe('kanban (browser)', () => {
   })
 
   describe('keyboard', () => {
-    it('should keep focus on the item through a cross-column move', async () => {
-      const { board, el } = mountBoard()
+    async function key (target: HTMLElement, value: string) {
+      target.dispatchEvent(new KeyboardEvent('keydown', { key: value, bubbles: true }))
+      await nextTick()
+      await nextTick()
+    }
+
+    it('should keep focus on the item through a cross-column drop', async () => {
+      const { board, moves, el } = mountBoard()
       const item = el('[data-item="b"]')
 
       item.focus()
-      item.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
-      await nextTick()
-      item.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
-      await nextTick()
-      await nextTick()
+      await key(item, ' ')
+      await key(item, 'ArrowRight')
+
+      expect(document.activeElement).toBe(item)
+      expect(board.value.doing).toEqual(['d'])
+
+      await key(item, 'Enter')
 
       expect(board.value.doing).toEqual(['d', 'b'])
+      expect(moves).toHaveLength(1)
       expect(document.activeElement).toBe(el('[data-item="b"]'))
-      expect(el('[data-item="b"]').dataset.state).toBe('grabbed')
+      expect(el('[data-item="b"]').dataset.state).toBe('idle')
     })
 
-    it('should keep focus on the item through a same-column move', async () => {
+    it('should keep focus on the item through a same-column drop', async () => {
       const { board, el } = mountBoard()
       const item = el('[data-item="a"]')
 
       item.focus()
-      item.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
-      await nextTick()
-      item.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-      await nextTick()
-      await nextTick()
+      await key(item, ' ')
+      await key(item, 'ArrowDown')
+      await key(item, 'Enter')
 
       expect(board.value.todo).toEqual(['b', 'a', 'c'])
       expect(document.activeElement).toBe(el('[data-item="a"]'))
-      expect(el('[data-item="a"]').dataset.state).toBe('grabbed')
+    })
+
+    it('should cancel when focus moves to another element', async () => {
+      const { board, moves, el } = mountBoard()
+      const item = el('[data-item="a"]')
+
+      item.focus()
+      await key(item, ' ')
+      await key(item, 'ArrowRight')
+      el('[data-item="c"]').focus()
+      await nextTick()
+
+      expect(item.dataset.state).toBe('idle')
+      expect(board.value.todo).toEqual(['a', 'b', 'c'])
+      expect(moves).toHaveLength(0)
+    })
+
+    it('should skip a rejecting column like a pointer drag can', async () => {
+      const { board, moves, el } = mountBoard({
+        board: { todo: ['a'], doing: ['d'], done: [] },
+        columns: { doing: { accept: () => false } },
+      })
+      const item = el('[data-item="a"]')
+
+      item.focus()
+      await key(item, ' ')
+      await key(item, 'ArrowRight')
+
+      expect(el('[data-list="done"]').dataset.target).toBeDefined()
+
+      await key(item, 'Enter')
+
+      expect(board.value.done).toEqual(['a'])
+      expect(moves).toEqual([{ value: 'a', from: 'todo', to: 'done', fromIndex: 0, toIndex: 0 }])
     })
 
     it('should mirror horizontal arrows in RTL', async () => {
@@ -209,10 +249,9 @@ describe('kanban (browser)', () => {
       const item = el('[data-item="d"]')
 
       item.focus()
-      item.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
-      await nextTick()
-      item.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
-      await nextTick()
+      await key(item, ' ')
+      await key(item, 'ArrowRight')
+      await key(item, 'Enter')
 
       expect(board.value.todo).toEqual(['d', 'a', 'b', 'c'])
     })

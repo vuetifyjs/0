@@ -14,7 +14,7 @@ export { provideKanbanRoot, useKanbanRoot } from './KanbanRoot.vue'
 
 export type { KanbanColumnContext, KanbanColumnProps, KanbanColumnSlotProps } from './KanbanColumn.vue'
 export type { KanbanInstructionsProps, KanbanInstructionsSlotProps } from './KanbanInstructions.vue'
-export type { KanbanItemProps, KanbanItemSlotProps, KanbanItemState } from './KanbanItem.vue'
+export type { KanbanItemDrop, KanbanItemProps, KanbanItemSlotProps, KanbanItemState } from './KanbanItem.vue'
 export type { KanbanListProps, KanbanListSlotProps } from './KanbanList.vue'
 export type { KanbanLiveRegionProps, KanbanLiveRegionSlotProps } from './KanbanLiveRegion.vue'
 export type {
@@ -25,6 +25,7 @@ export type {
   KanbanGrab,
   KanbanMovePayload,
   KanbanOrientation,
+  KanbanPosition,
   KanbanRootContext,
   KanbanRootEmits,
   KanbanRootProps,
@@ -46,9 +47,10 @@ import Root from './KanbanRoot.vue'
  * A headless shell over `createKanban` (board state) and `useDragDrop`
  * (pointer drag). Each Column binds its items with v-model; moves write the
  * new order back. Items move by pointer drag or, without a pointer, by
- * keyboard: Space or Enter picks an item up, arrow keys move it, Space or
- * Enter drops it, Escape returns it. Columns can veto incoming moves with
- * `accept` and freeze with `disabled`.
+ * keyboard: Space or Enter picks an item up, arrow keys move a previewed drop
+ * target (skipping columns that refuse the item), Space or Enter commits one
+ * move, Escape discards it. Columns can veto incoming moves with `accept` and
+ * freeze with `disabled`.
  *
  * @see https://0.vuetifyjs.com/components/data/kanban
  *
@@ -149,7 +151,9 @@ export const Kanban = {
    * One movable item.
    *
    * Identified by `value`, which must match an entry of the parent
-   * Column's v-model. Exposes `data-state="grabbed" | "dragging" | "idle"`.
+   * Column's v-model. Exposes `data-state="grabbed" | "dragging" | "idle"`,
+   * and `data-drop="before" | "after"` on the neighbour of a pending keyboard
+   * drop target.
    *
    * @see https://0.vuetifyjs.com/components/data/kanban#keyboard-moves
    *
