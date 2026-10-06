@@ -185,6 +185,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/forms/otp': RouteRecordInfo<
+      '/components/forms/otp',
+      '/components/forms/otp',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/forms/radio': RouteRecordInfo<
       '/components/forms/radio',
       '/components/forms/radio',
@@ -1720,6 +1727,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/forms/number-field.md': {
       routes:
         | '/components/forms/number-field'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/forms/otp.md': {
+      routes:
+        | '/components/forms/otp'
       views:
         | never
       pathParamNames:
