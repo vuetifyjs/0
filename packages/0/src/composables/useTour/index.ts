@@ -736,7 +736,10 @@ export function createTour<
 
   function inside (): boolean {
     if (isUndefined(gateToken)) return false
-    if (asyncStore?.getStore() === gateToken) return true
+    // The gate name is one per tour, so a superseded submit still carries it
+    // on the async stack. Node already has this submit's token in storage.
+    // Trust only that, or the old submit settles the navigation that replaced it.
+    if (asyncStore) return asyncStore.getStore() === gateToken
     if (chain.includes(gateToken)) return true
     return frame(mark)
   }
