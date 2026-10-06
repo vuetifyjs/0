@@ -11,6 +11,7 @@ features:
   github: /composables/createKanban/
   level: 2
 related:
+  - /components/data/kanban
   - /composables/data/create-sortable
   - /composables/system/use-drag-drop
   - /composables/registration/create-registry
