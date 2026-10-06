@@ -81,7 +81,7 @@
     reset: () => void
     /** Attributes to bind to the scroll container */
     attrs: {
-      tabindex: 0
+      tabindex: number | string
       style: { overflowY: 'auto', height?: string }
       onScroll: () => void
       onScrollend: () => void
@@ -157,13 +157,15 @@
     return isNumber(_height) ? `${_height}px` : _height
   })
 
+  // tabindex and overflow are defaults, not state, so consumer attrs are
+  // merged last and win (a `tabindex="-1"` or custom overflow sticks)
   const slotProps = toRef((): VirtualizerRootSlotProps<T> => ({
     items: virtual.items.value,
     state: virtual.state.value,
     scrollTo: virtual.scrollTo,
     reset: virtual.reset,
     attrs: {
-      tabindex: 0,
+      tabindex: (attrs.tabindex as number | string | undefined) ?? 0,
       style: {
         overflowY: 'auto',
         ...(height.value ? { height: height.value } : {}),
@@ -177,7 +179,7 @@
 <template>
   <Atom
     ref="container"
-    v-bind="mergeProps(attrs, slotProps.attrs)"
+    v-bind="mergeProps(slotProps.attrs, attrs)"
     :as
     :renderless
   >

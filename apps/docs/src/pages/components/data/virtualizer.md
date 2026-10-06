@@ -132,7 +132,7 @@ The default slot exposes `scrollTo(index, options)` and `reset()`. `options` acc
 
 ## Accessibility
 
-The scroll container gets `tabindex="0"` so keyboard users can focus it and scroll with the arrow, Page Up/Down, Home, and End keys (axe `scrollable-region-focusable`).
+The scroll container gets `tabindex="0"` so keyboard users can focus it and scroll with the arrow, Page Up/Down, Home, and End keys (axe `scrollable-region-focusable`). It is a default — pass your own `tabindex` (for example `-1` when focus lives on the rows) and it wins. The same goes for `overflow-y` in your own `style`.
 
 Virtualizer imposes no role. A bare row has no semantics, and the right role depends on the content — a feed, a listbox, a grid. Pass the role and its position attributes yourself; they reach the rendered element through attribute passthrough. Because only the visible window is in the DOM, `aria-setsize` and `aria-posinset` are how assistive tech learns the true list length.
 

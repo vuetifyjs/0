@@ -237,6 +237,26 @@ describe('virtualizer', () => {
     expect((bare.element as HTMLElement).style.overflowY).toBe('auto')
   })
 
+  it('should let consumer tabindex and overflow override the defaults', () => {
+    const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
+    let tabindex: unknown
+    const wrapper = mount(Virtualizer.Root, {
+      props: { items, itemHeight: 40, height: 500 },
+      attrs: { tabindex: '-1', style: { overflowY: 'hidden' } },
+      slots: {
+        default: (props: { attrs: { tabindex: unknown } }) => {
+          tabindex = props.attrs.tabindex
+          return []
+        },
+      },
+    })
+
+    expect(wrapper.attributes('tabindex')).toBe('-1')
+    expect(tabindex).toBe('-1')
+    expect((wrapper.element as HTMLElement).style.overflowY).toBe('hidden')
+    expect((wrapper.element as HTMLElement).style.height).toBe('500px')
+  })
+
   it('should keep a consumer inline height when the height prop is omitted', () => {
     const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
     const wrapper = mount(Virtualizer.Root, {
