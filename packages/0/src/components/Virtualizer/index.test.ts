@@ -256,6 +256,9 @@ describe('virtualizer', () => {
     const rem = mount(Virtualizer.Root, { props: { items, itemHeight: 40, height: '20rem' } })
     expect((rem.element as HTMLElement).style.height).toBe('20rem')
 
+    const unitless = mount(Virtualizer.Root, { props: { items, itemHeight: 40, height: '400' } })
+    expect((unitless.element as HTMLElement).style.height).toBe('400px')
+
     const bare = mount(Virtualizer.Root, { props: { items, itemHeight: 40 } })
     expect((bare.element as HTMLElement).style.height).toBe('')
     expect((bare.element as HTMLElement).style.overflowY).toBe('auto')

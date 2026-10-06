@@ -152,9 +152,10 @@
 
   provideVirtualizerRoot(namespace, virtual)
 
+  // A unitless string ("400") is pixels, matching how createVirtual parses it
   const height = toRef(() => {
     if (isUndefined(_height)) return undefined
-    return isNumber(_height) ? `${_height}px` : _height
+    return isNumber(_height) || /^\d*\.?\d+$/.test(_height) ? `${_height}px` : _height
   })
 
   // tabindex and overflow are defaults, not state, so consumer attrs are
