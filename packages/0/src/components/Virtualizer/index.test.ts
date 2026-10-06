@@ -148,6 +148,37 @@ describe('virtualizer', () => {
     restore()
   })
 
+  it('should fall back to the content rect when borderBoxSize is missing', async () => {
+    const real = globalThis.ResizeObserver
+    globalThis.ResizeObserver = vi.fn(function (this: unknown, callback: ResizeObserverCallback) {
+      return {
+        observe: (target: Element) => callback([
+          {
+            target,
+            contentRect: { width: 400, height: 64, top: 0, left: 0, bottom: 64, right: 400, x: 0, y: 0, toJSON: () => ({}) },
+          } as unknown as ResizeObserverEntry,
+        ], this as ResizeObserver),
+        unobserve: () => {},
+        disconnect: () => {},
+      }
+    }) as unknown as typeof ResizeObserver
+    const resize = vi.fn()
+
+    const wrapper = mount({
+      setup () {
+        provideVirtualizerRoot('v0:virtualizer:root', {
+          resize,
+        } as any)
+        return () => h(Virtualizer.Item as any, { index: 1 }, () => 'content')
+      },
+    })
+    await nextTick()
+
+    expect(resize).toHaveBeenCalledWith(1, 64)
+    wrapper.unmount()
+    globalThis.ResizeObserver = real
+  })
+
   it('should ignore resize callbacks with no entries', async () => {
     const real = globalThis.ResizeObserver
     globalThis.ResizeObserver = vi.fn(function (this: unknown, callback: ResizeObserverCallback) {
