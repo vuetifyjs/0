@@ -204,6 +204,10 @@ Edge callbacks run from scroll events only, never on mount. If the initial `item
 
 No. The spacers and scroll measurement need the wrapper element, so Root warns and renders no spacers when `renderless` is set. For full control over the markup, use [createVirtual](/composables/data/create-virtual) directly.
 
+??? What does Virtualizer render on the server?
+
+No rows. The visible window is measured from the scroll container, which only exists in the browser, so the server HTML holds the empty container and its spacers. Hydration stays consistent — the client mounts, measures, and then renders the window — but server-rendered HTML carries no row content for crawlers or no-JS readers.
+
 ??? Can I virtualize a DataTable with this?
 
 Not the `DataTable` compound — it keeps every registered row mounted. Use [createDataTable](/composables/data/create-data-table) with `VirtualDataTableAdapter` and [createVirtual](/composables/data/create-virtual); see [DataTable virtualization](/components/data/data-table#virtualization).
