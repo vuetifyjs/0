@@ -95,6 +95,8 @@ Rows do not need a fixed height. Each `Virtualizer.Item` reports its measured he
 
 The callbacks fire on every animation frame of scrolling while the position stays inside the threshold, not once per crossing. An async loader needs an in-flight guard so a slow request is not started several times.
 
+They only fire in response to scrolling — never on mount. A list shorter than the viewport plus `end-threshold` cannot scroll, so `@end-reached` never fires for it. Load the first page yourself before handing `items` to Root.
+
 ```vue
 <script setup lang="ts">
   import { Virtualizer } from '@vuetify/v0'
@@ -193,6 +195,10 @@ Virtualizer imposes no role. A bare row has no semantics, and the right role dep
 ??? Which props are reactive?
 
 `items`, `height`, `onStartReached`, and `onEndReached` are read live. `itemHeight`, `overscan`, `direction`, `anchor`, `anchorSmooth`, the thresholds, `momentum`, and `elastic` are read once when Root mounts — key the Root to apply a new value.
+
+??? Why doesn't end-reached fire for my first page?
+
+Edge callbacks run from scroll events only, never on mount. If the initial `items` are shorter than the viewport plus `end-threshold`, nothing can scroll and the callback never fires. Fetch the first page before rendering, or keep loading until the list overflows the container.
 
 ??? Does Virtualizer support renderless mode?
 
