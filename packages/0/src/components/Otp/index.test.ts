@@ -291,17 +291,36 @@ describe('otp', () => {
       expect((itemEls()[0]!.element as HTMLInputElement).value).toBe('4')
     })
 
-    it('should ignore multi-character beforeinput data', async () => {
+    it('should leave multi-character insertReplacementText to the input handler', async () => {
       const { itemEls, wait } = mountOtp({ length: 3 })
       await wait()
 
       const input = itemEls()[0]!.element as HTMLInputElement
       const event = new Event('beforeinput', { cancelable: true }) as InputEvent
-      Object.defineProperty(event, 'data', { value: 'ab' })
+      Object.defineProperty(event, 'data', { value: '12' })
+      Object.defineProperty(event, 'inputType', { value: 'insertReplacementText' })
       Object.defineProperty(event, 'target', { value: input })
       input.dispatchEvent(event)
 
       expect(event.defaultPrevented).toBe(false)
+    })
+
+    it('should distribute multi-character beforeinput data instead of merging it', async () => {
+      const model = ref('5')
+      const { itemEls, wait } = mountOtp({ model, length: 4 })
+      await wait()
+
+      const input = itemEls()[0]!.element as HTMLInputElement
+      const event = new Event('beforeinput', { cancelable: true }) as InputEvent
+      Object.defineProperty(event, 'data', { value: null })
+      Object.defineProperty(event, 'inputType', { value: 'insertFromDrop' })
+      Object.defineProperty(event, 'dataTransfer', { value: { getData: () => '1234' } })
+      Object.defineProperty(event, 'target', { value: input })
+      input.dispatchEvent(event)
+      await wait()
+
+      expect(event.defaultPrevented).toBe(true)
+      expect(model.value).toBe('1234')
     })
 
     it('should clear a filled box on native backspace without moving focus', async () => {

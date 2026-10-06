@@ -109,6 +109,29 @@ describe('otp', () => {
     expect(document.activeElement).toBe(itemEls()[3]!.element)
   })
 
+  // Without maxlength a native drop onto a filled box merged with its
+  // character ('51234') and onInput then shifted the code.
+  it('should distribute text dropped onto a filled box instead of merging it', async () => {
+    const model = ref('5')
+    const { itemEls, wait } = mountOtp({ model, length: 4 })
+    await wait()
+
+    const dataTransfer = new DataTransfer()
+    dataTransfer.setData('text/plain', '1234')
+    const event = new InputEvent('beforeinput', {
+      inputType: 'insertFromDrop',
+      dataTransfer,
+      bubbles: true,
+      cancelable: true,
+    })
+    itemEls()[0]!.element.dispatchEvent(event)
+    await wait()
+
+    expect(event.defaultPrevented).toBe(true)
+    expect(model.value).toBe('1234')
+    expect(document.activeElement).toBe(itemEls()[3]!.element)
+  })
+
   it('should focus the next empty box when pasting into a later box on an empty value', async () => {
     const model = ref('')
     const { itemEls, wait } = mountOtp({ model, length: 6 })

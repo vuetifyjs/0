@@ -106,20 +106,32 @@
   const char = toRef(() => root.value.value[index] ?? '')
   const state = toRef((): OtpItemState => char.value === '' ? 'empty' : 'filled')
 
+  function spread (text: string) {
+    const previous = root.value.value.length
+    const written = root.distribute(text, index)
+    if (written > 0) root.focus(Math.min(index, previous) + written)
+  }
+
   function onBeforeinput (e: InputEvent) {
     if (root.isDisabled.value || root.isReadonly.value) return
     if (root.isValidating.value) {
       e.preventDefault()
       return
     }
-    if (!e.data || e.data.length !== 1) return
-    if (!root.accepts(e.data)) {
+    // Autofill keeps the native path; onInput distributes the replaced value
+    if (e.inputType === 'insertReplacementText') return
+    const text = e.data ?? e.dataTransfer?.getData('text') ?? ''
+    if (text.length > 1) {
+      // A drop onto a filled box would otherwise merge with its character
       e.preventDefault()
+      spread(text)
       return
     }
+    if (text.length !== 1) return
     e.preventDefault()
+    if (!root.accepts(text)) return
     const at = Math.min(index, root.value.value.length)
-    root.write(at, e.data)
+    root.write(at, text)
     root.focus(at + 1)
   }
 
@@ -139,9 +151,7 @@
     }
 
     if (text.length > 1) {
-      const previous = root.value.value.length
-      const written = root.distribute(text, index)
-      if (written > 0) root.focus(Math.min(index, previous) + written)
+      spread(text)
       // Vue skips the patch when this box's model char didn't change.
       target.value = char.value
       return
@@ -195,10 +205,7 @@
   function onPaste (e: ClipboardEvent) {
     if (root.isDisabled.value || root.isReadonly.value) return
     e.preventDefault()
-    const text = e.clipboardData?.getData('text') ?? ''
-    const previous = root.value.value.length
-    const written = root.distribute(text, index)
-    if (written > 0) root.focus(Math.min(index, previous) + written)
+    spread(e.clipboardData?.getData('text') ?? '')
   }
 
   const slotProps = toRef((): OtpItemSlotProps => ({
