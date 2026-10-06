@@ -71,9 +71,25 @@ Need a ready-made agent? Paste the [setup prompt](/guide/tooling/agents) into [G
 
 Install SKILL.md via [skills.sh](https://www.skills.sh) — works with Claude Code, Codex, Cursor, Grok Build, Windsurf, and [35+ agents](https://github.com/vercel-labs/skills#supported-agents):
 
-```bash
+::: code-group no-filename
+
+```bash pnpm
+pnpm dlx skills add vuetifyjs/0
+```
+
+```bash npm
 npx skills add vuetifyjs/0
 ```
+
+```bash yarn
+yarn dlx skills add vuetifyjs/0
+```
+
+```bash bun
+bunx skills add vuetifyjs/0
+```
+
+:::
 
 ### Editors and CLIs
 
