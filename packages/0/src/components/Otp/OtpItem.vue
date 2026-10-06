@@ -56,7 +56,6 @@
       'type': 'text'
       'inputmode': 'numeric' | 'text'
       'autocomplete': 'one-time-code'
-      'maxlength': 1
       'value': string
       'disabled': true | undefined
       'readonly': true | undefined
@@ -210,8 +209,9 @@
     attrs: {
       'type': 'text',
       'inputmode': root.pattern.value === 'numeric' ? 'numeric' : 'text',
+      // No maxlength: UA editing (autofill, insertText) truncates to it before
+      // onInput can distribute the full code. beforeinput caps typed input.
       'autocomplete': 'one-time-code',
-      'maxlength': 1,
       'value': char.value,
       'disabled': root.isDisabled.value || undefined,
       'readonly': root.isReadonly.value || undefined,

@@ -115,7 +115,6 @@ Otp.Root is a `role="group"` with a locale-driven default accessible name. Each 
 | `aria-describedby` | Same id as Root when `ariaDescribedby` is set |
 | `autocomplete` | `one-time-code` |
 | `inputmode` | `numeric` when `pattern` is `'numeric'`, otherwise `text` |
-| `maxlength` | `1` |
 
 ### Data Attributes
 
