@@ -440,18 +440,25 @@ function resume<T> (token: object, fn: () => T): T {
   return resumeThen(token, fn)
 }
 
+interface ErrorHost {
+  prepareStackTrace?: (error: Error, sites: unknown[]) => unknown
+  stackTraceLimit: number
+}
+
 function frame (mark: string): boolean {
-  const prepare = Error.prepareStackTrace
-  const limit = Error.stackTraceLimit
+  // Node types add these statics; paper and genesis compile this file without them.
+  const host = Error as unknown as ErrorHost
+  const prepare = host.prepareStackTrace
+  const limit = host.stackTraceLimit
   // A custom formatter can drop async frames. The default keeps the gate name.
-  Reflect.deleteProperty(Error, 'prepareStackTrace')
-  Error.stackTraceLimit = 50
+  Reflect.deleteProperty(host, 'prepareStackTrace')
+  host.stackTraceLimit = 50
   try {
     const stack = new Error('v0:tour').stack
     return isString(stack) && stack.includes(mark)
   } finally {
-    Error.stackTraceLimit = limit
-    if (isFunction(prepare)) Error.prepareStackTrace = prepare
+    host.stackTraceLimit = limit
+    if (!isUndefined(prepare)) host.prepareStackTrace = prepare
   }
 }
 
