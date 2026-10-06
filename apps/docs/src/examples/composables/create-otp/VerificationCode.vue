@@ -18,6 +18,17 @@
     cells.value?.[Math.min(Math.max(index, 0), max)]?.focus()
   }
 
+  // Typed characters land here so a filled cell is overwritten in place; maxlength
+  // is left off the cells because the browser would truncate autofilled codes to it
+  function onBeforeinput (index: number, event: InputEvent) {
+    if (!event.data || event.data.length !== 1) return
+    event.preventDefault()
+    if (!otp.accepts(event.data)) return
+    const at = Math.min(index, otp.value.value.length)
+    otp.write(at, event.data)
+    focus(at + 1)
+  }
+
   function onInput (index: number, event: Event) {
     const target = event.target as HTMLInputElement
     const text = target.value
@@ -63,8 +74,8 @@
       :data-state="state"
       :disabled="locked"
       inputmode="numeric"
-      maxlength="1"
       :value="item.value"
+      @beforeinput="onBeforeinput(item.index, $event)"
       @input="onInput(item.index, $event)"
       @keydown="onKeydown(item.index, $event)"
       @paste="onPaste(item.index, $event)"
