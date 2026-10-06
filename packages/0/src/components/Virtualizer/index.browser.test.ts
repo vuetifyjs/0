@@ -1,0 +1,175 @@
+import { afterEach, describe, expect, it } from 'vitest'
+
+import { Virtualizer } from './index'
+
+// Utilities
+import { mount } from '@vue/test-utils'
+import { h, nextTick } from 'vue'
+
+// Types
+import type { VueWrapper } from '@vue/test-utils'
+import type { Component } from 'vue'
+
+const wrappers: VueWrapper[] = []
+
+afterEach(() => {
+  while (wrappers.length > 0) {
+    wrappers.pop()!.unmount()
+  }
+})
+
+function frame () {
+  return new Promise(resolve => requestAnimationFrame(resolve))
+}
+
+async function settle () {
+  await nextTick()
+  await frame()
+  await frame()
+  await nextTick()
+}
+
+function mountVirtualizer (options: {
+  count?: number
+  props?: Record<string, unknown>
+  attrs?: Record<string, unknown>
+  item?: Record<string, unknown>
+} = {}) {
+  const items = Array.from({ length: options.count ?? 1000 }, (_, i) => ({ id: i }))
+
+  const wrapper = mount(Virtualizer.Root as Component, {
+    props: { items, itemHeight: 40, height: 400, ...options.props },
+    attrs: options.attrs,
+    slots: {
+      default: (props: { items: { index: number }[] }) =>
+        props.items.map(item =>
+          h(Virtualizer.Item as Component, {
+            key: item.index,
+            index: item.index,
+            style: { height: '40px', margin: 0 },
+            ...options.item,
+          }, () => `Item ${item.index}`),
+        ),
+    },
+    attachTo: document.body,
+  })
+
+  wrappers.push(wrapper)
+
+  return wrapper
+}
+
+function spacer (wrapper: VueWrapper, edge: 'start' | 'end') {
+  return (wrapper.find(`[data-spacer="${edge}"]`).element as HTMLElement).offsetHeight
+}
+
+describe('virtualizer (browser)', () => {
+  describe('windowing', () => {
+    it('should render only the viewport plus overscan', async () => {
+      const wrapper = mountVirtualizer({ props: { overscan: 3 } })
+      await settle()
+
+      // 400px viewport / 40px rows = 10 visible, +1 boundary row, +3 overscan below
+      const rendered = wrapper.findAll('[data-index]')
+      expect(rendered.length).toBeGreaterThanOrEqual(10)
+      expect(rendered.length).toBeLessThanOrEqual(10 + 1 + 2 * 3)
+      expect(rendered[0]!.attributes('data-index')).toBe('0')
+    })
+
+    it('should reserve the full list height through the spacers', async () => {
+      const wrapper = mountVirtualizer()
+      await settle()
+
+      const el = wrapper.element as HTMLElement
+      expect(el.scrollHeight).toBe(1000 * 40)
+      expect(spacer(wrapper, 'start')).toBe(0)
+      expect(spacer(wrapper, 'end')).toBeGreaterThan(0)
+    })
+
+    it('should move the window when the container scrolls', async () => {
+      const wrapper = mountVirtualizer({ props: { overscan: 2 } })
+      await settle()
+
+      const el = wrapper.element as HTMLElement
+      el.scrollTop = 20_000
+      el.dispatchEvent(new Event('scroll'))
+      await settle()
+
+      const rendered = wrapper.findAll('[data-index]')
+      const first = Number(rendered[0]!.attributes('data-index'))
+      // Row 500 sits at the top of the viewport; overscan keeps two above it
+      expect(first).toBe(498)
+      expect(spacer(wrapper, 'start')).toBe(first * 40)
+      expect(el.scrollHeight).toBe(1000 * 40)
+    })
+
+    it('should scroll to an index through the slot', async () => {
+      let scrollTo: ((index: number) => void) | undefined
+      const items = Array.from({ length: 1000 }, (_, i) => ({ id: i }))
+      const wrapper = mount(Virtualizer.Root as Component, {
+        props: { items, itemHeight: 40, height: 400 },
+        slots: {
+          default: (props: { items: { index: number }[], scrollTo: (index: number) => void }) => {
+            scrollTo = props.scrollTo
+            return props.items.map(item =>
+              h(Virtualizer.Item as Component, { key: item.index, index: item.index, style: { height: '40px' } }),
+            )
+          },
+        },
+        attachTo: document.body,
+      })
+      wrappers.push(wrapper)
+      await settle()
+
+      scrollTo!(300)
+      await settle()
+
+      expect((wrapper.element as HTMLElement).scrollTop).toBe(300 * 40)
+      expect(wrapper.find('[data-index="300"]').exists()).toBe(true)
+    })
+  })
+
+  describe('measurement', () => {
+    it('should size spacers by the measured border box', async () => {
+      // Rows render 40px content + 10px padding + 2px border = 52px border box.
+      // Without itemHeight the first measurement becomes the estimate for every
+      // unmeasured row, so the whole list sizes off the border box.
+      const wrapper = mountVirtualizer({
+        props: { itemHeight: undefined },
+        item: { style: { height: '40px', padding: '5px 0', borderBottom: '2px solid', boxSizing: 'content-box' } },
+      })
+      await settle()
+
+      const el = wrapper.element as HTMLElement
+      expect(el.scrollHeight).toBe(1000 * 52)
+
+      el.scrollTop = 52 * 100
+      el.dispatchEvent(new Event('scroll'))
+      await settle()
+
+      const first = Number(wrapper.findAll('[data-index]')[0]!.attributes('data-index'))
+      expect(spacer(wrapper, 'start')).toBe(first * 52)
+    })
+  })
+
+  describe('sizing', () => {
+    it('should keep a consumer inline height when the height prop is omitted', async () => {
+      const wrapper = mountVirtualizer({
+        props: { height: undefined },
+        attrs: { style: { height: '300px' } },
+      })
+      await settle()
+
+      expect((wrapper.element as HTMLElement).clientHeight).toBe(300)
+      expect(wrapper.findAll('[data-index]').length).toBeLessThan(30)
+    })
+  })
+
+  describe('accessibility', () => {
+    it('should make the scroll container keyboard focusable', () => {
+      const wrapper = mountVirtualizer()
+
+      expect(wrapper.attributes('tabindex')).toBe('0')
+    })
+  })
+})
