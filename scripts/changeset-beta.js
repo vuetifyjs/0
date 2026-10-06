@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Publish a snapshot beta from a clean `dev` checkout. Nothing here is committed.
 //
 // `pnpm release` cannot do this. It calls `changeset publish` with no `--tag`,
