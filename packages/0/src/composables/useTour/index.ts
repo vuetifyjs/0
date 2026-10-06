@@ -75,6 +75,10 @@ export type TourPlacement = 'top' | 'bottom' | 'left' | 'right' | 'center'
  *
  * @example
  * ```ts
+ * import { createTour } from '@vuetify/v0'
+ *
+ * const tour = createTour()
+ *
  * tour.steps.register({
  *   id: 'search',
  *   enter: ({ done, activate, direction }) => {
@@ -103,7 +107,12 @@ export interface TourEnterContext {
  *
  * @example
  * ```ts
- * tour.activate(el, { padding: 8, scroll: false })
+ * import { createTour } from '@vuetify/v0'
+ *
+ * const tour = createTour()
+ * const el = document.querySelector('[data-tour="search"]')
+ *
+ * if (el) tour.activate(el, { padding: 8, scroll: false })
  * ```
  */
 export interface TourActivateOptions {
@@ -117,6 +126,10 @@ export interface TourActivateOptions {
  *
  * @example
  * ```ts
+ * import { createTour } from '@vuetify/v0'
+ *
+ * const tour = createTour()
+ *
  * tour.steps.onboard([
  *   { id: 'intro', placement: 'bottom', enter: ({ done }) => done() },
  *   { id: 'done', leave: () => {}, completed: () => {} },
@@ -145,7 +158,12 @@ export type TourTicket<Z extends TourTicketInput = TourTicketInput> = StepTicket
  *
  * @example
  * ```ts
- * tour.activators.register({ id: 'search', element: buttonEl, padding: 8 })
+ * import { createTour } from '@vuetify/v0'
+ *
+ * const tour = createTour()
+ * const buttonEl = document.querySelector('button')
+ *
+ * if (buttonEl) tour.activators.register({ id: 'search', element: buttonEl, padding: 8 })
  * ```
  */
 export interface TourActivatorTicketInput extends RegistryTicketInput {
@@ -196,6 +214,10 @@ export interface TourContext<
    *
    * @example
    * ```ts
+   * import { createTour } from '@vuetify/v0'
+   *
+   * const tour = createTour()
+   *
    * tour.start()
    * tour.start({ stepId: 'search' })
    * ```
@@ -206,6 +228,10 @@ export interface TourContext<
    *
    * @example
    * ```ts
+   * import { createTour } from '@vuetify/v0'
+   *
+   * const tour = createTour()
+   *
    * tour.stop()
    * ```
    */
@@ -217,6 +243,10 @@ export interface TourContext<
    *
    * @example
    * ```ts
+   * import { createTour } from '@vuetify/v0'
+   *
+   * const tour = createTour()
+   *
    * await tour.complete()
    * ```
    */
@@ -226,6 +256,10 @@ export interface TourContext<
    *
    * @example
    * ```ts
+   * import { createTour } from '@vuetify/v0'
+   *
+   * const tour = createTour()
+   *
    * tour.reset()
    * ```
    */
@@ -236,6 +270,10 @@ export interface TourContext<
    *
    * @example
    * ```ts
+   * import { createTour } from '@vuetify/v0'
+   *
+   * const tour = createTour()
+   *
    * await tour.next()
    * ```
    */
@@ -246,6 +284,10 @@ export interface TourContext<
    *
    * @example
    * ```ts
+   * import { createTour } from '@vuetify/v0'
+   *
+   * const tour = createTour()
+   *
    * await tour.prev()
    * ```
    */
@@ -255,6 +297,10 @@ export interface TourContext<
    *
    * @example
    * ```ts
+   * import { createTour } from '@vuetify/v0'
+   *
+   * const tour = createTour()
+   *
    * await tour.step(3)
    * ```
    */
@@ -264,7 +310,12 @@ export interface TourContext<
    *
    * @example
    * ```ts
-   * tour.activate(el, { scroll: false })
+   * import { createTour } from '@vuetify/v0'
+   *
+   * const tour = createTour()
+   * const el = document.querySelector('[data-tour="search"]')
+   *
+   * if (el) tour.activate(el, { scroll: false })
    * ```
    */
   activate: (target: MaybeElementRef, options?: TourActivateOptions) => void
@@ -273,6 +324,10 @@ export interface TourContext<
    *
    * @example
    * ```ts
+   * import { createTour } from '@vuetify/v0'
+   *
+   * const tour = createTour()
+   *
    * tour.deactivate()
    * ```
    */
@@ -284,9 +339,16 @@ export interface TourContext<
    *
    * @example
    * ```ts
-   * enter: ({ visit }) => {
-   *   load().then(() => tour.ready('search', visit))
-   * }
+   * import { createTour } from '@vuetify/v0'
+   *
+   * const tour = createTour()
+   *
+   * tour.steps.register({
+   *   id: 'search',
+   *   enter: ({ visit }) => {
+   *     void fetch('/ready').then(() => tour.ready('search', visit))
+   *   },
+   * })
    * ```
    */
   ready: (stepId: ID, visit: number) => void
@@ -309,7 +371,10 @@ interface Programmatic {
  *
  * @example
  * ```ts
+ * import { createTour } from '@vuetify/v0'
+ *
  * const tour = createTour()
+ *
  * tour.steps.onboard([{ id: 'intro' }, { id: 'done' }])
  * tour.start()
  * ```
@@ -342,8 +407,12 @@ export function createTour<
   let held: { stepId?: ID } | undefined
   let latched = false
   let flight: Promise<void> | undefined
+  // Bumped when a running next/step/complete is retired. Its finally must
+  // not unlock the navigation that replaced it.
+  let epoch = 0
   let unwatch: (() => void) | undefined
   let submitting = false
+  let departed = false
 
   function abort () {
     held = undefined
@@ -371,6 +440,9 @@ export function createTour<
   function end () {
     instead = false
     finish()
+    // completed() may have stopped the tour. next() honors that and does
+    // not leave again or mark complete. end() follows the same rule.
+    if (!isActive.value) return
     leave()
     isActive.value = false
     isComplete.value = true
@@ -460,6 +532,7 @@ export function createTour<
     if (leaving) return
 
     leaving = true
+    departed = true
     try {
       generation++
       const ticket = steps.selectedItem.value
@@ -479,6 +552,7 @@ export function createTour<
   }
 
   function enter (direction: TourDirection) {
+    departed = false
     const ticket = steps.selectedItem.value
     const token = ++generation
 
@@ -586,12 +660,21 @@ export function createTour<
         isActive.value = false
         restore()
       }
+      epoch++
+      navigating = false
+      flight = undefined
       return
     }
 
     if (isActive.value) {
       leave()
     }
+
+    // After leave(), so a hook that calls complete() still sees this
+    // navigation and does not start a second one.
+    epoch++
+    navigating = false
+    flight = undefined
 
     remember()
     isComplete.value = false
@@ -670,10 +753,20 @@ export function createTour<
   function stop () {
     instead = false
     abort()
-    if (!isActive.value) return
-    leave()
+    if (!isActive.value) {
+      epoch++
+      navigating = false
+      flight = undefined
+      return
+    }
+    // leave() already ran for this visit (prev, or a hook that stopped
+    // from inside leave). A second leave repeats the step hook.
+    if (!departed) leave()
     isActive.value = false
     restore()
+    epoch++
+    navigating = false
+    flight = undefined
   }
 
   async function complete () {
@@ -693,21 +786,28 @@ export function createTour<
 
     navigating = true
     const token = generation
+    const mine = epoch
+    const run = (async () => {
+      try {
+        if (!await gate()) {
+          if (mine === epoch) instead = false
+          return
+        }
+        if (token !== generation || !isActive.value) {
+          if (mine === epoch) instead = false
+          return
+        }
 
-    try {
-      if (!await gate()) {
-        instead = false
-        return
+        end()
+      } finally {
+        if (mine === epoch) {
+          navigating = false
+          flight = undefined
+        }
       }
-      if (token !== generation || !isActive.value) {
-        instead = false
-        return
-      }
-
-      end()
-    } finally {
-      navigating = false
-    }
+    })()
+    flight = run
+    return run
   }
 
   function reset () {
@@ -724,17 +824,18 @@ export function createTour<
 
     navigating = true
     const token = generation
+    const mine = epoch
     const run = (async () => {
       try {
         if (!await gate()) {
-          instead = false
+          if (mine === epoch) instead = false
           return
         }
         // stop/start/reset during validation invalidates this navigation.
         // A second next() during the await is dropped by `navigating`.
         // complete() during the await sets instead and must not gate again.
         if (token !== generation || !isActive.value) {
-          instead = false
+          if (mine === epoch) instead = false
           return
         }
         if (instead) {
@@ -760,8 +861,10 @@ export function createTour<
         steps.next()
         enter('forward')
       } finally {
-        navigating = false
-        flight = undefined
+        if (mine === epoch) {
+          navigating = false
+          flight = undefined
+        }
       }
     })()
     flight = run
@@ -804,14 +907,15 @@ export function createTour<
 
     navigating = true
     const token = generation
+    const mine = epoch
     const run = (async () => {
       try {
         if (!await gate()) {
-          instead = false
+          if (mine === epoch) instead = false
           return
         }
         if (token !== generation || !isActive.value) {
-          instead = false
+          if (mine === epoch) instead = false
           return
         }
         if (instead) {
@@ -837,8 +941,10 @@ export function createTour<
         steps.select(id)
         enter('jump')
       } finally {
-        navigating = false
-        flight = undefined
+        if (mine === epoch) {
+          navigating = false
+          flight = undefined
+        }
       }
     })()
     flight = run
@@ -895,6 +1001,8 @@ export function createTour<
  *
  * @example
  * ```ts
+ * import { createTourContext } from '@vuetify/v0'
+ *
  * const [useTour, provideTour, tour] = createTourContext({
  *   namespace: 'v0:tour',
  * })
@@ -959,7 +1067,10 @@ export function createTourPlugin (_options: TourPluginOptions = {}): Plugin {
  *
  * @example
  * ```ts
+ * import { useTour } from '@vuetify/v0'
+ *
  * const tour = useTour()
+ *
  * await tour.next()
  * ```
  */
