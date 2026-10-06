@@ -568,7 +568,7 @@ describe('useFocusTrap', () => {
       root.innerHTML = inner
       useFocusTrap(root, { active: true })
       await nextTick()
-      return (id: string) => root.querySelector<HTMLElement>(`[data-id="${id}"]`)!
+      return (id: string) => root.querySelector<HTMLElement>(`[data-id="${CSS.escape(id)}"]`)!
     }
 
     // A group is one tab stop, so the checked member is the last stop even though
