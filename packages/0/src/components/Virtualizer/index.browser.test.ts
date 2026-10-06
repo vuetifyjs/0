@@ -37,7 +37,7 @@ function mountVirtualizer (options: {
 } = {}) {
   const items = Array.from({ length: options.count ?? 1000 }, (_, i) => ({ id: i }))
 
-  const wrapper = mount(Virtualizer.Root as Component, {
+  const wrapper = mount(Virtualizer.Root as unknown as Component, {
     props: { items, itemHeight: 40, height: 400, ...options.props },
     attrs: options.attrs,
     slots: {
@@ -106,7 +106,7 @@ describe('virtualizer (browser)', () => {
     it('should scroll to an index through the slot', async () => {
       let scrollTo: ((index: number) => void) | undefined
       const items = Array.from({ length: 1000 }, (_, i) => ({ id: i }))
-      const wrapper = mount(Virtualizer.Root as Component, {
+      const wrapper = mount(Virtualizer.Root as unknown as Component, {
         props: { items, itemHeight: 40, height: 400 },
         slots: {
           default: (props: { items: { index: number }[], scrollTo: (index: number) => void }) => {
