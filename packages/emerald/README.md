@@ -1,9 +1,9 @@
-<div align="center">
+<p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://vuetifyjs.b-cdn.net/docs/images/logos/vzero-logo-dark.png">
     <img alt="Vuetify Zero Logo" src="https://vuetifyjs.b-cdn.net/docs/images/logos/vzero-logo-light.png" height="150">
   </picture>
-</div>
+</p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@paper/emerald"><img src="https://img.shields.io/npm/v/%40paper%2Femerald.svg" alt="Version"></a>

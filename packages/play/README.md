@@ -1,9 +1,9 @@
-<div align="center">
+<p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://vuetifyjs.b-cdn.net/docs/images/logos/vplay-logo-dark.png">
     <img alt="Vuetify Play Logo" src="https://vuetifyjs.b-cdn.net/docs/images/logos/vplay-logo-light.png" height="150">
   </picture>
-</div>
+</p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@vuetify/play"><img src="https://img.shields.io/npm/v/%40vuetify%2Fplay.svg" alt="Version"></a>
