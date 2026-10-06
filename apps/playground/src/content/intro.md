@@ -75,5 +75,5 @@ Ids must be CSS identifiers. Light/dark pairs are `{name}-light` / `{name}-dark`
 
 - `Ctrl+B` toggles the file tree sidebar — or drag the panel edge to close it
 - **Double-click** any resize handle to snap it back to its default width
-- Switch between **Preview Right** and **Preview Bottom** via ☰ → View
+- Switch between **Preview Right** and **Preview Bottom** from the preview toolbar, or via ☰ → View. Preview Right closes this panel
 - Add new files in the file tree and import them normally — multi-file projects work out of the box

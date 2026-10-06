@@ -57,6 +57,8 @@
     isLocked: Ref<boolean>
     /** Keyboard shortcuts dialog. */
     cheatsheet: ShallowRef<boolean>
+    /** Toggle the preview between the right column and the bottom pane. */
+    movePreview: () => void
   }
 
   export const [usePlayground, providePlayground] = createContext<PlaygroundContext>('v0:playground')
@@ -139,6 +141,17 @@
   // Off by default: blur-format rewrites the buffer and can autosave a One playground.
   const autoFormat = storage.get('playground-editor-auto-format', false)
 
+  // Intro and a right-hand preview cannot share the row — docking right closes it.
+  function movePreview () {
+    if (isMobile.value) return
+
+    const toSide = !side.value
+    sidePref.value = toSide
+    if (toSide) left.value = false
+    side.value = toSide
+    bottom.value = !toSide
+  }
+
   providePlayground({
     store,
     isReady,
@@ -174,6 +187,7 @@
     autoFormat,
     isLocked,
     cheatsheet,
+    movePreview,
   })
 
   // Restore panel state on runtime breakpoint changes
