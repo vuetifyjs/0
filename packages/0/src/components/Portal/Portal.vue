@@ -16,7 +16,24 @@
   import { useStack } from '#v0/composables/useStack'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { isNumber } from '#v0/utilities'
+  import { onScopeDispose, toRef, watch } from 'vue'
+
+  interface PortalRanks {
+    ranks: Map<string, number>
+    raising: boolean
+  }
+
+  const buckets = new WeakMap<object, PortalRanks>()
+
+  function ranksFor (stack: object): PortalRanks {
+    let record = buckets.get(stack)
+    if (!record) {
+      record = { ranks: new Map(), raising: false }
+      buckets.set(stack, record)
+    }
+    return record
+  }
 
   // Types
   import type { Extensible } from '#v0/types'
@@ -30,6 +47,12 @@
     blocking?: boolean
     /** Whether a scrim/backdrop should back this portal. @default true */
     scrim?: boolean
+    /**
+     * Keep this portal above overlays that open later.
+     * A number is the raise order when several promoted portals are open
+     * (higher paints on top). `true` is order 0.
+     */
+    promote?: boolean | number
   }
 
   export interface PortalSlotProps {
@@ -63,6 +86,7 @@
     disabled = false,
     blocking = false,
     scrim = true,
+    promote = false,
   } = defineProps<PortalProps>()
 
   const stack = useStack()
@@ -77,6 +101,40 @@
     onDismiss: () => emit('close'),
   })
   ticket.select()
+
+  // Later overlays select() onto the end of the stack and would cover a tour
+  // card. Promoted portals unselect and reselect, in rank order, so the
+  // highest rank stays on top without two of them looping.
+  if (promote !== false) {
+    const record = ranksFor(stack)
+    const rank = isNumber(promote) ? promote : 0
+    const id = String(ticket.id)
+    record.ranks.set(id, rank)
+    onScopeDispose(() => {
+      record.ranks.delete(id)
+    })
+
+    // scrim:false overlays are omitted from stack.top, and tour portals are
+    // scrim:false. Order still drives z-index, so watch the full selection.
+    watch(() => [...stack.selectedIds], ids => {
+      if (record.raising) return
+
+      const ordered = [...record.ranks.entries()].toSorted((a, b) => a[1] - b[1])
+      const selected = ordered.filter(([id]) => ids.includes(id))
+      if (selected.length === 0) return
+
+      const tail = ids.slice(-selected.length)
+      const want = selected.map(([id]) => id)
+      if (tail.every((entry, index) => entry === want[index])) return
+
+      record.raising = true
+      for (const [id] of selected) {
+        stack.unselect(id)
+        stack.select(id)
+      }
+      record.raising = false
+    }, { immediate: true })
+  }
 
   const target = toRef(() => {
     const resolvedTo = to ?? stack.default.value ?? 'body'

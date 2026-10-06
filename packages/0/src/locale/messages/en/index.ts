@@ -90,4 +90,11 @@ export default {
     releaseToHide: 'Release to hide',
     releaseToOpen: 'Release to open',
   },
+  Tour: {
+    complete: 'Complete tour',
+    next: 'Go to next step',
+    prev: 'Go to previous step',
+    progress: 'Step {current} of {total}',
+    skip: 'Dismiss tour',
+  },
 } as const
