@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { Kanban } from './index'
+import { Kanban, useKanbanRoot } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
 
 // Types
-import type { KanbanMovePayload } from './index'
+import type { KanbanMovePayload, KanbanRootContext } from './index'
 import type { VueWrapper } from '@vue/test-utils'
 import type { Component } from 'vue'
 
@@ -604,6 +604,46 @@ describe('kanban', () => {
       await nextTick()
 
       expect(wrapper.find('[data-solo]').text()).toContain('Item picked up')
+    })
+
+    it('should ignore unrelated keys while picked up', async () => {
+      const { press, item, wrapper } = mountBoard()
+
+      await press('a', ' ')
+      await press('a', 'x')
+
+      expect(item('a').attributes('data-state')).toBe('grabbed')
+      expect(wrapper.find('[data-drop]').exists()).toBe(false)
+    })
+
+    it('should sync a changed column value into the board', async () => {
+      const value = ref({ title: 'Todo' })
+      let context: KanbanRootContext | undefined
+      const Probe = defineComponent({
+        setup () {
+          context = useKanbanRoot('v0:kanban')
+          return () => null
+        },
+      })
+      const Harness = defineComponent({
+        setup () {
+          return () => h(Kanban.Root as Component, null, () => [
+            h(Kanban.Column as unknown as Component, { id: 'todo', label: 'Todo', value: value.value }, {
+              default: () => h(Kanban.List as Component),
+            }),
+            h(Probe),
+          ])
+        },
+      })
+
+      const wrapper = mount(Harness, { attachTo: document.body })
+      wrappers.push(wrapper)
+
+      value.value = { title: 'Backlog' }
+      await nextTick()
+      await nextTick()
+
+      expect(context?.kanban.columns.get('todo')?.value).toEqual({ title: 'Backlog' })
     })
 
     it('should treat a throwing accept as a refusal', async () => {
