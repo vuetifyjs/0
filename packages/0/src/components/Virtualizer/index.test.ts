@@ -8,7 +8,7 @@ import { Virtualizer } from './index'
 // Utilities
 import { isUndefined } from '#v0/utilities'
 import { mount } from '@vue/test-utils'
-import { h, nextTick } from 'vue'
+import { h, nextTick, shallowRef } from 'vue'
 
 // Types
 import type { VirtualizerRootContext } from './VirtualizerRoot.vue'
@@ -177,6 +177,30 @@ describe('virtualizer', () => {
     expect(resize).toHaveBeenCalledWith(1, 64)
     wrapper.unmount()
     globalThis.ResizeObserver = real
+  })
+
+  it('should re-report the measured height when the item index shifts', async () => {
+    const restore = stubResizeObserver(() => ({ width: 400, height: 40, border: 57 }))
+    const resize = vi.fn()
+    const index = shallowRef(0)
+
+    const wrapper = mount({
+      setup () {
+        provideVirtualizerRoot('v0:virtualizer:root', {
+          resize,
+        } as any)
+        return () => h(Virtualizer.Item as any, { index: index.value }, () => 'content')
+      },
+    })
+    await nextTick()
+    expect(resize).toHaveBeenLastCalledWith(0, 57)
+
+    index.value = 5
+    await nextTick()
+
+    expect(resize).toHaveBeenLastCalledWith(5, 57)
+    wrapper.unmount()
+    restore()
   })
 
   it('should ignore resize callbacks with no entries', async () => {

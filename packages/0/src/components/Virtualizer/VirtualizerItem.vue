@@ -24,7 +24,8 @@
   import { toElement } from '#v0/composables/toElement'
 
   // Utilities
-  import { mergeProps, toRef, useAttrs, useTemplateRef } from 'vue'
+  import { isUndefined } from '#v0/utilities'
+  import { mergeProps, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -61,11 +62,21 @@
   // Rows stack by their border box, so padding and borders count toward
   // the space each one occupies. Safari < 15.4 and Chrome < 84 omit
   // borderBoxSize entirely and fall back to the content rect.
+  const height = shallowRef<number>()
+
   useResizeObserver(el, entries => {
     const entry = entries[0]
     if (!entry) return
-    root.resize(index, entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height)
+    height.value = entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height
+    root.resize(index, height.value)
   }, { box: 'border-box' })
+
+  // A keyed row whose index shifts (items prepended) keeps its size, so no
+  // ResizeObserver callback fires; re-report so the height follows the row
+  watch(() => index, value => {
+    if (isUndefined(height.value)) return
+    root.resize(value, height.value)
+  })
 
   const itemAttrs = toRef(() => ({
     'data-index': index,
