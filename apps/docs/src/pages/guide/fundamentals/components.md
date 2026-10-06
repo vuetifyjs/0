@@ -16,7 +16,7 @@ related:
 
 # Components
 
-v0 components are Vue wrappers around composables. Composables hold logic, components provide Vue integration via slots, props, and emits.
+Vuetify0 components are Vue wrappers around composables. Composables hold logic, components provide Vue integration via slots, props, and emits.
 
 <DocsPageFeatures :frontmatter />
 

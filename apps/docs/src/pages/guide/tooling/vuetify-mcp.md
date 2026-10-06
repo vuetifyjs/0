@@ -6,7 +6,7 @@ features:
   level: 1
 meta:
   - name: description
-    content: Connect Claude, Cursor, and other AI assistants to Vuetify 3/4 and v0 APIs, install and upgrade docs, and authenticate with Vuetify One for ecosystem sites.
+    content: Connect Claude, Cursor, and other AI assistants to Vuetify 3/4 and Vuetify0 APIs, install and upgrade docs, and authenticate with Vuetify One for ecosystem sites.
   - name: keywords
     content: MCP, Model Context Protocol, Claude, Cursor, Grok, Codex, Kimi, AI assistant, Vuetify API, Vuetify One, OAuth, developer tools
 related:
@@ -18,7 +18,7 @@ logo: vmcp
 
 # Vuetify MCP
 
-Vuetify MCP is a [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro) server that gives AI assistants structured access to Vuetify 3/4 and v0 APIs and install/upgrade/breaking-change docs. Authenticate with [Vuetify One](https://one.vuetifyjs.com) to reach ecosystem sites. Unlike [llms.txt](/guide/tooling/ai-tools), MCP is real-time and queryable.
+Vuetify MCP is a [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro) server that gives AI assistants structured access to Vuetify 3/4 and Vuetify0 APIs and install/upgrade/breaking-change docs. Authenticate with [Vuetify One](https://one.vuetifyjs.com) to reach ecosystem sites. Unlike [llms.txt](/guide/tooling/ai-tools), MCP is real-time and queryable.
 
 Two hosted URLs (streamable HTTP). Clients that treat OAuth as connect-time (Grok Bot, Cursor Agents) must not share them:
 
@@ -336,7 +336,7 @@ Only on [https://mcp.vuetifyjs.com/one](https://mcp.vuetifyjs.com/one). Connect 
 
 ## Workflow
 
-When using AI to build headless v0 components:
+When using AI to build headless Vuetify0 components:
 
 1. **Explore** — `get_vuetify0_composable_list` to see available primitives
 2. **Learn** — `get_vuetify0_composable_guide` for detailed documentation

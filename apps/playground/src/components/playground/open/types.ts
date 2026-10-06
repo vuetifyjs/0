@@ -4,6 +4,9 @@ import type { RegistryIndexEntry } from '@/data/registry'
 /** Top-level Open dialog rails — product stacks + Vuetify One. */
 export type OpenRail = 'v0' | 'vuetify' | 'saved'
 
+/** Default Open dialog rail. Persisted per-browser via `useStorage`. */
+export const DEFAULT_OPEN_RAIL: OpenRail = 'saved'
+
 /** Vuetify0 gallery kind chips (replaces the old per-kind rails). */
 export type OpenKind = 'components' | 'composables' | 'plugins'
 
@@ -37,7 +40,7 @@ export function normalizeOpenRail (value: string | undefined): OpenRail {
   if (value === 'vuetify' || value === 'saved' || value === 'v0') return value
   // Pre–Vuetify0-tab session values
   if (value === 'components' || value === 'composables' || value === 'plugins') return 'v0'
-  return 'v0'
+  return DEFAULT_OPEN_RAIL
 }
 
 /** Registry entry → kind chip id. */

@@ -151,7 +151,7 @@
     </div>
 
     <!-- Trinity tuple breakdown -->
-    <div class="grid grid-cols-3 gap-2 text-center">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center">
       <div class="p-3 rounded-lg bg-surface-variant/50">
         <p class="text-xs font-mono text-on-surface-variant">useToasts</p>
         <p class="text-[10px] text-on-surface-variant/60 mt-1">Consumer</p>

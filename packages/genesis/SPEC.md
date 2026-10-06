@@ -10,6 +10,10 @@ parts that vary across consumers — code highlighting is slot-injected. Icons a
 slot-overridable; unused slot defaults resolve through an optional host
 `GnIconsContext` (`provideGnIcons`), else a component-local inline SVG.
 
+Genesis is **complete for that purpose**, not a half-finished design system. It ships
+no `GnDialog` / `GnButton` (beyond toolbar chrome) because those are not docs
+primitives — ruling 7's kit reading. Do not pad it toward Emerald's inventory.
+
 Genesis is a **thin component layer over v0's theme system**. Components consume
 `var(--v0-*)` tokens directly so they inherit whatever theme v0 has applied to the page.
 There is no Genesis-specific token namespace, no Genesis-specific theme plugin, no
@@ -17,7 +21,7 @@ Genesis-specific *theme* stylesheet. Drop the package into any v0-themed app and
 blend with the page's chrome. (The build still extracts component CSS to
 `@paper/genesis/style.css`; published consumers import that once.)
 
-**Hosting on a design-system page** (Emerald, Onyx, …) requires that host to publish the
+**Hosting on a design-system page** (Emerald, Onyx, Material, …) requires that host to publish the
 `--v0-*` cascade Genesis reads — see DESIGN_SYSTEMS.md *Kit interop* and
 [Token bridge](#token-bridge). Genesis itself never aliases DS tokens.
 
@@ -71,6 +75,7 @@ pass an explicit `color`.
 | `--v0-surface-tint` | Preview wrap, tab strip |
 | `--v0-on-surface` | Primary text + computed divider via color-mix; `GnDocsBadge` default fill (8% mix) |
 | `--v0-on-surface-variant` | Muted text; `GnDocsBadge` default text |
+| `--v0-divider` | Tooltip / chrome borders |
 | `--v0-primary` | Active tab, filename badge, peek pill |
 | `--v0-on-primary` | Text on primary |
 | `--v0-pre` | Code pane background |
@@ -163,12 +168,12 @@ slots are overridable.
 ### `GnActionButton` — toolbar action affordance
 
 A 32px icon action button for docs chrome (copy, reset, open-in). Wraps v0's
-`Button.Root` + `Button.Icon`.
+`Button.Root` + `Button.Icon`, and v0 `Tooltip` when `title` is set.
 
 ```ts
 interface GnActionButtonProps {
   ariaLabel?: string                     // forwarded to Button.Root's ariaLabel
-  title?: string                         // native tooltip
+  title?: string                         // v0 Tooltip text; region delays when a tooltip plugin is installed
   type?: 'button' | 'submit' | 'reset'   // default: 'button'
 }
 ```

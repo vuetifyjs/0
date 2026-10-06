@@ -18,7 +18,7 @@
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-48px-var(--app-banner-h,24px))] flex flex-col">
+  <div class="min-h-[calc(100vh-48px-var(--app-banner-h,0px))] flex flex-col">
     <AppNav />
     <AppMainDocs class="flex-1" />
     <AppFooter inset />

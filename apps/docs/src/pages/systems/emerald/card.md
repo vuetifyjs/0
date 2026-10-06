@@ -55,9 +55,9 @@ A surface for grouping related content — header, title, subtitle, body and foo
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
-`EmCard` renders v0's [Atom](/components/primitives/atom) — the polymorphic primitive every v0 component is built on, whose `as` prop picks the rendered element and whose `renderless` mode removes the element entirely. Emerald uses the narrowest slice of that: it pins `as` to `div` and exposes neither prop, because a card is a styled box and nothing about it varies structurally.
+`EmCard` renders v0's [Atom](/components/primitives/atom) — the polymorphic primitive every Vuetify0 component is built on, whose `as` prop picks the rendered element and whose `renderless` mode removes the element entirely. Emerald uses the narrowest slice of that: it pins `as` to `div` and exposes neither prop, because a card is a styled box and nothing about it varies structurally.
 
 The five parts do not even need Atom. They are plain `div`s with a class each, because there is no behavior to share between them — no context, no namespace, no state flowing from root to part. The compound shape exists purely so the stylesheet can give each region its spacing and type scale.
 

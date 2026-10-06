@@ -88,7 +88,7 @@ async function getComposableData (): Promise<{
   ])
 
   // Pattern for composable function names we care about
-  const COMPOSABLE_PATTERN = /^(use|create|to|provide)[A-Z]/
+  const COMPOSABLE_PATTERN = /^(?:use|create|to|provide)[A-Z]/
 
   for (const dir of dirs) {
     // Composable directories start with 'use', 'create', or 'to'

@@ -5,7 +5,7 @@ import { IN_BROWSER, isArray, isObject, useTheme, useTimer } from '@vuetify/v0'
 
 // Composables
 import { readPlaygroundIdFromUrl, useOnePlaygrounds, usePlaygroundRouteId } from '@/composables/useOnePlaygrounds'
-import { decodePlaygroundHash, encodePlaygroundHash, isFileRecord, parseVuetifyPlayTuple } from '@/composables/usePlayground'
+import { decodePlaygroundHash, encodePlaygroundHash, isFileRecord, parseVuetifyPlayTuple, rewritePackageMacroTypes, V0_MACROS_FILE } from '@/composables/usePlayground'
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
 // Data
@@ -299,7 +299,8 @@ export function usePlaygroundFiles () {
     filesVersion.value++
   }
 
-  async function loadExample (files: Record<string, string>, activeFile?: string) {
+  async function loadExample (incoming: Record<string, string>, activeFile?: string) {
+    const files = rewritePackageMacroTypes(incoming)
     const aliases: Record<string, string> = {}
     const nextAliasMap = new Map<string, string>()
 
@@ -347,13 +348,14 @@ export function usePlaygroundFiles () {
     store.files['src/main.ts']!.hidden = true
     store.files['src/uno.config.ts']!.hidden = true
     store.files['tsconfig.json']!.hidden = true
+    if (store.files[V0_MACROS_FILE]) store.files[V0_MACROS_FILE]!.hidden = true
     for (const key of Object.keys(aliases)) {
       if (store.files[key]) store.files[key]!.hidden = true
     }
 
     const userFile = (activeFile && store.files[activeFile])
       ? activeFile
-      : (Object.keys(files).find(f => f !== 'src/App.vue') ?? 'src/App.vue')
+      : (Object.keys(files).find(f => f !== 'src/App.vue' && f !== V0_MACROS_FILE) ?? 'src/App.vue')
     store.setActive(userFile)
   }
 

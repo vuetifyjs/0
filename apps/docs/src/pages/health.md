@@ -2,7 +2,7 @@
 title: Docs Health
 meta:
   - name: description
-    content: Aggregate freshness across every page of the v0 docs, with a 30-day trend and per-page table.
+    content: Aggregate freshness across every page of the Vuetify0 docs, with a 30-day trend and per-page table.
   - name: keywords
     content: docs health, freshness, last updated, docs rot
 features:

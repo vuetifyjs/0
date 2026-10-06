@@ -4,7 +4,8 @@
  * @remarks
  * Controls the Ask AI feature - open/close state, messages, input focus.
  * Handles message history, streaming responses, and UI state.
- * Fetches dynamic page context (examples, API, benchmarks, related) on-demand.
+ * Fetches a small page-API summary on-demand. Full example/API blobs trip
+ * Cloudflare WAF 403 on POST /docs/ask (~4.5KB+).
  */
 
 // Framework
@@ -20,7 +21,6 @@ import { useRoute } from 'vue-router'
 
 // Types
 import type { ApiData } from '@build/generate-api'
-import type { ExamplesData } from '@build/generate-examples'
 import type { Ref, ShallowRef } from 'vue'
 
 export interface Message {
@@ -69,25 +69,14 @@ interface ApiContext {
   properties?: Array<{ name: string, type: string, description?: string }>
 }
 
-interface BenchmarkSummary {
-  name: string
-  hz: number
-  mean: number
-}
-
-interface RelatedPage {
-  path: string
-  title: string
-}
-
 interface PageContext {
-  examples?: Record<string, string>
   api?: ApiContext[]
-  benchmarks?: BenchmarkSummary[]
-  related?: RelatedPage[]
 }
 
 const API_URL = `${import.meta.env.VITE_API_SERVER_URL || 'https://api.vuetifyjs.com'}/docs/ask`
+
+/** Harbor: Button ~11.5KB and createFilter ~4.5KB POSTs 403 at CF. Stay well under. */
+const CONTEXT_MAX_BYTES = 2048
 
 let messageId = 0
 function createId () {
@@ -95,21 +84,7 @@ function createId () {
 }
 
 // Caches
-let examplesCache: ExamplesData | null = null
 let apiCache: ApiData | null = null
-let benchmarksCache: Record<string, BenchmarkSummary[]> | null = null
-
-async function getExamplesData (): Promise<ExamplesData> {
-  if (examplesCache) return examplesCache
-  try {
-    const response = await fetch('/examples.json')
-    if (!response.ok) return {}
-    examplesCache = await response.json()
-    return examplesCache!
-  } catch {
-    return {}
-  }
-}
 
 async function getApiData (): Promise<ApiData> {
   if (apiCache) return apiCache
@@ -123,51 +98,49 @@ async function getApiData (): Promise<ApiData> {
   }
 }
 
-async function getBenchmarksData (): Promise<Record<string, BenchmarkSummary[]>> {
-  if (benchmarksCache) return benchmarksCache
-  try {
-    const response = await fetch('/benchmarks.json')
-    if (!response.ok) return {}
-
-    const data = await response.json()
-    const result: Record<string, BenchmarkSummary[]> = {}
-
-    // Values are quoted as measured. benchmarks.json used to carry a host
-    // "scale" that consumers divided by; it was deleted after measurement showed
-    // it made results less reproducible, not more. Benchmarks come from one
-    // fixed workstation, so there is nothing to divide out.
-    for (const file of data.files || []) {
-      // Extract composable name from filepath
-      // e.g., ".../createFilter/index.bench.ts" -> "create-filter"
-      const match = file.filepath.match(/\/((?:use|create)[A-Z][a-zA-Z]+)\//)
-      if (!match) continue
-
-      const composableName = match[1]
-        .replace(/([A-Z])/g, '-$1')
-        .toLowerCase()
-        .replace(/^-/, '')
-
-      const benchmarks: BenchmarkSummary[] = []
-      for (const group of file.groups || []) {
-        for (const bench of group.benchmarks || []) {
-          benchmarks.push({
-            name: bench.name,
-            hz: bench.hz,
-            mean: bench.mean,
-          })
-        }
-      }
-
-      if (benchmarks.length > 0) {
-        result[composableName] = benchmarks
-      }
-    }
-
-    benchmarksCache = result
-    return result
-  } catch {
-    return {}
+function slimFields (
+  fields?: Array<{ name: string, type?: string, required?: boolean, description?: string, default?: string }>,
+) {
+  if (!fields?.length) {
+    return undefined
   }
+
+  return fields.slice(0, 24).map(field => ({
+    name: field.name,
+    ...(field.type ? { type: field.type } : {}),
+    ...(field.required ? { required: true } : {}),
+  }))
+}
+
+function slimApi (apis: ApiContext[]): ApiContext[] {
+  return apis.map(api => ({
+    name: api.name,
+    kind: api.kind,
+    props: slimFields(api.props),
+    events: slimFields(api.events),
+    slots: slimFields(api.slots),
+    options: slimFields(api.options),
+    methods: slimFields(api.methods),
+    properties: slimFields(api.properties),
+  }))
+}
+
+function fitContext (context: PageContext): PageContext | undefined {
+  if (!context.api?.length) {
+    return undefined
+  }
+
+  const slimed = { api: slimApi(context.api) }
+  if (JSON.stringify(slimed).length <= CONTEXT_MAX_BYTES) {
+    return slimed
+  }
+
+  const names = { api: slimed.api.map(entry => ({ name: entry.name, kind: entry.kind })) }
+  if (JSON.stringify(names).length <= CONTEXT_MAX_BYTES) {
+    return names
+  }
+
+  return undefined
 }
 
 /** Extract the page slug from path for matching examples/api */
@@ -213,44 +186,24 @@ function getApiForPage (path: string, apiData: ApiData): ApiContext[] | undefine
   return undefined
 }
 
-/** Fetch all dynamic context for the current page */
+/** Fetch a WAF-safe API summary for the current page. No example source. */
 async function fetchPageContext (path: string): Promise<PageContext> {
   if (!IN_BROWSER || path === '/' || path === '') {
     return {}
   }
 
   const slug = getPageSlug(path)
-  if (!slug) return {}
-
-  const [examplesData, apiData, benchmarksData] = await Promise.all([
-    getExamplesData(),
-    getApiData(),
-    getBenchmarksData(),
-  ])
-
-  const context: PageContext = {}
-
-  // Get examples for this page
-  const examples = examplesData[slug]
-  if (examples && Object.keys(examples).length > 0) {
-    context.examples = examples
+  if (!slug) {
+    return {}
   }
 
-  // Get API data
+  const apiData = await getApiData()
   const api = getApiForPage(path, apiData)
-  if (api) {
-    context.api = api
+  if (!api) {
+    return {}
   }
 
-  // Get benchmarks (composables only)
-  if (path.includes('/composables/')) {
-    const benchmarks = benchmarksData[slug]
-    if (benchmarks) {
-      context.benchmarks = benchmarks
-    }
-  }
-
-  return context
+  return fitContext({ api }) ?? {}
 }
 
 // Module-level singleton state (shared across all useAsk calls)

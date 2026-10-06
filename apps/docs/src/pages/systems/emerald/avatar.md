@@ -49,7 +49,7 @@ The fallback also stands alone. An avatar with no image at all — initials on t
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 The three parts render v0's [Avatar](/components/semantic/avatar) compound — `Avatar.Root`, `Avatar.Image` and `Avatar.Fallback` — and all of the image-versus-fallback logic lives there, not in Emerald.
 
@@ -88,7 +88,7 @@ The other two show the fallback used deliberately. Initials are the usual conten
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Diameter and fallback type step |
-| `value` | `unknown` | — | Identifier forwarded to the v0 root. Only meaningful inside a v0 `Avatar.Group` |
+| `value` | `unknown` | — | Identifier forwarded to the Vuetify0 root. Only meaningful inside a Vuetify0 `Avatar.Group` |
 | `namespace` | `string` | — | Context key the root provides to its parts. Only needed when nesting avatars |
 
 The default slot takes the parts.

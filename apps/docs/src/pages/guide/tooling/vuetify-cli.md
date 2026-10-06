@@ -6,7 +6,7 @@ features:
   level: 1
 meta:
   - name: description
-    content: Scaffold v0 projects, seed components from the docs registry with vuetify add, and manage local component libraries.
+    content: Scaffold Vuetify0 projects, seed components from the docs registry with vuetify add, and manage local component libraries.
   - name: keywords
     content: vuetify cli, create-vuetify0, vuetify add, registry, vuetify.json, scaffolding, component library, v0
 related:
@@ -19,7 +19,7 @@ logo: vcli
 
 # Vuetify CLI
 
-The Vuetify CLI scaffolds Vuetify and v0 projects, seeds working examples from the official docs registry (`vuetify add`), and helps you track a local component library over time.
+The Vuetify CLI scaffolds Vuetify and Vuetify0 projects, seeds working examples from the official docs registry (`vuetify add`), and helps you track a local component library over time.
 
 <DocsPageFeatures :frontmatter />
 
@@ -81,7 +81,7 @@ bunx @vuetify/cli <command>
 
 ## Quick Start
 
-Create a new v0 project with the interactive wizard:
+Create a new Vuetify0 project with the interactive wizard:
 
 ```bash
 vuetify init
@@ -155,7 +155,7 @@ bunx @vuetify/cli init my-app
 
 ### add
 
-v0 is headless: installing `@vuetify/v0` and importing a primitive does not yield a rendered UI. `vuetify add` seeds a **working, styled example** from the official docs registry into your project so you own a real file you can edit, theme, and ship.
+Vuetify0 is headless: installing `@vuetify/v0` and importing a primitive does not yield a rendered UI. `vuetify add` seeds a **working, styled example** from the official docs registry into your project so you own a real file you can edit, theme, and ship.
 
 The registry is published at [0.vuetifyjs.com/registry](https://0.vuetifyjs.com/registry/index.json) — the same curated examples that appear on component and composable docs pages.
 
@@ -470,7 +470,7 @@ After analyzing your project, the CLI generates a **personalized documentation U
 https://0.vuetifyjs.com/?features=Dialog,Avatar,useBreakpoints,...
 ```
 
-This URL filters the v0 documentation to show **only the features you're actually using**, giving you a focused, clutter-free reference tailored to your project. Share this URL with your team to onboard developers faster.
+This URL filters the Vuetify0 documentation to show **only the features you're actually using**, giving you a focused, clutter-free reference tailored to your project. Share this URL with your team to onboard developers faster.
 
 #### JSON Output
 

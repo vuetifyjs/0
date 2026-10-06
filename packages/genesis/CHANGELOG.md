@@ -1,5 +1,16 @@
 # @paper/genesis
 
+## 1.0.3
+
+### Patch Changes
+
+- [#988](https://github.com/vuetifyjs/0/pull/988) [`4047564`](https://github.com/vuetifyjs/0/commit/4047564331224e3ac8ab12833c54a1445c3bc462) Thanks [@johnleider](https://github.com/johnleider)! - fix(GnActionButton): use v0 Tooltip instead of native title
+
+  Docs toolbar actions (copy, reset, playground, bin) now show the themed tooltip on hover and keyboard focus, and share the app's tooltip delay region. The `title` prop is unchanged.
+
+- Updated dependencies [[`6426af3`](https://github.com/vuetifyjs/0/commit/6426af360bb47b3c9d8d513a0eae86d8bb05c629), [`675e097`](https://github.com/vuetifyjs/0/commit/675e09776bb003a9c8b1424ce6b786d908ac6279), [`bbc0ac0`](https://github.com/vuetifyjs/0/commit/bbc0ac024a46900d67e87fc33a981c080372a053)]:
+  - @vuetify/v0@1.2.3
+
 ## 1.0.2
 
 ### Patch Changes

@@ -67,7 +67,7 @@ function plain (markdown: string): string {
 function extract (source: string): Faq[] {
   const faqs: Faq[] = []
 
-  for (const block of source.matchAll(/^::: faq\s*$([\s\S]*?)^:::\s*$/gm)) {
+  for (const block of source.matchAll(/^::: faq[ \t]*\n([\s\S]*?)^:::[ \t]*$/gm)) {
     const body = block[1]
     // Split on `???` markers; the first chunk is any preamble before question one.
     const chunks = body.split(/^\?\?\? +/m).slice(1)

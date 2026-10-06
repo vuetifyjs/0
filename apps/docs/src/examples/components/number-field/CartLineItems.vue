@@ -41,9 +41,9 @@
       <li
         v-for="item in items"
         :key="item.id"
-        class="flex items-center gap-4 p-3"
+        class="flex flex-wrap items-center gap-x-4 gap-y-2 p-3"
       >
-        <div class="flex-1 min-w-0">
+        <div class="w-full sm:w-auto sm:flex-1 min-w-0">
           <p class="text-sm font-medium text-on-surface truncate">{{ item.name }}</p>
 
           <p class="text-xs text-on-surface-variant">
@@ -75,7 +75,7 @@
           </NumberField.Increment>
         </NumberField.Root>
 
-        <p class="w-20 text-right text-sm font-medium text-on-surface tabular-nums">
+        <p class="w-20 ml-auto text-right text-sm font-medium text-on-surface tabular-nums">
           {{ money(lineSubtotal(item)) }}
         </p>
       </li>

@@ -17,9 +17,11 @@ export {
   isFileRecord,
   loadFflate,
   parsePlaygroundPayload,
+  rewritePackageMacroTypes,
   sanitizePlaygroundThemes,
   toPlaygroundThemes,
   unzipPlaygroundHash,
+  V0_MACROS_FILE,
 } from '@vuetify/play'
 export type {
   PlaygroundFile,

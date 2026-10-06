@@ -17,16 +17,16 @@ related:
 
 # Tree-Shaking
 
-v0 is fully tree-shakeable. Import what you need — unused code is eliminated during bundling. No configuration required.
+Vuetify0 is fully tree-shakeable. Import what you need — unused code is eliminated during bundling. No configuration required.
 
 <DocsPageFeatures :frontmatter />
 
 > [!TIP]
-> v0 has no side effects that prevent tree-shaking. Modern bundlers (Vite, Rollup, webpack 5) handle this automatically.
+> Vuetify0 has no side effects that prevent tree-shaking. Modern bundlers (Vite, Rollup, webpack 5) handle this automatically.
 
 ## Import Strategies
 
-v0 provides two ways to import: root imports and subpath imports. Both tree-shake correctly.
+Vuetify0 provides two ways to import: root imports and subpath imports. Both tree-shake correctly.
 
 ### Root Imports
 
@@ -70,7 +70,7 @@ Nested adapter packages (e.g. `@vuetify/v0/features/adapters/flagsmith`, `@vueti
 
 ## Bundle Size
 
-All sizes measured with Vue externalized (v0 code only), minified with esbuild.
+All sizes measured with Vue externalized (Vuetify0 code only), minified with esbuild.
 
 ### What Things Cost
 
@@ -86,7 +86,7 @@ All sizes measured with Vue externalized (v0 code only), minified with esbuild.
 | Everything (`import *`) | <span class="whitespace-nowrap">297.8 KB</span> | <span class="whitespace-nowrap">81.2 KB</span> |
 
 > [!TIP]
-> A single composable is **4%** of the full library. Most apps use a fraction of v0.
+> A single composable is **4%** of the full library. Most apps use a fraction of Vuetify0.
 
 ### Composable Sharing
 
@@ -131,7 +131,7 @@ v0's tree-shaking relies on three mechanisms:
 
 ### 1. ESM Exports
 
-v0 ships ES modules with individual exports. Bundlers can statically analyze which exports are used and eliminate the rest.
+Vuetify0 ships ES modules with individual exports. Bundlers can statically analyze which exports are used and eliminate the rest.
 
 ### 2. Side-Effect-Free Annotations
 
@@ -190,13 +190,13 @@ No. v0 tree-shakes out of the box with Vite, Rollup, and webpack 5. No plugins, 
 
 ??? Should I use root imports or subpath imports?
 
-Either works. Root imports (`from '@vuetify/v0'`) are simpler and recommended for most apps. Subpath imports produce virtually identical bundle size in current builds but can marginally improve build speed on large projects. Use subpaths when authoring a library that depends on v0.
+Either works. Root imports (`from '@vuetify/v0'`) are simpler and recommended for most apps. Subpath imports produce virtually identical bundle size in current builds but can marginally improve build speed on large projects. Use subpaths when authoring a library that depends on Vuetify0.
 
 ??? Does `sideEffects: false` matter?
 
 v0 functions are already annotated as side-effect-free. Adding `sideEffects: false` to your own `package.json` won't change v0's bundle contribution — the improvement is negligible (~0 KB in our testing).
 
-??? What's the base cost of using v0?
+??? What's the base cost of using Vuetify0?
 
 A single composable adds ~4.9 KB gzip. Constants and utilities are even lighter (0.3–0.4 KB gzip). The full library is 81.2 KB gzip, but no app should import everything.
 

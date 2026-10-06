@@ -142,7 +142,7 @@
     const hasThemes = packed?.themes && Object.keys(packed.themes).length > 0
     if (import.meta.env.VITE_PLAYGROUND_REGISTRY === '1' && !props.imports && !hasThemes) {
       const path = props.filePath
-        ?? [...(props.filePaths ?? [])].toReversed().find(p => p.endsWith('.vue'))
+        ?? [...(props.filePaths ?? [])].findLast(p => p.endsWith('.vue'))
         ?? props.filePaths?.[0]
       const ref = path ? registryRefFromExamplePath(path) : null
       if (ref) {
@@ -239,6 +239,14 @@
   :deep(.genesis-docs-example-tabs__bar) {
     background: var(--v0-glass-surface);
     backdrop-filter: blur(12px);
+  }
+
+  /* The glass skin above replaces the description's surface-tint background,
+     which leaves genesis's truncation fade painting the wrong color — the
+     collapsed text stays fully legible and the Expand pill lands on top of
+     it. Re-point the fade at the surface the glass resolves over. */
+  :deep(.genesis-docs-example-description__fade) {
+    background: linear-gradient(transparent, var(--v0-surface));
   }
 
   .docs-genesis-example-pane {

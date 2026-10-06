@@ -57,6 +57,17 @@ export type {
 export type Orientation = 'vertical' | 'horizontal'
 
 /**
+ * `MaybeRefOrGetter<T>` plus Vue 3.5.42 `useTemplateRef` / `shallowReadonly`
+ * results. Those wrap in a deep `Readonly<Ref<T>>` that is not assignable
+ * to `Ref<T>`.
+ */
+type MaybeReadonlyRefOrGetter<T> = MaybeRefOrGetter<T> | { readonly value: unknown }
+
+function toSource<T> (source: MaybeReadonlyRefOrGetter<T>): T {
+  return toValue(source as MaybeRefOrGetter<T>)
+}
+
+/**
  * Discriminated payload describing what is being dragged. Consumers extend
  * this with concrete `type` literals plus a matching `value`.
  *
@@ -194,8 +205,8 @@ export type DraggableTicketInput<Z extends DragType = DragType> = Z extends Drag
   ? RegistryTicketInput & {
     type: Z['type']
     value: Z['value']
-    el: MaybeRefOrGetter<HTMLElement | null>
-    disabled?: MaybeRefOrGetter<boolean>
+    el: MaybeReadonlyRefOrGetter<HTMLElement | null>
+    disabled?: MaybeReadonlyRefOrGetter<boolean>
     onBeforeStart?: (drag: ActiveDrag<Z>) => boolean | void
     onMove?: (drag: ActiveDrag<Z>) => void
     onCancel?: (drag: ActiveDrag<Z>, reason: 'cancel' | 'reject') => void
@@ -246,11 +257,11 @@ export type DraggableTicket<Z extends DragType = DragType> = Z extends DragType
  */
 export interface DropZoneTicketInput<Z extends DragType = DragType>
   extends RegistryTicketInput {
-  el: MaybeRefOrGetter<HTMLElement | null>
+  el: MaybeReadonlyRefOrGetter<HTMLElement | null>
   /** Allowed drag types or a synchronous predicate. Async predicates (Promise / thenable returns) are rejected with a warning — `accept` must return synchronously. */
   accept?: Z['type'][] | ((drag: ActiveDrag<Z>) => boolean)
   orientation?: Orientation
-  disabled?: MaybeRefOrGetter<boolean>
+  disabled?: MaybeReadonlyRefOrGetter<boolean>
   onEnter?: (drag: ActiveDrag<Z>) => void
   onLeave?: (drag: ActiveDrag<Z>) => void
   onBeforeDrop?: (drag: ActiveDrag<Z>, position: DropPosition) => boolean | void
@@ -507,7 +518,7 @@ export function useDragDrop<Z extends DragType = DragType> (
     ..._draggables,
     register (registration: DraggableTicketInput<Z>): DraggableTicket<Z> {
       const id = registration.id ?? useId()
-      const el = toRef(() => toValue(registration.el))
+      const el = toRef(() => toSource(registration.el))
       const dragging = toRef(() => active.value?.id === id)
 
       const input = {
@@ -532,7 +543,7 @@ export function useDragDrop<Z extends DragType = DragType> (
       if (_zones.has(id)) {
         return _zones.register(registration as unknown as Partial<DropZoneTicketInput<Z> & RegistryTicket>) as DropZoneTicket
       }
-      const el = toRef(() => toValue(registration.el))
+      const el = toRef(() => toSource(registration.el))
       const isOver = toRef(() => active.value?.over === id)
       const willAccept = toRef(() => safeAccept(registration.accept, active.value))
 

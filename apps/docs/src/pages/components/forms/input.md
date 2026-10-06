@@ -104,7 +104,7 @@ Server-side error injection is demonstrated on the email field: entering `taken@
 
 Debounced search with `validateOn="input"` for real-time validation as the user types. The composable watches the Input's value ref directly — no event wiring needed.
 
-Because `Input.Root` exposes `value` as a plain writable `Ref`, any composable can `watch` it without subscribing to DOM events. `useSearch.ts` uses `useTimer` from `@vuetify/v0` for debouncing — staying within the v0 primitive layer rather than reaching for raw `setTimeout`. Minimum 2 characters are required before the search fires.
+Because `Input.Root` exposes `value` as a plain writable `Ref`, any composable can `watch` it without subscribing to DOM events. `useSearch.ts` uses `useTimer` from `@vuetify/v0` for debouncing — staying within the Vuetify0 primitive layer rather than reaching for raw `setTimeout`. Minimum 2 characters are required before the search fires.
 
 Visual states are driven exclusively through data attributes: `data-[focused]:border-primary` and `data-[state=invalid]:border-error` on `Input.Control` with no slot props or conditional classes. This is the recommended styling approach — it keeps the template clean and decouples visual states from layout logic.
 

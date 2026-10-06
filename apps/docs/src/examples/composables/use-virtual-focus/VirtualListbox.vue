@@ -35,7 +35,7 @@
   const { highlightedId, clear } = useVirtualFocus(
     () => filtered.value.map(item => ({
       id: item.id,
-      el: () => list.value?.querySelector(`[data-id="${item.id}"]`),
+      el: () => list.value?.querySelector(`[data-id="${CSS.escape(item.id)}"]`),
       disabled: item.disabled,
     })),
     {

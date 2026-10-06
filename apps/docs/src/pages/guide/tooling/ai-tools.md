@@ -24,7 +24,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-v0 provides machine-readable documentation files following the [llms.txt](https://llmstxt.org/) standard. These files help AI assistants understand the library without hallucinating APIs or patterns.
+Vuetify0 provides machine-readable documentation files following the [llms.txt](https://llmstxt.org/) standard. These files help AI assistants understand the library without hallucinating APIs or patterns.
 
 ## Available Files
 
@@ -33,6 +33,22 @@ v0 provides machine-readable documentation files following the [llms.txt](https:
 | <a href="/llms.txt" target="_blank" rel="noopener noreferrer" class="v0-link whitespace-nowrap">llms.txt↗︎</a> | {{ llmsStats.llms.sizeFormatted }} | Curated index with links | Quick context, navigation |
 | <a href="/llms-full.txt" target="_blank" rel="noopener noreferrer" class="v0-link whitespace-nowrap">llms-full.txt↗︎</a> | {{ llmsStats.llmsFull.sizeFormatted }} | Complete documentation | Deep understanding, code generation |
 | <a href="/SKILL.md" target="_blank" rel="noopener noreferrer" class="v0-link whitespace-nowrap">SKILL.md↗︎</a> | {{ llmsStats.skill.sizeFormatted }} | Patterns & anti-patterns | Claude Code, Codex, Cursor, Grok Build, Windsurf |
+
+## Markdown Twins
+
+Authored pages ship a `.md` twin at `{path}.md`; section indexes use `{dir}/index.md`. Authored twins are verbatim source (frontmatter + Vue); API twins are generated reference; `llms-full.txt` is the cleaned corpus.
+
+| Page | Markdown Source |
+| - | - |
+| `/guide/tooling/ai-tools` | <a href="/guide/tooling/ai-tools.md" target="_blank" rel="noopener noreferrer" class="v0-link whitespace-nowrap">/guide/tooling/ai-tools.md↗︎</a> |
+| `/composables` | <a href="/composables/index.md" target="_blank" rel="noopener noreferrer" class="v0-link whitespace-nowrap">/composables/index.md↗︎</a> |
+| `/api/create-selection` | <a href="/api/create-selection.md" target="_blank" rel="noopener noreferrer" class="v0-link whitespace-nowrap">/api/create-selection.md↗︎</a> |
+
+Pages advertise their twins via `<link rel="alternate" type="text/markdown">` in the HTML head, so crawlers and agents can discover them programmatically without hardcoding paths.
+
+**When to use twins vs llms-full.txt:**
+- Fetch a single twin when you need one page's content without the overhead of the full corpus
+- Fetch `llms-full.txt` when you need broad context across multiple topics
 
 ## What's Included
 
@@ -55,9 +71,25 @@ Need a ready-made agent? Paste the [setup prompt](/guide/tooling/agents) into [G
 
 Install SKILL.md via [skills.sh](https://www.skills.sh) — works with Claude Code, Codex, Cursor, Grok Build, Windsurf, and [35+ agents](https://github.com/vercel-labs/skills#supported-agents):
 
-```bash
+::: code-group no-filename
+
+```bash pnpm
+pnpm dlx skills add vuetifyjs/0
+```
+
+```bash npm
 npx skills add vuetifyjs/0
 ```
+
+```bash yarn
+yarn dlx skills add vuetifyjs/0
+```
+
+```bash bun
+bunx skills add vuetifyjs/0
+```
+
+:::
 
 ### Editors and CLIs
 
@@ -127,13 +159,13 @@ WebFetch https://0.vuetifyjs.com/SKILL.md
 
 ## Making Agents Actually Use v0
 
-Docs access alone isn't enough. An agent only looks things up when it feels uncertain — and a model trained before v0 existed doesn't feel uncertain writing generic Vue. It will fluently hand-roll selection state, focus traps, or virtual scrolling without ever checking whether v0 provides them. The fix is to move v0 knowledge from on-demand recall to ambient context, plus a deterministic trigger.
+Docs access alone isn't enough. An agent only looks things up when it feels uncertain — and a model trained before Vuetify0 existed doesn't feel uncertain writing generic Vue. It will fluently hand-roll selection state, focus traps, or virtual scrolling without ever checking whether Vuetify0 provides them. The fix is to move that knowledge from on-demand recall to ambient context, plus a deterministic trigger.
 
-> [!ASKAI] Set up my agent harness so it always uses v0 primitives instead of hand-rolling Vue logic.
+> [!ASKAI] Set up my agent harness so it always uses Vuetify0 primitives instead of hand-rolling Vue logic.
 
 ### 1. Put a Surface Map in Always-Loaded Context
 
-Add an inventory of v0 exports — every name with a one-line purpose — to a file your agent loads on every session (`CLAUDE.md`, `.cursorrules`, `AGENTS.md`). An agent can't reach for `createSelection` if it doesn't know the name exists; once the name is in context, fetching the full guide via MCP or SKILL.md follows naturally.
+Add an inventory of Vuetify0 exports — every name with a one-line purpose — to a file your agent loads on every session (`CLAUDE.md`, `.cursorrules`, `AGENTS.md`). An agent can't reach for `createSelection` if it doesn't know the name exists; once the name is in context, fetching the full guide via MCP or SKILL.md follows naturally.
 
 Generate it from the MCP server (`get_vuetify0_exports_list`) or copy the lookup table from [SKILL.md](/SKILL.md), then keep a section like:
 
@@ -173,7 +205,7 @@ case "$file" in
     mark="${TMPDIR:-/tmp}/v0-reminder-$(jq -r '.session_id' <<< "$input")"
     if [ ! -e "$mark" ]; then
       touch "$mark"
-      printf '%s' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"Check the v0 surface map in CLAUDE.md before writing Vue logic — never hand-roll a primitive @vuetify/v0 already provides."}}'
+      printf '%s' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"Check the Vuetify0 surface map in CLAUDE.md before writing Vue logic — never hand-roll a primitive @vuetify/v0 already provides."}}'
     fi
     ;;
 esac
@@ -182,11 +214,12 @@ exit 0
 
 ### 3. Let the Type Checker Catch What Slips Through
 
-Hallucinated v0 APIs fail to compile. Run `vue-tsc --noEmit` (or `tsc --noEmit`) as a verification step before accepting agent-written code — it converts "plausible but wrong" into a hard error the agent can fix itself.
+Hallucinated Vuetify0 APIs fail to compile. Run `vue-tsc --noEmit` (or `tsc --noEmit`) as a verification step before accepting agent-written code — it converts "plausible but wrong" into a hard error the agent can fix itself.
 
 ## How It Works
 
-All three files are produced at build time:
+All files are produced at build time:
 
 - `llms.txt` and `llms-full.txt` are generated by [generate-llms-full.ts](https://github.com/vuetifyjs/0/blob/master/apps/docs/build/generate-llms-full.ts) — the first extracts titles and descriptions organized by category, the second inlines the complete content of every markdown page.
 - `SKILL.md` is authored in the repository at `skills/vuetify0/SKILL.md` and copied to the docs root by [copy-markdown.ts](https://github.com/vuetifyjs/0/blob/master/apps/docs/build/copy-markdown.ts), together with every reference it links under `/references/`.
+- **Markdown twins** for authored pages are copied by the same `copy-markdown.ts` plugin. API page twins are rendered from the same type metadata the page uses, via [generate-api-markdown.ts](https://github.com/vuetifyjs/0/blob/master/apps/docs/build/generate-api-markdown.ts).

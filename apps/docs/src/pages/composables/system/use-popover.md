@@ -296,7 +296,7 @@ Pass `openDelay` and `closeDelay` (ms) in the options. Call `cancel()` to abort 
 
 Set `positionArea` (e.g. `'bottom'`) for the primary placement and `positionTry` for the fallback positions the browser flips to when that area overflows — CSS anchor positioning handles it with no JavaScript layout math.
 
-??? Does v0 ship a floating-ui adapter?
+??? Does Vuetify0 ship a floating-ui adapter?
 
 Yes. Import `FloatingUIPopoverAdapter` from `@vuetify/v0/popover/adapters/floating-ui` and pass it as the `adapter` option — see [Adapters](#adapters). It requires the `@floating-ui/dom` peer; the CSS default (`V0PopoverAdapter`) stays zero-dependency. For a different engine, see [Bring your own positioning engine](#bring-your-own-positioning-engine).
 

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { useHead } from '@unhead/vue'
+
   // Framework
   import { createContext, useBreakpoints, useStorage } from '@vuetify/v0'
 
@@ -49,6 +51,8 @@
     showConfig: ShallowRef<boolean>
     wordWrap: Ref<boolean>
     showErrors: Ref<boolean>
+    /** Format the focused file when the editor blurs. */
+    autoFormat: Ref<boolean>
     /** Current playground locked state from Vuetify One. */
     isLocked: Ref<boolean>
     /** Keyboard shortcuts dialog. */
@@ -63,6 +67,12 @@
   import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
   const one = useOnePlaygrounds()
+
+  useHead({
+    title: () => one.isLinked.value
+      ? `${one.currentTitle.value} · Vuetify0 Play`
+      : 'Vuetify0 Play',
+  })
 
   const {
     store,
@@ -126,6 +136,8 @@
   // Editor preferences, persisted per-browser (not synced to a user account).
   const wordWrap = storage.get('playground-editor-word-wrap', false)
   const showErrors = storage.get('playground-editor-show-errors', true)
+  // Off by default: blur-format rewrites the buffer and can autosave a One playground.
+  const autoFormat = storage.get('playground-editor-auto-format', false)
 
   providePlayground({
     store,
@@ -159,6 +171,7 @@
     showConfig,
     wordWrap,
     showErrors,
+    autoFormat,
     isLocked,
     cheatsheet,
   })

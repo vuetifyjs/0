@@ -41,7 +41,7 @@ function cells (host: HTMLElement) {
 }
 
 function at (host: HTMLElement, iso: string) {
-  return host.querySelector<HTMLElement>(`[data-iso="${iso}"]`)!
+  return host.querySelector<HTMLElement>(`[data-iso="${CSS.escape(iso)}"]`)!
 }
 
 beforeEach(() => {
