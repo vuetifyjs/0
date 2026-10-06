@@ -6,8 +6,8 @@ import { provideVirtualizerRoot, useVirtualizerRoot } from './VirtualizerRoot.vu
 import { Virtualizer } from './index'
 
 // Utilities
-import { mount } from '@vue/test-utils'
 import { isUndefined } from '#v0/utilities'
+import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
 
 // Types

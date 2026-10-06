@@ -37,11 +37,11 @@
     VirtualState,
   } from '#v0/composables/createVirtual'
 
-  export type VirtualizerRootContext = VirtualContext
+  export type VirtualizerRootContext<T = unknown> = VirtualContext<T>
 
-  export interface VirtualizerRootProps extends AtomProps {
+  export interface VirtualizerRootProps<T = unknown> extends AtomProps {
     /** The items to virtualize */
-    items?: readonly unknown[]
+    items?: readonly T[]
     /** The height of each item, in pixels. Used as the initial estimate for unmeasured items */
     itemHeight?: number | string | null
     /** The height of the scroll container, in pixels */
@@ -70,9 +70,9 @@
     namespace?: string
   }
 
-  export interface VirtualizerRootSlotProps {
+  export interface VirtualizerRootSlotProps<T = unknown> {
     /** The currently visible (rendered) items, with overscan applied */
-    items: readonly VirtualItem[]
+    items: readonly VirtualItem<T>[]
     /** Loading/empty/error/ok state */
     state: VirtualState
     /** Scroll to an item by index */
@@ -91,13 +91,13 @@
   export const [useVirtualizerRoot, provideVirtualizerRoot] = createContext<VirtualizerRootContext>()
 </script>
 
-<script setup lang="ts">
+<script lang="ts" setup generic="T = unknown">
   defineOptions({ name: 'VirtualizerRoot', inheritAttrs: false })
 
   const attrs = useAttrs()
 
   defineSlots<{
-    default: (props: VirtualizerRootSlotProps) => any
+    default: (props: VirtualizerRootSlotProps<T>) => any
   }>()
 
   const {
@@ -117,7 +117,7 @@
     momentum,
     elastic,
     namespace = 'v0:virtualizer:root',
-  } = defineProps<VirtualizerRootProps>()
+  } = defineProps<VirtualizerRootProps<T>>()
 
   if (renderless) {
     const logger = useLogger()
@@ -126,7 +126,7 @@
 
   const _items = toRef(() => items)
 
-  const virtual = createVirtual(_items, {
+  const virtual = createVirtual<T>(_items, {
     itemHeight,
     height: _height,
     overscan,
@@ -157,7 +157,7 @@
     return isNumber(_height) ? `${_height}px` : _height
   })
 
-  const slotProps = toRef((): VirtualizerRootSlotProps => ({
+  const slotProps = toRef((): VirtualizerRootSlotProps<T> => ({
     items: virtual.items.value,
     state: virtual.state.value,
     scrollTo: virtual.scrollTo,

@@ -16,7 +16,7 @@
       :key="item.index"
       :index="item.index"
     >
-      {{ (item.raw as typeof items[0]).name }}
+      {{ item.raw.name }}
     </Virtualizer.Item>
   </Virtualizer.Root>
 </template>

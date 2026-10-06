@@ -30,13 +30,13 @@ import Root from './VirtualizerRoot.vue'
  * </script>
  *
  * <template>
- *   <Virtualizer.Root :items :item-height="40" style="height: 600px" v-slot="{ items }">
+ *   <Virtualizer.Root :items :item-height="40" style="height: 600px" v-slot="{ items: visible }">
  *     <Virtualizer.Item
- *       v-for="item in items"
+ *       v-for="item in visible"
  *       :key="item.index"
  *       :index="item.index"
  *     >
- *       {{ (item.raw as typeof items[0]['raw']).name }}
+ *       {{ item.raw.name }}
  *     </Virtualizer.Item>
  *   </Virtualizer.Root>
  * </template>
@@ -59,19 +59,31 @@ export const Virtualizer = {
    * ```vue
    * <script setup lang="ts">
    *   import { Virtualizer } from '@vuetify/v0'
+   *   import { shallowRef } from 'vue'
    *
-   *   const items = Array.from({ length: 10000 }, (_, i) => ({ id: i, name: `Item ${i}` }))
+   *   const items = shallowRef(Array.from({ length: 100 }, (_, i) => ({ id: i, name: `Item ${i}` })))
+   *
+   *   function onEndReached () {
+   *     const start = items.value.length
+   *     items.value = [...items.value, ...Array.from({ length: 100 }, (_, i) => ({ id: start + i, name: `Item ${start + i}` }))]
+   *   }
    * </script>
    *
    * <template>
-   *   <Virtualizer.Root :items :item-height="40" style="height: 600px" v-slot="{ items, scrollTo }">
-   *     <button @click="scrollTo(0)">Scroll to top</button>
+   *   <Virtualizer.Root
+   *     :items
+   *     :item-height="40"
+   *     :end-threshold="200"
+   *     style="height: 600px"
+   *     v-slot="{ items: visible }"
+   *     @end-reached="onEndReached"
+   *   >
    *     <Virtualizer.Item
-   *       v-for="item in items"
+   *       v-for="item in visible"
    *       :key="item.index"
    *       :index="item.index"
    *     >
-   *       {{ (item.raw as typeof items[0]['raw']).name }}
+   *       {{ item.raw.name }}
    *     </Virtualizer.Item>
    *   </Virtualizer.Root>
    * </template>
