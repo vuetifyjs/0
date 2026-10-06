@@ -17,6 +17,7 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
   import { createVirtual } from '#v0/composables/createVirtual'
+  import { useLogger } from '#v0/composables/useLogger'
 
   // Transformers
   import { toElement } from '#v0/composables/toElement'
@@ -118,6 +119,11 @@
     namespace = 'v0:virtualizer:root',
   } = defineProps<VirtualizerRootProps>()
 
+  if (renderless) {
+    const logger = useLogger()
+    logger.warn('[v0:virtualizer] `renderless` is not supported — the spacers and scroll measurement require the wrapper element. Remove `renderless` or use createVirtual directly.')
+  }
+
   const _items = toRef(() => items)
 
   const virtual = createVirtual(_items, {
@@ -173,10 +179,10 @@
     :as
     :renderless
   >
-    <div data-spacer="start" :style="{ height: `${virtual.offset.value}px` }" />
+    <div v-if="!renderless" data-spacer="start" :style="{ height: `${virtual.offset.value}px` }" />
 
     <slot v-bind="slotProps" />
 
-    <div data-spacer="end" :style="{ height: `${virtual.size.value}px` }" />
+    <div v-if="!renderless" data-spacer="end" :style="{ height: `${virtual.size.value}px` }" />
   </Atom>
 </template>
