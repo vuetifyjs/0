@@ -60,7 +60,7 @@ Three long-lived branches; a PR's base is chosen by the semver impact of the cha
 | `dev` | new features that add public API | minor | `feat(...)` that adds a component, composable, prop, or option |
 | `next` | breaking changes | major | anything with a `BREAKING CHANGE:` footer |
 
-- **Only `master` publishes.** `dev` and `next` accumulate work and merge **into `master`** at the next minor / major cut — that merge is what triggers the changesets release. Never publish from `dev`/`next` directly.
+- **Only `master` publishes stable.** `dev` and `next` accumulate work and merge **into `master`** at the next minor / major cut — that merge is what triggers the changesets release. Do not add `dev`/`next` to `release.yml`, and do not enter changesets pre mode. A beta is `pnpm release:beta` from a clean `dev` that matches `origin/dev` (snapshot, `beta` dist-tag, working tree restored, never committed).
 - **The next minor number is not reserved.** Any `"@vuetify/v0": minor` changeset that is already on `master` when Version Packages merges *is* that minor (1.1.0 was Splitter + play because those `feat`s landed on `master` while DataTable/DataGrid were still on `dev`). Before merging Version Packages: read the bump in the PR title, list pending `.changeset/*.md` bump types on `master`, and check what is still queued on `dev`. If they disagree, stop.
 - **`dev`/`next` → `master` is a merge commit** (`git merge --no-ff`), never squash or rebase. Squash rewrites SHAs so the next cut treats the same history as new. GitHub may have merge commits disabled — enable for that PR only.
 - **Do not unpublish** a version any published package depends on with a range (`@paper/genesis` is `^1.0.5`). npm returns 405.

@@ -8,5 +8,8 @@
   "baseBranch": "master",
   "updateInternalDependencies": "patch",
   "privatePackages": { "version": false, "tag": false },
-  "ignore": []
+  "ignore": [],
+  "snapshot": {
+    "useCalculatedVersion": true
+  }
 }

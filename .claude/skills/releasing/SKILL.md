@@ -1,6 +1,6 @@
 ---
 name: releasing
-description: Authoring a changeset, or cutting a release for @vuetify/v0 and the @paper/* design systems. Use when writing a .changeset/*.md file, deciding what belongs in changelog copy, re-entering or exiting changesets pre/beta mode, or reviewing a Version Packages PR. Covers the changeset content contract, the two version domains, and optional pre-channel workflow.
+description: Authoring a changeset, or cutting a release for @vuetify/v0 and the @paper/* design systems. Use when writing a .changeset/*.md file, deciding what belongs in changelog copy, publishing a beta snapshot from dev, or reviewing a Version Packages PR. Covers the changeset content contract, the two version domains, and the dev beta snapshot.
 ---
 
 # Releasing
@@ -14,6 +14,7 @@ The branch model — which base branch a PR targets by change type — lives in 
 ```bash
 pnpm changeset         # Author a changeset — once per change
 pnpm release:prepare   # Pre-release validation (validate + build)
+pnpm release:beta      # Snapshot beta from a clean dev. Does not commit.
 ```
 
 Publishing is automated via the Version Packages PR on `master` — do not `npm publish` by hand except the **first create** of a new scoped package (OIDC cannot PUT a name that does not exist yet). That one-shot is `npm publish --access public` from a logged-in human, then add a trusted publisher (GitHub Actions / org `vuetifyjs` / repo `0` / workflow `release.yml` / environment empty). Every package needs `publishConfig.access: public` before that PUT.
@@ -48,12 +49,14 @@ The `.changeset/*.md` body renders verbatim into the changelog and GitHub releas
 - **Substrate** — `@vuetify/v0` is the sole published substrate, versioned and released on its own `v<version>` GitHub release. `@vuetify/paper` is `private`/dormant and no longer part of the changesets `fixed` group.
 - **Design systems** (`@paper/*`, e.g. `@paper/genesis`) version and release independently, each on its own `name@version` release. Note `@paper/genesis` depends on `@vuetify/v0`, so a substrate **major** bump (e.g. `1.x` → `2.0.0`) leaves genesis's `^` range and changesets will also bump + republish genesis. That is expected — review it in the "Version Packages" PR before merging.
 
-## Pre / beta channel (optional)
+## Beta from dev
 
-Stable releases are the default. The repo is **not** in changesets pre mode unless `.changeset/pre.json` exists. To enter a prerelease channel again:
+Do not enter changesets pre mode, and do not add `dev` to `release.yml`. Pre mode commits `1.3.0-beta.N` onto `dev`, and every later master release then conflicts on that version line when master merges up. The stable cut does not need those commits: the changeset files stay on `dev` and become the real version when `dev` merges to `master`.
 
-1. `pnpm changeset pre enter <tag>` (e.g. `beta` or `rc`)
-2. Ship pre-releases via the normal Version Packages flow (`…-<tag>.N` under that dist-tag)
-3. Before the next stable cut: `pnpm changeset pre exit`, commit the removal of `.changeset/pre.json`, then merge the Version Packages PR that produces the clean stable version
+`pnpm release:beta` (`scripts/changeset-beta.js`) publishes a snapshot from a clean `dev` that matches `origin/dev`. It refuses any other branch, a dirty tree, a checkout whose public package versions differ from npm `latest` (merge `master` into `dev` first), and a missing `npm whoami`. It runs `changeset version --snapshot beta`, builds, publishes with `--tag beta --no-git-tag`, then `git restore`s the tree — including on failure and SIGINT. `snapshot.useCalculatedVersion` makes the version `<next>-beta-<datetime>` (for example `1.3.0-beta-20261006182345`), not `0.0.0-…`.
 
-Skipping `pre exit` ships another pre version (or mistags) instead of a real stable.
+Install with the dist-tag: `pnpm add @vuetify/v0@beta`. `latest` stays on the stable release. No GitHub Release is minted; that stays on the master workflow.
+
+A `@vuetify/v0` snapshot also publishes `@paper/genesis`, `@paper/emerald`, `@paper/bulma`, and `@vuetify/play` under `beta`, because a prerelease does not satisfy their `workspace:^` range. `@vuetify/paper` is private and is skipped. Do not use this for a package's first npm publish — npm puts that on `latest` no matter what tag you pass.
+
+If the script is killed hard enough to skip the restore, do not commit. Run `git restore --source=HEAD --worktree .` first. A committed snapshot deletes the changeset files the stable changelog still needs.
